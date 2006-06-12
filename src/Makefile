@@ -19,8 +19,8 @@ DEPS= $(OBJS:.o=.d)
 ifeq ($(shell uname), Darwin)
 	INCDIR += -I/sw/include
 
-	SDL_CONF = /sw/bin/sdl-config
-	FT2_CONF = /sw/lib/freetype2/bin/freetype-config
+	SDL_CONF = /opt/local/bin/sdl-config
+	FT2_CONF = /opt/local/bin/freetype-config
 else
 	LIBS += -lGL -lGLU
 

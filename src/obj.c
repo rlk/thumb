@@ -426,9 +426,9 @@ static void *read_png(const char *filename, int *w, int *h, int *b)
 
 #ifndef CONF_NO_JPG
 
-//extern "C" {
+extern "C" {
 #include <jpeglib.h>
-//}
+}
 
 static void *read_jpg(const char *filename, int *w, int *h, int *b)
 {

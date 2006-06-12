@@ -35,6 +35,19 @@ app::font *mono;
 
 //-----------------------------------------------------------------------------
 
+static std::string get_loc()
+{
+    std::string loc = conf->get_s("lang");
+
+    if (loc.size() > 0)
+        return loc;
+
+    if (getenv("LANG"))
+        return getenv("LANG");
+
+    return "en_US";
+}    
+
 static void stat()
 {
     static float t0 = 0;
@@ -96,7 +109,7 @@ static bool loop(int argc, char *argv[])
             if (conf) delete conf;
 
             conf = new app::conf(DEFAULT_CONF_FILE);
-            lang = new app::lang(DEFAULT_LANG_FILE, getenv("LANG"));
+            lang = new app::lang(DEFAULT_LANG_FILE, get_loc());
             data = new app::data(conf->get_s("data_directory"));
             sans = new app::font(data->get_absolute(conf->get_s("sans_font")),
                                                     conf->get_i("sans_size"));
