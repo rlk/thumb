@@ -1,0 +1,68 @@
+
+data layout
+
+        ttf
+
+        scene
+
+                funland.xml
+                1upia.xml        
+
+        audio
+                music
+                sound
+                        baz
+                                jump1.ogg
+                                jump2.ogg
+
+        solid
+                plant
+                platform
+                button
+                vehicle
+                        jeep_body.obj
+                        jeep_tire.obj
+                misc
+                        box.obj
+                        box.mtl
+        joint
+                joint_ball.obj
+                joint_ball.mtl
+
+Physical properties
+
+        global
+                ERP
+                CFM
+                gravity
+
+        entity
+                category
+                collide
+                mass
+                bounce
+                friction
+                conveyer x
+                conveyer y
+                soft ERP
+                soft CFM
+
+        joint
+                velocity 1 2 3
+                force    1 2 3
+                CFM      1 2 3
+                lo stop  1 2 3
+                hi stop  1 2 3
+                bounce   1 2 3
+                stop ERP 1 2 3
+                stop CFM 1 2 3
+                suspension ERP
+                suspension CFM
+
+
+app
+ogl
+gui
+
+ops
+cnt

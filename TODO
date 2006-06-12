@@ -1,0 +1,30 @@
+Explicit check and report of missing data directory.
+Category/Collision.
+Expression parameters.
+Documentation.
+Add capsule.
+Rubber-band select.
+Intro text / flowing widget.
+World parameters
+Selection registers.
+Extend selection through joints.
+Partial run.
+Remove per-frame conf references.
+Refresh button on solid loader.
+Optimize constraint drawing.
+Optimize wire drawing.
+Frustum culling for cameras and lights.
+Shadow.
+Z compression of scene XML.
+Figure out something with planes.
+Figure out why repeated runs differ.
+
+Optional soft cursor.
+"scene" -> "world"?
+"demo"  -> ?
+
+Stop the freerun during editing.
+        Snapshot beneath info.
+Add shader references to MTL.
+Add material enable bits to OBJ.
+Move wrap parameter out of material application.
