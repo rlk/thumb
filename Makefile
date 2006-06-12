@@ -5,7 +5,7 @@ CFLAGS= -g -Wall -ansi -pedantic
 #CC= /opt/intel/cc/9.0/bin/icc
 #CFLAGS= -g -Wall -wd981 -wd383 -wd869
 
-TARG= demo
+TARG= thumb
 OBJS= opengl.o matrix.o obj.o light.o camera.o earth.o sky.o entity.o \
 	joint.o solid.o scene.o constraint.o image.o data.o lang.o \
 	conf.o edit.o play.o info.o mode.o demo.o prog.o util.o font.o \
