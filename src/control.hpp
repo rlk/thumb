@@ -56,6 +56,23 @@ namespace cnt
     };
 
     //-------------------------------------------------------------------------
+    // Bitmap parameter editor.
+
+    class bitmap : public gui::bitmap
+    {
+        ops::scene& scene;
+        int         key;
+
+    public:
+
+        bitmap(ops::scene& s, int k) :
+            gui::bitmap(), scene(s), key(k) { }
+
+        void show();
+        void hide();
+    };
+
+    //-------------------------------------------------------------------------
     // Entity creation buttons.
 
     class create_button : public gui::button

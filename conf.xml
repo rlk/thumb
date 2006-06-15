@@ -1,8 +1,8 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="data_directory">/home/evl/rlk/src/demo-csm/data</option>
-  <option type="string" name="world_directory">/home/evl/rlk/src/demo-csm/</option>
-  <option type="string" name="solid_directory">/home/evl/rlk/src/demo-csm/data/</option>
+  <option type="string" name="data_directory">/Users/rlk/src/demo-csm/data</option>
+  <option type="string" name="world_directory">/Users/rlk/src/demo-csm/</option>
+  <option type="string" name="solid_directory">/Users/rlk/src/demo-csm/data/</option>
   <option type="string" name="sans_font">FreeSans.ttf</option>
   <option type="string" name="mono_font">FreeMono.ttf</option>
   <option type="int" name="sans_size">14</option>

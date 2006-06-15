@@ -332,6 +332,93 @@ gui::widget *gui::button::click(int x, int y, bool d)
 }
 
 //-----------------------------------------------------------------------------
+// Bitmap widget.
+
+gui::bitmap::bitmap() : string(mono, "0123456789ABCDEFGHIJKLMNOPQRSTUV")
+{
+    font->grid(text, grid);
+
+    bits = 0xAA00FF68;
+    is_enabled = true;
+}
+
+void gui::bitmap::draw(const widget *focus, const widget *input) const
+{
+    leaf::draw(focus, input);
+
+    // Draw the string.
+
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        glEnable(GL_TEXTURE_2D);
+
+        glBindTexture(GL_TEXTURE_2D, texture);
+
+        glBegin(GL_QUADS);
+        {
+            float t = float(inner_h) / float(outer_h);
+
+            int dx = x + (w - inner_w) / 2;
+            int dy = y + (h - inner_h) / 2;
+
+            int i;
+            int b;
+
+            for (i = 0, b = 1; i < 32; ++i, b <<= 1)
+            {
+                int   x0 = grid[i].x;
+                int   x1 = grid[i].x + grid[i].w;
+
+                float s0 = float(x0) / outer_w;
+                float s1 = float(x1) / outer_w;
+
+                if (bits & b)
+                    glColor3f(1.0f, 1.0f, 1.0f);
+                else
+                    glColor3f(0.0f, 0.0f, 0.0f);
+
+                glTexCoord2f(s0, t); glVertex2i(dx + x0, dy);
+                glTexCoord2f(s0, 0); glVertex2i(dx + x0, dy + inner_h);
+                glTexCoord2f(s1, 0); glVertex2i(dx + x1, dy + inner_h);
+                glTexCoord2f(s1, t); glVertex2i(dx + x1, dy);
+            }
+        }
+        glEnd();
+    
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+    glPopAttrib();
+}
+
+gui::widget *gui::bitmap::click(int x, int y, bool d)
+{
+    if (d == false)
+    {
+        int i;
+        int b;
+
+        int dx = this->x + (w - inner_w) / 2;
+        int dy = this->y + (h - inner_h) / 2;
+
+        for (i = 0, b = 1; i < int(grid.size()); ++i, b <<= 1)
+        {
+            int x0 = dx + grid[i].x;
+            int x1 = dx + grid[i].x + grid[i].w;
+
+            int y0 = dy;
+            int y1 = dy + inner_h;
+
+            if (x0 <= x && x < x1 && y0 <= y && y < y1)
+            {
+                bits = bits ^ b;
+                return this;
+            }
+        }
+    }
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
 // Editable text widget.
 
 std::string gui::editor::clip;

@@ -21,8 +21,10 @@
 
 ent::solid::solid(int f) : entity(f), tran(0)
 {
-    params[friction] = new solid_param_friction;
+    params[category] = new solid_param_category;
+    params[collide]  = new solid_param_collide;
     params[density]  = new solid_param_density;
+    params[friction] = new solid_param_friction;
     params[bounce]   = new solid_param_bounce;
     params[soft_erp] = new solid_param_soft_erp;
     params[soft_cfm] = new solid_param_soft_cfm;
@@ -216,6 +218,11 @@ void ent::solid::play_tran(dBodyID body)
                                current_M[14] - p[2]);
 
         dSpaceRemove(space, geom);
+
+        // Apply category and collide bits.
+
+        dGeomSetCategoryBits(tran, params[category]->value_i());
+        dGeomSetCollideBits (tran, params[collide ]->value_i());
     }
 }
 
@@ -244,7 +251,7 @@ void ent::box::play_init(dBodyID body)
         // Compute the mass of this box.
 
         dGeomBoxGetLengths(geom, v);
-        dMassSetBox(&mass, params[density]->value(), v[0], v[1], v[2]);
+        dMassSetBox(&mass, params[density]->value_f(), v[0], v[1], v[2]);
 
         solid::play_init(body);
     }
@@ -259,7 +266,7 @@ void ent::sphere::play_init(dBodyID body)
         // Compute the mass of this sphere.
 
         r = dGeomSphereGetRadius(geom);
-        dMassSetSphere(&mass, params[density]->value(), r);
+        dMassSetSphere(&mass, params[density]->value_f(), r);
 
         solid::play_init(body);
     }
@@ -275,7 +282,7 @@ void ent::capsule::play_init(dBodyID body)
         // Compute the mass of this sphere.
 
         dGeomCCylinderGetParams(geom, &r, &l);
-        dMassSetCappedCylinder(&mass, params[density]->value(), 3, r, l);
+        dMassSetCappedCylinder(&mass, params[density]->value_f(), 3, r, l);
 
         solid::play_init(body);
     }

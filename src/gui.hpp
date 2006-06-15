@@ -159,6 +159,23 @@ namespace gui
     };
 
     //-------------------------------------------------------------------------
+    // Bitmap widget.
+
+    class bitmap : public string
+    {
+        std::vector<app::rect> grid;
+        int size;
+        int bits;
+
+    public:
+
+        bitmap();
+
+        widget *click(int, int, bool);
+        void draw(const widget *, const widget *) const;
+    };
+
+    //-------------------------------------------------------------------------
     // Editable text field.
 
     class editor : public string

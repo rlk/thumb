@@ -42,6 +42,16 @@ void cnt::editor::hide()
 
 //-----------------------------------------------------------------------------
 
+void cnt::bitmap::show()
+{
+}
+
+void cnt::bitmap::hide()
+{
+}
+
+//-----------------------------------------------------------------------------
+
 void cnt::create_button::do_create(ent::entity *entity)
 {
     // Select the new entity and add a create operation for it.
@@ -81,27 +91,44 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
     add(new gui::spacer);
 
     add((new gui::frame)->
-        add((new gui::vgroup)->
-            add((new gui::harray)->
+        add((new gui::harray)->
+            add((new gui::hgroup)->
+                add((new gui::varray)->
 
-                add(new title("Configure Solid"))->
-                add(new gui::filler(true, false))->
-                add(new label("Density"))->
-                add(new editor(s, ent::solid::density)))->
+                    add(new label("Category"))->
+                    add(new label("Collide"))->
+                    add(new gui::filler(false, false)))->
 
-            add((new gui::harray)->
+                add((new gui::varray)->
 
-                add(new label("Soft ERP"))->
-                add(new editor(s, ent::solid::soft_erp))->
-                add(new label("Bounce"))->
-                add(new editor(s, ent::solid::bounce)))->
-        
-            add((new gui::harray)->
+                    add(new bitmap(s, ent::solid::category))->
+                    add(new bitmap(s, ent::solid::collide))->
+                    add(new gui::filler(false, false))))->
 
-                add(new label("Soft CFM"))->
-                add(new editor(s, ent::solid::soft_cfm))->
-                add(new label("Friction"))->
-                add(new editor(s, ent::solid::friction)))));
+            add((new gui::hgroup)->
+                add((new gui::varray)->
+
+                    add(new label("Density"))->
+                    add(new label("Bounce"))->
+                    add(new label("Friction")))->
+
+                add((new gui::varray)->
+
+                    add(new editor(s, ent::solid::density))->
+                    add(new editor(s, ent::solid::bounce))->
+                    add(new editor(s, ent::solid::friction)))->
+
+                add((new gui::varray)->
+
+                    add(new label("Soft ERP"))->
+                    add(new label("Soft CFM"))->
+                    add(new gui::filler(false, false)))->
+
+                add((new gui::varray)->
+
+                    add(new editor(s, ent::solid::soft_erp))->
+                    add(new editor(s, ent::solid::soft_cfm))->
+                    add(new gui::filler(false, false))))));
 }
 
 //-----------------------------------------------------------------------------

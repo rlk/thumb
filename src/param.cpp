@@ -16,12 +16,22 @@
 
 //-----------------------------------------------------------------------------
 
-dReal ent::param::value()
+dReal ent::param::value_f()
 {
     dReal d;
 
     if (expr == "-inf") return -dInfinity;
     if (expr ==  "inf") return  dInfinity;
+
+    std::istringstream str(expr);
+    str >> d;
+
+    return d;
+}
+
+unsigned long ent::param::value_i()
+{
+    unsigned long d;
 
     std::istringstream str(expr);
     str >> d;

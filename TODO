@@ -13,6 +13,7 @@ Remove per-frame conf references.
 Refresh button on solid loader.
 Optimize constraint drawing.
 Optimize wire drawing.
+Conveyer solid property.
 Frustum culling for cameras and lights.
 Shadow.
 Z compression of scene XML.

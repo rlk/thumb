@@ -25,11 +25,13 @@ namespace ent
     public:
 
         enum {
-            friction = dParamGroup * 4 + 1,
-            density  = dParamGroup * 4 + 2,
-            bounce   = dParamGroup * 4 + 3,
-            soft_erp = dParamGroup * 4 + 4,
-            soft_cfm = dParamGroup * 4 + 5
+            category = dParamGroup * 4 + 1,
+            collide  = dParamGroup * 4 + 2,
+            density  = dParamGroup * 4 + 3,
+            friction = dParamGroup * 4 + 4,
+            bounce   = dParamGroup * 4 + 5,
+            soft_erp = dParamGroup * 4 + 6,
+            soft_cfm = dParamGroup * 4 + 7
         };
 
     protected:
