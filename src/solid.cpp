@@ -157,7 +157,8 @@ void ent::plane::edit_init()
 {
     geom = dCreatePlane(space, 0.0f, 1.0f, 0.0f, 0.0f);
 
-    dGeomSetData(geom, this);
+    dGeomSetData        (geom, this);
+    dGeomSetCategoryBits(geom, 0);
 }
 
 //-----------------------------------------------------------------------------

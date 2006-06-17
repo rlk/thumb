@@ -1,6 +1,4 @@
-Explicit check and report of missing data directory.
-Category/Collision.
-Expression parameters.
+Expression parameter caching.
 Documentation.
 Add capsule.
 Rubber-band select.

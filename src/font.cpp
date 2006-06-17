@@ -104,10 +104,15 @@ int app::text::curs(int i) const
 {
     // Return the cursor position at the given glyph index.
 
-    if (i < int(map.size()))
-        return x + map[i].L();
+    if (map.empty())
+        return x;
     else
-        return x + map.back().R();
+    {
+        if (i < int(map.size()))
+            return x + map[i].L();
+        else
+            return x + map.back().R();
+    }
 }
 
 void app::text::draw(int i) const

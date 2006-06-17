@@ -70,7 +70,7 @@ namespace ent
 
         joint *get_joint() { return this; }
 
-        virtual void use_param() { }
+        virtual void use_param();
         void set_param(int, std::string&);
         bool get_param(int, std::string&);
 

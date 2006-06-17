@@ -38,7 +38,7 @@ namespace app
 
     public:
 
-        data(std::string p) : path(p) { }
+        data(std::string);
        ~data();
 
         int         get_obj(std::string);

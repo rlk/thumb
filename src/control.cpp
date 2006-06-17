@@ -42,12 +42,38 @@ void cnt::editor::hide()
 
 //-----------------------------------------------------------------------------
 
+void cnt::bitmap::apply()
+{
+    std::ostringstream sout;
+
+    sout << bits;
+
+    std::string val = sout.str();
+
+    scene.set_param(key, val);
+}
+
 void cnt::bitmap::show()
 {
+    int c;
+
+    std::string val;
+
+    if ((c = scene.get_param(key, val)) == 0)
+        bits = 0;
+    else
+    {
+        std::istringstream sin(val);
+        sin >> bits;
+    }
+
+    is_enabled = (c > 0);
+    is_varied  = (c > 1);
 }
 
 void cnt::bitmap::hide()
 {
+    if (is_varied == false) apply();
 }
 
 //-----------------------------------------------------------------------------

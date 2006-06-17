@@ -26,6 +26,7 @@ gui::widget::widget() : area(0, 0, 0, 0)
 
     is_enabled = false;
     is_pressed = false;
+    is_invalid = false;
     is_varied  = false;
 }
 
@@ -205,10 +206,9 @@ void gui::string::text_color() const
 {
     // Set the text color.
 
-    if (is_varied)
-        glColor4ub(0xFF, 0xFF, 0x40, 0xC0);
-    else
-        glColor3ubv(color);
+    if      (is_varied)  glColor4ub(0xFF, 0xFF, 0x40, 0xC0);
+    else if (is_invalid) glColor4ub(0xFF, 0x20, 0x20, 0xC0);
+    else                 glColor3ubv(color);
 }
 
 void gui::string::dotext() const
@@ -323,7 +323,7 @@ gui::widget *gui::button::click(int x, int y, bool d)
 
 gui::bitmap::bitmap() : string(mono, "0123456789ABCDEFGHIJKLMNOPQRSTUV")
 {
-    bits = 0xAA00FF68;
+    bits       = 0;
     is_enabled = true;
 }
 
@@ -347,7 +347,7 @@ void gui::bitmap::draw(const widget *focus, const widget *input) const
             for (i = 0, b = 1; i < text->n(); ++i, b <<= 1)
             {
                 if (bits & b)
-                    glColor3f(1.0f, 1.0f, 1.0f);
+                    text_color();
                 else
                     glColor3f(0.0f, 0.0f, 0.0f);
 
@@ -369,7 +369,26 @@ gui::widget *gui::bitmap::click(int x, int y, bool d)
 
         if ((i = text->find(x, y)) >= 0)
         {
-            bits = bits ^ (1 << i);
+            // If shift, set all bits to the toggle of bit i.
+
+            if (SDL_GetModState() & KMOD_SHIFT)
+            {
+                if ((bits & (1 << i)))
+                    bits = 0x00000000;
+                else
+                    bits = 0xFFFFFFFF;
+            }
+
+            // If control, toggle all bits.
+
+            else if (SDL_GetModState() & KMOD_CTRL)
+                for (int j = 0; j < text->n(); ++j)
+                    bits = bits ^ (1 << j);
+
+            // Otherwise toggle bit i.
+
+            else bits = bits ^ (1 << i);
+
             return this;
         }
     }

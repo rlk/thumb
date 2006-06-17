@@ -11,22 +11,224 @@
 //  General Public License for more details.
 
 #include <sstream>
+#include <cstring>
+#include <cstdio>
+#include <cctype>
 
 #include "param.hpp"
+#include "main.hpp"
+
+//-----------------------------------------------------------------------------
+// Wave functions.  These have the same period and phase as sine.
+
+static double sqr(double x)
+{
+    if (fmod(x, 2.0 * M_PI) > M_PI)
+        return -1.0;
+    else
+        return +1.0;
+}
+
+static double tri(double x)
+{
+    return 0.0;
+}
+
+static double saw(double x)
+{
+    return 0.0;
+}
+
+static double sat(double x)
+{
+    if (x > 1.0) return 1.0;
+    if (x < 0.0) return 0.0;
+
+    return x;
+}
+
+//-----------------------------------------------------------------------------
+// System state functions.  These mark an expression as varying.
+
+static bool cacheable;
+
+static double key(double x)
+{
+    cacheable = false;
+    return get_key(int(x));
+}
+
+static double btn(double x)
+{
+    cacheable = false;
+    return get_btn(int(x));
+}
+
+static double trg(double x)
+{
+    cacheable = false;
+    return get_trg(int(x));
+}
+
+static double joy(double x)
+{
+    cacheable = false;
+    return get_joy(int(x));
+}
 
 //-----------------------------------------------------------------------------
 
-dReal ent::param::value_f()
+static const char *num(double& k, const char *p)
 {
-    dReal d;
+    if (p)
+    {
+        double v;
+        int    n;
 
-    if (expr == "-inf") return -dInfinity;
-    if (expr ==  "inf") return  dInfinity;
+        if (sscanf(p, "%lf%n", &v, &n) >= 1)
+        {
+            k = v;
+            return p + n;
+        }
+    }
+    return 0;
+}
 
-    std::istringstream str(expr);
-    str >> d;
+static const char *sym(const char *s, const char *p)
+{
+    if (p)
+    {
+        const char *q = p;
 
-    return d;
+        while (q[0] && isspace(q[0]))
+            ++q;
+
+        size_t n = strlen(s);
+
+        if (strncmp(s, q, n) == 0)
+            return q + n;
+    }
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
+// Recursive descent parser implementation.  Inefficient, but simple.
+
+static const char *exE(double& k, const char *p);
+
+static const char *exF(double& k, const char *p)
+{
+    const char *q = 0;
+
+    if (p)
+    {
+        // Literal number.
+
+        if ((q = num(k, p)))
+            ;
+
+        // Parenthetical expression.
+
+        else if ((q = sym(")", exE(k, sym("(", p)))))
+            ;
+
+        // Built-in symbols.
+
+        else if ((q = sym("inf", p))) k = dInfinity;
+        else if ((q = sym("pi",  p))) k = M_PI;
+
+        // Unary negation.
+
+        else if ((q = exE(k, sym("-", p)))) k = -k;
+
+        // Wave function call.
+
+        else if ((q = sym(")", exE(k, sym("(", sym("sin", p)))))) k = sin(k);
+        else if ((q = sym(")", exE(k, sym("(", sym("cos", p)))))) k = cos(k);
+        else if ((q = sym(")", exE(k, sym("(", sym("sqr", p)))))) k = sqr(k);
+        else if ((q = sym(")", exE(k, sym("(", sym("tri", p)))))) k = tri(k);
+        else if ((q = sym(")", exE(k, sym("(", sym("saw", p)))))) k = saw(k);
+        else if ((q = sym(")", exE(k, sym("(", sym("sat", p)))))) k = sat(k);
+
+        // System state function call.
+
+        else if ((q = sym(")", exE(k, sym("(", sym("key", p)))))) k = key(k);
+        else if ((q = sym(")", exE(k, sym("(", sym("btn", p)))))) k = btn(k);
+        else if ((q = sym(")", exE(k, sym("(", sym("joy", p)))))) k = joy(k);
+        else if ((q = sym(")", exE(k, sym("(", sym("trg", p)))))) k = trg(k);
+
+        // System time reference.
+
+        else if ((q = sym("t", p)))
+        {
+            cacheable = false;
+            k = get_time();
+        }
+    }
+    return q;
+}
+
+static const char *exT(double& k, const char *p)
+{
+    const char *q = 0;
+    double a;
+    double b;
+
+    if (p)
+    {
+        // Parse a multiplication or addition expression.
+
+        if      ((q = exT(b, sym("*", exF(a, p))))) k = a * b;
+        else if ((q = exT(b, sym("/", exF(a, p))))) k = a / b;
+
+        else q = exF(k, p);
+    }
+    return q;
+}
+
+static const char *exE(double& k, const char *p)
+{
+    const char *q = 0;
+    double a;
+    double b;
+
+    if (p)
+    {
+        // Parse an addition or subtraction expression.
+
+        if      ((q = exE(b, sym("+", exT(a, p))))) k = a + b;
+        else if ((q = exE(b, sym("-", exT(a, p))))) k = a - b;
+
+        else q = exT(k, p);
+    }
+    return q;
+}
+
+//-----------------------------------------------------------------------------
+
+double ent::param::value_f()
+{
+    // If we have a chached value, return it.
+
+    if (cached)
+        return cache;
+    else
+    {
+        cacheable = true;
+
+        // Evaluate the expression and cache as cache can.
+
+        if (exE(cache, expr.c_str()))
+            cached = cacheable;
+        else
+        {
+            // A syntax error is a cacheable zero.
+
+            cached = true;
+            cache  = 0.0;
+        }
+        return cache;
+    }
 }
 
 unsigned long ent::param::value_i()

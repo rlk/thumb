@@ -80,20 +80,21 @@ void ent::entity::phys_cont(float *dist, dGeomID o1, dGeomID o2)
             
             if ((n = dCollide(o1, o2, MAX_CONTACTS, &contact[0].geom, sz)))
             {
-                entity *e1;
-                entity *e2;
-
                 // Extract the solid entities associated with each geom.
 
                 if (dGeomGetClass(o1) == dGeomTransformClass)
-                    e1 = (entity *) dGeomGetData(dGeomTransformGetGeom(o1));
-                else
-                    e1 = (entity *) dGeomGetData(o1);
-
+                {
+                    set_trg(dGeomGetCategoryBits(o1));
+                    o1 = dGeomTransformGetGeom(o1);
+                }
                 if (dGeomGetClass(o2) == dGeomTransformClass)
-                    e2 = (entity *) dGeomGetData(dGeomTransformGetGeom(o2));
-                else
-                    e2 = (entity *) dGeomGetData(o2);
+                {
+                    set_trg(dGeomGetCategoryBits(o2));
+                    o2 = dGeomTransformGetGeom(o2);
+                }
+
+                entity *e1 = (entity *) dGeomGetData(o1);
+                entity *e2 = (entity *) dGeomGetData(o2);
 
                 // Apply the solid surface parameters.
 
@@ -158,6 +159,7 @@ void ent::entity::phys_step(float dt)
 {
     float dist = 100.0f;
 
+    clr_trg();
     focus = 0;
 
     // Evaluate the physical system. 

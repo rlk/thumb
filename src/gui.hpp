@@ -35,6 +35,7 @@ namespace gui
 
         bool is_enabled;
         bool is_pressed;
+        bool is_invalid;
         bool is_varied;
 
         std::vector<widget *> child;
@@ -159,8 +160,9 @@ namespace gui
 
     class bitmap : public string
     {
-        int size;
-        int bits;
+    protected:
+
+        unsigned int bits;
 
     public:
 

@@ -25,6 +25,7 @@
 #define JIFFY (1000 / 60)
 
 //-----------------------------------------------------------------------------
+// Global application state.
 
 app::conf *conf;
 app::data *data;
@@ -34,16 +35,89 @@ app::font *sans;
 app::font *mono;
 
 //-----------------------------------------------------------------------------
+// Keyboard state expression queryables.
+
+double get_key(int i)
+{
+    int    n;
+    Uint8 *k = SDL_GetKeyState(&n);
+
+    if (0 <= i && i < n && k[i])
+        return 1.0;
+    else
+        return 0.0;
+}
+
+//-----------------------------------------------------------------------------
+// System time expression queryables.
+
+static int tick = 0;
+static int tock = 0;
+
+double get_time()
+{
+    return (tock - tick) / 1000.0;
+}
+
+void clr_time()
+{
+    tick = tock;
+}
+
+//-----------------------------------------------------------------------------
+// Joystick input expression queryables.
+
+static SDL_Joystick *joy = NULL;
+
+double get_btn(int i)
+{
+    if (joy)
+        return SDL_JoystickGetButton(joy, i);
+    else
+        return 0.0;
+}
+
+double get_joy(int i)
+{
+    if (joy)
+        return SDL_JoystickGetAxis(joy, i) / 32768.0;
+    else
+        return 0.0;
+}
+
+//-----------------------------------------------------------------------------
+// Collision group expression queryables.
+
+static unsigned int bits = 0;
+
+double get_trg(unsigned int i)
+{
+    if (bits & (1 << i))
+        return 1.0;
+    else
+        return 0.0;
+}
+
+void set_trg(unsigned int b) { bits |= b; }
+void clr_trg()               { bits  = 0; }
+
+//-----------------------------------------------------------------------------
 
 static std::string get_loc()
 {
+    // Check for a locale setting in the config file.
+
     std::string loc = conf->get_s("lang");
 
     if (loc.size() > 0)
         return loc;
 
+    // Check for a locale setting in the environment.
+
     if (getenv("LANG"))
         return getenv("LANG");
+
+    // If all else fails, use the default.
 
     return "en_US";
 }    
@@ -80,7 +154,6 @@ static void stat()
 
 static bool loop(int argc, char *argv[])
 {
-    static int tock;
     int w, h, b, m;
 
     SDL_Event e;
@@ -98,6 +171,8 @@ static bool loop(int argc, char *argv[])
             if (lang) delete lang;
             if (conf) delete conf;
 
+            if (joy) SDL_JoystickClose(joy);
+
             return false;
 
         case SDL_USEREVENT:
@@ -107,6 +182,8 @@ static bool loop(int argc, char *argv[])
             if (data) delete data;
             if (lang) delete lang;
             if (conf) delete conf;
+
+            if (joy) SDL_JoystickClose(joy);
 
             conf = new app::conf(DEFAULT_CONF_FILE);
             lang = new app::lang(DEFAULT_LANG_FILE, get_loc());
@@ -136,6 +213,7 @@ static bool loop(int argc, char *argv[])
             // Initialize the demo.
 
             prog = new demo();
+            joy  = SDL_JoystickOpen(conf->get_i("joystick"));
 
             break;
 
@@ -170,7 +248,7 @@ int main(int argc, char *argv[])
     {
         ent::entity::phys_init();
 
-        if (SDL_Init(SDL_INIT_VIDEO) == 0)
+        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) == 0)
         {
             SDL_Event e = { SDL_USEREVENT };
 

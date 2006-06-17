@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include "play.hpp"
+#include "main.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -23,6 +24,7 @@ mode::play::play(ops::scene& s) : mode(s)
 void mode::play::enter()
 {
     scene.embody_all();
+    clr_time();
 }
 
 void mode::play::leave()

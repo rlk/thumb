@@ -68,6 +68,7 @@ namespace cnt
         bitmap(ops::scene& s, int k) :
             gui::bitmap(), scene(s), key(k) { }
 
+        void apply();
         void show();
         void hide();
     };

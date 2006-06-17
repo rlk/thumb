@@ -28,18 +28,21 @@ namespace ent
     {
     protected:
 
+        double cache;
+        bool   cached;
+
         std::string expr;
 
         virtual std::string name() = 0;
 
     public:
 
-        param(std::string expr) : expr(expr) { }
+        param(std::string expr) : cache(0), cached(false), expr(expr) { }
 
-        void set(std::string& e) { expr = e; }
+        void set(std::string& e) { expr = e; cached = false; }
         void get(std::string& e) { e = expr; }
 
-        dReal         value_f();
+        double        value_f();
         unsigned long value_i();
 
         virtual void load(mxml_node_t *) = 0;

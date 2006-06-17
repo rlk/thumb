@@ -28,7 +28,7 @@ demo::demo() :
     sun   (GL_LIGHT0),
     sky   (conf->get_f("camera_far")),
     earth (conf->get_f("camera_far")),
-    plane (data->get_obj("plane.obj")),
+//  plane (data->get_obj("plane.obj")),
 
     edit(scene),
     play(scene),
@@ -59,7 +59,7 @@ demo::demo() :
     button[2] = 0;
     button[3] = 0;
 
-    plane.edit_init();
+//  plane.edit_init();
 
     curr = 0;
 
@@ -204,7 +204,7 @@ void demo::draw_all() const
             // Draw the scene.
 
             sun.draw_fill();
-            plane.draw_fill();
+//          plane.draw_fill();
             scene.draw_fill();
             curr->draw();
         }

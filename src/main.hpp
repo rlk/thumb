@@ -20,6 +20,7 @@
 #include "font.hpp"
 
 //-----------------------------------------------------------------------------
+// Global application state.
 
 extern app::conf *conf;
 extern app::lang *lang;
@@ -27,6 +28,20 @@ extern app::data *data;
 extern app::prog *prog;
 extern app::font *sans;
 extern app::font *mono;
+
+//-----------------------------------------------------------------------------
+// Expression queryable system state.
+
+double get_time();
+void   clr_time();
+
+double get_key(int);
+double get_btn(int);
+double get_joy(int);
+
+double get_trg(unsigned int);
+void   set_trg(unsigned int);
+void   clr_trg();
 
 //-----------------------------------------------------------------------------
 

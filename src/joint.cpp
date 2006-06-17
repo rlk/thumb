@@ -354,12 +354,22 @@ void ent::universal::play_join(dBodyID body1)
 
 //-----------------------------------------------------------------------------
 
+void ent::joint::use_param()
+{
+    // Joint parameter change may require reawakening of joined bodies.
+
+    if (body1) dBodyEnable(dJointGetBody(join, 0));
+    if (body2) dBodyEnable(dJointGetBody(join, 1));
+}
+
 void ent::hinge::use_param()
 {
     std::map<int, joint_param *>::iterator i;
 
     for (i = params.begin(); i != params.end(); ++i)
         i->second->apply(dJointSetHingeParam, join);
+
+    joint::use_param();
 }
 
 void ent::hinge2::use_param()
@@ -368,6 +378,8 @@ void ent::hinge2::use_param()
 
     for (i = params.begin(); i != params.end(); ++i)
         i->second->apply(dJointSetHinge2Param, join);
+
+    joint::use_param();
 }
 
 void ent::slider::use_param()
@@ -376,6 +388,8 @@ void ent::slider::use_param()
 
     for (i = params.begin(); i != params.end(); ++i)
         i->second->apply(dJointSetSliderParam, join);
+
+    joint::use_param();
 }
 
 void ent::amotor::use_param()
@@ -384,6 +398,8 @@ void ent::amotor::use_param()
 
     for (i = params.begin(); i != params.end(); ++i)
         i->second->apply(dJointSetAMotorParam, join);
+
+    joint::use_param();
 }
 
 void ent::universal::use_param()
@@ -392,6 +408,8 @@ void ent::universal::use_param()
 
     for (i = params.begin(); i != params.end(); ++i)
         i->second->apply(dJointSetUniversalParam, join);
+
+    joint::use_param();
 }
 
 //-----------------------------------------------------------------------------

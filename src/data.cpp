@@ -10,11 +10,25 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
+#include <dirent.h>
 
 #include "data.hpp"
 #include "obj.h"
+
+//-----------------------------------------------------------------------------
+
+app::data::data(std::string p) : path(p)
+{
+    DIR *D;
+
+    if ((D = opendir(path.c_str())))
+        closedir(D);
+    else
+        throw std::runtime_error("Cannot find data directory.");
+}
 
 //-----------------------------------------------------------------------------
 
