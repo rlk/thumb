@@ -16,6 +16,152 @@
 
 //-----------------------------------------------------------------------------
 
+app::glyph::glyph(int x, int w, int inner_h, int outer_w, int outer_h) :
+
+    x0(x), x1(x + w),
+    y0(0), y1(inner_h),
+
+    s0(float(x0) / float(outer_w)),
+    s1(float(x1) / float(outer_w)),
+    t0(float(y0) / float(outer_h)),
+    t1(float(y1) / float(outer_h))
+{
+}
+
+bool app::glyph::find(int x, int y) const
+{
+    // Return true if the given point falls within this glyph.
+
+    return (x0 <= x && x < x1 && y0 <= y && y < y1);
+}
+
+void app::glyph::draw(int x, int y) const
+{
+    // Draw an individual textured glyph rectangle.
+
+    glTexCoord2f(s0, t1); glVertex2i(x + x0, y + y0);
+    glTexCoord2f(s0, t0); glVertex2i(x + x0, y + y1);
+    glTexCoord2f(s1, t0); glVertex2i(x + x1, y + y1);
+    glTexCoord2f(s1, t1); glVertex2i(x + x1, y + y0);
+}
+
+//-----------------------------------------------------------------------------
+
+static int next_power_of_2(int n)
+{
+    int m = 1;
+
+    while (m < n)
+        m <<= 1;
+
+    return m;
+}
+
+app::text::text(int w, int h) : x(0), y(0), inner_w(w), inner_h(h)
+{
+    outer_w = next_power_of_2(inner_w);
+    outer_h = next_power_of_2(inner_h);
+
+    // Create a blank texture object for this string image.
+
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, outer_w, outer_h, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+}
+
+app::text::~text()
+{
+    glDeleteTextures(1, &texture);
+}
+
+void app::text::move(int x, int y)
+{
+    this->x = x;
+    this->y = y;
+}
+
+int app::text::find(int x, int y) const
+{
+    // Find and return the index of the glyph containing the given point.
+
+    for (int i = 0; i < int(map.size()); ++i)
+        if (map[i].find(x - this->x, y - this->y))
+            return i;
+
+    // Return negative to indicate failure.
+
+    return -1;
+}
+
+int app::text::curs(int i) const
+{
+    // Return the cursor position at the given glyph index.
+
+    if (i < int(map.size()))
+        return x + map[i].L();
+    else
+        return x + map.back().R();
+}
+
+void app::text::draw(int i) const
+{
+    // Draw only the requested glyph.
+
+    map[i].draw(x, y);
+}
+
+void app::text::draw() const
+{
+    const float s = float(inner_w) / float(outer_w);
+    const float t = float(inner_h) / float(outer_h);
+    
+    // Draw the entire textured string at once.
+    
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0, t); glVertex2i(x,           y);
+        glTexCoord2f(0, 0); glVertex2i(x,           y + inner_h);
+        glTexCoord2f(s, 0); glVertex2i(x + inner_w, y + inner_h);
+        glTexCoord2f(s, t); glVertex2i(x + inner_w, y);
+    }
+    glEnd();
+
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void app::text::bind() const
+{
+    glBindTexture(GL_TEXTURE_2D, texture);
+}
+
+void app::text::add(int x, int w)
+{
+    // Append a new glyph map object.
+
+    map.push_back(glyph(x, w, inner_h, outer_w, outer_h));
+}
+
+void app::text::set(const GLubyte *p)
+{
+    // Copy the given glyph image to the GL texture object.
+
+    glBindTexture  (GL_TEXTURE_2D, texture);
+    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, inner_w, inner_h,
+                    GL_RGBA, GL_UNSIGNED_BYTE, p);
+    GL_CHECK();
+}
+
+//-----------------------------------------------------------------------------
+
 app::font::font(std::string filename, int size) : s(size)
 {
     // Initialize the font library and font face.
@@ -37,16 +183,6 @@ app::font::~font()
 }
 
 //-----------------------------------------------------------------------------
-
-static int next_power_of_2(int n)
-{
-    int m = 1;
-
-    while (m < n)
-        m <<= 1;
-
-    return m;
-}
 
 static int utf8(std::string& text, int& i)
 {
@@ -110,122 +246,69 @@ GLubyte *app::font::glyph(FT_Int32 flag, int curr, int prev,
     return (GLubyte *) face->glyph->bitmap.buffer;
 }
 
-void app::font::grid(std::string text, std::vector<rect>& v)
+app::text *app::font::render(std::string text)
 {
-    int n = int(text.length());
+    int i, n = int(text.length());
 
-    int x, y;
-    int w, h;
-    int a, k;
-    int c;
+    int x, w, a, W, X = 0;
+    int y, h, k, H, Y = -face->size->metrics.descender >> 6;
 
     int curr = 0;
     int prev = 0;
 
-    int px = 0;
-    int py = y = -face->size->metrics.descender >> 6;
-
-    // Compute the location of each glyph of the given string.
-
-    for (px = 0, c = 0; c < n; )
-    {
-        curr = utf8(text, c);
-        glyph(FT_LOAD_DEFAULT, curr, prev, x, y, w, h, a, k);
-        prev = curr;
-
-        v.push_back(rect(px + x, py + y, w, h));
-        px += k + a;
-    }
-}
-
-GLuint app::font::draw(std::string text, int& inner_w, int& inner_h,
-                                         int& outer_w, int& outer_h)
-{
-    int n = int(text.length());
-
-    int c;
-    int x, y;
-    int w, h;
-    int a, k;
-    int i, j;
-
-    int px = 0;
-    int py = y = -face->size->metrics.descender >> 6;
-
-    int curr = 0;
-    int prev = 0;
-
-    GLubyte *src;
-    GLubyte *dst;
-    GLubyte *pix;
+    GLubyte   *src;
+    GLubyte   *dst;
+    app::text *T;
 
     // Compute the total size of the string as rendered in this font.
 
-    for (px = 0, c = 0; c < n; )
+    for (X = 0, i = 0; i < n; X += k + a)
     {
-        curr = utf8(text, c);
+        curr = utf8(text, i);
         src  = glyph(FT_LOAD_DEFAULT, curr, prev, x, y, w, h, a, k);
         prev = curr;
-
-        px  += k + a;
     }
 
-    inner_w = px;
-    inner_h = face->size->metrics.height >> 6;
+    W = X;
+    H = face->size->metrics.height >> 6;
 
-    // Allocate an RGBA texture buffer to render the text.
+    // Allocate a buffer to accumulate glyph renderings.
 
-    outer_w = next_power_of_2(inner_w);
-    outer_h = next_power_of_2(inner_h);
+    memset((dst = new GLubyte[W * H * 4]), 0, W * H * 4);
 
-    dst = new GLubyte[outer_w * outer_h * 4];
+    // Allocate a text object to recieve the image.
 
-    memset(dst, 0, outer_w * outer_h * 4);
+    T = new app::text(W, H);
 
-    // Render the text to the buffer.
+    // Render the text.
 
-    for (px = 0, c = 0; c < n; )
+    for (X = 0, i = 0; i < n; X += k + a)
     {
-        curr = utf8(text, c);
+        curr = utf8(text, i);
         src  = glyph(FT_LOAD_RENDER, curr, prev, x, y, w, h, a, k);
         prev = curr;
 
-        px  += k;
+        T->add(X + x + k, w);
 
-        for (i = 0; i < h; ++i)
-            for (j = 0; j < w; ++j)
+        for (int r = 0; r < h; ++r)
+        {
+            for (int c = 0; c < w; ++c)
             {
-                pix = dst + 4 * ((py + y - i) * outer_w + (px + x + j));
+                GLubyte *pix = dst + 4 * ((Y + y - r) * W + (X + x + k + c));
 
                 pix[0] = 0xFF;
                 pix[1] = 0xFF;
                 pix[2] = 0xFF;
-                pix[3] = (GLubyte) (pix[3] + src[i * w + j]);
+                pix[3] = (GLubyte) (pix[3] + src[r * w + c]);
             }
-
-        px += a;
+        }
     }
 
-    // Create a texture object using this buffer.
-
-    GLuint o = 0;
-
-    glGenTextures(1, &o);
-    glBindTexture(GL_TEXTURE_2D, o);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, outer_w, outer_h, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, dst);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-    glBindTexture(GL_TEXTURE_2D, 0);
+    T->set(dst);
 
     delete [] dst;
 
-    return o;
+    return T;
 }
 
 //-----------------------------------------------------------------------------

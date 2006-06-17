@@ -20,13 +20,8 @@
 //-----------------------------------------------------------------------------
 // Basic widget.
 
-gui::widget::widget()
+gui::widget::widget() : area(0, 0, 0, 0)
 {
-    x = 0;
-    y = 0;
-    w = 0;
-    h = 0;
-
     just = 0;
 
     is_enabled = false;
@@ -59,10 +54,10 @@ std::string gui::widget::value() const
 
 void gui::widget::laydn(int x, int y, int w, int h)
 {
-    this->x = x;
-    this->y = y;
-    this->w = w;
-    this->h = h;
+    area.x = x;
+    area.y = y;
+    area.w = w;
+    area.h = h;
 }
 
 void gui::widget::back_color(const widget *focus) const
@@ -70,9 +65,9 @@ void gui::widget::back_color(const widget *focus) const
     // Set the background color.
 
     if      (is_pressed)    glColor4f(0.5f, 0.5f, 0.5f, 0.7f);
-    else if (this == focus) glColor4f(0.2f, 0.2f, 0.2f, 0.7f);
-    else if (is_enabled)    glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
-    else                    glColor4f(0.0f, 0.0f, 0.0f, 0.7f);
+    else if (this == focus) glColor4f(0.3f, 0.3f, 0.3f, 0.7f);
+    else if (is_enabled)    glColor4f(0.1f, 0.1f, 0.1f, 0.7f);
+    else                    glColor4f(0.1f, 0.1f, 0.1f, 0.7f);
 }
 
 void gui::widget::fore_color() const
@@ -92,8 +87,7 @@ gui::widget *gui::leaf::enter(int x, int y)
 {
     // If the point is within this widget, return this.
 
-    return (is_enabled && this->x <= x && x <= this->x + this->w &&
-                          this->y <= y && y <= this->y + this->h) ? this : 0;
+    return (is_enabled && area.test(x, y)) ? this : 0;
 }
 
 void gui::leaf::draw(const widget *focus, const widget *input) const
@@ -104,10 +98,10 @@ void gui::leaf::draw(const widget *focus, const widget *input) const
 
     glBegin(GL_QUADS);
     {
-        glVertex2i(x,     y);
-        glVertex2i(x,     y + h);
-        glVertex2i(x + w, y + h);
-        glVertex2i(x + w, y);
+        glVertex2i(area.L(), area.T());
+        glVertex2i(area.L(), area.B());
+        glVertex2i(area.R(), area.B());
+        glVertex2i(area.R(), area.T());
     }
     glEnd();
 }
@@ -189,11 +183,11 @@ gui::tree::~tree()
 //-----------------------------------------------------------------------------
 // Basic string widget.
 
-gui::string::string(app::font *f, std::string t, int j,
+gui::string::string(app::font *f, std::string s, int j,
                     GLubyte r, GLubyte g, GLubyte b) :
-    font(f), text(lang->get(t))
+
+    text(0), font(f), str(lang->get(s))
 {
-    texture  = 0;
     color[0] = r;
     color[1] = g;
     color[2] = b;
@@ -203,8 +197,8 @@ gui::string::string(app::font *f, std::string t, int j,
 
     // Pad the string.
 
-    w = inner_w + f->size() * 2;
-    h = inner_h + f->size();
+    area.w = text->w() + f->size() * 2;
+    area.h = text->h() + f->size();
 }
 
 void gui::string::text_color() const
@@ -225,68 +219,61 @@ void gui::string::dotext() const
     {
         glEnable(GL_TEXTURE_2D);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
-
-        glBegin(GL_QUADS);
-        {
-            int W = MIN(w - 8, inner_w);
-            int H = MIN(h - 8, inner_h);
-
-            float s = float(W) / float(outer_w);
-            float t = float(H) / float(outer_h);
-
-            int dx = (w - inner_w) / 2;
-            int dy = (h - inner_h) / 2;
-
-            if (just > 0) dx = w - inner_w - 4;
-            if (just < 0) dx = 4;
-
-            text_color();
-
-            glTexCoord2f(0, t); glVertex2i(x + dx,     y + dy);
-            glTexCoord2f(0, 0); glVertex2i(x + dx,     y + dy + H);
-            glTexCoord2f(s, 0); glVertex2i(x + dx + W, y + dy + H);
-            glTexCoord2f(s, t); glVertex2i(x + dx + W, y + dy);
-        }
-        glEnd();
-    
-        glBindTexture(GL_TEXTURE_2D, 0);
+        text_color();
+        text->draw();
     }
     glPopAttrib();
 }
 
 void gui::string::update()
 {
-    // Clear the previous string texture.
+    if (text) delete text;
 
-    if (texture) glDeleteTextures(1, &texture);
+    // Render the new string texture.
 
-    // Draw the new string texture.
+    text = font->render(str);
 
-    texture = font->draw(text, inner_w, inner_h, outer_w, outer_h);
+    // Set the justification of the new string.
+
+    int jx = (area.w - text->w()) / 2;
+    int jy = (area.h - text->h()) / 2;
+
+    if (just > 0) jx = area.w - text->w() - 4;
+    if (just < 0) jx = 4;
+
+    text->move(area.x + jx, area.y + jy);
 }
 
 void gui::string::value(std::string s)
 {
-    text = lang->get(s);
+    str = lang->get(s);
     update();
 }
 
 std::string gui::string::value() const
 {
-    return text;
+    return str;
+}
+
+void gui::string::laydn(int x, int y, int w, int h)
+{
+    leaf::laydn(x, y, w, h);
+
+    // Set the justification of the string object.
+
+    int jx = (area.w - text->w()) / 2;
+    int jy = (area.h - text->h()) / 2;
+
+    if (just > 0) jx = area.w - text->w() - 4;
+    if (just < 0) jx = 4;
+
+    text->move(area.x + jx, area.y + jy);
 }
 
 void gui::string::draw(const widget *focus, const widget *input) const
 {
     leaf::draw(focus, input);
-
     dotext();
-}
-
-gui::string::~string()
-{
-    if (texture) glDeleteTextures(1, &texture);
 }
 
 //-----------------------------------------------------------------------------
@@ -309,10 +296,10 @@ void gui::button::draw(const widget *focus, const widget *input) const
     {
         fore_color();
 
-        glVertex2i(x     + 2, y     + 2);
-        glVertex2i(x     + 2, y + h - 2);
-        glVertex2i(x + w - 2, y + h - 2);
-        glVertex2i(x + w - 2, y     + 2);
+        glVertex2i(area.L() + 2, area.T() + 2);
+        glVertex2i(area.L() + 2, area.B() - 2);
+        glVertex2i(area.R() - 2, area.B() - 2);
+        glVertex2i(area.R() - 2, area.T() + 2);
     }
     glEnd();
 
@@ -336,8 +323,6 @@ gui::widget *gui::button::click(int x, int y, bool d)
 
 gui::bitmap::bitmap() : string(mono, "0123456789ABCDEFGHIJKLMNOPQRSTUV")
 {
-    font->grid(text, grid);
-
     bits = 0xAA00FF68;
     is_enabled = true;
 }
@@ -352,35 +337,21 @@ void gui::bitmap::draw(const widget *focus, const widget *input) const
     {
         glEnable(GL_TEXTURE_2D);
 
-        glBindTexture(GL_TEXTURE_2D, texture);
+        text->bind();
 
         glBegin(GL_QUADS);
         {
-            float t = float(inner_h) / float(outer_h);
-
-            int dx = x + (w - inner_w) / 2;
-            int dy = y + (h - inner_h) / 2;
-
             int i;
             int b;
 
-            for (i = 0, b = 1; i < 32; ++i, b <<= 1)
+            for (i = 0, b = 1; i < text->n(); ++i, b <<= 1)
             {
-                int   x0 = grid[i].x;
-                int   x1 = grid[i].x + grid[i].w;
-
-                float s0 = float(x0) / outer_w;
-                float s1 = float(x1) / outer_w;
-
                 if (bits & b)
                     glColor3f(1.0f, 1.0f, 1.0f);
                 else
                     glColor3f(0.0f, 0.0f, 0.0f);
 
-                glTexCoord2f(s0, t); glVertex2i(dx + x0, dy);
-                glTexCoord2f(s0, 0); glVertex2i(dx + x0, dy + inner_h);
-                glTexCoord2f(s1, 0); glVertex2i(dx + x1, dy + inner_h);
-                glTexCoord2f(s1, t); glVertex2i(dx + x1, dy);
+                text->draw(i);
             }
         }
         glEnd();
@@ -395,24 +366,11 @@ gui::widget *gui::bitmap::click(int x, int y, bool d)
     if (d == false)
     {
         int i;
-        int b;
 
-        int dx = this->x + (w - inner_w) / 2;
-        int dy = this->y + (h - inner_h) / 2;
-
-        for (i = 0, b = 1; i < int(grid.size()); ++i, b <<= 1)
+        if ((i = text->find(x, y)) >= 0)
         {
-            int x0 = dx + grid[i].x;
-            int x1 = dx + grid[i].x + grid[i].w;
-
-            int y0 = dy;
-            int y1 = dy + inner_h;
-
-            if (x0 <= x && x < x1 && y0 <= y && y < y1)
-            {
-                bits = bits ^ b;
-                return this;
-            }
+            bits = bits ^ (1 << i);
+            return this;
         }
     }
     return 0;
@@ -439,54 +397,15 @@ void gui::editor::update()
 
     string::update();
 
-    // Clear the previous text selection grid and compute the new one.
-
-    grid.clear();
-    font->grid(text, grid);
-
-    // This end-of-string grid marker gives the append cursor a place to go.
-
-    grid.push_back(app::rect(inner_w, 0, 0, inner_h));
-
     // Make sure the cursor position is sane.
 
-    si = MIN(si, int(text.length()));
+    si = MIN(si, text->n());
     sc = 0;
-}
-
-int gui::editor::find_select(int px, int py)
-{
-    if (grid.size() > 1)
-    {
-        std::vector<app::rect>::iterator i;
-        int j;
-
-        int dx = (w - inner_w) / 2;
-        int dy = (h - inner_h) / 2;
-
-        if (just > 0) dx = w - inner_w - 4;
-        if (just < 0) dx = 4;
-
-        // Determine which character the pointer is on.
-
-        for (j = 0, i = grid.begin(); (i + 1) != grid.end(); ++i, ++j)
-        {
-            int x0 = x + dx + (i    )->x;
-            int x1 = x + dx + (i + 1)->x;
-
-            int y0 = y + dy;
-            int y1 = y - dy + h;
-
-            if (x0 <= px && px <= x1 &&
-                y0 <= py && py <= y1) return j;
-        }
-    }
-    return -1;
 }
 
 void gui::editor::grow_select(int sd)
 {
-    int sn = text.length();
+    int sn = str.length();
     int sj = si;
 
     // Extend the selection.
@@ -506,7 +425,7 @@ void gui::editor::grow_select(int sd)
 
 void gui::editor::move_select(int sd)
 {
-    int sn = text.length();
+    int sn = str.length();
 
     // Move the cursor.
 
@@ -530,51 +449,41 @@ void gui::editor::draw(const widget *focus, const widget *input) const
 {
     leaf::draw(focus, input);
 
-    int dx = (w - inner_w) / 2;
-
-    if (just > 0) dx = w - inner_w - 4;
-    if (just < 0) dx = 4;
-
     glBegin(GL_QUADS);
     {
         // Draw the editor shape.
 
         fore_color();
 
-        glVertex2i(x     + 2, y     + 2);
-        glVertex2i(x     + 2, y + h - 2);
-        glVertex2i(x + w - 2, y + h - 2);
-        glVertex2i(x + w - 2, y     + 2);
+        glVertex2i(area.L() + 2, area.T() + 2);
+        glVertex2i(area.L() + 2, area.B() - 2);
+        glVertex2i(area.R() - 2, area.B() - 2);
+        glVertex2i(area.R() - 2, area.T() + 2);
 
         // Draw the selection / cursor.
 
         if (this == input)
         {
-            int x0;
-            int x1;
+            int L = text->curs(0) - 1;
+            int R = text->curs(0) + 1;
 
             if (sc)
             {
-                x0 = x + dx + grid[si     ].x;
-                x1 = x + dx + grid[si + sc].x;
+                L = text->curs(si     );
+                R = text->curs(si + sc);
             }
             else if (si)
             {
-                x0 = x + dx + grid[si].x - 1;
-                x1 = x + dx + grid[si].x + 1;
-            }
-            else
-            {
-                x0 = x + dx - 1;
-                x1 = x + dx + 1;
+                L = text->curs(si) - 1;
+                R = text->curs(si) + 1;
             }
 
             glColor4ub(0xFF, 0xC0, 0x40, 0x80);
 
-            glVertex2i(x0, y +     3);
-            glVertex2i(x0, y + h - 3);
-            glVertex2i(x1, y + h - 3);
-            glVertex2i(x1, y +     3);
+            glVertex2i(L, area.T() + 3);
+            glVertex2i(L, area.B() - 3);
+            glVertex2i(R, area.B() - 3);
+            glVertex2i(R, area.T() + 3);
         }
     }
     glEnd();
@@ -586,7 +495,7 @@ void gui::editor::draw(const widget *focus, const widget *input) const
 
 gui::widget *gui::editor::click(int x, int y, bool d)
 {
-    int sp = find_select(x, y);
+    int sp = text->find(x, y);
 
     leaf::click(x, y, d);
 
@@ -602,7 +511,7 @@ gui::widget *gui::editor::click(int x, int y, bool d)
     {
         if (d)
         {
-            si = text.length();
+            si = str.length();
             sc = 0;
         }
     }
@@ -611,7 +520,7 @@ gui::widget *gui::editor::click(int x, int y, bool d)
 
 void gui::editor::point(int x, int y)
 {
-    int sp = find_select(x, y);
+    int sp = text->find(x, y);
 
     if (sp >= 0)
     {
@@ -623,12 +532,12 @@ void gui::editor::point(int x, int y)
             si = sp;
         }
     }
-    else sc = text.length() - si;
+    else sc = str.length() - si;
 }
 
 void gui::editor::keybd(int k, int c)
 {
-    int  n = int(text.length());
+    int  n = int(str.length());
     bool s = bool(SDL_GetModState() & KMOD_SHIFT);
 
     switch (k)
@@ -648,9 +557,9 @@ void gui::editor::keybd(int k, int c)
 
     case SDLK_BACKSPACE:
         if (sc)
-            text.erase(si, sc);
+            str.erase(si, sc);
         else if (si > 0)
-            text.erase(--si, 1);
+            str.erase(--si, 1);
 
         sc = 0;
         update();
@@ -660,9 +569,9 @@ void gui::editor::keybd(int k, int c)
 
     case SDLK_DELETE:
         if (sc)
-            text.erase(si, sc);
+            str.erase(si, sc);
         else
-            text.erase(si, 1);
+            str.erase(si, 1);
 
         sc = 0;
         update();
@@ -672,13 +581,13 @@ void gui::editor::keybd(int k, int c)
     // Handle text copy.
 
     if (c == 3 && sc > 0)
-        clip = text.substr(si, sc);
+        clip = str.substr(si, sc);
 
     // Handle text paste.
 
     if (c == 22 && clip.length() > 0)
     {
-        text.replace(si, sc, clip);
+        str.replace(si, sc, clip);
         si = si + clip.length();
         sc = 0;
         update();
@@ -688,7 +597,7 @@ void gui::editor::keybd(int k, int c)
 
     if (32 <= c && c < 127)
     {
-        text.replace(si, sc, std::string(1, c));
+        str.replace(si, sc, std::string(1, c));
         si = si + 1;
         sc = 0;
         update();
@@ -697,7 +606,7 @@ void gui::editor::keybd(int k, int c)
 
 gui::editor::~editor()
 {
-    if (texture) glDeleteTextures(1, &texture);
+    if (text) delete text;
 }
 
 //-----------------------------------------------------------------------------
@@ -711,16 +620,16 @@ void gui::scroll::layup()
     {
         (*i)->layup();
 
-        w = MAX((*i)->get_w(),  w);
-        h =    ((*i)->get_h() + h);
+        area.w = MAX((*i)->get_w(),  get_w());
+        area.h =    ((*i)->get_h() + get_h());
     }
 
     // Include the scrollbar width.  Height is arbitrary.
 
-    w += scroll_w;
+    area.w += scroll_w;
 
-    child_h = h;
-    h       = 0;
+    child_h = area.h;
+    area.h  = 0;
 }
 
 void gui::scroll::laydn(int x, int y, int w, int h)
@@ -767,11 +676,12 @@ void gui::scroll::point(int x, int y)
 
     // We know the pointer is in the scrollbar, so scroll.
 
-    if ((m = MAX(child_h - h, 0)) > 0)
+    if ((m = MAX(child_h - area.h, 0)) > 0)
     {
-        thumb_h = (h - 4) * h / child_h;
+        thumb_h = (area.h - 4) * area.h / child_h;
 
-        child_d = m * (y - (this->y + thumb_h / 2 + 2)) / (h - thumb_h - 4);
+        child_d = m * (y - (area.y + thumb_h / 2 + 2)) /
+                           (area.h - thumb_h - 4);
 
         if (child_d > m) child_d = m;
         if (child_d < 0) child_d = 0;
@@ -780,37 +690,31 @@ void gui::scroll::point(int x, int y)
 
 gui::widget *gui::scroll::enter(int x, int y)
 {
-    int y0 = this->y;
-    int y1 = this->y + this->h;
-    int x0 = this->x;
-    int xm = this->x + this->w - this->scroll_w;
-    int x1 = this->x + this->w;
-
     // Check for a hit on the scrollbar, or search the child list.
 
     if (is_enabled)
     {
-        if (y0 <= y && y < y1)
-        {
-            if (x0 <= x && x < xm) return tree::enter(x, y + child_d);
-            if (xm <= x && x < x1) return this;
-        }
+        rect C(area.x,                     area.y, area.w - scroll_w, area.h);
+        rect S(area.x + area.w - scroll_w, area.y,          scroll_w, area.h);
+
+        if (C.test(x, y)) return tree::enter(x, y + child_d);
+        if (S.test(x, y)) return this;
     }
     return 0;
 }
 
 void gui::scroll::draw(const widget *focus, const widget *input) const
 {
-    int thumb_h = h - 4;
-    int thumb_y = y + 2;
+    int thumb_h = area.h - 4;
+    int thumb_y = area.y + 2;
     int m;
 
     // Compute the size and position of the scroll thumb.
 
-    if ((m = MAX(child_h - h, 0)) > 0)
+    if ((m = MAX(child_h - area.h, 0)) > 0)
     {
-        thumb_h = thumb_h *  h / child_h;
-        thumb_y = thumb_y + (h - thumb_h - 4) * child_d / m;
+        thumb_h = thumb_h *  area.h / child_h;
+        thumb_y = thumb_y + (area.h - thumb_h - 4) * child_d / m;
     }
 
     // Draw the scroll bar.
@@ -823,10 +727,10 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
         {
             back_color(focus);
 
-            glVertex2i(x + w - scroll_w, y);
-            glVertex2i(x + w - scroll_w, y + h);
-            glVertex2i(x + w,            y + h);
-            glVertex2i(x + w,            y);
+            glVertex2i(area.R() - scroll_w, area.T());
+            glVertex2i(area.R() - scroll_w, area.B());
+            glVertex2i(area.R(),            area.B());
+            glVertex2i(area.R(),            area.T());
         }
         glEnd();
 
@@ -836,10 +740,10 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
         {
             fore_color();
 
-            glVertex2i(x + w - scroll_w + 2, thumb_y);
-            glVertex2i(x + w - scroll_w + 2, thumb_y + thumb_h);
-            glVertex2i(x + w            - 2, thumb_y + thumb_h);
-            glVertex2i(x + w            - 2, thumb_y);
+            glVertex2i(area.R() - scroll_w + 2, thumb_y);
+            glVertex2i(area.R() - scroll_w + 2, thumb_y + thumb_h);
+            glVertex2i(area.R()            - 2, thumb_y + thumb_h);
+            glVertex2i(area.R()            - 2, thumb_y);
         }
         glEnd();
     }
@@ -851,7 +755,8 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
     glPushMatrix();
     {
         glEnable(GL_SCISSOR_TEST);
-        glScissor(x, conf->get_i("window_h") - y - h, w - scroll_w, h);
+        glScissor(area.x, conf->get_i("window_h") - area.y - area.h,
+                  area.w - scroll_w, area.h);
 
         glTranslatef(0, -child_d, 0);
         tree::draw(focus, input);
@@ -909,7 +814,7 @@ void gui::finder::update()
 
     // Lay out this new widget hierarchy.
 
-    laydn(x, y, w, h);
+    laydn(area.x, area.y, area.w, area.h);
 }
 
 void gui::finder::set_dir(std::string& name)
@@ -943,8 +848,8 @@ gui::finder_elt::finder_elt(std::string& t, gui::finder *f) :
 {
     is_enabled = true;
 
-    w = inner_w + mono->size() * 2;
-    h = inner_h + mono->size() / 2;
+    area.w = text->w() + mono->size() * 2;
+    area.h = text->h() + mono->size() / 2;
 }
 
 void gui::finder_elt::draw(const widget *focus, const widget *input) const
@@ -959,10 +864,10 @@ void gui::finder_elt::draw(const widget *focus, const widget *input) const
     {
         fore_color();
 
-        glVertex2i(x,     y);
-        glVertex2i(x,     y + h);
-        glVertex2i(x + w, y + h);
-        glVertex2i(x + w, y);
+        glVertex2i(area.L(), area.T());
+        glVertex2i(area.L(), area.B());
+        glVertex2i(area.R(), area.B());
+        glVertex2i(area.R(), area.T());
     }
     glEnd();
 
@@ -992,13 +897,13 @@ void gui::harray::layup()
     {
         (*i)->layup();
 
-        w = MAX((*i)->get_w(), w);
-        h = MAX((*i)->get_h(), h);
+        area.w = MAX((*i)->get_w(), get_w());
+        area.h = MAX((*i)->get_h(), get_h());
     }
 
     // Total width is the widest child width times the child count.
 
-    w *= child.size();
+    area.w *= child.size();
 }
 
 void gui::harray::laydn(int x, int y, int w, int h)
@@ -1029,13 +934,13 @@ void gui::varray::layup()
     {
         (*i)->layup();
 
-        w = MAX((*i)->get_w(), w);
-        h = MAX((*i)->get_h(), h);
+        area.w = MAX((*i)->get_w(), get_w());
+        area.h = MAX((*i)->get_h(), get_h());
     }
 
     // Total height is the heighest child height times the child count.
 
-    h *= child.size();
+    area.h *= child.size();
 }
 
 void gui::varray::laydn(int x, int y, int w, int h)
@@ -1066,14 +971,14 @@ void gui::hgroup::layup()
     {
         (*i)->layup();
 
-        w =    ((*i)->get_w() + w);
-        h = MAX((*i)->get_h(),  h);
+        area.w =    ((*i)->get_w() + get_w());
+        area.h = MAX((*i)->get_h(),  get_h());
     }
 }
 
 void gui::hgroup::laydn(int x, int y, int w, int h)
 {
-    int dx, c = 0, excess = w - this->w;
+    int dx, c = 0, excess = w - area.w;
 
     widget::laydn(x, y, w, h);
 
@@ -1109,14 +1014,14 @@ void gui::vgroup::layup()
     {
         (*i)->layup();
 
-        w = MAX((*i)->get_w(),  w);
-        h =    ((*i)->get_h() + h);
+        area.w = MAX((*i)->get_w(),  get_w());
+        area.h =    ((*i)->get_h() + get_h());
     }
 }
 
 void gui::vgroup::laydn(int x, int y, int w, int h)
 {
-    int dy, c = 0, excess = h - this->h;
+    int dy, c = 0, excess = h - area.h;
 
     widget::laydn(x, y, w, h);
 
@@ -1152,8 +1057,8 @@ void gui::option::layup()
     {
         (*i)->layup();
 
-        w = MAX((*i)->get_w(), w);
-        h = MAX((*i)->get_h(), h);
+        area.w = MAX((*i)->get_w(), get_w());
+        area.h = MAX((*i)->get_h(), get_h());
     }
 }
 
@@ -1188,12 +1093,12 @@ void gui::frame::layup()
     {
         (*i)->layup();
 
-        w = MAX((*i)->get_w(), w);
-        h = MAX((*i)->get_h(), h);
+        area.w = MAX((*i)->get_w(), get_w());
+        area.h = MAX((*i)->get_h(), get_h());
     }
 
-    w += s + s;
-    h += s + s;
+    area.w += s + s;
+    area.h += s + s;
 }
 
 void gui::frame::laydn(int x, int y, int w, int h)
@@ -1218,34 +1123,34 @@ void gui::frame::draw(const widget *focus, const widget *input) const
 
         glBegin(GL_QUADS);
         {
-            const int x0o = x;
-            const int x0i = x     + s;
-            const int x1i = x + w - s;
-            const int x1o = x + w;
-            const int y0o = y;
-            const int y0i = y     + s;
-            const int y1i = y + h - s;
-            const int y1o = y + h;
+            const int Lo = area.L();
+            const int Li = area.L() + s;
+            const int Ri = area.R() - s;
+            const int Ro = area.R();
+            const int To = area.T();
+            const int Ti = area.T() + s;
+            const int Bi = area.B() - s;
+            const int Bo = area.B();
 
-            glVertex2i(x0o, y0o);
-            glVertex2i(x0o, y1o);
-            glVertex2i(x0i, y1i);
-            glVertex2i(x0i, y0i);
+            glVertex2i(Lo, To);
+            glVertex2i(Lo, Bo);
+            glVertex2i(Li, Bi);
+            glVertex2i(Li, Ti);
 
-            glVertex2i(x1i, y0i);
-            glVertex2i(x1i, y1i);
-            glVertex2i(x1o, y1o);
-            glVertex2i(x1o, y0o);
+            glVertex2i(Ri, Ti);
+            glVertex2i(Ri, Bi);
+            glVertex2i(Ro, Bo);
+            glVertex2i(Ro, To);
 
-            glVertex2i(x0o, y0o);
-            glVertex2i(x0i, y0i);
-            glVertex2i(x1i, y0i);
-            glVertex2i(x1o, y0o);
+            glVertex2i(Lo, To);
+            glVertex2i(Li, Ti);
+            glVertex2i(Ri, Ti);
+            glVertex2i(Ro, To);
 
-            glVertex2i(x0i, y1i);
-            glVertex2i(x0o, y1o);
-            glVertex2i(x1o, y1o);
-            glVertex2i(x1i, y1i);
+            glVertex2i(Li, Bi);
+            glVertex2i(Lo, Bo);
+            glVertex2i(Ro, Bo);
+            glVertex2i(Ri, Bi);
         }
         glEnd();
     }

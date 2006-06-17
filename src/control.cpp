@@ -19,15 +19,15 @@
 
 void cnt::editor::apply()
 {
-    scene.set_param(key, text);
+    scene.set_param(key, str);
 }
 
 void cnt::editor::show()
 {
     int c;
 
-    if ((c = scene.get_param(key, text)) == 0)
-        text = "";
+    if ((c = scene.get_param(key, str)) == 0)
+        str = "";
 
     update();
 

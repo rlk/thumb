@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "font.hpp"
+#include "rect.hpp"
 #include "directory.hpp"
 
 //-----------------------------------------------------------------------------
@@ -29,9 +30,8 @@ namespace gui
     {
     protected:
 
-        int x, y;
-        int w, h;
-        int just;
+        rect area;
+        int  just;
 
         bool is_enabled;
         bool is_pressed;
@@ -50,10 +50,10 @@ namespace gui
 
         // Layout state.
 
-        virtual bool exp_w() const { return false; }
-        virtual bool exp_h() const { return false; }
-        int          get_w() const { return w;     }
-        int          get_h() const { return h;     }
+        virtual bool exp_w() const { return false;  }
+        virtual bool exp_h() const { return false;  }
+        int          get_w() const { return area.w; }
+        int          get_h() const { return area.h; }
 
         // Current value access and activation.
 
@@ -116,16 +116,11 @@ namespace gui
     {
     protected:
 
-        GLuint  texture;
+        app::text *text;
+        app::font *font;
+
+        std::string str;
         GLubyte color[3];
-
-        int inner_w;
-        int inner_h;
-        int outer_w;
-        int outer_h;
-
-        app::font  *font;
-        std::string text;
 
         void text_color() const;
 
@@ -140,9 +135,10 @@ namespace gui
         virtual void        value(std::string);
         virtual std::string value() const;
 
+        virtual void laydn(int, int, int, int);
         virtual void draw(const widget *, const widget *) const;
 
-        virtual ~string();
+        virtual ~string() { }
     };
 
     //-------------------------------------------------------------------------
@@ -163,7 +159,6 @@ namespace gui
 
     class bitmap : public string
     {
-        std::vector<app::rect> grid;
         int size;
         int bits;
 
@@ -180,13 +175,11 @@ namespace gui
 
     class editor : public string
     {
-        static std::string     clip;
-        std::vector<app::rect> grid;
+        static std::string clip;
 
         int si;
         int sc;
 
-        int  find_select(int, int);
         void grow_select(int);
         void move_select(int);
 
@@ -282,14 +275,14 @@ namespace gui
     {
     public:
         finder_dir(std::string& t, gui::finder *w) : finder_elt(t, w) { }
-        void apply() { state->set_dir(text); }
+        void apply() { state->set_dir(str); }
     };
 
     class finder_reg : public finder_elt
     {
     public:
         finder_reg(std::string& t, gui::finder *w) : finder_elt(t, w) { }
-        void apply() { state->set_reg(text); }
+        void apply() { state->set_reg(str); }
     };
 
     //-------------------------------------------------------------------------
@@ -313,7 +306,7 @@ namespace gui
     class spacer : public leaf
     {
     public:
-        spacer() { w = 4; h = 4; }
+        spacer() { area.w = area.h = 4; }
         virtual void draw(const widget *, const widget *) const { }
     };
 

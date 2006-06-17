@@ -20,20 +20,73 @@
 #include FT_FREETYPE_H
 
 #include "opengl.hpp"
+#include "rect.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace app
 {
-    struct rect
-    {
-        int x;
-        int y;
-        int w;
-        int h;
+    //-------------------------------------------------------------------------
+    // Typeset texture glyph map element.
 
-        rect(int a, int b, int c, int d) : x(a), y(b), w(c), h(d) { }
+    class glyph
+    {
+        int   x0, x1;
+        int   y0, y1;
+        float s0, s1;
+        float t0, t1;
+
+    public:
+
+        glyph(int, int, int, int, int);
+
+        bool find(int, int) const;
+        void draw(int, int) const;
+
+        int L() const { return x0; }
+        int R() const { return x1; }
     };
+
+    typedef std::vector<glyph> glyph_v;
+
+    //-------------------------------------------------------------------------
+    // Typeset texture.
+
+    class text
+    {
+        GLuint texture;
+        
+        int x, y;
+        int inner_w;
+        int inner_h;
+        int outer_w;
+        int outer_h;
+
+        glyph_v map;
+
+    public:
+
+        text(int, int);
+       ~text();
+
+        int w() const { return inner_w; }
+        int h() const { return inner_h; }
+        int n() const { return int(map.size()); }
+
+        void move(int, int);
+        int  find(int, int) const;
+        int  curs(int)      const;
+        void draw(int)      const;
+        void draw()         const;
+        void bind()         const;
+
+
+        void add(int, int);
+        void set(const GLubyte *);
+    };
+
+    //-------------------------------------------------------------------------
+    // Typesetter.
 
     class font
     {
@@ -49,8 +102,7 @@ namespace app
         font(std::string, int);
        ~font();
 
-        void   grid(std::string, std::vector<rect>&);
-        GLuint draw(std::string, int&, int&, int&, int&);
+        text *render(std::string);
 
         int size() { return s; }
     };
