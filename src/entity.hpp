@@ -14,6 +14,7 @@
 #define ENTITY_HPP
 
 #include <set>
+#include <list>
 #include <map>
 
 #include <ode/ode.h>
@@ -59,6 +60,7 @@ namespace ent
         int     body1;
         int     body2;
         int     file;
+        float   radius;
 
         float default_M[16];
         float current_M[16];
@@ -77,6 +79,8 @@ namespace ent
 
         virtual ent::solid *get_solid() { return 0; }
         virtual ent::joint *get_joint() { return 0; }
+
+        float get_sphere(float[3]);
 
         // Store and recall default transform state.
 
@@ -143,7 +147,8 @@ namespace ent
         virtual ~entity();
     };
 
-    typedef std::set<entity *> set;
+    typedef std::set <entity *> set;
+    typedef std::list<entity *> list;
 }
 
 //-----------------------------------------------------------------------------

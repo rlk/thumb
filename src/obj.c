@@ -2175,7 +2175,7 @@ void obj_draw_axes(int fi, float k)
 
 /*===========================================================================*/
 
-void obj_bound_file(int fi, float b[6])
+void obj_get_file_aabb(int fi, float b[6])
 {
     int vi;
 
@@ -2204,6 +2204,28 @@ void obj_bound_file(int fi, float b[6])
         if (b[4] < v[1]) b[4] = v[1];
         if (b[5] < v[2]) b[5] = v[2];
     }
+}
+
+float obj_get_file_sphr(int fi)
+{
+    float r = 0.0f;
+    int  vi;
+
+    /* Assume the object is centered at the origin.  Find a bounding radius. */
+
+    assert_file(fi);
+
+    for (vi = 0; vi < file(fi)->vc; ++vi)
+    {
+        const float *v = vert(fi, vi)->v;
+
+        float d = (float) sqrt(v[0] * v[0] +
+                               v[1] * v[1] +
+                               v[2] * v[2]);
+        if (r < d)
+            r = d;
+    }
+    return r;
 }
 
 /*===========================================================================*/

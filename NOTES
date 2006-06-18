@@ -89,3 +89,47 @@ Expression Grammar
         E ->   T + E
         E ->   T - E
 
+Octree notes
+
+        Needs
+                Frustum culling for rendering to camera and lightsource views
+                Rubber band selection
+                Picking (optionally)
+                Front-back sorting
+                Invariant preservation is the tough issue
+                "All" arbitrary iteration
+
+        ODE planes could do rubber band selection, but probably are not
+        appropriate for render culling.
+
+        A log(n) implementation MAY not be a performance improvement
+                The tipping point is probably around 1000 objects
+
+
+        Implementation
+                Explicit point representation (PR)
+                Recursive AABB subdivision (MX)
+                        Doesn't grow as nicely as PR
+                Plane straddling could be tough
+
+
+        Static grid octree
+
+                Invariants
+                        Each entity is in exactly ONE cell
+                        This cell is the smallest that contains the entity
+
+                For each moving entity
+                        While the entity is NOT within its current cell
+                                Move it up (necessary)
+
+                        If the entity fits within a subcess of the current cell
+                                Move it down (optimization)
+
+                Entities outside the static index
+                        Sit at the root
+                                Root is infinitely large
+                or
+                        Can't happen
+                                ODE planes bound the space
+                                This would also allow quadtree space to work

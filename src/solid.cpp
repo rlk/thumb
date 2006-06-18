@@ -110,7 +110,7 @@ void ent::box::edit_init()
 
     if (file >= 0)
     {
-        obj_bound_file(file, bound);
+        obj_get_file_aabb(file, bound);
 
         geom = dCreateBox(space, bound[3] - bound[0],
                                  bound[4] - bound[1],
@@ -122,13 +122,11 @@ void ent::box::edit_init()
 
 void ent::sphere::edit_init()
 {
-    float bound[6];
-
     if (file >= 0)
     {
-        obj_bound_file(file, bound);
+        float radius = obj_get_file_sphr(file);
 
-        geom = dCreateSphere(space, (bound[3] - bound[0]) / 2.0f);
+        geom = dCreateSphere(space, radius);
 
         dGeomSetData(geom, this);
         entity_to_geom();
@@ -141,7 +139,7 @@ void ent::capsule::edit_init()
 
     if (file >= 0)
     {
-        obj_bound_file(file, bound);
+        obj_get_file_aabb(file, bound);
 
         float length = (bound[5] - bound[2]);
         float radius = (bound[3] - bound[0]) / 2.0f;

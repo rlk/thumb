@@ -194,13 +194,6 @@ ops::scene::scene() : serial(1)
 
 ops::scene::~scene()
 {
-    // Delete all entities.
-
-    for (ent::set::iterator i = all.begin(); i != all.end(); ++i)
-        delete (*i);
-
-    all.clear();
-
     // Delete all operations.
 
     while (!undo_list.empty())
@@ -220,6 +213,11 @@ ops::scene::~scene()
 bool ops::scene::selected(ent::entity *e)
 {
     return (sel.find(e) != sel.end());
+}
+
+bool ops::scene::selected()
+{
+    return (!sel.empty());
 }
 
 void ops::scene::click_selection(ent::entity *e)
@@ -257,8 +255,10 @@ void ops::scene::invert_selection()
 {
     // Begin with the set of all entities.
 
-    ent::set unselected = all;
+    ent::set unselected;
     ent::set::iterator i;
+
+    all.get(unselected);
 
     // Remove all selected entities.
 
@@ -273,18 +273,17 @@ void ops::scene::invert_selection()
 void ops::scene::extend_selection()
 {
     std::set<int> bodies;
-    ent::set::iterator i;
 
     // Define a set of the body IDs of all selected entities.
 
-    for (i = sel.begin(); i != sel.end(); ++i)
+    for (ent::set::iterator i = sel.begin(); i != sel.end(); ++i)
         bodies.insert((*i)->body());
 
     // Add all entities with an included body ID to the selection.
 
-    for (i = all.begin(); i != all.end(); ++i)
-        if (bodies.find((*i)->body()) != bodies.end())
-            sel.insert(*i);
+    for (ent::oct::iterator j = all.begin(); j != all.end(); ++j)
+        if (bodies.find((*j)->body()) != bodies.end())
+            sel.insert(*j);
 }
 
 void ops::scene::create_set(ent::set& set)
@@ -308,7 +307,7 @@ void ops::scene::delete_set(ent::set& set)
 
     for (i = set.begin(); i != set.end(); ++i)
     {
-        all.erase(all.find(*i));
+        all.remove(*i);
         (*i)->edit_fini();
     }
 }
@@ -330,7 +329,7 @@ void ops::scene::modify_set(ent::set& set, const float T[16])
 
 void ops::scene::embody_all()
 {
-    ent::set::iterator i;
+    ent::oct::iterator i;
     body_map::iterator j;
 
     int id;
@@ -377,7 +376,7 @@ void ops::scene::embody_all()
 
 void ops::scene::debody_all()
 {
-    ent::set::iterator i;
+    ent::oct::iterator i;
     body_map::iterator j;
 
     // Revert the state of all active entities.
@@ -396,7 +395,7 @@ void ops::scene::debody_all()
 
 void ops::scene::update_joints()
 {
-    ent::set::iterator i;
+    ent::oct::iterator i;
 
     // Apply any varying joint parameters before the next ODE step.
 
@@ -407,7 +406,7 @@ void ops::scene::update_joints()
 
 void ops::scene::update_solids()
 {
-    ent::set::iterator i;
+    ent::oct::iterator i;
 
     // Update the active entity current positions after the last ODE step.
 
@@ -495,33 +494,34 @@ void ops::scene::do_create()
     std::set<int> B;
     std::set<int> C;
 
-    ent::set::iterator i;
+    ent::oct::iterator i;
+    ent::set::iterator j;
 
     // Find all conflicting body IDs.
 
     for (i = all.begin(); i != all.end(); ++i)
         if ((*i)->body()) A.insert((*i)->body());
 
-    for (i = sel.begin(); i != sel.end(); ++i)
-        if ((*i)->body()) B.insert((*i)->body());
+    for (j = sel.begin(); j != sel.end(); ++j)
+        if ((*j)->body()) B.insert((*j)->body());
 
-    std::set_intersection(A.begin(), A.end(), B.begin(), B.end(),
-                          std::inserter(C, C.begin()));
+    std::set_intersection(A.begin(), A.end(),
+                          B.begin(), B.end(), std::inserter(C, C.begin()));
 
     // Generate a new body ID for each conflicting ID.
 
-    std::set<int>::iterator j;
+    std::set<int>::iterator k;
     std::map<int, int>      M;
 
-    for (j = C.begin(); j != C.end(); ++j)
-        if (*j) M[*j] = serial++;
+    for (k = C.begin(); k != C.end(); ++k)
+        if (*k) M[*k] = serial++;
 
     // Remap conflicting IDs.
 
-    for (i = sel.begin(); i != sel.end(); ++i)
+    for (j = sel.begin(); j != sel.end(); ++j)
     {
-        if (M[(*i)->body()]) (*i)->body(M[(*i)->body()]);
-        if (M[(*i)->join()]) (*i)->join(M[(*i)->join()]);
+        if (M[(*j)->body()]) (*j)->body(M[(*j)->body()]);
+        if (M[(*j)->join()]) (*j)->join(M[(*j)->join()]);
     }
 
     // (This will have nullified all broken joint target IDs.)
@@ -633,7 +633,7 @@ static const char *save_cb(mxml_node_t *node, int where)
 
 void ops::scene::init()
 {
-    sel = all;
+    all.get(sel);
     do_delete();
 }
 
@@ -715,7 +715,7 @@ void ops::scene::load(std::string filename)
 
         // Ensure the body group serial number does not conflict.
 
-        for (ent::set::iterator i = all.begin(); i != all.end(); ++i)
+        for (ent::oct::iterator i = all.begin(); i != all.end(); ++i)
         {
             serial = MAX(serial, (*i)->body() + 1);
             serial = MAX(serial, (*i)->join() + 1);
@@ -730,10 +730,20 @@ void ops::scene::load(std::string filename)
 
 void ops::scene::save(std::string filename, bool save_all)
 {
-    ent::set::const_iterator b = save_all ? all.begin() : sel.begin();
-    ent::set::const_iterator e = save_all ? all.end()   : sel.end();
+    ent::set::const_iterator b = sel.begin();
+    ent::set::const_iterator e = sel.end();
+
+    ent::set save;
 
     FILE *fp;
+
+    if (save_all)
+    {
+        all.get(save);
+
+        b = save.begin();
+        e = save.end();
+    }
 
     if ((fp = fopen(filename.c_str(), "w")))
     {
@@ -757,10 +767,7 @@ void ops::scene::save(std::string filename, bool save_all)
 
 void ops::scene::draw_fill() const
 {
-    ent::set::const_iterator i;
-
-    for (i = all.begin(); i != all.end(); ++i)
-        (*i)->draw_fill();
+    all.draw_fill();
 }
 
 void ops::scene::draw_line() const
@@ -773,10 +780,7 @@ void ops::scene::draw_line() const
 
 void ops::scene::draw_foci() const
 {
-    ent::set::const_iterator i;
-
-    for (i = all.begin(); i != all.end(); ++i)
-        (*i)->draw_foci();
+    all.draw_foci();
 }
 
 //-----------------------------------------------------------------------------

@@ -18,6 +18,7 @@
 #include <list>
 
 #include "entity.hpp"
+#include "oct.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -131,7 +132,7 @@ namespace ops
 
     class scene
     {
-        ent::set all;
+        ent::oct all;
         ent::set sel;
         
         body_map bodies;
@@ -151,6 +152,7 @@ namespace ops
         // Editing operations.
 
         bool selected(ent::entity *);
+        bool selected();
 
         void click_selection(ent::entity *);
         void clone_selection();

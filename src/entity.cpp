@@ -179,10 +179,12 @@ ent::entity *ent::entity::focused()
 
 //-----------------------------------------------------------------------------
 
-ent::entity::entity(int f) : geom(0), body1(0), body2(0), file(f)
+ent::entity::entity(int f) : geom(0), body1(0), body2(0), file(f), radius(0)
 {
     load_idt(default_M);
     load_idt(current_M);
+
+    if (file >= 0) radius = obj_get_file_sphr(file);
 }
 
 ent::entity::~entity()
@@ -258,6 +260,15 @@ void ent::entity::get_default()
     memcpy(current_M, default_M, 16 * sizeof (float));
 
     entity_to_geom();
+}
+
+float ent::entity::get_sphere(float p[3])
+{
+    p[0] = current_M[12];
+    p[1] = current_M[13];
+    p[2] = current_M[14];
+
+    return radius;
 }
 
 //-----------------------------------------------------------------------------

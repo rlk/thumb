@@ -112,7 +112,8 @@ bool mode::edit::click(int b, bool d)
         {
             // If a selected entity is clicked, a drag may be beginning.
 
-/*          if (scene.selected(focus)) */
+//          if (scene.selected(focus))
+            if (scene.selected())
             {
                 transform.click(point_p, point_v);
                 drag = true;

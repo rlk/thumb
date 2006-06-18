@@ -87,6 +87,11 @@ int  obj_get_surf(int, int);
 
 /*---------------------------------------------------------------------------*/
 
+void  obj_get_file_aabb(int, float[6]);
+float obj_get_file_sphr(int);
+
+/*---------------------------------------------------------------------------*/
+
 void obj_mini_file(int);
 void obj_norm_file(int);
 void obj_proc_file(int);
@@ -98,7 +103,6 @@ void obj_draw_surf(int, int);
 void obj_draw_file(int);
 void obj_draw_axes(int, float);
 
-void  obj_bound_file(int, float v[6]);
 void  obj_write_file(int, const char *, const char *);
 void *obj_read_image(const char *, int *, int *, int *);
 
