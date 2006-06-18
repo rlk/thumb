@@ -14,7 +14,7 @@
 
 //-----------------------------------------------------------------------------
 
-void ent::oct::node::draw_fill() const
+void ent::oct::cell::draw_fill() const
 {
     ent::set::const_iterator i;
 
@@ -22,7 +22,7 @@ void ent::oct::node::draw_fill() const
         (*i)->draw_fill();
 }
 
-void ent::oct::node::draw_foci() const
+void ent::oct::cell::draw_foci() const
 {
     ent::set::const_iterator i;
 
@@ -36,10 +36,21 @@ ent::oct::oct(float range, int depth) :
 
     range(range),
     depth(depth),
-
-    count(1 << depth * 3)
+    count(1)
 {
-    tree = new node[count];
+    int c = 1;
+
+    // Compute the size of the octree.
+
+    for (int i = 0; i < depth; ++i)
+    {
+        c     *= 8;
+        count += c;
+    }
+
+    // Allocate the tree structure.
+
+    tree = new cell[count];
 }
 
 ent::oct::~oct()
@@ -58,18 +69,130 @@ ent::oct::~oct()
 
 //-----------------------------------------------------------------------------
 
+void ent::oct::aabb(float b[6], int c) const
+{
+    float r = 2 * range;
+    float s = 2 * range;
+
+    b[0] = -range;
+    b[1] = -range;
+    b[2] = -range;
+
+    int p;
+
+    // Determine the size of cell c.
+
+    for (p = c; p > 0; p = up(p))
+         r = s = s / 2;
+
+    // Determine the location of cell c.
+
+    for (p = c; p > 0; p = up(p))
+    {
+        if ((p - 1) & 1) b[0] += s;
+        if ((p - 1) & 2) b[1] += s;
+        if ((p - 1) & 4) b[2] += s;
+
+        s *= 2;
+    }
+
+    // Return a complete bounding box.
+
+    b[3] = b[0] + r;
+    b[4] = b[1] + r;
+    b[5] = b[2] + r;
+}
+
+bool ent::oct::test(entity *e, int c) const
+{
+    float p[3], r = e->get_sphere(p);
+    float b[6];
+
+    // Return true if entity e fits entirely within in cell c.
+
+    aabb(b, c);
+
+    return (p[0] <= b[0] + r || b[3] - r < p[0] ||
+            p[1] <= b[1] + r || b[4] - r < p[1] ||
+            p[2] <= b[2] + r || b[5] - r < p[2]) ? false : true;
+}
+
+void ent::oct::move(entity *e, int c)
+{
+    // Move entity e from its current cell to cell c.
+
+    tree[e->cell( )].entities.erase(tree[e->cell( )].entities.find(e));
+    tree[e->cell(c)].entities.insert(e);
+}
+
+bool ent::oct::push(entity *e)
+{
+    // Push entity e to any child that will take it.
+
+    if (dn(e->cell(), 0) < count)
+        for (int i = 0; i < 8; ++i)
+            if (test(e, dn(e->cell(), i)))
+            {
+                move(e, dn(e->cell(), i));
+                return true;
+            }
+
+    // TODO: optimize this to use only one move.
+
+    return false;
+}
+
+bool ent::oct::pull(entity *e)
+{
+    // Pull entity e up to the parent.
+
+    if (e->cell())
+    {
+        move(e, up(e->cell()));
+
+        return !test(e, e->cell());
+    }
+    return false;
+}
+
+void ent::oct::seek(entity *e)
+{
+    if (test(e, e->cell()))
+    {
+        // Push entity e down to the deepest child that will take it.
+
+        while (push(e))
+            ;
+    }
+    else
+    {
+        // Pull entity e up to the shallowest parent that will take it.
+
+        while (pull(e))
+            ;
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 void ent::oct::insert(entity *e)
 {
-    all.insert(e);
+    tree[e->cell(0)].entities.insert(e);
+    seek(e);
 
-    tree[0].entities.insert(e);
+    all.insert(e);
 }
 
 void ent::oct::remove(entity *e)
 {
-    all.erase(all.find(e));
+    tree[e->cell()].entities.erase(tree[e->cell()].entities.find(e));
 
-    tree[0].entities.erase(tree[0].entities.find(e));
+    all.erase(all.find(e));
+}
+
+void ent::oct::modify(entity *e)
+{
+    seek(e);
 }
 
 //-----------------------------------------------------------------------------

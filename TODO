@@ -1,3 +1,5 @@
+Octree seek on solid update.
+Minimize number of moves in octree seek.
 Documentation.
 Add capsule.
 Rubber-band select.

@@ -21,10 +21,12 @@ namespace ent
 {
     class oct
     {
-        //---------------------------------------------------------------------
-        // Octree node
+    private:
 
-        struct node
+        //---------------------------------------------------------------------
+        // Octree cell
+
+        struct cell
         {
             ent::set entities;
 
@@ -35,24 +37,33 @@ namespace ent
         //---------------------------------------------------------------------
         // Octree
 
-    private:
+        int up(int c)        const { return (c - 1) >> 3;      }
+        int dn(int p, int i) const { return (8 * p) + (i + 1); }
 
         ent::set all;
 
         float range;
         int   depth;
         int   count;
-        node *tree;
+        cell *tree;
+
+        void aabb(float[6], int) const;
+        bool test(entity *, int) const;
+        void move(entity *, int);
+        bool push(entity *);
+        bool pull(entity *);
+        void seek(entity *);
 
     public:
 
         typedef ent::set::iterator iterator;
 
-        oct(float range=256, int depth=5);
+        oct(float range=64, int depth=5);
        ~oct();
 
         void insert(entity *e);
         void remove(entity *e);
+        void modify(entity *e);
 
         iterator begin() { return all.begin(); }
         iterator end()   { return all.end();   }

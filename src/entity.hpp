@@ -59,6 +59,7 @@ namespace ent
         dGeomID geom;
         int     body1;
         int     body2;
+        int     celli;
         int     file;
         float   radius;
 
@@ -102,13 +103,15 @@ namespace ent
         void get_world(float[16]) const;
         void get_local(float[16]) const;
 
-        // Manage body and joint associations.
+        // Manage body and joint and cell associations.
 
-        virtual int  link() const { return body1; }
-        virtual void body(int i)  { body1 = i;    }
-        virtual int  body() const { return body1; }
-        virtual void join(int i)  { body2 = i;    }
-        virtual int  join() const { return body2; }
+        virtual int link() const { return (body1    ); }
+        virtual int body(int i)  { return (body1 = i); }
+        virtual int body() const { return (body1    ); }
+        virtual int join(int i)  { return (body2 = i); }
+        virtual int join() const { return (body2    ); }
+        virtual int cell(int i)  { return (celli = i); }
+        virtual int cell() const { return (celli    ); }
 
         // Manage ODE geometry and body state.
 

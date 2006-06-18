@@ -322,6 +322,8 @@ void ops::scene::modify_set(ent::set& set, const float T[16])
     {
         (*i)->mult_world(T);
         (*i)->set_default();
+
+        all.modify(*i);
     }
 }
 
@@ -413,6 +415,8 @@ void ops::scene::update_solids()
     for (i = all.begin(); i != all.end(); ++i)
         if ((*i)->get_solid())
             (*i)->get_solid()->geom_to_entity();
+
+    // TODO: octree seek goes here.
 }
 
 void ops::scene::set_param(int k, std::string& expr)

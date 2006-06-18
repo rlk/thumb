@@ -54,8 +54,8 @@ namespace ent
         void set_param(int, std::string&);
         bool get_param(int, std::string&);
 
-        virtual void join(int)    {           }
-        virtual int  join() const { return 0; }
+        virtual int join(int)    { return 0; }
+        virtual int join() const { return 0; }
 
         virtual void play_init(dBodyID);
         virtual void play_tran(dBodyID);
