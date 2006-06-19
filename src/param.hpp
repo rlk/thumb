@@ -134,7 +134,7 @@ namespace ent
         solid_param_friction() : solid_param("100") { }
 
         void apply(dSurfaceParameters& surface) {
-            surface.mu = MIN(surface.mu, value_f());
+            surface.mu = MIN(surface.mu, (dReal) value_f());
         }
         solid_param_friction *clone() const {
             return new solid_param_friction(*this);
@@ -149,7 +149,7 @@ namespace ent
         solid_param_bounce() : solid_param("0.5") { }
 
         void apply(dSurfaceParameters& surface) {
-            surface.bounce = MAX(surface.bounce, value_f());
+            surface.bounce = MAX(surface.bounce, (dReal) value_f());
         }
         solid_param_bounce *clone() const {
             return new solid_param_bounce(*this);
@@ -164,7 +164,7 @@ namespace ent
         solid_param_soft_erp() : solid_param("0.2") { }
 
         void apply(dSurfaceParameters& surface) {
-            surface.soft_erp = MIN(surface.soft_erp, value_f());
+            surface.soft_erp = MIN(surface.soft_erp, (dReal) value_f());
         }
         solid_param_soft_erp *clone() const {
             return new solid_param_soft_erp(*this);
@@ -179,7 +179,7 @@ namespace ent
         solid_param_soft_cfm() : solid_param("0.0") { }
 
         void apply(dSurfaceParameters& surface) {
-            surface.soft_cfm = MAX(surface.soft_cfm, value_f());
+            surface.soft_cfm = MAX(surface.soft_cfm, (dReal) value_f());
         }
         solid_param_soft_cfm *clone() const {
             return new solid_param_soft_cfm(*this);
@@ -199,7 +199,7 @@ namespace ent
         joint_param_velocity(int axis=0) : joint_param("0", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamVel + dParamGroup * axis, value_f());
+            func(joint, dParamVel + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_velocity *clone() const {
             return new joint_param_velocity(*this);
@@ -214,7 +214,7 @@ namespace ent
         joint_param_force(int axis=0) : joint_param("0", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamFMax + dParamGroup * axis, value_f());
+            func(joint, dParamFMax + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_force *clone() const {
             return new joint_param_force(*this);
@@ -229,7 +229,7 @@ namespace ent
         joint_param_cfm(int axis=0) : joint_param("0", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamCFM + dParamGroup * axis, value_f());
+            func(joint, dParamCFM + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_cfm *clone() const {
             return new joint_param_cfm(*this);
@@ -244,7 +244,7 @@ namespace ent
         joint_param_bounce(int axis=0) : joint_param("0.5", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamBounce + dParamGroup * axis, value_f());
+            func(joint, dParamBounce + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_bounce *clone() const {
             return new joint_param_bounce(*this);
@@ -259,7 +259,7 @@ namespace ent
         joint_param_lo_stop(int axis=0) : joint_param("-inf", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamLoStop + dParamGroup * axis, value_f());
+            func(joint, dParamLoStop + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_lo_stop *clone() const {
             return new joint_param_lo_stop(*this);
@@ -274,7 +274,7 @@ namespace ent
         joint_param_hi_stop(int axis=0) : joint_param("inf", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamHiStop + dParamGroup * axis, value_f());
+            func(joint, dParamHiStop + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_hi_stop *clone() const {
             return new joint_param_hi_stop(*this);
@@ -289,7 +289,7 @@ namespace ent
         joint_param_stop_erp(int axis=0) : joint_param("0.2", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamStopERP + dParamGroup * axis, value_f());
+            func(joint, dParamStopERP + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_stop_erp *clone() const {
             return new joint_param_stop_erp(*this);
@@ -304,7 +304,7 @@ namespace ent
         joint_param_stop_cfm(int axis=0) : joint_param("0.0", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamStopCFM + dParamGroup * axis, value_f());
+            func(joint, dParamStopCFM + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_stop_cfm *clone() const {
             return new joint_param_stop_cfm(*this);
@@ -319,7 +319,7 @@ namespace ent
         joint_param_susp_erp(int axis=0) : joint_param("0.2", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamSuspensionERP + dParamGroup * axis, value_f());
+            func(joint, dParamSuspensionERP + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_susp_erp *clone() const {
             return new joint_param_susp_erp(*this);
@@ -334,7 +334,7 @@ namespace ent
         joint_param_susp_cfm(int axis=0) : joint_param("0.0", axis) { }
 
         void apply(dJointSetParam func, dJointID joint) {
-            func(joint, dParamSuspensionCFM + dParamGroup * axis, value_f());
+            func(joint, dParamSuspensionCFM + dParamGroup * axis, (dReal) value_f());
         }
         joint_param_susp_cfm *clone() const {
             return new joint_param_susp_cfm(*this);

@@ -178,7 +178,7 @@ void ent::oct::seek(entity *e)
 void ent::oct::insert(entity *e)
 {
     tree[e->cell(0)].entities.insert(e);
-    seek(e);
+//  seek(e);
 
     all.insert(e);
 }
@@ -192,21 +192,27 @@ void ent::oct::remove(entity *e)
 
 void ent::oct::modify(entity *e)
 {
-    seek(e);
+//  seek(e);
 }
 
 //-----------------------------------------------------------------------------
 
 void ent::oct::draw_fill() const
 {
-    for (int c = 0; c < count; ++c)
-        tree[c].draw_fill();
+//  for (int c = 0; c < count; ++c)
+//      tree[c].draw_fill();
+
+	for (ent::set::const_iterator i = all.begin(); i != all.end(); ++i)
+		(*i)->draw_fill();
 }
 
 void ent::oct::draw_foci() const
 {
-    for (int c = 0; c < count; ++c)
-        tree[c].draw_foci();
+ // for (int c = 0; c < count; ++c)
+ //     tree[c].draw_foci();
+
+	for (ent::set::const_iterator i = all.begin(); i != all.end(); ++i)
+		(*i)->draw_foci();
 }
 
 //-----------------------------------------------------------------------------

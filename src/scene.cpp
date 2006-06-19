@@ -438,7 +438,7 @@ int ops::scene::get_param(int k, std::string& expr)
         if ((*i)->get_param(k, expr))
             values.insert(expr);
 
-    return values.size();
+    return int(values.size());
 }
 
 //-----------------------------------------------------------------------------

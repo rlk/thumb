@@ -14,21 +14,78 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#include <dirent.h>
 
 #include "directory.hpp"
 
 //-----------------------------------------------------------------------------
+// Unix directory access abstraction.
+
+#ifndef _WIN32
+#include <dirent.h>
+
+static DIR *D = 0;
+
+std::string dir_scan(std::string& dir)
+{
+    struct dirent *ent;
+
+    if (D == 0)
+        D = opendir(dir.c_str());
+
+    if (D && (ent = readdir(D)))
+        return dir + std::string(ent->d_name());
+
+    return "";
+}
+
+void dir_close()
+{
+    if (D) closedir(D);
+    D = 0;
+}
+
+//-----------------------------------------------------------------------------
+// Win32 directory access abstraction.
+
+#else
+#include <windows.h>
+
+static HANDLE          H = INVALID_HANDLE_VALUE;
+static WIN32_FIND_DATA D;
+
+std::string dir_scan(std::string& dir)
+{
+    if (H == INVALID_HANDLE_VALUE)
+    {
+        std::string pattern = dir + "*";
+
+        if ((H = FindFirstFile(pattern.c_str(), &D)) != INVALID_HANDLE_VALUE)
+            return D.cFileName;
+    }
+    else
+    {
+        if (FindNextFile(H, &D))
+            return D.cFileName;
+    }
+    return "";
+}
+
+void dir_close()
+{
+    FindClose(H);
+    H = INVALID_HANDLE_VALUE;
+}
+
+//-----------------------------------------------------------------------------
+#endif
 
 directory::directory(std::string start)
 {
     std::string name;
 
-    DIR *D;
-
     // Test for the given directory's existence.
 
-    if ((D = opendir(start.c_str())))
+    if (dir_scan(start).length() > 0)
     {
         // Parse the given path name into a stack of directory names.
 
@@ -45,8 +102,6 @@ directory::directory(std::string start)
         // Include any trailing directory name not ending in '/'.
 
         if (!name.empty()) path.push_back(name);
-
-        closedir(D);
     }
     else
     {
@@ -54,6 +109,7 @@ directory::directory(std::string start)
 
         path.push_back("/");
     }
+    dir_close();
 }
 
 std::string directory::cwd()
@@ -82,43 +138,36 @@ void directory::set(std::string name)
 void directory::get(strvec& dirs, strvec& regs, std::string& ext)
 {
     std::string path = cwd();
+    std::string file;
+    std::string name;
 
-    DIR *D;
+    // Scan the current working directory.
 
-    if ((D = opendir(path.c_str())))
+    while ((name = dir_scan(path)).length() > 0)
     {
-        struct dirent *ent;
-        struct stat    buf;
+        struct stat buf;
 
-        // Scan the current working directory.
+        file = path + name;
+        
+        // Store the name of all matching files and subdirectories.
 
-        while ((ent = readdir(D)))
+        if (stat(file.c_str(), &buf) == 0)
         {
-            std::string name(ent->d_name);
-            std::string file = path + name;
+            if (((buf.st_mode) & S_IFMT) == S_IFDIR)
+                dirs.push_back(name);
 
-            if (name == ".." || name[0] != '.')
+            if (((buf.st_mode) & S_IFMT) == S_IFREG)
             {
-                // Store the name of all matching files and subdirectories.
+                size_t dot = name.rfind(".");
 
-                if (stat(file.c_str(), &buf) == 0)
-                {
-                    if (S_ISDIR(buf.st_mode))
-                        dirs.push_back(name);
-
-                    if (S_ISREG(buf.st_mode))
-                    {
-                        size_t dot = file.rfind(".");
-
-                        if (std::string::npos      != dot &&
-                            std::string(file, dot) == ext)
-                                regs.push_back(name);
-                    }
-                }
+                if (std::string::npos      != dot &&
+                    std::string(name, dot) == ext)
+                        regs.push_back(name);
             }
         }
-        closedir(D);
+        else printf("stat fail %s\n", file.c_str());
     }
+    dir_close();
 }
 
 //-----------------------------------------------------------------------------

@@ -590,14 +590,14 @@ void ent::entity::load(mxml_node_t *node)
     {
         std::string name(n->value.element.name);
 
-        if      (name == "rot_x") q[0] = n->child->value.real;
-        else if (name == "rot_y") q[1] = n->child->value.real;
-        else if (name == "rot_z") q[2] = n->child->value.real;
-        else if (name == "rot_w") q[3] = n->child->value.real;
+        if      (name == "rot_x") q[0] = float(n->child->value.real);
+        else if (name == "rot_y") q[1] = float(n->child->value.real);
+        else if (name == "rot_z") q[2] = float(n->child->value.real);
+        else if (name == "rot_w") q[3] = float(n->child->value.real);
 
-        else if (name == "pos_x") p[0] = n->child->value.real;
-        else if (name == "pos_y") p[1] = n->child->value.real;
-        else if (name == "pos_z") p[2] = n->child->value.real;
+        else if (name == "pos_x") p[0] = float(n->child->value.real);
+        else if (name == "pos_y") p[1] = float(n->child->value.real);
+        else if (name == "pos_z") p[2] = float(n->child->value.real);
 
         else if (name == "body1") body1 = n->child->value.integer;
         else if (name == "body2") body2 = n->child->value.integer;

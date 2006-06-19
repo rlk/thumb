@@ -13,6 +13,7 @@
 #include <stdexcept>
 
 #include "font.hpp"
+#include "main.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -169,12 +170,14 @@ void app::text::set(const GLubyte *p)
 
 app::font::font(std::string filename, int size) : s(size)
 {
+    std::string ttf = ::data->get_absolute(filename);
+
     // Initialize the font library and font face.
 
     if (FT_Init_FreeType(&library))
         throw std::runtime_error("Failure starting FreeType2");
 
-    if (FT_New_Face(library, filename.c_str(), 0, &face))
+    if (FT_New_Face(library, ttf.c_str(), 0, &face))
         throw std::runtime_error("Failure loading font file");
 
     if (FT_Set_Pixel_Sizes(face, 0, size))

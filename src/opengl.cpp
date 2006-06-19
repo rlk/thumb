@@ -87,7 +87,7 @@ void init_ogl()
     init_ext("ARB_shader_objects");
     init_ext("ARB_fragment_shader");
     init_ext("ARB_vertex_buffer_object");
-    init_ext("ARB_pixel_buffer_object");
+//  init_ext("ARB_pixel_buffer_object");
     init_ext("EXT_framebuffer_object");
 
 #ifndef __APPLE__

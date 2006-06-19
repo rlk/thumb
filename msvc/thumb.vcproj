@@ -2,7 +2,7 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="7.10"
-	Name="demo"
+	Name="thumb"
 	ProjectGUID="{E348CA93-DAD7-466F-B9AE-0A6C323DB340}"
 	Keyword="Win32Proj">
 	<Platforms>
@@ -31,12 +31,12 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glu32.lib opengl32.lib ode.lib libjpeg.lib libpng.lib zlib.lib SDL.lib SDLmain.lib"
-				OutputFile="demo.exe"
+				AdditionalDependencies="glu32.lib opengl32.lib mxml.lib freetype.lib ode.lib libjpeg.lib libpng.lib zlib.lib SDL.lib SDLmain.lib"
+				OutputFile="..\..\thumb.exe"
 				LinkIncremental="2"
 				IgnoreAllDefaultLibraries="FALSE"
 				GenerateDebugInformation="TRUE"
-				ProgramDatabaseFile="$(OutDir)/demo.pdb"
+				ProgramDatabaseFile="$(OutDir)/thumb.pdb"
 				SubSystem="2"
 				TargetMachine="1"/>
 			<Tool
@@ -78,8 +78,8 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="glu32.lib opengl32.lib ode.lib libjpeg.lib libpng.lib zlib.lib SDL.lib SDLmain.lib"
-				OutputFile="demo.exe"
+				AdditionalDependencies="glu32.lib opengl32.lib mxml.lib freetype.lib ode.lib libjpeg.lib libpng.lib zlib.lib SDL.lib SDLmain.lib"
+				OutputFile="..\thumb.exe"
 				LinkIncremental="1"
 				IgnoreAllDefaultLibraries="FALSE"
 				GenerateDebugInformation="TRUE"
@@ -117,64 +117,94 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
-				RelativePath=".\app.cpp">
+				RelativePath="..\src\camera.cpp">
 			</File>
 			<File
-				RelativePath=".\camera.cpp">
+				RelativePath="..\src\conf.cpp">
 			</File>
 			<File
-				RelativePath=".\conf.cpp">
+				RelativePath="..\src\constraint.cpp">
 			</File>
 			<File
-				RelativePath=".\constraint.cpp">
+				RelativePath="..\src\control.cpp">
 			</File>
 			<File
-				RelativePath=".\data.cpp">
+				RelativePath="..\src\data.cpp">
 			</File>
 			<File
-				RelativePath=".\demo.cpp">
+				RelativePath="..\src\demo.cpp">
 			</File>
 			<File
-				RelativePath=".\earth.cpp">
+				RelativePath="..\src\directory.cpp">
 			</File>
 			<File
-				RelativePath=".\entity.cpp">
+				RelativePath="..\src\earth.cpp">
 			</File>
 			<File
-				RelativePath=".\image.cpp">
+				RelativePath="..\src\edit.cpp">
 			</File>
 			<File
-				RelativePath=".\joint.cpp">
+				RelativePath="..\src\entity.cpp">
 			</File>
 			<File
-				RelativePath=".\light.cpp">
+				RelativePath="..\src\font.cpp">
 			</File>
 			<File
-				RelativePath=".\main.cpp">
+				RelativePath="..\src\gui.cpp">
 			</File>
 			<File
-				RelativePath=".\matrix.cpp">
+				RelativePath="..\src\image.cpp">
 			</File>
 			<File
-				RelativePath=".\obj.c">
+				RelativePath="..\src\info.cpp">
 			</File>
 			<File
-				RelativePath=".\opengl.cpp">
+				RelativePath="..\src\joint.cpp">
 			</File>
 			<File
-				RelativePath=".\operation.cpp">
+				RelativePath="..\src\lang.cpp">
 			</File>
 			<File
-				RelativePath=".\scene.cpp">
+				RelativePath="..\src\light.cpp">
 			</File>
 			<File
-				RelativePath=".\sky.cpp">
+				RelativePath="..\src\main.cpp">
 			</File>
 			<File
-				RelativePath=".\solid.cpp">
+				RelativePath="..\src\matrix.cpp">
 			</File>
 			<File
-				RelativePath=".\util.cpp">
+				RelativePath="..\src\mode.cpp">
+			</File>
+			<File
+				RelativePath="..\src\obj.c">
+			</File>
+			<File
+				RelativePath="..\src\oct.cpp">
+			</File>
+			<File
+				RelativePath="..\src\opengl.cpp">
+			</File>
+			<File
+				RelativePath="..\src\param.cpp">
+			</File>
+			<File
+				RelativePath="..\src\play.cpp">
+			</File>
+			<File
+				RelativePath="..\src\prog.cpp">
+			</File>
+			<File
+				RelativePath="..\src\scene.cpp">
+			</File>
+			<File
+				RelativePath="..\src\sky.cpp">
+			</File>
+			<File
+				RelativePath="..\src\solid.cpp">
+			</File>
+			<File
+				RelativePath="..\src\util.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -182,73 +212,100 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
-				RelativePath=".\app.hpp">
+				RelativePath="..\src\camera.hpp">
 			</File>
 			<File
-				RelativePath=".\box.hpp">
+				RelativePath="..\src\conf.hpp">
 			</File>
 			<File
-				RelativePath=".\camera.hpp">
+				RelativePath="..\src\constraint.hpp">
 			</File>
 			<File
-				RelativePath=".\conf.hpp">
+				RelativePath="..\src\control.hpp">
 			</File>
 			<File
-				RelativePath=".\constraint.hpp">
+				RelativePath="..\src\data.hpp">
 			</File>
 			<File
-				RelativePath=".\data.hpp">
+				RelativePath="..\src\demo.hpp">
 			</File>
 			<File
-				RelativePath=".\demo.hpp">
+				RelativePath="..\src\directory.hpp">
 			</File>
 			<File
-				RelativePath=".\earth.hpp">
+				RelativePath="..\src\earth.hpp">
 			</File>
 			<File
-				RelativePath=".\entity.hpp">
+				RelativePath="..\src\edit.hpp">
 			</File>
 			<File
-				RelativePath=".\glext.h">
+				RelativePath="..\src\entity.hpp">
 			</File>
 			<File
-				RelativePath=".\image.hpp">
+				RelativePath="..\src\font.hpp">
 			</File>
 			<File
-				RelativePath=".\joint.hpp">
+				RelativePath="..\src\glext.h">
 			</File>
 			<File
-				RelativePath=".\light.hpp">
+				RelativePath="..\src\gui.hpp">
 			</File>
 			<File
-				RelativePath=".\main.hpp">
+				RelativePath="..\src\image.hpp">
 			</File>
 			<File
-				RelativePath=".\matrix.hpp">
+				RelativePath="..\src\info.hpp">
 			</File>
 			<File
-				RelativePath=".\obj.h">
+				RelativePath="..\src\joint.hpp">
 			</File>
 			<File
-				RelativePath=".\opengl.hpp">
+				RelativePath="..\src\lang.hpp">
 			</File>
 			<File
-				RelativePath=".\operation.hpp">
+				RelativePath="..\src\light.hpp">
 			</File>
 			<File
-				RelativePath=".\plane.hpp">
+				RelativePath="..\src\main.hpp">
 			</File>
 			<File
-				RelativePath=".\scene.hpp">
+				RelativePath="..\src\matrix.hpp">
 			</File>
 			<File
-				RelativePath=".\sky.hpp">
+				RelativePath="..\src\mode.hpp">
 			</File>
 			<File
-				RelativePath=".\solid.hpp">
+				RelativePath="..\src\obj.h">
 			</File>
 			<File
-				RelativePath=".\util.hpp">
+				RelativePath="..\src\oct.hpp">
+			</File>
+			<File
+				RelativePath="..\src\opengl.hpp">
+			</File>
+			<File
+				RelativePath="..\src\param.hpp">
+			</File>
+			<File
+				RelativePath="..\src\play.hpp">
+			</File>
+			<File
+				RelativePath="..\src\prog.hpp">
+			</File>
+			<File
+				RelativePath="..\src\rect.hpp">
+			</File>
+			<File
+				RelativePath="..\src\scene.hpp">
+			</File>
+			<File
+				RelativePath="..\src\sky.hpp">
+			</File>
+			<File
+				RelativePath="..\src\solid.hpp">
+			</File>
+			<File
+				RelativePath="..\src\util.hpp">
 			</File>
 		</Filter>
 		<Filter

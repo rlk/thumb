@@ -1,5 +1,5 @@
 Microsoft Visual Studio Solution File, Format Version 8.00
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "demo", "demo.vcproj", "{E348CA93-DAD7-466F-B9AE-0A6C323DB340}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "thumb", "thumb.vcproj", "{E348CA93-DAD7-466F-B9AE-0A6C323DB340}"
 	ProjectSection(ProjectDependencies) = postProject
 	EndProjectSection
 EndProject

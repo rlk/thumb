@@ -246,11 +246,12 @@ void ent::box::play_init(dBodyID body)
     if (body)
     {
         dVector3 v;
+		dReal    d = (dReal) params[density]->value_f();
 
         // Compute the mass of this box.
 
         dGeomBoxGetLengths(geom, v);
-        dMassSetBox(&mass, params[density]->value_f(), v[0], v[1], v[2]);
+        dMassSetBox(&mass, d, v[0], v[1], v[2]);
 
         solid::play_init(body);
     }
@@ -261,11 +262,12 @@ void ent::sphere::play_init(dBodyID body)
     if (body)
     {
         dReal r;
+		dReal d = (dReal) params[density]->value_f();
 
         // Compute the mass of this sphere.
 
         r = dGeomSphereGetRadius(geom);
-        dMassSetSphere(&mass, params[density]->value_f(), r);
+        dMassSetSphere(&mass, d, r);
 
         solid::play_init(body);
     }
@@ -277,11 +279,12 @@ void ent::capsule::play_init(dBodyID body)
     {
         dReal r;
         dReal l;
+		dReal d = (dReal) params[density]->value_f();
 
         // Compute the mass of this sphere.
 
         dGeomCCylinderGetParams(geom, &r, &l);
-        dMassSetCappedCylinder(&mass, params[density]->value_f(), 3, r, l);
+        dMassSetCappedCylinder(&mass, d, 3, r, l);
 
         solid::play_init(body);
     }

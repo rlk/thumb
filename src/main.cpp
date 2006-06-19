@@ -152,7 +152,7 @@ static void stat()
     }
 }
 
-static bool loop(int argc, char *argv[])
+static bool loop(std::string& conf_file, std::string& lang_file)
 {
     int w, h, b, m;
 
@@ -185,8 +185,8 @@ static bool loop(int argc, char *argv[])
 
             if (joy) SDL_JoystickClose(joy);
 
-            conf = new app::conf(DEFAULT_CONF_FILE);
-            lang = new app::lang(DEFAULT_LANG_FILE, get_loc());
+            conf = new app::conf(conf_file);
+            lang = new app::lang(lang_file, get_loc());
             data = new app::data(conf->get_s("data_directory"));
             sans = new app::font(data->get_absolute(conf->get_s("sans_font")),
                                                     conf->get_i("sans_size"));
@@ -244,6 +244,9 @@ static bool loop(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
+    std::string conf_file(argc > 1 ? argv[1] : DEFAULT_CONF_FILE);
+    std::string lang_file(argc > 2 ? argv[3] : DEFAULT_CONF_FILE);
+
     try
     {
         ent::entity::phys_init();
@@ -261,7 +264,7 @@ int main(int argc, char *argv[])
             SDL_EnableUNICODE(1);
             SDL_PushEvent(&e);
 
-            while (loop(argc, argv))
+            while (loop(conf_file, lang_file))
                 SDL_GL_SwapBuffers();
 
             SDL_Quit();

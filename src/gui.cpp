@@ -424,7 +424,7 @@ void gui::editor::update()
 
 void gui::editor::grow_select(int sd)
 {
-    int sn = str.length();
+    int sn = int(str.length());
     int sj = si;
 
     // Extend the selection.
@@ -444,7 +444,7 @@ void gui::editor::grow_select(int sd)
 
 void gui::editor::move_select(int sd)
 {
-    int sn = str.length();
+    int sn = int(str.length());
 
     // Move the cursor.
 
@@ -530,7 +530,7 @@ gui::widget *gui::editor::click(int x, int y, bool d)
     {
         if (d)
         {
-            si = str.length();
+            si = int(str.length());
             sc = 0;
         }
     }
@@ -551,13 +551,13 @@ void gui::editor::point(int x, int y)
             si = sp;
         }
     }
-    else sc = str.length() - si;
+    else sc = int(str.length()) - si;
 }
 
 void gui::editor::keybd(int k, int c)
 {
-    int  n = int(str.length());
-    bool s = bool(SDL_GetModState() & KMOD_SHIFT);
+    int n = int(str.length());
+    int s = SDL_GetModState() & KMOD_SHIFT;
 
     switch (k)
     {
@@ -607,7 +607,7 @@ void gui::editor::keybd(int k, int c)
     if (c == 22 && clip.length() > 0)
     {
         str.replace(si, sc, clip);
-        si = si + clip.length();
+        si = si + int(clip.length());
         sc = 0;
         update();
     }
@@ -777,7 +777,7 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
         glScissor(area.x, conf->get_i("window_h") - area.y - area.h,
                   area.w - scroll_w, area.h);
 
-        glTranslatef(0, -child_d, 0);
+        glTranslatef(0, float(-child_d), 0);
         tree::draw(focus, input);
     }
     glPopMatrix();
@@ -922,12 +922,12 @@ void gui::harray::layup()
 
     // Total width is the widest child width times the child count.
 
-    area.w *= child.size();
+    area.w *= int(child.size());
 }
 
 void gui::harray::laydn(int x, int y, int w, int h)
 {
-    int n = child.size(), c = 0;
+    int n = int(child.size()), c = 0;
 
     widget::laydn(x, y, w, h);
 
@@ -959,12 +959,12 @@ void gui::varray::layup()
 
     // Total height is the heighest child height times the child count.
 
-    area.h *= child.size();
+    area.h *= int(child.size());
 }
 
 void gui::varray::laydn(int x, int y, int w, int h)
 {
-    int n = child.size(), c = 0;
+    int n = int(child.size()), c = 0;
 
     widget::laydn(x, y, w, h);
 

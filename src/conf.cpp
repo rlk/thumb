@@ -126,7 +126,7 @@ int app::conf::get_i(std::string name)
     mxml_node_t *node;
 
     if ((node = find("int", name)))
-        return node->child->value.integer;
+        return int(node->child->value.integer);
     else
         return 0;
 }
@@ -136,7 +136,7 @@ float app::conf::get_f(std::string name)
     mxml_node_t *node;
 
     if ((node = find("float", name)))
-        return node->child->value.real;
+        return float(node->child->value.real);
     else
         return 0;
 }

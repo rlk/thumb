@@ -13,8 +13,8 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
-#include <dirent.h>
 
+#include "directory.hpp"
 #include "data.hpp"
 #include "obj.h"
 
@@ -22,19 +22,19 @@
 
 app::data::data(std::string p) : path(p)
 {
-    DIR *D;
-
-    if ((D = opendir(path.c_str())))
-        closedir(D);
-    else
+    /*
+    if (dir_scan(path).length() == 0)
         throw std::runtime_error("Cannot find data directory.");
+
+    dir_close();
+    */
 }
 
 //-----------------------------------------------------------------------------
 
 std::string app::data::get_absolute(std::string filename)
 {
-    std::string directory = path + "/";
+    std::string directory = path;
 
     // Absolute filenames pass through unchanged.
 
