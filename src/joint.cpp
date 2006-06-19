@@ -124,8 +124,8 @@ ent::hinge2::hinge2() : joint(data->get_obj("joint_hinge2.obj"))
     params[hi_stop]   = new joint_param_hi_stop;
     params[stop_erp]  = new joint_param_stop_erp;
     params[stop_cfm]  = new joint_param_stop_cfm;
-    params[susp_erp]  = new joint_param_stop_erp;
-    params[susp_cfm]  = new joint_param_stop_cfm;
+    params[susp_erp]  = new joint_param_susp_erp;
+    params[susp_cfm]  = new joint_param_susp_cfm;
 
     params[velocity2] = new joint_param_velocity(1);
     params[force2]    = new joint_param_force   (1);

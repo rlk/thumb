@@ -1,16 +1,16 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="data_directory">E:/rlk/src/thumb/data/</option>
-  <option type="string" name="world_directory">E:/rlk/src/thumb/</option>
-  <option type="string" name="solid_directory">E:/rlk/src/thumb/data/</option>
+  <option type="string" name="data_directory">C:/rlk/src/thumb/data/</option>
+  <option type="string" name="world_directory">C:/rlk/src/thumb/data/world/</option>
+  <option type="string" name="solid_directory">C:/rlk/src/thumb/data/</option>
   <option type="string" name="sans_font">FreeSans.ttf</option>
   <option type="string" name="mono_font">FreeMono.ttf</option>
   <option type="int" name="sans_size">14</option>
   <option type="int" name="mono_size">14</option>
   <option type="int" name="window_w">1024</option>
   <option type="int" name="window_h">768</option>
-  <option type="int" name="key_undo">103</option>
-  <option type="int" name="key_redo">107</option>
+  <option type="int" name="key_undo">117</option>
+  <option type="int" name="key_redo">118</option>
   <option type="int" name="key_move_L">97</option>
   <option type="int" name="key_move_R">100</option>
   <option type="int" name="key_move_F">119</option>

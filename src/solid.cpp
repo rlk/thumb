@@ -28,6 +28,7 @@ ent::solid::solid(int f) : entity(f), tran(0)
     params[bounce]   = new solid_param_bounce;
     params[soft_erp] = new solid_param_soft_erp;
     params[soft_cfm] = new solid_param_soft_cfm;
+    params[follow]   = new solid_param_follow;
 }
 
 ent::solid::solid(const solid& that)

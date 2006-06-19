@@ -32,7 +32,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="glu32.lib opengl32.lib mxml.lib freetype.lib ode.lib libjpeg.lib libpng.lib zlib.lib SDL.lib SDLmain.lib"
-				OutputFile="..\..\thumb.exe"
+				OutputFile="..\thumb.exe"
 				LinkIncremental="2"
 				IgnoreAllDefaultLibraries="FALSE"
 				GenerateDebugInformation="TRUE"

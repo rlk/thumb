@@ -245,7 +245,7 @@ static bool loop(std::string& conf_file, std::string& lang_file)
 int main(int argc, char *argv[])
 {
     std::string conf_file(argc > 1 ? argv[1] : DEFAULT_CONF_FILE);
-    std::string lang_file(argc > 2 ? argv[3] : DEFAULT_CONF_FILE);
+    std::string lang_file(argc > 2 ? argv[2] : DEFAULT_CONF_FILE);
 
     try
     {

@@ -185,6 +185,20 @@ namespace ent
             return new solid_param_soft_cfm(*this);
         }
     };
+
+    class solid_param_follow : public solid_param
+    {
+    protected:
+        std::string name() { return "follow"; }
+    public:
+        solid_param_follow() : solid_param("0.0") { }
+
+        void apply(dSurfaceParameters& surface) {
+        }
+        solid_param_follow *clone() const {
+            return new solid_param_follow(*this);
+        }
+    };
 }
 
 //-----------------------------------------------------------------------------

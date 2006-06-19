@@ -215,7 +215,7 @@ app::conf::conf(std::string file) : file(file), head(0), root(0)
 app::conf::~conf()
 {
     save();
-    if (head) mxmlDelete(head);
+//    if (head) mxmlDelete(head); HACK
 }
 
 //-----------------------------------------------------------------------------

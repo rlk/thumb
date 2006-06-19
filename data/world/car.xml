@@ -1,0 +1,503 @@
+<?xml
+version="1.0" ?>
+<world>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-7.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>7.500000</pos_z>
+  </geom>
+  <geom class="sphere">
+    <file>C:/rlk/src/thumb/data/sphere.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">50</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.01</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>-1.000000</pos_z>
+    <body1>3</body1>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>2.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>-2.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>7.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>-2.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/box.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>0.000000</pos_x>
+    <pos_y>1.500000</pos_y>
+    <pos_z>0.000000</pos_z>
+    <body1>7</body1>
+  </geom>
+  <geom class="sphere">
+    <file>C:/rlk/src/thumb/data/sphere.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">50</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.01</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>1.000000</pos_z>
+    <body1>1</body1>
+  </geom>
+  <geom class="sphere">
+    <file>C:/rlk/src/thumb/data/sphere.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">50</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.01</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>1.000000</pos_z>
+    <body1>2</body1>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>7.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>2.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>2.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>7.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>7.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>7.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>7.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>-7.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>2.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>2.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-2.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>-7.500000</pos_z>
+  </geom>
+  <geom class="sphere">
+    <file>C:/rlk/src/thumb/data/sphere.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">50</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.01</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>-1.000000</pos_z>
+    <body1>4</body1>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-2.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>-2.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-7.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>2.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-7.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>-7.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>2.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>-7.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-2.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>2.500000</pos_z>
+  </geom>
+  <joint type="hinge2">
+    <param name="dParamVel">0</param>
+    <param name="dParamVel2">-joy(1)*40</param>
+    <param name="dParamFMax">0</param>
+    <param name="dParamFMax2">50</param>
+    <param name="dParamCFM">0</param>
+    <param name="dParamCFM2">0</param>
+    <param name="dParamBounce">0.5</param>
+    <param name="dParamBounce2">0.5</param>
+    <param name="dParamLoStop">0</param>
+    <param name="dParamLoStop2">-inf</param>
+    <param name="dParamHiStop">0</param>
+    <param name="dParamHiStop2">inf</param>
+    <param name="dParamStopERP">0.2</param>
+    <param name="dParamStopERP2">0.2</param>
+    <param name="dParamStopCFM">0.1</param>
+    <param name="dParamStopCFM2">0.0</param>
+    <param name="dParamSuspensionERP">0.2</param>
+    <param name="dParamSuspensionCFM">0.1</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>1.000000</pos_z>
+    <body1>7</body1>
+    <body2>2</body2>
+  </joint>
+  <joint type="hinge2">
+    <param name="dParamVel">0</param>
+    <param name="dParamVel2">-joy(1)*40</param>
+    <param name="dParamFMax">0</param>
+    <param name="dParamFMax2">50</param>
+    <param name="dParamCFM">0</param>
+    <param name="dParamCFM2">0</param>
+    <param name="dParamBounce">0.5</param>
+    <param name="dParamBounce2">0.5</param>
+    <param name="dParamLoStop">0</param>
+    <param name="dParamLoStop2">-inf</param>
+    <param name="dParamHiStop">0</param>
+    <param name="dParamHiStop2">inf</param>
+    <param name="dParamStopERP">0.2</param>
+    <param name="dParamStopERP2">0.2</param>
+    <param name="dParamStopCFM">0.1</param>
+    <param name="dParamStopCFM2">0.0</param>
+    <param name="dParamSuspensionERP">0.2</param>
+    <param name="dParamSuspensionCFM">0.1</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>1.000000</pos_z>
+    <body1>7</body1>
+    <body2>1</body2>
+  </joint>
+  <joint type="hinge2">
+    <param name="dParamVel">0</param>
+    <param name="dParamVel2">0</param>
+    <param name="dParamFMax">0</param>
+    <param name="dParamFMax2">0</param>
+    <param name="dParamCFM">0</param>
+    <param name="dParamCFM2">0</param>
+    <param name="dParamBounce">0.5</param>
+    <param name="dParamBounce2">0.5</param>
+    <param name="dParamLoStop">joy(0)</param>
+    <param name="dParamLoStop2">-inf</param>
+    <param name="dParamHiStop">joy(0)</param>
+    <param name="dParamHiStop2">inf</param>
+    <param name="dParamStopERP">0.2</param>
+    <param name="dParamStopERP2">0.2</param>
+    <param name="dParamStopCFM">0.1</param>
+    <param name="dParamStopCFM2">0.0</param>
+    <param name="dParamSuspensionERP">0.2</param>
+    <param name="dParamSuspensionCFM">0.1</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>-1.000000</pos_z>
+    <body1>7</body1>
+    <body2>4</body2>
+  </joint>
+  <joint type="hinge2">
+    <param name="dParamVel">0</param>
+    <param name="dParamVel2">0</param>
+    <param name="dParamFMax">0</param>
+    <param name="dParamFMax2">0</param>
+    <param name="dParamCFM">0</param>
+    <param name="dParamCFM2">0</param>
+    <param name="dParamBounce">0.5</param>
+    <param name="dParamBounce2">0.5</param>
+    <param name="dParamLoStop">joy(0)</param>
+    <param name="dParamLoStop2">-inf</param>
+    <param name="dParamHiStop">joy(0)</param>
+    <param name="dParamHiStop2">inf</param>
+    <param name="dParamStopERP">0.2</param>
+    <param name="dParamStopERP2">0.2</param>
+    <param name="dParamStopCFM">0.1</param>
+    <param name="dParamStopCFM2">0.0</param>
+    <param name="dParamSuspensionERP">0.2</param>
+    <param name="dParamSuspensionCFM">0.1</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>-1.000000</pos_z>
+    <body1>7</body1>
+    <body2>3</body2>
+  </joint>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-7.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>-2.500000</pos_z>
+  </geom>
+  <geom class="box">
+    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+    <param name="follow">0.0</param>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-2.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>7.500000</pos_z>
+  </geom>
+</world>

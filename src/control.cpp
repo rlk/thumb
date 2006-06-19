@@ -148,13 +148,13 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
                     add(new label("Soft ERP"))->
                     add(new label("Soft CFM"))->
-                    add(new gui::filler(false, false)))->
+                    add(new label("Follow")))->
 
                 add((new gui::varray)->
 
                     add(new editor(s, ent::solid::soft_erp))->
                     add(new editor(s, ent::solid::soft_cfm))->
-                    add(new gui::filler(false, false))))));
+                    add(new editor(s, ent::solid::follow))))));
 }
 
 //-----------------------------------------------------------------------------

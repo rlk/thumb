@@ -725,7 +725,7 @@ void ops::scene::load(std::string filename)
             serial = MAX(serial, (*i)->join() + 1);
         }
 
-        mxmlDelete(H);
+//      mxmlDelete(H); HACK
         fclose(fp);
     }
 }
@@ -761,7 +761,7 @@ void ops::scene::save(std::string filename, bool save_all)
             (*i)->save(root);
 
         mxmlSaveFile(head, fp, save_cb);
-        mxmlDelete(head);
+//      mxmlDelete(head);  HACK
 
         fclose(fp);
     }
