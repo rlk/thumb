@@ -24,36 +24,18 @@ namespace ent
     {
     public:
 
-        enum {
-            category = dParamGroup * 4 + 1,
-            collide  = dParamGroup * 4 + 2,
-            density  = dParamGroup * 4 + 3,
-            friction = dParamGroup * 4 + 4,
-            bounce   = dParamGroup * 4 + 5,
-            soft_erp = dParamGroup * 4 + 6,
-            soft_cfm = dParamGroup * 4 + 7,
-            follow   = dParamGroup * 4 + 8
-        };
-
     protected:
 
         dGeomID tran;
         dMass   mass;
 
-        std::map<int, solid_param *> params;
-
     public:
 
         solid(int f=-1);
-        solid(const solid&);
 
         void geom_to_entity();
 
         solid *get_solid() { return this; }
-
-        void use_param(dSurfaceParameters&);
-        void set_param(int, std::string&);
-        bool get_param(int, std::string&);
 
         virtual int join(int)    { return 0; }
         virtual int join() const { return 0; }
@@ -62,10 +44,13 @@ namespace ent
         virtual void play_tran(dBodyID);
         virtual void play_fini();
 
+        virtual int  step_prio() { return 1; }
+        virtual void step_post();
+
         virtual void         load(mxml_node_t *);
         virtual mxml_node_t *save(mxml_node_t *);
 
-        virtual ~solid();
+        virtual ~solid() { }
     };
 }
 

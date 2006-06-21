@@ -204,13 +204,20 @@ static const char *exE(double& k, const char *p)
     return q;
 }
 
+//=============================================================================
+
+ent::param::param(std::string name, std::string expr) :
+    state(false), cache(0), name(name), expr(expr)
+{
+}
+
 //-----------------------------------------------------------------------------
 
-double ent::param::value_f()
+double ent::param::value()
 {
     // If we have a chached value, return it.
 
-    if (cached)
+    if (state)
         return cache;
     else
     {
@@ -219,79 +226,37 @@ double ent::param::value_f()
         // Evaluate the expression and cache as cache can.
 
         if (exE(cache, expr.c_str()))
-            cached = cacheable;
+            state = cacheable;
         else
         {
             // A syntax error is a cacheable zero.
 
-            cached = true;
-            cache  = 0.0;
+            state = true;
+            cache = 0.0;
         }
         return cache;
     }
 }
 
-unsigned long ent::param::value_i()
-{
-    unsigned long d;
-
-    std::istringstream str(expr);
-    str >> d;
-
-    return d;
-}
-
 //-----------------------------------------------------------------------------
 
-void ent::solid_param::load(mxml_node_t *node)
+void ent::param::load(mxml_node_t *node)
 {
     mxml_node_t *n;
 
     if ((n = mxmlFindElement(node, node, "param", "name",
-                             name().c_str(), MXML_DESCEND_FIRST)))
+                             name.c_str(), MXML_DESCEND_FIRST)))
     {
         if (n->child->value.opaque)
             expr = n->child->value.opaque;
     }
 }
 
-void ent::joint_param::load(mxml_node_t *node)
-{
-    std::string attr = name();
-
-    if (axis == 1) attr += "2";
-    if (axis == 2) attr += "3";
-
-    mxml_node_t *n;;
-
-    if ((n = mxmlFindElement(node, node, "param", "name",
-                             attr.c_str(), MXML_DESCEND_FIRST)))
-    {
-        if (n->child->value.opaque)
-            expr = n->child->value.opaque;
-    }
-}
-
-//-----------------------------------------------------------------------------
-
-void ent::solid_param::save(mxml_node_t *node)
+void ent::param::save(mxml_node_t *node)
 {
     mxml_node_t *n = mxmlNewElement(node, "param");
 
-    mxmlElementSetAttr(n, "name", name().c_str());
-    mxmlNewText(n, 0, expr.c_str());
-}
-
-void ent::joint_param::save(mxml_node_t *node)
-{
-    std::string attr = name();
-
-    if (axis == 1) attr += "2";
-    if (axis == 2) attr += "3";
-
-    mxml_node_t *n = mxmlNewElement(node, "param");
-
-    mxmlElementSetAttr(n, "name", attr.c_str());
+    mxmlElementSetAttr(n, "name", name.c_str());
     mxmlNewText(n, 0, expr.c_str());
 }
 

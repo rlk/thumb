@@ -105,7 +105,7 @@ void ent::oct::aabb(float b[6], int c) const
 
 bool ent::oct::test(entity *e, int c) const
 {
-    float p[3], r = e->get_sphere(p);
+    float p[3], r = e->get_bound(p);
     float b[6];
 
     // Return true if entity e fits entirely within in cell c.
@@ -202,8 +202,8 @@ void ent::oct::draw_fill() const
 //  for (int c = 0; c < count; ++c)
 //      tree[c].draw_fill();
 
-	for (ent::set::const_iterator i = all.begin(); i != all.end(); ++i)
-		(*i)->draw_fill();
+    for (ent::set::const_iterator i = all.begin(); i != all.end(); ++i)
+        (*i)->draw_fill();
 }
 
 void ent::oct::draw_foci() const
@@ -211,8 +211,8 @@ void ent::oct::draw_foci() const
  // for (int c = 0; c < count; ++c)
  //     tree[c].draw_foci();
 
-	for (ent::set::const_iterator i = all.begin(); i != all.end(); ++i)
-		(*i)->draw_foci();
+    for (ent::set::const_iterator i = all.begin(); i != all.end(); ++i)
+        (*i)->draw_foci();
 }
 
 //-----------------------------------------------------------------------------

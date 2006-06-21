@@ -31,7 +31,7 @@ app::lang::lang(std::string file, std::string loc) : loc(loc)
 
 app::lang::~lang()
 {
-//    if (head) mxmlDelete(head); HACK
+    if (head) mxmlDelete(head);
 }
 
 //-----------------------------------------------------------------------------

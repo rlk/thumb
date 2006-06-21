@@ -22,12 +22,10 @@
 
 app::data::data(std::string p) : path(p)
 {
-    /*
     if (dir_scan(path).length() == 0)
         throw std::runtime_error("Cannot find data directory.");
 
     dir_close();
-    */
 }
 
 //-----------------------------------------------------------------------------
@@ -53,7 +51,7 @@ std::string app::data::get_absolute(std::string filename)
 
 std::string app::data::get_relative(std::string filename)
 {
-    std::string directory = path + "/";
+    std::string directory = path;
 
     // Filenames with the data directory prepended need it removed.
 

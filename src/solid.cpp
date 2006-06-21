@@ -21,40 +21,13 @@
 
 ent::solid::solid(int f) : entity(f), tran(0)
 {
-    params[category] = new solid_param_category;
-    params[collide]  = new solid_param_collide;
-    params[density]  = new solid_param_density;
-    params[friction] = new solid_param_friction;
-    params[bounce]   = new solid_param_bounce;
-    params[soft_erp] = new solid_param_soft_erp;
-    params[soft_cfm] = new solid_param_soft_cfm;
-    params[follow]   = new solid_param_follow;
-}
-
-ent::solid::solid(const solid& that)
-{
-    std::map<int, solid_param *>::const_iterator i;
-
-    // Copy this object.  This is C++ black magic.
-
-    *this = that;
-
-    // Flush and clone each parameter separately.
-
-    params.clear();
-
-    for (i = that.params.begin(); i != that.params.end(); ++i)
-        params[i->first] = i->second->clone();
-}
-
-ent::solid::~solid()
-{
-    // Delete all parameters.
-
-    std::map<int, solid_param *>::iterator i;
-    
-    for (i = params.begin(); i != params.end(); ++i)
-        delete i->second;
+    params[param::category] = new param("category", "4294967295");
+    params[param::collide]  = new param("collide",  "4294967295");
+    params[param::density]  = new param("density",  "1.0");
+    params[param::mu]       = new param("mu",     "100.0");
+    params[param::bounce]   = new param("bounce",   "0.5");
+    params[param::soft_erp] = new param("soft_erp", "0.2");
+    params[param::soft_cfm] = new param("soft_cfm", "0.0");
 }
 
 //-----------------------------------------------------------------------------
@@ -75,36 +48,6 @@ void ent::solid::geom_to_entity()
 
 //-----------------------------------------------------------------------------
 
-void ent::solid::use_param(dSurfaceParameters& surface)
-{
-    std::map<int, solid_param *>::iterator i;
-
-    for (i = params.begin(); i != params.end(); ++i)
-        i->second->apply(surface);
-}
-
-void ent::solid::set_param(int key, std::string& expr)
-{
-    // Allow only valid parameters as initialized by the entity constructor.
-
-    if (params.find(key) != params.end())
-        params[key]->set(expr);
-}
-
-bool ent::solid::get_param(int key, std::string& expr)
-{
-    // Return false to indicate a non-valid parameter was requested.
-
-    if (params.find(key) != params.end())
-    {
-        params[key]->get(expr);
-        return true;
-    }
-    return false;
-}
-
-//-----------------------------------------------------------------------------
-
 void ent::box::edit_init()
 {
     float bound[6];
@@ -117,7 +60,8 @@ void ent::box::edit_init()
                                  bound[4] - bound[1],
                                  bound[5] - bound[2]);
         dGeomSetData(geom, this);
-        entity_to_geom();
+
+        set_transform(current_M, geom);
     }
 }
 
@@ -130,7 +74,8 @@ void ent::sphere::edit_init()
         geom = dCreateSphere(space, radius);
 
         dGeomSetData(geom, this);
-        entity_to_geom();
+
+        set_transform(current_M, geom);
     }
 }
 
@@ -148,7 +93,8 @@ void ent::capsule::edit_init()
         geom = dCreateCCylinder(space, radius, length - radius - radius);
 
         dGeomSetData(geom, this);
-        entity_to_geom();
+
+        set_transform(current_M, geom);
     }
 }
 
@@ -221,8 +167,11 @@ void ent::solid::play_tran(dBodyID body)
 
         // Apply category and collide bits.
 
-        dGeomSetCategoryBits(tran, params[category]->value_i());
-        dGeomSetCollideBits (tran, params[collide ]->value_i());
+        unsigned int cat = (unsigned int) params[param::category]->value();
+        unsigned int col = (unsigned int) params[param::collide ]->value();
+
+        dGeomSetCategoryBits(tran, cat);
+        dGeomSetCollideBits (tran, col);
     }
 }
 
@@ -247,7 +196,7 @@ void ent::box::play_init(dBodyID body)
     if (body)
     {
         dVector3 v;
-		dReal    d = (dReal) params[density]->value_f();
+        dReal    d = (dReal) params[param::density]->value();
 
         // Compute the mass of this box.
 
@@ -263,7 +212,7 @@ void ent::sphere::play_init(dBodyID body)
     if (body)
     {
         dReal r;
-		dReal d = (dReal) params[density]->value_f();
+        dReal d = (dReal) params[param::density]->value();
 
         // Compute the mass of this sphere.
 
@@ -280,7 +229,7 @@ void ent::capsule::play_init(dBodyID body)
     {
         dReal r;
         dReal l;
-		dReal d = (dReal) params[density]->value_f();
+        dReal d = (dReal) params[param::density]->value();
 
         // Compute the mass of this sphere.
 
@@ -288,6 +237,24 @@ void ent::capsule::play_init(dBodyID body)
         dMassSetCappedCylinder(&mass, d, 3, r, l);
 
         solid::play_init(body);
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+void ent::solid::step_post()
+{
+    // Update the transform using the current ODE state.
+
+    if (geom && tran)
+    {
+        float tran_M[16];
+        float geom_M[16];
+
+        get_transform(tran_M, tran);
+        get_transform(geom_M, geom);
+
+        mult_mat_mat(current_M, tran_M, geom_M);
     }
 }
 
@@ -337,8 +304,6 @@ void ent::capsule::draw_geom() const
 
 void ent::solid::load(mxml_node_t *node)
 {
-    std::map<int, solid_param *>::iterator i;
-
     mxml_node_t *name;
 
     // Load the OBJ file.
@@ -346,18 +311,11 @@ void ent::solid::load(mxml_node_t *node)
     if ((name = mxmlFindElement(node, node, "file", 0, 0, MXML_DESCEND)))
         file = data->get_obj(std::string(name->child->value.text.string));
 
-    // Initialize parameters using the given element.
-
-    for (i = params.begin(); i != params.end(); ++i)
-        i->second->load(node);
-
     entity::load(node);
 }
 
 mxml_node_t *ent::solid::save(mxml_node_t *node)
 {
-    std::map<int, solid_param *>::iterator i;
-
     // Add the OBJ file reference.
 
     if (file >= 0)
@@ -365,11 +323,6 @@ mxml_node_t *ent::solid::save(mxml_node_t *node)
         std::string name = data->get_relative(obj_get_file_name(file));
         mxmlNewText(mxmlNewElement(node, "file"), 0, name.c_str());
     }
-
-    // Add parameters elements.
-
-    for (i = params.begin(); i != params.end(); ++i)
-        i->second->save(node);
 
     return entity::save(node);
 }

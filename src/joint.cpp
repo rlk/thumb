@@ -44,56 +44,8 @@ void ent::joint::play_fini()
 
 //-----------------------------------------------------------------------------
 
-void ent::joint::set_param(int key, std::string& expr)
-{
-    // Allow only valid parameters as initialized by the entity constructor.
-
-    if (params.find(key) != params.end())
-        params[key]->set(expr);
-}
-
-bool ent::joint::get_param(int key, std::string& expr)
-{
-    // Return false to indicate a non-valid parameter was requested.
-
-    if (params.find(key) != params.end())
-    {
-        params[key]->get(expr);
-        return true;
-    }
-    return false;
-}
-
-//-----------------------------------------------------------------------------
-
 ent::joint::joint(int f): entity(f), size(conf->get_f("joint_size"))
 {
-}
-
-ent::joint::joint(const joint& that)
-{
-    std::map<int, joint_param *>::const_iterator i;
-
-    // Copy this object.  This is C++ black magic.
-
-    *this = that;
-
-    // Flush and clone each parameter separately.
-
-    params.clear();
-
-    for (i = that.params.begin(); i != that.params.end(); ++i)
-        params[i->first] = i->second->clone();
-}
-
-ent::joint::~joint()
-{
-    // Delete all parameters.
-
-    std::map<int, joint_param *>::iterator i;
-    
-    for (i = params.begin(); i != params.end(); ++i)
-        delete i->second;
 }
 
 //-----------------------------------------------------------------------------
@@ -104,100 +56,101 @@ ent::ball::ball() : joint(data->get_obj("joint_ball.obj"))
 
 ent::hinge::hinge() : joint(data->get_obj("joint_hinge.obj"))
 {
-    params[velocity]  = new joint_param_velocity;
-    params[force]     = new joint_param_force;
-    params[cfm]       = new joint_param_cfm;
-    params[bounce]    = new joint_param_bounce;
-    params[lo_stop]   = new joint_param_lo_stop;
-    params[hi_stop]   = new joint_param_hi_stop;
-    params[stop_erp]  = new joint_param_stop_erp;
-    params[stop_cfm]  = new joint_param_stop_cfm;
+    params[dParamVel]      = new param("dParamVel",      "0.0");
+    params[dParamFMax]     = new param("dParamFMax",     "0.0");
+    params[dParamCFM]      = new param("dParamCFM",      "0.0");
+    params[dParamBounce]   = new param("dParamBounce",   "0.5");
+    params[dParamLoStop]   = new param("dParamLoStop",  "-inf");
+    params[dParamHiStop]   = new param("dParamHiStop",   "inf");
+    params[dParamStopERP]  = new param("dParamStopERP",  "0.2");
+    params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
 ent::hinge2::hinge2() : joint(data->get_obj("joint_hinge2.obj"))
 {
-    params[velocity]  = new joint_param_velocity;
-    params[force]     = new joint_param_force;
-    params[cfm]       = new joint_param_cfm;
-    params[bounce]    = new joint_param_bounce;
-    params[lo_stop]   = new joint_param_lo_stop;
-    params[hi_stop]   = new joint_param_hi_stop;
-    params[stop_erp]  = new joint_param_stop_erp;
-    params[stop_cfm]  = new joint_param_stop_cfm;
-    params[susp_erp]  = new joint_param_susp_erp;
-    params[susp_cfm]  = new joint_param_susp_cfm;
+    params[dParamVel]      = new param("dParamVel",      "0.0");
+    params[dParamFMax]     = new param("dParamFMax",     "0.0");
+    params[dParamCFM]      = new param("dParamCFM",      "0.0");
+    params[dParamBounce]   = new param("dParamBounce",   "0.5");
+    params[dParamLoStop]   = new param("dParamLoStop",  "-inf");
+    params[dParamHiStop]   = new param("dParamHiStop",   "inf");
+    params[dParamStopERP]  = new param("dParamStopERP",  "0.2");
+    params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 
-    params[velocity2] = new joint_param_velocity(1);
-    params[force2]    = new joint_param_force   (1);
-    params[cfm2]      = new joint_param_cfm     (1);
-    params[bounce2]   = new joint_param_bounce  (1);
-    params[lo_stop2]  = new joint_param_lo_stop (1);
-    params[hi_stop2]  = new joint_param_hi_stop (1);
-    params[stop_erp2] = new joint_param_stop_erp(1);
-    params[stop_cfm2] = new joint_param_stop_cfm(1);
+    params[dParamVel2]     = new param("dParamVel2",     "0.0");
+    params[dParamFMax2]    = new param("dParamFMax2",    "0.0");
+    params[dParamCFM2]     = new param("dParamCFM2",     "0.0");
+    params[dParamBounce2]  = new param("dParamBounce2",  "0.5");
+    params[dParamLoStop2]  = new param("dParamLoStop2", "-inf");
+    params[dParamHiStop2]  = new param("dParamHiStop2",  "inf");
+    params[dParamStopERP2] = new param("dParamStopERP2", "0.2");
+    params[dParamStopCFM2] = new param("dParamStopCFM2", "0.0");
+
+    params[dParamSuspensionERP] = new param("dParamSuspensionERP", "0.2");
+    params[dParamSuspensionCFM] = new param("dParamSuspensionCFM", "0.0");
 }
 
 ent::slider::slider() : joint(data->get_obj("joint_slider.obj"))
 {
-    params[velocity]  = new joint_param_velocity;
-    params[force]     = new joint_param_force;
-    params[cfm]       = new joint_param_cfm;
-    params[bounce]    = new joint_param_bounce;
-    params[lo_stop]   = new joint_param_lo_stop;
-    params[hi_stop]   = new joint_param_hi_stop;
-    params[stop_erp]  = new joint_param_stop_erp;
-    params[stop_cfm]  = new joint_param_stop_cfm;
+    params[dParamVel]      = new param("dParamVel",      "0.0");
+    params[dParamFMax]     = new param("dParamFMax",     "0.0");
+    params[dParamCFM]      = new param("dParamCFM",      "0.0");
+    params[dParamBounce]   = new param("dParamBounce",   "0.5");
+    params[dParamLoStop]   = new param("dParamLoStop",  "-inf");
+    params[dParamHiStop]   = new param("dParamHiStop",   "inf");
+    params[dParamStopERP]  = new param("dParamStopERP",  "0.2");
+    params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
 ent::amotor::amotor() : joint(data->get_obj("joint_amotor.obj"))
 {
-    params[velocity]  = new joint_param_velocity;
-    params[force]     = new joint_param_force;
-    params[cfm]       = new joint_param_cfm;
-    params[bounce]    = new joint_param_bounce;
-    params[lo_stop]   = new joint_param_lo_stop;
-    params[hi_stop]   = new joint_param_hi_stop;
-    params[stop_erp]  = new joint_param_stop_erp;
-    params[stop_cfm]  = new joint_param_stop_cfm;
+    params[dParamVel]      = new param("dParamVel",      "0.0");
+    params[dParamFMax]     = new param("dParamFMax",     "0.0");
+    params[dParamCFM]      = new param("dParamCFM",      "0.0");
+    params[dParamBounce]   = new param("dParamBounce",   "0.5");
+    params[dParamLoStop]   = new param("dParamLoStop",  "-inf");
+    params[dParamHiStop]   = new param("dParamHiStop",   "inf");
+    params[dParamStopERP]  = new param("dParamStopERP",  "0.2");
+    params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 
-    params[velocity2] = new joint_param_velocity(1);
-    params[force2]    = new joint_param_force   (1);
-    params[cfm2]      = new joint_param_cfm     (1);
-    params[bounce2]   = new joint_param_bounce  (1);
-    params[lo_stop2]  = new joint_param_lo_stop (1);
-    params[hi_stop2]  = new joint_param_hi_stop (1);
-    params[stop_erp2] = new joint_param_stop_erp(1);
-    params[stop_cfm2] = new joint_param_stop_cfm(1);
+    params[dParamVel2]     = new param("dParamVel2",     "0.0");
+    params[dParamFMax2]    = new param("dParamFMax2",    "0.0");
+    params[dParamCFM2]     = new param("dParamCFM2",     "0.0");
+    params[dParamBounce2]  = new param("dParamBounce2",  "0.5");
+    params[dParamLoStop2]  = new param("dParamLoStop2", "-inf");
+    params[dParamHiStop2]  = new param("dParamHiStop2",  "inf");
+    params[dParamStopERP2] = new param("dParamStopERP2", "0.2");
+    params[dParamStopCFM2] = new param("dParamStopCFM2", "0.0");
 
-    params[velocity3] = new joint_param_velocity(2);
-    params[force3]    = new joint_param_force   (2);
-    params[cfm3]      = new joint_param_cfm     (2);
-    params[bounce3]   = new joint_param_bounce  (2);
-    params[lo_stop3]  = new joint_param_lo_stop (2);
-    params[hi_stop3]  = new joint_param_hi_stop (2);
-    params[stop_erp3] = new joint_param_stop_erp(2);
-    params[stop_cfm3] = new joint_param_stop_cfm(2);
+    params[dParamVel3]     = new param("dParamVel3",     "0.0");
+    params[dParamFMax3]    = new param("dParamFMax3",    "0.0");
+    params[dParamCFM3]     = new param("dParamCFM3",     "0.0");
+    params[dParamBounce3]  = new param("dParamBounce3",  "0.5");
+    params[dParamLoStop3]  = new param("dParamLoStop3", "-inf");
+    params[dParamHiStop3]  = new param("dParamHiStop3",  "inf");
+    params[dParamStopERP3] = new param("dParamStopERP3", "0.2");
+    params[dParamStopCFM3] = new param("dParamStopCFM3", "0.0");
 }
 
 ent::universal::universal() : joint(data->get_obj("joint_universal.obj"))
 {
-    params[velocity]  = new joint_param_velocity;
-    params[force]     = new joint_param_force;
-    params[cfm]       = new joint_param_cfm;
-    params[bounce]    = new joint_param_bounce;
-    params[lo_stop]   = new joint_param_lo_stop;
-    params[hi_stop]   = new joint_param_hi_stop;
-    params[stop_erp]  = new joint_param_stop_erp;
-    params[stop_cfm]  = new joint_param_stop_cfm;
+    params[dParamVel]      = new param("dParamVel",      "0.0");
+    params[dParamFMax]     = new param("dParamFMax",     "0.0");
+    params[dParamCFM]      = new param("dParamCFM",      "0.0");
+    params[dParamBounce]   = new param("dParamBounce",   "0.5");
+    params[dParamLoStop]   = new param("dParamLoStop",  "-inf");
+    params[dParamHiStop]   = new param("dParamHiStop",   "inf");
+    params[dParamStopERP]  = new param("dParamStopERP",  "0.2");
+    params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 
-    params[velocity2] = new joint_param_velocity(1);
-    params[force2]    = new joint_param_force   (1);
-    params[cfm2]      = new joint_param_cfm     (1);
-    params[bounce2]   = new joint_param_bounce  (1);
-    params[lo_stop2]  = new joint_param_lo_stop (1);
-    params[hi_stop2]  = new joint_param_hi_stop (1);
-    params[stop_erp2] = new joint_param_stop_erp(1);
-    params[stop_cfm2] = new joint_param_stop_cfm(1);
+    params[dParamVel2]     = new param("dParamVel2",     "0.0");
+    params[dParamFMax2]    = new param("dParamFMax2",    "0.0");
+    params[dParamCFM2]     = new param("dParamCFM2",     "0.0");
+    params[dParamBounce2]  = new param("dParamBounce2",  "0.5");
+    params[dParamLoStop2]  = new param("dParamLoStop2", "-inf");
+    params[dParamHiStop2]  = new param("dParamHiStop2",  "inf");
+    params[dParamStopERP2] = new param("dParamStopERP2", "0.2");
+    params[dParamStopCFM2] = new param("dParamStopCFM2", "0.0");
 }
 
 //-----------------------------------------------------------------------------
@@ -354,7 +307,7 @@ void ent::universal::play_join(dBodyID body1)
 
 //-----------------------------------------------------------------------------
 
-void ent::joint::use_param()
+void ent::joint::step_prep()
 {
     // Joint parameter change may require reawakening of joined bodies.
 
@@ -362,54 +315,54 @@ void ent::joint::use_param()
     if (body2) dBodyEnable(dJointGetBody(join, 1));
 }
 
-void ent::hinge::use_param()
+void ent::hinge::step_prep()
 {
-    std::map<int, joint_param *>::iterator i;
+    std::map<int, param *>::iterator i;
 
     for (i = params.begin(); i != params.end(); ++i)
-        i->second->apply(dJointSetHingeParam, join);
+        dJointSetHingeParam(join, i->first, i->second->value());
 
-    joint::use_param();
+    joint::step_prep();
 }
 
-void ent::hinge2::use_param()
+void ent::hinge2::step_prep()
 {
-    std::map<int, joint_param *>::iterator i;
+    std::map<int, param *>::iterator i;
 
     for (i = params.begin(); i != params.end(); ++i)
-        i->second->apply(dJointSetHinge2Param, join);
+        dJointSetHinge2Param(join, i->first, i->second->value());
 
-    joint::use_param();
+    joint::step_prep();
 }
 
-void ent::slider::use_param()
+void ent::slider::step_prep()
 {
-    std::map<int, joint_param *>::iterator i;
+    std::map<int, param *>::iterator i;
 
     for (i = params.begin(); i != params.end(); ++i)
-        i->second->apply(dJointSetSliderParam, join);
+        dJointSetSliderParam(join, i->first, i->second->value());
 
-    joint::use_param();
+    joint::step_prep();
 }
 
-void ent::amotor::use_param()
+void ent::amotor::step_prep()
 {
-    std::map<int, joint_param *>::iterator i;
+    std::map<int, param *>::iterator i;
 
     for (i = params.begin(); i != params.end(); ++i)
-        i->second->apply(dJointSetAMotorParam, join);
+        dJointSetAMotorParam(join, i->first, i->second->value());
 
-    joint::use_param();
+    joint::step_prep();
 }
 
-void ent::universal::use_param()
+void ent::universal::step_prep()
 {
-    std::map<int, joint_param *>::iterator i;
+    std::map<int, param *>::iterator i;
 
     for (i = params.begin(); i != params.end(); ++i)
-        i->second->apply(dJointSetUniversalParam, join);
+        dJointSetUniversalParam(join, i->first, i->second->value());
 
-    joint::use_param();
+    joint::step_prep();
 }
 
 //-----------------------------------------------------------------------------
@@ -448,30 +401,6 @@ void ent::joint::draw_fill() const
 }
 
 //-----------------------------------------------------------------------------
-
-void ent::joint::load(mxml_node_t *node)
-{
-    std::map<int, joint_param *>::iterator i;
-
-    // Initialize parameters using the given element.
-
-    for (i = params.begin(); i != params.end(); ++i)
-        i->second->load(node);
-
-    entity::load(node);
-}
-
-mxml_node_t *ent::joint::save(mxml_node_t *node)
-{
-    std::map<int, joint_param *>::iterator i;
-
-    // Add parameter attributes to this element.
-
-    for (i = params.begin(); i != params.end(); ++i)
-        i->second->save(node);
-
-    return entity::save(node);
-}
 
 mxml_node_t *ent::ball::save(mxml_node_t *parent)
 {

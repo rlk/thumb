@@ -106,12 +106,12 @@ void ent::entity::phys_cont(float *dist, dGeomID o1, dGeomID o2)
 
                 surface.mu         = dInfinity;
                 surface.bounce     = 0.0;
-                surface.bounce_vel = 0.0;
+                surface.bounce_vel = 0.1;
                 surface.soft_erp   = 1.0;
                 surface.soft_cfm   = 0.0;
 
-                e1->get_solid()->use_param(surface);
-                e2->get_solid()->use_param(surface);
+                e1->get_surface(surface);
+                e2->get_surface(surface);
 
                 // Create a contact joint for each collision.
 
@@ -187,9 +187,34 @@ ent::entity::entity(int f) : geom(0), body1(0), body2(0), file(f), radius(0)
     if (file >= 0) radius = obj_get_file_sphr(file);
 }
 
+ent::entity::entity(const entity& that)
+{
+    std::map<int, param *>::const_iterator i;
+
+    // Copy this object.  Supposedly this won't slice.
+
+    *this = that;
+
+    // Flush and clone each parameter separately.
+
+    params.clear();
+
+    for (i = that.params.begin(); i != that.params.end(); ++i)
+        params[i->first] = new param(*i->second);
+}
+
 ent::entity::~entity()
 {
+    // Destroy ODE state.
+
     if (geom) dGeomDestroy(geom);
+
+    // Delete all parameters.
+
+    std::map<int, param *>::iterator i;
+    
+    for (i = params.begin(); i != params.end(); ++i)
+        delete i->second;
 }
 
 //-----------------------------------------------------------------------------
@@ -245,11 +270,6 @@ void ent::entity::set_transform(float M[16], dGeomID geom)
                            (dReal) M[14]);
 }
 
-void ent::entity::entity_to_geom()
-{
-    if (geom) set_transform(current_M, geom);
-}
-
 void ent::entity::set_default()
 {
     memcpy(default_M, current_M, 16 * sizeof (float));
@@ -259,16 +279,26 @@ void ent::entity::get_default()
 {
     memcpy(current_M, default_M, 16 * sizeof (float));
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
-float ent::entity::get_sphere(float p[3])
+void ent::entity::get_surface(dSurfaceParameters& surface)
 {
-    p[0] = current_M[12];
-    p[1] = current_M[13];
-    p[2] = current_M[14];
+    std::map<int, param *>::iterator i;
 
-    return radius;
+    // Merge this entity's surface parameters with the given structure.
+
+    if ((i = params.find(ent::param::mu))       != params.end())
+        surface.mu       = MIN(surface.mu,       (dReal) i->second->value());
+
+    if ((i = params.find(ent::param::bounce))   != params.end())
+        surface.bounce   = MAX(surface.bounce,   (dReal) i->second->value());
+
+    if ((i = params.find(ent::param::soft_erp)) != params.end())
+        surface.soft_erp = MIN(surface.soft_erp, (dReal) i->second->value());
+
+    if ((i = params.find(ent::param::soft_cfm)) != params.end())
+        surface.soft_cfm = MAX(surface.soft_cfm, (dReal) i->second->value());
 }
 
 //-----------------------------------------------------------------------------
@@ -282,7 +312,7 @@ void ent::entity::turn_world(float a, float vx, float vy, float vz,
     Lmul_rot_mat(current_M, vx, vy, vz, a);
     Lmul_xlt_mat(current_M, px, py, pz);
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
 void ent::entity::turn_local(float a, float vx, float vy, float vz,
@@ -294,7 +324,7 @@ void ent::entity::turn_local(float a, float vx, float vy, float vz,
     Rmul_rot_mat(current_M, vx, vy, vz, a);
     Rmul_xlt_inv(current_M, px, py, pz);
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
 //-----------------------------------------------------------------------------
@@ -313,7 +343,7 @@ void ent::entity::turn_world(float a, float vx, float vy, float vz)
     Lmul_rot_mat(current_M, vx, vy, vz, a);
     Lmul_xlt_mat(current_M, px, py, pz);
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
 void ent::entity::turn_local(float a, float vx, float vy, float vz)
@@ -322,7 +352,7 @@ void ent::entity::turn_local(float a, float vx, float vy, float vz)
 
     Rmul_rot_mat(current_M, vx, vy, vz, a);
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
 //-----------------------------------------------------------------------------
@@ -333,7 +363,7 @@ void ent::entity::move_world(float dx, float dy, float dz)
 
     Lmul_xlt_mat(current_M, dx, dy, dz);
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
 void ent::entity::move_local(float dx, float dy, float dz)
@@ -342,7 +372,7 @@ void ent::entity::move_local(float dx, float dy, float dz)
 
     Rmul_xlt_mat(current_M, dx, dy, dz);
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
 //-----------------------------------------------------------------------------
@@ -353,7 +383,7 @@ void ent::entity::mult_world(const float M[16])
 
     mult_mat_mat(current_M, M, current_M);
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
 void ent::entity::mult_local(const float M[16])
@@ -362,7 +392,7 @@ void ent::entity::mult_local(const float M[16])
 
     mult_mat_mat(current_M, M, current_M);
 
-    entity_to_geom();
+    if (geom) set_transform(current_M, geom);
 }
 
 //-----------------------------------------------------------------------------
@@ -381,12 +411,43 @@ void ent::entity::get_local(float M[16]) const
     load_mat(M, current_M);
 }
 
+float ent::entity::get_bound(float p[3]) const 
+{
+    p[0] = current_M[12];
+    p[1] = current_M[13];
+    p[2] = current_M[14];
+
+    return radius;
+}
+
 //-----------------------------------------------------------------------------
 
 void ent::entity::edit_fini()
 {
     dGeomDestroy(geom);
     geom = 0;
+}
+
+//-----------------------------------------------------------------------------
+
+void ent::entity::set_param(int key, std::string& expr)
+{
+    // Allow only valid parameters as initialized by the entity constructor.
+
+    if (params.find(key) != params.end())
+        params[key]->set(expr);
+}
+
+bool ent::entity::get_param(int key, std::string& expr)
+{
+    // Return false to indicate an invalid parameter was requested.
+
+    if (params.find(key) != params.end())
+    {
+        params[key]->get(expr);
+        return true;
+    }
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -578,12 +639,16 @@ void ent::entity::draw_foci() const
 
 void ent::entity::load(mxml_node_t *node)
 {
+    std::map<int, param *>::iterator i;
+
     mxml_node_t *n;
 
     load_idt(current_M);
 
     float p[3] = { 0, 0, 0    };
     float q[4] = { 0, 0, 0, 1 };
+
+    // Initialize the transform and body mappings.
 
     for (n = node->child; n; 
          n = mxmlFindElement(n, node, 0, 0, 0, MXML_NO_DESCEND))
@@ -610,12 +675,19 @@ void ent::entity::load(mxml_node_t *node)
     current_M[14] = p[2];
 
     set_default();
+
+    // Initialize parameters.
+
+    for (i = params.begin(); i != params.end(); ++i)
+        i->second->load(node);
 }
 
 //-----------------------------------------------------------------------------
 
 mxml_node_t *ent::entity::save(mxml_node_t *node)
 {
+    std::map<int, param *>::iterator i;
+
     float q[4];
 
     // Add the entity transform to this element.
@@ -635,6 +707,9 @@ mxml_node_t *ent::entity::save(mxml_node_t *node)
 
     if (body1) mxmlNewInteger(mxmlNewElement(node, "body1"), body1);
     if (body2) mxmlNewInteger(mxmlNewElement(node, "body2"), body2);
+
+    for (i = params.begin(); i != params.end(); ++i)
+        i->second->save(node);
 
     return node;
 }

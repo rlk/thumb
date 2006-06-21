@@ -1,8 +1,8 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="data_directory">E:/rlk/src/thumb/data/</option>
-  <option type="string" name="world_directory">E:/rlk/src/thumb/</option>
-  <option type="string" name="solid_directory">E:/rlk/src/thumb/data/</option>
+  <option type="string" name="data_directory">/home/evl/rlk/src/thumb/data/</option>
+  <option type="string" name="world_directory">/home/evl/rlk/src/thumb/data/world/</option>
+  <option type="string" name="solid_directory">/home/evl/rlk/src/thumb/data/</option>
   <option type="string" name="sans_font">FreeSans.ttf</option>
   <option type="string" name="mono_font">FreeMono.ttf</option>
   <option type="int" name="sans_size">14</option>

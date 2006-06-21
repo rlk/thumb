@@ -57,7 +57,6 @@ class demo : public app::prog
     ent::light  sun;
     ent::sky    sky;
     ent::earth  earth;
-//  ent::plane  plane;
     ops::scene  scene;
 
     // Editor mode.

@@ -20,6 +20,7 @@
 #include <ode/ode.h>
 #include <mxml.h>
 
+#include "param.hpp"
 #include "obj.h"
 
 //-----------------------------------------------------------------------------
@@ -66,27 +67,25 @@ namespace ent
         float default_M[16];
         float current_M[16];
 
+        std::map<int, param *> params;
+
         void get_transform(float[16], dGeomID);
         void set_transform(float[16], dGeomID);
+
+        virtual void draw_geom() const { }
 
     public:
 
         entity(int=-1);
+        entity(const entity&);
 
         virtual entity *clone() const = 0;
-
-        virtual void geom_to_entity() { }
-        virtual void entity_to_geom();
-
-        virtual ent::solid *get_solid() { return 0; }
-        virtual ent::joint *get_joint() { return 0; }
-
-        float get_sphere(float[3]);
 
         // Store and recall default transform state.
 
         void set_default();
         void get_default();
+        void get_surface(dSurfaceParameters&);
 
         // Transform.
 
@@ -100,8 +99,9 @@ namespace ent
         void move_local(float, float, float);
         void mult_local(const float[16]);
 
-        void get_world(float[16]) const;
-        void get_local(float[16]) const;
+        void  get_world(float[16]) const;
+        void  get_local(float[16]) const;
+        float get_bound(float[3])  const;
 
         // Manage body and joint and cell associations.
 
@@ -125,8 +125,8 @@ namespace ent
 
         // Manage ODE physical parameters.
 
-        virtual void set_param(int, std::string&) = 0;
-        virtual bool get_param(int, std::string&) = 0;
+        void set_param(int, std::string&);
+        bool get_param(int, std::string&);
 
         // Apply transforms.
 
@@ -135,9 +135,21 @@ namespace ent
         void mult_T() const;
         void mult_V() const;
 
-        // Render
+        // Passes.
 
-        virtual void draw_geom() const { }
+        virtual int  view_prio() { return 0; }
+        virtual void view_prep() { }
+        virtual void view_post() { }
+        virtual void view()      { }
+        
+        virtual int  step_prio() { return 0; }
+        virtual void step_prep() { }
+        virtual void step_post() { }
+        virtual void step()      { }
+
+        virtual int  draw_prio() { return 0; }
+        virtual void draw_prep() { }
+        virtual void draw_post() { }
         virtual void draw_fill() const;
         virtual void draw_line() const;
         virtual void draw_foci() const;

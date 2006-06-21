@@ -394,7 +394,7 @@ void ops::scene::debody_all()
 
     bodies.clear();
 }
-
+/*
 void ops::scene::update_joints()
 {
     ent::oct::iterator i;
@@ -418,7 +418,7 @@ void ops::scene::update_solids()
 
     // TODO: octree seek goes here.
 }
-
+*/
 void ops::scene::set_param(int k, std::string& expr)
 {
     ent::set::iterator i;
@@ -725,7 +725,7 @@ void ops::scene::load(std::string filename)
             serial = MAX(serial, (*i)->join() + 1);
         }
 
-//      mxmlDelete(H); HACK
+        mxmlDelete(H);
         fclose(fp);
     }
 }
@@ -761,7 +761,7 @@ void ops::scene::save(std::string filename, bool save_all)
             (*i)->save(root);
 
         mxmlSaveFile(head, fp, save_cb);
-//      mxmlDelete(head);  HACK
+        mxmlDelete(head);
 
         fclose(fp);
     }

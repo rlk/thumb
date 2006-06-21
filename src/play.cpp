@@ -36,9 +36,9 @@ void mode::play::leave()
 
 bool mode::play::timer(float dt)
 {
-    scene.update_joints();
+//  scene.update_joints();
     ent::entity::phys_step(dt);
-    scene.update_solids();
+//  scene.update_solids();
 
     return true;
 }

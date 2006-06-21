@@ -170,9 +170,6 @@ namespace ops
         void embody_all();
         void debody_all();
 
-        void update_joints();
-        void update_solids();
-
         void set_param(int, std::string&);
         int  get_param(int, std::string&);
 

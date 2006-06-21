@@ -33,7 +33,7 @@ std::string dir_scan(std::string& dir)
         D = opendir(dir.c_str());
 
     if (D && (ent = readdir(D)))
-        return dir + std::string(ent->d_name());
+        return ent->d_name;
 
     return "";
 }
@@ -165,7 +165,6 @@ void directory::get(strvec& dirs, strvec& regs, std::string& ext)
                         regs.push_back(name);
             }
         }
-        else printf("stat fail %s\n", file.c_str());
     }
     dir_close();
 }

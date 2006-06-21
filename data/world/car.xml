@@ -2,7 +2,7 @@
 version="1.0" ?>
 <world>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -20,7 +20,7 @@ version="1.0" ?>
     <pos_z>7.500000</pos_z>
   </geom>
   <geom class="sphere">
-    <file>C:/rlk/src/thumb/data/sphere.obj</file>
+    <file>sphere.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -39,7 +39,7 @@ version="1.0" ?>
     <body1>3</body1>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -57,7 +57,7 @@ version="1.0" ?>
     <pos_z>-2.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -75,7 +75,7 @@ version="1.0" ?>
     <pos_z>-2.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/box.obj</file>
+    <file>box.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -94,7 +94,7 @@ version="1.0" ?>
     <body1>7</body1>
   </geom>
   <geom class="sphere">
-    <file>C:/rlk/src/thumb/data/sphere.obj</file>
+    <file>sphere.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -113,7 +113,7 @@ version="1.0" ?>
     <body1>1</body1>
   </geom>
   <geom class="sphere">
-    <file>C:/rlk/src/thumb/data/sphere.obj</file>
+    <file>sphere.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -132,7 +132,7 @@ version="1.0" ?>
     <body1>2</body1>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -150,7 +150,7 @@ version="1.0" ?>
     <pos_z>2.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -168,7 +168,7 @@ version="1.0" ?>
     <pos_z>7.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -186,7 +186,7 @@ version="1.0" ?>
     <pos_z>7.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -204,7 +204,7 @@ version="1.0" ?>
     <pos_z>-7.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -222,7 +222,7 @@ version="1.0" ?>
     <pos_z>2.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -240,7 +240,7 @@ version="1.0" ?>
     <pos_z>-7.500000</pos_z>
   </geom>
   <geom class="sphere">
-    <file>C:/rlk/src/thumb/data/sphere.obj</file>
+    <file>sphere.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -259,7 +259,7 @@ version="1.0" ?>
     <body1>4</body1>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -277,7 +277,7 @@ version="1.0" ?>
     <pos_z>-2.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -295,7 +295,7 @@ version="1.0" ?>
     <pos_z>2.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -313,7 +313,7 @@ version="1.0" ?>
     <pos_z>-7.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -331,7 +331,7 @@ version="1.0" ?>
     <pos_z>-7.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -465,7 +465,7 @@ version="1.0" ?>
     <body2>3</body2>
   </joint>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -483,7 +483,7 @@ version="1.0" ?>
     <pos_z>-2.500000</pos_z>
   </geom>
   <geom class="box">
-    <file>C:/rlk/src/thumb/data/platform.obj</file>
+    <file>platform.obj</file>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>

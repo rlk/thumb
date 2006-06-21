@@ -23,56 +23,18 @@ namespace ent
 {
     class joint : public entity
     {
-    public:
-
-        enum {
-            velocity  =  0,
-            velocity2 =  1,
-            velocity3 =  2,
-            force     =  3,
-            force2    =  4,
-            force3    =  5,
-            cfm       =  6,
-            cfm2      =  7,
-            cfm3      =  8,
-            bounce    =  9,
-            bounce2   = 10,
-            bounce3   = 11,
-            lo_stop   = 12,
-            lo_stop2  = 13,
-            lo_stop3  = 14,
-            hi_stop   = 15,
-            hi_stop2  = 16,
-            hi_stop3  = 17,
-            stop_erp  = 18,
-            stop_erp2 = 19,
-            stop_erp3 = 20,
-            stop_cfm  = 21,
-            stop_cfm2 = 22,
-            stop_cfm3 = 23,
-            susp_erp  = 24,
-            susp_cfm  = 25
-        };
-        
     protected:
 
         dJointID join;
         float    size;
 
-        std::map<int, joint_param *> params;
-
     public:
 
         joint(int=-1);
-        joint(const joint&);
 
         void geom_to_entity();
 
         joint *get_joint() { return this; }
-
-        virtual void use_param();
-        void set_param(int, std::string&);
-        bool get_param(int, std::string&);
 
         int link() const { return 0; }
 
@@ -80,13 +42,12 @@ namespace ent
         virtual void play_init(dBodyID);
         virtual void play_fini();
 
+        virtual void step_prep();
+
         virtual void draw_geom() const;
         virtual void draw_fill() const;
 
-        virtual void         load(mxml_node_t *);
-        virtual mxml_node_t *save(mxml_node_t *);
-
-        virtual ~joint();
+        virtual ~joint() { }
     };
 }
 
@@ -117,6 +78,8 @@ namespace ent
         void play_init(dBodyID);
         void play_join(dBodyID);
 
+        void step_prep();
+
         mxml_node_t *save(mxml_node_t *);
     };
 
@@ -129,6 +92,8 @@ namespace ent
         void use_param();
         void play_init(dBodyID);
         void play_join(dBodyID);
+
+        void step_prep();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -143,6 +108,8 @@ namespace ent
         void play_init(dBodyID);
         void play_join(dBodyID);
 
+        void step_prep();
+
         mxml_node_t *save(mxml_node_t *);
     };
 
@@ -156,6 +123,8 @@ namespace ent
         void play_init(dBodyID);
         void play_join(dBodyID);
 
+        void step_prep();
+
         mxml_node_t *save(mxml_node_t *);
     };
 
@@ -168,6 +137,8 @@ namespace ent
         void use_param();
         void play_init(dBodyID);
         void play_join(dBodyID);
+
+        void step_prep();
 
         mxml_node_t *save(mxml_node_t *);
     };

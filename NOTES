@@ -133,3 +133,39 @@ Octree notes
                         Can't happen
                                 ODE planes bound the space
                                 This would also allow quadtree space to work
+
+
+use step_prio entity attribute to optimize post-step update
+use view_prio attribute to trigger draw pass
+
+getting rid of get_joint/get_solid
+
+        geom set parameter before stop (after dSurfaceParam restructure)
+        joint set parameter before step
+        solid geom to entity/spacial index resort after step
+
+        edit
+        play
+        view
+        draw?
+        step
+
+step (move phys_step to mode)
+        for each entity
+                if active
+                        pre step
+        step all
+        for each entity
+                if active
+                        post step
+
+draw
+        for each entity
+                if viewer
+                        view_pre
+                        draw all
+                        view_post
+
+How to ensure lights before mirror before camera?
+
+Setting line parameters per draw_line is stupid.

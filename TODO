@@ -1,3 +1,10 @@
+Generalize the "follow" mechanism to "enable".
+Create specials: light, camera.
+Move sky/camera/light ownership to scene.
+The joint parameter enumeration is obsolute.  Reflatten that hierarchy.
+
+bounce_vel should not be zero.
+
 Octree seek on solid update.
 Minimize number of moves in octree seek.
 Documentation.

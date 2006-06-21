@@ -127,8 +127,8 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new bitmap(s, ent::solid::category))->
-                    add(new bitmap(s, ent::solid::collide))->
+                    add(new bitmap(s, ent::param::category))->
+                    add(new bitmap(s, ent::param::collide))->
                     add(new gui::filler(false, false))))->
 
             add((new gui::hgroup)->
@@ -140,9 +140,9 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new editor(s, ent::solid::density))->
-                    add(new editor(s, ent::solid::bounce))->
-                    add(new editor(s, ent::solid::friction)))->
+                    add(new editor(s, ent::param::density))->
+                    add(new editor(s, ent::param::bounce))->
+                    add(new editor(s, ent::param::mu)))->
 
                 add((new gui::varray)->
 
@@ -152,9 +152,9 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new editor(s, ent::solid::soft_erp))->
-                    add(new editor(s, ent::solid::soft_cfm))->
-                    add(new editor(s, ent::solid::follow))))));
+                    add(new editor(s, ent::param::soft_erp))->
+                    add(new editor(s, ent::param::soft_cfm))->
+                    add(new editor(s, -1))))));
 }
 
 //-----------------------------------------------------------------------------
@@ -219,27 +219,27 @@ cnt::joint_panel::joint_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
             add((new gui::varray)->
                 add(new title("Axis 1"))->
 
-                add(new editor(s, ent::joint::velocity))->
-                add(new editor(s, ent::joint::force))->
-                add(new editor(s, ent::joint::cfm))->
-                add(new editor(s, ent::joint::bounce))->
-                add(new editor(s, ent::joint::lo_stop))->
-                add(new editor(s, ent::joint::hi_stop))->
-                add(new editor(s, ent::joint::stop_erp))->
-                add(new editor(s, ent::joint::stop_cfm))->
-                add(new editor(s, ent::joint::susp_erp))->
-                add(new editor(s, ent::joint::susp_cfm)))->
+                add(new editor(s, dParamVel))->
+                add(new editor(s, dParamFMax))->
+                add(new editor(s, dParamCFM))->
+                add(new editor(s, dParamBounce))->
+                add(new editor(s, dParamLoStop))->
+                add(new editor(s, dParamHiStop))->
+                add(new editor(s, dParamStopERP))->
+                add(new editor(s, dParamStopCFM))->
+                add(new editor(s, dParamSuspensionERP))->
+                add(new editor(s, dParamSuspensionCFM)))->
 
             add((new gui::varray)->
                 add(new title("Axis 2"))->
-                add(new editor(s, ent::joint::velocity2))->
-                add(new editor(s, ent::joint::force2))->
-                add(new editor(s, ent::joint::cfm2))->
-                add(new editor(s, ent::joint::bounce2))->
-                add(new editor(s, ent::joint::lo_stop2))->
-                add(new editor(s, ent::joint::hi_stop2))->
-                add(new editor(s, ent::joint::stop_erp2))->
-                add(new editor(s, ent::joint::stop_cfm2))->
+                add(new editor(s, dParamVel2))->
+                add(new editor(s, dParamFMax2))->
+                add(new editor(s, dParamCFM2))->
+                add(new editor(s, dParamBounce2))->
+                add(new editor(s, dParamLoStop2))->
+                add(new editor(s, dParamHiStop2))->
+                add(new editor(s, dParamStopERP2))->
+                add(new editor(s, dParamStopCFM2))->
 
                 add(new gui::filler)->
                 add(new gui::filler))->
@@ -247,14 +247,14 @@ cnt::joint_panel::joint_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
             add((new gui::varray)->
                 add(new title("Axis 3"))->
 
-                add(new editor(s, ent::joint::velocity3))->
-                add(new editor(s, ent::joint::force3))->
-                add(new editor(s, ent::joint::cfm3))->
-                add(new editor(s, ent::joint::bounce3))->
-                add(new editor(s, ent::joint::lo_stop3))->
-                add(new editor(s, ent::joint::hi_stop3))->
-                add(new editor(s, ent::joint::stop_erp3))->
-                add(new editor(s, ent::joint::stop_cfm3))->
+                add(new editor(s, dParamVel3))->
+                add(new editor(s, dParamFMax3))->
+                add(new editor(s, dParamCFM3))->
+                add(new editor(s, dParamBounce3))->
+                add(new editor(s, dParamLoStop3))->
+                add(new editor(s, dParamHiStop3))->
+                add(new editor(s, dParamStopERP3))->
+                add(new editor(s, dParamStopCFM3))->
 
                 add(new gui::filler)->
                 add(new gui::filler))));
