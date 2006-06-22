@@ -42,6 +42,7 @@ namespace ent
         virtual void play_init(dBodyID);
         virtual void play_fini();
 
+        virtual int  step_prio() { return 1; }
         virtual void step_prep();
 
         virtual void draw_geom() const;

@@ -6,7 +6,7 @@ CFLAGS= -g -Wall -ansi -pedantic
 #CFLAGS= -g -Wall -wd981 -wd383 -wd869
 
 TARG= ../thumb
-OBJS= opengl.o matrix.o obj.o light.o camera.o earth.o sky.o oct.o entity.o \
+OBJS= opengl.o matrix.o obj.o light.o camera.o earth.o sky.o entity.o \
 	joint.o solid.o scene.o constraint.o image.o data.o lang.o \
 	conf.o edit.o play.o info.o mode.o demo.o prog.o util.o font.o \
 	control.o gui.o param.o directory.o main.o

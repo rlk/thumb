@@ -502,7 +502,7 @@ void ent::entity::mult_V() const
 
 //-----------------------------------------------------------------------------
 
-void ent::entity::draw_fill() const
+void ent::entity::draw(int flags) const
 {
     // Draw the object associated with this entity.
 
@@ -516,7 +516,7 @@ void ent::entity::draw_fill() const
         glPopMatrix();
     }
 }
-
+/*
 void ent::entity::draw_line() const
 {
     glPushAttrib(GL_ENABLE_BIT  | GL_LINE_BIT |
@@ -634,7 +634,7 @@ void ent::entity::draw_foci() const
     glPopMatrix();
     glPopAttrib();
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void ent::entity::load(mxml_node_t *node)

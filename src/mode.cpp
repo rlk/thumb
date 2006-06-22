@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include "opengl.hpp"
 #include "mode.hpp"
 
 //-----------------------------------------------------------------------------
@@ -33,6 +34,23 @@ bool mode::mode::timer(float dt)
 {
     ent::entity::phys_step(dt);
     return false;
+}
+
+//-----------------------------------------------------------------------------
+
+void mode::mode::draw() const
+{
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        // Draw the scene.
+
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_NORMALIZE);
+        glEnable(GL_LIGHTING);
+
+        scene.draw(ent::flag_fill);
+    }
+    glPopAttrib();
 }
 
 //-----------------------------------------------------------------------------

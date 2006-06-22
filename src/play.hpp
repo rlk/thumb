@@ -29,6 +29,8 @@ namespace mode
         virtual void leave();
 
         virtual bool timer(float);
+
+        virtual void draw() const;
     };
 }
 

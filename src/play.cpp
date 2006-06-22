@@ -36,11 +36,26 @@ void mode::play::leave()
 
 bool mode::play::timer(float dt)
 {
-//  scene.update_joints();
-    ent::entity::phys_step(dt);
-//  scene.update_solids();
+    scene.step(dt);
 
     return true;
+}
+
+//-----------------------------------------------------------------------------
+
+void mode::play::draw() const
+{
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        // Draw the scene.
+
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_NORMALIZE);
+        glEnable(GL_LIGHTING);
+
+        scene.draw(ent::flag_play | ent::flag_fill);
+    }
+    glPopAttrib();
 }
 
 //-----------------------------------------------------------------------------

@@ -54,9 +54,6 @@ class demo : public app::prog
     // Entity state.
 
     ent::camera camera;
-    ent::light  sun;
-    ent::sky    sky;
-    ent::earth  earth;
     ops::scene  scene;
 
     // Editor mode.
@@ -80,7 +77,6 @@ class demo : public app::prog
 public:
 
     demo();
-   ~demo();
 
     void point(int, int);
     void click(int, bool);

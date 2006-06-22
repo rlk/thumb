@@ -201,19 +201,20 @@ void mode::edit::draw() const
 {
     glPushAttrib(GL_ENABLE_BIT);
     {
-        ent::set::iterator i;
+        // Draw the scene.
+
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_NORMALIZE);
+        glEnable(GL_LIGHTING);
+
+        scene.draw(ent::flag_fill | ent::flag_line | ent::flag_foci);
+
+        // Draw the constraint.
 
         glDisable(GL_LIGHTING);
         glDisable(GL_TEXTURE_2D);
 
-        // Draw the constraint.
-
         transform.draw(grid_size);
-
-        // Draw the scene highlights.
-
-        scene.draw_line();
-        scene.draw_foci();
     }
     glPopAttrib();
 }

@@ -24,10 +24,7 @@
 
 demo::demo() :
 
-    camera(),
-    sun   (GL_LIGHT0),
-    sky   (conf->get_f("camera_far")),
-    earth (conf->get_f("camera_far")),
+    camera(), scene(camera),
 
     edit(scene),
     play(scene),
@@ -63,10 +60,6 @@ demo::demo() :
     goto_mode(&play);
 }
 
-demo::~demo()
-{
-}
-
 //-----------------------------------------------------------------------------
 
 void demo::goto_mode(mode::mode *next)
@@ -89,17 +82,12 @@ void demo::point(int x, int y)
 
     if (curr->point(p, v, x, y) == false)
     {
-        // Handle camera and lightsource motion.
+        // Handle camera rotation.
 
         if (button[3])
         {
             camera.turn_world(+float(last_x - x) * k, 0.0f, 1.0f, 0.0f);
             camera.turn_local(+float(last_y - y) * k, 1.0f, 0.0f, 0.0f);
-        }
-        if (button[2])
-        {
-            sun.turn_world(-float(last_y - y) * k, 1.0f, 0.0f, 0.0f);
-            sun.turn_world(+float(last_x - x) * k, 0.0f, 1.0f, 0.0f);
         }
         prog::point(x, y);
     }
@@ -176,47 +164,11 @@ void demo::timer(float dt)
 
 //-----------------------------------------------------------------------------
 
-void demo::draw_all() const
-{
-    glPushAttrib(GL_ENABLE_BIT);
-    {
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_NORMALIZE);
-        glEnable(GL_LIGHTING);
-
-        camera.proj();
-
-        glPushMatrix();
-        {
-            // Draw the background and apply the view matrix.
-
-            sun.draw_fill();
-            camera.mult_R();
-            sky.draw_fill();
-
-            sun.draw_fill();
-            earth.draw_fill();
-            camera.mult_T();
-
-            // Draw the scene.
-
-            sun.draw_fill();
-            scene.draw_fill();
-            curr->draw();
-        }
-        glPopMatrix();
-    }
-    glPopAttrib();
-}
-
-//-----------------------------------------------------------------------------
-
 void demo::draw() const
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    draw_all();
-
+    curr->draw();
     prog::draw();
 }
 

@@ -27,8 +27,17 @@
 
 namespace ent
 {
-    class joint;
-    class solid;
+    // Draw flags.
+
+    enum {
+        flag_play = 1,
+        flag_fill = 2,
+        flag_flat = 4,
+        flag_line = 8,
+        flag_foci = 16
+    };
+
+    // Entity base class.
 
     class entity
     {
@@ -69,10 +78,17 @@ namespace ent
 
         std::map<int, param *> params;
 
+        virtual void draw_geom() const { }
+
+        // Transform handlers.
+
+        void mult_M() const;
+        void mult_R() const;
+        void mult_T() const;
+        void mult_V() const;
+
         void get_transform(float[16], dGeomID);
         void set_transform(float[16], dGeomID);
-
-        virtual void draw_geom() const { }
 
     public:
 
@@ -101,7 +117,7 @@ namespace ent
 
         void  get_world(float[16]) const;
         void  get_local(float[16]) const;
-        float get_bound(float[3])  const;
+        float get_bound(float[ 3]) const;
 
         // Manage body and joint and cell associations.
 
@@ -128,31 +144,20 @@ namespace ent
         void set_param(int, std::string&);
         bool get_param(int, std::string&);
 
-        // Apply transforms.
-
-        void mult_M() const;
-        void mult_R() const;
-        void mult_T() const;
-        void mult_V() const;
-
         // Passes.
 
-        virtual int  view_prio() { return 0; }
-        virtual void view_prep() { }
-        virtual void view_post() { }
-        virtual void view()      { }
-        
-        virtual int  step_prio() { return 0; }
         virtual void step_prep() { }
         virtual void step_post() { }
-        virtual void step()      { }
 
-        virtual int  draw_prio() { return 0; }
-        virtual void draw_prep() { }
-        virtual void draw_post() { }
-        virtual void draw_fill() const;
-        virtual void draw_line() const;
-        virtual void draw_foci() const;
+        virtual int  view_prio(int) const { return 0; }
+        virtual void view_prep(int) const { }
+        virtual void view_post(int) const { }
+        
+        virtual int  draw_prio(int) const { return 0; }
+        virtual void draw_prep(int) const { }
+        virtual void draw_post(int) const { }
+
+        virtual void draw(int) const;
 
         // File I/O
 

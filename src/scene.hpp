@@ -18,7 +18,6 @@
 #include <list>
 
 #include "entity.hpp"
-#include "oct.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -132,7 +131,9 @@ namespace ops
 
     class scene
     {
-        ent::oct all;
+        ent::entity& camera;
+
+        ent::set all;
         ent::set sel;
         
         body_map bodies;
@@ -146,7 +147,7 @@ namespace ops
 
     public:
 
-        scene();
+        scene(ent::entity&);
        ~scene();
 
         // Editing operations.
@@ -185,11 +186,12 @@ namespace ops
         void undo();
         void redo();
 
-        // Renderers.
+        // Physics stepping and rendering handlers.
 
-        void draw_foci() const;
-        void draw_line() const;
-        void draw_fill() const;
+        void step(float);
+        void draw(int) const;
+
+        // Scene I/O.
 
         void init();
         void load(std::string);

@@ -14,24 +14,6 @@
 
 //-----------------------------------------------------------------------------
 
-void ent::oct::cell::draw_fill() const
-{
-    ent::set::const_iterator i;
-
-    for (i = entities.begin(); i != entities.end(); ++i)
-        (*i)->draw_fill();
-}
-
-void ent::oct::cell::draw_foci() const
-{
-    ent::set::const_iterator i;
-
-    for (i = entities.begin(); i != entities.end(); ++i)
-        (*i)->draw_foci();
-}
-
-//-----------------------------------------------------------------------------
-
 ent::oct::oct(float range, int depth) :
 
     range(range),

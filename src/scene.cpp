@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <map>
 #include <cstdio>
 #include <algorithm>
 
@@ -188,7 +189,7 @@ ent::set& ops::enjoin_op::redo(scene *s)
 
 //-----------------------------------------------------------------------------
 
-ops::scene::scene() : serial(1)
+ops::scene::scene(ent::entity& camera) : camera(camera), serial(1)
 {
 }
 
@@ -258,7 +259,7 @@ void ops::scene::invert_selection()
     ent::set unselected;
     ent::set::iterator i;
 
-    all.get(unselected);
+    unselected = all;
 
     // Remove all selected entities.
 
@@ -281,9 +282,13 @@ void ops::scene::extend_selection()
 
     // Add all entities with an included body ID to the selection.
 
-    for (ent::oct::iterator j = all.begin(); j != all.end(); ++j)
+    for (ent::set::iterator j = all.begin(); j != all.end(); ++j)
+    {
         if (bodies.find((*j)->body()) != bodies.end())
             sel.insert(*j);
+        if (bodies.find((*j)->join()) != bodies.end())
+            sel.insert(*j);
+    }
 }
 
 void ops::scene::create_set(ent::set& set)
@@ -307,7 +312,7 @@ void ops::scene::delete_set(ent::set& set)
 
     for (i = set.begin(); i != set.end(); ++i)
     {
-        all.remove(*i);
+        all.erase(all.find(*i));
         (*i)->edit_fini();
     }
 }
@@ -322,8 +327,6 @@ void ops::scene::modify_set(ent::set& set, const float T[16])
     {
         (*i)->mult_world(T);
         (*i)->set_default();
-
-        all.modify(*i);
     }
 }
 
@@ -331,7 +334,7 @@ void ops::scene::modify_set(ent::set& set, const float T[16])
 
 void ops::scene::embody_all()
 {
-    ent::oct::iterator i;
+    ent::set::iterator i;
     body_map::iterator j;
 
     int id;
@@ -378,7 +381,7 @@ void ops::scene::embody_all()
 
 void ops::scene::debody_all()
 {
-    ent::oct::iterator i;
+    ent::set::iterator i;
     body_map::iterator j;
 
     // Revert the state of all active entities.
@@ -394,31 +397,7 @@ void ops::scene::debody_all()
 
     bodies.clear();
 }
-/*
-void ops::scene::update_joints()
-{
-    ent::oct::iterator i;
 
-    // Apply any varying joint parameters before the next ODE step.
-
-    for (i = all.begin(); i != all.end(); ++i)
-        if ((*i)->get_joint())
-            (*i)->get_joint()->use_param();
-}
-
-void ops::scene::update_solids()
-{
-    ent::oct::iterator i;
-
-    // Update the active entity current positions after the last ODE step.
-
-    for (i = all.begin(); i != all.end(); ++i)
-        if ((*i)->get_solid())
-            (*i)->get_solid()->geom_to_entity();
-
-    // TODO: octree seek goes here.
-}
-*/
 void ops::scene::set_param(int k, std::string& expr)
 {
     ent::set::iterator i;
@@ -498,7 +477,7 @@ void ops::scene::do_create()
     std::set<int> B;
     std::set<int> C;
 
-    ent::oct::iterator i;
+    ent::set::iterator i;
     ent::set::iterator j;
 
     // Find all conflicting body IDs.
@@ -637,7 +616,7 @@ static const char *save_cb(mxml_node_t *node, int where)
 
 void ops::scene::init()
 {
-    all.get(sel);
+    sel = all;
     do_delete();
 }
 
@@ -719,7 +698,7 @@ void ops::scene::load(std::string filename)
 
         // Ensure the body group serial number does not conflict.
 
-        for (ent::oct::iterator i = all.begin(); i != all.end(); ++i)
+        for (ent::set::iterator i = all.begin(); i != all.end(); ++i)
         {
             serial = MAX(serial, (*i)->body() + 1);
             serial = MAX(serial, (*i)->join() + 1);
@@ -743,7 +722,7 @@ void ops::scene::save(std::string filename, bool save_all)
 
     if (save_all)
     {
-        all.get(save);
+        save = all;
 
         b = save.begin();
         e = save.end();
@@ -769,22 +748,73 @@ void ops::scene::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
-void ops::scene::draw_fill() const
+void ops::scene::step(float dt)
 {
-    all.draw_fill();
+    ent::set::iterator i;
+
+    // Preprocess each active entity.
+
+    for (i = all.begin(); i != all.end(); ++i)
+        (*i)->step_prep();
+
+    // Step.
+
+    ent::entity::phys_step(dt);
+
+    // Postprocess each active entity.
+
+    for (i = all.begin(); i != all.end(); ++i)
+        (*i)->step_post();
 }
 
-void ops::scene::draw_line() const
+void ops::scene::draw(int flags) const
 {
-    ent::set::const_iterator i;
+    typedef std::pair    <int, const ent::entity *> pair;
+    typedef std::multimap<int, const ent::entity *> mmap;
 
-    for (i = sel.begin(); i != sel.end(); ++i)
-        (*i)->draw_line();
-}
+    mmap V;
+    mmap D;
 
-void ops::scene::draw_foci() const
-{
-    all.draw_foci();
+    mmap::const_iterator i;
+    mmap::const_iterator j;
+
+    // Construct prioritized lists of viewers and drawers.
+
+    ent::set::iterator e;
+    int p;
+
+    for (e = all.begin(); e != all.end(); ++e)
+    {
+        if ((p = (*e)->view_prio(flags)) > 0) V.insert(pair(p, *e));
+        if ((p = (*e)->draw_prio(flags)) > 0) D.insert(pair(p, *e));
+    }
+
+    // If the scene includes no viewers, include the default camera.
+
+    if (V.empty())
+        V.insert(pair(1, &camera));
+
+    // Preprocess each drawer.
+
+    for (j = D.begin(); j != D.end(); ++j)
+        j->second->draw_prep(flags);
+
+    // Draw all drawers to all viewers.
+
+    for (i = V.begin(); i != V.end(); ++i)
+    {
+        i->second->view_prep(flags);
+
+        for (j = D.begin(); j != D.end(); ++j)
+            j->second->draw(flags);
+
+        i->second->view_post(flags);
+    }
+            
+    // Postprocess each drawer.
+
+    for (j = D.begin(); j != D.end(); ++j)
+        j->second->draw_post(flags);
 }
 
 //-----------------------------------------------------------------------------
