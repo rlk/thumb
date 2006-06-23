@@ -502,46 +502,25 @@ void ent::entity::mult_V() const
 
 //-----------------------------------------------------------------------------
 
-void ent::entity::draw(int flags) const
+void ent::entity::draw_fill(int flags) const
 {
     // Draw the object associated with this entity.
 
-    if (file >= 0)
+    glPushMatrix();
     {
-        glPushMatrix();
-        {
-            mult_M();
-            obj_draw_file(file);
-        }
-        glPopMatrix();
+        mult_M();
+        obj_draw_file(file);
     }
+    glPopMatrix();
 }
-/*
-void ent::entity::draw_line() const
+
+void ent::entity::draw_line(int flags) const
 {
-    glPushAttrib(GL_ENABLE_BIT  | GL_LINE_BIT |
-                 GL_POLYGON_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
     {
         // Apply the entity transform.
 
         mult_M();
-
-        // Set up for Z-offset anti-aliased line drawing.
-
-        glEnable(GL_BLEND);
-        glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_POLYGON_OFFSET_LINE);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_TEXTURE_2D);
-
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthMask(GL_FALSE);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glPolygonOffset(-1.0f, -1.0f);
-
-        glLineWidth(2.0f);
 
         // Highlight active entities in green, inactive in red.
 
@@ -555,86 +534,58 @@ void ent::entity::draw_line() const
         draw_geom();
     }
     glPopMatrix();
-    glPopAttrib();
 }
 
-void ent::entity::draw_foci() const
+void ent::entity::draw_foci(int flags) const
 {
-    glPushAttrib(GL_ENABLE_BIT  | GL_LINE_BIT |
-                 GL_POLYGON_BIT | GL_DEPTH_BUFFER_BIT);
-    glPushMatrix();
+    entity *focus = focused();
+    bool    draw  = false;
+
+    if (focus == this)
     {
-        entity *focus = focused();
-
-        // Apply the entity transform.
-
-        mult_M();
-
-        // Set up for Z-offset anti-aliased line drawing.
-
-        glEnable(GL_BLEND);
-        glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_POLYGON_OFFSET_LINE);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_TEXTURE_2D);
-
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthMask(GL_FALSE);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glPolygonOffset(-1.0f, -1.0f);
-
-        if (this == focused())
-        {
-            // Draw the axes at the focused entity.
-
-            glLineWidth(2.0f);
-
-            glBegin(GL_LINES);
-            {
-                float k = 16.0f;
-
-                glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
-                glVertex3f(-k, 0.0f, 0.0f);
-                glVertex3f(+k, 0.0f, 0.0f);
-
-                glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
-                glVertex3f(0.0f, -k, 0.0f);
-                glVertex3f(0.0f, +k, 0.0f);
-
-                glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
-                glVertex3f(0.0f, 0.0f, -k);
-                glVertex3f(0.0f, 0.0f, +k);
-            }
-            glEnd();
+        // Draw the axes at the focused entity.
+        
+        ogl::draw_axes();
  
-            // Highlight the focus in heavy yellow.
+        // Highlight the focus in heavy yellow.
 
-            glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
-            glLineWidth(3.0f);
-            draw_geom();
-        }
-        else if (focus && focus->body() && focus->body() == body())
-        {
-            // Highlight the body of the focus in light yellow.
+        glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+        glLineWidth(3.0f);
 
-            glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
-            glLineWidth(1.0f);
-            draw_geom();
-        }
-        else if (focus && focus->join() && focus->join() == body())
-        {
-            // Highlight the joint target of the focus in light magenta.
-
-            glColor4f(1.0f, 0.0f, 1.0f, 0.5f);
-            glLineWidth(1.0f);
-            draw_geom();
-        }
+        draw = true;
     }
-    glPopMatrix();
-    glPopAttrib();
+    else if (focus && focus->body() && focus->body() == body())
+    {
+        // Highlight the body of the focus in light yellow.
+
+        glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+        glLineWidth(1.0f);
+
+        draw = true;
+    }
+    else if (focus && focus->join() && focus->join() == body())
+    {
+        // Highlight the joint target of the focus in light magenta.
+
+        glColor4f(1.0f, 0.0f, 1.0f, 0.5f);
+        glLineWidth(1.0f);
+
+        draw = true;
+    }
+
+    // Draw the wireframe.
+
+    if (draw)
+    {
+        glPushMatrix();
+        {
+            mult_M();
+            draw_geom();
+        }
+        glPopMatrix();
+    }
 }
-*/
+
 //-----------------------------------------------------------------------------
 
 void ent::entity::load(mxml_node_t *node)

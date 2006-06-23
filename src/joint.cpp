@@ -367,6 +367,14 @@ void ent::universal::step_prep()
 
 //-----------------------------------------------------------------------------
 
+int ent::joint::draw_prio(int flags) const
+{
+    if (flags & ent::flag_play)
+        return 0;
+    else
+        return 1;
+}
+
 void ent::joint::draw_geom() const
 {
     if (geom)
@@ -380,23 +388,6 @@ void ent::joint::draw_geom() const
         ogl::draw_disc(1);
         glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
         ogl::draw_disc(1);
-    }
-}
-
-void ent::joint::draw_fill() const
-{
-    // Draw the object associated with this joint.
-
-    if (geom)
-    {
-        glPushMatrix();
-        {
-            mult_M();
-            glScalef(size, size, size);
-
-            obj_draw_file(file);
-        }
-        glPopMatrix();
     }
 }
 

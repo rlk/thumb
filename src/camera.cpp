@@ -43,6 +43,17 @@ void ent::camera::proj() const
         glFrustum(-a * z, +a * z, -z, +z, n, f);
     }
     glMatrixMode(GL_MODELVIEW);
+    {
+        glLoadIdentity();
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+void ent::camera::view_prep(int) const
+{
+    proj();
+    mult_V();
 }
 
 //-----------------------------------------------------------------------------

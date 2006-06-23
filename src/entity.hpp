@@ -157,7 +157,9 @@ namespace ent
         virtual void draw_prep(int) const { }
         virtual void draw_post(int) const { }
 
-        virtual void draw(int) const;
+        virtual void draw_fill(int) const;
+        virtual void draw_line(int) const;
+        virtual void draw_foci(int) const;
 
         // File I/O
 

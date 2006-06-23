@@ -28,6 +28,8 @@ namespace ent
         dJointID join;
         float    size;
 
+        virtual void draw_geom() const;
+
     public:
 
         joint(int=-1);
@@ -42,11 +44,9 @@ namespace ent
         virtual void play_init(dBodyID);
         virtual void play_fini();
 
+        virtual int  draw_prio(int) const;
         virtual int  step_prio() { return 1; }
         virtual void step_prep();
-
-        virtual void draw_geom() const;
-        virtual void draw_fill() const;
 
         virtual ~joint() { }
     };
@@ -56,18 +56,23 @@ namespace ent
 
 namespace ent
 {
+    //-------------------------------------------------------------------------
+    // Ball joint.
+
     class ball : public joint
     {
     public:
         ball();
         ball *clone() const { return new ball(*this); }
 
-        void use_param() { }
         void play_init(dBodyID);
         void play_join(dBodyID);
 
         mxml_node_t *save(mxml_node_t *);
     };
+
+    //-------------------------------------------------------------------------
+    // Hinge joint.
 
     class hinge : public joint
     {
@@ -75,14 +80,15 @@ namespace ent
         hinge *clone() const { return new hinge(*this); }
         hinge();
 
-        void use_param();
         void play_init(dBodyID);
         void play_join(dBodyID);
-
         void step_prep();
 
         mxml_node_t *save(mxml_node_t *);
     };
+
+    //-------------------------------------------------------------------------
+    // Suspension hinge joint.
 
     class hinge2 : public joint
     {
@@ -90,14 +96,15 @@ namespace ent
         hinge2 *clone() const { return new hinge2(*this); }
         hinge2();
 
-        void use_param();
         void play_init(dBodyID);
         void play_join(dBodyID);
-
         void step_prep();
 
         mxml_node_t *save(mxml_node_t *);
     };
+
+    //-------------------------------------------------------------------------
+    // Prismatic slider joint.
 
     class slider : public joint
     {
@@ -105,14 +112,15 @@ namespace ent
         slider *clone() const { return new slider(*this); }
         slider();
 
-        void use_param();
         void play_init(dBodyID);
         void play_join(dBodyID);
-
         void step_prep();
 
         mxml_node_t *save(mxml_node_t *);
     };
+
+    //-------------------------------------------------------------------------
+    // Angular motor joint.
 
     class amotor : public joint
     {
@@ -120,14 +128,15 @@ namespace ent
         amotor *clone() const { return new amotor(*this); }
         amotor();
 
-        void use_param();
         void play_init(dBodyID);
         void play_join(dBodyID);
-
         void step_prep();
 
         mxml_node_t *save(mxml_node_t *);
     };
+
+    //-------------------------------------------------------------------------
+    // Universal joint.
 
     class universal : public joint
     {
@@ -135,10 +144,8 @@ namespace ent
         universal *clone() const { return new universal(*this); }
         universal();
 
-        void use_param();
         void play_init(dBodyID);
         void play_join(dBodyID);
-
         void step_prep();
 
         mxml_node_t *save(mxml_node_t *);

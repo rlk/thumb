@@ -507,4 +507,25 @@ void ogl::draw_cube()
     glPopClientAttrib();
 }
 
+void ogl::draw_axes()
+{
+    glBegin(GL_LINES);
+    {
+        float k = 16.0f;
+
+        glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
+        glVertex3f(-k, 0.0f, 0.0f);
+        glVertex3f(+k, 0.0f, 0.0f);
+
+        glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
+        glVertex3f(0.0f, -k, 0.0f);
+        glVertex3f(0.0f, +k, 0.0f);
+
+        glColor4f(0.0f, 0.0f, 1.0f, 0.5f);
+        glVertex3f(0.0f, 0.0f, -k);
+        glVertex3f(0.0f, 0.0f, +k);
+    }
+    glEnd();
+}
+
 //-----------------------------------------------------------------------------

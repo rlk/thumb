@@ -398,6 +398,8 @@ void ops::scene::debody_all()
     bodies.clear();
 }
 
+//-----------------------------------------------------------------------------
+
 void ops::scene::set_param(int k, std::string& expr)
 {
     ent::set::iterator i;
@@ -767,6 +769,40 @@ void ops::scene::step(float dt)
         (*i)->step_post();
 }
 
+//-----------------------------------------------------------------------------
+
+static void line_prep()
+{
+    glPushAttrib(GL_LINE_BIT    |
+                 GL_ENABLE_BIT  |
+                 GL_POLYGON_BIT |
+                 GL_DEPTH_BUFFER_BIT);
+
+    // Set up for Z-offset anti-aliased line drawing.
+
+    glEnable(GL_BLEND);
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POLYGON_OFFSET_LINE);
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(GL_FALSE);
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonOffset(-1.0f, -1.0f);
+
+    glLineWidth(2.0f);
+}
+
+static void line_post()
+{
+    glPopAttrib();
+}
+
+//-----------------------------------------------------------------------------
+
 void ops::scene::draw(int flags) const
 {
     typedef std::pair    <int, const ent::entity *> pair;
@@ -774,11 +810,12 @@ void ops::scene::draw(int flags) const
 
     mmap V;
     mmap D;
+    mmap S;
 
     mmap::const_iterator i;
     mmap::const_iterator j;
 
-    // Construct prioritized lists of viewers and drawers.
+    // Construct prioritized lists of viewers, drawers, and selections.
 
     ent::set::iterator e;
     int p;
@@ -788,13 +825,17 @@ void ops::scene::draw(int flags) const
         if ((p = (*e)->view_prio(flags)) > 0) V.insert(pair(p, *e));
         if ((p = (*e)->draw_prio(flags)) > 0) D.insert(pair(p, *e));
     }
+    for (e = sel.begin(); e != sel.end(); ++e)
+    {
+        if ((p = (*e)->draw_prio(flags)) > 0) S.insert(pair(p, *e));
+    }
 
     // If the scene includes no viewers, include the default camera.
 
     if (V.empty())
         V.insert(pair(1, &camera));
 
-    // Preprocess each drawer.
+    // Preprocess all drawers.
 
     for (j = D.begin(); j != D.end(); ++j)
         j->second->draw_prep(flags);
@@ -803,15 +844,38 @@ void ops::scene::draw(int flags) const
 
     for (i = V.begin(); i != V.end(); ++i)
     {
+        // Preprocess this viewer.
+
         i->second->view_prep(flags);
 
-        for (j = D.begin(); j != D.end(); ++j)
-            j->second->draw(flags);
+        // Draw fill geometry.
+
+        if (flags & ent::flag_fill)
+        {
+            for (j = D.begin(); j != D.end(); ++j)
+                j->second->draw_fill(flags);
+        }
+
+        // Draw line geometry.
+
+        if (flags & ent::flag_line)
+        {
+            line_prep();
+
+            for (j = S.begin(); j != S.end(); ++j)
+                j->second->draw_line(flags);
+            for (j = D.begin(); j != D.end(); ++j)
+                j->second->draw_foci(flags);
+
+            line_post();
+        }
+
+        // Postprocess this viewer.
 
         i->second->view_post(flags);
     }
             
-    // Postprocess each drawer.
+    // Postprocess drawers.
 
     for (j = D.begin(); j != D.end(); ++j)
         j->second->draw_post(flags);

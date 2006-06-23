@@ -21,11 +21,15 @@ namespace ent
 {
     class camera : public free
     {
+        void proj() const;
+
     public:
 
         camera();
 
-        void proj() const;
+        int  view_prio(int) const { return 3; }
+        void view_prep(int) const;
+
         void pick(float[3], float[3], int, int) const;
     };
 }

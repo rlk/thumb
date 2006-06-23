@@ -44,7 +44,8 @@ namespace ent
         virtual void play_tran(dBodyID);
         virtual void play_fini();
 
-        virtual int  step_prio() { return 1; }
+        virtual int  draw_prio(int) const { return 1; }
+        virtual int  step_prio()          { return 1; }
         virtual void step_post();
 
         virtual void         load(mxml_node_t *);
@@ -69,39 +70,42 @@ namespace ent
 
     class box : public solid
     {
+    protected:
+        void draw_geom() const;
     public:
         box *clone() const { return new box(*this); }
         box(int f=-1)     : solid(f) { }
 
         void edit_init();
         void play_init(dBodyID);
-        void draw_geom() const;
 
         mxml_node_t *save(mxml_node_t *);
     };
 
     class sphere : public solid
     {
+    protected:
+        void draw_geom() const;
     public:
         sphere *clone() const { return new sphere(*this); }
         sphere(int f=-1)  : solid(f) { }
 
         void edit_init();
         void play_init(dBodyID);
-        void draw_geom() const;
 
         mxml_node_t *save(mxml_node_t *);
     };
 
     class capsule : public solid
     {
+    protected:
+        void draw_geom() const;
     public:
         capsule *clone() const { return new capsule(*this); }
         capsule(int f=-1) : solid(f) { }
 
         void edit_init();
         void play_init(dBodyID);
-        void draw_geom() const;
 
         mxml_node_t *save(mxml_node_t *);
     };

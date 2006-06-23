@@ -163,6 +163,7 @@ namespace ogl
 
     void draw_disc(int);
     void draw_cube();
+    void draw_axes();
 }
 
 //-----------------------------------------------------------------------------
