@@ -191,7 +191,8 @@ ent::set& ops::enjoin_op::redo(scene *s)
 
 //-----------------------------------------------------------------------------
 
-ops::scene::scene() : serial(1)
+ops::scene::scene() : 
+    shadowmap(GL_RGBA8, GL_DEPTH_COMPONENT24, 1024, 1024), serial(1)
 {
 }
 
@@ -850,12 +851,17 @@ void ops::scene::draw(bool edit)
         {
             // Render all geometry to the depth buffer.
 
+            shadowmap.push_frame();
+
             lp->lite_prep(p);
 
             for (j = D.begin(); j != D.end(); ++j)
                 j->second->draw_dark();
 
             lp->lite_post(p);
+
+            shadowmap.pop_frame();
+            shadowmap.bind_depth(GL_TEXTURE1);
 
             // Accumulate all diffuse light with the color buffer.
 

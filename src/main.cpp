@@ -33,6 +33,7 @@ app::prog *prog;
 app::lang *lang;
 app::font *sans;
 app::font *mono;
+app::glob *glob;
 app::view *view;
 
 //-----------------------------------------------------------------------------
@@ -166,6 +167,7 @@ static bool loop(std::string& conf_file, std::string& lang_file)
         {
         case SDL_QUIT:
             if (prog) delete prog;
+            if (glob) delete glob;
             if (view) delete view;
             if (mono) delete mono;
             if (sans) delete sans;
@@ -179,6 +181,7 @@ static bool loop(std::string& conf_file, std::string& lang_file)
 
         case SDL_USEREVENT:
             if (prog) delete prog;
+            if (glob) delete glob;
             if (view) delete view;
             if (mono) delete mono;
             if (sans) delete sans;
@@ -216,6 +219,7 @@ static bool loop(std::string& conf_file, std::string& lang_file)
             // Initialize the demo.
 
             prog = new demo();
+            glob = new app::glob();
             view = new app::view(w, h, conf->get_f("view_near"),
                                        conf->get_f("view_far"),
                                        conf->get_f("view_zoom"));

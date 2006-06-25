@@ -17,6 +17,7 @@
 #include <map>
 #include <list>
 
+#include "opengl.hpp"
 #include "entity.hpp"
 
 //-----------------------------------------------------------------------------
@@ -134,6 +135,8 @@ namespace ops
         ent::set all;
         ent::set sel;
         
+        ogl::fbo shadowmap;
+
         body_map bodies;
 
         int serial;

@@ -18,10 +18,8 @@
 //-----------------------------------------------------------------------------
 
 ent::light::light() :
-
     fov(60),
-    lightmask("lightmask_basic.png"),
-    shadowmap(GL_RGBA8, GL_DEPTH_COMPONENT24, 1024, 1024)
+    lightmask(glob->get_image("lightmask_basic.png"))
 {
 }
 
@@ -46,10 +44,6 @@ void ent::light::mult_P() const
 
 void ent::light::lite_prep(int pass)
 {
-    // Render to the light's shadow map.
-
-    shadowmap.push_frame(true);
-
     // Set up the GL state for shadow map rendering.
 
     glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT);
@@ -100,9 +94,7 @@ void ent::light::lite_post(int pass)
 
     glPopAttrib();
 
-    shadowmap.pop_frame();
-    shadowmap.bind_depth(GL_TEXTURE1);
-    lightmask.bind      (GL_TEXTURE2);
+    lightmask->bind(GL_TEXTURE2);
 
     // Add the light source parameters to the GL state.
 

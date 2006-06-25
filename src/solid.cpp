@@ -22,10 +22,8 @@
 ent::solid::solid(int f) :
     entity(f), tran(0),
 
-    lite_prog(data->get_txt("object-lite.vert"),
-              data->get_txt("object-lite.frag")),
-    dark_prog(data->get_txt("object-dark.vert"),
-              data->get_txt("object-dark.frag"))
+    lite_prog(glob->get_shader("object-lite")),
+    dark_prog(glob->get_shader("object-dark"))
 {
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
@@ -234,8 +232,8 @@ void ent::capsule::play_init(dBodyID body)
 
 void ent::solid::draw_dark()
 {
-    dark_prog.bind();
-    dark_prog.uniform("diffuse", 0);
+    dark_prog->bind();
+    dark_prog->uniform("diffuse", 0);
 
     entity::draw_dark();
 
@@ -244,10 +242,10 @@ void ent::solid::draw_dark()
 
 void ent::solid::draw_lite()
 {
-    lite_prog.bind();
-    lite_prog.uniform("diffuse",   0);
-    lite_prog.uniform("shadowmap", 1);
-    lite_prog.uniform("lightmask", 2);
+    lite_prog->bind();
+    lite_prog->uniform("diffuse",   0);
+    lite_prog->uniform("shadowmap", 1);
+    lite_prog->uniform("lightmask", 2);
 
     entity::draw_lite();
 

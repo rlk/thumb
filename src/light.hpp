@@ -23,15 +23,17 @@ namespace ent
 {
     class light : public sphere
     {
+    protected:
+
         float fov;
 
-        ogl::image_file lightmask;
-        ogl::fbo        shadowmap;
+        const ogl::image *lightmask;
 
         virtual void mult_P() const;
 
     public:
 
+        virtual light *clone() const { return new light(*this); }
         light();
 
         void edit_init();

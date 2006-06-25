@@ -10,42 +10,31 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef MAIN_HPP
-#define MAIN_HPP
+#ifndef GLOB_HPP
+#define GLOB_HPP
 
-#include "conf.hpp"
-#include "lang.hpp"
-#include "data.hpp"
-#include "prog.hpp"
-#include "font.hpp"
-#include "glob.hpp"
-#include "view.hpp"
+#include <map>
+
+#include "opengl.hpp"
+#include "image.hpp"
 
 //-----------------------------------------------------------------------------
-// Global application state.
 
-extern app::conf *conf;
-extern app::lang *lang;
-extern app::data *data;
-extern app::prog *prog;
-extern app::font *sans;
-extern app::font *mono;
-extern app::glob *glob;
-extern app::view *view;
+namespace app
+{
+    class glob
+    {
+        std::map<std::string, ogl::shader *> shader_map;
+        std::map<std::string, ogl::image  *>  image_map;
 
-//-----------------------------------------------------------------------------
-// Expression queryable system state.
+    public:
 
-double get_time();
-void   clr_time();
+       ~glob();
 
-double get_key(int);
-double get_btn(int);
-double get_joy(int);
-
-double get_trg(unsigned int);
-void   set_trg(unsigned int);
-void   clr_trg();
+        const ogl::shader *get_shader(std::string);
+        const ogl::image  *get_image (std::string);
+    };
+}
 
 //-----------------------------------------------------------------------------
 

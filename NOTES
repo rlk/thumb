@@ -155,4 +155,5 @@ Global view object
         octree can refuse to insert as cull and insert visible in order
 
 
-The initial pass is ambient + emission + depth
+light clone (to effect an image dupe)
+

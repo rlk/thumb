@@ -1,7 +1,11 @@
+Don't draw lights in play mode.
 Generalize the "follow" mechanism to "enable".
 Create specials: light, camera.
-Move sky/camera/light ownership to scene.
+Move sky/earth/sun ownership to scene.
 Find a way to clone shaders, images, fbos, etc.
+        Move light fbo to static.
+Optimize shader reloading.
+Show lightmap on light object.
 
 Octree seek on solid update.
 Minimize number of moves in octree seek.

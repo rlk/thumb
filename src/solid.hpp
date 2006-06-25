@@ -28,8 +28,8 @@ namespace ent
         dGeomID tran;
         dMass   mass;
 
-        ogl::shader lite_prog;
-        ogl::shader dark_prog;
+        const ogl::shader *lite_prog;
+        const ogl::shader *dark_prog;
 
     public:
 
