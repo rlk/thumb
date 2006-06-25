@@ -1,7 +1,7 @@
 Generalize the "follow" mechanism to "enable".
 Create specials: light, camera.
 Move sky/camera/light ownership to scene.
-
+Find a way to clone shaders, images, fbos, etc.
 
 Octree seek on solid update.
 Minimize number of moves in octree seek.

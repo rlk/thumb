@@ -96,15 +96,20 @@ namespace ogl
         GLuint color;
         GLuint depth;
 
-        GLsizei _w;
-        GLsizei _h;
+        GLsizei w;
+        GLsizei h;
+
+        GLint fb_cache[1];
+        GLint vp_cache[4];
 
     public:
 
         fbo(GLint, GLint, GLsizei, GLsizei);
        ~fbo();
 
-        void bind_frame()       const;
+        void push_frame(bool=false);
+        void  pop_frame();
+
         void bind_color(GLenum) const;
         void bind_depth(GLenum) const;
     };
@@ -164,6 +169,7 @@ namespace ogl
     void draw_disc(int);
     void draw_cube();
     void draw_axes();
+    void draw_frst();
 }
 
 //-----------------------------------------------------------------------------

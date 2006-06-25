@@ -30,8 +30,8 @@ namespace ent
         {
             ent::set entities;
 
-            void draw_fill() const;
-            void draw_foci() const;
+            void draw_fill();
+            void draw_foci();
         };
 
         //---------------------------------------------------------------------
@@ -70,8 +70,8 @@ namespace ent
 
         void get(ent::set& sel) const { sel = all; }
 
-        void draw_foci() const;
-        void draw_fill() const;
+        void draw_foci();
+        void draw_fill();
     };
 }
 

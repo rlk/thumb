@@ -65,7 +65,7 @@ namespace mode
         virtual bool click(int, bool);
         virtual bool keybd(int, bool, int);
 
-        virtual void draw() const;
+        virtual void draw();
     };
 }
 

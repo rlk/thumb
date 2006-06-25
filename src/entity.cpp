@@ -31,7 +31,7 @@ dGeomID       ent::entity::focus;
 
 //-----------------------------------------------------------------------------
 
-void ent::entity::phys_pick(float *dist, dGeomID o1, dGeomID o2)
+void ent::entity::phys_pointer(float *dist, dGeomID o1, dGeomID o2)
 {
     dContact contact[MAX_CONTACTS];
     int sz = sizeof (dContact);
@@ -56,12 +56,12 @@ void ent::entity::phys_pick(float *dist, dGeomID o1, dGeomID o2)
     }
 }
 
-void ent::entity::phys_cont(float *dist, dGeomID o1, dGeomID o2)
+void ent::entity::phys_contact(float *dist, dGeomID o1, dGeomID o2)
 {
     // Check for a picking ray collision.
 
-    if      (o1 == point) phys_pick(dist, o1, o2);
-    else if (o2 == point) phys_pick(dist, o2, o1);
+    if      (o1 == point) phys_pointer(dist, o1, o2);
+    else if (o2 == point) phys_pointer(dist, o2, o1);
     else
     {
         dBodyID b1 = dGeomGetBody(o1);
@@ -164,9 +164,16 @@ void ent::entity::phys_step(float dt)
 
     // Evaluate the physical system. 
 
-    dSpaceCollide   (space, &dist, (dNearCallback *) phys_cont);
+    dSpaceCollide   (space, &dist, (dNearCallback *) phys_contact);
     dWorldQuickStep (world, dt);
     dJointGroupEmpty(joint);
+}
+
+void ent::entity::phys_pick(const float p[3], const float v[3])
+{
+    // Apply the pointer position and vector to the picking ray.
+
+    dGeomRaySet(point, p[0], p[1], p[2], v[0], v[1], v[2]);
 }
 
 ent::entity *ent::entity::focused()
@@ -500,21 +507,45 @@ void ent::entity::mult_V() const
     mult_T();
 }
 
+void ent::entity::mult_P() const
+{
+}
+
 //-----------------------------------------------------------------------------
 
-void ent::entity::draw_fill(int flags) const
+void ent::entity::draw_dark()
 {
     // Draw the object associated with this entity.
 
-    glPushMatrix();
+    if (file >= 0)
     {
-        mult_M();
-        obj_draw_file(file);
+        glPushMatrix();
+        {
+            mult_M();
+            obj_draw_file(file);
+        }
+        glPopMatrix();
     }
-    glPopMatrix();
+    GL_CHECK();
 }
 
-void ent::entity::draw_line(int flags) const
+void ent::entity::draw_lite()
+{
+    // Draw the object associated with this entity.
+
+    if (file >= 0)
+    {
+        glPushMatrix();
+        {
+            mult_M();
+            obj_draw_file(file);
+        }
+        glPopMatrix();
+    }
+    GL_CHECK();
+}
+
+void ent::entity::draw_line()
 {
     glPushMatrix();
     {
@@ -536,7 +567,7 @@ void ent::entity::draw_line(int flags) const
     glPopMatrix();
 }
 
-void ent::entity::draw_foci(int flags) const
+void ent::entity::draw_foci()
 {
     entity *focus = focused();
     bool    draw  = false;
@@ -545,7 +576,12 @@ void ent::entity::draw_foci(int flags) const
     {
         // Draw the axes at the focused entity.
         
-        ogl::draw_axes();
+        glPushMatrix();
+        {
+            mult_M();
+            ogl::draw_axes();
+        }
+        glPopMatrix();
  
         // Highlight the focus in heavy yellow.
 

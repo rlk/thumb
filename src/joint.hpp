@@ -36,16 +36,13 @@ namespace ent
 
         void geom_to_entity();
 
-        joint *get_joint() { return this; }
-
         int link() const { return 0; }
 
         virtual void edit_init();
         virtual void play_init(dBodyID);
         virtual void play_fini();
 
-        virtual int  draw_prio(int) const;
-        virtual int  step_prio() { return 1; }
+        virtual int  draw_prio(bool);
         virtual void step_prep();
 
         virtual ~joint() { }

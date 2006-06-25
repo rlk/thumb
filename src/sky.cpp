@@ -30,7 +30,7 @@ ent::sky::sky(float k) :
 {
 }
 
-void ent::sky::draw_fill() const
+void ent::sky::draw_fill(int flags)
 {
     glPushAttrib(GL_ENABLE_BIT);
     glPushMatrix();

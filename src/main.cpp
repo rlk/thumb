@@ -33,6 +33,7 @@ app::prog *prog;
 app::lang *lang;
 app::font *sans;
 app::font *mono;
+app::view *view;
 
 //-----------------------------------------------------------------------------
 // Keyboard state expression queryables.
@@ -165,6 +166,7 @@ static bool loop(std::string& conf_file, std::string& lang_file)
         {
         case SDL_QUIT:
             if (prog) delete prog;
+            if (view) delete view;
             if (mono) delete mono;
             if (sans) delete sans;
             if (data) delete data;
@@ -177,6 +179,7 @@ static bool loop(std::string& conf_file, std::string& lang_file)
 
         case SDL_USEREVENT:
             if (prog) delete prog;
+            if (view) delete view;
             if (mono) delete mono;
             if (sans) delete sans;
             if (data) delete data;
@@ -213,6 +216,10 @@ static bool loop(std::string& conf_file, std::string& lang_file)
             // Initialize the demo.
 
             prog = new demo();
+            view = new app::view(w, h, conf->get_f("view_near"),
+                                       conf->get_f("view_far"),
+                                       conf->get_f("view_zoom"));
+
             joy  = SDL_JoystickOpen(conf->get_i("joystick"));
 
             break;

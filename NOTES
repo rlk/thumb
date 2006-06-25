@@ -135,4 +135,24 @@ Octree notes
                                 This would also allow quadtree space to work
 
 
-Setting line parameters per draw_line is stupid.
+
+scene
+        for each emit
+                draw the objects the emit can see to depth
+
+                for each recv
+                        for each pass
+                                draw the objects the recv can see to color
+
+
+(water is both a recv (with lower prio than camera) and a draw)
+
+Global view object
+        push/pop
+        camera entities are allowed to modify it
+        light sources can use it for CSM
+        entities can check culling against it
+        octree can refuse to insert as cull and insert visible in order
+
+
+The initial pass is ambient + emission + depth

@@ -50,11 +50,11 @@ ent::joint::joint(int f): entity(f), size(conf->get_f("joint_size"))
 
 //-----------------------------------------------------------------------------
 
-ent::ball::ball() : joint(data->get_obj("joint_ball.obj"))
+ent::ball::ball() : joint(data->get_obj("joint/joint_ball.obj"))
 {
 }
 
-ent::hinge::hinge() : joint(data->get_obj("joint_hinge.obj"))
+ent::hinge::hinge() : joint(data->get_obj("joint/joint_hinge.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -66,7 +66,7 @@ ent::hinge::hinge() : joint(data->get_obj("joint_hinge.obj"))
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-ent::hinge2::hinge2() : joint(data->get_obj("joint_hinge2.obj"))
+ent::hinge2::hinge2() : joint(data->get_obj("joint/joint_hinge2.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -90,7 +90,7 @@ ent::hinge2::hinge2() : joint(data->get_obj("joint_hinge2.obj"))
     params[dParamSuspensionCFM] = new param("dParamSuspensionCFM", "0.0");
 }
 
-ent::slider::slider() : joint(data->get_obj("joint_slider.obj"))
+ent::slider::slider() : joint(data->get_obj("joint/joint_slider.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -102,7 +102,7 @@ ent::slider::slider() : joint(data->get_obj("joint_slider.obj"))
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-ent::amotor::amotor() : joint(data->get_obj("joint_amotor.obj"))
+ent::amotor::amotor() : joint(data->get_obj("joint/joint_amotor.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -132,7 +132,7 @@ ent::amotor::amotor() : joint(data->get_obj("joint_amotor.obj"))
     params[dParamStopCFM3] = new param("dParamStopCFM3", "0.0");
 }
 
-ent::universal::universal() : joint(data->get_obj("joint_universal.obj"))
+ent::universal::universal() : joint(data->get_obj("joint/joint_universal.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -367,12 +367,12 @@ void ent::universal::step_prep()
 
 //-----------------------------------------------------------------------------
 
-int ent::joint::draw_prio(int flags) const
+int ent::joint::draw_prio(bool edit)
 {
-    if (flags & ent::flag_play)
-        return 0;
-    else
+    if (edit)
         return 1;
+    else
+        return 0;
 }
 
 void ent::joint::draw_geom() const

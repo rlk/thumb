@@ -1,8 +1,9 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="data_directory">/home/evl/rlk/src/thumb/data/</option>
-  <option type="string" name="world_directory">/home/evl/rlk/src/thumb/data/world/</option>
-  <option type="string" name="solid_directory">/home/evl/rlk/src/thumb/data/</option>
+  <option type="string" name="screenshot_file">snap.png</option>
+  <option type="string" name="data_directory">/home/rlk/src/thumb/data/</option>
+  <option type="string" name="world_directory">/home/rlk/src/thumb/data/world/</option>
+  <option type="string" name="solid_directory">/home/rlk/src/thumb/data/solid</option>
   <option type="string" name="sans_font">FreeSans.ttf</option>
   <option type="string" name="mono_font">FreeMono.ttf</option>
   <option type="int" name="sans_size">14</option>
@@ -33,9 +34,9 @@ version="1.0"?><conf>
   <option type="int" name="key_info">9</option>
   <option type="int" name="grid_size">16</option>
   <option type="float" name="joint_size">0.250000</option>
-  <option type="float" name="camera_zoom">0.500000</option>
-  <option type="float" name="camera_near">1.000000</option>
-  <option type="float" name="camera_far">1000.000000</option>
-  <option type="float" name="camera_move_rate">10.000000</option>
-  <option type="float" name="camera_turn_rate">0.500000</option>
+  <option type="float" name="view_zoom">0.500000</option>
+  <option type="float" name="view_near">1.000000</option>
+  <option type="float" name="view_far">1000.000000</option>
+  <option type="float" name="view_move_rate">10.000000</option>
+  <option type="float" name="view_turn_rate">0.500000</option>
 </conf>

@@ -29,7 +29,7 @@ namespace ent
 
         earth(float);
 
-        void draw_fill() const;
+        void draw_fill(int);
     };
 }
 

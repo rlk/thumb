@@ -13,21 +13,38 @@
 #ifndef LIGHT_HPP
 #define LIGHT_HPP
 
+#include "opengl.hpp"
+#include "image.hpp"
 #include "solid.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace ent
 {
-    class light : public free
+    class light : public sphere
     {
-        GLenum name;
+        float fov;
+
+        ogl::image_file lightmask;
+        ogl::fbo        shadowmap;
+
+        virtual void mult_P() const;
 
     public:
 
-        light(GLenum n);
+        light();
 
-        void draw_fill() const;
+        void edit_init();
+
+        int  lite_prio(bool) { return 1; }
+        void lite_prep(int);
+        void lite_post(int);
+
+        int  draw_prio(bool) { return 1; }
+        void draw_dark();
+        void draw_lite();
+
+        virtual mxml_node_t *save(mxml_node_t *);
     };
 }
 

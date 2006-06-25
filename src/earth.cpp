@@ -20,7 +20,7 @@ ent::earth::earth(float k) : free(data->get_obj("earth.obj")), dist(k)
 {
 }
 
-void ent::earth::draw_fill() const
+void ent::earth::draw_fill(int flags)
 {
     glPushMatrix();
     {

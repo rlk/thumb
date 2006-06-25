@@ -62,23 +62,10 @@ bool mode::info::keybd(int k, bool d, int c)
 
 //-----------------------------------------------------------------------------
 
-void mode::info::draw() const
+void mode::info::draw()
 {
-    glPushAttrib(GL_ENABLE_BIT);
-    {
-        // Draw the scene.
-
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_NORMALIZE);
-        glEnable(GL_LIGHTING);
-
-        scene.draw(ent::flag_fill | ent::flag_line);
-
-        // Draw the GUI.
-
-        gui.draw();
-    }
-    glPopAttrib();
+    scene.draw(true);
+    gui.draw();
 }
 
 //-----------------------------------------------------------------------------

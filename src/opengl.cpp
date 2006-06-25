@@ -145,20 +145,27 @@ static const char *error_string(GLenum err)
 
 void check_ogl(const char *file, int line)
 {
-    GLenum err = glGetError();
+    static bool state = true;
 
-    if (err != GL_NO_ERROR)
-        std::cerr << "OpenGL error: "
-                  << file << ":"
-                  << line << " "
-                  << error_string(err)
-                  << std::endl;
+    if (state)
+    {
+        GLenum err = glGetError();
+
+        if (err != GL_NO_ERROR)
+            std::cerr << "OpenGL error: "
+                      << file << ":"
+                      << line << " "
+                      << error_string(err)
+                      << std::endl;
+
+        state = false;
+    }
 }
 
 //-----------------------------------------------------------------------------
 
 ogl::fbo::fbo(GLint color_format,
-              GLint depth_format, GLsizei w, GLsizei h) : _w(w), _h(h)
+              GLint depth_format, GLsizei w, GLsizei h) : w(w), h(h)
 {
     GLint  o[1], v[4];
     GLenum T;
@@ -176,38 +183,31 @@ ogl::fbo::fbo(GLint color_format,
 
     // Initialize the color render buffer object.
 
-    if (color_format)
-    {
-        glGenTextures(1, &color);
+    glGenTextures(1, &color);
+    glBindTexture(T,  color);
 
-        glBindTexture(T, color);
-        glTexImage2D (T, 0, color_format, w, h, 0,
-                      GL_RGBA, GL_INT, NULL);
+    glTexImage2D(T, 0, color_format, w, h, 0, GL_RGBA, GL_INT, NULL);
 
-        glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(T, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-        glTexParameteri(T, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
-    }
+    glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(T, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(T, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
     // Initialize the depth render buffer object.
 
-    if (depth_format)
-    {
-        glGenTextures(1, &depth);
+    glGenTextures(1, &depth);
+    glBindTexture(T,  depth);
 
-        glBindTexture(T, depth);
-        glTexImage2D (T, 0, depth_format, w, h, 0,
-                      GL_DEPTH_COMPONENT, GL_INT, NULL);
+    glTexImage2D(T, 0, depth_format, w, h, 0,
+                 GL_DEPTH_COMPONENT, GL_INT, NULL);
 
-        glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(T, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-        glTexParameteri(T, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(T, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(T, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
-        glTexParameteri(T, GL_TEXTURE_COMPARE_MODE_ARB,
-                           GL_COMPARE_R_TO_TEXTURE_ARB);
-    }
+    glTexParameteri(T, GL_TEXTURE_COMPARE_MODE_ARB,
+                       GL_COMPARE_R_TO_TEXTURE_ARB);
 
     // Initialize the frame buffer object.
 
@@ -257,15 +257,32 @@ ogl::fbo::fbo(GLint color_format,
 ogl::fbo::~fbo()
 {
     glDeleteFramebuffersEXT(1, &frame);
+    glDeleteTextures       (1, &depth);
     glDeleteTextures       (1, &color);
 
     GL_CHECK();
 }
 
-void ogl::fbo::bind_frame() const
+void ogl::fbo::push_frame(bool inset)
 {
+    glGetIntegerv(GL_VIEWPORT,                vp_cache);
+    glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, fb_cache);
+
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frame);
-    glViewport(0, 0, _w, _h);
+
+    if (inset)
+        glViewport(1, 1, w - 1, h - 1);
+    else
+        glViewport(0, 0, w, h);
+
+    GL_CHECK();
+}
+
+void ogl::fbo::pop_frame()
+{
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb_cache[0]);
+    glViewport(vp_cache[0], vp_cache[1],
+               vp_cache[2], vp_cache[3]);
 
     GL_CHECK();
 }
@@ -275,6 +292,17 @@ void ogl::fbo::bind_color(GLenum T) const
     glActiveTextureARB(T);
     {
         glBindTexture(GL_TEXTURE_2D, color);
+    }
+    glActiveTextureARB(GL_TEXTURE0);
+
+    GL_CHECK();
+}
+
+void ogl::fbo::bind_depth(GLenum T) const
+{
+    glActiveTextureARB(T);
+    {
+        glBindTexture(GL_TEXTURE_2D, depth);
     }
     glActiveTextureARB(GL_TEXTURE0);
 
@@ -367,7 +395,7 @@ ogl::shader::shader(std::string vert_str, std::string frag_str)
     glAttachObjectARB(prog, vert);
     glAttachObjectARB(prog, frag);
 
-    glLinkProgramARB(prog);   check_log(prog);
+    glLinkProgramARB(prog); check_log(prog);
 
     GL_CHECK();
 }
@@ -447,30 +475,12 @@ void ogl::set_framebuffer(GLint o[1], GLint v[4])
 
 void ogl::draw_disc(int a)
 {
-    static float point[360][2];
-    static bool  state = false;
-
-    // If this is the first call, initialize the vertex array.
-
-    if (!state)
+    glBegin(GL_POLYGON);
     {
-        for (int i = 0; i < 360; ++i)
-        {
-            point[i][0] = float(cos(i * 6.28318528f / 360.0f));
-            point[i][1] = float(sin(i * 6.28318528f / 360.0f));
-        }
-        state = true;
+        for (int i = 0; i < 360; i += a)
+            glVertex2f(cosi(i), sini(i));
     }
-
-    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-    {
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-        glEnableClientState(GL_VERTEX_ARRAY);
-
-        glVertexPointer(2, GL_FLOAT, 2 * a * sizeof (float), point);
-        glDrawArrays(GL_POLYGON, 0, 360 / a);
-    }
-    glPopClientAttrib();
+    glEnd();
 }
 
 void ogl::draw_cube()

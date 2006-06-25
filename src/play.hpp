@@ -30,7 +30,7 @@ namespace mode
 
         virtual bool timer(float);
 
-        virtual void draw() const;
+        virtual void draw();
     };
 }
 

@@ -32,7 +32,7 @@ namespace app
         virtual void click(int, bool) { }
         virtual void keybd(int, bool, int);
         
-        virtual void draw() const { }
+        virtual void draw() { }
 
         virtual ~prog() { }
     };

@@ -16,12 +16,7 @@
 #include <set>
 
 #include "opengl.hpp"
-#include "camera.hpp"
-#include "image.hpp"
-#include "light.hpp"
 #include "scene.hpp"
-#include "earth.hpp"
-#include "sky.hpp"
 #include "edit.hpp"
 #include "play.hpp"
 #include "info.hpp"
@@ -45,16 +40,15 @@ class demo : public app::prog
     int key_move_F;
     int key_move_B;
         
-    float camera_move_rate;
-    float camera_turn_rate;
-    float camera_zoom;
-    float camera_near;
-    float camera_far;
+    float view_move_rate;
+    float view_turn_rate;
+    float view_zoom;
+    float view_near;
+    float view_far;
 
     // Entity state.
 
-    ent::camera camera;
-    ops::scene  scene;
+    ops::scene scene;
 
     // Editor mode.
 
@@ -72,7 +66,7 @@ class demo : public app::prog
     int button[4];
     int motion[3];
 
-    void draw_all() const;
+    void draw_all();
 
 public:
 
@@ -83,7 +77,7 @@ public:
     void keybd(int, bool, int);
     void timer(float);
 
-    void draw() const;
+    void draw();
 };
 
 //-----------------------------------------------------------------------------

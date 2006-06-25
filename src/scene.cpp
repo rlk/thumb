@@ -19,7 +19,9 @@
 #include "scene.hpp"
 #include "joint.hpp"
 #include "solid.hpp"
+#include "light.hpp"
 #include "util.hpp"
+#include "main.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -189,7 +191,7 @@ ent::set& ops::enjoin_op::redo(scene *s)
 
 //-----------------------------------------------------------------------------
 
-ops::scene::scene(ent::entity& camera) : camera(camera), serial(1)
+ops::scene::scene() : serial(1)
 {
 }
 
@@ -553,6 +555,7 @@ static mxml_type_t load_cb(mxml_node_t *node)
 
     if (name == "world") return MXML_ELEMENT;
     if (name == "joint") return MXML_ELEMENT;
+    if (name == "light") return MXML_ELEMENT;
     if (name == "geom")  return MXML_ELEMENT;
 
     if (name == "body1") return MXML_INTEGER;
@@ -581,11 +584,13 @@ static const char *save_cb(mxml_node_t *node, int where)
         if (name == "geom")  return "\n";
         if (name == "joint") return "\n";
         if (name == "world") return "\n";
+        if (name == "light") return "\n";
         break;
 
     case MXML_WS_BEFORE_OPEN:
         if (name == "geom")  return "  ";
         if (name == "joint") return "  ";
+        if (name == "light") return "  ";
 
         if (name == "file")  return "    ";
         if (name == "param") return "    ";
@@ -605,6 +610,7 @@ static const char *save_cb(mxml_node_t *node, int where)
     case MXML_WS_BEFORE_CLOSE:
         if (name == "geom")  return "  ";
         if (name == "joint") return "  ";
+        if (name == "light") return "  ";
         break;
 
     case MXML_WS_AFTER_CLOSE:
@@ -655,6 +661,7 @@ void ops::scene::load(std::string filename)
                 if      (type == "box")     s = new ent::box;
                 else if (type == "sphere")  s = new ent::sphere;
                 else if (type == "capsule") s = new ent::capsule;
+                else if (type == "light")   s = new ent::light;
                 else                        continue;
 
                 // Allow the new solid to parse its own attributes.
@@ -785,6 +792,7 @@ static void line_prep()
     glEnable(GL_POLYGON_OFFSET_LINE);
 
     glDisable(GL_LIGHTING);
+    glDisable(GL_CULL_FACE);
     glDisable(GL_TEXTURE_2D);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -803,82 +811,83 @@ static void line_post()
 
 //-----------------------------------------------------------------------------
 
-void ops::scene::draw(int flags) const
+void ops::scene::draw(bool edit)
 {
-    typedef std::pair    <int, const ent::entity *> pair;
-    typedef std::multimap<int, const ent::entity *> mmap;
+    typedef std::pair    <int, ent::entity *> pair;
+    typedef std::multimap<int, ent::entity *> mmap;
 
-    mmap V;
+    mmap L;
     mmap D;
-    mmap S;
 
-    mmap::const_iterator i;
-    mmap::const_iterator j;
+    mmap::iterator i;
+    mmap::iterator j;
 
-    // Construct prioritized lists of viewers, drawers, and selections.
+    // Construct prioritized lists of lights and objects.
 
     ent::set::iterator e;
     int p;
 
     for (e = all.begin(); e != all.end(); ++e)
     {
-        if ((p = (*e)->view_prio(flags)) > 0) V.insert(pair(p, *e));
-        if ((p = (*e)->draw_prio(flags)) > 0) D.insert(pair(p, *e));
-    }
-    for (e = sel.begin(); e != sel.end(); ++e)
-    {
-        if ((p = (*e)->draw_prio(flags)) > 0) S.insert(pair(p, *e));
+        if ((p = (*e)->lite_prio(edit)) > 0) L.insert(pair(p, *e));
+        if ((p = (*e)->draw_prio(edit)) > 0) D.insert(pair(p, *e));
     }
 
-    // If the scene includes no viewers, include the default camera.
+    // Render ambient and emissive light to the color buffer.
 
-    if (V.empty())
-        V.insert(pair(1, &camera));
-
-    // Preprocess all drawers.
+    view->apply();
 
     for (j = D.begin(); j != D.end(); ++j)
-        j->second->draw_prep(flags);
+        j->second->draw_dark();
 
-    // Draw all drawers to all viewers.
+    // Iterate over all passes of each light.
 
-    for (i = V.begin(); i != V.end(); ++i)
+    for (i = L.begin(); i != L.end(); ++i)
     {
-        // Preprocess this viewer.
+        ent::entity *lp = i->second;
 
-        i->second->view_prep(flags);
-
-        // Draw fill geometry.
-
-        if (flags & ent::flag_fill)
+        for (p = 0; p < lp->lite_pass(); ++p)
         {
+            // Render all geometry to the depth buffer.
+
+            lp->lite_prep(p);
+
             for (j = D.begin(); j != D.end(); ++j)
-                j->second->draw_fill(flags);
+                j->second->draw_dark();
+
+            lp->lite_post(p);
+
+            // Accumulate all diffuse light with the color buffer.
+
+            glPushAttrib(GL_DEPTH_BUFFER_BIT |
+                         GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT);
+            {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_ONE, GL_ONE);
+
+                glDepthMask(GL_FALSE);
+                glDepthFunc(GL_EQUAL);
+
+                view->apply();
+
+                for (j = D.begin(); j != D.end(); ++j)
+                    j->second->draw_lite();
+            }
+            glPopAttrib();
         }
-
-        // Draw line geometry.
-
-        if (flags & ent::flag_line)
-        {
-            line_prep();
-
-            for (j = S.begin(); j != S.end(); ++j)
-                j->second->draw_line(flags);
-            for (j = D.begin(); j != D.end(); ++j)
-                j->second->draw_foci(flags);
-
-            line_post();
-        }
-
-        // Postprocess this viewer.
-
-        i->second->view_post(flags);
     }
-            
-    // Postprocess drawers.
 
-    for (j = D.begin(); j != D.end(); ++j)
-        j->second->draw_post(flags);
+    // Draw editor geometry as requested.
+
+    if (edit)
+    {
+        line_prep();
+
+        for (e = sel.begin(); e != sel.end(); ++e) (*e)->draw_line();
+        for (e = all.begin(); e != all.end(); ++e) (*e)->draw_foci();
+
+        line_post();
+    }
 }
 
 //-----------------------------------------------------------------------------

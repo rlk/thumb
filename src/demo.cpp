@@ -14,17 +14,15 @@
 #include <iostream>
 #include <cstring>
 
-#include "main.hpp"
 #include "opengl.hpp"
-#include "matrix.hpp"
-#include "joint.hpp"
+#include "main.hpp"
 #include "demo.hpp"
 
 //-----------------------------------------------------------------------------
 
 demo::demo() :
 
-    camera(), scene(camera),
+    scene(),
 
     edit(scene),
     play(scene),
@@ -40,11 +38,11 @@ demo::demo() :
     key_move_F = conf->get_i("key_move_F");
     key_move_B = conf->get_i("key_move_B");
 
-    camera_move_rate = conf->get_f("camera_move_rate");
-    camera_turn_rate = conf->get_f("camera_turn_rate");
-    camera_zoom      = conf->get_f("camera_zoom");
-    camera_near      = conf->get_f("camera_near");
-    camera_far       = conf->get_f("camera_far");
+    view_move_rate = conf->get_f("view_move_rate");
+    view_turn_rate = conf->get_f("view_turn_rate");
+    view_zoom      = conf->get_f("view_zoom");
+    view_near      = conf->get_f("view_near");
+    view_far       = conf->get_f("view_far");
 
     // Initialize the demo state.
 
@@ -74,21 +72,20 @@ void demo::goto_mode(mode::mode *next)
 
 void demo::point(int x, int y)
 {
-    float k = camera_turn_rate;
+    float k = view_turn_rate;
     float p[3];
     float v[3];
 
-    camera.pick(p, v, x, y);
+    view->pick(p, v, x, y);
 
     if (curr->point(p, v, x, y) == false)
     {
-        // Handle camera rotation.
+        // Handle view rotation.
 
         if (button[3])
-        {
-            camera.turn_world(+float(last_x - x) * k, 0.0f, 1.0f, 0.0f);
-            camera.turn_local(+float(last_y - y) * k, 1.0f, 0.0f, 0.0f);
-        }
+            view->turn(float(last_y - y) * k,
+                       float(last_x - x) * k, 0.0f);
+
         prog::point(x, y);
     }
 
@@ -135,7 +132,7 @@ void demo::keybd(int k, bool d, int c)
     {
         int dd = d ? +1 : -1;
 
-        // Handle camera motion keys.
+        // Handle view motion keys.
 
         if      (k == key_move_L) motion[0] -= dd;
         else if (k == key_move_R) motion[0] += dd;
@@ -148,15 +145,15 @@ void demo::keybd(int k, bool d, int c)
 
 void demo::timer(float dt)
 {
-    float k = camera_move_rate * dt;
+    float k = view_move_rate * dt;
 
     if (SDL_GetModState() & KMOD_CTRL)  k /= 4.0f;
 
-    // Handle camera motion.
+    // Handle view motion.
 
-    camera.move_local(float(motion[0]) * k,
-                      float(motion[1]) * k,
-                      float(motion[2]) * k);
+    view->move(float(motion[0]) * k,
+               float(motion[1]) * k,
+               float(motion[2]) * k);
 
     curr->timer(dt);
     prog::timer(dt);
@@ -164,12 +161,28 @@ void demo::timer(float dt)
 
 //-----------------------------------------------------------------------------
 
-void demo::draw() const
+void demo::draw()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    float A[4] = { 0.4f, 0.4f, 0.4f, 0.0f };
 
-    curr->draw();
-    prog::draw();
+    glClearColor(0.1f, 0.2f, 0.4f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
+
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        // Draw the scene.
+
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        glEnable(GL_NORMALIZE);
+        glEnable(GL_LIGHTING);
+
+        curr->draw();
+        prog::draw();
+    }
+    glPopAttrib();
 }
 
 //-----------------------------------------------------------------------------

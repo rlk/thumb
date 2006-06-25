@@ -38,19 +38,9 @@ bool mode::mode::timer(float dt)
 
 //-----------------------------------------------------------------------------
 
-void mode::mode::draw() const
+void mode::mode::draw()
 {
-    glPushAttrib(GL_ENABLE_BIT);
-    {
-        // Draw the scene.
-
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_NORMALIZE);
-        glEnable(GL_LIGHTING);
-
-        scene.draw(ent::flag_fill);
-    }
-    glPopAttrib();
+    scene.draw(false);
 }
 
 //-----------------------------------------------------------------------------

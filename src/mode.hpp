@@ -38,7 +38,7 @@ namespace mode
         virtual bool keybd(int, bool, int);
         virtual bool timer(float);
 
-        virtual void draw() const;
+        virtual void draw();
 
         virtual ~mode() { }
     };

@@ -27,28 +27,19 @@
 
 namespace ent
 {
-    // Draw flags.
-
-    enum {
-        flag_play = 1,
-        flag_fill = 2,
-        flag_flat = 4,
-        flag_line = 8,
-        flag_foci = 16
-    };
-
     // Entity base class.
 
     class entity
     {
-        static void phys_pick(float *, dGeomID, dGeomID);
-        static void phys_cont(float *, dGeomID, dGeomID);
+        static void phys_pointer(float *, dGeomID, dGeomID);
+        static void phys_contact(float *, dGeomID, dGeomID);
 
     public:
 
         static dBodyID phys_body();
         static void    phys_init();
         static void    phys_step(float);
+        static void    phys_pick(const float[3], const float[3]);
 
         static entity *focused();
 
@@ -82,10 +73,11 @@ namespace ent
 
         // Transform handlers.
 
-        void mult_M() const;
-        void mult_R() const;
-        void mult_T() const;
-        void mult_V() const;
+        virtual void mult_M() const;
+        virtual void mult_R() const;
+        virtual void mult_T() const;
+        virtual void mult_V() const;
+        virtual void mult_P() const;
 
         void get_transform(float[16], dGeomID);
         void set_transform(float[16], dGeomID);
@@ -144,22 +136,25 @@ namespace ent
         void set_param(int, std::string&);
         bool get_param(int, std::string&);
 
-        // Passes.
+        // Physics pass.
 
         virtual void step_prep() { }
         virtual void step_post() { }
 
-        virtual int  view_prio(int) const { return 0; }
-        virtual void view_prep(int) const { }
-        virtual void view_post(int) const { }
-        
-        virtual int  draw_prio(int) const { return 0; }
-        virtual void draw_prep(int) const { }
-        virtual void draw_post(int) const { }
+        // Lighting pass.
 
-        virtual void draw_fill(int) const;
-        virtual void draw_line(int) const;
-        virtual void draw_foci(int) const;
+        virtual int  lite_prio(bool) { return 0; }
+        virtual int  lite_pass()     { return 1; }
+        virtual void lite_prep(int)  { }
+        virtual void lite_post(int)  { }
+
+        // Render pass.
+
+        virtual int  draw_prio(bool) { return 0; }
+        virtual void draw_dark();
+        virtual void draw_lite();
+        virtual void draw_line();
+        virtual void draw_foci();
 
         // File I/O
 

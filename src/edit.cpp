@@ -68,6 +68,8 @@ bool mode::edit::point(const float p[3], const float v[3], int, int)
 {
     float M[16];
 
+    ent::entity::phys_pick(p, v);
+
     point_p[0] = p[0];
     point_p[1] = p[1];
     point_p[2] = p[2];
@@ -197,26 +199,10 @@ bool mode::edit::keybd(int k, bool d, int c)
 
 //-----------------------------------------------------------------------------
 
-void mode::edit::draw() const
+void mode::edit::draw()
 {
-    glPushAttrib(GL_ENABLE_BIT);
-    {
-        // Draw the scene.
-
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_NORMALIZE);
-        glEnable(GL_LIGHTING);
-
-        scene.draw(ent::flag_fill | ent::flag_line | ent::flag_foci);
-
-        // Draw the constraint.
-
-        glDisable(GL_LIGHTING);
-        glDisable(GL_TEXTURE_2D);
-
-        transform.draw(grid_size);
-    }
-    glPopAttrib();
+    scene.draw(true);
+    transform.draw(grid_size);
 }
 
 //-----------------------------------------------------------------------------

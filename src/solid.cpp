@@ -19,7 +19,13 @@
 
 //-----------------------------------------------------------------------------
 
-ent::solid::solid(int f) : entity(f), tran(0)
+ent::solid::solid(int f) :
+    entity(f), tran(0),
+
+    lite_prog(data->get_txt("object-lite.vert"),
+              data->get_txt("object-lite.frag")),
+    dark_prog(data->get_txt("object-dark.vert"),
+              data->get_txt("object-dark.frag"))
 {
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
@@ -28,22 +34,6 @@ ent::solid::solid(int f) : entity(f), tran(0)
     params[param::bounce]   = new param("bounce",   "0.5");
     params[param::soft_erp] = new param("soft_erp", "0.2");
     params[param::soft_cfm] = new param("soft_cfm", "0.0");
-}
-
-//-----------------------------------------------------------------------------
-
-void ent::solid::geom_to_entity()
-{
-    if (geom && tran)
-    {
-        float tran_M[16];
-        float geom_M[16];
-
-        get_transform(tran_M, tran);
-        get_transform(geom_M, geom);
-
-        mult_mat_mat(current_M, tran_M, geom_M);
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -241,6 +231,28 @@ void ent::capsule::play_init(dBodyID body)
 }
 
 //-----------------------------------------------------------------------------
+
+void ent::solid::draw_dark()
+{
+    dark_prog.bind();
+    dark_prog.uniform("diffuse", 0);
+
+    entity::draw_dark();
+
+    glUseProgramObjectARB(0);
+}
+
+void ent::solid::draw_lite()
+{
+    lite_prog.bind();
+    lite_prog.uniform("diffuse",   0);
+    lite_prog.uniform("shadowmap", 1);
+    lite_prog.uniform("lightmask", 2);
+
+    entity::draw_lite();
+
+    glUseProgramObjectARB(0);
+}
 
 void ent::solid::step_post()
 {

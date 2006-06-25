@@ -131,8 +131,6 @@ namespace ops
 
     class scene
     {
-        ent::entity& camera;
-
         ent::set all;
         ent::set sel;
         
@@ -147,7 +145,7 @@ namespace ops
 
     public:
 
-        scene(ent::entity&);
+        scene();
        ~scene();
 
         // Editing operations.
@@ -189,7 +187,7 @@ namespace ops
         // Physics stepping and rendering handlers.
 
         void step(float);
-        void draw(int) const;
+        void draw(bool);
 
         // Scene I/O.
 

@@ -13,6 +13,7 @@
 #include "scene.hpp"
 #include "joint.hpp"
 #include "solid.hpp"
+#include "light.hpp"
 #include "main.hpp"
 #include "gui.hpp"
 
@@ -190,6 +191,21 @@ namespace cnt
 
         void apply() {
             do_create(new ent::capsule(data->get_obj(name->value())));
+        }
+    };
+
+    //-------------------------------------------------------------------------
+    // Special creation buttons.
+
+    class new_light_button : public create_button
+    {
+    public:
+
+        new_light_button(ops::scene&  s, gui::widget *w) :
+            create_button(s, w, "Light") { }
+
+        void apply() {
+            do_create(new ent::light());
         }
     };
 

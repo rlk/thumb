@@ -1943,33 +1943,30 @@ static void obj_draw_prop(int fi, int mi, int ki)
 {
     struct obj_prop *kp = prop(fi, mi, ki);
 
-    if (kp->map)
+    GLenum wrap = GL_REPEAT;
+
+    /* Bind the property map. */
+
+    glBindTexture(GL_TEXTURE_2D, kp->map);
+    glEnable(GL_TEXTURE_2D);
+
+    /* Apply the property options. */
+
+    if (kp->opt & OBJ_OPT_CLAMP)
+        wrap = GL_CLAMP_TO_EDGE;
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+
+    /* Apply the texture coordinate offset and scale. */
+
+    glMatrixMode(GL_TEXTURE);
     {
-        GLenum wrap = GL_REPEAT;
-
-        /* Bind the property map. */
-
-        glBindTexture(GL_TEXTURE_2D, kp->map);
-        glEnable(GL_TEXTURE_2D);
-
-        /* Apply the property options. */
-
-        if (kp->opt & OBJ_OPT_CLAMP)
-            wrap = GL_CLAMP_TO_EDGE;
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-
-        /* Apply the texture coordinate offset and scale. */
-
-        glMatrixMode(GL_TEXTURE);
-        {
-            glLoadIdentity();
-            glTranslatef(kp->o[0], kp->o[1], kp->o[2]);
-            glScalef    (kp->s[0], kp->s[1], kp->s[2]);
-        }
-        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+        glTranslatef(kp->o[0], kp->o[1], kp->o[2]);
+        glScalef    (kp->s[0], kp->s[1], kp->s[2]);
     }
+    glMatrixMode(GL_MODELVIEW);
 }
 
 #define OFFSET(i) ((char *) NULL + (i))

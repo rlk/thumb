@@ -247,8 +247,10 @@ void constraint::draw(int n) const
         glEnable(GL_BLEND);
         glEnable(GL_LINE_SMOOTH);
         glEnable(GL_POLYGON_OFFSET_LINE);
-        glDisable(GL_LIGHTING);
+
         glDisable(GL_TEXTURE_2D);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_LIGHTING);
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(GL_FALSE);

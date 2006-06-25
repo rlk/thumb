@@ -10,29 +10,41 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SKY_HPP
-#define SKY_HPP
-
-#include "solid.hpp"
-#include "image.hpp"
-#include "data.hpp"
+#ifndef VIEW_HPP
+#define VIEW_HPP
 
 //-----------------------------------------------------------------------------
 
-namespace ent
+namespace app
 {
-    class sky : public free
+    class view
     {
-        float           dist;
-        ogl::image_file glow;
-        ogl::image_file fill;
-        ogl::shader     prog;
+        int   w;
+        int   h;
+        float n;
+        float f;
+        float z;
+
+        float M[16];
 
     public:
 
-        sky(float);
+        view(int, int, float, float, float);
 
-        void draw_fill(int);
+        void turn(float, float, float);
+        void move(float, float, float);
+
+        void mult_S() const;
+        void mult_P() const;
+        void mult_O() const;
+        void mult_M() const;
+        void mult_R() const;
+        void mult_T() const;
+        void mult_V() const;
+
+        void pick(float[3], float[3], int, int) const;
+
+        void apply() const;
     };
 }
 

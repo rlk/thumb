@@ -1242,15 +1242,12 @@ void gui::dialog::draw() const
 {
     if (root)
     {
-        int w = conf->get_i("window_w");
-        int h = conf->get_i("window_h");
-
         glPushAttrib(GL_ENABLE_BIT);
         {
             glMatrixMode(GL_PROJECTION);
             {
                 glLoadIdentity();
-                glOrtho(0, w, h, 0, 0, 1);
+                view->mult_O();
             }
             glMatrixMode(GL_MODELVIEW);
             {

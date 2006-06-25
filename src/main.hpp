@@ -18,6 +18,7 @@
 #include "data.hpp"
 #include "prog.hpp"
 #include "font.hpp"
+#include "view.hpp"
 
 //-----------------------------------------------------------------------------
 // Global application state.
@@ -28,6 +29,7 @@ extern app::data *data;
 extern app::prog *prog;
 extern app::font *sans;
 extern app::font *mono;
+extern app::view *view;
 
 //-----------------------------------------------------------------------------
 // Expression queryable system state.
