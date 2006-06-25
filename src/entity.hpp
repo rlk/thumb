@@ -20,6 +20,7 @@
 #include <ode/ode.h>
 #include <mxml.h>
 
+#include "opengl.hpp"
 #include "param.hpp"
 #include "obj.h"
 
@@ -68,6 +69,9 @@ namespace ent
         float current_M[16];
 
         std::map<int, param *> params;
+
+        const ogl::shader *lite_prog;
+        const ogl::shader *dark_prog;
 
         virtual void draw_geom() const { }
 
@@ -151,6 +155,7 @@ namespace ent
         // Render pass.
 
         virtual int  draw_prio(bool) { return 0; }
+        virtual void draw_prep(bool) { }
         virtual void draw_dark();
         virtual void draw_lite();
         virtual void draw_line();

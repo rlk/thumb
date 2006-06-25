@@ -7,9 +7,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>-7.500000</pos_x>
+    <pos_x>0.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>7.500000</pos_z>
+    <pos_z>20.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -42,9 +42,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>2.500000</pos_x>
+    <pos_x>8.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>-2.500000</pos_z>
+    <pos_z>-20.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -59,27 +59,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>7.500000</pos_x>
+    <pos_x>24.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>-2.500000</pos_z>
-    <param name="category">4294967295</param>
-    <param name="collide">4294967295</param>
-    <param name="density">1.0</param>
-    <param name="mu">100</param>
-    <param name="bounce">0.5</param>
-    <param name="soft_erp">0.2</param>
-    <param name="soft_cfm">0.0</param>
-  </geom>
-  <geom class="box">
-    <file>solid/box.obj</file>
-    <rot_x>0.000000</rot_x>
-    <rot_y>0.000000</rot_y>
-    <rot_z>0.000000</rot_z>
-    <rot_w>1.000000</rot_w>
-    <pos_x>0.000000</pos_x>
-    <pos_y>1.500000</pos_y>
-    <pos_z>0.000000</pos_z>
-    <body1>7</body1>
+    <pos_z>-4.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -130,9 +112,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>7.500000</pos_x>
+    <pos_x>24.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>2.500000</pos_z>
+    <pos_z>4.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -147,9 +129,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>2.500000</pos_x>
+    <pos_x>24.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>7.500000</pos_z>
+    <pos_z>-20.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -164,9 +146,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>7.500000</pos_x>
+    <pos_x>24.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>7.500000</pos_z>
+    <pos_z>12.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -181,9 +163,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>7.500000</pos_x>
+    <pos_x>24.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>-7.500000</pos_z>
+    <pos_z>-12.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -198,9 +180,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>2.500000</pos_x>
+    <pos_x>16.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>2.500000</pos_z>
+    <pos_z>-20.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -215,9 +197,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>-2.500000</pos_x>
+    <pos_x>0.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>-7.500000</pos_z>
+    <pos_z>-12.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -250,9 +232,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>-2.500000</pos_x>
+    <pos_x>0.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>-2.500000</pos_z>
+    <pos_z>-4.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -267,9 +249,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>-7.500000</pos_x>
+    <pos_x>8.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>2.500000</pos_z>
+    <pos_z>20.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -284,9 +266,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>-7.500000</pos_x>
+    <pos_x>24.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>-7.500000</pos_z>
+    <pos_z>20.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -301,9 +283,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>2.500000</pos_x>
+    <pos_x>0.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>-7.500000</pos_z>
+    <pos_z>-20.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -318,43 +300,9 @@ version="1.0" ?>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
     <rot_w>1.000000</rot_w>
-    <pos_x>-2.500000</pos_x>
+    <pos_x>0.500000</pos_x>
     <pos_y>0.000000</pos_y>
-    <pos_z>2.500000</pos_z>
-    <param name="category">4294967295</param>
-    <param name="collide">4294967295</param>
-    <param name="density">1.0</param>
-    <param name="mu">100</param>
-    <param name="bounce">0.5</param>
-    <param name="soft_erp">0.2</param>
-    <param name="soft_cfm">0.0</param>
-  </geom>
-  <geom class="box">
-    <file>solid/platform.obj</file>
-    <rot_x>0.000000</rot_x>
-    <rot_y>0.000000</rot_y>
-    <rot_z>0.000000</rot_z>
-    <rot_w>1.000000</rot_w>
-    <pos_x>-7.500000</pos_x>
-    <pos_y>0.000000</pos_y>
-    <pos_z>-2.500000</pos_z>
-    <param name="category">4294967295</param>
-    <param name="collide">4294967295</param>
-    <param name="density">1.0</param>
-    <param name="mu">100</param>
-    <param name="bounce">0.5</param>
-    <param name="soft_erp">0.2</param>
-    <param name="soft_cfm">0.0</param>
-  </geom>
-  <geom class="box">
-    <file>solid/platform.obj</file>
-    <rot_x>0.000000</rot_x>
-    <rot_y>0.000000</rot_y>
-    <rot_z>0.000000</rot_z>
-    <rot_w>1.000000</rot_w>
-    <pos_x>-2.500000</pos_x>
-    <pos_y>0.000000</pos_y>
-    <pos_z>7.500000</pos_z>
+    <pos_z>4.000000</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -370,8 +318,151 @@ version="1.0" ?>
     <rot_w>1.000000</rot_w>
     <pos_x>1.000000</pos_x>
     <pos_y>1.000000</pos_y>
+    <pos_z>-1.000000</pos_z>
+    <body1>18</body1>
+    <body2>4</body2>
+    <param name="dParamLoStop">joy(0)</param>
+    <param name="dParamHiStop">joy(0)</param>
+    <param name="dParamVel">0</param>
+    <param name="dParamFMax">0</param>
+    <param name="dParamBounce">0.5</param>
+    <param name="dParamCFM">0</param>
+    <param name="dParamStopERP">0.2</param>
+    <param name="dParamStopCFM">0.1</param>
+    <param name="dParamSuspensionERP">0.2</param>
+    <param name="dParamSuspensionCFM">0.1</param>
+    <param name="dParamLoStop2">-inf</param>
+    <param name="dParamHiStop2">inf</param>
+    <param name="dParamVel2">0</param>
+    <param name="dParamFMax2">0</param>
+    <param name="dParamBounce2">0.5</param>
+    <param name="dParamCFM2">0</param>
+    <param name="dParamStopERP2">0.2</param>
+    <param name="dParamStopCFM2">0.0</param>
+  </joint>
+  <geom class="box">
+    <file>solid/platform.obj</file>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>16.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>20.000000</pos_z>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+  </geom>
+  <geom class="box">
+    <file>solid/platform.obj</file>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>0.500000</pos_x>
+    <pos_y>0.000000</pos_y>
+    <pos_z>12.000000</pos_z>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+  </geom>
+  <geom class="light">
+    <rot_x>-0.924577</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>0.382395</rot_w>
+    <pos_x>0.000000</pos_x>
+    <pos_y>11.999990</pos_y>
+    <pos_z>-11.999996</pos_z>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100.0</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+  </geom>
+  <geom class="box">
+    <file>solid/wood_box.obj</file>
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>0.000000</pos_x>
+    <pos_y>1.500000</pos_y>
+    <pos_z>0.000000</pos_z>
+    <body1>18</body1>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100.0</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+  </geom>
+  <geom class="light">
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>0.000000</pos_x>
+    <pos_y>1.500000</pos_y>
+    <pos_z>-0.500000</pos_z>
+    <body1>18</body1>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100.0</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+  </geom>
+  <joint type="hinge2">
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>-1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>-1.000000</pos_z>
+    <body1>18</body1>
+    <body2>3</body2>
+    <param name="dParamLoStop">joy(0)</param>
+    <param name="dParamHiStop">joy(0)</param>
+    <param name="dParamVel">0</param>
+    <param name="dParamFMax">0</param>
+    <param name="dParamBounce">0.5</param>
+    <param name="dParamCFM">0</param>
+    <param name="dParamStopERP">0.2</param>
+    <param name="dParamStopCFM">0.1</param>
+    <param name="dParamSuspensionERP">0.2</param>
+    <param name="dParamSuspensionCFM">0.1</param>
+    <param name="dParamLoStop2">-inf</param>
+    <param name="dParamHiStop2">inf</param>
+    <param name="dParamVel2">0</param>
+    <param name="dParamFMax2">0</param>
+    <param name="dParamBounce2">0.5</param>
+    <param name="dParamCFM2">0</param>
+    <param name="dParamStopERP2">0.2</param>
+    <param name="dParamStopCFM2">0.0</param>
+  </joint>
+  <joint type="hinge2">
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
     <pos_z>1.000000</pos_z>
-    <body1>7</body1>
+    <body1>18</body1>
     <body2>2</body2>
     <param name="dParamLoStop">0</param>
     <param name="dParamHiStop">0</param>
@@ -400,7 +491,7 @@ version="1.0" ?>
     <pos_x>-1.000000</pos_x>
     <pos_y>1.000000</pos_y>
     <pos_z>1.000000</pos_z>
-    <body1>7</body1>
+    <body1>18</body1>
     <body2>1</body2>
     <param name="dParamLoStop">0</param>
     <param name="dParamHiStop">0</param>
@@ -421,75 +512,18 @@ version="1.0" ?>
     <param name="dParamStopERP2">0.2</param>
     <param name="dParamStopCFM2">0.0</param>
   </joint>
-  <joint type="hinge2">
-    <rot_x>0.000000</rot_x>
+  <geom class="camera">
+    <rot_x>-0.173648</rot_x>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
-    <rot_w>1.000000</rot_w>
-    <pos_x>1.000000</pos_x>
-    <pos_y>1.000000</pos_y>
-    <pos_z>-1.000000</pos_z>
-    <body1>7</body1>
-    <body2>4</body2>
-    <param name="dParamLoStop">joy(0)</param>
-    <param name="dParamHiStop">joy(0)</param>
-    <param name="dParamVel">0</param>
-    <param name="dParamFMax">0</param>
-    <param name="dParamBounce">0.5</param>
-    <param name="dParamCFM">0</param>
-    <param name="dParamStopERP">0.2</param>
-    <param name="dParamStopCFM">0.1</param>
-    <param name="dParamSuspensionERP">0.2</param>
-    <param name="dParamSuspensionCFM">0.1</param>
-    <param name="dParamLoStop2">-inf</param>
-    <param name="dParamHiStop2">inf</param>
-    <param name="dParamVel2">0</param>
-    <param name="dParamFMax2">0</param>
-    <param name="dParamBounce2">0.5</param>
-    <param name="dParamCFM2">0</param>
-    <param name="dParamStopERP2">0.2</param>
-    <param name="dParamStopCFM2">0.0</param>
-  </joint>
-  <joint type="hinge2">
-    <rot_x>0.000000</rot_x>
-    <rot_y>0.000000</rot_y>
-    <rot_z>0.000000</rot_z>
-    <rot_w>1.000000</rot_w>
-    <pos_x>-1.000000</pos_x>
-    <pos_y>1.000000</pos_y>
-    <pos_z>-1.000000</pos_z>
-    <body1>7</body1>
-    <body2>3</body2>
-    <param name="dParamLoStop">joy(0)</param>
-    <param name="dParamHiStop">joy(0)</param>
-    <param name="dParamVel">0</param>
-    <param name="dParamFMax">0</param>
-    <param name="dParamBounce">0.5</param>
-    <param name="dParamCFM">0</param>
-    <param name="dParamStopERP">0.2</param>
-    <param name="dParamStopCFM">0.1</param>
-    <param name="dParamSuspensionERP">0.2</param>
-    <param name="dParamSuspensionCFM">0.1</param>
-    <param name="dParamLoStop2">-inf</param>
-    <param name="dParamHiStop2">inf</param>
-    <param name="dParamVel2">0</param>
-    <param name="dParamFMax2">0</param>
-    <param name="dParamBounce2">0.5</param>
-    <param name="dParamCFM2">0</param>
-    <param name="dParamStopERP2">0.2</param>
-    <param name="dParamStopCFM2">0.0</param>
-  </joint>
-  <geom class="light">
-    <rot_x>0.382683</rot_x>
-    <rot_y>0.000000</rot_y>
-    <rot_z>0.000000</rot_z>
-    <rot_w>0.923880</rot_w>
+    <rot_w>0.984808</rot_w>
     <pos_x>0.000000</pos_x>
-    <pos_y>4.000000</pos_y>
-    <pos_z>-4.000000</pos_z>
+    <pos_y>4.000002</pos_y>
+    <pos_z>7.000001</pos_z>
+    <body1>18</body1>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
-    <param name="density">1.0</param>
+    <param name="density">0.01</param>
     <param name="mu">100.0</param>
     <param name="bounce">0.5</param>
     <param name="soft_erp">0.2</param>

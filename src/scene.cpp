@@ -20,6 +20,7 @@
 #include "joint.hpp"
 #include "solid.hpp"
 #include "light.hpp"
+#include "camera.hpp"
 #include "util.hpp"
 #include "main.hpp"
 
@@ -663,6 +664,7 @@ void ops::scene::load(std::string filename)
                 else if (type == "sphere")  s = new ent::sphere;
                 else if (type == "capsule") s = new ent::capsule;
                 else if (type == "light")   s = new ent::light;
+                else if (type == "camera")  s = new ent::camera;
                 else                        continue;
 
                 // Allow the new solid to parse its own attributes.
@@ -835,6 +837,9 @@ void ops::scene::draw(bool edit)
     }
 
     // Render ambient and emissive light to the color buffer.
+
+    for (j = D.begin(); j != D.end(); ++j)
+        j->second->draw_prep(edit);
 
     view->apply();
 

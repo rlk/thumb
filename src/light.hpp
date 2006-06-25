@@ -42,7 +42,7 @@ namespace ent
         void lite_prep(int);
         void lite_post(int);
 
-        int  draw_prio(bool) { return 1; }
+        int  draw_prio(bool);
         void draw_dark();
         void draw_lite();
 

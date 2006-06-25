@@ -37,7 +37,7 @@ void ent::light::mult_P() const
     float y = float(sin(RAD(fov) / 2));
     float z = float(cos(RAD(fov) / 2));
 
-    glFrustum(-y, +y, -y, +y, z, z * 10);
+    glFrustum(-y, +y, -y, +y, z, z * 100);
 }
 
 //-----------------------------------------------------------------------------
@@ -111,12 +111,20 @@ void ent::light::lite_post(int pass)
 
 //-----------------------------------------------------------------------------
 
+int ent::light::draw_prio(bool edit)
+{
+    if (edit)
+        return 1;
+    else
+        return 0;
+}
+
 void ent::light::draw_dark()
 {
     const GLfloat b[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    const GLfloat c[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
     const GLfloat w[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
+    glPushAttrib(GL_ENABLE_BIT);
     glPushMatrix();
     {
         float ny = float(sin(RAD(fov) / 2));
@@ -127,13 +135,10 @@ void ent::light::draw_dark()
 
         mult_M();
 
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,  c);
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, b);
 
         glBegin(GL_TRIANGLES);
         {
-            glColor3f(0.5, 0.5, 0.5);
-
             glNormal3f(-nz,   0, +ny);
             glVertex3f(  0,   0,   0);
             glVertex3f(-vy, +vy, -vz);
@@ -156,25 +161,32 @@ void ent::light::draw_dark()
         }
         glEnd();
 
-        glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,  w);
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, w);
+
+        glEnable(GL_TEXTURE_2D);
+
+        lightmask->bind(GL_TEXTURE0);
 
         glBegin(GL_QUADS);
         {
             glNormal3f(  0,   0,   1);
+            glTexCoord2i(0, 0);
             glVertex3f(-vy, -vy, -vz);
+            glTexCoord2i(1, 0);
             glVertex3f(-vy, +vy, -vz);
+            glTexCoord2i(1, 1);
             glVertex3f(+vy, +vy, -vz);
+            glTexCoord2i(0, 1);
             glVertex3f(+vy, -vy, -vz);
         }
         glEnd();
     }
     glPopMatrix();
+    glPopAttrib();
 }
 
 void ent::light::draw_lite()
 {
-    draw_dark();
 }
 
 //-----------------------------------------------------------------------------

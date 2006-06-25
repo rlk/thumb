@@ -10,13 +10,111 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "main.hpp"
+#include "matrix.hpp"
+#include "opengl.hpp"
 #include "camera.hpp"
+#include "main.hpp"
 
 //-----------------------------------------------------------------------------
 
-ent::camera::camera() : free(-1)
+ent::camera::camera() : fov(60)
 {
+}
+
+void ent::camera::edit_init()
+{
+    geom = dCreateSphere(space, 0.5f);
+    dGeomSetData(geom, this);
+    get_default();
+}
+
+//-----------------------------------------------------------------------------
+
+int ent::camera::draw_prio(bool edit)
+{
+    return 1;
+}
+
+void ent::camera::draw_prep(bool edit)
+{
+    if (edit == false)
+        view->set(current_M);
+}
+
+void ent::camera::draw_dark()
+{
+    const GLfloat b[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
+    const GLfloat w[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    glPushMatrix();
+    {
+        float ny = float(sin(RAD(fov) / 2));
+        float nz = float(cos(RAD(fov) / 2));
+
+        float vy = ny * 0.5f;
+        float vz = nz * 0.5f;
+
+        mult_M();
+
+        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, b);
+
+        glBegin(GL_TRIANGLES);
+        {
+            glNormal3f(-nz,   0, +ny);
+            glVertex3f(  0,   0,   0);
+            glVertex3f(-vy, +vy, -vz);
+            glVertex3f(-vy, -vy, -vz);
+
+            glNormal3f(  0, +nz, +ny);
+            glVertex3f(  0,   0,   0);
+            glVertex3f(+vy, +vy, -vz);
+            glVertex3f(-vy, +vy, -vz);
+
+            glNormal3f(+nz,   0, +ny);
+            glVertex3f(  0,   0,   0);
+            glVertex3f(+vy, -vy, -vz);
+            glVertex3f(+vy, +vy, -vz);
+
+            glNormal3f(  0, -nz, +ny);
+            glVertex3f(  0,   0,   0);
+            glVertex3f(-vy, -vy, -vz);
+            glVertex3f(+vy, -vy, -vz);
+        }
+        glEnd();
+
+        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, w);
+
+        glBegin(GL_QUADS);
+        {
+            glNormal3f(  0,   0,   1);
+            glTexCoord2i(0, 0);
+            glVertex3f(-vy, -vy, -vz);
+            glTexCoord2i(1, 0);
+            glVertex3f(-vy, +vy, -vz);
+            glTexCoord2i(1, 1);
+            glVertex3f(+vy, +vy, -vz);
+            glTexCoord2i(0, 1);
+            glVertex3f(+vy, -vy, -vz);
+        }
+        glEnd();
+    }
+    glPopMatrix();
+}
+
+void ent::camera::draw_lite()
+{
+}
+
+//-----------------------------------------------------------------------------
+
+mxml_node_t *ent::camera::save(mxml_node_t *parent)
+{
+    // Create a new camera element.
+
+    mxml_node_t *node = mxmlNewElement(parent, "geom");
+
+    mxmlElementSetAttr(node, "class", "camera");
+    return solid::save(node);
 }
 
 //-----------------------------------------------------------------------------

@@ -14,6 +14,7 @@
 #include "joint.hpp"
 #include "solid.hpp"
 #include "light.hpp"
+#include "camera.hpp"
 #include "main.hpp"
 #include "gui.hpp"
 
@@ -206,6 +207,18 @@ namespace cnt
 
         void apply() {
             do_create(new ent::light());
+        }
+    };
+
+    class new_camera_button : public create_button
+    {
+    public:
+
+        new_camera_button(ops::scene&  s, gui::widget *w) :
+            create_button(s, w, "Camera") { }
+
+        void apply() {
+            do_create(new ent::camera());
         }
     };
 

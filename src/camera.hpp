@@ -19,11 +19,23 @@
 
 namespace ent
 {
-    class camera : public free
+    class camera : public sphere
     {
+        float fov;
+
     public:
 
+        virtual camera *clone() const { return new camera(*this); }
         camera();
+
+        void edit_init();
+
+        int  draw_prio(bool);
+        void draw_prep(bool);
+        void draw_dark();
+        void draw_lite();
+
+        virtual mxml_node_t *save(mxml_node_t *);
     };
 }
 

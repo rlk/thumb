@@ -25,11 +25,15 @@ namespace app
         float f;
         float z;
 
-        float M[16];
+        float default_M[16];
+        float current_M[16];
 
     public:
 
         view(int, int, float, float, float);
+
+        void clr();
+        void set(const float[16]);
 
         void turn(float, float, float);
         void move(float, float, float);

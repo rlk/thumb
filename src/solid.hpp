@@ -13,7 +13,6 @@
 #ifndef SOLID_HPP
 #define SOLID_HPP
 
-#include "opengl.hpp"
 #include "entity.hpp"
 #include "param.hpp"
 
@@ -28,9 +27,6 @@ namespace ent
         dGeomID tran;
         dMass   mass;
 
-        const ogl::shader *lite_prog;
-        const ogl::shader *dark_prog;
-
     public:
 
         solid(int f=-1);
@@ -43,8 +39,6 @@ namespace ent
         virtual void play_fini();
 
         virtual int  draw_prio(bool) { return 2; }
-        virtual void draw_dark();
-        virtual void draw_lite();
         virtual void step_post();
 
         virtual void         load(mxml_node_t *);

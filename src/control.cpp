@@ -107,6 +107,7 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
                 add(new new_sphere_button (s, w, E))->
                 add(new new_capsule_button(s, w, E))->
                 add(new new_light_button  (s, w))->
+                add(new new_camera_button (s, w))->
                 add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->

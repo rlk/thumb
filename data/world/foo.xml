@@ -17,6 +17,23 @@ version="1.0" ?>
     <param name="soft_erp">0.2</param>
     <param name="soft_cfm">0.0</param>
   </geom>
+  <geom class="light">
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>0.000000</pos_x>
+    <pos_y>2.000002</pos_y>
+    <pos_z>2.000004</pos_z>
+    <body1>5</body1>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100.0</param>
+    <param name="bounce">1</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+  </geom>
   <geom class="box">
     <file>solid/platform.obj</file>
     <rot_x>0.000000</rot_x>
@@ -71,23 +88,6 @@ version="1.0" ?>
   </geom>
   <geom class="light">
     <rot_x>0.000000</rot_x>
-    <rot_y>0.000000</rot_y>
-    <rot_z>0.000000</rot_z>
-    <rot_w>1.000000</rot_w>
-    <pos_x>0.000000</pos_x>
-    <pos_y>2.000002</pos_y>
-    <pos_z>2.000004</pos_z>
-    <body1>5</body1>
-    <param name="category">4294967295</param>
-    <param name="collide">4294967295</param>
-    <param name="density">1.0</param>
-    <param name="mu">100.0</param>
-    <param name="bounce">1</param>
-    <param name="soft_erp">0.2</param>
-    <param name="soft_cfm">0.0</param>
-  </geom>
-  <geom class="light">
-    <rot_x>0.000000</rot_x>
     <rot_y>0.965926</rot_y>
     <rot_z>0.258819</rot_z>
     <rot_w>0.000000</rot_w>
@@ -112,4 +112,20 @@ version="1.0" ?>
     <pos_z>0.000000</pos_z>
     <body1>4</body1>
   </joint>
+  <geom class="camera">
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>0.000000</pos_x>
+    <pos_y>1.500000</pos_y>
+    <pos_z>4.000000</pos_z>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">1.0</param>
+    <param name="mu">100.0</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+  </geom>
 </world>

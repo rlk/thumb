@@ -186,7 +186,11 @@ ent::entity *ent::entity::focused()
 
 //-----------------------------------------------------------------------------
 
-ent::entity::entity(int f) : geom(0), body1(0), body2(0), file(f), radius(0)
+ent::entity::entity(int f) : geom(0), body1(0), body2(0), file(f), radius(0),
+
+    lite_prog(glob->get_shader("object-lite")),
+    dark_prog(glob->get_shader("object-dark"))
+
 {
     load_idt(default_M);
     load_idt(current_M);
@@ -522,7 +526,13 @@ void ent::entity::draw_dark()
         glPushMatrix();
         {
             mult_M();
+
+            dark_prog->bind();
+            dark_prog->uniform("diffuse", 0);
+
             obj_draw_file(file);
+
+            glUseProgramObjectARB(0);
         }
         glPopMatrix();
     }
@@ -538,7 +548,15 @@ void ent::entity::draw_lite()
         glPushMatrix();
         {
             mult_M();
+
+            lite_prog->bind();
+            lite_prog->uniform("diffuse",   0);
+            lite_prog->uniform("shadowmap", 1);
+            lite_prog->uniform("lightmask", 2);
+
             obj_draw_file(file);
+
+            glUseProgramObjectARB(0);
         }
         glPopMatrix();
     }
