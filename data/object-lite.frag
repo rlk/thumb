@@ -18,9 +18,11 @@ void main()
 
     // Clamp the range of the light source.
 
-    float c = (step(0.0, gl_TexCoord[1].z) *
-               step(0.0, gl_TexCoord[1].w));
-    c = 1.0;
+    float s = gl_TexCoord[1].x / gl_TexCoord[1].w;
+    float t = gl_TexCoord[1].y / gl_TexCoord[1].w;
+
+    float c = step(0.0, gl_TexCoord[1].z) * step(0.0, s) * step(s, 1.0)
+                                          * step(0.0, t) * step(t, 1.0);
 
     // Compute the lighting vectors.
 

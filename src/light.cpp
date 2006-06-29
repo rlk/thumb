@@ -34,8 +34,8 @@ void ent::light::edit_init()
 
 void ent::light::mult_P() const
 {
-    float y = float(sin(RAD(fov) / 2));
-    float z = float(cos(RAD(fov) / 2));
+    float y = float(sin(RAD(fov) / 2)) * 0.5f;
+    float z = float(cos(RAD(fov) / 2)) * 0.5f;
 
     glFrustum(-y, +y, -y, +y, z, z * 100);
 }

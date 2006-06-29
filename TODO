@@ -1,9 +1,7 @@
 Generalize the "follow" mechanism to "enable".
-Create specials: camera.
 Move sky/earth/sun ownership to scene.
+Use spatial index to eliminate unnecessary shadow map redraw.
 
-Octree seek on solid update.
-Minimize number of moves in octree seek.
 Documentation.
 Add capsule.
 Rubber-band select.

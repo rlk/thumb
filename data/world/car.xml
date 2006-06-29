@@ -31,7 +31,7 @@ version="1.0" ?>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
-    <param name="mu">50</param>
+    <param name="mu">80</param>
     <param name="bounce">0.5</param>
     <param name="soft_erp">0.2</param>
     <param name="soft_cfm">0.01</param>
@@ -83,7 +83,7 @@ version="1.0" ?>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
-    <param name="mu">50</param>
+    <param name="mu">80</param>
     <param name="bounce">0.5</param>
     <param name="soft_erp">0.2</param>
     <param name="soft_cfm">0.01</param>
@@ -101,7 +101,7 @@ version="1.0" ?>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
-    <param name="mu">50</param>
+    <param name="mu">80</param>
     <param name="bounce">0.5</param>
     <param name="soft_erp">0.2</param>
     <param name="soft_cfm">0.01</param>
@@ -221,7 +221,7 @@ version="1.0" ?>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
-    <param name="mu">50</param>
+    <param name="mu">80</param>
     <param name="bounce">0.5</param>
     <param name="soft_erp">0.2</param>
     <param name="soft_cfm">0.01</param>
@@ -311,35 +311,6 @@ version="1.0" ?>
     <param name="soft_erp">0.2</param>
     <param name="soft_cfm">0.0</param>
   </geom>
-  <joint type="hinge2">
-    <rot_x>0.000000</rot_x>
-    <rot_y>0.000000</rot_y>
-    <rot_z>0.000000</rot_z>
-    <rot_w>1.000000</rot_w>
-    <pos_x>1.000000</pos_x>
-    <pos_y>1.000000</pos_y>
-    <pos_z>-1.000000</pos_z>
-    <body1>18</body1>
-    <body2>4</body2>
-    <param name="dParamLoStop">joy(0)</param>
-    <param name="dParamHiStop">joy(0)</param>
-    <param name="dParamVel">0</param>
-    <param name="dParamFMax">0</param>
-    <param name="dParamBounce">0.5</param>
-    <param name="dParamCFM">0</param>
-    <param name="dParamStopERP">0.2</param>
-    <param name="dParamStopCFM">0.1</param>
-    <param name="dParamSuspensionERP">0.2</param>
-    <param name="dParamSuspensionCFM">0.1</param>
-    <param name="dParamLoStop2">-inf</param>
-    <param name="dParamHiStop2">inf</param>
-    <param name="dParamVel2">0</param>
-    <param name="dParamFMax2">0</param>
-    <param name="dParamBounce2">0.5</param>
-    <param name="dParamCFM2">0</param>
-    <param name="dParamStopERP2">0.2</param>
-    <param name="dParamStopCFM2">0.0</param>
-  </joint>
   <geom class="box">
     <file>solid/platform.obj</file>
     <rot_x>0.000000</rot_x>
@@ -375,13 +346,13 @@ version="1.0" ?>
     <param name="soft_cfm">0.0</param>
   </geom>
   <geom class="light">
-    <rot_x>-0.924577</rot_x>
+    <rot_x>-0.890153</rot_x>
     <rot_y>0.000000</rot_y>
     <rot_z>0.000000</rot_z>
-    <rot_w>0.382395</rot_w>
+    <rot_w>0.460372</rot_w>
     <pos_x>0.000000</pos_x>
-    <pos_y>11.999990</pos_y>
-    <pos_z>-11.999996</pos_z>
+    <pos_y>10.500033</pos_y>
+    <pos_z>-11.000028</pos_z>
     <param name="category">4294967295</param>
     <param name="collide">4294967295</param>
     <param name="density">1.0</param>
@@ -425,6 +396,52 @@ version="1.0" ?>
     <param name="soft_erp">0.2</param>
     <param name="soft_cfm">0.0</param>
   </geom>
+  <geom class="camera">
+    <rot_x>-0.173648</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>0.984808</rot_w>
+    <pos_x>0.000000</pos_x>
+    <pos_y>4.000002</pos_y>
+    <pos_z>7.000001</pos_z>
+    <body1>18</body1>
+    <param name="category">4294967295</param>
+    <param name="collide">4294967295</param>
+    <param name="density">0.01</param>
+    <param name="mu">100.0</param>
+    <param name="bounce">0.5</param>
+    <param name="soft_erp">0.2</param>
+    <param name="soft_cfm">0.0</param>
+  </geom>
+  <joint type="hinge2">
+    <rot_x>0.000000</rot_x>
+    <rot_y>0.000000</rot_y>
+    <rot_z>0.000000</rot_z>
+    <rot_w>1.000000</rot_w>
+    <pos_x>1.000000</pos_x>
+    <pos_y>1.000000</pos_y>
+    <pos_z>-1.000000</pos_z>
+    <body1>18</body1>
+    <body2>4</body2>
+    <param name="dParamLoStop">joy(0)/2</param>
+    <param name="dParamHiStop">joy(0)/2</param>
+    <param name="dParamVel">0</param>
+    <param name="dParamFMax">0</param>
+    <param name="dParamBounce">0.5</param>
+    <param name="dParamCFM">0</param>
+    <param name="dParamStopERP">0.2</param>
+    <param name="dParamStopCFM">0.1</param>
+    <param name="dParamSuspensionERP">0.2</param>
+    <param name="dParamSuspensionCFM">0.05</param>
+    <param name="dParamLoStop2">-inf</param>
+    <param name="dParamHiStop2">inf</param>
+    <param name="dParamVel2">0</param>
+    <param name="dParamFMax2">0</param>
+    <param name="dParamBounce2">0.5</param>
+    <param name="dParamCFM2">0</param>
+    <param name="dParamStopERP2">0.2</param>
+    <param name="dParamStopCFM2">0.0</param>
+  </joint>
   <joint type="hinge2">
     <rot_x>0.000000</rot_x>
     <rot_y>0.000000</rot_y>
@@ -435,8 +452,8 @@ version="1.0" ?>
     <pos_z>-1.000000</pos_z>
     <body1>18</body1>
     <body2>3</body2>
-    <param name="dParamLoStop">joy(0)</param>
-    <param name="dParamHiStop">joy(0)</param>
+    <param name="dParamLoStop">joy(0)/2</param>
+    <param name="dParamHiStop">joy(0)/2</param>
     <param name="dParamVel">0</param>
     <param name="dParamFMax">0</param>
     <param name="dParamBounce">0.5</param>
@@ -444,7 +461,7 @@ version="1.0" ?>
     <param name="dParamStopERP">0.2</param>
     <param name="dParamStopCFM">0.1</param>
     <param name="dParamSuspensionERP">0.2</param>
-    <param name="dParamSuspensionCFM">0.1</param>
+    <param name="dParamSuspensionCFM">0.05</param>
     <param name="dParamLoStop2">-inf</param>
     <param name="dParamHiStop2">inf</param>
     <param name="dParamVel2">0</param>
@@ -473,11 +490,11 @@ version="1.0" ?>
     <param name="dParamStopERP">0.2</param>
     <param name="dParamStopCFM">0.1</param>
     <param name="dParamSuspensionERP">0.2</param>
-    <param name="dParamSuspensionCFM">0.1</param>
+    <param name="dParamSuspensionCFM">0.05</param>
     <param name="dParamLoStop2">-inf</param>
     <param name="dParamHiStop2">inf</param>
-    <param name="dParamVel2">-joy(1)*40</param>
-    <param name="dParamFMax2">50</param>
+    <param name="dParamVel2">-joy(1)*30</param>
+    <param name="dParamFMax2">30</param>
     <param name="dParamBounce2">0.5</param>
     <param name="dParamCFM2">0</param>
     <param name="dParamStopERP2">0.2</param>
@@ -502,31 +519,14 @@ version="1.0" ?>
     <param name="dParamStopERP">0.2</param>
     <param name="dParamStopCFM">0.1</param>
     <param name="dParamSuspensionERP">0.2</param>
-    <param name="dParamSuspensionCFM">0.1</param>
+    <param name="dParamSuspensionCFM">0.05</param>
     <param name="dParamLoStop2">-inf</param>
     <param name="dParamHiStop2">inf</param>
-    <param name="dParamVel2">-joy(1)*40</param>
-    <param name="dParamFMax2">50</param>
+    <param name="dParamVel2">-joy(1)*30</param>
+    <param name="dParamFMax2">30</param>
     <param name="dParamBounce2">0.5</param>
     <param name="dParamCFM2">0</param>
     <param name="dParamStopERP2">0.2</param>
     <param name="dParamStopCFM2">0.0</param>
   </joint>
-  <geom class="camera">
-    <rot_x>-0.173648</rot_x>
-    <rot_y>0.000000</rot_y>
-    <rot_z>0.000000</rot_z>
-    <rot_w>0.984808</rot_w>
-    <pos_x>0.000000</pos_x>
-    <pos_y>4.000002</pos_y>
-    <pos_z>7.000001</pos_z>
-    <body1>18</body1>
-    <param name="category">4294967295</param>
-    <param name="collide">4294967295</param>
-    <param name="density">0.01</param>
-    <param name="mu">100.0</param>
-    <param name="bounce">0.5</param>
-    <param name="soft_erp">0.2</param>
-    <param name="soft_cfm">0.0</param>
-  </geom>
 </world>
