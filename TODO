@@ -1,10 +1,26 @@
+Add entity scaling.
+    Uniform only?
+        + would preserve sphereness of spheres
+        + would ensure texture uniformity
+        - would force a variety of sized OBJs
+Add new ODE geoms.
+    Cylinder
+    Heightfield
+    Plane
+    Convex?
+    Ray?
+Incorporate some of the shading/buffer/image/state lessons learned from atmo.
 Generalize the "follow" mechanism to "enable".
 Move sky/earth/sun ownership to scene.
 Use spatial index to eliminate unnecessary shadow map redraw.
+    Lights should know if they see a static scene.
 
+Frustum culling for cameras and lights.
+Cascaded shadow.
 Documentation.
 Add capsule.
 Rubber-band select.
+Object-inside-object select?
 Intro text / flowing widget.
 World parameters
 Selection registers.
@@ -14,10 +30,7 @@ Refresh button on solid loader.
 Optimize constraint drawing.
 Optimize wire drawing.
 Conveyer solid property.
-Frustum culling for cameras and lights.
-Shadow.
 Z compression of scene XML.
-Figure out something with planes.
 Figure out why repeated runs differ.
 
 Optional soft cursor.

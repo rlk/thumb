@@ -123,7 +123,7 @@ Octree notes
                         While the entity is NOT within its current cell
                                 Move it up (necessary)
 
-                        If the entity fits within a subcess of the current cell
+                        If the entity fits within a subcell of the current cell
                                 Move it down (optimization)
 
                 Entities outside the static index

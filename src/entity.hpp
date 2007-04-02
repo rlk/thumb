@@ -22,7 +22,7 @@
 
 #include "opengl.hpp"
 #include "param.hpp"
-#include "obj.h"
+#include "obj/obj.h"
 
 //-----------------------------------------------------------------------------
 

@@ -54,8 +54,7 @@ bool app::conf::load()
     if ((fp = fopen(file.c_str(), "r")))
     {
         head = mxmlLoadFile(NULL, fp, load_cb);
-        root = mxmlFindElement(head, head, "conf", 0, 0,
-                               MXML_DESCEND_FIRST);
+        root = mxmlFindElement(head, head, "conf", 0, 0, MXML_DESCEND_FIRST);
 
         fclose(fp);
 

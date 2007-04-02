@@ -16,7 +16,7 @@
 
 #include "directory.hpp"
 #include "data.hpp"
-#include "obj.h"
+#include "obj/obj.h"
 
 //-----------------------------------------------------------------------------
 

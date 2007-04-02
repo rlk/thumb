@@ -31,7 +31,5 @@ void main()
 
     vec3 d = vec3(max(dot(N, L), 0.0)) * Lk.rgb * Sk * c;
 
-    gl_FrontMaterial.diffuse;
-
     gl_FragColor = vec4(Kd.rgb * (gl_LightSource[0].diffuse.rgb * d), Kd.a);
 }

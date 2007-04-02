@@ -426,9 +426,13 @@ static void *read_png(const char *filename, int *w, int *h, int *b)
 
 #ifndef CONF_NO_JPG
 
-//extern "C" {
+#ifdef __cplusplus
+extern "C" {
 #include <jpeglib.h>
-//}
+}
+#else
+#include <jpeglib.h>
+#endif
 
 static void *read_jpg(const char *filename, int *w, int *h, int *b)
 {
@@ -588,26 +592,26 @@ static void read_image(int fi, int mi, int ki, const char *line,
 
         if (sscanf(line, " -clamp %s%n", val, &n) >= 1)
         {
-            clamp = (strcmp(val, "on") == 0) ? OBJ_OPT_CLAMP : 0;
-            line += n;
+            clamp  = (strcmp(val, "on") == 0) ? OBJ_OPT_CLAMP : 0;
+            line  += n;
         }
 
         /* Parse property map scale. */
 
-        else if (sscanf(line, " -s %f %f %f%n", s+0, s+1, s+2, &n) >= 3)
+        else if (sscanf(line, " -s %f %f %f%n", s + 0, s + 1, s + 2, &n) >= 3)
             line += n;
-        else if (sscanf(line, " -s %f %f%n",    s+0, s+1,      &n) >= 2)
+        else if (sscanf(line, " -s %f %f%n",    s + 0, s + 1,        &n) >= 2)
             line += n;
-        else if (sscanf(line, " -s %f%n",       s+0,           &n) >= 1)
+        else if (sscanf(line, " -s %f%n",       s + 0,               &n) >= 1)
             line += n;
 
         /* Parse property map offset. */
 
-        else if (sscanf(line, " -o %f %f %f%n", o+0, o+1, o+2, &n) >= 3)
+        else if (sscanf(line, " -o %f %f %f%n", o + 0, o + 1, o + 2, &n) >= 3)
             line += n;
-        else if (sscanf(line, " -o %f %f%n",    o+0, o+1,      &n) >= 2)
+        else if (sscanf(line, " -o %f %f%n",    o + 0, o + 1,        &n) >= 2)
             line += n;
-        else if (sscanf(line, " -o %f%n",       o+0,           &n) >= 1)
+        else if (sscanf(line, " -o %f%n",       o + 0,               &n) >= 1)
             line += n;
 
         /* Parse a word.  The last word seen is taken to be the file name. */
@@ -771,7 +775,6 @@ static int read_usemtl(const char *path,
 
 static int read_poly_indices(const char *line, int *_vi, int *_ti, int *_ni)
 {
-    static char vert[MAXSTR];
     int n;
 
     *_vi = 0;
@@ -780,13 +783,11 @@ static int read_poly_indices(const char *line, int *_vi, int *_ti, int *_ni)
 
     /* Parse a face vertex specification from the given line. */
 
-    if (sscanf(line, "%s%n", vert, &n) >= 1)
-    {
-        if (sscanf(vert, "%d/%d/%d", _vi, _ti, _ni) == 3) return n;
-        if (sscanf(vert, "%d/%d",    _vi, _ti     ) == 2) return n;
-        if (sscanf(vert, "%d//%d",   _vi,      _ni) == 2) return n;
-        if (sscanf(vert, "%d",       _vi          ) == 1) return n;
-    }
+    if (sscanf(line, "%d/%d/%d%n", _vi, _ti, _ni, &n) >= 3) return n;
+    if (sscanf(line, "%d/%d%n",    _vi, _ti,      &n) >= 2) return n;
+    if (sscanf(line, "%d//%d%n",   _vi,      _ni, &n) >= 2) return n;
+    if (sscanf(line, "%d%n",       _vi,           &n) >= 1) return n;
+
     return 0;
 }
 
@@ -909,7 +910,6 @@ static void read_f(const char *line, int fi, int si, int gi)
 
 static int read_line_indices(const char *line, int *_vi, int *_ti)
 {
-    static char vert[MAXSTR];
     int n;
 
     *_vi = 0;
@@ -917,11 +917,18 @@ static int read_line_indices(const char *line, int *_vi, int *_ti)
 
     /* Parse a line vertex specification from the given line. */
 
+    if (sscanf(line, "%d/%d%n", _vi, _ti, &n) >= 2) return n;
+    if (sscanf(line, "%d%n",    _vi,      &n) >= 1) return n;
+
+    /*
+    static char vert[MAXSTR];
+
     if (sscanf(line, "%s%n", vert, &n) >= 1)
     {
         if (sscanf(vert, "%d/%d", _vi, _ti) == 2) return n;
         if (sscanf(vert, "%d",    _vi     ) == 1) return n;
     }
+    */
     return 0;
 }
 
@@ -1323,7 +1330,6 @@ static void obj_rel_mtrl(struct obj_mtrl *mp)
     if (mp->kv[1].str) free(mp->kv[1].str);
     if (mp->kv[2].str) free(mp->kv[2].str);
     if (mp->kv[3].str) free(mp->kv[3].str);
-    if (mp->name)      free(mp->name);
 
     if (mp->kv[0].map) glDeleteTextures(1, &mp->kv[0].map);
     if (mp->kv[1].map) glDeleteTextures(1, &mp->kv[1].map);
@@ -1939,34 +1945,241 @@ void obj_init_file(int fi)
 
 /*---------------------------------------------------------------------------*/
 
+void obj_sort_file(int fi, int qc)
+{
+    const int vc = file(fi)->vc;
+
+    struct vert
+    {
+        int  qs;    /* Cache insertion serial number */
+        int *iv;    /* Polygon reference list buffer */
+        int  ic;    /* Polygon reference list length */
+    };
+
+    /* Vertex optimization data; vertex FIFO cache */
+
+    struct vert *vv = (struct vert *) malloc(vc * sizeof (struct vert));
+    int         *qv = (int         *) malloc(qc * sizeof (int        ));
+
+    int qs = 1;   /* Current cache insertion serial number */
+    int qi = 0;   /* Current cache insertion point [0, qc) */
+
+    int si;
+    int pi;
+    int vi;
+    int ii;
+    int qj;
+
+    /* Initialize the vertex cache to empty. */
+
+    for (qj = 0; qj < qc; ++qj)
+        qv[qj] = -1;
+
+    /* Process each surface of this file in turn. */
+
+    for (si = 0; si < file(fi)->sc; ++si)
+    {
+        const int pc = surf(fi, si)->pc;
+
+        /* Allocate the polygon reference list buffers. */
+
+        int *ip, *iv = (int *) malloc(3 * pc * sizeof (int));
+
+        /* Count the number of polygon references per vertex. */
+
+        memset(vv, 0, vc * sizeof (struct vert));
+
+        for (pi = 0; pi < pc; ++pi)
+        {
+            const int *i = poly(fi, si, pi)->vi;
+
+            vv[i[0]].ic++;
+            vv[i[1]].ic++;
+            vv[i[2]].ic++;
+        }
+
+        /* Initialize all vertex optimization data. */
+
+        for (vi = 0, ip = iv; vi < vc; ++vi)
+        {
+            vv[vi].qs = -qc;
+            vv[vi].iv =  ip;
+            ip += vv[vi].ic;
+            vv[vi].ic =   0;
+        }
+
+        /* Fill the polygon reference list buffers. */
+
+        for (pi = 0; pi < pc; ++pi)
+        {
+            const int *i = poly(fi, si, pi)->vi;
+
+            vv[i[0]].iv[vv[i[0]].ic++] = pi;
+            vv[i[1]].iv[vv[i[1]].ic++] = pi;
+            vv[i[2]].iv[vv[i[2]].ic++] = pi;
+        }
+
+        /* Iterate over the polygon array of this surface. */
+
+        for (pi = 0; pi < pc; ++pi)
+        {
+            const int *i = poly(fi, si, pi)->vi;
+
+            int qd = qs - qc;
+
+            int dk = -1;    /* The best polygon score */
+            int pk = pi;    /* The best polygon index */
+
+            /* Find the best polygon among those referred-to by the cache. */
+
+            for (qj = 0; qj < qc; ++qj)
+                if (qv[qj] >= 0)
+
+                    for (ii = 0;  ii < vv[qv[qj]].ic; ++ii)
+                    {
+                        int pj = vv[qv[qj]].iv[ii];
+                        int dj = 0;
+
+                        const int *j = poly(fi, si, pj)->vi;
+
+                        /* Recently-used vertex bonus. */
+
+                        if (vv[j[0]].qs > qd) dj += vv[j[0]].qs - qd;
+                        if (vv[j[1]].qs > qd) dj += vv[j[1]].qs - qd;
+                        if (vv[j[2]].qs > qd) dj += vv[j[2]].qs - qd;
+
+                        /* Low-valence vertex bonus. */
+
+                        dj -= vv[j[0]].ic;
+                        dj -= vv[j[1]].ic;
+                        dj -= vv[j[2]].ic;
+
+                        if (dk < dj)
+                        {
+                            dk = dj;
+                            pk = pj;
+                        }
+                    }
+
+            if (pk != pi)
+            {
+                struct obj_poly t;
+
+                /* Update the polygon reference list. */
+
+                for (vi = 0; vi < 3; ++vi)
+                    for (ii = 0; ii < vv[i[vi]].ic; ++ii)
+                        if (vv[i[vi]].iv[ii] == pi)
+                        {
+                            vv[i[vi]].iv[ii] =  pk;
+                            break;
+                        }
+
+                /* Swap the best polygon into the current position. */
+
+                t                 = *poly(fi, si, pi);
+                *poly(fi, si, pi) = *poly(fi, si, pk);
+                *poly(fi, si, pk) =                 t;
+            }
+
+            /* Iterate over the current polygon's vertices. */
+
+            for (vi = 0; vi < 3; ++vi)
+            {
+                struct vert *vp = vv + i[vi];
+
+                /* If this vertex was a cache miss then queue it. */
+
+                if (qs - vp->qs >= qc)
+                {
+                    vp->qs = qs++;
+                    qv[qi] = i[vi];
+                    qi = (qi + 1) % qc;
+                }
+
+                /* Remove the current polygon from the reference list. */
+
+                vp->ic--;
+
+                for (ii = 0; ii < vp->ic; ++ii)
+                    if (vp->iv[ii] == pk)
+                    {
+                        vp->iv[ii] = vp->iv[vp->ic];
+                        break;
+                    }
+            }
+        }
+        free(iv);
+    }
+    free(qv);
+    free(vv);
+}
+
+float obj_acmr_file(int fi, int qc)
+{
+    int *vs = (int *) malloc(file(fi)->vc * sizeof (int));
+    int  qs = 1;
+
+    int si;
+    int vi;
+    int pi;
+
+    int nn = 0;
+    int dd = 0;
+
+    for (si = 0; si < file(fi)->sc; ++si)
+    {
+        for (vi = 0; vi < file(fi)->vc; ++vi)
+            vs[vi] = -qc;
+
+        for (pi = 0; pi < surf(fi, si)->pc; ++pi)
+        {
+            const int *i = poly(fi, si, pi)->vi;
+
+            if (qs - vs[i[0]] >= qc) { vs[i[0]] = qs++; nn++; }
+            if (qs - vs[i[1]] >= qc) { vs[i[1]] = qs++; nn++; }
+            if (qs - vs[i[2]] >= qc) { vs[i[2]] = qs++; nn++; }
+
+            dd++;
+        }
+    }
+
+    return (float) nn / (float) dd;
+}
+
+/*---------------------------------------------------------------------------*/
+
 static void obj_draw_prop(int fi, int mi, int ki)
 {
     struct obj_prop *kp = prop(fi, mi, ki);
 
-    GLenum wrap = GL_REPEAT;
-
-    /* Bind the property map. */
-
-    glBindTexture(GL_TEXTURE_2D, kp->map);
-    glEnable(GL_TEXTURE_2D);
-
-    /* Apply the property options. */
-
-    if (kp->opt & OBJ_OPT_CLAMP)
-        wrap = GL_CLAMP_TO_EDGE;
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
-
-    /* Apply the texture coordinate offset and scale. */
-
-    glMatrixMode(GL_TEXTURE);
+    if (kp->map)
     {
-        glLoadIdentity();
-        glTranslatef(kp->o[0], kp->o[1], kp->o[2]);
-        glScalef    (kp->s[0], kp->s[1], kp->s[2]);
+        GLenum wrap = GL_REPEAT;
+
+        /* Bind the property map. */
+
+        glBindTexture(GL_TEXTURE_2D, kp->map);
+        glEnable(GL_TEXTURE_2D);
+
+        /* Apply the property options. */
+
+        if (kp->opt & OBJ_OPT_CLAMP)
+            wrap = GL_CLAMP_TO_EDGE;
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap);
+
+        /* Apply the texture coordinate offset and scale. */
+
+        glMatrixMode(GL_TEXTURE);
+        {
+            glLoadIdentity();
+            glTranslatef(kp->o[0], kp->o[1], kp->o[2]);
+            glScalef    (kp->s[0], kp->s[1], kp->s[2]);
+        }
+        glMatrixMode(GL_MODELVIEW);
     }
-    glMatrixMode(GL_MODELVIEW);
 }
 
 #define OFFSET(i) ((char *) NULL + (i))
@@ -2108,8 +2321,6 @@ void obj_draw_file(int fi)
 
         for (si = 0; si < file(fi)->sc; ++si)
             obj_draw_surf(fi, si);
-
-        glBindBuffer(GL_ARRAY_BUFFER_ARB, 0);
     }
     glPopAttrib();
     glPopClientAttrib();
@@ -2172,7 +2383,7 @@ void obj_draw_axes(int fi, float k)
 
 /*===========================================================================*/
 
-void obj_get_file_aabb(int fi, float b[6])
+void obj_get_file_box(int fi, float b[6])
 {
     int vi;
 
@@ -2203,7 +2414,7 @@ void obj_get_file_aabb(int fi, float b[6])
     }
 }
 
-float obj_get_file_sphr(int fi)
+float obj_get_file_sph(int fi)
 {
     float r = 0.0f;
     int  vi;
