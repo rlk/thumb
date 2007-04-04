@@ -9,10 +9,39 @@ CD= cd
 CP= cp
 
 TARG= ../thumb
-OBJS= opengl.o matrix.o light.o camera.o earth.o sky.o entity.o \
-	joint.o solid.o scene.o constraint.o image.o data.o lang.o \
-	conf.o edit.o play.o info.o mode.o demo.o view.o glob.o prog.o \
-	util.o font.o control.o gui.o param.o directory.o main.o obj/obj.o
+OBJS=   opengl.o \
+	matrix.o \
+	light.o \
+	camera.o \
+	earth.o \
+	sky.o \
+	entity.o \
+	joint.o \
+	solid.o \
+	scene.o \
+	constraint.o \
+	image.o \
+	frame.o \
+	shader.o \
+	data.o \
+	lang.o \
+	conf.o \
+	edit.o \
+	play.o \
+	info.o \
+	mode.o \
+	demo.o \
+	view.o \
+	glob.o \
+	prog.o \
+	util.o \
+	font.o \
+	control.o \
+	gui.o \
+	param.o \
+	directory.o \
+	main.o \
+	obj/obj.o
 
 LIBS= -lmxml -lode -ljpeg -lpng -lz -lm
 DEPS= $(OBJS:.o=.d)

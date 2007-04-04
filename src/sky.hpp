@@ -15,7 +15,7 @@
 
 #include "solid.hpp"
 #include "image.hpp"
-#include "data.hpp"
+#include "shader.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -23,10 +23,10 @@ namespace ent
 {
     class sky : public free
     {
-        float           dist;
-        ogl::image_file glow;
-        ogl::image_file fill;
-        ogl::shader     prog;
+        float       dist;
+        ogl::image  glow;
+        ogl::image  fill;
+        ogl::shader prog;
 
     public:
 

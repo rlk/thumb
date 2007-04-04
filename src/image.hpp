@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2007 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -19,37 +19,35 @@
 
 //-----------------------------------------------------------------------------
 
-namespace ogl
+namespace ogl 
 {
     class image
     {
-    protected:
+        GLenum target;
+        GLenum format;
+        GLuint texture;
 
-        GLsizei width;
-        GLsizei height;
-        GLenum  target;
-        GLenum  format;
-        GLuint  texture;
+        GLsizei w;
+        GLsizei h;
 
     public:
 
-        image();
+        image(GLenum=GL_TEXTURE_2D, GLenum=GL_RGBA8, GLsizei=2, GLsizei=2);
+        image(std::string);
        ~image();
 
-        void bind(GLenum) const;
-        void draw()       const;
-    };
+        void bind(GLenum=GL_TEXTURE0) const;
+        void free(GLenum=GL_TEXTURE0) const;
+        void draw()                   const;
+        void null()                   const;
 
-    class image_file : public image
-    {
-    public:
-        image_file(std::string);
-    };
+        void load(std::string, GLenum=GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
+        void save(std::string, GLenum=GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
+        void snap(             GLenum=GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
 
-    class image_snap : public image
-    {
-    public:
-        image_snap();
+        GLsizei get_w() const { return w;       }
+        GLsizei get_h() const { return h;       }
+        GLuint  get_o() const { return texture; }
     };
 }
 

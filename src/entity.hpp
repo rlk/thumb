@@ -21,6 +21,7 @@
 #include <mxml.h>
 
 #include "opengl.hpp"
+#include "shader.hpp"
 #include "param.hpp"
 #include "obj/obj.h"
 

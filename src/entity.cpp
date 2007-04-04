@@ -18,6 +18,7 @@
 #include "entity.hpp"
 #include "matrix.hpp"
 #include "opengl.hpp"
+#include "shader.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -536,7 +537,7 @@ void ent::entity::draw_dark()
         }
         glPopMatrix();
     }
-    GL_CHECK();
+    OGLCK();
 }
 
 void ent::entity::draw_lite()
@@ -560,7 +561,7 @@ void ent::entity::draw_lite()
         }
         glPopMatrix();
     }
-    GL_CHECK();
+    OGLCK();
 }
 
 void ent::entity::draw_line()

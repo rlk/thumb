@@ -163,7 +163,7 @@ void app::text::set(const GLubyte *p)
     glBindTexture  (GL_TEXTURE_2D, texture);
     glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, inner_w, inner_h,
                     GL_RGBA, GL_UNSIGNED_BYTE, p);
-    GL_CHECK();
+    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

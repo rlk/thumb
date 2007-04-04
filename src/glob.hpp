@@ -16,6 +16,7 @@
 #include <map>
 
 #include "opengl.hpp"
+#include "shader.hpp"
 #include "image.hpp"
 
 //-----------------------------------------------------------------------------

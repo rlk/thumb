@@ -1,3 +1,26 @@
+Convert all file input to take const char *.
+    Modify data object to locate and load raw data.
+    This will allow pak, pak update, data linkin, $HOME data, etc...
+    support in
+        ttf (easy)
+        xml (easy)
+        png (not so easy)
+        obj (easy after some work)
+        mtl (not so easy?)
+        txt (easy)
+
+Run modes on function keys?
+    F1 info
+    F2 edit
+    F3 play
+    F4 stat
+
+Control panes on function keys?
+    F5 info about
+    F6 info world
+    F7 info solid
+    F8 info joint
+
 Add entity scaling.
     Uniform only?
         + would preserve sphereness of spheres
@@ -10,6 +33,7 @@ Add new ODE geoms.
     Convex?
     Ray?
 Incorporate some of the shading/buffer/image/state lessons learned from atmo.
+Incorporate perf module from atmo.  Stats in GUI?
 Generalize the "follow" mechanism to "enable".
 Move sky/earth/sun ownership to scene.
 Use spatial index to eliminate unnecessary shadow map redraw.
@@ -24,6 +48,7 @@ Object-inside-object select?
 Intro text / flowing widget.
 World parameters
 Selection registers.
+Center contraint on a group.
 Partial run.
 Remove per-frame conf references.
 Refresh button on solid loader.

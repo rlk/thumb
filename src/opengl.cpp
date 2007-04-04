@@ -12,57 +12,68 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 #include <fstream>
-#include <string>
 
 #include "util.hpp"
 #include "opengl.hpp"
 
 //-----------------------------------------------------------------------------
 
-#ifndef __APPLE__
-PFNGLACTIVETEXTUREARBPROC              glActiveTextureARB;
+#ifdef __APPLE__
+#define PROC(t, n) { }
+#else
+#define PROC(t, n) if (!(n = (t) glGetProcAddress(#n))) std::runtime_error(#n)
 
-PFNGLGETOBJECTPARAMETERIVARBPROC       glGetObjectParameterivARB;
-PFNGLBINDATTRIBLOCATIONARBPROC         glBindAttribLocationARB;
-PFNGLUSEPROGRAMOBJECTARBPROC           glUseProgramObjectARB;
-PFNGLCREATESHADEROBJECTARBPROC         glCreateShaderObjectARB;
-PFNGLCREATEPROGRAMOBJECTARBPROC        glCreateProgramObjectARB;
-PFNGLVALIDATEPROGRAMARBPROC            glValidateProgramARB;
-PFNGLSHADERSOURCEARBPROC               glShaderSourceARB;
-PFNGLCOMPILESHADERARBPROC              glCompileShaderARB;
-PFNGLATTACHOBJECTARBPROC               glAttachObjectARB;
-PFNGLLINKPROGRAMARBPROC                glLinkProgramARB;
-PFNGLGETINFOLOGARBPROC                 glGetInfoLogARB;
-PFNGLDELETEOBJECTARBPROC               glDeleteObjectARB;
+// GL_ARB_multitexture
 
-PFNGLGETUNIFORMLOCATIONARBPROC         glGetUniformLocationARB;
-PFNGLUNIFORM1IARBPROC                  glUniform1iARB;
-PFNGLUNIFORM1FARBPROC                  glUniform1fARB;
-PFNGLUNIFORM2FARBPROC                  glUniform2fARB;
-PFNGLUNIFORM3FARBPROC                  glUniform3fARB;
-PFNGLUNIFORM4FARBPROC                  glUniform4fARB;
+PFNGLACTIVETEXTUREARBPROC          glActiveTextureARB;
 
-PFNGLGENFRAMEBUFFERSEXTPROC            glGenFramebuffersEXT;
-PFNGLBINDFRAMEBUFFEREXTPROC            glBindFramebufferEXT;
-PFNGLDELETEFRAMEBUFFERSEXTPROC         glDeleteFramebuffersEXT;
-PFNGLFRAMEBUFFERTEXTURE2DEXTPROC       glFramebufferTexture2DEXT;
-PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC     glCheckFramebufferStatusEXT;
+// GL_ARB_shader_objects
 
-PFNGLGENBUFFERSARBPROC                 glGenBuffersARB;
-PFNGLBINDBUFFERARBPROC                 glBindBufferARB;
-PFNGLMAPBUFFERARBPROC                  glMapBufferARB;
-PFNGLUNMAPBUFFERARBPROC                glUnmapBufferARB;
-PFNGLBUFFERDATAARBPROC                 glBufferDataARB;
-PFNGLDELETEBUFFERSARBPROC              glDeleteBuffersARB;
+PFNGLGETOBJECTPARAMETERIVARBPROC   glGetObjectParameterivARB;
+PFNGLCREATEPROGRAMOBJECTARBPROC    glCreateProgramObjectARB;
+PFNGLCREATESHADEROBJECTARBPROC     glCreateShaderObjectARB;
+PFNGLUSEPROGRAMOBJECTARBPROC       glUseProgramObjectARB;
+PFNGLVALIDATEPROGRAMARBPROC        glValidateProgramARB;
+PFNGLCOMPILESHADERARBPROC          glCompileShaderARB;
+PFNGLDELETEOBJECTARBPROC           glDeleteObjectARB;
+PFNGLATTACHOBJECTARBPROC           glAttachObjectARB;
+PFNGLSHADERSOURCEARBPROC           glShaderSourceARB;
+PFNGLLINKPROGRAMARBPROC            glLinkProgramARB;
+PFNGLGETINFOLOGARBPROC             glGetInfoLogARB;
+
+PFNGLGETUNIFORMLOCATIONARBPROC     glGetUniformLocationARB;
+PFNGLUNIFORM1IARBPROC              glUniform1iARB;
+PFNGLUNIFORM1FARBPROC              glUniform1fARB;
+PFNGLUNIFORM2FARBPROC              glUniform2fARB;
+PFNGLUNIFORM3FARBPROC              glUniform3fARB;
+PFNGLUNIFORM4FARBPROC              glUniform4fARB;
+
+PFNGLBINDATTRIBLOCATIONARBPROC     glBindAttribLocationARB;
+
+// GL_EXT_framebuffer_object
+
+PFNGLGENFRAMEBUFFERSEXTPROC        glGenFramebuffersEXT;
+PFNGLBINDFRAMEBUFFEREXTPROC        glBindFramebufferEXT;
+PFNGLDELETEFRAMEBUFFERSEXTPROC     glDeleteFramebuffersEXT;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC   glFramebufferTexture2DEXT;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+
+// GL_ARB_vertex_buffer_object
+
+PFNGLGENBUFFERSARBPROC             glGenBuffersARB;
+PFNGLBINDBUFFERARBPROC             glBindBufferARB;
+PFNGLMAPBUFFERARBPROC              glMapBufferARB;
+PFNGLBUFFERDATAARBPROC             glBufferDataARB;
+PFNGLUNMAPBUFFERARBPROC            glUnmapBufferARB;
+PFNGLDELETEBUFFERSARBPROC          glDeleteBuffersARB;
+
 #endif
 
 //-----------------------------------------------------------------------------
 
-#define init_proc(t, n) if (!(n = (t) glGetProcAddress(#n))) \
-                            std::runtime_error(#n)
-
-static void init_ext(const char *needle)
+void ogl::check_ext(const char *needle)
 {
     const GLubyte *haystack, *c;
 
@@ -81,85 +92,92 @@ static void init_ext(const char *needle)
     throw std::runtime_error(needle);
 }
 
-void init_ogl()
+void ogl::check_err(const char *file, int line)
 {
-    init_ext("ARB_vertex_shader");
-    init_ext("ARB_shader_objects");
-    init_ext("ARB_fragment_shader");
-    init_ext("ARB_vertex_buffer_object");
-//  init_ext("ARB_pixel_buffer_object");
-    init_ext("EXT_framebuffer_object");
+    GLenum err;
 
-#ifndef __APPLE__
-    init_proc(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
+    if ((err = glGetError()) != GL_NO_ERROR)
+    {
+        std::ostringstream str;
 
-    init_proc(PFNGLGETOBJECTPARAMETERIVARBPROC,   glGetObjectParameterivARB);
-    init_proc(PFNGLBINDATTRIBLOCATIONARBPROC,     glBindAttribLocationARB);
-    init_proc(PFNGLUSEPROGRAMOBJECTARBPROC,       glUseProgramObjectARB);
-    init_proc(PFNGLCREATESHADEROBJECTARBPROC,     glCreateShaderObjectARB);
-    init_proc(PFNGLCREATEPROGRAMOBJECTARBPROC,    glCreateProgramObjectARB);
-    init_proc(PFNGLVALIDATEPROGRAMARBPROC,        glValidateProgramARB);
-    init_proc(PFNGLSHADERSOURCEARBPROC,           glShaderSourceARB);
-    init_proc(PFNGLCOMPILESHADERARBPROC,          glCompileShaderARB);
-    init_proc(PFNGLATTACHOBJECTARBPROC,           glAttachObjectARB);
-    init_proc(PFNGLLINKPROGRAMARBPROC,            glLinkProgramARB);
-    init_proc(PFNGLGETINFOLOGARBPROC,             glGetInfoLogARB);
-    init_proc(PFNGLDELETEOBJECTARBPROC,           glDeleteObjectARB);
+        str << file << ":"
+            << line << " ";
 
-    init_proc(PFNGLGETUNIFORMLOCATIONARBPROC,     glGetUniformLocationARB);
-    init_proc(PFNGLUNIFORM1IARBPROC,              glUniform1iARB);
-    init_proc(PFNGLUNIFORM1FARBPROC,              glUniform1fARB);
-    init_proc(PFNGLUNIFORM2FARBPROC,              glUniform2fARB);
-    init_proc(PFNGLUNIFORM3FARBPROC,              glUniform3fARB);
-    init_proc(PFNGLUNIFORM4FARBPROC,              glUniform4fARB);
+        switch (err)
+        {
+        case GL_INVALID_ENUM:      str << "Invalid enumerant"; break;
+        case GL_INVALID_VALUE:     str << "Invalid value";     break;
+        case GL_INVALID_OPERATION: str << "Invalid operation"; break;
+        case GL_STACK_OVERFLOW:    str << "Stack overflow";    break;
+        case GL_OUT_OF_MEMORY:     str << "Out of memory";     break;
+        case GL_TABLE_TOO_LARGE:   str << "Table too large";   break;
+        }
 
-    init_proc(PFNGLGENFRAMEBUFFERSEXTPROC,        glGenFramebuffersEXT);
-    init_proc(PFNGLBINDFRAMEBUFFEREXTPROC,        glBindFramebufferEXT);
-    init_proc(PFNGLDELETEFRAMEBUFFERSEXTPROC,     glDeleteFramebuffersEXT);
-    init_proc(PFNGLFRAMEBUFFERTEXTURE2DEXTPROC,   glFramebufferTexture2DEXT);
-    init_proc(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT);
-    init_proc(PFNGLGENBUFFERSARBPROC,             glGenBuffersARB);
-    init_proc(PFNGLBINDBUFFERARBPROC,             glBindBufferARB);
-    init_proc(PFNGLMAPBUFFERARBPROC,              glMapBufferARB);
-    init_proc(PFNGLUNMAPBUFFERARBPROC,            glUnmapBufferARB);
-    init_proc(PFNGLBUFFERDATAARBPROC,             glBufferDataARB);
-    init_proc(PFNGLDELETEBUFFERSARBPROC,          glDeleteBuffersARB);
-#endif
+        str << std::endl;
+
+        throw std::runtime_error(str.str().c_str());
+    }
 }
 
 //-----------------------------------------------------------------------------
 
-static const char *error_string(GLenum err)
+void ogl::init()
 {
-    switch (err)
-    {
-    case GL_INVALID_ENUM:      return "Invalid enumerant";
-    case GL_INVALID_VALUE:     return "Invalid value";
-    case GL_INVALID_OPERATION: return "Invalid operation";
-    case GL_STACK_OVERFLOW:    return "Stack overflow";
-    case GL_OUT_OF_MEMORY:     return "Out of memory";
-    case GL_TABLE_TOO_LARGE:   return "Table too large";
-    }
-    return "Unknown";
-}
+    check_ext("ARB_multitexture");
+    check_ext("ARB_shader_objects");
+    check_ext("ARB_vertex_shader");
+    check_ext("ARB_fragment_shader");
+    check_ext("EXT_framebuffer_object");
+    check_ext("ARB_vertex_buffer_object");
 
-void check_ogl(const char *file, int line)
-{
-    static bool state = true;
+#ifndef __APPLE__
 
-    if (state)
-    {
-        GLenum err = glGetError();
+    // GL_ARB_multitexture
 
-        if (err != GL_NO_ERROR)
-            std::cerr << "OpenGL error: "
-                      << file << ":"
-                      << line << " "
-                      << error_string(err)
-                      << std::endl;
+    PROC(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
 
-        state = false;
-    }
+    // GL_ARB_shader_objects
+
+    PROC(PFNGLGETOBJECTPARAMETERIVARBPROC,   glGetObjectParameterivARB);
+    PROC(PFNGLCREATEPROGRAMOBJECTARBPROC,    glCreateProgramObjectARB);
+    PROC(PFNGLCREATESHADEROBJECTARBPROC,     glCreateShaderObjectARB);
+    PROC(PFNGLUSEPROGRAMOBJECTARBPROC,       glUseProgramObjectARB);
+    PROC(PFNGLVALIDATEPROGRAMARBPROC,        glValidateProgramARB);
+    PROC(PFNGLSHADERSOURCEARBPROC,           glShaderSourceARB);
+    PROC(PFNGLCOMPILESHADERARBPROC,          glCompileShaderARB);
+    PROC(PFNGLATTACHOBJECTARBPROC,           glAttachObjectARB);
+    PROC(PFNGLLINKPROGRAMARBPROC,            glLinkProgramARB);
+    PROC(PFNGLGETINFOLOGARBPROC,             glGetInfoLogARB);
+    PROC(PFNGLDELETEOBJECTARBPROC,           glDeleteObjectARB);
+
+    PROC(PFNGLGETUNIFORMLOCATIONARBPROC,     glGetUniformLocationARB);
+    PROC(PFNGLUNIFORM1IARBPROC,              glUniform1iARB);
+    PROC(PFNGLUNIFORM1FARBPROC,              glUniform1fARB);
+    PROC(PFNGLUNIFORM2FARBPROC,              glUniform2fARB);
+    PROC(PFNGLUNIFORM3FARBPROC,              glUniform3fARB);
+    PROC(PFNGLUNIFORM4FARBPROC,              glUniform4fARB);
+
+    // GL_ARB_vertex_shader
+
+    PROC(PFNGLBINDATTRIBLOCATIONARBPROC,     glBindAttribLocationARB);
+
+    // GL_EXT_framebuffer_object
+
+    PROC(PFNGLGENFRAMEBUFFERSEXTPROC,        glGenFramebuffersEXT);
+    PROC(PFNGLBINDFRAMEBUFFEREXTPROC,        glBindFramebufferEXT);
+    PROC(PFNGLDELETEFRAMEBUFFERSEXTPROC,     glDeleteFramebuffersEXT);
+    PROC(PFNGLFRAMEBUFFERTEXTURE2DEXTPROC,   glFramebufferTexture2DEXT);
+    PROC(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT);
+
+    // GL_ARB_vertex_buffer_object
+
+    PROC(PFNGLGENBUFFERSARBPROC,             glGenBuffersARB);
+    PROC(PFNGLBINDBUFFERARBPROC,             glBindBufferARB);
+    PROC(PFNGLMAPBUFFERARBPROC,              glMapBufferARB);
+    PROC(PFNGLBUFFERDATAARBPROC,             glBufferDataARB);
+    PROC(PFNGLUNMAPBUFFERARBPROC,            glUnmapBufferARB);
+    PROC(PFNGLDELETEBUFFERSARBPROC,          glDeleteBuffersARB);
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -251,7 +269,7 @@ ogl::fbo::fbo(GLint color_format,
 
     set_framebuffer(o, v);
 
-    GL_CHECK();
+    OGLCK();
 }
 
 ogl::fbo::~fbo()
@@ -260,7 +278,7 @@ ogl::fbo::~fbo()
     glDeleteTextures       (1, &depth);
     glDeleteTextures       (1, &color);
 
-    GL_CHECK();
+    OGLCK();
 }
 
 void ogl::fbo::push_frame(bool inset)
@@ -275,7 +293,7 @@ void ogl::fbo::push_frame(bool inset)
     else
         glViewport(0, 0, w, h);
 
-    GL_CHECK();
+    OGLCK();
 }
 
 void ogl::fbo::pop_frame()
@@ -284,7 +302,7 @@ void ogl::fbo::pop_frame()
     glViewport(vp_cache[0], vp_cache[1],
                vp_cache[2], vp_cache[3]);
 
-    GL_CHECK();
+    OGLCK();
 }
 
 void ogl::fbo::bind_color(GLenum T) const
@@ -295,7 +313,7 @@ void ogl::fbo::bind_color(GLenum T) const
     }
     glActiveTextureARB(GL_TEXTURE0);
 
-    GL_CHECK();
+    OGLCK();
 }
 
 void ogl::fbo::bind_depth(GLenum T) const
@@ -306,7 +324,7 @@ void ogl::fbo::bind_depth(GLenum T) const
     }
     glActiveTextureARB(GL_TEXTURE0);
 
-    GL_CHECK();
+    OGLCK();
 }
 
 //-----------------------------------------------------------------------------
@@ -320,23 +338,23 @@ ogl::vbo::vbo(GLenum target, GLenum usage, GLsizei size)
 
     glBindBufferARB(target, 0);
 
-    GL_CHECK();
+    OGLCK();
 }
 
 ogl::vbo::~vbo()
 {
     glDeleteBuffersARB(1, &buffer);
-    GL_CHECK();
+    OGLCK();
 }
 
 void ogl::vbo::bind(GLenum target) const
 {
     glBindBufferARB(target, buffer);
-    GL_CHECK();
+    OGLCK();
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void ogl::shader::check_log(GLhandleARB handle)
 {
     char *log;
@@ -397,7 +415,7 @@ ogl::shader::shader(std::string vert_str, std::string frag_str)
 
     glLinkProgramARB(prog); check_log(prog);
 
-    GL_CHECK();
+    OGLCK();
 }
 
 ogl::shader::~shader()
@@ -405,13 +423,13 @@ ogl::shader::~shader()
     glDeleteObjectARB(prog);
     glDeleteObjectARB(vert);
     glDeleteObjectARB(frag);
-    GL_CHECK();
+    OGLCK();
 }
 
 void ogl::shader::bind() const
 {
     glUseProgramObjectARB(prog);
-    GL_CHECK();
+    OGLCK();
 }
 
 //-----------------------------------------------------------------------------
@@ -456,7 +474,7 @@ void ogl::shader::uniform(std::string name, float a, float b,
     if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
         glUniform4fARB(loc, a, b, c, d);
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void ogl::get_framebuffer(GLint o[1], GLint v[4])

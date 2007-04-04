@@ -19,72 +19,91 @@
 
 #ifdef __linux__
 #include <GL/gl.h>
-#include <GL/glu.h>
 #include <GL/glx.h>
-#include "glext.h"
+#include <GL/glext.h>
 #define glGetProcAddress(n) glXGetProcAddressARB((GLubyte *) n)
 #endif
 
 #ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN 1
+#define NOMINMAX 1
 #include <windows.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
-#include "glext.h"
+#include <GL/glext.h>
 #define glGetProcAddress(n) wglGetProcAddress(n)
 #endif
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
 #endif
 
 //-----------------------------------------------------------------------------
 
 #ifndef __APPLE__
-extern PFNGLACTIVETEXTUREARBPROC              glActiveTextureARB;
 
-extern PFNGLGETOBJECTPARAMETERIVARBPROC       glGetObjectParameterivARB;
-extern PFNGLBINDATTRIBLOCATIONARBPROC         glBindAttribLocationARB;
-extern PFNGLUSEPROGRAMOBJECTARBPROC           glUseProgramObjectARB;
-extern PFNGLCREATESHADEROBJECTARBPROC         glCreateShaderObjectARB;
-extern PFNGLCREATEPROGRAMOBJECTARBPROC        glCreateProgramObjectARB;
-extern PFNGLVALIDATEPROGRAMARBPROC            glValidateProgramARB;
-extern PFNGLSHADERSOURCEARBPROC               glShaderSourceARB;
-extern PFNGLCOMPILESHADERARBPROC              glCompileShaderARB;
-extern PFNGLATTACHOBJECTARBPROC               glAttachObjectARB;
-extern PFNGLLINKPROGRAMARBPROC                glLinkProgramARB;
-extern PFNGLGETINFOLOGARBPROC                 glGetInfoLogARB;
-extern PFNGLDELETEOBJECTARBPROC               glDeleteObjectARB;
+// GL_ARB_multitexture
 
-extern PFNGLGETUNIFORMLOCATIONARBPROC         glGetUniformLocationARB;
-extern PFNGLUNIFORM1IARBPROC                  glUniform1iARB;
-extern PFNGLUNIFORM1FARBPROC                  glUniform1fARB;
-extern PFNGLUNIFORM2FARBPROC                  glUniform2fARB;
-extern PFNGLUNIFORM3FARBPROC                  glUniform3fARB;
-extern PFNGLUNIFORM4FARBPROC                  glUniform4fARB;
+extern PFNGLACTIVETEXTUREARBPROC          glActiveTextureARB;
 
-extern PFNGLGENFRAMEBUFFERSEXTPROC            glGenFramebuffersEXT;
-extern PFNGLBINDFRAMEBUFFEREXTPROC            glBindFramebufferEXT;
-extern PFNGLDELETEFRAMEBUFFERSEXTPROC         glDeleteFramebuffersEXT;
-extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC       glFramebufferTexture2DEXT;
-extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC     glCheckFramebufferStatusEXT;
+// GL_ARB_shader_objects
 
-extern PFNGLGENBUFFERSARBPROC                 glGenBuffersARB;
-extern PFNGLBINDBUFFERARBPROC                 glBindBufferARB;
-extern PFNGLMAPBUFFERARBPROC                  glMapBufferARB;
-extern PFNGLUNMAPBUFFERARBPROC                glUnmapBufferARB;
-extern PFNGLBUFFERDATAARBPROC                 glBufferDataARB;
-extern PFNGLDELETEBUFFERSARBPROC              glDeleteBuffersARB;
+extern PFNGLGETOBJECTPARAMETERIVARBPROC   glGetObjectParameterivARB;
+extern PFNGLCREATEPROGRAMOBJECTARBPROC    glCreateProgramObjectARB;
+extern PFNGLCREATESHADEROBJECTARBPROC     glCreateShaderObjectARB;
+extern PFNGLUSEPROGRAMOBJECTARBPROC       glUseProgramObjectARB;
+extern PFNGLVALIDATEPROGRAMARBPROC        glValidateProgramARB;
+extern PFNGLCOMPILESHADERARBPROC          glCompileShaderARB;
+extern PFNGLDELETEOBJECTARBPROC           glDeleteObjectARB;
+extern PFNGLATTACHOBJECTARBPROC           glAttachObjectARB;
+extern PFNGLSHADERSOURCEARBPROC           glShaderSourceARB;
+extern PFNGLLINKPROGRAMARBPROC            glLinkProgramARB;
+extern PFNGLGETINFOLOGARBPROC             glGetInfoLogARB;
+
+extern PFNGLGETUNIFORMLOCATIONARBPROC     glGetUniformLocationARB;
+extern PFNGLUNIFORM1IARBPROC              glUniform1iARB;
+extern PFNGLUNIFORM1FARBPROC              glUniform1fARB;
+extern PFNGLUNIFORM2FARBPROC              glUniform2fARB;
+extern PFNGLUNIFORM3FARBPROC              glUniform3fARB;
+extern PFNGLUNIFORM4FARBPROC              glUniform4fARB;
+
+// GL_ARB_vertex_shader
+
+extern PFNGLBINDATTRIBLOCATIONARBPROC     glBindAttribLocationARB;
+
+// GL_EXT_framebuffer_object
+
+extern PFNGLGENFRAMEBUFFERSEXTPROC        glGenFramebuffersEXT;
+extern PFNGLBINDFRAMEBUFFEREXTPROC        glBindFramebufferEXT;
+extern PFNGLDELETEFRAMEBUFFERSEXTPROC     glDeleteFramebuffersEXT;
+extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC   glFramebufferTexture2DEXT;
+extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+
+// GL_ARB_vertex_buffer_object
+
+extern PFNGLGENBUFFERSARBPROC             glGenBuffersARB;
+extern PFNGLBINDBUFFERARBPROC             glBindBufferARB;
+extern PFNGLMAPBUFFERARBPROC              glMapBufferARB;
+extern PFNGLBUFFERDATAARBPROC             glBufferDataARB;
+extern PFNGLUNMAPBUFFERARBPROC            glUnmapBufferARB;
+extern PFNGLDELETEBUFFERSARBPROC          glDeleteBuffersARB;
+
 #endif
 
-void  init_ogl();
-void check_ogl(const char *, int);
+//-----------------------------------------------------------------------------
 
 #ifndef NDEBUG
-#define GL_CHECK() check_ogl(__FILE__, __LINE__)
+#define OGLCK() ogl::check_err(__FILE__, __LINE__)
 #else
-#define GL_CHECK() {}
+#define OGLCK() {}
 #endif
+
+namespace ogl
+{
+    void check_err(const char *, int);
+    void check_ext(const char *);
+
+    void init();
+}
 
 //-----------------------------------------------------------------------------
 
@@ -133,7 +152,7 @@ namespace ogl
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 namespace ogl
 {
     class shader
@@ -158,7 +177,7 @@ namespace ogl
         void uniform(std::string, float, float, float, float) const;
     };
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 namespace ogl

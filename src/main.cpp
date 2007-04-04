@@ -214,7 +214,7 @@ static bool loop(std::string& conf_file, std::string& lang_file)
             if (SDL_SetVideoMode(w, h, b, m) == 0)
                 throw std::runtime_error(SDL_GetError());
 
-            init_ogl();
+            ogl::init();
 
             // Initialize the demo.
 
