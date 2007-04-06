@@ -873,7 +873,7 @@ gui::finder_elt::finder_elt(std::string& t, gui::finder *f) :
 
 void gui::finder_elt::draw(const widget *focus, const widget *input) const
 {
-    //Draw the background.
+    // Draw the background.
 
     leaf::draw(focus, input);
 

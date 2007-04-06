@@ -20,6 +20,71 @@
 
 namespace app
 {
+    //-------------------------------------------------------------------------
+    // Data archive interface
+
+    class archive
+    {
+    public:
+
+        archive();
+
+        virtual const void *load_dat(const char *, size_t *);
+        virtual const void *free_dat(const char *);
+
+        virtual ~archive();
+    };
+
+    //-------------------------------------------------------------------------
+    // File system data archive
+
+    class file : public archive
+    {
+    public:
+
+        file();
+
+        virtual const void *load_dat(const char *, size_t *);
+        virtual const void *free_dat(const char *);
+
+        virtual ~file();
+    };
+
+    //-------------------------------------------------------------------------
+    // Packaged data archive
+
+    class pack : public archive
+    {
+    public:
+
+        pack();
+
+        virtual const void *load_dat(const char *, size_t *);
+        virtual const void *free_dat(const char *);
+
+        virtual ~pack();
+    };
+
+    //-------------------------------------------------------------------------
+    // Statically linked data archive
+
+    class link : public archive
+    {
+    public:
+
+        link();
+
+        virtual const void *load_dat(const char *, size_t *);
+        virtual const void *free_dat(const char *);
+
+        virtual ~link();
+    };
+}
+
+//-----------------------------------------------------------------------------
+
+namespace app
+{
     class data
     {
         struct img
@@ -40,6 +105,9 @@ namespace app
 
         data(std::string);
        ~data();
+
+        const void *load_dat(const char *, size_t *);
+        void        free_dat(const char *);
 
         int         get_obj(std::string);
         std::string get_txt(std::string);

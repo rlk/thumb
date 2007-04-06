@@ -9,6 +9,13 @@ Convert all file input to take const char *.
         mtl (not so easy?)
         txt (easy)
 
+add to glob
+    load tex
+    load obj
+
+Global interface for load_dat and load_tex
+
+
 Run modes on function keys?
     F1 info
     F2 edit
@@ -67,3 +74,40 @@ Stop the freerun during editing.
 Add shader references to MTL.
 Add material enable bits to OBJ.
 Move wrap parameter out of material application.
+
+
+OBJ/general loading
+    const void *load_dat(const char *name, size_t *);
+    const void *load_img(const char *name, size_t *);
+    GLenum      load_tex(const char *name);
+    void        free_dat(const char *name);
+
+        Texture object and parameters may be determined from current binding
+
+string
+memory
+texture
+buffer
+binary
+image
+
+Data archives
+
+    a common path naming scheme that transparently accesses all archives
+    in prioritized order
+
+    priority
+        cwd    rw
+        home   rw
+        pak2   r
+        pak1   r
+        pak0   r
+        static r
+
+    load searches r archives in order
+    save searches w archives in order
+
+file
+pack
+link
+
