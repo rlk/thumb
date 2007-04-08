@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2007 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,46 +10,36 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef LIGHT_HPP
-#define LIGHT_HPP
-
-#include "opengl.hpp"
-#include "texture.hpp"
-#include "solid.hpp"
+#include "geodata.hpp"
+#include "obj/obj.h"
 
 //-----------------------------------------------------------------------------
 
-namespace ent
+ogl::geodata::geodata(std::string name) : name(name)
 {
-    class light : public sphere
-    {
-    protected:
+    desc = obj_add_file(name.c_str());
+}
 
-        float fov;
-
-        const ogl::texture *lightmask;
-
-        virtual void mult_P() const;
-
-    public:
-
-        virtual light *clone() const { return new light(*this); }
-        light();
-
-        void edit_init();
-
-        int  lite_prio(bool) { return 1; }
-        void lite_prep(int);
-        void lite_post(int);
-
-        int  draw_prio(bool);
-        void draw_dark();
-        void draw_lite();
-
-        virtual mxml_node_t *save(mxml_node_t *);
-    };
+ogl::geodata::~geodata()
+{
+    obj_del_file(desc);
 }
 
 //-----------------------------------------------------------------------------
 
-#endif
+void ogl::geodata::box_bound(float *b) const
+{
+    obj_get_file_box(desc, b);
+}
+
+void ogl::geodata::sph_bound(float *b) const
+{
+    obj_get_file_sph(desc, b);
+}
+
+void ogl::geodata::draw() const
+{
+    obj_draw_file(desc);
+}
+
+//-----------------------------------------------------------------------------

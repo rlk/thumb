@@ -13,13 +13,78 @@
 #ifndef DATA_HPP
 #define DATA_HPP
 
+#include <stdexcept>
 #include <string>
+#include <list>
 #include <map>
+
+#include <string.h>
+#include <errno.h>
+
+#include "dir.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace app
 {
+    //-------------------------------------------------------------------------
+    // Data exceptions.
+
+    class open_error : public std::runtime_error
+    {
+        std::string mesg(std::string& s) {
+            return "Error opening file: " + s + ": " + strerror(errno);
+        }
+
+    public:
+        open_error(std::string& s) : std::runtime_error(mesg(s)) { }
+    };
+
+    class stat_error : public std::runtime_error
+    {
+        std::string mesg(std::string& s) {
+            return "Error stating file: " + s + ": " + strerror(errno);
+        }
+
+    public:
+        stat_error(std::string& s) : std::runtime_error(mesg(s)) { }
+    };
+
+    class read_error : public std::runtime_error
+    {
+        std::string mesg(std::string& s) {
+            return "Error reading file: " + s + ": " + strerror(errno);
+        }
+
+    public:
+        read_error(std::string& s) : std::runtime_error(mesg(s)) { }
+    };
+}
+
+//-----------------------------------------------------------------------------
+
+namespace app
+{
+    //-------------------------------------------------------------------------
+    // Data buffer
+
+    class buffer
+    {
+    protected:
+
+        unsigned char *ptr;
+        size_t         len;
+
+    public:
+
+        buffer();
+       ~buffer();
+
+        const void *get(size_t *) const;
+    };
+
+    typedef buffer *buffer_p;
+
     //-------------------------------------------------------------------------
     // Data archive interface
 
@@ -27,62 +92,83 @@ namespace app
     {
     public:
 
-        archive();
+        virtual bool     find(std::string)                     = 0;
+        virtual buffer_p load(std::string)                     = 0;
+        virtual void     list(std::string, strings&, strings&) = 0;
 
-        virtual const void *load_dat(const char *, size_t *);
-        virtual const void *free_dat(const char *);
-
-        virtual ~archive();
+        virtual ~archive() { }
     };
+
+    typedef archive *archive_p;
 
     //-------------------------------------------------------------------------
     // File system data archive
 
-    class file : public archive
+    class file_buffer : public buffer
     {
     public:
+        file_buffer(std::string);
+    };
 
-        file();
+    class file_archive : public archive
+    {
+        std::string path;
 
-        virtual const void *load_dat(const char *, size_t *);
-        virtual const void *free_dat(const char *);
+        bool     find(std::string);
+        buffer_p load(std::string);
+        void     list(std::string, strings&, strings&);
 
-        virtual ~file();
+    public:
+
+        file_archive(std::string path) : path(path) { }
     };
 
     //-------------------------------------------------------------------------
     // Packaged data archive
-
+/*
     class pack : public archive
     {
+        virtual member_p load(std::string);
+
     public:
 
         pack();
-
-        virtual const void *load_dat(const char *, size_t *);
-        virtual const void *free_dat(const char *);
-
-        virtual ~pack();
     };
-
+*/
     //-------------------------------------------------------------------------
     // Statically linked data archive
-
+/*
     class link : public archive
     {
+        virtual member_p load(std::string);
+
     public:
 
         link();
-
-        virtual const void *load_dat(const char *, size_t *);
-        virtual const void *free_dat(const char *);
-
-        virtual ~link();
     };
+*/
 }
 
 //-----------------------------------------------------------------------------
 
+namespace app
+{
+    class data
+    {
+        std::list<archive_p>            archives;
+        std::map<std::string, buffer_p> buffers;
+
+    public:
+
+        data();
+       ~data();
+
+        const void *load_dat(std::string name, size_t *size=0);
+        void        free_dat(std::string name);
+    };
+}
+
+/*
 namespace app
 {
     class data
@@ -117,7 +203,7 @@ namespace app
         std::string get_relative(std::string);
     };
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 #endif

@@ -1,11 +1,23 @@
-#include <iostream>
-#include <fstream>
+//  Copyright (C) 2007 Robert Kooima
+//
+//  THUMB is free software; you can redistribute it and/or modify it under
+//  the terms of  the GNU General Public License as  published by the Free
+//  Software  Foundation;  either version 2  of the  License,  or (at your
+//  option) any later version.
+//
+//  This program  is distributed in the  hope that it will  be useful, but
+//  WITHOUT   ANY  WARRANTY;   without  even   the  implied   warranty  of
+//  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
+//  General Public License for more details.
 
-#include "shader.hpp"
+#include <iostream>
+
+#include "program.hpp"
+#include "main.hpp"
 
 //-----------------------------------------------------------------------------
 
-void ogl::shader::log(GLhandleARB handle)
+void ogl::program::log(GLhandleARB handle)
 {
     char *log;
     GLint len;
@@ -26,22 +38,20 @@ void ogl::shader::log(GLhandleARB handle)
 
 //-----------------------------------------------------------------------------
 
-ogl::shader::shader(std::string vert_txt,
-                    std::string frag_txt)
+ogl::program::program(std::string name) : name(name), vert(0), frag(0)
 {
-    prog = glCreateProgramObjectARB();
-    vert = 0;
-    frag = 0;
+    // Load the shader files.
+
+    const GLcharARB *vert_txt = (GLcharARB *) ::data->load_dat(name + ".vert");
+    const GLcharARB *frag_txt = (GLcharARB *) ::data->load_dat(name + ".frag");
 
     // Compile the vertex shader.
 
-    if (vert_txt.length() > 0)
+    if (vert_txt)
     {
-        const GLcharARB *p = (const GLcharARB *) vert_txt.c_str();
-
         vert = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 
-        glShaderSourceARB (vert, 1, &p, 0);
+        glShaderSourceARB (vert, 1, &vert_txt, 0);
         glCompileShaderARB(vert);
         
         log(vert);
@@ -49,19 +59,19 @@ ogl::shader::shader(std::string vert_txt,
 
     // Compile the frag shader.
 
-    if (frag_txt.length() > 0)
+    if (frag_txt)
     {
-        const GLcharARB *p = (const GLcharARB *) frag_txt.c_str();
-
         frag = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
-        glShaderSourceARB (frag, 1, &p, 0);
+        glShaderSourceARB (frag, 1, &frag_txt, 0);
         glCompileShaderARB(frag);
         
         log(frag);
     }
 
     // Link these shader objects to a program object.
+
+    prog = glCreateProgramObjectARB();
 
     if (vert) glAttachObjectARB(prog, vert);
     if (frag) glAttachObjectARB(prog, frag);
@@ -70,10 +80,15 @@ ogl::shader::shader(std::string vert_txt,
 
     log(prog);
 
+    // Free the shader files.
+
+    ::data->free_dat(name + ".frag");
+    ::data->free_dat(name + ".vert");
+
     OGLCK();
 }
 
-ogl::shader::~shader()
+ogl::program::~program()
 {
     if (prog) glDeleteObjectARB(prog);
     if (vert) glDeleteObjectARB(vert);
@@ -82,13 +97,15 @@ ogl::shader::~shader()
     OGLCK();
 }
 
-void ogl::shader::bind() const
+//-----------------------------------------------------------------------------
+
+void ogl::program::bind() const
 {
     glUseProgramObjectARB(prog);
     OGLCK();
 }
 
-void ogl::shader::free() const
+void ogl::program::free() const
 {
     glUseProgramObjectARB(0);
     OGLCK();
@@ -96,7 +113,7 @@ void ogl::shader::free() const
 
 //-----------------------------------------------------------------------------
 
-void ogl::shader::uniform(std::string name, int d) const
+void ogl::program::uniform(std::string name, int d) const
 {
     int loc;
 
@@ -106,7 +123,7 @@ void ogl::shader::uniform(std::string name, int d) const
     OGLCK();
 }
 
-void ogl::shader::uniform(std::string name, float a) const
+void ogl::program::uniform(std::string name, float a) const
 {
     int loc;
 
@@ -116,7 +133,7 @@ void ogl::shader::uniform(std::string name, float a) const
     OGLCK();
 }
 
-void ogl::shader::uniform(std::string name, float a, float b) const
+void ogl::program::uniform(std::string name, float a, float b) const
 {
     int loc;
 
@@ -126,7 +143,7 @@ void ogl::shader::uniform(std::string name, float a, float b) const
     OGLCK();
 }
 
-void ogl::shader::uniform(std::string name, float a, float b, float c) const
+void ogl::program::uniform(std::string name, float a, float b, float c) const
 {
     int loc;
 
@@ -136,8 +153,8 @@ void ogl::shader::uniform(std::string name, float a, float b, float c) const
     OGLCK();
 }
 
-void ogl::shader::uniform(std::string name, float a, float b,
-                                            float c, float d) const
+void ogl::program::uniform(std::string name, float a, float b,
+                                             float c, float d) const
 {
     int loc;
 

@@ -168,16 +168,17 @@ void app::text::set(const GLubyte *p)
 
 //-----------------------------------------------------------------------------
 
-app::font::font(std::string filename, int size) : s(size)
+app::font::font(std::string filename, int size) : filename(filename), s(size)
 {
-    std::string ttf = ::data->get_absolute(filename);
+    size_t     len;
+    const void *ptr = ::data->load_dat(filename, &len);
 
     // Initialize the font library and font face.
 
     if (FT_Init_FreeType(&library))
         throw std::runtime_error("Failure starting FreeType2");
 
-    if (FT_New_Face(library, ttf.c_str(), 0, &face))
+    if (FT_New_Memory_Face(library, (const FT_Byte *) ptr, len, 0, &face))
         throw std::runtime_error("Failure loading font file");
 
     if (FT_Set_Pixel_Sizes(face, 0, size))
@@ -186,6 +187,8 @@ app::font::font(std::string filename, int size) : s(size)
 
 app::font::~font()
 {
+    ::data->free_dat(filename);
+
     FT_Done_Face(face);
     FT_Done_FreeType(library);
 }

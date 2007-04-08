@@ -44,17 +44,20 @@ void ent::joint::play_fini()
 
 //-----------------------------------------------------------------------------
 
-ent::joint::joint(int f): entity(f), size(conf->get_f("joint_size"))
+ent::joint::joint(const ogl::geodata *g) :
+    entity(g), size(conf->get_f("joint_size"))
 {
 }
 
 //-----------------------------------------------------------------------------
 
-ent::ball::ball() : joint(data->get_obj("joint/joint_ball.obj"))
+ent::ball::ball() :
+    joint(glob->load_geodata("joint/joint_ball.obj"))
 {
 }
 
-ent::hinge::hinge() : joint(data->get_obj("joint/joint_hinge.obj"))
+ent::hinge::hinge() :
+    joint(glob->load_geodata("joint/joint_hinge.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -66,7 +69,8 @@ ent::hinge::hinge() : joint(data->get_obj("joint/joint_hinge.obj"))
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-ent::hinge2::hinge2() : joint(data->get_obj("joint/joint_hinge2.obj"))
+ent::hinge2::hinge2() :
+    joint(glob->load_geodata("joint/joint_hinge2.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -90,7 +94,8 @@ ent::hinge2::hinge2() : joint(data->get_obj("joint/joint_hinge2.obj"))
     params[dParamSuspensionCFM] = new param("dParamSuspensionCFM", "0.0");
 }
 
-ent::slider::slider() : joint(data->get_obj("joint/joint_slider.obj"))
+ent::slider::slider() :
+    joint(glob->load_geodata("joint/joint_slider.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -102,7 +107,8 @@ ent::slider::slider() : joint(data->get_obj("joint/joint_slider.obj"))
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-ent::amotor::amotor() : joint(data->get_obj("joint/joint_amotor.obj"))
+ent::amotor::amotor() :
+    joint(glob->load_geodata("joint/joint_amotor.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -132,7 +138,8 @@ ent::amotor::amotor() : joint(data->get_obj("joint/joint_amotor.obj"))
     params[dParamStopCFM3] = new param("dParamStopCFM3", "0.0");
 }
 
-ent::universal::universal() : joint(data->get_obj("joint/joint_universal.obj"))
+ent::universal::universal() :
+    joint(glob->load_geodata("joint/joint_universal.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");

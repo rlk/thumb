@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DIR_HPP
-#define DIR_HPP
+#ifndef DIRECTORY_HPP
+#define DIRECTORY_HPP
 
 #include <string>
 #include <vector>

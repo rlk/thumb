@@ -19,7 +19,7 @@
 
 //-----------------------------------------------------------------------------
 
-ent::solid::solid(int f) : entity(f), tran(0)
+ent::solid::solid(const ogl::geodata *g) : entity(g), tran(0)
 {
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
@@ -36,9 +36,9 @@ void ent::box::edit_init()
 {
     float bound[6];
 
-    if (file >= 0)
+    if (geometry)
     {
-        obj_get_file_box(file, bound);
+        geometry->box_bound(bound);
 
         geom = dCreateBox(space, bound[3] - bound[0],
                                  bound[4] - bound[1],
@@ -51,9 +51,11 @@ void ent::box::edit_init()
 
 void ent::sphere::edit_init()
 {
-    if (file >= 0)
+    float radius;
+
+    if (geometry)
     {
-        float radius = obj_get_file_sph(file);
+        geometry->sph_bound(&radius);
 
         geom = dCreateSphere(space, radius);
 
@@ -67,9 +69,9 @@ void ent::capsule::edit_init()
 {
     float bound[6];
 
-    if (file >= 0)
+    if (geometry)
     {
-        obj_get_file_box(file, bound);
+        geometry->box_bound(bound);
 
         float length = (bound[5] - bound[2]);
         float radius = (bound[3] - bound[0]) / 2.0f;
@@ -293,7 +295,11 @@ void ent::solid::load(mxml_node_t *node)
     // Load the OBJ file.
 
     if ((name = mxmlFindElement(node, node, "file", 0, 0, MXML_DESCEND)))
-        file = data->get_obj(std::string(name->child->value.text.string));
+    {
+        std::string s = std::string(name->child->value.text.string);
+
+        geometry = glob->load_geodata(s);
+    }
 
     entity::load(node);
 }
@@ -302,10 +308,11 @@ mxml_node_t *ent::solid::save(mxml_node_t *node)
 {
     // Add the OBJ file reference.
 
-    if (file >= 0)
+    if (geometry)
     {
-        std::string name = data->get_relative(obj_get_file_name(file));
-        mxmlNewText(mxmlNewElement(node, "file"), 0, name.c_str());
+        std::string s = geometry->get_name();
+
+        mxmlNewText(mxmlNewElement(node, "file"), 0, s.c_str());
     }
 
     return entity::save(node);

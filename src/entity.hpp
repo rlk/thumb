@@ -21,9 +21,9 @@
 #include <mxml.h>
 
 #include "opengl.hpp"
-#include "shader.hpp"
+#include "program.hpp"
+#include "geodata.hpp"
 #include "param.hpp"
-#include "obj/obj.h"
 
 //-----------------------------------------------------------------------------
 
@@ -63,7 +63,6 @@ namespace ent
         int     body1;
         int     body2;
         int     celli;
-        int     file;
         float   radius;
 
         float default_M[16];
@@ -71,8 +70,9 @@ namespace ent
 
         std::map<int, param *> params;
 
-        const ogl::shader *lite_prog;
-        const ogl::shader *dark_prog;
+        const ogl::geodata *geometry;
+        const ogl::program *lite_prog;
+        const ogl::program *dark_prog;
 
         virtual void draw_geom() const { }
 
@@ -89,7 +89,7 @@ namespace ent
 
     public:
 
-        entity(int=-1);
+        entity(const ogl::geodata *);
         entity(const entity&);
 
         virtual entity *clone() const = 0;

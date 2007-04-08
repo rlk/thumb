@@ -20,9 +20,9 @@ OBJS=   opengl.o \
 	solid.o \
 	scene.o \
 	constraint.o \
-	image.o \
-	frame.o \
-	shader.o \
+	program.o \
+	texture.o \
+	geodata.o \
 	data.o \
 	lang.o \
 	conf.o \
@@ -40,6 +40,7 @@ OBJS=   opengl.o \
 	gui.o \
 	param.o \
 	directory.o \
+	dir.o \
 	main.o \
 	obj/obj.o
 

@@ -18,7 +18,6 @@
 #include "entity.hpp"
 #include "matrix.hpp"
 #include "opengl.hpp"
-#include "shader.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -187,16 +186,17 @@ ent::entity *ent::entity::focused()
 
 //-----------------------------------------------------------------------------
 
-ent::entity::entity(int f) : geom(0), body1(0), body2(0), file(f), radius(0),
+ent::entity::entity(const ogl::geodata *geometry) :
+    geom(0), body1(0), body2(0), radius(0), geometry(geometry),
 
-    lite_prog(glob->get_shader("object-lite")),
-    dark_prog(glob->get_shader("object-dark"))
+    lite_prog(glob->load_program("object-lite")),
+    dark_prog(glob->load_program("object-dark"))
 
 {
     load_idt(default_M);
     load_idt(current_M);
 
-    if (file >= 0) radius = obj_get_file_sph(file);
+    if (geometry) geometry->sph_bound(&radius);
 }
 
 ent::entity::entity(const entity& that)
@@ -213,10 +213,22 @@ ent::entity::entity(const entity& that)
 
     for (i = that.params.begin(); i != that.params.end(); ++i)
         params[i->first] = new param(*i->second);
+
+    // Duplicate all GL state.
+
+    glob->dupe_program(dark_prog);
+    glob->dupe_program(lite_prog);
+    glob->dupe_geodata(geometry);
 }
 
 ent::entity::~entity()
 {
+    // Free GL state.
+
+    glob->free_program(dark_prog);
+    glob->free_program(lite_prog);
+    glob->free_geodata(geometry);
+
     // Destroy ODE state.
 
     if (geom) dGeomDestroy(geom);
@@ -522,7 +534,7 @@ void ent::entity::draw_dark()
 {
     // Draw the object associated with this entity.
 
-    if (file >= 0)
+    if (geometry)
     {
         glPushMatrix();
         {
@@ -531,9 +543,9 @@ void ent::entity::draw_dark()
             dark_prog->bind();
             dark_prog->uniform("diffuse", 0);
 
-            obj_draw_file(file);
+            geometry->draw();
 
-            glUseProgramObjectARB(0);
+            dark_prog->free();
         }
         glPopMatrix();
     }
@@ -544,7 +556,7 @@ void ent::entity::draw_lite()
 {
     // Draw the object associated with this entity.
 
-    if (file >= 0)
+    if (geometry)
     {
         glPushMatrix();
         {
@@ -555,9 +567,9 @@ void ent::entity::draw_lite()
             lite_prog->uniform("shadowmap", 1);
             lite_prog->uniform("lightmask", 2);
 
-            obj_draw_file(file);
+            geometry->draw();
 
-            glUseProgramObjectARB(0);
+            lite_prog->free();
         }
         glPopMatrix();
     }

@@ -29,7 +29,7 @@ namespace ent
 
     public:
 
-        solid(int f=-1);
+        solid(const ogl::geodata *);
 
         virtual int join(int)    { return 0; }
         virtual int join() const { return 0; }
@@ -56,7 +56,7 @@ namespace ent
     {
     public:
         virtual free *clone() const { return new free(*this); }
-        free(int f=-1)    : solid(f) { }
+        free(const ogl::geodata *g = 0) : solid(g) { }
 
         void edit_init() { }
     };
@@ -67,7 +67,7 @@ namespace ent
         void draw_geom() const;
     public:
         virtual box *clone() const { return new box(*this); }
-        box(int f=-1)     : solid(f) { }
+        box(const ogl::geodata *g = 0) : solid(g) { }
 
         void edit_init();
         void play_init(dBodyID);
@@ -81,7 +81,7 @@ namespace ent
         void draw_geom() const;
     public:
         virtual sphere *clone() const { return new sphere(*this); }
-        sphere(int f=-1)  : solid(f) { }
+        sphere(const ogl::geodata *g = 0) : solid(g) { }
 
         void edit_init();
         void play_init(dBodyID);
@@ -95,7 +95,7 @@ namespace ent
         void draw_geom() const;
     public:
         virtual capsule *clone() const { return new capsule(*this); }
-        capsule(int f=-1) : solid(f) { }
+        capsule(const ogl::geodata *g = 0) : solid(g) { }
 
         void edit_init();
         void play_init(dBodyID);
@@ -107,7 +107,7 @@ namespace ent
     {
     public:
         virtual plane *clone() const { return new plane(*this); }
-        plane(int f=-1)   : solid(f) { }
+        plane(const ogl::geodata *g = 0) : solid(g) { }
 
         virtual void edit_init();
     };

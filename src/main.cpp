@@ -193,11 +193,11 @@ static bool loop(std::string& conf_file, std::string& lang_file)
 
             conf = new app::conf(conf_file);
             lang = new app::lang(lang_file, get_loc());
-            data = new app::data(conf->get_s("data_directory"));
-            sans = new app::font(data->get_absolute(conf->get_s("sans_font")),
-                                                    conf->get_i("sans_size"));
-            mono = new app::font(data->get_absolute(conf->get_s("mono_font")),
-                                                    conf->get_i("mono_size"));
+            data = new app::data();
+            sans = new app::font(conf->get_s("sans_font"),
+                                 conf->get_i("sans_size"));
+            mono = new app::font(conf->get_s("mono_font"),
+                                 conf->get_i("mono_size"));
 
             // Look up the video mode parameters.
 

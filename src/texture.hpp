@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef IMAGE_HPP
-#define IMAGE_HPP
+#ifndef TEXTURE_HPP
+#define TEXTURE_HPP
 
 #include <string>
 
@@ -19,35 +19,29 @@
 
 //-----------------------------------------------------------------------------
 
-namespace ogl 
+namespace ogl
 {
-    class image
+    class texture
     {
+        std::string name;
+
         GLenum target;
         GLenum format;
-        GLuint texture;
+        GLuint object;
 
-        GLsizei w;
-        GLsizei h;
+        void load_png(const void *, size_t);
+        void load_jpg(const void *, size_t);
+        void load_img(std::string);
 
     public:
 
-        image(GLenum=GL_TEXTURE_2D, GLenum=GL_RGBA8, GLsizei=2, GLsizei=2);
-        image(std::string);
-       ~image();
+        const std::string& get_name() const { return name; }
+
+        texture(std::string);
+       ~texture();
 
         void bind(GLenum=GL_TEXTURE0) const;
         void free(GLenum=GL_TEXTURE0) const;
-        void draw()                   const;
-        void null()                   const;
-
-        void load(std::string, GLenum=GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
-        void save(std::string, GLenum=GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
-        void snap(             GLenum=GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
-
-        GLsizei get_w() const { return w;       }
-        GLsizei get_h() const { return h;       }
-        GLuint  get_o() const { return texture; }
     };
 }
 

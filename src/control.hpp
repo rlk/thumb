@@ -163,7 +163,7 @@ namespace cnt
             create_button(s, w, "Box"), name(n) { }
 
         void apply() {
-            do_create(new ent::box(data->get_obj(name->value())));
+            do_create(new ent::box(glob->load_geodata(name->value())));
         }
     };
 
@@ -177,7 +177,7 @@ namespace cnt
             create_button(s, w, "Sphere"), name(n) { }
 
         void apply() {
-            do_create(new ent::sphere(data->get_obj(name->value())));
+            do_create(new ent::sphere(glob->load_geodata(name->value())));
         }
     };
 
@@ -191,7 +191,7 @@ namespace cnt
             create_button(s, w, "Capsule"), name(n) { }
 
         void apply() {
-            do_create(new ent::capsule(data->get_obj(name->value())));
+            do_create(new ent::capsule(glob->load_geodata(name->value())));
         }
     };
 

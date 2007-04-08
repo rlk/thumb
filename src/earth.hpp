@@ -14,7 +14,6 @@
 #define EARTH_HPP
 
 #include "solid.hpp"
-#include "image.hpp"
 #include "data.hpp"
 
 //-----------------------------------------------------------------------------

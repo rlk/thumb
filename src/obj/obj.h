@@ -87,8 +87,8 @@ int  obj_get_surf(int, int);
 
 /*---------------------------------------------------------------------------*/
 
-void  obj_get_file_box(int, float[6]);
-float obj_get_file_sph(int);
+void obj_get_file_box(int, float[6]);
+void obj_get_file_sph(int, float[1]);
 
 /*---------------------------------------------------------------------------*/
 

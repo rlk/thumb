@@ -90,8 +90,9 @@ namespace app
 
     class font
     {
-        FT_Library library;
-        FT_Face    face;
+        std::string filename;
+        FT_Library  library;
+        FT_Face     face;
 
         int s;
 

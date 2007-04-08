@@ -920,15 +920,6 @@ static int read_line_indices(const char *line, int *_vi, int *_ti)
     if (sscanf(line, "%d/%d%n", _vi, _ti, &n) >= 2) return n;
     if (sscanf(line, "%d%n",    _vi,      &n) >= 1) return n;
 
-    /*
-    static char vert[MAXSTR];
-
-    if (sscanf(line, "%s%n", vert, &n) >= 1)
-    {
-        if (sscanf(vert, "%d/%d", _vi, _ti) == 2) return n;
-        if (sscanf(vert, "%d",    _vi     ) == 1) return n;
-    }
-    */
     return 0;
 }
 
@@ -1067,6 +1058,13 @@ static void read_vn(const char *line)
 }
 
 /*---------------------------------------------------------------------------*/
+/*
+TODO: convert this to 
+    take load and free function pointers
+    take load and free texture function pointers
+    strip the path from the filename and use it when loading mtls
+    store map names in prop use whene deleting
+*/
 
 static void read_obj(int fi, const char *filename)
 {
@@ -1500,6 +1498,8 @@ void obj_del_surf(int fi, int si)
 
     file(fi)->sc--;
 }
+
+/* TODO: this should not invalidate other descriptors */
 
 void obj_del_file(int fi)
 {
@@ -2414,14 +2414,15 @@ void obj_get_file_box(int fi, float b[6])
     }
 }
 
-float obj_get_file_sph(int fi)
+void obj_get_file_sph(int fi, float b[1])
 {
-    float r = 0.0f;
-    int  vi;
+    int vi;
 
     /* Assume the object is centered at the origin.  Find a bounding radius. */
 
     assert_file(fi);
+
+    b[0] = 0.0f;
 
     for (vi = 0; vi < file(fi)->vc; ++vi)
     {
@@ -2430,10 +2431,9 @@ float obj_get_file_sph(int fi)
         float d = (float) sqrt(v[0] * v[0] +
                                v[1] * v[1] +
                                v[2] * v[2]);
-        if (r < d)
-            r = d;
+        if (b[0] < d)
+            b[0] = d;
     }
-    return r;
 }
 
 /*===========================================================================*/

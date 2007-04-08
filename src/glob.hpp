@@ -15,9 +15,9 @@
 
 #include <map>
 
-#include "opengl.hpp"
-#include "shader.hpp"
-#include "image.hpp"
+#include "program.hpp"
+#include "texture.hpp"
+#include "geodata.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -25,15 +25,47 @@ namespace app
 {
     class glob
     {
-        std::map<std::string, ogl::shader *> shader_map;
-        std::map<std::string, ogl::image  *>  image_map;
+        struct program
+        {
+            ogl::program *ptr;
+            int           ref;
+        };
+
+        struct texture
+        {
+            ogl::texture *ptr;
+            int           ref;
+        };
+
+        struct geodata
+        {
+            ogl::geodata *ptr;
+            int           ref;
+        };
+
+        std::map<std::string, program> program_map;
+        std::map<std::string, texture> texture_map;
+        std::map<std::string, geodata> geodata_map;
 
     public:
 
        ~glob();
 
-        const ogl::shader *get_shader(std::string);
-        const ogl::image  *get_image (std::string);
+        const ogl::program *load_program(std::string);
+        const ogl::texture *load_texture(std::string);
+        const ogl::geodata *load_geodata(std::string);
+
+        void free_program(std::string);
+        void free_texture(std::string);
+        void free_geodata(std::string);
+
+        void free_program(const ogl::program *);
+        void free_texture(const ogl::texture *);
+        void free_geodata(const ogl::geodata *);
+
+        void dupe_program(const ogl::program *);
+        void dupe_texture(const ogl::texture *);
+        void dupe_geodata(const ogl::geodata *);
     };
 }
 

@@ -10,23 +10,20 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "main.hpp"
 #include "opengl.hpp"
+#include "main.hpp"
 #include "sky.hpp"
 
 //-----------------------------------------------------------------------------
 
 ent::sky::sky(float k) :
 
-    free(data->get_obj("sky.obj")),
+    free(glob->load_geodata("sky.obj")),
+    glow(glob->load_texture("sky_glow.png")),
+    fill(glob->load_texture("sky_fill.png")),
+    prog(glob->load_program("sky")),
 
-    dist(k),
-
-    glow("sky_glow.png"),
-    fill("sky_fill.png"),
-
-    prog(data->get_txt("sky.vert"),
-         data->get_txt("sky.frag"))
+    dist(k)
 {
 }
 
@@ -40,16 +37,18 @@ void ent::sky::draw_fill(int flags)
 
         glScalef(dist, dist, dist);
 
-        fill.bind(GL_TEXTURE0);
-        glow.bind(GL_TEXTURE1);
+        fill->bind(GL_TEXTURE0);
+        glow->bind(GL_TEXTURE1);
+        prog->bind();
 
-        prog.bind();
-        prog.uniform("fill", 0);
-        prog.uniform("glow", 1);
+        prog->uniform("fill", 0);
+        prog->uniform("glow", 1);
 
-        obj_draw_file(file);
+        geometry->draw();
 
-        glUseProgramObjectARB(0);
+        prog->free();
+        fill->free(GL_TEXTURE0);
+        glow->free(GL_TEXTURE1);
     }
     glPopMatrix();
     glPopAttrib();

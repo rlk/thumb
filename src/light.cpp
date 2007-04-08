@@ -19,7 +19,7 @@
 
 ent::light::light() :
     fov(60),
-    lightmask(glob->get_image("lightmask_basic.png"))
+    lightmask(glob->load_texture("lightmask_basic.png"))
 {
 }
 
@@ -88,13 +88,14 @@ void ent::light::lite_post(int pass)
     glMatrixMode(GL_MODELVIEW);
     glActiveTextureARB(GL_TEXTURE0);
 
+    // TODO: this violates the GL state discipline
+
+    lightmask->bind(GL_TEXTURE2);
+
     // Revert the GL state.
 
     glColorMask(1, 1, 1, 1);
-
     glPopAttrib();
-
-    lightmask->bind(GL_TEXTURE2);
 
     // Add the light source parameters to the GL state.
 
@@ -166,20 +167,22 @@ void ent::light::draw_dark()
         glEnable(GL_TEXTURE_2D);
 
         lightmask->bind(GL_TEXTURE0);
-
-        glBegin(GL_QUADS);
         {
-            glNormal3f(  0,   0,   1);
-            glTexCoord2i(0, 0);
-            glVertex3f(-vy, -vy, -vz);
-            glTexCoord2i(1, 0);
-            glVertex3f(-vy, +vy, -vz);
-            glTexCoord2i(1, 1);
-            glVertex3f(+vy, +vy, -vz);
-            glTexCoord2i(0, 1);
-            glVertex3f(+vy, -vy, -vz);
+            glBegin(GL_QUADS);
+            {
+                glNormal3f(  0,   0,   1);
+                glTexCoord2i(0, 0);
+                glVertex3f(-vy, -vy, -vz);
+                glTexCoord2i(1, 0);
+                glVertex3f(-vy, +vy, -vz);
+                glTexCoord2i(1, 1);
+                glVertex3f(+vy, +vy, -vz);
+                glTexCoord2i(0, 1);
+                glVertex3f(+vy, -vy, -vz);
+            }
+            glEnd();
         }
-        glEnd();
+        lightmask->free();
     }
     glPopMatrix();
     glPopAttrib();

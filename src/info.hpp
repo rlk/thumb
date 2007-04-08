@@ -14,7 +14,6 @@
 #define INFO_HPP
 
 #include "control.hpp"
-#include "image.hpp"
 #include "mode.hpp"
 
 //-----------------------------------------------------------------------------

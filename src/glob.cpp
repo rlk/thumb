@@ -10,40 +10,135 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "main.hpp"
 #include "glob.hpp"
 
-//-----------------------------------------------------------------------------
+//=============================================================================
 
 app::glob::~glob()
 {
-    std::map<std::string, ogl::shader *>::iterator i;
-    std::map<std::string, ogl::image  *>::iterator j;
+    std::map<std::string, program>::iterator i;
+    std::map<std::string, texture>::iterator j;
+    std::map<std::string, geodata>::iterator k;
 
-    for (i = shader_map.begin(); i != shader_map.end(); ++i)
-        delete i->second;
+    for (i = program_map.begin(); i != program_map.end(); ++i)
+        delete i->second.ptr;
 
-    for (j = image_map.begin(); j != image_map.end(); ++j)
-        delete j->second;
+    for (j = texture_map.begin(); j != texture_map.end(); ++j)
+        delete j->second.ptr;
+
+    for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
+        delete k->second.ptr;
 }
 
 //-----------------------------------------------------------------------------
 
-const ogl::shader *app::glob::get_shader(std::string name)
+const ogl::program *app::glob::load_program(std::string name)
 {
-    if (shader_map[name] == 0)
-        shader_map[name] = new ogl::shader(::data->get_txt(name + ".vert"),
-                                           ::data->get_txt(name + ".frag"));
-
-    return shader_map[name];
+    if (program_map.find(name) == program_map.end())
+    {
+        program_map[name].ptr = new ogl::program(name);
+        program_map[name].ref = 1;
+    }
+    return program_map[name].ptr;
 }
 
-const ogl::image *app::glob::get_image(std::string name)
+void app::glob::free_program(std::string name)
 {
-    if (image_map[name] == 0)
-        image_map[name] = new ogl::image(name);
+    if (program_map.find(name) != program_map.end())
+    {
+        if (--program_map[name].ref == 0)
+        {
+            delete program_map[name].ptr;
+            program_map.erase(name);
+        }
+    }
+}
 
-    return image_map[name];
+void app::glob::free_program(const ogl::program *p)
+{
+    free_program(p->get_name());
+}
+
+void app::glob::dupe_program(const ogl::program *p)
+{
+    const std::string& name = p->get_name();
+
+    if (program_map.find(name) != program_map.end())
+        program_map[name].ref++;
+}
+
+//-----------------------------------------------------------------------------
+
+const ogl::texture *app::glob::load_texture(std::string name)
+{
+    if (texture_map.find(name) == texture_map.end())
+    {
+        texture_map[name].ptr = new ogl::texture(name);
+        texture_map[name].ref = 1;
+    }
+    return texture_map[name].ptr;
+}
+
+void app::glob::free_texture(std::string name)
+{
+    if (texture_map.find(name) != texture_map.end())
+    {
+        if (--texture_map[name].ref == 0)
+        {
+            delete texture_map[name].ptr;
+            texture_map.erase(name);
+        }
+    }
+}
+
+void app::glob::free_texture(const ogl::texture *p)
+{
+    free_texture(p->get_name());
+}
+
+void app::glob::dupe_texture(const ogl::texture *p)
+{
+    const std::string& name = p->get_name();
+
+    if (texture_map.find(name) != texture_map.end())
+        texture_map[name].ref++;
+}
+
+//-----------------------------------------------------------------------------
+
+const ogl::geodata *app::glob::load_geodata(std::string name)
+{
+    if (geodata_map.find(name) == geodata_map.end())
+    {
+        geodata_map[name].ptr = new ogl::geodata(name);
+        geodata_map[name].ref = 1;
+    }
+    return geodata_map[name].ptr;
+}
+
+void app::glob::free_geodata(std::string name)
+{
+    if (geodata_map.find(name) != geodata_map.end())
+    {
+        if (--geodata_map[name].ref == 0)
+        {
+            delete geodata_map[name].ptr;
+            geodata_map.erase(name);
+        }
+    }
+}
+
+void app::glob::free_geodata(const ogl::geodata *p)
+{
+    free_geodata(p->get_name());
+}
+
+void app::glob::dupe_geodata(const ogl::geodata *p)
+{
+    const std::string& name = p->get_name();
+
+    if (geodata_map.find(name) != geodata_map.end())
+        geodata_map[name].ref++;
 }
 
 //-----------------------------------------------------------------------------

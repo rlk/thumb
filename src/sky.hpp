@@ -14,8 +14,8 @@
 #define SKY_HPP
 
 #include "solid.hpp"
-#include "image.hpp"
-#include "shader.hpp"
+#include "texture.hpp"
+#include "program.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -23,10 +23,11 @@ namespace ent
 {
     class sky : public free
     {
-        float       dist;
-        ogl::image  glow;
-        ogl::image  fill;
-        ogl::shader prog;
+        const ogl::texture *glow;
+        const ogl::texture *fill;
+        const ogl::program *prog;
+
+        float dist;
 
     public:
 
