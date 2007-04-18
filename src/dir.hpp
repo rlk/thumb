@@ -18,9 +18,8 @@
 
 //-----------------------------------------------------------------------------
 
-typedef std::list<std::string> strings;
-
-void dir(std::string, strings&, strings&);
+void dir(std::string, std::list<std::string>&,
+                      std::list<std::string>&);
 
 //-----------------------------------------------------------------------------
 

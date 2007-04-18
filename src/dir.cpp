@@ -72,7 +72,8 @@ static void dir_done()
 
 #endif //----------------------------------------------------------------------
 
-void dir(std::string path, strings& dirs, strings& regs)
+void dir(std::string path, std::list<std::string>& dirs,
+                           std::list<std::string>& regs)
 {
     std::string file;
     std::string name;

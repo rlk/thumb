@@ -65,6 +65,23 @@ namespace app
 
 namespace app
 {
+    typedef std::list<std::string> strings;
+
+    //-------------------------------------------------------------------------
+    // Data path
+
+    class path
+    {
+        strings name;
+
+    public:
+
+        path(std::string="");
+
+        std::string get() const;
+        void        set(std::string);
+    };
+
     //-------------------------------------------------------------------------
     // Data buffer
 

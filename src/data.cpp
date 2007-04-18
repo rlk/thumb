@@ -17,8 +17,55 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 
-#include "directory.hpp"
 #include "data.hpp"
+
+//-----------------------------------------------------------------------------
+
+app::path::path(std::string curr)
+{
+    std::string file;
+
+    // Parse the given path into a stack of directory names.
+
+    for (std::string::size_type i = 0; i < curr.size(); ++i)
+
+        if (curr[i] != '/')
+            file.push_back(curr[i]);
+        else
+        {
+            name.push_back(file);
+            file.erase();
+        }
+
+    // Include any trailing name not not ending in '/'.
+
+    if (!file.empty()) name.push_back(file);
+}
+
+std::string app::path::get() const
+{
+    strings::const_iterator i;
+
+    // Compose a path string from the current directory stack.
+
+    std::string curr;
+
+    for (i = name.begin(); i != name.end(); ++i)
+        curr += (*i) + "/";
+
+    return curr;
+}
+
+void app::path::set(std::string dir)
+{
+    if (dir == "..")
+    {
+        if (name.size() > 1)
+            name.pop_back();
+    }
+    else
+        name.push_back(dir);
+}
 
 //-----------------------------------------------------------------------------
 
