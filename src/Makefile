@@ -10,6 +10,7 @@ CP= cp
 
 TARG= ../thumb
 OBJS=   opengl.o \
+	obj.o \
 	matrix.o \
 	light.o \
 	camera.o \
@@ -41,8 +42,7 @@ OBJS=   opengl.o \
 	param.o \
 	directory.o \
 	dir.o \
-	main.o \
-	obj/obj.o
+	main.o
 
 LIBS= -lmxml -lode -ljpeg -lpng -lz -lm
 DEPS= $(OBJS:.o=.d)
@@ -85,13 +85,7 @@ $(TARG) : $(OBJS)
 	$(CC) $(CFLAGS) $(OPTS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :
-	$(CD) obj && $(MAKE) clean
 	$(RM) -f $(TARG) $(OBJS) $(DEPS)
-
-#------------------------------------------------------------------------------
-
-obj/obj.o :
-	cd obj && $(MAKE)
 
 #------------------------------------------------------------------------------
 

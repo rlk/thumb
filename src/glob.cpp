@@ -110,7 +110,8 @@ const ogl::geodata *app::glob::load_geodata(std::string name)
 {
     if (geodata_map.find(name) == geodata_map.end())
     {
-        geodata_map[name].ptr = new ogl::geodata(name);
+//      geodata_map[name].ptr = new ogl::geodata(name);
+        geodata_map[name].ptr = new ogl::geodata("solid/foo.obj");
         geodata_map[name].ref = 1;
     }
     return geodata_map[name].ptr;

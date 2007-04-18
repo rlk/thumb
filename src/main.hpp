@@ -33,6 +33,15 @@ extern app::font *mono;
 extern app::glob *glob;
 extern app::view *view;
 
+extern "C" {
+
+    const void *load_dat(const char *, size_t *);
+    void        free_dat(const char *);
+
+    void        load_tex(const char *);
+    void        free_tex(const char *);
+}
+
 //-----------------------------------------------------------------------------
 // Expression queryable system state.
 

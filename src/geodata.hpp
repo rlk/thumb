@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "obj.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace ogl
@@ -10,7 +12,7 @@ namespace ogl
     class geodata
     {
         std::string name;
-        int         desc;
+        obj::obj   *data;
 
     public:
 

@@ -113,7 +113,10 @@ void ogl::texture::load_png(const void *buf, size_t len)
         {
             // Initialize the texture object.
 
+            glEnable(target);
+
             glBindTexture(target, object);
+
             glTexImage2D(target, 0, format, w, h, 0,
                          format, GL_UNSIGNED_BYTE, 0);
 

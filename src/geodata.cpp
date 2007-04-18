@@ -11,35 +11,34 @@
 //  General Public License for more details.
 
 #include "geodata.hpp"
-#include "obj/obj.h"
 
 //-----------------------------------------------------------------------------
 
 ogl::geodata::geodata(std::string name) : name(name)
 {
-    desc = obj_add_file(name.c_str());
+    data = new obj::obj(name);
 }
 
 ogl::geodata::~geodata()
 {
-    obj_del_file(desc);
+    delete data;
 }
 
 //-----------------------------------------------------------------------------
 
 void ogl::geodata::box_bound(float *b) const
 {
-    obj_get_file_box(desc, b);
+    data->box_bound(b);
 }
 
 void ogl::geodata::sph_bound(float *b) const
 {
-    obj_get_file_sph(desc, b);
+    data->sph_bound(b);
 }
 
 void ogl::geodata::draw() const
 {
-    obj_draw_file(desc);
+    data->draw();
 }
 
 //-----------------------------------------------------------------------------

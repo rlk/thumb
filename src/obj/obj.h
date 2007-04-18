@@ -13,10 +13,6 @@
 #ifndef OBJ_H
 #define OBJ_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 /*===========================================================================*/
 
 #define OBJ_KD 0
@@ -29,89 +25,118 @@ extern "C" {
 
 /*---------------------------------------------------------------------------*/
 
-int  obj_add_mtrl(int);
-int  obj_add_vert(int);
-int  obj_add_poly(int, int);
-int  obj_add_line(int, int);
-int  obj_add_surf(int);
-int  obj_add_file(const char *);
+#include <stddef.h>
 
-int  obj_num_mtrl(int);
-int  obj_num_vert(int);
-int  obj_num_poly(int, int);
-int  obj_num_line(int, int);
-int  obj_num_surf(int);
-int  obj_num_file(void);
-
-void obj_del_mtrl(int, int);
-void obj_del_vert(int, int);
-void obj_del_poly(int, int, int);
-void obj_del_line(int, int, int);
-void obj_del_surf(int, int);
-void obj_del_file(int);
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*---------------------------------------------------------------------------*/
+/* File I/O abstraction                                                      */
 
-void obj_set_mtrl_name(int, int,      const char *);
-void obj_set_mtrl_map (int, int, int, const char *);
-void obj_set_mtrl_opt (int, int, int, unsigned int);
-void obj_set_mtrl_c   (int, int, int, const float[4]);
-void obj_set_mtrl_o   (int, int, int, const float[3]);
-void obj_set_mtrl_s   (int, int, int, const float[3]);
+    typedef const void *(*obj_load_file_fn)(const char *, size_t *);
+    typedef void        (*obj_free_file_fn)(const char *);
+    typedef void        (*obj_load_imag_fn)(const char *);
+    typedef void        (*obj_free_imag_fn)(const char *);
 
-void obj_set_vert_v(int, int, const float[3]);
-void obj_set_vert_t(int, int, const float[2]);
-void obj_set_vert_n(int, int, const float[3]);
-
-void obj_set_poly(int, int, int, const int[3]);
-void obj_set_line(int, int, int, const int[2]);
-void obj_set_surf(int, int, int);
+    void obj_set_file_fn(obj_load_file_fn, obj_free_file_fn);
+    void obj_set_imag_fn(obj_load_imag_fn, obj_free_imag_fn);
 
 /*---------------------------------------------------------------------------*/
+/* Constructors/destructors                                                  */
 
-const char  *obj_get_file_name(int);
-const char  *obj_get_mtrl_name(int, int);
-unsigned int obj_get_mtrl_map (int, int, int);
-unsigned int obj_get_mtrl_opt (int, int, int);
-void         obj_get_mtrl_c   (int, int, int, float[4]);
-void         obj_get_mtrl_o   (int, int, int, float[3]);
-void         obj_get_mtrl_s   (int, int, int, float[3]);
+    int  obj_add_mtrl(int);
+    int  obj_add_vert(int);
+    int  obj_add_poly(int, int);
+    int  obj_add_line(int, int);
+    int  obj_add_surf(int);
+    int  obj_add_file(const char *);
 
-void obj_get_vert_v(int, int, float[3]);
-void obj_get_vert_t(int, int, float[2]);
-void obj_get_vert_n(int, int, float[3]);
+    int  obj_num_mtrl(int);
+    int  obj_num_vert(int);
+    int  obj_num_poly(int, int);
+    int  obj_num_line(int, int);
+    int  obj_num_surf(int);
+    int  obj_num_file(void);
 
-void obj_get_poly(int, int, int, int[3]);
-void obj_get_line(int, int, int, int[2]);
-int  obj_get_surf(int, int);
+    void obj_del_mtrl(int, int);
+    void obj_del_vert(int, int);
+    void obj_del_poly(int, int, int);
+    void obj_del_line(int, int, int);
+    void obj_del_surf(int, int);
+    void obj_del_file(int);
 
 /*---------------------------------------------------------------------------*/
+/* Mutators                                                                  */
 
-void obj_get_file_box(int, float[6]);
-void obj_get_file_sph(int, float[1]);
+    void obj_set_mtrl_name(int, int,      const char *);
+    void obj_set_mtrl_map (int, int, int, const char *);
+    void obj_set_mtrl_opt (int, int, int, unsigned int);
+    void obj_set_mtrl_c   (int, int, int, const float[4]);
+    void obj_set_mtrl_o   (int, int, int, const float[3]);
+    void obj_set_mtrl_s   (int, int, int, const float[3]);
+
+    void obj_set_vert_v(int, int, const float[3]);
+    void obj_set_vert_t(int, int, const float[2]);
+    void obj_set_vert_n(int, int, const float[3]);
+
+    void obj_set_poly(int, int, int, const int[3]);
+    void obj_set_line(int, int, int, const int[2]);
+    void obj_set_surf(int, int, int);
 
 /*---------------------------------------------------------------------------*/
+/* Queries                                                                   */
 
-void  obj_mini_file(int);
-void  obj_norm_file(int);
-void  obj_proc_file(int);
-void  obj_sort_file(int, int);
-float obj_acmr_file(int, int);
+    const char  *obj_get_file_name(int);
+    const char  *obj_get_mtrl_name(int, int);
+    unsigned int obj_get_mtrl_map (int, int, int);
+    unsigned int obj_get_mtrl_opt (int, int, int);
+    void         obj_get_mtrl_c   (int, int, int, float[4]);
+    void         obj_get_mtrl_o   (int, int, int, float[3]);
+    void         obj_get_mtrl_s   (int, int, int, float[3]);
 
-void  obj_draw_vert(int);
-void  obj_draw_mtrl(int, int);
-void  obj_draw_surf(int, int);
-void  obj_draw_file(int);
-void  obj_draw_axes(int, float);
+    void obj_get_vert_v(int, int, float[3]);
+    void obj_get_vert_t(int, int, float[2]);
+    void obj_get_vert_n(int, int, float[3]);
 
-void  obj_write_file(int, const char *, const char *);
-void *obj_read_image(const char *, int *, int *, int *);
+    void obj_get_poly(int, int, int, int[3]);
+    void obj_get_line(int, int, int, int[2]);
+    int  obj_get_surf(int, int);
 
-void  obj_reset_all();
+/*---------------------------------------------------------------------------*/
+/* Bounds queries                                                            */
 
-/*===========================================================================*/
+    void obj_get_file_box(int, float[6]);
+    void obj_get_file_sph(int, float[1]);
+
+/*---------------------------------------------------------------------------*/
+/* Processing and optimization                                               */
+
+    void  obj_mini_file(int);
+    void  obj_norm_file(int);
+    void  obj_proc_file(int);
+    void  obj_sort_file(int, int);
+    float obj_acmr_file(int, int);
+
+/*---------------------------------------------------------------------------*/
+/* Output                                                                    */
+
+    void  obj_draw_vert(int);
+    void  obj_draw_mtrl(int, int);
+    void  obj_draw_surf(int, int);
+    void  obj_draw_file(int);
+    void  obj_draw_axes(int, float);
+
+    void  obj_write_file(int, const char *, const char *);
+
+    void  obj_reset_all();
+
+/*---------------------------------------------------------------------------*/
 
 #ifdef __cplusplus
 }
 #endif
+
+/*===========================================================================*/
+
 #endif

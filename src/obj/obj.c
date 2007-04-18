@@ -11,9 +11,11 @@
 /*    General Public License for more details.                               */
 
 #include <stdio.h>
+#include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <sys/stat.h>
 #include <math.h>
 
 #define MAXSTR 1024
@@ -22,7 +24,6 @@
 
 #ifdef __linux__
 #include <GL/gl.h>
-#include <GL/glu.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
 #define glGetProcAddress(n) glXGetProcAddressARB((GLubyte *) n)
@@ -31,14 +32,12 @@
 #ifdef _WIN32
 #include <windows.h>
 #include <GL/gl.h>
-#include <GL/glu.h>
 #include <GL/glext.h>
 #define glGetProcAddress(n) wglGetProcAddress(n)
 #endif
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
-#include <OpenGL/glu.h>
 #endif
 
 /*===========================================================================*/
@@ -47,7 +46,7 @@
 
 struct obj_prop
 {
-    char  *str;
+    char *name;
     int    opt;
     GLuint map;
 
@@ -222,132 +221,7 @@ static void obj_init_gl(void)
 }
 
 /*===========================================================================*/
-/* Vector cache                                                              */
-
-struct vec2
-{
-    float v[2];
-    int _ii;
-};
-
-struct vec3
-{
-    float v[3];
-    int _ii;
-};
-
-struct iset
-{
-    int vi;
-    int gi;
-
-    int _vi;
-    int _ti;
-    int _ni;
-    int _ii;
-};
-
-static int _vc, _vm;
-static int _tc, _tm;
-static int _nc, _nm;
-static int _ic, _im;
-
-static struct vec3 *_vv;
-static struct vec2 *_tv;
-static struct vec3 *_nv;
-static struct iset *_iv;
-
-/*---------------------------------------------------------------------------*/
-
-static int add__(void **_v, int *_c, int *_m, size_t _s)
-{
-    int   m = (*_m > 0) ? *_m * 2 : 2;
-    void *v;
-
-    /* If space remains in the current block, return it. */
-
-    if (*_m > *_c)
-        return (*_c)++;
-
-    /* Else, try to increase the size of the block. */
-
-    else if ((v = realloc(*_v, _s * m)))
-    {
-        *_v = v;
-        *_m = m;
-        return (*_c)++;
-    }
-
-    /* Else, indicate failure. */
-
-    else return -1;
-}
-
-static int add_v(void)
-{
-    return add__((void **) &_vv, &_vc, &_vm, sizeof (struct vec3));
-}
-
-static int add_t(void)
-{
-    return add__((void **) &_tv, &_tc, &_tm, sizeof (struct vec2));
-}
-
-static int add_n(void)
-{
-    return add__((void **) &_nv, &_nc, &_nm, sizeof (struct vec3));
-}
-
-static int add_i(void)
-{
-    return add__((void **) &_iv, &_ic, &_im, sizeof (struct iset));
-}
-
-/*===========================================================================*/
-/* Handy functions                                                           */
-
-static void cross(float z[3], const float x[3], const float y[3])
-{
-    float t[3];
-
-    t[0] = x[1] * y[2] - x[2] * y[1];
-    t[1] = x[2] * y[0] - x[0] * y[2];
-    t[2] = x[0] * y[1] - x[1] * y[0];
-
-    z[0] = t[0];
-    z[1] = t[1];
-    z[2] = t[2];
-}
-
-static void normalize(float v[3])
-{
-    float k = 1.0f / (float) sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-
-    v[0] *= k;
-    v[1] *= k;
-    v[2] *= k;
-}
-
-static void normal(float n[3], const float a[3],
-                               const float b[3],
-                               const float c[3])
-{
-    float u[3];
-    float v[3];
-
-    u[0] = b[0] - a[0];
-    u[1] = b[1] - a[1];
-    u[2] = b[2] - a[2];
-
-    v[0] = c[0] - a[0];
-    v[1] = c[1] - a[1];
-    v[2] = c[2] - a[2];
-
-    cross(n, u, v);
-    normalize(n);
-}
-
-/*===========================================================================*/
+/* Image I/O abstraction                                                     */
 
 #ifndef CONF_NO_PNG
 
@@ -488,23 +362,7 @@ static void *read_jpg(const char *filename, int *w, int *h, int *b)
 
 /*---------------------------------------------------------------------------*/
 
-void *obj_read_image(const char *filename, int *w, int *h, int *b)
-{
-    const char *ext = filename + strlen(filename) - 4;
-    
-#ifndef CONF_NO_PNG
-    if (!strcmp(ext, ".png") || !strcmp(ext, ".PNG"))
-        return read_png(filename, w, h, b);
-#endif
-#ifndef CONF_NO_JPG
-    if (!strcmp(ext, ".jpg") || !strcmp(ext, ".JPG"))
-        return read_jpg(filename, w, h, b);
-#endif
-
-    return NULL;
-}
-
-static GLuint read_img(const char *filename)
+static void default_load_imag(const char *name)
 {
     static const GLenum format[5] = {
         0,
@@ -516,40 +374,297 @@ static GLuint read_img(const char *filename)
 
     GLuint o = 0;
 
-    if (filename)
+    if (name)
     {
-        int w;
-        int h;
-        int b;
-
-        void *p = obj_read_image(filename, &w, &h, &b);
+        const char *ext = name + strlen(name) - 4;
+    
+        void *p;
+        int   w;
+        int   h;
+        int   b;
 
         /* Read the image data from the named file to a new pixel buffer. */
 
+#ifndef CONF_NO_PNG
+        if (!strcmp(ext, ".png") || !strcmp(ext, ".PNG"))
+            p = read_png(name, &w, &h, &b);
+#endif
+#ifndef CONF_NO_JPG
+        if (!strcmp(ext, ".jpg") || !strcmp(ext, ".JPG"))
+            p = read_jpg(name, &w, &h, &b);
+#endif
         if (p)
         {
+            GLenum T = GL_TEXTURE_2D;
+
             obj_init_gl();
 
             /* Create an OpenGL texture object using these pixels. */
 
+            if (w & (w - 1)) T = GL_TEXTURE_RECTANGLE_ARB;
+            if (h & (h - 1)) T = GL_TEXTURE_RECTANGLE_ARB;
+
+            glEnable(T);
+
             glGenTextures(1, &o);
-            glBindTexture(GL_TEXTURE_2D, o);
+            glBindTexture(T,  o);
 
-            gluBuild2DMipmaps(GL_TEXTURE_2D, format[b], w, h,
-                              format[b], GL_UNSIGNED_BYTE, p);
+            glTexImage2D(T, 0, format[b], w, h, 0,
+                         format[b], GL_UNSIGNED_BYTE, p);
 
-            glTexParameteri(GL_TEXTURE_2D,
-                            GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D,
-                            GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 
             /* Discard the unnecessary pixel buffer. */
 
             free(p);
         }
     }
-    return o;
 }
+
+static void default_free_imag(const char *name)
+{
+}
+
+/*---------------------------------------------------------------------------*/
+
+static obj_load_imag_fn load_imag = default_load_imag;
+static obj_free_imag_fn free_imag = default_free_imag;
+
+void obj_set_image_fn(obj_load_imag_fn load,
+                      obj_free_imag_fn free)
+{
+    load_imag = load ? load : default_load_imag;
+    free_imag = free ? free : default_free_imag;
+}
+
+/*===========================================================================*/
+/* File I/O abstraction                                                      */
+
+struct file
+{
+    const  char *name;
+    void        *data;
+    size_t       size;
+    struct file *next;
+};
+
+static struct file *file_list = NULL;
+
+/*---------------------------------------------------------------------------*/
+
+static const void *default_load_file(const char *name, size_t *size)
+{
+    struct file *file;
+    struct stat  info;
+
+    FILE *fin;
+
+    *size = 0;
+
+    /* Determine the size of the named file. */
+
+    if (stat(name, &info))
+    {
+        perror(name);
+        return NULL;
+    }
+
+    /* Open it for reading. */
+
+    if ((fin = fopen(name, "r")))
+    {
+        perror(name);
+        return NULL;
+    }
+
+    /* Initialize a new open file structure. */
+
+    if ((file = (struct file *) calloc(1, sizeof (struct file))))
+    {
+        file->name = name;
+        file->data = malloc((size_t) info.st_size);
+        file->next = file_list;
+
+        file_list  = file;
+
+        /* Read as much as possible. */
+
+        if (file->data)
+            file->size = fread(file->data, 1, (size_t) info.st_size, fin);
+    }
+    fclose(fin);
+
+    /* Return the data buffer and its size. */
+
+   *size = file->size;
+    return file->data;
+}
+
+static void default_free_file(const char *name)
+{
+    struct file *prev;
+    struct file *curr;
+
+    /* Find the named file in the open file list. */
+
+    for (prev = NULL, curr = file_list; curr; prev = curr, curr = curr->next)
+        if (strcmp(curr->name, name) == 0)
+        {
+            /* Delete it. */
+
+            if (curr->data) free(curr->data);
+
+            if (prev)
+                prev->next = curr->next;
+            else
+                file_list  = curr->next;
+
+            free(curr);
+
+            return;
+        }
+}
+
+/*---------------------------------------------------------------------------*/
+
+static obj_load_file_fn load_file = default_load_file;
+static obj_free_file_fn free_file = default_free_file;
+
+void obj_set_filee_fn(obj_load_file_fn load,
+                      obj_free_file_fn free)
+{
+    load_file = load ? load : default_load_file;
+    free_file = free ? free : default_free_file;
+}
+
+/*===========================================================================*/
+/* Vector cache                                                              */
+
+struct vec2
+{
+    float v[2];
+    int _ii;
+};
+
+struct vec3
+{
+    float v[3];
+    int _ii;
+};
+
+struct iset
+{
+    int vi;
+    int gi;
+
+    int _vi;
+    int _ti;
+    int _ni;
+    int _ii;
+};
+
+static int _vc, _vm;
+static int _tc, _tm;
+static int _nc, _nm;
+static int _ic, _im;
+
+static struct vec3 *_vv;
+static struct vec2 *_tv;
+static struct vec3 *_nv;
+static struct iset *_iv;
+
+/*---------------------------------------------------------------------------*/
+
+static int add__(void **_v, int *_c, int *_m, size_t _s)
+{
+    int   m = (*_m > 0) ? *_m * 2 : 2;
+    void *v;
+
+    /* If space remains in the current block, return it. */
+
+    if (*_m > *_c)
+        return (*_c)++;
+
+    /* Else, try to increase the size of the block. */
+
+    else if ((v = realloc(*_v, _s * m)))
+    {
+        *_v = v;
+        *_m = m;
+        return (*_c)++;
+    }
+
+    /* Else, indicate failure. */
+
+    else return -1;
+}
+
+static int add_v(void)
+{
+    return add__((void **) &_vv, &_vc, &_vm, sizeof (struct vec3));
+}
+
+static int add_t(void)
+{
+    return add__((void **) &_tv, &_tc, &_tm, sizeof (struct vec2));
+}
+
+static int add_n(void)
+{
+    return add__((void **) &_nv, &_nc, &_nm, sizeof (struct vec3));
+}
+
+static int add_i(void)
+{
+    return add__((void **) &_iv, &_ic, &_im, sizeof (struct iset));
+}
+
+/*===========================================================================*/
+/* Handy functions                                                           */
+
+static void cross(float z[3], const float x[3], const float y[3])
+{
+    float t[3];
+
+    t[0] = x[1] * y[2] - x[2] * y[1];
+    t[1] = x[2] * y[0] - x[0] * y[2];
+    t[2] = x[0] * y[1] - x[1] * y[0];
+
+    z[0] = t[0];
+    z[1] = t[1];
+    z[2] = t[2];
+}
+
+static void normalize(float v[3])
+{
+    float k = 1.0f / (float) sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
+
+    v[0] *= k;
+    v[1] *= k;
+    v[2] *= k;
+}
+
+static void normal(float n[3], const float a[3],
+                               const float b[3],
+                               const float c[3])
+{
+    float u[3];
+    float v[3];
+
+    u[0] = b[0] - a[0];
+    u[1] = b[1] - a[1];
+    u[2] = b[2] - a[2];
+
+    v[0] = c[0] - a[0];
+    v[1] = c[1] - a[1];
+    v[2] = c[2] - a[2];
+
+    cross(n, u, v);
+    normalize(n);
+}
+
+/*===========================================================================*/
 
 static void dirpath(char *pathname)
 {
@@ -1063,7 +1178,7 @@ TODO: convert this to
     take load and free function pointers
     take load and free texture function pointers
     strip the path from the filename and use it when loading mtls
-    store map names in prop use whene deleting
+    store map names in prop use when deleting
 */
 
 static void read_obj(int fi, const char *filename)
@@ -1324,10 +1439,10 @@ static void obj_rel_mtrl(struct obj_mtrl *mp)
 {
     /* Release any resources held by this material. */
 
-    if (mp->kv[0].str) free(mp->kv[0].str);
-    if (mp->kv[1].str) free(mp->kv[1].str);
-    if (mp->kv[2].str) free(mp->kv[2].str);
-    if (mp->kv[3].str) free(mp->kv[3].str);
+    if (mp->kv[0].name) free(mp->kv[0].name);
+    if (mp->kv[1].name) free(mp->kv[1].name);
+    if (mp->kv[2].name) free(mp->kv[2].name);
+    if (mp->kv[3].name) free(mp->kv[3].name);
 
     if (mp->kv[0].map) glDeleteTextures(1, &mp->kv[0].map);
     if (mp->kv[1].map) glDeleteTextures(1, &mp->kv[1].map);
@@ -1524,15 +1639,15 @@ void obj_set_mtrl_name(int fi, int mi, const char *name)
     mtrl(fi, mi)->name = set_name(mtrl(fi, mi)->name, name);
 }
 
-void obj_set_mtrl_map(int fi, int mi, int ki, const char *str)
+void obj_set_mtrl_map(int fi, int mi, int ki, const char *name)
 {
     assert_prop(fi, mi, ki);
     
     if (prop(fi, mi, ki)->map)
         glDeleteTextures(1, &prop(fi, mi, ki)->map);
 
-    prop(fi, mi, ki)->map = read_img(str);
-    prop(fi, mi, ki)->str = set_name(prop(fi, mi, ki)->str, str);
+    prop(fi, mi, ki)->map  = read_img(name);
+    prop(fi, mi, ki)->name = set_name(prop(fi, mi, ki)->name, name);
 }
 
 void obj_set_mtrl_opt(int fi, int mi, int ki, unsigned int opt)
@@ -2444,7 +2559,7 @@ static void obj_write_map(FILE *fout, int fi, int mi, int ki, const char *s)
 
     /* If this property has a map... */
 
-    if (kp->str)
+    if (kp->name)
     {
         fprintf(fout, "map_%s ", s);
 
@@ -2468,7 +2583,7 @@ static void obj_write_map(FILE *fout, int fi, int mi, int ki, const char *s)
 
         /* Store the map image file name. */
 
-        fprintf(fout, "%s\n", kp->str);
+        fprintf(fout, "%s\n", kp->name);
     }
 }
 
