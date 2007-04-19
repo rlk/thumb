@@ -17,7 +17,6 @@
 
 #include "font.hpp"
 #include "rect.hpp"
-#include "directory.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -240,18 +239,19 @@ namespace gui
         std::string  key;
         std::string  file;
         std::string  ext;
+        std::string  cwd;
         gui::widget *state;
-        directory    dir;
 
     public:
 
         finder(std::string k, std::string e, gui::widget *w) :
-            key(k), ext(e), state(w), dir(conf->get_s(k)) { enlist(); }
+            key(k), ext(e), cwd(conf->get_s(k)), state(w) { enlist(); }
 
         virtual std::string value() const { return file; }
 
         void set_dir(std::string&);
         void set_reg(std::string&);
+        void set_dup();
 
         void enlist();
         void update();
@@ -267,7 +267,7 @@ namespace gui
 
     public:
 
-        finder_elt(std::string& t, gui::finder *w);
+        finder_elt(std::string t, gui::finder *w);
 
         virtual void draw(const widget *, const widget *) const;
         virtual widget *click(int, int, bool);
@@ -276,15 +276,27 @@ namespace gui
     class finder_dir : public finder_elt
     {
     public:
-        finder_dir(std::string& t, gui::finder *w) : finder_elt(t, w) { }
+        finder_dir(std::string t, gui::finder *w) : finder_elt(t, w) { }
         void apply() { state->set_dir(str); }
     };
 
     class finder_reg : public finder_elt
     {
     public:
-        finder_reg(std::string& t, gui::finder *w) : finder_elt(t, w) { }
+        finder_reg(std::string t, gui::finder *w) : finder_elt(t, w) { }
         void apply() { state->set_reg(str); }
+    };
+
+    class findup : public button
+    {
+    protected:
+
+        finder *state;
+
+    public:
+
+        findup(gui::finder *w) : button("Up"), state(w) { }
+        void apply() { state->set_dup(); }
     };
 
     //-------------------------------------------------------------------------

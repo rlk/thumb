@@ -13,21 +13,24 @@
 #ifndef UTIL_HPP
 #define UTIL_HPP
 
+#include <string>
+#include <vector>
+#include <set>
+
 #include <math.h>
+
+// TODO: Put this stuff where it belongs.
 
 //-----------------------------------------------------------------------------
 
-#ifndef MIN
-#define MIN(a, b) ((a) < (b) ? (a) : (b))
-#endif
-
-#ifndef MAX
-#define MAX(a, b) ((a) > (b) ? (a) : (b))
-#endif
-
 #ifndef CLAMP
-#define CLAMP(n, a, b) MIN(MAX(n, a), b)
+#define CLAMP(n, a, b) std::min(std::max(n, a), b)
 #endif
+
+//-----------------------------------------------------------------------------
+
+typedef std::vector<std::string> strvec;
+typedef std::set   <std::string> strset;
 
 //-----------------------------------------------------------------------------
 

@@ -97,6 +97,7 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("solid_directory", ".obj", E);
+    gui::findup *U = new gui::findup(F);
 
     add((new gui::frame)->
         add((new gui::hgroup)->
@@ -108,7 +109,8 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
                 add(new new_capsule_button(s, w, E))->
                 add(new new_light_button  (s, w))->
                 add(new new_camera_button (s, w))->
-                add(new gui::filler(false, true)))->
+                add(new gui::filler(false, true))->
+                add(U))->
 
             add((new gui::vgroup)->
                 add((new gui::hgroup)->
@@ -165,6 +167,7 @@ cnt::world_panel::world_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("world_directory", ".xml", E);
+    gui::findup *U = new gui::findup(F);
 
     add((new gui::frame)->
         add((new gui::hgroup)->
@@ -175,7 +178,8 @@ cnt::world_panel::world_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
                 add(new load_button(s, w, E))->
                 add(new save_all_button(s, w, E))->
                 add(new save_sel_button(s, w, E))->
-                add(new gui::filler(false, true)))->
+                add(new gui::filler(false, true))->
+                add(U))->
 
             add((new gui::vgroup)->
                 add((new gui::hgroup)->

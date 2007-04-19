@@ -161,7 +161,7 @@ ops::enjoin_op::enjoin_op(ent::set& S) : operation(S), new_id(0)
     // Scan the selection for potential joint targets.
 
     for (i = selection.begin(); i != selection.end(); ++i)
-        new_id = MAX(new_id, (*i)->link());
+        new_id = std::max(new_id, (*i)->link());
 }
 
 ent::set& ops::enjoin_op::undo(scene *s)
@@ -712,8 +712,8 @@ void ops::scene::load(std::string filename)
 
         for (ent::set::iterator i = all.begin(); i != all.end(); ++i)
         {
-            serial = MAX(serial, (*i)->body() + 1);
-            serial = MAX(serial, (*i)->join() + 1);
+            serial = std::max(serial, (*i)->body() + 1);
+            serial = std::max(serial, (*i)->join() + 1);
         }
 
         mxmlDelete(H);

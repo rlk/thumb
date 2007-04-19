@@ -40,7 +40,6 @@ OBJS=   opengl.o \
 	control.o \
 	gui.o \
 	param.o \
-	directory.o \
 	dir.o \
 	main.o
 

@@ -42,8 +42,8 @@ ogl::program::program(std::string name) : name(name), vert(0), frag(0)
 {
     // Load the shader files.
 
-    const GLcharARB *vert_txt = (GLcharARB *) ::data->load_dat(name + ".vert");
-    const GLcharARB *frag_txt = (GLcharARB *) ::data->load_dat(name + ".frag");
+    const GLcharARB *vert_txt = (GLcharARB *) ::data->load(name + ".vert");
+    const GLcharARB *frag_txt = (GLcharARB *) ::data->load(name + ".frag");
 
     // Compile the vertex shader.
 
@@ -82,8 +82,8 @@ ogl::program::program(std::string name) : name(name), vert(0), frag(0)
 
     // Free the shader files.
 
-    ::data->free_dat(name + ".frag");
-    ::data->free_dat(name + ".vert");
+    ::data->free(name + ".frag");
+    ::data->free(name + ".vert");
 
     OGLCK();
 }

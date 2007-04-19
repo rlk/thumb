@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <algorithm>
+#include <iostream>
 #include <SDL.h>
 
 #include "main.hpp"
@@ -418,7 +419,7 @@ void gui::editor::update()
 
     // Make sure the cursor position is sane.
 
-    si = MIN(si, text->n());
+    si = std::min(si, text->n());
     sc = 0;
 }
 
@@ -432,12 +433,12 @@ void gui::editor::grow_select(int sd)
     if (sd > 0)
     {
         sc += sd;
-        sc  = MIN(sc, sn - si);
+        sc  = std::min(sc, sn - si);
     }
     else
     {
         si += sd;
-        si  = MAX(si, 0);
+        si  = std::max(si, 0);
         sc += (sj - si);
     }
 }
@@ -460,8 +461,8 @@ void gui::editor::move_select(int sd)
 
     sc = 0;
 
-    si = MAX(si, 0);
-    si = MIN(si, sn);
+    si = std::max(si, 0);
+    si = std::min(si, sn);
 }
 
 void gui::editor::draw(const widget *focus, const widget *input) const
@@ -639,8 +640,8 @@ void gui::scroll::layup()
     {
         (*i)->layup();
 
-        area.w = MAX((*i)->get_w(),  get_w());
-        area.h =    ((*i)->get_h() + get_h());
+        area.w = std::max((*i)->get_w(),  get_w());
+        area.h =         ((*i)->get_h() + get_h());
     }
 
     // Include the scrollbar width.  Height is arbitrary.
@@ -653,7 +654,7 @@ void gui::scroll::layup()
 
 void gui::scroll::laydn(int x, int y, int w, int h)
 {
-    int c = 0, excess = MAX(h - child_h, 0);
+    int c = 0, excess = std::max(h - child_h, 0);
 
     widget::laydn(x, y, w, h);
 
@@ -695,7 +696,7 @@ void gui::scroll::point(int x, int y)
 
     // We know the pointer is in the scrollbar, so scroll.
 
-    if ((m = MAX(child_h - area.h, 0)) > 0)
+    if ((m = std::max(child_h - area.h, 0)) > 0)
     {
         thumb_h = (area.h - 4) * area.h / child_h;
 
@@ -730,7 +731,7 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
 
     // Compute the size and position of the scroll thumb.
 
-    if ((m = MAX(child_h - area.h, 0)) > 0)
+    if ((m = std::max(child_h - area.h, 0)) > 0)
     {
         thumb_h = thumb_h *  area.h / child_h;
         thumb_y = thumb_y + (area.h - thumb_h - 4) * child_d / m;
@@ -791,20 +792,17 @@ void gui::finder::enlist()
 {
     // List all files and subdirectories in the current directory.
 
-    strvec dirs;
-    strvec regs;
+    strset dirs;
+    strset regs;
 
-    dir.get(dirs, regs, ext);
-
-    std::sort(dirs.begin(), dirs.end());
-    std::sort(regs.begin(), regs.end());
+    ::data->list(cwd, dirs, regs);
 
     // Add a new file button for each file and subdirectory.
 
-    for (strvec::iterator i = dirs.begin(); i != dirs.end(); ++i)
+    for (strset::iterator i = dirs.begin(); i != dirs.end(); ++i)
         add(new finder_dir(*i, this));
 
-    for (strvec::iterator i = regs.begin(); i != regs.end(); ++i)
+    for (strset::iterator i = regs.begin(); i != regs.end(); ++i)
         add(new finder_reg(*i, this));
 
     add(new gui::filler());
@@ -836,11 +834,36 @@ void gui::finder::update()
     laydn(area.x, area.y, area.w, area.h);
 }
 
+void gui::finder::set_dup()
+{
+    std::string::size_type s = cwd.rfind("/");
+
+    // Remove the trailing directory from the CWD.
+
+    if (s != std::string::npos)
+        cwd.erase(s);
+    else
+        cwd.erase( );
+
+    // Update the directory listing.
+
+    update();
+    conf->set_s(key, cwd);
+}
+
 void gui::finder::set_dir(std::string& name)
 {
-    dir.set(name);
+    // Append the named directory to the CWD.
+
+    if (cwd.empty())
+        cwd = name;
+    else
+        cwd = cwd + "/" + name;
+
+    // Update the directory listing.
+
     update();
-    conf->set_s(key, dir.cwd());
+    conf->set_s(key, cwd);
 }
 
 void gui::finder::set_reg(std::string& name)
@@ -848,7 +871,7 @@ void gui::finder::set_reg(std::string& name)
     file = name;
 
     if (state)
-        state->value(dir.cwd() + file);
+        state->value(cwd + "/" + file);
 }
 
 void gui::finder::show()
@@ -862,7 +885,7 @@ void gui::finder::show()
 //-----------------------------------------------------------------------------
 // File selection list elements.
 
-gui::finder_elt::finder_elt(std::string& t, gui::finder *f) :
+gui::finder_elt::finder_elt(std::string t, gui::finder *f) :
     string(mono, t, -1, 0xFF, 0xFF, 0xFF), state(f)
 {
     is_enabled = true;
@@ -916,8 +939,8 @@ void gui::harray::layup()
     {
         (*i)->layup();
 
-        area.w = MAX((*i)->get_w(), get_w());
-        area.h = MAX((*i)->get_h(), get_h());
+        area.w = std::max((*i)->get_w(), get_w());
+        area.h = std::max((*i)->get_h(), get_h());
     }
 
     // Total width is the widest child width times the child count.
@@ -953,8 +976,8 @@ void gui::varray::layup()
     {
         (*i)->layup();
 
-        area.w = MAX((*i)->get_w(), get_w());
-        area.h = MAX((*i)->get_h(), get_h());
+        area.w = std::max((*i)->get_w(), get_w());
+        area.h = std::max((*i)->get_h(), get_h());
     }
 
     // Total height is the heighest child height times the child count.
@@ -990,8 +1013,8 @@ void gui::hgroup::layup()
     {
         (*i)->layup();
 
-        area.w =    ((*i)->get_w() + get_w());
-        area.h = MAX((*i)->get_h(),  get_h());
+        area.w =         ((*i)->get_w() + get_w());
+        area.h = std::max((*i)->get_h(),  get_h());
     }
 }
 
@@ -1033,8 +1056,8 @@ void gui::vgroup::layup()
     {
         (*i)->layup();
 
-        area.w = MAX((*i)->get_w(),  get_w());
-        area.h =    ((*i)->get_h() + get_h());
+        area.w = std::max((*i)->get_w(),  get_w());
+        area.h =         ((*i)->get_h() + get_h());
     }
 }
 
@@ -1076,8 +1099,8 @@ void gui::option::layup()
     {
         (*i)->layup();
 
-        area.w = MAX((*i)->get_w(), get_w());
-        area.h = MAX((*i)->get_h(), get_h());
+        area.w = std::max((*i)->get_w(), get_w());
+        area.h = std::max((*i)->get_h(), get_h());
     }
 }
 
@@ -1112,8 +1135,8 @@ void gui::frame::layup()
     {
         (*i)->layup();
 
-        area.w = MAX((*i)->get_w(), get_w());
-        area.h = MAX((*i)->get_h(), get_h());
+        area.w = std::max((*i)->get_w(), get_w());
+        area.h = std::max((*i)->get_h(), get_h());
     }
 
     area.w += s + s;

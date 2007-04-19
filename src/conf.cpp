@@ -125,9 +125,11 @@ int app::conf::get_i(std::string name)
     mxml_node_t *node;
 
     if ((node = find("int", name)))
-        return int(node->child->value.integer);
-    else
-        return 0;
+    {
+        if (node->child)
+            return int(node->child->value.integer);
+    }
+    return 0;
 }
 
 float app::conf::get_f(std::string name)
@@ -135,9 +137,11 @@ float app::conf::get_f(std::string name)
     mxml_node_t *node;
 
     if ((node = find("float", name)))
-        return float(node->child->value.real);
-    else
-        return 0;
+    {
+        if (node->child)
+            return float(node->child->value.real);
+    }
+    return 0;
 }
 
 std::string app::conf::get_s(std::string name)
@@ -145,18 +149,20 @@ std::string app::conf::get_s(std::string name)
     mxml_node_t *node;
 
     if ((node = find("string", name)))
-        return node->child->value.text.string;
-    else
-        return "";
+    {
+        if (node->child)
+            return node->child->value.text.string;
+    }
+    return "";
 }
 
 //-----------------------------------------------------------------------------
 
 void app::conf::set_i(std::string name, int value)
 {
-    mxml_node_t *node;
-
     // Set the value of an existing integer option, or create a new one.
+
+    mxml_node_t *node;
 
     if ((node = find("int", name)))
         mxmlSetInteger(node->child, value);
@@ -171,9 +177,9 @@ void app::conf::set_i(std::string name, int value)
 
 void app::conf::set_f(std::string name, float value)
 {
-    mxml_node_t *node;
-
     // Set the value of an existing floating point option, or create a new one.
+
+    mxml_node_t *node;
 
     if ((node = find("float", name)))
         mxmlSetReal(node->child, value);
@@ -188,18 +194,24 @@ void app::conf::set_f(std::string name, float value)
 
 void app::conf::set_s(std::string name, std::string value)
 {
-    mxml_node_t *node;
+    // Be careful not to feed Mini-XML a null string.
+
+    const char *str = value.empty() ? " " : value.c_str();
 
     // Set the value of an existing string option, or create a new one.
 
+    mxml_node_t *node;
+
     if ((node = find("string", name)))
-        mxmlSetText(node->child, 0, value.c_str());
+    {
+        mxmlSetText(node->child, 0, str);
+    }
     else
     {
         node = mxmlNewElement(root, "option");
         mxmlElementSetAttr(node, "type", "string");
         mxmlElementSetAttr(node, "name", name.c_str());
-        mxmlNewText       (node, 0, value.c_str());
+        mxmlNewText       (node, 0, str);
     }
 }
 

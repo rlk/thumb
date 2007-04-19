@@ -9,6 +9,8 @@ Convert all file input to take const char *.
         mtl (not so easy?)
         txt (easy)
 
+Reduce the number of string passes by value in the gui module.
+
 add to glob
     load tex
     load obj

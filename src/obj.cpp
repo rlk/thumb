@@ -121,7 +121,7 @@ obj::obj::obj(std::string name)
 {
     // Initialize the input file.
 
-    std::istringstream sin((const char *) ::data->load_dat(name));
+    std::istringstream sin((const char *) ::data->load(name));
  
    // Initialize the vector caches.
 
@@ -159,7 +159,7 @@ obj::obj::obj(std::string name)
 
     // Release the open data file.
 
-    ::data->free_dat(name);
+    ::data->free(name);
 
     // Initialize the GL state.
 

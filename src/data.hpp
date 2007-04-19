@@ -15,13 +15,15 @@
 
 #include <stdexcept>
 #include <string>
+#include <vector>
 #include <list>
 #include <map>
+#include <set>
 
 #include <string.h>
 #include <errno.h>
 
-#include "dir.hpp"
+#include "util.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -65,23 +67,6 @@ namespace app
 
 namespace app
 {
-    typedef std::list<std::string> strings;
-
-    //-------------------------------------------------------------------------
-    // Data path
-
-    class path
-    {
-        strings name;
-
-    public:
-
-        path(std::string="");
-
-        std::string get() const;
-        void        set(std::string);
-    };
-
     //-------------------------------------------------------------------------
     // Data buffer
 
@@ -100,7 +85,8 @@ namespace app
         const void *get(size_t *) const;
     };
 
-    typedef buffer *buffer_p;
+    typedef buffer                         *buffer_p;
+    typedef std::map<std::string, buffer_p> buffer_m;
 
     //-------------------------------------------------------------------------
     // Data archive interface
@@ -109,14 +95,17 @@ namespace app
     {
     public:
 
-        virtual bool     find(std::string)                     = 0;
-        virtual buffer_p load(std::string)                     = 0;
-        virtual void     list(std::string, strings&, strings&) = 0;
+        virtual bool     find(std::string)                   const = 0;
+        virtual buffer_p load(std::string)                   const = 0;
+        virtual void     list(std::string, strset&, strset&) const = 0;
 
         virtual ~archive() { }
     };
 
-    typedef archive *archive_p;
+    typedef archive                             *archive_p;
+    typedef std::list<archive_p>                 archive_l;
+    typedef std::list<archive_p>::iterator       archive_i;
+    typedef std::list<archive_p>::const_iterator archive_c;
 
     //-------------------------------------------------------------------------
     // File system data archive
@@ -131,9 +120,9 @@ namespace app
     {
         std::string path;
 
-        bool     find(std::string);
-        buffer_p load(std::string);
-        void     list(std::string, strings&, strings&);
+        bool     find(std::string)                   const;
+        buffer_p load(std::string)                   const;
+        void     list(std::string, strset&, strset&) const;
 
     public:
 
@@ -172,55 +161,20 @@ namespace app
 {
     class data
     {
-        std::list<archive_p>            archives;
-        std::map<std::string, buffer_p> buffers;
+        archive_l archives;
+        buffer_m  buffers;
 
     public:
 
         data();
        ~data();
 
-        const void *load_dat(std::string name, size_t *size=0);
-        void        free_dat(std::string name);
+        const void *load(std::string name, size_t *size=0);
+        void        list(std::string, strset&, strset&);
+        void        free(std::string name);
     };
 }
 
-/*
-namespace app
-{
-    class data
-    {
-        struct img
-        {
-            void *p;
-            int   w;
-            int   h;
-            int   b;
-        };
-
-        std::string path;
-
-        std::map<std::string, int>         obj_map;
-        std::map<std::string, std::string> txt_map;
-        std::map<std::string, img>         img_map;
-
-    public:
-
-        data(std::string);
-       ~data();
-
-        const void *load_dat(const char *, size_t *);
-        void        free_dat(const char *);
-
-        int         get_obj(std::string);
-        std::string get_txt(std::string);
-        void       *get_img(std::string, int&, int&, int&);
-
-        std::string get_absolute(std::string);
-        std::string get_relative(std::string);
-    };
-}
-*/
 //-----------------------------------------------------------------------------
 
 #endif

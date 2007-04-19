@@ -72,8 +72,8 @@ static void dir_done()
 
 #endif //----------------------------------------------------------------------
 
-void dir(std::string path, std::list<std::string>& dirs,
-                           std::list<std::string>& regs)
+void dir(std::string path, std::set<std::string>& dirs,
+                           std::set<std::string>& regs)
 {
     std::string file;
     std::string name;
@@ -84,14 +84,14 @@ void dir(std::string path, std::list<std::string>& dirs,
     {
         struct stat info;
 
-        file = path + name;
+        file = path + "/" + name;
         
         // Store the names of all non-hidden files and subdirectories.
 
         if (name[0] != '.' && stat(file.c_str(), &info) == 0)
         {
-            if (((info.st_mode) & S_IFMT) == S_IFDIR) dirs.push_back(name);
-            if (((info.st_mode) & S_IFMT) == S_IFREG) regs.push_back(name);
+            if (((info.st_mode) & S_IFMT) == S_IFDIR) dirs.insert(name);
+            if (((info.st_mode) & S_IFMT) == S_IFREG) regs.insert(name);
         }
     }
     dir_done();

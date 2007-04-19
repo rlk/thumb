@@ -171,7 +171,7 @@ void app::text::set(const GLubyte *p)
 app::font::font(std::string filename, int size) : filename(filename), s(size)
 {
     size_t     len;
-    const void *ptr = ::data->load_dat(filename, &len);
+    const void *ptr = ::data->load(filename, &len);
 
     // Initialize the font library and font face.
 
@@ -187,7 +187,7 @@ app::font::font(std::string filename, int size) : filename(filename), s(size)
 
 app::font::~font()
 {
-    ::data->free_dat(filename);
+    ::data->free(filename);
 
     FT_Done_Face(face);
     FT_Done_FreeType(library);

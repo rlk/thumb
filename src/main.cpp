@@ -37,32 +37,6 @@ app::glob *glob;
 app::view *view;
 
 //-----------------------------------------------------------------------------
-// C-callable global state accessors.
-
-extern "C" {
-
-    const void *load_dat(const char *name, size_t *size)
-    {
-        return ::data->load_dat(name, size);
-    }
-
-    void free_dat(const char *name)
-    {
-        ::data->free_dat(name);
-    }
-
-    void load_tex(const char *name)
-    {
-        ::glob->load_texture(name);
-    }
-
-    void free_tex(const char *name)
-    {
-        ::glob->free_texture(name);
-    }
-}
-
-//-----------------------------------------------------------------------------
 // Keyboard state expression queryables.
 
 double get_key(int i)

@@ -306,23 +306,23 @@ void ent::entity::get_default()
     if (geom) set_transform(current_M, geom);
 }
 
-void ent::entity::get_surface(dSurfaceParameters& surface)
+void ent::entity::get_surface(dSurfaceParameters& s)
 {
     std::map<int, param *>::iterator i;
 
     // Merge this entity's surface parameters with the given structure.
 
     if ((i = params.find(ent::param::mu))       != params.end())
-        surface.mu       = MIN(surface.mu,       (dReal) i->second->value());
+        s.mu       = std::min(s.mu,       dReal(i->second->value()));
 
     if ((i = params.find(ent::param::bounce))   != params.end())
-        surface.bounce   = MAX(surface.bounce,   (dReal) i->second->value());
+        s.bounce   = std::max(s.bounce,   dReal(i->second->value()));
 
     if ((i = params.find(ent::param::soft_erp)) != params.end())
-        surface.soft_erp = MIN(surface.soft_erp, (dReal) i->second->value());
+        s.soft_erp = std::min(s.soft_erp, dReal(i->second->value()));
 
     if ((i = params.find(ent::param::soft_cfm)) != params.end())
-        surface.soft_cfm = MAX(surface.soft_cfm, (dReal) i->second->value());
+        s.soft_cfm = std::max(s.soft_cfm, dReal(i->second->value()));
 }
 
 //-----------------------------------------------------------------------------

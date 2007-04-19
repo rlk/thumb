@@ -18,54 +18,8 @@
 #include <fcntl.h>
 
 #include "data.hpp"
-
-//-----------------------------------------------------------------------------
-
-app::path::path(std::string curr)
-{
-    std::string file;
-
-    // Parse the given path into a stack of directory names.
-
-    for (std::string::size_type i = 0; i < curr.size(); ++i)
-
-        if (curr[i] != '/')
-            file.push_back(curr[i]);
-        else
-        {
-            name.push_back(file);
-            file.erase();
-        }
-
-    // Include any trailing name not not ending in '/'.
-
-    if (!file.empty()) name.push_back(file);
-}
-
-std::string app::path::get() const
-{
-    strings::const_iterator i;
-
-    // Compose a path string from the current directory stack.
-
-    std::string curr;
-
-    for (i = name.begin(); i != name.end(); ++i)
-        curr += (*i) + "/";
-
-    return curr;
-}
-
-void app::path::set(std::string dir)
-{
-    if (dir == "..")
-    {
-        if (name.size() > 1)
-            name.pop_back();
-    }
-    else
-        name.push_back(dir);
-}
+#include "util.hpp"
+#include "dir.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -117,7 +71,7 @@ app::file_buffer::file_buffer(std::string name)
     close(fd);
 }
 
-bool app::file_archive::find(std::string name)
+bool app::file_archive::find(std::string name) const
 {
     std::string curr = path + "/" + name;
 
@@ -133,7 +87,7 @@ bool app::file_archive::find(std::string name)
         return false;
 }
 
-app::buffer_p app::file_archive::load(std::string name)
+app::buffer_p app::file_archive::load(std::string name) const
 {
     std::string curr = path + "/" + name;
 
@@ -142,13 +96,14 @@ app::buffer_p app::file_archive::load(std::string name)
     return new file_buffer(curr);
 }
 
-void app::file_archive::list(std::string name, strings& dirs, strings& regs)
+void app::file_archive::list(std::string name, strset& dirs,
+                                               strset& regs) const
 {
     std::string curr = path + "/" + name;
 
     std::cout << "file_archive list " << curr << std::endl;
 
-    dir(name, dirs, regs);
+    dir(curr, dirs, regs);
 }
 
 //-----------------------------------------------------------------------------
@@ -170,17 +125,15 @@ app::data::~data()
         delete *i;
 }
 
-const void *app::data::load_dat(std::string name, size_t *size)
+const void *app::data::load(std::string name, size_t *size)
 {
-    std::list<archive_p>::iterator i;
-
     // If the named buffer has not yet been loaded, load it.
 
     if (buffers.find(name) == buffers.end())
     {
         // Search the list of archives for the first one with the named buffer.
 
-        for (i = archives.begin(); i != archives.end(); ++i)
+        for (archive_c i = archives.begin(); i != archives.end(); ++i)
             if ((*i)->find(name))
             {
                 buffers[name] = (*i)->load(name);
@@ -196,7 +149,15 @@ const void *app::data::load_dat(std::string name, size_t *size)
         return 0;
 }
 
-void app::data::free_dat(std::string name)
+void app::data::list(std::string name, strset& dirs, strset& regs)
+{
+    // Merge the file lists of all archives.
+
+    for (archive_c i = archives.begin(); i != archives.end(); ++i)
+        (*i)->list(name, dirs, regs);
+}
+
+void app::data::free(std::string name)
 {
     // If the named buffer has been loaded, free it.
 
@@ -208,117 +169,3 @@ void app::data::free_dat(std::string name)
 }
 
 //-----------------------------------------------------------------------------
-/*
-app::data::data(std::string p) : path(p)
-{
-    if (dir_scan(path).length() == 0)
-        throw std::runtime_error("Cannot find data directory.");
-
-    dir_close();
-}
-*/
-//-----------------------------------------------------------------------------
-/*
-std::string app::data::get_absolute(std::string filename)
-{
-    std::string directory = path;
-
-    // Absolute filenames pass through unchanged.
-
-    if (filename[0] == '/')
-        return filename;
-
-    // Filenames with the data directory already prepended also pass unchanged.
-
-    if (filename.compare(0, directory.length(), directory) == 0)
-        return filename;
-
-    // Relative filenames need the data directory prepended.
-
-    return directory + filename;
-}
-
-std::string app::data::get_relative(std::string filename)
-{
-    std::string directory = path;
-
-    // Filenames with the data directory prepended need it removed.
-
-    if (filename.compare(0, directory.length(), directory) == 0)
-        return std::string(filename, directory.length());
-
-    // All others pass through by default.
-
-    return filename;
-}
-*/
-//-----------------------------------------------------------------------------
-/*
-int app::data::get_obj(std::string filename)
-{
-    std::string pathname = get_absolute(filename);
-
-    // Load the named OBJ only if it is not already loaded.
-
-    if (obj_map.find(filename) == obj_map.end())
-        obj_map[filename] = obj_add_file(pathname.c_str());
-
-    return obj_map[filename];
-}
-
-std::string app::data::get_txt(std::string filename)
-{
-    std::string pathname = get_absolute(filename);
-
-    // Load the named text file only if it is not already loaded.
-
-    if (txt_map.find(filename) == txt_map.end())
-    {
-        std::ifstream file(pathname.c_str());
-        std::string   line;
-
-        while (std::getline(file, line))
-            txt_map[filename] += line + "\n";
-    }
-
-    return txt_map[filename];
-}
-
-void *app::data::get_img(std::string filename, int& w, int& h, int& b)
-{
-    std::string pathname = get_absolute(filename);
-    img I;
-
-    // Load the named image only if it is not already loaded.
-
-    if (img_map.find(filename) == img_map.end())
-    {
-        I.p = obj_read_image(pathname.c_str(), &I.w, &I.h, &I.b);
-        img_map[filename] = I;
-    }
-
-    w    = img_map[filename].w;
-    h    = img_map[filename].h;
-    b    = img_map[filename].b;
-    return img_map[filename].p;
-}
-*/
-//-----------------------------------------------------------------------------
-/*
-app::data::~data()
-{
-    std::map<std::string, int>::iterator i;
-    std::map<std::string, img>::iterator j;
-
-    // Delete all OBJ structures.
-
-    obj_reset_all();
-
-    // Release all image buffers.
-
-    for (j = img_map.begin(); j != img_map.end(); ++j)
-        free(j->second.p);
-}
-*/
-//-----------------------------------------------------------------------------
-

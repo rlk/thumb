@@ -14,12 +14,12 @@
 #define DIR_HPP
 
 #include <string>
-#include <list>
+#include <set>
 
 //-----------------------------------------------------------------------------
 
-void dir(std::string, std::list<std::string>&,
-                      std::list<std::string>&);
+void dir(std::string, std::set<std::string>&,
+                      std::set<std::string>&);
 
 //-----------------------------------------------------------------------------
 

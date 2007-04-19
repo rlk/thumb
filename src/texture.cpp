@@ -138,11 +138,11 @@ void ogl::texture::load_png(const void *buf, size_t len)
 void ogl::texture::load_img(std::string name)
 {
     size_t      len;
-    const void *buf = ::data->load_dat(name.c_str(), &len);
+    const void *buf = ::data->load(name.c_str(), &len);
 
     load_png(buf, len);
 
-    ::data->free_dat(name);
+    ::data->free(name);
 
     // Set some useful default state.
 
