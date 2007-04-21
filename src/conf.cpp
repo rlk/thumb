@@ -63,7 +63,7 @@ bool app::conf::load()
 }
 
 //-----------------------------------------------------------------------------
-/*
+
 static const char *save_cb(mxml_node_t *node, int where)
 {
     std::string name(node->value.element.name);
@@ -88,15 +88,15 @@ static const char *save_cb(mxml_node_t *node, int where)
 
 void app::conf::save()
 {
-    FILE *fp;
+    char *buff;
 
-    if ((fp = fopen(file.c_str(), "w")))
+    if ((buff = mxmlSaveAllocString(head, save_cb)))
     {
-        mxmlSaveFile(head, fp, save_cb);
-        fclose(fp);
+        ::data->save(file, buff);
+        free(buff);
     }
 }
-*/
+
 //-----------------------------------------------------------------------------
 
 mxml_node_t *app::conf::find(std::string type, std::string name)
@@ -224,6 +224,7 @@ app::conf::conf(std::string file) : file(file), head(0), root(0)
 
 app::conf::~conf()
 {
+    save();
     if (head) mxmlDelete(head);
 }
 

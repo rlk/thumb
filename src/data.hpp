@@ -61,6 +61,16 @@ namespace app
     public:
         read_error(std::string& s) : std::runtime_error(mesg(s)) { }
     };
+
+    class write_error : public std::runtime_error
+    {
+        std::string mesg(std::string& s) {
+            return "Error writing file: " + s + ": " + strerror(errno);
+        }
+
+    public:
+        write_error(std::string& s) : std::runtime_error(mesg(s)) { }
+    };
 }
 
 //-----------------------------------------------------------------------------
@@ -95,9 +105,10 @@ namespace app
     {
     public:
 
-        virtual bool     find(std::string)                   const = 0;
-        virtual buffer_p load(std::string)                   const = 0;
-        virtual void     list(std::string, strset&, strset&) const = 0;
+        virtual bool     find(std::string)                         const = 0;
+        virtual buffer_p load(std::string)                         const = 0;
+        virtual bool     save(std::string, const void *, size_t *) const = 0;
+        virtual void     list(std::string, strset&, strset&)       const = 0;
 
         virtual ~archive() { }
     };
@@ -119,14 +130,17 @@ namespace app
     class file_archive : public archive
     {
         std::string path;
+        bool        writable;
 
-        bool     find(std::string)                   const;
-        buffer_p load(std::string)                   const;
-        void     list(std::string, strset&, strset&) const;
+        virtual bool     find(std::string)                         const;
+        virtual buffer_p load(std::string)                         const;
+        virtual bool     save(std::string, const void *, size_t *) const;
+        virtual void     list(std::string, strset&, strset&)       const;
 
     public:
 
-        file_archive(std::string path) : path(path) { }
+        file_archive(std::string path, bool writable=false) :
+            path(path), writable(writable) { }
     };
 
     //-------------------------------------------------------------------------
@@ -169,8 +183,9 @@ namespace app
         data();
        ~data();
 
-        const void *load(std::string name, size_t *size=0);
-        void        list(std::string, strset&, strset&);
+        const void *load(std::string name,               size_t *size=0);
+        bool        save(std::string name, const void *, size_t *size=0);
+        void        list(std::string name, strset& dirs, strset& regs) const;
         void        free(std::string name);
     };
 }

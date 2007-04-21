@@ -731,7 +731,7 @@ void ops::scene::save(std::string filename, bool save_all)
 
     ent::set save;
 
-    FILE *fp;
+    char *buff;
 
     if (save_all)
     {
@@ -741,22 +741,21 @@ void ops::scene::save(std::string filename, bool save_all)
         e = save.end();
     }
 
-    if ((fp = fopen(filename.c_str(), "w")))
+    mxml_node_t *head = mxmlNewElement(0, "?xml");
+    mxml_node_t *root = mxmlNewElement(head, "world");
+
+    mxmlElementSetAttr(head, "version", "1.0");
+    mxmlElementSetAttr(head, "?", 0);
+
+    for (ent::set::const_iterator i = b; i != e; ++i)
+        (*i)->save(root);
+
+    if ((buff = mxmlSaveAllocString(head, save_cb)))
     {
-        mxml_node_t *head = mxmlNewElement(0, "?xml");
-        mxml_node_t *root = mxmlNewElement(head, "world");
-
-        mxmlElementSetAttr(head, "version", "1.0");
-        mxmlElementSetAttr(head, "?", 0);
-
-        for (ent::set::const_iterator i = b; i != e; ++i)
-            (*i)->save(root);
-
-        mxmlSaveFile(head, fp, save_cb);
-        mxmlDelete(head);
-
-        fclose(fp);
+        ::data->save(filename, buff);
+        free(buff);
     }
+    mxmlDelete(head);
 }
 
 //-----------------------------------------------------------------------------

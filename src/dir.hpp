@@ -21,6 +21,8 @@
 void dir(std::string, std::set<std::string>&,
                       std::set<std::string>&);
 
+bool mkpath(std::string, bool=true);
+
 //-----------------------------------------------------------------------------
 
 #endif

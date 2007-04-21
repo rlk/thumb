@@ -12,6 +12,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 #include "dir.hpp"
 
@@ -72,6 +73,27 @@ static void dir_done()
 
 #endif //----------------------------------------------------------------------
 
+static bool is_dir(std::string& name)
+{
+    struct stat info;
+
+    if (stat(name.c_str(), &info) == 0)
+        return ((info.st_mode & S_IFMT) == S_IFDIR);
+    else
+        return false;
+}
+
+static bool is_reg(std::string& name)
+{
+    struct stat info;
+
+    if (stat(name.c_str(), &info) == 0)
+        return ((info.st_mode & S_IFMT) == S_IFREG);
+    else
+        return false;
+}
+
+//-----------------------------------------------------------------------------
 void dir(std::string path, std::set<std::string>& dirs,
                            std::set<std::string>& regs)
 {
@@ -82,19 +104,43 @@ void dir(std::string path, std::set<std::string>& dirs,
 
     while ((name = dir_list(path)).length() > 0)
     {
-        struct stat info;
-
-        file = path + "/" + name;
-        
         // Store the names of all non-hidden files and subdirectories.
 
-        if (name[0] != '.' && stat(file.c_str(), &info) == 0)
+        if (name[0] != '.')
         {
-            if (((info.st_mode) & S_IFMT) == S_IFDIR) dirs.insert(name);
-            if (((info.st_mode) & S_IFMT) == S_IFREG) regs.insert(name);
+            file = path + "/" + name;
+
+            if (is_dir(file)) dirs.insert(name);
+            if (is_reg(file)) regs.insert(name);
         }
     }
     dir_done();
+}
+
+bool mkpath(std::string path, bool reg)
+{
+    std::string::size_type s = path.rfind("/");
+
+    // If we're at the root then we're successful.
+
+    if (s == std::string::npos)
+        return true;
+
+    // Determine the enclosing directory path.
+
+    std::string where = path;
+    where.erase(where.rfind("/"));
+
+    // Check whether the enclosing directory exists.
+
+    if (is_dir(where) || mkpath(where, false))
+    {
+        if (reg || mkdir(path.c_str(), 0777) == 0)
+            return true;
+        else
+            return false;
+    }
+    else return false;
 }
 
 //-----------------------------------------------------------------------------

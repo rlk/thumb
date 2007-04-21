@@ -13,8 +13,10 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 #include <sys/stat.h>
+#include <sys/types.h>
 #include <fcntl.h>
 
 #include "data.hpp"
@@ -23,13 +25,13 @@
 
 //-----------------------------------------------------------------------------
 
-app::buffer::buffer() : ptr(0), len(0)
+app::buffer::buffer()
 {
 }
 
 app::buffer::~buffer()
 {
-    delete [] ptr;
+    if (ptr) delete [] ptr;
 }
 
 const void *app::buffer::get(size_t *size) const
@@ -48,7 +50,7 @@ app::file_buffer::file_buffer(std::string name)
     struct stat info;
     int fd;
 
-    // Open the named file and determine its size.
+    // Open the named file for reading and determine its size.
 
     if ((fd = open(name.c_str(), O_RDONLY)) == -1)
         throw open_error(name);
@@ -96,6 +98,35 @@ app::buffer_p app::file_archive::load(std::string name) const
     return new file_buffer(curr);
 }
 
+bool app::file_archive::save(std::string name,
+                             const void *ptr, size_t *len) const
+{
+    std::string curr = path + "/" + name;
+
+    // Ensure the archive is writable and the directory exists.
+
+    if (writable && mkpath(curr))
+    {
+        size_t count = len ? (*len) : strlen((const char *) ptr);
+        int fd;
+
+        // Open the named file for writing.
+
+        if ((fd = open(curr.c_str(), O_WRONLY | O_CREAT, 0666)) == -1)
+            throw open_error(name);
+
+        // Write all data.
+
+        if (write(fd, ptr, count) < (ssize_t) count)
+            throw write_error(name);
+
+        close(fd);
+
+        return true;
+    }
+    return false;
+}
+
 void app::file_archive::list(std::string name, strset& dirs,
                                                strset& regs) const
 {
@@ -110,9 +141,19 @@ void app::file_archive::list(std::string name, strset& dirs,
 
 app::data::data()
 {
-    // Create a prioritized list of available archives.
+    // Use a writable archive in the user's home directory.
 
-    archives.push_back(new file_archive("data"));
+    char *home;
+
+    if ((home = getenv("HOME")))
+    {
+        std::string name = std::string(home) + "/.thumb";
+        archives.push_back(new file_archive(name, true));
+    }
+
+    // Use read-only archive in the current working directory.
+
+    archives.push_back(new file_archive("data", false));
 }
 
 app::data::~data()
@@ -125,7 +166,7 @@ app::data::~data()
         delete *i;
 }
 
-const void *app::data::load(std::string name, size_t *size)
+const void *app::data::load(std::string name, size_t *len)
 {
     // If the named buffer has not yet been loaded, load it.
 
@@ -144,12 +185,23 @@ const void *app::data::load(std::string name, size_t *size)
     // Return the named buffer.
 
     if (buffers.find(name) != buffers.end())
-        return buffers[name]->get(size);
+        return buffers[name]->get(len);
     else
         return 0;
 }
 
-void app::data::list(std::string name, strset& dirs, strset& regs)
+bool app::data::save(std::string name, const void *ptr, size_t *len)
+{
+    // Search the list of archives for the first one that can save this buffer.
+
+    for (archive_c i = archives.begin(); i != archives.end(); ++i)
+        if ((*i)->save(name, ptr, len))
+            return true;
+
+    return false;
+}
+
+void app::data::list(std::string name, strset& dirs, strset& regs) const
 {
     // Merge the file lists of all archives.
 
