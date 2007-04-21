@@ -1,28 +1,27 @@
-Convert all file input to take const char *.
-    Modify data object to locate and load raw data.
-    This will allow pak, pak update, data linkin, $HOME data, etc...
-    support in
-        ttf (easy)
-        xml (easy)
-        png (not so easy)
-        obj (easy after some work)
-        mtl (not so easy?)
-        txt (easy)
+The user event should not reinit everything
+
+    glob
+    demo
+        info
+            gui
+                text
+    yes
+        conf
+        glob
+    no
+        data
+        lang (unless conf lang changes)
+        view (frustum parameters need update)
+        mono (unless conf font changes)
+        sans (unless conf font changes)
+        joy  (unless conf joystick changes)
+        prog/demo?
 
 Reduce the number of string passes by value in the gui module.
 
 add to glob
     load tex
     load obj
-
-Global interface for load_dat and load_tex
-
-
-Run modes on function keys?
-    F1 info
-    F2 edit
-    F3 play
-    F4 stat
 
 Control panes on function keys?
     F5 info about
@@ -61,7 +60,7 @@ Center contraint on a group.
 Partial run.
 Remove per-frame conf references.
 Refresh button on solid loader.
-Optimize constraint drawing.
+Optimize constraint drawing -- integrate display lists with glob.
 Optimize wire drawing.
 Conveyer solid property.
 Z compression of scene XML.

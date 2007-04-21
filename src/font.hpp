@@ -20,6 +20,7 @@
 #include FT_FREETYPE_H
 
 #include "opengl.hpp"
+#include "imgdata.hpp"
 #include "rect.hpp"
 
 //-----------------------------------------------------------------------------
@@ -54,7 +55,7 @@ namespace app
 
     class text
     {
-        GLuint texture;
+        ogl::imgdata *data;
         
         int x, y;
         int inner_w;

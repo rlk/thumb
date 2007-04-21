@@ -338,26 +338,15 @@ void gui::bitmap::draw(const widget *focus, const widget *input) const
     {
         glEnable(GL_TEXTURE_2D);
 
-        text->bind();
-
-        glBegin(GL_QUADS);
+        for (int i = 0, b = 1; i < text->n(); ++i, b <<= 1)
         {
-            int i;
-            int b;
-
-            for (i = 0, b = 1; i < text->n(); ++i, b <<= 1)
-            {
-                if (bits & b)
-                    text_color();
-                else
-                    glColor3f(0.0f, 0.0f, 0.0f);
-
-                text->draw(i);
-            }
+            if (bits & b)
+                text_color();
+            else
+                glColor3f(0.0f, 0.0f, 0.0f);
+            
+            text->draw(i);
         }
-        glEnd();
-    
-        glBindTexture(GL_TEXTURE_2D, 0);
     }
     glPopAttrib();
 }

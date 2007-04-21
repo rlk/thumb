@@ -218,8 +218,8 @@ static bool loop(std::string& conf_file, std::string& lang_file)
 
             // Initialize the demo.
 
-            prog = new demo();
             glob = new app::glob();
+            prog = new demo();
             view = new app::view(w, h, conf->get_f("view_near"),
                                        conf->get_f("view_far"),
                                        conf->get_f("view_zoom"));

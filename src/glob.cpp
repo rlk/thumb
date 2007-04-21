@@ -16,18 +16,7 @@
 
 app::glob::~glob()
 {
-    std::map<std::string, program>::iterator i;
-    std::map<std::string, texture>::iterator j;
-    std::map<std::string, geodata>::iterator k;
-
-    for (i = program_map.begin(); i != program_map.end(); ++i)
-        delete i->second.ptr;
-
-    for (j = texture_map.begin(); j != texture_map.end(); ++j)
-        delete j->second.ptr;
-
-    for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
-        delete k->second.ptr;
+    fini();
 }
 
 //-----------------------------------------------------------------------------
@@ -139,6 +128,70 @@ void app::glob::dupe_geodata(const ogl::geodata *p)
 
     if (geodata_map.find(name) != geodata_map.end())
         geodata_map[name].ref++;
+}
+
+//-----------------------------------------------------------------------------
+
+ogl::imgdata *app::glob::load_imgdata(GLsizei w, GLsizei h, GLsizei b)
+{
+    ogl::imgdata *p = new ogl::imgdata(w, h, b);
+
+    imgdata_set.insert(p);
+
+    return p;
+}
+
+void app::glob::free_imgdata(ogl::imgdata *p)
+{
+    imgdata_set.erase(p);
+
+    delete p;
+}
+
+//-----------------------------------------------------------------------------
+
+void app::glob::init()
+{
+    // Reacquire all OpenGL state.
+
+    std::map<std::string, program>::iterator i;
+    std::map<std::string, texture>::iterator j;
+    std::map<std::string, geodata>::iterator k;
+    std::set<ogl::imgdata *>::iterator       l;
+
+    for (i = program_map.begin(); i != program_map.end(); ++i)
+        i->second.ptr = new ogl::program(i->first);
+
+    for (j = texture_map.begin(); j != texture_map.end(); ++j)
+        j->second.ptr = new ogl::texture(j->first);
+
+    for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
+        k->second.ptr = new ogl::geodata(k->first);
+
+    for (l = imgdata_set.begin(); l != imgdata_set.end(); ++l)
+        (*l)->init();
+}
+
+void app::glob::fini()
+{
+    // Release all OpenGL state.
+
+    std::map<std::string, program>::iterator i;
+    std::map<std::string, texture>::iterator j;
+    std::map<std::string, geodata>::iterator k;
+    std::set<ogl::imgdata *>::iterator       l;
+
+    for (i = program_map.begin(); i != program_map.end(); ++i)
+        delete i->second.ptr;
+
+    for (j = texture_map.begin(); j != texture_map.end(); ++j)
+        delete j->second.ptr;
+
+    for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
+        delete k->second.ptr;
+
+    for (l = imgdata_set.begin(); l != imgdata_set.end(); ++l)
+        (*l)->fini();
 }
 
 //-----------------------------------------------------------------------------

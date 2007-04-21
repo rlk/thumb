@@ -14,10 +14,12 @@
 #define GLOB_HPP
 
 #include <map>
+#include <set>
 
 #include "program.hpp"
 #include "texture.hpp"
 #include "geodata.hpp"
+#include "imgdata.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -46,6 +48,7 @@ namespace app
         std::map<std::string, program> program_map;
         std::map<std::string, texture> texture_map;
         std::map<std::string, geodata> geodata_map;
+        std::set<ogl::imgdata *>       imgdata_set;
 
     public:
 
@@ -54,6 +57,7 @@ namespace app
         const ogl::program *load_program(std::string);
         const ogl::texture *load_texture(std::string);
         const ogl::geodata *load_geodata(std::string);
+              ogl::imgdata *load_imgdata(GLsizei, GLsizei, GLsizei);
 
         void free_program(std::string);
         void free_texture(std::string);
@@ -62,10 +66,14 @@ namespace app
         void free_program(const ogl::program *);
         void free_texture(const ogl::texture *);
         void free_geodata(const ogl::geodata *);
+        void free_imgdata(      ogl::imgdata *);
 
         void dupe_program(const ogl::program *);
         void dupe_texture(const ogl::texture *);
         void dupe_geodata(const ogl::geodata *);
+
+        void init();
+        void fini();
     };
 }
 

@@ -40,10 +40,14 @@ void app::glyph::draw(int x, int y) const
 {
     // Draw an individual textured glyph rectangle.
 
-    glTexCoord2f(s0, t1); glVertex2i(x + x0, y + y0);
-    glTexCoord2f(s0, t0); glVertex2i(x + x0, y + y1);
-    glTexCoord2f(s1, t0); glVertex2i(x + x1, y + y1);
-    glTexCoord2f(s1, t1); glVertex2i(x + x1, y + y0);
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(s0, t1); glVertex2i(x + x0, y + y0);
+        glTexCoord2f(s0, t0); glVertex2i(x + x0, y + y1);
+        glTexCoord2f(s1, t0); glVertex2i(x + x1, y + y1);
+        glTexCoord2f(s1, t1); glVertex2i(x + x1, y + y0);
+    }
+    glEnd();
 }
 
 //-----------------------------------------------------------------------------
@@ -63,23 +67,12 @@ app::text::text(int w, int h) : x(0), y(0), inner_w(w), inner_h(h)
     outer_w = next_power_of_2(inner_w);
     outer_h = next_power_of_2(inner_h);
 
-    // Create a blank texture object for this string image.
-
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, outer_w, outer_h, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+    data = ::glob->load_imgdata(outer_w, outer_h, 4);
 }
 
 app::text::~text()
 {
-    glDeleteTextures(1, &texture);
+    ::glob->free_imgdata(data);
 }
 
 void app::text::move(int x, int y)
@@ -120,7 +113,11 @@ void app::text::draw(int i) const
 {
     // Draw only the requested glyph.
 
-    map[i].draw(x, y);
+    data->bind();
+    {
+        map[i].draw(x, y);
+    }
+    data->free();
 }
 
 void app::text::draw() const
@@ -130,25 +127,25 @@ void app::text::draw() const
     
     // Draw the entire textured string at once.
     
-    glBindTexture(GL_TEXTURE_2D, texture);
-
-    glBegin(GL_QUADS);
+    data->bind();
     {
-        glTexCoord2f(0, t); glVertex2i(x,           y);
-        glTexCoord2f(0, 0); glVertex2i(x,           y + inner_h);
-        glTexCoord2f(s, 0); glVertex2i(x + inner_w, y + inner_h);
-        glTexCoord2f(s, t); glVertex2i(x + inner_w, y);
+        glBegin(GL_QUADS);
+        {
+            glTexCoord2f(0, t); glVertex2i(x,           y);
+            glTexCoord2f(0, 0); glVertex2i(x,           y + inner_h);
+            glTexCoord2f(s, 0); glVertex2i(x + inner_w, y + inner_h);
+            glTexCoord2f(s, t); glVertex2i(x + inner_w, y);
+        }
+        glEnd();
     }
-    glEnd();
-
-    glBindTexture(GL_TEXTURE_2D, 0);
+    data->free();
 }
-
+/*
 void app::text::bind() const
 {
-    glBindTexture(GL_TEXTURE_2D, texture);
+    image->bind();
 }
-
+*/
 void app::text::add(int x, int w)
 {
     // Append a new glyph map object.
@@ -158,12 +155,9 @@ void app::text::add(int x, int w)
 
 void app::text::set(const GLubyte *p)
 {
-    // Copy the given glyph image to the GL texture object.
+    // Copy the given glyph image to the data object.
 
-    glBindTexture  (GL_TEXTURE_2D, texture);
-    glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, inner_w, inner_h,
-                    GL_RGBA, GL_UNSIGNED_BYTE, p);
-    OGLCK();
+    data->blit(p, 0, 0, inner_w, inner_h);
 }
 
 //-----------------------------------------------------------------------------

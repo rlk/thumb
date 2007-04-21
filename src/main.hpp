@@ -17,8 +17,8 @@
 #include "lang.hpp"
 #include "data.hpp"
 #include "prog.hpp"
-#include "font.hpp"
 #include "glob.hpp"
+#include "font.hpp"
 #include "view.hpp"
 
 //-----------------------------------------------------------------------------
@@ -28,9 +28,9 @@ extern app::conf *conf;
 extern app::lang *lang;
 extern app::data *data;
 extern app::prog *prog;
+extern app::glob *glob;
 extern app::font *sans;
 extern app::font *mono;
-extern app::glob *glob;
 extern app::view *view;
 
 //-----------------------------------------------------------------------------
