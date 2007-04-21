@@ -630,9 +630,9 @@ void ops::scene::init()
     do_delete();
 }
 
-void ops::scene::load(std::string filename)
+void ops::scene::load(std::string name)
 {
-    FILE *fp;
+    const char *buff;
 
     // Clear the selection in preparation for selecting all loaded entities.
 
@@ -640,10 +640,10 @@ void ops::scene::load(std::string filename)
 
     // Load the named file.
 
-    if ((fp = fopen(filename.c_str(), "r")))
+    if ((buff = (const char *) ::data->load(name)))
     {
         mxml_node_t *n;
-        mxml_node_t *H = mxmlLoadFile(0, fp, load_cb);
+        mxml_node_t *H = mxmlLoadString(0, buff, load_cb);
         mxml_node_t *T = mxmlFindElement(H, H, "world", 0, 0,
                                          MXML_DESCEND_FIRST);
         ent::joint *j = 0;
@@ -717,8 +717,9 @@ void ops::scene::load(std::string filename)
         }
 
         mxmlDelete(H);
-        fclose(fp);
     }
+
+    ::data->free(name);
 }
 
 //-----------------------------------------------------------------------------

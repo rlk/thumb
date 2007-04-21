@@ -89,24 +89,27 @@ void app::prog::snap(std::string filename, int w, int h) const
 
 //-----------------------------------------------------------------------------
 
+app::prog::prog()
+{
+    key_snap = ::conf->get_i("key_snap");
+    key_exit = ::conf->get_i("key_exit");
+    key_init = ::conf->get_i("key_init");
+}
+
 void app::prog::keybd(int k, bool d, int c)
 {
     SDL_Event user = { SDL_USEREVENT };
+    SDL_Event quit = { SDL_QUIT      };
 
     if (d)
     {
-        switch (k)
-        {
-        case SDLK_F9:
+        if (k == key_snap)
             snap(::conf->get_s("screenshot_file"),
                  ::conf->get_i("window_w"),
                  ::conf->get_i("window_h"));
-            break;
 
-        case SDLK_F12:
-            SDL_PushEvent(&user);
-            break;
-        }
+        else if (k == key_exit) SDL_PushEvent(&quit);
+        else if (k == key_init) SDL_PushEvent(&user);
     }
 }
 

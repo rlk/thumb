@@ -26,12 +26,9 @@
 
 class demo : public app::prog
 {
-    static const int edit_mode = 0;
-    static const int play_mode = 0;
-    static const int info_mode = 0;
-
     // Configuration.
 
+    int key_edit;
     int key_play;
     int key_info;
 

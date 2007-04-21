@@ -30,6 +30,7 @@ demo::demo() :
 {
     // Initialize the demo configuration.
 
+    key_edit   = conf->get_i("key_edit");
     key_play   = conf->get_i("key_play");
     key_info   = conf->get_i("key_info");
 
@@ -105,26 +106,9 @@ void demo::keybd(int k, bool d, int c)
 {
     // Handle mode transitions.
 
-    if      (k == key_play)
-    {
-        if (d)
-        {
-            if (curr  ==  &play)
-                goto_mode(&edit);
-            else
-                goto_mode(&play);
-        }
-    }
-    else if (k == key_info)
-    {
-        if (d)
-        {
-            if (curr  ==  &info)
-                goto_mode(&edit);
-            else
-                goto_mode(&info);
-        }
-    }
+    if      (d && k == key_edit && curr != &edit) goto_mode(&edit);
+    else if (d && k == key_play && curr != &play) goto_mode(&play);
+    else if (d && k == key_info && curr != &info) goto_mode(&info);
 
     // Let the current mode take it.
 

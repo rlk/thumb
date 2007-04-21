@@ -19,13 +19,17 @@ namespace app
 {
     class prog
     {
+        int key_snap;
+        int key_exit;
+        int key_init;
+
     protected:
 
         void snap(std::string, int, int) const;
 
     public:
 
-        prog() { }
+        prog();
 
         virtual void timer(float)     { }
         virtual void point(int, int)  { }

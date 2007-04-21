@@ -1,9 +1,8 @@
 <?xml
 version="1.0"?><conf>
   <option type="string" name="screenshot_file">snap.png</option>
-  <option type="string" name="data_directory">/home/evl/rlk/src/thumb/data/</option>
-  <option type="string" name="world_directory">/home/evl/rlk/src/thumb/data/world/</option>
-  <option type="string" name="solid_directory">/home/evl/rlk/src/thumb/data/solid</option>
+  <option type="string" name="world_directory">world</option>
+  <option type="string" name="solid_directory">solid</option>
   <option type="string" name="sans_font">FreeSans.ttf</option>
   <option type="string" name="mono_font">FreeMono.ttf</option>
   <option type="int" name="sans_size">14</option>
@@ -30,8 +29,12 @@ version="1.0"?><conf>
   <option type="int" name="key_selection_extend">46</option>
   <option type="int" name="key_selection_clone">106</option>
   <option type="int" name="key_selection_clear">32</option>
-  <option type="int" name="key_play">27</option>
-  <option type="int" name="key_info">9</option>
+  <option type="int" name="key_info">282</option>
+  <option type="int" name="key_edit">283</option>
+  <option type="int" name="key_play">284</option>
+  <option type="int" name="key_exit">27</option>
+  <option type="int" name="key_snap">290</option>
+  <option type="int" name="key_init">293</option>
   <option type="int" name="grid_size">16</option>
   <option type="float" name="joint_size">0.250000</option>
   <option type="float" name="view_zoom">0.500000</option>

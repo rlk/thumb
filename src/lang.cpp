@@ -10,23 +10,22 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <cstdio>
-
 #include "lang.hpp"
+#include "main.hpp"
 
 //-----------------------------------------------------------------------------
 
 app::lang::lang(std::string file, std::string loc) : loc(loc)
 {
-    FILE *fp;
+    const char *buff;
 
-    if ((fp = fopen(file.c_str(), "rb")))
+    if ((buff = (const char *) ::data->load(file)))
     {
-        head = mxmlLoadFile(0, fp, MXML_OPAQUE_CALLBACK);
+        head = mxmlLoadString(0, buff, MXML_OPAQUE_CALLBACK);
         root = mxmlFindElement(head, head, "dict", 0, 0, MXML_DESCEND_FIRST);
-
-        fclose(fp);
     }
+
+    ::data->free(file);
 }
 
 app::lang::~lang()

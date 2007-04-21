@@ -171,9 +171,9 @@ static bool loop(std::string& conf_file, std::string& lang_file)
             if (view) delete view;
             if (mono) delete mono;
             if (sans) delete sans;
-            if (data) delete data;
             if (lang) delete lang;
             if (conf) delete conf;
+            if (data) delete data;
 
             if (joy) SDL_JoystickClose(joy);
 
@@ -185,15 +185,15 @@ static bool loop(std::string& conf_file, std::string& lang_file)
             if (view) delete view;
             if (mono) delete mono;
             if (sans) delete sans;
-            if (data) delete data;
             if (lang) delete lang;
             if (conf) delete conf;
+            if (data) delete data;
 
             if (joy) SDL_JoystickClose(joy);
 
+            data = new app::data();
             conf = new app::conf(conf_file);
             lang = new app::lang(lang_file, get_loc());
-            data = new app::data();
             sans = new app::font(conf->get_s("sans_font"),
                                  conf->get_i("sans_size"));
             mono = new app::font(conf->get_s("mono_font"),

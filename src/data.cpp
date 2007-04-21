@@ -163,6 +163,8 @@ void app::data::free(std::string name)
 
     if (buffers.find(name) != buffers.end())
     {
+        std::cout << "free " << name << std::endl;
+
         delete buffers[name];
         buffers.erase(name);
     }

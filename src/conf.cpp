@@ -10,9 +10,9 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <cstdio>
 #include <mxml.h>
 
+#include "main.hpp"
 #include "conf.hpp"
 
 //-----------------------------------------------------------------------------
@@ -49,22 +49,21 @@ static mxml_type_t load_cb(mxml_node_t *node)
 
 bool app::conf::load()
 {
-    FILE *fp;
+    const char *buff;
 
-    if ((fp = fopen(file.c_str(), "r")))
+    if ((buff = (const char *) ::data->load(file)))
     {
-        head = mxmlLoadFile(NULL, fp, load_cb);
+        head = mxmlLoadString(NULL, buff, load_cb);
         root = mxmlFindElement(head, head, "conf", 0, 0, MXML_DESCEND_FIRST);
-
-        fclose(fp);
-
-        if (root) return true;
     }
-    return false;
+
+    ::data->free(file);
+
+    return root ? true : false;
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 static const char *save_cb(mxml_node_t *node, int where)
 {
     std::string name(node->value.element.name);
@@ -97,7 +96,7 @@ void app::conf::save()
         fclose(fp);
     }
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 mxml_node_t *app::conf::find(std::string type, std::string name)
@@ -225,7 +224,6 @@ app::conf::conf(std::string file) : file(file), head(0), root(0)
 
 app::conf::~conf()
 {
-    save();
     if (head) mxmlDelete(head);
 }
 
