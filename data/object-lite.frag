@@ -14,8 +14,7 @@ void main()
     float Sk = shadow2DProj (shadowmap,  gl_TexCoord[1]).r;
     vec4  Lk = texture2DProj(lightmask,  gl_TexCoord[1]);
 
-//  Kd = Kd * gl_FrontMaterial.diffuse;
-    Kd = gl_FrontMaterial.diffuse;
+    Kd = Kd * gl_FrontMaterial.diffuse;
 
     // Clamp the range of the light source.
 

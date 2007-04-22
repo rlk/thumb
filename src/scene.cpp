@@ -886,7 +886,7 @@ void ops::scene::draw(bool edit)
             lp->lite_post(p);
 
             shadowmap.pop_frame();
-            shadowmap.bind_depth(GL_TEXTURE1);
+            shadowmap.bind_depth(GL_TEXTURE0);
 
             // Accumulate all diffuse light with the color buffer.
 

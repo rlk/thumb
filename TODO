@@ -1,29 +1,7 @@
-The user event should not reinit everything
-
-    glob
-    demo
-        info
-            gui
-                text
-    yes
-        conf
-        glob
-    no
-        data
-        lang (unless conf lang changes)
-        view (frustum parameters need update)
-        mono (unless conf font changes)
-        sans (unless conf font changes)
-        joy  (unless conf joystick changes)
-        prog/demo?
-
 Take a serious look at #includes
+Intelligently select a shader based on material properties.
 Reduce the number of string passes by value in the gui module.
 Collapse deep object hierarchies using templates.
-
-add to glob
-    load tex
-    load obj
 
 Control panes on function keys?
     F5 info about
@@ -62,7 +40,7 @@ Center contraint on a group.
 Partial run.
 Remove per-frame conf references.
 Refresh button on solid loader.
-Optimize constraint drawing -- integrate display lists with glob.
+Optimize constraint drawing -- integrate display lists with glob?  Use OBJ?
 Optimize wire drawing.
 Conveyer solid property.
 Z compression of scene XML.

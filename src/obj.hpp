@@ -15,9 +15,11 @@
 
 #include <string>
 #include <vector>
+#include <list>
 #include <map>
 
 #include "opengl.hpp"
+#include "texture.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -118,24 +120,36 @@ namespace obj
 
     struct prop
     {
-        std::string name;
+        virtual ~prop() { }
+        virtual void draw() const = 0;
+    };
 
-        GLenum binding;
-        GLuint texture;
+    struct prop_col : public prop
+    {
+        GLenum  name;
+        GLfloat c[4];
 
-        GLubyte c[4];
-        GLfloat o[4];
-        GLfloat s[4];
-
-        prop()                              { }
-        prop(std::string name) : name(name) { }
+        prop_col(std::istream&, GLenum);
 
         void draw() const;
     };
 
-    typedef std::vector<prop>                 prop_v;
-    typedef std::vector<prop>::iterator       prop_i;
-    typedef std::vector<prop>::const_iterator prop_c;
+    struct prop_map : public prop
+    {
+        const ogl::texture *texture;
+
+        GLenum unit;
+
+        prop_map(std::istream&, std::string&, GLenum);
+       ~prop_map();
+
+        void draw() const;
+    };
+
+    typedef const prop                         *prop_p;
+    typedef std::list<prop_p>                 prop_v;
+    typedef std::list<prop_p>::iterator       prop_i;
+    typedef std::list<prop_p>::const_iterator prop_c;
 
     //-------------------------------------------------------------------------
 
@@ -143,14 +157,16 @@ namespace obj
     {
         std::string name;
 
-        prop_v props;
+        GLfloat alpha;
+        prop_v  props;
 
-        mtrl()                              { }
-        mtrl(std::string name) : name(name) { }
+        mtrl();
+       ~mtrl();
 
         void draw() const;
     };
 
+    typedef const mtrl                       *mtrl_p;
     typedef std::vector<mtrl>                 mtrl_v;
     typedef std::vector<mtrl>::iterator       mtrl_i;
     typedef std::vector<mtrl>::const_iterator mtrl_c;
@@ -161,9 +177,11 @@ namespace obj
     {
         GLuint ibo;
 
-        mtrl_i state;
+        mtrl_p state;
         face_v faces;
 
+        surf(mtrl_p state) : ibo(0), state(state) { }
+        
         void draw() const;
         void init();
         void fini();
@@ -182,6 +200,11 @@ namespace obj
         mtrl_v mtrls;
         vert_v verts;
         surf_v surfs;
+
+        void read_map(std::istream&, prop&);
+        void read_rgb(std::istream&, prop&);
+        void read_mtl(std::istream&, std::string&);
+        void read_use(std::istream&);
 
         int  read_i (std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&, int);
         void read_f (std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&, int);

@@ -136,7 +136,7 @@ void ogl::texture::load_img(std::string name)
     size_t      len;
     const void *buf = ::data->load(name.c_str(), &len);
 
-    load_png(buf, len);
+    if (buf) load_png(buf, len);
 
     ::data->free(name);
 

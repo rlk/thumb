@@ -19,6 +19,130 @@
 
 //-----------------------------------------------------------------------------
 
+obj::prop_col::prop_col(std::istream& lin, GLenum name) : name(name)
+{
+    lin >> c[0] >> c[1] >> c[2];
+
+    c[3] = 1.0f;
+}
+
+void obj::prop_col::draw() const
+{
+    glMaterialfv(GL_FRONT_AND_BACK, name, c);
+}
+
+//-----------------------------------------------------------------------------
+
+obj::prop_map::prop_map(std::istream& lin, std::string& path, GLenum unit) :
+    unit(GL_TEXTURE0 + unit)
+{
+    std::string name;
+
+    lin >> name;
+
+    texture = ::glob->load_texture(path + "/" + name);
+}
+
+obj::prop_map::~prop_map()
+{
+    if (texture) ::glob->free_texture(texture);
+}
+
+void obj::prop_map::draw() const
+{
+    if (texture) texture->bind(unit);
+}
+
+//-----------------------------------------------------------------------------
+
+obj::mtrl::mtrl() : alpha(0)
+{
+}
+
+obj::mtrl::~mtrl()
+{
+    for (prop_i i = props.begin(); i != props.end(); ++i)
+        delete (*i);
+}
+
+//-----------------------------------------------------------------------------
+
+void obj::obj::read_mtl(std::istream& lin, std::string& path)
+{
+    // Parse the MTL file name from the string.
+
+    std::string file;
+    std::string name;
+
+    lin >> file;
+
+    name = path + "/" + file;
+
+    // Initialize the input file.
+
+    std::istringstream sin((const char *) ::data->load(name));
+
+    // Parse each line of the file.
+
+    std::string line;
+    std::string type;
+
+    while (std::getline(sin, line))
+    {
+        std::istringstream lin(line);
+
+        if (lin >> type)
+        {
+            prop_p P = 0;
+
+            if (type == "newmtl")
+            {
+                mtrls.push_back(mtrl());
+                lin >> mtrls.back().name;
+            }
+
+            else if (type == "map_Kd") P = new prop_map(lin, path, 1);
+            else if (type == "map_Ka") P = new prop_map(lin, path, 2);
+            else if (type == "map_Ke") P = new prop_map(lin, path, 3);
+            else if (type == "map_Ks") P = new prop_map(lin, path, 4);
+            else if (type == "map_Ns") P = new prop_map(lin, path, 5);
+
+            else if (type == "disp")   P = new prop_map(lin, path, 6);
+            else if (type == "refl")   P = new prop_map(lin, path, 7);
+
+            else if (type == "Kd")     P = new prop_col(lin, GL_DIFFUSE);
+            else if (type == "Ka")     P = new prop_col(lin, GL_AMBIENT);
+            else if (type == "Ke")     P = new prop_col(lin, GL_EMISSION);
+            else if (type == "Ks")     P = new prop_col(lin, GL_SPECULAR);
+            else if (type == "Ns")     P = new prop_col(lin, GL_SHININESS);
+
+            else if (type == "d")      lin >> mtrls.back().alpha;
+
+            if (P) mtrls.back().props.push_back(P);
+        }
+    }
+
+    // Release the open data file.
+
+    ::data->free(name);
+}
+
+void obj::obj::read_use(std::istream &lin)
+{
+    std::string name;
+
+    lin >> name;
+
+    for (mtrl_c i = mtrls.begin(); i != mtrls.end(); ++i)
+        if (i->name == name)
+        {
+            surfs.push_back(surf(&(*i)));
+            break;
+        }
+}
+
+//-----------------------------------------------------------------------------
+
 int obj::obj::read_i(std::istream& lin, vec3_v& vv,
                                         vec2_v& tv,
                                         vec3_v& nv,
@@ -82,6 +206,10 @@ void obj::obj::read_f(std::istream& lin, vec3_v& vv,
 
     int n = iv.size();
 
+    // Make sure we've got a surface to add triangles to.
+    
+    if (surfs.empty()) surfs.push_back(surf(0));
+
     // Convert our N new vertex indices into N-2 new triangles.
 
     for (i = 0; i < n - 2; ++i)
@@ -121,6 +249,16 @@ void obj::obj::read_vn(std::istream& lin, vec3_v& nv)
 
 obj::obj::obj(std::string name)
 {
+    // Determine the path of the OBJ file.
+
+    std::string::size_type psep = name.rfind("/");
+    std::string            path = name;
+
+    if (psep == std::string::npos)
+        path.clear();
+    else
+        path.erase(psep);
+
     // Initialize the input file.
 
     std::istringstream sin((const char *) ::data->load(name));
@@ -133,14 +271,6 @@ obj::obj::obj(std::string name)
     iset_m is;
     int    gi = 0;
 
-    // Initialize the default material and surface.
-
-    mtrl M;
-    surf S;
-
-    mtrls.push_back(M);
-    surfs.push_back(S);
-
     // Parse each line of the file.
 
     std::string line;
@@ -150,13 +280,17 @@ obj::obj::obj(std::string name)
     {
         std::istringstream lin(line);
 
-        lin >> type;
+        if (lin >> type)
+        {
+            if      (type == "f")      read_f  (lin, vv, tv, nv, is, gi);
+            else if (type == "v")      read_v  (lin, vv);
+            else if (type == "vt")     read_vt (lin, tv);
+            else if (type == "vn")     read_vn (lin, nv);
+            else if (type == "mtllib") read_mtl(lin, path);
+            else if (type == "usemtl") read_use(lin);
 
-        if      (type == "f")  read_f (lin, vv, tv, nv, is, gi);
-        else if (type == "v")  read_v (lin, vv);
-        else if (type == "vt") read_vt(lin, tv);
-        else if (type == "vn") read_vn(lin, nv);
-        else if (type == "s")  lin >> gi;
+            else if (type == "s")  lin >> gi;
+        }
     }
 
     // Release the open data file.
@@ -263,18 +397,16 @@ void obj::obj::fini()
 
 #define OFFSET(i) ((char *) (i))
 
-void obj::prop::draw() const
-{
-}
-
 void obj::mtrl::draw() const
 {
-    for (prop_c pi = props.begin(); pi != props.end(); ++pi)
-        pi->draw();
+    for (prop_c i = props.begin(); i != props.end(); ++i)
+        (*i)->draw();
 }
 
 void obj::surf::draw() const
 {
+    if (state) state->draw();
+
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo);
     glDrawElements(GL_TRIANGLES, 3 * faces.size(), GL_UNSIGNED_SHORT, 0);
 }
@@ -300,8 +432,8 @@ void obj::obj::draw() const
 
         // Render each surface
 
-        for (surf_c si = surfs.begin(); si != surfs.end(); ++si)
-            si->draw();
+        for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
+            i->draw();
     }
     glPopAttrib();
     glPopClientAttrib();
