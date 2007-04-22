@@ -21,16 +21,12 @@ ogl::texture::texture(std::string name) : name(name),
     target(GL_TEXTURE_2D),
     format(GL_RGBA)
 {
-    glGenTextures(1, &object);
-
-    load_img(name);
+    init();
 }
 
 ogl::texture::~texture()
 {
-    glDeleteTextures(1, &object);
-
-    OGLCK();
+    fini();
 }
 
 //-----------------------------------------------------------------------------
@@ -172,6 +168,24 @@ void ogl::texture::free(GLenum unit) const
         glBindTexture(target, 0);
     }
     glActiveTextureARB(GL_TEXTURE0);
+    OGLCK();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::texture::init()
+{
+    glGenTextures(1, &object);
+
+    load_img(name);
+
+    OGLCK();
+}
+
+void ogl::texture::fini()
+{
+    glDeleteTextures(1, &object);
+
     OGLCK();
 }
 

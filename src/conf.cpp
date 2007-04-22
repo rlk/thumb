@@ -49,6 +49,8 @@ static mxml_type_t load_cb(mxml_node_t *node)
 
 bool app::conf::load()
 {
+    if (head) mxmlDelete(head);
+
     const char *buff;
 
     if ((buff = (const char *) ::data->load(file)))
@@ -88,12 +90,17 @@ static const char *save_cb(mxml_node_t *node, int where)
 
 void app::conf::save()
 {
-    char *buff;
-
-    if ((buff = mxmlSaveAllocString(head, save_cb)))
+    if (dirty)
     {
-        ::data->save(file, buff);
-        free(buff);
+        char *buff;
+
+        if ((buff = mxmlSaveAllocString(head, save_cb)))
+        {
+            ::data->save(file, buff);
+            free(buff);
+        }
+
+        dirty = false;
     }
 }
 
@@ -172,6 +179,8 @@ void app::conf::set_i(std::string name, int value)
         mxmlElementSetAttr(node, "name", name.c_str());
         mxmlNewInteger    (node, value);
     }
+
+    dirty = true;
 }
 
 void app::conf::set_f(std::string name, float value)
@@ -189,6 +198,8 @@ void app::conf::set_f(std::string name, float value)
         mxmlElementSetAttr(node, "name", name.c_str());
         mxmlNewReal       (node, value);
     }
+
+    dirty = true;
 }
 
 void app::conf::set_s(std::string name, std::string value)
@@ -212,11 +223,13 @@ void app::conf::set_s(std::string name, std::string value)
         mxmlElementSetAttr(node, "name", name.c_str());
         mxmlNewText       (node, 0, str);
     }
+
+    dirty = true;
 }
 
 //-----------------------------------------------------------------------------
 
-app::conf::conf(std::string file) : file(file), head(0), root(0)
+app::conf::conf(std::string file) : file(file), head(0), root(0), dirty(false)
 {
     if (load() == false)
         init();

@@ -40,10 +40,44 @@ void ogl::program::log(GLhandleARB handle)
 
 ogl::program::program(std::string name) : name(name), vert(0), frag(0)
 {
+    init();
+}
+
+ogl::program::~program()
+{
+    fini();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::program::bind() const
+{
+    glUseProgramObjectARB(prog);
+    OGLCK();
+}
+
+void ogl::program::free() const
+{
+    glUseProgramObjectARB(0);
+    OGLCK();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::program::init()
+{
     // Load the shader files.
 
-    const GLcharARB *vert_txt = (GLcharARB *) ::data->load(name + ".vert");
-    const GLcharARB *frag_txt = (GLcharARB *) ::data->load(name + ".frag");
+    size_t vert_siz;
+    size_t frag_siz;
+
+    const  GLcharARB *vert_txt
+        = (GLcharARB *) ::data->load(name + ".vert", &vert_siz);
+    const  GLcharARB *frag_txt
+        = (GLcharARB *) ::data->load(name + ".frag", &frag_siz);
+
+    int vert_len = int(vert_siz);
+    int frag_len = int(frag_siz);
 
     // Compile the vertex shader.
 
@@ -51,7 +85,7 @@ ogl::program::program(std::string name) : name(name), vert(0), frag(0)
     {
         vert = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 
-        glShaderSourceARB (vert, 1, &vert_txt, 0);
+        glShaderSourceARB (vert, 1, &vert_txt, &vert_len);
         glCompileShaderARB(vert);
         
         log(vert);
@@ -63,7 +97,7 @@ ogl::program::program(std::string name) : name(name), vert(0), frag(0)
     {
         frag = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
-        glShaderSourceARB (frag, 1, &frag_txt, 0);
+        glShaderSourceARB (frag, 1, &frag_txt, &frag_len);
         glCompileShaderARB(frag);
         
         log(frag);
@@ -88,26 +122,12 @@ ogl::program::program(std::string name) : name(name), vert(0), frag(0)
     OGLCK();
 }
 
-ogl::program::~program()
+void ogl::program::fini()
 {
     if (prog) glDeleteObjectARB(prog);
     if (vert) glDeleteObjectARB(vert);
     if (frag) glDeleteObjectARB(frag);
 
-    OGLCK();
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::program::bind() const
-{
-    glUseProgramObjectARB(prog);
-    OGLCK();
-}
-
-void ogl::program::free() const
-{
-    glUseProgramObjectARB(0);
     OGLCK();
 }
 

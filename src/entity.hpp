@@ -40,6 +40,7 @@ namespace ent
 
         static dBodyID phys_body();
         static void    phys_init();
+        static void    phys_fini();
         static void    phys_step(float);
         static void    phys_pick(const float[3], const float[3]);
 

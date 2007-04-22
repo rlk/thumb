@@ -203,6 +203,11 @@ gui::string::string(app::font *f, std::string s, int j,
     area.h = text->h() + f->size();
 }
 
+gui::string::~string()
+{
+    if (text) delete text;
+}
+
 void gui::string::text_color() const
 {
     // Set the text color.
@@ -611,11 +616,6 @@ void gui::editor::keybd(int k, int c)
         sc = 0;
         update();
     }
-}
-
-gui::editor::~editor()
-{
-    if (text) delete text;
 }
 
 //-----------------------------------------------------------------------------

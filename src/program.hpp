@@ -41,6 +41,9 @@ namespace ogl
         void bind() const;
         void free() const;
 
+        void init();
+        void fini();
+
         void uniform(std::string, int)                        const;
         void uniform(std::string, float)                      const;
         void uniform(std::string, float, float)               const;

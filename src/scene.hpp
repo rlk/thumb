@@ -74,6 +74,7 @@ namespace ops
     public:
 
         delete_op(ent::set&);
+       ~delete_op();
 
         ent::set& undo(scene *);
         ent::set& redo(scene *);

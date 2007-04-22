@@ -155,6 +155,13 @@ void ent::entity::phys_init()
     dWorldSetAutoDisableFlag(world, 1);
 }
 
+void ent::entity::phys_fini()
+{
+    dJointGroupDestroy(joint);
+    dSpaceDestroy(space);
+    dWorldDestroy(world);
+}
+
 void ent::entity::phys_step(float dt)
 {
     float dist = 100.0f;

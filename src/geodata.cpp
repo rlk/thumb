@@ -16,12 +16,12 @@
 
 ogl::geodata::geodata(std::string name) : name(name)
 {
-    data = new obj::obj(name);
+    init();
 }
 
 ogl::geodata::~geodata()
 {
-    delete data;
+    fini();
 }
 
 //-----------------------------------------------------------------------------
@@ -39,6 +39,18 @@ void ogl::geodata::sph_bound(float *b) const
 void ogl::geodata::draw() const
 {
     data->draw();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::geodata::init()
+{
+    data = new obj::obj(name);
+}
+
+void ogl::geodata::fini()
+{
+    delete data;
 }
 
 //-----------------------------------------------------------------------------

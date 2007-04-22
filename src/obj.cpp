@@ -48,11 +48,13 @@ int obj::obj::read_i(std::istream& lin, vec3_v& vv,
 
     // If we have not seen this index set before...
 
-    if ((ii = is.find(iset(vi, ti, ni, gi))) == is.end())
+    iset I(vi, ti, ni, gi);
+
+    if ((ii = is.find(I)) == is.end())
     {
         // ... Create a new index set and vertex.
 
-        is[iset(vi, ti, ni, gi)] = (i = int(verts.size()));
+        is[I] = (i = int(verts.size()));
 
         verts.push_back(vert(vv, tv, nv, vi, ti, ni));
     }
@@ -203,6 +205,8 @@ void obj::obj::box_bound(GLfloat *b) const
 
 void obj::obj::sph_bound(GLfloat *b) const
 {
+    b[0] = std::numeric_limits<GLfloat>::min();
+
     for (vert_c vi = verts.begin(); vi != verts.end(); ++vi)
     {
         GLfloat r = sqrt(vi->v.v[0] * vi->v.v[0] +

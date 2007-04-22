@@ -138,7 +138,7 @@ namespace gui
         virtual void laydn(int, int, int, int);
         virtual void draw(const widget *, const widget *) const;
 
-        virtual ~string() { }
+        virtual ~string();
     };
 
     //-------------------------------------------------------------------------
@@ -200,8 +200,6 @@ namespace gui
         virtual void    keybd(int, int);
 
         virtual void draw(const widget *, const widget *) const;
-
-        virtual ~editor();
     };
 
     //-------------------------------------------------------------------------

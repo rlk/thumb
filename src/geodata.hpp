@@ -25,6 +25,9 @@ namespace ogl
         void sph_bound(float *) const;
 
         void draw() const;
+
+        void init();
+        void fini();
     };
 }
 

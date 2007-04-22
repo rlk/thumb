@@ -53,7 +53,7 @@ namespace ent
         param(std::string, std::string);
 
         void set(std::string& e) { expr = e; state = false; }
-        void get(std::string& e) { e = expr;                 }
+        void get(std::string& e) { e = expr;                }
 
         double value();
 

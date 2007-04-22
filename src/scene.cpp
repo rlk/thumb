@@ -73,6 +73,19 @@ ops::delete_op::delete_op(ent::set& S) : operation(S)
 {
 }
 
+ops::delete_op::~delete_op()
+{
+    // A non-undone delete operation contains the only reference to the deleted
+    // entities. If this operation is deleted before being undone then these
+    // entities become abandoned and should be deleted.
+
+    ent::set::iterator i;
+
+    if (done == true)
+        for (i = selection.begin(); i != selection.end(); ++i)
+            delete (*i);
+}
+
 ent::set& ops::delete_op::undo(scene *s)
 {
     s->create_set(selection);
@@ -211,6 +224,13 @@ ops::scene::~scene()
         delete redo_list.front();
         redo_list.pop_front();
     }
+
+    // Delete all ontities.
+
+    ent::set::iterator i;
+
+    for (i = all.begin(); i != all.end(); ++i)
+        delete (*i);
 }
 
 //-----------------------------------------------------------------------------

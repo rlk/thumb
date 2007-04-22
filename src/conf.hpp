@@ -30,14 +30,16 @@ namespace app
 
         mxml_node_t *find(std::string, std::string);
 
-        void init();
-        bool load();
-        void save();
+        bool dirty;
 
     public:
 
         conf(std::string);
        ~conf();
+
+        void init();
+        bool load();
+        void save();
 
         int         get_i(std::string);
         float       get_f(std::string);

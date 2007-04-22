@@ -16,7 +16,24 @@
 
 app::glob::~glob()
 {
-    fini();
+    // Release all storage and OpenGL state.
+
+    std::map<std::string, program>::iterator i;
+    std::map<std::string, texture>::iterator j;
+    std::map<std::string, geodata>::iterator k;
+    std::set<ogl::imgdata *>::iterator       l;
+
+    for (i = program_map.begin(); i != program_map.end(); ++i)
+        delete i->second.ptr;
+
+    for (j = texture_map.begin(); j != texture_map.end(); ++j)
+        delete j->second.ptr;
+
+    for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
+        delete k->second.ptr;
+
+    for (l = imgdata_set.begin(); l != imgdata_set.end(); ++l)
+        delete (*l);
 }
 
 //-----------------------------------------------------------------------------
@@ -28,6 +45,8 @@ const ogl::program *app::glob::load_program(std::string name)
         program_map[name].ptr = new ogl::program(name);
         program_map[name].ref = 1;
     }
+    else   program_map[name].ref++;
+
     return program_map[name].ptr;
 }
 
@@ -45,7 +64,7 @@ void app::glob::free_program(std::string name)
 
 void app::glob::free_program(const ogl::program *p)
 {
-    free_program(p->get_name());
+    if (p) free_program(p->get_name());
 }
 
 void app::glob::dupe_program(const ogl::program *p)
@@ -65,6 +84,8 @@ const ogl::texture *app::glob::load_texture(std::string name)
         texture_map[name].ptr = new ogl::texture(name);
         texture_map[name].ref = 1;
     }
+    else   texture_map[name].ref++;
+
     return texture_map[name].ptr;
 }
 
@@ -82,7 +103,7 @@ void app::glob::free_texture(std::string name)
 
 void app::glob::free_texture(const ogl::texture *p)
 {
-    free_texture(p->get_name());
+    if (p) free_texture(p->get_name());
 }
 
 void app::glob::dupe_texture(const ogl::texture *p)
@@ -102,6 +123,8 @@ const ogl::geodata *app::glob::load_geodata(std::string name)
         geodata_map[name].ptr = new ogl::geodata(name);
         geodata_map[name].ref = 1;
     }
+    else   geodata_map[name].ref++;
+
     return geodata_map[name].ptr;
 }
 
@@ -119,7 +142,7 @@ void app::glob::free_geodata(std::string name)
 
 void app::glob::free_geodata(const ogl::geodata *p)
 {
-    free_geodata(p->get_name());
+    if (p) free_geodata(p->get_name());
 }
 
 void app::glob::dupe_geodata(const ogl::geodata *p)
@@ -160,13 +183,13 @@ void app::glob::init()
     std::set<ogl::imgdata *>::iterator       l;
 
     for (i = program_map.begin(); i != program_map.end(); ++i)
-        i->second.ptr = new ogl::program(i->first);
+        i->second.ptr->init();
 
     for (j = texture_map.begin(); j != texture_map.end(); ++j)
-        j->second.ptr = new ogl::texture(j->first);
+        j->second.ptr->init();
 
     for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
-        k->second.ptr = new ogl::geodata(k->first);
+        k->second.ptr->init();
 
     for (l = imgdata_set.begin(); l != imgdata_set.end(); ++l)
         (*l)->init();
@@ -182,13 +205,13 @@ void app::glob::fini()
     std::set<ogl::imgdata *>::iterator       l;
 
     for (i = program_map.begin(); i != program_map.end(); ++i)
-        delete i->second.ptr;
+        i->second.ptr->fini();
 
     for (j = texture_map.begin(); j != texture_map.end(); ++j)
-        delete j->second.ptr;
+        j->second.ptr->fini();
 
     for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
-        delete k->second.ptr;
+        k->second.ptr->fini();
 
     for (l = imgdata_set.begin(); l != imgdata_set.end(); ++l)
         (*l)->fini();

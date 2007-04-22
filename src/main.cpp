@@ -154,10 +154,80 @@ static void stat()
     }
 }
 
-static bool loop(std::string& conf_file, std::string& lang_file)
-{
-    int w, h, b, m;
+//-----------------------------------------------------------------------------
 
+static void video()
+{
+    // Look up the video mode parameters.
+
+    int w = conf->get_i("window_w");
+    int h = conf->get_i("window_h");
+    int b = conf->get_i("window_b");
+    int m = SDL_OPENGL;
+
+    if (conf->get_i("window_fullscreen")) m |= SDL_FULLSCREEN;
+    if (conf->get_i("window_noframe"))    m |= SDL_NOFRAME;
+
+    // Initialize the video.
+
+    if (SDL_SetVideoMode(w, h, b, m) == 0)
+        throw std::runtime_error(SDL_GetError());
+
+    // Initialize the OpenGL state.
+
+    ogl::init();
+}
+
+static void init(std::string& conf_file, std::string& lang_file)
+{
+    // Initialize the global state.
+
+    data = new app::data();
+    conf = new app::conf(conf_file);
+    lang = new app::lang(lang_file, get_loc());
+
+    joy  = SDL_JoystickOpen(conf->get_i("joystick"));
+
+    // Initialize the video.
+
+    video();
+
+    // Initialize the demo.
+
+    glob = new app::glob();
+
+    sans = new app::font(conf->get_s("sans_font"),
+                         conf->get_i("sans_size"));
+    mono = new app::font(conf->get_s("mono_font"),
+                         conf->get_i("mono_size"));
+
+    prog = new demo();
+    view = new app::view(conf->get_i("window_w"),
+                         conf->get_i("window_h"),
+                         conf->get_f("view_near"),
+                         conf->get_f("view_far"),
+                         conf->get_f("view_zoom"));
+}
+
+static void fini()
+{
+    if (view) delete view;
+    if (prog) delete prog;
+    if (mono) delete mono;
+    if (sans) delete sans;
+    if (glob) delete glob;
+
+    if (joy) SDL_JoystickClose(joy);
+
+    if (lang) delete lang;
+    if (conf) delete conf;
+    if (data) delete data;
+}
+
+//-----------------------------------------------------------------------------
+
+static bool loop(std::string& conf_file)
+{
     SDL_Event e;
 
     // While there are available events, dispatch event handlers.
@@ -166,66 +236,13 @@ static bool loop(std::string& conf_file, std::string& lang_file)
         switch (e.type)
         {
         case SDL_QUIT:
-            if (prog) delete prog;
-            if (glob) delete glob;
-            if (view) delete view;
-            if (mono) delete mono;
-            if (sans) delete sans;
-            if (lang) delete lang;
-            if (conf) delete conf;
-            if (data) delete data;
-
-            if (joy) SDL_JoystickClose(joy);
-
             return false;
 
         case SDL_USEREVENT:
-            if (prog) delete prog;
-            if (glob) delete glob;
-            if (view) delete view;
-            if (mono) delete mono;
-            if (sans) delete sans;
-            if (lang) delete lang;
-            if (conf) delete conf;
-            if (data) delete data;
-
-            if (joy) SDL_JoystickClose(joy);
-
-            data = new app::data();
-            conf = new app::conf(conf_file);
-            lang = new app::lang(lang_file, get_loc());
-            sans = new app::font(conf->get_s("sans_font"),
-                                 conf->get_i("sans_size"));
-            mono = new app::font(conf->get_s("mono_font"),
-                                 conf->get_i("mono_size"));
-
-            // Look up the video mode parameters.
-
-            w = conf->get_i("window_w");
-            h = conf->get_i("window_h");
-            b = conf->get_i("window_b");
-            m = SDL_OPENGL;
-
-            if (conf->get_i("window_fullscreen")) m |= SDL_FULLSCREEN;
-            if (conf->get_i("window_noframe"))    m |= SDL_NOFRAME;
-
-            // Initialize the video.
-
-            if (SDL_SetVideoMode(w, h, b, m) == 0)
-                throw std::runtime_error(SDL_GetError());
-
-            ogl::init();
-
-            // Initialize the demo.
-
-            glob = new app::glob();
-            prog = new demo();
-            view = new app::view(w, h, conf->get_f("view_near"),
-                                       conf->get_f("view_far"),
-                                       conf->get_f("view_zoom"));
-
-            joy  = SDL_JoystickOpen(conf->get_i("joystick"));
-
+            glob->fini();
+            conf->load();
+            video();
+            glob->init();
             break;
 
         case SDL_MOUSEMOTION:     prog->point(e.motion.x, e.motion.y);  break;
@@ -264,23 +281,26 @@ int main(int argc, char *argv[])
 
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) == 0)
         {
-            SDL_Event e = { SDL_USEREVENT };
-
-            SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     8);
-            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   8);
-            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    8);
+            SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     5);
+            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   5);
+            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    5);
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,  16);
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
             SDL_EnableUNICODE(1);
-            SDL_PushEvent(&e);
 
-            while (loop(conf_file, lang_file))
-                SDL_GL_SwapBuffers();
+            init(conf_file, lang_file);
+            {
+                while (loop(conf_file))
+                    SDL_GL_SwapBuffers();
+            }
+            fini();
 
             SDL_Quit();
         }
         else throw std::runtime_error(SDL_GetError());
+
+        ent::entity::phys_fini();
     }
     catch (std::exception& e)
     {

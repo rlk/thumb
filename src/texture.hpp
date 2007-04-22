@@ -42,6 +42,9 @@ namespace ogl
 
         void bind(GLenum=GL_TEXTURE0) const;
         void free(GLenum=GL_TEXTURE0) const;
+
+        void init();
+        void fini();
     };
 }
 

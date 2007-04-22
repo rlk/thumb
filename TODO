@@ -17,7 +17,9 @@ The user event should not reinit everything
         joy  (unless conf joystick changes)
         prog/demo?
 
+Take a serious look at #includes
 Reduce the number of string passes by value in the gui module.
+Collapse deep object hierarchies using templates.
 
 add to glob
     load tex

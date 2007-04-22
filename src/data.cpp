@@ -68,6 +68,8 @@ app::file_buffer::file_buffer(std::string name)
     if (read(fd, ptr, len) < (ssize_t) len)
         throw read_error(name);
 
+    // Null-terminate.  (This will be a problem if we mmap.)
+
     ptr[len] = 0;
 
     close(fd);
