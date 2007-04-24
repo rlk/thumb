@@ -46,8 +46,6 @@ void ent::light::lite_prep(int pass)
 {
     // Set up the GL state for shadow map rendering.
 
-    glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT);
-
     glColorMask(0, 0, 0, 0);
 
     glClear(GL_DEPTH_BUFFER_BIT);
@@ -95,7 +93,6 @@ void ent::light::lite_post(int pass)
     // Revert the GL state.
 
     glColorMask(1, 1, 1, 1);
-    glPopAttrib();
 
     // Add the light source parameters to the GL state.
 

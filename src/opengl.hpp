@@ -99,8 +99,14 @@ extern PFNGLDELETEBUFFERSARBPROC          glDeleteBuffersARB;
 
 namespace ogl
 {
+    extern bool has_multitexture;
+    extern bool has_shader;
+    extern bool has_fbo;
+    extern bool has_vbo;
+    extern int  has_shadow;
+
     void check_err(const char *, int);
-    void check_ext(const char *);
+    bool check_ext(const char *);
 
     void init();
 }

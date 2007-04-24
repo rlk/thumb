@@ -153,6 +153,8 @@ void app::data::load()
 
 std::string app::data::translate(std::string& file) const
 {
+    // Try to map the named file onto a configured alternative.
+
     if (::conf && root)
     {
         mxml_node_t *node;

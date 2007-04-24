@@ -876,17 +876,25 @@ void ops::scene::draw(bool edit)
         {
             // Render all geometry to the depth buffer.
 
-            shadowmap.push_frame();
+            if (ogl::has_shadow == 1)
+            {
+                shadowmap.push_frame();
 
-            lp->lite_prep(p);
+                glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT);
+                {
+                    lp->lite_prep(p);
 
-            for (j = D.begin(); j != D.end(); ++j)
-                j->second->draw_dark();
+                    for (j = D.begin(); j != D.end(); ++j)
+                        j->second->draw_dark();
 
-            lp->lite_post(p);
+                    lp->lite_post(p);
+                }
+                glPopAttrib();
 
-            shadowmap.pop_frame();
-            shadowmap.bind_depth(GL_TEXTURE0);
+                shadowmap.pop_frame();
+                shadowmap.bind_depth(GL_TEXTURE0);
+            }
+            else lp->lite_post(p);
 
             // Accumulate all diffuse light with the color buffer.
 

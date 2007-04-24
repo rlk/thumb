@@ -1,6 +1,6 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="shadow">map</option>
+  <option type="string" name="shadow">none</option>
   <option type="string" name="screenshot_file">snap.png</option>
   <option type="string" name="world_directory">world</option>
   <option type="string" name="solid_directory">solid</option>
