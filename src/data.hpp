@@ -22,8 +22,11 @@
 
 #include <string.h>
 #include <errno.h>
+#include <mxml.h>
 
 #include "util.hpp"
+
+#define DEFAULT_DATA_FILE "data.xml"
 
 //-----------------------------------------------------------------------------
 
@@ -175,13 +178,21 @@ namespace app
 {
     class data
     {
+        std::string  file;
+        mxml_node_t *head;
+        mxml_node_t *root;
+
+        std::string translate(std::string&) const;
+
         archive_l archives;
         buffer_m  buffers;
 
     public:
 
-        data();
+        data(std::string);
        ~data();
+
+        void load();
 
         const void *load(std::string name,               size_t *size=0);
         bool        save(std::string name, const void *, size_t *size=0);

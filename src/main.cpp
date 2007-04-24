@@ -178,11 +178,13 @@ static void video()
     ogl::init();
 }
 
-static void init(std::string& conf_file, std::string& lang_file)
+static void init(std::string& data_file,
+                 std::string& conf_file,
+                 std::string& lang_file)
 {
     // Initialize the global state.
 
-    data = new app::data();
+    data = new app::data(data_file);
     conf = new app::conf(conf_file);
     lang = new app::lang(lang_file, get_loc());
 
@@ -226,7 +228,7 @@ static void fini()
 
 //-----------------------------------------------------------------------------
 
-static bool loop(std::string& conf_file)
+static bool loop()
 {
     SDL_Event e;
 
@@ -240,6 +242,7 @@ static bool loop(std::string& conf_file)
 
         case SDL_USEREVENT:
             glob->fini();
+            data->load();
             conf->load();
             video();
             glob->init();
@@ -272,8 +275,9 @@ static bool loop(std::string& conf_file)
 
 int main(int argc, char *argv[])
 {
-    std::string conf_file(argc > 1 ? argv[1] : DEFAULT_CONF_FILE);
-    std::string lang_file(argc > 2 ? argv[2] : DEFAULT_LANG_FILE);
+    std::string data_file(argc > 1 ? argv[1] : DEFAULT_DATA_FILE);
+    std::string conf_file(argc > 2 ? argv[2] : DEFAULT_CONF_FILE);
+    std::string lang_file(argc > 3 ? argv[3] : DEFAULT_LANG_FILE);
 
     try
     {
@@ -289,9 +293,9 @@ int main(int argc, char *argv[])
 
             SDL_EnableUNICODE(1);
 
-            init(conf_file, lang_file);
+            init(data_file, conf_file, lang_file);
             {
-                while (loop(conf_file))
+                while (loop())
                     SDL_GL_SwapBuffers();
             }
             fini();

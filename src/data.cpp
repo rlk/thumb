@@ -14,18 +14,19 @@
 #include <iostream>
 #include <fstream>
 #include <cstring>
+#include <cstdlib>
 
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
 
-#include "data.hpp"
+#include "main.hpp"
 #include "util.hpp"
 #include "dir.hpp"
 
 //-----------------------------------------------------------------------------
 
-app::buffer::buffer()
+app::buffer::buffer() : ptr(0), len(0)
 {
 }
 
@@ -79,8 +80,6 @@ bool app::file_archive::find(std::string name) const
 {
     std::string curr = path + "/" + name;
 
-    std::cout << "file_archive find " << curr << std::endl;
-
     // Determine whether the named file exists within this archive.
 
     struct stat info;
@@ -94,8 +93,6 @@ bool app::file_archive::find(std::string name) const
 app::buffer_p app::file_archive::load(std::string name) const
 {
     std::string curr = path + "/" + name;
-
-    std::cout << "file_archive load " << curr << std::endl;
 
     return new file_buffer(curr);
 }
@@ -134,14 +131,76 @@ void app::file_archive::list(std::string name, strset& dirs,
 {
     std::string curr = path + "/" + name;
 
-    std::cout << "file_archive list " << curr << std::endl;
-
     dir(curr, dirs, regs);
+}
+
+//=============================================================================
+
+void app::data::load()
+{
+    if (head) mxmlDelete(head);
+
+    const char *buff;
+
+    if ((buff = (const char *) load(file)))
+    {
+        head = mxmlLoadString(NULL, buff, MXML_TEXT_CALLBACK);
+        root = mxmlFindElement(head, head, "data", 0, 0, MXML_DESCEND_FIRST);
+    }
+
+    free(file);
+}
+
+std::string app::data::translate(std::string& file) const
+{
+    if (::conf && root)
+    {
+        mxml_node_t *node;
+        mxml_node_t *curr;
+
+        // Find file elements with the given name.
+
+        for (node = mxmlFindElement(root, root, "file", "name", file.c_str(),
+                                    MXML_DESCEND_FIRST);
+             node;
+             node = mxmlFindElement(node, root, "file", "name", file.c_str(),
+                                    MXML_NO_DESCEND))
+        {
+            // Find an option element matching the current config.
+
+            for (curr = mxmlFindElement(node, node, "option",
+                                        NULL, NULL, MXML_DESCEND_FIRST);
+                 curr;
+                 curr = mxmlFindElement(curr, node, "option",
+                                        NULL, NULL, MXML_NO_DESCEND))
+            {
+                std::string type (mxmlElementGetAttr(curr, "type"));
+                std::string name (mxmlElementGetAttr(curr, "name"));
+                std::string value(mxmlElementGetAttr(curr, "value"));
+
+                // If the option matches the setting, return the mapping.
+
+                if (type == "string")
+                {
+                    if (::conf->get_s(name) == value)
+                        return std::string(curr->child->value.text.string);
+                }
+                if (type == "int")
+                {
+                    if (::conf->get_i(name) == atoi(value.c_str()))
+                        return std::string(curr->child->value.text.string);
+                }
+            }
+        }
+    }
+    // No mapping was found.  Return the original string.
+
+    return file;
 }
 
 //-----------------------------------------------------------------------------
 
-app::data::data()
+app::data::data(std::string file) : file(file), head(0), root(0)
 {
     // Use a writable archive in the user's home directory.
 
@@ -156,6 +215,10 @@ app::data::data()
     // Use read-only archive in the current working directory.
 
     archives.push_back(new file_archive("data", false));
+
+    // Load the data mapping configuration file.
+
+    load();
 }
 
 app::data::~data()
@@ -166,6 +229,10 @@ app::data::~data()
 
     for (i = archives.begin(); i != archives.end(); ++i)
         delete *i;
+
+    // Delete the configuration.
+
+    if (head) mxmlDelete(head);
 }
 
 const void *app::data::load(std::string name, size_t *len)
@@ -177,11 +244,15 @@ const void *app::data::load(std::string name, size_t *len)
         // Search the list of archives for the first one with the named buffer.
 
         for (archive_c i = archives.begin(); i != archives.end(); ++i)
-            if ((*i)->find(name))
+        {
+            std::string rename = translate(name);
+
+            if ((*i)->find(rename))
             {
-                buffers[name] = (*i)->load(name);
+                buffers[name] = (*i)->load(rename);
                 break;
             }
+        }
     }
 
     // Return the named buffer.
@@ -217,11 +288,9 @@ void app::data::free(std::string name)
 
     if (buffers.find(name) != buffers.end())
     {
-        std::cout << "free " << name << std::endl;
-
         delete buffers[name];
         buffers.erase(name);
     }
 }
 
-//-----------------------------------------------------------------------------
+//=============================================================================

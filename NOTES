@@ -1,4 +1,17 @@
 
+caps mapping
+
+    data access
+        noshadow causes program name mapping
+        lowpoly causes model name mapping
+        compressed causes compressed texture usage
+        select lang file based on lang value
+
+    data map should store requested value rather than mapped value.
+        this will allow map refresh to influence glob flush
+
+    file names need not name actual files
+
 data layout
 
         ttf
