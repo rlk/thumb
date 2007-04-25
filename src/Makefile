@@ -52,6 +52,7 @@ DEPS= $(OBJS:.o=.d)
 
 ifeq ($(shell uname), Darwin)
 	INCDIR += -I/opt/local/include
+	LIBS += -framework OpenGL
 
 	SDL_CONF = /opt/local/bin/sdl-config
 	FT2_CONF = /opt/local/bin/freetype-config

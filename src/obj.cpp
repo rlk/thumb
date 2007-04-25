@@ -154,7 +154,7 @@ int obj::obj::read_i(std::istream& lin, vec3_v& vv,
     int  vi = 0;
     int  ti = 0;
     int  ni = 0;
-    int   i;
+    int  val;
 
     // Attempt to parse an index set.
 
@@ -172,21 +172,21 @@ int obj::obj::read_i(std::istream& lin, vec3_v& vv,
 
     // If we have not seen this index set before...
 
-    iset I(vi, ti, ni, gi);
+    iset key(vi, ti, ni, gi);
 
-    if ((ii = is.find(I)) == is.end())
+    if ((ii = is.find(key)) == is.end())
     {
         // ... Create a new index set and vertex.
 
-        is[I] = (i = int(verts.size()));
+        is.insert(iset_m::value_type(key, (val = int(verts.size()))));
 
         verts.push_back(vert(vv, tv, nv, vi, ti, ni));
     }
-    else i = ii->second;
+    else val = ii->second;
 
     // Return the vertex index.
 
-    return i;
+    return val;
 }
 
 void obj::obj::read_f(std::istream& lin, vec3_v& vv,
