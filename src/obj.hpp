@@ -31,23 +31,14 @@ namespace obj
     {
         GLfloat v[2];
 
-        vec2(GLfloat s, GLfloat t) {
-            v[0] = s;
-            v[1] = t;
-        }
-        vec2() { }
+        vec2() { v[0] = v[1] = 0.0f; }
     };
 
     struct vec3
     {
         GLfloat v[3];
 
-        vec3(GLfloat x, GLfloat y, GLfloat z) {
-            v[0] = x;
-            v[1] = y;
-            v[2] = z;
-        }
-        vec3() { }
+        vec3() { v[0] = v[1] = v[2] = 0.0f; }
     };
 
     typedef std::vector<vec2> vec2_v;
@@ -90,9 +81,9 @@ namespace obj
         vert() { }
 
         vert(vec3_v& vv, vec2_v& tv, vec3_v& nv, int vi, int ti, int ni) {
-            v = (vi >= 0) ? vv[vi] : vec3(0.0f, 0.0f, 0.0f);
-            t = (ti >= 0) ? tv[ti] : vec2(0.0f, 0.0f);
-            n = (ni >= 0) ? nv[ni] : vec3(0.0f, 0.0f, 0.0f);
+            v = (vi >= 0) ? vv[vi] : vec3();
+            t = (ti >= 0) ? tv[ti] : vec2();
+            n = (ni >= 0) ? nv[ni] : vec3();
         }
     };
 

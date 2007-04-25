@@ -76,8 +76,8 @@ void ogl::program::init()
     const  GLcharARB *frag_txt
         = (GLcharARB *) ::data->load(name + ".frag", &frag_siz);
 
-    int vert_len = int(vert_siz);
-    int frag_len = int(frag_siz);
+    GLint vert_len = GLint(vert_siz);
+    GLint frag_len = GLint(frag_siz);
 
     // Compile the vertex shader.
 
