@@ -69,10 +69,13 @@ void app::glob::free_program(const ogl::program *p)
 
 void app::glob::dupe_program(const ogl::program *p)
 {
-    const std::string& name = p->get_name();
+    if (p)
+    {
+        const std::string& name = p->get_name();
 
-    if (program_map.find(name) != program_map.end())
-        program_map[name].ref++;
+        if (program_map.find(name) != program_map.end())
+            program_map[name].ref++;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -108,10 +111,13 @@ void app::glob::free_texture(const ogl::texture *p)
 
 void app::glob::dupe_texture(const ogl::texture *p)
 {
-    const std::string& name = p->get_name();
+    if (p)
+    {
+        const std::string& name = p->get_name();
 
-    if (texture_map.find(name) != texture_map.end())
-        texture_map[name].ref++;
+        if (texture_map.find(name) != texture_map.end())
+            texture_map[name].ref++;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -147,10 +153,13 @@ void app::glob::free_geodata(const ogl::geodata *p)
 
 void app::glob::dupe_geodata(const ogl::geodata *p)
 {
-    const std::string& name = p->get_name();
+    if (p)
+    {
+        const std::string& name = p->get_name();
 
-    if (geodata_map.find(name) != geodata_map.end())
-        geodata_map[name].ref++;
+        if (geodata_map.find(name) != geodata_map.end())
+            geodata_map[name].ref++;
+    }
 }
 
 //-----------------------------------------------------------------------------

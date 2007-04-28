@@ -32,7 +32,8 @@ namespace ent
 
     public:
 
-        joint(const ogl::geodata *);
+        joint(const ogl::geodata *g=0,
+              const ogl::geodata *w=0);
 
         void geom_to_entity();
 

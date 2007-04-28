@@ -44,8 +44,9 @@ void ent::joint::play_fini()
 
 //-----------------------------------------------------------------------------
 
-ent::joint::joint(const ogl::geodata *g) :
-    entity(g), size(conf->get_f("joint_size"))
+ent::joint::joint(const ogl::geodata *g,
+                  const ogl::geodata *w) :
+    entity(g, w), size(conf->get_f("joint_size"))
 {
 }
 
@@ -390,11 +391,11 @@ void ent::joint::draw_geom() const
 
         glScalef(size, size, size);
 
-        ogl::draw_disc(1);
+        ogl::draw_ring(1);
         glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-        ogl::draw_disc(1);
+        ogl::draw_ring(1);
         glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-        ogl::draw_disc(1);
+        ogl::draw_ring(1);
     }
 }
 

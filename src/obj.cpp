@@ -144,10 +144,10 @@ void obj::obj::read_use(std::istream &lin)
 
 //-----------------------------------------------------------------------------
 
-int obj::obj::read_i(std::istream& lin, vec3_v& vv,
-                                        vec2_v& tv,
-                                        vec3_v& nv,
-                                        iset_m& is, int gi)
+int obj::obj::read_fi(std::istream& lin, vec3_v& vv,
+                                         vec2_v& tv,
+                                         vec3_v& nv,
+                                         iset_m& is)
 {
     iset_m::iterator ii;
 
@@ -157,13 +157,17 @@ int obj::obj::read_i(std::istream& lin, vec3_v& vv,
     int  ni = 0;
     int  val;
 
-    // Attempt to parse an index set.
+    // Read the next index set specification.
 
-    if ((lin >> vi) == 0) return -1;
-    lin >> cc;
-    if ((lin >> ti) == 0) lin.clear();
-    lin >> cc;
-    if ((lin >> ni) == 0) lin.clear();
+    std::string word;
+
+    if ((lin >> word) == 0 || word.empty()) return -1;
+
+    // Parse an index set.
+
+    std::istringstream win(word);
+
+    win >> vi >> cc >> ti >> cc >> ni;
 
     // Convert face indices to vector cache indices.
 
@@ -173,7 +177,7 @@ int obj::obj::read_i(std::istream& lin, vec3_v& vv,
 
     // If we have not seen this index set before...
 
-    iset key(vi, ti, ni, gi);
+    iset key(vi, ti, ni);
 
     if ((ii = is.find(key)) == is.end())
     {
@@ -193,7 +197,7 @@ int obj::obj::read_i(std::istream& lin, vec3_v& vv,
 void obj::obj::read_f(std::istream& lin, vec3_v& vv,
                                          vec2_v& tv,
                                          vec3_v& nv,
-                                         iset_m& is, int gi)
+                                         iset_m& is)
 {
     std::vector<GLushort>           iv;
     std::vector<GLushort>::iterator ii;
@@ -202,7 +206,7 @@ void obj::obj::read_f(std::istream& lin, vec3_v& vv,
 
     int i;
 
-    while ((i = read_i(lin, vv, tv, nv, is, gi)) >= 0)
+    while ((i = read_fi(lin, vv, tv, nv, is)) >= 0)
         iv.push_back(GLushort(i));
 
     int n = iv.size();
@@ -215,6 +219,81 @@ void obj::obj::read_f(std::istream& lin, vec3_v& vv,
 
     for (i = 0; i < n - 2; ++i)
         surfs.back().faces.push_back(face(iv[0], iv[i + 1], iv[i + 2]));
+}
+
+//-----------------------------------------------------------------------------
+
+int obj::obj::read_li(std::istream& lin, vec3_v& vv,
+                                         vec2_v& tv,
+                                         iset_m& is)
+{
+    iset_m::iterator ii;
+
+    char cc;
+    int  vi = 0;
+    int  ti = 0;
+    int  val;
+
+    // Read the next index set specification.
+
+    std::string word;
+
+    if ((lin >> word) == 0 || word.empty()) return -1;
+
+    // Parse an index set.
+
+    std::istringstream win(word);
+
+    win >> vi >> cc >> ti;
+
+    // Convert line indices to vector cache indices.
+
+    vi += (vi < 0) ? vv.size() : -1;
+    ti += (ti < 0) ? tv.size() : -1;
+
+    // If we have not seen this index set before...
+
+    iset key(vi, ti, -1);
+
+    if ((ii = is.find(key)) == is.end())
+    {
+        // ... Create a new index set and vertex.
+
+        is.insert(iset_m::value_type(key, (val = int(verts.size()))));
+
+        verts.push_back(vert(vv, tv, vv, vi, ti, -1));
+    }
+    else val = ii->second;
+
+    // Return the vertex index.
+
+    return val;
+}
+
+void obj::obj::read_l(std::istream& lin, vec3_v& vv,
+                                         vec2_v& tv,
+                                         iset_m& is)
+{
+    std::vector<GLushort>           iv;
+    std::vector<GLushort>::iterator ii;
+
+    // Scan the string, converting index sets to vertex indices.
+
+    int i;
+
+    while ((i = read_li(lin, vv, tv, is)) >= 0)
+        iv.push_back(GLushort(i));
+
+    int n = iv.size();
+
+    // Make sure we've got a surface to add lines to.
+    
+    if (surfs.empty()) surfs.push_back(surf(0));
+
+    // Convert our N new vertex indices into N-1 new line.
+
+    for (i = 0; i < n - 1; ++i)
+        surfs.back().lines.push_back(line(iv[i], iv[i + 1]));
 }
 
 //-----------------------------------------------------------------------------
@@ -270,7 +349,6 @@ obj::obj::obj(std::string name)
     vec2_v tv;
     vec3_v nv;
     iset_m is;
-    int    gi = 0;
 
     // Parse each line of the file.
 
@@ -283,14 +361,13 @@ obj::obj::obj(std::string name)
 
         if (lin >> type)
         {
-            if      (type == "f")      read_f  (lin, vv, tv, nv, is, gi);
+            if      (type == "f")      read_f  (lin, vv, tv, nv, is);
+            else if (type == "l")      read_l  (lin, vv, tv,     is);
             else if (type == "v")      read_v  (lin, vv);
             else if (type == "vt")     read_vt (lin, tv);
             else if (type == "vn")     read_vn (lin, nv);
             else if (type == "mtllib") read_mtl(lin, path);
             else if (type == "usemtl") read_use(lin);
-
-            else if (type == "s")  lin >> gi;
         }
     }
 
@@ -356,13 +433,25 @@ void obj::obj::sph_bound(GLfloat *b) const
 
 void obj::surf::init()
 {
-    // Initialize the index buffer object.
+    // Initialize the index buffer objects.
 
-    glGenBuffersARB(1, &ibo);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-                    faces.size() * sizeof (face),
-                   &faces.front(), GL_STATIC_DRAW_ARB);
+    if (!faces.empty())
+    {
+        glGenBuffersARB(1, &fibo);
+        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, fibo);
+        glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+                        faces.size() * sizeof (face),
+                       &faces.front(), GL_STATIC_DRAW_ARB);
+    }
+
+    if (!lines.empty())
+    {
+        glGenBuffersARB(1, &libo);
+        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, libo);
+        glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+                        lines.size() * sizeof (line),
+                       &lines.front(), GL_STATIC_DRAW_ARB);
+    }
 }
 
 void obj::obj::init()
@@ -380,17 +469,21 @@ void obj::obj::init()
 
 void obj::surf::fini()
 {
-    // Delete the index buffer object.
+    // Delete the index buffer objects.
 
-    glDeleteBuffersARB(1, &ibo);
-    ibo = 0;
+    if (fibo) glDeleteBuffersARB(1, &fibo);
+    if (libo) glDeleteBuffersARB(1, &libo);
+
+    fibo = 0;
+    libo = 0;
 }
 
 void obj::obj::fini()
 {
     // Delete the vertex buffer object.
 
-    glDeleteBuffersARB(1, &vbo);
+    if (vbo) glDeleteBuffersARB(1, &vbo);
+
     vbo = 0;
 }
 
@@ -408,8 +501,16 @@ void obj::surf::draw() const
 {
     if (state) state->draw();
 
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo);
-    glDrawElements(GL_TRIANGLES, 3 * faces.size(), GL_UNSIGNED_SHORT, 0);
+    if (fibo)
+    {
+        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, fibo);
+        glDrawElements(GL_TRIANGLES, 3 * faces.size(), GL_UNSIGNED_SHORT, 0);
+    }
+    if (libo)
+    {
+        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, libo);
+        glDrawElements(GL_LINES,     2 * lines.size(), GL_UNSIGNED_SHORT, 0);
+    }
 }
 
 void obj::obj::draw() const

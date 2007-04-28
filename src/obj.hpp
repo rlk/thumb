@@ -51,9 +51,8 @@ namespace obj
         int vi;
         int ti;
         int ni;
-        int gi;
 
-        iset(int v, int t, int n, int g) : vi(v), ti(t), ni(n), gi(g) { }
+        iset(int v, int t, int n) : vi(v), ti(t), ni(n) { }
     };
 
     struct icmp
@@ -62,7 +61,6 @@ namespace obj
             if (A.vi < B.vi) return true;
             if (A.ti < B.ti) return true;
             if (A.ni < B.ni) return true;
-            if (A.gi < B.gi) return true;
 
             return false;
         }
@@ -106,6 +104,21 @@ namespace obj
     typedef std::vector<face>                 face_v;
     typedef std::vector<face>::iterator       face_i;
     typedef std::vector<face>::const_iterator face_c;
+
+    //-------------------------------------------------------------------------
+
+    struct line
+    {
+        GLushort i;
+        GLushort j;
+
+        line()                                    { }
+        line(GLushort I, GLushort J) : i(I), j(J) { }
+    };
+
+    typedef std::vector<line>                 line_v;
+    typedef std::vector<line>::iterator       line_i;
+    typedef std::vector<line>::const_iterator line_c;
 
     //-------------------------------------------------------------------------
 
@@ -166,12 +179,14 @@ namespace obj
 
     struct surf
     {
-        GLuint ibo;
+        GLuint fibo;
+        GLuint libo;
 
         mtrl_p state;
         face_v faces;
+        line_v lines;
 
-        surf(mtrl_p state) : ibo(0), state(state) { }
+        surf(mtrl_p state) : fibo(0), libo(0), state(state) { }
         
         void draw() const;
         void init();
@@ -197,8 +212,10 @@ namespace obj
         void read_mtl(std::istream&, std::string&);
         void read_use(std::istream&);
 
-        int  read_i (std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&, int);
-        void read_f (std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&, int);
+        int  read_fi(std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&);
+        void read_f (std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&);
+        int  read_li(std::istream&, vec3_v&, vec2_v&,          iset_m&);
+        void read_l (std::istream&, vec3_v&, vec2_v&,          iset_m&);
         void read_v (std::istream&, vec3_v&);
         void read_vt(std::istream&, vec2_v&);
         void read_vn(std::istream&, vec3_v&);

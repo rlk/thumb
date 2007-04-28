@@ -19,7 +19,8 @@
 
 //-----------------------------------------------------------------------------
 
-ent::solid::solid(const ogl::geodata *g) : entity(g), tran(0)
+ent::solid::solid(const ogl::geodata *g,
+                  const ogl::geodata *w) : entity(g, w), tran(0)
 {
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
@@ -260,7 +261,8 @@ void ent::box::draw_geom() const
                  float(len[1] / 2.0f),
                  float(len[2] / 2.0f));
 
-        ogl::draw_cube();
+        if (wireframe)
+            wireframe->draw();
     }
 }
 
@@ -274,11 +276,8 @@ void ent::sphere::draw_geom() const
 
         glScalef(rad, rad, rad);
 
-        ogl::draw_disc(1);
-        glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-        ogl::draw_disc(1);
-        glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-        ogl::draw_disc(1);
+        if (wireframe)
+            wireframe->draw();
     }
 }
 

@@ -399,7 +399,7 @@ void ogl::set_framebuffer(GLint o[1], GLint v[4])
 
 //-----------------------------------------------------------------------------
 
-void ogl::draw_disc(int a)
+void ogl::draw_ring(int a)
 {
     glBegin(GL_POLYGON);
     {

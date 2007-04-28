@@ -72,6 +72,7 @@ namespace ent
         std::map<int, param *> params;
 
         const ogl::geodata *geometry;
+        const ogl::geodata *wireframe;
         const ogl::program *lite_prog;
         const ogl::program *dark_prog;
 
@@ -90,7 +91,8 @@ namespace ent
 
     public:
 
-        entity(const ogl::geodata *);
+        entity(const ogl::geodata *,
+               const ogl::geodata *);
         entity(const entity&);
 
         virtual entity *clone() const = 0;

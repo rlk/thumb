@@ -194,8 +194,9 @@ ent::entity *ent::entity::focused()
 
 //-----------------------------------------------------------------------------
 
-ent::entity::entity(const ogl::geodata *geometry) :
-    geom(0), body1(0), body2(0), radius(0), geometry(geometry),
+ent::entity::entity(const ogl::geodata *g,
+                    const ogl::geodata *w) :
+    geom(0), body1(0), body2(0), radius(0), geometry(g), wireframe(w),
 
     lite_prog(glob->load_program("object-lite")),
     dark_prog(glob->load_program("object-dark"))
@@ -226,6 +227,7 @@ ent::entity::entity(const entity& that)
 
     glob->dupe_program(dark_prog);
     glob->dupe_program(lite_prog);
+    glob->dupe_geodata(wireframe);
     glob->dupe_geodata(geometry);
 }
 
@@ -235,6 +237,7 @@ ent::entity::~entity()
 
     glob->free_program(dark_prog);
     glob->free_program(lite_prog);
+    glob->free_geodata(wireframe);
     glob->free_geodata(geometry);
 
     // Destroy ODE state.

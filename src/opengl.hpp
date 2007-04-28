@@ -191,10 +191,9 @@ namespace ogl
     void get_framebuffer(GLint[1], GLint[4]);
     void set_framebuffer(GLint[1], GLint[4]);
 
-    void draw_disc(int);
+    void draw_ring(int);
     void draw_cube();
     void draw_axes();
-    void draw_frst();
 }
 
 //-----------------------------------------------------------------------------
