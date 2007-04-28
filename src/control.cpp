@@ -139,14 +139,12 @@ void cnt::new_universal_button::apply()
 
 void cnt::new_box_button::apply()
 {
-    do_create(new ent::box(glob->load_geodata(name->value()),
-                           glob->load_geodata("wire/wire_box.obj")));
+    do_create(new ent::box(glob->load_geodata(name->value())));
 }
 
 void cnt::new_sphere_button::apply()
 {
-    do_create(new ent::box(glob->load_geodata(name->value()),
-                           glob->load_geodata("wire/wire_box.obj")));
+    do_create(new ent::box(glob->load_geodata(name->value())));
 }
 
 void cnt::new_capsule_button::apply()

@@ -158,41 +158,12 @@ namespace ogl
 }
 
 //-----------------------------------------------------------------------------
-/*
-namespace ogl
-{
-    class shader
-    {
-        void check_log(GLhandleARB);
-
-        GLhandleARB vert;
-        GLhandleARB frag;
-        GLhandleARB prog;
-
-    public:
-
-        shader(std::string, std::string);
-       ~shader();
-
-        void bind() const;
-
-        void uniform(std::string, int)                        const;
-        void uniform(std::string, float)                      const;
-        void uniform(std::string, float, float)               const;
-        void uniform(std::string, float, float, float)        const;
-        void uniform(std::string, float, float, float, float) const;
-    };
-}
-*/
-//-----------------------------------------------------------------------------
 
 namespace ogl
 {
     void get_framebuffer(GLint[1], GLint[4]);
     void set_framebuffer(GLint[1], GLint[4]);
 
-    void draw_ring(int);
-    void draw_cube();
     void draw_axes();
 }
 

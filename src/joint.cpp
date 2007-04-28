@@ -53,7 +53,8 @@ ent::joint::joint(const ogl::geodata *g,
 //-----------------------------------------------------------------------------
 
 ent::ball::ball() :
-    joint(glob->load_geodata("joint/joint_ball.obj"))
+    joint(glob->load_geodata("joint/joint_ball.obj"),
+          glob->load_geodata("wire/wire_sphere.obj"))
 {
 }
 
@@ -71,7 +72,8 @@ ent::hinge::hinge() :
 }
 
 ent::hinge2::hinge2() :
-    joint(glob->load_geodata("joint/joint_hinge2.obj"))
+    joint(glob->load_geodata("joint/joint_hinge2.obj"),
+          glob->load_geodata("wire/wire_sphere.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -96,7 +98,8 @@ ent::hinge2::hinge2() :
 }
 
 ent::slider::slider() :
-    joint(glob->load_geodata("joint/joint_slider.obj"))
+    joint(glob->load_geodata("joint/joint_slider.obj"),
+          glob->load_geodata("wire/wire_sphere.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -109,7 +112,8 @@ ent::slider::slider() :
 }
 
 ent::amotor::amotor() :
-    joint(glob->load_geodata("joint/joint_amotor.obj"))
+    joint(glob->load_geodata("joint/joint_amotor.obj"),
+          glob->load_geodata("wire/wire_sphere.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -140,7 +144,8 @@ ent::amotor::amotor() :
 }
 
 ent::universal::universal() :
-    joint(glob->load_geodata("joint/joint_universal.obj"))
+    joint(glob->load_geodata("joint/joint_universal.obj"),
+          glob->load_geodata("wire/wire_sphere.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -391,11 +396,8 @@ void ent::joint::draw_geom() const
 
         glScalef(size, size, size);
 
-        ogl::draw_ring(1);
-        glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-        ogl::draw_ring(1);
-        glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-        ogl::draw_ring(1);
+        if (wireframe)
+            wireframe->draw();
     }
 }
 

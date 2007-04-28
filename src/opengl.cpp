@@ -399,50 +399,6 @@ void ogl::set_framebuffer(GLint o[1], GLint v[4])
 
 //-----------------------------------------------------------------------------
 
-void ogl::draw_ring(int a)
-{
-    glBegin(GL_POLYGON);
-    {
-        for (int i = 0; i < 360; i += a)
-            glVertex2f(cosi(i), sini(i));
-    }
-    glEnd();
-}
-
-void ogl::draw_cube()
-{
-    static const GLfloat point[8][3] = {
-        { -1.0f, -1.0f, -1.0f },
-        { +1.0f, -1.0f, -1.0f },
-        { -1.0f, +1.0f, -1.0f },
-        { +1.0f, +1.0f, -1.0f },
-        { -1.0f, -1.0f, +1.0f },
-        { +1.0f, -1.0f, +1.0f },
-        { -1.0f, +1.0f, +1.0f },
-        { +1.0f, +1.0f, +1.0f },
-    };
-
-    static const GLuint index[6][4] = {
-        { 0, 4, 6, 2 },
-        { 5, 1, 3, 7 },
-        { 0, 1, 5, 4 },
-        { 6, 7, 3, 2 },
-        { 1, 0, 2, 3 },
-        { 4, 5, 7, 6 },
-    };
-
-    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-    {
-        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-        glVertexPointer(3, GL_FLOAT, 0, point);
-        glEnableClientState(GL_VERTEX_ARRAY);
-
-        glDrawElements(GL_QUADS, 24, GL_UNSIGNED_INT, index);
-    }
-    glPopClientAttrib();
-}
-
 void ogl::draw_axes()
 {
     glBegin(GL_LINES);

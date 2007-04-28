@@ -15,6 +15,7 @@
 
 #include "entity.hpp"
 #include "param.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -66,8 +67,8 @@ namespace ent
         void draw_geom() const;
     public:
         virtual box *clone() const { return new box(*this); }
-        box(const ogl::geodata *g=0,
-            const ogl::geodata *w=0) : solid(g, w) { }
+        box(const ogl::geodata *g=0) :
+            solid(g, glob->load_geodata("wire/wire_box.obj")) { }
 
         void edit_init();
         void play_init(dBodyID);
@@ -81,8 +82,8 @@ namespace ent
         void draw_geom() const;
     public:
         virtual sphere *clone() const { return new sphere(*this); }
-        sphere(const ogl::geodata *g=0,
-               const ogl::geodata *w=0) : solid(g, w) { }
+        sphere(const ogl::geodata *g=0) : 
+            solid(g, glob->load_geodata("wire/wire_sphere.obj")) { }
 
         void edit_init();
         void play_init(dBodyID);
