@@ -15,7 +15,8 @@
 #include <cmath>
 
 #include "obj.hpp"
-#include "main.hpp"
+#include "data.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 

@@ -13,7 +13,8 @@
 #include <stdexcept>
 
 #include "font.hpp"
-#include "main.hpp"
+#include "data.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 

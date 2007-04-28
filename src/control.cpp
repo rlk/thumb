@@ -12,32 +12,42 @@
 
 #include <sstream>
 
-#include "main.hpp"
 #include "control.hpp"
+#include "camera.hpp"
+#include "joint.hpp"
+#include "solid.hpp"
+#include "light.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
 void cnt::editor::apply()
 {
     scene.set_param(key, str);
+    is_changed = false;
 }
 
 void cnt::editor::show()
 {
-    int c;
-
-    if ((c = scene.get_param(key, str)) == 0)
+    if ((count = scene.get_param(key, str)) == 0)
         str = "";
 
     update();
 
-    is_enabled = (c > 0);
-    is_varied  = (c > 1);
-}
+    if (count > 1)
+    {
+        color[0] = 0xFF;
+        color[1] = 0xFF;
+        color[2] = 0x40;
+    }
+    else
+    {
+        color[0] = 0xFF;
+        color[1] = 0xFF;
+        color[2] = 0xFF;
+    }
 
-void cnt::editor::hide()
-{
-    if (is_varied == false) apply();
+    is_enabled = (count > 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -51,15 +61,14 @@ void cnt::bitmap::apply()
     std::string val = sout.str();
 
     scene.set_param(key, val);
+    is_changed = false;
 }
 
 void cnt::bitmap::show()
 {
-    int c;
-
     std::string val;
 
-    if ((c = scene.get_param(key, val)) == 0)
+    if ((count = scene.get_param(key, val)) == 0)
         bits = 0;
     else
     {
@@ -67,13 +76,20 @@ void cnt::bitmap::show()
         sin >> bits;
     }
 
-    is_enabled = (c > 0);
-    is_varied  = (c > 1);
-}
+    if (count > 1)
+    {
+        color[0] = 0xFF;
+        color[1] = 0xFF;
+        color[2] = 0x40;
+    }
+    else
+    {
+        color[0] = 0xFF;
+        color[1] = 0xFF;
+        color[2] = 0xFF;
+    }
 
-void cnt::bitmap::hide()
-{
-    if (is_varied == false) apply();
+    is_enabled = (count > 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -91,13 +107,67 @@ void cnt::create_button::do_create(ent::entity *entity)
     state->show();
 }
 
+void cnt::new_ball_button::apply()
+{
+    do_create(new ent::ball());
+}
+
+void cnt::new_hinge_button::apply()
+{
+    do_create(new ent::hinge());
+}
+
+void cnt::new_hinge2_button::apply()
+{
+    do_create(new ent::hinge2());
+}
+
+void cnt::new_slider_button::apply()
+{
+    do_create(new ent::slider());
+}
+
+void cnt::new_amotor_button::apply()
+{
+    do_create(new ent::amotor());
+}
+
+void cnt::new_universal_button::apply()
+{
+    do_create(new ent::universal());
+}
+
+void cnt::new_box_button::apply()
+{
+    do_create(new ent::box(glob->load_geodata(name->value())));
+}
+
+void cnt::new_sphere_button::apply()
+{
+    do_create(new ent::sphere(glob->load_geodata(name->value())));
+}
+
+void cnt::new_capsule_button::apply()
+{
+    do_create(new ent::capsule(glob->load_geodata(name->value())));
+}
+
+void cnt::new_light_button::apply()
+{
+    do_create(new ent::light);
+}
+
+void cnt::new_camera_button::apply()
+{
+    do_create(new ent::camera);
+}
+
 //-----------------------------------------------------------------------------
 
 cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
-    gui::finder *F = new gui::finder("solid_directory", ".obj", E);
-    gui::findup *U = new gui::findup(F);
+    gui::finder *F = new gui::finder("solid", ".obj", E);
 
     add((new gui::frame)->
         add((new gui::hgroup)->
@@ -109,8 +179,7 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
                 add(new new_capsule_button(s, w, E))->
                 add(new new_light_button  (s, w))->
                 add(new new_camera_button (s, w))->
-                add(new gui::filler(false, true))->
-                add(U))->
+                add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->
                 add((new gui::hgroup)->
@@ -166,8 +235,7 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 cnt::world_panel::world_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
-    gui::finder *F = new gui::finder("world_directory", ".xml", E);
-    gui::findup *U = new gui::findup(F);
+    gui::finder *F = new gui::finder("world", ".xml", E);
 
     add((new gui::frame)->
         add((new gui::hgroup)->
@@ -178,8 +246,7 @@ cnt::world_panel::world_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
                 add(new load_button(s, w, E))->
                 add(new save_all_button(s, w, E))->
                 add(new save_sel_button(s, w, E))->
-                add(new gui::filler(false, true))->
-                add(U))->
+                add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->
                 add((new gui::hgroup)->

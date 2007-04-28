@@ -15,19 +15,21 @@
 #include <cstring>
 
 #include "opengl.hpp"
-#include "main.hpp"
 #include "demo.hpp"
+#include "conf.hpp"
+#include "view.hpp"
+#include "edit.hpp"
+#include "play.hpp"
+#include "info.hpp"
 
 //-----------------------------------------------------------------------------
 
-demo::demo() :
-
-    scene(),
-
-    edit(scene),
-    play(scene),
-    info(scene)
+demo::demo() : scene()
 {
+    edit = new mode::edit(scene);
+    play = new mode::play(scene);
+    info = new mode::info(scene);
+
     // Initialize the demo configuration.
 
     key_edit   = conf->get_i("key_edit");
@@ -56,7 +58,14 @@ demo::demo() :
 
     curr = 0;
 
-    goto_mode(&info);
+    goto_mode(info);
+}
+
+demo::~demo()
+{
+    delete info;
+    delete play;
+    delete edit;
 }
 
 //-----------------------------------------------------------------------------
@@ -106,9 +115,9 @@ void demo::keybd(int k, bool d, int c)
 {
     // Handle mode transitions.
 
-    if      (d && k == key_edit && curr != &edit) goto_mode(&edit);
-    else if (d && k == key_play && curr != &play) goto_mode(&play);
-    else if (d && k == key_info && curr != &info) goto_mode(&info);
+    if      (d && k == key_edit && curr != edit) goto_mode(edit);
+    else if (d && k == key_play && curr != play) goto_mode(play);
+    else if (d && k == key_info && curr != info) goto_mode(info);
 
     // Let the current mode take it.
 

@@ -1,16 +1,114 @@
 
-caps mapping
+-------------------------------------------------------------------------------
+GUI notes:
 
-    data access
-        noshadow causes program name mapping
-        lowpoly causes model name mapping
-        compressed causes compressed texture usage
-        select lang file based on lang value
+lang may be an attribute of string?
 
-    data map should store requested value rather than mapped value.
-        this will allow map refresh to influence glob flush
+Add a mechanism to allow update request to travel up
 
-    file names need not name actual files
+imgdata const may follow from a change to app::text render
+
+-------------------------------------------------------------------------------
+
+show
+  
+  is called when...
+
+    info mode enters
+    a create entity occurs
+    world "New" 
+    world "Load"
+    world "Save"
+    world "Save Selected"
+
+  it causes...
+
+    gui::finder calls update()
+    cnt::editor reads param string and calls update()
+    cnt::bitmap reads param string 
+
+hide
+
+  is called when...
+
+    info mode leaves
+
+  it causes...
+
+    cnt::dialog nulls input and focus
+    cnt::editor calls apply() (but only if is not varied)
+    cnt::bitmap calls apply() (but only if is not varied)
+
+apply
+
+  is called when...
+
+    gui::button is clicked
+        this is overloaded in several places
+          usually calls show()
+    cnt::editor::hide() (but only if is not varied)
+    cnt::bitmap::hide() (but only if is not varied)
+
+  it causes...
+
+    cnt::editor to write param string
+    cnt::bitmap to write param string
+    gui::finder_elt to set finder state
+
+update
+
+  is called when...
+
+    cnt::editor::show()  (but NOT cnt::bitmap::show())
+    gui::editor gets edited
+    gui::string::ctor
+    gui::string value changes
+
+  it causes...
+
+    gui::string to rerender its text
+    gui::editor to reposition its cursor
+
+-------------------------------------------------------------------------------
+
+gui::widget
+    gui::leaf
+        gui::string
+            gui::button
+                cnt::create_button
+                    cnt::new_*_button
+                cnt::init_button
+                cnt::load_button
+                cnt::save_all_button \
+                cnt::save_sel_button /
+                gui::finder_elt
+                    gui::finder_dir
+                    gui::finder_reg
+            gui::input
+                gui::bitmap
+                    cnt::bitmap
+                gui::editor
+                    cnt::editor
+            cnt::title
+            cnt::label
+        gui::filler
+        gui::spacer
+
+    gui::tree
+        gui::scroll
+            gui::finder
+        gui::harray
+        gui::varray
+        gui::hgroup
+        gui::vgroup
+            cnt::*_panel
+        gui::option
+        gui::frame
+gui::dialog
+
+
+-------------------------------------------------------------------------------
+
 
 data layout
 

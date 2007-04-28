@@ -11,8 +11,8 @@
 //  General Public License for more details.
 
 #include "opengl.hpp"
-#include "main.hpp"
 #include "sky.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 

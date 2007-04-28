@@ -10,10 +10,12 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <stdexcept>
+
 #include <png.h>
 
 #include "texture.hpp"
-#include "main.hpp"
+#include "data.hpp"
 
 //-----------------------------------------------------------------------------
 

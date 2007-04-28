@@ -13,7 +13,7 @@
 #include <iostream>
 
 #include "program.hpp"
-#include "main.hpp"
+#include "data.hpp"
 
 //-----------------------------------------------------------------------------
 

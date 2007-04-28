@@ -10,9 +10,9 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "main.hpp"
 #include "opengl.hpp"
 #include "joint.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 

@@ -11,11 +11,6 @@
 //  General Public License for more details.
 
 #include "scene.hpp"
-#include "joint.hpp"
-#include "solid.hpp"
-#include "light.hpp"
-#include "camera.hpp"
-#include "main.hpp"
 #include "gui.hpp"
 
 //-----------------------------------------------------------------------------
@@ -29,14 +24,14 @@ namespace cnt
     {
     public:
         title(std::string s, int j=0) :
-            gui::string(sans, s, j, 0xFF, 0xC0, 0x40) { }
+            gui::string(s, sans, j, 0xFF, 0xC0, 0x40) { }
     };
 
     class label : public gui::string
     {
     public:
         label(std::string s, int j=1) :
-            gui::string(sans, s, j, 0xFF, 0xFF, 0xFF) { }
+            gui::string(s, sans, j, 0xFF, 0xFF, 0xFF) { }
     };
 
     //-------------------------------------------------------------------------
@@ -45,6 +40,7 @@ namespace cnt
     class editor : public gui::editor
     {
         ops::scene& scene;
+        int         count;
         int         key;
 
     public:
@@ -54,7 +50,6 @@ namespace cnt
 
         void apply();
         void show();
-        void hide();
     };
 
     //-------------------------------------------------------------------------
@@ -63,6 +58,7 @@ namespace cnt
     class bitmap : public gui::bitmap
     {
         ops::scene& scene;
+        int         count;
         int         key;
 
     public:
@@ -72,7 +68,6 @@ namespace cnt
 
         void apply();
         void show();
-        void hide();
     };
 
     //-------------------------------------------------------------------------
@@ -101,8 +96,7 @@ namespace cnt
     public:
         new_ball_button(ops::scene& s, gui::widget *w) :
             create_button(s, w, "Ball") { }
-
-        void apply() { do_create(new ent::ball()); }
+        void apply();
     };
 
     class new_hinge_button : public create_button
@@ -110,8 +104,7 @@ namespace cnt
     public:
         new_hinge_button(ops::scene& s, gui::widget *w) :
             create_button(s, w, "Hinge") { }
-
-        void apply() { do_create(new ent::hinge()); }
+        void apply();
     };
 
     class new_hinge2_button : public create_button
@@ -119,8 +112,7 @@ namespace cnt
     public:
         new_hinge2_button(ops::scene& s, gui::widget *w) :
             create_button(s, w, "Hinge2") { }
-
-        void apply() { do_create(new ent::hinge2()); }
+        void apply();
     };
 
     class new_slider_button : public create_button
@@ -128,8 +120,7 @@ namespace cnt
     public:
         new_slider_button(ops::scene& s, gui::widget *w) :
             create_button(s, w, "Slider") { }
-
-        void apply() { do_create(new ent::slider()); }
+        void apply();
     };
 
     class new_amotor_button : public create_button
@@ -137,8 +128,7 @@ namespace cnt
     public:
         new_amotor_button(ops::scene& s, gui::widget *w) :
             create_button(s, w, "AMotor") { }
-
-        void apply() { do_create(new ent::amotor()); }
+        void apply();
     };
 
     class new_universal_button : public create_button
@@ -146,8 +136,7 @@ namespace cnt
     public:
         new_universal_button(ops::scene& s, gui::widget *w) :
             create_button(s, w, "Universal") { }
-
-        void apply() { do_create(new ent::universal()); }
+        void apply();
     };
 
     //-------------------------------------------------------------------------
@@ -161,10 +150,7 @@ namespace cnt
 
         new_box_button(ops::scene&  s, gui::widget *w, gui::widget *n) :
             create_button(s, w, "Box"), name(n) { }
-
-        void apply() {
-            do_create(new ent::box(glob->load_geodata(name->value())));
-        }
+        void apply();
     };
 
     class new_sphere_button : public create_button
@@ -175,10 +161,7 @@ namespace cnt
 
         new_sphere_button(ops::scene&  s, gui::widget *w, gui::widget *n) :
             create_button(s, w, "Sphere"), name(n) { }
-
-        void apply() {
-            do_create(new ent::sphere(glob->load_geodata(name->value())));
-        }
+        void apply();
     };
 
     class new_capsule_button : public create_button
@@ -189,10 +172,7 @@ namespace cnt
 
         new_capsule_button(ops::scene&  s, gui::widget *w, gui::widget *n) :
             create_button(s, w, "Capsule"), name(n) { }
-
-        void apply() {
-            do_create(new ent::capsule(glob->load_geodata(name->value())));
-        }
+        void apply();
     };
 
     //-------------------------------------------------------------------------
@@ -204,10 +184,7 @@ namespace cnt
 
         new_light_button(ops::scene&  s, gui::widget *w) :
             create_button(s, w, "Light") { }
-
-        void apply() {
-            do_create(new ent::light());
-        }
+        void apply();
     };
 
     class new_camera_button : public create_button
@@ -216,10 +193,7 @@ namespace cnt
 
         new_camera_button(ops::scene&  s, gui::widget *w) :
             create_button(s, w, "Camera") { }
-
-        void apply() {
-            do_create(new ent::camera());
-        }
+        void apply();
     };
 
     //-------------------------------------------------------------------------

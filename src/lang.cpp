@@ -10,13 +10,38 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include "data.hpp"
+#include "conf.hpp"
 #include "lang.hpp"
-#include "main.hpp"
 
 //-----------------------------------------------------------------------------
 
-app::lang::lang(std::string file, std::string loc) : loc(loc)
+static std::string get_language()
 {
+    // Check for a language setting in the config file.
+
+    std::string loc = ::conf->get_s("lang");
+
+    if (loc.size() > 0)
+        return loc;
+
+    // Check for a language setting in the environment.
+
+    const char *env = getenv("LANG");
+
+    if (env) return env;
+
+    // If all else fails, use the default.
+
+    return "en_US";
+}    
+
+//-----------------------------------------------------------------------------
+
+app::lang::lang(std::string file)
+{
+    curr = get_language();
+
     const char *buff;
 
     if ((buff = (const char *) ::data->load(file)))
@@ -46,7 +71,7 @@ std::string app::lang::get(std::string message)
         // Find the current language element.
 
         mxml_node_t *text = mxmlFindElement(mesg, mesg, "text", "lang",
-                                            loc.c_str(), MXML_DESCEND_FIRST);
+                                            curr.c_str(), MXML_DESCEND_FIRST);
 
         if (text) return text->child->value.opaque;
     }

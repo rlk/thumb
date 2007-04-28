@@ -14,21 +14,20 @@
 #include <iostream>
 #include <SDL.h>
 
-#include "main.hpp"
-#include "util.hpp"
 #include "gui.hpp"
+#include "data.hpp"
+#include "conf.hpp"
+#include "lang.hpp"
+#include "view.hpp"
+#include "util.hpp"
 
 //-----------------------------------------------------------------------------
 // Basic widget.
 
 gui::widget::widget() : area(0, 0, 0, 0)
 {
-    just = 0;
-
     is_enabled = false;
     is_pressed = false;
-    is_invalid = false;
-    is_varied  = false;
 }
 
 gui::widget::~widget()
@@ -185,39 +184,84 @@ gui::tree::~tree()
 //-----------------------------------------------------------------------------
 // Basic string widget.
 
-gui::string::string(app::font *f, std::string s, int j,
-                    GLubyte r, GLubyte g, GLubyte b) :
+app::font *gui::string::sans_font = 0;
+app::font *gui::string::mono_font = 0;
 
-    text(0), font(f), str(lang->get(s))
+int gui::string::count = 0;
+
+void gui::string::init_font()
 {
+    if (count == 0)
+    {
+        sans_font = new app::font(::conf->get_s("sans_font"),
+                                  ::conf->get_i("sans_size"));
+        mono_font = new app::font(::conf->get_s("mono_font"),
+                                  ::conf->get_i("mono_size"));
+    }
+    count++;
+}
+
+void gui::string::free_font()
+{
+    count--;
+
+    if (count == 0)
+    {
+        delete sans_font;
+        delete mono_font;
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+gui::string::string(std::string s, int f, int j, GLubyte r,
+                                                 GLubyte g,
+                                                 GLubyte b) :
+    text(0), just(j), str(lang->get(s))
+{
+    // Initialize the font.
+
+    init_font();
+
+    switch (f)
+    {
+    case sans: font = sans_font; break;
+    case mono: font = mono_font; break;
+    }
+
     color[0] = r;
     color[1] = g;
     color[2] = b;
-    just     = j;
 
-    update();
+    // Render the string texture.
+
+    init_text();
 
     // Pad the string.
 
-    area.w = text->w() + f->size() * 2;
-    area.h = text->h() + f->size();
+    area.w = text->w() + font->size() * 2;
+    area.h = text->h() + font->size();
+
+    just_text();
 }
 
 gui::string::~string()
 {
     if (text) delete text;
+
+    free_font();
 }
 
-void gui::string::text_color() const
+void gui::string::init_text()
 {
-    // Set the text color.
+    if (text) delete text;
 
-    if      (is_varied)  glColor4ub(0xFF, 0xFF, 0x40, 0xC0);
-    else if (is_invalid) glColor4ub(0xFF, 0x20, 0x20, 0xC0);
-    else                 glColor3ubv(color);
+    // Render the new string texture.
+
+    text = font->render(str);
 }
 
-void gui::string::dotext() const
+void gui::string::draw_text() const
 {
     // Draw the string.
 
@@ -225,20 +269,14 @@ void gui::string::dotext() const
     {
         glEnable(GL_TEXTURE_2D);
 
-        text_color();
+        glColor3ubv(color);
         text->draw();
     }
     glPopAttrib();
 }
 
-void gui::string::update()
+void gui::string::just_text()
 {
-    if (text) delete text;
-
-    // Render the new string texture.
-
-    text = font->render(str);
-
     // Set the justification of the new string.
 
     int jx = (area.w - text->w()) / 2;
@@ -253,7 +291,8 @@ void gui::string::update()
 void gui::string::value(std::string s)
 {
     str = lang->get(s);
-    update();
+    init_text();
+    just_text();
 }
 
 std::string gui::string::value() const
@@ -264,28 +303,20 @@ std::string gui::string::value() const
 void gui::string::laydn(int x, int y, int w, int h)
 {
     leaf::laydn(x, y, w, h);
-
-    // Set the justification of the string object.
-
-    int jx = (area.w - text->w()) / 2;
-    int jy = (area.h - text->h()) / 2;
-
-    if (just > 0) jx = area.w - text->w() - 4;
-    if (just < 0) jx = 4;
-
-    text->move(area.x + jx, area.y + jy);
+    just_text();
 }
 
 void gui::string::draw(const widget *focus, const widget *input) const
 {
     leaf::draw(focus, input);
-    dotext();
+    draw_text();
 }
 
 //-----------------------------------------------------------------------------
 // Pushbutton widget.
 
-gui::button::button(std::string text) : string(sans, text)
+gui::button::button(std::string text, int font, int just, int border) :
+    string(text, font, just), border(border)
 {
     is_enabled = true;
 }
@@ -302,16 +333,16 @@ void gui::button::draw(const widget *focus, const widget *input) const
     {
         fore_color();
 
-        glVertex2i(area.L() + 2, area.T() + 2);
-        glVertex2i(area.L() + 2, area.B() - 2);
-        glVertex2i(area.R() - 2, area.B() - 2);
-        glVertex2i(area.R() - 2, area.T() + 2);
+        glVertex2i(area.L() + border, area.T() + border);
+        glVertex2i(area.L() + border, area.B() - border);
+        glVertex2i(area.R() - border, area.B() - border);
+        glVertex2i(area.R() - border, area.T() + border);
     }
     glEnd();
 
     // Draw the text.
 
-    dotext();
+    draw_text();
 }
 
 gui::widget *gui::button::click(int x, int y, bool d)
@@ -325,12 +356,25 @@ gui::widget *gui::button::click(int x, int y, bool d)
 }
 
 //-----------------------------------------------------------------------------
+// String input widget.
+
+gui::input::input(std::string t, int f, int j) : string(t, f, j)
+{
+    is_enabled = true;
+    is_changed = false;
+}
+
+void gui::input::hide()
+{
+    if (is_changed) apply();
+}
+
+//-----------------------------------------------------------------------------
 // Bitmap widget.
 
-gui::bitmap::bitmap() : string(mono, "0123456789ABCDEFGHIJKLMNOPQRSTUV")
+gui::bitmap::bitmap() :
+    input("0123456789ABCDEFGHIJKLMNOPQRSTUV", mono), bits(0)
 {
-    bits       = 0;
-    is_enabled = true;
 }
 
 void gui::bitmap::draw(const widget *focus, const widget *input) const
@@ -346,7 +390,7 @@ void gui::bitmap::draw(const widget *focus, const widget *input) const
         for (int i = 0, b = 1; i < text->n(); ++i, b <<= 1)
         {
             if (bits & b)
-                text_color();
+                glColor3ubv(color);
             else
                 glColor3f(0.0f, 0.0f, 0.0f);
             
@@ -384,6 +428,8 @@ gui::widget *gui::bitmap::click(int x, int y, bool d)
 
             else bits = bits ^ (1 << i);
 
+            is_changed = true;
+
             return this;
         }
     }
@@ -395,21 +441,15 @@ gui::widget *gui::bitmap::click(int x, int y, bool d)
 
 std::string gui::editor::clip;
 
-gui::editor::editor(std::string t) : string(mono, t)
+gui::editor::editor(std::string t) :
+    input(t, mono, -1), si(0), sc(0)
 {
-    is_enabled = true;
-
-    si = 0;
-    sc = 0;
-
-    just = -1;
 }
 
 void gui::editor::update()
 {
-    is_varied = false;
-
-    string::update();
+    input::init_text();
+    input::just_text();
 
     // Make sure the cursor position is sane.
 
@@ -504,7 +544,7 @@ void gui::editor::draw(const widget *focus, const widget *input) const
 
     // Draw the text.
 
-    dotext();
+    draw_text();
 }
 
 gui::widget *gui::editor::click(int x, int y, bool d)
@@ -577,6 +617,7 @@ void gui::editor::keybd(int k, int c)
 
         sc = 0;
         update();
+        is_changed = true;
         return;
 
     // Handle deletion to the right.
@@ -589,6 +630,7 @@ void gui::editor::keybd(int k, int c)
 
         sc = 0;
         update();
+        is_changed = true;
         return;
     }
 
@@ -605,6 +647,7 @@ void gui::editor::keybd(int k, int c)
         si = si + int(clip.length());
         sc = 0;
         update();
+        is_changed = true;
     }
 
     // Handle text insertion.
@@ -615,6 +658,7 @@ void gui::editor::keybd(int k, int c)
         si = si + 1;
         sc = 0;
         update();
+        is_changed = true;
     }
 }
 
@@ -777,8 +821,15 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
 //-----------------------------------------------------------------------------
 // File selection list.
 
-void gui::finder::enlist()
+void gui::finder::refresh()
 {
+    // Delete all child nodes.
+
+    for (widget_v::const_iterator i = child.begin(); i != child.end(); ++i)
+        delete (*i);
+
+    child.clear();
+
     // List all files and subdirectories in the current directory.
 
     strset dirs;
@@ -788,6 +839,8 @@ void gui::finder::enlist()
 
     // Add a new file button for each file and subdirectory.
 
+    add(new finder_dir("..", this));
+
     for (strset::iterator i = dirs.begin(); i != dirs.end(); ++i)
         add(new finder_dir(*i, this));
 
@@ -795,20 +848,6 @@ void gui::finder::enlist()
         add(new finder_reg(*i, this));
 
     add(new gui::filler());
-}
-
-void gui::finder::update()
-{
-    // Delete all child nodes.
-
-    for (widget_v::const_iterator i = child.begin(); i != child.end(); ++i)
-        delete (*i);
-
-    child.clear();
-
-    // Create the new child list.
-
-    enlist();
 
     // Find the total height of all children.
 
@@ -823,98 +862,50 @@ void gui::finder::update()
     laydn(area.x, area.y, area.w, area.h);
 }
 
-void gui::finder::set_dup()
+void gui::finder::set_dir(const std::string& name)
 {
-    std::string::size_type s = cwd.rfind("/");
+    if (name == "..")
+    {
+        std::string::size_type s = cwd.rfind("/");
 
-    // Remove the trailing directory from the CWD.
+        // Remove the trailing directory from the CWD.
 
-    if (s != std::string::npos)
-        cwd.erase(s);
+        if (s != std::string::npos)
+            cwd.erase(s);
+        else
+            cwd.erase( );
+    }
     else
-        cwd.erase( );
+    {
+        // Append the named directory to the CWD.
+
+        if (cwd.empty())
+            cwd = name;
+        else
+            cwd = cwd + "/" + name;
+    }
 
     // Update the directory listing.
 
-    update();
-    conf->set_s(key, cwd);
+    refresh();
 }
 
-void gui::finder::set_dir(std::string& name)
+void gui::finder::set_reg(const std::string& name)
 {
-    // Append the named directory to the CWD.
-
-    if (cwd.empty())
-        cwd = name;
-    else
-        cwd = cwd + "/" + name;
-
-    // Update the directory listing.
-
-    update();
-    conf->set_s(key, cwd);
-}
-
-void gui::finder::set_reg(std::string& name)
-{
-    file = name;
-
     if (state)
-        state->value(cwd + "/" + file);
-}
-
-void gui::finder::show()
-{
-    // Refresh the directory listing on show.
-
-    update();
-    scroll::show();
+        state->value(cwd + "/" + name);
 }
 
 //-----------------------------------------------------------------------------
-// File selection list elements.
+// File selection list element.
 
-gui::finder_elt::finder_elt(std::string t, gui::finder *f) :
-    string(mono, t, -1, 0xFF, 0xFF, 0xFF), state(f)
+gui::finder_elt::finder_elt(std::string s, gui::finder *w) :
+    button(s, string::mono, -1, 0), target(w)
 {
-    is_enabled = true;
+    // Pack these slighly closer together than normal buttons.
 
-    area.w = text->w() + mono->size() * 2;
-    area.h = text->h() + mono->size() / 2;
-}
-
-void gui::finder_elt::draw(const widget *focus, const widget *input) const
-{
-    // Draw the background.
-
-    leaf::draw(focus, input);
-
-    // Draw the finder element shape.
-
-    glBegin(GL_QUADS);
-    {
-        fore_color();
-
-        glVertex2i(area.L(), area.T());
-        glVertex2i(area.L(), area.B());
-        glVertex2i(area.R(), area.B());
-        glVertex2i(area.R(), area.T());
-    }
-    glEnd();
-
-    // Draw the string.
-
-    dotext();
-}
-
-gui::widget *gui::finder_elt::click(int x, int y, bool d)
-{
-    widget *input = string::click(x, y, d);
-
-    // Activate the finder element on mouse up.
-
-    if (d == false) apply();
-    return input;
+    area.w = text->w() + font->size() * 2;
+    area.h = text->h() + font->size() / 2;
 }
 
 //-----------------------------------------------------------------------------
@@ -1128,8 +1119,8 @@ void gui::frame::layup()
         area.h = std::max((*i)->get_h(), get_h());
     }
 
-    area.w += s + s;
-    area.h += s + s;
+    area.w += border * 2;
+    area.h += border * 2;
 }
 
 void gui::frame::laydn(int x, int y, int w, int h)
@@ -1139,7 +1130,10 @@ void gui::frame::laydn(int x, int y, int w, int h)
     // Give children all available space.
 
     for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
-        (*i)->laydn(x + s, y + s, w - s - s, h - s - s);
+        (*i)->laydn(x + border,
+                    y + border,
+                    w - border * 2,
+                    h - border * 2);
 }
 
 void gui::frame::draw(const widget *focus, const widget *input) const
@@ -1155,12 +1149,12 @@ void gui::frame::draw(const widget *focus, const widget *input) const
         glBegin(GL_QUADS);
         {
             const int Lo = area.L();
-            const int Li = area.L() + s;
-            const int Ri = area.R() - s;
+            const int Li = area.L() + border;
+            const int Ri = area.R() - border;
             const int Ro = area.R();
             const int To = area.T();
-            const int Ti = area.T() + s;
-            const int Bi = area.B() - s;
+            const int Ti = area.T() + border;
+            const int Bi = area.B() - border;
             const int Bo = area.B();
 
             glVertex2i(Lo, To);

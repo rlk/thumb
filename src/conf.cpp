@@ -12,8 +12,8 @@
 
 #include <mxml.h>
 
-#include "main.hpp"
 #include "conf.hpp"
+#include "data.hpp"
 
 //-----------------------------------------------------------------------------
 

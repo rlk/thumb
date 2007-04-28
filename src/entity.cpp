@@ -12,12 +12,13 @@
 
 #include <iostream>
 
-#include "main.hpp"
 #include "util.hpp"
 #include "solid.hpp"
 #include "entity.hpp"
 #include "matrix.hpp"
 #include "opengl.hpp"
+#include "glob.hpp"
+#include "main.hpp"
 
 //-----------------------------------------------------------------------------
 

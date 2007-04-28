@@ -13,7 +13,8 @@
 #include "matrix.hpp"
 #include "opengl.hpp"
 #include "light.hpp"
-#include "main.hpp"
+#include "glob.hpp"
+#include "view.hpp"
 
 //-----------------------------------------------------------------------------
 

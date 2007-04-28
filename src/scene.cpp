@@ -22,7 +22,8 @@
 #include "light.hpp"
 #include "camera.hpp"
 #include "util.hpp"
-#include "main.hpp"
+#include "view.hpp"
+#include "data.hpp"
 
 //-----------------------------------------------------------------------------
 

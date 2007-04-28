@@ -15,9 +15,9 @@
 #include <sstream>
 #include <fstream>
 
-#include "main.hpp"
-#include "util.hpp"
 #include "opengl.hpp"
+#include "util.hpp"
+#include "conf.hpp"
 
 //-----------------------------------------------------------------------------
 

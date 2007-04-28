@@ -15,9 +15,9 @@
 
 #include <stdexcept>
 
-#include "main.hpp"
 #include "opengl.hpp"
 #include "prog.hpp"
+#include "conf.hpp"
 
 //-----------------------------------------------------------------------------
 

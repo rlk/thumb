@@ -12,7 +12,6 @@
 
 #include <SDL.h>
 
-#include "main.hpp"
 #include "matrix.hpp"
 #include "opengl.hpp"
 #include "solid.hpp"

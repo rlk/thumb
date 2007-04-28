@@ -24,18 +24,22 @@ namespace app
 {
     class lang
     {
-        std::string  loc;
+        std::string  curr;
         mxml_node_t *head;
         mxml_node_t *root;
 
     public:
 
-        lang(std::string, std::string);
+        lang(std::string);
        ~lang();
 
         std::string get(std::string);
     };
 }
+
+//-----------------------------------------------------------------------------
+
+extern app::lang *lang;
 
 //-----------------------------------------------------------------------------
 

@@ -30,12 +30,9 @@ namespace gui
     protected:
 
         rect area;
-        int  just;
 
         bool is_enabled;
         bool is_pressed;
-        bool is_invalid;
-        bool is_varied;
 
         std::vector<widget *> child;
 
@@ -114,23 +111,36 @@ namespace gui
 
     class string : public leaf
     {
+        static app::font *sans_font;
+        static app::font *mono_font;
+
+        static int count;
+
+        static void init_font();
+        static void free_font();
+
     protected:
 
         app::text *text;
         app::font *font;
 
+        int just;
+
         std::string str;
         GLubyte color[3];
 
-        void text_color() const;
-
-        virtual void dotext() const;
-        virtual void update();
+        virtual void init_text();
+        virtual void draw_text() const;
+        virtual void just_text();
 
     public:
 
-        string(app::font *, std::string, int j=0,
-               GLubyte=0xFF, GLubyte=0xFF, GLubyte=0xFF);
+        static const int sans = 0;
+        static const int mono = 1;
+
+        string(std::string, int f=0, int j=0, GLubyte=0xFF,
+                                              GLubyte=0xFF,
+                                              GLubyte=0xFF);
 
         virtual void        value(std::string);
         virtual std::string value() const;
@@ -146,18 +156,36 @@ namespace gui
 
     class button : public string
     {
+        int border;
+
     public:
 
-        button(std::string);
+        button(std::string, int=0, int=0, int=2);
 
         virtual widget *click(int, int, bool);
         virtual void draw(const widget *, const widget *) const;
     };
 
     //-------------------------------------------------------------------------
+    // String input widget.
+
+    class input : public string
+    {
+    protected:
+
+        bool is_changed;
+
+    public:
+
+        input(std::string, int=0, int=0);
+
+        virtual void hide();
+    };
+
+    //-------------------------------------------------------------------------
     // Bitmap widget.
 
-    class bitmap : public string
+    class bitmap : public input
     {
     protected:
 
@@ -174,7 +202,7 @@ namespace gui
     //-------------------------------------------------------------------------
     // Editable text field.
 
-    class editor : public string
+    class editor : public input
     {
         static std::string clip;
 
@@ -234,67 +262,40 @@ namespace gui
 
     class finder : public scroll
     {
-        std::string  key;
-        std::string  file;
-        std::string  ext;
         std::string  cwd;
+        std::string  ext;
         gui::widget *state;
 
     public:
 
-        finder(std::string k, std::string e, gui::widget *w) :
-            key(k), ext(e), cwd(conf->get_s(k)), state(w) { enlist(); }
+        finder(std::string d, std::string e, gui::widget *w) :
+            cwd(d), ext(e), state(w) { refresh(); }
 
-        virtual std::string value() const { return file; }
-
-        void set_dir(std::string&);
-        void set_reg(std::string&);
-        void set_dup();
-
-        void enlist();
-        void update();
-
-        virtual void show();
+        void set_dir(const std::string&);
+        void set_reg(const std::string&);
+        void refresh();
     };
 
-    class finder_elt : public string
+    class finder_elt : public button
     {
     protected:
-
-        finder *state;
-
+        finder *target;
     public:
-
         finder_elt(std::string t, gui::finder *w);
-
-        virtual void draw(const widget *, const widget *) const;
-        virtual widget *click(int, int, bool);
     };
 
     class finder_dir : public finder_elt
     {
     public:
         finder_dir(std::string t, gui::finder *w) : finder_elt(t, w) { }
-        void apply() { state->set_dir(str); }
+        void apply() { target->set_dir(str); }
     };
 
     class finder_reg : public finder_elt
     {
     public:
         finder_reg(std::string t, gui::finder *w) : finder_elt(t, w) { }
-        void apply() { state->set_reg(str); }
-    };
-
-    class findup : public button
-    {
-    protected:
-
-        finder *state;
-
-    public:
-
-        findup(gui::finder *w) : button("Up"), state(w) { }
-        void apply() { state->set_dup(); }
+        void apply() { target->set_reg(str); }
     };
 
     //-------------------------------------------------------------------------
@@ -377,10 +378,10 @@ namespace gui
 
     class frame : public tree
     {
-        int s;
+        int border;
 
     public:
-        frame() : s(2) { }
+        frame() : border(2) { }
         
         virtual void layup();
         virtual void laydn(int, int, int, int);

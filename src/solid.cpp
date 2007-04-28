@@ -15,7 +15,7 @@
 #include "opengl.hpp"
 #include "matrix.hpp"
 #include "solid.hpp"
-#include "main.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 

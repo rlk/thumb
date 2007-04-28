@@ -13,26 +13,6 @@
 #ifndef MAIN_HPP
 #define MAIN_HPP
 
-#include "conf.hpp"
-#include "lang.hpp"
-#include "data.hpp"
-#include "prog.hpp"
-#include "glob.hpp"
-#include "font.hpp"
-#include "view.hpp"
-
-//-----------------------------------------------------------------------------
-// Global application state.
-
-extern app::conf *conf;
-extern app::lang *lang;
-extern app::data *data;
-extern app::prog *prog;
-extern app::glob *glob;
-extern app::font *sans;
-extern app::font *mono;
-extern app::view *view;
-
 //-----------------------------------------------------------------------------
 // Expression queryable system state.
 

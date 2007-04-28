@@ -17,9 +17,7 @@
 
 #include "opengl.hpp"
 #include "scene.hpp"
-#include "edit.hpp"
-#include "play.hpp"
-#include "info.hpp"
+#include "mode.hpp"
 #include "prog.hpp"
 
 //-----------------------------------------------------------------------------
@@ -49,9 +47,9 @@ class demo : public app::prog
 
     // Editor mode.
 
-    mode::edit  edit;
-    mode::play  play;
-    mode::info  info;
+    mode::mode *edit;
+    mode::mode *play;
+    mode::mode *info;
     mode::mode *curr;
 
     void goto_mode(mode::mode *);
@@ -68,6 +66,7 @@ class demo : public app::prog
 public:
 
     demo();
+   ~demo();
 
     void point(int, int);
     void click(int, bool);

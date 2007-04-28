@@ -13,7 +13,7 @@
 #include "matrix.hpp"
 #include "opengl.hpp"
 #include "camera.hpp"
-#include "main.hpp"
+#include "view.hpp"
 
 //-----------------------------------------------------------------------------
 

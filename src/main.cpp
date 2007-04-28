@@ -17,10 +17,15 @@
 
 #include <SDL.h>
 
+#include "main.hpp"
 #include "util.hpp"
 #include "opengl.hpp"
 #include "demo.hpp"
-#include "main.hpp"
+#include "data.hpp"
+#include "conf.hpp"
+#include "glob.hpp"
+#include "lang.hpp"
+#include "view.hpp"
 
 #define JIFFY (1000 / 60)
 
@@ -31,8 +36,6 @@ app::conf *conf;
 app::data *data;
 app::prog *prog;
 app::lang *lang;
-app::font *sans;
-app::font *mono;
 app::glob *glob;
 app::view *view;
 
@@ -105,25 +108,6 @@ void clr_trg()               { bits  = 0; }
 
 //-----------------------------------------------------------------------------
 
-static std::string get_loc()
-{
-    // Check for a locale setting in the config file.
-
-    std::string loc = conf->get_s("lang");
-
-    if (loc.size() > 0)
-        return loc;
-
-    // Check for a locale setting in the environment.
-
-    if (getenv("LANG"))
-        return getenv("LANG");
-
-    // If all else fails, use the default.
-
-    return "en_US";
-}    
-
 static void stat()
 {
     static float t0 = 0;
@@ -186,7 +170,7 @@ static void init(std::string& data_file,
 
     data = new app::data(data_file);
     conf = new app::conf(conf_file);
-    lang = new app::lang(lang_file, get_loc());
+    lang = new app::lang(lang_file);
 
     joy  = SDL_JoystickOpen(conf->get_i("joystick"));
 
@@ -197,12 +181,6 @@ static void init(std::string& data_file,
     // Initialize the demo.
 
     glob = new app::glob();
-
-    sans = new app::font(conf->get_s("sans_font"),
-                         conf->get_i("sans_size"));
-    mono = new app::font(conf->get_s("mono_font"),
-                         conf->get_i("mono_size"));
-
     prog = new demo();
     view = new app::view(conf->get_i("window_w"),
                          conf->get_i("window_h"),
@@ -215,8 +193,6 @@ static void fini()
 {
     if (view) delete view;
     if (prog) delete prog;
-    if (mono) delete mono;
-    if (sans) delete sans;
     if (glob) delete glob;
 
     if (joy) SDL_JoystickClose(joy);
