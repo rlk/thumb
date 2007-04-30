@@ -22,6 +22,9 @@
 
 namespace app
 {
+    //-------------------------------------------------------------------------
+    // Language translation manager
+
     class lang
     {
         std::string  curr;

@@ -19,6 +19,28 @@
 
 constraint::constraint()
 {
+    rot[0] = ::glob->load_geodata("wire/constraint_rot_0.obj");
+    rot[1] = ::glob->load_geodata("wire/constraint_rot_1.obj");
+    rot[2] = ::glob->load_geodata("wire/constraint_rot_2.obj");
+    rot[3] = ::glob->load_geodata("wire/constraint_rot_3.obj");
+    rot[4] = ::glob->load_geodata("wire/constraint_rot_4.obj");
+    rot[5] = ::glob->load_geodata("wire/constraint_rot_5.obj");
+    rot[6] = ::glob->load_geodata("wire/constraint_rot_6.obj");
+    rot[7] = ::glob->load_geodata("wire/constraint_rot_7.obj");
+    rot[8] = ::glob->load_geodata("wire/constraint_rot_8.obj");
+    rot[9] = ::glob->load_geodata("wire/constraint_rot_9.obj");
+
+    pos[0] = ::glob->load_geodata("wire/constraint_pos_0.obj");
+    pos[1] = ::glob->load_geodata("wire/constraint_pos_1.obj");
+    pos[2] = ::glob->load_geodata("wire/constraint_pos_2.obj");
+    pos[3] = ::glob->load_geodata("wire/constraint_pos_3.obj");
+    pos[4] = ::glob->load_geodata("wire/constraint_pos_4.obj");
+    pos[5] = ::glob->load_geodata("wire/constraint_pos_5.obj");
+    pos[6] = ::glob->load_geodata("wire/constraint_pos_6.obj");
+    pos[7] = ::glob->load_geodata("wire/constraint_pos_7.obj");
+    pos[8] = ::glob->load_geodata("wire/constraint_pos_8.obj");
+    pos[9] = ::glob->load_geodata("wire/constraint_pos_9.obj");
+
     set_grid(3);
     set_mode(0);
     set_axis(1);
@@ -27,6 +49,16 @@ constraint::constraint()
     load_idt(T);
 
     orient();
+}
+
+constraint::~constraint()
+{
+    int i;
+
+    // TODO: wrap these pointers in an auto reference.
+
+    for (i = 0; i < 10; ++i) ::glob->free_geodata(rot[i]);
+    for (i = 0; i < 10; ++i) ::glob->free_geodata(pos[i]);
 }
 
 //-----------------------------------------------------------------------------
@@ -83,6 +115,8 @@ void constraint::set_grid(int g)
         16.0000f,
         32.0000f,
     };
+
+    grid = g;
 
     grid_a = a[CLAMP(g, 0, 9)];
     grid_d = d[CLAMP(g, 0, 9)];
@@ -193,70 +227,22 @@ void constraint::click(const float p[3], const float v[3])
 
 //-----------------------------------------------------------------------------
 
-void constraint::draw_rot(int n) const
+void constraint::draw() const
 {
-    int i, j;
-
-    // Draw a radial checker board.
-
-    glBegin(GL_QUADS);
-    {
-        for (i = 0; i < n; ++i)
-            for (j = grid_a * (i & 1); j < 360; j += 2 * grid_a)
-            {
-                glVertex2f(grid_d * (i    ) * cosi(j),
-                           grid_d * (i    ) * sini(j));
-                glVertex2f(grid_d * (i + 1) * cosi(j),
-                           grid_d * (i + 1) * sini(j));
-                glVertex2f(grid_d * (i + 1) * cosi(j + grid_a),
-                           grid_d * (i + 1) * sini(j + grid_a));
-                glVertex2f(grid_d * (i    ) * cosi(j + grid_a),
-                           grid_d * (i    ) * sini(j + grid_a));
-            }
-    }
-    glEnd();
-}
-
-void constraint::draw_pos(int n) const
-{
-    int i, j;
-
-    // Draw a checker board grid.
-
-    glBegin(GL_QUADS);
-    {
-        for (i = -n; i < n; ++i)
-            for (j = -n + (i & 1); j < n; j += 2)
-            {
-                glVertex2f(-grid_d * (i    ), -grid_d * (j    ));
-                glVertex2f(-grid_d * (i    ), -grid_d * (j + 1));
-                glVertex2f(-grid_d * (i + 1), -grid_d * (j + 1));
-                glVertex2f(-grid_d * (i + 1), -grid_d * (j    ));
-            }
-    }
-    glEnd();
-}
-
-void constraint::draw(int n) const
-{
-    glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_DEPTH_BUFFER_BIT);
+    glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT |
+                 GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
     {
         // Set up for Z-offset anti-aliased line drawing.
 
         glEnable(GL_BLEND);
         glEnable(GL_LINE_SMOOTH);
-        glEnable(GL_POLYGON_OFFSET_LINE);
 
         glDisable(GL_TEXTURE_2D);
-        glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glDepthMask(GL_FALSE);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glPolygonOffset(-1.0f, -1.0f);
 
         glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
@@ -265,9 +251,9 @@ void constraint::draw(int n) const
         glMultMatrixf(T);
 
         if (mode)
-            draw_rot(n);
+            rot[grid]->draw();
         else
-            draw_pos(n);
+            pos[grid]->draw();
     }
     glPopMatrix();
     glPopAttrib();

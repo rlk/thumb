@@ -34,7 +34,6 @@ version="1.0"?><conf>
   <option type="int" name="key_exit">27</option>
   <option type="int" name="key_snap">290</option>
   <option type="int" name="key_init">291</option>
-  <option type="int" name="grid_size">16</option>
   <option type="float" name="joint_size">0.250000</option>
   <option type="float" name="view_zoom">0.500000</option>
   <option type="float" name="view_near">1.000000</option>

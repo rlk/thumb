@@ -37,9 +37,6 @@ class demo : public app::prog
         
     float view_move_rate;
     float view_turn_rate;
-    float view_zoom;
-    float view_near;
-    float view_far;
 
     // Entity state.
 

@@ -1,12 +1,15 @@
-Take a serious look at #includes
-Consider containers of pointers instead of objects?
-Intelligently select a shader based on material properties.
-    Or add a shader reference to the MTL
+Convert constraints to use OBJ
+Reduce the number of GL state changes in OBJ
+    set mutable state in the props
+    don't push attribs
+    Assumption: if an MTL does not specify a value, then it doesn't care
+        about that value and can tolerate unexpected state
+Add tangent calculation to OBJ loader
+Add a shader reference to the MTL
 Reduce the number of string passes by value in the gui module.
 Remove the shadowmap state ownership from the scene.
 Move the draw priority sort out of the main draw.
     It changes only when the scene changes.
-Collapse deep object hierarchies using templates?
 
 General
     read gotw.ca/gotw
@@ -25,10 +28,15 @@ Add entity scaling.
         - would force a variety of sized OBJs
 Add new ODE geoms.
     Cylinder
+    Capsule
     Heightfield
     Plane
     Convex?
     Ray?
+Add DDS support
+    Cube map load
+    DXT load
+    Mipmap load
 Incorporate some of the shading/buffer/image/state lessons learned from atmo.
 Incorporate perf module from atmo.  Stats in GUI?
 Generalize the "follow" mechanism to "enable".
@@ -39,7 +47,6 @@ Use spatial index to eliminate unnecessary shadow map redraw.
 Frustum culling for cameras and lights.
 Cascaded shadow.
 Documentation.
-Add capsule.
 Rubber-band select.
 Object-inside-object select?
 Intro text / flowing widget.
@@ -47,39 +54,24 @@ World parameters
 Selection registers.
 Center contraint on a group.
 Partial run.
-Remove per-frame conf references.
-Refresh button on solid loader.
+Refresh button on finder.
+    Make Up button nicer.
+    Icon view.
 Optimize constraint drawing -- integrate display lists with glob?  Use OBJ?
 Optimize wire drawing.
 Conveyer solid property.
-Z compression of scene XML.
+Static / package data archives with Z compression.
 Figure out why repeated runs differ.
+    Body order?
 
-Optional soft cursor.
 "scene" -> "world"?
 "demo"  -> ?
 
 Stop the freerun during editing.
         Snapshot beneath info.
-Add shader references to MTL.
-Add material enable bits to OBJ.
-Move wrap parameter out of material application.
-
-
-OBJ/general loading
-    const void *load_dat(const char *name, size_t *);
-    const void *load_img(const char *name, size_t *);
-    GLenum      load_tex(const char *name);
-    void        free_dat(const char *name);
-
-        Texture object and parameters may be determined from current binding
-
-string
-memory
-texture
-buffer
-binary
-image
+OBJ support:
+    map wrapping
+    map scale and translate
 
 Data archives
 

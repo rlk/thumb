@@ -1,113 +1,24 @@
+Replace widget show() with a parent->poke?
+    This would remove the need to pass the root of the control to all create buttons
+    group nodes would poke all OTHER children plus parent
+Assymmetry with hide() ... only ever called to apply parameters?
 
--------------------------------------------------------------------------------
-GUI notes:
+The lang dependance could be moved from gui to control.
 
-lang may be an attribute of string?
+C++ notes
+    Virtual base classes shouldn't have data members?
 
-Add a mechanism to allow update request to travel up
+I often delete members in dtors.  Should these use auto_ptrs?  const ones?
+    Don't use auto_ptrs in assumed-assignable objects
+        Such as objects you'd flatly add to containers.
 
-imgdata const may follow from a change to app::text render
+Is mutable appropriate anywhere?  (say in glob)  Where const implies policy rather than mechanism?
 
--------------------------------------------------------------------------------
+Bald pointer members (and auto_ptr members) may need copy constructors and copy assignment operators.
 
-show
-  
-  is called when...
+Encapsulate GL objects in trivial Gen/Delete wrappers?
 
-    info mode enters
-    a create entity occurs
-    world "New" 
-    world "Load"
-    world "Save"
-    world "Save Selected"
-
-  it causes...
-
-    gui::finder calls update()
-    cnt::editor reads param string and calls update()
-    cnt::bitmap reads param string 
-
-hide
-
-  is called when...
-
-    info mode leaves
-
-  it causes...
-
-    cnt::dialog nulls input and focus
-    cnt::editor calls apply() (but only if is not varied)
-    cnt::bitmap calls apply() (but only if is not varied)
-
-apply
-
-  is called when...
-
-    gui::button is clicked
-        this is overloaded in several places
-          usually calls show()
-    cnt::editor::hide() (but only if is not varied)
-    cnt::bitmap::hide() (but only if is not varied)
-
-  it causes...
-
-    cnt::editor to write param string
-    cnt::bitmap to write param string
-    gui::finder_elt to set finder state
-
-update
-
-  is called when...
-
-    cnt::editor::show()  (but NOT cnt::bitmap::show())
-    gui::editor gets edited
-    gui::string::ctor
-    gui::string value changes
-
-  it causes...
-
-    gui::string to rerender its text
-    gui::editor to reposition its cursor
-
--------------------------------------------------------------------------------
-
-gui::widget
-    gui::leaf
-        gui::string
-            gui::button
-                cnt::create_button
-                    cnt::new_*_button
-                cnt::init_button
-                cnt::load_button
-                cnt::save_all_button \
-                cnt::save_sel_button /
-                gui::finder_elt
-                    gui::finder_dir
-                    gui::finder_reg
-            gui::input
-                gui::bitmap
-                    cnt::bitmap
-                gui::editor
-                    cnt::editor
-            cnt::title
-            cnt::label
-        gui::filler
-        gui::spacer
-
-    gui::tree
-        gui::scroll
-            gui::finder
-        gui::harray
-        gui::varray
-        gui::hgroup
-        gui::vgroup
-            cnt::*_panel
-        gui::option
-        gui::frame
-gui::dialog
-
-
--------------------------------------------------------------------------------
+Consider using deque vector caches in the OBJ loader.  Profile.
 
 
 data layout

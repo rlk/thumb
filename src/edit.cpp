@@ -45,8 +45,6 @@ mode::edit::edit(ops::scene& s) : mode(s)
     key_selection_clear  = conf->get_i("key_selection_clear");
     key_selection_clone  = conf->get_i("key_selection_clone");
 
-    grid_size            = conf->get_i("grid_size");
-
     // Initialize edit mode state.
 
     drag   = false;
@@ -201,7 +199,7 @@ bool mode::edit::keybd(int k, bool d, int c)
 void mode::edit::draw()
 {
     scene.draw(true);
-    transform.draw(grid_size);
+    transform.draw();
 }
 
 //-----------------------------------------------------------------------------

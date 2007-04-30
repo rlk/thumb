@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include "scene.hpp"
+#include "font.hpp"
 #include "gui.hpp"
 
 //-----------------------------------------------------------------------------

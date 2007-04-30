@@ -35,9 +35,9 @@
 app::conf *conf;
 app::data *data;
 app::prog *prog;
-app::lang *lang;
 app::glob *glob;
 app::view *view;
+app::lang *lang;
 
 //-----------------------------------------------------------------------------
 // Keyboard state expression queryables.

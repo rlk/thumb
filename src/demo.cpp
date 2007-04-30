@@ -43,9 +43,6 @@ demo::demo() : scene()
 
     view_move_rate = conf->get_f("view_move_rate");
     view_turn_rate = conf->get_f("view_turn_rate");
-    view_zoom      = conf->get_f("view_zoom");
-    view_near      = conf->get_f("view_near");
-    view_far       = conf->get_f("view_far");
 
     // Initialize the demo state.
 

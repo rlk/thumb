@@ -45,8 +45,6 @@ namespace mode
         int key_selection_clear;
         int key_selection_clone;
 
-        int grid_size;
-
         // Edit-mode state.
 
         constraint transform;

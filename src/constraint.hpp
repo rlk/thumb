@@ -16,6 +16,8 @@
 #include <set>
 #include <cstring>
 
+#include "glob.hpp"
+
 //-----------------------------------------------------------------------------
 
 class constraint
@@ -25,8 +27,12 @@ protected:
     float M[16];
     float T[16];
 
+    const ogl::geodata *rot[10];
+    const ogl::geodata *pos[10];
+
     int   mode;
     int   axis;
+    int   grid;
     int   grid_a;
     float grid_d;
 
@@ -46,6 +52,7 @@ protected:
 public:
 
     constraint();
+   ~constraint();
 
     void set_mode(int);
     void set_axis(int);
@@ -56,7 +63,7 @@ public:
     bool point(float[16], const float[3], const float[3]);
     void click(           const float[3], const float[3]);
 
-    void draw(int n) const;
+    void draw() const;
 };
 
 //-----------------------------------------------------------------------------
