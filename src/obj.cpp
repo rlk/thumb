@@ -516,7 +516,7 @@ void obj::surf::draw() const
 void obj::obj::draw() const
 {
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-    glPushAttrib(GL_LIGHTING_BIT | GL_TEXTURE_BIT | GL_ENABLE_BIT);
+    glPushAttrib(GL_LIGHTING_BIT | GL_TEXTURE_BIT);
     {
         size_t s = sizeof (vert);
 

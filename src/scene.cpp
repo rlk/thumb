@@ -816,13 +816,11 @@ static void line_prep()
     glEnable(GL_POLYGON_OFFSET_LINE);
 
     glDisable(GL_LIGHTING);
-    glDisable(GL_CULL_FACE);
     glDisable(GL_TEXTURE_2D);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE);
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glPolygonOffset(-1.0f, -1.0f);
 
     glLineWidth(2.0f);

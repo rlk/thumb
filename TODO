@@ -1,4 +1,3 @@
-Convert constraints to use OBJ
 Reduce the number of GL state changes in OBJ
     set mutable state in the props
     don't push attribs
