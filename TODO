@@ -3,12 +3,17 @@ Reduce the number of GL state changes in OBJ
     don't push attribs
     Assumption: if an MTL does not specify a value, then it doesn't care
         about that value and can tolerate unexpected state
-Add tangent calculation to OBJ loader
 Add a shader reference to the MTL
 Reduce the number of string passes by value in the gui module.
 Remove the shadowmap state ownership from the scene.
 Move the draw priority sort out of the main draw.
     It changes only when the scene changes.
+Restructure the prep/prio/draw system
+    Work out the spatial partition first
+    Draw order is crucial
+    Consider CSM and reflection/refraction rendering.
+
+Out of curiousity, perf the vert padded out to power of two.
 
 General
     read gotw.ca/gotw
@@ -44,6 +49,11 @@ Use spatial index to eliminate unnecessary shadow map redraw.
     Lights should know if they see a static scene.
 
 Frustum culling for cameras and lights.
+Water.
+    Bouyancy force.
+    Optional GPU ripple integrator.
+    Changable water depth?
+Skeletal animation.
 Cascaded shadow.
 Documentation.
 Rubber-band select.

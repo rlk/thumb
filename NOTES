@@ -21,6 +21,26 @@ Encapsulate GL objects in trivial Gen/Delete wrappers?
 Consider using deque vector caches in the OBJ loader.  Profile.
 
 
+vx vy vz   11 * 4 = 44
+nx ny nz
+tx ty tz
+sx sy
+
+nx ny nz    8 * 4 = 32
+sx sy
+vx vy vz
+
+nx ny       9 * 4 = 36
+sx sy
+tx ty 
+vx vy vz
+
+nx ny nz   14 * 4 = 56
+tx ty tz
+bx by bz
+vx vy vz
+sx sy
+
 data layout
 
         ttf

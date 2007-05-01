@@ -36,47 +36,51 @@ int  ogl::has_shadow;
 
 // GL_ARB_multitexture
 
-PFNGLACTIVETEXTUREARBPROC          glActiveTextureARB;
+PFNGLACTIVETEXTUREARBPROC           glActiveTextureARB;
 
 // GL_ARB_shader_objects
 
-PFNGLGETOBJECTPARAMETERIVARBPROC   glGetObjectParameterivARB;
-PFNGLCREATEPROGRAMOBJECTARBPROC    glCreateProgramObjectARB;
-PFNGLCREATESHADEROBJECTARBPROC     glCreateShaderObjectARB;
-PFNGLUSEPROGRAMOBJECTARBPROC       glUseProgramObjectARB;
-PFNGLVALIDATEPROGRAMARBPROC        glValidateProgramARB;
-PFNGLCOMPILESHADERARBPROC          glCompileShaderARB;
-PFNGLDELETEOBJECTARBPROC           glDeleteObjectARB;
-PFNGLATTACHOBJECTARBPROC           glAttachObjectARB;
-PFNGLSHADERSOURCEARBPROC           glShaderSourceARB;
-PFNGLLINKPROGRAMARBPROC            glLinkProgramARB;
-PFNGLGETINFOLOGARBPROC             glGetInfoLogARB;
+PFNGLGETOBJECTPARAMETERIVARBPROC    glGetObjectParameterivARB;
+PFNGLCREATEPROGRAMOBJECTARBPROC     glCreateProgramObjectARB;
+PFNGLCREATESHADEROBJECTARBPROC      glCreateShaderObjectARB;
+PFNGLUSEPROGRAMOBJECTARBPROC        glUseProgramObjectARB;
+PFNGLVALIDATEPROGRAMARBPROC         glValidateProgramARB;
+PFNGLCOMPILESHADERARBPROC           glCompileShaderARB;
+PFNGLDELETEOBJECTARBPROC            glDeleteObjectARB;
+PFNGLATTACHOBJECTARBPROC            glAttachObjectARB;
+PFNGLSHADERSOURCEARBPROC            glShaderSourceARB;
+PFNGLLINKPROGRAMARBPROC             glLinkProgramARB;
+PFNGLGETINFOLOGARBPROC              glGetInfoLogARB;
 
-PFNGLGETUNIFORMLOCATIONARBPROC     glGetUniformLocationARB;
-PFNGLUNIFORM1IARBPROC              glUniform1iARB;
-PFNGLUNIFORM1FARBPROC              glUniform1fARB;
-PFNGLUNIFORM2FARBPROC              glUniform2fARB;
-PFNGLUNIFORM3FARBPROC              glUniform3fARB;
-PFNGLUNIFORM4FARBPROC              glUniform4fARB;
+PFNGLGETUNIFORMLOCATIONARBPROC      glGetUniformLocationARB;
+PFNGLUNIFORM1IARBPROC               glUniform1iARB;
+PFNGLUNIFORM1FARBPROC               glUniform1fARB;
+PFNGLUNIFORM2FARBPROC               glUniform2fARB;
+PFNGLUNIFORM3FARBPROC               glUniform3fARB;
+PFNGLUNIFORM4FARBPROC               glUniform4fARB;
 
-PFNGLBINDATTRIBLOCATIONARBPROC     glBindAttribLocationARB;
+// GL_ARB_vertex_shader
+
+PFNGLENABLEVERTEXATTRIBARRAYARBPROC glEnableVertexAttribArrayARB;
+PFNGLVERTEXATTRIBPOINTERARBPROC     glVertexAttribPointerARB;
+PFNGLBINDATTRIBLOCATIONARBPROC      glBindAttribLocationARB;
 
 // GL_EXT_framebuffer_object
 
-PFNGLGENFRAMEBUFFERSEXTPROC        glGenFramebuffersEXT;
-PFNGLBINDFRAMEBUFFEREXTPROC        glBindFramebufferEXT;
-PFNGLDELETEFRAMEBUFFERSEXTPROC     glDeleteFramebuffersEXT;
-PFNGLFRAMEBUFFERTEXTURE2DEXTPROC   glFramebufferTexture2DEXT;
-PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC glCheckFramebufferStatusEXT;
+PFNGLGENFRAMEBUFFERSEXTPROC         glGenFramebuffersEXT;
+PFNGLBINDFRAMEBUFFEREXTPROC         glBindFramebufferEXT;
+PFNGLDELETEFRAMEBUFFERSEXTPROC      glDeleteFramebuffersEXT;
+PFNGLFRAMEBUFFERTEXTURE2DEXTPROC    glFramebufferTexture2DEXT;
+PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC  glCheckFramebufferStatusEXT;
 
 // GL_ARB_vertex_buffer_object
 
-PFNGLGENBUFFERSARBPROC             glGenBuffersARB;
-PFNGLBINDBUFFERARBPROC             glBindBufferARB;
-PFNGLMAPBUFFERARBPROC              glMapBufferARB;
-PFNGLBUFFERDATAARBPROC             glBufferDataARB;
-PFNGLUNMAPBUFFERARBPROC            glUnmapBufferARB;
-PFNGLDELETEBUFFERSARBPROC          glDeleteBuffersARB;
+PFNGLGENBUFFERSARBPROC              glGenBuffersARB;
+PFNGLBINDBUFFERARBPROC              glBindBufferARB;
+PFNGLMAPBUFFERARBPROC               glMapBufferARB;
+PFNGLBUFFERDATAARBPROC              glBufferDataARB;
+PFNGLUNMAPBUFFERARBPROC             glUnmapBufferARB;
+PFNGLDELETEBUFFERSARBPROC           glDeleteBuffersARB;
 
 #endif
 
@@ -85,6 +89,13 @@ PFNGLDELETEBUFFERSARBPROC          glDeleteBuffersARB;
 bool ogl::check_ext(const char *needle)
 {
     const GLubyte *haystack, *c;
+
+    // Allow the configuration file to override OpenGL (dangerous).
+
+    std::string option = ::conf->get_s(needle);
+
+    if      (option == "true")  return true;
+    else if (option == "false") return false;
 
     // Search for the given string in the OpenGL extension strings.
 
@@ -132,6 +143,8 @@ void ogl::check_err(const char *file, int line)
 
 void ogl::init()
 {
+    // Query GL capabilities.
+
     has_multitexture = check_ext("ARB_multitexture");
     has_shader       = check_ext("ARB_shader_objects");
     has_shader      &= check_ext("ARB_vertex_shader");
@@ -139,17 +152,17 @@ void ogl::init()
     has_fbo          = check_ext("EXT_framebuffer_object");
     has_vbo          = check_ext("ARB_vertex_buffer_object");
 
-    // GL_ARB_multitexture
-
     if (has_multitexture)
     {
+        // GL_ARB_multitexture
+
         PROC(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
     }
 
-    // GL_ARB_shader_objects
-
     if (has_shader)
     {
+        // GL_ARB_shader_objects
+
         PROC(PFNGLGETOBJECTPARAMETERIVARBPROC,   glGetObjectParameterivARB);
         PROC(PFNGLCREATEPROGRAMOBJECTARBPROC,    glCreateProgramObjectARB);
         PROC(PFNGLCREATESHADEROBJECTARBPROC,     glCreateShaderObjectARB);
@@ -168,14 +181,18 @@ void ogl::init()
         PROC(PFNGLUNIFORM2FARBPROC,              glUniform2fARB);
         PROC(PFNGLUNIFORM3FARBPROC,              glUniform3fARB);
         PROC(PFNGLUNIFORM4FARBPROC,              glUniform4fARB);
+        
+        // GL_ARB_vertex_shader
 
+        PROC(PFNGLENABLEVERTEXATTRIBARRAYARBPROC,glEnableVertexAttribArrayARB);
+        PROC(PFNGLVERTEXATTRIBPOINTERARBPROC,    glVertexAttribPointerARB);
         PROC(PFNGLBINDATTRIBLOCATIONARBPROC,     glBindAttribLocationARB);
     }
 
-    // GL_EXT_framebuffer_object
-
     if (has_fbo)
     {
+        // GL_EXT_framebuffer_object
+
         PROC(PFNGLGENFRAMEBUFFERSEXTPROC,        glGenFramebuffersEXT);
         PROC(PFNGLBINDFRAMEBUFFEREXTPROC,        glBindFramebufferEXT);
         PROC(PFNGLDELETEFRAMEBUFFERSEXTPROC,     glDeleteFramebuffersEXT);
@@ -183,10 +200,10 @@ void ogl::init()
         PROC(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT);
     }
 
-    // GL_ARB_vertex_buffer_object
-
     if (has_vbo)
     {
+        // GL_ARB_vertex_buffer_object
+
         PROC(PFNGLGENBUFFERSARBPROC,             glGenBuffersARB);
         PROC(PFNGLBINDBUFFERARBPROC,             glBindBufferARB);
         PROC(PFNGLMAPBUFFERARBPROC,              glMapBufferARB);
@@ -358,7 +375,7 @@ void ogl::fbo::bind_depth(GLenum T) const
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 ogl::vbo::vbo(GLenum target, GLenum usage, GLsizei size)
 {
     glGenBuffersARB(1, &buffer);
@@ -382,7 +399,7 @@ void ogl::vbo::bind(GLenum target) const
     glBindBufferARB(target, buffer);
     OGLCK();
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void ogl::get_framebuffer(GLint o[1], GLint v[4])

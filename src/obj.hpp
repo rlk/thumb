@@ -49,17 +49,17 @@ namespace obj
     struct iset
     {
         int vi;
-        int ti;
+        int si;
         int ni;
 
-        iset(int v, int t, int n) : vi(v), ti(t), ni(n) { }
+        iset(int v, int s, int n) : vi(v), si(s), ni(n) { }
     };
 
     struct icmp
     {
         bool operator()(const iset& A, const iset& B) const {
             if (A.vi < B.vi) return true;
-            if (A.ti < B.ti) return true;
+            if (A.si < B.si) return true;
             if (A.ni < B.ni) return true;
 
             return false;
@@ -72,16 +72,18 @@ namespace obj
 
     struct vert
     {
-        vec3 n;
-        vec2 t;
         vec3 v;
+        vec3 n;
+        vec3 t;
+        vec2 s;
 
         vert() { }
 
-        vert(vec3_v& vv, vec2_v& tv, vec3_v& nv, int vi, int ti, int ni) {
+        vert(vec3_v& vv, vec2_v& sv, vec3_v& nv, int vi, int si, int ni) {
             v = (vi >= 0) ? vv[vi] : vec3();
-            t = (ti >= 0) ? tv[ti] : vec2();
             n = (ni >= 0) ? nv[ni] : vec3();
+            t =                      vec3();
+            s = (si >= 0) ? sv[si] : vec2();
         }
     };
 
@@ -207,10 +209,16 @@ namespace obj
         vert_v verts;
         surf_v surfs;
 
+        void calc_tangent();
+
+        // MTL read handlers.
+
         void read_map(std::istream&, prop&);
         void read_rgb(std::istream&, prop&);
         void read_mtl(std::istream&, std::string&);
         void read_use(std::istream&);
+
+        // OBJ read handlers.
 
         int  read_fi(std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&);
         void read_f (std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&);
