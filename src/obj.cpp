@@ -17,6 +17,7 @@
 #include "obj.hpp"
 #include "data.hpp"
 #include "glob.hpp"
+#include "matrix.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -108,11 +109,13 @@ void obj::obj::calc_tangent()
 
             // Compute the tangent vector.
 
-            float t[3], d = 1.0f / (ds0[0] * ds1[1] - ds1[0] * ds0[1]);
+            float t[3];
 
-            t[0] = (ds0[0] * dv1[0] - ds1[0] * dv0[0]) / d;
-            t[1] = (ds0[0] * dv1[1] - ds1[0] * dv0[1]) / d;
-            t[2] = (ds0[0] * dv1[2] - ds1[0] * dv0[2]) / d;
+            t[0] = ds1[1] * dv0[0] - ds0[1] * dv1[0];
+            t[1] = ds1[1] * dv0[1] - ds0[1] * dv1[1];
+            t[2] = ds1[1] * dv0[2] - ds0[1] * dv1[2];
+
+            normalize(t);
 
             // Accumulate the vertex tangent vectors.
 
@@ -137,16 +140,7 @@ void obj::obj::calc_tangent()
     // Normalize all tangent vectors.
 
     for (vert_i vi = verts.begin(); vi != verts.end(); ++vi)
-    {
-        float *t = vi->t.v;
-
-        float  d = 1.0f / sqrt(t[0] * t[0] +
-                               t[1] * t[1] +
-                               t[2] * t[2]);
-        t[0] *= d;
-        t[1] *= d;
-        t[2] *= d;
-    }
+        normalize(vi->t.v);
 }
 
 //-----------------------------------------------------------------------------
@@ -164,45 +158,46 @@ void obj::obj::read_mtl(std::istream& lin, std::string& path)
 
     // Initialize the input file.
 
-    std::istringstream sin((const char *) ::data->load(name));
-
-    // Parse each line of the file.
-
-    std::string line;
-    std::string type;
-
-    while (std::getline(sin, line))
+    if (const char *buff = (const char *) ::data->load(name))
     {
-        std::istringstream lin(line);
+        // Parse each line of the file.
 
-        if (lin >> type)
+        std::istringstream sin(buff);
+
+        std::string line;
+        std::string type;
+
+        while (std::getline(sin, line))
         {
-            prop_p P = 0;
+            std::istringstream lin(line);
 
-            if (type == "newmtl")
+            if (lin >> type)
             {
-                mtrls.push_back(mtrl());
-                lin >> mtrls.back().name;
+                prop_p P = 0;
+
+                if (type == "newmtl")
+                {
+                    mtrls.push_back(mtrl());
+                    lin >> mtrls.back().name;
+                }
+
+                else if (type == "map_Kd") P = new prop_map(lin, path, 0);
+                else if (type == "map_Ke") P = new prop_map(lin, path, 5);
+                else if (type == "map_Ks") P = new prop_map(lin, path, 6);
+                else if (type == "map_Ns") P = new prop_map(lin, path, 7);
+                else if (type == "bump")   P = new prop_map(lin, path, 1);
+                else if (type == "refl")   P = new prop_map(lin, path, 4);
+
+                else if (type == "Kd")     P = new prop_col(lin, GL_DIFFUSE);
+                else if (type == "Ka")     P = new prop_col(lin, GL_AMBIENT);
+                else if (type == "Ke")     P = new prop_col(lin, GL_EMISSION);
+                else if (type == "Ks")     P = new prop_col(lin, GL_SPECULAR);
+                else if (type == "Ns")     P = new prop_col(lin, GL_SHININESS);
+
+                else if (type == "d")      lin >> mtrls.back().alpha;
+
+                if (P) mtrls.back().props.push_back(P);
             }
-
-            else if (type == "map_Kd") P = new prop_map(lin, path, 1);
-            else if (type == "map_Ka") P = new prop_map(lin, path, 2);
-            else if (type == "map_Ke") P = new prop_map(lin, path, 3);
-            else if (type == "map_Ks") P = new prop_map(lin, path, 4);
-            else if (type == "map_Ns") P = new prop_map(lin, path, 5);
-
-            else if (type == "disp")   P = new prop_map(lin, path, 6);
-            else if (type == "refl")   P = new prop_map(lin, path, 7);
-
-            else if (type == "Kd")     P = new prop_col(lin, GL_DIFFUSE);
-            else if (type == "Ka")     P = new prop_col(lin, GL_AMBIENT);
-            else if (type == "Ke")     P = new prop_col(lin, GL_EMISSION);
-            else if (type == "Ks")     P = new prop_col(lin, GL_SPECULAR);
-            else if (type == "Ns")     P = new prop_col(lin, GL_SHININESS);
-
-            else if (type == "d")      lin >> mtrls.back().alpha;
-
-            if (P) mtrls.back().props.push_back(P);
         }
     }
 
@@ -424,33 +419,36 @@ obj::obj::obj(std::string name) : vbo(0)
 
     // Initialize the input file.
 
-    std::istringstream sin((const char *) ::data->load(name));
- 
-   // Initialize the vector caches.
-
-    vec3_v vv;
-    vec2_v sv;
-    vec3_v nv;
-    iset_m is;
-
-    // Parse each line of the file.
-
-    std::string line;
-    std::string type;
-
-    while (std::getline(sin, line))
+    if (const char *buff = (const char *) ::data->load(name))
     {
-        std::istringstream lin(line);
+        // Initialize the vector caches.
 
-        if (lin >> type)
+        vec3_v vv;
+        vec2_v sv;
+        vec3_v nv;
+        iset_m is;
+
+        // Parse each line of the file.
+
+        std::istringstream sin(buff);
+ 
+        std::string line;
+        std::string type;
+
+        while (std::getline(sin, line))
         {
-            if      (type == "f")      read_f  (lin, vv, sv, nv, is);
-            else if (type == "l")      read_l  (lin, vv, sv,     is);
-            else if (type == "v")      read_v  (lin, vv);
-            else if (type == "vt")     read_vt (lin, sv);
-            else if (type == "vn")     read_vn (lin, nv);
-            else if (type == "mtllib") read_mtl(lin, path);
-            else if (type == "usemtl") read_use(lin);
+            std::istringstream lin(line);
+
+            if (lin >> type)
+            {
+                if      (type == "f")      read_f  (lin, vv, sv, nv, is);
+                else if (type == "l")      read_l  (lin, vv, sv,     is);
+                else if (type == "v")      read_v  (lin, vv);
+                else if (type == "vt")     read_vt (lin, sv);
+                else if (type == "vn")     read_vn (lin, nv);
+                else if (type == "mtllib") read_mtl(lin, path);
+                else if (type == "usemtl") read_use(lin);
+            }
         }
     }
 
@@ -459,6 +457,8 @@ obj::obj::obj(std::string name) : vbo(0)
     ::data->free(name);
 
     // Initialize the GL state.
+
+    calc_tangent();
 
     for (surf_i si = surfs.begin(); si != surfs.end(); ++si)
         si->init();

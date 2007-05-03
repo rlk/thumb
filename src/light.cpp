@@ -89,7 +89,8 @@ void ent::light::lite_post(int pass)
 
     // TODO: this violates the GL state discipline
 
-    lightmask->bind(GL_TEXTURE2);
+    lightmask->bind(GL_TEXTURE2
+);
 
     // Revert the GL state.
 

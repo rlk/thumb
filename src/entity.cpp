@@ -552,7 +552,14 @@ void ent::entity::draw_dark()
             mult_M();
 
             dark_prog->bind();
-            dark_prog->uniform("diffuse", 1);
+            dark_prog->uniform("diffuse",     0);
+            dark_prog->uniform("bump",        1);
+            dark_prog->uniform("light",       2);
+            dark_prog->uniform("shadow",      3);
+            dark_prog->uniform("environment", 4);
+            dark_prog->uniform("emission",    5);
+            dark_prog->uniform("specular",    6);
+            dark_prog->uniform("shininess",   7);
 
             geometry->draw();
 
@@ -574,9 +581,14 @@ void ent::entity::draw_lite()
             mult_M();
 
             lite_prog->bind();
-            lite_prog->uniform("shadowmap", 0);
-            lite_prog->uniform("diffuse",   1);
-            lite_prog->uniform("lightmask", 2);
+            lite_prog->uniform("diffuse",     0);
+            lite_prog->uniform("bump",        1);
+            lite_prog->uniform("light",       2);
+            lite_prog->uniform("shadow",      3);
+            lite_prog->uniform("environment", 4);
+            lite_prog->uniform("emission",    5);
+            lite_prog->uniform("specular",    6);
+            lite_prog->uniform("shininess",   7);
 
             geometry->draw();
 

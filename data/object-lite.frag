@@ -1,35 +1,40 @@
 
 uniform sampler2D       diffuse;
-uniform sampler2DShadow shadowmap;
-uniform sampler2D       lightmask;
+uniform sampler2D       bump;
+uniform sampler2D       light;
+uniform sampler2DShadow shadow;
 
-varying vec4 vertex;
-varying vec3 normal;
+varying vec3 V;
+varying vec3 L;
+varying vec3 R;
 
 void main()
 {
-    // Look up the diffuse color and shadow map.
+    vec4  Kd = texture2D    (diffuse, gl_TexCoord[0].xy);
+    vec3  N  = texture2D    (bump,    gl_TexCoord[0].xy).rgb;
+    vec4  Kl = texture2DProj(light,   gl_TexCoord[1]);
+    float S  =  shadow2DProj(shadow,  gl_TexCoord[1]).r;
 
-    vec4  Kd = texture2D    (diffuse,    gl_TexCoord[0].xy);
-    float Sk = shadow2DProj (shadowmap,  gl_TexCoord[1]).r;
-    vec4  Lk = texture2DProj(lightmask,  gl_TexCoord[1]);
+    N = 2.0 * N - 1.0;
 
-    Kd = Kd * gl_FrontMaterial.diffuse;
+    vec3 R = reflect(L, N);
+
+    Kd  = Kd * gl_FrontMaterial.diffuse;
+    vec4  Ks = gl_FrontMaterial.specular;
+    vec4  Ns = vec4(gl_FrontMaterial.shininess);
 
     // Clamp the range of the light source.
-
+/*
     float s = gl_TexCoord[1].x / gl_TexCoord[1].w;
     float t = gl_TexCoord[1].y / gl_TexCoord[1].w;
 
     float c = step(0.0, gl_TexCoord[1].z) * step(0.0, s) * step(s, 1.0)
                                           * step(0.0, t) * step(t, 1.0);
+*/
+    vec4 l = Kl * S;
 
-    // Compute the lighting vectors.
+    vec4 KS = pow(max(dot(V, R), 0.0) * Ks * l, Ns);
+    vec4 KD =     max(dot(L, N), 0.0) * Kd * l;
 
-    vec3 N = normalize(normal);
-    vec3 L = normalize(gl_LightSource[0].position.xyz - vertex.xyz);
-
-    vec3 d = vec3(max(dot(N, L), 0.0)) * Lk.rgb * Sk * c;
-
-    gl_FragColor = vec4(Kd.rgb * (gl_LightSource[0].diffuse.rgb * d), Kd.a);
+    gl_FragColor = vec4(KS.rgb + KD.rgb, KD.a);
 }

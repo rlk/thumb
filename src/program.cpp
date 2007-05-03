@@ -110,6 +110,8 @@ void ogl::program::init()
     if (vert) glAttachObjectARB(prog, vert);
     if (frag) glAttachObjectARB(prog, frag);
 
+    glBindAttribLocationARB(prog, 6, "Tangent");
+
     glLinkProgramARB(prog);
 
     log(prog);

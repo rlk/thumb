@@ -1,9 +1,11 @@
+Catch null GetProcAddress and disable extensions
+Add a shader reference to the MTL
 Reduce the number of GL state changes in OBJ
+    move client state enables into scene draw
     set mutable state in the props
     don't push attribs
     Assumption: if an MTL does not specify a value, then it doesn't care
         about that value and can tolerate unexpected state
-Add a shader reference to the MTL
 Reduce the number of string passes by value in the gui module.
 Remove the shadowmap state ownership from the scene.
 Move the draw priority sort out of the main draw.

@@ -1,0 +1,11 @@
+# Exported from Wings 3D 0.98.28a
+newmtl metal
+Ns 100.000
+d 1.00000
+illum 2
+Kd 1.00000 1.00000 1.00000
+Ka 1.00000 1.00000 1.00000
+Ks 1.00000 1.00000 1.00000
+Ke 0.00000 0.00000 0.00000
+map_Kd metal_box_diffuse.png
+bump   metal_box_bump.png

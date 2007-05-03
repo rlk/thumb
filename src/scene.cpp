@@ -891,7 +891,7 @@ void ops::scene::draw(bool edit)
                 glPopAttrib();
 
                 shadowmap.pop_frame();
-                shadowmap.bind_depth(GL_TEXTURE0);
+                shadowmap.bind_depth(GL_TEXTURE3);
             }
             else lp->lite_post(p);
 
