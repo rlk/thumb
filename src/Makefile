@@ -57,7 +57,8 @@ ifeq ($(shell uname), Darwin)
 	SDL_CONF = /opt/local/bin/sdl-config
 	FT2_CONF = /opt/local/bin/freetype-config
 else
-	LIBS += -lGL -lGLU
+	LIBS += -lGL
+#	LIBS += -lOSMesa
 
 	SDL_CONF = sdl-config
 	FT2_CONF = freetype-config

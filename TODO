@@ -1,5 +1,12 @@
-Catch null GetProcAddress and disable extensions
 Add a shader reference to the MTL
+Consider collapsing dark and lite shaders
+    Do ambient and emission in the shader
+    Zero ambient and emission for all but first lightsource
+    This would enable single pass rendering in single-light scenes
+Lay-down-depth?
+    It's a much stronger guarantee than front-to-back sort
+    It's double speed on NVIDIA
+    Be CAREFUL about valid state.  Perf and be sure.
 Reduce the number of GL state changes in OBJ
     move client state enables into scene draw
     set mutable state in the props

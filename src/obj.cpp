@@ -35,6 +35,40 @@ void obj::prop_col::draw() const
 
 //-----------------------------------------------------------------------------
 
+obj::prop_shd::prop_shd(std::istream& lin, std::string& path)
+{
+    std::string name;
+
+    lin >> name;
+
+    program = ::glob->load_program(path + "/" + name);
+
+    program->bind();
+    {
+        program->uniform("diffuse",     0);
+        program->uniform("bump",        1);
+        program->uniform("light",       2);
+        program->uniform("shadow",      3);
+        program->uniform("environment", 4);
+        program->uniform("emission",    5);
+        program->uniform("specular",    6);
+        program->uniform("shininess",   7);
+    }
+    program->free();
+}
+
+obj::prop_shd::~prop_shd()
+{
+    if (program) ::glob->free_program(program);
+}
+
+void obj::prop_shd::draw() const
+{
+    if (program) program->bind();
+}
+
+//-----------------------------------------------------------------------------
+
 obj::prop_map::prop_map(std::istream& lin, std::string& path, GLenum unit) :
     unit(GL_TEXTURE0 + unit)
 {
@@ -165,36 +199,38 @@ void obj::obj::read_mtl(std::istream& lin, std::string& path)
         std::istringstream sin(buff);
 
         std::string line;
-        std::string type;
+        std::string key;
 
         while (std::getline(sin, line))
         {
-            std::istringstream lin(line);
+            std::istringstream in(line);
 
-            if (lin >> type)
+            if (in >> key)
             {
                 prop_p P = 0;
 
-                if (type == "newmtl")
+                if (key == "newmtl")
                 {
                     mtrls.push_back(mtrl());
-                    lin >> mtrls.back().name;
+                    in >> mtrls.back().name;
                 }
 
-                else if (type == "map_Kd") P = new prop_map(lin, path, 0);
-                else if (type == "map_Ke") P = new prop_map(lin, path, 5);
-                else if (type == "map_Ks") P = new prop_map(lin, path, 6);
-                else if (type == "map_Ns") P = new prop_map(lin, path, 7);
-                else if (type == "bump")   P = new prop_map(lin, path, 1);
-                else if (type == "refl")   P = new prop_map(lin, path, 4);
+                else if (key == "shader") P = new prop_shd(in, path);
 
-                else if (type == "Kd")     P = new prop_col(lin, GL_DIFFUSE);
-                else if (type == "Ka")     P = new prop_col(lin, GL_AMBIENT);
-                else if (type == "Ke")     P = new prop_col(lin, GL_EMISSION);
-                else if (type == "Ks")     P = new prop_col(lin, GL_SPECULAR);
-                else if (type == "Ns")     P = new prop_col(lin, GL_SHININESS);
+                else if (key == "map_Kd") P = new prop_map(in, path, 0);
+                else if (key == "map_Ke") P = new prop_map(in, path, 5);
+                else if (key == "map_Ks") P = new prop_map(in, path, 6);
+                else if (key == "map_Ns") P = new prop_map(in, path, 7);
+                else if (key == "bump")   P = new prop_map(in, path, 1);
+                else if (key == "refl")   P = new prop_map(in, path, 4);
 
-                else if (type == "d")      lin >> mtrls.back().alpha;
+                else if (key == "Kd")     P = new prop_col(in, GL_DIFFUSE);
+                else if (key == "Ka")     P = new prop_col(in, GL_AMBIENT);
+                else if (key == "Ke")     P = new prop_col(in, GL_EMISSION);
+                else if (key == "Ks")     P = new prop_col(in, GL_SPECULAR);
+                else if (key == "Ns")     P = new prop_col(in, GL_SHININESS);
+
+                else if (key == "d")      in >> mtrls.back().alpha;
 
                 if (P) mtrls.back().props.push_back(P);
             }
@@ -433,21 +469,21 @@ obj::obj::obj(std::string name) : vbo(0)
         std::istringstream sin(buff);
  
         std::string line;
-        std::string type;
+        std::string key;
 
         while (std::getline(sin, line))
         {
-            std::istringstream lin(line);
+            std::istringstream in(line);
 
-            if (lin >> type)
+            if (in >> key)
             {
-                if      (type == "f")      read_f  (lin, vv, sv, nv, is);
-                else if (type == "l")      read_l  (lin, vv, sv,     is);
-                else if (type == "v")      read_v  (lin, vv);
-                else if (type == "vt")     read_vt (lin, sv);
-                else if (type == "vn")     read_vn (lin, nv);
-                else if (type == "mtllib") read_mtl(lin, path);
-                else if (type == "usemtl") read_use(lin);
+                if      (key == "f")      read_f  (in, vv, sv, nv, is);
+                else if (key == "l")      read_l  (in, vv, sv,     is);
+                else if (key == "v")      read_v  (in, vv);
+                else if (key == "vt")     read_vt (in, sv);
+                else if (key == "vn")     read_vn (in, nv);
+                else if (key == "mtllib") read_mtl(in, path);
+                else if (key == "usemtl") read_use(in);
             }
         }
     }
@@ -664,6 +700,10 @@ void obj::obj::draw() const
 
         for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
             i->draw();
+
+        // TODO: smarter state handling
+
+        glUseProgramObjectARB(0);
     }
     glPopAttrib();
     glPopClientAttrib();

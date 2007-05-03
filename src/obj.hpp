@@ -20,6 +20,7 @@
 
 #include "opengl.hpp"
 #include "texture.hpp"
+#include "program.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -140,6 +141,16 @@ namespace obj
         void draw() const;
     };
 
+    struct prop_shd : public prop
+    {
+        const ogl::program *program;
+
+        prop_shd(std::istream&, std::string&);
+       ~prop_shd();
+
+        void draw() const;
+    };
+
     struct prop_map : public prop
     {
         const ogl::texture *texture;
@@ -152,7 +163,7 @@ namespace obj
         void draw() const;
     };
 
-    typedef const prop                         *prop_p;
+    typedef const prop                       *prop_p;
     typedef std::list<prop_p>                 prop_v;
     typedef std::list<prop_p>::iterator       prop_i;
     typedef std::list<prop_p>::const_iterator prop_c;

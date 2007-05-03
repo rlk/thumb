@@ -181,22 +181,14 @@ light clone (to effect an image dupe)
 
 sampler uniforms
 
-     0   map_Kd  diffuse
-     1   map_Ke  emission
-     2   map_Ks  specular
-     3   map_Ns  shininess
-     4   bump    bump
-     5   refl    environment
-     6           light
-     7           shadow
+     #   MTL     GLSL        lite  dark
+     0   map_Kd  diffuse       *     *
+     1   bump    bump          *
+     2           light         *
+     3           shadow        *
+     4   refl    environment   *     *
+     5   map_Ke  emission            *
+     6   map_Ks  specular      *
+     7   map_Ns  shininess     *
 
-     0   map_Kd  diffuse
-     1   bump    bump
-     2           light
-     3           shadow
-     4   refl    environment
-     5   map_Ke  emission
-     6   map_Ks  specular
-     7   map_Ns  shininess
-
-
+                 detail?

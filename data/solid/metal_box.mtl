@@ -9,3 +9,4 @@ Ks 1.00000 1.00000 1.00000
 Ke 0.00000 0.00000 0.00000
 map_Kd metal_box_diffuse.png
 bump   metal_box_bump.png
+shader ../object-lite

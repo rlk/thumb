@@ -21,7 +21,6 @@
 #include <mxml.h>
 
 #include "opengl.hpp"
-#include "program.hpp"
 #include "geodata.hpp"
 #include "param.hpp"
 
@@ -73,8 +72,6 @@ namespace ent
 
         const ogl::geodata *geometry;
         const ogl::geodata *wireframe;
-        const ogl::program *lite_prog;
-        const ogl::program *dark_prog;
 
         virtual void draw_geom() const { }
 

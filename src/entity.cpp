@@ -196,11 +196,7 @@ ent::entity *ent::entity::focused()
 
 ent::entity::entity(const ogl::geodata *g,
                     const ogl::geodata *w) :
-    geom(0), body1(0), body2(0), radius(0), geometry(g), wireframe(w),
-
-    lite_prog(glob->load_program("object-lite")),
-    dark_prog(glob->load_program("object-dark"))
-
+    geom(0), body1(0), body2(0), radius(0), geometry(g), wireframe(w)
 {
     load_idt(default_M);
     load_idt(current_M);
@@ -225,8 +221,6 @@ ent::entity::entity(const entity& that)
 
     // Duplicate all GL state.
 
-    glob->dupe_program(dark_prog);
-    glob->dupe_program(lite_prog);
     glob->dupe_geodata(wireframe);
     glob->dupe_geodata(geometry);
 }
@@ -235,8 +229,6 @@ ent::entity::~entity()
 {
     // Free GL state.
 
-    glob->free_program(dark_prog);
-    glob->free_program(lite_prog);
     glob->free_geodata(wireframe);
     glob->free_geodata(geometry);
 
@@ -550,20 +542,7 @@ void ent::entity::draw_dark()
         glPushMatrix();
         {
             mult_M();
-
-            dark_prog->bind();
-            dark_prog->uniform("diffuse",     0);
-            dark_prog->uniform("bump",        1);
-            dark_prog->uniform("light",       2);
-            dark_prog->uniform("shadow",      3);
-            dark_prog->uniform("environment", 4);
-            dark_prog->uniform("emission",    5);
-            dark_prog->uniform("specular",    6);
-            dark_prog->uniform("shininess",   7);
-
             geometry->draw();
-
-            dark_prog->free();
         }
         glPopMatrix();
     }
@@ -579,20 +558,7 @@ void ent::entity::draw_lite()
         glPushMatrix();
         {
             mult_M();
-
-            lite_prog->bind();
-            lite_prog->uniform("diffuse",     0);
-            lite_prog->uniform("bump",        1);
-            lite_prog->uniform("light",       2);
-            lite_prog->uniform("shadow",      3);
-            lite_prog->uniform("environment", 4);
-            lite_prog->uniform("emission",    5);
-            lite_prog->uniform("specular",    6);
-            lite_prog->uniform("shininess",   7);
-
             geometry->draw();
-
-            lite_prog->free();
         }
         glPopMatrix();
     }

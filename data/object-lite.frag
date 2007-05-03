@@ -24,14 +24,14 @@ void main()
     vec4  Ns = vec4(gl_FrontMaterial.shininess);
 
     // Clamp the range of the light source.
-/*
+
     float s = gl_TexCoord[1].x / gl_TexCoord[1].w;
     float t = gl_TexCoord[1].y / gl_TexCoord[1].w;
 
     float c = step(0.0, gl_TexCoord[1].z) * step(0.0, s) * step(s, 1.0)
                                           * step(0.0, t) * step(t, 1.0);
-*/
-    vec4 l = Kl * S;
+
+    vec4 l = Kl * S * c;
 
     vec4 KS = pow(max(dot(V, R), 0.0) * Ks * l, Ns);
     vec4 KD =     max(dot(L, N), 0.0) * Kd * l;
