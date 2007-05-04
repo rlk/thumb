@@ -2,7 +2,6 @@
 #define FRAME_HPP
 
 #include "opengl.hpp"
-#include "image.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -10,14 +9,17 @@ namespace ogl
 {
     class frame
     {
-        GLsizei w;
-        GLsizei h;
-
         GLenum target;
         GLuint buffer;
 
-        image *color;
-        image *depth;
+        GLuint color;
+        GLuint depth;
+
+        GLenum color_format;
+        GLenum depth_format;
+
+        GLsizei w;
+        GLsizei h;
 
     public:
 
@@ -28,11 +30,14 @@ namespace ogl
 
         void bind_color(GLenum=GL_TEXTURE0) const;
         void free_color(GLenum=GL_TEXTURE0) const;
+        void bind_depth(GLenum=GL_TEXTURE0) const;
+        void free_depth(GLenum=GL_TEXTURE0) const;
 
         void bind(bool=false) const;
         void free(bool=false) const;
-        void draw()           const;
-        void null()           const;
+
+        void init();
+        void fini();
     };
 }
 

@@ -20,7 +20,7 @@
 #include FT_FREETYPE_H
 
 #include "opengl.hpp"
-#include "imgdata.hpp"
+#include "image.hpp"
 #include "rect.hpp"
 
 //-----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ namespace app
 
     class text
     {
-        ogl::imgdata *data;
+        ogl::image *data;
         
         int x, y;
         int inner_w;

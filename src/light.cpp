@@ -119,7 +119,7 @@ int ent::light::draw_prio(bool edit)
         return 0;
 }
 
-void ent::light::draw_dark()
+void ent::light::draw()
 {
     const GLfloat b[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     const GLfloat w[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -185,10 +185,6 @@ void ent::light::draw_dark()
     }
     glPopMatrix();
     glPopAttrib();
-}
-
-void ent::light::draw_lite()
-{
 }
 
 //-----------------------------------------------------------------------------

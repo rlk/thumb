@@ -71,10 +71,10 @@ void ogl::program::init()
     size_t vert_siz;
     size_t frag_siz;
 
-    const  GLcharARB *vert_txt
-        = (GLcharARB *) ::data->load(name + ".vert", &vert_siz);
-    const  GLcharARB *frag_txt
-        = (GLcharARB *) ::data->load(name + ".frag", &frag_siz);
+    const  GLcharARB *vert_txt =
+        (const GLcharARB *) ::data->load(name + ".vert", &vert_siz);
+    const  GLcharARB *frag_txt =
+        (const GLcharARB *) ::data->load(name + ".frag", &frag_siz);
 
     GLint vert_len = GLint(vert_siz);
     GLint frag_len = GLint(frag_siz);

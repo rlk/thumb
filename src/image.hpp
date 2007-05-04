@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef IMGDATA_HPP
-#define IMGDATA_HPP
+#ifndef IMAGE_HPP
+#define IMAGE_HPP
 
 #include "opengl.hpp"
 
@@ -19,27 +19,32 @@
 
 namespace ogl
 {
-    class imgdata
+    class image
     {
+        GLenum target;
+        GLenum format;
         GLuint object;
 
         GLubyte *p;
         GLsizei  w;
         GLsizei  h;
-        GLsizei  b;
 
     public:
 
-        imgdata(GLsizei, GLsizei, GLsizei);
-       ~imgdata();
+        image(GLsizei, GLsizei, GLenum=GL_TEXTURE_2D, GLenum=GL_RGBA8);
+       ~image();
 
         void blit(const GLubyte *, GLsizei, GLsizei, GLsizei, GLsizei);
 
-        void bind() const;
-        void free() const;
+        void bind(GLenum=GL_TEXTURE0) const;
+        void free(GLenum=GL_TEXTURE0) const;
 
         void init();
         void fini();
+
+        GLsizei get_w() const { return w;      }
+        GLsizei get_h() const { return h;      }
+        GLuint  get_o() const { return object; }
     };
 }
 

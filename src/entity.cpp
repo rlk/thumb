@@ -533,23 +533,7 @@ void ent::entity::mult_P() const
 
 //-----------------------------------------------------------------------------
 
-void ent::entity::draw_dark()
-{
-    // Draw the object associated with this entity.
-
-    if (geometry)
-    {
-        glPushMatrix();
-        {
-            mult_M();
-            geometry->draw();
-        }
-        glPopMatrix();
-    }
-    OGLCK();
-}
-
-void ent::entity::draw_lite()
+void ent::entity::draw()
 {
     // Draw the object associated with this entity.
 

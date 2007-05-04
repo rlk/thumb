@@ -1,4 +1,4 @@
-Add a shader reference to the MTL
+Convert light and camera entity draw to use OBJ
 Consider collapsing dark and lite shaders
     Do ambient and emission in the shader
     Zero ambient and emission for all but first lightsource
@@ -17,6 +17,8 @@ Reduce the number of string passes by value in the gui module.
 Remove the shadowmap state ownership from the scene.
 Move the draw priority sort out of the main draw.
     It changes only when the scene changes.
+    Maybe generate a linear list of visible stuff?
+        This is advantageous in multipass
 Restructure the prep/prio/draw system
     Work out the spatial partition first
     Draw order is crucial
@@ -57,6 +59,7 @@ Move sky/earth/sun ownership to scene.
 Use spatial index to eliminate unnecessary shadow map redraw.
     Lights should know if they see a static scene.
 
+Tune the near and far clipping planes.
 Frustum culling for cameras and lights.
 Water.
     Bouyancy force.

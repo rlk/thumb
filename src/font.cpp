@@ -68,12 +68,12 @@ app::text::text(int w, int h) : x(0), y(0), inner_w(w), inner_h(h)
     outer_w = next_power_of_2(inner_w);
     outer_h = next_power_of_2(inner_h);
 
-    data = ::glob->load_imgdata(outer_w, outer_h, 4);
+    data = ::glob->new_image(outer_w, outer_h, GL_TEXTURE_2D, GL_RGBA8);
 }
 
 app::text::~text()
 {
-    ::glob->free_imgdata(data);
+    ::glob->free_image(data);
 }
 
 void app::text::move(int x, int y)
@@ -141,12 +141,7 @@ void app::text::draw() const
     }
     data->free();
 }
-/*
-void app::text::bind() const
-{
-    image->bind();
-}
-*/
+
 void app::text::add(int x, int w)
 {
     // Append a new glyph map object.

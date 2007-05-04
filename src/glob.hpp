@@ -19,7 +19,8 @@
 #include "program.hpp"
 #include "texture.hpp"
 #include "geodata.hpp"
-#include "imgdata.hpp"
+#include "image.hpp"
+#include "frame.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -48,16 +49,19 @@ namespace app
         std::map<std::string, program> program_map;
         std::map<std::string, texture> texture_map;
         std::map<std::string, geodata> geodata_map;
-        std::set<ogl::imgdata *>       imgdata_set;
+
+        std::set<ogl::image *> image_set;
+        std::set<ogl::frame *> frame_set;
 
     public:
 
        ~glob();
 
+        // Named, reference-counted GL state.
+
         const ogl::program *load_program(std::string);
         const ogl::texture *load_texture(std::string);
         const ogl::geodata *load_geodata(std::string);
-              ogl::imgdata *load_imgdata(GLsizei, GLsizei, GLsizei);
 
         void free_program(std::string);
         void free_texture(std::string);
@@ -66,11 +70,20 @@ namespace app
         void free_program(const ogl::program *);
         void free_texture(const ogl::texture *);
         void free_geodata(const ogl::geodata *);
-        void free_imgdata(      ogl::imgdata *);
 
         void dupe_program(const ogl::program *);
         void dupe_texture(const ogl::texture *);
         void dupe_geodata(const ogl::geodata *);
+
+        // Anonymous GL state.
+
+        ogl::image *new_image(GLsizei, GLsizei, GLenum, GLenum);
+        ogl::frame *new_frame(GLsizei, GLsizei, GLenum, GLenum, GLenum);
+
+        void free_image(ogl::image *);
+        void free_frame(ogl::frame *);
+
+        // Flush and reload.
 
         void init();
         void fini();

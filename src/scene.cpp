@@ -847,7 +847,8 @@ void ops::scene::draw(bool edit)
     // Construct prioritized lists of lights and objects.
 
     ent::set::iterator e;
-    int p;
+    int  p;
+    bool d = false;
 
     for (e = all.begin(); e != all.end(); ++e)
     {
@@ -861,9 +862,6 @@ void ops::scene::draw(bool edit)
         j->second->draw_prep(edit);
 
     view->apply();
-
-    for (j = D.begin(); j != D.end(); ++j)
-        j->second->draw_dark();
 
     // Iterate over all passes of each light.
 
@@ -884,7 +882,7 @@ void ops::scene::draw(bool edit)
                     lp->lite_prep(p);
 
                     for (j = D.begin(); j != D.end(); ++j)
-                        j->second->draw_dark();
+                        j->second->draw();
 
                     lp->lite_post(p);
                 }
@@ -900,16 +898,23 @@ void ops::scene::draw(bool edit)
             glPushAttrib(GL_DEPTH_BUFFER_BIT |
                          GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT);
             {
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_ONE, GL_ONE);
+                if (d)
+                {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_ONE, GL_ONE);
 
-                glDepthMask(GL_FALSE);
-                glDepthFunc(GL_EQUAL);
+                    glDepthMask(GL_FALSE);
+                    glDepthFunc(GL_EQUAL);
+                }
+                else
+                {
+                    d = true;
+                }
 
                 view->apply();
 
                 for (j = D.begin(); j != D.end(); ++j)
-                    j->second->draw_lite();
+                    j->second->draw();
             }
             glPopAttrib();
         }

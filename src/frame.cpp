@@ -1,36 +1,133 @@
 #include <stdexcept>
-#include <SDL.h>
 
 #include "frame.hpp"
 
 //-----------------------------------------------------------------------------
 
 ogl::frame::frame(GLsizei w, GLsizei h, GLenum t, GLenum cf, GLenum df) :
-    w(w), h(h), target(t), color(0), depth(0)
+    target(t),
+    buffer(0),
+    color(0),
+    depth(0),
+    color_format(cf),
+    depth_format(df),
+    w(w),
+    h(h)
 {
-    // Initialize the color render buffer object.
+    init();
+}
 
-    if (cf && (color = new image(t, cf, w, h)))
+ogl::frame::~frame()
+{
+    fini();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::frame::bind_color(GLenum unit) const
+{
+    glActiveTextureARB(unit);
     {
-        glTexParameteri(t, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(t, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glBindTexture(target, color);
+    }
+    glActiveTextureARB(GL_TEXTURE0);
+}
 
-        color->free();
+void ogl::frame::free_color(GLenum unit) const
+{
+    glActiveTextureARB(unit);
+    {
+        glBindTexture(target, 0);
+    }
+    glActiveTextureARB(GL_TEXTURE0);
+}
+
+void ogl::frame::bind_depth(GLenum unit) const
+{
+    glActiveTextureARB(unit);
+    {
+        glBindTexture(target, depth);
+    }
+    glActiveTextureARB(GL_TEXTURE0);
+}
+
+void ogl::frame::free_depth(GLenum unit) const
+{
+    glActiveTextureARB(unit);
+    {
+        glBindTexture(target, 0);
+    }
+    glActiveTextureARB(GL_TEXTURE0);
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::frame::bind(bool proj) const
+{
+    // Store the current viewport state.
+
+    glPushAttrib(GL_VIEWPORT_BIT);
+
+    // Enable this framebuffer object's state.
+
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer);
+    glViewport(0, 0, w, h);
+
+    OGLCK();
+}
+
+void ogl::frame::free(bool proj) const
+{
+    // Restore the previous viewport and bind the default frame buffer.
+
+    glPopAttrib();
+
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+
+    OGLCK();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::frame::init()
+{
+     // Initialize the color render buffer object.
+
+    if (color_format)
+    {
+        glGenTextures(1,     &color);
+        glBindTexture(target, color);
+
+        glTexImage2D(target, 0, color_format, w, h, 0,
+                     color_format, GL_UNSIGNED_BYTE, NULL);
+
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+
+        glBindTexture(target, 0);
     }
 
     // Initialize the depth render buffer object.
 
-    if (df && (depth = new image(t, df, w, h)))
+    if (depth_format)
     {
-        // Need to pass GL_DEPTH_COMPONENT external format?
+        glGenTextures(1,     &depth);
+        glBindTexture(target, depth);
 
-        glTexParameteri(t, GL_TEXTURE_COMPARE_MODE_ARB,
-                           GL_COMPARE_R_TO_TEXTURE_ARB);
+        glTexImage2D(target, 0, color_format, w, h, 0,
+                     color_format, GL_UNSIGNED_BYTE, NULL);
 
-        glTexParameteri(t, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(t, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
-        depth->free();
+        glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB,
+                                GL_COMPARE_R_TO_TEXTURE_ARB);
+
+        glBindTexture(target, 0);
     }
 
     // Initialize the frame buffer object.
@@ -40,10 +137,10 @@ ogl::frame::frame(GLsizei w, GLsizei h, GLenum t, GLenum cf, GLenum df) :
 
     if (color) glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                                          GL_COLOR_ATTACHMENT0_EXT,
-                                         t, color->get_o(), 0);
+                                         target, color, 0);
     if (depth) glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                                          GL_DEPTH_ATTACHMENT_EXT,
-                                         t, depth->get_o(), 0);
+                                         target, depth, 0);
 
     // Confirm the frame buffer object status.
 
@@ -76,90 +173,12 @@ ogl::frame::frame(GLsizei w, GLsizei h, GLenum t, GLenum cf, GLenum df) :
     OGLCK();
 }
 
-ogl::frame::~frame()
+void ogl::frame::fini()
 {
+    if (color)  glDeleteTextures(1, &color);
+    if (depth)  glDeleteTextures(1, &depth);
+
     if (buffer) glDeleteFramebuffersEXT(1, &buffer);
-
-    if (depth) delete depth;
-    if (color) delete color;
-
-    OGLCK();
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::frame::bind_color(GLenum unit) const
-{
-    if (color) color->bind(unit);
-}
-
-void ogl::frame::free_color(GLenum unit) const
-{
-    if (color) color->free(unit);
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::frame::bind(bool proj) const
-{
-//  glFinish();
-
-    // Store the current viewport state.
-
-    glPushAttrib(GL_VIEWPORT_BIT);
-
-    // Enable this framebuffer object's state.
-
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer);
-    glViewport(0, 0, w, h);
-
-    // Set up a one-to-one model-view-projection transformation, if requested.
-
-    if (proj)
-    {
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0, w, 0, h, 0, 1);
-
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-    }
-    OGLCK();
-}
-
-void ogl::frame::free(bool proj) const
-{
-    // Restore the previous transformation, if requested.
-
-    if (proj)
-    {
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-    }
-
-    // Restore the previous viewport and bind the default frame buffer.
-
-    glPopAttrib();
-
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-
-    OGLCK();
-}
-
-void ogl::frame::draw() const
-{
-    if (color) color->draw();
-}
-
-void ogl::frame::null() const
-{
-    if (color) color->null();
-    if (depth) depth->null();
 }
 
 //-----------------------------------------------------------------------------

@@ -18,22 +18,27 @@ app::glob::~glob()
 {
     // Release all storage and OpenGL state.
 
-    std::map<std::string, program>::iterator i;
-    std::map<std::string, texture>::iterator j;
-    std::map<std::string, geodata>::iterator k;
-    std::set<ogl::imgdata *>::iterator       l;
+    std::map<std::string, program>::iterator pi;
+    std::map<std::string, texture>::iterator ti;
+    std::map<std::string, geodata>::iterator gi;
 
-    for (i = program_map.begin(); i != program_map.end(); ++i)
-        delete i->second.ptr;
+    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+        delete pi->second.ptr;
 
-    for (j = texture_map.begin(); j != texture_map.end(); ++j)
-        delete j->second.ptr;
+    for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
+        delete ti->second.ptr;
 
-    for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
-        delete k->second.ptr;
+    for (gi = geodata_map.begin(); gi != geodata_map.end(); ++gi)
+        delete gi->second.ptr;
 
-    for (l = imgdata_set.begin(); l != imgdata_set.end(); ++l)
-        delete (*l);
+    std::set<ogl::image *>::iterator ii;
+    std::set<ogl::frame *>::iterator fi;
+
+    for (ii = image_set.begin(); ii != image_set.end(); ++ii)
+        delete (*ii);
+
+    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
+        delete (*fi);
 }
 
 //-----------------------------------------------------------------------------
@@ -164,18 +169,38 @@ void app::glob::dupe_geodata(const ogl::geodata *p)
 
 //-----------------------------------------------------------------------------
 
-ogl::imgdata *app::glob::load_imgdata(GLsizei w, GLsizei h, GLsizei b)
+ogl::image *app::glob::new_image(GLsizei w, GLsizei h, GLenum t, GLenum f)
 {
-    ogl::imgdata *p = new ogl::imgdata(w, h, b);
+    ogl::image *p = new ogl::image(w, h, t, f);
 
-    imgdata_set.insert(p);
+    image_set.insert(p);
 
     return p;
 }
 
-void app::glob::free_imgdata(ogl::imgdata *p)
+void app::glob::free_image(ogl::image *p)
 {
-    imgdata_set.erase(p);
+    image_set.erase(p);
+
+    delete p;
+}
+
+//-----------------------------------------------------------------------------
+
+ogl::frame *app::glob::new_frame(GLsizei w, GLsizei h, GLenum t,
+                                                       GLenum c,
+                                                       GLenum d)
+{
+    ogl::frame *p = new ogl::frame(w, h, t, c, d);
+
+    frame_set.insert(p);
+
+    return p;
+}
+
+void app::glob::free_frame(ogl::frame *p)
+{
+    frame_set.erase(p);
 
     delete p;
 }
@@ -186,44 +211,54 @@ void app::glob::init()
 {
     // Reacquire all OpenGL state.
 
-    std::map<std::string, program>::iterator i;
-    std::map<std::string, texture>::iterator j;
-    std::map<std::string, geodata>::iterator k;
-    std::set<ogl::imgdata *>::iterator       l;
+    std::map<std::string, program>::iterator pi;
+    std::map<std::string, texture>::iterator ti;
+    std::map<std::string, geodata>::iterator gi;
 
-    for (i = program_map.begin(); i != program_map.end(); ++i)
-        i->second.ptr->init();
+    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+        pi->second.ptr->init();
 
-    for (j = texture_map.begin(); j != texture_map.end(); ++j)
-        j->second.ptr->init();
+    for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
+        ti->second.ptr->init();
 
-    for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
-        k->second.ptr->init();
+    for (gi = geodata_map.begin(); gi != geodata_map.end(); ++gi)
+        gi->second.ptr->init();
 
-    for (l = imgdata_set.begin(); l != imgdata_set.end(); ++l)
-        (*l)->init();
+    std::set<ogl::image *>::iterator ii;
+    std::set<ogl::frame *>::iterator fi;
+
+    for (ii = image_set.begin(); ii != image_set.end(); ++ii)
+        (*ii)->init();
+
+    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
+        (*fi)->init();
 }
 
 void app::glob::fini()
 {
     // Release all OpenGL state.
 
-    std::map<std::string, program>::iterator i;
-    std::map<std::string, texture>::iterator j;
-    std::map<std::string, geodata>::iterator k;
-    std::set<ogl::imgdata *>::iterator       l;
+    std::set<ogl::frame *>::iterator fi;
+    std::set<ogl::image *>::iterator ii;
 
-    for (i = program_map.begin(); i != program_map.end(); ++i)
-        i->second.ptr->fini();
+    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
+        (*fi)->fini();
 
-    for (j = texture_map.begin(); j != texture_map.end(); ++j)
-        j->second.ptr->fini();
+    for (ii = image_set.begin(); ii != image_set.end(); ++ii)
+        (*ii)->fini();
 
-    for (k = geodata_map.begin(); k != geodata_map.end(); ++k)
-        k->second.ptr->fini();
+    std::map<std::string, geodata>::iterator gi;
+    std::map<std::string, texture>::iterator ti;
+    std::map<std::string, program>::iterator pi;
 
-    for (l = imgdata_set.begin(); l != imgdata_set.end(); ++l)
-        (*l)->fini();
+    for (gi = geodata_map.begin(); gi != geodata_map.end(); ++gi)
+        gi->second.ptr->fini();
+
+    for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
+        ti->second.ptr->fini();
+
+    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+        pi->second.ptr->fini();
 }
 
 //-----------------------------------------------------------------------------

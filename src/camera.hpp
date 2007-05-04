@@ -32,8 +32,8 @@ namespace ent
 
         int  draw_prio(bool);
         void draw_prep(bool);
-        void draw_dark();
-        void draw_lite();
+
+        void draw();
 
         virtual mxml_node_t *save(mxml_node_t *);
     };

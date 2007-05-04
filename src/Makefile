@@ -25,7 +25,8 @@ OBJS=   opengl.o \
 	program.o \
 	texture.o \
 	geodata.o \
-	imgdata.o \
+	image.o \
+	frame.o \
 	data.o \
 	lang.o \
 	conf.o \

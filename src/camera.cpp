@@ -41,7 +41,7 @@ void ent::camera::draw_prep(bool edit)
         view->set(current_M);
 }
 
-void ent::camera::draw_dark()
+void ent::camera::draw()
 {
     const GLfloat b[4] = { 0.5f, 0.5f, 0.5f, 1.0f };
     const GLfloat w[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -99,10 +99,6 @@ void ent::camera::draw_dark()
         glEnd();
     }
     glPopMatrix();
-}
-
-void ent::camera::draw_lite()
-{
 }
 
 //-----------------------------------------------------------------------------

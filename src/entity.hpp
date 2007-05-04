@@ -157,10 +157,10 @@ namespace ent
 
         virtual int  draw_prio(bool) { return 0; }
         virtual void draw_prep(bool) { }
-        virtual void draw_dark();
-        virtual void draw_lite();
         virtual void draw_line();
         virtual void draw_foci();
+
+        virtual void draw();
 
         // File I/O
 
