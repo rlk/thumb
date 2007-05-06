@@ -198,7 +198,9 @@ bool mode::edit::keybd(int k, bool d, int c)
 
 void mode::edit::draw()
 {
-    scene.draw(true);
+    scene.draw_scene();
+    scene.draw_gizmo();
+
     transform.draw();
 }
 

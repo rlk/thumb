@@ -380,14 +380,6 @@ void ent::universal::step_prep()
 
 //-----------------------------------------------------------------------------
 
-int ent::joint::draw_prio(bool edit)
-{
-    if (edit)
-        return 1;
-    else
-        return 0;
-}
-
 void ent::joint::draw_geom() const
 {
     if (geom)

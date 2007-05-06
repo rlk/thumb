@@ -131,6 +131,30 @@ void app::view::apply() const
     }
 }
 
+void app::view::push() const
+{
+    glMatrixMode(GL_PROJECTION);
+    {
+        glPushMatrix();
+    }
+    glMatrixMode(GL_MODELVIEW);
+    {
+        glPushMatrix();
+    }
+}
+
+void app::view::pop() const
+{
+    glMatrixMode(GL_PROJECTION);
+    {
+        glPopMatrix();
+    }
+    glMatrixMode(GL_MODELVIEW);
+    {
+        glPopMatrix();
+    }
+}
+
 //-----------------------------------------------------------------------------
 
 void app::view::turn(float rx, float ry, float rz)

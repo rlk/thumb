@@ -26,6 +26,7 @@
 #include "glob.hpp"
 #include "lang.hpp"
 #include "view.hpp"
+#include "perf.hpp"
 
 #define JIFFY (1000 / 60)
 
@@ -105,38 +106,6 @@ double get_trg(unsigned int i)
 
 void set_trg(unsigned int b) { bits |= b; }
 void clr_trg()               { bits  = 0; }
-
-//-----------------------------------------------------------------------------
-
-static void stat()
-{
-    static float t0 = 0;
-    static float t1 = 0;
-    static float tt = 0;
-    static int   n  = 0;
-
-    // Accumulate passing time.
-
-    t1 = SDL_GetTicks() / 1000.0f;
-    tt = tt + t1 - t0;
-    t0 = t1;
-
-    // Count frames and report frames per second.
-
-    n++;
-
-    if (tt > 0.25f)
-    {
-        std::ostringstream str;
-
-        str << int(n / tt);
-
-        SDL_WM_SetCaption(str.str().c_str(),
-                          str.str().c_str());
-        tt = 0;
-        n  = 0;
-    }
-}
 
 //-----------------------------------------------------------------------------
 
@@ -241,10 +210,9 @@ static bool loop()
         prog->timer(JIFFY / 1000.0f);
     }
 
-    // Draw the scene and display statistics. 
+    // Draw the scene.
 
     prog->draw();
-    stat();
 
     return true;
 }
@@ -271,8 +239,13 @@ int main(int argc, char *argv[])
 
             init(data_file, conf_file, lang_file);
             {
+                std::auto_ptr<perf> P(new perf(1));
+
                 while (loop())
+                {
                     SDL_GL_SwapBuffers();
+                    P->step();
+                }
             }
             fini();
 

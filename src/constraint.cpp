@@ -246,6 +246,8 @@ void constraint::draw() const
 
         glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 
+        glLineWidth(2.0f);
+
         // Draw the oriented constraint grid.
 
         glMultMatrixf(T);

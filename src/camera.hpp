@@ -30,9 +30,6 @@ namespace ent
 
         void edit_init();
 
-        int  draw_prio(bool);
-        void draw_prep(bool);
-
         void draw();
 
         virtual mxml_node_t *save(mxml_node_t *);

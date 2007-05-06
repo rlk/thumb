@@ -64,7 +64,9 @@ bool mode::info::keybd(int k, bool d, int c)
 
 void mode::info::draw()
 {
-    scene.draw(true);
+    scene.draw_scene();
+    scene.draw_gizmo();
+
     gui.draw();
 }
 

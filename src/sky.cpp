@@ -21,8 +21,8 @@ ent::sky::sky(float k) :
     free(glob->load_geodata("sky.obj")),
     glow(glob->load_texture("sky_glow.png")),
     fill(glob->load_texture("sky_fill.png")),
-    prog(glob->load_program("sky")),
-
+    prog(glob->load_program("sky.vert",
+                            "sky.frag")),
     dist(k)
 {
 }

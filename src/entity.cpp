@@ -144,7 +144,7 @@ dBodyID ent::entity::phys_body()
 
 void ent::entity::phys_init()
 {
-    // Initialize the physical system.
+    // Initialize the physical system.  TODO: use quadtree space?
 
     world = dWorldCreate();
     space = dHashSpaceCreate(0);
@@ -533,7 +533,7 @@ void ent::entity::mult_P() const
 
 //-----------------------------------------------------------------------------
 
-void ent::entity::draw()
+void ent::entity::draw(int type)
 {
     // Draw the object associated with this entity.
 
@@ -542,7 +542,7 @@ void ent::entity::draw()
         glPushMatrix();
         {
             mult_M();
-            geometry->draw();
+            geometry->draw(type);
         }
         glPopMatrix();
     }

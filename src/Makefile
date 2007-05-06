@@ -1,6 +1,7 @@
 
-export CFLAGS= -g -Wall -ansi -pedantic
-export INCDIR=
+#CFLAGS= -g -Wall -ansi -pedantic
+#CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
+CFLAGS= -O3 -ffast-math -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 
@@ -44,6 +45,7 @@ OBJS=   opengl.o \
 	gui.o \
 	param.o \
 	dir.o \
+	perf.o \
 	main.o
 
 LIBS= -lmxml -lode -ljpeg -lpng -lz -lm
@@ -53,7 +55,7 @@ DEPS= $(OBJS:.o=.d)
 
 ifeq ($(shell uname), Darwin)
 	INCDIR += -I/opt/local/include
-	LIBS += -framework OpenGL
+	LIBS   += -framework OpenGL
 
 	SDL_CONF = /opt/local/bin/sdl-config
 	FT2_CONF = /opt/local/bin/freetype-config
@@ -74,6 +76,13 @@ OPTS +=   $(shell $(SDL_CONF) --cflags) \
 	  $(shell $(FT2_CONF) --cflags)
 LIBS +=   $(shell $(SDL_CONF) --libs) \
 	  $(shell $(FT2_CONF) --libs)
+
+#------------------------------------------------------------------------------
+
+ifdef NVPM
+	LIBS += -lNVPerfSDK
+	OPTS += -DNVPM
+endif
 
 #------------------------------------------------------------------------------
 

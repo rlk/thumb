@@ -111,9 +111,10 @@ void ogl::texture::load_png(const void *buf, size_t len)
         {
             // Initialize the texture object.
 
-            glEnable(target);
-
             glBindTexture(target, object);
+
+            if (target == GL_TEXTURE_2D)
+                glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 
             glTexImage2D(target, 0, format, w, h, 0,
                          format, GL_UNSIGNED_BYTE, 0);
@@ -144,8 +145,16 @@ void ogl::texture::load_img(std::string name)
 
     // Set some useful default state.
 
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    if (target == GL_TEXTURE_2D)
+    {
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+    }
+    else
+    {
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+    }
 
     glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);

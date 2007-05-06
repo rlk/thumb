@@ -20,9 +20,20 @@
 
 ent::light::light() :
     fov(60),
-    lightmask(glob->load_texture("lightmask_basic.png"))
+    lightmask(glob->load_texture("lightmask_basic.png")),
+    shadowmap(glob->new_frame(1024, 1024, GL_TEXTURE_2D,
+                              0, GL_DEPTH_COMPONENT24))
 {
+    // TODO: conf parameterize shadowmap.  Eliminate the color buffer.
 }
+
+ent::light::~light()
+{
+    glob->free_frame(shadowmap);
+    glob->free_texture(lightmask);
+}
+
+//-----------------------------------------------------------------------------
 
 void ent::light::edit_init()
 {
@@ -43,20 +54,13 @@ void ent::light::mult_P() const
 
 //-----------------------------------------------------------------------------
 
-void ent::light::lite_prep(int pass)
+void ent::light::prep_init()
 {
-    // Set up the GL state for shadow map rendering.
+    // Bind the render target.
 
-    glColorMask(0, 0, 0, 0);
+    shadowmap->bind();
 
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-
-    glPolygonOffset(4.0f, 4.0f);
-
-    // Setup the transform of the light's view.
+    // Setup the light's view transform.
 
     glMatrixMode(GL_PROJECTION);
     {
@@ -68,9 +72,31 @@ void ent::light::lite_prep(int pass)
         glLoadIdentity();
         mult_V();
     }
+
+    // Set up the GL state for shadow map rendering.
+
+    glColorMask(0, 0, 0, 0);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+
+    glPolygonOffset(1.1f, 4.0f); // TODO: standard values?
+
+    glClear(GL_DEPTH_BUFFER_BIT);
 }
 
-void ent::light::lite_post(int pass)
+void ent::light::prep_fini()
+{
+    glColorMask(1, 1, 1, 1);
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
+
+    shadowmap->free();
+}
+
+//-----------------------------------------------------------------------------
+
+void ent::light::draw_init()
 {
     // Compose a matrix for later using in mapping this shadow map.
 
@@ -87,39 +113,38 @@ void ent::light::lite_post(int pass)
     glMatrixMode(GL_MODELVIEW);
     glActiveTextureARB(GL_TEXTURE0);
 
-    // TODO: this violates the GL state discipline
+    // Bind the textures.
 
-    lightmask->bind(GL_TEXTURE2
-);
-
-    // Revert the GL state.
-
-    glColorMask(1, 1, 1, 1);
+    lightmask->bind(GL_TEXTURE2);
+    shadowmap->bind_depth(GL_TEXTURE3);
 
     // Add the light source parameters to the GL state.
 
-    float P[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-    float D[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    view->push();
+    {
+        float P[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+        float D[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 
-    view->apply();
-    mult_M();
+        view->apply();
 
-    glEnable (GL_LIGHT0);
-    glLightfv(GL_LIGHT0, GL_POSITION, P);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE,  D);
+        mult_M();
+
+        glEnable (GL_LIGHT0);
+        glLightfv(GL_LIGHT0, GL_POSITION, P);
+        glLightfv(GL_LIGHT0, GL_DIFFUSE,  D);
+    }
+    view->pop();
+}
+
+void ent::light::draw_fini()
+{
+    shadowmap->free_depth(GL_TEXTURE3);
+    lightmask->free(GL_TEXTURE2);
 }
 
 //-----------------------------------------------------------------------------
 
-int ent::light::draw_prio(bool edit)
-{
-    if (edit)
-        return 1;
-    else
-        return 0;
-}
-
-void ent::light::draw()
+void ent::light::draw(int)
 {
     const GLfloat b[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
     const GLfloat w[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -135,7 +160,31 @@ void ent::light::draw()
 
         mult_M();
 
+        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, w);
+
+        glEnable(GL_TEXTURE_2D);
+
+        lightmask->bind(GL_TEXTURE0);
+        {
+            glBegin(GL_QUADS);
+            {
+                glNormal3f(  0,   0,   1);
+                glTexCoord2i(0, 0);
+                glVertex3f(-vy, -vy, -vz);
+                glTexCoord2i(1, 0);
+                glVertex3f(-vy, +vy, -vz);
+                glTexCoord2i(1, 1);
+                glVertex3f(+vy, +vy, -vz);
+                glTexCoord2i(0, 1);
+                glVertex3f(+vy, -vy, -vz);
+            }
+            glEnd();
+        }
+        lightmask->free();
+
         glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, b);
+
+        glDisable(GL_TEXTURE_2D);
 
         glBegin(GL_TRIANGLES);
         {
@@ -161,27 +210,6 @@ void ent::light::draw()
         }
         glEnd();
 
-        glMaterialfv(GL_FRONT_AND_BACK, GL_EMISSION, w);
-
-        glEnable(GL_TEXTURE_2D);
-
-        lightmask->bind(GL_TEXTURE0);
-        {
-            glBegin(GL_QUADS);
-            {
-                glNormal3f(  0,   0,   1);
-                glTexCoord2i(0, 0);
-                glVertex3f(-vy, -vy, -vz);
-                glTexCoord2i(1, 0);
-                glVertex3f(-vy, +vy, -vz);
-                glTexCoord2i(1, 1);
-                glVertex3f(+vy, +vy, -vz);
-                glTexCoord2i(0, 1);
-                glVertex3f(+vy, -vy, -vz);
-            }
-            glEnd();
-        }
-        lightmask->free();
     }
     glPopMatrix();
     glPopAttrib();

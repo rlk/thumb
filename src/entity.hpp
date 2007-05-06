@@ -146,21 +146,18 @@ namespace ent
         virtual void step_prep() { }
         virtual void step_post() { }
 
-        // Lighting pass.
-
-        virtual int  lite_prio(bool) { return 0; }
-        virtual int  lite_pass()     { return 1; }
-        virtual void lite_prep(int)  { }
-        virtual void lite_post(int)  { }
-
         // Render pass.
 
-        virtual int  draw_prio(bool) { return 0; }
-        virtual void draw_prep(bool) { }
         virtual void draw_line();
         virtual void draw_foci();
 
-        virtual void draw();
+        virtual void draw_init()  { }
+        virtual void draw_fini()  { }
+        virtual void prep_init()  { }
+        virtual void prep_fini()  { }
+
+        virtual void draw(int);
+        virtual int  type(   ) { return geometry ? geometry->type() : 0; }
 
         // File I/O
 

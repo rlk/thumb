@@ -25,7 +25,11 @@ bool ogl::has_multitexture;
 bool ogl::has_shader;
 bool ogl::has_fbo;
 bool ogl::has_vbo;
-int  ogl::has_shadow;
+
+int  ogl::do_shadows;
+bool ogl::do_z_only;
+bool ogl::do_reflect;
+bool ogl::do_refract;
 
 //-----------------------------------------------------------------------------
 
@@ -227,200 +231,26 @@ void ogl::init()
 
     if (has_fbo && has_shader)
     {
-        option = ::conf->get_s("shadow");
+        option = ::conf->get_s("shadows");
 
-        if (option == "csm")  has_shadow = 2;
-        if (option == "map")  has_shadow = 1;
-        else                  has_shadow = 0;
+        if (option == "csm")  do_shadows = 2;
+        if (option == "map")  do_shadows = 1;
+        else                  do_shadows = 0;
+
+        do_reflect = (::conf->get_s("reflect") == "false") ? false : true;
+        do_refract = (::conf->get_s("refract") == "false") ? false : true;
     }
-    else has_shadow = 0;
-}
-
-//-----------------------------------------------------------------------------
-
-ogl::fbo::fbo(GLint color_format,
-              GLint depth_format, GLsizei w, GLsizei h) : w(w), h(h)
-{
-    GLint  o[1], v[4];
-    GLenum T;
-
-    if (((w & (w - 1)) == 0) && ((h & (w - 1)) == 0))
-        T = GL_TEXTURE_2D;
     else
-        T = GL_TEXTURE_RECTANGLE_ARB;
-
-    get_framebuffer(o, v);
-
-    frame = 0;
-    color = 0;
-    depth = 0;
-
-    // Initialize the color render buffer object.
-
-    glGenTextures(1, &color);
-    glBindTexture(T,  color);
-
-    glTexImage2D(T, 0, color_format, w, h, 0, GL_RGBA, GL_INT, NULL);
-
-    glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(T, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-    glTexParameteri(T, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
-
-    // Initialize the depth render buffer object.
-
-    glGenTextures(1, &depth);
-    glBindTexture(T,  depth);
-
-    glTexImage2D(T, 0, depth_format, w, h, 0,
-                 GL_DEPTH_COMPONENT, GL_INT, NULL);
-
-    glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(T, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-    glTexParameteri(T, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
-
-    glTexParameteri(T, GL_TEXTURE_COMPARE_MODE_ARB,
-                       GL_COMPARE_R_TO_TEXTURE_ARB);
-
-    // Initialize the frame buffer object.
-
-    glGenFramebuffersEXT(1, &frame);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frame);
-
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                              GL_COLOR_ATTACHMENT0_EXT, T, color, 0);
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                              GL_DEPTH_ATTACHMENT_EXT,  T, depth, 0);
-
-    // Confirm the frame buffer object status.
-
-    switch (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT))
     {
-    case GL_FRAMEBUFFER_COMPLETE_EXT:
-        break; 
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-        throw std::runtime_error("Framebuffer incomplete attachment");
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-        throw std::runtime_error("Framebuffer missing attachment");
-    case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-        throw std::runtime_error("Framebuffer duplicate attachment");
-    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-        throw std::runtime_error("Framebuffer dimensions");
-    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-        throw std::runtime_error("Framebuffer formats");
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-        throw std::runtime_error("Framebuffer draw buffer");
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-        throw std::runtime_error("Framebuffer read buffer");
-    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-        throw std::runtime_error("Framebuffer unsupported");
-    default:
-        throw std::runtime_error("Framebuffer error");
+        do_shadows = 0;
+        do_reflect = false;
+        do_refract = false;
     }
 
-    // Zero the buffer.
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    set_framebuffer(o, v);
-
-    OGLCK();
-}
-
-ogl::fbo::~fbo()
-{
-    glDeleteFramebuffersEXT(1, &frame);
-    glDeleteTextures       (1, &depth);
-    glDeleteTextures       (1, &color);
-
-    OGLCK();
-}
-
-void ogl::fbo::push_frame(bool inset)
-{
-    glGetIntegerv(GL_VIEWPORT,                vp_cache);
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, fb_cache);
-
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, frame);
-
-    if (inset)
-        glViewport(1, 1, w - 1, h - 1);
+    if (::conf->get_s("z_only") == "false")
+        do_z_only = false;
     else
-        glViewport(0, 0, w, h);
-
-    OGLCK();
-}
-
-void ogl::fbo::pop_frame()
-{
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb_cache[0]);
-    glViewport(vp_cache[0], vp_cache[1],
-               vp_cache[2], vp_cache[3]);
-
-    OGLCK();
-}
-
-void ogl::fbo::bind_color(GLenum T) const
-{
-    glActiveTextureARB(T);
-    {
-        glBindTexture(GL_TEXTURE_2D, color);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
-
-    OGLCK();
-}
-
-void ogl::fbo::bind_depth(GLenum T) const
-{
-    glActiveTextureARB(T);
-    {
-        glBindTexture(GL_TEXTURE_2D, depth);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
-
-    OGLCK();
-}
-
-//-----------------------------------------------------------------------------
-/*
-ogl::vbo::vbo(GLenum target, GLenum usage, GLsizei size)
-{
-    glGenBuffersARB(1, &buffer);
-
-    glBindBufferARB(target, buffer);
-    glBufferDataARB(target, size, NULL, usage);
-
-    glBindBufferARB(target, 0);
-
-    OGLCK();
-}
-
-ogl::vbo::~vbo()
-{
-    glDeleteBuffersARB(1, &buffer);
-    OGLCK();
-}
-
-void ogl::vbo::bind(GLenum target) const
-{
-    glBindBufferARB(target, buffer);
-    OGLCK();
-}
-*/
-//-----------------------------------------------------------------------------
-
-void ogl::get_framebuffer(GLint o[1], GLint v[4])
-{
-    glGetIntegerv(GL_VIEWPORT,                v);
-    glGetIntegerv(GL_FRAMEBUFFER_BINDING_EXT, o);
-}
-
-void ogl::set_framebuffer(GLint o[1], GLint v[4])
-{
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, o[0]);
-    glViewport(v[0], v[1], v[2], v[3]);
+        do_z_only = true;
 }
 
 //-----------------------------------------------------------------------------

@@ -45,7 +45,7 @@ bool mode::play::timer(float dt)
 
 void mode::play::draw()
 {
-    scene.draw(false);
+    scene.draw_scene();
 }
 
 //-----------------------------------------------------------------------------

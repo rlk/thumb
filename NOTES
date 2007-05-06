@@ -135,7 +135,7 @@ Octree notes
                 Plane straddling could be tough
 
 
-        Static grid octree
+        Static grid octree or quadtree
 
                 Invariants
                         Each entity is in exactly ONE cell
@@ -193,63 +193,14 @@ sampler uniforms
 
                  detail?
 
-We need:
-    A way to determine whether an entity is
-        a lightsource
-        a camera
-        opaque
-            reflective
-            refractive
-        transparent
-
-    
-
-
-Overview:
-    prerender all light source shadow maps
-    prerender all reflection maps
-    prerender all refraction maps
-    render the scene normally
-
-for each light source
-    enable depth-only rendering to shadowmap
-*       render each opaque object front-to-back
-*       render the terrain
-        render each transparent object (alphatest or texkill)
-
-for each visible reflective surface
-
-    stencil the surface into the reflection and refraction buffers
-
-    render reflected scene
-    render refracted scene
-
-
-render scene...
-
-    enable depth-only rendering, blend off
-*       render each opaque object front-to-back
-*       render the terrain
-        **
-
-    for each light source
-        if this is the first lightsource
-            enable ambient and emission
-        else
-            enable additive blend
-
-        render each opaque object front-to-back
-        render the terrain
-        render reflective and refractive surfaces (technically opaque)
-        render the sky
-        enable src blend
-        render each transparent object back-to-front
-
-
-Enable shaders even during depth-only rendering.
-    Vert programs may be non-trivial
-
-*  Double-speed-Z is in effect
 ** Do NOT render alphatest transparent objects during pre-Z?
    (Z test screws with blending/coverage)
 
+NOTE: alpha testing is NOT blending
+
+
+
+solid
+    obj type
+joint
+    gizmo

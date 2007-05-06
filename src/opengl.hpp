@@ -105,7 +105,11 @@ namespace ogl
     extern bool has_shader;
     extern bool has_fbo;
     extern bool has_vbo;
-    extern int  has_shadow;
+
+    extern int  do_shadows;
+    extern bool do_z_only;
+    extern bool do_reflect;
+    extern bool do_refract;
 
     void check_err(const char *, int);
     bool check_ext(const char *);

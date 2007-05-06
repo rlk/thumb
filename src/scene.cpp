@@ -206,8 +206,7 @@ ent::set& ops::enjoin_op::redo(scene *s)
 
 //-----------------------------------------------------------------------------
 
-ops::scene::scene() : 
-    shadowmap(GL_RGBA8, GL_DEPTH_COMPONENT24, 1024, 1024), serial(1)
+ops::scene::scene() : serial(1)
 {
 }
 
@@ -320,13 +319,25 @@ void ops::scene::create_set(ent::set& set)
 {
     ent::set::iterator i;
 
-    // Add all given entities to the entity set.
+    // Add all given entities to the entity sets.
 
     for (i = set.begin(); i != set.end(); ++i)
     {
+        int type = (*i)->type();
+
+        if (type & DRAW_GIZMO)        gizmo.insert(*i);
+        if (type & DRAW_LIGHTSOURCE)  light.insert(*i);
+        if (type & DRAW_TRANSPARENT) transp.insert(*i);
+        if (type & DRAW_OPAQUE)      opaque.insert(*i);
+        if (type & DRAW_REFLECTIVE) reflect.insert(*i);
+        if (type & DRAW_REFRACTIVE) refract.insert(*i);
+
         all.insert(*i);
+
         (*i)->edit_init();
     }
+
+    // TODO: Query entity draw properties and add to proper type set .
 }
 
 void ops::scene::delete_set(ent::set& set)
@@ -337,7 +348,17 @@ void ops::scene::delete_set(ent::set& set)
 
     for (i = set.begin(); i != set.end(); ++i)
     {
+        int type = (*i)->type();
+
+        if (type & DRAW_GIZMO)        gizmo.erase(  gizmo.find(*i));
+        if (type & DRAW_LIGHTSOURCE)  light.erase(  light.find(*i));
+        if (type & DRAW_TRANSPARENT) transp.erase( transp.find(*i));
+        if (type & DRAW_OPAQUE)      opaque.erase( opaque.find(*i));
+        if (type & DRAW_REFLECTIVE) reflect.erase(reflect.find(*i));
+        if (type & DRAW_REFRACTIVE) refract.erase(refract.find(*i));
+
         all.erase(all.find(*i));
+
         (*i)->edit_fini();
     }
 }
@@ -802,13 +823,8 @@ void ops::scene::step(float dt)
 
 //-----------------------------------------------------------------------------
 
-static void line_prep()
+static void line_init()
 {
-    glPushAttrib(GL_LINE_BIT    |
-                 GL_ENABLE_BIT  |
-                 GL_POLYGON_BIT |
-                 GL_DEPTH_BUFFER_BIT);
-
     // Set up for Z-offset anti-aliased line drawing.
 
     glEnable(GL_BLEND);
@@ -824,113 +840,199 @@ static void line_prep()
     glPolygonOffset(-1.0f, -1.0f);
 
     glLineWidth(2.0f);
+
+    glUseProgramObjectARB(0);
 }
 
-static void line_post()
+static void line_fini()
 {
-    glPopAttrib();
+    glDepthMask(GL_TRUE);
+
+    glDisable(GL_POLYGON_OFFSET_LINE);
+    glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_BLEND);
 }
 
 //-----------------------------------------------------------------------------
 
-void ops::scene::draw(bool edit)
+void ops::scene::draw_opaque_dark()
 {
-    typedef std::pair    <int, ent::entity *> pair;
-    typedef std::multimap<int, ent::entity *> mmap;
-
-    mmap L;
-    mmap D;
-
-    mmap::iterator i;
-    mmap::iterator j;
-
-    // Construct prioritized lists of lights and objects.
+    // TODO: Cull using the view frustum.
 
     ent::set::iterator e;
-    int  p;
-    bool d = false;
 
-    for (e = all.begin(); e != all.end(); ++e)
+    // Render all opaque objects front-to-back.
+
+    for (e = opaque.begin(); e != opaque.end(); ++e)
+        (*e)->draw(DRAW_OPAQUE | DRAW_UNLIT);
+
+    // Render terrain.
+}
+
+void ops::scene::draw_opaque_lite()
+{
+    // TODO: Cull using the view frustum and light frustum.
+
+    ent::set::iterator e;
+
+    // Render all opaque objects front-to-back.
+
+    for (e = opaque.begin(); e != opaque.end(); ++e)
+        (*e)->draw(DRAW_OPAQUE | DRAW_LIT);
+
+    // Render terrain.
+}
+
+//-----------------------------------------------------------------------------
+
+void ops::scene::draw_transp_dark()
+{
+    // TODO: Cull using the view frustum.
+
+    ent::set::iterator e;
+
+    // Render all transparent objects front-to-back.
+
+    for (e = transp.begin(); e != transp.end(); ++e)
+        (*e)->draw(DRAW_TRANSPARENT | DRAW_UNLIT);
+}
+
+void ops::scene::draw_transp_lite()
+{
+    // TODO: Cull using the view frustum and light frustum.
+
+    ent::set::iterator e;
+
+    // Render all transparent objects front-to-back.
+
+    for (e = transp.begin(); e != transp.end(); ++e)
+        (*e)->draw(DRAW_TRANSPARENT | DRAW_LIT);
+}
+
+//-----------------------------------------------------------------------------
+
+void ops::scene::draw_all()
+{
+    ent::set::iterator e;
+
+    // Lay down Z.
+
+    if (ogl::do_z_only)
     {
-        if ((p = (*e)->lite_prio(edit)) > 0) L.insert(pair(p, *e));
-        if ((p = (*e)->draw_prio(edit)) > 0) D.insert(pair(p, *e));
+        glColorMask(0, 0, 0, 0);
+
+        draw_opaque_dark();
+
+        glColorMask(1, 1, 1, 1);
+        glDepthFunc(GL_LEQUAL);
     }
 
-    // Render ambient and emissive light to the color buffer.
+    // Render ambient and emissive light.
 
-    for (j = D.begin(); j != D.end(); ++j)
-        j->second->draw_prep(edit);
+    draw_opaque_dark();
+    draw_transp_dark();
+
+    // Set up to accumulate passes over existing geometry.
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_ONE, GL_ONE);
+
+    glDepthMask(GL_FALSE);
+    glDepthFunc(GL_EQUAL);
+
+    // Accumulate illumination of opaque objects.
+
+    if (!opaque.empty())
+        for (e = light.begin(); e != light.end(); ++e)
+        {
+            (*e)->draw_init();
+            draw_opaque_lite();
+            (*e)->draw_fini();
+        }
+
+    // Accumulate illumination of transparent objects.
+
+    if (!transp.empty())
+        for (e = light.begin(); e != light.end(); ++e)
+        {
+            (*e)->draw_init();
+            draw_transp_lite();
+            (*e)->draw_fini();
+        }
+
+    // Revert the GL state.
+
+    glDepthMask(GL_TRUE);
+    glDepthFunc(GL_LESS);
+    glDisable(GL_BLEND);
+}
+
+//-----------------------------------------------------------------------------
+
+void ops::scene::prep_shadows()
+{
+    ent::set::iterator e;
+
+    // Render the shadow map for each lightsource.
+
+    for (e = light.begin(); e != light.end(); ++e)
+    {
+        (*e)->prep_init();
+        draw_opaque_dark();
+        draw_transp_dark();
+        (*e)->prep_fini();
+    }
+}
+
+void ops::scene::prep_reflect()
+{
+    for (;0;/* each reflective object */)
+    {
+        // Set offscreen target, reflected projection, and clip/stencil.
+
+        draw_all();
+    }
+}
+
+void ops::scene::prep_refract()
+{
+    // Set offscreen target and clip/stencil.
+
+    // Draw refracted objects to the depth buffer at the near plane.
+
+//  draw_all();
+
+    // Keep depth.
+}
+
+//-----------------------------------------------------------------------------
+
+void ops::scene::draw_scene()
+{
+    if (ogl::do_shadows) prep_shadows();
+    if (ogl::do_reflect) prep_reflect();
+    if (ogl::do_refract) prep_refract();
 
     view->apply();
 
-    // Iterate over all passes of each light.
+    draw_all();
+}
 
-    for (i = L.begin(); i != L.end(); ++i)
-    {
-        ent::entity *lp = i->second;
+void ops::scene::draw_gizmo()
+{
+    ent::set::iterator e;
 
-        for (p = 0; p < lp->lite_pass(); ++p)
-        {
-            // Render all geometry to the depth buffer.
+    view->apply();
 
-            if (ogl::has_shadow == 1)
-            {
-                shadowmap.push_frame();
+    for (e = gizmo.begin(); e != gizmo.end(); ++e) (*e)->draw(DRAW_UNLIT);
+    for (e = light.begin(); e != light.end(); ++e) (*e)->draw(DRAW_UNLIT);
 
-                glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT);
-                {
-                    lp->lite_prep(p);
+    line_init();
 
-                    for (j = D.begin(); j != D.end(); ++j)
-                        j->second->draw();
+    for (e = sel.begin(); e != sel.end(); ++e) (*e)->draw_line();
+    for (e = all.begin(); e != all.end(); ++e) (*e)->draw_foci();
 
-                    lp->lite_post(p);
-                }
-                glPopAttrib();
-
-                shadowmap.pop_frame();
-                shadowmap.bind_depth(GL_TEXTURE3);
-            }
-            else lp->lite_post(p);
-
-            // Accumulate all diffuse light with the color buffer.
-
-            glPushAttrib(GL_DEPTH_BUFFER_BIT |
-                         GL_COLOR_BUFFER_BIT | GL_POLYGON_BIT);
-            {
-                if (d)
-                {
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_ONE, GL_ONE);
-
-                    glDepthMask(GL_FALSE);
-                    glDepthFunc(GL_EQUAL);
-                }
-                else
-                {
-                    d = true;
-                }
-
-                view->apply();
-
-                for (j = D.begin(); j != D.end(); ++j)
-                    j->second->draw();
-            }
-            glPopAttrib();
-        }
-    }
-
-    // Draw editor geometry as requested.
-
-    if (edit)
-    {
-        line_prep();
-
-        for (e = sel.begin(); e != sel.end(); ++e) (*e)->draw_line();
-        for (e = all.begin(); e != all.end(); ++e) (*e)->draw_foci();
-
-        line_post();
-    }
+    line_fini();
 }
 
 //-----------------------------------------------------------------------------

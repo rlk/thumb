@@ -15,6 +15,7 @@
 
 #include "opengl.hpp"
 #include "texture.hpp"
+#include "frame.hpp"
 #include "solid.hpp"
 
 //-----------------------------------------------------------------------------
@@ -28,6 +29,7 @@ namespace ent
         float fov;
 
         const ogl::texture *lightmask;
+        ogl::frame         *shadowmap;
 
         virtual void mult_P() const;
 
@@ -35,15 +37,17 @@ namespace ent
 
         virtual light *clone() const { return new light(*this); }
         light();
+       ~light();
 
         void edit_init();
 
-        int  lite_prio(bool) { return 1; }
-        void lite_prep(int);
-        void lite_post(int);
+        void prep_init();
+        void prep_fini();
+        void draw_init();
+        void draw_fini();
 
-        int  draw_prio(bool);
-        void draw();
+        void draw(int);
+        int  type() { return DRAW_LIGHTSOURCE; }
 
         virtual mxml_node_t *save(mxml_node_t *);
     };

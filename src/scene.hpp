@@ -133,11 +133,20 @@ namespace ops
 
     class scene
     {
+        // Entity sets
+
         ent::set all;
         ent::set sel;
-        
-        ogl::fbo shadowmap;
 
+        // Entity type sets
+
+        ent::set gizmo;
+        ent::set light;
+        ent::set opaque;
+        ent::set transp;
+        ent::set reflect;
+        ent::set refract;
+        
         body_map bodies;
 
         int serial;
@@ -146,6 +155,17 @@ namespace ops
         operation_l redo_list;
 
         void doop(operation_p);
+
+        void draw_opaque_dark();
+        void draw_opaque_lite();
+        void draw_transp_dark();
+        void draw_transp_lite();
+
+        void draw_all();
+
+        void prep_shadows();
+        void prep_reflect();
+        void prep_refract();
 
     public:
 
@@ -188,16 +208,20 @@ namespace ops
         void undo();
         void redo();
 
-        // Physics stepping and rendering handlers.
-
-        void step(float);
-        void draw(bool);
-
         // Scene I/O.
 
         void init();
         void load(std::string);
         void save(std::string, bool);
+
+        // Physics.
+
+        void step(float);
+
+        // Rendering.
+
+        void draw_scene();
+        void draw_gizmo();
     };
 }
 

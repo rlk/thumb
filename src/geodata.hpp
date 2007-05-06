@@ -24,7 +24,8 @@ namespace ogl
         void box_bound(float *) const;
         void sph_bound(float *) const;
 
-        void draw() const;
+        void draw(int=DRAW_OPAQUE) const;
+        int  type(               ) const;
 
         void init();
         void fini();

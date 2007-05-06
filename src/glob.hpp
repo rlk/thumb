@@ -24,6 +24,8 @@
 
 //-----------------------------------------------------------------------------
 
+// TODO: rework these pointers to allow auto_ptr for RAII.
+
 namespace app
 {
     class glob
@@ -59,13 +61,15 @@ namespace app
 
         // Named, reference-counted GL state.
 
-        const ogl::program *load_program(std::string);
         const ogl::texture *load_texture(std::string);
         const ogl::geodata *load_geodata(std::string);
+        const ogl::program *load_program(std::string,
+                                         std::string);
 
-        void free_program(std::string);
         void free_texture(std::string);
         void free_geodata(std::string);
+        void free_program(std::string,
+                          std::string);
 
         void free_program(const ogl::program *);
         void free_texture(const ogl::texture *);

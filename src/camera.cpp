@@ -30,17 +30,6 @@ void ent::camera::edit_init()
 
 //-----------------------------------------------------------------------------
 
-int ent::camera::draw_prio(bool edit)
-{
-    return 1;
-}
-
-void ent::camera::draw_prep(bool edit)
-{
-    if (edit == false)
-        view->set(current_M);
-}
-
 void ent::camera::draw()
 {
     const GLfloat b[4] = { 0.5f, 0.5f, 0.5f, 1.0f };

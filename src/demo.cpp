@@ -153,27 +153,34 @@ void demo::timer(float dt)
 
 void demo::draw()
 {
-//  float A[4] = { 0.2f, 0.2f, 0.2f, 0.0f };
-    float A[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+    float A[4] = { 0.2f, 0.2f, 0.2f, 0.0f };
+//  float A[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     glClearColor(0.1f, 0.2f, 0.4f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
 
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glPushAttrib(GL_ENABLE_BIT);
     {
-        // Draw the scene.
+        glEnableVertexAttribArrayARB(6);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
+        // Draw the scene.
+
         curr->draw();
         prog::draw();
     }
     glPopAttrib();
+    glPopClientAttrib();
 }
 
 //-----------------------------------------------------------------------------

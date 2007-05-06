@@ -17,7 +17,7 @@
 
 //-----------------------------------------------------------------------------
 
-void ogl::program::log(GLhandleARB handle)
+void ogl::program::log(GLhandleARB handle, std::string& name)
 {
     char *log;
     GLint len;
@@ -30,7 +30,8 @@ void ogl::program::log(GLhandleARB handle)
     {
         glGetInfoLogARB(handle, len, NULL, log);
 
-        std::cerr << log << std::endl;
+        std::cerr << name << std::endl;
+        std::cerr << log  << std::endl;
 
         delete [] log;
     }
@@ -38,7 +39,11 @@ void ogl::program::log(GLhandleARB handle)
 
 //-----------------------------------------------------------------------------
 
-ogl::program::program(std::string name) : name(name), vert(0), frag(0)
+ogl::program::program(std::string vert_name,
+                      std::string frag_name) :
+    vert_name(vert_name),
+    frag_name(frag_name),
+    vert(0), frag(0)
 {
     init();
 }
@@ -72,9 +77,9 @@ void ogl::program::init()
     size_t frag_siz;
 
     const  GLcharARB *vert_txt =
-        (const GLcharARB *) ::data->load(name + ".vert", &vert_siz);
+        (const GLcharARB *) ::data->load(vert_name, &vert_siz);
     const  GLcharARB *frag_txt =
-        (const GLcharARB *) ::data->load(name + ".frag", &frag_siz);
+        (const GLcharARB *) ::data->load(frag_name, &frag_siz);
 
     GLint vert_len = GLint(vert_siz);
     GLint frag_len = GLint(frag_siz);
@@ -88,7 +93,7 @@ void ogl::program::init()
         glShaderSourceARB (vert, 1, &vert_txt, &vert_len);
         glCompileShaderARB(vert);
         
-        log(vert);
+        log(vert, vert_name);
     }
 
     // Compile the frag shader.
@@ -100,7 +105,7 @@ void ogl::program::init()
         glShaderSourceARB (frag, 1, &frag_txt, &frag_len);
         glCompileShaderARB(frag);
         
-        log(frag);
+        log(frag, frag_name);
     }
 
     // Link these shader objects to a program object.
@@ -114,12 +119,12 @@ void ogl::program::init()
 
     glLinkProgramARB(prog);
 
-    log(prog);
+    log(prog, vert_name);
 
     // Free the shader files.
 
-    ::data->free(name + ".frag");
-    ::data->free(name + ".vert");
+    ::data->free(frag_name);
+    ::data->free(vert_name);
 
     OGLCK();
 }

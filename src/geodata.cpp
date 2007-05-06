@@ -37,9 +37,16 @@ void ogl::geodata::sph_bound(float *b) const
     data->sph_bound(b);
 }
 
-void ogl::geodata::draw() const
+//-----------------------------------------------------------------------------
+
+void ogl::geodata::draw(int type) const
 {
-    data->draw();
+    data->draw(type);
+}
+
+int ogl::geodata::type() const
+{
+    return data->type();
 }
 
 //-----------------------------------------------------------------------------

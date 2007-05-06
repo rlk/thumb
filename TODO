@@ -1,12 +1,5 @@
+Clone light should clone the shadow and lightmap references.
 Convert light and camera entity draw to use OBJ
-Consider collapsing dark and lite shaders
-    Do ambient and emission in the shader
-    Zero ambient and emission for all but first lightsource
-    This would enable single pass rendering in single-light scenes
-Lay-down-depth?
-    It's a much stronger guarantee than front-to-back sort
-    It's double speed on NVIDIA
-    Be CAREFUL about valid state.  Perf and be sure.
 Reduce the number of GL state changes in OBJ
     move client state enables into scene draw
     set mutable state in the props
@@ -15,14 +8,6 @@ Reduce the number of GL state changes in OBJ
         about that value and can tolerate unexpected state
 Reduce the number of string passes by value in the gui module.
 Remove the shadowmap state ownership from the scene.
-Move the draw priority sort out of the main draw.
-    It changes only when the scene changes.
-    Maybe generate a linear list of visible stuff?
-        This is advantageous in multipass
-Restructure the prep/prio/draw system
-    Work out the spatial partition first
-    Draw order is crucial
-    Consider CSM and reflection/refraction rendering.
 
 Out of curiousity, perf the vert padded out to power of two.
 

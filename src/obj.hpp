@@ -24,6 +24,19 @@
 
 //-----------------------------------------------------------------------------
 
+// Draw property flags.  TODO: move these where they belong.
+
+#define DRAW_LIGHTSOURCE  1
+#define DRAW_TRANSPARENT  2
+#define DRAW_OPAQUE       4
+#define DRAW_REFLECTIVE   8
+#define DRAW_REFRACTIVE  16
+#define DRAW_LIT         32
+#define DRAW_UNLIT       64
+#define DRAW_GIZMO      128
+
+//-----------------------------------------------------------------------------
+
 namespace obj
 {
     //-------------------------------------------------------------------------
@@ -128,7 +141,7 @@ namespace obj
     struct prop
     {
         virtual ~prop() { }
-        virtual void draw() const = 0;
+        virtual void draw(int) const = 0;
     };
 
     struct prop_col : public prop
@@ -138,17 +151,19 @@ namespace obj
 
         prop_col(std::istream&, GLenum);
 
-        void draw() const;
+        void draw(int) const;
     };
 
     struct prop_shd : public prop
     {
         const ogl::program *program;
 
-        prop_shd(std::istream&, std::string&);
+        int flag;
+
+        prop_shd(std::istream&, std::string&, int);
        ~prop_shd();
 
-        void draw() const;
+        void draw(int) const;
     };
 
     struct prop_map : public prop
@@ -160,27 +175,27 @@ namespace obj
         prop_map(std::istream&, std::string&, GLenum);
        ~prop_map();
 
-        void draw() const;
+        void draw(int) const;
     };
 
-    typedef const prop                       *prop_p;
-    typedef std::list<prop_p>                 prop_v;
-    typedef std::list<prop_p>::iterator       prop_i;
-    typedef std::list<prop_p>::const_iterator prop_c;
+    typedef const prop                         *prop_p;
+    typedef std::vector<prop_p>                 prop_v;
+    typedef std::vector<prop_p>::iterator       prop_i;
+    typedef std::vector<prop_p>::const_iterator prop_c;
 
     //-------------------------------------------------------------------------
 
     struct mtrl
     {
         std::string name;
-
-        GLfloat alpha;
-        prop_v  props;
+        
+        int    flags;
+        prop_v props;
 
         mtrl();
        ~mtrl();
 
-        void draw() const;
+        void draw(int) const;
     };
 
     typedef const mtrl                       *mtrl_p;
@@ -201,7 +216,7 @@ namespace obj
 
         surf(mtrl_p state) : fibo(0), libo(0), state(state) { }
         
-        void draw() const;
+        void draw(int) const;
         void init();
         void fini();
     };
@@ -247,7 +262,9 @@ namespace obj
         void box_bound(GLfloat *) const;
         void sph_bound(GLfloat *) const;
         
-        void draw() const;
+        void draw(int) const;
+        int  type(   ) const;
+
         void init();
         void fini();
     };

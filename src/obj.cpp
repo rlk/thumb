@@ -28,20 +28,23 @@ obj::prop_col::prop_col(std::istream& lin, GLenum name) : name(name)
     c[3] = 1.0f;
 }
 
-void obj::prop_col::draw() const
+void obj::prop_col::draw(int) const
 {
     glMaterialfv(GL_FRONT_AND_BACK, name, c);
 }
 
 //-----------------------------------------------------------------------------
 
-obj::prop_shd::prop_shd(std::istream& lin, std::string& path)
+obj::prop_shd::prop_shd(std::istream& lin, std::string& path, int flag) :
+    flag(flag)
 {
-    std::string name;
+    std::string vert_name;
+    std::string frag_name;
 
-    lin >> name;
+    lin >> vert_name >> frag_name;
 
-    program = ::glob->load_program(path + "/" + name);
+    program = ::glob->load_program(path + "/" + vert_name,
+                                   path + "/" + frag_name);
 
     program->bind();
     {
@@ -62,9 +65,9 @@ obj::prop_shd::~prop_shd()
     if (program) ::glob->free_program(program);
 }
 
-void obj::prop_shd::draw() const
+void obj::prop_shd::draw(int type) const
 {
-    if (program) program->bind();
+    if ((type & flag) && program) program->bind();
 }
 
 //-----------------------------------------------------------------------------
@@ -84,14 +87,14 @@ obj::prop_map::~prop_map()
     if (texture) ::glob->free_texture(texture);
 }
 
-void obj::prop_map::draw() const
+void obj::prop_map::draw(int) const
 {
     if (texture) texture->bind(unit);
 }
 
 //-----------------------------------------------------------------------------
 
-obj::mtrl::mtrl() : alpha(0)
+obj::mtrl::mtrl() : flags(0)
 {
 }
 
@@ -208,6 +211,7 @@ void obj::obj::read_mtl(std::istream& lin, std::string& path)
             if (in >> key)
             {
                 prop_p P = 0;
+                int    F = 0;
 
                 if (key == "newmtl")
                 {
@@ -215,7 +219,7 @@ void obj::obj::read_mtl(std::istream& lin, std::string& path)
                     in >> mtrls.back().name;
                 }
 
-                else if (key == "shader") P = new prop_shd(in, path);
+                // Texture map specifiers
 
                 else if (key == "map_Kd") P = new prop_map(in, path, 0);
                 else if (key == "map_Ke") P = new prop_map(in, path, 5);
@@ -224,15 +228,30 @@ void obj::obj::read_mtl(std::istream& lin, std::string& path)
                 else if (key == "bump")   P = new prop_map(in, path, 1);
                 else if (key == "refl")   P = new prop_map(in, path, 4);
 
+                // Color specifiers
+
                 else if (key == "Kd")     P = new prop_col(in, GL_DIFFUSE);
                 else if (key == "Ka")     P = new prop_col(in, GL_AMBIENT);
                 else if (key == "Ke")     P = new prop_col(in, GL_EMISSION);
                 else if (key == "Ks")     P = new prop_col(in, GL_SPECULAR);
                 else if (key == "Ns")     P = new prop_col(in, GL_SHININESS);
 
-                else if (key == "d")      in >> mtrls.back().alpha;
+                // Shader specifiers (non-standard)
+
+                else if (key == "shader_unlit")
+                    P = new prop_shd(in, path, DRAW_UNLIT);
+                else if (key == "shader_lit")
+                    P = new prop_shd(in, path, DRAW_LIT);
+
+                // Draw type specifiers (non-standard)
+
+                else if (key == "lightsource") F = DRAW_LIGHTSOURCE;
+                else if (key == "transparent") F = DRAW_TRANSPARENT;
+                else if (key == "reflective")  F = DRAW_REFLECTIVE;
+                else if (key == "refractive")  F = DRAW_REFRACTIVE;
 
                 if (P) mtrls.back().props.push_back(P);
+                if (F) mtrls.back().flags |= F;
             }
         }
     }
@@ -492,9 +511,11 @@ obj::obj::obj(std::string name) : vbo(0)
 
     ::data->free(name);
 
-    // Initialize the GL state.
+    // Initialize post-load state.
 
     calc_tangent();
+
+    // Initialize the GL state.
 
     for (surf_i si = surfs.begin(); si != surfs.end(); ++si)
         si->init();
@@ -546,6 +567,95 @@ void obj::obj::sph_bound(GLfloat *b) const
 
         b[0] = std::max(b[0], r);
     }
+}
+
+//-----------------------------------------------------------------------------
+
+int obj::obj::type() const
+{
+    int flags = 0;
+
+    for (mtrl_c i = mtrls.begin(); i != mtrls.end(); ++i)
+        flags |= i->flags;
+
+    return flags ? flags : DRAW_OPAQUE;
+}
+
+//-----------------------------------------------------------------------------
+
+#define OFFSET(i) ((char *) (i))
+
+void obj::mtrl::draw(int type) const
+{
+    if ((type & flags) || ((type & DRAW_OPAQUE) && flags == 0))
+        for (prop_c i = props.begin(); i != props.end(); ++i)
+            (*i)->draw(type);
+}
+
+void obj::surf::draw(int type) const
+{
+    // Apply this surface's material.
+
+    if (state) state->draw(type);
+
+    // Draw this surface's faces.
+
+    if (!faces.empty())
+    {
+        if (fibo)
+        {
+            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, fibo);
+            glDrawElements(GL_TRIANGLES, 3 * faces.size(),
+                           GL_UNSIGNED_SHORT, 0);
+        }
+        else 
+            glDrawElements(GL_TRIANGLES, 3 * faces.size(),
+                           GL_UNSIGNED_SHORT, &faces.front());
+    }
+
+    // Draw this surface's lines.
+
+    if (!lines.empty())
+    {
+        if (libo)
+        {
+            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, libo);
+            glDrawElements(GL_LINES, 2 * lines.size(),
+                           GL_UNSIGNED_SHORT, 0);
+        }
+        else 
+            glDrawElements(GL_LINES, 2 * lines.size(),
+                           GL_UNSIGNED_SHORT, &lines.front());
+    }
+}
+
+void obj::obj::draw(int type) const
+{
+    size_t s = sizeof (vert);
+
+    // Bind the vertex buffers.
+
+    if (vbo)
+    {
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
+
+        glVertexPointer         (   3, GL_FLOAT,    s, OFFSET( 0));
+        glNormalPointer         (      GL_FLOAT,    s, OFFSET(12));
+        glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, OFFSET(24));
+        glTexCoordPointer       (   2, GL_FLOAT,    s, OFFSET(36));
+    }
+    else
+    {
+        glVertexPointer         (   3, GL_FLOAT,    s, verts.front().v.v);
+        glNormalPointer         (      GL_FLOAT,    s, verts.front().n.v);
+        glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, verts.front().t.v);
+        glTexCoordPointer       (   2, GL_FLOAT,    s, verts.front().s.v);
+    }
+
+    // Render each surface
+
+    for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
+        i->draw(type);
 }
 
 //-----------------------------------------------------------------------------
@@ -616,97 +726,6 @@ void obj::obj::fini()
     }
 
     vbo = 0;
-}
-
-//-----------------------------------------------------------------------------
-
-#define OFFSET(i) ((char *) (i))
-
-void obj::mtrl::draw() const
-{
-    for (prop_c i = props.begin(); i != props.end(); ++i)
-        (*i)->draw();
-}
-
-void obj::surf::draw() const
-{
-    // Apply this surface's material.
-
-    if (state) state->draw();
-
-    // Draw this surface's faces.
-
-    if (!faces.empty())
-    {
-        if (fibo)
-        {
-            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, fibo);
-            glDrawElements(GL_TRIANGLES, 3 * faces.size(),
-                           GL_UNSIGNED_SHORT, 0);
-        }
-        else 
-            glDrawElements(GL_TRIANGLES, 3 * faces.size(),
-                           GL_UNSIGNED_SHORT, &faces.front());
-    }
-
-    // Draw this surface's lines.
-
-    if (!lines.empty())
-    {
-        if (libo)
-        {
-            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, libo);
-            glDrawElements(GL_LINES, 2 * lines.size(),
-                           GL_UNSIGNED_SHORT, 0);
-        }
-        else 
-            glDrawElements(GL_LINES, 2 * lines.size(),
-                           GL_UNSIGNED_SHORT, &lines.front());
-    }
-}
-
-void obj::obj::draw() const
-{
-    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-    glPushAttrib(GL_LIGHTING_BIT | GL_TEXTURE_BIT);
-    {
-        size_t s = sizeof (vert);
-
-        // Bind the vertex buffers.
-
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_NORMAL_ARRAY);
-        glEnableVertexAttribArrayARB(6);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-        if (vbo)
-        {
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
-
-            glVertexPointer         (   3, GL_FLOAT,    s, OFFSET( 0));
-            glNormalPointer         (      GL_FLOAT,    s, OFFSET(12));
-            glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, OFFSET(24));
-            glTexCoordPointer       (   2, GL_FLOAT,    s, OFFSET(36));
-        }
-        else
-        {
-            glVertexPointer         (   3, GL_FLOAT,    s, verts.front().v.v);
-            glNormalPointer         (      GL_FLOAT,    s, verts.front().n.v);
-            glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, verts.front().t.v);
-            glTexCoordPointer       (   2, GL_FLOAT,    s, verts.front().s.v);
-        }
-
-        // Render each surface
-
-        for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
-            i->draw();
-
-        // TODO: smarter state handling
-
-        glUseProgramObjectARB(0);
-    }
-    glPopAttrib();
-    glPopClientAttrib();
 }
 
 //-----------------------------------------------------------------------------

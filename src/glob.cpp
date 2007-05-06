@@ -43,11 +43,14 @@ app::glob::~glob()
 
 //-----------------------------------------------------------------------------
 
-const ogl::program *app::glob::load_program(std::string name)
+const ogl::program *app::glob::load_program(std::string vert,
+                                            std::string frag)
 {
+    std::string name = vert + frag;
+
     if (program_map.find(name) == program_map.end())
     {
-        program_map[name].ptr = new ogl::program(name);
+        program_map[name].ptr = new ogl::program(vert, frag);
         program_map[name].ref = 1;
     }
     else   program_map[name].ref++;
@@ -55,8 +58,11 @@ const ogl::program *app::glob::load_program(std::string name)
     return program_map[name].ptr;
 }
 
-void app::glob::free_program(std::string name)
+void app::glob::free_program(std::string vert,
+                             std::string frag)
 {
+    std::string name = vert + frag;
+
     if (program_map.find(name) != program_map.end())
     {
         if (--program_map[name].ref == 0)
@@ -69,14 +75,18 @@ void app::glob::free_program(std::string name)
 
 void app::glob::free_program(const ogl::program *p)
 {
-    if (p) free_program(p->get_name());
+    if (p) free_program(p->get_vert_name(),
+                        p->get_frag_name());
 }
 
 void app::glob::dupe_program(const ogl::program *p)
 {
     if (p)
     {
-        const std::string& name = p->get_name();
+        const std::string& vert = p->get_vert_name();
+        const std::string& frag = p->get_frag_name();
+
+        std::string name = vert + frag;
 
         if (program_map.find(name) != program_map.end())
             program_map[name].ref++;

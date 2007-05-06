@@ -43,8 +43,9 @@ namespace ent
         virtual void play_init(dBodyID);
         virtual void play_fini();
 
-        virtual int  draw_prio(bool);
         virtual void step_prep();
+
+        virtual int type() { return DRAW_GIZMO; }
 
         virtual ~joint() { }
     };

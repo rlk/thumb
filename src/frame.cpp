@@ -99,7 +99,7 @@ void ogl::frame::init()
         glBindTexture(target, color);
 
         glTexImage2D(target, 0, color_format, w, h, 0,
-                     color_format, GL_UNSIGNED_BYTE, NULL);
+                     GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -116,8 +116,8 @@ void ogl::frame::init()
         glGenTextures(1,     &depth);
         glBindTexture(target, depth);
 
-        glTexImage2D(target, 0, color_format, w, h, 0,
-                     color_format, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(target, 0, depth_format, w, h, 0,
+                     GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
 
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -135,12 +135,17 @@ void ogl::frame::init()
     glGenFramebuffersEXT(1, &buffer);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer);
 
-    if (color) glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                         GL_COLOR_ATTACHMENT0_EXT,
-                                         target, color, 0);
     if (depth) glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                                          GL_DEPTH_ATTACHMENT_EXT,
                                          target, depth, 0);
+    if (color) glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                         GL_COLOR_ATTACHMENT0_EXT,
+                                         target, color, 0);
+    else
+    {
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    }
 
     // Confirm the frame buffer object status.
 

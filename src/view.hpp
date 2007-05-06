@@ -49,6 +49,8 @@ namespace app
         void pick(float[3], float[3], int, int) const;
 
         void apply() const;
+        void push()  const;
+        void pop()   const;
     };
 }
 

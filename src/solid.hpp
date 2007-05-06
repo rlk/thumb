@@ -40,7 +40,6 @@ namespace ent
         virtual void play_tran(dBodyID);
         virtual void play_fini();
 
-        virtual int  draw_prio(bool) { return 2; }
         virtual void step_post();
 
         virtual void         load(mxml_node_t *);

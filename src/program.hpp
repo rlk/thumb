@@ -23,19 +23,21 @@ namespace ogl
 {
     class program
     {
-        std::string name;
+        std::string vert_name;
+        std::string frag_name;
 
         GLhandleARB vert;
         GLhandleARB frag;
         GLhandleARB prog;
 
-        void log(GLhandleARB);
+        void log(GLhandleARB, std::string&);
 
     public:
 
-        const std::string& get_name() const { return name; }
+        const std::string& get_vert_name() const { return vert_name; }
+        const std::string& get_frag_name() const { return frag_name; }
 
-        program(std::string);
+        program(std::string, std::string);
        ~program();
 
         void bind() const;
