@@ -12,7 +12,6 @@
 
 #include <stdexcept>
 #include <iostream>
-#include <sstream>
 #include <cstdlib>
 
 #include <SDL.h>
@@ -239,7 +238,7 @@ int main(int argc, char *argv[])
 
             init(data_file, conf_file, lang_file);
             {
-                std::auto_ptr<perf> P(new perf(1));
+                std::auto_ptr<perf> P(new perf(60));
 
                 while (loop())
                 {

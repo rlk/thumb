@@ -38,7 +38,7 @@ public:
    ~perf();
 
     void step();
-    int  dump();
+    void dump();
 };
 
 #else // not NVPM -------------------------------------------------------------
@@ -47,15 +47,16 @@ class perf
 {
     int frames;
     int ticks;
+    int limit;
     int last;
 
 public:
 
-    perf();
+    perf(int);
    ~perf();
 
     void step();
-    int  dump();
+    void dump();
 };
 
 #endif // not NVPM ------------------------------------------------------------

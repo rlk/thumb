@@ -21,22 +21,68 @@
 
 //-----------------------------------------------------------------------------
 
-obj::prop_col::prop_col(std::istream& lin, GLenum name) : name(name)
+namespace obj
+{
+    // Material color property ------------------------------------------------
+
+    struct prop_col : public prop
+    {
+        GLenum  name;
+        GLfloat c[4];
+
+        prop_col(std::istream&, GLenum, int);
+
+        void draw(int) const;
+    };
+
+    // Material shader property -----------------------------------------------
+
+    struct prop_shd : public prop
+    {
+        const ogl::program *program;
+
+        int flag;
+
+        prop_shd(std::istream&, std::string&, int);
+       ~prop_shd();
+
+        void draw(int) const;
+    };
+
+    // Material map property --------------------------------------------------
+
+    struct prop_map : public prop
+    {
+        const ogl::texture *texture;
+
+        int unit;
+
+        prop_map(std::istream&, std::string&, int, int);
+       ~prop_map();
+
+        void draw(int) const;
+    };
+}
+
+//-----------------------------------------------------------------------------
+
+obj::prop_col::prop_col(std::istream& lin, GLenum name, int f) :
+    prop(f), name(name)
 {
     lin >> c[0] >> c[1] >> c[2];
 
     c[3] = 1.0f;
 }
 
-void obj::prop_col::draw(int) const
+void obj::prop_col::draw(int type) const
 {
-    glMaterialfv(GL_FRONT_AND_BACK, name, c);
+    if (type & flags)
+        glMaterialfv(GL_FRONT_AND_BACK, name, c);
 }
 
 //-----------------------------------------------------------------------------
 
-obj::prop_shd::prop_shd(std::istream& lin, std::string& path, int flag) :
-    flag(flag)
+obj::prop_shd::prop_shd(std::istream& lin, std::string& path, int f) : prop(f)
 {
     std::string vert_name;
     std::string frag_name;
@@ -62,18 +108,20 @@ obj::prop_shd::prop_shd(std::istream& lin, std::string& path, int flag) :
 
 obj::prop_shd::~prop_shd()
 {
-    if (program) ::glob->free_program(program);
+    if (program)
+        ::glob->free_program(program);
 }
 
 void obj::prop_shd::draw(int type) const
 {
-    if ((type & flag) && program) program->bind();
+    if (type & flags)
+        if (program) program->bind();
 }
 
 //-----------------------------------------------------------------------------
 
-obj::prop_map::prop_map(std::istream& lin, std::string& path, GLenum unit) :
-    unit(GL_TEXTURE0 + unit)
+obj::prop_map::prop_map(std::istream& lin, std::string& path, int unit, int f):
+    prop(f), unit(unit)
 {
     std::string name;
 
@@ -84,12 +132,14 @@ obj::prop_map::prop_map(std::istream& lin, std::string& path, GLenum unit) :
 
 obj::prop_map::~prop_map()
 {
-    if (texture) ::glob->free_texture(texture);
+    if (texture)
+        ::glob->free_texture(texture);
 }
 
-void obj::prop_map::draw(int) const
+void obj::prop_map::draw(int type) const
 {
-    if (texture) texture->bind(unit);
+    if (type & flags)
+        if (texture) texture->bind(GL_TEXTURE0 + unit);
 }
 
 //-----------------------------------------------------------------------------
@@ -210,6 +260,9 @@ void obj::obj::read_mtl(std::istream& lin, std::string& path)
 
             if (in >> key)
             {
+                const int L = DRAW_LIT;
+                const int U = DRAW_UNLIT;
+
                 prop_p P = 0;
                 int    F = 0;
 
@@ -221,27 +274,25 @@ void obj::obj::read_mtl(std::istream& lin, std::string& path)
 
                 // Texture map specifiers
 
-                else if (key == "map_Kd") P = new prop_map(in, path, 0);
-                else if (key == "map_Ke") P = new prop_map(in, path, 5);
-                else if (key == "map_Ks") P = new prop_map(in, path, 6);
-                else if (key == "map_Ns") P = new prop_map(in, path, 7);
-                else if (key == "bump")   P = new prop_map(in, path, 1);
-                else if (key == "refl")   P = new prop_map(in, path, 4);
+                else if (key == "map_Kd") P = new prop_map(in, path, 0, U | L);
+                else if (key == "bump")   P = new prop_map(in, path, 1, U | L);
+                else if (key == "refl")   P = new prop_map(in, path, 4, U | L);
+                else if (key == "map_Ke") P = new prop_map(in, path, 5, U);
+                else if (key == "map_Ks") P = new prop_map(in, path, 6, L);
+                else if (key == "map_Ns") P = new prop_map(in, path, 7, L);
 
                 // Color specifiers
 
-                else if (key == "Kd")     P = new prop_col(in, GL_DIFFUSE);
-                else if (key == "Ka")     P = new prop_col(in, GL_AMBIENT);
-                else if (key == "Ke")     P = new prop_col(in, GL_EMISSION);
-                else if (key == "Ks")     P = new prop_col(in, GL_SPECULAR);
-                else if (key == "Ns")     P = new prop_col(in, GL_SHININESS);
+                else if (key == "Kd") P = new prop_col(in, GL_DIFFUSE,   L);
+                else if (key == "Ka") P = new prop_col(in, GL_AMBIENT,   U);
+                else if (key == "Ke") P = new prop_col(in, GL_EMISSION,  U);
+                else if (key == "Ks") P = new prop_col(in, GL_SPECULAR,  L);
+                else if (key == "Ns") P = new prop_col(in, GL_SHININESS, L);
 
                 // Shader specifiers (non-standard)
 
-                else if (key == "shader_unlit")
-                    P = new prop_shd(in, path, DRAW_UNLIT);
-                else if (key == "shader_lit")
-                    P = new prop_shd(in, path, DRAW_LIT);
+                else if (key == "shader_unlit") P = new prop_shd(in, path, U);
+                else if (key == "shader_lit")   P = new prop_shd(in, path, L);
 
                 // Draw type specifiers (non-standard)
 
@@ -659,6 +710,15 @@ void obj::obj::draw(int type) const
 }
 
 //-----------------------------------------------------------------------------
+
+void obj::mtrl::init()
+{
+    // Initialize the display lists.
+
+    if (!props.empty())
+    {
+    }
+}
 
 void obj::surf::init()
 {

@@ -1,7 +1,7 @@
 
-#CFLAGS= -g -Wall -ansi -pedantic
+CFLAGS= -g -Wall -ansi -pedantic
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
-CFLAGS= -O3 -ffast-math -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS= -O3 -ffast-math -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 

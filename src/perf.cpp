@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <cmath>
 #include <SDL.h>
@@ -98,7 +99,7 @@ void perf::step()
     }
 }
 
-int perf::dump()
+void perf::dump()
 {
     if (num) std::cout << std::endl;
 
@@ -136,13 +137,11 @@ int perf::dump()
 
     memset(avg, 0, num * sizeof (NVPMSampleValue));
     tot = 0;
-
-    return 0;
 }
 
 #else // not NVPM =============================================================
 
-perf::perf() : frames(0), ticks(0), last(0)
+perf::perf(int n) : frames(0), ticks(0), limit(n), last(0)
 {
 }
 
@@ -159,16 +158,23 @@ void perf::step()
     frames +=  1;
     ticks  += dt;
     last   += dt;
+
+    if (frames == limit) dump();
 }
 
-int perf::dump()
+void perf::dump()
 {
     int fps = int(ceil(1000.0 * frames / ticks));
 
     frames = 0;
     ticks  = 0;
 
-    return fps;
+    std::ostringstream str;
+
+    str << fps;
+
+    SDL_WM_SetCaption(str.str().c_str(),
+                      str.str().c_str());
 }
 
 #endif // not NVPM ============================================================

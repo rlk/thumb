@@ -140,42 +140,13 @@ namespace obj
 
     struct prop
     {
-        virtual ~prop() { }
+        int flags;
+
+        prop(int f) : flags(f) { }
+
         virtual void draw(int) const = 0;
-    };
 
-    struct prop_col : public prop
-    {
-        GLenum  name;
-        GLfloat c[4];
-
-        prop_col(std::istream&, GLenum);
-
-        void draw(int) const;
-    };
-
-    struct prop_shd : public prop
-    {
-        const ogl::program *program;
-
-        int flag;
-
-        prop_shd(std::istream&, std::string&, int);
-       ~prop_shd();
-
-        void draw(int) const;
-    };
-
-    struct prop_map : public prop
-    {
-        const ogl::texture *texture;
-
-        GLenum unit;
-
-        prop_map(std::istream&, std::string&, GLenum);
-       ~prop_map();
-
-        void draw(int) const;
+        virtual ~prop() { }
     };
 
     typedef const prop                         *prop_p;
@@ -189,13 +160,17 @@ namespace obj
     {
         std::string name;
         
-        int    flags;
         prop_v props;
+        int    flags;
+        GLuint lite;
+        GLuint dark;
 
         mtrl();
        ~mtrl();
 
         void draw(int) const;
+        void init();
+        void fini();
     };
 
     typedef const mtrl                       *mtrl_p;
