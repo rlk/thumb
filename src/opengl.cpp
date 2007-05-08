@@ -25,6 +25,7 @@ bool ogl::has_multitexture;
 bool ogl::has_shader;
 bool ogl::has_fbo;
 bool ogl::has_vbo;
+bool ogl::has_dre;
 
 int  ogl::do_shadows;
 bool ogl::do_z_only;
@@ -86,6 +87,10 @@ PFNGLMAPBUFFERARBPROC               glMapBufferARB;
 PFNGLBUFFERDATAARBPROC              glBufferDataARB;
 PFNGLUNMAPBUFFERARBPROC             glUnmapBufferARB;
 PFNGLDELETEBUFFERSARBPROC           glDeleteBuffersARB;
+
+// GL_EXT_draw_range_elements
+
+PFNGLDRAWRANGEELEMENTSEXTPROC       glDrawRangeElementsEXT;
 
 #endif
 
@@ -156,6 +161,7 @@ void ogl::init()
     has_shader      &= check_ext("ARB_fragment_shader");
     has_fbo          = check_ext("EXT_framebuffer_object");
     has_vbo          = check_ext("ARB_vertex_buffer_object");
+    has_dre          = check_ext("EXT_draw_range_elements");
 
     // GL_ARB_multitexture
 
@@ -224,6 +230,12 @@ void ogl::init()
         PROC(PFNGLDELETEBUFFERSARBPROC,          glDeleteBuffersARB);
     }
     catch (std::runtime_error& e) { has_vbo = false; }
+
+    if (has_dre) try
+    {
+        PROC(PFNGLDRAWRANGEELEMENTSEXTPROC,       glDrawRangeElementsEXT);
+    }
+    catch (std::runtime_error&e) { has_dre = false; }
 
     // Configuration options
 

@@ -89,6 +89,10 @@ extern PFNGLBUFFERDATAARBPROC              glBufferDataARB;
 extern PFNGLUNMAPBUFFERARBPROC             glUnmapBufferARB;
 extern PFNGLDELETEBUFFERSARBPROC           glDeleteBuffersARB;
 
+// GL_EXT_draw_range_elements
+
+extern PFNGLDRAWRANGEELEMENTSEXTPROC       glDrawRangeElementsEXT;
+
 #endif
 
 //-----------------------------------------------------------------------------
@@ -105,6 +109,7 @@ namespace ogl
     extern bool has_shader;
     extern bool has_fbo;
     extern bool has_vbo;
+    extern bool has_dre;
 
     extern int  do_shadows;
     extern bool do_z_only;

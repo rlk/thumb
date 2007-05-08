@@ -84,12 +84,12 @@ namespace obj
 
     //-------------------------------------------------------------------------
 
-    struct vert
+    struct vert  // 44
     {
-        vec3 v;
-        vec3 n;
-        vec3 t;
-        vec2 s;
+        vec3 v;  // 12
+        vec3 n;  // 12
+        vec3 t;  // 12
+        vec2 s;  //  8
 
         vert() { }
 
@@ -188,6 +188,11 @@ namespace obj
         mtrl_p state;
         face_v faces;
         line_v lines;
+
+        GLushort f0;
+        GLushort fn;
+        GLushort l0;
+        GLushort ln;
 
         surf(mtrl_p state) : fibo(0), libo(0), state(state) { }
         

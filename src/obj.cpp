@@ -658,8 +658,13 @@ void obj::surf::draw(int type) const
         if (fibo)
         {
             glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, fibo);
-            glDrawElements(GL_TRIANGLES, 3 * faces.size(),
-                           GL_UNSIGNED_SHORT, 0);
+
+            if (ogl::has_dre)
+                glDrawRangeElementsEXT(GL_TRIANGLES, f0, fn, 3 * faces.size(),
+                                       GL_UNSIGNED_SHORT, 0);
+            else
+                glDrawElements(GL_TRIANGLES, 3 * faces.size(),
+                               GL_UNSIGNED_SHORT, 0);
         }
         else 
             glDrawElements(GL_TRIANGLES, 3 * faces.size(),
@@ -673,8 +678,13 @@ void obj::surf::draw(int type) const
         if (libo)
         {
             glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, libo);
-            glDrawElements(GL_LINES, 2 * lines.size(),
-                           GL_UNSIGNED_SHORT, 0);
+
+            if (ogl::has_dre)
+                glDrawRangeElementsEXT(GL_LINES, l0, ln, 2 * lines.size(),
+                                       GL_UNSIGNED_SHORT, 0);
+            else
+                glDrawElements(GL_LINES, 2 * lines.size(),
+                               GL_UNSIGNED_SHORT, 0);
         }
         else 
             glDrawElements(GL_LINES, 2 * lines.size(),
@@ -692,17 +702,17 @@ void obj::obj::draw(int type) const
     {
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
 
-        glVertexPointer         (   3, GL_FLOAT,    s, OFFSET( 0));
-        glNormalPointer         (      GL_FLOAT,    s, OFFSET(12));
-        glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, OFFSET(24));
         glTexCoordPointer       (   2, GL_FLOAT,    s, OFFSET(36));
+        glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, OFFSET(24));
+        glNormalPointer         (      GL_FLOAT,    s, OFFSET(12));
+        glVertexPointer         (   3, GL_FLOAT,    s, OFFSET( 0));
     }
     else
     {
-        glVertexPointer         (   3, GL_FLOAT,    s, verts.front().v.v);
-        glNormalPointer         (      GL_FLOAT,    s, verts.front().n.v);
-        glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, verts.front().t.v);
         glTexCoordPointer       (   2, GL_FLOAT,    s, verts.front().s.v);
+        glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, verts.front().t.v);
+        glNormalPointer         (      GL_FLOAT,    s, verts.front().n.v);
+        glVertexPointer         (   3, GL_FLOAT,    s, verts.front().v.v);
     }
 
     // Render each surface
@@ -740,12 +750,28 @@ void obj::mtrl::init()
 
 void obj::surf::init()
 {
-    // Initialize the index buffer objects.
-
     if (ogl::has_vbo)
     {
         if (!faces.empty())
         {
+            // Initialize the face element buffer range.
+
+            f0 = std::numeric_limits<GLushort>::max();
+            fn = std::numeric_limits<GLushort>::min();
+
+            for (face_c i = faces.begin(); i != faces.end(); ++i)
+            {
+                f0 = std::min(f0, i->i);
+                f0 = std::min(f0, i->j);
+                f0 = std::min(f0, i->k);
+
+                fn = std::max(fn, i->i);
+                fn = std::max(fn, i->j);
+                fn = std::max(fn, i->k);
+            }
+
+            // Initialize the face element buffer object.
+
             glGenBuffersARB(1, &fibo);
             glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, fibo);
             glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
@@ -755,6 +781,22 @@ void obj::surf::init()
 
         if (!lines.empty())
         {
+            // Initialize the face element buffer range.
+
+            l0 = std::numeric_limits<GLushort>::max();
+            ln = std::numeric_limits<GLushort>::min();
+
+            for (line_c i = lines.begin(); i != lines.end(); ++i)
+            {
+                l0 = std::min(l0, i->i);
+                l0 = std::min(l0, i->j);
+
+                ln = std::max(ln, i->i);
+                ln = std::max(ln, i->j);
+            }
+
+            // Initialize the line element buffer object.
+
             glGenBuffersARB(1, &libo);
             glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, libo);
             glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
