@@ -1,3 +1,4 @@
+Apparently geoms in different spaces collide even when their collision bits indicate they should not.  This is a problem because dynamic objects always collide with static.
 Clone light should clone the shadow and lightmap references.
 Convert light and camera entity draw to use OBJ
 Reduce the number of GL state changes in OBJ

@@ -51,6 +51,7 @@ namespace ent
 
         static dWorldID      world;
         static dSpaceID      space;
+        static dSpaceID      actor;
         static dJointGroupID joint;
         static dGeomID       point;
         static dGeomID       focus;

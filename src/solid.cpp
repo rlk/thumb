@@ -141,7 +141,7 @@ void ent::solid::play_tran(dBodyID body)
 
         // Create a transform geom and reposition the enclosed geom.
 
-        tran = dCreateGeomTransform(space);
+        tran = dCreateGeomTransform(actor);
         dGeomTransformSetGeom(tran, geom);
         dGeomTransformSetInfo(tran, 0);
 

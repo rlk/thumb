@@ -26,6 +26,7 @@
 
 dWorldID      ent::entity::world;
 dSpaceID      ent::entity::space;
+dSpaceID      ent::entity::actor;
 dJointGroupID ent::entity::joint;
 dGeomID       ent::entity::point;
 dGeomID       ent::entity::focus;
@@ -144,12 +145,13 @@ dBodyID ent::entity::phys_body()
 
 void ent::entity::phys_init()
 {
-    // Initialize the physical system.  TODO: use quadtree space?
+    // Initialize the physical system.
 
     world = dWorldCreate();
     space = dHashSpaceCreate(0);
+    actor = dHashSpaceCreate(0);
     joint = dJointGroupCreate(0);
-    point = dCreateRay(space, 100);
+    point = dCreateRay(actor, 100);
     focus = 0;
 
     dWorldSetGravity(world, 0, -32, 0);
@@ -159,6 +161,7 @@ void ent::entity::phys_init()
 void ent::entity::phys_fini()
 {
     dJointGroupDestroy(joint);
+    dSpaceDestroy(actor);
     dSpaceDestroy(space);
     dWorldDestroy(world);
 }
@@ -172,7 +175,9 @@ void ent::entity::phys_step(float dt)
 
     // Evaluate the physical system. 
 
-    dSpaceCollide   (space, &dist, (dNearCallback *) phys_contact);
+    dSpaceCollide2  ((dGeomID) actor, (dGeomID) space,
+                            &dist, (dNearCallback *) phys_contact);
+    dSpaceCollide   (actor, &dist, (dNearCallback *) phys_contact);
     dWorldQuickStep (world, dt);
     dJointGroupEmpty(joint);
 }
