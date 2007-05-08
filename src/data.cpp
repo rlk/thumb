@@ -112,7 +112,7 @@ bool app::file_archive::save(std::string name,
 
         // Open the named file for writing.
 
-        if ((fd = open(curr.c_str(), O_WRONLY | O_CREAT, 0666)) == -1)
+        if ((fd = open(curr.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666)) ==-1)
             throw open_error(name);
 
         // Write all data.

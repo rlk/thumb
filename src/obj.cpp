@@ -568,8 +568,8 @@ obj::obj::obj(std::string name) : vbo(0)
 
     // Initialize the GL state.
 
-    for (surf_i si = surfs.begin(); si != surfs.end(); ++si)
-        si->init();
+    for (surf_i si = surfs.begin(); si != surfs.end(); ++si) si->init();
+    for (mtrl_i mi = mtrls.begin(); mi != mtrls.end(); ++mi) mi->init();
 
     init();
 }
@@ -639,8 +639,10 @@ int obj::obj::type() const
 void obj::mtrl::draw(int type) const
 {
     if ((type & flags) || ((type & DRAW_OPAQUE) && flags == 0))
-        for (prop_c i = props.begin(); i != props.end(); ++i)
-            (*i)->draw(type);
+    {
+        if (type & DRAW_LIT)   glCallList(lite);
+        if (type & DRAW_UNLIT) glCallList(dark);
+    }
 }
 
 void obj::surf::draw(int type) const
@@ -717,6 +719,22 @@ void obj::mtrl::init()
 
     if (!props.empty())
     {
+        lite = glGenLists(1);
+        dark = glGenLists(1);
+
+        glNewList(lite, GL_COMPILE);
+        {
+            for (prop_c i = props.begin(); i != props.end(); ++i)
+                (*i)->draw(DRAW_LIT);
+        }
+        glEndList();
+
+        glNewList(dark, GL_COMPILE);
+        {
+            for (prop_c i = props.begin(); i != props.end(); ++i)
+                (*i)->draw(DRAW_UNLIT);
+        }
+        glEndList();
     }
 }
 
@@ -761,6 +779,15 @@ void obj::obj::init()
 }
 
 //-----------------------------------------------------------------------------
+
+void obj::mtrl::fini()
+{
+    if (lite) glDeleteLists(lite, 1);
+    if (dark) glDeleteLists(dark, 1);
+
+    lite = 0;
+    dark = 0;
+}
 
 void obj::surf::fini()
 {
