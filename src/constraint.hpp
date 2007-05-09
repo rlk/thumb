@@ -27,8 +27,8 @@ protected:
     float M[16];
     float T[16];
 
-    const ogl::geodata *rot[10];
-    const ogl::geodata *pos[10];
+    const ogl::surface *rot[10];
+    const ogl::surface *pos[10];
 
     int   mode;
     int   axis;

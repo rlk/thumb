@@ -19,8 +19,8 @@
 
 //-----------------------------------------------------------------------------
 
-ent::solid::solid(const ogl::geodata *g,
-                  const ogl::geodata *w) : entity(g, w), tran(0)
+ent::solid::solid(const ogl::surface *g,
+                  const ogl::surface *w) : entity(g, w), tran(0)
 {
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
@@ -297,7 +297,7 @@ void ent::solid::load(mxml_node_t *node)
     {
         std::string s = std::string(name->child->value.text.string);
 
-        geometry = glob->load_geodata(s);
+        geometry = glob->load_surface(s);
     }
 
     entity::load(node);

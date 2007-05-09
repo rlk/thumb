@@ -11,52 +11,74 @@
 //  General Public License for more details.
 
 #include <iostream>
-#include "geodata.hpp"
+#include "surface.hpp"
 
 //-----------------------------------------------------------------------------
 
-ogl::geodata::geodata(std::string name) : name(name)
+ogl::surface::surface(std::string name) : name(name)
 {
     init();
 }
 
-ogl::geodata::~geodata()
+ogl::surface::~surface()
 {
     fini();
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::geodata::box_bound(float *b) const
+void ogl::surface::box_bound(float *b) const
 {
     data->box_bound(b);
 }
 
-void ogl::geodata::sph_bound(float *b) const
+void ogl::surface::sph_bound(float *b) const
 {
     data->sph_bound(b);
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::geodata::draw(int type) const
+GLsizei ogl::surface::ecopy(GLsizei esz, GLsizei vsz)
+{
+    return data->ecopy(esz, vsz);
+}
+
+GLsizei ogl::surface::vcopy(GLsizei off)
+{
+    return data->vcopy(off);
+}
+
+GLsizei ogl::surface::esize() const
+{
+    return data->esize();
+}
+
+GLsizei ogl::surface::vsize() const
+{
+    return data->vsize();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::surface::draw(int type) const
 {
     data->draw(type);
 }
 
-int ogl::geodata::type() const
+int ogl::surface::type() const
 {
     return data->type();
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::geodata::init()
+void ogl::surface::init()
 {
     data = new obj::obj(name);
 }
 
-void ogl::geodata::fini()
+void ogl::surface::fini()
 {
     delete data;
 }

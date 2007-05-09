@@ -25,7 +25,7 @@ OBJS=   opengl.o \
 	constraint.o \
 	program.o \
 	texture.o \
-	geodata.o \
+	surface.o \
 	image.o \
 	frame.o \
 	data.o \

@@ -199,8 +199,8 @@ ent::entity *ent::entity::focused()
 
 //-----------------------------------------------------------------------------
 
-ent::entity::entity(const ogl::geodata *g,
-                    const ogl::geodata *w) :
+ent::entity::entity(const ogl::surface *g,
+                    const ogl::surface *w) :
     geom(0), body1(0), body2(0), radius(0), geometry(g), wireframe(w)
 {
     load_idt(default_M);
@@ -226,16 +226,16 @@ ent::entity::entity(const entity& that)
 
     // Duplicate all GL state.
 
-    glob->dupe_geodata(wireframe);
-    glob->dupe_geodata(geometry);
+    glob->dupe_surface(wireframe);
+    glob->dupe_surface(geometry);
 }
 
 ent::entity::~entity()
 {
     // Free GL state.
 
-    glob->free_geodata(wireframe);
-    glob->free_geodata(geometry);
+    glob->free_surface(wireframe);
+    glob->free_surface(geometry);
 
     // Destroy ODE state.
 

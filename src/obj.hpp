@@ -21,43 +21,12 @@
 #include "opengl.hpp"
 #include "texture.hpp"
 #include "program.hpp"
-
-//-----------------------------------------------------------------------------
-
-// Draw property flags.  TODO: move these where they belong.
-
-#define DRAW_LIGHTSOURCE  1
-#define DRAW_TRANSPARENT  2
-#define DRAW_OPAQUE       4
-#define DRAW_REFLECTIVE   8
-#define DRAW_REFRACTIVE  16
-#define DRAW_LIT         32
-#define DRAW_UNLIT       64
-#define DRAW_GIZMO      128
+#include "mesh.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace obj
 {
-    //-------------------------------------------------------------------------
-
-    struct vec2
-    {
-        GLfloat v[2];
-
-        vec2() { v[0] = v[1] = 0.0f; }
-    };
-
-    struct vec3
-    {
-        GLfloat v[3];
-
-        vec3() { v[0] = v[1] = v[2] = 0.0f; }
-    };
-
-    typedef std::vector<vec2> vec2_v;
-    typedef std::vector<vec3> vec3_v;
-
     //-------------------------------------------------------------------------
 
     struct iset
@@ -81,60 +50,6 @@ namespace obj
     };
 
     typedef std::map<iset, int, icmp> iset_m;
-
-    //-------------------------------------------------------------------------
-
-    struct vert  // 44
-    {
-        vec3 v;  // 12
-        vec3 n;  // 12
-        vec3 t;  // 12
-        vec2 s;  //  8
-
-        vert() { }
-
-        vert(vec3_v& vv, vec2_v& sv, vec3_v& nv, int vi, int si, int ni) {
-            v = (vi >= 0) ? vv[vi] : vec3();
-            n = (ni >= 0) ? nv[ni] : vec3();
-            t =                      vec3();
-            s = (si >= 0) ? sv[si] : vec2();
-        }
-    };
-
-    typedef std::vector<vert>                 vert_v;
-    typedef std::vector<vert>::iterator       vert_i;
-    typedef std::vector<vert>::const_iterator vert_c;
-
-    //-------------------------------------------------------------------------
-
-    struct face
-    {
-        GLushort i;
-        GLushort j;
-        GLushort k;
-
-        face()                                                      { }
-        face(GLushort I, GLushort J, GLushort K) : i(I), j(J), k(K) { }
-    };
-
-    typedef std::vector<face>                 face_v;
-    typedef std::vector<face>::iterator       face_i;
-    typedef std::vector<face>::const_iterator face_c;
-
-    //-------------------------------------------------------------------------
-
-    struct line
-    {
-        GLushort i;
-        GLushort j;
-
-        line()                                    { }
-        line(GLushort I, GLushort J) : i(I), j(J) { }
-    };
-
-    typedef std::vector<line>                 line_v;
-    typedef std::vector<line>::iterator       line_i;
-    typedef std::vector<line>::const_iterator line_c;
 
     //-------------------------------------------------------------------------
 
@@ -186,13 +101,12 @@ namespace obj
         GLuint libo;
 
         mtrl_p state;
-        face_v faces;
-        line_v lines;
 
-        GLushort f0;
-        GLushort fn;
-        GLushort l0;
-        GLushort ln;
+        ogl::face_v faces;
+        ogl::line_v lines;
+
+        GLuint *fp, f0, fn;
+        GLuint *lp, l0, ln;
 
         surf(mtrl_p state) : fibo(0), libo(0), state(state) { }
         
@@ -212,8 +126,9 @@ namespace obj
         GLuint vbo;
 
         mtrl_v mtrls;
-        vert_v verts;
         surf_v surfs;
+
+        ogl::vert_v verts;
 
         void calc_tangent();
 
@@ -226,13 +141,19 @@ namespace obj
 
         // OBJ read handlers.
 
-        int  read_fi(std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&);
-        void read_f (std::istream&, vec3_v&, vec2_v&, vec3_v&, iset_m&);
-        int  read_li(std::istream&, vec3_v&, vec2_v&,          iset_m&);
-        void read_l (std::istream&, vec3_v&, vec2_v&,          iset_m&);
-        void read_v (std::istream&, vec3_v&);
-        void read_vt(std::istream&, vec2_v&);
-        void read_vn(std::istream&, vec3_v&);
+        int  read_fi(std::istream&, ogl::vec3_v&,
+                                    ogl::vec2_v&,
+                                    ogl::vec3_v&, iset_m&);
+        void read_f (std::istream&, ogl::vec3_v&,
+                                    ogl::vec2_v&,
+                                    ogl::vec3_v&, iset_m&);
+        int  read_li(std::istream&, ogl::vec3_v&,
+                                    ogl::vec2_v&, iset_m&);
+        void read_l (std::istream&, ogl::vec3_v&,
+                                    ogl::vec2_v&, iset_m&);
+        void read_v (std::istream&, ogl::vec3_v&);
+        void read_vt(std::istream&, ogl::vec2_v&);
+        void read_vn(std::istream&, ogl::vec3_v&);
 
     public:
 
@@ -242,6 +163,11 @@ namespace obj
         void box_bound(GLfloat *) const;
         void sph_bound(GLfloat *) const;
         
+        GLsizei ecopy(GLsizei, GLsizei);
+        GLsizei vcopy(GLsizei);
+        GLsizei vsize() const;
+        GLsizei esize() const;
+
         void draw(int) const;
         int  type(   ) const;
 

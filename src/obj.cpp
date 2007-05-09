@@ -162,7 +162,7 @@ void obj::obj::calc_tangent()
 
     for (surf_i si = surfs.begin(); si != surfs.end(); ++si)
     {
-        for (face_i fi = si->faces.begin(); fi != si->faces.end(); ++fi)
+        for (ogl::face_i fi = si->faces.begin(); fi != si->faces.end(); ++fi)
         {
             // Compute the vertex position differences.
 
@@ -226,7 +226,7 @@ void obj::obj::calc_tangent()
 
     // Normalize all tangent vectors.
 
-    for (vert_i vi = verts.begin(); vi != verts.end(); ++vi)
+    for (ogl::vert_i vi = verts.begin(); vi != verts.end(); ++vi)
         normalize(vi->t.v);
 }
 
@@ -328,10 +328,9 @@ void obj::obj::read_use(std::istream &lin)
 
 //-----------------------------------------------------------------------------
 
-int obj::obj::read_fi(std::istream& lin, vec3_v& vv,
-                                         vec2_v& sv,
-                                         vec3_v& nv,
-                                         iset_m& is)
+int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
+                                         ogl::vec2_v& sv,
+                                         ogl::vec3_v& nv, iset_m& is)
 {
     iset_m::iterator ii;
 
@@ -369,7 +368,7 @@ int obj::obj::read_fi(std::istream& lin, vec3_v& vv,
 
         is.insert(iset_m::value_type(key, (val = int(verts.size()))));
 
-        verts.push_back(vert(vv, sv, nv, vi, si, ni));
+        verts.push_back(ogl::vert(vv, sv, nv, vi, si, ni));
     }
     else val = ii->second;
 
@@ -378,20 +377,19 @@ int obj::obj::read_fi(std::istream& lin, vec3_v& vv,
     return val;
 }
 
-void obj::obj::read_f(std::istream& lin, vec3_v& vv,
-                                         vec2_v& sv,
-                                         vec3_v& nv,
-                                         iset_m& is)
+void obj::obj::read_f(std::istream& lin, ogl::vec3_v& vv,
+                                         ogl::vec2_v& sv,
+                                         ogl::vec3_v& nv, iset_m& is)
 {
-    std::vector<GLushort>           iv;
-    std::vector<GLushort>::iterator ii;
+    std::vector<GLuint>           iv;
+    std::vector<GLuint>::iterator ii;
 
     // Scan the string, converting index sets to vertex indices.
 
     int i;
 
     while ((i = read_fi(lin, vv, sv, nv, is)) >= 0)
-        iv.push_back(GLushort(i));
+        iv.push_back(GLuint(i));
 
     int n = iv.size();
 
@@ -402,14 +400,13 @@ void obj::obj::read_f(std::istream& lin, vec3_v& vv,
     // Convert our N new vertex indices into N-2 new triangles.
 
     for (i = 0; i < n - 2; ++i)
-        surfs.back().faces.push_back(face(iv[0], iv[i + 1], iv[i + 2]));
+        surfs.back().faces.push_back(ogl::face(iv[0], iv[i + 1], iv[i + 2]));
 }
 
 //-----------------------------------------------------------------------------
 
-int obj::obj::read_li(std::istream& lin, vec3_v& vv,
-                                         vec2_v& sv,
-                                         iset_m& is)
+int obj::obj::read_li(std::istream& lin, ogl::vec3_v& vv,
+                                         ogl::vec2_v& sv, iset_m& is)
 {
     iset_m::iterator ii;
 
@@ -445,7 +442,7 @@ int obj::obj::read_li(std::istream& lin, vec3_v& vv,
 
         is.insert(iset_m::value_type(key, (val = int(verts.size()))));
 
-        verts.push_back(vert(vv, sv, vv, vi, si, -1));
+        verts.push_back(ogl::vert(vv, sv, vv, vi, si, -1));
     }
     else val = ii->second;
 
@@ -454,19 +451,18 @@ int obj::obj::read_li(std::istream& lin, vec3_v& vv,
     return val;
 }
 
-void obj::obj::read_l(std::istream& lin, vec3_v& vv,
-                                         vec2_v& sv,
-                                         iset_m& is)
+void obj::obj::read_l(std::istream& lin, ogl::vec3_v& vv,
+                                         ogl::vec2_v& sv, iset_m& is)
 {
-    std::vector<GLushort>           iv;
-    std::vector<GLushort>::iterator ii;
+    std::vector<GLuint>           iv;
+    std::vector<GLuint>::iterator ii;
 
     // Scan the string, converting index sets to vertex indices.
 
     int i;
 
     while ((i = read_li(lin, vv, sv, is)) >= 0)
-        iv.push_back(GLushort(i));
+        iv.push_back(GLuint(i));
 
     int n = iv.size();
 
@@ -477,32 +473,32 @@ void obj::obj::read_l(std::istream& lin, vec3_v& vv,
     // Convert our N new vertex indices into N-1 new line.
 
     for (i = 0; i < n - 1; ++i)
-        surfs.back().lines.push_back(line(iv[i], iv[i + 1]));
+        surfs.back().lines.push_back(ogl::line(iv[i], iv[i + 1]));
 }
 
 //-----------------------------------------------------------------------------
 
-void obj::obj::read_v(std::istream& lin, vec3_v& vv)
+void obj::obj::read_v(std::istream& lin, ogl::vec3_v& vv)
 {
-    vec3 v;
+    ogl::vec3 v;
 
     lin >> v.v[0] >> v.v[1] >> v.v[2];
 
     vv.push_back(v);
 }
 
-void obj::obj::read_vt(std::istream& lin, vec2_v& sv)
+void obj::obj::read_vt(std::istream& lin, ogl::vec2_v& sv)
 {
-    vec2 s;
+    ogl::vec2 s;
 
     lin >> s.v[0] >> s.v[1];
 
     sv.push_back(s);
 }
 
-void obj::obj::read_vn(std::istream& lin, vec3_v& nv)
+void obj::obj::read_vn(std::istream& lin, ogl::vec3_v& nv)
 {
-    vec3 n;
+    ogl::vec3 n;
 
     lin >> n.v[0] >> n.v[1] >> n.v[2];
 
@@ -529,9 +525,10 @@ obj::obj::obj(std::string name) : vbo(0)
     {
         // Initialize the vector caches.
 
-        vec3_v vv;
-        vec2_v sv;
-        vec3_v nv;
+        ogl::vec3_v vv;
+        ogl::vec2_v sv;
+        ogl::vec3_v nv;
+
         iset_m is;
 
         // Parse each line of the file.
@@ -595,7 +592,7 @@ void obj::obj::box_bound(GLfloat *b) const
     b[4] = std::numeric_limits<GLfloat>::min();
     b[5] = std::numeric_limits<GLfloat>::min();
 
-    for (vert_c vi = verts.begin(); vi != verts.end(); ++vi)
+    for (ogl::vert_c vi = verts.begin(); vi != verts.end(); ++vi)
     {
         b[0] = std::min(b[0], vi->v.v[0]);
         b[1] = std::min(b[1], vi->v.v[1]);
@@ -610,7 +607,7 @@ void obj::obj::sph_bound(GLfloat *b) const
 {
     b[0] = std::numeric_limits<GLfloat>::min();
 
-    for (vert_c vi = verts.begin(); vi != verts.end(); ++vi)
+    for (ogl::vert_c vi = verts.begin(); vi != verts.end(); ++vi)
     {
         GLfloat r = sqrt(vi->v.v[0] * vi->v.v[0] +
                          vi->v.v[1] * vi->v.v[1] +
@@ -618,6 +615,97 @@ void obj::obj::sph_bound(GLfloat *b) const
 
         b[0] = std::max(b[0], r);
     }
+}
+
+//-----------------------------------------------------------------------------
+
+GLsizei obj::obj::vsize() const
+{
+    return (verts.size() * sizeof (ogl::vert));
+}
+
+GLsizei obj::obj::esize() const
+{
+    GLsizei esz = 0;
+
+    for (surf_c si = surfs.begin(); si != surfs.end(); ++si)
+        esz += (si->faces.size() * 3 * sizeof (GLuint) +
+                si->lines.size() * 2 * sizeof (GLuint));
+
+    return esz;
+}
+
+GLsizei obj::obj::vcopy(GLsizei off)
+{
+    GLsizei vsz = vsize();
+
+    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, off, vsz, &verts.front());
+
+    return off + vsz;
+}
+
+GLsizei obj::obj::ecopy(GLsizei esz, GLsizei vsz)
+{
+    GLuint *ptr;
+    GLuint  i0 = GLuint(vsz / sizeof (ogl::vert));
+    GLuint  ii = GLuint(esz / sizeof (GLuint));
+
+    // Upload element indices and note element ranges.
+
+    if ((ptr = (GLuint *) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+                                         GL_WRITE_ONLY)))
+    {
+        for (surf_i si = surfs.begin(); si != surfs.end(); ++si)
+        {
+            // Convert face indices to global element buffer indices.
+
+            si->fp = ptr + ii;
+//          si->fp = (GLuint *) (ii * sizeof (GLuint));
+            si->f0 = std::numeric_limits<GLuint>::max();
+            si->fn = std::numeric_limits<GLuint>::min();
+
+            ogl::face_c fi;
+
+            for (fi = si->faces.begin(); fi != si->faces.end(); ++fi)
+            {
+                GLuint i = i0 + fi->i;
+                GLuint j = i0 + fi->j;
+                GLuint k = i0 + fi->k;
+
+                ptr[ii++] = i;
+                ptr[ii++] = j;
+                ptr[ii++] = k;
+
+                si->f0 = std::min(std::min(si->f0, i), std::min(j, k));
+                si->fn = std::max(std::max(si->fn, i), std::max(j, k));
+            }
+
+            // Convert line indices to global element buffer indices.
+
+            si->lp = ptr + ii;
+//          si->lp = (GLuint *) (ii * sizeof (GLuint));
+            si->l0 = std::numeric_limits<GLuint>::max();
+            si->ln = std::numeric_limits<GLuint>::min();
+
+            ogl::line_c li;
+
+            for (li = si->lines.begin(); li != si->lines.end(); ++li)
+            {
+                GLuint i = i0 + li->i;
+                GLuint j = i0 + li->j;
+
+                ptr[ii++] = i;
+                ptr[ii++] = j;
+
+                si->l0 = std::min(std::min(si->l0, i), j);
+                si->ln = std::max(std::max(si->ln, i), j);
+            }
+        }
+
+        glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
+    }
+
+    return ii * sizeof (GLuint);
 }
 
 //-----------------------------------------------------------------------------
@@ -650,7 +738,20 @@ void obj::surf::draw(int type) const
     // Apply this surface's material.
 
     if (state) state->draw(type);
+/*
+    if (!faces.empty())
+        glDrawElements(GL_TRIANGLES, 3 * faces.size(), GL_UNSIGNED_INT, fp);
+    if (!lines.empty())
+        glDrawElements(GL_LINES,     2 * lines.size(), GL_UNSIGNED_INT, lp);
+*/
+    if (!faces.empty())
+        glDrawRangeElementsEXT(GL_TRIANGLES, f0, fn, 3 * faces.size(),
+                               GL_UNSIGNED_INT, fp);
+    if (!lines.empty())
+        glDrawRangeElementsEXT(GL_LINES,     l0, ln, 2 * lines.size(),
+                               GL_UNSIGNED_INT, lp);
 
+/*
     // Draw this surface's faces.
 
     if (!faces.empty())
@@ -661,14 +762,14 @@ void obj::surf::draw(int type) const
 
             if (ogl::has_dre)
                 glDrawRangeElementsEXT(GL_TRIANGLES, f0, fn, 3 * faces.size(),
-                                       GL_UNSIGNED_SHORT, 0);
+                                       GL_UNSIGNED_INT, 0);
             else
                 glDrawElements(GL_TRIANGLES, 3 * faces.size(),
-                               GL_UNSIGNED_SHORT, 0);
+                               GL_UNSIGNED_INT, 0);
         }
         else 
             glDrawElements(GL_TRIANGLES, 3 * faces.size(),
-                           GL_UNSIGNED_SHORT, &faces.front());
+                           GL_UNSIGNED_INT, &faces.front());
     }
 
     // Draw this surface's lines.
@@ -681,20 +782,22 @@ void obj::surf::draw(int type) const
 
             if (ogl::has_dre)
                 glDrawRangeElementsEXT(GL_LINES, l0, ln, 2 * lines.size(),
-                                       GL_UNSIGNED_SHORT, 0);
+                                       GL_UNSIGNED_INT, 0);
             else
                 glDrawElements(GL_LINES, 2 * lines.size(),
-                               GL_UNSIGNED_SHORT, 0);
+                               GL_UNSIGNED_INT, 0);
         }
         else 
             glDrawElements(GL_LINES, 2 * lines.size(),
-                           GL_UNSIGNED_SHORT, &lines.front());
+                           GL_UNSIGNED_INT, &lines.front());
     }
+*/
 }
 
 void obj::obj::draw(int type) const
 {
-    size_t s = sizeof (vert);
+/*
+    size_t s = sizeof (ogl::vert);
 
     // Bind the vertex buffers.
 
@@ -714,7 +817,7 @@ void obj::obj::draw(int type) const
         glNormalPointer         (      GL_FLOAT,    s, verts.front().n.v);
         glVertexPointer         (   3, GL_FLOAT,    s, verts.front().v.v);
     }
-
+*/
     // Render each surface
 
     for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
@@ -750,16 +853,17 @@ void obj::mtrl::init()
 
 void obj::surf::init()
 {
+/*
     if (ogl::has_vbo)
     {
         if (!faces.empty())
         {
             // Initialize the face element buffer range.
 
-            f0 = std::numeric_limits<GLushort>::max();
-            fn = std::numeric_limits<GLushort>::min();
+            f0 = std::numeric_limits<GLuint>::max();
+            fn = std::numeric_limits<GLuint>::min();
 
-            for (face_c i = faces.begin(); i != faces.end(); ++i)
+            for (ogl::face_c i = faces.begin(); i != faces.end(); ++i)
             {
                 f0 = std::min(f0, i->i);
                 f0 = std::min(f0, i->j);
@@ -775,7 +879,7 @@ void obj::surf::init()
             glGenBuffersARB(1, &fibo);
             glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, fibo);
             glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-                            faces.size() * sizeof (face),
+                            faces.size() * sizeof (ogl::face),
                            &faces.front(), GL_STATIC_DRAW_ARB);
         }
 
@@ -783,10 +887,10 @@ void obj::surf::init()
         {
             // Initialize the face element buffer range.
 
-            l0 = std::numeric_limits<GLushort>::max();
-            ln = std::numeric_limits<GLushort>::min();
+            l0 = std::numeric_limits<GLuint>::max();
+            ln = std::numeric_limits<GLuint>::min();
 
-            for (line_c i = lines.begin(); i != lines.end(); ++i)
+            for (ogl::line_c i = lines.begin(); i != lines.end(); ++i)
             {
                 l0 = std::min(l0, i->i);
                 l0 = std::min(l0, i->j);
@@ -800,24 +904,26 @@ void obj::surf::init()
             glGenBuffersARB(1, &libo);
             glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, libo);
             glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-                            lines.size() * sizeof (line),
+                            lines.size() * sizeof (ogl::line),
                            &lines.front(), GL_STATIC_DRAW_ARB);
         }
     }
+*/
 }
 
 void obj::obj::init()
 {
     // Initialize the vertex buffer object.
-
+/*
     if (ogl::has_vbo)
     {
         glGenBuffersARB(1, &vbo);
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
         glBufferDataARB(GL_ARRAY_BUFFER_ARB,
-                        verts.size() * sizeof (vert),
+                        verts.size() * sizeof (ogl::vert),
                        &verts.front(), GL_STATIC_DRAW_ARB);
     }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -834,7 +940,7 @@ void obj::mtrl::fini()
 void obj::surf::fini()
 {
     // Delete the index buffer objects.
-
+/*
     if (ogl::has_vbo)
     {
         if (fibo) glDeleteBuffersARB(1, &fibo);
@@ -843,18 +949,20 @@ void obj::surf::fini()
 
     fibo = 0;
     libo = 0;
+*/
 }
 
 void obj::obj::fini()
 {
     // Delete the vertex buffer object.
-
+/*
     if (ogl::has_vbo)
     {
         if (vbo) glDeleteBuffersARB(1, &vbo);
     }
 
     vbo = 0;
+*/
 }
 
 //-----------------------------------------------------------------------------

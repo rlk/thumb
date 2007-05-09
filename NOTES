@@ -1,3 +1,36 @@
+Global VBO
+    When does the global VBO need to be reuploaded?
+        after any OBJ is loaded or freed
+        before any OBJ is drawn
+    Who should handle the reupload?
+        Only glob knows about all OBJs
+    Who owns the global VBO state?
+        OBJ static?
+           This would disassociate ownership from update
+        glob?
+           This breaks glob uniformity to a degree
+           glob = global GL state = global VBO
+           glob can easily set a dirty bit on load/free
+               but does not know when draw occurs
+                   but can be informed
+           glob owns geodata and could preserve external constness
+        geodata?
+           geodata has neither global nor local knowledge of VBOs
+
+"geodata" is a lame name
+    geometry
+    object
+    model
+    shape
+    mesh
+    body
+    trimesh
+    terrain
+    surface
+    polygon
+    facade
+    primitive
+
 Replace widget show() with a parent->poke?
     This would remove the need to pass the root of the control to all create buttons
     group nodes would poke all OTHER children plus parent

@@ -44,8 +44,8 @@ void ent::joint::play_fini()
 
 //-----------------------------------------------------------------------------
 
-ent::joint::joint(const ogl::geodata *g,
-                  const ogl::geodata *w) :
+ent::joint::joint(const ogl::surface *g,
+                  const ogl::surface *w) :
     entity(g, w), size(conf->get_f("joint_size"))
 {
 }
@@ -53,13 +53,13 @@ ent::joint::joint(const ogl::geodata *g,
 //-----------------------------------------------------------------------------
 
 ent::ball::ball() :
-    joint(glob->load_geodata("joint/joint_ball.obj"),
-          glob->load_geodata("wire/wire_sphere.obj"))
+    joint(glob->load_surface("joint/joint_ball.obj"),
+          glob->load_surface("wire/wire_sphere.obj"))
 {
 }
 
 ent::hinge::hinge() :
-    joint(glob->load_geodata("joint/joint_hinge.obj"))
+    joint(glob->load_surface("joint/joint_hinge.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -72,8 +72,8 @@ ent::hinge::hinge() :
 }
 
 ent::hinge2::hinge2() :
-    joint(glob->load_geodata("joint/joint_hinge2.obj"),
-          glob->load_geodata("wire/wire_sphere.obj"))
+    joint(glob->load_surface("joint/joint_hinge2.obj"),
+          glob->load_surface("wire/wire_sphere.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -98,8 +98,8 @@ ent::hinge2::hinge2() :
 }
 
 ent::slider::slider() :
-    joint(glob->load_geodata("joint/joint_slider.obj"),
-          glob->load_geodata("wire/wire_sphere.obj"))
+    joint(glob->load_surface("joint/joint_slider.obj"),
+          glob->load_surface("wire/wire_sphere.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -112,8 +112,8 @@ ent::slider::slider() :
 }
 
 ent::amotor::amotor() :
-    joint(glob->load_geodata("joint/joint_amotor.obj"),
-          glob->load_geodata("wire/wire_sphere.obj"))
+    joint(glob->load_surface("joint/joint_amotor.obj"),
+          glob->load_surface("wire/wire_sphere.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -144,8 +144,8 @@ ent::amotor::amotor() :
 }
 
 ent::universal::universal() :
-    joint(glob->load_geodata("joint/joint_universal.obj"),
-          glob->load_geodata("wire/wire_sphere.obj"))
+    joint(glob->load_surface("joint/joint_universal.obj"),
+          glob->load_surface("wire/wire_sphere.obj"))
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");

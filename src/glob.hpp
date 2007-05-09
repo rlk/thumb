@@ -18,7 +18,7 @@
 
 #include "program.hpp"
 #include "texture.hpp"
-#include "geodata.hpp"
+#include "surface.hpp"
 #include "image.hpp"
 #include "frame.hpp"
 
@@ -42,42 +42,46 @@ namespace app
             int           ref;
         };
 
-        struct geodata
+        struct surface
         {
-            ogl::geodata *ptr;
+            ogl::surface *ptr;
             int           ref;
         };
 
         std::map<std::string, program> program_map;
         std::map<std::string, texture> texture_map;
-        std::map<std::string, geodata> geodata_map;
+        std::map<std::string, surface> surface_map;
 
         std::set<ogl::image *> image_set;
         std::set<ogl::frame *> frame_set;
 
+        GLuint vbo;
+        GLuint ebo;
+
     public:
 
+        glob() : vbo(0), ebo(0) { }
        ~glob();
 
         // Named, reference-counted GL state.
 
         const ogl::texture *load_texture(std::string);
-        const ogl::geodata *load_geodata(std::string);
+        const ogl::surface *load_surface(std::string);
         const ogl::program *load_program(std::string,
                                          std::string);
 
         void free_texture(std::string);
-        void free_geodata(std::string);
+        void free_surface(std::string);
         void free_program(std::string,
                           std::string);
 
         void free_program(const ogl::program *);
         void free_texture(const ogl::texture *);
-        void free_geodata(const ogl::geodata *);
+        void free_surface(const ogl::surface *);
 
         void dupe_program(const ogl::program *);
         void dupe_texture(const ogl::texture *);
-        void dupe_geodata(const ogl::geodata *);
+        void dupe_surface(const ogl::surface *);
 
         // Anonymous GL state.
 
@@ -86,6 +90,12 @@ namespace app
 
         void free_image(ogl::image *);
         void free_frame(ogl::frame *);
+
+        // Global geometry buffers.
+
+        void bind_geometry();
+        void init_geometry();
+        void fini_geometry();
 
         // Flush and reload.
 

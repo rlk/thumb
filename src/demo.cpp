@@ -164,11 +164,6 @@ void demo::draw()
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glPushAttrib(GL_ENABLE_BIT);
     {
-        glEnableVertexAttribArrayARB(6);
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_NORMAL_ARRAY);
-        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
@@ -176,6 +171,7 @@ void demo::draw()
 
         // Draw the scene.
 
+        glob->bind_geometry();
         curr->draw();
         prog::draw();
     }

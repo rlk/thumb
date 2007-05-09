@@ -87,6 +87,7 @@ extern PFNGLBINDBUFFERARBPROC              glBindBufferARB;
 extern PFNGLMAPBUFFERARBPROC               glMapBufferARB;
 extern PFNGLBUFFERDATAARBPROC              glBufferDataARB;
 extern PFNGLUNMAPBUFFERARBPROC             glUnmapBufferARB;
+extern PFNGLBUFFERSUBDATAARBPROC           glBufferSubDataARB;
 extern PFNGLDELETEBUFFERSARBPROC           glDeleteBuffersARB;
 
 // GL_EXT_draw_range_elements

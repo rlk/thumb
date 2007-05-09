@@ -1,5 +1,5 @@
-#ifndef GEODATA_HPP
-#define GEODATA_HPP
+#ifndef SURFACE_HPP
+#define SURFACE_HPP
 
 #include <string>
 
@@ -9,7 +9,7 @@
 
 namespace ogl
 {
-    class geodata
+    class surface
     {
         std::string name;
         obj::obj   *data;
@@ -18,11 +18,16 @@ namespace ogl
 
         const std::string& get_name() const { return name; }
 
-        geodata(std::string);
-       ~geodata();
+        surface(std::string);
+       ~surface();
 
         void box_bound(float *) const;
         void sph_bound(float *) const;
+
+        GLsizei ecopy(GLsizei, GLsizei);
+        GLsizei vcopy(GLsizei);
+        GLsizei esize() const;
+        GLsizei vsize() const;
 
         void draw(int=DRAW_OPAQUE) const;
         int  type(               ) const;

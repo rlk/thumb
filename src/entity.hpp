@@ -21,7 +21,7 @@
 #include <mxml.h>
 
 #include "opengl.hpp"
-#include "geodata.hpp"
+#include "surface.hpp"
 #include "param.hpp"
 
 //-----------------------------------------------------------------------------
@@ -71,8 +71,8 @@ namespace ent
 
         std::map<int, param *> params;
 
-        const ogl::geodata *geometry;
-        const ogl::geodata *wireframe;
+        const ogl::surface *geometry;
+        const ogl::surface *wireframe;
 
         virtual void draw_geom() const { }
 
@@ -89,8 +89,8 @@ namespace ent
 
     public:
 
-        entity(const ogl::geodata *,
-               const ogl::geodata *);
+        entity(const ogl::surface *,
+               const ogl::surface *);
         entity(const entity&);
 
         virtual entity *clone() const = 0;

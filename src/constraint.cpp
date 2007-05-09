@@ -19,27 +19,27 @@
 
 constraint::constraint()
 {
-    rot[0] = ::glob->load_geodata("wire/constraint_rot_0.obj");
-    rot[1] = ::glob->load_geodata("wire/constraint_rot_1.obj");
-    rot[2] = ::glob->load_geodata("wire/constraint_rot_2.obj");
-    rot[3] = ::glob->load_geodata("wire/constraint_rot_3.obj");
-    rot[4] = ::glob->load_geodata("wire/constraint_rot_4.obj");
-    rot[5] = ::glob->load_geodata("wire/constraint_rot_5.obj");
-    rot[6] = ::glob->load_geodata("wire/constraint_rot_6.obj");
-    rot[7] = ::glob->load_geodata("wire/constraint_rot_7.obj");
-    rot[8] = ::glob->load_geodata("wire/constraint_rot_8.obj");
-    rot[9] = ::glob->load_geodata("wire/constraint_rot_9.obj");
+    rot[0] = ::glob->load_surface("wire/constraint_rot_0.obj");
+    rot[1] = ::glob->load_surface("wire/constraint_rot_1.obj");
+    rot[2] = ::glob->load_surface("wire/constraint_rot_2.obj");
+    rot[3] = ::glob->load_surface("wire/constraint_rot_3.obj");
+    rot[4] = ::glob->load_surface("wire/constraint_rot_4.obj");
+    rot[5] = ::glob->load_surface("wire/constraint_rot_5.obj");
+    rot[6] = ::glob->load_surface("wire/constraint_rot_6.obj");
+    rot[7] = ::glob->load_surface("wire/constraint_rot_7.obj");
+    rot[8] = ::glob->load_surface("wire/constraint_rot_8.obj");
+    rot[9] = ::glob->load_surface("wire/constraint_rot_9.obj");
 
-    pos[0] = ::glob->load_geodata("wire/constraint_pos_0.obj");
-    pos[1] = ::glob->load_geodata("wire/constraint_pos_1.obj");
-    pos[2] = ::glob->load_geodata("wire/constraint_pos_2.obj");
-    pos[3] = ::glob->load_geodata("wire/constraint_pos_3.obj");
-    pos[4] = ::glob->load_geodata("wire/constraint_pos_4.obj");
-    pos[5] = ::glob->load_geodata("wire/constraint_pos_5.obj");
-    pos[6] = ::glob->load_geodata("wire/constraint_pos_6.obj");
-    pos[7] = ::glob->load_geodata("wire/constraint_pos_7.obj");
-    pos[8] = ::glob->load_geodata("wire/constraint_pos_8.obj");
-    pos[9] = ::glob->load_geodata("wire/constraint_pos_9.obj");
+    pos[0] = ::glob->load_surface("wire/constraint_pos_0.obj");
+    pos[1] = ::glob->load_surface("wire/constraint_pos_1.obj");
+    pos[2] = ::glob->load_surface("wire/constraint_pos_2.obj");
+    pos[3] = ::glob->load_surface("wire/constraint_pos_3.obj");
+    pos[4] = ::glob->load_surface("wire/constraint_pos_4.obj");
+    pos[5] = ::glob->load_surface("wire/constraint_pos_5.obj");
+    pos[6] = ::glob->load_surface("wire/constraint_pos_6.obj");
+    pos[7] = ::glob->load_surface("wire/constraint_pos_7.obj");
+    pos[8] = ::glob->load_surface("wire/constraint_pos_8.obj");
+    pos[9] = ::glob->load_surface("wire/constraint_pos_9.obj");
 
     set_grid(3);
     set_mode(0);
@@ -57,8 +57,8 @@ constraint::~constraint()
 
     // TODO: wrap these pointers in an auto reference.
 
-    for (i = 0; i < 10; ++i) ::glob->free_geodata(rot[i]);
-    for (i = 0; i < 10; ++i) ::glob->free_geodata(pos[i]);
+    for (i = 0; i < 10; ++i) ::glob->free_surface(rot[i]);
+    for (i = 0; i < 10; ++i) ::glob->free_surface(pos[i]);
 }
 
 //-----------------------------------------------------------------------------

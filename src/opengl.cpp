@@ -86,6 +86,7 @@ PFNGLBINDBUFFERARBPROC              glBindBufferARB;
 PFNGLMAPBUFFERARBPROC               glMapBufferARB;
 PFNGLBUFFERDATAARBPROC              glBufferDataARB;
 PFNGLUNMAPBUFFERARBPROC             glUnmapBufferARB;
+PFNGLBUFFERSUBDATAARBPROC           glBufferSubDataARB;
 PFNGLDELETEBUFFERSARBPROC           glDeleteBuffersARB;
 
 // GL_EXT_draw_range_elements
@@ -227,6 +228,7 @@ void ogl::init()
         PROC(PFNGLMAPBUFFERARBPROC,              glMapBufferARB);
         PROC(PFNGLBUFFERDATAARBPROC,             glBufferDataARB);
         PROC(PFNGLUNMAPBUFFERARBPROC,            glUnmapBufferARB);
+        PROC(PFNGLBUFFERSUBDATAARBPROC,          glBufferSubDataARB);
         PROC(PFNGLDELETEBUFFERSARBPROC,          glDeleteBuffersARB);
     }
     catch (std::runtime_error& e) { has_vbo = false; }

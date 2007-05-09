@@ -16,7 +16,7 @@
 
 //-----------------------------------------------------------------------------
 
-ent::earth::earth(float k) : free(glob->load_geodata("earth.obj")), dist(k)
+ent::earth::earth(float k) : free(glob->load_surface("earth.obj")), dist(k)
 {
 }
 

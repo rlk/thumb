@@ -139,17 +139,17 @@ void cnt::new_universal_button::apply()
 
 void cnt::new_box_button::apply()
 {
-    do_create(new ent::box(glob->load_geodata(name->value())));
+    do_create(new ent::box(glob->load_surface(name->value())));
 }
 
 void cnt::new_sphere_button::apply()
 {
-    do_create(new ent::sphere(glob->load_geodata(name->value())));
+    do_create(new ent::sphere(glob->load_surface(name->value())));
 }
 
 void cnt::new_capsule_button::apply()
 {
-    do_create(new ent::capsule(glob->load_geodata(name->value())));
+    do_create(new ent::capsule(glob->load_surface(name->value())));
 }
 
 void cnt::new_light_button::apply()
