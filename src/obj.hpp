@@ -124,6 +124,8 @@ namespace obj
     class obj
     {
         GLuint vbo;
+        GLuint dark;
+        GLuint lite;
 
         mtrl_v mtrls;
         surf_v surfs;

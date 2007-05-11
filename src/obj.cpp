@@ -659,8 +659,8 @@ GLsizei obj::obj::ecopy(GLsizei esz, GLsizei vsz)
         {
             // Convert face indices to global element buffer indices.
 
-            si->fp = ptr + ii;
-//          si->fp = (GLuint *) (ii * sizeof (GLuint));
+//          si->fp = ptr + ii;
+            si->fp = (GLuint *) (ii * sizeof (GLuint));
             si->f0 = std::numeric_limits<GLuint>::max();
             si->fn = std::numeric_limits<GLuint>::min();
 
@@ -682,8 +682,8 @@ GLsizei obj::obj::ecopy(GLsizei esz, GLsizei vsz)
 
             // Convert line indices to global element buffer indices.
 
-            si->lp = ptr + ii;
-//          si->lp = (GLuint *) (ii * sizeof (GLuint));
+//          si->lp = ptr + ii;
+            si->lp = (GLuint *) (ii * sizeof (GLuint));
             si->l0 = std::numeric_limits<GLuint>::max();
             si->ln = std::numeric_limits<GLuint>::min();
 
@@ -738,20 +738,30 @@ void obj::surf::draw(int type) const
     // Apply this surface's material.
 
     if (state) state->draw(type);
+
+/*
+    if (!faces.empty())
+        glDrawElements(GL_TRIANGLES, 3 * faces.size(),
+                       GL_UNSIGNED_INT, &faces.front());
+    if (!lines.empty())
+        glDrawElements(GL_LINES, 2 * lines.size(),
+                       GL_UNSIGNED_INT, &lines.front());
+*/
 /*
     if (!faces.empty())
         glDrawElements(GL_TRIANGLES, 3 * faces.size(), GL_UNSIGNED_INT, fp);
     if (!lines.empty())
         glDrawElements(GL_LINES,     2 * lines.size(), GL_UNSIGNED_INT, lp);
 */
+/*
     if (!faces.empty())
         glDrawRangeElementsEXT(GL_TRIANGLES, f0, fn, 3 * faces.size(),
                                GL_UNSIGNED_INT, fp);
     if (!lines.empty())
         glDrawRangeElementsEXT(GL_LINES,     l0, ln, 2 * lines.size(),
                                GL_UNSIGNED_INT, lp);
+*/
 
-/*
     // Draw this surface's faces.
 
     if (!faces.empty())
@@ -791,12 +801,12 @@ void obj::surf::draw(int type) const
             glDrawElements(GL_LINES, 2 * lines.size(),
                            GL_UNSIGNED_INT, &lines.front());
     }
-*/
+
 }
 
 void obj::obj::draw(int type) const
 {
-/*
+
     size_t s = sizeof (ogl::vert);
 
     // Bind the vertex buffers.
@@ -817,11 +827,16 @@ void obj::obj::draw(int type) const
         glNormalPointer         (      GL_FLOAT,    s, verts.front().n.v);
         glVertexPointer         (   3, GL_FLOAT,    s, verts.front().v.v);
     }
-*/
+
+
     // Render each surface
 
     for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
         i->draw(type);
+/*
+    if (type & DRAW_LIT)   glCallList(lite);
+    if (type & DRAW_UNLIT) glCallList(dark);
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -853,13 +868,13 @@ void obj::mtrl::init()
 
 void obj::surf::init()
 {
-/*
+
     if (ogl::has_vbo)
     {
         if (!faces.empty())
         {
             // Initialize the face element buffer range.
-
+/*
             f0 = std::numeric_limits<GLuint>::max();
             fn = std::numeric_limits<GLuint>::min();
 
@@ -873,7 +888,7 @@ void obj::surf::init()
                 fn = std::max(fn, i->j);
                 fn = std::max(fn, i->k);
             }
-
+*/
             // Initialize the face element buffer object.
 
             glGenBuffersARB(1, &fibo);
@@ -886,7 +901,7 @@ void obj::surf::init()
         if (!lines.empty())
         {
             // Initialize the face element buffer range.
-
+/*
             l0 = std::numeric_limits<GLuint>::max();
             ln = std::numeric_limits<GLuint>::min();
 
@@ -898,7 +913,7 @@ void obj::surf::init()
                 ln = std::max(ln, i->i);
                 ln = std::max(ln, i->j);
             }
-
+*/
             // Initialize the line element buffer object.
 
             glGenBuffersARB(1, &libo);
@@ -908,22 +923,51 @@ void obj::surf::init()
                            &lines.front(), GL_STATIC_DRAW_ARB);
         }
     }
-*/
+
 }
 
 void obj::obj::init()
 {
     // Initialize the vertex buffer object.
-/*
-    if (ogl::has_vbo)
-    {
+
         glGenBuffersARB(1, &vbo);
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
         glBufferDataARB(GL_ARRAY_BUFFER_ARB,
                         verts.size() * sizeof (ogl::vert),
                        &verts.front(), GL_STATIC_DRAW_ARB);
+
+    lite = glGenLists(1);
+    dark = glGenLists(1);
+
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+    {
+        GLsizei s = sizeof (ogl::vert);
+
+        glEnableVertexAttribArrayARB(6);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+        glTexCoordPointer       (   2, GL_FLOAT,    s, verts.front().s.v);
+        glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, verts.front().t.v);
+        glNormalPointer         (      GL_FLOAT,    s, verts.front().n.v);
+        glVertexPointer         (   3, GL_FLOAT,    s, verts.front().v.v);
+
+        glNewList(lite, GL_COMPILE);
+        {
+            for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
+                i->draw(DRAW_OPAQUE | DRAW_LIT);
+        }
+        glEndList();
+
+        glNewList(dark, GL_COMPILE);
+        {
+            for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
+                i->draw(DRAW_OPAQUE | DRAW_UNLIT);
+        }
+        glEndList();
     }
-*/
+    glPopClientAttrib();
 }
 
 //-----------------------------------------------------------------------------
@@ -963,6 +1007,11 @@ void obj::obj::fini()
 
     vbo = 0;
 */
+    if (lite) glDeleteLists(lite, 1);
+    if (dark) glDeleteLists(dark, 1);
+
+    lite = 0;
+    dark = 0;
 }
 
 //-----------------------------------------------------------------------------

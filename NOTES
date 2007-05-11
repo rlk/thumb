@@ -1,35 +1,70 @@
-Global VBO
-    When does the global VBO need to be reuploaded?
-        after any OBJ is loaded or freed
-        before any OBJ is drawn
-    Who should handle the reupload?
-        Only glob knows about all OBJs
-    Who owns the global VBO state?
-        OBJ static?
-           This would disassociate ownership from update
-        glob?
-           This breaks glob uniformity to a degree
-           glob = global GL state = global VBO
-           glob can easily set a dirty bit on load/free
-               but does not know when draw occurs
-                   but can be informed
-           glob owns geodata and could preserve external constness
-        geodata?
-           geodata has neither global nor local knowledge of VBOs
+-------------------------------------------------------------------------------
 
-"geodata" is a lame name
-    geometry
-    object
-    model
-    shape
-    mesh
-    body
-    trimesh
-    terrain
-    surface
-    polygon
-    facade
-    primitive
+* Batch batch batch
+
+This sorts vertex array above material...
+
+    prep
+        for each dirty body
+            for each material
+                for each geom with that material
+                    append vertices with geom transform pre-applied
+                    append indices
+
+    draw
+        for each body
+            apply the body transform
+            bind vertices
+            for each material
+                draw indices
+
+This sorts material above vertex array...
+
+    prep
+        for each dirty body
+            for each material
+                for each geom with that material
+                    append vertices with geom transform pre-applied
+                    append indices
+
+    draw
+        for each material
+            for each body
+                apply the body transform
+                bind vertices
+                draw indices
+
+Three material type become significant
+    ambient
+    diffuse
+    depth
+
+    A depth-only pass requires no texture bindings and thus enables a single
+    batch for a large number of surfaces.  Given early-z and shadow, this
+    would likely be a significant reduction in batch count.
+
+        The for-each-material steps more quickly in depth mode.
+
+    Of course, the alphatest geometry still requires segmentation by material.
+
+    It may be worth sorting by shader above material.
+
+    Changing transforms is cheaper than changing shaders and materials.
+        However sorting transform last undermines front-back ordering.
+
+                                        Disable   Enable
+    Material color changes are cheap.   173->180  414->414
+    Texture changes are expensive.      173->190  414->260
+    Program changes are expensive.      173->243  414->193
+    Disabling everything is great!      173->414
+
+Assume a flat scene hierarchy?
+    Bounding-box test at batch?
+                      at material change?
+                      at program change?
+
+-------------------------------------------------------------------------------
+
 
 Replace widget show() with a parent->poke?
     This would remove the need to pass the root of the control to all create buttons
@@ -52,6 +87,8 @@ Bald pointer members (and auto_ptr members) may need copy constructors and copy 
 Encapsulate GL objects in trivial Gen/Delete wrappers?
 
 Consider using deque vector caches in the OBJ loader.  Profile.
+
+-------------------------------------------------------------------------------
 
 data layout
 
@@ -83,6 +120,8 @@ data layout
         joint
                 joint_ball.obj
                 joint_ball.mtl
+
+-------------------------------------------------------------------------------
 
 Physical properties
 
@@ -144,6 +183,8 @@ Expression Grammar
         E ->   T + E
         E ->   T - E
 
+-------------------------------------------------------------------------------
+
 Octree notes
 
         Needs
@@ -188,6 +229,8 @@ Octree notes
                         Can't happen
                                 ODE planes bound the space
                                 This would also allow quadtree space to work
+
+-------------------------------------------------------------------------------
 
 
 

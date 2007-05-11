@@ -240,7 +240,7 @@ void app::glob::bind_geometry()
     glNormalPointer         (      GL_FLOAT,    s, OFFSET(12));
     glVertexPointer         (   3, GL_FLOAT,    s, OFFSET( 0));
 
-//    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
 }
 
 void app::glob::init_geometry()
