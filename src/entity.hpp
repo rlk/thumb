@@ -63,7 +63,6 @@ namespace ent
         dGeomID geom;
         int     body1;
         int     body2;
-        int     celli;
         float   radius;
 
         float default_M[16];
@@ -124,8 +123,6 @@ namespace ent
         virtual int body() const { return (body1    ); }
         virtual int join(int i)  { return (body2 = i); }
         virtual int join() const { return (body2    ); }
-        virtual int cell(int i)  { return (celli = i); }
-        virtual int cell() const { return (celli    ); }
 
         // Manage ODE geometry and body state.
 

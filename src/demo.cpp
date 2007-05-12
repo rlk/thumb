@@ -24,11 +24,11 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo() : scene()
+demo::demo() : world(), scene()
 {
-    edit = new mode::edit(scene);
-    play = new mode::play(scene);
-    info = new mode::info(scene);
+    edit = new mode::edit(world, scene);
+    play = new mode::play(world, scene);
+    info = new mode::info(world, scene);
 
     // Initialize the demo configuration.
 
@@ -164,6 +164,11 @@ void demo::draw()
     glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     glPushAttrib(GL_ENABLE_BIT);
     {
+        glEnableVertexAttribArrayARB(6);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_NORMAL_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);

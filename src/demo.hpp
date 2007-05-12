@@ -17,6 +17,7 @@
 
 #include "opengl.hpp"
 #include "scene.hpp"
+#include "world.hpp"
 #include "mode.hpp"
 #include "prog.hpp"
 
@@ -40,6 +41,7 @@ class demo : public app::prog
 
     // Entity state.
 
+    wrl::world world;
     ops::scene scene;
 
     // Editor mode.

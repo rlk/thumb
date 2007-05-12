@@ -1,7 +1,7 @@
 
-#CFLAGS= -g -Wall -ansi -pedantic
+CFLAGS= -g -Wall -ansi -pedantic
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
-CFLAGS= -O3 -ffast-math -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS= -O3 -ffast-math -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 
@@ -18,6 +18,7 @@ OBJS=   opengl.o \
 	camera.o \
 	earth.o \
 	sky.o \
+	world.o \
 	entity.o \
 	joint.o \
 	solid.o \
@@ -61,7 +62,6 @@ ifeq ($(shell uname), Darwin)
 	FT2_CONF = /opt/local/bin/freetype-config
 else
 	LIBS += -lGL
-#	LIBS += -lOSMesa
 
 	SDL_CONF = sdl-config
 	FT2_CONF = freetype-config

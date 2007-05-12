@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------
 
-mode::play::play(ops::scene& s) : mode(s)
+mode::play::play(wrl::world& w, ops::scene& s) : mode(w, s)
 {
 }
 

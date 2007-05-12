@@ -41,22 +41,26 @@ void ogl::surface::sph_bound(float *b) const
 
 GLsizei ogl::surface::ecopy(GLsizei esz, GLsizei vsz)
 {
-    return data->ecopy(esz, vsz);
+//  return data->ecopy(esz, vsz);
+    return 0;
 }
 
 GLsizei ogl::surface::vcopy(GLsizei off)
 {
-    return data->vcopy(off);
+//  return data->vcopy(off);
+    return 0;
 }
 
 GLsizei ogl::surface::esize() const
 {
-    return data->esize();
+//  return data->esize();
+    return 0;
 }
 
 GLsizei ogl::surface::vsize() const
 {
-    return data->vsize();
+//  return data->vsize();
+    return 0;
 }
 
 //-----------------------------------------------------------------------------

@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 
-mode::edit::edit(ops::scene& s) : mode(s)
+mode::edit::edit(wrl::world &w, ops::scene& s) : mode(w, s)
 {
     // Initialize edit mode configuration.
 
@@ -200,6 +200,9 @@ void mode::edit::draw()
 {
     scene.draw_scene();
     scene.draw_gizmo();
+
+    world.draw_scene();
+    world.draw_gizmo();
 
     transform.draw();
 }

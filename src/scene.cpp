@@ -225,7 +225,7 @@ ops::scene::~scene()
         redo_list.pop_front();
     }
 
-    // Delete all ontities.
+    // Delete all entities.
 
     ent::set::iterator i;
 

@@ -14,6 +14,7 @@
 #define MODE_HPP
 
 #include "scene.hpp"
+#include "world.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -23,11 +24,12 @@ namespace mode
     {
     protected:
 
+        wrl::world& world;
         ops::scene& scene;
 
     public:
 
-        mode(ops::scene& s) : scene(s) { }
+        mode(wrl::world& w, ops::scene& s) : world(w), scene(s) { }
 
         virtual void enter() { }
         virtual void leave() { }

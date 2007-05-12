@@ -20,18 +20,18 @@ app::glob::~glob()
 {
     // Release all storage and OpenGL state.
 
-    std::map<std::string, program>::iterator pi;
-    std::map<std::string, texture>::iterator ti;
     std::map<std::string, surface>::iterator si;
+    std::map<std::string, texture>::iterator ti;
+    std::map<std::string, program>::iterator pi;
 
-    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
-        delete pi->second.ptr;
+    for (si = surface_map.begin(); si != surface_map.end(); ++si)
+        delete si->second.ptr;
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         delete ti->second.ptr;
 
-    for (si = surface_map.begin(); si != surface_map.end(); ++si)
-        delete si->second.ptr;
+    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+        delete pi->second.ptr;
 
     std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
@@ -226,6 +226,7 @@ void app::glob::free_frame(ogl::frame *p)
 
 void app::glob::bind_geometry()
 {
+/*
     GLsizei s = sizeof (ogl::vert);
 
     glEnableVertexAttribArrayARB(6);
@@ -241,10 +242,12 @@ void app::glob::bind_geometry()
     glVertexPointer         (   3, GL_FLOAT,    s, OFFSET( 0));
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
+*/
 }
 
 void app::glob::init_geometry()
 {
+/*
     std::map<std::string, surface>::iterator si;
 
     // Sum all vertex array and element array sizes.
@@ -283,15 +286,18 @@ void app::glob::init_geometry()
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+*/
 }
 
 void app::glob::fini_geometry()
 {
+/*
     if (ebo) glDeleteBuffersARB(1, &ebo);
     if (vbo) glDeleteBuffersARB(1, &vbo);
 
     ebo = 0;
     vbo = 0;
+*/
 }
 
 //-----------------------------------------------------------------------------

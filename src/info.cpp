@@ -17,7 +17,7 @@
 
 //-----------------------------------------------------------------------------
 
-mode::info::info(ops::scene& s) : mode(s), gui(s)
+mode::info::info(wrl::world& w, ops::scene& s) : mode(w, s), gui(s)
 {
 }
 

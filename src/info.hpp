@@ -26,7 +26,7 @@ namespace mode
 
     public:
 
-        info(ops::scene&);
+        info(wrl::world&, ops::scene&);
 
         virtual void enter();
         virtual void leave();
