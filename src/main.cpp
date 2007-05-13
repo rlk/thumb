@@ -201,7 +201,7 @@ static bool loop()
                                               e.key.keysym.unicode);    break;
         }
 
-    // If a jiffy has expired, call the timer method.
+    // Call the timer method for each jiffy that has passed.
 
     while (SDL_GetTicks() - tock >= JIFFY)
     {
@@ -224,8 +224,6 @@ int main(int argc, char *argv[])
 
     try
     {
-        ent::entity::phys_init();
-
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) == 0)
         {
             SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     5);
@@ -251,8 +249,6 @@ int main(int argc, char *argv[])
             SDL_Quit();
         }
         else throw std::runtime_error(SDL_GetError());
-
-        ent::entity::phys_fini();
     }
     catch (std::exception& e)
     {

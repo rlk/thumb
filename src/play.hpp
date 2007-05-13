@@ -23,7 +23,7 @@ namespace mode
     {
     public:
 
-        play(wrl::world&, ops::scene&);
+        play(wrl::world&);
 
         virtual void enter();
         virtual void leave();

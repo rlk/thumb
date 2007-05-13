@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 
-mode::edit::edit(wrl::world &w, ops::scene& s) : mode(w, s)
+mode::edit::edit(wrl::world &w) : mode(w)
 {
     // Initialize edit mode configuration.
 
@@ -65,7 +65,7 @@ bool mode::edit::point(const float p[3], const float v[3], int, int)
 {
     float M[16];
 
-    ent::entity::phys_pick(p, v);
+    world.pick(p, v);
 
     point_p[0] = p[0];
     point_p[1] = p[1];
@@ -81,7 +81,7 @@ bool mode::edit::point(const float p[3], const float v[3], int, int)
 
         if (move)
         {
-            scene.undo();
+            world.undo();
             move = false;
         }
 
@@ -89,7 +89,7 @@ bool mode::edit::point(const float p[3], const float v[3], int, int)
 
         if (transform.point(M, point_p, point_v))
         {
-            scene.do_modify(M);
+            world.do_modify(M);
             move = true;
         }
 
@@ -102,8 +102,9 @@ bool mode::edit::click(int b, bool d)
 {
     if (b == 1)
     {
-        ent::entity *focus = ent::entity::focused();
-        float        M[16];
+        dGeomID geom = world.get_focus();
+        wrl::atom *focus = geom ? (wrl::atom *) dGeomGetData(geom) : 0;
+        float      M[16];
 
         drag = false;
 
@@ -111,8 +112,8 @@ bool mode::edit::click(int b, bool d)
         {
             // If a selected entity is clicked, a drag may be beginning.
 
-//          if (scene.selected(focus))
-            if (scene.selected())
+//          if (world.selected(focus))
+//          if (world.selected())
             {
                 transform.click(point_p, point_v);
                 drag = true;
@@ -138,7 +139,7 @@ bool mode::edit::click(int b, bool d)
                     // A non-dragged release toggles selection.
 
                     if (move == false)
-                        scene.click_selection(focus);
+                        world.click_selection(focus);
                 }
             }
         }
@@ -156,21 +157,21 @@ bool mode::edit::keybd(int k, bool d, int c)
     {
         // Handle basic editing operations.
 
-        if      (k == key_selection_delete) scene.do_delete();
-        else if (k == key_selection_invert) scene.invert_selection();
-        else if (k == key_selection_extend) scene.extend_selection();
-        else if (k == key_selection_clear)  scene.clear_selection();
-        else if (k == key_selection_clone)  scene.clone_selection();
+        if      (k == key_selection_delete) world.do_delete();
+        else if (k == key_selection_invert) world.invert_selection();
+        else if (k == key_selection_extend) world.extend_selection();
+        else if (k == key_selection_clear)  world.clear_selection();
+        else if (k == key_selection_clone)  world.clone_selection();
 
-        else if (k == key_undo) scene.undo();
-        else if (k == key_redo) scene.redo();
+        else if (k == key_undo) world.undo();
+        else if (k == key_redo) world.redo();
 
         // Handle body and joint creation and destruction.
-
-        else if (k == key_make_body)    scene.do_embody();
-        else if (k == key_make_nonbody) scene.do_debody();
-        else if (k == key_make_joint)   scene.do_enjoin();
-
+/*
+        else if (k == key_make_body)    world.do_embody();
+        else if (k == key_make_nonbody) world.do_debody();
+        else if (k == key_make_joint)   world.do_enjoin();
+*/
         // Handle constraint keys.
 
         else if ('0' <= k && k <= '9')   transform.set_grid(int(k - '0'));
@@ -198,9 +199,6 @@ bool mode::edit::keybd(int k, bool d, int c)
 
 void mode::edit::draw()
 {
-    scene.draw_scene();
-    scene.draw_gizmo();
-
     world.draw_scene();
     world.draw_gizmo();
 

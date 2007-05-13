@@ -13,90 +13,15 @@
 #ifndef WORLD_HPP
 #define WORLD_HPP
 
-#include <set>
-
 #include <ode/ode.h>
 
-#include "surface.hpp"
+#include "atom.hpp"
+#include "operation.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace wrl
 {
-    //-------------------------------------------------------------------------
-
-    class atom
-    {
-    protected:
-
-        dGeomID geom;
-
-        float default_M[16];
-        float current_M[16];
-
-//      std::map<int, param *> params;
-
-        const ogl::surface *fill;
-        const ogl::surface *line;
-
-        // Transform handlers.
-
-        virtual void mult_M() const;
-        virtual void mult_R() const;
-        virtual void mult_T() const;
-        virtual void mult_V() const;
-        virtual void mult_P() const;
-
-        void get_transform(float[16], dGeomID);
-        void set_transform(float[16], dGeomID);
-
-    public:
-
-        atom(const ogl::surface *, const ogl::surface *);
-//      atom(const atom&);
-
-//      virtual atom *clone() const = 0;
-
-        // Store and recall default transform state.
-
-        void set_default();
-        void get_default();
-        void get_surface(dSurfaceParameters&);
-
-        // Transform.
-
-        void turn_world(float, float, float, float, float, float, float);
-        void turn_world(float, float, float, float);
-        void move_world(float, float, float);
-        void mult_world(const float[16]);
-
-        void turn_local(float, float, float, float, float, float, float);
-        void turn_local(float, float, float, float);
-        void move_local(float, float, float);
-        void mult_local(const float[16]);
-
-        void get_world(float[16]) const;
-        void get_local(float[16]) const;
-
-        void draw_fill() const;
-        void draw_line() const;
-        void draw_foci() const;
-
-        virtual ~atom();
-    };
-
-    //-------------------------------------------------------------------------
-
-    class unit
-    {
-        dBodyID body;
-    };
-
-    //-------------------------------------------------------------------------
-
-    typedef std::set<atom *> atom_set;
-    typedef std::set<unit *> unit_set;
-
     class world
     {
         // ODE state
@@ -113,23 +38,53 @@ namespace wrl
         // World state
 
         atom_set all;
+        atom_set sel;
+
+        ops::operation_l undo_list;
+        ops::operation_l redo_list;
+
+        void doop(ops::operation_p);
 
     public:
 
         world();
        ~world();
 
-        // ODE methods
+        // Physics methods
 
         void phys_pointer(dGeomID, dGeomID);
         void phys_contact(dGeomID, dGeomID);
 
-        void phys_init();
-        void phys_fini();
-        void phys_step(float);
-        void phys_pick(const float[3], const float[3]);
+        void pick(const float[3], const float[3]);
+        void step(float);
 
-        atom *focused() const;
+        dWorldID get_world() const { return state; }
+        dSpaceID get_space() const { return scene; }
+        dGeomID  get_focus() const { return focus; }
+
+        // Editing methods
+
+        void click_selection(atom *);
+        void clone_selection();
+        void clear_selection();
+
+        void invert_selection();
+        void extend_selection();
+
+        void create_set(atom_set&);
+        void delete_set(atom_set&);
+        void modify_set(atom_set&, const float[16]);
+
+        // Undo-able / redo-able operation.
+
+        void do_create();
+        void do_delete();
+        void do_modify(const float[16]);
+
+        void undo();
+        void redo();
+
+        // Rendering methods
 
         void draw_scene() const;
         void draw_gizmo() const;

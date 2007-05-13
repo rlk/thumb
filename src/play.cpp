@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------
 
-mode::play::play(wrl::world& w, ops::scene& s) : mode(w, s)
+mode::play::play(wrl::world& w) : mode(w)
 {
 }
 
@@ -23,21 +23,20 @@ mode::play::play(wrl::world& w, ops::scene& s) : mode(w, s)
 
 void mode::play::enter()
 {
-    scene.embody_all();
+//  world.embody_all();
     clr_time();
 }
 
 void mode::play::leave()
 {
-    scene.debody_all();
+//  world.debody_all();
 }
 
 //-----------------------------------------------------------------------------
 
 bool mode::play::timer(float dt)
 {
-    scene.step(dt);
-
+//  world.step(dt);
     return true;
 }
 
@@ -45,7 +44,7 @@ bool mode::play::timer(float dt)
 
 void mode::play::draw()
 {
-    scene.draw_scene();
+    world.draw_scene();
 }
 
 //-----------------------------------------------------------------------------

@@ -14,15 +14,10 @@ TARG= ../thumb
 OBJS=   opengl.o \
 	obj.o \
 	matrix.o \
-	light.o \
-	camera.o \
-	earth.o \
-	sky.o \
+	atom.o \
 	world.o \
-	entity.o \
-	joint.o \
 	solid.o \
-	scene.o \
+	operation.o \
 	constraint.o \
 	program.o \
 	texture.o \
@@ -48,6 +43,13 @@ OBJS=   opengl.o \
 	dir.o \
 	perf.o \
 	main.o
+#	joint.o \
+#	light.o \
+#	camera.o \
+#	earth.o \
+#	sky.o \
+#	scene.o \
+#	entity.o \
 
 LIBS= -lmxml -lode -ljpeg -lpng -lz -lm
 DEPS= $(OBJS:.o=.d)

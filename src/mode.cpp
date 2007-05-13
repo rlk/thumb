@@ -32,15 +32,15 @@ bool mode::mode::keybd(int, bool, int)
 
 bool mode::mode::timer(float dt)
 {
-    ent::entity::phys_step(dt);
-    return false;
+    world.step(dt);
+    return true;
 }
 
 //-----------------------------------------------------------------------------
 
 void mode::mode::draw()
 {
-    scene.draw_scene();
+    world.draw_scene();
 }
 
 //-----------------------------------------------------------------------------

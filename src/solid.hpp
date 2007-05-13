@@ -13,104 +13,64 @@
 #ifndef SOLID_HPP
 #define SOLID_HPP
 
-#include "entity.hpp"
 #include "param.hpp"
+#include "atom.hpp"
 #include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
-namespace ent
+namespace wrl
 {
-    class solid : public entity
+    class solid : public atom
     {
     protected:
 
-        dGeomID tran;
-        dMass   mass;
+        dMass mass;
 
     public:
 
-        solid(const ogl::surface *g=0,
-              const ogl::surface *w=0);
+        solid(const ogl::surface *,
+              const ogl::surface *);
 
-        virtual int join(int)    { return 0; }
-        virtual int join() const { return 0; }
-
-        virtual void play_init(dBodyID);
-        virtual void play_tran(dBodyID);
-        virtual void play_fini();
-
+//      virtual void play_init();
         virtual void step_post();
 
         virtual void         load(mxml_node_t *);
         virtual mxml_node_t *save(mxml_node_t *);
     };
-}
 
-//-----------------------------------------------------------------------------
-
-namespace ent
-{
-    class free : public solid
-    {
-    public:
-        virtual free *clone() const { return new free(*this); }
-        free(const ogl::surface *g=0) : solid(g) { }
-
-        void edit_init() { }
-    };
+    //-------------------------------------------------------------------------
+    // Solid box atom
 
     class box : public solid
     {
-    protected:
-        void draw_geom() const;
     public:
-        virtual box *clone() const { return new box(*this); }
-        box(const ogl::surface *g=0) :
-            solid(g, glob->load_surface("wire/wire_box.obj")) { }
 
-        void edit_init();
-        void play_init(dBodyID);
+        box(dSpaceID, const ogl::surface *);
+
+        virtual box *clone() const { return new box(*this); }
+
+        virtual void play_init(dBodyID);
+        virtual void draw_line() const;
 
         virtual mxml_node_t *save(mxml_node_t *);
     };
+
+    //-------------------------------------------------------------------------
+    // Solid sphere atom
 
     class sphere : public solid
     {
-    protected:
-        void draw_geom() const;
     public:
+
+        sphere(dSpaceID, const ogl::surface *);
+
         virtual sphere *clone() const { return new sphere(*this); }
-        sphere(const ogl::surface *g=0) : 
-            solid(g, glob->load_surface("wire/wire_sphere.obj")) { }
 
-        void edit_init();
-        void play_init(dBodyID);
+        virtual void play_init(dBodyID);
+        virtual void draw_line() const;
 
         virtual mxml_node_t *save(mxml_node_t *);
-    };
-
-    class capsule : public solid
-    {
-    protected:
-        void draw_geom() const;
-    public:
-        virtual capsule *clone() const { return new capsule(*this); }
-        capsule(const ogl::surface *g=0) : solid(g) { }
-
-        void edit_init();
-        void play_init(dBodyID);
-
-        virtual mxml_node_t *save(mxml_node_t *);
-    };
-
-    class plane : public solid
-    {
-    public:
-        virtual plane *clone() const { return new plane(*this); }
-        plane(const ogl::surface *g=0) : solid(g) { }
-
-        virtual void edit_init();
     };
 }
 

@@ -13,24 +13,24 @@
 #include <sstream>
 
 #include "control.hpp"
-#include "camera.hpp"
+//#include "camera.hpp"
 #include "joint.hpp"
 #include "solid.hpp"
-#include "light.hpp"
+//#include "light.hpp"
 #include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
 void cnt::editor::apply()
 {
-    scene.set_param(key, str);
+//  scene.set_param(key, str);
     is_changed = false;
 }
 
 void cnt::editor::show()
 {
-    if ((count = scene.get_param(key, str)) == 0)
-        str = "";
+//    if ((count = scene.get_param(key, str)) == 0)
+//        str = "";
 
     update();
 
@@ -60,7 +60,7 @@ void cnt::bitmap::apply()
 
     std::string val = sout.str();
 
-    scene.set_param(key, val);
+//    scene.set_param(key, val);
     is_changed = false;
 }
 
@@ -68,14 +68,15 @@ void cnt::bitmap::show()
 {
     std::string val;
 
-    if ((count = scene.get_param(key, val)) == 0)
-        bits = 0;
+//  if ((count = scene.get_param(key, val)) == 0)
+    bits = 0;
+/*
     else
     {
         std::istringstream sin(val);
         sin >> bits;
     }
-
+*/
     if (count > 1)
     {
         color[0] = 0xFF;
@@ -94,13 +95,13 @@ void cnt::bitmap::show()
 
 //-----------------------------------------------------------------------------
 
-void cnt::create_button::do_create(ent::entity *entity)
+void cnt::create_button::do_create(wrl::atom *atom)
 {
     // Select the new entity and add a create operation for it.
 
-    scene.clear_selection();
-    scene.click_selection(entity);
-    scene.do_create();
+    world.clear_selection();
+    world.click_selection(atom);
+    world.do_create();
 
     // Update the GUI to reflect the new entity state.
 
@@ -109,62 +110,60 @@ void cnt::create_button::do_create(ent::entity *entity)
 
 void cnt::new_ball_button::apply()
 {
-    do_create(new ent::ball());
+//    do_create(new wrl::ball());
 }
 
 void cnt::new_hinge_button::apply()
 {
-    do_create(new ent::hinge());
+//    do_create(new wrl::hinge());
 }
 
 void cnt::new_hinge2_button::apply()
 {
-    do_create(new ent::hinge2());
+//    do_create(new wrl::hinge2());
 }
 
 void cnt::new_slider_button::apply()
 {
-    do_create(new ent::slider());
+//    do_create(new wrl::slider());
 }
 
 void cnt::new_amotor_button::apply()
 {
-    do_create(new ent::amotor());
+//    do_create(new wrl::amotor());
 }
 
 void cnt::new_universal_button::apply()
 {
-    do_create(new ent::universal());
+//    do_create(new wrl::universal());
 }
 
 void cnt::new_box_button::apply()
 {
-    do_create(new ent::box(glob->load_surface(name->value())));
+    do_create(new wrl::box(world.get_space(),
+                           glob->load_surface(name->value())));
 }
 
 void cnt::new_sphere_button::apply()
 {
-    do_create(new ent::sphere(glob->load_surface(name->value())));
+    do_create(new wrl::sphere(world.get_space(),
+                              glob->load_surface(name->value())));
 }
 
-void cnt::new_capsule_button::apply()
-{
-    do_create(new ent::capsule(glob->load_surface(name->value())));
-}
-
+/*
 void cnt::new_light_button::apply()
 {
-    do_create(new ent::light);
+    do_create(new wrl::light);
 }
 
 void cnt::new_camera_button::apply()
 {
-    do_create(new ent::camera);
+    do_create(new wrl::camera);
 }
-
+*/
 //-----------------------------------------------------------------------------
 
-cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
+cnt::solid_panel::solid_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("solid", ".obj", E);
@@ -174,11 +173,13 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
             add((new gui::vgroup)->
 
                 add(new title("Create Solid"))->
-                add(new new_box_button    (s, w, E))->
-                add(new new_sphere_button (s, w, E))->
-                add(new new_capsule_button(s, w, E))->
-                add(new new_light_button  (s, w))->
-                add(new new_camera_button (s, w))->
+                add(new new_box_button    (W, w, E))->
+                add(new new_sphere_button (W, w, E))->
+/*
+                add(new new_capsule_button(W, w, E))->
+                add(new new_light_button  (W, w))->
+                add(new new_camera_button (W, w))->
+*/
                 add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->
@@ -200,8 +201,8 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new bitmap(s, ent::param::category))->
-                    add(new bitmap(s, ent::param::collide))->
+                    add(new bitmap(W, ent::param::category))->
+                    add(new bitmap(W, ent::param::collide))->
                     add(new gui::filler(false, false))))->
 
             add((new gui::hgroup)->
@@ -213,9 +214,9 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new editor(s, ent::param::density))->
-                    add(new editor(s, ent::param::bounce))->
-                    add(new editor(s, ent::param::mu)))->
+                    add(new editor(W, ent::param::density))->
+                    add(new editor(W, ent::param::bounce))->
+                    add(new editor(W, ent::param::mu)))->
 
                 add((new gui::varray)->
 
@@ -225,14 +226,14 @@ cnt::solid_panel::solid_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new editor(s, ent::param::soft_erp))->
-                    add(new editor(s, ent::param::soft_cfm))->
-                    add(new editor(s, -1))))));
+                    add(new editor(W, ent::param::soft_erp))->
+                    add(new editor(W, ent::param::soft_cfm))->
+                    add(new editor(W, -1))))));
 }
 
 //-----------------------------------------------------------------------------
 
-cnt::world_panel::world_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
+cnt::world_panel::world_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("world", ".xml", E);
@@ -242,10 +243,10 @@ cnt::world_panel::world_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
             add((new gui::vgroup)->
 
                 add(new title("World"))->
-                add(new init_button(s, w))->
-                add(new load_button(s, w, E))->
-                add(new save_all_button(s, w, E))->
-                add(new save_sel_button(s, w, E))->
+                add(new init_button(W, w))->
+                add(new load_button(W, w, E))->
+                add(new save_all_button(W, w, E))->
+                add(new save_sel_button(W, w, E))->
                 add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->
@@ -257,18 +258,18 @@ cnt::world_panel::world_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
 //-----------------------------------------------------------------------------
 
-cnt::joint_panel::joint_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
+cnt::joint_panel::joint_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 {
     add((new gui::frame)->
         add((new gui::harray)->
 
             add(new title("Create Joint"))->
-            add(new new_ball_button     (s, w))->
-            add(new new_hinge_button    (s, w))->
-            add(new new_hinge2_button   (s, w))->
-            add(new new_slider_button   (s, w))->
-            add(new new_amotor_button   (s, w))->
-            add(new new_universal_button(s, w))));
+            add(new new_ball_button     (W, w))->
+            add(new new_hinge_button    (W, w))->
+            add(new new_hinge2_button   (W, w))->
+            add(new new_slider_button   (W, w))->
+            add(new new_amotor_button   (W, w))->
+            add(new new_universal_button(W, w))));
 
     add(new gui::spacer);
 
@@ -292,27 +293,27 @@ cnt::joint_panel::joint_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
             add((new gui::varray)->
                 add(new title("Axis 1"))->
 
-                add(new editor(s, dParamVel))->
-                add(new editor(s, dParamFMax))->
-                add(new editor(s, dParamCFM))->
-                add(new editor(s, dParamBounce))->
-                add(new editor(s, dParamLoStop))->
-                add(new editor(s, dParamHiStop))->
-                add(new editor(s, dParamStopERP))->
-                add(new editor(s, dParamStopCFM))->
-                add(new editor(s, dParamSuspensionERP))->
-                add(new editor(s, dParamSuspensionCFM)))->
+                add(new editor(W, dParamVel))->
+                add(new editor(W, dParamFMax))->
+                add(new editor(W, dParamCFM))->
+                add(new editor(W, dParamBounce))->
+                add(new editor(W, dParamLoStop))->
+                add(new editor(W, dParamHiStop))->
+                add(new editor(W, dParamStopERP))->
+                add(new editor(W, dParamStopCFM))->
+                add(new editor(W, dParamSuspensionERP))->
+                add(new editor(W, dParamSuspensionCFM)))->
 
             add((new gui::varray)->
                 add(new title("Axis 2"))->
-                add(new editor(s, dParamVel2))->
-                add(new editor(s, dParamFMax2))->
-                add(new editor(s, dParamCFM2))->
-                add(new editor(s, dParamBounce2))->
-                add(new editor(s, dParamLoStop2))->
-                add(new editor(s, dParamHiStop2))->
-                add(new editor(s, dParamStopERP2))->
-                add(new editor(s, dParamStopCFM2))->
+                add(new editor(W, dParamVel2))->
+                add(new editor(W, dParamFMax2))->
+                add(new editor(W, dParamCFM2))->
+                add(new editor(W, dParamBounce2))->
+                add(new editor(W, dParamLoStop2))->
+                add(new editor(W, dParamHiStop2))->
+                add(new editor(W, dParamStopERP2))->
+                add(new editor(W, dParamStopCFM2))->
 
                 add(new gui::filler)->
                 add(new gui::filler))->
@@ -320,14 +321,14 @@ cnt::joint_panel::joint_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
             add((new gui::varray)->
                 add(new title("Axis 3"))->
 
-                add(new editor(s, dParamVel3))->
-                add(new editor(s, dParamFMax3))->
-                add(new editor(s, dParamCFM3))->
-                add(new editor(s, dParamBounce3))->
-                add(new editor(s, dParamLoStop3))->
-                add(new editor(s, dParamHiStop3))->
-                add(new editor(s, dParamStopERP3))->
-                add(new editor(s, dParamStopCFM3))->
+                add(new editor(W, dParamVel3))->
+                add(new editor(W, dParamFMax3))->
+                add(new editor(W, dParamCFM3))->
+                add(new editor(W, dParamBounce3))->
+                add(new editor(W, dParamLoStop3))->
+                add(new editor(W, dParamHiStop3))->
+                add(new editor(W, dParamStopERP3))->
+                add(new editor(W, dParamStopCFM3))->
 
                 add(new gui::filler)->
                 add(new gui::filler))));
@@ -335,7 +336,7 @@ cnt::joint_panel::joint_panel(ops::scene& s, gui::widget *w) : gui::vgroup()
 
 //-----------------------------------------------------------------------------
 
-cnt::control::control(ops::scene& s)
+cnt::control::control(wrl::world& W)
 {
     int w = conf->get_i("window_w");
     int h = conf->get_i("window_h");
@@ -351,9 +352,9 @@ cnt::control::control(ops::scene& s)
                 add(new gui::spacer))->
             add(new gui::spacer)->
             add(O->
-                add(new world_panel(s, O))->
-                add(new solid_panel(s, O))->
-                add(new joint_panel(s, O))));
+                add(new world_panel(W, O))->
+                add(new solid_panel(W, O))->
+                add(new joint_panel(W, O))));
 
     root->layup();
     root->laydn((w - root->get_w()) / 2,

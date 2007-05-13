@@ -24,11 +24,11 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo() : world(), scene()
+demo::demo() : world()
 {
-    edit = new mode::edit(world, scene);
-    play = new mode::play(world, scene);
-    info = new mode::info(world, scene);
+    edit = new mode::edit(world);
+    play = new mode::play(world);
+    info = new mode::info(world);
 
     // Initialize the demo configuration.
 
@@ -176,7 +176,6 @@ void demo::draw()
 
         // Draw the scene.
 
-        glob->bind_geometry();
         curr->draw();
         prog::draw();
     }

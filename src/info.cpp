@@ -17,7 +17,7 @@
 
 //-----------------------------------------------------------------------------
 
-mode::info::info(wrl::world& w, ops::scene& s) : mode(w, s), gui(s)
+mode::info::info(wrl::world& w) : mode(w), gui(w)
 {
 }
 
@@ -64,8 +64,8 @@ bool mode::info::keybd(int k, bool d, int c)
 
 void mode::info::draw()
 {
-    scene.draw_scene();
-    scene.draw_gizmo();
+    world.draw_scene();
+    world.draw_gizmo();
 
     gui.draw();
 }

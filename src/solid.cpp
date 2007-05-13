@@ -19,9 +19,10 @@
 
 //-----------------------------------------------------------------------------
 
-ent::solid::solid(const ogl::surface *g,
-                  const ogl::surface *w) : entity(g, w), tran(0)
+wrl::solid::solid(const ogl::surface *fill,
+                  const ogl::surface *line) : atom(fill, line)
 {
+/*
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
     params[param::density]  = new param("density",  "1.0");
@@ -29,265 +30,121 @@ ent::solid::solid(const ogl::surface *g,
     params[param::bounce]   = new param("bounce",   "0.5");
     params[param::soft_erp] = new param("soft_erp", "0.2");
     params[param::soft_cfm] = new param("soft_cfm", "0.0");
+*/
 }
 
 //-----------------------------------------------------------------------------
 
-void ent::box::edit_init()
+wrl::box::box(dSpaceID space, const ogl::surface *fill) :
+    solid(fill, glob->load_surface("wire/wire_box.obj"))
 {
     float bound[6];
 
-    if (geometry)
-    {
-        geometry->box_bound(bound);
+    fill->box_bound(bound);
 
-        geom = dCreateBox(space, bound[3] - bound[0],
-                                 bound[4] - bound[1],
-                                 bound[5] - bound[2]);
-        dGeomSetData(geom, this);
+    geom = dCreateBox(space, bound[3] - bound[0],
+                             bound[4] - bound[1],
+                             bound[5] - bound[2]);
 
-        set_transform(current_M, geom);
-    }
+    dGeomSetData(geom, this);
+    set_transform(current_M);
 }
 
-void ent::sphere::edit_init()
+wrl::sphere::sphere(dSpaceID space, const ogl::surface *fill) : 
+    solid(fill, glob->load_surface("wire/wire_sphere.obj"))
 {
-    float radius;
+    float bound[1];
 
-    if (geometry)
-    {
-        geometry->sph_bound(&radius);
+    fill->sph_bound(bound);
 
-        geom = dCreateSphere(space, radius);
+    geom = dCreateSphere(space, bound[0]);
 
-        dGeomSetData(geom, this);
-
-        set_transform(current_M, geom);
-    }
-}
-
-void ent::capsule::edit_init()
-{
-    float bound[6];
-
-    if (geometry)
-    {
-        geometry->box_bound(bound);
-
-        float length = (bound[5] - bound[2]);
-        float radius = (bound[3] - bound[0]) / 2.0f;
-
-        geom = dCreateCCylinder(space, radius, length - radius - radius);
-
-        dGeomSetData(geom, this);
-
-        set_transform(current_M, geom);
-    }
-}
-
-void ent::plane::edit_init()
-{
-    geom = dCreatePlane(space, 0.0f, 1.0f, 0.0f, 0.0f);
-
-    dGeomSetData        (geom, this);
-    dGeomSetCategoryBits(geom, 0);
+    dGeomSetData(geom, this);
+    set_transform(current_M);
 }
 
 //-----------------------------------------------------------------------------
 
-void ent::solid::play_init(dBodyID body)
+void wrl::box::play_init(dBodyID body)
 {
-    if (body)
-    {
-        dMass total;
+//  dReal    d = (dReal) params[param::density]->value();
+    dReal    d = 1.0;
+    dVector3 v;
 
-        // Transform the mass to align with the entity.
+    // Compute the mass of this box.
 
-        dMatrix3 R;
+    dGeomBoxGetLengths(geom, v);
+    dMassSetBox(&mass, d, v[0], v[1], v[2]);
 
-        R[ 0] = (dReal) current_M[ 0];
-        R[ 1] = (dReal) current_M[ 4];
-        R[ 2] = (dReal) current_M[ 8];
-        R[ 3] = (dReal) 0.0f;
-
-        R[ 4] = (dReal) current_M[ 1];
-        R[ 5] = (dReal) current_M[ 5];
-        R[ 6] = (dReal) current_M[ 9];
-        R[ 7] = (dReal) 0.0f;
-
-        R[ 8] = (dReal) current_M[ 2];
-        R[ 9] = (dReal) current_M[ 6];
-        R[10] = (dReal) current_M[10];
-        R[11] = (dReal) 0.0f;
-    
-        dMassRotate   (&mass, R);
-        dMassTranslate(&mass, current_M[12],
-                              current_M[13],
-                              current_M[14]);
-
-        // Accumulate the geom's mass with the body's existing mass.
-
-        dBodyGetMass(body, &total);
-        dMassAdd(&total, &mass);
-        dBodySetMass(body, &total);
-    }
+//  solid::play_init(body);
 }
 
-void ent::solid::play_tran(dBodyID body)
+void wrl::sphere::play_init(dBodyID body)
 {
-    if (body)
-    {
-        const dReal *p = dBodyGetPosition(body);
+//  dReal d = (dReal) params[param::density]->value();
+    dReal d = 1.0;
+    dReal r;
 
-        // Create a transform geom and reposition the enclosed geom.
+    // Compute the mass of this sphere.
 
-        tran = dCreateGeomTransform(actor);
-        dGeomTransformSetGeom(tran, geom);
-        dGeomTransformSetInfo(tran, 0);
+    r = dGeomSphereGetRadius(geom);
+    dMassSetSphere(&mass, d, r);
 
-        dGeomSetBody(tran, body);
-        dGeomSetPosition(geom, current_M[12] - p[0],
-                               current_M[13] - p[1],
-                               current_M[14] - p[2]);
-
-        dSpaceRemove(space, geom);
-
-        // Apply category and collide bits.
-
-        unsigned int cat = (unsigned int) params[param::category]->value();
-        unsigned int col = (unsigned int) params[param::collide ]->value();
-
-        dGeomSetCategoryBits(tran, cat);
-        dGeomSetCollideBits (tran, col);
-    }
-}
-
-void ent::solid::play_fini()
-{
-    if (tran)
-    {
-        // Delete the transform geom and revert the transform.
-
-        dSpaceAdd(space, geom);
-        dGeomDestroy(tran);
-        get_default();
-
-        tran = 0;
-    }
+//  solid::play_init(body);
 }
 
 //-----------------------------------------------------------------------------
 
-void ent::box::play_init(dBodyID body)
+void wrl::solid::step_post()
 {
-    if (body)
-    {
-        dVector3 v;
-        dReal    d = (dReal) params[param::density]->value();
+    // Update the current transform using the current ODE state.
 
-        // Compute the mass of this box.
-
-        dGeomBoxGetLengths(geom, v);
-        dMassSetBox(&mass, d, v[0], v[1], v[2]);
-
-        solid::play_init(body);
-    }
-}
-
-void ent::sphere::play_init(dBodyID body)
-{
-    if (body)
-    {
-        dReal r;
-        dReal d = (dReal) params[param::density]->value();
-
-        // Compute the mass of this sphere.
-
-        r = dGeomSphereGetRadius(geom);
-        dMassSetSphere(&mass, d, r);
-
-        solid::play_init(body);
-    }
-}
-
-void ent::capsule::play_init(dBodyID body)
-{
-    if (body)
-    {
-        dReal r;
-        dReal l;
-        dReal d = (dReal) params[param::density]->value();
-
-        // Compute the mass of this sphere.
-
-        dGeomCCylinderGetParams(geom, &r, &l);
-        dMassSetCappedCylinder(&mass, d, 3, r, l);
-
-        solid::play_init(body);
-    }
+    get_transform(current_M);
 }
 
 //-----------------------------------------------------------------------------
 
-void ent::solid::step_post()
+void wrl::box::draw_line() const
 {
-    // Update the transform using the current ODE state.
+    dVector3 v;
 
-    if (geom && tran)
+    dGeomBoxGetLengths(geom, v);
+
+    // Draw a wire box.
+
+    glPushMatrix();
     {
-        float tran_M[16];
-        float geom_M[16];
+        mult_M();
 
-        get_transform(tran_M, tran);
-        get_transform(geom_M, geom);
+        glScalef(float(v[0] / 2.0f),
+                 float(v[1] / 2.0f),
+                 float(v[2] / 2.0f));
 
-        mult_mat_mat(current_M, tran_M, geom_M);
+        line->draw(DRAW_OPAQUE | DRAW_UNLIT);
     }
+    glPopMatrix();
+}
+
+void wrl::sphere::draw_line() const
+{
+    float r = float(dGeomSphereGetRadius(geom));
+
+    // Draw a wire sphere.
+
+    glPushMatrix();
+    {
+        mult_M();
+
+        glScalef(r, r, r);
+
+        line->draw(DRAW_OPAQUE | DRAW_UNLIT);
+    }
+    glPopMatrix();
 }
 
 //-----------------------------------------------------------------------------
 
-void ent::box::draw_geom() const
-{
-    if (geom)
-    {
-        dVector3 len;
-
-        dGeomBoxGetLengths(geom, len);
-
-        // Draw a wire box.
-
-        glScalef(float(len[0] / 2.0f),
-                 float(len[1] / 2.0f),
-                 float(len[2] / 2.0f));
-
-        if (wireframe)
-            wireframe->draw();
-    }
-}
-
-void ent::sphere::draw_geom() const
-{
-    if (geom)
-    {
-        float rad = float(dGeomSphereGetRadius(geom));
-
-        // Draw three rings.
-
-        glScalef(rad, rad, rad);
-
-        if (wireframe)
-            wireframe->draw();
-    }
-}
-
-void ent::capsule::draw_geom() const
-{
-}
-
-//-----------------------------------------------------------------------------
-
-void ent::solid::load(mxml_node_t *node)
+void wrl::solid::load(mxml_node_t *node)
 {
     mxml_node_t *name;
 
@@ -297,27 +154,26 @@ void ent::solid::load(mxml_node_t *node)
     {
         std::string s = std::string(name->child->value.text.string);
 
-        geometry = glob->load_surface(s);
+        fill = glob->load_surface(s);
     }
 
-    entity::load(node);
+    atom::load(node);
 }
 
-mxml_node_t *ent::solid::save(mxml_node_t *node)
+mxml_node_t *wrl::solid::save(mxml_node_t *node)
 {
     // Add the OBJ file reference.
 
-    if (geometry)
+    if (fill)
     {
-        std::string s = geometry->get_name();
+        std::string s = fill->get_name();
 
         mxmlNewText(mxmlNewElement(node, "file"), 0, s.c_str());
     }
-
-    return entity::save(node);
+    return atom::save(node);
 }
 
-mxml_node_t *ent::box::save(mxml_node_t *parent)
+mxml_node_t *wrl::box::save(mxml_node_t *parent)
 {
     // Create a new box element.
 
@@ -327,7 +183,7 @@ mxml_node_t *ent::box::save(mxml_node_t *parent)
     return solid::save(node);
 }
 
-mxml_node_t *ent::sphere::save(mxml_node_t *parent)
+mxml_node_t *wrl::sphere::save(mxml_node_t *parent)
 {
     // Create a new sphere element.
 
@@ -337,15 +193,4 @@ mxml_node_t *ent::sphere::save(mxml_node_t *parent)
     return solid::save(node);
 }
 
-mxml_node_t *ent::capsule::save(mxml_node_t *parent)
-{
-    // Create a new capsule element.
-
-    mxml_node_t *node = mxmlNewElement(parent, "geom");
-
-    mxmlElementSetAttr(node, "class", "capsule");
-    return solid::save(node);
-}
-
 //-----------------------------------------------------------------------------
-
