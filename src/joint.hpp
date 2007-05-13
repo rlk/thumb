@@ -13,139 +13,131 @@
 #ifndef JOINT_HPP
 #define JOINT_HPP
 
-#include "conf.hpp"
 #include "param.hpp"
-#include "entity.hpp"
+#include "atom.hpp"
 
 //-----------------------------------------------------------------------------
 
-namespace ent
+namespace wrl
 {
-    class joint : public entity
+    class joint : public atom
     {
     protected:
 
         dJointID join;
-        float    size;
-
-        virtual void draw_geom() const;
 
     public:
 
-        joint(const ogl::surface *g=0,
-              const ogl::surface *w=0);
+        joint(dSpaceID, const ogl::surface *,
+                        const ogl::surface *);
 
-        void geom_to_entity();
-
-        int link() const { return 0; }
-
-        virtual void edit_init();
         virtual void play_init(dBodyID);
         virtual void play_fini();
+        virtual void step_init();
+        virtual void draw_line() const;
 
-        virtual void step_prep();
-
-        virtual int type() { return DRAW_GIZMO; }
-
-        virtual ~joint() { }
+        virtual ~joint();
     };
-}
 
-//-----------------------------------------------------------------------------
-
-namespace ent
-{
     //-------------------------------------------------------------------------
-    // Ball joint.
+    // Ball joint
 
     class ball : public joint
     {
     public:
-        ball();
+
+        ball(dWorldID, dSpaceID);
+
         ball *clone() const { return new ball(*this); }
 
-        void play_init(dBodyID);
-        void play_join(dBodyID);
+//      void play_init(dBodyID);
+//      void play_join(dBodyID);
 
         mxml_node_t *save(mxml_node_t *);
     };
 
     //-------------------------------------------------------------------------
-    // Hinge joint.
+    // Hinge joint
 
     class hinge : public joint
     {
     public:
-        hinge *clone() const { return new hinge(*this); }
-        hinge();
 
-        void play_init(dBodyID);
-        void play_join(dBodyID);
-        void step_prep();
+        hinge(dWorldID, dSpaceID);
+
+        hinge *clone() const { return new hinge(*this); }
+
+//      void play_init(dBodyID);
+//      void play_join(dBodyID);
+        void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
 
     //-------------------------------------------------------------------------
-    // Suspension hinge joint.
+    // Suspension hinge joint
 
     class hinge2 : public joint
     {
     public:
-        hinge2 *clone() const { return new hinge2(*this); }
-        hinge2();
+        hinge2(dWorldID, dSpaceID);
 
-        void play_init(dBodyID);
-        void play_join(dBodyID);
-        void step_prep();
+        hinge2 *clone() const { return new hinge2(*this); }
+
+//      void play_init(dBodyID);
+//      void play_join(dBodyID);
+        void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
 
     //-------------------------------------------------------------------------
-    // Prismatic slider joint.
+    // Prismatic slider joint
 
     class slider : public joint
     {
     public:
-        slider *clone() const { return new slider(*this); }
-        slider();
+        slider(dWorldID, dSpaceID);
 
-        void play_init(dBodyID);
-        void play_join(dBodyID);
-        void step_prep();
+        slider *clone() const { return new slider(*this); }
+
+//      void play_init(dBodyID);
+//      void play_join(dBodyID);
+        void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
 
     //-------------------------------------------------------------------------
-    // Angular motor joint.
+    // Angular motor joint
 
     class amotor : public joint
     {
     public:
-        amotor *clone() const { return new amotor(*this); }
-        amotor();
+        amotor(dWorldID, dSpaceID);
 
-        void play_init(dBodyID);
-        void play_join(dBodyID);
-        void step_prep();
+        amotor *clone() const { return new amotor(*this); }
+
+//      void play_init(dBodyID);
+//      void play_join(dBodyID);
+        void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
 
     //-------------------------------------------------------------------------
-    // Universal joint.
+    // Universal joint
 
     class universal : public joint
     {
     public:
-        universal *clone() const { return new universal(*this); }
-        universal();
+        universal(dWorldID, dSpaceID);
 
-        void play_init(dBodyID);
-        void play_join(dBodyID);
-        void step_prep();
+        universal *clone() const { return new universal(*this); }
+
+//      void play_init(dBodyID);
+//      void play_join(dBodyID);
+        void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };

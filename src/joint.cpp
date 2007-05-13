@@ -16,51 +16,54 @@
 
 //-----------------------------------------------------------------------------
 
-void ent::joint::geom_to_entity()
+void wrl::joint::play_init(dBodyID)
 {
-    if (geom) get_transform(current_M, geom);
-}
-
-void ent::joint::edit_init()
-{
-    geom = dCreateSphere(space, 0.25f);
-    dGeomSetData(geom, this);
-    get_default();
-}
-
-//-----------------------------------------------------------------------------
-
-void ent::joint::play_init(dBodyID)
-{
+/*
     edit_fini();
+*/
 }
 
-void ent::joint::play_fini()
+void wrl::joint::play_fini()
 {
+/*
     dJointDestroy(join);
     join = 0;
     edit_init();
+*/
 }
 
 //-----------------------------------------------------------------------------
 
-ent::joint::joint(const ogl::surface *g,
-                  const ogl::surface *w) :
-    entity(g, w), size(conf->get_f("joint_size"))
+wrl::joint::joint(dSpaceID space, const ogl::surface *fill,
+                                  const ogl::surface *line) :
+    atom(fill, line)
 {
+    geom = dCreateSphere(space, 0.25f);
+
+    dGeomSetData(geom, this);
+    set_transform(current_M);
+}
+
+wrl::joint::~joint()
+{
+    dJointDestroy(join);
 }
 
 //-----------------------------------------------------------------------------
 
-ent::ball::ball() :
-    joint(glob->load_surface("joint/joint_ball.obj"),
-          glob->load_surface("wire/wire_sphere.obj"))
+wrl::ball::ball(dWorldID state, dSpaceID space) :
+    joint(space, glob->load_surface("joint/joint_ball.obj"),
+                 glob->load_surface("wire/wire_sphere.obj"))
 {
+    join = dJointCreateBall(state, 0);
 }
 
-ent::hinge::hinge() :
-    joint(glob->load_surface("joint/joint_hinge.obj"))
+wrl::hinge::hinge(dWorldID state, dSpaceID space) :
+    joint(space, glob->load_surface("joint/joint_hinge.obj"),
+                 glob->load_surface("wire/wire_sphere.obj"))
 {
+    join = dJointCreateHinge(state, 0);
+
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -71,10 +74,12 @@ ent::hinge::hinge() :
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-ent::hinge2::hinge2() :
-    joint(glob->load_surface("joint/joint_hinge2.obj"),
-          glob->load_surface("wire/wire_sphere.obj"))
+wrl::hinge2::hinge2(dWorldID state, dSpaceID space) :
+    joint(space, glob->load_surface("joint/joint_hinge2.obj"),
+                 glob->load_surface("wire/wire_sphere.obj"))
 {
+    join = dJointCreateHinge2(state, 0);
+
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -97,10 +102,12 @@ ent::hinge2::hinge2() :
     params[dParamSuspensionCFM] = new param("dParamSuspensionCFM", "0.0");
 }
 
-ent::slider::slider() :
-    joint(glob->load_surface("joint/joint_slider.obj"),
-          glob->load_surface("wire/wire_sphere.obj"))
+wrl::slider::slider(dWorldID state, dSpaceID space) :
+    joint(space, glob->load_surface("joint/joint_slider.obj"),
+                 glob->load_surface("wire/wire_sphere.obj"))
 {
+    join = dJointCreateSlider(state, 0);
+
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -111,10 +118,12 @@ ent::slider::slider() :
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-ent::amotor::amotor() :
-    joint(glob->load_surface("joint/joint_amotor.obj"),
-          glob->load_surface("wire/wire_sphere.obj"))
+wrl::amotor::amotor(dWorldID state, dSpaceID space) :
+    joint(space, glob->load_surface("joint/joint_amotor.obj"),
+                 glob->load_surface("wire/wire_sphere.obj"))
 {
+    join = dJointCreateAMotor(state, 0);
+
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -143,10 +152,12 @@ ent::amotor::amotor() :
     params[dParamStopCFM3] = new param("dParamStopCFM3", "0.0");
 }
 
-ent::universal::universal() :
-    joint(glob->load_surface("joint/joint_universal.obj"),
-          glob->load_surface("wire/wire_sphere.obj"))
+wrl::universal::universal(dWorldID state, dSpaceID space) :
+    joint(space, glob->load_surface("joint/joint_universal.obj"),
+                 glob->load_surface("wire/wire_sphere.obj"))
 {
+    join = dJointCreateUniversal(state, 0);
+
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -167,58 +178,52 @@ ent::universal::universal() :
 }
 
 //-----------------------------------------------------------------------------
-
-void ent::ball::play_init(dBodyID body)
+/*
+void wrl::ball::play_init(dBodyID body)
 {
-    join = dJointCreateBall(world, 0);
     dJointAttach(join, body, 0);
 
     joint::play_init(body);
 }
 
-void ent::hinge::play_init(dBodyID body)
+void wrl::hinge::play_init(dBodyID body)
 {
-    join = dJointCreateHinge(world, 0);
     dJointAttach(join, body, 0);
 
     joint::play_init(body);
 }
 
-void ent::hinge2::play_init(dBodyID body)
+void wrl::hinge2::play_init(dBodyID body)
 {
-    join = dJointCreateHinge2(world, 0);
     dJointAttach(join, body, 0);
 
     joint::play_init(body);
 }
 
-void ent::slider::play_init(dBodyID body)
+void wrl::slider::play_init(dBodyID body)
 {
-    join = dJointCreateSlider(world, 0);
     dJointAttach(join, body, 0);
 
     joint::play_init(body);
 }
 
-void ent::amotor::play_init(dBodyID body)
+void wrl::amotor::play_init(dBodyID body)
 {
-    join = dJointCreateAMotor(world, 0);
     dJointAttach(join, body, 0);
 
     joint::play_init(body);
 }
 
-void ent::universal::play_init(dBodyID body)
+void wrl::universal::play_init(dBodyID body)
 {
-    join = dJointCreateUniversal(world, 0);
     dJointAttach(join, body, 0);
 
     joint::play_init(body);
 }
-
+*/
 //-----------------------------------------------------------------------------
-
-void ent::ball::play_join(dBodyID body1)
+/*
+void wrl::ball::play_join(dBodyID body1)
 {
     dBodyID body0 = dJointGetBody(join, 0);
 
@@ -233,7 +238,7 @@ void ent::ball::play_join(dBodyID body1)
     }
 }
 
-void ent::hinge::play_join(dBodyID body1)
+void wrl::hinge::play_join(dBodyID body1)
 {
     dBodyID body0 = dJointGetBody(join, 0);
 
@@ -249,7 +254,7 @@ void ent::hinge::play_join(dBodyID body1)
     }
 }
 
-void ent::hinge2::play_join(dBodyID body1)
+void wrl::hinge2::play_join(dBodyID body1)
 {
     dBodyID body0 = dJointGetBody(join, 0);
 
@@ -266,7 +271,7 @@ void ent::hinge2::play_join(dBodyID body1)
     }
 }
 
-void ent::slider::play_join(dBodyID body1)
+void wrl::slider::play_join(dBodyID body1)
 {
     dBodyID body0 = dJointGetBody(join, 0);
 
@@ -281,7 +286,7 @@ void ent::slider::play_join(dBodyID body1)
     }
 }
 
-void ent::amotor::play_join(dBodyID body1)
+void wrl::amotor::play_join(dBodyID body1)
 {
     dBodyID body0 = dJointGetBody(join, 0);
 
@@ -301,7 +306,7 @@ void ent::amotor::play_join(dBodyID body1)
     }
 }
 
-void ent::universal::play_join(dBodyID body1)
+void wrl::universal::play_join(dBodyID body1)
 {
     dBodyID body0 = dJointGetBody(join, 0);
 
@@ -317,85 +322,81 @@ void ent::universal::play_join(dBodyID body1)
         dJointSetUniversalAnchor(join, M[12], M[13], M[14]);
     }
 }
-
+*/
 //-----------------------------------------------------------------------------
 
-void ent::joint::step_prep()
+void wrl::joint::step_init()
 {
     // Joint parameter change may require reawakening of joined bodies.
-
+    // TODO: do this only when necessary.
+/*
     if (body1) dBodyEnable(dJointGetBody(join, 0));
     if (body2) dBodyEnable(dJointGetBody(join, 1));
+*/
 }
 
-void ent::hinge::step_prep()
+void wrl::hinge::step_init()
 {
-    std::map<int, param *>::iterator i;
-
-    for (i = params.begin(); i != params.end(); ++i)
+    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
         dJointSetHingeParam(join, i->first, i->second->value());
 
-    joint::step_prep();
+    joint::step_init();
 }
 
-void ent::hinge2::step_prep()
+void wrl::hinge2::step_init()
 {
-    std::map<int, param *>::iterator i;
-
-    for (i = params.begin(); i != params.end(); ++i)
+    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
         dJointSetHinge2Param(join, i->first, i->second->value());
 
-    joint::step_prep();
+    joint::step_init();
 }
 
-void ent::slider::step_prep()
+void wrl::slider::step_init()
 {
-    std::map<int, param *>::iterator i;
-
-    for (i = params.begin(); i != params.end(); ++i)
+    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
         dJointSetSliderParam(join, i->first, i->second->value());
 
-    joint::step_prep();
+    joint::step_init();
 }
 
-void ent::amotor::step_prep()
+void wrl::amotor::step_init()
 {
-    std::map<int, param *>::iterator i;
-
-    for (i = params.begin(); i != params.end(); ++i)
+    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
         dJointSetAMotorParam(join, i->first, i->second->value());
 
-    joint::step_prep();
+    joint::step_init();
 }
 
-void ent::universal::step_prep()
+void wrl::universal::step_init()
 {
-    std::map<int, param *>::iterator i;
-
-    for (i = params.begin(); i != params.end(); ++i)
+    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
         dJointSetUniversalParam(join, i->first, i->second->value());
 
-    joint::step_prep();
+    joint::step_init();
 }
 
 //-----------------------------------------------------------------------------
 
-void ent::joint::draw_geom() const
+void wrl::joint::draw_line() const
 {
-    if (geom)
+    float r = float(dGeomSphereGetRadius(geom));
+
+    // Draw a wire sphere.
+
+    glPushMatrix();
     {
-        // Draw three rings.
+        mult_M();
 
-        glScalef(size, size, size);
+        glScalef(r, r, r);
 
-        if (wireframe)
-            wireframe->draw();
+        line->draw(DRAW_OPAQUE | DRAW_UNLIT);
     }
+    glPopMatrix();
 }
 
 //-----------------------------------------------------------------------------
 
-mxml_node_t *ent::ball::save(mxml_node_t *parent)
+mxml_node_t *wrl::ball::save(mxml_node_t *parent)
 {
     // Create a new ball element.
 
@@ -405,7 +406,7 @@ mxml_node_t *ent::ball::save(mxml_node_t *parent)
     return joint::save(node);
 }
 
-mxml_node_t *ent::hinge::save(mxml_node_t *parent)
+mxml_node_t *wrl::hinge::save(mxml_node_t *parent)
 {
     // Create a new hinge element.
 
@@ -415,7 +416,7 @@ mxml_node_t *ent::hinge::save(mxml_node_t *parent)
     return joint::save(node);
 }
 
-mxml_node_t *ent::hinge2::save(mxml_node_t *parent)
+mxml_node_t *wrl::hinge2::save(mxml_node_t *parent)
 {
     // Create a new hinge2 element.
 
@@ -425,7 +426,7 @@ mxml_node_t *ent::hinge2::save(mxml_node_t *parent)
     return joint::save(node);
 }
 
-mxml_node_t *ent::slider::save(mxml_node_t *parent)
+mxml_node_t *wrl::slider::save(mxml_node_t *parent)
 {
     // Create a new slider element.
 
@@ -435,7 +436,7 @@ mxml_node_t *ent::slider::save(mxml_node_t *parent)
     return joint::save(node);
 }
 
-mxml_node_t *ent::amotor::save(mxml_node_t *parent)
+mxml_node_t *wrl::amotor::save(mxml_node_t *parent)
 {
     // Create a new amotor element.
 
@@ -445,7 +446,7 @@ mxml_node_t *ent::amotor::save(mxml_node_t *parent)
     return joint::save(node);
 }
 
-mxml_node_t *ent::universal::save(mxml_node_t *parent)
+mxml_node_t *wrl::universal::save(mxml_node_t *parent)
 {
     // Create a new universal element.
 

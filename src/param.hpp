@@ -14,15 +14,14 @@
 #define PARAM_HPP
 
 #include <string>
+#include <map>
 
 #include <ode/ode.h>
 #include <mxml.h>
 
-#include "util.hpp"
-
 //-----------------------------------------------------------------------------
 
-namespace ent
+namespace wrl
 {
     class param
     {
@@ -60,6 +59,8 @@ namespace ent
         void load(mxml_node_t *);
         void save(mxml_node_t *);
     };
+
+    typedef std::map<int, param *> param_map;
 }
 
 //-----------------------------------------------------------------------------

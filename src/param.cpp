@@ -206,14 +206,14 @@ static const char *exE(double& k, const char *p)
 
 //=============================================================================
 
-ent::param::param(std::string name, std::string expr) :
+wrl::param::param(std::string name, std::string expr) :
     state(false), cache(0), name(name), expr(expr)
 {
 }
 
 //-----------------------------------------------------------------------------
 
-double ent::param::value()
+double wrl::param::value()
 {
     // If we have a chached value, return it.
 
@@ -240,7 +240,7 @@ double ent::param::value()
 
 //-----------------------------------------------------------------------------
 
-void ent::param::load(mxml_node_t *node)
+void wrl::param::load(mxml_node_t *node)
 {
     mxml_node_t *n;
 
@@ -252,7 +252,7 @@ void ent::param::load(mxml_node_t *node)
     }
 }
 
-void ent::param::save(mxml_node_t *node)
+void wrl::param::save(mxml_node_t *node)
 {
     mxml_node_t *n = mxmlNewElement(node, "param");
 

@@ -15,8 +15,9 @@
 #include "matrix.hpp"
 #include "opengl.hpp"
 #include "solid.hpp"
-#include "joint.hpp"
+//#include "joint.hpp"
 #include "edit.hpp"
+#include "conf.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -102,18 +103,13 @@ bool mode::edit::click(int b, bool d)
 {
     if (b == 1)
     {
-        dGeomID geom = world.get_focus();
-        wrl::atom *focus = geom ? (wrl::atom *) dGeomGetData(geom) : 0;
-        float      M[16];
-
         drag = false;
 
         if (d)
         {
             // If a selected entity is clicked, a drag may be beginning.
 
-//          if (world.selected(focus))
-//          if (world.selected())
+            if (world.check_selection())
             {
                 transform.click(point_p, point_v);
                 drag = true;
@@ -121,11 +117,15 @@ bool mode::edit::click(int b, bool d)
         }
         else
         {
-            if (focus)
+            if (dGeomID geom = world.get_focus())
             {
+                wrl::atom *focus = (wrl::atom *) dGeomGetData(geom);
+
                 if (SDL_GetModState() & KMOD_SHIFT)
                 {
                     // Shift-release resets the constraint transform.
+
+                    float M[16];
 
                     if (SDL_GetModState() & KMOD_CTRL)
                         focus->get_local(M);
@@ -196,6 +196,12 @@ bool mode::edit::keybd(int k, bool d, int c)
 }
 
 //-----------------------------------------------------------------------------
+
+bool mode::edit::timer(float dt)
+{
+    world.step(0);
+    return true;
+}
 
 void mode::edit::draw()
 {

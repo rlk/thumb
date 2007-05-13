@@ -22,7 +22,6 @@
 wrl::solid::solid(const ogl::surface *fill,
                   const ogl::surface *line) : atom(fill, line)
 {
-/*
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
     params[param::density]  = new param("density",  "1.0");
@@ -30,7 +29,6 @@ wrl::solid::solid(const ogl::surface *fill,
     params[param::bounce]   = new param("bounce",   "0.5");
     params[param::soft_erp] = new param("soft_erp", "0.2");
     params[param::soft_cfm] = new param("soft_cfm", "0.0");
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -38,37 +36,62 @@ wrl::solid::solid(const ogl::surface *fill,
 wrl::box::box(dSpaceID space, const ogl::surface *fill) :
     solid(fill, glob->load_surface("wire/wire_box.obj"))
 {
-    float bound[6];
-
-    fill->box_bound(bound);
-
-    geom = dCreateBox(space, bound[3] - bound[0],
-                             bound[4] - bound[1],
-                             bound[5] - bound[2]);
+    geom = dCreateBox(space, 1.0, 1.0, 1.0);
 
     dGeomSetData(geom, this);
     set_transform(current_M);
+
+    scale();
 }
 
 wrl::sphere::sphere(dSpaceID space, const ogl::surface *fill) : 
     solid(fill, glob->load_surface("wire/wire_sphere.obj"))
 {
-    float bound[1];
-
-    fill->sph_bound(bound);
-
-    geom = dCreateSphere(space, bound[0]);
+    geom = dCreateSphere(space, 1.0);
 
     dGeomSetData(geom, this);
     set_transform(current_M);
+
+    scale();
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::box::scale()
+{
+    // Apply the scale of the fill geometry to the geom.
+
+    if (geom && fill)
+    {
+        float bound[6];
+
+        fill->box_bound(bound);
+
+        dGeomBoxSetLengths(geom, bound[3] - bound[0],
+                                 bound[4] - bound[1],
+                                 bound[5] - bound[2]);
+    }
+}
+
+void wrl::sphere::scale()
+{
+    // Apply the scale of the fill geometry to the geom.
+
+    if (fill)
+    {
+        float bound[1];
+
+        fill->sph_bound(bound);
+
+        dGeomSphereSetRadius(geom, bound[0]);
+    }
 }
 
 //-----------------------------------------------------------------------------
 
 void wrl::box::play_init(dBodyID body)
 {
-//  dReal    d = (dReal) params[param::density]->value();
-    dReal    d = 1.0;
+    dReal    d = (dReal) params[param::density]->value();
     dVector3 v;
 
     // Compute the mass of this box.
@@ -81,8 +104,7 @@ void wrl::box::play_init(dBodyID body)
 
 void wrl::sphere::play_init(dBodyID body)
 {
-//  dReal d = (dReal) params[param::density]->value();
-    dReal d = 1.0;
+    dReal d = (dReal) params[param::density]->value();
     dReal r;
 
     // Compute the mass of this sphere.
@@ -155,8 +177,9 @@ void wrl::solid::load(mxml_node_t *node)
         std::string s = std::string(name->child->value.text.string);
 
         fill = glob->load_surface(s);
-    }
 
+        scale();
+    }
     atom::load(node);
 }
 

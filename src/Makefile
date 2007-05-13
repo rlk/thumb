@@ -17,6 +17,7 @@ OBJS=   opengl.o \
 	atom.o \
 	world.o \
 	solid.o \
+	joint.o \
 	operation.o \
 	constraint.o \
 	program.o \
@@ -43,7 +44,6 @@ OBJS=   opengl.o \
 	dir.o \
 	perf.o \
 	main.o
-#	joint.o \
 #	light.o \
 #	camera.o \
 #	earth.o \

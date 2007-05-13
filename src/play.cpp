@@ -36,11 +36,9 @@ void mode::play::leave()
 
 bool mode::play::timer(float dt)
 {
-//  world.step(dt);
+    world.step(dt);
     return true;
 }
-
-//-----------------------------------------------------------------------------
 
 void mode::play::draw()
 {

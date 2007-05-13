@@ -62,11 +62,15 @@ namespace wrl
         dSpaceID get_space() const { return scene; }
         dGeomID  get_focus() const { return focus; }
 
+        void set_param(int, std::string&);
+        int  get_param(int, std::string&);
+
         // Editing methods
 
         void click_selection(atom *);
         void clone_selection();
         void clear_selection();
+        bool check_selection();
 
         void invert_selection();
         void extend_selection();
@@ -83,6 +87,12 @@ namespace wrl
 
         void undo();
         void redo();
+
+        // File I/O.
+
+        void init();
+        void load(std::string);
+        void save(std::string, bool);
 
         // Rendering methods
 

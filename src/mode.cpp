@@ -33,7 +33,7 @@ bool mode::mode::keybd(int, bool, int)
 bool mode::mode::timer(float dt)
 {
     world.step(dt);
-    return true;
+    return false;
 }
 
 //-----------------------------------------------------------------------------

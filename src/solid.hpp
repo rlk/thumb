@@ -27,12 +27,13 @@ namespace wrl
 
         dMass mass;
 
+        virtual void scale() = 0;
+
     public:
 
         solid(const ogl::surface *,
               const ogl::surface *);
 
-//      virtual void play_init();
         virtual void step_post();
 
         virtual void         load(mxml_node_t *);
@@ -44,6 +45,10 @@ namespace wrl
 
     class box : public solid
     {
+    protected:
+
+        virtual void scale();
+
     public:
 
         box(dSpaceID, const ogl::surface *);
@@ -61,6 +66,10 @@ namespace wrl
 
     class sphere : public solid
     {
+    protected:
+
+        virtual void scale();
+
     public:
 
         sphere(dSpaceID, const ogl::surface *);

@@ -62,6 +62,7 @@ namespace mode
         virtual bool point(const float[3], const float[3], int, int);
         virtual bool click(int, bool);
         virtual bool keybd(int, bool, int);
+        virtual bool timer(float);
 
         virtual void draw();
     };

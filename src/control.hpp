@@ -198,7 +198,7 @@ namespace cnt
         init_button(wrl::world& w, gui::widget *s) :
             gui::button("New"), world(w), state(s) { }
 
-        void apply() { /*world.init();*/ state->show(); }
+        void apply() { world.init(); state->show(); }
     };
 
     class load_button : public gui::button
@@ -211,7 +211,7 @@ namespace cnt
         load_button(wrl::world& w, gui::widget *s, gui::widget *n) :
             gui::button("Load"), world(w), state(s), name(n) { }
 
-        void apply() { /*world.load(name->value());*/ state->show(); }
+        void apply() { world.load(name->value()); state->show(); }
     };
 
     class save_all_button : public gui::button
@@ -224,7 +224,7 @@ namespace cnt
         save_all_button(wrl::world& w, gui::widget *s, gui::widget *n) :
             gui::button("Save All"), world(w), state(s), name(n) { }
 
-        void apply() { /*world.save(name->value(), true);*/ state->show(); }
+        void apply() { world.save(name->value(), true); state->show(); }
     };
 
     class save_sel_button : public gui::button
@@ -237,7 +237,7 @@ namespace cnt
         save_sel_button(wrl::world& w, gui::widget *s, gui::widget *n) :
             gui::button("Save Selected"), world(w), state(s), name(n) { }
 
-        void apply() { /*world.save(name->value(), false);*/ state->show(); }
+        void apply() { world.save(name->value(), false); state->show(); }
     };
 
     //-------------------------------------------------------------------------

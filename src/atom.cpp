@@ -18,6 +18,44 @@
 
 //-----------------------------------------------------------------------------
 
+static dGeomID dupe_box(dGeomID box)
+{
+    dVector3 lengths;
+
+    dGeomBoxGetLengths(box, lengths);
+
+    // Duplicate the given box geom.
+
+    return dCreateBox(dGeomGetSpace(box), lengths[0],
+                                          lengths[1],
+                                          lengths[2]);
+}
+
+static dGeomID dupe_sphere(dGeomID sphere)
+{
+    // Duplicate the given sphere geom.
+
+    return dCreateSphere(dGeomGetSpace(sphere),
+                         dGeomSphereGetRadius(sphere));
+}
+
+static dGeomID dupe_geom(dGeomID geom)
+{
+    dGeomID next = 0;
+
+    // Duplicate the given geom.
+
+    switch (dGeomGetClass(geom))
+    {
+    case dBoxClass:    next = dupe_box   (geom); break;
+    case dSphereClass: next = dupe_sphere(geom); break;
+    }
+
+    return next;
+}
+
+//-----------------------------------------------------------------------------
+
 wrl::atom::atom(const ogl::surface *fill,
                 const ogl::surface *line) : geom(0), fill(fill), line(line)
 {
@@ -27,16 +65,30 @@ wrl::atom::atom(const ogl::surface *fill,
 
 wrl::atom::atom(const atom& that)
 {
+    param_map::const_iterator i;
+
     // Copy that atom.
 
     *this = that;
 
     // Duplicate ODE state.
 
+    geom = dupe_geom(that.geom);
+
+    dGeomSetData(geom, this);
+    set_transform(current_M);
+
     // Duplicate GL state.
 
     glob->dupe_surface(fill);
     glob->dupe_surface(line);
+
+    // Flush and clone each parameter separately.
+
+    params.clear();
+
+    for (i = that.params.begin(); i != that.params.end(); ++i)
+        params[i->first] = new param(*i->second);
 }
 
 wrl::atom::~atom()
@@ -177,6 +229,20 @@ void wrl::atom::get_default()
 void wrl::atom::get_surface(dSurfaceParameters& s)
 {
     // Merge this atom's surface parameters with the given structure.
+
+    param_map::iterator i;
+
+    if ((i = params.find(wrl::param::mu))       != params.end())
+        s.mu       = std::min(s.mu,       dReal(i->second->value()));
+
+    if ((i = params.find(wrl::param::bounce))   != params.end())
+        s.bounce   = std::max(s.bounce,   dReal(i->second->value()));
+
+    if ((i = params.find(wrl::param::soft_erp)) != params.end())
+        s.soft_erp = std::min(s.soft_erp, dReal(i->second->value()));
+
+    if ((i = params.find(wrl::param::soft_cfm)) != params.end())
+        s.soft_cfm = std::max(s.soft_cfm, dReal(i->second->value()));
 }
 
 //-----------------------------------------------------------------------------
@@ -217,6 +283,28 @@ void wrl::atom::get_local(float M[16]) const
     // Return the local-aligned coordinate system centered on this atom.
 
     load_mat(M, current_M);
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::atom::set_param(int key, std::string& expr)
+{
+    // Allow only valid parameters as initialized by the entity constructor.
+
+    if (params.find(key) != params.end())
+        params[key]->set(expr);
+}
+
+bool wrl::atom::get_param(int key, std::string& expr)
+{
+    // Return false to indicate an invalid parameter was requested.
+
+    if (params.find(key) != params.end())
+    {
+        params[key]->get(expr);
+        return true;
+    }
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -312,14 +400,14 @@ void wrl::atom::load(mxml_node_t *node)
     current_M[14] = p[2];
 
     set_default();
+    set_transform(current_M);
 
     // Initialize parameters.
-/*
-    std::map<int, param *>::iterator i;
+
+    param_map::iterator i;
 
     for (i = params.begin(); i != params.end(); ++i)
         i->second->load(node);
-*/
 }
 
 mxml_node_t *wrl::atom::save(mxml_node_t *node)
@@ -340,15 +428,12 @@ mxml_node_t *wrl::atom::save(mxml_node_t *node)
     mxmlNewReal(mxmlNewElement(node, "pos_z"), default_M[14]);
 
     // Add entity parameters to this element.
-/*
-    if (body1) mxmlNewInteger(mxmlNewElement(node, "body1"), body1);
-    if (body2) mxmlNewInteger(mxmlNewElement(node, "body2"), body2);
 
-    std::map<int, param *>::iterator i;
+    param_map::iterator i;
 
     for (i = params.begin(); i != params.end(); ++i)
         i->second->save(node);
-*/
+
     return node;
 }
 

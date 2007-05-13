@@ -18,19 +18,20 @@
 #include "solid.hpp"
 //#include "light.hpp"
 #include "glob.hpp"
+#include "conf.hpp"
 
 //-----------------------------------------------------------------------------
 
 void cnt::editor::apply()
 {
-//  scene.set_param(key, str);
+    world.set_param(key, str);
     is_changed = false;
 }
 
 void cnt::editor::show()
 {
-//    if ((count = scene.get_param(key, str)) == 0)
-//        str = "";
+    if ((count = world.get_param(key, str)) == 0)
+        str = "";
 
     update();
 
@@ -60,7 +61,7 @@ void cnt::bitmap::apply()
 
     std::string val = sout.str();
 
-//    scene.set_param(key, val);
+    world.set_param(key, val);
     is_changed = false;
 }
 
@@ -68,15 +69,14 @@ void cnt::bitmap::show()
 {
     std::string val;
 
-//  if ((count = scene.get_param(key, val)) == 0)
-    bits = 0;
-/*
+    if ((count = world.get_param(key, val)) == 0)
+        bits = 0;
     else
     {
         std::istringstream sin(val);
         sin >> bits;
     }
-*/
+
     if (count > 1)
     {
         color[0] = 0xFF;
@@ -110,32 +110,38 @@ void cnt::create_button::do_create(wrl::atom *atom)
 
 void cnt::new_ball_button::apply()
 {
-//    do_create(new wrl::ball());
+    do_create(new wrl::ball(world.get_world(),
+                            world.get_space()));
 }
 
 void cnt::new_hinge_button::apply()
 {
-//    do_create(new wrl::hinge());
+    do_create(new wrl::hinge(world.get_world(), 
+                             world.get_space()));
 }
 
 void cnt::new_hinge2_button::apply()
 {
-//    do_create(new wrl::hinge2());
+    do_create(new wrl::hinge2(world.get_world(), 
+                              world.get_space()));
 }
 
 void cnt::new_slider_button::apply()
 {
-//    do_create(new wrl::slider());
+    do_create(new wrl::slider(world.get_world(), 
+                              world.get_space()));
 }
 
 void cnt::new_amotor_button::apply()
 {
-//    do_create(new wrl::amotor());
+    do_create(new wrl::amotor(world.get_world(), 
+                              world.get_space()));
 }
 
 void cnt::new_universal_button::apply()
 {
-//    do_create(new wrl::universal());
+    do_create(new wrl::universal(world.get_world(), 
+                                 world.get_space()));
 }
 
 void cnt::new_box_button::apply()
@@ -201,8 +207,8 @@ cnt::solid_panel::solid_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new bitmap(W, ent::param::category))->
-                    add(new bitmap(W, ent::param::collide))->
+                    add(new bitmap(W, wrl::param::category))->
+                    add(new bitmap(W, wrl::param::collide))->
                     add(new gui::filler(false, false))))->
 
             add((new gui::hgroup)->
@@ -214,9 +220,9 @@ cnt::solid_panel::solid_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new editor(W, ent::param::density))->
-                    add(new editor(W, ent::param::bounce))->
-                    add(new editor(W, ent::param::mu)))->
+                    add(new editor(W, wrl::param::density))->
+                    add(new editor(W, wrl::param::bounce))->
+                    add(new editor(W, wrl::param::mu)))->
 
                 add((new gui::varray)->
 
@@ -226,8 +232,8 @@ cnt::solid_panel::solid_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 
                 add((new gui::varray)->
 
-                    add(new editor(W, ent::param::soft_erp))->
-                    add(new editor(W, ent::param::soft_cfm))->
+                    add(new editor(W, wrl::param::soft_erp))->
+                    add(new editor(W, wrl::param::soft_cfm))->
                     add(new editor(W, -1))))));
 }
 

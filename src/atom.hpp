@@ -19,6 +19,7 @@
 #include <mxml.h>
 
 #include "surface.hpp"
+#include "param.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -35,7 +36,7 @@ namespace wrl
         const ogl::surface *fill;
         const ogl::surface *line;
 
-//      std::map<int, param *> params;
+        param_map params;
 
         // Transform handlers
 
@@ -69,6 +70,11 @@ namespace wrl
 
         void get_world(float[16]) const;
         void get_local(float[16]) const;
+
+        // ODE physical parameter methods
+
+        void set_param(int, std::string&);
+        bool get_param(int, std::string&);
 
         // Physics methods
 

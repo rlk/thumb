@@ -13,7 +13,9 @@
 #include "matrix.hpp"
 #include "world.hpp"
 #include "solid.hpp"
+#include "joint.hpp"
 #include "glob.hpp"
+#include "data.hpp"
 #include "view.hpp"
 #include "main.hpp"
 
@@ -34,22 +36,6 @@ wrl::world::world()
 
     dWorldSetGravity(state, 0, -32, 0);
     dWorldSetAutoDisableFlag(state, 1);
-
-    // Initialize the scene.
-
-    float M[16];
-
-    atom *a1 = new box(scene, glob->load_surface("solid/metal_box.obj"));
-    atom *a2 = new box(scene, glob->load_surface("solid/metal_box.obj"));
-
-    load_xlt_mat(M, +1.5, 0.0, 0.0);
-    a1->mult_world(M);
-
-    load_xlt_mat(M, -1.5, 0.0, 0.0);
-    a2->mult_world(M);
-
-    all.insert(a1);
-    all.insert(a2);
 }
 
 wrl::world::~world()
@@ -187,13 +173,19 @@ void wrl::world::step(float dt)
 
     clr_trg();
 
-    // Evaluate the physical system. 
+    // Perform collision detection.
 
-    dSpaceCollide2  ((dGeomID) actor, (dGeomID) scene,
-                            this, (dNearCallback *) near_callback);
-    dSpaceCollide   (actor, this, (dNearCallback *) near_callback);
-    dWorldQuickStep (state, dt);
-    dJointGroupEmpty(joint);
+    dSpaceCollide2((dGeomID) actor, (dGeomID) scene,
+                          this, (dNearCallback *) near_callback);
+    dSpaceCollide (actor, this, (dNearCallback *) near_callback);
+
+    // Evaluate the physical system, if requested.
+
+    if (dt > 0.0f)
+    {
+        dWorldQuickStep (state, dt);
+        dJointGroupEmpty(joint);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -245,6 +237,27 @@ void wrl::world::redo()
 
 //-----------------------------------------------------------------------------
 
+void wrl::world::set_param(int k, std::string& expr)
+{
+    for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
+        (*i)->set_param(k, expr);
+}
+
+int wrl::world::get_param(int k, std::string& expr)
+{
+    std::set<std::string> values;
+
+    // Determine the number of distinct values among the selection's params.
+
+    for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
+        if ((*i)->get_param(k, expr))
+            values.insert(expr);
+
+    return int(values.size());
+}
+
+//-----------------------------------------------------------------------------
+
 void wrl::world::click_selection(atom *a)
 {
     if (sel.find(a) != sel.end())
@@ -255,11 +268,27 @@ void wrl::world::click_selection(atom *a)
 
 void wrl::world::clone_selection()
 {
+    atom_set clones;
+
+    // Remove all selected entities.
+
+    for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
+        clones.insert((*i)->clone());
+
+    // Select the clones and push an undo-able create operation for them.
+
+    sel = clones;
+    do_create();
 }
 
 void wrl::world::clear_selection()
 {
     sel.clear();
+}
+
+bool wrl::world::check_selection()
+{
+    return !sel.empty();
 }
 
 //-----------------------------------------------------------------------------
@@ -345,6 +374,198 @@ void wrl::world::do_modify(const float M[16])
     {
         doop(new ops::modify_op(sel, M));
     }
+}
+
+//-----------------------------------------------------------------------------
+
+static mxml_type_t load_cb(mxml_node_t *node)
+{
+    std::string name(node->value.element.name);
+
+    if (name == "param") return MXML_OPAQUE;
+
+    if (name == "world") return MXML_ELEMENT;
+    if (name == "joint") return MXML_ELEMENT;
+    if (name == "light") return MXML_ELEMENT;
+    if (name == "geom")  return MXML_ELEMENT;
+
+    if (name == "body1") return MXML_INTEGER;
+    if (name == "body2") return MXML_INTEGER;
+
+    if (name == "rot_x") return MXML_REAL;
+    if (name == "rot_y") return MXML_REAL;
+    if (name == "rot_z") return MXML_REAL;
+    if (name == "rot_w") return MXML_REAL;
+
+    if (name == "pos_x") return MXML_REAL;
+    if (name == "pos_y") return MXML_REAL;
+    if (name == "pos_z") return MXML_REAL;
+
+    return MXML_TEXT;
+}
+
+static const char *save_cb(mxml_node_t *node, int where)
+{
+    std::string name(node->value.element.name);
+
+    switch (where)
+    {
+    case MXML_WS_AFTER_OPEN:
+        if (name == "?xml")  return "\n";
+        if (name == "geom")  return "\n";
+        if (name == "joint") return "\n";
+        if (name == "world") return "\n";
+        if (name == "light") return "\n";
+        break;
+
+    case MXML_WS_BEFORE_OPEN:
+        if (name == "geom")  return "  ";
+        if (name == "joint") return "  ";
+        if (name == "light") return "  ";
+
+        if (name == "file")  return "    ";
+        if (name == "param") return "    ";
+        if (name == "body1") return "    ";
+        if (name == "body2") return "    ";
+
+        if (name == "rot_x") return "    ";
+        if (name == "rot_y") return "    ";
+        if (name == "rot_z") return "    ";
+        if (name == "rot_w") return "    ";
+
+        if (name == "pos_x") return "    ";
+        if (name == "pos_y") return "    ";
+        if (name == "pos_z") return "    ";
+        break;
+
+    case MXML_WS_BEFORE_CLOSE:
+        if (name == "geom")  return "  ";
+        if (name == "joint") return "  ";
+        if (name == "light") return "  ";
+        break;
+
+    case MXML_WS_AFTER_CLOSE:
+        return "\n";
+    }
+
+    return NULL;
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::world::init()
+{
+    sel = all;
+    do_delete();
+}
+
+void wrl::world::load(std::string name)
+{
+    // Clear the selection in preparation for selecting all loaded entities.
+
+    sel.clear();
+
+    // Load the named file.
+
+    if (const char *buff = (const char *) ::data->load(name))
+    {
+        mxml_node_t *n;
+        mxml_node_t *H = mxmlLoadString(0, buff, load_cb);
+        mxml_node_t *T = mxmlFindElement(H, H, "world", 0, 0,
+                                         MXML_DESCEND_FIRST);
+        wrl::atom *a;
+
+        // Find all geom elements.
+
+        for (n = mxmlFindElement(T, T, "geom", 0, 0, MXML_DESCEND_FIRST); n;
+             n = mxmlFindElement(n, T, "geom", 0, 0, MXML_NO_DESCEND))
+
+            if (mxmlElementGetAttr(n, "class"))
+            {
+                std::string type(mxmlElementGetAttr(n, "class"));
+
+                // Create a new solid for each recognized geom class.
+
+                if      (type == "box")
+                    a =  new wrl::box   (scene, 0);
+                else if (type == "sphere")
+                    a =  new wrl::sphere(scene, 0);
+                else continue;
+
+                // Allow the new solid to parse its own attributes.
+
+                a->load(n);
+
+                // Select the new solid for addition to the scene.
+
+                sel.insert(a);
+            }
+
+        // Find all joint elements.
+
+        for (n = mxmlFindElement(T, T, "joint", 0, 0, MXML_DESCEND_FIRST); n;
+             n = mxmlFindElement(n, T, "joint", 0, 0, MXML_NO_DESCEND))
+
+            if (mxmlElementGetAttr(n, "type"))
+            {
+                std::string type(mxmlElementGetAttr(n, "type"));
+
+                // Create a new joint for each recognized joint type.
+
+                if      (type == "ball")
+                    a = new  wrl::ball     (state, scene);
+                else if (type == "hinge")
+                    a = new  wrl::hinge    (state, scene);
+                else if (type == "hinge2")
+                    a = new  wrl::hinge2   (state, scene);
+                else if (type == "slider")
+                    a = new  wrl::slider   (state, scene);
+                else if (type == "amotor")
+                    a = new  wrl::amotor   (state, scene);
+                else if (type == "universal")
+                    a = new  wrl::universal(state, scene);
+                else continue;
+
+                // Allow the new joint to parse its own attributes.
+
+                a->load(n);
+
+                // Select the new joint for addition to the scene.
+
+                sel.insert(a);
+            }
+
+        // Add the selected elements to the scene.
+
+        do_create();
+
+        mxmlDelete(H);
+    }
+
+    ::data->free(name);
+}
+
+void wrl::world::save(std::string filename, bool save_all)
+{
+    mxml_node_t *head = mxmlNewElement(0, "?xml");
+    mxml_node_t *root = mxmlNewElement(head, "world");
+
+    mxmlElementSetAttr(head, "version", "1.0");
+    mxmlElementSetAttr(head, "?", 0);
+
+    if (save_all)
+        for (atom_set::const_iterator i = all.begin(); i != all.end(); ++i)
+            (*i)->save(root);
+    else
+        for (atom_set::const_iterator i = sel.begin(); i != sel.end(); ++i)
+            (*i)->save(root);
+
+    if (char *buff = mxmlSaveAllocString(head, save_cb))
+    {
+        ::data->save(filename, buff);
+        free(buff);
+    }
+    mxmlDelete(head);
 }
 
 //-----------------------------------------------------------------------------
