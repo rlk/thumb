@@ -338,7 +338,7 @@ void wrl::atom::draw_foci(dGeomID focus) const
         {
             // Highlight the join target of the focus in light magenta.
 
-            glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+            glColor4f(1.0f, 0.0f, 1.0f, 0.5f);
             glLineWidth(1.0f);
 
             draw_line();

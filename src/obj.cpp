@@ -806,8 +806,12 @@ void obj::obj::draw(int type) const
 
     // Render each surface
 
-    for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
-        i->draw(type);
+    glPushAttrib(GL_LIGHTING_BIT);
+    {
+        for (surf_c i = surfs.begin(); i != surfs.end(); ++i)
+            i->draw(type);
+    }
+    glPopAttrib();
 }
 
 //-----------------------------------------------------------------------------

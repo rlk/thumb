@@ -309,7 +309,6 @@ void wrl::world::extend_selection()
     for (atom_set::iterator j = all.begin(); j != all.end(); ++j)
     {
         if (ids.find((*j)->body()) != ids.end()) sel.insert(*j);
-        if (ids.find((*j)->join()) != ids.end()) sel.insert(*j);
     }
 }
 
@@ -580,6 +579,14 @@ void wrl::world::load(std::string name)
         // Add the selected elements to the scene.
 
         do_create();
+
+        // Ensure the body group serial number does not conflict.
+
+        for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+        {
+            serial = std::max(serial, (*i)->body() + 1);
+            serial = std::max(serial, (*i)->join() + 1);
+        }
 
         mxmlDelete(H);
     }
