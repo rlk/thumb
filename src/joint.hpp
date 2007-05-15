@@ -24,17 +24,23 @@ namespace wrl
     {
     protected:
 
-        dJointID join;
+        int join_id;
 
     public:
 
         joint(dSpaceID, const ogl::surface *,
                         const ogl::surface *);
 
+        virtual int join(int id) { return (join_id = id); }
+        virtual int join() const { return (join_id     ); }
+
         virtual void play_init(dBodyID);
         virtual void play_fini();
-        virtual void step_init();
+//      virtual void step_init();
         virtual void draw_line() const;
+
+        virtual void         load(mxml_node_t *);
+        virtual mxml_node_t *save(mxml_node_t *);
 
         virtual ~joint();
     };
@@ -46,7 +52,7 @@ namespace wrl
     {
     public:
 
-        ball(dWorldID, dSpaceID);
+        ball(dSpaceID);
 
         ball *clone() const { return new ball(*this); }
 
@@ -63,13 +69,13 @@ namespace wrl
     {
     public:
 
-        hinge(dWorldID, dSpaceID);
+        hinge(dSpaceID);
 
         hinge *clone() const { return new hinge(*this); }
 
 //      void play_init(dBodyID);
 //      void play_join(dBodyID);
-        void step_init();
+//      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -80,13 +86,13 @@ namespace wrl
     class hinge2 : public joint
     {
     public:
-        hinge2(dWorldID, dSpaceID);
+        hinge2(dSpaceID);
 
         hinge2 *clone() const { return new hinge2(*this); }
 
 //      void play_init(dBodyID);
 //      void play_join(dBodyID);
-        void step_init();
+//      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -97,13 +103,13 @@ namespace wrl
     class slider : public joint
     {
     public:
-        slider(dWorldID, dSpaceID);
+        slider(dSpaceID);
 
         slider *clone() const { return new slider(*this); }
 
 //      void play_init(dBodyID);
 //      void play_join(dBodyID);
-        void step_init();
+//      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -114,13 +120,13 @@ namespace wrl
     class amotor : public joint
     {
     public:
-        amotor(dWorldID, dSpaceID);
+        amotor(dSpaceID);
 
         amotor *clone() const { return new amotor(*this); }
 
 //      void play_init(dBodyID);
 //      void play_join(dBodyID);
-        void step_init();
+//      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -131,13 +137,13 @@ namespace wrl
     class universal : public joint
     {
     public:
-        universal(dWorldID, dSpaceID);
+        universal(dSpaceID);
 
         universal *clone() const { return new universal(*this); }
 
 //      void play_init(dBodyID);
 //      void play_join(dBodyID);
-        void step_init();
+//      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };

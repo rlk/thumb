@@ -110,38 +110,32 @@ void cnt::create_button::do_create(wrl::atom *atom)
 
 void cnt::new_ball_button::apply()
 {
-    do_create(new wrl::ball(world.get_world(),
-                            world.get_space()));
+    do_create(new wrl::ball(world.get_space()));
 }
 
 void cnt::new_hinge_button::apply()
 {
-    do_create(new wrl::hinge(world.get_world(), 
-                             world.get_space()));
+    do_create(new wrl::hinge(world.get_space()));
 }
 
 void cnt::new_hinge2_button::apply()
 {
-    do_create(new wrl::hinge2(world.get_world(), 
-                              world.get_space()));
+    do_create(new wrl::hinge2(world.get_space()));
 }
 
 void cnt::new_slider_button::apply()
 {
-    do_create(new wrl::slider(world.get_world(), 
-                              world.get_space()));
+    do_create(new wrl::slider(world.get_space()));
 }
 
 void cnt::new_amotor_button::apply()
 {
-    do_create(new wrl::amotor(world.get_world(), 
-                              world.get_space()));
+    do_create(new wrl::amotor(world.get_space()));
 }
 
 void cnt::new_universal_button::apply()
 {
-    do_create(new wrl::universal(world.get_world(), 
-                                 world.get_space()));
+    do_create(new wrl::universal(world.get_space()));
 }
 
 void cnt::new_box_button::apply()

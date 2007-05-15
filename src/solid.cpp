@@ -97,7 +97,7 @@ void wrl::box::play_init(dBodyID body)
     // Compute the mass of this box.
 
     dGeomBoxGetLengths(geom, v);
-    dMassSetBox(&mass, d, v[0], v[1], v[2]);
+//  dMassSetBox(&mass, d, v[0], v[1], v[2]);
 
 //  solid::play_init(body);
 }
@@ -110,7 +110,7 @@ void wrl::sphere::play_init(dBodyID body)
     // Compute the mass of this sphere.
 
     r = dGeomSphereGetRadius(geom);
-    dMassSetSphere(&mass, d, r);
+//  dMassSetSphere(&mass, d, r);
 
 //  solid::play_init(body);
 }

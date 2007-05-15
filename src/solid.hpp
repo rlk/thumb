@@ -25,8 +25,6 @@ namespace wrl
     {
     protected:
 
-        dMass mass;
-
         virtual void scale() = 0;
 
     public:

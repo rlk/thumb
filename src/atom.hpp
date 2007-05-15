@@ -14,6 +14,7 @@
 #define ATOM_HPP
 
 #include <set>
+#include <map>
 
 #include <ode/ode.h>
 #include <mxml.h>
@@ -27,11 +28,15 @@ namespace wrl
 {
     class world;
 
+    typedef std::map<int, dBody> body_map;
+
     class atom
     {
     protected:
 
         dGeomID geom;
+
+        int body_id;
 
         const ogl::surface *fill;
         const ogl::surface *line;
@@ -78,10 +83,15 @@ namespace wrl
 
         // Physics methods
 
-        virtual void play_init(dBodyID) { }
-        virtual void play_fini()        { }
-        virtual void step_init()        { }
-        virtual void step_fini()        { }
+        virtual int body(int id) { return (body_id = id); }
+        virtual int body() const { return (body_id     ); }
+        virtual int join(int id) { return (0); }
+        virtual int join() const { return (0); }
+
+        virtual void play_init(body_map&) { }
+        virtual void play_fini()          { }
+        virtual void step_init()          { }
+        virtual void step_fini()          { }
 
         // Rendering methods
 

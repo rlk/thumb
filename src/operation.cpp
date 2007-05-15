@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <iostream>
+
 #include "operation.hpp"
 #include "matrix.hpp"
 #include "world.hpp"
@@ -108,6 +110,99 @@ wrl::atom_set& ops::modify_op::undo(wrl::world *w)
 wrl::atom_set& ops::modify_op::redo(wrl::world *w)
 {
     w->modify_set(selection, T);
+    done = true;
+    return selection;
+}
+
+//-----------------------------------------------------------------------------
+
+ops::embody_op::embody_op(wrl::atom_set& S, int id) : operation(S), new_id(id)
+{
+    wrl::atom_set::iterator i;
+
+    // Store the previous body IDs of all selected atoms.
+
+    for (i = selection.begin(); i != selection.end(); ++i)
+        old_id[*i] = (*i)->body();
+}
+
+wrl::atom_set& ops::embody_op::undo(wrl::world *)
+{
+    wrl::atom_set::iterator i;
+
+    // Reassign the previous body ID to each selected atom.
+
+    for (i = selection.begin(); i != selection.end(); ++i)
+        (*i)->body(old_id[*i]);
+
+    done = false;
+    return selection;
+}
+
+wrl::atom_set& ops::embody_op::redo(wrl::world *)
+{
+    wrl::atom_set::iterator i;
+
+    // Assign the new body ID to each selected atom.
+
+    for (i = selection.begin(); i != selection.end(); ++i)
+        (*i)->body(new_id);
+
+    done = true;
+    return selection;
+}
+
+//-----------------------------------------------------------------------------
+
+ops::enjoin_op::enjoin_op(wrl::atom_set& S) : operation(S), one_id(0),two_id(0)
+{
+    wrl::atom_set::iterator i;
+
+    // Store the previous join IDs of all selected atoms.
+
+    for (i = selection.begin(); i != selection.end(); ++i)
+        old_id[*i] = (*i)->join();
+
+    // Scan the selection for potential joint targets.
+
+    std::set<int> ids;
+
+    for (i = selection.begin(); i != selection.end(); ++i)
+        ids.insert((*i)->body());
+
+    // Select an arbitrary two.
+
+    std::set<int>::reverse_iterator j = ids.rbegin();
+
+    if (j != ids.rend()) one_id = *(j--);
+    if (j != ids.rend()) two_id = *(j--);
+}
+
+wrl::atom_set& ops::enjoin_op::undo(wrl::world *)
+{
+    wrl::atom_set::iterator i;
+
+    // Reassign the previous join ID to each selected atom.
+
+    for (i = selection.begin(); i != selection.end(); ++i)
+        (*i)->join(old_id[*i]);
+
+    done = false;
+    return selection;
+}
+
+wrl::atom_set& ops::enjoin_op::redo(wrl::world *)
+{
+    wrl::atom_set::iterator i;
+
+    // Assign the new join ID to each selected atom.
+
+    for (i = selection.begin(); i != selection.end(); ++i)
+    {
+        if ((*i)->body() == one_id) (*i)->join(two_id);
+        if ((*i)->body() == two_id) (*i)->join(one_id);
+    }
+
     done = true;
     return selection;
 }

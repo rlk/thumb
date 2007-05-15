@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <iostream>
+
 #include "opengl.hpp"
 #include "joint.hpp"
 #include "glob.hpp"
@@ -18,25 +20,17 @@
 
 void wrl::joint::play_init(dBodyID)
 {
-/*
-    edit_fini();
-*/
 }
 
 void wrl::joint::play_fini()
 {
-/*
-    dJointDestroy(join);
-    join = 0;
-    edit_init();
-*/
 }
 
 //-----------------------------------------------------------------------------
 
 wrl::joint::joint(dSpaceID space, const ogl::surface *fill,
                                   const ogl::surface *line) :
-    atom(fill, line)
+    atom(fill, line), join_id(0)
 {
     geom = dCreateSphere(space, 0.25f);
 
@@ -46,24 +40,20 @@ wrl::joint::joint(dSpaceID space, const ogl::surface *fill,
 
 wrl::joint::~joint()
 {
-    dJointDestroy(join);
 }
 
 //-----------------------------------------------------------------------------
 
-wrl::ball::ball(dWorldID state, dSpaceID space) :
+wrl::ball::ball(dSpaceID space) :
     joint(space, glob->load_surface("joint/joint_ball.obj"),
                  glob->load_surface("wire/wire_sphere.obj"))
 {
-    join = dJointCreateBall(state, 0);
 }
 
-wrl::hinge::hinge(dWorldID state, dSpaceID space) :
+wrl::hinge::hinge(dSpaceID space) :
     joint(space, glob->load_surface("joint/joint_hinge.obj"),
                  glob->load_surface("wire/wire_sphere.obj"))
 {
-    join = dJointCreateHinge(state, 0);
-
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -74,12 +64,10 @@ wrl::hinge::hinge(dWorldID state, dSpaceID space) :
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-wrl::hinge2::hinge2(dWorldID state, dSpaceID space) :
+wrl::hinge2::hinge2(dSpaceID space) :
     joint(space, glob->load_surface("joint/joint_hinge2.obj"),
                  glob->load_surface("wire/wire_sphere.obj"))
 {
-    join = dJointCreateHinge2(state, 0);
-
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -102,12 +90,10 @@ wrl::hinge2::hinge2(dWorldID state, dSpaceID space) :
     params[dParamSuspensionCFM] = new param("dParamSuspensionCFM", "0.0");
 }
 
-wrl::slider::slider(dWorldID state, dSpaceID space) :
+wrl::slider::slider(dSpaceID space) :
     joint(space, glob->load_surface("joint/joint_slider.obj"),
                  glob->load_surface("wire/wire_sphere.obj"))
 {
-    join = dJointCreateSlider(state, 0);
-
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -118,12 +104,10 @@ wrl::slider::slider(dWorldID state, dSpaceID space) :
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-wrl::amotor::amotor(dWorldID state, dSpaceID space) :
+wrl::amotor::amotor(dSpaceID space) :
     joint(space, glob->load_surface("joint/joint_amotor.obj"),
                  glob->load_surface("wire/wire_sphere.obj"))
 {
-    join = dJointCreateAMotor(state, 0);
-
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -152,12 +136,10 @@ wrl::amotor::amotor(dWorldID state, dSpaceID space) :
     params[dParamStopCFM3] = new param("dParamStopCFM3", "0.0");
 }
 
-wrl::universal::universal(dWorldID state, dSpaceID space) :
+wrl::universal::universal(dSpaceID space) :
     joint(space, glob->load_surface("joint/joint_universal.obj"),
                  glob->load_surface("wire/wire_sphere.obj"))
 {
-    join = dJointCreateUniversal(state, 0);
-
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
     params[dParamCFM]      = new param("dParamCFM",      "0.0");
@@ -324,15 +306,14 @@ void wrl::universal::play_join(dBodyID body1)
 }
 */
 //-----------------------------------------------------------------------------
-
+/*
 void wrl::joint::step_init()
 {
     // Joint parameter change may require reawakening of joined bodies.
     // TODO: do this only when necessary.
-/*
+
     if (body1) dBodyEnable(dJointGetBody(join, 0));
     if (body2) dBodyEnable(dJointGetBody(join, 1));
-*/
 }
 
 void wrl::hinge::step_init()
@@ -374,7 +355,7 @@ void wrl::universal::step_init()
 
     joint::step_init();
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void wrl::joint::draw_line() const
@@ -395,6 +376,22 @@ void wrl::joint::draw_line() const
 }
 
 //-----------------------------------------------------------------------------
+
+void wrl::joint::load(mxml_node_t *node)
+{
+    mxml_node_t *join;
+
+    if ((join = mxmlFindElement(node, node, "join", 0, 0, MXML_DESCEND)))
+        join_id = join->child->value.integer;
+
+    atom::load(node);
+}
+
+mxml_node_t *wrl::joint::save(mxml_node_t *node)
+{
+    if (join_id) mxmlNewInteger(mxmlNewElement(node, "join"), join_id);
+    return atom::save(node);
+}
 
 mxml_node_t *wrl::ball::save(mxml_node_t *parent)
 {

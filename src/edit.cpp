@@ -167,11 +167,11 @@ bool mode::edit::keybd(int k, bool d, int c)
         else if (k == key_redo) world.redo();
 
         // Handle body and joint creation and destruction.
-/*
+
         else if (k == key_make_body)    world.do_embody();
         else if (k == key_make_nonbody) world.do_debody();
         else if (k == key_make_joint)   world.do_enjoin();
-*/
+
         // Handle constraint keys.
 
         else if ('0' <= k && k <= '9')   transform.set_grid(int(k - '0'));
@@ -199,7 +199,7 @@ bool mode::edit::keybd(int k, bool d, int c)
 
 bool mode::edit::timer(float dt)
 {
-    world.step(0);
+    world.edit_step(0);
     return true;
 }
 

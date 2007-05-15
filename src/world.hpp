@@ -24,21 +24,27 @@ namespace wrl
 {
     class world
     {
-        // ODE state
+        // ODE edit state
 
-        dWorldID      state;
-        dSpaceID      scene;
-        dSpaceID      actor;
-        dJointGroupID joint;
-        dGeomID       point;
-        dGeomID       focus;
+        dSpaceID      edit_space;
+        dGeomID       edit_point;
+        dGeomID       edit_focus;
 
         float focus_distance;
+
+        // ODE play state
+
+        dWorldID      play_world;
+        dSpaceID      play_scene;
+        dSpaceID      play_actor;
+        dJointGroupID play_joint;
 
         // World state
 
         atom_set all;
         atom_set sel;
+
+        int serial;
 
         ops::operation_l undo_list;
         ops::operation_l redo_list;
@@ -52,15 +58,16 @@ namespace wrl
 
         // Physics methods
 
-        void phys_pointer(dGeomID, dGeomID);
-        void phys_contact(dGeomID, dGeomID);
+        void edit_callback(dGeomID, dGeomID);
+        void play_callback(dGeomID, dGeomID);
 
         void pick(const float[3], const float[3]);
-        void step(float);
 
-        dWorldID get_world() const { return state; }
-        dSpaceID get_space() const { return scene; }
-        dGeomID  get_focus() const { return focus; }
+        void edit_step(float);
+        void play_step(float);
+
+        dSpaceID get_space() const { return edit_space; }
+        dGeomID  get_focus() const { return edit_focus; }
 
         void set_param(int, std::string&);
         int  get_param(int, std::string&);
@@ -83,6 +90,9 @@ namespace wrl
 
         void do_create();
         void do_delete();
+        void do_enjoin();
+        void do_embody();
+        void do_debody();
         void do_modify(const float[16]);
 
         void undo();

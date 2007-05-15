@@ -64,8 +64,7 @@ bool mode::info::keybd(int k, bool d, int c)
 
 bool mode::info::timer(float dt)
 {
-    world.step(0);
-    return true;
+    return false;
 }
 
 void mode::info::draw()

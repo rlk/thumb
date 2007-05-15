@@ -23,138 +23,114 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::world::world()
+wrl::world::world() : serial(1)
 {
-    // Initialize the physical system.
+    // Initialize the editor physical system.
 
-    state = dWorldCreate();
-    scene = dHashSpaceCreate(0);
-    actor = dHashSpaceCreate(0);
-    joint = dJointGroupCreate(0);
-    point = dCreateRay(actor, 100);
-    focus = 0;
-
-    dWorldSetGravity(state, 0, -32, 0);
-    dWorldSetAutoDisableFlag(state, 1);
+    edit_space = dHashSpaceCreate(0);
+    edit_point = dCreateRay(edit_space, 100);
+    edit_focus = 0;
 }
 
 wrl::world::~world()
 {
     // Finalize the scene.
 
-    atom_set::iterator i;
-
-    for (i = all.begin(); i != all.end(); ++i)
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
         delete (*i);
 
-    // Finalize the physical system.
+    // Finalize the editor physical system.
 
-    dJointGroupDestroy(joint);
-    dSpaceDestroy(actor);
-    dSpaceDestroy(scene);
-    dWorldDestroy(state);
+    dSpaceDestroy(edit_space);
 }
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::phys_pointer(dGeomID o1, dGeomID o2)
+void wrl::world::edit_callback(dGeomID o1, dGeomID o2)
 {
     dContact contact[MAX_CONTACTS];
     int sz = sizeof (dContact);
-    int i;
-    int n;
+
+    dGeomID O1 = (o1 == edit_point) ? o1 : o2;
+    dGeomID O2 = (o1 == edit_point) ? o2 : o1;
 
     // Note the nearest picking ray collision with a placeable geom.
 
-    if (dGeomGetClass(o2) != dPlaneClass)
+    if (dGeomGetClass(O2) != dPlaneClass)
     {
-        if ((n = dCollide(o1, o2, MAX_CONTACTS, &contact[0].geom, sz)))
+        if (int n = dCollide(O1, O2, MAX_CONTACTS, &contact[0].geom, sz))
         {
-            for (i = 0; i < n; ++i)
+            for (int i = 0; i < n; ++i)
             {
                 if (focus_distance > float(contact[i].geom.depth))
                 {
                     focus_distance = float(contact[i].geom.depth);
-                    focus = o2;
+                    edit_focus = O2;
                 }
             }
         }
     }
 }
 
-void wrl::world::phys_contact(dGeomID o1, dGeomID o2)
+void wrl::world::play_callback(dGeomID o1, dGeomID o2)
 {
-    // Check for a picking ray collision.
+    dBodyID b1 = dGeomGetBody(o1);
+    dBodyID b2 = dGeomGetBody(o2);
 
-    if      (o1 == point) phys_pointer(o1, o2);
-    else if (o2 == point) phys_pointer(o2, o1);
-    else
+    // Ignore collisions between geoms associated with the same body.
+
+    if (b1 != b2)
     {
-        dBodyID b1 = dGeomGetBody(o1);
-        dBodyID b2 = dGeomGetBody(o2);
+        dContact contact[MAX_CONTACTS];
+        int sz = sizeof (dContact);
 
-        // Ignore collisions between geoms associated with the same body.
-
-        if (b1 != b2)
-        {
-            dContact contact[MAX_CONTACTS];
-            int sz = sizeof (dContact);
-            int i;
-            int n;
-
-            // Check for collisions between these two geoms.
+        // Check for collisions between these two geoms.
             
-            if ((n = dCollide(o1, o2, MAX_CONTACTS, &contact[0].geom, sz)))
+        if (int n = dCollide(o1, o2, MAX_CONTACTS, &contact[0].geom, sz))
+        {
+            set_trg(dGeomGetCategoryBits(o1));
+            set_trg(dGeomGetCategoryBits(o2));
+
+            atom *a1 = (atom *) dGeomGetData(o1);
+            atom *a2 = (atom *) dGeomGetData(o2);
+
+            // Apply the solid surface parameters.
+
+            dSurfaceParameters surface;
+
+            surface.mode = dContactBounce
+                         | dContactSoftCFM
+                         | dContactSoftERP;
+
+            surface.mu         = dInfinity;
+            surface.bounce     = 0.0;
+            surface.bounce_vel = 0.1;
+            surface.soft_erp   = 1.0;
+            surface.soft_cfm   = 0.0;
+
+            a1->get_surface(surface);
+            a2->get_surface(surface);
+
+            // Create a contact joint for each collision.
+
+            for (int i = 0; i < n; ++i)
             {
-                // Extract the solid entities associated with each geom.
-
-                if (dGeomGetClass(o1) == dGeomTransformClass)
-                {
-                    set_trg(dGeomGetCategoryBits(o1));
-                    o1 = dGeomTransformGetGeom(o1);
-                }
-                if (dGeomGetClass(o2) == dGeomTransformClass)
-                {
-                    set_trg(dGeomGetCategoryBits(o2));
-                    o2 = dGeomTransformGetGeom(o2);
-                }
-
-                atom *a1 = (atom *) dGeomGetData(o1);
-                atom *a2 = (atom *) dGeomGetData(o2);
-
-                // Apply the solid surface parameters.
-
-                dSurfaceParameters surface;
-
-                surface.mode = dContactBounce
-                             | dContactSoftCFM
-                             | dContactSoftERP;
-
-                surface.mu         = dInfinity;
-                surface.bounce     = 0.0;
-                surface.bounce_vel = 0.1;
-                surface.soft_erp   = 1.0;
-                surface.soft_cfm   = 0.0;
-
-                a1->get_surface(surface);
-                a2->get_surface(surface);
-
-                // Create a contact joint for each collision.
-
-                for (i = 0; i < n; ++i)
-                {
-                    contact[i].surface = surface;
-                    dJointAttach(dJointCreateContact(state, joint,
-                                                     contact + i), b1, b2);
-                }
+                contact[i].surface = surface;
+                dJointAttach(dJointCreateContact(play_world, play_joint,
+                                                 contact + i), b1, b2);
             }
         }
     }
 }
 
-void near_callback(wrl::world *that, dGeomID o1, dGeomID o2)
+void edit_callback(wrl::world *that, dGeomID o1, dGeomID o2)
 {
-    that->phys_contact(o1, o2);
+    that->edit_callback(o1, o2);
+}
+
+void play_callback(wrl::world *that, dGeomID o1, dGeomID o2)
+{
+    that->play_callback(o1, o2);
 }
 
 //-----------------------------------------------------------------------------
@@ -163,29 +139,33 @@ void wrl::world::pick(const float p[3], const float v[3])
 {
     // Apply the pointer position and vector to the picking ray.
 
-    dGeomRaySet(point, p[0], p[1], p[2], v[0], v[1], v[2]);
+    dGeomRaySet(edit_point, p[0], p[1], p[2], v[0], v[1], v[2]);
 }
 
-void wrl::world::step(float dt)
+void wrl::world::edit_step(float dt)
 {
     focus_distance = 100;
-    focus          =   0;
+    edit_focus     =   0;
 
+    // Perform collision detection.
+
+    dSpaceCollide(edit_space, this, (dNearCallback *) ::edit_callback);
+}
+
+void wrl::world::play_step(float dt)
+{
     clr_trg();
 
     // Perform collision detection.
 
-    dSpaceCollide2((dGeomID) actor, (dGeomID) scene,
-                          this, (dNearCallback *) near_callback);
-    dSpaceCollide (actor, this, (dNearCallback *) near_callback);
+    dSpaceCollide2((dGeomID) play_actor, (dGeomID) play_scene,
+                              this, (dNearCallback *) ::play_callback);
+    dSpaceCollide(play_actor, this, (dNearCallback *) ::play_callback);
 
-    // Evaluate the physical system, if requested.
+    // Evaluate the physical system.
 
-    if (dt > 0.0f)
-    {
-        dWorldQuickStep (state, dt);
-        dJointGroupEmpty(joint);
-    }
+    dWorldQuickStep (play_world, dt);
+    dJointGroupEmpty(play_joint);
 }
 
 //-----------------------------------------------------------------------------
@@ -314,6 +294,23 @@ void wrl::world::invert_selection()
 
 void wrl::world::extend_selection()
 {
+    std::set<int> ids;
+
+    // Define a set of the body and join IDs of all selected entities.
+
+    for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
+    {
+        ids.insert((*i)->body());
+        ids.insert((*i)->join());
+    }
+
+    // Add all entities with an included body or join ID to the selection.
+
+    for (atom_set::iterator j = all.begin(); j != all.end(); ++j)
+    {
+        if (ids.find((*j)->body()) != ids.end()) sel.insert(*j);
+        if (ids.find((*j)->join()) != ids.end()) sel.insert(*j);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -353,27 +350,72 @@ void wrl::world::modify_set(atom_set& set, const float T[16])
 
 void wrl::world::do_create()
 {
-    if (!sel.empty())
+    // Ensure that the new entity body IDs do not conflict with existing ones.
+
+    std::set<int> A;
+    std::set<int> B;
+    std::set<int> C;
+
+    atom_set::iterator i;
+    atom_set::iterator j;
+
+    // Find all conflicting body IDs.
+
+    for (i = all.begin(); i != all.end(); ++i)
+        if ((*i)->body()) A.insert((*i)->body());
+
+    for (j = sel.begin(); j != sel.end(); ++j)
+        if ((*j)->body()) B.insert((*j)->body());
+
+    std::set_intersection(A.begin(), A.end(),
+                          B.begin(), B.end(), std::inserter(C, C.begin()));
+
+    // Generate a new body ID for each conflicting ID.
+
+    std::set<int>::iterator k;
+    std::map<int, int>      M;
+
+    for (k = C.begin(); k != C.end(); ++k)
+        if (*k) M[*k] = serial++;
+
+    // Remap conflicting IDs.
+
+    for (j = sel.begin(); j != sel.end(); ++j)
     {
-        doop(new ops::create_op(sel));
+        if (M[(*j)->body()]) (*j)->body(M[(*j)->body()]);
+        if (M[(*j)->join()]) (*j)->join(M[(*j)->join()]);
     }
+
+    // (This will have nullified all broken joint target IDs.)
+
+    if (!sel.empty()) doop(new ops::create_op(sel));
 }
 
 void wrl::world::do_delete()
 {
-    if (!sel.empty())
-    {
-        doop(new ops::delete_op(sel));
-        sel.clear();
-    }
+    if (!sel.empty()) doop(new ops::delete_op(sel));
+
+    sel.clear();
+}
+
+void wrl::world::do_enjoin()
+{
+    if (!sel.empty()) doop(new ops::enjoin_op(sel));
+}
+
+void wrl::world::do_embody()
+{
+    if (!sel.empty()) doop(new ops::embody_op(sel, serial++));
+}
+
+void wrl::world::do_debody()
+{
+    if (!sel.empty()) doop(new ops::embody_op(sel, 0));
 }
 
 void wrl::world::do_modify(const float M[16])
 {
-    if (!sel.empty())
-    {
-        doop(new ops::modify_op(sel, M));
-    }
+    if (!sel.empty()) doop(new ops::modify_op(sel, M));
 }
 
 //-----------------------------------------------------------------------------
@@ -389,8 +431,8 @@ static mxml_type_t load_cb(mxml_node_t *node)
     if (name == "light") return MXML_ELEMENT;
     if (name == "geom")  return MXML_ELEMENT;
 
-    if (name == "body1") return MXML_INTEGER;
-    if (name == "body2") return MXML_INTEGER;
+    if (name == "body")  return MXML_INTEGER;
+    if (name == "join")  return MXML_INTEGER;
 
     if (name == "rot_x") return MXML_REAL;
     if (name == "rot_y") return MXML_REAL;
@@ -425,8 +467,8 @@ static const char *save_cb(mxml_node_t *node, int where)
 
         if (name == "file")  return "    ";
         if (name == "param") return "    ";
-        if (name == "body1") return "    ";
-        if (name == "body2") return "    ";
+        if (name == "body")  return "    ";
+        if (name == "join")  return "    ";
 
         if (name == "rot_x") return "    ";
         if (name == "rot_y") return "    ";
@@ -487,16 +529,16 @@ void wrl::world::load(std::string name)
                 // Create a new solid for each recognized geom class.
 
                 if      (type == "box")
-                    a =  new wrl::box   (scene, 0);
+                    a =  new wrl::box   (edit_space, 0);
                 else if (type == "sphere")
-                    a =  new wrl::sphere(scene, 0);
+                    a =  new wrl::sphere(edit_space, 0);
                 else continue;
 
                 // Allow the new solid to parse its own attributes.
 
                 a->load(n);
 
-                // Select the new solid for addition to the scene.
+                // Select the new solid for addition to the world.
 
                 sel.insert(a);
             }
@@ -513,24 +555,24 @@ void wrl::world::load(std::string name)
                 // Create a new joint for each recognized joint type.
 
                 if      (type == "ball")
-                    a = new  wrl::ball     (state, scene);
+                    a = new  wrl::ball     (edit_space);
                 else if (type == "hinge")
-                    a = new  wrl::hinge    (state, scene);
+                    a = new  wrl::hinge    (edit_space);
                 else if (type == "hinge2")
-                    a = new  wrl::hinge2   (state, scene);
+                    a = new  wrl::hinge2   (edit_space);
                 else if (type == "slider")
-                    a = new  wrl::slider   (state, scene);
+                    a = new  wrl::slider   (edit_space);
                 else if (type == "amotor")
-                    a = new  wrl::amotor   (state, scene);
+                    a = new  wrl::amotor   (edit_space);
                 else if (type == "universal")
-                    a = new  wrl::universal(state, scene);
+                    a = new  wrl::universal(edit_space);
                 else continue;
 
                 // Allow the new joint to parse its own attributes.
 
                 a->load(n);
 
-                // Select the new joint for addition to the scene.
+                // Select the new joint for addition to the world.
 
                 sel.insert(a);
             }
@@ -615,7 +657,7 @@ void wrl::world::draw_gizmo() const
     line_init();
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
-        (*i)->draw_foci(focus);
+        (*i)->draw_foci(edit_focus);
     for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
         (*i)->draw_stat();
 

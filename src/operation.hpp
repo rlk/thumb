@@ -89,6 +89,39 @@ namespace ops
         wrl::atom_set& undo(wrl::world *);
         wrl::atom_set& redo(wrl::world *);
     };
+
+    //-------------------------------------------------------------------------
+    // Body creation operation.
+
+    class embody_op : public operation
+    {
+        std::map<wrl::atom *, int> old_id;
+        int                        new_id;
+
+    public:
+
+        embody_op(wrl::atom_set&, int);
+
+        wrl::atom_set& undo(wrl::world *);
+        wrl::atom_set& redo(wrl::world *);
+    };
+
+    //-------------------------------------------------------------------------
+    // Joint attachment operation.
+
+    class enjoin_op : public operation
+    {
+        std::map<wrl::atom *, int> old_id;
+        int                        one_id;
+        int                        two_id;
+
+    public:
+
+        enjoin_op(wrl::atom_set&);
+
+        wrl::atom_set& undo(wrl::world *);
+        wrl::atom_set& redo(wrl::world *);
+    };
 }
 
 //-----------------------------------------------------------------------------

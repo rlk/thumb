@@ -57,7 +57,8 @@ static dGeomID dupe_geom(dGeomID geom)
 //-----------------------------------------------------------------------------
 
 wrl::atom::atom(const ogl::surface *fill,
-                const ogl::surface *line) : geom(0), fill(fill), line(line)
+                const ogl::surface *line) :
+    geom(0), body_id(0), fill(fill), line(line)
 {
     load_idt(default_M);
     load_idt(current_M);
@@ -311,15 +312,37 @@ bool wrl::atom::get_param(int key, std::string& expr)
 
 void wrl::atom::draw_foci(dGeomID focus) const
 {
-    // Hilite the focused atom in heavy yellow.
-
-    if (geom == focus)
+    if (focus)
     {
-        glColor3f(1.0f, 1.0f, 0.0f);
+        const atom *a = (const atom *) dGeomGetData(focus);
 
-        glLineWidth(3.0f);
+        if (a == this)
+        {
+            // Hilite the focused atom in heavy yellow.
 
-        draw_line();
+            glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+            glLineWidth(3.0f);
+
+            draw_line();
+        }
+        else if (a->body() && a->body() == body())
+        {
+            // Highlight the body of the focus in light yellow.
+
+            glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+            glLineWidth(1.0f);
+
+            draw_line();
+        }
+        else if (a->join() && a->join() == body())
+        {
+            // Highlight the join target of the focus in light magenta.
+
+            glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+            glLineWidth(1.0f);
+
+            draw_line();
+        }
     }
 }
 
@@ -327,10 +350,10 @@ void wrl::atom::draw_stat() const
 {
     // Hilite dynamic atoms in green and static atoms in red.
 
-    if (dGeomGetBody(geom))
-        glColor3f(0.0f, 1.0f, 0.0f);
+    if (body_id)
+        glColor4f(0.0f, 1.0f, 0.0f, 0.5f);
     else
-        glColor3f(1.0f, 0.0f, 0.0f);
+        glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
 
     glLineWidth(1.0f);
 
@@ -391,6 +414,8 @@ void wrl::atom::load(mxml_node_t *node)
         else if (name == "pos_x") p[0] = float(n->child->value.real);
         else if (name == "pos_y") p[1] = float(n->child->value.real);
         else if (name == "pos_z") p[2] = float(n->child->value.real);
+
+        else if (name == "body") body_id = n->child->value.integer;
     }
 
     set_quaternion(current_M, q);
@@ -428,6 +453,8 @@ mxml_node_t *wrl::atom::save(mxml_node_t *node)
     mxmlNewReal(mxmlNewElement(node, "pos_z"), default_M[14]);
 
     // Add entity parameters to this element.
+
+    if (body_id) mxmlNewInteger(mxmlNewElement(node, "body"), body_id);
 
     param_map::iterator i;
 

@@ -1,7 +1,137 @@
+
+It is extremely complicated to explicitly represent the body relation during editing.  It may make more sense to simply batch everything as static during editing and eat the cost with each edit.  Rebatch at play_init.
+
+Perhaps maintain separate spaces (or even worlds) for edit and play.  The pointer only works on the edit space.  All edit geoms always exist in edit space, but are not collided during play.  Geoms, bodies, and joints are created and destroyed in play_init and play_fini.  This would have the added effect of helping assure reproducibility.
+
+Even if the body serial number system is retained, it would still make sense to restructure the XML DOM to represent bodies explicitly.  This would remove the need to resolve serial number conflicts on loading.
+
 -------------------------------------------------------------------------------
 
+body
+    store the body of all atoms
+    generate a new body id
 
+    enumerate all atoms
+       atom.body = body
 
+join
+
+    store the join of all atoms
+
+    enumerate all atoms
+        note 2 bodies
+    enumerate all atoms
+        if atom.body = body1
+           atom.join = body2
+        if atom.body = body2
+           atom.join = body1
+
+-------------------------------------------------------------------------------
+
+Explicitly represent the static scene as a unit
+The static scene is distinct from NO unit
+    for atoms held in operations
+
+unit_update
+    iterate atoms and compute center of mass
+    compute transform for center of mass change
+    apply transform to unit
+    iterate atoms and apply transform inverse
+    reinitialize the VBO
+    iterate atoms and copy to VBO
+
+add_atom_to_unit
+    mark atom->unit for update
+    apply atom->unit's transform
+    atom->unit   = unit
+    unit->atoms += atom
+    apply atom->unit's transform in inverse
+    mark atom->unit for update
+
+move_atom
+    apply atom->unit's transform
+    apply move
+    apply atom->unit's transform inverse
+    mark atom->unit for update
+
+-------------------------------------------------------------------------------
+
+moving
+    store the selection set and transform in the operation
+    redo
+        for each selected atom
+            move_atom
+        for each dirty unit
+            unit_update
+    undo
+        same as redo with an inverted transform
+
+NOTE: changing an atom's density parameter will also move the unit's center of mass.
+
+creating
+    store the selection set in the operation
+    redo
+        for each selected atom
+            add_atom_to_unit(global)
+        for each dirty unit
+            unit_update
+    undo
+        for each selected atom
+            add_atom_to_unit(null)
+        for each dirty unit
+            unit_update
+
+deleting
+    store the selection set in the operation
+    store the current unit of each atom in the set
+    redo
+        for each selected atom
+            add_atom_to_unit(null)
+        for each dirty unit
+            if unit is empty
+                add unit to operation's dead unit set
+            else
+                unit_update
+    undo
+        for each selected atom
+            if previous binding is empty
+                add unit to active unit set
+            add_atom_to_unit(previous binding)
+        for each dirty unit
+            unit_update
+
+embodying
+    create a new unit and store it in the operation
+    store the selection set in the operation
+    store the current unit of each atom in the set
+    redo
+        for each selected atom
+           add_atom_to_unit
+        for each dirty unit
+            if unit is empty
+                add unit to operation's dead unit set
+            else
+                unit_update
+    undo
+        for each selected atom
+            if previous binding is empty
+                add unit to active unit set
+            add_atom_to_unit(previous binding)
+        for each dirty unit
+            unit_update
+
+debodying is merely embodying using the static unit
+
+enjoining
+    iterate the selected atoms, noting two units
+    store the current body assignments of the joint
+    redo
+        assign the two bodies to the joint
+    undo
+        assign the previous bodies to the joint
+
+    (what if the bodies assigned to a joint are deleted?)
+        Check if unit is active at joint play_init, null body if not
 
 -------------------------------------------------------------------------------
 
