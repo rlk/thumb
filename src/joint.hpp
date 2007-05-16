@@ -34,8 +34,6 @@ namespace wrl
         virtual int join(int id) { return (join_id = id); }
         virtual int join() const { return (join_id     ); }
 
-        virtual void play_init(dBodyID);
-        virtual void play_fini();
 //      virtual void step_init();
         virtual void draw_line() const;
 
@@ -56,9 +54,6 @@ namespace wrl
 
         ball *clone() const { return new ball(*this); }
 
-//      void play_init(dBodyID);
-//      void play_join(dBodyID);
-
         mxml_node_t *save(mxml_node_t *);
     };
 
@@ -73,8 +68,6 @@ namespace wrl
 
         hinge *clone() const { return new hinge(*this); }
 
-//      void play_init(dBodyID);
-//      void play_join(dBodyID);
 //      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -90,8 +83,6 @@ namespace wrl
 
         hinge2 *clone() const { return new hinge2(*this); }
 
-//      void play_init(dBodyID);
-//      void play_join(dBodyID);
 //      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -107,8 +98,6 @@ namespace wrl
 
         slider *clone() const { return new slider(*this); }
 
-//      void play_init(dBodyID);
-//      void play_join(dBodyID);
 //      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -124,8 +113,6 @@ namespace wrl
 
         amotor *clone() const { return new amotor(*this); }
 
-//      void play_init(dBodyID);
-//      void play_join(dBodyID);
 //      void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -141,8 +128,6 @@ namespace wrl
 
         universal *clone() const { return new universal(*this); }
 
-//      void play_init(dBodyID);
-//      void play_join(dBodyID);
 //      void step_init();
 
         mxml_node_t *save(mxml_node_t *);

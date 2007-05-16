@@ -66,9 +66,9 @@ namespace wrl
 
         // Transform methods
 
+        void get_surface(dSurfaceParameters&);
         void set_default();
         void get_default();
-        void get_surface(dSurfaceParameters&);
 
         void mult_world(const float[16]);
         void mult_local(const float[16]);
@@ -76,28 +76,33 @@ namespace wrl
         void get_world(float[16]) const;
         void get_local(float[16]) const;
 
-        // ODE physical parameter methods
+        // Physics parameter accessors
 
         void set_param(int, std::string&);
         bool get_param(int, std::string&);
 
-        // Physics methods
+        // Body and joint bindings
 
-        virtual int body(int id) { return (body_id = id); }
-        virtual int body() const { return (body_id     ); }
-        virtual int join(int id) { return (0); }
-        virtual int join() const { return (0); }
+        virtual int body(int id) { return body_id = id; }
+        virtual int body() const { return body_id;      }
+        virtual int join(int id) { return 0;            }
+        virtual int join() const { return 0;            }
 
-        virtual void play_init(body_map&) { }
-        virtual void play_fini()          { }
-        virtual void step_init()          { }
-        virtual void step_fini()          { }
+        // Physics initialization methods
+
+        virtual void     get_mass(dMass *m) { dMassSetZero(m); }
+        virtual dGeomID  get_geom(dSpaceID) { return 0;        }
+        virtual dJointID get_join(dWorldID) { return 0;        }
+
+        // Physics update methods
+
+        virtual void step_init() { }
+        virtual void step_fini() { }
 
         // Rendering methods
 
         virtual void draw_foci(dGeomID) const;
         virtual void draw_stat()        const;
-
         virtual void draw_line()        const;
         virtual void draw_fill()        const;
 

@@ -7,24 +7,32 @@ Even if the body serial number system is retained, it would still make sense to 
 
 -------------------------------------------------------------------------------
 
-body
-    store the body of all atoms
-    generate a new body id
+play_init
+    generate the set of active body ids
 
-    enumerate all atoms
-       atom.body = body
+    create a world
+    create a body for each id
+    create a geom for each atom
 
-join
+    for each body
+        attach a geom for each atom
+        sum the masses of all geoms
+        recenter on the center of mass
 
-    store the join of all atoms
+    for each joint
+        attach bodies
 
-    enumerate all atoms
-        note 2 bodies
-    enumerate all atoms
-        if atom.body = body1
-           atom.join = body2
-        if atom.body = body2
-           atom.join = body1
+step_init
+    for each joint
+        set any parameters that changed
+
+step_fini
+    for each active body
+        for each atom
+            update the position and orientation
+
+play_fini
+    destroy everything
 
 -------------------------------------------------------------------------------
 
