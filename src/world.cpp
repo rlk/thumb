@@ -135,7 +135,109 @@ void play_callback(wrl::world *that, dGeomID o1, dGeomID o2)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::pick(const float p[3], const float v[3])
+void wrl::world::play_init()
+{
+    std::map<int, dBodyID>           B;
+    std::map<int, dBodyID>::iterator b;
+
+    int id;
+
+    // Create the world, collision spaces, and joint group.
+
+    play_world = dWorldCreate();
+    play_scene = dHashSpaceCreate(0);
+    play_actor = dHashSpaceCreate(0);
+    play_joint = dJointGroupCreate(0);
+
+    dWorldSetGravity(play_world, 0, -32, 0);
+    dWorldSetAutoDisableFlag(play_world, 1);
+
+    // Create a body for each active entity group.
+
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+        if ((id = (*i)->body()))
+        {
+            if (B[id] == 0)
+            {
+                B[id] = dBodyCreate(play_world);
+
+                dMass mass;
+                dMassSetZero(&mass);
+                dBodySetMass(B[id], &mass);
+            }
+        }
+
+    // Create geoms for all colliding atoms.
+
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+    {
+        dBodyID body = B[(*i)->body()];
+        dGeomID geom;
+
+        // Add the geom to the correct space.
+
+        if (body)
+            geom = (*i)->get_geom(play_actor);
+        else
+            geom = (*i)->get_geom(play_scene);
+
+        // Attach the geom to its body.
+
+        if (geom) dGeomSetBody(geom, body);
+
+        // Accumulate the body mass.
+
+        if (body)
+        {
+            dMass total;
+            dMass local;
+
+            (*i)->get_mass(&local);
+        
+            dBodyGetMass(body, &total);
+            dMassAdd(&total, &local);
+            dBodySetMass(body, &total);
+        }
+    }
+
+    // Center each body on its center of mass.
+
+    for (b = B.begin(); b != B.end(); ++b)
+        if (dBodyID body = b->second)
+        {
+            dMass mass;
+
+            dBodyGetMass(body, &mass);
+
+            dBodySetPosition(body, +mass.c[0], +mass.c[1], +mass.c[2]);
+            dMassTranslate (&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
+
+            dBodySetMass(body, &mass);
+        }
+
+    // Do atom-specific physics initialization.
+
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+        (*i)->play_init();
+}
+
+void wrl::world::play_fini()
+{
+    atom_set::iterator i;
+
+    // Do atom-specific physics finalization.
+
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+        (*i)->play_fini();
+
+    dSpaceDestroy(play_actor);
+    dSpaceDestroy(play_scene);
+    dWorldDestroy(play_world);
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::world::edit_pick(const float p[3], const float v[3])
 {
     // Apply the pointer position and vector to the picking ray.
 
@@ -154,9 +256,16 @@ void wrl::world::edit_step(float dt)
 
 void wrl::world::play_step(float dt)
 {
-    clr_trg();
+    atom_set::iterator i;
+
+    // Do atom-specific physics step initialization.
+
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+        (*i)->step_init();
 
     // Perform collision detection.
+
+    clr_trg();
 
     dSpaceCollide2((dGeomID) play_actor, (dGeomID) play_scene,
                               this, (dNearCallback *) ::play_callback);
@@ -166,6 +275,11 @@ void wrl::world::play_step(float dt)
 
     dWorldQuickStep (play_world, dt);
     dJointGroupEmpty(play_joint);
+
+    // Do atom-specific physics step finalization.
+
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+        (*i)->step_fini();
 }
 
 //-----------------------------------------------------------------------------
@@ -319,9 +433,7 @@ void wrl::world::create_set(atom_set& set)
     // Add all given atoms to the atom set.
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
-    {
         all.insert(*i);
-    }
 }
 
 void wrl::world::delete_set(atom_set& set)
@@ -329,9 +441,7 @@ void wrl::world::delete_set(atom_set& set)
     // Remove all given atoms from the atom set.
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
-    {
         all.erase(all.find(*i));
-    }
 }
 
 void wrl::world::modify_set(atom_set& set, const float T[16])
@@ -339,10 +449,7 @@ void wrl::world::modify_set(atom_set& set, const float T[16])
     // Apply the given transform to all given atoms.
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
-    {
-        (*i)->mult_world(T);
-        (*i)->set_default();
-    }
+        (*i)->transform(T);
 }
 
 //-----------------------------------------------------------------------------

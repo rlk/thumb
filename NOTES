@@ -7,6 +7,8 @@ Even if the body serial number system is retained, it would still make sense to 
 
 -------------------------------------------------------------------------------
 
+RTTI on?
+
 play_init
     generate the set of active body ids
 
@@ -17,7 +19,9 @@ play_init
     for each body
         attach a geom for each atom
         sum the masses of all geoms
-        recenter on the center of mass
+        recenter on the mass
+        move the body to the center of mass
+        set the geom offsets
 
     for each joint
         attach bodies

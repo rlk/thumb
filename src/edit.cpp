@@ -66,7 +66,7 @@ bool mode::edit::point(const float p[3], const float v[3], int, int)
 {
     float M[16];
 
-    world.pick(p, v);
+    world.edit_pick(p, v);
 
     point_p[0] = p[0];
     point_p[1] = p[1];

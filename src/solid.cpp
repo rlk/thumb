@@ -12,6 +12,7 @@
 
 #include <ode/ode.h>
 
+#include "odeutil.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
 #include "solid.hpp"
@@ -36,10 +37,9 @@ wrl::solid::solid(const ogl::surface *fill,
 wrl::box::box(dSpaceID space, const ogl::surface *fill) :
     solid(fill, glob->load_surface("wire/wire_box.obj"))
 {
-    geom = dCreateBox(space, 1.0, 1.0, 1.0);
+    edit_geom = dCreateBox(space, 1.0, 1.0, 1.0);
 
-    dGeomSetData(geom, this);
-    set_transform(current_M);
+    dGeomSetData(edit_geom, this);
 
     scale();
 }
@@ -47,10 +47,9 @@ wrl::box::box(dSpaceID space, const ogl::surface *fill) :
 wrl::sphere::sphere(dSpaceID space, const ogl::surface *fill) : 
     solid(fill, glob->load_surface("wire/wire_sphere.obj"))
 {
-    geom = dCreateSphere(space, 1.0);
+    edit_geom = dCreateSphere(space, 1.0);
 
-    dGeomSetData(geom, this);
-    set_transform(current_M);
+    dGeomSetData(edit_geom, this);
 
     scale();
 }
@@ -61,15 +60,15 @@ void wrl::box::scale()
 {
     // Apply the scale of the fill geometry to the geom.
 
-    if (geom && fill)
+    if (edit_geom && fill)
     {
         float bound[6];
 
         fill->box_bound(bound);
 
-        dGeomBoxSetLengths(geom, bound[3] - bound[0],
-                                 bound[4] - bound[1],
-                                 bound[5] - bound[2]);
+        dGeomBoxSetLengths(edit_geom, bound[3] - bound[0],
+                                      bound[4] - bound[1],
+                                      bound[5] - bound[2]);
     }
 }
 
@@ -77,51 +76,56 @@ void wrl::sphere::scale()
 {
     // Apply the scale of the fill geometry to the geom.
 
-    if (fill)
+    if (edit_geom && fill)
     {
         float bound[1];
 
         fill->sph_bound(bound);
 
-        dGeomSphereSetRadius(geom, bound[0]);
+        dGeomSphereSetRadius(edit_geom, bound[0]);
     }
 }
 
 //-----------------------------------------------------------------------------
 
-void wrl::box::play_init(dBodyID body)
+void wrl::box::get_mass(dMass *mass)
 {
     dReal    d = (dReal) params[param::density]->value();
     dVector3 v;
 
-    // Compute the mass of this box.
+    // Compute and position the mass of this box.
 
-    dGeomBoxGetLengths(geom, v);
-//  dMassSetBox(&mass, d, v[0], v[1], v[2]);
+    dGeomBoxGetLengths(edit_geom, v);
+    dMassSetBox(mass, d, v[0], v[1], v[2]);
 
-//  solid::play_init(body);
+    ode_set_mass_transform(mass, current_M);
 }
 
-void wrl::sphere::play_init(dBodyID body)
+void wrl::sphere::get_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
     dReal r;
 
-    // Compute the mass of this sphere.
+    // Compute and position the mass of this sphere.
 
-    r = dGeomSphereGetRadius(geom);
-//  dMassSetSphere(&mass, d, r);
+    r = dGeomSphereGetRadius(edit_geom);
+    dMassSetSphere(mass, d, r);
 
-//  solid::play_init(body);
+    ode_set_mass_transform(mass, current_M);
+}
+
+dGeomID wrl::solid::get_geom(dSpaceID space)
+{
+    return (play_geom = ode_dupe_geom(space, edit_geom));
 }
 
 //-----------------------------------------------------------------------------
 
-void wrl::solid::step_post()
+void wrl::solid::step_fini()
 {
     // Update the current transform using the current ODE state.
 
-    get_transform(current_M);
+    ode_get_geom_transform(play_geom, current_M);
 }
 
 //-----------------------------------------------------------------------------
@@ -130,7 +134,7 @@ void wrl::box::draw_line() const
 {
     dVector3 v;
 
-    dGeomBoxGetLengths(geom, v);
+    dGeomBoxGetLengths(edit_geom, v);
 
     // Draw a wire box.
 
@@ -149,7 +153,7 @@ void wrl::box::draw_line() const
 
 void wrl::sphere::draw_line() const
 {
-    float r = float(dGeomSphereGetRadius(geom));
+    float r = float(dGeomSphereGetRadius(edit_geom));
 
     // Draw a wire sphere.
 

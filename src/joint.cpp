@@ -12,19 +12,10 @@
 
 #include <iostream>
 
+#include "odeutil.hpp"
 #include "opengl.hpp"
 #include "joint.hpp"
 #include "glob.hpp"
-
-//-----------------------------------------------------------------------------
-
-void wrl::joint::play_init(dBodyID)
-{
-}
-
-void wrl::joint::play_fini()
-{
-}
 
 //-----------------------------------------------------------------------------
 
@@ -32,14 +23,10 @@ wrl::joint::joint(dSpaceID space, const ogl::surface *fill,
                                   const ogl::surface *line) :
     atom(fill, line), join_id(0)
 {
-    geom = dCreateSphere(space, 0.25f);
+    edit_geom = dCreateSphere(space, 0.25f);
 
-    dGeomSetData(geom, this);
-    set_transform(current_M);
-}
-
-wrl::joint::~joint()
-{
+    dGeomSetData(edit_geom, this);
+    ode_set_geom_transform(edit_geom, current_M);
 }
 
 //-----------------------------------------------------------------------------
@@ -360,7 +347,7 @@ void wrl::universal::step_init()
 
 void wrl::joint::draw_line() const
 {
-    float r = float(dGeomSphereGetRadius(geom));
+    float r = float(dGeomSphereGetRadius(edit_geom));
 
     // Draw a wire sphere.
 

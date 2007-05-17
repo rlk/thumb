@@ -10,39 +10,14 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "play.hpp"
-#include "main.hpp"
+#include <ode/ode.h>
 
 //-----------------------------------------------------------------------------
 
-mode::play::play(wrl::world& w) : mode(w)
-{
-}
+dGeomID ode_dupe_geom(dSpaceID, dGeomID);
 
-//-----------------------------------------------------------------------------
-
-void mode::play::enter()
-{
-    world.play_init();
-    clr_time();
-}
-
-void mode::play::leave()
-{
-    world.play_fini();
-}
-
-//-----------------------------------------------------------------------------
-
-bool mode::play::timer(float dt)
-{
-    world.play_step(dt);
-    return true;
-}
-
-void mode::play::draw()
-{
-    world.draw_scene();
-}
+void ode_get_geom_transform(dGeomID, float[16]);
+void ode_set_geom_transform(dGeomID, float[16]);
+void ode_set_mass_transform(dMass *, float[16]);
 
 //-----------------------------------------------------------------------------

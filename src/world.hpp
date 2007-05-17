@@ -61,8 +61,10 @@ namespace wrl
         void edit_callback(dGeomID, dGeomID);
         void play_callback(dGeomID, dGeomID);
 
-        void pick(const float[3], const float[3]);
+        void play_init();
+        void play_fini();
 
+        void edit_pick(const float[3], const float[3]);
         void edit_step(float);
         void play_step(float);
 

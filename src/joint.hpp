@@ -39,8 +39,6 @@ namespace wrl
 
         virtual void         load(mxml_node_t *);
         virtual mxml_node_t *save(mxml_node_t *);
-
-        virtual ~joint();
     };
 
     //-------------------------------------------------------------------------

@@ -27,12 +27,22 @@ namespace wrl
 
         virtual void scale() = 0;
 
+        dGeomID play_geom;
+
     public:
 
         solid(const ogl::surface *,
               const ogl::surface *);
 
-        virtual void step_post();
+        // Physics initialization methods
+
+        virtual dGeomID get_geom(dSpaceID);
+
+        // Physics update method
+
+        virtual void step_fini();
+
+        // File I/O
 
         virtual void         load(mxml_node_t *);
         virtual mxml_node_t *save(mxml_node_t *);
@@ -53,8 +63,15 @@ namespace wrl
 
         virtual box *clone() const { return new box(*this); }
 
-        virtual void play_init(dBodyID);
+        // Physics initialization methods
+
+        virtual void get_mass(dMass *m);
+
+        // Rendering
+
         virtual void draw_line() const;
+
+        // File I/O
 
         virtual mxml_node_t *save(mxml_node_t *);
     };
@@ -74,8 +91,15 @@ namespace wrl
 
         virtual sphere *clone() const { return new sphere(*this); }
 
-        virtual void play_init(dBodyID);
+        // Physics initialization methods
+
+        virtual void     get_mass(dMass *m);
+
+        // Rendering
+
         virtual void draw_line() const;
+
+        // File I/O
 
         virtual mxml_node_t *save(mxml_node_t *);
     };

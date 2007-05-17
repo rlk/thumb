@@ -20,6 +20,7 @@
 #include <mxml.h>
 
 #include "surface.hpp"
+#include "matrix.hpp"
 #include "param.hpp"
 
 //-----------------------------------------------------------------------------
@@ -28,13 +29,11 @@ namespace wrl
 {
     class world;
 
-    typedef std::map<int, dBody> body_map;
-
     class atom
     {
     protected:
 
-        dGeomID geom;
+        dGeomID edit_geom;
 
         int body_id;
 
@@ -67,12 +66,8 @@ namespace wrl
         // Transform methods
 
         void get_surface(dSurfaceParameters&);
-        void set_default();
-        void get_default();
 
-        void mult_world(const float[16]);
-        void mult_local(const float[16]);
-
+        void transform(const float[16]);
         void get_world(float[16]) const;
         void get_local(float[16]) const;
 
@@ -96,6 +91,8 @@ namespace wrl
 
         // Physics update methods
 
+        virtual void play_init() { }
+        virtual void play_fini() { load_mat(current_M, default_M); }
         virtual void step_init() { }
         virtual void step_fini() { }
 

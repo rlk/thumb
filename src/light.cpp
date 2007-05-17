@@ -39,7 +39,7 @@ void ent::light::edit_init()
 {
     geom = dCreateSphere(space, 0.5f);
     dGeomSetData(geom, this);
-    get_default();
+//  get_default();
 }
 
 //-----------------------------------------------------------------------------
