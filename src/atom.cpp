@@ -39,6 +39,8 @@ wrl::atom::atom(const atom& that)
 
     edit_geom = ode_dupe_geom(dGeomGetSpace(that.edit_geom), that.edit_geom);
 
+    dGeomSetData(edit_geom, this);
+
     // Duplicate GL state.
 
     glob->dupe_surface(fill);
@@ -213,7 +215,7 @@ void wrl::atom::draw_foci(dGeomID focus) const
             // Highlight the body of the focus in light yellow.
 
             glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
-            glLineWidth(1.0f);
+            glLineWidth(2.0f);
 
             draw_line();
         }
@@ -222,7 +224,7 @@ void wrl::atom::draw_foci(dGeomID focus) const
             // Highlight the join target of the focus in light magenta.
 
             glColor4f(1.0f, 0.0f, 1.0f, 0.5f);
-            glLineWidth(1.0f);
+            glLineWidth(2.0f);
 
             draw_line();
         }
@@ -238,7 +240,7 @@ void wrl::atom::draw_stat() const
     else
         glColor4f(1.0f, 0.0f, 0.0f, 0.5f);
 
-    glLineWidth(1.0f);
+    glLineWidth(2.0f);
 
     draw_line();
 }

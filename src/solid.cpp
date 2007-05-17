@@ -121,6 +121,29 @@ dGeomID wrl::solid::get_geom(dSpaceID space)
 
 //-----------------------------------------------------------------------------
 
+void wrl::solid::play_init()
+{
+    if (dBodyID body = dGeomGetBody(play_geom))
+    {
+        float I[16];
+
+        // Orient the geom with respect to the body.
+
+        load_inv(I, current_M);
+
+        dGeomSetOffsetWorldRotation(play_geom, I);
+        dGeomSetOffsetWorldPosition(play_geom, current_M[12],
+                                               current_M[13],
+                                               current_M[14]);
+
+        // Ensure the geom's real position is correctly initialized.
+
+        const dReal *p = dBodyGetPosition(body);
+
+        dBodySetPosition(body, p[0], p[1], p[2]);
+    }
+}
+
 void wrl::solid::step_fini()
 {
     // Update the current transform using the current ODE state.

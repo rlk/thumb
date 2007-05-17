@@ -38,8 +38,9 @@ namespace wrl
 
         virtual dGeomID get_geom(dSpaceID);
 
-        // Physics update method
+        // Physics update methods
 
+        virtual void play_init();
         virtual void step_fini();
 
         // File I/O

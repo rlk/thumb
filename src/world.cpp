@@ -51,8 +51,12 @@ void wrl::world::edit_callback(dGeomID o1, dGeomID o2)
     dContact contact[MAX_CONTACTS];
     int sz = sizeof (dContact);
 
-    dGeomID O1 = (o1 == edit_point) ? o1 : o2;
-    dGeomID O2 = (o1 == edit_point) ? o2 : o1;
+    dGeomID O1;
+    dGeomID O2;
+
+    if      (o1 == edit_point) { O1 = o1; O2 = o2; }
+    else if (o2 == edit_point) { O1 = o2; O2 = o1; }
+    else return;
 
     // Note the nearest picking ray collision with a placeable geom.
 
@@ -414,8 +418,8 @@ void wrl::world::extend_selection()
 
     for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
     {
-        ids.insert((*i)->body());
-        ids.insert((*i)->join());
+        if ((*i)->body()) ids.insert((*i)->body());
+        if ((*i)->join()) ids.insert((*i)->join());
     }
 
     // Add all entities with an included body or join ID to the selection.
