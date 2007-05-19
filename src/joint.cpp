@@ -147,166 +147,121 @@ wrl::universal::universal(dSpaceID space) :
 }
 
 //-----------------------------------------------------------------------------
-/*
-void wrl::ball::play_init(dBodyID body)
-{
-    dJointAttach(join, body, 0);
 
-    joint::play_init(body);
+dJointID wrl::ball::get_join(dWorldID world)
+{
+    return (play_join = dJointCreateBall(world, 0));
 }
 
-void wrl::hinge::play_init(dBodyID body)
+dJointID wrl::hinge::get_join(dWorldID world)
 {
-    dJointAttach(join, body, 0);
-
-    joint::play_init(body);
+    return (play_join = dJointCreateHinge(world, 0));
 }
 
-void wrl::hinge2::play_init(dBodyID body)
+dJointID wrl::hinge2::get_join(dWorldID world)
 {
-    dJointAttach(join, body, 0);
-
-    joint::play_init(body);
+    return (play_join = dJointCreateHinge2(world, 0));
 }
 
-void wrl::slider::play_init(dBodyID body)
+dJointID wrl::slider::get_join(dWorldID world)
 {
-    dJointAttach(join, body, 0);
-
-    joint::play_init(body);
+    return (play_join = dJointCreateSlider(world, 0));
 }
 
-void wrl::amotor::play_init(dBodyID body)
+dJointID wrl::amotor::get_join(dWorldID world)
 {
-    dJointAttach(join, body, 0);
-
-    joint::play_init(body);
+    return (play_join = dJointCreateAMotor(world, 0));
 }
 
-void wrl::universal::play_init(dBodyID body)
+dJointID wrl::universal::get_join(dWorldID world)
 {
-    dJointAttach(join, body, 0);
-
-    joint::play_init(body);
+    return (play_join = dJointCreateUniversal(world, 0));
 }
-*/
+
 //-----------------------------------------------------------------------------
-/*
-void wrl::ball::play_join(dBodyID body1)
+
+void wrl::ball::play_init()
 {
-    dBodyID body0 = dJointGetBody(join, 0);
+    const float *M = current_M;
 
-    if (body0 || body1)
-    {
-        const float *M = current_M;
+    // Set ball joint geometry parameters.
 
-        // Set ball joint geometry parameters.
-
-        dJointAttach       (join, body0, body1);
-        dJointSetBallAnchor(join, M[12], M[13], M[14]);
-    }
+    dJointSetBallAnchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::hinge::play_join(dBodyID body1)
+void wrl::hinge::play_init()
 {
-    dBodyID body0 = dJointGetBody(join, 0);
+    const float *M = current_M;
 
-    if (body0 || body1)
-    {
-        const float *M = current_M;
+    // Set hinge geometry parameters.
 
-        // Set hinge geometry parameters.
-
-        dJointAttach        (join, body0, body1);
-        dJointSetHingeAxis  (join, M[ 0], M[ 1], M[ 2]);
-        dJointSetHingeAnchor(join, M[12], M[13], M[14]);
-    }
+    dJointSetHingeAxis  (play_join, M[ 0], M[ 1], M[ 2]);
+    dJointSetHingeAnchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::hinge2::play_join(dBodyID body1)
+void wrl::hinge2::play_init()
 {
-    dBodyID body0 = dJointGetBody(join, 0);
+    const float *M = current_M;
 
-    if (body0 || body1)
-    {
-        const float *M = current_M;
+    // Set hinge2 geometry parameters.
 
-        // Set hinge2 geometry parameters.
-
-        dJointAttach         (join, body0, body1);
-        dJointSetHinge2Axis2 (join, M[ 0], M[ 1], M[ 2]);
-        dJointSetHinge2Axis1 (join, M[ 4], M[ 5], M[ 6]);
-        dJointSetHinge2Anchor(join, M[12], M[13], M[14]);
-    }
+    dJointSetHinge2Axis2 (play_join, M[ 0], M[ 1], M[ 2]);
+    dJointSetHinge2Axis1 (play_join, M[ 4], M[ 5], M[ 6]);
+    dJointSetHinge2Anchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::slider::play_join(dBodyID body1)
+void wrl::slider::play_init()
 {
-    dBodyID body0 = dJointGetBody(join, 0);
+    const float *M = current_M;
 
-    if (body0 || body1)
-    {
-        const float *M = current_M;
+    // Set slider geometry parameters.
 
-        // Set slider geometry parameters.
-
-        dJointAttach       (join, body0, body1);
-        dJointSetSliderAxis(join, M[ 8], M[ 9], M[10]);
-    }
+    dJointSetSliderAxis(play_join, M[ 8], M[ 9], M[10]);
 }
 
-void wrl::amotor::play_join(dBodyID body1)
+void wrl::amotor::play_init()
 {
-    dBodyID body0 = dJointGetBody(join, 0);
+    const float *M = current_M;
+ 
+    int a = dJointGetBody(play_join, 0) ? 1 : 0;
+    int b = dJointGetBody(play_join, 1) ? 2 : 0;
+ 
+    // Set angular motor geometry parameters.
 
-    if (body0 || body1)
-    {
-        const float *M = current_M;
-
-        int a = body0 ? 1 : 0;
-        int b = body1 ? 2 : 0;
-
-        // Set angular motor geometry parameters.
-
-        dJointAttach       (join, body0, body1);
-        dJointSetAMotorMode(join, dAMotorEuler);
-        dJointSetAMotorAxis(join, 0, a, M[ 0], M[ 1], M[ 2]);
-        dJointSetAMotorAxis(join, 2, b, M[ 8], M[ 9], M[10]);
-    }
+    dJointSetAMotorMode(play_join, dAMotorEuler);
+    dJointSetAMotorAxis(play_join, 0, a, M[ 0], M[ 1], M[ 2]);
+    dJointSetAMotorAxis(play_join, 2, b, M[ 8], M[ 9], M[10]);
 }
 
-void wrl::universal::play_join(dBodyID body1)
+void wrl::universal::play_init()
 {
-    dBodyID body0 = dJointGetBody(join, 0);
+    const float *M = current_M;
 
-    if (body0 || body1)
-    {
-        const float *M = current_M;
+    // Set universal joint geometry parameters.
 
-        // Set universal joint geometry parameters.
-
-        dJointAttach            (join, body0, body1);
-        dJointSetUniversalAxis1 (join, M[ 0], M[ 1], M[ 2]);
-        dJointSetUniversalAxis2 (join, M[ 4], M[ 5], M[ 6]);
-        dJointSetUniversalAnchor(join, M[12], M[13], M[14]);
-    }
+    dJointSetUniversalAxis1 (play_join, M[ 0], M[ 1], M[ 2]);
+    dJointSetUniversalAxis2 (play_join, M[ 4], M[ 5], M[ 6]);
+    dJointSetUniversalAnchor(play_join, M[12], M[13], M[14]);
 }
-*/
+
 //-----------------------------------------------------------------------------
-/*
+
 void wrl::joint::step_init()
 {
     // Joint parameter change may require reawakening of joined bodies.
     // TODO: do this only when necessary.
 
-    if (body1) dBodyEnable(dJointGetBody(join, 0));
-    if (body2) dBodyEnable(dJointGetBody(join, 1));
+    dBodyID body0 = dJointGetBody(play_join, 0);
+    dBodyID body1 = dJointGetBody(play_join, 1);
+
+    if (body0) dBodyEnable(body0);
+    if (body1) dBodyEnable(body1);
 }
 
 void wrl::hinge::step_init()
 {
     for (param_map::iterator i = params.begin(); i != params.end(); ++i)
-        dJointSetHingeParam(join, i->first, i->second->value());
+        dJointSetHingeParam(play_join, i->first, i->second->value());
 
     joint::step_init();
 }
@@ -314,7 +269,7 @@ void wrl::hinge::step_init()
 void wrl::hinge2::step_init()
 {
     for (param_map::iterator i = params.begin(); i != params.end(); ++i)
-        dJointSetHinge2Param(join, i->first, i->second->value());
+        dJointSetHinge2Param(play_join, i->first, i->second->value());
 
     joint::step_init();
 }
@@ -322,7 +277,7 @@ void wrl::hinge2::step_init()
 void wrl::slider::step_init()
 {
     for (param_map::iterator i = params.begin(); i != params.end(); ++i)
-        dJointSetSliderParam(join, i->first, i->second->value());
+        dJointSetSliderParam(play_join, i->first, i->second->value());
 
     joint::step_init();
 }
@@ -330,7 +285,7 @@ void wrl::slider::step_init()
 void wrl::amotor::step_init()
 {
     for (param_map::iterator i = params.begin(); i != params.end(); ++i)
-        dJointSetAMotorParam(join, i->first, i->second->value());
+        dJointSetAMotorParam(play_join, i->first, i->second->value());
 
     joint::step_init();
 }
@@ -338,11 +293,11 @@ void wrl::amotor::step_init()
 void wrl::universal::step_init()
 {
     for (param_map::iterator i = params.begin(); i != params.end(); ++i)
-        dJointSetUniversalParam(join, i->first, i->second->value());
+        dJointSetUniversalParam(play_join, i->first, i->second->value());
 
     joint::step_init();
 }
-*/
+
 //-----------------------------------------------------------------------------
 
 void wrl::joint::draw_line() const

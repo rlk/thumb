@@ -91,10 +91,10 @@ namespace wrl
 
         // Physics update methods
 
-        virtual void play_init() { }
-        virtual void play_fini() { load_mat(current_M, default_M); }
         virtual void step_init() { }
         virtual void step_fini() { }
+        virtual void play_init() { }
+        virtual void play_fini() { load_mat(current_M, default_M); }
 
         // Rendering methods
 

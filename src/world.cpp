@@ -219,6 +219,13 @@ void wrl::world::play_init()
             dBodySetMass(body, &mass);
         }
 
+    // Create and attach all joints.
+
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+        if (dJointID join = (*i)->get_join(play_world))
+            dJointAttach(join, B[(*i)->body()],
+                               B[(*i)->join()]);
+
     // Do atom-specific physics initialization.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)

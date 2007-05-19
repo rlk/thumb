@@ -24,18 +24,28 @@ namespace wrl
     {
     protected:
 
-        int join_id;
+        int      join_id;
+        dJointID play_join;
 
     public:
 
         joint(dSpaceID, const ogl::surface *,
                         const ogl::surface *);
 
+        // Joint binding
+
         virtual int join(int id) { return (join_id = id); }
         virtual int join() const { return (join_id     ); }
 
-//      virtual void step_init();
+        // Physics update methods
+
+        virtual void step_init();
+
+        // Rendering methods
+
         virtual void draw_line() const;
+
+        // File I/O
 
         virtual void         load(mxml_node_t *);
         virtual mxml_node_t *save(mxml_node_t *);
@@ -52,6 +62,10 @@ namespace wrl
 
         ball *clone() const { return new ball(*this); }
 
+        virtual dJointID get_join(dWorldID);
+
+        virtual void play_init();
+
         mxml_node_t *save(mxml_node_t *);
     };
 
@@ -66,7 +80,10 @@ namespace wrl
 
         hinge *clone() const { return new hinge(*this); }
 
-//      void step_init();
+        virtual dJointID get_join(dWorldID);
+
+        virtual void play_init();
+        virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -81,7 +98,10 @@ namespace wrl
 
         hinge2 *clone() const { return new hinge2(*this); }
 
-//      void step_init();
+        virtual dJointID get_join(dWorldID);
+
+        virtual void play_init();
+        virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -96,7 +116,10 @@ namespace wrl
 
         slider *clone() const { return new slider(*this); }
 
-//      void step_init();
+        virtual dJointID get_join(dWorldID);
+
+        virtual void play_init();
+        virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -111,7 +134,10 @@ namespace wrl
 
         amotor *clone() const { return new amotor(*this); }
 
-//      void step_init();
+        virtual dJointID get_join(dWorldID);
+
+        virtual void play_init();
+        virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -126,7 +152,10 @@ namespace wrl
 
         universal *clone() const { return new universal(*this); }
 
-//      void step_init();
+        virtual dJointID get_join(dWorldID);
+
+        virtual void play_init();
+        virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
