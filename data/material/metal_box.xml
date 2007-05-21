@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<state>
+  <program mode="ambient">
+     <frag>object-dark.frag</frag>
+     <vert>object-dark.vert</vert>
+  </program>
+  <program mode="diffuse">
+     <frag>object-lite.frag</frag>
+     <vert>object-lite.vert</vert>
+  </program>
+  <texture name="diffuse">
+     <file>metal_box_diffuse.png</file>
+     <param name="min_filter">linear</param>
+     <param name="mag_filter">linear_mipmap_linear</param>
+     <param name="generate_mipmap">true</param>
+  </texture>
+  <texture name="bump">
+     <file>metal_box_bump.png</file>
+     <param name="min_filter">linear</param>
+     <param name="mag_filter">linear</param>
+  </texture>
+</state>

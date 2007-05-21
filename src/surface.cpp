@@ -15,14 +15,8 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::surface::surface(std::string name) : name(name)
+ogl::surface::surface(std::string name) : name(name), data(new obj::obj(name))
 {
-    init();
-}
-
-ogl::surface::~surface()
-{
-    fini();
 }
 
 //-----------------------------------------------------------------------------
@@ -39,52 +33,34 @@ void ogl::surface::sph_bound(float *b) const
 
 //-----------------------------------------------------------------------------
 
-GLsizei ogl::surface::ecopy(GLsizei esz, GLsizei vsz)
+GLsizei ogl::surface::count() const
 {
-//  return data->ecopy(esz, vsz);
-    return 0;
+    return data->count();
 }
 
-GLsizei ogl::surface::vcopy(GLsizei off)
+GLsizei ogl::surface::esize(GLsizei i) const
 {
-//  return data->vcopy(off);
-    return 0;
+    return data->esize(i);
 }
 
-GLsizei ogl::surface::esize() const
+GLsizei ogl::surface::vsize(GLsizei i) const
 {
-//  return data->esize();
-    return 0;
+    return data->vsize(i);
 }
 
-GLsizei ogl::surface::vsize() const
+void ogl::surface::ecopy(GLsizei i, GLvoid *p, GLuint d) const
 {
-//  return data->vsize();
-    return 0;
+    data->ecopy(i, p, d);
 }
 
-//-----------------------------------------------------------------------------
-
-void ogl::surface::draw(int type) const
+void ogl::surface::vcopy(GLsizei i, GLvoid *p, const GLfloat *M) const
 {
-    data->draw(type);
+    data->vcopy(i, p, M);
 }
 
-int ogl::surface::type() const
+std::string& ogl::surface::state(GLsizei i) const
 {
-    return data->type();
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::surface::init()
-{
-    data = new obj::obj(name);
-}
-
-void ogl::surface::fini()
-{
-    delete data;
+    return data->state(i);
 }
 
 //-----------------------------------------------------------------------------

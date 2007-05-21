@@ -2,6 +2,7 @@
 #define SURFACE_HPP
 
 #include <string>
+#include <memory>
 
 #include "obj.hpp"
 
@@ -11,8 +12,8 @@ namespace ogl
 {
     class surface
     {
-        std::string name;
-        obj::obj   *data;
+        std::string             name;
+        std::auto_ptr<obj::obj> data;
 
     public:
 
@@ -21,19 +22,19 @@ namespace ogl
         surface(std::string);
        ~surface();
 
-        void box_bound(float *) const;
-        void sph_bound(float *) const;
+        // Bound calculators
 
-        GLsizei ecopy(GLsizei, GLsizei);
-        GLsizei vcopy(GLsizei);
-        GLsizei esize() const;
-        GLsizei vsize() const;
+        void box_bound(GLfloat *) const;
+        void sph_bound(GLfloat *) const;
 
-        void draw(int=DRAW_OPAQUE) const;
-        int  type(               ) const;
+        // Batch data accessors
 
-        void init();
-        void fini();
+        GLsizei      count()                                   const;
+        GLsizei      esize(GLsizei)                            const;
+        GLsizei      vsize(GLsizei)                            const;
+        void         ecopy(GLsizei, GLvoid *, GLuint)          const;
+        void         vcopy(GLsizei, GLvoid *, const GLfloat *) const;
+        std::string& state(GLsizei)                            const;
     };
 }
 

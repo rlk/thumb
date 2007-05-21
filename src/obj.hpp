@@ -53,66 +53,14 @@ namespace obj
 
     //-------------------------------------------------------------------------
 
-    struct prop
-    {
-        int flags;
-
-        prop(int f) : flags(f) { }
-
-        virtual void draw(int) const = 0;
-
-        virtual ~prop() { }
-    };
-
-    typedef const prop                         *prop_p;
-    typedef std::vector<prop_p>                 prop_v;
-    typedef std::vector<prop_p>::iterator       prop_i;
-    typedef std::vector<prop_p>::const_iterator prop_c;
-
-    //-------------------------------------------------------------------------
-
-    struct mtrl
-    {
-        std::string name;
-        
-        prop_v props;
-        int    flags;
-        GLuint lite;
-        GLuint dark;
-
-        mtrl();
-       ~mtrl();
-
-        void draw(int) const;
-        void init();
-        void fini();
-    };
-
-    typedef const mtrl                       *mtrl_p;
-    typedef std::vector<mtrl>                 mtrl_v;
-    typedef std::vector<mtrl>::iterator       mtrl_i;
-    typedef std::vector<mtrl>::const_iterator mtrl_c;
-
-    //-------------------------------------------------------------------------
-
     struct surf
     {
-        GLuint fibo;
-        GLuint libo;
-
-        mtrl_p state;
+        std::string material;
 
         ogl::face_v faces;
         ogl::line_v lines;
 
-        GLuint *fp, f0, fn;
-        GLuint *lp, l0, ln;
-
-        surf(mtrl_p state) : fibo(0), libo(0), state(state) { }
-        
-        void draw(int) const;
-        void init();
-        void fini();
+        surf(std::string& m) : material(m) { }
     };
 
     typedef std::vector<surf>                 surf_v;
@@ -123,58 +71,46 @@ namespace obj
 
     class obj
     {
-        GLuint vbo;
-        GLuint dark;
-        GLuint lite;
-
-        mtrl_v mtrls;
-        surf_v surfs;
-
+             surf_v surfs;
         ogl::vert_v verts;
 
         void calc_tangent();
 
-        // MTL read handlers.
+        // Read handlers.
 
-        void read_map(std::istream&, prop&);
-        void read_rgb(std::istream&, prop&);
-        void read_mtl(std::istream&, std::string&);
         void read_use(std::istream&);
-
-        // OBJ read handlers.
-
-        int  read_fi(std::istream&, ogl::vec3_v&,
-                                    ogl::vec2_v&,
-                                    ogl::vec3_v&, iset_m&);
-        void read_f (std::istream&, ogl::vec3_v&,
-                                    ogl::vec2_v&,
-                                    ogl::vec3_v&, iset_m&);
-        int  read_li(std::istream&, ogl::vec3_v&,
-                                    ogl::vec2_v&, iset_m&);
-        void read_l (std::istream&, ogl::vec3_v&,
-                                    ogl::vec2_v&, iset_m&);
-        void read_v (std::istream&, ogl::vec3_v&);
-        void read_vt(std::istream&, ogl::vec2_v&);
-        void read_vn(std::istream&, ogl::vec3_v&);
+        int  read_fi (std::istream&, ogl::vec3_v&,
+                                     ogl::vec2_v&,
+                                     ogl::vec3_v&, iset_m&);
+        void read_f  (std::istream&, ogl::vec3_v&,
+                                     ogl::vec2_v&,
+                                     ogl::vec3_v&, iset_m&);
+        int  read_li (std::istream&, ogl::vec3_v&,
+                                     ogl::vec2_v&, iset_m&);
+        void read_l  (std::istream&, ogl::vec3_v&,
+                                     ogl::vec2_v&, iset_m&);
+        void read_v  (std::istream&, ogl::vec3_v&);
+        void read_vt (std::istream&, ogl::vec2_v&);
+        void read_vn (std::istream&, ogl::vec3_v&);
 
     public:
 
         obj(std::string);
        ~obj();
 
+        // Bound calculators
+
         void box_bound(GLfloat *) const;
         void sph_bound(GLfloat *) const;
-        
-        GLsizei ecopy(GLsizei, GLsizei);
-        GLsizei vcopy(GLsizei);
-        GLsizei vsize() const;
-        GLsizei esize() const;
 
-        void draw(int) const;
-        int  type(   ) const;
+        // Batch data accessors
 
-        void init();
-        void fini();
+        GLsizei      count()                                   const;
+        GLsizei      esize(GLsizei)                            const;
+        GLsizei      vsize(GLsizei)                            const;
+        void         ecopy(GLsizei, GLvoid *, GLuint)          const;
+        void         vcopy(GLsizei, GLvoid *, const GLfloat *) const;
+        std::string &state(GLsizei)                            const;
     };
 }
 

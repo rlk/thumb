@@ -170,12 +170,12 @@ ops::enjoin_op::enjoin_op(wrl::atom_set& S) : operation(S), one_id(0),two_id(0)
     for (i = selection.begin(); i != selection.end(); ++i)
         ids.insert((*i)->body());
 
-    // Select an arbitrary two.
+    // Select an arbitrary two, non-zero if possible.
 
     std::set<int>::reverse_iterator j = ids.rbegin();
 
-    if (j != ids.rend()) one_id = *(j--);
-    if (j != ids.rend()) two_id = *(j--);
+    if (j != ids.rend()) one_id = *(j++);
+    if (j != ids.rend()) two_id = *(j++);
 }
 
 wrl::atom_set& ops::enjoin_op::undo(wrl::world *)

@@ -13,18 +13,9 @@
 #ifndef MESH_HPP
 #define MESH_HPP
 
-//-----------------------------------------------------------------------------
+#include <vector>
 
-// Draw property flags.
-
-#define DRAW_LIGHTSOURCE  1
-#define DRAW_TRANSPARENT  2
-#define DRAW_OPAQUE       4
-#define DRAW_REFLECTIVE   8
-#define DRAW_REFRACTIVE  16
-#define DRAW_LIT         32
-#define DRAW_UNLIT       64
-#define DRAW_GIZMO      128
+#include "opengl.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -57,7 +48,6 @@ namespace ogl
         vec3    n;
         vec3    t;
         vec2    s;
-        GLubyte w[4];
 
         vert() { }
 
@@ -66,7 +56,6 @@ namespace ogl
             s = (si >= 0) ? sv[si] : vec2();
             n = (ni >= 0) ? nv[ni] : vec3();
             t =                      vec3();
-            w[0] = w[1] = w[2] = w[3] = 0;
         }
     };
 

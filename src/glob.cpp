@@ -145,9 +145,6 @@ const ogl::surface *app::glob::load_surface(std::string name)
     {
         surface_map[name].ptr = new ogl::surface(name);
         surface_map[name].ref = 1;
-
-        fini_geometry();
-        init_geometry();
     }
     else   surface_map[name].ref++;
 
@@ -222,102 +219,18 @@ void app::glob::free_frame(ogl::frame *p)
 
 //-----------------------------------------------------------------------------
 
-#define OFFSET(i) ((char *) (i))
-
-void app::glob::bind_geometry()
-{
-/*
-    GLsizei s = sizeof (ogl::vert);
-
-    glEnableVertexAttribArrayARB(6);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
-
-    glTexCoordPointer       (   2, GL_FLOAT,    s, OFFSET(36));
-    glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, s, OFFSET(24));
-    glNormalPointer         (      GL_FLOAT,    s, OFFSET(12));
-    glVertexPointer         (   3, GL_FLOAT,    s, OFFSET( 0));
-
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
-*/
-}
-
-void app::glob::init_geometry()
-{
-/*
-    std::map<std::string, surface>::iterator si;
-
-    // Sum all vertex array and element array sizes.
-
-    GLsizei vsz = 0;
-    GLsizei esz = 0;
-
-    for (si = surface_map.begin(); si != surface_map.end(); ++si)
-    {
-        esz += si->second.ptr->esize();
-        vsz += si->second.ptr->vsize();
-    }
-
-    std::cout << "vbo " << vsz << " ebo " << esz << std::endl;
-
-    // Initialize vertex and element array buffers of that size.
-
-    glGenBuffersARB(1, &vbo);
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
-    glBufferDataARB(GL_ARRAY_BUFFER_ARB, vsz, 0, GL_STATIC_DRAW_ARB);
-
-    glGenBuffersARB(1, &ebo);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, esz, 0, GL_STATIC_DRAW_ARB);
-
-    // Copy all vertices to the buffer object.
-
-    vsz = 0;
-    esz = 0;
-
-    for (si = surface_map.begin(); si != surface_map.end(); ++si)
-    {
-        esz = si->second.ptr->ecopy(esz, vsz);
-        vsz = si->second.ptr->vcopy(vsz);
-    }
-
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-*/
-}
-
-void app::glob::fini_geometry()
-{
-/*
-    if (ebo) glDeleteBuffersARB(1, &ebo);
-    if (vbo) glDeleteBuffersARB(1, &vbo);
-
-    ebo = 0;
-    vbo = 0;
-*/
-}
-
-//-----------------------------------------------------------------------------
-
 void app::glob::init()
 {
     // Reacquire all OpenGL state.
 
     std::map<std::string, program>::iterator pi;
     std::map<std::string, texture>::iterator ti;
-    std::map<std::string, surface>::iterator si;
 
     for (pi = program_map.begin(); pi != program_map.end(); ++pi)
         pi->second.ptr->init();
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         ti->second.ptr->init();
-
-    for (si = surface_map.begin(); si != surface_map.end(); ++si)
-        si->second.ptr->init();
 
     std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
@@ -327,16 +240,11 @@ void app::glob::init()
 
     for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
         (*fi)->init();
-
-    init_geometry();
-
 }
 
 void app::glob::fini()
 {
     // Release all OpenGL state.
-
-    fini_geometry();
 
     std::set<ogl::frame *>::iterator fi;
     std::set<ogl::image *>::iterator ii;
@@ -347,12 +255,8 @@ void app::glob::fini()
     for (ii = image_set.begin(); ii != image_set.end(); ++ii)
         (*ii)->fini();
 
-    std::map<std::string, surface>::iterator si;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, program>::iterator pi;
-
-    for (si = surface_map.begin(); si != surface_map.end(); ++si)
-        si->second.ptr->fini();
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         ti->second.ptr->fini();
