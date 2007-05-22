@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "opengl.hpp"
+#include "binding.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -93,7 +94,47 @@ namespace ogl
     typedef std::vector<line>                 line_v;
     typedef std::vector<line>::iterator       line_i;
     typedef std::vector<line>::const_iterator line_c;
+
+    //-------------------------------------------------------------------------
+
+    class mesh
+    {
+        const binding *state;
+
+        vert_v verts;
+        line_v lines;
+        face_v faces;
+
+        GLuint face_min;
+        GLuint face_max;
+        GLuint line_min;
+        GLuint line_max;
+
+    public:
+
+        mesh(std::string&);
+        mesh();
+       ~mesh();
+
+        // ?
+
+        void    vert_clone(const mesh&, const GLfloat *) const;
+        void    face_clone(const mesh&, GLuint)          const;
+        void    line_clone(const mesh&, GLuint)          const;
+
+        GLsizei vert_count() const;
+        GLsizei face_count() const;
+        GLsizei line_count() const;
+
+        
+        bool merge(const mesh&); // ?
+    };
+
+    typedef std::vector<mesh>                 mesh_v;
+    typedef std::vector<mesh>::iterator       mesh_i;
+    typedef std::vector<mesh>::const_iterator mesh_c;
 }
+
 
 //-----------------------------------------------------------------------------
 

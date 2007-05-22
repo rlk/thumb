@@ -28,31 +28,35 @@ namespace ogl
 {
     //-------------------------------------------------------------------------
 
-    class batch
+    struct batch
     {
+        const mesh *M;
+
         // Vertex array parameters
 
         GLvoid *vptr;
-        GLuint  vlen;
+        GLuint  vnum;
 
-        // Element array parameters
+        // Face element array parameters
 
-        GLvoid *eptr;
-        GLuint  elen;
-        GLuint  emin;
-        GLuint  emax;
+        GLvoid *fptr;
+        GLuint  fnum;
+        GLuint  fmin;
+        GLuint  fmax;
 
-    public:
+        // Line element array parameters
 
-        batch(std::string);
-       ~batch();
-
-        void draw() const;
+        GLvoid *lptr;
+        GLuint  lnum;
+        GLuint  lmin;
+        GLuint  lmax;
     };
 
-    typedef std::multi_map<binding *, batch *> batch_map;
+    typedef std::vector<batch> batch_v;
 
     //-------------------------------------------------------------------------
+
+    typedef std::set<mesh *, mesh_cmp> mesh_set;
 
     class element
     {
@@ -60,8 +64,7 @@ namespace ogl
 
         bool& dirty;
 
-        const surface *srf;
-        batch_vec bat;
+        ogl::mesh_v meshs;
 
     public:
 
@@ -72,10 +75,10 @@ namespace ogl
 
         // Batch data handlers
 
-        GLsizei vsize() const;
-        GLsizei esize() const;
-        void    clean(GLvoid *, GLvoid *,
-                      GLvoid *, GLvoid *, batch_map&, batch_map&);
+        GLsizei vcount() const;
+        GLsizei icount() const;
+        void    enlist(mesh_set& opaque,
+                       mesh_set& transp);
     };
 
     typedef std::set<element *> element_set;
@@ -85,9 +88,6 @@ namespace ogl
     class segment
     {
         GLfloat M[16];
-
-        batch_map opaque;
-        batch_map transp;
 
         element_set elements;
 
@@ -107,10 +107,10 @@ namespace ogl
 
         // Batch data handlers
 
-        GLsizei vsize() const;
-        GLsizei esize() const;
-        void    clean(GLvoid *, GLvoid *,
-                      GLvoid *, GLvoid *);
+        GLsizei vcount() const;
+        GLsizei icount() const;
+        void    enlist(GLvoid *, GLvoid *,
+                       GLvoid *, GLvoid *);
 
         // Renderers
 

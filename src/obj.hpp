@@ -53,25 +53,26 @@ namespace obj
 
     //-------------------------------------------------------------------------
 
-    struct surf
+    struct mesh
     {
         std::string material;
 
         ogl::face_v faces;
         ogl::line_v lines;
 
-        surf(std::string& m) : material(m) { }
+        mesh()                            { }
+        mesh(std::string m) : material(m) { }
     };
 
-    typedef std::vector<surf>                 surf_v;
-    typedef std::vector<surf>::iterator       surf_i;
-    typedef std::vector<surf>::const_iterator surf_c;
+    typedef std::vector<mesh>                 mesh_v;
+    typedef std::vector<mesh>::iterator       mesh_i;
+    typedef std::vector<mesh>::const_iterator mesh_c;
 
     //-------------------------------------------------------------------------
 
     class obj
     {
-             surf_v surfs;
+        ogl::mesh_v meshs;
         ogl::vert_v verts;
 
         void calc_tangent();
@@ -102,15 +103,6 @@ namespace obj
 
         void box_bound(GLfloat *) const;
         void sph_bound(GLfloat *) const;
-
-        // Batch data accessors
-
-        GLsizei      count()                                   const;
-        GLsizei      esize(GLsizei)                            const;
-        GLsizei      vsize(GLsizei)                            const;
-        void         ecopy(GLsizei, GLvoid *, GLuint)          const;
-        void         vcopy(GLsizei, GLvoid *, const GLfloat *) const;
-        std::string &state(GLsizei)                            const;
     };
 }
 

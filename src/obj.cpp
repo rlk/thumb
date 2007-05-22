@@ -25,9 +25,9 @@ void obj::obj::calc_tangent()
 {
     // Assume all tangent vectors were zeroed during loading.  Enumerate faces.
 
-    for (surf_i si = surfs.begin(); si != surfs.end(); ++si)
+    for (mesh_i mi = meshs.begin(); mi != meshs.end(); ++mi)
     {
-        for (ogl::face_i fi = si->faces.begin(); fi != si->faces.end(); ++fi)
+        for (ogl::face_i fi = mi->faces.begin(); fi != mi->faces.end(); ++fi)
         {
             // Compute the vertex position differences.
 
@@ -103,7 +103,7 @@ void obj::obj::read_use(std::istream &lin)
 
     lin >> name;
 
-    surfs.push_back(surf(name));
+    meshs.push_back(mesh(name));
 }
 
 int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
@@ -171,14 +171,14 @@ void obj::obj::read_f(std::istream& lin, ogl::vec3_v& vv,
 
     int n = iv.size();
 
-    // Make sure we've got a surface to add triangles to.
+    // Make sure we've got a mesh to add triangles to.
     
-    if (surfs.empty()) surfs.push_back(surf(0));
+    if (meshs.empty()) meshs.push_back(mesh());
 
     // Convert our N new vertex indices into N-2 new triangles.
 
     for (i = 0; i < n - 2; ++i)
-        surfs.back().faces.push_back(ogl::face(iv[0], iv[i + 1], iv[i + 2]));
+        meshs.back().faces.push_back(ogl::face(iv[0], iv[i + 1], iv[i + 2]));
 }
 
 //-----------------------------------------------------------------------------
@@ -244,14 +244,14 @@ void obj::obj::read_l(std::istream& lin, ogl::vec3_v& vv,
 
     int n = iv.size();
 
-    // Make sure we've got a surface to add lines to.
+    // Make sure we've got a meshace to add lines to.
     
-    if (surfs.empty()) surfs.push_back(surf(0));
+    if (meshs.empty()) meshs.push_back(mesh());
 
     // Convert our N new vertex indices into N-1 new line.
 
     for (i = 0; i < n - 1; ++i)
-        surfs.back().lines.push_back(ogl::line(iv[i], iv[i + 1]));
+        meshs.back().lines.push_back(ogl::line(iv[i], iv[i + 1]));
 }
 
 //-----------------------------------------------------------------------------
@@ -285,7 +285,7 @@ void obj::obj::read_vn(std::istream& lin, ogl::vec3_v& nv)
 
 //-----------------------------------------------------------------------------
 
-obj::obj::obj(std::string name) : vbo(0)
+obj::obj::obj(std::string name)
 {
     // Initialize the input file.
 
@@ -382,7 +382,7 @@ GLsizei obj::obj::esize() const
 {
     GLsizei esz = 0;
 
-    for (surf_c si = surfs.begin(); si != surfs.end(); ++si)
+    for (mesh_c si = meshs.begin(); si != meshs.end(); ++si)
         esz += (si->faces.size() * 3 * sizeof (GLuint) +
                 si->lines.size() * 2 * sizeof (GLuint));
 
@@ -409,7 +409,7 @@ GLsizei obj::obj::ecopy(GLsizei esz, GLsizei vsz)
     if ((ptr = (GLuint *) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
                                          GL_WRITE_ONLY)))
     {
-        for (surf_i si = surfs.begin(); si != surfs.end(); ++si)
+        for (mesh_i si = meshs.begin(); si != meshs.end(); ++si)
         {
             // Convert face indices to global element buffer indices.
 

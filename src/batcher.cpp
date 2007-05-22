@@ -17,11 +17,70 @@
 #include "batcher.hpp"
 
 //-----------------------------------------------------------------------------
+/*
+ogl::batch::batch(std::string name) :
+    bnd(glob->load_binding(name)),
+    vptr(0), vlen(0),
+    eptr(0), elen(0),
+    emin(0), emax(0)
+{
+}
+
+ogl::batch::batch(batch const& that)
+{
+   *this = that;
+    glob->dupe_binding(bnd);
+}
+
+ogl::batch::~batch()
+{
+    glob->free_binding(bnd);
+}
+
+ogl::batch& ogl::batch::operator=(batch const& that)
+{
+   *this = that;
+    glob->dupe_binding(bnd);
+
+    return *this;
+}
+
+bool ogl::batch::operator<(batch const& that)
+{
+    return (bnd < that.bnd);
+}
+
+bool ogl::batch::merge(batch const& that)
+{
+    if (bnd == that.bnd)
+    {
+        vlen += that.vlen;
+        elen += that.elen;
+
+        emin = std::min(emin, that.emin);
+        emax = std::max(emin, that.emax);
+
+        return true;
+    }
+    return false;
+}
+
+void ogl::batch::draw() const
+{
+    bnd->bind();
+
+    glDrawRangeElements(GL_TRIANGLES, emin, emax, elen / sizeof (GLuint), eptr);
+}
+*/
+
+//-----------------------------------------------------------------------------
 
 ogl::element::element(bool& dirty, std::string name) :
     dirty(dirty), srf(glob->load_surface(name))
 {
     dirty = true;
+
+    // Clone all meshes.
 }
 
 ogl::element::~element()
@@ -35,38 +94,22 @@ void ogl::element::move(const GLfloat *T)
     // else pretransform all batches
 }
 
-GLsizei ogl::element::vsize() const
+GLsizei ogl::element::vcount() const
 {
     // Sum all vertex array array sizes.
-
-    GLsizei vsz = 0;
-
-    for (GLsizei i = 0; i < srf->count(); ++i)
-        vsz += srf->vsize(i);
-
-    return vsz;
+    return 0;
 }
 
-GLsizei ogl::element::esize() const
+GLsizei ogl::element::icount() const
 {
     // Sum all element array sizes.
-
-    GLsizei esz = 0;
-
-    for (GLsizei i = 0; i < srf->count(); ++i)
-        esz += srf->esize(i);
-
-    return esz;
+    return 0;
 }
 
-void ogl::element::clean(GLvoid *vptr, GLvoid *voff,
-                         GLvoid *eptr, GLvoid *eoff,
-                         batch_map& opaque,
-                         batch_map& transp)
+void ogl::element::enlist(mesh_set& opaque,
+                          mesh_set& transp)
 {
-    // Pretransform all vertex data to the given buffer.
-
-    // Create a new batch.
+    // Add mesh pointers to sets based on opacity.
 }
 
 //-----------------------------------------------------------------------------
@@ -125,10 +168,11 @@ GLsizei ogl::segment::esize() const
 }
 
 void ogl::segment::clean(GLvoid *vptr, GLvoid *voff,
-                         GLvoid *eptr, GLvoid *eoff) 
+                         GLvoid *eptr, GLvoid *eoff)
 {
-    // batches must be inserted in the maps BEFORE written to the buffers
-    // to ensure the buffers have the same order as the maps
+    // Combine all batches to a vector
+    // Cache all batch data
+    // Merge adjacent batches with eqv binding
 }
 
 void ogl::segment::draw_opaque(bool lit) const
@@ -211,8 +255,8 @@ void ogl::batcher::clean()
 
     for (segment_set::iterator i = segments.begin(); i != segments.end(); ++i)
     {
-        (*i)->vcopy(v + vsz, (GLvoid *) vsz);
-        (*i)->ecopy(e + esz, (GLvoid *) esz);
+        (*i)->clean(v + vsz, (GLvoid *) vsz,
+                    e + esz, (GLvoid *) esz);
 
         vsz += (*i)->vsize();
         esz += (*i)->esize();
