@@ -16,103 +16,91 @@
 #include "opengl.hpp"
 #include "batcher.hpp"
 
-//-----------------------------------------------------------------------------
-/*
-ogl::batch::batch(std::string name) :
-    bnd(glob->load_binding(name)),
-    vptr(0), vlen(0),
-    eptr(0), elen(0),
-    emin(0), emax(0)
+//=============================================================================
+// Batchable element
+
+ogl::element::element(bool& dirty, std::string name) : dirty(dirty)
 {
-}
+    // Build the vert_array map using the named surface...
 
-ogl::batch::batch(batch const& that)
-{
-   *this = that;
-    glob->dupe_binding(bnd);
-}
-
-ogl::batch::~batch()
-{
-    glob->free_binding(bnd);
-}
-
-ogl::batch& ogl::batch::operator=(batch const& that)
-{
-   *this = that;
-    glob->dupe_binding(bnd);
-
-    return *this;
-}
-
-bool ogl::batch::operator<(batch const& that)
-{
-    return (bnd < that.bnd);
-}
-
-bool ogl::batch::merge(batch const& that)
-{
-    if (bnd == that.bnd)
-    {
-        vlen += that.vlen;
-        elen += that.elen;
-
-        emin = std::min(emin, that.emin);
-        emax = std::max(emin, that.emax);
-
-        return true;
-    }
-    return false;
-}
-
-void ogl::batch::draw() const
-{
-    bnd->bind();
-
-    glDrawRangeElements(GL_TRIANGLES, emin, emax, elen / sizeof (GLuint), eptr);
-}
-*/
-
-//-----------------------------------------------------------------------------
-
-ogl::element::element(bool& dirty, std::string name) :
-    dirty(dirty), srf(glob->load_surface(name))
-{
     dirty = true;
-
-    // Clone all meshes.
 }
 
 ogl::element::~element()
 {
-    glob->free_surface(srf);
+    dirty = true;
 }
 
 void ogl::element::move(const GLfloat *T)
 {
-    // If the vbo is dirty just update the matrix
-    // else pretransform all batches
-}
+    // Cache the current transform.
 
-GLsizei ogl::element::vcount() const
-{
-    // Sum all vertex array array sizes.
-    return 0;
-}
+    load_mat(M, T);
 
-GLsizei ogl::element::icount() const
-{
-    // Sum all element array sizes.
-    return 0;
-}
+    // If the vertex array can be updated in place, do so.
 
-void ogl::element::enlist(mesh_set& opaque,
-                          mesh_set& transp)
-{
-    // Add mesh pointers to sets based on opacity.
+    if (dirty == false)
+    {
+        vert_m::iterator i;
+
+        for (i = vert_array.begin(); i != vert_erray.end(); ++i)
+            (void) i->first->vert_cache(i->second, M);
+    }
 }
 
 //-----------------------------------------------------------------------------
+
+GLsizei ogl::element::vcount() const
+{
+    // Sum all vertex counts.
+
+    GLsizei vc = 0;
+
+    for (vert_m::iterator i = vert_array.begin(); i != vert_erray.end(); ++i)
+        vc += i->first->vert_count();
+
+    return vc;
+}
+
+GLsizei ogl::element::ecount() const
+{
+    // Sum all element counts.
+
+    GLsizei ec = 0;
+
+    for (vert_m::iterator i = vert_array.begin(); i != vert_erray.end(); ++i)
+        ec += i->first->fce_count();
+
+    return ec;
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::element::enlist(element_s& opaque,
+                          element_s& transp)
+{
+    // Insert each mesh into the proper opacity set.
+
+    for (vert_m::iterator i = vert_array.begin(); i != vert_erray.end(); ++i)
+        if (i->first->state()->opaque())
+            opaque.insert(i->first, this);
+        else
+            transp.insert(i->first, this);
+}
+
+vert *ogl::element::vert_cache(const mesh *m, vert *v)
+{
+    // Update the vertex array pointer for the given mesh.
+
+    vert_array[m] = v;
+
+    // Pretransform the mesh to the given vertex array.
+
+    return m->vert_cache(v, M);
+}
+
+//=============================================================================
+// Batch segment
 
 ogl::segment::segment(bool& dirty) : dirty(dirty)
 {
@@ -121,9 +109,18 @@ ogl::segment::segment(bool& dirty) : dirty(dirty)
 
 ogl::segment::~segment()
 {
+    dirty = true;
+
     for (element_set::iterator i = elements.begin(); i != elements.end(); ++i)
         delete (*i);
 }
+
+void ogl::segment::move(const GLfloat *T)
+{
+    load_mat(M, T);
+}
+
+//-----------------------------------------------------------------------------
 
 ogl::element *ogl::segment::add(std::string name)
 {
@@ -138,60 +135,120 @@ void ogl::segment::del(ogl::element *elt)
     delete elt;
 }
 
-void ogl::segment::move(const GLfloat *T)
-{
-    load_mat(M, T);
-}
+//-----------------------------------------------------------------------------
 
-GLsizei ogl::segment::vsize() const
+GLsizei ogl::segment::vcount() const
 {
-    // Sum all vertex array array sizes.
+    // Sum all vertex counts.
 
-    GLsizei vsz = 0;
+    GLsizei vc = 0;
 
     for (element_set::iterator i = elements.begin(); i != elements.end(); ++i)
-        vsz += (*i)->vsize();
+        vc += (*i)->vcount();
 
-    return vsz;
+    return vc;
 }
 
-GLsizei ogl::segment::esize() const
+GLsizei ogl::segment::ecount() const
 {
-    // Sum all element array sizes.
+    // Sum all element counts.
 
-    GLsizei esz = 0;
+    GLsizei ec = 0;
 
     for (element_set::iterator i = elements.begin(); i != elements.end(); ++i)
-        esz += (*i)->esize();
+        ec += (*i)->ecount();
 
-    return esz;
+    return ec;
 }
 
-void ogl::segment::clean(GLvoid *vptr, GLvoid *voff,
-                         GLvoid *eptr, GLvoid *eoff)
+//-----------------------------------------------------------------------------
+
+void ogl::segment::reduce(vert_p v0, vert_p& v,
+                          face_p f0, face_p& f,
+                          element_m& meshes, batch_v& batches)
 {
-    // Combine all batches to a vector
-    // Cache all batch data
-    // Merge adjacent batches with eqv binding
+    element_m::iterator i;
+
+    batch_v tmp;
+
+    // Set up the vertex and element arrays and batches for this segment.
+
+    for (i = meshes.begin(); i != meshes.end(); ++i)
+    {
+        // Create a new batch for this mesh.
+
+        tmp.push_back(batch(i->first->state(), f - f0,
+                            i->first->face_count()));
+
+        // Copy the face elements and vertices.
+
+        GLuint d = GLuint(v - v0);
+
+        v = i->second->vert_cache(i->first, v);
+        f = i->first ->face_cache(f, d);
+    }
+
+    // Merge adjacent batches that share the same state binding.
+
+    if (!tmp.empty())
+    {
+        batches.push_back(tmp.front());
+
+        for (i = tmp.begin() + 1; i != tmp.end(); ++i)
+            if (batches.back().bnd == i->bnd)
+                batches.back().num += i->num;
+            else
+                batches.push_back(*i);
+    }
+
+    // Scan for the minimum and maximum elements of each batch.
+
+    for (i = batches.begin(); i != batches.end(); ++i)
+    {
+        i->min = std::numeric_limits<GLuint>::max();
+        i->max = std::numeric_limits<GLuint>::min();
+
+        for (GLsizei j = 0; j < i->num; ++j)
+        {
+            i->min = std::min(i->min, i->ptr[j]);
+            i->max = std::max(i->max, i->ptr[j]);
+        }
+    }
+}
+
+void ogl::segment::enlist(vert_p v0, vert_p& v,
+                          face_p f0, face_p& f)
+{
+    std::map<const mesh_p, element *> opaque;
+    std::map<const mesh_p, element *> transp;
+
+    // Sort all meshes.
+
+    for (element_set::iterator i = elements.begin(); i != elements.end(); ++i)
+        enlist(opaque, transp);
+
+    // Batch all meshes.
+
+    reduce(opaque, opaque_batch, v0, v, f0, f);
+    reduce(transp, transp_batch, v0, v, f0, f);
 }
 
 void ogl::segment::draw_opaque(bool lit) const
 {
-    // test the bounding box
-    // iterate over the opaque set
-    //     accumulate all batches with current state
-    //         draw
+    // Test the bounding box.
+
+    // Draw all opaque meshes.
 }
 
 void ogl::segment::draw_transp(bool lit) const
 {
-    // test the bounding box
-    // iterate over the transp set
-    //     accumulate all batches with current state
-    //         draw
+    // Test the bounding box.
+
+    // Draw all transp meshes.
 }
 
-//-----------------------------------------------------------------------------
+//=============================================================================
+// Batch manager
 
 ogl::batcher::batcher() : vbo(0), ebo(0), dirty(true)
 {
@@ -208,6 +265,8 @@ ogl::batcher::~batcher()
     if (vbo) glDeleteBuffersARB(1, &vbo);
 }
 
+//-----------------------------------------------------------------------------
+
 ogl::segment *ogl::batcher::add()
 {
     segment *seg = new segment(dirty);
@@ -221,6 +280,8 @@ void ogl::batcher::del(ogl::segment *seg)
     delete seg;
 }
 
+//-----------------------------------------------------------------------------
+
 void ogl::batcher::clean()
 {
     // Sum all vertex array and element array sizes.
@@ -230,8 +291,8 @@ void ogl::batcher::clean()
 
     for (segment_set::iterator i = segments.begin(); i != segments.end(); ++i)
     {
-        vsz += (*i)->vsize();
-        esz += (*i)->esize();
+        vsz += (*i)->vcount() * sizeof (vert);
+        esz += (*i)->fcount() * sizeof (face);
     }
 
     // Initialize vertex and element buffers of that size.
@@ -244,23 +305,14 @@ void ogl::batcher::clean()
 
     // Let all segments copy to the buffers.
 
-    GLubyte *e;
-    GLubyte *v;
+    face *f0, *f;
+    vert *v0, *v;
 
-    e = (GLubyte *) glMapBufferARB(GL_ARRAY_BUFFER_ARB,         GL_WRITE_ONLY);
-    v = (GLubyte *) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GL_WRITE_ONLY);
-
-    vsz = 0;
-    esz = 0;
+    f0 = f = face_p(glMapBufferARB(GL_ARRAY_BUFFER_ARB,        GL_WRITE_ONLY));
+    v0 = v = vert_p(glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,GL_WRITE_ONLY));
 
     for (segment_set::iterator i = segments.begin(); i != segments.end(); ++i)
-    {
-        (*i)->clean(v + vsz, (GLvoid *) vsz,
-                    e + esz, (GLvoid *) esz);
-
-        vsz += (*i)->vsize();
-        esz += (*i)->esize();
-    }
+        (*i)->enlist(v0, v, f0, f);
 
     glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
     glBindBufferARB (GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
@@ -273,6 +325,8 @@ void ogl::batcher::clean()
     dirty = false;
 }
 
+//-----------------------------------------------------------------------------
+
 void ogl::batcher::draw_init()
 {
     // Update the VBO and EBO as necessary.
@@ -281,7 +335,7 @@ void ogl::batcher::draw_init()
 
     // Bind the VBO and EBO.
 
-    GLsizei s = sizeof (ogl::vert);
+    GLsizei s = sizeof (vert);
 
     glEnableVertexAttribArrayARB(6);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -322,4 +376,4 @@ void ogl::batcher::draw_transp(bool lit) const
         (*i)->draw_transp(lit);
 }
 
-//-----------------------------------------------------------------------------
+//=============================================================================

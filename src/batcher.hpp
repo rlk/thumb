@@ -28,43 +28,41 @@ namespace ogl
 {
     //-------------------------------------------------------------------------
 
+    class element;
+    class segment;
+
+    typedef std::set<element *> element_s;
+    typedef std::set<segment *> segment_s;
+
+    typedef std::map<const mesh_p, element *> element_m;
+    typedef std::map<const mesh_p, vert    *> vert_m;
+
+    //-------------------------------------------------------------------------
+
     struct batch
     {
-        const mesh *M;
+        const binding *bnd;
+        face          *ptr;
 
-        // Vertex array parameters
+        GLsizei num;
+        GLuint  min;
+        GLuint  max;
 
-        GLvoid *vptr;
-        GLuint  vnum;
-
-        // Face element array parameters
-
-        GLvoid *fptr;
-        GLuint  fnum;
-        GLuint  fmin;
-        GLuint  fmax;
-
-        // Line element array parameters
-
-        GLvoid *lptr;
-        GLuint  lnum;
-        GLuint  lmin;
-        GLuint  lmax;
+        batch(const binding *, face *, GLsizei);
     };
 
     typedef std::vector<batch> batch_v;
 
     //-------------------------------------------------------------------------
-
-    typedef std::set<mesh *, mesh_cmp> mesh_set;
+    // Batchable element
 
     class element
     {
+        vert_m vert_array;
+
         GLfloat M[16];
 
         bool& dirty;
-
-        ogl::mesh_v meshs;
 
     public:
 
@@ -76,20 +74,25 @@ namespace ogl
         // Batch data handlers
 
         GLsizei vcount() const;
-        GLsizei icount() const;
-        void    enlist(mesh_set& opaque,
-                       mesh_set& transp);
+        GLsizei ecount() const;
+
+        void enlist(element_m&,
+                    element_m&);
+
+        vert *set(const mesh *, vert *);
     };
 
-    typedef std::set<element *> element_set;
-
     //-------------------------------------------------------------------------
+    // Batch segment
 
     class segment
     {
-        GLfloat M[16];
-
         element_set elements;
+
+        batch_v opaque_batch;
+        batch_v transp_batch;
+
+        GLfloat M[16];
 
         bool& dirty;
 
@@ -108,9 +111,10 @@ namespace ogl
         // Batch data handlers
 
         GLsizei vcount() const;
-        GLsizei icount() const;
-        void    enlist(GLvoid *, GLvoid *,
-                       GLvoid *, GLvoid *);
+        GLsizei ecount() const;
+
+        void reduce(vert_p, vert_p&, face_p, face_p&, element_m&, batch_v&);
+        void enlist(vert_p, vert_p&, face_p, face_p&);
 
         // Renderers
 
@@ -118,9 +122,8 @@ namespace ogl
         void draw_transp(bool) const;
     };
 
-    typedef std::set<segment *> segment_set;
-
     //-------------------------------------------------------------------------
+    // Batch manager
 
     class batcher
     {

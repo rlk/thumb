@@ -60,6 +60,7 @@ namespace ogl
         }
     };
 
+    typedef vert                             *vert_p;
     typedef std::vector<vert>                 vert_v;
     typedef std::vector<vert>::iterator       vert_i;
     typedef std::vector<vert>::const_iterator vert_c;
@@ -76,6 +77,7 @@ namespace ogl
         face(GLuint I, GLuint J, GLuint K) : i(I), j(J), k(K) { }
     };
 
+    typedef face                             *face_p;
     typedef std::vector<face>                 face_v;
     typedef std::vector<face>::iterator       face_i;
     typedef std::vector<face>::const_iterator face_c;
@@ -91,6 +93,7 @@ namespace ogl
         line(GLuint I, GLuint J) : i(I), j(J) { }
     };
 
+    typedef line                             *line_p;
     typedef std::vector<line>                 line_v;
     typedef std::vector<line>::iterator       line_i;
     typedef std::vector<line>::const_iterator line_c;
@@ -99,16 +102,11 @@ namespace ogl
 
     class mesh
     {
-        const binding *state;
+        const binding *material;
 
         vert_v verts;
         line_v lines;
         face_v faces;
-
-        GLuint face_min;
-        GLuint face_max;
-        GLuint line_min;
-        GLuint line_max;
 
     public:
 
@@ -116,20 +114,18 @@ namespace ogl
         mesh();
        ~mesh();
 
-        // ?
-
-        void    vert_clone(const mesh&, const GLfloat *) const;
-        void    face_clone(const mesh&, GLuint)          const;
-        void    line_clone(const mesh&, GLuint)          const;
+        vert *vert_cache(vert_p, const GLfloat *) const;
+        face *face_cache(face_p, GLuint)          const;
+        line *line_cache(line_p, GLuint)          const;
 
         GLsizei vert_count() const;
         GLsizei face_count() const;
         GLsizei line_count() const;
 
-        
-        bool merge(const mesh&); // ?
+        const binding *state() const { return material; }
     };
 
+    typedef mesh                             *mesh_p;
     typedef std::vector<mesh>                 mesh_v;
     typedef std::vector<mesh>::iterator       mesh_i;
     typedef std::vector<mesh>::const_iterator mesh_c;
