@@ -10,57 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <iostream>
 #include "surface.hpp"
 
 //-----------------------------------------------------------------------------
-
-ogl::surface::surface(std::string name) : name(name), data(new obj::obj(name))
-{
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::surface::box_bound(float *b) const
-{
-    data->box_bound(b);
-}
-
-void ogl::surface::sph_bound(float *b) const
-{
-    data->sph_bound(b);
-}
-
-//-----------------------------------------------------------------------------
-
-GLsizei ogl::surface::count() const
-{
-    return data->count();
-}
-
-GLsizei ogl::surface::esize(GLsizei i) const
-{
-    return data->esize(i);
-}
-
-GLsizei ogl::surface::vsize(GLsizei i) const
-{
-    return data->vsize(i);
-}
-
-void ogl::surface::ecopy(GLsizei i, GLvoid *p, GLuint d) const
-{
-    data->ecopy(i, p, d);
-}
-
-void ogl::surface::vcopy(GLsizei i, GLvoid *p, const GLfloat *M) const
-{
-    data->vcopy(i, p, M);
-}
-
-std::string& ogl::surface::state(GLsizei i) const
-{
-    return data->state(i);
-}
 
 //-----------------------------------------------------------------------------

@@ -312,7 +312,7 @@ void wrl::joint::draw_line() const
 
         glScalef(r, r, r);
 
-        line->draw(DRAW_OPAQUE | DRAW_UNLIT);
+//      line->draw(DRAW_OPAQUE | DRAW_UNLIT);
     }
     glPopMatrix();
 }

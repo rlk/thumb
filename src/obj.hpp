@@ -13,14 +13,8 @@
 #ifndef OBJ_HPP
 #define OBJ_HPP
 
-#include <string>
-#include <vector>
-#include <list>
 #include <map>
 
-#include "opengl.hpp"
-#include "texture.hpp"
-#include "program.hpp"
 #include "mesh.hpp"
 
 //-----------------------------------------------------------------------------
@@ -53,33 +47,13 @@ namespace obj
 
     //-------------------------------------------------------------------------
 
-    struct mesh
-    {
-        std::string material;
-
-        ogl::face_v faces;
-        ogl::line_v lines;
-
-        mesh()                            { }
-        mesh(std::string m) : material(m) { }
-    };
-
-    typedef std::vector<mesh>                 mesh_v;
-    typedef std::vector<mesh>::iterator       mesh_i;
-    typedef std::vector<mesh>::const_iterator mesh_c;
-
-    //-------------------------------------------------------------------------
-
     class obj
     {
-        ogl::mesh_v meshs;
-        ogl::vert_v verts;
-
-        void calc_tangent();
+        ogl::mesh_v meshes;
 
         // Read handlers.
 
-        void read_use(std::istream&);
+        void read_use(std::istream&, iset_m&);
         int  read_fi (std::istream&, ogl::vec3_v&,
                                      ogl::vec2_v&,
                                      ogl::vec3_v&, iset_m&);
@@ -98,6 +72,11 @@ namespace obj
 
         obj(std::string);
        ~obj();
+
+        // Mesh accessors
+
+        GLsizei          max_mesh()          const { return  meshes.size(); }
+        const ogl::mesh *get_mesh(GLsizei i) const { return &meshes[i];     }
 
         // Bound calculators
 

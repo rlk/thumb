@@ -13,12 +13,34 @@
 #ifndef BINDING_HPP
 #define BINDING_HPP
 
+#include <string>
+
+#include "program.hpp"
+#include "texture.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace ogl
 {
     class binding
     {
+        std::string name;
+
+        const ogl::program *lite;
+        const ogl::program *dark;
+        const ogl::texture *diff;
+        const ogl::texture *bump;
+
+    public:
+
+        const std::string& get_name() const { return name; }
+
+        binding(std::string);
+       ~binding();
+
+        bool opaque() const { return true; }
+
+        void bind(bool) const;
     };
 }
 

@@ -19,15 +19,21 @@
 //=============================================================================
 // Batchable element
 
-ogl::element::element(bool& dirty, std::string name) : dirty(dirty)
+ogl::element::element(bool& dirty, std::string name) :
+    srf(glob->load_surface(name)), dirty(dirty)
 {
     // Build the vert_array map using the named surface...
+
+    for (GLsizei i = 0; i < srf->max_mesh(); ++i)
+        vert_array[srf->get_mesh(i)] = 0;
 
     dirty = true;
 }
 
 ogl::element::~element()
 {
+    glob->free_surface(srf);
+
     dirty = true;
 }
 
@@ -41,9 +47,7 @@ void ogl::element::move(const GLfloat *T)
 
     if (dirty == false)
     {
-        vert_m::iterator i;
-
-        for (i = vert_array.begin(); i != vert_erray.end(); ++i)
+        for (mesh_vert_c i = vert_array.begin(); i != vert_array.end(); ++i)
             (void) i->first->vert_cache(i->second, M);
     }
 }
@@ -56,7 +60,7 @@ GLsizei ogl::element::vcount() const
 
     GLsizei vc = 0;
 
-    for (vert_m::iterator i = vert_array.begin(); i != vert_erray.end(); ++i)
+    for (mesh_vert_c i = vert_array.begin(); i != vert_array.end(); ++i)
         vc += i->first->vert_count();
 
     return vc;
@@ -68,27 +72,27 @@ GLsizei ogl::element::ecount() const
 
     GLsizei ec = 0;
 
-    for (vert_m::iterator i = vert_array.begin(); i != vert_erray.end(); ++i)
-        ec += i->first->fce_count();
+    for (mesh_vert_c i = vert_array.begin(); i != vert_array.end(); ++i)
+        ec += i->first->face_count();
 
     return ec;
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::element::enlist(element_s& opaque,
-                          element_s& transp)
+void ogl::element::enlist(mesh_elem_m& opaque,
+                          mesh_elem_m& transp)
 {
     // Insert each mesh into the proper opacity set.
 
-    for (vert_m::iterator i = vert_array.begin(); i != vert_erray.end(); ++i)
+    for (mesh_vert_c i = vert_array.begin(); i != vert_array.end(); ++i)
         if (i->first->state()->opaque())
-            opaque.insert(i->first, this);
+            opaque[i->first] = this;
         else
-            transp.insert(i->first, this);
+            transp[i->first] = this;
 }
 
-vert *ogl::element::vert_cache(const mesh *m, vert *v)
+ogl::vert *ogl::element::vert_cache(const mesh *m, vert *v)
 {
     // Update the vertex array pointer for the given mesh.
 
@@ -111,7 +115,7 @@ ogl::segment::~segment()
 {
     dirty = true;
 
-    for (element_set::iterator i = elements.begin(); i != elements.end(); ++i)
+    for (element_i i = elements.begin(); i != elements.end(); ++i)
         delete (*i);
 }
 
@@ -143,7 +147,7 @@ GLsizei ogl::segment::vcount() const
 
     GLsizei vc = 0;
 
-    for (element_set::iterator i = elements.begin(); i != elements.end(); ++i)
+    for (element_i i = elements.begin(); i != elements.end(); ++i)
         vc += (*i)->vcount();
 
     return vc;
@@ -155,7 +159,7 @@ GLsizei ogl::segment::ecount() const
 
     GLsizei ec = 0;
 
-    for (element_set::iterator i = elements.begin(); i != elements.end(); ++i)
+    for (element_i i = elements.begin(); i != elements.end(); ++i)
         ec += (*i)->ecount();
 
     return ec;
@@ -165,19 +169,19 @@ GLsizei ogl::segment::ecount() const
 
 void ogl::segment::reduce(vert_p v0, vert_p& v,
                           face_p f0, face_p& f,
-                          element_m& meshes, batch_v& batches)
+                          mesh_elem_m& meshes, batch_v& batches)
 {
-    element_m::iterator i;
-
     batch_v tmp;
 
     // Set up the vertex and element arrays and batches for this segment.
 
-    for (i = meshes.begin(); i != meshes.end(); ++i)
+    for (mesh_elem_i i = meshes.begin(); i != meshes.end(); ++i)
     {
+        face_p ptr = face_p(f - f0);
+
         // Create a new batch for this mesh.
 
-        tmp.push_back(batch(i->first->state(), f - f0,
+        tmp.push_back(batch(i->first->state(), ptr,
                             i->first->face_count()));
 
         // Copy the face elements and vertices.
@@ -194,7 +198,7 @@ void ogl::segment::reduce(vert_p v0, vert_p& v,
     {
         batches.push_back(tmp.front());
 
-        for (i = tmp.begin() + 1; i != tmp.end(); ++i)
+        for (batch_i i = tmp.begin() + 1; i != tmp.end(); ++i)
             if (batches.back().bnd == i->bnd)
                 batches.back().num += i->num;
             else
@@ -203,15 +207,17 @@ void ogl::segment::reduce(vert_p v0, vert_p& v,
 
     // Scan for the minimum and maximum elements of each batch.
 
-    for (i = batches.begin(); i != batches.end(); ++i)
+    for (batch_i i = batches.begin(); i != batches.end(); ++i)
     {
+        GLuint *p = (GLuint *) i->ptr;
+
         i->min = std::numeric_limits<GLuint>::max();
         i->max = std::numeric_limits<GLuint>::min();
 
         for (GLsizei j = 0; j < i->num; ++j)
         {
-            i->min = std::min(i->min, i->ptr[j]);
-            i->max = std::max(i->max, i->ptr[j]);
+            i->min = std::min(i->min, p[j]);
+            i->max = std::max(i->max, p[j]);
         }
     }
 }
@@ -219,18 +225,18 @@ void ogl::segment::reduce(vert_p v0, vert_p& v,
 void ogl::segment::enlist(vert_p v0, vert_p& v,
                           face_p f0, face_p& f)
 {
-    std::map<const mesh_p, element *> opaque;
-    std::map<const mesh_p, element *> transp;
+    std::map<const mesh *, element *> opaque;
+    std::map<const mesh *, element *> transp;
 
     // Sort all meshes.
 
-    for (element_set::iterator i = elements.begin(); i != elements.end(); ++i)
-        enlist(opaque, transp);
+    for (element_i i = elements.begin(); i != elements.end(); ++i)
+        (*i)->enlist(opaque, transp);
 
     // Batch all meshes.
 
-    reduce(opaque, opaque_batch, v0, v, f0, f);
-    reduce(transp, transp_batch, v0, v, f0, f);
+    reduce(v0, v, f0, f, opaque, opaque_batch);
+    reduce(v0, v, f0, f, transp, transp_batch);
 }
 
 void ogl::segment::draw_opaque(bool lit) const
@@ -238,6 +244,14 @@ void ogl::segment::draw_opaque(bool lit) const
     // Test the bounding box.
 
     // Draw all opaque meshes.
+
+    for (batch_c i = opaque_batch.begin(); i != opaque_batch.end(); ++i)
+    {
+        i->bnd->bind(lit);
+
+        glDrawRangeElementsEXT(GL_TRIANGLES, i->min, i->max, i->num,
+                               GL_UNSIGNED_INT, i->ptr);
+    }
 }
 
 void ogl::segment::draw_transp(bool lit) const
@@ -245,6 +259,14 @@ void ogl::segment::draw_transp(bool lit) const
     // Test the bounding box.
 
     // Draw all transp meshes.
+
+    for (batch_c i = transp_batch.begin(); i != transp_batch.end(); ++i)
+    {
+        i->bnd->bind(lit);
+
+        glDrawRangeElementsEXT(GL_TRIANGLES, i->min, i->max, i->num,
+                               GL_UNSIGNED_INT, i->ptr);
+    }
 }
 
 //=============================================================================
@@ -258,7 +280,7 @@ ogl::batcher::batcher() : vbo(0), ebo(0), dirty(true)
 
 ogl::batcher::~batcher()
 {
-    for (segment_set::iterator i = segments.begin(); i != segments.end(); ++i)
+    for (segment_i i = segments.begin(); i != segments.end(); ++i)
         delete (*i);
     
     if (ebo) glDeleteBuffersARB(1, &ebo);
@@ -289,10 +311,10 @@ void ogl::batcher::clean()
     GLsizei vsz = 0;
     GLsizei esz = 0;
 
-    for (segment_set::iterator i = segments.begin(); i != segments.end(); ++i)
+    for (segment_i i = segments.begin(); i != segments.end(); ++i)
     {
         vsz += (*i)->vcount() * sizeof (vert);
-        esz += (*i)->fcount() * sizeof (face);
+        esz += (*i)->ecount() * sizeof (face);
     }
 
     // Initialize vertex and element buffers of that size.
@@ -311,7 +333,7 @@ void ogl::batcher::clean()
     f0 = f = face_p(glMapBufferARB(GL_ARRAY_BUFFER_ARB,        GL_WRITE_ONLY));
     v0 = v = vert_p(glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,GL_WRITE_ONLY));
 
-    for (segment_set::iterator i = segments.begin(); i != segments.end(); ++i)
+    for (segment_i i = segments.begin(); i != segments.end(); ++i)
         (*i)->enlist(v0, v, f0, f);
 
     glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
@@ -364,7 +386,7 @@ void ogl::batcher::draw_opaque(bool lit) const
 {
     // Opaque draw all segments.
 
-    for (segment_set::iterator i = segments.begin(); i != segments.end(); ++i)
+    for (segment_i i = segments.begin(); i != segments.end(); ++i)
         (*i)->draw_opaque(lit);
 }
 
@@ -372,7 +394,7 @@ void ogl::batcher::draw_transp(bool lit) const
 {
     // Transp draw all segments.
 
-    for (segment_set::iterator i = segments.begin(); i != segments.end(); ++i)
+    for (segment_i i = segments.begin(); i != segments.end(); ++i)
         (*i)->draw_transp(lit);
 }
 

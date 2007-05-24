@@ -169,7 +169,7 @@ void wrl::box::draw_line() const
                  float(v[1] / 2.0f),
                  float(v[2] / 2.0f));
 
-        line->draw(DRAW_OPAQUE | DRAW_UNLIT);
+//      line->draw(DRAW_OPAQUE | DRAW_UNLIT);
     }
     glPopMatrix();
 }
@@ -186,7 +186,7 @@ void wrl::sphere::draw_line() const
 
         glScalef(r, r, r);
 
-        line->draw(DRAW_OPAQUE | DRAW_UNLIT);
+//      line->draw(DRAW_OPAQUE | DRAW_UNLIT);
     }
     glPopMatrix();
 }

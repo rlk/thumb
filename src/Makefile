@@ -23,8 +23,11 @@ OBJS=   opengl.o \
 	program.o \
 	texture.o \
 	surface.o \
+	binding.o \
+	batcher.o \
 	image.o \
 	frame.o \
+	mesh.o \
 	data.o \
 	lang.o \
 	conf.o \

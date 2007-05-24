@@ -12,7 +12,6 @@
 
 #include <iostream>
 #include <sstream>
-#include <cmath>
 
 #include "obj.hpp"
 #include "data.hpp"
@@ -21,89 +20,19 @@
 
 //-----------------------------------------------------------------------------
 
-void obj::obj::calc_tangent()
-{
-    // Assume all tangent vectors were zeroed during loading.  Enumerate faces.
-
-    for (mesh_i mi = meshs.begin(); mi != meshs.end(); ++mi)
-    {
-        for (ogl::face_i fi = mi->faces.begin(); fi != mi->faces.end(); ++fi)
-        {
-            // Compute the vertex position differences.
-
-            const float *vi = verts[fi->i].v.v;
-            const float *vj = verts[fi->j].v.v;
-            const float *vk = verts[fi->k].v.v;
-
-            float dv0[3], dv1[3];
-
-            dv0[0] = vj[0] - vi[0];
-            dv0[1] = vj[1] - vi[1];
-            dv0[2] = vj[2] - vi[2];
-
-            dv1[0] = vk[0] - vi[0];
-            dv1[1] = vk[1] - vi[1];
-            dv1[2] = vk[2] - vi[2];
-
-            // Compute the vertex texture coordinate differences.
-
-            const float *si = verts[fi->i].s.v;
-            const float *sj = verts[fi->j].s.v;
-            const float *sk = verts[fi->k].s.v;
-
-            float ds0[2], ds1[2];
-
-            ds0[0] = sj[0] - si[0];
-            ds0[1] = sj[1] - si[1];
-
-            ds1[0] = sk[0] - si[0];
-            ds1[1] = sk[1] - si[1];
-
-            // Compute the tangent vector.
-
-            float t[3];
-
-            t[0] = ds1[1] * dv0[0] - ds0[1] * dv1[0];
-            t[1] = ds1[1] * dv0[1] - ds0[1] * dv1[1];
-            t[2] = ds1[1] * dv0[2] - ds0[1] * dv1[2];
-
-            normalize(t);
-
-            // Accumulate the vertex tangent vectors.
-
-            float *ti = verts[fi->i].t.v;
-            float *tj = verts[fi->j].t.v;
-            float *tk = verts[fi->k].t.v;
-
-            ti[0] += t[0];
-            ti[1] += t[1];
-            ti[2] += t[2];
-
-            tj[0] += t[0];
-            tj[1] += t[1];
-            tj[2] += t[2];
-
-            tk[0] += t[0];
-            tk[1] += t[1];
-            tk[2] += t[2];
-        }
-    }
-
-    // Normalize all tangent vectors.
-
-    for (ogl::vert_i vi = verts.begin(); vi != verts.end(); ++vi)
-        normalize(vi->t.v);
-}
-
-//-----------------------------------------------------------------------------
-
-void obj::obj::read_use(std::istream &lin)
+void obj::obj::read_use(std::istream &lin, iset_m& is)
 {
     std::string name;
 
     lin >> name;
 
-    meshs.push_back(mesh(name));
+    // Parse the material name and create a new mesh.
+
+    meshes.push_back(ogl::mesh(name));
+
+    // Reset the index cache.
+
+    is.clear();
 }
 
 int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
@@ -142,11 +71,13 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
 
     if ((ii = is.find(key)) == is.end())
     {
+        int val = int(meshes.back().vert_count());
+
         // ... Create a new index set and vertex.
 
-        is.insert(iset_m::value_type(key, (val = int(verts.size()))));
+        is.insert(iset_m::value_type(key, val));
 
-        verts.push_back(ogl::vert(vv, sv, nv, vi, si, ni));
+        meshes.back().add_vert(ogl::vert(vv, sv, nv, vi, si, ni));
     }
     else val = ii->second;
 
@@ -162,6 +93,10 @@ void obj::obj::read_f(std::istream& lin, ogl::vec3_v& vv,
     std::vector<GLuint>           iv;
     std::vector<GLuint>::iterator ii;
 
+    // Make sure we've got a mesh to add triangles to.
+    
+    if (meshes.empty()) meshes.push_back(ogl::mesh());
+
     // Scan the string, converting index sets to vertex indices.
 
     int i;
@@ -171,14 +106,10 @@ void obj::obj::read_f(std::istream& lin, ogl::vec3_v& vv,
 
     int n = iv.size();
 
-    // Make sure we've got a mesh to add triangles to.
-    
-    if (meshs.empty()) meshs.push_back(mesh());
-
     // Convert our N new vertex indices into N-2 new triangles.
 
     for (i = 0; i < n - 2; ++i)
-        meshs.back().faces.push_back(ogl::face(iv[0], iv[i + 1], iv[i + 2]));
+        meshes.back().add_face(ogl::face(iv[0], iv[i + 1], iv[i + 2]));
 }
 
 //-----------------------------------------------------------------------------
@@ -216,11 +147,13 @@ int obj::obj::read_li(std::istream& lin, ogl::vec3_v& vv,
 
     if ((ii = is.find(key)) == is.end())
     {
+        int val = int(meshes.back().vert_count());
+
         // ... Create a new index set and vertex.
 
-        is.insert(iset_m::value_type(key, (val = int(verts.size()))));
+        is.insert(iset_m::value_type(key, val));
 
-        verts.push_back(ogl::vert(vv, sv, vv, vi, si, -1));
+        meshes.back().add_vert(ogl::vert(vv, sv, vv, vi, si, -1));
     }
     else val = ii->second;
 
@@ -235,6 +168,10 @@ void obj::obj::read_l(std::istream& lin, ogl::vec3_v& vv,
     std::vector<GLuint>           iv;
     std::vector<GLuint>::iterator ii;
 
+    // Make sure we've got a meshace to add lines to.
+    
+    if (meshes.empty()) meshes.push_back(ogl::mesh());
+
     // Scan the string, converting index sets to vertex indices.
 
     int i;
@@ -244,14 +181,10 @@ void obj::obj::read_l(std::istream& lin, ogl::vec3_v& vv,
 
     int n = iv.size();
 
-    // Make sure we've got a meshace to add lines to.
-    
-    if (meshs.empty()) meshs.push_back(mesh());
-
     // Convert our N new vertex indices into N-1 new line.
 
     for (i = 0; i < n - 1; ++i)
-        meshs.back().lines.push_back(ogl::line(iv[i], iv[i + 1]));
+        meshes.back().add_line(ogl::line(iv[i], iv[i + 1]));
 }
 
 //-----------------------------------------------------------------------------
@@ -317,7 +250,7 @@ obj::obj::obj(std::string name)
                 else if (key == "v")      read_v  (in, vv);
                 else if (key == "vt")     read_vt (in, sv);
                 else if (key == "vn")     read_vn (in, nv);
-                else if (key == "usemtl") read_use(in);
+                else if (key == "usemtl") read_use(in, is);
             }
         }
     }
@@ -328,7 +261,8 @@ obj::obj::obj(std::string name)
 
     // Initialize post-load state.
 
-    calc_tangent();
+    for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
+        i->calc_tangent();
 }
 
 obj::obj::~obj()
@@ -339,6 +273,8 @@ obj::obj::~obj()
 
 void obj::obj::box_bound(GLfloat *b) const
 {
+    float c[6];
+
     b[0] = std::numeric_limits<GLfloat>::max();
     b[1] = std::numeric_limits<GLfloat>::max();
     b[2] = std::numeric_limits<GLfloat>::max();
@@ -346,120 +282,31 @@ void obj::obj::box_bound(GLfloat *b) const
     b[4] = std::numeric_limits<GLfloat>::min();
     b[5] = std::numeric_limits<GLfloat>::min();
 
-    for (ogl::vert_c vi = verts.begin(); vi != verts.end(); ++vi)
+    for (ogl::mesh_c i = meshes.begin(); i != meshes.end(); ++i)
     {
-        b[0] = std::min(b[0], vi->v.v[0]);
-        b[1] = std::min(b[1], vi->v.v[1]);
-        b[2] = std::min(b[2], vi->v.v[2]);
-        b[3] = std::max(b[3], vi->v.v[0]);
-        b[4] = std::max(b[4], vi->v.v[1]);
-        b[5] = std::max(b[5], vi->v.v[2]);
+        i->box_bound(c);
+
+        b[0] = std::min(b[0], c[0]);
+        b[1] = std::min(b[1], c[1]);
+        b[2] = std::min(b[2], c[2]);
+        b[3] = std::max(b[3], c[3]);
+        b[4] = std::max(b[4], c[4]);
+        b[5] = std::max(b[5], c[5]);
     }
 }
 
 void obj::obj::sph_bound(GLfloat *b) const
 {
+    float c[1];
+
     b[0] = std::numeric_limits<GLfloat>::min();
 
-    for (ogl::vert_c vi = verts.begin(); vi != verts.end(); ++vi)
+    for (ogl::mesh_c i = meshes.begin(); i != meshes.end(); ++i)
     {
-        GLfloat r = sqrt(vi->v.v[0] * vi->v.v[0] +
-                         vi->v.v[1] * vi->v.v[1] +
-                         vi->v.v[2] * vi->v.v[2]);
+        i->sph_bound(c);
 
-        b[0] = std::max(b[0], r);
+        b[0] = std::max(b[0], c[0]);
     }
 }
 
-//-----------------------------------------------------------------------------
-/*
-GLsizei obj::obj::vsize() const
-{
-    return (verts.size() * sizeof (ogl::vert));
-}
-
-GLsizei obj::obj::esize() const
-{
-    GLsizei esz = 0;
-
-    for (mesh_c si = meshs.begin(); si != meshs.end(); ++si)
-        esz += (si->faces.size() * 3 * sizeof (GLuint) +
-                si->lines.size() * 2 * sizeof (GLuint));
-
-    return esz;
-}
-
-GLsizei obj::obj::vcopy(GLsizei off)
-{
-    GLsizei vsz = vsize();
-
-    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, off, vsz, &verts.front());
-
-    return off + vsz;
-}
-
-GLsizei obj::obj::ecopy(GLsizei esz, GLsizei vsz)
-{
-    GLuint *ptr;
-    GLuint  i0 = GLuint(vsz / sizeof (ogl::vert));
-    GLuint  ii = GLuint(esz / sizeof (GLuint));
-
-    // Upload element indices and note element ranges.
-
-    if ((ptr = (GLuint *) glMapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-                                         GL_WRITE_ONLY)))
-    {
-        for (mesh_i si = meshs.begin(); si != meshs.end(); ++si)
-        {
-            // Convert face indices to global element buffer indices.
-
-//          si->fp = ptr + ii;
-            si->fp = (GLuint *) (ii * sizeof (GLuint));
-            si->f0 = std::numeric_limits<GLuint>::max();
-            si->fn = std::numeric_limits<GLuint>::min();
-
-            ogl::face_c fi;
-
-            for (fi = si->faces.begin(); fi != si->faces.end(); ++fi)
-            {
-                GLuint i = i0 + fi->i;
-                GLuint j = i0 + fi->j;
-                GLuint k = i0 + fi->k;
-
-                ptr[ii++] = i;
-                ptr[ii++] = j;
-                ptr[ii++] = k;
-
-                si->f0 = std::min(std::min(si->f0, i), std::min(j, k));
-                si->fn = std::max(std::max(si->fn, i), std::max(j, k));
-            }
-
-            // Convert line indices to global element buffer indices.
-
-//          si->lp = ptr + ii;
-            si->lp = (GLuint *) (ii * sizeof (GLuint));
-            si->l0 = std::numeric_limits<GLuint>::max();
-            si->ln = std::numeric_limits<GLuint>::min();
-
-            ogl::line_c li;
-
-            for (li = si->lines.begin(); li != si->lines.end(); ++li)
-            {
-                GLuint i = i0 + li->i;
-                GLuint j = i0 + li->j;
-
-                ptr[ii++] = i;
-                ptr[ii++] = j;
-
-                si->l0 = std::min(std::min(si->l0, i), j);
-                si->ln = std::max(std::max(si->ln, i), j);
-            }
-        }
-
-        glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
-    }
-
-    return ii * sizeof (GLuint);
-}
-*/
 //-----------------------------------------------------------------------------

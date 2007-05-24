@@ -105,8 +105,8 @@ namespace ogl
         const binding *material;
 
         vert_v verts;
-        line_v lines;
         face_v faces;
+        line_v lines;
 
     public:
 
@@ -114,18 +114,32 @@ namespace ogl
         mesh();
        ~mesh();
 
-        vert *vert_cache(vert_p, const GLfloat *) const;
-        face *face_cache(face_p, GLuint)          const;
-        line *line_cache(line_p, GLuint)          const;
+        void calc_tangent();
 
-        GLsizei vert_count() const;
-        GLsizei face_count() const;
-        GLsizei line_count() const;
+        // State handlers
 
         const binding *state() const { return material; }
+
+        void    add_vert(vert v)   { verts.push_back(v); }
+        void    add_face(face f)   { faces.push_back(f); }
+        void    add_line(line l)   { lines.push_back(l); }
+
+        GLsizei vert_count() const { return verts.size(); }
+        GLsizei face_count() const { return faces.size(); }
+        GLsizei line_count() const { return lines.size(); }
+
+        // Batch initializers
+
+        vert_p vert_cache(vert_p, const GLfloat *) const;
+        face_p face_cache(face_p, GLuint)          const;
+        line_p line_cache(line_p, GLuint)          const;
+
+        // Bound computers
+
+        void box_bound(GLfloat *) const;
+        void sph_bound(GLfloat *) const;
     };
 
-    typedef mesh                             *mesh_p;
     typedef std::vector<mesh>                 mesh_v;
     typedef std::vector<mesh>::iterator       mesh_i;
     typedef std::vector<mesh>::const_iterator mesh_c;

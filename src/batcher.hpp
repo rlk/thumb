@@ -31,11 +31,18 @@ namespace ogl
     class element;
     class segment;
 
-    typedef std::set<element *> element_s;
-    typedef std::set<segment *> segment_s;
+    typedef std::set<element *>           element_s;
+    typedef std::set<element *>::iterator element_i;
+    typedef std::set<segment *>           segment_s;
+    typedef std::set<segment *>::iterator segment_i;
 
-    typedef std::map<const mesh_p, element *> element_m;
-    typedef std::map<const mesh_p, vert    *> vert_m;
+    typedef std::map<const mesh *, vert *>                 mesh_vert_m;
+    typedef std::map<const mesh *, vert *>::iterator       mesh_vert_i;
+    typedef std::map<const mesh *, vert *>::const_iterator mesh_vert_c;
+
+    typedef std::map<const mesh *, element *>                 mesh_elem_m;
+    typedef std::map<const mesh *, element *>::iterator       mesh_elem_i;
+    typedef std::map<const mesh *, element *>::const_iterator mesh_elem_c;
 
     //-------------------------------------------------------------------------
 
@@ -48,17 +55,21 @@ namespace ogl
         GLuint  min;
         GLuint  max;
 
-        batch(const binding *, face *, GLsizei);
+        batch(const binding *b, face *p, GLsizei n) :
+            bnd(b), ptr(p), num(n), min(0), max(0) { }
     };
 
-    typedef std::vector<batch> batch_v;
+    typedef std::vector<batch>                 batch_v;
+    typedef std::vector<batch>::iterator       batch_i;
+    typedef std::vector<batch>::const_iterator batch_c;
 
     //-------------------------------------------------------------------------
     // Batchable element
 
     class element
     {
-        vert_m vert_array;
+        const surface *srf;
+        mesh_vert_m vert_array;
 
         GLfloat M[16];
 
@@ -76,10 +87,10 @@ namespace ogl
         GLsizei vcount() const;
         GLsizei ecount() const;
 
-        void enlist(element_m&,
-                    element_m&);
+        void enlist(mesh_elem_m&,
+                    mesh_elem_m&);
 
-        vert *set(const mesh *, vert *);
+        vert *vert_cache(const mesh *, vert *);
     };
 
     //-------------------------------------------------------------------------
@@ -87,7 +98,7 @@ namespace ogl
 
     class segment
     {
-        element_set elements;
+        element_s elements;
 
         batch_v opaque_batch;
         batch_v transp_batch;
@@ -113,7 +124,7 @@ namespace ogl
         GLsizei vcount() const;
         GLsizei ecount() const;
 
-        void reduce(vert_p, vert_p&, face_p, face_p&, element_m&, batch_v&);
+        void reduce(vert_p, vert_p&, face_p, face_p&, mesh_elem_m&, batch_v&);
         void enlist(vert_p, vert_p&, face_p, face_p&);
 
         // Renderers
@@ -127,7 +138,7 @@ namespace ogl
 
     class batcher
     {
-        segment_set segments;
+        segment_s segments;
 
         GLuint vbo;
         GLuint ebo;

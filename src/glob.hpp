@@ -26,6 +26,7 @@
 //-----------------------------------------------------------------------------
 
 // TODO: rework these pointers to allow auto_ptr for RAII.
+// TODO: consider templating this repetition.
 
 namespace app
 {

@@ -19,23 +19,20 @@ namespace ogl
 
         const std::string& get_name() const { return name; }
 
-        surface(std::string);
-       ~surface();
+        surface(std::string name) : name(name), data(new obj::obj(name)) { }
+
+        // Mesh accessors
+
+        GLsizei     max_mesh()          const { return data->max_mesh();  }
+        const mesh *get_mesh(GLsizei i) const { return data->get_mesh(i); }
 
         // Bound calculators
 
-        void box_bound(GLfloat *) const;
-        void sph_bound(GLfloat *) const;
-
-        // Batch data accessors
-
-        GLsizei      count()                                   const;
-        GLsizei      esize(GLsizei)                            const;
-        GLsizei      vsize(GLsizei)                            const;
-        void         ecopy(GLsizei, GLvoid *, GLuint)          const;
-        void         vcopy(GLsizei, GLvoid *, const GLfloat *) const;
-        std::string& state(GLsizei)                            const;
+        void box_bound(GLfloat *b) const { return data->box_bound(b); }
+        void sph_bound(GLfloat *b) const { return data->sph_bound(b); }
     };
 }
+
+//-----------------------------------------------------------------------------
 
 #endif

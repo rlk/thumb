@@ -254,7 +254,7 @@ void wrl::atom::draw_fill() const
         glPushMatrix();
         {
             mult_M();
-            fill->draw(DRAW_OPAQUE | DRAW_UNLIT);
+//          fill->draw(DRAW_OPAQUE | DRAW_UNLIT);
         }
         glPopMatrix();
     }
@@ -267,7 +267,7 @@ void wrl::atom::draw_line() const
         glPushMatrix();
         {
             mult_M();
-            line->draw(DRAW_OPAQUE | DRAW_UNLIT);
+//          line->draw(DRAW_OPAQUE | DRAW_UNLIT);
         }
         glPopMatrix();
     }

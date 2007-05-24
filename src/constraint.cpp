@@ -251,11 +251,12 @@ void constraint::draw() const
         // Draw the oriented constraint grid.
 
         glMultMatrixf(T);
-
+/*
         if (mode)
             rot[grid]->draw();
         else
             pos[grid]->draw();
+*/
     }
     glPopMatrix();
     glPopAttrib();

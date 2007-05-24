@@ -22,10 +22,14 @@ app::glob::~glob()
 
     std::map<std::string, surface>::iterator si;
     std::map<std::string, texture>::iterator ti;
+    std::map<std::string, binding>::iterator bi;
     std::map<std::string, program>::iterator pi;
 
     for (si = surface_map.begin(); si != surface_map.end(); ++si)
         delete si->second.ptr;
+
+    for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+        delete bi->second.ptr;
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         delete ti->second.ptr;
@@ -134,6 +138,48 @@ void app::glob::dupe_texture(const ogl::texture *p)
 
         if (texture_map.find(name) != texture_map.end())
             texture_map[name].ref++;
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+const ogl::binding *app::glob::load_binding(std::string name)
+{
+    if (binding_map.find(name) == binding_map.end())
+    {
+        binding_map[name].ptr = new ogl::binding(name);
+        binding_map[name].ref = 1;
+    }
+    else   binding_map[name].ref++;
+
+    return binding_map[name].ptr;
+}
+
+void app::glob::free_binding(std::string name)
+{
+    if (binding_map.find(name) != binding_map.end())
+    {
+        if (--binding_map[name].ref == 0)
+        {
+            delete binding_map[name].ptr;
+            binding_map.erase(name);
+        }
+    }
+}
+
+void app::glob::free_binding(const ogl::binding *p)
+{
+    if (p) free_binding(p->get_name());
+}
+
+void app::glob::dupe_binding(const ogl::binding *p)
+{
+    if (p)
+    {
+        const std::string& name = p->get_name();
+
+        if (binding_map.find(name) != binding_map.end())
+            binding_map[name].ref++;
     }
 }
 
