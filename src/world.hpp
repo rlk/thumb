@@ -49,11 +49,15 @@ namespace wrl
 
         ogl::batcher *edit_bat;
         ogl::segment *edit_seg;
+        ogl::batcher *line_bat;
+        ogl::segment *line_seg;
 
         int serial;
 
         ops::operation_l undo_list;
         ops::operation_l redo_list;
+
+        void batch_selection();
 
         void doop(ops::operation_p);
 
@@ -92,8 +96,7 @@ namespace wrl
 
         void create_set(atom_set&);
         void delete_set(atom_set&);
-        void modify_set(atom_set&, const float *,
-                                   const float *);
+        void modify_set(atom_set&, const float *);
 
         // Undo-able / redo-able operation.
 

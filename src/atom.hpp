@@ -71,11 +71,13 @@ namespace wrl
 
         void get_world(float[16]) const;
         void get_local(float[16]) const;
-        void transform(const float *,
-                       const float *);
+        void transform(const float *);
 
         ogl::element *get_fill() { return fill; }
         ogl::element *get_line() { return line; }
+
+        void mov_fill();
+        void mov_line();
 
         // Physics parameter accessors
 

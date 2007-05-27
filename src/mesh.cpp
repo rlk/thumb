@@ -140,10 +140,13 @@ ogl::vert_p ogl::mesh::vert_cache(ogl::vert_p o, const GLfloat *M,
     return o + n;
 }
 
-ogl::face_p ogl::mesh::face_cache(ogl::face_p o, GLuint d, GLuint& min,
-                                                           GLuint& max) const
+GLuint *ogl::mesh::face_cache(GLuint *o, GLuint d, GLuint& min,
+                                                   GLuint& max) const
 {
     const size_t n = faces.size();
+
+    min = std::numeric_limits<GLuint>::max();
+    max = std::numeric_limits<GLuint>::min();
 
     // Acquire a temporary element buffer.
 
@@ -172,13 +175,16 @@ ogl::face_p ogl::mesh::face_cache(ogl::face_p o, GLuint d, GLuint& min,
 
     // Walk the pointer offset down the element array.
 
-    return o + n;
+    return o + n * 3;
 }
 
-ogl::line_p ogl::mesh::line_cache(ogl::line_p o, GLuint d, GLuint& min,
-                                                           GLuint& max) const
+GLuint *ogl::mesh::line_cache(GLuint *o, GLuint d, GLuint& min,
+                                                   GLuint& max) const
 {
     const size_t n = lines.size();
+
+    min = std::numeric_limits<GLuint>::max();
+    max = std::numeric_limits<GLuint>::min();
 
     // Acquire a temporary element buffer.
 
@@ -204,7 +210,7 @@ ogl::line_p ogl::mesh::line_cache(ogl::line_p o, GLuint d, GLuint& min,
 
     // Walk the pointer offset down the element array.
 
-    return o + n;
+    return o + n * 2;
 }
 
 //-----------------------------------------------------------------------------

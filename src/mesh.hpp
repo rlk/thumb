@@ -130,9 +130,9 @@ namespace ogl
 
         // Batch initializers
 
-        vert_p vert_cache(vert_p, const GLfloat *, const GLfloat *) const;
-        face_p face_cache(face_p, GLuint, GLuint&, GLuint&)         const;
-        line_p line_cache(line_p, GLuint, GLuint&, GLuint&)         const;
+        vert_p  vert_cache(vert_p, const GLfloat *, const GLfloat *) const;
+        GLuint *face_cache(GLuint *, GLuint, GLuint&, GLuint&)       const;
+        GLuint *line_cache(GLuint *, GLuint, GLuint&, GLuint&)       const;
 
         // Bound computers
 

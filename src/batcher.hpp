@@ -24,6 +24,8 @@
 namespace ogl
 {
     //-------------------------------------------------------------------------
+    // TODO: implement mesh sorting based on binding order
+    // TODO: implement binding sorting
 
     class element;
     class segment;
@@ -47,14 +49,16 @@ namespace ogl
     struct batch
     {
         const binding *bnd;
-        const GLvoid  *off;
+        const GLuint  *off;
 
+        GLenum  typ;
         GLsizei num;
         GLuint  min;
         GLuint  max;
 
-        batch(const binding *b, GLvoid *o, GLsizei n, GLuint a, GLuint z) :
-            bnd(b), off(o), num(n), min(a), max(z) { }
+        batch(const binding *b,
+              GLuint *o, GLenum t, GLsizei n, GLuint a, GLuint z) :
+            bnd(b), off(o), typ(t), num(n), min(a), max(z) { }
     };
 
     typedef std::vector<batch>                 batch_v;
@@ -80,11 +84,10 @@ namespace ogl
         element(std::string);
        ~element();
 
+        void move(const GLfloat *);
+
         void live() { status = true;  }
         void dead() { status = false; }
-
-        void move(const GLfloat *,
-                  const GLfloat *);
 
         void box_bound(GLfloat *b) const { return srf->box_bound(b); }
         void sph_bound(GLfloat *b) const { return srf->sph_bound(b); }
@@ -92,7 +95,7 @@ namespace ogl
         // Batch data handlers
 
         GLsizei vcount() const;
-        GLsizei fcount() const;
+        GLsizei ecount() const;
 
         void enlist(mesh_elem_m&,
                     mesh_elem_m&);
@@ -124,13 +127,15 @@ namespace ogl
         void insert(element *e) { if (e) { elements.insert(e); e->live(); }}
         void remove(element *e) { if (e) { elements.erase (e); e->dead(); }}
 
+        void clear();
+
         // Batch data handlers
 
         GLsizei vcount() const;
-        GLsizei fcount() const;
+        GLsizei ecount() const;
 
-        void reduce(vert_p&, face_p&, mesh_elem_m&, batch_v&);
-        void enlist(vert_p&, face_p&);
+        GLuint *reduce(vert_p&, GLuint *, mesh_elem_m&, batch_v&);
+        GLuint *enlist(vert_p&, GLuint *);
 
         // Renderers
 

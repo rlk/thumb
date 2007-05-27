@@ -142,23 +142,28 @@ void wrl::atom::get_surface(dSurfaceParameters& s)
 
 //-----------------------------------------------------------------------------
 
-void wrl::atom::transform(const float *T, const float *X)
+void wrl::atom::transform(const float *T)
 {
     // Apply the given transformation.
 
     float M[16];
-    float I[16];
 
     mult_mat_mat(M, T, current_M);
 
     load_mat(current_M, M);
     load_mat(default_M, M);
-    load_inv(I, M);
 
     ode_set_geom_transform(edit_geom, M);
+}
 
-    if (fill) fill->move(M, I);
-    if (line) line->move(M, I);
+void wrl::atom::mov_fill()
+{
+    if (fill) fill->move(current_M);
+}
+
+void wrl::atom::mov_line()
+{
+    if (line) line->move(current_M);
 }
 
 void wrl::atom::get_world(float M[16]) const

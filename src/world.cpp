@@ -37,6 +37,11 @@ wrl::world::world() : serial(1)
     edit_seg = new ogl::segment();
     
     edit_bat->insert(edit_seg);
+
+    line_bat = new ogl::batcher();
+    line_seg = new ogl::segment();
+    
+    line_bat->insert(line_seg);
 }
 
 wrl::world::~world()
@@ -52,6 +57,8 @@ wrl::world::~world()
 
     // Finalize the rendere batcher.
 
+    delete line_seg;
+    delete line_bat;
     delete edit_seg;
     delete edit_bat;
 }
@@ -333,6 +340,7 @@ void wrl::world::undo()
     if (!undo_list.empty())
     {
         sel = undo_list.front()->undo(this);
+        batch_selection();
 
         redo_list.push_front(undo_list.front());
         undo_list.pop_front();
@@ -346,6 +354,7 @@ void wrl::world::redo()
     if (!redo_list.empty())
     {
         sel = redo_list.front()->redo(this);
+        batch_selection();
 
         undo_list.push_front(redo_list.front());
         redo_list.pop_front();
@@ -375,12 +384,27 @@ int wrl::world::get_param(int k, std::string& expr)
 
 //-----------------------------------------------------------------------------
 
+void wrl::world::batch_selection()
+{
+    // Flush the line batcher.
+
+    line_seg->clear();
+    line_bat->dirty();
+
+    // Batch the line elements of all selected atoms.
+
+    for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
+        line_seg->insert((*i)->get_line());
+}
+
 void wrl::world::click_selection(atom *a)
 {
     if (sel.find(a) != sel.end())
         sel.erase(a);
     else
         sel.insert(a);
+
+    batch_selection();
 }
 
 void wrl::world::clone_selection()
@@ -396,11 +420,15 @@ void wrl::world::clone_selection()
 
     sel = clones;
     do_create();
+
+    batch_selection();
 }
 
 void wrl::world::clear_selection()
 {
     sel.clear();
+
+    batch_selection();
 }
 
 bool wrl::world::check_selection()
@@ -427,6 +455,7 @@ void wrl::world::invert_selection()
     // Giving the set of all unselected entities.
 
     sel = unselected;
+    batch_selection();
 }
 
 void wrl::world::extend_selection()
@@ -447,6 +476,8 @@ void wrl::world::extend_selection()
     {
         if (ids.find((*j)->body()) != ids.end()) sel.insert(*j);
     }
+
+    batch_selection();
 }
 
 //-----------------------------------------------------------------------------
@@ -477,17 +508,26 @@ void wrl::world::delete_set(atom_set& set)
     }
 }
 
-void wrl::world::modify_set(atom_set& set, const float *T,
-                                           const float *I)
+void wrl::world::modify_set(atom_set& set, const float *T)
 {
     // Apply the given transform to all given atoms.
 
-    edit_bat->bind();
-
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
-        (*i)->transform(T, I);
+        (*i)->transform(T);
 
+    edit_bat->bind();
+    {
+        for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
+            (*i)->mov_fill();
+    }
     edit_bat->free();
+
+    line_bat->bind();
+    {
+        for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
+            (*i)->mov_line();
+    }
+    line_bat->free();
 }
 
 //-----------------------------------------------------------------------------
@@ -533,6 +573,8 @@ void wrl::world::do_create()
     // (This will have nullified all broken joint target IDs.)
 
     if (!sel.empty()) doop(new ops::create_op(sel));
+
+    batch_selection();
 }
 
 void wrl::world::do_delete()
@@ -540,6 +582,9 @@ void wrl::world::do_delete()
     if (!sel.empty()) doop(new ops::delete_op(sel));
 
     sel.clear();
+
+    line_seg->clear();
+    line_bat->dirty();
 }
 
 void wrl::world::do_enjoin()
@@ -807,15 +852,21 @@ void wrl::world::draw_scene()
 void wrl::world::draw_gizmo() const
 {
     view->apply();
-/*
+
     line_init();
 
+    line_bat->draw_init();
+    line_bat->draw_opaque(false);
+    line_bat->draw_transp(false);
+    line_bat->draw_fini();
+
+    line_fini();
+
+/*
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
         (*i)->draw_foci(edit_focus);
     for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
         (*i)->draw_stat();
-
-    line_fini();
 */
 }
 

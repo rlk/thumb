@@ -102,14 +102,14 @@ ops::modify_op::modify_op(wrl::atom_set& S, const float M[16]) : operation(S)
 
 wrl::atom_set& ops::modify_op::undo(wrl::world *w)
 {
-    w->modify_set(selection, I, T);
+    w->modify_set(selection, I);
     done = false;
     return selection;
 }
 
 wrl::atom_set& ops::modify_op::redo(wrl::world *w)
 {
-    w->modify_set(selection, T, I);
+    w->modify_set(selection, T);
     done = true;
     return selection;
 }

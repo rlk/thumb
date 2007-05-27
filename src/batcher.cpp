@@ -46,12 +46,12 @@ ogl::element::~element()
     glob->free_surface(srf);
 }
 
-void ogl::element::move(const GLfloat *M, const GLfloat *I)
+void ogl::element::move(const GLfloat *M)
 {
     // Cache the current transform.
 
     load_mat(this->M, M);
-    load_mat(this->I, I);
+    load_inv(this->I, M);
 
     // Assume the VBO is bound.  Update the pretransformed vertex array.
 
@@ -69,21 +69,22 @@ GLsizei ogl::element::vcount() const
     GLsizei vc = 0;
 
     for (mesh_vert_c i = off.begin(); i != off.end(); ++i)
-        vc += i->first->vert_count();
+        vc += (i->first->vert_count());
 
     return vc;
 }
 
-GLsizei ogl::element::fcount() const
+GLsizei ogl::element::ecount() const
 {
     // Sum all element counts.
 
-    GLsizei fc = 0;
+    GLsizei ec = 0;
 
     for (mesh_vert_c i = off.begin(); i != off.end(); ++i)
-        fc += i->first->face_count();
+        ec += (i->first->face_count() * 3 +
+               i->first->line_count() * 2);
 
-    return fc;
+    return ec;
 }
 
 //-----------------------------------------------------------------------------
@@ -94,7 +95,7 @@ void ogl::element::enlist(mesh_elem_m& opaque,
     // Insert each mesh into the proper opacity set.
 
     for (mesh_vert_c i = off.begin(); i != off.end(); ++i)
-        if (i->first->state()->opaque())
+        if (i->first->state() == 0 || i->first->state()->opaque())
             opaque.insert(mesh_elem_m::value_type(i->first, this));
         else
             transp.insert(mesh_elem_m::value_type(i->first, this));
@@ -122,11 +123,20 @@ ogl::segment::segment()
 
 ogl::segment::~segment()
 {
+    clear();
 }
 
 void ogl::segment::move(const GLfloat *T)
 {
     load_mat(M, T);
+}
+
+void ogl::segment::clear()
+{
+    for (element_i i = elements.begin(); i != elements.end(); ++i)
+        (*i)->dead();
+
+    elements.clear();
 }
 
 //-----------------------------------------------------------------------------
@@ -143,22 +153,22 @@ GLsizei ogl::segment::vcount() const
     return vc;
 }
 
-GLsizei ogl::segment::fcount() const
+GLsizei ogl::segment::ecount() const
 {
-    // Sum all face counts.
+    // Sum all element counts.
 
-    GLsizei fc = 0;
+    GLsizei ec = 0;
 
     for (element_i i = elements.begin(); i != elements.end(); ++i)
-        fc += (*i)->fcount();
+        ec += (*i)->ecount();
 
-    return fc;
+    return ec;
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::segment::reduce(vert_p& v,
-                          face_p& f, mesh_elem_m& meshes, batch_v& batches)
+GLuint *ogl::segment::reduce(vert_p& v, GLuint *e,
+                             mesh_elem_m& meshes, batch_v& batches)
 {
     batch_v tmp;
 
@@ -166,22 +176,35 @@ void ogl::segment::reduce(vert_p& v,
 
     for (mesh_elem_i i = meshes.begin(); i != meshes.end(); ++i)
     {
-        GLvoid *off = (GLvoid *) f;
+        GLuint min, max, d = GLuint(v) / sizeof (vert);
 
-        GLuint  min = std::numeric_limits<GLuint>::max();
-        GLuint  max = std::numeric_limits<GLuint>::min();
-
-        GLuint d = GLuint(v) / sizeof (vert);
-
-        // Copy the face elements and vertices.
+        // Cache the vertices to the vertex buffer.
 
         v = i->second->vert_cache(i->first, v);
-        f = i->first ->face_cache(f, d, min, max);
 
-        // Create a new batch for this mesh.
+        // Cache the face elements and create a face batch.
 
-        tmp.push_back(batch(i->first->state(), off,
-                            i->first->face_count() * 3, min, max));
+        if (i->first->face_count())
+        {
+            GLuint *off = e;
+
+            e = i->first->face_cache(e, d, min, max);
+
+            tmp.push_back(batch(i->first->state(), off, GL_TRIANGLES,
+                                i->first->face_count() * 3, min, max));
+        }
+
+        // Cache the line elements and create a line batch.
+
+        if (i->first->line_count())
+        {
+            GLuint *off = e;
+
+            e = i->first->line_cache(e, d, min, max);
+
+            tmp.push_back(batch(i->first->state(), off, GL_LINES,
+                                i->first->line_count() * 2, min, max));
+        }
     }
 
     // Merge adjacent batches that share the same state binding.
@@ -191,7 +214,8 @@ void ogl::segment::reduce(vert_p& v,
         batches.push_back(tmp.front());
 
         for (batch_i i = tmp.begin() + 1; i != tmp.end(); ++i)
-            if (batches.back().bnd == i->bnd)
+            if (batches.back().bnd == i->bnd &&
+                batches.back().typ == i->typ)
             {
                 batches.back().num += i->num;
                 batches.back().min  = std::min(i->min, batches.back().min);
@@ -200,9 +224,11 @@ void ogl::segment::reduce(vert_p& v,
             else
                 batches.push_back(*i);
     }
+
+    return e;
 }
 
-void ogl::segment::enlist(vert_p& v, face_p& f)
+GLuint *ogl::segment::enlist(vert_p& v, GLuint *e)
 {
     mesh_elem_m opaque;
     mesh_elem_m transp;
@@ -217,8 +243,10 @@ void ogl::segment::enlist(vert_p& v, face_p& f)
     opaque_bat.clear();
     transp_bat.clear();
 
-    reduce(v, f, opaque, opaque_bat);
-    reduce(v, f, transp, transp_bat);
+    e = reduce(v, e, opaque, opaque_bat);
+    e = reduce(v, e, transp, transp_bat);
+
+    return e;
 }
 
 void ogl::segment::draw_opaque(bool lit) const
@@ -229,9 +257,9 @@ void ogl::segment::draw_opaque(bool lit) const
 
     for (batch_c i = opaque_bat.begin(); i != opaque_bat.end(); ++i)
     {
-        i->bnd->bind(lit);
+        if (i->bnd) i->bnd->bind(lit);
 
-        glDrawRangeElementsEXT(GL_TRIANGLES, i->min, i->max, i->num,
+        glDrawRangeElementsEXT(i->typ, i->min, i->max, i->num,
                                GL_UNSIGNED_INT, i->off);
     }
 }
@@ -244,9 +272,9 @@ void ogl::segment::draw_transp(bool lit) const
 
     for (batch_c i = transp_bat.begin(); i != transp_bat.end(); ++i)
     {
-        i->bnd->bind(lit);
+        if (i->bnd) i->bnd->bind(lit);
 
-        glDrawRangeElementsEXT(GL_TRIANGLES, i->min, i->max, i->num,
+        glDrawRangeElementsEXT(i->typ, i->min, i->max, i->num,
                                GL_UNSIGNED_INT, i->off);
     }
 }
@@ -278,12 +306,12 @@ void ogl::batcher::clean()
     // Sum all vertex array and element array sizes.
 
     GLsizei vsz = 0;
-    GLsizei fsz = 0;
+    GLsizei esz = 0;
 
     for (segment_i i = segments.begin(); i != segments.end(); ++i)
     {
         vsz += (*i)->vcount() * sizeof (vert);
-        fsz += (*i)->fcount() * sizeof (face);
+        esz += (*i)->ecount() * sizeof (GLuint);
     }
 
     // Initialize vertex and element buffers of that size.
@@ -292,15 +320,15 @@ void ogl::batcher::clean()
     glBufferDataARB(GL_ARRAY_BUFFER_ARB,         vsz, 0, GL_STATIC_DRAW_ARB);
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, fsz, 0, GL_STATIC_DRAW_ARB);
+    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, esz, 0, GL_STATIC_DRAW_ARB);
 
     // Let all segments copy to the buffers.
 
-    vert *v = 0;
-    face *f = 0;
+    vert   *v = 0;
+    GLuint *e = 0;
 
     for (segment_i i = segments.begin(); i != segments.end(); ++i)
-        (*i)->enlist(v, f);
+        e = (*i)->enlist(v, e);
 
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
