@@ -353,6 +353,13 @@ void mult_mat_vec(float v[4], const float M[16], const float u[4])
     v[3] = M[3] * u[0] + M[7] * u[1] + M[B] * u[2] + M[F] * u[3];
 }
 
+void mult_xps_pos(float v[3], const float M[16], const float u[3])
+{
+    v[0] = M[0] * u[0] + M[1] * u[1] + M[2] * u[2] + M[3];
+    v[1] = M[4] * u[0] + M[5] * u[1] + M[6] * u[2] + M[7];
+    v[2] = M[8] * u[0] + M[9] * u[1] + M[A] * u[2] + M[B];
+}
+
 void mult_xps_vec(float v[4], const float M[16], const float u[4])
 {
     v[0] = M[0] * u[0] + M[1] * u[1] + M[2] * u[2] + M[3] * u[3];

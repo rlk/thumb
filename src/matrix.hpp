@@ -80,6 +80,7 @@ void Rmul_rot_inv(float[16], float, float, float, float);
 void mult_mat_mat(float[16], const float[16], const float[16]);
 void mult_mat_pos(float[3],  const float[16], const float[3]);
 void mult_mat_vec(float[4],  const float[16], const float[4]);
+void mult_xps_pos(float[3],  const float[16], const float[3]);
 void mult_xps_vec(float[4],  const float[16], const float[4]);
 
 /*---------------------------------------------------------------------------*/

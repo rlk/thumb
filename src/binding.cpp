@@ -17,8 +17,8 @@
 
 ogl::binding::binding(std::string name) : name(name)
 {
-    lite = glob->load_program("object-lite.vert", "object-lite-frag");
-    dark = glob->load_program("object-dark.vert", "object-dark-frag");
+    lite = glob->load_program("object-lite.vert", "object-lite.frag");
+    dark = glob->load_program("object-dark.vert", "object-dark.frag");
 
     diff = glob->load_texture("solid/metal_box_diffuse.png");
     bump = glob->load_texture("solid/metal_box_bump.png");

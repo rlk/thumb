@@ -15,7 +15,6 @@
 
 #include "param.hpp"
 #include "atom.hpp"
-#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -31,8 +30,7 @@ namespace wrl
 
     public:
 
-        solid(const ogl::surface *,
-              const ogl::surface *);
+        solid(std::string, std::string);
 
         // Physics initialization methods
 
@@ -60,7 +58,7 @@ namespace wrl
 
     public:
 
-        box(dSpaceID, const ogl::surface *);
+        box(dSpaceID, std::string);
 
         virtual box *clone() const { return new box(*this); }
 
@@ -88,13 +86,13 @@ namespace wrl
 
     public:
 
-        sphere(dSpaceID, const ogl::surface *);
+        sphere(dSpaceID, std::string);
 
         virtual sphere *clone() const { return new sphere(*this); }
 
         // Physics initialization methods
 
-        virtual void     get_mass(dMass *m);
+        virtual void get_mass(dMass *m);
 
         // Rendering
 

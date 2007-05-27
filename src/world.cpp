@@ -30,6 +30,13 @@ wrl::world::world() : serial(1)
     edit_space = dHashSpaceCreate(0);
     edit_point = dCreateRay(edit_space, 100);
     edit_focus = 0;
+
+    // Initialize the render batcher.
+
+    edit_bat = new ogl::batcher();
+    edit_seg = new ogl::segment();
+    
+    edit_bat->insert(edit_seg);
 }
 
 wrl::world::~world()
@@ -42,6 +49,11 @@ wrl::world::~world()
     // Finalize the editor physical system.
 
     dSpaceDestroy(edit_space);
+
+    // Finalize the rendere batcher.
+
+    delete edit_seg;
+    delete edit_bat;
 }
 
 //-----------------------------------------------------------------------------
@@ -444,7 +456,12 @@ void wrl::world::create_set(atom_set& set)
     // Add all given atoms to the atom set.
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
+    {
+        edit_seg->insert((*i)->get_fill());
+        edit_bat->dirty();
+
         all.insert(*i);
+    }
 }
 
 void wrl::world::delete_set(atom_set& set)
@@ -452,15 +469,25 @@ void wrl::world::delete_set(atom_set& set)
     // Remove all given atoms from the atom set.
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
+    {
+        edit_seg->remove((*i)->get_fill());
+        edit_bat->dirty();
+
         all.erase(all.find(*i));
+    }
 }
 
-void wrl::world::modify_set(atom_set& set, const float T[16])
+void wrl::world::modify_set(atom_set& set, const float *T,
+                                           const float *I)
 {
     // Apply the given transform to all given atoms.
 
+    edit_bat->bind();
+
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
-        (*i)->transform(T);
+        (*i)->transform(T, I);
+
+    edit_bat->free();
 }
 
 //-----------------------------------------------------------------------------
@@ -646,9 +673,9 @@ void wrl::world::load(std::string name)
                 // Create a new solid for each recognized geom class.
 
                 if      (type == "box")
-                    a =  new wrl::box   (edit_space, 0);
+                    a =  new wrl::box   (edit_space, "");
                 else if (type == "sphere")
-                    a =  new wrl::sphere(edit_space, 0);
+                    a =  new wrl::sphere(edit_space, "");
                 else continue;
 
                 // Allow the new solid to parse its own attributes.
@@ -767,18 +794,20 @@ static void line_fini()
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::draw_scene() const
+void wrl::world::draw_scene()
 {
     view->apply();
 
-    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
-        (*i)->draw_fill();
+    edit_bat->draw_init();
+    edit_bat->draw_opaque(false);
+    edit_bat->draw_transp(false);
+    edit_bat->draw_fini();
 }
 
 void wrl::world::draw_gizmo() const
 {
     view->apply();
-
+/*
     line_init();
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
@@ -787,6 +816,7 @@ void wrl::world::draw_gizmo() const
         (*i)->draw_stat();
 
     line_fini();
+*/
 }
 
 //-----------------------------------------------------------------------------

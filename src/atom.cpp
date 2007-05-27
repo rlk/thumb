@@ -19,15 +19,18 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::atom::atom(const ogl::surface *fill,
-                const ogl::surface *line) :
-    edit_geom(0), body_id(0), fill(fill), line(line)
+wrl::atom::atom(std::string fill_name,
+                std::string line_name) :
+    edit_geom(0), body_id(0), name(fill_name), fill(0), line(0)
 {
     load_idt(default_M);
     load_idt(current_M);
+
+    if (fill_name.size()) fill = new ogl::element(fill_name);
+    if (line_name.size()) line = new ogl::element(line_name);
 }
 
-wrl::atom::atom(const atom& that)
+wrl::atom::atom(const atom& that) : fill(0), line(0)
 {
     param_map::const_iterator i;
 
@@ -43,8 +46,8 @@ wrl::atom::atom(const atom& that)
 
     // Duplicate GL state.
 
-    glob->dupe_surface(fill);
-    glob->dupe_surface(line);
+    if (that.fill) fill = new ogl::element(*that.fill);
+    if (that.line) line = new ogl::element(*that.line);
 
     // Flush and clone each parameter separately.
 
@@ -58,8 +61,8 @@ wrl::atom::~atom()
 {
     dGeomDestroy(edit_geom);
 
-    glob->free_surface(fill);
-    glob->free_surface(line);
+    if (line) delete line;
+    if (fill) delete fill;
 }
 
 //-----------------------------------------------------------------------------
@@ -139,18 +142,23 @@ void wrl::atom::get_surface(dSurfaceParameters& s)
 
 //-----------------------------------------------------------------------------
 
-void wrl::atom::transform(const float M[16])
+void wrl::atom::transform(const float *T, const float *X)
 {
     // Apply the given transformation.
 
-    float T[16];
+    float M[16];
+    float I[16];
 
-    mult_mat_mat(T, M, current_M);
+    mult_mat_mat(M, T, current_M);
 
-    load_mat(current_M, T);
-    load_mat(default_M, T);
+    load_mat(current_M, M);
+    load_mat(default_M, M);
+    load_inv(I, M);
 
-    ode_set_geom_transform(edit_geom, T);
+    ode_set_geom_transform(edit_geom, M);
+
+    if (fill) fill->move(M, I);
+    if (line) line->move(M, I);
 }
 
 void wrl::atom::get_world(float M[16]) const

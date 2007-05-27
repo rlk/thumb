@@ -11,8 +11,10 @@
 //  General Public License for more details.
 
 #include <cmath>
+#include <memory>
 
 #include "matrix.hpp"
+#include "opengl.hpp"
 #include "mesh.hpp"
 #include "glob.hpp"
 
@@ -22,7 +24,7 @@ ogl::mesh::mesh(std::string& name) : material(glob->load_binding(name))
 {
 }
 
-ogl::mesh::mesh()
+ogl::mesh::mesh() : material(0)
 {
 }
 
@@ -106,19 +108,103 @@ void ogl::mesh::calc_tangent()
 
 //-----------------------------------------------------------------------------
 
-ogl::vert_p ogl::mesh::vert_cache(ogl::vert_p p, const GLfloat *M) const
+ogl::vert_p ogl::mesh::vert_cache(ogl::vert_p o, const GLfloat *M,
+                                                 const GLfloat *I) const
 {
-    return p;
+    const size_t n = verts.size();
+
+    // Acquire a temporary vertex buffer.
+
+    if (vert_p temp = new vert[n])
+    {
+        // Pretransform all vertices to the temporary buffer.
+
+        for (size_t i = 0; i < n; ++i)
+        {
+            mult_mat_pos(temp[i].v.v, M, verts[i].v.v);
+            mult_xps_pos(temp[i].n.v, I, verts[i].n.v);
+            mult_xps_pos(temp[i].t.v, I, verts[i].t.v);
+
+            temp[i].s = verts[i].s;
+        }
+
+        // Upload the pretransformed vertices to the current vertex buffer.
+
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(o),
+                           n * sizeof (vert), temp);
+        delete [] temp;
+    }
+
+    // Walk the offset down the vertex array.
+
+    return o + n;
 }
 
-ogl::face_p ogl::mesh::face_cache(ogl::face_p p, GLuint d) const
+ogl::face_p ogl::mesh::face_cache(ogl::face_p o, GLuint d, GLuint& min,
+                                                           GLuint& max) const
 {
-    return p;
+    const size_t n = faces.size();
+
+    // Acquire a temporary element buffer.
+
+    if (face_p temp = new face[n])
+    {
+        // Offset all elements to the temporary buffer.  Find extrema.
+
+        for (size_t i = 0; i < n; ++i)
+        {
+            temp[i].i = faces[i].i + d;
+            temp[i].j = faces[i].j + d;
+            temp[i].k = faces[i].k + d;
+
+            min = std::min(std::min(min,       temp[i].i),
+                           std::min(temp[i].j, temp[i].k));
+            max = std::max(std::max(max,       temp[i].i),
+                           std::max(temp[i].j, temp[i].k));
+        }
+
+        // Upload the offset elements to the current element buffer.
+
+        glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(o),
+                           n * sizeof (face), temp);
+        delete [] temp;
+    }
+
+    // Walk the pointer offset down the element array.
+
+    return o + n;
 }
 
-ogl::line_p ogl::mesh::line_cache(ogl::line_p p, GLuint d) const
+ogl::line_p ogl::mesh::line_cache(ogl::line_p o, GLuint d, GLuint& min,
+                                                           GLuint& max) const
 {
-    return p;
+    const size_t n = lines.size();
+
+    // Acquire a temporary element buffer.
+
+    if (line_p temp = new line[n])
+    {
+        // Offset all elements to the temporary buffer.  Find extrema
+
+        for (size_t i = 0; i < n; ++i)
+        {
+            temp[i].i = lines[i].i + d;
+            temp[i].j = lines[i].j + d;
+
+            min = std::min(min, std::min(temp[i].i, temp[i].j));
+            max = std::max(max, std::max(temp[i].i, temp[i].j));
+        }
+
+        // Upload the offset elements to the current element buffer.
+
+        glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(o),
+                           n * sizeof (line), temp);
+        delete [] temp;
+    }
+
+    // Walk the pointer offset down the element array.
+
+    return o + n;
 }
 
 //-----------------------------------------------------------------------------

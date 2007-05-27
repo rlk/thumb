@@ -29,8 +29,7 @@ namespace wrl
 
     public:
 
-        joint(dSpaceID, const ogl::surface *,
-                        const ogl::surface *);
+        joint(dSpaceID, std::string, std::string);
 
         // Joint binding
 

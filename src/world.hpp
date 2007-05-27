@@ -17,6 +17,7 @@
 
 #include "atom.hpp"
 #include "operation.hpp"
+#include "batcher.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -43,6 +44,11 @@ namespace wrl
 
         atom_set all;
         atom_set sel;
+
+        // Batcher state
+
+        ogl::batcher *edit_bat;
+        ogl::segment *edit_seg;
 
         int serial;
 
@@ -86,7 +92,8 @@ namespace wrl
 
         void create_set(atom_set&);
         void delete_set(atom_set&);
-        void modify_set(atom_set&, const float[16]);
+        void modify_set(atom_set&, const float *,
+                                   const float *);
 
         // Undo-able / redo-able operation.
 
@@ -108,7 +115,7 @@ namespace wrl
 
         // Rendering methods
 
-        void draw_scene() const;
+        void draw_scene();
         void draw_gizmo() const;
     };
 }

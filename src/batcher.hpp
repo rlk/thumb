@@ -21,15 +21,13 @@
 
 //-----------------------------------------------------------------------------
 
-#define MAXPRG 2
-#define MAXTEX 8
-
 namespace ogl
 {
     //-------------------------------------------------------------------------
 
     class element;
     class segment;
+    class batcher;
 
     typedef std::set<element *>           element_s;
     typedef std::set<element *>::iterator element_i;
@@ -40,23 +38,23 @@ namespace ogl
     typedef std::map<const mesh *, vert *>::iterator       mesh_vert_i;
     typedef std::map<const mesh *, vert *>::const_iterator mesh_vert_c;
 
-    typedef std::map<const mesh *, element *>                 mesh_elem_m;
-    typedef std::map<const mesh *, element *>::iterator       mesh_elem_i;
-    typedef std::map<const mesh *, element *>::const_iterator mesh_elem_c;
+    typedef std::multimap<const mesh *, element *>                 mesh_elem_m;
+    typedef std::multimap<const mesh *, element *>::iterator       mesh_elem_i;
+    typedef std::multimap<const mesh *, element *>::const_iterator mesh_elem_c;
 
     //-------------------------------------------------------------------------
 
     struct batch
     {
         const binding *bnd;
-        face          *ptr;
+        const GLvoid  *off;
 
         GLsizei num;
         GLuint  min;
         GLuint  max;
 
-        batch(const binding *b, face *p, GLsizei n) :
-            bnd(b), ptr(p), num(n), min(0), max(0) { }
+        batch(const binding *b, GLvoid *o, GLsizei n, GLuint a, GLuint z) :
+            bnd(b), off(o), num(n), min(a), max(z) { }
     };
 
     typedef std::vector<batch>                 batch_v;
@@ -68,24 +66,33 @@ namespace ogl
 
     class element
     {
+        bool status;
+
         const surface *srf;
-        mesh_vert_m vert_array;
+        mesh_vert_m    off;
 
         GLfloat M[16];
-
-        bool& dirty;
+        GLfloat I[16];
 
     public:
 
-        element(bool&, std::string);
+        element(const element&);
+        element(std::string);
        ~element();
 
-        void move(const GLfloat *);
+        void live() { status = true;  }
+        void dead() { status = false; }
+
+        void move(const GLfloat *,
+                  const GLfloat *);
+
+        void box_bound(GLfloat *b) const { return srf->box_bound(b); }
+        void sph_bound(GLfloat *b) const { return srf->sph_bound(b); }
 
         // Batch data handlers
 
         GLsizei vcount() const;
-        GLsizei ecount() const;
+        GLsizei fcount() const;
 
         void enlist(mesh_elem_m&,
                     mesh_elem_m&);
@@ -100,32 +107,30 @@ namespace ogl
     {
         element_s elements;
 
-        batch_v opaque_batch;
-        batch_v transp_batch;
+        batch_v opaque_bat;
+        batch_v transp_bat;
 
         GLfloat M[16];
 
-        bool& dirty;
-
     public:
 
-        segment(bool&);
+        segment();
        ~segment();
+
+        void move(const GLfloat *);
 
         // Element handlers
 
-        element *add(std::string);
-        void     del(element *);
-
-        void move(const GLfloat *);
+        void insert(element *e) { if (e) { elements.insert(e); e->live(); }}
+        void remove(element *e) { if (e) { elements.erase (e); e->dead(); }}
 
         // Batch data handlers
 
         GLsizei vcount() const;
-        GLsizei ecount() const;
+        GLsizei fcount() const;
 
-        void reduce(vert_p, vert_p&, face_p, face_p&, mesh_elem_m&, batch_v&);
-        void enlist(vert_p, vert_p&, face_p, face_p&);
+        void reduce(vert_p&, face_p&, mesh_elem_m&, batch_v&);
+        void enlist(vert_p&, face_p&);
 
         // Renderers
 
@@ -143,20 +148,25 @@ namespace ogl
         GLuint vbo;
         GLuint ebo;
 
-        bool dirty;
-        void clean();
+        bool status;
 
     public:
         
         batcher();
        ~batcher();
 
+        void dirty();
+        void clean();
+
         // Segment handlers
 
-        segment *add(         );
-        void     del(segment *);
+        void insert(segment *s) { if (s) { segments.insert(s); dirty(); }}
+        void remove(segment *s) { if (s) { segments.erase (s); dirty(); }}
 
         // Renderers
+
+        void bind() const;
+        void free() const;
 
         void draw_init();
         void draw_fini();

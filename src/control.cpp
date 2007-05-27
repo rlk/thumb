@@ -13,11 +13,8 @@
 #include <sstream>
 
 #include "control.hpp"
-//#include "camera.hpp"
 #include "joint.hpp"
 #include "solid.hpp"
-//#include "light.hpp"
-#include "glob.hpp"
 #include "conf.hpp"
 
 //-----------------------------------------------------------------------------
@@ -140,14 +137,12 @@ void cnt::new_universal_button::apply()
 
 void cnt::new_box_button::apply()
 {
-    do_create(new wrl::box(world.get_space(),
-                           glob->load_surface(name->value())));
+    do_create(new wrl::box(world.get_space(), name->value()));
 }
 
 void cnt::new_sphere_button::apply()
 {
-    do_create(new wrl::sphere(world.get_space(),
-                              glob->load_surface(name->value())));
+    do_create(new wrl::sphere(world.get_space(), name->value()));
 }
 
 /*

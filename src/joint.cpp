@@ -15,12 +15,11 @@
 #include "odeutil.hpp"
 #include "opengl.hpp"
 #include "joint.hpp"
-#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
-wrl::joint::joint(dSpaceID space, const ogl::surface *fill,
-                                  const ogl::surface *line) :
+wrl::joint::joint(dSpaceID space, std::string fill,
+                                  std::string line) :
     atom(fill, line), join_id(0)
 {
     edit_geom = dCreateSphere(space, 0.25f);
@@ -32,14 +31,12 @@ wrl::joint::joint(dSpaceID space, const ogl::surface *fill,
 //-----------------------------------------------------------------------------
 
 wrl::ball::ball(dSpaceID space) :
-    joint(space, glob->load_surface("joint/joint_ball.obj"),
-                 glob->load_surface("wire/wire_sphere.obj"))
+    joint(space, "joint/joint_ball.obj", "wire/wire_sphere.obj")
 {
 }
 
 wrl::hinge::hinge(dSpaceID space) :
-    joint(space, glob->load_surface("joint/joint_hinge.obj"),
-                 glob->load_surface("wire/wire_sphere.obj"))
+    joint(space, "joint/joint_hinge.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -52,8 +49,7 @@ wrl::hinge::hinge(dSpaceID space) :
 }
 
 wrl::hinge2::hinge2(dSpaceID space) :
-    joint(space, glob->load_surface("joint/joint_hinge2.obj"),
-                 glob->load_surface("wire/wire_sphere.obj"))
+    joint(space, "joint/joint_hinge2.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -78,8 +74,7 @@ wrl::hinge2::hinge2(dSpaceID space) :
 }
 
 wrl::slider::slider(dSpaceID space) :
-    joint(space, glob->load_surface("joint/joint_slider.obj"),
-                 glob->load_surface("wire/wire_sphere.obj"))
+    joint(space, "joint/joint_slider.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -92,8 +87,7 @@ wrl::slider::slider(dSpaceID space) :
 }
 
 wrl::amotor::amotor(dSpaceID space) :
-    joint(space, glob->load_surface("joint/joint_amotor.obj"),
-                 glob->load_surface("wire/wire_sphere.obj"))
+    joint(space, "joint/joint_amotor.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -124,8 +118,7 @@ wrl::amotor::amotor(dSpaceID space) :
 }
 
 wrl::universal::universal(dSpaceID space) :
-    joint(space, glob->load_surface("joint/joint_universal.obj"),
-                 glob->load_surface("wire/wire_sphere.obj"))
+    joint(space, "joint/joint_universal.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");

@@ -79,6 +79,11 @@ namespace app
         const ogl::binding *load_binding(std::string);
         const ogl::surface *load_surface(std::string);
 
+        const ogl::program *dupe_program(const ogl::program *);
+        const ogl::texture *dupe_texture(const ogl::texture *);
+        const ogl::binding *dupe_binding(const ogl::binding *);
+        const ogl::surface *dupe_surface(const ogl::surface *);
+
         void free_program(std::string, std::string);
         void free_texture(std::string);
         void free_binding(std::string);
@@ -88,11 +93,6 @@ namespace app
         void free_texture(const ogl::texture *);
         void free_binding(const ogl::binding *);
         void free_surface(const ogl::surface *);
-
-        void dupe_program(const ogl::program *);
-        void dupe_texture(const ogl::texture *);
-        void dupe_binding(const ogl::binding *);
-        void dupe_surface(const ogl::surface *);
 
         // Anonymous GL state.
 

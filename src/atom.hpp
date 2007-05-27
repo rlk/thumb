@@ -19,7 +19,7 @@
 #include <ode/ode.h>
 #include <mxml.h>
 
-#include "surface.hpp"
+#include "batcher.hpp"
 #include "matrix.hpp"
 #include "param.hpp"
 
@@ -37,8 +37,10 @@ namespace wrl
 
         int body_id;
 
-        const ogl::surface *fill;
-        const ogl::surface *line;
+        std::string name;
+
+        ogl::element *fill;
+        ogl::element *line;
 
         param_map params;
 
@@ -58,7 +60,7 @@ namespace wrl
 
     public:
 
-        atom(const ogl::surface *, const ogl::surface *);
+        atom(std::string, std::string);
         atom(const atom&);
 
         virtual atom *clone() const = 0;
@@ -67,9 +69,13 @@ namespace wrl
 
         void get_surface(dSurfaceParameters&);
 
-        void transform(const float[16]);
         void get_world(float[16]) const;
         void get_local(float[16]) const;
+        void transform(const float *,
+                       const float *);
+
+        ogl::element *get_fill() { return fill; }
+        ogl::element *get_line() { return line; }
 
         // Physics parameter accessors
 

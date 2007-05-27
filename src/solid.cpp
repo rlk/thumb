@@ -16,12 +16,11 @@
 #include "opengl.hpp"
 #include "matrix.hpp"
 #include "solid.hpp"
-#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
-wrl::solid::solid(const ogl::surface *fill,
-                  const ogl::surface *line) : atom(fill, line)
+wrl::solid::solid(std::string fill,
+                  std::string line) : atom(fill, line)
 {
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
@@ -34,8 +33,8 @@ wrl::solid::solid(const ogl::surface *fill,
 
 //-----------------------------------------------------------------------------
 
-wrl::box::box(dSpaceID space, const ogl::surface *fill) :
-    solid(fill, glob->load_surface("wire/wire_box.obj"))
+wrl::box::box(dSpaceID space, std::string fill) :
+    solid(fill, "wire/wire_box.obj")
 {
     edit_geom = dCreateBox(space, 1.0, 1.0, 1.0);
 
@@ -44,8 +43,8 @@ wrl::box::box(dSpaceID space, const ogl::surface *fill) :
     scale();
 }
 
-wrl::sphere::sphere(dSpaceID space, const ogl::surface *fill) : 
-    solid(fill, glob->load_surface("wire/wire_sphere.obj"))
+wrl::sphere::sphere(dSpaceID space, std::string fill) : 
+    solid(fill, "wire/wire_sphere.obj")
 {
     edit_geom = dCreateSphere(space, 1.0);
 
@@ -203,7 +202,7 @@ void wrl::solid::load(mxml_node_t *node)
     {
         std::string s = std::string(name->child->value.text.string);
 
-        fill = glob->load_surface(s);
+        fill = new ogl::element(s);
 
         scale();
     }
@@ -214,11 +213,9 @@ mxml_node_t *wrl::solid::save(mxml_node_t *node)
 {
     // Add the OBJ file reference.
 
-    if (fill)
+    if (name.size())
     {
-        std::string s = fill->get_name();
-
-        mxmlNewText(mxmlNewElement(node, "file"), 0, s.c_str());
+        mxmlNewText(mxmlNewElement(node, "file"), 0, name.c_str());
     }
     return atom::save(node);
 }

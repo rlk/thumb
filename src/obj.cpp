@@ -28,7 +28,7 @@ void obj::obj::read_use(std::istream &lin, iset_m& is)
 
     // Parse the material name and create a new mesh.
 
-    meshes.push_back(ogl::mesh(name));
+    meshes.push_back(new ogl::mesh(name));
 
     // Reset the index cache.
 
@@ -45,7 +45,7 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
     int  vi = 0;
     int  si = 0;
     int  ni = 0;
-    int  val;
+    int val;
 
     // Read the next index set specification.
 
@@ -71,13 +71,13 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
 
     if ((ii = is.find(key)) == is.end())
     {
-        int val = int(meshes.back().vert_count());
+        val = int(meshes.back()->vert_count());
 
         // ... Create a new index set and vertex.
 
         is.insert(iset_m::value_type(key, val));
 
-        meshes.back().add_vert(ogl::vert(vv, sv, nv, vi, si, ni));
+        meshes.back()->add_vert(ogl::vert(vv, sv, nv, vi, si, ni));
     }
     else val = ii->second;
 
@@ -95,7 +95,7 @@ void obj::obj::read_f(std::istream& lin, ogl::vec3_v& vv,
 
     // Make sure we've got a mesh to add triangles to.
     
-    if (meshes.empty()) meshes.push_back(ogl::mesh());
+    if (meshes.empty()) meshes.push_back(new ogl::mesh());
 
     // Scan the string, converting index sets to vertex indices.
 
@@ -109,7 +109,7 @@ void obj::obj::read_f(std::istream& lin, ogl::vec3_v& vv,
     // Convert our N new vertex indices into N-2 new triangles.
 
     for (i = 0; i < n - 2; ++i)
-        meshes.back().add_face(ogl::face(iv[0], iv[i + 1], iv[i + 2]));
+        meshes.back()->add_face(ogl::face(iv[0], iv[i + 1], iv[i + 2]));
 }
 
 //-----------------------------------------------------------------------------
@@ -122,7 +122,7 @@ int obj::obj::read_li(std::istream& lin, ogl::vec3_v& vv,
     char cc;
     int  vi = 0;
     int  si = 0;
-    int  val;
+    int val;
 
     // Read the next index set specification.
 
@@ -147,13 +147,13 @@ int obj::obj::read_li(std::istream& lin, ogl::vec3_v& vv,
 
     if ((ii = is.find(key)) == is.end())
     {
-        int val = int(meshes.back().vert_count());
+        val = int(meshes.back()->vert_count());
 
         // ... Create a new index set and vertex.
 
         is.insert(iset_m::value_type(key, val));
 
-        meshes.back().add_vert(ogl::vert(vv, sv, vv, vi, si, -1));
+        meshes.back()->add_vert(ogl::vert(vv, sv, vv, vi, si, -1));
     }
     else val = ii->second;
 
@@ -170,7 +170,7 @@ void obj::obj::read_l(std::istream& lin, ogl::vec3_v& vv,
 
     // Make sure we've got a meshace to add lines to.
     
-    if (meshes.empty()) meshes.push_back(ogl::mesh());
+    if (meshes.empty()) meshes.push_back(new ogl::mesh());
 
     // Scan the string, converting index sets to vertex indices.
 
@@ -184,7 +184,7 @@ void obj::obj::read_l(std::istream& lin, ogl::vec3_v& vv,
     // Convert our N new vertex indices into N-1 new line.
 
     for (i = 0; i < n - 1; ++i)
-        meshes.back().add_line(ogl::line(iv[i], iv[i + 1]));
+        meshes.back()->add_line(ogl::line(iv[i], iv[i + 1]));
 }
 
 //-----------------------------------------------------------------------------
@@ -262,11 +262,13 @@ obj::obj::obj(std::string name)
     // Initialize post-load state.
 
     for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
-        i->calc_tangent();
+        (*i)->calc_tangent();
 }
 
 obj::obj::~obj()
 {
+    for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
+        delete (*i);
 }
 
 //-----------------------------------------------------------------------------
@@ -284,7 +286,7 @@ void obj::obj::box_bound(GLfloat *b) const
 
     for (ogl::mesh_c i = meshes.begin(); i != meshes.end(); ++i)
     {
-        i->box_bound(c);
+        (*i)->box_bound(c);
 
         b[0] = std::min(b[0], c[0]);
         b[1] = std::min(b[1], c[1]);
@@ -303,7 +305,7 @@ void obj::obj::sph_bound(GLfloat *b) const
 
     for (ogl::mesh_c i = meshes.begin(); i != meshes.end(); ++i)
     {
-        i->sph_bound(c);
+        (*i)->sph_bound(c);
 
         b[0] = std::max(b[0], c[0]);
     }

@@ -64,6 +64,24 @@ const ogl::program *app::glob::load_program(std::string vert,
     return program_map[name].ptr;
 }
 
+const ogl::program *app::glob::dupe_program(const ogl::program *p)
+{
+    if (p)
+    {
+        const std::string& vert = p->get_vert_name();
+        const std::string& frag = p->get_frag_name();
+
+        std::string name = vert + frag;
+
+        if (program_map.find(name) != program_map.end())
+        {
+            program_map[name].ref++;
+            return program_map[name].ptr;
+        }
+    }
+    return 0;
+}
+
 void app::glob::free_program(std::string vert,
                              std::string frag)
 {
@@ -85,20 +103,6 @@ void app::glob::free_program(const ogl::program *p)
                         p->get_frag_name());
 }
 
-void app::glob::dupe_program(const ogl::program *p)
-{
-    if (p)
-    {
-        const std::string& vert = p->get_vert_name();
-        const std::string& frag = p->get_frag_name();
-
-        std::string name = vert + frag;
-
-        if (program_map.find(name) != program_map.end())
-            program_map[name].ref++;
-    }
-}
-
 //-----------------------------------------------------------------------------
 
 const ogl::texture *app::glob::load_texture(std::string name)
@@ -111,6 +115,21 @@ const ogl::texture *app::glob::load_texture(std::string name)
     else   texture_map[name].ref++;
 
     return texture_map[name].ptr;
+}
+
+const ogl::texture *app::glob::dupe_texture(const ogl::texture *p)
+{
+    if (p)
+    {
+        const std::string& name = p->get_name();
+
+        if (texture_map.find(name) != texture_map.end())
+        {
+            texture_map[name].ref++;
+            return texture_map[name].ptr;
+        }
+    }
+    return 0;
 }
 
 void app::glob::free_texture(std::string name)
@@ -130,17 +149,6 @@ void app::glob::free_texture(const ogl::texture *p)
     if (p) free_texture(p->get_name());
 }
 
-void app::glob::dupe_texture(const ogl::texture *p)
-{
-    if (p)
-    {
-        const std::string& name = p->get_name();
-
-        if (texture_map.find(name) != texture_map.end())
-            texture_map[name].ref++;
-    }
-}
-
 //-----------------------------------------------------------------------------
 
 const ogl::binding *app::glob::load_binding(std::string name)
@@ -153,6 +161,21 @@ const ogl::binding *app::glob::load_binding(std::string name)
     else   binding_map[name].ref++;
 
     return binding_map[name].ptr;
+}
+
+const ogl::binding *app::glob::dupe_binding(const ogl::binding *p)
+{
+    if (p)
+    {
+        const std::string& name = p->get_name();
+
+        if (binding_map.find(name) != binding_map.end())
+        {
+            binding_map[name].ref++;
+            return binding_map[name].ptr;
+        }
+    }
+    return 0;
 }
 
 void app::glob::free_binding(std::string name)
@@ -172,17 +195,6 @@ void app::glob::free_binding(const ogl::binding *p)
     if (p) free_binding(p->get_name());
 }
 
-void app::glob::dupe_binding(const ogl::binding *p)
-{
-    if (p)
-    {
-        const std::string& name = p->get_name();
-
-        if (binding_map.find(name) != binding_map.end())
-            binding_map[name].ref++;
-    }
-}
-
 //-----------------------------------------------------------------------------
 
 const ogl::surface *app::glob::load_surface(std::string name)
@@ -195,6 +207,21 @@ const ogl::surface *app::glob::load_surface(std::string name)
     else   surface_map[name].ref++;
 
     return surface_map[name].ptr;
+}
+
+const ogl::surface *app::glob::dupe_surface(const ogl::surface *p)
+{
+    if (p)
+    {
+        const std::string& name = p->get_name();
+
+        if (surface_map.find(name) != surface_map.end())
+        {
+            surface_map[name].ref++;
+            return surface_map[name].ptr;
+        }
+    }
+    return 0;
 }
 
 void app::glob::free_surface(std::string name)
@@ -212,17 +239,6 @@ void app::glob::free_surface(std::string name)
 void app::glob::free_surface(const ogl::surface *p)
 {
     if (p) free_surface(p->get_name());
-}
-
-void app::glob::dupe_surface(const ogl::surface *p)
-{
-    if (p)
-    {
-        const std::string& name = p->get_name();
-
-        if (surface_map.find(name) != surface_map.end())
-            surface_map[name].ref++;
-    }
 }
 
 //-----------------------------------------------------------------------------

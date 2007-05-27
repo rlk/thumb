@@ -130,9 +130,9 @@ namespace ogl
 
         // Batch initializers
 
-        vert_p vert_cache(vert_p, const GLfloat *) const;
-        face_p face_cache(face_p, GLuint)          const;
-        line_p line_cache(line_p, GLuint)          const;
+        vert_p vert_cache(vert_p, const GLfloat *, const GLfloat *) const;
+        face_p face_cache(face_p, GLuint, GLuint&, GLuint&)         const;
+        line_p line_cache(line_p, GLuint, GLuint&, GLuint&)         const;
 
         // Bound computers
 
@@ -140,9 +140,10 @@ namespace ogl
         void sph_bound(GLfloat *) const;
     };
 
-    typedef std::vector<mesh>                 mesh_v;
-    typedef std::vector<mesh>::iterator       mesh_i;
-    typedef std::vector<mesh>::const_iterator mesh_c;
+    typedef mesh                               *mesh_p;
+    typedef std::vector<mesh *>                 mesh_v;
+    typedef std::vector<mesh *>::iterator       mesh_i;
+    typedef std::vector<mesh *>::const_iterator mesh_c;
 }
 
 

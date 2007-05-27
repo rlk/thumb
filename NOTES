@@ -7,6 +7,16 @@ Even if the body serial number system is retained, it would still make sense to 
 
 -------------------------------------------------------------------------------
 
+K it's like this:
+    atoms own fill and line elements
+    world owns batcher and segments
+    world moves elements between segments as needed
+        edit batch has separate elements for solids and joints
+        play batch has only solid elements
+        selection batch has line elements of selected atoms
+
+-------------------------------------------------------------------------------
+
 
 
 * Batch batch batch
