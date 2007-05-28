@@ -49,6 +49,7 @@ constraint::constraint() : mode(0), axis(1), grid(3)
 
     load_idt(M);
     load_idt(T);
+    set_grid(3);
 
     orient();
 }

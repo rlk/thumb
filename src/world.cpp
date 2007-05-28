@@ -267,22 +267,25 @@ void wrl::world::play_init()
         else
             geom = (*i)->get_geom(play_scene);
 
-        // Attach the geom to its body.
-
-        if (geom) dGeomSetBody(geom, body);
-
-        // Accumulate the body mass.
-
-        if (body)
+        if (geom)
         {
-            dMass total;
-            dMass local;
+            // Attach the geom to its body.
 
-            (*i)->get_mass(&local);
-        
-            dBodyGetMass(body, &total);
-            dMassAdd(&total, &local);
-            dBodySetMass(body, &total);
+            dGeomSetBody(geom, body);
+
+            // Accumulate the body mass.
+            
+            if (body)
+            {
+                dMass total;
+                dMass local;
+
+                (*i)->get_mass(&local);
+
+                dBodyGetMass(body, &total);
+                dMassAdd(&total, &local);
+                dBodySetMass(body, &total);
+            }
         }
     }
 
@@ -324,7 +327,6 @@ void wrl::world::play_fini()
             ogl::segment *seg = (ogl::segment *) dBodyGetData(body);
             play_bat->remove(seg);
             delete seg;
-            dBodyDestroy(body);
         }
 
     play_body.clear();
