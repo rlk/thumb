@@ -67,6 +67,19 @@ wrl::world::~world()
     delete play_seg;
     delete play_bat;
 
+    // Delete all operations.
+
+    while (!undo_list.empty())
+    {
+        delete undo_list.front();
+        undo_list.pop_front();
+    }
+    while (!redo_list.empty())
+    {
+        delete redo_list.front();
+        redo_list.pop_front();
+    }
+
     // Finalize the scene.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
@@ -74,6 +87,7 @@ wrl::world::~world()
 
     // Finalize the editor physical system.
 
+    dGeomDestroy (edit_point);
     dSpaceDestroy(edit_space);
 }
 
@@ -310,6 +324,7 @@ void wrl::world::play_fini()
             ogl::segment *seg = (ogl::segment *) dBodyGetData(body);
             play_bat->remove(seg);
             delete seg;
+            dBodyDestroy(body);
         }
 
     play_body.clear();
@@ -321,6 +336,7 @@ void wrl::world::play_fini()
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
         (*i)->play_fini(edit_seg);
 
+    dJointGroupDestroy(play_joint);
     dSpaceDestroy(play_actor);
     dSpaceDestroy(play_scene);
     dWorldDestroy(play_world);

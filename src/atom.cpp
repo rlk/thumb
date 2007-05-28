@@ -61,10 +61,19 @@ wrl::atom::atom(const atom& that) : fill(0), line(0)
 
 wrl::atom::~atom()
 {
+    // Destroy ODE state.
+
     dGeomDestroy(edit_geom);
+
+    // Delete GL state.
 
     if (line) delete line;
     if (fill) delete fill;
+
+    // Delete all parameters.
+
+    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
+        delete i->second;
 }
 
 //-----------------------------------------------------------------------------

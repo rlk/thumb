@@ -17,33 +17,35 @@
 
 //-----------------------------------------------------------------------------
 
-constraint::constraint()
+constraint::constraint() : mode(0), axis(1), grid(3)
 {
-    rot[0] = ::glob->load_surface("wire/constraint_rot_0.obj");
-    rot[1] = ::glob->load_surface("wire/constraint_rot_1.obj");
-    rot[2] = ::glob->load_surface("wire/constraint_rot_2.obj");
-    rot[3] = ::glob->load_surface("wire/constraint_rot_3.obj");
-    rot[4] = ::glob->load_surface("wire/constraint_rot_4.obj");
-    rot[5] = ::glob->load_surface("wire/constraint_rot_5.obj");
-    rot[6] = ::glob->load_surface("wire/constraint_rot_6.obj");
-    rot[7] = ::glob->load_surface("wire/constraint_rot_7.obj");
-    rot[8] = ::glob->load_surface("wire/constraint_rot_8.obj");
-    rot[9] = ::glob->load_surface("wire/constraint_rot_9.obj");
+    rot[0] = new ogl::element("wire/constraint_rot_0.obj");
+    rot[1] = new ogl::element("wire/constraint_rot_1.obj");
+    rot[2] = new ogl::element("wire/constraint_rot_2.obj");
+    rot[3] = new ogl::element("wire/constraint_rot_3.obj");
+    rot[4] = new ogl::element("wire/constraint_rot_4.obj");
+    rot[5] = new ogl::element("wire/constraint_rot_5.obj");
+    rot[6] = new ogl::element("wire/constraint_rot_6.obj");
+    rot[7] = new ogl::element("wire/constraint_rot_7.obj");
+    rot[8] = new ogl::element("wire/constraint_rot_8.obj");
+    rot[9] = new ogl::element("wire/constraint_rot_9.obj");
 
-    pos[0] = ::glob->load_surface("wire/constraint_pos_0.obj");
-    pos[1] = ::glob->load_surface("wire/constraint_pos_1.obj");
-    pos[2] = ::glob->load_surface("wire/constraint_pos_2.obj");
-    pos[3] = ::glob->load_surface("wire/constraint_pos_3.obj");
-    pos[4] = ::glob->load_surface("wire/constraint_pos_4.obj");
-    pos[5] = ::glob->load_surface("wire/constraint_pos_5.obj");
-    pos[6] = ::glob->load_surface("wire/constraint_pos_6.obj");
-    pos[7] = ::glob->load_surface("wire/constraint_pos_7.obj");
-    pos[8] = ::glob->load_surface("wire/constraint_pos_8.obj");
-    pos[9] = ::glob->load_surface("wire/constraint_pos_9.obj");
+    pos[0] = new ogl::element("wire/constraint_pos_0.obj");
+    pos[1] = new ogl::element("wire/constraint_pos_1.obj");
+    pos[2] = new ogl::element("wire/constraint_pos_2.obj");
+    pos[3] = new ogl::element("wire/constraint_pos_3.obj");
+    pos[4] = new ogl::element("wire/constraint_pos_4.obj");
+    pos[5] = new ogl::element("wire/constraint_pos_5.obj");
+    pos[6] = new ogl::element("wire/constraint_pos_6.obj");
+    pos[7] = new ogl::element("wire/constraint_pos_7.obj");
+    pos[8] = new ogl::element("wire/constraint_pos_8.obj");
+    pos[9] = new ogl::element("wire/constraint_pos_9.obj");
 
-    set_grid(3);
-    set_mode(0);
-    set_axis(1);
+    seg = new ogl::segment();
+    bat = new ogl::batcher();
+
+    bat->insert(seg);
+    seg->insert(pos[3]);
 
     load_idt(M);
     load_idt(T);
@@ -57,8 +59,11 @@ constraint::~constraint()
 
     // TODO: wrap these pointers in an auto reference.
 
-    for (i = 0; i < 10; ++i) ::glob->free_surface(rot[i]);
-    for (i = 0; i < 10; ++i) ::glob->free_surface(pos[i]);
+    delete bat;
+    delete seg;
+
+    for (i = 0; i < 10; ++i) delete rot[i];
+    for (i = 0; i < 10; ++i) delete pos[i];
 }
 
 //-----------------------------------------------------------------------------
@@ -120,11 +125,22 @@ void constraint::set_grid(int g)
 
     grid_a = a[CLAMP(g, 0, 9)];
     grid_d = d[CLAMP(g, 0, 9)];
+
+    set_mode(mode);
 }
 
 void constraint::set_mode(int m)
 {
     mode = m;
+
+    seg->clear();
+
+    if (m)
+        seg->insert(rot[grid]);
+    else
+        seg->insert(pos[grid]);
+
+    bat->dirty();
 }
 
 void constraint::set_axis(int a)
@@ -251,12 +267,10 @@ void constraint::draw() const
         // Draw the oriented constraint grid.
 
         glMultMatrixf(T);
-/*
-        if (mode)
-            rot[grid]->draw();
-        else
-            pos[grid]->draw();
-*/
+
+        bat->draw_init();
+        bat->draw_opaque(false);
+        bat->draw_fini();
     }
     glPopMatrix();
     glPopAttrib();

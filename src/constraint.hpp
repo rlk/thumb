@@ -16,7 +16,7 @@
 #include <set>
 #include <cstring>
 
-#include "glob.hpp"
+#include "batcher.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -27,8 +27,10 @@ protected:
     float M[16];
     float T[16];
 
-    const ogl::surface *rot[10];
-    const ogl::surface *pos[10];
+    ogl::element *rot[10];
+    ogl::element *pos[10];
+    ogl::batcher *bat;
+    ogl::segment *seg;
 
     int   mode;
     int   axis;
