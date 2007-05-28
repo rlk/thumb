@@ -18,25 +18,28 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::joint::joint(dSpaceID space, std::string fill,
-                                  std::string line) :
+wrl::joint::joint(std::string fill, std::string line) :
     atom(fill, line), join_id(0)
 {
-    edit_geom = dCreateSphere(space, 0.25f);
+    edit_geom = dCreateSphere(0, 0.25f);
+
+    line_scale[0] = line_scale[1] = line_scale[2] = 0.25f;
 
     dGeomSetData(edit_geom, this);
     ode_set_geom_transform(edit_geom, current_M);
+
+    mov_line();
 }
 
 //-----------------------------------------------------------------------------
 
-wrl::ball::ball(dSpaceID space) :
-    joint(space, "joint/joint_ball.obj", "wire/wire_sphere.obj")
+wrl::ball::ball() :
+    joint("joint/joint_ball.obj", "wire/wire_sphere.obj")
 {
 }
 
-wrl::hinge::hinge(dSpaceID space) :
-    joint(space, "joint/joint_hinge.obj", "wire/wire_sphere.obj")
+wrl::hinge::hinge() :
+    joint("joint/joint_hinge.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -48,8 +51,8 @@ wrl::hinge::hinge(dSpaceID space) :
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-wrl::hinge2::hinge2(dSpaceID space) :
-    joint(space, "joint/joint_hinge2.obj", "wire/wire_sphere.obj")
+wrl::hinge2::hinge2() :
+    joint("joint/joint_hinge2.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -73,8 +76,8 @@ wrl::hinge2::hinge2(dSpaceID space) :
     params[dParamSuspensionCFM] = new param("dParamSuspensionCFM", "0.0");
 }
 
-wrl::slider::slider(dSpaceID space) :
-    joint(space, "joint/joint_slider.obj", "wire/wire_sphere.obj")
+wrl::slider::slider() :
+    joint("joint/joint_slider.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -86,8 +89,8 @@ wrl::slider::slider(dSpaceID space) :
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-wrl::amotor::amotor(dSpaceID space) :
-    joint(space, "joint/joint_amotor.obj", "wire/wire_sphere.obj")
+wrl::amotor::amotor() :
+    joint("joint/joint_amotor.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -117,8 +120,8 @@ wrl::amotor::amotor(dSpaceID space) :
     params[dParamStopCFM3] = new param("dParamStopCFM3", "0.0");
 }
 
-wrl::universal::universal(dSpaceID space) :
-    joint(space, "joint/joint_universal.obj", "wire/wire_sphere.obj")
+wrl::universal::universal() :
+    joint("joint/joint_universal.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -173,7 +176,7 @@ dJointID wrl::universal::get_join(dWorldID world)
 
 //-----------------------------------------------------------------------------
 
-void wrl::ball::play_init()
+void wrl::ball::play_init(ogl::segment *)
 {
     const float *M = current_M;
 
@@ -182,7 +185,7 @@ void wrl::ball::play_init()
     dJointSetBallAnchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::hinge::play_init()
+void wrl::hinge::play_init(ogl::segment *)
 {
     const float *M = current_M;
 
@@ -192,7 +195,7 @@ void wrl::hinge::play_init()
     dJointSetHingeAnchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::hinge2::play_init()
+void wrl::hinge2::play_init(ogl::segment *)
 {
     const float *M = current_M;
 
@@ -203,7 +206,7 @@ void wrl::hinge2::play_init()
     dJointSetHinge2Anchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::slider::play_init()
+void wrl::slider::play_init(ogl::segment *)
 {
     const float *M = current_M;
 
@@ -212,7 +215,7 @@ void wrl::slider::play_init()
     dJointSetSliderAxis(play_join, M[ 8], M[ 9], M[10]);
 }
 
-void wrl::amotor::play_init()
+void wrl::amotor::play_init(ogl::segment *)
 {
     const float *M = current_M;
  
@@ -226,7 +229,7 @@ void wrl::amotor::play_init()
     dJointSetAMotorAxis(play_join, 2, b, M[ 8], M[ 9], M[10]);
 }
 
-void wrl::universal::play_init()
+void wrl::universal::play_init(ogl::segment *)
 {
     const float *M = current_M;
 

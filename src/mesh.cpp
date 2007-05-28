@@ -132,6 +132,8 @@ ogl::vert_p ogl::mesh::vert_cache(ogl::vert_p o, const GLfloat *M,
 
         glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(o),
                            n * sizeof (vert), temp);
+        OGLCK();
+
         delete [] temp;
     }
 
@@ -170,6 +172,8 @@ GLuint *ogl::mesh::face_cache(GLuint *o, GLuint d, GLuint& min,
 
         glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(o),
                            n * sizeof (face), temp);
+        OGLCK();
+
         delete [] temp;
     }
 
@@ -205,6 +209,8 @@ GLuint *ogl::mesh::line_cache(GLuint *o, GLuint d, GLuint& min,
 
         glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(o),
                            n * sizeof (line), temp);
+        OGLCK();
+
         delete [] temp;
     }
 

@@ -69,6 +69,58 @@ dGeomID ode_dupe_geom(dSpaceID space, dGeomID geom)
 
 //-----------------------------------------------------------------------------
 
+void ode_get_body_transform(dBodyID body, float M[16])
+{
+    const dReal *p = dBodyGetPosition(body);
+    const dReal *R = dBodyGetRotation(body);
+
+    M[ 0] = float(R[ 0]);
+    M[ 1] = float(R[ 4]);
+    M[ 2] = float(R[ 8]);
+    M[ 3] = 0.0f;
+
+    M[ 4] = float(R[ 1]);
+    M[ 5] = float(R[ 5]);
+    M[ 6] = float(R[ 9]);
+    M[ 7] = 0.0f;
+
+    M[ 8] = float(R[ 2]);
+    M[ 9] = float(R[ 6]);
+    M[10] = float(R[10]);
+    M[11] = 0.0f;
+
+    M[12] = float(p[ 0]);
+    M[13] = float(p[ 1]);
+    M[14] = float(p[ 2]);
+    M[15] = 1.0f;
+}
+
+void ode_get_geom_offset(dGeomID geom, float M[16])
+{
+    const dReal *p = dGeomGetOffsetPosition(geom);
+    const dReal *R = dGeomGetOffsetRotation(geom);
+
+    M[ 0] = float(R[ 0]);
+    M[ 1] = float(R[ 4]);
+    M[ 2] = float(R[ 8]);
+    M[ 3] = 0.0f;
+
+    M[ 4] = float(R[ 1]);
+    M[ 5] = float(R[ 5]);
+    M[ 6] = float(R[ 9]);
+    M[ 7] = 0.0f;
+
+    M[ 8] = float(R[ 2]);
+    M[ 9] = float(R[ 6]);
+    M[10] = float(R[10]);
+    M[11] = 0.0f;
+
+    M[12] = float(p[ 0]);
+    M[13] = float(p[ 1]);
+    M[14] = float(p[ 2]);
+    M[15] = 1.0f;
+}
+
 void ode_get_geom_transform(dGeomID geom, float M[16])
 {
     const dReal *p = dGeomGetPosition(geom);

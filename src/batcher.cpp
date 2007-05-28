@@ -255,13 +255,18 @@ void ogl::segment::draw_opaque(bool lit) const
 
     // Draw all opaque meshes.
 
-    for (batch_c i = opaque_bat.begin(); i != opaque_bat.end(); ++i)
+    glPushMatrix();
     {
-        if (i->bnd) i->bnd->bind(lit);
+        glMultMatrixf(M);
 
-        glDrawRangeElementsEXT(i->typ, i->min, i->max, i->num,
-                               GL_UNSIGNED_INT, i->off);
+        for (batch_c i = opaque_bat.begin(); i != opaque_bat.end(); ++i)
+        {
+            if (i->bnd) i->bnd->bind(lit);
+            glDrawRangeElementsEXT(i->typ, i->min, i->max, i->num,
+                                   GL_UNSIGNED_INT, i->off);
+        }
     }
+    glPopMatrix();
 }
 
 void ogl::segment::draw_transp(bool lit) const
@@ -270,13 +275,18 @@ void ogl::segment::draw_transp(bool lit) const
 
     // Draw all transp meshes.
 
-    for (batch_c i = transp_bat.begin(); i != transp_bat.end(); ++i)
+    glPushMatrix();
     {
-        if (i->bnd) i->bnd->bind(lit);
+        glMultMatrixf(M);
 
-        glDrawRangeElementsEXT(i->typ, i->min, i->max, i->num,
-                               GL_UNSIGNED_INT, i->off);
+        for (batch_c i = transp_bat.begin(); i != transp_bat.end(); ++i)
+        {
+            if (i->bnd) i->bnd->bind(lit);
+            glDrawRangeElementsEXT(i->typ, i->min, i->max, i->num,
+                                   GL_UNSIGNED_INT, i->off);
+        }
     }
+    glPopMatrix();
 }
 
 //=============================================================================
@@ -336,6 +346,14 @@ void ogl::batcher::clean()
     // Mark the buffers as clean.
 
     status = true;
+}
+
+void ogl::batcher::clear()
+{
+    // Clear all segments.
+
+    for (segment_i i = segments.begin(); i != segments.end(); ++i)
+        (*i)->clear();
 }
 
 //-----------------------------------------------------------------------------

@@ -69,9 +69,7 @@ bool mode::info::timer(float dt)
 
 void mode::info::draw()
 {
-    world.draw_scene();
-    world.draw_gizmo();
-
+    world.draw(true);
     gui.draw();
 }
 

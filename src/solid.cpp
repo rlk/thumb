@@ -33,24 +33,26 @@ wrl::solid::solid(std::string fill,
 
 //-----------------------------------------------------------------------------
 
-wrl::box::box(dSpaceID space, std::string fill) :
+wrl::box::box(std::string fill) :
     solid(fill, "wire/wire_box.obj")
 {
-    edit_geom = dCreateBox(space, 1.0, 1.0, 1.0);
+    edit_geom = dCreateBox(0, 1.0, 1.0, 1.0);
 
     dGeomSetData(edit_geom, this);
 
     scale();
+    mov_line();
 }
 
-wrl::sphere::sphere(dSpaceID space, std::string fill) : 
+wrl::sphere::sphere(std::string fill) : 
     solid(fill, "wire/wire_sphere.obj")
 {
-    edit_geom = dCreateSphere(space, 1.0);
+    edit_geom = dCreateSphere(0, 1.0);
 
     dGeomSetData(edit_geom, this);
 
     scale();
+    mov_line();
 }
 
 //-----------------------------------------------------------------------------
@@ -64,6 +66,10 @@ void wrl::box::scale()
         float bound[6];
 
         fill->box_bound(bound);
+
+        line_scale[0] = (bound[3] - bound[0]) * 0.5f;
+        line_scale[1] = (bound[4] - bound[1]) * 0.5f;
+        line_scale[2] = (bound[5] - bound[2]) * 0.5f;
 
         dGeomBoxSetLengths(edit_geom, bound[3] - bound[0],
                                       bound[4] - bound[1],
@@ -80,6 +86,10 @@ void wrl::sphere::scale()
         float bound[1];
 
         fill->sph_bound(bound);
+
+        line_scale[0] = bound[0];
+        line_scale[1] = bound[0];
+        line_scale[2] = bound[0];
 
         dGeomSphereSetRadius(edit_geom, bound[0]);
     }
@@ -120,11 +130,17 @@ dGeomID wrl::solid::get_geom(dSpaceID space)
 
 //-----------------------------------------------------------------------------
 
-void wrl::solid::play_init()
+void wrl::solid::play_init(ogl::segment *seg)
 {
-    if (dBodyID body = dGeomGetBody(play_geom))
+    dBodyID body = dGeomGetBody(play_geom);
+
+    float M[16];
+
+    if (body)
     {
         float I[16];
+
+        seg = (ogl::segment *) dBodyGetData(body);
 
         // Orient the geom with respect to the body.
 
@@ -134,12 +150,39 @@ void wrl::solid::play_init()
         dGeomSetOffsetWorldPosition(play_geom, current_M[12],
                                                current_M[13],
                                                current_M[14]);
+    }
 
-        // Ensure the geom's real position is correctly initialized.
+    // Get the current geom tranform.
 
-        const dReal *p = dBodyGetPosition(body);
+    if (body)
+        ode_get_geom_offset(play_geom, M);
+    else
+        ode_get_geom_transform(edit_geom, M);
 
-        dBodySetPosition(body, p[0], p[1], p[2]);
+    // Add this element to the render segment.
+
+    if (fill)
+    {
+        fill->dead( );
+        fill->move(M);
+
+        seg->insert(fill);
+    }
+}
+
+void wrl::solid::play_fini(ogl::segment *seg)
+{
+    float M[16];
+
+    ode_get_geom_transform(edit_geom, M);
+
+    // Reset the element's edit transform.
+
+    if (fill)
+    {
+        fill->dead( );
+        fill->move(M);
+        fill->live( );
     }
 }
 

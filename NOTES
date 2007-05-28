@@ -15,6 +15,27 @@ K it's like this:
         play batch has only solid elements
         selection batch has line elements of selected atoms
 
+focus
+    heavy yellow
+all focus.body != 0 and this.body = focus.body
+    light yellow
+all focus.join != 0 and this.body = focus.join  (only when focus is joint)
+    light magenta
+
+sel this.body == 0
+    red
+sel this.body != 0
+    green
+
+
+only green objects will ever be light yellow or magenta
+
+yellow
+red
+green
+    light yellow
+    light magenta
+
 -------------------------------------------------------------------------------
 
 

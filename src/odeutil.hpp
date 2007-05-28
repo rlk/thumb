@@ -16,6 +16,8 @@
 
 dGeomID ode_dupe_geom(dSpaceID, dGeomID);
 
+void ode_get_body_transform(dBodyID, float[16]);
+void ode_get_geom_offset   (dGeomID, float[16]);
 void ode_get_geom_transform(dGeomID, float[16]);
 void ode_set_geom_transform(dGeomID, float[16]);
 void ode_set_mass_transform(dMass *, float[16]);

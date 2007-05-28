@@ -162,6 +162,7 @@ namespace ogl
 
         void dirty();
         void clean();
+        void clear();
 
         // Segment handlers
 

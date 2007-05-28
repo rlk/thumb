@@ -107,42 +107,42 @@ void cnt::create_button::do_create(wrl::atom *atom)
 
 void cnt::new_ball_button::apply()
 {
-    do_create(new wrl::ball(world.get_space()));
+    do_create(new wrl::ball());
 }
 
 void cnt::new_hinge_button::apply()
 {
-    do_create(new wrl::hinge(world.get_space()));
+    do_create(new wrl::hinge());
 }
 
 void cnt::new_hinge2_button::apply()
 {
-    do_create(new wrl::hinge2(world.get_space()));
+    do_create(new wrl::hinge2());
 }
 
 void cnt::new_slider_button::apply()
 {
-    do_create(new wrl::slider(world.get_space()));
+    do_create(new wrl::slider());
 }
 
 void cnt::new_amotor_button::apply()
 {
-    do_create(new wrl::amotor(world.get_space()));
+    do_create(new wrl::amotor());
 }
 
 void cnt::new_universal_button::apply()
 {
-    do_create(new wrl::universal(world.get_space()));
+    do_create(new wrl::universal());
 }
 
 void cnt::new_box_button::apply()
 {
-    do_create(new wrl::box(world.get_space(), name->value()));
+    do_create(new wrl::box(name->value()));
 }
 
 void cnt::new_sphere_button::apply()
 {
-    do_create(new wrl::sphere(world.get_space(), name->value()));
+    do_create(new wrl::sphere(name->value()));
 }
 
 /*

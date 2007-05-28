@@ -38,7 +38,8 @@ namespace wrl
 
         // Physics update methods
 
-        virtual void play_init();
+        virtual void play_init(ogl::segment *);
+        virtual void play_fini(ogl::segment *);
         virtual void step_fini();
 
         // File I/O
@@ -58,7 +59,7 @@ namespace wrl
 
     public:
 
-        box(dSpaceID, std::string);
+        box(std::string);
 
         virtual box *clone() const { return new box(*this); }
 
@@ -86,7 +87,7 @@ namespace wrl
 
     public:
 
-        sphere(dSpaceID, std::string);
+        sphere(std::string);
 
         virtual sphere *clone() const { return new sphere(*this); }
 

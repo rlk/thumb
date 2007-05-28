@@ -23,6 +23,8 @@
 
 namespace wrl
 {
+    typedef std::map<int, dBodyID> body_map;
+    
     class world
     {
         // ODE edit state
@@ -40,6 +42,8 @@ namespace wrl
         dSpaceID      play_actor;
         dJointGroupID play_joint;
 
+        body_map play_body;
+
         // World state
 
         atom_set all;
@@ -47,17 +51,25 @@ namespace wrl
 
         // Batcher state
 
+        ogl::batcher *play_bat;
+        ogl::segment *play_seg;
+
         ogl::batcher *edit_bat;
         ogl::segment *edit_seg;
+
         ogl::batcher *line_bat;
-        ogl::segment *line_seg;
+        ogl::segment *pick_seg;
+        ogl::segment *stat_seg;
+        ogl::segment *dyna_seg;
+
+        void batch_focus(dGeomID);
+
+        // Operations handlers
 
         int serial;
 
         ops::operation_l undo_list;
         ops::operation_l redo_list;
-
-        void batch_selection();
 
         void doop(ops::operation_p);
 
@@ -94,6 +106,8 @@ namespace wrl
         void invert_selection();
         void extend_selection();
 
+        void select_set();
+        void select_set(atom_set&);
         void create_set(atom_set&);
         void delete_set(atom_set&);
         void modify_set(atom_set&, const float *);
@@ -118,8 +132,7 @@ namespace wrl
 
         // Rendering methods
 
-        void draw_scene();
-        void draw_gizmo() const;
+        void draw(bool);
     };
 }
 

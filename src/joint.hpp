@@ -29,7 +29,7 @@ namespace wrl
 
     public:
 
-        joint(dSpaceID, std::string, std::string);
+        joint(std::string, std::string);
 
         // Joint binding
 
@@ -57,13 +57,13 @@ namespace wrl
     {
     public:
 
-        ball(dSpaceID);
+        ball();
 
         ball *clone() const { return new ball(*this); }
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init();
+        virtual void play_init(ogl::segment *);
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -75,13 +75,13 @@ namespace wrl
     {
     public:
 
-        hinge(dSpaceID);
+        hinge();
 
         hinge *clone() const { return new hinge(*this); }
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init();
+        virtual void play_init(ogl::segment *);
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -93,13 +93,13 @@ namespace wrl
     class hinge2 : public joint
     {
     public:
-        hinge2(dSpaceID);
+        hinge2();
 
         hinge2 *clone() const { return new hinge2(*this); }
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init();
+        virtual void play_init(ogl::segment *);
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -111,13 +111,13 @@ namespace wrl
     class slider : public joint
     {
     public:
-        slider(dSpaceID);
+        slider();
 
         slider *clone() const { return new slider(*this); }
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init();
+        virtual void play_init(ogl::segment *);
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -129,13 +129,13 @@ namespace wrl
     class amotor : public joint
     {
     public:
-        amotor(dSpaceID);
+        amotor();
 
         amotor *clone() const { return new amotor(*this); }
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init();
+        virtual void play_init(ogl::segment *);
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -147,13 +147,13 @@ namespace wrl
     class universal : public joint
     {
     public:
-        universal(dSpaceID);
+        universal();
 
         universal *clone() const { return new universal(*this); }
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init();
+        virtual void play_init(ogl::segment *);
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);

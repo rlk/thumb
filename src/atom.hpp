@@ -42,6 +42,8 @@ namespace wrl
         ogl::element *fill;
         ogl::element *line;
 
+        float line_scale[3];
+
         param_map params;
 
         // Transform handlers
@@ -64,6 +66,9 @@ namespace wrl
         atom(const atom&);
 
         virtual atom *clone() const = 0;
+
+        void live(dSpaceID) const;
+        void dead(dSpaceID) const;
 
         // Transform methods
 
@@ -101,8 +106,8 @@ namespace wrl
 
         virtual void step_init() { }
         virtual void step_fini() { }
-        virtual void play_init() { }
-        virtual void play_fini() { load_mat(current_M, default_M); }
+        virtual void play_init(ogl::segment *) { }
+        virtual void play_fini(ogl::segment *) { }
 
         // Rendering methods
 

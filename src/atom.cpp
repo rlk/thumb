@@ -26,6 +26,8 @@ wrl::atom::atom(std::string fill_name,
     load_idt(default_M);
     load_idt(current_M);
 
+    line_scale[0] = line_scale[1] = line_scale[2] = 1.0f;
+
     if (fill_name.size()) fill = new ogl::element(fill_name);
     if (line_name.size()) line = new ogl::element(line_name);
 }
@@ -40,7 +42,7 @@ wrl::atom::atom(const atom& that) : fill(0), line(0)
 
     // Duplicate ODE state.
 
-    edit_geom = ode_dupe_geom(dGeomGetSpace(that.edit_geom), that.edit_geom);
+    edit_geom = ode_dupe_geom(0, that.edit_geom);
 
     dGeomSetData(edit_geom, this);
 
@@ -63,6 +65,18 @@ wrl::atom::~atom()
 
     if (line) delete line;
     if (fill) delete fill;
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::atom::live(dSpaceID space) const
+{
+    dSpaceAdd(space, edit_geom);
+}
+
+void wrl::atom::dead(dSpaceID space) const
+{
+    dSpaceRemove(space, edit_geom);
 }
 
 //-----------------------------------------------------------------------------
@@ -163,7 +177,17 @@ void wrl::atom::mov_fill()
 
 void wrl::atom::mov_line()
 {
-    if (line) line->move(current_M);
+    if (line)
+    {
+        float M[16];
+
+        load_scl_mat(M, line_scale[0],
+                        line_scale[1],
+                        line_scale[2]);
+        mult_mat_mat(M, current_M, M);
+
+        line->move(M);
+    }
 }
 
 void wrl::atom::get_world(float M[16]) const
@@ -325,6 +349,9 @@ void wrl::atom::load(mxml_node_t *node)
     load_mat(default_M, current_M);
 
     ode_set_geom_transform(edit_geom, current_M);
+
+    mov_line();
+    mov_fill();
 
     // Initialize parameters.
 

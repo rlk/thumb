@@ -205,9 +205,7 @@ bool mode::edit::timer(float dt)
 
 void mode::edit::draw()
 {
-    world.draw_scene();
-    world.draw_gizmo();
-
+    world.draw(true);
     transform.draw();
 }
 
