@@ -296,25 +296,6 @@ void wrl::universal::step_init()
 
 //-----------------------------------------------------------------------------
 
-void wrl::joint::draw_line() const
-{
-    float r = float(dGeomSphereGetRadius(edit_geom));
-
-    // Draw a wire sphere.
-
-    glPushMatrix();
-    {
-        mult_M();
-
-        glScalef(r, r, r);
-
-//      line->draw(DRAW_OPAQUE | DRAW_UNLIT);
-    }
-    glPopMatrix();
-}
-
-//-----------------------------------------------------------------------------
-
 void wrl::joint::load(mxml_node_t *node)
 {
     mxml_node_t *join;

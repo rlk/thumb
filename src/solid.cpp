@@ -195,46 +195,6 @@ void wrl::solid::step_fini()
 
 //-----------------------------------------------------------------------------
 
-void wrl::box::draw_line() const
-{
-    dVector3 v;
-
-    dGeomBoxGetLengths(edit_geom, v);
-
-    // Draw a wire box.
-
-    glPushMatrix();
-    {
-        mult_M();
-
-        glScalef(float(v[0] / 2.0f),
-                 float(v[1] / 2.0f),
-                 float(v[2] / 2.0f));
-
-//      line->draw(DRAW_OPAQUE | DRAW_UNLIT);
-    }
-    glPopMatrix();
-}
-
-void wrl::sphere::draw_line() const
-{
-    float r = float(dGeomSphereGetRadius(edit_geom));
-
-    // Draw a wire sphere.
-
-    glPushMatrix();
-    {
-        mult_M();
-
-        glScalef(r, r, r);
-
-//      line->draw(DRAW_OPAQUE | DRAW_UNLIT);
-    }
-    glPopMatrix();
-}
-
-//-----------------------------------------------------------------------------
-
 void wrl::solid::load(mxml_node_t *node)
 {
     mxml_node_t *name;

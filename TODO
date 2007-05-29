@@ -1,16 +1,11 @@
-Remove transform geoms and use geom offset
+sort meshes
+sort bindings
+mutable bindings to reduce state change
 
 Apparently geoms in different spaces collide even when their collision bits indicate they should not.  This is a problem because dynamic objects always collide with static.
 Clone light should clone the shadow and lightmap references.
 Convert light and camera entity draw to use OBJ
-Reduce the number of GL state changes in OBJ
-    move client state enables into scene draw
-    set mutable state in the props
-    don't push attribs
-    Assumption: if an MTL does not specify a value, then it doesn't care
-        about that value and can tolerate unexpected state
 Reduce the number of string passes by value in the gui module.
-Remove the shadowmap state ownership from the scene.
 
 Out of curiousity, perf the vert padded out to power of two.
 

@@ -40,10 +40,6 @@ namespace wrl
 
         virtual void step_init();
 
-        // Rendering methods
-
-        virtual void draw_line() const;
-
         // File I/O
 
         virtual void         load(mxml_node_t *);

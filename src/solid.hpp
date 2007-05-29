@@ -67,10 +67,6 @@ namespace wrl
 
         virtual void get_mass(dMass *m);
 
-        // Rendering
-
-        virtual void draw_line() const;
-
         // File I/O
 
         virtual mxml_node_t *save(mxml_node_t *);
@@ -94,10 +90,6 @@ namespace wrl
         // Physics initialization methods
 
         virtual void get_mass(dMass *m);
-
-        // Rendering
-
-        virtual void draw_line() const;
 
         // File I/O
 

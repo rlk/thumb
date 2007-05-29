@@ -1,7 +1,7 @@
 
-#CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
+CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
-CFLAGS= -O3 -ffast-math -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS= -O3 -ffast-math -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 
@@ -48,12 +48,6 @@ OBJS=   opengl.o \
 	perf.o \
 	odeutil.o \
 	main.o
-#	light.o \
-#	camera.o \
-#	earth.o \
-#	sky.o \
-#	scene.o \
-#	entity.o \
 
 LIBS= -lmxml -lode -ljpeg -lpng -lz -lm
 DEPS= $(OBJS:.o=.d)

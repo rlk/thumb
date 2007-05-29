@@ -109,13 +109,6 @@ namespace wrl
         virtual void play_init(ogl::segment *) { }
         virtual void play_fini(ogl::segment *) { }
 
-        // Rendering methods
-
-        virtual void draw_foci(dGeomID) const;
-        virtual void draw_stat()        const;
-        virtual void draw_line()        const;
-        virtual void draw_fill()        const;
-
         // File I/O
 
         virtual void         load(mxml_node_t *);
