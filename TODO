@@ -1,13 +1,27 @@
+There's no need to respect the jiffy in edit mode.
+    To ignore it would improve performance on huge scenes nicely.
+Don't free-run in edit mode.
+Create a staging area for vert_cache.
+Generalize binding further:
+    zbuffer
+    diffuse
+    ambient
+Add AABB and bound sphere caching to mesh
+Add AABB and bound sphere update to segment/element
+tune near and far using bound
+implement visibility checking in batcher
+implement SSM
+implement PSSM
 sort meshes
 sort bindings
 mutable bindings to reduce state change
+use non-interleaved VBOs and bind only the necessary attributes
 
 Apparently geoms in different spaces collide even when their collision bits indicate they should not.  This is a problem because dynamic objects always collide with static.
 Clone light should clone the shadow and lightmap references.
 Convert light and camera entity draw to use OBJ
 Reduce the number of string passes by value in the gui module.
 
-Out of curiousity, perf the vert padded out to power of two.
 
 General
     read gotw.ca/gotw
@@ -39,17 +53,12 @@ Incorporate some of the shading/buffer/image/state lessons learned from atmo.
 Incorporate perf module from atmo.  Stats in GUI?
 Generalize the "follow" mechanism to "enable".
 Move sky/earth/sun ownership to scene.
-Use spatial index to eliminate unnecessary shadow map redraw.
-    Lights should know if they see a static scene.
 
-Tune the near and far clipping planes.
-Frustum culling for cameras and lights.
 Water.
     Bouyancy force.
     Optional GPU ripple integrator.
     Changable water depth?
 Skeletal animation.
-Cascaded shadow.
 Documentation.
 Rubber-band select.
 Object-inside-object select?
@@ -68,11 +77,6 @@ Static / package data archives with Z compression.
 Figure out why repeated runs differ.
     Body order?
 
-"scene" -> "world"?
-"demo"  -> ?
-
-Stop the freerun during editing.
-        Snapshot beneath info.
 OBJ support:
     map wrapping
     map scale and translate

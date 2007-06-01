@@ -176,7 +176,7 @@ GLuint *ogl::segment::reduce(vert_p& v, GLuint *e,
 
     for (mesh_elem_i i = meshes.begin(); i != meshes.end(); ++i)
     {
-        GLuint min, max, d = GLuint(v) / sizeof (vert);
+        GLuint min, max, d = GLuint(size_t(v)) / sizeof (vert);
 
         // Cache the vertices to the vertex buffer.
 

@@ -22,6 +22,24 @@
 
 namespace ogl
 {
+    class GLfloat2
+    {
+        GLfloat v[2];
+
+    public:
+
+        GLfloat& operator[](int i) { return v[i]; }
+    };
+
+    class GLfloat3
+    {
+        GLfloat v[3];
+
+    public:
+
+        GLfloat& operator[](int i) { return v[i]; }
+    };
+
     //-------------------------------------------------------------------------
 
     struct vec2
