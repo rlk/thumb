@@ -126,6 +126,10 @@ namespace ogl
         face_v faces;
         line_v lines;
 
+        GLfloat bound_min[3];
+        GLfloat bound_max[3];
+        GLfloat bound_rad[1];
+
     public:
 
         mesh(std::string&);
@@ -157,6 +161,9 @@ namespace ogl
         void box_bound(GLfloat *) const;
         void sph_bound(GLfloat *) const;
     };
+
+    // TODO: implement mesh sorting based on binding order
+    // TODO: implement binding sorting
 
     typedef mesh                               *mesh_p;
     typedef std::vector<mesh *>                 mesh_v;
