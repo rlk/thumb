@@ -20,6 +20,49 @@
 
 //-----------------------------------------------------------------------------
 
+ogl::aabb::aabb()
+{
+    min[0] = std::numeric_limits<GLfloat>::max();
+    min[1] = std::numeric_limits<GLfloat>::max();
+    min[2] = std::numeric_limits<GLfloat>::max();
+
+    max[0] = std::numeric_limits<GLfloat>::min();
+    max[1] = std::numeric_limits<GLfloat>::min();
+    max[2] = std::numeric_limits<GLfloat>::min();
+
+    rad[0] = std::numeric_limits<GLfloat>::min();
+}
+
+void ogl::aabb::merge(const GLfloat *p)
+{
+    min[0] = std::min(min[0], p[0]);
+    min[1] = std::min(min[1], p[1]);
+    min[2] = std::min(min[2], p[2]);
+
+    max[0] = std::max(max[0], p[0]);
+    max[1] = std::max(max[1], p[1]);
+    max[2] = std::max(max[2], p[2]);
+
+    float r = float(sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]));
+
+    rad[0] = std::max(rad[0], r);
+}
+
+void ogl::aabb::merge(const aabb& that)
+{
+    min[0] = std::min(min[0], that.min[0]);
+    min[1] = std::min(min[1], that.min[1]);
+    min[2] = std::min(min[2], that.min[2]);
+
+    max[0] = std::max(max[0], that.max[0]);
+    max[1] = std::max(max[1], that.max[1]);
+    max[2] = std::max(max[2], that.max[2]);
+
+    rad[0] = std::max(rad[0], that.rad[0]);
+}
+
+//-----------------------------------------------------------------------------
+
 ogl::mesh::mesh(std::string& name) : material(glob->load_binding(name))
 {
 }
@@ -108,6 +151,35 @@ void ogl::mesh::calc_tangent()
 
 //-----------------------------------------------------------------------------
 
+void ogl::mesh::cache_verts(const ogl::mesh& that, const float *M,
+                                                   const float *I)
+{
+    // Cache that mesh's transformed vertices here.
+
+    // Update the bounding volume.
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::mesh::merge_bound(GLfloat *bound_min,
+                            GLfloat *bound_max,
+                            GLfloat *bound_rad)
+{
+    // Merge this mesh's bounding volume with the given one.
+
+    bound_min[0] = std::min(bound_min[0], this->bound_min[0]);
+    bound_min[1] = std::min(bound_min[1], this->bound_min[1]);
+    bound_min[2] = std::min(bound_min[2], this->bound_min[2]);
+
+    bound_max[0] = std::max(bound_max[0], this->bound_max[0]);
+    bound_max[1] = std::max(bound_max[1], this->bound_max[1]);
+    bound_max[2] = std::max(bound_max[2], this->bound_max[2]);
+
+    bound_rad[0] = std::max(bound_rad[0], this->bound_rad[0]);
+}
+
+//-----------------------------------------------------------------------------
+/*
 ogl::vert_p ogl::mesh::vert_cache(ogl::vert_p o, const GLfloat *M,
                                                  const GLfloat *I) const
 {
@@ -218,9 +290,9 @@ GLuint *ogl::mesh::line_cache(GLuint *o, GLuint d, GLuint& min,
 
     return o + n * 2;
 }
-
+*/
 //-----------------------------------------------------------------------------
-
+/*
 void ogl::mesh::box_bound(GLfloat *b) const
 {
     b[0] = std::numeric_limits<GLfloat>::max();
@@ -254,5 +326,5 @@ void ogl::mesh::sph_bound(GLfloat *b) const
         b[0] = std::max(b[0], r);
     }
 }
-
+*/
 //-----------------------------------------------------------------------------

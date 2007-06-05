@@ -117,6 +117,23 @@ namespace ogl
     typedef std::vector<line>::const_iterator line_c;
 
     //-------------------------------------------------------------------------
+    // Axis-aligned bounding box
+
+    class aabb
+    {
+        GLfloat min[3];
+        GLfloat max[3];
+        GLfloat rad[1];
+
+    public:
+
+        aabb();
+
+        void merge(const GLfloat *);
+        void merge(const aabb&);
+    };
+
+    //-------------------------------------------------------------------------
 
     class mesh
     {
@@ -126,9 +143,8 @@ namespace ogl
         face_v faces;
         line_v lines;
 
-        GLfloat bound_min[3];
-        GLfloat bound_max[3];
-        GLfloat bound_rad[1];
+        aabb   bound;
+        atoz   range;
 
     public:
 
@@ -136,30 +152,35 @@ namespace ogl
         mesh();
        ~mesh();
 
+        // State mutators
+
         void calc_tangent();
 
-        // State handlers
+        void add_vert(vert v) { verts.push_back(v); }
+        void add_face(face f) { faces.push_back(f); }
+        void add_line(line l) { lines.push_back(l); }
+
+        // Caching mutators
+
+        void cache_verts(const mesh *, const GLfloat *, const GLfloat *);
+        void cache_faces(const mesh *, GLuint);
+        void cache_lines(const mesh *, GLuint);
+
+        // Accessors
 
         const binding *state() const { return material; }
 
-        void    add_vert(vert v)   { verts.push_back(v); }
-        void    add_face(face f)   { faces.push_back(f); }
-        void    add_line(line l)   { lines.push_back(l); }
+        GLsizei count_verts() const { return verts.size(); }
+        GLsizei count_lines() const { return faces.size(); }
+        GLsizei count_faces() const { return lines.size(); }
 
-        GLsizei vert_count() const { return verts.size(); }
-        GLsizei face_count() const { return faces.size(); }
-        GLsizei line_count() const { return lines.size(); }
+        void merge_bound(aabb& b) const { b.merge(bound); }
+        void merge_range(atoz& a) const { a.merge(range); }
 
-        // Batch initializers
+        // Batch writers
 
-        vert_p  vert_cache(vert_p, const GLfloat *, const GLfloat *) const;
-        GLuint *face_cache(GLuint *, GLuint, GLuint&, GLuint&)       const;
-        GLuint *line_cache(GLuint *, GLuint, GLuint&, GLuint&)       const;
-
-        // Bound computers
-
-        void box_bound(GLfloat *) const;
-        void sph_bound(GLfloat *) const;
+        void buffv(GLfloat *, GLfloat *, GLfloat *, GLfloat *) const;
+        void buffe(GLuint  *)                                  const;
     };
 
     // TODO: implement mesh sorting based on binding order

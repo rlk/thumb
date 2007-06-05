@@ -28,6 +28,7 @@ OBJS=   opengl.o \
 	image.o \
 	frame.o \
 	mesh.o \
+	pool.o \
 	data.o \
 	lang.o \
 	conf.o \

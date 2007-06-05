@@ -7,6 +7,38 @@ Even if the body serial number system is retained, it would still make sense to 
 
 -------------------------------------------------------------------------------
 
+
+draw(transp, color, lit)
+
+draw(false, false, false)   // opaque depth
+draw(true,  false, false)   // transp depth
+draw(false, true,  false)   // opaque ambient
+draw(true,  true,  false)   // transp ambient
+draw(false, true,  true)    // opaque diffuse
+draw(true,  true,  true)    // transp diffuse
+
+... alternatively ...
+
+draw(transp, lit, color)
+
+draw(false, false, false)   // opaque depth
+draw(true,  false, false)   // transp depth glAlphaFunc(GL_EQUAL, 1.0)
+draw(false, false, true)    // opaque ambient
+draw(false, true,  true)    // opaque diffuse
+draw(true,  false, true)    // transp ambient
+draw(true,  true,  true)    // transp diffuse
+
+... assuming single-pass illumination
+
+draw(color, transp)
+
+draw(false, false)  // opaque depth
+draw(false, true)   // transp depth glAlphaFunc(EQUAL, 1.0)
+draw(true,  false)  // opaque color
+draw(true,  true)   // transp color glBlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
+
+-------------------------------------------------------------------------------
+
 K it's like this:
     atoms own fill and line elements
     world owns batcher and segments

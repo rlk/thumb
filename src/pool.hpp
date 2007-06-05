@@ -18,6 +18,7 @@
 #include <set>
 #include <map>
 
+#include "surface.hpp"
 #include "mesh.hpp"
 
 //-----------------------------------------------------------------------------
@@ -42,12 +43,8 @@ namespace ogl
     typedef std::set<pool_p>           pool_s;
     typedef std::set<pool_p>::iterator pool_i;
 
-    typedef std::map<mesh *, const mesh *> mesh_m;
-
-    //-------------------------------------------------------------------------
-
-    enum alpha_mode { OPAQUE,  TRANSP };
-    enum light_mode { ZBUFFER, AMBIENT, DIFFUSE };
+    typedef std::set<mesh_p>               mesh_s;
+    typedef std::map<mesh_p, const mesh *> mesh_m;
 
     //-------------------------------------------------------------------------
     // Drawable / mergable element batch
@@ -80,15 +77,16 @@ namespace ogl
     {
         GLfloat M[16];
 
-        GLfloat bound_min[3];
-        GLfloat bound_max[3];
-        GLfloat bound_rad[1];
+        GLsizei vc;
+        GLsizei ec;
 
-        bool resort;
         bool rebuff;
 
         node_p my_node;
         mesh_m my_mesh;
+        aabb   my_aabb;
+
+        const surface *surf;
 
     public:
 
@@ -97,13 +95,16 @@ namespace ogl
 
         void set_node(node_p);
 
-        void transform(const GLfloat *);
+        void transform(const GLfloat *, const GLfloat *);
 
-        GLsizei vcount() const;
-        GLsizei ecount() const;
+        void merge_batch(mesh_m&);
+        void merge_bound(aabb&);
 
-        void merge_meshes(mesh_s&);
-        void merge_bounds(GLfloat[3], GLfloat[3], GLfloat[1]);
+        void buff(GLfloat *, GLfloat *, GLfloat *, GLfloat *);
+        void sort(GLuint  *, GLuint);
+
+        GLsizei vcount() const { return vc; }
+        GLsizei ecount() const { return ec; }
     };
 
     //-------------------------------------------------------------------------
@@ -113,16 +114,15 @@ namespace ogl
     {
         GLfloat M[16];
 
-        GLfloat bound_min[3];
-        GLfloat bound_max[3];
-        GLfloat bound_rad[1];
+        GLsizei vc;
+        GLsizei ec;
 
         bool resort;
         bool rebuff;
 
         pool_p my_pool;
         unit_s my_unit;
-        elem_v my_elem[2][3];
+        aabb   my_aabb;
 
     public:
 
@@ -136,12 +136,13 @@ namespace ogl
         void add_unit(unit_p);
         void rem_unit(unit_p);
 
-        GLsizei vcount() const;
-        GLsizei ecount() const;
-
         void buff(GLuint *, GLfloat *, GLfloat *, GLfloat *, GLfloat *);
+        void sort(GLuint);
 
-        void draw(enum alpha_mode, enum light_mode);
+        void draw(bool, bool);
+
+        GLsizei vcount() const { return vc; }
+        GLsizei ecount() const { return ec; }
     };
 
     //-------------------------------------------------------------------------
@@ -153,9 +154,6 @@ namespace ogl
         bool rebuff;
 
         GLuint vbo;
-        GLuint nbo;
-        GLuint tbo;
-        GLuint ubo;
         GLuint ebo;
 
         node_s my_node;
@@ -171,7 +169,7 @@ namespace ogl
         void add_node(node_p);
         void rem_node(node_p);
 
-        void draw(enum alpha_mode, enum light_mode);
+        void draw(bool, bool);
     };
 }
 

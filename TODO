@@ -6,6 +6,7 @@ Generalize binding further:
     zbuffer
     diffuse
     ambient
+binding comparison modes: color, depth
 Add AABB and bound sphere caching to mesh
 Add AABB and bound sphere update to segment/element
 tune near and far using bound
