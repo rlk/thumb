@@ -144,7 +144,9 @@ namespace ogl
         line_v lines;
 
         aabb   bound;
-        atoz   range;
+
+        GLuint min;
+        GLuint max;
 
     public:
 
@@ -162,7 +164,7 @@ namespace ogl
 
         // Caching mutators
 
-        void cache_verts(const mesh *, const GLfloat *, const GLfloat *);
+        void cache_verts(const mesh *, const GLfloat *);
         void cache_faces(const mesh *, GLuint);
         void cache_lines(const mesh *, GLuint);
 
@@ -174,8 +176,10 @@ namespace ogl
         GLsizei count_lines() const { return faces.size(); }
         GLsizei count_faces() const { return lines.size(); }
 
+        GLuint get_min() const { return min; }
+        GLuint get_max() const { return max; }
+
         void merge_bound(aabb& b) const { b.merge(bound); }
-        void merge_range(atoz& a) const { a.merge(range); }
 
         // Batch writers
 

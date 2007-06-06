@@ -63,6 +63,11 @@ namespace ogl
 
         elem(const binding *, const GLuint *, GLenum, GLsizei, GLuint, GLuint);
 
+        bool opaque() const { return bnd->opaque(); }
+
+        bool depth_eq(elem& that) const;
+        bool color_eq(elem& that) const;
+
         void merge(elem&);
         void draw() const;
     };
@@ -95,13 +100,12 @@ namespace ogl
 
         void set_node(node_p);
 
-        void transform(const GLfloat *, const GLfloat *);
+        void transform(const GLfloat *);
 
         void merge_batch(mesh_m&);
         void merge_bound(aabb&);
 
-        void buff(GLfloat *, GLfloat *, GLfloat *, GLfloat *);
-        void sort(GLuint  *, GLuint);
+        void buff(bool, GLfloat *, GLfloat *, GLfloat *, GLfloat *);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
@@ -117,27 +121,30 @@ namespace ogl
         GLsizei vc;
         GLsizei ec;
 
-        bool resort;
         bool rebuff;
 
         pool_p my_pool;
         unit_s my_unit;
         aabb   my_aabb;
 
+        elem_v opaque_depth;
+        elem_v opaque_color;
+        elem_v transp_depth;
+        elem_v transp_color;
+
     public:
 
         node();
        ~node();
 
-        void set_resort();
         void set_rebuff();
 
         void set_pool(pool_p);
         void add_unit(unit_p);
         void rem_unit(unit_p);
 
-        void buff(GLuint *, GLfloat *, GLfloat *, GLfloat *, GLfloat *);
-        void sort(GLuint);
+        void buff(bool, GLfloat *, GLfloat *, GLfloat *, GLfloat *);
+        void sort(GLuint  *, GLuint);
 
         void draw(bool, bool);
 
@@ -150,6 +157,9 @@ namespace ogl
 
     class pool
     {
+        GLsizei vc;
+        GLsizei ec;
+
         bool resort;
         bool rebuff;
 
@@ -158,6 +168,12 @@ namespace ogl
 
         node_s my_node;
 
+        void bind() const;
+        void free() const;
+
+        void buff(bool);
+        void sort();
+
     public:
 
         pool();
@@ -165,9 +181,14 @@ namespace ogl
 
         void set_resort();
         void set_rebuff();
+        void add_vcount(GLsizei);
+        void add_ecount(GLsizei);
 
         void add_node(node_p);
         void rem_node(node_p);
+
+        void draw_init();
+        void draw_fini();
 
         void draw(bool, bool);
     };
