@@ -16,24 +16,74 @@
 
 //=============================================================================
 
+ogl::elem::elem(const binding *b,
+                const GLuint  *o, GLenum t, GLsizei n, GLuint a, GLuint z) :
+    bnd(b),
+    off(o),
+    typ(t),
+    num(n),
+    min(a),
+    max(z)
+{
+}
+
+bool ogl::elem::depth_eq(const elem& that) const
+{
+    // Determine whether that element batch may be depth-mode merged with this.
+
+    if (typ == that.typ)
+        return bnd->depth_eq(that.bnd);
+    else
+        return false;
+}
+
+bool ogl::elem::color_eq(const elem& that) const
+{
+    // Determine whether that element batch may be color-mode merged with this.
+
+    if (typ == that.typ)
+        return bnd->color_eq(that.bnd);
+    else
+        return false;
+}
+
+void ogl::elem::merge(const elem& that)
+{
+    // Merge that element batch with this.
+
+    num += that.num;
+    min  = std::min(min, that.min);
+    max  = std::max(max, that.max);
+}
+
+void ogl::elem::draw(bool color) const
+{
+    // Bind this batch's state and render all elements.
+
+    bnd->bind(color);
+
+    glDrawRangeElementsEXT(typ, min, max, num, GL_UNSIGNED_INT, off);
+}
+
+//=============================================================================
+
 ogl::unit::unit(std::string name) :
     vc(0), ec(0),
     rebuff(true),
     my_node(0),
     surf(glob->load_surface(name))
 {
-    // Create a cache mesh for each mesh of the named surface.
+    // Create a cache for each mesh.  Count vertices and elements.
 
     for (GLsizei i = 0; i < surf->max_mesh(); ++i)
-        my_mesh[new mesh] = surf->get_mesh(i);
-
-    // Total the vertex and element counts.
-
-    for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
     {
-        vc += i->second->count_verts();
-        ec += i->second->count_lines() * 2
-            + i->second->count_faces() * 3;
+        const mesh *m = surf->get_mesh(i);
+
+        my_mesh.insert(mesh_m::value_type(m, new mesh));
+
+        vc += m->count_verts();
+        ec += m->count_lines() * 2
+            + m->count_faces() * 3;
     }
 }
 
@@ -42,7 +92,7 @@ ogl::unit::~unit()
     // Delete all cache meshes.
 
     for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
-        delete i->first;
+        delete i->second;
 
     glob->free_surface(surf);
 }
@@ -54,9 +104,10 @@ void ogl::unit::set_node(node_p p)
 
 //-----------------------------------------------------------------------------
 
-void ogl::unit::transform(const GLfloat *M)
+void ogl::unit::transform(const GLfloat *M, const GLfloat *I)
 {
     load_mat(this->M, M);
+    load_mat(this->I, I);
 
     // Mark this unit and its node for a buffer update.
 
@@ -92,17 +143,17 @@ void ogl::unit::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
 
         for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
         {
-            i->first->cache_verts(i->second, M);
-            i->first->merge_bound(my_aabb);
+            i->second->cache_verts(i->first, M, I);
+            i->second->merge_bound(my_aabb);
         }
 
         // Upload each mesh's vertex data to the bound buffer object.
 
         for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
         {
-            const GLsizei ii = i->first->count_verts();
+            const GLsizei ii = i->second->count_verts();
 
-            i->first->buffv(v, n, t, u);
+            i->second->buffv(v, n, t, u);
 
             v += ii * 3;
             n += ii * 3;
@@ -210,7 +261,7 @@ void ogl::node::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
 void ogl::node::sort(GLuint *e, GLuint d)
 {
     mesh_m my_mesh;
-    mesh_v my_elem;
+    elem_v my_elem;
 
     // Create a list of all meshes of this node, sorted by material.
 
@@ -220,31 +271,31 @@ void ogl::node::sort(GLuint *e, GLuint d)
     for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
     {
         const GLsizei dc = i->first->count_verts();
-        const GLsizei fc = i->first->count_faces();
-        const GLsizei lc = i->first->count_lines();
+        const GLsizei fc = i->first->count_faces() * 3;
+        const GLsizei lc = i->first->count_lines() * 2;
 
         // Cache each offset mesh.
 
-        i->first->cache_lines(i->second, d);
-        i->first->cache_faces(i->second, d);
+        i->second->cache_lines(i->first, d);
+        i->second->cache_faces(i->first, d);
 
         // Upload elements to the bound buffer object.
 
-        i->first->buffe(e);
+        i->second->buffe(e);
 
         // Create a batch for each set of primatives.
 
-        if (lc) my_elem.push_back(i->second->state(), e, GL_LINES,     lc * 2,
-                                  i->first->get_min(),
-                                  i->first->get_max())
-        if (fc) my_elem.push_back(i->second->state(), e, GL_TRIANGLES, fc * 3,
-                                  i->first->get_min(),
-                                  i->first->get_max())
+        if (lc) my_elem.push_back(elem(i->first->state(), e, GL_LINES,     lc,
+                                       i->second->get_min(),
+                                       i->second->get_max()));
+        if (fc) my_elem.push_back(elem(i->first->state(), e, GL_TRIANGLES, fc,
+                                       i->second->get_min(),
+                                       i->second->get_max()));
 
         // Iterate down the element buffer object.
 
         d += dc;
-        e += lc * 2 + fc * 3;
+        e += lc + fc;
     }
 
     // Create a minimal vector of batches for each draw mode.
@@ -297,7 +348,41 @@ void ogl::node::draw(bool color, bool alpha)
 {
     // Test the bounding volume.
 
+    // Select the batch vector.
+
+    elem_i b;
+    elem_i e;
+
+    if (color)
+    {
+        if (alpha)
+        {
+            b = transp_color.begin();
+            e = transp_color.end();
+        }
+        else
+        {
+            b = opaque_color.begin();
+            e = opaque_color.end();
+        }
+    }
+    else
+    {
+        if (alpha)
+        {
+            b = transp_depth.begin();
+            e = transp_depth.end();
+        }
+        else
+        {
+            b = opaque_depth.begin();
+            e = opaque_depth.end();
+        }
+    }
+
     // Render the selected batches.
+
+    for (elem_i i = b; i != e; ++i) i->draw(color);
 }
 
 //=============================================================================

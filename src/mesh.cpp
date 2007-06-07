@@ -86,11 +86,11 @@ void ogl::mesh::calc_tangent()
     {
         // Compute the vertex position differences.
 
-        const float *vi = verts[fi->i].v.v;
-        const float *vj = verts[fi->j].v.v;
-        const float *vk = verts[fi->k].v.v;
+        const GLfloat *vi = vv[fi->i].v;
+        const GLfloat *vj = vv[fi->j].v;
+        const GLfloat *vk = vv[fi->k].v;
 
-        float dv0[3], dv1[3];
+        GLfloat dv0[3], dv1[3];
 
         dv0[0] = vj[0] - vi[0];
         dv0[1] = vj[1] - vi[1];
@@ -102,11 +102,11 @@ void ogl::mesh::calc_tangent()
 
         // Compute the vertex texture coordinate differences.
 
-        const float *si = verts[fi->i].s.v;
-        const float *sj = verts[fi->j].s.v;
-        const float *sk = verts[fi->k].s.v;
+        const GLfloat *si = uv[fi->i].v;
+        const GLfloat *sj = uv[fi->j].v;
+        const GLfloat *sk = uv[fi->k].v;
 
-        float ds0[2], ds1[2];
+        GLfloat ds0[2], ds1[2];
 
         ds0[0] = sj[0] - si[0];
         ds0[1] = sj[1] - si[1];
@@ -116,7 +116,7 @@ void ogl::mesh::calc_tangent()
 
         // Compute the tangent vector.
 
-        float t[3];
+        GLfloat t[3];
 
         t[0] = ds1[1] * dv0[0] - ds0[1] * dv1[0];
         t[1] = ds1[1] * dv0[1] - ds0[1] * dv1[1];
@@ -126,9 +126,9 @@ void ogl::mesh::calc_tangent()
 
         // Accumulate the vertex tangent vectors.
 
-        float *ti = verts[fi->i].t.v;
-        float *tj = verts[fi->j].t.v;
-        float *tk = verts[fi->k].t.v;
+        GLfloat *ti = tv[fi->i].v;
+        GLfloat *tj = tv[fi->j].v;
+        GLfloat *tk = tv[fi->k].v;
 
         ti[0] += t[0];
         ti[1] += t[1];
@@ -145,186 +145,144 @@ void ogl::mesh::calc_tangent()
 
     // Normalize all tangent vectors.
 
-    for (ogl::vert_i vi = verts.begin(); vi != verts.end(); ++vi)
-        normalize(vi->t.v);
+    for (vec3_v::iterator ti = tv.begin(); ti != tv.end(); ++ti)
+        normalize(ti->v);
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::mesh::cache_verts(const ogl::mesh& that, const float *M,
+void ogl::mesh::add_vert(vec3& v, vec3& n, vec2& u)
+{
+    vec3 t;
+
+    // Add a new vertex.  Note position bounds.
+
+    vv.push_back(v);
+    nv.push_back(n);
+    tv.push_back(t);
+    uv.push_back(u);
+
+    bound.merge(v.v);
+}
+
+void ogl::mesh::add_face(GLuint i, GLuint j, GLuint k)
+{
+    // Add a new face.  Note index range.
+
+    faces.push_back(face(i, j, k));
+
+    min = std::min(std::min(min, i), std::min(j, k));
+    max = std::max(std::max(max, i), std::max(j, k));
+}
+
+void ogl::mesh::add_line(GLuint i, GLuint j)
+{
+    // Add a new line.  Note index range.
+
+    lines.push_back(line(i, j));
+
+    min = std::min(min, std::min(i, j));
+    max = std::max(max, std::max(i, j));
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::mesh::cache_verts(const ogl::mesh *that, const float *M,
                                                    const float *I)
 {
-    // Cache that mesh's transformed vertices here.
+    const GLsizei n = that->vv.size();
 
-    // Update the bounding volume.
+    // Cache that mesh's transformed vertices here.  Update bounding volume.
+
+    vv.reserve(n);
+    nv.reserve(n);
+    tv.reserve(n);
+    uv.reserve(n);
+
+    bound = aabb();
+
+    for (GLsizei i = 0; i < n; ++i)
+    {
+        mult_mat_pos(vv[i].v, M, that->vv[i].v);
+        mult_xps_pos(nv[i].v, I, that->nv[i].v);
+        mult_xps_pos(tv[i].v, I, that->tv[i].v);
+
+        uv[i] = that->uv[i];
+
+        bound.merge(vv[i].v);
+    }
+}
+
+void ogl::mesh::cache_faces(const ogl::mesh *that, GLuint d)
+{
+    const GLsizei n = that->faces.size();
+
+    // Cache that mesh's offset face elements here.
+
+    faces.reserve(n);
+
+    for (GLsizei i = 0; i < n; ++i)
+        faces[i] = face(that->faces[i].i + d,
+                        that->faces[i].j + d,
+                        that->faces[i].k + d);
+
+    // Cache the offset element range.
+
+    min = that->min + d;
+    max = that->max + d;
+}
+
+void ogl::mesh::cache_lines(const ogl::mesh *that, GLuint d)
+{
+    const GLsizei n = that->lines.size();
+
+    // Cache that mesh's offset line elements here.
+
+    lines.reserve(n);
+
+    for (GLsizei i = 0; i < n; ++i)
+        lines[i] = line(that->lines[i].i + d,
+                        that->lines[i].j + d);
+
+    // Cache the offset element range.
+
+    min = that->min + d;
+    max = that->max + d;
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::mesh::merge_bound(GLfloat *bound_min,
-                            GLfloat *bound_max,
-                            GLfloat *bound_rad)
+void ogl::mesh::buffv(GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u) const
 {
-    // Merge this mesh's bounding volume with the given one.
+    // Copy all cached vertex data to the bound array buffer object.
 
-    bound_min[0] = std::min(bound_min[0], this->bound_min[0]);
-    bound_min[1] = std::min(bound_min[1], this->bound_min[1]);
-    bound_min[2] = std::min(bound_min[2], this->bound_min[2]);
+    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(v),
+                       vv.size() * sizeof (vec3), &vv.front());
+    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(n),
+                       nv.size() * sizeof (vec3), &nv.front());
+    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(t),
+                       tv.size() * sizeof (vec3), &tv.front());
+    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(u),
+                       uv.size() * sizeof (vec2), &uv.front());
 
-    bound_max[0] = std::max(bound_max[0], this->bound_max[0]);
-    bound_max[1] = std::max(bound_max[1], this->bound_max[1]);
-    bound_max[2] = std::max(bound_max[2], this->bound_max[2]);
-
-    bound_rad[0] = std::max(bound_rad[0], this->bound_rad[0]);
+    OGLCK();
 }
 
-//-----------------------------------------------------------------------------
-/*
-ogl::vert_p ogl::mesh::vert_cache(ogl::vert_p o, const GLfloat *M,
-                                                 const GLfloat *I) const
+void ogl::mesh::buffe(GLuint *e) const
 {
-    const size_t n = verts.size();
+    // Copy all cached index data to the bound element array buffer object.
 
-    // Acquire a temporary vertex buffer.
+    if (faces.size())
+        glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(e),
+                           faces.size() * sizeof (face), &faces.front());
 
-    if (vert_p temp = new vert[n])
-    {
-        // Pretransform all vertices to the temporary buffer.
+    e += faces.size() * 3;
 
-        for (size_t i = 0; i < n; ++i)
-        {
-            mult_mat_pos(temp[i].v.v, M, verts[i].v.v);
-            mult_xps_pos(temp[i].n.v, I, verts[i].n.v);
-            mult_xps_pos(temp[i].t.v, I, verts[i].t.v);
+    if (lines.size())
+        glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(e),
+                           lines.size() * sizeof (line), &lines.front());
 
-            temp[i].s = verts[i].s;
-        }
-
-        // Upload the pretransformed vertices to the current vertex buffer.
-
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(o),
-                           n * sizeof (vert), temp);
-        OGLCK();
-
-        delete [] temp;
-    }
-
-    // Walk the offset down the vertex array.
-
-    return o + n;
+    OGLCK();
 }
 
-GLuint *ogl::mesh::face_cache(GLuint *o, GLuint d, GLuint& min,
-                                                   GLuint& max) const
-{
-    const size_t n = faces.size();
-
-    min = std::numeric_limits<GLuint>::max();
-    max = std::numeric_limits<GLuint>::min();
-
-    // Acquire a temporary element buffer.
-
-    if (face_p temp = new face[n])
-    {
-        // Offset all elements to the temporary buffer.  Find extrema.
-
-        for (size_t i = 0; i < n; ++i)
-        {
-            temp[i].i = faces[i].i + d;
-            temp[i].j = faces[i].j + d;
-            temp[i].k = faces[i].k + d;
-
-            min = std::min(std::min(min,       temp[i].i),
-                           std::min(temp[i].j, temp[i].k));
-            max = std::max(std::max(max,       temp[i].i),
-                           std::max(temp[i].j, temp[i].k));
-        }
-
-        // Upload the offset elements to the current element buffer.
-
-        glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(o),
-                           n * sizeof (face), temp);
-        OGLCK();
-
-        delete [] temp;
-    }
-
-    // Walk the pointer offset down the element array.
-
-    return o + n * 3;
-}
-
-GLuint *ogl::mesh::line_cache(GLuint *o, GLuint d, GLuint& min,
-                                                   GLuint& max) const
-{
-    const size_t n = lines.size();
-
-    min = std::numeric_limits<GLuint>::max();
-    max = std::numeric_limits<GLuint>::min();
-
-    // Acquire a temporary element buffer.
-
-    if (line_p temp = new line[n])
-    {
-        // Offset all elements to the temporary buffer.  Find extrema
-
-        for (size_t i = 0; i < n; ++i)
-        {
-            temp[i].i = lines[i].i + d;
-            temp[i].j = lines[i].j + d;
-
-            min = std::min(min, std::min(temp[i].i, temp[i].j));
-            max = std::max(max, std::max(temp[i].i, temp[i].j));
-        }
-
-        // Upload the offset elements to the current element buffer.
-
-        glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(o),
-                           n * sizeof (line), temp);
-        OGLCK();
-
-        delete [] temp;
-    }
-
-    // Walk the pointer offset down the element array.
-
-    return o + n * 2;
-}
-*/
-//-----------------------------------------------------------------------------
-/*
-void ogl::mesh::box_bound(GLfloat *b) const
-{
-    b[0] = std::numeric_limits<GLfloat>::max();
-    b[1] = std::numeric_limits<GLfloat>::max();
-    b[2] = std::numeric_limits<GLfloat>::max();
-    b[3] = std::numeric_limits<GLfloat>::min();
-    b[4] = std::numeric_limits<GLfloat>::min();
-    b[5] = std::numeric_limits<GLfloat>::min();
-
-    for (vert_c vi = verts.begin(); vi != verts.end(); ++vi)
-    {
-        b[0] = std::min(b[0], vi->v.v[0]);
-        b[1] = std::min(b[1], vi->v.v[1]);
-        b[2] = std::min(b[2], vi->v.v[2]);
-        b[3] = std::max(b[3], vi->v.v[0]);
-        b[4] = std::max(b[4], vi->v.v[1]);
-        b[5] = std::max(b[5], vi->v.v[2]);
-    }
-}
-
-void ogl::mesh::sph_bound(GLfloat *b) const
-{
-    b[0] = std::numeric_limits<GLfloat>::min();
-
-    for (vert_c vi = verts.begin(); vi != verts.end(); ++vi)
-    {
-        GLfloat r = sqrt(vi->v.v[0] * vi->v.v[0] +
-                         vi->v.v[1] * vi->v.v[1] +
-                         vi->v.v[2] * vi->v.v[2]);
-
-        b[0] = std::max(b[0], r);
-    }
-}
-*/
 //-----------------------------------------------------------------------------

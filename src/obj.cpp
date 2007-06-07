@@ -20,6 +20,11 @@
 
 //-----------------------------------------------------------------------------
 
+static ogl::vec2 z2;
+static ogl::vec3 z3;
+
+//-----------------------------------------------------------------------------
+
 void obj::obj::read_use(std::istream &lin, iset_m& is)
 {
     std::string name;
@@ -71,13 +76,15 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
 
     if ((ii = is.find(key)) == is.end())
     {
-        val = int(meshes.back()->vert_count());
+        val = int(meshes.back()->count_verts());
 
         // ... Create a new index set and vertex.
 
         is.insert(iset_m::value_type(key, val));
 
-        meshes.back()->add_vert(ogl::vert(vv, sv, nv, vi, si, ni));
+        meshes.back()->add_vert((vi < 0) ? z3 : vv[vi],
+                                (ni < 0) ? z3 : nv[ni],
+                                (si < 0) ? z2 : sv[si]);
     }
     else val = ii->second;
 
@@ -109,7 +116,7 @@ void obj::obj::read_f(std::istream& lin, ogl::vec3_v& vv,
     // Convert our N new vertex indices into N-2 new triangles.
 
     for (i = 0; i < n - 2; ++i)
-        meshes.back()->add_face(ogl::face(iv[0], iv[i + 1], iv[i + 2]));
+        meshes.back()->add_face(iv[0], iv[i + 1], iv[i + 2]);
 }
 
 //-----------------------------------------------------------------------------
@@ -147,13 +154,14 @@ int obj::obj::read_li(std::istream& lin, ogl::vec3_v& vv,
 
     if ((ii = is.find(key)) == is.end())
     {
-        val = int(meshes.back()->vert_count());
+        val = int(meshes.back()->count_verts());
 
         // ... Create a new index set and vertex.
 
         is.insert(iset_m::value_type(key, val));
 
-        meshes.back()->add_vert(ogl::vert(vv, sv, vv, vi, si, -1));
+        meshes.back()->add_vert((vi < 0) ? z3 : vv[vi], z3,
+                                (si < 0) ? z2 : sv[si]);
     }
     else val = ii->second;
 
@@ -184,7 +192,7 @@ void obj::obj::read_l(std::istream& lin, ogl::vec3_v& vv,
     // Convert our N new vertex indices into N-1 new line.
 
     for (i = 0; i < n - 1; ++i)
-        meshes.back()->add_line(ogl::line(iv[i], iv[i + 1]));
+        meshes.back()->add_line(iv[i], iv[i + 1]);
 }
 
 //-----------------------------------------------------------------------------
@@ -269,46 +277,6 @@ obj::obj::~obj()
 {
     for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
         delete (*i);
-}
-
-//-----------------------------------------------------------------------------
-
-void obj::obj::box_bound(GLfloat *b) const
-{
-    float c[6];
-
-    b[0] = std::numeric_limits<GLfloat>::max();
-    b[1] = std::numeric_limits<GLfloat>::max();
-    b[2] = std::numeric_limits<GLfloat>::max();
-    b[3] = std::numeric_limits<GLfloat>::min();
-    b[4] = std::numeric_limits<GLfloat>::min();
-    b[5] = std::numeric_limits<GLfloat>::min();
-
-    for (ogl::mesh_c i = meshes.begin(); i != meshes.end(); ++i)
-    {
-        (*i)->box_bound(c);
-
-        b[0] = std::min(b[0], c[0]);
-        b[1] = std::min(b[1], c[1]);
-        b[2] = std::min(b[2], c[2]);
-        b[3] = std::max(b[3], c[3]);
-        b[4] = std::max(b[4], c[4]);
-        b[5] = std::max(b[5], c[5]);
-    }
-}
-
-void obj::obj::sph_bound(GLfloat *b) const
-{
-    float c[1];
-
-    b[0] = std::numeric_limits<GLfloat>::min();
-
-    for (ogl::mesh_c i = meshes.begin(); i != meshes.end(); ++i)
-    {
-        (*i)->sph_bound(c);
-
-        b[0] = std::max(b[0], c[0]);
-    }
 }
 
 //-----------------------------------------------------------------------------

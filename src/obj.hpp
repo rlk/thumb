@@ -77,11 +77,6 @@ namespace obj
 
         GLsizei          max_mesh()          const { return meshes.size(); }
         const ogl::mesh *get_mesh(GLsizei i) const { return meshes[i];     }
-
-        // Bound calculators
-
-        void box_bound(GLfloat *) const;
-        void sph_bound(GLfloat *) const;
     };
 }
 

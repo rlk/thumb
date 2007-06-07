@@ -17,47 +17,54 @@
 
 ogl::binding::binding(std::string name) : name(name)
 {
-    lite = glob->load_program("object-lite.vert", "object-lite.frag");
-    dark = glob->load_program("object-dark.vert", "object-dark.frag");
+    color = glob->load_program("object-color.vert", "object-color.frag");
+    depth = glob->load_program("object-depth.vert", "object-depth.frag");
 
     diff = glob->load_texture("solid/metal_box_diffuse.png");
     bump = glob->load_texture("solid/metal_box_bump.png");
 
-    lite->bind();
+    color->bind();
     {
-        lite->uniform("diffuse", 0);
-        lite->uniform("bump",    1);
-        lite->uniform("light",   2);
-        lite->uniform("shadow",  3);
+        color->uniform("diffuse", 0);
+        color->uniform("bump",    1);
+        color->uniform("light",   2);
+        color->uniform("shadow",  3);
     }
-    lite->free();
+    color->free();
 
-    dark->bind();
+    depth->bind();
     {
-        dark->uniform("diffuse", 0);
+        depth->uniform("diffuse", 0);
     }
-    dark->free();
+    depth->free();
 }
 
 ogl::binding::~binding()
 {
     glob->free_texture(bump);
     glob->free_texture(diff);
-    glob->free_program(dark);
-    glob->free_program(lite);
+
+    glob->free_program(depth);
+    glob->free_program(color);
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::binding::bind(bool lit) const
+void ogl::binding::bind(bool c) const
 {
-    if (lit)
-        lite->bind();
-    else
-        dark->bind();
+    if (c)
+    {
+        color->bind();
 
-    diff->bind(GL_TEXTURE0);
-    bump->bind(GL_TEXTURE1);
+        diff->bind(GL_TEXTURE0);
+        bump->bind(GL_TEXTURE1);
+    }
+    else
+    {
+        depth->bind();
+
+        diff->bind(GL_TEXTURE0);
+    }
 }
 
 //-----------------------------------------------------------------------------

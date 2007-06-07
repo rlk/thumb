@@ -22,24 +22,6 @@
 
 namespace ogl
 {
-    class GLfloat2
-    {
-        GLfloat v[2];
-
-    public:
-
-        GLfloat& operator[](int i) { return v[i]; }
-    };
-
-    class GLfloat3
-    {
-        GLfloat v[3];
-
-    public:
-
-        GLfloat& operator[](int i) { return v[i]; }
-    };
-
     //-------------------------------------------------------------------------
 
     struct vec2
@@ -58,30 +40,6 @@ namespace ogl
 
     typedef std::vector<vec2> vec2_v;
     typedef std::vector<vec3> vec3_v;
-
-    //-------------------------------------------------------------------------
-
-    struct vert
-    {
-        vec3    v;
-        vec3    n;
-        vec3    t;
-        vec2    s;
-
-        vert() { }
-
-        vert(vec3_v& vv, vec2_v& sv, vec3_v& nv, int vi, int si, int ni) {
-            v = (vi >= 0) ? vv[vi] : vec3();
-            s = (si >= 0) ? sv[si] : vec2();
-            n = (ni >= 0) ? nv[ni] : vec3();
-            t =                      vec3();
-        }
-    };
-
-    typedef vert                             *vert_p;
-    typedef std::vector<vert>                 vert_v;
-    typedef std::vector<vert>::iterator       vert_i;
-    typedef std::vector<vert>::const_iterator vert_c;
 
     //-------------------------------------------------------------------------
 
@@ -139,7 +97,11 @@ namespace ogl
     {
         const binding *material;
 
-        vert_v verts;
+        vec3_v vv;
+        vec3_v nv;
+        vec3_v tv;
+        vec2_v uv;
+
         face_v faces;
         line_v lines;
 
@@ -154,17 +116,17 @@ namespace ogl
         mesh();
        ~mesh();
 
-        // State mutators
+        // State modifiers
 
         void calc_tangent();
 
-        void add_vert(vert v) { verts.push_back(v); }
-        void add_face(face f) { faces.push_back(f); }
-        void add_line(line l) { lines.push_back(l); }
+        void add_vert(vec3&,  vec3&,  vec2&);
+        void add_face(GLuint, GLuint, GLuint);
+        void add_line(GLuint, GLuint);
+        
+        // Cache modifiers
 
-        // Caching mutators
-
-        void cache_verts(const mesh *, const GLfloat *);
+        void cache_verts(const mesh *, const GLfloat *, const GLfloat *);
         void cache_faces(const mesh *, GLuint);
         void cache_lines(const mesh *, GLuint);
 
@@ -172,16 +134,16 @@ namespace ogl
 
         const binding *state() const { return material; }
 
-        GLsizei count_verts() const { return verts.size(); }
+        GLsizei count_verts() const { return    vv.size(); }
         GLsizei count_lines() const { return faces.size(); }
         GLsizei count_faces() const { return lines.size(); }
+
+        void merge_bound(aabb& b) const { b.merge(bound); }
 
         GLuint get_min() const { return min; }
         GLuint get_max() const { return max; }
 
-        void merge_bound(aabb& b) const { b.merge(bound); }
-
-        // Batch writers
+        // Buffer object writers
 
         void buffv(GLfloat *, GLfloat *, GLfloat *, GLfloat *) const;
         void buffe(GLuint  *)                                  const;

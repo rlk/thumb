@@ -26,8 +26,9 @@ namespace ogl
     {
         std::string name;
 
-        const ogl::program *lite;
-        const ogl::program *dark;
+        const ogl::program *depth;
+        const ogl::program *color;
+
         const ogl::texture *diff;
         const ogl::texture *bump;
 
@@ -39,6 +40,9 @@ namespace ogl
        ~binding();
 
         bool opaque() const { return true; }
+
+        bool depth_eq(const binding *) const;
+        bool color_eq(const binding *) const;
 
         void bind(bool) const;
     };

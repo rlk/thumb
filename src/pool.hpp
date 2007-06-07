@@ -43,8 +43,7 @@ namespace ogl
     typedef std::set<pool_p>           pool_s;
     typedef std::set<pool_p>::iterator pool_i;
 
-    typedef std::set<mesh_p>               mesh_s;
-    typedef std::map<mesh_p, const mesh *> mesh_m;
+    typedef std::multimap<const mesh *, mesh_p> mesh_m;
 
     //-------------------------------------------------------------------------
     // Drawable / mergable element batch
@@ -65,15 +64,17 @@ namespace ogl
 
         bool opaque() const { return bnd->opaque(); }
 
-        bool depth_eq(elem& that) const;
-        bool color_eq(elem& that) const;
+        bool depth_eq(const elem&) const;
+        bool color_eq(const elem&) const;
+        void merge   (const elem&);
 
-        void merge(elem&);
-        void draw() const;
+        void draw(bool) const;
     };
 
-    typedef std::vector<elem>           elem_v;
-    typedef std::vector<elem>::iterator elem_i;
+    // TODO: deque?
+
+    typedef std::vector<elem>                 elem_v;
+    typedef std::vector<elem>::const_iterator elem_i;
 
     //-------------------------------------------------------------------------
     // Static batchable
@@ -81,6 +82,7 @@ namespace ogl
     class unit
     {
         GLfloat M[16];
+        GLfloat I[16];
 
         GLsizei vc;
         GLsizei ec;
@@ -100,7 +102,7 @@ namespace ogl
 
         void set_node(node_p);
 
-        void transform(const GLfloat *);
+        void transform(const GLfloat *, const GLfloat *);
 
         void merge_batch(mesh_m&);
         void merge_bound(aabb&);
