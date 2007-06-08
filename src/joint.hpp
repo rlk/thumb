@@ -59,7 +59,8 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init(ogl::segment *);
+//      virtual void play_init(ogl::segment *);
+        virtual void play_init();
 
         mxml_node_t *save(mxml_node_t *);
     };
@@ -77,7 +78,8 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init(ogl::segment *);
+//      virtual void play_init(ogl::segment *);
+        virtual void play_init();
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -95,7 +97,8 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init(ogl::segment *);
+//      virtual void play_init(ogl::segment *);
+        virtual void play_init();
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -113,7 +116,8 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init(ogl::segment *);
+//      virtual void play_init(ogl::segment *);
+        virtual void play_init();
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -131,7 +135,8 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init(ogl::segment *);
+//      virtual void play_init(ogl::segment *);
+        virtual void play_init();
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -149,7 +154,8 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-        virtual void play_init(ogl::segment *);
+//      virtual void play_init(ogl::segment *);
+        virtual void play_init();
         virtual void step_init();
 
         mxml_node_t *save(mxml_node_t *);

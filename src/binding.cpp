@@ -50,6 +50,18 @@ ogl::binding::~binding()
 
 //-----------------------------------------------------------------------------
 
+bool ogl::binding::depth_eq(const binding *that) const
+{
+    return (depth == that->depth);
+}
+
+bool ogl::binding::color_eq(const binding *that) const
+{
+    return (color == that->color);
+}
+
+//-----------------------------------------------------------------------------
+
 void ogl::binding::bind(bool c) const
 {
     if (c)

@@ -12,7 +12,7 @@ varying vec3 L;
 void main()
 {
     vec4 eye = gl_ModelViewMatrix * gl_Vertex;
-    vec3 lit = gl_LightSource[0].position.xyz - eye.xyz;
+    vec3 lit = gl_LightSource[0].position.xyz;
 
     vec3 N = normalize(gl_NormalMatrix * gl_Normal);
     vec3 T = normalize(gl_NormalMatrix * Tangent);
@@ -27,8 +27,6 @@ void main()
     V.y = dot(eye.xyz, B);
     V.z = dot(eye.xyz, N);
     V = normalize(V);
-
-    vec3 R = reflect(L, vec3(0.0, 0.0, 1.0));
 
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
     gl_TexCoord[1] = gl_TextureMatrix[1] * eye;

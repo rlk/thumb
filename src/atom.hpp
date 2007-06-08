@@ -19,7 +19,7 @@
 #include <ode/ode.h>
 #include <mxml.h>
 
-#include "batcher.hpp"
+//#include "batcher.hpp"
 #include "matrix.hpp"
 #include "param.hpp"
 
@@ -39,8 +39,8 @@ namespace wrl
 
         std::string name;
 
-        ogl::element *fill;
-        ogl::element *line;
+//      ogl::element *fill;
+//      ogl::element *line;
 
         float line_scale[3];
 
@@ -78,8 +78,8 @@ namespace wrl
         void get_local(float[16]) const;
         void transform(const float *);
 
-        ogl::element *get_fill() { return fill; }
-        ogl::element *get_line() { return line; }
+//      ogl::element *get_fill() { return fill; }
+//      ogl::element *get_line() { return line; }
 
         void mov_fill();
         void mov_line();
@@ -106,8 +106,10 @@ namespace wrl
 
         virtual void step_init() { }
         virtual void step_fini() { }
-        virtual void play_init(ogl::segment *) { }
-        virtual void play_fini(ogl::segment *) { }
+        virtual void play_init() { }
+        virtual void play_fini() { }
+//      virtual void play_init(ogl::segment *) { }
+//      virtual void play_fini(ogl::segment *) { }
 
         // File I/O
 

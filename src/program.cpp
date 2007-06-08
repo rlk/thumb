@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <iostream>
+#include <cstring>
 
 #include "program.hpp"
 #include "data.hpp"
@@ -76,9 +77,9 @@ void ogl::program::init()
     size_t vert_siz;
     size_t frag_siz;
 
-    const  GLcharARB *vert_txt =
+    const GLcharARB *vert_txt =
         (const GLcharARB *) ::data->load(vert_name, &vert_siz);
-    const  GLcharARB *frag_txt =
+    const GLcharARB *frag_txt =
         (const GLcharARB *) ::data->load(frag_name, &frag_siz);
 
     GLint vert_len = GLint(vert_siz);
@@ -115,7 +116,10 @@ void ogl::program::init()
     if (vert) glAttachObjectARB(prog, vert);
     if (frag) glAttachObjectARB(prog, frag);
 
-    glBindAttribLocationARB(prog, 6, "Tangent");
+    // Bind the tangent attribute if needed.  (HACK)
+
+    if (strstr(vert_txt,  "attribute vec3 Tangent"))
+        glBindAttribLocationARB(prog, 6, "Tangent");
 
     glLinkProgramARB(prog);
 

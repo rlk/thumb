@@ -176,7 +176,7 @@ dJointID wrl::universal::get_join(dWorldID world)
 
 //-----------------------------------------------------------------------------
 
-void wrl::ball::play_init(ogl::segment *)
+void wrl::ball::play_init()
 {
     const float *M = current_M;
 
@@ -185,7 +185,7 @@ void wrl::ball::play_init(ogl::segment *)
     dJointSetBallAnchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::hinge::play_init(ogl::segment *)
+void wrl::hinge::play_init()
 {
     const float *M = current_M;
 
@@ -195,7 +195,7 @@ void wrl::hinge::play_init(ogl::segment *)
     dJointSetHingeAnchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::hinge2::play_init(ogl::segment *)
+void wrl::hinge2::play_init()
 {
     const float *M = current_M;
 
@@ -206,7 +206,7 @@ void wrl::hinge2::play_init(ogl::segment *)
     dJointSetHinge2Anchor(play_join, M[12], M[13], M[14]);
 }
 
-void wrl::slider::play_init(ogl::segment *)
+void wrl::slider::play_init()
 {
     const float *M = current_M;
 
@@ -215,7 +215,7 @@ void wrl::slider::play_init(ogl::segment *)
     dJointSetSliderAxis(play_join, M[ 8], M[ 9], M[10]);
 }
 
-void wrl::amotor::play_init(ogl::segment *)
+void wrl::amotor::play_init()
 {
     const float *M = current_M;
  
@@ -229,7 +229,7 @@ void wrl::amotor::play_init(ogl::segment *)
     dJointSetAMotorAxis(play_join, 2, b, M[ 8], M[ 9], M[10]);
 }
 
-void wrl::universal::play_init(ogl::segment *)
+void wrl::universal::play_init()
 {
     const float *M = current_M;
 

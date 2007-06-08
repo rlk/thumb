@@ -16,7 +16,7 @@
 #include <set>
 #include <cstring>
 
-#include "batcher.hpp"
+//#include "batcher.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -26,12 +26,12 @@ protected:
 
     float M[16];
     float T[16];
-
+/*
     ogl::element *rot[10];
     ogl::element *pos[10];
     ogl::batcher *bat;
     ogl::segment *seg;
-
+*/
     int   mode;
     int   axis;
     int   grid;

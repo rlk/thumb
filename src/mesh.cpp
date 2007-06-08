@@ -22,13 +22,13 @@
 
 ogl::aabb::aabb()
 {
-    min[0] = std::numeric_limits<GLfloat>::max();
-    min[1] = std::numeric_limits<GLfloat>::max();
-    min[2] = std::numeric_limits<GLfloat>::max();
+    min[0] = +std::numeric_limits<GLfloat>::max();
+    min[1] = +std::numeric_limits<GLfloat>::max();
+    min[2] = +std::numeric_limits<GLfloat>::max();
 
-    max[0] = std::numeric_limits<GLfloat>::min();
-    max[1] = std::numeric_limits<GLfloat>::min();
-    max[2] = std::numeric_limits<GLfloat>::min();
+    max[0] = -std::numeric_limits<GLfloat>::max();
+    max[1] = -std::numeric_limits<GLfloat>::max();
+    max[2] = -std::numeric_limits<GLfloat>::max();
 
     rad[0] = std::numeric_limits<GLfloat>::min();
 }
@@ -194,10 +194,10 @@ void ogl::mesh::cache_verts(const ogl::mesh *that, const float *M,
 
     // Cache that mesh's transformed vertices here.  Update bounding volume.
 
-    vv.reserve(n);
-    nv.reserve(n);
-    tv.reserve(n);
-    uv.reserve(n);
+    vv.resize(n);
+    nv.resize(n);
+    tv.resize(n);
+    uv.resize(n);
 
     bound = aabb();
 
@@ -219,7 +219,7 @@ void ogl::mesh::cache_faces(const ogl::mesh *that, GLuint d)
 
     // Cache that mesh's offset face elements here.
 
-    faces.reserve(n);
+    faces.resize(n);
 
     for (GLsizei i = 0; i < n; ++i)
         faces[i] = face(that->faces[i].i + d,
@@ -238,7 +238,7 @@ void ogl::mesh::cache_lines(const ogl::mesh *that, GLuint d)
 
     // Cache that mesh's offset line elements here.
 
-    lines.reserve(n);
+    lines.resize(n);
 
     for (GLsizei i = 0; i < n; ++i)
         lines[i] = line(that->lines[i].i + d,

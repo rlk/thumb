@@ -21,18 +21,18 @@
 
 wrl::atom::atom(std::string fill_name,
                 std::string line_name) :
-    edit_geom(0), body_id(0), name(fill_name), fill(0), line(0)
+    edit_geom(0), body_id(0), name(fill_name)//, fill(0), line(0)
 {
     load_idt(default_M);
     load_idt(current_M);
 
     line_scale[0] = line_scale[1] = line_scale[2] = 1.0f;
 
-    if (fill_name.size()) fill = new ogl::element(fill_name);
-    if (line_name.size()) line = new ogl::element(line_name);
+//  if (fill_name.size()) fill = new ogl::element(fill_name);
+//  if (line_name.size()) line = new ogl::element(line_name);
 }
 
-wrl::atom::atom(const atom& that) : fill(0), line(0)
+wrl::atom::atom(const atom& that) //: fill(0), line(0)
 {
     param_map::const_iterator i;
 
@@ -48,8 +48,8 @@ wrl::atom::atom(const atom& that) : fill(0), line(0)
 
     // Duplicate GL state.
 
-    if (that.fill) fill = new ogl::element(*that.fill);
-    if (that.line) line = new ogl::element(*that.line);
+//  if (that.fill) fill = new ogl::element(*that.fill);
+//  if (that.line) line = new ogl::element(*that.line);
 
     // Flush and clone each parameter separately.
 
@@ -67,8 +67,8 @@ wrl::atom::~atom()
 
     // Delete GL state.
 
-    if (line) delete line;
-    if (fill) delete fill;
+//  if (line) delete line;
+//  if (fill) delete fill;
 
     // Delete all parameters.
 
@@ -181,11 +181,12 @@ void wrl::atom::transform(const float *T)
 
 void wrl::atom::mov_fill()
 {
-    if (fill) fill->move(current_M);
+//  if (fill) fill->move(current_M);
 }
 
 void wrl::atom::mov_line()
 {
+/*
     if (line)
     {
         float M[16];
@@ -197,6 +198,7 @@ void wrl::atom::mov_line()
 
         line->move(M);
     }
+*/
 }
 
 void wrl::atom::get_world(float M[16]) const

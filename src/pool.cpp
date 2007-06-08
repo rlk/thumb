@@ -151,14 +151,14 @@ void ogl::unit::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
 
         for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
         {
-            const GLsizei ii = i->second->count_verts();
+            const GLsizei vc = i->second->count_verts();
 
             i->second->buffv(v, n, t, u);
 
-            v += ii * 3;
-            n += ii * 3;
-            t += ii * 3;
-            u += ii * 2;
+            v += vc * 3;
+            n += vc * 3;
+            t += vc * 3;
+            u += vc * 2;
         }
     }
     rebuff = false;
@@ -276,8 +276,8 @@ void ogl::node::sort(GLuint *e, GLuint d)
 
         // Cache each offset mesh.
 
-        i->second->cache_lines(i->first, d);
         i->second->cache_faces(i->first, d);
+        i->second->cache_lines(i->first, d);
 
         // Upload elements to the bound buffer object.
 
@@ -540,8 +540,8 @@ void ogl::pool::draw_init()
 
     // Update the VBO and EBO as necessary.
 
-    if (resort) sort(    );
-    if (rebuff) buff(true);
+    if (resort) sort(     );
+    if (rebuff) buff(false);
 
     // Enable and attach the vertex arrays.
 
@@ -579,6 +579,8 @@ void ogl::pool::draw(bool color, bool alpha)
 {
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
         (*i)->draw(color, alpha);
+
+    glUseProgramObjectARB(0);
 }
 
 //=============================================================================

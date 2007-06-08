@@ -19,6 +19,7 @@
 
 constraint::constraint() : mode(0), axis(1), grid(3)
 {
+/*
     rot[0] = new ogl::element("wire/constraint_rot_0.obj");
     rot[1] = new ogl::element("wire/constraint_rot_1.obj");
     rot[2] = new ogl::element("wire/constraint_rot_2.obj");
@@ -46,7 +47,7 @@ constraint::constraint() : mode(0), axis(1), grid(3)
 
     bat->insert(seg);
     seg->insert(pos[3]);
-
+*/
     load_idt(M);
     load_idt(T);
     set_grid(3);
@@ -56,6 +57,7 @@ constraint::constraint() : mode(0), axis(1), grid(3)
 
 constraint::~constraint()
 {
+/*
     int i;
 
     // TODO: wrap these pointers in an auto reference.
@@ -65,6 +67,7 @@ constraint::~constraint()
 
     for (i = 0; i < 10; ++i) delete rot[i];
     for (i = 0; i < 10; ++i) delete pos[i];
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -133,7 +136,7 @@ void constraint::set_grid(int g)
 void constraint::set_mode(int m)
 {
     mode = m;
-
+/*
     seg->clear();
 
     if (m)
@@ -142,6 +145,7 @@ void constraint::set_mode(int m)
         seg->insert(pos[grid]);
 
     bat->dirty();
+*/
 }
 
 void constraint::set_axis(int a)
@@ -268,10 +272,11 @@ void constraint::draw() const
         // Draw the oriented constraint grid.
 
         glMultMatrixf(T);
-
+/*
         bat->draw_init();
         bat->draw_opaque(false);
         bat->draw_fini();
+*/
     }
     glPopMatrix();
     glPopAttrib();

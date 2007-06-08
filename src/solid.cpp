@@ -60,7 +60,7 @@ wrl::sphere::sphere(std::string fill) :
 void wrl::box::scale()
 {
     // Apply the scale of the fill geometry to the geom.
-
+/*
     if (edit_geom && fill)
     {
         float bound[6];
@@ -75,12 +75,13 @@ void wrl::box::scale()
                                       bound[4] - bound[1],
                                       bound[5] - bound[2]);
     }
+*/
 }
 
 void wrl::sphere::scale()
 {
     // Apply the scale of the fill geometry to the geom.
-
+/*
     if (edit_geom && fill)
     {
         float bound[1];
@@ -93,6 +94,7 @@ void wrl::sphere::scale()
 
         dGeomSphereSetRadius(edit_geom, bound[0]);
     }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -130,7 +132,8 @@ dGeomID wrl::solid::get_geom(dSpaceID space)
 
 //-----------------------------------------------------------------------------
 
-void wrl::solid::play_init(ogl::segment *seg)
+//void wrl::solid::play_init(ogl::segment *seg)
+void wrl::solid::play_init()
 {
     dBodyID body = dGeomGetBody(play_geom);
 
@@ -140,7 +143,7 @@ void wrl::solid::play_init(ogl::segment *seg)
     {
         float I[16];
 
-        seg = (ogl::segment *) dBodyGetData(body);
+//      seg = (ogl::segment *) dBodyGetData(body);
 
         // Orient the geom with respect to the body.
 
@@ -160,7 +163,7 @@ void wrl::solid::play_init(ogl::segment *seg)
         ode_get_geom_transform(edit_geom, M);
 
     // Add this element to the render segment.
-
+/*
     if (fill)
     {
         fill->dead( );
@@ -168,22 +171,25 @@ void wrl::solid::play_init(ogl::segment *seg)
 
         seg->insert(fill);
     }
+*/
 }
 
-void wrl::solid::play_fini(ogl::segment *seg)
+//void wrl::solid::play_fini(ogl::segment *seg)
+void wrl::solid::play_fini()
 {
     float M[16];
 
     ode_get_geom_transform(edit_geom, M);
 
     // Reset the element's edit transform.
-
+/*
     if (fill)
     {
         fill->dead( );
         fill->move(M);
         fill->live( );
     }
+*/
 }
 
 void wrl::solid::step_fini()
@@ -205,7 +211,7 @@ void wrl::solid::load(mxml_node_t *node)
     {
         std::string s = std::string(name->child->value.text.string);
 
-        fill = new ogl::element(s);
+//      fill = new ogl::element(s);
 
         scale();
     }

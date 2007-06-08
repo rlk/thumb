@@ -34,6 +34,25 @@ wrl::world::world() : serial(1)
 
     // Initialize the render batchers.
 
+    unit1 = new ogl::unit("solid/metal_box.obj");
+    unit2 = new ogl::unit("solid/metal_box.obj");
+    node  = new ogl::node;
+    pool  = new ogl::pool;
+
+    pool->add_node(node);
+    node->add_unit(unit1);
+    node->add_unit(unit2);
+
+    GLfloat L[16];
+    GLfloat R[16];
+
+    load_xlt_mat(L, -2.0, 0.0, 0.0);
+    load_xlt_mat(R, +2.0, 0.0, 0.0);
+
+    unit1->transform(L, R);
+    unit2->transform(R, L);
+
+/*
     play_bat = new ogl::batcher();
     play_seg = new ogl::segment();
 
@@ -50,12 +69,13 @@ wrl::world::world() : serial(1)
     line_bat->insert(pick_seg);
     line_bat->insert(stat_seg);
     line_bat->insert(dyna_seg);
+*/
 }
 
 wrl::world::~world()
 {
     // Finalize the render batcher.
-
+/*
     delete dyna_seg;
     delete stat_seg;
     delete pick_seg;
@@ -66,7 +86,7 @@ wrl::world::~world()
 
     delete play_seg;
     delete play_bat;
-
+*/
     // Delete all operations.
 
     while (!undo_list.empty())
@@ -95,6 +115,7 @@ wrl::world::~world()
 
 void wrl::world::batch_focus(dGeomID curr_focus)
 {
+/*
     atom *a = curr_focus ? (atom *) dGeomGetData(curr_focus) : 0;
     atom *b = edit_focus ? (atom *) dGeomGetData(edit_focus) : 0;
 
@@ -116,6 +137,7 @@ void wrl::world::batch_focus(dGeomID curr_focus)
     pick_seg->insert(B);
 
     line_bat->dirty();
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -245,11 +267,12 @@ void wrl::world::play_init()
                 dBodySetMass(body, &mass);
 
                 // Initialize the render batcher segment.
-
+/*
                 ogl::segment *seg = new ogl::segment;
 
                 play_bat->insert(seg);
                 dBodySetData(body, seg);
+*/
             }
         }
 
@@ -314,13 +337,14 @@ void wrl::world::play_init()
     // Do atom-specific physics initialization.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
-        (*i)->play_init(play_seg);
+        (*i)->play_init();
+//      (*i)->play_init(play_seg);
 }
 
 void wrl::world::play_fini()
 {
     // Clean up the render batcher.
-
+/*
     for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
         if (dBodyID body = b->second)
         {
@@ -332,11 +356,12 @@ void wrl::world::play_fini()
     play_body.clear();
     play_bat->clear();
     edit_bat->dirty();
-
+*/
     // Do atom-specific physics finalization.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
-        (*i)->play_fini(edit_seg);
+        (*i)->play_fini();
+//      (*i)->play_fini(edit_seg);
 
     dJointGroupDestroy(play_joint);
     dSpaceDestroy(play_actor);
@@ -388,7 +413,7 @@ void wrl::world::play_step(float dt)
     dJointGroupEmpty(play_joint);
 
     // Transform all segments using current ODE state.
-
+/*
     for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
         if (dBodyID body = b->second)
         {
@@ -400,6 +425,7 @@ void wrl::world::play_step(float dt)
 
             seg->move(M);
         }
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -557,11 +583,12 @@ void wrl::world::select_set()
     sel.clear();
 
     // Flush the line batcher.
-
+/*
     pick_seg->clear();
     dyna_seg->clear();
     stat_seg->clear();
     line_bat->dirty();
+*/
 }
 
 void wrl::world::select_set(atom_set& set)
@@ -569,19 +596,20 @@ void wrl::world::select_set(atom_set& set)
     sel = set;
 
     // Flush the line batcher.
-
+/*
     pick_seg->clear();
     dyna_seg->clear();
     stat_seg->clear();
     line_bat->dirty();
-
+*/
     // Batch the line elements of all selected atoms.
-
+/*
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
         if ((*i)->body())
             dyna_seg->insert((*i)->get_line());
         else
             stat_seg->insert((*i)->get_line());
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -591,14 +619,14 @@ void wrl::world::create_set(atom_set& set)
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
     {
         // Add the atom's element to the render batcher.
-
+/*
         edit_seg->insert((*i)->get_fill());
         edit_bat->dirty();
-
+*/
         // Add the atom to the atom set.
 
         all.insert(*i);
-        (*i)->live(edit_space);
+//      (*i)->live(edit_space);
     }
 }
 
@@ -608,11 +636,12 @@ void wrl::world::delete_set(atom_set& set)
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
     {
+/*
         edit_seg->remove((*i)->get_fill());
         edit_bat->dirty();
-
+*/
         all.erase(all.find(*i));
-        (*i)->dead(edit_space);
+///      (*i)->dead(edit_space);
     }
 }
 
@@ -622,7 +651,7 @@ void wrl::world::modify_set(atom_set& set, const float *T)
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
         (*i)->transform(T);
-
+/*
     edit_bat->bind();
     {
         for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
@@ -636,6 +665,7 @@ void wrl::world::modify_set(atom_set& set, const float *T)
             (*i)->mov_line();
     }
     line_bat->free();
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -909,7 +939,7 @@ void wrl::world::save(std::string filename, bool save_all)
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 static void line_init()
 {
     // Set up for Z-offset anti-aliased line drawing.
@@ -937,13 +967,22 @@ static void line_fini()
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_BLEND);
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void wrl::world::draw(bool edit)
 {
+    float P[4] = { 1.0f, 4.0f, 2.0f, 0.0f };
+
     view->apply();
 
+    glLightfv(GL_LIGHT0, GL_POSITION, P);
+
+    pool->draw_init();
+    pool->draw(true, false);
+    pool->draw_fini();
+
+/*
     if (edit)
     {
         edit_bat->draw_init();
@@ -972,6 +1011,7 @@ void wrl::world::draw(bool edit)
         play_bat->draw_transp(false);
         play_bat->draw_fini();
     }
+*/
 }
 
 //-----------------------------------------------------------------------------

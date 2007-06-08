@@ -16,8 +16,9 @@
 #include <ode/ode.h>
 
 #include "atom.hpp"
+#include "pool.hpp"
 #include "operation.hpp"
-#include "batcher.hpp"
+//#include "batcher.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -51,6 +52,11 @@ namespace wrl
 
         // Batcher state
 
+        ogl::unit *unit1;
+        ogl::unit *unit2;
+        ogl::node *node;
+        ogl::pool *pool;
+/*
         ogl::batcher *play_bat;
         ogl::segment *play_seg;
 
@@ -61,7 +67,7 @@ namespace wrl
         ogl::segment *pick_seg;
         ogl::segment *stat_seg;
         ogl::segment *dyna_seg;
-
+*/
         void batch_focus(dGeomID);
 
         // Operations handlers

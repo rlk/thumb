@@ -38,8 +38,10 @@ namespace wrl
 
         // Physics update methods
 
-        virtual void play_init(ogl::segment *);
-        virtual void play_fini(ogl::segment *);
+//      virtual void play_init(ogl::segment *);
+//      virtual void play_fini(ogl::segment *);
+        virtual void play_init();
+        virtual void play_fini();
         virtual void step_fini();
 
         // File I/O

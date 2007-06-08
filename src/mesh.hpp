@@ -135,8 +135,8 @@ namespace ogl
         const binding *state() const { return material; }
 
         GLsizei count_verts() const { return    vv.size(); }
-        GLsizei count_lines() const { return faces.size(); }
-        GLsizei count_faces() const { return lines.size(); }
+        GLsizei count_faces() const { return faces.size(); }
+        GLsizei count_lines() const { return lines.size(); }
 
         void merge_bound(aabb& b) const { b.merge(bound); }
 
