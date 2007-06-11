@@ -21,18 +21,18 @@
 
 wrl::atom::atom(std::string fill_name,
                 std::string line_name) :
-    edit_geom(0), body_id(0), name(fill_name)//, fill(0), line(0)
+    edit_geom(0), body_id(0), name(fill_name), fill(0), line(0)
 {
     load_idt(default_M);
     load_idt(current_M);
 
     line_scale[0] = line_scale[1] = line_scale[2] = 1.0f;
 
-//  if (fill_name.size()) fill = new ogl::element(fill_name);
-//  if (line_name.size()) line = new ogl::element(line_name);
+    if (fill_name.size()) fill = new ogl::unit(fill_name);
+    if (line_name.size()) line = new ogl::unit(line_name);
 }
 
-wrl::atom::atom(const atom& that) //: fill(0), line(0)
+wrl::atom::atom(const atom& that) : fill(0), line(0)
 {
     param_map::const_iterator i;
 
@@ -48,8 +48,8 @@ wrl::atom::atom(const atom& that) //: fill(0), line(0)
 
     // Duplicate GL state.
 
-//  if (that.fill) fill = new ogl::element(*that.fill);
-//  if (that.line) line = new ogl::element(*that.line);
+    if (that.fill) fill = new ogl::unit(*that.fill);
+    if (that.line) line = new ogl::unit(*that.line);
 
     // Flush and clone each parameter separately.
 
@@ -67,8 +67,8 @@ wrl::atom::~atom()
 
     // Delete GL state.
 
-//  if (line) delete line;
-//  if (fill) delete fill;
+    if (line) delete line;
+    if (fill) delete fill;
 
     // Delete all parameters.
 
@@ -167,38 +167,30 @@ void wrl::atom::get_surface(dSurfaceParameters& s)
 
 void wrl::atom::transform(const float *T)
 {
-    // Apply the given transformation.
+    // Apply the given transformation to the current.
 
     float M[16];
+    float I[16];
 
     mult_mat_mat(M, T, current_M);
 
     load_mat(current_M, M);
     load_mat(default_M, M);
+    load_inv(I, M);
 
     ode_set_geom_transform(edit_geom, M);
-}
 
-void wrl::atom::mov_fill()
-{
-//  if (fill) fill->move(current_M);
-}
+    // Apply the current transform to the fill and line units.
 
-void wrl::atom::mov_line()
-{
-/*
+    if (fill)
+        fill->transform(M, I);
+
     if (line)
     {
-        float M[16];
+        Rmul_scl_mat(M, line_scale[0], line_scale[1], line_scale[2]);
 
-        load_scl_mat(M, line_scale[0],
-                        line_scale[1],
-                        line_scale[2]);
-        mult_mat_mat(M, current_M, M);
-
-        line->move(M);
+        line->transform(M, M);
     }
-*/
 }
 
 void wrl::atom::get_world(float M[16]) const
@@ -271,6 +263,8 @@ void wrl::atom::load(mxml_node_t *node)
         else if (name == "body") body_id = n->child->value.integer;
     }
 
+    // Compute and apply the transform.
+
     set_quaternion(current_M, q);
 
     current_M[12] = p[0];
@@ -278,11 +272,6 @@ void wrl::atom::load(mxml_node_t *node)
     current_M[14] = p[2];
 
     load_mat(default_M, current_M);
-
-    ode_set_geom_transform(edit_geom, current_M);
-
-    mov_line();
-    mov_fill();
 
     // Initialize parameters.
 

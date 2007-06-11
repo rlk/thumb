@@ -33,26 +33,22 @@ wrl::solid::solid(std::string fill,
 
 //-----------------------------------------------------------------------------
 
-wrl::box::box(std::string fill) :
-    solid(fill, "wire/wire_box.obj")
+wrl::box::box(std::string fill) : solid(fill, "wire/wire_box.obj")
 {
     edit_geom = dCreateBox(0, 1.0, 1.0, 1.0);
 
     dGeomSetData(edit_geom, this);
 
     scale();
-    mov_line();
 }
 
-wrl::sphere::sphere(std::string fill) : 
-    solid(fill, "wire/wire_sphere.obj")
+wrl::sphere::sphere(std::string fill) : solid(fill, "wire/wire_sphere.obj")
 {
     edit_geom = dCreateSphere(0, 1.0);
 
     dGeomSetData(edit_geom, this);
 
     scale();
-    mov_line();
 }
 
 //-----------------------------------------------------------------------------
@@ -60,41 +56,39 @@ wrl::sphere::sphere(std::string fill) :
 void wrl::box::scale()
 {
     // Apply the scale of the fill geometry to the geom.
-/*
+
     if (edit_geom && fill)
     {
-        float bound[6];
+        ogl::aabb bound;
 
-        fill->box_bound(bound);
+        fill->merge_bound(bound);
 
-        line_scale[0] = (bound[3] - bound[0]) * 0.5f;
-        line_scale[1] = (bound[4] - bound[1]) * 0.5f;
-        line_scale[2] = (bound[5] - bound[2]) * 0.5f;
+        line_scale[0] = bound.length(0) / 2;
+        line_scale[1] = bound.length(1) / 2;
+        line_scale[2] = bound.length(2) / 2;
 
-        dGeomBoxSetLengths(edit_geom, bound[3] - bound[0],
-                                      bound[4] - bound[1],
-                                      bound[5] - bound[2]);
+        dGeomBoxSetLengths(edit_geom, bound.length(0),
+                                      bound.length(1),
+                                      bound.length(2));
     }
-*/
 }
 
 void wrl::sphere::scale()
 {
     // Apply the scale of the fill geometry to the geom.
-/*
+
     if (edit_geom && fill)
     {
-        float bound[1];
+        ogl::aabb bound;
 
-        fill->sph_bound(bound);
+        fill->merge_bound(bound);
 
-        line_scale[0] = bound[0];
-        line_scale[1] = bound[0];
-        line_scale[2] = bound[0];
+        line_scale[0] = bound.radius();
+        line_scale[1] = bound.radius();
+        line_scale[2] = bound.radius();
 
-        dGeomSphereSetRadius(edit_geom, bound[0]);
+        dGeomSphereSetRadius(edit_geom, bound.radius());
     }
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -132,7 +126,6 @@ dGeomID wrl::solid::get_geom(dSpaceID space)
 
 //-----------------------------------------------------------------------------
 
-//void wrl::solid::play_init(ogl::segment *seg)
 void wrl::solid::play_init()
 {
     dBodyID body = dGeomGetBody(play_geom);
@@ -142,8 +135,6 @@ void wrl::solid::play_init()
     if (body)
     {
         float I[16];
-
-//      seg = (ogl::segment *) dBodyGetData(body);
 
         // Orient the geom with respect to the body.
 
@@ -161,35 +152,13 @@ void wrl::solid::play_init()
         ode_get_geom_offset(play_geom, M);
     else
         ode_get_geom_transform(edit_geom, M);
-
-    // Add this element to the render segment.
-/*
-    if (fill)
-    {
-        fill->dead( );
-        fill->move(M);
-
-        seg->insert(fill);
-    }
-*/
 }
 
-//void wrl::solid::play_fini(ogl::segment *seg)
 void wrl::solid::play_fini()
 {
     float M[16];
 
     ode_get_geom_transform(edit_geom, M);
-
-    // Reset the element's edit transform.
-/*
-    if (fill)
-    {
-        fill->dead( );
-        fill->move(M);
-        fill->live( );
-    }
-*/
 }
 
 void wrl::solid::step_fini()
@@ -211,7 +180,7 @@ void wrl::solid::load(mxml_node_t *node)
     {
         std::string s = std::string(name->child->value.text.string);
 
-//      fill = new ogl::element(s);
+        fill = new ogl::unit(s);
 
         scale();
     }

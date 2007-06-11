@@ -63,17 +63,29 @@ void ogl::aabb::merge(const aabb& that)
 
 //-----------------------------------------------------------------------------
 
-ogl::mesh::mesh(std::string& name) : material(glob->load_binding(name))
+ogl::mesh::mesh(std::string& name) :
+    material(glob->load_binding(name)),
+    min(std::numeric_limits<GLuint>::max()),
+    max(std::numeric_limits<GLuint>::min()),
+    dirty_verts(false),
+    dirty_faces(false),
+    dirty_lines(false)
 {
 }
 
-ogl::mesh::mesh() : material(0)
+ogl::mesh::mesh() :
+    material(0),
+    min(std::numeric_limits<GLuint>::max()),
+    max(std::numeric_limits<GLuint>::min()),
+    dirty_verts(false),
+    dirty_faces(false),
+    dirty_lines(false)
 {
 }
 
 ogl::mesh::~mesh()
 {
-    glob->free_binding(material);
+    if (material) glob->free_binding(material);
 }
 
 //-----------------------------------------------------------------------------
@@ -163,6 +175,8 @@ void ogl::mesh::add_vert(vec3& v, vec3& n, vec2& u)
     uv.push_back(u);
 
     bound.merge(v.v);
+
+    dirty_verts = true;
 }
 
 void ogl::mesh::add_face(GLuint i, GLuint j, GLuint k)
@@ -173,6 +187,8 @@ void ogl::mesh::add_face(GLuint i, GLuint j, GLuint k)
 
     min = std::min(std::min(min, i), std::min(j, k));
     max = std::max(std::max(max, i), std::max(j, k));
+
+    dirty_faces = true;
 }
 
 void ogl::mesh::add_line(GLuint i, GLuint j)
@@ -183,6 +199,8 @@ void ogl::mesh::add_line(GLuint i, GLuint j)
 
     min = std::min(min, std::min(i, j));
     max = std::max(max, std::max(i, j));
+
+    dirty_lines = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -211,6 +229,8 @@ void ogl::mesh::cache_verts(const ogl::mesh *that, const float *M,
 
         bound.merge(vv[i].v);
     }
+
+    dirty_verts = true;
 }
 
 void ogl::mesh::cache_faces(const ogl::mesh *that, GLuint d)
@@ -230,6 +250,8 @@ void ogl::mesh::cache_faces(const ogl::mesh *that, GLuint d)
 
     min = that->min + d;
     max = that->max + d;
+
+    dirty_faces = true;
 }
 
 void ogl::mesh::cache_lines(const ogl::mesh *that, GLuint d)
@@ -248,41 +270,50 @@ void ogl::mesh::cache_lines(const ogl::mesh *that, GLuint d)
 
     min = that->min + d;
     max = that->max + d;
+
+    dirty_lines = true;
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::mesh::buffv(GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u) const
+void ogl::mesh::buffv(GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
 {
     // Copy all cached vertex data to the bound array buffer object.
 
-    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(v),
-                       vv.size() * sizeof (vec3), &vv.front());
-    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(n),
-                       nv.size() * sizeof (vec3), &nv.front());
-    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(t),
-                       tv.size() * sizeof (vec3), &tv.front());
-    glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(u),
-                       uv.size() * sizeof (vec2), &uv.front());
+    if (dirty_verts)
+    {
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(v),
+                           vv.size() * sizeof (vec3), &vv.front());
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(n),
+                           nv.size() * sizeof (vec3), &nv.front());
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(t),
+                           tv.size() * sizeof (vec3), &tv.front());
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(u),
+                           uv.size() * sizeof (vec2), &uv.front());
 
-    OGLCK();
+        OGLCK();
+    }
+    dirty_verts = false;
 }
 
-void ogl::mesh::buffe(GLuint *e) const
+void ogl::mesh::buffe(GLuint *e)
 {
     // Copy all cached index data to the bound element array buffer object.
 
-    if (faces.size())
+    if (dirty_faces && faces.size())
         glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(e),
                            faces.size() * sizeof (face), &faces.front());
 
     e += faces.size() * 3;
 
-    if (lines.size())
+    if (dirty_lines && lines.size())
         glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(e),
                            lines.size() * sizeof (line), &lines.front());
 
     OGLCK();
+
+    dirty_faces = false;
+    dirty_lines = false;
 }
 
 //-----------------------------------------------------------------------------

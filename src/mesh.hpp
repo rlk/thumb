@@ -89,6 +89,9 @@ namespace ogl
 
         void merge(const GLfloat *);
         void merge(const aabb&);
+
+        GLfloat length(int i) const { return max[i] - min[i]; }
+        GLfloat radius(     ) const { return rad[0];          }
     };
 
     //-------------------------------------------------------------------------
@@ -97,18 +100,29 @@ namespace ogl
     {
         const binding *material;
 
+        // Vertex buffers
+
         vec3_v vv;
         vec3_v nv;
         vec3_v tv;
         vec2_v uv;
 
+        // Element buffers
+
         face_v faces;
         line_v lines;
 
-        aabb   bound;
+        // Vertex bound and element range
 
+        aabb bound;
         GLuint min;
         GLuint max;
+
+        // Buffer object cache state
+
+        bool dirty_verts;
+        bool dirty_faces;
+        bool dirty_lines;
 
     public:
 
@@ -145,17 +159,23 @@ namespace ogl
 
         // Buffer object writers
 
-        void buffv(GLfloat *, GLfloat *, GLfloat *, GLfloat *) const;
-        void buffe(GLuint  *)                                  const;
+        void buffv(GLfloat *, GLfloat *, GLfloat *, GLfloat *);
+        void buffe(GLuint  *);
     };
-
-    // TODO: implement mesh sorting based on binding order
-    // TODO: implement binding sorting
 
     typedef mesh                               *mesh_p;
     typedef std::vector<mesh *>                 mesh_v;
     typedef std::vector<mesh *>::iterator       mesh_i;
     typedef std::vector<mesh *>::const_iterator mesh_c;
+
+    //-------------------------------------------------------------------------
+
+    struct meshcmp
+    {
+        bool operator()(const mesh *m1, const mesh *m2) const {
+            return (m1->count_verts() > m2->count_verts());
+        }
+    };
 }
 
 

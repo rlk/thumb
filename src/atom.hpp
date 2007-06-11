@@ -19,9 +19,9 @@
 #include <ode/ode.h>
 #include <mxml.h>
 
-//#include "batcher.hpp"
 #include "matrix.hpp"
 #include "param.hpp"
+#include "pool.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -38,9 +38,8 @@ namespace wrl
         int body_id;
 
         std::string name;
-
-//      ogl::element *fill;
-//      ogl::element *line;
+        ogl::unit  *fill;
+        ogl::unit  *line;
 
         float line_scale[3];
 
@@ -56,9 +55,6 @@ namespace wrl
         virtual void mult_T() const;
         virtual void mult_V() const;
         virtual void mult_P() const;
-
-        void get_transform(float[16]);
-        void set_transform(float[16]);
 
     public:
 
@@ -78,11 +74,8 @@ namespace wrl
         void get_local(float[16]) const;
         void transform(const float *);
 
-//      ogl::element *get_fill() { return fill; }
-//      ogl::element *get_line() { return line; }
-
-        void mov_fill();
-        void mov_line();
+        ogl::unit *get_fill() { return fill; }
+        ogl::unit *get_line() { return line; }
 
         // Physics parameter accessors
 
@@ -108,8 +101,6 @@ namespace wrl
         virtual void step_fini() { }
         virtual void play_init() { }
         virtual void play_fini() { }
-//      virtual void play_init(ogl::segment *) { }
-//      virtual void play_fini(ogl::segment *) { }
 
         // File I/O
 

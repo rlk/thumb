@@ -27,8 +27,6 @@ wrl::joint::joint(std::string fill, std::string line) :
 
     dGeomSetData(edit_geom, this);
     ode_set_geom_transform(edit_geom, current_M);
-
-    mov_line();
 }
 
 //-----------------------------------------------------------------------------

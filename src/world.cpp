@@ -34,59 +34,20 @@ wrl::world::world() : serial(1)
 
     // Initialize the render batchers.
 
-    unit1 = new ogl::unit("solid/metal_box.obj");
-    unit2 = new ogl::unit("solid/metal_box.obj");
-    node  = new ogl::node;
-    pool  = new ogl::pool;
+    fill_pool = new ogl::pool;
+    fill_node = new ogl::node;
 
-    pool->add_node(node);
-    node->add_unit(unit1);
-    node->add_unit(unit2);
+    line_pool = new ogl::pool;
+    stat_node = new ogl::node;
+    dyna_node = new ogl::node;
 
-    GLfloat L[16];
-    GLfloat R[16];
-
-    load_xlt_mat(L, -2.0, 0.0, 0.0);
-    load_xlt_mat(R, +2.0, 0.0, 0.0);
-
-    unit1->transform(L, R);
-    unit2->transform(R, L);
-
-/*
-    play_bat = new ogl::batcher();
-    play_seg = new ogl::segment();
-
-    edit_bat = new ogl::batcher();
-    edit_seg = new ogl::segment();
-    
-    line_bat = new ogl::batcher();
-    pick_seg = new ogl::segment();
-    stat_seg = new ogl::segment();
-    dyna_seg = new ogl::segment();
-    
-    play_bat->insert(play_seg);
-    edit_bat->insert(edit_seg);
-    line_bat->insert(pick_seg);
-    line_bat->insert(stat_seg);
-    line_bat->insert(dyna_seg);
-*/
+    fill_pool->add_node(fill_node);
+    line_pool->add_node(stat_node);
+    line_pool->add_node(dyna_node);
 }
 
 wrl::world::~world()
 {
-    // Finalize the render batcher.
-/*
-    delete dyna_seg;
-    delete stat_seg;
-    delete pick_seg;
-    delete line_bat;
-
-    delete edit_seg;
-    delete edit_bat;
-
-    delete play_seg;
-    delete play_bat;
-*/
     // Delete all operations.
 
     while (!undo_list.empty())
@@ -109,35 +70,11 @@ wrl::world::~world()
 
     dGeomDestroy (edit_point);
     dSpaceDestroy(edit_space);
-}
 
-//-----------------------------------------------------------------------------
+    // Finalize the render batcher.
 
-void wrl::world::batch_focus(dGeomID curr_focus)
-{
-/*
-    atom *a = curr_focus ? (atom *) dGeomGetData(curr_focus) : 0;
-    atom *b = edit_focus ? (atom *) dGeomGetData(edit_focus) : 0;
-
-    ogl::element *A = a ? a->get_line() : 0;
-    ogl::element *B = b ? b->get_line() : 0;
-
-    pick_seg->remove(A);
-
-    if (sel.find(a) != sel.end())
-    {
-        if (a->body())
-            dyna_seg->insert(A);
-        else
-            stat_seg->insert(A);
-    }
-
-    dyna_seg->remove(B);
-    stat_seg->remove(B);
-    pick_seg->insert(B);
-
-    line_bat->dirty();
-*/
+    delete fill_node;
+    delete fill_pool;
 }
 
 //-----------------------------------------------------------------------------
@@ -338,30 +275,14 @@ void wrl::world::play_init()
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
         (*i)->play_init();
-//      (*i)->play_init(play_seg);
 }
 
 void wrl::world::play_fini()
 {
-    // Clean up the render batcher.
-/*
-    for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
-        if (dBodyID body = b->second)
-        {
-            ogl::segment *seg = (ogl::segment *) dBodyGetData(body);
-            play_bat->remove(seg);
-            delete seg;
-        }
-
-    play_body.clear();
-    play_bat->clear();
-    edit_bat->dirty();
-*/
     // Do atom-specific physics finalization.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
         (*i)->play_fini();
-//      (*i)->play_fini(edit_seg);
 
     dJointGroupDestroy(play_joint);
     dSpaceDestroy(play_actor);
@@ -380,7 +301,7 @@ void wrl::world::edit_pick(const float p[3], const float v[3])
 
 void wrl::world::edit_step(float dt)
 {
-    dGeomID  focus = edit_focus;
+//  dGeomID  focus = edit_focus;
     focus_distance = 100;
     edit_focus     =   0;
 
@@ -388,8 +309,11 @@ void wrl::world::edit_step(float dt)
 
     dSpaceCollide(edit_space, this, (dNearCallback *) ::edit_callback);
 
+/*
     if (focus != edit_focus)
-        batch_focus(focus);
+    {
+    }
+*/
 }
 
 void wrl::world::play_step(float dt)
@@ -413,19 +337,16 @@ void wrl::world::play_step(float dt)
     dJointGroupEmpty(play_joint);
 
     // Transform all segments using current ODE state.
-/*
+
     for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
         if (dBodyID body = b->second)
-        {
-            ogl::segment *seg = (ogl::segment *) dBodyGetData(body);
+            if (ogl::node *node = (ogl::node *) dBodyGetData(body))
+            {
+                float M[16];
 
-            float M[16];
-
-            ode_get_body_transform(body, M);
-
-            seg->move(M);
-        }
-*/
+                ode_get_body_transform(body, M);
+                node->transform(M);
+            }
 }
 
 //-----------------------------------------------------------------------------
@@ -582,66 +503,67 @@ void wrl::world::select_set()
 {
     sel.clear();
 
-    // Flush the line batcher.
-/*
-    pick_seg->clear();
-    dyna_seg->clear();
-    stat_seg->clear();
-    line_bat->dirty();
-*/
+    // Flush the line pool.
+
+    stat_node->clear();
+    dyna_node->clear();
 }
 
 void wrl::world::select_set(atom_set& set)
 {
     sel = set;
 
-    // Flush the line batcher.
-/*
-    pick_seg->clear();
-    dyna_seg->clear();
-    stat_seg->clear();
-    line_bat->dirty();
-*/
+    // Flush the line pool.
+
+    stat_node->clear();
+    dyna_node->clear();
+
     // Batch the line elements of all selected atoms.
-/*
+
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
         if ((*i)->body())
-            dyna_seg->insert((*i)->get_line());
+            dyna_node->add_unit((*i)->get_line());
         else
-            stat_seg->insert((*i)->get_line());
-*/
+            stat_node->add_unit((*i)->get_line());
 }
 
 //-----------------------------------------------------------------------------
 
 void wrl::world::create_set(atom_set& set)
 {
+    GLfloat M[16];
+
+    load_idt(M);
+
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
     {
-        // Add the atom's element to the render batcher.
-/*
-        edit_seg->insert((*i)->get_fill());
-        edit_bat->dirty();
-*/
+        // Add the atom's unit to the render pool.
+
+        fill_node->add_unit((*i)->get_fill());
+
         // Add the atom to the atom set.
 
         all.insert(*i);
-//      (*i)->live(edit_space);
+        (*i)->live(edit_space);
+
+        // Set the default transform.
+
+        (*i)->transform(M);
     }
 }
 
 void wrl::world::delete_set(atom_set& set)
 {
-    // Remove all given atoms from the atom set.
-
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
     {
-/*
-        edit_seg->remove((*i)->get_fill());
-        edit_bat->dirty();
-*/
+        // Remove the atom's unit from the render pool.
+
+        fill_node->rem_unit((*i)->get_fill());
+
+        // Remove the atom from the atom set.
+
         all.erase(all.find(*i));
-///      (*i)->dead(edit_space);
+        (*i)->dead(edit_space);
     }
 }
 
@@ -651,21 +573,6 @@ void wrl::world::modify_set(atom_set& set, const float *T)
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
         (*i)->transform(T);
-/*
-    edit_bat->bind();
-    {
-        for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
-            (*i)->mov_fill();
-    }
-    edit_bat->free();
-
-    line_bat->bind();
-    {
-        for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
-            (*i)->mov_line();
-    }
-    line_bat->free();
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -848,10 +755,8 @@ void wrl::world::load(std::string name)
 
                 // Create a new solid for each recognized geom class.
 
-                if      (type == "box")
-                    a =  new wrl::box   ("");
-                else if (type == "sphere")
-                    a =  new wrl::sphere("");
+                if      (type == "box")    a = new wrl::box   ("");
+                else if (type == "sphere") a = new wrl::sphere("");
                 else continue;
 
                 // Allow the new solid to parse its own attributes.
@@ -874,18 +779,12 @@ void wrl::world::load(std::string name)
 
                 // Create a new joint for each recognized joint type.
 
-                if      (type == "ball")
-                    a = new  wrl::ball     ();
-                else if (type == "hinge")
-                    a = new  wrl::hinge    ();
-                else if (type == "hinge2")
-                    a = new  wrl::hinge2   ();
-                else if (type == "slider")
-                    a = new  wrl::slider   ();
-                else if (type == "amotor")
-                    a = new  wrl::amotor   ();
-                else if (type == "universal")
-                    a = new  wrl::universal();
+                if      (type == "ball")      a = new wrl::ball     ();
+                else if (type == "hinge")     a = new wrl::hinge    ();
+                else if (type == "hinge2")    a = new wrl::hinge2   ();
+                else if (type == "slider")    a = new wrl::slider   ();
+                else if (type == "amotor")    a = new wrl::amotor   ();
+                else if (type == "universal") a = new wrl::universal();
                 else continue;
 
                 // Allow the new joint to parse its own attributes.
@@ -939,7 +838,7 @@ void wrl::world::save(std::string filename, bool save_all)
 }
 
 //-----------------------------------------------------------------------------
-/*
+
 static void line_init()
 {
     // Set up for Z-offset anti-aliased line drawing.
@@ -967,7 +866,7 @@ static void line_fini()
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_BLEND);
 }
-*/
+
 //-----------------------------------------------------------------------------
 
 void wrl::world::draw(bool edit)
@@ -978,40 +877,24 @@ void wrl::world::draw(bool edit)
 
     glLightfv(GL_LIGHT0, GL_POSITION, P);
 
-    pool->draw_init();
-    pool->draw(true, false);
-    pool->draw_fini();
+    fill_pool->draw_init();
+    fill_pool->draw(true, false);
+    fill_pool->draw_fini();
 
-/*
     if (edit)
     {
-        edit_bat->draw_init();
-        edit_bat->draw_opaque(false);
-        edit_bat->draw_transp(false);
-        edit_bat->draw_fini();
-
         line_init();
+        line_pool->draw_init();
 
-        line_bat->draw_init();
         glColor3f(1.0f, 0.0f, 0.0f);
-        stat_seg->draw_opaque(false);
-        glColor3f(0.0f, 1.0f, 0.0f);
-        dyna_seg->draw_opaque(false);
-        glColor3f(1.0f, 1.0f, 0.0f);
-        pick_seg->draw_opaque(false);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        line_bat->draw_fini();
+        stat_node->draw(true, false);
 
+        glColor3f(0.0f, 1.0f, 0.0f);
+        dyna_node->draw(true, false);
+
+        line_pool->draw_fini();
         line_fini();
     }
-    else
-    {
-        play_bat->draw_init();
-        play_bat->draw_opaque(false);
-        play_bat->draw_transp(false);
-        play_bat->draw_fini();
-    }
-*/
 }
 
 //-----------------------------------------------------------------------------

@@ -43,7 +43,7 @@ namespace ogl
     typedef std::set<pool_p>           pool_s;
     typedef std::set<pool_p>::iterator pool_i;
 
-    typedef std::multimap<const mesh *, mesh_p> mesh_m;
+    typedef std::multimap<const mesh *, mesh_p, meshcmp> mesh_m;
 
     //-------------------------------------------------------------------------
     // Drawable / mergable element batch
@@ -87,17 +87,20 @@ namespace ogl
         GLsizei vc;
         GLsizei ec;
 
-        bool rebuff;
-
         node_p my_node;
         mesh_m my_mesh;
         aabb   my_aabb;
 
+        bool rebuff;
+
         const surface *surf;
+
+        void set_mesh();
 
     public:
 
         unit(std::string);
+        unit(const unit&);
        ~unit();
 
         void set_node(node_p);
@@ -107,7 +110,7 @@ namespace ogl
         void merge_batch(mesh_m&);
         void merge_bound(aabb&);
 
-        void buff(bool, GLfloat *, GLfloat *, GLfloat *, GLfloat *);
+        void buff(bool);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
@@ -127,6 +130,7 @@ namespace ogl
 
         pool_p my_pool;
         unit_s my_unit;
+        mesh_m my_mesh;
         aabb   my_aabb;
 
         elem_v opaque_depth;
@@ -138,6 +142,8 @@ namespace ogl
 
         node();
        ~node();
+
+        void clear();
 
         void set_rebuff();
 
@@ -152,6 +158,8 @@ namespace ogl
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
+
+        void transform(const GLfloat *M) { load_mat(this->M, M); }
     };
 
     //-------------------------------------------------------------------------
@@ -169,9 +177,6 @@ namespace ogl
         GLuint ebo;
 
         node_s my_node;
-
-        void bind() const;
-        void free() const;
 
         void buff(bool);
         void sort();

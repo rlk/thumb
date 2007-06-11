@@ -52,22 +52,13 @@ namespace wrl
 
         // Batcher state
 
-        ogl::unit *unit1;
-        ogl::unit *unit2;
-        ogl::node *node;
-        ogl::pool *pool;
-/*
-        ogl::batcher *play_bat;
-        ogl::segment *play_seg;
+        ogl::pool *fill_pool;
+        ogl::node *fill_node;
 
-        ogl::batcher *edit_bat;
-        ogl::segment *edit_seg;
+        ogl::pool *line_pool;
+        ogl::node *stat_node;
+        ogl::node *dyna_node;
 
-        ogl::batcher *line_bat;
-        ogl::segment *pick_seg;
-        ogl::segment *stat_seg;
-        ogl::segment *dyna_seg;
-*/
         void batch_focus(dGeomID);
 
         // Operations handlers

@@ -29,22 +29,28 @@ ogl::elem::elem(const binding *b,
 
 bool ogl::elem::depth_eq(const elem& that) const
 {
+    return false;
     // Determine whether that element batch may be depth-mode merged with this.
 
-    if (typ == that.typ)
-        return bnd->depth_eq(that.bnd);
-    else
-        return false;
+    if (typ == that.typ && off + num == that.off)
+    {
+        if (bnd == that.bnd) return true;
+        if (bnd && that.bnd) return bnd->depth_eq(that.bnd);
+    }
+    return false;
 }
 
 bool ogl::elem::color_eq(const elem& that) const
 {
+    return false;
     // Determine whether that element batch may be color-mode merged with this.
 
-    if (typ == that.typ)
-        return bnd->color_eq(that.bnd);
-    else
-        return false;
+    if (typ == that.typ && off + num == that.off)
+    {
+        if (bnd == that.bnd) return true;
+        if (bnd && that.bnd) return bnd->color_eq(that.bnd);
+    }
+    return false;
 }
 
 void ogl::elem::merge(const elem& that)
@@ -60,7 +66,7 @@ void ogl::elem::draw(bool color) const
 {
     // Bind this batch's state and render all elements.
 
-    bnd->bind(color);
+    if (bnd) bnd->bind(color);
 
     glDrawRangeElementsEXT(typ, min, max, num, GL_UNSIGNED_INT, off);
 }
@@ -68,10 +74,46 @@ void ogl::elem::draw(bool color) const
 //=============================================================================
 
 ogl::unit::unit(std::string name) :
-    vc(0), ec(0),
-    rebuff(true),
+    vc(0),
+    ec(0),
     my_node(0),
+    rebuff(true),
     surf(glob->load_surface(name))
+{
+    load_idt(M);
+    load_idt(I);
+
+    set_mesh();
+}
+
+ogl::unit::unit(const unit& that) :
+    vc(0),
+    ec(0),
+    my_node(0),
+    rebuff(true),
+    surf(glob->dupe_surface(that.surf))
+{
+    load_mat(M, that.M);
+    load_mat(I, that.I);
+
+    set_mesh();
+}
+
+ogl::unit::~unit()
+{
+    if (my_node) my_node->rem_unit(this);
+
+    // Delete all cache meshes.
+
+    for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
+        delete i->second;
+
+    glob->free_surface(surf);
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::unit::set_mesh()
 {
     // Create a cache for each mesh.  Count vertices and elements.
 
@@ -84,17 +126,9 @@ ogl::unit::unit(std::string name) :
         vc += m->count_verts();
         ec += m->count_lines() * 2
             + m->count_faces() * 3;
+
+        m->merge_bound(my_aabb);
     }
-}
-
-ogl::unit::~unit()
-{
-    // Delete all cache meshes.
-
-    for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
-        delete i->second;
-
-    glob->free_surface(surf);
 }
 
 void ogl::unit::set_node(node_p p)
@@ -133,7 +167,7 @@ void ogl::unit::merge_bound(aabb& b)
 
 //-----------------------------------------------------------------------------
 
-void ogl::unit::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
+void ogl::unit::buff(bool b)
 {
     if (b || rebuff)
     {
@@ -145,20 +179,6 @@ void ogl::unit::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
         {
             i->second->cache_verts(i->first, M, I);
             i->second->merge_bound(my_aabb);
-        }
-
-        // Upload each mesh's vertex data to the bound buffer object.
-
-        for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
-        {
-            const GLsizei vc = i->second->count_verts();
-
-            i->second->buffv(v, n, t, u);
-
-            v += vc * 3;
-            n += vc * 3;
-            t += vc * 3;
-            u += vc * 2;
         }
     }
     rebuff = false;
@@ -176,11 +196,19 @@ ogl::node::node() :
 
 ogl::node::~node()
 {
+    if (my_pool) my_pool->rem_node(this);
+
     for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
         delete (*i);
 }
 
 //-----------------------------------------------------------------------------
+
+void ogl::node::clear()
+{
+    for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
+        rem_unit(*i);
+}
 
 void ogl::node::set_rebuff()
 {
@@ -239,15 +267,20 @@ void ogl::node::rem_unit(unit_p p)
 
 void ogl::node::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
 {
-    // Have each unit upload its vertex data to the bound buffer objects.
-
     if (b || rebuff)
     {
-        for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
-        {
-            const GLsizei vc = (*i)->vcount();
+        // Have each unit pretransform its vertex data and compute its bound.
 
-            (*i)->buff(b, v, n, t, u);
+        for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
+            (*i)->buff(b);
+
+        // Upload each mesh's vertex data to the bound buffer object.
+
+        for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
+        {
+            const GLsizei vc = i->second->count_verts();
+
+            i->second->buffv(v, n, t, u);
 
             v += vc * 3;
             n += vc * 3;
@@ -260,13 +293,16 @@ void ogl::node::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
 
 void ogl::node::sort(GLuint *e, GLuint d)
 {
-    mesh_m my_mesh;
-    elem_v my_elem;
-
     // Create a list of all meshes of this node, sorted by material.
+
+    my_mesh.clear();
 
     for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
         (*i)->merge_batch(my_mesh);
+
+    // Create a list of all element batches of this node.
+
+    elem_v my_elem;
 
     for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
     {
@@ -285,17 +321,16 @@ void ogl::node::sort(GLuint *e, GLuint d)
 
         // Create a batch for each set of primatives.
 
-        if (lc) my_elem.push_back(elem(i->first->state(), e, GL_LINES,     lc,
-                                       i->second->get_min(),
-                                       i->second->get_max()));
         if (fc) my_elem.push_back(elem(i->first->state(), e, GL_TRIANGLES, fc,
                                        i->second->get_min(),
                                        i->second->get_max()));
+        e += fc;
 
-        // Iterate down the element buffer object.
-
+        if (lc) my_elem.push_back(elem(i->first->state(), e, GL_LINES,     lc,
+                                       i->second->get_min(),
+                                       i->second->get_max()));
+        e += lc;
         d += dc;
-        e += lc + fc;
     }
 
     // Create a minimal vector of batches for each draw mode.
@@ -395,6 +430,9 @@ ogl::pool::pool() : vc(0), ec(0), resort(true), rebuff(true), vbo(0), ebo(0)
 
 ogl::pool::~pool()
 {
+    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
+        delete (*i);
+
     if (ebo) glDeleteBuffersARB(1, &ebo);
     if (vbo) glDeleteBuffersARB(1, &vbo);
 }
@@ -484,7 +522,6 @@ void ogl::pool::buff(bool force)
     rebuff = false;
 }
 
-
 void ogl::pool::sort()
 {
     GLsizei vsz = vc * sizeof (GLfloat) * 11;
@@ -516,27 +553,12 @@ void ogl::pool::sort()
 
 //-----------------------------------------------------------------------------
 
-void ogl::pool::bind() const
+void ogl::pool::draw_init()
 {
     // Bind the VBO and EBO.
 
     glBindBufferARB(GL_ARRAY_BUFFER_ARB,         vbo);
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
-}
-
-void ogl::pool::free() const
-{
-    // Unbind the VBO and EBO.
-
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::pool::draw_init()
-{
-    bind();
 
     // Update the VBO and EBO as necessary.
 
@@ -555,10 +577,10 @@ void ogl::pool::draw_init()
     GLfloat *t = (GLfloat *) (vc * sizeof (GLfloat) * 6);
     GLfloat *u = (GLfloat *) (vc * sizeof (GLfloat) * 9);
 
-    glTexCoordPointer       (   2, GL_FLOAT,    0, u);
-    glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, 0, t);
-    glNormalPointer         (      GL_FLOAT,    0, n);
-    glVertexPointer         (   3, GL_FLOAT,    0, v);
+    glTexCoordPointer       (   2, GL_FLOAT,    sizeof (vec2), u);
+    glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, sizeof (vec3), t);
+    glNormalPointer         (      GL_FLOAT,    sizeof (vec3), n);
+    glVertexPointer         (   3, GL_FLOAT,    sizeof (vec3), v);
 }
 
 void ogl::pool::draw_fini()
@@ -570,7 +592,10 @@ void ogl::pool::draw_fini()
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableVertexAttribArrayARB(6);
 
-    free();
+    // Unbind the VBO and EBO.
+
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
 
 //-----------------------------------------------------------------------------

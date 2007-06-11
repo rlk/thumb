@@ -19,35 +19,34 @@
 
 constraint::constraint() : mode(0), axis(1), grid(3)
 {
-/*
-    rot[0] = new ogl::element("wire/constraint_rot_0.obj");
-    rot[1] = new ogl::element("wire/constraint_rot_1.obj");
-    rot[2] = new ogl::element("wire/constraint_rot_2.obj");
-    rot[3] = new ogl::element("wire/constraint_rot_3.obj");
-    rot[4] = new ogl::element("wire/constraint_rot_4.obj");
-    rot[5] = new ogl::element("wire/constraint_rot_5.obj");
-    rot[6] = new ogl::element("wire/constraint_rot_6.obj");
-    rot[7] = new ogl::element("wire/constraint_rot_7.obj");
-    rot[8] = new ogl::element("wire/constraint_rot_8.obj");
-    rot[9] = new ogl::element("wire/constraint_rot_9.obj");
+    rot[0] = new ogl::unit("wire/constraint_rot_0.obj");
+    rot[1] = new ogl::unit("wire/constraint_rot_1.obj");
+    rot[2] = new ogl::unit("wire/constraint_rot_2.obj");
+    rot[3] = new ogl::unit("wire/constraint_rot_3.obj");
+    rot[4] = new ogl::unit("wire/constraint_rot_4.obj");
+    rot[5] = new ogl::unit("wire/constraint_rot_5.obj");
+    rot[6] = new ogl::unit("wire/constraint_rot_6.obj");
+    rot[7] = new ogl::unit("wire/constraint_rot_7.obj");
+    rot[8] = new ogl::unit("wire/constraint_rot_8.obj");
+    rot[9] = new ogl::unit("wire/constraint_rot_9.obj");
 
-    pos[0] = new ogl::element("wire/constraint_pos_0.obj");
-    pos[1] = new ogl::element("wire/constraint_pos_1.obj");
-    pos[2] = new ogl::element("wire/constraint_pos_2.obj");
-    pos[3] = new ogl::element("wire/constraint_pos_3.obj");
-    pos[4] = new ogl::element("wire/constraint_pos_4.obj");
-    pos[5] = new ogl::element("wire/constraint_pos_5.obj");
-    pos[6] = new ogl::element("wire/constraint_pos_6.obj");
-    pos[7] = new ogl::element("wire/constraint_pos_7.obj");
-    pos[8] = new ogl::element("wire/constraint_pos_8.obj");
-    pos[9] = new ogl::element("wire/constraint_pos_9.obj");
+    pos[0] = new ogl::unit("wire/constraint_pos_0.obj");
+    pos[1] = new ogl::unit("wire/constraint_pos_1.obj");
+    pos[2] = new ogl::unit("wire/constraint_pos_2.obj");
+    pos[3] = new ogl::unit("wire/constraint_pos_3.obj");
+    pos[4] = new ogl::unit("wire/constraint_pos_4.obj");
+    pos[5] = new ogl::unit("wire/constraint_pos_5.obj");
+    pos[6] = new ogl::unit("wire/constraint_pos_6.obj");
+    pos[7] = new ogl::unit("wire/constraint_pos_7.obj");
+    pos[8] = new ogl::unit("wire/constraint_pos_8.obj");
+    pos[9] = new ogl::unit("wire/constraint_pos_9.obj");
 
-    seg = new ogl::segment();
-    bat = new ogl::batcher();
+    node = new ogl::node();
+    pool = new ogl::pool();
 
-    bat->insert(seg);
-    seg->insert(pos[3]);
-*/
+    node->add_unit(pos[3]);
+    pool->add_node(node);
+
     load_idt(M);
     load_idt(T);
     set_grid(3);
@@ -57,17 +56,7 @@ constraint::constraint() : mode(0), axis(1), grid(3)
 
 constraint::~constraint()
 {
-/*
-    int i;
-
-    // TODO: wrap these pointers in an auto reference.
-
-    delete bat;
-    delete seg;
-
-    for (i = 0; i < 10; ++i) delete rot[i];
-    for (i = 0; i < 10; ++i) delete pos[i];
-*/
+    delete pool;
 }
 
 //-----------------------------------------------------------------------------
@@ -136,16 +125,13 @@ void constraint::set_grid(int g)
 void constraint::set_mode(int m)
 {
     mode = m;
-/*
-    seg->clear();
+
+    node->clear();
 
     if (m)
-        seg->insert(rot[grid]);
+        node->add_unit(rot[grid]);
     else
-        seg->insert(pos[grid]);
-
-    bat->dirty();
-*/
+        node->add_unit(pos[grid]);
 }
 
 void constraint::set_axis(int a)
@@ -272,11 +258,10 @@ void constraint::draw() const
         // Draw the oriented constraint grid.
 
         glMultMatrixf(T);
-/*
-        bat->draw_init();
-        bat->draw_opaque(false);
-        bat->draw_fini();
-*/
+
+        pool->draw_init();
+        pool->draw(true, false);
+        pool->draw_fini();
     }
     glPopMatrix();
     glPopAttrib();
