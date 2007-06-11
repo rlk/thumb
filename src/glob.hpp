@@ -22,6 +22,7 @@
 #include "surface.hpp"
 #include "image.hpp"
 #include "frame.hpp"
+#include "pool.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -61,6 +62,7 @@ namespace app
         std::map<std::string, binding> binding_map;
         std::map<std::string, surface> surface_map;
 
+        std::set<ogl::pool  *>  pool_set;
         std::set<ogl::image *> image_set;
         std::set<ogl::frame *> frame_set;
 
@@ -96,9 +98,11 @@ namespace app
 
         // Anonymous GL state.
 
+        ogl::pool  *new_pool ();
         ogl::image *new_image(GLsizei, GLsizei, GLenum, GLenum);
         ogl::frame *new_frame(GLsizei, GLsizei, GLenum, GLenum, GLenum);
 
+        void free_pool (ogl::pool  *);
         void free_image(ogl::image *);
         void free_frame(ogl::frame *);
 

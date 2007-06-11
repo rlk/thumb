@@ -13,12 +13,16 @@
 #include "util.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
+#include "glob.hpp"
 #include "constraint.hpp"
 
 //-----------------------------------------------------------------------------
 
 constraint::constraint() : mode(0), axis(1), grid(3)
 {
+    pool = glob->new_pool();
+    node = new ogl::node();
+
     rot[0] = new ogl::unit("wire/constraint_rot_0.obj");
     rot[1] = new ogl::unit("wire/constraint_rot_1.obj");
     rot[2] = new ogl::unit("wire/constraint_rot_2.obj");
@@ -41,9 +45,6 @@ constraint::constraint() : mode(0), axis(1), grid(3)
     pos[8] = new ogl::unit("wire/constraint_pos_8.obj");
     pos[9] = new ogl::unit("wire/constraint_pos_9.obj");
 
-    node = new ogl::node();
-    pool = new ogl::pool();
-
     node->add_unit(pos[3]);
     pool->add_node(node);
 
@@ -56,6 +57,11 @@ constraint::constraint() : mode(0), axis(1), grid(3)
 
 constraint::~constraint()
 {
+    int i;
+
+    for (i = 0; i < 10; ++i) delete pos[i];
+    for (i = 0; i < 10; ++i) delete rot[i];
+    
     delete pool;
 }
 

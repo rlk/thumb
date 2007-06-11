@@ -32,12 +32,12 @@ wrl::world::world() : serial(1)
     edit_point = dCreateRay(edit_space, 100);
     edit_focus = 0;
 
-    // Initialize the render batchers.
+    // Initialize the render pools.
 
-    fill_pool = new ogl::pool;
+    fill_pool = glob->new_pool();
     fill_node = new ogl::node;
 
-    line_pool = new ogl::pool;
+    line_pool = glob->new_pool();
     stat_node = new ogl::node;
     dyna_node = new ogl::node;
 
@@ -71,10 +71,10 @@ wrl::world::~world()
     dGeomDestroy (edit_point);
     dSpaceDestroy(edit_space);
 
-    // Finalize the render batcher.
+    // Finalize the render pools.
 
-    delete fill_node;
-    delete fill_pool;
+    glob->free_pool(fill_pool);
+    glob->free_pool(line_pool);
 }
 
 //-----------------------------------------------------------------------------
@@ -518,7 +518,7 @@ void wrl::world::select_set(atom_set& set)
     stat_node->clear();
     dyna_node->clear();
 
-    // Batch the line elements of all selected atoms.
+    // Pool the line elements of all selected atoms.
 
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
         if ((*i)->body())

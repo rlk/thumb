@@ -23,20 +23,7 @@ ogl::binding::binding(std::string name) : name(name)
     diff = glob->load_texture("solid/metal_box_diffuse.png");
     bump = glob->load_texture("solid/metal_box_bump.png");
 
-    color->bind();
-    {
-        color->uniform("diffuse", 0);
-        color->uniform("bump",    1);
-        color->uniform("light",   2);
-        color->uniform("shadow",  3);
-    }
-    color->free();
-
-    depth->bind();
-    {
-        depth->uniform("diffuse", 0);
-    }
-    depth->free();
+    init();
 }
 
 ogl::binding::~binding()
@@ -77,6 +64,30 @@ void ogl::binding::bind(bool c) const
 
         diff->bind(GL_TEXTURE0);
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::binding::init()
+{
+    color->bind();
+    {
+        color->uniform("diffuse", 0);
+        color->uniform("bump",    1);
+        color->uniform("light",   2);
+        color->uniform("shadow",  3);
+    }
+    color->free();
+
+    depth->bind();
+    {
+        depth->uniform("diffuse", 0);
+    }
+    depth->free();
+}
+
+void ogl::binding::fini()
+{
 }
 
 //-----------------------------------------------------------------------------

@@ -243,6 +243,24 @@ void app::glob::free_surface(const ogl::surface *p)
 
 //-----------------------------------------------------------------------------
 
+ogl::pool *app::glob::new_pool()
+{
+    ogl::pool *p = new ogl::pool();
+
+    pool_set.insert(p);
+
+    return p;
+}
+
+void app::glob::free_pool(ogl::pool *p)
+{
+    pool_set.erase(p);
+
+    delete p;
+}
+
+//-----------------------------------------------------------------------------
+
 ogl::image *app::glob::new_image(GLsizei w, GLsizei h, GLenum t, GLenum f)
 {
     ogl::image *p = new ogl::image(w, h, t, f);
@@ -287,6 +305,7 @@ void app::glob::init()
 
     std::map<std::string, program>::iterator pi;
     std::map<std::string, texture>::iterator ti;
+    std::map<std::string, binding>::iterator bi;
 
     for (pi = program_map.begin(); pi != program_map.end(); ++pi)
         pi->second.ptr->init();
@@ -294,8 +313,15 @@ void app::glob::init()
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         ti->second.ptr->init();
 
+    for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+        bi->second.ptr->init();
+
+    std::set<ogl::pool  *>::iterator qi;
     std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
+
+    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
+        (*qi)->init();
 
     for (ii = image_set.begin(); ii != image_set.end(); ++ii)
         (*ii)->init();
@@ -310,6 +336,7 @@ void app::glob::fini()
 
     std::set<ogl::frame *>::iterator fi;
     std::set<ogl::image *>::iterator ii;
+    std::set<ogl::pool  *>::iterator qi;
 
     for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
         (*fi)->fini();
@@ -317,8 +344,15 @@ void app::glob::fini()
     for (ii = image_set.begin(); ii != image_set.end(); ++ii)
         (*ii)->fini();
 
+    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
+        (*qi)->fini();
+
+    std::map<std::string, binding>::iterator bi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, program>::iterator pi;
+
+    for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+        bi->second.ptr->fini();
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         ti->second.ptr->fini();

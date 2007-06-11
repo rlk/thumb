@@ -45,6 +45,9 @@ namespace ogl
         bool color_eq(const binding *) const;
 
         void bind(bool) const;
+
+        void init();
+        void fini();
     };
 }
 

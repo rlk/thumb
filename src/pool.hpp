@@ -159,7 +159,7 @@ namespace ogl
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
 
-        void transform(const GLfloat *M) { load_mat(this->M, M); }
+        void transform(const GLfloat *);
     };
 
     //-------------------------------------------------------------------------
@@ -198,6 +198,9 @@ namespace ogl
         void draw_fini();
 
         void draw(bool, bool);
+
+        void init();
+        void fini();
     };
 }
 

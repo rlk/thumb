@@ -196,18 +196,17 @@ ogl::node::node() :
 
 ogl::node::~node()
 {
-    if (my_pool) my_pool->rem_node(this);
+    clear();
 
-    for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
-        delete (*i);
+    if (my_pool) my_pool->rem_node(this);
 }
 
 //-----------------------------------------------------------------------------
 
 void ogl::node::clear()
 {
-    for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
-        rem_unit(*i);
+    while (!my_unit.empty())
+        rem_unit(*my_unit.begin());
 }
 
 void ogl::node::set_rebuff()
@@ -377,6 +376,11 @@ void ogl::node::sort(GLuint *e, GLuint d)
     }
 }
 
+void ogl::node::transform(const GLfloat *M)
+{
+    load_mat(this->M, M);
+}
+
 //-----------------------------------------------------------------------------
 
 void ogl::node::draw(bool color, bool alpha)
@@ -424,17 +428,15 @@ void ogl::node::draw(bool color, bool alpha)
 
 ogl::pool::pool() : vc(0), ec(0), resort(true), rebuff(true), vbo(0), ebo(0)
 {
-    glGenBuffersARB(1, &vbo);
-    glGenBuffersARB(1, &ebo);
+    init();
 }
 
 ogl::pool::~pool()
 {
-    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        delete (*i);
+    while (!my_node.empty())
+        delete (*my_node.begin());
 
-    if (ebo) glDeleteBuffersARB(1, &ebo);
-    if (vbo) glDeleteBuffersARB(1, &vbo);
+    fini();
 }
 
 //-----------------------------------------------------------------------------
@@ -606,6 +608,24 @@ void ogl::pool::draw(bool color, bool alpha)
         (*i)->draw(color, alpha);
 
     glUseProgramObjectARB(0);
+}
+
+void ogl::pool::init()
+{
+    glGenBuffersARB(1, &vbo);
+    glGenBuffersARB(1, &ebo);
+
+    resort = true;
+    rebuff = true;
+}
+
+void ogl::pool::fini()
+{
+    if (ebo) glDeleteBuffersARB(1, &ebo);
+    if (vbo) glDeleteBuffersARB(1, &vbo);
+
+    ebo = 0;
+    vbo = 0;
 }
 
 //=============================================================================

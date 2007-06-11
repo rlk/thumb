@@ -141,6 +141,9 @@ void app::data::load()
 {
     if (head) mxmlDelete(head);
 
+    head = 0;
+    root = 0;
+
     const char *buff;
 
     if ((buff = (const char *) load(file)))
@@ -196,6 +199,7 @@ std::string app::data::translate(std::string& file) const
             }
         }
     }
+
     // No mapping was found.  Return the original string.
 
     return file;
