@@ -38,6 +38,8 @@ namespace wrl
 
         // Physics update methods
 
+        virtual void play_init();
+        virtual void play_fini();
         virtual void step_init();
 
         // File I/O
@@ -59,7 +61,6 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-//      virtual void play_init(ogl::segment *);
         virtual void play_init();
 
         mxml_node_t *save(mxml_node_t *);
@@ -78,7 +79,6 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-//      virtual void play_init(ogl::segment *);
         virtual void play_init();
         virtual void step_init();
 
@@ -97,7 +97,6 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-//      virtual void play_init(ogl::segment *);
         virtual void play_init();
         virtual void step_init();
 
@@ -116,7 +115,6 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-//      virtual void play_init(ogl::segment *);
         virtual void play_init();
         virtual void step_init();
 
@@ -135,7 +133,6 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-//      virtual void play_init(ogl::segment *);
         virtual void play_init();
         virtual void step_init();
 
@@ -154,7 +151,6 @@ namespace wrl
 
         virtual dJointID get_join(dWorldID);
 
-//      virtual void play_init(ogl::segment *);
         virtual void play_init();
         virtual void step_init();
 

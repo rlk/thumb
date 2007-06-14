@@ -78,6 +78,7 @@ ogl::unit::unit(std::string name) :
     ec(0),
     my_node(0),
     rebuff(true),
+    active(true),
     surf(glob->load_surface(name))
 {
     load_idt(M);
@@ -136,6 +137,12 @@ void ogl::unit::set_node(node_p p)
     my_node = p;
 }
 
+void ogl::unit::set_mode(bool b)
+{
+    if (my_node) my_node->set_resort();
+    active = b;
+}
+
 //-----------------------------------------------------------------------------
 
 void ogl::unit::transform(const GLfloat *M, const GLfloat *I)
@@ -155,7 +162,7 @@ void ogl::unit::merge_batch(mesh_m& meshes)
 {
     // Merge local meshes with the given set.  Meshes are sorted by material.
 
-    meshes.insert(my_mesh.begin(), my_mesh.end());
+    if (active) meshes.insert(my_mesh.begin(), my_mesh.end());
 }
 
 void ogl::unit::merge_bound(aabb& b)
@@ -213,6 +220,11 @@ void ogl::node::set_rebuff()
 {
     if (my_pool) my_pool->set_rebuff();
     rebuff = true;
+}
+
+void ogl::node::set_resort()
+{
+    if (my_pool) my_pool->set_resort();
 }
 
 //-----------------------------------------------------------------------------
@@ -376,6 +388,8 @@ void ogl::node::sort(GLuint *e, GLuint d)
     }
 }
 
+//-----------------------------------------------------------------------------
+
 void ogl::node::transform(const GLfloat *M)
 {
     load_mat(this->M, M);
@@ -421,7 +435,13 @@ void ogl::node::draw(bool color, bool alpha)
 
     // Render the selected batches.
 
-    for (elem_i i = b; i != e; ++i) i->draw(color);
+    glPushMatrix();
+    {
+        glMultMatrixf(M);
+
+        for (elem_i i = b; i != e; ++i) i->draw(color);
+    }
+    glPopMatrix();
 }
 
 //=============================================================================

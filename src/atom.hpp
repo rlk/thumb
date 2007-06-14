@@ -110,7 +110,8 @@ namespace wrl
         virtual ~atom();
     };
 
-    typedef std::set<atom *> atom_set;
+    typedef std::set<atom *     > atom_set;
+    typedef std::map<atom *, int> atom_map;
 }
 
 //-----------------------------------------------------------------------------

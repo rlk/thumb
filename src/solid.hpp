@@ -40,7 +40,6 @@ namespace wrl
 
         virtual void play_init();
         virtual void play_fini();
-        virtual void step_fini();
 
         // File I/O
 

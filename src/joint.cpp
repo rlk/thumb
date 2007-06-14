@@ -174,6 +174,16 @@ dJointID wrl::universal::get_join(dWorldID world)
 
 //-----------------------------------------------------------------------------
 
+void wrl::joint::play_init()
+{
+    if (fill) fill->set_mode(false);
+}
+
+void wrl::joint::play_fini()
+{
+    if (fill) fill->set_mode(true);
+}
+
 void wrl::ball::play_init()
 {
     const float *M = current_M;
@@ -181,6 +191,8 @@ void wrl::ball::play_init()
     // Set ball joint geometry parameters.
 
     dJointSetBallAnchor(play_join, M[12], M[13], M[14]);
+
+    wrl::joint::play_init();
 }
 
 void wrl::hinge::play_init()
@@ -191,6 +203,8 @@ void wrl::hinge::play_init()
 
     dJointSetHingeAxis  (play_join, M[ 0], M[ 1], M[ 2]);
     dJointSetHingeAnchor(play_join, M[12], M[13], M[14]);
+
+    wrl::joint::play_init();
 }
 
 void wrl::hinge2::play_init()
@@ -202,6 +216,8 @@ void wrl::hinge2::play_init()
     dJointSetHinge2Axis2 (play_join, M[ 0], M[ 1], M[ 2]);
     dJointSetHinge2Axis1 (play_join, M[ 4], M[ 5], M[ 6]);
     dJointSetHinge2Anchor(play_join, M[12], M[13], M[14]);
+
+    wrl::joint::play_init();
 }
 
 void wrl::slider::play_init()
@@ -211,6 +227,8 @@ void wrl::slider::play_init()
     // Set slider geometry parameters.
 
     dJointSetSliderAxis(play_join, M[ 8], M[ 9], M[10]);
+
+    wrl::joint::play_init();
 }
 
 void wrl::amotor::play_init()
@@ -225,6 +243,8 @@ void wrl::amotor::play_init()
     dJointSetAMotorMode(play_join, dAMotorEuler);
     dJointSetAMotorAxis(play_join, 0, a, M[ 0], M[ 1], M[ 2]);
     dJointSetAMotorAxis(play_join, 2, b, M[ 8], M[ 9], M[10]);
+
+    wrl::joint::play_init();
 }
 
 void wrl::universal::play_init()
@@ -236,6 +256,8 @@ void wrl::universal::play_init()
     dJointSetUniversalAxis1 (play_join, M[ 0], M[ 1], M[ 2]);
     dJointSetUniversalAxis2 (play_join, M[ 4], M[ 5], M[ 6]);
     dJointSetUniversalAnchor(play_join, M[12], M[13], M[14]);
+
+    wrl::joint::play_init();
 }
 
 //-----------------------------------------------------------------------------

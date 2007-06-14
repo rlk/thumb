@@ -116,38 +116,29 @@ wrl::atom_set& ops::modify_op::redo(wrl::world *w)
 
 //-----------------------------------------------------------------------------
 
-ops::embody_op::embody_op(wrl::atom_set& S, int id) : operation(S), new_id(id)
+ops::embody_op::embody_op(wrl::atom_set& S, int id) : operation(S)
 {
     wrl::atom_set::iterator i;
 
-    // Store the previous body IDs of all selected atoms.
+    // Initialize old and new atom-body ID maps.
 
     for (i = selection.begin(); i != selection.end(); ++i)
+    {
         old_id[*i] = (*i)->body();
+        new_id[*i] = id;
+    }
 }
 
-wrl::atom_set& ops::embody_op::undo(wrl::world *)
+wrl::atom_set& ops::embody_op::undo(wrl::world *w)
 {
-    wrl::atom_set::iterator i;
-
-    // Reassign the previous body ID to each selected atom.
-
-    for (i = selection.begin(); i != selection.end(); ++i)
-        (*i)->body(old_id[*i]);
-
+    w->embody_set(selection, old_id);
     done = false;
     return selection;
 }
 
-wrl::atom_set& ops::embody_op::redo(wrl::world *)
+wrl::atom_set& ops::embody_op::redo(wrl::world *w)
 {
-    wrl::atom_set::iterator i;
-
-    // Assign the new body ID to each selected atom.
-
-    for (i = selection.begin(); i != selection.end(); ++i)
-        (*i)->body(new_id);
-
+    w->embody_set(selection, new_id);
     done = true;
     return selection;
 }

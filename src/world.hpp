@@ -18,13 +18,13 @@
 #include "atom.hpp"
 #include "pool.hpp"
 #include "operation.hpp"
-//#include "batcher.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace wrl
 {
-    typedef std::map<int, dBodyID> body_map;
+    typedef std::map<int, dBodyID>     body_map;
+    typedef std::map<int, ogl::node *> node_map;
     
     class world
     {
@@ -54,12 +54,14 @@ namespace wrl
 
         ogl::pool *fill_pool;
         ogl::node *fill_node;
+        node_map   nodes;
 
         ogl::pool *line_pool;
         ogl::node *stat_node;
         ogl::node *dyna_node;
 
-        void batch_focus(dGeomID);
+        void node_insert(int, ogl::unit *);
+        void node_remove(int, ogl::unit *);
 
         // Operations handlers
 
@@ -107,6 +109,7 @@ namespace wrl
         void select_set(atom_set&);
         void create_set(atom_set&);
         void delete_set(atom_set&);
+        void embody_set(atom_set&, atom_map&);
         void modify_set(atom_set&, const float *);
 
         // Undo-able / redo-able operation.

@@ -197,19 +197,15 @@ void wrl::world::play_init()
 
                 play_body[id] = body;
 
-                // Inilize the mass.
+                // Initialize the mass.
 
                 dMass mass;
                 dMassSetZero(&mass);
                 dBodySetMass(body, &mass);
 
-                // Initialize the render batcher segment.
-/*
-                ogl::segment *seg = new ogl::segment;
+                // Associate the render node.
 
-                play_bat->insert(seg);
-                dBodySetData(body, seg);
-*/
+                dBodySetData(body, nodes[id]);
             }
         }
 
@@ -249,19 +245,29 @@ void wrl::world::play_init()
         }
     }
 
-    // Center each body on its center of mass.
-
     for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
         if (dBodyID body = b->second)
         {
+            // Center the body on its center of mass.
+
             dMass mass;
 
             dBodyGetMass(body, &mass);
+
+            GLfloat M[16];
+
+            load_xlt_mat(M, GLfloat(mass.c[0]),
+                            GLfloat(mass.c[1]),
+                            GLfloat(mass.c[2]));
 
             dBodySetPosition(body, +mass.c[0], +mass.c[1], +mass.c[2]);
             dMassTranslate (&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
 
             dBodySetMass(body, &mass);
+
+            // Recenter the node on the body.
+
+            ((ogl::node *) dBodyGetData(body))->transform(M);
         }
 
     // Create and attach all joints.
@@ -279,10 +285,23 @@ void wrl::world::play_init()
 
 void wrl::world::play_fini()
 {
+    GLfloat I[16];
+
+    // Reset all node transforms.
+
+    load_idt(I);
+
+    for (node_map::iterator j = nodes.begin(); j != nodes.end(); ++j)
+        j->second->transform(I);
+
     // Do atom-specific physics finalization.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
         (*i)->play_fini();
+
+    // Clean up the play-mode physics data.
+
+    play_body.clear();
 
     dJointGroupDestroy(play_joint);
     dSpaceDestroy(play_actor);
@@ -301,19 +320,12 @@ void wrl::world::edit_pick(const float p[3], const float v[3])
 
 void wrl::world::edit_step(float dt)
 {
-//  dGeomID  focus = edit_focus;
     focus_distance = 100;
     edit_focus     =   0;
 
     // Perform collision detection.
 
     dSpaceCollide(edit_space, this, (dNearCallback *) ::edit_callback);
-
-/*
-    if (focus != edit_focus)
-    {
-    }
-*/
 }
 
 void wrl::world::play_step(float dt)
@@ -415,6 +427,47 @@ int wrl::world::get_param(int k, std::string& expr)
             values.insert(expr);
 
     return int(values.size());
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::world::node_insert(int id, ogl::unit *unit)
+{
+    if (id)
+    {
+        // Ensure that a node exits for this ID.
+
+        if (nodes[id] == 0)
+        {
+            nodes[id] = new ogl::node();
+            fill_pool->add_node(nodes[id]);
+        }
+
+        // Add the given unit to the node.
+
+        nodes[id]->add_unit(unit);
+            
+    }
+    else fill_node->add_unit(unit);
+}
+
+void wrl::world::node_remove(int id, ogl::unit *unit)
+{
+    if (id)
+    {
+        // Remove the unit from its current node.
+
+        nodes[id]->rem_unit(unit);
+
+        // If the node is empty then delete it.
+
+        if (nodes[id]->vcount() == 0)
+        {
+            delete nodes[id];
+            nodes.erase(id);
+        }
+    }
+    else fill_node->rem_unit(unit);
 }
 
 //-----------------------------------------------------------------------------
@@ -539,7 +592,7 @@ void wrl::world::create_set(atom_set& set)
     {
         // Add the atom's unit to the render pool.
 
-        fill_node->add_unit((*i)->get_fill());
+        node_insert((*i)->body(), (*i)->get_fill());
 
         // Add the atom to the atom set.
 
@@ -558,12 +611,26 @@ void wrl::world::delete_set(atom_set& set)
     {
         // Remove the atom's unit from the render pool.
 
-        fill_node->rem_unit((*i)->get_fill());
+        node_remove((*i)->body(), (*i)->get_fill());
 
         // Remove the atom from the atom set.
 
         all.erase(all.find(*i));
         (*i)->dead(edit_space);
+    }
+}
+
+void wrl::world::embody_set(atom_set& set, atom_map& map)
+{
+    for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
+    {
+        // Assign the body ID for each atom.
+
+        node_remove((*i)->body(), (*i)->get_fill());
+
+        (*i)->body(map[*i]);
+
+        node_insert((*i)->body(), (*i)->get_fill());
     }
 }
 

@@ -95,8 +95,8 @@ namespace ops
 
     class embody_op : public operation
     {
-        std::map<wrl::atom *, int> old_id;
-        int                        new_id;
+        wrl::atom_map old_id;
+        wrl::atom_map new_id;
 
     public:
 
@@ -111,9 +111,9 @@ namespace ops
 
     class enjoin_op : public operation
     {
-        std::map<wrl::atom *, int> old_id;
-        int                        one_id;
-        int                        two_id;
+        wrl::atom_map old_id;
+        int           one_id;
+        int           two_id;
 
     public:
 

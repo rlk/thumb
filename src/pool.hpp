@@ -92,6 +92,7 @@ namespace ogl
         aabb   my_aabb;
 
         bool rebuff;
+        bool active;
 
         const surface *surf;
 
@@ -104,6 +105,7 @@ namespace ogl
        ~unit();
 
         void set_node(node_p);
+        void set_mode(bool);
 
         void transform(const GLfloat *, const GLfloat *);
 
@@ -146,6 +148,7 @@ namespace ogl
         void clear();
 
         void set_rebuff();
+        void set_resort();
 
         void set_pool(pool_p);
         void add_unit(unit_p);

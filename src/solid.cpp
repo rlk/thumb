@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <iostream>
 #include <ode/ode.h>
 
 #include "odeutil.hpp"
@@ -131,11 +132,10 @@ void wrl::solid::play_init()
     dBodyID body = dGeomGetBody(play_geom);
 
     float M[16];
+    float I[16];
 
     if (body)
     {
-        float I[16];
-
         // Orient the geom with respect to the body.
 
         load_inv(I, current_M);
@@ -146,41 +146,44 @@ void wrl::solid::play_init()
                                                current_M[14]);
     }
 
-    // Get the current geom tranform.
+    // Apply the current geom tranform to the unit.
 
     if (body)
         ode_get_geom_offset(play_geom, M);
     else
         ode_get_geom_transform(edit_geom, M);
+
+    load_inv(I, M);
+
+    if (fill) fill->transform(M, I);
 }
 
 void wrl::solid::play_fini()
 {
     float M[16];
+    float I[16];
+
+    // Reset the unit transform to the geom world position.
 
     ode_get_geom_transform(edit_geom, M);
-}
 
-void wrl::solid::step_fini()
-{
-    // Update the current transform using the current ODE state.
+    load_inv(I, M);
 
-    ode_get_geom_transform(play_geom, current_M);
+    if (fill) fill->transform(M, I);
 }
 
 //-----------------------------------------------------------------------------
 
 void wrl::solid::load(mxml_node_t *node)
 {
-    mxml_node_t *name;
+    mxml_node_t *tag;
 
     // Load the OBJ file.
 
-    if ((name = mxmlFindElement(node, node, "file", 0, 0, MXML_DESCEND)))
+    if ((tag = mxmlFindElement(node, node, "file", 0, 0, MXML_DESCEND)))
     {
-        std::string s = std::string(name->child->value.text.string);
-
-        fill = new ogl::unit(s);
+        name = std::string(tag->child->value.text.string);
+        fill = new ogl::unit(name);
 
         scale();
     }
@@ -192,9 +195,8 @@ mxml_node_t *wrl::solid::save(mxml_node_t *node)
     // Add the OBJ file reference.
 
     if (name.size())
-    {
         mxmlNewText(mxmlNewElement(node, "file"), 0, name.c_str());
-    }
+
     return atom::save(node);
 }
 
