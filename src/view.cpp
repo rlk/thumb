@@ -24,7 +24,7 @@ app::view::view(int w, int h, float n, float f, float z) :
     load_idt(default_M);
     load_idt(current_M);
 
-    move(0.0f, 3.0f, 5.0f);
+    move(0.0f, 0.0f, 5.0f);
 }
 
 //-----------------------------------------------------------------------------
@@ -176,6 +176,60 @@ void app::view::move(float dx, float dy, float dz)
     Rmul_xlt_mat(default_M, dx, dy, dz);
 
     clr();
+}
+
+//-----------------------------------------------------------------------------
+
+void app::view::frust(float *V) const
+{
+    const float A = float(h) / float(w);
+    const float Z = float(z);
+
+    // View plane.
+
+    V[ 0] = -current_M[ 8] * Z;
+    V[ 1] = -current_M[ 9] * Z;
+    V[ 2] = -current_M[10] * Z;
+
+    // Left plane.
+
+    V[ 4] =  current_M[ 0] + V[0];
+    V[ 5] =  current_M[ 1] + V[1];
+    V[ 6] =  current_M[ 2] + V[2];
+
+    // Right plane.
+
+    V[ 8] = -current_M[ 0] + V[0];
+    V[ 9] = -current_M[ 1] + V[1];
+    V[10] = -current_M[ 2] + V[2];
+
+    // Bottom plane.
+
+    V[12] =  current_M[ 4] + V[0] * A;
+    V[13] =  current_M[ 5] + V[1] * A;
+    V[14] =  current_M[ 6] + V[2] * A;
+
+    // Top plane.
+
+    V[16] = -current_M[ 4] + V[0] * A;
+    V[17] = -current_M[ 5] + V[1] * A;
+    V[18] = -current_M[ 6] + V[2] * A;
+
+    // Normalize all plane vectors.
+
+    normalize(V +  0);
+    normalize(V +  4);
+    normalize(V +  8);
+    normalize(V + 12);
+    normalize(V + 16);
+
+    // Compute all plane offsets.
+
+    V[ 3] = -DOT3(V +  0, current_M + 12);
+    V[ 7] = -DOT3(V +  4, current_M + 12);
+    V[11] = -DOT3(V +  8, current_M + 12);
+    V[15] = -DOT3(V + 12, current_M + 12);
+    V[19] = -DOT3(V + 16, current_M + 12);
 }
 
 //-----------------------------------------------------------------------------

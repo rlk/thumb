@@ -266,7 +266,7 @@ void constraint::draw() const
         glMultMatrixf(T);
 
         pool->draw_init();
-        pool->draw(true, false);
+        pool->draw(true, false, 0);
         pool->draw_fini();
     }
     glPopMatrix();

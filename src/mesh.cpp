@@ -22,43 +22,80 @@
 
 ogl::aabb::aabb()
 {
-    min[0] = +std::numeric_limits<GLfloat>::max();
-    min[1] = +std::numeric_limits<GLfloat>::max();
-    min[2] = +std::numeric_limits<GLfloat>::max();
+    a[0] = +std::numeric_limits<GLfloat>::max();
+    a[1] = +std::numeric_limits<GLfloat>::max();
+    a[2] = +std::numeric_limits<GLfloat>::max();
 
-    max[0] = -std::numeric_limits<GLfloat>::max();
-    max[1] = -std::numeric_limits<GLfloat>::max();
-    max[2] = -std::numeric_limits<GLfloat>::max();
+    z[0] = -std::numeric_limits<GLfloat>::max();
+    z[1] = -std::numeric_limits<GLfloat>::max();
+    z[2] = -std::numeric_limits<GLfloat>::max();
+}
 
-    rad[0] = std::numeric_limits<GLfloat>::min();
+ogl::aabb::aabb(const aabb& that, const GLfloat *M)
+{
 }
 
 void ogl::aabb::merge(const GLfloat *p)
 {
-    min[0] = std::min(min[0], p[0]);
-    min[1] = std::min(min[1], p[1]);
-    min[2] = std::min(min[2], p[2]);
+    a[0] = std::min(a[0], p[0]);
+    a[1] = std::min(a[1], p[1]);
+    a[2] = std::min(a[2], p[2]);
 
-    max[0] = std::max(max[0], p[0]);
-    max[1] = std::max(max[1], p[1]);
-    max[2] = std::max(max[2], p[2]);
-
-    float r = float(sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]));
-
-    rad[0] = std::max(rad[0], r);
+    z[0] = std::max(z[0], p[0]);
+    z[1] = std::max(z[1], p[1]);
+    z[2] = std::max(z[2], p[2]);
 }
 
 void ogl::aabb::merge(const aabb& that)
 {
-    min[0] = std::min(min[0], that.min[0]);
-    min[1] = std::min(min[1], that.min[1]);
-    min[2] = std::min(min[2], that.min[2]);
+    a[0] = std::min(a[0], that.a[0]);
+    a[1] = std::min(a[1], that.a[1]);
+    a[2] = std::min(a[2], that.a[2]);
 
-    max[0] = std::max(max[0], that.max[0]);
-    max[1] = std::max(max[1], that.max[1]);
-    max[2] = std::max(max[2], that.max[2]);
+    z[0] = std::max(z[0], that.z[0]);
+    z[1] = std::max(z[1], that.z[1]);
+    z[2] = std::max(z[2], that.z[2]);
+}
 
-    rad[0] = std::max(rad[0], that.rad[0]);
+bool ogl::aabb::test_plane(const GLfloat *M, const GLfloat *V)
+{
+    GLfloat P[4];
+
+    mult_mat_vec(P, M, V);
+
+    if (P[0] > 0)
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return (z[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3] > 0);
+            else
+                return (z[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3] > 0);
+        else
+            if (P[2] > 0)
+                return (z[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3] > 0);
+            else
+                return (z[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3] > 0);
+    else
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return (a[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3] > 0);
+            else
+                return (a[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3] > 0);
+        else
+            if (P[2] > 0)
+                return (a[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3] > 0);
+            else
+                return (a[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3] > 0);
+}
+
+bool ogl::aabb::test(const GLfloat *M, const GLfloat *V)
+{
+    if (!test_plane(M, V +  0)) return false;
+    if (!test_plane(M, V +  4)) return false;
+    if (!test_plane(M, V +  8)) return false;
+    if (!test_plane(M, V + 12)) return false;
+    if (!test_plane(M, V + 16)) return false;
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------

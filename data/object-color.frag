@@ -10,7 +10,7 @@ void main()
     vec4  Kd = texture2D(diffuse, gl_TexCoord[0].xy);
     vec3  N  = texture2D(bump,    gl_TexCoord[0].xy).rgb;
 
-    N = 2.0 * N - 1.0;
+    N = normalize(2.0 * N - 1.0);
 
     vec3 R = reflect(L, N);
 

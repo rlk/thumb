@@ -46,6 +46,8 @@ namespace app
         void mult_T() const;
         void mult_V() const;
 
+        void frust(float *) const;
+
         void pick(float[3], float[3], int, int) const;
 
         void apply() const;

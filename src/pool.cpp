@@ -29,7 +29,6 @@ ogl::elem::elem(const binding *b,
 
 bool ogl::elem::depth_eq(const elem& that) const
 {
-    return false;
     // Determine whether that element batch may be depth-mode merged with this.
 
     if (typ == that.typ && off + num == that.off)
@@ -42,7 +41,6 @@ bool ogl::elem::depth_eq(const elem& that) const
 
 bool ogl::elem::color_eq(const elem& that) const
 {
-    return false;
     // Determine whether that element batch may be color-mode merged with this.
 
     if (typ == that.typ && off + num == that.off)
@@ -92,6 +90,7 @@ ogl::unit::unit(const unit& that) :
     ec(0),
     my_node(0),
     rebuff(true),
+    active(true),
     surf(glob->dupe_surface(that.surf))
 {
     load_mat(M, that.M);
@@ -282,8 +281,13 @@ void ogl::node::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
     {
         // Have each unit pretransform its vertex data and compute its bound.
 
+        my_aabb = aabb();
+
         for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
+        {
             (*i)->buff(b);
+            (*i)->merge_bound(my_aabb);
+        }
 
         // Upload each mesh's vertex data to the bound buffer object.
 
@@ -397,51 +401,39 @@ void ogl::node::transform(const GLfloat *M)
 
 //-----------------------------------------------------------------------------
 
-void ogl::node::draw(bool color, bool alpha)
+void ogl::node::draw(bool color, bool alpha, const GLfloat *V)
 {
-    // Test the bounding volume.
-
     // Select the batch vector.
 
     elem_i b;
     elem_i e;
 
     if (color)
-    {
-        if (alpha)
-        {
-            b = transp_color.begin();
-            e = transp_color.end();
-        }
-        else
-        {
-            b = opaque_color.begin();
-            e = opaque_color.end();
-        }
-    }
+        if (alpha) { b = transp_color.begin(); e = transp_color.end(); }
+        else       { b = opaque_color.begin(); e = opaque_color.end(); }
     else
+        if (alpha) { b = transp_depth.begin(); e = transp_depth.end(); }
+        else       { b = opaque_depth.begin(); e = opaque_depth.end(); }
+
+    // Confirm that the selected vector is non-empty.
+
+    if (b != e)
     {
-        if (alpha)
+        // Test the bounding volume.
+
+        if (V == 0 || my_aabb.test(M, V))
         {
-            b = transp_depth.begin();
-            e = transp_depth.end();
-        }
-        else
-        {
-            b = opaque_depth.begin();
-            e = opaque_depth.end();
+            // Render the selected batches.
+
+            glPushMatrix();
+            {
+                glMultMatrixf(M);
+
+                for (elem_i i = b; i != e; ++i) i->draw(color);
+            }
+            glPopMatrix();
         }
     }
-
-    // Render the selected batches.
-
-    glPushMatrix();
-    {
-        glMultMatrixf(M);
-
-        for (elem_i i = b; i != e; ++i) i->draw(color);
-    }
-    glPopMatrix();
 }
 
 //=============================================================================
@@ -622,10 +614,10 @@ void ogl::pool::draw_fini()
 
 //-----------------------------------------------------------------------------
 
-void ogl::pool::draw(bool color, bool alpha)
+void ogl::pool::draw(bool color, bool alpha, const GLfloat *V)
 {
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        (*i)->draw(color, alpha);
+        (*i)->draw(color, alpha, V);
 
     glUseProgramObjectARB(0);
 }

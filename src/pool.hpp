@@ -157,7 +157,7 @@ namespace ogl
         void buff(bool, GLfloat *, GLfloat *, GLfloat *, GLfloat *);
         void sort(GLuint  *, GLuint);
 
-        void draw(bool, bool);
+        void draw(bool, bool, const GLfloat *);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
@@ -200,7 +200,7 @@ namespace ogl
         void draw_init();
         void draw_fini();
 
-        void draw(bool, bool);
+        void draw(bool, bool, const GLfloat *);
 
         void init();
         void fini();

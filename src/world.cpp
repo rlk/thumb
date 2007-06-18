@@ -939,13 +939,15 @@ static void line_fini()
 void wrl::world::draw(bool edit)
 {
     float P[4] = { 1.0f, 4.0f, 2.0f, 0.0f };
+    float V[20];
 
     view->apply();
+    view->frust(V);
 
     glLightfv(GL_LIGHT0, GL_POSITION, P);
 
     fill_pool->draw_init();
-    fill_pool->draw(true, false);
+    fill_pool->draw(true, false, V);
     fill_pool->draw_fini();
 
     if (edit)
@@ -954,10 +956,10 @@ void wrl::world::draw(bool edit)
         line_pool->draw_init();
 
         glColor3f(1.0f, 0.0f, 0.0f);
-        stat_node->draw(true, false);
+        stat_node->draw(true, false, V);
 
         glColor3f(0.0f, 1.0f, 0.0f);
-        dyna_node->draw(true, false);
+        dyna_node->draw(true, false, V);
 
         line_pool->draw_fini();
         line_fini();

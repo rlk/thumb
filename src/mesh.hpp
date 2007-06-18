@@ -79,19 +79,22 @@ namespace ogl
 
     class aabb
     {
-        GLfloat min[3];
-        GLfloat max[3];
-        GLfloat rad[1];
+        GLfloat a[3];
+        GLfloat z[3];
+
+        bool test_plane(const GLfloat *, const GLfloat *);
 
     public:
 
         aabb();
+        aabb(const aabb&, const GLfloat *);
 
         void merge(const GLfloat *);
         void merge(const aabb&);
 
-        GLfloat length(int i) const { return max[i] - min[i]; }
-        GLfloat radius(     ) const { return rad[0];          }
+        bool test(const GLfloat *, const GLfloat *);
+
+        GLfloat length(int i) const { return z[i] - a[i]; }
     };
 
     //-------------------------------------------------------------------------

@@ -84,11 +84,11 @@ void wrl::sphere::scale()
 
         fill->merge_bound(bound);
 
-        line_scale[0] = bound.radius();
-        line_scale[1] = bound.radius();
-        line_scale[2] = bound.radius();
+        line_scale[0] = bound.length(0) / 2;
+        line_scale[1] = bound.length(0) / 2;
+        line_scale[2] = bound.length(0) / 2;
 
-        dGeomSphereSetRadius(edit_geom, bound.radius());
+        dGeomSphereSetRadius(edit_geom, bound.length(0) / 2);
     }
 }
 
