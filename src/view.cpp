@@ -182,7 +182,7 @@ void app::view::move(float dx, float dy, float dz)
 
 void app::view::frust(float *V) const
 {
-    const float A = float(h) / float(w);
+    const float A = float(w) / float(h);
     const float Z = float(z);
 
     // View plane.
@@ -193,27 +193,27 @@ void app::view::frust(float *V) const
 
     // Left plane.
 
-    V[ 4] =  current_M[ 0] + V[0];
-    V[ 5] =  current_M[ 1] + V[1];
-    V[ 6] =  current_M[ 2] + V[2];
+    V[ 4] =  current_M[ 0] + V[0] * A;
+    V[ 5] =  current_M[ 1] + V[1] * A;
+    V[ 6] =  current_M[ 2] + V[2] * A;
 
     // Right plane.
 
-    V[ 8] = -current_M[ 0] + V[0];
-    V[ 9] = -current_M[ 1] + V[1];
-    V[10] = -current_M[ 2] + V[2];
+    V[ 8] = -current_M[ 0] + V[0] * A;
+    V[ 9] = -current_M[ 1] + V[1] * A;
+    V[10] = -current_M[ 2] + V[2] * A;
 
     // Bottom plane.
 
-    V[12] =  current_M[ 4] + V[0] * A;
-    V[13] =  current_M[ 5] + V[1] * A;
-    V[14] =  current_M[ 6] + V[2] * A;
+    V[12] =  current_M[ 4] + V[0];
+    V[13] =  current_M[ 5] + V[1];
+    V[14] =  current_M[ 6] + V[2];
 
     // Top plane.
 
-    V[16] = -current_M[ 4] + V[0] * A;
-    V[17] = -current_M[ 5] + V[1] * A;
-    V[18] = -current_M[ 6] + V[2] * A;
+    V[16] = -current_M[ 4] + V[0];
+    V[17] = -current_M[ 5] + V[1];
+    V[18] = -current_M[ 6] + V[2];
 
     // Normalize all plane vectors.
 

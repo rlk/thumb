@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <iostream>
 #include <cmath>
 #include <memory>
 
@@ -61,7 +62,7 @@ bool ogl::aabb::test_plane(const GLfloat *M, const GLfloat *V)
 {
     GLfloat P[4];
 
-    mult_mat_vec(P, M, V);
+    mult_xps_vec(P, M, V);
 
     if (P[0] > 0)
         if (P[1] > 0)
