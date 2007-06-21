@@ -947,19 +947,21 @@ void wrl::world::draw(bool edit)
     glLightfv(GL_LIGHT0, GL_POSITION, P);
 
     fill_pool->draw_init();
-    fill_pool->draw(true, false, V);
+    fill_pool->view(0, 5, V);
+    fill_pool->draw(0, true, false);
     fill_pool->draw_fini();
 
     if (edit)
     {
         line_init();
         line_pool->draw_init();
+        line_pool->view(0, 5, V);
 
         glColor3f(1.0f, 0.0f, 0.0f);
-        stat_node->draw(true, false, V);
+        stat_node->draw(0, true, false);
 
         glColor3f(0.0f, 1.0f, 0.0f);
-        dyna_node->draw(true, false, V);
+        dyna_node->draw(0, true, false);
 
         line_pool->draw_fini();
         line_fini();

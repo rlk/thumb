@@ -92,7 +92,8 @@ namespace ogl
         void merge(const GLfloat *);
         void merge(const aabb&);
 
-        bool test(const GLfloat *, const GLfloat *);
+        bool test(const GLfloat *, int, 
+                  const GLfloat *, int&);
 
         GLfloat length(int i) const { return z[i] - a[i]; }
     };

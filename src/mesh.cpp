@@ -62,7 +62,11 @@ bool ogl::aabb::test_plane(const GLfloat *M, const GLfloat *V)
 {
     GLfloat P[4];
 
+    // Transform the clipping plane into the bounding box's local space.
+
     mult_xps_vec(P, M, V);
+
+    // Determine which corner is most positive w.r.t the plane.  Test it.
 
     if (P[0] > 0)
         if (P[1] > 0)
@@ -88,13 +92,28 @@ bool ogl::aabb::test_plane(const GLfloat *M, const GLfloat *V)
                 return (a[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3] > 0);
 }
 
-bool ogl::aabb::test(const GLfloat *M, const GLfloat *V)
+bool ogl::aabb::test(const GLfloat *M, int  n,
+                     const GLfloat *V, int &hint)
 {
-    if (!test_plane(M, V +  0)) return false;
-    if (!test_plane(M, V +  4)) return false;
-    if (!test_plane(M, V +  8)) return false;
-    if (!test_plane(M, V + 12)) return false;
-    if (!test_plane(M, V + 16)) return false;
+    // Use the hint to check for the likely cull plane.
+
+    if (!test_plane(M, V + 4 * hint)) return false;
+
+    // The hint was no good.  Check all the other planes.
+
+    for (int i = 0; i < n; ++i)
+        if (i != hint && !test_plane(M, V + 4 * i))
+        {
+            // Plane i is a hit.  Set it as the hint for next time.
+
+            hint = i;
+
+            // Return invisible.
+
+            return false;
+        }
+
+    // Nothing clipped.  Return visible.
 
     return true;
 }

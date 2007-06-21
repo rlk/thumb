@@ -12,6 +12,7 @@
 
 #include "matrix.hpp"
 #include "glob.hpp"
+#include "util.hpp"
 #include "pool.hpp"
 
 //=============================================================================
@@ -195,7 +196,9 @@ void ogl::unit::buff(bool b)
 ogl::node::node() :
     vc(0), ec(0),
     rebuff(true),
-    my_pool(0)
+    my_pool(0),
+    test_cache(0),
+    hint_cache(0)
 {
     load_idt(M);
 }
@@ -275,7 +278,7 @@ void ogl::node::rem_unit(unit_p p)
 
 //-----------------------------------------------------------------------------
 
-void ogl::node::buff(bool b, GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
+void ogl::node::buff(GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u, bool b)
 {
     if (b || rebuff)
     {
@@ -401,27 +404,43 @@ void ogl::node::transform(const GLfloat *M)
 
 //-----------------------------------------------------------------------------
 
-void ogl::node::draw(bool color, bool alpha, const GLfloat *V)
+void ogl::node::view(int id, int n, const GLfloat *V)
 {
-    // Select the batch vector.
+    // Get the cached culler hint.
 
-    elem_i b;
-    elem_i e;
+    int hint = get_oct(hint_cache, id);
 
-    if (color)
-        if (alpha) { b = transp_color.begin(); e = transp_color.end(); }
-        else       { b = opaque_color.begin(); e = opaque_color.end(); }
+    // Test the bounding box and set the visibility bit.
+
+    if (V == 0 || my_aabb.test(M, n, V, hint))
+        test_cache = set_bit(test_cache, id, 1);
     else
-        if (alpha) { b = transp_depth.begin(); e = transp_depth.end(); }
-        else       { b = opaque_depth.begin(); e = opaque_depth.end(); }
+        test_cache = set_bit(test_cache, id, 0);
 
-    // Confirm that the selected vector is non-empty.
+    // Set the cached culler hint.
 
-    if (b != e)
+    hint_cache = set_oct(hint_cache, id, hint);
+}
+
+void ogl::node::draw(int id, bool color, bool alpha)
+{
+    // Proceed if the node passed visibility test ID.
+
+    if (get_bit(test_cache, id))
     {
-        // Test the bounding volume.
+        // Select the batch vector.  Confirm that it is non-empty.
 
-        if (V == 0 || my_aabb.test(M, V))
+        elem_i b;
+        elem_i e;
+
+        if (color)
+            if (alpha) { b = transp_color.begin(); e = transp_color.end(); }
+            else       { b = opaque_color.begin(); e = opaque_color.end(); }
+        else
+            if (alpha) { b = transp_depth.begin(); e = transp_depth.end(); }
+            else       { b = opaque_depth.begin(); e = opaque_depth.end(); }
+
+        if (b != e)
         {
             // Render the selected batches.
 
@@ -526,7 +545,7 @@ void ogl::pool::buff(bool force)
     {
         const GLsizei vc = (*i)->vcount();
 
-        (*i)->buff(force, v, n, t, u);
+        (*i)->buff(v, n, t, u, force);
 
         v += vc * 3;
         n += vc * 3;
@@ -614,13 +633,21 @@ void ogl::pool::draw_fini()
 
 //-----------------------------------------------------------------------------
 
-void ogl::pool::draw(bool color, bool alpha, const GLfloat *V)
+void ogl::pool::view(int id, int n, const GLfloat *V)
 {
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        (*i)->draw(color, alpha, V);
+        (*i)->view(id, n, V);
+}
+
+void ogl::pool::draw(int id, bool color, bool alpha)
+{
+    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
+        (*i)->draw(id, color, alpha);
 
     glUseProgramObjectARB(0);
 }
+
+//-----------------------------------------------------------------------------
 
 void ogl::pool::init()
 {

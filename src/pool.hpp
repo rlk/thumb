@@ -135,6 +135,9 @@ namespace ogl
         mesh_m my_mesh;
         aabb   my_aabb;
 
+        unsigned int test_cache;
+        unsigned int hint_cache;
+
         elem_v opaque_depth;
         elem_v opaque_color;
         elem_v transp_depth;
@@ -154,10 +157,11 @@ namespace ogl
         void add_unit(unit_p);
         void rem_unit(unit_p);
 
-        void buff(bool, GLfloat *, GLfloat *, GLfloat *, GLfloat *);
+        void buff(GLfloat *, GLfloat *, GLfloat *, GLfloat *, bool);
         void sort(GLuint  *, GLuint);
 
-        void draw(bool, bool, const GLfloat *);
+        void view(int, int, const GLfloat *);
+        void draw(int, bool, bool);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
@@ -200,7 +204,8 @@ namespace ogl
         void draw_init();
         void draw_fini();
 
-        void draw(bool, bool, const GLfloat *);
+        void view(int, int, const GLfloat *);
+        void draw(int, bool, bool);
 
         void init();
         void fini();

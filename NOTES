@@ -1,4 +1,29 @@
 
+View frustum is 5 planes
+    far clip is unnecessary
+        since the far plane is computed to include all geometry
+    near clip is higher priority
+        though a culler cache would obsolete this
+
+Light frustum is 4 planes
+    near and far clips are unnecessary
+        since the near and far are compute to include the view frustum
+    priority is probably less effective
+
+Cache culling plane index
+    exploit temporal coherence
+    auto-sort plane priority
+
+Don't count on plane pointers to be constant
+
+-------------------------------------------------------------------------------
+
+Can coins be instanced?
+
+Can texture atlasing be automated?
+
+-------------------------------------------------------------------------------
+
 It is extremely complicated to explicitly represent the body relation during editing.  It may make more sense to simply batch everything as static during editing and eat the cost with each edit.  Rebatch at play_init.
 
 Perhaps maintain separate spaces (or even worlds) for edit and play.  The pointer only works on the edit space.  All edit geoms always exist in edit space, but are not collided during play.  Geoms, bodies, and joints are created and destroyed in play_init and play_fini.  This would have the added effect of helping assure reproducibility.
