@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <iostream>
 #include <ode/ode.h>
 
 #include "opengl.hpp"
@@ -53,7 +54,7 @@ void app::view::mult_S() const
     glMultMatrixf(T);
 }
 
-void app::view::mult_P() const
+void app::view::mult_P(GLfloat f) const
 {
     float a = float(w) / float(h);
 
@@ -117,12 +118,12 @@ void app::view::mult_V() const
 
 //-----------------------------------------------------------------------------
 
-void app::view::apply() const
+void app::view::apply(GLfloat F) const
 {
     glMatrixMode(GL_PROJECTION);
     {
         glLoadIdentity();
-        mult_P();
+        mult_P(F);
     }
     glMatrixMode(GL_MODELVIEW);
     {

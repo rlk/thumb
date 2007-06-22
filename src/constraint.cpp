@@ -13,6 +13,7 @@
 #include "util.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
+#include "view.hpp"
 #include "glob.hpp"
 #include "constraint.hpp"
 
@@ -263,11 +264,20 @@ void constraint::draw() const
 
         // Draw the oriented constraint grid.
 
-        glMultMatrixf(T);
+        float F, V[20];
+
+        view->frust(V);
 
         pool->draw_init();
-        pool->view(0, 0, 0);
-        pool->draw(0, true, false);
+        pool->view(0, 5, V);
+
+        if ((F = pool->dist(0, V)))
+        {
+            view->apply(F);
+            glMultMatrixf(T);
+
+            pool->draw(0, true, false);
+        }
         pool->draw_fini();
     }
     glPopMatrix();

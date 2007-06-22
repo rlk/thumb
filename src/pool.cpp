@@ -422,9 +422,19 @@ void ogl::node::view(int id, int n, const GLfloat *V)
     hint_cache = set_oct(hint_cache, id, hint);
 }
 
+GLfloat ogl::node::dist(int id, const GLfloat *P)
+{
+    // If this node is visible, return the AABB max distance from plane P.
+
+    if (get_bit(test_cache, id))
+        return my_aabb.dist(M, P);
+    else
+        return 0.0f;
+}
+
 void ogl::node::draw(int id, bool color, bool alpha)
 {
-    // Proceed if the node passed visibility test ID.
+    // Proceed if this node passed visibility test ID.
 
     if (get_bit(test_cache, id))
     {
@@ -635,16 +645,34 @@ void ogl::pool::draw_fini()
 
 void ogl::pool::view(int id, int n, const GLfloat *V)
 {
+    // Test all nodes for visibility.
+
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
         (*i)->view(id, n, V);
 }
 
 void ogl::pool::draw(int id, bool color, bool alpha)
 {
+    // Draw all nodes.
+
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
         (*i)->draw(id, color, alpha);
 
+    // TODO: something smarter.
+
     glUseProgramObjectARB(0);
+}
+
+GLfloat ogl::pool::dist(int id, const GLfloat *P)
+{
+    GLfloat max = 0;
+
+    // Return the maximum range of the farthest visible node.
+
+    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
+        max = std::max(max, (*i)->dist(id, P));
+
+    return max;
 }
 
 //-----------------------------------------------------------------------------

@@ -39,7 +39,7 @@ namespace app
         void move(float, float, float);
 
         void mult_S() const;
-        void mult_P() const;
+        void mult_P(GLfloat) const;
         void mult_O() const;
         void mult_M() const;
         void mult_R() const;
@@ -50,9 +50,9 @@ namespace app
 
         void pick(float[3], float[3], int, int) const;
 
-        void apply() const;
-        void push()  const;
-        void pop()   const;
+        void apply(float) const;
+        void push()       const;
+        void pop()        const;
     };
 }
 

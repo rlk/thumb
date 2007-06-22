@@ -940,15 +940,21 @@ void wrl::world::draw(bool edit)
 {
     float P[4] = { 1.0f, 4.0f, 2.0f, 0.0f };
     float V[20];
-
-    view->apply();
-    view->frust(V);
+    float F;
 
     glLightfv(GL_LIGHT0, GL_POSITION, P);
 
+    view->frust(V);
+
     fill_pool->draw_init();
     fill_pool->view(0, 5, V);
-    fill_pool->draw(0, true, false);
+
+    if ((F = fill_pool->dist(0, V)) > 0)
+    {
+        view->apply(F);
+
+        fill_pool->draw(0, true, false);
+    }
     fill_pool->draw_fini();
 
     if (edit)

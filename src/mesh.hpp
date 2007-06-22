@@ -82,7 +82,6 @@ namespace ogl
         GLfloat a[3];
         GLfloat z[3];
 
-        bool test_plane(const GLfloat *, const GLfloat *);
 
     public:
 
@@ -92,8 +91,10 @@ namespace ogl
         void merge(const GLfloat *);
         void merge(const aabb&);
 
-        bool test(const GLfloat *, int, 
-                  const GLfloat *, int&);
+        GLfloat dist(const GLfloat *,
+                     const GLfloat *);
+        bool    test(const GLfloat *, int, 
+                     const GLfloat *, int&);
 
         GLfloat length(int i) const { return z[i] - a[i]; }
     };

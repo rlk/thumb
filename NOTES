@@ -1,23 +1,4 @@
 
-View frustum is 5 planes
-    far clip is unnecessary
-        since the far plane is computed to include all geometry
-    near clip is higher priority
-        though a culler cache would obsolete this
-
-Light frustum is 4 planes
-    near and far clips are unnecessary
-        since the near and far are compute to include the view frustum
-    priority is probably less effective
-
-Cache culling plane index
-    exploit temporal coherence
-    auto-sort plane priority
-
-Don't count on plane pointers to be constant
-
--------------------------------------------------------------------------------
-
 Can coins be instanced?
 
 Can texture atlasing be automated?

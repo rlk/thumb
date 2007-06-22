@@ -58,7 +58,7 @@ void ogl::aabb::merge(const aabb& that)
     z[2] = std::max(z[2], that.z[2]);
 }
 
-bool ogl::aabb::test_plane(const GLfloat *M, const GLfloat *V)
+GLfloat ogl::aabb::dist(const GLfloat *M, const GLfloat *V)
 {
     GLfloat P[4];
 
@@ -66,43 +66,43 @@ bool ogl::aabb::test_plane(const GLfloat *M, const GLfloat *V)
 
     mult_xps_vec(P, M, V);
 
-    // Determine which corner is most positive w.r.t the plane.  Test it.
+    // Find the corner most positive w.r.t the plane.  Return distance.
 
     if (P[0] > 0)
         if (P[1] > 0)
             if (P[2] > 0)
-                return (z[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3] > 0);
+                return z[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3];
             else
-                return (z[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3] > 0);
+                return z[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3];
         else
             if (P[2] > 0)
-                return (z[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3] > 0);
+                return z[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3];
             else
-                return (z[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3] > 0);
+                return z[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
     else
         if (P[1] > 0)
             if (P[2] > 0)
-                return (a[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3] > 0);
+                return a[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3];
             else
-                return (a[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3] > 0);
+                return a[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3];
         else
             if (P[2] > 0)
-                return (a[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3] > 0);
+                return a[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3];
             else
-                return (a[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3] > 0);
+                return a[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
 }
 
 bool ogl::aabb::test(const GLfloat *M, int  n,
                      const GLfloat *V, int &hint)
 {
-    // Use the hint to check for the likely cull plane.
+    // Use the hint to check the likely cull plane.
 
-    if (!test_plane(M, V + 4 * hint)) return false;
+    if (dist(M, V + 4 * hint) < 0) return false;
 
     // The hint was no good.  Check all the other planes.
 
     for (int i = 0; i < n; ++i)
-        if (i != hint && !test_plane(M, V + 4 * i))
+        if (i != hint && dist(M, V + 4 * i) < 0)
         {
             // Plane i is a hit.  Set it as the hint for next time.
 

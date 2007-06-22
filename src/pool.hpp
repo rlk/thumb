@@ -160,8 +160,9 @@ namespace ogl
         void buff(GLfloat *, GLfloat *, GLfloat *, GLfloat *, bool);
         void sort(GLuint  *, GLuint);
 
-        void view(int, int, const GLfloat *);
-        void draw(int, bool, bool);
+        void    view(int, int, const GLfloat *);
+        GLfloat dist(int,      const GLfloat *);
+        void    draw(int, bool, bool);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
@@ -204,8 +205,9 @@ namespace ogl
         void draw_init();
         void draw_fini();
 
-        void view(int, int, const GLfloat *);
-        void draw(int, bool, bool);
+        void    view(int, int, const GLfloat *);
+        GLfloat dist(int,      const GLfloat *);
+        void    draw(int, bool, bool);
 
         void init();
         void fini();
