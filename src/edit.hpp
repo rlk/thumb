@@ -64,7 +64,8 @@ namespace mode
         virtual bool keybd(int, bool, int);
         virtual bool timer(float);
 
-        virtual void draw();
+        virtual GLfloat view(const GLfloat *);
+        virtual void    draw();
     };
 }
 

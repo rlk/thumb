@@ -15,7 +15,6 @@
 #include "matrix.hpp"
 #include "opengl.hpp"
 #include "solid.hpp"
-//#include "joint.hpp"
 #include "edit.hpp"
 #include "conf.hpp"
 
@@ -201,6 +200,11 @@ bool mode::edit::timer(float dt)
 {
     world.edit_step(0);
     return true;
+}
+
+GLfloat mode::edit::view(const GLfloat *frustum)
+{
+    return std::max(world.view(true, frustum), transform.view(frustum));
 }
 
 void mode::edit::draw()

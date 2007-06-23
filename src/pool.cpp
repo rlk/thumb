@@ -368,7 +368,7 @@ void ogl::node::sort(GLuint *e, GLuint d)
                 opaque_depth.push_back(*i);
             else
                 opaque_depth.back().merge(*i);
-
+ 
             // Opaque color batches
 
             if (opaque_color.empty() || !opaque_color.back().color_eq(*i))
@@ -404,30 +404,27 @@ void ogl::node::transform(const GLfloat *M)
 
 //-----------------------------------------------------------------------------
 
-void ogl::node::view(int id, int n, const GLfloat *V)
+GLfloat ogl::node::view(int id, int n, const GLfloat *V)
 {
     // Get the cached culler hint.
 
-    int hint = get_oct(hint_cache, id);
+    int bit, hint = get_oct(hint_cache, id);
 
     // Test the bounding box and set the visibility bit.
 
     if (V == 0 || my_aabb.test(M, n, V, hint))
-        test_cache = set_bit(test_cache, id, 1);
+        test_cache = set_bit(test_cache, id, (bit = 1));
     else
-        test_cache = set_bit(test_cache, id, 0);
+        test_cache = set_bit(test_cache, id, (bit = 0));
 
     // Set the cached culler hint.
 
     hint_cache = set_oct(hint_cache, id, hint);
-}
 
-GLfloat ogl::node::dist(int id, const GLfloat *P)
-{
-    // If this node is visible, return the AABB max distance from plane P.
+    // If this node is visible, return the AABB max distance from plane 0.
 
-    if (get_bit(test_cache, id))
-        return my_aabb.dist(M, P);
+    if (bit)
+        return my_aabb.dist(M, V);
     else
         return 0.0f;
 }
@@ -596,7 +593,7 @@ void ogl::pool::sort()
 
 //-----------------------------------------------------------------------------
 
-void ogl::pool::draw_init()
+void ogl::pool::prep()
 {
     // Bind the VBO and EBO.
 
@@ -607,6 +604,33 @@ void ogl::pool::draw_init()
 
     if (resort) sort(     );
     if (rebuff) buff(false);
+
+    // Unbind the VBO and EBO.
+
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+}
+
+GLfloat ogl::pool::view(int id, int n, const GLfloat *V)
+{
+    GLfloat max = 0;
+
+    // Test all nodes for visibility.  Find the range of the farthest node.
+
+    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
+        max = std::max(max, (*i)->view(id, n, V));
+
+    return max;
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::pool::draw_init()
+{
+    // Bind the VBO and EBO.
+
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         vbo);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
 
     // Enable and attach the vertex arrays.
 
@@ -626,6 +650,18 @@ void ogl::pool::draw_init()
     glVertexPointer         (   3, GL_FLOAT,    sizeof (vec3), v);
 }
 
+void ogl::pool::draw(int id, bool color, bool alpha)
+{
+    // Draw all nodes.
+
+    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
+        (*i)->draw(id, color, alpha);
+
+    // TODO: something smarter.
+
+    glUseProgramObjectARB(0);
+}
+
 void ogl::pool::draw_fini()
 {
     // Disable the vertex arrays.
@@ -639,40 +675,6 @@ void ogl::pool::draw_fini()
 
     glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::pool::view(int id, int n, const GLfloat *V)
-{
-    // Test all nodes for visibility.
-
-    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        (*i)->view(id, n, V);
-}
-
-void ogl::pool::draw(int id, bool color, bool alpha)
-{
-    // Draw all nodes.
-
-    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        (*i)->draw(id, color, alpha);
-
-    // TODO: something smarter.
-
-    glUseProgramObjectARB(0);
-}
-
-GLfloat ogl::pool::dist(int id, const GLfloat *P)
-{
-    GLfloat max = 0;
-
-    // Return the maximum range of the farthest visible node.
-
-    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        max = std::max(max, (*i)->dist(id, P));
-
-    return max;
 }
 
 //-----------------------------------------------------------------------------

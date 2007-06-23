@@ -1,171 +1,35 @@
-
 Can coins be instanced?
 
 Can texture atlasing be automated?
 
 -------------------------------------------------------------------------------
 
-It is extremely complicated to explicitly represent the body relation during editing.  It may make more sense to simply batch everything as static during editing and eat the cost with each edit.  Rebatch at play_init.
+Determining the AABB of the visible set:
 
-Perhaps maintain separate spaces (or even worlds) for edit and play.  The pointer only works on the edit space.  All edit geoms always exist in edit space, but are not collided during play.  Geoms, bodies, and joints are created and destroyed in play_init and play_fini.  This would have the added effect of helping assure reproducibility.
+If AABB transform is less expensive than test(I)
 
-Even if the body serial number system is retained, it would still make sense to restructure the XML DOM to represent bodies explicitly.  This would remove the need to resolve serial number conflicts on loading.
+    B = A.transform(M)
+    if B.test(I)
+        T.merge(B)
 
--------------------------------------------------------------------------------
+If AABB transform is more expensive than test(M)
 
+    if A.test(M)
+        B = A.transform(M)
+        T.merge(B)
 
-draw(transp, color, lit)
+    or 
 
-draw(false, false, false)   // opaque depth
-draw(true,  false, false)   // transp depth
-draw(false, true,  false)   // opaque ambient
-draw(true,  true,  false)   // transp ambient
-draw(false, true,  true)    // opaque diffuse
-draw(true,  true,  true)    // transp diffuse
+    if A.test(M)
+        T.merge(A, M)
 
-... alternatively ...
-
-draw(transp, lit, color)
-
-draw(false, false, false)   // opaque depth
-draw(true,  false, false)   // transp depth glAlphaFunc(GL_EQUAL, 1.0)
-draw(false, false, true)    // opaque ambient
-draw(false, true,  true)    // opaque diffuse
-draw(true,  false, true)    // transp ambient
-draw(true,  true,  true)    // transp diffuse
-
-... assuming single-pass illumination
-
-draw(color, transp)
-
-draw(false, false)  // opaque depth
-draw(false, true)   // transp depth glAlphaFunc(EQUAL, 1.0)
-draw(true,  false)  // opaque color
-draw(true,  true)   // transp color glBlendFunc(SRC_ALPHA, ONE_MINUS_SRC_ALPHA)
-
--------------------------------------------------------------------------------
-
-K it's like this:
-    atoms own fill and line elements
-    world owns batcher and segments
-    world moves elements between segments as needed
-        edit batch has separate elements for solids and joints
-        play batch has only solid elements
-        selection batch has line elements of selected atoms
-
-focus
-    heavy yellow
-all focus.body != 0 and this.body = focus.body
-    light yellow
-all focus.join != 0 and this.body = focus.join  (only when focus is joint)
-    light magenta
-
-sel this.body == 0
-    red
-sel this.body != 0
-    green
+Cannot cache visible status, as light passes occur between render passes.
 
 
-only green objects will ever be light yellow or magenta
+Rendering:
 
-yellow
-red
-green
-    light yellow
-    light magenta
-
--------------------------------------------------------------------------------
-
-
-
-* Batch batch batch
-
-
-    draw
-        bind vertices
-        for each body
-            if bound check
-                apply the body transform
-                for each program
-                    for each texture
-                        draw indices
-
-    draw
-        bind vertices
-        for each program
-            for each texture
-                for each body
-                    if bound check
-                        apply the body transform
-                        draw indices
-
-Logical orginazation
-
-    batcher
-    program
-    texture opaque
-    all geometry of that program/texture
-    texture opaque
-    all geometry of that program/texture
-    program
-    texture opaque
-    all geometry of that program/texture
-    texture opaque
-    all geometry of that program/texture
-    program
-    texture transp
-    all geometry of that program/texture
-    texture transp
-    all geometry of that program/texture
-
-Batcher has
-    a list of batches
-        sorted to minimize
-            1 program changes
-            2 texture changes
-        each batch is marked opaque or transp
-
-Two geometry types:
-    opaque
-    transp
-
-Two lighting modes:
-    ambient
-    diffuse
-
-Two pass triggers:
-    reflective
-    refractive
-
-If two batchs diffuse materials differ, then assume their ambient also differ.
-
-There's really no point in optimizing zbuffer above ambient.
-    transp geometry requires its diffuse texture
-    non-trivial vertex programs must be executed
-
-    Changing transforms is cheaper than changing shaders and materials.
-        However sorting transform last undermines front-back ordering.
-
-                                        Disable   Enable
-    Material color changes are cheap.   173->180  414->414
-    Texture changes are expensive.      173->190  414->260
-    Program changes are expensive.      173->243  414->193
-    Disabling everything is great!      173->414
-
-Assume a flat scene hierarchy?
-    Bounding-box test at batch?
-                      at material change?
-                      at program change?
-
--------------------------------------------------------------------------------
-
-Terrain
-
-        struct vert
-        {
-                GLshort v[3];
-                GLshort n[3];
-        }
+    if A.test(M)
+        do
 
 -------------------------------------------------------------------------------
 

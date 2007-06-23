@@ -56,11 +56,12 @@ void app::view::mult_S() const
 
 void app::view::mult_P(GLfloat f) const
 {
+    float F = std::max(f, n + 10);
     float a = float(w) / float(h);
 
     // Apply the perspective projection.
 
-    glFrustum(-a * z, +a * z, -z, +z, n, f);
+    glFrustum(-a * z, +a * z, -z, +z, n, F);
 }
 
 void app::view::mult_O() const

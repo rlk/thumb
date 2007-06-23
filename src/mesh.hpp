@@ -16,6 +16,7 @@
 #include <vector>
 
 #include "opengl.hpp"
+#include "aabb.hpp"
 #include "binding.hpp"
 
 //-----------------------------------------------------------------------------
@@ -73,31 +74,6 @@ namespace ogl
     typedef std::vector<line>                 line_v;
     typedef std::vector<line>::iterator       line_i;
     typedef std::vector<line>::const_iterator line_c;
-
-    //-------------------------------------------------------------------------
-    // Axis-aligned bounding box
-
-    class aabb
-    {
-        GLfloat a[3];
-        GLfloat z[3];
-
-
-    public:
-
-        aabb();
-        aabb(const aabb&, const GLfloat *);
-
-        void merge(const GLfloat *);
-        void merge(const aabb&);
-
-        GLfloat dist(const GLfloat *,
-                     const GLfloat *);
-        bool    test(const GLfloat *, int, 
-                     const GLfloat *, int&);
-
-        GLfloat length(int i) const { return z[i] - a[i]; }
-    };
 
     //-------------------------------------------------------------------------
 
@@ -182,7 +158,6 @@ namespace ogl
         }
     };
 }
-
 
 //-----------------------------------------------------------------------------
 

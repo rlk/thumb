@@ -132,7 +132,8 @@ namespace wrl
 
         // Rendering methods
 
-        void draw(bool);
+        GLfloat view(bool, const GLfloat *);
+        void    draw(bool);
     };
 }
 

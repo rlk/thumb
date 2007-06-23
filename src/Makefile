@@ -12,6 +12,7 @@ CP= cp
 
 TARG= ../thumb
 OBJS=   opengl.o \
+	aabb.o \
 	obj.o \
 	matrix.o \
 	atom.o \

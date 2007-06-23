@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2007 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,44 +10,36 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "play.hpp"
-#include "main.hpp"
+#ifndef AABB_HPP
+#define AABB_HPP
+
+#include "opengl.hpp"
 
 //-----------------------------------------------------------------------------
 
-mode::play::play(wrl::world& w) : mode(w)
+namespace ogl
 {
+    class aabb
+    {
+        GLfloat a[3];
+        GLfloat z[3];
+
+    public:
+
+        aabb();
+
+        void merge(const GLfloat *);
+        void merge(const aabb&);
+
+        GLfloat dist(const GLfloat *,
+                     const GLfloat *);
+        bool    test(const GLfloat *, int, 
+                     const GLfloat *, int&);
+
+        GLfloat length(int i) const { return z[i] - a[i]; }
+    };
 }
 
 //-----------------------------------------------------------------------------
 
-void mode::play::enter()
-{
-    world.play_init();
-    clr_time();
-}
-
-void mode::play::leave()
-{
-    world.play_fini();
-}
-
-//-----------------------------------------------------------------------------
-
-bool mode::play::timer(float dt)
-{
-    world.play_step(dt);
-    return true;
-}
-
-GLfloat mode::play::view(const GLfloat *frustum)
-{
-    return world.view(false, frustum);
-}
-
-void mode::play::draw()
-{
-    world.draw(false);
-}
-
-//-----------------------------------------------------------------------------
+#endif

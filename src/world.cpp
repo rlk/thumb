@@ -936,32 +936,37 @@ static void line_fini()
 
 //-----------------------------------------------------------------------------
 
+GLfloat wrl::world::view(bool edit, const GLfloat *frustum)
+{
+    GLfloat line_f = 0;
+    GLfloat fill_f = 0;
+
+    if (edit)
+    {
+                 line_pool->prep();
+        line_f = line_pool->view(0, 5, frustum);
+    }
+
+             fill_pool->prep();
+    fill_f = fill_pool->view(0, 5, frustum);
+
+    return std::max(line_f, fill_f);
+}
+
 void wrl::world::draw(bool edit)
 {
     float P[4] = { 1.0f, 4.0f, 2.0f, 0.0f };
-    float V[20];
-    float F;
 
     glLightfv(GL_LIGHT0, GL_POSITION, P);
 
-    view->frust(V);
-
     fill_pool->draw_init();
-    fill_pool->view(0, 5, V);
-
-    if ((F = fill_pool->dist(0, V)) > 0)
-    {
-        view->apply(F);
-
-        fill_pool->draw(0, true, false);
-    }
+    fill_pool->draw(0, true, false);
     fill_pool->draw_fini();
 
     if (edit)
     {
         line_init();
         line_pool->draw_init();
-        line_pool->view(0, 5, V);
 
         glColor3f(1.0f, 0.0f, 0.0f);
         stat_node->draw(0, true, false);

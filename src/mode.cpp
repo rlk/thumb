@@ -37,6 +37,11 @@ bool mode::mode::timer(float dt)
 
 //-----------------------------------------------------------------------------
 
+GLfloat mode::mode::view(const GLfloat *frustum)
+{
+    return world.view(true, frustum);
+}
+
 void mode::mode::draw()
 {
     world.draw(true);

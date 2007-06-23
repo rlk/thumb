@@ -65,7 +65,8 @@ public:
     bool point(float[16], const float[3], const float[3]);
     void click(           const float[3], const float[3]);
 
-    void draw() const;
+    GLfloat view(const GLfloat *);
+    void    draw();
 };
 
 //-----------------------------------------------------------------------------

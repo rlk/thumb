@@ -92,6 +92,8 @@ void constraint::orient()
         T[2] =  M[ 2]; T[6] =  M[ 6]; T[10] = M[10];
         break;
     }
+
+    node->transform(T);
 }
 
 void constraint::set_grid(int g)
@@ -139,6 +141,8 @@ void constraint::set_mode(int m)
         node->add_unit(rot[grid]);
     else
         node->add_unit(pos[grid]);
+
+    node->transform(T);
 }
 
 void constraint::set_axis(int a)
@@ -241,7 +245,13 @@ void constraint::click(const float p[3], const float v[3])
 
 //-----------------------------------------------------------------------------
 
-void constraint::draw() const
+GLfloat constraint::view(const GLfloat *frustum)
+{
+           pool->prep();
+    return pool->view(0, 5, frustum);
+}
+
+void constraint::draw()
 {
     glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT |
                  GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -264,18 +274,8 @@ void constraint::draw() const
 
         // Draw the oriented constraint grid.
 
-        float F, V[20];
-
-        view->frust(V);
-
         pool->draw_init();
-        pool->view(0, 5, V);
-
-        if ((F = pool->dist(0, V)))
         {
-            view->apply(F);
-            glMultMatrixf(T);
-
             pool->draw(0, true, false);
         }
         pool->draw_fini();
