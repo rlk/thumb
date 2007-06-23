@@ -162,19 +162,24 @@ void demo::draw()
 
     glPushAttrib(GL_ENABLE_BIT);
     {
-        GLfloat frustum[20];
+        GLfloat planes[20];
+        GLfloat points[24];
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
+        // Compute the view frusta.
+
+        view->plane_frustum(planes);
+        view->range(curr->view(planes));
+        view->point_frustum(points);
+
         // Draw the scene.
 
-        view->frust(frustum);
-        view->apply(curr->view(frustum));
-
-        curr->draw();
+        view->draw();
+        curr->draw(points);
     }
     glPopAttrib();
 }

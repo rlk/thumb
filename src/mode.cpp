@@ -15,13 +15,31 @@
 
 //-----------------------------------------------------------------------------
 
-bool mode::mode::point(const float[3], const float[3], int, int)
+bool mode::mode::point(const float[3], const float[3], int x, int y)
 {
+    int dx = x - drag_x;
+    int dy = y - drag_y;
+
+    drag_x = x;
+    drag_y = y;
+
+    if (drag_d)
+    {
+        world.mov_light(dx, dy);
+        return true;
+    }
+
     return false;
 }
 
-bool mode::mode::click(int, bool)
+bool mode::mode::click(int b, bool d)
 {
+    if (b == 2)
+    {
+        drag_d = d;
+        return true;
+    }
+
     return false;
 }
 
@@ -37,14 +55,14 @@ bool mode::mode::timer(float dt)
 
 //-----------------------------------------------------------------------------
 
-GLfloat mode::mode::view(const GLfloat *frustum)
+GLfloat mode::mode::view(const GLfloat *planes)
 {
-    return world.view(true, frustum);
+    return world.view(true, planes);
 }
 
-void mode::mode::draw()
+void mode::mode::draw(const GLfloat *points)
 {
-    world.draw(true);
+    world.draw(true, points);
 }
 
 //-----------------------------------------------------------------------------

@@ -40,14 +40,14 @@ bool mode::play::timer(float dt)
     return true;
 }
 
-GLfloat mode::play::view(const GLfloat *frustum)
+GLfloat mode::play::view(const GLfloat *planes)
 {
-    return world.view(false, frustum);
+    return world.view(false, planes);
 }
 
-void mode::play::draw()
+void mode::play::draw(const GLfloat *points)
 {
-    world.draw(false);
+    world.draw(false, points);
 }
 
 //-----------------------------------------------------------------------------

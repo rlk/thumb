@@ -39,20 +39,23 @@ namespace app
         void move(float, float, float);
 
         void mult_S() const;
-        void mult_P(GLfloat) const;
+        void mult_P() const;
         void mult_O() const;
         void mult_M() const;
         void mult_R() const;
         void mult_T() const;
         void mult_V() const;
 
-        void frust(float *) const;
+        void plane_frustum(float *) const;
+        void point_frustum(float *) const;
+
+        void range(float);
+
+        void draw() const;
+        void push() const;
+        void pop()  const;
 
         void pick(float[3], float[3], int, int) const;
-
-        void apply(float) const;
-        void push()       const;
-        void pop()        const;
     };
 }
 

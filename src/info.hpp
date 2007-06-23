@@ -37,7 +37,7 @@ namespace mode
         virtual bool timer(float);
 
         virtual GLfloat view(const GLfloat *);
-        virtual void    draw();
+        virtual void    draw(const GLfloat *);
     };
 }
 

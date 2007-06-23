@@ -21,13 +21,17 @@ namespace mode
 {
     class mode
     {
+        int  drag_x;
+        int  drag_y;
+        bool drag_d;
+
     protected:
 
         wrl::world& world;
 
     public:
 
-        mode(wrl::world& w) : world(w) { }
+        mode(wrl::world& w) : drag_d(false), world(w) { }
 
         virtual void enter() { }
         virtual void leave() { }
@@ -38,7 +42,7 @@ namespace mode
         virtual bool timer(float);
 
         virtual GLfloat view(const GLfloat *);
-        virtual void    draw();
+        virtual void    draw(const GLfloat *);
 
         virtual ~mode() { }
     };

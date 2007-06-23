@@ -34,7 +34,8 @@ namespace wrl
         dGeomID       edit_point;
         dGeomID       edit_focus;
 
-        float focus_distance;
+        float focus_dist;
+        float frust_dist;
 
         // ODE play state
 
@@ -49,6 +50,9 @@ namespace wrl
 
         atom_set all;
         atom_set sel;
+
+        GLfloat light_P;
+        GLfloat light_T;
 
         // Batcher state
 
@@ -92,6 +96,7 @@ namespace wrl
         dSpaceID get_space() const { return edit_space; }
         dGeomID  get_focus() const { return edit_focus; }
 
+        void mov_light(int, int);
         void set_param(int, std::string&);
         int  get_param(int, std::string&);
 
@@ -133,7 +138,7 @@ namespace wrl
         // Rendering methods
 
         GLfloat view(bool, const GLfloat *);
-        void    draw(bool);
+        void    draw(bool, const GLfloat *);
     };
 }
 

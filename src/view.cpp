@@ -54,14 +54,13 @@ void app::view::mult_S() const
     glMultMatrixf(T);
 }
 
-void app::view::mult_P(GLfloat f) const
+void app::view::mult_P() const
 {
-    float F = std::max(f, n + 10);
     float a = float(w) / float(h);
 
     // Apply the perspective projection.
 
-    glFrustum(-a * z, +a * z, -z, +z, n, F);
+    glFrustum(-a * z, +a * z, -z, +z, n, f);
 }
 
 void app::view::mult_O() const
@@ -119,12 +118,17 @@ void app::view::mult_V() const
 
 //-----------------------------------------------------------------------------
 
-void app::view::apply(GLfloat F) const
+void app::view::range(GLfloat F)
+{
+    f = std::max(F, n + 10.0f);
+}
+
+void app::view::draw() const
 {
     glMatrixMode(GL_PROJECTION);
     {
         glLoadIdentity();
-        mult_P(F);
+        mult_P();
     }
     glMatrixMode(GL_MODELVIEW);
     {
@@ -182,7 +186,7 @@ void app::view::move(float dx, float dy, float dz)
 
 //-----------------------------------------------------------------------------
 
-void app::view::frust(float *V) const
+void app::view::plane_frustum(float *V) const
 {
     const float A = float(w) / float(h);
     const float Z = float(z);
@@ -232,6 +236,61 @@ void app::view::frust(float *V) const
     V[11] = -DOT3(V +  8, current_M + 12);
     V[15] = -DOT3(V + 12, current_M + 12);
     V[19] = -DOT3(V + 16, current_M + 12);
+}
+
+void app::view::point_frustum(float *V) const
+{
+    const float a = float(w) / float(h);
+
+    const float *P = current_M + 12;
+    const float *B = current_M +  8;
+
+    float R[3];
+    float U[3];
+
+    R[0] = current_M[0] * a * z;
+    R[1] = current_M[1] * a * z;
+    R[2] = current_M[2] * a * z;
+    
+    U[0] = current_M[4]     * z;
+    U[1] = current_M[5]     * z;
+    U[2] = current_M[6]     * z;
+    
+    // The points of the near plane.
+
+    V[ 0] = P[0] + n * (-R[0] - U[0] - B[0]);
+    V[ 1] = P[1] + n * (-R[1] - U[1] - B[1]);
+    V[ 2] = P[2] + n * (-R[2] - U[2] - B[2]);
+
+    V[ 3] = P[0] + n * (+R[0] - U[0] - B[0]);
+    V[ 4] = P[1] + n * (+R[1] - U[1] - B[1]);
+    V[ 5] = P[2] + n * (+R[2] - U[2] - B[2]);
+
+    V[ 6] = P[0] + n * (+R[0] + U[0] - B[0]);
+    V[ 7] = P[1] + n * (+R[1] + U[1] - B[1]);
+    V[ 8] = P[2] + n * (+R[2] + U[2] - B[2]);
+
+    V[ 9] = P[0] + n * (-R[0] + U[0] - B[0]);
+    V[10] = P[1] + n * (-R[1] + U[1] - B[1]);
+    V[11] = P[2] + n * (-R[2] + U[2] - B[2]);
+
+    // The points of the far plane.
+
+    V[12] = P[0] + f * (-R[0] - U[0] - B[0]);
+    V[13] = P[1] + f * (-R[1] - U[1] - B[1]);
+    V[14] = P[2] + f * (-R[2] - U[2] - B[2]);
+
+    V[15] = P[0] + f * (+R[0] - U[0] - B[0]);
+    V[16] = P[1] + f * (+R[1] - U[1] - B[1]);
+    V[17] = P[2] + f * (+R[2] - U[2] - B[2]);
+
+    V[18] = P[0] + f * (+R[0] + U[0] - B[0]);
+    V[19] = P[1] + f * (+R[1] + U[1] - B[1]);
+    V[20] = P[2] + f * (+R[2] + U[2] - B[2]);
+
+    V[21] = P[0] + f * (-R[0] + U[0] - B[0]);
+    V[22] = P[1] + f * (-R[1] + U[1] - B[1]);
+    V[23] = P[2] + f * (-R[2] + U[2] - B[2]);
 }
 
 //-----------------------------------------------------------------------------

@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <iostream>
+
 #include "odeutil.hpp"
 #include "matrix.hpp"
 #include "world.hpp"
@@ -24,7 +26,7 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::world::world() : serial(1)
+wrl::world::world() : light_P(30), light_T(30), serial(1)
 {
     // Initialize the editor physical system.
 
@@ -99,9 +101,9 @@ void wrl::world::edit_callback(dGeomID o1, dGeomID o2)
         {
             for (int i = 0; i < n; ++i)
             {
-                if (focus_distance > float(contact[i].geom.depth))
+                if (focus_dist > float(contact[i].geom.depth))
                 {
-                    focus_distance = float(contact[i].geom.depth);
+                    focus_dist = float(contact[i].geom.depth);
                     edit_focus = O2;
                 }
             }
@@ -320,8 +322,8 @@ void wrl::world::edit_pick(const float p[3], const float v[3])
 
 void wrl::world::edit_step(float dt)
 {
-    focus_distance = 100;
-    edit_focus     =   0;
+    focus_dist = 100;
+    edit_focus =   0;
 
     // Perform collision detection.
 
@@ -430,6 +432,22 @@ int wrl::world::get_param(int k, std::string& expr)
 }
 
 //-----------------------------------------------------------------------------
+
+void wrl::world::mov_light(int dx, int dy)
+{
+    // Move the lightsource.  
+
+    light_P -= dy;
+    light_T += dx;
+
+    // Ensure the spherical coordinates remain within bounds.
+
+    if (light_P >   90.0f) light_P  =  90.0f;
+    if (light_P <  -90.0f) light_P  = -90.0f;
+
+    if (light_T >  180.0f) light_T -= 360.0f;
+    if (light_T < -180.0f) light_T += 360.0f;
+}
 
 void wrl::world::node_insert(int id, ogl::unit *unit)
 {
@@ -936,32 +954,41 @@ static void line_fini()
 
 //-----------------------------------------------------------------------------
 
-GLfloat wrl::world::view(bool edit, const GLfloat *frustum)
+GLfloat wrl::world::view(bool edit, const GLfloat *planes)
 {
-    GLfloat line_f = 0;
-    GLfloat fill_f = 0;
+    GLfloat line_d = 0;
 
     if (edit)
     {
                  line_pool->prep();
-        line_f = line_pool->view(0, 5, frustum);
+        line_d = line_pool->view(0, 5, planes);
     }
+                 fill_pool->prep();
+    frust_dist = fill_pool->view(0, 5, planes);
 
-             fill_pool->prep();
-    fill_f = fill_pool->view(0, 5, frustum);
-
-    return std::max(line_f, fill_f);
+    return std::max(frust_dist, line_d);
 }
 
-void wrl::world::draw(bool edit)
+void wrl::world::draw(bool edit, const GLfloat *points)
 {
-    float P[4] = { 1.0f, 4.0f, 2.0f, 0.0f };
+    GLfloat L[4];
 
-    glLightfv(GL_LIGHT0, GL_POSITION, P);
+    // Compute the light source position.
+
+    L[0] = sin(RAD(light_T)) * cos(RAD(light_P));
+    L[1] =                     sin(RAD(light_P));
+    L[2] = cos(RAD(light_T)) * cos(RAD(light_P));
+    L[3] = 0;
+
+    glLightfv(GL_LIGHT0, GL_POSITION, L);
+
+    // Draw the scene.
 
     fill_pool->draw_init();
     fill_pool->draw(0, true, false);
     fill_pool->draw_fini();
+
+    // Draw the editing widgets.
 
     if (edit)
     {

@@ -61,7 +61,7 @@ mode::edit::edit(wrl::world &w) : mode(w)
 
 //-----------------------------------------------------------------------------
 
-bool mode::edit::point(const float p[3], const float v[3], int, int)
+bool mode::edit::point(const float p[3], const float v[3], int x, int y)
 {
     float M[16];
 
@@ -95,7 +95,7 @@ bool mode::edit::point(const float p[3], const float v[3], int, int)
 
         return true;
     }
-    return false;
+    return mode::point(p, v, x, y);
 }
 
 bool mode::edit::click(int b, bool d)
@@ -147,7 +147,7 @@ bool mode::edit::click(int b, bool d)
 
         return true;
     }
-    return false;
+    return mode::click(b, d);
 }
 
 bool mode::edit::keybd(int k, bool d, int c)
@@ -202,14 +202,14 @@ bool mode::edit::timer(float dt)
     return true;
 }
 
-GLfloat mode::edit::view(const GLfloat *frustum)
+GLfloat mode::edit::view(const GLfloat *planes)
 {
-    return std::max(world.view(true, frustum), transform.view(frustum));
+    return std::max(world.view(true, planes), transform.view(planes));
 }
 
-void mode::edit::draw()
+void mode::edit::draw(const GLfloat *points)
 {
-    world.draw(true);
+    world.draw(true, points);
     transform.draw();
 }
 

@@ -67,14 +67,14 @@ bool mode::info::timer(float dt)
     return false;
 }
 
-GLfloat mode::info::view(const GLfloat *frustum)
+GLfloat mode::info::view(const GLfloat *planes)
 {
-    return world.view(true, frustum);
+    return world.view(true, planes);
 }
 
-void mode::info::draw()
+void mode::info::draw(const GLfloat *points)
 {
-    world.draw(true);
+    world.draw(true, points);
     gui.draw();
 }
 
