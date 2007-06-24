@@ -55,6 +55,9 @@ void load_xlt_inv(float[16], float, float, float);
 void load_scl_inv(float[16], float, float, float);
 void load_rot_inv(float[16], float, float, float, float);
 
+void load_persp(float[16], float, float, float, float, float, float);
+void load_ortho(float[16], float, float, float, float, float, float);
+
 /*---------------------------------------------------------------------------*/
 
 void Lmul_xlt_mat(float[16], float, float, float);

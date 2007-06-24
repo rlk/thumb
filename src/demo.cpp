@@ -90,9 +90,14 @@ void demo::point(int x, int y)
         // Handle view rotation.
 
         if (button[3])
-            view->turn(float(last_y - y) * k,
-                       float(last_x - x) * k, 0.0f);
+        {
+            float dx = float(last_x - x) * k;
+            float dy = float(last_y - y) * k;
 
+            if      (SDL_GetModState() & KMOD_CTRL)  view->turn( 0, dx, 0);
+            else if (SDL_GetModState() & KMOD_SHIFT) view->turn(dy,  0, 0);
+            else                                     view->turn(dy, dx, 0);
+        }
         prog::point(x, y);
     }
 

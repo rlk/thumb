@@ -20,6 +20,7 @@
 #include "glob.hpp"
 #include "data.hpp"
 #include "view.hpp"
+#include "util.hpp"
 #include "main.hpp"
 
 #define MAX_CONTACTS 4
@@ -443,7 +444,7 @@ void wrl::world::mov_light(int dx, int dy)
     // Ensure the spherical coordinates remain within bounds.
 
     if (light_P >   90.0f) light_P  =  90.0f;
-    if (light_P <  -90.0f) light_P  = -90.0f;
+    if (light_P <    0.0f) light_P  =   0.0f;
 
     if (light_T >  180.0f) light_T -= 360.0f;
     if (light_T < -180.0f) light_T += 360.0f;
@@ -954,6 +955,96 @@ static void line_fini()
 
 //-----------------------------------------------------------------------------
 
+void get_ortho_light(GLfloat *a,
+                     GLfloat *z,
+                     GLfloat *M,
+                     GLfloat *V, const GLfloat *light, const GLfloat *points)
+{
+    // Find the major axis of the view frustum.
+
+    GLfloat I[16], N[3], F[3], major[3];
+
+    N[0] = (points[ 0] + points[ 3] + points[ 6] + points[ 9]) / 4.0f;
+    N[1] = (points[ 1] + points[ 4] + points[ 7] + points[10]) / 4.0f;
+    N[2] = (points[ 2] + points[ 5] + points[ 8] + points[11]) / 4.0f;
+
+    F[0] = (points[12] + points[15] + points[18] + points[21]) / 4.0f;
+    F[1] = (points[13] + points[16] + points[19] + points[22]) / 4.0f;
+    F[2] = (points[14] + points[17] + points[20] + points[23]) / 4.0f;
+
+    major[0] = F[0] - N[0];
+    major[1] = F[1] - N[1];
+    major[2] = F[2] - N[2];
+
+    normalize(major);
+
+    // Compute the light source modelview matrix.
+
+    load_idt(I);
+
+    cross(I + 0, major, light); normalize(I + 0);
+    cross(I + 4, light, I + 0); normalize(I + 4);
+    cross(I + 8, I + 0, I + 4); normalize(I + 8);
+
+    load_xps(M, I);
+
+    // Find the extent of the frustum in light space.
+
+    GLfloat v[24];
+
+    mult_mat_pos(v +  0, M, points +  0);
+    mult_mat_pos(v +  3, M, points +  3);
+    mult_mat_pos(v +  6, M, points +  6);
+    mult_mat_pos(v +  9, M, points +  9);
+    mult_mat_pos(v + 12, M, points + 12);
+    mult_mat_pos(v + 15, M, points + 15);
+    mult_mat_pos(v + 18, M, points + 18);
+    mult_mat_pos(v + 21, M, points + 21);
+
+    a[0] = min8(v[ 0], v[ 3], v[ 6], v[ 9], v[12], v[15], v[18], v[21]);
+    a[1] = min8(v[ 1], v[ 4], v[ 7], v[10], v[13], v[16], v[19], v[22]);
+    a[2] = min8(v[ 2], v[ 5], v[ 8], v[11], v[14], v[17], v[20], v[23]);
+
+    z[0] = max8(v[ 0], v[ 3], v[ 6], v[ 9], v[12], v[15], v[18], v[21]);
+    z[1] = max8(v[ 1], v[ 4], v[ 7], v[10], v[13], v[16], v[19], v[22]);
+    z[2] = max8(v[ 2], v[ 5], v[ 8], v[11], v[14], v[17], v[20], v[23]);
+
+    // Compute the light source frustum planes.
+
+    GLfloat A[3];
+    GLfloat Z[3];
+
+    mult_mat_pos(A, I, a);
+    mult_mat_pos(Z, I, z);
+
+    V[ 0] =  I[ 8];    // Far clipping plane (useful range of illumination)
+    V[ 1] =  I[ 9];
+    V[ 2] =  I[10];
+    V[ 3] = -I[ 8] * A[0] - I[ 9] * A[1] - I[10] * A[2];
+
+    V[ 4] =  I[ 0];    // Left clipping plane
+    V[ 5] =  I[ 1];
+    V[ 6] =  I[ 2];
+    V[ 7] = -I[ 0] * A[0] - I[ 1] * A[1] - I[ 2] * A[2];
+
+    V[ 8] = -I[ 0];    // Right clipping plane
+    V[ 9] = -I[ 1];
+    V[10] = -I[ 2];
+    V[11] =  I[ 0] * Z[0] + I[ 1] * Z[1] + I[ 2] * Z[2];
+
+    V[12] =  I[ 4];    // Bottom clipping plane
+    V[13] =  I[ 5];
+    V[14] =  I[ 6];
+    V[15] = -I[ 4] * A[0] - I[ 5] * A[1] - I[ 6] * A[2];
+
+    V[16] = -I[ 4];    // Top clipping plane
+    V[17] = -I[ 5];
+    V[18] = -I[ 6];
+    V[19] =  I[ 4] * Z[0] + I[ 5] * Z[1] + I[ 6] * Z[2];
+}
+
+//-----------------------------------------------------------------------------
+
 GLfloat wrl::world::view(bool edit, const GLfloat *planes)
 {
     GLfloat line_d = 0;
@@ -971,7 +1062,7 @@ GLfloat wrl::world::view(bool edit, const GLfloat *planes)
 
 void wrl::world::draw(bool edit, const GLfloat *points)
 {
-    GLfloat L[4];
+    GLfloat M[16], V[20], L[4], a[3], z[3];
 
     // Compute the light source position.
 
@@ -982,7 +1073,27 @@ void wrl::world::draw(bool edit, const GLfloat *points)
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
-    // Draw the scene.
+    // Compute the light projection parameters.
+
+    get_ortho_light(a, z, M, V, L, points);
+
+    float d = fill_pool->view(1, 5, V);
+
+    if (d < 1.0) d = 1.0;
+
+    ::view->push();
+
+    glMatrixMode(GL_PROJECTION);
+    {
+        glLoadIdentity();
+        glOrtho(a[0], z[0], a[1], z[1], -a[2] - d, -a[2]);
+    }
+    glMatrixMode(GL_MODELVIEW);
+    {
+        glLoadMatrixf(M);
+    }
+
+    // Draw the scene.C
 
     fill_pool->draw_init();
     fill_pool->draw(0, true, false);
@@ -1002,8 +1113,46 @@ void wrl::world::draw(bool edit, const GLfloat *points)
         dyna_node->draw(0, true, false);
 
         line_pool->draw_fini();
+
+        glColor3f(1.0f, 1.0f, 0.0f);
+
+        glLineWidth(4.0f);
+
+        glBegin(GL_LINE_LOOP);
+        {
+            glVertex3fv(points +  0);
+            glVertex3fv(points +  3);
+            glVertex3fv(points +  6);
+            glVertex3fv(points +  9);
+        }
+        glEnd();
+
+        glBegin(GL_LINE_LOOP);
+        {
+            glVertex3fv(points + 12);
+            glVertex3fv(points + 15);
+            glVertex3fv(points + 18);
+            glVertex3fv(points + 21);
+        }
+        glEnd();
+
+        glBegin(GL_LINES);
+        {
+            glVertex3fv(points +  0);
+            glVertex3fv(points + 12);
+            glVertex3fv(points +  3);
+            glVertex3fv(points + 15);
+            glVertex3fv(points +  6);
+            glVertex3fv(points + 18);
+            glVertex3fv(points +  9);
+            glVertex3fv(points + 21);
+        }
+        glEnd();
+
         line_fini();
     }
+
+    ::view->pop();
 }
 
 //-----------------------------------------------------------------------------

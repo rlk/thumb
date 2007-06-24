@@ -183,6 +183,53 @@ void load_rot_mat(float M[16], float x, float y, float z, float a)
 }
 
 //-----------------------------------------------------------------------------
+// Projection constructors
+
+void load_persp(float P[16], float l, float r,
+                             float b, float t,
+                             float n, float f)
+{
+    P[0] =  (2 * n) / (r - l);
+    P[1] =  0;
+    P[2] =  0;
+    P[3] =  0;
+    P[4] =  0;
+    P[5] =  (2 * n) / (t - b);
+    P[6] =  0;
+    P[7] =  0;
+    P[8] =  (r + l) / (r - l);
+    P[9] =  (t + b) / (t - b);
+    P[A] = -(f + n) / (f - n);
+    P[B] = -1;
+    P[C] =  0;
+    P[D] =  0;
+    P[E] = -2 * f * n / (f - n);
+    P[F] =  0;
+}
+
+void load_ortho(float P[16], float l, float r,
+                             float b, float t,
+                             float n, float f)
+{
+    P[0] =  2 / (r - l);
+    P[1] =  0;
+    P[2] =  0;
+    P[3] =  0;
+    P[4] =  0;
+    P[5] =  2 / (t - b);
+    P[6] =  0;
+    P[7] =  0;
+    P[8] =  0;
+    P[9] =  0;
+    P[A] = -2 / (f - n);
+    P[B] =  0;
+    P[C] = -(r + l) / (r - l); 
+    P[D] = -(t + b) / (t - b); 
+    P[E] = -(f + n) / (f - n); 
+    P[F] =  1;
+}
+
+//-----------------------------------------------------------------------------
 // Matrix inverse constructors
 
 void load_xlt_inv(float I[16], float x, float y, float z)

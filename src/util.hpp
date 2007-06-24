@@ -42,6 +42,18 @@ typedef std::set   <std::string> strset;
 
 //-----------------------------------------------------------------------------
 
+#define min4(a, b, c, d) std::min(std::min(a, b), \
+                                  std::min(c, d))
+#define max4(a, b, c, d) std::max(std::max(a, b), \
+                                  std::max(c, d))
+
+#define min8(a, b, c, d, e, f, g, h) std::min(min4(a, b, d, c), \
+                                              min4(e, f, g, h))
+#define max8(a, b, c, d, e, f, g, h) std::max(max4(a, b, d, c), \
+                                              max4(e, f, g, h))
+
+//-----------------------------------------------------------------------------
+
 float cosi(int);
 float sini(int);
 

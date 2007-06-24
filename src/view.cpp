@@ -25,7 +25,7 @@ app::view::view(int w, int h, float n, float f, float z) :
     load_idt(default_M);
     load_idt(current_M);
 
-    move(0.0f, 0.0f, 5.0f);
+//  move(0.0f, 0.0f, 5.0f);
 }
 
 //-----------------------------------------------------------------------------

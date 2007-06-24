@@ -1,0 +1,4 @@
+
+You can bound the far clipping plane of a light projection to the far extent of the view frustum, since you'll never see shadows cast past that point anyway. The near clipping plane of a light projection must extend past the near extent of the view frustum, however, since objects closer to the light may cast shadows into the view frustum.
+
+This is exactly opposite of view frustum testing, where the near plane is important, and the far plane is unimportant. By sneaking the light's far plane into the near plane slot during frustum testing, We can trick the view far-clip-finder into computing the near-clip distance of a lightsource.
