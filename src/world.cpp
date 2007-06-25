@@ -27,7 +27,10 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::world::world() : light_P(30), light_T(30), serial(1)
+wrl::world::world() : light_P(30), light_T(30), serial(1),
+                      shadowmap(glob->new_frame(1024, 1024, GL_TEXTURE_2D,
+                                                0, GL_DEPTH_COMPONENT24))
+
 {
     // Initialize the editor physical system.
 
@@ -51,6 +54,8 @@ wrl::world::world() : light_P(30), light_T(30), serial(1)
 
 wrl::world::~world()
 {
+    glob->free_frame(shadowmap);
+
     // Delete all operations.
 
     while (!undo_list.empty())
@@ -958,11 +963,12 @@ static void line_fini()
 void get_ortho_light(GLfloat *a,
                      GLfloat *z,
                      GLfloat *M,
+                     GLfloat *I,
                      GLfloat *V, const GLfloat *light, const GLfloat *points)
 {
     // Find the major axis of the view frustum.
 
-    GLfloat I[16], N[3], F[3], major[3];
+    GLfloat N[3], F[3], major[3];
 
     N[0] = (points[ 0] + points[ 3] + points[ 6] + points[ 9]) / 4.0f;
     N[1] = (points[ 1] + points[ 4] + points[ 7] + points[10]) / 4.0f;
@@ -1043,6 +1049,45 @@ void get_ortho_light(GLfloat *a,
     V[19] =  I[ 4] * Z[0] + I[ 5] * Z[1] + I[ 6] * Z[2];
 }
 
+void draw_light_init(GLfloat l, GLfloat r,
+                     GLfloat b, GLfloat t, 
+                     GLfloat n, GLfloat f, GLfloat *M)
+{
+    view->push();
+
+    // Setup the light's view transform.
+
+    glMatrixMode(GL_PROJECTION);
+    {
+        glLoadIdentity();
+        glOrtho(l, r, b, t, n, f);
+    }
+    glMatrixMode(GL_MODELVIEW);
+    {
+        glLoadMatrixf(M);
+    }
+
+    // Set up the GL state for shadow map rendering.
+
+    glColorMask(0, 0, 0, 0);
+
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_POLYGON_OFFSET_FILL);
+
+    glPolygonOffset(1.1f, 4.0f); // TODO: standard values?
+
+    glClear(GL_DEPTH_BUFFER_BIT);
+}
+
+void draw_light_fini()
+{
+    glColorMask(1, 1, 1, 1);
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
+
+    view->pop();
+}
+
 //-----------------------------------------------------------------------------
 
 GLfloat wrl::world::view(bool edit, const GLfloat *planes)
@@ -1062,7 +1107,7 @@ GLfloat wrl::world::view(bool edit, const GLfloat *planes)
 
 void wrl::world::draw(bool edit, const GLfloat *points)
 {
-    GLfloat M[16], V[20], L[4], a[3], z[3];
+    GLfloat M[16], I[16], V[20], L[4], a[3], z[3];
 
     // Compute the light source position.
 
@@ -1075,28 +1120,56 @@ void wrl::world::draw(bool edit, const GLfloat *points)
 
     // Compute the light projection parameters.
 
-    get_ortho_light(a, z, M, V, L, points);
+    get_ortho_light(a, z, M, I, V, L, points);
 
     float d = fill_pool->view(1, 5, V);
 
     if (d < 1.0) d = 1.0;
 
-    ::view->push();
-
-    glMatrixMode(GL_PROJECTION);
-    {
-        glLoadIdentity();
-        glOrtho(a[0], z[0], a[1], z[1], -a[2] - d, -a[2]);
-    }
-    glMatrixMode(GL_MODELVIEW);
-    {
-        glLoadMatrixf(M);
-    }
-
-    // Draw the scene.C
+    float l =  a[0];
+    float r =  z[0];
+    float b =  a[1];
+    float t =  z[1];
+    float n = -a[2] - d;
+    float f = -a[2];
 
     fill_pool->draw_init();
-    fill_pool->draw(0, true, false);
+    {
+        // Set up the shadow map rendering destination.
+
+        shadowmap->bind();
+        draw_light_init(l, r, b, t, n, f, M);
+        {
+            // Draw the scene to the depth buffer.
+
+            fill_pool->draw(1, false, false);
+        }
+        draw_light_fini();
+        shadowmap->free();
+
+        // Set up the shadow map rendering source.
+
+        shadowmap->bind_depth(GL_TEXTURE3);
+        {
+            glActiveTextureARB(GL_TEXTURE1);
+            glMatrixMode(GL_TEXTURE);
+            {
+                glLoadIdentity();
+
+                ::view->mult_S();
+                glOrtho(l, r, b, t, n, f);
+                glMultMatrixf(M);
+                ::view->mult_M();
+            }
+            glMatrixMode(GL_MODELVIEW);
+            glActiveTextureARB(GL_TEXTURE0);
+
+            // Draw the scene to the color buffer.
+
+            fill_pool->draw(0, true, false);
+        }
+        shadowmap->free_depth(GL_TEXTURE3);
+    }
     fill_pool->draw_fini();
 
     // Draw the editing widgets.
@@ -1113,46 +1186,8 @@ void wrl::world::draw(bool edit, const GLfloat *points)
         dyna_node->draw(0, true, false);
 
         line_pool->draw_fini();
-
-        glColor3f(1.0f, 1.0f, 0.0f);
-
-        glLineWidth(4.0f);
-
-        glBegin(GL_LINE_LOOP);
-        {
-            glVertex3fv(points +  0);
-            glVertex3fv(points +  3);
-            glVertex3fv(points +  6);
-            glVertex3fv(points +  9);
-        }
-        glEnd();
-
-        glBegin(GL_LINE_LOOP);
-        {
-            glVertex3fv(points + 12);
-            glVertex3fv(points + 15);
-            glVertex3fv(points + 18);
-            glVertex3fv(points + 21);
-        }
-        glEnd();
-
-        glBegin(GL_LINES);
-        {
-            glVertex3fv(points +  0);
-            glVertex3fv(points + 12);
-            glVertex3fv(points +  3);
-            glVertex3fv(points + 15);
-            glVertex3fv(points +  6);
-            glVertex3fv(points + 18);
-            glVertex3fv(points +  9);
-            glVertex3fv(points + 21);
-        }
-        glEnd();
-
         line_fini();
     }
-
-    ::view->pop();
 }
 
 //-----------------------------------------------------------------------------

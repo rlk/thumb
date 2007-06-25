@@ -648,6 +648,8 @@ void ogl::pool::draw_init()
     glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, sizeof (vec3), t);
     glNormalPointer         (      GL_FLOAT,    sizeof (vec3), n);
     glVertexPointer         (   3, GL_FLOAT,    sizeof (vec3), v);
+
+    OGLCK();
 }
 
 void ogl::pool::draw(int id, bool color, bool alpha)
@@ -660,6 +662,8 @@ void ogl::pool::draw(int id, bool color, bool alpha)
     // TODO: something smarter.
 
     glUseProgramObjectARB(0);
+
+    OGLCK();
 }
 
 void ogl::pool::draw_fini()
@@ -675,6 +679,8 @@ void ogl::pool::draw_fini()
 
     glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

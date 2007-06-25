@@ -62,7 +62,7 @@ void ogl::frame::free_depth(GLenum unit) const
 
 //-----------------------------------------------------------------------------
 
-void ogl::frame::bind(bool proj) const
+void ogl::frame::bind() const
 {
     // Store the current viewport state.
 
@@ -76,7 +76,7 @@ void ogl::frame::bind(bool proj) const
     OGLCK();
 }
 
-void ogl::frame::free(bool proj) const
+void ogl::frame::free() const
 {
     // Restore the previous viewport and bind the default frame buffer.
 

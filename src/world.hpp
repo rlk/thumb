@@ -17,6 +17,7 @@
 
 #include "atom.hpp"
 #include "pool.hpp"
+#include "frame.hpp"
 #include "operation.hpp"
 
 //-----------------------------------------------------------------------------
@@ -75,6 +76,10 @@ namespace wrl
         ops::operation_l redo_list;
 
         void doop(ops::operation_p);
+
+        // Stuff to be moved to where it belongs.
+
+        ogl::frame *shadowmap;
 
     public:
 
