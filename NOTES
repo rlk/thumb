@@ -4,32 +4,12 @@ Can texture atlasing be automated?
 
 -------------------------------------------------------------------------------
 
-Determining the AABB of the visible set:
+Shadowing:
 
-If AABB transform is less expensive than test(I)
+    rendering the backfaces to the shadow buffer moves any shadow aliasing
+    to the unlit surface
 
-    B = A.transform(M)
-    if B.test(I)
-        T.merge(B)
-
-If AABB transform is more expensive than test(M)
-
-    if A.test(M)
-        B = A.transform(M)
-        T.merge(B)
-
-    or 
-
-    if A.test(M)
-        T.merge(A, M)
-
-Cannot cache visible status, as light passes occur between render passes.
-
-
-Rendering:
-
-    if A.test(M)
-        do
+    Dual-depth shadow maps?  (extra shadow pass)
 
 -------------------------------------------------------------------------------
 

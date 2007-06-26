@@ -74,8 +74,9 @@ void ogl::binding::init()
     {
         color->uniform("diffuse", 0);
         color->uniform("bump",    1);
-        color->uniform("light",   2);
-        color->uniform("shadow",  3);
+        color->uniform("shadow0", 2);
+        color->uniform("shadow1", 3);
+        color->uniform("shadow2", 4);
     }
     color->free();
 

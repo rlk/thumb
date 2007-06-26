@@ -133,6 +133,26 @@ void demo::keybd(int k, bool d, int c)
         else if (k == key_move_R) motion[0] += dd;
         else if (k == key_move_F) motion[2] -= dd;
         else if (k == key_move_B) motion[2] += dd;
+
+        // HACK
+
+        if (d)
+        {
+            if (SDL_GetModState() & KMOD_SHIFT)
+            {
+                if      (k == SDLK_LEFT)  view->set_factor(-1.0f);
+                else if (k == SDLK_RIGHT) view->set_factor(+1.0f);
+                else if (k == SDLK_DOWN)  view->set_units (-1.0f);
+                else if (k == SDLK_UP)    view->set_units (+1.0f);
+            }
+            else
+            {
+                if      (k == SDLK_LEFT)  view->set_factor(-0.1f);
+                else if (k == SDLK_RIGHT) view->set_factor(+0.1f);
+                else if (k == SDLK_DOWN)  view->set_units (-0.1f);
+                else if (k == SDLK_UP)    view->set_units (+0.1f);
+            }
+        }
     }
 
     prog::keybd(k, d, c);

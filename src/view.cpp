@@ -20,7 +20,7 @@
 //-----------------------------------------------------------------------------
 
 app::view::view(int w, int h, float n, float f, float z) :
-    w(w), h(h), n(n), f(f), z(z)
+    w(w), h(h), n(n), f(f), z(z), factor(0.0f), units(4.0f)
 {
     load_idt(default_M);
     load_idt(current_M);

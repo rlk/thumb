@@ -7,8 +7,16 @@ version="1.0"?><conf>
   <option type="string" name="mono_font">FreeMono.ttf</option>
   <option type="int" name="sans_size">14</option>
   <option type="int" name="mono_size">14</option>
+<!--
   <option type="int" name="window_w">1024</option>
   <option type="int" name="window_h">768</option>
+-->
+
+  <option type="int" name="window_w">1920</option>
+  <option type="int" name="window_h">1200</option>
+  <option type="int" name="window_fullscreen">0</option>
+  <option type="int" name="window_noframe">0</option>
+
   <option type="int" name="key_undo">103</option>
   <option type="int" name="key_redo">107</option>
   <option type="int" name="key_move_L">97</option>

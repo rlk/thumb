@@ -79,7 +79,7 @@ namespace wrl
 
         // Stuff to be moved to where it belongs.
 
-        ogl::frame *shadowmap;
+        ogl::frame *shadow[3];
 
     public:
 

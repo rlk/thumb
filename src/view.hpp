@@ -13,6 +13,8 @@
 #ifndef VIEW_HPP
 #define VIEW_HPP
 
+#include <iostream>
+
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -28,9 +30,20 @@ namespace app
         float default_M[16];
         float current_M[16];
 
+        float factor;
+        float units;
+
     public:
 
         view(int, int, float, float, float);
+
+        float get_factor() const { return factor; }
+        float get_units()  const { return units;  }
+
+        void set_factor(float d)
+            { factor += d; std::cout << "factor " << factor << std::endl; }
+        void set_units (float d)
+            { units  += d; std::cout << "units  " << units  << std::endl; }
 
         void clr();
         void set(const float[16]);

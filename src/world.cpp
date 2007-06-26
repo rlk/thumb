@@ -27,11 +27,15 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::world::world() : light_P(30), light_T(30), serial(1),
-                      shadowmap(glob->new_frame(1024, 1024, GL_TEXTURE_2D,
-                                                0, GL_DEPTH_COMPONENT24))
-
+wrl::world::world() : light_P(30), light_T(30), serial(1)
 {
+    shadow[0] = glob->new_frame(1024, 1024, GL_TEXTURE_2D,
+                                0, GL_DEPTH_COMPONENT24);
+    shadow[1] = glob->new_frame(1024, 1024, GL_TEXTURE_2D,
+                                0, GL_DEPTH_COMPONENT24);
+    shadow[2] = glob->new_frame(1024, 1024, GL_TEXTURE_2D,
+                                0, GL_DEPTH_COMPONENT24);
+
     // Initialize the editor physical system.
 
     edit_space = dHashSpaceCreate(0);
@@ -54,7 +58,9 @@ wrl::world::world() : light_P(30), light_T(30), serial(1),
 
 wrl::world::~world()
 {
-    glob->free_frame(shadowmap);
+    glob->free_frame(shadow[2]);
+    glob->free_frame(shadow[1]);
+    glob->free_frame(shadow[0]);
 
     // Delete all operations.
 
@@ -1074,7 +1080,7 @@ void draw_light_init(GLfloat l, GLfloat r,
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_POLYGON_OFFSET_FILL);
 
-    glPolygonOffset(1.1f, 4.0f); // TODO: standard values?
+    glPolygonOffset(view->get_factor(), view->get_units());
 
     glClear(GL_DEPTH_BUFFER_BIT);
 }
@@ -1107,7 +1113,8 @@ GLfloat wrl::world::view(bool edit, const GLfloat *planes)
 
 void wrl::world::draw(bool edit, const GLfloat *points)
 {
-    GLfloat M[16], I[16], V[20], L[4], a[3], z[3];
+    GLfloat L[4];
+    int n = 3;
 
     // Compute the light source position.
 
@@ -1118,40 +1125,58 @@ void wrl::world::draw(bool edit, const GLfloat *points)
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
-    // Compute the light projection parameters.
-
-    get_ortho_light(a, z, M, I, V, L, points);
-
-    float d = fill_pool->view(1, 5, V);
-
-    if (d < 1.0) d = 1.0;
-
-    float l =  a[0];
-    float r =  z[0];
-    float b =  a[1];
-    float t =  z[1];
-    float n = -a[2] - d;
-    float f = -a[2];
-
     fill_pool->draw_init();
     {
-        // Set up the shadow map rendering destination.
+        // Compute the light projection parameters.
 
-        shadowmap->bind();
-        draw_light_init(l, r, b, t, n, f, M);
+        for (int i = 0; i < n; ++i)
         {
-            // Draw the scene to the depth buffer.
+            GLfloat M[16], I[16], V[20], a[3], z[3];
 
-            fill_pool->draw(1, false, false);
-        }
-        draw_light_fini();
-        shadowmap->free();
+            GLfloat kn = GLfloat(i + 0) / GLfloat(n);
+            GLfloat kf = GLfloat(i + 1) / GLfloat(n);
 
-        // Set up the shadow map rendering source.
+            GLfloat split[24];
 
-        shadowmap->bind_depth(GL_TEXTURE3);
-        {
-            glActiveTextureARB(GL_TEXTURE1);
+            LERP(split +  0, points +  0, points + 12, kn);
+            LERP(split +  3, points +  3, points + 15, kn);
+            LERP(split +  6, points +  6, points + 18, kn);
+            LERP(split +  9, points +  9, points + 21, kn);
+            LERP(split + 12, points +  0, points + 12, kf);
+            LERP(split + 15, points +  3, points + 15, kf);
+            LERP(split + 18, points +  6, points + 18, kf);
+            LERP(split + 21, points +  9, points + 21, kf);
+
+            get_ortho_light(a, z, M, I, V, L, split);
+
+            float d = fill_pool->view(i + 1, 5, V);
+
+            if (d < 1.0) d = 1.0;
+
+            float l =  a[0];
+            float r =  z[0];
+            float b =  a[1];
+            float t =  z[1];
+            float n = -a[2] - d;
+            float f = -a[2];
+
+            // Set up the shadow map rendering destination.
+
+            shadow[i]->bind();
+            draw_light_init(l, r, b, t, n, f, M);
+            {
+                // Draw the scene to the depth buffer.
+
+                glCullFace(GL_FRONT);
+                fill_pool->draw(i + 1, false, false);
+                glCullFace(GL_BACK);
+            }
+            draw_light_fini();
+            shadow[i]->free();
+
+            // Set up the shadow projection.
+
+            glActiveTextureARB(GL_TEXTURE1 + i);
             glMatrixMode(GL_TEXTURE);
             {
                 glLoadIdentity();
@@ -1164,11 +1189,21 @@ void wrl::world::draw(bool edit, const GLfloat *points)
             glMatrixMode(GL_MODELVIEW);
             glActiveTextureARB(GL_TEXTURE0);
 
+        }
+
+        // Set up the shadow map rendering sources.
+
+        shadow[0]->bind_depth(GL_TEXTURE2);
+        shadow[1]->bind_depth(GL_TEXTURE3);
+        shadow[2]->bind_depth(GL_TEXTURE4);
+        {
             // Draw the scene to the color buffer.
 
             fill_pool->draw(0, true, false);
         }
-        shadowmap->free_depth(GL_TEXTURE3);
+        shadow[2]->free_depth(GL_TEXTURE4);
+        shadow[1]->free_depth(GL_TEXTURE3);
+        shadow[0]->free_depth(GL_TEXTURE2);
     }
     fill_pool->draw_fini();
 
@@ -1188,6 +1223,35 @@ void wrl::world::draw(bool edit, const GLfloat *points)
         line_pool->draw_fini();
         line_fini();
     }
+
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        glEnable(GL_BLEND);
+
+        glColor4f(0.0f, 0.0f, 0.0f, 0.25f);
+
+        glBegin(GL_QUADS);
+        {
+            for (int i = n - 1; i > 0; --i)
+            {
+                GLfloat split[12];
+            
+                GLfloat kn = GLfloat(i + 0) / GLfloat(n);
+
+                LERP(split +  0, points +  0, points + 12, kn);
+                LERP(split +  3, points +  3, points + 15, kn);
+                LERP(split +  6, points +  6, points + 18, kn);
+                LERP(split +  9, points +  9, points + 21, kn);
+
+                glVertex3fv(split + 0);
+                glVertex3fv(split + 3);
+                glVertex3fv(split + 6);
+                glVertex3fv(split + 9);
+            }
+        }
+        glEnd();
+    }
+    glPopAttrib();
 }
 
 //-----------------------------------------------------------------------------

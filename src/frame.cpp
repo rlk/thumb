@@ -71,6 +71,9 @@ void ogl::frame::bind() const
     // Enable this framebuffer object's state.
 
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer);
+
+    // HACK!
+//  glViewport(1, 1, w - 1, h - 1);
     glViewport(0, 0, w, h);
 
     OGLCK();
@@ -121,6 +124,11 @@ void ogl::frame::init()
 
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+/*
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+*/
         glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
         glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
