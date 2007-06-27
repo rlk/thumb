@@ -15,6 +15,10 @@
 
 //-----------------------------------------------------------------------------
 
+GLfloat ogl::binding::split[4];
+
+//-----------------------------------------------------------------------------
+
 ogl::binding::binding(std::string name) : name(name)
 {
     color = glob->load_program("object-color.vert", "object-color.frag");
@@ -37,6 +41,16 @@ ogl::binding::~binding()
 
 //-----------------------------------------------------------------------------
 
+void ogl::binding::set_split(const GLfloat *s)
+{
+    split[0] = s[0];
+    split[1] = s[1];
+    split[2] = s[2];
+    split[3] = s[3];
+}
+
+//-----------------------------------------------------------------------------
+
 bool ogl::binding::depth_eq(const binding *that) const
 {
     return (depth == that->depth);
@@ -54,6 +68,7 @@ void ogl::binding::bind(bool c) const
     if (c)
     {
         color->bind();
+        color->uniform("split", split[0], split[1], split[2], split[3]);
 
         diff->bind(GL_TEXTURE0);
         bump->bind(GL_TEXTURE1);

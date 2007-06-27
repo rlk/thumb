@@ -37,6 +37,9 @@ namespace app
 
         view(int, int, float, float, float);
 
+        float get_n() const { return n; }
+        float get_f() const { return f; }
+
         float get_factor() const { return factor; }
         float get_units()  const { return units;  }
 

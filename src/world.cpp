@@ -1113,8 +1113,12 @@ GLfloat wrl::world::view(bool edit, const GLfloat *planes)
 
 void wrl::world::draw(bool edit, const GLfloat *points)
 {
-    GLfloat L[4];
-    int n = 3;
+    GLfloat d[4], c[4], L[4], C[4] = { 1.0f, 1.0f, 0.9f, 0.0f };
+
+    const GLfloat n = ::view->get_n();
+    const GLfloat f = ::view->get_f();
+
+    const int m = 3;
 
     // Compute the light source position.
 
@@ -1124,19 +1128,31 @@ void wrl::world::draw(bool edit, const GLfloat *points)
     L[3] = 0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE,  C);
 
     fill_pool->draw_init();
     {
+        // Compute the splits.
+
+        for (int i = 0; i <= m; ++i)
+        {
+            GLfloat iom = GLfloat(i) / GLfloat(m);
+
+            c[i] = (n * pow(f / n, iom) + n + (f - n) * iom) / 2;
+
+            d[i] = (n - 1 / c[i]) * f / (f - n);
+        }
+
         // Compute the light projection parameters.
 
-        for (int i = 0; i < n; ++i)
+        for (int i = 0; i < m; ++i)
         {
             GLfloat M[16], I[16], V[20], a[3], z[3];
 
-            GLfloat kn = GLfloat(i + 0) / GLfloat(n);
-            GLfloat kf = GLfloat(i + 1) / GLfloat(n);
-
             GLfloat split[24];
+
+            GLfloat kn = (c[i + 0] - n) / (f - n);
+            GLfloat kf = (c[i + 1] - n) / (f - n);
 
             LERP(split +  0, points +  0, points + 12, kn);
             LERP(split +  3, points +  3, points + 15, kn);
@@ -1149,21 +1165,14 @@ void wrl::world::draw(bool edit, const GLfloat *points)
 
             get_ortho_light(a, z, M, I, V, L, split);
 
-            float d = fill_pool->view(i + 1, 5, V);
+            float D = fill_pool->view(i + 1, 5, V);
 
-            if (d < 1.0) d = 1.0;
-
-            float l =  a[0];
-            float r =  z[0];
-            float b =  a[1];
-            float t =  z[1];
-            float n = -a[2] - d;
-            float f = -a[2];
+            if (D < 1.0) D = 1.0;
 
             // Set up the shadow map rendering destination.
 
             shadow[i]->bind();
-            draw_light_init(l, r, b, t, n, f, M);
+            draw_light_init(a[0], z[0], a[1], z[1], -a[2] - D, -a[2], M);
             {
                 // Draw the scene to the depth buffer.
 
@@ -1182,7 +1191,7 @@ void wrl::world::draw(bool edit, const GLfloat *points)
                 glLoadIdentity();
 
                 ::view->mult_S();
-                glOrtho(l, r, b, t, n, f);
+                glOrtho(a[0], z[0], a[1], z[1], -a[2] - D, -a[2]);
                 glMultMatrixf(M);
                 ::view->mult_M();
             }
@@ -1197,6 +1206,8 @@ void wrl::world::draw(bool edit, const GLfloat *points)
         shadow[1]->bind_depth(GL_TEXTURE3);
         shadow[2]->bind_depth(GL_TEXTURE4);
         {
+            ogl::binding::set_split(d);
+
             // Draw the scene to the color buffer.
 
             fill_pool->draw(0, true, false);
@@ -1223,7 +1234,7 @@ void wrl::world::draw(bool edit, const GLfloat *points)
         line_pool->draw_fini();
         line_fini();
     }
-
+/*
     glPushAttrib(GL_ENABLE_BIT);
     {
         glEnable(GL_BLEND);
@@ -1232,16 +1243,16 @@ void wrl::world::draw(bool edit, const GLfloat *points)
 
         glBegin(GL_QUADS);
         {
-            for (int i = n - 1; i > 0; --i)
+            for (int i = m - 2; i >= 0; --i)
             {
                 GLfloat split[12];
             
-                GLfloat kn = GLfloat(i + 0) / GLfloat(n);
+                GLfloat kf = GLfloat(i + 1) / GLfloat(m);
 
-                LERP(split +  0, points +  0, points + 12, kn);
-                LERP(split +  3, points +  3, points + 15, kn);
-                LERP(split +  6, points +  6, points + 18, kn);
-                LERP(split +  9, points +  9, points + 21, kn);
+                LERP(split +  0, points +  0, points + 12, kf);
+                LERP(split +  3, points +  3, points + 15, kf);
+                LERP(split +  6, points +  6, points + 18, kf);
+                LERP(split +  9, points +  9, points + 21, kf);
 
                 glVertex3fv(split + 0);
                 glVertex3fv(split + 3);
@@ -1252,6 +1263,7 @@ void wrl::world::draw(bool edit, const GLfloat *points)
         glEnd();
     }
     glPopAttrib();
+*/
 }
 
 //-----------------------------------------------------------------------------

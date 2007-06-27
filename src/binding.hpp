@@ -24,6 +24,8 @@ namespace ogl
 {
     class binding
     {
+        static GLfloat split[4];
+
         std::string name;
 
         const ogl::program *depth;
@@ -38,6 +40,8 @@ namespace ogl
 
         binding(std::string);
        ~binding();
+
+        static void set_split(const GLfloat *);
 
         bool opaque() const { return true; }
 

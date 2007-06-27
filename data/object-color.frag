@@ -5,8 +5,12 @@ uniform sampler2DShadow shadow0;
 uniform sampler2DShadow shadow1;
 uniform sampler2DShadow shadow2;
 
+uniform vec4 split;
+
+varying vec4 eye;
 varying vec3 V;
 varying vec3 L;
+varying float G;
 
 void main()
 {
@@ -16,9 +20,19 @@ void main()
     float S1 =  shadow2DProj(shadow1, gl_TexCoord[2]).r;
     float S2 =  shadow2DProj(shadow2, gl_TexCoord[3]).r;
 
-//    float S = clamp(S0 + S1 + S2, 0.0, 1.0);
+    vec4 C0 = vec4(0.2, 0.0, 0.0, 1.0);
+    vec4 C1 = vec4(0.0, 0.2, 0.0, 1.0);
+    vec4 C2 = vec4(0.0, 0.0, 0.2, 1.0);
 
-    float S = S1;
+    float kx = step(split.y, gl_FragCoord.z);
+    float ky = step(split.z, gl_FragCoord.z);
+    
+    vec4 C = mix(C0, mix(C1, C2, ky), kx);
+
+    vec4 S = mix(S0, mix(S1, S2, ky), kx) * (gl_LightSource[0].diffuse + C);
+//  vec4 S = mix(S0, mix(S1, S2, ky), kx) * gl_LightSource[0].diffuse;
+
+    S = S * step(0.0, G);
 
     N = normalize(2.0 * N - 1.0);
 
