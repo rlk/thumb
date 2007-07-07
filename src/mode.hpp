@@ -36,13 +36,13 @@ namespace mode
         virtual void enter() { }
         virtual void leave() { }
 
-        virtual bool point(const float[3], const float[3], int, int);
+        virtual bool point(const double *, const double *, int, int);
         virtual bool click(int, bool);
         virtual bool keybd(int, bool, int);
-        virtual bool timer(float);
+        virtual bool timer(double);
 
-        virtual GLfloat view(const GLfloat *);
-        virtual void    draw(const GLfloat *);
+        virtual double view(const double *);
+        virtual void   draw(const double *);
 
         virtual ~mode() { }
     };

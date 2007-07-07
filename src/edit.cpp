@@ -50,20 +50,20 @@ mode::edit::edit(wrl::world &w) : mode(w)
     drag   = false;
     move   = false;
 
-    point_p[0] =  0.0f;
-    point_p[1] =  0.0f;
-    point_p[2] =  0.0f;
+    point_p[0] =  0;
+    point_p[1] =  0;
+    point_p[2] =  0;
 
-    point_v[0] =  0.0f;
-    point_v[1] =  0.0f;
-    point_v[2] = -1.0f;
+    point_v[0] =  0;
+    point_v[1] =  0;
+    point_v[2] = -1;
 }
 
 //-----------------------------------------------------------------------------
 
-bool mode::edit::point(const float p[3], const float v[3], int x, int y)
+bool mode::edit::point(const double *p, const double *v, int x, int y)
 {
-    float M[16];
+    double M[16];
 
     world.edit_pick(p, v);
 
@@ -124,7 +124,7 @@ bool mode::edit::click(int b, bool d)
                 {
                     // Shift-release resets the constraint transform.
 
-                    float M[16];
+                    double M[16];
 
                     if (SDL_GetModState() & KMOD_CTRL)
                         focus->get_local(M);
@@ -182,7 +182,8 @@ bool mode::edit::keybd(int k, bool d, int c)
 
         else if (k == key_home)
         {
-            float M[16];
+            double M[16];
+
             load_idt(M);
             transform.set_transform(M);
         }
@@ -196,18 +197,18 @@ bool mode::edit::keybd(int k, bool d, int c)
 
 //-----------------------------------------------------------------------------
 
-bool mode::edit::timer(float dt)
+bool mode::edit::timer(double dt)
 {
     world.edit_step(0);
     return true;
 }
 
-GLfloat mode::edit::view(const GLfloat *planes)
+double mode::edit::view(const double *planes)
 {
     return std::max(world.view(true, planes), transform.view(planes));
 }
 
-void mode::edit::draw(const GLfloat *points)
+void mode::edit::draw(const double *points)
 {
     world.draw(true, points);
     transform.draw();

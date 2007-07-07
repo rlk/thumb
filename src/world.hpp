@@ -35,8 +35,8 @@ namespace wrl
         dGeomID       edit_point;
         dGeomID       edit_focus;
 
-        float focus_dist;
-        float frust_dist;
+        double focus_dist;
+        double frust_dist;
 
         // ODE play state
 
@@ -52,8 +52,8 @@ namespace wrl
         atom_set all;
         atom_set sel;
 
-        GLfloat light_P;
-        GLfloat light_T;
+        double light_P;
+        double light_T;
 
         // Batcher state
 
@@ -94,9 +94,9 @@ namespace wrl
         void play_init();
         void play_fini();
 
-        void edit_pick(const float[3], const float[3]);
-        void edit_step(float);
-        void play_step(float);
+        void edit_pick(const double *, const double *);
+        void edit_step(double);
+        void play_step(double);
 
         dSpaceID get_space() const { return edit_space; }
         dGeomID  get_focus() const { return edit_focus; }
@@ -120,7 +120,7 @@ namespace wrl
         void create_set(atom_set&);
         void delete_set(atom_set&);
         void embody_set(atom_set&, atom_map&);
-        void modify_set(atom_set&, const float *);
+        void modify_set(atom_set&, const double *);
 
         // Undo-able / redo-able operation.
 
@@ -129,7 +129,7 @@ namespace wrl
         void do_enjoin();
         void do_embody();
         void do_debody();
-        void do_modify(const float[16]);
+        void do_modify(const double *);
 
         void undo();
         void redo();
@@ -142,8 +142,8 @@ namespace wrl
 
         // Rendering methods
 
-        GLfloat view(bool, const GLfloat *);
-        void    draw(bool, const GLfloat *);
+        double view(bool, const double *);
+        void   draw(bool, const double *);
     };
 }
 

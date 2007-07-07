@@ -129,21 +129,38 @@ dGeomID wrl::solid::get_geom(dSpaceID space)
 
 void wrl::solid::play_init()
 {
-    dBodyID body = dGeomGetBody(play_geom);
+    double M[16];
+    double I[16];
 
-    float M[16];
-    float I[16];
+    dBodyID body = dGeomGetBody(play_geom);
 
     if (body)
     {
         // Orient the geom with respect to the body.
 
+        dMatrix3 R;
+
         load_inv(I, current_M);
 
-        dGeomSetOffsetWorldRotation(play_geom, I);
-        dGeomSetOffsetWorldPosition(play_geom, current_M[12],
-                                               current_M[13],
-                                               current_M[14]);
+        R[ 0] = dReal(I[ 0]);
+        R[ 1] = dReal(I[ 1]);
+        R[ 2] = dReal(I[ 2]);
+        R[ 3] = 0;
+
+        R[ 4] = dReal(I[ 4]);
+        R[ 5] = dReal(I[ 5]);
+        R[ 6] = dReal(I[ 6]);
+        R[ 7] = 0;
+
+        R[ 8] = dReal(I[ 8]);
+        R[ 9] = dReal(I[ 9]);
+        R[10] = dReal(I[10]);
+        R[11] = 0;
+
+        dGeomSetOffsetWorldRotation(play_geom, R);
+        dGeomSetOffsetWorldPosition(play_geom, dReal(current_M[12]),
+                                               dReal(current_M[13]),
+                                               dReal(current_M[14]));
     }
 
     // Apply the current geom tranform to the unit.
@@ -160,8 +177,8 @@ void wrl::solid::play_init()
 
 void wrl::solid::play_fini()
 {
-    float M[16];
-    float I[16];
+    double M[16];
+    double I[16];
 
     // Reset the unit transform to the geom world position.
 

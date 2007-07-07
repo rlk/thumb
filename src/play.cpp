@@ -34,18 +34,18 @@ void mode::play::leave()
 
 //-----------------------------------------------------------------------------
 
-bool mode::play::timer(float dt)
+bool mode::play::timer(double dt)
 {
     world.play_step(dt);
     return true;
 }
 
-GLfloat mode::play::view(const GLfloat *planes)
+double mode::play::view(const double *planes)
 {
     return world.view(false, planes);
 }
 
-void mode::play::draw(const GLfloat *points)
+void mode::play::draw(const double *points)
 {
     world.draw(false, points);
 }

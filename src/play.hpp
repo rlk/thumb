@@ -28,10 +28,10 @@ namespace mode
         virtual void enter();
         virtual void leave();
 
-        virtual bool timer(float);
+        virtual bool timer(double);
 
-        virtual GLfloat view(const GLfloat *);
-        virtual void    draw(const GLfloat *);
+        virtual double view(const double *);
+        virtual void   draw(const double *);
     };
 }
 

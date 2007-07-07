@@ -206,7 +206,7 @@ static bool loop()
     while (SDL_GetTicks() - tock >= JIFFY)
     {
         tock += JIFFY;
-        prog->timer(JIFFY / 1000.0f);
+        prog->timer(JIFFY / 1000.0);
     }
 
     // Draw the scene.

@@ -21,38 +21,38 @@ namespace app
 {
     class view
     {
-        int   w;
-        int   h;
-        float n;
-        float f;
-        float z;
+        int    w;
+        int    h;
+        double n;
+        double f;
+        double z;
 
-        float default_M[16];
-        float current_M[16];
+        double default_M[16];
+        double current_M[16];
 
-        float factor;
-        float units;
+        double factor;
+        double units;
 
     public:
 
-        view(int, int, float, float, float);
+        view(int, int, double, double, double);
 
-        float get_n() const { return n; }
-        float get_f() const { return f; }
+        double get_n() const { return n; }
+        double get_f() const { return f; }
 
-        float get_factor() const { return factor; }
-        float get_units()  const { return units;  }
+        double get_factor() const { return factor; }
+        double get_units()  const { return units;  }
 
-        void set_factor(float d)
+        void set_factor(double d)
             { factor += d; std::cout << "factor " << factor << std::endl; }
-        void set_units (float d)
+        void set_units (double d)
             { units  += d; std::cout << "units  " << units  << std::endl; }
 
         void clr();
-        void set(const float[16]);
+        void set(const double[16]);
 
-        void turn(float, float, float);
-        void move(float, float, float);
+        void turn(double, double, double);
+        void move(double, double, double);
 
         void mult_S() const;
         void mult_P() const;
@@ -62,16 +62,16 @@ namespace app
         void mult_T() const;
         void mult_V() const;
 
-        void plane_frustum(float *) const;
-        void point_frustum(float *) const;
+        void plane_frustum(double *) const;
+        void point_frustum(double *) const;
 
-        void range(float);
+        void range(double);
 
         void draw() const;
         void push() const;
         void pop()  const;
 
-        void pick(float[3], float[3], int, int) const;
+        void pick(double *, double *, int, int) const;
     };
 }
 

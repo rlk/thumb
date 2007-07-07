@@ -145,7 +145,7 @@ void ogl::unit::set_mode(bool b)
 
 //-----------------------------------------------------------------------------
 
-void ogl::unit::transform(const GLfloat *M, const GLfloat *I)
+void ogl::unit::transform(const double *M, const double *I)
 {
     load_mat(this->M, M);
     load_mat(this->I, I);
@@ -397,14 +397,14 @@ void ogl::node::sort(GLuint *e, GLuint d)
 
 //-----------------------------------------------------------------------------
 
-void ogl::node::transform(const GLfloat *M)
+void ogl::node::transform(const double *M)
 {
     load_mat(this->M, M);
 }
 
 //-----------------------------------------------------------------------------
 
-GLfloat ogl::node::view(int id, int n, const GLfloat *V)
+double ogl::node::view(int id, int n, const double *V)
 {
     // Get the cached culler hint.
 
@@ -426,7 +426,7 @@ GLfloat ogl::node::view(int id, int n, const GLfloat *V)
     if (bit)
         return my_aabb.dist(M, V);
     else
-        return 0.0f;
+        return 0.0;
 }
 
 void ogl::node::draw(int id, bool color, bool alpha)
@@ -453,7 +453,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
 
             glPushMatrix();
             {
-                glMultMatrixf(M);
+                glMultMatrixd(M);
 
                 for (elem_i i = b; i != e; ++i) i->draw(color);
             }
@@ -611,9 +611,9 @@ void ogl::pool::prep()
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
 
-GLfloat ogl::pool::view(int id, int n, const GLfloat *V)
+double ogl::pool::view(int id, int n, const double *V)
 {
-    GLfloat max = 0;
+    double max = 0;
 
     // Test all nodes for visibility.  Find the range of the farthest node.
 

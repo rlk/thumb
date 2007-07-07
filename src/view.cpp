@@ -19,44 +19,44 @@
 
 //-----------------------------------------------------------------------------
 
-app::view::view(int w, int h, float n, float f, float z) :
-    w(w), h(h), n(n), f(f), z(z), factor(0.0f), units(4.0f)
+app::view::view(int w, int h, double n, double f, double z) :
+    w(w), h(h), n(n), f(f), z(z), factor(0), units(4)
 {
     load_idt(default_M);
     load_idt(current_M);
 
-//  move(0.0f, 0.0f, 5.0f);
+//  move(0.0, 0.0, 5.0);
 }
 
 //-----------------------------------------------------------------------------
 
-void app::view::set(const float M[16])
+void app::view::set(const double *M)
 {
-    memcpy(current_M, M, 16 * sizeof (float));
+    load_mat(current_M, M);
 }
 
 void app::view::clr()
 {
-    memcpy(current_M, default_M, 16 * sizeof (float));
+    load_mat(current_M, default_M);
 }
 
 //-----------------------------------------------------------------------------
 
 void app::view::mult_S() const
 {
-    float T[16] = {
-        0.5f, 0.0f, 0.0f, 0.0f,
-        0.0f, 0.5f, 0.0f, 0.0f,
-        0.0f, 0.0f, 0.5f, 0.0f,
-        0.5f, 0.5f, 0.5f, 1.0f,
+    double T[16] = {
+        0.5, 0.0, 0.0, 0.0,
+        0.0, 0.5, 0.0, 0.0,
+        0.0, 0.0, 0.5, 0.0,
+        0.5, 0.5, 0.5, 1.0,
     };
 
-    glMultMatrixf(T);
+    glMultMatrixd(T);
 }
 
 void app::view::mult_P() const
 {
-    float a = float(w) / float(h);
+    double a = double(w) / double(h);
 
     // Apply the perspective projection.
 
@@ -72,40 +72,40 @@ void app::view::mult_O() const
 
 void app::view::mult_M() const
 {
-    glMultMatrixf(current_M);
+    glMultMatrixd(current_M);
 }
 
 void app::view::mult_R() const
 {
-    float T[16];
+    double T[16];
 
     // Apply the current view rotation transform.
 
     T[ 0] = +current_M[ 0];
     T[ 1] = +current_M[ 4];
     T[ 2] = +current_M[ 8];
-    T[ 3] = 0.0f;
+    T[ 3] = 0;
     T[ 4] = +current_M[ 1];
     T[ 5] = +current_M[ 5];
     T[ 6] = +current_M[ 9];
-    T[ 7] = 0.0f;
+    T[ 7] = 0;
     T[ 8] = +current_M[ 2];
     T[ 9] = +current_M[ 6];
     T[10] = +current_M[10];
-    T[11] = 0.0f;
-    T[12] = 0.0f;
-    T[13] = 0.0f;
-    T[14] = 0.0f;
-    T[15] = 1.0f;
+    T[11] = 0;
+    T[12] = 0;
+    T[13] = 0;
+    T[14] = 0;
+    T[15] = 1;
 
-    glMultMatrixf(T);
+    glMultMatrixd(T);
 }
 
 void app::view::mult_T() const
 {
     // Apply the current view translation transform.
 
-    glTranslatef(-current_M[12],
+    glTranslated(-current_M[12],
                  -current_M[13],
                  -current_M[14]);
 }
@@ -118,9 +118,9 @@ void app::view::mult_V() const
 
 //-----------------------------------------------------------------------------
 
-void app::view::range(GLfloat F)
+void app::view::range(double F)
 {
-    f = std::max(F, n + 10.0f);
+    f = std::max(F, n + 10.0);
 }
 
 void app::view::draw() const
@@ -163,11 +163,11 @@ void app::view::pop() const
 
 //-----------------------------------------------------------------------------
 
-void app::view::turn(float rx, float ry, float rz)
+void app::view::turn(double rx, double ry, double rz)
 {
-    const float x = default_M[12];
-    const float y = default_M[13];
-    const float z = default_M[14];
+    const double x = default_M[12];
+    const double y = default_M[13];
+    const double z = default_M[14];
 
     Lmul_xlt_inv(default_M, x, y, z);
     Lmul_rot_mat(default_M, 0, 1, 0, ry);
@@ -177,7 +177,7 @@ void app::view::turn(float rx, float ry, float rz)
     clr();
 }
 
-void app::view::move(float dx, float dy, float dz)
+void app::view::move(double dx, double dy, double dz)
 {
     Rmul_xlt_mat(default_M, dx, dy, dz);
 
@@ -186,10 +186,10 @@ void app::view::move(float dx, float dy, float dz)
 
 //-----------------------------------------------------------------------------
 
-void app::view::plane_frustum(float *V) const
+void app::view::plane_frustum(double *V) const
 {
-    const float A = float(w) / float(h);
-    const float Z = float(z);
+    const double A = double(w) / double(h);
+    const double Z = double(z);
 
     // View plane.
 
@@ -238,15 +238,15 @@ void app::view::plane_frustum(float *V) const
     V[19] = -DOT3(V + 16, current_M + 12);
 }
 
-void app::view::point_frustum(float *V) const
+void app::view::point_frustum(double *V) const
 {
-    const float a = float(w) / float(h);
+    const double a = double(w) / double(h);
 
-    const float *P = current_M + 12;
-    const float *B = current_M +  8;
+    const double *P = current_M + 12;
+    const double *B = current_M +  8;
 
-    float R[3];
-    float U[3];
+    double R[3];
+    double U[3];
 
     R[0] = current_M[0] * a * z;
     R[1] = current_M[1] * a * z;
@@ -295,12 +295,12 @@ void app::view::point_frustum(float *V) const
 
 //-----------------------------------------------------------------------------
 
-void app::view::pick(float p[3], float v[3], int x, int y) const
+void app::view::pick(double *p, double *v, int x, int y) const
 {
     // Compute the screen-space pointer vector.
 
-    float r = +(2.0f * x / w - 1.0f) * z * w / h;
-    float u = -(2.0f * y / h - 1.0f) * z;
+    double r = +(2.0 * x / w - 1.0) * z * w / h;
+    double u = -(2.0 * y / h - 1.0) * z;
 
     // Transform the pointer to camera space and normalize.
 
@@ -312,7 +312,7 @@ void app::view::pick(float p[3], float v[3], int x, int y) const
     v[1] = current_M[1] * r + current_M[5] * u - current_M[ 9] * n;
     v[2] = current_M[2] * r + current_M[6] * u - current_M[10] * n;
 
-    float k = 1.0f / float(sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]));
+    double k = 1.0 / sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
 
     v[0] *= k;
     v[1] *= k;

@@ -25,7 +25,7 @@
 //-----------------------------------------------------------------------------
 // Matrix operations
 
-void load_idt(float M[16])
+void load_idt(double *M)
 {
     M[0] = 1; M[4] = 0; M[8] = 0; M[C] = 0;
     M[1] = 0; M[5] = 1; M[9] = 0; M[D] = 0;
@@ -33,7 +33,7 @@ void load_idt(float M[16])
     M[3] = 0; M[7] = 0; M[B] = 0; M[F] = 1;
 }
 
-void load_mat(float M[16], const float N[16])
+void load_mat(double *M, const double *N)
 {
     M[0] = N[0]; M[4] = N[4]; M[8] = N[8]; M[C] = N[C];
     M[1] = N[1]; M[5] = N[5]; M[9] = N[9]; M[D] = N[D];
@@ -41,7 +41,7 @@ void load_mat(float M[16], const float N[16])
     M[3] = N[3]; M[7] = N[7]; M[B] = N[B]; M[F] = N[F];
 }
 
-void load_xps(float M[16], const float N[16])
+void load_xps(double *M, const double *N)
 {
     M[0] = N[0]; M[4] = N[1]; M[8] = N[2]; M[C] = N[3];
     M[1] = N[4]; M[5] = N[5]; M[9] = N[6]; M[D] = N[7];
@@ -49,10 +49,10 @@ void load_xps(float M[16], const float N[16])
     M[3] = N[C]; M[7] = N[D]; M[B] = N[E]; M[F] = N[F];
 }
 
-void load_inv(float I[16], const float M[16])
+void load_inv(double *I, const double *M)
 {
-    float T[16];
-    float d;
+    double T[16];
+    double d;
 
     T[0] = +(M[5] * (M[A] * M[F] - M[B] * M[E]) -
              M[9] * (M[6] * M[F] - M[7] * M[E]) +
@@ -106,7 +106,7 @@ void load_inv(float I[16], const float M[16])
              M[4] * (M[1] * M[A] - M[2] * M[9]) +
              M[8] * (M[1] * M[6] - M[2] * M[5]));
 
-    d = 1.0f / (M[0] * T[0] + M[4] * T[4] + M[8] * T[8] + M[C] * T[C]);
+    d = 1.0 / (M[0] * T[0] + M[4] * T[4] + M[8] * T[8] + M[C] * T[C]);
 
     I[0] = T[0] * d;
     I[1] = T[4] * d;
@@ -129,7 +129,7 @@ void load_inv(float I[16], const float M[16])
 //-----------------------------------------------------------------------------
 // Matrix constructors
 
-void load_xlt_mat(float M[16], float x, float y, float z)
+void load_xlt_mat(double *M, double x, double y, double z)
 {
     M[0] = 1; M[4] = 0; M[8] = 0; M[C] = x;
     M[1] = 0; M[5] = 1; M[9] = 0; M[D] = y;
@@ -137,7 +137,7 @@ void load_xlt_mat(float M[16], float x, float y, float z)
     M[3] = 0; M[7] = 0; M[B] = 0; M[F] = 1;
 }
 
-void load_scl_mat(float M[16], float x, float y, float z)
+void load_scl_mat(double *M, double x, double y, double z)
 {
     M[0] = x; M[4] = 0; M[8] = 0; M[C] = 0;
     M[1] = 0; M[5] = y; M[9] = 0; M[D] = 0;
@@ -145,12 +145,12 @@ void load_scl_mat(float M[16], float x, float y, float z)
     M[3] = 0; M[7] = 0; M[B] = 0; M[F] = 1;
 }
 
-void load_rot_mat(float M[16], float x, float y, float z, float a)
+void load_rot_mat(double *M, double x, double y, double z, double a)
 {
-    float U[16], S[16], u[3], k = (float) sqrt(x * x + y * y + z * z);
+    double U[16], S[16], u[3], k = sqrt(x * x + y * y + z * z);
 
-    const float s = (float) sin((double) RAD(a));
-    const float c = (float) cos((double) RAD(a));
+    const double s = sin(RAD(a));
+    const double c = cos(RAD(a));
 
     u[0] = x / k;
     u[1] = y / k;
@@ -185,9 +185,9 @@ void load_rot_mat(float M[16], float x, float y, float z, float a)
 //-----------------------------------------------------------------------------
 // Projection constructors
 
-void load_persp(float P[16], float l, float r,
-                             float b, float t,
-                             float n, float f)
+void load_persp(double *P, double l, double r,
+                           double b, double t,
+                           double n, double f)
 {
     P[0] =  (2 * n) / (r - l);
     P[1] =  0;
@@ -207,9 +207,9 @@ void load_persp(float P[16], float l, float r,
     P[F] =  0;
 }
 
-void load_ortho(float P[16], float l, float r,
-                             float b, float t,
-                             float n, float f)
+void load_ortho(double *P, double l, double r,
+                           double b, double t,
+                           double n, double f)
 {
     P[0] =  2 / (r - l);
     P[1] =  0;
@@ -232,17 +232,17 @@ void load_ortho(float P[16], float l, float r,
 //-----------------------------------------------------------------------------
 // Matrix inverse constructors
 
-void load_xlt_inv(float I[16], float x, float y, float z)
+void load_xlt_inv(double *I, double x, double y, double z)
 {
     load_xlt_mat(I, -x, -y, -z);
 }
 
-void load_scl_inv(float I[16], float x, float y, float z)
+void load_scl_inv(double *I, double x, double y, double z)
 {
     load_scl_mat(I, 1 / x, 1 / y, 1 / z);
 }
 
-void load_rot_inv(float I[16], float x, float y, float z, float a)
+void load_rot_inv(double *I, double x, double y, double z, double a)
 {
     load_rot_mat(I, x, y, z, -a);
 }
@@ -250,25 +250,25 @@ void load_rot_inv(float I[16], float x, float y, float z, float a)
 //-----------------------------------------------------------------------------
 // Matrix left-composers
 
-void Lmul_xlt_mat(float M[16], float x, float y, float z)
+void Lmul_xlt_mat(double *M, double x, double y, double z)
 {
-    float T[16];
+    double T[16];
 
     load_xlt_mat(T, x, y, z);
     mult_mat_mat(M, T, M);
 }
 
-void Lmul_scl_mat(float M[16], float x, float y, float z)
+void Lmul_scl_mat(double *M, double x, double y, double z)
 {
-    float T[16];
+    double T[16];
 
     load_scl_mat(T, x, y, z);
     mult_mat_mat(M, T, M);
 }
 
-void Lmul_rot_mat(float M[16], float x, float y, float z, float a)
+void Lmul_rot_mat(double *M, double x, double y, double z, double a)
 {
-    float T[16];
+    double T[16];
 
     load_rot_mat(T, x, y, z, a);
     mult_mat_mat(M, T, M);
@@ -277,25 +277,25 @@ void Lmul_rot_mat(float M[16], float x, float y, float z, float a)
 //-----------------------------------------------------------------------------
 // Matrix inverse left-composers
 
-void Lmul_xlt_inv(float M[16], float x, float y, float z)
+void Lmul_xlt_inv(double *M, double x, double y, double z)
 {
-    float T[16];
+    double T[16];
 
     load_xlt_inv(T, x, y, z);
     mult_mat_mat(M, T, M);
 }
 
-void Lmul_scl_inv(float M[16], float x, float y, float z)
+void Lmul_scl_inv(double *M, double x, double y, double z)
 {
-    float T[16];
+    double T[16];
 
     load_scl_inv(T, x, y, z);
     mult_mat_mat(M, T, M);
 }
 
-void Lmul_rot_inv(float M[16], float x, float y, float z, float a)
+void Lmul_rot_inv(double *M, double x, double y, double z, double a)
 {
-    float T[16];
+    double T[16];
 
     load_rot_inv(T, x, y, z, a);
     mult_mat_mat(M, T, M);
@@ -304,25 +304,25 @@ void Lmul_rot_inv(float M[16], float x, float y, float z, float a)
 //-----------------------------------------------------------------------------
 // Matrix right-composers
 
-void Rmul_xlt_mat(float M[16], float x, float y, float z)
+void Rmul_xlt_mat(double *M, double x, double y, double z)
 {
-    float T[16];
+    double T[16];
 
     load_xlt_mat(T, x, y, z);
     mult_mat_mat(M, M, T);
 }
 
-void Rmul_scl_mat(float M[16], float x, float y, float z)
+void Rmul_scl_mat(double *M, double x, double y, double z)
 {
-    float T[16];
+    double T[16];
 
     load_scl_mat(T, x, y, z);
     mult_mat_mat(M, M, T);
 }
 
-void Rmul_rot_mat(float M[16], float x, float y, float z, float a)
+void Rmul_rot_mat(double *M, double x, double y, double z, double a)
 {
-    float T[16];
+    double T[16];
 
     load_rot_mat(T, x, y, z, a);
     mult_mat_mat(M, M, T);
@@ -331,25 +331,25 @@ void Rmul_rot_mat(float M[16], float x, float y, float z, float a)
 //-----------------------------------------------------------------------------
 // Matrix inverse right-composers
 
-void Rmul_xlt_inv(float M[16], float x, float y, float z)
+void Rmul_xlt_inv(double *M, double x, double y, double z)
 {
-    float T[16];
+    double T[16];
 
     load_xlt_inv(T, x, y, z);
     mult_mat_mat(M, M, T);
 }
 
-void Rmul_scl_inv(float M[16], float x, float y, float z)
+void Rmul_scl_inv(double *M, double x, double y, double z)
 {
-    float T[16];
+    double T[16];
 
     load_scl_inv(T, x, y, z);
     mult_mat_mat(M, M, T);
 }
 
-void Rmul_rot_inv(float M[16], float x, float y, float z, float a)
+void Rmul_rot_inv(double *M, double x, double y, double z, double a)
 {
-    float T[16];
+    double T[16];
 
     load_rot_inv(T, x, y, z, a);
     mult_mat_mat(M, M, T);
@@ -358,9 +358,9 @@ void Rmul_rot_inv(float M[16], float x, float y, float z, float a)
 //-----------------------------------------------------------------------------
 // Multipliers and transformers
 
-void mult_mat_mat(float M[16], const float N[16], const float O[16])
+void mult_mat_mat(double *M, const double N[16], const double O[16])
 {
-    float T[16];
+    double T[16];
 
     T[0] = N[0] * O[0] + N[4] * O[1] + N[8] * O[2] + N[C] * O[3];
     T[1] = N[1] * O[0] + N[5] * O[1] + N[9] * O[2] + N[D] * O[3];
@@ -385,14 +385,21 @@ void mult_mat_mat(float M[16], const float N[16], const float O[16])
     load_mat(M, T);
 }
 
-void mult_mat_pos(float v[3], const float M[16], const float u[3])
+void mult_mat_vec3(double *v, const double *M, const double *u)
 {
     v[0] = M[0] * u[0] + M[4] * u[1] + M[8] * u[2] + M[C];
     v[1] = M[1] * u[0] + M[5] * u[1] + M[9] * u[2] + M[D];
     v[2] = M[2] * u[0] + M[6] * u[1] + M[A] * u[2] + M[E];
 }
 
-void mult_mat_vec(float v[4], const float M[16], const float u[4])
+void mult_xps_vec3(double *v, const double *M, const double *u)
+{
+    v[0] = M[0] * u[0] + M[1] * u[1] + M[2] * u[2] + M[3];
+    v[1] = M[4] * u[0] + M[5] * u[1] + M[6] * u[2] + M[7];
+    v[2] = M[8] * u[0] + M[9] * u[1] + M[A] * u[2] + M[B];
+}
+
+void mult_mat_vec4(double *v, const double *M, const double *u)
 {
     v[0] = M[0] * u[0] + M[4] * u[1] + M[8] * u[2] + M[C] * u[3];
     v[1] = M[1] * u[0] + M[5] * u[1] + M[9] * u[2] + M[D] * u[3];
@@ -400,14 +407,7 @@ void mult_mat_vec(float v[4], const float M[16], const float u[4])
     v[3] = M[3] * u[0] + M[7] * u[1] + M[B] * u[2] + M[F] * u[3];
 }
 
-void mult_xps_pos(float v[3], const float M[16], const float u[3])
-{
-    v[0] = M[0] * u[0] + M[1] * u[1] + M[2] * u[2] + M[3];
-    v[1] = M[4] * u[0] + M[5] * u[1] + M[6] * u[2] + M[7];
-    v[2] = M[8] * u[0] + M[9] * u[1] + M[A] * u[2] + M[B];
-}
-
-void mult_xps_vec(float v[4], const float M[16], const float u[4])
+void mult_xps_vec4(double *v, const double *M, const double *u)
 {
     v[0] = M[0] * u[0] + M[1] * u[1] + M[2] * u[2] + M[3] * u[3];
     v[1] = M[4] * u[0] + M[5] * u[1] + M[6] * u[2] + M[7] * u[3];
@@ -416,71 +416,51 @@ void mult_xps_vec(float v[4], const float M[16], const float u[4])
 }
 
 //-----------------------------------------------------------------------------
-// Miscellaneous vector operations
-
-void normalize(float v[3])
-{
-    float k = (float) sqrt(DOT3(v, v));
-
-    v[0] /= k;
-    v[1] /= k;
-    v[2] /= k;
-}
-
-void cross(float u[3], const float v[3],
-                       const float w[3])
-{
-    u[0] = v[1] * w[2] - v[2] * w[1];
-    u[1] = v[2] * w[0] - v[0] * w[2];
-    u[2] = v[0] * w[1] - v[1] * w[0];
-}
-
-//-----------------------------------------------------------------------------
 // Quaternion / matrix conversions
 
-void get_quaternion(float q[4], const float M[16])
+void get_quaternion(double *q, const double *M)
 {
-    float t = 1 + M[0] + M[5] + M[10];
+    double t = 1 + M[0] + M[5] + M[10];
 
     if (t > 0.00001)
     {
-        float s = float(0.5 / sqrt(t));
+        double s = 0.5 / sqrt(t);
 
         q[0] = (M[6] - M[9]) * s;
         q[1] = (M[8] - M[2]) * s;
         q[2] = (M[1] - M[4]) * s;
-        q[3] =         0.25f / s;
+        q[3] =         0.25  / s;
     }
     else if (M[0] > M[5] && M[0] > M[10])
     {
-        float s = float(sqrt(1 + M[0] - M[5] - M[10]) * 2);
+        double s = sqrt(1 + M[0] - M[5] - M[10]) * 2;
 
-        q[0] =         0.25f * s;
+        q[0] =         0.25  * s;
         q[1] = (M[1] + M[4]) / s;
         q[2] = (M[8] + M[2]) / s;
         q[3] = (M[6] - M[9]) / s;
     }
     else if (M[5] > M[10])
     {
-        float s = float(sqrt(1 + M[5] - M[0] - M[10]) * 2);
+        double s = sqrt(1 + M[5] - M[0] - M[10]) * 2;
 
         q[0] = (M[1] + M[4]) / s;
-        q[1] =         0.25f * s;
+        q[1] =         0.25  * s;
         q[2] = (M[6] + M[9]) / s;
         q[3] = (M[8] - M[2]) / s;
     }
     else
     {
-        float s = float(sqrt(1 + M[10] - M[0] - M[5]) * 2);
+        double s = sqrt(1 + M[10] - M[0] - M[5]) * 2;
 
         q[0] = (M[8] + M[2]) / s;
         q[1] = (M[6] + M[9]) / s;
-        q[2] =         0.25f * s;
+        q[2] =         0.25  * s;
         q[3] = (M[1] - M[4]) / s;
     }
 }
 
-void set_quaternion(float M[16], const float q[4])
+void set_quaternion(double *M, const double *q)
 {
     M[ 0] = 1 - 2 * (q[1] * q[1] + q[2] * q[2]);
     M[ 1] =     2 * (q[0] * q[1] + q[2] * q[3]);
@@ -501,6 +481,41 @@ void set_quaternion(float M[16], const float q[4])
     M[13] = 0;
     M[14] = 0;
     M[15] = 1;
+}
+
+//-----------------------------------------------------------------------------
+
+// Round to the nearest integer.  Round 0.5 toward negative infinity.
+
+double nearestint(double d)
+{
+    double f = floor(d);
+    double c = ceil (d);
+
+    return (c - d < d - f) ? c : f;
+}
+
+void midpoint(double *m, const double *a, const double *b)
+{
+    double bx = cos(b[1]) * cos(b[0] - a[0]);
+    double by = cos(b[1]) * sin(b[0] - a[0]);
+
+    double dx = cos(a[1]) + bx;
+
+    m[0] = a[0] + atan2(by, dx);
+
+    m[1] = atan2(sin(a[1]) + sin(b[1]), sqrt(dx * dx + by * by));
+}
+
+double distance(const double *a, const double *b)
+{
+    double d[3];
+
+    d[0] = a[0] - b[0];
+    d[1] = a[1] - b[1];
+    d[2] = a[2] - b[2];
+
+    return sqrt(DOT3(d, d));
 }
 
 //-----------------------------------------------------------------------------

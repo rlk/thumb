@@ -79,9 +79,9 @@ void demo::goto_mode(mode::mode *next)
 
 void demo::point(int x, int y)
 {
-    float k = view_turn_rate;
-    float p[3];
-    float v[3];
+    double k = view_turn_rate;
+    double p[3];
+    double v[3];
 
     view->pick(p, v, x, y);
 
@@ -91,8 +91,8 @@ void demo::point(int x, int y)
 
         if (button[3])
         {
-            float dx = float(last_x - x) * k;
-            float dy = float(last_y - y) * k;
+            double dx = double(last_x - x) * k;
+            double dy = double(last_y - y) * k;
 
             if      (SDL_GetModState() & KMOD_CTRL)  view->turn( 0, dx, 0);
             else if (SDL_GetModState() & KMOD_SHIFT) view->turn(dy,  0, 0);
@@ -140,17 +140,17 @@ void demo::keybd(int k, bool d, int c)
         {
             if (SDL_GetModState() & KMOD_SHIFT)
             {
-                if      (k == SDLK_LEFT)  view->set_factor(-1.0f);
-                else if (k == SDLK_RIGHT) view->set_factor(+1.0f);
-                else if (k == SDLK_DOWN)  view->set_units (-1.0f);
-                else if (k == SDLK_UP)    view->set_units (+1.0f);
+                if      (k == SDLK_LEFT)  view->set_factor(-1.0);
+                else if (k == SDLK_RIGHT) view->set_factor(+1.0);
+                else if (k == SDLK_DOWN)  view->set_units (-1.0);
+                else if (k == SDLK_UP)    view->set_units (+1.0);
             }
             else
             {
-                if      (k == SDLK_LEFT)  view->set_factor(-0.1f);
-                else if (k == SDLK_RIGHT) view->set_factor(+0.1f);
-                else if (k == SDLK_DOWN)  view->set_units (-0.1f);
-                else if (k == SDLK_UP)    view->set_units (+0.1f);
+                if      (k == SDLK_LEFT)  view->set_factor(-0.1);
+                else if (k == SDLK_RIGHT) view->set_factor(+0.1);
+                else if (k == SDLK_DOWN)  view->set_units (-0.1);
+                else if (k == SDLK_UP)    view->set_units (+0.1);
             }
         }
     }
@@ -158,17 +158,17 @@ void demo::keybd(int k, bool d, int c)
     prog::keybd(k, d, c);
 }
 
-void demo::timer(float dt)
+void demo::timer(double dt)
 {
-    float k = view_move_rate * dt;
+    double k = view_move_rate * dt;
 
-    if (SDL_GetModState() & KMOD_CTRL)  k /= 4.0f;
+    if (SDL_GetModState() & KMOD_CTRL)  k /= 4.0;
 
     // Handle view motion.
 
-    view->move(float(motion[0]) * k,
-               float(motion[1]) * k,
-               float(motion[2]) * k);
+    view->move(motion[0] * k,
+               motion[1] * k,
+               motion[2] * k);
 
     curr->timer(dt);
     prog::timer(dt);
@@ -187,8 +187,8 @@ void demo::draw()
 
     glPushAttrib(GL_ENABLE_BIT);
     {
-        GLfloat planes[20];
-        GLfloat points[24];
+        double planes[20];
+        double points[24];
 
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);

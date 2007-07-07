@@ -110,17 +110,17 @@ void constraint::set_grid(int g)
         60,
         90,
     };
-    static const float d[] = {
-         0.0625f,
-         0.1250f,
-         0.2500f,
-         0.5000f,
-         1.0000f,
-         2.0000f,
-         4.0000f,
-         8.0000f,
-        16.0000f,
-        32.0000f,
+    static const double d[] = {
+         0.0625,
+         0.1250,
+         0.2500,
+         0.5000,
+         1.0000,
+         2.0000,
+         4.0000,
+         8.0000,
+        16.0000,
+        32.0000,
     };
 
     grid = g;
@@ -151,49 +151,49 @@ void constraint::set_axis(int a)
     orient();
 }
 
-void constraint::set_transform(const float A[16])
+void constraint::set_transform(const double *A)
 {
-    memcpy(M, A, 16 * sizeof (float));
+    load_mat(M, A);
     orient();
 }
 
 //-----------------------------------------------------------------------------
 
-static float snap(float f, float d)
+static double snap(double f, double d)
 {
-    float f0 = float(floor(f / d)) * d;
-    float f1 = float(ceil (f / d)) * d;
+    double f0 = floor(f / d) * d;
+    double f1 = ceil (f / d) * d;
 
     return (fabs(f0 - f) < fabs(f1 - f)) ? f0 : f1;
 }
 
-void constraint::calc_rot(float& a, float& d, const float p[3],
-                                              const float v[3]) const
+void constraint::calc_rot(double& a, double& d, const double *p,
+                                                const double *v) const
 {
-    float q[3], t = (DOT3(T + 12, T + 8) - DOT3(p, T + 8)) / DOT3(v, T + 8);
+    double q[3], t = (DOT3(T + 12, T + 8) - DOT3(p, T + 8)) / DOT3(v, T + 8);
 
     q[0] = (p[0] + v[0] * t) - T[12];
     q[1] = (p[1] + v[1] * t) - T[13];
     q[2] = (p[2] + v[2] * t) - T[14];
 
-    float aa = float(DEG(atan2(DOT3(q, T + 4), DOT3(q, T + 0))));
-    float dd = float(sqrt(DOT3(q, q)));
+    double aa = DEG(atan2(DOT3(q, T + 4), DOT3(q, T + 0)));
+    double dd = sqrt(DOT3(q, q));
 
-    a = snap(aa, float(grid_a));
-    d = snap(dd,      (grid_d));
+    a = snap(aa, double(grid_a));
+    d = snap(dd,       (grid_d));
 }
 
-void constraint::calc_pos(float& x, float& y, const float p[3],
-                                              const float v[3]) const
+void constraint::calc_pos(double& x, double& y, const double *p,
+                                                const double *v) const
 {
-    float q[3], t = (DOT3(T + 12, T + 8) - DOT3(p, T + 8)) / DOT3(v, T + 8);
+    double q[3], t = (DOT3(T + 12, T + 8) - DOT3(p, T + 8)) / DOT3(v, T + 8);
 
     q[0] = (p[0] + v[0] * t) - T[12];
     q[1] = (p[1] + v[1] * t) - T[13];
     q[2] = (p[2] + v[2] * t) - T[14];
 
-    float xx = DOT3(q, T + 0);
-    float yy = DOT3(q, T + 4);
+    double xx = DOT3(q, T + 0);
+    double yy = DOT3(q, T + 4);
 
     x = snap(xx, grid_d);
     y = snap(yy, grid_d);
@@ -201,12 +201,12 @@ void constraint::calc_pos(float& x, float& y, const float p[3],
 
 //-----------------------------------------------------------------------------
 
-bool constraint::point(float M[16], const float p[3], const float v[3])
+bool constraint::point(double *M, const double *p, const double *v)
 {
     if (mode)
     {
-        float a;
-        float d;
+        double a;
+        double d;
 
         calc_rot(a, d, p, v);
 
@@ -221,8 +221,8 @@ bool constraint::point(float M[16], const float p[3], const float v[3])
     }
     else
     {
-        float x;
-        float y;
+        double x;
+        double y;
 
         calc_pos(x, y, p, v);
 
@@ -237,7 +237,7 @@ bool constraint::point(float M[16], const float p[3], const float v[3])
     return false;
 }
 
-void constraint::click(const float p[3], const float v[3])
+void constraint::click(const double *p, const double *v)
 {
     calc_rot(mouse_a, mouse_d, p, v);
     calc_pos(mouse_x, mouse_y, p, v);
@@ -245,7 +245,7 @@ void constraint::click(const float p[3], const float v[3])
 
 //-----------------------------------------------------------------------------
 
-GLfloat constraint::view(const GLfloat *frustum)
+double constraint::view(const double *frustum)
 {
            pool->prep();
     return pool->view(0, 5, frustum);

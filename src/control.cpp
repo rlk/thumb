@@ -145,17 +145,6 @@ void cnt::new_sphere_button::apply()
     do_create(new wrl::sphere(name->value()));
 }
 
-/*
-void cnt::new_light_button::apply()
-{
-    do_create(new wrl::light);
-}
-
-void cnt::new_camera_button::apply()
-{
-    do_create(new wrl::camera);
-}
-*/
 //-----------------------------------------------------------------------------
 
 cnt::solid_panel::solid_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
@@ -172,8 +161,6 @@ cnt::solid_panel::solid_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
                 add(new new_sphere_button (W, w, E))->
 /*
                 add(new new_capsule_button(W, w, E))->
-                add(new new_light_button  (W, w))->
-                add(new new_camera_button (W, w))->
 */
                 add(new gui::filler(false, true)))->
 

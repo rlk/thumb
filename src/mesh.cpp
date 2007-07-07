@@ -132,7 +132,9 @@ void ogl::mesh::add_vert(vec3& v, vec3& n, vec2& u)
     tv.push_back(t);
     uv.push_back(u);
 
-    bound.merge(v.v);
+    bound.merge(double(v.v[0]),
+                double(v.v[1]),
+                double(v.v[2]));
 
     dirty_verts = true;
 }
@@ -163,8 +165,46 @@ void ogl::mesh::add_line(GLuint i, GLuint j)
 
 //-----------------------------------------------------------------------------
 
-void ogl::mesh::cache_verts(const ogl::mesh *that, const float *M,
-                                                   const float *I)
+static void mult_mat_GLvec3(GLfloat *v, const double *M, const GLfloat *u)
+{
+    double vv[3];
+    double uu[3];
+
+    // Transform a GL vector using a double matrix.
+
+    uu[0] = double(u[0]);
+    uu[1] = double(u[1]);
+    uu[2] = double(u[2]);
+
+    mult_mat_vec3(vv, M, uu);
+
+    v[0] = GLfloat(vv[0]);
+    v[1] = GLfloat(vv[1]);
+    v[2] = GLfloat(vv[2]);
+}
+
+static void mult_xps_GLvec3(GLfloat *v, const double *I, const GLfloat *u)
+{
+    double vv[3];
+    double uu[3];
+
+    // Transform a GL vector using a double transpose.
+
+    uu[0] = double(u[0]);
+    uu[1] = double(u[1]);
+    uu[2] = double(u[2]);
+
+    mult_xps_vec3(vv, I, uu);
+
+    v[0] = GLfloat(vv[0]);
+    v[1] = GLfloat(vv[1]);
+    v[2] = GLfloat(vv[2]);
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::mesh::cache_verts(const ogl::mesh *that, const double *M,
+                                                   const double *I)
 {
     const GLsizei n = that->vv.size();
 
@@ -179,13 +219,15 @@ void ogl::mesh::cache_verts(const ogl::mesh *that, const float *M,
 
     for (GLsizei i = 0; i < n; ++i)
     {
-        mult_mat_pos(vv[i].v, M, that->vv[i].v);
-        mult_xps_pos(nv[i].v, I, that->nv[i].v);
-        mult_xps_pos(tv[i].v, I, that->tv[i].v);
+        mult_mat_GLvec3(vv[i].v, M, that->vv[i].v);
+        mult_xps_GLvec3(nv[i].v, I, that->nv[i].v);
+        mult_xps_GLvec3(tv[i].v, I, that->tv[i].v);
 
         uv[i] = that->uv[i];
 
-        bound.merge(vv[i].v);
+        bound.merge(double(vv[i].v[0]),
+                    double(vv[i].v[1]),
+                    double(vv[i].v[2]));
     }
 
     dirty_verts = true;

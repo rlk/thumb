@@ -21,9 +21,9 @@
 wrl::joint::joint(std::string fill, std::string line) :
     atom(fill, line), join_id(0)
 {
-    edit_geom = dCreateSphere(0, 0.25f);
+    edit_geom = dCreateSphere(0, dReal(0.25));
 
-    line_scale[0] = line_scale[1] = line_scale[2] = 0.25f;
+    line_scale[0] = line_scale[1] = line_scale[2] = 0.25;
 
     dGeomSetData(edit_geom, this);
     ode_set_geom_transform(edit_geom, current_M);
@@ -186,7 +186,7 @@ void wrl::joint::play_fini()
 
 void wrl::ball::play_init()
 {
-    const float *M = current_M;
+    const double *M = current_M;
 
     // Set ball joint geometry parameters.
 
@@ -197,7 +197,7 @@ void wrl::ball::play_init()
 
 void wrl::hinge::play_init()
 {
-    const float *M = current_M;
+    const double *M = current_M;
 
     // Set hinge geometry parameters.
 
@@ -209,7 +209,7 @@ void wrl::hinge::play_init()
 
 void wrl::hinge2::play_init()
 {
-    const float *M = current_M;
+    const double *M = current_M;
 
     // Set hinge2 geometry parameters.
 
@@ -222,7 +222,7 @@ void wrl::hinge2::play_init()
 
 void wrl::slider::play_init()
 {
-    const float *M = current_M;
+    const double *M = current_M;
 
     // Set slider geometry parameters.
 
@@ -233,7 +233,7 @@ void wrl::slider::play_init()
 
 void wrl::amotor::play_init()
 {
-    const float *M = current_M;
+    const double *M = current_M;
  
     int a = dJointGetBody(play_join, 0) ? 1 : 0;
     int b = dJointGetBody(play_join, 1) ? 2 : 0;
@@ -249,7 +249,7 @@ void wrl::amotor::play_init()
 
 void wrl::universal::play_init()
 {
-    const float *M = current_M;
+    const double *M = current_M;
 
     // Set universal joint geometry parameters.
 

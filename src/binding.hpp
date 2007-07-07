@@ -41,7 +41,7 @@ namespace ogl
         binding(std::string);
        ~binding();
 
-        static void set_split(const GLfloat *);
+        static void set_split(GLfloat, GLfloat, GLfloat, GLfloat);
 
         bool opaque() const { return true; }
 

@@ -52,20 +52,20 @@ namespace mode
         bool drag;
         bool move;
 
-        float point_p[3];
-        float point_v[3];
+        double point_p[3];
+        double point_v[3];
 
     public:
 
         edit(wrl::world&);
 
-        virtual bool point(const float[3], const float[3], int, int);
+        virtual bool point(const double *, const double *, int, int);
         virtual bool click(int, bool);
         virtual bool keybd(int, bool, int);
-        virtual bool timer(float);
+        virtual bool timer(double);
 
-        virtual GLfloat view(const GLfloat *);
-        virtual void    draw(const GLfloat *);
+        virtual double view(const double *);
+        virtual void   draw(const double *);
     };
 }
 

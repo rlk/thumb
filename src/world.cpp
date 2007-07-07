@@ -113,9 +113,9 @@ void wrl::world::edit_callback(dGeomID o1, dGeomID o2)
         {
             for (int i = 0; i < n; ++i)
             {
-                if (focus_dist > float(contact[i].geom.depth))
+                if (focus_dist > double(contact[i].geom.depth))
                 {
-                    focus_dist = float(contact[i].geom.depth);
+                    focus_dist = double(contact[i].geom.depth);
                     edit_focus = O2;
                 }
             }
@@ -268,11 +268,11 @@ void wrl::world::play_init()
 
             dBodyGetMass(body, &mass);
 
-            GLfloat M[16];
+            double M[16];
 
-            load_xlt_mat(M, GLfloat(mass.c[0]),
-                            GLfloat(mass.c[1]),
-                            GLfloat(mass.c[2]));
+            load_xlt_mat(M, double(mass.c[0]),
+                            double(mass.c[1]),
+                            double(mass.c[2]));
 
             dBodySetPosition(body, +mass.c[0], +mass.c[1], +mass.c[2]);
             dMassTranslate (&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
@@ -299,7 +299,7 @@ void wrl::world::play_init()
 
 void wrl::world::play_fini()
 {
-    GLfloat I[16];
+    double I[16];
 
     // Reset all node transforms.
 
@@ -325,14 +325,14 @@ void wrl::world::play_fini()
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::edit_pick(const float p[3], const float v[3])
+void wrl::world::edit_pick(const double *p, const double *v)
 {
     // Apply the pointer position and vector to the picking ray.
 
     dGeomRaySet(edit_point, p[0], p[1], p[2], v[0], v[1], v[2]);
 }
 
-void wrl::world::edit_step(float dt)
+void wrl::world::edit_step(double dt)
 {
     focus_dist = 100;
     edit_focus =   0;
@@ -342,7 +342,7 @@ void wrl::world::edit_step(float dt)
     dSpaceCollide(edit_space, this, (dNearCallback *) ::edit_callback);
 }
 
-void wrl::world::play_step(float dt)
+void wrl::world::play_step(double dt)
 {
     // Do atom-specific physics step initialization.
 
@@ -368,7 +368,7 @@ void wrl::world::play_step(float dt)
         if (dBodyID body = b->second)
             if (ogl::node *node = (ogl::node *) dBodyGetData(body))
             {
-                float M[16];
+                double M[16];
 
                 ode_get_body_transform(body, M);
                 node->transform(M);
@@ -454,11 +454,11 @@ void wrl::world::mov_light(int dx, int dy)
 
     // Ensure the spherical coordinates remain within bounds.
 
-    if (light_P >   90.0f) light_P  =  90.0f;
-    if (light_P <    0.0f) light_P  =   0.0f;
+    if (light_P >   90) light_P  =  90;
+    if (light_P <    0) light_P  =   0;
 
-    if (light_T >  180.0f) light_T -= 360.0f;
-    if (light_T < -180.0f) light_T += 360.0f;
+    if (light_T >  180) light_T -= 360;
+    if (light_T < -180) light_T += 360;
 }
 
 void wrl::world::node_insert(int id, ogl::unit *unit)
@@ -614,7 +614,7 @@ void wrl::world::select_set(atom_set& set)
 
 void wrl::world::create_set(atom_set& set)
 {
-    GLfloat M[16];
+    double M[16];
 
     load_idt(M);
 
@@ -664,7 +664,7 @@ void wrl::world::embody_set(atom_set& set, atom_map& map)
     }
 }
 
-void wrl::world::modify_set(atom_set& set, const float *T)
+void wrl::world::modify_set(atom_set& set, const double *T)
 {
     // Apply the given transform to all given atoms.
 
@@ -737,7 +737,7 @@ void wrl::world::do_debody()
     if (!sel.empty()) doop(new ops::embody_op(sel, 0));
 }
 
-void wrl::world::do_modify(const float M[16])
+void wrl::world::do_modify(const double *M)
 {
     if (!sel.empty()) doop(new ops::modify_op(sel, M));
 }
@@ -966,23 +966,23 @@ static void line_fini()
 
 //-----------------------------------------------------------------------------
 
-void get_ortho_light(GLfloat *a,
-                     GLfloat *z,
-                     GLfloat *M,
-                     GLfloat *I,
-                     GLfloat *V, const GLfloat *light, const GLfloat *points)
+void get_ortho_light(double *a,
+                     double *z,
+                     double *M,
+                     double *I,
+                     double *V, const double *light, const double *points)
 {
     // Find the major axis of the view frustum.
 
-    GLfloat N[3], F[3], major[3];
+    double N[3], F[3], major[3];
 
-    N[0] = (points[ 0] + points[ 3] + points[ 6] + points[ 9]) / 4.0f;
-    N[1] = (points[ 1] + points[ 4] + points[ 7] + points[10]) / 4.0f;
-    N[2] = (points[ 2] + points[ 5] + points[ 8] + points[11]) / 4.0f;
+    N[0] = (points[ 0] + points[ 3] + points[ 6] + points[ 9]) * 0.25;
+    N[1] = (points[ 1] + points[ 4] + points[ 7] + points[10]) * 0.25;
+    N[2] = (points[ 2] + points[ 5] + points[ 8] + points[11]) * 0.25;
 
-    F[0] = (points[12] + points[15] + points[18] + points[21]) / 4.0f;
-    F[1] = (points[13] + points[16] + points[19] + points[22]) / 4.0f;
-    F[2] = (points[14] + points[17] + points[20] + points[23]) / 4.0f;
+    F[0] = (points[12] + points[15] + points[18] + points[21]) * 0.25;
+    F[1] = (points[13] + points[16] + points[19] + points[22]) * 0.25;
+    F[2] = (points[14] + points[17] + points[20] + points[23]) * 0.25;
 
     major[0] = F[0] - N[0];
     major[1] = F[1] - N[1];
@@ -994,24 +994,24 @@ void get_ortho_light(GLfloat *a,
 
     load_idt(I);
 
-    cross(I + 0, major, light); normalize(I + 0);
-    cross(I + 4, light, I + 0); normalize(I + 4);
-    cross(I + 8, I + 0, I + 4); normalize(I + 8);
+    crossprod(I + 0, major, light); normalize(I + 0);
+    crossprod(I + 4, light, I + 0); normalize(I + 4);
+    crossprod(I + 8, I + 0, I + 4); normalize(I + 8);
 
     load_xps(M, I);
 
     // Find the extent of the frustum in light space.
 
-    GLfloat v[24];
+    double v[24];
 
-    mult_mat_pos(v +  0, M, points +  0);
-    mult_mat_pos(v +  3, M, points +  3);
-    mult_mat_pos(v +  6, M, points +  6);
-    mult_mat_pos(v +  9, M, points +  9);
-    mult_mat_pos(v + 12, M, points + 12);
-    mult_mat_pos(v + 15, M, points + 15);
-    mult_mat_pos(v + 18, M, points + 18);
-    mult_mat_pos(v + 21, M, points + 21);
+    mult_mat_vec3(v +  0, M, points +  0);
+    mult_mat_vec3(v +  3, M, points +  3);
+    mult_mat_vec3(v +  6, M, points +  6);
+    mult_mat_vec3(v +  9, M, points +  9);
+    mult_mat_vec3(v + 12, M, points + 12);
+    mult_mat_vec3(v + 15, M, points + 15);
+    mult_mat_vec3(v + 18, M, points + 18);
+    mult_mat_vec3(v + 21, M, points + 21);
 
     a[0] = min8(v[ 0], v[ 3], v[ 6], v[ 9], v[12], v[15], v[18], v[21]);
     a[1] = min8(v[ 1], v[ 4], v[ 7], v[10], v[13], v[16], v[19], v[22]);
@@ -1023,11 +1023,11 @@ void get_ortho_light(GLfloat *a,
 
     // Compute the light source frustum planes.
 
-    GLfloat A[3];
-    GLfloat Z[3];
+    double A[3];
+    double Z[3];
 
-    mult_mat_pos(A, I, a);
-    mult_mat_pos(Z, I, z);
+    mult_mat_vec3(A, I, a);
+    mult_mat_vec3(Z, I, z);
 
     V[ 0] =  I[ 8];    // Far clipping plane (useful range of illumination)
     V[ 1] =  I[ 9];
@@ -1055,9 +1055,9 @@ void get_ortho_light(GLfloat *a,
     V[19] =  I[ 4] * Z[0] + I[ 5] * Z[1] + I[ 6] * Z[2];
 }
 
-void draw_light_init(GLfloat l, GLfloat r,
-                     GLfloat b, GLfloat t, 
-                     GLfloat n, GLfloat f, GLfloat *M)
+void draw_light_init(double l, double r,
+                     double b, double t, 
+                     double n, double f, double *M)
 {
     view->push();
 
@@ -1070,7 +1070,7 @@ void draw_light_init(GLfloat l, GLfloat r,
     }
     glMatrixMode(GL_MODELVIEW);
     {
-        glLoadMatrixf(M);
+        glLoadMatrixd(M);
     }
 
     // Set up the GL state for shadow map rendering.
@@ -1096,9 +1096,9 @@ void draw_light_fini()
 
 //-----------------------------------------------------------------------------
 
-GLfloat wrl::world::view(bool edit, const GLfloat *planes)
+double wrl::world::view(bool edit, const double *planes)
 {
-    GLfloat line_d = 0;
+    double line_d = 0;
 
     if (edit)
     {
@@ -1111,20 +1111,26 @@ GLfloat wrl::world::view(bool edit, const GLfloat *planes)
     return std::max(frust_dist, line_d);
 }
 
-void wrl::world::draw(bool edit, const GLfloat *points)
+void wrl::world::draw(bool edit, const double *points)
 {
-    GLfloat d[4], c[4], L[4], C[4] = { 1.0f, 1.0f, 0.9f, 0.0f };
+    GLfloat L[4], C[4] = { 1.0f, 1.0f, 0.9f, 0.0f };
+    double  l[4], c[4], d[4];
 
-    const GLfloat n = ::view->get_n();
-    const GLfloat f = ::view->get_f();
+    const double n = ::view->get_n();
+    const double f = ::view->get_f();
 
     const int m = 3;
 
     // Compute the light source position.
 
-    L[0] = sin(RAD(light_T)) * cos(RAD(light_P));
-    L[1] =                     sin(RAD(light_P));
-    L[2] = cos(RAD(light_T)) * cos(RAD(light_P));
+    l[0] = sin(RAD(light_T)) * cos(RAD(light_P));
+    l[1] =                     sin(RAD(light_P));
+    l[2] = cos(RAD(light_T)) * cos(RAD(light_P));
+    l[3] = 0;
+
+    L[0] = GLfloat(l[0]);
+    L[1] = GLfloat(l[1]);
+    L[2] = GLfloat(l[2]);
     L[3] = 0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
@@ -1136,7 +1142,7 @@ void wrl::world::draw(bool edit, const GLfloat *points)
 
         for (int i = 0; i <= m; ++i)
         {
-            GLfloat iom = GLfloat(i) / GLfloat(m);
+            double iom = double(i) / double(m);
 
             c[i] = (n * pow(f / n, iom) + n + (f - n) * iom) / 2;
 
@@ -1147,12 +1153,12 @@ void wrl::world::draw(bool edit, const GLfloat *points)
 
         for (int i = 0; i < m; ++i)
         {
-            GLfloat M[16], I[16], V[20], a[3], z[3];
+            double M[16], I[16], V[20], a[3], z[3];
 
-            GLfloat split[24];
+            double split[24];
 
-            GLfloat kn = (c[i + 0] - n) / (f - n);
-            GLfloat kf = (c[i + 1] - n) / (f - n);
+            double kn = (c[i + 0] - n) / (f - n);
+            double kf = (c[i + 1] - n) / (f - n);
 
             LERP(split +  0, points +  0, points + 12, kn);
             LERP(split +  3, points +  3, points + 15, kn);
@@ -1163,7 +1169,7 @@ void wrl::world::draw(bool edit, const GLfloat *points)
             LERP(split + 18, points +  6, points + 18, kf);
             LERP(split + 21, points +  9, points + 21, kf);
 
-            get_ortho_light(a, z, M, I, V, L, split);
+            get_ortho_light(a, z, M, I, V, l, split);
 
             float D = fill_pool->view(i + 1, 5, V);
 
@@ -1192,7 +1198,7 @@ void wrl::world::draw(bool edit, const GLfloat *points)
 
                 ::view->mult_S();
                 glOrtho(a[0], z[0], a[1], z[1], -a[2] - D, -a[2]);
-                glMultMatrixf(M);
+                glMultMatrixd(M);
                 ::view->mult_M();
             }
             glMatrixMode(GL_MODELVIEW);
@@ -1206,7 +1212,10 @@ void wrl::world::draw(bool edit, const GLfloat *points)
         shadow[1]->bind_depth(GL_TEXTURE3);
         shadow[2]->bind_depth(GL_TEXTURE4);
         {
-            ogl::binding::set_split(d);
+            ogl::binding::set_split(GLfloat(d[0]),
+                                    GLfloat(d[1]),
+                                    GLfloat(d[2]),
+                                    GLfloat(d[3]));
 
             // Draw the scene to the color buffer.
 
@@ -1234,36 +1243,6 @@ void wrl::world::draw(bool edit, const GLfloat *points)
         line_pool->draw_fini();
         line_fini();
     }
-/*
-    glPushAttrib(GL_ENABLE_BIT);
-    {
-        glEnable(GL_BLEND);
-
-        glColor4f(0.0f, 0.0f, 0.0f, 0.25f);
-
-        glBegin(GL_QUADS);
-        {
-            for (int i = m - 2; i >= 0; --i)
-            {
-                GLfloat split[12];
-            
-                GLfloat kf = GLfloat(i + 1) / GLfloat(m);
-
-                LERP(split +  0, points +  0, points + 12, kf);
-                LERP(split +  3, points +  3, points + 15, kf);
-                LERP(split +  6, points +  6, points + 18, kf);
-                LERP(split +  9, points +  9, points + 21, kf);
-
-                glVertex3fv(split + 0);
-                glVertex3fv(split + 3);
-                glVertex3fv(split + 6);
-                glVertex3fv(split + 9);
-            }
-        }
-        glEnd();
-    }
-    glPopAttrib();
-*/
 }
 
 //-----------------------------------------------------------------------------

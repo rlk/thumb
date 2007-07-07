@@ -37,7 +37,7 @@ void mode::info::leave()
 
 //-----------------------------------------------------------------------------
 
-bool mode::info::point(const float[3], const float[3], int x, int y)
+bool mode::info::point(const double *, const double *, int x, int y)
 {
     gui.point(x, y);
     return false;
@@ -61,17 +61,17 @@ bool mode::info::keybd(int k, bool d, int c)
 
 //-----------------------------------------------------------------------------
 
-bool mode::info::timer(float dt)
+bool mode::info::timer(double dt)
 {
     return false;
 }
 
-GLfloat mode::info::view(const GLfloat *planes)
+double mode::info::view(const double *planes)
 {
     return world.view(true, planes);
 }
 
-void mode::info::draw(const GLfloat *points)
+void mode::info::draw(const double *points)
 {
     world.draw(true, points);
     gui.draw();

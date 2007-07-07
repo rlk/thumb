@@ -166,27 +166,6 @@ namespace cnt
     };
 
     //-------------------------------------------------------------------------
-    // Special creation buttons.
-
-    class new_light_button : public create_button
-    {
-    public:
-
-        new_light_button(wrl::world& w, gui::widget *s) :
-            create_button(w, s, "Light") { }
-        void apply();
-    };
-
-    class new_camera_button : public create_button
-    {
-    public:
-
-        new_camera_button(wrl::world& w, gui::widget *s) :
-            create_button(w, s, "Camera") { }
-        void apply();
-    };
-
-    //-------------------------------------------------------------------------
     // World file buttons.
 
     class init_button : public gui::button

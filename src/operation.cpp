@@ -94,7 +94,7 @@ wrl::atom_set& ops::delete_op::redo(wrl::world *w)
 
 //-----------------------------------------------------------------------------
 
-ops::modify_op::modify_op(wrl::atom_set& S, const float M[16]) : operation(S)
+ops::modify_op::modify_op(wrl::atom_set& S, const double *M) : operation(S)
 {
     load_mat(T, M);
     load_inv(I, M);

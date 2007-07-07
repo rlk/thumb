@@ -24,27 +24,28 @@ class constraint
 {
 protected:
 
-    float M[16];
-    float T[16];
+    double M[16];
+    double T[16];
 
     ogl::unit *rot[10];
     ogl::unit *pos[10];
+
     ogl::node *node;
     ogl::pool *pool;
 
-    int   mode;
-    int   axis;
-    int   grid;
-    int   grid_a;
-    float grid_d;
+    int    mode;
+    int    axis;
+    int    grid;
+    int    grid_a;
+    double grid_d;
 
-    float mouse_x;
-    float mouse_y;
-    float mouse_a;
-    float mouse_d;
+    double mouse_x;
+    double mouse_y;
+    double mouse_a;
+    double mouse_d;
 
-    void calc_rot(float&, float&, const float[3], const float[3]) const;
-    void calc_pos(float&, float&, const float[3], const float[3]) const;
+    void calc_rot(double&, double&, const double *, const double *) const;
+    void calc_pos(double&, double&, const double *, const double *) const;
 
     void draw_rot(int) const;
     void draw_pos(int) const;
@@ -60,13 +61,13 @@ public:
     void set_axis(int);
     void set_grid(int);
 
-    void set_transform(const float[16]);
+    void set_transform(const double *);
 
-    bool point(float[16], const float[3], const float[3]);
-    void click(           const float[3], const float[3]);
+    bool point(double *, const double *, const double *);
+    void click(          const double *, const double *);
 
-    GLfloat view(const GLfloat *);
-    void    draw();
+    double view(const double *);
+    void   draw();
 };
 
 //-----------------------------------------------------------------------------

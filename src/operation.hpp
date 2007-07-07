@@ -79,12 +79,12 @@ namespace ops
 
     class modify_op : public operation
     {
-        float T[16];
-        float I[16];
+        double T[16];
+        double I[16];
 
     public:
 
-        modify_op(wrl::atom_set&, const float[16]);
+        modify_op(wrl::atom_set&, const double *);
 
         wrl::atom_set& undo(wrl::world *);
         wrl::atom_set& redo(wrl::world *);

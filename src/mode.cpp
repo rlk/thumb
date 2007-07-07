@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------
 
-bool mode::mode::point(const float[3], const float[3], int x, int y)
+bool mode::mode::point(const double *, const double *, int x, int y)
 {
     int dx = x - drag_x;
     int dy = y - drag_y;
@@ -48,19 +48,19 @@ bool mode::mode::keybd(int, bool, int)
     return false;
 }
 
-bool mode::mode::timer(float dt)
+bool mode::mode::timer(double dt)
 {
     return false;
 }
 
 //-----------------------------------------------------------------------------
 
-GLfloat mode::mode::view(const GLfloat *planes)
+double mode::mode::view(const double *planes)
 {
     return world.view(true, planes);
 }
 
-void mode::mode::draw(const GLfloat *points)
+void mode::mode::draw(const double *points)
 {
     world.draw(true, points);
 }

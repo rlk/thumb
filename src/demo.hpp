@@ -35,8 +35,8 @@ class demo : public app::prog
     int key_move_F;
     int key_move_B;
         
-    float view_move_rate;
-    float view_turn_rate;
+    double view_move_rate;
+    double view_turn_rate;
 
     // Entity state.
 
@@ -68,7 +68,7 @@ public:
     void point(int, int);
     void click(int, bool);
     void keybd(int, bool, int);
-    void timer(float);
+    void timer(double);
 
     void draw();
 };

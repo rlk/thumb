@@ -81,8 +81,8 @@ namespace ogl
 
     class unit
     {
-        GLfloat M[16];
-        GLfloat I[16];
+        double M[16];
+        double I[16];
 
         GLsizei vc;
         GLsizei ec;
@@ -107,7 +107,7 @@ namespace ogl
         void set_node(node_p);
         void set_mode(bool);
 
-        void transform(const GLfloat *, const GLfloat *);
+        void transform(const double *, const double *);
 
         void merge_batch(mesh_m&);
         void merge_bound(aabb&);
@@ -123,7 +123,7 @@ namespace ogl
 
     class node
     {
-        GLfloat M[16];
+        double M[16];
 
         GLsizei vc;
         GLsizei ec;
@@ -160,13 +160,13 @@ namespace ogl
         void buff(GLfloat *, GLfloat *, GLfloat *, GLfloat *, bool);
         void sort(GLuint  *, GLuint);
 
-        GLfloat view(int, int, const GLfloat *);
-        void    draw(int, bool, bool);
+        double view(int, int, const double *);
+        void   draw(int, bool, bool);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
 
-        void transform(const GLfloat *);
+        void transform(const double *);
     };
 
     //-------------------------------------------------------------------------
@@ -201,8 +201,8 @@ namespace ogl
         void add_node(node_p);
         void rem_node(node_p);
 
-        GLfloat view(int, int, const GLfloat *);
-        void    prep();
+        double view(int, int, const double *);
+        void   prep();
 
         void draw_init();
         void draw(int, bool, bool);

@@ -121,7 +121,7 @@ namespace ogl
         
         // Cache modifiers
 
-        void cache_verts(const mesh *, const GLfloat *, const GLfloat *);
+        void cache_verts(const mesh *, const double *, const double *);
         void cache_faces(const mesh *, GLuint);
         void cache_lines(const mesh *, GLuint);
 

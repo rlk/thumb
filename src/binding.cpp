@@ -41,12 +41,12 @@ ogl::binding::~binding()
 
 //-----------------------------------------------------------------------------
 
-void ogl::binding::set_split(const GLfloat *s)
+void ogl::binding::set_split(GLfloat a, GLfloat b, GLfloat c, GLfloat d)
 {
-    split[0] = s[0];
-    split[1] = s[1];
-    split[2] = s[2];
-    split[3] = s[3];
+    split[0] = a;
+    split[1] = b;
+    split[2] = c;
+    split[3] = d; 
 }
 
 //-----------------------------------------------------------------------------

@@ -16,15 +16,15 @@
 /*---------------------------------------------------------------------------*/
 
 #ifndef PI
-#define PI 3.14159265f
+#define PI 3.14159265358979323846
 #endif
 
 #ifndef DEG
-#define DEG(r) (180.0f * (r) / PI)
+#define DEG(r) (180.0 * (r) / PI)
 #endif
 
 #ifndef RAD
-#define RAD(d) (PI * (d) / 180.0f)
+#define RAD(d) (PI * (d) / 180.0)
 #endif
 
 /*---------------------------------------------------------------------------*/
@@ -40,71 +40,95 @@
 /*---------------------------------------------------------------------------*/
 
 #define LERP(a, b, c, k) { \
-    (a)[0] = ((b)[0] * (1.0f - (k)) + (c)[0] * (k)); \
-    (a)[1] = ((b)[1] * (1.0f - (k)) + (c)[1] * (k)); \
-    (a)[2] = ((b)[2] * (1.0f - (k)) + (c)[2] * (k)); \
+    (a)[0] = ((b)[0] * (1.0 - (k)) + (c)[0] * (k)); \
+    (a)[1] = ((b)[1] * (1.0 - (k)) + (c)[1] * (k)); \
+    (a)[2] = ((b)[2] * (1.0 - (k)) + (c)[2] * (k)); \
 }
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
-void load_idt(float[16]);
+void load_idt(double *);
 
-void load_mat(float[16], const float[16]);
-void load_xps(float[16], const float[16]);
-void load_inv(float[16], const float[16]);
+void load_mat(double *, const double *);
+void load_xps(double *, const double *);
+void load_inv(double *, const double *);
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
-void load_xlt_mat(float[16], float, float, float);
-void load_scl_mat(float[16], float, float, float);
-void load_rot_mat(float[16], float, float, float, float);
+void load_xlt_mat(double *, double, double, double);
+void load_scl_mat(double *, double, double, double);
+void load_rot_mat(double *, double, double, double, double);
 
-void load_xlt_inv(float[16], float, float, float);
-void load_scl_inv(float[16], float, float, float);
-void load_rot_inv(float[16], float, float, float, float);
+void load_xlt_inv(double *, double, double, double);
+void load_scl_inv(double *, double, double, double);
+void load_rot_inv(double *, double, double, double, double);
 
-void load_persp(float[16], float, float, float, float, float, float);
-void load_ortho(float[16], float, float, float, float, float, float);
+void load_persp(double *, double, double, double, double, double, double);
+void load_ortho(double *, double, double, double, double, double, double);
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
-void Lmul_xlt_mat(float[16], float, float, float);
-void Lmul_scl_mat(float[16], float, float, float);
-void Lmul_rot_mat(float[16], float, float, float, float);
+void Lmul_xlt_mat(double *, double, double, double);
+void Lmul_scl_mat(double *, double, double, double);
+void Lmul_rot_mat(double *, double, double, double, double);
 
-void Lmul_xlt_inv(float[16], float, float, float);
-void Lmul_scl_inv(float[16], float, float, float);
-void Lmul_rot_inv(float[16], float, float, float, float);
+void Lmul_xlt_inv(double *, double, double, double);
+void Lmul_scl_inv(double *, double, double, double);
+void Lmul_rot_inv(double *, double, double, double, double);
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
-void Rmul_xlt_mat(float[16], float, float, float);
-void Rmul_scl_mat(float[16], float, float, float);
-void Rmul_rot_mat(float[16], float, float, float, float);
+void Rmul_xlt_mat(double *, double, double, double);
+void Rmul_scl_mat(double *, double, double, double);
+void Rmul_rot_mat(double *, double, double, double, double);
 
-void Rmul_xlt_inv(float[16], float, float, float);
-void Rmul_scl_inv(float[16], float, float, float);
-void Rmul_rot_inv(float[16], float, float, float, float);
+void Rmul_xlt_inv(double *, double, double, double);
+void Rmul_scl_inv(double *, double, double, double);
+void Rmul_rot_inv(double *, double, double, double, double);
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
 
-void mult_mat_mat(float[16], const float[16], const float[16]);
-void mult_mat_pos(float[3],  const float[16], const float[3]);
-void mult_mat_vec(float[4],  const float[16], const float[4]);
-void mult_xps_pos(float[3],  const float[16], const float[3]);
-void mult_xps_vec(float[4],  const float[16], const float[4]);
+void mult_mat_mat(double *, const double *, const double *);
 
-/*---------------------------------------------------------------------------*/
+void mult_mat_vec3(double *, const double *, const double *);
+void mult_xps_vec3(double *, const double *, const double *);
+void mult_mat_vec4(double *, const double *, const double *);
+void mult_xps_vec4(double *, const double *, const double *);
 
-void normalize(float[3]);
+//-----------------------------------------------------------------------------
 
-void cross(float[3], const float[3], const float[3]);
+#define normalize(v) {                          \
+    double k = 1.0 / sqrt(DOT3((v), (v)));      \
+    (v)[0] *= k;                                \
+    (v)[1] *= k;                                \
+    (v)[2] *= k;                                \
+}
 
-/*---------------------------------------------------------------------------*/
+#define bisection(u, v, w) {                    \
+    (u)[0] = (v)[0] + (w)[0];                   \
+    (u)[1] = (v)[1] + (w)[1];                   \
+    (u)[2] = (v)[2] + (w)[2];                   \
+    normalize(u);                               \
+}
 
-void get_quaternion(float [4], const float [16]);
-void set_quaternion(float [16], const float [4]);
+#define crossprod(u, v, w) {                    \
+    (u)[0] = (v)[1] * (w)[2] - (v)[2] * (w)[1]; \
+    (u)[1] = (v)[2] * (w)[0] - (v)[0] * (w)[2]; \
+    (u)[2] = (v)[0] * (w)[1] - (v)[1] * (w)[0]; \
+}
 
-/*---------------------------------------------------------------------------*/
+//-----------------------------------------------------------------------------
+
+void get_quaternion(double *, const double *);
+void set_quaternion(double *, const double *);
+
+//-----------------------------------------------------------------------------
+
+double nearestint(double);  // TODO: This doesn't belong here.
+
+void   midpoint(double *, const double *, const double *);
+double distance(          const double *, const double *);
+
+//-----------------------------------------------------------------------------
 
 #endif

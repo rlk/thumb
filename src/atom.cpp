@@ -26,7 +26,7 @@ wrl::atom::atom(std::string fill_name,
     load_idt(default_M);
     load_idt(current_M);
 
-    line_scale[0] = line_scale[1] = line_scale[2] = 1.0f;
+    line_scale[0] = line_scale[1] = line_scale[2] = 1.0;
 
     if (fill_name.size()) fill = new ogl::unit(fill_name);
     if (line_name.size()) line = new ogl::unit(line_name);
@@ -94,40 +94,40 @@ void wrl::atom::mult_M() const
 {
     // Apply the current transform as model matrix.
 
-    glMultMatrixf(current_M);
+    glMultMatrixd(current_M);
 }
 
 void wrl::atom::mult_R() const
 {
-    float M[16];
+    double M[16];
 
     // Apply the current view rotation transform.
 
     M[ 0] = +current_M[ 0];
     M[ 1] = +current_M[ 4];
     M[ 2] = +current_M[ 8];
-    M[ 3] = 0.0f;
+    M[ 3] = 0;
     M[ 4] = +current_M[ 1];
     M[ 5] = +current_M[ 5];
     M[ 6] = +current_M[ 9];
-    M[ 7] = 0.0f;
+    M[ 7] = 0;
     M[ 8] = +current_M[ 2];
     M[ 9] = +current_M[ 6];
     M[10] = +current_M[10];
-    M[11] = 0.0f;
-    M[12] = 0.0f;
-    M[13] = 0.0f;
-    M[14] = 0.0f;
-    M[15] = 1.0f;
+    M[11] = 0;
+    M[12] = 0;
+    M[13] = 0;
+    M[14] = 0;
+    M[15] = 1;
 
-    glMultMatrixf(M);
+    glMultMatrixd(M);
 }
 
 void wrl::atom::mult_T() const
 {
     // Apply the current view translation transform.
 
-    glTranslatef(-current_M[12],
+    glTranslated(-current_M[12],
                  -current_M[13],
                  -current_M[14]);
 }
@@ -165,12 +165,12 @@ void wrl::atom::get_surface(dSurfaceParameters& s)
 
 //-----------------------------------------------------------------------------
 
-void wrl::atom::transform(const float *T)
+void wrl::atom::transform(const double *T)
 {
     // Apply the given transformation to the current.
 
-    float M[16];
-    float I[16];
+    double M[16];
+    double I[16];
 
     mult_mat_mat(M, T, current_M);
 
@@ -193,7 +193,7 @@ void wrl::atom::transform(const float *T)
     }
 }
 
-void wrl::atom::get_world(float M[16]) const
+void wrl::atom::get_world(double *M) const
 {
     // Return the world-aligned coordinate system centered on this atom.
 
@@ -204,7 +204,7 @@ void wrl::atom::get_world(float M[16]) const
     M[14] = current_M[14];
 }
 
-void wrl::atom::get_local(float M[16]) const
+void wrl::atom::get_local(double *M) const
 {
     // Return the local-aligned coordinate system centered on this atom.
 
@@ -239,10 +239,10 @@ void wrl::atom::load(mxml_node_t *node)
 {
     mxml_node_t *n;
 
-    load_idt(current_M);
+    double p[3] = { 0, 0, 0    };
+    double q[4] = { 0, 0, 0, 1 };
 
-    float p[3] = { 0, 0, 0    };
-    float q[4] = { 0, 0, 0, 1 };
+    load_idt(current_M);
 
     // Initialize the transform and body mappings.
 
@@ -251,14 +251,14 @@ void wrl::atom::load(mxml_node_t *node)
     {
         std::string name(n->value.element.name);
 
-        if      (name == "rot_x") q[0] = float(n->child->value.real);
-        else if (name == "rot_y") q[1] = float(n->child->value.real);
-        else if (name == "rot_z") q[2] = float(n->child->value.real);
-        else if (name == "rot_w") q[3] = float(n->child->value.real);
+        if      (name == "rot_x") q[0] = n->child->value.real;
+        else if (name == "rot_y") q[1] = n->child->value.real;
+        else if (name == "rot_z") q[2] = n->child->value.real;
+        else if (name == "rot_w") q[3] = n->child->value.real;
 
-        else if (name == "pos_x") p[0] = float(n->child->value.real);
-        else if (name == "pos_y") p[1] = float(n->child->value.real);
-        else if (name == "pos_z") p[2] = float(n->child->value.real);
+        else if (name == "pos_x") p[0] = n->child->value.real;
+        else if (name == "pos_y") p[1] = n->child->value.real;
+        else if (name == "pos_z") p[2] = n->child->value.real;
 
         else if (name == "body") body_id = n->child->value.integer;
     }
@@ -283,7 +283,7 @@ void wrl::atom::load(mxml_node_t *node)
 
 mxml_node_t *wrl::atom::save(mxml_node_t *node)
 {
-    float q[4];
+    double q[4];
 
     // Add the entity transform to this element.
 

@@ -31,7 +31,7 @@ namespace app
 
         prog();
 
-        virtual void timer(float)     { }
+        virtual void timer(double)    { }
         virtual void point(int, int)  { }
         virtual void click(int, bool) { }
         virtual void keybd(int, bool, int);

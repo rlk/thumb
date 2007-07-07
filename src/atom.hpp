@@ -41,14 +41,14 @@ namespace wrl
         ogl::unit  *fill;
         ogl::unit  *line;
 
-        float line_scale[3];
+        double line_scale[3];
 
         param_map params;
 
         // Transform handlers
 
-        float default_M[16];
-        float current_M[16];
+        double default_M[16];
+        double current_M[16];
 
         virtual void mult_M() const;
         virtual void mult_R() const;
@@ -70,9 +70,9 @@ namespace wrl
 
         void get_surface(dSurfaceParameters&);
 
-        void get_world(float[16]) const;
-        void get_local(float[16]) const;
-        void transform(const float *);
+        void get_world(double *) const;
+        void get_local(double *) const;
+        void transform(const double *);
 
         ogl::unit *get_fill() { return fill; }
         ogl::unit *get_line() { return line; }

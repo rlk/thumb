@@ -21,22 +21,22 @@ namespace ogl
 {
     class aabb
     {
-        GLfloat a[3];
-        GLfloat z[3];
+        double a[3];
+        double z[3];
 
     public:
 
         aabb();
 
-        void merge(const GLfloat *);
+        void merge(double, double, double);
         void merge(const aabb&);
 
-        GLfloat dist(const GLfloat *,
-                     const GLfloat *);
-        bool    test(const GLfloat *, int, 
-                     const GLfloat *, int&);
+        double dist(const double *,
+                    const double *);
+        bool   test(const double *, int, 
+                    const double *, int&);
 
-        GLfloat length(int i) const { return z[i] - a[i]; }
+        double length(int i) const { return z[i] - a[i]; }
     };
 }
 

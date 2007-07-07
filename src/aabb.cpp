@@ -17,24 +17,24 @@
 
 ogl::aabb::aabb()
 {
-    a[0] = +std::numeric_limits<GLfloat>::max();
-    a[1] = +std::numeric_limits<GLfloat>::max();
-    a[2] = +std::numeric_limits<GLfloat>::max();
+    a[0] = +std::numeric_limits<double>::max();
+    a[1] = +std::numeric_limits<double>::max();
+    a[2] = +std::numeric_limits<double>::max();
 
-    z[0] = -std::numeric_limits<GLfloat>::max();
-    z[1] = -std::numeric_limits<GLfloat>::max();
-    z[2] = -std::numeric_limits<GLfloat>::max();
+    z[0] = -std::numeric_limits<double>::max();
+    z[1] = -std::numeric_limits<double>::max();
+    z[2] = -std::numeric_limits<double>::max();
 }
 
-void ogl::aabb::merge(const GLfloat *p)
+void ogl::aabb::merge(double px, double py, double pz)
 {
-    a[0] = std::min(a[0], p[0]);
-    a[1] = std::min(a[1], p[1]);
-    a[2] = std::min(a[2], p[2]);
+    a[0] = std::min(a[0], px);
+    a[1] = std::min(a[1], py);
+    a[2] = std::min(a[2], pz);
 
-    z[0] = std::max(z[0], p[0]);
-    z[1] = std::max(z[1], p[1]);
-    z[2] = std::max(z[2], p[2]);
+    z[0] = std::max(z[0], px);
+    z[1] = std::max(z[1], py);
+    z[2] = std::max(z[2], pz);
 }
 
 void ogl::aabb::merge(const aabb& that)
@@ -48,13 +48,13 @@ void ogl::aabb::merge(const aabb& that)
     z[2] = std::max(z[2], that.z[2]);
 }
 
-GLfloat ogl::aabb::dist(const GLfloat *M, const GLfloat *V)
+double ogl::aabb::dist(const double *M, const double *V)
 {
-    GLfloat P[4];
+    double P[4];
 
     // Transform the clipping plane into the bounding box's local space.
 
-    mult_xps_vec(P, M, V);
+    mult_xps_vec4(P, M, V);
 
     // Find the corner most positive w.r.t the plane.  Return distance.
 
@@ -82,8 +82,8 @@ GLfloat ogl::aabb::dist(const GLfloat *M, const GLfloat *V)
                 return a[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
 }
 
-bool ogl::aabb::test(const GLfloat *M, int  n,
-                     const GLfloat *V, int &hint)
+bool ogl::aabb::test(const double *M, int  n,
+                     const double *V, int &hint)
 {
     // Use the hint to check the likely cull plane.
 
