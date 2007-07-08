@@ -25,8 +25,8 @@ namespace uni
         geodat *D;
         sphere *S[3];
 
-        ogl::texture *color;
-        ogl::texture *terra;
+        const ogl::texture *color;
+        const ogl::texture *terra;
 
     public:
 

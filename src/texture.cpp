@@ -113,9 +113,10 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
             glBindTexture(target, object);
 
+/* TODO: GENERATE_MIPMAP + TexSubImage is SLOW
             if (target == GL_TEXTURE_2D)
                 glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-
+*/
             glTexImage2D(target, 0, format, w, h, 0,
                          format, GL_UNSIGNED_BYTE, 0);
 
@@ -148,7 +149,8 @@ void ogl::texture::load_img(std::string name)
     if (target == GL_TEXTURE_2D)
     {
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+//      glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
     }
     else
     {

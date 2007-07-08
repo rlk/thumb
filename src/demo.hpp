@@ -16,6 +16,7 @@
 #include <set>
 
 #include "opengl.hpp"
+#include "universe.hpp"
 #include "world.hpp"
 #include "mode.hpp"
 #include "prog.hpp"
@@ -40,7 +41,8 @@ class demo : public app::prog
 
     // Entity state.
 
-    wrl::world world;
+    uni::universe universe;
+    wrl::world    world;
 
     // Editor mode.
 

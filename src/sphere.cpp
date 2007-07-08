@@ -25,8 +25,8 @@
 //=============================================================================
 
 uni::sphere::sphere(uni::geodat& dat,
-                    ogl::texture *color,
-                    ogl::texture *terra,
+                    const ogl::texture *color,
+                    const ogl::texture *terra,
                     double r0,
                     double r1, double bias, GLsizei cache) :
 
@@ -132,8 +132,8 @@ void uni::sphere::transform(double *M, double *I)
 
     // Compose the object-to-camera transformation.
 
-    ::view->get(M);
-    load_inv(I, M);
+    ::view->get(I);
+    load_inv(M, I);
 
     Rmul_xlt_mat(M, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(M, M, A);              // Planet tilt
@@ -150,7 +150,7 @@ void uni::sphere::transform(double *M, double *I)
 
 void uni::sphere::view()
 {
-    if (true) // HACK (visible = cam->test(p, r1)))
+    if ((visible = true)) // HACK (visible = cam->test(p, r1)))
     {
         double o[ 3] = { 0, 0, 0 };
         double O[20];

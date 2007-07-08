@@ -24,7 +24,7 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo() : world()
+demo::demo()
 {
     edit = new mode::edit(world);
     play = new mode::play(world);
@@ -194,6 +194,8 @@ void demo::draw()
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
+
+        universe.draw();
 
         // Compute the view frusta.
 

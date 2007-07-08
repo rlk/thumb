@@ -80,9 +80,9 @@ namespace uni
 
     public:
     
-        sphere(geodat&, ogl::texture *,
-                        ogl::texture *, double, double, double=15,
-                                                       GLsizei=1024);
+        sphere(geodat&, const ogl::texture *,
+                        const ogl::texture *, double, double, double=15,
+                                                             GLsizei=1024);
        ~sphere();
 
         void turn(double=0);
