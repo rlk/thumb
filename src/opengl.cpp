@@ -64,6 +64,7 @@ PFNGLUNIFORM1FARBPROC                glUniform1fARB;
 PFNGLUNIFORM2FARBPROC                glUniform2fARB;
 PFNGLUNIFORM3FARBPROC                glUniform3fARB;
 PFNGLUNIFORM4FARBPROC                glUniform4fARB;
+PFNGLUNIFORMMATRIX4FVARBPROC         glUniformMatrix4fvARB;
 
 // GL_ARB_vertex_shader
 
@@ -195,6 +196,7 @@ void ogl::init()
         PROC(PFNGLUNIFORM2FARBPROC,              glUniform2fARB);
         PROC(PFNGLUNIFORM3FARBPROC,              glUniform3fARB);
         PROC(PFNGLUNIFORM4FARBPROC,              glUniform4fARB);
+        PROC(PFNGLUNIFORMMATRIX4FVARBPROC,       glUniformMatrix4fvARB);
     }
     catch (std::runtime_error& e) { has_shader = false; }
         

@@ -35,6 +35,11 @@ void app::view::set(const double *M)
     load_mat(current_M, M);
 }
 
+void app::view::get(double *M)
+{
+    load_mat(M, current_M);
+}
+
 void app::view::clr()
 {
     load_mat(current_M, default_M);
@@ -186,6 +191,54 @@ void app::view::move(double dx, double dy, double dz)
 
 //-----------------------------------------------------------------------------
 
+void app::view::world_frustum(double *V) const
+{
+    const double A = double(w) / double(h);
+    const double Z = double(z);
+
+    // View plane.
+
+    V[ 0] =  0;
+    V[ 1] =  0;
+    V[ 2] = -1;
+    V[ 3] =  0;
+
+    // Left plane.
+
+    V[ 4] =  1;
+    V[ 5] =  0;
+    V[ 6] = -Z * A;
+    V[ 7] =  0;
+
+    // Right plane.
+
+    V[ 8] = -1;
+    V[ 9] =  0;
+    V[10] = -Z * A;
+    V[11] =  0;
+
+    // Bottom plane.
+
+    V[12] =  0;
+    V[13] =  1;
+    V[14] = -Z;
+    V[15] =  0;
+
+    // Top plane.
+
+    V[16] =  0;
+    V[17] = -1;
+    V[18] = -Z;
+    V[19] =  0;
+
+    // Normalize all plane vectors.
+
+    normalize(V +  0);
+    normalize(V +  4);
+    normalize(V +  8);
+    normalize(V + 12);
+}
+
 void app::view::plane_frustum(double *V) const
 {
     const double A = double(w) / double(h);
@@ -317,6 +370,11 @@ void app::view::pick(double *p, double *v, int x, int y) const
     v[0] *= k;
     v[1] *= k;
     v[2] *= k;
+}
+
+double app::view::dist(double *p) const
+{
+    return distance(p, current_M + 12);
 }
 
 //-----------------------------------------------------------------------------

@@ -195,4 +195,34 @@ void ogl::program::uniform(std::string name, float a, float b,
     OGLCK();
 }
 
+void ogl::program::uniform(std::string name, const double *M) const
+{
+    int loc;
+
+    if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
+    {
+        GLfloat T[16];
+
+        T[ 0] = GLfloat(M[ 0]);
+        T[ 1] = GLfloat(M[ 1]);
+        T[ 2] = GLfloat(M[ 2]);
+        T[ 3] = GLfloat(M[ 3]);
+        T[ 4] = GLfloat(M[ 4]);
+        T[ 5] = GLfloat(M[ 5]);
+        T[ 6] = GLfloat(M[ 6]);
+        T[ 7] = GLfloat(M[ 7]);
+        T[ 8] = GLfloat(M[ 8]);
+        T[ 9] = GLfloat(M[ 9]);
+        T[10] = GLfloat(M[10]);
+        T[11] = GLfloat(M[11]);
+        T[12] = GLfloat(M[12]);
+        T[13] = GLfloat(M[13]);
+        T[14] = GLfloat(M[14]);
+        T[15] = GLfloat(M[15]);
+
+        glUniformMatrix4fvARB(loc, 1, GL_TRUE, T);
+    }
+    OGLCK();
+}
+
 //-----------------------------------------------------------------------------

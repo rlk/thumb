@@ -62,7 +62,7 @@ void ogl::frame::free_depth(GLenum unit) const
 
 //-----------------------------------------------------------------------------
 
-void ogl::frame::bind() const
+void ogl::frame::bind(bool proj) const
 {
     // Store the current viewport state.
 
@@ -72,15 +72,37 @@ void ogl::frame::bind() const
 
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer);
 
-    // HACK!
-//  glViewport(1, 1, w - 1, h - 1);
     glViewport(0, 0, w, h);
 
+    // Set up a one-to-one model-view-projection transformation, if requested.
+
+    if (proj)
+    {
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0, w, 0, h, 0, 1);
+
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+    }
     OGLCK();
 }
 
-void ogl::frame::free() const
+void ogl::frame::free(bool proj) const
 {
+    // Restore the previous transformation, if requested.
+
+    if (proj)
+    {
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+    }
+
     // Restore the previous viewport and bind the default frame buffer.
 
     glPopAttrib();

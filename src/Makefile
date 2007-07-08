@@ -15,6 +15,12 @@ OBJS=   opengl.o \
 	aabb.o \
 	obj.o \
 	matrix.o \
+	lut.o \
+	patch.o \
+	buffer.o \
+        geogen.o \
+	sphere.o \
+	universe.o \
 	atom.o \
 	world.o \
 	solid.o \

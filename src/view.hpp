@@ -49,7 +49,8 @@ namespace app
             { units  += d; std::cout << "units  " << units  << std::endl; }
 
         void clr();
-        void set(const double[16]);
+        void set(const double *);
+        void get(      double *);
 
         void turn(double, double, double);
         void move(double, double, double);
@@ -62,6 +63,7 @@ namespace app
         void mult_T() const;
         void mult_V() const;
 
+        void world_frustum(double *) const;
         void plane_frustum(double *) const;
         void point_frustum(double *) const;
 
@@ -71,7 +73,8 @@ namespace app
         void push() const;
         void pop()  const;
 
-        void pick(double *, double *, int, int) const;
+        void   pick(double *, double *, int, int) const;
+        double dist(double *)                     const;
     };
 }
 

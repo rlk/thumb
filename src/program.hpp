@@ -51,6 +51,7 @@ namespace ogl
         void uniform(std::string, float, float)               const;
         void uniform(std::string, float, float, float)        const;
         void uniform(std::string, float, float, float, float) const;
+        void uniform(std::string, const double *)             const;
     };
 }
 

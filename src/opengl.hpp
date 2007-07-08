@@ -65,6 +65,7 @@ extern PFNGLUNIFORM1FARBPROC                glUniform1fARB;
 extern PFNGLUNIFORM2FARBPROC                glUniform2fARB;
 extern PFNGLUNIFORM3FARBPROC                glUniform3fARB;
 extern PFNGLUNIFORM4FARBPROC                glUniform4fARB;
+extern PFNGLUNIFORMMATRIX4FVARBPROC         glUniformMatrix4fvARB;
 
 // GL_ARB_vertex_shader
 
