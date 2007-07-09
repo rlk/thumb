@@ -79,12 +79,12 @@ void uni::universe::draw()
 
         glPushMatrix();
         {
-            double N;
-            double F;
+            double n;
+            double f;
 
-            S[i]->getz(N, F);
+            S[i]->getz(n, f);
 
-            ::view->range(F);
+            ::view->range(n, f);
 
             glMatrixMode(GL_PROJECTION);
             {
@@ -100,6 +100,11 @@ void uni::universe::draw()
         }
         glPopMatrix();
     }
+}
+
+double uni::universe::rate() const
+{
+    return S[0] ? S[0]->altitude() : 1.0;
 }
 
 //-----------------------------------------------------------------------------

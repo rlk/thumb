@@ -34,6 +34,8 @@ namespace uni
        ~universe();
 
         void draw();
+
+        double rate() const;
     };
 }
 

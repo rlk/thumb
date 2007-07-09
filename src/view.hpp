@@ -30,9 +30,6 @@ namespace app
         double default_M[16];
         double current_M[16];
 
-        double factor;
-        double units;
-
     public:
 
         view(int, int, double, double, double);
@@ -40,20 +37,13 @@ namespace app
         double get_n() const { return n; }
         double get_f() const { return f; }
 
-        double get_factor() const { return factor; }
-        double get_units()  const { return units;  }
-
-        void set_factor(double d)
-            { factor += d; std::cout << "factor " << factor << std::endl; }
-        void set_units (double d)
-            { units  += d; std::cout << "units  " << units  << std::endl; }
-
         void clr();
         void set(const double *);
         void get(      double *);
 
         void turn(double, double, double);
         void move(double, double, double);
+        void zoom(double);
 
         void mult_S() const;
         void mult_P() const;
@@ -67,7 +57,7 @@ namespace app
         void plane_frustum(double *) const;
         void point_frustum(double *) const;
 
-        void range(double);
+        void range(double, double);
 
         void draw() const;
         void push() const;

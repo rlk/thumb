@@ -387,7 +387,7 @@ void uni::sphere::draw()
 {
     if (count)
     {
-        glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT);
+        glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
         {
             glEnable(GL_COLOR_MATERIAL);
             glEnable(GL_DEPTH_TEST);
@@ -414,6 +414,7 @@ void uni::sphere::draw()
 
                         glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
                         glEnable(GL_BLEND);
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
                     }
 
                     if (true) // wire
@@ -501,23 +502,6 @@ void uni::sphere::xfrm()
 
 void uni::sphere::getz(double& N, double &F)
 {
-/*
-    const GLfloat *p = ext.rmap();
-
-    N = std::numeric_limits<double>::max();
-    F = std::numeric_limits<double>::min();
-
-    for (int i = 0; i < count; ++i)
-    {
-        double a = double(p[4 * i + 0]);
-        double z = double(p[4 * i + 1]);
-
-        if (a > 0) N = std::min(N, a);
-        F = std::max(F, z);
-    }
-
-    ext.umap();
-*/
     N = z0;
     F = z1;
 }

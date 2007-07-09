@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <SDL.h>
+
 #include "opengl.hpp"
 #include "mode.hpp"
 
@@ -23,7 +25,7 @@ bool mode::mode::point(const double *, const double *, int x, int y)
     drag_x = x;
     drag_y = y;
 
-    if (drag_d)
+    if (drag_d && (SDL_GetModState() & KMOD_ALT))
     {
         world.mov_light(dx, dy);
         return true;
@@ -34,7 +36,7 @@ bool mode::mode::point(const double *, const double *, int x, int y)
 
 bool mode::mode::click(int b, bool d)
 {
-    if (b == 2)
+    if (b == 3)
     {
         drag_d = d;
         return true;

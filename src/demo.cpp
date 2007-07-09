@@ -89,15 +89,21 @@ void demo::point(int x, int y)
     {
         // Handle view rotation.
 
+        double dx = 0.0;
+        double dy = 0.0;
+        double dz = 0.0;
+
+        if (button[2])
+            dz = -double(last_x - x) * k;
+
         if (button[3])
         {
-            double dx = double(last_x - x) * k;
-            double dy = double(last_y - y) * k;
-
-            if      (SDL_GetModState() & KMOD_CTRL)  view->turn( 0, dx, 0);
-            else if (SDL_GetModState() & KMOD_SHIFT) view->turn(dy,  0, 0);
-            else                                     view->turn(dy, dx, 0);
+            dx = +double(last_y - y) * k;
+            dy = +double(last_x - x) * k;
         }
+
+        view->turn(dx, dy, dz);
+
         prog::point(x, y);
     }
 
@@ -107,10 +113,15 @@ void demo::point(int x, int y)
 
 void demo::click(int b, bool d)
 {
-    button[b] = d;
+    if      (d && b == 4) view->zoom(1.1);
+    else if (d && b == 5) view->zoom(0.9);
+    else
+    {
+        button[b] = d;
 
-    if (curr->click(b, d) == false)
-        prog::click(b, d);
+        if (curr->click(b, d) == false)
+            prog::click(b, d);
+    }
 }
 
 void demo::keybd(int k, bool d, int c)
@@ -133,26 +144,6 @@ void demo::keybd(int k, bool d, int c)
         else if (k == key_move_R) motion[0] += dd;
         else if (k == key_move_F) motion[2] -= dd;
         else if (k == key_move_B) motion[2] += dd;
-
-        // HACK
-
-        if (d)
-        {
-            if (SDL_GetModState() & KMOD_SHIFT)
-            {
-                if      (k == SDLK_LEFT)  view->set_factor(-1.0);
-                else if (k == SDLK_RIGHT) view->set_factor(+1.0);
-                else if (k == SDLK_DOWN)  view->set_units (-1.0);
-                else if (k == SDLK_UP)    view->set_units (+1.0);
-            }
-            else
-            {
-                if      (k == SDLK_LEFT)  view->set_factor(-0.1);
-                else if (k == SDLK_RIGHT) view->set_factor(+0.1);
-                else if (k == SDLK_DOWN)  view->set_units (-0.1);
-                else if (k == SDLK_UP)    view->set_units (+0.1);
-            }
-        }
     }
 
     prog::keybd(k, d, c);
@@ -160,9 +151,17 @@ void demo::keybd(int k, bool d, int c)
 
 void demo::timer(double dt)
 {
-    double k = view_move_rate * dt;
+    double k;
 
-    if (SDL_GetModState() & KMOD_CTRL)  k /= 4.0;
+    // Determine the rate of motion.
+
+    if (SDL_GetModState() & KMOD_CTRL)
+        k = dt * view_move_rate;
+    else
+        k = dt * universe.rate();
+
+    if (SDL_GetModState() & KMOD_SHIFT)
+        k *= 10.0;
 
     // Handle view motion.
 
@@ -180,8 +179,8 @@ void demo::draw()
 {
     GLfloat A[4] = { 0.2f, 0.25f, 0.3f, 0.0f };
 
-    glClearColor(0.6f, 0.7f, 8.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//  glClearColor(0.6f, 0.7f, 8.0f, 0.0f);
+    glClearColor(0, 0, 0, 0);
     
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
 
@@ -195,16 +194,18 @@ void demo::draw()
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         universe.draw();
 
         // Compute the view frusta.
 
         view->plane_frustum(planes);
-        view->range(curr->view(planes));
+        view->range(1.0, curr->view(planes));
         view->point_frustum(points);
 
         // Draw the scene.
 
+        glClear(GL_DEPTH_BUFFER_BIT);
         view->draw();
         curr->draw(points);
     }

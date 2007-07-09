@@ -1078,9 +1078,6 @@ void draw_light_init(double l, double r,
     glColorMask(0, 0, 0, 0);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-
-    glPolygonOffset(view->get_factor(), view->get_units());
 
     glClear(GL_DEPTH_BUFFER_BIT);
 }
@@ -1088,8 +1085,6 @@ void draw_light_init(double l, double r,
 void draw_light_fini()
 {
     glColorMask(1, 1, 1, 1);
-
-    glDisable(GL_POLYGON_OFFSET_FILL);
 
     view->pop();
 }

@@ -20,12 +20,10 @@
 //-----------------------------------------------------------------------------
 
 app::view::view(int w, int h, double n, double f, double z) :
-    w(w), h(h), n(n), f(f), z(z), factor(0), units(4)
+    w(w), h(h), n(n), f(f), z(z)
 {
     load_idt(default_M);
     load_idt(current_M);
-
-//  move(0.0, 0.0, 5.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -61,11 +59,12 @@ void app::view::mult_S() const
 
 void app::view::mult_P() const
 {
-    double a = double(w) / double(h);
+    double A = double(w) / double(h);
+    double N = double(n) / 2;
 
     // Apply the perspective projection.
 
-    glFrustum(-a * z, +a * z, -z, +z, n, f);
+    glFrustum(-A * z * N, +A * z * N, -z * N, +z * N, N, f);
 }
 
 void app::view::mult_O() const
@@ -123,9 +122,20 @@ void app::view::mult_V() const
 
 //-----------------------------------------------------------------------------
 
-void app::view::range(double F)
+void app::view::range(double N, double F)
 {
-    f = std::max(F, n + 10.0);
+    std::cout << N << " " << F << std::endl;
+
+    if (N < F)
+    {
+        n = N;
+        f = F;
+    }
+    else
+    {
+        n =  1.0;
+        f = 10.0;
+    }
 }
 
 void app::view::draw() const
@@ -170,14 +180,31 @@ void app::view::pop() const
 
 void app::view::turn(double rx, double ry, double rz)
 {
-    const double x = default_M[12];
-    const double y = default_M[13];
-    const double z = default_M[14];
+    // Grab basis vectors (which change during transform).
 
-    Lmul_xlt_inv(default_M, x, y, z);
-    Lmul_rot_mat(default_M, 0, 1, 0, ry);
-    Lmul_xlt_mat(default_M, x, y, z);
-    Rmul_rot_mat(default_M, 1, 0, 0, rx);
+    const double xx = default_M[ 0];
+    const double xy = default_M[ 1];
+    const double xz = default_M[ 2];
+
+    const double yx = default_M[ 4];
+    const double yy = default_M[ 5];
+    const double yz = default_M[ 6];
+
+    const double zx = default_M[ 8];
+    const double zy = default_M[ 9];
+    const double zz = default_M[10];
+
+    const double px = default_M[12];
+    const double py = default_M[13];
+    const double pz = default_M[14];
+
+    // Apply a local rotation transform.
+
+    Lmul_xlt_inv(default_M, px, py, pz);
+    Lmul_rot_mat(default_M, xx, xy, xz, rx);
+    Lmul_rot_mat(default_M, yx, yy, yz, ry);
+    Lmul_rot_mat(default_M, zx, zy, zz, rz);
+    Lmul_xlt_mat(default_M, px, py, pz);
 
     clr();
 }
@@ -187,6 +214,12 @@ void app::view::move(double dx, double dy, double dz)
     Rmul_xlt_mat(default_M, dx, dy, dz);
 
     clr();
+}
+
+void app::view::zoom(double dz)
+{
+    if (z *  dz > 0.01)
+        z *= dz;
 }
 
 //-----------------------------------------------------------------------------
