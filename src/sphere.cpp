@@ -25,6 +25,7 @@
 //=============================================================================
 
 uni::sphere::sphere(uni::geodat& dat,
+                    uni::georen& ren,
                     const ogl::texture *color,
                     const ogl::texture *terra,
                     double r0,
@@ -42,7 +43,6 @@ uni::sphere::sphere(uni::geodat& dat,
     cache(cache),
     frame(0),
 
-    shade(glob->load_program("glsl/showcyl.vert", "glsl/showcyl.frag")),
     color(color),
     terra(terra),
 
@@ -52,7 +52,8 @@ uni::sphere::sphere(uni::geodat& dat,
     pos(dat.depth(), cache),
     acc(dat.depth(), cache),
     ext(dat.depth(), cache),
-    vtx(dat.depth(), cache)
+    vtx(dat.depth(), cache),
+    ren(ren)
 {
     // Initialize all points.
 
@@ -74,12 +75,6 @@ uni::sphere::sphere(uni::geodat& dat,
     a    = 0;
     z0   = 1.0;
     z1   = 2.0;
-
-    shade->bind();
-    {
-        shade->uniform("color", 0);
-    }
-    shade->free();
 }
 
 uni::sphere::~sphere()
@@ -387,6 +382,9 @@ void uni::sphere::draw()
 {
     if (count)
     {
+        int w = ::view->get_w();
+        int h = ::view->get_h();
+
         glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
         {
             glEnable(GL_COLOR_MATERIAL);
@@ -400,38 +398,48 @@ void uni::sphere::draw()
                 glEnableClientState(GL_NORMAL_ARRAY);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-                shade->bind();
+                glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
-                color->bind(GL_TEXTURE0);
+                // Draw the texture coordinates.
+
+                ren.cyl()->bind();
                 dat.idx()->bind();
                 vtx.bind();
                 {
-                    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-                    if (true) // fill
-                    {
-                        pass();
-
-                        glColor4f(1.0f, 1.0f, 1.0f, 0.1f);
-                        glEnable(GL_BLEND);
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-                    }
-
-                    if (true) // wire
-                    {
-                        glEnable(GL_POLYGON_OFFSET_LINE);
-
-                        glPolygonOffset(-1.1f, -4.0f);
-                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-
-                        pass();
-                    }
+                    pass();
                 }
                 vtx.free();
                 dat.idx()->free();
-                color->free(GL_TEXTURE0);
+                ren.cyl()->free();
 
-                shade->free();
+                glDisable(GL_DEPTH_TEST);
+
+                // Draw the diffuse maps.
+
+                color->bind(GL_TEXTURE1);
+                ren.dif()->bind(true);
+                {
+                    glRecti(0, 0, w, h);
+                }
+                ren.dif()->free(true);
+                color->free(GL_TEXTURE1);
+
+/*
+                // Draw the normal maps.
+
+                ren.nrm()->bind();
+                {
+                }
+                ren.nrm()->free();
+*/
+
+                // Draw the illuminated geometry.
+
+                ren.bind();
+                {
+                    glRecti(0, 0, w, h);
+                }
+                ren.free();
             }
             glPopClientAttrib();
         }

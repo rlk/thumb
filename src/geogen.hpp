@@ -158,6 +158,7 @@ namespace uni
                                  std::string,
                                  std::string,
                                  std::string);
+       ~geobuf();
 
         void bind_proc()       const;
         void free_proc()       const;

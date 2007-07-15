@@ -26,7 +26,10 @@ ogl::binding::binding(std::string name) : name(name)
 
     diff = glob->load_texture("solid/metal_box_diffuse.png");
     bump = glob->load_texture("solid/metal_box_bump.png");
-
+/*
+    diff = glob->load_texture("solid/world-200408-color-05-00-00.png");
+    bump = glob->load_texture("solid/world-normal-05-00-00.png");
+*/
     init();
 }
 

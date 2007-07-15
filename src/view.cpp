@@ -60,7 +60,7 @@ void app::view::mult_S() const
 void app::view::mult_P() const
 {
     double A = double(w) / double(h);
-    double N = double(n) / 2;
+    double N = double(n);
 
     // Apply the perspective projection.
 
@@ -124,8 +124,6 @@ void app::view::mult_V() const
 
 void app::view::range(double N, double F)
 {
-    std::cout << N << " " << F << std::endl;
-
     if (N < F)
     {
         n = N;

@@ -21,7 +21,28 @@ uni::universe::universe()
     color = glob->load_texture("texture/earth-color.png");
     terra = glob->load_texture("texture/earth-terra.png");
 
+    terra->bind();
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT);
+    }
+    terra->free();
+
+    color->bind();
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_REPEAT);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_REPEAT);
+    }
+    color->free();
+
     D = new geodat();
+    R = new georen(::view->get_w(),
+                   ::view->get_h());
+
 /*
     S[0] = new sphere(*D, color, terra,   6372797.0,   6372797.0 + 8844.0);
     S[1] = new sphere(*D, color, terra,   1737103.0,   1737103.0);
@@ -30,8 +51,9 @@ uni::universe::universe()
     S[0]->move(        0.0, 0.0, -149597887500.0);
     S[1]->move(384400000.0, 0.0, -149597887500.0);
 */
-    S[0] = new sphere(*D, color, terra,   6372797.0,   6372797.0 + 8844.0);
+    S[0] = new sphere(*D, *R, color, terra,   6372797.0,   6372797.0 + 8844.0);
     S[0]->move(0.0, 0.0, -6372797.0 * 2.0);
+
 }
 
 uni::universe::~universe()
@@ -43,6 +65,7 @@ uni::universe::~universe()
     delete S[1];
 */
     delete S[0];
+    delete R;
     delete D;
 }
 
@@ -84,7 +107,7 @@ void uni::universe::draw()
 
             S[i]->getz(n, f);
 
-            ::view->range(n, f);
+            ::view->range(n / 2.0, f);
 
             glMatrixMode(GL_PROJECTION);
             {

@@ -149,12 +149,12 @@ static void init(std::string& data_file,
     // Initialize the demo.
 
     glob = new app::glob();
-    prog = new demo();
     view = new app::view(conf->get_i("window_w"),
                          conf->get_i("window_h"),
                          conf->get_f("view_near"),
                          conf->get_f("view_far"),
                          conf->get_f("view_zoom"));
+    prog = new demo();
 }
 
 static void fini()

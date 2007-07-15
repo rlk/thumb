@@ -36,6 +36,8 @@ namespace app
 
         double get_n() const { return n; }
         double get_f() const { return f; }
+        int    get_w() const { return w; }
+        int    get_h() const { return h; }
 
         void clr();
         void set(const double *);

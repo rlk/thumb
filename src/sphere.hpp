@@ -14,9 +14,9 @@
 #define SPHERE_HPP
 
 #include "opengl.hpp"
-#include "program.hpp"
 #include "texture.hpp"
 #include "geogen.hpp"
+#include "georen.hpp"
 #include "patch.hpp"
 
 //-----------------------------------------------------------------------------
@@ -64,7 +64,6 @@ namespace uni
 
         // OpenGL state
 
-        const ogl::program *shade;
         const ogl::texture *color;
         const ogl::texture *terra;
 
@@ -75,14 +74,15 @@ namespace uni
         geoacc  acc;
         geoext  ext;
         geovtx  vtx;
+        georen& ren;
 
         void transform(double *, double *);
 
     public:
     
-        sphere(geodat&, const ogl::texture *,
-                        const ogl::texture *, double, double, double=15,
-                                                             GLsizei=1024);
+        sphere(geodat&, georen&,
+               const ogl::texture *,
+               const ogl::texture *, double, double, double=2.0, GLsizei=128);
        ~sphere();
 
         void turn(double=0);

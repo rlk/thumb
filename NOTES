@@ -4,12 +4,26 @@ Can texture atlasing be automated?
 
 -------------------------------------------------------------------------------
 
-Shadowing:
+sphere balance
 
-    rendering the backfaces to the shadow buffer moves any shadow aliasing
-    to the unlit surface
+    bias depth count VRAM
+    15   4     1024  131  original
+    1.5  5     128   90   much fewer batches
+    1.5  4     128   61   giant triangles, very fast
 
-    Dual-depth shadow maps?  (extra shadow pass)
+    bias < ~1.5 cannot guarantee adjacent patches are within 1 LOD
+
+-------------------------------------------------------------------------------
+
+Exploitable commonality between tiles and eyes
+
+    Extremely similar height/color/normal usage between eyes
+    Neighboring height/color/normal usage between eyes
+    Common stereo pass
+
+Be sure to allow for multiple render threads per host
+    Vellum has 2 GPUs... they should be totally independant
+    Though it would be advantageous to have only one data access thread
 
 -------------------------------------------------------------------------------
 
@@ -180,57 +194,6 @@ Octree notes
 -------------------------------------------------------------------------------
 
 
-
-scene
-        for each emit
-                draw the objects the emit can see to depth
-
-                for each recv
-                        for each pass
-                                draw the objects the recv can see to color
-
-
-(water is both a recv (with lower prio than camera) and a draw)
-
-Global view object
-        push/pop
-        camera entities are allowed to modify it
-        light sources can use it for CSM
-        entities can check culling against it
-        octree can refuse to insert as cull and insert visible in order
-
-
-light clone (to effect an image dupe)
-
-sampler uniforms
-
-     #   MTL     GLSL        lite  dark
-     0   map_Kd  diffuse       *     *
-     1   bump    bump          *
-     2           light         *
-     3           shadow        *
-     4   refl    environment   *     *
-     5   map_Ke  emission            *
-     6   map_Ks  specular      *
-     7   map_Ns  shininess     *
-
-                 detail?
-
-** Do NOT render alphatest transparent objects during pre-Z?
-   (Z test screws with blending/coverage)
-
-NOTE: alpha testing is NOT blending
-
-
-
-solid
-    obj type
-joint
-    gizmo
-
-
-
-
   (\_
  ()_
 
@@ -241,8 +204,11 @@ joint
  (]_
 
   (\
+ [)_
+
+  (\
  []_
 
   (\
- []_ THUMB
+ [)_ THUMB
 

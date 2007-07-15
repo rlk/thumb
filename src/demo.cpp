@@ -156,7 +156,8 @@ void demo::timer(double dt)
     // Determine the rate of motion.
 
     if (SDL_GetModState() & KMOD_CTRL)
-        k = dt * view_move_rate;
+//      k = dt * view_move_rate;
+        k = dt * universe.rate() / 10.0;
     else
         k = dt * universe.rate();
 

@@ -514,6 +514,16 @@ uni::geobuf::geobuf(GLsizei w, GLsizei h, std::string rect_vert,
     show->free();
 }
 
+uni::geobuf::~geobuf()
+{
+    glob->free_program(show);
+    glob->free_program(calc);
+    glob->free_program(copy);
+
+    glob->free_frame(pong);
+    glob->free_frame(ping);
+}
+
 void uni::geobuf::draw() const
 {
     // Draw the output buffer.

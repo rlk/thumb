@@ -26,15 +26,15 @@ namespace ogl
         frame(GLsizei, GLsizei, GLenum=GL_TEXTURE_2D,
                                 GLenum=GL_RGBA8,
                                 GLenum=GL_DEPTH_COMPONENT24);
-        ~frame();
+        virtual ~frame();
 
         void bind_color(GLenum=GL_TEXTURE0) const;
         void free_color(GLenum=GL_TEXTURE0) const;
         void bind_depth(GLenum=GL_TEXTURE0) const;
         void free_depth(GLenum=GL_TEXTURE0) const;
 
-        void bind(bool=false) const;
-        void free(bool=false) const;
+        virtual void bind(bool=false) const;
+        virtual void free(bool=false) const;
 
         void init();
         void fini();

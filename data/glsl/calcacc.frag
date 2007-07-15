@@ -1,5 +1,7 @@
 #extension GL_ARB_texture_rectangle : enable
 
+#define FILTER 1
+
 uniform sampler2DRect src;
 uniform sampler2D     map;
 uniform sampler2DRect pos;
@@ -19,9 +21,10 @@ void main()
     vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
     vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
     vec2 T = texture2DRect(tex, gl_FragCoord.xy).zw;
-/*
+
     vec2 uv = fract(T * vec2(4096.0, 2048.0));
 
+#if FILTER
     float c00 = texture2D(map, T + vec2(0.0, 0.0)).r;
     float c10 = texture2D(map, T + vec2(dds, 0.0)).r;
     float c01 = texture2D(map, T + vec2(0.0, ddt)).r;
@@ -29,9 +32,9 @@ void main()
 
     float s  = mix(mix(c00, c10, uv.x),
                    mix(c01, c11, uv.x), uv.y);
-*/
-
+#else
     float s = texture2D(map, T).r;
+#endif
 
     float M = (s - off) * scl * mag;
 

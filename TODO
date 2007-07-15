@@ -1,3 +1,23 @@
+tellurion
+
+    For the demo
+        disk-paging data acq
+            data catalog
+            multithread
+        data preproc
+            2-channel normal map
+            16-bit heightmap
+            compressed color map
+            polar projection
+        normal mapping
+        atmo integration
+        pssm integration
+        cluster sync
+        stereo
+
+
+
+
 There's no need to respect the jiffy in edit mode.
     To ignore it would improve performance on huge scenes nicely.
 Don't free-run in edit mode.

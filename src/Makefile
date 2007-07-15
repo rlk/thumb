@@ -1,7 +1,7 @@
 
 CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
-#CFLAGS= -O3 -ffast-math -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS= -O3 -ffast-math -fno-rtti -march=athlon64 -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 
@@ -19,6 +19,7 @@ OBJS=   opengl.o \
 	patch.o \
 	buffer.o \
         geogen.o \
+        georen.o \
 	sphere.o \
 	universe.o \
 	atom.o \

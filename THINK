@@ -1,0 +1,34 @@
+Cracking may be occuring because one interpolant is k while the other is k-1
+
+
+Bouncing between eyes and tiles screws with patch hierarchy coherence
+    nearly all leaves are invalidated when the tile changes
+
+define a plural frame buffer?
+    give an array of
+        view frustum planes
+        view point
+        frame area
+    frustum union planes
+
+for each patch
+    given the sphere area (normal and radius)
+    determine the eye area (x0 y0 x1 y1)
+    determine the frame area (x0 y0 x1 y1)
+    determine the pixel density (sphere area / frame area)
+
+    for each geomap
+        for each tile touching the sphere area
+            with at least the maximum pixel density
+            enqueue texture object and frame area
+
+    for each queued texture object
+        render all frame areas (or just the union of all frame areas?)
+
+
+send [sphere area, frame rect] pairs to the root of the geomap
+    let tiles accumulate rects
+draw the geomap
+
+(this could enable smart LOD blending)
+

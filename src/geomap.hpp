@@ -10,33 +10,48 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef UNIVERSE_HPP
-#define UNIVERSE_HPP
-
-#include "sphere.hpp"
-#include "texture.hpp"
+#ifndef GEOMAP
+#define GEOMAP
 
 //-----------------------------------------------------------------------------
 
 namespace uni
 {
-    class universe
+    class tile
     {
-        geodat *D;
-        georen *R;
-        sphere *S[3];
-
-        const ogl::texture *color;
-        const ogl::texture *terra;
+        tile  *C[4];
+        double n[3];
+        double a;
+        double k;
+        int    i;
+        int    j;
+        GLuint o;
 
     public:
 
-        universe();
-       ~universe();
+        tile();
+       ~tile();
 
-        void draw();
+    };
 
-        double rate() const;
+    class geomap
+    {
+        std::string name;
+
+        int w;
+        int h;
+        int s;
+        int c;
+        int b;
+
+        tile *T;
+        tile *Q;
+
+    public:
+
+        geomap(std::string, int, int, int, int);
+       ~geomap();
+
     };
 }
 
