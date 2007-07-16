@@ -25,9 +25,11 @@ namespace ogl
     {
         std::string name;
 
-        GLenum target;
-        GLenum format;
         GLuint object;
+        GLenum target;
+        GLenum intform;
+        GLenum extform;
+        GLenum type;
 
         void load_png(const void *, size_t);
         void load_jpg(const void *, size_t);

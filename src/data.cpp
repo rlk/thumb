@@ -267,7 +267,10 @@ const void *app::data::load(std::string name, size_t *len)
     if (buffers.find(name) != buffers.end())
         return buffers[name]->get(len);
     else
+    {
+        throw find_error(name);
         return 0;
+    }
 }
 
 bool app::data::save(std::string name, const void *ptr, size_t *len)

@@ -27,7 +27,8 @@ namespace uni
         sphere *S[3];
 
         const ogl::texture *color;
-        const ogl::texture *terra;
+        const ogl::texture *normal;
+        const ogl::texture *height;
 
     public:
 

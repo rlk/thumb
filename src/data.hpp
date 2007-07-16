@@ -35,6 +35,16 @@ namespace app
     //-------------------------------------------------------------------------
     // Data exceptions.
 
+    class find_error : public std::runtime_error
+    {
+        std::string mesg(std::string& s) {
+            return "Error finding file: " + s + ": " + strerror(errno);
+        }
+
+    public:
+        find_error(std::string& s) : std::runtime_error(mesg(s)) { }
+    };
+
     class open_error : public std::runtime_error
     {
         std::string mesg(std::string& s) {

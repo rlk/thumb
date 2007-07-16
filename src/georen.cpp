@@ -60,13 +60,19 @@ uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
 //-----------------------------------------------------------------------------
 
 uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_FLOAT_RGBA16_NV, 0, "glsl/drawdif.vert",
+    uni::renbuf(w, h, GL_RGBA8, 0, "glsl/drawdif.vert",
                                              "glsl/drawdif.frag"), cyl(cyl)
 {
     draw->bind();
     {
         draw->uniform("cyl",   0);
         draw->uniform("color", 1);
+/*
+        draw->uniform("coff",  -0.1422222, -0.6637037);
+        draw->uniform("cscl",  21.0937500, 10.5468750);
+*/
+        draw->uniform("coff",  -0.1540740740, -0.6874074074);
+        draw->uniform("cscl",  84.3750000000, 42.1875000000);
     }
     draw->free();
 }
@@ -121,8 +127,9 @@ uni::georen::georen(GLsizei w, GLsizei h) :
 {
     draw->bind();
     {
-        draw->uniform("dif", 0);
-//        draw->uniform("nrm", 1);
+        draw->uniform("cyl", 0);
+        draw->uniform("dif", 1);
+        draw->uniform("nrm", 2);
     }
     draw->free();
 }
@@ -151,16 +158,18 @@ void uni::georen::bind() const
 
     // Bind the diffuse and normal render targets as textures.
 
-    _dif.bind_color(GL_TEXTURE0);
-//    _nrm.bind_color(GL_TEXTURE1);
+    _cyl.bind_color(GL_TEXTURE0);
+    _dif.bind_color(GL_TEXTURE1);
+    _nrm.bind_color(GL_TEXTURE2);
 }
 
 void uni::georen::free() const
 {
     // Unbind the diffuse and normal render targets.
 
-//    _nrm.free_color(GL_TEXTURE1);
-    _dif.free_color(GL_TEXTURE0);
+    _nrm.free_color(GL_TEXTURE2);
+    _dif.free_color(GL_TEXTURE1);
+    _cyl.free_color(GL_TEXTURE0);
 
     // Unbind the deferred illumination shader.
 

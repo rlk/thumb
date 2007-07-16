@@ -19,9 +19,12 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::texture::texture(std::string name) : name(name),
-    target(GL_TEXTURE_2D),
-    format(GL_RGBA)
+ogl::texture::texture(std::string name) : name   (name),
+                                          object (0),
+                                          target (GL_TEXTURE_2D),
+                                          intform(GL_RGBA),
+                                          extform(GL_RGBA),
+                                          type   (GL_UNSIGNED_BYTE)
 {
     init();
 }
@@ -81,29 +84,53 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
     if (setjmp(png_jmpbuf(rp)) == 0)
     {
+        GLenum type_tag[2] = {
+            GL_UNSIGNED_BYTE,
+            GL_UNSIGNED_SHORT
+        };
+        GLenum form_tag[2][4] = {
+            {
+                GL_LUMINANCE,
+                GL_LUMINANCE_ALPHA,
+                GL_RGB,
+                GL_RGBA,
+            },
+            {
+                GL_LUMINANCE16,
+                GL_LUMINANCE16_ALPHA16,
+                GL_RGB16,
+                GL_RGBA16,
+            },
+        };
+
         // Read the PNG header.
 
-        png_read_png(rp, ip, PNG_TRANSFORM_STRIP_16 |
-                             PNG_TRANSFORM_PACKING, 0);
+        png_read_png(rp, ip, PNG_TRANSFORM_PACKING |
+                             PNG_TRANSFORM_SWAP_ENDIAN, 0);
         
         // Extract image properties.
 
         GLsizei w = GLsizei(png_get_image_width (rp, ip));
         GLsizei h = GLsizei(png_get_image_height(rp, ip));
-
-        target = GL_TEXTURE_2D;
-        format = GL_RGBA;
-
-        if (w & (w - 1)) target = GL_TEXTURE_RECTANGLE_ARB;
-        if (h & (h - 1)) target = GL_TEXTURE_RECTANGLE_ARB;
+        GLsizei b = GLsizei(png_get_bit_depth   (rp, ip)) / 8;
+        GLsizei c = 1;
 
         switch (png_get_color_type(rp, ip))
         {
-        case PNG_COLOR_TYPE_GRAY:       format = GL_LUMINANCE;       break;
-        case PNG_COLOR_TYPE_GRAY_ALPHA: format = GL_LUMINANCE_ALPHA; break;
-        case PNG_COLOR_TYPE_RGB:        format = GL_RGB;             break;
-        case PNG_COLOR_TYPE_RGB_ALPHA:  format = GL_RGBA;            break;
+        case PNG_COLOR_TYPE_GRAY:       c = 1; break;
+        case PNG_COLOR_TYPE_GRAY_ALPHA: c = 2; break;
+        case PNG_COLOR_TYPE_RGB:        c = 3; break;
+        case PNG_COLOR_TYPE_RGB_ALPHA:  c = 4; break;
+        default: throw std::runtime_error("Unsupported PNG color type");
         }
+
+        target  = GL_TEXTURE_2D;
+        intform = form_tag[b - 1][c - 1];
+        extform = form_tag[0    ][c - 1];
+        type    = type_tag[b - 1];
+
+        if (w & (w - 1)) target = GL_TEXTURE_RECTANGLE_ARB;
+        if (h & (h - 1)) target = GL_TEXTURE_RECTANGLE_ARB;
 
         // Read the pixel data.
 
@@ -117,14 +144,16 @@ void ogl::texture::load_png(const void *buf, size_t len)
             if (target == GL_TEXTURE_2D)
                 glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 */
-            glTexImage2D(target, 0, format, w, h, 0,
-                         format, GL_UNSIGNED_BYTE, 0);
+            glTexImage2D(target, 0, intform, w, h, 0, extform, type, 0);
+
+            OGLCK();
 
             // Copy all rows to the new texture.
 
             for (GLsizei i = 0, j = h - 1; j >= 0; ++i, --j)
-                glTexSubImage2D(target, 0, 0, i, w, 1,
-                                format, GL_UNSIGNED_BYTE, bp[j]);
+                glTexSubImage2D(target, 0, 0, i, w, 1, extform, type, bp[j]);
+
+            OGLCK();
         }
     }
 

@@ -27,7 +27,8 @@
 uni::sphere::sphere(uni::geodat& dat,
                     uni::georen& ren,
                     const ogl::texture *color,
-                    const ogl::texture *terra,
+                    const ogl::texture *normal,
+                    const ogl::texture *height,
                     double r0,
                     double r1, double bias, GLsizei cache) :
 
@@ -44,7 +45,8 @@ uni::sphere::sphere(uni::geodat& dat,
     frame(0),
 
     color(color),
-    terra(terra),
+    normal(normal),
+    height(height),
 
     dat(dat),
     tex(dat.depth(), cache),
@@ -320,9 +322,9 @@ void uni::sphere::prep()
             {
                 glClear(GL_COLOR_BUFFER_BIT);
 
-                terra->bind(GL_TEXTURE1);
+                height->bind(GL_TEXTURE1);
                 glRecti(0, 0, w, count);
-                terra->free(GL_TEXTURE1);
+                height->free(GL_TEXTURE1);
             }
             acc.free_proc();
             acc.swap();
@@ -440,6 +442,20 @@ void uni::sphere::draw()
                     glRecti(0, 0, w, h);
                 }
                 ren.free();
+
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glDisable(GL_TEXTURE_2D);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glColor4f(0.5f, 0.5f, 0.5f, 0.25f);
+
+                dat.idx()->bind();
+                vtx.bind();
+                {
+                    pass();
+                }
+                vtx.free();
+                dat.idx()->free();
             }
             glPopClientAttrib();
         }
