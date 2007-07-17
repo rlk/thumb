@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include "georen.hpp"
+#include "matrix.hpp"
 #include "glob.hpp"
 
 
@@ -61,18 +62,18 @@ uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
 
 uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
     uni::renbuf(w, h, GL_RGBA8, 0, "glsl/drawdif.vert",
-                                             "glsl/drawdif.frag"), cyl(cyl)
+                                   "glsl/drawdif.frag"), cyl(cyl)
 {
     draw->bind();
     {
+        double dt = -0.1540740740, dp = -0.6874074074;
+        double kt = 84.3750000000, kp = 42.1875000000;
+
         draw->uniform("cyl",   0);
         draw->uniform("color", 1);
-/*
-        draw->uniform("coff",  -0.1422222, -0.6637037);
-        draw->uniform("cscl",  21.0937500, 10.5468750);
-*/
-        draw->uniform("coff",  -0.1540740740, -0.6874074074);
-        draw->uniform("cscl",  84.3750000000, 42.1875000000);
+
+        draw->uniform("coff",  dt * (PI * 2) + PI, dp * PI + PI / 2);
+        draw->uniform("cscl",  kt / (PI * 2),      kp / PI);
     }
     draw->free();
 }
@@ -92,12 +93,30 @@ void uni::difbuf::free(bool) const
 //-----------------------------------------------------------------------------
 
 uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_FLOAT_RGBA16_NV, 0, "glsl/drawnrm.vert",
-                                             "glsl/drawnrm.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, 0, "glsl/drawnrm.vert",
+                                   "glsl/drawnrm.frag"), cyl(cyl)
 {
     draw->bind();
     {
+        double dt = -0.1540740740, dp = -0.6874074074;
+        double kt = 84.3750000000, kp = 42.1875000000;
+
         draw->uniform("cyl", 0);
+        draw->uniform("normal", 1);
+
+        draw->uniform("coff",  dt * (PI * 2) + PI, dp * PI + PI / 2);
+        draw->uniform("cscl",  kt / (PI * 2),      kp / PI);
+    }
+    draw->free();
+}
+
+void uni::nrmbuf::axis(const double *a) const
+{
+    draw->bind();
+    {
+        draw->uniform("axis", GLfloat(a[0]),
+                              GLfloat(a[1]),
+                              GLfloat(a[2]));
     }
     draw->free();
 }

@@ -20,9 +20,8 @@ void main()
     vec3 S = texture2DRect(src, gl_FragCoord.xy).xyz;
     vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
     vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
-    vec2 T = texture2DRect(tex, gl_FragCoord.xy).zw;
+    vec2 T = texture2DRect(tex, gl_FragCoord.xy).xy;
 
-    N = normalize(N);
     T = (T + coff) * cscl;
 
 #if FILTER

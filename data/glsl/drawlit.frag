@@ -4,11 +4,17 @@ uniform sampler2DRect cyl;
 uniform sampler2DRect dif;
 uniform sampler2DRect nrm;
 
+varying vec3 L;
+
 void main()
 {
     vec4 C = texture2DRect(cyl, gl_FragCoord.xy);
-    vec4 D = texture2DRect(dif, gl_FragCoord.xy);
-    vec4 N = texture2DRect(nrm, gl_FragCoord.xy);
+    vec3 D = texture2DRect(dif, gl_FragCoord.xy).rgb;
+    vec3 N = texture2DRect(nrm, gl_FragCoord.xy).rgb;
 
-    gl_FragColor = vec4(D.rgb, 1.0);
+    N = normalize((N * 2.0) - 1.0);
+
+    float d = max(dot(N, L), 0.0);
+
+    gl_FragColor = vec4(D * d, 1.0);
 }

@@ -34,5 +34,5 @@ void main()
     vec2 off = vec2(pi, 0.5 * pi);
     vec2 scl = vec2(2.0 * pi, pi);
 
-    gl_FragColor = vec4(m, (m + off) / scl);
+    gl_FragColor = vec4(m, 0, 1);
 }

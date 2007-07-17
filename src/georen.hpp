@@ -72,6 +72,8 @@ namespace uni
     public:
         nrmbuf(GLsizei, GLsizei, cylbuf&);
 
+        void axis(const double *) const;
+
         void bind(bool=false) const;
         void free(bool=false) const;
     };
@@ -95,9 +97,9 @@ namespace uni
         georen(GLsizei, GLsizei);
        ~georen();
 
-        const ogl::frame *cyl() const { return &_cyl; }
-        const ogl::frame *dif() const { return &_dif; }
-        const ogl::frame *nrm() const { return &_nrm; }
+        const cylbuf *cyl() const { return &_cyl; }
+        const difbuf *dif() const { return &_dif; }
+        const nrmbuf *nrm() const { return &_nrm; }
 
         void bind() const;
         void free() const;

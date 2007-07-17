@@ -384,8 +384,30 @@ void uni::sphere::draw()
 {
     if (count)
     {
+        GLfloat L[4];
+        double  t[4];
+        double  a[4];
+        double  A[16];
+
         int w = ::view->get_w();
         int h = ::view->get_h();
+
+        // Position a directional lightsource at the origin.
+
+        ::view->get(A);
+
+        mult_xps_vec3(t, A, p);
+        mult_xps_vec3(a, A, n);
+
+        normalize(t);
+        normalize(a);
+
+        L[0] = GLfloat(-t[0]);
+        L[1] = GLfloat(-t[1]);
+        L[2] = GLfloat(-t[2]);
+        L[3] = 0;
+
+        glLightfv(GL_LIGHT0, GL_POSITION, L);
 
         glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
         {
@@ -393,6 +415,9 @@ void uni::sphere::draw()
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glEnable(GL_TEXTURE_2D);
+            glEnable(GL_NORMALIZE);
+
+            glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             {
@@ -414,8 +439,6 @@ void uni::sphere::draw()
                 dat.idx()->free();
                 ren.cyl()->free();
 
-                glDisable(GL_DEPTH_TEST);
-
                 // Draw the diffuse maps.
 
                 color->bind(GL_TEXTURE1);
@@ -426,14 +449,16 @@ void uni::sphere::draw()
                 ren.dif()->free(true);
                 color->free(GL_TEXTURE1);
 
-/*
                 // Draw the normal maps.
 
+                normal->bind(GL_TEXTURE1);
+                ren.nrm()->axis(a);
                 ren.nrm()->bind();
                 {
+                    glRecti(0, 0, w, h);
                 }
                 ren.nrm()->free();
-*/
+                normal->free(GL_TEXTURE1);
 
                 // Draw the illuminated geometry.
 
@@ -443,11 +468,16 @@ void uni::sphere::draw()
                 }
                 ren.free();
 
+                // Slap down a debug wireframe.
+/*
                 glEnable(GL_BLEND);
                 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 glDisable(GL_TEXTURE_2D);
+                glDisable(GL_DEPTH_TEST);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glColor4f(0.5f, 0.5f, 0.5f, 0.25f);
+                glColor4f(1.0f, 1.0f, 1.0f, 0.05f);
+                glEnable(GL_LIGHTING);
+                glEnable(GL_LIGHT0);
 
                 dat.idx()->bind();
                 vtx.bind();
@@ -456,6 +486,7 @@ void uni::sphere::draw()
                 }
                 vtx.free();
                 dat.idx()->free();
+*/
             }
             glPopClientAttrib();
         }

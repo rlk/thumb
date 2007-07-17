@@ -8,7 +8,7 @@ uniform vec2 cscl;
 
 void main()
 {
-    vec2 t = (texture2DRect(cyl, gl_FragCoord.xy).zw + coff) * cscl;
+    vec2 t = (texture2DRect(cyl, gl_FragCoord.xy).xy + coff) * cscl;
 
     vec4 c = texture2D(color, t);
 

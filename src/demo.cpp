@@ -55,7 +55,7 @@ demo::demo()
 
     curr = 0;
 
-    goto_mode(info);
+    goto_mode(play);
 }
 
 demo::~demo()
@@ -113,8 +113,20 @@ void demo::point(int x, int y)
 
 void demo::click(int b, bool d)
 {
-    if      (d && b == 4) view->zoom(1.1);
-    else if (d && b == 5) view->zoom(0.9);
+    if      (d && b == 4)
+    {
+        if (SDL_GetModState() & KMOD_SHIFT)
+            universe.turn(+1);
+        else
+            view->zoom(1.1);
+    }
+    else if (d && b == 5)
+    {
+        if (SDL_GetModState() & KMOD_SHIFT)
+            universe.turn(-1);
+        else
+            view->zoom(0.9);
+    }
     else
     {
         button[b] = d;
@@ -178,9 +190,11 @@ void demo::timer(double dt)
 
 void demo::draw()
 {
-    GLfloat A[4] = { 0.2f, 0.25f, 0.3f, 0.0f };
+//  GLfloat A[4] = { 0.2f, 0.25f, 0.3f, 0.0f };
+    GLfloat A[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
 //  glClearColor(0.6f, 0.7f, 8.0f, 0.0f);
+//  glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
     glClearColor(0, 0, 0, 0);
     
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
@@ -197,7 +211,7 @@ void demo::draw()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         universe.draw();
-
+/*
         // Compute the view frusta.
 
         view->plane_frustum(planes);
@@ -209,6 +223,7 @@ void demo::draw()
         glClear(GL_DEPTH_BUFFER_BIT);
         view->draw();
         curr->draw(points);
+*/
     }
     glPopAttrib();
 }

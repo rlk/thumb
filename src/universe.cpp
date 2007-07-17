@@ -18,10 +18,15 @@
 
 uni::universe::universe()
 {
+
     color  = glob->load_texture("solid/world-200408-color-00-1d-0d.png");
     normal = glob->load_texture("solid/world-normal-00-1d-0d.png");
     height = glob->load_texture("solid/world-height-00-1d-0d.png");
-
+/*
+    color  = glob->load_texture("solid/world-200408-color-00-1c-40.png");
+    normal = glob->load_texture("solid/world-normal-00-1c-40.png");
+    height = glob->load_texture("solid/world-height-00-1c-40.png");
+*/
     height->bind();
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -95,16 +100,6 @@ void uni::universe::draw()
     for (i = 0; i < n; ++i) S[i]->step();
     for (i = 0; i < n; ++i) S[i]->prep();
 
-    // Apply the light source.
-
-    glPushMatrix();
-    {
-        float L[4] = { 0.0f, 0.0f, 1.0f, 0.0f };
-
-        glLightfv(GL_LIGHT0, GL_POSITION, L);
-    }
-    glPopMatrix();
-
     // Draw all objects.
 
     for (i = 0; i < n; ++i)
@@ -139,6 +134,11 @@ void uni::universe::draw()
 double uni::universe::rate() const
 {
     return S[0] ? S[0]->altitude() : 1.0;
+}
+
+void uni::universe::turn(int d)
+{
+    if (S[0]) S[0]->turn(d * 10.0);
 }
 
 //-----------------------------------------------------------------------------

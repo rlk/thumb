@@ -38,6 +38,7 @@ namespace uni
         void draw();
 
         double rate() const;
+        void turn(int);
     };
 }
 

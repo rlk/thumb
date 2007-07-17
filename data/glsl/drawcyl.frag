@@ -1,5 +1,8 @@
+varying vec3 normal;
 
 void main()
 {
-    gl_FragColor = vec4(gl_TexCoord[0]);
+    vec3 N = normalize(normal);
+
+    gl_FragColor = vec4(gl_TexCoord[0].xy, N.xy);
 }
