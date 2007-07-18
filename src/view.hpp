@@ -46,6 +46,7 @@ namespace app
         void turn(double, double, double);
         void move(double, double, double);
         void zoom(double);
+        void home();
 
         void mult_S() const;
         void mult_P() const;

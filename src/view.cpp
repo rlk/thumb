@@ -220,6 +220,12 @@ void app::view::zoom(double dz)
         z *= dz;
 }
 
+void app::view::home()
+{
+    load_idt(current_M);
+    load_idt(default_M);
+}
+
 //-----------------------------------------------------------------------------
 
 void app::view::world_frustum(double *V) const

@@ -156,6 +156,7 @@ void demo::keybd(int k, bool d, int c)
         else if (k == key_move_R) motion[0] += dd;
         else if (k == key_move_F) motion[2] -= dd;
         else if (k == key_move_B) motion[2] += dd;
+        else if (k == SDLK_HOME) ::view->home();
     }
 
     prog::keybd(k, d, c);
@@ -168,8 +169,7 @@ void demo::timer(double dt)
     // Determine the rate of motion.
 
     if (SDL_GetModState() & KMOD_CTRL)
-//      k = dt * view_move_rate;
-        k = dt * universe.rate() / 10.0;
+        k = dt * view_move_rate;
     else
         k = dt * universe.rate();
 
@@ -213,7 +213,7 @@ void demo::draw()
 
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         universe.draw();
-/*
+
         // Compute the view frusta.
 
         view->plane_frustum(planes);
@@ -225,7 +225,6 @@ void demo::draw()
         glClear(GL_DEPTH_BUFFER_BIT);
         view->draw();
         curr->draw(points);
-*/
     }
     glPopAttrib();
 }
