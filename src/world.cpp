@@ -1108,7 +1108,7 @@ double wrl::world::view(bool edit, const double *planes)
 
 void wrl::world::draw(bool edit, const double *points)
 {
-    GLfloat L[4], C[4] = { 1.0f, 1.0f, 0.9f, 0.0f };
+    GLfloat L[4];
     double  l[4], c[4], d[4];
 
     const double n = ::view->get_n();
@@ -1129,7 +1129,6 @@ void wrl::world::draw(bool edit, const double *points)
     L[3] = 0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE,  C);
 
     fill_pool->draw_init();
     {

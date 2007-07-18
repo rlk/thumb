@@ -10,62 +10,10 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GEOMAP
-#define GEOMAP
+#include "geomap.hpp"
 
 //-----------------------------------------------------------------------------
 
-namespace uni
-{
-    class tile
-    {
-        tile  *C[4];
-        double n[3];
-        double a;
-        double k;
-        int    i;
-        int    j;
-        GLuint o;
 
-        GLfloat coff[2];
-        GLfloat cscl[2];
-
-    public:
-
-        tile();
-       ~tile();
-
-    };
-
-    class geomap
-    {
-        std::string name;
-
-        int w;
-        int h;
-        int c;
-        int b;
-        int s;
-
-        GLfloat hoff;
-        GLfloat hscl;
-
-        tile *T;
-        tile *Q;
-
-        // Tile LRU queue
-        // Tile draw queue
-        // File response queue
-        // static File request queue
-
-    public:
-
-        geomap(std::string, int, int, int, int);
-       ~geomap();
-
-    };
-}
 
 //-----------------------------------------------------------------------------
-
-#endif

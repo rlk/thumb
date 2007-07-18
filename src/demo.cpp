@@ -190,14 +190,16 @@ void demo::timer(double dt)
 
 void demo::draw()
 {
-//  GLfloat A[4] = { 0.2f, 0.25f, 0.3f, 0.0f };
-    GLfloat A[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+//  GLfloat A[4] = { 0.20f, 0.25f, 0.30f, 0.0f };
+    GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
+    GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
 
 //  glClearColor(0.6f, 0.7f, 8.0f, 0.0f);
 //  glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
     glClearColor(0, 0, 0, 0);
     
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
 
     glPushAttrib(GL_ENABLE_BIT);
     {

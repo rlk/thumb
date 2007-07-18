@@ -32,3 +32,83 @@ draw the geomap
 
 (this could enable smart LOD blending)
 
+
+-------------------------------------------------------------------------------
+
+Rationalle: Don't count VRAM usage and buffer storage separately.
+    Just let the GL handle it.
+    The GL can reload its own internal buffers faster anyway
+    Don't keep buffers.  Delete after upload.  Reduces redundancy
+
+
+A file request is
+    a filename
+    a pointer to a tile
+    a pointer to a geomap?
+
+A file response is
+    a pixel buffer
+    a pointer to a tile
+
+* test and data request need to be combined...
+
+A tile is presented with a sphere area and screen area
+    if the sphere area overlaps with this tile's sphere area
+        if this tile is a leaf or its density is greater than requested
+            I'm it
+        if I'm not it send the areas to any/all children
+        if none of them are it
+            I'm it
+        if I'm it
+            enqueue this tile on the draw queue
+            add the screen area to this tile's draw area
+
+A tile needs to draw itself
+    append self onto the geomap LRU queue
+
+    if state is ejected
+        acquire the geomap static queue mutex
+        enqueue the file request in the geomap static request queue
+        release the geomap static queue mutex
+        post the request queue semaphore
+        set state to waiting
+
+    if state is ready
+        bind the texture
+
+A tile is issued a texture object
+    store it
+    set state to ready
+
+A tile is ordered to eject
+    delete the texture object
+    set state to ejected
+
+geomap cycle responses
+    while response queue is not empty
+
+        while the geomap local texture quantity is too large
+           pop head of LRU tile queue
+           order LRU tile to eject
+           update the geomap local texture quantity
+
+        upload the texture
+        update the geomap texture quantity
+
+        issue the texture object to the tile
+
+geomap load thread
+    loop
+        wait on the request queue semaphore
+
+        acquire the geomap static queue mutex
+        pop the request from the queue
+        release the geomap static queue mutex
+
+        allocate a buffer
+        load the file
+
+        acquire the geomap local response queue mutex
+        enqueue the file response in the geomap local response queue mutex
+        release the geomap local response queue mutex
+
