@@ -13,29 +13,47 @@
 #ifndef GEOMAP
 #define GEOMAP
 
+#include "texture.hpp"
+#include "opengl.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace uni
 {
+    //-------------------------------------------------------------------------
+    // Geomap tile
+
     class tile
     {
-        tile  *C[4];
-        double n[3];
-        double a;
-        double k;
-        int    i;
-        int    j;
-        GLuint o;
+        enum { dead_state, wait_state, live_state } state;
 
+        tile  *P[4];
+        int d, i, j;
+        double L;
+        double R;
+        double B;
+        double T;
+        double k;
+
+        GLuint  object;
         GLfloat coff[2];
         GLfloat cscl[2];
 
     public:
 
-        tile();
+        tile(int, int, int, int, int, int, double, double, double, double);
        ~tile();
 
+        void search();
+
+        void ready(GLuint);
+        void eject();
+
+        void draw(int, int, int, int);
     };
+
+    //-------------------------------------------------------------------------
+    // Geomap
 
     class geomap
     {
@@ -50,18 +68,20 @@ namespace uni
         GLfloat hoff;
         GLfloat hscl;
 
-        tile *T;
-        tile *Q;
+        tile *P;
 
         // Tile LRU queue
-        // Tile draw queue
+        // Tile draw stack
         // File response queue
         // static File request queue
 
     public:
 
-        geomap(std::string, int, int, int, int);
+        geomap(std::string, int, int, int, int, int, 
+               double, double, double, double);
        ~geomap();
+
+        void draw(int, int, int, int);
 
     };
 }

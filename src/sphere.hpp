@@ -17,6 +17,7 @@
 #include "texture.hpp"
 #include "geogen.hpp"
 #include "georen.hpp"
+#include "geomap.hpp"
 #include "patch.hpp"
 
 //-----------------------------------------------------------------------------
@@ -64,7 +65,6 @@ namespace uni
 
         // OpenGL state
 
-        const ogl::texture *color;
         const ogl::texture *normal;
         const ogl::texture *height;
 
@@ -77,14 +77,15 @@ namespace uni
         geovtx  vtx;
         georen& ren;
 
+        geomap& color;
+
         void transform(double *, double *);
 
     public:
     
-        sphere(geodat&, georen&,
+        sphere(geodat&, georen&, geomap&,
                const ogl::texture *,
-               const ogl::texture *,
-               const ogl::texture *, double, double, double=2.0, GLsizei=128);
+               const ogl::texture *, double, double, double=1.5, GLsizei=128);
        ~sphere();
 
         void turn(double=0);

@@ -60,7 +60,7 @@ A tile is presented with a sphere area and screen area
         if none of them are it
             I'm it
         if I'm it
-            enqueue this tile on the draw queue
+            push this tile on the draw stack
             add the screen area to this tile's draw area
 
 A tile needs to draw itself
@@ -100,15 +100,24 @@ geomap cycle responses
 geomap load thread
     loop
         wait on the request queue semaphore
-
-        acquire the geomap static queue mutex
+        acquire the geomap static request queue mutex
         pop the request from the queue
-        release the geomap static queue mutex
+        release the geomap static request queue mutex
 
-        allocate a buffer
         load the file
 
-        acquire the geomap local response queue mutex
-        enqueue the file response in the geomap local response queue mutex
-        release the geomap local response queue mutex
+        wait on the respond queue semaphore
+        acquire the geomap static respond queue mutex
+        move the file to the response queue buffer
+        release the geomap static respond queue mutex
+
+
+request queue semaphore indicates number of used requests
+respond queue semaphore indicates number of free load slots
+
+
+
+0   1300 650 512    0  0                   3  2
+1   650 650 512      0  0   0  1
+2   325 325 512      
 

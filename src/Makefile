@@ -20,6 +20,7 @@ OBJS=   opengl.o \
 	buffer.o \
         geogen.o \
         georen.o \
+        geomap.o \
 	sphere.o \
 	universe.o \
 	atom.o \

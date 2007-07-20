@@ -14,6 +14,7 @@
 #define UNIVERSE_HPP
 
 #include "sphere.hpp"
+#include "geomap.hpp"
 #include "texture.hpp"
 
 //-----------------------------------------------------------------------------
@@ -24,9 +25,9 @@ namespace uni
     {
         geodat *D;
         georen *R;
+        geomap *color;
         sphere *S[3];
 
-        const ogl::texture *color;
         const ogl::texture *normal;
         const ogl::texture *height;
 

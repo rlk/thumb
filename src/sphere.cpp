@@ -26,7 +26,7 @@
 
 uni::sphere::sphere(uni::geodat& dat,
                     uni::georen& ren,
-                    const ogl::texture *color,
+                    uni::geomap& color,
                     const ogl::texture *normal,
                     const ogl::texture *height,
                     double r0,
@@ -44,7 +44,6 @@ uni::sphere::sphere(uni::geodat& dat,
     cache(cache),
     frame(0),
 
-    color(color),
     normal(normal),
     height(height),
 
@@ -55,7 +54,9 @@ uni::sphere::sphere(uni::geodat& dat,
     acc(dat.depth(), cache),
     ext(dat.depth(), cache),
     vtx(dat.depth(), cache),
-    ren(ren)
+    ren(ren),
+
+    color(color)
 {
     // Initialize all points.
 
@@ -441,24 +442,29 @@ void uni::sphere::draw()
 
                 // Draw the diffuse maps.
 
-                color->bind(GL_TEXTURE1);
+                glEnable(GL_BLEND);
+//              glBlendFunc(GL_ONE, GL_ONE);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//              color->bind(GL_TEXTURE0);
                 ren.dif()->bind(true);
                 {
-                    glRecti(0, 0, w, h);
+                    color.draw(0, 0, w, h);
+//                  glRecti(0, 0, w, h);
                 }
                 ren.dif()->free(true);
-                color->free(GL_TEXTURE1);
+//              color->free(GL_TEXTURE0);
+                glDisable(GL_BLEND);
 
                 // Draw the normal maps.
 
-                normal->bind(GL_TEXTURE1);
+                normal->bind(GL_TEXTURE0);
                 ren.nrm()->axis(a);
                 ren.nrm()->bind();
                 {
                     glRecti(0, 0, w, h);
                 }
                 ren.nrm()->free();
-                normal->free(GL_TEXTURE1);
+                normal->free(GL_TEXTURE0);
 
                 // Draw the illuminated geometry.
 
@@ -520,13 +526,13 @@ void uni::sphere::wire()
             }
             glMatrixMode(GL_MODELVIEW);
 
-            color->bind(GL_TEXTURE0);
+//          color->bind(GL_TEXTURE0);
 
             for (int k = 0; k < 20; ++k)
                 if (C[k])
                     C[k]->wire();
 
-            color->free(GL_TEXTURE0);
+//          color->free(GL_TEXTURE0);
 
             glMatrixMode(GL_TEXTURE);
             {
