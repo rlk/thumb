@@ -65,9 +65,6 @@ namespace uni
 
         // OpenGL state
 
-        const ogl::texture *normal;
-        const ogl::texture *height;
-
         geodat& dat;
         geotex  tex;
         geonrm  nrm;
@@ -78,14 +75,15 @@ namespace uni
         georen& ren;
 
         geomap& color;
+        geomap& normal;
+        geomap& height;
 
         void transform(double *, double *);
 
     public:
     
-        sphere(geodat&, georen&, geomap&,
-               const ogl::texture *,
-               const ogl::texture *, double, double, double=1.5, GLsizei=128);
+        sphere(geodat&, georen&, geomap&, geomap&, geomap&,
+               double, double, double=1.5, GLsizei=128);
        ~sphere();
 
         void turn(double=0);

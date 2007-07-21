@@ -26,10 +26,9 @@ namespace uni
         geodat *D;
         georen *R;
         geomap *color;
+        geomap *normal;
+        geomap *height;
         sphere *S[3];
-
-        const ogl::texture *normal;
-        const ogl::texture *height;
 
     public:
 

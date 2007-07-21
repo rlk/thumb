@@ -1,19 +1,20 @@
 tellurion
 
     For the demo
-        disk-paging data acq
-            data catalog
-            multithread
-        data preproc
-            2-channel normal map
-            16-bit heightmap
-            compressed color map
-            polar projection
-        normal mapping
-        atmo integration
-        pssm integration
+        geomap
+        patch crack
+        atmosphere
+        stars
+        sun
+        mars
+        moon
         cluster sync
         stereo
+        tracking / interaction
+        destination select
+        hilo normal map?
+        dxt color map?
+-       normal mapping
 
 
 

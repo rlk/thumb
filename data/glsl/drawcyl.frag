@@ -2,7 +2,14 @@ varying vec3 normal;
 
 void main()
 {
-    vec3 N = normalize(normal);
+    const float pi = 3.14159265358979323844;
 
-    gl_FragColor = vec4(gl_TexCoord[0].xy, N.xy);
+    vec3 N = normalize(normal);
+    vec2 c = gl_TexCoord[0].xy;
+
+    // Wrap cylindrical coordinates at pi.
+
+    c.x -= 2.0 * pi * step(pi, c.x);
+
+    gl_FragColor = vec4(c, N.xy);
 }

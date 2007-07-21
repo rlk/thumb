@@ -66,8 +66,8 @@ uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
 {
     draw->bind();
     {
-        draw->uniform("color", 0);
-        draw->uniform("cyl",   1);
+        draw->uniform("cyl",   0);
+        draw->uniform("color", 1);
     }
     draw->free();
 }
@@ -75,12 +75,12 @@ uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
 void uni::difbuf::bind(bool) const
 {
     uni::renbuf::bind(true);
-    cyl.bind_color(GL_TEXTURE1);
+    cyl.bind_color();
 }
 
 void uni::difbuf::free(bool) const
 {
-    cyl.free_color(GL_TEXTURE1);
+    cyl.free_color();
     uni::renbuf::free(true);
 }
 
@@ -92,14 +92,8 @@ uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
 {
     draw->bind();
     {
-        double dt = -0.1540740740, dp = -0.6874074074;
-        double kt = 84.3750000000, kp = 42.1875000000;
-
-        draw->uniform("normal", 0);
-        draw->uniform("cyl",    1);
-
-        draw->uniform("coff",  dt * (PI * 2) + PI, dp * PI + PI / 2);
-        draw->uniform("cscl",  kt / (PI * 2),      kp / PI);
+        draw->uniform("cyl",    0);
+        draw->uniform("normal", 1);
     }
     draw->free();
 }
@@ -118,12 +112,12 @@ void uni::nrmbuf::axis(const double *a) const
 void uni::nrmbuf::bind(bool) const
 {
     uni::renbuf::bind(true);
-    cyl.bind_color(GL_TEXTURE1);
+    cyl.bind_color();
 }
 
 void uni::nrmbuf::free(bool) const
 {
-    cyl.free_color(GL_TEXTURE1);
+    cyl.free_color();
     uni::renbuf::free(true);
 }
 

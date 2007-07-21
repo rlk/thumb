@@ -27,8 +27,8 @@
 uni::sphere::sphere(uni::geodat& dat,
                     uni::georen& ren,
                     uni::geomap& color,
-                    const ogl::texture *normal,
-                    const ogl::texture *height,
+                    uni::geomap& normal,
+                    uni::geomap& height,
                     double r0,
                     double r1, double bias, GLsizei cache) :
 
@@ -44,9 +44,6 @@ uni::sphere::sphere(uni::geodat& dat,
     cache(cache),
     frame(0),
 
-    normal(normal),
-    height(height),
-
     dat(dat),
     tex(dat.depth(), cache),
     nrm(dat.depth(), cache),
@@ -56,7 +53,10 @@ uni::sphere::sphere(uni::geodat& dat,
     vtx(dat.depth(), cache),
     ren(ren),
 
-    color(color)
+    color(color),
+    normal(normal),
+    height(height)
+
 {
     // Initialize all points.
 
@@ -322,10 +322,7 @@ void uni::sphere::prep()
             acc.bind_proc();
             {
                 glClear(GL_COLOR_BUFFER_BIT);
-
-                height->bind(GL_TEXTURE1);
-                glRecti(0, 0, w, count);
-                height->free(GL_TEXTURE1);
+                height.draw(0, 0, w, count);
             }
             acc.free_proc();
             acc.swap();
@@ -440,31 +437,28 @@ void uni::sphere::draw()
                 dat.idx()->free();
                 ren.cyl()->free();
 
-                // Draw the diffuse maps.
-
                 glEnable(GL_BLEND);
-//              glBlendFunc(GL_ONE, GL_ONE);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-//              color->bind(GL_TEXTURE0);
-                ren.dif()->bind(true);
                 {
-                    color.draw(0, 0, w, h);
-//                  glRecti(0, 0, w, h);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                    // Draw the diffuse maps.
+
+                    ren.dif()->bind(true);
+                    {
+                        color.draw(0, 0, w, h);
+                    }
+                    ren.dif()->free(true);
+
+                    // Draw the normal maps.
+
+                    ren.nrm()->axis(a);
+                    ren.nrm()->bind();
+                    {
+                        normal.draw(0, 0, w, h);
+                    }
+                    ren.nrm()->free();
                 }
-                ren.dif()->free(true);
-//              color->free(GL_TEXTURE0);
                 glDisable(GL_BLEND);
-
-                // Draw the normal maps.
-
-                normal->bind(GL_TEXTURE0);
-                ren.nrm()->axis(a);
-                ren.nrm()->bind();
-                {
-                    glRecti(0, 0, w, h);
-                }
-                ren.nrm()->free();
-                normal->free(GL_TEXTURE0);
 
                 // Draw the illuminated geometry.
 

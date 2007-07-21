@@ -20,49 +20,13 @@
 
 uni::universe::universe()
 {
-
-    color = new geomap("/data/earth/world-200408-color",
+    color  = new geomap("/data/earth/earth-color-200408/earth-color-200408",
                    86400, 43200, 3, 1, 1024, -PI, PI, -PI / 2, PI / 2);
-/*
-    color  = glob->load_texture("solid/world-200408-color-00-1d-0d.png");
-*/
-    normal = glob->load_texture("solid/world-normal-00-1d-0d.png");
-    height = glob->load_texture("solid/world-height-00-1d-0d.png");
-/*
-    color  = glob->load_texture("solid/world-200408-color-00-1c-40.png");
-    normal = glob->load_texture("solid/world-normal-00-1c-40.png");
-    height = glob->load_texture("solid/world-height-00-1c-40.png");
-*/
-    height->bind();
-    {
-        GLfloat B[4] = { 0.5f, 0.5f, 0.5f, 0.5f };
+    normal = new geomap("/data/earth/earth-normal/earth-normal",
+                   86400, 43200, 3, 1, 1024, -PI, PI, -PI / 2, PI / 2);
+    height = new geomap("/data/earth/earth-height/earth-normal",
+                   86400, 43200, 3, 1, 1024, -PI, PI, -PI / 2, PI / 2);
 
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-        glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, B);
-    }
-    height->free();
-
-    normal->bind();
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    }
-    normal->free();
-/*
-    color->bind();
-    {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
-    }
-    color->free();
-*/
     D = new geodat();
     R = new georen(::view->get_w(),
                    ::view->get_h());
@@ -75,20 +39,19 @@ uni::universe::universe()
     S[0]->move(        0.0, 0.0, -149597887500.0);
     S[1]->move(384400000.0, 0.0, -149597887500.0);
 */
-    S[0] = new sphere(*D, *R, *color, normal, height, 6372797.0, 6372797.0 + 8844.0);
+    S[0] = new sphere(*D, *R, *color, *normal, *height, 6372797.0, 6372797.0 + 8844.0);
     S[0]->move(0.0, 0.0, -6372797.0 * 2.0);
 
 }
 
 uni::universe::~universe()
 {
-    glob->free_texture(height);
-    glob->free_texture(normal);
-//  glob->free_texture(color);
 /*
     delete S[2];
     delete S[1];
 */
+    delete height;
+    delete normal;
     delete color;
     delete S[0];
     delete R;

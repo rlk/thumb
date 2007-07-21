@@ -12,15 +12,26 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <png.h>
 
 #include "geomap.hpp"
 #include "matrix.hpp"
 
-static GLuint load_png(std::string name)
+static GLuint load_png(std::string base, int d, int i, int j)
 {
     GLuint o = 0;
+
+    // Construct the file name.
+
+    std::ostringstream name;
+
+    name << base
+         << "-" << std::hex << std::setfill('0') << std::setw(2) << d
+         << "-" << std::hex << std::setfill('0') << std::setw(2) << i
+         << "-" << std::hex << std::setfill('0') << std::setw(2) << j << ".png";
 
     // Initialize all PNG import data structures.
 
@@ -29,7 +40,7 @@ static GLuint load_png(std::string name)
     png_bytep  *bp = 0;
     FILE       *fp = 0;
 
-    if (!(fp = fopen(name.c_str(), "rb")))
+    if (!(fp = fopen(name.str().c_str(), "rb")))
         throw std::runtime_error("Failure opening PNG file");
 
     if (!(rp = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0)))
@@ -97,7 +108,8 @@ static GLuint load_png(std::string name)
             // Copy all rows to the new texture.
 
             for (GLsizei i = 0, j = h - 1; j >= 0; ++i, --j)
-                glTexSubImage2D(GL_TEXTURE_2D, 0, -d, i - d, w, 1, fe, type, bp[j]);
+                glTexSubImage2D(GL_TEXTURE_2D, 0, -d, i - d, w, 1,
+                                fe, type, bp[j]);
 
             OGLCK();
 
@@ -119,30 +131,23 @@ static GLuint load_png(std::string name)
 
 //-----------------------------------------------------------------------------
 
-uni::tile::tile(int w, int h, int s,
+uni::tile::tile(std::string& name, int w, int h, int s,
                 int x, int y, int d, double L, double R, double B, double T) :
     state(dead_state), d(d), object(0)
 {
-    int S = s << d >> 1;
+    int S = s << d;
 
     // Compute the mipmap file indices.
 
-    i = y / (s << d);
-    j = x / (s << d);
+    i = y / S;
+    j = x / S;
 
     // Compute the texture boundries.
 
-    this->L = (L + (R - L) * x                      / w);
-    this->R = (L + (R - L) * std::min(x + S * 2, w) / w);
-    this->B = (B + (T - B) * y                      / h);
-    this->T = (B + (T - B) * std::min(y + S * 2, h) / h);
-
-    // Compute the texture offset and scale.
-
-    coff[0] = this->L;
-    coff[1] = this->B;
-    cscl[0] = 1.0L / (this->R - this->L);
-    cscl[1] = 1.0L / (this->T - this->B);
+    this->L = (L + (R - L) * (x    ) / w);
+    this->R = (L + (R - L) * (x + S) / w);
+    this->T = (T + (B - T) * (y    ) / h);
+    this->B = (T + (B - T) * (y + S) / h);
 
     // Create subtiles as necessary.
 
@@ -153,29 +158,21 @@ uni::tile::tile(int w, int h, int s,
 
     if (d > 0)
     {
-        const int X = (x + S);
-        const int Y = (y + S);
+        const int X = (x + S / 2);
+        const int Y = (y + S / 2);
 
-                            P[0] = new tile(w, h, s, x, y, d-1, L, R, B, T);
-        if (         Y < h) P[1] = new tile(w, h, s, x, Y, d-1, L, R, B, T);
-        if (X < w         ) P[2] = new tile(w, h, s, X, y, d-1, L, R, B, T);
-        if (X < w && Y < h) P[3] = new tile(w, h, s, X, Y, d-1, L, R, B, T);
+        /* Has children? */ P[0] = new tile(name, w, h, s, x, y, d-1, L, R, B, T);
+        if (         Y < h) P[1] = new tile(name, w, h, s, x, Y, d-1, L, R, B, T);
+        if (X < w         ) P[2] = new tile(name, w, h, s, X, y, d-1, L, R, B, T);
+        if (X < w && Y < h) P[3] = new tile(name, w, h, s, X, Y, d-1, L, R, B, T);
     }
 
     // Test loads
 
-    if (d == 0 && i == 0x1d && j == 0x0d)
-        object = load_png("data/solid/world-border-color-00-1d-0d.png");
-
-    if (d == 0 && i == 0x1d && j == 0x0e)
-        object = load_png("data/solid/world-border-color-00-1d-0e.png");
-/*
-    if (d == 1 && i == 0x0f && j == 0x07)
-        object = load_png("/data/earth/world-200408-color/world-200408-color-01-0f-07.png");
-
-    if (d == 5 && i == 0x00 && j == 0x00)
-        object = load_png("/data/earth/world-200408-color/world-200408-color-05-00-00.png");
-*/
+    if (d == 0 && i == 0x0c && j == 0x0d) object = load_png(name, d, i, j);
+    if (d == 0 && i == 0x0c && j == 0x0e) object = load_png(name, d, i, j);
+    if (d == 1 && i == 0x06 && j == 0x07) object = load_png(name, d, i, j);
+    if (d == 7 && i == 0x00 && j == 0x00) object = load_png(name, d, i, j);
 }
 
 uni::tile::~tile()
@@ -207,20 +204,32 @@ void uni::tile::draw(int x, int y, int w, int h)
 {
     if (object)
     {
-        double kt = 1.0 / (R - L);
-        double kp = 1.0 / (T - B);
+        double kt = +1.0 / (R - L);
+        double kp = +1.0 / (T - B);
         double dt = -L * kt;
         double dp = -B * kp;
 
-        glMatrixMode(GL_TEXTURE);
-        glLoadIdentity();
-        glTranslated(dt, dp, 0.0);
-        glScaled    (kt, kp, 1.0);
-        glMatrixMode(GL_MODELVIEW);
+        glActiveTextureARB(GL_TEXTURE1);
+        {
+            glMatrixMode(GL_TEXTURE);
+            {
+                glLoadIdentity();
+                glTranslated(dt, dp, 0.0);
+                glScaled    (kt, kp, 1.0);
+            }
+            glMatrixMode(GL_MODELVIEW);
 
-        glBindTexture(GL_TEXTURE_2D, object);
+            glBindTexture(GL_TEXTURE_2D, object);
+        }
+        glActiveTextureARB(GL_TEXTURE0);
+
         glRecti(x, y, w, h);
-        glBindTexture(GL_TEXTURE_2D, 0);
+
+        glActiveTextureARB(GL_TEXTURE1);
+        {
+            glBindTexture(GL_TEXTURE_2D, 0);
+        }
+        glActiveTextureARB(GL_TEXTURE0);
     }
 
     if (P[0]) P[0]->draw(x, y, w, h);
@@ -248,7 +257,7 @@ uni::geomap::geomap(std::string name,
 
     // Generate the mipmap pyramid catalog.
 
-    P = new tile(w, h, s, 0, 0, d, L, R, B, T);
+    P = new tile(name, w, h, s, 0, 0, d, L, R, B, T);
 }
 
 uni::geomap::~geomap()

@@ -8,21 +8,18 @@ uniform sampler2DRect pos;
 uniform sampler2DRect nrm;
 uniform sampler2DRect tex;
 
-uniform vec2 coff;
-uniform vec2 cscl;
-
 void main()
 {
     const float off =     0.5;
     const float scl =     1.0;
     const float mag = 65535.0;
 
-    vec3 S = texture2DRect(src, gl_FragCoord.xy).xyz;
+    vec4 S = texture2DRect(src, gl_FragCoord.xy);
     vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
     vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
     vec2 T = texture2DRect(tex, gl_FragCoord.xy).xy;
 
-    T = (T + coff) * cscl;
+    T = (gl_TextureMatrix[1] * vec4(T, 0.0, 1.0)).xy;
 
 #if FILTER
     const float dds = 1.0 / 1024.0;
@@ -41,7 +38,12 @@ void main()
     float s = texture2D(map, T).r;
 #endif
 
+    vec2 a = step(vec2(0.0), T) * step(T, vec2(1.0));
+
     float M = (s - off) * scl * mag;
 
-    gl_FragColor = vec4(P + N * M, M);
+    vec4 D = vec4(P + N * M, M);
+
+//    gl_FragColor = mix(S, D, a.x * a.y);
+    gl_FragColor = D;
 }

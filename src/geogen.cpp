@@ -760,17 +760,11 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 {
     calc->bind();
     {
-        double dt = -0.1540740740, dp = -0.6874074074;
-        double kt = 84.3750000000, kp = 42.1875000000;
-
         calc->uniform("src", 0);
         calc->uniform("map", 1);
         calc->uniform("pos", 2);
         calc->uniform("nrm", 3);
         calc->uniform("tex", 4);
-
-        calc->uniform("coff",  dt * (PI * 2) + PI, dp * PI + PI / 2);
-        calc->uniform("cscl",  kt / (PI * 2),      kp / PI);
     }
     calc->free();
 }

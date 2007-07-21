@@ -35,13 +35,11 @@ namespace uni
         double T;
         double k;
 
-        GLuint  object;
-        GLfloat coff[2];
-        GLfloat cscl[2];
+        GLuint object;
 
     public:
 
-        tile(int, int, int, int, int, int, double, double, double, double);
+        tile(std::string&, int, int, int, int, int, int, double, double, double, double);
        ~tile();
 
         void search();
