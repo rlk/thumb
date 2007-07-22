@@ -20,12 +20,15 @@
 
 uni::universe::universe()
 {
+    double r0 = 6372797.0;
+    double r1 = 6372797.0 + 8844.0;
+
     color  = new geomap("/data/earth/earth-color-200408/earth-color-200408",
-                   86400, 43200, 3, 1, 1024, -PI, PI, -PI / 2, PI / 2);
+                        86400, 43200, 3, 1, 1024, r0, r1, -PI, PI, -PI / 2, PI / 2);
     normal = new geomap("/data/earth/earth-normal/earth-normal",
-                   86400, 43200, 3, 1, 1024, -PI, PI, -PI / 2, PI / 2);
+                        86400, 43200, 3, 1, 1024, r0, r1, -PI, PI, -PI / 2, PI / 2);
     height = new geomap("/data/earth/earth-height/earth-normal",
-                   86400, 43200, 3, 1, 1024, -PI, PI, -PI / 2, PI / 2);
+                        86400, 43200, 3, 1, 1024, r0, r1, -PI, PI, -PI / 2, PI / 2);
 
     D = new geodat();
     R = new georen(::view->get_w(),
@@ -39,8 +42,8 @@ uni::universe::universe()
     S[0]->move(        0.0, 0.0, -149597887500.0);
     S[1]->move(384400000.0, 0.0, -149597887500.0);
 */
-    S[0] = new sphere(*D, *R, *color, *normal, *height, 6372797.0, 6372797.0 + 8844.0);
-    S[0]->move(0.0, 0.0, -6372797.0 * 2.0);
+    S[0] = new sphere(*D, *R, *color, *normal, *height, r0, r1);
+    S[0]->move(0.0, 0.0, -r0 * 2.0);
 
 }
 
@@ -62,15 +65,23 @@ uni::universe::~universe()
 
 void uni::universe::draw()
 {
+    double M[16];
+    double I[16];
+    double P[16];
+
     int i, n = 1;
+
+    ::view->get_M(M);
+    load_inv(I, M);
+    ::view->get_P(P);
 
     // Preprocess all objects.
 
-    for (i = 0; i < n; ++i) S[i]->view();
+    for (i = 0; i < n; ++i) S[i]->view(M, I);
 
     std::sort(S, S + n, sphcmp);
     
-    for (i = 0; i < n; ++i) S[i]->step();
+    for (i = 0; i < n; ++i) S[i]->step(P);
     for (i = 0; i < n; ++i) S[i]->prep();
 
     // Draw all objects.

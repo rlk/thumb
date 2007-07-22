@@ -6,11 +6,13 @@ Can texture atlasing be automated?
 
 Multiple vector accumulations in calcacc will be unstable.  Perhaps accumulate the radius only in W, and compute the true position in a vertex shader.
 
-The extrema calculation and readback could be eliminated by computing extrema during heightmap accumulation.  The bounds would not be as tight, but it would be close, and skipping the readback would be a huge win.
+The extrema calculation and readback could be eliminated by computing extrema during heightmap accumulation.  The bounds would not be as tight, but it would be close, and skipping the readback would be a huge win.  The Z planes will have to be computed by hand the old way.
 
 Consider HILO_NV for normal storage.  The z component is computed automatically.
 
 We're pixel/texture limited.  Compress.
+
+In the future, the extrema reducer could computer tighter NDC coverage.
 
 -------------------------------------------------------------------------------
 

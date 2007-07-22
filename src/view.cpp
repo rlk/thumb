@@ -28,19 +28,27 @@ app::view::view(int w, int h, double n, double f, double z) :
 
 //-----------------------------------------------------------------------------
 
-void app::view::set(const double *M)
+void app::view::clr()
+{
+    load_mat(current_M, default_M);
+}
+
+void app::view::set_M(const double *M)
 {
     load_mat(current_M, M);
 }
 
-void app::view::get(double *M)
+void app::view::get_M(double *M)
 {
     load_mat(M, current_M);
 }
 
-void app::view::clr()
+void app::view::get_P(double *P)
 {
-    load_mat(current_M, default_M);
+    double A = double(w) / double(h);
+    double N = double(n);
+
+    load_persp(P, -A * z * N, +A * z * N, -z * N, +z * N, N, f);
 }
 
 //-----------------------------------------------------------------------------

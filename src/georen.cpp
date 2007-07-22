@@ -74,14 +74,35 @@ uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
 
 void uni::difbuf::bind(bool) const
 {
-    uni::renbuf::bind(true);
+    uni::renbuf::bind(false);
     cyl.bind_color();
+
+    // Set up a normalized-device-coordinate transformation.
+/*
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(-1.0, +1.0, -1.0, +1.0, -1.0, +1.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+*/
 }
 
 void uni::difbuf::free(bool) const
 {
     cyl.free_color();
-    uni::renbuf::free(true);
+    uni::renbuf::free(false);
+
+    // Restore the previous transfromation.
+/*
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -111,14 +132,35 @@ void uni::nrmbuf::axis(const double *a) const
 
 void uni::nrmbuf::bind(bool) const
 {
-    uni::renbuf::bind(true);
+    uni::renbuf::bind(false);
     cyl.bind_color();
+
+    // Set up a normalized-device-coordinate transformation.
+/*
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    glOrtho(-1.0, +1.0, -1.0, +1.0, -1.0, +1.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+*/
 }
 
 void uni::nrmbuf::free(bool) const
 {
     cyl.free_color();
-    uni::renbuf::free(true);
+    uni::renbuf::free(false);
+
+    // Restore the previous transfromation.
+/*
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -149,7 +191,7 @@ uni::georen::~georen()
 void uni::georen::bind() const
 {
     // Set up a one-to-one model-view-projection transformation.
-
+/*
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -158,7 +200,7 @@ void uni::georen::bind() const
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
     glLoadIdentity();
-
+*/
     // Bind the deferred illumination shader.
 
     draw->bind();
@@ -183,12 +225,13 @@ void uni::georen::free() const
     draw->free();
 
     // Restore the previous transformation.
-
+/*
     glMatrixMode(GL_PROJECTION);
     glPopMatrix();
 
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+*/
 }
 
 //-----------------------------------------------------------------------------

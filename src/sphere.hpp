@@ -78,12 +78,12 @@ namespace uni
         geomap& normal;
         geomap& height;
 
-        void transform(double *, double *);
+        void transform(const double *, const double *);
 
     public:
     
         sphere(geodat&, georen&, geomap&, geomap&, geomap&,
-               double, double, double=1.5, GLsizei=128);
+               double, double, double=2.0, GLsizei=128);
        ~sphere();
 
         void turn(double=0);
@@ -92,8 +92,8 @@ namespace uni
 
         // Rendering pipeline.
 
-        void view();
-        void step();
+        void view(const double *, const double *);
+        void step(const double *);
         void prep();
         void pass();
         void draw();

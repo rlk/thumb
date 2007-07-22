@@ -28,18 +28,21 @@ namespace uni
         enum { dead_state, wait_state, live_state } state;
 
         tile  *P[4];
+        double b[6];
         int d, i, j;
         double L;
         double R;
         double B;
         double T;
-        double k;
 
         GLuint object;
 
+        bool visible(const double *, const double *, const double *);
+
     public:
 
-        tile(std::string&, int, int, int, int, int, int, double, double, double, double);
+        tile(std::string&, int, int, int, int, int, int,
+             double, double, double, double, double, double);
        ~tile();
 
         void search();
@@ -47,7 +50,8 @@ namespace uni
         void ready(GLuint);
         void eject();
 
-        void draw(int, int, int, int);
+        void draw(const double *, const double *, const double *);
+        void wire();
     };
 
     //-------------------------------------------------------------------------
@@ -76,11 +80,11 @@ namespace uni
     public:
 
         geomap(std::string, int, int, int, int, int, 
-               double, double, double, double);
+               double, double, double, double, double, double);
        ~geomap();
 
-        void draw(int, int, int, int);
-
+        void draw(const double *, const double *, const double *);
+        void wire();
     };
 }
 

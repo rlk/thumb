@@ -111,7 +111,7 @@ void uni::sphere::turn(double dr)
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::transform(double *M, double *I)
+void uni::sphere::transform(const double *Mv, const double *Iv)
 {
     double A[16];
     double B[16];
@@ -130,14 +130,15 @@ void uni::sphere::transform(double *M, double *I)
 
     // Compose the object-to-camera transformation.
 
-    ::view->get(I);
-    load_inv(M, I);
+    load_mat(M, Iv);
 
     Rmul_xlt_mat(M, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(M, M, A);              // Planet tilt
     Rmul_rot_mat(M, 0, 1, 0, a);        // Planet rotation
 
     // Compose the object-to-camera inverse.
+
+    load_mat(I, Mv);
 
     Lmul_xlt_inv(I, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(I, B, I);              // Planet tilt
@@ -146,7 +147,7 @@ void uni::sphere::transform(double *M, double *I)
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::view()
+void uni::sphere::view(const double *Mv, const double *Iv)
 {
     if ((visible = true)) // HACK (visible = cam->test(p, r1)))
     {
@@ -155,7 +156,7 @@ void uni::sphere::view()
 
         // The sphere is visible.  Cache the transform and view vector.
 
-        transform(M, I);
+        transform(Mv, Iv);
 
         mult_mat_vec3(v, I, o);
 
@@ -168,7 +169,7 @@ void uni::sphere::view()
 
         normalize(V);
 
-        // Determine the view planes.
+        // Determine the view planes. TODO: move this up.
 
         ::view->world_frustum(O);
 
@@ -221,7 +222,7 @@ void uni::sphere::view()
 */
 }
 
-void uni::sphere::step()
+void uni::sphere::step(const double *Pv)
 {
     count = 0;
 
@@ -268,7 +269,7 @@ void uni::sphere::step()
             {
                 for (int k = 0; k < 20; ++k)
                     if (C[k])
-                        C[k]->seed(nrm, pos, tex, M, I, frame);
+                        C[k]->seed(nrm, pos, tex, Pv, M, I, frame);
             }
             tex.fini(count);
             nrm.fini(count);
@@ -308,21 +309,19 @@ void uni::sphere::prep()
         }
         dat.rad()->free(GL_TEXTURE3);
         dat.lut()->free(GL_TEXTURE1);
-
+/*
         // Bind all generated attribute for use in terrain accumulation.
 
         pos.bind(GL_TEXTURE2);
         nrm.bind(GL_TEXTURE3);
         tex.bind(GL_TEXTURE4);
         {
-            GLsizei w = dat.vtx_len();
-
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
             acc.bind_proc();
             {
                 glClear(GL_COLOR_BUFFER_BIT);
-                height.draw(0, 0, w, count);
+                height.draw();
             }
             acc.free_proc();
             acc.swap();
@@ -338,6 +337,12 @@ void uni::sphere::prep()
             ext.proc(count);
         }
         acc.free(GL_TEXTURE1);
+*/
+        pos.bind(GL_TEXTURE1);
+        {
+            ext.proc(count);
+        }
+        pos.free(GL_TEXTURE1);
 
         // Copy the generated coordinates to the vertex buffer.
 
@@ -352,10 +357,14 @@ void uni::sphere::prep()
         nrm.free_frame();
 
         // Copy the generated positions to the vertex buffer.
-
+/*
         acc.bind_frame();
         vtx.read_v(count);
         acc.free_frame();
+*/
+        pos.bind_frame();
+        vtx.read_v(count);
+        pos.free_frame();
     }
 }
 
@@ -387,12 +396,9 @@ void uni::sphere::draw()
         double  a[4];
         double  A[16];
 
-        int w = ::view->get_w();
-        int h = ::view->get_h();
+        // Position a directional lightsource at the origin.  TODO: move this?
 
-        // Position a directional lightsource at the origin.
-
-        ::view->get(A);
+        ::view->get_M(A);
 
         mult_xps_vec3(t, A, p);
         mult_xps_vec3(a, A, n);
@@ -425,6 +431,8 @@ void uni::sphere::draw()
 
                 glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
                 // Draw the texture coordinates.
 
                 ren.cyl()->bind();
@@ -437,15 +445,21 @@ void uni::sphere::draw()
                 dat.idx()->free();
                 ren.cyl()->free();
 
-                glEnable(GL_BLEND);
+                glPushMatrix();
                 {
+                    glLoadMatrixd(M);
+
+                    glEnable(GL_DEPTH_CLAMP_NV);
+                    glEnable(GL_BLEND);
+                    glDisable(GL_CULL_FACE);
+
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                     // Draw the diffuse maps.
 
                     ren.dif()->bind(true);
                     {
-                        color.draw(0, 0, w, h);
+                        color.draw(V, M, I);
                     }
                     ren.dif()->free(true);
 
@@ -454,19 +468,29 @@ void uni::sphere::draw()
                     ren.nrm()->axis(a);
                     ren.nrm()->bind();
                     {
-                        normal.draw(0, 0, w, h);
+                        normal.draw(V, M, I);
                     }
                     ren.nrm()->free();
+
+                    glDisable(GL_DEPTH_CLAMP_NV);
+                    glDisable(GL_BLEND);
+                    glEnable(GL_CULL_FACE);
                 }
-                glDisable(GL_BLEND);
+                glPopMatrix();
 
                 // Draw the illuminated geometry.
 
                 ren.bind();
+                dat.idx()->bind();
+                vtx.bind();
                 {
-                    glRecti(0, 0, w, h);
+                    pass();
                 }
+                vtx.free();
+                dat.idx()->free();
                 ren.free();
+
+//                  glRecti(0, 0, ::view->get_w(), ::view->get_h());
 
                 // Slap down a debug wireframe.
 /*
@@ -487,6 +511,17 @@ void uni::sphere::draw()
                 vtx.free();
                 dat.idx()->free();
 */
+                glDisable(GL_LIGHTING);
+                glDisable(GL_TEXTURE_2D);
+                glDisable(GL_DEPTH_TEST);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+                glPushMatrix();
+                {
+                    glLoadMatrixd(M);
+                    color.wire();
+                }
+                glPopMatrix();
             }
             glPopClientAttrib();
         }
@@ -494,6 +529,7 @@ void uni::sphere::draw()
     }
 }
 
+/*
 void uni::sphere::wire()
 {
     if (count)
@@ -537,7 +573,7 @@ void uni::sphere::wire()
         glPopAttrib();
     }
 }
-
+*/
 void uni::sphere::xfrm()
 {
     double A[16];

@@ -71,6 +71,27 @@ void uni::point::transform(const double *M,
     }
 }
 
+void uni::point::project(double *rect, const double *P, double r)
+{
+    double v[4];
+    double w[4];
+
+    v[0] = V[0] + N[0] * r;
+    v[1] = V[1] + N[1] * r;
+    v[2] = V[2] + N[2] * r;
+    v[3] = 1.0;
+
+    mult_mat_vec4(w, P, v);
+
+    double x = w[0] / w[3];
+    double y = w[1] / w[3];
+    
+    rect[0] = std::min(rect[0], x);
+    rect[1] = std::min(rect[1], y);
+    rect[2] = std::max(rect[2], x);
+    rect[3] = std::max(rect[3], y);
+}
+
 void uni::point::seed(geonrm& nrm, geopos& pos, GLsizei i)
 {
     nrm.seed(i, GLfloat(N[0]), GLfloat(N[1]), GLfloat(N[2]));
@@ -100,20 +121,27 @@ uni::patch::patch(point *P0, const double *t0,
     P[1] = P1->ref();
     P[2] = P2->ref();
 
-    t[0][0] = t0[0];
-    t[0][1] = t0[1];
+    t[0] = t0[0];
+    t[1] = t0[1];
+    t[2] = t1[0];
+    t[3] = t1[1];
+    t[4] = t2[0];
+    t[5] = t2[1];
 
-    t[1][0] = t1[0];
-    t[1][1] = t1[1];
-
-    t[2][0] = t2[0];
-    t[2][1] = t2[1];
-
-    // Compute wedge planes.
+    // Compute the normal of this patch.
 
     const double *n0 = P[0]->get();
     const double *n1 = P[1]->get();
     const double *n2 = P[2]->get();
+
+    n[0] = n0[0] + n1[0] + n2[0];
+    n[1] = n0[1] + n1[1] + n2[1];
+    n[2] = n0[2] + n1[2] + n2[2];
+
+    normalize(n);
+
+    r2 = r1 / DOT3(n, n0);
+    a  = acos(DOT3(n, n0));
 
     // Compute the area.
 
@@ -373,6 +401,7 @@ double uni::patch::value(const double *p)
     return area / DOT3(d, d);
 }
 
+
 void uni::patch::bound(GLfloat r, GLfloat g, GLfloat b)
 {
     double dr0 = r0 - rr;
@@ -415,6 +444,7 @@ void uni::patch::bound(GLfloat r, GLfloat g, GLfloat b)
 //-----------------------------------------------------------------------------
 
 void uni::patch::seed(geonrm& nrm, geopos& pos, geotex& tex,
+                      const double *Pv,
                       const double *M,
                       const double *I, int frame)
 {
@@ -434,25 +464,44 @@ void uni::patch::seed(geonrm& nrm, geopos& pos, geotex& tex,
         P[1]->seed(nrm, pos, i1);
         P[2]->seed(nrm, pos, i2);
 
-        tex.seed(i0, GLfloat((t[0][0])),
-                     GLfloat((t[0][1])),
-                     GLfloat((t[0][0] + PI) * 0.5  / PI),
-                     GLfloat((t[0][1] + PI  * 0.5) / PI));
-        tex.seed(i1, GLfloat((t[1][0])),
-                     GLfloat((t[1][1])),
-                     GLfloat((t[1][0] + PI) * 0.5  / PI),
-                     GLfloat((t[1][1] + PI  * 0.5) / PI));
-        tex.seed(i2, GLfloat((t[2][0])),
-                     GLfloat((t[2][1])),
-                     GLfloat((t[2][0] + PI) * 0.5  / PI),
-                     GLfloat((t[2][1] + PI  * 0.5) / PI));
+        tex.seed(i0, GLfloat((t[0])),
+                     GLfloat((t[1])),
+                     GLfloat((t[0] + PI) * 0.5  / PI),
+                     GLfloat((t[1] + PI  * 0.5) / PI));
+        tex.seed(i1, GLfloat((t[2])),
+                     GLfloat((t[3])),
+                     GLfloat((t[2] + PI) * 0.5  / PI),
+                     GLfloat((t[3] + PI  * 0.5) / PI));
+        tex.seed(i2, GLfloat((t[4])),
+                     GLfloat((t[5])),
+                     GLfloat((t[4] + PI) * 0.5  / PI),
+                     GLfloat((t[5] + PI  * 0.5) / PI));
+
+        // Compute the NDC coverage.
+
+        rect[0] = +std::numeric_limits<double>::max();
+        rect[1] = +std::numeric_limits<double>::max();
+        rect[2] = -std::numeric_limits<double>::max();
+        rect[3] = -std::numeric_limits<double>::max();
+
+        P[0]->project(rect, Pv, r0 - rr);
+        P[0]->project(rect, Pv, r2 - rr);
+        P[1]->project(rect, Pv, r0 - rr);
+        P[1]->project(rect, Pv, r2 - rr);
+        P[2]->project(rect, Pv, r0 - rr);
+        P[2]->project(rect, Pv, r2 - rr);
+
+        rect[0] = std::max(rect[0], -1.0);
+        rect[1] = std::max(rect[1], -1.0);
+        rect[2] = std::min(rect[2],  1.0);
+        rect[3] = std::min(rect[3],  1.0);
     }
     else
     {
-        if (C[0]) C[0]->seed(nrm, pos, tex, M, I, frame);
-        if (C[1]) C[1]->seed(nrm, pos, tex, M, I, frame);
-        if (C[2]) C[2]->seed(nrm, pos, tex, M, I, frame);
-        if (C[3]) C[3]->seed(nrm, pos, tex, M, I, frame);
+        if (C[0]) C[0]->seed(nrm, pos, tex, Pv, M, I, frame);
+        if (C[1]) C[1]->seed(nrm, pos, tex, Pv, M, I, frame);
+        if (C[2]) C[2]->seed(nrm, pos, tex, Pv, M, I, frame);
+        if (C[3]) C[3]->seed(nrm, pos, tex, Pv, M, I, frame);
     }
 }
 
@@ -499,11 +548,11 @@ uni::patch *uni::patch::step(context& ctx,
             Q[1] = ctx.get_point(1);
             Q[2] = ctx.get_point(2);
 
-            double s[3][2];
+            double s[6];
 
-            midpoint(s[0], t[0], t[1]);
-            midpoint(s[1], t[1], t[2]);
-            midpoint(s[2], t[2], t[0]);
+            midpoint(s + 0, t + 0, t + 2);
+            midpoint(s + 2, t + 2, t + 4);
+            midpoint(s + 4, t + 4, t + 0);
 
             // Try to create any nonexistant children.
 
@@ -512,7 +561,7 @@ uni::patch *uni::patch::step(context& ctx,
                 if (!Q[0]) { Q[0] = new point(P[0], P[1]); }
                 if (!Q[2]) { Q[2] = new point(P[2], P[0]); }
 
-                C[0] = new patch(P[0], t[0], Q[0], s[0], Q[2], s[2], rr, r0, r1);
+                C[0] = new patch(P[0], t+0, Q[0], s+0, Q[2], s+4, rr, r0, r1);
             }
 
             if (C[1] == 0)
@@ -520,7 +569,7 @@ uni::patch *uni::patch::step(context& ctx,
                 if (!Q[0]) { Q[0] = new point(P[0], P[1]); }
                 if (!Q[1]) { Q[1] = new point(P[1], P[2]); }
 
-                C[1] = new patch(Q[0], s[0], P[1], t[1], Q[1], s[1], rr, r0, r1);
+                C[1] = new patch(Q[0], s+0, P[1], t+2, Q[1], s+2, rr, r0, r1);
             }
 
             if (C[2] == 0)
@@ -528,7 +577,7 @@ uni::patch *uni::patch::step(context& ctx,
                 if (!Q[2]) { Q[2] = new point(P[2], P[0]); }
                 if (!Q[1]) { Q[1] = new point(P[1], P[2]); }
 
-                C[2] = new patch(Q[2], s[2], Q[1], s[1], P[2], t[2], rr, r0, r1);
+                C[2] = new patch(Q[2], s+4, Q[1], s+2, P[2], t+4, rr, r0, r1);
             }
 
             if (C[3] == 0)
@@ -537,7 +586,7 @@ uni::patch *uni::patch::step(context& ctx,
                 if (!Q[1]) { Q[1] = new point(P[1], P[2]); }
                 if (!Q[2]) { Q[2] = new point(P[2], P[0]); }
 
-                C[3] = new patch(Q[0], s[0], Q[1], s[1], Q[2], s[2], rr, r0, r1);
+                C[3] = new patch(Q[0], s+0, Q[1], s+2, Q[2], s+4, rr, r0, r1);
             }
 
             // Recursively refine any children.
@@ -600,6 +649,7 @@ uni::patch *uni::patch::step(context& ctx,
     }
 }
 
+/*
 void uni::patch::prep(GLsizei w)
 {
     if (leaf())
@@ -614,7 +664,7 @@ void uni::patch::prep(GLsizei w)
         if (C[3]) C[3]->prep(w);
     }
 }
-
+*/
 void uni::patch::draw(context& ctx, GLsizei cc, GLsizei vc, GLsizei tc)
 {
     if (leaf())
@@ -660,7 +710,7 @@ void uni::patch::wire()
 {
     if (leaf())
     {
-        bound(1.0f, 1.0f, 1.0f);
+        glRectd(rect[0], rect[1], rect[2], rect[3]);
     }
     else
     {

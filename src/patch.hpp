@@ -43,6 +43,7 @@ namespace uni
         point *unref();
 
         void transform(const double *, const double *, double, int);
+        void project  (      double *, const double *, double);
 
         void seed(geonrm&, geopos&, GLsizei);
 
@@ -60,13 +61,16 @@ namespace uni
         patch *C[4];
         point *P[3];
 
-        double t[3][2];
+        double t[6];
         double n[3];
 
+        double  rect[4];
+        double  a;
         double  area;
         double  rr;
         double  r0;
         double  r1;
+        double  r2;
         GLsizei cache;
 
         int  visible(const double *);
@@ -86,13 +90,14 @@ namespace uni
         point *get_point(int i) { return P[i]; }
 
         void seed(geonrm&, geopos&, geotex&, const double *,
+                                             const double *,
                                              const double *, int);
         patch *step(context&,
                     const double *,
                     const double *, double, int, GLsizei&);
         void   draw(context&, GLsizei, GLsizei, GLsizei);
         void   view(GLsizei, const GLfloat *);
-        void   prep(GLsizei);
+//      void   prep(GLsizei);
         void   wire();
     };
 

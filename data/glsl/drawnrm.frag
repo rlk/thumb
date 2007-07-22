@@ -5,9 +5,6 @@ uniform sampler2D     normal;
 
 uniform vec3 axis;
 
-uniform vec2 coff;
-uniform vec2 cscl;
-
 void main()
 {
     vec4 c = texture2DRect(cyl, gl_FragCoord.xy);

@@ -40,8 +40,9 @@ namespace app
         int    get_h() const { return h; }
 
         void clr();
-        void set(const double *);
-        void get(      double *);
+        void set_M(const double *);
+        void get_M(      double *);
+        void get_P(      double *);
 
         void turn(double, double, double);
         void move(double, double, double);

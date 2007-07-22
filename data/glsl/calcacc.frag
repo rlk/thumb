@@ -21,6 +21,10 @@ void main()
 
     T = (gl_TextureMatrix[1] * vec4(T, 0.0, 1.0)).xy;
 
+    vec2 a = step(vec2(0.0), T) * step(T, vec2(1.0));
+
+    if (a.x * a.y < 1.0) discard;
+
 #if FILTER
     const float dds = 1.0 / 1024.0;
     const float ddt = 1.0 / 1024.0;
@@ -38,12 +42,11 @@ void main()
     float s = texture2D(map, T).r;
 #endif
 
-    vec2 a = step(vec2(0.0), T) * step(T, vec2(1.0));
-
     float M = (s - off) * scl * mag;
 
     vec4 D = vec4(P + N * M, M);
 
 //    gl_FragColor = mix(S, D, a.x * a.y);
     gl_FragColor = D;
+//   gl_FragColor = vec4(P, 0.0);
 }

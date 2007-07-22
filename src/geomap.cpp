@@ -19,6 +19,7 @@
 
 #include "geomap.hpp"
 #include "matrix.hpp"
+#include "util.hpp"
 
 static GLuint load_png(std::string base, int d, int i, int j)
 {
@@ -131,8 +132,11 @@ static GLuint load_png(std::string base, int d, int i, int j)
 
 //-----------------------------------------------------------------------------
 
-uni::tile::tile(std::string& name, int w, int h, int s,
-                int x, int y, int d, double L, double R, double B, double T) :
+uni::tile::tile(std::string& name,
+                int w, int h, int s,
+                int x, int y, int d,
+                double r0, double r1,
+                double _L, double _R, double _B, double _T) :
     state(dead_state), d(d), object(0)
 {
     int S = s << d;
@@ -144,10 +148,10 @@ uni::tile::tile(std::string& name, int w, int h, int s,
 
     // Compute the texture boundries.
 
-    this->L = (L + (R - L) * (x    ) / w);
-    this->R = (L + (R - L) * (x + S) / w);
-    this->T = (T + (B - T) * (y    ) / h);
-    this->B = (T + (B - T) * (y + S) / h);
+    L = (_L + (_R - _L) * (x    ) / w);
+    R = (_L + (_R - _L) * (x + S) / w);
+    T = (_T + (_B - _T) * (y    ) / h);
+    B = (_T + (_B - _T) * (y + S) / h);
 
     // Create subtiles as necessary.
 
@@ -161,17 +165,70 @@ uni::tile::tile(std::string& name, int w, int h, int s,
         const int X = (x + S / 2);
         const int Y = (y + S / 2);
 
-        /* Has children? */ P[0] = new tile(name, w, h, s, x, y, d-1, L, R, B, T);
-        if (         Y < h) P[1] = new tile(name, w, h, s, x, Y, d-1, L, R, B, T);
-        if (X < w         ) P[2] = new tile(name, w, h, s, X, y, d-1, L, R, B, T);
-        if (X < w && Y < h) P[3] = new tile(name, w, h, s, X, Y, d-1, L, R, B, T);
+        /* Has children? */ P[0] = new tile(name, w, h, s, x, y, d-1, r0, r1, _L, _R, _B, _T);
+        if (         Y < h) P[1] = new tile(name, w, h, s, x, Y, d-1, r0, r1, _L, _R, _B, _T);
+        if (X < w         ) P[2] = new tile(name, w, h, s, X, y, d-1, r0, r1, _L, _R, _B, _T);
+        if (X < w && Y < h) P[3] = new tile(name, w, h, s, X, Y, d-1, r0, r1, _L, _R, _B, _T);
+
+        // Accumulate the AABBs of the children. */
+
+        b[0] =  std::numeric_limits<double>::max();
+        b[1] =  std::numeric_limits<double>::max();
+        b[2] =  std::numeric_limits<double>::max();
+        b[3] = -std::numeric_limits<double>::max();
+        b[4] = -std::numeric_limits<double>::max();
+        b[5] = -std::numeric_limits<double>::max();
+
+        for (int k = 0; k < 4; ++k)
+            if (P[k])
+            {
+                b[0] = std::min(b[0], P[k]->b[0]);
+                b[1] = std::min(b[1], P[k]->b[1]);
+                b[2] = std::min(b[2], P[k]->b[2]);
+                b[3] = std::max(b[3], P[k]->b[3]);
+                b[4] = std::max(b[4], P[k]->b[4]);
+                b[5] = std::max(b[5], P[k]->b[5]);
+            }
+    }
+    else
+    {
+        // Compute the AABB of this tile.
+
+        double v[8][3];
+
+        // TODO: watch out for R > pi and B < -pi/2
+
+        sphere_to_vector(v[0], L, B, r0);
+        sphere_to_vector(v[1], R, B, r0);
+        sphere_to_vector(v[2], L, T, r0);
+        sphere_to_vector(v[3], R, T, r0);
+        sphere_to_vector(v[4], L, B, r1);
+        sphere_to_vector(v[5], R, B, r1);
+        sphere_to_vector(v[6], L, T, r1);
+        sphere_to_vector(v[7], R, T, r1);
+
+        b[0] = min8(v[0][0], v[1][0], v[2][0], v[3][0],
+                    v[4][0], v[5][0], v[6][0], v[7][0]);
+        b[1] = min8(v[0][1], v[1][1], v[2][1], v[3][1],
+                    v[4][1], v[5][1], v[6][1], v[7][1]);
+        b[2] = min8(v[0][2], v[1][2], v[2][2], v[3][2],
+                    v[4][2], v[5][2], v[6][2], v[7][2]);
+        b[3] = max8(v[0][0], v[1][0], v[2][0], v[3][0],
+                    v[4][0], v[5][0], v[6][0], v[7][0]);
+        b[4] = max8(v[0][1], v[1][1], v[2][1], v[3][1],
+                    v[4][1], v[5][1], v[6][1], v[7][1]);
+        b[5] = max8(v[0][2], v[1][2], v[2][2], v[3][2],
+                    v[4][2], v[5][2], v[6][2], v[7][2]);
     }
 
     // Test loads
 
     if (d == 0 && i == 0x0c && j == 0x0d) object = load_png(name, d, i, j);
+/*
     if (d == 0 && i == 0x0c && j == 0x0e) object = load_png(name, d, i, j);
+*/
     if (d == 1 && i == 0x06 && j == 0x07) object = load_png(name, d, i, j);
+
     if (d == 7 && i == 0x00 && j == 0x00) object = load_png(name, d, i, j);
 }
 
@@ -200,49 +257,155 @@ void uni::tile::eject()
     state  = dead_state;
 }
 
-void uni::tile::draw(int x, int y, int w, int h)
+//-----------------------------------------------------------------------------
+
+bool uni::tile::visible(const double *V,
+                        const double *M,
+                        const double *I)
+{
+    return true;
+}
+
+void uni::tile::draw(const double *V, const double *M, const double *I)
+{
+    if (visible(V, M, I))
+    {
+        if (object)
+        {
+            // Set up this tile's texture transform.
+
+            double kt = +1.0 / (R - L);
+            double kp = +1.0 / (T - B);
+            double dt = -L * kt;
+            double dp = -B * kp;
+
+            glActiveTextureARB(GL_TEXTURE1);
+            {
+                glMatrixMode(GL_TEXTURE);
+                {
+                    glLoadIdentity();
+                    glTranslated(dt, dp, 0.0);
+                    glScaled    (kt, kp, 1.0);
+                }
+                glMatrixMode(GL_MODELVIEW);
+
+                glBindTexture(GL_TEXTURE_2D, object);
+            }
+            glActiveTextureARB(GL_TEXTURE0);
+
+            // Draw this tile's bounding volume.
+
+            glBegin(GL_QUADS);
+            {
+                // -X
+                glVertex3d(b[0], b[1], b[2]);
+                glVertex3d(b[0], b[1], b[5]);
+                glVertex3d(b[0], b[4], b[5]);
+                glVertex3d(b[0], b[4], b[2]);
+
+                // +X
+                glVertex3d(b[3], b[1], b[5]);
+                glVertex3d(b[3], b[1], b[2]);
+                glVertex3d(b[3], b[4], b[2]);
+                glVertex3d(b[3], b[4], b[5]);
+
+                // -Y
+                glVertex3d(b[0], b[1], b[2]);
+                glVertex3d(b[3], b[1], b[2]);
+                glVertex3d(b[3], b[1], b[5]);
+                glVertex3d(b[0], b[1], b[5]);
+
+                // +Y
+                glVertex3d(b[0], b[4], b[5]);
+                glVertex3d(b[3], b[4], b[5]);
+                glVertex3d(b[3], b[4], b[2]);
+                glVertex3d(b[0], b[4], b[2]);
+
+                // -Z
+                glVertex3d(b[3], b[1], b[2]);
+                glVertex3d(b[0], b[1], b[2]);
+                glVertex3d(b[0], b[4], b[2]);
+                glVertex3d(b[3], b[4], b[2]);
+
+                // +Z
+                glVertex3d(b[0], b[1], b[5]);
+                glVertex3d(b[3], b[1], b[5]);
+                glVertex3d(b[3], b[4], b[5]);
+                glVertex3d(b[0], b[4], b[5]);
+            }
+            glEnd();
+
+            glActiveTextureARB(GL_TEXTURE1);
+            {
+                glBindTexture(GL_TEXTURE_2D, 0);
+            }
+            glActiveTextureARB(GL_TEXTURE0);
+        }
+
+        if (P[0]) P[0]->draw(V, M, I);
+        if (P[1]) P[1]->draw(V, M, I);
+        if (P[2]) P[2]->draw(V, M, I);
+        if (P[3]) P[3]->draw(V, M, I);
+    }
+}
+
+void uni::tile::wire()
 {
     if (object)
     {
-        double kt = +1.0 / (R - L);
-        double kp = +1.0 / (T - B);
-        double dt = -L * kt;
-        double dp = -B * kp;
-
-        glActiveTextureARB(GL_TEXTURE1);
+        glBegin(GL_QUADS);
         {
-            glMatrixMode(GL_TEXTURE);
-            {
-                glLoadIdentity();
-                glTranslated(dt, dp, 0.0);
-                glScaled    (kt, kp, 1.0);
-            }
-            glMatrixMode(GL_MODELVIEW);
+            // -X
+            glVertex3d(b[0], b[1], b[2]);
+            glVertex3d(b[0], b[1], b[5]);
+            glVertex3d(b[0], b[4], b[5]);
+            glVertex3d(b[0], b[4], b[2]);
 
-            glBindTexture(GL_TEXTURE_2D, object);
+            // +X
+            glVertex3d(b[3], b[1], b[5]);
+            glVertex3d(b[3], b[1], b[2]);
+            glVertex3d(b[3], b[4], b[2]);
+            glVertex3d(b[3], b[4], b[5]);
+
+            // -Y
+            glVertex3d(b[0], b[1], b[2]);
+            glVertex3d(b[3], b[1], b[2]);
+            glVertex3d(b[3], b[1], b[5]);
+            glVertex3d(b[0], b[1], b[5]);
+
+            // +Y
+            glVertex3d(b[0], b[4], b[5]);
+            glVertex3d(b[3], b[4], b[5]);
+            glVertex3d(b[3], b[4], b[2]);
+            glVertex3d(b[0], b[4], b[2]);
+
+            // -Z
+            glVertex3d(b[3], b[1], b[2]);
+            glVertex3d(b[0], b[1], b[2]);
+            glVertex3d(b[0], b[4], b[2]);
+            glVertex3d(b[3], b[4], b[2]);
+
+            // +Z
+            glVertex3d(b[0], b[1], b[5]);
+            glVertex3d(b[3], b[1], b[5]);
+            glVertex3d(b[3], b[4], b[5]);
+            glVertex3d(b[0], b[4], b[5]);
         }
-        glActiveTextureARB(GL_TEXTURE0);
-
-        glRecti(x, y, w, h);
-
-        glActiveTextureARB(GL_TEXTURE1);
-        {
-            glBindTexture(GL_TEXTURE_2D, 0);
-        }
-        glActiveTextureARB(GL_TEXTURE0);
+        glEnd();
     }
 
-    if (P[0]) P[0]->draw(x, y, w, h);
-    if (P[1]) P[1]->draw(x, y, w, h);
-    if (P[2]) P[2]->draw(x, y, w, h);
-    if (P[3]) P[3]->draw(x, y, w, h);
+    if (P[0]) P[0]->wire();
+    if (P[1]) P[1]->wire();
+    if (P[2]) P[2]->wire();
+    if (P[3]) P[3]->wire();
 }
 
 //-----------------------------------------------------------------------------
 
 uni::geomap::geomap(std::string name,
                     int w, int h, int c, int b, int s,
-                    double L, double R, double B, double T)
+                    double r0, double r1,
+                    double L, double R, double B, double T) : name(name)
 {
     // Compute the depth of the mipmap pyramid.
 
@@ -257,7 +420,7 @@ uni::geomap::geomap(std::string name,
 
     // Generate the mipmap pyramid catalog.
 
-    P = new tile(name, w, h, s, 0, 0, d, L, R, B, T);
+    P = new tile(name, w, h, s, 0, 0, d, r0, r1, L, R, B, T);
 }
 
 uni::geomap::~geomap()
@@ -265,9 +428,14 @@ uni::geomap::~geomap()
     if (P) delete P;
 }
 
-void uni::geomap::draw(int x, int y, int w, int h)
+void uni::geomap::draw(const double *V, const double *M, const double *I)
 {
-    if (P) P->draw(x, y, w, h);
+    if (P) P->draw(V, M, I);
+}
+
+void uni::geomap::wire()
+{
+    if (P) P->wire();
 }
 
 //-----------------------------------------------------------------------------
