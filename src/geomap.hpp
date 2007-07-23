@@ -36,8 +36,14 @@ namespace uni
         double T;
 
         GLuint object;
+        int    hint;
 
-        bool visible(const double *, const double *, const double *);
+        int  area(const double *);
+        bool test(const double *);
+        bool visible(const double *);
+
+        bool is_visible;
+        bool will_draw;
 
     public:
 
@@ -50,7 +56,8 @@ namespace uni
         void ready(GLuint);
         void eject();
 
-        void draw(const double *, const double *, const double *);
+        void prep(const double *, const double *);
+        void draw(int, int);
         void wire();
     };
 
@@ -83,7 +90,7 @@ namespace uni
                double, double, double, double, double, double);
        ~geomap();
 
-        void draw(const double *, const double *, const double *);
+        void draw(const double *, const double *, int=0, int=0);
         void wire();
     };
 }

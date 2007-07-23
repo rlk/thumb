@@ -111,7 +111,9 @@ void uni::sphere::turn(double dr)
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::transform(const double *Mv, const double *Iv)
+void uni::sphere::transform(const double *Pv,
+                            const double *Mv,
+                            const double *Iv)
 {
     double A[16];
     double B[16];
@@ -143,11 +145,17 @@ void uni::sphere::transform(const double *Mv, const double *Iv)
     Lmul_xlt_inv(I, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(I, B, I);              // Planet tilt
     Lmul_rot_inv(I, 0, 1, 0, a);        // Planet rotation
+
+    // Compose the model-view-projection.
+
+    mult_mat_mat(MVP, Pv, M);
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::view(const double *Mv, const double *Iv)
+void uni::sphere::view(const double *Pv,
+                       const double *Mv,
+                       const double *Iv)
 {
     if ((visible = true)) // HACK (visible = cam->test(p, r1)))
     {
@@ -156,7 +164,7 @@ void uni::sphere::view(const double *Mv, const double *Iv)
 
         // The sphere is visible.  Cache the transform and view vector.
 
-        transform(Mv, Iv);
+        transform(Pv, Mv, Iv);
 
         mult_mat_vec3(v, I, o);
 
@@ -180,7 +188,7 @@ void uni::sphere::view(const double *Mv, const double *Iv)
         mult_xps_vec4(V + 20, M, O + 16);
 
         // Apply the accumulated patch radii.
-
+/*
         const GLfloat *p = ext.rmap();
 
         for (int k = 0; k < 20; ++k)
@@ -200,6 +208,7 @@ void uni::sphere::view(const double *Mv, const double *Iv)
         }
 
         ext.umap();
+*/
     }
     else
     {
@@ -222,7 +231,7 @@ void uni::sphere::view(const double *Mv, const double *Iv)
 */
 }
 
-void uni::sphere::step(const double *Pv)
+void uni::sphere::step()
 {
     count = 0;
 
@@ -269,17 +278,16 @@ void uni::sphere::step(const double *Pv)
             {
                 for (int k = 0; k < 20; ++k)
                     if (C[k])
-                        C[k]->seed(nrm, pos, tex, Pv, M, I, frame);
+                        C[k]->seed(nrm, pos, tex, M, I, frame);
             }
             tex.fini(count);
             nrm.fini(count);
             pos.fini(count);
 
-            // Store the depth range.
-            /*
+            // Store the depth range. (HACK out extrema reduction)
+
             z0 = pos.min_z();
             z1 = pos.max_z();
-            */
         }
     }
 }
@@ -309,7 +317,7 @@ void uni::sphere::prep()
         }
         dat.rad()->free(GL_TEXTURE3);
         dat.lut()->free(GL_TEXTURE1);
-/*
+
         // Bind all generated attribute for use in terrain accumulation.
 
         pos.bind(GL_TEXTURE2);
@@ -318,12 +326,17 @@ void uni::sphere::prep()
         {
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
+            int w = int(dat.vtx_len());
+            int h = int(count);
+
+            acc.init(count);
+/*
             acc.bind_proc();
             {
-                glClear(GL_COLOR_BUFFER_BIT);
-                height.draw();
+                height.draw(V, MVP, w, h);
             }
             acc.free_proc();
+*/
             acc.swap();
         }
         tex.free(GL_TEXTURE4);
@@ -331,19 +344,13 @@ void uni::sphere::prep()
         pos.free(GL_TEXTURE2);
 
         // Find the extrema of the accumulated positions.
-
+/*
         acc.bind(GL_TEXTURE1);
         {
             ext.proc(count);
         }
         acc.free(GL_TEXTURE1);
 */
-        pos.bind(GL_TEXTURE1);
-        {
-            ext.proc(count);
-        }
-        pos.free(GL_TEXTURE1);
-
         // Copy the generated coordinates to the vertex buffer.
 
         tex.bind_frame();
@@ -357,14 +364,10 @@ void uni::sphere::prep()
         nrm.free_frame();
 
         // Copy the generated positions to the vertex buffer.
-/*
+
         acc.bind_frame();
         vtx.read_v(count);
         acc.free_frame();
-*/
-        pos.bind_frame();
-        vtx.read_v(count);
-        pos.free_frame();
     }
 }
 
@@ -450,31 +453,34 @@ void uni::sphere::draw()
                     glLoadMatrixd(M);
 
                     glEnable(GL_DEPTH_CLAMP_NV);
-                    glEnable(GL_BLEND);
                     glDisable(GL_CULL_FACE);
+                    glDisable(GL_DEPTH_TEST);
+                    glDepthMask(GL_FALSE);
 
+                    glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                     // Draw the diffuse maps.
 
-                    ren.dif()->bind(true);
+                    ren.dif()->bind();
                     {
-                        color.draw(V, M, I);
+                        color.draw(V, MVP);
                     }
-                    ren.dif()->free(true);
+                    ren.dif()->free();
 
                     // Draw the normal maps.
 
                     ren.nrm()->axis(a);
                     ren.nrm()->bind();
                     {
-                        normal.draw(V, M, I);
+                        normal.draw(V, MVP);
                     }
                     ren.nrm()->free();
 
                     glDisable(GL_DEPTH_CLAMP_NV);
                     glDisable(GL_BLEND);
                     glEnable(GL_CULL_FACE);
+                    glDepthMask(GL_TRUE);
                 }
                 glPopMatrix();
 
@@ -490,18 +496,14 @@ void uni::sphere::draw()
                 dat.idx()->free();
                 ren.free();
 
-//                  glRecti(0, 0, ::view->get_w(), ::view->get_h());
-
                 // Slap down a debug wireframe.
 /*
                 glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
                 glDisable(GL_TEXTURE_2D);
                 glDisable(GL_DEPTH_TEST);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glColor4f(1.0f, 1.0f, 1.0f, 0.05f);
-                glEnable(GL_LIGHTING);
-                glEnable(GL_LIGHT0);
+                glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
 
                 dat.idx()->bind();
                 vtx.bind();
@@ -511,6 +513,7 @@ void uni::sphere::draw()
                 vtx.free();
                 dat.idx()->free();
 */
+
                 glDisable(GL_LIGHTING);
                 glDisable(GL_TEXTURE_2D);
                 glDisable(GL_DEPTH_TEST);
@@ -522,6 +525,7 @@ void uni::sphere::draw()
                     color.wire();
                 }
                 glPopMatrix();
+
             }
             glPopClientAttrib();
         }

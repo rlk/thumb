@@ -1,7 +1,5 @@
 #extension GL_ARB_texture_rectangle : enable
 
-#define FILTER 0
-
 uniform sampler2DRect src;
 uniform sampler2D     map;
 uniform sampler2DRect pos;
@@ -10,37 +8,31 @@ uniform sampler2DRect tex;
 
 void main()
 {
-    const float off =     0.5;
-    const float scl =     1.0;
-    const float mag = 65535.0;
+    const float pi = 3.14159265358979323844;
 
-    vec4 S = texture2DRect(src, gl_FragCoord.xy);
-    vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
-    vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
+    // Compute the local texture coordinate.
+
     vec2 T = texture2DRect(tex, gl_FragCoord.xy).xy;
 
+    T.x -= 2.0 * pi * step(pi, T.x);
+
     T = (gl_TextureMatrix[1] * vec4(T, 0.0, 1.0)).xy;
+
+    // Discard any pixel outside the current texture.
 
     vec2 a = step(vec2(0.0), T) * step(T, vec2(1.0));
 
     if (a.x * a.y < 1.0) discard;
 
-#if FILTER
-    const float dds = 1.0 / 1024.0;
-    const float ddt = 1.0 / 1024.0;
+    const float off =     0.5;
+    const float scl =     1.0;
+    const float mag = 65535.0;
 
-    vec2 uv = fract(T * vec2(1024.0, 1024.0));
+//  vec4 S = texture2DRect(src, gl_FragCoord.xy);
+    vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
+    vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
 
-    float c00 = texture2D(map, T + vec2(0.0, 0.0)).r;
-    float c10 = texture2D(map, T + vec2(dds, 0.0)).r;
-    float c01 = texture2D(map, T + vec2(0.0, ddt)).r;
-    float c11 = texture2D(map, T + vec2(dds, ddt)).r;
-
-    float s  = mix(mix(c00, c10, uv.x),
-                   mix(c01, c11, uv.x), uv.y);
-#else
     float s = texture2D(map, T).r;
-#endif
 
     float M = (s - off) * scl * mag;
 
@@ -48,5 +40,5 @@ void main()
 
 //    gl_FragColor = mix(S, D, a.x * a.y);
     gl_FragColor = D;
-//   gl_FragColor = vec4(P, 0.0);
+//    gl_FragColor = vec4(P, 0.0);
 }

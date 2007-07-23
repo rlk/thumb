@@ -754,10 +754,16 @@ uni::geotex::geotex(GLsizei d, GLsizei h) :
 uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 
     uni::geobuf(vtx_count(d), h, "glsl/trivial.vert",
-                                 "glsl/copybuf.frag",
+                                 "glsl/copyacc.frag",
                                  "glsl/calcacc.frag",
                                  "glsl/showpos.frag")
 {
+    copy->bind();
+    {
+        copy->uniform("pos", 2);
+    }
+    copy->free();
+
     calc->bind();
     {
         calc->uniform("src", 0);
@@ -767,6 +773,19 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
         calc->uniform("tex", 4);
     }
     calc->free();
+}
+
+void uni::geoacc::init(GLsizei c)
+{
+    // Initialize the ZR min/max using the accumulation buffer.
+
+    dst->bind(true);
+    copy->bind();
+    {
+         glRecti(0, 0, GLint(w), GLint(c));
+    }
+    copy->free();
+    dst->free(true);
 }
 
 //-----------------------------------------------------------------------------

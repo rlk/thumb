@@ -77,11 +77,11 @@ void uni::universe::draw()
 
     // Preprocess all objects.
 
-    for (i = 0; i < n; ++i) S[i]->view(M, I);
+    for (i = 0; i < n; ++i) S[i]->view(P, M, I);
 
     std::sort(S, S + n, sphcmp);
     
-    for (i = 0; i < n; ++i) S[i]->step(P);
+    for (i = 0; i < n; ++i) S[i]->step();
     for (i = 0; i < n; ++i) S[i]->prep();
 
     // Draw all objects.

@@ -46,6 +46,7 @@ namespace uni
         // View vector, object-to-eye transform and inverse cache.
 
         double v[3];
+        double MVP[16];
         double M[16];
         double I[16];
         double V[24];
@@ -78,7 +79,9 @@ namespace uni
         geomap& normal;
         geomap& height;
 
-        void transform(const double *, const double *);
+        void transform(const double *,
+                       const double *,
+                       const double *);
 
     public:
     
@@ -92,8 +95,8 @@ namespace uni
 
         // Rendering pipeline.
 
-        void view(const double *, const double *);
-        void step(const double *);
+        void view(const double *, const double *, const double *);
+        void step();
         void prep();
         void pass();
         void draw();

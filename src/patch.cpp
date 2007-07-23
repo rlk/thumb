@@ -71,27 +71,6 @@ void uni::point::transform(const double *M,
     }
 }
 
-void uni::point::project(double *rect, const double *P, double r)
-{
-    double v[4];
-    double w[4];
-
-    v[0] = V[0] + N[0] * r;
-    v[1] = V[1] + N[1] * r;
-    v[2] = V[2] + N[2] * r;
-    v[3] = 1.0;
-
-    mult_mat_vec4(w, P, v);
-
-    double x = w[0] / w[3];
-    double y = w[1] / w[3];
-    
-    rect[0] = std::min(rect[0], x);
-    rect[1] = std::min(rect[1], y);
-    rect[2] = std::max(rect[2], x);
-    rect[3] = std::max(rect[3], y);
-}
-
 void uni::point::seed(geonrm& nrm, geopos& pos, GLsizei i)
 {
     nrm.seed(i, GLfloat(N[0]), GLfloat(N[1]), GLfloat(N[2]));
@@ -444,7 +423,6 @@ void uni::patch::bound(GLfloat r, GLfloat g, GLfloat b)
 //-----------------------------------------------------------------------------
 
 void uni::patch::seed(geonrm& nrm, geopos& pos, geotex& tex,
-                      const double *Pv,
                       const double *M,
                       const double *I, int frame)
 {
@@ -476,32 +454,13 @@ void uni::patch::seed(geonrm& nrm, geopos& pos, geotex& tex,
                      GLfloat((t[5])),
                      GLfloat((t[4] + PI) * 0.5  / PI),
                      GLfloat((t[5] + PI  * 0.5) / PI));
-
-        // Compute the NDC coverage.
-
-        rect[0] = +std::numeric_limits<double>::max();
-        rect[1] = +std::numeric_limits<double>::max();
-        rect[2] = -std::numeric_limits<double>::max();
-        rect[3] = -std::numeric_limits<double>::max();
-
-        P[0]->project(rect, Pv, r0 - rr);
-        P[0]->project(rect, Pv, r2 - rr);
-        P[1]->project(rect, Pv, r0 - rr);
-        P[1]->project(rect, Pv, r2 - rr);
-        P[2]->project(rect, Pv, r0 - rr);
-        P[2]->project(rect, Pv, r2 - rr);
-
-        rect[0] = std::max(rect[0], -1.0);
-        rect[1] = std::max(rect[1], -1.0);
-        rect[2] = std::min(rect[2],  1.0);
-        rect[3] = std::min(rect[3],  1.0);
     }
     else
     {
-        if (C[0]) C[0]->seed(nrm, pos, tex, Pv, M, I, frame);
-        if (C[1]) C[1]->seed(nrm, pos, tex, Pv, M, I, frame);
-        if (C[2]) C[2]->seed(nrm, pos, tex, Pv, M, I, frame);
-        if (C[3]) C[3]->seed(nrm, pos, tex, Pv, M, I, frame);
+        if (C[0]) C[0]->seed(nrm, pos, tex, M, I, frame);
+        if (C[1]) C[1]->seed(nrm, pos, tex, M, I, frame);
+        if (C[2]) C[2]->seed(nrm, pos, tex, M, I, frame);
+        if (C[3]) C[3]->seed(nrm, pos, tex, M, I, frame);
     }
 }
 
@@ -705,12 +664,11 @@ void uni::patch::draw(context& ctx, GLsizei cc, GLsizei vc, GLsizei tc)
         if (C[3]) { context c(ctx, 3); C[3]->draw(c, cc, vc, tc); }
     }
 }
-
+/*
 void uni::patch::wire()
 {
     if (leaf())
     {
-        glRectd(rect[0], rect[1], rect[2], rect[3]);
     }
     else
     {
@@ -722,7 +680,7 @@ void uni::patch::wire()
         if (C[3]) C[3]->wire();
     }
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 uni::patch *uni::context::get_loc_L(int i)

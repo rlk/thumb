@@ -140,10 +140,10 @@ namespace uni
         ogl::frame *ping;
         ogl::frame *pong;
 
+    protected:
+
         ogl::frame *src;
         ogl::frame *dst;
-
-    protected:
 
         GLsizei w;
         GLsizei h;
@@ -246,6 +246,8 @@ namespace uni
     public:
 
         geoacc(GLsizei, GLsizei);
+
+        void init(GLsizei);
     };
 
     //-------------------------------------------------------------------------

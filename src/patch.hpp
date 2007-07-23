@@ -64,7 +64,6 @@ namespace uni
         double t[6];
         double n[3];
 
-        double  rect[4];
         double  a;
         double  area;
         double  rr;
@@ -90,7 +89,6 @@ namespace uni
         point *get_point(int i) { return P[i]; }
 
         void seed(geonrm&, geopos&, geotex&, const double *,
-                                             const double *,
                                              const double *, int);
         patch *step(context&,
                     const double *,
@@ -98,7 +96,7 @@ namespace uni
         void   draw(context&, GLsizei, GLsizei, GLsizei);
         void   view(GLsizei, const GLfloat *);
 //      void   prep(GLsizei);
-        void   wire();
+//      void   wire();
     };
 
     //-------------------------------------------------------------------------
