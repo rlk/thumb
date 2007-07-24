@@ -44,7 +44,8 @@ namespace uni
 //      int  size(const double *);
         bool test(const double *);
         bool value(const double *);
-        bool visible(const double *);
+        bool visible(const double *,
+                     const double *);
 
         void volume() const;
 

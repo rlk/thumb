@@ -97,7 +97,8 @@ void uni::universe::draw()
 
             S[i]->getz(n, f);
 
-            ::view->range(n / 2.0, f);
+            // HACK: far should be outside the geomap bounds
+            ::view->range(n / 2.0, f * 2.0);
 
             glMatrixMode(GL_PROJECTION);
             {

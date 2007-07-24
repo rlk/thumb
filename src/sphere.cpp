@@ -454,6 +454,7 @@ void uni::sphere::draw()
 
                     glEnable(GL_DEPTH_CLAMP_NV);
                     glEnable(GL_CULL_FACE);
+                    glCullFace(GL_FRONT);
 
                     glDisable(GL_DEPTH_TEST);
                     glDepthMask(GL_FALSE);
@@ -479,6 +480,7 @@ void uni::sphere::draw()
                     }
                     ren.nrm()->free();
 
+                    glCullFace(GL_BACK);
                     glDisable(GL_DEPTH_CLAMP_NV);
                     glDisable(GL_STENCIL_TEST);
                     glDisable(GL_ALPHA_TEST);
@@ -521,6 +523,7 @@ void uni::sphere::draw()
                 glDisable(GL_TEXTURE_2D);
                 glDisable(GL_DEPTH_TEST);
                 glDisable(GL_CULL_FACE);
+                glEnable(GL_DEPTH_CLAMP_NV);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
                 glPushMatrix();
@@ -529,6 +532,7 @@ void uni::sphere::draw()
                     color.wire();
                 }
                 glPopMatrix();
+                glDisable(GL_DEPTH_CLAMP_NV);
 */
             }
             glPopClientAttrib();

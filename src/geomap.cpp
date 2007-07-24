@@ -409,8 +409,14 @@ bool uni::tile::test(const double *P)
                 return (P[0] * b[0] + P[1] * b[1] + P[2] * b[2] + P[3] < 0);
 }
 
-bool uni::tile::visible(const double *V)
+bool uni::tile::visible(const double *V, const double *p)
 {
+    // If we're inside the bound, the tile is visible.
+
+    if (b[0] < p[0] && p[0] < b[3] &&
+        b[1] < p[1] && p[1] < b[4] &&
+        b[2] < p[2] && p[2] < b[5]) return true;
+
     // Use the hint to check the likely cull plane.
 
     if (test(V + hint)) return false;
@@ -480,7 +486,7 @@ void uni::tile::prep(const double *V,
     is_visible = false;
     will_draw  = false;
 
-    if (visible(V))
+    if (visible(V, p))
     {
         is_visible = true;
 
