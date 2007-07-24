@@ -252,6 +252,7 @@ uni::tile::tile(std::string& name,
         double v[8][3];
 
         // TODO: watch out for R > pi and B < -pi/2
+        // TODO: r2 instead of r1 here?
 
         sphere_to_vector(v[0], L, B, r0);
         sphere_to_vector(v[1], R, B, r0);
@@ -276,6 +277,17 @@ uni::tile::tile(std::string& name,
                     v[4][2], v[5][2], v[6][2], v[7][2]);
     }
 
+    // Compute the center of this tile.
+
+    c[0] = (b[0] + b[3]) / 2.0;
+    c[1] = (b[1] + b[4]) / 2.0;
+    c[2] = (b[2] + b[5]) / 2.0;
+
+    area = (R - L) * (T - B);
+    size = sqrt(area);
+
+    if (i == 0 && j == 0) printf("%d %f %f\n", d, size, (1 << d) * 10000.0);
+
     is_visible = false;
     will_draw  = false;
 
@@ -283,7 +295,7 @@ uni::tile::tile(std::string& name,
 
     object = debug_text[d];
 
-//  if (i == 1 && j == 1) object = load_png(name, d, i, j);
+//  if (i == 0 && j == 0) object = load_png(name, d, i, j);
 }
 
 uni::tile::~tile()
@@ -312,7 +324,7 @@ void uni::tile::eject()
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 static void project(double *r, const double *M, double x, double y, double z)
 {
     double v[4] = { x, y, z, 1 };
@@ -329,7 +341,7 @@ static void project(double *r, const double *M, double x, double y, double z)
     r[3] = std::max(r[3], ry);
 }
 
-int uni::tile::area(const double *MVP)
+int uni::tile::size(const double *MVP)
 {
     double r[4];
 
@@ -354,13 +366,21 @@ int uni::tile::area(const double *MVP)
 
     return (w * h);
 }
-
-bool uni::tile::gimme(const double *MVP)
+*/
+bool uni::tile::value(const double *p)
 {
-    // Some kinda derivative computation.
-    // Should NOT reduce just because half a tile is off screen.
+    double bias = 500000.0;
+    double v[3];
 
-    return (area(MVP) < 1024 * 1024);
+    v[0] = c[0] - p[0];
+    v[1] = c[1] - p[1];
+    v[2] = c[2] - p[2];
+
+    double k = sqrt(DOT3(v, v));
+
+//  if (d == 1) printf("%f %f\n", k, (1 << d) * bias);
+
+    return (k < ((1 << d) * bias));
 }
 
 bool uni::tile::test(const double *P)
@@ -457,7 +477,7 @@ void uni::tile::volume() const
 }
 
 void uni::tile::prep(const double *V,
-                     const double *MVP)
+                     const double *p)
 {
     is_visible = false;
     will_draw  = false;
@@ -466,21 +486,14 @@ void uni::tile::prep(const double *V,
     {
         is_visible = true;
 
-        if ((!P[0] && !P[1] && !P[2] && !P[3]) || gimme(MVP))
+        if (value(p))
         {
-            if (P[0]) P[0]->will_draw = false;
-            if (P[1]) P[1]->will_draw = false;
-            if (P[2]) P[2]->will_draw = false;
-            if (P[3]) P[3]->will_draw = false;
-
             will_draw = true;
-        }
-        else
-        {
-            if (P[0]) P[0]->prep(V, MVP);
-            if (P[1]) P[1]->prep(V, MVP);
-            if (P[2]) P[2]->prep(V, MVP);
-            if (P[3]) P[3]->prep(V, MVP);
+
+            if (P[0]) P[0]->prep(V, p);
+            if (P[1]) P[1]->prep(V, p);
+            if (P[2]) P[2]->prep(V, p);
+            if (P[3]) P[3]->prep(V, p);
         }
     }
 }
@@ -490,12 +503,21 @@ void uni::tile::draw(int w, int h)
     if (is_visible)
     {
 /*
-        bool p0 = (P[0] && P[0]->will_draw && P[0]->object);
-        bool p1 = (P[1] && P[1]->will_draw && P[1]->object);
-        bool p2 = (P[2] && P[2]->will_draw && P[2]->object);
-        bool p3 = (P[3] && P[3]->will_draw && P[3]->object);
+        if (P[0]) P[0]->draw(w, h);
+        if (P[1]) P[1]->draw(w, h);
+        if (P[2]) P[2]->draw(w, h);
+        if (P[3]) P[3]->draw(w, h);
 */
-        if (will_draw)
+        bool p0, p1, p2, p3;
+
+        p0 = P[0] && (!P[0]->is_visible || (P[0]->will_draw && P[0]->object));
+        p1 = P[1] && (!P[1]->is_visible || (P[1]->will_draw && P[1]->object));
+        p2 = P[2] && (!P[2]->is_visible || (P[2]->will_draw && P[2]->object));
+        p3 = P[3] && (!P[3]->is_visible || (P[3]->will_draw && P[3]->object));
+
+        bool pp = (p0 && p1 && p2 && p3);
+
+        if (will_draw && !pp)
         {
             if (object)
             {
@@ -525,22 +547,20 @@ void uni::tile::draw(int w, int h)
                     volume();
             }
         }
-        else
-        {
-            if (P[0]) P[0]->draw(w, h);
-            if (P[1]) P[1]->draw(w, h);
-            if (P[2]) P[2]->draw(w, h);
-            if (P[3]) P[3]->draw(w, h);
-        }
+
+        if (P[0]) P[0]->draw(w, h);
+        if (P[1]) P[1]->draw(w, h);
+        if (P[2]) P[2]->draw(w, h);
+        if (P[3]) P[3]->draw(w, h);
     }
 }
 
 void uni::tile::wire()
 {
     if (will_draw)
-        volume();
-    else
     {
+        volume();
+
         if (P[0]) P[0]->wire();
         if (P[1]) P[1]->wire();
         if (P[2]) P[2]->wire();
@@ -580,11 +600,11 @@ uni::geomap::~geomap()
 }
 
 void uni::geomap::draw(const double *V,
-                       const double *MVP, int w, int h)
+                       const double *p, int w, int h)
 {
     if (P)
     {
-        P->prep(V, MVP);
+        P->prep(V, p);
         P->draw(w, h);
     }
 

@@ -53,7 +53,7 @@ void uni::renbuf::free(bool proj) const
 
 uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
     uni::renbuf(w, h, GL_FLOAT_RGBA32_NV,
-                      GL_DEPTH_COMPONENT24, "glsl/drawcyl.vert",
+                      GL_DEPTH_COMPONENT24 * 0, "glsl/drawcyl.vert",
                                             "glsl/drawcyl.frag")
 {
 }
@@ -61,8 +61,9 @@ uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
 //-----------------------------------------------------------------------------
 
 uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, 0, "glsl/drawdif.vert",
-                                   "glsl/drawdif.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8,
+                      GL_DEPTH_COMPONENT24 * 0, "glsl/drawdif.vert",
+                                            "glsl/drawdif.frag"), cyl(cyl)
 {
     draw->bind();
     {
@@ -87,8 +88,9 @@ void uni::difbuf::free(bool) const
 //-----------------------------------------------------------------------------
 
 uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, 0, "glsl/drawnrm.vert",
-                                   "glsl/drawnrm.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, 
+                      GL_DEPTH_COMPONENT24, "glsl/drawnrm.vert",
+                                            "glsl/drawnrm.frag"), cyl(cyl)
 {
     draw->bind();
     {

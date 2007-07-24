@@ -326,14 +326,14 @@ void uni::sphere::prep()
         {
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
-            int w = int(dat.vtx_len());
-            int h = int(count);
-
             acc.init(count);
 /*
             acc.bind_proc();
             {
-                height.draw(V, MVP, w, h);
+                int w = int(dat.vtx_len());
+                int h = int(count);
+
+                height.draw(V, MVP, p, w, h);
             }
             acc.free_proc();
 */
@@ -457,14 +457,16 @@ void uni::sphere::draw()
                     glDisable(GL_DEPTH_TEST);
                     glDepthMask(GL_FALSE);
 
+                    glDisable(GL_BLEND);
+/*
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+*/
                     // Draw the diffuse maps.
 
                     ren.dif()->bind();
                     {
-                        color.draw(V, MVP);
+                        color.draw(V, v);
                     }
                     ren.dif()->free();
 
@@ -473,12 +475,12 @@ void uni::sphere::draw()
                     ren.nrm()->axis(a);
                     ren.nrm()->bind();
                     {
-                        normal.draw(V, MVP);
+                        normal.draw(V, v);
                     }
                     ren.nrm()->free();
 
                     glDisable(GL_DEPTH_CLAMP_NV);
-                    glDisable(GL_BLEND);
+//                  glDisable(GL_BLEND);
                     glEnable(GL_CULL_FACE);
                     glDepthMask(GL_TRUE);
                 }
@@ -513,7 +515,7 @@ void uni::sphere::draw()
                 vtx.free();
                 dat.idx()->free();
 */
-
+/*
                 glDisable(GL_LIGHTING);
                 glDisable(GL_TEXTURE_2D);
                 glDisable(GL_DEPTH_TEST);
@@ -525,7 +527,7 @@ void uni::sphere::draw()
                     color.wire();
                 }
                 glPopMatrix();
-
+*/
             }
             glPopClientAttrib();
         }

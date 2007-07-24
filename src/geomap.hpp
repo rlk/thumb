@@ -29,6 +29,9 @@ namespace uni
 
         tile  *P[4];
         double b[6];
+        double c[3];
+        double size;
+        double area;
         int d, i, j;
         double L;
         double R;
@@ -38,9 +41,9 @@ namespace uni
         GLuint object;
         int    hint;
 
-        bool gimme(const double *);
-        int  area(const double *);
+//      int  size(const double *);
         bool test(const double *);
+        bool value(const double *);
         bool visible(const double *);
 
         void volume() const;
@@ -93,7 +96,8 @@ namespace uni
                double, double, double, double, double, double);
        ~geomap();
 
-        void draw(const double *, const double *, int=0, int=0);
+        void draw(const double *,
+                  const double *, int=0, int=0);
         void wire();
     };
 }
