@@ -481,9 +481,9 @@ uni::geobuf::geobuf(GLsizei w, GLsizei h, std::string rect_vert,
                                           std::string show_frag) :
 
     ping(glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                               GL_FLOAT_RGBA32_NV, 0)),
+                               GL_FLOAT_RGBA32_NV, false)),
     pong(glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                               GL_FLOAT_RGBA32_NV, 0)),
+                               GL_FLOAT_RGBA32_NV, false)),
     src(ping),
     dst(pong),
 

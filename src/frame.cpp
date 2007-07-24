@@ -4,13 +4,14 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::frame::frame(GLsizei w, GLsizei h, GLenum t, GLenum cf, GLenum df) :
+ogl::frame::frame(GLsizei w, GLsizei h, GLenum t, GLenum f, bool d, bool s) :
     target(t),
+    format(f),
     buffer(0),
     color(0),
     depth(0),
-    color_format(cf),
-    depth_format(df),
+    has_depth(d),
+    has_stencil(s),
     w(w),
     h(h)
 {
@@ -118,12 +119,12 @@ void ogl::frame::init()
 {
      // Initialize the color render buffer object.
 
-    if (color_format)
+    if (format)
     {
         glGenTextures(1,     &color);
         glBindTexture(target, color);
 
-        glTexImage2D(target, 0, color_format, w, h, 0,
+        glTexImage2D(target, 0, format, w, h, 0,
                      GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -134,23 +135,22 @@ void ogl::frame::init()
         glBindTexture(target, 0);
     }
 
-    // Initialize the depth render buffer object.
+    // Initialize the depth and stencil render buffer objects.
 
-    if (depth_format)
+    if (has_depth)
     {
         glGenTextures(1,     &depth);
         glBindTexture(target, depth);
 
-        glTexImage2D(target, 0, depth_format, w, h, 0,
-                     GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE, NULL);
+        if (has_stencil)
+            glTexImage2D(target, 0, GL_DEPTH24_STENCIL8_EXT, w, h, 0,
+                         GL_DEPTH_STENCIL_EXT, GL_UNSIGNED_INT_24_8_EXT, NULL);
+        else
+            glTexImage2D(target, 0, GL_DEPTH_COMPONENT24,    w, h, 0,
+                         GL_DEPTH_COMPONENT,   GL_UNSIGNED_BYTE,         NULL);
 
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-/*
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-*/
         glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
         glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
@@ -165,12 +165,18 @@ void ogl::frame::init()
     glGenFramebuffersEXT(1, &buffer);
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer);
 
-    if (depth) glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                         GL_DEPTH_ATTACHMENT_EXT,
-                                         target, depth, 0);
-    if (color) glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                         GL_COLOR_ATTACHMENT0_EXT,
-                                         target, color, 0);
+    if (has_stencil)
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                  GL_STENCIL_ATTACHMENT_EXT,
+                                  target, depth, 0);
+    if (has_depth)
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                  GL_DEPTH_ATTACHMENT_EXT,
+                                  target, depth, 0);
+    if (color)
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                  GL_COLOR_ATTACHMENT0_EXT,
+                                  target, color, 0);
     else
     {
         glDrawBuffer(GL_NONE);

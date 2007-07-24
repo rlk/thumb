@@ -15,7 +15,7 @@ void main()
 
     vec2 a = step(vec2(0.0), t) * step(t, vec2(1.0));
 
-    if (a.x * a.y < 1.0) discard;
+//  if (a.x * a.y < 1.0) discard;
 
     vec3 N = normalize(vec3(c.zw, sqrt(1.0 - c.z * c.z - c.w * c.w)));
 

@@ -76,10 +76,16 @@ extern PFNGLBINDATTRIBLOCATIONARBPROC       glBindAttribLocationARB;
 
 // GL_EXT_framebuffer_object
 
+extern PFNGLBINDRENDERBUFFEREXTPROC         glBindRenderbufferEXT;
+extern PFNGLGENRENDERBUFFERSEXTPROC         glGenRenderbuffersEXT;
+extern PFNGLRENDERBUFFERSTORAGEEXTPROC      glRenderbufferStorageEXT;
+extern PFNGLDELETERENDERBUFFERSEXTPROC      glDeleteRenderbuffersEXT;
+
 extern PFNGLGENFRAMEBUFFERSEXTPROC          glGenFramebuffersEXT;
 extern PFNGLBINDFRAMEBUFFEREXTPROC          glBindFramebufferEXT;
 extern PFNGLDELETEFRAMEBUFFERSEXTPROC       glDeleteFramebuffersEXT;
 extern PFNGLFRAMEBUFFERTEXTURE2DEXTPROC     glFramebufferTexture2DEXT;
+extern PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC  glFramebufferRenderbufferEXT;
 extern PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC   glCheckFramebufferStatusEXT;
 
 // GL_ARB_vertex_buffer_object

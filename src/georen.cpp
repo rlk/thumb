@@ -17,9 +17,9 @@
 
 //-----------------------------------------------------------------------------
 
-uni::renbuf::renbuf(GLsizei w, GLsizei h,
-                    GLenum cf, GLenum df, std::string vert, std::string frag) :
-    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, cf, df),
+uni::renbuf::renbuf(GLsizei w, GLsizei h, GLenum f, bool d, bool s,
+                    std::string vert, std::string frag) :
+    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s),
     draw(glob->load_program(vert, frag))
 {
 }
@@ -37,7 +37,7 @@ void uni::renbuf::bind(bool proj) const
 
     draw->bind();
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
 void uni::renbuf::free(bool proj) const
@@ -52,18 +52,16 @@ void uni::renbuf::free(bool proj) const
 //-----------------------------------------------------------------------------
 
 uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
-    uni::renbuf(w, h, GL_FLOAT_RGBA32_NV,
-                      GL_DEPTH_COMPONENT24 * 0, "glsl/drawcyl.vert",
-                                            "glsl/drawcyl.frag")
+    uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false, "glsl/drawcyl.vert",
+                                                       "glsl/drawcyl.frag")
 {
 }
 
 //-----------------------------------------------------------------------------
 
 uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8,
-                      GL_DEPTH_COMPONENT24 * 0, "glsl/drawdif.vert",
-                                            "glsl/drawdif.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, true, false, "glsl/drawdif.vert",
+                                             "glsl/drawdif.frag"), cyl(cyl)
 {
     draw->bind();
     {
@@ -88,9 +86,8 @@ void uni::difbuf::free(bool) const
 //-----------------------------------------------------------------------------
 
 uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, 
-                      GL_DEPTH_COMPONENT24, "glsl/drawnrm.vert",
-                                            "glsl/drawnrm.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, true, false, "glsl/drawnrm.vert",
+                                             "glsl/drawnrm.frag"), cyl(cyl)
 {
     draw->bind();
     {

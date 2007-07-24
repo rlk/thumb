@@ -453,15 +453,15 @@ void uni::sphere::draw()
                     glLoadMatrixd(M);
 
                     glEnable(GL_DEPTH_CLAMP_NV);
-                    glDisable(GL_CULL_FACE);
+                    glEnable(GL_CULL_FACE);
+
                     glDisable(GL_DEPTH_TEST);
                     glDepthMask(GL_FALSE);
 
                     glDisable(GL_BLEND);
-/*
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-*/
+                    glEnable(GL_ALPHA_TEST);
+                    glAlphaFunc(GL_GREATER, 0.5);
+
                     // Draw the diffuse maps.
 
                     ren.dif()->bind();
@@ -480,7 +480,8 @@ void uni::sphere::draw()
                     ren.nrm()->free();
 
                     glDisable(GL_DEPTH_CLAMP_NV);
-//                  glDisable(GL_BLEND);
+                    glDisable(GL_STENCIL_TEST);
+                    glDisable(GL_ALPHA_TEST);
                     glEnable(GL_CULL_FACE);
                     glDepthMask(GL_TRUE);
                 }
@@ -519,6 +520,7 @@ void uni::sphere::draw()
                 glDisable(GL_LIGHTING);
                 glDisable(GL_TEXTURE_2D);
                 glDisable(GL_DEPTH_TEST);
+                glDisable(GL_CULL_FACE);
                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
                 glPushMatrix();

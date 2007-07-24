@@ -75,10 +75,16 @@ PFNGLBINDATTRIBLOCATIONARBPROC       glBindAttribLocationARB;
 
 // GL_EXT_framebuffer_object
 
+PFNGLBINDRENDERBUFFEREXTPROC         glBindRenderbufferEXT;
+PFNGLGENRENDERBUFFERSEXTPROC         glGenRenderbuffersEXT;
+PFNGLRENDERBUFFERSTORAGEEXTPROC      glRenderbufferStorageEXT;
+PFNGLDELETERENDERBUFFERSEXTPROC      glDeleteRenderbuffersEXT;
+
 PFNGLGENFRAMEBUFFERSEXTPROC          glGenFramebuffersEXT;
 PFNGLBINDFRAMEBUFFEREXTPROC          glBindFramebufferEXT;
 PFNGLDELETEFRAMEBUFFERSEXTPROC       glDeleteFramebuffersEXT;
 PFNGLFRAMEBUFFERTEXTURE2DEXTPROC     glFramebufferTexture2DEXT;
+PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC  glFramebufferRenderbufferEXT;
 PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC   glCheckFramebufferStatusEXT;
 
 // GL_ARB_vertex_buffer_object
@@ -215,10 +221,16 @@ void ogl::init()
 
     if (has_fbo) try
     {
+        PROC(PFNGLBINDRENDERBUFFEREXTPROC,       glBindRenderbufferEXT);
+        PROC(PFNGLGENRENDERBUFFERSEXTPROC,       glGenRenderbuffersEXT);
+        PROC(PFNGLRENDERBUFFERSTORAGEEXTPROC,    glRenderbufferStorageEXT);
+        PROC(PFNGLDELETERENDERBUFFERSEXTPROC,    glDeleteRenderbuffersEXT);
+
         PROC(PFNGLGENFRAMEBUFFERSEXTPROC,        glGenFramebuffersEXT);
         PROC(PFNGLBINDFRAMEBUFFEREXTPROC,        glBindFramebufferEXT);
         PROC(PFNGLDELETEFRAMEBUFFERSEXTPROC,     glDeleteFramebuffersEXT);
         PROC(PFNGLFRAMEBUFFERTEXTURE2DEXTPROC,   glFramebufferTexture2DEXT);
+        PROC(PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC,glFramebufferRenderbufferEXT);
         PROC(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT);
     }
     catch (std::runtime_error& e) { has_fbo = false; }

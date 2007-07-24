@@ -10,13 +10,14 @@ namespace ogl
     class frame
     {
         GLenum target;
+        GLenum format;
         GLuint buffer;
 
         GLuint color;
         GLuint depth;
 
-        GLenum color_format;
-        GLenum depth_format;
+        bool has_depth;
+        bool has_stencil;
 
         GLsizei w;
         GLsizei h;
@@ -24,8 +25,8 @@ namespace ogl
     public:
 
         frame(GLsizei, GLsizei, GLenum=GL_TEXTURE_2D,
-                                GLenum=GL_RGBA8,
-                                GLenum=GL_DEPTH_COMPONENT24);
+              GLenum=GL_RGBA8, bool=true, bool=false);
+
         virtual ~frame();
 
         void bind_color(GLenum=GL_TEXTURE0) const;

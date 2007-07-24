@@ -32,7 +32,7 @@ namespace uni
 
     public:
 
-        renbuf(GLsizei, GLsizei, GLenum, GLenum, std::string, std::string);
+        renbuf(GLsizei, GLsizei, GLenum, bool, bool, std::string, std::string);
        ~renbuf();
 
         virtual void bind(bool=false) const;

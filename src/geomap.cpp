@@ -286,8 +286,6 @@ uni::tile::tile(std::string& name,
     area = (R - L) * (T - B);
     size = sqrt(area);
 
-    if (i == 0 && j == 0) printf("%d %f %f\n", d, size, (1 << d) * 10000.0);
-
     is_visible = false;
     will_draw  = false;
 
@@ -486,15 +484,20 @@ void uni::tile::prep(const double *V,
     {
         is_visible = true;
 
+        if (P[0]) P[0]->prep(V, p);
+        if (P[1]) P[1]->prep(V, p);
+        if (P[2]) P[2]->prep(V, p);
+        if (P[3]) P[3]->prep(V, p);
+
         if (value(p))
         {
             will_draw = true;
-
-            if (P[0]) P[0]->prep(V, p);
-            if (P[1]) P[1]->prep(V, p);
-            if (P[2]) P[2]->prep(V, p);
-            if (P[3]) P[3]->prep(V, p);
         }
+
+        if (P[0]) will_draw |= P[0]->will_draw;
+        if (P[1]) will_draw |= P[1]->will_draw;
+        if (P[2]) will_draw |= P[2]->will_draw;
+        if (P[3]) will_draw |= P[3]->will_draw;
     }
 }
 
@@ -502,12 +505,6 @@ void uni::tile::draw(int w, int h)
 {
     if (is_visible)
     {
-/*
-        if (P[0]) P[0]->draw(w, h);
-        if (P[1]) P[1]->draw(w, h);
-        if (P[2]) P[2]->draw(w, h);
-        if (P[3]) P[3]->draw(w, h);
-*/
         bool p0, p1, p2, p3;
 
         p0 = P[0] && (!P[0]->is_visible || (P[0]->will_draw && P[0]->object));
@@ -515,9 +512,9 @@ void uni::tile::draw(int w, int h)
         p2 = P[2] && (!P[2]->is_visible || (P[2]->will_draw && P[2]->object));
         p3 = P[3] && (!P[3]->is_visible || (P[3]->will_draw && P[3]->object));
 
-        bool pp = (p0 && p1 && p2 && p3);
+        bool pp = (!p0 || !p1 || !p2 || !p3);
 
-        if (will_draw && !pp)
+        if (will_draw && pp)
         {
             if (object)
             {

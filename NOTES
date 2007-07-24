@@ -14,6 +14,8 @@ We're pixel/texture limited.  Compress.
 
 In the future, the extrema reducer could computer tighter NDC coverage.
 
+Support for alpha test for a particular format may be associated with support for blending on that format.  So alpha testing heightmaps might not work.
+
 -------------------------------------------------------------------------------
 
 sphere balance

@@ -100,7 +100,8 @@ namespace app
 
         ogl::pool  *new_pool ();
         ogl::image *new_image(GLsizei, GLsizei, GLenum, GLenum);
-        ogl::frame *new_frame(GLsizei, GLsizei, GLenum, GLenum, GLenum);
+        ogl::frame *new_frame(GLsizei, GLsizei, GLenum, GLenum,
+                              bool=true, bool=false);
 
         void free_pool (ogl::pool  *);
         void free_image(ogl::image *);
