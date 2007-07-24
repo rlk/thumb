@@ -5,10 +5,13 @@ uniform sampler2D     normal;
 
 uniform vec3 axis;
 
+uniform vec2 d;
+uniform vec2 k;
+
 void main()
 {
     vec4 c = texture2DRect(cyl, gl_FragCoord.xy);
-    vec2 t = (gl_TextureMatrix[1] * vec4(c.xy, 0.0, 1.0)).xy;
+    vec2 t = c.xy * k + d;
 
     vec2 a = step(vec2(0.0), t) * step(t, vec2(1.0));
 

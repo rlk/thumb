@@ -18,6 +18,7 @@
 #include <png.h>
 
 #include "geomap.hpp"
+#include "program.hpp"
 #include "matrix.hpp"
 #include "view.hpp"
 #include "util.hpp"
@@ -281,12 +282,8 @@ uni::tile::tile(std::string& name,
     // Test loads
 
     object = debug_text[d];
-/*
-    if (d == 0 && i == 0x0c && j == 0x0d) object = load_png(name, d, i, j);
-    if (d == 1 && i == 0x06 && j == 0x07) object = load_png(name, d, i, j);
-    if (d == 7 && i == 0x00 && j == 0x00) object = load_png(name, d, i, j);
-*/
-    if (d == 4 && i == 0 && j == 0) object = load_png(name, d, i, j);
+
+//  if (i == 1 && j == 1) object = load_png(name, d, i, j);
 }
 
 uni::tile::~tile()
@@ -358,6 +355,14 @@ int uni::tile::area(const double *MVP)
     return (w * h);
 }
 
+bool uni::tile::gimme(const double *MVP)
+{
+    // Some kinda derivative computation.
+    // Should NOT reduce just because half a tile is off screen.
+
+    return (area(MVP) < 1024 * 1024);
+}
+
 bool uni::tile::test(const double *P)
 {
     // Determine which AABB corner is front-most and test it.
@@ -408,6 +413,49 @@ bool uni::tile::visible(const double *V)
 
 //-----------------------------------------------------------------------------
 
+void uni::tile::volume() const
+{
+    glBegin(GL_QUADS);
+    {
+        // -X
+        glVertex3d(b[0], b[1], b[2]);
+        glVertex3d(b[0], b[1], b[5]);
+        glVertex3d(b[0], b[4], b[5]);
+        glVertex3d(b[0], b[4], b[2]);
+
+        // +X
+        glVertex3d(b[3], b[1], b[5]);
+        glVertex3d(b[3], b[1], b[2]);
+        glVertex3d(b[3], b[4], b[2]);
+        glVertex3d(b[3], b[4], b[5]);
+
+        // -Y
+        glVertex3d(b[0], b[1], b[2]);
+        glVertex3d(b[3], b[1], b[2]);
+        glVertex3d(b[3], b[1], b[5]);
+        glVertex3d(b[0], b[1], b[5]);
+
+        // +Y
+        glVertex3d(b[0], b[4], b[5]);
+        glVertex3d(b[3], b[4], b[5]);
+        glVertex3d(b[3], b[4], b[2]);
+        glVertex3d(b[0], b[4], b[2]);
+
+        // -Z
+        glVertex3d(b[3], b[1], b[2]);
+        glVertex3d(b[0], b[1], b[2]);
+        glVertex3d(b[0], b[4], b[2]);
+        glVertex3d(b[3], b[4], b[2]);
+
+        // +Z
+        glVertex3d(b[0], b[1], b[5]);
+        glVertex3d(b[3], b[1], b[5]);
+        glVertex3d(b[3], b[4], b[5]);
+        glVertex3d(b[0], b[4], b[5]);
+    }
+    glEnd();
+}
+
 void uni::tile::prep(const double *V,
                      const double *MVP)
 {
@@ -416,8 +464,9 @@ void uni::tile::prep(const double *V,
 
     if (visible(V))
     {
-        /*
-        if (area(MVP) < 1024 * 1024)
+        is_visible = true;
+
+        if ((!P[0] && !P[1] && !P[2] && !P[3]) || gimme(MVP))
         {
             if (P[0]) P[0]->will_draw = false;
             if (P[1]) P[1]->will_draw = false;
@@ -432,19 +481,7 @@ void uni::tile::prep(const double *V,
             if (P[1]) P[1]->prep(V, MVP);
             if (P[2]) P[2]->prep(V, MVP);
             if (P[3]) P[3]->prep(V, MVP);
-
-            will_draw = false;
         }
-        */
-        if (P[0]) P[0]->prep(V, MVP);
-        if (P[1]) P[1]->prep(V, MVP);
-        if (P[2]) P[2]->prep(V, MVP);
-        if (P[3]) P[3]->prep(V, MVP);
-
-        if (i == 1 && j == 1)
-            will_draw = true;
-
-        is_visible = true;
     }
 }
 
@@ -471,123 +508,44 @@ void uni::tile::draw(int w, int h)
 
                 glActiveTextureARB(GL_TEXTURE1);
                 {
-                    glMatrixMode(GL_TEXTURE);
-                    {
-                        glLoadIdentity();
-                        glTranslated(dt, dp, 0.0);
-                        glScaled    (kt, kp, 1.0);
-                    }
-                    glMatrixMode(GL_MODELVIEW);
-                    
                     glBindTexture(GL_TEXTURE_2D, object);
                 }
                 glActiveTextureARB(GL_TEXTURE0);
+
+                // TODO: store this uniform location
+
+                ogl::program::current->uniform("d", dt, dp);
+                ogl::program::current->uniform("k", kt, kp);
 
                 // Draw this tile's bounding volume.
 
                 if (w > 0 && h > 0)
                     glRecti(0, 0, w, h);
                 else
-                {
-                    glBegin(GL_QUADS);
-                    {
-                        // -X
-                        glVertex3d(b[0], b[1], b[2]);
-                        glVertex3d(b[0], b[1], b[5]);
-                        glVertex3d(b[0], b[4], b[5]);
-                        glVertex3d(b[0], b[4], b[2]);
-
-                        // +X
-                        glVertex3d(b[3], b[1], b[5]);
-                        glVertex3d(b[3], b[1], b[2]);
-                        glVertex3d(b[3], b[4], b[2]);
-                        glVertex3d(b[3], b[4], b[5]);
-
-                        // -Y
-                        glVertex3d(b[0], b[1], b[2]);
-                        glVertex3d(b[3], b[1], b[2]);
-                        glVertex3d(b[3], b[1], b[5]);
-                        glVertex3d(b[0], b[1], b[5]);
-
-                        // +Y
-                        glVertex3d(b[0], b[4], b[5]);
-                        glVertex3d(b[3], b[4], b[5]);
-                        glVertex3d(b[3], b[4], b[2]);
-                        glVertex3d(b[0], b[4], b[2]);
-
-                        // -Z
-                        glVertex3d(b[3], b[1], b[2]);
-                        glVertex3d(b[0], b[1], b[2]);
-                        glVertex3d(b[0], b[4], b[2]);
-                        glVertex3d(b[3], b[4], b[2]);
-
-                        // +Z
-                        glVertex3d(b[0], b[1], b[5]);
-                        glVertex3d(b[3], b[1], b[5]);
-                        glVertex3d(b[3], b[4], b[5]);
-                        glVertex3d(b[0], b[4], b[5]);
-                    }
-                    glEnd();
-                }
+                    volume();
             }
         }
-
-        if (P[0]) P[0]->draw(w, h);
-        if (P[1]) P[1]->draw(w, h);
-        if (P[2]) P[2]->draw(w, h);
-        if (P[3]) P[3]->draw(w, h);
+        else
+        {
+            if (P[0]) P[0]->draw(w, h);
+            if (P[1]) P[1]->draw(w, h);
+            if (P[2]) P[2]->draw(w, h);
+            if (P[3]) P[3]->draw(w, h);
+        }
     }
 }
 
 void uni::tile::wire()
 {
     if (will_draw)
+        volume();
+    else
     {
-        glBegin(GL_QUADS);
-        {
-            // -X
-            glVertex3d(b[0], b[1], b[2]);
-            glVertex3d(b[0], b[1], b[5]);
-            glVertex3d(b[0], b[4], b[5]);
-            glVertex3d(b[0], b[4], b[2]);
-
-            // +X
-            glVertex3d(b[3], b[1], b[5]);
-            glVertex3d(b[3], b[1], b[2]);
-            glVertex3d(b[3], b[4], b[2]);
-            glVertex3d(b[3], b[4], b[5]);
-
-            // -Y
-            glVertex3d(b[0], b[1], b[2]);
-            glVertex3d(b[3], b[1], b[2]);
-            glVertex3d(b[3], b[1], b[5]);
-            glVertex3d(b[0], b[1], b[5]);
-
-            // +Y
-            glVertex3d(b[0], b[4], b[5]);
-            glVertex3d(b[3], b[4], b[5]);
-            glVertex3d(b[3], b[4], b[2]);
-            glVertex3d(b[0], b[4], b[2]);
-
-            // -Z
-            glVertex3d(b[3], b[1], b[2]);
-            glVertex3d(b[0], b[1], b[2]);
-            glVertex3d(b[0], b[4], b[2]);
-            glVertex3d(b[3], b[4], b[2]);
-
-            // +Z
-            glVertex3d(b[0], b[1], b[5]);
-            glVertex3d(b[3], b[1], b[5]);
-            glVertex3d(b[3], b[4], b[5]);
-            glVertex3d(b[0], b[4], b[5]);
-        }
-        glEnd();
+        if (P[0]) P[0]->wire();
+        if (P[1]) P[1]->wire();
+        if (P[2]) P[2]->wire();
+        if (P[3]) P[3]->wire();
     }
-
-    if (P[0]) P[0]->wire();
-    if (P[1]) P[1]->wire();
-    if (P[2]) P[2]->wire();
-    if (P[3]) P[3]->wire();
 }
 
 //-----------------------------------------------------------------------------

@@ -34,6 +34,8 @@ namespace ogl
 
     public:
 
+        static const program *current;
+
         const std::string& get_vert_name() const { return vert_name; }
         const std::string& get_frag_name() const { return frag_name; }
 

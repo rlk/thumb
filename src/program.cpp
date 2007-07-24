@@ -40,6 +40,8 @@ void ogl::program::log(GLhandleARB handle, std::string& name)
 
 //-----------------------------------------------------------------------------
 
+const ogl::program *ogl::program::current = NULL;
+
 ogl::program::program(std::string vert_name,
                       std::string frag_name) :
     vert_name(vert_name),
@@ -58,6 +60,7 @@ ogl::program::~program()
 
 void ogl::program::bind() const
 {
+    current = this;
     glUseProgramObjectARB(prog);
     OGLCK();
 }

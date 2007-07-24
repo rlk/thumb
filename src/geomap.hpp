@@ -38,9 +38,12 @@ namespace uni
         GLuint object;
         int    hint;
 
+        bool gimme(const double *);
         int  area(const double *);
         bool test(const double *);
         bool visible(const double *);
+
+        void volume() const;
 
         bool is_visible;
         bool will_draw;
