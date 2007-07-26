@@ -59,6 +59,8 @@ uni::universe::~universe()
     delete S[0];
     delete R;
     delete D;
+
+    uni::geomap::fini();
 }
 
 //-----------------------------------------------------------------------------

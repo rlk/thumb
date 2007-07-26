@@ -13,6 +13,12 @@
 #ifndef GEOMAP
 #define GEOMAP
 
+#include <SDL.h>
+#include <SDL_thread.h>
+
+#include <list>
+#include <queue>
+
 #include "texture.hpp"
 #include "opengl.hpp"
 
@@ -20,17 +26,82 @@
 
 namespace uni
 {
-    //-------------------------------------------------------------------------
-    // Geomap tile
+    class geomap;
+    class page;
 
-    class tile
+    class texture_pool
     {
-        enum { dead_state, wait_state, live_state } state;
+        GLuint *pool;
+        bool   *stat;
 
-        tile  *P[4];
+        int n;
+        int s;
+        int c;
+        int b;
+
+    public:
+
+        texture_pool(int, int, int, int);
+       ~texture_pool();
+
+        GLuint get();
+        void   put(GLuint);
+    };
+
+    //-------------------------------------------------------------------------
+    // Loaded page queue
+
+    class loaded_queue
+    {
+        struct load;
+
+        std::queue<load> Q;
+
+        SDL_mutex *mutex;
+
+    public:
+
+        loaded_queue();
+       ~loaded_queue();
+
+        void enqueue(page *,  unsigned char *);
+        bool dequeue(page **, unsigned char **);
+    };
+
+    //-------------------------------------------------------------------------
+    // Needed page queue
+
+    class needed_queue
+    {
+        struct need;
+
+        std::queue<need> Q;
+
+        SDL_mutex *mutex;
+        SDL_sem   *sem;
+
+    public:
+
+        needed_queue();
+       ~needed_queue();
+
+        void enqueue(std::string&, loaded_queue *,  page *);
+        void dequeue(std::string&, loaded_queue **, page **);
+    };
+
+    //-------------------------------------------------------------------------
+    // Geomap page
+
+    class page
+    {
+        enum { dead_state,
+               wait_state,
+               live_state,
+               skip_state } state;
+
+        page  *P[4];
         double b[6];
         double c[3];
-        double size;
         double area;
         int d, i, j;
         double L;
@@ -41,7 +112,6 @@ namespace uni
         GLuint object;
         int    hint;
 
-//      int  size(const double *);
         bool test(const double *);
         bool value(const double *);
         bool visible(const double *,
@@ -50,21 +120,22 @@ namespace uni
         void volume() const;
 
         bool is_visible;
-        bool will_draw;
+        bool is_valued;
 
     public:
 
-        tile(std::string&, int, int, int, int, int, int,
+        static int count;
+
+        page(int, int, int, int, int, int,
              double, double, double, double, double, double);
-       ~tile();
+       ~page();
 
-        void search();
+        void   assign(GLuint);
+        GLuint remove();
+        void   ignore();
 
-        void ready(GLuint);
-        void eject();
-
-        void prep(const double *, const double *);
-        void draw(int, int);
+        void prep(const double *, const double *, bool, bool);
+        void draw(geomap&, int, int);
         void wire();
     };
 
@@ -75,8 +146,6 @@ namespace uni
     {
         std::string name;
 
-        int w;
-        int h;
         int c;
         int b;
         int s;
@@ -84,18 +153,29 @@ namespace uni
         GLfloat hoff;
         GLfloat hscl;
 
-        tile *P;
+        page *P;
 
-        // Tile LRU queue
-        // Tile draw stack
-        // File response queue
-        // static File request queue
+        std::list<page *> LRU;
+
+        static SDL_Thread   *loader;
+        static needed_queue *need_Q;
+               loaded_queue *load_Q;
+               texture_pool *text_P;
 
     public:
+
+        static void init();
+        static void fini();
 
         geomap(std::string, int, int, int, int, int, 
                double, double, double, double, double, double);
        ~geomap();
+
+        bool needed(page *, int, int, int);
+        bool loaded();
+
+        void purge();
+        void used(page *);
 
         void draw(const double *,
                   const double *, int=0, int=0);

@@ -281,6 +281,8 @@ void ogl::init()
         do_z_only = false;
     else
         do_z_only = true;
+
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 }
 
 //-----------------------------------------------------------------------------

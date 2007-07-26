@@ -142,10 +142,12 @@ void ogl::frame::init()
         glGenTextures(1,     &depth);
         glBindTexture(target, depth);
 
+#ifdef GL_DEPTH_STENCIL_EXT
         if (has_stencil)
             glTexImage2D(target, 0, GL_DEPTH24_STENCIL8_EXT, w, h, 0,
                          GL_DEPTH_STENCIL_EXT, GL_UNSIGNED_INT_24_8_EXT, NULL);
         else
+#endif
             glTexImage2D(target, 0, GL_DEPTH_COMPONENT24,    w, h, 0,
                          GL_DEPTH_COMPONENT,   GL_UNSIGNED_BYTE,         NULL);
 

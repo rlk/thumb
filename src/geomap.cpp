@@ -23,8 +23,73 @@
 #include "view.hpp"
 #include "util.hpp"
 
-//-----------------------------------------------------------------------------
+//=============================================================================
 
+uni::texture_pool::texture_pool(int n, int s, int c, int b) :
+    n(n), s(s), c(c), b(b)
+{
+    static const GLenum type_tag[2] = {
+        GL_UNSIGNED_BYTE,
+        GL_UNSIGNED_SHORT
+    };
+    static const GLenum form_tag[2][4] = {
+        { GL_LUMINANCE,   GL_LUMINANCE_ALPHA,     GL_RGB,   GL_RGBA   },
+        { GL_LUMINANCE16, GL_LUMINANCE16_ALPHA16, GL_RGB16, GL_RGBA16 },
+    };
+
+    const GLenum fi   = form_tag[b - 1][c - 1];
+    const GLenum fe   = form_tag[0    ][c - 1];
+    const GLenum type = type_tag[b - 1];
+    
+    pool = new GLuint[n];
+    stat = new bool  [n];
+
+    glGenTextures(n, pool);
+
+    for (int i = 0; i < n; ++i)
+    {
+        glBindTexture(GL_TEXTURE_2D, pool[i]);
+
+        glTexImage2D(GL_TEXTURE_2D, 0, fi, s + 2, s + 2, 1, fe, type, 0);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+
+        stat[i] = false;
+    }
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+uni::texture_pool::~texture_pool()
+{
+    glDeleteTextures(n, pool);
+    delete [] stat;
+    delete [] pool;
+}
+
+GLuint uni::texture_pool::get()
+{
+    for (int i = 0; i < n; ++i)
+        if (stat[i] == false)
+        {
+            stat[i] = true;
+            return pool[i];
+        }
+
+    return 0;
+}
+
+void uni::texture_pool::put(GLuint o)
+{
+    for (int i = 0; i < n; ++i)
+        if (pool[i] == o)
+            stat[i] = false;
+}
+
+//=============================================================================
+/*
 static bool   debug_init = false;
 static GLuint debug_text[8];
 
@@ -73,30 +138,20 @@ static void setup_debug()
         glBindTexture(GL_TEXTURE_2D, 0);
     }
 }
+*/
+//=============================================================================
 
-//-----------------------------------------------------------------------------
-
-static GLuint load_png(std::string base, int d, int i, int j)
+static unsigned char *load_png(std::string name)
 {
-    GLuint o = 0;
-
-    // Construct the file name.
-
-    std::ostringstream name;
-
-    name << base
-         << "-" << std::hex << std::setfill('0') << std::setw(2) << d
-         << "-" << std::hex << std::setfill('0') << std::setw(2) << i
-         << "-" << std::hex << std::setfill('0') << std::setw(2) << j << ".png";
+    unsigned char *p = 0;
+    png_structp   rp = 0;
+    png_infop     ip = 0;
+    png_bytep    *bp = 0;
+    FILE         *fp = 0;
 
     // Initialize all PNG import data structures.
 
-    png_structp rp = 0;
-    png_infop   ip = 0;
-    png_bytep  *bp = 0;
-    FILE       *fp = 0;
-
-    if (!(fp = fopen(name.str().c_str(), "rb")))
+    if (!(fp = fopen(name.c_str(), "rb")))
         throw std::runtime_error("Failure opening PNG file");
 
     if (!(rp = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0)))
@@ -109,15 +164,6 @@ static GLuint load_png(std::string base, int d, int i, int j)
 
     if (setjmp(png_jmpbuf(rp)) == 0)
     {
-        GLenum type_tag[2] = {
-            GL_UNSIGNED_BYTE,
-            GL_UNSIGNED_SHORT
-        };
-        GLenum form_tag[2][4] = {
-            { GL_LUMINANCE,   GL_LUMINANCE_ALPHA,     GL_RGB,   GL_RGBA   },
-            { GL_LUMINANCE16, GL_LUMINANCE16_ALPHA16, GL_RGB16, GL_RGBA16 },
-        };
-
         // Read the PNG header.
 
         png_init_io (rp, fp);
@@ -130,10 +176,6 @@ static GLuint load_png(std::string base, int d, int i, int j)
         GLsizei h = GLsizei(png_get_image_height(rp, ip));
         GLsizei b = GLsizei(png_get_bit_depth   (rp, ip)) / 8;
         GLsizei c = 1;
-        GLsizei d = 0;
-
-        if (w & (w - 1)) d = 1;
-        if (h & (h - 1)) d = 1;
 
         switch (png_get_color_type(rp, ip))
         {
@@ -144,36 +186,30 @@ static GLuint load_png(std::string base, int d, int i, int j)
         default: throw std::runtime_error("Unsupported PNG color type");
         }
 
-        GLenum fi   = form_tag[b - 1][c - 1];
-        GLenum fe   = form_tag[0    ][c - 1];
-        GLenum type = type_tag[b - 1];
+        // Allocate a buffer and copy the pixel data to it.
 
-        // Read the pixel data.
-
-        if ((bp = png_get_rows(rp, ip)))
+        if ((p = (unsigned char *) malloc(w * h * c * b)))
         {
-            glGenTextures(1, &o);
-
-            // Initialize the texture object.
-
-            glBindTexture(GL_TEXTURE_2D, o);
-            glTexImage2D (GL_TEXTURE_2D, 0, fi, w, h, d, fe, type, 0);
-
-            OGLCK();
-
-            // Copy all rows to the new texture.
-
-            for (GLsizei i = 0, j = h - 1; j >= 0; ++i, --j)
-                glTexSubImage2D(GL_TEXTURE_2D, 0, -d, i - d, w, 1,
-                                fe, type, bp[j]);
-
-            OGLCK();
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+            if ((bp = png_get_rows(rp, ip)))
+            {
+                /*
+                // Allocate 4 channels...
+                if (c == 3 && b == 1)
+                    for (int i = 0, r = h - 1; i < h; ++i, --r)
+                    {
+                        for (int j = 0; j < w; ++j)
+                        {
+                            p[(i * w + j) * 4 + 0] = bp[r][j * 3 + 2];
+                            p[(i * w + j) * 4 + 1] = bp[r][j * 3 + 1];
+                            p[(i * w + j) * 4 + 2] = bp[r][j * 3 + 0];
+                            p[(i * w + j) * 4 + 3] = 0xFF;
+                        }
+                    }
+                else
+                */
+                    for (int i = 0, r = h - 1; i < h; ++i, --r)
+                        memcpy(p + i * w * c * b, bp[r], w * c * b);
+            }
         }
     }
 
@@ -182,17 +218,159 @@ static GLuint load_png(std::string base, int d, int i, int j)
     png_destroy_read_struct(&rp, &ip, 0);
     fclose(fp);
 
-    return o;
+    return p;
 }
 
 //-----------------------------------------------------------------------------
 
-uni::tile::tile(std::string& name,
-                int w, int h, int s,
+static int loader_func(void *data)
+{
+    uni::needed_queue *N = (uni::needed_queue *) data;
+
+    while (1)
+    {
+        std::string     name;
+        uni::loaded_queue *L;
+        uni::page         *P;
+        unsigned char     *D;
+
+        // Dequeue the next request.
+
+        N->dequeue(name, &L, &P);
+
+        std::cout << "loading " << name << std::endl;
+
+        // Load and enqueue the page.
+
+        if ((D = load_png(name)))
+            L->enqueue(P, D);
+    }
+
+    return 0;
+}
+
+//=============================================================================
+
+struct uni::loaded_queue::load
+{
+    page          *P;
+    unsigned char *D;
+
+    load(page *P, unsigned char *D) : P(P), D(D) { }
+};
+
+//-----------------------------------------------------------------------------
+
+uni::loaded_queue::loaded_queue()
+{
+    mutex = SDL_CreateMutex();
+}
+
+uni::loaded_queue::~loaded_queue()
+{
+    if (mutex) SDL_DestroyMutex(mutex);
+}
+
+void uni::loaded_queue::enqueue(page *P, unsigned char *D)
+{
+    // Enqueue the request.
+
+    SDL_mutexP(mutex);
+    Q.push(load(P, D));
+    SDL_mutexV(mutex);
+}
+
+bool uni::loaded_queue::dequeue(page **P, unsigned char **D)
+{
+    bool b = false;
+
+    // If the queue is not empty, dequeue.
+
+    SDL_mutexP(mutex);
+
+    if (!Q.empty())
+    {
+        load L = Q.front(); Q.pop();
+
+        *P = L.P;
+        *D = L.D;
+         b = true;
+    }
+
+    SDL_mutexV(mutex);
+
+    return b;
+}
+
+//=============================================================================
+
+struct uni::needed_queue::need
+{
+    std::string name;
+    loaded_queue *L;
+    page         *P;
+
+    need(std::string& name, loaded_queue *L, page *P) :
+        name(name), L(L), P(P) { }
+};
+
+//-----------------------------------------------------------------------------
+
+uni::needed_queue::needed_queue()
+{
+    mutex = SDL_CreateMutex();
+    sem   = SDL_CreateSemaphore(0);
+}
+
+uni::needed_queue::~needed_queue()
+{
+    if (sem)   SDL_DestroySemaphore(sem);
+    if (mutex) SDL_DestroyMutex(mutex);
+}
+
+void uni::needed_queue::enqueue(std::string& name, loaded_queue *L, page *P)
+{
+    // Enqueue the request.
+
+    SDL_mutexP(mutex);
+    Q.push(need(name, L, P));
+    SDL_mutexV(mutex);
+
+    // Signal the consumer.
+
+    SDL_SemPost(sem);
+}
+
+void uni::needed_queue::dequeue(std::string& name, loaded_queue **L, page **P)
+{
+    // Wait for a request to queue.
+
+    SDL_SemWait(sem);
+
+    // Dequeue the request.
+
+    SDL_mutexP(mutex);
+    need N = Q.front(); Q.pop();
+    SDL_mutexV(mutex);
+
+    // Return the values;
+
+    name = N.name;
+    *L   = N.L;
+    *P   = N.P;
+}
+
+//=============================================================================
+
+int uni::page::count;
+
+uni::page::page(int w, int h, int s,
                 int x, int y, int d,
                 double r0, double r1,
                 double _L, double _R, double _B, double _T) :
-    state(dead_state), d(d), object(0), hint(0)
+    state(dead_state), d(d),
+    object(0), hint(0),
+    is_visible(false), is_valued(false)
 {
     int S = s << d;
 
@@ -208,7 +386,7 @@ uni::tile::tile(std::string& name,
     T = (_T + (_B - _T) * (y    ) / h);
     B = (_T + (_B - _T) * (y + S) / h);
 
-    // Create subtiles as necessary.
+    // Create subpages as necessary.
 
     P[0] = 0;
     P[1] = 0;
@@ -220,12 +398,12 @@ uni::tile::tile(std::string& name,
         const int X = (x + S / 2);
         const int Y = (y + S / 2);
 
-        /* Has children? */ P[0] = new tile(name, w, h, s, x, y, d-1, r0, r1, _L, _R, _B, _T);
-        if (         Y < h) P[1] = new tile(name, w, h, s, x, Y, d-1, r0, r1, _L, _R, _B, _T);
-        if (X < w         ) P[2] = new tile(name, w, h, s, X, y, d-1, r0, r1, _L, _R, _B, _T);
-        if (X < w && Y < h) P[3] = new tile(name, w, h, s, X, Y, d-1, r0, r1, _L, _R, _B, _T);
+        /* Has children? */ P[0] = new page(w, h, s, x, y, d-1, r0, r1, _L, _R, _B, _T);
+        if (         Y < h) P[1] = new page(w, h, s, x, Y, d-1, r0, r1, _L, _R, _B, _T);
+        if (X < w         ) P[2] = new page(w, h, s, X, y, d-1, r0, r1, _L, _R, _B, _T);
+        if (X < w && Y < h) P[3] = new page(w, h, s, X, Y, d-1, r0, r1, _L, _R, _B, _T);
 
-        // Accumulate the AABBs of the children. */
+        // Accumulate the AABBs and areas of the children. */
 
         b[0] =  std::numeric_limits<double>::max();
         b[1] =  std::numeric_limits<double>::max();
@@ -233,6 +411,8 @@ uni::tile::tile(std::string& name,
         b[3] = -std::numeric_limits<double>::max();
         b[4] = -std::numeric_limits<double>::max();
         b[5] = -std::numeric_limits<double>::max();
+
+        area = 0.0;
 
         for (int k = 0; k < 4; ++k)
             if (P[k])
@@ -243,11 +423,13 @@ uni::tile::tile(std::string& name,
                 b[3] = std::max(b[3], P[k]->b[3]);
                 b[4] = std::max(b[4], P[k]->b[4]);
                 b[5] = std::max(b[5], P[k]->b[5]);
+
+                area += P[k]->area;
             }
     }
     else
     {
-        // Compute the AABB of this tile.
+        // Compute the AABB of this page.
 
         double v[8][3];
 
@@ -275,113 +457,68 @@ uni::tile::tile(std::string& name,
                     v[4][1], v[5][1], v[6][1], v[7][1]);
         b[5] = max8(v[0][2], v[1][2], v[2][2], v[3][2],
                     v[4][2], v[5][2], v[6][2], v[7][2]);
+
+        // Compute the (trapezoidal approximate) area of this page.
+
+        double lt = (r0 + r1) * sin((R - L) * cos(T) * 0.5);
+        double lb = (r0 + r1) * sin((R - L) * cos(B) * 0.5);
+        double lh = (r0 + r1) * sin((T - B)          * 0.5);
+
+        area = (lt + lb) * lh * 0.5;
     }
 
-    // Compute the center of this tile.
+    // Compute the center of this page.
 
     c[0] = (b[0] + b[3]) / 2.0;
     c[1] = (b[1] + b[4]) / 2.0;
     c[2] = (b[2] + b[5]) / 2.0;
-
-    area = (R - L) * (T - B);
-    size = sqrt(area);
-
-    is_visible = false;
-    will_draw  = false;
-
-    // Test loads
-
-    object = debug_text[d];
-
-//  if (i == 0 && j == 0) object = load_png(name, d, i, j);
 }
 
-uni::tile::~tile()
+uni::page::~page()
 {
     if (P[3]) delete P[3];
     if (P[2]) delete P[2];
     if (P[1]) delete P[1];
     if (P[0]) delete P[0];
 
-    eject();
+    remove();
 }
 
-void uni::tile::ready(GLuint o)
+void uni::page::assign(GLuint o)
 {
     object = o;
     state  = live_state;
 }
 
-void uni::tile::eject()
+GLuint uni::page::remove()
 {
-    if (object)
-        glDeleteTextures(1, &object);
-
-    object = 0;
     state  = dead_state;
+    return object;
+}
+
+void uni::page::ignore()
+{
+    state  = skip_state;
 }
 
 //-----------------------------------------------------------------------------
-/*
-static void project(double *r, const double *M, double x, double y, double z)
+
+bool uni::page::value(const double *p)
 {
-    double v[4] = { x, y, z, 1 };
-    double w[4];
-    
-    mult_mat_vec4(w, M, v);
+    double q[3];
 
-    double rx = w[0] / w[3];
-    double ry = w[1] / w[3];
+    double bias = 0.5;
 
-    r[0] = std::min(r[0], rx);
-    r[1] = std::min(r[1], ry);
-    r[2] = std::max(r[2], rx);
-    r[3] = std::max(r[3], ry);
+    q[0] = c[0] - p[0];
+    q[1] = c[1] - p[1];
+    q[2] = c[2] - p[2];
+
+    double k = bias * area / DOT3(q, q);
+
+    return (k > 1);
 }
 
-int uni::tile::size(const double *MVP)
-{
-    double r[4];
-
-    r[0] =  std::numeric_limits<double>::max();
-    r[1] =  std::numeric_limits<double>::max();
-    r[2] = -std::numeric_limits<double>::max();
-    r[3] = -std::numeric_limits<double>::max();
-
-    project(r, MVP, b[0], b[1], b[2]);
-    project(r, MVP, b[0], b[1], b[5]);
-    project(r, MVP, b[0], b[4], b[2]);
-    project(r, MVP, b[0], b[4], b[5]);
-    project(r, MVP, b[3], b[1], b[2]);
-    project(r, MVP, b[3], b[1], b[5]);
-    project(r, MVP, b[3], b[4], b[2]);
-    project(r, MVP, b[3], b[4], b[5]);
-
-    int w = int((r[2] - r[0]) * ::view->get_w() / 2);
-    int h = int((r[3] - r[1]) * ::view->get_h() / 2);
-
-//  printf("%2d %2d %2d %4d %4d\n", d, i, j, w, h);
-
-    return (w * h);
-}
-*/
-bool uni::tile::value(const double *p)
-{
-    double bias = 500000.0;
-    double v[3];
-
-    v[0] = c[0] - p[0];
-    v[1] = c[1] - p[1];
-    v[2] = c[2] - p[2];
-
-    double k = sqrt(DOT3(v, v));
-
-//  if (d == 1) printf("%f %f\n", k, (1 << d) * bias);
-
-    return (k < ((1 << d) * bias));
-}
-
-bool uni::tile::test(const double *P)
+bool uni::page::test(const double *P)
 {
     // Determine which AABB corner is front-most and test it.
 
@@ -409,9 +546,9 @@ bool uni::tile::test(const double *P)
                 return (P[0] * b[0] + P[1] * b[1] + P[2] * b[2] + P[3] < 0);
 }
 
-bool uni::tile::visible(const double *V, const double *p)
+bool uni::page::visible(const double *V, const double *p)
 {
-    // If we're inside the bound, the tile is visible.
+    // If we're inside the bound, the page is visible.
 
     if (b[0] < p[0] && p[0] < b[3] &&
         b[1] < p[1] && p[1] < b[4] &&
@@ -437,7 +574,7 @@ bool uni::tile::visible(const double *V, const double *p)
 
 //-----------------------------------------------------------------------------
 
-void uni::tile::volume() const
+void uni::page::volume() const
 {
     glBegin(GL_QUADS);
     {
@@ -480,56 +617,60 @@ void uni::tile::volume() const
     glEnd();
 }
 
-void uni::tile::prep(const double *V,
-                     const double *p)
+void uni::page::prep(const double *V,
+                     const double *p, bool vis, bool val)
 {
     is_visible = false;
-    will_draw  = false;
+    is_valued  = false;
 
-    if (visible(V, p))
+    if (state != skip_state)
     {
-        is_visible = true;
-
-        if (P[0]) P[0]->prep(V, p);
-        if (P[1]) P[1]->prep(V, p);
-        if (P[2]) P[2]->prep(V, p);
-        if (P[3]) P[3]->prep(V, p);
-
-        if (value(p))
+        if (vis && visible(V, p))
         {
-            will_draw = true;
-        }
+            is_visible = true;
 
-        if (P[0]) will_draw |= P[0]->will_draw;
-        if (P[1]) will_draw |= P[1]->will_draw;
-        if (P[2]) will_draw |= P[2]->will_draw;
-        if (P[3]) will_draw |= P[3]->will_draw;
+            if (val && value(p))
+                is_valued = true;
+        }
     }
+
+    if (P[0]) P[0]->prep(V, p, is_visible, is_valued);
+    if (P[1]) P[1]->prep(V, p, is_visible, is_valued);
+    if (P[2]) P[2]->prep(V, p, is_visible, is_valued);
+    if (P[3]) P[3]->prep(V, p, is_visible, is_valued);
 }
 
-void uni::tile::draw(int w, int h)
+void uni::page::draw(geomap& M, int w, int h)
 {
     if (is_visible)
     {
-        bool p0, p1, p2, p3;
+        // If a visible child will not draw, this page must draw.
 
-        p0 = P[0] && (!P[0]->is_visible || (P[0]->will_draw && P[0]->object));
-        p1 = P[1] && (!P[1]->is_visible || (P[1]->will_draw && P[1]->object));
-        p2 = P[2] && (!P[2]->is_visible || (P[2]->will_draw && P[2]->object));
-        p3 = P[3] && (!P[3]->is_visible || (P[3]->will_draw && P[3]->object));
+        bool b = (!P[0] && !P[1] && !P[2] && !P[3]);
 
-        bool pp = (!p0 || !p1 || !p2 || !p3);
+        if (P[0] && P[0]->is_visible && !P[0]->is_valued) b = true;
+        if (P[1] && P[1]->is_visible && !P[1]->is_valued) b = true;
+        if (P[2] && P[2]->is_visible && !P[2]->is_valued) b = true;
+        if (P[3] && P[3]->is_visible && !P[3]->is_valued) b = true;
 
-        if (will_draw && pp)
+        if (is_valued && b)
         {
-            if (object)
-            {
-                // Set up this tile's texture transform.
+            // If this page should draw but has no texture, request it.
 
-                double kt = +1.0 / (R - L);
-                double kp = +1.0 / (T - B);
-                double dt = -L * kt;
-                double dp = -B * kp;
+            if (state == dead_state)
+            {
+                if (M.needed(this, d, i, j))
+                    state = wait_state;
+            }
+
+            if (state == live_state)
+            {
+                // Set up this page's texture transform.
+
+                double kt =  1 / (R - L);
+                double kp =  1 / (T - B);
+                double dt = -kt * L;
+                double dp = -kp * B;
 
                 glActiveTextureARB(GL_TEXTURE1);
                 {
@@ -542,25 +683,29 @@ void uni::tile::draw(int w, int h)
                 ogl::program::current->uniform("d", dt, dp);
                 ogl::program::current->uniform("k", kt, kp);
 
-                // Draw this tile's bounding volume.
+                // Draw this page's bounding volume.
 
                 if (w > 0 && h > 0)
                     glRecti(0, 0, w, h);
                 else
                     volume();
+
+                count++;
+
+                M.used(this);
             }
         }
 
-        if (P[0]) P[0]->draw(w, h);
-        if (P[1]) P[1]->draw(w, h);
-        if (P[2]) P[2]->draw(w, h);
-        if (P[3]) P[3]->draw(w, h);
+        if (P[0]) P[0]->draw(M, w, h);
+        if (P[1]) P[1]->draw(M, w, h);
+        if (P[2]) P[2]->draw(M, w, h);
+        if (P[3]) P[3]->draw(M, w, h);
     }
 }
 
-void uni::tile::wire()
+void uni::page::wire()
 {
-    if (will_draw)
+    if (is_valued)
     {
         volume();
 
@@ -571,13 +716,33 @@ void uni::tile::wire()
     }
 }
 
+//=============================================================================
+
+SDL_Thread        *uni::geomap::loader = 0;
+uni::needed_queue *uni::geomap::need_Q = 0;
+
+void uni::geomap::init()
+{
+    need_Q = new needed_queue();
+    loader = SDL_CreateThread(loader_func, (void *) need_Q);
+}
+
+void uni::geomap::fini()
+{
+    SDL_KillThread(loader);
+    delete need_Q;
+}
+
 //-----------------------------------------------------------------------------
 
 uni::geomap::geomap(std::string name,
                     int w, int h, int c, int b, int s,
                     double r0, double r1,
-                    double L, double R, double B, double T) : name(name)
+                    double L, double R, double B, double T) :
+    name(name), c(c), b(b), s(s)
 {
+    if (loader == 0) init();
+
     // Compute the depth of the mipmap pyramid.
 
     int S = s;
@@ -591,25 +756,146 @@ uni::geomap::geomap(std::string name,
 
     // Generate the mipmap pyramid catalog.
 
-    setup_debug();
-    glBindTexture(GL_TEXTURE_2D, 0);
+    P = new page(w, h, s, 0, 0, d, r0, r1, L, R, B, T);
 
-    P = new tile(name, w, h, s, 0, 0, d, r0, r1, L, R, B, T);
+    // Initialize the load queue.
+
+    load_Q = new loaded_queue;
+    text_P = new texture_pool(16, s, c, b);
 }
 
 uni::geomap::~geomap()
 {
-    if (P) delete P;
+    if (text_P) delete(text_P);
+    if (load_Q) delete(load_Q);
+    if (P)      delete P;
 }
+
+//-----------------------------------------------------------------------------
+
+bool uni::geomap::needed(page *P, int d, int i, int j)
+{
+    // Construct the file name.
+
+    std::ostringstream file;
+
+    file << name
+         << "-" << std::hex << std::setfill('0') << std::setw(2) << d
+         << "-" << std::hex << std::setfill('0') << std::setw(2) << i
+         << "-" << std::hex << std::setfill('0') << std::setw(2) << j << ".png";
+
+    // Queue the request.
+
+    if (need_Q)
+    {
+        std::string name = file.str();
+
+        need_Q->enqueue(name, load_Q, P);
+        return true;
+    }
+    return false;
+}
+
+bool uni::geomap::loaded()
+{
+    static const GLenum type_tag[2] = {
+        GL_UNSIGNED_BYTE,
+        GL_UNSIGNED_SHORT
+    };
+    static const GLenum form_tag[4] = {
+        GL_LUMINANCE,
+        GL_LUMINANCE_ALPHA,
+        GL_RGB,
+        GL_RGBA
+    };
+
+    page          *P;
+    unsigned char *D;
+
+    // Check to see if any recently loaded pages are ready.
+
+    if (load_Q && load_Q->dequeue(&P, &D))
+    {
+        // If we've got data, download the page to the GL.
+        
+        if (D)
+        {
+            GLenum form = form_tag[c - 1];
+            GLenum type = type_tag[b - 1];
+            GLuint o;
+
+            o = text_P->get();
+            if (o == 0)
+            {
+                purge();
+                o = text_P->get();
+            }
+
+            if (o)
+            {
+                // Initialize the texture object.
+
+                glBindTexture(GL_TEXTURE_2D, o);
+                glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, 
+                                form, type, D);
+                glBindTexture(GL_TEXTURE_2D, 0);
+
+                OGLCK();
+            }
+
+            // Assign the texture to the page.
+
+            P->assign(o);
+        }
+        else
+            P->ignore();
+
+        // Release the data buffer.
+
+        free(D);
+
+        return true;
+    }
+    return false;
+}
+
+void uni::geomap::purge()
+{
+    printf("purge\n");
+    // If we're over the loaded limit, eject a page.
+
+    if (!LRU.empty())
+    {
+        text_P->put(LRU.back()->remove());
+        LRU.pop_back();
+    }
+}
+
+void uni::geomap::used(page *P)
+{
+    // Move P to the front of the LRU list;
+
+    LRU.remove(P);
+    LRU.push_front(P);
+}
+
+//-----------------------------------------------------------------------------
 
 void uni::geomap::draw(const double *V,
                        const double *p, int w, int h)
 {
+    page::count = 0;
+
+    while (loaded())
+        ;
+
     if (P)
     {
-        P->prep(V, p);
-        P->draw(w, h);
+        P->prep(V, p, true, true);
+        P->draw(*this, w, h);
     }
+
+//    printf("%d\n", page::count);
 
     glActiveTextureARB(GL_TEXTURE1);
     {

@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
 
             init(data_file, conf_file, lang_file);
             {
-                std::auto_ptr<perf> P(new perf(60));
+                std::auto_ptr<perf> P(new perf(10));
 
                 while (loop())
                 {
