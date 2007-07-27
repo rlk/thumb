@@ -99,7 +99,7 @@ namespace uni
                live_state,
                skip_state } state;
 
-        page  *P[4];
+        page  *P[4], *U;
         double b[6];
         double c[3];
         double area;
@@ -126,7 +126,7 @@ namespace uni
 
         static int count;
 
-        page(int, int, int, int, int, int,
+        page(page *, int, int, int, int, int, int,
              double, double, double, double, double, double);
        ~page();
 
@@ -134,9 +134,12 @@ namespace uni
         GLuint remove();
         void   ignore();
 
-        void prep(const double *, const double *, bool, bool);
-        void draw(geomap&, int, int);
+//      void prep(const double *, const double *, bool, bool);
+        void prep(const double *, int, int);
+        void draw(geomap&, int, int, int, int);
         void wire();
+
+        int lod() const { return d; }
     };
 
     //-------------------------------------------------------------------------
@@ -146,9 +149,14 @@ namespace uni
     {
         std::string name;
 
+        bool debug;
         int c;
         int b;
         int s;
+        int d;
+        double k;
+        double r0;
+        double r1;
 
         GLfloat hoff;
         GLfloat hscl;
@@ -168,7 +176,7 @@ namespace uni
         static void fini();
 
         geomap(std::string, int, int, int, int, int, 
-               double, double, double, double, double, double);
+               double, double, double, double, double, double, double);
        ~geomap();
 
         bool needed(page *, int, int, int);
@@ -180,6 +188,8 @@ namespace uni
         void draw(const double *,
                   const double *, int=0, int=0);
         void wire();
+
+        void set_debug(bool b) { debug = b; }
     };
 }
 

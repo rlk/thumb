@@ -130,6 +130,7 @@ void   midpoint(double *, const double *, const double *);
 double distance(          const double *, const double *);
 
 void sphere_to_vector(double *, double, double, double);
+void vector_to_sphere(double *, double, double, double);
 
 //-----------------------------------------------------------------------------
 

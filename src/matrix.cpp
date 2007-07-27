@@ -518,11 +518,22 @@ double distance(const double *a, const double *b)
     return sqrt(DOT3(d, d));
 }
 
+//-----------------------------------------------------------------------------
+
 void sphere_to_vector(double *v, double t, double p, double r)
 {
     v[0] = r * sin(t) * cos(p);
     v[1] = r *          sin(p);
     v[2] = r * cos(t) * cos(p);
+}
+
+void vector_to_sphere(double *r, double x, double y, double z)
+{
+    double d = sqrt(x * x + y * y + z * z);
+
+    r[0] = atan2(x, z);
+    r[1] = asin(y / d);
+    r[2] = d;
 }
 
 //-----------------------------------------------------------------------------

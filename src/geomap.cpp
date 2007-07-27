@@ -89,57 +89,6 @@ void uni::texture_pool::put(GLuint o)
 }
 
 //=============================================================================
-/*
-static bool   debug_init = false;
-static GLuint debug_text[8];
-
-static GLubyte debug_color[8][4] = {
-    { 0xFF, 0x00, 0x00, 0xFF },
-    { 0x00, 0xFF, 0x00, 0xFF },
-    { 0x00, 0x00, 0xFF, 0xFF },
-    { 0xFF, 0xFF, 0x00, 0xFF },
-    { 0x00, 0xFF, 0xFF, 0xFF },
-    { 0xFF, 0x00, 0xFF, 0xFF },
-    { 0x7F, 0x7F, 0x7F, 0xFF },
-    { 0xFF, 0xFF, 0xFF, 0xFF },
-};
-
-static void setup_debug()
-{
-    if (debug_init == false)
-    {
-        debug_init = true;
-
-        glGenTextures(8, debug_text);
-
-        for (int i = 0; i < 8; ++i)
-        {
-            GLubyte p[16];
-
-            for (int j = 0; j < 16; j += 4)
-            {
-                p[j + 0] = debug_color[i][0];
-                p[j + 1] = debug_color[i][1];
-                p[j + 2] = debug_color[i][2];
-                p[j + 3] = debug_color[i][3];
-            }
-
-            glBindTexture(GL_TEXTURE_2D, debug_text[i]);
-            glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 2, 2, 0,
-                          GL_RGBA, GL_UNSIGNED_BYTE, p);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        }
-
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-}
-*/
-//=============================================================================
 
 static unsigned char *load_png(std::string name)
 {
@@ -364,11 +313,12 @@ void uni::needed_queue::dequeue(std::string& name, loaded_queue **L, page **P)
 
 int uni::page::count;
 
-uni::page::page(int w, int h, int s,
+uni::page::page(page *U,
+                int w, int h, int s,
                 int x, int y, int d,
                 double r0, double r1,
                 double _L, double _R, double _B, double _T) :
-    state(dead_state), d(d),
+    state(dead_state), U(U), d(d),
     object(0), hint(0),
     is_visible(false), is_valued(false)
 {
@@ -398,10 +348,14 @@ uni::page::page(int w, int h, int s,
         const int X = (x + S / 2);
         const int Y = (y + S / 2);
 
-        /* Has children? */ P[0] = new page(w, h, s, x, y, d-1, r0, r1, _L, _R, _B, _T);
-        if (         Y < h) P[1] = new page(w, h, s, x, Y, d-1, r0, r1, _L, _R, _B, _T);
-        if (X < w         ) P[2] = new page(w, h, s, X, y, d-1, r0, r1, _L, _R, _B, _T);
-        if (X < w && Y < h) P[3] = new page(w, h, s, X, Y, d-1, r0, r1, _L, _R, _B, _T);
+        /* Has children? */ P[0] = new page(this, w, h, s, x, y, d-1,
+                                            r0, r1, _L, _R, _B, _T);
+        if (         Y < h) P[1] = new page(this, w, h, s, x, Y, d-1,
+                                            r0, r1, _L, _R, _B, _T);
+        if (X < w         ) P[2] = new page(this, w, h, s, X, y, d-1,
+                                            r0, r1, _L, _R, _B, _T);
+        if (X < w && Y < h) P[3] = new page(this, w, h, s, X, Y, d-1,
+                                            r0, r1, _L, _R, _B, _T);
 
         // Accumulate the AABBs and areas of the children. */
 
@@ -472,6 +426,10 @@ uni::page::page(int w, int h, int s,
     c[0] = (b[0] + b[3]) / 2.0;
     c[1] = (b[1] + b[4]) / 2.0;
     c[2] = (b[2] + b[5]) / 2.0;
+/*
+    object = debug_text[d];
+    state  = live_state;
+*/
 }
 
 uni::page::~page()
@@ -617,6 +575,7 @@ void uni::page::volume() const
     glEnd();
 }
 
+/*
 void uni::page::prep(const double *V,
                      const double *p, bool vis, bool val)
 {
@@ -639,7 +598,80 @@ void uni::page::prep(const double *V,
     if (P[2]) P[2]->prep(V, p, is_visible, is_valued);
     if (P[3]) P[3]->prep(V, p, is_visible, is_valued);
 }
+*/
 
+void uni::page::prep(const double *r, int d0, int d1)
+{
+    if (d >= d0)
+    {
+        double dt = (R - L) * 0.5;
+        double dp = (T - B) * 0.5;
+
+        is_valued = ((L - dt < r[0] && r[0] < R + dt) &&
+                     (B - dp < r[1] && r[1] < T + dt));
+
+        if (P[0]) P[0]->prep(r, d0, d1);
+        if (P[1]) P[1]->prep(r, d0, d1);
+        if (P[2]) P[2]->prep(r, d0, d1);
+        if (P[3]) P[3]->prep(r, d0, d1);
+    }
+}
+
+void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
+{
+    if (d >= d0)
+    {
+        if (is_valued && d <= d1)
+        {
+            // If this page should draw but has no texture, request it.
+
+            if (state == dead_state)
+            {
+                if (M.needed(this, d, i, j))
+                    state = wait_state;
+            }
+
+            if (state == live_state)
+            {
+                // Set up this page's texture transform.
+
+                double kt =  1 / (R - L);
+                double kp =  1 / (T - B);
+                double dt = -kt * L;
+                double dp = -kp * B;
+
+                glActiveTextureARB(GL_TEXTURE1);
+                {
+                    glBindTexture(GL_TEXTURE_2D, object);
+                }
+                glActiveTextureARB(GL_TEXTURE0);
+
+                // TODO: store this uniform location
+
+                ogl::program::current->uniform("d", dt, dp);
+                ogl::program::current->uniform("k", kt, kp);
+
+                // Draw this page's bounding volume.
+
+                if (w > 0 && h > 0)
+                    glRecti(0, 0, w, h);
+                else
+                    volume();
+
+                count++;
+
+                M.used(this);
+            }
+        }
+
+        if (P[0]) P[0]->draw(M, w, h, d0, d1);
+        if (P[1]) P[1]->draw(M, w, h, d0, d1);
+        if (P[2]) P[2]->draw(M, w, h, d0, d1);
+        if (P[3]) P[3]->draw(M, w, h, d0, d1);
+    }
+}
+
+/*
 void uni::page::draw(geomap& M, int w, int h)
 {
     if (is_visible)
@@ -653,7 +685,7 @@ void uni::page::draw(geomap& M, int w, int h)
         if (P[2] && P[2]->is_visible && !P[2]->is_valued) b = true;
         if (P[3] && P[3]->is_visible && !P[3]->is_valued) b = true;
 
-        if (is_valued && b)
+        if ((is_valued || !U) && b)
         {
             // If this page should draw but has no texture, request it.
 
@@ -702,7 +734,7 @@ void uni::page::draw(geomap& M, int w, int h)
         if (P[3]) P[3]->draw(M, w, h);
     }
 }
-
+*/
 void uni::page::wire()
 {
     if (is_valued)
@@ -737,16 +769,17 @@ void uni::geomap::fini()
 
 uni::geomap::geomap(std::string name,
                     int w, int h, int c, int b, int s,
-                    double r0, double r1,
+                    double k, double r0, double r1,
                     double L, double R, double B, double T) :
-    name(name), c(c), b(b), s(s)
+    name(name), debug(false), c(c), b(b), s(s), d(0), k(k), r0(r0), r1(r1)
 {
     if (loader == 0) init();
+
+//  setup_debug();
 
     // Compute the depth of the mipmap pyramid.
 
     int S = s;
-    int d = 0;
 
     while (S < w || S < h)
     {
@@ -756,12 +789,12 @@ uni::geomap::geomap(std::string name,
 
     // Generate the mipmap pyramid catalog.
 
-    P = new page(w, h, s, 0, 0, d, r0, r1, L, R, B, T);
+    P = new page(0, w, h, s, 0, 0, d, r0, r1, L, R, B, T);
 
     // Initialize the load queue.
 
     load_Q = new loaded_queue;
-    text_P = new texture_pool(16, s, c, b);
+    text_P = new texture_pool(64, s, c, b);
 }
 
 uni::geomap::~geomap()
@@ -798,6 +831,21 @@ bool uni::geomap::needed(page *P, int d, int i, int j)
 
 bool uni::geomap::loaded()
 {
+    static const GLubyte color[][4] = {
+        { 0xFF, 0xFF, 0xFF, 0xFF },
+        { 0xFF, 0xFF, 0x00, 0xFF },
+        { 0x00, 0xFF, 0xFF, 0xFF },
+        { 0xFF, 0x00, 0xFF, 0xFF },
+        { 0xFF, 0x7F, 0x00, 0xFF },
+        { 0x00, 0x7F, 0xFF, 0xFF },
+        { 0x7F, 0x00, 0xFF, 0xFF },
+        { 0xFF, 0x00, 0x7F, 0xFF },
+        { 0x7F, 0xFF, 0x00, 0xFF },
+        { 0x00, 0xFF, 0x7F, 0xFF },
+        { 0xFF, 0x00, 0x00, 0xFF },
+        { 0x00, 0xFF, 0x00, 0xFF },
+        { 0x00, 0x00, 0xFF, 0xFF },
+    };
     static const GLenum type_tag[2] = {
         GL_UNSIGNED_BYTE,
         GL_UNSIGNED_SHORT
@@ -831,14 +879,29 @@ bool uni::geomap::loaded()
                 o = text_P->get();
             }
 
+            if (debug)
+            {
+                glPixelTransferf(GL_RED_SCALE,   color[P->lod()][0] / 255.0);
+                glPixelTransferf(GL_GREEN_SCALE, color[P->lod()][1] / 255.0);
+                glPixelTransferf(GL_BLUE_SCALE,  color[P->lod()][2] / 255.0);
+            }
+
             if (o)
             {
                 // Initialize the texture object.
+
 
                 glBindTexture(GL_TEXTURE_2D, o);
                 glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, 
                                 form, type, D);
                 glBindTexture(GL_TEXTURE_2D, 0);
+            }
+
+            if (debug)
+            {
+                glPixelTransferf(GL_RED_SCALE,   1.0f);
+                glPixelTransferf(GL_GREEN_SCALE, 1.0f);
+                glPixelTransferf(GL_BLUE_SCALE,  1.0f);
             }
 
             // Assign the texture to the page.
@@ -882,18 +945,24 @@ void uni::geomap::used(page *P)
 void uni::geomap::draw(const double *V,
                        const double *p, int w, int h)
 {
-    page::count = 0;
-
-    while (loaded())
-        ;
+    loaded();
 
     if (P)
     {
-        P->prep(V, p, true, true);
-        P->draw(*this, w, h);
-    }
+        double r[3];
 
-//  printf("%d\n", page::count);
+        vector_to_sphere(r, p[0], p[1], p[2]);
+
+        int d0 = int(floor(log2((r[2] - r0) / k)));
+        
+        d0 = std::max(d0, 0);
+        d0 = std::min(d0, d);
+
+        int d1 = d0 + 3;
+
+        P->prep(r, d0, d1);
+        P->draw(*this, w, h, d0, d1);
+    }
 
     glActiveTextureARB(GL_TEXTURE1);
     {
