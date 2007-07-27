@@ -152,13 +152,13 @@ static unsigned char *load_png(std::string name)
     // Initialize all PNG import data structures.
 
     if (!(fp = fopen(name.c_str(), "rb")))
-        throw std::runtime_error("Failure opening PNG file");
+        return 0;
 
     if (!(rp = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0)))
-        throw std::runtime_error("Failure creating PNG read structure");
+        return 0;
 
     if (!(ip = png_create_info_struct(rp)))
-        throw std::runtime_error("Failure creating PNG info structure");
+        return 0;
 
     // Enable the default PNG error handler.
 
@@ -839,8 +839,6 @@ bool uni::geomap::loaded()
                 glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, 
                                 form, type, D);
                 glBindTexture(GL_TEXTURE_2D, 0);
-
-                OGLCK();
             }
 
             // Assign the texture to the page.
@@ -895,7 +893,7 @@ void uni::geomap::draw(const double *V,
         P->draw(*this, w, h);
     }
 
-//    printf("%d\n", page::count);
+//  printf("%d\n", page::count);
 
     glActiveTextureARB(GL_TEXTURE1);
     {

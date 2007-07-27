@@ -22,13 +22,21 @@ uni::universe::universe()
 {
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
-
+/*
     color  = new geomap("/data/earth/earth-color-200408/earth-color-200408",
                         86400, 43200, 3, 1, 1024, r0, r1, -PI, PI, -PI / 2, PI / 2);
     normal = new geomap("/data/earth/earth-normal/earth-normal",
                         86400, 43200, 3, 1, 1024, r0, r1, -PI, PI, -PI / 2, PI / 2);
+*/
+    color  = new geomap("/data/earth/earth-color/earth-color-512",
+                        86400, 43200, 3, 1, 512, r0, r1, -PI, PI, -PI / 2, PI / 2);
+    normal  = new geomap("/data/earth/earth-normal/earth-normal",
+                        86400, 43200, 3, 1, 512, r0, r1, -PI, PI, -PI / 2, PI / 2);
+/*
     height = new geomap("/data/earth/earth-height/earth-normal",
                         86400, 43200, 3, 1, 1024, r0, r1, -PI, PI, -PI / 2, PI / 2);
+*/
+    height = 0;
 
     D = new geodat();
     R = new georen(::view->get_w(),
@@ -53,9 +61,10 @@ uni::universe::~universe()
     delete S[2];
     delete S[1];
 */
-    delete height;
-    delete normal;
-    delete color;
+    if (height) delete height;
+    if (normal) delete normal;
+    if (color)  delete color;
+
     delete S[0];
     delete R;
     delete D;
