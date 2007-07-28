@@ -26,16 +26,14 @@ uni::universe::universe()
     double r1 = 6372797.0 + 8844.0;
 
     color  = new geomap("/data/earth/earth-color/earth-color-512",
-                        86400, 43200, 3, 1, 512, pow(2, 16.5),
+                        86400, 43200, 3, 1, 512, pow(2, 16),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
     normal = new geomap("/data/earth/earth-normal/earth-normal",
-                        86400, 43200, 3, 1, 512, pow(2, 16.5),
+                        86400, 43200, 3, 1, 512, pow(2, 16),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
-/*
-    height = new geomap("/data/earth/earth-height/earth-normal",
-                        86400, 43200, 3, 1, 1024, r0, r1, -PI, PI, -PI / 2, PI / 2);
-*/
-    height = 0;
+    height = new geomap("/data/earth/earth-height/earth-height",
+                        86400, 43200, 1, 2, 512, pow(2, 16),
+                        r0, r1, -PI, PI, -PI / 2, PI / 2);
 
 //    color->set_debug(true);
 
@@ -53,7 +51,6 @@ uni::universe::universe()
 */
     S[0] = new sphere(*D, *R, *color, *normal, *height, r0, r1);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
-
 }
 
 uni::universe::~universe()
@@ -100,8 +97,6 @@ void uni::universe::draw()
 
     for (i = 0; i < n; ++i)
     {
-        glClear(GL_DEPTH_BUFFER_BIT);
-
         glPushMatrix();
         {
             double n;

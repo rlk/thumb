@@ -25,7 +25,7 @@ void main()
     T[1] = cross(N, T[0]);
     T[2] = N;
 
-    vec3 n = T * (texture2D(normal, t).xyz * 2.0 - 1.0);
+    vec3 n = T * (normalize(texture2D(normal, t).xyz) * 2.0 - 1.0);
 
     gl_FragColor = vec4((n + 1.0) * 0.5, a.x * a.y);
 //  gl_FragColor = vec4((N + 1.0) * 0.5, 1.0);

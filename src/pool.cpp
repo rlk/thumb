@@ -423,7 +423,7 @@ double ogl::node::view(int id, int n, const double *V)
 
     // If this node is visible, return the AABB max distance from plane 0.
 
-    if (bit)
+    if (bit && V)
         return my_aabb.dist(M, V);
     else
         return 0.0;

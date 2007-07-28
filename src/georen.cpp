@@ -60,8 +60,8 @@ uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
 //-----------------------------------------------------------------------------
 
 uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, true, false, "glsl/drawdif.vert",
-                                             "glsl/drawdif.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawdif.vert",
+                                              "glsl/drawdif.frag"), cyl(cyl)
 {
     draw->bind();
     {
@@ -86,8 +86,8 @@ void uni::difbuf::free(bool) const
 //-----------------------------------------------------------------------------
 
 uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, true, false, "glsl/drawnrm.vert",
-                                             "glsl/drawnrm.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawnrm.vert",
+                                              "glsl/drawnrm.frag"), cyl(cyl)
 {
     draw->bind();
     {
@@ -125,12 +125,14 @@ void uni::nrmbuf::free(bool) const
 uni::georen::georen(GLsizei w, GLsizei h) :
     w(w),
     h(h),
-    draw(glob->load_program("glsl/drawlit.vert",
-                            "glsl/drawlit.frag")),
+    draw(0),
+//    draw(glob->load_program("glsl/drawlit.vert",
+//                            "glsl/drawlit.frag")),
     _cyl(w, h),
     _dif(w, h, _cyl),
     _nrm(w, h, _cyl)
 {
+/*
     draw->bind();
     {
         draw->uniform("cyl", 0);
@@ -138,18 +140,19 @@ uni::georen::georen(GLsizei w, GLsizei h) :
         draw->uniform("nrm", 2);
     }
     draw->free();
+*/
 }
 
 uni::georen::~georen()
 {
-    glob->free_program(draw);
+//   glob->free_program(draw);
 }
 
 void uni::georen::bind() const
 {
     // Bind the deferred illumination shader.
 
-    draw->bind();
+//  draw->bind();
 
     // Bind the diffuse and normal render targets as textures.
 
@@ -168,7 +171,7 @@ void uni::georen::free() const
 
     // Unbind the deferred illumination shader.
 
-    draw->free();
+//  draw->free();
 }
 
 //-----------------------------------------------------------------------------

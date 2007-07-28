@@ -6,6 +6,9 @@ uniform sampler2DRect pos;
 uniform sampler2DRect nrm;
 uniform sampler2DRect tex;
 
+uniform vec2 d;
+uniform vec2 k;
+
 void main()
 {
     const float pi = 3.14159265358979323844;
@@ -15,8 +18,7 @@ void main()
     vec2 T = texture2DRect(tex, gl_FragCoord.xy).xy;
 
     T.x -= 2.0 * pi * step(pi, T.x);
-
-    T = (gl_TextureMatrix[1] * vec4(T, 0.0, 1.0)).xy;
+    T = T.xy * k + d;
 
     // Discard any pixel outside the current texture.
 

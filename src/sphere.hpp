@@ -19,6 +19,7 @@
 #include "georen.hpp"
 #include "geomap.hpp"
 #include "patch.hpp"
+#include "pool.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -79,6 +80,16 @@ namespace uni
         geomap& normal;
         geomap& height;
 
+        const ogl::program *atmo_in;
+        const ogl::program *atmo_out;
+        const ogl::program *land_in;
+        const ogl::program *land_out;
+
+        ogl::pool *atmo_pool;
+        ogl::node *atmo_node;
+        ogl::unit *atmo_unit;
+
+        void atmo_prep(const ogl::program *) const;
         void transform(const double *,
                        const double *,
                        const double *);

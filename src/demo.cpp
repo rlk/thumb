@@ -191,8 +191,8 @@ void demo::timer(double dt)
 
 void demo::draw()
 {
-//  GLfloat A[4] = { 0.20f, 0.25f, 0.30f, 0.0f };
-    GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
+    GLfloat A[4] = { 0.20f, 0.25f, 0.30f, 0.0f };
+//  GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
 //  GLfloat A[4] = { 0.00f, 0.00f, 0.00f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
 
@@ -213,11 +213,11 @@ void demo::draw()
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glClear(GL_COLOR_BUFFER_BIT);
         universe.draw();
 
         // Compute the view frusta.
-
+/*
         view->plane_frustum(planes);
         view->range(1.0, curr->view(planes));
         view->point_frustum(points);
@@ -227,6 +227,7 @@ void demo::draw()
         glClear(GL_DEPTH_BUFFER_BIT);
         view->draw();
         curr->draw(points);
+*/
     }
     glPopAttrib();
 }

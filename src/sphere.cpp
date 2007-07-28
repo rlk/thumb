@@ -55,8 +55,16 @@ uni::sphere::sphere(uni::geodat& dat,
 
     color(color),
     normal(normal),
-    height(height)
+    height(height),
 
+    atmo_in (glob->load_program("glsl/SkyFromAtmosphere.vert",
+                                "glsl/SkyFromAtmosphere.frag")),
+    atmo_out(glob->load_program("glsl/SkyFromSpace.vert",
+                                "glsl/SkyFromSpace.frag")),
+    land_in (glob->load_program("glsl/GroundFromAtmosphere.vert",
+                                "glsl/GroundFromAtmosphere.frag")),
+    land_out(glob->load_program("glsl/GroundFromSpace.vert",
+                                "glsl/GroundFromSpace.frag"))
 {
     // Initialize all points.
 
@@ -78,10 +86,39 @@ uni::sphere::sphere(uni::geodat& dat,
     a    = 0;
     z0   = 1.0;
     z1   = 2.0;
+
+    // Initialize atmosphere rendering.
+
+    atmo_pool = glob->new_pool();
+    atmo_node = new ogl::node();
+    atmo_unit = new ogl::unit("solid/inverted_sphere.obj");
+
+    atmo_pool->add_node(atmo_node);
+    atmo_node->add_unit(atmo_unit);
+
+    double S[16];
+    double I[16];
+
+    load_scl_mat(S, r0 * 1.025,
+                    r0 * 1.025,
+                    r0 * 1.025);
+    load_scl_inv(I, r0 * 1.025,
+                    r0 * 1.025,
+                    r0 * 1.025);
+
+    atmo_unit->transform(S, I);
 }
 
 uni::sphere::~sphere()
 {
+    glob->free_program(land_out);
+    glob->free_program(land_in);
+    glob->free_program(atmo_out);
+    glob->free_program(atmo_in);
+
+    if (atmo_unit) delete atmo_unit;
+    if (atmo_pool) delete atmo_pool;
+
     // Delete all patches and points.
 
     for (int k = 0; k < 20; ++k) if (C[k]) delete C[k];
@@ -107,6 +144,48 @@ void uni::sphere::move(double px, double py, double pz,
 void uni::sphere::turn(double dr)
 {
     a += dr;
+}
+
+//-----------------------------------------------------------------------------
+
+void uni::sphere::atmo_prep(const ogl::program *P) const
+{
+    P->bind();
+    {
+        double rmin = r0;
+        double rmax = r0 * 1.025;
+        double g = -0.990;
+
+        P->uniform("eye_to_object_mat", I, false);
+        P->uniform("eye_to_object_inv", M, true);
+
+        P->uniform("v3InvWavelength", 1.0 / pow(0.650, 4.0),
+                                      1.0 / pow(0.570, 4.0),
+                                      1.0 / pow(0.475, 4.0));
+
+        P->uniform("fCameraHeight", sqrt(DOT3(v, v)));
+        P->uniform("fCameraHeight2",    (DOT3(v, v)));
+
+        P->uniform("fInnerRadius",  rmin);
+        P->uniform("fInnerRadius2", rmin * rmin);
+        P->uniform("fOuterRadius",  rmax);
+        P->uniform("fOuterRadius2", rmax * rmax);
+
+        P->uniform("fKrESun",  0.0025 * 20.0);
+        P->uniform("fKmESun",  0.0010 * 20.0);
+        P->uniform("fKr4PI",   0.0025 *  4.0 * PI);
+        P->uniform("fKm4PI",   0.0010 *  4.0 * PI);
+
+        P->uniform("fScale",                (1.0f / (rmax - rmin))        );
+        P->uniform("fScaleDepth",                                    0.25f);
+        P->uniform("fScaleOverScaleDepth",  (1.0f / (rmax - rmin)) / 0.25f);
+
+        P->uniform("g",  g);
+        P->uniform("g2", g * g);
+
+//      P->uniform("s2Tex1", 0);
+    }
+    P->free();
 }
 
 //-----------------------------------------------------------------------------
@@ -149,6 +228,16 @@ void uni::sphere::transform(const double *Pv,
     // Compose the model-view-projection.
 
     mult_mat_mat(MVP, Pv, M);
+
+    // Compose the atmosphere transform.
+/*
+    load_mat(C, M);
+    Rmul_scl_mat(C, r0 * 1.025,
+                    r0 * 1.025,
+                    r0 * 1.025);
+
+*/
+    if (atmo_node) atmo_node->transform(M);
 }
 
 //-----------------------------------------------------------------------------
@@ -187,28 +276,10 @@ void uni::sphere::view(const double *Pv,
         mult_xps_vec4(V + 16, M, O + 12);
         mult_xps_vec4(V + 20, M, O + 16);
 
-        // Apply the accumulated patch radii.
-/*
-        const GLfloat *p = ext.rmap();
+        // Prep the atmosphere model.
 
-        for (int k = 0; k < 20; ++k)
-            if (C[k])
-                C[k]->view(count, p);
-
-        z0 = std::numeric_limits<double>::max();
-        z1 = std::numeric_limits<double>::min();
-
-        for (int i = 0; i < count; ++i)
-        {
-            double a = double(p[4 * i + 0]);
-            double z = double(p[4 * i + 1]);
-
-            if (a > 0) z0 = std::min(z0, a);
-                       z1 = std::max(z1, z);
-        }
-
-        ext.umap();
-*/
+        atmo_pool->prep();
+        atmo_pool->view(1, 0, 0);
     }
     else
     {
@@ -225,10 +296,6 @@ void uni::sphere::view(const double *Pv,
     // Cache the view distance for use in depth sorting.
 
     dist = ::view->dist(p);
-/*
-    z0   = dist - 1.0;
-    z1   = dist + 1.0;
-*/
 }
 
 void uni::sphere::step()
@@ -327,16 +394,14 @@ void uni::sphere::prep()
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
             acc.init(count);
-/*
             acc.bind_proc();
             {
                 int w = int(dat.vtx_len());
                 int h = int(count);
 
-                height.draw(V, MVP, p, w, h);
+                height.draw(V, v, w, h);
             }
             acc.free_proc();
-*/
             acc.swap();
         }
         tex.free(GL_TEXTURE4);
@@ -399,6 +464,11 @@ void uni::sphere::draw()
         double  a[4];
         double  A[16];
 
+        bool in = (sqrt(DOT3(v, v)) < r0 * 1.025);
+
+        const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
+        const ogl::program *land_prog = in ? land_in : land_out;
+
         // Position a directional lightsource at the origin.  TODO: move this?
 
         ::view->get_M(A);
@@ -415,6 +485,9 @@ void uni::sphere::draw()
         L[3] = 0;
 
         glLightfv(GL_LIGHT0, GL_POSITION, L);
+
+        atmo_prep(atmo_prog);
+        atmo_prep(land_prog);
 
         glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
         {
@@ -456,9 +529,6 @@ void uni::sphere::draw()
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT);
 
-                    glDisable(GL_DEPTH_TEST);
-                    glDepthMask(GL_FALSE);
-
                     glDisable(GL_BLEND);
                     glEnable(GL_ALPHA_TEST);
                     glAlphaFunc(GL_GREATER, 0.5);
@@ -482,7 +552,6 @@ void uni::sphere::draw()
 
                     glCullFace(GL_BACK);
                     glDisable(GL_DEPTH_CLAMP_NV);
-                    glDisable(GL_STENCIL_TEST);
                     glDisable(GL_ALPHA_TEST);
                     glEnable(GL_CULL_FACE);
                     glDepthMask(GL_TRUE);
@@ -491,15 +560,45 @@ void uni::sphere::draw()
 
                 // Draw the illuminated geometry.
 
-                ren.bind();
-                dat.idx()->bind();
-                vtx.bind();
+                glClear(GL_DEPTH_BUFFER_BIT);
+
+                land_prog->bind();
                 {
-                    pass();
+//                  land_prog->uniform("cyl", 0);
+                    land_prog->uniform("dif", 1);
+                    land_prog->uniform("nrm", 2);
+
+                    ren.bind();
+                    dat.idx()->bind();
+                    vtx.bind();
+                    {
+                        pass();
+                    }
+                    vtx.free();
+                    dat.idx()->free();
+                    ren.free();
                 }
-                vtx.free();
-                dat.idx()->free();
-                ren.free();
+                land_prog->free();
+                
+                // Draw the atmosphere.
+
+                glEnable(GL_DEPTH_CLAMP_NV);
+                {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(GL_LEQUAL);
+                    glDisable(GL_LIGHTING);
+
+                    atmo_prog->bind();
+                    {
+                        atmo_pool->draw_init();
+                        atmo_pool->draw(1, true, false);
+                        atmo_pool->draw_fini();
+                    }
+                    atmo_prog->free();
+                }
+                glDisable(GL_DEPTH_CLAMP_NV);
 
                 // Slap down a debug wireframe.
 /*

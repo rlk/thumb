@@ -157,48 +157,56 @@ void ogl::program::uniform(std::string name, int d) const
     OGLCK();
 }
 
-void ogl::program::uniform(std::string name, float a) const
+void ogl::program::uniform(std::string name, double a) const
 {
     int loc;
 
     if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform1fARB(loc, a);
+        glUniform1fARB(loc, GLfloat(a));
 
     OGLCK();
 }
 
-void ogl::program::uniform(std::string name, float a, float b) const
+void ogl::program::uniform(std::string name, double a,
+                                             double b) const
 {
     int loc;
 
     if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform2fARB(loc, a, b);
-
+        glUniform2fARB(loc, GLfloat(a),
+                            GLfloat(b));
     OGLCK();
 }
 
-void ogl::program::uniform(std::string name, float a, float b, float c) const
+void ogl::program::uniform(std::string name, double a,
+                                             double b,
+                                             double c) const
 {
     int loc;
 
     if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform3fARB(loc, a, b, c);
-
+        glUniform3fARB(loc, GLfloat(a),
+                            GLfloat(b),
+                            GLfloat(c));
     OGLCK();
 }
 
-void ogl::program::uniform(std::string name, float a, float b,
-                                             float c, float d) const
+void ogl::program::uniform(std::string name, double a,
+                                             double b,
+                                             double c,
+                                             double d) const
 {
     int loc;
 
     if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform4fARB(loc, a, b, c, d);
-
+        glUniform4fARB(loc, GLfloat(a),
+                            GLfloat(b),
+                            GLfloat(c),
+                            GLfloat(d));
     OGLCK();
 }
 
-void ogl::program::uniform(std::string name, const double *M) const
+void ogl::program::uniform(std::string name, const double *M, bool t) const
 {
     int loc;
 
@@ -223,7 +231,7 @@ void ogl::program::uniform(std::string name, const double *M) const
         T[14] = GLfloat(M[14]);
         T[15] = GLfloat(M[15]);
 
-        glUniformMatrix4fvARB(loc, 1, GL_TRUE, T);
+        glUniformMatrix4fvARB(loc, 1, t, T);
     }
     OGLCK();
 }

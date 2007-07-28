@@ -48,12 +48,12 @@ namespace ogl
         void init();
         void fini();
 
-        void uniform(std::string, int)                        const;
-        void uniform(std::string, float)                      const;
-        void uniform(std::string, float, float)               const;
-        void uniform(std::string, float, float, float)        const;
-        void uniform(std::string, float, float, float, float) const;
-        void uniform(std::string, const double *)             const;
+        void uniform(std::string, int)                            const;
+        void uniform(std::string, double)                         const;
+        void uniform(std::string, double, double)                 const;
+        void uniform(std::string, double, double, double)         const;
+        void uniform(std::string, double, double, double, double) const;
+        void uniform(std::string, const double *, bool=false)     const;
     };
 }
 

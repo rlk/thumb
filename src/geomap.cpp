@@ -140,25 +140,8 @@ static unsigned char *load_png(std::string name)
         if ((p = (unsigned char *) malloc(w * h * c * b)))
         {
             if ((bp = png_get_rows(rp, ip)))
-            {
-                /*
-                // Allocate 4 channels...
-                if (c == 3 && b == 1)
-                    for (int i = 0, r = h - 1; i < h; ++i, --r)
-                    {
-                        for (int j = 0; j < w; ++j)
-                        {
-                            p[(i * w + j) * 4 + 0] = bp[r][j * 3 + 2];
-                            p[(i * w + j) * 4 + 1] = bp[r][j * 3 + 1];
-                            p[(i * w + j) * 4 + 2] = bp[r][j * 3 + 0];
-                            p[(i * w + j) * 4 + 3] = 0xFF;
-                        }
-                    }
-                else
-                */
                     for (int i = 0, r = h - 1; i < h; ++i, --r)
                         memcpy(p + i * w * c * b, bp[r], w * c * b);
-            }
         }
     }
 
@@ -575,40 +558,18 @@ void uni::page::volume() const
     glEnd();
 }
 
-/*
-void uni::page::prep(const double *V,
-                     const double *p, bool vis, bool val)
-{
-    is_visible = false;
-    is_valued  = false;
-
-    if (state != skip_state)
-    {
-        if (vis && visible(V, p))
-        {
-            is_visible = true;
-
-            if (val && value(p))
-                is_valued = true;
-        }
-    }
-
-    if (P[0]) P[0]->prep(V, p, is_visible, is_valued);
-    if (P[1]) P[1]->prep(V, p, is_visible, is_valued);
-    if (P[2]) P[2]->prep(V, p, is_visible, is_valued);
-    if (P[3]) P[3]->prep(V, p, is_visible, is_valued);
-}
-*/
-
 void uni::page::prep(const double *r, int d0, int d1)
 {
     if (d >= d0)
     {
-        double dt = (R - L) * 0.5;
-        double dp = (T - B) * 0.5;
+        if (state != skip_state)
+        {
+            double dt = (R - L) * 0.5;
+            double dp = (T - B) * 0.5;
 
-        is_valued = ((L - dt < r[0] && r[0] < R + dt) &&
-                     (B - dp < r[1] && r[1] < T + dt));
+            is_valued = ((L - dt < r[0] && r[0] < R + dt) &&
+                         (B - dp < r[1] && r[1] < T + dt));
+        }
 
         if (P[0]) P[0]->prep(r, d0, d1);
         if (P[1]) P[1]->prep(r, d0, d1);
@@ -623,6 +584,8 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
     {
         if (is_valued && d <= d1)
         {
+            M.used(this);
+
             // If this page should draw but has no texture, request it.
 
             if (state == dead_state)
@@ -659,8 +622,6 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
                     volume();
 
                 count++;
-
-                M.used(this);
             }
         }
 
@@ -671,70 +632,6 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
     }
 }
 
-/*
-void uni::page::draw(geomap& M, int w, int h)
-{
-    if (is_visible)
-    {
-        // If a visible child will not draw, this page must draw.
-
-        bool b = (!P[0] && !P[1] && !P[2] && !P[3]);
-
-        if (P[0] && P[0]->is_visible && !P[0]->is_valued) b = true;
-        if (P[1] && P[1]->is_visible && !P[1]->is_valued) b = true;
-        if (P[2] && P[2]->is_visible && !P[2]->is_valued) b = true;
-        if (P[3] && P[3]->is_visible && !P[3]->is_valued) b = true;
-
-        if ((is_valued || !U) && b)
-        {
-            // If this page should draw but has no texture, request it.
-
-            if (state == dead_state)
-            {
-                if (M.needed(this, d, i, j))
-                    state = wait_state;
-            }
-
-            if (state == live_state)
-            {
-                // Set up this page's texture transform.
-
-                double kt =  1 / (R - L);
-                double kp =  1 / (T - B);
-                double dt = -kt * L;
-                double dp = -kp * B;
-
-                glActiveTextureARB(GL_TEXTURE1);
-                {
-                    glBindTexture(GL_TEXTURE_2D, object);
-                }
-                glActiveTextureARB(GL_TEXTURE0);
-
-                // TODO: store this uniform location
-
-                ogl::program::current->uniform("d", dt, dp);
-                ogl::program::current->uniform("k", kt, kp);
-
-                // Draw this page's bounding volume.
-
-                if (w > 0 && h > 0)
-                    glRecti(0, 0, w, h);
-                else
-                    volume();
-
-                count++;
-
-                M.used(this);
-            }
-        }
-
-        if (P[0]) P[0]->draw(M, w, h);
-        if (P[1]) P[1]->draw(M, w, h);
-        if (P[2]) P[2]->draw(M, w, h);
-        if (P[3]) P[3]->draw(M, w, h);
-    }
-}
-*/
 void uni::page::wire()
 {
     if (is_valued)
@@ -794,7 +691,7 @@ uni::geomap::geomap(std::string name,
     // Initialize the load queue.
 
     load_Q = new loaded_queue;
-    text_P = new texture_pool(64, s, c, b);
+    text_P = new texture_pool(16, s, c, b);
 }
 
 uni::geomap::~geomap()
@@ -922,7 +819,8 @@ bool uni::geomap::loaded()
 
 void uni::geomap::purge()
 {
-    printf("purge\n");
+//  printf("purge %s\n", name.c_str());
+
     // If we're over the loaded limit, eject a page.
 
     if (!LRU.empty())
@@ -947,6 +845,8 @@ void uni::geomap::draw(const double *V,
 {
     loaded();
 
+    page::count = 0;
+
     if (P)
     {
         double r[3];
@@ -958,11 +858,16 @@ void uni::geomap::draw(const double *V,
         d0 = std::max(d0, 0);
         d0 = std::min(d0, d);
 
+        // HACK
+//      d0 = std::max(d0, 5);
+
         int d1 = d0 + 3;
 
         P->prep(r, d0, d1);
         P->draw(*this, w, h, d0, d1);
     }
+
+//  printf("%d %s\n", page::count, name.c_str());
 
     glActiveTextureARB(GL_TEXTURE1);
     {
