@@ -79,6 +79,7 @@ namespace uni
 
         SDL_mutex *mutex;
         SDL_sem   *sem;
+        bool       run;
 
     public:
 
@@ -86,7 +87,9 @@ namespace uni
        ~needed_queue();
 
         void enqueue(std::string&, loaded_queue *,  page *);
-        void dequeue(std::string&, loaded_queue **, page **);
+        bool dequeue(std::string&, loaded_queue **, page **);
+
+        void stop();
     };
 
     //-------------------------------------------------------------------------

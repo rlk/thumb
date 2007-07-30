@@ -6,17 +6,19 @@ tellurion
         geomap resolution select
 
     For the demo
-        geomap
-        patch crack
-        atmosphere
-        stars
-        sun
-        mars
-        moon
         cluster sync
         stereo
         tracking / interaction
         destination select
+        specular map
+        cloud map
+-       geomap
+        patch crack
+-       atmosphere
+        stars
+        sun
+        mars
+        moon
         hilo normal map?
         dxt color map?
 -       normal mapping

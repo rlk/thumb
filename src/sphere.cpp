@@ -36,6 +36,8 @@ uni::sphere::sphere(uni::geodat& dat,
 
     r0(r0),
     r1(r1),
+    a0(r0 * 1.000),
+    a1(a0 * 1.025),
 
     visible(false),
     dist(0),
@@ -99,12 +101,8 @@ uni::sphere::sphere(uni::geodat& dat,
     double S[16];
     double I[16];
 
-    load_scl_mat(S, r0 * 1.025,
-                    r0 * 1.025,
-                    r0 * 1.025);
-    load_scl_inv(I, r0 * 1.025,
-                    r0 * 1.025,
-                    r0 * 1.025);
+    load_scl_mat(S, a1, a1, a1);
+    load_scl_inv(I, a1, a1, a1);
 
     atmo_unit->transform(S, I);
 }
@@ -152,38 +150,45 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 {
     P->bind();
     {
-        double rmin = r0;
-        double rmax = r0 * 1.025;
-        double g = -0.990;
+        double r = sqrt(DOT3(v, v));
 
         P->uniform("eye_to_object_mat", I, false);
         P->uniform("eye_to_object_inv", M, true);
 
-        P->uniform("v3InvWavelength", 1.0 / pow(0.650, 4.0),
-                                      1.0 / pow(0.570, 4.0),
-                                      1.0 / pow(0.475, 4.0));
+        double R = 0.650;
+        double G = 0.570;
+        double B = 0.475;
 
-        P->uniform("fCameraHeight", sqrt(DOT3(v, v)));
-        P->uniform("fCameraHeight2",    (DOT3(v, v)));
+        P->uniform("v3InvWavelength", 1.0 / pow(R, 4.0),
+                                      1.0 / pow(G, 4.0),
+                                      1.0 / pow(B, 4.0));
 
-        P->uniform("fInnerRadius",  rmin);
-        P->uniform("fInnerRadius2", rmin * rmin);
-        P->uniform("fOuterRadius",  rmax);
-        P->uniform("fOuterRadius2", rmax * rmax);
+        P->uniform("fCameraHeight",  r);
+        P->uniform("fCameraHeight2", r * r);
 
-        P->uniform("fKrESun",  0.0025 * 20.0);
-        P->uniform("fKmESun",  0.0010 * 20.0);
-        P->uniform("fKr4PI",   0.0025 *  4.0 * PI);
-        P->uniform("fKm4PI",   0.0010 *  4.0 * PI);
+        P->uniform("fInnerRadius",  a0);
+        P->uniform("fInnerRadius2", a0 * a0);
+        P->uniform("fOuterRadius",  a1);
+        P->uniform("fOuterRadius2", a1 * a1);
 
-        P->uniform("fScale",                (1.0f / (rmax - rmin))        );
-        P->uniform("fScaleDepth",                                    0.25f);
-        P->uniform("fScaleOverScaleDepth",  (1.0f / (rmax - rmin)) / 0.25f);
+        double Kr = 0.0025;
+        double Km = 0.0010;
+
+        P->uniform("fKrESun", Kr * 20.0);
+        P->uniform("fKmESun", Km * 20.0);
+        P->uniform("fKr4PI",  Kr *  4.0 * PI);
+        P->uniform("fKm4PI",  Km *  4.0 * PI);
+
+        double sd = 0.25;
+
+        P->uniform("fScale",                (1.0f / (a1 - a0))     );
+        P->uniform("fScaleDepth",                                sd);
+        P->uniform("fScaleOverScaleDepth",  (1.0f / (a1 - a0)) / sd);
+
+        double g = -0.990;
 
         P->uniform("g",  g);
         P->uniform("g2", g * g);
-
-//      P->uniform("s2Tex1", 0);
     }
     P->free();
 }
@@ -229,14 +234,8 @@ void uni::sphere::transform(const double *Pv,
 
     mult_mat_mat(MVP, Pv, M);
 
-    // Compose the atmosphere transform.
-/*
-    load_mat(C, M);
-    Rmul_scl_mat(C, r0 * 1.025,
-                    r0 * 1.025,
-                    r0 * 1.025);
+    // Apply the transform to the atmosphere.
 
-*/
     if (atmo_node) atmo_node->transform(M);
 }
 
@@ -464,8 +463,12 @@ void uni::sphere::draw()
         double  a[4];
         double  A[16];
 
-        bool in = (sqrt(DOT3(v, v)) < r0 * 1.025);
+        bool in = (sqrt(DOT3(v, v)) < a1);
+/*
+        double r = sqrt(DOT3(v, v));
 
+        printf("%f %f\n", r, r / a0);
+*/
         const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
         const ogl::program *land_prog = in ? land_in : land_out;
 
@@ -564,7 +567,6 @@ void uni::sphere::draw()
 
                 land_prog->bind();
                 {
-//                  land_prog->uniform("cyl", 0);
                     land_prog->uniform("dif", 1);
                     land_prog->uniform("nrm", 2);
 
@@ -573,13 +575,39 @@ void uni::sphere::draw()
                     vtx.bind();
                     {
                         pass();
+
+                        // HACK.  Simple yet surprisingly effective.
+
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                        glLineWidth(2.0f);
+                        pass();
+                        glLineWidth(1.0f);
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                     }
                     vtx.free();
                     dat.idx()->free();
                     ren.free();
                 }
                 land_prog->free();
-                
+
+                // Slap down a debug wireframe.
+/*
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+                glDisable(GL_TEXTURE_2D);
+                glDisable(GL_DEPTH_TEST);
+                glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                dat.idx()->bind();
+                vtx.bind();
+                {
+                    pass();
+                }
+                vtx.free();
+                dat.idx()->free();
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+*/              
                 // Draw the atmosphere.
 
                 glEnable(GL_DEPTH_CLAMP_NV);
@@ -599,40 +627,6 @@ void uni::sphere::draw()
                     atmo_prog->free();
                 }
                 glDisable(GL_DEPTH_CLAMP_NV);
-
-                // Slap down a debug wireframe.
-/*
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-                glDisable(GL_TEXTURE_2D);
-                glDisable(GL_DEPTH_TEST);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
-
-                dat.idx()->bind();
-                vtx.bind();
-                {
-                    pass();
-                }
-                vtx.free();
-                dat.idx()->free();
-*/
-/*
-                glDisable(GL_LIGHTING);
-                glDisable(GL_TEXTURE_2D);
-                glDisable(GL_DEPTH_TEST);
-                glDisable(GL_CULL_FACE);
-                glEnable(GL_DEPTH_CLAMP_NV);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
-                glPushMatrix();
-                {
-                    glLoadMatrixd(M);
-                    color.wire();
-                }
-                glPopMatrix();
-                glDisable(GL_DEPTH_CLAMP_NV);
-*/
             }
             glPopClientAttrib();
         }

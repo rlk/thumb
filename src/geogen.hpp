@@ -118,7 +118,7 @@ namespace uni
 
     public:
 
-        geodat(GLsizei=4);
+        geodat(GLsizei=5);
 
         GLsizei depth() const { return d; }
 

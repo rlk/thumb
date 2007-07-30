@@ -169,8 +169,8 @@ void demo::timer(double dt)
     // Determine the rate of motion.
 
     if (SDL_GetModState() & KMOD_CTRL)
-        k = dt * universe.rate() / 10.0;
-//      k = dt * view_move_rate;
+//      k = dt * universe.rate() / 10.0;
+        k = dt * view_move_rate;
     else
         k = dt * universe.rate();
 
@@ -217,7 +217,7 @@ void demo::draw()
         universe.draw();
 
         // Compute the view frusta.
-/*
+
         view->plane_frustum(planes);
         view->range(1.0, curr->view(planes));
         view->point_frustum(points);
@@ -227,7 +227,6 @@ void demo::draw()
         glClear(GL_DEPTH_BUFFER_BIT);
         view->draw();
         curr->draw(points);
-*/
     }
     glPopAttrib();
 }

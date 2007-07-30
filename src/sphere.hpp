@@ -37,6 +37,8 @@ namespace uni
 
         double r0;
         double r1;
+        double a0;
+        double a1;
 
         // Current position, north vector, rotation angle
 
@@ -97,7 +99,7 @@ namespace uni
     public:
     
         sphere(geodat&, georen&, geomap&, geomap&, geomap&,
-               double, double, double=2.0, GLsizei=128);
+               double, double, double=5.0, GLsizei=300);
        ~sphere();
 
         void turn(double=0);

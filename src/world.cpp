@@ -29,14 +29,15 @@
 
 wrl::world::world() : light_P(30), light_T(30), serial(1)
 {
+/*
     shadow[0] = 0;
     shadow[1] = 0;
     shadow[2] = 0;
-/*
+*/
     shadow[0] = glob->new_frame(1024, 1024, GL_TEXTURE_2D, 0, true, false);
     shadow[1] = glob->new_frame(1024, 1024, GL_TEXTURE_2D, 0, true, false);
     shadow[2] = glob->new_frame(1024, 1024, GL_TEXTURE_2D, 0, true, false);
-*/
+
     // Initialize the editor physical system.
 
     edit_space = dHashSpaceCreate(0);

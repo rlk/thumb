@@ -497,7 +497,7 @@ uni::patch *uni::patch::step(context& ctx,
     {
         // This patch is still visible.
 
-        if (value(p) * bias > 1.0)
+        if (value(p) * bias > 1.0)  // HACK
         {
             // This patch is too large.  Subdivide it.
 
@@ -695,7 +695,7 @@ uni::patch *uni::context::get_loc_R(int i)
 
 uni::context::context(patch *P, patch *N0, int n0, 
                                 patch *N1, int n1, 
-                                patch *N2, int n2) : P(P)
+                      patch *N2, int n2) : P(P), d(0)
 {
     N[0] = N0; n[0] = n0;
     N[1] = N1; n[1] = n1;
@@ -707,6 +707,7 @@ uni::context::context(context& con, int i)
     // Step down to child i of P.
 
     P = con.get_child(i);
+    d = con.get_depth() + 1;
 
     switch (i)
     {

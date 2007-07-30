@@ -85,7 +85,10 @@ void uni::texture_pool::put(GLuint o)
 {
     for (int i = 0; i < n; ++i)
         if (pool[i] == o)
+        {
             stat[i] = false;
+            break;
+        }
 }
 
 //=============================================================================
@@ -159,23 +162,19 @@ static int loader_func(void *data)
 {
     uni::needed_queue *N = (uni::needed_queue *) data;
 
-    while (1)
+    std::string     name;
+    uni::loaded_queue *L;
+    uni::page         *P;
+
+    // Dequeue the next request.
+
+    while (N->dequeue(name, &L, &P))
     {
-        std::string     name;
-        uni::loaded_queue *L;
-        uni::page         *P;
-        unsigned char     *D;
-
-        // Dequeue the next request.
-
-        N->dequeue(name, &L, &P);
-
         std::cout << "loading " << name << std::endl;
 
         // Load and enqueue the page.
 
-        if ((D = load_png(name)))
-            L->enqueue(P, D);
+        L->enqueue(P, load_png(name));
     }
 
     return 0;
@@ -248,7 +247,7 @@ struct uni::needed_queue::need
 
 //-----------------------------------------------------------------------------
 
-uni::needed_queue::needed_queue()
+uni::needed_queue::needed_queue() : run(true)
 {
     mutex = SDL_CreateMutex();
     sem   = SDL_CreateSemaphore(0);
@@ -273,23 +272,40 @@ void uni::needed_queue::enqueue(std::string& name, loaded_queue *L, page *P)
     SDL_SemPost(sem);
 }
 
-void uni::needed_queue::dequeue(std::string& name, loaded_queue **L, page **P)
+bool uni::needed_queue::dequeue(std::string& name, loaded_queue **L, page **P)
 {
-    // Wait for a request to queue.
+    bool b;
+
+    // Wait for the signal to proceed.
 
     SDL_SemWait(sem);
 
     // Dequeue the request.
 
     SDL_mutexP(mutex);
-    need N = Q.front(); Q.pop();
+    if ((b = run))
+    {
+        name = Q.front().name;
+        *L   = Q.front().L;
+        *P   = Q.front().P;
+        Q.pop();
+    }
     SDL_mutexV(mutex);
 
-    // Return the values;
+    return b;
+}
 
-    name = N.name;
-    *L   = N.L;
-    *P   = N.P;
+void uni::needed_queue::stop()
+{
+    // Clear the run flag.
+
+    SDL_mutexP(mutex);
+    run = false;
+    SDL_mutexV(mutex);
+
+    // Signal the loader to notice the change.
+
+    SDL_SemPost(sem);
 }
 
 //=============================================================================
@@ -564,11 +580,30 @@ void uni::page::prep(const double *r, int d0, int d1)
     {
         if (state != skip_state)
         {
+            // Compute the range where-in this page is necessary.
+
             double dt = (R - L) * 0.5;
             double dp = (T - B) * 0.5;
 
-            is_valued = ((L - dt < r[0] && r[0] < R + dt) &&
-                         (B - dp < r[1] && r[1] < T + dt));
+            double t0 = L - dt;
+            double t1 = R + dt;
+            double p0 = B - dp;
+            double p1 = T + dp;
+
+            // Don't test past the poles.
+
+            if (p0 < -PI / 2) p0 = -PI / 2;
+            if (p1 >  PI / 2) p1 =  PI / 2;
+
+            // Exercise caution at the international date line.
+
+            double ta = r[0];
+            double tb = r[0] + 2 * PI;
+            double tc = r[0] - 2 * PI;
+
+            is_valued = (((t0 < ta && ta < t1) ||
+                          (t0 < tb && tb < t1) ||
+                          (t0 < tc && tc < t1)) && (p0 < r[1] && r[1] < p1));
         }
 
         if (P[0]) P[0]->prep(r, d0, d1);
@@ -658,7 +693,9 @@ void uni::geomap::init()
 
 void uni::geomap::fini()
 {
-    SDL_KillThread(loader);
+    need_Q->stop();
+    SDL_WaitThread(loader, 0);
+
     delete need_Q;
 }
 
@@ -691,7 +728,7 @@ uni::geomap::geomap(std::string name,
     // Initialize the load queue.
 
     load_Q = new loaded_queue;
-    text_P = new texture_pool(16, s, c, b);
+    text_P = new texture_pool(32, s, c, b);
 }
 
 uni::geomap::~geomap()
@@ -747,13 +784,18 @@ bool uni::geomap::loaded()
         GL_UNSIGNED_BYTE,
         GL_UNSIGNED_SHORT
     };
+    static const GLenum form_tag[2][4] = {
+        { GL_LUMINANCE,   GL_LUMINANCE_ALPHA,     GL_RGB,   GL_RGBA   },
+        { GL_LUMINANCE16, GL_LUMINANCE16_ALPHA16, GL_RGB16, GL_RGBA16 },
+    };
+/*
     static const GLenum form_tag[4] = {
         GL_LUMINANCE,
         GL_LUMINANCE_ALPHA,
         GL_RGB,
         GL_RGBA
     };
-
+*/
     page          *P;
     unsigned char *D;
 
@@ -765,7 +807,9 @@ bool uni::geomap::loaded()
         
         if (D)
         {
-            GLenum form = form_tag[c - 1];
+            const GLenum fi   = form_tag[b - 1][c - 1];
+            const GLenum fe   = form_tag[0    ][c - 1];
+//          GLenum form = form_tag[c - 1];
             GLenum type = type_tag[b - 1];
             GLuint o;
 
@@ -785,12 +829,13 @@ bool uni::geomap::loaded()
 
             if (o)
             {
+                glBindTexture(GL_TEXTURE_2D, o);
+
                 // Initialize the texture object.
 
+//              glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, fe, type, D);
 
-                glBindTexture(GL_TEXTURE_2D, o);
-                glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, 
-                                form, type, D);
+                glTexImage2D(GL_TEXTURE_2D, 0, fi, s + 2, s + 2, 1, fe, type, D);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
 
@@ -819,15 +864,16 @@ bool uni::geomap::loaded()
 
 void uni::geomap::purge()
 {
-//  printf("purge %s\n", name.c_str());
-
     // If we're over the loaded limit, eject a page.
 
     if (!LRU.empty())
     {
-        text_P->put(LRU.back()->remove());
+        GLuint o = LRU.back()->remove();
+        text_P->put(o);
         LRU.pop_back();
+        printf("purged %s %d\n", name.c_str(), o);
     }
+    else printf("purged NOTHING %s\n", name.c_str());
 }
 
 void uni::geomap::used(page *P)

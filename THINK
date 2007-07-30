@@ -1,3 +1,37 @@
+
+Host abstraction
+
+    host object
+        takes a name tag
+        loads XML config
+            defines the client/server status
+                if this host is a client, listen for a connection
+                if this host has clients, connect a socket to each
+
+    main loop
+        if this host is not a client
+            SDL event loop
+                submit each event to the host object
+                    forward the event to the prog
+                    send to all clients
+        else
+            select on the incoming socket
+                submit each event to this
+                    forwand the event to the prog
+                    send to all clients
+
+events
+    track(d, p, v)
+    stick(d, x, y)
+    point(x, y)
+    click(b, d)
+    keybd(k, d)
+    timer(dt)
+    paint()   wait for response... swap
+    close()   wait for response... exit
+
+-------------------------------------------------------------------------------
+
 Cracking may be occuring because one interpolant is k while the other is k-1
 
 

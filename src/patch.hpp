@@ -108,6 +108,7 @@ namespace uni
         patch *P;
         patch *N[3];
         int    n[3];
+        int    d;
 
         patch *get_loc_L(int);
         patch *get_loc_R(int);
@@ -123,6 +124,8 @@ namespace uni
         patch *get_child(int);
         patch *get_local(int);
         point *get_point(int);
+
+        int get_depth() const { return d; }
     };
 
     //-------------------------------------------------------------------------
