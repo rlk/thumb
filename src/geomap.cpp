@@ -617,6 +617,14 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
 {
     if (d >= d0)
     {
+        if (w == 0 && h == 0)
+        {
+            if (P[0]) P[0]->draw(M, w, h, d0, d1);
+            if (P[1]) P[1]->draw(M, w, h, d0, d1);
+            if (P[2]) P[2]->draw(M, w, h, d0, d1);
+            if (P[3]) P[3]->draw(M, w, h, d0, d1);
+        }
+
         if (is_valued && d <= d1)
         {
             M.used(this);
@@ -648,7 +656,15 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
 
                 ogl::program::current->uniform("d", dt, dp);
                 ogl::program::current->uniform("k", kt, kp);
+/*
+                double n = ::view->get_n();
+                double f = ::view->get_f();
+                double A =     f / (f - n);
+                double B = f * n / (n - f);
 
+                ogl::program::current->uniform("nz", A + B / n);
+                ogl::program::current->uniform("fz", A + B / f);
+*/
                 // Draw this page's bounding volume.
 
                 if (w > 0 && h > 0)
@@ -660,10 +676,13 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
             }
         }
 
-        if (P[0]) P[0]->draw(M, w, h, d0, d1);
-        if (P[1]) P[1]->draw(M, w, h, d0, d1);
-        if (P[2]) P[2]->draw(M, w, h, d0, d1);
-        if (P[3]) P[3]->draw(M, w, h, d0, d1);
+        if (w != 0 && h != 0)
+        {
+            if (P[0]) P[0]->draw(M, w, h, d0, d1);
+            if (P[1]) P[1]->draw(M, w, h, d0, d1);
+            if (P[2]) P[2]->draw(M, w, h, d0, d1);
+            if (P[3]) P[3]->draw(M, w, h, d0, d1);
+        }
     }
 }
 

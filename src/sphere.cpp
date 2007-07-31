@@ -528,15 +528,23 @@ void uni::sphere::draw()
                 {
                     glLoadMatrixd(M);
 
-                    glEnable(GL_DEPTH_CLAMP_NV);
+                    // Enable rendering of the BACK of the view volumes.
+
+//                  glEnable(GL_DEPTH_CLAMP_NV);
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT);
+
+                    // Alpha test discards texels outside of texture borders.
 
                     glDisable(GL_BLEND);
                     glEnable(GL_ALPHA_TEST);
                     glAlphaFunc(GL_GREATER, 0.5);
 
                     // Draw the diffuse maps.
+
+                    glEnable(GL_DEPTH_TEST);
+                    glDepthFunc(GL_LESS);
+                    glDepthRange(0, 0);
 
                     ren.dif()->bind();
                     {
@@ -553,17 +561,19 @@ void uni::sphere::draw()
                     }
                     ren.nrm()->free();
 
+                    // Revert the state.
+
+                    glDepthRange(0, 1);
                     glCullFace(GL_BACK);
-                    glDisable(GL_DEPTH_CLAMP_NV);
+//                  glDisable(GL_DEPTH_CLAMP_NV);
                     glDisable(GL_ALPHA_TEST);
-                    glEnable(GL_CULL_FACE);
-                    glDepthMask(GL_TRUE);
                 }
                 glPopMatrix();
 
                 // Draw the illuminated geometry.
 
                 glClear(GL_DEPTH_BUFFER_BIT);
+                glEnable(GL_DEPTH_TEST);
 
                 land_prog->bind();
                 {
@@ -577,12 +587,13 @@ void uni::sphere::draw()
                         pass();
 
                         // HACK.  Simple yet surprisingly effective.
-
+/*
                         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                         glLineWidth(2.0f);
                         pass();
                         glLineWidth(1.0f);
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+*/
                     }
                     vtx.free();
                     dat.idx()->free();

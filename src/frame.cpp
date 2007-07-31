@@ -142,17 +142,19 @@ void ogl::frame::init()
         glGenTextures(1,     &depth);
         glBindTexture(target, depth);
 
-#ifdef GL_DEPTH_STENCIL_EXT
         if (has_stencil)
             glTexImage2D(target, 0, GL_DEPTH24_STENCIL8_EXT, w, h, 0,
                          GL_DEPTH_STENCIL_EXT, GL_UNSIGNED_INT_24_8_EXT, NULL);
         else
-#endif
             glTexImage2D(target, 0, GL_DEPTH_COMPONENT24,    w, h, 0,
                          GL_DEPTH_COMPONENT,   GL_UNSIGNED_BYTE,         NULL);
-
+/*
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+*/
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
         glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
         glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 

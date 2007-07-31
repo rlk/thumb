@@ -35,7 +35,7 @@ uni::universe::universe()
                         86400, 43200, 1, 2, 512, pow(2, 16),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
 
-//  color->set_debug(true);
+    color->set_debug(true);
 
     D = new geodat();
     R = new georen(::view->get_w(),
