@@ -530,7 +530,7 @@ void uni::sphere::draw()
 
                     // Enable rendering of the BACK of the view volumes.
 
-//                  glEnable(GL_DEPTH_CLAMP_NV);
+                    glEnable(GL_DEPTH_CLAMP_NV);
                     glEnable(GL_CULL_FACE);
                     glCullFace(GL_FRONT);
 
@@ -541,10 +541,6 @@ void uni::sphere::draw()
                     glAlphaFunc(GL_GREATER, 0.5);
 
                     // Draw the diffuse maps.
-
-                    glEnable(GL_DEPTH_TEST);
-                    glDepthFunc(GL_LESS);
-                    glDepthRange(0, 0);
 
                     ren.dif()->bind();
                     {
@@ -563,10 +559,9 @@ void uni::sphere::draw()
 
                     // Revert the state.
 
-                    glDepthRange(0, 1);
                     glCullFace(GL_BACK);
-//                  glDisable(GL_DEPTH_CLAMP_NV);
                     glDisable(GL_ALPHA_TEST);
+                    glDisable(GL_DEPTH_CLAMP_NV);
                 }
                 glPopMatrix();
 

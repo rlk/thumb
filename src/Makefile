@@ -56,6 +56,7 @@ OBJS=   opengl.o \
 	dir.o \
 	perf.o \
 	odeutil.o \
+	host.o \
 	main.o
 
 LIBS= -lmxml -lode -ljpeg -lpng -lz -lm

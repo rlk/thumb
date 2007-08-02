@@ -1,0 +1,42 @@
+<?xml version="1.0"?>
+<host>
+  <node name="zod" root="true">
+
+    <client name="zod1" addr="127.0.0.1" port="2827"/>
+    <client name="zod2" addr="127.0.0.1" port="2828"/>
+
+    <window x="0" y="0" w="640"  h="480"/>
+<!--<buffer x="0" y="0" w="1280" h="480"/>-->
+    <tile>
+      <viewport x="0" y="0" w="640" h="480"/>
+
+      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
+      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
+      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
+
+<!--  <buffer eye="0" x="0"   y="0" w="640" h="480"/>-->
+<!--  <buffer eye="1" x="640" y="0" w="640" h="480"/>-->
+<!--  <varrier p="271.945865" a="-7.76" t="0.035" s="0.0042" c="0.777777"/>-->
+    </tile>
+  </node>
+
+  <node name="zod1" port="2827">
+    <window x="0" y="0" w="640"  h="480"/>
+    <tile>
+      <viewport x="0" y="0" w="640" h="480"/>
+      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
+      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
+      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
+    </tile>
+  </node>
+
+  <node name="zod2" port="2828">
+    <window x="0" y="0" w="640"  h="480"/>
+    <tile>
+      <viewport x="0" y="0" w="640" h="480"/>
+      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
+      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
+      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
+    </tile>
+  </node>
+</host>

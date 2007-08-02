@@ -143,6 +143,8 @@ namespace uni
         void wire();
 
         int lod() const { return d; }
+
+        bool will_draw(int) const;
     };
 
     //-------------------------------------------------------------------------

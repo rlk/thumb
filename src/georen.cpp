@@ -60,7 +60,7 @@ uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
 //-----------------------------------------------------------------------------
 
 uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, true, false, "glsl/drawdif.vert",
+    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawdif.vert",
                                               "glsl/drawdif.frag"), cyl(cyl)
 {
     draw->bind();
@@ -86,7 +86,7 @@ void uni::difbuf::free(bool) const
 //-----------------------------------------------------------------------------
 
 uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, true, false, "glsl/drawnrm.vert",
+    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawnrm.vert",
                                               "glsl/drawnrm.frag"), cyl(cyl)
 {
     draw->bind();

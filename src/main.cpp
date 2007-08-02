@@ -17,6 +17,7 @@
 #include <SDL.h>
 
 #include "main.hpp"
+#include "host.hpp"
 #include "util.hpp"
 #include "opengl.hpp"
 #include "demo.hpp"
@@ -218,9 +219,11 @@ static bool loop()
 
 int main(int argc, char *argv[])
 {
-    std::string data_file(argc > 1 ? argv[1] : DEFAULT_DATA_FILE);
-    std::string conf_file(argc > 2 ? argv[2] : DEFAULT_CONF_FILE);
-    std::string lang_file(argc > 3 ? argv[3] : DEFAULT_LANG_FILE);
+    std::string name(argc > 1 ? argv[1] : "default");
+
+    std::string data_file(DEFAULT_DATA_FILE);
+    std::string conf_file(DEFAULT_CONF_FILE);
+    std::string lang_file(DEFAULT_LANG_FILE);
 
     try
     {
@@ -236,6 +239,8 @@ int main(int argc, char *argv[])
 
             init(data_file, conf_file, lang_file);
             {
+                app::host *H = new app::host(name);
+
                 std::auto_ptr<perf> P(new perf(10));
 
                 while (loop())
@@ -243,6 +248,8 @@ int main(int argc, char *argv[])
                     SDL_GL_SwapBuffers();
                     P->step();
                 }
+
+                delete H;
             }
             fini();
 

@@ -529,6 +529,11 @@ bool uni::page::visible(const double *V, const double *p)
     return true;
 }
 
+bool uni::page::will_draw(int d1) const
+{
+    return (d <= d1 && is_valued && state == live_state);
+}
+
 //-----------------------------------------------------------------------------
 
 void uni::page::volume() const
@@ -617,15 +622,20 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
 {
     if (d >= d0)
     {
-        if (w == 0 && h == 0)
-        {
-            if (P[0]) P[0]->draw(M, w, h, d0, d1);
-            if (P[1]) P[1]->draw(M, w, h, d0, d1);
-            if (P[2]) P[2]->draw(M, w, h, d0, d1);
-            if (P[3]) P[3]->draw(M, w, h, d0, d1);
-        }
+/*
+        if (P[0]) P[0]->draw(M, w, h, d0, d1);
+        if (P[1]) P[1]->draw(M, w, h, d0, d1);
+        if (P[2]) P[2]->draw(M, w, h, d0, d1);
+        if (P[3]) P[3]->draw(M, w, h, d0, d1);
+*/
+        int c = 0;
 
-        if (is_valued && d <= d1)
+        if (P[0] && P[0]->will_draw(d1)) c++;
+        if (P[1] && P[1]->will_draw(d1)) c++;
+        if (P[2] && P[2]->will_draw(d1)) c++;
+        if (P[3] && P[3]->will_draw(d1)) c++;
+
+        if (c < 4 && is_valued && d <= d1)
         {
             M.used(this);
 
@@ -656,15 +666,7 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
 
                 ogl::program::current->uniform("d", dt, dp);
                 ogl::program::current->uniform("k", kt, kp);
-/*
-                double n = ::view->get_n();
-                double f = ::view->get_f();
-                double A =     f / (f - n);
-                double B = f * n / (n - f);
 
-                ogl::program::current->uniform("nz", A + B / n);
-                ogl::program::current->uniform("fz", A + B / f);
-*/
                 // Draw this page's bounding volume.
 
                 if (w > 0 && h > 0)
@@ -676,13 +678,10 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
             }
         }
 
-        if (w != 0 && h != 0)
-        {
-            if (P[0]) P[0]->draw(M, w, h, d0, d1);
-            if (P[1]) P[1]->draw(M, w, h, d0, d1);
-            if (P[2]) P[2]->draw(M, w, h, d0, d1);
-            if (P[3]) P[3]->draw(M, w, h, d0, d1);
-        }
+        if (P[0]) P[0]->draw(M, w, h, d0, d1);
+        if (P[1]) P[1]->draw(M, w, h, d0, d1);
+        if (P[2]) P[2]->draw(M, w, h, d0, d1);
+        if (P[3]) P[3]->draw(M, w, h, d0, d1);
     }
 }
 
@@ -747,7 +746,7 @@ uni::geomap::geomap(std::string name,
     // Initialize the load queue.
 
     load_Q = new loaded_queue;
-    text_P = new texture_pool(32, s, c, b);
+    text_P = new texture_pool(24, s, c, b);
 }
 
 uni::geomap::~geomap()
@@ -826,7 +825,7 @@ bool uni::geomap::loaded()
         
         if (D)
         {
-            const GLenum fi   = form_tag[b - 1][c - 1];
+//          const GLenum fi   = form_tag[b - 1][c - 1];
             const GLenum fe   = form_tag[0    ][c - 1];
 //          GLenum form = form_tag[c - 1];
             GLenum type = type_tag[b - 1];
@@ -852,9 +851,9 @@ bool uni::geomap::loaded()
 
                 // Initialize the texture object.
 
-//              glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, fe, type, D);
+              glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, fe, type, D);
 
-                glTexImage2D(GL_TEXTURE_2D, 0, fi, s + 2, s + 2, 1, fe, type, D);
+//                glTexImage2D(GL_TEXTURE_2D, 0, fi, s + 2, s + 2, 1, fe, type, D);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
 

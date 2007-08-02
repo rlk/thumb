@@ -1,3 +1,50 @@
+
+NOTE: the GF6 can filter FP16 textures?
+    at least test the performance of 16 versus 32
+
+idea:
+    render a page with
+        shader enabled
+        color write true
+        depth test less
+        depth write false
+        alpha test on
+        stencil test equal 0
+        stencil keep keep incr
+    render a quad at 0 with
+        shader disabled
+        color write false
+        depth write true
+        depth test off
+        alpha test off
+        stencil test equal 1
+        stencil keep keep keep
+
+    (stencil counts depth, which is useless, but cool)
+
+Z-cull
+
+    no alpha test
+    no discard
+    no depth replace
+    no alpha-to-coverage
+    no depth WRITE
+
+    ARB_position_invariant?    
+
+    If stencil, clear both depth and stencil in the same glClear
+
+GPU Gems 2 Ch 30: Also, in cases where stencil is not being updated, early stencil reject can be employed to remove rendering early when stencil test (based on equals comparison) fails.
+
+On nvidia hardware, you cannot use early-z if rejection of a fragment would still lead to changes in depth/stencil/color. So basically, if you modify stencil on depth fail, you won't get early-z.
+
+Stencil test is fine. Stencil write is only a problem together with alpha test. Stencil op other than KEEP for fail and zFail disables Hierarchical-Z.
+
+http://www.gpgpu.org/forums/viewtopic.php?t=361
+http://www.gpgpu.org/forums/viewtopic.php?t=256
+http://www.gpgpu.org/forums/viewtopic.php?t=367 
+
+-------------------------------------------------------------------------------
 Can coins be instanced?
 
 Can texture atlasing be automated?

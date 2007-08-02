@@ -25,13 +25,13 @@ uni::universe::universe()
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
 
-    color  = new geomap("/home/evl/rlk/data/earth/earth-color/earth-color",
+    color  = new geomap("/data/earth/earth-color/earth-color-512",
                         86400, 43200, 3, 1, 512, pow(2, 16),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
-    normal = new geomap("/home/evl/rlk/data/earth/earth-normal/earth-normal",
+    normal = new geomap("/data/earth/earth-normal/earth-normal",
                         86400, 43200, 3, 1, 512, pow(2, 16),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
-    height = new geomap("/home/evl/rlk/data/earth/earth-height/earth-height",
+    height = new geomap("/data/earth/earth-height/earth-height",
                         86400, 43200, 1, 2, 512, pow(2, 16),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
 
