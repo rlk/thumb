@@ -24,7 +24,7 @@
 std::map<UINT, char *> perf::_name;
 std::map<UINT, UINT64> perf::_hint;
 
-int perf::counter(UINT index, char *name)
+int app::perf::counter(UINT index, char *name)
 {
     UINT64 type;
     UINT64 hint;
@@ -46,7 +46,7 @@ int perf::counter(UINT index, char *name)
 
 //-----------------------------------------------------------------------------
 
-perf::perf(int n) : num(0), tot(0), lim(n), val(0), avg(0)
+app::perf::perf(int n) : num(0), tot(0), lim(n), val(0), avg(0)
 {
     if (NVPMInit() == NVPM_OK)
     {
@@ -61,7 +61,7 @@ perf::perf(int n) : num(0), tot(0), lim(n), val(0), avg(0)
     }
 }
 
-perf::~perf()
+app::perf::~perf()
 {
     if (val)
     {
@@ -77,7 +77,7 @@ perf::~perf()
 
 //-----------------------------------------------------------------------------
 
-void perf::step()
+void app::perf::step()
 {
     if (val && avg)
     {
@@ -99,7 +99,7 @@ void perf::step()
     }
 }
 
-void perf::dump()
+void app::perf::dump()
 {
     if (num) std::cout << std::endl;
 
@@ -141,15 +141,15 @@ void perf::dump()
 
 #else // not NVPM =============================================================
 
-perf::perf(int n) : frames(0), ticks(0), limit(n), last(0)
+app::perf::perf(int n) : frames(0), ticks(0), limit(n), last(0)
 {
 }
 
-perf::~perf()
+app::perf::~perf()
 {
 }
 
-void perf::step()
+void app::perf::step()
 {
     static int last = 0;
     
@@ -162,7 +162,7 @@ void perf::step()
     if (frames == limit) dump();
 }
 
-void perf::dump()
+void app::perf::dump()
 {
     int fps = int(ceil(1000.0 * frames / ticks));
 

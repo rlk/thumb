@@ -15,49 +15,59 @@
 
 #include <map>
 
+#define DEFAULT_COUNT 10
+
+namespace app
+{
 #ifdef NVPM //-----------------------------------------------------------------
 
 #include <NVPerfSDK.h>
 
-class perf
-{
-    static std::map<UINT, char *> _name;
-    static std::map<UINT, UINT64> _hint;
+    class perf
+    {
+        static std::map<UINT, char *> _name;
+        static std::map<UINT, UINT64> _hint;
 
-    UINT             num;
-    UINT             tot;
-    UINT             lim;
-    NVPMSampleValue *val;
-    NVPMSampleValue *avg;
+        UINT             num;
+        UINT             tot;
+        UINT             lim;
+        NVPMSampleValue *val;
+        NVPMSampleValue *avg;
 
-    static int counter(UINT, char *);
+        static int counter(UINT, char *);
 
-public:
+    public:
 
-    perf(int);
-   ~perf();
+        perf(int=DEFAULT_COUNT);
+       ~perf();
 
-    void step();
-    void dump();
-};
+        void step();
+        void dump();
+    };
 
 #else // not NVPM -------------------------------------------------------------
 
-class perf
-{
-    int frames;
-    int ticks;
-    int limit;
-    int last;
+    class perf
+    {
+        int frames;
+        int ticks;
+        int limit;
+        int last;
 
-public:
+    public:
 
-    perf(int);
-   ~perf();
+        perf(int=DEFAULT_COUNT);
+       ~perf();
 
-    void step();
-    void dump();
-};
+        void step();
+        void dump();
+    };
 
 #endif // not NVPM ------------------------------------------------------------
+}
+
+extern app::perf *perf;
+
+//-----------------------------------------------------------------------------
+
 #endif

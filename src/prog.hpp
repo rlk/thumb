@@ -34,7 +34,7 @@ namespace app
         virtual void timer(double)    { }
         virtual void point(int, int)  { }
         virtual void click(int, bool) { }
-        virtual void keybd(int, bool, int);
+        virtual void keybd(int, bool, int); // TODO: consistent argument order
         
         virtual void draw() { }
 

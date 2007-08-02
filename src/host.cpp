@@ -157,7 +157,8 @@ void app::message::recv(SOCKET s)
 
 //=============================================================================
 
-void app::host::load(std::string name)
+void app::host::load(std::string& file,
+                     std::string& tag)
 {
     if (head) mxmlDelete(head);
 
@@ -166,14 +167,14 @@ void app::host::load(std::string name)
 
     const char *buff;
 
-    if ((buff = (const char *) ::data->load(DEFAULT_HOST_FILE)))
+    if ((buff = (const char *) ::data->load(file)))
     {
         head = mxmlLoadString(NULL, buff, MXML_TEXT_CALLBACK);
         node = mxmlFindElement(head, head, "node", "name",
-                               name.c_str(), MXML_DESCEND);
+                               tag.c_str(), MXML_DESCEND);
     }
 
-    ::data->free(DEFAULT_HOST_FILE);
+    ::data->free(file);
 }
 
 //-----------------------------------------------------------------------------
@@ -297,11 +298,13 @@ void app::host::fini_client()
 
 //-----------------------------------------------------------------------------
 
-app::host::host(std::string tag) : server(INVALID_SOCKET), head(0), node(0)
+app::host::host(std::string& file,
+                std::string& tag) :
+    server(INVALID_SOCKET), mods(0), head(0), node(0)
 {
     // Read host.xml and configure using tag match.
 
-    load(tag);
+    load(file, tag);
 
     if (node)
     {
@@ -334,11 +337,15 @@ void app::host::root_loop()
         while (SDL_PollEvent(&e))
             switch (e.type)
             {
-            case SDL_MOUSEMOTION:     point(e.motion.x, e.motion.y);  break;
-            case SDL_MOUSEBUTTONDOWN: click(e.button.button,  true);  break;
-            case SDL_MOUSEBUTTONUP:   click(e.button.button,  false); break;
-            case SDL_KEYDOWN:         keybd(e.key.keysym.sym, true);  break;
-            case SDL_KEYUP:           keybd(e.key.keysym.sym, false); break;
+            case SDL_MOUSEMOTION:     point(e.motion.x, e.motion.y) ;  break;
+            case SDL_MOUSEBUTTONDOWN: click(e.button.button,   true);  break;
+            case SDL_MOUSEBUTTONUP:   click(e.button.button,   false); break;
+            case SDL_KEYDOWN:         keybd(e.key.keysym.unicode,
+                                            e.key.keysym.sym, 
+                                            SDL_GetModState(), true);  break;
+            case SDL_KEYUP:           keybd(e.key.keysym.unicode,
+                                            e.key.keysym.sym,
+                                            SDL_GetModState(), false); break;
             case SDL_QUIT:            close(); return;
             }
 
@@ -360,7 +367,8 @@ void app::host::node_loop()
 {
     int    a;
     int    b;
-    bool   c;
+    int    c;
+    bool   d;
     double p[3];
     double v[3];
 
@@ -398,14 +406,16 @@ void app::host::node_loop()
 
         case E_CLICK:
             a = M.get_int ();
-            c = M.get_bool();
-            click(a, c);
+            d = M.get_bool();
+            click(a, d);
             break;
 
         case E_KEYBD:
             a = M.get_int ();
-            c = M.get_bool();
-            keybd(a, c);
+            b = M.get_int ();
+            c = M.get_int ();
+            d = M.get_bool();
+            keybd(a, b, c, d);
             break;
 
         case E_TIMER:
@@ -484,16 +494,20 @@ void app::host::click(int b, bool d)
     ::prog->click(b, d);
 }
 
-void app::host::keybd(int k, bool d)
+void app::host::keybd(int c, int k, int m, bool d)
 {
     message M(E_KEYBD);
 
+    M.put_int (c);
     M.put_int (k);
+    M.put_int (m);
     M.put_bool(d);
 
     send(M);
 
-    ::prog->keybd(k, d, k);
+    mods = m;
+
+    ::prog->keybd(k, d, c);
 }
 
 void app::host::timer(int d)

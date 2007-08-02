@@ -16,6 +16,7 @@
 #include "opengl.hpp"
 #include "solid.hpp"
 #include "edit.hpp"
+#include "host.hpp"
 #include "conf.hpp"
 
 //-----------------------------------------------------------------------------
@@ -120,13 +121,13 @@ bool mode::edit::click(int b, bool d)
             {
                 wrl::atom *focus = (wrl::atom *) dGeomGetData(geom);
 
-                if (SDL_GetModState() & KMOD_SHIFT)
+                if (::host->modifiers() & KMOD_SHIFT)
                 {
                     // Shift-release resets the constraint transform.
 
                     double M[16];
 
-                    if (SDL_GetModState() & KMOD_CTRL)
+                    if (::host->modifiers() & KMOD_CTRL)
                         focus->get_local(M);
                     else
                         focus->get_world(M);

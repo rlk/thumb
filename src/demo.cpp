@@ -18,6 +18,7 @@
 #include "demo.hpp"
 #include "conf.hpp"
 #include "view.hpp"
+#include "host.hpp"
 #include "edit.hpp"
 #include "play.hpp"
 #include "info.hpp"
@@ -115,14 +116,14 @@ void demo::click(int b, bool d)
 {
     if      (d && b == 4)
     {
-        if (SDL_GetModState() & KMOD_SHIFT)
+        if (::host->modifiers() & KMOD_SHIFT)
             universe.turn(+1);
         else
             view->zoom(1.1);
     }
     else if (d && b == 5)
     {
-        if (SDL_GetModState() & KMOD_SHIFT)
+        if (::host->modifiers() & KMOD_SHIFT)
             universe.turn(-1);
         else
             view->zoom(0.9);
@@ -168,12 +169,12 @@ void demo::timer(double dt)
 
     // Determine the rate of motion.
 
-    if (SDL_GetModState() & KMOD_CTRL)
+    if (::host->modifiers() & KMOD_CTRL)
         k = dt * view_move_rate;
     else
         k = dt * universe.rate();
 
-    if (SDL_GetModState() & KMOD_SHIFT)
+    if (::host->modifiers() & KMOD_SHIFT)
         k *= 10.0;
 
     // Handle view motion.

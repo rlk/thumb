@@ -37,6 +37,8 @@ app::prog *prog;
 app::glob *glob;
 app::view *view;
 app::lang *lang;
+app::host *host;
+app::perf *perf;
 
 //-----------------------------------------------------------------------------
 // Keyboard state expression queryables.
@@ -131,13 +133,15 @@ static void video()
 
 static void init(std::string& data_file,
                  std::string& conf_file,
-                 std::string& lang_file)
+                 std::string& lang_file,
+                 std::string& host_file, std::string& tag)
 {
     // Initialize the global state.
 
     data = new app::data(data_file);
     conf = new app::conf(conf_file);
     lang = new app::lang(lang_file);
+    host = new app::host(host_file, tag);
 
     joy  = SDL_JoystickOpen(conf->get_i("joystick"));
 
@@ -148,6 +152,8 @@ static void init(std::string& data_file,
     // Initialize the demo.
 
     glob = new app::glob();
+    perf = new app::perf();
+
     view = new app::view(conf->get_i("window_w"),
                          conf->get_i("window_h"),
                          conf->get_f("view_near"),
@@ -158,71 +164,29 @@ static void init(std::string& data_file,
 
 static void fini()
 {
-    if (view) delete view;
     if (prog) delete prog;
+    if (view) delete view;
+    if (perf) delete perf;
     if (glob) delete glob;
 
     if (joy) SDL_JoystickClose(joy);
 
+    if (host) delete host;
     if (lang) delete lang;
     if (conf) delete conf;
     if (data) delete data;
 }
 
 //-----------------------------------------------------------------------------
-/*
-static bool loop()
-{
-    SDL_Event e;
-
-    // While there are available events, dispatch event handlers.
-
-    while (SDL_PollEvent(&e))
-        switch (e.type)
-        {
-        case SDL_QUIT:
-            return false;
-
-        case SDL_USEREVENT:
-            glob->fini();
-            data->load();
-            conf->load();
-            video();
-            glob->init();
-            break;
-
-        case SDL_MOUSEMOTION:     prog->point(e.motion.x, e.motion.y);  break;
-        case SDL_MOUSEBUTTONDOWN: prog->click(e.button.button,  true);  break;
-        case SDL_MOUSEBUTTONUP:   prog->click(e.button.button,  false); break;
-        case SDL_KEYDOWN:         prog->keybd(e.key.keysym.sym, true,
-                                              e.key.keysym.unicode);    break;
-        case SDL_KEYUP:           prog->keybd(e.key.keysym.sym, false,
-                                              e.key.keysym.unicode);    break;
-        }
-
-    // Call the timer method for each jiffy that has passed.
-
-    while (SDL_GetTicks() - tock >= JIFFY)
-    {
-        tock += JIFFY;
-        prog->timer(JIFFY / 1000.0);
-    }
-
-    // Draw the scene.
-
-    prog->draw();
-
-    return true;
-}
-*/
 
 int main(int argc, char *argv[])
 {
-    std::string name(argc > 1 ? argv[1] : "default");
-
     std::string data_file(DEFAULT_DATA_FILE);
     std::string conf_file(DEFAULT_CONF_FILE);
     std::string lang_file(DEFAULT_LANG_FILE);
+    std::string host_file(DEFAULT_HOST_FILE);
+
+    std::string tag(argc > 1 ? argv[1] : DEFAULT_TAG);
 
     try
     {
@@ -234,18 +198,11 @@ int main(int argc, char *argv[])
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,  16);
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-//          SDL_EnableUNICODE(1);
+            SDL_EnableUNICODE(1);
 
-            init(data_file, conf_file, lang_file);
+            init(data_file, conf_file, lang_file, host_file, tag);
             {
-                app::host *H = new app::host(name);
-
-                std::auto_ptr<perf> P(new perf(10));
-
-                H->loop();
-//              P->step(); TODO: move
-
-                delete H;
+                host->loop();
             }
             fini();
 

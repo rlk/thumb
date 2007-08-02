@@ -19,6 +19,7 @@
 #include "conf.hpp"
 #include "lang.hpp"
 #include "view.hpp"
+#include "host.hpp"
 #include "util.hpp"
 
 //-----------------------------------------------------------------------------
@@ -410,7 +411,7 @@ gui::widget *gui::bitmap::click(int x, int y, bool d)
         {
             // If shift, set all bits to the toggle of bit i.
 
-            if (SDL_GetModState() & KMOD_SHIFT)
+            if (::host->modifiers() & KMOD_SHIFT)
             {
                 if ((bits & (1 << i)))
                     bits = 0x00000000;
@@ -420,7 +421,7 @@ gui::widget *gui::bitmap::click(int x, int y, bool d)
 
             // If control, toggle all bits.
 
-            else if (SDL_GetModState() & KMOD_CTRL)
+            else if (::host->modifiers() & KMOD_CTRL)
                 for (int j = 0; j < text->n(); ++j)
                     bits = bits ^ (1 << j);
 
@@ -592,7 +593,7 @@ void gui::editor::point(int x, int y)
 void gui::editor::keybd(int k, int c)
 {
     int n = int(str.length());
-    int s = SDL_GetModState() & KMOD_SHIFT;
+    int s = ::host->modifiers() & KMOD_SHIFT;
 
     switch (k)
     {

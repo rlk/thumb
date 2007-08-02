@@ -14,6 +14,7 @@
 
 #include "opengl.hpp"
 #include "mode.hpp"
+#include "host.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -25,7 +26,7 @@ bool mode::mode::point(const double *, const double *, int x, int y)
     drag_x = x;
     drag_y = y;
 
-    if (drag_d && (SDL_GetModState() & KMOD_ALT))
+    if (drag_d && (::host->modifiers() & KMOD_ALT))
     {
         world.mov_light(dx, dy);
         return true;

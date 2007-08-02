@@ -20,6 +20,7 @@
 #include "socket.hpp"
 
 #define DEFAULT_HOST_FILE "host.xml"
+#define DEFAULT_TAG       "default"
 #define DEFAULT_HOST      "localhost"
 #define DEFAULT_PORT      "2827"
 
@@ -81,6 +82,7 @@ namespace app
         SOCKET_v client;
 
         int tock;
+        int mods;
 
         mxml_node_t *head;
         mxml_node_t *node;
@@ -94,7 +96,7 @@ namespace app
         void stick(int, const double *);
         void point(int, int);
         void click(int, bool);
-        void keybd(int, bool);
+        void keybd(int, int, int, bool);
         void timer(int);
         void paint();
         void close();
@@ -106,16 +108,22 @@ namespace app
 
         // Config IO
 
-        void load(std::string);
+        void load(std::string&, std::string&);
 
     public:
 
-        host(std::string);
+        host(std::string&, std::string&);
        ~host();
 
         void loop();
+
+        int modifiers() const { return mods; }
     };
 }
+
+//-----------------------------------------------------------------------------
+
+extern app::host *host;
 
 //-----------------------------------------------------------------------------
 
