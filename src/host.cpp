@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <SDL.h>
 #include <iostream>
 #include <stdexcept>
 
@@ -18,47 +19,53 @@
 
 #include "data.hpp"
 #include "host.hpp"
+#include "prog.hpp"
+
+#define JIFFY (1000 / 60)
 
 //=============================================================================
-// Simple TCP message handler
 
-class message
+class host_error : public std::runtime_error
 {
-    union swap { double d; int i; uint32_t l[2]; };
-
-    struct { unsigned char type;
-             unsigned char size;
-             unsigned char data[256]; } payload;
-
-    int index;
+    std::string mesg(const char *s) {
+        return std::string(s) + ": " + hstrerror(h_errno);
+    }
 
 public:
+    host_error(const char *s) : std::runtime_error(mesg(s)) { }
+};
 
-    message(unsigned char);
+class sock_error : public std::runtime_error
+{
+    std::string mesg(const char *s) {
+        return std::string(s) + ": " + strerror(errno);
+    }
 
-    // Data marshalling
-
-    void   put_double(double);
-    void   put_int   (int);
-
-    double get_double();
-    int    get_int   ();
-
-    // Network IO
-
-    void send(SOCKET);
-    void recv(SOCKET);
+public:
+    sock_error(const char *s) : std::runtime_error(mesg(s)) { }
 };
 
 //-----------------------------------------------------------------------------
 
-message::message(unsigned char type) : index(0)
+#define E_REPLY 0
+#define E_TRACK 1
+#define E_STICK 2
+#define E_POINT 3
+#define E_CLICK 4
+#define E_KEYBD 5
+#define E_TIMER 6
+#define E_PAINT 7
+#define E_CLOSE 8
+
+//-----------------------------------------------------------------------------
+
+app::message::message(unsigned char type) : index(0)
 {
     payload.type = type;
     payload.size = 0;
 }
 
-void message::put_double(double d)
+void app::message::put_double(double d)
 {
     // Append a double to the payload data.
 
@@ -72,7 +79,7 @@ void message::put_double(double d)
     payload.size += 2 * sizeof (uint32_t);
 }
 
-double message::get_double()
+double app::message::get_double()
 {
     // Return the next double in the payload data.
 
@@ -86,7 +93,17 @@ double message::get_double()
     return s.d;
 }
 
-void message::put_int(int i)
+void app::message::put_bool(bool b)
+{
+    payload.data[payload.size++] = (b ? 1 : 0);
+}
+
+bool app::message::get_bool()
+{
+    return payload.data[index++];
+}
+
+void app::message::put_int(int i)
 {
     // Append an int to the payload data.
 
@@ -99,7 +116,7 @@ void message::put_int(int i)
     payload.size += sizeof (uint32_t);
 }
 
-int message::get_int()
+int app::message::get_int()
 {
     // Return the next int in the payload data.
 
@@ -114,7 +131,7 @@ int message::get_int()
 
 //-----------------------------------------------------------------------------
 
-void message::send(SOCKET s)
+void app::message::send(SOCKET s)
 {
     // Send the payload on the given socket.
 
@@ -122,15 +139,16 @@ void message::send(SOCKET s)
         throw std::runtime_error(strerror(errno));
 }
 
-void message::recv(SOCKET s)
+void app::message::recv(SOCKET s)
 {
     // Block until receipt of the payload head and data.
 
     if (::recv(s, &payload, 2, 0) == -1)
         throw std::runtime_error(strerror(errno));
 
-    if (::recv(s,  payload.data, payload.size, 0) == -1)
-        throw std::runtime_error(strerror(errno));
+    if (payload.size > 0)
+        if (::recv(s,  payload.data, payload.size, 0) == -1)
+            throw std::runtime_error(strerror(errno));
 
     // Reset the unpack pointer to the beginning.
 
@@ -166,105 +184,110 @@ unsigned long app::host::lookup(const char *hostname)
     struct in_addr  A;
 
     if ((H = gethostbyname(hostname)) == 0)
-        throw name_error(hostname);
+        throw host_error(hostname);
 
     memcpy(&A.s_addr, H->h_addr_list[0], H->h_length);
 
     return A.s_addr;
 }
 
-app::host::host(std::string tag) : server(INVALID_SOCKET), head(0), node(0)
+void app::host::init_server()
 {
-    // Read host.xml and configure using tag match.
-
-    load(tag);
-
-    if (node)
-    {
-        int       on = 1;
-        socklen_t onlen = sizeof (int);
+    int       on = 1;
+    socklen_t onlen = sizeof (int);
         
-        sockaddr_t addr;
-        socklen_t  addrlen = sizeof (sockaddr_t);
+    sockaddr_t addr;
+    socklen_t  addrlen = sizeof (sockaddr_t);
 
-        // Handle any client connections.
+    // Handle any server connection.
 
-        const char  *str = "client";
-        mxml_node_t *curr;
+    const char *root = mxmlElementGetAttr(node, "root");
 
-        for (curr = mxmlFindElement(node, node, str, 0, 0, MXML_DESCEND_FIRST);
-             curr;
-             curr = mxmlFindElement(curr, node, str, 0, 0, MXML_NO_DESCEND))
-        {
-            const char *name = mxmlElementGetAttr(curr, "addr");
-            const char *port = mxmlElementGetAttr(curr, "port");
+    if (root == 0 || strcmp(root, "true"))
+    {
+        const char *port = mxmlElementGetAttr(node, "port");
 
-            // Look up the given host name.
+        addr.sin_family      = AF_INET;
+        addr.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
+        addr.sin_addr.s_addr = INADDR_ANY;
 
-            addr.sin_family      = AF_INET;
-            addr.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
-            addr.sin_addr.s_addr = lookup(     name ? name : DEFAULT_HOST);
+        // Create a socket, listen, and accept a connection.
 
-            // Create a socket and connect.
+        int sd;
 
-            int cd;
+        if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+            throw std::runtime_error(strerror(errno));
 
-            if ((cd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-                throw std::runtime_error(strerror(errno));
+        if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &on, onlen) < 0)
+            throw std::runtime_error(strerror(errno));
 
-            if (setsockopt(cd, IPPROTO_TCP, TCP_NODELAY, &on, onlen) < 0)
-                throw std::runtime_error(strerror(errno));
+        if (bind(sd, (struct sockaddr *) &addr, addrlen) < 0)
+            throw std::runtime_error(strerror(errno));
 
-            if (connect(cd, (struct sockaddr *) &addr, addrlen) < 0)
-                throw std::runtime_error(strerror(errno));
+        listen(sd, 5);
 
-            client.push_back(cd);
-        }
+        if ((server = accept(sd, 0, 0)) < 0)
+            throw std::runtime_error(strerror(errno));
 
-        // Handle any server connection.
+        // The incoming socket is not needed after a connection is made.
 
-        const char *root = mxmlElementGetAttr(node, "root");
-
-        if (root == 0 || strcmp(root, "true"))
-        {
-            const char *port = mxmlElementGetAttr(node, "port");
-
-            addr.sin_family      = AF_INET;
-            addr.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
-            addr.sin_addr.s_addr = INADDR_ANY;
-
-            // Create a socket, listen, and accept a connection.
-
-            int sd;
-
-            if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-                throw std::runtime_error(strerror(errno));
-
-            if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &on, onlen) < 0)
-                throw std::runtime_error(strerror(errno));
-
-            if (bind(sd, (struct sockaddr *) &addr, addrlen) < 0)
-                throw std::runtime_error(strerror(errno));
-
-            listen(sd, 5);
-
-            if ((server = accept(sd, 0, 0)) < 0)
-                throw std::runtime_error(strerror(errno));
-
-            // The incoming socket is not needed after a connection is made.
-
-            ::close(sd);
-        }
+        ::close(sd);
     }
 }
 
-app::host::~host()
+void app::host::init_client()
+{
+    int       on = 1;
+    socklen_t onlen = sizeof (int);
+        
+    sockaddr_t addr;
+    socklen_t  addrlen = sizeof (sockaddr_t);
+
+    // Handle any client connections.
+
+    const char  *str = "client";
+    mxml_node_t *curr;
+
+    for (curr = mxmlFindElement(node, node, str, 0, 0, MXML_DESCEND_FIRST);
+         curr;
+         curr = mxmlFindElement(curr, node, str, 0, 0, MXML_NO_DESCEND))
+    {
+        const char *name = mxmlElementGetAttr(curr, "addr");
+        const char *port = mxmlElementGetAttr(curr, "port");
+
+        // Look up the given host name.
+
+        addr.sin_family      = AF_INET;
+        addr.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
+        addr.sin_addr.s_addr = lookup(     name ? name : DEFAULT_HOST);
+
+        // Create a socket and connect.
+
+        int cd;
+
+        if ((cd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+            throw sock_error(name);
+
+        if (setsockopt(cd, IPPROTO_TCP, TCP_NODELAY, &on, onlen) < 0)
+            throw sock_error(name);
+
+        if (connect(cd, (struct sockaddr *) &addr, addrlen) < 0)
+            throw sock_error(name);
+
+        client.push_back(cd);
+    }
+}
+
+void app::host::fini_server()
 {
     // Close the server socket.
 
     if (server != INVALID_SOCKET)
         ::close(server);
+}
 
+void app::host::fini_client()
+{
     // Close all client sockets.
 
     for (unsigned int i = 0; i < client.size(); ++i)
@@ -274,21 +297,136 @@ app::host::~host()
 
 //-----------------------------------------------------------------------------
 
+app::host::host(std::string tag) : server(INVALID_SOCKET), head(0), node(0)
+{
+    // Read host.xml and configure using tag match.
+
+    load(tag);
+
+    if (node)
+    {
+        init_client();
+        init_server();
+    }
+
+    tock = SDL_GetTicks();
+}
+
+app::host::~host()
+{
+    if (node)
+    {
+        fini_server();
+        fini_client();
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 void app::host::root_loop()
 {
-    /* While SDL event */
-    /*     call event handler */
+    while (1)
+    {
+        SDL_Event e;
+
+        // While there are available events, dispatch event handlers.
+
+        while (SDL_PollEvent(&e))
+            switch (e.type)
+            {
+            case SDL_MOUSEMOTION:     point(e.motion.x, e.motion.y);  break;
+            case SDL_MOUSEBUTTONDOWN: click(e.button.button,  true);  break;
+            case SDL_MOUSEBUTTONUP:   click(e.button.button,  false); break;
+            case SDL_KEYDOWN:         keybd(e.key.keysym.sym, true);  break;
+            case SDL_KEYUP:           keybd(e.key.keysym.sym, false); break;
+            case SDL_QUIT:            close(); return;
+            }
+
+        // Call the timer handler for each jiffy that has passed.
+
+        while (SDL_GetTicks() - tock >= JIFFY)
+        {
+            tock += JIFFY;
+            timer(JIFFY);
+        }
+
+        // Call the paint handler.
+
+        paint();
+    }
 }
 
 void app::host::node_loop()
 {
-    /* While server incoming event */
-    /*     call event handler */
+    int    a;
+    int    b;
+    bool   c;
+    double p[3];
+    double v[3];
+
+    while (1)
+    {
+        message M(0);
+
+        M.recv(server);
+
+        switch (M.type())
+        {
+        case E_TRACK:
+            a    = M.get_int();
+            p[0] = M.get_double();
+            p[1] = M.get_double();
+            p[2] = M.get_double();
+            v[0] = M.get_double();
+            v[1] = M.get_double();
+            v[2] = M.get_double();
+            track(a, p, v);
+            break;
+
+        case E_STICK:
+            a    = M.get_int();
+            p[0] = M.get_double();
+            p[1] = M.get_double();
+            stick(a, p);
+            break;
+
+        case E_POINT:
+            a = M.get_int();
+            b = M.get_int();
+            point(a, b);
+            break;
+
+        case E_CLICK:
+            a = M.get_int ();
+            c = M.get_bool();
+            click(a, c);
+            break;
+
+        case E_KEYBD:
+            a = M.get_int ();
+            c = M.get_bool();
+            keybd(a, c);
+            break;
+
+        case E_TIMER:
+            a = M.get_int();
+            timer(a);
+            break;
+
+        case E_PAINT:
+            paint();
+            break;
+
+        case E_CLOSE:
+            close();
+            return;
+        }
+    }
 }
 
 void app::host::loop()
 {
-    if (0 /* no server */)
+    if (server == INVALID_SOCKET)
         root_loop();
     else
         node_loop();
@@ -296,32 +434,108 @@ void app::host::loop()
 
 //-----------------------------------------------------------------------------
 
+void app::host::send(message& M)
+{
+    // Send a message to all clients.
+
+    for (SOCKET_i i = client.begin(); i != client.end(); ++i)
+        M.send(*i);
+}
+
+void app::host::recv(message& M)
+{
+    // Receive a message from all clients (should be E_REPLY).
+
+    for (SOCKET_i i = client.begin(); i != client.end(); ++i)
+        M.recv(*i);
+}
+
+//-----------------------------------------------------------------------------
+
+void app::host::track(int d, const double *p, const double *v)
+{
+}
+
+void app::host::stick(int d, const double *p)
+{
+}
+
 void app::host::point(int x, int y)
 {
-    if (0/* has clients */)
-        ; //send_point(x, y);
+    message M(E_POINT);
 
-    /* do point */
+    M.put_int(x);
+    M.put_int(y);
+
+    send(M);
+
+    ::prog->point(x, y);
+}
+
+void app::host::click(int b, bool d)
+{
+    message M(E_CLICK);
+
+    M.put_int (b);
+    M.put_bool(d);
+
+    send(M);
+
+    ::prog->click(b, d);
+}
+
+void app::host::keybd(int k, bool d)
+{
+    message M(E_KEYBD);
+
+    M.put_int (k);
+    M.put_bool(d);
+
+    send(M);
+
+    ::prog->keybd(k, d, k);
+}
+
+void app::host::timer(int d)
+{
+    message M(E_TIMER);
+
+    M.put_int(d);
+
+    send(M);
+
+    ::prog->timer(d / 1000.0);
 }
 
 void app::host::paint()
 {
-    if (0/* has clients */)
-        ; // send_paint();
+    message M(E_PAINT);
 
-    /* do paint */
+    send(M);
+    ::prog->draw();
+    recv(M);
 
-    if (0/* has clients */)
+    if (server != INVALID_SOCKET)
     {
-        /* wait reply */
+        message R(E_REPLY);
+        R.send(server);
     }
 
-    if (0/* has server */)
-    {
-        /* send reply */
-    }
+    SDL_GL_SwapBuffers();
+}
 
-    /* swap */
+void app::host::close()
+{
+    message M(E_CLOSE);
+
+    send(M);
+    recv(M);
+
+    if (server != INVALID_SOCKET)
+    {
+        message R(E_REPLY);
+        R.send(server);
+    }
 }
 
 //-----------------------------------------------------------------------------

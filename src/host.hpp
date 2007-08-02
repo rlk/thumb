@@ -28,31 +28,65 @@
 namespace app
 {
     //-------------------------------------------------------------------------
-    // Host exceptions
+    // Message handler
 
-    class name_error : public std::runtime_error
+    class message
     {
-        std::string mesg(const char *n) {
-            std::string s(n);
-            return "Error looking up host: " + s + ": " + hstrerror(h_errno);
-        }
+        union swap { double d; int i; uint32_t l[2]; };
+
+        struct { unsigned char type;
+                 unsigned char size;
+                 unsigned char data[256]; } payload;
+
+        int index;
 
     public:
-        name_error(const char *n) : std::runtime_error(mesg(n)) { }
+
+        message(unsigned char);
+
+        // Data marshalling
+
+        void   put_double(double);
+        void   put_bool  (bool);
+        void   put_int   (int);
+
+        double get_double();
+        bool   get_bool  ();
+        int    get_int   ();
+
+        // Network IO
+
+        void send(SOCKET);
+        void recv(SOCKET);
+
+        unsigned char type() const { return payload.type; }
     };
 
     //-------------------------------------------------------------------------
     // Host
 
+    typedef std::vector<SOCKET>           SOCKET_v;
+    typedef std::vector<SOCKET>::iterator SOCKET_i;
+
     class host
     {
         unsigned long lookup(const char *);
 
-        SOCKET              server;
-        std::vector<SOCKET> client;
+        void init_server();
+        void init_client();
+        void fini_server();
+        void fini_client();
+
+        SOCKET   server;
+        SOCKET_v client;
+
+        int tock;
 
         mxml_node_t *head;
         mxml_node_t *node;
+
+        void send(message&);
+        void recv(message&);
 
         // Event handlers
 
@@ -80,7 +114,6 @@ namespace app
        ~host();
 
         void loop();
-
     };
 }
 

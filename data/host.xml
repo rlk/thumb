@@ -3,7 +3,7 @@
   <node name="zod" root="true">
 
     <client name="zod1" addr="127.0.0.1" port="2827"/>
-    <client name="zod2" addr="127.0.0.1" port="2828"/>
+<!--<client name="zod2" addr="127.0.0.1" port="2828"/>-->
 
     <window x="0" y="0" w="640"  h="480"/>
 <!--<buffer x="0" y="0" w="1280" h="480"/>-->

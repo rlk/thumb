@@ -28,8 +28,6 @@
 #include "view.hpp"
 #include "perf.hpp"
 
-#define JIFFY (1000 / 60)
-
 //-----------------------------------------------------------------------------
 // Global application state.
 
@@ -172,7 +170,7 @@ static void fini()
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 static bool loop()
 {
     SDL_Event e;
@@ -216,6 +214,7 @@ static bool loop()
 
     return true;
 }
+*/
 
 int main(int argc, char *argv[])
 {
@@ -235,7 +234,7 @@ int main(int argc, char *argv[])
             SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,  16);
             SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
-            SDL_EnableUNICODE(1);
+//          SDL_EnableUNICODE(1);
 
             init(data_file, conf_file, lang_file);
             {
@@ -243,11 +242,8 @@ int main(int argc, char *argv[])
 
                 std::auto_ptr<perf> P(new perf(10));
 
-                while (loop())
-                {
-                    SDL_GL_SwapBuffers();
-                    P->step();
-                }
+                H->loop();
+//              P->step(); TODO: move
 
                 delete H;
             }
