@@ -214,7 +214,7 @@ void demo::draw()
         glEnable(GL_LIGHTING);
 
         glClear(GL_COLOR_BUFFER_BIT);
-//      universe.draw();
+        universe.draw();
 
         // Compute the view frusta.
 

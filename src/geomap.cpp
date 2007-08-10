@@ -746,7 +746,7 @@ uni::geomap::geomap(std::string name,
     // Initialize the load queue.
 
     load_Q = new loaded_queue;
-    text_P = new texture_pool(24, s, c, b);
+    text_P = new texture_pool(32, s, c, b);
 }
 
 uni::geomap::~geomap()
@@ -825,7 +825,7 @@ bool uni::geomap::loaded()
         
         if (D)
         {
-//          const GLenum fi   = form_tag[b - 1][c - 1];
+            const GLenum fi   = form_tag[b - 1][c - 1];
             const GLenum fe   = form_tag[0    ][c - 1];
 //          GLenum form = form_tag[c - 1];
             GLenum type = type_tag[b - 1];
@@ -851,9 +851,9 @@ bool uni::geomap::loaded()
 
                 // Initialize the texture object.
 
-              glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, fe, type, D);
+//              glTexSubImage2D(GL_TEXTURE_2D, 0, -1, -1, s + 2, s + 2, fe, type, D);
 
-//                glTexImage2D(GL_TEXTURE_2D, 0, fi, s + 2, s + 2, 1, fe, type, D);
+                glTexImage2D(GL_TEXTURE_2D, 0, fi, s + 2, s + 2, 1, fe, type, D);
                 glBindTexture(GL_TEXTURE_2D, 0);
             }
 

@@ -582,13 +582,12 @@ void uni::sphere::draw()
                         pass();
 
                         // HACK.  Simple yet surprisingly effective.
-/*
+
                         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                         glLineWidth(2.0f);
                         pass();
                         glLineWidth(1.0f);
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-*/
                     }
                     vtx.free();
                     dat.idx()->free();
