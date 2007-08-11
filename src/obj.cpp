@@ -66,9 +66,9 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
 
     // Convert face indices to vector cache indices.
 
-    vi += (vi < 0) ? vv.size() : -1;
-    si += (si < 0) ? sv.size() : -1;
-    ni += (ni < 0) ? nv.size() : -1;
+    if (vi < 0) vi += vv.size(); else vi--;
+    if (si < 0) si += sv.size(); else si--;
+    if (ni < 0) ni += nv.size(); else ni--;
 
     // If we have not seen this index set before...
 
@@ -145,8 +145,8 @@ int obj::obj::read_li(std::istream& lin, ogl::vec3_v& vv,
 
     // Convert line indices to vector cache indices.
 
-    vi += (vi < 0) ? vv.size() : -1;
-    si += (si < 0) ? sv.size() : -1;
+    if (vi < 0) vi += vv.size(); else vi--;
+    if (si < 0) si += sv.size(); else si--;
 
     // If we have not seen this index set before...
 

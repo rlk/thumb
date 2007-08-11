@@ -11,7 +11,8 @@ CD= cd
 CP= cp
 
 TARG= ../thumb
-OBJS=   opengl.o \
+OBJS=   combiner.o \
+	opengl.o \
 	aabb.o \
 	obj.o \
 	matrix.o \

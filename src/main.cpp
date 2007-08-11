@@ -140,8 +140,12 @@ static void init(std::string& data_file,
 
     data = new app::data(data_file);
     conf = new app::conf(conf_file);
-    lang = new app::lang(lang_file);
-    host = new app::host(host_file, tag);
+
+    std::string lang_conf = conf->get_s("lang_file");
+    std::string host_conf = conf->get_s("host_file");
+
+    lang = new app::lang(lang_conf.length() > 0 ? lang_conf : lang_file);
+    host = new app::host(host_conf.length() > 0 ? host_conf : host_file, tag);
 
     joy  = SDL_JoystickOpen(conf->get_i("joystick"));
 
