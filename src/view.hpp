@@ -25,14 +25,25 @@ namespace app
         int    h;
         double n;
         double f;
-        double z;
 
         double default_M[16];
         double current_M[16];
+        double current_P[16];
+
+        double VP[3];
+        double BL[3];
+        double BR[3];
+        double TL[3];
+
+        double R[3];
+        double U[3];
+        double N[3];
+
+        void find_P();
 
     public:
 
-        view(int, int, double, double, double);
+        view(int, int, double, double);
 
         double get_n() const { return n; }
         double get_f() const { return f; }
@@ -40,13 +51,14 @@ namespace app
         int    get_h() const { return h; }
 
         void clr();
-        void set_M(const double *);
         void get_M(      double *);
         void get_P(      double *);
+        void set_M(const double *);
+        void set_P(const double *, const double *,
+                   const double *, const double *);
 
         void turn(double, double, double);
         void move(double, double, double);
-        void zoom(double);
         void home();
 
         void mult_S() const;

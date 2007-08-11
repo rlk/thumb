@@ -109,19 +109,41 @@ void clr_trg()               { bits  = 0; }
 
 //-----------------------------------------------------------------------------
 
+static void position(int x, int y)
+{
+    char buf[32];
+
+    // SDL looks to the environment for window position.
+
+#ifdef _WIN32
+    sprintf(buf, "SDL_VIDEO_WINDOW_POS=%d,%d", x, y);
+    putenv(buf);
+#else
+    sprintf(buf, "%d,%d", x, y);
+    setenv("SDL_VIDEO_WINDOW_POS", buf, 1);
+#endif
+}
+
 static void video()
 {
     // Look up the video mode parameters.
 
-    int w = conf->get_i("window_w");
-    int h = conf->get_i("window_h");
-    int b = conf->get_i("window_b");
     int m = SDL_OPENGL;
+    int x = host->get_x();
+    int y = host->get_y();
+    int w = host->get_w();
+    int h = host->get_h();
+
+    // TODO: fold these into host config.
+
+    int b = conf->get_i("window_b");
 
     if (conf->get_i("window_fullscreen")) m |= SDL_FULLSCREEN;
     if (conf->get_i("window_noframe"))    m |= SDL_NOFRAME;
 
     // Initialize the video.
+
+    position(x, y);
 
     if (SDL_SetVideoMode(w, h, b, m) == 0)
         throw std::runtime_error(SDL_GetError());
@@ -161,8 +183,7 @@ static void init(std::string& data_file,
     view = new app::view(conf->get_i("window_w"),
                          conf->get_i("window_h"),
                          conf->get_f("view_near"),
-                         conf->get_f("view_far"),
-                         conf->get_f("view_zoom"));
+                         conf->get_f("view_far"));
     prog = new demo();
 }
 

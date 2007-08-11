@@ -1,4 +1,36 @@
 
+mono
+    for each tile
+        apply the viewport for that tile
+        apply the projection given tracked eye and tile corners
+        draw the scene
+
+varrier
+    for each tile
+        bind the buffer
+
+        for each eye
+            apply the viewport for that eye
+            apply the projection given tracked eye and tile corners
+            draw the scene
+
+        unbind the buffer
+        combine stereo
+
+
+TODO:
+    modify frustum query to use screen corners
+    fix ortho and pick
+        fix the gui scissor
+    fix georen offscreen buffer size
+    add tile buffer
+    add combine
+    acquire and broadcast head tracking
+    acquire and broadcast wand tracking
+        opt out of pick mechanism
+
+-------------------------------------------------------------------------------
+
 NOTE: the GF6 can filter FP16 textures?
     at least test the performance of 16 versus 32
 

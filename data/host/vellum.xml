@@ -2,65 +2,51 @@
 <host>
   <node name="vellum" root="true">
 
-    <client name="vellum1" addr="67.58.37.5" port="2827"/>
-    <client name="vellum2" addr="67.58.37.6" port="2827"/>
-    <client name="vellum3" addr="67.58.37.7" port="2827"/>
+<!--<client name="vellum1" addr="67.58.37.5" port="2827"/>-->
 
-    <window x="0" y="0" w="640"  h="480"/>
+    <window x="0" y="0" w="960"  h="480"/>
+    <tile>
+      <viewport x="0"   y="0" w="480" h="480"/>
+      <corner name="BL" x="-1.0" y="-0.5" z="-1.0"/>
+      <corner name="BR" x=" 0.0" y="-0.5" z="-1.0"/>
+      <corner name="TL" x="-1.0" y=" 0.5" z="-1.0"/>
+    </tile>
+    <tile>
+      <viewport x="480" y="0" w="480" h="480"/>
+      <corner name="BL" x=" 0.0" y="-0.5" z="-1.0"/>
+      <corner name="BR" x=" 1.0" y="-0.5" z="-1.0"/>
+      <corner name="TL" x=" 0.0" y=" 0.5" z="-1.0"/>
+    </tile>
+<!--
     <tile>
       <viewport x="0" y="0" w="640" h="480"/>
-      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
-      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
-      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
+      <corner name="BL" x="-1.0" y="-1.0" z="-1.0"/>
+      <corner name="BR" x=" 1.0" y="-1.0" z="-1.0"/>
+      <corner name="TL" x="-1.0" y=" 1.0" z="-1.0"/>
     </tile>
+-->
   </node>
 
   <node name="vellum1" port="2827">
     <window x="0" y="0" w="3200"  h="1600"/>
+    <buffer             w="640"   h="960" />
     <tile>
-      <viewport x="0"    y="0" w="1600" h="1200"/>
-      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
-      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
-      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
+      <viewport  x="0" y="0"   w="1600" h="1200"/>
+      <eye e="0" x="0" y="0"   w="640"  h="480"/>
+      <eye e="1" x="0" y="480" w="640"  h="480"/>
+      <corner name="BL" x="-1.0" y="-1.0" z="-1.0"/>
+      <corner name="BR" x=" 1.0" y="-1.0" z="-1.0"/>
+      <corner name="TL" x="-1.0" y=" 1.0" z="-1.0"/>
+      <varrier p="536.85342" a="-10.48" t="0.0233" s="0.00085" c="0.75"/>
     </tile>
     <tile>
-      <viewport x="1600" y="0" w="1600" h="1200"/>
-      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
-      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
-      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
-    </tile>
-  </node>
-
-  <node name="vellum2" port="2827">
-    <window x="0" y="0" w="3200"  h="1600"/>
-    <tile>
-      <viewport x="0"    y="0" w="1600" h="1200"/>
-      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
-      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
-      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
-    </tile>
-    <tile>
-      <viewport x="1600" y="0" w="1600" h="1200"/>
-      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
-      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
-      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
+      <viewport  x="1600" y="0"   w="1600" h="1200"/>
+      <eye e="0" x="0"    y="0"   w="640"  h="480"/>
+      <eye e="1" x="0"    y="480" w="640"  h="480"/>
+      <corner name="BL" x="-1.0" y="-1.0" z="-1.0"/>
+      <corner name="BR" x=" 1.0" y="-1.0" z="-1.0"/>
+      <corner name="TL" x="-1.0" y=" 1.0" z="-1.0"/>
+      <varrier p="536.85342" a="-10.48" t="0.0233" s="0.00085" c="0.75"/>
     </tile>
   </node>
-
-  <node name="vellum3" port="2827">
-    <window x="0" y="0" w="3200"  h="1600"/>
-    <tile>
-      <viewport x="0"    y="0" w="1600" h="1200"/>
-      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
-      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
-      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
-    </tile>
-    <tile>
-      <viewport x="1600" y="0" w="1600" h="1200"/>
-      <position name="BL" x="-1.0" y = "-1.0" z="-1.0"/>
-      <position name="BR" x=" 1.0" y = "-1.0" z="-1.0"/>
-      <position name="TL" x="-1.0" y = " 1.0" z="-1.0"/>
-    </tile>
-  </node>
-
 </host>

@@ -19,11 +19,72 @@
 
 //-----------------------------------------------------------------------------
 
-app::view::view(int w, int h, double n, double f, double z) :
-    w(w), h(h), n(n), f(f), z(z)
+app::view::view(int w, int h, double n, double f) :
+    w(w), h(h), n(n), f(f)
 {
+    // Set some reasonable defaults.
+
+    VP[0] =  0.0; VP[1] =  0.0; VP[2] =  0.0;
+    BL[0] = -0.5; BL[1] = -0.5; BL[2] = -1.0;
+    BR[0] = +0.5; BR[1] = -0.5; BR[2] = -1.0;
+    TL[0] = -0.5; TL[1] = +0.5; TL[2] = -1.0;
+
+    R[0] = 1.0; R[1] = 0.0; R[2] = 0.0;
+    U[0] = 0.0; U[1] = 1.0; U[2] = 0.0;
+    N[0] = 0.0; N[1] = 0.0; N[2] = 1.0;
+
     load_idt(default_M);
     load_idt(current_M);
+ 
+    find_P();
+}
+
+//-----------------------------------------------------------------------------
+
+void app::view::find_P()
+{
+    double P[16];
+    double O[16];
+    double T[16];
+
+    // Compute the extents of the frustum.
+
+    double k = 1.0 / (N[0] * (BL[0] - VP[0]) + 
+                      N[1] * (BL[1] - VP[1]) +
+                      N[2] * (BL[2] - VP[2]));
+
+    double l = k * n * (R[0] * (VP[0] - BL[0]) +
+                        R[1] * (VP[1] - BL[1]) +
+                        R[2] * (VP[2] - BL[2]));
+    double r = k * n * (R[0] * (VP[0] - BR[0]) +
+                        R[1] * (VP[1] - BR[1]) +
+                        R[2] * (VP[2] - BR[2]));
+    double b = k * n * (U[0] * (VP[0] - BL[0]) +
+                        U[1] * (VP[1] - BL[1]) +
+                        U[2] * (VP[2] - BL[2]));
+    double t = k * n * (U[0] * (VP[0] - TL[0]) +
+                        U[1] * (VP[1] - TL[1]) +
+                        U[2] * (VP[2] - TL[2]));
+
+    // Generate the off-axis projection.
+
+    load_persp(P, l, r, b, t, n, f);
+
+    // Use the screen space basis to account for orientation.
+
+    O[0] = R[0]; O[4] = R[1]; O[ 8] = R[2]; O[12] =  0.0;
+    O[1] = U[0]; O[5] = U[1]; O[ 9] = U[2]; O[13] =  0.0;
+    O[2] = N[0]; O[6] = N[1]; O[10] = N[2]; O[14] =  0.0;
+    O[3] =  0.0; O[7] =  0.0; O[11] =  0.0; O[15] =  1.0;
+
+    // Move the apex of the frustum to the origin.
+
+    load_xlt_inv(T, VP[0], VP[1], VP[2]);
+
+    // Finally, compose the projection.
+
+    mult_mat_mat(current_P, P, O);
+    mult_mat_mat(current_P, current_P, T);
 }
 
 //-----------------------------------------------------------------------------
@@ -33,11 +94,6 @@ void app::view::clr()
     load_mat(current_M, default_M);
 }
 
-void app::view::set_M(const double *M)
-{
-    load_mat(current_M, M);
-}
-
 void app::view::get_M(double *M)
 {
     load_mat(M, current_M);
@@ -45,10 +101,49 @@ void app::view::get_M(double *M)
 
 void app::view::get_P(double *P)
 {
-    double A = double(w) / double(h);
-    double N = double(n);
+    load_mat(P, current_P);
+}
 
-    load_persp(P, -A * z * N, +A * z * N, -z * N, +z * N, N, f);
+void app::view::set_M(const double *M)
+{
+    load_mat(current_M, M);
+}
+
+void app::view::set_P(const double *vp,
+                      const double *bl,
+                      const double *br,
+                      const double *tl)
+{
+    // Store the given frustum points.
+
+    VP[0] = vp[0]; VP[1] = vp[1]; VP[2] = vp[2];
+    BL[0] = bl[0]; BL[1] = bl[1]; BL[2] = bl[2];
+    BR[0] = br[0]; BR[1] = br[1]; BR[2] = br[2];
+    TL[0] = tl[0]; TL[1] = tl[1]; TL[2] = tl[2];
+
+    // Find the basis of the screen space.
+
+    double R[3];
+    double U[3];
+    double N[3];
+
+    R[0] = BR[0] - BL[0];
+    R[1] = BR[1] - BL[1];
+    R[2] = BR[2] - BL[2];
+
+    U[0] = TL[0] - BL[0];
+    U[1] = TL[1] - BL[1];
+    U[2] = TL[2] - BL[2];
+
+    N[0] = R[1] * U[2] - R[2] * U[1];
+    N[1] = R[2] * U[0] - R[0] * U[2];
+    N[2] = R[0] * U[1] - R[1] * U[0];
+
+    normalize(R);
+    normalize(U);
+    normalize(N);
+
+    find_P();
 }
 
 //-----------------------------------------------------------------------------
@@ -67,12 +162,7 @@ void app::view::mult_S() const
 
 void app::view::mult_P() const
 {
-    double A = double(w) / double(h);
-    double N = double(n);
-
-    // Apply the perspective projection.
-
-    glFrustum(-A * z * N, +A * z * N, -z * N, +z * N, N, f);
+    glMultMatrixd(current_P);
 }
 
 void app::view::mult_O() const
@@ -142,6 +232,8 @@ void app::view::range(double N, double F)
         n =  1.0;
         f = 10.0;
     }
+
+    find_P();
 }
 
 void app::view::draw() const
@@ -222,12 +314,6 @@ void app::view::move(double dx, double dy, double dz)
     clr();
 }
 
-void app::view::zoom(double dz)
-{
-    if (z *  dz > 0.01)
-        z *= dz;
-}
-
 void app::view::home()
 {
     load_idt(current_M);
@@ -239,7 +325,7 @@ void app::view::home()
 void app::view::world_frustum(double *V) const
 {
     const double A = double(w) / double(h);
-    const double Z = double(z);
+    const double Z = 1.0;
 
     // View plane.
 
@@ -287,7 +373,7 @@ void app::view::world_frustum(double *V) const
 void app::view::plane_frustum(double *V) const
 {
     const double A = double(w) / double(h);
-    const double Z = double(z);
+    const double Z = 1.0;
 
     // View plane.
 
@@ -346,6 +432,8 @@ void app::view::point_frustum(double *V) const
     double R[3];
     double U[3];
 
+    double z = 1.0;
+
     R[0] = current_M[0] * a * z;
     R[1] = current_M[1] * a * z;
     R[2] = current_M[2] * a * z;
@@ -395,6 +483,8 @@ void app::view::point_frustum(double *V) const
 
 void app::view::pick(double *p, double *v, int x, int y) const
 {
+    double z = 1.0;
+
     // Compute the screen-space pointer vector.
 
     double r = +(2.0 * x / w - 1.0) * z * w / h;

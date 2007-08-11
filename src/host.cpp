@@ -17,11 +17,17 @@
 #include <string.h>
 #include <errno.h>
 
+#include "opengl.hpp"
 #include "data.hpp"
+#include "view.hpp"
 #include "host.hpp"
 #include "prog.hpp"
 
 #define JIFFY (1000 / 60)
+
+#define MXML_FORALL(t, i, n) \
+    for (i = mxmlFindElement((t), (t), (n), 0, 0, MXML_DESCEND_FIRST); i; \
+         i = mxmlFindElement((i), (t), (n), 0, 0, MXML_NO_DESCEND))
 
 //=============================================================================
 
@@ -157,6 +163,137 @@ void app::message::recv(SOCKET s)
 
 //=============================================================================
 
+app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
+{
+    mxml_node_t *elem;
+    mxml_node_t *curr;
+
+    // Set some reasonable defaults.
+
+    BL[0] = -0.5; BL[1] = -0.5; BL[2] = -1.0;
+    BR[0] = +0.5; BR[1] = -0.5; BR[2] = -1.0;
+    TL[0] = -0.5; TL[1] = +0.5; TL[2] = -1.0;
+
+    window_rect[0] = buffer_rect[0][0] = buffer_rect[1][0] =   0;
+    window_rect[1] = buffer_rect[0][1] = buffer_rect[1][1] =   0;
+    window_rect[2] = buffer_rect[0][2] = buffer_rect[1][2] = 800;
+    window_rect[3] = buffer_rect[0][3] = buffer_rect[1][3] = 600;
+
+    varrier[0] = 100.00;
+    varrier[1] =   0.00;
+    varrier[2] =   0.00;
+    varrier[3] =   0.00;
+    varrier[4] =   0.75;
+
+    // Extract the window viewport rectangle.
+
+    if ((elem = mxmlFindElement(node, node, "viewport",
+                                0, 0, MXML_DESCEND_FIRST)))
+    {
+        if (const char *x = mxmlElementGetAttr(elem, "x"))
+            window_rect[0] = atoi(x);
+        if (const char *y = mxmlElementGetAttr(elem, "y"))
+            window_rect[1] = atoi(y);
+        if (const char *w = mxmlElementGetAttr(elem, "w"))
+            window_rect[2] = atoi(w);
+        if (const char *h = mxmlElementGetAttr(elem, "h"))
+            window_rect[3] = atoi(h);
+    }
+
+    // Extract the buffer viewport rectangle(s).
+
+    MXML_FORALL(elem, curr, "eye")
+    {
+        int i = 0;
+
+        if (const char *e = mxmlElementGetAttr(curr, "e"))
+            i = atoi(e);
+
+        if (0 <= i && i <= 1)
+        {
+            if (const char *x = mxmlElementGetAttr(curr, "x"))
+                buffer_rect[i][0] = atoi(x);
+            if (const char *y = mxmlElementGetAttr(curr, "y"))
+                buffer_rect[i][1] = atoi(y);
+            if (const char *w = mxmlElementGetAttr(curr, "w"))
+                buffer_rect[i][2] = atoi(w);
+            if (const char *h = mxmlElementGetAttr(curr, "h"))
+                buffer_rect[i][3] = atoi(h);
+        }
+    }
+
+    // Extract the screen corners.
+
+    MXML_FORALL(elem, curr, "corner")
+    {
+        double *v = 0;
+
+        if (const char *name = mxmlElementGetAttr(curr, "name"))
+        {
+            if      (strcmp(name, "BL") == 0) v = BL;
+            else if (strcmp(name, "BR") == 0) v = BR;
+            else if (strcmp(name, "TL") == 0) v = TL;
+        }
+
+        if (v)
+        {
+            if (const char *x = mxmlElementGetAttr(curr, "x")) v[0] = atof(x);
+            if (const char *y = mxmlElementGetAttr(curr, "y")) v[1] = atof(y);
+            if (const char *z = mxmlElementGetAttr(curr, "z")) v[2] = atof(z);
+        }
+    }
+
+    // Extract the Varrier linescreen parameters.
+
+    if ((elem = mxmlFindElement(node, node, "varrier",
+                                0, 0, MXML_DESCEND_FIRST)))
+    {
+        if (const char *p = mxmlElementGetAttr(elem, "p"))
+            varrier[0] = atof(p);
+        if (const char *a = mxmlElementGetAttr(elem, "a"))
+            varrier[1] = atof(a);
+        if (const char *t = mxmlElementGetAttr(elem, "t"))
+            varrier[2] = atof(t);
+        if (const char *s = mxmlElementGetAttr(elem, "s"))
+            varrier[3] = atof(s);
+        if (const char *c = mxmlElementGetAttr(elem, "c"))
+            varrier[4] = atof(c);
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+void app::tile::draw()
+{
+    double P[3] = { 0.0, 0.0, 0.0 };
+
+    if (type == mono_type)
+    {
+        glViewport(window_rect[0], window_rect[1],
+                   window_rect[2], window_rect[3]);
+        glScissor (window_rect[0], window_rect[1],
+                   window_rect[2], window_rect[3]);
+
+        ::view->set_P(P, BL, BR, TL);
+        ::prog->draw();
+    }
+    if (type == varrier_type)
+    {
+/*
+        double L[3] = { 0.0, 0.0, -0.125 };
+        double R[3] = { 0.0, 0.0, +0.125 };
+
+        ::view->set_P(L, BL, BR, TL);
+        ::prog->draw();
+
+        ::view->set_P(R, BL, BR, TL);
+        ::prog->draw();
+*/
+    }
+}
+
+//=============================================================================
+
 void app::host::load(std::string& file,
                      std::string& tag)
 {
@@ -246,12 +383,9 @@ void app::host::init_client()
 
     // Handle any client connections.
 
-    const char  *str = "client";
     mxml_node_t *curr;
 
-    for (curr = mxmlFindElement(node, node, str, 0, 0, MXML_DESCEND_FIRST);
-         curr;
-         curr = mxmlFindElement(curr, node, str, 0, 0, MXML_NO_DESCEND))
+    MXML_FORALL(node, curr, "client")
     {
         const char *name = mxmlElementGetAttr(curr, "addr");
         const char *port = mxmlElementGetAttr(curr, "port");
@@ -302,12 +436,41 @@ app::host::host(std::string& file,
                 std::string& tag) :
     server(INVALID_SOCKET), mods(0), head(0), node(0)
 {
+    window_rect[0] =   0;
+    window_rect[1] =   0;
+    window_rect[2] = 800;
+    window_rect[3] = 600;
+
     // Read host.xml and configure using tag match.
 
     load(file, tag);
 
     if (node)
     {
+        // Extract host config parameters.
+
+        if (mxml_node_t *window = mxmlFindElement(node, node, "window",
+                                                  0, 0, MXML_DESCEND_FIRST))
+        {
+            if (const char *x = mxmlElementGetAttr(window, "x"))
+                window_rect[0] = atoi(x);
+            if (const char *y = mxmlElementGetAttr(window, "y"))
+                window_rect[1] = atoi(y);
+            if (const char *w = mxmlElementGetAttr(window, "w"))
+                window_rect[2] = atoi(w);
+            if (const char *h = mxmlElementGetAttr(window, "h"))
+                window_rect[3] = atoi(h);
+        }
+
+        // Exctract tile config parameters.
+
+        mxml_node_t *curr;
+
+        MXML_FORALL(node, curr, "tile")
+            tiles.push_back(tile(curr));
+
+        // Start the network syncronization.
+
         init_client();
         init_server();
     }
@@ -444,6 +607,25 @@ void app::host::loop()
 
 //-----------------------------------------------------------------------------
 
+void app::host::draw()
+{
+    std::vector<tile>::iterator i;
+
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    if (!tiles.empty())
+    {
+        for (i = tiles.begin(); i != tiles.end(); ++i)
+            i->draw();
+    }
+    else
+    {
+        ::prog->draw();
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 void app::host::send(message& M)
 {
     // Send a message to all clients.
@@ -526,7 +708,7 @@ void app::host::paint()
     message M(E_PAINT);
 
     send(M);
-    ::prog->draw();
+    draw( );
     recv(M);
 
     if (server != INVALID_SOCKET)

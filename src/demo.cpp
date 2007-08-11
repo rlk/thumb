@@ -114,20 +114,8 @@ void demo::point(int x, int y)
 
 void demo::click(int b, bool d)
 {
-    if      (d && b == 4)
-    {
-        if (::host->modifiers() & KMOD_SHIFT)
-            universe.turn(+1);
-        else
-            view->zoom(1.1);
-    }
-    else if (d && b == 5)
-    {
-        if (::host->modifiers() & KMOD_SHIFT)
-            universe.turn(-1);
-        else
-            view->zoom(0.9);
-    }
+    if      (d && b == 4) universe.turn(+1);
+    else if (d && b == 5) universe.turn(-1);
     else
     {
         button[b] = d;
@@ -213,8 +201,7 @@ void demo::draw()
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
-        glClear(GL_COLOR_BUFFER_BIT);
-        universe.draw();
+//      universe.draw();
 
         // Compute the view frusta.
 

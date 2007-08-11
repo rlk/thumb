@@ -43,14 +43,6 @@ uni::universe::universe()
     R = new georen(::view->get_w(),
                    ::view->get_h());
 
-/*
-    S[0] = new sphere(*D, color, terra,   6372797.0,   6372797.0 + 8844.0);
-    S[1] = new sphere(*D, color, terra,   1737103.0,   1737103.0);
-    S[2] = new sphere(*D, color, terra, 696000000.0, 696000000.0);
-
-    S[0]->move(        0.0, 0.0, -149597887500.0);
-    S[1]->move(384400000.0, 0.0, -149597887500.0);
-*/
     S[0] = new sphere(*D, *R, *color, *normal, *height, r0, r1);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
 }

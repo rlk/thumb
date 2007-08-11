@@ -64,6 +64,37 @@ namespace app
     };
 
     //-------------------------------------------------------------------------
+    // Tile
+
+    class tile
+    {
+    public:
+
+        enum tile_type { mono_type, varrier_type };
+        enum tile_mode { normal_mode, test_mode  };
+
+    private:
+
+        enum tile_type type;
+        enum tile_mode mode;
+
+        double BL[3];
+        double BR[3];
+        double TL[3];
+
+        int window_rect   [4];
+        int buffer_rect[2][4];
+
+        double varrier[5];
+
+    public:
+
+        tile(mxml_node_t *);
+
+        void draw();
+    };
+
+    //-------------------------------------------------------------------------
     // Host
 
     typedef std::vector<SOCKET>           SOCKET_v;
@@ -71,6 +102,8 @@ namespace app
 
     class host
     {
+        // Network handling
+
         unsigned long lookup(const char *);
 
         void init_server();
@@ -83,9 +116,6 @@ namespace app
 
         int tock;
         int mods;
-
-        mxml_node_t *head;
-        mxml_node_t *node;
 
         void send(message&);
         void recv(message&);
@@ -106,7 +136,15 @@ namespace app
         void root_loop();
         void node_loop();
 
+        // Window config
+
+        int window_rect[4];
+        std::vector<tile> tiles;
+
         // Config IO
+
+        mxml_node_t *head;
+        mxml_node_t *node;
 
         void load(std::string&, std::string&);
 
@@ -116,6 +154,12 @@ namespace app
        ~host();
 
         void loop();
+        void draw();
+
+        int get_x() const { return window_rect[0]; }
+        int get_y() const { return window_rect[1]; }
+        int get_w() const { return window_rect[2]; }
+        int get_h() const { return window_rect[3]; }
 
         int modifiers() const { return mods; }
     };
