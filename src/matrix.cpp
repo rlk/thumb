@@ -485,6 +485,35 @@ void set_quaternion(double *M, const double *q)
 
 //-----------------------------------------------------------------------------
 
+void set_basis(double *M, const double *x, const double *y, const double *z)
+{
+    M[0] = x[0]; M[4] = y[1]; M[ 8] = z[2]; M[12] =  0.0;
+    M[1] = x[0]; M[5] = y[1]; M[ 9] = z[2]; M[13] =  0.0;
+    M[2] = x[0]; M[6] = y[1]; M[10] = z[2]; M[14] =  0.0;
+    M[3] =  0.0; M[7] =  0.0; M[11] =  0.0; M[15] =  1.0;
+}
+
+void get_plane(double *P, const double *a, const double *b, const double *c)
+{
+    double u[3];
+    double v[3];
+
+    u[0] = b[0] - a[0];
+    u[1] = b[1] - a[1];
+    u[2] = b[2] - a[2];
+
+    v[0] = c[0] - a[0];
+    v[1] = c[1] - a[1];
+    v[2] = c[2] - a[2];
+
+    crossprod(P, u, v);
+    normalize(P);
+
+    P[3] = -DOT3(P, a);
+}
+
+//-----------------------------------------------------------------------------
+
 // Round to the nearest integer.  Round 0.5 toward negative infinity.
 
 double nearestint(double d)

@@ -201,7 +201,9 @@ void demo::draw()
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
-//      universe.draw();
+        view->push();
+        universe.draw();
+        view->pop();
 
         // Compute the view frusta.
 
@@ -212,8 +214,11 @@ void demo::draw()
         // Draw the scene.
 
         glClear(GL_DEPTH_BUFFER_BIT);
+
+        view->push();
         view->draw();
         curr->draw(points);
+        view->pop();
     }
     glPopAttrib();
 }

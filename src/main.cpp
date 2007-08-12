@@ -129,10 +129,10 @@ static void video()
     // Look up the video mode parameters.
 
     int m = SDL_OPENGL;
-    int x = host->get_x();
-    int y = host->get_y();
-    int w = host->get_w();
-    int h = host->get_h();
+    int x = host->get_window_x();
+    int y = host->get_window_y();
+    int w = host->get_window_w();
+    int h = host->get_window_h();
 
     // TODO: fold these into host config.
 

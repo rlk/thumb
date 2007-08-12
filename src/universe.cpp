@@ -16,6 +16,7 @@
 #include "geomap.hpp"
 #include "matrix.hpp"
 #include "glob.hpp"
+#include "host.hpp"
 #include "view.hpp"
 
 //-----------------------------------------------------------------------------
@@ -40,8 +41,8 @@ uni::universe::universe()
 //  color->set_debug(true);
 
     D = new geodat();
-    R = new georen(::view->get_w(),
-                   ::view->get_h());
+    R = new georen(::host->get_buffer_w(),
+                   ::host->get_buffer_h());
 
     S[0] = new sphere(*D, *R, *color, *normal, *height, r0, r1);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
@@ -91,29 +92,19 @@ void uni::universe::draw()
 
     for (i = 0; i < n; ++i)
     {
-        glPushMatrix();
-        {
-            double n;
-            double f;
+        double n;
+        double f;
 
-            S[i]->getz(n, f);
+        S[i]->getz(n, f);
 
-            // HACK: far should be outside the geomap bounds
-            ::view->range(n / 2.0, f * 2.0);
+        // HACK: far should be outside the geomap bounds
 
-            glMatrixMode(GL_PROJECTION);
-            {
-                glLoadIdentity();
-                ::view->draw();
-            }
-            glMatrixMode(GL_MODELVIEW);
-            {
-                glLoadIdentity();
-            }
+        ::view->range(n / 2.0, f * 2.0);
+        ::view->draw();
 
-            S[i]->draw();
-        }
-        glPopMatrix();
+        glLoadIdentity();
+
+        S[i]->draw();
     }
 }
 

@@ -464,11 +464,7 @@ void uni::sphere::draw()
         double  A[16];
 
         bool in = (sqrt(DOT3(v, v)) < a1);
-/*
-        double r = sqrt(DOT3(v, v));
 
-        printf("%f %f\n", r, r / a0);
-*/
         const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
         const ogl::program *land_prog = in ? land_in : land_out;
 
@@ -582,12 +578,13 @@ void uni::sphere::draw()
                         pass();
 
                         // HACK.  Simple yet surprisingly effective.
-
+/*
                         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                         glLineWidth(2.0f);
                         pass();
                         glLineWidth(1.0f);
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+*/
                     }
                     vtx.free();
                     dat.idx()->free();
@@ -639,51 +636,6 @@ void uni::sphere::draw()
     }
 }
 
-/*
-void uni::sphere::wire()
-{
-    if (count)
-    {
-        glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT);
-        {
-            glDisable(GL_TEXTURE_2D);
-            glDisable(GL_DEPTH_TEST);
-            glEnable(GL_COLOR_MATERIAL);
-
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-
-//          glEnable(GL_TEXTURE_2D);
-//          glEnable(GL_DEPTH_TEST);
-
-            xfrm();
-
-            glMatrixMode(GL_TEXTURE);
-            {
-                glPushMatrix();
-                glLoadIdentity();
-                glScalef(8.0f, 8.0f, 8.0f);
-            }
-            glMatrixMode(GL_MODELVIEW);
-
-//          color->bind(GL_TEXTURE0);
-
-            for (int k = 0; k < 20; ++k)
-                if (C[k])
-                    C[k]->wire();
-
-//          color->free(GL_TEXTURE0);
-
-            glMatrixMode(GL_TEXTURE);
-            {
-                glPopMatrix();
-            }
-            glMatrixMode(GL_MODELVIEW);
-        }
-        glPopAttrib();
-    }
-}
-*/
 void uni::sphere::xfrm()
 {
     double A[16];

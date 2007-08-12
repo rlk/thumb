@@ -1199,7 +1199,6 @@ void wrl::world::draw(bool edit, const double *points)
             }
             glMatrixMode(GL_MODELVIEW);
             glActiveTextureARB(GL_TEXTURE0);
-
         }
 
         // Set up the shadow map rendering sources.

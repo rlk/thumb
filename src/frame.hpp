@@ -1,6 +1,8 @@
 #ifndef FRAME_HPP
 #define FRAME_HPP
 
+#include <vector>
+
 #include "opengl.hpp"
 
 //-----------------------------------------------------------------------------
@@ -9,6 +11,11 @@ namespace ogl
 {
     class frame
     {
+        static std::vector<GLuint> stack;
+
+        static void push(GLuint);
+        static void pop();
+
         GLenum target;
         GLenum format;
         GLuint buffer;

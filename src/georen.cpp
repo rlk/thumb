@@ -156,7 +156,7 @@ void uni::georen::bind() const
 
     // Bind the diffuse and normal render targets as textures.
 
-    _cyl.bind_color(GL_TEXTURE0);
+//  _cyl.bind_color(GL_TEXTURE0);
     _dif.bind_color(GL_TEXTURE1);
     _nrm.bind_color(GL_TEXTURE2);
 }
@@ -167,7 +167,7 @@ void uni::georen::free() const
 
     _nrm.free_color(GL_TEXTURE2);
     _dif.free_color(GL_TEXTURE1);
-    _cyl.free_color(GL_TEXTURE0);
+//  _cyl.free_color(GL_TEXTURE0);
 
     // Unbind the deferred illumination shader.
 

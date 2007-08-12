@@ -19,6 +19,7 @@
 
 #include "opengl.hpp"
 #include "data.hpp"
+#include "glob.hpp"
 #include "view.hpp"
 #include "host.hpp"
 #include "prog.hpp"
@@ -174,10 +175,10 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
     BR[0] = +0.5; BR[1] = -0.5; BR[2] = -1.0;
     TL[0] = -0.5; TL[1] = +0.5; TL[2] = -1.0;
 
-    window_rect[0] = buffer_rect[0][0] = buffer_rect[1][0] =   0;
-    window_rect[1] = buffer_rect[0][1] = buffer_rect[1][1] =   0;
-    window_rect[2] = buffer_rect[0][2] = buffer_rect[1][2] = 800;
-    window_rect[3] = buffer_rect[0][3] = buffer_rect[1][3] = 600;
+    window_rect[0] =   0;
+    window_rect[1] =   0;
+    window_rect[2] = 800;
+    window_rect[3] = 600;
 
     varrier[0] = 100.00;
     varrier[1] =   0.00;
@@ -198,28 +199,6 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
             window_rect[2] = atoi(w);
         if (const char *h = mxmlElementGetAttr(elem, "h"))
             window_rect[3] = atoi(h);
-    }
-
-    // Extract the buffer viewport rectangle(s).
-
-    MXML_FORALL(elem, curr, "eye")
-    {
-        int i = 0;
-
-        if (const char *e = mxmlElementGetAttr(curr, "e"))
-            i = atoi(e);
-
-        if (0 <= i && i <= 1)
-        {
-            if (const char *x = mxmlElementGetAttr(curr, "x"))
-                buffer_rect[i][0] = atoi(x);
-            if (const char *y = mxmlElementGetAttr(curr, "y"))
-                buffer_rect[i][1] = atoi(y);
-            if (const char *w = mxmlElementGetAttr(curr, "w"))
-                buffer_rect[i][2] = atoi(w);
-            if (const char *h = mxmlElementGetAttr(curr, "h"))
-                buffer_rect[i][3] = atoi(h);
-        }
     }
 
     // Extract the screen corners.
@@ -259,37 +238,123 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
         if (const char *c = mxmlElementGetAttr(elem, "c"))
             varrier[4] = atof(c);
     }
+
+    // Compute the remaining screen corner and screen extents.
+
+    TR[0] = BR[0] + TL[0] - BL[0];
+    TR[1] = BR[1] + TL[1] - BL[1];
+    TR[2] = BR[2] + TL[2] - BL[2];
+
+    W = sqrt(pow(BR[0] - BL[0], 2.0) +
+             pow(BR[1] - BL[1], 2.0) +
+             pow(BR[2] - BL[2], 2.0));
+    H = sqrt(pow(TL[0] - BL[0], 2.0) +
+             pow(TL[1] - BL[1], 2.0) +
+             pow(TL[2] - BL[2], 2.0));
 }
 
 //-----------------------------------------------------------------------------
 
-void app::tile::draw()
+void app::tile::draw(std::vector<ogl::frame *>& frames,
+                           const ogl::program  *expose)
 {
-    double P[3] = { 0.0, 0.0, 0.0 };
-
-    if (type == mono_type)
+    if (frames.size() == 1)
     {
-        glViewport(window_rect[0], window_rect[1],
-                   window_rect[2], window_rect[3]);
-        glScissor (window_rect[0], window_rect[1],
-                   window_rect[2], window_rect[3]);
+        double P[3] = { 0.0, 0.0, 0.0 };
 
-        ::view->set_P(P, BL, BR, TL);
-        ::prog->draw();
+        // Render the view to the off-screen framebuffer.
+
+        frames[0]->bind(false);
+        {
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            ::view->set_P(P, BL, BR, TL, TR);
+            ::prog->draw();
+        }
+        frames[0]->free(false);
+
+        // bind the off-screen framebuffer as texture.
+
+        frames[0]->bind_color(GL_TEXTURE0);
+
+        expose->bind();
+        expose->uniform("map", 0);
     }
-    if (type == varrier_type)
+    else
     {
-/*
-        double L[3] = { 0.0, 0.0, -0.125 };
-        double R[3] = { 0.0, 0.0, +0.125 };
+        double L[3] = { -0.125, 0.0, 0.0 };
+        double R[3] = { +0.125, 0.0, 0.0 };
 
-        ::view->set_P(L, BL, BR, TL);
-        ::prog->draw();
+        // Render the left eye view to the off-screen framebuffer.
 
-        ::view->set_P(R, BL, BR, TL);
-        ::prog->draw();
-*/
+        frames[0]->bind();
+        {
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            ::view->set_P(L, BL, BR, TL, TR);
+            ::prog->draw();
+        }
+        frames[0]->free();
+
+        // Render the right eye view to the off-screen framebuffer.
+
+        frames[1]->bind();
+        {
+            glClear(GL_COLOR_BUFFER_BIT);
+
+            ::view->set_P(R, BL, BR, TL, TR);
+            ::prog->draw();
+        }
+        frames[1]->free();
+
+        // Bind the off-screen framebuffers as textures.
+
+        frames[0]->bind_color(GL_TEXTURE0);
+        frames[1]->bind_color(GL_TEXTURE1);
+
+        expose->bind();
+        expose->uniform("L_map", 0);
+        expose->uniform("R_map", 1);
     }
+
+    // Set the off-screen to on-screen mapping and render.
+
+    int buffer_w = ::host->get_buffer_w();
+    int buffer_h = ::host->get_buffer_h();
+
+    expose->uniform("k",  double(buffer_w) / double(window_rect[2]),
+                          double(buffer_h) / double(window_rect[3]));
+    expose->uniform("d",                    -double(window_rect[0]),
+                                            -double(window_rect[1]));
+
+    // Draw a tile-filling rectangle.
+
+    glViewport(window_rect[0], window_rect[1],
+               window_rect[2], window_rect[3]);
+
+    glMatrixMode(GL_PROJECTION);
+    {
+        glLoadIdentity();
+        glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
+    }
+    glMatrixMode(GL_MODELVIEW);
+    {
+        glLoadIdentity();
+    }
+
+    glBegin(GL_QUADS);
+    {
+        glVertex2f(-W / 2, -H / 2);
+        glVertex2f(+W / 2, -H / 2);
+        glVertex2f(+W / 2, +H / 2);
+        glVertex2f(-W / 2, +H / 2);
+    }
+    glEnd();
+
+    expose->free();
+
+    frames[1]->free_color(GL_TEXTURE1);
+    frames[0]->free_color(GL_TEXTURE0);
 }
 
 //=============================================================================
@@ -434,12 +499,19 @@ void app::host::fini_client()
 
 app::host::host(std::string& file,
                 std::string& tag) :
-    server(INVALID_SOCKET), mods(0), head(0), node(0)
+    server(INVALID_SOCKET), mods(0),
+    vert("glsl/blitbuff.vert"),
+    frag("glsl/blitbuff.frag"),
+    expose(0), head(0), node(0)
 {
     window_rect[0] =   0;
     window_rect[1] =   0;
     window_rect[2] = 800;
     window_rect[3] = 600;
+
+    buffer_w = 800;
+    buffer_h = 600;
+    buffer_n =   0;
 
     // Read host.xml and configure using tag match.
 
@@ -447,7 +519,7 @@ app::host::host(std::string& file,
 
     if (node)
     {
-        // Extract host config parameters.
+        // Extract the window parameters.
 
         if (mxml_node_t *window = mxmlFindElement(node, node, "window",
                                                   0, 0, MXML_DESCEND_FIRST))
@@ -461,6 +533,26 @@ app::host::host(std::string& file,
             if (const char *h = mxmlElementGetAttr(window, "h"))
                 window_rect[3] = atoi(h);
         }
+
+        // Extract the buffer parameters
+
+        if (mxml_node_t *buffer = mxmlFindElement(node, node, "buffer",
+                                                  0, 0, MXML_DESCEND_FIRST))
+        {
+            if (const char *n = mxmlElementGetAttr(buffer, "n"))
+                buffer_n = atoi(n);
+            if (const char *w = mxmlElementGetAttr(buffer, "w"))
+                buffer_w = atoi(w);
+            if (const char *h = mxmlElementGetAttr(buffer, "h"))
+                buffer_h = atoi(h);
+        }
+
+        // Extract render program names.
+
+        if (const char *name = mxmlElementGetAttr(node, "vert"))
+            vert = std::string(name);
+        if (const char *name = mxmlElementGetAttr(node, "frag"))
+            frag = std::string(name);
 
         // Exctract tile config parameters.
 
@@ -476,6 +568,8 @@ app::host::host(std::string& file,
     }
 
     tock = SDL_GetTicks();
+
+    // Initialize offscreen buffers, as necessary.
 }
 
 app::host::~host()
@@ -609,14 +703,27 @@ void app::host::loop()
 
 void app::host::draw()
 {
-    std::vector<tile>::iterator i;
+    // Instanciate frame buffer objects if necessary.
 
-    glClear(GL_COLOR_BUFFER_BIT);
+    if (buffer_n > 0 && frames.empty())
+        for (int i = 0; i < buffer_n; ++i)
+            frames.push_back(::glob->new_frame(buffer_w, buffer_h,
+                                               GL_TEXTURE_RECTANGLE_ARB,
+                                               GL_RGBA8, true, false));
+
+    if (expose == 0)
+        expose = ::glob->load_program(vert, frag);
+
+    // Draw all tiles.
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (!tiles.empty())
     {
+        std::vector<tile>::iterator i;
+
         for (i = tiles.begin(); i != tiles.end(); ++i)
-            i->draw();
+            i->draw(frames, expose);
     }
     else
     {

@@ -17,7 +17,9 @@
 #include <vector>
 #include <mxml.h>
 
+#include "program.hpp"
 #include "socket.hpp"
+#include "frame.hpp"
 
 #define DEFAULT_HOST_FILE "host.xml"
 #define DEFAULT_TAG       "default"
@@ -70,7 +72,7 @@ namespace app
     {
     public:
 
-        enum tile_type { mono_type, varrier_type };
+        enum tile_type { mono_type, varrier_type, anaglyph_type };
         enum tile_mode { normal_mode, test_mode  };
 
     private:
@@ -81,9 +83,12 @@ namespace app
         double BL[3];
         double BR[3];
         double TL[3];
+        double TR[3];
 
-        int window_rect   [4];
-        int buffer_rect[2][4];
+        double W;
+        double H;
+
+        int window_rect[4];
 
         double varrier[5];
 
@@ -91,7 +96,7 @@ namespace app
 
         tile(mxml_node_t *);
 
-        void draw();
+        void draw(std::vector<ogl::frame *>&, const ogl::program *);
     };
 
     //-------------------------------------------------------------------------
@@ -139,7 +144,17 @@ namespace app
         // Window config
 
         int window_rect[4];
-        std::vector<tile> tiles;
+        int buffer_n;
+        int buffer_w;
+        int buffer_h;
+
+        std::vector<tile>         tiles;
+        std::vector<ogl::frame *> frames;
+
+        std::string vert;
+        std::string frag;
+
+        const ogl::program *expose;
 
         // Config IO
 
@@ -156,10 +171,13 @@ namespace app
         void loop();
         void draw();
 
-        int get_x() const { return window_rect[0]; }
-        int get_y() const { return window_rect[1]; }
-        int get_w() const { return window_rect[2]; }
-        int get_h() const { return window_rect[3]; }
+        int get_window_x() const { return window_rect[0]; }
+        int get_window_y() const { return window_rect[1]; }
+        int get_window_w() const { return window_rect[2]; }
+        int get_window_h() const { return window_rect[3]; }
+
+        int get_buffer_w() const { return buffer_w; }
+        int get_buffer_h() const { return buffer_h; }
 
         int modifiers() const { return mods; }
     };

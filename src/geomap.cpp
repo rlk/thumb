@@ -727,8 +727,6 @@ uni::geomap::geomap(std::string name,
 {
     if (loader == 0) init();
 
-//  setup_debug();
-
     // Compute the depth of the mipmap pyramid.
 
     int S = s;

@@ -112,14 +112,16 @@ void app::view::set_M(const double *M)
 void app::view::set_P(const double *vp,
                       const double *bl,
                       const double *br,
-                      const double *tl)
+                      const double *tl,
+                      const double *tr)
 {
-    // Store the given frustum points.
+    // Store the frustum points.
 
     VP[0] = vp[0]; VP[1] = vp[1]; VP[2] = vp[2];
     BL[0] = bl[0]; BL[1] = bl[1]; BL[2] = bl[2];
     BR[0] = br[0]; BR[1] = br[1]; BR[2] = br[2];
     TL[0] = tl[0]; TL[1] = tl[1]; TL[2] = tl[2];
+    TR[0] = tr[0]; TR[1] = tr[1]; TR[2] = tr[2];
 
     // Find the basis of the screen space.
 
@@ -127,17 +129,17 @@ void app::view::set_P(const double *vp,
     double U[3];
     double N[3];
 
-    R[0] = BR[0] - BL[0];
-    R[1] = BR[1] - BL[1];
-    R[2] = BR[2] - BL[2];
+    R[0]  = BR[0] - BL[0];
+    R[1]  = BR[1] - BL[1];
+    R[2]  = BR[2] - BL[2];
 
-    U[0] = TL[0] - BL[0];
-    U[1] = TL[1] - BL[1];
-    U[2] = TL[2] - BL[2];
+    U[0]  = TL[0] - BL[0];
+    U[1]  = TL[1] - BL[1];
+    U[2]  = TL[2] - BL[2];
 
-    N[0] = R[1] * U[2] - R[2] * U[1];
-    N[1] = R[2] * U[0] - R[0] * U[2];
-    N[2] = R[0] * U[1] - R[1] * U[0];
+    N[0]  = R[1] * U[2] - R[2] * U[1];
+    N[1]  = R[2] * U[0] - R[0] * U[2];
+    N[2]  = R[0] * U[1] - R[1] * U[0];
 
     normalize(R);
     normalize(U);
@@ -324,6 +326,22 @@ void app::view::home()
 
 void app::view::world_frustum(double *V) const
 {
+    // View plane.
+
+    V[0] =  0;
+    V[1] =  0;
+    V[2] = -1;
+    V[3] =  0;
+
+    get_plane(V +  4, VP, BL, TL);    // Left
+    get_plane(V +  8, VP, TR, BR);    // Right
+    get_plane(V + 12, VP, BR, BL);    // Bottom
+    get_plane(V + 16, VP, TL, TR);    // Top
+}
+
+/*
+void app::view::world_frustum(double *V) const
+{
     const double A = double(w) / double(h);
     const double Z = 1.0;
 
@@ -368,7 +386,9 @@ void app::view::world_frustum(double *V) const
     normalize(V +  4);
     normalize(V +  8);
     normalize(V + 12);
+    normalize(V + 16);
 }
+*/
 
 void app::view::plane_frustum(double *V) const
 {

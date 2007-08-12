@@ -31,7 +31,7 @@ void main()
 
     G = dot(N, gl_LightSource[0].position.xyz);
 
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    gl_TexCoord[0] = gl_MultiTexCoord0;
     gl_TexCoord[1] = gl_TextureMatrix[1] * eye;
     gl_TexCoord[2] = gl_TextureMatrix[2] * eye;
     gl_TexCoord[3] = gl_TextureMatrix[3] * eye;

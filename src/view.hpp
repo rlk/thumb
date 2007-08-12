@@ -34,6 +34,7 @@ namespace app
         double BL[3];
         double BR[3];
         double TL[3];
+        double TR[3];
 
         double R[3];
         double U[3];
@@ -55,7 +56,7 @@ namespace app
         void get_P(      double *);
         void set_M(const double *);
         void set_P(const double *, const double *,
-                   const double *, const double *);
+                   const double *, const double *, const double *);
 
         void turn(double, double, double);
         void move(double, double, double);

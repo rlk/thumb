@@ -4,6 +4,22 @@
 
 //-----------------------------------------------------------------------------
 
+std::vector<GLuint> ogl::frame::stack;
+
+void ogl::frame::push(GLuint o)
+{
+    stack.push_back(o);
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, stack.back());
+}
+
+void ogl::frame::pop()
+{
+    stack.pop_back();
+    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, stack.back());
+}
+
+//-----------------------------------------------------------------------------
+
 ogl::frame::frame(GLsizei w, GLsizei h, GLenum t, GLenum f, bool d, bool s) :
     target(t),
     format(f),
@@ -15,6 +31,8 @@ ogl::frame::frame(GLsizei w, GLsizei h, GLenum t, GLenum f, bool d, bool s) :
     w(w),
     h(h)
 {
+    if (stack.empty()) stack.push_back(0);
+
     init();
 }
 
@@ -71,7 +89,7 @@ void ogl::frame::bind(bool proj) const
 
     // Enable this framebuffer object's state.
 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer);
+    push(buffer);
 
     glViewport(0, 0, w, h);
 
@@ -108,7 +126,7 @@ void ogl::frame::free(bool proj) const
 
     glPopAttrib();
 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    pop();
 
     OGLCK();
 }
@@ -153,10 +171,7 @@ void ogl::frame::init()
 
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-/*
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-*/
+
         glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
         glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
@@ -169,7 +184,7 @@ void ogl::frame::init()
     // Initialize the frame buffer object.
 
     glGenFramebuffersEXT(1, &buffer);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, buffer);
+    push(buffer);
 
     if (has_stencil)
         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
@@ -215,7 +230,7 @@ void ogl::frame::init()
         throw std::runtime_error("Framebuffer error");
     }
 
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    pop();
 
     OGLCK();
 }
