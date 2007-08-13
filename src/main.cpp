@@ -128,7 +128,7 @@ static void video()
 {
     // Look up the video mode parameters.
 
-    int m = SDL_OPENGL;
+    int m = host->get_window_m() | SDL_OPENGL;
     int x = host->get_window_x();
     int y = host->get_window_y();
     int w = host->get_window_w();

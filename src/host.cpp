@@ -282,8 +282,8 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
     }
     else
     {
-        double L[3] = { -0.125, 0.0, 0.0 };
-        double R[3] = { +0.125, 0.0, 0.0 };
+        double L[3] = { -0.125, 4.25, 0.0 };
+        double R[3] = { +0.125, 4.25, 0.0 };
 
         // Render the left eye view to the off-screen framebuffer.
 
@@ -500,8 +500,12 @@ void app::host::fini_client()
 app::host::host(std::string& file,
                 std::string& tag) :
     server(INVALID_SOCKET), mods(0),
+/*
     vert("glsl/blitbuff.vert"),
     frag("glsl/blitbuff.frag"),
+*/
+    vert("glsl/anaglyph.vert"),
+    frag("glsl/anaglyph.frag"),
     expose(0), head(0), node(0)
 {
     window_rect[0] =   0;
@@ -729,6 +733,8 @@ void app::host::draw()
     {
         ::prog->draw();
     }
+
+    glFinish();
 }
 
 //-----------------------------------------------------------------------------

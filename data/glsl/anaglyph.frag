@@ -1,7 +1,7 @@
 #extension GL_ARB_texture_rectangle : enable
 
-uniform samplerRect L_map;
-uniform samplerRect R_map;
+uniform sampler2DRect L_map;
+uniform sampler2DRect R_map;
 
 uniform vec2 k;
 uniform vec2 d;
@@ -12,8 +12,8 @@ void main()
 
     vec2 p = (gl_FragCoord.xy + d) * k;
 
-    const vec4 L = textureRect(L_map, p);
-    const vec4 R = textureRect(R_map, p);
+    const vec4 L = texture2DRect(L_map, p);
+    const vec4 R = texture2DRect(R_map, p);
 
     gl_FragColor = vec4(dot(L, luma) * 0.36, 0.0, dot(R, luma), 1.0);
 }
