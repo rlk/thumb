@@ -17,6 +17,7 @@
 #include <string.h>
 #include <errno.h>
 
+#include "tracker.hpp"
 #include "opengl.hpp"
 #include "data.hpp"
 #include "glob.hpp"
@@ -62,7 +63,8 @@ public:
 #define E_KEYBD 5
 #define E_TIMER 6
 #define E_PAINT 7
-#define E_CLOSE 8
+#define E_FLEEP 8
+#define E_CLOSE 9
 
 //-----------------------------------------------------------------------------
 
@@ -260,18 +262,18 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
 {
     if (frames.size() == 1)
     {
-        double P[3] = { 0.0, 0.0, 0.0 };
+        double P[3] = { 0.0, 4.25, 0.0 };
 
         // Render the view to the off-screen framebuffer.
 
-        frames[0]->bind(false);
+        frames[0]->bind();
         {
             glClear(GL_COLOR_BUFFER_BIT);
 
             ::view->set_P(P, BL, BR, TL, TR);
             ::prog->draw();
         }
-        frames[0]->free(false);
+        frames[0]->free();
 
         // bind the off-screen framebuffer as texture.
 
@@ -282,8 +284,12 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
     }
     else
     {
+/*
         double L[3] = { -0.125, 4.25, 0.0 };
         double R[3] = { +0.125, 4.25, 0.0 };
+*/
+        double L[3] = { -0.0, 4.25, 0.0 };
+        double R[3] = { +0.0, 4.25, 0.0 };
 
         // Render the left eye view to the off-screen framebuffer.
 
@@ -381,6 +387,37 @@ void app::host::load(std::string& file,
 
 //-----------------------------------------------------------------------------
 
+void app::host::fork_client(const char *addr, const char *name)
+{
+    const char *args[4];
+    char line[256];
+
+    if ((fork() == 0))
+    {
+        sprintf(line, "cd src/thumb; ./thumb %s", name);
+
+        // Allocate and build the client's ssh command line.
+
+        args[0] = "ssh";
+        args[1] = addr;
+        args[2] = line;
+        args[3] = NULL;
+
+        printf("%s %s %s\n", args[0], args[1], args[2]);
+
+        execvp("ssh", (char * const *) args);
+
+        exit(0);
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+static void delay()
+{
+    usleep(250000);
+}
+
 unsigned long app::host::lookup(const char *hostname)
 {
     struct hostent *H;
@@ -424,8 +461,14 @@ void app::host::init_server()
         if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &on, onlen) < 0)
             throw std::runtime_error(strerror(errno));
 
-        if (bind(sd, (struct sockaddr *) &addr, addrlen) < 0)
-            throw std::runtime_error(strerror(errno));
+        while (bind(sd, (struct sockaddr *) &addr, addrlen) < 0)
+            if (errno == EINVAL)
+            {
+                std::cerr << "Waiting for port expiration" << std::endl;
+                delay();
+            }
+            else
+                throw std::runtime_error(strerror(errno));
 
         listen(sd, 5);
 
@@ -443,8 +486,8 @@ void app::host::init_client()
     int       on = 1;
     socklen_t onlen = sizeof (int);
         
-    sockaddr_t addr;
-    socklen_t  addrlen = sizeof (sockaddr_t);
+    sockaddr_t address;
+    socklen_t  addresslen = sizeof (sockaddr_t);
 
     // Handle any client connections.
 
@@ -452,27 +495,36 @@ void app::host::init_client()
 
     MXML_FORALL(node, curr, "client")
     {
-        const char *name = mxmlElementGetAttr(curr, "addr");
+        const char *name = mxmlElementGetAttr(curr, "name");
+        const char *addr = mxmlElementGetAttr(curr, "addr");
         const char *port = mxmlElementGetAttr(curr, "port");
+
+        fork_client(addr, name);
 
         // Look up the given host name.
 
-        addr.sin_family      = AF_INET;
-        addr.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
-        addr.sin_addr.s_addr = lookup(     name ? name : DEFAULT_HOST);
+        address.sin_family      = AF_INET;
+        address.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
+        address.sin_addr.s_addr = lookup(     addr ? addr : DEFAULT_HOST);
 
         // Create a socket and connect.
 
         int cd;
 
         if ((cd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-            throw sock_error(name);
+            throw sock_error(addr);
 
         if (setsockopt(cd, IPPROTO_TCP, TCP_NODELAY, &on, onlen) < 0)
-            throw sock_error(name);
+            throw sock_error(addr);
 
-        if (connect(cd, (struct sockaddr *) &addr, addrlen) < 0)
-            throw sock_error(name);
+        while (connect(cd, (struct sockaddr *) &address, addresslen) < 0)
+            if (errno == ECONNREFUSED)
+            {
+                std::cerr << "Waiting for " << addr << std::endl;
+                delay();
+            }
+            else
+                throw sock_error(addr);
 
         client.push_back(cd);
     }
@@ -500,12 +552,12 @@ void app::host::fini_client()
 app::host::host(std::string& file,
                 std::string& tag) :
     server(INVALID_SOCKET), mods(0),
-/*
     vert("glsl/blitbuff.vert"),
     frag("glsl/blitbuff.frag"),
-*/
+/*
     vert("glsl/anaglyph.vert"),
     frag("glsl/anaglyph.frag"),
+*/
     expose(0), head(0), node(0)
 {
     window_rect[0] =   0;
@@ -572,8 +624,6 @@ app::host::host(std::string& file,
     }
 
     tock = SDL_GetTicks();
-
-    // Initialize offscreen buffers, as necessary.
 }
 
 app::host::~host()
@@ -610,6 +660,25 @@ void app::host::root_loop()
             case SDL_QUIT:            close(); return;
             }
 
+        // Handle tracker events.
+
+        if (tracker_status())
+        {
+            double R[3][3];
+            double p[3];
+            double a[2];
+            bool   b;
+
+            if (tracker_button(0, b)) click(0, b);
+            if (tracker_button(1, b)) click(0, b);
+            if (tracker_button(2, b)) click(0, b);
+
+            if (tracker_sensor(0, p, R)) track(0, p, R[0], R[2]);
+            if (tracker_sensor(1, p, R)) track(1, p, R[0], R[2]);
+
+            if (tracker_values(0, a)) stick(0, a);
+        }
+
         // Call the timer handler for each jiffy that has passed.
 
         while (SDL_GetTicks() - tock >= JIFFY)
@@ -621,6 +690,7 @@ void app::host::root_loop()
         // Call the paint handler.
 
         paint();
+        fleep();
     }
 }
 
@@ -631,7 +701,8 @@ void app::host::node_loop()
     int    c;
     bool   d;
     double p[3];
-    double v[3];
+    double x[3];
+    double z[3];
 
     while (1)
     {
@@ -646,10 +717,13 @@ void app::host::node_loop()
             p[0] = M.get_double();
             p[1] = M.get_double();
             p[2] = M.get_double();
-            v[0] = M.get_double();
-            v[1] = M.get_double();
-            v[2] = M.get_double();
-            track(a, p, v);
+            x[0] = M.get_double();
+            x[1] = M.get_double();
+            x[2] = M.get_double();
+            z[0] = M.get_double();
+            z[1] = M.get_double();
+            z[2] = M.get_double();
+            track(a, p, x, z);
             break;
 
         case E_STICK:
@@ -686,6 +760,10 @@ void app::host::node_loop()
 
         case E_PAINT:
             paint();
+            break;
+
+        case E_FLEEP:
+            fleep();
             break;
 
         case E_CLOSE:
@@ -737,6 +815,11 @@ void app::host::draw()
     glFinish();
 }
 
+int app::host::get_window_m() const
+{
+    return (server == INVALID_SOCKET) ? 0 : SDL_NOFRAME;
+}
+
 //-----------------------------------------------------------------------------
 
 void app::host::send(message& M)
@@ -757,7 +840,7 @@ void app::host::recv(message& M)
 
 //-----------------------------------------------------------------------------
 
-void app::host::track(int d, const double *p, const double *v)
+void app::host::track(int d, const double *p, const double *x, const double *z)
 {
 }
 
@@ -829,6 +912,13 @@ void app::host::paint()
         message R(E_REPLY);
         R.send(server);
     }
+}
+
+void app::host::fleep()
+{
+    message M(E_FLEEP);
+
+    send(M);
 
     SDL_GL_SwapBuffers();
 }

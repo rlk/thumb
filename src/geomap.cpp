@@ -170,7 +170,7 @@ static int loader_func(void *data)
 
     while (N->dequeue(name, &L, &P))
     {
-        std::cout << "loading " << name << std::endl;
+//      std::cout << "loading " << name << std::endl;
 
         // Load and enqueue the page.
 
@@ -887,9 +887,9 @@ void uni::geomap::purge()
         GLuint o = LRU.back()->remove();
         text_P->put(o);
         LRU.pop_back();
-        printf("purged %s %d\n", name.c_str(), o);
+//      printf("purged %s %d\n", name.c_str(), o);
     }
-    else printf("purged NOTHING %s\n", name.c_str());
+//  else printf("purged NOTHING %s\n", name.c_str());
 }
 
 void uni::geomap::used(page *P)

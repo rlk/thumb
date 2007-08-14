@@ -19,6 +19,7 @@
 #include "main.hpp"
 #include "host.hpp"
 #include "util.hpp"
+#include "tracker.hpp"
 #include "opengl.hpp"
 #include "demo.hpp"
 #include "data.hpp"
@@ -141,6 +142,9 @@ static void video()
     if (conf->get_i("window_fullscreen")) m |= SDL_FULLSCREEN;
     if (conf->get_i("window_noframe"))    m |= SDL_NOFRAME;
 
+    if (m & SDL_NOFRAME)
+        SDL_ShowCursor(SDL_DISABLE);
+
     // Initialize the video.
 
     position(x, y);
@@ -180,15 +184,20 @@ static void init(std::string& data_file,
     glob = new app::glob();
     perf = new app::perf();
 
-    view = new app::view(conf->get_i("window_w"),
-                         conf->get_i("window_h"),
+    view = new app::view(host->get_buffer_w(),
+                         host->get_buffer_h(),
                          conf->get_f("view_near"),
                          conf->get_f("view_far"));
     prog = new demo();
+
+    tracker_init(DEFAULT_TRACKER_KEY,
+                 DEFAULT_CONTROL_KEY);
 }
 
 static void fini()
 {
+    tracker_fini();
+
     if (prog) delete prog;
     if (view) delete view;
     if (perf) delete perf;

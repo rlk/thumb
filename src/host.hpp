@@ -111,6 +111,7 @@ namespace app
 
         unsigned long lookup(const char *);
 
+        void fork_client(const char *, const char *);
         void init_server();
         void init_client();
         void fini_server();
@@ -127,13 +128,14 @@ namespace app
 
         // Event handlers
 
-        void track(int, const double *, const double *);
+        void track(int, const double *, const double *, const double *);
         void stick(int, const double *);
         void point(int, int);
         void click(int, bool);
         void keybd(int, int, int, bool);
         void timer(int);
         void paint();
+        void fleep();
         void close();
 
         // Event loops
@@ -175,8 +177,7 @@ namespace app
         int get_window_y() const { return window_rect[1]; }
         int get_window_w() const { return window_rect[2]; }
         int get_window_h() const { return window_rect[3]; }
-        int get_window_m() const { return (server == INVALID_SOCKET) ?
-                                                    0 : SDL_NOFRAME; }
+        int get_window_m() const;
 
         int get_buffer_w() const { return buffer_w; }
         int get_buffer_h() const { return buffer_h; }

@@ -1,7 +1,7 @@
 
 CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
-#CFLAGS= -O3 -ffast-math -fno-rtti -march=athlon64 -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 
@@ -11,7 +11,7 @@ CD= cd
 CP= cp
 
 TARG= ../thumb
-OBJS=   combiner.o \
+OBJS=   tracker.o \
 	opengl.o \
 	aabb.o \
 	obj.o \

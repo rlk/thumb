@@ -49,22 +49,22 @@ void app::view::find_P()
 
     // Compute the extents of the frustum.
 
-    double k = 1.0 / (N[0] * (BL[0] - VP[0]) + 
-                      N[1] * (BL[1] - VP[1]) +
-                      N[2] * (BL[2] - VP[2]));
+    double k = (N[0] * (BL[0] - VP[0]) + 
+                N[1] * (BL[1] - VP[1]) +
+                N[2] * (BL[2] - VP[2]));
 
-    double l = k * n * (R[0] * (VP[0] - BL[0]) +
-                        R[1] * (VP[1] - BL[1]) +
-                        R[2] * (VP[2] - BL[2]));
-    double r = k * n * (R[0] * (VP[0] - BR[0]) +
-                        R[1] * (VP[1] - BR[1]) +
-                        R[2] * (VP[2] - BR[2]));
-    double b = k * n * (U[0] * (VP[0] - BL[0]) +
-                        U[1] * (VP[1] - BL[1]) +
-                        U[2] * (VP[2] - BL[2]));
-    double t = k * n * (U[0] * (VP[0] - TL[0]) +
-                        U[1] * (VP[1] - TL[1]) +
-                        U[2] * (VP[2] - TL[2]));
+    double l = n * (R[0] * (VP[0] - BL[0]) +
+                    R[1] * (VP[1] - BL[1]) +
+                    R[2] * (VP[2] - BL[2])) / k;
+    double r = n * (R[0] * (VP[0] - BR[0]) +
+                    R[1] * (VP[1] - BR[1]) +
+                    R[2] * (VP[2] - BR[2])) / k;
+    double b = n * (U[0] * (VP[0] - BL[0]) +
+                    U[1] * (VP[1] - BL[1]) +
+                    U[2] * (VP[2] - BL[2])) / k;
+    double t = n * (U[0] * (VP[0] - TL[0]) +
+                    U[1] * (VP[1] - TL[1]) +
+                    U[2] * (VP[2] - TL[2])) / k;
 
     // Generate the off-axis projection.
 
@@ -124,10 +124,6 @@ void app::view::set_P(const double *vp,
     TR[0] = tr[0]; TR[1] = tr[1]; TR[2] = tr[2];
 
     // Find the basis of the screen space.
-
-    double R[3];
-    double U[3];
-    double N[3];
 
     R[0]  = BR[0] - BL[0];
     R[1]  = BR[1] - BL[1];

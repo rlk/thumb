@@ -609,7 +609,7 @@ void uni::sphere::draw()
                 vtx.free();
                 dat.idx()->free();
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-*/              
+*/
                 // Draw the atmosphere.
 
                 glEnable(GL_DEPTH_CLAMP_NV);
