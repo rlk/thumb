@@ -22,12 +22,14 @@
 app::view::view(int w, int h, double n, double f) :
     w(w), h(h), n(n), f(f)
 {
+    const double a = double(w) / double(h);
+
     // Set some reasonable defaults.
 
-    VP[0] =  0.0; VP[1] =  0.0; VP[2] =  0.0;
-    BL[0] = -0.5; BL[1] = -0.5; BL[2] = -1.0;
-    BR[0] = +0.5; BR[1] = -0.5; BR[2] = -1.0;
-    TL[0] = -0.5; TL[1] = +0.5; TL[2] = -1.0;
+    VP[0] =  0.0;     VP[1] =  0.0; VP[2] =  0.0;
+    BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
+    BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
+    TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
 
     R[0] = 1.0; R[1] = 0.0; R[2] = 0.0;
     U[0] = 0.0; U[1] = 1.0; U[2] = 0.0;

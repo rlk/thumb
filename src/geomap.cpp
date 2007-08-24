@@ -170,7 +170,7 @@ static int loader_func(void *data)
 
     while (N->dequeue(name, &L, &P))
     {
-//      std::cout << "loading " << name << std::endl;
+        std::cout << "loading " << name << std::endl;
 
         // Load and enqueue the page.
 

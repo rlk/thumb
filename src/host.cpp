@@ -20,6 +20,7 @@
 #include "tracker.hpp"
 #include "opengl.hpp"
 #include "data.hpp"
+#include "conf.hpp"
 #include "glob.hpp"
 #include "view.hpp"
 #include "host.hpp"
@@ -168,19 +169,21 @@ void app::message::recv(SOCKET s)
 
 app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
 {
+    const double a = double(DEFAULT_WIDTH) / double(DEFAULT_HEIGHT);
+
     mxml_node_t *elem;
     mxml_node_t *curr;
 
     // Set some reasonable defaults.
 
-    BL[0] = -0.5; BL[1] = -0.5; BL[2] = -1.0;
-    BR[0] = +0.5; BR[1] = -0.5; BR[2] = -1.0;
-    TL[0] = -0.5; TL[1] = +0.5; TL[2] = -1.0;
+    BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
+    BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
+    TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
 
-    window_rect[0] =   0;
-    window_rect[1] =   0;
-    window_rect[2] = 800;
-    window_rect[3] = 600;
+    window_rect[0] = 0;
+    window_rect[1] = 0;
+    window_rect[2] = DEFAULT_WIDTH;
+    window_rect[3] = DEFAULT_HEIGHT;
 
     varrier[0] = 100.00;
     varrier[1] =   0.00;
@@ -560,14 +563,17 @@ app::host::host(std::string& file,
 */
     expose(0), head(0), node(0)
 {
-    window_rect[0] =   0;
-    window_rect[1] =   0;
-    window_rect[2] = 800;
-    window_rect[3] = 600;
+    int w = ::conf->get_i("window_w");
+    int h = ::conf->get_i("window_h");
 
-    buffer_w = 800;
-    buffer_h = 600;
-    buffer_n =   0;
+    window_rect[0] = 0;
+    window_rect[1] = 0;
+    window_rect[2] = w;
+    window_rect[3] = h;
+
+    buffer_w = w;
+    buffer_h = h;
+    buffer_n = 0;
 
     // Read host.xml and configure using tag match.
 

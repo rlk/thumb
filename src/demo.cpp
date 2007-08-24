@@ -179,8 +179,10 @@ void demo::timer(double dt)
 
 void demo::draw()
 {
-    GLfloat A[4] = { 0.20f, 0.25f, 0.30f, 0.0f };
-//  GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
+//  GLfloat A[4] = { 0.80f, 0.90f, 1.00f, 0.0f };
+//  GLfloat A[4] = { 0.40f, 0.45f, 0.50f, 0.0f };
+//  GLfloat A[4] = { 0.20f, 0.25f, 0.30f, 0.0f };
+    GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
 //  GLfloat A[4] = { 0.00f, 0.00f, 0.00f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
 

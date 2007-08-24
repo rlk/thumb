@@ -1,3 +1,9 @@
+frustum union
+map atlas
+atmosphere
+patch cracking
+crater lake
+
 There's still a bug in geomap when teleporting
 
 tellurion
@@ -6,9 +12,9 @@ tellurion
         geomap resolution select
 
     For the demo
-        cluster sync
-        stereo
-        tracking / interaction
+-       cluster sync
+-       stereo
+-       tracking / interaction
         destination select
         specular map
         cloud map

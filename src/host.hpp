@@ -17,14 +17,10 @@
 #include <vector>
 #include <mxml.h>
 
+#include "default.hpp"
 #include "program.hpp"
 #include "socket.hpp"
 #include "frame.hpp"
-
-#define DEFAULT_HOST_FILE "host.xml"
-#define DEFAULT_TAG       "default"
-#define DEFAULT_HOST      "localhost"
-#define DEFAULT_PORT      "2827"
 
 //-----------------------------------------------------------------------------
 
