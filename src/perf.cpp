@@ -21,8 +21,8 @@
 
 #ifdef NVPM //=================================================================
 
-std::map<UINT, char *> perf::_name;
-std::map<UINT, UINT64> perf::_hint;
+std::map<UINT, char *> app::perf::_name;
+std::map<UINT, UINT64> app::perf::_hint;
 
 int app::perf::counter(UINT index, char *name)
 {
@@ -151,6 +151,7 @@ app::perf::~perf()
 
 void app::perf::step()
 {
+/*
     static int last = 0;
     
     int dt = int(SDL_GetTicks()) - last;
@@ -160,10 +161,12 @@ void app::perf::step()
     last   += dt;
 
     if (frames == limit) dump();
+*/
 }
 
 void app::perf::dump()
 {
+/*
     int fps = int(ceil(1000.0 * frames / ticks));
 
     frames = 0;
@@ -175,6 +178,7 @@ void app::perf::dump()
 
     SDL_WM_SetCaption(str.str().c_str(),
                       str.str().c_str());
+*/
 }
 
 #endif // not NVPM ============================================================

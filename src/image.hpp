@@ -35,6 +35,7 @@ namespace ogl
        ~image();
 
         void blit(const GLubyte *, GLsizei, GLsizei, GLsizei, GLsizei);
+        void zero();
 
         void bind(GLenum=GL_TEXTURE0) const;
         void free(GLenum=GL_TEXTURE0) const;

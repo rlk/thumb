@@ -107,7 +107,8 @@ extern PFNGLDRAWRANGEELEMENTSEXTPROC        glDrawRangeElementsEXT;
 //-----------------------------------------------------------------------------
 
 #ifndef NDEBUG
-#define OGLCK() ogl::check_err(__FILE__, __LINE__)
+//#define OGLCK() ogl::check_err(__FILE__, __LINE__)
+#define OGLCK() {}
 #else
 #define OGLCK() {}
 #endif

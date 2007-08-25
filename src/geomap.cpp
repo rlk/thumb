@@ -744,7 +744,7 @@ uni::geomap::geomap(std::string name,
     // Initialize the load queue.
 
     load_Q = new loaded_queue;
-    text_P = new texture_pool(32, s, c, b);
+    text_P = new texture_pool(16, s, c, b);
 }
 
 uni::geomap::~geomap()

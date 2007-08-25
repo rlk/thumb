@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <stdexcept>
+#include <cassert>
 
 #include "font.hpp"
 #include "data.hpp"
@@ -55,25 +56,36 @@ void app::glyph::draw(int x, int y) const
 
 static int next_power_of_2(int n)
 {
-    int m = 1;
+    if (n > 0)
+    {
+        int m = 1;
 
-    while (m < n)
-        m <<= 1;
+        while (m < n)
+            m <<= 1;
 
-    return m;
+        return m;
+    }
+    return 0;
 }
 
-app::text::text(int w, int h) : x(0), y(0), inner_w(w), inner_h(h)
+app::text::text(int w, int h) :
+    data(0),
+    x(0), y(0),
+    inner_w(w),
+    inner_h(h),
+    outer_w(0),
+    outer_h(0)
 {
     outer_w = next_power_of_2(inner_w);
     outer_h = next_power_of_2(inner_h);
 
-    data = ::glob->new_image(outer_w, outer_h, GL_TEXTURE_2D, GL_RGBA8);
+    if (outer_w && outer_h)
+        data = ::glob->new_image(outer_w, outer_h, GL_TEXTURE_2D, GL_RGBA8);
 }
 
 app::text::~text()
 {
-    ::glob->free_image(data);
+    if (data) ::glob->free_image(data);
 }
 
 void app::text::move(int x, int y)
@@ -114,32 +126,38 @@ void app::text::draw(int i) const
 {
     // Draw only the requested glyph.
 
-    data->bind();
+    if (data)
     {
-        map[i].draw(x, y);
+        data->bind();
+        {
+            map[i].draw(x, y);
+        }
+        data->free();
     }
-    data->free();
 }
 
 void app::text::draw() const
 {
-    const float s = float(inner_w) / float(outer_w);
-    const float t = float(inner_h) / float(outer_h);
-    
-    // Draw the entire textured string at once.
-    
-    data->bind();
+    if (data)
     {
-        glBegin(GL_QUADS);
+        const float s = float(inner_w) / float(outer_w);
+        const float t = float(inner_h) / float(outer_h);
+    
+        // Draw the entire textured string at once.
+    
+        data->bind();
         {
-            glTexCoord2f(0, t); glVertex2i(x,           y);
-            glTexCoord2f(0, 0); glVertex2i(x,           y + inner_h);
-            glTexCoord2f(s, 0); glVertex2i(x + inner_w, y + inner_h);
-            glTexCoord2f(s, t); glVertex2i(x + inner_w, y);
+            glBegin(GL_QUADS);
+            {
+                glTexCoord2f(0, t); glVertex2i(x,           y);
+                glTexCoord2f(0, 0); glVertex2i(x,           y + inner_h);
+                glTexCoord2f(s, 0); glVertex2i(x + inner_w, y + inner_h);
+                glTexCoord2f(s, t); glVertex2i(x + inner_w, y);
+            }
+            glEnd();
         }
-        glEnd();
+        data->free();
     }
-    data->free();
 }
 
 void app::text::add(int x, int w)
@@ -153,7 +171,11 @@ void app::text::set(const GLubyte *p)
 {
     // Copy the given glyph image to the data object.
 
-    data->blit(p, 0, 0, inner_w, inner_h);
+    if (data)
+    {
+        data->zero();
+        data->blit(p, 0, 0, inner_w, inner_h);
+    }
 }
 
 //-----------------------------------------------------------------------------

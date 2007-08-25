@@ -42,6 +42,17 @@ void ogl::image::blit(const GLubyte *P, GLsizei X, GLsizei Y,
     OGLCK();
 }
 
+void ogl::image::zero()
+{
+    bind();
+    {
+        glTexImage2D(target, 0, format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+    }
+    free();
+
+    OGLCK();
+}
+
 //-----------------------------------------------------------------------------
 
 void ogl::image::bind(GLenum unit) const
@@ -92,7 +103,7 @@ void ogl::image::init()
 
 void ogl::image::fini()
 {
-    // Allocate and store a copy of the image.
+    // Allocate and store a copy of the image in main memory.
 
     p = new GLubyte[w * h * 4];
 

@@ -151,6 +151,8 @@ static void video()
 
     if (SDL_SetVideoMode(w, h, b, m) == 0)
         throw std::runtime_error(SDL_GetError());
+    
+    SDL_WM_SetCaption("Thumb", "Thumb");
 
     // Initialize the OpenGL state.
 
