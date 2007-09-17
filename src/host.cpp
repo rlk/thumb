@@ -263,6 +263,17 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
 void app::tile::draw(std::vector<ogl::frame *>& frames,
                            const ogl::program  *expose)
 {
+    if (frames.size() == 0)
+    {
+        double P[3] = { 0.0, 4.25, 0.0 };
+
+        glViewport(window_rect[0], window_rect[1],
+                   window_rect[2], window_rect[3]);
+
+        ::view->set_P(P, BL, BR, TL, TR);
+        ::prog->draw();
+    }
+
     if (frames.size() == 1)
     {
         double P[3] = { 0.0, 4.25, 0.0 };
@@ -285,7 +296,8 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
         expose->bind();
         expose->uniform("map", 0);
     }
-    else
+
+    if (frames.size() == 2)
     {
 /*
         double L[3] = { -0.125, 4.25, 0.0 };
@@ -328,42 +340,45 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
 
     // Set the off-screen to on-screen mapping and render.
 
-    int buffer_w = ::host->get_buffer_w();
-    int buffer_h = ::host->get_buffer_h();
-
-    expose->uniform("k",  double(buffer_w) / double(window_rect[2]),
-                          double(buffer_h) / double(window_rect[3]));
-    expose->uniform("d",                    -double(window_rect[0]),
-                                            -double(window_rect[1]));
-
-    // Draw a tile-filling rectangle.
-
-    glViewport(window_rect[0], window_rect[1],
-               window_rect[2], window_rect[3]);
-
-    glMatrixMode(GL_PROJECTION);
+    if (frames.size() > 0)
     {
-        glLoadIdentity();
-        glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
-    }
-    glMatrixMode(GL_MODELVIEW);
-    {
-        glLoadIdentity();
-    }
+        int buffer_w = ::host->get_buffer_w();
+        int buffer_h = ::host->get_buffer_h();
 
-    glBegin(GL_QUADS);
-    {
-        glVertex2f(-W / 2, -H / 2);
-        glVertex2f(+W / 2, -H / 2);
-        glVertex2f(+W / 2, +H / 2);
-        glVertex2f(-W / 2, +H / 2);
+        expose->uniform("k",  double(buffer_w) / double(window_rect[2]),
+                              double(buffer_h) / double(window_rect[3]));
+        expose->uniform("d",                    -double(window_rect[0]),
+                                                -double(window_rect[1]));
+
+        // Draw a tile-filling rectangle.
+
+        glViewport(window_rect[0], window_rect[1],
+                   window_rect[2], window_rect[3]);
+
+        glMatrixMode(GL_PROJECTION);
+        {
+            glLoadIdentity();
+            glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glLoadIdentity();
+        }
+
+        glBegin(GL_QUADS);
+        {
+            glVertex2f(-W / 2, -H / 2);
+            glVertex2f(+W / 2, -H / 2);
+            glVertex2f(+W / 2, +H / 2);
+            glVertex2f(-W / 2, +H / 2);
+        }
+        glEnd();
+
+        expose->free();
+
+        frames[1]->free_color(GL_TEXTURE1);
+        frames[0]->free_color(GL_TEXTURE0);
     }
-    glEnd();
-
-    expose->free();
-
-    frames[1]->free_color(GL_TEXTURE1);
-    frames[0]->free_color(GL_TEXTURE0);
 }
 
 //=============================================================================
@@ -397,6 +412,8 @@ void app::host::fork_client(const char *addr, const char *name)
 
     if ((fork() == 0))
     {
+        // TODO: generalize this
+
         sprintf(line, "cd src/thumb; ./thumb %s", name);
 
         // Allocate and build the client's ssh command line.
@@ -492,17 +509,24 @@ void app::host::init_client()
     sockaddr_t address;
     socklen_t  addresslen = sizeof (sockaddr_t);
 
-    // Handle any client connections.
-
     mxml_node_t *curr;
+
+    // Launch all client processes.
 
     MXML_FORALL(node, curr, "client")
     {
         const char *name = mxmlElementGetAttr(curr, "name");
         const char *addr = mxmlElementGetAttr(curr, "addr");
-        const char *port = mxmlElementGetAttr(curr, "port");
 
         fork_client(addr, name);
+    }
+
+    // Initialize all client connections.
+
+    MXML_FORALL(node, curr, "client")
+    {
+        const char *addr = mxmlElementGetAttr(curr, "addr");
+        const char *port = mxmlElementGetAttr(curr, "port");
 
         // Look up the given host name.
 

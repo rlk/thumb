@@ -1,8 +1,11 @@
+parallelize cluster startup
+restructure tile draw to support direct rendering
+serious far clipping issue in tile mode
+fix the gui to work with tile rendering
 frustum union
 map atlas
-atmosphere
 patch cracking
-crater lake
+more data
 
 There's still a bug in geomap when teleporting
 

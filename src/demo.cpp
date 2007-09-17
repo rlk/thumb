@@ -158,9 +158,9 @@ void demo::timer(double dt)
     // Determine the rate of motion.
 
     if (::host->modifiers() & KMOD_CTRL)
-        k = dt * view_move_rate;
-    else
         k = dt * universe.rate();
+    else
+        k = dt * view_move_rate;
 
     if (::host->modifiers() & KMOD_SHIFT)
         k *= 10.0;
@@ -187,8 +187,8 @@ void demo::draw()
     GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
 
 //  glClearColor(0.6f, 0.7f, 8.0f, 0.0f);
-//  glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
-    glClearColor(0, 0, 0, 0);
+    glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
+//  glClearColor(0, 0, 0, 0);
     
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
@@ -202,11 +202,11 @@ void demo::draw()
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
-
+/*
         view->push();
         universe.draw();
         view->pop();
-
+*/
         // Compute the view frusta.
 
         view->plane_frustum(planes);
