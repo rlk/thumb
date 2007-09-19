@@ -265,7 +265,8 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
 {
     if (frames.size() == 0)
     {
-        double P[3] = { 0.0, 4.25, 0.0 };
+//      double P[3] = { 0.0, 4.25, 0.0 };
+        double P[3] = { 0.0, 0.0, 0.0 };
 
         glViewport(window_rect[0], window_rect[1],
                    window_rect[2], window_rect[3]);
@@ -405,6 +406,30 @@ void app::host::load(std::string& file,
 
 //-----------------------------------------------------------------------------
 
+static unsigned long lookup(const char *hostname)
+{
+    struct hostent *H;
+    struct in_addr  A;
+
+    if ((H = gethostbyname(hostname)) == 0)
+        throw host_error(hostname);
+
+    memcpy(&A.s_addr, H->h_addr_list[0], H->h_length);
+
+    return A.s_addr;
+}
+
+static void nodelay(int sd)
+{
+    socklen_t len = sizeof (int);
+    int       val = 1;
+        
+    if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &val, len) < 0)
+        throw std::runtime_error(strerror(errno));
+}
+
+//-----------------------------------------------------------------------------
+
 void app::host::fork_client(const char *addr, const char *name)
 {
     const char *args[4];
@@ -423,8 +448,6 @@ void app::host::fork_client(const char *addr, const char *name)
         args[2] = line;
         args[3] = NULL;
 
-        printf("%s %s %s\n", args[0], args[1], args[2]);
-
         execvp("ssh", (char * const *) args);
 
         exit(0);
@@ -433,82 +456,134 @@ void app::host::fork_client(const char *addr, const char *name)
 
 //-----------------------------------------------------------------------------
 
-static void delay()
+void app::host::init_listen()
 {
-    usleep(250000);
-}
+    const char *port = mxmlElementGetAttr(node, "port");
 
-unsigned long app::host::lookup(const char *hostname)
-{
-    struct hostent *H;
-    struct in_addr  A;
+    // If we have a port assignment then we must listen on it.
 
-    if ((H = gethostbyname(hostname)) == 0)
-        throw host_error(hostname);
-
-    memcpy(&A.s_addr, H->h_addr_list[0], H->h_length);
-
-    return A.s_addr;
-}
-
-void app::host::init_server()
-{
-    int       on = 1;
-    socklen_t onlen = sizeof (int);
-        
-    sockaddr_t addr;
-    socklen_t  addrlen = sizeof (sockaddr_t);
-
-    // Handle any server connection.
-
-    const char *root = mxmlElementGetAttr(node, "root");
-
-    if (root == 0 || strcmp(root, "true"))
+    if (port)
     {
-        const char *port = mxmlElementGetAttr(node, "port");
+        socklen_t  addresslen = sizeof (sockaddr_t);
+        sockaddr_t address;
 
-        addr.sin_family      = AF_INET;
-        addr.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
-        addr.sin_addr.s_addr = INADDR_ANY;
+        address.sin_family      = AF_INET;
+        address.sin_port        = htons(atoi(port));
+        address.sin_addr.s_addr = INADDR_ANY;
 
-        // Create a socket, listen, and accept a connection.
+        // Create a socket, set no-delay, bind the port, and listen.
 
-        int sd;
-
-        if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        if ((listen_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
             throw std::runtime_error(strerror(errno));
 
-        if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &on, onlen) < 0)
-            throw std::runtime_error(strerror(errno));
-
-        while (bind(sd, (struct sockaddr *) &addr, addrlen) < 0)
+        while (bind(listen_sd, (struct sockaddr *) &address, addresslen) < 0)
             if (errno == EINVAL)
             {
                 std::cerr << "Waiting for port expiration" << std::endl;
-                delay();
+                usleep(250000);
             }
-            else
-                throw std::runtime_error(strerror(errno));
+            else throw std::runtime_error(strerror(errno));
 
-        listen(sd, 5);
-
-        if ((server = accept(sd, 0, 0)) < 0)
-            throw std::runtime_error(strerror(errno));
-
-        // The incoming socket is not needed after a connection is made.
-
-        ::close(sd);
+        listen(listen_sd, 16);
     }
 }
 
+void app::host::poll_listen()
+{
+    // NOTE: This must not occur between a host::send/host::recv pair.
+
+    if (listen_sd != INVALID_SOCKET)
+    {
+        struct timeval tv = { 0, 0 };
+
+        fd_set sd;
+        
+        FD_ZERO(&sd);
+        FD_SET(listen_sd, &sd);
+
+        // Check for an incomming client connection.
+
+        if (int n = select(listen_sd + 1, &sd, NULL, NULL, &tv))
+        {
+            if (n < 0)
+                throw sock_error("select");
+            else
+            {
+                // Accept the connection.
+
+                if (int sd = accept(listen_sd, 0, 0))
+                {
+                    if (sd < 0)
+                        throw sock_error("accept");
+                    else
+                    {
+                        nodelay(sd);
+                        client_sd.push_back(sd);
+                    }
+                }
+            }
+        }
+    }
+}
+
+void app::host::fini_listen()
+{
+    if (listen_sd != INVALID_SOCKET)
+        ::close(listen_sd);
+
+    listen_sd = INVALID_SOCKET;
+}
+
+//-----------------------------------------------------------------------------
+
+void app::host::init_server()
+{
+    // If we have a server assignment then we must connect to it.
+
+    if (mxml_node_t *server = mxmlFindElement(node, node, "server",
+                                              0, 0, MXML_DESCEND_FIRST))
+    {
+        socklen_t  addresslen = sizeof (sockaddr_t);
+        sockaddr_t address;
+
+        const char *addr = mxmlElementGetAttr(server, "addr");
+        const char *port = mxmlElementGetAttr(server, "port");
+
+        // Look up the given host name.
+
+        address.sin_family      = AF_INET;
+        address.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
+        address.sin_addr.s_addr = lookup(     addr ? addr : DEFAULT_HOST);
+
+        // Create a socket and connect.
+
+        if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+            throw sock_error(addr);
+
+        nodelay(server_sd);
+
+        while (connect(server_sd, (struct sockaddr *) &address, addresslen) <0)
+            if (errno == ECONNREFUSED)
+            {
+                std::cerr << "Waiting for " << addr << std::endl;
+                usleep(250000);
+            }
+            else throw sock_error(addr);
+    }
+}
+
+void app::host::fini_server()
+{
+    if (server_sd != INVALID_SOCKET)
+        ::close(server_sd);
+
+    server_sd = INVALID_SOCKET;
+}
+
+//-----------------------------------------------------------------------------
+
 void app::host::init_client()
 {
-    int       on = 1;
-    socklen_t onlen = sizeof (int);
-        
-    sockaddr_t address;
-    socklen_t  addresslen = sizeof (sockaddr_t);
-
     mxml_node_t *curr;
 
     // Launch all client processes.
@@ -520,65 +595,32 @@ void app::host::init_client()
 
         fork_client(addr, name);
     }
-
-    // Initialize all client connections.
-
-    MXML_FORALL(node, curr, "client")
-    {
-        const char *addr = mxmlElementGetAttr(curr, "addr");
-        const char *port = mxmlElementGetAttr(curr, "port");
-
-        // Look up the given host name.
-
-        address.sin_family      = AF_INET;
-        address.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
-        address.sin_addr.s_addr = lookup(     addr ? addr : DEFAULT_HOST);
-
-        // Create a socket and connect.
-
-        int cd;
-
-        if ((cd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-            throw sock_error(addr);
-
-        if (setsockopt(cd, IPPROTO_TCP, TCP_NODELAY, &on, onlen) < 0)
-            throw sock_error(addr);
-
-        while (connect(cd, (struct sockaddr *) &address, addresslen) < 0)
-            if (errno == ECONNREFUSED)
-            {
-                std::cerr << "Waiting for " << addr << std::endl;
-                delay();
-            }
-            else
-                throw sock_error(addr);
-
-        client.push_back(cd);
-    }
-}
-
-void app::host::fini_server()
-{
-    // Close the server socket.
-
-    if (server != INVALID_SOCKET)
-        ::close(server);
 }
 
 void app::host::fini_client()
 {
-    // Close all client sockets.
+    for (unsigned int i = 0; i < client_sd.size(); ++i)
+    {
+        char c;
 
-    for (unsigned int i = 0; i < client.size(); ++i)
-        if (client[i] != INVALID_SOCKET)
-            ::close(client[i]);
+        // Wait for EOF (orderly shutdown by the remote).
+
+        while (::recv(client_sd[i], &c, 1, 0) > 0)
+            ;
+
+        // Close the socket.
+
+        ::close(client_sd[i]);
+    }
 }
 
 //-----------------------------------------------------------------------------
 
 app::host::host(std::string& file,
                 std::string& tag) :
-    server(INVALID_SOCKET), mods(0),
+    server_sd(INVALID_SOCKET),
+    listen_sd(INVALID_SOCKET),
+    mods(0),
     vert("glsl/blitbuff.vert"),
     frag("glsl/blitbuff.frag"),
 /*
@@ -649,8 +691,9 @@ app::host::host(std::string& file,
 
         // Start the network syncronization.
 
-        init_client();
+        init_listen();
         init_server();
+        init_client();
     }
 
     tock = SDL_GetTicks();
@@ -660,8 +703,9 @@ app::host::~host()
 {
     if (node)
     {
-        fini_server();
         fini_client();
+        fini_server();
+        fini_listen();
     }
 }
 
@@ -738,7 +782,7 @@ void app::host::node_loop()
     {
         message M(0);
 
-        M.recv(server);
+        M.recv(server_sd);
 
         switch (M.type())
         {
@@ -805,10 +849,12 @@ void app::host::node_loop()
 
 void app::host::loop()
 {
-    if (server == INVALID_SOCKET)
-        root_loop();
-    else
+    // Handle all events.
+
+    if (server_sd != INVALID_SOCKET)
         node_loop();
+    else
+        root_loop();
 }
 
 //-----------------------------------------------------------------------------
@@ -847,7 +893,7 @@ void app::host::draw()
 
 int app::host::get_window_m() const
 {
-    return (server == INVALID_SOCKET) ? 0 : SDL_NOFRAME;
+    return (server_sd == INVALID_SOCKET) ? 0 : SDL_NOFRAME;
 }
 
 //-----------------------------------------------------------------------------
@@ -856,7 +902,7 @@ void app::host::send(message& M)
 {
     // Send a message to all clients.
 
-    for (SOCKET_i i = client.begin(); i != client.end(); ++i)
+    for (SOCKET_i i = client_sd.begin(); i != client_sd.end(); ++i)
         M.send(*i);
 }
 
@@ -864,7 +910,7 @@ void app::host::recv(message& M)
 {
     // Receive a message from all clients (should be E_REPLY).
 
-    for (SOCKET_i i = client.begin(); i != client.end(); ++i)
+    for (SOCKET_i i = client_sd.begin(); i != client_sd.end(); ++i)
         M.recv(*i);
 }
 
@@ -927,6 +973,8 @@ void app::host::timer(int d)
     send(M);
 
     ::prog->timer(d / 1000.0);
+
+    poll_listen();
 }
 
 void app::host::paint()
@@ -937,10 +985,10 @@ void app::host::paint()
     draw( );
     recv(M);
 
-    if (server != INVALID_SOCKET)
+    if (server_sd != INVALID_SOCKET)
     {
         message R(E_REPLY);
-        R.send(server);
+        R.send(server_sd);
     }
 }
 
@@ -960,10 +1008,10 @@ void app::host::close()
     send(M);
     recv(M);
 
-    if (server != INVALID_SOCKET)
+    if (server_sd != INVALID_SOCKET)
     {
         message R(E_REPLY);
-        R.send(server);
+        R.send(server_sd);
     }
 }
 

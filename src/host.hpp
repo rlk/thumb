@@ -105,16 +105,20 @@ namespace app
     {
         // Network handling
 
-        unsigned long lookup(const char *);
-
         void fork_client(const char *, const char *);
+        void poll_listen();
+
+        void init_listen();
         void init_server();
         void init_client();
+
+        void fini_listen();
         void fini_server();
         void fini_client();
 
-        SOCKET   server;
-        SOCKET_v client;
+        SOCKET   server_sd;
+        SOCKET   listen_sd;
+        SOCKET_v client_sd;
 
         int tock;
         int mods;

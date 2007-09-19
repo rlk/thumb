@@ -21,14 +21,14 @@
 
 //-----------------------------------------------------------------------------
 
-#define DATA "/data/"
+#define DATA "/home/evl/rlk/data/"
 
 uni::universe::universe()
 {
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
 
-    color  = new geomap(DATA "earth/earth-color/earth-color-512",
+    color  = new geomap(DATA "earth/earth-color/earth-color",
                         86400, 43200, 3, 1, 512, pow(2, 16),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
     normal = new geomap(DATA "earth/earth-normal/earth-normal",
