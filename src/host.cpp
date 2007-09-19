@@ -24,6 +24,7 @@
 #include "glob.hpp"
 #include "view.hpp"
 #include "host.hpp"
+#include "perf.hpp"
 #include "prog.hpp"
 
 #define JIFFY (1000 / 60)
@@ -765,6 +766,8 @@ void app::host::root_loop()
 
         paint();
         fleep();
+
+        ::perf->step();
     }
 }
 
