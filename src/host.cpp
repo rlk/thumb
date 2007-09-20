@@ -142,12 +142,32 @@ int app::message::get_int()
 
 //-----------------------------------------------------------------------------
 
+static const char *tag(int t)
+{
+    switch (t)
+    {
+    case E_REPLY: return "reply";
+    case E_TRACK: return "track";
+    case E_STICK: return "stick";
+    case E_POINT: return "point";
+    case E_CLICK: return "click";
+    case E_KEYBD: return "keybd";
+    case E_TIMER: return "timer";
+    case E_PAINT: return "paint";
+    case E_FLEEP: return "fleep";
+    case E_CLOSE: return "close";
+    }
+    return "UNKNOWN";
+}
+
 void app::message::send(SOCKET s)
 {
     // Send the payload on the given socket.
 
     if (::send(s, &payload, payload.size + 2, 0) == -1)
         throw std::runtime_error(strerror(errno));
+
+//  printf("send %s %d\n", tag(payload.type), payload.size);
 }
 
 void app::message::recv(SOCKET s)
@@ -160,6 +180,8 @@ void app::message::recv(SOCKET s)
     if (payload.size > 0)
         if (::recv(s,  payload.data, payload.size, 0) == -1)
             throw std::runtime_error(strerror(errno));
+
+//  printf("recv %s %d\n", tag(payload.type), payload.size);
 
     // Reset the unpack pointer to the beginning.
 
@@ -266,7 +288,6 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
 {
     if (frames.size() == 0)
     {
-//      double P[3] = { 0.0, 4.25, 0.0 };
         double P[3] = { 0.0, 0.0, 0.0 };
 
         glViewport(window_rect[0], window_rect[1],
@@ -476,6 +497,8 @@ void app::host::init_listen()
 
         if ((listen_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
             throw std::runtime_error(strerror(errno));
+        
+        nodelay(listen_sd);
 
         while (bind(listen_sd, (struct sockaddr *) &address, addresslen) < 0)
             if (errno == EINVAL)
@@ -507,7 +530,10 @@ void app::host::poll_listen()
         if (int n = select(listen_sd + 1, &sd, NULL, NULL, &tv))
         {
             if (n < 0)
-                throw sock_error("select");
+            {
+                if (errno != EINTR)
+                    throw sock_error("select");
+            }
             else
             {
                 // Accept the connection.
@@ -561,8 +587,6 @@ void app::host::init_server()
         if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
             throw sock_error(addr);
 
-        nodelay(server_sd);
-
         while (connect(server_sd, (struct sockaddr *) &address, addresslen) <0)
             if (errno == ECONNREFUSED)
             {
@@ -570,6 +594,8 @@ void app::host::init_server()
                 usleep(250000);
             }
             else throw sock_error(addr);
+
+        nodelay(server_sd);
     }
 }
 
@@ -891,7 +917,7 @@ void app::host::draw()
         ::prog->draw();
     }
 
-    glFinish();
+//  glFinish();
 }
 
 int app::host::get_window_m() const
@@ -929,52 +955,60 @@ void app::host::stick(int d, const double *p)
 
 void app::host::point(int x, int y)
 {
-    message M(E_POINT);
+    if (!client_sd.empty())
+    {
+        message M(E_POINT);
 
-    M.put_int(x);
-    M.put_int(y);
+        M.put_int(x);
+        M.put_int(y);
 
-    send(M);
-
+        send(M);
+    }
     ::prog->point(x, y);
 }
 
 void app::host::click(int b, bool d)
 {
-    message M(E_CLICK);
+    if (!client_sd.empty())
+    {
+        message M(E_CLICK);
 
-    M.put_int (b);
-    M.put_bool(d);
+        M.put_int (b);
+        M.put_bool(d);
 
-    send(M);
-
+        send(M);
+    }
     ::prog->click(b, d);
 }
 
 void app::host::keybd(int c, int k, int m, bool d)
 {
-    message M(E_KEYBD);
+    if (!client_sd.empty())
+    {
+        message M(E_KEYBD);
 
-    M.put_int (c);
-    M.put_int (k);
-    M.put_int (m);
-    M.put_bool(d);
+        M.put_int (c);
+        M.put_int (k);
+        M.put_int (m);
+        M.put_bool(d);
 
-    send(M);
+        send(M);
 
-    mods = m;
-
+        mods = m;
+    }
     ::prog->keybd(k, d, c);
 }
 
 void app::host::timer(int d)
 {
-    message M(E_TIMER);
+    if (!client_sd.empty())
+    {
+        message M(E_TIMER);
 
-    M.put_int(d);
+        M.put_int(d);
 
-    send(M);
-
+        send(M);
+    }
     ::prog->timer(d / 1000.0);
 
     poll_listen();
@@ -982,11 +1016,26 @@ void app::host::timer(int d)
 
 void app::host::paint()
 {
-    message M(E_PAINT);
+/*
+    if (!client_sd.empty())
+    {
+        message M(E_PAINT);
 
-    send(M);
-    draw( );
-    recv(M);
+        send(M);
+        draw( );
+    }
+    else draw();
+*/
+
+    if (!client_sd.empty())
+    {
+        message M(E_PAINT);
+
+        send(M);
+        draw( );
+        recv(M);
+    }
+    else draw();
 
     if (server_sd != INVALID_SOCKET)
     {
@@ -997,20 +1046,24 @@ void app::host::paint()
 
 void app::host::fleep()
 {
-    message M(E_FLEEP);
+    if (!client_sd.empty())
+    {
+        message M(E_FLEEP);
 
-    send(M);
-
+        send(M);
+    }
     SDL_GL_SwapBuffers();
 }
 
 void app::host::close()
 {
-    message M(E_CLOSE);
+    if (!client_sd.empty())
+    {
+        message M(E_CLOSE);
 
-    send(M);
-    recv(M);
-
+        send(M);
+        recv(M);
+    }
     if (server_sd != INVALID_SOCKET)
     {
         message R(E_REPLY);

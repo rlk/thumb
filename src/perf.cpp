@@ -165,16 +165,17 @@ void app::perf::step()
 void app::perf::dump()
 {
     int fps = int(ceil(1000.0 * frames / ticks));
-
-    frames = 0;
-    ticks  = 0;
+    int ms  = ticks / frames;
 
     std::ostringstream str;
 
-    str << fps;
+    str << ms  << "ms "
+        << fps << "fps";
 
     SDL_WM_SetCaption(str.str().c_str(),
                       str.str().c_str());
+    frames = 0;
+    ticks  = 0;
 }
 
 #endif // not NVPM ============================================================

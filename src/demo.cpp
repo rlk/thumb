@@ -114,9 +114,11 @@ void demo::point(int x, int y)
 
 void demo::click(int b, bool d)
 {
+/*
     if      (d && b == 4) universe.turn(+1);
     else if (d && b == 5) universe.turn(-1);
     else
+*/
     {
         button[b] = d;
 
@@ -156,10 +158,11 @@ void demo::timer(double dt)
     double k;
 
     // Determine the rate of motion.
-
+/*
     if (::host->modifiers() & KMOD_CTRL)
         k = dt * universe.rate();
     else
+*/
         k = dt * view_move_rate;
 
     if (::host->modifiers() & KMOD_SHIFT)
