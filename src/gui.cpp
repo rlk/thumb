@@ -808,10 +808,15 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
     glPushAttrib(GL_ENABLE_BIT);
     glPushMatrix();
     {
+/*
         glEnable(GL_SCISSOR_TEST);
+        glScissor(area.x, area.y - area.h,
+                  area.w - scroll_w, area.h);
+*/
+/*
         glScissor(area.x, conf->get_i("window_h") - area.y - area.h,
                   area.w - scroll_w, area.h);
-
+*/
         glTranslatef(0, float(-child_d), 0);
         tree::draw(focus, input);
     }

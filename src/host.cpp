@@ -19,6 +19,7 @@
 
 #include "tracker.hpp"
 #include "opengl.hpp"
+#include "perf.hpp"
 #include "data.hpp"
 #include "conf.hpp"
 #include "glob.hpp"
@@ -142,9 +143,9 @@ int app::message::get_int()
 
 //-----------------------------------------------------------------------------
 
-static const char *tag(int t)
+const char *app::message::tag() const
 {
-    switch (t)
+    switch (payload.type)
     {
     case E_REPLY: return "reply";
     case E_TRACK: return "track";
@@ -167,7 +168,7 @@ void app::message::send(SOCKET s)
     if (::send(s, &payload, payload.size + 2, 0) == -1)
         throw std::runtime_error(strerror(errno));
 
-//  printf("send %s %d\n", tag(payload.type), payload.size);
+//  printf("send %s %d\n", tag(), payload.size);
 }
 
 void app::message::recv(SOCKET s)
@@ -181,7 +182,7 @@ void app::message::recv(SOCKET s)
         if (::recv(s,  payload.data, payload.size, 0) == -1)
             throw std::runtime_error(strerror(errno));
 
-//  printf("recv %s %d\n", tag(payload.type), payload.size);
+//  printf("recv %s %d\n", tag(), payload.size);
 
     // Reset the unpack pointer to the beginning.
 
@@ -192,7 +193,8 @@ void app::message::recv(SOCKET s)
 
 app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
 {
-    const double a = double(DEFAULT_WIDTH) / double(DEFAULT_HEIGHT);
+    const double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
+    const char  *c;
 
     mxml_node_t *elem;
     mxml_node_t *curr;
@@ -205,8 +207,8 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
 
     window_rect[0] = 0;
     window_rect[1] = 0;
-    window_rect[2] = DEFAULT_WIDTH;
-    window_rect[3] = DEFAULT_HEIGHT;
+    window_rect[2] = DEFAULT_PIXEL_WIDTH;
+    window_rect[3] = DEFAULT_PIXEL_HEIGHT;
 
     varrier[0] = 100.00;
     varrier[1] =   0.00;
@@ -219,14 +221,10 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
     if ((elem = mxmlFindElement(node, node, "viewport",
                                 0, 0, MXML_DESCEND_FIRST)))
     {
-        if (const char *x = mxmlElementGetAttr(elem, "x"))
-            window_rect[0] = atoi(x);
-        if (const char *y = mxmlElementGetAttr(elem, "y"))
-            window_rect[1] = atoi(y);
-        if (const char *w = mxmlElementGetAttr(elem, "w"))
-            window_rect[2] = atoi(w);
-        if (const char *h = mxmlElementGetAttr(elem, "h"))
-            window_rect[3] = atoi(h);
+        if ((c = mxmlElementGetAttr(elem, "x"))) window_rect[0] = atoi(c);
+        if ((c = mxmlElementGetAttr(elem, "y"))) window_rect[1] = atoi(c);
+        if ((c = mxmlElementGetAttr(elem, "w"))) window_rect[2] = atoi(c);
+        if ((c = mxmlElementGetAttr(elem, "h"))) window_rect[3] = atoi(c);
     }
 
     // Extract the screen corners.
@@ -241,12 +239,11 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
             else if (strcmp(name, "BR") == 0) v = BR;
             else if (strcmp(name, "TL") == 0) v = TL;
         }
-
         if (v)
         {
-            if (const char *x = mxmlElementGetAttr(curr, "x")) v[0] = atof(x);
-            if (const char *y = mxmlElementGetAttr(curr, "y")) v[1] = atof(y);
-            if (const char *z = mxmlElementGetAttr(curr, "z")) v[2] = atof(z);
+            if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
+            if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
+            if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
         }
     }
 
@@ -255,16 +252,11 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
     if ((elem = mxmlFindElement(node, node, "varrier",
                                 0, 0, MXML_DESCEND_FIRST)))
     {
-        if (const char *p = mxmlElementGetAttr(elem, "p"))
-            varrier[0] = atof(p);
-        if (const char *a = mxmlElementGetAttr(elem, "a"))
-            varrier[1] = atof(a);
-        if (const char *t = mxmlElementGetAttr(elem, "t"))
-            varrier[2] = atof(t);
-        if (const char *s = mxmlElementGetAttr(elem, "s"))
-            varrier[3] = atof(s);
-        if (const char *c = mxmlElementGetAttr(elem, "c"))
-            varrier[4] = atof(c);
+        if ((c = mxmlElementGetAttr(elem, "p"))) varrier[0] = atof(c);
+        if ((c = mxmlElementGetAttr(elem, "a"))) varrier[1] = atof(c);
+        if ((c = mxmlElementGetAttr(elem, "t"))) varrier[2] = atof(c);
+        if ((c = mxmlElementGetAttr(elem, "s"))) varrier[3] = atof(c);
+        if ((c = mxmlElementGetAttr(elem, "c"))) varrier[4] = atof(c);
     }
 
     // Compute the remaining screen corner and screen extents.
@@ -643,30 +635,36 @@ void app::host::fini_client()
 
 //-----------------------------------------------------------------------------
 
-app::host::host(std::string& file,
-                std::string& tag) :
+app::host::host(std::string file,
+                std::string tag) :
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
     mods(0),
     vert("glsl/blitbuff.vert"),
     frag("glsl/blitbuff.frag"),
-/*
-    vert("glsl/anaglyph.vert"),
-    frag("glsl/anaglyph.frag"),
-*/
     expose(0), head(0), node(0)
 {
-    int w = ::conf->get_i("window_w");
-    int h = ::conf->get_i("window_h");
+    const double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
+    const char  *c;
+
+    // Set some reasonable defaults.
 
     window_rect[0] = 0;
     window_rect[1] = 0;
-    window_rect[2] = w;
-    window_rect[3] = h;
+    window_rect[2] = DEFAULT_PIXEL_WIDTH;
+    window_rect[3] = DEFAULT_PIXEL_HEIGHT;
 
-    buffer_w = w;
-    buffer_h = h;
+    buffer_w = DEFAULT_PIXEL_WIDTH;
+    buffer_h = DEFAULT_PIXEL_HEIGHT;
     buffer_n = 0;
+
+    gui_w = DEFAULT_PIXEL_WIDTH;
+    gui_h = DEFAULT_PIXEL_HEIGHT;
+
+    gui_BL[0] = -0.5 * a; gui_BL[1] = -0.5; gui_BL[2] = -1.0;
+    gui_BR[0] = +0.5 * a; gui_BR[1] = -0.5; gui_BR[2] = -1.0;
+    gui_TL[0] = -0.5 * a; gui_TL[1] = +0.5; gui_TL[2] = -1.0;
+
 
     // Read host.xml and configure using tag match.
 
@@ -679,14 +677,10 @@ app::host::host(std::string& file,
         if (mxml_node_t *window = mxmlFindElement(node, node, "window",
                                                   0, 0, MXML_DESCEND_FIRST))
         {
-            if (const char *x = mxmlElementGetAttr(window, "x"))
-                window_rect[0] = atoi(x);
-            if (const char *y = mxmlElementGetAttr(window, "y"))
-                window_rect[1] = atoi(y);
-            if (const char *w = mxmlElementGetAttr(window, "w"))
-                window_rect[2] = atoi(w);
-            if (const char *h = mxmlElementGetAttr(window, "h"))
-                window_rect[3] = atoi(h);
+            if ((c = mxmlElementGetAttr(window, "x"))) window_rect[0] = atoi(c);
+            if ((c = mxmlElementGetAttr(window, "y"))) window_rect[1] = atoi(c);
+            if ((c = mxmlElementGetAttr(window, "w"))) window_rect[2] = atoi(c);
+            if ((c = mxmlElementGetAttr(window, "h"))) window_rect[3] = atoi(c);
         }
 
         // Extract the buffer parameters
@@ -694,22 +688,17 @@ app::host::host(std::string& file,
         if (mxml_node_t *buffer = mxmlFindElement(node, node, "buffer",
                                                   0, 0, MXML_DESCEND_FIRST))
         {
-            if (const char *n = mxmlElementGetAttr(buffer, "n"))
-                buffer_n = atoi(n);
-            if (const char *w = mxmlElementGetAttr(buffer, "w"))
-                buffer_w = atoi(w);
-            if (const char *h = mxmlElementGetAttr(buffer, "h"))
-                buffer_h = atoi(h);
+            if ((c = mxmlElementGetAttr(buffer, "n"))) buffer_n = atoi(c);
+            if ((c = mxmlElementGetAttr(buffer, "w"))) buffer_w = atoi(c);
+            if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
         }
 
         // Extract render program names.
 
-        if (const char *name = mxmlElementGetAttr(node, "vert"))
-            vert = std::string(name);
-        if (const char *name = mxmlElementGetAttr(node, "frag"))
-            frag = std::string(name);
+        if ((c = mxmlElementGetAttr(node, "vert"))) vert = std::string(c);
+        if ((c = mxmlElementGetAttr(node, "frag"))) frag = std::string(c);
 
-        // Exctract tile config parameters.
+        // Extract tile config parameters.
 
         mxml_node_t *curr;
 
@@ -721,6 +710,38 @@ app::host::host(std::string& file,
         init_listen();
         init_server();
         init_client();
+    }
+
+    if (head)
+    {
+        // Extract GUI configuration.
+
+        if (mxml_node_t *gui = mxmlFindElement(head, head, "gui",
+                                               0, 0, MXML_DESCEND_FIRST))
+        {
+            mxml_node_t *curr;
+
+            if (const char *w = mxmlElementGetAttr(gui, "w")) gui_w = atoi(w);
+            if (const char *h = mxmlElementGetAttr(gui, "h")) gui_h = atoi(h);
+
+            MXML_FORALL(gui, curr, "corner")
+            {
+                double *v = 0;
+
+                if (const char *name = mxmlElementGetAttr(curr, "name"))
+                {
+                    if      (strcmp(name, "BL") == 0) v = gui_BL;
+                    else if (strcmp(name, "BR") == 0) v = gui_BR;
+                    else if (strcmp(name, "TL") == 0) v = gui_TL;
+                }
+                if (v)
+                {
+                    if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
+                    if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
+                    if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
+                }
+            }
+        }
     }
 
     tock = SDL_GetTicks();
@@ -737,6 +758,11 @@ app::host::~host()
 }
 
 //-----------------------------------------------------------------------------
+
+bool app::host::root() const
+{
+    return (server_sd == INVALID_SOCKET);
+}
 
 void app::host::root_loop()
 {
@@ -880,10 +906,10 @@ void app::host::loop()
 {
     // Handle all events.
 
-    if (server_sd != INVALID_SOCKET)
-        node_loop();
-    else
+    if (root())
         root_loop();
+    else
+        node_loop();
 }
 
 //-----------------------------------------------------------------------------
@@ -1016,17 +1042,6 @@ void app::host::timer(int d)
 
 void app::host::paint()
 {
-/*
-    if (!client_sd.empty())
-    {
-        message M(E_PAINT);
-
-        send(M);
-        draw( );
-    }
-    else draw();
-*/
-
     if (!client_sd.empty())
     {
         message M(E_PAINT);
@@ -1053,6 +1068,7 @@ void app::host::fleep()
         send(M);
     }
     SDL_GL_SwapBuffers();
+    ::perf->step();
 }
 
 void app::host::close()
@@ -1069,6 +1085,27 @@ void app::host::close()
         message R(E_REPLY);
         R.send(server_sd);
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void app::host::gui_pick(int& x, int& y, const double *p,
+                                         const double *v) const
+{
+    // Compute the point (x, y) at which the vector V from P hits the GUI.
+}
+
+void app::host::gui_size(int& w, int& h) const
+{
+    // Return the configured resolution of the GUI.
+
+    w = gui_w;
+    h = gui_h;
+}
+
+void app::host::gui_view() const
+{
+    // Apply a transform taking GUI coordinates to eye coordinates.
 }
 
 //-----------------------------------------------------------------------------

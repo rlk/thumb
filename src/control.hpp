@@ -262,7 +262,7 @@ namespace cnt
     class control : public gui::dialog
     {
     public:
-        control(wrl::world&);
+        control(wrl::world&, int, int);
     };
 }
 

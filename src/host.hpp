@@ -39,6 +39,8 @@ namespace app
 
         int index;
 
+        const char *tag() const;
+
     public:
 
         message(unsigned char);
@@ -143,6 +145,14 @@ namespace app
         void root_loop();
         void node_loop();
 
+        // GUI config
+
+        double gui_BL[3];
+        double gui_BR[3];
+        double gui_TL[3];
+        int    gui_w;
+        int    gui_h;
+
         // Window config
 
         int window_rect[4];
@@ -167,9 +177,10 @@ namespace app
 
     public:
 
-        host(std::string&, std::string&);
+        host(std::string, std::string);
        ~host();
 
+        bool root() const;
         void loop();
         void draw();
 
@@ -183,6 +194,10 @@ namespace app
         int get_buffer_h() const { return buffer_h; }
 
         int modifiers() const { return mods; }
+
+        void gui_pick(int&, int&, const double *, const double *) const;
+        void gui_size(int&, int&)                                 const;
+        void gui_view()                                           const;
     };
 }
 

@@ -15,7 +15,6 @@
 #include "control.hpp"
 #include "joint.hpp"
 #include "solid.hpp"
-#include "host.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -318,11 +317,8 @@ cnt::joint_panel::joint_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 
 //-----------------------------------------------------------------------------
 
-cnt::control::control(wrl::world& W)
+cnt::control::control(wrl::world& W, int w, int h)
 {
-    int w = host->get_buffer_w();
-    int h = host->get_buffer_w();
-
     gui::option *O = new gui::option;
 
     root = ((new gui::vgroup)->

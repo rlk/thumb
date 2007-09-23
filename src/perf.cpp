@@ -151,8 +151,6 @@ app::perf::~perf()
 
 void app::perf::step()
 {
-    static int last = 0;
-    
     int dt = int(SDL_GetTicks()) - last;
 
     frames +=  1;

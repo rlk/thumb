@@ -15,7 +15,7 @@
 
 #include <map>
 
-#define DEFAULT_COUNT 10
+#include "default.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -44,7 +44,7 @@ namespace app
 
     public:
 
-        perf(int=DEFAULT_COUNT);
+        perf(int=DEFAULT_PERF_AVERAGE);
        ~perf();
 
         void step();
@@ -62,7 +62,7 @@ namespace app
 
     public:
 
-        perf(int=DEFAULT_COUNT);
+        perf(int=DEFAULT_PERF_AVERAGE);
        ~perf();
 
         void step();

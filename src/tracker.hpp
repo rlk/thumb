@@ -13,9 +13,6 @@
 #ifndef TRACKER_HPP
 #define TRACKER_HPP
 
-#define DEFAULT_TRACKER_KEY 4126
-#define DEFAULT_CONTROL_KEY 4127
-
 //-----------------------------------------------------------------------------
 
 bool tracker_init(int, int);

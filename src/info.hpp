@@ -22,7 +22,7 @@ namespace mode
 {
     class info : public mode
     {
-        cnt::control gui;
+        cnt::control *gui;
 
     public:
 

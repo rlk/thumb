@@ -16,8 +16,6 @@
 #include <string>
 #include <mxml.h>
 
-#define DEFAULT_LANG_FILE "lang.xml"
-
 //-----------------------------------------------------------------------------
 
 namespace app

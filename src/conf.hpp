@@ -16,8 +16,6 @@
 #include <string>
 #include <mxml.h>
 
-#define DEFAULT_CONF_FILE "conf.xml"
-
 //-----------------------------------------------------------------------------
 
 namespace app

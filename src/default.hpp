@@ -10,17 +10,26 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DEFAULT_H
-#define DEFAULT_H
+#ifndef DEFAULT_HPP
+#define DEFAULT_HPP
 
 //-----------------------------------------------------------------------------
 
 #define DEFAULT_HOST_FILE "host.xml"
+#define DEFAULT_LANG_FILE "lang.xml"
+#define DEFAULT_CONF_FILE "conf.xml"
+#define DEFAULT_DATA_FILE "data.xml"
+
 #define DEFAULT_TAG       "default"
 #define DEFAULT_HOST      "localhost"
 #define DEFAULT_PORT      "2827"
-#define DEFAULT_WIDTH     800
-#define DEFAULT_HEIGHT    600
+
+#define DEFAULT_PIXEL_WIDTH  1024
+#define DEFAULT_PIXEL_HEIGHT  768
+#define DEFAULT_PERF_AVERAGE   60
+
+#define DEFAULT_TRACKER_KEY 4126
+#define DEFAULT_CONTROL_KEY 4127
 
 //-----------------------------------------------------------------------------
 

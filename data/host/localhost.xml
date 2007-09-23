@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
 <host>
+  <gui w="640" h="480">
+      <corner name="BL" x="-1.0" y="-0.5" z="-2.0"/>
+      <corner name="BR" x=" 0.0" y="-0.5" z="-2.0"/>
+      <corner name="TL" x="-1.0" y=" 0.5" z="-2.0"/>
+  </gui>
+
   <node name="localhost" port="2827">
     <client name="localhost1" addr="localhost"/>
     <window x="0" y="0" w="640" h="480"/>

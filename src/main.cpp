@@ -159,38 +159,38 @@ static void video()
     ogl::init();
 }
 
-static void init(std::string& data_file,
-                 std::string& conf_file,
-                 std::string& lang_file,
-                 std::string& host_file, std::string& tag)
+static void init(std::string& h)
 {
-    // Initialize the global state.
+    // Initialize data access and configuration.
 
-    data = new app::data(data_file);
-    conf = new app::conf(conf_file);
+    data = new app::data(DEFAULT_DATA_FILE);
+    conf = new app::conf(DEFAULT_CONF_FILE);
+
+    // Initialize language and host configuration.
 
     std::string lang_conf = conf->get_s("lang_file");
     std::string host_conf = conf->get_s("host_file");
 
-    lang = new app::lang(lang_conf.length() > 0 ? lang_conf : lang_file);
-    host = new app::host(host_conf.length() > 0 ? host_conf : host_file, tag);
+    lang = new app::lang(lang_conf.empty() ? DEFAULT_LANG_FILE : lang_conf);
+    host = new app::host(host_conf.empty() ? DEFAULT_HOST_FILE : host_conf, h);
 
-    joy  = SDL_JoystickOpen(conf->get_i("joystick"));
-
-    // Initialize the video.
+    // Initialize the OpenGL context.
 
     video();
 
-    // Initialize the demo.
+    // Initialize the OpenGL state and application.
 
     glob = new app::glob();
     perf = new app::perf();
-
-    view = new app::view(host->get_buffer_w(),
-                         host->get_buffer_h(),
+    view = new app::view(host->get_window_w(),
+                         host->get_window_h(),
                          conf->get_f("view_near"),
                          conf->get_f("view_far"));
     prog = new demo();
+
+    // Initialize the controllers.
+
+    joy = SDL_JoystickOpen(conf->get_i("joystick"));
 
     tracker_init(DEFAULT_TRACKER_KEY,
                  DEFAULT_CONTROL_KEY);
@@ -200,13 +200,12 @@ static void fini()
 {
     tracker_fini();
 
+    if (joy) SDL_JoystickClose(joy);
+
     if (prog) delete prog;
     if (view) delete view;
     if (perf) delete perf;
     if (glob) delete glob;
-
-    if (joy) SDL_JoystickClose(joy);
-
     if (host) delete host;
     if (lang) delete lang;
     if (conf) delete conf;
@@ -217,11 +216,6 @@ static void fini()
 
 int main(int argc, char *argv[])
 {
-    std::string data_file(DEFAULT_DATA_FILE);
-    std::string conf_file(DEFAULT_CONF_FILE);
-    std::string lang_file(DEFAULT_LANG_FILE);
-    std::string host_file(DEFAULT_HOST_FILE);
-
     std::string tag(argc > 1 ? argv[1] : DEFAULT_TAG);
 
     try
@@ -236,7 +230,7 @@ int main(int argc, char *argv[])
 
             SDL_EnableUNICODE(1);
 
-            init(data_file, conf_file, lang_file, host_file, tag);
+            init(tag);
             {
                 host->loop();
             }

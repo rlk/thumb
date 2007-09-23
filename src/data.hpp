@@ -26,8 +26,6 @@
 
 #include "util.hpp"
 
-#define DEFAULT_DATA_FILE "data.xml"
-
 //-----------------------------------------------------------------------------
 
 namespace app

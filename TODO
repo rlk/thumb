@@ -1,11 +1,12 @@
-parallelize cluster startup
 restructure tile draw to support direct rendering
 serious far clipping issue in tile mode
 fix the gui to work with tile rendering
+CWD in fork_client
 frustum union
 map atlas
 patch cracking
 more data
+consider forward rendering
 
 There's still a bug in geomap when teleporting
 
