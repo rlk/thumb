@@ -518,11 +518,7 @@ void app::view::pick(double *p, double *v, int x, int y) const
     v[1] = current_M[1] * r + current_M[5] * u - current_M[ 9] * n;
     v[2] = current_M[2] * r + current_M[6] * u - current_M[10] * n;
 
-    double k = 1.0 / sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2]);
-
-    v[0] *= k;
-    v[1] *= k;
-    v[2] *= k;
+    normalize(v);
 }
 
 double app::view::dist(double *p) const

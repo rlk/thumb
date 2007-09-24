@@ -129,7 +129,7 @@ void get_plane(double *, const double *, const double *, const double *);
 
 //-----------------------------------------------------------------------------
 
-double nearestint(double);  // TODO: This doesn't belong here.
+int nearestint(double);  // TODO: This doesn't belong here.
 
 void   midpoint(double *, const double *, const double *);
 double distance(          const double *, const double *);

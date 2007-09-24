@@ -147,9 +147,8 @@ namespace app
 
         // GUI config
 
-        double gui_BL[3];
-        double gui_BR[3];
-        double gui_TL[3];
+        double gui_M[16];
+        double gui_I[16];
         int    gui_w;
         int    gui_h;
 

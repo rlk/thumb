@@ -1259,21 +1259,36 @@ void gui::dialog::draw() const
             glMatrixMode(GL_PROJECTION);
             {
                 glLoadIdentity();
-                view->mult_O();
+                view->mult_P();
             }
             glMatrixMode(GL_MODELVIEW);
             {
                 glLoadIdentity();
+                host->gui_view();
             }
 
             glDisable(GL_LIGHTING);
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_TEXTURE_2D);
+            glDisable(GL_CULL_FACE);
 
             glEnable(GL_BLEND);
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+/*
+            glBegin(GL_QUADS);
+            {
+                glColor3f(0.0f, 0.0f, 0.5f);
+                glVertex2i(0,    0);
+                glColor3f(1.0f, 0.0f, 0.5f);
+                glVertex2i(1024, 0);
+                glColor3f(1.0f, 1.0f, 0.5f);
+                glVertex2i(1024, 1024);
+                glColor3f(0.0f, 1.0f, 0.5f);
+                glVertex2i(0,    1024);
+            }
+            glEnd();
+*/
             root->draw(focus, input);
         }
         glPopAttrib();

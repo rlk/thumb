@@ -19,15 +19,19 @@
 
 mode::info::info(wrl::world& w) : mode(w), gui(0)
 {
-    if (::host->root()) gui = new cnt::control(w, ::host->get_window_w(),
-                                                  ::host->get_window_h());
+    int gui_w;
+    int gui_h;
+
+    ::host->gui_size(gui_w, gui_h);
+
+    gui = new cnt::control(w, gui_w, gui_h);
 }
 
 //-----------------------------------------------------------------------------
 
 void mode::info::enter()
 {
-    if (gui) gui->show();
+    gui->show();
     SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
                         SDL_DEFAULT_REPEAT_INTERVAL);
 }
@@ -35,14 +39,14 @@ void mode::info::enter()
 void mode::info::leave()
 {
     SDL_EnableKeyRepeat(0, 0);
-    if (gui) gui->hide();
+    gui->hide();
 }
 
 //-----------------------------------------------------------------------------
 
 bool mode::info::point(const double *, const double *, int x, int y)
 {
-    if (gui) gui->point(x, y);
+    gui->point(x, y);
     return false;
 }
 
@@ -50,7 +54,7 @@ bool mode::info::click(int b, bool d)
 {
     if (b == 1)
     {
-        if (gui) gui->click(d);
+        gui->click(d);
         return true;
     }
     return false;
@@ -60,7 +64,7 @@ bool mode::info::keybd(int k, bool d, int c)
 {
     if (d)
     {
-        if (gui) gui->keybd(k, c);
+        gui->keybd(k, c);
     }
     return true;
 }
@@ -80,7 +84,7 @@ double mode::info::view(const double *planes)
 void mode::info::draw(const double *points)
 {
     world.draw(true, points);
-    if (gui) gui->draw();
+    gui->draw();
 }
 
 //-----------------------------------------------------------------------------

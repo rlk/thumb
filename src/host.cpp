@@ -19,6 +19,7 @@
 
 #include "tracker.hpp"
 #include "opengl.hpp"
+#include "matrix.hpp"
 #include "perf.hpp"
 #include "data.hpp"
 #include "conf.hpp"
@@ -647,6 +648,10 @@ app::host::host(std::string file,
     const double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
     const char  *c;
 
+    double BL[3];
+    double BR[3];
+    double TL[3];
+
     // Set some reasonable defaults.
 
     window_rect[0] = 0;
@@ -661,10 +666,9 @@ app::host::host(std::string file,
     gui_w = DEFAULT_PIXEL_WIDTH;
     gui_h = DEFAULT_PIXEL_HEIGHT;
 
-    gui_BL[0] = -0.5 * a; gui_BL[1] = -0.5; gui_BL[2] = -1.0;
-    gui_BR[0] = +0.5 * a; gui_BR[1] = -0.5; gui_BR[2] = -1.0;
-    gui_TL[0] = -0.5 * a; gui_TL[1] = +0.5; gui_TL[2] = -1.0;
-
+    BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
+    BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
+    TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
 
     // Read host.xml and configure using tag match.
 
@@ -717,7 +721,7 @@ app::host::host(std::string file,
         // Extract GUI configuration.
 
         if (mxml_node_t *gui = mxmlFindElement(head, head, "gui",
-                                               0, 0, MXML_DESCEND_FIRST))
+                                               0, 0, MXML_DESCEND))
         {
             mxml_node_t *curr;
 
@@ -730,9 +734,9 @@ app::host::host(std::string file,
 
                 if (const char *name = mxmlElementGetAttr(curr, "name"))
                 {
-                    if      (strcmp(name, "BL") == 0) v = gui_BL;
-                    else if (strcmp(name, "BR") == 0) v = gui_BR;
-                    else if (strcmp(name, "TL") == 0) v = gui_TL;
+                    if      (strcmp(name, "BL") == 0) v = BL;
+                    else if (strcmp(name, "BR") == 0) v = BR;
+                    else if (strcmp(name, "TL") == 0) v = TL;
                 }
                 if (v)
                 {
@@ -743,6 +747,34 @@ app::host::host(std::string file,
             }
         }
     }
+
+    // Compute a transform taking GUI coordinates to eye coordinates.
+
+    double G[16];
+    double R[3];
+    double U[3];
+    double B[3];
+
+    R[0] = BR[0] - BL[0];
+    R[1] = BR[1] - BL[1];
+    R[2] = BR[2] - BL[2];
+
+    U[0] = TL[0] - BL[0];
+    U[1] = TL[1] - BL[1];
+    U[2] = TL[2] - BL[2];
+
+    crossprod(B, R, U);
+    set_basis(G, R, U, B);
+
+    load_idt(gui_M);
+
+    Rmul_xlt_mat(gui_M, TL[0], TL[1], TL[2]);
+    mult_mat_mat(gui_M, gui_M, G);
+    Rmul_scl_inv(gui_M, gui_w, -gui_h, 1);
+
+    load_inv(gui_I, gui_M);
+
+    // Start the timer.
 
     tock = SDL_GetTicks();
 }
@@ -1067,6 +1099,7 @@ void app::host::fleep()
 
         send(M);
     }
+
     SDL_GL_SwapBuffers();
     ::perf->step();
 }
@@ -1093,6 +1126,17 @@ void app::host::gui_pick(int& x, int& y, const double *p,
                                          const double *v) const
 {
     // Compute the point (x, y) at which the vector V from P hits the GUI.
+
+    double q[3];
+    double w[3];
+
+    mult_mat_vec3(q, gui_I, p);
+    mult_xps_vec3(w, gui_M, v);
+
+    x = int(nearestint(q[0] + w[0] * w[3]));
+    y = int(nearestint(q[1] + w[1] * w[3]));
+
+    printf("%d %d\n", x, y);
 }
 
 void app::host::gui_size(int& w, int& h) const
@@ -1105,7 +1149,9 @@ void app::host::gui_size(int& w, int& h) const
 
 void app::host::gui_view() const
 {
-    // Apply a transform taking GUI coordinates to eye coordinates.
+    // Apply the transform taking GUI coordinates to eye coordinates.
+
+    glMultMatrixd(gui_M);
 }
 
 //-----------------------------------------------------------------------------
