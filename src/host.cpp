@@ -194,11 +194,7 @@ void app::message::recv(SOCKET s)
 
 app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
 {
-    const double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
-    const char  *c;
-
-    mxml_node_t *elem;
-    mxml_node_t *curr;
+    double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
 
     // Set some reasonable defaults.
 
@@ -217,47 +213,57 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
     varrier[3] =   0.00;
     varrier[4] =   0.75;
 
-    // Extract the window viewport rectangle.
+    // If we have an XML configuration node...
 
-    if ((elem = mxmlFindElement(node, node, "viewport",
-                                0, 0, MXML_DESCEND_FIRST)))
+    if (node)
     {
-        if ((c = mxmlElementGetAttr(elem, "x"))) window_rect[0] = atoi(c);
-        if ((c = mxmlElementGetAttr(elem, "y"))) window_rect[1] = atoi(c);
-        if ((c = mxmlElementGetAttr(elem, "w"))) window_rect[2] = atoi(c);
-        if ((c = mxmlElementGetAttr(elem, "h"))) window_rect[3] = atoi(c);
-    }
+        mxml_node_t *elem;
+        mxml_node_t *curr;
 
-    // Extract the screen corners.
+        const char *c;
 
-    MXML_FORALL(elem, curr, "corner")
-    {
-        double *v = 0;
+        // Extract the window viewport rectangle.
 
-        if (const char *name = mxmlElementGetAttr(curr, "name"))
+        if ((elem = mxmlFindElement(node, node, "viewport",
+                                    0, 0, MXML_DESCEND_FIRST)))
         {
-            if      (strcmp(name, "BL") == 0) v = BL;
-            else if (strcmp(name, "BR") == 0) v = BR;
-            else if (strcmp(name, "TL") == 0) v = TL;
+            if ((c = mxmlElementGetAttr(elem, "x"))) window_rect[0] = atoi(c);
+            if ((c = mxmlElementGetAttr(elem, "y"))) window_rect[1] = atoi(c);
+            if ((c = mxmlElementGetAttr(elem, "w"))) window_rect[2] = atoi(c);
+            if ((c = mxmlElementGetAttr(elem, "h"))) window_rect[3] = atoi(c);
         }
-        if (v)
+
+        // Extract the screen corners.
+
+        MXML_FORALL(elem, curr, "corner")
         {
-            if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
-            if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
-            if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
+            double *v = 0;
+
+            if (const char *name = mxmlElementGetAttr(curr, "name"))
+            {
+                if      (strcmp(name, "BL") == 0) v = BL;
+                else if (strcmp(name, "BR") == 0) v = BR;
+                else if (strcmp(name, "TL") == 0) v = TL;
+            }
+            if (v)
+            {
+                if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
+                if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
+                if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
+            }
         }
-    }
 
-    // Extract the Varrier linescreen parameters.
+        // Extract the Varrier linescreen parameters.
 
-    if ((elem = mxmlFindElement(node, node, "varrier",
-                                0, 0, MXML_DESCEND_FIRST)))
-    {
-        if ((c = mxmlElementGetAttr(elem, "p"))) varrier[0] = atof(c);
-        if ((c = mxmlElementGetAttr(elem, "a"))) varrier[1] = atof(c);
-        if ((c = mxmlElementGetAttr(elem, "t"))) varrier[2] = atof(c);
-        if ((c = mxmlElementGetAttr(elem, "s"))) varrier[3] = atof(c);
-        if ((c = mxmlElementGetAttr(elem, "c"))) varrier[4] = atof(c);
+        if ((elem = mxmlFindElement(node, node, "varrier",
+                                    0, 0, MXML_DESCEND_FIRST)))
+        {
+            if ((c = mxmlElementGetAttr(elem, "p"))) varrier[0] = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "a"))) varrier[1] = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "t"))) varrier[2] = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "s"))) varrier[3] = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "c"))) varrier[4] = atof(c);
+        }
     }
 
     // Compute the remaining screen corner and screen extents.
@@ -275,6 +281,35 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
 }
 
 //-----------------------------------------------------------------------------
+
+bool app::tile::pick(double *p, double *v, int x, int y)
+{
+    printf("%d %d\n", x, y);
+
+    // Determine whether the given pointer position lies within this tile.
+
+    if (window_rect[0] <= x && x < window_rect[0] + window_rect[2] &&
+        window_rect[1] <= y && y < window_rect[1] + window_rect[3])
+    {
+        double kx = double(x - window_rect[0]) / double(window_rect[2]);
+        double ky = double(y - window_rect[1]) / double(window_rect[3]);
+
+        // It does.  Compute the eye-space vector given by the pointer.
+
+        p[0] = 0.0;
+        p[1] = 0.0;
+        p[2] = 0.0;
+
+        v[0] = TL[0] * (1 - kx - ky) + TR[0] * kx + BL[0] * ky;
+        v[1] = TL[1] * (1 - kx - ky) + TR[1] * kx + BL[1] * ky;
+        v[2] = TL[2] * (1 - kx - ky) + TR[2] * kx + BL[2] * ky;
+
+        normalize(v);
+
+        return true;
+    }
+    return false;
+}
 
 void app::tile::draw(std::vector<ogl::frame *>& frames,
                            const ogl::program  *expose)
@@ -645,8 +680,8 @@ app::host::host(std::string file,
     frag("glsl/blitbuff.frag"),
     expose(0), head(0), node(0)
 {
-    const double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
-    const char  *c;
+    double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
+    const char *c;
 
     double BL[3];
     double BR[3];
@@ -681,10 +716,10 @@ app::host::host(std::string file,
         if (mxml_node_t *window = mxmlFindElement(node, node, "window",
                                                   0, 0, MXML_DESCEND_FIRST))
         {
-            if ((c = mxmlElementGetAttr(window, "x"))) window_rect[0] = atoi(c);
-            if ((c = mxmlElementGetAttr(window, "y"))) window_rect[1] = atoi(c);
-            if ((c = mxmlElementGetAttr(window, "w"))) window_rect[2] = atoi(c);
-            if ((c = mxmlElementGetAttr(window, "h"))) window_rect[3] = atoi(c);
+            if ((c = mxmlElementGetAttr(window, "x"))) window_rect[0] =atoi(c);
+            if ((c = mxmlElementGetAttr(window, "y"))) window_rect[1] =atoi(c);
+            if ((c = mxmlElementGetAttr(window, "w"))) window_rect[2] =atoi(c);
+            if ((c = mxmlElementGetAttr(window, "h"))) window_rect[3] =atoi(c);
         }
 
         // Extract the buffer parameters
@@ -716,10 +751,15 @@ app::host::host(std::string file,
         init_client();
     }
 
+    // If no tiles were defined, instance a default.
+
+    if (tiles.empty())
+        tiles.push_back(tile(0));
+
+    // Extract GUI configuration.
+
     if (head)
     {
-        // Extract GUI configuration.
-
         if (mxml_node_t *gui = mxmlFindElement(head, head, "gui",
                                                0, 0, MXML_DESCEND))
         {
@@ -798,6 +838,11 @@ bool app::host::root() const
 
 void app::host::root_loop()
 {
+    std::vector<tile>::iterator i;
+
+    double p[3];
+    double v[3];
+
     while (1)
     {
         SDL_Event e;
@@ -807,16 +852,33 @@ void app::host::root_loop()
         while (SDL_PollEvent(&e))
             switch (e.type)
             {
-            case SDL_MOUSEMOTION:     point(e.motion.x, e.motion.y) ;  break;
-            case SDL_MOUSEBUTTONDOWN: click(e.button.button,   true);  break;
-            case SDL_MOUSEBUTTONUP:   click(e.button.button,   false); break;
-            case SDL_KEYDOWN:         keybd(e.key.keysym.unicode,
-                                            e.key.keysym.sym, 
-                                            SDL_GetModState(), true);  break;
-            case SDL_KEYUP:           keybd(e.key.keysym.unicode,
-                                            e.key.keysym.sym,
-                                            SDL_GetModState(), false); break;
-            case SDL_QUIT:            close(); return;
+            case SDL_MOUSEMOTION:
+                for (i = tiles.begin(); i != tiles.end(); ++i)
+                    if (i->pick(p, v, e.motion.x, e.motion.y))
+                        point(p, v);
+                break;
+
+            case SDL_MOUSEBUTTONDOWN:
+                click(e.button.button, true);
+                break;
+
+            case SDL_MOUSEBUTTONUP:
+                click(e.button.button, false);
+                break;
+
+            case SDL_KEYDOWN:
+                keybd(e.key.keysym.unicode,
+                      e.key.keysym.sym, SDL_GetModState(), true);
+                break;
+
+            case SDL_KEYUP:
+                keybd(e.key.keysym.unicode,
+                      e.key.keysym.sym, SDL_GetModState(), false);
+                break;
+
+            case SDL_QUIT:
+                close();
+                return;
             }
 
         // Handle tracker events.
@@ -829,8 +891,8 @@ void app::host::root_loop()
             bool   b;
 
             if (tracker_button(0, b)) click(0, b);
-            if (tracker_button(1, b)) click(0, b);
-            if (tracker_button(2, b)) click(0, b);
+            if (tracker_button(1, b)) click(1, b);
+            if (tracker_button(2, b)) click(2, b);
 
             if (tracker_sensor(0, p, R)) track(0, p, R[0], R[2]);
             if (tracker_sensor(1, p, R)) track(1, p, R[0], R[2]);
@@ -862,6 +924,7 @@ void app::host::node_loop()
     int    c;
     bool   d;
     double p[3];
+    double v[3];
     double x[3];
     double z[3];
 
@@ -895,9 +958,13 @@ void app::host::node_loop()
             break;
 
         case E_POINT:
-            a = M.get_int();
-            b = M.get_int();
-            point(a, b);
+            p[0] = M.get_double();
+            p[1] = M.get_double();
+            p[2] = M.get_double();
+            v[0] = M.get_double();
+            v[1] = M.get_double();
+            v[2] = M.get_double();
+            point(p, v);
             break;
 
         case E_CLICK:
@@ -961,19 +1028,12 @@ void app::host::draw()
 
     // Draw all tiles.
 
+    std::vector<tile>::iterator i;
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    if (!tiles.empty())
-    {
-        std::vector<tile>::iterator i;
-
-        for (i = tiles.begin(); i != tiles.end(); ++i)
-            i->draw(frames, expose);
-    }
-    else
-    {
-        ::prog->draw();
-    }
+    for (i = tiles.begin(); i != tiles.end(); ++i)
+        i->draw(frames, expose);
 
 //  glFinish();
 }
@@ -1011,18 +1071,22 @@ void app::host::stick(int d, const double *p)
 {
 }
 
-void app::host::point(int x, int y)
+void app::host::point(const double *p, const double *v)
 {
     if (!client_sd.empty())
     {
         message M(E_POINT);
 
-        M.put_int(x);
-        M.put_int(y);
+        M.put_double(p[0]);
+        M.put_double(p[1]);
+        M.put_double(p[2]);
+        M.put_double(v[0]);
+        M.put_double(v[1]);
+        M.put_double(v[2]);
 
         send(M);
     }
-    ::prog->point(x, y);
+    ::prog->point(p, v);
 }
 
 void app::host::click(int b, bool d)

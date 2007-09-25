@@ -21,22 +21,18 @@ namespace mode
 {
     class mode
     {
-        int  drag_x;
-        int  drag_y;
-        bool drag_d;
-
     protected:
 
         wrl::world& world;
 
     public:
 
-        mode(wrl::world& w) : drag_d(false), world(w) { }
+        mode(wrl::world& w) : world(w) { }
 
         virtual void enter() { }
         virtual void leave() { }
 
-        virtual bool point(const double *, const double *, int, int);
+        virtual bool point(const double *, const double *);
         virtual bool click(int, bool);
         virtual bool keybd(int, bool, int);
         virtual bool timer(double);

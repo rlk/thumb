@@ -78,38 +78,35 @@ void demo::goto_mode(mode::mode *next)
 
 //-----------------------------------------------------------------------------
 
-void demo::point(int x, int y)
+void demo::point(const double *p, const double *v)
 {
-    double k = view_turn_rate;
-    double p[3];
-    double v[3];
+    // TODO: ask host for (x, y);
 
-    view->pick(p, v, x, y);
-
-    if (curr->point(p, v, x, y) == false)
+    if (curr->point(p, v) == false)
     {
         // Handle view rotation.
 
         double dx = 0.0;
         double dy = 0.0;
         double dz = 0.0;
-
+/*
         if (button[2])
-            dz = -double(last_x - x) * k;
+            dz = -double(last_x - x) * view_turn_rate;
 
         if (button[3])
         {
-            dx = +double(last_y - y) * k;
-            dy = +double(last_x - x) * k;
+            dx = +double(last_y - y) * view_turn_rate;
+            dy = +double(last_x - x) * view_turn_rate;
         }
-
+*/
         view->turn(dx, dy, dz);
 
-        prog::point(x, y);
+        prog::point(p, v);
     }
-
+/*
     last_x = x;
     last_y = y;
+*/
 }
 
 void demo::click(int b, bool d)

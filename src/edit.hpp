@@ -59,7 +59,7 @@ namespace mode
 
         edit(wrl::world&);
 
-        virtual bool point(const double *, const double *, int, int);
+        virtual bool point(const double *, const double *);
         virtual bool click(int, bool);
         virtual bool keybd(int, bool, int);
         virtual bool timer(double);

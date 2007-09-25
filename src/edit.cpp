@@ -62,9 +62,11 @@ mode::edit::edit(wrl::world &w) : mode(w)
 
 //-----------------------------------------------------------------------------
 
-bool mode::edit::point(const double *p, const double *v, int x, int y)
+bool mode::edit::point(const double *p, const double *v)
 {
     double M[16];
+
+    // TODO: transform (P, V) using view.
 
     world.edit_pick(p, v);
 
@@ -96,7 +98,7 @@ bool mode::edit::point(const double *p, const double *v, int x, int y)
 
         return true;
     }
-    return mode::point(p, v, x, y);
+    return mode::point(p, v);
 }
 
 bool mode::edit::click(int b, bool d)

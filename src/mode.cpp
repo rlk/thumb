@@ -18,31 +18,13 @@
 
 //-----------------------------------------------------------------------------
 
-bool mode::mode::point(const double *, const double *, int x, int y)
+bool mode::mode::point(const double *, const double *)
 {
-    int dx = x - drag_x;
-    int dy = y - drag_y;
-
-    drag_x = x;
-    drag_y = y;
-
-    if (drag_d && (::host->modifiers() & KMOD_ALT))
-    {
-        world.mov_light(dx, dy);
-        return true;
-    }
-
     return false;
 }
 
 bool mode::mode::click(int b, bool d)
 {
-    if (b == 3)
-    {
-        drag_d = d;
-        return true;
-    }
-
     return false;
 }
 

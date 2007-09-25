@@ -95,6 +95,8 @@ namespace app
         tile(mxml_node_t *);
 
         void draw(std::vector<ogl::frame *>&, const ogl::program *);
+
+        bool pick(double *, double *, int, int);
     };
 
     //-------------------------------------------------------------------------
@@ -132,7 +134,7 @@ namespace app
 
         void track(int, const double *, const double *, const double *);
         void stick(int, const double *);
-        void point(int, int);
+        void point(const double *, const double *);
         void click(int, bool);
         void keybd(int, int, int, bool);
         void timer(int);

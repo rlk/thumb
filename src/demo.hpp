@@ -67,7 +67,7 @@ public:
     demo();
    ~demo();
 
-    void point(int, int);
+    void point(const double *, const double *);
     void click(int, bool);
     void keybd(int, bool, int);
     void timer(double);

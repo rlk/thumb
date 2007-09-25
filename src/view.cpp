@@ -498,7 +498,7 @@ void app::view::point_frustum(double *V) const
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void app::view::pick(double *p, double *v, int x, int y) const
 {
     double z = 1.0;
@@ -520,7 +520,7 @@ void app::view::pick(double *p, double *v, int x, int y) const
 
     normalize(v);
 }
-
+*/
 double app::view::dist(double *p) const
 {
     return distance(p, current_M + 12);

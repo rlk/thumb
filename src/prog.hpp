@@ -31,10 +31,10 @@ namespace app
 
         prog();
 
-        virtual void timer(double)    { }
-        virtual void point(int, int)  { }
+        virtual void point(const double *, const double *)  { }
         virtual void click(int, bool) { }
         virtual void keybd(int, bool, int); // TODO: consistent argument order
+        virtual void timer(double)    { }
         
         virtual void draw() { }
 
