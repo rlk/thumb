@@ -46,8 +46,12 @@ void mode::info::leave()
 
 bool mode::info::point(const double *p, const double *v)
 {
-    // TODO: ask host for (x, y);
-//  gui->point(x, y);
+    int x;
+    int y;
+
+    ::host->gui_pick(x, y, p, v);
+
+    gui->point(x, y);
     return false;
 }
 

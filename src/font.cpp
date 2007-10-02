@@ -44,10 +44,10 @@ void app::glyph::draw(int x, int y) const
 
     glBegin(GL_QUADS);
     {
-        glTexCoord2f(s0, t1); glVertex2i(x + x0, y + y0);
-        glTexCoord2f(s0, t0); glVertex2i(x + x0, y + y1);
-        glTexCoord2f(s1, t0); glVertex2i(x + x1, y + y1);
-        glTexCoord2f(s1, t1); glVertex2i(x + x1, y + y0);
+        glTexCoord2f(s0, t0); glVertex2i(x + x0, y + y0);
+        glTexCoord2f(s1, t0); glVertex2i(x + x1, y + y0);
+        glTexCoord2f(s1, t1); glVertex2i(x + x1, y + y1);
+        glTexCoord2f(s0, t1); glVertex2i(x + x0, y + y1);
     }
     glEnd();
 }
@@ -149,10 +149,10 @@ void app::text::draw() const
         {
             glBegin(GL_QUADS);
             {
-                glTexCoord2f(0, t); glVertex2i(x,           y);
-                glTexCoord2f(0, 0); glVertex2i(x,           y + inner_h);
-                glTexCoord2f(s, 0); glVertex2i(x + inner_w, y + inner_h);
-                glTexCoord2f(s, t); glVertex2i(x + inner_w, y);
+                glTexCoord2f(0, 0); glVertex2i(x,           y);
+                glTexCoord2f(s, 0); glVertex2i(x + inner_w, y);
+                glTexCoord2f(s, t); glVertex2i(x + inner_w, y + inner_h);
+                glTexCoord2f(0, t); glVertex2i(x,           y + inner_h);
             }
             glEnd();
         }

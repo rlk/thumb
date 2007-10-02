@@ -28,8 +28,8 @@ struct rect
                                             y <= Y && Y <= y + h); }
     int L() const { return x;     }
     int R() const { return x + w; }
-    int B() const { return y + h; }
-    int T() const { return y;     }
+    int B() const { return y;     }
+    int T() const { return y + h; }
 };
 
 typedef std::vector<rect> rect_v;

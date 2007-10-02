@@ -168,8 +168,6 @@ void app::message::send(SOCKET s)
 
     if (::send(s, &payload, payload.size + 2, 0) == -1)
         throw std::runtime_error(strerror(errno));
-
-//  printf("send %s %d\n", tag(), payload.size);
 }
 
 void app::message::recv(SOCKET s)
@@ -182,8 +180,6 @@ void app::message::recv(SOCKET s)
     if (payload.size > 0)
         if (::recv(s,  payload.data, payload.size, 0) == -1)
             throw std::runtime_error(strerror(errno));
-
-//  printf("recv %s %d\n", tag(), payload.size);
 
     // Reset the unpack pointer to the beginning.
 
@@ -284,8 +280,6 @@ app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
 
 bool app::tile::pick(double *p, double *v, int x, int y)
 {
-    printf("%d %d\n", x, y);
-
     // Determine whether the given pointer position lies within this tile.
 
     if (window_rect[0] <= x && x < window_rect[0] + window_rect[2] &&
@@ -444,14 +438,22 @@ void app::host::load(std::string& file,
 
     const char *buff;
 
-    if ((buff = (const char *) ::data->load(file)))
+    try
     {
-        head = mxmlLoadString(NULL, buff, MXML_TEXT_CALLBACK);
-        node = mxmlFindElement(head, head, "node", "name",
-                               tag.c_str(), MXML_DESCEND);
-    }
+        // Load the named host config file.
 
-    ::data->free(file);
+        if ((buff = (const char *) ::data->load(file)))
+        {
+            head = mxmlLoadString(NULL, buff, MXML_TEXT_CALLBACK);
+            node = mxmlFindElement(head, head, "node", "name",
+                                   tag.c_str(), MXML_DESCEND);
+        }
+        ::data->free(file);
+    }
+    catch (app::find_error& e)
+    {
+        // If the host config file is missing, rely upon defaults.
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -808,9 +810,9 @@ app::host::host(std::string file,
 
     load_idt(gui_M);
 
-    Rmul_xlt_mat(gui_M, TL[0], TL[1], TL[2]);
+    Rmul_xlt_mat(gui_M, BL[0], BL[1], BL[2]);
     mult_mat_mat(gui_M, gui_M, G);
-    Rmul_scl_inv(gui_M, gui_w, -gui_h, 1);
+    Rmul_scl_inv(gui_M, gui_w, gui_h, 1);
 
     load_inv(gui_I, gui_M);
 
@@ -1194,13 +1196,19 @@ void app::host::gui_pick(int& x, int& y, const double *p,
     double q[3];
     double w[3];
 
+    printf("p %+12.5f %+12.5f %+12.5f\n", p[0], p[1], p[2]);
+    printf("v %+12.5f %+12.5f %+12.5f\n", v[0], v[1], v[2]);
+
     mult_mat_vec3(q, gui_I, p);
-    mult_xps_vec3(w, gui_M, v);
+    mult_xps_vec3(w, gui_I, v);
 
-    x = int(nearestint(q[0] + w[0] * w[3]));
-    y = int(nearestint(q[1] + w[1] * w[3]));
+    printf("q %+12.5f %+12.5f %+12.5f\n", q[0], q[1], q[2]);
+    printf("w %+12.5f %+12.5f %+12.5f\n", w[0], w[1], w[2]);
 
-    printf("%d %d\n", x, y);
+    x = int(nearestint(q[0] - q[2] * w[0] / w[2]));
+    y = int(nearestint(q[1] - q[2] * w[1] / w[2]));
+
+    printf("x %d y %d\n", x, y);
 }
 
 void app::host::gui_size(int& w, int& h) const

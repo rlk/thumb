@@ -58,6 +58,7 @@ namespace app
         void set_P(const double *, const double *,
                    const double *, const double *, const double *);
 
+        void turn(const double *, const double *);
         void turn(double, double, double);
         void move(double, double, double);
         void home();

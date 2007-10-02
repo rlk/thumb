@@ -100,10 +100,10 @@ void gui::leaf::draw(const widget *focus, const widget *input) const
 
     glBegin(GL_QUADS);
     {
-        glVertex2i(area.L(), area.T());
         glVertex2i(area.L(), area.B());
         glVertex2i(area.R(), area.B());
         glVertex2i(area.R(), area.T());
+        glVertex2i(area.L(), area.T());
     }
     glEnd();
 }
@@ -334,10 +334,10 @@ void gui::button::draw(const widget *focus, const widget *input) const
     {
         fore_color();
 
-        glVertex2i(area.L() + border, area.T() + border);
-        glVertex2i(area.L() + border, area.B() - border);
-        glVertex2i(area.R() - border, area.B() - border);
-        glVertex2i(area.R() - border, area.T() + border);
+        glVertex2i(area.L() + border, area.B() + border);
+        glVertex2i(area.R() - border, area.B() + border);
+        glVertex2i(area.R() - border, area.T() - border);
+        glVertex2i(area.L() + border, area.T() - border);
     }
     glEnd();
 
@@ -510,10 +510,10 @@ void gui::editor::draw(const widget *focus, const widget *input) const
 
         fore_color();
 
-        glVertex2i(area.L() + 2, area.T() + 2);
-        glVertex2i(area.L() + 2, area.B() - 2);
-        glVertex2i(area.R() - 2, area.B() - 2);
-        glVertex2i(area.R() - 2, area.T() + 2);
+        glVertex2i(area.L() + 2, area.B() + 2);
+        glVertex2i(area.R() - 2, area.B() + 2);
+        glVertex2i(area.R() - 2, area.T() - 2);
+        glVertex2i(area.L() + 2, area.T() - 2);
 
         // Draw the selection / cursor.
 
@@ -535,10 +535,10 @@ void gui::editor::draw(const widget *focus, const widget *input) const
 
             glColor4ub(0xFF, 0xC0, 0x40, 0x80);
 
-            glVertex2i(L, area.T() + 3);
-            glVertex2i(L, area.B() - 3);
-            glVertex2i(R, area.B() - 3);
-            glVertex2i(R, area.T() + 3);
+            glVertex2i(L, area.B() + 3);
+            glVertex2i(R, area.B() + 3);
+            glVertex2i(R, area.T() - 3);
+            glVertex2i(L, area.T() - 3);
         }
     }
     glEnd();
@@ -702,14 +702,11 @@ void gui::scroll::laydn(int x, int y, int w, int h)
 
     for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
     {
-        int dy;
+        int dy = (*i)->get_h() + ((*i)->exp_h() ? (excess / c) : 0);
 
-        if ((*i)->exp_h())
-            (*i)->laydn(x, y, w - scroll_w, (dy = (excess / c)));
-        else
-            (*i)->laydn(x, y, w - scroll_w, (dy = (*i)->get_h()));
+        (*i)->laydn(x, y + h - dy, w - scroll_w, dy);
 
-        y += dy;
+        y -= dy;
     }
 }
 
@@ -736,6 +733,8 @@ void gui::scroll::point(int x, int y)
 
         child_d = m * (y - (area.y + thumb_h / 2 + 2)) /
                            (area.h - thumb_h - 4);
+
+        printf("%d %d\n", thumb_h, child_d);
 
         if (child_d > m) child_d = m;
         if (child_d < 0) child_d = 0;
@@ -768,7 +767,8 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
     if ((m = std::max(child_h - area.h, 0)) > 0)
     {
         thumb_h = thumb_h *  area.h / child_h;
-        thumb_y = thumb_y + (area.h - thumb_h - 4) * child_d / m;
+//      thumb_y = thumb_y + (area.h - thumb_h - 4) * child_d / m;
+        thumb_y = thumb_y + thumb_h * child_d / m;
     }
 
     // Draw the scroll bar.
@@ -781,10 +781,10 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
         {
             back_color(focus);
 
-            glVertex2i(area.R() - scroll_w, area.T());
             glVertex2i(area.R() - scroll_w, area.B());
             glVertex2i(area.R(),            area.B());
             glVertex2i(area.R(),            area.T());
+            glVertex2i(area.R() - scroll_w, area.T());
         }
         glEnd();
 
@@ -795,9 +795,9 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
             fore_color();
 
             glVertex2i(area.R() - scroll_w + 2, thumb_y);
-            glVertex2i(area.R() - scroll_w + 2, thumb_y + thumb_h);
-            glVertex2i(area.R()            - 2, thumb_y + thumb_h);
             glVertex2i(area.R()            - 2, thumb_y);
+            glVertex2i(area.R()            - 2, thumb_y + thumb_h);
+            glVertex2i(area.R() - scroll_w + 2, thumb_y + thumb_h);
         }
         glEnd();
     }
@@ -808,15 +808,9 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
     glPushAttrib(GL_ENABLE_BIT);
     glPushMatrix();
     {
-/*
         glEnable(GL_SCISSOR_TEST);
-        glScissor(area.x, area.y - area.h,
-                  area.w - scroll_w, area.h);
-*/
-/*
-        glScissor(area.x, conf->get_i("window_h") - area.y - area.h,
-                  area.w - scroll_w, area.h);
-*/
+        glScissor(area.x, area.y, area.w - scroll_w, area.h);
+
         glTranslatef(0, float(-child_d), 0);
         tree::draw(focus, input);
     }
@@ -981,10 +975,10 @@ void gui::varray::laydn(int x, int y, int w, int h)
 
     for (widget_v::iterator i = child.begin(); i != child.end(); ++i, ++c)
     {
-        int y0 = y + (c    ) * h / n;
-        int y1 = y + (c + 1) * h / n;
+        int y0 = y + h - (c + 1) * h / n;
+        int y1 = y + h - (c    ) * h / n;
 
-        (*i)->laydn(x, y0, w, y1 - y0);
+        (*i)->laydn(x, y1, w, y0 - y1);
     }
 }
 
@@ -1006,7 +1000,7 @@ void gui::hgroup::layup()
 
 void gui::hgroup::laydn(int x, int y, int w, int h)
 {
-    int dx, c = 0, excess = w - area.w;
+    int c = 0, excess = w - area.w;
 
     widget::laydn(x, y, w, h);
 
@@ -1020,12 +1014,9 @@ void gui::hgroup::laydn(int x, int y, int w, int h)
 
     for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
     {
-        int W = (*i)->get_w();
+        int dx = (*i)->get_w() + ((*i)->exp_w() ? (excess / c) : 0);
 
-        if ((*i)->exp_w())
-            (*i)->laydn(x, y, (dx = W + (excess / c)), h);
-        else
-            (*i)->laydn(x, y, (dx = W), h);
+        (*i)->laydn(x, y, dx, h);
 
         x += dx;
     }
@@ -1049,7 +1040,7 @@ void gui::vgroup::layup()
 
 void gui::vgroup::laydn(int x, int y, int w, int h)
 {
-    int dy, c = 0, excess = h - area.h;
+    int c = 0, excess = h - area.h;
 
     widget::laydn(x, y, w, h);
 
@@ -1063,14 +1054,11 @@ void gui::vgroup::laydn(int x, int y, int w, int h)
 
     for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
     {
-        int H = (*i)->get_h();
+        int dy = (*i)->get_h() + ((*i)->exp_h() ? (excess / c) : 0);
 
-        if ((*i)->exp_h())
-            (*i)->laydn(x, y, w, (dy = H + (excess / c)));
-        else
-            (*i)->laydn(x, y, w, (dy = H));
+        (*i)->laydn(x, y + h - dy, w, dy);
 
-        y += dy;
+        y -= dy;
     }
 }
 
@@ -1159,8 +1147,8 @@ void gui::frame::draw(const widget *focus, const widget *input) const
             const int Ri = area.R() - border;
             const int Ro = area.R();
             const int To = area.T();
-            const int Ti = area.T() + border;
-            const int Bi = area.B() - border;
+            const int Ti = area.T() - border;
+            const int Bi = area.B() + border;
             const int Bo = area.B();
 
             glVertex2i(Lo, To);
@@ -1273,6 +1261,7 @@ void gui::dialog::draw() const
             glDisable(GL_CULL_FACE);
 
             glEnable(GL_BLEND);
+            glEnable(GL_DEPTH_CLAMP_NV); // TODO: better
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 /*
