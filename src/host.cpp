@@ -1195,20 +1195,21 @@ void app::host::gui_pick(int& x, int& y, const double *p,
 
     double q[3];
     double w[3];
-
+/*
     printf("p %+12.5f %+12.5f %+12.5f\n", p[0], p[1], p[2]);
     printf("v %+12.5f %+12.5f %+12.5f\n", v[0], v[1], v[2]);
-
+*/
     mult_mat_vec3(q, gui_I, p);
     mult_xps_vec3(w, gui_I, v);
-
+/*
     printf("q %+12.5f %+12.5f %+12.5f\n", q[0], q[1], q[2]);
     printf("w %+12.5f %+12.5f %+12.5f\n", w[0], w[1], w[2]);
-
+*/
     x = int(nearestint(q[0] - q[2] * w[0] / w[2]));
     y = int(nearestint(q[1] - q[2] * w[1] / w[2]));
-
+/*
     printf("x %d y %d\n", x, y);
+*/
 }
 
 void app::host::gui_size(int& w, int& h) const

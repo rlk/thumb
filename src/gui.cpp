@@ -722,23 +722,21 @@ gui::widget *gui::scroll::click(int x, int y, bool d)
 
 void gui::scroll::point(int x, int y)
 {
-    int thumb_h;
     int m;
 
     // We know the pointer is in the scrollbar, so scroll.
 
     if ((m = std::max(child_h - area.h, 0)) > 0)
     {
-        thumb_h = (area.h - 4) * area.h / child_h;
+        int thumb_h = (area.h - 4) * (area.h - 4) / child_h;
 
-        child_d = m * (y - (area.y + thumb_h / 2 + 2)) /
-                           (area.h - thumb_h - 4);
-
-        printf("%d %d\n", thumb_h, child_d);
+        child_d = m - m * (y - (area.y + thumb_h / 2 + 2)) /
+                          (    (area.h - thumb_h     - 4));
 
         if (child_d > m) child_d = m;
         if (child_d < 0) child_d = 0;
     }
+    else child_d = 0;
 }
 
 gui::widget *gui::scroll::enter(int x, int y)
@@ -750,7 +748,7 @@ gui::widget *gui::scroll::enter(int x, int y)
         rect C(area.x,                     area.y, area.w - scroll_w, area.h);
         rect S(area.x + area.w - scroll_w, area.y,          scroll_w, area.h);
 
-        if (C.test(x, y)) return tree::enter(x, y + child_d);
+        if (C.test(x, y)) return tree::enter(x, y - child_d);
         if (S.test(x, y)) return this;
     }
     return 0;
@@ -766,9 +764,8 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
 
     if ((m = std::max(child_h - area.h, 0)) > 0)
     {
-        thumb_h = thumb_h *  area.h / child_h;
-//      thumb_y = thumb_y + (area.h - thumb_h - 4) * child_d / m;
-        thumb_y = thumb_y + thumb_h * child_d / m;
+        thumb_h  = (area.h - 4) * (area.h - 4) / child_h;
+        thumb_y += (area.h - 4 - thumb_h) * (m - child_d) / m;
     }
 
     // Draw the scroll bar.
@@ -803,15 +800,27 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
     }
     glPopAttrib();
 
-    // Draw the children.
+    // Draw the children, clipped by the area of the scroll.
 
     glPushAttrib(GL_ENABLE_BIT);
     glPushMatrix();
     {
-        glEnable(GL_SCISSOR_TEST);
-        glScissor(area.x, area.y, area.w - scroll_w, area.h);
+        GLdouble L[4] = { +1,  0, 0, -area.L() };
+        GLdouble R[4] = { -1,  0, 0, +area.R() };
+        GLdouble B[4] = {  0, +1, 0, -area.B() };
+        GLdouble T[4] = {  0, -1, 0, +area.T() };
 
-        glTranslatef(0, float(-child_d), 0);
+        glEnable(GL_CLIP_PLANE0);
+        glEnable(GL_CLIP_PLANE1);
+        glEnable(GL_CLIP_PLANE2);
+        glEnable(GL_CLIP_PLANE3);
+
+        glClipPlane(GL_CLIP_PLANE0, L);
+        glClipPlane(GL_CLIP_PLANE1, R);
+        glClipPlane(GL_CLIP_PLANE2, B);
+        glClipPlane(GL_CLIP_PLANE3, T);
+
+        glTranslatef(0, float(child_d), 0);
         tree::draw(focus, input);
     }
     glPopMatrix();
@@ -967,18 +976,18 @@ void gui::varray::layup()
 
 void gui::varray::laydn(int x, int y, int w, int h)
 {
-    int n = int(child.size()), c = 0;
+    int n = int(child.size()), c = n - 1;
 
     widget::laydn(x, y, w, h);
 
     // Distribute vertical space evenly to all children.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i, ++c)
+    for (widget_v::iterator i = child.begin(); i != child.end(); ++i, --c)
     {
-        int y0 = y + h - (c + 1) * h / n;
-        int y1 = y + h - (c    ) * h / n;
+        int y0 = y + (c    ) * h / n;
+        int y1 = y + (c + 1) * h / n;
 
-        (*i)->laydn(x, y1, w, y0 - y1);
+        (*i)->laydn(x, y0, w, y1 - y0);
     }
 }
 
@@ -1258,26 +1267,12 @@ void gui::dialog::draw() const
             glDisable(GL_LIGHTING);
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_TEXTURE_2D);
-            glDisable(GL_CULL_FACE);
 
             glEnable(GL_BLEND);
             glEnable(GL_DEPTH_CLAMP_NV); // TODO: better
 
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-/*
-            glBegin(GL_QUADS);
-            {
-                glColor3f(0.0f, 0.0f, 0.5f);
-                glVertex2i(0,    0);
-                glColor3f(1.0f, 0.0f, 0.5f);
-                glVertex2i(1024, 0);
-                glColor3f(1.0f, 1.0f, 0.5f);
-                glVertex2i(1024, 1024);
-                glColor3f(0.0f, 1.0f, 0.5f);
-                glVertex2i(0,    1024);
-            }
-            glEnd();
-*/
+
             root->draw(focus, input);
         }
         glPopAttrib();
