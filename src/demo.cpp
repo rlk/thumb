@@ -80,33 +80,27 @@ void demo::goto_mode(mode::mode *next)
 
 void demo::point(const double *p, const double *v)
 {
-    // TODO: ask host for (x, y);
+    int x;
+    int y;
+
+    ::host->gui_pick(x, y, p, v);
 
     if (curr->point(p, v) == false)
     {
         // Handle view rotation.
 
-        double dx = 0.0;
-        double dy = 0.0;
-        double dz = 0.0;
-/*
         if (button[2])
-            dz = -double(last_x - x) * view_turn_rate;
+            ::view->turn(0, 0, -double(last_x - x) * view_turn_rate);
 
         if (button[3])
-        {
-            dx = +double(last_y - y) * view_turn_rate;
-            dy = +double(last_x - x) * view_turn_rate;
-        }
-*/
-        view->turn(dx, dy, dz);
+            ::view->turn(-double(last_y - y) * view_turn_rate,
+                         +double(last_x - x) * view_turn_rate, 0);
 
         prog::point(p, v);
     }
-/*
+
     last_x = x;
     last_y = y;
-*/
 }
 
 void demo::click(int b, bool d)
@@ -173,6 +167,11 @@ void demo::timer(double dt)
 
     curr->timer(dt);
     prog::timer(dt);
+}
+
+void demo::track(int d, const double *p, const double *x, const double *z)
+{
+    printf("%f %f %f\n", p[0], p[1], p[2]);
 }
 
 //-----------------------------------------------------------------------------

@@ -35,6 +35,9 @@ namespace app
         virtual void click(int, bool) { }
         virtual void keybd(int, bool, int); // TODO: consistent argument order
         virtual void timer(double)    { }
+        virtual void track(int, const double *,
+                                const double *,
+                                const double *)  { }
         
         virtual void draw() { }
 

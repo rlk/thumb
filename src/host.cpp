@@ -60,12 +60,12 @@ public:
 //-----------------------------------------------------------------------------
 
 #define E_REPLY 0
-#define E_TRACK 1
-#define E_STICK 2
-#define E_POINT 3
-#define E_CLICK 4
-#define E_KEYBD 5
-#define E_TIMER 6
+#define E_POINT 1
+#define E_CLICK 2
+#define E_KEYBD 3
+#define E_TIMER 4
+#define E_TRACK 5
+#define E_STICK 6
 #define E_PAINT 7
 #define E_FLEEP 8
 #define E_CLOSE 9
@@ -149,12 +149,12 @@ const char *app::message::tag() const
     switch (payload.type)
     {
     case E_REPLY: return "reply";
-    case E_TRACK: return "track";
-    case E_STICK: return "stick";
     case E_POINT: return "point";
     case E_CLICK: return "click";
     case E_KEYBD: return "keybd";
     case E_TIMER: return "timer";
+    case E_TRACK: return "track";
+    case E_STICK: return "stick";
     case E_PAINT: return "paint";
     case E_FLEEP: return "fleep";
     case E_CLOSE: return "close";
@@ -1065,10 +1065,6 @@ void app::host::recv(message& M)
 
 //-----------------------------------------------------------------------------
 
-void app::host::track(int d, const double *p, const double *x, const double *z)
-{
-}
-
 void app::host::stick(int d, const double *p)
 {
 }
@@ -1136,6 +1132,28 @@ void app::host::timer(int d)
     ::prog->timer(d / 1000.0);
 
     poll_listen();
+}
+
+void app::host::track(int d, const double *p, const double *x, const double *z)
+{
+    if (!client_sd.empty())
+    {
+        message M(E_TRACK);
+
+        M.put_int   (d);
+        M.put_double(p[0]);
+        M.put_double(p[1]);
+        M.put_double(p[2]);
+        M.put_double(x[0]);
+        M.put_double(x[1]);
+        M.put_double(x[2]);
+        M.put_double(z[0]);
+        M.put_double(z[1]);
+        M.put_double(z[2]);
+
+        send(M);
+    }
+    ::prog->track(d, p, x, z);
 }
 
 void app::host::paint()
