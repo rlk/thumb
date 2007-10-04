@@ -21,24 +21,32 @@ namespace app
 {
     class view
     {
+        // TODO: eliminate W and H
+
         int    w;
         int    h;
         double n;
         double f;
 
+        // Modelview and projection matrix caches
+
         double default_M[16];
         double current_M[16];
         double current_P[16];
 
-        double VP[3];
-        double BL[3];
-        double BR[3];
-        double TL[3];
-        double TR[3];
+        // View configuration and cache
 
-        double R[3];
-        double U[3];
-        double N[3];
+        double P[3];            // View position
+        double X[3];            // View right vector
+
+        double R[3];            // Screen right  vector
+        double U[3];            // Screen up     vector
+        double N[3];            // Screen normal vector
+
+        double BL[3];           // Screen bottom-left  position
+        double BR[3];           // Screen bottom-right position
+        double TL[3];           // Screen top-left     position
+        double TR[3];           // Screen top-right    position
 
         void find_P();
 
@@ -55,8 +63,9 @@ namespace app
         void get_M(      double *);
         void get_P(      double *);
         void set_M(const double *);
+        void set_V(const double *, const double *);
         void set_P(const double *, const double *,
-                   const double *, const double *, const double *);
+                   const double *, const double *);
 
         void turn(const double *, const double *);
         void turn(double, double, double);

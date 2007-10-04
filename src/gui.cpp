@@ -1274,6 +1274,19 @@ void gui::dialog::draw() const
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             root->draw(focus, input);
+
+            glBegin(GL_LINES);
+            {
+                int s = 10;
+
+                glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+
+                glVertex2i(last_x - s, last_y - s);
+                glVertex2i(last_x + s, last_y + s);
+                glVertex2i(last_x - s, last_y + s);
+                glVertex2i(last_x + s, last_y - s);
+            }
+            glEnd();
         }
         glPopAttrib();
     }

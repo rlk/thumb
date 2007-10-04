@@ -26,14 +26,16 @@ app::view::view(int w, int h, double n, double f) :
 
     // Set some reasonable defaults.
 
-    VP[0] =  0.0;     VP[1] =  0.0; VP[2] =  0.0;
+    P[0] = 0; P[1] = 0; P[2] = 0;
+    X[0] = 1; X[1] = 0; X[2] = 0;
+
+    R[0] = 1; R[1] = 0; R[2] = 0;
+    U[0] = 0; U[1] = 1; U[2] = 0;
+    N[0] = 0; N[1] = 0; N[2] = 1;
+
     BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
     BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
     TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
-
-    R[0] = 1.0; R[1] = 0.0; R[2] = 0.0;
-    U[0] = 0.0; U[1] = 1.0; U[2] = 0.0;
-    N[0] = 0.0; N[1] = 0.0; N[2] = 1.0;
 
     load_idt(default_M);
     load_idt(current_M);
@@ -45,32 +47,31 @@ app::view::view(int w, int h, double n, double f) :
 
 void app::view::find_P()
 {
-    double P[16];
     double O[16];
     double T[16];
 
     // Compute the extents of the frustum.
 
-    double k = (N[0] * (BL[0] - VP[0]) + 
-                N[1] * (BL[1] - VP[1]) +
-                N[2] * (BL[2] - VP[2]));
+    double k = (N[0] * (BL[0] - P[0]) + 
+                N[1] * (BL[1] - P[1]) +
+                N[2] * (BL[2] - P[2]));
 
-    double l = n * (R[0] * (VP[0] - BL[0]) +
-                    R[1] * (VP[1] - BL[1]) +
-                    R[2] * (VP[2] - BL[2])) / k;
-    double r = n * (R[0] * (VP[0] - BR[0]) +
-                    R[1] * (VP[1] - BR[1]) +
-                    R[2] * (VP[2] - BR[2])) / k;
-    double b = n * (U[0] * (VP[0] - BL[0]) +
-                    U[1] * (VP[1] - BL[1]) +
-                    U[2] * (VP[2] - BL[2])) / k;
-    double t = n * (U[0] * (VP[0] - TL[0]) +
-                    U[1] * (VP[1] - TL[1]) +
-                    U[2] * (VP[2] - TL[2])) / k;
+    double l = n * (R[0] * (P[0] - BL[0]) +
+                    R[1] * (P[1] - BL[1]) +
+                    R[2] * (P[2] - BL[2])) / k;
+    double r = n * (R[0] * (P[0] - BR[0]) +
+                    R[1] * (P[1] - BR[1]) +
+                    R[2] * (P[2] - BR[2])) / k;
+    double b = n * (U[0] * (P[0] - BL[0]) +
+                    U[1] * (P[1] - BL[1]) +
+                    U[2] * (P[2] - BL[2])) / k;
+    double t = n * (U[0] * (P[0] - TL[0]) +
+                    U[1] * (P[1] - TL[1]) +
+                    U[2] * (P[2] - TL[2])) / k;
 
     // Generate the off-axis projection.
 
-    load_persp(P, l, r, b, t, n, f);
+    load_persp(current_P, l, r, b, t, n, f);
 
     // Use the screen space basis to account for orientation.
 
@@ -81,11 +82,11 @@ void app::view::find_P()
 
     // Move the apex of the frustum to the origin.
 
-    load_xlt_inv(T, VP[0], VP[1], VP[2]);
+    load_xlt_inv(T, P[0], P[1], P[2]);
 
     // Finally, compose the projection.
 
-    mult_mat_mat(current_P, P, O);
+    mult_mat_mat(current_P, current_P, O);
     mult_mat_mat(current_P, current_P, T);
 }
 
@@ -111,15 +112,20 @@ void app::view::set_M(const double *M)
     load_mat(current_M, M);
 }
 
-void app::view::set_P(const double *vp,
-                      const double *bl,
+void app::view::set_V(const double *p,
+                      const double *x)
+{
+    P[0] = p[0]; P[1] = p[1]; P[2] = p[2];
+    X[0] = x[0]; X[1] = x[1]; X[2] = x[2];
+}
+
+void app::view::set_P(const double *bl,
                       const double *br,
                       const double *tl,
                       const double *tr)
 {
     // Store the frustum points.
 
-    VP[0] = vp[0]; VP[1] = vp[1]; VP[2] = vp[2];
     BL[0] = bl[0]; BL[1] = bl[1]; BL[2] = bl[2];
     BR[0] = br[0]; BR[1] = br[1]; BR[2] = br[2];
     TL[0] = tl[0]; TL[1] = tl[1]; TL[2] = tl[2];
@@ -331,10 +337,10 @@ void app::view::world_frustum(double *V) const
     V[2] = -1;
     V[3] =  0;
 
-    get_plane(V +  4, VP, BL, TL);    // Left
-    get_plane(V +  8, VP, TR, BR);    // Right
-    get_plane(V + 12, VP, BR, BL);    // Bottom
-    get_plane(V + 16, VP, TL, TR);    // Top
+    get_plane(V +  4, P, BL, TL);    // Left
+    get_plane(V +  8, P, TR, BR);    // Right
+    get_plane(V + 12, P, BR, BL);    // Bottom
+    get_plane(V + 16, P, TL, TR);    // Top
 }
 
 /*

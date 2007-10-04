@@ -45,6 +45,9 @@ demo::demo()
     view_move_rate = conf->get_f("view_move_rate");
     view_turn_rate = conf->get_f("view_turn_rate");
 
+    tracker_head_sensor = conf->get_i("tracker_head_sensor");
+    tracker_hand_sensor = conf->get_i("tracker_hand_sensor");
+
     // Initialize the demo state.
 
     motion[0] = 0;
@@ -171,7 +174,19 @@ void demo::timer(double dt)
 
 void demo::track(int d, const double *p, const double *x, const double *z)
 {
-    printf("%f %f %f\n", p[0], p[1], p[2]);
+    if (d == tracker_head_sensor)
+        ::view->set_V(p, x);
+
+    if (d == tracker_hand_sensor)
+    {
+        double v[3];
+
+        v[0] = -z[0];
+        v[1] = -z[1];
+        v[2] = -z[2];
+
+        point(p, v);
+    }
 }
 
 //-----------------------------------------------------------------------------

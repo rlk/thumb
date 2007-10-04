@@ -310,26 +310,22 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
 {
     if (frames.size() == 0)
     {
-        double P[3] = { 0.0, 0.0, 0.0 };
-
         glViewport(window_rect[0], window_rect[1],
                    window_rect[2], window_rect[3]);
 
-        ::view->set_P(P, BL, BR, TL, TR);
+        ::view->set_P(BL, BR, TL, TR);
         ::prog->draw();
     }
 
     if (frames.size() == 1)
     {
-        double P[3] = { 0.0, 4.25, 0.0 };
-
         // Render the view to the off-screen framebuffer.
 
         frames[0]->bind();
         {
             glClear(GL_COLOR_BUFFER_BIT);
 
-            ::view->set_P(P, BL, BR, TL, TR);
+            ::view->set_P(BL, BR, TL, TR);
             ::prog->draw();
         }
         frames[0]->free();
@@ -344,20 +340,13 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
 
     if (frames.size() == 2)
     {
-/*
-        double L[3] = { -0.125, 4.25, 0.0 };
-        double R[3] = { +0.125, 4.25, 0.0 };
-*/
-        double L[3] = { -0.0, 4.25, 0.0 };
-        double R[3] = { +0.0, 4.25, 0.0 };
-
         // Render the left eye view to the off-screen framebuffer.
 
         frames[0]->bind();
         {
             glClear(GL_COLOR_BUFFER_BIT);
 
-            ::view->set_P(L, BL, BR, TL, TR);
+            ::view->set_P(BL, BR, TL, TR);
             ::prog->draw();
         }
         frames[0]->free();
@@ -368,7 +357,7 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
         {
             glClear(GL_COLOR_BUFFER_BIT);
 
-            ::view->set_P(R, BL, BR, TL, TR);
+            ::view->set_P(BL, BR, TL, TR);
             ::prog->draw();
         }
         frames[1]->free();

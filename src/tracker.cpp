@@ -36,6 +36,16 @@ typedef unsigned int uint32_t;
 
 //-----------------------------------------------------------------------------
 
+#ifndef PI
+#define PI 3.14159265358979323846
+#endif
+
+#ifndef RAD
+#define RAD(d) (PI * (d) / 180.0)
+#endif
+
+//-----------------------------------------------------------------------------
+
 struct tracker_header
 {
     uint32_t version;
@@ -201,24 +211,34 @@ bool tracker_sensor(int id, double p[3], double R[3][3])
 
                 // Return the orientation of sensor ID.
 
-                double ch = cos(S->r[0]);
-                double sh = sin(S->r[0]);
-                double ca = cos(S->r[1]);
-                double sa = sin(S->r[1]);
-                double cb = cos(S->r[2]);
-                double sb = sin(S->r[2]);
+                double cy = cos(RAD(S->r[0]));   // azimuth   (yaw)
+                double sy = sin(RAD(S->r[0]));
+                double cp = cos(RAD(S->r[1]));   // elevation (pitch)
+                double sp = sin(RAD(S->r[1]));
+                double cr = cos(RAD(S->r[2]));   // roll      (roll)
+                double sr = sin(RAD(S->r[2]));
 
                 // TODO: watch out for gimbal lock.
 
-                R[0][0] =  ch * ca;
-                R[0][1] =  sh * sb - ch * sa * cb;
-                R[0][2] =  ch * sa * sb + sh * cb;
-                R[1][0] =  sa;
-                R[1][1] =  ca * cb;
-                R[1][2] = -ca * sb;
-                R[2][0] = -sh * ca;
-                R[2][1] =  sh * sa * cb + ch * sb;
-                R[2][2] = -sh * sa * sb + ch * cb;
+                printf("%f %f %f\n", S->r[0], S->r[1], S->r[2]);
+
+                // theta = pitch
+                // psi   = yaw
+                // phi   = roll
+
+                R[0][0]	= -(cr * sp * sy - sr * cy);
+                R[0][1]	= -(cr * sp * cy + sr * sy);
+                R[0][2]	= -(cp * cr);
+
+                R[1][0]	=  (sr * sp * cy - cr * sy);
+                R[1][1]	=  (sr * sp * sy + cr * cy);
+                R[1][2]	=  (cp * sr);
+
+                R[2][0] =  (cp * sy);
+                R[2][1] = -(sp);
+                R[2][2]	=  (cp * cy);
+
+                printf("%+12.5f %+12.5f %+12.5f\n", R[1][0], R[1][1], R[1][2]);
 
                 return true;
             }

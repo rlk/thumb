@@ -35,9 +35,12 @@ class demo : public app::prog
     int key_move_R;
     int key_move_F;
     int key_move_B;
-        
+
     double view_move_rate;
     double view_turn_rate;
+
+    int tracker_head_sensor;
+    int tracker_hand_sensor;
 
     // Entity state.
 
