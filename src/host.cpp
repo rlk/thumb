@@ -417,6 +417,40 @@ void app::tile::draw(std::vector<ogl::frame *>& frames,
 
 //=============================================================================
 
+app::eye::eye(mxml_node_t *node)
+{
+    // Set some reasonable defaults.
+
+    V[0] = P[0] = 0;
+    V[1] = P[1] = 0;
+    V[2] = P[2] = 0;
+
+    // If we have an XML configuration node...
+
+    if (node)
+    {
+        const char *c;
+
+        if ((c = mxmlElementGetAttr(node, "x"))) V[0] = atof(c);
+        if ((c = mxmlElementGetAttr(node, "y"))) V[1] = atof(c);
+        if ((c = mxmlElementGetAttr(node, "z"))) V[2] = atof(c);
+    }
+}
+
+void app::eye::set_head(const double *p,
+                        const double *x,
+                        const double *y,
+                        const double *z)
+{
+    // Cache the eye positions in the head's coordinate system.
+
+    P[0] = p[0] + V[0] * x[0] + V[1] * y[0] + V[2] * z[0];
+    P[1] = p[1] + V[0] * x[1] + V[1] * y[1] + V[2] * z[1];
+    P[2] = p[2] + V[0] * x[2] + V[1] * y[2] + V[2] * z[2];
+}
+
+//=============================================================================
+
 void app::host::load(std::string& file,
                      std::string& tag)
 {
@@ -702,6 +736,8 @@ app::host::host(std::string file,
 
     if (node)
     {
+        mxml_node_t *curr;
+
         // Extract the window parameters.
 
         if (mxml_node_t *window = mxmlFindElement(node, node, "window",
@@ -728,9 +764,12 @@ app::host::host(std::string file,
         if ((c = mxmlElementGetAttr(node, "vert"))) vert = std::string(c);
         if ((c = mxmlElementGetAttr(node, "frag"))) frag = std::string(c);
 
-        // Extract tile config parameters.
+        // Extract eye config parameters
 
-        mxml_node_t *curr;
+        MXML_FORALL(node, curr, "eye")
+            eyes.push_back(eye(curr));
+
+        // Extract tile config parameters.
 
         MXML_FORALL(node, curr, "tile")
             tiles.push_back(tile(curr));
@@ -742,10 +781,10 @@ app::host::host(std::string file,
         init_client();
     }
 
-    // If no tiles were defined, instance a default.
+    // If no eyes or tiles were defined, instance defaults.
 
-    if (tiles.empty())
-        tiles.push_back(tile(0));
+    if ( eyes.empty())  eyes.push_back( eye(0));
+    if (tiles.empty()) tiles.push_back(tile(0));
 
     // Extract GUI configuration.
 
@@ -821,11 +860,6 @@ app::host::~host()
 }
 
 //-----------------------------------------------------------------------------
-
-bool app::host::root() const
-{
-    return (server_sd == INVALID_SOCKET);
-}
 
 void app::host::root_loop()
 {
@@ -1195,6 +1229,19 @@ void app::host::close()
 
 //-----------------------------------------------------------------------------
 
+void app::host::set_head(const double *p,
+                         const double *x,
+                         const double *y,
+                         const double *z)
+{
+    std::vector<eye>::iterator i;
+
+    for (i = eyes.begin(); i != eyes.end(); ++i)
+        i->set_head(p, x, y, z);
+}
+
+//-----------------------------------------------------------------------------
+
 void app::host::gui_pick(int& x, int& y, const double *p,
                                          const double *v) const
 {
@@ -1202,21 +1249,12 @@ void app::host::gui_pick(int& x, int& y, const double *p,
 
     double q[3];
     double w[3];
-/*
-    printf("p %+12.5f %+12.5f %+12.5f\n", p[0], p[1], p[2]);
-    printf("v %+12.5f %+12.5f %+12.5f\n", v[0], v[1], v[2]);
-*/
+
     mult_mat_vec3(q, gui_I, p);
     mult_xps_vec3(w, gui_I, v);
-/*
-    printf("q %+12.5f %+12.5f %+12.5f\n", q[0], q[1], q[2]);
-    printf("w %+12.5f %+12.5f %+12.5f\n", w[0], w[1], w[2]);
-*/
+
     x = int(nearestint(q[0] - q[2] * w[0] / w[2]));
     y = int(nearestint(q[1] - q[2] * w[1] / w[2]));
-/*
-    printf("x %d y %d\n", x, y);
-*/
 }
 
 void app::host::gui_size(int& w, int& h) const

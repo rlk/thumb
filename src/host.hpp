@@ -97,6 +97,29 @@ namespace app
         void draw(std::vector<ogl::frame *>&, const ogl::program *);
 
         bool pick(double *, double *, int, int);
+
+        const double *get_BL() const { return BL; }
+        const double *get_BR() const { return BR; }
+        const double *get_TL() const { return TL; }
+        const double *get_TR() const { return TR; }
+    };
+
+    //-------------------------------------------------------------------------
+    // Eye
+
+    class eye
+    {
+        double V[3];
+        double P[3];
+
+    public:
+
+        eye(mxml_node_t *);
+
+        void set_head(const double *, const double *,
+                      const double *, const double *);
+
+        const double *get_P() const { return P; }
     };
 
     //-------------------------------------------------------------------------
@@ -161,6 +184,7 @@ namespace app
         int buffer_w;
         int buffer_h;
 
+        std::vector<eye>          eyes;
         std::vector<tile>         tiles;
         std::vector<ogl::frame *> frames;
 
@@ -181,7 +205,7 @@ namespace app
         host(std::string, std::string);
        ~host();
 
-        bool root() const;
+        bool root() const { return (server_sd == INVALID_SOCKET); }
         void loop();
         void draw();
 
@@ -195,6 +219,9 @@ namespace app
         int get_buffer_h() const { return buffer_h; }
 
         int modifiers() const { return mods; }
+
+        void set_head(const double *, const double *,
+                      const double *, const double *);
 
         void gui_pick(int&, int&, const double *, const double *) const;
         void gui_size(int&, int&)                                 const;

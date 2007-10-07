@@ -9,12 +9,15 @@
       <corner name="TL" x="-1.333" y=" 0.5" z="-2.0"/>
   </gui>
 
+  <eye x="-0.1" y="0.0" z="0.0"/>
+  <eye x=" 0.1" y="0.0" z="0.0"/>
+
   <!-- Server -->
 
   <node name="localhost" port="2827">
     <client name="localhost1" addr="localhost"/>
     <window x="0" y="0" w="640" h="480"/>
-    <tile>
+    <tile eye="0">
       <viewport x="0" y="0" w="640" h="480"/>
       <corner name="BL" x="-1.333" y="-0.5" z="-2.0"/>
       <corner name="BR" x=" 0.000" y="-0.5" z="-2.0"/>
@@ -27,7 +30,7 @@
   <node name="localhost1">
     <window x="640" y="0" w="640" h="480"/>
     <server addr="localhost" port="2827"/>
-    <tile>
+    <tile eye="1">
       <viewport x="0" y="0" w="640" h="480"/>
       <corner name="BL" x=" 0.000" y="-0.5" z="-2.0"/>
       <corner name="BR" x=" 1.333" y="-0.5" z="-2.0"/>
