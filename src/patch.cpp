@@ -355,12 +355,15 @@ int uni::patch::visible(const double *V)
     else
         c += d;
 
+/* TODO: near plane
     if ((d = patch_plane_range(n0, n1, n2, V + 20, r0, r1)) < 0)
         return -1;
     else
         c += d;
 
     return (c == 6) ? 1 : 0;
+*/
+    return (c == 5) ? 1 : 0;
 }
 
 double uni::patch::value(const double *p)

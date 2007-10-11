@@ -44,7 +44,7 @@ class demo : public app::prog
 
     // Entity state.
 
-//  uni::universe universe;
+    uni::universe universe;
     wrl::world    world;
 
     // Editor mode.
@@ -78,7 +78,8 @@ public:
                     const double *,
                     const double *);
 
-    void draw();
+    void prep(const double *, int);
+    void draw(const double *, const double *);
 };
 
 //-----------------------------------------------------------------------------

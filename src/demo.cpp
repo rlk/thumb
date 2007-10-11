@@ -108,11 +108,9 @@ void demo::point(const double *p, const double *v)
 
 void demo::click(int b, bool d)
 {
-/*
     if      (d && b == 4) universe.turn(+1);
     else if (d && b == 5) universe.turn(-1);
     else
-*/
     {
         button[b] = d;
 
@@ -152,12 +150,11 @@ void demo::timer(double dt)
     double k;
 
     // Determine the rate of motion.
-/*
+
     if (::host->modifiers() & KMOD_CTRL)
-        k = dt * universe.rate();
-    else
-*/
         k = dt * view_move_rate;
+    else
+        k = dt * universe.rate();
 
     if (::host->modifiers() & KMOD_SHIFT)
         k *= 10.0;
@@ -197,32 +194,38 @@ void demo::track(int d, const double *p, const double *x, const double *z)
 
 //-----------------------------------------------------------------------------
 
-void demo::draw()
+void demo::prep(const double *F, int n)
+{
+    universe.prep(F, n);
+}
+
+void demo::draw(const double *frag_d, const double *frag_k)
 {
     GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
 
-    glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
 
     glPushAttrib(GL_ENABLE_BIT);
     {
+/*
         double planes[20];
         double points[24];
-
+*/
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
-/*
-        view->push();
-        universe.draw();
-        view->pop();
-*/
-        // Compute the view frusta.
 
+//      view->push();
+        universe.draw(frag_d, frag_k);
+//      view->pop();
+
+        // Compute the view frusta.
+/*
         view->plane_frustum(planes);
         view->range(1.0, curr->view(planes));
         view->point_frustum(points);
@@ -235,6 +238,7 @@ void demo::draw()
         view->draw();
         curr->draw(points);
         view->pop();
+*/
     }
     glPopAttrib();
 }

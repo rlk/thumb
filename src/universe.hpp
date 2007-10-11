@@ -35,7 +35,8 @@ namespace uni
         universe();
        ~universe();
 
-        void draw();
+        void prep(const double *, int);
+        void draw(const double *, const double *);
 
         double rate() const;
         void turn(int);

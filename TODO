@@ -1,3 +1,16 @@
+separate sphere prep/step from draw
+pass frustum union to prep/step
+remove ::view from sphere and universe
+host draw
+    find frustum union
+    universe prep
+    for each tile
+        find projection
+        universe draw
+tile expose
+
+
+tracked navigation
 restructure tile draw to support direct rendering
 serious far clipping issue in tile mode
 fix the gui to work with tile rendering

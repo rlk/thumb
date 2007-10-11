@@ -21,6 +21,13 @@ namespace app
 {
     class view
     {
+    public:
+
+        enum view_type { type_mono, type_varrier, type_anaglyph };
+        enum view_mode { mode_norm, mode_test };
+
+    private:
+
         // TODO: eliminate W and H
 
         int    w;
@@ -48,6 +55,9 @@ namespace app
         double TL[3];           // Screen top-left     position
         double TR[3];           // Screen top-right    position
 
+        enum view_type type;
+        enum view_mode mode;
+
         void find_P();
 
     public:
@@ -63,8 +73,8 @@ namespace app
         void get_M(      double *);
         void get_P(      double *);
         void set_M(const double *);
-        void set_V(const double *, const double *);
-        void set_P(const double *, const double *,
+        void set_P(const double *);
+        void set_V(const double *, const double *,
                    const double *, const double *);
 
         void turn(const double *, const double *);
@@ -80,10 +90,15 @@ namespace app
         void mult_T() const;
         void mult_V() const;
 
-        void world_frustum(double *) const;
         void plane_frustum(double *) const;
         void point_frustum(double *) const;
 
+        void set_type(enum view_type t) { type = t; }
+        void set_mode(enum view_mode t) { mode = t; }
+
+        enum view_type get_type() const { return type; }
+        enum view_mode get_mode() const { return mode; }
+        
         void range(double, double);
 
         void draw() const;

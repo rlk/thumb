@@ -67,30 +67,37 @@ uni::universe::~universe()
 
 //-----------------------------------------------------------------------------
 
-void uni::universe::draw()
+void uni::universe::prep(const double *F, int n)
 {
+    // Determine the modelview matrix and inverse.
+
     double M[16];
     double I[16];
-    double P[16];
-
-    int i, n = 1;
 
     ::view->get_M(M);
+
     load_inv(I, M);
-    ::view->get_P(P);
 
     // Preprocess all objects.
 
-    for (i = 0; i < n; ++i) S[i]->view(P, M, I);
+    int i, N = 1;
 
-    std::sort(S, S + n, sphcmp);
+    for (i = 0; i < N; ++i) S[i]->view(M, I, F, n);
+
+    std::sort(S, S + N, sphcmp);
     
-    for (i = 0; i < n; ++i) S[i]->step();
-    for (i = 0; i < n; ++i) S[i]->prep();
+    for (i = 0; i < N; ++i) S[i]->step();
+    for (i = 0; i < N; ++i) S[i]->prep();
+}
+
+void uni::universe::draw(const double *frag_d,
+                         const double *frag_k)
+{
+    int i, N = 1;
 
     // Draw all objects.
 
-    for (i = 0; i < n; ++i)
+    for (i = 0; i < N; ++i)
     {
         double n;
         double f;
@@ -104,7 +111,7 @@ void uni::universe::draw()
 
         glLoadIdentity();
 
-        S[i]->draw();
+        S[i]->draw(frag_d, frag_k);
     }
 }
 

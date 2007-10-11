@@ -3,11 +3,16 @@
 uniform sampler2DRect dif;
 uniform sampler2DRect nrm;
 
+uniform vec2 frag_k;
+uniform vec2 frag_d;
+
 void main (void)
 {
+    vec2 p = (gl_FragCoord.xy + frag_d) * frag_k;
+
     vec3 L = gl_LightSource[0].position.xyz;
-    vec3 D = texture2DRect(dif, gl_FragCoord.xy).rgb;
-    vec3 N = texture2DRect(nrm, gl_FragCoord.xy).rgb;
+    vec3 D = texture2DRect(dif, p).rgb;
+    vec3 N = texture2DRect(nrm, p).rgb;
 
     N = normalize((N * 2.0) - 1.0);
 

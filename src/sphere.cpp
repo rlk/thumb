@@ -195,8 +195,7 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::transform(const double *Pv,
-                            const double *Mv,
+void uni::sphere::transform(const double *Mv,
                             const double *Iv)
 {
     double A[16];
@@ -230,10 +229,6 @@ void uni::sphere::transform(const double *Pv,
     mult_mat_mat(I, B, I);              // Planet tilt
     Lmul_rot_inv(I, 0, 1, 0, a);        // Planet rotation
 
-    // Compose the model-view-projection.
-
-    mult_mat_mat(MVP, Pv, M);
-
     // Apply the transform to the atmosphere.
 
     if (atmo_node) atmo_node->transform(M);
@@ -241,18 +236,17 @@ void uni::sphere::transform(const double *Pv,
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::view(const double *Pv,
-                       const double *Mv,
-                       const double *Iv)
+void uni::sphere::view(const double *Mv,
+                       const double *Iv,
+                       const double *F, int n)
 {
     if ((visible = true)) // HACK (visible = cam->test(p, r1)))
     {
-        double o[ 3] = { 0, 0, 0 };
-        double O[20];
+        double o[3] = { 0, 0, 0 };
 
         // The sphere is visible.  Cache the transform and view vector.
 
-        transform(Pv, Mv, Iv);
+        transform(Mv, Iv);
 
         mult_mat_vec3(v, I, o);
 
@@ -265,15 +259,12 @@ void uni::sphere::view(const double *Pv,
 
         normalize(V);
 
-        // Determine the view planes. TODO: move this up.
+        // Determine the world-space view frustum planes.
 
-        ::view->world_frustum(O);
-
-        mult_xps_vec4(V +  4, M, O +  0);
-        mult_xps_vec4(V +  8, M, O +  4);
-        mult_xps_vec4(V + 12, M, O +  8);
-        mult_xps_vec4(V + 16, M, O + 12);
-        mult_xps_vec4(V + 20, M, O + 16);
+        mult_xps_vec4(V +  4, M, F +  0);
+        mult_xps_vec4(V +  8, M, F +  4);
+        mult_xps_vec4(V + 12, M, F +  8);
+        mult_xps_vec4(V + 16, M, F + 12);
 
         // Prep the atmosphere model.
 
@@ -454,7 +445,8 @@ void uni::sphere::pass()
         }
 }
 
-void uni::sphere::draw()
+void uni::sphere::draw(const double *frag_d,
+                       const double *frag_k)
 {
     if (count)
     {
@@ -570,6 +562,9 @@ void uni::sphere::draw()
                 {
                     land_prog->uniform("dif", 1);
                     land_prog->uniform("nrm", 2);
+
+                    land_prog->uniform("frag_d", frag_d[0], frag_d[1]);
+                    land_prog->uniform("frag_k", frag_k[0], frag_k[1]);
 
                     ren.bind();
                     dat.idx()->bind();

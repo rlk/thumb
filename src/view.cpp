@@ -20,7 +20,7 @@
 //-----------------------------------------------------------------------------
 
 app::view::view(int w, int h, double n, double f) :
-    w(w), h(h), n(n), f(f)
+    w(w), h(h), n(n), f(f), type(type_mono), mode(mode_norm)
 {
     const double a = double(w) / double(h);
 
@@ -112,14 +112,14 @@ void app::view::set_M(const double *M)
     load_mat(current_M, M);
 }
 
-void app::view::set_V(const double *p,
-                      const double *x)
+void app::view::set_P(const double *p)
 {
     P[0] = p[0]; P[1] = p[1]; P[2] = p[2];
-    X[0] = x[0]; X[1] = x[1]; X[2] = x[2];
+
+    find_P();
 }
 
-void app::view::set_P(const double *bl,
+void app::view::set_V(const double *bl,
                       const double *br,
                       const double *tl,
                       const double *tr)
@@ -148,8 +148,6 @@ void app::view::set_P(const double *bl,
     normalize(R);
     normalize(U);
     normalize(N);
-
-    find_P();
 }
 
 //-----------------------------------------------------------------------------
@@ -327,7 +325,7 @@ void app::view::home()
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void app::view::world_frustum(double *V) const
 {
     // View plane.
@@ -337,12 +335,12 @@ void app::view::world_frustum(double *V) const
     V[2] = -1;
     V[3] =  0;
 
-    get_plane(V +  4, P, BL, TL);    // Left
-    get_plane(V +  8, P, TR, BR);    // Right
-    get_plane(V + 12, P, BR, BL);    // Bottom
-    get_plane(V + 16, P, TL, TR);    // Top
+    make_plane(V +  4, P, BL, TL);    // Left
+    make_plane(V +  8, P, TR, BR);    // Right
+    make_plane(V + 12, P, BR, BL);    // Bottom
+    make_plane(V + 16, P, TL, TR);    // Top
 }
-
+*/
 /*
 void app::view::world_frustum(double *V) const
 {

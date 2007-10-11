@@ -1,6 +1,6 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="host_file">host/ives.xml</option>
+  <option type="string" name="host_file">host/localhost-one.xml</option>
   <option type="string" name="shadows">map</option>
   <option type="string" name="z_only">false</option>
   <option type="string" name="screenshot_file">snap.png</option>
@@ -10,8 +10,8 @@ version="1.0"?><conf>
   <option type="int" name="mono_size">14</option>
   <option type="int" name="tracker_head_sensor">0</option>
   <option type="int" name="tracker_hand_sensor">1</option>
-  <option type="int" name="window_fullscreen">1</option>
-  <option type="int" name="window_noframe">1</option>
+  <option type="int" name="window_fullscreen">0</option>
+  <option type="int" name="window_noframe">0</option>
   <option type="int" name="key_undo">103</option>
   <option type="int" name="key_redo">107</option>
   <option type="int" name="key_move_L">97</option>

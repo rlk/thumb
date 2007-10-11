@@ -188,7 +188,101 @@ void app::message::recv(SOCKET s)
 
 //=============================================================================
 
-app::tile::tile(mxml_node_t *node) : type(mono_type), mode(normal_mode)
+app::eye::eye(mxml_node_t *node, int w, int h) : w(w), h(h), back(0)
+{
+    // Set some reasonable defaults.
+
+    V[0] = P[0] = 0;
+    V[1] = P[1] = 0;
+    V[2] = P[2] = 0;
+
+    color[0] = color[1] = color[2] = 0xFF;
+
+    // If we have an XML configuration node...
+
+    if (node)
+    {
+        const char *c;
+
+        if ((c = mxmlElementGetAttr(node, "x"))) V[0]     = atof(c);
+        if ((c = mxmlElementGetAttr(node, "y"))) V[1]     = atof(c);
+        if ((c = mxmlElementGetAttr(node, "z"))) V[2]     = atof(c);
+
+        if ((c = mxmlElementGetAttr(node, "r"))) color[0] = atoi(c);
+        if ((c = mxmlElementGetAttr(node, "g"))) color[1] = atoi(c);
+        if ((c = mxmlElementGetAttr(node, "b"))) color[2] = atoi(c);
+    }
+}
+
+app::eye::~eye()
+{
+    if (back) ::glob->free_frame(back);
+}
+
+void app::eye::set_head(const double *p,
+                        const double *x,
+                        const double *y,
+                        const double *z)
+{
+    // Cache the eye positions in the head's coordinate system.
+
+    P[0] = p[0] + V[0] * x[0] + V[1] * y[0] + V[2] * z[0];
+    P[1] = p[1] + V[0] * x[1] + V[1] * y[1] + V[2] * z[1];
+    P[2] = p[2] + V[0] * x[2] + V[1] * y[2] + V[2] * z[2];
+}
+
+void app::eye::draw(const int *rect)
+{
+    double frag_d[2] = { 0, 0 };
+    double frag_k[2] = { 1, 1 };
+
+    // Set the eye position.
+
+    ::view->set_P(P);
+
+    // If we are rendering directly on-screen...
+
+    if (::view->get_type() == view::type_mono)
+    {
+        // Compute the on-screen to off-screen fragment transform.
+
+        frag_d[0] =            -double(rect[0]);
+        frag_d[1] =            -double(rect[1]);
+        frag_k[0] = double(w) / double(rect[2]);
+        frag_k[1] = double(h) / double(rect[3]);
+
+        // Draw the scene.
+
+        glViewport(rect[0], rect[1], rect[2], rect[3]);
+
+        ::prog->draw(frag_d, frag_k);
+    }
+    else
+    {
+        // Make sure the off-screen buffer exists.
+
+        if (back == 0)
+            back = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
+                                           GL_RGBA8, true, false);
+        if (back)
+        {
+            back->bind();
+            {
+                // Draw the scene.
+
+                glViewport(0, 0, w, h);
+                glClear(GL_COLOR_BUFFER_BIT);
+
+                ::prog->draw(frag_d, frag_k);
+            }
+            back->free();
+        }
+    }
+}
+
+//=============================================================================
+
+app::tile::tile(mxml_node_t *node)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
 
@@ -305,148 +399,62 @@ bool app::tile::pick(double *p, double *v, int x, int y)
     return false;
 }
 
-void app::tile::draw(std::vector<ogl::frame *>& frames,
-                           const ogl::program  *expose)
+void app::tile::draw(std::vector<eye>& eyes, const ogl::program *expose)
 {
-    if (frames.size() == 0)
-    {
-        glViewport(window_rect[0], window_rect[1],
-                   window_rect[2], window_rect[3]);
+    // Apply the tile corners.
 
-        ::view->set_P(BL, BR, TL, TR);
-        ::prog->draw();
+    ::view->set_V(BL, BR, TL, TR);
+
+    // Render the view from each eye.
+
+    std::vector<eye>::iterator i;
+
+    for (i = eyes.begin(); i != eyes.end(); ++i)
+    {
+        i->draw(window_rect);
     }
 
-    if (frames.size() == 1)
+    // Render the onscreen exposure.
+
+    if (expose)
     {
-        // Render the view to the off-screen framebuffer.
+        // Bind the eye buffers.
 
-        frames[0]->bind();
-        {
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            ::view->set_P(BL, BR, TL, TR);
-            ::prog->draw();
-        }
-        frames[0]->free();
-
-        // bind the off-screen framebuffer as texture.
-
-        frames[0]->bind_color(GL_TEXTURE0);
-
-        expose->bind();
-        expose->uniform("map", 0);
-    }
-
-    if (frames.size() == 2)
-    {
-        // Render the left eye view to the off-screen framebuffer.
-
-        frames[0]->bind();
-        {
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            ::view->set_P(BL, BR, TL, TR);
-            ::prog->draw();
-        }
-        frames[0]->free();
-
-        // Render the right eye view to the off-screen framebuffer.
-
-        frames[1]->bind();
-        {
-            glClear(GL_COLOR_BUFFER_BIT);
-
-            ::view->set_P(BL, BR, TL, TR);
-            ::prog->draw();
-        }
-        frames[1]->free();
-
-        // Bind the off-screen framebuffers as textures.
-
-        frames[0]->bind_color(GL_TEXTURE0);
-        frames[1]->bind_color(GL_TEXTURE1);
-
-        expose->bind();
-        expose->uniform("L_map", 0);
-        expose->uniform("R_map", 1);
-    }
-
-    // Set the off-screen to on-screen mapping and render.
-
-    if (frames.size() > 0)
-    {
-        int buffer_w = ::host->get_buffer_w();
-        int buffer_h = ::host->get_buffer_h();
-
-        expose->uniform("k",  double(buffer_w) / double(window_rect[2]),
-                              double(buffer_h) / double(window_rect[3]));
-        expose->uniform("d",                    -double(window_rect[0]),
-                                                -double(window_rect[1]));
+        /*
+        expose->uniform("d", pd[0], pd[1]);
+        expose->uniform("k", pk[0], pk[1]);
+        */
 
         // Draw a tile-filling rectangle.
 
-        glViewport(window_rect[0], window_rect[1],
-                   window_rect[2], window_rect[3]);
-
-        glMatrixMode(GL_PROJECTION);
+        expose->bind();
         {
-            glLoadIdentity();
-            glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glLoadIdentity();
-        }
+            glViewport(window_rect[0], window_rect[1],
+                       window_rect[2], window_rect[3]);
 
-        glBegin(GL_QUADS);
-        {
-            glVertex2f(-W / 2, -H / 2);
-            glVertex2f(+W / 2, -H / 2);
-            glVertex2f(+W / 2, +H / 2);
-            glVertex2f(-W / 2, +H / 2);
-        }
-        glEnd();
+            glMatrixMode(GL_PROJECTION);
+            {
+                glLoadIdentity();
+                glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
+            }
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glLoadIdentity();
+            }
 
+            glBegin(GL_QUADS);
+            {
+                glVertex2f(-W / 2, -H / 2);
+                glVertex2f(+W / 2, -H / 2);
+                glVertex2f(+W / 2, +H / 2);
+                glVertex2f(-W / 2, +H / 2);
+            }
+            glEnd();
+        }
         expose->free();
 
-        frames[1]->free_color(GL_TEXTURE1);
-        frames[0]->free_color(GL_TEXTURE0);
+        // Free the eye buffers...
     }
-}
-
-//=============================================================================
-
-app::eye::eye(mxml_node_t *node)
-{
-    // Set some reasonable defaults.
-
-    V[0] = P[0] = 0;
-    V[1] = P[1] = 0;
-    V[2] = P[2] = 0;
-
-    // If we have an XML configuration node...
-
-    if (node)
-    {
-        const char *c;
-
-        if ((c = mxmlElementGetAttr(node, "x"))) V[0] = atof(c);
-        if ((c = mxmlElementGetAttr(node, "y"))) V[1] = atof(c);
-        if ((c = mxmlElementGetAttr(node, "z"))) V[2] = atof(c);
-    }
-}
-
-void app::eye::set_head(const double *p,
-                        const double *x,
-                        const double *y,
-                        const double *z)
-{
-    // Cache the eye positions in the head's coordinate system.
-
-    P[0] = p[0] + V[0] * x[0] + V[1] * y[0] + V[2] * z[0];
-    P[1] = p[1] + V[0] * x[1] + V[1] * y[1] + V[2] * z[1];
-    P[2] = p[2] + V[0] * x[2] + V[1] * y[2] + V[2] * z[2];
 }
 
 //=============================================================================
@@ -701,8 +709,8 @@ app::host::host(std::string file,
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
     mods(0),
-    vert("glsl/blitbuff.vert"),
-    frag("glsl/blitbuff.frag"),
+    vert(""),
+    frag(""),
     expose(0), head(0), node(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
@@ -721,7 +729,6 @@ app::host::host(std::string file,
 
     buffer_w = DEFAULT_PIXEL_WIDTH;
     buffer_h = DEFAULT_PIXEL_HEIGHT;
-    buffer_n = 0;
 
     gui_w = DEFAULT_PIXEL_WIDTH;
     gui_h = DEFAULT_PIXEL_HEIGHT;
@@ -734,62 +741,10 @@ app::host::host(std::string file,
 
     load(file, tag);
 
-    if (node)
-    {
-        mxml_node_t *curr;
-
-        // Extract the window parameters.
-
-        if (mxml_node_t *window = mxmlFindElement(node, node, "window",
-                                                  0, 0, MXML_DESCEND_FIRST))
-        {
-            if ((c = mxmlElementGetAttr(window, "x"))) window_rect[0] =atoi(c);
-            if ((c = mxmlElementGetAttr(window, "y"))) window_rect[1] =atoi(c);
-            if ((c = mxmlElementGetAttr(window, "w"))) window_rect[2] =atoi(c);
-            if ((c = mxmlElementGetAttr(window, "h"))) window_rect[3] =atoi(c);
-        }
-
-        // Extract the buffer parameters
-
-        if (mxml_node_t *buffer = mxmlFindElement(node, node, "buffer",
-                                                  0, 0, MXML_DESCEND_FIRST))
-        {
-            if ((c = mxmlElementGetAttr(buffer, "n"))) buffer_n = atoi(c);
-            if ((c = mxmlElementGetAttr(buffer, "w"))) buffer_w = atoi(c);
-            if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
-        }
-
-        // Extract render program names.
-
-        if ((c = mxmlElementGetAttr(node, "vert"))) vert = std::string(c);
-        if ((c = mxmlElementGetAttr(node, "frag"))) frag = std::string(c);
-
-        // Extract eye config parameters
-
-        MXML_FORALL(node, curr, "eye")
-            eyes.push_back(eye(curr));
-
-        // Extract tile config parameters.
-
-        MXML_FORALL(node, curr, "tile")
-            tiles.push_back(tile(curr));
-
-        // Start the network syncronization.
-
-        init_listen();
-        init_server();
-        init_client();
-    }
-
-    // If no eyes or tiles were defined, instance defaults.
-
-    if ( eyes.empty())  eyes.push_back( eye(0));
-    if (tiles.empty()) tiles.push_back(tile(0));
-
-    // Extract GUI configuration.
-
     if (head)
     {
+        // Extract GUI configuration.
+
         if (mxml_node_t *gui = mxmlFindElement(head, head, "gui",
                                                0, 0, MXML_DESCEND))
         {
@@ -816,7 +771,68 @@ app::host::host(std::string file,
                 }
             }
         }
+
+        // Extract global off-screen buffer configuration.
+
+        if (mxml_node_t *buffer = mxmlFindElement(head, head, "buffer",
+                                                  0, 0, MXML_DESCEND))
+        {
+            if ((c = mxmlElementGetAttr(buffer, "w"))) buffer_w = atoi(c);
+            if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
+        }
+
     }
+
+    if (node)
+    {
+        mxml_node_t *curr;
+
+        // Extract the window parameters.
+
+        if (mxml_node_t *window = mxmlFindElement(node, node, "window",
+                                                  0, 0, MXML_DESCEND_FIRST))
+        {
+            if ((c = mxmlElementGetAttr(window, "x"))) window_rect[0] =atoi(c);
+            if ((c = mxmlElementGetAttr(window, "y"))) window_rect[1] =atoi(c);
+            if ((c = mxmlElementGetAttr(window, "w"))) window_rect[2] =atoi(c);
+            if ((c = mxmlElementGetAttr(window, "h"))) window_rect[3] =atoi(c);
+        }
+
+        // Extract local off-screen buffer configuration.
+
+        if (mxml_node_t *buffer = mxmlFindElement(node, node, "buffer",
+                                                  0, 0, MXML_DESCEND_FIRST))
+        {
+            if ((c = mxmlElementGetAttr(buffer, "w"))) buffer_w = atoi(c);
+            if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
+        }
+
+        // Extract render program names.
+
+        if ((c = mxmlElementGetAttr(node, "vert"))) vert = std::string(c);
+        if ((c = mxmlElementGetAttr(node, "frag"))) frag = std::string(c);
+
+        // Extract eye config parameters
+
+        MXML_FORALL(node, curr, "eye")
+            eyes.push_back(eye(curr, buffer_w, buffer_h));
+
+        // Extract tile config parameters.
+
+        MXML_FORALL(node, curr, "tile")
+            tiles.push_back(tile(curr));
+
+        // Start the network syncronization.
+
+        init_listen();
+        init_server();
+        init_client();
+    }
+
+    // If no eyes or tiles were defined, instance defaults.
+
+    if ( eyes.empty())  eyes.push_back( eye(0, buffer_w, buffer_h));
+    if (tiles.empty()) tiles.push_back(tile(0));
 
     // Compute a transform taking GUI coordinates to eye coordinates.
 
@@ -1038,27 +1054,118 @@ void app::host::loop()
 
 //-----------------------------------------------------------------------------
 
+bool app::host::get_plane(double *F, const double *A,
+                                     const double *B,
+                                     const double *C,
+                                     const double *V, int n) const
+{
+    // Create a plane from the given points.
+
+    make_plane(F, A, B, C);
+
+    // Reject any plane that closely matches one in the given list.
+
+    for (int k = 0; k < n; ++k)
+    {
+        const double *G = V + k * 4;
+
+        if (DOT3(F, G) >= 0.999 && fabs(F[3] - G[3]) < 0.001)
+            return false;
+    }
+
+    // Reject any plane with a tile position behind it.
+
+    std::vector<tile>::const_iterator i;
+
+    for (i = tiles.begin(); i != tiles.end(); ++i)
+    {
+        if (DOT3(F, i->get_BL()) + F[3] < 0) return false;
+        if (DOT3(F, i->get_BR()) + F[3] < 0) return false;
+        if (DOT3(F, i->get_TL()) + F[3] < 0) return false;
+        if (DOT3(F, i->get_TR()) + F[3] < 0) return false;
+    }
+
+    // Reject any plane with an eye position behind it.
+
+    std::vector<eye>::const_iterator j;
+
+    for (j = eyes.begin(); j != eyes.end(); ++j)
+        if (DOT3(F, j->get_P()) + F[3] < 0) return false;
+
+    // This forms part of the convex hull of the host frustum.
+
+    return true;
+}
+
+int app::host::get_frustum(double *F) const
+{
+    int n = 0;
+
+    // TODO: near plane
+
+    std::vector<tile>::const_iterator i;
+
+    // Iterate over all [tile, eye] pairs.
+
+    for (i = tiles.begin(); i != tiles.end(); ++i)
+    {
+        const double *BL = i->get_BL();
+        const double *BR = i->get_BR();
+        const double *TL = i->get_TL();
+        const double *TR = i->get_TR();
+
+        std::vector<eye>::const_iterator j;
+
+        for (j = eyes.begin(); j != eyes.end(); ++j)
+        {
+            const double *P = j->get_P();
+
+            // Store the planes forming the convex hull of the frustum.
+
+            if (get_plane(F + 4 * n, P, BL, TL, F, n)) n++;
+            if (get_plane(F + 4 * n, P, TR, BR, F, n)) n++;
+            if (get_plane(F + 4 * n, P, BR, BL, F, n)) n++;
+            if (get_plane(F + 4 * n, P, TL, TR, F, n)) n++;
+        }
+    }
+/*
+    printf("%d\n", n);
+    
+    for (int k = 0; k < n; ++k)
+        printf("%+8.3f %+8.3f %+8.3f %f\n",
+               F[4 * k + 0],
+               F[4 * k + 1],
+               F[4 * k + 2],
+               F[4 * k + 3]);
+*/
+    return n;
+}
+
+//-----------------------------------------------------------------------------
+
 void app::host::draw()
 {
-    // Instanciate frame buffer objects if necessary.
+    // Load the exposure program if necessary.
 
-    if (buffer_n > 0 && frames.empty())
-        for (int i = 0; i < buffer_n; ++i)
-            frames.push_back(::glob->new_frame(buffer_w, buffer_h,
-                                               GL_TEXTURE_RECTANGLE_ARB,
-                                               GL_RGBA8, true, false));
-
-    if (expose == 0)
+    if (expose == 0 && !vert.empty() && !frag.empty())
         expose = ::glob->load_program(vert, frag);
 
-    // Draw all tiles.
+    // Determine the frustum union and preprocess the app.
+
+    double F[16];
+
+    ::prog->prep(F, get_frustum(F));
+
+    // Render all tiles.
+    
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     std::vector<tile>::iterator i;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     for (i = tiles.begin(); i != tiles.end(); ++i)
-        i->draw(frames, expose);
+    {
+        i->draw(eyes, expose);
+    }
 
 //  glFinish();
 }

@@ -39,7 +39,8 @@ namespace app
                                 const double *,
                                 const double *)  { }
         
-        virtual void draw() { }
+        virtual void prep(const double *, int)            { }
+        virtual void draw(const double *, const double *) { }
 
         virtual ~prog() { }
     };

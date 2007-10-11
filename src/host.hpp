@@ -64,19 +64,39 @@ namespace app
     };
 
     //-------------------------------------------------------------------------
+    // Eye
+
+    class eye
+    {
+        double V[3];
+        double P[3];
+
+        int w;
+        int h;
+
+        ogl::frame *back;
+
+        unsigned char color[3];
+
+    public:
+
+        eye(mxml_node_t *, int, int);
+       ~eye();
+
+        void set_head(const double *, const double *,
+                      const double *, const double *);
+
+        const double *get_P() const { return P; }
+
+        void draw(const int *);
+    };
+
+    //-------------------------------------------------------------------------
     // Tile
 
     class tile
     {
-    public:
-
-        enum tile_type { mono_type, varrier_type, anaglyph_type };
-        enum tile_mode { normal_mode, test_mode  };
-
     private:
-
-        enum tile_type type;
-        enum tile_mode mode;
 
         double BL[3];
         double BR[3];
@@ -94,7 +114,7 @@ namespace app
 
         tile(mxml_node_t *);
 
-        void draw(std::vector<ogl::frame *>&, const ogl::program *);
+        void draw(std::vector<eye>&, const ogl::program *);
 
         bool pick(double *, double *, int, int);
 
@@ -102,24 +122,6 @@ namespace app
         const double *get_BR() const { return BR; }
         const double *get_TL() const { return TL; }
         const double *get_TR() const { return TR; }
-    };
-
-    //-------------------------------------------------------------------------
-    // Eye
-
-    class eye
-    {
-        double V[3];
-        double P[3];
-
-    public:
-
-        eye(mxml_node_t *);
-
-        void set_head(const double *, const double *,
-                      const double *, const double *);
-
-        const double *get_P() const { return P; }
     };
 
     //-------------------------------------------------------------------------
@@ -180,13 +182,11 @@ namespace app
         // Window config
 
         int window_rect[4];
-        int buffer_n;
         int buffer_w;
         int buffer_h;
 
         std::vector<eye>          eyes;
         std::vector<tile>         tiles;
-        std::vector<ogl::frame *> frames;
 
         std::string vert;
         std::string frag;
@@ -208,6 +208,12 @@ namespace app
         bool root() const { return (server_sd == INVALID_SOCKET); }
         void loop();
         void draw();
+
+        int  get_frustum(double *) const;
+        bool get_plane  (double *, const double *,
+                                   const double *,
+                                   const double *,
+                                   const double *, int) const;
 
         int get_window_x() const { return window_rect[0]; }
         int get_window_y() const { return window_rect[1]; }

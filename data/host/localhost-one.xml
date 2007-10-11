@@ -1,42 +1,34 @@
 <?xml version="1.0"?>
 <host>
 
-  <!-- Align the GUI with the server frustum -->
-
   <gui w="640" h="480">
       <corner name="BL" x="-1.333" y="-0.5" z="-2.0"/>
       <corner name="BR" x=" 0.000" y="-0.5" z="-2.0"/>
       <corner name="TL" x="-1.333" y=" 0.5" z="-2.0"/>
   </gui>
 
-  <eye x="-0.1" y="0.0" z="0.0"/>
-  <eye x=" 0.1" y="0.0" z="0.0"/>
+  <eye x="0.0" y="0.0" z="0.0"/>
 
-  <!-- Server -->
+  <buffer w="160" h="120"/>
 
   <node name="localhost" port="2827">
-    <client name="localhost1" addr="localhost"/>
-    <window x="0" y="0" w="640" h="480"/>
-    <buffer             w="640" h="480"/>
-    <tile eye="0">
-      <viewport x="0" y="0" w="640" h="480"/>
+    <window x="0" y="0" w="1280" h="480"/>
+    <tile>
+      <viewport x="0"   y="0" w="640" h="480"/>
       <corner name="BL" x="-1.333" y="-0.5" z="-2.0"/>
       <corner name="BR" x=" 0.000" y="-0.5" z="-2.0"/>
       <corner name="TL" x="-1.333" y=" 0.5" z="-2.0"/>
     </tile>
-  </node>
-
-  <!-- Client -->
-
-  <node name="localhost1">
-    <server addr="localhost" port="2827"/>
-    <window x="640" y="0" w="640" h="480"/>
-    <buffer               w="640" h="480"/>
-    <tile eye="1">
-      <viewport x="0" y="0" w="640" h="480"/>
+    <tile>
+      <viewport x="640" y="0" w="640" h="480"/>
       <corner name="BL" x=" 0.000" y="-0.5" z="-2.0"/>
       <corner name="BR" x=" 1.333" y="-0.5" z="-2.0"/>
       <corner name="TL" x=" 0.000" y=" 0.5" z="-2.0"/>
     </tile>
   </node>
+
+<!--
+  <eye x="-0.1" y="0.0" z="0.0" r="0"   g="255" b="0"   w="640" h="480"/>
+  <eye x=" 0.1" y="0.0" z="0.0" r="255" g="0"   b="255" w="640" h="480"/>
+-->
 </host>

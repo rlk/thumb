@@ -124,8 +124,8 @@ void set_quaternion(double *, const double *);
 
 //-----------------------------------------------------------------------------
 
-void set_basis(double *, const double *, const double *, const double *);
-void get_plane(double *, const double *, const double *, const double *);
+void set_basis (double *, const double *, const double *, const double *);
+void make_plane(double *, const double *, const double *, const double *);
 
 //-----------------------------------------------------------------------------
 

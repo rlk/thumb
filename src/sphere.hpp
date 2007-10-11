@@ -49,7 +49,6 @@ namespace uni
         // View vector, object-to-eye transform and inverse cache.
 
         double v[3];
-        double MVP[16];
         double M[16];
         double I[16];
         double V[24];
@@ -93,7 +92,6 @@ namespace uni
 
         void atmo_prep(const ogl::program *) const;
         void transform(const double *,
-                       const double *,
                        const double *);
 
     public:
@@ -108,11 +106,11 @@ namespace uni
 
         // Rendering pipeline.
 
-        void view(const double *, const double *, const double *);
+        void view(const double *, const double *, const double *, int n);
         void step();
         void prep();
         void pass();
-        void draw();
+        void draw(const double *, const double *);
         void xfrm();
         void wire();
         void getz(double&, double&);
