@@ -18,7 +18,6 @@
 #include <mxml.h>
 
 #include "default.hpp"
-#include "program.hpp"
 #include "socket.hpp"
 #include "frame.hpp"
 
@@ -88,6 +87,9 @@ namespace app
 
         const double *get_P() const { return P; }
 
+        void bind(GLenum t) const { back->bind_color(t); }
+        void free(GLenum t) const { back->free_color(t); }
+
         void draw(const int *);
     };
 
@@ -114,7 +116,7 @@ namespace app
 
         tile(mxml_node_t *);
 
-        void draw(std::vector<eye>&, const ogl::program *);
+        void draw(std::vector<eye *>&);
 
         bool pick(double *, double *, int, int);
 
@@ -185,13 +187,8 @@ namespace app
         int buffer_w;
         int buffer_h;
 
-        std::vector<eye>          eyes;
-        std::vector<tile>         tiles;
-
-        std::string vert;
-        std::string frag;
-
-        const ogl::program *expose;
+        std::vector<eye *>  eyes;
+        std::vector<tile> tiles;
 
         // Config IO
 

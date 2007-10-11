@@ -15,6 +15,8 @@
 
 #include <iostream>
 
+#include "program.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -55,14 +57,16 @@ namespace app
         double TL[3];           // Screen top-left     position
         double TR[3];           // Screen top-right    position
 
-        enum view_type type;
-        enum view_mode mode;
+        const ogl::program *prog;
+        enum view_type      type;
+        enum view_mode      mode;
 
         void find_P();
 
     public:
 
         view(int, int, double, double);
+       ~view();
 
         double get_n() const { return n; }
         double get_f() const { return f; }
@@ -93,11 +97,12 @@ namespace app
         void plane_frustum(double *) const;
         void point_frustum(double *) const;
 
-        void set_type(enum view_type t) { type = t; }
-        void set_mode(enum view_mode t) { mode = t; }
+        void set_type(enum view_type);
+        void set_mode(enum view_mode);
 
-        enum view_type get_type() const { return type; }
-        enum view_mode get_mode() const { return mode; }
+        const ogl::program *get_prog() const { return prog; }
+        enum view_type      get_type() const { return type; }
+        enum view_mode      get_mode() const { return mode; }
         
         void range(double, double);
 

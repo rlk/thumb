@@ -180,12 +180,12 @@ static void init(std::string& h)
 
     // Initialize the OpenGL state and application.
 
-    glob = new app::glob();
-    perf = new app::perf();
     view = new app::view(host->get_window_w(),
                          host->get_window_h(),
                          conf->get_f("view_near"),
                          conf->get_f("view_far"));
+    glob = new app::glob();
+    perf = new app::perf();
     prog = new demo();
 
     // Initialize the controllers.
@@ -203,9 +203,9 @@ static void fini()
     if (joy) SDL_JoystickClose(joy);
 
     if (prog) delete prog;
-    if (view) delete view;
     if (perf) delete perf;
     if (glob) delete glob;
+    if (view) delete view;
     if (host) delete host;
     if (lang) delete lang;
     if (conf) delete conf;

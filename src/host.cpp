@@ -32,7 +32,7 @@
 #define JIFFY (1000 / 60)
 
 #define MXML_FORALL(t, i, n) \
-    for (i = mxmlFindElement((t), (t), (n), 0, 0, MXML_DESCEND_FIRST); i; \
+    for (i = mxmlFindElement((t), (t), (n), 0, 0, MXML_DESCEND); i; \
          i = mxmlFindElement((i), (t), (n), 0, 0, MXML_NO_DESCEND))
 
 //=============================================================================
@@ -204,19 +204,21 @@ app::eye::eye(mxml_node_t *node, int w, int h) : w(w), h(h), back(0)
     {
         const char *c;
 
-        if ((c = mxmlElementGetAttr(node, "x"))) V[0]     = atof(c);
-        if ((c = mxmlElementGetAttr(node, "y"))) V[1]     = atof(c);
-        if ((c = mxmlElementGetAttr(node, "z"))) V[2]     = atof(c);
+        if ((c = mxmlElementGetAttr(node, "x"))) V[0] = P[0] = atof(c);
+        if ((c = mxmlElementGetAttr(node, "y"))) V[1] = P[1] = atof(c);
+        if ((c = mxmlElementGetAttr(node, "z"))) V[2] = P[2] = atof(c);
 
         if ((c = mxmlElementGetAttr(node, "r"))) color[0] = atoi(c);
         if ((c = mxmlElementGetAttr(node, "g"))) color[1] = atoi(c);
         if ((c = mxmlElementGetAttr(node, "b"))) color[2] = atoi(c);
     }
+
+    printf("%f %f %f\n", V[0], V[1], V[2]);
 }
 
 app::eye::~eye()
 {
-    if (back) ::glob->free_frame(back);
+//  if (back) ::glob->free_frame(back);
 }
 
 void app::eye::set_head(const double *p,
@@ -270,7 +272,6 @@ void app::eye::draw(const int *rect)
             {
                 // Draw the scene.
 
-                glViewport(0, 0, w, h);
                 glClear(GL_COLOR_BUFFER_BIT);
 
                 ::prog->draw(frag_d, frag_k);
@@ -399,7 +400,7 @@ bool app::tile::pick(double *p, double *v, int x, int y)
     return false;
 }
 
-void app::tile::draw(std::vector<eye>& eyes, const ogl::program *expose)
+void app::tile::draw(std::vector<eye *>& eyes)
 {
     // Apply the tile corners.
 
@@ -407,28 +408,45 @@ void app::tile::draw(std::vector<eye>& eyes, const ogl::program *expose)
 
     // Render the view from each eye.
 
-    std::vector<eye>::iterator i;
+    std::vector<eye *>::iterator i;
 
     for (i = eyes.begin(); i != eyes.end(); ++i)
-    {
-        i->draw(window_rect);
-    }
+        (*i)->draw(window_rect);
 
     // Render the onscreen exposure.
 
-    if (expose)
+    if (const ogl::program *prog = ::view->get_prog())
     {
+        GLenum t;
+
+        double frag_d[2] = { 0, 0 };
+        double frag_k[2] = { 1, 1 };
+
+        int w = ::host->get_buffer_w();
+        int h = ::host->get_buffer_h();
+
         // Bind the eye buffers.
 
-        /*
-        expose->uniform("d", pd[0], pd[1]);
-        expose->uniform("k", pk[0], pk[1]);
-        */
+        for (t = GL_TEXTURE0, i = eyes.begin(); i != eyes.end(); ++i, ++t)
+            (*i)->bind(t);
+        
+        // Compute the on-screen to off-screen fragment transform.
+
+        frag_d[0] =            -double(window_rect[0]);
+        frag_d[1] =            -double(window_rect[1]);
+        frag_k[0] = double(w) / double(window_rect[2]);
+        frag_k[1] = double(h) / double(window_rect[3]);
 
         // Draw a tile-filling rectangle.
 
-        expose->bind();
+        prog->bind();
         {
+            prog->uniform("L_map", 0);
+            prog->uniform("R_map", 1);
+
+            prog->uniform("frag_d", frag_d[0], frag_d[1]);
+            prog->uniform("frag_k", frag_k[0], frag_k[1]);
+
             glViewport(window_rect[0], window_rect[1],
                        window_rect[2], window_rect[3]);
 
@@ -451,9 +469,12 @@ void app::tile::draw(std::vector<eye>& eyes, const ogl::program *expose)
             }
             glEnd();
         }
-        expose->free();
+        prog->free();
 
         // Free the eye buffers...
+
+        for (t = GL_TEXTURE0, i = eyes.begin(); i != eyes.end(); ++i, ++t)
+            (*i)->free(t);
     }
 }
 
@@ -709,9 +730,8 @@ app::host::host(std::string file,
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
     mods(0),
-    vert(""),
-    frag(""),
-    expose(0), head(0), node(0)
+    head(0),
+    node(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
     const char *c;
@@ -743,6 +763,8 @@ app::host::host(std::string file,
 
     if (head)
     {
+        mxml_node_t *curr;
+
         // Extract GUI configuration.
 
         if (mxml_node_t *gui = mxmlFindElement(head, head, "gui",
@@ -781,6 +803,10 @@ app::host::host(std::string file,
             if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
         }
 
+        // Extract eye config parameters
+
+        MXML_FORALL(head, curr, "eye")
+            eyes.push_back(new eye(curr, buffer_w, buffer_h));
     }
 
     if (node)
@@ -807,16 +833,6 @@ app::host::host(std::string file,
             if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
         }
 
-        // Extract render program names.
-
-        if ((c = mxmlElementGetAttr(node, "vert"))) vert = std::string(c);
-        if ((c = mxmlElementGetAttr(node, "frag"))) frag = std::string(c);
-
-        // Extract eye config parameters
-
-        MXML_FORALL(node, curr, "eye")
-            eyes.push_back(eye(curr, buffer_w, buffer_h));
-
         // Extract tile config parameters.
 
         MXML_FORALL(node, curr, "tile")
@@ -831,7 +847,7 @@ app::host::host(std::string file,
 
     // If no eyes or tiles were defined, instance defaults.
 
-    if ( eyes.empty())  eyes.push_back( eye(0, buffer_w, buffer_h));
+    if ( eyes.empty())  eyes.push_back(new eye(0, buffer_w, buffer_h));
     if (tiles.empty()) tiles.push_back(tile(0));
 
     // Compute a transform taking GUI coordinates to eye coordinates.
@@ -867,6 +883,11 @@ app::host::host(std::string file,
 
 app::host::~host()
 {
+    std::vector<eye *>::iterator i;
+
+    for (i = eyes.begin(); i != eyes.end(); ++i)
+        delete (*i);
+    
     if (node)
     {
         fini_client();
@@ -1087,10 +1108,10 @@ bool app::host::get_plane(double *F, const double *A,
 
     // Reject any plane with an eye position behind it.
 
-    std::vector<eye>::const_iterator j;
+    std::vector<eye *>::const_iterator j;
 
     for (j = eyes.begin(); j != eyes.end(); ++j)
-        if (DOT3(F, j->get_P()) + F[3] < 0) return false;
+        if (DOT3(F, (*j)->get_P()) + F[3] < 0) return false;
 
     // This forms part of the convex hull of the host frustum.
 
@@ -1114,11 +1135,11 @@ int app::host::get_frustum(double *F) const
         const double *TL = i->get_TL();
         const double *TR = i->get_TR();
 
-        std::vector<eye>::const_iterator j;
+        std::vector<eye *>::const_iterator j;
 
         for (j = eyes.begin(); j != eyes.end(); ++j)
         {
-            const double *P = j->get_P();
+            const double *P = (*j)->get_P();
 
             // Store the planes forming the convex hull of the frustum.
 
@@ -1128,7 +1149,7 @@ int app::host::get_frustum(double *F) const
             if (get_plane(F + 4 * n, P, TL, TR, F, n)) n++;
         }
     }
-/*
+
     printf("%d\n", n);
     
     for (int k = 0; k < n; ++k)
@@ -1137,7 +1158,7 @@ int app::host::get_frustum(double *F) const
                F[4 * k + 1],
                F[4 * k + 2],
                F[4 * k + 3]);
-*/
+
     return n;
 }
 
@@ -1145,11 +1166,6 @@ int app::host::get_frustum(double *F) const
 
 void app::host::draw()
 {
-    // Load the exposure program if necessary.
-
-    if (expose == 0 && !vert.empty() && !frag.empty())
-        expose = ::glob->load_program(vert, frag);
-
     // Determine the frustum union and preprocess the app.
 
     double F[16];
@@ -1163,9 +1179,7 @@ void app::host::draw()
     std::vector<tile>::iterator i;
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
-    {
-        i->draw(eyes, expose);
-    }
+        i->draw(eyes);
 
 //  glFinish();
 }
@@ -1341,10 +1355,10 @@ void app::host::set_head(const double *p,
                          const double *y,
                          const double *z)
 {
-    std::vector<eye>::iterator i;
+    std::vector<eye *>::iterator i;
 
     for (i = eyes.begin(); i != eyes.end(); ++i)
-        i->set_head(p, x, y, z);
+        (*i)->set_head(p, x, y, z);
 }
 
 //-----------------------------------------------------------------------------

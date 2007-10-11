@@ -16,11 +16,12 @@
 #include "opengl.hpp"
 #include "matrix.hpp"
 #include "view.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
 app::view::view(int w, int h, double n, double f) :
-    w(w), h(h), n(n), f(f), type(type_mono), mode(mode_norm)
+    w(w), h(h), n(n), f(f), prog(0), type(type_mono), mode(mode_norm)
 {
     const double a = double(w) / double(h);
 
@@ -41,6 +42,11 @@ app::view::view(int w, int h, double n, double f) :
     load_idt(current_M);
  
     find_P();
+}
+
+app::view::~view()
+{
+    if (prog) ::glob->free_program(prog);
 }
 
 //-----------------------------------------------------------------------------
@@ -220,6 +226,30 @@ void app::view::mult_V() const
 {
     mult_R();
     mult_T();
+}
+
+//-----------------------------------------------------------------------------
+
+void app::view::set_type(enum view_type t)
+{
+    // Free any existing program.
+
+    if (prog) ::glob->free_program(prog);
+
+    prog = 0;
+    type = t;
+
+    // Load the exposure program if necessary.
+
+    if (t == type_varrier)  prog = ::glob->load_program("glsl/combiner.vert",
+                                                        "glsl/combiner.frag");
+    if (t == type_anaglyph) prog = ::glob->load_program("glsl/anaglyph.vert",
+                                                        "glsl/anaglyph.frag");
+}
+
+void app::view::set_mode(enum view_mode m)
+{
+    mode = m;
 }
 
 //-----------------------------------------------------------------------------

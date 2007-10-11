@@ -140,6 +140,12 @@ void demo::keybd(int k, bool d, int c)
         else if (k == key_move_F) motion[2] -= dd;
         else if (k == key_move_B) motion[2] += dd;
         else if (k == SDLK_HOME) ::view->home();
+
+        // Handle view config keys.
+
+        else if (k == SDLK_F5) ::view->set_type(app::view::type_mono);
+        else if (k == SDLK_F6) ::view->set_type(app::view::type_anaglyph);
+        else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
     }
 
     prog::keybd(k, d, c);
