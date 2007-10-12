@@ -410,8 +410,11 @@ void app::tile::draw(std::vector<eye *>& eyes)
 
     std::vector<eye *>::iterator i;
 
-    for (i = eyes.begin(); i != eyes.end(); ++i)
-        (*i)->draw(window_rect);
+    if (::view->get_type() == view::type_mono)
+        eyes.front()->draw(window_rect);
+    else
+        for (i = eyes.begin(); i != eyes.end(); ++i)
+            (*i)->draw(window_rect);
 
     // Render the onscreen exposure.
 
@@ -1149,7 +1152,7 @@ int app::host::get_frustum(double *F) const
             if (get_plane(F + 4 * n, P, TL, TR, F, n)) n++;
         }
     }
-
+/*
     printf("%d\n", n);
     
     for (int k = 0; k < n; ++k)
@@ -1158,7 +1161,7 @@ int app::host::get_frustum(double *F) const
                F[4 * k + 1],
                F[4 * k + 2],
                F[4 * k + 3]);
-
+*/
     return n;
 }
 
@@ -1247,6 +1250,8 @@ void app::host::click(int b, bool d)
 
 void app::host::keybd(int c, int k, int m, bool d)
 {
+    mods = m;
+
     if (!client_sd.empty())
     {
         message M(E_KEYBD);
@@ -1257,8 +1262,6 @@ void app::host::keybd(int c, int k, int m, bool d)
         M.put_bool(d);
 
         send(M);
-
-        mods = m;
     }
     ::prog->keybd(k, d, c);
 }

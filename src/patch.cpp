@@ -218,36 +218,46 @@ int patch_plane_range(const double *n0,
     double R0;
     double R1;
 
+    printf("%+8.3f %+8.3f %+8.3f %+8.3f ", P[0], P[1], P[2], P[3]);
+
     // Easy-out the total misses.
 
+    const double d  = P[3];
     const double d0 = DOT3(n0, P);
     const double d1 = DOT3(n1, P);
     const double d2 = DOT3(n2, P);
 
-    if (P[3] < 0 && d0 < 0 && d1 < 0 && d2 < 0) return -1;
-    if (P[3] > 0 && d0 > 0 && d1 > 0 && d2 > 0) return +1;
+    if (d < 0 && d0 < 0 && d1 < 0 && d2 < 0) return -1;
+    if (d > 0 && d0 > 0 && d1 > 0 && d2 > 0) return +1;
+
+//  return 0;  // HACK HACK HACK
 
     // Compute the vector-plane intersection distances.
 
-    const double l0 = -P[3] / d0;
-    const double l1 = -P[3] / d1;
-    const double l2 = -P[3] / d2;
+    const double l0 = -d / d0;
+    const double l1 = -d / d1;
+    const double l2 = -d / d2;
 
     // Hyperbolic: max is infinity. Elliptic: one of the points is max.
 
     if ((d0 <= 0 && d1 <= 0 && d2 <= 0) ||
         (d0 >  0 && d1 >  0 && d2 >  0))
     {
+        printf("elliptic\n");
         R1 = std::max(l0, l1);
         R1 = std::max(R1, l2);
     }
-    else R1 = std::numeric_limits<double>::max();
+    else
+    {
+        printf("hyperbolic\n");
+        R1 = std::numeric_limits<double>::max();
+    }
 
     if (patch_vector_test(n0, n1, n2, P))
     {
         // If the normal falls within the triangle, the normal has min radius.
 
-        R0 = -P[3];
+        R0 = -d;
     }
     else
     {
@@ -290,7 +300,7 @@ int patch_plane_range(const double *n0,
 
     // Interpret the computed radii as hit or miss.
 
-    if (P[3] > 0)
+    if (d > 0)
     {
         if (R1 < r0) return -1;
         if (R0 > r1) return +1;
@@ -500,7 +510,8 @@ uni::patch *uni::patch::step(context& ctx,
     {
         // This patch is still visible.
 
-        if (value(p) * bias > 1.0)  // HACK
+        if (0)
+//      if (value(p) * bias > 1.0)  // HACK
         {
             // This patch is too large.  Subdivide it.
 

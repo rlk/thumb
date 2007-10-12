@@ -46,7 +46,7 @@ app::view::view(int w, int h, double n, double f) :
 
 app::view::~view()
 {
-    if (prog) ::glob->free_program(prog);
+//  if (prog) ::glob->free_program(prog);
 }
 
 //-----------------------------------------------------------------------------

@@ -217,21 +217,20 @@ void demo::draw(const double *frag_d, const double *frag_k)
 
     glPushAttrib(GL_ENABLE_BIT);
     {
-/*
         double planes[20];
         double points[24];
-*/
+
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
-//      view->push();
+        view->push();
         universe.draw(frag_d, frag_k);
-//      view->pop();
+        view->pop();
 
         // Compute the view frusta.
-/*
+
         view->plane_frustum(planes);
         view->range(1.0, curr->view(planes));
         view->point_frustum(points);
@@ -244,7 +243,6 @@ void demo::draw(const double *frag_d, const double *frag_k)
         view->draw();
         curr->draw(points);
         view->pop();
-*/
     }
     glPopAttrib();
 }

@@ -1,6 +1,6 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="host_file">host/localhost-one.xml</option>
+  <option type="string" name="host_file">host/hd.xml</option>
   <option type="string" name="shadows">map</option>
   <option type="string" name="z_only">false</option>
   <option type="string" name="screenshot_file">snap.png</option>
