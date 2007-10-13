@@ -1253,6 +1253,10 @@ void gui::dialog::draw() const
     {
         glPushAttrib(GL_ENABLE_BIT);
         {
+            glMatrixMode(GL_TEXTURE);
+            {
+                glLoadIdentity();
+            }
             glMatrixMode(GL_PROJECTION);
             {
                 glLoadIdentity();

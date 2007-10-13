@@ -108,12 +108,17 @@ void demo::point(const double *p, const double *v)
 
 void demo::click(int b, bool d)
 {
+    button[b] = d;
+
     if      (d && b == 4) universe.turn(+1);
     else if (d && b == 5) universe.turn(-1);
+    else if (d && b == 0)
+    {
+        memcpy(init_P, curr_P, 3 * sizeof (double));
+        memcpy(init_R, curr_R, 9 * sizeof (double));
+    }
     else
     {
-        button[b] = d;
-
         if (curr->click(b, d) == false)
             prog::click(b, d);
     }
@@ -183,23 +188,53 @@ void demo::keybd(int k, bool d, int c)
 
 void demo::timer(double dt)
 {
-    double k;
+    double kp;
+    double kr = 150.0 * view_turn_rate * dt;
 
     // Determine the rate of motion.
 
     if (::host->modifiers() & KMOD_CTRL)
-        k = dt * view_move_rate;
+        kp = dt * universe.rate();
     else
-        k = dt * universe.rate();
+        kp = dt * view_move_rate;
 
     if (::host->modifiers() & KMOD_SHIFT)
-        k *= 10.0;
+        kp *= 10.0;
 
     // Handle view motion.
 
-    view->move(motion[0] * k,
-               motion[1] * k,
-               motion[2] * k);
+    view->move(motion[0] * kp,
+               motion[1] * kp,
+               motion[2] * kp);
+
+    // Handle tracker navigation.
+
+    if (button[0])
+    {
+        double dP[3];
+        double dR[3];
+        double dz[3];
+        double dy[3];
+
+        dP[0] = curr_P[0] - init_P[0];
+        dP[1] = curr_P[1] - init_P[1];
+        dP[2] = curr_P[2] - init_P[2];
+
+        dy[0] = init_R[1][0] - curr_R[1][0];
+        dy[1] = init_R[1][1] - curr_R[1][1];
+        dy[2] = init_R[1][2] - curr_R[1][2];
+
+        dz[0] = init_R[2][0] - curr_R[2][0];
+        dz[1] = init_R[2][1] - curr_R[2][1];
+        dz[2] = init_R[2][2] - curr_R[2][2];
+
+        dR[0] =  DOT3(dz, init_R[1]);
+        dR[1] = -DOT3(dz, init_R[0]);
+        dR[2] =  DOT3(dy, init_R[0]);
+
+        view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+        view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr);
+    }
 
     curr->timer(dt);
     prog::timer(dt);
@@ -207,17 +242,17 @@ void demo::timer(double dt)
 
 void demo::track(int d, const double *p, const double *x, const double *z)
 {
+    double y[3];
+
+    crossprod(y, z, x);
+
     if (d == tracker_head_sensor)
-    {
-        double y[3];
-
-        crossprod(y, x, z);
-
         ::host->set_head(p, x, y, z);
-    }
 
     if (d == tracker_hand_sensor)
     {
+        // Point at the GUI.
+
         double v[3];
 
         v[0] = -z[0];
@@ -225,6 +260,24 @@ void demo::track(int d, const double *p, const double *x, const double *z)
         v[2] = -z[2];
 
         point(p, v);
+
+        // Cache the tracker position for navigation.
+
+        curr_P[0]    = p[0];
+        curr_P[1]    = p[1];
+        curr_P[2]    = p[2];
+
+        curr_R[0][0] = x[0];
+        curr_R[0][1] = x[1];
+        curr_R[0][2] = x[2];
+
+        curr_R[1][0] = y[0];
+        curr_R[1][1] = y[1];
+        curr_R[1][2] = y[2];
+
+        curr_R[2][0] = z[0];
+        curr_R[2][1] = z[1];
+        curr_R[2][2] = z[2];
     }
 }
 
@@ -232,7 +285,7 @@ void demo::track(int d, const double *p, const double *x, const double *z)
 
 void demo::prep(const double *F, int n)
 {
-    universe.prep(F, n);
+//  universe.prep(F, n);
 }
 
 void demo::draw(const double *frag_d, const double *frag_k)
@@ -256,7 +309,7 @@ void demo::draw(const double *frag_d, const double *frag_k)
         glEnable(GL_LIGHTING);
 
         view->push();
-        universe.draw(frag_d, frag_k);
+//      universe.draw(frag_d, frag_k);
         view->pop();
 
         // Compute the view frusta.

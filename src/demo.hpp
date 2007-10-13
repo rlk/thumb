@@ -63,7 +63,10 @@ class demo : public app::prog
     int button[4];
     int motion[3];
 
-    void draw_all();
+    // Tracker cache.
+
+    double init_P[3], init_R[3][3];
+    double curr_P[3], curr_R[3][3];
 
 public:
 

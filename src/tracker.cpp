@@ -14,6 +14,8 @@
 #include <stdlib.h>
 #include <stdio.h>
 
+#include "matrix.hpp"
+
 //-----------------------------------------------------------------------------
 
 #ifdef __linux__
@@ -211,35 +213,30 @@ bool tracker_sensor(int id, double p[3], double R[3][3])
 
                 // Return the orientation of sensor ID.
 
-                double cy = cos(RAD(S->r[0]));   // azimuth   (yaw)
-                double sy = sin(RAD(S->r[0]));
-                double cp = cos(RAD(S->r[1]));   // elevation (pitch)
-                double sp = sin(RAD(S->r[1]));
-                double cr = cos(RAD(S->r[2]));   // roll      (roll)
-                double sr = sin(RAD(S->r[2]));
+                double M[16];
 
-                // TODO: watch out for gimbal lock.
+                load_rot_mat(M, 0, 1, 0, S->r[0]);
+                Rmul_rot_mat(M, 1, 0, 0, S->r[1]);
+                Rmul_rot_mat(M, 0, 0, 1, S->r[2]);
 
-                printf("%f %f %f\n", S->r[0], S->r[1], S->r[2]);
+                R[0][0] = M[0];
+                R[0][1] = M[1];
+                R[0][2] = M[2];
 
-                // theta = pitch
-                // psi   = yaw
-                // phi   = roll
+                R[1][0] = M[4];
+                R[1][1] = M[5];
+                R[1][2] = M[6];
 
-                R[0][0]	= -(cr * sp * sy - sr * cy);
-                R[0][1]	= -(cr * sp * cy + sr * sy);
-                R[0][2]	= -(cp * cr);
+                R[2][0] = M[8];
+                R[2][1] = M[9];
+                R[2][2] = M[10];
 
-                R[1][0]	=  (sr * sp * cy - cr * sy);
-                R[1][1]	=  (sr * sp * sy + cr * cy);
-                R[1][2]	=  (cp * sr);
-
-                R[2][0] =  (cp * sy);
-                R[2][1] = -(sp);
-                R[2][2]	=  (cp * cy);
-
-                printf("%+12.5f %+12.5f %+12.5f\n", R[1][0], R[1][1], R[1][2]);
-
+/*
+printf("p[%d] =\t%+12.5f %+12.5f %+12.5f\n", id, p[0],    p[1],    p[2]);
+printf("R[%d] =\t%+12.5f %+12.5f %+12.5f\n", id, R[0][0], R[0][1], R[0][2]);
+printf(       "\t%+12.5f %+12.5f %+12.5f\n",     R[1][0], R[1][1], R[1][2]);
+printf(       "\t%+12.5f %+12.5f %+12.5f\n",     R[2][0], R[2][1], R[2][2]);
+*/
                 return true;
             }
         }

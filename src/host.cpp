@@ -212,8 +212,6 @@ app::eye::eye(mxml_node_t *node, int w, int h) : w(w), h(h), back(0)
         if ((c = mxmlElementGetAttr(node, "g"))) color[1] = atof(c);
         if ((c = mxmlElementGetAttr(node, "b"))) color[2] = atof(c);
     }
-
-    printf("%f %f %f\n", V[0], V[1], V[2]);
 }
 
 app::eye::~eye()
@@ -313,8 +311,8 @@ app::tile::tile(mxml_node_t *node)
     window_rect[2] = DEFAULT_PIXEL_WIDTH;
     window_rect[3] = DEFAULT_PIXEL_HEIGHT;
 
-    varrier_pitch = 270.0000;
-    varrier_angle =  -7.7000;
+    varrier_pitch = 200.0000;
+    varrier_angle =   0.0000;
     varrier_thick =   0.0160;
     varrier_shift =   0.0000;
     varrier_cycle =   0.8125;
@@ -409,10 +407,11 @@ void app::tile::apply_varrier(const double *P) const
     U[1] = TL[1] - BL[1];
     U[2] = TL[2] - BL[2];
 
+    crossprod(N, R, U);
+
     normalize(R);
     normalize(U);
-
-    crossprod(N, R, U);
+    normalize(N);
 
     // Find the vector from the center of the screen to the eye.
 
@@ -1484,6 +1483,8 @@ void app::host::gui_pick(int& x, int& y, const double *p,
 
     mult_mat_vec3(q, gui_I, p);
     mult_xps_vec3(w, gui_I, v);
+
+    normalize(w);
 
     x = int(nearestint(q[0] - q[2] * w[0] / w[2]));
     y = int(nearestint(q[1] - q[2] * w[1] / w[2]));
