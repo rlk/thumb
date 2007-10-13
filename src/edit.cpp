@@ -14,10 +14,12 @@
 
 #include "matrix.hpp"
 #include "opengl.hpp"
+#include "tracker.hpp"
 #include "solid.hpp"
 #include "edit.hpp"
 #include "host.hpp"
 #include "conf.hpp"
+#include "view.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -65,18 +67,16 @@ mode::edit::edit(wrl::world &w) : mode(w)
 bool mode::edit::point(const double *p, const double *v)
 {
     double M[16];
+    double I[16];
 
-    // TODO: transform (P, V) using view.
+    ::view->get_M(M);
 
-    world.edit_pick(p, v);
+    load_inv(I, M);
 
-    point_p[0] = p[0];
-    point_p[1] = p[1];
-    point_p[2] = p[2];
+    mult_mat_vec3(point_p, M, p);
+    mult_xps_vec3(point_v, I, v);
 
-    point_v[0] = v[0];
-    point_v[1] = v[1];
-    point_v[2] = v[2];
+    world.edit_pick(point_p, point_v);
 
     if (drag)
     {
@@ -215,6 +215,40 @@ void mode::edit::draw(const double *points)
 {
     world.draw(true, points);
     transform.draw();
+
+    if (tracker_status())
+    {
+        glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT |
+                     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glPushMatrix();
+        {
+            glEnable(GL_BLEND);
+            glEnable(GL_LINE_SMOOTH);
+
+            glDisable(GL_TEXTURE_2D);
+            glDisable(GL_LIGHTING);
+
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDepthMask(GL_FALSE);
+
+            glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+
+            glLineWidth(2.0f);
+
+            glBegin(GL_LINES);
+            {
+                glVertex3f(point_p[0],
+                           point_p[1],
+                           point_p[2]);
+                glVertex3f(point_p[0] + point_v[0] * 100.0f,
+                           point_p[1] + point_v[1] * 100.0f,
+                           point_p[2] + point_v[2] * 100.0f);
+            }
+            glEnd();
+        }
+        glPopMatrix();
+        glPopAttrib();
+    }
 }
 
 //-----------------------------------------------------------------------------
