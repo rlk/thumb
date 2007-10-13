@@ -110,6 +110,8 @@ namespace app
 
         int window_rect[4];
 
+        mxml_node_t *varrier;
+
         double varrier_pitch;
         double varrier_angle;
         double varrier_thick;
@@ -203,10 +205,14 @@ namespace app
 
         // Config IO
 
+        std::string  file;
         mxml_node_t *head;
         mxml_node_t *node;
 
-        void load(std::string&, std::string&);
+        bool dirty;
+
+        void load(std::string&);
+        void save();
 
         int varrier_index;
 

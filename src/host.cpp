@@ -11,6 +11,8 @@
 //  General Public License for more details.
 
 #include <SDL.h>
+#include <sstream>
+#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -296,7 +298,7 @@ void app::eye::draw(const int *rect, bool focus)
 
 //=============================================================================
 
-app::tile::tile(mxml_node_t *node)
+app::tile::tile(mxml_node_t *node) : varrier(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
 
@@ -359,14 +361,14 @@ app::tile::tile(mxml_node_t *node)
 
         // Extract the Varrier linescreen parameters.
 
-        if ((elem = mxmlFindElement(node, node, "varrier",
-                                    0, 0, MXML_DESCEND_FIRST)))
+        if ((varrier = mxmlFindElement(node, node, "varrier",
+                                       0, 0, MXML_DESCEND_FIRST)))
         {
-            if ((c = mxmlElementGetAttr(elem, "p"))) varrier_pitch = atof(c);
-            if ((c = mxmlElementGetAttr(elem, "a"))) varrier_angle = atof(c);
-            if ((c = mxmlElementGetAttr(elem, "t"))) varrier_thick = atof(c);
-            if ((c = mxmlElementGetAttr(elem, "s"))) varrier_shift = atof(c);
-            if ((c = mxmlElementGetAttr(elem, "c"))) varrier_cycle = atof(c);
+            if ((c = mxmlElementGetAttr(varrier, "p"))) varrier_pitch =atof(c);
+            if ((c = mxmlElementGetAttr(varrier, "a"))) varrier_angle =atof(c);
+            if ((c = mxmlElementGetAttr(varrier, "t"))) varrier_thick =atof(c);
+            if ((c = mxmlElementGetAttr(varrier, "s"))) varrier_shift =atof(c);
+            if ((c = mxmlElementGetAttr(varrier, "c"))) varrier_cycle =atof(c);
         }
     }
 
@@ -447,24 +449,41 @@ void app::tile::apply_varrier(const double *P) const
     glMatrixMode(GL_MODELVIEW);
 }
 
+static void set_attr(mxml_node_t *node, const char *name, double k)
+{
+    std::ostringstream value;
+    
+    value << std::right << std::setw(8) << std::setprecision(5) << k;
+
+    mxmlElementSetAttr(node, name, value.str().c_str());
+}
+
 void app::tile::set_varrier_pitch(double d)
 {
     varrier_pitch += d;
+
+    if (varrier) set_attr(varrier, "p", varrier_pitch);
 }
 
 void app::tile::set_varrier_angle(double d)
 {
     varrier_angle += d;
+
+    if (varrier) set_attr(varrier, "a", varrier_angle);
 }
 
 void app::tile::set_varrier_shift(double d)
 {
     varrier_shift += d;
+
+    if (varrier) set_attr(varrier, "s", varrier_shift);
 }
 
 void app::tile::set_varrier_thick(double d)
 {
     varrier_thick += d;
+
+    if (varrier) set_attr(varrier, "t", varrier_thick);
 }
 
 //-----------------------------------------------------------------------------
@@ -588,8 +607,56 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
 
 //=============================================================================
 
-void app::host::load(std::string& file,
-                     std::string& tag)
+static const char *save_cb(mxml_node_t *node, int where)
+{
+    std::string name(node->value.element.name);
+
+    switch (where)
+    {
+    case MXML_WS_AFTER_OPEN:  return "\n";
+    case MXML_WS_AFTER_CLOSE: return "\n";
+        
+    case MXML_WS_BEFORE_OPEN:
+        if      (name == "eye")      return "  ";
+        else if (name == "gui")      return "  ";
+        else if (name == "node")     return "  ";
+        else if (name == "buffer")   return "  ";
+
+        else if (name == "tile")     return "    ";
+        else if (name == "window")   return "    ";
+
+        else if (name == "viewport") return "      ";
+        else if (name == "varrier")  return "      ";
+        else if (name == "corner")   return "      ";
+        break;
+
+    case MXML_WS_BEFORE_CLOSE:
+        if      (name == "gui")      return "  ";
+        else if (name == "node")     return "  ";
+        else if (name == "tile")     return "    ";
+        break;
+    }
+
+    return NULL;
+}
+
+void app::host::save()
+{
+    if (dirty)
+    {
+        char *buff;
+
+        if ((buff = mxmlSaveAllocString(head, save_cb)))
+        {
+            ::data->save(file, buff);
+            free(buff);
+        }
+
+        dirty = false;
+    }
+}
+
+void app::host::load(std::string& tag)
 {
     if (head) mxmlDelete(head);
 
@@ -838,8 +905,10 @@ app::host::host(std::string file,
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
     mods(0),
+    file(file),
     head(0),
     node(0),
+    dirty(false),
     varrier_index(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
@@ -868,7 +937,7 @@ app::host::host(std::string file,
 
     // Read host.xml and configure using tag match.
 
-    load(file, tag);
+    load(tag);
 
     if (head)
     {
@@ -1048,6 +1117,7 @@ void app::host::root_loop()
                 break;
 
             case SDL_QUIT:
+                save();
                 close();
                 return;
             }
@@ -1515,25 +1585,37 @@ void app::host::set_varrier_index(int d)
 void app::host::set_varrier_pitch(double d)
 {
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
+    {
         tiles[varrier_index].set_varrier_pitch(d);
+        dirty = true;
+    }
 }
 
 void app::host::set_varrier_angle(double d)
 {
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
+    {
         tiles[varrier_index].set_varrier_angle(d);
+        dirty = true;
+    }
 }
 
 void app::host::set_varrier_shift(double d)
 {
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
+    {
         tiles[varrier_index].set_varrier_shift(d);
+        dirty = true;
+    }
 }
 
 void app::host::set_varrier_thick(double d)
 {
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
+    {
         tiles[varrier_index].set_varrier_thick(d);
+        dirty = true;
+    }
 }
 
 //-----------------------------------------------------------------------------
