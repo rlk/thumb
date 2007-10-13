@@ -6,12 +6,12 @@ uniform float         cycle;
 
 varying vec3 L_phase;
 varying vec3 R_phase;
-uniform vec2 k;
-uniform vec2 d;
+uniform vec2 frag_k;
+uniform vec2 frag_d;
 
 void main()
 {
-    vec2 p = (gl_FragCoord.xy + d) * k;
+    vec2 p = (gl_FragCoord.xy + frag_d) * frag_k;
 
     const vec4 L = texture2DRect(L_map, p);
     const vec4 R = texture2DRect(R_map, p);

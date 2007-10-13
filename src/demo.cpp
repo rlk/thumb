@@ -146,6 +146,36 @@ void demo::keybd(int k, bool d, int c)
         else if (k == SDLK_F5) ::view->set_type(app::view::type_mono);
         else if (k == SDLK_F6) ::view->set_type(app::view::type_anaglyph);
         else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
+
+        // Handle Varrier calibration keys.
+
+        if (d && ::host->modifiers() & KMOD_CTRL)
+        {
+            if (k == SDLK_TAB)
+            {
+                if (::view->get_mode() == app::view::mode_norm)
+                    ::view->set_mode(app::view::mode_test);
+                else
+                    ::view->set_mode(app::view::mode_norm);
+            }
+            else if (k == SDLK_PAGEUP)    ::host->set_varrier_index(+1);
+            else if (k == SDLK_PAGEDOWN)  ::host->set_varrier_index(-1);
+
+            if (::host->modifiers() & KMOD_SHIFT)
+            {
+                if      (k == SDLK_LEFT)  ::host->set_varrier_angle(-0.01);
+                else if (k == SDLK_RIGHT) ::host->set_varrier_angle(+0.01);
+                else if (k == SDLK_DOWN)  ::host->set_varrier_pitch(-0.01);
+                else if (k == SDLK_UP)    ::host->set_varrier_pitch(+0.01);
+            }
+            else
+            {
+                if      (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
+                else if (k == SDLK_RIGHT) ::host->set_varrier_shift(+0.00005);
+                else if (k == SDLK_DOWN)  ::host->set_varrier_thick(-0.0001);
+                else if (k == SDLK_UP)    ::host->set_varrier_thick(+0.0001);
+            }
+        }
     }
 
     prog::keybd(k, d, c);

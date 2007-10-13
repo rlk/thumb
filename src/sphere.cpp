@@ -296,8 +296,7 @@ void uni::sphere::step()
     {
         // Refine the icosahedron to fit the current view.
 
-        for (int k = 0; k < 1; ++k)
-//      for (int k = 0; k < 20; ++k)
+        for (int k = 0; k < 20; ++k)
         {
             if (C[k] == 0)
             {

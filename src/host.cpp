@@ -208,9 +208,9 @@ app::eye::eye(mxml_node_t *node, int w, int h) : w(w), h(h), back(0)
         if ((c = mxmlElementGetAttr(node, "y"))) V[1] = P[1] = atof(c);
         if ((c = mxmlElementGetAttr(node, "z"))) V[2] = P[2] = atof(c);
 
-        if ((c = mxmlElementGetAttr(node, "r"))) color[0] = atoi(c);
-        if ((c = mxmlElementGetAttr(node, "g"))) color[1] = atoi(c);
-        if ((c = mxmlElementGetAttr(node, "b"))) color[2] = atoi(c);
+        if ((c = mxmlElementGetAttr(node, "r"))) color[0] = atof(c);
+        if ((c = mxmlElementGetAttr(node, "g"))) color[1] = atof(c);
+        if ((c = mxmlElementGetAttr(node, "b"))) color[2] = atof(c);
     }
 
     printf("%f %f %f\n", V[0], V[1], V[2]);
@@ -233,7 +233,7 @@ void app::eye::set_head(const double *p,
     P[2] = p[2] + V[0] * x[2] + V[1] * y[2] + V[2] * z[2];
 }
 
-void app::eye::draw(const int *rect)
+void app::eye::draw(const int *rect, bool focus)
 {
     double frag_d[2] = { 0, 0 };
     double frag_k[2] = { 1, 1 };
@@ -270,11 +270,26 @@ void app::eye::draw(const int *rect)
         {
             back->bind();
             {
-                // Draw the scene.
+                if (::view->get_mode() == view::mode_norm)
+                {
+                    // Draw the scene normally.
 
-                glClear(GL_COLOR_BUFFER_BIT);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    ::prog->draw(frag_d, frag_k);
+                }
+                if (::view->get_mode() == view::mode_test)
+                {
+                    float r = color[0] * (focus ? 1.0f : 0.5f);
+                    float g = color[1] * (focus ? 1.0f : 0.5f);
+                    float b = color[2] * (focus ? 1.0f : 0.5f);
 
-                ::prog->draw(frag_d, frag_k);
+                    // Draw the test pattern.
+
+                    glPushAttrib(GL_COLOR_BUFFER_BIT);
+                    glClearColor(r, g, b, 1);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                    glPopAttrib();
+                }
             }
             back->free();
         }
@@ -298,11 +313,11 @@ app::tile::tile(mxml_node_t *node)
     window_rect[2] = DEFAULT_PIXEL_WIDTH;
     window_rect[3] = DEFAULT_PIXEL_HEIGHT;
 
-    varrier[0] = 100.00;
-    varrier[1] =   0.00;
-    varrier[2] =   0.00;
-    varrier[3] =   0.00;
-    varrier[4] =   0.75;
+    varrier_pitch = 270.0000;
+    varrier_angle =  -7.7000;
+    varrier_thick =   0.0160;
+    varrier_shift =   0.0000;
+    varrier_cycle =   0.8125;
 
     // If we have an XML configuration node...
 
@@ -349,11 +364,11 @@ app::tile::tile(mxml_node_t *node)
         if ((elem = mxmlFindElement(node, node, "varrier",
                                     0, 0, MXML_DESCEND_FIRST)))
         {
-            if ((c = mxmlElementGetAttr(elem, "p"))) varrier[0] = atof(c);
-            if ((c = mxmlElementGetAttr(elem, "a"))) varrier[1] = atof(c);
-            if ((c = mxmlElementGetAttr(elem, "t"))) varrier[2] = atof(c);
-            if ((c = mxmlElementGetAttr(elem, "s"))) varrier[3] = atof(c);
-            if ((c = mxmlElementGetAttr(elem, "c"))) varrier[4] = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "p"))) varrier_pitch = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "a"))) varrier_angle = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "t"))) varrier_thick = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "s"))) varrier_shift = atof(c);
+            if ((c = mxmlElementGetAttr(elem, "c"))) varrier_cycle = atof(c);
         }
     }
 
@@ -369,6 +384,88 @@ app::tile::tile(mxml_node_t *node)
     H = sqrt(pow(TL[0] - BL[0], 2.0) +
              pow(TL[1] - BL[1], 2.0) +
              pow(TL[2] - BL[2], 2.0));
+}
+
+//-----------------------------------------------------------------------------
+
+void app::tile::apply_varrier(const double *P) const
+{
+    double R[3];
+    double U[3];
+    double N[3];
+    double v[3];
+    double w[3];
+
+    double dx, dy;
+    double pp, ss;
+
+    // Compute the screen space basis.
+
+    R[0] = BR[0] - BL[0];
+    R[1] = BR[1] - BL[1];
+    R[2] = BR[2] - BL[2];
+
+    U[0] = TL[0] - BL[0];
+    U[1] = TL[1] - BL[1];
+    U[2] = TL[2] - BL[2];
+
+    normalize(R);
+    normalize(U);
+
+    crossprod(N, R, U);
+
+    // Find the vector from the center of the screen to the eye.
+
+    v[0] = P[0] - (TL[0] + BR[0]) * 0.5;
+    v[1] = P[1] - (TL[1] + BR[1]) * 0.5;
+    v[2] = P[2] - (TL[2] + BR[2]) * 0.5;
+
+    // Transform this vector into screen space.
+
+    w[0] = v[0] * R[0] + v[1] * R[1] + v[2] * R[2];
+    w[1] = v[0] * U[0] + v[1] * U[1] + v[2] * U[2];
+    w[2] = v[0] * N[0] + v[1] * N[1] + v[2] * N[2];
+
+    // Compute the parallax due to optical thickness.
+
+    dx = varrier_thick * w[0] / w[2];
+    dy = varrier_thick * w[1] / w[2];
+
+    // Compute the pitch and shift reduction due to optical thickness.
+
+    pp = varrier_pitch * (w[2] - varrier_thick) / w[2];
+    ss = varrier_shift * (w[2] - varrier_thick) / w[2];
+
+    // Compose the line screen transformation matrix.
+
+    glMatrixMode(GL_TEXTURE);
+    {
+        glLoadIdentity();
+        glScaled(pp, pp, 1);
+        glRotated(-varrier_angle, 0, 0, 1);
+        glTranslated(dx - ss, dy, 0);
+    }
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void app::tile::set_varrier_pitch(double d)
+{
+    varrier_pitch += d;
+}
+
+void app::tile::set_varrier_angle(double d)
+{
+    varrier_angle += d;
+}
+
+void app::tile::set_varrier_shift(double d)
+{
+    varrier_shift += d;
+}
+
+void app::tile::set_varrier_thick(double d)
+{
+    varrier_thick += d;
 }
 
 //-----------------------------------------------------------------------------
@@ -400,7 +497,7 @@ bool app::tile::pick(double *p, double *v, int x, int y)
     return false;
 }
 
-void app::tile::draw(std::vector<eye *>& eyes)
+void app::tile::draw(std::vector<eye *>& eyes, bool focus)
 {
     // Apply the tile corners.
 
@@ -411,28 +508,33 @@ void app::tile::draw(std::vector<eye *>& eyes)
     std::vector<eye *>::iterator i;
 
     if (::view->get_type() == view::type_mono)
-        eyes.front()->draw(window_rect);
+        eyes.front()->draw(window_rect, focus);
     else
         for (i = eyes.begin(); i != eyes.end(); ++i)
-            (*i)->draw(window_rect);
+            (*i)->draw(window_rect, focus);
 
     // Render the onscreen exposure.
 
     if (const ogl::program *prog = ::view->get_prog())
     {
-        GLenum t;
-
         double frag_d[2] = { 0, 0 };
         double frag_k[2] = { 1, 1 };
 
         int w = ::host->get_buffer_w();
         int h = ::host->get_buffer_h();
+        int t;
 
-        // Bind the eye buffers.
+        // Bind the eye buffers.  Apply the Varrier transform for each.
 
-        for (t = GL_TEXTURE0, i = eyes.begin(); i != eyes.end(); ++i, ++t)
-            (*i)->bind(t);
+        for (t = 0, i = eyes.begin(); i != eyes.end(); ++i, ++t)
+        {
+            (*i)->bind(GL_TEXTURE0 + t);
         
+            glActiveTextureARB(GL_TEXTURE0 + t);
+            apply_varrier((*i)->get_P());
+            glActiveTextureARB(GL_TEXTURE0);
+        }
+
         // Compute the on-screen to off-screen fragment transform.
 
         frag_d[0] =            -double(window_rect[0]);
@@ -446,6 +548,10 @@ void app::tile::draw(std::vector<eye *>& eyes)
         {
             prog->uniform("L_map", 0);
             prog->uniform("R_map", 1);
+
+            prog->uniform("cycle", varrier_cycle);
+            prog->uniform("offset", -W / (3 * window_rect[2]), 0,
+                                     W / (3 * window_rect[2]));
 
             prog->uniform("frag_d", frag_d[0], frag_d[1]);
             prog->uniform("frag_k", frag_k[0], frag_k[1]);
@@ -734,7 +840,8 @@ app::host::host(std::string file,
     listen_sd(INVALID_SOCKET),
     mods(0),
     head(0),
-    node(0)
+    node(0),
+    varrier_index(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
     const char *c;
@@ -1180,9 +1287,10 @@ void app::host::draw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     std::vector<tile>::iterator i;
+    int index;
 
-    for (i = tiles.begin(); i != tiles.end(); ++i)
-        i->draw(eyes);
+    for (index = 0, i = tiles.begin(); i != tiles.end(); ++i, ++index)
+        i->draw(eyes, (index == varrier_index));
 
 //  glFinish();
 }
@@ -1394,6 +1502,37 @@ void app::host::gui_view() const
     // Apply the transform taking GUI coordinates to eye coordinates.
 
     glMultMatrixd(gui_M);
+}
+
+//-----------------------------------------------------------------------------
+
+void app::host::set_varrier_index(int d)
+{
+    varrier_index += d;
+}
+
+void app::host::set_varrier_pitch(double d)
+{
+    if (0 <= varrier_index && varrier_index < int(tiles.size()))
+        tiles[varrier_index].set_varrier_pitch(d);
+}
+
+void app::host::set_varrier_angle(double d)
+{
+    if (0 <= varrier_index && varrier_index < int(tiles.size()))
+        tiles[varrier_index].set_varrier_angle(d);
+}
+
+void app::host::set_varrier_shift(double d)
+{
+    if (0 <= varrier_index && varrier_index < int(tiles.size()))
+        tiles[varrier_index].set_varrier_shift(d);
+}
+
+void app::host::set_varrier_thick(double d)
+{
+    if (0 <= varrier_index && varrier_index < int(tiles.size()))
+        tiles[varrier_index].set_varrier_thick(d);
 }
 
 //-----------------------------------------------------------------------------

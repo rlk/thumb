@@ -218,8 +218,6 @@ int patch_plane_range(const double *n0,
     double R0;
     double R1;
 
-    printf("%+8.3f %+8.3f %+8.3f %+8.3f ", P[0], P[1], P[2], P[3]);
-
     // Easy-out the total misses.
 
     const double d  = P[3];
@@ -243,13 +241,11 @@ int patch_plane_range(const double *n0,
     if ((d0 <= 0 && d1 <= 0 && d2 <= 0) ||
         (d0 >  0 && d1 >  0 && d2 >  0))
     {
-        printf("elliptic\n");
         R1 = std::max(l0, l1);
         R1 = std::max(R1, l2);
     }
     else
     {
-        printf("hyperbolic\n");
         R1 = std::numeric_limits<double>::max();
     }
 
@@ -510,8 +506,7 @@ uni::patch *uni::patch::step(context& ctx,
     {
         // This patch is still visible.
 
-        if (0)
-//      if (value(p) * bias > 1.0)  // HACK
+        if (value(p) * bias > 1.0)  // HACK
         {
             // This patch is too large.  Subdivide it.
 

@@ -75,7 +75,7 @@ namespace app
 
         ogl::frame *back;
 
-        unsigned char color[3];
+        float color[3];
 
     public:
 
@@ -90,7 +90,7 @@ namespace app
         void bind(GLenum t) const { back->bind_color(t); }
         void free(GLenum t) const { back->free_color(t); }
 
-        void draw(const int *);
+        void draw(const int *, bool);
     };
 
     //-------------------------------------------------------------------------
@@ -110,13 +110,19 @@ namespace app
 
         int window_rect[4];
 
-        double varrier[5];
+        double varrier_pitch;
+        double varrier_angle;
+        double varrier_thick;
+        double varrier_shift;
+        double varrier_cycle;
+
+        void apply_varrier(const double *) const;
 
     public:
 
         tile(mxml_node_t *);
 
-        void draw(std::vector<eye *>&);
+        void draw(std::vector<eye *>&, bool);
 
         bool pick(double *, double *, int, int);
 
@@ -124,6 +130,11 @@ namespace app
         const double *get_BR() const { return BR; }
         const double *get_TL() const { return TL; }
         const double *get_TR() const { return TR; }
+
+        void set_varrier_pitch(double);
+        void set_varrier_angle(double);
+        void set_varrier_shift(double);
+        void set_varrier_thick(double);
     };
 
     //-------------------------------------------------------------------------
@@ -197,6 +208,8 @@ namespace app
 
         void load(std::string&, std::string&);
 
+        int varrier_index;
+
     public:
 
         host(std::string, std::string);
@@ -229,6 +242,12 @@ namespace app
         void gui_pick(int&, int&, const double *, const double *) const;
         void gui_size(int&, int&)                                 const;
         void gui_view()                                           const;
+
+        void set_varrier_index(int);
+        void set_varrier_pitch(double);
+        void set_varrier_angle(double);
+        void set_varrier_shift(double);
+        void set_varrier_thick(double);
     };
 }
 
