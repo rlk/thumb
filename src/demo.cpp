@@ -53,13 +53,14 @@ demo::demo()
     motion[0] = 0;
     motion[1] = 0;
     motion[2] = 0;
+    button[0] = 0;
     button[1] = 0;
     button[2] = 0;
     button[3] = 0;
 
     curr = 0;
 
-    goto_mode(play);
+    goto_mode(edit);
 }
 
 demo::~demo()

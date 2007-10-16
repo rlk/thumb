@@ -81,8 +81,8 @@ endif
 
 #------------------------------------------------------------------------------
 
-INCDIR += -I$(HOME)/include
-LIBDIR += -L$(HOME)/lib
+INCDIR += -I$(HOME)/rlk/include
+LIBDIR += -L$(HOME)/rlk/lib
 
 OPTS +=   $(shell $(SDL_CONF) --cflags) \
 	  $(shell $(FT2_CONF) --cflags)

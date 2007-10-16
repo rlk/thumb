@@ -110,6 +110,8 @@ namespace app
 
         int window_rect[4];
 
+        int eye_index;
+
         mxml_node_t *varrier;
 
         double varrier_pitch;
@@ -117,6 +119,9 @@ namespace app
         double varrier_thick;
         double varrier_shift;
         double varrier_cycle;
+
+        void trapezoid_lo();
+        void trapezoid_hi();
 
         void apply_varrier(const double *) const;
 

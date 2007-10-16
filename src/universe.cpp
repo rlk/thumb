@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 
-#define DATA "/home/evl/rlk/data/"
+#define DATA "/home/covise/rlk/data/"
 
 uni::universe::universe()
 {

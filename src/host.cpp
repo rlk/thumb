@@ -298,15 +298,21 @@ void app::eye::draw(const int *rect, bool focus)
 
 //=============================================================================
 
-app::tile::tile(mxml_node_t *node) : varrier(0)
+app::tile::tile(mxml_node_t *node) : eye_index(-1), varrier(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
+
+    bool got_BL = false;
+    bool got_BR = false;
+    bool got_TL = false;
+    bool got_TR = false;
 
     // Set some reasonable defaults.
 
     BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
     BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
     TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
+    TR[0] = +0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
 
     window_rect[0] = 0;
     window_rect[1] = 0;
@@ -345,19 +351,40 @@ app::tile::tile(mxml_node_t *node) : varrier(0)
         {
             double *v = 0;
 
+            // Determine which corner is being specified.
+
             if (const char *name = mxmlElementGetAttr(curr, "name"))
             {
-                if      (strcmp(name, "BL") == 0) v = BL;
-                else if (strcmp(name, "BR") == 0) v = BR;
-                else if (strcmp(name, "TL") == 0) v = TL;
+                if      (strcmp(name, "BL") == 0) { v = BL; got_BL = true; }
+                else if (strcmp(name, "BR") == 0) { v = BR; got_BR = true; }
+                else if (strcmp(name, "TL") == 0) { v = TL; got_TL = true; }
+                else if (strcmp(name, "TR") == 0) { v = TR; got_TR = true; }
             }
             if (v)
             {
+                // Extract the position.
+
                 if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
                 if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
                 if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
+
+                // Convert dimensions as necessary.
+
+                if ((c = mxmlElementGetAttr(curr, "dim")))
+                {
+                    if (std::string(c) == "mm")
+                    {
+                        v[0] /= 304.8;
+                        v[1] /= 304.8;
+                        v[2] /= 304.8;
+                    }
+                }
             }
         }
+
+        // Check for an eye specifier.
+
+        if ((c = mxmlElementGetAttr(node, "eye"))) eye_index = atoi(c);
 
         // Extract the Varrier linescreen parameters.
 
@@ -372,18 +399,19 @@ app::tile::tile(mxml_node_t *node) : varrier(0)
         }
     }
 
-    // Compute the remaining screen corner and screen extents.
+    // Compute the remaining screen corner.
 
-    TR[0] = BR[0] + TL[0] - BL[0];
-    TR[1] = BR[1] + TL[1] - BL[1];
-    TR[2] = BR[2] + TL[2] - BL[2];
+    if (got_TR == false)
+    {
+        TR[0] = BR[0] + TL[0] - BL[0];
+        TR[1] = BR[1] + TL[1] - BL[1];
+        TR[2] = BR[2] + TL[2] - BL[2];
+    }
 
-    W = sqrt(pow(BR[0] - BL[0], 2.0) +
-             pow(BR[1] - BL[1], 2.0) +
-             pow(BR[2] - BL[2], 2.0));
-    H = sqrt(pow(TL[0] - BL[0], 2.0) +
-             pow(TL[1] - BL[1], 2.0) +
-             pow(TL[2] - BL[2], 2.0));
+    // Compute the screen extents.
+
+    W = distance(BR, BL);
+    H = distance(TL, BL);
 }
 
 //-----------------------------------------------------------------------------
@@ -524,11 +552,10 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
     // Render the view from each eye.
 
     std::vector<eye *>::iterator i;
+    int e;
 
-    if (::view->get_type() == view::type_mono)
-        eyes.front()->draw(window_rect, focus);
-    else
-        for (i = eyes.begin(); i != eyes.end(); ++i)
+    for (e = 0, i = eyes.begin(); i != eyes.end(); ++i, ++e)
+        if (eye_index < 0 || eye_index == e)
             (*i)->draw(window_rect, focus);
 
     // Render the onscreen exposure.
@@ -718,7 +745,7 @@ void app::host::fork_client(const char *addr, const char *name)
     {
         // TODO: generalize this
 
-        sprintf(line, "cd src/thumb; ./thumb %s", name);
+        sprintf(line, "cd rlk/src/thumb; ./thumb %s", name);
 
         // Allocate and build the client's ssh command line.
 
@@ -726,6 +753,8 @@ void app::host::fork_client(const char *addr, const char *name)
         args[1] = addr;
         args[2] = line;
         args[3] = NULL;
+
+        printf("ssh %s %s\n", addr, line);
 
         execvp("ssh", (char * const *) args);
 
@@ -1347,7 +1376,7 @@ void app::host::draw()
 {
     // Determine the frustum union and preprocess the app.
 
-    double F[16];
+    double F[32]; // TODO: this must be dynamic.
 
     ::prog->prep(F, get_frustum(F));
 
@@ -1361,7 +1390,7 @@ void app::host::draw()
     for (index = 0, i = tiles.begin(); i != tiles.end(); ++i, ++index)
         i->draw(eyes, (index == varrier_index));
 
-//  glFinish();
+    glFinish();
 }
 
 int app::host::get_window_m() const

@@ -201,9 +201,9 @@ bool tracker_sensor(int id, double p[3], double R[3][3])
                                                   + tracker->offset
                                                   + tracker->size * id);
 
-            if (memcmp(sensors[id].p, S->p, 6 * sizeof (double)))
+            if (memcmp(sensors[id].p, S->p, 6 * sizeof (float)))
             {
-                memcpy(sensors[id].p, S->p, 6 * sizeof (double));
+                memcpy(sensors[id].p, S->p, 6 * sizeof (float));
 
                 // Return the position of sensor ID.
 
@@ -241,7 +241,6 @@ printf(       "\t%+12.5f %+12.5f %+12.5f\n",     R[2][0], R[2][1], R[2][2]);
             }
         }
     }
-    memset(R, 0, 3 * 3 * sizeof (double));
 
     return false;
 }
