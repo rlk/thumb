@@ -1,89 +1,68 @@
 <?xml version="1.0"?>
 <host>
-  <node name="test" root="true">
-    <window x="0" y="0" w="1280" h="240"/>
-    <buffer n="2" w="320"  h="240"/>
-    <tile index="25">
-      <viewport x="0" y="0" w="320" h="240"/>
-      <corner name="BL" x=" -4.7328" y="  3.7302" z="  0.6641"/>
-      <corner name="BR" x=" -4.8385" y="  3.7302" z=" -0.6617"/>
-      <corner name="TL" x=" -4.7328" y="  4.7302" z="  0.6641"/>
-      <varrier p="536.85342" a="-10.410" t="0.0230" s="-0.00150" c="0.75"/>
-    </tile>
-    <tile index="26">
-      <viewport x="320" y="0" w="320" h="240"/>
-      <corner name="BL" x=" -4.8375" y="  3.7227" z=" -0.7510"/>
-      <corner name="BR" x=" -4.5505" y="  3.7227" z=" -2.0497"/>
-      <corner name="TL" x=" -4.8375" y="  4.7227" z=" -0.7510"/>
-      <varrier p="536.85342" a="-10.460" t="0.0227" s="-0.00090" c="0.75"/>
-    </tile>
-    <tile index="27">
-      <viewport x="640" y="0" w="320" h="240"/>
-      <corner name="BL" x=" -4.5164" y="  3.7248" z=" -2.1379"/>
-      <corner name="BR" x=" -3.7910" y="  3.7248" z=" -3.2527"/>
-      <corner name="TL" x=" -4.5164" y="  4.7248" z=" -2.1379"/>
-      <varrier p="536.85342" a="-10.480" t="0.0235" s="0.00030" c="0.75"/>
-    </tile>
-    <tile index="28">
-      <viewport x="960" y="1200" w="320" h="240"/>
-      <corner name="BL" x=" -3.7312" y="  3.7166" z=" -3.3217"/>
-      <corner name="BR" x=" -2.7588" y="  3.7166" z=" -4.2290"/>
-      <corner name="TL" x=" -3.7312" y="  4.7166" z=" -3.3217"/>
-      <varrier p="536.84342" a="-10.475" t="0.0231" s="0.00000" c="0.75"/>
-    </tile>
-  </node>
+  <eye x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0"/>
+  <eye x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1"/>
 
-  <node name="vellum" root="true">
-    <client name="vellum1-1" addr="vellum15-10" port="2827"/>
-    <client name="vellum2-1" addr="vellum10-10" port="2827"/>
-    <client name="vellum3-1" addr="vellum5-10"  port="2827"/>
-    <client name="vellum4-1" addr="vellum14-10" port="2827"/>
-    <client name="vellum5-1" addr="vellum9-10"  port="2827"/>
-    <client name="vellum6-1" addr="vellum4-10"  port="2827"/>
-    <client name="vellum7-1" addr="vellum13-10" port="2827"/>
-    <client name="vellum8-1" addr="vellum8-10"  port="2827"/>
-    <client name="vellum9-1" addr="vellum3-10"  port="2827"/>
-    <client name="vellumA-1" addr="vellum12-10" port="2827"/>
-    <client name="vellumB-1" addr="vellum7-10"  port="2827"/>
-    <client name="vellumC-1" addr="vellum2-10"  port="2827"/>
-    <client name="vellumD-1" addr="vellum11-10" port="2827"/>
-    <client name="vellumE-1" addr="vellum6-10"  port="2827"/>
-    <client name="vellumF-1" addr="vellum1-10"  port="2827"/>
-    <window x="0" y="0" w="640" h="480"/>
-    <buffer       n="2" w="640" h="480"/>
+  <gui w="1024" h="768">
+      <corner name="BL" x="-0.5" y="3.75" z="-2.0"/>
+      <corner name="BR" x=" 0.5" y="3.75" z="-2.0"/>
+      <corner name="TL" x="-0.5" y="4.50" z="-2.0"/>
+  </gui>
+
+  <buffer w="640" h="480"/>
+
+  <node name="vellum" port="2827">
+    <client name="vellum2" addr="vellum10-10"/>
+    <client name="vellum4" addr="vellum14-10"/>
+    <client name="vellum5" addr="vellum9-10" />
+    <client name="vellum7" addr="vellum13-10"/>
+    <client name="vellum8" addr="vellum8-10" />
+    <client name="vellum9" addr="vellum3-10" />
+    <client name="vellumA" addr="vellum12-10"/>
+    <client name="vellumB" addr="vellum7-10" />
+    <client name="vellumC" addr="vellum2-10" />
+    <client name="vellumD" addr="vellum11-10"/>
+    <client name="vellumF" addr="vellum1-10" />
+<!--
+    <client name="vellum1" addr="vellum15-10"/>
+    <client name="vellum3" addr="vellum5-10" />
+    <client name="vellum6" addr="vellum4-10" />
+    <client name="vellumE" addr="vellum6-10" />
+-->
+    <window x="0" y="0" w="1024" h="768"/>
     <tile>
-      <viewport x="0" y="0" w="640" h="480"/>
-      <corner name="BL" x="-1.0" y="3.75" z="-2.0"/>
-      <corner name="BR" x=" 0.0" y="3.75" z="-2.0"/>
-      <corner name="TL" x="-1.0" y="4.50" z="-2.0"/>
+      <viewport x="0" y="0" w="1024" h="768"/>
+      <corner name="BL" x="-0.5" y="3.75" z="-2.0"/>
+      <corner name="BR" x=" 0.5" y="3.75" z="-2.0"/>
+      <corner name="TL" x="-0.5" y="4.50" z="-2.0"/>
     </tile>
   </node>
 
-  <node name="vellum1-1" port="2827">
+  <node name="vellum1">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="1">
+    <tile>
       <viewport x="0"y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.7516" y="  1.5496" z="  0.6627"/>
       <corner name="BR" x=" -4.8493" y="  1.5496" z=" -0.6637"/>
       <corner name="TL" x=" -4.7516" y="  2.5496" z="  0.6627"/>
       <varrier p="536.81342" a="-10.500" t="0.0228" s="0.00040" c="0.75"/>
     </tile>
-    <tile index="2">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -4.8311" y="  1.5452" z=" -0.7519"/>
       <corner name="BR" x=" -4.5542" y="  1.5452" z=" -2.0528"/>
       <corner name="TL" x=" -4.8311" y="  2.5452" z=" -0.7519"/>
       <varrier p="536.85342" a="-10.465" t="0.0219" s="-0.00160" c="0.75"/>
     </tile>
-    <tile index="3">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.5248" y="  1.5445" z=" -2.1414"/>
       <corner name="BR" x=" -3.7813" y="  1.5445" z=" -3.2442"/>
       <corner name="TL" x=" -4.5248" y="  2.5445" z=" -2.1414"/>
       <varrier p="536.85342" a="-10.500" t="0.0226" s="-0.00120" c="0.75"/>
     </tile>
-    <tile index="4">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -3.7239" y="  1.5373" z=" -3.3236"/>
       <corner name="BR" x=" -2.7502" y="  1.5373" z=" -4.2296"/>
@@ -92,31 +71,31 @@
     </tile>
   </node>
 
-  <node name="vellum2-1" port="2827">
+  <node name="vellum2">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="5">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -2.6858" y="  1.5427" z=" -4.2840"/>
       <corner name="BR" x=" -1.4495" y="  1.5427" z=" -4.7745"/>
       <corner name="TL" x=" -2.6858" y="  2.5427" z=" -4.2840"/>
       <varrier p="536.85342" a="-10.480" t="0.0224" s="-0.00025" c="0.75"/>
     </tile>
-    <tile index="6">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -1.3608" y="  1.5389" z=" -4.7834"/>
       <corner name="BR" x=" -0.0437" y="  1.5389" z=" -4.9679"/>
       <corner name="TL" x=" -1.3608" y="  2.5389" z=" -4.7834"/>
       <varrier p="536.84342" a="-10.510" t="0.0233" s="-0.00005" c="0.75"/>
     </tile>
-    <tile index="7">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  0.0476" y="  1.5454" z=" -4.9556"/>
       <corner name="BR" x="  1.3586" y="  1.5454" z=" -4.7314"/>
       <corner name="TL" x="  0.0476" y="  2.5454" z=" -4.9556"/>
       <varrier p="536.85342" a="-10.490" t="0.0240" s="0.00005" c="0.75"/>
     </tile>
-    <tile index="8">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  1.4402" y="  1.5362" z=" -4.6882"/>
       <corner name="BR" x="  2.6537" y="  1.5362" z=" -4.1439"/>
@@ -125,31 +104,31 @@
     </tile>
   </node>
 
-  <node name="vellum3-1" port="2827">
+  <node name="vellum3">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="9">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  2.7247" y="  1.5366" z=" -4.0884"/>
       <corner name="BR" x="  3.7375" y="  1.5366" z=" -3.2264"/>
       <corner name="TL" x="  2.7247" y="  2.5366" z=" -4.0884"/>
       <varrier p="536.85342" a="-10.470" t="0.0216" s="-0.00080" c="0.75"/>
     </tile>
-    <tile index="10">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  3.8022" y="  1.5273" z=" -3.1646"/>
       <corner name="BR" x="  4.5081" y="  1.5273" z=" -2.0374"/>
       <corner name="TL" x="  3.8022" y="  2.5273" z=" -3.1646"/>
       <varrier p="536.85342" a="-10.470" t="0.0234" s="-0.00145" c="0.75"/>
     </tile>
-    <tile index="11">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  4.5510" y="  1.5309" z=" -1.9502"/>
       <corner name="BR" x="  4.8535" y="  1.5309" z=" -0.6551"/>
       <corner name="TL" x="  4.5510" y="  2.5309" z=" -1.9502"/>
       <varrier p="536.85342" a="-10.520" t="0.0237" s="0.00070" c="0.75"/>
     </tile>
-    <tile index="12">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  4.8430" y="  1.5282" z=" -0.5649"/>
       <corner name="BR" x="  4.8062" y="  1.5282" z="  0.7646"/>
@@ -158,31 +137,31 @@
     </tile>
   </node>
 
-  <node name="vellum4-1" port="2827">
+  <node name="vellum4">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="13">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.7405" y="  2.6392" z="  0.6621"/>
       <corner name="BR" x=" -4.8428" y="  2.6392" z=" -0.6640"/>
       <corner name="TL" x=" -4.7405" y="  3.6392" z="  0.6621"/>
       <varrier p="536.85342" a="-10.415" t="0.0236" s="-0.00045" c="0.75"/>
     </tile>
-    <tile index="14">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -4.8328" y="  2.6332" z=" -0.7534"/>
       <corner name="BR" x=" -4.5573" y="  2.6332" z=" -2.0545"/>
       <corner name="TL" x=" -4.8328" y="  3.6332" z=" -0.7534"/>
       <varrier p="536.83342" a="-10.440" t="0.0218" s="-0.00010" c="0.75"/>
     </tile>
-    <tile index="15">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.5224" y="  2.6356" z=" -2.1401"/>
       <corner name="BR" x=" -3.7879" y="  2.6356" z=" -3.2489"/>
       <corner name="TL" x=" -4.5224" y="  3.6356" z=" -2.1401"/>
       <varrier p="536.85342" a="-10.450" t="0.0236" s="-0.00030" c="0.75"/>
     </tile>
-    <tile index="16">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -3.7267" y="  2.6274" z=" -3.3228"/>
       <corner name="BR" x=" -2.7526" y="  2.6274" z=" -4.2283"/>
@@ -191,31 +170,31 @@
     </tile>
   </node>
 
-  <node name="vellum5-1" port="2827">
+  <node name="vellum5">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="17">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -2.6889" y="  2.6309" z=" -4.2894"/>
       <corner name="BR" x=" -1.4535" y="  2.6309" z=" -4.7820"/>
       <corner name="TL" x=" -2.6889" y="  3.6309" z=" -4.2894"/>
       <varrier p="536.85342" a="-10.440" t="0.0246" s="0.00040" c="0.75"/>
     </tile>
-    <tile index="18">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -1.3595" y="  2.6280" z=" -4.7819"/>
       <corner name="BR" x=" -0.0427" y="  2.6280" z=" -4.9691"/>
       <corner name="TL" x=" -1.3595" y="  3.6280" z=" -4.7819"/>
       <varrier p="536.85342" a="-10.440" t="0.0232" s="0.00025" c="0.75"/>
     </tile>
-    <tile index="19">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  0.0463" y="  2.6342" z=" -4.9528"/>
       <corner name="BR" x="  1.3563" y="  2.6342" z=" -4.7230"/>
       <corner name="TL" x="  0.0463" y="  3.6342" z=" -4.9528"/>
       <varrier p="536.85342" a="-10.445" t="0.0233" s="-0.00165" c="0.75"/>
     </tile>
-    <tile index="20">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  1.4421" y="  2.6260" z=" -4.6926"/>
       <corner name="BR" x="  2.6505" y="  2.6260" z=" -4.1371"/>
@@ -224,31 +203,31 @@
     </tile>
   </node>
 
-  <node name="vellum6-1" port="2827">
+  <node name="vellum6">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="21">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  2.7250" y="  2.6255" z=" -4.0868"/>
       <corner name="BR" x="  3.7421" y="  2.6255" z=" -3.2298"/>
       <corner name="TL" x="  2.7250" y="  3.6255" z=" -4.0868"/>
       <varrier p="536.85342" a="-10.470" t="0.0227" s="-0.00070" c="0.75"/>
     </tile>
-    <tile index="22">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  3.8036" y="  2.6176" z=" -3.1692"/>
       <corner name="BR" x="  4.5068" y="  2.6176" z=" -2.0403"/>
       <corner name="TL" x="  3.8036" y="  3.6176" z=" -3.1692"/>
       <varrier p="536.85342" a="-10.440" t="0.0233" s="-0.00035" c="0.75"/>
     </tile>
-    <tile index="23">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  4.5490" y="  2.6194" z=" -1.9528"/>
       <corner name="BR" x="  4.8529" y="  2.6194" z=" -0.6580"/>
       <corner name="TL" x="  4.5490" y="  3.6194" z=" -1.9528"/>
       <varrier p="536.85342" a="-10.460" t="0.0233" s="-0.00075" c="0.75"/>
     </tile>
-    <tile index="24">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  4.8485" y="  2.6186" z=" -0.5686"/>
       <corner name="BR" x="  4.8047" y="  2.6186" z="  0.7607"/>
@@ -257,31 +236,31 @@
     </tile>
   </node>
 
-  <node name="vellum7-1" port="2827">
+  <node name="vellum7">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="25">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.7328" y="  3.7302" z="  0.6641"/>
       <corner name="BR" x=" -4.8385" y="  3.7302" z=" -0.6617"/>
       <corner name="TL" x=" -4.7328" y="  4.7302" z="  0.6641"/>
       <varrier p="536.85342" a="-10.410" t="0.0230" s="-0.00150" c="0.75"/>
     </tile>
-    <tile index="26">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -4.8375" y="  3.7227" z=" -0.7510"/>
       <corner name="BR" x=" -4.5505" y="  3.7227" z=" -2.0497"/>
       <corner name="TL" x=" -4.8375" y="  4.7227" z=" -0.7510"/>
       <varrier p="536.85342" a="-10.460" t="0.0227" s="-0.00090" c="0.75"/>
     </tile>
-    <tile index="27">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.5164" y="  3.7248" z=" -2.1379"/>
       <corner name="BR" x=" -3.7910" y="  3.7248" z=" -3.2527"/>
       <corner name="TL" x=" -4.5164" y="  4.7248" z=" -2.1379"/>
       <varrier p="536.85342" a="-10.480" t="0.0235" s="0.00030" c="0.75"/>
     </tile>
-    <tile index="28">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -3.7312" y="  3.7166" z=" -3.3217"/>
       <corner name="BR" x=" -2.7588" y="  3.7166" z=" -4.2290"/>
@@ -290,31 +269,31 @@
     </tile>
   </node>
 
-  <node name="vellum8-1" port="2827">
+  <node name="vellum8">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640" h="480"/>
-    <tile index="29">
+    <tile>
       <viewport x="0" y="0"    w="1600" h="1200"/>
       <corner name="BL" x=" -2.6922" y="  3.7217" z=" -4.2880"/>
       <corner name="BR" x=" -1.4543" y="  3.7217" z=" -4.7742"/>
       <corner name="TL" x=" -2.6922" y="  4.7217" z=" -4.2880"/>
       <varrier p="536.85342" a="-10.440" t="0.0233" s="0.00050" c="0.75"/>
     </tile>
-    <tile index="30">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -1.3623" y="  3.7173" z=" -4.7828"/>
       <corner name="BR" x=" -0.0458" y="  3.7173" z=" -4.9720"/>
       <corner name="TL" x=" -1.3623" y="  4.7173" z=" -4.7828"/>
       <varrier p="536.85342" a="-10.460" t="0.0240" s="-0.00025" c="0.75"/>
     </tile>
-    <tile index="31">
+    <tile>
       <viewport x="1600" y="0"    w="1600" h="1200"/>
       <corner name="BL" x="  0.0466" y="  3.7233" z=" -4.9558"/>
       <corner name="BR" x="  1.3552" y="  3.7233" z=" -4.7184"/>
       <corner name="TL" x="  0.0466" y="  4.7233" z=" -4.9558"/>
       <varrier p="536.85342" a="-10.445" t="0.0235" s="0.00035" c="0.75"/>
     </tile>
-    <tile index="32">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  1.4413" y="  3.7147" z=" -4.6965"/>
       <corner name="BR" x="  2.6489" y="  3.7147" z=" -4.1391"/>
@@ -323,31 +302,31 @@
     </tile>
   </node>
 
-  <node name="vellum9-1" port="2827">
+  <node name="vellum9">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="33">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  2.7269" y="  3.7141" z=" -4.0883"/>
       <corner name="BR" x="  3.7466" y="  3.7141" z=" -3.2345"/>
       <corner name="TL" x="  2.7269" y="  4.7141" z=" -4.0883"/>
       <varrier p="536.85342" a="-10.430" t="0.0237" s="-0.00175" c="0.75"/>
     </tile>
-    <tile index="34">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  3.8049" y="  3.7085" z=" -3.1674"/>
       <corner name="BR" x="  4.5160" y="  3.7085" z=" -2.0435"/>
       <corner name="TL" x="  3.8049" y="  4.7085" z=" -3.1674"/>
       <varrier p="536.85342" a="-10.460" t="0.0231" s="-0.00130" c="0.75"/>
     </tile>
-    <tile index="35">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  4.5504" y="  3.7094" z=" -1.9572"/>
       <corner name="BR" x="  4.8526" y="  3.7094" z=" -0.6620"/>
       <corner name="TL" x="  4.5504" y="  4.7094" z=" -1.9572"/>
       <varrier p="536.85342" a="-10.460" t="0.0232" s="0.00065" c="0.75"/>
     </tile>
-    <tile index="36">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  4.8491" y="  3.7072" z=" -0.5731"/>
       <corner name="BR" x="  4.8125" y="  3.7072" z="  0.7564"/>
@@ -356,31 +335,31 @@
     </tile>
   </node>
 
-  <node name="vellumA-1" port="2827">
+  <node name="vellumA">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="37">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.7266" y="  4.8200" z="  0.6653"/>
       <corner name="BR" x=" -4.8301" y="  4.8200" z=" -0.6607"/>
       <corner name="TL" x=" -4.7266" y="  5.8200" z="  0.6653"/>
       <varrier p="536.85342" a="-10.370" t="0.0221" s="0.00010" c="0.75"/>
     </tile>
-    <tile index="38">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -4.8376" y="  4.8142" z=" -0.7500"/>
       <corner name="BR" x=" -4.5405" y="  4.8142" z=" -2.0464"/>
       <corner name="TL" x=" -4.8376" y="  5.8142" z=" -0.7500"/>
       <varrier p="536.85342" a="-10.500" t="0.0236" s="-0.00175" c="0.75"/>
     </tile>
-    <tile index="39">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.5147" y="  4.8145" z=" -2.1334"/>
       <corner name="BR" x=" -3.7891" y="  4.8145" z=" -3.2481"/>
       <corner name="TL" x=" -4.5147" y="  5.8145" z=" -2.1334"/>
       <varrier p="536.85342" a="-10.450" t="0.0232" s="-0.00085" c="0.75"/>
     </tile>
-    <tile index="40">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -3.7374" y="  4.8054" z=" -3.3231"/>
       <corner name="BR" x=" -2.7633" y="  4.8054" z=" -4.2287"/>
@@ -389,31 +368,31 @@
     </tile>
   </node>
 
-  <node name="vellumB-1" port="2827">
+  <node name="vellumB">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="41">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -2.6941" y="  4.8124" z=" -4.2844"/>
       <corner name="BR" x=" -1.4563" y="  4.8124" z=" -4.7710"/>
       <corner name="TL" x=" -2.6941" y="  5.8124" z=" -4.2844"/>
       <varrier p="536.85342" a="-10.460" t="0.0234" s="-0.00045" c="0.75"/>
     </tile>
-    <tile index="42">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -1.3618" y="  4.8066" z=" -4.7814"/>
       <corner name="BR" x=" -0.0452" y="  4.8066" z=" -4.9694"/>
       <corner name="TL" x=" -1.3618" y="  5.8066" z=" -4.7814"/>
       <varrier p="536.85342" a="-10.460" t="0.0229" s="-0.00035" c="0.75"/>
     </tile>
-    <tile index="43">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  0.0453" y="  4.8122" z=" -4.9551"/>
       <corner name="BR" x="  1.3535" y="  4.8122" z=" -4.7155"/>
       <corner name="TL" x="  0.0453" y="  5.8122" z=" -4.9551"/>
       <varrier p="536.85342" a="-10.460" t="0.0231" s="-0.00110" c="0.75"/>
     </tile>
-    <tile index="44">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  1.4406" y="  4.8039" z=" -4.6987"/>
       <corner name="BR" x="  2.6451" y="  4.8039" z=" -4.1348"/>
@@ -422,31 +401,31 @@
     </tile>
   </node>
 
-  <node name="vellumC-1" port="2827">
+  <node name="vellumC">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="45">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  2.7261" y="  4.8035" z=" -4.0943"/>
       <corner name="BR" x="  3.7421" y="  4.8035" z=" -3.2361"/>
       <corner name="TL" x="  2.7261" y="  5.8035" z=" -4.0943"/>
       <varrier p="536.85342" a="-10.480" t="0.0223" s="-0.00235" c="0.75"/>
     </tile>
-    <tile index="46">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  3.8075" y="  4.7976" z=" -3.1749"/>
       <corner name="BR" x="  4.5118" y="  4.7976" z=" -2.0467"/>
       <corner name="TL" x="  3.8075" y="  5.7976" z=" -3.1749"/>
       <varrier p="536.85342" a="-10.470" t="0.0228" s="0.00015" c="0.75"/>
     </tile>
-    <tile index="47">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  4.5486" y="  4.7991" z=" -1.9601"/>
       <corner name="BR" x="  4.8452" y="  4.7991" z=" -0.6636"/>
       <corner name="TL" x="  4.5486" y="  5.7991" z=" -1.9601"/>
       <varrier p="536.85342" a="-10.470" t="0.0230" s="-0.00265" c="0.75"/>
     </tile>
-    <tile index="48">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  4.8481" y="  4.7961" z=" -0.5746"/>
       <corner name="BR" x="  4.8141" y="  4.7961" z="  0.7550"/>
@@ -455,31 +434,31 @@
     </tile>
   </node>
 
-  <node name="vellumD-1" port="2827">
+  <node name="vellumD">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="49">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.7149" y="  5.9091" z="  0.6641"/>
       <corner name="BR" x=" -4.8277" y="  5.9091" z=" -0.6611"/>
       <corner name="TL" x=" -4.7149" y="  6.9091" z="  0.6641"/>
       <varrier p="536.85342" a="-10.440" t="0.0225" s="-0.00015" c="0.75"/>
     </tile>
-    <tile index="50">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -4.8376" y="  5.9035" z=" -0.7498"/>
       <corner name="BR" x=" -4.5390" y="  5.9035" z=" -2.0458"/>
       <corner name="TL" x=" -4.8376" y="  6.9035" z=" -0.7498"/>
       <varrier p="536.85342" a="-10.510" t="0.0218" s="-0.00085" c="0.75"/>
     </tile>
-    <tile index="51">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -4.5054" y="  5.9035" z=" -2.1302"/>
       <corner name="BR" x=" -3.7994" y="  5.9035" z=" -3.2574"/>
       <corner name="TL" x=" -4.5054" y="  6.9035" z=" -2.1302"/>
       <varrier p="536.85342" a="-10.430" t="0.0226" s="-0.00065" c="0.75"/>
     </tile>
-    <tile index="52">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -3.7310" y="  5.8939" z=" -3.3164"/>
       <corner name="BR" x=" -2.7584" y="  5.8939" z=" -4.2236"/>
@@ -488,31 +467,31 @@
     </tile>
   </node>
 
-  <node name="vellumE-1" port="2827">
+  <node name="vellumE">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="53">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x=" -2.6922" y="  5.9053" z=" -4.2814"/>
       <corner name="BR" x=" -1.4552" y="  5.9053" z=" -4.7700"/>
       <corner name="TL" x=" -2.6922" y="  6.9053" z=" -4.2814"/>
       <varrier p="536.85342" a="-10.540" t="0.0226" s="0.00065" c="0.75"/>
     </tile>
-    <tile index="54">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x=" -1.3636" y="  5.8966" z=" -4.7777"/>
       <corner name="BR" x=" -0.0478" y="  5.8966" z=" -4.9715"/>
       <corner name="TL" x=" -1.3636" y="  6.8966" z=" -4.7777"/>
       <varrier p="536.85342" a="-10.460" t="0.0223" s="-0.00055" c="0.75"/>
     </tile>
-    <tile index="55">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  0.0482" y="  5.9024" z=" -4.9523"/>
       <corner name="BR" x="  1.3570" y="  5.9024" z=" -4.7161"/>
       <corner name="TL" x="  0.0482" y="  6.9024" z=" -4.9523"/>
       <varrier p="536.85342" a="-10.485" t="0.0246" s="-0.00045" c="0.75"/>
     </tile>
-    <tile index="56">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  1.4437" y="  5.8929" z=" -4.6972"/>
       <corner name="BR" x="  2.6507" y="  5.8929" z=" -4.1386"/>
@@ -521,31 +500,31 @@
     </tile>
   </node>
 
-  <node name="vellumF-1" port="2827">
+  <node name="vellumF">
+    <server addr="vellum" port="2827"/>
     <window x="0" y="0" w="3200" h="2400"/>
-    <buffer n="2" w="640"  h="480"/>
-    <tile index="57">
+    <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  2.7285" y="  5.8932" z=" -4.0940"/>
       <corner name="BR" x="  3.7426" y="  5.8932" z=" -3.2335"/>
       <corner name="TL" x="  2.7285" y="  6.8932" z=" -4.0940"/>
       <varrier p="536.85342" a="-10.450" t="0.0239" s="0.00065" c="0.75"/>
     </tile>
-    <tile index="58">
+    <tile>
       <viewport x="0" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  3.8080" y="  5.8884" z=" -3.1761"/>
       <corner name="BR" x="  4.5123" y="  5.8884" z=" -2.0479"/>
       <corner name="TL" x="  3.8080" y="  6.8884" z=" -3.1761"/>
       <varrier p="536.85342" a="-10.460" t="0.0222" s="-0.00175" c="0.75"/>
     </tile>
-    <tile index="59">
+    <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <corner name="BL" x="  4.5459" y="  5.8885" z=" -1.9627"/>
       <corner name="BR" x="  4.8419" y="  5.8885" z=" -0.6661"/>
       <corner name="TL" x="  4.5459" y="  6.8885" z=" -1.9627"/>
       <varrier p="536.85342" a="-10.490" t="0.0224" s="-0.00050" c="0.75"/>
     </tile>
-    <tile index="60">
+    <tile>
       <viewport x="1600" y="1200" w="1600" h="1200"/>
       <corner name="BL" x="  4.8511" y="  5.8849" z=" -0.5779"/>
       <corner name="BR" x="  4.8191" y="  5.8849" z="  0.7517"/>
