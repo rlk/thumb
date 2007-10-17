@@ -77,6 +77,7 @@ public:
     void click(int, bool);
     void keybd(int, bool, int);
     void timer(double);
+    void stick(int, const double *);
     void track(int, const double *,
                     const double *,
                     const double *);

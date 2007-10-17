@@ -228,7 +228,7 @@ int patch_plane_range(const double *n0,
     if (d < 0 && d0 < 0 && d1 < 0 && d2 < 0) return -1;
     if (d > 0 && d0 > 0 && d1 > 0 && d2 > 0) return +1;
 
-//  return 0;  // HACK HACK HACK
+    return 0;  // HACK!  Oh sweet mother of god HACK.
 
     // Compute the vector-plane intersection distances.
 

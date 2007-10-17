@@ -9,6 +9,7 @@
 
 uniform mat4 eye_to_object_mat;
 uniform mat4 eye_to_object_inv;
+varying float day;
 
 //uniform vec3 v3CameraPos;		// The camera's current position
 //uniform vec3 v3LightPos;		// The direction vector to the light source
@@ -83,6 +84,9 @@ void main(void)
 
     // Calculate the attenuation factor for the ground
     gl_FrontSecondaryColor.rgb = v3Attenuate;
+
+    day = pow(max(0.0, dot(normalize(gl_NormalMatrix * gl_Normal),
+                           gl_LightSource[0].position.xyz)), 5.0);
 
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;

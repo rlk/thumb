@@ -1,3 +1,7 @@
+short term:
+    fix lightsource position
+    can the initial connect socket be closed early?
+
 serious far clipping issue in tile mode
 CWD in fork_client
 map atlas

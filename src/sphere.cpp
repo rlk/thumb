@@ -86,8 +86,8 @@ uni::sphere::sphere(uni::geodat& dat,
     n[1] = 1;
     n[2] = 0;
     a    = 0;
-    z0   = 1.0;
-    z1   = 2.0;
+    d0   = 1.0;
+    d1   = 2.0;
 
     // Initialize atmosphere rendering.
 
@@ -343,8 +343,8 @@ void uni::sphere::step()
 
             // Store the depth range. (HACK out extrema reduction)
 
-            z0 = pos.min_z();
-            z1 = pos.max_z();
+            d0 = pos.min_d();
+            d1 = pos.max_d();
         }
     }
 }
@@ -448,39 +448,39 @@ void uni::sphere::pass()
 void uni::sphere::draw(const double *frag_d,
                        const double *frag_k)
 {
-    if (count)
+    bool in = (sqrt(DOT3(v, v)) < a1);
+
+    const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
+    const ogl::program *land_prog = in ? land_in : land_out;
+
+    // Position a directional lightsource at the origin.  TODO: move this?
+
+    GLfloat L[4];
+    double  t[4];
+    double  a[4];
+    double  A[16];
+
+    ::view->get_M(A);
+
+    mult_xps_vec3(t, A, p);
+    mult_xps_vec3(a, A, n);
+
+    normalize(t);
+    normalize(a);
+
+    L[0] = GLfloat(-t[0]);
+    L[1] = GLfloat(-t[1]);
+    L[2] = GLfloat(-t[2]);
+    L[3] = 0;
+
+    glLightfv(GL_LIGHT0, GL_POSITION, L);
+
+    atmo_prep(atmo_prog);
+    atmo_prep(land_prog);
+
+    glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
     {
-        GLfloat L[4];
-        double  t[4];
-        double  a[4];
-        double  A[16];
-
-        bool in = (sqrt(DOT3(v, v)) < a1);
-
-        const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
-        const ogl::program *land_prog = in ? land_in : land_out;
-
-        // Position a directional lightsource at the origin.  TODO: move this?
-
-        ::view->get_M(A);
-
-        mult_xps_vec3(t, A, p);
-        mult_xps_vec3(a, A, n);
-
-        normalize(t);
-        normalize(a);
-
-        L[0] = GLfloat(-t[0]);
-        L[1] = GLfloat(-t[1]);
-        L[2] = GLfloat(-t[2]);
-        L[3] = 0;
-
-        glLightfv(GL_LIGHT0, GL_POSITION, L);
-
-        atmo_prep(atmo_prog);
-        atmo_prep(land_prog);
-
-        glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
+        if (count)
         {
             glEnable(GL_COLOR_MATERIAL);
             glEnable(GL_DEPTH_TEST);
@@ -573,62 +573,43 @@ void uni::sphere::draw(const double *frag_d,
                         pass();
 
                         // HACK.  Simple yet surprisingly effective.
-/*
+
                         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                         glLineWidth(2.0f);
                         pass();
                         glLineWidth(1.0f);
                         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-*/
                     }
                     vtx.free();
                     dat.idx()->free();
                     ren.free();
                 }
                 land_prog->free();
-
-                // Slap down a debug wireframe.
-/*
-                glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-                glDisable(GL_TEXTURE_2D);
-                glDisable(GL_DEPTH_TEST);
-                glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
-
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                dat.idx()->bind();
-                vtx.bind();
-                {
-                    pass();
-                }
-                vtx.free();
-                dat.idx()->free();
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-*/
-                // Draw the atmosphere.
-
-                glEnable(GL_DEPTH_CLAMP_NV);
-                {
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    glEnable(GL_DEPTH_TEST);
-                    glDepthFunc(GL_LEQUAL);
-                    glDisable(GL_LIGHTING);
-
-                    atmo_prog->bind();
-                    {
-                        atmo_pool->draw_init();
-                        atmo_pool->draw(1, true, false);
-                        atmo_pool->draw_fini();
-                    }
-                    atmo_prog->free();
-                }
-                glDisable(GL_DEPTH_CLAMP_NV);
             }
             glPopClientAttrib();
         }
-        glPopAttrib();
+
+        // Draw the atmosphere.
+        
+        glEnable(GL_DEPTH_CLAMP_NV);
+        {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glEnable(GL_DEPTH_TEST);
+            glDepthFunc(GL_LEQUAL);
+            glDisable(GL_LIGHTING);
+
+            atmo_prog->bind();
+            {
+                atmo_pool->draw_init();
+                atmo_pool->draw(1, true, false);
+                atmo_pool->draw_fini();
+            }
+                atmo_prog->free();
+        }
+        glDisable(GL_DEPTH_CLAMP_NV);
     }
+    glPopAttrib();
 }
 
 void uni::sphere::xfrm()
@@ -646,12 +627,6 @@ void uni::sphere::xfrm()
     glTranslated(p[0], p[1], p[2]);
     glMultMatrixd(A);
     glRotated(a, 0, 1, 0);
-}
-
-void uni::sphere::getz(double& N, double &F)
-{
-    N = z0;
-    F = z1;
 }
 
 //-----------------------------------------------------------------------------

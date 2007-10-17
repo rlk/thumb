@@ -15,6 +15,7 @@
 
 #include "opengl.hpp"
 #include "program.hpp"
+#include "default.hpp"
 #include "buffer.hpp"
 #include "image.hpp"
 #include "frame.hpp"
@@ -118,7 +119,7 @@ namespace uni
 
     public:
 
-        geodat(GLsizei=4);
+        geodat(GLsizei=DEFAULT_PATCH_DEPTH);
 
         GLsizei depth() const { return d; }
 
@@ -215,6 +216,8 @@ namespace uni
     class geopos : public geogen
     {
         GLfloat b[6];
+        GLfloat d0;
+        GLfloat d1;
 
     public:
 
@@ -224,8 +227,8 @@ namespace uni
         virtual void seed(GLsizei, GLfloat=0, GLfloat=0, GLfloat=0, GLfloat=0);
         virtual void fini(GLsizei);
 
-        double min_z() const { return double(b[4]); }
-        double max_z() const { return double(b[5]); }
+        double min_d() const { return double(d0); }
+        double max_d() const { return double(d1); }
     };
 
     //-------------------------------------------------------------------------

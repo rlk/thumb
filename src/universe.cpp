@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 
-#define DATA "/home/covise/rlk/data/"
+#define DATA "/state/partition1/data/"
 
 uni::universe::universe()
 {
@@ -29,13 +29,13 @@ uni::universe::universe()
     double r1 = 6372797.0 + 8844.0;
 
     color  = new geomap(DATA "earth/earth-color/earth-color",
-                        86400, 43200, 3, 1, 512, pow(2, 16),
+                        86400, 43200, 3, 1, 512, pow(2, DEFAULT_COLOR_LOD),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
     normal = new geomap(DATA "earth/earth-normal/earth-normal",
-                        86400, 43200, 3, 1, 512, pow(2, 16),
+                        86400, 43200, 3, 1, 512, pow(2, DEFAULT_NORMAL_LOD),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
     height = new geomap(DATA "earth/earth-height/earth-height",
-                        86400, 43200, 1, 2, 512, pow(2, 16),
+                        86400, 43200, 1, 2, 512, pow(2, DEFAULT_HEIGHT_LOD),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
 
 //  color->set_debug(true);
@@ -102,11 +102,12 @@ void uni::universe::draw(const double *frag_d,
         double n;
         double f;
 
-        S[i]->getz(n, f);
+        n = S[i]->min_d();
+        f = S[i]->max_d();
 
         // HACK: far should be outside the geomap bounds
 
-        ::view->range(n / 2.0, f * 2.0);
+        ::view->range(n / 4.0, f * 2.0);
         ::view->draw();
 
         glLoadIdentity();
@@ -120,9 +121,9 @@ double uni::universe::rate() const
     return S[0] ? S[0]->altitude() : 1.0;
 }
 
-void uni::universe::turn(int d)
+void uni::universe::turn(double d)
 {
-    if (S[0]) S[0]->turn(d * 10.0);
+    if (S[0]) S[0]->turn(d * 4.0);
 }
 
 //-----------------------------------------------------------------------------

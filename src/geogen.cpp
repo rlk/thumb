@@ -704,6 +704,9 @@ void uni::geopos::init()
     b[3] = std::numeric_limits<GLfloat>::min();
     b[4] = std::numeric_limits<GLfloat>::max();
     b[5] = std::numeric_limits<GLfloat>::min();
+
+    d0 = std::numeric_limits<GLfloat>::max();
+    d1 = std::numeric_limits<GLfloat>::min();
 }
 
 void uni::geopos::seed(GLsizei i, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
@@ -722,6 +725,11 @@ void uni::geopos::seed(GLsizei i, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
         b[4] = std::min(b[4], -z);
         b[5] = std::max(b[5], -z);
     }
+
+    GLfloat d = GLfloat(sqrt(x * x + y * y + z * z));
+
+    d0 = std::min(d0, d);
+    d1 = std::max(d0, d);
 }
 
 void uni::geopos::fini(GLsizei c)

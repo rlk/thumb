@@ -15,6 +15,7 @@
 
 #include "opengl.hpp"
 #include "texture.hpp"
+#include "default.hpp"
 #include "geogen.hpp"
 #include "georen.hpp"
 #include "geomap.hpp"
@@ -57,8 +58,8 @@ namespace uni
 
         bool   visible;
         double dist;
-        double z0;
-        double z1;
+        double d0;
+        double d1;
 
         // LOD bias, patch recursion depth, cache size.
 
@@ -96,8 +97,8 @@ namespace uni
 
     public:
     
-        sphere(geodat&, georen&, geomap&, geomap&, geomap&,
-               double, double, double=5.0, GLsizei=300);
+        sphere(geodat&, georen&, geomap&, geomap&, geomap&, double, double,
+               double=DEFAULT_PATCH_BIAS, GLsizei=DEFAULT_PATCH_CACHE);
        ~sphere();
 
         void turn(double=0);
@@ -113,14 +114,13 @@ namespace uni
         void draw(const double *, const double *);
         void xfrm();
         void wire();
-        void getz(double&, double&);
 
         // State queries.
 
         double distance() const { return dist;       }
         double altitude() const { return dist - r0;  }
-        double min_z()    const { return z0;         }
-        double max_z()    const { return z1;         }
+        double min_d()    const { return d0;         }
+        double max_d()    const { return d1;         }
         int    maxcount() const { return int(count); }
     };
 

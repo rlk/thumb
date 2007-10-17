@@ -5,6 +5,7 @@ uniform sampler2DRect nrm;
 
 uniform vec2 frag_k;
 uniform vec2 frag_d;
+varying float day;
 
 void main (void)
 {
@@ -17,8 +18,9 @@ void main (void)
     N = normalize((N * 2.0) - 1.0);
 
     vec3 d = max(dot(N, L), 0.0) * gl_LightSource[0].diffuse.rgb;
-    vec3 a =                       gl_LightModel.ambient.rgb;
+//  vec3 a =                       gl_LightModel.ambient.rgb;
+    vec3 a = vec3(day) *           gl_LightModel.ambient.rgb;
 
 //  gl_FragColor = gl_Color + vec4(D * (d + a), 1.0) * gl_SecondaryColor;
-    gl_FragColor = gl_Color + vec4(D * (d + a), 1.0);// * gl_SecondaryColor;
+    gl_FragColor = gl_Color + vec4(D * (d + a), 1.0);
 }

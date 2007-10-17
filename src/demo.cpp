@@ -60,7 +60,7 @@ demo::demo()
 
     curr = 0;
 
-    goto_mode(edit);
+    goto_mode(play);
 }
 
 demo::~demo()
@@ -111,8 +111,7 @@ void demo::click(int b, bool d)
 {
     button[b] = d;
 
-    if      (d && b == 4) universe.turn(+1);
-    else if (d && b == 5) universe.turn(-1);
+    if      (d && b == 1) ::view->home();
     else if (d && b == 0)
     {
         memcpy(init_P, curr_P, 3 * sizeof (double));
@@ -195,9 +194,9 @@ void demo::timer(double dt)
     // Determine the rate of motion.
 
     if (::host->modifiers() & KMOD_CTRL)
-        kp = dt * universe.rate();
-    else
         kp = dt * view_move_rate;
+    else
+        kp = dt * universe.rate();
 
     if (::host->modifiers() & KMOD_SHIFT)
         kp *= 10.0;
@@ -233,12 +232,18 @@ void demo::timer(double dt)
         dR[1] = -DOT3(dz, init_R[0]);
         dR[2] =  DOT3(dy, init_R[0]);
 
+        view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
         view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
-        view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr);
     }
 
     curr->timer(dt);
     prog::timer(dt);
+}
+
+void demo::stick(int d, const double *p)
+{
+    if (fabs(p[0]) > 0.1)
+        universe.turn(p[0]);
 }
 
 void demo::track(int d, const double *p, const double *x, const double *z)
@@ -286,12 +291,13 @@ void demo::track(int d, const double *p, const double *x, const double *z)
 
 void demo::prep(const double *F, int n)
 {
-//  universe.prep(F, n);
+    universe.prep(F, n);
 }
 
 void demo::draw(const double *frag_d, const double *frag_k)
 {
-    GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
+//  GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
+    GLfloat A[4] = { 0.45f, 0.50f, 0.55f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
 
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -310,7 +316,7 @@ void demo::draw(const double *frag_d, const double *frag_k)
         glEnable(GL_LIGHTING);
 
         view->push();
-//      universe.draw(frag_d, frag_k);
+        universe.draw(frag_d, frag_k);
         view->pop();
 
         // Compute the view frusta.

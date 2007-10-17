@@ -258,7 +258,7 @@ bool tracker_values(int id, double a[2])
             float *p = (float *) ((unsigned char *) control
                                                   + control->val_offset);
 
-            if (memcmp(values + id, p + id, 2 * sizeof (float)))
+//          if (memcmp(values + id, p + id, 2 * sizeof (float)))
             {
                 memcpy(values + id, p + id, 2 * sizeof (float));
 

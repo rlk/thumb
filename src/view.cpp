@@ -263,8 +263,8 @@ void app::view::range(double N, double F)
     }
     else
     {
-        n =  1.0;
-        f = 10.0;
+        n =   0.1;
+        f = 100.0;
     }
 
     find_P();
@@ -309,6 +309,26 @@ void app::view::pop() const
 }
 
 //-----------------------------------------------------------------------------
+
+void app::view::turn(double rx, double ry, double rz, double R[3][3])
+{
+    double M[16];
+    double T[16];
+
+    load_idt(M);
+
+    M[ 0] = R[0][0]; M[ 1] = R[0][1]; M[ 2] = R[0][2];
+    M[ 4] = R[1][0]; M[ 5] = R[1][1]; M[ 6] = R[1][2];
+    M[ 8] = R[2][0]; M[ 9] = R[2][1]; M[10] = R[2][2];
+
+    load_xps(T, M);
+
+    mult_mat_mat(default_M, default_M, M);
+    turn(rx, ry, rz);
+    mult_mat_mat(default_M, default_M, T);
+
+    clr();
+}
 
 void app::view::turn(double rx, double ry, double rz)
 {

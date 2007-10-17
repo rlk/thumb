@@ -179,6 +179,8 @@ void app::message::recv(SOCKET s)
     if (::recv(s, &payload, 2, 0) == -1)
         throw std::runtime_error(strerror(errno));
 
+    // TODO: repeat until payload size is received.
+
     if (payload.size > 0)
         if (::recv(s,  payload.data, payload.size, 0) == -1)
             throw std::runtime_error(strerror(errno));
@@ -754,7 +756,7 @@ void app::host::fork_client(const char *addr, const char *name)
         args[2] = line;
         args[3] = NULL;
 
-        printf("ssh %s %s\n", addr, line);
+//      printf("ssh %s %s\n", addr, line);
 
         execvp("ssh", (char * const *) args);
 
@@ -1182,8 +1184,6 @@ void app::host::root_loop()
 
         paint();
         fleep();
-
-        ::perf->step();
     }
 }
 
@@ -1288,6 +1288,8 @@ bool app::host::get_plane(double *F, const double *A,
                                      const double *C,
                                      const double *V, int n) const
 {
+    const double small = 1e-3;
+
     // Create a plane from the given points.
 
     make_plane(F, A, B, C);
@@ -1298,7 +1300,7 @@ bool app::host::get_plane(double *F, const double *A,
     {
         const double *G = V + k * 4;
 
-        if (DOT3(F, G) >= 0.999 && fabs(F[3] - G[3]) < 0.001)
+        if (DOT3(F, G) >= 1 - small && fabs(F[3] - G[3]) < small)
             return false;
     }
 
@@ -1308,10 +1310,15 @@ bool app::host::get_plane(double *F, const double *A,
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
     {
-        if (DOT3(F, i->get_BL()) + F[3] < 0) return false;
-        if (DOT3(F, i->get_BR()) + F[3] < 0) return false;
-        if (DOT3(F, i->get_TL()) + F[3] < 0) return false;
-        if (DOT3(F, i->get_TR()) + F[3] < 0) return false;
+        const double *BL = i->get_BL();
+        const double *BR = i->get_BR();
+        const double *TL = i->get_TL();
+        const double *TR = i->get_TR();
+
+        if (DOT3(F, BL) + F[3] < -small) return false;
+        if (DOT3(F, BR) + F[3] < -small) return false;
+        if (DOT3(F, TL) + F[3] < -small) return false;
+        if (DOT3(F, TR) + F[3] < -small) return false;
     }
 
     // Reject any plane with an eye position behind it.
@@ -1319,7 +1326,11 @@ bool app::host::get_plane(double *F, const double *A,
     std::vector<eye *>::const_iterator j;
 
     for (j = eyes.begin(); j != eyes.end(); ++j)
-        if (DOT3(F, (*j)->get_P()) + F[3] < 0) return false;
+    {
+        const double *P = (*j)->get_P();
+
+        if (DOT3(F, P) + F[3] < -small) return false;
+    }
 
     // This forms part of the convex hull of the host frustum.
 
@@ -1420,6 +1431,17 @@ void app::host::recv(message& M)
 
 void app::host::stick(int d, const double *p)
 {
+    if (!client_sd.empty())
+    {
+        message M(E_STICK);
+
+        M.put_int   (d);
+        M.put_double(p[0]);
+        M.put_double(p[1]);
+
+        send(M);
+    }
+    ::prog->stick(d, p);
 }
 
 void app::host::point(const double *p, const double *v)

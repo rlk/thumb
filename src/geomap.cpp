@@ -18,6 +18,7 @@
 #include <png.h>
 
 #include "geomap.hpp"
+#include "default.hpp"
 #include "program.hpp"
 #include "matrix.hpp"
 #include "view.hpp"
@@ -170,7 +171,7 @@ static int loader_func(void *data)
 
     while (N->dequeue(name, &L, &P))
     {
-        std::cout << "loading " << name << std::endl;
+//      std::cout << "loading " << name << std::endl;
 
         // Load and enqueue the page.
 
@@ -744,7 +745,7 @@ uni::geomap::geomap(std::string name,
     // Initialize the load queue.
 
     load_Q = new loaded_queue;
-    text_P = new texture_pool(16, s, c, b);
+    text_P = new texture_pool(DEFAULT_TEXTURE_POOL, s, c, b);
 }
 
 uni::geomap::~geomap()
@@ -923,7 +924,7 @@ void uni::geomap::draw(const double *V,
         // HACK
 //      d0 = std::max(d0, 5);
 
-        int d1 = d0 + 3;
+        int d1 = d0 + 4;
 
         P->prep(r, d0, d1);
         P->draw(*this, w, h, d0, d1);
