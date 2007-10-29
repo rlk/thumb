@@ -97,8 +97,14 @@ void demo::point(const double *p, const double *v)
             ::view->turn(0, 0, -double(last_x - x) * view_turn_rate);
 
         if (button[3])
-            ::view->turn(-double(last_y - y) * view_turn_rate,
-                         +double(last_x - x) * view_turn_rate, 0);
+        {
+            if (::host->modifiers() & KMOD_SHIFT)
+                ::view->rot_plane(+double(last_y - y) * view_turn_rate,
+                                  -double(last_x - x) * view_turn_rate);
+            else
+                ::view->turn(-double(last_y - y) * view_turn_rate,
+                             +double(last_x - x) * view_turn_rate, 0);
+        }
 
         prog::point(p, v);
     }
@@ -109,9 +115,15 @@ void demo::point(const double *p, const double *v)
 
 void demo::click(int b, bool d)
 {
+    double k = 1.0;
+
+    if (::host->modifiers() & KMOD_SHIFT) k = 0.1;
+
     button[b] = d;
 
     if      (d && b == 1) ::view->home();
+    else if (d && b == 4) ::view->mov_plane(+k);
+    else if (d && b == 5) ::view->mov_plane(-k);
     else if (d && b == 0)
     {
         memcpy(init_P, curr_P, 3 * sizeof (double));
@@ -151,6 +163,17 @@ void demo::keybd(int k, bool d, int c)
         else if (k == SDLK_F5) ::view->set_type(app::view::type_mono);
         else if (k == SDLK_F6) ::view->set_type(app::view::type_anaglyph);
         else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
+
+        else if (d && k == SDLK_INSERT)
+        {
+            int t = conf->get_i("twiddle") + 1;
+            conf->set_i("twiddle", t);
+        }
+        else if (d && k == SDLK_DELETE)
+        {
+            int t = conf->get_i("twiddle") - 1;
+            conf->set_i("twiddle", t);
+        }
 
         // Handle Varrier calibration keys.
 

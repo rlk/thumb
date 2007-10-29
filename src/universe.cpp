@@ -21,14 +21,14 @@
 
 //-----------------------------------------------------------------------------
 
-#define DATA "/state/partition1/data/"
+#define DATA "/data/"
 
 uni::universe::universe()
 {
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
 
-    color  = new geomap(DATA "earth/earth-color/earth-color",
+    color  = new geomap(DATA "earth/earth-color/earth-color-512",
                         86400, 43200, 3, 1, 512, pow(2, DEFAULT_COLOR_LOD),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
     normal = new geomap(DATA "earth/earth-normal/earth-normal",

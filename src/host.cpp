@@ -1283,6 +1283,8 @@ void app::host::loop()
 
 //-----------------------------------------------------------------------------
 
+#ifdef SNIP
+
 bool app::host::get_plane(double *F, const double *A,
                                      const double *B,
                                      const double *C,
@@ -1381,15 +1383,111 @@ int app::host::get_frustum(double *F) const
     return n;
 }
 
+#endif
+
+void app::host::get_plane(double *R, const double *A,
+                                     const double *B,
+                                     const double *C) const
+{
+    const double small = 1e-3;
+
+    // Create a plane from the given points.
+
+    double P[4];
+
+    make_plane(P, A, B, C);
+
+    // Reject the plane if any screen corner falls behind it.
+
+    std::vector<tile>::const_iterator i;
+
+    for (i = tiles.begin(); i != tiles.end(); ++i)
+    {
+        if (DOT3(i->get_BL(), P) + P[3] < -small) return;
+        if (DOT3(i->get_BR(), P) + P[3] < -small) return;
+        if (DOT3(i->get_TL(), P) + P[3] < -small) return;
+        if (DOT3(i->get_TR(), P) + P[3] < -small) return;
+    }
+
+    // Reject the plane if any eye falls in front of it.
+
+    std::vector<eye*>::const_iterator j;
+
+    for (j = eyes.begin(); j != eyes.end(); ++j)
+    {
+        if (DOT3((*j)->get_P(), P) + P[3] > small) return;
+    }
+
+    // This plane forms part of the frustum union.  Note it.
+
+    R[0] = P[0];
+    R[1] = P[1];
+    R[2] = P[2];
+    R[3] = P[3];
+}
+
+void app::host::get_frustum(double *F) const
+{
+    // Construct a 4-plane frustum union of all eyes and screen corners.
+
+    std::vector<tile>::const_iterator i;
+    std::vector<eye*>::const_iterator j;
+
+    for (i = tiles.begin(); i != tiles.end(); ++i)
+    {
+        const double *BL = i->get_BL();
+        const double *BR = i->get_BR();
+        const double *TL = i->get_TL();
+        const double *TR = i->get_TR();
+
+        for (j = eyes.begin(); j != eyes.end(); ++j)
+        {
+            const double *P = (*j)->get_P();
+
+            // Find four planes with all eyes behind and all corners in front.
+
+            get_plane(F +  0, BL, TL, P);
+            get_plane(F +  4, TR, BR, P);
+            get_plane(F +  8, BR, BL, P);
+            get_plane(F + 12, TL, TR, P);
+        }
+    }
+
+    // Push the four planes back to ensure all eyes are in front.
+
+    for (j = eyes.begin(); j != eyes.end(); ++j)
+    {
+        const double *P = (*j)->get_P();
+
+        for (int k = 0; k < 4; ++k)
+        {
+            double *Q = F + 4 * k;
+
+            if (Q[3] < -DOT3(P, Q))
+                Q[3] = -DOT3(P, Q);
+        }
+    }
+
+    printf("%d\n", 4);
+
+    for (int k = 0; k < 4; ++k)
+        printf("%+8.3f %+8.3f %+8.3f %f\n",
+               F[4 * k + 0],
+               F[4 * k + 1],
+               F[4 * k + 2],
+               F[4 * k + 3]);
+}
+
 //-----------------------------------------------------------------------------
 
 void app::host::draw()
 {
     // Determine the frustum union and preprocess the app.
 
-    double F[32]; // TODO: this must be dynamic.
+    double F[16];
 
-    ::prog->prep(F, get_frustum(F));
+    get_frustum(F);
+    ::prog->prep(F, 4);
 
     // Render all tiles.
     
@@ -1401,7 +1499,7 @@ void app::host::draw()
     for (index = 0, i = tiles.begin(); i != tiles.end(); ++i, ++index)
         i->draw(eyes, (index == varrier_index));
 
-    glFinish();
+//  glFinish();
 }
 
 int app::host::get_window_m() const

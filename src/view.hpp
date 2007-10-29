@@ -57,6 +57,8 @@ namespace app
         double TL[3];           // Screen top-left     position
         double TR[3];           // Screen top-right    position
 
+        double plane[4];
+
         const ogl::program *prog;
         enum view_type      type;
         enum view_mode      mode;
@@ -112,6 +114,10 @@ namespace app
 
         void   pick(double *, double *, int, int) const;
         double dist(double *)                     const;
+
+        const double *get_plane() const { return plane; }
+        void          rot_plane(double, double);
+        void          mov_plane(double);
     };
 }
 

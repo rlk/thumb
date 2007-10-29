@@ -225,10 +225,10 @@ int patch_plane_range(const double *n0,
     const double d1 = DOT3(n1, P);
     const double d2 = DOT3(n2, P);
 
-    if (d < 0 && d0 < 0 && d1 < 0 && d2 < 0) return -1;
-    if (d > 0 && d0 > 0 && d1 > 0 && d2 > 0) return +1;
+    if (d <  0 && d0 <  0 && d1 <  0 && d2 <  0) return -1;
+    if (d >= 0 && d0 >= 0 && d1 >= 0 && d2 >= 0) return +1;
 
-    return 0;  // HACK!  Oh sweet mother of god HACK.
+//  return 0;  // HACK!  Oh sweet mother of god HACK.
 
     // Compute the vector-plane intersection distances.
 
@@ -265,7 +265,7 @@ int patch_plane_range(const double *n0,
 
         R0 = std::numeric_limits<double>::max();
 
-        if (l0 > 0)
+        if (l0 >= 0)
         {
             p0[0] = n0[0] * l0;
             p0[1] = n0[1] * l0;
@@ -273,7 +273,7 @@ int patch_plane_range(const double *n0,
             R0 = std::min(R0, l0);
         }
 
-        if (l1 > 0)
+        if (l1 >= 0)
         {
             p1[0] = n1[0] * l1;
             p1[1] = n1[1] * l1;
@@ -281,7 +281,7 @@ int patch_plane_range(const double *n0,
             R0 = std::min(R0, l1);
         }
 
-        if (l2 > 0)
+        if (l2 >= 0)
         {
             p2[0] = n2[0] * l2;
             p2[1] = n2[1] * l2;
@@ -289,9 +289,9 @@ int patch_plane_range(const double *n0,
             R0 = std::min(R0, l2);
         }
 
-        if (l0 > 0 && l1 > 0) R0 = std::min(R0, closest_point(p0, l0, p1, l1));
-        if (l1 > 0 && l2 > 0) R0 = std::min(R0, closest_point(p1, l1, p2, l2));
-        if (l2 > 0 && l0 > 0) R0 = std::min(R0, closest_point(p2, l2, p0, l0));
+        if (l0 >= 0 && l1 >= 0) R0 =std::min(R0, closest_point(p0, l0, p1, l1));
+        if (l1 >= 0 && l2 >= 0) R0 =std::min(R0, closest_point(p1, l1, p2, l2));
+        if (l2 >= 0 && l0 >= 0) R0 =std::min(R0, closest_point(p2, l2, p0, l0));
     }
 
     // Interpret the computed radii as hit or miss.

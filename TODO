@@ -1,8 +1,11 @@
+Make the glFinish optional.  Either add a host option or autodetect cluster mode.
+
+The 7900 bug may involve the quantity of geometry / utilization of the geometry cache.  A workaround may involve doing a full-cache PBO-to-VBO copy regardless of the cache state.
+
 short term:
     fix lightsource position
     can the initial connect socket be closed early?
 
-serious far clipping issue in tile mode
 CWD in fork_client
 map atlas
 patch cracking
@@ -10,6 +13,9 @@ more data
 consider forward rendering
 
 There's still a bug in geomap when teleporting
+    probably due to cache overflow when the number of outstanding requests exceeds the number of cache lines
+
+If the range extrema of each heightmap is stored as metadata then an extremely tight tile visibility becomes possible.  Patch visibility with no round trip may follow from this.
 
 tellurion
 

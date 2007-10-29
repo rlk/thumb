@@ -205,7 +205,7 @@ namespace app
         int buffer_w;
         int buffer_h;
 
-        std::vector<eye *>  eyes;
+        std::vector<eye *> eyes;
         std::vector<tile> tiles;
 
         // Config IO
@@ -230,11 +230,17 @@ namespace app
         void loop();
         void draw();
 
+        void get_frustum(double *) const;
+        void get_plane  (double *, const double *,
+                                   const double *,
+                                   const double *) const;
+/*
         int  get_frustum(double *) const;
         bool get_plane  (double *, const double *,
                                    const double *,
                                    const double *,
                                    const double *, int) const;
+*/
 
         int get_window_x() const { return window_rect[0]; }
         int get_window_y() const { return window_rect[1]; }

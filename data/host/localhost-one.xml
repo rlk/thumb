@@ -7,24 +7,29 @@
       <corner name="TL" x="-1.333" y=" 0.5" z="-2.0"/>
   </gui>
 
+<!--
+  <eye x="-0.0" y="0.0" z="0.0" r="0"   g="255" b="0"  />
+  <eye x=" 0.0" y="0.0" z="0.0" r="255" g="0"   b="255"/>
+-->
+
   <eye x="-0.1" y="0.0" z="0.0" r="0"   g="255" b="0"  />
   <eye x=" 0.1" y="0.0" z="0.0" r="255" g="0"   b="255"/>
 
   <buffer w="512" h="512"/>
 
-  <node name="localhost" port="2827">
+  <node name="localhost">
     <window x="0" y="0" w="1280" h="480"/>
-    <tile>
+    <tile eye="1">
       <viewport x="0"   y="0" w="640" h="480"/>
-      <corner name="BL" x="-1.333" y="-0.5" z="-2.0"/>
-      <corner name="BR" x=" 0.000" y="-0.5" z="-2.0"/>
-      <corner name="TL" x="-1.333" y=" 0.5" z="-2.0"/>
+      <corner name="BL" x="-0.666" y="-0.5" z="-2.0"/>
+      <corner name="BR" x=" 0.666" y="-0.5" z="-2.0"/>
+      <corner name="TL" x="-0.666" y=" 0.5" z="-2.0"/>
     </tile>
-    <tile>
+    <tile eye="0">
       <viewport x="640" y="0" w="640" h="480"/>
-      <corner name="BL" x=" 0.000" y="-0.5" z="-2.0"/>
-      <corner name="BR" x=" 1.333" y="-0.5" z="-2.0"/>
-      <corner name="TL" x=" 0.000" y=" 0.5" z="-2.0"/>
+      <corner name="BL" x="-0.666" y="-0.5" z="-2.0"/>
+      <corner name="BR" x=" 0.666" y="-0.5" z="-2.0"/>
+      <corner name="TL" x="-0.666" y=" 0.5" z="-2.0"/>
     </tile>
   </node>
 </host>
