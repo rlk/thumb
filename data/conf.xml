@@ -1,6 +1,6 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="host_file">host/localhost-one.xml</option>
+  <option type="string" name="host_file">host/lambdatable.xml</option>
   <option type="int" name="window_fullscreen">0</option>
   <option type="int" name="window_noframe">0</option>
   <option type="string" name="shadows">map</option>

@@ -747,7 +747,7 @@ void app::host::fork_client(const char *addr, const char *name)
     {
         // TODO: generalize this
 
-        sprintf(line, "cd rlk/src/thumb; ./thumb %s", name);
+        sprintf(line, "cd src/thumb; ./thumb %s", name);
 
         // Allocate and build the client's ssh command line.
 
@@ -1467,7 +1467,7 @@ void app::host::get_frustum(double *F) const
                 Q[3] = -DOT3(P, Q);
         }
     }
-
+/*
     printf("%d\n", 4);
 
     for (int k = 0; k < 4; ++k)
@@ -1476,6 +1476,7 @@ void app::host::get_frustum(double *F) const
                F[4 * k + 1],
                F[4 * k + 2],
                F[4 * k + 3]);
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -1499,7 +1500,7 @@ void app::host::draw()
     for (index = 0, i = tiles.begin(); i != tiles.end(); ++i, ++index)
         i->draw(eyes, (index == varrier_index));
 
-//  glFinish();
+    glFinish();
 }
 
 int app::host::get_window_m() const

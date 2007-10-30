@@ -609,7 +609,7 @@ void uni::sphere::draw(const double *frag_d,
         }
 
         // Draw the atmosphere.
-/*        
+
         glEnable(GL_DEPTH_CLAMP_NV);
         {
             glEnable(GL_BLEND);
@@ -627,49 +627,6 @@ void uni::sphere::draw(const double *frag_d,
             atmo_prog->free();
         }
         glDisable(GL_DEPTH_CLAMP_NV);
-*/
-        // Draw the test plane
-/*
-        const double *Z = ::view->get_plane();
-        double X[3] = { 1, 0, 0 };
-        double Y[3] = { 0, 1, 0 };
-        double r = r1 * 1.5;
-
-        crossprod(X, Y, Z);
-        crossprod(Y, Z, X);
-        normalize(X);
-        normalize(Y);
-
-        ::view->push();
-//      ::view->draw();
-        glMultMatrixd(M);
-
-        glDisable(GL_CULL_FACE);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glEnable(GL_DEPTH_TEST);
-        glDisable(GL_LIGHTING);
-
-        glBegin(GL_QUADS);
-        {
-            glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
-
-            glVertex3d(-Z[0] * Z[3] + r * X[0] + r * Y[0],
-                       -Z[1] * Z[3] + r * X[1] + r * Y[1],
-                       -Z[2] * Z[3] + r * X[2] + r * Y[2]);
-            glVertex3d(-Z[0] * Z[3] - r * X[0] + r * Y[0],
-                       -Z[1] * Z[3] - r * X[1] + r * Y[1],
-                       -Z[2] * Z[3] - r * X[2] + r * Y[2]);
-            glVertex3d(-Z[0] * Z[3] - r * X[0] - r * Y[0],
-                       -Z[1] * Z[3] - r * X[1] - r * Y[1],
-                       -Z[2] * Z[3] - r * X[2] - r * Y[2]);
-            glVertex3d(-Z[0] * Z[3] + r * X[0] - r * Y[0],
-                       -Z[1] * Z[3] + r * X[1] - r * Y[1],
-                       -Z[2] * Z[3] + r * X[2] - r * Y[2]);
-        }
-        glEnd();
-        ::view->pop();
-*/
     }
     glPopAttrib();
 }
