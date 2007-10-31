@@ -1283,8 +1283,6 @@ void app::host::loop()
 
 //-----------------------------------------------------------------------------
 
-#ifdef SNIP
-
 bool app::host::get_plane(double *F, const double *A,
                                      const double *B,
                                      const double *C,
@@ -1383,7 +1381,7 @@ int app::host::get_frustum(double *F) const
     return n;
 }
 
-#endif
+#ifdef SNIP
 
 void app::host::get_plane(double *R, const double *A,
                                      const double *B,
@@ -1479,13 +1477,15 @@ void app::host::get_frustum(double *F) const
 */
 }
 
+#endif
+
 //-----------------------------------------------------------------------------
 
 void app::host::draw()
 {
     // Determine the frustum union and preprocess the app.
 
-    double F[16];
+    double F[32];
 
     get_frustum(F);
     ::prog->prep(F, 4);

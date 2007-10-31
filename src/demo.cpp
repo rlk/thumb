@@ -124,6 +124,7 @@ void demo::click(int b, bool d)
     button[b] = d;
 
     if      (d && b == 1) ::view->home();
+    else if (d && b == 2) ::view->home();
     else if (d && b == 4) ::view->mov_plane(+k);
     else if (d && b == 5) ::view->mov_plane(-k);
     else if (d && b == 0)
@@ -221,7 +222,7 @@ void demo::timer(double dt)
     if (::host->modifiers() & KMOD_CTRL)
         kp = dt * view_move_rate;
     else
-        kp = dt * universe.rate();
+        kp = dt * universe.rate() * 0.5;
 
     if (::host->modifiers() & KMOD_SHIFT)
         kp *= 10.0;

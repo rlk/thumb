@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<host>
+
+  <buffer w="1280" h="1024"/>
+
+  <gui w="1024" h="768">
+      <corner name="BL" x="-5.0" y="-4.0" z="-8.0"/>
+      <corner name="BR" x=" 5.0" y="-4.0" z="-8.0"/>
+      <corner name="TL" x="-5.0" y=" 4.0" z="-8.0"/>
+  </gui>
+
+  <node name="cwall">
+    <window x="1280" y="0" w="1280" h="1024"/>
+    <tile>
+      <viewport x="0" y="0" w="1280" h="1024"/>
+      <corner name="BL" x="-5.0" y="-4.0" z="-8.0"/>
+      <corner name="BR" x=" 5.0" y="-4.0" z="-8.0"/>
+      <corner name="TL" x="-5.0" y=" 4.0" z="-8.0"/>
+    </tile>
+  </node>
+</host>

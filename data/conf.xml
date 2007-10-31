@@ -1,8 +1,8 @@
 <?xml
 version="1.0"?><conf>
-<!--<option type="string" name="host_file">host/hd.xml</option>-->
+  <option type="string" name="host_file">host/cwall.xml</option>
   <option type="int" name="window_fullscreen">0</option>
-  <option type="int" name="window_noframe">0</option>
+  <option type="int" name="window_noframe">1</option>
   <option type="string" name="shadows">map</option>
   <option type="string" name="z_only">false</option>
   <option type="string" name="screenshot_file">snap.png</option>
@@ -10,7 +10,7 @@ version="1.0"?><conf>
   <option type="string" name="mono_font">FreeMono.ttf</option>
   <option type="int" name="sans_size">14</option>
   <option type="int" name="mono_size">14</option>
-  <option type="int" name="tracker_head_sensor">0</option>
+  <option type="int" name="tracker_head_sensor">-1</option>
   <option type="int" name="tracker_hand_sensor">1</option>
   <option type="int" name="key_undo">103</option>
   <option type="int" name="key_redo">107</option>
@@ -42,6 +42,6 @@ version="1.0"?><conf>
   <option type="float" name="view_zoom">0.500000</option>
   <option type="float" name="view_near">1.000000</option>
   <option type="float" name="view_far">1000.000000</option>
-  <option type="float" name="view_move_rate">10.000000</option>
+  <option type="float" name="view_move_rate">5.000000</option>
   <option type="float" name="view_turn_rate">0.500000</option>
 </conf>
