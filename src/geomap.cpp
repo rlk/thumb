@@ -171,8 +171,6 @@ static int loader_func(void *data)
 
     while (N->dequeue(name, &L, &P))
     {
-//      std::cout << "loading " << name << std::endl;
-
         // Load and enqueue the page.
 
         L->enqueue(P, load_png(name));
@@ -265,7 +263,9 @@ void uni::needed_queue::enqueue(std::string& name, loaded_queue *L, page *P)
     // Enqueue the request.
 
     SDL_mutexP(mutex);
-    Q.push(need(name, L, P));
+    {
+        Q.push(need(name, L, P));
+    }
     SDL_mutexV(mutex);
 
     // Signal the consumer.
@@ -638,8 +638,6 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
 
         if (c < 4 && is_valued && d <= d1)
         {
-            M.used(this);
-
             // If this page should draw but has no texture, request it.
 
             if (state == dead_state)
@@ -676,6 +674,8 @@ void uni::page::draw(geomap& M, int w, int h, int d0, int d1)
                     volume();
 
                 count++;
+
+                M.used(this);
             }
         }
 
@@ -831,6 +831,7 @@ bool uni::geomap::loaded()
             GLuint o;
 
             o = text_P->get();
+
             if (o == 0)
             {
                 purge();
@@ -865,7 +866,11 @@ bool uni::geomap::loaded()
 
             // Assign the texture to the page.
 
-            P->assign(o);
+            if (o)
+            {
+                P->assign(o);
+                used(P);
+            }
         }
         else
             P->ignore();
@@ -886,11 +891,16 @@ void uni::geomap::purge()
     if (!LRU.empty())
     {
         GLuint o = LRU.back()->remove();
-        text_P->put(o);
-        LRU.pop_back();
-//      printf("purged %s %d\n", name.c_str(), o);
+
+//      if (o)
+        {
+            text_P->put(o);
+            LRU.pop_back();
+//          printf("purged %s %d\n", name.c_str(), o);
+        }
+//      else printf("purged NOTHING A %s\n", name.c_str());
     }
-//  else printf("purged NOTHING %s\n", name.c_str());
+    else printf("purged NOTHING B %s\n", name.c_str());
 }
 
 void uni::geomap::used(page *P)

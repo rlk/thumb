@@ -1,3 +1,5 @@
+remove() is not called when
+    the page is purged before being loaded
 
 tile render direct
 

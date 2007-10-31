@@ -698,15 +698,15 @@ void uni::geopos::init()
 
     // Initialize the bounding volume accumulator.
 
-    b[0] = std::numeric_limits<GLfloat>::max();
-    b[1] = std::numeric_limits<GLfloat>::min();
-    b[2] = std::numeric_limits<GLfloat>::max();
-    b[3] = std::numeric_limits<GLfloat>::min();
-    b[4] = std::numeric_limits<GLfloat>::max();
-    b[5] = std::numeric_limits<GLfloat>::min();
+    b[0] =  std::numeric_limits<GLfloat>::max();
+    b[1] = -std::numeric_limits<GLfloat>::max();
+    b[2] =  std::numeric_limits<GLfloat>::max();
+    b[3] = -std::numeric_limits<GLfloat>::max();
+    b[4] =  std::numeric_limits<GLfloat>::max();
+    b[5] = -std::numeric_limits<GLfloat>::max();
 
-    d0 = std::numeric_limits<GLfloat>::max();
-    d1 = std::numeric_limits<GLfloat>::min();
+    d0 =  std::numeric_limits<GLfloat>::max();
+    d1 = -std::numeric_limits<GLfloat>::max();
 }
 
 void uni::geopos::seed(GLsizei i, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
@@ -729,7 +729,7 @@ void uni::geopos::seed(GLsizei i, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
     GLfloat d = GLfloat(sqrt(x * x + y * y + z * z));
 
     d0 = std::min(d0, d);
-    d1 = std::max(d0, d);
+    d1 = std::max(d1, d);
 }
 
 void uni::geopos::fini(GLsizei c)

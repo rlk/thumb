@@ -125,8 +125,8 @@ void demo::click(int b, bool d)
 
     if      (d && b == 1) ::view->home();
     else if (d && b == 2) ::view->home();
-    else if (d && b == 4) ::view->mov_plane(+k);
-    else if (d && b == 5) ::view->mov_plane(-k);
+    else if (d && b == 4) universe.turn(+1.0);
+    else if (d && b == 5) universe.turn(-1.0);
     else if (d && b == 0)
     {
         memcpy(init_P, curr_P, 3 * sizeof (double));
@@ -222,7 +222,7 @@ void demo::timer(double dt)
     if (::host->modifiers() & KMOD_CTRL)
         kp = dt * view_move_rate;
     else
-        kp = dt * universe.rate() * 0.5;
+        kp = dt * universe.rate();
 
     if (::host->modifiers() & KMOD_SHIFT)
         kp *= 10.0;
@@ -241,6 +241,8 @@ void demo::timer(double dt)
         double dR[3];
         double dz[3];
         double dy[3];
+
+        kp *= 0.5;
 
         dP[0] = curr_P[0] - init_P[0];
         dP[1] = curr_P[1] - init_P[1];
