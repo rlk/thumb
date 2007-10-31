@@ -18,27 +18,22 @@ There's still a bug in geomap when teleporting
 If the range extrema of each heightmap is stored as metadata then an extremely tight tile visibility becomes possible.  Patch visibility with no round trip may follow from this.
 
 tellurion
+        rework/generalize/fix shell visibility
+        specular map NOT part of normal map (res will differ)
+        cloud map NOT part of color map (must animate)
+        CWD in fork_client
 
-    next
-        geomap resolution select
-
-    For the demo
--       cluster sync
--       stereo
--       tracking / interaction
-        destination select
-        specular map
-        cloud map
--       geomap
+        bug in geomap when teleporting
+        map atlas
         patch crack
--       atmosphere
+        more data
+        destination select
         stars
         sun
         mars
         moon
-        hilo normal map?
-        dxt color map?
--       normal mapping
+        hilo normal map (or XY gives an extra channel in normal map)
+        dxt color map   (becomes possible with implicit-border atlas)
 
 
 

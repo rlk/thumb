@@ -1,6 +1,6 @@
 <?xml
 version="1.0"?><conf>
-  <option type="string" name="host_file">host/lambdatable.xml</option>
+<!--<option type="string" name="host_file">host/hd.xml</option>-->
   <option type="int" name="window_fullscreen">0</option>
   <option type="int" name="window_noframe">0</option>
   <option type="string" name="shadows">map</option>
@@ -10,8 +10,8 @@ version="1.0"?><conf>
   <option type="string" name="mono_font">FreeMono.ttf</option>
   <option type="int" name="sans_size">14</option>
   <option type="int" name="mono_size">14</option>
-  <option type="int" name="tracker_head_sensor">1</option>
-  <option type="int" name="tracker_hand_sensor">0</option>
+  <option type="int" name="tracker_head_sensor">0</option>
+  <option type="int" name="tracker_hand_sensor">1</option>
   <option type="int" name="key_undo">103</option>
   <option type="int" name="key_redo">107</option>
   <option type="int" name="key_move_L">97</option>

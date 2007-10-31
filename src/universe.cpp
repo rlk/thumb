@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 
-#define DATA "/data/evl/rlk/"
+#define DATA "/home/evl/rlk/data/"
 
 uni::universe::universe()
 {

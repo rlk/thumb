@@ -19,6 +19,7 @@
 #include "universe.hpp"
 #include "world.hpp"
 #include "mode.hpp"
+#include "glob.hpp"
 #include "prog.hpp"
 
 //-----------------------------------------------------------------------------
@@ -46,6 +47,8 @@ class demo : public app::prog
 
     uni::universe universe;
     wrl::world    world;
+
+    const ogl::texture *logo;
 
     // Editor mode.
 

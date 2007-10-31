@@ -60,6 +60,8 @@ demo::demo()
 
     curr = 0;
 
+    logo = glob->load_texture("evl-logo.png");
+
     goto_mode(play);
 }
 
@@ -355,6 +357,47 @@ void demo::draw(const double *frag_d, const double *frag_k)
         view->push();
         view->draw();
         curr->draw(points);
+        view->pop();
+
+        // Draw the logo.
+
+        view->push();
+        {
+            glMatrixMode(GL_TEXTURE);
+            {
+                glLoadIdentity();
+            }
+            glMatrixMode(GL_PROJECTION);
+            {
+                glLoadIdentity();
+                view->mult_P();
+            }
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glLoadIdentity();
+                host->gui_view();
+            }
+
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
+            glDisable(GL_LIGHTING);
+
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            logo->bind();
+            {
+                glColor3f(1.0f, 1.0f, 1.0f);
+                glBegin(GL_QUADS);
+                {
+                    glTexCoord2i(0, 0); glVertex2i(768,  0);
+                    glTexCoord2i(1, 0); glVertex2i(1024, 0);
+                    glTexCoord2i(1, 1); glVertex2i(1024, 128);
+                    glTexCoord2i(0, 1); glVertex2i(768,  128);
+                }
+                glEnd();
+            }
+            logo->free();
+        }
         view->pop();
     }
     glPopAttrib();

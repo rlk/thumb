@@ -1500,7 +1500,7 @@ void app::host::draw()
     for (index = 0, i = tiles.begin(); i != tiles.end(); ++i, ++index)
         i->draw(eyes, (index == varrier_index));
 
-    glFinish();
+//  glFinish();
 }
 
 int app::host::get_window_m() const
