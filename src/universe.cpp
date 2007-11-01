@@ -16,6 +16,7 @@
 #include "geomap.hpp"
 #include "matrix.hpp"
 #include "glob.hpp"
+#include "conf.hpp"
 #include "host.hpp"
 #include "view.hpp"
 
@@ -28,23 +29,52 @@ uni::universe::universe()
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
 
-    color  = new geomap(DATA "earth/earth-color/earth-color",
-                        86400, 43200, 3, 1, 512, pow(2, DEFAULT_COLOR_LOD),
+    // Configure the data sources.
+
+    std::string c_name = ::conf->get_s("data_dir");
+    std::string n_name = ::conf->get_s("data_dir");
+    std::string h_name = ::conf->get_s("data_dir");
+
+    int c_lod = ::conf->get_i("image_color_lod");
+    int n_lod = ::conf->get_i("image_normal_lod");
+    int h_lod = ::conf->get_i("image_height_lod");
+
+    c_name.append("earth/earth-color/earth-color");
+    n_name.append("earth/earth-normal/earth-normal");
+    h_name.append("earth/earth-height/earth-height");
+
+    if (c_lod == 0) c_lod = DEFAULT_COLOR_LOD;
+    if (n_lod == 0) n_lod = DEFAULT_NORMAL_LOD;
+    if (h_lod == 0) h_lod = DEFAULT_HEIGHT_LOD;
+
+    color  = new geomap(c_name.c_str(), 86400, 43200, 3, 1, 512, pow(2, c_lod),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
-    normal = new geomap(DATA "earth/earth-normal/earth-normal",
-                        86400, 43200, 3, 1, 512, pow(2, DEFAULT_NORMAL_LOD),
+    normal = new geomap(n_name.c_str(), 86400, 43200, 3, 1, 512, pow(2, n_lod),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
-    height = new geomap(DATA "earth/earth-height/earth-height",
-                        86400, 43200, 1, 2, 512, pow(2, DEFAULT_HEIGHT_LOD),
+    height = new geomap(h_name.c_str(), 86400, 43200, 1, 2, 512, pow(2, h_lod),
                         r0, r1, -PI, PI, -PI / 2, PI / 2);
 
-//  color->set_debug(true);
+    // Configure the geometry generator and renderer.
 
-    D = new geodat();
+    double patch_bias  = ::conf->get_i("patch_bias");
+    int    patch_cache = ::conf->get_i("patch_cache");
+    int    patch_depth = ::conf->get_i("patch_depth");
+
+    if (patch_bias == 0)
+        patch_bias = DEFAULT_PATCH_BIAS;
+    if (patch_cache == 0)
+        patch_cache = DEFAULT_PATCH_CACHE;
+    if (patch_depth == 0)
+        patch_depth = DEFAULT_PATCH_DEPTH;
+
+    D = new geodat(patch_depth);
     R = new georen(::host->get_buffer_w(),
                    ::host->get_buffer_h());
 
-    S[0] = new sphere(*D, *R, *color, *normal, *height, r0, r1);
+    // Create the earth.
+
+    S[0] = new sphere(*D, *R, *color, *normal, *height,
+                      r0, r1, patch_bias, patch_cache);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
 }
 

@@ -99,14 +99,8 @@ void demo::point(const double *p, const double *v)
             ::view->turn(0, 0, -double(last_x - x) * view_turn_rate);
 
         if (button[3])
-        {
-            if (::host->modifiers() & KMOD_SHIFT)
-                ::view->rot_plane(+double(last_y - y) * view_turn_rate,
-                                  -double(last_x - x) * view_turn_rate);
-            else
-                ::view->turn(-double(last_y - y) * view_turn_rate,
-                             +double(last_x - x) * view_turn_rate, 0);
-        }
+            ::view->turn(-double(last_y - y) * view_turn_rate,
+                         +double(last_x - x) * view_turn_rate, 0);
 
         prog::point(p, v);
     }

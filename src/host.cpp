@@ -745,9 +745,9 @@ void app::host::fork_client(const char *addr, const char *name)
 
     if ((fork() == 0))
     {
-        // TODO: generalize this
+        std::string dir = ::conf->get_s("exec_dir");
 
-        sprintf(line, "cd src/thumb; ./thumb %s", name);
+        sprintf(line, "cd %s; ./thumb %s", dir.c_str(), name);
 
         // Allocate and build the client's ssh command line.
 
@@ -1368,16 +1368,7 @@ int app::host::get_frustum(double *F) const
             if (get_plane(F + 4 * n, P, TL, TR, F, n)) n++;
         }
     }
-/*
-    printf("%d\n", n);
-    
-    for (int k = 0; k < n; ++k)
-        printf("%+8.3f %+8.3f %+8.3f %f\n",
-               F[4 * k + 0],
-               F[4 * k + 1],
-               F[4 * k + 2],
-               F[4 * k + 3]);
-*/
+
     return n;
 }
 
@@ -1500,7 +1491,10 @@ void app::host::draw()
     for (index = 0, i = tiles.begin(); i != tiles.end(); ++i, ++index)
         i->draw(eyes, (index == varrier_index));
 
-//  glFinish();
+    // If doing network sync, wait until the rendering has finished.
+
+    if (server_sd != INVALID_SOCKET || !client_sd.empty())
+        glFinish();
 }
 
 int app::host::get_window_m() const

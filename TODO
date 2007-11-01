@@ -1,4 +1,4 @@
-Make the glFinish optional.  Either add a host option or autodetect cluster mode.
+logo like gui
 
 The 7900 bug may involve the quantity of geometry / utilization of the geometry cache.  A workaround may involve doing a full-cache PBO-to-VBO copy regardless of the cache state.
 

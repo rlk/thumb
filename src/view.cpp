@@ -20,8 +20,8 @@
 
 //-----------------------------------------------------------------------------
 
-app::view::view(int w, int h, double n, double f) :
-    w(w), h(h), n(n), f(f), prog(0), type(type_mono), mode(mode_norm)
+app::view::view(int w, int h) :
+    w(w), h(h), n(1.0), f(100.0), prog(0), type(type_mono), mode(mode_norm)
 {
     const double a = double(w) / double(h);
 
@@ -41,11 +41,6 @@ app::view::view(int w, int h, double n, double f) :
     load_idt(default_M);
     load_idt(current_M);
  
-    plane[0] = 0;
-    plane[1] = 0;
-    plane[2] = 1;
-    plane[3] = 0;
-
     find_P();
 }
 
@@ -583,30 +578,6 @@ void app::view::pick(double *p, double *v, int x, int y) const
 double app::view::dist(double *p) const
 {
     return distance(p, current_M + 12);
-}
-
-//-----------------------------------------------------------------------------
-
-void app::view::rot_plane(double dx, double dy)
-{
-    // HACK: test plane
-
-    double v[3], M[16];
-
-    load_rot_mat(M, 0, 1, 0, dy);
-    Rmul_rot_mat(M, 1, 0, 0, dx);
-
-    mult_mat_vec3(v, M, plane);
-    normalize(v);
-
-    plane[0] = v[0];
-    plane[1] = v[1];
-    plane[2] = v[2];
-}
-
-void app::view::mov_plane(double dw)
-{
-    plane[3] += dw * 100000.0;
 }
 
 //-----------------------------------------------------------------------------
