@@ -18,6 +18,7 @@
 #include <mxml.h>
 
 #include "default.hpp"
+#include "texture.hpp"
 #include "socket.hpp"
 #include "frame.hpp"
 
@@ -192,8 +193,12 @@ namespace app
         void root_loop();
         void node_loop();
 
-        // GUI config
+        // Overlay config
 
+        std::string         logo_name;
+        const ogl::texture *logo_text;
+
+        double tag_M[16];
         double gui_M[16];
         double gui_I[16];
         int    gui_w;
@@ -259,6 +264,7 @@ namespace app
         void gui_pick(int&, int&, const double *, const double *) const;
         void gui_size(int&, int&)                                 const;
         void gui_view()                                           const;
+        void tag_draw();
 
         void set_varrier_index(int);
         void set_varrier_pitch(double);

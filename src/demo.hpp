@@ -48,8 +48,6 @@ class demo : public app::prog
     uni::universe universe;
     wrl::world    world;
 
-    const ogl::texture *logo;
-
     // Editor mode.
 
     mode::mode *edit;

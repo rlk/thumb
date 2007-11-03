@@ -931,16 +931,7 @@ void app::host::fini_client()
 
 //-----------------------------------------------------------------------------
 
-app::host::host(std::string file,
-                std::string tag) :
-    server_sd(INVALID_SOCKET),
-    listen_sd(INVALID_SOCKET),
-    mods(0),
-    file(file),
-    head(0),
-    node(0),
-    dirty(false),
-    varrier_index(0)
+static void overlay(mxml_node_t *node, double *M, double *I, int w, int h)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
     const char *c;
@@ -948,6 +939,73 @@ app::host::host(std::string file,
     double BL[3];
     double BR[3];
     double TL[3];
+
+    BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
+    BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
+    TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
+
+    // Extract overlay corners from the given node.
+
+    mxml_node_t *curr;
+
+    MXML_FORALL(node, curr, "corner")
+    {
+        double *v = 0;
+
+        if (const char *name = mxmlElementGetAttr(curr, "name"))
+        {
+            if      (strcmp(name, "BL") == 0) v = BL;
+            else if (strcmp(name, "BR") == 0) v = BR;
+            else if (strcmp(name, "TL") == 0) v = TL;
+        }
+        if (v)
+        {
+            if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
+            if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
+            if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
+        }
+    }
+
+    // Compose a transform taking overlay coordinates to eye coordinates.
+
+    double G[16];
+    double R[3];
+    double U[3];
+    double B[3];
+
+    R[0] = BR[0] - BL[0];
+    R[1] = BR[1] - BL[1];
+    R[2] = BR[2] - BL[2];
+
+    U[0] = TL[0] - BL[0];
+    U[1] = TL[1] - BL[1];
+    U[2] = TL[2] - BL[2];
+
+    crossprod(B, R, U);
+    set_basis(G, R, U, B);
+
+    load_idt(M);
+
+    Rmul_xlt_mat(M, BL[0], BL[1], BL[2]);
+    mult_mat_mat(M, M, G);
+    Rmul_scl_inv(M, w, h, 1);
+
+    if (I) load_inv(I, M);
+}
+
+app::host::host(std::string file,
+                std::string tag) :
+    server_sd(INVALID_SOCKET),
+    listen_sd(INVALID_SOCKET),
+    mods(0),
+    logo_text(0),
+    file(file),
+    head(0),
+    node(0),
+    dirty(false),
+    varrier_index(0)
+{
+    const char *c;
 
     // Set some reasonable defaults.
 
@@ -962,9 +1020,9 @@ app::host::host(std::string file,
     gui_w = DEFAULT_PIXEL_WIDTH;
     gui_h = DEFAULT_PIXEL_HEIGHT;
 
-    BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
-    BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
-    TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
+    load_idt(gui_M);
+    load_idt(gui_I);
+    load_idt(tag_M);
 
     // Read host.xml and configure using tag match.
 
@@ -974,33 +1032,26 @@ app::host::host(std::string file,
     {
         mxml_node_t *curr;
 
-        // Extract GUI configuration.
+        // Extract GUI overlay configuration.
 
         if (mxml_node_t *gui = mxmlFindElement(head, head, "gui",
                                                0, 0, MXML_DESCEND))
         {
-            mxml_node_t *curr;
-
             if (const char *w = mxmlElementGetAttr(gui, "w")) gui_w = atoi(w);
             if (const char *h = mxmlElementGetAttr(gui, "h")) gui_h = atoi(h);
 
-            MXML_FORALL(gui, curr, "corner")
-            {
-                double *v = 0;
+            overlay(gui, gui_M, gui_I, gui_w, gui_h);
+        }
 
-                if (const char *name = mxmlElementGetAttr(curr, "name"))
-                {
-                    if      (strcmp(name, "BL") == 0) v = BL;
-                    else if (strcmp(name, "BR") == 0) v = BR;
-                    else if (strcmp(name, "TL") == 0) v = TL;
-                }
-                if (v)
-                {
-                    if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
-                    if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
-                    if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
-                }
-            }
+        // Extract tag overlay configuration.
+
+        if (mxml_node_t *tag = mxmlFindElement(head, head, "tag",
+                                               0, 0, MXML_DESCEND))
+        {
+            if (const char *name = mxmlElementGetAttr(tag, "name"))
+                logo_name = std::string(name);
+
+            overlay(tag, tag_M, 0, 1, 1);
         }
 
         // Extract global off-screen buffer configuration.
@@ -1058,32 +1109,6 @@ app::host::host(std::string file,
 
     if ( eyes.empty())  eyes.push_back(new eye(0, buffer_w, buffer_h));
     if (tiles.empty()) tiles.push_back(tile(0));
-
-    // Compute a transform taking GUI coordinates to eye coordinates.
-
-    double G[16];
-    double R[3];
-    double U[3];
-    double B[3];
-
-    R[0] = BR[0] - BL[0];
-    R[1] = BR[1] - BL[1];
-    R[2] = BR[2] - BL[2];
-
-    U[0] = TL[0] - BL[0];
-    U[1] = TL[1] - BL[1];
-    U[2] = TL[2] - BL[2];
-
-    crossprod(B, R, U);
-    set_basis(G, R, U, B);
-
-    load_idt(gui_M);
-
-    Rmul_xlt_mat(gui_M, BL[0], BL[1], BL[2]);
-    mult_mat_mat(gui_M, gui_M, G);
-    Rmul_scl_inv(gui_M, gui_w, gui_h, 1);
-
-    load_inv(gui_I, gui_M);
 
     // Start the timer.
 
@@ -1717,6 +1742,50 @@ void app::host::gui_view() const
     // Apply the transform taking GUI coordinates to eye coordinates.
 
     glMultMatrixd(gui_M);
+}
+
+void app::host::tag_draw()
+{
+    ::view->push();
+    {
+        if (logo_text == 0)
+            logo_text = ::glob->load_texture(logo_name);
+
+        glMatrixMode(GL_TEXTURE);
+        {
+            glLoadIdentity();
+        }
+        glMatrixMode(GL_PROJECTION);
+        {
+            glLoadIdentity();
+            ::view->mult_P();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glLoadMatrixd(tag_M);
+        }
+
+        glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glDisable(GL_LIGHTING);
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        logo_text->bind();
+        {
+            glColor3f(1.0f, 1.0f, 1.0f);
+            glBegin(GL_QUADS);
+            {
+                glTexCoord2i(0, 0); glVertex2i(0, 0);
+                glTexCoord2i(1, 0); glVertex2i(1, 0);
+                glTexCoord2i(1, 1); glVertex2i(1, 1);
+                glTexCoord2i(0, 1); glVertex2i(0, 1);
+            }
+            glEnd();
+        }
+        logo_text->free();
+    }
+    ::view->pop();
 }
 
 //-----------------------------------------------------------------------------

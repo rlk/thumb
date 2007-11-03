@@ -15,6 +15,8 @@ consider forward rendering
 There's still a bug in geomap when teleporting
     probably due to cache overflow when the number of outstanding requests exceeds the number of cache lines
 
+The 3 phases of sphere generation can be pipelined.  The only requirement is in being able to predict the view frustum 2 frames in advance.  To do this, simply consider the difference from the last frame and extrapolate.  This will be correct for constant velocity, which will cover 90% of circumstances.
+
 If the range extrema of each heightmap is stored as metadata then an extremely tight tile visibility becomes possible.  Patch visibility with no round trip may follow from this.
 
 tellurion
