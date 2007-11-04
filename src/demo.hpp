@@ -64,6 +64,8 @@ class demo : public app::prog
     int button[4];
     int motion[3];
 
+    bool attr;
+
     // Tracker cache.
 
     double init_P[3], init_R[3][3];

@@ -566,3 +566,52 @@ void vector_to_sphere(double *r, double x, double y, double z)
 }
 
 //-----------------------------------------------------------------------------
+
+void slerp(double *p, const double *a, const double *b, double t)
+{
+    // Compute vector lengths and normalized arc end-points.
+
+    double al = sqrt(DOT3(a, a));
+    double bl = sqrt(DOT3(b, b));
+
+    double an[3];
+    double bn[3];
+
+    an[0] = a[0] / al;
+    an[1] = a[1] / al;
+    an[2] = a[2] / al;
+
+    bn[0] = b[0] / bl;
+    bn[1] = b[1] / bl;
+    bn[2] = b[2] / bl;
+
+    // Compute the spherical linear interpolation of the arc end-points.
+
+    const double omega = acos(DOT3(an, bn));
+
+    if (omega > 0.001)
+    {
+        const double ka = sin((1 - t) * omega) / sin(omega);
+        const double kb = sin((    t) * omega) / sin(omega);
+
+        p[0] = ka * an[0] + kb * bn[0];
+        p[1] = ka * an[1] + kb * bn[1];
+        p[2] = ka * an[2] + kb * bn[2];
+    }
+    else
+    {
+        p[0] = an[0];
+        p[1] = an[1];
+        p[2] = an[2];
+    }
+
+    // Compute the linear interpolation of the vector lengths.
+
+    double pl = (1 - t) * al + t * bl;
+
+    p[0] *= pl;
+    p[1] *= pl;
+    p[2] *= pl;
+}
+
+//-----------------------------------------------------------------------------

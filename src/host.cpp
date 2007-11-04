@@ -1746,46 +1746,49 @@ void app::host::gui_view() const
 
 void app::host::tag_draw()
 {
-    ::view->push();
+    if (logo_name.size() > 0)
     {
-        if (logo_text == 0)
-            logo_text = ::glob->load_texture(logo_name);
-
-        glMatrixMode(GL_TEXTURE);
+        ::view->push();
         {
-            glLoadIdentity();
-        }
-        glMatrixMode(GL_PROJECTION);
-        {
-            glLoadIdentity();
-            ::view->mult_P();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glLoadMatrixd(tag_M);
-        }
+            if (logo_text == 0)
+                logo_text = ::glob->load_texture(logo_name);
 
-        glEnable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
-        glDisable(GL_LIGHTING);
-
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        logo_text->bind();
-        {
-            glColor3f(1.0f, 1.0f, 1.0f);
-            glBegin(GL_QUADS);
+            glMatrixMode(GL_TEXTURE);
             {
-                glTexCoord2i(0, 0); glVertex2i(0, 0);
-                glTexCoord2i(1, 0); glVertex2i(1, 0);
-                glTexCoord2i(1, 1); glVertex2i(1, 1);
-                glTexCoord2i(0, 1); glVertex2i(0, 1);
+                glLoadIdentity();
             }
-            glEnd();
+            glMatrixMode(GL_PROJECTION);
+            {
+                glLoadIdentity();
+                ::view->mult_P();
+            }
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glLoadMatrixd(tag_M);
+            }
+
+            glEnable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
+            glDisable(GL_LIGHTING);
+
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            logo_text->bind();
+            {
+                glColor3f(1.0f, 1.0f, 1.0f);
+                glBegin(GL_QUADS);
+                {
+                    glTexCoord2i(0, 0); glVertex2i(0, 0);
+                    glTexCoord2i(1, 0); glVertex2i(1, 0);
+                    glTexCoord2i(1, 1); glVertex2i(1, 1);
+                    glTexCoord2i(0, 1); glVertex2i(0, 1);
+                }
+                glEnd();
+            }
+            logo_text->free();
         }
-        logo_text->free();
+        ::view->pop();
     }
-    ::view->pop();
 }
 
 //-----------------------------------------------------------------------------

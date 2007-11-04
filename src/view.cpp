@@ -10,18 +10,41 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <sstream>
+#include <iomanip>
 #include <iostream>
 #include <ode/ode.h>
 
+#include "default.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
 #include "view.hpp"
+#include "data.hpp"
 #include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
+static double get_real_attr(mxml_node_t *node, const char *name)
+{
+    if (const char *c = mxmlElementGetAttr(node, name))
+        return atof(c);
+    else
+        return 0;
+}
+
+static void set_real_attr(mxml_node_t *node, const char *name, double k)
+{
+    std::ostringstream value;
+
+    value << std::setprecision(3) << k;
+
+    mxmlElementSetAttr(node, name, value.str().c_str());
+}
+
+//-----------------------------------------------------------------------------
+
 app::view::view(int w, int h) :
-    w(w), h(h), n(1.0), f(100.0), prog(0), type(type_mono), mode(mode_norm)
+    w(w), h(h), n(1), f(100), prog(0), type(type_mono), mode(mode_norm)
 {
     const double a = double(w) / double(h);
 
@@ -40,13 +63,101 @@ app::view::view(int w, int h) :
 
     load_idt(default_M);
     load_idt(current_M);
+
+    load_idt(curr_M0);
+    load_idt(curr_M1);
  
     find_P();
+
+    t0 = tt = t1 = 0;
+
+    curr_a = curr_a0 = curr_a1 = 0;
+
+    init();
+    load();
+    gonext(0);
 }
 
 app::view::~view()
 {
 //  if (prog) ::glob->free_program(prog);
+    save();
+}
+
+//-----------------------------------------------------------------------------
+
+void app::view::init()
+{
+    head = mxmlNewElement(NULL, "?xml");
+    root = mxmlNewElement(head, "demo");
+
+    mxmlElementSetAttr(head, "version",  "1.0");
+    mxmlElementSetAttr(head, "?", NULL);
+}
+
+//-----------------------------------------------------------------------------
+
+static mxml_type_t load_cb(mxml_node_t *node)
+{
+    std::string name(node->value.element.name);
+
+    if (name == "key")
+        return MXML_REAL;
+    else
+        return MXML_ELEMENT;
+}
+
+bool app::view::load()
+{
+    if (head) mxmlDelete(head);
+
+    const char *buff;
+
+    if ((buff = (const char *) ::data->load(DEFAULT_DEMO_FILE)))
+    {
+        head = mxmlLoadString(NULL, buff, load_cb);
+        root = mxmlFindElement(head, head, "demo", 0, 0, MXML_DESCEND_FIRST);
+        curr = 0;
+    }
+
+    ::data->free(DEFAULT_DEMO_FILE);
+
+    return root ? true : false;
+}
+
+//-----------------------------------------------------------------------------
+
+static const char *save_cb(mxml_node_t *node, int where)
+{
+    std::string name(node->value.element.name);
+
+    switch (where)
+    {
+    case MXML_WS_AFTER_OPEN:  return "\n";
+    case MXML_WS_AFTER_CLOSE: return "\n";
+
+    case MXML_WS_BEFORE_OPEN:
+        if (name == "key") return "  ";
+        break;
+    }
+
+    return NULL;
+}
+
+void app::view::save()
+{
+    if (dirty)
+    {
+        char *buff;
+
+        if ((buff = mxmlSaveAllocString(head, save_cb)))
+        {
+            ::data->save(DEFAULT_DEMO_FILE, buff);
+            free(buff);
+        }
+
+        dirty = false;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -578,6 +689,209 @@ void app::view::pick(double *p, double *v, int x, int y) const
 double app::view::dist(double *p) const
 {
     return distance(p, current_M + 12);
+}
+
+//-----------------------------------------------------------------------------
+
+double app::view::step(double dt, const double *p)
+{
+    tt += dt;
+
+    if (t0 <= tt && tt <= t1)
+    {
+        double t = (tt - t0) / (t1 - t0);
+
+        curr_a = (1 - t) * curr_a0 + t * curr_a1;
+
+        slerp(curr_M0, curr_M1, p, t);
+    }
+    else if (tt < t0)
+    {
+        load_mat(default_M, curr_M0);
+        load_mat(current_M, curr_M0);
+        curr_a = curr_a0;
+    }
+    else if (tt > t1)
+    {
+        load_mat(default_M, curr_M1);
+        load_mat(current_M, curr_M1);
+        curr_a = curr_a1;
+    }
+
+    return curr_a;
+}
+
+void app::view::gocurr(double dt)
+{
+    t0 = tt;
+    t1 = tt + dt;
+
+    curr_a0 = curr_a;
+
+    load_mat(curr_M0, current_M);
+    load_mat(curr_M1, current_M);
+
+    // Load the destination matrix from the XML element.
+
+    if (curr)
+    {
+        curr_M1[ 0] = get_real_attr(curr, "m0");
+        curr_M1[ 1] = get_real_attr(curr, "m1");
+        curr_M1[ 2] = get_real_attr(curr, "m2");
+        curr_M1[ 3] = get_real_attr(curr, "m3");
+        curr_M1[ 4] = get_real_attr(curr, "m4");
+        curr_M1[ 5] = get_real_attr(curr, "m5");
+        curr_M1[ 6] = get_real_attr(curr, "m6");
+        curr_M1[ 7] = get_real_attr(curr, "m7");
+        curr_M1[ 8] = get_real_attr(curr, "m8");
+        curr_M1[ 9] = get_real_attr(curr, "m9");
+        curr_M1[10] = get_real_attr(curr, "mA");
+        curr_M1[11] = get_real_attr(curr, "mB");
+        curr_M1[12] = get_real_attr(curr, "mC");
+        curr_M1[13] = get_real_attr(curr, "mD");
+        curr_M1[14] = get_real_attr(curr, "mE");
+        curr_M1[15] = get_real_attr(curr, "mF");
+        curr_a1     = get_real_attr(curr, "a");
+    }
+
+    // If we're teleporting, just set all matrices.
+
+    if (dt == 0)
+    {
+        load_mat(curr_M0,   curr_M1);
+        load_mat(default_M, curr_M1);
+        load_mat(current_M, curr_M1);
+
+        curr_a0 = curr_a1 = curr_a;
+    }
+}
+
+void app::view::gonext(double dt)
+{
+    // Advance to the next key, or begin again at the first.
+
+    if (curr != 0)
+        curr = mxmlWalkNext(curr, root, MXML_NO_DESCEND);
+    if (curr == 0)
+        curr = root->child;
+
+    gocurr(dt);
+}
+
+void app::view::goprev(double dt)
+{
+    // Advance to the next key, or begin again at the first.
+
+    if (curr != 0)
+        curr = mxmlWalkPrev(curr, root, MXML_NO_DESCEND);
+    if (curr == 0)
+        curr = root->last_child;
+
+    gocurr(dt);
+}
+
+void app::view::insert(double a)
+{
+    mxml_node_t *node = mxmlNewElement(MXML_NO_PARENT, "key");
+
+    set_real_attr(node, "m0", current_M[ 0]);
+    set_real_attr(node, "m1", current_M[ 1]);
+    set_real_attr(node, "m2", current_M[ 2]);
+    set_real_attr(node, "m3", current_M[ 3]);
+    set_real_attr(node, "m4", current_M[ 4]);
+    set_real_attr(node, "m5", current_M[ 5]);
+    set_real_attr(node, "m6", current_M[ 6]);
+    set_real_attr(node, "m7", current_M[ 7]);
+    set_real_attr(node, "m8", current_M[ 8]);
+    set_real_attr(node, "m9", current_M[ 9]);
+    set_real_attr(node, "mA", current_M[10]);
+    set_real_attr(node, "mB", current_M[11]);
+    set_real_attr(node, "mC", current_M[12]);
+    set_real_attr(node, "mD", current_M[13]);
+    set_real_attr(node, "mE", current_M[14]);
+    set_real_attr(node, "mF", current_M[15]);
+    set_real_attr(node, "a", a);
+
+    mxmlAdd(root, MXML_ADD_AFTER, curr, node);
+
+    curr_a = a;
+    gonext(1);
+
+    dirty = true;
+}
+
+void app::view::remove()
+{
+    mxml_node_t *node = curr;
+
+    gonext(1);
+
+    mxmlDelete(node);
+
+    dirty = true;
+}
+
+//-----------------------------------------------------------------------------
+
+void app::view::slerp(const double *A,
+                      const double *B,
+                      const double *p, double t)
+{
+    double a[3];
+    double b[3];
+    double c[3];
+
+    a[0] = A[12];
+    a[1] = A[13];
+    a[2] = A[14];
+
+    b[0] = B[12];
+    b[1] = B[13];
+    b[2] = B[14];
+
+    // Slerp the position about the given center.
+
+    if (p)
+    {
+        a[0] -= p[0];
+        a[1] -= p[1];
+        a[2] -= p[2];
+
+        b[0] -= p[0];
+        b[1] -= p[1];
+        b[2] -= p[2];
+
+        ::slerp(c, a, b, t);
+
+        c[0] += p[0];
+        c[1] += p[1];
+        c[2] += p[2];
+    }
+    else
+    {
+        ::slerp(c, a, b, t);
+    }
+
+    default_M[12] = c[0];
+    default_M[13] = c[1];
+    default_M[14] = c[2];
+    default_M[15] = 1;
+
+    // Slerp the rotation about the position.
+
+    ::slerp(default_M + 0, A + 0, B + 0, t);
+    ::slerp(default_M + 8, A + 8, B + 8, t);
+
+    // Orthonormalize.
+
+    normalize(default_M + 0);
+    normalize(default_M + 8);
+
+    crossprod(default_M + 4, default_M + 8, default_M + 0);
+    crossprod(default_M + 0, default_M + 4, default_M + 8);
+    crossprod(default_M + 8, default_M + 0, default_M + 4);
+
+    clr();
 }
 
 //-----------------------------------------------------------------------------

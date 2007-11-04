@@ -59,6 +59,7 @@ demo::demo()
     button[3] = 0;
 
     curr = 0;
+    attr = false;
 
     goto_mode(play);
 }
@@ -93,12 +94,14 @@ void demo::point(const double *p, const double *v)
     {
         // Handle view rotation.
 
-        if (button[2])
-            ::view->turn(0, 0, -double(last_x - x) * view_turn_rate);
-
         if (button[3])
-            ::view->turn(-double(last_y - y) * view_turn_rate,
-                         +double(last_x - x) * view_turn_rate, 0);
+        {
+            if (::host->modifiers() & KMOD_ALT)
+                ::view->turn(0, 0, -double(last_x - x) * view_turn_rate);
+            else
+                ::view->turn(-double(last_y - y) * view_turn_rate,
+                             +double(last_x - x) * view_turn_rate, 0);
+        }
 
         prog::point(p, v);
     }
@@ -159,15 +162,15 @@ void demo::keybd(int k, bool d, int c)
         else if (k == SDLK_F6) ::view->set_type(app::view::type_anaglyph);
         else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
 
-        else if (d && k == SDLK_INSERT)
+        // Handle guided view keys.
+
+        if (d && ::host->modifiers() & KMOD_SHIFT)
         {
-            int t = conf->get_i("twiddle") + 1;
-            conf->set_i("twiddle", t);
-        }
-        else if (d && k == SDLK_DELETE)
-        {
-            int t = conf->get_i("twiddle") - 1;
-            conf->set_i("twiddle", t);
+            if      (k == SDLK_PAGEUP)   ::view->gonext(1.0);
+            else if (k == SDLK_PAGEDOWN) ::view->goprev(1.0);
+            else if (k == SDLK_INSERT)   ::view->insert(universe.get_a());
+            else if (k == SDLK_DELETE)   ::view->remove();
+            else if (k == SDLK_SPACE)    attr = !attr;
         }
 
         // Handle Varrier calibration keys.
@@ -206,56 +209,59 @@ void demo::keybd(int k, bool d, int c)
 
 void demo::timer(double dt)
 {
-    double kp;
-    double kr = 150.0 * view_turn_rate * dt;
-
-    // Determine the rate of motion.
-
-    if (::host->modifiers() & KMOD_CTRL)
-        kp = dt * view_move_rate;
+    if (attr)
+        universe.set_a(view->step(dt, universe.get_p()));
     else
-        kp = dt * universe.rate();
-
-    if (::host->modifiers() & KMOD_SHIFT)
-        kp *= 10.0;
-
-    // Handle view motion.
-
-    view->move(motion[0] * kp,
-               motion[1] * kp,
-               motion[2] * kp);
-
-    // Handle tracker navigation.
-
-    if (button[0])
     {
-        double dP[3];
-        double dR[3];
-        double dz[3];
-        double dy[3];
+        double kp, kr = 150.0 * view_turn_rate * dt;
 
-        kp *= 0.5;
+        // Determine the rate of motion.
 
-        dP[0] = curr_P[0] - init_P[0];
-        dP[1] = curr_P[1] - init_P[1];
-        dP[2] = curr_P[2] - init_P[2];
+        if (::host->modifiers() & KMOD_CTRL)
+            kp = dt * view_move_rate;
+        else
+            kp = dt * universe.rate();
 
-        dy[0] = init_R[1][0] - curr_R[1][0];
-        dy[1] = init_R[1][1] - curr_R[1][1];
-        dy[2] = init_R[1][2] - curr_R[1][2];
+        if (::host->modifiers() & KMOD_SHIFT)
+            kp *= 10.0;
 
-        dz[0] = init_R[2][0] - curr_R[2][0];
-        dz[1] = init_R[2][1] - curr_R[2][1];
-        dz[2] = init_R[2][2] - curr_R[2][2];
+        // Handle view motion.
 
-        dR[0] =  DOT3(dz, init_R[1]);
-        dR[1] = -DOT3(dz, init_R[0]);
-        dR[2] =  DOT3(dy, init_R[0]);
+        view->move(motion[0] * kp,
+                   motion[1] * kp,
+                   motion[2] * kp);
 
-        view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
-        view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+        // Handle tracker navigation.
+
+        if (button[0])
+        {
+            double dP[3];
+            double dR[3];
+            double dz[3];
+            double dy[3];
+
+            kp *= 0.5;
+
+            dP[0] = curr_P[0] - init_P[0];
+            dP[1] = curr_P[1] - init_P[1];
+            dP[2] = curr_P[2] - init_P[2];
+
+            dy[0] = init_R[1][0] - curr_R[1][0];
+            dy[1] = init_R[1][1] - curr_R[1][1];
+            dy[2] = init_R[1][2] - curr_R[1][2];
+
+            dz[0] = init_R[2][0] - curr_R[2][0];
+            dz[1] = init_R[2][1] - curr_R[2][1];
+            dz[2] = init_R[2][2] - curr_R[2][2];
+
+            dR[0] =  DOT3(dz, init_R[1]);
+            dR[1] = -DOT3(dz, init_R[0]);
+            dR[2] =  DOT3(dy, init_R[0]);
+
+            view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
+            view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+        }
     }
-
     curr->timer(dt);
     prog::timer(dt);
 }

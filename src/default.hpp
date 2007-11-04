@@ -19,6 +19,7 @@
 #define DEFAULT_LANG_FILE "lang.xml"
 #define DEFAULT_CONF_FILE "conf.xml"
 #define DEFAULT_DATA_FILE "data.xml"
+#define DEFAULT_DEMO_FILE "demo.xml"
 
 #define DEFAULT_TAG       "default"
 #define DEFAULT_HOST      "localhost"

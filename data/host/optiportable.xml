@@ -19,7 +19,7 @@
   <!-- Y 0.500 0.633 1.633             -->
 
   <node name="optiportable" port="2827">
-
+<!--
     <client name="node-0-0" addr="tile-0-0.local"/>
     <client name="node-0-1" addr="tile-0-1.local"/>
     <client name="node-0-2" addr="tile-0-2.local"/>
@@ -29,7 +29,7 @@
     <client name="node-2-0" addr="tile-2-0.local"/>
     <client name="node-2-1" addr="tile-2-1.local"/>
     <client name="node-2-2" addr="tile-2-2.local"/>
-
+-->
     <window x="0" y="0" w="1024" h="386"/>
     <tile>
       <viewport x="0" y="0" w="1024" h="386"/>

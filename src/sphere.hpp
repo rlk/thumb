@@ -122,6 +122,11 @@ namespace uni
         double min_d()    const { return d0;         }
         double max_d()    const { return d1;         }
         int    maxcount() const { return int(count); }
+
+        const double *get_p() const { return p; }
+
+        double get_a()   const { return a; }
+        void   set_a(double k) { a = k;    }
     };
 
     bool sphcmp(const sphere *, const sphere *);

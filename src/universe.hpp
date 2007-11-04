@@ -39,7 +39,12 @@ namespace uni
         void draw(const double *, const double *);
 
         double rate() const;
-        void turn(double);
+        void   turn(double);
+
+        const double *get_p() const { return S[0] ? S[0]->get_p() : 0; }
+
+        double get_a() const { return S[0] ? S[0]->get_a() : 0; }
+        void   set_a(double k) { if (S[0]) S[0]->set_a(k); }
     };
 }
 

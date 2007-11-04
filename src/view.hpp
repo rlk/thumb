@@ -14,6 +14,7 @@
 #define VIEW_HPP
 
 #include <iostream>
+#include <mxml.h>
 
 #include "program.hpp"
 
@@ -43,6 +44,29 @@ namespace app
         double current_M[16];
         double current_P[16];
 
+        // Demo playback state
+
+        mxml_node_t *head;
+        mxml_node_t *root;
+        mxml_node_t *curr;
+
+        double t0;
+        double tt;
+        double t1;
+
+        void init();
+        bool load();
+        void save();
+
+        bool dirty;
+
+        double curr_M0[16];
+        double curr_M1[16];
+
+        double curr_a;
+        double curr_a0;
+        double curr_a1;
+
         // View configuration and cache
 
         double P[3];            // View position
@@ -62,6 +86,10 @@ namespace app
         enum view_mode      mode;
 
         void find_P();
+
+        void slerp(const double *,
+                   const double *,
+                   const double *, double);
 
     public:
 
@@ -109,6 +137,13 @@ namespace app
         void draw() const;
         void push() const;
         void pop()  const;
+
+        double step(double, const double *);
+        void gocurr(double);
+        void gonext(double);
+        void goprev(double);
+        void insert(double);
+        void remove();
 
         void   pick(double *, double *, int, int) const;
         double dist(double *)                     const;
