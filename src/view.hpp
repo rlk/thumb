@@ -138,8 +138,9 @@ namespace app
         void push() const;
         void pop()  const;
 
-        double step(double, const double *);
+        bool step(double, const double *, double&);
         void gocurr(double);
+        void goinit(double);
         void gonext(double);
         void goprev(double);
         void insert(double);

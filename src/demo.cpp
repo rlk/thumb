@@ -59,7 +59,10 @@ demo::demo()
     button[3] = 0;
 
     curr = 0;
-    attr = false;
+
+    attr_time = conf->get_f("attract_delay");
+    attr_curr = 0;
+    attr_mode = false;
 
     goto_mode(play);
 }
@@ -81,6 +84,33 @@ void demo::goto_mode(mode::mode *next)
     curr = next;
 }
 
+void demo::attr_on()
+{
+    attr_mode = true;
+    attr_stop = false;
+    ::view->gonext(5.0);
+}
+
+void demo::attr_off()
+{
+    attr_mode = false;
+    attr_curr = 0;
+}
+
+void demo::attr_next()
+{
+    attr_mode = true;
+    attr_stop = true;
+    ::view->gonext(2.0);
+}
+
+void demo::attr_prev()
+{
+    attr_mode = true;
+    attr_stop = true;
+    ::view->goprev(2.0);
+}
+
 //-----------------------------------------------------------------------------
 
 void demo::point(const double *p, const double *v)
@@ -96,7 +126,7 @@ void demo::point(const double *p, const double *v)
 
         if (button[3])
         {
-            if (::host->modifiers() & KMOD_ALT)
+            if (::host->modifiers() & KMOD_SHIFT)
                 ::view->turn(0, 0, -double(last_x - x) * view_turn_rate);
             else
                 ::view->turn(-double(last_y - y) * view_turn_rate,
@@ -113,6 +143,8 @@ void demo::point(const double *p, const double *v)
 void demo::click(int b, bool d)
 {
     double k = 1.0;
+
+    attr_off();
 
     if (::host->modifiers() & KMOD_SHIFT) k = 0.1;
 
@@ -150,10 +182,10 @@ void demo::keybd(int k, bool d, int c)
 
         // Handle view motion keys.
 
-        if      (k == key_move_L) motion[0] -= dd;
-        else if (k == key_move_R) motion[0] += dd;
-        else if (k == key_move_F) motion[2] -= dd;
-        else if (k == key_move_B) motion[2] += dd;
+        if      (k == key_move_L) { motion[0] -= dd; attr_off(); }
+        else if (k == key_move_R) { motion[0] += dd; attr_off(); }
+        else if (k == key_move_F) { motion[2] -= dd; attr_off(); }
+        else if (k == key_move_B) { motion[2] += dd; attr_off(); }
         else if (k == SDLK_HOME) ::view->home();
 
         // Handle view config keys.
@@ -166,11 +198,11 @@ void demo::keybd(int k, bool d, int c)
 
         if (d && ::host->modifiers() & KMOD_SHIFT)
         {
-            if      (k == SDLK_PAGEUP)   ::view->gonext(1.0);
-            else if (k == SDLK_PAGEDOWN) ::view->goprev(1.0);
+            if      (k == SDLK_PAGEUP)   attr_next();
+            else if (k == SDLK_PAGEDOWN) attr_prev();
             else if (k == SDLK_INSERT)   ::view->insert(universe.get_a());
             else if (k == SDLK_DELETE)   ::view->remove();
-            else if (k == SDLK_SPACE)    attr = !attr;
+            else if (k == SDLK_SPACE)    attr_on();
         }
 
         // Handle Varrier calibration keys.
@@ -209,8 +241,19 @@ void demo::keybd(int k, bool d, int c)
 
 void demo::timer(double dt)
 {
-    if (attr)
-        universe.set_a(view->step(dt, universe.get_p()));
+    if (attr_mode)
+    {
+        double a = 0.0;
+
+        if (view->step(dt, universe.get_p(), a))
+        {
+            if (attr_stop)
+                attr_off();
+            else
+                view->gonext(10.0);
+        }
+        universe.set_a(a);
+    }
     else
     {
         double kp, kr = 150.0 * view_turn_rate * dt;
@@ -261,6 +304,13 @@ void demo::timer(double dt)
             view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
             view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
         }
+
+        // Handle auto-attract mode.
+
+        attr_curr += dt;
+
+        if (attr_curr > attr_time)
+            attr_on();
     }
     curr->timer(dt);
     prog::timer(dt);
@@ -269,7 +319,10 @@ void demo::timer(double dt)
 void demo::stick(int d, const double *p)
 {
     if (fabs(p[0]) > 0.1)
+    {
+        attr_off();
         universe.turn(p[0]);
+    }
 }
 
 void demo::track(int d, const double *p, const double *x, const double *z)

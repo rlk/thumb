@@ -64,7 +64,15 @@ class demo : public app::prog
     int button[4];
     int motion[3];
 
-    bool attr;
+    bool   attr_mode;
+    bool   attr_stop;
+    double attr_curr;
+    double attr_time;
+
+    void attr_on();
+    void attr_off();
+    void attr_next();
+    void attr_prev();
 
     // Tracker cache.
 

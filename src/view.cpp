@@ -93,6 +93,8 @@ void app::view::init()
 
     mxmlElementSetAttr(head, "version",  "1.0");
     mxmlElementSetAttr(head, "?", NULL);
+
+    dirty = false;
 }
 
 //-----------------------------------------------------------------------------
@@ -121,6 +123,8 @@ bool app::view::load()
     }
 
     ::data->free(DEFAULT_DEMO_FILE);
+
+    dirty = false;
 
     return root ? true : false;
 }
@@ -693,32 +697,39 @@ double app::view::dist(double *p) const
 
 //-----------------------------------------------------------------------------
 
-double app::view::step(double dt, const double *p)
+bool app::view::step(double dt, const double *p, double& a)
 {
     tt += dt;
 
     if (t0 <= tt && tt <= t1)
     {
-        double t = (tt - t0) / (t1 - t0);
+        double k = (tt - t0) / (t1 - t0);
+        double t = 3 * k * k - 2 * k * k * k;
 
-        curr_a = (1 - t) * curr_a0 + t * curr_a1;
+        a = curr_a = (1 - t) * curr_a0 + t * curr_a1;
 
         slerp(curr_M0, curr_M1, p, t);
+
+        return false;
     }
     else if (tt < t0)
     {
         load_mat(default_M, curr_M0);
         load_mat(current_M, curr_M0);
-        curr_a = curr_a0;
+        a = curr_a = curr_a0;
+
+        return false;
     }
     else if (tt > t1)
     {
         load_mat(default_M, curr_M1);
         load_mat(current_M, curr_M1);
-        curr_a = curr_a1;
+        a = curr_a = curr_a1;
+
+        return true;
     }
 
-    return curr_a;
+    return true;
 }
 
 void app::view::gocurr(double dt)
@@ -764,6 +775,15 @@ void app::view::gocurr(double dt)
 
         curr_a0 = curr_a1 = curr_a;
     }
+}
+
+void app::view::goinit(double dt)
+{
+    // Advance to the first key, or begin again at the first.
+
+    curr = root->child;
+
+    gocurr(dt);
 }
 
 void app::view::gonext(double dt)

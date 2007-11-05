@@ -164,8 +164,8 @@ static int loader_func(void *data)
     uni::needed_queue *N = (uni::needed_queue *) data;
 
     std::string     name;
-    uni::loaded_queue *L;
-    uni::page         *P;
+    uni::loaded_queue *L = 0;
+    uni::page         *P = 0;
 
     // Dequeue the next request.
 
@@ -173,7 +173,7 @@ static int loader_func(void *data)
     {
         // Load and enqueue the page.
 
-        L->enqueue(P, load_png(name));
+        if (L && P) L->enqueue(P, load_png(name));
     }
 
     return 0;

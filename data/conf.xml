@@ -11,6 +11,8 @@
   <option type="int" name="window_fullscreen">0</option>
   <option type="int" name="window_noframe">1</option>
 
+  <option type="float" name="attract_delay">2.0</option>
+
   <!-- Terrain renderer configuration -->
 
   <option type="float" name="patch_bias">10.0</option>
@@ -73,7 +75,7 @@
   <!-- Navigation options. -->
 
   <option type="float" name="view_move_rate">5.000000</option>
-  <option type="float" name="view_turn_rate">0.500000</option>
+  <option type="float" name="view_turn_rate">0.100000</option>
 
   <!-- Misc. options -->
 
