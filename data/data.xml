@@ -5,4 +5,15 @@
       object-lite-noshadow.frag
     </option>
   </file>
+
+  <file name="glsl/GroundFromSpace.frag">
+    <option type="int" name="relief" value="1">
+      glsl/ReliefFromSpace.frag
+    </option>
+  </file>
+  <file name="glsl/GroundFromAtmosphere.frag">
+    <option type="int" name="relief" value="1">
+      glsl/ReliefFromAtmosphere.frag
+    </option>
+  </file>
 </data>

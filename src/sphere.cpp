@@ -610,23 +610,26 @@ void uni::sphere::draw(const double *frag_d,
 
         // Draw the atmosphere.
 
-        glEnable(GL_DEPTH_CLAMP_NV);
+        if (::conf->get_i("atmo"))
         {
-            glEnable(GL_BLEND);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glEnable(GL_DEPTH_TEST);
-            glDepthFunc(GL_LEQUAL);
-            glDisable(GL_LIGHTING);
-
-            atmo_prog->bind();
+            glEnable(GL_DEPTH_CLAMP_NV);
             {
-                atmo_pool->draw_init();
-                atmo_pool->draw(1, true, false);
-                atmo_pool->draw_fini();
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                glEnable(GL_DEPTH_TEST);
+                glDepthFunc(GL_LEQUAL);
+                glDisable(GL_LIGHTING);
+
+                atmo_prog->bind();
+                {
+                    atmo_pool->draw_init();
+                    atmo_pool->draw(1, true, false);
+                    atmo_pool->draw_fini();
+                }
+                atmo_prog->free();
             }
-            atmo_prog->free();
+            glDisable(GL_DEPTH_CLAMP_NV);
         }
-        glDisable(GL_DEPTH_CLAMP_NV);
     }
     glPopAttrib();
 }
