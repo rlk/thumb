@@ -193,6 +193,7 @@ void demo::keybd(int k, bool d, int c)
         else if (k == SDLK_F5) ::view->set_type(app::view::type_mono);
         else if (k == SDLK_F6) ::view->set_type(app::view::type_anaglyph);
         else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
+        else if (k == SDLK_F8) ::view->set_type(app::view::type_scanline);
 
         // Handle guided view keys.
 

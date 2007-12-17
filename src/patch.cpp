@@ -333,6 +333,8 @@ int uni::patch::visible(const double *V)
     const double *n1 = P[1]->get();
     const double *n2 = P[2]->get();
 
+    return 0;
+
     int c = 0;
     int d = 0;
 

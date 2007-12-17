@@ -360,6 +360,8 @@ void app::view::set_type(enum view_type t)
                                                         "glsl/combiner.frag");
     if (t == type_anaglyph) prog = ::glob->load_program("glsl/anaglyph.vert",
                                                         "glsl/anaglyph.frag");
+    if (t == type_scanline) prog = ::glob->load_program("glsl/scanline.vert",
+                                                        "glsl/scanline.frag");
 }
 
 void app::view::set_mode(enum view_mode m)

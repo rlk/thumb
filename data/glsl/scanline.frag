@@ -15,8 +15,5 @@ void main()
     const vec4 L = texture2DRect(L_map, p);
     const vec4 R = texture2DRect(R_map, p);
 
-//  gl_FragColor = vec4(dot(R, luma) * 0.36, 0.0, dot(L, luma), 1.0);
-    gl_FragColor = vec4(dot(R, luma),
-                        dot(L, luma), 
-                        dot(L, luma), 1.0);
+    gl_FragColor = mix(L, R, mod(gl_FragCoord.y - 0.5, 2.0));
 }
