@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<host>
+
+  <buffer w="1600" h="1200"/>
+
+  <node name="dome">
+    <window x="0" y="0" w="1600" h="1200"/>
+    <tile>
+      <viewport x="0" y="0" w="1600" h="1200"/>
+      <corner name="BL" x="-0.800" y="-0.5" z="-1.5"/>
+      <corner name="BR" x=" 0.800" y="-0.5" z="-1.5"/>
+      <corner name="TL" x="-0.800" y=" 0.5" z="-1.5"/>
+
+      <region>
+        <corner ix="100"  iy="100"  ox="0"    oy="0"/>
+        <corner ix="1500" iy="100"  ox="1600" oy="0"/>
+        <corner ix="1500" iy="1100" ox="1600" oy="1200"/>
+        <corner ix="100"  iy="1100" ox="0"    oy="1200"/>
+      </region>
+    </tile>
+  </node>
+</host>

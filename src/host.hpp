@@ -20,6 +20,7 @@
 #include "default.hpp"
 #include "texture.hpp"
 #include "socket.hpp"
+#include "region.hpp"
 #include "frame.hpp"
 
 //-----------------------------------------------------------------------------
@@ -106,8 +107,9 @@ namespace app
         double TL[3];
         double TR[3];
 
-        double W;
-        double H;
+        double  W;
+        double  H;
+        region *R;
 
         int window_rect[4];
 
@@ -121,14 +123,12 @@ namespace app
         double varrier_shift;
         double varrier_cycle;
 
-        void trapezoid_lo();
-        void trapezoid_hi();
-
         void apply_varrier(const double *) const;
 
     public:
 
         tile(mxml_node_t *);
+       ~tile();
 
         void draw(std::vector<eye *>&, bool);
 

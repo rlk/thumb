@@ -26,8 +26,17 @@ namespace app
     {
     public:
 
-        enum view_type { type_mono, type_varrier, type_anaglyph, type_scanline };
-        enum view_mode { mode_norm, mode_test };
+        enum view_type {
+            type_mono,
+            type_varrier,
+            type_anaglyph,
+            type_scanline
+        };
+
+        enum view_mode {
+            mode_norm,
+            mode_test
+        };
 
     private:
 

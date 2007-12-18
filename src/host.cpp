@@ -300,7 +300,7 @@ void app::eye::draw(const int *rect, bool focus)
 
 //=============================================================================
 
-app::tile::tile(mxml_node_t *node) : eye_index(-1), varrier(0)
+app::tile::tile(mxml_node_t *node) : R(0), eye_index(-1), varrier(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
 
@@ -399,6 +399,14 @@ app::tile::tile(mxml_node_t *node) : eye_index(-1), varrier(0)
             if ((c = mxmlElementGetAttr(varrier, "s"))) varrier_shift =atof(c);
             if ((c = mxmlElementGetAttr(varrier, "c"))) varrier_cycle =atof(c);
         }
+
+        // Check for a region specifier.
+
+        if ((elem = mxmlFindElement(node, node, "region",
+                                    0, 0, MXML_DESCEND_FIRST)))
+            R = new region(elem, window_rect[2], window_rect[3]);
+        else
+            R = new region(0,    window_rect[2], window_rect[3]);
     }
 
     // Compute the remaining screen corner.
@@ -414,6 +422,11 @@ app::tile::tile(mxml_node_t *node) : eye_index(-1), varrier(0)
 
     W = distance(BR, BL);
     H = distance(TL, BL);
+}
+
+app::tile::~tile()
+{
+    if (R) delete R;
 }
 
 //-----------------------------------------------------------------------------
@@ -608,14 +621,22 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
 
             glMatrixMode(GL_PROJECTION);
             {
+                // HACK: breaks varrier
+
                 glLoadIdentity();
-                glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
+                glOrtho(0, window_rect[2],
+                        0, window_rect[3], -1, +1);
+
+//              glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
             }
             glMatrixMode(GL_MODELVIEW);
             {
                 glLoadIdentity();
             }
 
+            if (R) R->draw();
+            if (R) R->wire();
+/*
             glBegin(GL_QUADS);
             {
                 glVertex2f(-W / 2, -H / 2);
@@ -624,6 +645,7 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
                 glVertex2f(-W / 2, +H / 2);
             }
             glEnd();
+*/
         }
         prog->free();
 

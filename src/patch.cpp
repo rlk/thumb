@@ -228,7 +228,7 @@ int patch_plane_range(const double *n0,
     if (d <  0 && d0 <  0 && d1 <  0 && d2 <  0) return -1;
     if (d >= 0 && d0 >= 0 && d1 >= 0 && d2 >= 0) return +1;
 
-//  return 0;  // HACK!  Oh sweet mother of god HACK.
+    return 0;  // HACK!  Oh sweet mother of god HACK.
 
     // Compute the vector-plane intersection distances.
 
@@ -332,8 +332,6 @@ int uni::patch::visible(const double *V)
     const double *n0 = P[0]->get();
     const double *n1 = P[1]->get();
     const double *n2 = P[2]->get();
-
-    return 0;
 
     int c = 0;
     int d = 0;
