@@ -1,4 +1,12 @@
-logo like gui
+generalize tile specification to allow
+    specification using
+        corner or
+        fov plus transform
+generalize frustum handling to allow
+    unions of frusta for stereo
+generalize screen-filling rectangle to allow
+    arbitrary edge-blended polygon
+
 
 The 7900 bug may involve the quantity of geometry / utilization of the geometry cache.  A workaround may involve doing a full-cache PBO-to-VBO copy regardless of the cache state.
 
@@ -6,14 +14,10 @@ short term:
     fix lightsource position
     can the initial connect socket be closed early?
 
-CWD in fork_client
 map atlas
 patch cracking
 more data
 consider forward rendering
-
-There's still a bug in geomap when teleporting
-    probably due to cache overflow when the number of outstanding requests exceeds the number of cache lines
 
 The 3 phases of sphere generation can be pipelined.  The only requirement is in being able to predict the view frustum 2 frames in advance.  To do this, simply consider the difference from the last frame and extrapolate.  This will be correct for constant velocity, which will cover 90% of circumstances.
 

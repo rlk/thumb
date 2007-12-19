@@ -188,51 +188,55 @@ void demo::keybd(int k, bool d, int c)
         else if (k == key_move_B) { motion[2] += dd; attr_off(); }
         else if (k == SDLK_HOME) ::view->home();
 
-        // Handle view config keys.
-
-        else if (k == SDLK_F5) ::view->set_type(app::view::type_mono);
-        else if (k == SDLK_F6) ::view->set_type(app::view::type_anaglyph);
-        else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
-        else if (k == SDLK_F8) ::view->set_type(app::view::type_scanline);
-
-        // Handle guided view keys.
-
-        if (d && ::host->modifiers() & KMOD_SHIFT)
+        else if (d)
         {
-            if      (k == SDLK_PAGEUP)   attr_next();
-            else if (k == SDLK_PAGEDOWN) attr_prev();
-            else if (k == SDLK_INSERT)   ::view->insert(universe.get_a());
-            else if (k == SDLK_DELETE)   ::view->remove();
-            else if (k == SDLK_SPACE)    attr_on();
-        }
+            // Handle view config keys.
 
-        // Handle Varrier calibration keys.
+            if      (k == SDLK_F5) ::view->set_type(app::view::type_mono);
+            else if (k == SDLK_F6) ::view->set_type(app::view::type_anaglyph);
+            else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
+            else if (k == SDLK_F8) ::view->set_type(app::view::type_scanline);
+            else if (k == SDLK_F9) ::view->set_type(app::view::type_blended);
 
-        if (d && ::host->modifiers() & KMOD_CTRL)
-        {
-            if (k == SDLK_TAB)
-            {
-                if (::view->get_mode() == app::view::mode_norm)
-                    ::view->set_mode(app::view::mode_test);
-                else
-                    ::view->set_mode(app::view::mode_norm);
-            }
-            else if (k == SDLK_PAGEUP)    ::host->set_varrier_index(+1);
-            else if (k == SDLK_PAGEDOWN)  ::host->set_varrier_index(-1);
+            // Handle guided view keys.
 
             if (::host->modifiers() & KMOD_SHIFT)
             {
-                if      (k == SDLK_LEFT)  ::host->set_varrier_angle(-0.01);
-                else if (k == SDLK_RIGHT) ::host->set_varrier_angle(+0.01);
-                else if (k == SDLK_DOWN)  ::host->set_varrier_pitch(-0.01);
-                else if (k == SDLK_UP)    ::host->set_varrier_pitch(+0.01);
+                if      (k == SDLK_PAGEUP)   attr_next();
+                else if (k == SDLK_PAGEDOWN) attr_prev();
+                else if (k == SDLK_INSERT)   ::view->insert(universe.get_a());
+                else if (k == SDLK_DELETE)   ::view->remove();
+                else if (k == SDLK_SPACE)    attr_on();
             }
-            else
+
+            // Handle Varrier calibration keys.
+
+            if (::host->modifiers() & KMOD_CTRL)
             {
-                if      (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
-                else if (k == SDLK_RIGHT) ::host->set_varrier_shift(+0.00005);
-                else if (k == SDLK_DOWN)  ::host->set_varrier_thick(-0.0001);
-                else if (k == SDLK_UP)    ::host->set_varrier_thick(+0.0001);
+                if (k == SDLK_TAB)
+                {
+                    if (::view->get_mode() == app::view::mode_norm)
+                        ::view->set_mode(app::view::mode_test);
+                    else
+                        ::view->set_mode(app::view::mode_norm);
+                }
+                else if (k == SDLK_PAGEUP)    ::host->set_varrier_index(+1);
+                else if (k == SDLK_PAGEDOWN)  ::host->set_varrier_index(-1);
+
+                if (::host->modifiers() & KMOD_SHIFT)
+                {
+                    if      (k == SDLK_LEFT)  ::host->set_varrier_angle(-0.01);
+                    else if (k == SDLK_RIGHT) ::host->set_varrier_angle(+0.01);
+                    else if (k == SDLK_DOWN)  ::host->set_varrier_pitch(-0.01);
+                    else if (k == SDLK_UP)    ::host->set_varrier_pitch(+0.01);
+                }
+                else
+                {
+                    if      (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
+                    else if (k == SDLK_RIGHT) ::host->set_varrier_shift(+0.00005);
+                    else if (k == SDLK_DOWN)  ::host->set_varrier_thick(-0.0001);
+                    else if (k == SDLK_UP)    ::host->set_varrier_thick(+0.0001);
+                }
             }
         }
     }

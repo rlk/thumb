@@ -109,7 +109,7 @@ namespace app
 
         double  W;
         double  H;
-        region *R;
+        region *reg;
 
         int window_rect[4];
 
@@ -210,8 +210,8 @@ namespace app
         int buffer_w;
         int buffer_h;
 
-        std::vector<eye *> eyes;
-        std::vector<tile> tiles;
+        std::vector<eye  *> eyes;
+        std::vector<tile *> tiles;
 
         // Config IO
 

@@ -300,7 +300,7 @@ void app::eye::draw(const int *rect, bool focus)
 
 //=============================================================================
 
-app::tile::tile(mxml_node_t *node) : R(0), eye_index(-1), varrier(0)
+app::tile::tile(mxml_node_t *node) : reg(0), eye_index(-1), varrier(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
 
@@ -404,9 +404,9 @@ app::tile::tile(mxml_node_t *node) : R(0), eye_index(-1), varrier(0)
 
         if ((elem = mxmlFindElement(node, node, "region",
                                     0, 0, MXML_DESCEND_FIRST)))
-            R = new region(elem, window_rect[2], window_rect[3]);
+            reg = new region(elem, window_rect[2], window_rect[3]);
         else
-            R = new region(0,    window_rect[2], window_rect[3]);
+            reg = new region(0,    window_rect[2], window_rect[3]);
     }
 
     // Compute the remaining screen corner.
@@ -426,7 +426,7 @@ app::tile::tile(mxml_node_t *node) : R(0), eye_index(-1), varrier(0)
 
 app::tile::~tile()
 {
-    if (R) delete R;
+    if (reg) delete reg;
 }
 
 //-----------------------------------------------------------------------------
@@ -634,8 +634,8 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
                 glLoadIdentity();
             }
 
-            if (R) R->draw();
-            if (R) R->wire();
+            if (reg) reg->draw();
+            if (reg) reg->wire();
 /*
             glBegin(GL_QUADS);
             {
@@ -1118,7 +1118,7 @@ app::host::host(std::string file,
         // Extract tile config parameters.
 
         MXML_FORALL(node, curr, "tile")
-            tiles.push_back(tile(curr));
+            tiles.push_back(new tile(curr));
 
         // Start the network syncronization.
 
@@ -1130,7 +1130,7 @@ app::host::host(std::string file,
     // If no eyes or tiles were defined, instance defaults.
 
     if ( eyes.empty())  eyes.push_back(new eye(0, buffer_w, buffer_h));
-    if (tiles.empty()) tiles.push_back(tile(0));
+    if (tiles.empty()) tiles.push_back(new tile(0));
 
     // Start the timer.
 
@@ -1156,7 +1156,7 @@ app::host::~host()
 
 void app::host::root_loop()
 {
-    std::vector<tile>::iterator i;
+    std::vector<tile *>::iterator i;
 
     double p[3];
     double v[3];
@@ -1172,7 +1172,7 @@ void app::host::root_loop()
             {
             case SDL_MOUSEMOTION:
                 for (i = tiles.begin(); i != tiles.end(); ++i)
-                    if (i->pick(p, v, e.motion.x, e.motion.y))
+                    if ((*i)->pick(p, v, e.motion.x, e.motion.y))
                         point(p, v);
                 break;
 
@@ -1353,14 +1353,14 @@ bool app::host::get_plane(double *F, const double *A,
 
     // Reject any plane with a tile position behind it.
 
-    std::vector<tile>::const_iterator i;
+    std::vector<tile *>::const_iterator i;
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
     {
-        const double *BL = i->get_BL();
-        const double *BR = i->get_BR();
-        const double *TL = i->get_TL();
-        const double *TR = i->get_TR();
+        const double *BL = (*i)->get_BL();
+        const double *BR = (*i)->get_BR();
+        const double *TL = (*i)->get_TL();
+        const double *TR = (*i)->get_TR();
 
         if (DOT3(F, BL) + F[3] < -small) return false;
         if (DOT3(F, BR) + F[3] < -small) return false;
@@ -1390,16 +1390,16 @@ int app::host::get_frustum(double *F) const
 
     // TODO: near plane
 
-    std::vector<tile>::const_iterator i;
+    std::vector<tile *>::const_iterator i;
 
     // Iterate over all [tile, eye] pairs.
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
     {
-        const double *BL = i->get_BL();
-        const double *BR = i->get_BR();
-        const double *TL = i->get_TL();
-        const double *TR = i->get_TR();
+        const double *BL = (*i)->get_BL();
+        const double *BR = (*i)->get_BR();
+        const double *TL = (*i)->get_TL();
+        const double *TR = (*i)->get_TR();
 
         std::vector<eye *>::const_iterator j;
 
@@ -1435,14 +1435,14 @@ void app::host::get_plane(double *R, const double *A,
 
     // Reject the plane if any screen corner falls behind it.
 
-    std::vector<tile>::const_iterator i;
+    std::vector<tile *>::const_iterator i;
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
     {
-        if (DOT3(i->get_BL(), P) + P[3] < -small) return;
-        if (DOT3(i->get_BR(), P) + P[3] < -small) return;
-        if (DOT3(i->get_TL(), P) + P[3] < -small) return;
-        if (DOT3(i->get_TR(), P) + P[3] < -small) return;
+        if (DOT3((*i)->get_BL(), P) + P[3] < -small) return;
+        if (DOT3((*i)->get_BR(), P) + P[3] < -small) return;
+        if (DOT3((*i)->get_TL(), P) + P[3] < -small) return;
+        if (DOT3((*i)->get_TR(), P) + P[3] < -small) return;
     }
 
     // Reject the plane if any eye falls in front of it.
@@ -1466,15 +1466,15 @@ void app::host::get_frustum(double *F) const
 {
     // Construct a 4-plane frustum union of all eyes and screen corners.
 
-    std::vector<tile>::const_iterator i;
-    std::vector<eye*>::const_iterator j;
+    std::vector<tile *>::const_iterator i;
+    std::vector<eye  *>::const_iterator j;
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
     {
-        const double *BL = i->get_BL();
-        const double *BR = i->get_BR();
-        const double *TL = i->get_TL();
-        const double *TR = i->get_TR();
+        const double *BL = (*i)->get_BL();
+        const double *BR = (*i)->get_BR();
+        const double *TL = (*i)->get_TL();
+        const double *TR = (*i)->get_TR();
 
         for (j = eyes.begin(); j != eyes.end(); ++j)
         {
@@ -1532,11 +1532,11 @@ void app::host::draw()
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    std::vector<tile>::iterator i;
+    std::vector<tile *>::iterator i;
     int index;
 
     for (index = 0, i = tiles.begin(); i != tiles.end(); ++i, ++index)
-        i->draw(eyes, (index == varrier_index));
+        (*i)->draw(eyes, (index == varrier_index));
 
     // If doing network sync, wait until the rendering has finished.
 
@@ -1824,7 +1824,7 @@ void app::host::set_varrier_pitch(double d)
 {
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
     {
-        tiles[varrier_index].set_varrier_pitch(d);
+        tiles[varrier_index]->set_varrier_pitch(d);
         dirty = true;
     }
 }
@@ -1833,7 +1833,7 @@ void app::host::set_varrier_angle(double d)
 {
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
     {
-        tiles[varrier_index].set_varrier_angle(d);
+        tiles[varrier_index]->set_varrier_angle(d);
         dirty = true;
     }
 }
@@ -1842,7 +1842,7 @@ void app::host::set_varrier_shift(double d)
 {
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
     {
-        tiles[varrier_index].set_varrier_shift(d);
+        tiles[varrier_index]->set_varrier_shift(d);
         dirty = true;
     }
 }
@@ -1851,7 +1851,7 @@ void app::host::set_varrier_thick(double d)
 {
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
     {
-        tiles[varrier_index].set_varrier_thick(d);
+        tiles[varrier_index]->set_varrier_thick(d);
         dirty = true;
     }
 }

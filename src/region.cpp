@@ -81,7 +81,7 @@ void app::region::draw() const
 
     // Draw the center area of the region.
 
-    glColor4ub(0xFF, 0xFF, 0xFF, 0xFF);
+    glColor3ub(0xFF, 0xFF, 0xFF);
 
     glBegin(GL_POLYGON);
     {
@@ -96,14 +96,14 @@ void app::region::draw() const
     {
         for (i = corners.begin(); i != corners.end(); ++i)
         {
-            glColor4ub(0xFF, 0xFF, 0xFF, 0xFF); glVertex2i(i->ix, i->iy);
-            glColor4ub(0xFF, 0xFF, 0xFF, 0x00); glVertex2i(i->ox, i->oy);
+            glColor3ub(0xFF, 0xFF, 0xFF); glVertex2i(i->ix, i->iy);
+            glColor3ub(0x00, 0x00, 0x00); glVertex2i(i->ox, i->oy);
         }
         
         i = corners.begin();
 
-        glColor4ub(0xFF, 0xFF, 0xFF, 0xFF); glVertex2i(i->ix, i->iy);
-        glColor4ub(0xFF, 0xFF, 0xFF, 0x00); glVertex2i(i->ox, i->oy);
+        glColor3ub(0xFF, 0xFF, 0xFF); glVertex2i(i->ix, i->iy);
+        glColor3ub(0x00, 0x00, 0x00); glVertex2i(i->ox, i->oy);
     }
     glEnd();
 }
@@ -114,7 +114,7 @@ void app::region::wire() const
 
     // Draw a wireframe of the region edges.
 
-    glColor4ub(0xFF, 0xFF, 0x00, 0xFF);
+    glColor3ub(0xFF, 0xFF, 0x00);
 
     glBegin(GL_LINE_LOOP);
     {

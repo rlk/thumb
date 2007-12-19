@@ -63,7 +63,7 @@
   <option type="int" name="key_edit">283</option>
   <option type="int" name="key_play">284</option>
   <option type="int" name="key_exit">27</option>
-  <option type="int" name="key_snap">290</option>
+  <option type="int" name="key_snap">292</option>
   <option type="int" name="key_init">291</option>
 
   <!-- Scene renderer configuration -->

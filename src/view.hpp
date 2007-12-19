@@ -30,7 +30,8 @@ namespace app
             type_mono,
             type_varrier,
             type_anaglyph,
-            type_scanline
+            type_scanline,
+            type_blended
         };
 
         enum view_mode {
