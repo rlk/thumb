@@ -7,8 +7,6 @@ uniform vec2 frag_d;
 
 void main()
 {
-    const vec4 luma = { 0.30, 0.59, 0.11, 0.00 };
-
     vec2 p = (gl_FragCoord.xy + frag_d) * frag_k;
 
     const vec4 C = texture2DRect(L_map, p);

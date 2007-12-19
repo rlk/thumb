@@ -54,4 +54,11 @@ typedef std::set   <std::string> strset;
 
 //-----------------------------------------------------------------------------
 
+#include <mxml.h>
+
+void set_attr_i(mxml_node_t *, const char *, int);
+void set_attr_f(mxml_node_t *, const char *, double);
+
+//-----------------------------------------------------------------------------
+
 #endif

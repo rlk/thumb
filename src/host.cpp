@@ -11,8 +11,6 @@
 //  General Public License for more details.
 
 #include <SDL.h>
-#include <sstream>
-#include <iomanip>
 #include <iostream>
 #include <stdexcept>
 
@@ -22,6 +20,7 @@
 #include "tracker.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
+#include "util.hpp"
 #include "perf.hpp"
 #include "data.hpp"
 #include "conf.hpp"
@@ -492,41 +491,32 @@ void app::tile::apply_varrier(const double *P) const
     glMatrixMode(GL_MODELVIEW);
 }
 
-static void set_attr(mxml_node_t *node, const char *name, double k)
-{
-    std::ostringstream value;
-    
-    value << std::right << std::setw(8) << std::setprecision(5) << k;
-
-    mxmlElementSetAttr(node, name, value.str().c_str());
-}
-
 void app::tile::set_varrier_pitch(double d)
 {
     varrier_pitch += d;
 
-    if (varrier) set_attr(varrier, "p", varrier_pitch);
+    if (varrier) set_attr_f(varrier, "p", varrier_pitch);
 }
 
 void app::tile::set_varrier_angle(double d)
 {
     varrier_angle += d;
 
-    if (varrier) set_attr(varrier, "a", varrier_angle);
+    if (varrier) set_attr_f(varrier, "a", varrier_angle);
 }
 
 void app::tile::set_varrier_shift(double d)
 {
     varrier_shift += d;
 
-    if (varrier) set_attr(varrier, "s", varrier_shift);
+    if (varrier) set_attr_f(varrier, "s", varrier_shift);
 }
 
 void app::tile::set_varrier_thick(double d)
 {
     varrier_thick += d;
 
-    if (varrier) set_attr(varrier, "t", varrier_thick);
+    if (varrier) set_attr_f(varrier, "t", varrier_thick);
 }
 
 //-----------------------------------------------------------------------------
@@ -602,7 +592,25 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
         frag_k[0] = double(w) / double(window_rect[2]);
         frag_k[1] = double(h) / double(window_rect[3]);
 
-        // Draw a tile-filling rectangle.
+        // Draw the tile region.
+
+        glViewport(window_rect[0], window_rect[1],
+                   window_rect[2], window_rect[3]);
+
+        glMatrixMode(GL_PROJECTION);
+        {
+            // HACK: breaks varrier
+
+            glLoadIdentity();
+            glOrtho(0, window_rect[2],
+                    0, window_rect[3], -1, +1);
+
+//          glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glLoadIdentity();
+        }
 
         prog->bind();
         {
@@ -616,26 +624,12 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
             prog->uniform("frag_d", frag_d[0], frag_d[1]);
             prog->uniform("frag_k", frag_k[0], frag_k[1]);
 
-            glViewport(window_rect[0], window_rect[1],
-                       window_rect[2], window_rect[3]);
-
-            glMatrixMode(GL_PROJECTION);
-            {
-                // HACK: breaks varrier
-
-                glLoadIdentity();
-                glOrtho(0, window_rect[2],
-                        0, window_rect[3], -1, +1);
-
-//              glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
-            }
-            glMatrixMode(GL_MODELVIEW);
-            {
-                glLoadIdentity();
-            }
-
             if (reg) reg->draw();
-            if (reg) reg->wire();
+        }
+        prog->free();
+
+        if (reg && focus && ::view->get_mode() == app::view::mode_test)
+            reg->wire();
 /*
             glBegin(GL_QUADS);
             {
@@ -646,8 +640,6 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
             }
             glEnd();
 */
-        }
-        prog->free();
 
         // Free the eye buffers...
 
@@ -678,13 +670,15 @@ static const char *save_cb(mxml_node_t *node, int where)
 
         else if (name == "viewport") return "      ";
         else if (name == "varrier")  return "      ";
-        else if (name == "corner")   return "      ";
+        else if (name == "region")   return "      ";
+        else if (name == "corner")   return "        ";
         break;
 
     case MXML_WS_BEFORE_CLOSE:
         if      (name == "gui")      return "  ";
         else if (name == "node")     return "  ";
         else if (name == "tile")     return "    ";
+        else if (name == "region")   return "      ";
         break;
     }
 
@@ -1173,7 +1167,7 @@ void app::host::root_loop()
             case SDL_MOUSEMOTION:
                 for (i = tiles.begin(); i != tiles.end(); ++i)
                     if ((*i)->pick(p, v, e.motion.x, e.motion.y))
-                        point(p, v);
+                        point(p, v, e.motion.x, e.motion.y);
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
@@ -1275,13 +1269,15 @@ void app::host::node_loop()
             break;
 
         case E_POINT:
+            a    = M.get_int();
+            b    = M.get_int();
             p[0] = M.get_double();
             p[1] = M.get_double();
             p[2] = M.get_double();
             v[0] = M.get_double();
             v[1] = M.get_double();
             v[2] = M.get_double();
-            point(p, v);
+            point(p, v, a, b);
             break;
 
         case E_CLICK:
@@ -1503,16 +1499,6 @@ void app::host::get_frustum(double *F) const
                 Q[3] = -DOT3(P, Q);
         }
     }
-/*
-    printf("%d\n", 4);
-
-    for (int k = 0; k < 4; ++k)
-        printf("%+8.3f %+8.3f %+8.3f %f\n",
-               F[4 * k + 0],
-               F[4 * k + 1],
-               F[4 * k + 2],
-               F[4 * k + 3]);
-*/
 }
 
 #endif
@@ -1584,12 +1570,14 @@ void app::host::stick(int d, const double *p)
     ::prog->stick(d, p);
 }
 
-void app::host::point(const double *p, const double *v)
+void app::host::point(const double *p, const double *v, int x, int y)
 {
     if (!client_sd.empty())
     {
         message M(E_POINT);
 
+        M.put_int(x);
+        M.put_int(y);
         M.put_double(p[0]);
         M.put_double(p[1]);
         M.put_double(p[2]);
@@ -1599,7 +1587,16 @@ void app::host::point(const double *p, const double *v)
 
         send(M);
     }
-    ::prog->point(p, v);
+
+    if (::view->get_mode() == app::view::mode_test)
+    {
+        if (0 <= varrier_index && varrier_index < int(tiles.size()))
+        {
+            if (tiles[varrier_index]->get_reg())
+                tiles[varrier_index]->get_reg()->point(x, y);
+        }
+    }
+    else ::prog->point(p, v);
 }
 
 void app::host::click(int b, bool d)
@@ -1613,7 +1610,16 @@ void app::host::click(int b, bool d)
 
         send(M);
     }
-    ::prog->click(b, d);
+
+    if (::view->get_mode() == app::view::mode_test)
+    {
+        if (0 <= varrier_index && varrier_index < int(tiles.size()))
+        {
+            if (tiles[varrier_index]->get_reg())
+                tiles[varrier_index]->get_reg()->click(b, d);
+        }
+    }
+    else ::prog->click(b, d);
 }
 
 void app::host::keybd(int c, int k, int m, bool d)
@@ -1631,7 +1637,49 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         send(M);
     }
-    ::prog->keybd(k, d, c);
+
+    // Handle calibration mode.
+
+    if (d && k == SDLK_TAB && ::host->modifiers() & KMOD_CTRL)
+    {
+        if (::view->get_mode() == app::view::mode_norm)
+            ::view->set_mode(app::view::mode_test);
+        else
+            ::view->set_mode(app::view::mode_norm);
+    }
+
+    if (d && ::view->get_mode() == app::view::mode_test)
+    {
+        if ('0' <= k && k <= '9')
+        {
+            if (0 <= varrier_index && varrier_index < int(tiles.size()))
+            {
+                if (tiles[varrier_index]->get_reg())
+                    tiles[varrier_index]->get_reg()->keybd(k, m);
+            }
+        }
+
+        else if (k == SDLK_PAGEUP)    ::host->set_varrier_index(+1);
+        else if (k == SDLK_PAGEDOWN)  ::host->set_varrier_index(-1);
+
+        if (::host->modifiers() & KMOD_SHIFT)
+        {
+            if      (k == SDLK_LEFT)  ::host->set_varrier_angle(-0.01);
+            else if (k == SDLK_RIGHT) ::host->set_varrier_angle(+0.01);
+            else if (k == SDLK_DOWN)  ::host->set_varrier_pitch(-0.01);
+            else if (k == SDLK_UP)    ::host->set_varrier_pitch(+0.01);
+        }
+        else
+        {
+            if      (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
+            else if (k == SDLK_RIGHT) ::host->set_varrier_shift(+0.00005);
+            else if (k == SDLK_DOWN)  ::host->set_varrier_thick(-0.0001);
+            else if (k == SDLK_UP)    ::host->set_varrier_thick(+0.0001);
+        }
+
+        dirty = true;
+    }
+    else ::prog->keybd(k, d, c);
 }
 
 void app::host::timer(int d)
@@ -1818,6 +1866,11 @@ void app::host::tag_draw()
 void app::host::set_varrier_index(int d)
 {
     varrier_index += d;
+
+    if (varrier_index > int(tiles.size()) - 1)
+        varrier_index = 0;
+    if (varrier_index < 0)
+        varrier_index = int(tiles.size()) - 1;
 }
 
 void app::host::set_varrier_pitch(double d)
@@ -1825,7 +1878,6 @@ void app::host::set_varrier_pitch(double d)
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
     {
         tiles[varrier_index]->set_varrier_pitch(d);
-        dirty = true;
     }
 }
 
@@ -1834,7 +1886,6 @@ void app::host::set_varrier_angle(double d)
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
     {
         tiles[varrier_index]->set_varrier_angle(d);
-        dirty = true;
     }
 }
 
@@ -1843,7 +1894,6 @@ void app::host::set_varrier_shift(double d)
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
     {
         tiles[varrier_index]->set_varrier_shift(d);
-        dirty = true;
     }
 }
 
@@ -1852,7 +1902,6 @@ void app::host::set_varrier_thick(double d)
     if (0 <= varrier_index && varrier_index < int(tiles.size()))
     {
         tiles[varrier_index]->set_varrier_thick(d);
-        dirty = true;
     }
 }
 

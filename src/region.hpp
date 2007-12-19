@@ -46,7 +46,8 @@ namespace app
 
         // Editing state
 
-        int curr_point;
+        int curr_corner;
+        int curr_button;
 
     public:
 

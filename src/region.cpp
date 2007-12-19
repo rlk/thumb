@@ -12,6 +12,7 @@
 
 #include "region.hpp"
 #include "opengl.hpp"
+#include "util.hpp"
 
 #define MXML_FORALL(t, i, n) \
     for (i = mxmlFindElement((t), (t), (n), 0, 0, MXML_DESCEND); i; \
@@ -19,7 +20,10 @@
 
 //-----------------------------------------------------------------------------
 
-app::region::region(mxml_node_t *node, int w, int h) : node(node), w(w), h(h)
+app::region::region(mxml_node_t *node, int w, int h)
+    : node(node), w(w), h(h),
+      curr_corner(0),
+      curr_button(0)
 {
     if (node == 0)
     {
@@ -63,14 +67,47 @@ app::region::~region()
 
 void app::region::point(int x, int y)
 {
+    int X =     x;
+    int Y = h - y;
+
+    if (curr_button == 1)
+    {
+        corners[curr_corner].ix = X;
+        corners[curr_corner].iy = Y;
+
+        if (corners[curr_corner].node)
+        {
+            set_attr_i(corners[curr_corner].node, "ix", X);
+            set_attr_i(corners[curr_corner].node, "iy", Y);
+        }
+    }
+    if (curr_button == 3)
+    {
+        corners[curr_corner].ox = X;
+        corners[curr_corner].oy = Y;
+
+        if (corners[curr_corner].node)
+        {
+            set_attr_i(corners[curr_corner].node, "ox", X);
+            set_attr_i(corners[curr_corner].node, "oy", Y);
+        }
+    }
 }
 
 void app::region::click(int b, bool d)
 {
+    if (d)
+        curr_button = b;
+    else
+        curr_button = 0;
 }
 
 void app::region::keybd(int k, int m)
 {
+    int i = k - '0';
+
+    if (0 <= i && i < int(corners.size()))
+        curr_corner = i;
 }
 
 //-----------------------------------------------------------------------------
@@ -139,6 +176,23 @@ void app::region::wire() const
         }
     }
     glEnd();
+
+    // Draw the active points.
+
+    glPushAttrib(GL_POINT_BIT);
+    {
+        glPointSize(8.0f);
+
+        glBegin(GL_POINTS);
+        {
+            glColor3ub(0x00, 0xFF, 0x00);
+            glVertex2i(corners[curr_corner].ix, corners[curr_corner].iy);
+            glColor3ub(0xFF, 0x00, 0xFF);
+            glVertex2i(corners[curr_corner].ox, corners[curr_corner].oy);
+        }
+        glEnd();
+    }
+    glPopAttrib();
 }
 
 //-----------------------------------------------------------------------------

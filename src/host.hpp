@@ -139,6 +139,8 @@ namespace app
         const double *get_TL() const { return TL; }
         const double *get_TR() const { return TR; }
 
+        region *get_reg() { return reg; }
+
         void set_varrier_pitch(double);
         void set_varrier_angle(double);
         void set_varrier_shift(double);
@@ -180,7 +182,7 @@ namespace app
 
         void track(int, const double *, const double *, const double *);
         void stick(int, const double *);
-        void point(const double *, const double *);
+        void point(const double *, const double *, int, int);
         void click(int, bool);
         void keybd(int, int, int, bool);
         void timer(int);

@@ -10,8 +10,29 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <sstream>
+#include <iomanip>
+
 #include "util.hpp"
 
 //-----------------------------------------------------------------------------
+
+void set_attr_i(mxml_node_t *node, const char *name, int i)
+{
+    std::ostringstream value;
+    
+    value << i;
+
+    mxmlElementSetAttr(node, name, value.str().c_str());
+}
+
+void set_attr_f(mxml_node_t *node, const char *name, double k)
+{
+    std::ostringstream value;
+    
+    value << std::right << std::setw(8) << std::setprecision(5) << k;
+
+    mxmlElementSetAttr(node, name, value.str().c_str());
+}
 
 //-----------------------------------------------------------------------------
