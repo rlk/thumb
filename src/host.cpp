@@ -1188,6 +1188,19 @@ void app::host::root_loop()
                       e.key.keysym.sym, SDL_GetModState(), false);
                 break;
 
+            case SDL_JOYAXISMOTION:
+                p[0] = (double) e.jaxis.value / 32768.0f;
+                stick(e.jaxis.axis, p);
+                break;
+
+            case SDL_JOYBUTTONDOWN:
+                click(e.jbutton.button, true);
+                break;
+
+            case SDL_JOYBUTTONUP:
+                click(e.jbutton.button, false);
+                break;
+
             case SDL_QUIT:
                 save();
                 close();

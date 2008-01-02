@@ -42,6 +42,14 @@ demo::demo()
     key_move_F = conf->get_i("key_move_F");
     key_move_B = conf->get_i("key_move_B");
 
+    joy_mode   = conf->get_i("joy_mode");
+    joy_axis_x = conf->get_i("joy_axis_x");
+    joy_axis_y = conf->get_i("joy_axis_y");
+    joy_butn_F = conf->get_i("joy_butn_F");
+    joy_butn_B = conf->get_i("joy_butn_B");
+    joy_butn_L = conf->get_i("joy_butn_L");
+    joy_butn_R = conf->get_i("joy_butn_R");
+
     view_move_rate = conf->get_f("view_move_rate");
     view_turn_rate = conf->get_f("view_turn_rate");
 
@@ -53,6 +61,9 @@ demo::demo()
     motion[0] = 0;
     motion[1] = 0;
     motion[2] = 0;
+    rotate[0] = 0;
+    rotate[1] = 0;
+    rotate[2] = 0;
     button[0] = 0;
     button[1] = 0;
     button[2] = 0;
@@ -146,23 +157,33 @@ void demo::click(int b, bool d)
 
     attr_off();
 
-    if (::host->modifiers() & KMOD_SHIFT) k = 0.1;
-
-    button[b] = d;
-
-    if      (d && b == 1) ::view->home();
-    else if (d && b == 2) ::view->home();
-    else if (d && b == 4) universe.turn(+1.0);
-    else if (d && b == 5) universe.turn(-1.0);
-    else if (d && b == 0)
+    if (joy_mode)
     {
-        memcpy(init_P, curr_P, 3 * sizeof (double));
-        memcpy(init_R, curr_R, 9 * sizeof (double));
+        if (b == joy_butn_F) motion[2] = d ? +1 : 0;
+        if (b == joy_butn_B) motion[2] = d ? -1 : 0;
+        if (b == joy_butn_L) rotate[2] = d ? +2 : 0;
+        if (b == joy_butn_R) rotate[2] = d ? -2 : 0;
     }
     else
     {
-        if (curr->click(b, d) == false)
-            prog::click(b, d);
+        if (::host->modifiers() & KMOD_SHIFT) k = 0.1;
+
+        button[b] = d;
+
+        if      (d && b == 1) ::view->home();
+        else if (d && b == 2) ::view->home();
+        else if (d && b == 4) universe.turn(+1.0);
+        else if (d && b == 5) universe.turn(-1.0);
+        else if (d && b == 0)
+        {
+            memcpy(init_P, curr_P, 3 * sizeof (double));
+            memcpy(init_R, curr_R, 9 * sizeof (double));
+        }
+        else
+        {
+            if (curr->click(b, d) == false)
+                prog::click(b, d);
+        }
     }
 }
 
@@ -216,7 +237,19 @@ void demo::keybd(int k, bool d, int c)
 
 void demo::timer(double dt)
 {
-    if (attr_mode)
+    if (joy_mode)
+    {
+        double kp = dt * universe.rate();
+        double kr = dt * view_turn_rate * 360;
+
+        view->turn(kr * rotate[0],
+                   kr * rotate[1],
+                   kr * rotate[2]);
+        view->move(kp * motion[0],
+                   kp * motion[1],
+                   kp * motion[2]);
+    }
+    else if (attr_mode)
     {
         double a = 0.0;
 
@@ -293,10 +326,17 @@ void demo::timer(double dt)
 
 void demo::stick(int d, const double *p)
 {
-    if (fabs(p[0]) > 0.1)
+    attr_off();
+
+    if (joy_mode)
     {
-        attr_off();
-        universe.turn(p[0]);
+        if (d == joy_axis_x && fabs(p[0]) > 0.5) rotate[1] = -p[0];
+        if (d == joy_axis_y && fabs(p[0]) > 0.5) rotate[0] = +p[0];
+    }
+    else
+    {
+        if (fabs(p[0]) > 0.1)
+            universe.turn(p[0]);
     }
 }
 

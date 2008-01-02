@@ -188,7 +188,10 @@ static void init(std::string& h)
 
     // Initialize the controllers.
 
-    joy = SDL_JoystickOpen(conf->get_i("joystick"));
+    if ((joy = SDL_JoystickOpen(conf->get_i("joystick"))))
+        SDL_JoystickEventState(SDL_ENABLE);
+
+//    joy = SDL_JoystickOpen(conf->get_i("joystick"));
 
     int tracker_key = conf->get_i("tracker_key");
     int control_key = conf->get_i("control_key");
