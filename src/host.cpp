@@ -545,8 +545,8 @@ void app::tile::rotate_frustum(int a, double d)
     if (rotate && a == 1) set_attr_f(rotate, "y", rot[1]);
     if (rotate && a == 2) set_attr_f(rotate, "z", rot[2]);
 
-    load_rot_inv(R, 1, 0, 0, rot[0]);
-    Rmul_rot_inv(R, 0, 1, 0, rot[1]);
+    load_rot_inv(R, 0, 1, 0, rot[1]);
+    Rmul_rot_inv(R, 1, 0, 0, rot[0]);
     Rmul_rot_inv(R, 0, 0, 1, rot[2]);
 }
 
