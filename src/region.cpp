@@ -73,7 +73,7 @@ void app::region::point(int x, int y)
     X =     x;
     Y = h - y;
 
-    if (curr_button == 1)
+    if (curr_button)
     {
         if (curr_inside)
         {
@@ -110,21 +110,23 @@ void app::region::click(int b, bool d)
 
         int c, r, min = std::numeric_limits<int>::max();
 
-        for (c = 0, i = corners.begin(); i != corners.end(); ++i, ++c)
-        {
-            if (min > (r = (i->ix-X) * (i->ix-X) + (i->iy-Y) * (i->iy-Y)))
-            {
-                min = r;
-                curr_corner = c;
-                curr_inside = 1;
-            }
-            if (min > (r = (i->ox-X) * (i->ox-X) + (i->oy-Y) * (i->oy-Y)))
-            {
-                min = r;
-                curr_corner = c;
-                curr_inside = 0;
-            }
-        }
+        if (b == 1)
+            for (c = 0, i = corners.begin(); i != corners.end(); ++i, ++c)
+                if (min > (r = (i->ix-X) * (i->ix-X) + (i->iy-Y) * (i->iy-Y)))
+                {
+                    min = r;
+                    curr_corner = c;
+                    curr_inside = 1;
+                }
+
+        if (b == 3)
+            for (c = 0, i = corners.begin(); i != corners.end(); ++i, ++c)
+                if (min > (r = (i->ox-X) * (i->ox-X) + (i->oy-Y) * (i->oy-Y)))
+                {
+                    min = r;
+                    curr_corner = c;
+                    curr_inside = 0;
+                }
 
         curr_button = b;
     }
@@ -171,21 +173,9 @@ void app::region::wire() const
 {
     std::vector<corner>::const_iterator i;
 
-    // Draw the calibration cursor.
-
-    glColor3ub(0x00, 0xFF, 0x00);
-
-    glBegin(GL_LINES);
-    {
-        glVertex2i(X, 0);
-        glVertex2i(X, h);
-        glVertex2i(0, Y);
-        glVertex2i(w, Y);
-    }
-    glEnd();
-
     // Draw a wireframe of the region edges.
 
+    glLineWidth(4.0);
     glColor3ub(0x00, 0x00, 0x00);
 
     glBegin(GL_LINE_LOOP);
@@ -233,6 +223,21 @@ void app::region::wire() const
         glEnd();
     }
     glPopAttrib();
+
+    // Draw the calibration cursor.
+
+    glColor3ub(0x00, 0x00, 0xFF);
+    glLineWidth(2.0);
+
+    glBegin(GL_LINES);
+    {
+        glVertex2i(X, 0);
+        glVertex2i(X, h);
+        glVertex2i(0, Y);
+        glVertex2i(w, Y);
+    }
+    glEnd();
+
 }
 
 //-----------------------------------------------------------------------------

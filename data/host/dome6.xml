@@ -1,0 +1,107 @@
+<?xml version="1.0"?>
+<host>
+  <buffer w="800" h="600" />
+  <gui w="1600" h="1200">
+        <corner name="BL" x="-4.249" y="-0.500" z="-8.000" />
+        <corner name="BR" x="-2.916" y="-0.500" z="-8.000" />
+        <corner name="TL" x="-4.249" y=" 0.500" z="-8.000" />
+  </gui>
+  <node name="dome" port="2827">
+<client name="lilbob" addr="lilbob" />
+<client name="lildoug" addr="lildoug" />
+    <window x="0" y="0" w="3200" h="1200" />
+    <tile index="0">
+      <viewport x="0" y="0" w="1600" h="1200" />
+        <corner name="BL" x="-0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="BR" x="+0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="TL" x="-0.6215149" y="+0.4769051" z="-0.6215149" />
+        <corner name="TR" x="+0.6215149" y="+0.4769051" z="-0.6215149" />
+        <rotate x="     -25" y="     -67" z="      11" />
+      <region>
+        <corner ix="38" iy="1" ox="0" oy="1" />
+        <corner ix="1444" iy="1" ox="1505" oy="1" />
+        <corner ix="1250" iy="1041" ox="1338" oy="1132" />
+        <corner ix="557" iy="999" ox="474" oy="1038" />
+      </region>
+    </tile>
+    <tile index="1">
+      <viewport x="1600" y="0" w="1600" h="1200" />
+        <corner name="BL" x="-0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="BR" x="+0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="TL" x="-0.6215149" y="+0.4769051" z="-0.6215149" />
+        <corner name="TR" x="+0.6215149" y="+0.4769051" z="-0.6215149" />
+        <rotate x="     -17" y="       0" z="       0" />
+      <region>
+        <corner ix="40" iy="1" ox="0" oy="1" />
+        <corner ix="1488" iy="1" ox="1586" oy="1" />
+        <corner ix="1144" iy="1001" ox="1225" oy="1052" />
+        <corner ix="512" iy="1014" ox="387" oy="1094" />
+      </region>
+    </tile>
+  </node>
+  <node name="lilbob">
+<server addr="lilben" port="2827" />
+    <window x="0" y="0" w="3200" h="1200" />
+    <tile index="2">
+      <viewport x="0" y="0" w="1600" h="1200" />
+        <corner name="BL" x="-0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="BR" x="+0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="TL" x="-0.6215149" y="+0.4769051" z="-0.6215149" />
+        <corner name="TR" x="+0.6215149" y="+0.4769051" z="-0.6215149" />
+        <rotate x="0" y="0" z="0" />
+      <region>
+        <corner ix="100" iy="100" ox="0" oy="0" />
+        <corner ix="1500" iy="100" ox="1600" oy="0" />
+        <corner ix="1500" iy="1100" ox="1600" oy="1200" />
+        <corner ix="100" iy="1100" ox="0" oy="1200" />
+      </region>
+    </tile>
+    <tile index="3">
+      <viewport x="1600" y="0" w="1600" h="1200" />
+        <corner name="BL" x="-0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="BR" x="+0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="TL" x="-0.6215149" y="+0.4769051" z="-0.6215149" />
+        <corner name="TR" x="+0.6215149" y="+0.4769051" z="-0.6215149" />
+        <rotate x="0" y="0" z="0" />
+      <region>
+        <corner ix="100" iy="100" ox="0" oy="0" />
+        <corner ix="1500" iy="100" ox="1600" oy="0" />
+        <corner ix="1500" iy="1100" ox="1600" oy="1200" />
+        <corner ix="100" iy="1100" ox="0" oy="1200" />
+      </region>
+    </tile>
+  </node>
+  <node name="lildoug">
+<server addr="lilben" port="2827" />
+    <window x="0" y="0" w="3200" h="1200" />
+    <tile index="4">
+      <viewport x="0" y="0" w="1600" h="1200" />
+        <corner name="BL" x="-0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="BR" x="+0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="TL" x="-0.6215149" y="+0.4769051" z="-0.6215149" />
+        <corner name="TR" x="+0.6215149" y="+0.4769051" z="-0.6215149" />
+        <rotate x="0" y="0" z="0" />
+      <region>
+        <corner ix="100" iy="100" ox="0" oy="0" />
+        <corner ix="1500" iy="100" ox="1600" oy="0" />
+        <corner ix="1500" iy="1100" ox="1600" oy="1200" />
+        <corner ix="100" iy="1100" ox="0" oy="1200" />
+      </region>
+    </tile>
+    <tile index="5">
+      <viewport x="1600" y="0" w="1600" h="1200" />
+        <corner name="BL" x="-0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="BR" x="+0.6215149" y="-0.4769051" z="-0.6215149" />
+        <corner name="TL" x="-0.6215149" y="+0.4769051" z="-0.6215149" />
+        <corner name="TR" x="+0.6215149" y="+0.4769051" z="-0.6215149" />
+        <rotate x="0" y="0" z="0" />
+      <region>
+        <corner ix="100" iy="100" ox="0" oy="0" />
+        <corner ix="1500" iy="100" ox="1600" oy="0" />
+        <corner ix="1500" iy="1100" ox="1600" oy="1200" />
+        <corner ix="100" iy="1100" ox="0" oy="1200" />
+        <corner ix="100" iy="1100" ox="0" oy="1200" />
+      </region>
+    </tile>
+  </node>
+</host>

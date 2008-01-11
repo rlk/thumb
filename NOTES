@@ -1,3 +1,9 @@
+non-root tile configs aren't written
+edges are not straight lines, at least not before sphere correction
+interactive FOV and off-axis tweaking may help
+frustum rotation tweaks should occur in local rotation frame to avoid gimbal lock
+
+-------------------------------------------------------------------------------
 tile render direct
 
     render cyl/norm/dif to offscreen
