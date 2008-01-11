@@ -158,6 +158,8 @@ namespace app
 
         void   pick(double *, double *, int, int) const;
         double dist(double *)                     const;
+
+        void sphere() const;
     };
 }
 

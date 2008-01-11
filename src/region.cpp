@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <SDL.h>
+
 #include "region.hpp"
 #include "opengl.hpp"
 #include "util.hpp"
@@ -21,8 +23,9 @@
 //-----------------------------------------------------------------------------
 
 app::region::region(mxml_node_t *node, int w, int h)
-    : node(node), w(w), h(h),
+    : node(node), w(w), h(h), X(w / 2), Y(h / 2),
       curr_corner(0),
+      curr_inside(0),
       curr_button(0)
 {
     if (node == 0)
@@ -67,47 +70,66 @@ app::region::~region()
 
 void app::region::point(int x, int y)
 {
-    int X =     x;
-    int Y = h - y;
+    X =     x;
+    Y = h - y;
 
     if (curr_button == 1)
     {
-        corners[curr_corner].ix = X;
-        corners[curr_corner].iy = Y;
-
-        if (corners[curr_corner].node)
+        if (curr_inside)
         {
-            set_attr_i(corners[curr_corner].node, "ix", X);
-            set_attr_i(corners[curr_corner].node, "iy", Y);
+            corners[curr_corner].ix = X;
+            corners[curr_corner].iy = Y;
+
+            if (corners[curr_corner].node)
+            {
+                set_attr_i(corners[curr_corner].node, "ix", X);
+                set_attr_i(corners[curr_corner].node, "iy", Y);
+            }
         }
-    }
-    if (curr_button == 3)
-    {
-        corners[curr_corner].ox = X;
-        corners[curr_corner].oy = Y;
-
-        if (corners[curr_corner].node)
+        else
         {
-            set_attr_i(corners[curr_corner].node, "ox", X);
-            set_attr_i(corners[curr_corner].node, "oy", Y);
+            corners[curr_corner].ox = X;
+            corners[curr_corner].oy = Y;
+
+            if (corners[curr_corner].node)
+            {
+                set_attr_i(corners[curr_corner].node, "ox", X);
+                set_attr_i(corners[curr_corner].node, "oy", Y);
+            }
         }
     }
 }
 
 void app::region::click(int b, bool d)
 {
+    std::vector<corner>::const_iterator i;
+
     if (d)
+    {
+        // Search for the nearest corner.
+
+        int c, r, min = std::numeric_limits<int>::max();
+
+        for (c = 0, i = corners.begin(); i != corners.end(); ++i, ++c)
+        {
+            if (min > (r = (i->ix-X) * (i->ix-X) + (i->iy-Y) * (i->iy-Y)))
+            {
+                min = r;
+                curr_corner = c;
+                curr_inside = 1;
+            }
+            if (min > (r = (i->ox-X) * (i->ox-X) + (i->oy-Y) * (i->oy-Y)))
+            {
+                min = r;
+                curr_corner = c;
+                curr_inside = 0;
+            }
+        }
+
         curr_button = b;
+    }
     else
         curr_button = 0;
-}
-
-void app::region::keybd(int k, int m)
-{
-    int i = k - '0';
-
-    if (0 <= i && i < int(corners.size()))
-        curr_corner = i;
 }
 
 //-----------------------------------------------------------------------------
@@ -149,9 +171,22 @@ void app::region::wire() const
 {
     std::vector<corner>::const_iterator i;
 
+    // Draw the calibration cursor.
+
+    glColor3ub(0x00, 0xFF, 0x00);
+
+    glBegin(GL_LINES);
+    {
+        glVertex2i(X, 0);
+        glVertex2i(X, h);
+        glVertex2i(0, Y);
+        glVertex2i(w, Y);
+    }
+    glEnd();
+
     // Draw a wireframe of the region edges.
 
-    glColor3ub(0xFF, 0xFF, 0x00);
+    glColor3ub(0x00, 0x00, 0x00);
 
     glBegin(GL_LINE_LOOP);
     {
@@ -185,10 +220,15 @@ void app::region::wire() const
 
         glBegin(GL_POINTS);
         {
-            glColor3ub(0x00, 0xFF, 0x00);
-            glVertex2i(corners[curr_corner].ix, corners[curr_corner].iy);
-            glColor3ub(0xFF, 0x00, 0xFF);
-            glVertex2i(corners[curr_corner].ox, corners[curr_corner].oy);
+            glColor3ub(0xFF, 0x00, 0x00);
+
+            for (i = corners.begin(); i != corners.end(); ++i)
+                glVertex2i(i->ix, i->iy);
+
+            glColor3ub(0x00, 0x00, 0xFF);
+
+            for (i = corners.begin(); i != corners.end(); ++i)
+                glVertex2i(i->ox, i->oy);
         }
         glEnd();
     }

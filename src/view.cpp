@@ -919,3 +919,78 @@ void app::view::slerp(const double *A,
 }
 
 //-----------------------------------------------------------------------------
+
+void app::view::sphere() const
+{
+    int i, r = 10, R = 90;
+    int j, c = 10, C = 90;
+
+    push();
+    {
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        mult_P();
+
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
+
+        glPushAttrib(GL_ENABLE_BIT);
+        {
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_LIGHTING);
+            glDisable(GL_TEXTURE_2D);
+
+            glColor3f(1.0f, 1.0f, 1.0f);
+
+            // Draw lines of latitude.
+
+            for (j = -90; j < 90; j += c)
+            {
+                if (j % C == 0)
+                    glLineWidth(8.0);
+                else
+                    glLineWidth(2.0);
+
+                glBegin(GL_LINE_LOOP);
+                {
+                    for (i = -180; i < 180; i += r)
+                    {
+                        double x = -sin(RAD(i)) * cos(RAD(j)) * n * 2;
+                        double y =                sin(RAD(j)) * n * 2;
+                        double z =  cos(RAD(i)) * cos(RAD(j)) * n * 2;
+
+                        glVertex3d(x, y, z);
+                    }
+                }
+                glEnd();
+            }
+
+            // Draw lines of longitude.
+
+            for (i = -180; i < 180; i += r)
+            {
+                if (i % R == 0)
+                    glLineWidth(8.0);
+                else
+                    glLineWidth(2.0);
+
+                glBegin(GL_LINE_STRIP);
+                {
+                    for (j = -90; j < 90; j += c)
+                    {
+                        double x = -sin(RAD(i)) * cos(RAD(j)) * n * 2;
+                        double y =                sin(RAD(j)) * n * 2;
+                        double z =  cos(RAD(i)) * cos(RAD(j)) * n * 2;
+
+                        glVertex3d(x, y, z);
+                    }
+                }
+                glEnd();
+            }
+        }
+        glPopAttrib();
+    }
+    pop();
+}
+
+//-----------------------------------------------------------------------------

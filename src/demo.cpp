@@ -25,7 +25,7 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo()
+demo::demo() : draw_sphere(false)
 {
     edit = new mode::edit(world);
     play = new mode::play(world);
@@ -207,7 +207,6 @@ void demo::keybd(int k, bool d, int c)
         else if (k == key_move_R) { motion[0] += dd; attr_off(); }
         else if (k == key_move_F) { motion[2] -= dd; attr_off(); }
         else if (k == key_move_B) { motion[2] += dd; attr_off(); }
-        else if (k == SDLK_HOME) ::view->home();
 
         else if (d)
         {
@@ -218,6 +217,9 @@ void demo::keybd(int k, bool d, int c)
             else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
             else if (k == SDLK_F8) ::view->set_type(app::view::type_scanline);
             else if (k == SDLK_F9) ::view->set_type(app::view::type_blended);
+
+            else if (k == SDLK_HOME) ::view->home();
+            else if (k == SDLK_END)  draw_sphere = !draw_sphere;
 
             // Handle guided view keys.
 
@@ -427,6 +429,9 @@ void demo::draw(const double *frag_d, const double *frag_k)
         view->draw();
         curr->draw(points);
         view->pop();
+
+        if (draw_sphere)
+            view->sphere();
 
         host->tag_draw();
     }

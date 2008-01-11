@@ -20,6 +20,7 @@
 #include "default.hpp"
 #include "texture.hpp"
 #include "socket.hpp"
+#include "matrix.hpp"
 #include "region.hpp"
 #include "frame.hpp"
 
@@ -107,15 +108,19 @@ namespace app
         double TL[3];
         double TR[3];
 
+        double rot[3], R[16];
+
         double  W;
         double  H;
         region *reg;
 
         int window_rect[4];
 
-        int eye_index;
+        int  eye_index;
+        int tile_index;
 
         mxml_node_t *varrier;
+        mxml_node_t *rotate;
 
         double varrier_pitch;
         double varrier_angle;
@@ -130,14 +135,21 @@ namespace app
         tile(mxml_node_t *);
        ~tile();
 
-        void draw(std::vector<eye *>&, bool);
+        void draw(std::vector<eye *>&, int);
 
         bool pick(double *, double *, int, int);
 
+        void get_BL(double *v) const { mult_mat_vec3(v, R, BL); }
+        void get_BR(double *v) const { mult_mat_vec3(v, R, BR); }
+        void get_TL(double *v) const { mult_mat_vec3(v, R, TL); }
+        void get_TR(double *v) const { mult_mat_vec3(v, R, TR); }
+/*
         const double *get_BL() const { return BL; }
         const double *get_BR() const { return BR; }
         const double *get_TL() const { return TL; }
         const double *get_TR() const { return TR; }
+*/
+        int get_index() const { return tile_index; }
 
         region *get_reg() { return reg; }
 
@@ -145,7 +157,10 @@ namespace app
         void set_varrier_angle(double);
         void set_varrier_shift(double);
         void set_varrier_thick(double);
+        void rotate_frustum(int, double);
     };
+
+    typedef std::vector<tile *>::iterator tile_i;
 
     //-------------------------------------------------------------------------
     // Host
@@ -226,7 +241,7 @@ namespace app
         void load(std::string&);
         void save();
 
-        int varrier_index;
+        int current_index;
 
     public:
 
@@ -268,11 +283,12 @@ namespace app
         void gui_view()                                           const;
         void tag_draw();
 
-        void set_varrier_index(int);
+        void set_current_index(int);
         void set_varrier_pitch(double);
         void set_varrier_angle(double);
         void set_varrier_shift(double);
         void set_varrier_thick(double);
+        void rotate_frustum(int, double);
     };
 }
 

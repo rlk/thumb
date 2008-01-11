@@ -299,7 +299,8 @@ void app::eye::draw(const int *rect, bool focus)
 
 //=============================================================================
 
-app::tile::tile(mxml_node_t *node) : reg(0), eye_index(-1), varrier(0)
+app::tile::tile(mxml_node_t *node)
+    : reg(0), eye_index(-1), tile_index(-1), varrier(0), rotate(0)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
 
@@ -314,6 +315,10 @@ app::tile::tile(mxml_node_t *node) : reg(0), eye_index(-1), varrier(0)
     BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
     TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
     TR[0] = +0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
+
+    rot[0] = rot[1] = rot[2] = 0.0;
+
+    load_idt(R);
 
     window_rect[0] = 0;
     window_rect[1] = 0;
@@ -383,9 +388,10 @@ app::tile::tile(mxml_node_t *node) : reg(0), eye_index(-1), varrier(0)
             }
         }
 
-        // Check for an eye specifier.
+        // Check for eye and tile indices.
 
-        if ((c = mxmlElementGetAttr(node, "eye"))) eye_index = atoi(c);
+        if ((c = mxmlElementGetAttr(node, "index"))) tile_index = atoi(c);
+        if ((c = mxmlElementGetAttr(node, "eye")))    eye_index = atoi(c);
 
         // Extract the Varrier linescreen parameters.
 
@@ -397,6 +403,18 @@ app::tile::tile(mxml_node_t *node) : reg(0), eye_index(-1), varrier(0)
             if ((c = mxmlElementGetAttr(varrier, "t"))) varrier_thick =atof(c);
             if ((c = mxmlElementGetAttr(varrier, "s"))) varrier_shift =atof(c);
             if ((c = mxmlElementGetAttr(varrier, "c"))) varrier_cycle =atof(c);
+        }
+
+        // Extract the frustum rotation parameters.
+
+        if ((rotate = mxmlFindElement(node, node, "rotate",
+                                      0, 0, MXML_DESCEND_FIRST)))
+        {
+            if ((c = mxmlElementGetAttr(rotate, "x"))) rot[0] = atof(c);
+            if ((c = mxmlElementGetAttr(rotate, "y"))) rot[1] = atof(c);
+            if ((c = mxmlElementGetAttr(rotate, "z"))) rot[2] = atof(c);
+
+            rotate_frustum(-1, 0);
         }
 
         // Check for a region specifier.
@@ -519,6 +537,19 @@ void app::tile::set_varrier_thick(double d)
     if (varrier) set_attr_f(varrier, "t", varrier_thick);
 }
 
+void app::tile::rotate_frustum(int a, double d)
+{
+    if (0 <= a && a <= 2) rot[a] += d;
+
+    if (rotate && a == 0) set_attr_f(rotate, "x", rot[0]);
+    if (rotate && a == 1) set_attr_f(rotate, "y", rot[1]);
+    if (rotate && a == 2) set_attr_f(rotate, "z", rot[2]);
+
+    load_rot_inv(R, 1, 0, 0, rot[0]);
+    Rmul_rot_inv(R, 0, 1, 0, rot[1]);
+    Rmul_rot_inv(R, 0, 0, 1, rot[2]);
+}
+
 //-----------------------------------------------------------------------------
 
 bool app::tile::pick(double *p, double *v, int x, int y)
@@ -548,11 +579,20 @@ bool app::tile::pick(double *p, double *v, int x, int y)
     return false;
 }
 
-void app::tile::draw(std::vector<eye *>& eyes, bool focus)
+void app::tile::draw(std::vector<eye *>& eyes, int current_index)
 {
+    const bool focus = (current_index == tile_index);
+
     // Apply the tile corners.
 
-    ::view->set_V(BL, BR, TL, TR);
+    double bl[3], br[3], tl[3], tr[3];
+
+    get_BL(bl);
+    get_BR(br);
+    get_TL(tl);
+    get_TR(tr);
+
+    ::view->set_V(bl, br, tl, tr);
 
     // Render the view from each eye.
 
@@ -630,16 +670,6 @@ void app::tile::draw(std::vector<eye *>& eyes, bool focus)
 
         if (reg && focus && ::view->get_mode() == app::view::mode_test)
             reg->wire();
-/*
-            glBegin(GL_QUADS);
-            {
-                glVertex2f(-W / 2, -H / 2);
-                glVertex2f(+W / 2, -H / 2);
-                glVertex2f(+W / 2, +H / 2);
-                glVertex2f(-W / 2, +H / 2);
-            }
-            glEnd();
-*/
 
         // Free the eye buffers...
 
@@ -672,6 +702,7 @@ static const char *save_cb(mxml_node_t *node, int where)
         else if (name == "varrier")  return "      ";
         else if (name == "region")   return "      ";
         else if (name == "corner")   return "        ";
+        else if (name == "rotate")   return "        ";
         break;
 
     case MXML_WS_BEFORE_CLOSE:
@@ -1019,7 +1050,7 @@ app::host::host(std::string file,
     head(0),
     node(0),
     dirty(false),
-    varrier_index(0)
+    current_index(0)
 {
     const char *c;
 
@@ -1366,10 +1397,15 @@ bool app::host::get_plane(double *F, const double *A,
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
     {
-        const double *BL = (*i)->get_BL();
-        const double *BR = (*i)->get_BR();
-        const double *TL = (*i)->get_TL();
-        const double *TR = (*i)->get_TR();
+        double BL[3];
+        double BR[3];
+        double TL[3];
+        double TR[3];
+
+        (*i)->get_BL(BL);
+        (*i)->get_BR(BR);
+        (*i)->get_TL(TL);
+        (*i)->get_TR(TR);
 
         if (DOT3(F, BL) + F[3] < -small) return false;
         if (DOT3(F, BR) + F[3] < -small) return false;
@@ -1405,10 +1441,15 @@ int app::host::get_frustum(double *F) const
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
     {
-        const double *BL = (*i)->get_BL();
-        const double *BR = (*i)->get_BR();
-        const double *TL = (*i)->get_TL();
-        const double *TR = (*i)->get_TR();
+        double BL[3];
+        double BR[3];
+        double TL[3];
+        double TR[3];
+
+        (*i)->get_BL(BL);
+        (*i)->get_BR(BR);
+        (*i)->get_TL(TL);
+        (*i)->get_TR(TR);
 
         std::vector<eye *>::const_iterator j;
 
@@ -1532,10 +1573,9 @@ void app::host::draw()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     std::vector<tile *>::iterator i;
-    int index;
 
-    for (index = 0, i = tiles.begin(); i != tiles.end(); ++i, ++index)
-        (*i)->draw(eyes, (index == varrier_index));
+    for (i = tiles.begin(); i != tiles.end(); ++i)
+        (*i)->draw(eyes, current_index);
 
     // If doing network sync, wait until the rendering has finished.
 
@@ -1603,11 +1643,9 @@ void app::host::point(const double *p, const double *v, int x, int y)
 
     if (::view->get_mode() == app::view::mode_test)
     {
-        if (0 <= varrier_index && varrier_index < int(tiles.size()))
-        {
-            if (tiles[varrier_index]->get_reg())
-                tiles[varrier_index]->get_reg()->point(x, y);
-        }
+        for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+            if ((*i)->get_index() == current_index)
+                (*i)->get_reg()->point(x, y);
     }
     else ::prog->point(p, v);
 }
@@ -1626,11 +1664,9 @@ void app::host::click(int b, bool d)
 
     if (::view->get_mode() == app::view::mode_test)
     {
-        if (0 <= varrier_index && varrier_index < int(tiles.size()))
-        {
-            if (tiles[varrier_index]->get_reg())
-                tiles[varrier_index]->get_reg()->click(b, d);
-        }
+        for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+            if ((*i)->get_index() == current_index)
+                (*i)->get_reg()->click(b, d);
     }
     else ::prog->click(b, d);
 }
@@ -1663,18 +1699,6 @@ void app::host::keybd(int c, int k, int m, bool d)
 
     if (d && ::view->get_mode() == app::view::mode_test)
     {
-        if ('0' <= k && k <= '9')
-        {
-            if (0 <= varrier_index && varrier_index < int(tiles.size()))
-            {
-                if (tiles[varrier_index]->get_reg())
-                    tiles[varrier_index]->get_reg()->keybd(k, m);
-            }
-        }
-
-        else if (k == SDLK_PAGEUP)    ::host->set_varrier_index(+1);
-        else if (k == SDLK_PAGEDOWN)  ::host->set_varrier_index(-1);
-
         if (::host->modifiers() & KMOD_SHIFT)
         {
             if      (k == SDLK_LEFT)  ::host->set_varrier_angle(-0.01);
@@ -1684,7 +1708,10 @@ void app::host::keybd(int c, int k, int m, bool d)
         }
         else
         {
-            if      (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
+            if      (k == SDLK_PAGEUP)    ::host->set_current_index(+1);
+            else if (k == SDLK_PAGEDOWN)  ::host->set_current_index(-1);
+
+            else if (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
             else if (k == SDLK_RIGHT) ::host->set_varrier_shift(+0.00005);
             else if (k == SDLK_DOWN)  ::host->set_varrier_thick(-0.0001);
             else if (k == SDLK_UP)    ::host->set_varrier_thick(+0.0001);
@@ -1692,7 +1719,21 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         dirty = true;
     }
-    else ::prog->keybd(k, d, c);
+    else
+    {
+        if (d && ::host->modifiers() & KMOD_CTRL)
+        {
+            if (k == SDLK_LEFT)  ::host->rotate_frustum(1, +1.0);
+            if (k == SDLK_RIGHT) ::host->rotate_frustum(1, -1.0);
+            if (k == SDLK_DOWN)  ::host->rotate_frustum(0, -1.0);
+            if (k == SDLK_UP)    ::host->rotate_frustum(0, +1.0);
+
+            dirty = true;
+            return;
+        }
+
+        ::prog->keybd(k, d, c);
+    }
 }
 
 void app::host::timer(int d)
@@ -1876,46 +1917,44 @@ void app::host::tag_draw()
 
 //-----------------------------------------------------------------------------
 
-void app::host::set_varrier_index(int d)
+void app::host::set_current_index(int d)
 {
-    varrier_index += d;
-
-    if (varrier_index > int(tiles.size()) - 1)
-        varrier_index = 0;
-    if (varrier_index < 0)
-        varrier_index = int(tiles.size()) - 1;
+    current_index += d;
 }
 
 void app::host::set_varrier_pitch(double d)
 {
-    if (0 <= varrier_index && varrier_index < int(tiles.size()))
-    {
-        tiles[varrier_index]->set_varrier_pitch(d);
-    }
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        if ((*i)->get_index() == current_index)
+            (*i)->set_varrier_pitch(d);
 }
 
 void app::host::set_varrier_angle(double d)
 {
-    if (0 <= varrier_index && varrier_index < int(tiles.size()))
-    {
-        tiles[varrier_index]->set_varrier_angle(d);
-    }
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        if ((*i)->get_index() == current_index)
+            (*i)->set_varrier_angle(d);
 }
 
 void app::host::set_varrier_shift(double d)
 {
-    if (0 <= varrier_index && varrier_index < int(tiles.size()))
-    {
-        tiles[varrier_index]->set_varrier_shift(d);
-    }
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        if ((*i)->get_index() == current_index)
+            (*i)->set_varrier_shift(d);
 }
 
 void app::host::set_varrier_thick(double d)
 {
-    if (0 <= varrier_index && varrier_index < int(tiles.size()))
-    {
-        tiles[varrier_index]->set_varrier_thick(d);
-    }
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        if ((*i)->get_index() == current_index)
+            (*i)->set_varrier_thick(d);
+}
+
+void app::host::rotate_frustum(int a, double d)
+{
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        if ((*i)->get_index() == current_index)
+            (*i)->rotate_frustum(a, d);
 }
 
 //-----------------------------------------------------------------------------

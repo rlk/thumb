@@ -27,6 +27,8 @@ namespace app
         mxml_node_t *node;
         int w;
         int h;
+        int X;
+        int Y;
 
         // XML corner elements
 
@@ -47,6 +49,7 @@ namespace app
         // Editing state
 
         int curr_corner;
+        int curr_inside;
         int curr_button;
 
     public:
@@ -56,7 +59,6 @@ namespace app
 
         void point(int, int);
         void click(int, bool);
-        void keybd(int, int);
 
         void draw() const;
         void wire() const;

@@ -1,3 +1,8 @@
+add sphere calibration
+add frustum tweak
+
+-------------------------------------------------------------------------------
+
 generalize tile specification to allow
     specification using
         corner or

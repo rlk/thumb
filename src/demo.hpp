@@ -88,6 +88,8 @@ class demo : public app::prog
     double init_P[3], init_R[3][3];
     double curr_P[3], curr_R[3][3];
 
+    bool draw_sphere;
+
 public:
 
     demo();

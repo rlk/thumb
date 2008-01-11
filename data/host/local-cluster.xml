@@ -9,8 +9,10 @@
       <corner name="TL" x="-1.333" y=" 0.5" z="-2.0"/>
   </gui>
 
+<!--
   <eye x="-0.1" y="0.0" z="0.0"/>
   <eye x=" 0.1" y="0.0" z="0.0"/>
+-->
 
   <!-- Server -->
 
@@ -18,11 +20,18 @@
     <client name="localhost1" addr="localhost"/>
     <window x="0" y="0" w="640" h="480"/>
     <buffer             w="640" h="480"/>
-    <tile eye="0">
+    <tile index="0">
       <viewport x="0" y="0" w="640" h="480"/>
       <corner name="BL" x="-1.333" y="-0.5" z="-2.0"/>
       <corner name="BR" x=" 0.000" y="-0.5" z="-2.0"/>
       <corner name="TL" x="-1.333" y=" 0.5" z="-2.0"/>
+      <rotate x="0" y="0" z="0"/>
+      <region>
+        <corner ix="100" iy="100" ox="0"   oy="0"/>
+        <corner ix="540" iy="100" ox="640" oy="0"/>
+        <corner ix="540" iy="380" ox="640" oy="480"/>
+        <corner ix="100" iy="380" ox="0"   oy="480"/>
+      </region>
     </tile>
   </node>
 
@@ -32,11 +41,18 @@
     <server addr="localhost" port="2827"/>
     <window x="640" y="0" w="640" h="480"/>
     <buffer               w="640" h="480"/>
-    <tile eye="1">
+    <tile index="1">
       <viewport x="0" y="0" w="640" h="480"/>
       <corner name="BL" x=" 0.000" y="-0.5" z="-2.0"/>
       <corner name="BR" x=" 1.333" y="-0.5" z="-2.0"/>
       <corner name="TL" x=" 0.000" y=" 0.5" z="-2.0"/>
+      <rotate x="0" y="0" z="0"/>
+      <region>
+        <corner ix="100" iy="100" ox="0"   oy="0"/>
+        <corner ix="540" iy="100" ox="640" oy="0"/>
+        <corner ix="540" iy="380" ox="640" oy="480"/>
+        <corner ix="100" iy="380" ox="0"   oy="480"/>
+      </region>
     </tile>
   </node>
 </host>
