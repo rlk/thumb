@@ -1689,51 +1689,50 @@ void app::host::keybd(int c, int k, int m, bool d)
 
     // Handle calibration mode.
 
-    if (d && k == SDLK_TAB && ::host->modifiers() & KMOD_CTRL)
+    if (d && ::host->modifiers() & KMOD_CTRL)
     {
-        if (::view->get_mode() == app::view::mode_norm)
-            ::view->set_mode(app::view::mode_test);
-        else
-            ::view->set_mode(app::view::mode_norm);
-    }
-
-    if (d && ::view->get_mode() == app::view::mode_test)
-    {
-        if (::host->modifiers() & KMOD_SHIFT)
+        if (k == SDLK_TAB)
         {
-            if      (k == SDLK_LEFT)  ::host->set_varrier_angle(-0.01);
-            else if (k == SDLK_RIGHT) ::host->set_varrier_angle(+0.01);
-            else if (k == SDLK_DOWN)  ::host->set_varrier_pitch(-0.01);
-            else if (k == SDLK_UP)    ::host->set_varrier_pitch(+0.01);
-        }
-        else
-        {
-            if      (k == SDLK_PAGEUP)    ::host->set_current_index(+1);
-            else if (k == SDLK_PAGEDOWN)  ::host->set_current_index(-1);
+            if (::view->get_mode() == app::view::mode_norm)
+                ::view->set_mode(app::view::mode_test);
+            else
+                ::view->set_mode(app::view::mode_norm);
 
-            else if (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
-            else if (k == SDLK_RIGHT) ::host->set_varrier_shift(+0.00005);
-            else if (k == SDLK_DOWN)  ::host->set_varrier_thick(-0.0001);
-            else if (k == SDLK_UP)    ::host->set_varrier_thick(+0.0001);
-        }
-
-        dirty = true;
-    }
-    else
-    {
-        if (d && ::host->modifiers() & KMOD_CTRL)
-        {
-            if (k == SDLK_LEFT)  ::host->rotate_frustum(1, +1.0);
-            if (k == SDLK_RIGHT) ::host->rotate_frustum(1, -1.0);
-            if (k == SDLK_DOWN)  ::host->rotate_frustum(0, -1.0);
-            if (k == SDLK_UP)    ::host->rotate_frustum(0, +1.0);
-
-            dirty = true;
             return;
         }
 
-        ::prog->keybd(k, d, c);
+        if (::view->get_mode() == app::view::mode_test)
+        {
+            if (::host->modifiers() & KMOD_SHIFT)
+            {
+                if      (k == SDLK_LEFT)  ::host->set_varrier_angle(-0.01);
+                else if (k == SDLK_RIGHT) ::host->set_varrier_angle(+0.01);
+                else if (k == SDLK_DOWN)  ::host->set_varrier_pitch(-0.01);
+                else if (k == SDLK_UP)    ::host->set_varrier_pitch(+0.01);
+            }
+            else
+            {
+                if      (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
+                else if (k == SDLK_RIGHT) ::host->set_varrier_shift(+0.00005);
+                else if (k == SDLK_DOWN)  ::host->set_varrier_thick(-0.0001);
+                else if (k == SDLK_UP)    ::host->set_varrier_thick(+0.0001);
+            }
+        }
+
+        if      (k == SDLK_INSERT)   ::host->set_current_index(+1);
+        else if (k == SDLK_DELETE)   ::host->set_current_index(-1);
+        else if (k == SDLK_LEFT)     ::host->rotate_frustum(1, +1.0);
+        else if (k == SDLK_RIGHT)    ::host->rotate_frustum(1, -1.0);
+        else if (k == SDLK_DOWN)     ::host->rotate_frustum(0, -1.0);
+        else if (k == SDLK_UP)       ::host->rotate_frustum(0, +1.0);
+        else if (k == SDLK_PAGEDOWN) ::host->rotate_frustum(2, -1.0);
+        else if (k == SDLK_PAGEUP)   ::host->rotate_frustum(2, +1.0);
+        
+        dirty = true;
+        return;
     }
+
+    ::prog->keybd(k, d, c);
 }
 
 void app::host::timer(int d)
