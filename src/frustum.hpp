@@ -16,8 +16,6 @@
 #include <vector>
 #include <mxml.h>
 
-#include "matrix.hpp"
-
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -27,25 +25,64 @@ namespace app
     private:
 
         typedef double point[3];
+        typedef double plane[4];
+
+        // Serialization XML nodes
+
+        mxml_node_t *node;
+
+        // Frustum bounding planes
+
+        std::vector<plane> eye_planes;
+        std::vector<plane> wrl_planes;
+
+        // The 5 points of a frustum
 
         point BL;
         point BR;
         point TL;
         point TR;
+        point VP;
 
-        std::vector<point> P;
+        // Calibration transform and view transform cache
+
+        double T[16];
+        double M[16];
+
+        // Near and for clipping distances
+
+        double n;
+        double f;
+
+        // Utility functions
+
+        void calc_corner_4(double, double);
+        void calc_corner_1(double *, const double *,
+                                     const double *,
+                                     const double *);
+        void calc_planes();
 
     public:
 
         frustum(mxml_node_t *);
+        frustum(const double *);
+       ~frustum();
 
-        void set_P(const double *, int);
+        // Calibration input handlers.
 
-        void get_matrix(int, double *) const;
-        int  get_points(int, double *) const;
-        int  get_planes(int, double *) const;
+        void input_point(double, double);
+        void input_click(int, int, bool);
+        void input_keybd(int, int, bool);
 
-        void draw(int) const;
+        // Visibility testers.
+
+        void test_shell(const double *, double, double, int);
+        void test_bound(const double *,
+                        const double *);
+
+        // Perspective projection application.
+
+        void draw() const;
     };
 }
 

@@ -56,8 +56,15 @@ typedef std::set   <std::string> strset;
 
 #include <mxml.h>
 
-void set_attr_i(mxml_node_t *, const char *, int);
-void set_attr_f(mxml_node_t *, const char *, double);
+#define MXML_FORALL(t, i, n) \
+    for (i = mxmlFindElement((t), (t), (n), 0, 0, MXML_DESCEND); i; \
+         i = mxmlFindElement((i), (t), (n), 0, 0, MXML_NO_DESCEND))
+
+void   set_attr_i(mxml_node_t *, const char *, int);
+int    get_attr_i(mxml_node_t *, const char *);
+
+void   set_attr_f(mxml_node_t *, const char *, double);
+double get_attr_f(mxml_node_t *, const char *);
 
 //-----------------------------------------------------------------------------
 

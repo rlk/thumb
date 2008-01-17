@@ -109,6 +109,8 @@ bool ogl::check_ext(const char *needle)
 {
     const GLubyte *haystack, *c;
 
+    return true;
+
     // Allow the configuration file to override OpenGL (dangerous).
 
     std::string option = ::conf->get_s(needle);

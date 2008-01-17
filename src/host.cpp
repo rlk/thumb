@@ -32,10 +32,6 @@
 
 #define JIFFY (1000 / 60)
 
-#define MXML_FORALL(t, i, n) \
-    for (i = mxmlFindElement((t), (t), (n), 0, 0, MXML_DESCEND); i; \
-         i = mxmlFindElement((i), (t), (n), 0, 0, MXML_NO_DESCEND))
-
 //=============================================================================
 
 class host_error : public std::runtime_error

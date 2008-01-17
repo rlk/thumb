@@ -20,8 +20,8 @@
 
 void ogl::program::log(GLhandleARB handle, std::string& name)
 {
-    char *log;
-    GLint len;
+    char *log = 0;
+    GLint len = 0;
 
     // Dump the contents of the log, if any.
 
