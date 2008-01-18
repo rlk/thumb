@@ -504,10 +504,10 @@ void app::view::world_frustum(double *V) const
     V[2] = -1;
     V[3] =  0;
 
-    make_plane(V +  4, P, BL, TL);    // Left
-    make_plane(V +  8, P, TR, BR);    // Right
-    make_plane(V + 12, P, BR, BL);    // Bottom
-    make_plane(V + 16, P, TL, TR);    // Top
+    set_plane(V +  4, P, BL, TL);    // Left
+    set_plane(V +  8, P, TR, BR);    // Right
+    set_plane(V + 12, P, BR, BL);    // Bottom
+    set_plane(V + 16, P, TL, TR);    // Top
 }
 */
 /*

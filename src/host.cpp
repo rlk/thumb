@@ -1375,7 +1375,7 @@ bool app::host::get_plane(double *F, const double *A,
 
     // Create a plane from the given points.
 
-    make_plane(F, A, B, C);
+    set_plane(F, A, B, C);
 
     // Reject any plane that closely matches one in the given list.
 
@@ -1477,7 +1477,7 @@ void app::host::get_plane(double *R, const double *A,
 
     double P[4];
 
-    make_plane(P, A, B, C);
+    set_plane(P, A, B, C);
 
     // Reject the plane if any screen corner falls behind it.
 

@@ -493,7 +493,7 @@ void set_basis(double *M, const double *x, const double *y, const double *z)
     M[3] =  0.0; M[7] =  0.0; M[11] =  0.0; M[15] =  1.0;
 }
 
-void make_plane(double *P, const double *a, const double *b, const double *c)
+void set_plane(double *P, const double *a, const double *b, const double *c)
 {
     double u[3];
     double v[3];

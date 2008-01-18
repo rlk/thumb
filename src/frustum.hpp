@@ -24,35 +24,32 @@ namespace app
     {
     private:
 
-        typedef double point[3];
-        typedef double plane[4];
-
-        // Serialization XML nodes
+        // Serialization XML node
 
         mxml_node_t *node;
 
         // Frustum bounding planes
 
-        std::vector<plane> eye_planes;
-        std::vector<plane> wrl_planes;
+        double eye_planes[4][4];
+        double wrl_planes[4][4];
 
-        // The 5 points of a frustum
+        // Configured frustum corners and calibrated corner cache
 
-        point BL;
-        point BR;
-        point TL;
-        point TR;
-        point VP;
+        double c[4][3];
+        double C[4][3];
 
-        // Calibration transform and view transform cache
+        // Near and far corner cache.
+
+        double N[4][3];
+        double F[4][3];
+
+        // Calibration transform
 
         double T[16];
-        double M[16];
 
-        // Near and for clipping distances
+        // Projection transform
 
-        double n;
-        double f;
+        double P[16];
 
         // Utility functions
 
@@ -60,7 +57,11 @@ namespace app
         void calc_corner_1(double *, const double *,
                                      const double *,
                                      const double *);
-        void calc_planes();
+
+        void calc_calibrated();
+        void calc_projection();
+        void calc_eye_planes(const double *);
+        void calc_wrl_planes(const double *);
 
     public:
 
@@ -68,19 +69,26 @@ namespace app
         frustum(const double *);
        ~frustum();
 
-        // Calibration input handlers.
+        // View state mutators
+
+        void set_view(const double *,
+                      const double *);
+        void set_dist(const double *,
+                      const double *, double, double);
+
+        // Calibration input handlers
 
         void input_point(double, double);
         void input_click(int, int, bool);
         void input_keybd(int, int, bool);
 
-        // Visibility testers.
+        // Visibility testers
 
         void test_shell(const double *, double, double, int);
         void test_bound(const double *,
                         const double *);
 
-        // Perspective projection application.
+        // Perspective projection application
 
         void draw() const;
     };
