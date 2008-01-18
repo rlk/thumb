@@ -67,9 +67,6 @@ namespace app
     {
     private:
 
-        double  W;
-        double  H;
-
         int window_rect[4];
 
         app::frustum *frustum;
@@ -83,11 +80,15 @@ namespace app
         tile(mxml_node_t *);
        ~tile();
 
+        bool input_point(double, double);
+        bool input_click(int, int, bool);
+        bool input_keybd(int, int, bool);
+
         void draw(std::vector<eye *>&, int);
 
         bool pick(double *, double *, int, int);
 
-        int get_index() const { return tile_index; }
+        bool is_index(int i) const { return (i == tile_index); }
     };
 
     typedef std::vector<tile *>::iterator tile_i;
@@ -201,12 +202,9 @@ namespace app
         void gui_view()                                           const;
         void tag_draw();
 
-        void set_current_index(int);
-        void set_varrier_pitch(double);
-        void set_varrier_angle(double);
-        void set_varrier_shift(double);
-        void set_varrier_thick(double);
-        void rotate_frustum(int, double);
+        bool tile_input_point(double, double);
+        bool tile_input_click(int, int, bool);
+        bool tile_input_keybd(int, int, bool);
     };
 }
 

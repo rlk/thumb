@@ -181,16 +181,40 @@ app::tile::tile(mxml_node_t *node) : frustum(0), varrier(0)
                                     0, 0, MXML_DESCEND_FIRST)))
             varrier = new app::varrier(elem);
     }
-
-    // Compute the screen extents.
-/*
-    W = distance(BR, BL);
-    H = distance(TL, BL);
-*/
 }
 
 app::tile::~tile()
 {
+    if (varrier) delete varrier;
+    if (frustum) delete frustum;
+}
+
+//-----------------------------------------------------------------------------
+
+bool app::tile::input_point(double x, double y)
+{
+    if (frustum && frustum->input_point(x, y))
+        return true;
+    else
+        return false;
+}
+
+bool app::tile::input_click(int b, int m, bool d)
+{
+    if (frustum && frustum->input_click(b, m, d))
+        return true;
+    else
+        return false;
+}
+
+bool app::tile::input_keybd(int k, int m, bool d)
+{
+     if     (varrier && varrier->input_keybd(k, m, d))
+        return true;
+    else if (frustum && frustum->input_keybd(k, m, d))
+        return true;
+    else
+        return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -1013,108 +1037,6 @@ void app::host::loop()
 
 //-----------------------------------------------------------------------------
 
-bool app::host::get_plane(double *F, const double *A,
-                                     const double *B,
-                                     const double *C,
-                                     const double *V, int n) const
-{
-    const double small = 1e-3;
-
-    // Create a plane from the given points.
-
-    set_plane(F, A, B, C);
-
-    // Reject any plane that closely matches one in the given list.
-
-    for (int k = 0; k < n; ++k)
-    {
-        const double *G = V + k * 4;
-
-        if (DOT3(F, G) >= 1 - small && fabs(F[3] - G[3]) < small)
-            return false;
-    }
-
-    // Reject any plane with a tile position behind it.
-
-    std::vector<tile *>::const_iterator i;
-
-    for (i = tiles.begin(); i != tiles.end(); ++i)
-    {
-        double BL[3];
-        double BR[3];
-        double TL[3];
-        double TR[3];
-
-        (*i)->get_BL(BL);
-        (*i)->get_BR(BR);
-        (*i)->get_TL(TL);
-        (*i)->get_TR(TR);
-
-        if (DOT3(F, BL) + F[3] < -small) return false;
-        if (DOT3(F, BR) + F[3] < -small) return false;
-        if (DOT3(F, TL) + F[3] < -small) return false;
-        if (DOT3(F, TR) + F[3] < -small) return false;
-    }
-
-    // Reject any plane with an eye position behind it.
-
-    std::vector<eye *>::const_iterator j;
-
-    for (j = eyes.begin(); j != eyes.end(); ++j)
-    {
-        const double *P = (*j)->get_P();
-
-        if (DOT3(F, P) + F[3] < -small) return false;
-    }
-
-    // This forms part of the convex hull of the host frustum.
-
-    return true;
-}
-
-int app::host::get_frustum(double *F) const
-{
-    int n = 0;
-
-    // TODO: near plane
-
-    std::vector<tile *>::const_iterator i;
-
-    // Iterate over all [tile, eye] pairs.
-
-    for (i = tiles.begin(); i != tiles.end(); ++i)
-    {
-        double BL[3];
-        double BR[3];
-        double TL[3];
-        double TR[3];
-
-        (*i)->get_BL(BL);
-        (*i)->get_BR(BR);
-        (*i)->get_TL(TL);
-        (*i)->get_TR(TR);
-
-        std::vector<eye *>::const_iterator j;
-
-        for (j = eyes.begin(); j != eyes.end(); ++j)
-        {
-            const double *P = (*j)->get_P();
-
-            // Store the planes forming the convex hull of the frustum.
-
-            if (get_plane(F + 4 * n, P, BL, TL, F, n)) n++;
-            if (get_plane(F + 4 * n, P, TR, BR, F, n)) n++;
-            if (get_plane(F + 4 * n, P, BR, BL, F, n)) n++;
-            if (get_plane(F + 4 * n, P, TL, TR, F, n)) n++;
-        }
-    }
-
-    return n;
-}
-
-
-//-----------------------------------------------------------------------------
-
 void app::host::draw()
 {
     // Determine the frustum union and preprocess the app.
@@ -1197,12 +1119,19 @@ void app::host::point(const double *p, const double *v, int x, int y)
         send(M);
     }
 
+    // Calibrating a tile?
+
     if (::view->get_mode() == app::view::mode_test)
     {
-        for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-            if ((*i)->get_index() == current_index)
-                (*i)->get_reg()->point(x, y);
+        if (tile_input_point(x, y))
+        {
+            dirty = true;
+            return;
+        }
     }
+
+    // Let the application have the click event.
+
     else ::prog->point(p, v);
 }
 
@@ -1218,12 +1147,19 @@ void app::host::click(int b, bool d)
         send(M);
     }
 
+    // Calibrating a tile?
+
     if (::view->get_mode() == app::view::mode_test)
     {
-        for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-            if ((*i)->get_index() == current_index)
-                (*i)->get_reg()->click(b, d);
+        if (tile_input_click(b, mods, d))
+        {
+            dirty = true;
+            return;
+        }
     }
+
+    // Let the application have the click event.
+
     else ::prog->click(b, d);
 }
 
@@ -1243,50 +1179,45 @@ void app::host::keybd(int c, int k, int m, bool d)
         send(M);
     }
 
-    // Handle calibration mode.
-
     if (d && ::host->modifiers() & KMOD_CTRL)
     {
+        // Toggling calibration mode?
+
         if (k == SDLK_TAB)
         {
             if (::view->get_mode() == app::view::mode_norm)
                 ::view->set_mode(app::view::mode_test);
             else
                 ::view->set_mode(app::view::mode_norm);
-
             return;
         }
 
-        if (::view->get_mode() == app::view::mode_test)
+        // Selecting calibration tile?
+
+        else if (k == SDLK_INSERT)
         {
-            if (::host->modifiers() & KMOD_SHIFT)
-            {
-                if      (k == SDLK_LEFT)  ::host->set_varrier_angle(-0.01);
-                else if (k == SDLK_RIGHT) ::host->set_varrier_angle(+0.01);
-                else if (k == SDLK_DOWN)  ::host->set_varrier_pitch(-0.01);
-                else if (k == SDLK_UP)    ::host->set_varrier_pitch(+0.01);
-            }
-            else
-            {
-                if      (k == SDLK_LEFT)  ::host->set_varrier_shift(-0.00005);
-                else if (k == SDLK_RIGHT) ::host->set_varrier_shift(+0.00005);
-                else if (k == SDLK_DOWN)  ::host->set_varrier_thick(-0.0001);
-                else if (k == SDLK_UP)    ::host->set_varrier_thick(+0.0001);
-            }
+            current_index++;
+            return;
+        }
+        else if (k == SDLK_DELETE)
+        {
+            current_index--;
+            return;
         }
 
-        if      (k == SDLK_INSERT)   ::host->set_current_index(+1);
-        else if (k == SDLK_DELETE)   ::host->set_current_index(-1);
-        else if (k == SDLK_LEFT)     ::host->rotate_frustum(1, +1.0);
-        else if (k == SDLK_RIGHT)    ::host->rotate_frustum(1, -1.0);
-        else if (k == SDLK_DOWN)     ::host->rotate_frustum(0, -1.0);
-        else if (k == SDLK_UP)       ::host->rotate_frustum(0, +1.0);
-        else if (k == SDLK_PAGEDOWN) ::host->rotate_frustum(2, -1.0);
-        else if (k == SDLK_PAGEUP)   ::host->rotate_frustum(2, +1.0);
-        
-        dirty = true;
-        return;
+        // Calibrating a tile?
+
+        else if (::view->get_mode() == app::view::mode_test)
+        {
+            if (tile_input_keybd(k, m, d))
+            {
+                dirty = true;
+                return;
+            }
+        }
     }
+
+    // If none of the above, let the application have the keybd event.
 
     ::prog->keybd(k, d, c);
 }
@@ -1472,44 +1403,31 @@ void app::host::tag_draw()
 
 //-----------------------------------------------------------------------------
 
-void app::host::set_current_index(int d)
-{
-    current_index += d;
-}
-
-void app::host::set_varrier_pitch(double d)
+bool app::host::tile_input_point(double x, double y)
 {
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        if ((*i)->get_index() == current_index)
-            (*i)->set_varrier_pitch(d);
+        if ((*i)->is_index(current_index) && (*i)->input_point(x, y))
+            return true;
+
+    return false;
 }
 
-void app::host::set_varrier_angle(double d)
+bool app::host::tile_input_click(int b, int m, bool d)
 {
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        if ((*i)->get_index() == current_index)
-            (*i)->set_varrier_angle(d);
+        if ((*i)->is_index(current_index) && (*i)->input_click(b, m, d))
+            return true;
+
+    return false;
 }
 
-void app::host::set_varrier_shift(double d)
+bool app::host::tile_input_keybd(int k, int m, bool d)
 {
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        if ((*i)->get_index() == current_index)
-            (*i)->set_varrier_shift(d);
-}
+        if ((*i)->is_index(current_index) && (*i)->input_keybd(k, m, d))
+            return true;
 
-void app::host::set_varrier_thick(double d)
-{
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        if ((*i)->get_index() == current_index)
-            (*i)->set_varrier_thick(d);
-}
-
-void app::host::rotate_frustum(int a, double d)
-{
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        if ((*i)->get_index() == current_index)
-            (*i)->rotate_frustum(a, d);
+    return false;
 }
 
 //-----------------------------------------------------------------------------

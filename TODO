@@ -1,4 +1,9 @@
 
+test/norm mode should NOT be a view attribute
+
+test pattern mode actually goes in the eye,
+     which is who draws the app or not, depending
+
 -------------------------------------------------------------------------------
 
 generalize tile specification to allow
