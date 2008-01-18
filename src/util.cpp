@@ -19,38 +19,48 @@
 
 void set_attr_i(mxml_node_t *node, const char *name, int i)
 {
-    std::ostringstream value;
+    if (node && name)
+    {
+        std::ostringstream value;
     
-    value << i;
+        value << i;
 
-    mxmlElementSetAttr(node, name, value.str().c_str());
+        mxmlElementSetAttr(node, name, value.str().c_str());
+    }
 }
 
-int get_attr_i(mxml_node_t *node, const char *name)
+int get_attr_i(mxml_node_t *node, const char *name, int k)
 {
-    if (const char *c = mxmlElementGetAttr(node, name))
+    const char *c;
+
+    if (node && (c = mxmlElementGetAttr(node, name)))
         return atoi(c);
     else
-        return 0;
+        return k;
 }
 
 //-----------------------------------------------------------------------------
 
 void set_attr_f(mxml_node_t *node, const char *name, double k)
 {
-    std::ostringstream value;
+    if (node && name)
+    {
+        std::ostringstream value;
     
-    value << std::right << std::setw(8) << std::setprecision(5) << k;
+        value << std::right << std::setw(8) << std::setprecision(5) << k;
 
-    mxmlElementSetAttr(node, name, value.str().c_str());
+        mxmlElementSetAttr(node, name, value.str().c_str());
+    }
 }
 
-double get_attr_f(mxml_node_t *node, const char *name)
+double get_attr_f(mxml_node_t *node, const char *name, double k)
 {
-    if (const char *c = mxmlElementGetAttr(node, name))
+    const char *c;
+
+    if (node && (c = mxmlElementGetAttr(node, name)))
         return atof(c);
     else
-        return 0;
+        return k;
 }
 
 //-----------------------------------------------------------------------------

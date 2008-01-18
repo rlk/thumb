@@ -61,10 +61,10 @@ typedef std::set   <std::string> strset;
          i = mxmlFindElement((i), (t), (n), 0, 0, MXML_NO_DESCEND))
 
 void   set_attr_i(mxml_node_t *, const char *, int);
-int    get_attr_i(mxml_node_t *, const char *);
+int    get_attr_i(mxml_node_t *, const char *, int=0);
 
 void   set_attr_f(mxml_node_t *, const char *, double);
-double get_attr_f(mxml_node_t *, const char *);
+double get_attr_f(mxml_node_t *, const char *, double=0);
 
 //-----------------------------------------------------------------------------
 

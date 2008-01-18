@@ -14,6 +14,7 @@
 #include <cstring>
 
 #include "frustum.hpp"
+#include "opengl.hpp"
 #include "matrix.hpp"
 #include "util.hpp"
 
@@ -53,24 +54,97 @@ void app::frustum::calc_calibrated()
     mult_mat_vec3(C[3], T, c[3]);
 }
 
-void app::frustum::calc_eye_planes(const double *p)
+void app::frustum::calc_user_planes(const double *p)
 {
-    // Compute the eye-space view frustum bounding planes.
+    // Compute the user-space view frustum bounding planes.
 
-    set_plane(eye_planes[0], p, C[0], C[2]);  // Left
-    set_plane(eye_planes[1], p, C[3], C[1]);  // Right
-    set_plane(eye_planes[2], p, C[1], C[0]);  // Bottom
-    set_plane(eye_planes[3], p, C[2], C[3]);  // Top
+    set_plane(user_planes[0], p, C[0], C[2]);  // Left
+    set_plane(user_planes[1], p, C[3], C[1]);  // Right
+    set_plane(user_planes[2], p, C[1], C[0]);  // Bottom
+    set_plane(user_planes[3], p, C[2], C[3]);  // Top
 }
 
-void app::frustum::calc_wrl_planes(const double *I)
+void app::frustum::calc_view_planes(const double *I)
 {
     // Compute the world-space view frustum bounding planes.
 
-    mult_xps_vec4(wrl_planes[0], I, eye_planes[0]);
-    mult_xps_vec4(wrl_planes[1], I, eye_planes[1]);
-    mult_xps_vec4(wrl_planes[2], I, eye_planes[2]);
-    mult_xps_vec4(wrl_planes[3], I, eye_planes[3]);
+    mult_xps_vec4(view_planes[0], I, user_planes[0]);
+    mult_xps_vec4(view_planes[1], I, user_planes[1]);
+    mult_xps_vec4(view_planes[2], I, user_planes[2]);
+    mult_xps_vec4(view_planes[3], I, user_planes[3]);
+}
+
+void app::frustum::calc_projection(const double *p,
+                                   const double *M, double n, double f)
+{
+    // Compute the display plane basis.
+
+    double B[16], x[4], y[4];
+
+    load_idt(B);
+
+    B[0] = C[1][0] - C[0][0];
+    B[1] = C[1][1] - C[0][1];
+    B[2] = C[1][2] - C[0][2];
+
+    B[4] = C[2][0] - C[0][0];
+    B[5] = C[2][1] - C[0][1];
+    B[6] = C[2][2] - C[0][2];
+
+    normalize(B + 0);
+    normalize(B + 4);
+    crossprod(B + 8, B + 0, B + 4);
+    normalize(B + 8);
+
+    // Compute the distance to the display plane.
+
+    const double dd = DOT3(B + 8, p) - DOT3(B + 8, C[0]);
+    const double nk = n / dd;
+    const double fk = f / dd;
+
+    // For each frustum corner...
+
+    for (int i = 0; i < 4; ++i)
+    {
+        double v[3];
+        double q[3];
+
+        // Compute the current frustum corner vector.
+
+        v[0] = C[i][0] - p[0];
+        v[1] = C[i][1] - p[1];
+        v[2] = C[i][2] - p[2];
+
+        // Compute the world-space far position.
+
+        q[0] = v[0] * fk;
+        q[1] = v[1] * fk;
+        q[2] = v[2] * fk;
+
+        mult_mat_vec3(view_planes[i + 4], M, q);
+
+        // Compute the world-space near position.
+
+        q[0] = v[0] * nk;
+        q[1] = v[1] * nk;
+        q[2] = v[2] * nk;
+
+        mult_mat_vec3(view_planes[i + 0], M, q);
+
+        // Note the display plane extents.
+
+        x[i] = DOT3(B + 0, q);
+        y[i] = DOT3(B + 4, q);
+    }
+
+    // Generate the off-axis projection.
+
+    load_persp(P, x[0], x[1], y[0], y[2], n, f);
+
+    // Orient the projection and move the apex to the origin.
+
+    mult_mat_mat(P, P, B);
+    Rmul_xlt_inv(P, p[0], p[1], p[2]);
 }
 
 //-----------------------------------------------------------------------------
@@ -177,8 +251,8 @@ void app::frustum::set_view(const double *p,
 {
     // Cache the frustum bounding planes.
 
-    calc_eye_planes(p);
-    calc_wrl_planes(I);
+    calc_user_planes(p);
+    calc_view_planes(I);
 }
 
 void app::frustum::set_dist(const double *p,
@@ -186,9 +260,36 @@ void app::frustum::set_dist(const double *p,
 {
     // Cache the frustum bounding points and the projection transform.
 
-    calc_eye_points(p, n, f);
-    calc_wrl_points(M);
-    calc_projection(n, f);
+    calc_projection(p, M, n, f);
+}
+
+//-----------------------------------------------------------------------------
+
+bool app::frustum::input_point(double x, double y)
+{
+    return false;
+}
+
+bool app::frustum::input_click(int b, int m, bool d)
+{
+    return false;
+}
+
+bool app::frustum::input_keybd(int k, int m, bool d)
+{
+    return false;
+}
+
+//-----------------------------------------------------------------------------
+
+void app::frustum::draw() const
+{
+    glMatrixMode(GL_PROJECTION);
+    {
+        glLoadIdentity();
+        glMultMatrixd(P);
+    }
+    glMatrixMode(GL_MODELVIEW);
 }
 
 //-----------------------------------------------------------------------------

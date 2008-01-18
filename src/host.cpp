@@ -12,10 +12,8 @@
 
 #include <SDL.h>
 #include <iostream>
-#include <stdexcept>
 
 #include <string.h>
-#include <errno.h>
 
 #include "tracker.hpp"
 #include "opengl.hpp"
@@ -31,159 +29,6 @@
 #include "prog.hpp"
 
 #define JIFFY (1000 / 60)
-
-//=============================================================================
-
-class host_error : public std::runtime_error
-{
-    std::string mesg(const char *s) {
-        return std::string(s) + ": " + hstrerror(h_errno);
-    }
-
-public:
-    host_error(const char *s) : std::runtime_error(mesg(s)) { }
-};
-
-class sock_error : public std::runtime_error
-{
-    std::string mesg(const char *s) {
-        return std::string(s) + ": " + strerror(errno);
-    }
-
-public:
-    sock_error(const char *s) : std::runtime_error(mesg(s)) { }
-};
-
-//-----------------------------------------------------------------------------
-
-#define E_REPLY 0
-#define E_POINT 1
-#define E_CLICK 2
-#define E_KEYBD 3
-#define E_TIMER 4
-#define E_TRACK 5
-#define E_STICK 6
-#define E_PAINT 7
-#define E_FLEEP 8
-#define E_CLOSE 9
-
-//-----------------------------------------------------------------------------
-
-app::message::message(unsigned char type) : index(0)
-{
-    payload.type = type;
-    payload.size = 0;
-}
-
-void app::message::put_double(double d)
-{
-    // Append a double to the payload data.
-
-    union swap s;
-
-    s.d = d;
-
-    ((uint32_t *) (payload.data + payload.size))[0] = htonl(s.l[0]);
-    ((uint32_t *) (payload.data + payload.size))[1] = htonl(s.l[1]);
-
-    payload.size += 2 * sizeof (uint32_t);
-}
-
-double app::message::get_double()
-{
-    // Return the next double in the payload data.
-
-    union swap s;
-
-    s.l[0] = ntohl(((uint32_t *) (payload.data + index))[0]);
-    s.l[1] = ntohl(((uint32_t *) (payload.data + index))[1]);
-
-    index += 2 * sizeof (uint32_t);
-
-    return s.d;
-}
-
-void app::message::put_bool(bool b)
-{
-    payload.data[payload.size++] = (b ? 1 : 0);
-}
-
-bool app::message::get_bool()
-{
-    return payload.data[index++];
-}
-
-void app::message::put_int(int i)
-{
-    // Append an int to the payload data.
-
-    union swap s;
-
-    s.i = i;
-
-    ((uint32_t *) (payload.data + payload.size))[0] = htonl(s.l[0]);
-
-    payload.size += sizeof (uint32_t);
-}
-
-int app::message::get_int()
-{
-    // Return the next int in the payload data.
-
-    union swap s;
-
-    s.l[0] = ntohl(((uint32_t *) (payload.data + index))[0]);
-
-    index += sizeof (uint32_t);
-
-    return s.i;
-}
-
-//-----------------------------------------------------------------------------
-
-const char *app::message::tag() const
-{
-    switch (payload.type)
-    {
-    case E_REPLY: return "reply";
-    case E_POINT: return "point";
-    case E_CLICK: return "click";
-    case E_KEYBD: return "keybd";
-    case E_TIMER: return "timer";
-    case E_TRACK: return "track";
-    case E_STICK: return "stick";
-    case E_PAINT: return "paint";
-    case E_FLEEP: return "fleep";
-    case E_CLOSE: return "close";
-    }
-    return "UNKNOWN";
-}
-
-void app::message::send(SOCKET s)
-{
-    // Send the payload on the given socket.
-
-    if (::send(s, &payload, payload.size + 2, 0) == -1)
-        throw std::runtime_error(strerror(errno));
-}
-
-void app::message::recv(SOCKET s)
-{
-    // Block until receipt of the payload head and data.
-
-    if (::recv(s, &payload, 2, 0) == -1)
-        throw std::runtime_error(strerror(errno));
-
-    // TODO: repeat until payload size is received.
-
-    if (payload.size > 0)
-        if (::recv(s,  payload.data, payload.size, 0) == -1)
-            throw std::runtime_error(strerror(errno));
-
-    // Reset the unpack pointer to the beginning.
-
-    index = 0;
-}
 
 //=============================================================================
 
@@ -295,255 +140,57 @@ void app::eye::draw(const int *rect, bool focus)
 
 //=============================================================================
 
-app::tile::tile(mxml_node_t *node)
-    : reg(0), eye_index(-1), tile_index(-1), varrier(0), rotate(0)
+app::tile::tile(mxml_node_t *node) : frustum(0), varrier(0)
 {
-    double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
-
-    bool got_BL = false;
-    bool got_BR = false;
-    bool got_TL = false;
-    bool got_TR = false;
-
-    // Set some reasonable defaults.
-
-    BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
-    BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
-    TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
-    TR[0] = +0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
-
-    rot[0] = rot[1] = rot[2] = 0.0;
-
-    load_idt(R);
-
     window_rect[0] = 0;
     window_rect[1] = 0;
     window_rect[2] = DEFAULT_PIXEL_WIDTH;
     window_rect[3] = DEFAULT_PIXEL_HEIGHT;
-
-    varrier_pitch = 200.0000;
-    varrier_angle =   0.0000;
-    varrier_thick =   0.0160;
-    varrier_shift =   0.0000;
-    varrier_cycle =   0.8125;
 
     // If we have an XML configuration node...
 
     if (node)
     {
         mxml_node_t *elem;
-        mxml_node_t *curr;
 
-        const char *c;
+        // Check for eye and tile indices.
+
+        tile_index = get_attr_i(node, "index", -1);
+         eye_index = get_attr_i(node, "eye",   -1);
 
         // Extract the window viewport rectangle.
 
         if ((elem = mxmlFindElement(node, node, "viewport",
                                     0, 0, MXML_DESCEND_FIRST)))
         {
-            if ((c = mxmlElementGetAttr(elem, "x"))) window_rect[0] = atoi(c);
-            if ((c = mxmlElementGetAttr(elem, "y"))) window_rect[1] = atoi(c);
-            if ((c = mxmlElementGetAttr(elem, "w"))) window_rect[2] = atoi(c);
-            if ((c = mxmlElementGetAttr(elem, "h"))) window_rect[3] = atoi(c);
+            window_rect[0] = get_attr_i(elem, "x");
+            window_rect[1] = get_attr_i(elem, "y");
+            window_rect[2] = get_attr_i(elem, "w");
+            window_rect[3] = get_attr_i(elem, "h");
         }
 
-        // Extract the screen corners.
+        // Extract the frustum parameters.
 
-        MXML_FORALL(elem, curr, "corner")
-        {
-            double *v = 0;
-
-            // Determine which corner is being specified.
-
-            if (const char *name = mxmlElementGetAttr(curr, "name"))
-            {
-                if      (strcmp(name, "BL") == 0) { v = BL; got_BL = true; }
-                else if (strcmp(name, "BR") == 0) { v = BR; got_BR = true; }
-                else if (strcmp(name, "TL") == 0) { v = TL; got_TL = true; }
-                else if (strcmp(name, "TR") == 0) { v = TR; got_TR = true; }
-            }
-            if (v)
-            {
-                // Extract the position.
-
-                if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
-                if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
-                if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
-
-                // Convert dimensions as necessary.
-
-                if ((c = mxmlElementGetAttr(curr, "dim")))
-                {
-                    if (std::string(c) == "mm")
-                    {
-                        v[0] /= 304.8;
-                        v[1] /= 304.8;
-                        v[2] /= 304.8;
-                    }
-                }
-            }
-        }
-
-        // Check for eye and tile indices.
-
-        if ((c = mxmlElementGetAttr(node, "index"))) tile_index = atoi(c);
-        if ((c = mxmlElementGetAttr(node, "eye")))    eye_index = atoi(c);
-
-        // Extract the Varrier linescreen parameters.
-
-        if ((varrier = mxmlFindElement(node, node, "varrier",
-                                       0, 0, MXML_DESCEND_FIRST)))
-        {
-            if ((c = mxmlElementGetAttr(varrier, "p"))) varrier_pitch =atof(c);
-            if ((c = mxmlElementGetAttr(varrier, "a"))) varrier_angle =atof(c);
-            if ((c = mxmlElementGetAttr(varrier, "t"))) varrier_thick =atof(c);
-            if ((c = mxmlElementGetAttr(varrier, "s"))) varrier_shift =atof(c);
-            if ((c = mxmlElementGetAttr(varrier, "c"))) varrier_cycle =atof(c);
-        }
-
-        // Extract the frustum rotation parameters.
-
-        if ((rotate = mxmlFindElement(node, node, "rotate",
-                                      0, 0, MXML_DESCEND_FIRST)))
-        {
-            if ((c = mxmlElementGetAttr(rotate, "x"))) rot[0] = atof(c);
-            if ((c = mxmlElementGetAttr(rotate, "y"))) rot[1] = atof(c);
-            if ((c = mxmlElementGetAttr(rotate, "z"))) rot[2] = atof(c);
-
-            rotate_frustum(-1, 0);
-        }
-
-        // Check for a region specifier.
-
-        if ((elem = mxmlFindElement(node, node, "region",
+        if ((elem = mxmlFindElement(node, node, "frustum",
                                     0, 0, MXML_DESCEND_FIRST)))
-            reg = new region(elem, window_rect[2], window_rect[3]);
-        else
-            reg = new region(0,    window_rect[2], window_rect[3]);
-    }
+            frustum = new app::frustum(elem);
 
-    // Compute the remaining screen corner.
+        // Extract the Varrier parameters.
 
-    if (got_TR == false)
-    {
-        TR[0] = BR[0] + TL[0] - BL[0];
-        TR[1] = BR[1] + TL[1] - BL[1];
-        TR[2] = BR[2] + TL[2] - BL[2];
+        if ((elem = mxmlFindElement(node, node, "varrier",
+                                    0, 0, MXML_DESCEND_FIRST)))
+            varrier = new app::varrier(elem);
     }
 
     // Compute the screen extents.
-
+/*
     W = distance(BR, BL);
     H = distance(TL, BL);
+*/
 }
 
 app::tile::~tile()
 {
-    if (reg) delete reg;
-}
-
-//-----------------------------------------------------------------------------
-
-void app::tile::apply_varrier(const double *P) const
-{
-    double R[3];
-    double U[3];
-    double N[3];
-    double v[3];
-    double w[3];
-
-    double dx, dy;
-    double pp, ss;
-
-    // Compute the screen space basis.
-
-    R[0] = BR[0] - BL[0];
-    R[1] = BR[1] - BL[1];
-    R[2] = BR[2] - BL[2];
-
-    U[0] = TL[0] - BL[0];
-    U[1] = TL[1] - BL[1];
-    U[2] = TL[2] - BL[2];
-
-    crossprod(N, R, U);
-
-    normalize(R);
-    normalize(U);
-    normalize(N);
-
-    // Find the vector from the center of the screen to the eye.
-
-    v[0] = P[0] - (TL[0] + BR[0]) * 0.5;
-    v[1] = P[1] - (TL[1] + BR[1]) * 0.5;
-    v[2] = P[2] - (TL[2] + BR[2]) * 0.5;
-
-    // Transform this vector into screen space.
-
-    w[0] = v[0] * R[0] + v[1] * R[1] + v[2] * R[2];
-    w[1] = v[0] * U[0] + v[1] * U[1] + v[2] * U[2];
-    w[2] = v[0] * N[0] + v[1] * N[1] + v[2] * N[2];
-
-    // Compute the parallax due to optical thickness.
-
-    dx = varrier_thick * w[0] / w[2];
-    dy = varrier_thick * w[1] / w[2];
-
-    // Compute the pitch and shift reduction due to optical thickness.
-
-    pp = varrier_pitch * (w[2] - varrier_thick) / w[2];
-    ss = varrier_shift * (w[2] - varrier_thick) / w[2];
-
-    // Compose the line screen transformation matrix.
-
-    glMatrixMode(GL_TEXTURE);
-    {
-        glLoadIdentity();
-        glScaled(pp, pp, 1);
-        glRotated(-varrier_angle, 0, 0, 1);
-        glTranslated(dx - ss, dy, 0);
-    }
-    glMatrixMode(GL_MODELVIEW);
-}
-
-void app::tile::set_varrier_pitch(double d)
-{
-    varrier_pitch += d;
-
-    if (varrier) set_attr_f(varrier, "p", varrier_pitch);
-}
-
-void app::tile::set_varrier_angle(double d)
-{
-    varrier_angle += d;
-
-    if (varrier) set_attr_f(varrier, "a", varrier_angle);
-}
-
-void app::tile::set_varrier_shift(double d)
-{
-    varrier_shift += d;
-
-    if (varrier) set_attr_f(varrier, "s", varrier_shift);
-}
-
-void app::tile::set_varrier_thick(double d)
-{
-    varrier_thick += d;
-
-    if (varrier) set_attr_f(varrier, "t", varrier_thick);
-}
-
-void app::tile::rotate_frustum(int a, double d)
-{
-    if (0 <= a && a <= 2) rot[a] += d;
-
-    if (rotate && a == 0) set_attr_f(rotate, "x", rot[0]);
-    if (rotate && a == 1) set_attr_f(rotate, "y", rot[1]);
-    if (rotate && a == 2) set_attr_f(rotate, "z", rot[2]);
-
-    load_rot_inv(R, 0, 1, 0, rot[1]);
-    Rmul_rot_inv(R, 1, 0, 0, rot[0]);
-    Rmul_rot_inv(R, 0, 0, 1, rot[2]);
 }
 
 //-----------------------------------------------------------------------------
@@ -1465,93 +1112,6 @@ int app::host::get_frustum(double *F) const
     return n;
 }
 
-#ifdef SNIP
-
-void app::host::get_plane(double *R, const double *A,
-                                     const double *B,
-                                     const double *C) const
-{
-    const double small = 1e-3;
-
-    // Create a plane from the given points.
-
-    double P[4];
-
-    set_plane(P, A, B, C);
-
-    // Reject the plane if any screen corner falls behind it.
-
-    std::vector<tile *>::const_iterator i;
-
-    for (i = tiles.begin(); i != tiles.end(); ++i)
-    {
-        if (DOT3((*i)->get_BL(), P) + P[3] < -small) return;
-        if (DOT3((*i)->get_BR(), P) + P[3] < -small) return;
-        if (DOT3((*i)->get_TL(), P) + P[3] < -small) return;
-        if (DOT3((*i)->get_TR(), P) + P[3] < -small) return;
-    }
-
-    // Reject the plane if any eye falls in front of it.
-
-    std::vector<eye*>::const_iterator j;
-
-    for (j = eyes.begin(); j != eyes.end(); ++j)
-    {
-        if (DOT3((*j)->get_P(), P) + P[3] > small) return;
-    }
-
-    // This plane forms part of the frustum union.  Note it.
-
-    R[0] = P[0];
-    R[1] = P[1];
-    R[2] = P[2];
-    R[3] = P[3];
-}
-
-void app::host::get_frustum(double *F) const
-{
-    // Construct a 4-plane frustum union of all eyes and screen corners.
-
-    std::vector<tile *>::const_iterator i;
-    std::vector<eye  *>::const_iterator j;
-
-    for (i = tiles.begin(); i != tiles.end(); ++i)
-    {
-        const double *BL = (*i)->get_BL();
-        const double *BR = (*i)->get_BR();
-        const double *TL = (*i)->get_TL();
-        const double *TR = (*i)->get_TR();
-
-        for (j = eyes.begin(); j != eyes.end(); ++j)
-        {
-            const double *P = (*j)->get_P();
-
-            // Find four planes with all eyes behind and all corners in front.
-
-            get_plane(F +  0, BL, TL, P);
-            get_plane(F +  4, TR, BR, P);
-            get_plane(F +  8, BR, BL, P);
-            get_plane(F + 12, TL, TR, P);
-        }
-    }
-
-    // Push the four planes back to ensure all eyes are in front.
-
-    for (j = eyes.begin(); j != eyes.end(); ++j)
-    {
-        const double *P = (*j)->get_P();
-
-        for (int k = 0; k < 4; ++k)
-        {
-            double *Q = F + 4 * k;
-
-            if (Q[3] < -DOT3(P, Q))
-                Q[3] = -DOT3(P, Q);
-        }
-    }
-}
-
-#endif
 
 //-----------------------------------------------------------------------------
 

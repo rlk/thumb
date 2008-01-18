@@ -28,20 +28,16 @@ namespace app
 
         mxml_node_t *node;
 
-        // Frustum bounding planes
+        // Frustum bounding planes and points
 
-        double eye_planes[4][4];
-        double wrl_planes[4][4];
+        double user_planes[4][4];
+        double view_planes[4][4];
+        double view_points[8][3];
 
         // Configured frustum corners and calibrated corner cache
 
         double c[4][3];
         double C[4][3];
-
-        // Near and far corner cache.
-
-        double N[4][3];
-        double F[4][3];
 
         // Calibration transform
 
@@ -57,11 +53,12 @@ namespace app
         void calc_corner_1(double *, const double *,
                                      const double *,
                                      const double *);
-
         void calc_calibrated();
-        void calc_projection();
-        void calc_eye_planes(const double *);
-        void calc_wrl_planes(const double *);
+        void calc_projection(const double *,
+                             const double *, double, double);
+
+        void calc_user_planes(const double *);
+        void calc_view_planes(const double *);
 
     public:
 
@@ -78,9 +75,9 @@ namespace app
 
         // Calibration input handlers
 
-        void input_point(double, double);
-        void input_click(int, int, bool);
-        void input_keybd(int, int, bool);
+        bool input_point(double, double);
+        bool input_click(int, int, bool);
+        bool input_keybd(int, int, bool);
 
         // Visibility testers
 

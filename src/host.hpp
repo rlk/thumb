@@ -19,52 +19,16 @@
 
 #include "default.hpp"
 #include "texture.hpp"
-#include "socket.hpp"
+#include "message.hpp"
+#include "varrier.hpp"
+#include "frustum.hpp"
 #include "matrix.hpp"
-#include "region.hpp"
 #include "frame.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace app
 {
-    //-------------------------------------------------------------------------
-    // Message handler
-
-    class message
-    {
-        union swap { double d; int i; uint32_t l[2]; };
-
-        struct { unsigned char type;
-                 unsigned char size;
-                 unsigned char data[256]; } payload;
-
-        int index;
-
-        const char *tag() const;
-
-    public:
-
-        message(unsigned char);
-
-        // Data marshalling
-
-        void   put_double(double);
-        void   put_bool  (bool);
-        void   put_int   (int);
-
-        double get_double();
-        bool   get_bool  ();
-        int    get_int   ();
-
-        // Network IO
-
-        void send(SOCKET);
-        void recv(SOCKET);
-
-        unsigned char type() const { return payload.type; }
-    };
-
     //-------------------------------------------------------------------------
     // Eye
 
@@ -103,32 +67,16 @@ namespace app
     {
     private:
 
-        double BL[3];
-        double BR[3];
-        double TL[3];
-        double TR[3];
-
-        double rot[3], R[16];
-
         double  W;
         double  H;
-        region *reg;
 
         int window_rect[4];
 
+        app::frustum *frustum;
+        app::varrier *varrier;
+
         int  eye_index;
         int tile_index;
-
-        mxml_node_t *varrier;
-        mxml_node_t *rotate;
-
-        double varrier_pitch;
-        double varrier_angle;
-        double varrier_thick;
-        double varrier_shift;
-        double varrier_cycle;
-
-        void apply_varrier(const double *) const;
 
     public:
 
@@ -139,25 +87,7 @@ namespace app
 
         bool pick(double *, double *, int, int);
 
-        void get_BL(double *v) const { mult_mat_vec3(v, R, BL); }
-        void get_BR(double *v) const { mult_mat_vec3(v, R, BR); }
-        void get_TL(double *v) const { mult_mat_vec3(v, R, TL); }
-        void get_TR(double *v) const { mult_mat_vec3(v, R, TR); }
-/*
-        const double *get_BL() const { return BL; }
-        const double *get_BR() const { return BR; }
-        const double *get_TL() const { return TL; }
-        const double *get_TR() const { return TR; }
-*/
         int get_index() const { return tile_index; }
-
-        region *get_reg() { return reg; }
-
-        void set_varrier_pitch(double);
-        void set_varrier_angle(double);
-        void set_varrier_shift(double);
-        void set_varrier_thick(double);
-        void rotate_frustum(int, double);
     };
 
     typedef std::vector<tile *>::iterator tile_i;
@@ -251,18 +181,6 @@ namespace app
         bool root() const { return (server_sd == INVALID_SOCKET); }
         void loop();
         void draw();
-
-/*
-        void get_frustum(double *) const;
-        void get_plane  (double *, const double *,
-                                   const double *,
-                                   const double *) const;
-*/
-        int  get_frustum(double *) const;
-        bool get_plane  (double *, const double *,
-                                   const double *,
-                                   const double *,
-                                   const double *, int) const;
 
         int get_window_x() const { return window_rect[0]; }
         int get_window_y() const { return window_rect[1]; }

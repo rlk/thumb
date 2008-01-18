@@ -59,7 +59,8 @@ OBJS=   tracker.o \
 	perf.o \
 	odeutil.o \
 	frustum.o \
-	region.o \
+	varrier.o \
+	message.o \
 	host.o \
 	main.o
 
