@@ -47,7 +47,7 @@ OBJS=   tracker.o \
 	info.o \
 	mode.o \
 	demo.o \
-	view.o \
+	user.o \
 	glob.o \
 	prog.o \
 	util.o \

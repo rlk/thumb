@@ -186,7 +186,7 @@ bool tracker_status(void)
 
 //-----------------------------------------------------------------------------
 
-bool tracker_sensor(int id, double p[3], double R[3][3])
+bool tracker_sensor(int id, double p[3], double q[4])
 {
     // Confirm that sensor ID exists.
 
@@ -219,24 +219,8 @@ bool tracker_sensor(int id, double p[3], double R[3][3])
                 Rmul_rot_mat(M, 1, 0, 0, S->r[1]);
                 Rmul_rot_mat(M, 0, 0, 1, S->r[2]);
 
-                R[0][0] = M[0];
-                R[0][1] = M[1];
-                R[0][2] = M[2];
+                get_quaternion(q, M);
 
-                R[1][0] = M[4];
-                R[1][1] = M[5];
-                R[1][2] = M[6];
-
-                R[2][0] = M[8];
-                R[2][1] = M[9];
-                R[2][2] = M[10];
-
-/*
-printf("p[%d] =\t%+12.5f %+12.5f %+12.5f\n", id, p[0],    p[1],    p[2]);
-printf("R[%d] =\t%+12.5f %+12.5f %+12.5f\n", id, R[0][0], R[0][1], R[0][2]);
-printf(       "\t%+12.5f %+12.5f %+12.5f\n",     R[1][0], R[1][1], R[1][2]);
-printf(       "\t%+12.5f %+12.5f %+12.5f\n",     R[2][0], R[2][1], R[2][2]);
-*/
                 return true;
             }
         }
@@ -245,7 +229,7 @@ printf(       "\t%+12.5f %+12.5f %+12.5f\n",     R[2][0], R[2][1], R[2][2]);
     return false;
 }
 
-bool tracker_values(int id, double a[2])
+bool tracker_values(int id, double& a)
 {
     // Confirm that valuators ID and ID+1 exist.
 
@@ -258,21 +242,19 @@ bool tracker_values(int id, double a[2])
             float *p = (float *) ((unsigned char *) control
                                                   + control->val_offset);
 
-//          if (memcmp(values + id, p + id, 2 * sizeof (float)))
+            if (memcmp(values + id, p + id, sizeof (float)))
             {
-                memcpy(values + id, p + id, 2 * sizeof (float));
+                memcpy(values + id, p + id, sizeof (float));
 
-                // Return valuators ID and ID + 1.
+                // Return valuator ID.
 
-                 a[0] = p[id + 0];
-                 a[1] = p[id + 1];
+                a = p[id];
 
                 return true;
             }
         }
     }
-    a[0] = 0.0;
-    a[1] = 0.0;
+
     return false;
 }
 

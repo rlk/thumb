@@ -18,7 +18,7 @@
 #include "default.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
-#include "view.hpp"
+#include "user.hpp"
 #include "data.hpp"
 #include "glob.hpp"
 
@@ -43,7 +43,7 @@ static void set_real_attr(mxml_node_t *node, const char *name, double k)
 
 //-----------------------------------------------------------------------------
 
-app::view::view(int w, int h) :
+app::user::user(int w, int h) :
     w(w), h(h), n(1), f(100), prog(0), type(type_mono), mode(mode_norm)
 {
     const double a = double(w) / double(h);
@@ -78,7 +78,7 @@ app::view::view(int w, int h) :
     gonext(0);
 }
 
-app::view::~view()
+app::user::~user()
 {
 //  if (prog) ::glob->free_program(prog);
     save();
@@ -86,7 +86,7 @@ app::view::~view()
 
 //-----------------------------------------------------------------------------
 
-void app::view::init()
+void app::user::init()
 {
     head = mxmlNewElement(NULL, "?xml");
     root = mxmlNewElement(head, "demo");
@@ -109,7 +109,7 @@ static mxml_type_t load_cb(mxml_node_t *node)
         return MXML_ELEMENT;
 }
 
-bool app::view::load()
+bool app::user::load()
 {
     if (head) mxmlDelete(head);
 
@@ -148,7 +148,7 @@ static const char *save_cb(mxml_node_t *node, int where)
     return NULL;
 }
 
-void app::view::save()
+void app::user::save()
 {
     if (dirty)
     {
@@ -166,7 +166,7 @@ void app::view::save()
 
 //-----------------------------------------------------------------------------
 
-void app::view::find_P()
+void app::user::find_P()
 {
     double O[16];
     double T[16];
@@ -213,34 +213,34 @@ void app::view::find_P()
 
 //-----------------------------------------------------------------------------
 
-void app::view::clr()
+void app::user::clr()
 {
     load_mat(current_M, default_M);
 }
 
-void app::view::get_M(double *M)
+void app::user::get_M(double *M)
 {
     load_mat(M, current_M);
 }
 
-void app::view::get_P(double *P)
+void app::user::get_P(double *P)
 {
     load_mat(P, current_P);
 }
 
-void app::view::set_M(const double *M)
+void app::user::set_M(const double *M)
 {
     load_mat(current_M, M);
 }
 
-void app::view::set_P(const double *p)
+void app::user::set_P(const double *p)
 {
     P[0] = p[0]; P[1] = p[1]; P[2] = p[2];
 
     find_P();
 }
 
-void app::view::set_V(const double *bl,
+void app::user::set_V(const double *bl,
                       const double *br,
                       const double *tl,
                       const double *tr)
@@ -273,7 +273,7 @@ void app::view::set_V(const double *bl,
 
 //-----------------------------------------------------------------------------
 
-void app::view::mult_S() const
+void app::user::mult_S() const
 {
     double T[16] = {
         0.5, 0.0, 0.0, 0.0,
@@ -285,24 +285,24 @@ void app::view::mult_S() const
     glMultMatrixd(T);
 }
 
-void app::view::mult_P() const
+void app::user::mult_P() const
 {
     glMultMatrixd(current_P);
 }
 
-void app::view::mult_O() const
+void app::user::mult_O() const
 {
     // Apply the orthogonal projection.
 
     glOrtho(0, w, h, 0, 0, 1);
 }
 
-void app::view::mult_M() const
+void app::user::mult_M() const
 {
     glMultMatrixd(current_M);
 }
 
-void app::view::mult_R() const
+void app::user::mult_R() const
 {
     double T[16];
 
@@ -328,7 +328,7 @@ void app::view::mult_R() const
     glMultMatrixd(T);
 }
 
-void app::view::mult_T() const
+void app::user::mult_T() const
 {
     // Apply the current view translation transform.
 
@@ -337,7 +337,7 @@ void app::view::mult_T() const
                  -current_M[14]);
 }
 
-void app::view::mult_V() const
+void app::user::mult_V() const
 {
     mult_R();
     mult_T();
@@ -345,7 +345,7 @@ void app::view::mult_V() const
 
 //-----------------------------------------------------------------------------
 
-void app::view::set_type(enum view_type t)
+void app::user::set_type(enum user_type t)
 {
     // Free any existing program.
 
@@ -366,14 +366,14 @@ void app::view::set_type(enum view_type t)
                                                         "glsl/blended.frag");
 }
 
-void app::view::set_mode(enum view_mode m)
+void app::user::set_mode(enum user_mode m)
 {
     mode = m;
 }
 
 //-----------------------------------------------------------------------------
 
-void app::view::range(double N, double F)
+void app::user::range(double N, double F)
 {
     if (N < F)
     {
@@ -389,7 +389,7 @@ void app::view::range(double N, double F)
     find_P();
 }
 
-void app::view::draw() const
+void app::user::draw() const
 {
     glMatrixMode(GL_PROJECTION);
     {
@@ -403,7 +403,7 @@ void app::view::draw() const
     }
 }
 
-void app::view::push() const
+void app::user::push() const
 {
     glMatrixMode(GL_PROJECTION);
     {
@@ -415,7 +415,7 @@ void app::view::push() const
     }
 }
 
-void app::view::pop() const
+void app::user::pop() const
 {
     glMatrixMode(GL_PROJECTION);
     {
@@ -429,7 +429,7 @@ void app::view::pop() const
 
 //-----------------------------------------------------------------------------
 
-void app::view::turn(double rx, double ry, double rz, double R[3][3])
+void app::user::turn(double rx, double ry, double rz, double R[3][3])
 {
     double M[16];
     double T[16];
@@ -449,7 +449,7 @@ void app::view::turn(double rx, double ry, double rz, double R[3][3])
     clr();
 }
 
-void app::view::turn(double rx, double ry, double rz)
+void app::user::turn(double rx, double ry, double rz)
 {
     // Grab basis vectors (which change during transform).
 
@@ -480,14 +480,14 @@ void app::view::turn(double rx, double ry, double rz)
     clr();
 }
 
-void app::view::move(double dx, double dy, double dz)
+void app::user::move(double dx, double dy, double dz)
 {
     Rmul_xlt_mat(default_M, dx, dy, dz);
 
     clr();
 }
 
-void app::view::home()
+void app::user::home()
 {
     load_idt(current_M);
     load_idt(default_M);
@@ -495,7 +495,7 @@ void app::view::home()
 
 //-----------------------------------------------------------------------------
 /*
-void app::view::world_frustum(double *V) const
+void app::user::world_frustum(double *V) const
 {
     // View plane.
 
@@ -511,7 +511,7 @@ void app::view::world_frustum(double *V) const
 }
 */
 /*
-void app::view::world_frustum(double *V) const
+void app::user::world_frustum(double *V) const
 {
     const double A = double(w) / double(h);
     const double Z = 1.0;
@@ -561,7 +561,7 @@ void app::view::world_frustum(double *V) const
 }
 */
 
-void app::view::plane_frustum(double *V) const
+void app::user::plane_frustum(double *V) const
 {
     const double A = double(w) / double(h);
     const double Z = 1.0;
@@ -613,7 +613,7 @@ void app::view::plane_frustum(double *V) const
     V[19] = -DOT3(V + 16, current_M + 12);
 }
 
-void app::view::point_frustum(double *V) const
+void app::user::point_frustum(double *V) const
 {
     const double a = double(w) / double(h);
 
@@ -694,14 +694,14 @@ void app::view::pick(double *p, double *v, int x, int y) const
     normalize(v);
 }
 */
-double app::view::dist(double *p) const
+double app::user::dist(double *p) const
 {
     return distance(p, current_M + 12);
 }
 
 //-----------------------------------------------------------------------------
 
-bool app::view::step(double dt, const double *p, double& a)
+bool app::user::step(double dt, const double *p, double& a)
 {
     tt += dt;
 
@@ -736,7 +736,7 @@ bool app::view::step(double dt, const double *p, double& a)
     return true;
 }
 
-void app::view::gocurr(double dt)
+void app::user::gocurr(double dt)
 {
     t0 = tt;
     t1 = tt + dt;
@@ -781,7 +781,7 @@ void app::view::gocurr(double dt)
     }
 }
 
-void app::view::goinit(double dt)
+void app::user::goinit(double dt)
 {
     // Advance to the first key, or begin again at the first.
 
@@ -790,7 +790,7 @@ void app::view::goinit(double dt)
     gocurr(dt);
 }
 
-void app::view::gonext(double dt)
+void app::user::gonext(double dt)
 {
     // Advance to the next key, or begin again at the first.
 
@@ -802,7 +802,7 @@ void app::view::gonext(double dt)
     gocurr(dt);
 }
 
-void app::view::goprev(double dt)
+void app::user::goprev(double dt)
 {
     // Advance to the next key, or begin again at the first.
 
@@ -814,7 +814,7 @@ void app::view::goprev(double dt)
     gocurr(dt);
 }
 
-void app::view::insert(double a)
+void app::user::insert(double a)
 {
     mxml_node_t *node = mxmlNewElement(MXML_NO_PARENT, "key");
 
@@ -844,7 +844,7 @@ void app::view::insert(double a)
     dirty = true;
 }
 
-void app::view::remove()
+void app::user::remove()
 {
     mxml_node_t *node = curr;
 
@@ -857,7 +857,7 @@ void app::view::remove()
 
 //-----------------------------------------------------------------------------
 
-void app::view::slerp(const double *A,
+void app::user::slerp(const double *A,
                       const double *B,
                       const double *p, double t)
 {
@@ -920,7 +920,7 @@ void app::view::slerp(const double *A,
 
 //-----------------------------------------------------------------------------
 
-void app::view::sphere() const
+void app::user::sphere() const
 {
     int i, r = 10, R = 90;
     int j, c = 10, C = 90;

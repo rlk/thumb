@@ -420,11 +420,9 @@ void mult_xps_vec4(double *v, const double *M, const double *u)
 
 void get_quaternion(double *q, const double *M)
 {
-    double t = 1 + M[0] + M[5] + M[10];
-
-    if (t > 0.00001)
+    if (1.0 + M[0] + M[5] + M[10] > 0.001)
     {
-        double s = 0.5 / sqrt(t);
+        double s = 0.5 / sqrt(1.0 + M[0] + M[5] + M[10]);
 
         q[0] = (M[6] - M[9]) * s;
         q[1] = (M[8] - M[2]) * s;
@@ -433,7 +431,7 @@ void get_quaternion(double *q, const double *M)
     }
     else if (M[0] > M[5] && M[0] > M[10])
     {
-        double s = sqrt(1 + M[0] - M[5] - M[10]) * 2;
+        double s = 2.0 * sqrt(1.0 + M[0] - M[5] - M[10]);
 
         q[0] =         0.25  * s;
         q[1] = (M[1] + M[4]) / s;
@@ -442,7 +440,7 @@ void get_quaternion(double *q, const double *M)
     }
     else if (M[5] > M[10])
     {
-        double s = sqrt(1 + M[5] - M[0] - M[10]) * 2;
+        double s = 2.0 * sqrt(1.0 + M[5] - M[0] - M[10]);
 
         q[0] = (M[1] + M[4]) / s;
         q[1] =         0.25  * s;
@@ -451,7 +449,7 @@ void get_quaternion(double *q, const double *M)
     }
     else
     {
-        double s = sqrt(1 + M[10] - M[0] - M[5]) * 2;
+        double s = 2.0 * sqrt(1.0 + M[10] - M[0] - M[5]);
 
         q[0] = (M[8] + M[2]) / s;
         q[1] = (M[6] + M[9]) / s;

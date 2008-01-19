@@ -30,9 +30,9 @@
 namespace app
 {
     //-------------------------------------------------------------------------
-    // Eye
+    // View
 
-    class eye
+    class view
     {
         double V[3];
         double P[3];
@@ -46,8 +46,8 @@ namespace app
 
     public:
 
-        eye(mxml_node_t *, int, int);
-       ~eye();
+        view(mxml_node_t *, int, int);
+       ~view();
 
         void set_head(const double *, const double *,
                       const double *, const double *);
@@ -72,7 +72,7 @@ namespace app
         app::frustum *frustum;
         app::varrier *varrier;
 
-        int  eye_index;
+        int view_index;
         int tile_index;
 
     public:
@@ -84,7 +84,7 @@ namespace app
         bool input_click(int, int, bool);
         bool input_keybd(int, int, bool);
 
-        void draw(std::vector<eye *>&, int);
+        void draw(std::vector<view *>&, int);
 
         bool pick(double *, double *, int, int);
 
@@ -119,21 +119,19 @@ namespace app
         SOCKET_v client_sd;
 
         int tock;
-        int mods;
 
         void send(message&);
         void recv(message&);
 
         // Event handlers
 
-        void track(int, const double *, const double *, const double *);
-        void stick(int, const double *);
-        void point(const double *, const double *, int, int);
-        void click(int, bool);
+        void point(int, const double *, const double *);
+        void click(int, int, int, bool);
         void keybd(int, int, int, bool);
+        void value(int, int, double);
         void timer(int);
         void paint();
-        void fleep();
+        void front();
         void close();
 
         // Event loops
@@ -143,10 +141,6 @@ namespace app
 
         // Overlay config
 
-        std::string         logo_name;
-        const ogl::texture *logo_text;
-
-        double tag_M[16];
         double gui_M[16];
         double gui_I[16];
         int    gui_w;
@@ -158,7 +152,7 @@ namespace app
         int buffer_w;
         int buffer_h;
 
-        std::vector<eye  *> eyes;
+        std::vector<view *> views;
         std::vector<tile *> tiles;
 
         // Config IO
@@ -191,8 +185,6 @@ namespace app
 
         int get_buffer_w() const { return buffer_w; }
         int get_buffer_h() const { return buffer_h; }
-
-        int modifiers() const { return mods; }
 
         void set_head(const double *, const double *,
                       const double *, const double *);

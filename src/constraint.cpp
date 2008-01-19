@@ -13,7 +13,7 @@
 #include "util.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
-#include "view.hpp"
+#include "user.hpp"
 #include "glob.hpp"
 #include "constraint.hpp"
 

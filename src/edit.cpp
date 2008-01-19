@@ -19,7 +19,7 @@
 #include "edit.hpp"
 #include "host.hpp"
 #include "conf.hpp"
-#include "view.hpp"
+#include "user.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ bool mode::edit::point(const double *p, const double *v)
     double M[16];
     double I[16];
 
-    ::view->get_M(M);
+    ::user->get_M(M);
 
     load_inv(I, M);
 

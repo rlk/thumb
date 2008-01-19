@@ -20,7 +20,7 @@ app::message::message(unsigned char type) : index(0)
     payload.size = 0;
 }
 
-void app::message::put_double(double d)
+void app::message::put_real(double d)
 {
     // Append a double to the payload data.
 
@@ -34,7 +34,7 @@ void app::message::put_double(double d)
     payload.size += 2 * sizeof (uint32_t);
 }
 
-double app::message::get_double()
+double app::message::get_real()
 {
     // Return the next double in the payload data.
 
@@ -55,10 +55,20 @@ void app::message::put_bool(bool b)
 
 bool app::message::get_bool()
 {
-    return payload.data[index++];
+    return payload.data[index++] ? true : false;
 }
 
-void app::message::put_int(int i)
+void app::message::put_byte(int b)
+{
+    payload.data[payload.size++] = char(b);
+}
+
+int app::message::get_byte()
+{
+    return int(payload.data[index++]);
+}
+
+void app::message::put_word(int i)
 {
     // Append an int to the payload data.
 
@@ -71,7 +81,7 @@ void app::message::put_int(int i)
     payload.size += sizeof (uint32_t);
 }
 
-int app::message::get_int()
+int app::message::get_word()
 {
     // Return the next int in the payload data.
 
@@ -94,11 +104,10 @@ const char *app::message::tag() const
     case E_POINT: return "point";
     case E_CLICK: return "click";
     case E_KEYBD: return "keybd";
+    case E_VALUE: return "value";
     case E_TIMER: return "timer";
-    case E_TRACK: return "track";
-    case E_STICK: return "stick";
     case E_PAINT: return "paint";
-    case E_FLEEP: return "fleep";
+    case E_FRONT: return "front";
     case E_CLOSE: return "close";
     }
     return "UNKNOWN";

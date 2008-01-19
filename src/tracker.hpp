@@ -22,8 +22,8 @@ bool tracker_status(void);
 
 //-----------------------------------------------------------------------------
 
-bool tracker_sensor(int, double[3], double[3][3]);
-bool tracker_values(int, double[2]);
+bool tracker_sensor(int, double[3], double[4]);
+bool tracker_values(int, double&);
 bool tracker_button(int, bool&);
 
 //-----------------------------------------------------------------------------

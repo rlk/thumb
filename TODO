@@ -3,6 +3,18 @@ test/norm mode should NOT be a view attribute
 
 test pattern mode actually goes in the eye,
      which is who draws the app or not, depending
+     or maybe the tile owns the eye instead of the host
+
+a module system like tile frustum/varrier could be used to modularize input.
+    trackd module
+    joystick module
+    wiimote module
+    SDL module?
+in general, event handling could stand to be homogenized
+
+It will be necessary to have multiple worlds
+    spread around the universe
+    taking a world transform from the universe
 
 -------------------------------------------------------------------------------
 

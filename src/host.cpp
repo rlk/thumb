@@ -23,7 +23,7 @@
 #include "data.hpp"
 #include "conf.hpp"
 #include "glob.hpp"
-#include "view.hpp"
+#include "user.hpp"
 #include "host.hpp"
 #include "perf.hpp"
 #include "prog.hpp"
@@ -32,7 +32,7 @@
 
 //=============================================================================
 
-app::eye::eye(mxml_node_t *node, int w, int h) : w(w), h(h), back(0)
+app::view::view(mxml_node_t *node, int w, int h) : w(w), h(h), back(0)
 {
     // Set some reasonable defaults.
 
@@ -58,35 +58,35 @@ app::eye::eye(mxml_node_t *node, int w, int h) : w(w), h(h), back(0)
     }
 }
 
-app::eye::~eye()
+app::view::~view()
 {
 //  if (back) ::glob->free_frame(back);
 }
 
-void app::eye::set_head(const double *p,
+void app::view::set_head(const double *p,
                         const double *x,
                         const double *y,
                         const double *z)
 {
-    // Cache the eye positions in the head's coordinate system.
+    // Cache the view positions in the head's coordinate system.
 
     P[0] = p[0] + V[0] * x[0] + V[1] * y[0] + V[2] * z[0];
     P[1] = p[1] + V[0] * x[1] + V[1] * y[1] + V[2] * z[1];
     P[2] = p[2] + V[0] * x[2] + V[1] * y[2] + V[2] * z[2];
 }
 
-void app::eye::draw(const int *rect, bool focus)
+void app::view::draw(const int *rect, bool focus)
 {
     double frag_d[2] = { 0, 0 };
     double frag_k[2] = { 1, 1 };
 
-    // Set the eye position.
+    // Set the view position.
 
-    ::view->set_P(P);
+    ::user->set_P(P);
 
     // If we are rendering directly on-screen...
 
-    if (::view->get_type() == view::type_mono)
+    if (::user->get_type() == user::type_mono)
     {
         // Compute the on-screen to off-screen fragment transform.
 
@@ -112,14 +112,14 @@ void app::eye::draw(const int *rect, bool focus)
         {
             back->bind();
             {
-                if (::view->get_mode() == view::mode_norm)
+                if (::user->get_mode() == user::mode_norm)
                 {
                     // Draw the scene normally.
 
                     glClear(GL_COLOR_BUFFER_BIT);
                     ::prog->draw(frag_d, frag_k);
                 }
-                if (::view->get_mode() == view::mode_test)
+                if (::user->get_mode() == user::mode_test)
                 {
                     float r = color[0] * (focus ? 1.0f : 0.5f);
                     float g = color[1] * (focus ? 1.0f : 0.5f);
@@ -153,10 +153,10 @@ app::tile::tile(mxml_node_t *node) : frustum(0), varrier(0)
     {
         mxml_node_t *elem;
 
-        // Check for eye and tile indices.
+        // Check for view and tile indices.
 
         tile_index = get_attr_i(node, "index", -1);
-         eye_index = get_attr_i(node, "eye",   -1);
+         view_index = get_attr_i(node, "view",   -1);
 
         // Extract the window viewport rectangle.
 
@@ -239,6 +239,8 @@ bool app::tile::pick(double *p, double *v, int x, int y)
         v[1] = TL[1] * (1 - kx - ky) + TR[1] * kx + BL[1] * ky;
         v[2] = TL[2] * (1 - kx - ky) + TR[2] * kx + BL[2] * ky;
 
+        // TODO:  Which frustum?  Which view?
+
         normalize(v);
 
         return true;
@@ -246,7 +248,7 @@ bool app::tile::pick(double *p, double *v, int x, int y)
     return false;
 }
 
-void app::tile::draw(std::vector<eye *>& eyes, int current_index)
+void app::tile::draw(std::vector<view *>& views, int current_index)
 {
     const bool focus = (current_index == tile_index);
 
@@ -259,20 +261,20 @@ void app::tile::draw(std::vector<eye *>& eyes, int current_index)
     get_TL(tl);
     get_TR(tr);
 
-    ::view->set_V(bl, br, tl, tr);
+    ::user->set_V(bl, br, tl, tr);
 
-    // Render the view from each eye.
+    // Render the view from each view.
 
-    std::vector<eye *>::iterator i;
+    std::vector<view *>::iterator i;
     int e;
 
-    for (e = 0, i = eyes.begin(); i != eyes.end(); ++i, ++e)
-        if (eye_index < 0 || eye_index == e)
+    for (e = 0, i = views.begin(); i != views.end(); ++i, ++e)
+        if (view_index < 0 || view_index == e)
             (*i)->draw(window_rect, focus);
 
     // Render the onscreen exposure.
 
-    if (const ogl::program *prog = ::view->get_prog())
+    if (const ogl::program *prog = ::user->get_prog())
     {
         double frag_d[2] = { 0, 0 };
         double frag_k[2] = { 1, 1 };
@@ -281,9 +283,9 @@ void app::tile::draw(std::vector<eye *>& eyes, int current_index)
         int h = ::host->get_buffer_h();
         int t;
 
-        // Bind the eye buffers.  Apply the Varrier transform for each.
+        // Bind the view buffers.  Apply the Varrier transform for each.
 
-        for (t = 0, i = eyes.begin(); i != eyes.end(); ++i, ++t)
+        for (t = 0, i = views.begin(); i != views.end(); ++i, ++t)
         {
             (*i)->bind(GL_TEXTURE0 + t);
         
@@ -335,12 +337,12 @@ void app::tile::draw(std::vector<eye *>& eyes, int current_index)
         }
         prog->free();
 
-        if (reg && focus && ::view->get_mode() == app::view::mode_test)
+        if (reg && focus && ::user->get_mode() == app::user::mode_test)
             reg->wire();
 
-        // Free the eye buffers...
+        // Free the view buffers...
 
-        for (t = GL_TEXTURE0, i = eyes.begin(); i != eyes.end(); ++i, ++t)
+        for (t = GL_TEXTURE0, i = views.begin(); i != views.end(); ++i, ++t)
             (*i)->free(t);
     }
 }
@@ -357,7 +359,7 @@ static const char *save_cb(mxml_node_t *node, int where)
     case MXML_WS_AFTER_CLOSE: return "\n";
         
     case MXML_WS_BEFORE_OPEN:
-        if      (name == "eye")      return "  ";
+        if      (name == "view")      return "  ";
         else if (name == "gui")      return "  ";
         else if (name == "node")     return "  ";
         else if (name == "buffer")   return "  ";
@@ -469,8 +471,6 @@ void app::host::fork_client(const char *addr, const char *name)
         args[1] = addr;
         args[2] = line;
         args[3] = NULL;
-
-//      printf("ssh %s %s\n", addr, line);
 
         execvp("ssh", (char * const *) args);
 
@@ -645,6 +645,8 @@ void app::host::fini_client()
 
 //-----------------------------------------------------------------------------
 
+// TODO: move this to a separate module?
+
 static void overlay(mxml_node_t *node, double *M, double *I, int w, int h)
 {
     double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
@@ -777,10 +779,10 @@ app::host::host(std::string file,
             if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
         }
 
-        // Extract eye config parameters
+        // Extract view config parameters
 
-        MXML_FORALL(head, curr, "eye")
-            eyes.push_back(new eye(curr, buffer_w, buffer_h));
+        MXML_FORALL(head, curr, "view")
+            views.push_back(new view(curr, buffer_w, buffer_h));
     }
 
     if (node)
@@ -819,9 +821,9 @@ app::host::host(std::string file,
         init_client();
     }
 
-    // If no eyes or tiles were defined, instance defaults.
+    // If no views or tiles were defined, instance defaults.
 
-    if ( eyes.empty())  eyes.push_back(new eye(0, buffer_w, buffer_h));
+    if (views.empty()) views.push_back(new view(0, buffer_w, buffer_h));
     if (tiles.empty()) tiles.push_back(new tile(0));
 
     // Start the timer.
@@ -831,9 +833,9 @@ app::host::host(std::string file,
 
 app::host::~host()
 {
-    std::vector<eye *>::iterator i;
+    std::vector<view *>::iterator i;
 
-    for (i = eyes.begin(); i != eyes.end(); ++i)
+    for (i = views.begin(); i != views.end(); ++i)
         delete (*i);
     
     if (node)
@@ -851,52 +853,59 @@ void app::host::root_loop()
     std::vector<tile *>::iterator i;
 
     double p[3];
-    double v[3];
+    double q[4];
+
+    // TODO: decide on a device numbering for mouse/trackd/joystick
 
     while (1)
     {
         SDL_Event e;
 
-        // While there are available events, dispatch event handlers.
+        // While there are available SDL events, dispatch event handlers.
 
         while (SDL_PollEvent(&e))
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
                 for (i = tiles.begin(); i != tiles.end(); ++i)
-                    if ((*i)->pick(p, v, e.motion.x, e.motion.y))
-                        point(p, v, e.motion.x, e.motion.y);
+                    if ((*i)->pick(p, q, e.motion.x, e.motion.y))
+                        point(0, p, q);
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                click(e.button.button, true);
+                click(0, e.button.button, SDL_GetModState(), true);
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                click(e.button.button, false);
+                click(0, e.button.button, SDL_GetModState(), false);
                 break;
 
             case SDL_KEYDOWN:
                 keybd(e.key.keysym.unicode,
-                      e.key.keysym.sym, SDL_GetModState(), true);
+                      e.key.keysym.sym,
+                      e.key.keysym.mod, true);
                 break;
 
             case SDL_KEYUP:
                 keybd(e.key.keysym.unicode,
-                      e.key.keysym.sym, SDL_GetModState(), false);
+                      e.key.keysym.sym,
+                      e.key.keysym.mod, false);
                 break;
 
             case SDL_JOYAXISMOTION:
-                p[0] = (double) e.jaxis.value / 32768.0f;
-                stick(e.jaxis.axis, p);
+                value(e.jaxis.which,
+                      e.jaxis.axis,
+                      e.jaxis.value / 32768.0);
                 break;
 
             case SDL_JOYBUTTONDOWN:
-                click(e.jbutton.button, true);
+                click(e.jbutton.which,
+                      e.jbutton.button, true);
                 break;
 
             case SDL_JOYBUTTONUP:
-                click(e.jbutton.button, false);
+                click(e.jbutton.which,
+                      e.jbutton.button, false);
                 break;
 
             case SDL_QUIT:
@@ -905,23 +914,24 @@ void app::host::root_loop()
                 return;
             }
 
-        // Handle tracker events.
+        // Dispatch tracker events.
 
         if (tracker_status())
         {
-            double R[3][3];
             double p[3];
-            double a[2];
+            double q[3];
+            double v;
             bool   b;
 
-            if (tracker_button(0, b)) click(0, b);
-            if (tracker_button(1, b)) click(1, b);
-            if (tracker_button(2, b)) click(2, b);
+            if (tracker_button(0, b)) click(1, 0, 0, b);
+            if (tracker_button(1, b)) click(1, 1, 0, b);
+            if (tracker_button(2, b)) click(1, 2, 0, b);
 
-            if (tracker_sensor(0, p, R)) track(0, p, R[0], R[2]);
-            if (tracker_sensor(1, p, R)) track(1, p, R[0], R[2]);
+            if (tracker_values(0, a)) value(1, 0, v);
+            if (tracker_values(1, a)) value(1, 1, v);
 
-            if (tracker_values(0, a)) stick(0, a);
+            if (tracker_sensor(0, p, q)) point(1, p, q);
+            if (tracker_sensor(1, p, q)) point(2, p, q);
         }
 
         // Call the timer handler for each jiffy that has passed.
@@ -935,20 +945,20 @@ void app::host::root_loop()
         // Call the paint handler.
 
         paint();
-        fleep();
+        front();
     }
 }
 
 void app::host::node_loop()
 {
+    int    i;
     int    a;
     int    b;
     int    c;
+    int    m;
     bool   d;
     double p[3];
-    double v[3];
-    double x[3];
-    double z[3];
+    double q[3];
 
     while (1)
     {
@@ -958,69 +968,70 @@ void app::host::node_loop()
 
         switch (M.type())
         {
-        case E_TRACK:
-            a    = M.get_int();
-            p[0] = M.get_double();
-            p[1] = M.get_double();
-            p[2] = M.get_double();
-            x[0] = M.get_double();
-            x[1] = M.get_double();
-            x[2] = M.get_double();
-            z[0] = M.get_double();
-            z[1] = M.get_double();
-            z[2] = M.get_double();
-            track(a, p, x, z);
-            break;
-
-        case E_STICK:
-            a    = M.get_int();
-            p[0] = M.get_double();
-            p[1] = M.get_double();
-            stick(a, p);
-            break;
-
         case E_POINT:
-            a    = M.get_int();
-            b    = M.get_int();
-            p[0] = M.get_double();
-            p[1] = M.get_double();
-            p[2] = M.get_double();
-            v[0] = M.get_double();
-            v[1] = M.get_double();
-            v[2] = M.get_double();
-            point(p, v, a, b);
-            break;
+        {
+            double p[3];
+            double q[4];
 
+            int i = M.get_byte();
+            p[0]  = M.get_real();
+            p[1]  = M.get_real();
+            p[2]  = M.get_real();
+            q[0]  = M.get_real();
+            q[1]  = M.get_real();
+            q[2]  = M.get_real();
+            q[3]  = M.get_real();
+            point(i, p, q);
+            break;
+        }
         case E_CLICK:
-            a = M.get_int ();
-            d = M.get_bool();
-            click(a, d);
+        {
+            int  i = M.get_byte();
+            int  b = M.get_byte();
+            int  m = M.get_byte();
+            bool d = M.get_bool();
+            click(i, b, m, d);
             break;
-
+        }
         case E_KEYBD:
-            a = M.get_int ();
-            b = M.get_int ();
-            c = M.get_int ();
-            d = M.get_bool();
-            keybd(a, b, c, d);
+        {
+            int  c = M.get_word();
+            int  k = M.get_word();
+            int  m = M.get_word();
+            bool d = M.get_bool();
+            keybd(c, k, m, d);
             break;
-
+        }
+        case E_VALUE:
+        {
+            int    i = M.get_byte();
+            int    a = M.get_byte();
+            double p = M.get_real();
+            value(i, a, p);
+            break;
+        }
         case E_TIMER:
-            a = M.get_int();
-            timer(a);
+        {
+            timer(M.get_word());
             break;
-
+        }
         case E_PAINT:
+        {
             paint();
             break;
-
+        }
         case E_FLEEP:
+        {
             fleep();
             break;
-
+        }
         case E_CLOSE:
+        {
             close();
             return;
+        }
+        default:
+            break;
         }
     }
 }
@@ -1053,7 +1064,7 @@ void app::host::draw()
     std::vector<tile *>::iterator i;
 
     for (i = tiles.begin(); i != tiles.end(); ++i)
-        (*i)->draw(eyes, current_index);
+        (*i)->draw(views, current_index);
 
     // If doing network sync, wait until the rendering has finished.
 
@@ -1086,44 +1097,31 @@ void app::host::recv(message& M)
 
 //-----------------------------------------------------------------------------
 
-void app::host::stick(int d, const double *p)
+void app::host::point(int i, const double *p, const double *q)
 {
-    if (!client_sd.empty())
-    {
-        message M(E_STICK);
+    // Forward the event to all clients.
 
-        M.put_int   (d);
-        M.put_double(p[0]);
-        M.put_double(p[1]);
-
-        send(M);
-    }
-    ::prog->stick(d, p);
-}
-
-void app::host::point(const double *p, const double *v, int x, int y)
-{
     if (!client_sd.empty())
     {
         message M(E_POINT);
 
-        M.put_int(x);
-        M.put_int(y);
-        M.put_double(p[0]);
-        M.put_double(p[1]);
-        M.put_double(p[2]);
-        M.put_double(v[0]);
-        M.put_double(v[1]);
-        M.put_double(v[2]);
+        M.put_byte(i);
+        M.put_real(p[0]);
+        M.put_real(p[1]);
+        M.put_real(p[2]);
+        M.put_real(q[0]);
+        M.put_real(q[1]);
+        M.put_real(q[2]);
+        M.put_real(q[3]);
 
         send(M);
     }
 
     // Calibrating a tile?
 
-    if (::view->get_mode() == app::view::mode_test)
+    if (::user->get_mode() == app::user::mode_test)
     {
-        if (tile_input_point(x, y))
+        if (tile_input_point(i, p, q))
         {
             dirty = true;
             return;
@@ -1132,16 +1130,20 @@ void app::host::point(const double *p, const double *v, int x, int y)
 
     // Let the application have the click event.
 
-    else ::prog->point(p, v);
+    else ::prog->point(i, p, q);
 }
 
-void app::host::click(int b, bool d)
+void app::host::click(int i, int b, int m, bool d)
 {
+    // Forward the event to all clients.
+
     if (!client_sd.empty())
     {
         message M(E_CLICK);
 
-        M.put_int (b);
+        M.put_byte(i);
+        M.put_byte(b);
+        M.put_byte(m);
         M.put_bool(d);
 
         send(M);
@@ -1149,9 +1151,9 @@ void app::host::click(int b, bool d)
 
     // Calibrating a tile?
 
-    if (::view->get_mode() == app::view::mode_test)
+    if (::user->get_mode() == app::user::mode_test)
     {
-        if (tile_input_click(b, mods, d))
+        if (tile_input_click(i, b, m, d))
         {
             dirty = true;
             return;
@@ -1160,20 +1162,20 @@ void app::host::click(int b, bool d)
 
     // Let the application have the click event.
 
-    else ::prog->click(b, d);
+    else ::prog->click(i, b, m, d);
 }
 
 void app::host::keybd(int c, int k, int m, bool d)
 {
-    mods = m;
+    // Forward the event to all clients.
 
     if (!client_sd.empty())
     {
         message M(E_KEYBD);
 
-        M.put_int (c);
-        M.put_int (k);
-        M.put_int (m);
+        M.put_word(c);
+        M.put_word(k);
+        M.put_word(m);
         M.put_bool(d);
 
         send(M);
@@ -1185,10 +1187,10 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         if (k == SDLK_TAB)
         {
-            if (::view->get_mode() == app::view::mode_norm)
-                ::view->set_mode(app::view::mode_test);
+            if (::user->get_mode() == app::user::mode_norm)
+                ::user->set_mode(app::user::mode_test);
             else
-                ::view->set_mode(app::view::mode_norm);
+                ::user->set_mode(app::user::mode_norm);
             return;
         }
 
@@ -1207,9 +1209,9 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         // Calibrating a tile?
 
-        else if (::view->get_mode() == app::view::mode_test)
+        else if (::user->get_mode() == app::user::mode_test)
         {
-            if (tile_input_keybd(k, m, d))
+            if (tile_input_keybd(c, k, m, d))
             {
                 dirty = true;
                 return;
@@ -1219,48 +1221,55 @@ void app::host::keybd(int c, int k, int m, bool d)
 
     // If none of the above, let the application have the keybd event.
 
-    ::prog->keybd(k, d, c);
+    ::prog->keybd(c, k, m, d);
 }
 
-void app::host::timer(int d)
+void app::host::value(int i, int a, double v)
 {
+    // Forward the event to all clients.
+
+    if (!client_sd.empty())
+    {
+        message M(E_VALUE);
+
+        M.put_byte(i);
+        M.put_byte(a);
+        M.put_real(v);
+
+        send(M);
+    }
+
+    // Let the application handle it.
+
+    ::prog->value(i, a, v);
+}
+
+void app::host::timer(int t)
+{
+    // Forward the event to all clients.
+
     if (!client_sd.empty())
     {
         message M(E_TIMER);
 
-        M.put_int(d);
+        M.put_word(t);
 
         send(M);
     }
-    ::prog->timer(d / 1000.0);
+
+    // Let the application handle it.
+
+    ::prog->timer(t);
+
+    // Check for connecting clients.
 
     poll_listen();
 }
 
-void app::host::track(int d, const double *p, const double *x, const double *z)
-{
-    if (!client_sd.empty())
-    {
-        message M(E_TRACK);
-
-        M.put_int   (d);
-        M.put_double(p[0]);
-        M.put_double(p[1]);
-        M.put_double(p[2]);
-        M.put_double(x[0]);
-        M.put_double(x[1]);
-        M.put_double(x[2]);
-        M.put_double(z[0]);
-        M.put_double(z[1]);
-        M.put_double(z[2]);
-
-        send(M);
-    }
-    ::prog->track(d, p, x, z);
-}
-
 void app::host::paint()
 {
+    // Forward the event to all clients, draw, and wait for sync.
+
     if (!client_sd.empty())
     {
         message M(E_PAINT);
@@ -1271,6 +1280,8 @@ void app::host::paint()
     }
     else draw();
 
+    // Send sync to the server.
+
     if (server_sd != INVALID_SOCKET)
     {
         message R(E_REPLY);
@@ -1278,14 +1289,18 @@ void app::host::paint()
     }
 }
 
-void app::host::fleep()
+void app::host::front()
 {
+    // Forward the event to all clients.
+
     if (!client_sd.empty())
     {
-        message M(E_FLEEP);
+        message M(E_FRONT);
 
         send(M);
     }
+
+    // Swap the back buffer to the front.
 
     SDL_GL_SwapBuffers();
     ::perf->step();
@@ -1293,6 +1308,8 @@ void app::host::fleep()
 
 void app::host::close()
 {
+    // Forward the event to all clients.  Wait for sync.
+
     if (!client_sd.empty())
     {
         message M(E_CLOSE);
@@ -1300,6 +1317,9 @@ void app::host::close()
         send(M);
         recv(M);
     }
+
+    // Sind sync to the server.
+
     if (server_sd != INVALID_SOCKET)
     {
         message R(E_REPLY);
@@ -1314,9 +1334,9 @@ void app::host::set_head(const double *p,
                          const double *y,
                          const double *z)
 {
-    std::vector<eye *>::iterator i;
+    std::vector<view *>::iterator i;
 
-    for (i = eyes.begin(); i != eyes.end(); ++i)
+    for (i = views.begin(); i != views.end(); ++i)
         (*i)->set_head(p, x, y, z);
 }
 
@@ -1329,6 +1349,8 @@ void app::host::gui_pick(int& x, int& y, const double *p,
 
     double q[3];
     double w[3];
+
+    // TODO: convert this to take a quaternion
 
     mult_mat_vec3(q, gui_I, p);
     mult_xps_vec3(w, gui_I, v);
@@ -1354,77 +1376,30 @@ void app::host::gui_view() const
     glMultMatrixd(gui_M);
 }
 
-void app::host::tag_draw()
-{
-    if (logo_name.size() > 0)
-    {
-        ::view->push();
-        {
-            if (logo_text == 0)
-                logo_text = ::glob->load_texture(logo_name);
-
-            glMatrixMode(GL_TEXTURE);
-            {
-                glLoadIdentity();
-            }
-            glMatrixMode(GL_PROJECTION);
-            {
-                glLoadIdentity();
-                ::view->mult_P();
-            }
-            glMatrixMode(GL_MODELVIEW);
-            {
-                glLoadMatrixd(tag_M);
-            }
-
-            glEnable(GL_TEXTURE_2D);
-            glEnable(GL_BLEND);
-            glDisable(GL_LIGHTING);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-            logo_text->bind();
-            {
-                glColor3f(1.0f, 1.0f, 1.0f);
-                glBegin(GL_QUADS);
-                {
-                    glTexCoord2i(0, 0); glVertex2i(0, 0);
-                    glTexCoord2i(1, 0); glVertex2i(1, 0);
-                    glTexCoord2i(1, 1); glVertex2i(1, 1);
-                    glTexCoord2i(0, 1); glVertex2i(0, 1);
-                }
-                glEnd();
-            }
-            logo_text->free();
-        }
-        ::view->pop();
-    }
-}
-
 //-----------------------------------------------------------------------------
 
-bool app::host::tile_input_point(double x, double y)
+bool app::host::tile_input_point(int i, const double *p, const double *q)
 {
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        if ((*i)->is_index(current_index) && (*i)->input_point(x, y))
+    for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
+        if ((*t)->is_index(current_index) && (*t)->input_point(i, p, v))
             return true;
 
     return false;
 }
 
-bool app::host::tile_input_click(int b, int m, bool d)
+bool app::host::tile_input_click(int i, int b, int m, bool d)
 {
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        if ((*i)->is_index(current_index) && (*i)->input_click(b, m, d))
+    for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
+        if ((*t)->is_index(current_index) && (*t)->input_click(i, b, m, d))
             return true;
 
     return false;
 }
 
-bool app::host::tile_input_keybd(int k, int m, bool d)
+bool app::host::tile_input_keybd(int c, int k, int m, bool d)
 {
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        if ((*i)->is_index(current_index) && (*i)->input_keybd(k, m, d))
+    for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
+        if ((*t)->is_index(current_index) && (*t)->input_keybd(c, k, m, d))
             return true;
 
     return false;

@@ -19,7 +19,7 @@
 #include "joint.hpp"
 #include "glob.hpp"
 #include "data.hpp"
-#include "view.hpp"
+#include "user.hpp"
 #include "util.hpp"
 #include "main.hpp"
 
@@ -1061,7 +1061,7 @@ void draw_light_init(double l, double r,
                      double b, double t, 
                      double n, double f, double *M)
 {
-    view->push();
+    user->push();
 
     // Setup the light's view transform.
 
@@ -1088,7 +1088,7 @@ void draw_light_fini()
 {
     glColorMask(1, 1, 1, 1);
 
-    view->pop();
+    user->pop();
 }
 
 //-----------------------------------------------------------------------------
@@ -1113,8 +1113,8 @@ void wrl::world::draw(bool edit, const double *points)
     GLfloat L[4];
     double  l[4], c[4], d[4];
 
-    const double n = ::view->get_n();
-    const double f = ::view->get_f();
+    const double n = ::user->get_n();
+    const double f = ::user->get_f();
 
     const int m = 3;
 
@@ -1192,10 +1192,10 @@ void wrl::world::draw(bool edit, const double *points)
             {
                 glLoadIdentity();
 
-                ::view->mult_S();
+                ::user->mult_S();
                 glOrtho(a[0], z[0], a[1], z[1], -a[2] - D, -a[2]);
                 glMultMatrixd(M);
-                ::view->mult_M();
+                ::user->mult_M();
             }
             glMatrixMode(GL_MODELVIEW);
             glActiveTextureARB(GL_TEXTURE0);

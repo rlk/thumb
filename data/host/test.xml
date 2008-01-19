@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<host>
+
+  <gui w="1024" h="768">
+    <corner name="BL" x="-0.666" y="-0.5" z="-1.5"/>
+    <corner name="BR" x=" 0.666" y="-0.5" z="-1.5"/>
+    <corner name="TL" x="-0.666" y=" 0.5" z="-1.5"/>
+  </gui>
+
+  <view x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0"/>
+  <view x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1"/>
+
+  <buffer w="1024" h="768"/>
+
+  <node name="test">
+    <window x="0" y="0" w="1024" h="768"/>
+    <tile>
+      <viewport x="0" y="0" w="1024" h="768"/>
+      <frustum>
+        <corner name="BL" x="-0.666" y="-0.5" z="-1.5"/>
+        <corner name="BR" x=" 0.666" y="-0.5" z="-1.5"/>
+        <corner name="TL" x="-0.666" y=" 0.5" z="-1.5"/>
+      </frustum>
+    </tile>
+  </node>
+</host>

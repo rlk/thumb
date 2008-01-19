@@ -18,7 +18,7 @@
 #include "data.hpp"
 #include "conf.hpp"
 #include "lang.hpp"
-#include "view.hpp"
+#include "user.hpp"
 #include "host.hpp"
 #include "util.hpp"
 
@@ -1260,7 +1260,7 @@ void gui::dialog::draw() const
             glMatrixMode(GL_PROJECTION);
             {
                 glLoadIdentity();
-                view->mult_P();
+                user->mult_P();
             }
             glMatrixMode(GL_MODELVIEW);
             {

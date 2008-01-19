@@ -21,7 +21,6 @@
 #include "default.hpp"
 #include "program.hpp"
 #include "matrix.hpp"
-#include "view.hpp"
 #include "util.hpp"
 
 //=============================================================================

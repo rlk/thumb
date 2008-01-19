@@ -1,4 +1,54 @@
 
+The current tile pick mechanism does NOT cluster correctly
+
+view has
+    frustum
+    frame
+
+It's not necessary to have a frame per view-tile
+    per view is sufficient
+    thus the host owns the frames?
+
+view.draw
+        calls prog->draw
+        	passes frustum?              
+        returns frame
+
+tile.draw
+        mode.draw
+                passes frames
+                passes frusta?
+
+viewport object
+    takes a prog and supplies frag bias and offset
+
+OR just assume all rendering is done offscreen?
+    simplifies sphere draw
+
+mode::normal.draw
+    calls prog->draw with frustum
+    draws screen rect
+
+mode::varrier.draw
+    does left view setup
+    calls prog->draw with left view frustum
+    does right view setup
+    calls prog->draw with right view frustum
+    draws screen rect
+
+mode::dome.draw
+    extracts view-center frustum
+    call prog->draw with view-center frustum
+    draws screen rect
+
+
+the prep frusta are wrong for dome mode
+
+gl_FragCoord gives wrong values when rendering direct to screen
+
+
+-------------------------------------------------------------------------------
+
 Host abstraction
 
     host object

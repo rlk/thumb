@@ -18,7 +18,7 @@
 #include "glob.hpp"
 #include "conf.hpp"
 #include "host.hpp"
-#include "view.hpp"
+#include "user.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -102,7 +102,7 @@ void uni::universe::prep(const double *F, int n)
     double M[16];
     double I[16];
 
-    ::view->get_M(M);
+    ::user->get_M(M);
 
     load_inv(I, M);
 
@@ -135,8 +135,8 @@ void uni::universe::draw(const double *frag_d,
 
         // HACK: far should be outside the geomap bounds
 
-        ::view->range(n / 4.0, f * 2.0);
-        ::view->draw();
+        ::user->range(n / 4.0, f * 2.0);
+        ::user->draw();
 
         glLoadIdentity();
 

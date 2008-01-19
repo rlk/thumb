@@ -17,7 +17,7 @@
 #include "opengl.hpp"
 #include "demo.hpp"
 #include "conf.hpp"
-#include "view.hpp"
+#include "user.hpp"
 #include "host.hpp"
 #include "edit.hpp"
 #include "play.hpp"
@@ -99,7 +99,7 @@ void demo::attr_on()
 {
     attr_mode = true;
     attr_stop = false;
-    ::view->gonext(5.0);
+    ::user->gonext(5.0);
 }
 
 void demo::attr_off()
@@ -112,14 +112,14 @@ void demo::attr_next()
 {
     attr_mode = true;
     attr_stop = true;
-    ::view->gonext(2.0);
+    ::user->gonext(2.0);
 }
 
 void demo::attr_prev()
 {
     attr_mode = true;
     attr_stop = true;
-    ::view->goprev(2.0);
+    ::user->goprev(2.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -138,9 +138,9 @@ void demo::point(const double *p, const double *v)
         if (button[3])
         {
             if (::host->modifiers() & KMOD_SHIFT)
-                ::view->turn(0, 0, -double(last_x - x) * view_turn_rate);
+                ::user->turn(0, 0, -double(last_x - x) * view_turn_rate);
             else
-                ::view->turn(-double(last_y - y) * view_turn_rate,
+                ::user->turn(-double(last_y - y) * view_turn_rate,
                              +double(last_x - x) * view_turn_rate, 0);
         }
 
@@ -170,8 +170,8 @@ void demo::click(int b, bool d)
 
         button[b] = d;
 
-        if      (d && b == 1) ::view->home();
-        else if (d && b == 2) ::view->home();
+        if      (d && b == 1) ::user->home();
+        else if (d && b == 2) ::user->home();
         else if (d && b == 4) universe.turn(+1.0);
         else if (d && b == 5) universe.turn(-1.0);
         else if (d && b == 0)
@@ -212,13 +212,13 @@ void demo::keybd(int k, bool d, int c)
         {
             // Handle view config keys.
 
-            if      (k == SDLK_F5) ::view->set_type(app::view::type_mono);
-            else if (k == SDLK_F6) ::view->set_type(app::view::type_anaglyph);
-            else if (k == SDLK_F7) ::view->set_type(app::view::type_varrier);
-            else if (k == SDLK_F8) ::view->set_type(app::view::type_scanline);
-            else if (k == SDLK_F9) ::view->set_type(app::view::type_blended);
+            if      (k == SDLK_F5) ::user->set_type(app::user::type_mono);
+            else if (k == SDLK_F6) ::user->set_type(app::user::type_anaglyph);
+            else if (k == SDLK_F7) ::user->set_type(app::user::type_varrier);
+            else if (k == SDLK_F8) ::user->set_type(app::user::type_scanline);
+            else if (k == SDLK_F9) ::user->set_type(app::user::type_blended);
 
-            else if (k == SDLK_HOME) ::view->home();
+            else if (k == SDLK_HOME) ::user->home();
             else if (k == SDLK_END)  draw_sphere = !draw_sphere;
 
             // Handle guided view keys.
@@ -227,8 +227,8 @@ void demo::keybd(int k, bool d, int c)
             {
                 if      (k == SDLK_PAGEUP)   attr_next();
                 else if (k == SDLK_PAGEDOWN) attr_prev();
-                else if (k == SDLK_INSERT)   ::view->insert(universe.get_a());
-                else if (k == SDLK_DELETE)   ::view->remove();
+                else if (k == SDLK_INSERT)   ::user->insert(universe.get_a());
+                else if (k == SDLK_DELETE)   ::user->remove();
                 else if (k == SDLK_SPACE)    attr_on();
             }
         }
@@ -244,10 +244,10 @@ void demo::timer(double dt)
         double kp = dt * universe.rate();
         double kr = dt * view_turn_rate * 360;
 
-        view->turn(kr * rotate[0],
+        user->turn(kr * rotate[0],
                    kr * rotate[1],
                    kr * rotate[2]);
-        view->move(kp * motion[0],
+        user->move(kp * motion[0],
                    kp * motion[1],
                    kp * motion[2]);
     }
@@ -255,12 +255,12 @@ void demo::timer(double dt)
     {
         double a = 0.0;
 
-        if (view->step(dt, universe.get_p(), a))
+        if (user->step(dt, universe.get_p(), a))
         {
             if (attr_stop)
                 attr_off();
             else
-                view->gonext(10.0);
+                user->gonext(10.0);
         }
         universe.set_a(a);
     }
@@ -280,7 +280,7 @@ void demo::timer(double dt)
 
         // Handle view motion.
 
-        view->move(motion[0] * kp,
+        user->move(motion[0] * kp,
                    motion[1] * kp,
                    motion[2] * kp);
 
@@ -311,8 +311,8 @@ void demo::timer(double dt)
             dR[1] = -DOT3(dz, init_R[0]);
             dR[2] =  DOT3(dy, init_R[0]);
 
-            view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
-            view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+            user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
+            user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
         }
 
         // Handle auto-attract mode.
@@ -411,27 +411,27 @@ void demo::draw(const double *frag_d, const double *frag_k)
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
-        view->push();
+        user->push();
         universe.draw(frag_d, frag_k);
-        view->pop();
+        user->pop();
 
         // Compute the view frusta.
 
-        view->plane_frustum(planes);
-        view->range(1.0, curr->view(planes));
-        view->point_frustum(points);
+        user->plane_frustum(planes);
+        user->range(1.0, curr->view(planes));
+        user->point_frustum(points);
 
         // Draw the scene.
 
         glClear(GL_DEPTH_BUFFER_BIT);
 
-        view->push();
-        view->draw();
+        user->push();
+        user->draw();
         curr->draw(points);
-        view->pop();
+        user->pop();
 
         if (draw_sphere)
-            view->sphere();
+            user->sphere();
 
         host->tag_draw();
     }

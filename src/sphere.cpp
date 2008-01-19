@@ -21,7 +21,7 @@
 #include "sphere.hpp"
 #include "glob.hpp"
 #include "conf.hpp"
-#include "view.hpp"
+#include "user.hpp"
 #include "util.hpp"
 
 //=============================================================================
@@ -303,7 +303,7 @@ void uni::sphere::view(const double *Mv,
 
     // Cache the view distance for use in depth sorting.
 
-    dist = ::view->dist(p);
+    dist = ::user->dist(p);
 }
 
 void uni::sphere::step()
@@ -478,7 +478,7 @@ void uni::sphere::draw(const double *frag_d,
     double  a[4];
     double  A[16];
 
-    ::view->get_M(A);
+    ::user->get_M(A);
 
     mult_xps_vec3(t, A, p);
     mult_xps_vec3(a, A, n);

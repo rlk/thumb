@@ -25,12 +25,11 @@
 #define E_POINT 1
 #define E_CLICK 2
 #define E_KEYBD 3
-#define E_TIMER 4
-#define E_TRACK 5
-#define E_STICK 6
-#define E_PAINT 7
-#define E_FLEEP 8
-#define E_CLOSE 9
+#define E_VALUE 4
+#define E_TIMER 5
+#define E_PAINT 6
+#define E_FRONT 7
+#define E_CLOSE 8
 
 namespace app
 {
@@ -64,7 +63,7 @@ namespace app
 
         struct { unsigned char type;
                  unsigned char size;
-                 unsigned char data[256]; } payload;
+                 char          data[256]; } payload;
 
         int index;
 
@@ -76,13 +75,15 @@ namespace app
 
         // Data marshalling
 
-        void   put_double(double);
-        void   put_bool  (bool);
-        void   put_int   (int);
+        void   put_real(double);
+        void   put_bool(bool);
+        void   put_byte(int);
+        void   put_word(int);
 
-        double get_double();
-        bool   get_bool  ();
-        int    get_int   ();
+        double get_real();
+        bool   get_bool();
+        int    get_byte();
+        int    get_word();
 
         // Network IO
 

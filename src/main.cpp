@@ -26,7 +26,7 @@
 #include "conf.hpp"
 #include "glob.hpp"
 #include "lang.hpp"
-#include "view.hpp"
+#include "user.hpp"
 #include "perf.hpp"
 
 //-----------------------------------------------------------------------------
@@ -36,7 +36,7 @@ app::conf *conf;
 app::data *data;
 app::prog *prog;
 app::glob *glob;
-app::view *view;
+app::user *user;
 app::lang *lang;
 app::host *host;
 app::perf *perf;
@@ -180,7 +180,7 @@ static void init(std::string& h)
 
     // Initialize the OpenGL state and application.
 
-    view = new app::view(host->get_window_w(),
+    user = new app::user(host->get_window_w(),
                          host->get_window_h());
     glob = new app::glob();
     perf = new app::perf();
@@ -213,7 +213,7 @@ static void fini()
     if (prog) delete prog;
     if (perf) delete perf;
     if (glob) delete glob;
-    if (view) delete view;
+    if (user) delete user;
     if (host) delete host;
     if (lang) delete lang;
     if (conf) delete conf;

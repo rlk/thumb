@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef VIEW_HPP
-#define VIEW_HPP
+#ifndef USER_HPP
+#define USER_HPP
 
 #include <iostream>
 #include <mxml.h>
@@ -22,11 +22,11 @@
 
 namespace app
 {
-    class view
+    class user
     {
     public:
 
-        enum view_type {
+        enum user_type {
             type_mono,
             type_varrier,
             type_anaglyph,
@@ -34,7 +34,7 @@ namespace app
             type_blended
         };
 
-        enum view_mode {
+        enum user_mode {
             mode_norm,
             mode_test
         };
@@ -92,8 +92,8 @@ namespace app
         double TR[3];           // Screen top-right    position
 
         const ogl::program *prog;
-        enum view_type      type;
-        enum view_mode      mode;
+        enum user_type      type;
+        enum user_mode      mode;
 
         void find_P();
 
@@ -103,8 +103,8 @@ namespace app
 
     public:
 
-        view(int, int);
-       ~view();
+        user(int, int);
+       ~user();
 
         double get_n() const { return n; }
         double get_f() const { return f; }
@@ -135,12 +135,12 @@ namespace app
         void plane_frustum(double *) const;
         void point_frustum(double *) const;
 
-        void set_type(enum view_type);
-        void set_mode(enum view_mode);
+        void set_type(enum user_type);
+        void set_mode(enum user_mode);
 
         const ogl::program *get_prog() const { return prog; }
-        enum view_type      get_type() const { return type; }
-        enum view_mode      get_mode() const { return mode; }
+        enum user_type      get_type() const { return type; }
+        enum user_mode      get_mode() const { return mode; }
         
         void range(double, double);
 
@@ -165,7 +165,7 @@ namespace app
 
 //-----------------------------------------------------------------------------
 
-extern app::view *view;
+extern app::user *user;
 
 //-----------------------------------------------------------------------------
 
