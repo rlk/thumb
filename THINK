@@ -1,8 +1,8 @@
 
-It would be easy and valuable to abstract all of the XML handling to a module.
-    If libxml2 is required, adapt.
-    object?
-        would also allow more flexibility in modules determining save_cb data
+simplify sphere draw to assume the FragCoord is accurate
+complete the event API rewrite
+implement culling within frustum
+complete the transition to the serial module
 
 make cnt::control seek the right size, so that the GUI need not be asked
 set the GUI transform before gui draw is called

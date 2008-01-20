@@ -10,7 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <SDL.h>
+#include <SDL_keyboard.h>
+#include <SDL_mouse.h>
 
 #include "host.hpp"
 #include "info.hpp"
@@ -19,12 +20,12 @@
 
 mode::info::info(wrl::world& w) : mode(w), gui(0)
 {
-    int gui_w;
-    int gui_h;
+    int gui_w = 1024;
+    int gui_h =  768;
 
-    // TODO: make this seek the "right" size?
-
+    /* TODO: make this seek the "right" size
     ::host->gui_size(gui_w, gui_h);
+    */
 
     gui = new cnt::control(w, gui_w, gui_h);
 }
@@ -46,39 +47,39 @@ void mode::info::leave()
 
 //-----------------------------------------------------------------------------
 
-bool mode::info::point(const double *p, const double *v)
+bool mode::info::point(int i, const double *p, const double *q)
 {
-    int x;
-    int y;
+    int x = 0;
+    int y = 0;
 
+/* TODO: fix GUI transform
     ::host->gui_pick(x, y, p, v);
+*/
 
     gui->point(x, y);
     return false;
 }
 
-bool mode::info::click(int b, bool d)
+bool mode::info::click(int i, int b, int m, bool d)
 {
-    if (b == 1)
+    if (b == SDL_BUTTON_LEFT)
     {
-        gui->click(d);
+        gui->click(m, d);
         return true;
     }
     return false;
 }
 
-bool mode::info::keybd(int k, bool d, int c)
+bool mode::info::keybd(int c, int k, int m, bool d)
 {
-    if (d)
-    {
-        gui->keybd(k, c);
-    }
+    if (d) gui->keybd(k, c, m);
+
     return true;
 }
 
 //-----------------------------------------------------------------------------
 
-bool mode::info::timer(double dt)
+bool mode::info::timer(int t)
 {
     return false;
 }

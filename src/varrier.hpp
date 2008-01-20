@@ -13,7 +13,7 @@
 #ifndef VARRIER_HPP
 #define VARRIER_HPP
 
-#include <mxml.h>
+#include "serial.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -21,7 +21,7 @@ namespace app
 {
     class varrier
     {
-        mxml_node_t *node;
+        app::node node;
 
         double pitch;
         double angle;
@@ -31,12 +31,11 @@ namespace app
 
     public:
 
-        varrier(mxml_node_t *);
-       ~varrier();
+        varrier(app::node);
         
         // Calibration input handler
 
-        bool input_keybd(int, int, bool);
+        bool input_keybd(int, int, int, bool);
 
         void draw() const;
     };

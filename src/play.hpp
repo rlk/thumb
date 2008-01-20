@@ -28,7 +28,7 @@ namespace mode
         virtual void enter();
         virtual void leave();
 
-        virtual bool timer(double);
+        virtual bool timer(int);
 
         virtual double view(const double *);
         virtual void   draw(const double *);

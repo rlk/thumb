@@ -62,10 +62,10 @@ namespace gui
 
         virtual void    layup() { };
         virtual void    laydn(int, int, int, int);
-        virtual widget *click(int, int, bool);
-        virtual widget *enter(int, int) { return 0; }
-        virtual void    point(int, int) {           }
-        virtual void    keybd(int, int) {           }
+        virtual widget *click(int, int, int, bool);
+        virtual widget *enter(int, int)      { return 0; }
+        virtual void    point(int, int)      {           }
+        virtual void    keybd(int, int, int) {           }
 
         bool pressed() const { return is_pressed; }
 
@@ -162,7 +162,7 @@ namespace gui
 
         button(std::string, int=0, int=0, int=2);
 
-        virtual widget *click(int, int, bool);
+        virtual widget *click(int, int, int, bool);
         virtual void draw(const widget *, const widget *) const;
     };
 
@@ -195,7 +195,7 @@ namespace gui
 
         bitmap();
 
-        widget *click(int, int, bool);
+        widget *click(int, int, int, bool);
         void draw(const widget *, const widget *) const;
     };
 
@@ -223,9 +223,9 @@ namespace gui
         virtual bool exp_w() const { return true;  }
         virtual bool exp_h() const { return false; }
 
-        virtual widget *click(int, int, bool);
+        virtual widget *click(int, int, int, bool);
         virtual void    point(int, int);
-        virtual void    keybd(int, int);
+        virtual void    keybd(int, int, int);
 
         virtual void draw(const widget *, const widget *) const;
     };
@@ -250,7 +250,7 @@ namespace gui
 
         virtual void    layup();
         virtual void    laydn(int, int, int, int);
-        virtual widget *click(int, int, bool);
+        virtual widget *click(int, int, int, bool);
         virtual widget *enter(int, int);
         virtual void    point(int, int);
 
@@ -413,8 +413,8 @@ namespace gui
         dialog();
 
         void point(int, int);
-        void click(bool);
-        void keybd(int, int);
+        void click(int, bool);
+        void keybd(int, int, int);
     
         void show();
         void hide();

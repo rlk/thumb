@@ -31,14 +31,11 @@ namespace app
 
         prog();
 
-        virtual void point(const double *, const double *)  { }
-        virtual void click(int, bool) { }
-        virtual void keybd(int, bool, int); // TODO: consistent argument order
-        virtual void timer(double)    { }
-        virtual void stick(int, const double *) { }
-        virtual void track(int, const double *,
-                                const double *,
-                                const double *) { }
+        virtual void point(int, const double *, const double *) { }
+        virtual void click(int, int, int, bool)                 { }
+        virtual void keybd(int, int, int, bool);
+        virtual void value(int, int, double)                    { }
+        virtual void timer(int)                                 { }
         
         virtual void prep(const double *, int)            { }
         virtual void draw(const double *, const double *) { }

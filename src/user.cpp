@@ -86,6 +86,23 @@ app::user::~user()
 
 //-----------------------------------------------------------------------------
 
+void app::user::get_point(double *P, const double *p,
+                          double *V, const double *q)
+{
+    double M[16];
+
+    // Determine the point direction of the given quaternion.
+
+    set_quaternion(M, q);
+
+    // Transform the point position and direction to world space.
+
+    mult_mat_vec3(P, current_M, p);
+    mult_mat_vec3(V, current_M, M + 8);
+}
+
+//-----------------------------------------------------------------------------
+
 void app::user::init()
 {
     head = mxmlNewElement(NULL, "?xml");

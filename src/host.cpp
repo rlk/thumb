@@ -18,7 +18,6 @@
 #include "tracker.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
-#include "util.hpp"
 #include "perf.hpp"
 #include "data.hpp"
 #include "conf.hpp"
@@ -32,30 +31,17 @@
 
 //=============================================================================
 
-app::view::view(mxml_node_t *node, int w, int h) : w(w), h(h), back(0)
+app::view::view(app::node node, const int *buffer) :
+    w(buffer[0]),
+    h(buffer[1]), back(0)
 {
-    // Set some reasonable defaults.
+    V[0] = P[0] = get_attr_f(node, "x");
+    V[1] = P[1] = get_attr_f(node, "y");
+    V[2] = P[2] = get_attr_f(node, "z");
 
-    V[0] = P[0] = 0;
-    V[1] = P[1] = 0;
-    V[2] = P[2] = 0;
-
-    color[0] = color[1] = color[2] = 0xFF;
-
-    // If we have an XML configuration node...
-
-    if (node)
-    {
-        const char *c;
-
-        if ((c = mxmlElementGetAttr(node, "x"))) V[0] = P[0] = atof(c);
-        if ((c = mxmlElementGetAttr(node, "y"))) V[1] = P[1] = atof(c);
-        if ((c = mxmlElementGetAttr(node, "z"))) V[2] = P[2] = atof(c);
-
-        if ((c = mxmlElementGetAttr(node, "r"))) color[0] = atof(c);
-        if ((c = mxmlElementGetAttr(node, "g"))) color[1] = atof(c);
-        if ((c = mxmlElementGetAttr(node, "b"))) color[2] = atof(c);
-    }
+    color[0]    = get_attr_f(node, "r", 1.0);
+    color[1]    = get_attr_f(node, "g", 1.0);
+    color[2]    = get_attr_f(node, "b", 1.0);
 }
 
 app::view::~view()
@@ -77,6 +63,7 @@ void app::view::set_head(const double *p,
 
 void app::view::draw(const int *rect, bool focus)
 {
+/*
     double frag_d[2] = { 0, 0 };
     double frag_k[2] = { 1, 1 };
 
@@ -136,51 +123,44 @@ void app::view::draw(const int *rect, bool focus)
             back->free();
         }
     }
+*/
 }
 
 //=============================================================================
 
-app::tile::tile(mxml_node_t *node) : frustum(0), varrier(0)
+app::tile::tile(app::node node) : frustum(0), varrier(0)
 {
-    window_rect[0] = 0;
-    window_rect[1] = 0;
-    window_rect[2] = DEFAULT_PIXEL_WIDTH;
-    window_rect[3] = DEFAULT_PIXEL_HEIGHT;
+    app::node curr;
 
-    // If we have an XML configuration node...
+    window[0] = 0;
+    window[1] = 0;
+    window[2] = DEFAULT_PIXEL_WIDTH;
+    window[3] = DEFAULT_PIXEL_HEIGHT;
 
-    if (node)
+    // Check for view and tile indices.
+
+    tile_index = get_attr_d(node, "tile_index", -1);
+    view_index = get_attr_d(node, "view_index", -1);
+
+    // Extract the window viewport rectangle.
+
+    if ((curr = find(node, "viewport")))
     {
-        mxml_node_t *elem;
-
-        // Check for view and tile indices.
-
-        tile_index = get_attr_i(node, "index", -1);
-         view_index = get_attr_i(node, "view",   -1);
-
-        // Extract the window viewport rectangle.
-
-        if ((elem = mxmlFindElement(node, node, "viewport",
-                                    0, 0, MXML_DESCEND_FIRST)))
-        {
-            window_rect[0] = get_attr_i(elem, "x");
-            window_rect[1] = get_attr_i(elem, "y");
-            window_rect[2] = get_attr_i(elem, "w");
-            window_rect[3] = get_attr_i(elem, "h");
-        }
-
-        // Extract the frustum parameters.
-
-        if ((elem = mxmlFindElement(node, node, "frustum",
-                                    0, 0, MXML_DESCEND_FIRST)))
-            frustum = new app::frustum(elem);
-
-        // Extract the Varrier parameters.
-
-        if ((elem = mxmlFindElement(node, node, "varrier",
-                                    0, 0, MXML_DESCEND_FIRST)))
-            varrier = new app::varrier(elem);
+        window[0] = get_attr_d(curr, "x");
+        window[1] = get_attr_d(curr, "y");
+        window[2] = get_attr_d(curr, "w", DEFAULT_PIXEL_WIDTH);
+        window[3] = get_attr_d(curr, "h", DEFAULT_PIXEL_HEIGHT);
     }
+
+    // Extract the frustum parameters.
+
+    if ((curr = find(node, "frustum")))
+        frustum = new app::frustum(curr);
+
+    // Extract the Varrier parameters.
+
+    if ((curr = find(node, "varrier")))
+        varrier = new app::varrier(curr);
 }
 
 app::tile::~tile()
@@ -191,27 +171,27 @@ app::tile::~tile()
 
 //-----------------------------------------------------------------------------
 
-bool app::tile::input_point(double x, double y)
+bool app::tile::input_point(int i, const double *p, const double *q)
 {
-    if (frustum && frustum->input_point(x, y))
+    if (frustum && frustum->input_point(i, p, q))
         return true;
     else
         return false;
 }
 
-bool app::tile::input_click(int b, int m, bool d)
+bool app::tile::input_click(int i, int b, int m, bool d)
 {
-    if (frustum && frustum->input_click(b, m, d))
+    if (frustum && frustum->input_click(i, b, m, d))
         return true;
     else
         return false;
 }
 
-bool app::tile::input_keybd(int k, int m, bool d)
+bool app::tile::input_keybd(int c, int k, int m, bool d)
 {
-     if     (varrier && varrier->input_keybd(k, m, d))
+    if      (varrier && varrier->input_keybd(c, k, m, d))
         return true;
-    else if (frustum && frustum->input_keybd(k, m, d))
+    else if (frustum && frustum->input_keybd(c, k, m, d))
         return true;
     else
         return false;
@@ -221,6 +201,7 @@ bool app::tile::input_keybd(int k, int m, bool d)
 
 bool app::tile::pick(double *p, double *v, int x, int y)
 {
+/*
     // Determine whether the given pointer position lies within this tile.
 
     if (window_rect[0] <= x && x < window_rect[0] + window_rect[2] &&
@@ -245,11 +226,13 @@ bool app::tile::pick(double *p, double *v, int x, int y)
 
         return true;
     }
+*/
     return false;
 }
 
 void app::tile::draw(std::vector<view *>& views, int current_index)
 {
+/*
     const bool focus = (current_index == tile_index);
 
     // Apply the tile corners.
@@ -270,7 +253,7 @@ void app::tile::draw(std::vector<view *>& views, int current_index)
 
     for (e = 0, i = views.begin(); i != views.end(); ++i, ++e)
         if (view_index < 0 || view_index == e)
-            (*i)->draw(window_rect, focus);
+            (*i)->draw(window, focus);
 
     // Render the onscreen exposure.
 
@@ -337,98 +320,15 @@ void app::tile::draw(std::vector<view *>& views, int current_index)
         }
         prog->free();
 
-        if (reg && focus && ::user->get_mode() == app::user::mode_test)
-            reg->wire();
-
         // Free the view buffers...
 
         for (t = GL_TEXTURE0, i = views.begin(); i != views.end(); ++i, ++t)
             (*i)->free(t);
     }
+*/
 }
 
 //=============================================================================
-
-static const char *save_cb(mxml_node_t *node, int where)
-{
-    std::string name(node->value.element.name);
-
-    switch (where)
-    {
-    case MXML_WS_AFTER_OPEN:  return "\n";
-    case MXML_WS_AFTER_CLOSE: return "\n";
-        
-    case MXML_WS_BEFORE_OPEN:
-        if      (name == "view")     return "  ";
-        else if (name == "gui")      return "  ";
-        else if (name == "node")     return "  ";
-        else if (name == "buffer")   return "  ";
-
-        else if (name == "tile")     return "    ";
-        else if (name == "window")   return "    ";
-
-        else if (name == "viewport") return "      ";
-        else if (name == "varrier")  return "      ";
-        else if (name == "region")   return "      ";
-        else if (name == "corner")   return "        ";
-        else if (name == "rotate")   return "        ";
-        break;
-
-    case MXML_WS_BEFORE_CLOSE:
-        if      (name == "gui")      return "  ";
-        else if (name == "node")     return "  ";
-        else if (name == "tile")     return "    ";
-        else if (name == "region")   return "      ";
-        break;
-    }
-
-    return NULL;
-}
-
-void app::host::save()
-{
-    if (dirty)
-    {
-        char *buff;
-
-        if ((buff = mxmlSaveAllocString(head, save_cb)))
-        {
-            ::data->save(file, buff);
-            free(buff);
-        }
-
-        dirty = false;
-    }
-}
-
-void app::host::load(std::string& tag)
-{
-    if (head) mxmlDelete(head);
-
-    head = 0;
-    node = 0;
-
-    const char *buff;
-
-    try
-    {
-        // Load the named host config file.
-
-        if ((buff = (const char *) ::data->load(file)))
-        {
-            head = mxmlLoadString(NULL, buff, MXML_TEXT_CALLBACK);
-            node = mxmlFindElement(head, head, "node", "name",
-                                   tag.c_str(), MXML_DESCEND);
-        }
-        ::data->free(file);
-    }
-    catch (app::find_error& e)
-    {
-        // If the host config file is missing, rely upon defaults.
-    }
-}
-
-//-----------------------------------------------------------------------------
 
 static unsigned long lookup(const char *hostname)
 {
@@ -436,7 +336,7 @@ static unsigned long lookup(const char *hostname)
     struct in_addr  A;
 
     if ((H = gethostbyname(hostname)) == 0)
-        throw host_error(hostname);
+        throw app::host_error(hostname);
 
     memcpy(&A.s_addr, H->h_addr_list[0], H->h_length);
 
@@ -480,9 +380,9 @@ void app::host::fork_client(const char *addr, const char *name)
 
 //-----------------------------------------------------------------------------
 
-void app::host::init_listen()
+void app::host::init_listen(app::node node)
 {
-    const char *port = mxmlElementGetAttr(node, "port");
+    int port = get_attr_d(node, "port");
 
     // If we have a port assignment then we must listen on it.
 
@@ -492,7 +392,7 @@ void app::host::init_listen()
         sockaddr_t address;
 
         address.sin_family      = AF_INET;
-        address.sin_port        = htons(atoi(port));
+        address.sin_port        = htons(port);
         address.sin_addr.s_addr = INADDR_ANY;
 
         // Create a socket, set no-delay, bind the port, and listen.
@@ -534,7 +434,7 @@ void app::host::poll_listen()
             if (n < 0)
             {
                 if (errno != EINTR)
-                    throw sock_error("select");
+                    throw app::sock_error("select");
             }
             else
             {
@@ -543,7 +443,7 @@ void app::host::poll_listen()
                 if (int sd = accept(listen_sd, 0, 0))
                 {
                     if (sd < 0)
-                        throw sock_error("accept");
+                        throw app::sock_error("accept");
                     else
                     {
                         nodelay(sd);
@@ -565,29 +465,28 @@ void app::host::fini_listen()
 
 //-----------------------------------------------------------------------------
 
-void app::host::init_server()
+void app::host::init_server(app::node node)
 {
     // If we have a server assignment then we must connect to it.
 
-    if (mxml_node_t *server = mxmlFindElement(node, node, "server",
-                                              0, 0, MXML_DESCEND_FIRST))
+    if (app::node server = find(node, "server"))
     {
         socklen_t  addresslen = sizeof (sockaddr_t);
         sockaddr_t address;
 
-        const char *addr = mxmlElementGetAttr(server, "addr");
-        const char *port = mxmlElementGetAttr(server, "port");
+        const char *addr = get_attr_s(server, "addr", DEFAULT_HOST);
+        int         port = get_attr_d(server, "port", DEFAULT_PORT);
 
         // Look up the given host name.
 
         address.sin_family      = AF_INET;
-        address.sin_port        = htons (atoi(port ? port : DEFAULT_PORT));
-        address.sin_addr.s_addr = lookup(     addr ? addr : DEFAULT_HOST);
+        address.sin_port        = htons (port);
+        address.sin_addr.s_addr = lookup(addr);
 
         // Create a socket and connect.
 
         if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-            throw sock_error(addr);
+            throw app::sock_error(addr);
 
         while (connect(server_sd, (struct sockaddr *) &address, addresslen) <0)
             if (errno == ECONNREFUSED)
@@ -595,7 +494,7 @@ void app::host::init_server()
                 std::cerr << "Waiting for " << addr << std::endl;
                 usleep(250000);
             }
-            else throw sock_error(addr);
+            else throw app::sock_error(addr);
 
         nodelay(server_sd);
     }
@@ -611,18 +510,17 @@ void app::host::fini_server()
 
 //-----------------------------------------------------------------------------
 
-void app::host::init_client()
+void app::host::init_client(app::node node)
 {
-    mxml_node_t *curr;
+    app::node curr;
 
     // Launch all client processes.
 
-    MXML_FORALL(node, curr, "client")
+    for (curr = find(node,       "client"); curr;
+         curr = next(node, curr, "client"))
     {
-        const char *name = mxmlElementGetAttr(curr, "name");
-        const char *addr = mxmlElementGetAttr(curr, "addr");
-
-        fork_client(addr, name);
+        fork_client(get_attr_s(curr, "name"),
+                    get_attr_s(curr, "addr"));
     }
 }
 
@@ -645,160 +543,84 @@ void app::host::fini_client()
 
 //-----------------------------------------------------------------------------
 
-// TODO: move this to a separate module?
-
-static void overlay(mxml_node_t *node, double *M, double *I, int w, int h)
-{
-    double a = double(DEFAULT_PIXEL_WIDTH) / double(DEFAULT_PIXEL_HEIGHT);
-    const char *c;
-
-    double BL[3];
-    double BR[3];
-    double TL[3];
-
-    BL[0] = -0.5 * a; BL[1] = -0.5; BL[2] = -1.0;
-    BR[0] = +0.5 * a; BR[1] = -0.5; BR[2] = -1.0;
-    TL[0] = -0.5 * a; TL[1] = +0.5; TL[2] = -1.0;
-
-    // Extract overlay corners from the given node.
-
-    mxml_node_t *curr;
-
-    MXML_FORALL(node, curr, "corner")
-    {
-        double *v = 0;
-
-        if (const char *name = mxmlElementGetAttr(curr, "name"))
-        {
-            if      (strcmp(name, "BL") == 0) v = BL;
-            else if (strcmp(name, "BR") == 0) v = BR;
-            else if (strcmp(name, "TL") == 0) v = TL;
-        }
-        if (v)
-        {
-            if ((c = mxmlElementGetAttr(curr, "x"))) v[0] = atof(c);
-            if ((c = mxmlElementGetAttr(curr, "y"))) v[1] = atof(c);
-            if ((c = mxmlElementGetAttr(curr, "z"))) v[2] = atof(c);
-        }
-    }
-
-    // Compose a transform taking overlay coordinates to eye coordinates.
-
-    double G[16];
-    double R[3];
-    double U[3];
-    double B[3];
-
-    R[0] = BR[0] - BL[0];
-    R[1] = BR[1] - BL[1];
-    R[2] = BR[2] - BL[2];
-
-    U[0] = TL[0] - BL[0];
-    U[1] = TL[1] - BL[1];
-    U[2] = TL[2] - BL[2];
-
-    crossprod(B, R, U);
-    set_basis(G, R, U, B);
-
-    load_idt(M);
-
-    Rmul_xlt_mat(M, BL[0], BL[1], BL[2]);
-    mult_mat_mat(M, M, G);
-    Rmul_scl_inv(M, w, h, 1);
-
-    if (I) load_inv(I, M);
-}
-
-app::host::host(std::string filename,
-                std::string tag) :
+app::host::host(std::string filename, std::string tag) :
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
-    mods(0),
-    logo_text(0),
-    file(filename),
+    file(filename.c_str()),
     current_index(0)
 {
-    const char *c;
-
     // Set some reasonable defaults.
 
-    window_rect[0] = 0;
-    window_rect[1] = 0;
-    window_rect[2] = DEFAULT_PIXEL_WIDTH;
-    window_rect[3] = DEFAULT_PIXEL_HEIGHT;
+    window[0] = 0;
+    window[1] = 0;
+    window[2] = DEFAULT_PIXEL_WIDTH;
+    window[3] = DEFAULT_PIXEL_HEIGHT;
 
-    buffer_w = DEFAULT_PIXEL_WIDTH;
-    buffer_h = DEFAULT_PIXEL_HEIGHT;
-
-    gui_w = DEFAULT_PIXEL_WIDTH;
-    gui_h = DEFAULT_PIXEL_HEIGHT;
-
-    load_idt(gui_M);
-    load_idt(gui_I);
+    buffer[0] = DEFAULT_PIXEL_WIDTH;
+    buffer[1] = DEFAULT_PIXEL_HEIGHT;
 
     // Read host.xml and configure using tag match.
 
-    load(tag);
+    app::node root;
+    app::node node;
+    app::node curr;
 
-    if ((root = file.find(0, "node", "name", tag.c_str())))
+    if ((root = find(file.get_head(), "host")))
     {
-        app::node curr;
-
         // Extract global off-screen buffer configuration.
 
-        if (node buffer = file.find(root, "buffer"))
+        if (app::node buf = find(root, "buffer"))
         {
-            buffer_w = file.get_attr_i(buffer, "w", DEFAULT_PIXEL_WIDTH);
-            buffer_h = file.get_attr_i(buffer, "h", DEFAULT_PIXEL_HEIGHT);
+            buffer[0] = get_attr_d(buf, "w", DEFAULT_PIXEL_WIDTH);
+            buffer[1] = get_attr_d(buf, "h", DEFAULT_PIXEL_HEIGHT);
         }
 
-        // Extract view config parameters
+        // Locate the configuration for this node.
 
-        for (curr = file.find(head,       "view"); curr;
-             curr = file.next(head, curr, "view"))
-            views.push_back(new view(curr, buffer_w, buffer_h));
+        if ((node = find(root, "node", "name", tag.c_str())))
+        {
+            // Extract the on-screen window configuration.
+
+            if (app::node win = find(node, "window"))
+            {
+                window[0] = get_attr_d(win, "x", 0);
+                window[1] = get_attr_d(win, "y", 0);
+                window[2] = get_attr_d(win, "w", DEFAULT_PIXEL_WIDTH);
+                window[3] = get_attr_d(win, "h", DEFAULT_PIXEL_HEIGHT);
+            }
+
+            // Extract local off-screen buffer configuration.
+
+            if (app::node buf = find(node, "buffer"))
+            {
+                buffer[0] = get_attr_d(buf, "w", DEFAULT_PIXEL_WIDTH);
+                buffer[1] = get_attr_d(buf, "h", DEFAULT_PIXEL_HEIGHT);
+            }
+
+            // Create a view object for each configured view.
+
+            for (curr = find(root,       "view"); curr;
+                 curr = next(root, curr, "view"))
+                views.push_back(new view(curr, buffer));
+
+            // Create a tile object for each configured tile.
+
+            for (curr = find(node,       "view"); curr;
+                 curr = next(node, curr, "view"))
+                tiles.push_back(new tile(curr));
+
+            // If no views or tiles were configured, instance defaults.
+
+            if (views.empty()) views.push_back(new view(0, buffer));
+            if (tiles.empty()) tiles.push_back(new tile(0));
+
+            // Start the network syncronization.
+
+            init_listen(node);
+            init_server(node);
+            init_client(node);
+        }
     }
-
-    if (node)
-    {
-        mxml_node_t *curr;
-
-        // Extract the window parameters.
-
-        if (mxml_node_t *window = mxmlFindElement(node, node, "window",
-                                                  0, 0, MXML_DESCEND_FIRST))
-        {
-            if ((c = mxmlElementGetAttr(window, "x"))) window_rect[0] =atoi(c);
-            if ((c = mxmlElementGetAttr(window, "y"))) window_rect[1] =atoi(c);
-            if ((c = mxmlElementGetAttr(window, "w"))) window_rect[2] =atoi(c);
-            if ((c = mxmlElementGetAttr(window, "h"))) window_rect[3] =atoi(c);
-        }
-
-        // Extract local off-screen buffer configuration.
-
-        if (mxml_node_t *buffer = mxmlFindElement(node, node, "buffer",
-                                                  0, 0, MXML_DESCEND_FIRST))
-        {
-            if ((c = mxmlElementGetAttr(buffer, "w"))) buffer_w = atoi(c);
-            if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
-        }
-
-        // Extract tile config parameters.
-
-        MXML_FORALL(node, curr, "tile")
-            tiles.push_back(new tile(curr));
-
-        // Start the network syncronization.
-
-        init_listen();
-        init_server();
-        init_client();
-    }
-
-    // If no views or tiles were defined, instance defaults.
-
-    if (views.empty()) views.push_back(new view(0, buffer_w, buffer_h));
-    if (tiles.empty()) tiles.push_back(new tile(0));
 
     // Start the timer.
 
@@ -812,12 +634,9 @@ app::host::~host()
     for (i = views.begin(); i != views.end(); ++i)
         delete (*i);
     
-    if (node)
-    {
-        fini_client();
-        fini_server();
-        fini_listen();
-    }
+    fini_client();
+    fini_server();
+    fini_listen();
 }
 
 //-----------------------------------------------------------------------------
@@ -874,16 +693,15 @@ void app::host::root_loop()
 
             case SDL_JOYBUTTONDOWN:
                 click(e.jbutton.which,
-                      e.jbutton.button, true);
+                      e.jbutton.button, 0, true);
                 break;
 
             case SDL_JOYBUTTONUP:
                 click(e.jbutton.which,
-                      e.jbutton.button, false);
+                      e.jbutton.button, 0, false);
                 break;
 
             case SDL_QUIT:
-                save();
                 close();
                 return;
             }
@@ -901,8 +719,8 @@ void app::host::root_loop()
             if (tracker_button(1, b)) click(1, 1, 0, b);
             if (tracker_button(2, b)) click(1, 2, 0, b);
 
-            if (tracker_values(0, a)) value(1, 0, v);
-            if (tracker_values(1, a)) value(1, 1, v);
+            if (tracker_values(0, v)) value(1, 0, v);
+            if (tracker_values(1, v)) value(1, 1, v);
 
             if (tracker_sensor(0, p, q)) point(1, p, q);
             if (tracker_sensor(1, p, q)) point(2, p, q);
@@ -925,15 +743,6 @@ void app::host::root_loop()
 
 void app::host::node_loop()
 {
-    int    i;
-    int    a;
-    int    b;
-    int    c;
-    int    m;
-    bool   d;
-    double p[3];
-    double q[3];
-
     while (1)
     {
         message M(0);
@@ -994,9 +803,9 @@ void app::host::node_loop()
             paint();
             break;
         }
-        case E_FLEEP:
+        case E_FRONT:
         {
-            fleep();
+            front();
             break;
         }
         case E_CLOSE:
@@ -1025,12 +834,12 @@ void app::host::loop()
 void app::host::draw()
 {
     // Determine the frustum union and preprocess the app.
-
+/*
     double F[32];
 
     get_frustum(F);
     ::prog->prep(F, 4);
-
+*/
     // Render all tiles.
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -1048,7 +857,7 @@ void app::host::draw()
 
 int app::host::get_window_m() const
 {
-    return (server_sd == INVALID_SOCKET) ? 0 : SDL_NOFRAME;
+    return root() ? 0 : SDL_NOFRAME;
 }
 
 //-----------------------------------------------------------------------------
@@ -1096,10 +905,7 @@ void app::host::point(int i, const double *p, const double *q)
     if (::user->get_mode() == app::user::mode_test)
     {
         if (tile_input_point(i, p, q))
-        {
-            dirty = true;
             return;
-        }
     }
 
     // Let the application have the click event.
@@ -1128,10 +934,7 @@ void app::host::click(int i, int b, int m, bool d)
     if (::user->get_mode() == app::user::mode_test)
     {
         if (tile_input_click(i, b, m, d))
-        {
-            dirty = true;
             return;
-        }
     }
 
     // Let the application have the click event.
@@ -1155,7 +958,7 @@ void app::host::keybd(int c, int k, int m, bool d)
         send(M);
     }
 
-    if (d && ::host->modifiers() & KMOD_CTRL)
+    if (d && (m & KMOD_CTRL))
     {
         // Toggling calibration mode?
 
@@ -1186,10 +989,7 @@ void app::host::keybd(int c, int k, int m, bool d)
         else if (::user->get_mode() == app::user::mode_test)
         {
             if (tile_input_keybd(c, k, m, d))
-            {
-                dirty = true;
                 return;
-            }
         }
     }
 
@@ -1315,7 +1115,7 @@ void app::host::set_head(const double *p,
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void app::host::gui_pick(int& x, int& y, const double *p,
                                          const double *v) const
 {
@@ -1349,13 +1149,13 @@ void app::host::gui_view() const
 
     glMultMatrixd(gui_M);
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 bool app::host::tile_input_point(int i, const double *p, const double *q)
 {
     for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(current_index) && (*t)->input_point(i, p, v))
+        if ((*t)->is_index(current_index) && (*t)->input_point(i, p, q))
             return true;
 
     return false;

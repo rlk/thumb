@@ -10,7 +10,9 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <SDL.h>
+#include <SDL_keyboard.h>
+#include <SDL_mouse.h>
+
 #include <iostream>
 #include <cstring>
 
@@ -124,14 +126,16 @@ void demo::attr_prev()
 
 //-----------------------------------------------------------------------------
 
-void demo::point(const double *p, const double *v)
+void demo::point(int i, const double *p, const double *q)
 {
-    int x;
-    int y;
+    int x = 0;
+    int y = 0;
 
+/* TODO
     ::host->gui_pick(x, y, p, v);
-
-    if (curr->point(p, v) == false)
+*/
+/*
+    if (curr->point(i, p, q) == false)
     {
         // Handle view rotation.
 
@@ -144,17 +148,15 @@ void demo::point(const double *p, const double *v)
                              +double(last_x - x) * view_turn_rate, 0);
         }
 
-        prog::point(p, v);
+        prog::point(i, p, q);
     }
-
+*/
     last_x = x;
     last_y = y;
 }
 
-void demo::click(int b, bool d)
+void demo::click(int i, int b, int m, bool d)
 {
-    double k = 1.0;
-
     attr_off();
 
     if (joy_mode)
@@ -166,14 +168,11 @@ void demo::click(int b, bool d)
     }
     else
     {
-        if (::host->modifiers() & KMOD_SHIFT) k = 0.1;
-
         button[b] = d;
 
-        if      (d && b == 1) ::user->home();
-        else if (d && b == 2) ::user->home();
-        else if (d && b == 4) universe.turn(+1.0);
-        else if (d && b == 5) universe.turn(-1.0);
+        if      (d && b == SDL_BUTTON_WHEELUP)   universe.turn(+1.0);
+        else if (d && b == SDL_BUTTON_WHEELDOWN) universe.turn(-1.0);
+/*
         else if (d && b == 0)
         {
             memcpy(init_P, curr_P, 3 * sizeof (double));
@@ -184,10 +183,11 @@ void demo::click(int b, bool d)
             if (curr->click(b, d) == false)
                 prog::click(b, d);
         }
+*/
     }
 }
 
-void demo::keybd(int k, bool d, int c)
+void demo::keybd(int c, int k, int m, bool d)
 {
     // Handle mode transitions.
 
@@ -197,7 +197,7 @@ void demo::keybd(int k, bool d, int c)
 
     // Let the current mode take it.
 
-    else if (curr->keybd(k, d, c) == false)
+    else if (curr->keybd(c, k, m, d) == false)
     {
         int dd = d ? +1 : -1;
 
@@ -223,7 +223,7 @@ void demo::keybd(int k, bool d, int c)
 
             // Handle guided view keys.
 
-            if (::host->modifiers() & KMOD_SHIFT)
+            if (m & KMOD_SHIFT)
             {
                 if      (k == SDLK_PAGEUP)   attr_next();
                 else if (k == SDLK_PAGEDOWN) attr_prev();
@@ -234,24 +234,14 @@ void demo::keybd(int k, bool d, int c)
         }
     }
 
-    prog::keybd(k, d, c);
+    else prog::keybd(c, k, m, d);
 }
 
-void demo::timer(double dt)
+void demo::timer(int t)
 {
-    if (joy_mode)
-    {
-        double kp = dt * universe.rate();
-        double kr = dt * view_turn_rate * 360;
+    double dt = t / 1000.0;
 
-        user->turn(kr * rotate[0],
-                   kr * rotate[1],
-                   kr * rotate[2]);
-        user->move(kp * motion[0],
-                   kp * motion[1],
-                   kp * motion[2]);
-    }
-    else if (attr_mode)
+    if (attr_mode)
     {
         double a = 0.0;
 
@@ -266,17 +256,20 @@ void demo::timer(double dt)
     }
     else
     {
-        double kp, kr = 150.0 * view_turn_rate * dt;
+        double kp = dt * universe.rate();
+        double kr = dt * view_turn_rate * 360;
 
-        // Determine the rate of motion.
-
-        if (::host->modifiers() & KMOD_CTRL)
-            kp = dt * view_move_rate;
-        else
-            kp = dt * universe.rate();
-
-        if (::host->modifiers() & KMOD_SHIFT)
-            kp *= 10.0;
+        user->turn(kr * rotate[0],
+                   kr * rotate[1],
+                   kr * rotate[2]);
+        user->move(kp * motion[0],
+                   kp * motion[1],
+                   kp * motion[2]);
+    }
+/*
+    {
+        double kp = dt * universe.rate();
+        double kr = dt * view_turn_rate * 150.0;
 
         // Handle view motion.
 
@@ -314,34 +307,37 @@ void demo::timer(double dt)
             user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
             user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
         }
+*/
 
-        // Handle auto-attract mode.
+    // Handle auto-attract mode.
 
-        attr_curr += dt;
+    attr_curr += dt;
 
-        if (attr_curr > attr_time)
-            attr_on();
-    }
-    curr->timer(dt);
-    prog::timer(dt);
+    if (attr_curr > attr_time)
+        attr_on();
+
+    curr->timer(t);
+    prog::timer(t);
 }
 
-void demo::stick(int d, const double *p)
+void demo::value(int d, int a, double v)
 {
-    attr_off();
+    if (fabs(v) > 0.1)
+    {
+        attr_off();
 
-    if (joy_mode)
-    {
-        if (d == joy_axis_x && fabs(p[0]) > 0.5) rotate[1] = -p[0];
-        if (d == joy_axis_y && fabs(p[0]) > 0.5) rotate[0] = +p[0];
-    }
-    else
-    {
-        if (fabs(p[0]) > 0.1)
-            universe.turn(p[0]);
+        if (joy_mode)
+        {
+            if (a == joy_axis_x) rotate[1] = -v;
+            if (a == joy_axis_y) rotate[0] = +v;
+        }
+        else
+        {
+            if (a == 0) universe.turn(v);
+        }
     }
 }
-
+/*
 void demo::track(int d, const double *p, const double *x, const double *z)
 {
     double y[3];
@@ -382,7 +378,7 @@ void demo::track(int d, const double *p, const double *x, const double *z)
         curr_R[2][2] = z[2];
     }
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void demo::prep(const double *F, int n)
@@ -432,8 +428,6 @@ void demo::draw(const double *frag_d, const double *frag_k)
 
         if (draw_sphere)
             user->sphere();
-
-        host->tag_draw();
     }
     glPopAttrib();
 }

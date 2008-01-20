@@ -12,7 +12,7 @@
 
 #include <algorithm>
 #include <iostream>
-#include <SDL.h>
+#include <SDL_keyboard.h>
 
 #include "gui.hpp"
 #include "data.hpp"
@@ -39,7 +39,7 @@ gui::widget::~widget()
     child.clear();
 }
 
-gui::widget *gui::widget::click(int, int, bool d)
+gui::widget *gui::widget::click(int, int, int, bool d)
 {
     is_pressed = d;
     return 0;
@@ -346,9 +346,9 @@ void gui::button::draw(const widget *focus, const widget *input) const
     draw_text();
 }
 
-gui::widget *gui::button::click(int x, int y, bool d)
+gui::widget *gui::button::click(int x, int y, int m, bool d)
 {
-    widget *input = string::click(x, y, d);
+    widget *input = string::click(x, y, m, d);
 
     // Activate the button on mouse up.
 
@@ -401,7 +401,7 @@ void gui::bitmap::draw(const widget *focus, const widget *input) const
     glPopAttrib();
 }
 
-gui::widget *gui::bitmap::click(int x, int y, bool d)
+gui::widget *gui::bitmap::click(int x, int y, int m, bool d)
 {
     if (d == false)
     {
@@ -411,7 +411,7 @@ gui::widget *gui::bitmap::click(int x, int y, bool d)
         {
             // If shift, set all bits to the toggle of bit i.
 
-            if (::host->modifiers() & KMOD_SHIFT)
+            if (m & KMOD_SHIFT)
             {
                 if ((bits & (1 << i)))
                     bits = 0x00000000;
@@ -421,7 +421,7 @@ gui::widget *gui::bitmap::click(int x, int y, bool d)
 
             // If control, toggle all bits.
 
-            else if (::host->modifiers() & KMOD_CTRL)
+            else if (m & KMOD_CTRL)
                 for (int j = 0; j < text->n(); ++j)
                     bits = bits ^ (1 << j);
 
@@ -548,11 +548,11 @@ void gui::editor::draw(const widget *focus, const widget *input) const
     draw_text();
 }
 
-gui::widget *gui::editor::click(int x, int y, bool d)
+gui::widget *gui::editor::click(int x, int y, int m, bool d)
 {
     int sp = text->find(x, y);
 
-    leaf::click(x, y, d);
+    leaf::click(x, y, m, d);
 
     if (sp >= 0)
     {
@@ -590,10 +590,10 @@ void gui::editor::point(int x, int y)
     else sc = int(str.length()) - si;
 }
 
-void gui::editor::keybd(int k, int c)
+void gui::editor::keybd(int c, int k, int m)
 {
     int n = int(str.length());
-    int s = ::host->modifiers() & KMOD_SHIFT;
+    int s = (k & KMOD_SHIFT);
 
     switch (k)
     {
@@ -710,9 +710,9 @@ void gui::scroll::laydn(int x, int y, int w, int h)
     }
 }
 
-gui::widget *gui::scroll::click(int x, int y, bool d)
+gui::widget *gui::scroll::click(int x, int y, int m, bool d)
 {
-    widget *input = widget::click(x, y, d);
+    widget *input = widget::click(x, y, m, d);
 
     // Focus only lands here when the pointer is in the scrollbar.
 
@@ -1215,12 +1215,12 @@ void gui::dialog::point(int x, int y)
     last_y = y;
 }
 
-void gui::dialog::click(bool d)
+void gui::dialog::click(int m, bool d)
 {
     // Click any focused widget.  Shift the input focus there.
 
     if (focus)
-        input = focus->click(last_x, last_y, d);
+        input = focus->click(last_x, last_y, m, d);
 
     // Activation may have resulted in widget deletion.  Confirm the focus.
 
@@ -1228,10 +1228,10 @@ void gui::dialog::click(bool d)
         focus = root->enter(last_x, last_y);
 }
 
-void gui::dialog::keybd(int k, int c)
+void gui::dialog::keybd(int c, int k, int m)
 {
     if (input)
-        input->keybd(k, c);
+        input->keybd(c, k, m);
 }
 
 void gui::dialog::show()
@@ -1265,7 +1265,9 @@ void gui::dialog::draw() const
             glMatrixMode(GL_MODELVIEW);
             {
                 glLoadIdentity();
+/* TODO: GUI must know it's own transform
                 host->gui_view();
+*/
             }
 
             glDisable(GL_LIGHTING);

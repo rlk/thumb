@@ -106,6 +106,9 @@ namespace app
         user(int, int);
        ~user();
 
+        void get_point(double *, const double *,
+                       double *, const double *);
+
         double get_n() const { return n; }
         double get_f() const { return f; }
         int    get_w() const { return w; }

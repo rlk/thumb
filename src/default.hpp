@@ -23,7 +23,7 @@
 
 #define DEFAULT_TAG       "default"
 #define DEFAULT_HOST      "localhost"
-#define DEFAULT_PORT      "2827"
+#define DEFAULT_PORT         2827
 
 #define DEFAULT_PIXEL_WIDTH  1024
 #define DEFAULT_PIXEL_HEIGHT  768

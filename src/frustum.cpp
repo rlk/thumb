@@ -149,7 +149,7 @@ void app::frustum::calc_projection(const double *p,
 
 //-----------------------------------------------------------------------------
 
-app::frustum::frustum(mxml_node_t *node) : node(node)
+app::frustum::frustum(app::node node) : node(node)
 {
     bool b[4] = { false, false, false, false };
 
@@ -160,17 +160,18 @@ app::frustum::frustum(mxml_node_t *node) : node(node)
 
     if (node)
     {
-        mxml_node_t *curr;
+        app::node curr;
 
         // Extract the screen corners.
 
-        MXML_FORALL(node, curr, "corner")
+        for (curr = find(node,       "corner"); curr;
+             curr = next(node, curr, "corner"))
         {
             double *v = 0;
 
             // Determine which corner is being specified.
 
-            if (const char *name = mxmlElementGetAttr(curr, "name"))
+            if (const char *name = get_attr_s(curr, "name"))
             {
                 if      (strcmp(name, "BL") == 0) { v = c[0]; b[0] = true; }
                 else if (strcmp(name, "BR") == 0) { v = c[1]; b[1] = true; }
@@ -188,7 +189,7 @@ app::frustum::frustum(mxml_node_t *node) : node(node)
 
                 // Convert dimensions if necessary.
 
-                if (const char *dim = mxmlElementGetAttr(curr, "dim"))
+                if (const char *dim = get_attr_s(curr, "dim"))
                 {
                     if (strcmp(dim, "mm") == 0)
                     {
@@ -202,8 +203,7 @@ app::frustum::frustum(mxml_node_t *node) : node(node)
 
         // Extract field-of-view and aspect ratio.
 
-        if ((curr = mxmlFindElement(node, node, "perspective",
-                                    0, 0, MXML_DESCEND)))
+        if ((curr = find(node, "perspective")))
         {
             aspect = get_attr_f(curr, "aspect");
             fov    = get_attr_f(curr, "fov");
@@ -211,8 +211,7 @@ app::frustum::frustum(mxml_node_t *node) : node(node)
 
         // Extract the calibration matrix.
 
-        if ((curr = mxmlFindElement(node, node, "calibration",
-                                    0, 0, MXML_DESCEND)))
+        if ((curr = find(node, "calibration")))
         {
             T[ 0] = get_attr_f(curr, "m0");
             T[ 1] = get_attr_f(curr, "m1");
@@ -265,17 +264,17 @@ void app::frustum::set_dist(const double *p,
 
 //-----------------------------------------------------------------------------
 
-bool app::frustum::input_point(double x, double y)
+bool app::frustum::input_point(int i, const double *p, const double *q)
 {
     return false;
 }
 
-bool app::frustum::input_click(int b, int m, bool d)
+bool app::frustum::input_click(int i, int b, int m, bool d)
 {
     return false;
 }
 
-bool app::frustum::input_keybd(int k, int m, bool d)
+bool app::frustum::input_keybd(int c, int k, int m, bool d)
 {
     return false;
 }

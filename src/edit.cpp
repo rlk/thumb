@@ -10,7 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <SDL.h>
+#include <SDL_keyboard.h>
+#include <SDL_mouse.h>
 
 #include "matrix.hpp"
 #include "opengl.hpp"
@@ -64,17 +65,12 @@ mode::edit::edit(wrl::world &w) : mode(w)
 
 //-----------------------------------------------------------------------------
 
-bool mode::edit::point(const double *p, const double *v)
+bool mode::edit::point(int i, const double *p, const double *q)
 {
     double M[16];
-    double I[16];
 
-    ::user->get_M(M);
-
-    load_inv(I, M);
-
-    mult_mat_vec3(point_p, M, p);
-    mult_xps_vec3(point_v, I, v);
+    ::user->get_point(point_p, p,
+                      point_v, q);
 
     world.edit_pick(point_p, point_v);
 
@@ -98,12 +94,12 @@ bool mode::edit::point(const double *p, const double *v)
 
         return true;
     }
-    return mode::point(p, v);
+    return mode::point(i, p, q);
 }
 
-bool mode::edit::click(int b, bool d)
+bool mode::edit::click(int i, int b, int m, bool d)
 {
-    if (b == 1)
+    if (b == SDL_BUTTON_LEFT)
     {
         drag = false;
 
@@ -123,13 +119,13 @@ bool mode::edit::click(int b, bool d)
             {
                 wrl::atom *focus = (wrl::atom *) dGeomGetData(geom);
 
-                if (::host->modifiers() & KMOD_SHIFT)
+                if (m & KMOD_SHIFT)
                 {
                     // Shift-release resets the constraint transform.
 
                     double M[16];
 
-                    if (::host->modifiers() & KMOD_CTRL)
+                    if (m & KMOD_CTRL)
                         focus->get_local(M);
                     else
                         focus->get_world(M);
@@ -150,10 +146,10 @@ bool mode::edit::click(int b, bool d)
 
         return true;
     }
-    return mode::click(b, d);
+    return mode::click(i, b, m, d);
 }
 
-bool mode::edit::keybd(int k, bool d, int c)
+bool mode::edit::keybd(int c, int k, int m, bool d)
 {
     if (d)
     {
@@ -200,7 +196,7 @@ bool mode::edit::keybd(int k, bool d, int c)
 
 //-----------------------------------------------------------------------------
 
-bool mode::edit::timer(double dt)
+bool mode::edit::timer(int t)
 {
     world.edit_step(0);
     return true;

@@ -96,7 +96,7 @@ app::prog::prog()
     key_init = ::conf->get_i("key_init");
 }
 
-void app::prog::keybd(int k, bool d, int c)
+void app::prog::keybd(int c, int k, int m, bool d)
 {
     SDL_Event user = { SDL_USEREVENT };
     SDL_Event quit = { SDL_QUIT      };

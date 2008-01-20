@@ -95,14 +95,11 @@ public:
     demo();
    ~demo();
 
-    void point(const double *, const double *);
-    void click(int, bool);
-    void keybd(int, bool, int);
-    void timer(double);
-    void stick(int, const double *);
-    void track(int, const double *,
-                    const double *,
-                    const double *);
+    void point(int, const double *, const double *);
+    void click(int, int, int, bool);
+    void keybd(int, int, int, bool);
+    void value(int, int, double);
+    void timer(int);
 
     void prep(const double *, int);
     void draw(const double *, const double *);

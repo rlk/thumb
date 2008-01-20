@@ -11,9 +11,6 @@
 //  General Public License for more details.
 
 
-#include <sstream>
-#include <iomanip>
-
 #include <mxml.h>
 
 #include "serial.hpp"
@@ -51,34 +48,50 @@ static const char *save_cb(mxml_node_t *node, int where)
 
 void app::serial::load()
 {
-    if (head) mxmlDelete(head);
+    // Release any previously loaded DOM.
+
+    if (head)
+        mxmlDelete(head);
+
+    // Load the data stream and parse the XML.
 
     if (const char *buff = (const char *) ::data->load(file))
         head = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
     else
         head = 0;
 
+    // Release the data stream.
+
     ::data->free(file);
 
-    dirty = false;
+    // Mark the DOM as clean.
+
+    if (head) head->user_data = 0;
 }
 
 void app::serial::save()
 {
-    if (dirty)
+    // Confirm that the DOM exists, and has been modified.
+
+    if (head && head->user_data)
     {
+        // Write the XML to a stream and store the stream.
+
         if (char *buff = mxmlSaveAllocString(head, save_cb))
         {
             ::data->save(file, buff);
             free(buff);
         }
     }
-    dirty = false;
+
+    // Mark the DOM as clean.
+
+    if (head) head->user_data = 0;
 }
 
 //-----------------------------------------------------------------------------
 
-app::serial::serial(const char *name) : file(name), head(0), dirty(false)
+app::serial::serial(const char *name) : file(name), head(0)
 {
     load();
 }
@@ -90,45 +103,49 @@ app::serial::~serial()
 
 //-----------------------------------------------------------------------------
 
-void app::serial::set_attr_i(node elem, const char *name, int i)
+void app::set_attr_d(app::node elem, const char *name, int d)
 {
     if (elem && name)
     {
-        std::ostringstream value;
-    
-        value << i;
+        // Store the integer attribute as text.
 
-        mxmlElementSetAttr(elem, name, value.str().c_str());
-        dirty = true;
+        mxmlElementSetAttrf(elem, name, "%d", d);
+
+        // Touch the tree.
+
+        for (; elem; elem = elem->parent)
+            elem->user_data = (void *) 1;
     }
 }
 
-int app::serial::get_attr_i(node elem, const char *name, int k)
+int app::get_attr_d(node elem, const char *name, int d)
 {
     const char *c;
 
     if (elem && (c = mxmlElementGetAttr(elem, name)))
         return atoi(c);
     else
-        return k;
+        return d;
 }
 
 //-----------------------------------------------------------------------------
 
-void app::serial::set_attr_f(node elem, const char *name, double k)
+void app::set_attr_f(node elem, const char *name, double f)
 {
     if (elem && name)
     {
-        std::ostringstream value;
-    
-        value << k;
+        // Store the double attribute as text.
 
-        mxmlElementSetAttr(elem, name, value.str().c_str());
-        dirty = true;
+        mxmlElementSetAttrf(elem, name, "%f", f);
+
+        // Touch the tree.
+
+        for (; elem; elem = elem->parent)
+            elem->user_data = (void *) 1;
     }
 }
 
-double app::serial::get_attr_f(node elem, const char *name, double k)
+double app::get_attr_f(node elem, const char *name, double k)
 {
     const char *c;
 
@@ -140,16 +157,22 @@ double app::serial::get_attr_f(node elem, const char *name, double k)
 
 //-----------------------------------------------------------------------------
 
-void app::serial::set_attr_s(node elem, const char *name, const char *s)
+void app::set_attr_s(node elem, const char *name, const char *s)
 {
     if (elem && name)
     {
+        // Store the text attribute.
+
         mxmlElementSetAttr(elem, name, s);
-        dirty = true;
+
+        // Touch the tree.
+
+        for (; elem; elem = elem->parent)
+            elem->user_data = (void *) 1;
     }
 }
 
-const char *app::serial::get_attr_s(node elem, const char *name, const char *s)
+const char *app::get_attr_s(node elem, const char *name, const char *s)
 {
     const char *c;
 
@@ -161,27 +184,21 @@ const char *app::serial::get_attr_s(node elem, const char *name, const char *s)
 
 //-----------------------------------------------------------------------------
 
-app::node app::serial::find(node tree,
-                            const char *name,
-                            const char *attr,
-                            const char *valu)
+app::node app::find(node tree,
+                    const char *name,
+                    const char *attr,
+                    const char *valu)
 {
-    if (tree)
-        return mxmlFindElement(tree, tree, name, attr, valu, MXML_DESCEND);
-    else
-        return mxmlFindElement(head, head, name, attr, valu, MXML_DESCEND);
+    return mxmlFindElement(tree, tree, name, attr, valu, MXML_DESCEND);
 }
 
-app::node app::serial::next(node tree,
-                            node iter,
-                            const char *name,
-                            const char *attr,
-                            const char *valu)
+app::node app::next(node tree,
+                    node iter,
+                    const char *name,
+                    const char *attr,
+                    const char *valu)
 {
-    if (tree)
-        return mxmlFindElement(iter, tree, name, attr, valu, MXML_NO_DESCEND);
-    else
-        return mxmlFindElement(iter, head, name, attr, valu, MXML_NO_DESCEND);
+    return mxmlFindElement(iter, tree, name, attr, valu, MXML_NO_DESCEND);
 }
 
 //-----------------------------------------------------------------------------

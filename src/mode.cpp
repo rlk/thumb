@@ -18,22 +18,22 @@
 
 //-----------------------------------------------------------------------------
 
-bool mode::mode::point(const double *, const double *)
+bool mode::mode::point(int i, const double *p, const double *q)
 {
     return false;
 }
 
-bool mode::mode::click(int b, bool d)
+bool mode::mode::click(int i, int b, int m, bool d)
 {
     return false;
 }
 
-bool mode::mode::keybd(int, bool, int)
+bool mode::mode::keybd(int c, int k, int m, bool d)
 {
     return false;
 }
 
-bool mode::mode::timer(double dt)
+bool mode::mode::timer(int t)
 {
     return false;
 }

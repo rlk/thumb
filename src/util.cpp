@@ -14,7 +14,7 @@
 #include <iomanip>
 
 #include "util.hpp"
-
+/*
 //-----------------------------------------------------------------------------
 
 void set_attr_i(mxml_node_t *node, const char *name, int i)
@@ -64,3 +64,4 @@ double get_attr_f(mxml_node_t *node, const char *name, double k)
 }
 
 //-----------------------------------------------------------------------------
+*/

@@ -47,7 +47,7 @@ namespace app
 
     public:
 
-        view(mxml_node_t *, int, int);
+        view(app::node, const int *);
        ~view();
 
         void set_head(const double *, const double *,
@@ -68,7 +68,7 @@ namespace app
     {
     private:
 
-        int window_rect[4];
+        int window[4];
 
         app::frustum *frustum;
         app::varrier *varrier;
@@ -78,12 +78,12 @@ namespace app
 
     public:
 
-        tile(mxml_node_t *);
+        tile(app::node);
        ~tile();
 
-        bool input_point(double, double);
-        bool input_click(int, int, bool);
-        bool input_keybd(int, int, bool);
+        bool input_point(int, const double *, const double *);
+        bool input_click(int, int, int, bool);
+        bool input_keybd(int, int, int, bool);
 
         void draw(std::vector<view *>&, int);
 
@@ -107,9 +107,9 @@ namespace app
         void fork_client(const char *, const char *);
         void poll_listen();
 
-        void init_listen();
-        void init_server();
-        void init_client();
+        void init_listen(app::node);
+        void init_server(app::node);
+        void init_client(app::node);
 
         void fini_listen();
         void fini_server();
@@ -118,8 +118,6 @@ namespace app
         SOCKET   server_sd;
         SOCKET   listen_sd;
         SOCKET_v client_sd;
-
-        int tock;
 
         void send(message&);
         void recv(message&);
@@ -140,18 +138,12 @@ namespace app
         void root_loop();
         void node_loop();
 
-        // Overlay config
-
-        double gui_M[16];
-        double gui_I[16];
-        int    gui_w;
-        int    gui_h;
+        int tock;
 
         // Window config
 
-        int window_rect[4];
-        int buffer_w;
-        int buffer_h;
+        int window[4];
+        int buffer[2];
 
         std::vector<view *> views;
         std::vector<tile *> tiles;
@@ -159,7 +151,6 @@ namespace app
         // Config IO
 
         app::serial file;
-        app::node   root;
 
         int current_index;
 
@@ -172,26 +163,25 @@ namespace app
         void loop();
         void draw();
 
-        int get_window_x() const { return window_rect[0]; }
-        int get_window_y() const { return window_rect[1]; }
-        int get_window_w() const { return window_rect[2]; }
-        int get_window_h() const { return window_rect[3]; }
+        int get_window_x() const { return window[0]; }
+        int get_window_y() const { return window[1]; }
+        int get_window_w() const { return window[2]; }
+        int get_window_h() const { return window[3]; }
         int get_window_m() const;
-
-        int get_buffer_w() const { return buffer_w; }
-        int get_buffer_h() const { return buffer_h; }
+        int get_buffer_w() const { return buffer[0]; }
+        int get_buffer_h() const { return buffer[1]; }
 
         void set_head(const double *, const double *,
                       const double *, const double *);
-
+/*
         void gui_pick(int&, int&, const double *, const double *) const;
         void gui_size(int&, int&)                                 const;
         void gui_view()                                           const;
         void tag_draw();
-
-        bool tile_input_point(double, double);
-        bool tile_input_click(int, int, bool);
-        bool tile_input_keybd(int, int, bool);
+*/
+        bool tile_input_point(int, const double *, const double *);
+        bool tile_input_click(int, int, int, bool);
+        bool tile_input_keybd(int, int, int, bool);
     };
 }
 

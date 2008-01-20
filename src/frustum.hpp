@@ -14,7 +14,8 @@
 #define FRUSTUM_HPP
 
 #include <vector>
-#include <mxml.h>
+
+#include "serial.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -24,9 +25,9 @@ namespace app
     {
     private:
 
-        // Serialization XML node
+        // Serialization node
 
-        mxml_node_t *node;
+        app::node node;
 
         // Frustum bounding planes and points
 
@@ -62,9 +63,8 @@ namespace app
 
     public:
 
-        frustum(mxml_node_t *);
+        frustum(app::node);
         frustum(const double *);
-       ~frustum();
 
         // View state mutators
 
@@ -75,9 +75,9 @@ namespace app
 
         // Calibration input handlers
 
-        bool input_point(double, double);
-        bool input_click(int, int, bool);
-        bool input_keybd(int, int, bool);
+        bool input_point(int, const double *, const double *);
+        bool input_click(int, int, int, bool);
+        bool input_keybd(int, int, int, bool);
 
         // Visibility testers
 

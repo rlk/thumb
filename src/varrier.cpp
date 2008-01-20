@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <SDL/SDL_keysym.h>
+#include <SDL_keyboard.h>
 
 #include "varrier.hpp"
 #include "matrix.hpp"
@@ -18,7 +18,7 @@
 
 //-----------------------------------------------------------------------------
 
-app::varrier::varrier(mxml_node_t *node) : node(node)
+app::varrier::varrier(app::node node) : node(node)
 {
     // Initialize the linescreen from the XML node or by setting defaults.
 
@@ -31,7 +31,7 @@ app::varrier::varrier(mxml_node_t *node) : node(node)
 
 //-----------------------------------------------------------------------------
 
-bool app::varrier::input_keybd(int k, int m, bool d)
+bool app::varrier::input_keybd(int c, int k, int m, bool d)
 {
     bool b = false;
 
@@ -50,8 +50,8 @@ bool app::varrier::input_keybd(int k, int m, bool d)
         {
             if      (k == SDLK_LEFT)  { shift -= 0.00005; b = true; }
             else if (k == SDLK_RIGHT) { shift += 0.00005; b = true; }
-            else if (k == SDLK_DOWN)  { thick -= 0.0001; b = true; }
-            else if (k == SDLK_UP)    { thick += 0.0001; b = true; }
+            else if (k == SDLK_DOWN)  { thick -= 0.00010; b = true; }
+            else if (k == SDLK_UP)    { thick += 0.00010; b = true; }
         }
     }
 

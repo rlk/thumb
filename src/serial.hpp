@@ -31,8 +31,6 @@ namespace app
         std::string file;
         node        head;
 
-        bool dirty;
-
         void load();
         void save();
 
@@ -41,27 +39,29 @@ namespace app
         serial(const char *);
        ~serial();
 
-        // Serialization attribute mutators
-
-        void        set_attr_i(node, const char *, int);
-        int         get_attr_i(node, const char *, int=0);
-
-        void        set_attr_f(node, const char *, double);
-        double      get_attr_f(node, const char *, double=0);
-
-        void        set_attr_s(node, const char *, const char *);
-        const char *get_attr_s(node, const char *, const char *);
-
-        // Element iteration
-
-        node find(node, const char * =0,
-                        const char * =0,
-                        const char * =0);
-        node next(node,
-                  node, const char * =0,
-                        const char * =0,
-                        const char * =0);
+        node get_head() { return head; }
     };
+
+    // Serialization attribute mutators
+
+    void        set_attr_d(node, const char *, int);
+    int         get_attr_d(node, const char *, int =0);
+
+    void        set_attr_f(node, const char *, double);
+    double      get_attr_f(node, const char *, double =0);
+
+    void        set_attr_s(node, const char *, const char * =0);
+    const char *get_attr_s(node, const char *, const char * =0);
+
+    // Element iteration
+
+    node find(node, const char * =0,
+                    const char * =0,
+                    const char * =0);
+    node next(node,
+              node, const char * =0,
+                    const char * =0,
+                    const char * =0);
 }
 
 //-----------------------------------------------------------------------------

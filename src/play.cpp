@@ -34,9 +34,9 @@ void mode::play::leave()
 
 //-----------------------------------------------------------------------------
 
-bool mode::play::timer(double dt)
+bool mode::play::timer(int t)
 {
-    world.play_step(dt);
+    world.play_step(t / 1000.0);
     return true;
 }
 

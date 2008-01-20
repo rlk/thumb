@@ -53,7 +53,7 @@ typedef std::set   <std::string> strset;
                                               max4(e, f, g, h))
 
 //-----------------------------------------------------------------------------
-
+/*
 #include <mxml.h>
 
 #define MXML_FORALL(t, i, n) \
@@ -65,7 +65,7 @@ int    get_attr_i(mxml_node_t *, const char *, int=0);
 
 void   set_attr_f(mxml_node_t *, const char *, double);
 double get_attr_f(mxml_node_t *, const char *, double=0);
-
+*/
 //-----------------------------------------------------------------------------
 
 #endif
