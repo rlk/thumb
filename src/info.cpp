@@ -22,6 +22,8 @@ mode::info::info(wrl::world& w) : mode(w), gui(0)
     int gui_w;
     int gui_h;
 
+    // TODO: make this seek the "right" size?
+
     ::host->gui_size(gui_w, gui_h);
 
     gui = new cnt::control(w, gui_w, gui_h);

@@ -1,5 +1,18 @@
 
-The current tile pick mechanism does NOT cluster correctly
+It would be easy and valuable to abstract all of the XML handling to a module.
+    If libxml2 is required, adapt.
+    object?
+        would also allow more flexibility in modules determining save_cb data
+
+make cnt::control seek the right size, so that the GUI need not be asked
+set the GUI transform before gui draw is called
+    try to abstract the 2Dness of the gui away
+
+* Add the transform business to the dialog?
+    dialog::point takes (p, q)
+    would enable different dialogs with different transforms
+
+-------------------------------------------------------------------------------
 
 view has
     frustum

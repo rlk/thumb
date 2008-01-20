@@ -12,7 +12,8 @@ CD= cd
 CP= cp
 
 TARG= ../thumb
-OBJS=   tracker.o \
+OBJS=	serial.o \
+	tracker.o \
 	opengl.o \
 	aabb.o \
 	obj.o \

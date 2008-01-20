@@ -359,7 +359,7 @@ static const char *save_cb(mxml_node_t *node, int where)
     case MXML_WS_AFTER_CLOSE: return "\n";
         
     case MXML_WS_BEFORE_OPEN:
-        if      (name == "view")      return "  ";
+        if      (name == "view")     return "  ";
         else if (name == "gui")      return "  ";
         else if (name == "node")     return "  ";
         else if (name == "buffer")   return "  ";
@@ -709,16 +709,13 @@ static void overlay(mxml_node_t *node, double *M, double *I, int w, int h)
     if (I) load_inv(I, M);
 }
 
-app::host::host(std::string file,
+app::host::host(std::string filename,
                 std::string tag) :
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
     mods(0),
     logo_text(0),
-    file(file),
-    head(0),
-    node(0),
-    dirty(false),
+    file(filename),
     current_index(0)
 {
     const char *c;
@@ -738,50 +735,27 @@ app::host::host(std::string file,
 
     load_idt(gui_M);
     load_idt(gui_I);
-    load_idt(tag_M);
 
     // Read host.xml and configure using tag match.
 
     load(tag);
 
-    if (head)
+    if ((root = file.find(0, "node", "name", tag.c_str())))
     {
-        mxml_node_t *curr;
-
-        // Extract GUI overlay configuration.
-
-        if (mxml_node_t *gui = mxmlFindElement(head, head, "gui",
-                                               0, 0, MXML_DESCEND))
-        {
-            if (const char *w = mxmlElementGetAttr(gui, "w")) gui_w = atoi(w);
-            if (const char *h = mxmlElementGetAttr(gui, "h")) gui_h = atoi(h);
-
-            overlay(gui, gui_M, gui_I, gui_w, gui_h);
-        }
-
-        // Extract tag overlay configuration.
-
-        if (mxml_node_t *tag = mxmlFindElement(head, head, "tag",
-                                               0, 0, MXML_DESCEND))
-        {
-            if (const char *name = mxmlElementGetAttr(tag, "name"))
-                logo_name = std::string(name);
-
-            overlay(tag, tag_M, 0, 1, 1);
-        }
+        app::node curr;
 
         // Extract global off-screen buffer configuration.
 
-        if (mxml_node_t *buffer = mxmlFindElement(head, head, "buffer",
-                                                  0, 0, MXML_DESCEND))
+        if (node buffer = file.find(root, "buffer"))
         {
-            if ((c = mxmlElementGetAttr(buffer, "w"))) buffer_w = atoi(c);
-            if ((c = mxmlElementGetAttr(buffer, "h"))) buffer_h = atoi(c);
+            buffer_w = file.get_attr_i(buffer, "w", DEFAULT_PIXEL_WIDTH);
+            buffer_h = file.get_attr_i(buffer, "h", DEFAULT_PIXEL_HEIGHT);
         }
 
         // Extract view config parameters
 
-        MXML_FORALL(head, curr, "view")
+        for (curr = file.find(head,       "view"); curr;
+             curr = file.next(head, curr, "view"))
             views.push_back(new view(curr, buffer_w, buffer_h));
     }
 

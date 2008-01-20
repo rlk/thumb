@@ -23,6 +23,7 @@
 #include "varrier.hpp"
 #include "frustum.hpp"
 #include "matrix.hpp"
+#include "serial.hpp"
 #include "frame.hpp"
 
 //-----------------------------------------------------------------------------
@@ -157,14 +158,8 @@ namespace app
 
         // Config IO
 
-        std::string  file;
-        mxml_node_t *head;
-        mxml_node_t *node;
-
-        bool dirty;
-
-        void load(std::string&);
-        void save();
+        app::serial file;
+        app::node   root;
 
         int current_index;
 
