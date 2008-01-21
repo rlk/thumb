@@ -102,9 +102,8 @@ void uni::universe::prep(const double *F, int n)
     double M[16];
     double I[16];
 
-    ::user->get_M(M);
-
-    load_inv(I, M);
+    load_mat(M, ::user->get_M());
+    load_mat(I, ::user->get_I());
 
     // Preprocess all objects.
 
@@ -134,10 +133,10 @@ void uni::universe::draw(const double *frag_d,
         f = S[i]->max_d();
 
         // HACK: far should be outside the geomap bounds
-
+/*
         ::user->range(n / 4.0, f * 2.0);
         ::user->draw();
-
+*/
         glLoadIdentity();
 
         S[i]->draw(frag_d, frag_k);

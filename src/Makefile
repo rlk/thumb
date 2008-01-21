@@ -60,8 +60,11 @@ OBJS=	serial.o \
 	perf.o \
 	odeutil.o \
 	frustum.o \
+	normal.o \
 	varrier.o \
 	message.o \
+	view.o \
+	tile.o \
 	host.o \
 	main.o
 

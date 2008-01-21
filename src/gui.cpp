@@ -1260,12 +1260,14 @@ void gui::dialog::draw() const
             glMatrixMode(GL_PROJECTION);
             {
                 glLoadIdentity();
+/* TODO: GUI must take its projection
                 user->mult_P();
+*/
             }
             glMatrixMode(GL_MODELVIEW);
             {
                 glLoadIdentity();
-/* TODO: GUI must know it's own transform
+/* TODO: GUI must know its own transform
                 host->gui_view();
 */
             }

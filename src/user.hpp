@@ -24,78 +24,36 @@ namespace app
 {
     class user
     {
-    public:
-
-        enum user_type {
-            type_mono,
-            type_varrier,
-            type_anaglyph,
-            type_scanline,
-            type_blended
-        };
-
-        enum user_mode {
-            mode_norm,
-            mode_test
-        };
-
     private:
 
-        // TODO: eliminate W and H
+        // View matrix and inverse cache
 
-        int    w;
-        int    h;
-        double n;
-        double f;
-
-        // Modelview and projection matrix caches
-
-        double default_M[16];
         double current_M[16];
-        double current_P[16];
+        double current_I[16];
+        double current_S[16];
 
-        // Demo playback state
+        // Automatic demo state
 
         mxml_node_t *head;
         mxml_node_t *root;
         mxml_node_t *curr;
 
+        bool dirty;
+
         double t0;
         double tt;
         double t1;
 
+        double current_M0[16];
+        double current_M1[16];
+
+        double current_a0;
+        double current_a1;
+        double current_a;
+
         void init();
         bool load();
         void save();
-
-        bool dirty;
-
-        double curr_M0[16];
-        double curr_M1[16];
-
-        double curr_a;
-        double curr_a0;
-        double curr_a1;
-
-        // View configuration and cache
-
-        double P[3];            // View position
-        double X[3];            // View right vector
-
-        double R[3];            // Screen right  vector
-        double U[3];            // Screen up     vector
-        double N[3];            // Screen normal vector
-
-        double BL[3];           // Screen bottom-left  position
-        double BR[3];           // Screen bottom-right position
-        double TL[3];           // Screen top-left     position
-        double TR[3];           // Screen top-right    position
-
-        const ogl::program *prog;
-        enum user_type      type;
-        enum user_mode      mode;
-
-        void find_P();
 
         void slerp(const double *,
                    const double *,
@@ -103,66 +61,32 @@ namespace app
 
     public:
 
-        user(int, int);
+        user();
        ~user();
 
         void get_point(double *, const double *,
-                       double *, const double *);
+                       double *, const double *) const;
 
-        double get_n() const { return n; }
-        double get_f() const { return f; }
-        int    get_w() const { return w; }
-        int    get_h() const { return h; }
+        const double *get_M() const { return current_M; }
+        const double *get_I() const { return current_I; }
+        const double *get_S() const { return current_S; }
 
-        void clr();
-        void get_M(      double *);
-        void get_P(      double *);
-        void set_M(const double *);
-        void set_P(const double *);
-        void set_V(const double *, const double *,
-                   const double *, const double *);
+        // Interactive view controls.
 
         void turn(double, double, double, double[3][3]);
         void turn(double, double, double);
         void move(double, double, double);
         void home();
 
-        void mult_S() const;
-        void mult_P() const;
-        void mult_O() const;
-        void mult_M() const;
-        void mult_R() const;
-        void mult_T() const;
-        void mult_V() const;
+        // Automatic view controls.
 
-        void plane_frustum(double *) const;
-        void point_frustum(double *) const;
-
-        void set_type(enum user_type);
-        void set_mode(enum user_mode);
-
-        const ogl::program *get_prog() const { return prog; }
-        enum user_type      get_type() const { return type; }
-        enum user_mode      get_mode() const { return mode; }
-        
-        void range(double, double);
-
-        void draw() const;
-        void push() const;
-        void pop()  const;
-
-        bool step(double, const double *, double&);
+        bool dostep(double, const double *, double&);
         void gocurr(double);
         void goinit(double);
         void gonext(double);
         void goprev(double);
         void insert(double);
         void remove();
-
-        void   pick(double *, double *, int, int) const;
-        double dist(double *)                     const;
-
-        void sphere() const;
     };
 }
 

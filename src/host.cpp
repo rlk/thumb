@@ -29,306 +29,7 @@
 
 #define JIFFY (1000 / 60)
 
-//=============================================================================
-
-app::view::view(app::node node, const int *buffer) :
-    w(buffer[0]),
-    h(buffer[1]), back(0)
-{
-    V[0] = P[0] = get_attr_f(node, "x");
-    V[1] = P[1] = get_attr_f(node, "y");
-    V[2] = P[2] = get_attr_f(node, "z");
-
-    color[0]    = get_attr_f(node, "r", 1.0);
-    color[1]    = get_attr_f(node, "g", 1.0);
-    color[2]    = get_attr_f(node, "b", 1.0);
-}
-
-app::view::~view()
-{
-//  if (back) ::glob->free_frame(back);
-}
-
-void app::view::set_head(const double *p,
-                        const double *x,
-                        const double *y,
-                        const double *z)
-{
-    // Cache the view positions in the head's coordinate system.
-
-    P[0] = p[0] + V[0] * x[0] + V[1] * y[0] + V[2] * z[0];
-    P[1] = p[1] + V[0] * x[1] + V[1] * y[1] + V[2] * z[1];
-    P[2] = p[2] + V[0] * x[2] + V[1] * y[2] + V[2] * z[2];
-}
-
-void app::view::draw(const int *rect, bool focus)
-{
-/*
-    double frag_d[2] = { 0, 0 };
-    double frag_k[2] = { 1, 1 };
-
-    // Set the view position.
-
-    ::user->set_P(P);
-
-    // If we are rendering directly on-screen...
-
-    if (::user->get_type() == user::type_mono)
-    {
-        // Compute the on-screen to off-screen fragment transform.
-
-        frag_d[0] =            -double(rect[0]);
-        frag_d[1] =            -double(rect[1]);
-        frag_k[0] = double(w) / double(rect[2]);
-        frag_k[1] = double(h) / double(rect[3]);
-
-        // Draw the scene.
-
-        glViewport(rect[0], rect[1], rect[2], rect[3]);
-
-        ::prog->draw(frag_d, frag_k);
-    }
-    else
-    {
-        // Make sure the off-screen buffer exists.
-
-        if (back == 0)
-            back = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                                           GL_RGBA8, true, false);
-        if (back)
-        {
-            back->bind();
-            {
-                if (::user->get_mode() == user::mode_norm)
-                {
-                    // Draw the scene normally.
-
-                    glClear(GL_COLOR_BUFFER_BIT);
-                    ::prog->draw(frag_d, frag_k);
-                }
-                if (::user->get_mode() == user::mode_test)
-                {
-                    float r = color[0] * (focus ? 1.0f : 0.5f);
-                    float g = color[1] * (focus ? 1.0f : 0.5f);
-                    float b = color[2] * (focus ? 1.0f : 0.5f);
-
-                    // Draw the test pattern.
-
-                    glPushAttrib(GL_COLOR_BUFFER_BIT);
-                    glClearColor(r, g, b, 1);
-                    glClear(GL_COLOR_BUFFER_BIT);
-                    glPopAttrib();
-                }
-            }
-            back->free();
-        }
-    }
-*/
-}
-
-//=============================================================================
-
-app::tile::tile(app::node node) : frustum(0), varrier(0)
-{
-    app::node curr;
-
-    window[0] = 0;
-    window[1] = 0;
-    window[2] = DEFAULT_PIXEL_WIDTH;
-    window[3] = DEFAULT_PIXEL_HEIGHT;
-
-    // Check for view and tile indices.
-
-    tile_index = get_attr_d(node, "tile_index", -1);
-    view_index = get_attr_d(node, "view_index", -1);
-
-    // Extract the window viewport rectangle.
-
-    if ((curr = find(node, "viewport")))
-    {
-        window[0] = get_attr_d(curr, "x");
-        window[1] = get_attr_d(curr, "y");
-        window[2] = get_attr_d(curr, "w", DEFAULT_PIXEL_WIDTH);
-        window[3] = get_attr_d(curr, "h", DEFAULT_PIXEL_HEIGHT);
-    }
-
-    // Extract the frustum parameters.
-
-    if ((curr = find(node, "frustum")))
-        frustum = new app::frustum(curr);
-
-    // Extract the Varrier parameters.
-
-    if ((curr = find(node, "varrier")))
-        varrier = new app::varrier(curr);
-}
-
-app::tile::~tile()
-{
-    if (varrier) delete varrier;
-    if (frustum) delete frustum;
-}
-
 //-----------------------------------------------------------------------------
-
-bool app::tile::input_point(int i, const double *p, const double *q)
-{
-    if (frustum && frustum->input_point(i, p, q))
-        return true;
-    else
-        return false;
-}
-
-bool app::tile::input_click(int i, int b, int m, bool d)
-{
-    if (frustum && frustum->input_click(i, b, m, d))
-        return true;
-    else
-        return false;
-}
-
-bool app::tile::input_keybd(int c, int k, int m, bool d)
-{
-    if      (varrier && varrier->input_keybd(c, k, m, d))
-        return true;
-    else if (frustum && frustum->input_keybd(c, k, m, d))
-        return true;
-    else
-        return false;
-}
-
-//-----------------------------------------------------------------------------
-
-bool app::tile::pick(double *p, double *v, int x, int y)
-{
-/*
-    // Determine whether the given pointer position lies within this tile.
-
-    if (window_rect[0] <= x && x < window_rect[0] + window_rect[2] &&
-        window_rect[1] <= y && y < window_rect[1] + window_rect[3])
-    {
-        double kx = double(x - window_rect[0]) / double(window_rect[2]);
-        double ky = double(y - window_rect[1]) / double(window_rect[3]);
-
-        // It does.  Compute the eye-space vector given by the pointer.
-
-        p[0] = 0.0;
-        p[1] = 0.0;
-        p[2] = 0.0;
-
-        v[0] = TL[0] * (1 - kx - ky) + TR[0] * kx + BL[0] * ky;
-        v[1] = TL[1] * (1 - kx - ky) + TR[1] * kx + BL[1] * ky;
-        v[2] = TL[2] * (1 - kx - ky) + TR[2] * kx + BL[2] * ky;
-
-        // TODO:  Which frustum?  Which view?
-
-        normalize(v);
-
-        return true;
-    }
-*/
-    return false;
-}
-
-void app::tile::draw(std::vector<view *>& views, int current_index)
-{
-/*
-    const bool focus = (current_index == tile_index);
-
-    // Apply the tile corners.
-
-    double bl[3], br[3], tl[3], tr[3];
-
-    get_BL(bl);
-    get_BR(br);
-    get_TL(tl);
-    get_TR(tr);
-
-    ::user->set_V(bl, br, tl, tr);
-
-    // Render the view from each view.
-
-    std::vector<view *>::iterator i;
-    int e;
-
-    for (e = 0, i = views.begin(); i != views.end(); ++i, ++e)
-        if (view_index < 0 || view_index == e)
-            (*i)->draw(window, focus);
-
-    // Render the onscreen exposure.
-
-    if (const ogl::program *prog = ::user->get_prog())
-    {
-        double frag_d[2] = { 0, 0 };
-        double frag_k[2] = { 1, 1 };
-
-        int w = ::host->get_buffer_w();
-        int h = ::host->get_buffer_h();
-        int t;
-
-        // Bind the view buffers.  Apply the Varrier transform for each.
-
-        for (t = 0, i = views.begin(); i != views.end(); ++i, ++t)
-        {
-            (*i)->bind(GL_TEXTURE0 + t);
-        
-            glActiveTextureARB(GL_TEXTURE0 + t);
-            apply_varrier((*i)->get_P());
-            glActiveTextureARB(GL_TEXTURE0);
-        }
-
-        // Compute the on-screen to off-screen fragment transform.
-
-        frag_d[0] =            -double(window_rect[0]);
-        frag_d[1] =            -double(window_rect[1]);
-        frag_k[0] = double(w) / double(window_rect[2]);
-        frag_k[1] = double(h) / double(window_rect[3]);
-
-        // Draw the tile region.
-
-        glViewport(window_rect[0], window_rect[1],
-                   window_rect[2], window_rect[3]);
-
-        glMatrixMode(GL_PROJECTION);
-        {
-            // HACK: breaks varrier
-
-            glLoadIdentity();
-            glOrtho(0, window_rect[2],
-                    0, window_rect[3], -1, +1);
-
-//          glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glLoadIdentity();
-        }
-
-        prog->bind();
-        {
-            prog->uniform("L_map", 0);
-            prog->uniform("R_map", 1);
-
-            prog->uniform("cycle", varrier_cycle);
-            prog->uniform("offset", -W / (3 * window_rect[2]), 0,
-                                     W / (3 * window_rect[2]));
-
-            prog->uniform("frag_d", frag_d[0], frag_d[1]);
-            prog->uniform("frag_k", frag_k[0], frag_k[1]);
-
-            if (reg) reg->draw();
-        }
-        prog->free();
-
-        // Free the view buffers...
-
-        for (t = GL_TEXTURE0, i = views.begin(); i != views.end(); ++i, ++t)
-            (*i)->free(t);
-    }
-*/
-}
-
-//=============================================================================
 
 static unsigned long lookup(const char *hostname)
 {
@@ -546,8 +247,9 @@ void app::host::fini_client()
 app::host::host(std::string filename, std::string tag) :
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
-    file(filename.c_str()),
-    current_index(0)
+    calibrate_state(false),
+    calibrate_index(0),
+    file(filename.c_str())
 {
     // Set some reasonable defaults.
 
@@ -833,21 +535,24 @@ void app::host::loop()
 
 void app::host::draw()
 {
-    // Determine the frustum union and preprocess the app.
-/*
-    double F[32];
+    if (!calibrate_state)
+    {
+        std::vector<frustum *> frusta;
 
-    get_frustum(F);
-    ::prog->prep(F, 4);
-*/
+        // Acculumate a list of frusta and preprocess the app.
+
+        for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+            (*i)->prep(views, frusta);
+
+        ::prog->prep(frusta);
+    }
+
     // Render all tiles.
     
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    std::vector<tile *>::iterator i;
-
-    for (i = tiles.begin(); i != tiles.end(); ++i)
-        (*i)->draw(views, current_index);
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        (*i)->draw(views, calibrate_state, calibrate_index);
 
     // If doing network sync, wait until the rendering has finished.
 
@@ -902,7 +607,7 @@ void app::host::point(int i, const double *p, const double *q)
 
     // Calibrating a tile?
 
-    if (::user->get_mode() == app::user::mode_test)
+    if (calibrate_state)
     {
         if (tile_input_point(i, p, q))
             return;
@@ -931,7 +636,7 @@ void app::host::click(int i, int b, int m, bool d)
 
     // Calibrating a tile?
 
-    if (::user->get_mode() == app::user::mode_test)
+    if (calibrate_state)
     {
         if (tile_input_click(i, b, m, d))
             return;
@@ -964,10 +669,7 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         if (k == SDLK_TAB)
         {
-            if (::user->get_mode() == app::user::mode_norm)
-                ::user->set_mode(app::user::mode_test);
-            else
-                ::user->set_mode(app::user::mode_norm);
+            calibrate_state = !calibrate_state;
             return;
         }
 
@@ -975,18 +677,18 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         else if (k == SDLK_INSERT)
         {
-            current_index++;
+            calibrate_index++;
             return;
         }
         else if (k == SDLK_DELETE)
         {
-            current_index--;
+            calibrate_index--;
             return;
         }
 
         // Calibrating a tile?
 
-        else if (::user->get_mode() == app::user::mode_test)
+        else if (calibrate_state)
         {
             if (tile_input_keybd(c, k, m, d))
                 return;
@@ -1104,14 +806,12 @@ void app::host::close()
 //-----------------------------------------------------------------------------
 
 void app::host::set_head(const double *p,
-                         const double *x,
-                         const double *y,
-                         const double *z)
+                         const double *q)
 {
     std::vector<view *>::iterator i;
 
     for (i = views.begin(); i != views.end(); ++i)
-        (*i)->set_head(p, x, y, z);
+        (*i)->set_head(p, q);
 }
 
 //-----------------------------------------------------------------------------
@@ -1155,7 +855,7 @@ void app::host::gui_view() const
 bool app::host::tile_input_point(int i, const double *p, const double *q)
 {
     for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(current_index) && (*t)->input_point(i, p, q))
+        if ((*t)->is_index(calibrate_index) && (*t)->input_point(i, p, q))
             return true;
 
     return false;
@@ -1164,7 +864,7 @@ bool app::host::tile_input_point(int i, const double *p, const double *q)
 bool app::host::tile_input_click(int i, int b, int m, bool d)
 {
     for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(current_index) && (*t)->input_click(i, b, m, d))
+        if ((*t)->is_index(calibrate_index) && (*t)->input_click(i, b, m, d))
             return true;
 
     return false;
@@ -1173,7 +873,7 @@ bool app::host::tile_input_click(int i, int b, int m, bool d)
 bool app::host::tile_input_keybd(int c, int k, int m, bool d)
 {
     for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(current_index) && (*t)->input_keybd(c, k, m, d))
+        if ((*t)->is_index(calibrate_index) && (*t)->input_keybd(c, k, m, d))
             return true;
 
     return false;

@@ -13,6 +13,8 @@
 #ifndef PROG_HPP
 #define PROG_HPP
 
+#include "frustum.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -37,8 +39,8 @@ namespace app
         virtual void value(int, int, double)                    { }
         virtual void timer(int)                                 { }
         
-        virtual void prep(const double *, int)            { }
-        virtual void draw(const double *, const double *) { }
+        virtual void prep(const app::frustum_v&) { }
+        virtual void draw(const app::frustum  *) { }
 
         virtual ~prog() { }
     };

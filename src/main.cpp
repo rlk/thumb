@@ -180,8 +180,7 @@ static void init(std::string& h)
 
     // Initialize the OpenGL state and application.
 
-    user = new app::user(host->get_window_w(),
-                         host->get_window_h());
+    user = new app::user();
     glob = new app::glob();
     perf = new app::perf();
     prog = new demo();
@@ -190,8 +189,6 @@ static void init(std::string& h)
 
     if ((joy = SDL_JoystickOpen(conf->get_i("joystick"))))
         SDL_JoystickEventState(SDL_ENABLE);
-
-//    joy = SDL_JoystickOpen(conf->get_i("joystick"));
 
     int tracker_key = conf->get_i("tracker_key");
     int control_key = conf->get_i("control_key");

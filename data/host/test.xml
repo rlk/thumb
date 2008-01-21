@@ -14,13 +14,23 @@
 
   <node name="test">
     <window x="0" y="0" w="1024" h="768"/>
-    <tile>
+    <tile index="0">
       <viewport x="0" y="0" w="1024" h="768"/>
       <frustum>
         <corner name="BL" x="-0.666" y="-0.5" z="-1.5"/>
         <corner name="BR" x=" 0.666" y="-0.5" z="-1.5"/>
         <corner name="TL" x="-0.666" y=" 0.5" z="-1.5"/>
       </frustum>
+      <disp index="0" type="normal" view="0">
+      </disp>
+      <disp index="1" type="anaglyph">
+      </disp>
+      <disp index="2" type="varrier">
+        <linescreen p="536.85342" a="-10.445" t="0.0226" s ="0.00040" c="0.75"/>
+      </disp>
+      <disp index="3" type="dome" view="0">
+        <range t0="-36.0" t1="36" td="10" p0="0" p1="60" pd="10"/>
+      </disp>
     </tile>
   </node>
 </host>

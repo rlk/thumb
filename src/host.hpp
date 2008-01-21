@@ -15,88 +15,17 @@
 
 #include <string>
 #include <vector>
-#include <mxml.h>
 
-#include "default.hpp"
 #include "texture.hpp"
 #include "message.hpp"
-#include "varrier.hpp"
-#include "frustum.hpp"
-#include "matrix.hpp"
 #include "serial.hpp"
-#include "frame.hpp"
+#include "view.hpp"
+#include "tile.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace app
 {
-    //-------------------------------------------------------------------------
-    // View
-
-    class view
-    {
-        double V[3];
-        double P[3];
-
-        int w;
-        int h;
-
-        ogl::frame *back;
-
-        float color[3];
-
-    public:
-
-        view(app::node, const int *);
-       ~view();
-
-        void set_head(const double *, const double *,
-                      const double *, const double *);
-
-        const double *get_P() const { return P; }
-
-        void bind(GLenum t) const { back->bind_color(t); }
-        void free(GLenum t) const { back->free_color(t); }
-
-        void draw(const int *, bool);
-    };
-
-    //-------------------------------------------------------------------------
-    // Tile
-
-    class tile
-    {
-    private:
-
-        int window[4];
-
-        app::frustum *frustum;
-        app::varrier *varrier;
-
-        int view_index;
-        int tile_index;
-
-    public:
-
-        tile(app::node);
-       ~tile();
-
-        bool input_point(int, const double *, const double *);
-        bool input_click(int, int, int, bool);
-        bool input_keybd(int, int, int, bool);
-
-        void draw(std::vector<view *>&, int);
-
-        bool pick(double *, double *, int, int);
-
-        bool is_index(int i) const { return (i == tile_index); }
-    };
-
-    typedef std::vector<tile *>::iterator tile_i;
-
-    //-------------------------------------------------------------------------
-    // Host
-
     typedef std::vector<SOCKET>           SOCKET_v;
     typedef std::vector<SOCKET>::iterator SOCKET_i;
 
@@ -138,7 +67,11 @@ namespace app
         void root_loop();
         void node_loop();
 
-        int tock;
+        int  tock;
+        int  mode;
+
+        bool calibrate_state;
+        int  calibrate_index;
 
         // Window config
 
@@ -148,11 +81,9 @@ namespace app
         std::vector<view *> views;
         std::vector<tile *> tiles;
 
-        // Config IO
+        // Configuration serializer
 
         app::serial file;
-
-        int current_index;
 
     public:
 
@@ -171,14 +102,8 @@ namespace app
         int get_buffer_w() const { return buffer[0]; }
         int get_buffer_h() const { return buffer[1]; }
 
-        void set_head(const double *, const double *,
-                      const double *, const double *);
-/*
-        void gui_pick(int&, int&, const double *, const double *) const;
-        void gui_size(int&, int&)                                 const;
-        void gui_view()                                           const;
-        void tag_draw();
-*/
+        void set_head(const double *, const double *);
+
         bool tile_input_point(int, const double *, const double *);
         bool tile_input_click(int, int, int, bool);
         bool tile_input_keybd(int, int, int, bool);

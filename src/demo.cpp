@@ -210,16 +210,7 @@ void demo::keybd(int c, int k, int m, bool d)
 
         else if (d)
         {
-            // Handle view config keys.
-
-            if      (k == SDLK_F5) ::user->set_type(app::user::type_mono);
-            else if (k == SDLK_F6) ::user->set_type(app::user::type_anaglyph);
-            else if (k == SDLK_F7) ::user->set_type(app::user::type_varrier);
-            else if (k == SDLK_F8) ::user->set_type(app::user::type_scanline);
-            else if (k == SDLK_F9) ::user->set_type(app::user::type_blended);
-
-            else if (k == SDLK_HOME) ::user->home();
-            else if (k == SDLK_END)  draw_sphere = !draw_sphere;
+            if (k == SDLK_HOME) ::user->home();
 
             // Handle guided view keys.
 
@@ -245,7 +236,7 @@ void demo::timer(int t)
     {
         double a = 0.0;
 
-        if (user->step(dt, universe.get_p(), a))
+        if (user->dostep(dt, universe.get_p(), a))
         {
             if (attr_stop)
                 attr_off();
@@ -381,12 +372,14 @@ void demo::track(int d, const double *p, const double *x, const double *z)
 */
 //-----------------------------------------------------------------------------
 
-void demo::prep(const double *F, int n)
+void demo::prep(const app::frustum_v& frusta)
 {
+/*
     universe.prep(F, n);
+*/
 }
 
-void demo::draw(const double *frag_d, const double *frag_k)
+void demo::draw(const app::frustum *frust)
 {
 //  GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
     GLfloat A[4] = { 0.45f, 0.50f, 0.55f, 0.0f };
@@ -399,35 +392,34 @@ void demo::draw(const double *frag_d, const double *frag_k)
 
     glPushAttrib(GL_ENABLE_BIT);
     {
+/*
         double planes[20];
         double points[24];
-
+*/
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
-
+/*
         user->push();
         universe.draw(frag_d, frag_k);
         user->pop();
-
+*/
         // Compute the view frusta.
-
+/*
         user->plane_frustum(planes);
         user->range(1.0, curr->view(planes));
         user->point_frustum(points);
-
+*/
         // Draw the scene.
 
         glClear(GL_DEPTH_BUFFER_BIT);
-
+/*
         user->push();
         user->draw();
         curr->draw(points);
         user->pop();
-
-        if (draw_sphere)
-            user->sphere();
+*/
     }
     glPopAttrib();
 }

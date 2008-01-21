@@ -89,6 +89,9 @@ namespace app
 
         void draw() const;
     };
+
+    typedef std::vector<frustum *>           frustum_v;
+    typedef std::vector<frustum *>::iterator frustum_i;
 }
 
 //-----------------------------------------------------------------------------

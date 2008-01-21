@@ -1061,17 +1061,17 @@ void draw_light_init(double l, double r,
                      double b, double t, 
                      double n, double f, double *M)
 {
-    user->push();
-
     // Setup the light's view transform.
 
     glMatrixMode(GL_PROJECTION);
     {
+        glPushMatrix();
         glLoadIdentity();
         glOrtho(l, r, b, t, n, f);
     }
     glMatrixMode(GL_MODELVIEW);
     {
+        glPushMatrix();
         glLoadMatrixd(M);
     }
 
@@ -1088,7 +1088,14 @@ void draw_light_fini()
 {
     glColorMask(1, 1, 1, 1);
 
-    user->pop();
+    glMatrixMode(GL_PROJECTION);
+    {
+        glPopMatrix();
+    }
+    glMatrixMode(GL_MODELVIEW);
+    {
+        glPopMatrix();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -1113,8 +1120,8 @@ void wrl::world::draw(bool edit, const double *points)
     GLfloat L[4];
     double  l[4], c[4], d[4];
 
-    const double n = ::user->get_n();
-    const double f = ::user->get_f();
+    const double n =     1000.0; // ::user->get_n(); HACK
+    const double f = 10000000.0; // ::user->get_f(); HACK
 
     const int m = 3;
 
@@ -1192,10 +1199,10 @@ void wrl::world::draw(bool edit, const double *points)
             {
                 glLoadIdentity();
 
-                ::user->mult_S();
+                glMultMatrixd(::user->get_S());
                 glOrtho(a[0], z[0], a[1], z[1], -a[2] - D, -a[2]);
                 glMultMatrixd(M);
-                ::user->mult_M();
+                glMultMatrixd(::user->get_M());
             }
             glMatrixMode(GL_MODELVIEW);
             glActiveTextureARB(GL_TEXTURE0);

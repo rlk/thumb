@@ -1,6 +1,6 @@
 
 simplify sphere draw to assume the FragCoord is accurate
-complete the event API rewrite
+    combiner will still require offset/bias because it works in window space
 implement culling within frustum
 complete the transition to the serial module
 
@@ -11,6 +11,31 @@ set the GUI transform before gui draw is called
 * Add the transform business to the dialog?
     dialog::point takes (p, q)
     would enable different dialogs with different transforms
+
+-------------------------------------------------------------------------------
+
+accumulate a list of frusta
+    host asks each tile to prep
+        tile asks each disp to prep
+            disp looks at views
+            disp comptutes/provides view frustum pointers
+    host asks scene to prep given frusta
+    host asks each tile to draw
+        tile asks each disp to draw
+            disp looks at views
+            disp asks scene to draw off-screen given a frustum
+            disp draws processed view on-screen
+
+disps
+    normal
+    varrier
+    anaglyph
+    dome
+
+disp
+    has/takes views
+    has/takes frusta
+    
 
 -------------------------------------------------------------------------------
 
@@ -56,6 +81,7 @@ mode::dome.draw
 
 
 the prep frusta are wrong for dome mode
+set_head sets the user frustum, not the projector frustum
 
 gl_FragCoord gives wrong values when rendering direct to screen
 
