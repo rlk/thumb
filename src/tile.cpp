@@ -45,10 +45,9 @@ app::tile::tile(app::node node) : current(0)
          curr = next(node, curr, "disp"))
     {
         const char *t = get_attr_s(curr, "type", "normal");
-        int         i = get_attr_d(curr, "index");
 
         if (strcmp(t, "normal")  == 0)
-            display[i] = new app::normal  (node, curr);
+            display.push_back(new app::normal  (node, curr));
 /*
         if (strcmp(t, "anaglyph") == 0)
             display[i] = new app::anaglyph(node, curr);
@@ -106,6 +105,9 @@ void app::tile::draw(view_v& views, bool calibrate_state,
                                      int calibrate_index)
 {
     bool calibrate = (calibrate_state && (calibrate_index == index));
+
+    glViewport(window[0], window[1],
+               window[2], window[3]);
 
     if (display[current])
         display[current]->draw(views, calibrate);

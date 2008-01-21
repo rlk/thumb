@@ -14,6 +14,7 @@
 #define NORMAL_HPP
 
 #include "disp.hpp"
+#include "program.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -21,6 +22,11 @@ namespace app
 {
     class normal : public disp
     {
+        int      index;
+        frustum *frust;
+
+        const ogl::program *prog;
+
     public:
 
         normal(app::node, app::node);
@@ -28,7 +34,7 @@ namespace app
         virtual void prep(view_v&, frustum_v&);
         virtual void draw(view_v&, bool);
 
-        virtual ~normal() { }
+        virtual ~normal();
     };
 }
 

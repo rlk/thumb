@@ -31,11 +31,8 @@ disps
     varrier
     anaglyph
     dome
-
-disp
-    has/takes views
-    has/takes frusta
-    
+    scanline
+    idesk4 (flip)
 
 -------------------------------------------------------------------------------
 

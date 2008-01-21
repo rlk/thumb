@@ -234,10 +234,10 @@ app::frustum::frustum(app::node node) : node(node)
 
     // Compute any unspecified screen corner.
 
-    if (!b[0] &&  b[1] &&  b[2] &&  b[3]) calc_corner_1(C[0], C[3], C[2], C[1]);
-    if ( b[0] && !b[1] &&  b[2] &&  b[3]) calc_corner_1(C[1], C[2], C[0], C[3]);
-    if ( b[0] &&  b[1] && !b[2] &&  b[3]) calc_corner_1(C[2], C[1], C[3], C[0]);
-    if ( b[0] &&  b[1] &&  b[2] && !b[3]) calc_corner_1(C[3], C[0], C[1], C[2]);
+    if (!b[0] &&  b[1] &&  b[2] &&  b[3]) calc_corner_1(c[0], c[3], c[2], c[1]);
+    if ( b[0] && !b[1] &&  b[2] &&  b[3]) calc_corner_1(c[1], c[2], c[0], c[3]);
+    if ( b[0] &&  b[1] && !b[2] &&  b[3]) calc_corner_1(c[2], c[1], c[3], c[0]);
+    if ( b[0] &&  b[1] &&  b[2] && !b[3]) calc_corner_1(c[3], c[0], c[1], c[2]);
     if (!b[0] && !b[1] && !b[2] && !b[3]) calc_corner_4(aspect, fov);
 
     calc_calibrated();

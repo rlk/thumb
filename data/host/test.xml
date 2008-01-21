@@ -1,35 +1,30 @@
 <?xml version="1.0"?>
 <host>
+  <buffer w="640" h="480"/>
 
-  <gui w="1024" h="768">
-    <corner name="BL" x="-0.666" y="-0.5" z="-1.5"/>
-    <corner name="BR" x=" 0.666" y="-0.5" z="-1.5"/>
-    <corner name="TL" x="-0.666" y=" 0.5" z="-1.5"/>
-  </gui>
-
-  <view x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0"/>
   <view x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1"/>
-
-  <buffer w="1024" h="768"/>
+  <view x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0"/>
 
   <node name="test">
-    <window x="0" y="0" w="1024" h="768"/>
+    <window x="0" y="0" w="1280" h="480"/>
     <tile index="0">
-      <viewport x="0" y="0" w="1024" h="768"/>
+      <viewport x="0" y="0" w="640" h="480"/>
       <frustum>
         <corner name="BL" x="-0.666" y="-0.5" z="-1.5"/>
         <corner name="BR" x=" 0.666" y="-0.5" z="-1.5"/>
         <corner name="TL" x="-0.666" y=" 0.5" z="-1.5"/>
       </frustum>
-      <disp index="0" type="normal" view="0">
+      <disp type="normal" view="0">
       </disp>
-      <disp index="1" type="anaglyph">
-      </disp>
-      <disp index="2" type="varrier">
-        <linescreen p="536.85342" a="-10.445" t="0.0226" s ="0.00040" c="0.75"/>
-      </disp>
-      <disp index="3" type="dome" view="0">
-        <range t0="-36.0" t1="36" td="10" p0="0" p1="60" pd="10"/>
+    </tile>
+    <tile index="1">
+      <viewport x="640" y="0" w="640" h="480"/>
+      <frustum>
+        <corner name="BL" x="-0.666" y="-0.5" z="-1.5"/>
+        <corner name="BR" x=" 0.666" y="-0.5" z="-1.5"/>
+        <corner name="TL" x="-0.666" y=" 0.5" z="-1.5"/>
+      </frustum>
+      <disp type="normal" view="1">
       </disp>
     </tile>
   </node>

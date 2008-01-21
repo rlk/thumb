@@ -307,8 +307,8 @@ app::host::host(std::string filename, std::string tag) :
 
             // Create a tile object for each configured tile.
 
-            for (curr = find(node,       "view"); curr;
-                 curr = next(node, curr, "view"))
+            for (curr = find(node,       "tile"); curr;
+                 curr = next(node, curr, "tile"))
                 tiles.push_back(new tile(curr));
 
             // If no views or tiles were configured, instance defaults.
@@ -549,6 +549,7 @@ void app::host::draw()
 
     // Render all tiles.
     
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)

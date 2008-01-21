@@ -12,6 +12,7 @@
 
 #include "matrix.hpp"
 #include "view.hpp"
+#include "glob.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -23,9 +24,10 @@ app::view::view(app::node node, const int *buffer) :
     v[1] = p[1] = get_attr_f(node, "y");
     v[2] = p[2] = get_attr_f(node, "z");
 
-    color[0]    = get_attr_f(node, "r", 1.0);
-    color[1]    = get_attr_f(node, "g", 1.0);
-    color[2]    = get_attr_f(node, "b", 1.0);
+    c[0] = GLubyte(get_attr_f(node, "r", 1.0) * 0xFF);
+    c[1] = GLubyte(get_attr_f(node, "g", 1.0) * 0xFF);
+    c[2] = GLubyte(get_attr_f(node, "b", 1.0) * 0xFF);
+    c[3] = GLubyte(get_attr_f(node, "a", 1.0) * 0xFF);
 }
 
 app::view::~view()
@@ -49,9 +51,28 @@ void app::view::set_head(const double *p,
     this->p[2] = p[2] + w[2];
 }
 
+void app::view::bind()
+{
+    // Ensure the off-screen buffer exists.  Bind it as render target.
+
+    if (back == 0)
+        back = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
+                                       GL_RGBA8, true, false);
+    if (back)
+        back->bind();
+}
+
+void app::view::free()
+{
+    // Unbind the off-screen render target.
+
+    if (back)
+        back->free();
+}
+
+/*
 void app::view::draw(const int *rect, bool focus)
 {
-/*
     double frag_d[2] = { 0, 0 };
     double frag_k[2] = { 1, 1 };
 
@@ -111,7 +132,7 @@ void app::view::draw(const int *rect, bool focus)
             back->free();
         }
     }
-*/
 }
+*/
 
 //-----------------------------------------------------------------------------

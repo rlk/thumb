@@ -22,15 +22,14 @@ namespace app
 {
     class view
     {
-        double v[3];
-        double p[3];
+        double  v[3];
+        double  p[3];
+        GLubyte c[4];
 
         int w;
         int h;
 
         ogl::frame *back;
-
-        float color[3];
 
     public:
 
@@ -40,12 +39,14 @@ namespace app
         void set_head(const double *,
                       const double *);
 
-        const double *get_p() const { return p; }
+        const double  *get_p() const { return p; }
+        const GLubyte *get_c() const { return c; }
 
-        void bind(GLenum t) const { back->bind_color(t); }
-        void free(GLenum t) const { back->free_color(t); }
+        void bind();
+        void free();
 
-        void draw(const int *, bool);
+        void bind_color(GLenum t) const { if (back) back->bind_color(t); }
+        void free_color(GLenum t) const { if (back) back->free_color(t); }
     };
 
     typedef std::vector<view *>           view_v;
