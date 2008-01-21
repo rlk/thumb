@@ -197,8 +197,7 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::transform(const double *Mv,
-                            const double *Iv)
+void uni::sphere::transform()
 {
     double A[16];
     double B[16];
@@ -217,7 +216,7 @@ void uni::sphere::transform(const double *Mv,
 
     // Compose the object-to-camera transformation.
 
-    load_mat(M, Iv);
+    load_mat(M, ::user->get_I());
 
     Rmul_xlt_mat(M, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(M, M, A);              // Planet tilt
@@ -225,7 +224,7 @@ void uni::sphere::transform(const double *Mv,
 
     // Compose the object-to-camera inverse.
 
-    load_mat(I, Mv);
+    load_mat(I, ::user->get_M());
 
     Lmul_xlt_inv(I, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(I, B, I);              // Planet tilt
@@ -238,10 +237,13 @@ void uni::sphere::transform(const double *Mv,
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::view(const double *Mv,
-                       const double *Iv,
-                       const double *F, int n)
+void uni::sphere::view(const app::frustum_v& frusta)
 {
+    transform();
+
+    // TODO: transform the frusta by the planet transform
+
+/*
     if ((visible = true)) // HACK (visible = cam->test(p, r1)))
     {
         double o[3] = { 0, 0, 0 };
@@ -260,29 +262,13 @@ void uni::sphere::view(const double *Mv,
         V[3] = -r0 * r0 / sqrt(DOT3(V, V));
 
         normalize(V);
-/*
-        const double *P = ::view->get_plane();
-        V[0] = P[0];
-        V[1] = P[1];
-        V[2] = P[2];
-        V[3] = P[3];
-*/
+
         // Determine the world-space view frustum planes.
 
         mult_xps_vec4(V +  4, M, F +  0);
         mult_xps_vec4(V +  8, M, F +  4);
         mult_xps_vec4(V + 12, M, F +  8);
         mult_xps_vec4(V + 16, M, F + 12);
-    /*
-    printf("%d\n", n);
-
-    for (int k = 1; k <= n; ++k)
-        printf("%+8.3f %+8.3f %+8.3f %f\n",
-               V[4 * k + 0],
-               V[4 * k + 1],
-               V[4 * k + 2],
-               V[4 * k + 3]);
-    */
 
         // Prep the atmosphere model.
 
@@ -300,7 +286,7 @@ void uni::sphere::view(const double *Mv,
                 C[k] = 0;
             }
     }
-
+*/
     // Cache the view distance for use in depth sorting.
 /*
     dist = ::user->dist(p);
@@ -590,15 +576,6 @@ void uni::sphere::draw(const double *frag_d,
                     vtx.bind();
                     {
                         pass();
-
-                        // HACK.  Simple yet surprisingly effective.
-/*
-                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                        glLineWidth(2.0f);
-                        pass();
-                        glLineWidth(1.0f);
-                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-*/
                     }
                     vtx.free();
                     dat.idx()->free();
@@ -610,7 +587,7 @@ void uni::sphere::draw(const double *frag_d,
         }
 
         // Draw the atmosphere.
-
+/*
         if (::conf->get_i("atmo"))
         {
             glEnable(GL_DEPTH_CLAMP_NV);
@@ -631,6 +608,7 @@ void uni::sphere::draw(const double *frag_d,
             }
             glDisable(GL_DEPTH_CLAMP_NV);
         }
+*/
     }
     glPopAttrib();
 }

@@ -374,9 +374,7 @@ void demo::track(int d, const double *p, const double *x, const double *z)
 
 void demo::prep(const app::frustum_v& frusta)
 {
-/*
-    universe.prep(F, n);
-*/
+    universe.prep(frusta);
 }
 
 void demo::draw(const app::frustum *frust)
@@ -413,8 +411,8 @@ void demo::draw(const app::frustum *frust)
 */
         // Draw the scene.
 
-        glClear(GL_DEPTH_BUFFER_BIT);
 /*
+        glClear(GL_DEPTH_BUFFER_BIT);
         user->push();
         user->draw();
         curr->draw(points);

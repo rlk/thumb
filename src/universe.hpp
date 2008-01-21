@@ -15,7 +15,7 @@
 
 #include "sphere.hpp"
 #include "geomap.hpp"
-#include "texture.hpp"
+#include "frustum.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -35,8 +35,8 @@ namespace uni
         universe();
        ~universe();
 
-        void prep(const double *, int);
-        void draw(const double *, const double *);
+        void prep(const app::frustum_v&);
+        void draw(const app::frustum  *);
 
         double rate() const;
         void   turn(double);

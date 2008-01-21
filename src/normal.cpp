@@ -78,16 +78,18 @@ void app::normal::draw(view_v& views, bool calibrate)
 
         views[index]->bind();
         {
-            const GLubyte *c = views[index]->get_c();
-
-            glPushAttrib(GL_COLOR_BUFFER_BIT);
+            if (calibrate)
             {
-                glClearColor(c[0], c[1], c[2], c[3]);
-                glClear(GL_COLOR_BUFFER_BIT);
-            }
-            glPopAttrib();
+                const GLubyte *c = views[index]->get_c();
 
-//          ::prog->draw(frust);
+                glPushAttrib(GL_COLOR_BUFFER_BIT);
+                {
+                    glClearColor(c[0], c[1], c[2], c[3]);
+                    glClear(GL_COLOR_BUFFER_BIT);
+                }
+                glPopAttrib();
+            }
+            else ::prog->draw(frust);
         }
         views[index]->free();
 

@@ -95,21 +95,13 @@ uni::universe::~universe()
 
 //-----------------------------------------------------------------------------
 
-void uni::universe::prep(const double *F, int n)
+void uni::universe::prep(const app::frustum_v& frusta)
 {
-    // Determine the modelview matrix and inverse.
-
-    double M[16];
-    double I[16];
-
-    load_mat(M, ::user->get_M());
-    load_mat(I, ::user->get_I());
-
     // Preprocess all objects.
 
     int i, N = 1;
 
-    for (i = 0; i < N; ++i) S[i]->view(M, I, F, n);
+    for (i = 0; i < N; ++i) S[i]->view(frusta);
 
     std::sort(S, S + N, sphcmp);
     
@@ -117,8 +109,7 @@ void uni::universe::prep(const double *F, int n)
     for (i = 0; i < N; ++i) S[i]->prep();
 }
 
-void uni::universe::draw(const double *frag_d,
-                         const double *frag_k)
+void uni::universe::draw(const app::frustum *frust)
 {
     int i, N = 1;
 
@@ -138,8 +129,9 @@ void uni::universe::draw(const double *frag_d,
         ::user->draw();
 */
         glLoadIdentity();
-
+/*
         S[i]->draw(frag_d, frag_k);
+*/
     }
 }
 
