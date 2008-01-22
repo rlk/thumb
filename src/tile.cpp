@@ -20,6 +20,8 @@ app::tile::tile(app::node node) : current(0)
 {
     app::node curr;
 
+    int window[4];
+
     window[0] = 0;
     window[1] = 0;
     window[2] = DEFAULT_PIXEL_WIDTH;
@@ -47,14 +49,14 @@ app::tile::tile(app::node node) : current(0)
         const char *t = get_attr_s(curr, "type", "normal");
 
         if (strcmp(t, "normal")  == 0)
-            display.push_back(new app::normal  (node, curr));
+            display.push_back(new app::normal  (node, curr, window));
 /*
         if (strcmp(t, "anaglyph") == 0)
-            display[i] = new app::anaglyph(node, curr);
+            display[i] = new app::anaglyph(node, curr, window);
         if (strcmp(t, "varrier")  == 0)
-            display[i] = new app::varrier (node, curr);
+            display[i] = new app::varrier (node, curr, window);
         if (strcmp(t, "dome")     == 0)
-            display[i] = new app::dome    (node, curr);
+            display[i] = new app::dome    (node, curr, window);
 */
     }
 }
@@ -104,10 +106,7 @@ void app::tile::prep(view_v& views, frustum_v& frusta)
 void app::tile::draw(view_v& views, bool calibrate_state,
                                      int calibrate_index)
 {
-    bool calibrate = (calibrate_state && (calibrate_index == index));
-
-    glViewport(window[0], window[1],
-               window[2], window[3]);
+    bool calibrate = calibrate_state;
 
     if (display[current])
         display[current]->draw(views, calibrate);

@@ -56,6 +56,10 @@ void app::frustum::calc_calibrated()
 
 void app::frustum::calc_user_planes(const double *p)
 {
+    this->p[0] = p[0];
+    this->p[1] = p[1];
+    this->p[2] = p[2];
+
     // Compute the user-space view frustum bounding planes.
 
     set_plane(user_planes[0], p, C[0], C[2]);  // Left
@@ -74,8 +78,7 @@ void app::frustum::calc_view_planes(const double *I)
     mult_xps_vec4(view_planes[3], I, user_planes[3]);
 }
 
-void app::frustum::calc_projection(const double *p,
-                                   const double *M, double n, double f)
+void app::frustum::calc_projection(const double *M, double n, double f)
 {
     // Compute the display plane basis.
 
@@ -155,6 +158,10 @@ app::frustum::frustum(app::node node) : node(node)
 
     double aspect =  1.333;
     double fov    = 90.000;
+
+    p[0] = 0.0;
+    p[1] = 0.0;
+    p[2] = 0.0;
 
     load_idt(T);
 
@@ -244,7 +251,7 @@ app::frustum::frustum(app::node node) : node(node)
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void app::frustum::set_view(const double *p,
                             const double *I)
 {
@@ -261,7 +268,7 @@ void app::frustum::set_dist(const double *p,
 
     calc_projection(p, M, n, f);
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 bool app::frustum::input_point(int i, const double *p, const double *q)

@@ -42,6 +42,9 @@ namespace app
         const double  *get_p() const { return p; }
         const GLubyte *get_c() const { return c; }
 
+        int get_w() const { return w; }
+        int get_h() const { return h; }
+
         void bind();
         void free();
 

@@ -35,8 +35,8 @@ namespace uni
         universe();
        ~universe();
 
-        void prep(const app::frustum_v&);
-        void draw(const app::frustum  *);
+        void prep(app::frustum_v&);
+        void draw(app::frustum  *);
 
         double rate() const;
         void   turn(double);

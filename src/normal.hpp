@@ -25,11 +25,16 @@ namespace app
         int      index;
         frustum *frust;
 
-        const ogl::program *prog;
+        int x;
+        int y;
+        int w;
+        int h;
+
+        const ogl::program *P;
 
     public:
 
-        normal(app::node, app::node);
+        normal(app::node, app::node, const int *);
 
         virtual void prep(view_v&, frustum_v&);
         virtual void draw(view_v&, bool);

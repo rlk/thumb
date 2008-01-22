@@ -372,52 +372,30 @@ void demo::track(int d, const double *p, const double *x, const double *z)
 */
 //-----------------------------------------------------------------------------
 
-void demo::prep(const app::frustum_v& frusta)
+void demo::prep(app::frustum_v& frusta)
 {
     universe.prep(frusta);
 }
 
-void demo::draw(const app::frustum *frust)
+void demo::draw(app::frustum *frust)
 {
-//  GLfloat A[4] = { 0.05f, 0.10f, 0.15f, 0.0f };
     GLfloat A[4] = { 0.45f, 0.50f, 0.55f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
 
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
 
     glPushAttrib(GL_ENABLE_BIT);
     {
-/*
-        double planes[20];
-        double points[24];
-*/
         glEnable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
-/*
-        user->push();
-        universe.draw(frag_d, frag_k);
-        user->pop();
-*/
-        // Compute the view frusta.
-/*
-        user->plane_frustum(planes);
-        user->range(1.0, curr->view(planes));
-        user->point_frustum(points);
-*/
-        // Draw the scene.
 
-/*
-        glClear(GL_DEPTH_BUFFER_BIT);
-        user->push();
-        user->draw();
-        curr->draw(points);
-        user->pop();
-*/
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        universe.draw(frust);
     }
     glPopAttrib();
 }

@@ -11,14 +11,21 @@
 //  General Public License for more details.
 
 #include "normal.hpp"
-#include "user.hpp"
 #include "glob.hpp"
+#include "user.hpp"
+#include "prog.hpp"
 
 //-----------------------------------------------------------------------------
 
-app::normal::normal(app::node tile, app::node node) : frust(0), prog(0)
+app::normal::normal(app::node tile,
+                    app::node node, const int *window) : frust(0), P(0)
 {
     app::node curr;
+
+    x = window[0];
+    y = window[1];
+    w = window[2];
+    h = window[3];
 
     // Check the display definition for a frustum.
 
@@ -48,7 +55,7 @@ void app::normal::prep(view_v& views, frustum_v& frusta)
     {
         // Apply the viewpoint and view to my frustum.
 
-        frust->set_view(views[index]->get_p(), ::user->get_I());
+        frust->calc_user_planes(views[index]->get_p());
 
         // Add my frustum to the list.
 
@@ -57,16 +64,14 @@ void app::normal::prep(view_v& views, frustum_v& frusta)
 
     // Ensure the draw shader is initialized.
 
-    if (prog == 0 && (prog = ::glob->load_program("glsl/normal.vert",
-                                                  "glsl/normal.frag")))
+    if (P == 0 && (P = ::glob->load_program("glsl/normal.vert",
+                                            "glsl/normal.frag")))
     {
-        prog->bind();
+        P->bind();
         {
-            prog->uniform("map", 0);
-            prog->uniform("frag_d", 0.0, 0.0);
-            prog->uniform("frag_k", 1.0, 1.0);
+            P->uniform("map", 0);
         }
-        prog->free();
+        P->free();
     }
 }
 
@@ -82,12 +87,8 @@ void app::normal::draw(view_v& views, bool calibrate)
             {
                 const GLubyte *c = views[index]->get_c();
 
-                glPushAttrib(GL_COLOR_BUFFER_BIT);
-                {
-                    glClearColor(c[0], c[1], c[2], c[3]);
-                    glClear(GL_COLOR_BUFFER_BIT);
-                }
-                glPopAttrib();
+                glClearColor(c[0], c[1], c[2], c[3]);
+                glClear(GL_COLOR_BUFFER_BIT);
             }
             else ::prog->draw(frust);
         }
@@ -95,11 +96,19 @@ void app::normal::draw(view_v& views, bool calibrate)
 
         // Draw the off-screen buffer to the screen.
 
-        if (prog)
+        if (P)
         {
+            const double kx = double(views[index]->get_w()) / w;
+            const double ky = double(views[index]->get_h()) / h;
+
+            glViewport(x, y, w, h);
+
             views[index]->bind_color(GL_TEXTURE0);
-            prog->bind();
+            P->bind();
             {
+                P->uniform("frag_d", -x * kx, -y * ky);
+                P->uniform("frag_k",      kx,      ky);
+
                 glBegin(GL_QUADS);
                 {
                     glVertex2f(-1.0f, -1.0f);
@@ -109,7 +118,7 @@ void app::normal::draw(view_v& views, bool calibrate)
                 }
                 glEnd();
             }
-            prog->free();
+            P->free();
             views[index]->free_color(GL_TEXTURE0);
         }
     }

@@ -101,8 +101,8 @@ public:
     void value(int, int, double);
     void timer(int);
 
-    void prep(const app::frustum_v&);
-    void draw(const app::frustum  *);
+    void prep(app::frustum_v&);
+    void draw(app::frustum  *);
 };
 
 //-----------------------------------------------------------------------------

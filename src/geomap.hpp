@@ -20,6 +20,7 @@
 #include <queue>
 
 #include "texture.hpp"
+#include "frustum.hpp"
 #include "opengl.hpp"
 
 //-----------------------------------------------------------------------------
@@ -190,7 +191,7 @@ namespace uni
         void purge();
         void used(page *);
 
-        void draw(const double *,
+        void draw(const app::frustum *,
                   const double *, int=0, int=0);
         void wire();
 

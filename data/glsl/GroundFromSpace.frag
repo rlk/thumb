@@ -3,13 +3,11 @@
 uniform sampler2DRect dif;
 uniform sampler2DRect nrm;
 
-uniform vec2 frag_k;
-uniform vec2 frag_d;
 varying float day;
 
 void main (void)
 {
-    vec2 p = (gl_FragCoord.xy + frag_d) * frag_k;
+    vec2 p = gl_FragCoord.xy;
 
     vec3 L = gl_LightSource[0].position.xyz;
     vec3 D = texture2DRect(dif, p).rgb;

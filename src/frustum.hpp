@@ -19,6 +19,9 @@
 
 //-----------------------------------------------------------------------------
 
+// TODO: frustum should be able to evaluate LOD?
+//       or at least encapsulate view position (which it sorfof does)
+
 namespace app
 {
     class frustum
@@ -46,6 +49,7 @@ namespace app
 
         // Projection transform
 
+        double p[3];
         double P[16];
 
         // Utility functions
@@ -55,11 +59,6 @@ namespace app
                                      const double *,
                                      const double *);
         void calc_calibrated();
-        void calc_projection(const double *,
-                             const double *, double, double);
-
-        void calc_user_planes(const double *);
-        void calc_view_planes(const double *);
 
     public:
 
@@ -67,11 +66,15 @@ namespace app
         frustum(const double *);
 
         // View state mutators
-
+/*
         void set_view(const double *,
                       const double *);
         void set_dist(const double *,
                       const double *, double, double);
+*/
+        void calc_projection (const double *, double, double);
+        void calc_user_planes(const double *);
+        void calc_view_planes(const double *);
 
         // Calibration input handlers
 

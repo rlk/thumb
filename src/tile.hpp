@@ -27,8 +27,6 @@ namespace app
     private:
 
         int    index;
-        int    window[4];
-
         disp_v display;
         int    current;
 

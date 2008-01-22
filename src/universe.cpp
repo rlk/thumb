@@ -95,44 +95,26 @@ uni::universe::~universe()
 
 //-----------------------------------------------------------------------------
 
-void uni::universe::prep(const app::frustum_v& frusta)
+void uni::universe::prep(app::frustum_v& frusta)
 {
     // Preprocess all objects.
 
-    int i, N = 1;
-
-    for (i = 0; i < N; ++i) S[i]->view(frusta);
-
-    std::sort(S, S + N, sphcmp);
-    
-    for (i = 0; i < N; ++i) S[i]->step();
-    for (i = 0; i < N; ++i) S[i]->prep();
+    S[0]->view(frusta);
+    S[0]->step(frusta);
+    S[0]->prep(frusta);
 }
 
-void uni::universe::draw(const app::frustum *frust)
+void uni::universe::draw(app::frustum *frust)
 {
-    int i, N = 1;
+    double n = S[0]->min_d() / 4.0;  // HACK
+    double f = S[0]->max_d() * 2.0;  // HACK
 
-    // Draw all objects.
+    frust->calc_projection(::user->get_M(), n, f);
+    frust->draw();
 
-    for (i = 0; i < N; ++i)
-    {
-        double n;
-        double f;
+    glLoadIdentity();
 
-        n = S[i]->min_d();
-        f = S[i]->max_d();
-
-        // HACK: far should be outside the geomap bounds
-/*
-        ::user->range(n / 4.0, f * 2.0);
-        ::user->draw();
-*/
-        glLoadIdentity();
-/*
-        S[i]->draw(frag_d, frag_k);
-*/
-    }
+    S[0]->draw(frust);
 }
 
 double uni::universe::rate() const

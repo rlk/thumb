@@ -173,6 +173,8 @@ static int loader_func(void *data)
         // Load and enqueue the page.
 
         if (L && P) L->enqueue(P, load_png(name));
+
+        printf("%s\n", name.c_str());
     }
 
     return 0;
@@ -912,7 +914,7 @@ void uni::geomap::used(page *P)
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::draw(const double *V,
+void uni::geomap::draw(const app::frustum* frust,
                        const double *p, int w, int h)
 {
     loaded();

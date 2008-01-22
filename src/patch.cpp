@@ -327,8 +327,10 @@ double get_radius(const double *c, const double *n, double r)
     return sqrt(DOT3(d, d));
 }
 
-int uni::patch::visible(const double *V)
+int uni::patch::visible(app::frustum_v& frusta)
 {
+    return 0;
+/*
     const double *n0 = P[0]->get();
     const double *n1 = P[1]->get();
     const double *n2 = P[2]->get();
@@ -361,6 +363,8 @@ int uni::patch::visible(const double *V)
     else
         c += d;
 
+    return (c == 5) ? 1 : 0;
+*/
 /* TODO: near plane
     if ((d = patch_plane_range(n0, n1, n2, V + 20, r0, r1)) < 0)
         return -1;
@@ -369,7 +373,6 @@ int uni::patch::visible(const double *V)
 
     return (c == 6) ? 1 : 0;
 */
-    return (c == 5) ? 1 : 0;
 }
 
 double uni::patch::value(const double *p)
@@ -496,13 +499,13 @@ void uni::patch::view(GLsizei c, const GLfloat *p)
 }
 
 uni::patch *uni::patch::step(context& ctx,
-                             const double *V,
+                             app::frustum_v& frusta,
                              const double *p,
                              double bias, int d, GLsizei& count)
 {
     // Extend or prune the patch tree.
 
-    if ((d > 0) || (d = visible(V)) >= 0)
+    if ((d > 0) || (d = visible(frusta)) >= 0)
     {
         // This patch is still visible.
 
@@ -562,22 +565,22 @@ uni::patch *uni::patch::step(context& ctx,
             if (C[0])
             {
                 context c(ctx, 0);
-                C[0] = C[0]->step(c, V, p, bias, d, count);
+                C[0] = C[0]->step(c, frusta, p, bias, d, count);
             }
             if (C[1])
             {
                 context c(ctx, 1);
-                C[1] = C[1]->step(c, V, p, bias, d, count);
+                C[1] = C[1]->step(c, frusta, p, bias, d, count);
             }
             if (C[2])
             {
                 context c(ctx, 2);
-                C[2] = C[2]->step(c, V, p, bias, d, count);
+                C[2] = C[2]->step(c, frusta, p, bias, d, count);
             }
             if (C[3])
             {
                 context c(ctx, 3);
-                C[3] = C[3]->step(c, V, p, bias, d, count);
+                C[3] = C[3]->step(c, frusta, p, bias, d, count);
             }
 
             // If this patch passed the visibility test and is large enough to

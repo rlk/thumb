@@ -720,6 +720,8 @@ void uni::geopos::seed(GLsizei i, GLfloat x, GLfloat y, GLfloat z, GLfloat w)
     b[2] = std::min(y, b[2]);
     b[3] = std::max(y, b[3]);
 
+    // TODO: is the bounding volume needed?
+
     if (z < 0)
     {
         b[4] = std::min(b[4], -z);

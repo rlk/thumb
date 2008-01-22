@@ -197,7 +197,7 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::transform()
+void uni::sphere::transform(app::frustum_v& frusta)
 {
     double A[16];
     double B[16];
@@ -222,13 +222,18 @@ void uni::sphere::transform()
     mult_mat_mat(M, M, A);              // Planet tilt
     Rmul_rot_mat(M, 0, 1, 0, a);        // Planet rotation
 
-    // Compose the object-to-camera inverse.
+    // Compose the camera-to-object transform.
 
     load_mat(I, ::user->get_M());
 
     Lmul_xlt_inv(I, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(I, B, I);              // Planet tilt
     Lmul_rot_inv(I, 0, 1, 0, a);        // Planet rotation
+
+    // Apply the transform to the frusta.
+
+    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+        (*i)->calc_view_planes(I);
 
     // Apply the transform to the atmosphere.
 
@@ -237,9 +242,12 @@ void uni::sphere::transform()
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::view(const app::frustum_v& frusta)
+void uni::sphere::view(app::frustum_v& frusta)
 {
-    transform();
+    double o[3] = { 0, 0, 0 };
+    visible = true;
+    transform(frusta);
+    mult_mat_vec3(v, I, o);
 
     // TODO: transform the frusta by the planet transform
 
@@ -293,7 +301,7 @@ void uni::sphere::view(const app::frustum_v& frusta)
 */
 }
 
-void uni::sphere::step()
+void uni::sphere::step(app::frustum_v& frusta)
 {
     count = 0;
 
@@ -323,7 +331,7 @@ void uni::sphere::step()
                               C[i[1]], j[1],
                               C[i[2]], j[2]);
 
-            C[k] = C[k]->step(ctx, V, v, bias, 0, count);
+            C[k] = C[k]->step(ctx, frusta, v, bias, 0, count);
         }
 
         // Set up geometry generation.
@@ -354,7 +362,7 @@ void uni::sphere::step()
     }
 }
 
-void uni::sphere::prep()
+void uni::sphere::prep(app::frustum_v& frusta)
 {
     if (count)
     {
@@ -394,7 +402,8 @@ void uni::sphere::prep()
                 int w = int(dat.vtx_len());
                 int h = int(count);
 
-                height.draw(V, v, w, h);
+                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                    height.draw(*i, v, w, h);
             }
             acc.free_proc();
             acc.swap();
@@ -450,8 +459,7 @@ void uni::sphere::pass()
         }
 }
 
-void uni::sphere::draw(const double *frag_d,
-                       const double *frag_k)
+void uni::sphere::draw(const app::frustum *frust)
 {
     bool in = (sqrt(DOT3(v, v)) < a1);
 
@@ -537,7 +545,7 @@ void uni::sphere::draw(const double *frag_d,
 
                     ren.dif()->bind();
                     {
-                        color.draw(V, v);
+                        color.draw(frust, v);
                     }
                     ren.dif()->free();
 
@@ -546,7 +554,7 @@ void uni::sphere::draw(const double *frag_d,
                     ren.nrm()->axis(a);
                     ren.nrm()->bind();
                     {
-                        normal.draw(V, v);
+                        normal.draw(frust, v);
                     }
                     ren.nrm()->free();
 
@@ -567,9 +575,6 @@ void uni::sphere::draw(const double *frag_d,
                 {
                     land_prog->uniform("dif", 1);
                     land_prog->uniform("nrm", 2);
-
-                    land_prog->uniform("frag_d", frag_d[0], frag_d[1]);
-                    land_prog->uniform("frag_k", frag_k[0], frag_k[1]);
 
                     ren.bind();
                     dat.idx()->bind();
@@ -611,23 +616,6 @@ void uni::sphere::draw(const double *frag_d,
 */
     }
     glPopAttrib();
-}
-
-void uni::sphere::xfrm()
-{
-    double A[16];
-
-    load_idt(A);
-
-    A[4] = n[0];
-    A[5] = n[1];
-    A[6] = n[2];
-
-    crossprod(A + 8, A + 0, A + 4);
-
-    glTranslated(p[0], p[1], p[2]);
-    glMultMatrixd(A);
-    glRotated(a, 0, 1, 0);
 }
 
 //-----------------------------------------------------------------------------

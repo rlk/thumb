@@ -39,8 +39,8 @@ namespace app
         virtual void value(int, int, double)                    { }
         virtual void timer(int)                                 { }
         
-        virtual void prep(const app::frustum_v&) { }
-        virtual void draw(const app::frustum  *) { }
+        virtual void prep(app::frustum_v&) { }
+        virtual void draw(app::frustum  *) { }
 
         virtual ~prog() { }
     };

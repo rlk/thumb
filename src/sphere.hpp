@@ -16,6 +16,7 @@
 #include "opengl.hpp"
 #include "texture.hpp"
 #include "default.hpp"
+#include "frustum.hpp"
 #include "geogen.hpp"
 #include "georen.hpp"
 #include "geomap.hpp"
@@ -92,8 +93,7 @@ namespace uni
         ogl::unit *atmo_unit;
 
         void atmo_prep(const ogl::program *) const;
-        void transform(const double *,
-                       const double *);
+        void transform(app::frustum_v&);
 
     public:
     
@@ -107,13 +107,11 @@ namespace uni
 
         // Rendering pipeline.
 
-        void view(const double *, const double *, const double *, int n);
-        void step();
-        void prep();
+        void view(app::frustum_v&);
+        void step(app::frustum_v&);
+        void prep(app::frustum_v&);
         void pass();
-        void draw(const double *, const double *);
-        void xfrm();
-        void wire();
+        void draw(const app::frustum *);
 
         // State queries.
 
