@@ -92,9 +92,11 @@ namespace app
 
         // Visibility testers
 
-        void test_shell(const double *, double, double, int);
-        void test_bound(const double *,
-                        const double *);
+        int test_shell(const double *, 
+                       const double *, 
+                       const double *, double, double) const;
+        int test_bound(const double *,
+                       const double *);
 
         // Perspective projection application
 

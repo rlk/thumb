@@ -157,160 +157,6 @@ uni::patch::~patch()
 
 //-----------------------------------------------------------------------------
 
-bool patch_vector_test(const double *n0,
-                       const double *n1,
-                       const double *n2,
-                       const double *v)
-{
-    double n[3];
-
-    crossprod(n, n0, n1);
-
-    if (DOT3(n, v) < 0.0)
-        return false;
-
-    crossprod(n, n1, n2);
-
-    if (DOT3(n, v) < 0.0)
-        return false;
-
-    crossprod(n, n2, n0);
-
-    if (DOT3(n, v) < 0.0)
-        return false;
-
-    return true;
-}
-
-double closest_point(const double *a, double ar,
-                     const double *b, double br)
-{
-    double d[3];
-    double p[3];
-
-    d[0] = b[0] - a[0];
-    d[1] = b[1] - a[1];
-    d[2] = b[2] - a[2];
-
-    normalize(d);
-
-    double da;
-    double db;
-
-    if ((da = DOT3(d, a)) >= 0.0) return ar;
-    if ((db = DOT3(d, b)) <= 0.0) return br;
-
-    p[0] = a[0] - d[0] * da;
-    p[1] = a[1] - d[1] * da;
-    p[2] = a[2] - d[2] * da;
-
-    return sqrt(DOT3(p, p));
-}
-
-// Compute the minimum and maximum radius at which plane P intersects the
-// triangular frustum bounded by n0, n1, n2.
-
-int patch_plane_range(const double *n0,
-                      const double *n1,
-                      const double *n2,
-                      const double *P, double r0, double r1)
-{
-    double R0;
-    double R1;
-
-    // Easy-out the total misses.
-
-    const double d  = P[3];
-    const double d0 = DOT3(n0, P);
-    const double d1 = DOT3(n1, P);
-    const double d2 = DOT3(n2, P);
-
-    if (d <  0 && d0 <  0 && d1 <  0 && d2 <  0) return -1;
-    if (d >= 0 && d0 >= 0 && d1 >= 0 && d2 >= 0) return +1;
-
-//  return 0;  // HACK!  Oh sweet mother of god HACK.
-
-    // Compute the vector-plane intersection distances.
-
-    const double l0 = -d / d0;
-    const double l1 = -d / d1;
-    const double l2 = -d / d2;
-
-    // Hyperbolic: max is infinity. Elliptic: one of the points is max.
-
-    if ((d0 <= 0 && d1 <= 0 && d2 <= 0) ||
-        (d0 >  0 && d1 >  0 && d2 >  0))
-    {
-        R1 = std::max(l0, l1);
-        R1 = std::max(R1, l2);
-    }
-    else
-    {
-        R1 = std::numeric_limits<double>::max();
-    }
-
-    if (patch_vector_test(n0, n1, n2, P))
-    {
-        // If the normal falls within the triangle, the normal has min radius.
-
-        R0 = -d;
-    }
-    else
-    {
-        // Otherwise, min radius is on an edge.
-
-        double p0[3];
-        double p1[3];
-        double p2[3];
-
-        R0 = std::numeric_limits<double>::max();
-
-        if (l0 >= 0)
-        {
-            p0[0] = n0[0] * l0;
-            p0[1] = n0[1] * l0;
-            p0[2] = n0[2] * l0;
-            R0 = std::min(R0, l0);
-        }
-
-        if (l1 >= 0)
-        {
-            p1[0] = n1[0] * l1;
-            p1[1] = n1[1] * l1;
-            p1[2] = n1[2] * l1;
-            R0 = std::min(R0, l1);
-        }
-
-        if (l2 >= 0)
-        {
-            p2[0] = n2[0] * l2;
-            p2[1] = n2[1] * l2;
-            p2[2] = n2[2] * l2;
-            R0 = std::min(R0, l2);
-        }
-
-        if (l0 >= 0 && l1 >= 0) R0 =std::min(R0, closest_point(p0, l0, p1, l1));
-        if (l1 >= 0 && l2 >= 0) R0 =std::min(R0, closest_point(p1, l1, p2, l2));
-        if (l2 >= 0 && l0 >= 0) R0 =std::min(R0, closest_point(p2, l2, p0, l0));
-    }
-
-    // Interpret the computed radii as hit or miss.
-
-    if (d > 0)
-    {
-        if (R1 < r0) return -1;
-        if (R0 > r1) return +1;
-    }
-    else
-    {
-        if (R0 > r1) return -1;
-        if (R1 < r0) return +1;
-    }
-    return 0;
-}
-
-//-----------------------------------------------------------------------------
-
 bool uni::patch::leaf()
 {
     return (C[0] == 0 && C[1] == 0 && C[2] == 0 && C[3] == 0);
@@ -329,50 +175,17 @@ double get_radius(const double *c, const double *n, double r)
 
 int uni::patch::visible(app::frustum_v& frusta)
 {
-    return 0;
-/*
+    int d;
+
     const double *n0 = P[0]->get();
     const double *n1 = P[1]->get();
     const double *n2 = P[2]->get();
 
-    int c = 0;
-    int d = 0;
+    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+        if ((d = (*i)->test_shell(n0, n1, n2, r0, r1)) >= 0)
+            return 0;
 
-    if ((d = patch_plane_range(n0, n1, n2, V +  0, r0, r1)) < 0)
-        return -1;
-    else
-        c += d;
-
-    if ((d = patch_plane_range(n0, n1, n2, V +  4, r0, r1)) < 0)
-        return -1;
-    else
-        c += d;
-
-    if ((d = patch_plane_range(n0, n1, n2, V +  8, r0, r1)) < 0)
-        return -1;
-    else
-        c += d;
-
-    if ((d = patch_plane_range(n0, n1, n2, V + 12, r0, r1)) < 0)
-        return -1;
-    else
-        c += d;
-
-    if ((d = patch_plane_range(n0, n1, n2, V + 16, r0, r1)) < 0)
-        return -1;
-    else
-        c += d;
-
-    return (c == 5) ? 1 : 0;
-*/
-/* TODO: near plane
-    if ((d = patch_plane_range(n0, n1, n2, V + 20, r0, r1)) < 0)
-        return -1;
-    else
-        c += d;
-
-    return (c == 6) ? 1 : 0;
-*/
+    return -1;
 }
 
 double uni::patch::value(const double *p)

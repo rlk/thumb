@@ -230,8 +230,6 @@ void uni::sphere::transform(app::frustum_v& frusta)
     mult_mat_mat(I, B, I);              // Planet tilt
     Lmul_rot_inv(I, 0, 1, 0, a);        // Planet rotation
 
-    // Apply the transform to the frusta.
-
     // HACK: inefficient
 
     while (!this->frusta.empty())
@@ -240,11 +238,13 @@ void uni::sphere::transform(app::frustum_v& frusta)
         this->frusta.pop_back();
     }
 
+    // Apply the transform to the frusta.
+
     for (int i = 0; i < int(frusta.size()); ++i)
     {
         app::frustum *frust = new app::frustum(*(frusta[i]));
 
-        frust->calc_view_planes(M, I);
+        frust->calc_view_planes(I, M);
         this->frusta.push_back(frust);
     }
 
@@ -346,6 +346,8 @@ void uni::sphere::step()
 
             C[k] = C[k]->step(ctx, frusta, v, bias, 0, count);
         }
+
+        printf("%i\n", count);
 
         // Set up geometry generation.
 

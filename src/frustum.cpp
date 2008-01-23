@@ -320,30 +320,11 @@ app::frustum::frustum(frustum& that) : node(0)
     user_dist = that.user_dist;
 
     memcpy(user_points, that.user_points, 4 * 3 * sizeof (double));
-    memcpy(user_planes, that.user_points, 4 * 4 * sizeof (double));
+    memcpy(user_planes, that.user_planes, 4 * 4 * sizeof (double));
 
     memcpy(P, that.P, 16 * sizeof (double));
 }
 
-//-----------------------------------------------------------------------------
-/*
-void app::frustum::set_view(const double *p,
-                            const double *I)
-{
-    // Cache the frustum bounding planes.
-
-    calc_user_planes(p);
-    calc_view_planes(I);
-}
-
-void app::frustum::set_dist(const double *p,
-                            const double *M, double n, double f)
-{
-    // Cache the frustum bounding points and the projection transform.
-
-    calc_projection(p, M, n, f);
-}
-*/
 //-----------------------------------------------------------------------------
 
 bool app::frustum::input_point(int i, const double *p, const double *q)
@@ -359,6 +340,171 @@ bool app::frustum::input_click(int i, int b, int m, bool d)
 bool app::frustum::input_keybd(int c, int k, int m, bool d)
 {
     return false;
+}
+
+//-----------------------------------------------------------------------------
+
+static double closest_point(const double *a, double ar,
+                            const double *b, double br)
+{
+    double d[3];
+    double p[3];
+
+    d[0] = b[0] - a[0];
+    d[1] = b[1] - a[1];
+    d[2] = b[2] - a[2];
+
+    normalize(d);
+
+    double da;
+    double db;
+
+    if ((da = DOT3(d, a)) >= 0.0) return ar;
+    if ((db = DOT3(d, b)) <= 0.0) return br;
+
+    p[0] = a[0] - d[0] * da;
+    p[1] = a[1] - d[1] * da;
+    p[2] = a[2] - d[2] * da;
+
+    return sqrt(DOT3(p, p));
+}
+
+static bool test_shell_vector(const double *n0,
+                              const double *n1,
+                              const double *n2,
+                              const double *v)
+{
+    double n[3];
+
+    crossprod(n, n0, n1);
+
+    if (DOT3(n, v) < 0.0)
+        return false;
+
+    crossprod(n, n1, n2);
+
+    if (DOT3(n, v) < 0.0)
+        return false;
+
+    crossprod(n, n2, n0);
+
+    if (DOT3(n, v) < 0.0)
+        return false;
+
+    return true;
+}
+
+static int test_shell_plane(const double *n0,
+                            const double *n1,
+                            const double *n2,
+                            const double *P, double r0, double r1)
+{
+    double R0;
+    double R1;
+
+    // Easy-out the total misses.
+
+    const double d  = P[3];
+    const double d0 = DOT3(n0, P);
+    const double d1 = DOT3(n1, P);
+    const double d2 = DOT3(n2, P);
+
+    if (d <  0 && d0 <  0 && d1 <  0 && d2 <  0) return -1;
+    if (d >= 0 && d0 >= 0 && d1 >= 0 && d2 >= 0) return +1;
+
+    // Compute the vector-plane intersection distances.
+
+    const double l0 = -d / d0;
+    const double l1 = -d / d1;
+    const double l2 = -d / d2;
+
+    // Hyperbolic: max is infinity. Elliptic: one of the points is max.
+
+    if ((d0 <= 0 && d1 <= 0 && d2 <= 0) ||
+        (d0 >  0 && d1 >  0 && d2 >  0))
+    {
+        R1 = std::max(l0, l1);
+        R1 = std::max(R1, l2);
+    }
+    else
+    {
+        R1 = std::numeric_limits<double>::max();
+    }
+
+    if (test_shell_vector(n0, n1, n2, P))
+    {
+        // If the normal falls within the triangle, the normal has min radius.
+
+        R0 = -d;
+    }
+    else
+    {
+        // Otherwise, min radius is on an edge.
+
+        double p0[3];
+        double p1[3];
+        double p2[3];
+
+        R0 = std::numeric_limits<double>::max();
+
+        if (l0 >= 0)
+        {
+            p0[0] = n0[0] * l0;
+            p0[1] = n0[1] * l0;
+            p0[2] = n0[2] * l0;
+            R0 = std::min(R0, l0);
+        }
+
+        if (l1 >= 0)
+        {
+            p1[0] = n1[0] * l1;
+            p1[1] = n1[1] * l1;
+            p1[2] = n1[2] * l1;
+            R0 = std::min(R0, l1);
+        }
+
+        if (l2 >= 0)
+        {
+            p2[0] = n2[0] * l2;
+            p2[1] = n2[1] * l2;
+            p2[2] = n2[2] * l2;
+            R0 = std::min(R0, l2);
+        }
+
+        if (l0 >= 0 && l1 >= 0) R0 =std::min(R0, closest_point(p0, l0, p1, l1));
+        if (l1 >= 0 && l2 >= 0) R0 =std::min(R0, closest_point(p1, l1, p2, l2));
+        if (l2 >= 0 && l0 >= 0) R0 =std::min(R0, closest_point(p2, l2, p0, l0));
+    }
+
+    // Interpret the computed radii as hit or miss.
+
+    if (d > 0)
+    {
+        if (R1 < r0) return -1;
+        if (R0 > r1) return +1;
+    }
+    else
+    {
+        if (R0 > r1) return -1;
+        if (R1 < r0) return +1;
+    }
+    return 0;
+}
+
+int app::frustum::test_shell(const double *n0,
+                             const double *n1,
+                             const double *n2, double r0, double r1) const
+{
+    int i, d, c = 0;
+
+    for (i = 0; i < 4; ++i)
+        if ((d = test_shell_plane(n0, n1, n2, view_planes[i], r0, r1)) < 0)
+            return -1;
+        else
+            c += d;
+
+    return (c == 4) ? 1 : 0;
+
 }
 
 //-----------------------------------------------------------------------------
