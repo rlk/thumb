@@ -1,6 +1,3 @@
-
-simplify sphere draw to assume the FragCoord is accurate
-    combiner will still require offset/bias because it works in window space
 implement culling within frustum
 complete the transition to the serial module
 

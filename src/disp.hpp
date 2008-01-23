@@ -42,7 +42,7 @@ namespace app
         }
 
         virtual void prep(view_v&, frustum_v&) { }
-        virtual void draw(view_v&, bool)       { }
+        virtual void draw(view_v&, int&, bool) { }
 
         virtual ~disp() { }
     };

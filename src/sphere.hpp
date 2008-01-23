@@ -53,7 +53,8 @@ namespace uni
         double v[3];
         double M[16];
         double I[16];
-        double V[24];
+
+        app::frustum_v frusta;
 
         // Current eye distance and depth range.
 
@@ -108,17 +109,15 @@ namespace uni
         // Rendering pipeline.
 
         void view(app::frustum_v&);
-        void step(app::frustum_v&);
-        void prep(app::frustum_v&);
+        void step();
+        void prep();
         void pass();
-        void draw(const app::frustum *);
+        void draw(int);
 
         // State queries.
 
         double distance() const { return dist;       }
         double altitude() const { return dist - r0;  }
-        double min_d()    const { return d0;         }
-        double max_d()    const { return d1;         }
         int    maxcount() const { return int(count); }
 
         const double *get_p() const { return p; }

@@ -552,8 +552,10 @@ void app::host::draw()
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    int c = 0;
+
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        (*i)->draw(views, calibrate_state, calibrate_index);
+        (*i)->draw(views, c, calibrate_state, calibrate_index);
 
     // If doing network sync, wait until the rendering has finished.
 

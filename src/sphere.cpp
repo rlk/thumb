@@ -232,8 +232,21 @@ void uni::sphere::transform(app::frustum_v& frusta)
 
     // Apply the transform to the frusta.
 
-    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-        (*i)->calc_view_planes(I);
+    // HACK: inefficient
+
+    while (!this->frusta.empty())
+    {
+        delete this->frusta.back();
+        this->frusta.pop_back();
+    }
+
+    for (int i = 0; i < int(frusta.size()); ++i)
+    {
+        app::frustum *frust = new app::frustum(*(frusta[i]));
+
+        frust->calc_view_planes(M, I);
+        this->frusta.push_back(frust);
+    }
 
     // Apply the transform to the atmosphere.
 
@@ -301,7 +314,7 @@ void uni::sphere::view(app::frustum_v& frusta)
 */
 }
 
-void uni::sphere::step(app::frustum_v& frusta)
+void uni::sphere::step()
 {
     count = 0;
 
@@ -362,7 +375,7 @@ void uni::sphere::step(app::frustum_v& frusta)
     }
 }
 
-void uni::sphere::prep(app::frustum_v& frusta)
+void uni::sphere::prep()
 {
     if (count)
     {
@@ -459,12 +472,17 @@ void uni::sphere::pass()
         }
 }
 
-void uni::sphere::draw(const app::frustum *frust)
+void uni::sphere::draw(int i)
 {
     bool in = (sqrt(DOT3(v, v)) < a1);
 
     const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
     const ogl::program *land_prog = in ? land_in : land_out;
+
+    frusta[i]->calc_projection(d0 / 2.0, d1 * 2.0);
+    frusta[i]->draw();
+
+    glLoadIdentity();
 
     // Position a directional lightsource at the origin.  TODO: move this?
 
@@ -545,7 +563,7 @@ void uni::sphere::draw(const app::frustum *frust)
 
                     ren.dif()->bind();
                     {
-                        color.draw(frust, v);
+                        color.draw(frusta[i], v);
                     }
                     ren.dif()->free();
 
@@ -554,7 +572,7 @@ void uni::sphere::draw(const app::frustum *frust)
                     ren.nrm()->axis(a);
                     ren.nrm()->bind();
                     {
-                        normal.draw(frust, v);
+                        normal.draw(frusta[i], v);
                     }
                     ren.nrm()->free();
 

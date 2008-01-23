@@ -56,6 +56,8 @@ void app::normal::prep(view_v& views, frustum_v& frusta)
         // Apply the viewpoint and view to my frustum.
 
         frust->calc_user_planes(views[index]->get_p());
+        frust->calc_view_planes(::user->get_M(),
+                                ::user->get_I());
 
         // Add my frustum to the list.
 
@@ -75,7 +77,7 @@ void app::normal::prep(view_v& views, frustum_v& frusta)
     }
 }
 
-void app::normal::draw(view_v& views, bool calibrate)
+void app::normal::draw(view_v& views, int &i, bool calibrate)
 {
     if (views[index])
     {
@@ -90,7 +92,7 @@ void app::normal::draw(view_v& views, bool calibrate)
                 glClearColor(c[0], c[1], c[2], c[3]);
                 glClear(GL_COLOR_BUFFER_BIT);
             }
-            else ::prog->draw(frust);
+            else ::prog->draw(i++);
         }
         views[index]->free();
 

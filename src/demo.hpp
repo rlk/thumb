@@ -102,7 +102,7 @@ public:
     void timer(int);
 
     void prep(app::frustum_v&);
-    void draw(app::frustum  *);
+    void draw(int);
 };
 
 //-----------------------------------------------------------------------------

@@ -40,7 +40,7 @@ namespace app
         bool input_keybd(int, int, int, bool);
 
         void prep(view_v&, frustum_v&);
-        void draw(view_v&, bool, int);
+        void draw(view_v&, int&, bool, int);
 
         bool pick(double *, double *, int, int);
 

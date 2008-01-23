@@ -100,21 +100,13 @@ void uni::universe::prep(app::frustum_v& frusta)
     // Preprocess all objects.
 
     S[0]->view(frusta);
-    S[0]->step(frusta);
-    S[0]->prep(frusta);
+    S[0]->step();
+    S[0]->prep();
 }
 
-void uni::universe::draw(app::frustum *frust)
+void uni::universe::draw(int i)
 {
-    double n = S[0]->min_d() / 4.0;  // HACK
-    double f = S[0]->max_d() * 2.0;  // HACK
-
-    frust->calc_projection(::user->get_M(), n, f);
-    frust->draw();
-
-    glLoadIdentity();
-
-    S[0]->draw(frust);
+    S[0]->draw(i);
 }
 
 double uni::universe::rate() const

@@ -22,6 +22,8 @@
 // TODO: frustum should be able to evaluate LOD?
 //       or at least encapsulate view position (which it sorfof does)
 
+// TODO: technically not necessary to store user_points?
+
 namespace app
 {
     class frustum
@@ -32,29 +34,33 @@ namespace app
 
         app::node node;
 
+        // Current view point
+
+        double user_pos[3];
+        double view_pos[3];
+
+        double user_dist;
+
         // Frustum bounding planes and points
 
+        double user_points[4][3];
+        double view_points[8][3];
         double user_planes[4][4];
         double view_planes[4][4];
-        double view_points[8][3];
-
-        // Configured frustum corners and calibrated corner cache
-
-        double c[4][3];
-        double C[4][3];
-
-        // Calibration transform
-
-        double T[16];
 
         // Projection transform
 
-        double p[3];
         double P[16];
 
         // Utility functions
 
-        void calc_corner_4(double, double);
+        void get_calibration(      double *);
+        void set_calibration(const double *);
+
+        void calc_corner_4(double *,
+                           double *,
+                           double *,
+                           double *, double, double);
         void calc_corner_1(double *, const double *,
                                      const double *,
                                      const double *);
@@ -63,7 +69,7 @@ namespace app
     public:
 
         frustum(app::node);
-        frustum(const double *);
+        frustum(frustum&);
 
         // View state mutators
 /*
@@ -72,9 +78,11 @@ namespace app
         void set_dist(const double *,
                       const double *, double, double);
 */
-        void calc_projection (const double *, double, double);
+        void calc_projection (double, double);
+        void calc_view_points(double, double);
         void calc_user_planes(const double *);
-        void calc_view_planes(const double *);
+        void calc_view_planes(const double *,
+                              const double *);
 
         // Calibration input handlers
 

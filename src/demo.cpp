@@ -377,7 +377,7 @@ void demo::prep(app::frustum_v& frusta)
     universe.prep(frusta);
 }
 
-void demo::draw(app::frustum *frust)
+void demo::draw(int i)
 {
     GLfloat A[4] = { 0.45f, 0.50f, 0.55f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
@@ -395,7 +395,7 @@ void demo::draw(app::frustum *frust)
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        universe.draw(frust);
+        universe.draw(i);
     }
     glPopAttrib();
 }

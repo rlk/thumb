@@ -40,7 +40,7 @@ namespace app
         virtual void timer(int)                                 { }
         
         virtual void prep(app::frustum_v&) { }
-        virtual void draw(app::frustum  *) { }
+        virtual void draw(int)             { }
 
         virtual ~prog() { }
     };
