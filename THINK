@@ -1,4 +1,10 @@
-implement culling within frustum
+
+change patch::step(p) to a plane an piggyback the horizon test on the view position?
+
+or consider eliminating user_pos from the frustum.  It can be computed by find the the intersection of a plane and the corner vector of two other planes
+
+fix the atmosphere
+    need aabb test in the frustum?
 complete the transition to the serial module
 
 make cnt::control seek the right size, so that the GUI need not be asked

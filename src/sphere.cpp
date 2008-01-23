@@ -481,6 +481,7 @@ void uni::sphere::draw(int i)
     const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
     const ogl::program *land_prog = in ? land_in : land_out;
 
+    // TODO: calc_projection can move to whereever the bounds are first known.
     frusta[i]->calc_projection(d0 / 2.0, d1 * 2.0);
     frusta[i]->draw();
 
