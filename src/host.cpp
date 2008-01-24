@@ -299,22 +299,11 @@ app::host::host(std::string filename, std::string tag) :
                 buffer[1] = get_attr_d(buf, "h", DEFAULT_PIXEL_HEIGHT);
             }
 
-            // Create a view object for each configured view.
-
-            for (curr = find(root,       "view"); curr;
-                 curr = next(root, curr, "view"))
-                views.push_back(new view(curr, buffer));
-
             // Create a tile object for each configured tile.
 
             for (curr = find(node,       "tile"); curr;
                  curr = next(node, curr, "tile"))
                 tiles.push_back(new tile(curr));
-
-            // If no views or tiles were configured, instance defaults.
-
-            if (views.empty()) views.push_back(new view(0, buffer));
-            if (tiles.empty()) tiles.push_back(new tile(0));
 
             // Start the network syncronization.
 
@@ -323,6 +312,17 @@ app::host::host(std::string filename, std::string tag) :
             init_client(node);
         }
     }
+
+    // Create a view object for each configured view.
+
+    for (curr = find(root,       "view"); curr;
+         curr = next(root, curr, "view"))
+        views.push_back(new view(curr, buffer));
+
+    // If no views or tiles were configured, instance defaults.
+
+    if (views.empty()) views.push_back(new view(0, buffer));
+    if (tiles.empty()) tiles.push_back(new tile(0));
 
     // Start the timer.
 

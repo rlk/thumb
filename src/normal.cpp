@@ -37,6 +37,11 @@ app::normal::normal(app::node tile,
     else if ((curr = find(tile, "frustum")))
         frust = new app::frustum(curr);
 
+    // If still none, create a default.
+
+    else
+        frust = new app::frustum(0);
+
     // Note the view index.
 
     index = get_attr_d(node, "view");

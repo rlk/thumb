@@ -152,7 +152,7 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 {
     P->bind();
     {
-        double r = sqrt(DOT3(v, v));
+        double r = sqrt(DOT3(vp, vp));
 
         P->uniform("eye_to_object_mat", I, false);
         P->uniform("eye_to_object_inv", M, true);
@@ -257,12 +257,19 @@ void uni::sphere::transform(app::frustum_v& frusta)
 
 void uni::sphere::view(app::frustum_v& frusta)
 {
-    double o[3] = { 0, 0, 0 };
-    visible = true;
-    transform(frusta);
-    mult_mat_vec3(v, I, o);
+    // TODO: test for sphere visibility
 
-    // TODO: transform the frusta by the planet transform
+    if ((visible = true))
+    {
+        // Compose the local transform, and cache the local view frusta.
+
+        transform(frusta);
+
+        // Prep the atmosphere model.
+
+        atmo_pool->prep();
+        atmo_pool->view(1, 0, 0);
+    }
 
 /*
     if ((visible = true)) // HACK (visible = cam->test(p, r1)))
@@ -320,6 +327,17 @@ void uni::sphere::step()
 
     if (visible)
     {
+        // Compute the horizon plane.
+
+        const double *p = frusta[0]->get_view_pos();
+
+        double hp[4];
+
+        hp[0] = vp[0] = p[0];
+        hp[1] = vp[1] = p[1];
+        hp[2] = vp[2] = p[2];
+        hp[3] = -r0 * r0 / sqrt(DOT3(p, p));
+
         // Refine the icosahedron to fit the current view.
 
         for (int k = 0; k < 20; ++k)
@@ -344,10 +362,8 @@ void uni::sphere::step()
                               C[i[1]], j[1],
                               C[i[2]], j[2]);
 
-            C[k] = C[k]->step(ctx, frusta, v, bias, 0, count);
+            C[k] = C[k]->step(ctx, frusta, vp, hp, bias, 0, count);
         }
-
-        printf("%i\n", count);
 
         // Set up geometry generation.
 
@@ -418,7 +434,7 @@ void uni::sphere::prep()
                 int h = int(count);
 
                 for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                    height.draw(*i, v, w, h);
+                    height.draw(*i, vp, w, h);
             }
             acc.free_proc();
             acc.swap();
@@ -476,7 +492,7 @@ void uni::sphere::pass()
 
 void uni::sphere::draw(int i)
 {
-    bool in = (sqrt(DOT3(v, v)) < a1);
+    bool in = (sqrt(DOT3(vp, vp)) < a1);
 
     const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
     const ogl::program *land_prog = in ? land_in : land_out;
@@ -566,7 +582,7 @@ void uni::sphere::draw(int i)
 
                     ren.dif()->bind();
                     {
-                        color.draw(frusta[i], v);
+                        color.draw(frusta[i], vp);
                     }
                     ren.dif()->free();
 
@@ -575,7 +591,7 @@ void uni::sphere::draw(int i)
                     ren.nrm()->axis(a);
                     ren.nrm()->bind();
                     {
-                        normal.draw(frusta[i], v);
+                        normal.draw(frusta[i], vp);
                     }
                     ren.nrm()->free();
 
@@ -613,7 +629,7 @@ void uni::sphere::draw(int i)
         }
 
         // Draw the atmosphere.
-/*
+
         if (::conf->get_i("atmo"))
         {
             glEnable(GL_DEPTH_CLAMP_NV);
@@ -634,7 +650,6 @@ void uni::sphere::draw(int i)
             }
             glDisable(GL_DEPTH_CLAMP_NV);
         }
-*/
     }
     glPopAttrib();
 }

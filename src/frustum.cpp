@@ -168,6 +168,7 @@ void app::frustum::calc_calibrated()
 
         get_calibration(T);
     }
+    else load_idt(T);
 
     // Compute any unspecified screen corner.
 
@@ -493,9 +494,19 @@ static int test_shell_plane(const double *n0,
 
 int app::frustum::test_shell(const double *n0,
                              const double *n1,
-                             const double *n2, double r0, double r1) const
+                             const double *n2,
+                             const double *hp, double r0, double r1) const
 {
     int i, d, c = 0;
+
+    // Test the horizon plane.
+
+    if ((d = test_shell_plane(n0, n1, n2, hp, r0, r1)) < 0)
+        return -1;
+    else
+        c += d;
+
+    // Test the four planes of this frustum.
 
     for (i = 0; i < 4; ++i)
         if ((d = test_shell_plane(n0, n1, n2, view_planes[i], r0, r1)) < 0)
@@ -503,7 +514,9 @@ int app::frustum::test_shell(const double *n0,
         else
             c += d;
 
-    return (c == 4) ? 1 : 0;
+    // If all planes pass fully, return short-circuiting pass.
+
+    return (c == 5) ? 1 : 0;
 
 }
 

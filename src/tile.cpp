@@ -59,6 +59,11 @@ app::tile::tile(app::node node) : current(0)
             display[i] = new app::dome    (node, curr, window);
 */
     }
+
+    // If no displays were configured, create a default normal display.
+
+    if (display.empty()) 
+        display.push_back(new app::normal(node, 0, window));
 }
 
 app::tile::~tile()

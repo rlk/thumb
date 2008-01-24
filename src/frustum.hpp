@@ -72,12 +72,7 @@ namespace app
         frustum(frustum&);
 
         // View state mutators
-/*
-        void set_view(const double *,
-                      const double *);
-        void set_dist(const double *,
-                      const double *, double, double);
-*/
+
         void calc_projection (double, double);
         void calc_view_points(double, double);
         void calc_user_planes(const double *);
@@ -94,9 +89,13 @@ namespace app
 
         int test_shell(const double *, 
                        const double *, 
+                       const double *, 
                        const double *, double, double) const;
         int test_bound(const double *,
                        const double *);
+
+        const double *get_user_pos() const { return user_pos; }
+        const double *get_view_pos() const { return view_pos; }
 
         // Perspective projection application
 
