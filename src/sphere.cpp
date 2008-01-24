@@ -245,6 +245,8 @@ void uni::sphere::transform(app::frustum_v& frusta)
         app::frustum *frust = new app::frustum(*(frusta[i]));
 
         frust->calc_view_planes(I, M);
+        frust->set_horizon(r0);
+
         this->frusta.push_back(frust);
     }
 
@@ -265,38 +267,13 @@ void uni::sphere::view(app::frustum_v& frusta)
 
         transform(frusta);
 
-        // Prep the atmosphere model.
+        // Cache the view position.
 
-        atmo_pool->prep();
-        atmo_pool->view(1, 0, 0);
-    }
+        const double *p = this->frusta[0]->get_view_pos();
 
-/*
-    if ((visible = true)) // HACK (visible = cam->test(p, r1)))
-    {
-        double o[3] = { 0, 0, 0 };
-
-        // The sphere is visible.  Cache the transform and view vector.
-
-        transform(Mv, Iv);
-
-        mult_mat_vec3(v, I, o);
-
-        // Compute the horizon plane.
-
-        V[0] = v[0];
-        V[1] = v[1];
-        V[2] = v[2];
-        V[3] = -r0 * r0 / sqrt(DOT3(V, V));
-
-        normalize(V);
-
-        // Determine the world-space view frustum planes.
-
-        mult_xps_vec4(V +  4, M, F +  0);
-        mult_xps_vec4(V +  8, M, F +  4);
-        mult_xps_vec4(V + 12, M, F +  8);
-        mult_xps_vec4(V + 16, M, F + 12);
+        vp[0] = p[0];
+        vp[1] = p[1];
+        vp[2] = p[2];
 
         // Prep the atmosphere model.
 
@@ -314,11 +291,6 @@ void uni::sphere::view(app::frustum_v& frusta)
                 C[k] = 0;
             }
     }
-*/
-    // Cache the view distance for use in depth sorting.
-/*
-    dist = ::user->dist(p);
-*/
 }
 
 void uni::sphere::step()
@@ -327,17 +299,6 @@ void uni::sphere::step()
 
     if (visible)
     {
-        // Compute the horizon plane.
-
-        const double *p = frusta[0]->get_view_pos();
-
-        double hp[4];
-
-        hp[0] = vp[0] = p[0];
-        hp[1] = vp[1] = p[1];
-        hp[2] = vp[2] = p[2];
-        hp[3] = -r0 * r0 / sqrt(DOT3(p, p));
-
         // Refine the icosahedron to fit the current view.
 
         for (int k = 0; k < 20; ++k)
@@ -362,8 +323,10 @@ void uni::sphere::step()
                               C[i[1]], j[1],
                               C[i[2]], j[2]);
 
-            C[k] = C[k]->step(ctx, frusta, vp, hp, bias, 0, count);
+            C[k] = C[k]->step(ctx, frusta, vp, bias, 0, count);
         }
+
+//      printf("%d\n", count);
 
         // Set up geometry generation.
 

@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include "normal.hpp"
+#include "matrix.hpp"
 #include "glob.hpp"
 #include "user.hpp"
 #include "prog.hpp"
@@ -54,6 +55,39 @@ app::normal::~normal()
 
 //-----------------------------------------------------------------------------
 
+bool app::normal::input_point(int i, const double *p, const double *q)
+{
+    return frust ? frust->input_point(i, p, q) : false;
+}
+
+bool app::normal::input_click(int i, int b, int m, bool d)
+{
+    return frust ? frust->input_click(i, b, m, d) : false;
+}
+
+bool app::normal::input_keybd(int c, int k, int m, bool d)
+{
+    return frust ? frust->input_keybd(c, k, m, d) : false;
+}
+
+//-----------------------------------------------------------------------------
+
+bool app::normal::pick(double *p, double *q, int wx, int wy)
+{
+    if (frust)
+    {
+        double kx = double(wx - x) / w;
+        double ky = double(wy - y) / h;
+
+        if (0.0 <= kx && kx < 1.0 &&
+            0.0 <= ky && ky < 1.0)
+            frust->pick(p, q, kx, ky);
+
+        return true;
+    }
+    return false;
+}
+
 void app::normal::prep(view_v& views, frustum_v& frusta)
 {
     if (frust)
@@ -90,6 +124,7 @@ void app::normal::draw(view_v& views, int &i, bool calibrate)
 
         views[index]->bind();
         {
+            /*
             if (calibrate)
             {
                 const GLubyte *c = views[index]->get_c();
@@ -97,7 +132,9 @@ void app::normal::draw(view_v& views, int &i, bool calibrate)
                 glClearColor(c[0], c[1], c[2], c[3]);
                 glClear(GL_COLOR_BUFFER_BIT);
             }
-            else ::prog->draw(i++);
+            else
+            */
+            ::prog->draw(i++);
         }
         views[index]->free();
 

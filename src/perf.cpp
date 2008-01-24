@@ -165,6 +165,8 @@ void app::perf::dump()
     int fps = int(ceil(1000.0 * frames / ticks));
     int ms  = ticks / frames;
 
+//  std::cout << double(ticks) / double(frames) << std::endl;
+
     std::ostringstream str;
 
     str << ms  << "ms "

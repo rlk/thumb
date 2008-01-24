@@ -41,6 +41,7 @@ namespace app
             return false;
         }
 
+        virtual bool pick(double *, double *, int, int) { return false; }
         virtual void prep(view_v&, frustum_v&) { }
         virtual void draw(view_v&, int&, bool) { }
 

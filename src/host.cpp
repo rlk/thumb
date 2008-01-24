@@ -535,7 +535,7 @@ void app::host::loop()
 
 void app::host::draw()
 {
-    if (!calibrate_state)
+//  if (!calibrate_state)
     {
         std::vector<frustum *> frusta;
 

@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cstring>
 
 #include <mxml.h>
 
@@ -20,11 +21,11 @@
 
 static const char *save_cb(mxml_node_t *node, int where)
 {
-    const char *space = "                                                    ";
-    int         depth = 0;
+    const char *space  = "                                                   ";
+    const char *indent = space + strlen(space) - 1;
 
     for (mxml_node_t *curr = node->parent; curr; curr = curr->parent)
-        depth += 2;
+        indent -= 2;
         
     switch (where)
     {
@@ -33,11 +34,11 @@ static const char *save_cb(mxml_node_t *node, int where)
         return "\n";
 
     case MXML_WS_BEFORE_OPEN:
-        return space + depth;
+        return indent;
 
     case MXML_WS_BEFORE_CLOSE:
         if (node->child)
-            return space + depth;
+            return indent;
         else
             return 0;
     }

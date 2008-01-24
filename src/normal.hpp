@@ -36,6 +36,11 @@ namespace app
 
         normal(app::node, app::node, const int *);
 
+        bool input_point(int, const double *, const double *);
+        bool input_click(int, int, int, bool);
+        bool input_keybd(int, int, int, bool);
+
+        virtual bool pick(double *, double *, int, int);
         virtual void prep(view_v&, frustum_v&);
         virtual void draw(view_v&, int&, bool);
 

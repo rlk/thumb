@@ -46,7 +46,9 @@ namespace app
         double user_points[4][3];
         double view_points[8][3];
         double user_planes[4][4];
-        double view_planes[4][4];
+        double view_planes[5][4];
+
+        int    view_count;
 
         // Projection transform
 
@@ -79,6 +81,8 @@ namespace app
         void calc_view_planes(const double *,
                               const double *);
 
+        void set_horizon(double);
+
         // Calibration input handlers
 
         bool input_point(int, const double *, const double *);
@@ -89,7 +93,6 @@ namespace app
 
         int test_shell(const double *, 
                        const double *, 
-                       const double *, 
                        const double *, double, double) const;
         int test_bound(const double *,
                        const double *);
@@ -98,6 +101,8 @@ namespace app
         const double *get_view_pos() const { return view_pos; }
 
         // Perspective projection application
+
+        void pick(double *, double *, double, double) const;
 
         void draw() const;
     };

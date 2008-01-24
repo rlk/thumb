@@ -109,9 +109,9 @@ void app::tile::prep(view_v& views, frustum_v& frusta)
 }
 
 void app::tile::draw(view_v& views, int& c, bool calibrate_state,
-                                            int calibrate_index)
+                                            int  calibrate_index)
 {
-    bool calibrate = calibrate_state;
+    bool calibrate = calibrate_state && (calibrate_index == index);
 
     if (display[current])
         display[current]->draw(views, c, calibrate);
@@ -119,135 +119,13 @@ void app::tile::draw(view_v& views, int& c, bool calibrate_state,
 
 //-----------------------------------------------------------------------------
 
-bool app::tile::pick(double *p, double *v, int x, int y)
+bool app::tile::pick(double *p, double *q, int x, int y)
 {
-/*
-    // Determine whether the given pointer position lies within this tile.
-
-    if (window_rect[0] <= x && x < window_rect[0] + window_rect[2] &&
-        window_rect[1] <= y && y < window_rect[1] + window_rect[3])
-    {
-        double kx = double(x - window_rect[0]) / double(window_rect[2]);
-        double ky = double(y - window_rect[1]) / double(window_rect[3]);
-
-        // It does.  Compute the eye-space vector given by the pointer.
-
-        p[0] = 0.0;
-        p[1] = 0.0;
-        p[2] = 0.0;
-
-        v[0] = TL[0] * (1 - kx - ky) + TR[0] * kx + BL[0] * ky;
-        v[1] = TL[1] * (1 - kx - ky) + TR[1] * kx + BL[1] * ky;
-        v[2] = TL[2] * (1 - kx - ky) + TR[2] * kx + BL[2] * ky;
-
-        // TODO:  Which frustum?  Which view?
-
-        normalize(v);
-
-        return true;
-    }
-*/
-    return false;
+    if (display[current])
+        return display[current]->pick(p, q, x, y);
+    else
+        return false;
 }
-
-/*
-void app::tile::draw(view_v& views, bool calibrate_state,
-                                     int calibrate_index)
-{
-    const bool focus = (calibrate_index == tile_index);
-
-    // Apply the tile corners.
-
-    double bl[3], br[3], tl[3], tr[3];
-
-    get_BL(bl);
-    get_BR(br);
-    get_TL(tl);
-    get_TR(tr);
-
-    ::user->set_V(bl, br, tl, tr);
-
-    // Render the view from each view.
-
-    std::vector<view *>::iterator i;
-    int e;
-
-    for (e = 0, i = views.begin(); i != views.end(); ++i, ++e)
-        if (view_index < 0 || view_index == e)
-            (*i)->draw(window, focus);
-
-    // Render the onscreen exposure.
-
-    if (const ogl::program *prog = ::user->get_prog())
-    {
-        double frag_d[2] = { 0, 0 };
-        double frag_k[2] = { 1, 1 };
-
-        int w = ::host->get_buffer_w();
-        int h = ::host->get_buffer_h();
-        int t;
-
-        // Bind the view buffers.  Apply the Varrier transform for each.
-
-        for (t = 0, i = views.begin(); i != views.end(); ++i, ++t)
-        {
-            (*i)->bind(GL_TEXTURE0 + t);
-        
-            glActiveTextureARB(GL_TEXTURE0 + t);
-            apply_varrier((*i)->get_P());
-            glActiveTextureARB(GL_TEXTURE0);
-        }
-
-        // Compute the on-screen to off-screen fragment transform.
-
-        frag_d[0] =            -double(window_rect[0]);
-        frag_d[1] =            -double(window_rect[1]);
-        frag_k[0] = double(w) / double(window_rect[2]);
-        frag_k[1] = double(h) / double(window_rect[3]);
-
-        // Draw the tile region.
-
-        glViewport(window_rect[0], window_rect[1],
-                   window_rect[2], window_rect[3]);
-
-        glMatrixMode(GL_PROJECTION);
-        {
-            // HACK: breaks varrier
-
-            glLoadIdentity();
-            glOrtho(0, window_rect[2],
-                    0, window_rect[3], -1, +1);
-
-//          glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glLoadIdentity();
-        }
-
-        prog->bind();
-        {
-            prog->uniform("L_map", 0);
-            prog->uniform("R_map", 1);
-
-            prog->uniform("cycle", varrier_cycle);
-            prog->uniform("offset", -W / (3 * window_rect[2]), 0,
-                                     W / (3 * window_rect[2]));
-
-            prog->uniform("frag_d", frag_d[0], frag_d[1]);
-            prog->uniform("frag_k", frag_k[0], frag_k[1]);
-
-            if (reg) reg->draw();
-        }
-        prog->free();
-
-        // Free the view buffers...
-
-        for (t = GL_TEXTURE0, i = views.begin(); i != views.end(); ++i, ++t)
-            (*i)->free(t);
-    }
-}
-*/
 
 //-----------------------------------------------------------------------------
 

@@ -256,6 +256,13 @@ void demo::timer(int t)
         user->move(kp * motion[0],
                    kp * motion[1],
                    kp * motion[2]);
+
+        // Handle auto-attract mode.
+
+        attr_curr += dt;
+
+        if (attr_curr > attr_time)
+            attr_on();
     }
 /*
     {
@@ -299,13 +306,6 @@ void demo::timer(int t)
             user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
         }
 */
-
-    // Handle auto-attract mode.
-
-    attr_curr += dt;
-
-    if (attr_curr > attr_time)
-        attr_on();
 
     curr->timer(t);
     prog::timer(t);

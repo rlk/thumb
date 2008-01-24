@@ -73,7 +73,7 @@ namespace uni
         double  r2;
         GLsizei cache;
 
-        int  visible(app::frustum_v&, const double *);
+        int  visible(app::frustum_v&);
         double value(const double *);
         void   bound(GLfloat, GLfloat, GLfloat);
 
@@ -92,11 +92,9 @@ namespace uni
         void seed(geonrm&, geopos&, geotex&, const double *,
                                              const double *, int);
         patch *step(context&, app::frustum_v&,
-                    const double *, const double *, double, int, GLsizei&);
+                    const double *, double, int, GLsizei&);
         void   draw(context&, GLsizei, GLsizei, GLsizei);
         void   view(GLsizei, const GLfloat *);
-//      void   prep(GLsizei);
-//      void   wire();
     };
 
     //-------------------------------------------------------------------------

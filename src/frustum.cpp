@@ -13,6 +13,9 @@
 #include <cmath>
 #include <cstring>
 
+#include <SDL_mouse.h>
+#include <SDL_keyboard.h>
+
 #include "frustum.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
@@ -54,24 +57,32 @@ void app::frustum::set_calibration(const double *M)
 
     app::node curr;
 
-    if (node && (curr = find(node, "calibration")))
+    if (node)
     {
-        set_attr_f(curr, "m0", M[ 0]);
-        set_attr_f(curr, "m1", M[ 1]);
-        set_attr_f(curr, "m2", M[ 2]);
-        set_attr_f(curr, "m3", M[ 3]);
-        set_attr_f(curr, "m4", M[ 4]);
-        set_attr_f(curr, "m5", M[ 5]);
-        set_attr_f(curr, "m6", M[ 6]);
-        set_attr_f(curr, "m7", M[ 7]);
-        set_attr_f(curr, "m8", M[ 8]);
-        set_attr_f(curr, "m9", M[ 9]);
-        set_attr_f(curr, "mA", M[10]);
-        set_attr_f(curr, "mB", M[11]);
-        set_attr_f(curr, "mC", M[12]);
-        set_attr_f(curr, "mD", M[13]);
-        set_attr_f(curr, "mE", M[14]);
-        set_attr_f(curr, "mF", M[15]);
+        if ((curr = find(node, "calibration")) == 0)
+        {
+            // TODO: insert
+        }
+
+        if ((curr = find(node, "calibration")))
+        {
+            set_attr_f(curr, "m0", M[ 0]);
+            set_attr_f(curr, "m1", M[ 1]);
+            set_attr_f(curr, "m2", M[ 2]);
+            set_attr_f(curr, "m3", M[ 3]);
+            set_attr_f(curr, "m4", M[ 4]);
+            set_attr_f(curr, "m5", M[ 5]);
+            set_attr_f(curr, "m6", M[ 6]);
+            set_attr_f(curr, "m7", M[ 7]);
+            set_attr_f(curr, "m8", M[ 8]);
+            set_attr_f(curr, "m9", M[ 9]);
+            set_attr_f(curr, "mA", M[10]);
+            set_attr_f(curr, "mB", M[11]);
+            set_attr_f(curr, "mC", M[12]);
+            set_attr_f(curr, "mD", M[13]);
+            set_attr_f(curr, "mE", M[14]);
+            set_attr_f(curr, "mF", M[15]);
+        }
     }
 }
 
@@ -185,6 +196,11 @@ void app::frustum::calc_calibrated()
     mult_mat_vec3(user_points[1], T, c[1]);
     mult_mat_vec3(user_points[2], T, c[2]);
     mult_mat_vec3(user_points[3], T, c[3]);
+
+    printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 0], T[ 4], T[ 8], T[12]);
+    printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 1], T[ 5], T[ 9], T[13]);
+    printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 2], T[ 6], T[10], T[14]);
+    printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 3], T[ 7], T[11], T[15]);
 }
 
 void app::frustum::calc_user_planes(const double *p)
@@ -220,6 +236,8 @@ void app::frustum::calc_view_planes(const double *M,
     mult_xps_vec4(view_planes[1], I, user_planes[1]);
     mult_xps_vec4(view_planes[2], I, user_planes[2]);
     mult_xps_vec4(view_planes[3], I, user_planes[3]);
+
+    view_count = 4;
 }
 
 void app::frustum::calc_view_points(double n, double f)
@@ -301,9 +319,22 @@ void app::frustum::calc_projection(double n, double f)
                     user_pos[2]);
 }
 
+void app::frustum::set_horizon(double r)
+{
+    // Use the view position and given radius to compute the horizon plane.
+
+    view_planes[4][0] = view_pos[0];
+    view_planes[4][1] = view_pos[1];
+    view_planes[4][2] = view_pos[2];
+    view_planes[4][3] = -r * r / sqrt(DOT3(view_pos, view_pos));
+
+    view_count = 5;
+}
+
 //-----------------------------------------------------------------------------
 
-app::frustum::frustum(app::node node) : node(node), user_dist(1.0)
+app::frustum::frustum(app::node node)
+    : node(node), user_dist(1.0), view_count(0)
 {
     user_pos[0] = 0.0;
     user_pos[1] = 0.0;
@@ -312,7 +343,8 @@ app::frustum::frustum(app::node node) : node(node), user_dist(1.0)
     calc_calibrated();
 }
 
-app::frustum::frustum(frustum& that) : node(0)
+app::frustum::frustum(frustum& that)
+    : node(0), view_count(0)
 {
     // Copy the user-space data.
 
@@ -324,6 +356,46 @@ app::frustum::frustum(frustum& that) : node(0)
     memcpy(user_planes, that.user_planes, 4 * 4 * sizeof (double));
 
     memcpy(P, that.P, 16 * sizeof (double));
+}
+
+//-----------------------------------------------------------------------------
+
+static void set_sphere(double *M, double r, double t, double p,
+                                            double T, double P)
+{
+    load_idt(M);
+
+    // Set the position using spherical coordinates (r, t, p).
+
+    M[12] =  r * sin(t) * cos(p);
+    M[13] = -r *          sin(p);
+    M[14] =  r * cos(t) * cos(p);
+
+    printf("%f %f %f\n", M[12], M[13], M[14]);
+
+    // Set the orientation using spherical coordinates (T, P).
+
+    M[ 8] = sin(T) * cos(P);
+    M[ 9] =         -sin(P);
+    M[10] = cos(T) * cos(P);
+
+    crossprod(M + 0, M + 4, M + 8);
+    normalize(M + 0);
+    crossprod(M + 4, M + 8, M + 0);
+    normalize(M + 4);
+}
+
+static void get_sphere(const double *M, double& r, double& t, double& p,
+                                                   double& T, double& P)
+{
+
+    r = sqrt(DOT3(M + 12, M + 12));
+
+    t = atan2( M[12], M[14]);
+    p = atan2(-M[13], M[14]);
+
+    T = atan2( M[ 8], M[10]);
+    P = atan2(-M[ 9], M[10]);
 }
 
 //-----------------------------------------------------------------------------
@@ -340,6 +412,39 @@ bool app::frustum::input_click(int i, int b, int m, bool d)
 
 bool app::frustum::input_keybd(int c, int k, int m, bool d)
 {
+    if (d)
+    {
+        if (m & KMOD_CTRL)
+        {
+            double M[16], r, t, p, T, P, s = (m & KMOD_CAPS) ? 0.1 : 1.0;
+
+            get_calibration(M);
+            get_sphere(M, r, t, p, T, P);
+
+            if (m & KMOD_SHIFT)
+            {
+                if      (k == SDLK_LEFT)     t += 0.1 * s;
+                else if (k == SDLK_RIGHT)    t -= 0.1 * s;
+                else if (k == SDLK_UP)       p += 0.1 * s;
+                else if (k == SDLK_DOWN)     p -= 0.1 * s;
+                else if (k == SDLK_PAGEUP)   r += 1.0 * s;
+                else if (k == SDLK_PAGEDOWN) r -= 1.0 * s;
+            }
+            else
+            {
+                if      (k == SDLK_LEFT)     T += 0.1 * s;
+                else if (k == SDLK_RIGHT)    T -= 0.1 * s;
+                else if (k == SDLK_UP)       P += 0.1 * s;
+                else if (k == SDLK_DOWN)     P -= 0.1 * s;
+            }
+
+            set_sphere(M, r, t, p, T, P);
+            set_calibration(M);
+            calc_calibrated( );
+
+            return true;
+        }
+    }
     return false;
 }
 
@@ -494,21 +599,13 @@ static int test_shell_plane(const double *n0,
 
 int app::frustum::test_shell(const double *n0,
                              const double *n1,
-                             const double *n2,
-                             const double *hp, double r0, double r1) const
+                             const double *n2, double r0, double r1) const
 {
     int i, d, c = 0;
 
-    // Test the horizon plane.
+    // Test the planes of this frustum.
 
-    if ((d = test_shell_plane(n0, n1, n2, hp, r0, r1)) < 0)
-        return -1;
-    else
-        c += d;
-
-    // Test the four planes of this frustum.
-
-    for (i = 0; i < 4; ++i)
+    for (i = view_count - 1; i >= 0; --i)
         if ((d = test_shell_plane(n0, n1, n2, view_planes[i], r0, r1)) < 0)
             return -1;
         else
@@ -516,11 +613,41 @@ int app::frustum::test_shell(const double *n0,
 
     // If all planes pass fully, return short-circuiting pass.
 
-    return (c == 5) ? 1 : 0;
-
+    return (c == view_count) ? 1 : 0;
 }
 
 //-----------------------------------------------------------------------------
+
+void app::frustum::pick(double *p, double *q, double x, double y) const
+{
+    // Return the pick vector for (x, y) in the current user space.
+
+    double B[16], k = 1.0 - x - y;
+
+    load_idt(B);
+
+    B[ 8] = user_pos[0] - (user_points[2][0] * k +
+                           user_points[3][0] * x +
+                           user_points[0][0] * y);
+    B[ 9] = user_pos[1] - (user_points[2][1] * k +
+                           user_points[3][1] * x +
+                           user_points[0][1] * y);
+    B[10] = user_pos[2] - (user_points[2][2] * k +
+                           user_points[3][2] * x +
+                           user_points[0][2] * y);
+
+    normalize(B + 8);
+    crossprod(B + 0, B + 4, B + 8);
+    normalize(B + 0);
+    crossprod(B + 4, B + 8, B + 0);
+    normalize(B + 4);
+
+    get_quaternion(q, B);
+
+    p[0] = user_pos[0];
+    p[1] = user_pos[1];
+    p[2] = user_pos[2];
+}
 
 void app::frustum::draw() const
 {
