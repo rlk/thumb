@@ -24,14 +24,15 @@
 //-----------------------------------------------------------------------------
 
 void app::frustum::get_calibration(double& P, double& T, double& R,
-                                   double& p, double& y, double& r)
+                                   double& p, double& y, double& r, double& F)
 {
-    P = 0.0;  // Position phi
-    T = 0.0;  // Position theta
-    R = 0.0;  // Position rho
-    p = 0.0;  // Rotation pitch
-    y = 0.0;  // Rotation yaw
-    r = 0.0;  // Rotation roll
+    P =  0.0;  // Position phi
+    T =  0.0;  // Position theta
+    R =  0.0;  // Position rho
+    p =  0.0;  // Rotation pitch
+    y =  0.0;  // Rotation yaw
+    r =  0.0;  // Rotation roll
+    F = 90.0;  // Field of view
 
     // Extract the calibration matrix from the serialization node.
 
@@ -41,21 +42,25 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
 
         if ((curr = find(node, "position")))
         {
-            P = get_attr_f(curr, "p");
-            T = get_attr_f(curr, "t");
-            R = get_attr_f(curr, "r");
+            P = get_attr_f(curr, "p", P);
+            T = get_attr_f(curr, "t", T);
+            R = get_attr_f(curr, "r", R);
         }
         if ((curr = find(node, "rotation")))
         {
-            p = get_attr_f(curr, "p");
-            y = get_attr_f(curr, "y");
-            r = get_attr_f(curr, "r");
+            p = get_attr_f(curr, "p", p);
+            y = get_attr_f(curr, "y", y);
+            r = get_attr_f(curr, "r", r);
+        }
+        if ((curr = find(node, "perspective")))
+        {
+            F = get_attr_f(curr, "fov", F);
         }
     }
 }
 
 void app::frustum::set_calibration(double P, double T, double R,
-                                   double p, double y, double r)
+                                   double p, double y, double r, double F)
 {
     // Update the calibration matrix in the serialization node.
 
@@ -75,14 +80,18 @@ void app::frustum::set_calibration(double P, double T, double R,
             set_attr_f(curr, "y", y);
             set_attr_f(curr, "r", r);
         }
+        if ((curr = find(node, "perspective")))
+        {
+            set_attr_f(curr, "fov", F);
+        }
     }
 }
 
 void app::frustum::mat_calibration(double *M)
 {
-    double P, T, R, p, y, r;
+    double P, T, R, p, y, r, F;
 
-    get_calibration(P, T, R, p, y, r);
+    get_calibration(P, T, R, p, y, r, F);
 
     load_rot_mat(M, 0, 1, 0, T);
     Rmul_rot_mat(M, 1, 0, 0, P);
@@ -401,11 +410,11 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
     {
         if (m & KMOD_CTRL)
         {
-            double P, T, R, p, y, r, s;
+            double P, T, R, p, y, r, s, F;
 
             s = ((m & KMOD_CAPS) || (m & KMOD_ALT)) ? 0.1 : 1.0;
 
-            get_calibration(P, T, R, p, y, r);
+            get_calibration(P, T, R, p, y, r, F);
 
             if (m & KMOD_SHIFT)
             {
@@ -424,9 +433,11 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
                 else if (k == SDLK_DOWN)     p -= 10.0 * s;
                 else if (k == SDLK_PAGEUP)   r +=  1.0 * s;
                 else if (k == SDLK_PAGEDOWN) r -=  1.0 * s;
+                else if (k == SDLK_HOME)     F += 10.0 * s;
+                else if (k == SDLK_END)      F -= 10.0 * s;
             }
 
-            set_calibration(P, T, R, p, y, r);
+            set_calibration(P, T, R, p, y, r, F);
             calc_calibrated();
 
             return true;

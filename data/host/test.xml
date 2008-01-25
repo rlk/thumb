@@ -13,8 +13,8 @@
         <rotation p="0.0" y="0.0" r="0.0"/>
         <position p="0.0" t="0.0" r="54.0"/>
       </frustum>
-      <disp type="dome" view="0" radius="55.0">
-      </disp>
+      <disp type="dome" view="0" radius="55.0"
+            t0="45" t1="-45" dt="10" p0="0" p1="60" dp="10"/>
     </tile>
     <tile index="1">
       <viewport x="640" y="0" w="640" h="480"/>
@@ -23,8 +23,8 @@
         <rotation p="0.0" y="0.0" r="0.0"/>
         <position p="0.0" t="0.0" r="0.0"/>
       </frustum>
-      <disp type="dome" view="0" radius="55.0">
-      </disp>
+      <disp type="dome" view="0" radius="55.0"
+            t0="-45" t1="45" dt="10" p0="0" p1="60" dp="10"/>
     </tile>
   </node>
 </host>

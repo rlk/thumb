@@ -58,9 +58,9 @@ namespace app
         // Utility functions
 
         void get_calibration(double&, double&, double&,
-                             double&, double&, double&);
+                             double&, double&, double&, double&);
         void set_calibration(double,  double,  double,
-                             double,  double,  double);
+                             double,  double,  double,  double);
         void mat_calibration(double *);
 
         void calc_corner_4(double *,
