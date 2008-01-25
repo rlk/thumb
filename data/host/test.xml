@@ -11,7 +11,7 @@
       <viewport x="0" y="0" w="640" h="480"/>
       <frustum>
         <perspective aspect="1.333" fov="90.0"/>
-        <rotation p="0.0" y="0.0" r="0.0"/>
+        <rotation p="0.0" y="90.0" r="0.0"/>
         <position p="0.0" t="0.0" r="0.0"/>
       </frustum>
       <disp type="normal" view="0">

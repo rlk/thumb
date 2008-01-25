@@ -129,7 +129,7 @@ void app::frustum::calc_calibrated()
     double aspect =  1.333;
     double fov    = 90.000;
 
-    double T[16], c[4][3];
+    double c[4][3];
 
     // Extract the frustum definition from the serialization node.
 
@@ -231,6 +231,20 @@ void app::frustum::calc_user_planes(const double *p)
     set_plane(display_plane, user_points[0], user_points[1], user_points[2]);
 
     user_dist = DOT3(display_plane, user_pos) + display_plane[3];
+/*
+    printf("%f %f %f %f\n",
+           user_planes[0][0], user_planes[0][1],
+           user_planes[0][2], user_planes[0][3]);
+    printf("%f %f %f %f\n",
+           user_planes[1][0], user_planes[1][1],
+           user_planes[1][2], user_planes[1][3]);
+    printf("%f %f %f %f\n",
+           user_planes[2][0], user_planes[2][1],
+           user_planes[2][2], user_planes[2][3]);
+    printf("%f %f %f %f\n",
+           user_planes[3][0], user_planes[3][1],
+           user_planes[3][2], user_planes[3][3]);
+*/
 }
 
 void app::frustum::calc_view_planes(const double *M,
@@ -283,6 +297,7 @@ void app::frustum::calc_projection(double n, double f)
     // Compute the display plane basis.
 
     double B[16];
+    double A[16];
 
     load_idt(B);
 
@@ -321,7 +336,9 @@ void app::frustum::calc_projection(double n, double f)
 
     // Orient the projection and move the apex to the origin.
 
-    mult_mat_mat(P, P, B);
+    load_xps(A, B);
+
+    mult_mat_mat(P, P, A);
     Rmul_xlt_inv(P, user_pos[0],
                     user_pos[1],
                     user_pos[2]);
