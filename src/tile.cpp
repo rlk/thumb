@@ -112,7 +112,8 @@ void app::tile::prep(view_v& views, frustum_v& frusta)
 void app::tile::draw(view_v& views, int& c, bool calibrate_state,
                                             int  calibrate_index)
 {
-    bool calibrate = calibrate_state && (calibrate_index == index);
+//  bool calibrate = calibrate_state && (calibrate_index == index);
+    bool calibrate = calibrate_state;
 
     if (display[current])
         display[current]->draw(views, c, calibrate);

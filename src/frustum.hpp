@@ -84,6 +84,7 @@ namespace app
         void calc_user_planes(const double *);
         void calc_view_planes(const double *,
                               const double *);
+        void calc_dome_planes(const double *, const frustum *, double);
 
         void set_horizon(double);
 
@@ -103,6 +104,7 @@ namespace app
 
         const double *get_user_pos() const { return user_pos; }
         const double *get_view_pos() const { return view_pos; }
+        const double *get_P()        const { return P;        }
 
         // Perspective projection application
 
