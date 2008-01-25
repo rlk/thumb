@@ -1,10 +1,21 @@
 
-frustum distance from origin
-frustum theta about origin
-frustum phi   about origin
-frustum roll  about self
-frustum pitch about self
-frustum yaw   about self
+rotate y around global y axis
+rotate p around local  x axis
+rotate r around local  z axis
+
+translate r down global z axis
+rotate    p around global x axis
+rotate    t around global y axis
+
+or
+
+rotate r around global z axis
+rotate p around global x axis
+rotate y around local  y axis
+
+translate r down global z axis
+rotate    p around global x axis
+rotate    t around global y axis
 
 -------------------------------------------------------------------------------
 

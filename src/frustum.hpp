@@ -53,11 +53,15 @@ namespace app
         // Projection transform
 
         double P[16];
+        double T[16];
 
         // Utility functions
 
-        void get_calibration(      double *);
-        void set_calibration(const double *);
+        void get_calibration(double&, double&, double&,
+                             double&, double&, double&);
+        void set_calibration(double,  double,  double,
+                             double,  double,  double);
+        void mat_calibration(double *);
 
         void calc_corner_4(double *,
                            double *,

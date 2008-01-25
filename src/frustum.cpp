@@ -23,68 +23,77 @@
 
 //-----------------------------------------------------------------------------
 
-void app::frustum::get_calibration(double *M)
+void app::frustum::get_calibration(double& P, double& T, double& R,
+                                   double& p, double& y, double& r)
 {
+    P = 0.0;  // Position phi
+    T = 0.0;  // Position theta
+    R = 0.0;  // Position rho
+    p = 0.0;  // Rotation pitch
+    y = 0.0;  // Rotation yaw
+    r = 0.0;  // Rotation roll
+
     // Extract the calibration matrix from the serialization node.
-
-    app::node curr;
-
-    if (node && (curr = find(node, "calibration")))
-    {
-        M[ 0] = get_attr_f(curr, "m0", 1.0);
-        M[ 1] = get_attr_f(curr, "m1", 0.0);
-        M[ 2] = get_attr_f(curr, "m2", 0.0);
-        M[ 3] = get_attr_f(curr, "m3", 0.0);
-        M[ 4] = get_attr_f(curr, "m4", 0.0);
-        M[ 5] = get_attr_f(curr, "m5", 1.0);
-        M[ 6] = get_attr_f(curr, "m6", 0.0);
-        M[ 7] = get_attr_f(curr, "m7", 0.0);
-        M[ 8] = get_attr_f(curr, "m8", 0.0);
-        M[ 9] = get_attr_f(curr, "m9", 0.0);
-        M[10] = get_attr_f(curr, "mA", 1.0);
-        M[11] = get_attr_f(curr, "mB", 0.0);
-        M[12] = get_attr_f(curr, "mC", 0.0);
-        M[13] = get_attr_f(curr, "mD", 0.0);
-        M[14] = get_attr_f(curr, "mE", 0.0);
-        M[15] = get_attr_f(curr, "mF", 1.0);
-    }
-    else load_idt(M);
-}
-
-void app::frustum::set_calibration(const double *M)
-{
-    // Update the calibration matrix in the serialization node.
-
-    app::node curr;
 
     if (node)
     {
-        if ((curr = find(node, "calibration")) == 0)
-        {
-            // TODO: insert
-        }
+        app::node curr;
 
-        if ((curr = find(node, "calibration")))
+        if ((curr = find(node, "position")))
         {
-            set_attr_f(curr, "m0", M[ 0]);
-            set_attr_f(curr, "m1", M[ 1]);
-            set_attr_f(curr, "m2", M[ 2]);
-            set_attr_f(curr, "m3", M[ 3]);
-            set_attr_f(curr, "m4", M[ 4]);
-            set_attr_f(curr, "m5", M[ 5]);
-            set_attr_f(curr, "m6", M[ 6]);
-            set_attr_f(curr, "m7", M[ 7]);
-            set_attr_f(curr, "m8", M[ 8]);
-            set_attr_f(curr, "m9", M[ 9]);
-            set_attr_f(curr, "mA", M[10]);
-            set_attr_f(curr, "mB", M[11]);
-            set_attr_f(curr, "mC", M[12]);
-            set_attr_f(curr, "mD", M[13]);
-            set_attr_f(curr, "mE", M[14]);
-            set_attr_f(curr, "mF", M[15]);
+            P = get_attr_f(curr, "p");
+            T = get_attr_f(curr, "t");
+            R = get_attr_f(curr, "r");
+        }
+        if ((curr = find(node, "rotation")))
+        {
+            p = get_attr_f(curr, "p");
+            y = get_attr_f(curr, "y");
+            r = get_attr_f(curr, "r");
         }
     }
 }
+
+void app::frustum::set_calibration(double P, double T, double R,
+                                   double p, double y, double r)
+{
+    // Update the calibration matrix in the serialization node.
+
+    if (node)
+    {
+        app::node curr;
+
+        if ((curr = find(node, "position")))
+        {
+            set_attr_f(curr, "p", P);
+            set_attr_f(curr, "t", T);
+            set_attr_f(curr, "r", R);
+        }
+        if ((curr = find(node, "rotation")))
+        {
+            set_attr_f(curr, "p", p);
+            set_attr_f(curr, "y", y);
+            set_attr_f(curr, "r", r);
+        }
+    }
+}
+
+void app::frustum::mat_calibration(double *M)
+{
+    double P, T, R, p, y, r;
+
+    get_calibration(P, T, R, p, y, r);
+
+    load_rot_mat(M, 0, 1, 0, T);
+    Rmul_rot_mat(M, 1, 0, 0, P);
+    Rmul_xlt_mat(M, 0, 0, R);
+
+    Rmul_rot_mat(M, 0, 1, 0, y);
+    Rmul_rot_mat(M, 1, 0, 0, p);
+    Rmul_rot_mat(M, 0, 0, 1, r);
+}
+
+//-----------------------------------------------------------------------------
 
 void app::frustum::calc_corner_4(double *c0,
                                  double *c1,
@@ -177,7 +186,7 @@ void app::frustum::calc_calibrated()
 
         // Extract the calibration.
 
-        get_calibration(T);
+        mat_calibration(T);
     }
     else load_idt(T);
 
@@ -196,25 +205,24 @@ void app::frustum::calc_calibrated()
     mult_mat_vec3(user_points[1], T, c[1]);
     mult_mat_vec3(user_points[2], T, c[2]);
     mult_mat_vec3(user_points[3], T, c[3]);
-
+/*
     printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 0], T[ 4], T[ 8], T[12]);
     printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 1], T[ 5], T[ 9], T[13]);
     printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 2], T[ 6], T[10], T[14]);
     printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 3], T[ 7], T[11], T[15]);
+*/
 }
 
 void app::frustum::calc_user_planes(const double *p)
 {
-    user_pos[0] = p[0];
-    user_pos[1] = p[1];
-    user_pos[2] = p[2];
+    mult_mat_vec3(user_pos, T, p);
 
     // Compute the user-space view frustum bounding planes.
 
-    set_plane(user_planes[0], p, user_points[0], user_points[2]);  // Left
-    set_plane(user_planes[1], p, user_points[3], user_points[1]);  // Right
-    set_plane(user_planes[2], p, user_points[1], user_points[0]);  // Bottom
-    set_plane(user_planes[3], p, user_points[2], user_points[3]);  // Top
+    set_plane(user_planes[0], user_pos, user_points[0], user_points[2]);
+    set_plane(user_planes[1], user_pos, user_points[3], user_points[1]);
+    set_plane(user_planes[2], user_pos, user_points[1], user_points[0]);
+    set_plane(user_planes[3], user_pos, user_points[2], user_points[3]);
 
     // Cache the distance from the user to the display plane.
 
@@ -222,7 +230,7 @@ void app::frustum::calc_user_planes(const double *p)
 
     set_plane(display_plane, user_points[0], user_points[1], user_points[2]);
 
-    user_dist = DOT3(display_plane, p) + display_plane[3];
+    user_dist = DOT3(display_plane, user_pos) + display_plane[3];
 }
 
 void app::frustum::calc_view_planes(const double *M,
@@ -360,46 +368,6 @@ app::frustum::frustum(frustum& that)
 
 //-----------------------------------------------------------------------------
 
-static void set_sphere(double *M, double r, double t, double p,
-                                            double T, double P)
-{
-    load_idt(M);
-
-    // Set the position using spherical coordinates (r, t, p).
-
-    M[12] =  r * sin(t) * cos(p);
-    M[13] = -r *          sin(p);
-    M[14] =  r * cos(t) * cos(p);
-
-    printf("%f %f %f\n", M[12], M[13], M[14]);
-
-    // Set the orientation using spherical coordinates (T, P).
-
-    M[ 8] = sin(T) * cos(P);
-    M[ 9] =         -sin(P);
-    M[10] = cos(T) * cos(P);
-
-    crossprod(M + 0, M + 4, M + 8);
-    normalize(M + 0);
-    crossprod(M + 4, M + 8, M + 0);
-    normalize(M + 4);
-}
-
-static void get_sphere(const double *M, double& r, double& t, double& p,
-                                                   double& T, double& P)
-{
-
-    r = sqrt(DOT3(M + 12, M + 12));
-
-    t = atan2( M[12], M[14]);
-    p = atan2(-M[13], M[14]);
-
-    T = atan2( M[ 8], M[10]);
-    P = atan2(-M[ 9], M[10]);
-}
-
-//-----------------------------------------------------------------------------
-
 bool app::frustum::input_point(int i, const double *p, const double *q)
 {
     return false;
@@ -416,31 +384,33 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
     {
         if (m & KMOD_CTRL)
         {
-            double M[16], r, t, p, T, P, s = (m & KMOD_CAPS) ? 0.1 : 1.0;
+            double P, T, R, p, y, r, s;
 
-            get_calibration(M);
-            get_sphere(M, r, t, p, T, P);
+            s = ((m & KMOD_CAPS) || (m & KMOD_ALT)) ? 0.1 : 1.0;
+
+            get_calibration(P, T, R, p, y, r);
 
             if (m & KMOD_SHIFT)
             {
-                if      (k == SDLK_LEFT)     t += 0.1 * s;
-                else if (k == SDLK_RIGHT)    t -= 0.1 * s;
-                else if (k == SDLK_UP)       p += 0.1 * s;
-                else if (k == SDLK_DOWN)     p -= 0.1 * s;
-                else if (k == SDLK_PAGEUP)   r += 1.0 * s;
-                else if (k == SDLK_PAGEDOWN) r -= 1.0 * s;
+                if      (k == SDLK_LEFT)     T += 10.0 * s;
+                else if (k == SDLK_RIGHT)    T -= 10.0 * s;
+                else if (k == SDLK_UP)       P += 10.0 * s;
+                else if (k == SDLK_DOWN)     P -= 10.0 * s;
+                else if (k == SDLK_PAGEUP)   R +=  1.0 * s;
+                else if (k == SDLK_PAGEDOWN) R -=  1.0 * s;
             }
             else
             {
-                if      (k == SDLK_LEFT)     T += 0.1 * s;
-                else if (k == SDLK_RIGHT)    T -= 0.1 * s;
-                else if (k == SDLK_UP)       P += 0.1 * s;
-                else if (k == SDLK_DOWN)     P -= 0.1 * s;
+                if      (k == SDLK_LEFT)     y += 10.0 * s;
+                else if (k == SDLK_RIGHT)    y -= 10.0 * s;
+                else if (k == SDLK_UP)       p += 10.0 * s;
+                else if (k == SDLK_DOWN)     p -= 10.0 * s;
+                else if (k == SDLK_PAGEUP)   r +=  1.0 * s;
+                else if (k == SDLK_PAGEDOWN) r -=  1.0 * s;
             }
 
-            set_sphere(M, r, t, p, T, P);
-            set_calibration(M);
-            calc_calibrated( );
+            set_calibration(P, T, R, p, y, r);
+            calc_calibrated();
 
             return true;
         }
