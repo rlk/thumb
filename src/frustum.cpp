@@ -646,4 +646,30 @@ void app::frustum::draw() const
     glMatrixMode(GL_MODELVIEW);
 }
 
+void app::frustum::cast() const
+{
+/*
+    printf("%f %f %f\n",
+           user_points[0][0], user_points[0][1], user_points[0][2]);
+    printf("%f %f %f\n",
+           user_points[1][0], user_points[1][1], user_points[1][2]);
+    printf("%f %f %f\n",
+           user_points[2][0], user_points[2][1], user_points[2][2]);
+    printf("%f %f %f\n",
+           user_points[3][0], user_points[3][1], user_points[3][2]);
+*/
+    glBegin(GL_QUADS);
+    {
+        glTexCoord3dv(user_points[0]);
+        glVertex2f(-1.0f, -1.0f);
+        glTexCoord3dv(user_points[1]);
+        glVertex2f(+1.0f, -1.0f);
+        glTexCoord3dv(user_points[3]);
+        glVertex2f(+1.0f, +1.0f);
+        glTexCoord3dv(user_points[2]);
+        glVertex2f(-1.0f, +1.0f);
+    }
+    glEnd();
+}
+
 //-----------------------------------------------------------------------------

@@ -1,3 +1,9 @@
+smoothstep a quad in sphere coords
+compute user_frust
+inverse user_frust in dome-draw
+
+
+-------------------------------------------------------------------------------
 
 rotate y around global y axis
 rotate p around local  x axis

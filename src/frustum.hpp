@@ -109,6 +109,7 @@ namespace app
         void pick(double *, double *, double, double) const;
 
         void draw() const;
+        void cast() const;
     };
 
     typedef std::vector<frustum *>           frustum_v;

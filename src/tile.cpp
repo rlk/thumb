@@ -13,6 +13,7 @@
 #include "default.hpp"
 #include "tile.hpp"
 #include "normal.hpp"
+#include "dome.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -50,13 +51,13 @@ app::tile::tile(app::node node) : current(0)
 
         if (strcmp(t, "normal")  == 0)
             display.push_back(new app::normal  (node, curr, window));
+        if (strcmp(t, "dome")    == 0)
+            display.push_back(new app::dome    (node, curr, window));
 /*
         if (strcmp(t, "anaglyph") == 0)
             display[i] = new app::anaglyph(node, curr, window);
         if (strcmp(t, "varrier")  == 0)
             display[i] = new app::varrier (node, curr, window);
-        if (strcmp(t, "dome")     == 0)
-            display[i] = new app::dome    (node, curr, window);
 */
     }
 

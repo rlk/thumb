@@ -269,11 +269,20 @@ void uni::sphere::view(app::frustum_v& frusta)
 
         // Cache the view position.
 
-        const double *p = this->frusta[0]->get_view_pos();
+        if (!frusta.empty())
+        {
+            const double *p = this->frusta[0]->get_view_pos();
 
-        vp[0] = p[0];
-        vp[1] = p[1];
-        vp[2] = p[2];
+            vp[0] = p[0];
+            vp[1] = p[1];
+            vp[2] = p[2];
+        }
+        else
+        {
+            vp[0] = 0.0;
+            vp[1] = 0.0;
+            vp[2] = 0.0;
+        }
 
         // Prep the atmosphere model.
 

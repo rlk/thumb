@@ -2,8 +2,7 @@
 <host>
   <buffer w="640" h="480"/>
 
-  <view x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1"/>
-  <view x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0"/>
+  <view x="0.0" y="0.0" z="0.0" r="1" g="0" b="1"/>
 
   <node name="test">
     <window x="0" y="0" w="1280" h="480"/>
@@ -11,18 +10,20 @@
       <viewport x="0" y="0" w="640" h="480"/>
       <frustum>
         <perspective aspect="1.333" fov="90.0"/>
-        <rotation p="0.0" y="90.0" r="0.0"/>
-        <position p="0.0" t="0.0" r="0.0"/>
+        <rotation p="0.0" y="0.0" r="0.0"/>
+        <position p="0.0" t="0.0" r="54.0"/>
       </frustum>
-      <disp type="normal" view="0">
+      <disp type="dome" view="0" radius="55.0">
       </disp>
     </tile>
     <tile index="1">
       <viewport x="640" y="0" w="640" h="480"/>
       <frustum>
         <perspective aspect="1.333" fov="90.0"/>
+        <rotation p="0.0" y="0.0" r="0.0"/>
+        <position p="0.0" t="0.0" r="0.0"/>
       </frustum>
-      <disp type="normal" view="1">
+      <disp type="dome" view="0" radius="55.0">
       </disp>
     </tile>
   </node>

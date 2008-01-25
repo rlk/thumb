@@ -61,6 +61,7 @@ OBJS=	serial.o \
 	odeutil.o \
 	frustum.o \
 	normal.o \
+	dome.o \
 	varrier.o \
 	message.o \
 	view.o \
