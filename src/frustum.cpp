@@ -392,9 +392,9 @@ void app::frustum::calc_dome_planes(const double *p,
         P[i][0] = o[0] + v[0] * t;
         P[i][1] = o[1] + v[1] * t;
         P[i][2] = o[2] + v[2] * t;
-
+/*
         printf("%f %f %f\n", P[i][0], P[i][1], P[i][2]);
-
+*/
         C[0] += P[i][0];
         C[1] += P[i][1];
         C[2] += P[i][2];
@@ -447,9 +447,9 @@ void app::frustum::calc_dome_planes(const double *p,
     double r = max4(x[0], x[1], x[2], x[3]);
     double b = min4(y[0], y[1], y[2], y[3]);
     double t = max4(y[0], y[1], y[2], y[3]);
-
+/*
     printf("%f %f %f %f\n", l, r, b, t);
-
+*/
     user_points[0][0] = C[0] + R[0] * l + U[0] * b;
     user_points[0][1] = C[1] + R[1] * l + U[1] * b;
     user_points[0][2] = C[2] + R[2] * l + U[2] * b;
@@ -465,7 +465,7 @@ void app::frustum::calc_dome_planes(const double *p,
     user_points[3][0] = C[0] + R[0] * r + U[0] * t;
     user_points[3][1] = C[1] + R[1] * r + U[1] * t;
     user_points[3][2] = C[2] + R[2] * r + U[2] * t;
-
+/*
     printf("%f %f %f\n",
            user_points[0][0], user_points[0][1], user_points[0][2]);
     printf("%f %f %f\n",
@@ -474,7 +474,7 @@ void app::frustum::calc_dome_planes(const double *p,
            user_points[2][0], user_points[2][1], user_points[2][2]);
     printf("%f %f %f\n",
            user_points[3][0], user_points[3][1], user_points[3][2]);
-
+*/
     calc_user_planes(p);
 }
 
@@ -531,23 +531,23 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
 
             if (m & KMOD_SHIFT)
             {
-                if      (k == SDLK_LEFT)     T += 10.0 * s;
-                else if (k == SDLK_RIGHT)    T -= 10.0 * s;
-                else if (k == SDLK_UP)       P += 10.0 * s;
-                else if (k == SDLK_DOWN)     P -= 10.0 * s;
-                else if (k == SDLK_PAGEUP)   R +=  1.0 * s;
-                else if (k == SDLK_PAGEDOWN) R -=  1.0 * s;
+                if      (k == SDLK_LEFT)     T += 1.0 * s;
+                else if (k == SDLK_RIGHT)    T -= 1.0 * s;
+                else if (k == SDLK_UP)       P += 1.0 * s;
+                else if (k == SDLK_DOWN)     P -= 1.0 * s;
+                else if (k == SDLK_PAGEUP)   R += 1.0 * s;
+                else if (k == SDLK_PAGEDOWN) R -= 1.0 * s;
             }
             else
             {
-                if      (k == SDLK_LEFT)     y += 10.0 * s;
-                else if (k == SDLK_RIGHT)    y -= 10.0 * s;
-                else if (k == SDLK_UP)       p += 10.0 * s;
-                else if (k == SDLK_DOWN)     p -= 10.0 * s;
-                else if (k == SDLK_PAGEUP)   r +=  1.0 * s;
-                else if (k == SDLK_PAGEDOWN) r -=  1.0 * s;
-                else if (k == SDLK_HOME)     F += 10.0 * s;
-                else if (k == SDLK_END)      F -= 10.0 * s;
+                if      (k == SDLK_LEFT)     y += 1.0 * s;
+                else if (k == SDLK_RIGHT)    y -= 1.0 * s;
+                else if (k == SDLK_UP)       p += 1.0 * s;
+                else if (k == SDLK_DOWN)     p -= 1.0 * s;
+                else if (k == SDLK_PAGEUP)   r += 1.0 * s;
+                else if (k == SDLK_PAGEDOWN) r -= 1.0 * s;
+                else if (k == SDLK_HOME)     F += 1.0 * s;
+                else if (k == SDLK_END)      F -= 1.0 * s;
             }
 
             set_calibration(P, T, R, p, y, r, F);

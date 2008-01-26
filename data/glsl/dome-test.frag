@@ -47,5 +47,6 @@ void main()
     p.x = (-T +       pi) * 720.0 / (2.0 * pi);
     p.y = (+P + 0.5 * pi) * 360.0 / (      pi);
 
-    gl_FragColor = vec4(texture2DRect(map, p).rgb * k.x * k.y, 1.0);
+    gl_FragColor = vec4(texture2DRect(map, p).rgb, 1.0);
+//  gl_FragColor = vec4(texture2DRect(map, p).rgb * k.x * k.y, 1.0);
 }

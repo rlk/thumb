@@ -37,7 +37,7 @@ uni::universe::universe()
     int n_lod = ::conf->get_i("image_normal_lod");
     int h_lod = ::conf->get_i("image_height_lod");
 
-    c_name.append("earth/earth-color/earth-color");
+    c_name.append("earth/earth-color/earth-color-512");
     n_name.append("earth/earth-normal/earth-normal");
     h_name.append("earth/earth-height/earth-height");
 

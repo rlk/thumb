@@ -189,6 +189,8 @@ void demo::click(int i, int b, int m, bool d)
 
 void demo::keybd(int c, int k, int m, bool d)
 {
+    prog::keybd(c, k, m, d);
+
     // Handle mode transitions.
 
     if      (d && k == key_edit && curr != edit) goto_mode(edit);
@@ -224,8 +226,6 @@ void demo::keybd(int c, int k, int m, bool d)
             }
         }
     }
-
-    else prog::keybd(c, k, m, d);
 }
 
 void demo::timer(int t)
@@ -392,7 +392,7 @@ void demo::draw(int i)
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
-        glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         universe.draw(i);
