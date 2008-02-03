@@ -25,6 +25,8 @@ namespace app
         int key_exit;
         int key_init;
 
+        unsigned int options;
+
     protected:
 
         void snap(std::string, int, int) const;
@@ -41,6 +43,8 @@ namespace app
         
         virtual void prep(app::frustum_v&) { }
         virtual void draw(int)             { }
+
+        bool option(int) const;
 
         virtual ~prog() { }
     };

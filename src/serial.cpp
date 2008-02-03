@@ -54,12 +54,18 @@ void app::serial::load()
     if (head)
         mxmlDelete(head);
 
+    head = 0;
+
     // Load the data stream and parse the XML.
 
-    if (const char *buff = (const char *) ::data->load(file))
-        head = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
-    else
-        head = 0;
+    try
+    {
+        if (const char *buff = (const char *) ::data->load(file))
+            head = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
+    }
+    catch (find_error& e)
+    {
+    }
 
     // Release the data stream.
 

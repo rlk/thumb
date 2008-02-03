@@ -20,6 +20,7 @@
 #include "matrix.hpp"
 #include "sphere.hpp"
 #include "glob.hpp"
+#include "prog.hpp"
 #include "user.hpp"
 #include "conf.hpp"
 #include "util.hpp"
@@ -596,6 +597,29 @@ void uni::sphere::draw(int i)
                     ren.free();
                 }
                 land_prog->free();
+
+                        // Draw wireframe as requested.
+
+                if (::prog->option(1))
+                {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                    glColor4f(1.0f, 1.0f, 1.0f, 0.05f);
+
+                    ren.bind();
+                    dat.idx()->bind();
+                    vtx.bind();
+                    {
+                        pass();
+                    }
+                    vtx.free();
+                    dat.idx()->free();
+                    ren.free();
+
+                    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                }
             }
             glPopClientAttrib();
         }

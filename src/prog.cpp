@@ -89,7 +89,7 @@ void app::prog::snap(std::string filename, int w, int h) const
 
 //-----------------------------------------------------------------------------
 
-app::prog::prog()
+app::prog::prog() : options(0)
 {
     key_snap = ::conf->get_i("key_snap");
     key_exit = ::conf->get_i("key_exit");
@@ -110,7 +110,20 @@ void app::prog::keybd(int c, int k, int m, bool d)
 
         else if (k == key_exit) SDL_PushEvent(&quit);
         else if (k == key_init) SDL_PushEvent(&user);
+
+        else if (m & KMOD_SHIFT)
+        {
+            if (SDLK_F1 <= k && k <= SDLK_F12)
+                options ^= (1 << (k - SDLK_F1));
+        }
     }
+}
+
+//-----------------------------------------------------------------------------
+
+bool app::prog::option(int b) const
+{
+    return (options & (1 << b)) ? true : false;
 }
 
 //-----------------------------------------------------------------------------
