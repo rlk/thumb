@@ -24,7 +24,8 @@
 //-----------------------------------------------------------------------------
 
 void app::frustum::get_calibration(double& P, double& T, double& R,
-                                   double& p, double& y, double& r, double& F)
+                                   double& p, double& y, double& r,
+                                   double& F, double& A)
 {
     P =  0.0;  // Position phi
     T =  0.0;  // Position theta
@@ -32,7 +33,8 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
     p =  0.0;  // Rotation pitch
     y =  0.0;  // Rotation yaw
     r =  0.0;  // Rotation roll
-    F = 90.0;  // Field of view
+    F = 60.0;  // Field of view
+    A =  1.33; // Aspect ratio
 
     // Extract the calibration matrix from the serialization node.
 
@@ -54,13 +56,15 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
         }
         if ((curr = find(node, "perspective")))
         {
-            F = get_attr_f(curr, "fov", F);
+            A = get_attr_f(curr, "aspect", A);
+            F = get_attr_f(curr, "fov",    F);
         }
     }
 }
 
 void app::frustum::set_calibration(double P, double T, double R,
-                                   double p, double y, double r, double F)
+                                   double p, double y, double r,
+                                   double F, double A)
 {
     // Update the calibration matrix in the serialization node.
 
@@ -82,16 +86,17 @@ void app::frustum::set_calibration(double P, double T, double R,
         }
         if ((curr = find(node, "perspective")))
         {
-            set_attr_f(curr, "fov", F);
+            set_attr_f(curr, "aspect", A);
+            set_attr_f(curr, "fov",    F);
         }
     }
 }
 
 void app::frustum::mat_calibration(double *M)
 {
-    double P, T, R, p, y, r, F;
+    double P, T, R, p, y, r, F, A;
 
-    get_calibration(P, T, R, p, y, r, F);
+    get_calibration(P, T, R, p, y, r, F, A);
 
     load_rot_mat(M, 0, 1, 0, T);
     Rmul_rot_mat(M, 1, 0, 0, P);
@@ -136,7 +141,7 @@ void app::frustum::calc_calibrated()
     bool b[4] = { false, false, false, false };
 
     double aspect =  1.333;
-    double fov    = 90.000;
+    double fov    = 60.000;
 
     double c[4][3];
 
@@ -523,11 +528,11 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
     {
         if (m & KMOD_CTRL)
         {
-            double P, T, R, p, y, r, s, F;
+            double P, T, R, p, y, r, s, F, A;
 
             s = ((m & KMOD_CAPS) || (m & KMOD_ALT)) ? 0.1 : 1.0;
 
-            get_calibration(P, T, R, p, y, r, F);
+            get_calibration(P, T, R, p, y, r, F, A);
 
             if (m & KMOD_SHIFT)
             {
@@ -548,9 +553,11 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
                 else if (k == SDLK_PAGEDOWN) r -= 1.0 * s;
                 else if (k == SDLK_HOME)     F += 1.0 * s;
                 else if (k == SDLK_END)      F -= 1.0 * s;
+                else if (k == SDLK_INSERT)   A += 0.1 * s;
+                else if (k == SDLK_DELETE)   A -= 0.1 * s;
             }
 
-            set_calibration(P, T, R, p, y, r, F);
+            set_calibration(P, T, R, p, y, r, F, A);
             calc_calibrated();
 
             return true;

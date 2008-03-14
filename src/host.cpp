@@ -55,7 +55,7 @@ static void nodelay(int sd)
 
 //-----------------------------------------------------------------------------
 
-void app::host::fork_client(const char *addr, const char *name)
+void app::host::fork_client(const char *name, const char *addr)
 {
     const char *args[4];
     char line[256];
@@ -673,19 +673,22 @@ void app::host::keybd(int c, int k, int m, bool d)
         if (k == SDLK_TAB)
         {
             calibrate_state = !calibrate_state;
+            printf("state %d\n", calibrate_state);
             return;
         }
 
         // Selecting calibration tile?
 
-        else if (k == SDLK_INSERT)
+        else if (k == SDLK_SPACE)
         {
             calibrate_index++;
+            printf("index %d\n", calibrate_index);
             return;
         }
-        else if (k == SDLK_DELETE)
+        else if (k == SDLK_BACKSPACE)
         {
             calibrate_index--;
+            printf("index %d\n", calibrate_index);
             return;
         }
 
@@ -693,8 +696,8 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         else if (calibrate_state)
         {
-            if (tile_input_keybd(c, k, m, d))
-                return;
+            tile_input_keybd(c, k, m, d);
+            return;
         }
     }
 

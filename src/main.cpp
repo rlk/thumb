@@ -159,7 +159,7 @@ static void video()
     ogl::init();
 }
 
-static void init(std::string& h)
+static void init(const char *tag)
 {
     // Initialize data access and configuration.
 
@@ -171,8 +171,11 @@ static void init(std::string& h)
     std::string lang_conf = conf->get_s("lang_file");
     std::string host_conf = conf->get_s("host_file");
 
+    if (tag)
+        host_conf = host_conf + tag + ".xml";
+
     lang = new app::lang(lang_conf.empty() ? DEFAULT_LANG_FILE : lang_conf);
-    host = new app::host(host_conf.empty() ? DEFAULT_HOST_FILE : host_conf, h);
+    host = new app::host(host_conf.empty() ? DEFAULT_HOST_FILE : host_conf, tag);
 
     // Initialize the OpenGL context.
 
@@ -221,8 +224,6 @@ static void fini()
 
 int main(int argc, char *argv[])
 {
-    std::string tag(argc > 1 ? argv[1] : DEFAULT_TAG);
-
     try
     {
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) == 0)
@@ -235,7 +236,7 @@ int main(int argc, char *argv[])
 
             SDL_EnableUNICODE(1);
 
-            init(tag);
+            init(argc > 1 ? argv[1] : 0);
             {
                 host->loop();
             }
