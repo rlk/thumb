@@ -37,14 +37,6 @@ class demo : public app::prog
     int key_move_F;
     int key_move_B;
 
-    int joy_mode;
-    int joy_axis_x;
-    int joy_axis_y;
-    int joy_butn_F;
-    int joy_butn_B;
-    int joy_butn_L;
-    int joy_butn_R;
-
     double view_move_rate;
     double view_turn_rate;
 
@@ -67,11 +59,7 @@ class demo : public app::prog
 
     // Demo state.
 
-    int    last_x;
-    int    last_y;
-    int    button[4];
-    int    motion[3];
-    double rotate[3];
+    int button[4];
 
     bool   attr_mode;
     bool   attr_stop;
@@ -85,8 +73,8 @@ class demo : public app::prog
 
     // Tracker cache.
 
-    double init_P[3], init_R[3][3];
-    double curr_P[3], curr_R[3][3];
+    double init_P[3], init_R[16];
+    double curr_P[3], curr_R[16];
 
     bool draw_sphere;
 

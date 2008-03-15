@@ -3,25 +3,27 @@
 
   <!-- Host configuration -->
 
-<!--<option type="string" name="host_file">host/cwall.xml</option>-->
+  <option type="string" name="host_file">host/sharp.xml</option>
 
   <option type="string" name="exec_dir">/home/evl/rlk/src/thumb/</option>
   <option type="string" name="data_dir">/home/evl/rlk/data/</option>
 
   <option type="int" name="window_fullscreen">0</option>
-  <option type="int" name="window_noframe">1</option>
+  <option type="int" name="window_noframe">0</option>
 
   <option type="float" name="attract_delay">2.0</option>
+
+  <option type="int" name="atmo">1</option>
 
   <!-- Terrain renderer configuration -->
 
   <option type="float" name="patch_bias">10.0</option>
   <option type="int"   name="patch_cache">1024</option>
   <option type="int"   name="patch_depth">4</option>
-  <option type="int"   name="image_pool_size">24</option>
-  <option type="int"   name="image_color_lod">18</option>
-  <option type="int"   name="image_normal_lod">18</option>
-  <option type="int"   name="image_height_lod">18</option>
+  <option type="int"   name="image_pool_size">128</option>
+  <option type="int"   name="image_color_lod">20</option>
+  <option type="int"   name="image_normal_lod">20</option>
+  <option type="int"   name="image_height_lod">20</option>
 
   <!-- Tracker configuration -->
 

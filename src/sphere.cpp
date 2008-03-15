@@ -277,12 +277,16 @@ void uni::sphere::view(app::frustum_v& frusta)
             vp[0] = p[0];
             vp[1] = p[1];
             vp[2] = p[2];
+
+            dist = sqrt(DOT3(vp, vp));
         }
         else
         {
             vp[0] = 0.0;
             vp[1] = 0.0;
             vp[2] = 0.0;
+
+            dist = 0;
         }
 
         // Prep the atmosphere model.

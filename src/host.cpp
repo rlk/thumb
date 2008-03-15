@@ -821,9 +821,9 @@ void app::host::set_head(const double *p,
 }
 
 //-----------------------------------------------------------------------------
-/*
+#ifdef SNIP
 void app::host::gui_pick(int& x, int& y, const double *p,
-                                         const double *v) const
+                                         const double *q) const
 {
     // Compute the point (x, y) at which the vector V from P hits the GUI.
 
@@ -855,7 +855,7 @@ void app::host::gui_view() const
 
     glMultMatrixd(gui_M);
 }
-*/
+#endif
 //-----------------------------------------------------------------------------
 
 bool app::host::tile_input_point(int i, const double *p, const double *q)

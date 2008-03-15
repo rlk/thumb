@@ -178,20 +178,13 @@ void app::user::save()
 
 //-----------------------------------------------------------------------------
 
-void app::user::turn(double rx, double ry, double rz, double R[3][3])
+void app::user::turn(double rx, double ry, double rz, const double *R)
 {
-    double M[16];
     double T[16];
 
-    load_idt(M);
+    load_xps(T, R);
 
-    M[ 0] = R[0][0]; M[ 1] = R[0][1]; M[ 2] = R[0][2];
-    M[ 4] = R[1][0]; M[ 5] = R[1][1]; M[ 6] = R[1][2];
-    M[ 8] = R[2][0]; M[ 9] = R[2][1]; M[10] = R[2][2];
-
-    load_xps(T, M);
-
-    mult_mat_mat(current_M, current_M, M);
+    mult_mat_mat(current_M, current_M, R);
     turn(rx, ry, rz);
     mult_mat_mat(current_M, current_M, T);
 

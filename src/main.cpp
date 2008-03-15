@@ -171,7 +171,7 @@ static void init(const char *tag)
     std::string lang_conf = conf->get_s("lang_file");
     std::string host_conf = conf->get_s("host_file");
 
-    if (tag)
+    if (conf->get_i("tag_host_file"))
         host_conf = host_conf + tag + ".xml";
 
     lang = new app::lang(lang_conf.empty() ? DEFAULT_LANG_FILE : lang_conf);
@@ -236,7 +236,7 @@ int main(int argc, char *argv[])
 
             SDL_EnableUNICODE(1);
 
-            init(argc > 1 ? argv[1] : 0);
+            init(argc > 1 ? argv[1] : DEFAULT_TAG);
             {
                 host->loop();
             }
