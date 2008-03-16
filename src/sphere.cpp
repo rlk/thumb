@@ -62,6 +62,8 @@ uni::sphere::sphere(uni::geodat& dat,
     normal(normal),
     height(height),
 
+    draw_lit(glob->load_program("glsl/drawlit.vert",
+                                "glsl/drawlit.frag")),
     atmo_in (glob->load_program("glsl/SkyFromAtmosphere.vert",
                                 "glsl/SkyFromAtmosphere.frag")),
     atmo_out(glob->load_program("glsl/SkyFromSpace.vert",
@@ -94,6 +96,8 @@ uni::sphere::sphere(uni::geodat& dat,
 
     // Initialize atmosphere rendering.
 
+    draw_atmo = ::conf->get_i("atmo");
+
     atmo_pool = glob->new_pool();
     atmo_node = new ogl::node();
     atmo_unit = new ogl::unit("solid/inverted_sphere.obj");
@@ -116,6 +120,7 @@ uni::sphere::~sphere()
     glob->free_program(land_in);
     glob->free_program(atmo_out);
     glob->free_program(atmo_in);
+    glob->free_program(draw_lit);
 
     if (atmo_unit) delete atmo_unit;
     if (atmo_pool) delete atmo_pool;
@@ -291,8 +296,11 @@ void uni::sphere::view(app::frustum_v& frusta)
 
         // Prep the atmosphere model.
 
-        atmo_pool->prep();
-        atmo_pool->view(1, 0, 0);
+        if (draw_atmo)
+        {
+            atmo_pool->prep();
+            atmo_pool->view(1, 0, 0);
+        }
     }
     else
     {
@@ -471,10 +479,20 @@ void uni::sphere::draw(int i)
 {
     bool in = (sqrt(DOT3(vp, vp)) < a1);
 
-    const ogl::program *atmo_prog = in ? atmo_in : atmo_out;
-    const ogl::program *land_prog = in ? land_in : land_out;
+    const ogl::program *atmo_prog = draw_lit;
+    const ogl::program *land_prog = draw_lit;
+
+    if (draw_atmo)
+    {
+        atmo_prog = in ? atmo_in : atmo_out;
+        land_prog = in ? land_in : land_out;
+
+        atmo_prep(atmo_prog);
+        atmo_prep(land_prog);
+    }
 
     // TODO: calc_projection can move to whereever the bounds are first known.
+
     frusta[i]->calc_projection(d0 / 2.0, d1 * 2.0);
     frusta[i]->draw();
 
@@ -501,9 +519,6 @@ void uni::sphere::draw(int i)
     L[3] = 0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
-
-    atmo_prep(atmo_prog);
-    atmo_prep(land_prog);
 
     glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
     {
@@ -630,7 +645,7 @@ void uni::sphere::draw(int i)
 
         // Draw the atmosphere.
 
-        if (::conf->get_i("atmo"))
+        if (draw_atmo)
         {
             glEnable(GL_DEPTH_CLAMP_NV);
             {

@@ -84,10 +84,13 @@ namespace uni
         geomap& normal;
         geomap& height;
 
+        const ogl::program *draw_lit;
         const ogl::program *atmo_in;
         const ogl::program *atmo_out;
         const ogl::program *land_in;
         const ogl::program *land_out;
+
+        bool draw_atmo;
 
         ogl::pool *atmo_pool;
         ogl::node *atmo_node;
