@@ -25,11 +25,12 @@ namespace ogl
     {
         std::string name;
 
-        GLuint object;
-        GLenum target;
-        GLenum intform;
-        GLenum extform;
-        GLenum type;
+        GLuint  object;
+        GLenum  target;
+        GLenum  intform;
+        GLenum  extform;
+        GLenum  type;
+        GLsizei border;
 
         void load_png(const void *, size_t);
         void load_jpg(const void *, size_t);
@@ -45,6 +46,7 @@ namespace ogl
         void bind(GLenum=GL_TEXTURE0) const;
         void free(GLenum=GL_TEXTURE0) const;
 
+        void draw() const;
         void init();
         void fini();
     };

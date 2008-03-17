@@ -84,6 +84,15 @@ namespace uni
         geomap& normal;
         geomap& height;
 
+        double test_dx;
+        double test_dy;
+        double test_kx;
+        double test_ky;
+        
+        const ogl::texture *test_plate_color;
+        const ogl::texture *test_plate_normal;
+        const ogl::texture *test_plate_height;
+
         const ogl::program *draw_lit;
         const ogl::program *atmo_in;
         const ogl::program *atmo_out;

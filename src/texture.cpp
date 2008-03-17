@@ -19,6 +19,10 @@
 
 //-----------------------------------------------------------------------------
 
+#define POT(n) (((n) & ((n) - 1)) == 0)
+
+//-----------------------------------------------------------------------------
+
 ogl::texture::texture(std::string name) : name   (name),
                                           object (0),
                                           target (GL_TEXTURE_2D),
@@ -125,12 +129,13 @@ void ogl::texture::load_png(const void *buf, size_t len)
         }
 
         target  = GL_TEXTURE_2D;
+        border  = 0;
         intform = form_tag[b - 1][c - 1];
         extform = form_tag[0    ][c - 1];
         type    = type_tag[b - 1];
 
-        if (w & (w - 1)) target = GL_TEXTURE_RECTANGLE_ARB;
-        if (h & (h - 1)) target = GL_TEXTURE_RECTANGLE_ARB;
+        if      ( POT(w - 2) &&  POT(h - 2)) border = 1;
+        else if (!POT(w    ) || !POT(h    )) target = GL_TEXTURE_RECTANGLE_ARB;
 
         // Read the pixel data.
 
@@ -144,14 +149,17 @@ void ogl::texture::load_png(const void *buf, size_t len)
             if (target == GL_TEXTURE_2D)
                 glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
 */
-            glTexImage2D(target, 0, intform, w, h, 0, extform, type, 0);
+            glTexImage2D(target, 0, intform, w, h, border, extform, type, 0);
 
             OGLCK();
 
             // Copy all rows to the new texture.
 
             for (GLsizei i = 0, j = h - 1; j >= 0; ++i, --j)
-                glTexSubImage2D(target, 0, 0, i, w, 1, extform, type, bp[j]);
+                glTexSubImage2D(target,
+                                0, -border,
+                                i - border,
+                                w, 1, extform, type, bp[j]);
 
             OGLCK();
         }
@@ -187,8 +195,16 @@ void ogl::texture::load_img(std::string name)
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
     }
 
-    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-    glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    if (border)
+    {
+        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP);
+        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    }
+    else
+    {
+        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -211,6 +227,37 @@ void ogl::texture::free(GLenum unit) const
     }
     glActiveTextureARB(GL_TEXTURE0);
     OGLCK();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::texture::draw() const
+{
+    bind(GL_TEXTURE1);
+    {
+        glMatrixMode(GL_PROJECTION);
+        {
+            glPushMatrix();
+            glLoadIdentity();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glPushMatrix();
+            glLoadIdentity();
+        }
+
+        glRecti(-1, -1, +1, +1);
+
+        glMatrixMode(GL_PROJECTION);
+        {
+            glPopMatrix();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glPopMatrix();
+        }
+    }
+    free(GL_TEXTURE1);
 }
 
 //-----------------------------------------------------------------------------

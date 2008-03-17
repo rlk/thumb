@@ -3,15 +3,15 @@
 
   <!-- Host configuration -->
 
-  <option type="string" name="host_file">host/sharp.xml</option>
+<!--<option type="string" name="host_file">host/sharp.xml</option>-->
 
-  <option type="string" name="exec_dir">/home/evl/rlk/src/thumb/</option>
-  <option type="string" name="data_dir">/home/evl/rlk/data/</option>
+  <option type="string" name="exec_dir">/home/rlk/src/thumb/</option>
+  <option type="string" name="data_dir">/home/rlk/data/</option>
 
   <option type="int" name="window_fullscreen">0</option>
   <option type="int" name="window_noframe">0</option>
 
-  <option type="float" name="attract_delay">2.0</option>
+  <option type="float" name="attract_delay">120.0</option>
 
   <option type="int" name="atmo">1</option>
 
@@ -20,10 +20,10 @@
   <option type="float" name="patch_bias">10.0</option>
   <option type="int"   name="patch_cache">1024</option>
   <option type="int"   name="patch_depth">4</option>
-  <option type="int"   name="image_pool_size">128</option>
-  <option type="int"   name="image_color_lod">20</option>
-  <option type="int"   name="image_normal_lod">20</option>
-  <option type="int"   name="image_height_lod">20</option>
+  <option type="int"   name="image_pool_size">24</option>
+  <option type="int"   name="image_color_lod">16</option>
+  <option type="int"   name="image_normal_lod">16</option>
+  <option type="int"   name="image_height_lod">16</option>
 
   <!-- Tracker configuration -->
 
@@ -76,8 +76,8 @@
 
   <!-- Navigation options. -->
 
-  <option type="float" name="view_move_rate">5.000000</option>
-  <option type="float" name="view_turn_rate">0.100000</option>
+  <option type="float" name="view_move_rate">1.000000</option>
+  <option type="float" name="view_turn_rate">90.00000</option>
 
   <!-- Misc. options -->
 

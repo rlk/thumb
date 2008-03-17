@@ -26,8 +26,10 @@ void main()
 
     if (a.x * a.y < 1.0) discard;
 
-    const float off =     0.5;
-    const float scl =     1.0;
+//  const float off =     0.5;
+//  const float scl =     1.0;
+    const float off =     0.0;
+    const float scl =    50.0;
     const float mag = 65535.0;
 
 //  vec4 S = texture2DRect(src, gl_FragCoord.xy);

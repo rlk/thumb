@@ -285,8 +285,13 @@ void demo::prep(app::frustum_v& frusta)
 
 void demo::draw(int i)
 {
+/*
     GLfloat A[4] = { 0.45f, 0.50f, 0.55f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
+*/
+
+    GLfloat A[4] = { 0.25f, 0.25f, 0.25f, 0.0f };
+    GLfloat D[4] = { 1.00f, 1.00f, 1.00f, 0.0f };
 
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
@@ -298,7 +303,7 @@ void demo::draw(int i)
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         universe.draw(i);

@@ -94,6 +94,17 @@ uni::sphere::sphere(uni::geodat& dat,
     d0   = 1.0;
     d1   = 2.0;
 
+    // Set up test resources.
+
+    test_dx = 0.5;
+    test_dy = 0.5;
+    test_kx = 1.0 / (2.0 * M_PI);
+    test_ky = 1.0 / (1.0 * M_PI);
+
+    test_plate_color  = glob->load_texture("test/plate-color.png");
+    test_plate_height = glob->load_texture("test/plate-height.png");
+    test_plate_normal = glob->load_texture("test/plate-normal.png");
+
     // Initialize atmosphere rendering.
 
     draw_atmo = ::conf->get_i("atmo");
@@ -348,8 +359,6 @@ void uni::sphere::step()
             C[k] = C[k]->step(ctx, frusta, vp, bias, 0, count);
         }
 
-//      printf("%d\n", count);
-
         // Set up geometry generation.
 
         if ((count = std::min(count, cache)))
@@ -374,6 +383,8 @@ void uni::sphere::step()
 
             d0 = pos.min_d();
             d1 = pos.max_d();
+
+            d0 = 100000;
         }
     }
 }
@@ -415,11 +426,18 @@ void uni::sphere::prep()
             acc.init(count);
             acc.bind_proc();
             {
-                int w = int(dat.vtx_len());
-                int h = int(count);
+//              int w = int(dat.vtx_len());
+//              int h = int(count);
 
                 for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                    height.draw(*i, vp, w, h);
+                {
+//                  height.draw(*i, vp, w, h);
+
+                    ogl::program::current->uniform("d", test_dx, test_dy);
+                    ogl::program::current->uniform("k", test_kx, test_ky);
+
+                    test_plate_height->draw();
+                }
             }
             acc.free_proc();
             acc.swap();
@@ -560,9 +578,9 @@ void uni::sphere::draw(int i)
 
                     // Enable rendering of the BACK of the view volumes.
 
-                    glEnable(GL_DEPTH_CLAMP_NV);
+//                  glEnable(GL_DEPTH_CLAMP_NV);
                     glEnable(GL_CULL_FACE);
-                    glCullFace(GL_FRONT);
+//                  glCullFace(GL_FRONT);
 
                     // Alpha test discards texels outside of texture borders.
 
@@ -574,7 +592,12 @@ void uni::sphere::draw(int i)
 
                     ren.dif()->bind();
                     {
-                        color.draw(frusta[i], vp);
+//                      color.draw(frusta[i], vp);
+
+                        ogl::program::current->uniform("d", test_dx, test_dy);
+                        ogl::program::current->uniform("k", test_kx, test_ky);
+
+                        test_plate_color->draw();
                     }
                     ren.dif()->free();
 
@@ -583,15 +606,20 @@ void uni::sphere::draw(int i)
                     ren.nrm()->axis(a);
                     ren.nrm()->bind();
                     {
-                        normal.draw(frusta[i], vp);
+//                      normal.draw(frusta[i], vp);
+
+                        ogl::program::current->uniform("d", test_dx, test_dy);
+                        ogl::program::current->uniform("k", test_kx, test_ky);
+
+                        test_plate_normal->draw();
                     }
                     ren.nrm()->free();
 
                     // Revert the state.
 
-                    glCullFace(GL_BACK);
+//                  glCullFace(GL_BACK);
                     glDisable(GL_ALPHA_TEST);
-                    glDisable(GL_DEPTH_CLAMP_NV);
+//                  glDisable(GL_DEPTH_CLAMP_NV);
                 }
                 glPopMatrix();
 
