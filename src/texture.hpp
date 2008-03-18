@@ -27,6 +27,7 @@ namespace ogl
 
         GLuint  object;
         GLenum  target;
+        GLenum  filter;
         GLenum  intform;
         GLenum  extform;
         GLenum  type;
@@ -40,7 +41,7 @@ namespace ogl
 
         const std::string& get_name() const { return name; }
 
-        texture(std::string);
+        texture(std::string, GLenum=GL_LINEAR);
        ~texture();
 
         void bind(GLenum=GL_TEXTURE0) const;

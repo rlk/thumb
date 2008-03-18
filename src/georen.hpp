@@ -28,15 +28,23 @@ namespace uni
     {
     protected:
 
-        const ogl::program *draw;
+        const ogl::program *draw_plate;
+        const ogl::program *draw_north;
+        const ogl::program *draw_south;
+        const ogl::program *draw_strip;
 
     public:
 
-        renbuf(GLsizei, GLsizei, GLenum, bool, bool, std::string, std::string);
+        const static int type_plate = 0;
+        const static int type_north = 1;
+        const static int type_south = 2;
+        const static int type_strip = 3;
+
+        renbuf(GLsizei, GLsizei, GLenum, bool, bool, std::string);
        ~renbuf();
 
-        virtual void bind(bool=false) const;
-        virtual void free(bool=false) const;
+        virtual void bind(int) const;
+        virtual void free(int) const;
     };
 
     //-------------------------------------------------------------------------
@@ -58,8 +66,8 @@ namespace uni
     public:
         difbuf(GLsizei, GLsizei, cylbuf&);
 
-        void bind(bool=false) const;
-        void free(bool=false) const;
+        void bind(int) const;
+        void free(int) const;
     };
 
     //-------------------------------------------------------------------------
@@ -74,8 +82,8 @@ namespace uni
 
         void axis(const double *) const;
 
-        void bind(bool=false) const;
-        void free(bool=false) const;
+        void bind(int) const;
+        void free(int) const;
     };
 
     //-------------------------------------------------------------------------

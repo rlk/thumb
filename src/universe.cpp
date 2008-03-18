@@ -32,7 +32,7 @@ uni::universe::universe()
     // TEST
 
     double r0 = 6000000; 
-    double r1 = 6000000 + 65535 * 50;
+    double r1 = 6000000 + 65535 * 25.0;
 
     // Configure the data sources.
 
@@ -121,9 +121,9 @@ double uni::universe::rate() const
     return S[0] ? S[0]->altitude() : 1.0;
 }
 
-void uni::universe::turn(double d)
+void uni::universe::turn(double a, double t)
 {
-    if (S[0]) S[0]->turn(d * 4.0);
+    if (S[0]) S[0]->turn(a * 4.0, t * 4.0);
 }
 
 //-----------------------------------------------------------------------------

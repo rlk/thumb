@@ -18,6 +18,7 @@
 #include "opengl.hpp"
 #include "prog.hpp"
 #include "conf.hpp"
+#include "host.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -105,8 +106,8 @@ void app::prog::keybd(int c, int k, int m, bool d)
     {
         if (k == key_snap)
             snap(::conf->get_s("screenshot_file"),
-                 ::conf->get_i("window_w"),
-                 ::conf->get_i("window_h"));
+                 ::host->get_window_w(),
+                 ::host->get_window_h());
 
         else if (k == key_exit) SDL_PushEvent(&quit);
         else if (k == key_init) SDL_PushEvent(&user);

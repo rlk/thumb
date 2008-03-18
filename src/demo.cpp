@@ -41,6 +41,8 @@ demo::demo() : draw_sphere(false)
 
     key_move_L = conf->get_i("key_move_L");
     key_move_R = conf->get_i("key_move_R");
+    key_move_D = conf->get_i("key_move_D");
+    key_move_U = conf->get_i("key_move_U");
     key_move_F = conf->get_i("key_move_F");
     key_move_B = conf->get_i("key_move_B");
 
@@ -146,8 +148,20 @@ void demo::click(int i, int b, int m, bool d)
 
     button[b] = d;
 
-    if      (d && b == SDL_BUTTON_WHEELUP)   universe.turn(+1.0);
-    else if (d && b == SDL_BUTTON_WHEELDOWN) universe.turn(-1.0);
+    if      (d && b == SDL_BUTTON_WHEELUP)
+    {
+        if (m & KMOD_SHIFT)
+            universe.turn(0.0, +1.0);
+        else
+            universe.turn(+1.0, 0.0);
+    }
+    else if (d && b == SDL_BUTTON_WHEELDOWN)
+    {
+        if (m & KMOD_SHIFT)
+            universe.turn(0.0, -1.0);
+        else
+            universe.turn(-1.0, 0.0);
+    }
 
     else if (d && b == 1)
     {
@@ -180,6 +194,8 @@ void demo::keybd(int c, int k, int m, bool d)
 
         if      (k == key_move_L) { curr_P[0] -= dd; attr_off(); }
         else if (k == key_move_R) { curr_P[0] += dd; attr_off(); }
+        else if (k == key_move_D) { curr_P[1] -= dd; attr_off(); }
+        else if (k == key_move_U) { curr_P[1] += dd; attr_off(); }
         else if (k == key_move_F) { curr_P[2] -= dd; attr_off(); }
         else if (k == key_move_B) { curr_P[2] += dd; attr_off(); }
 
@@ -193,7 +209,8 @@ void demo::keybd(int c, int k, int m, bool d)
             {
                 if      (k == SDLK_PAGEUP)   attr_next();
                 else if (k == SDLK_PAGEDOWN) attr_prev();
-                else if (k == SDLK_INSERT)   ::user->insert(universe.get_a());
+                else if (k == SDLK_INSERT)   ::user->insert(universe.get_a(),
+                                                            universe.get_t());
                 else if (k == SDLK_DELETE)   ::user->remove();
                 else if (k == SDLK_SPACE)    attr_on();
             }
@@ -208,8 +225,9 @@ void demo::timer(int t)
     if (attr_mode)
     {
         double a = 0.0;
+        double t = 0.0;
 
-        if (user->dostep(dt, universe.get_p(), a))
+        if (user->dostep(dt, universe.get_p(), a, t))
         {
             if (attr_stop)
                 attr_off();
@@ -217,36 +235,46 @@ void demo::timer(int t)
                 user->gonext(10.0);
         }
         universe.set_a(a);
+        universe.set_t(t);
     }
     else
     {
+        // Handle navigation.
+
+        double kp = dt * universe.rate();
+        double kr = dt * view_turn_rate;
+
+        double dP[3];
+        double dR[3];
+        double dz[3];
+        double dy[3];
+
+        dP[0] = curr_P[ 0] - init_P[ 0];
+        dP[1] = curr_P[ 1] - init_P[ 1];
+        dP[2] = curr_P[ 2] - init_P[ 2];
+        
+        dy[0] = init_R[ 4] - curr_R[ 4];
+        dy[1] = init_R[ 5] - curr_R[ 5];
+        dy[2] = init_R[ 6] - curr_R[ 6];
+
+        dz[0] = init_R[ 8] - curr_R[ 8];
+        dz[1] = init_R[ 9] - curr_R[ 9];
+        dz[2] = init_R[10] - curr_R[10];
+
         if (button[1])
         {
-            // Handle navigation.
-
-            double kp = dt * universe.rate();
-            double kr = dt * view_turn_rate;
-
-            double dP[3];
-            double dR[3];
-            double dz[3];
-            double dy[3];
-
-            dP[0] = curr_P[ 0] - init_P[ 0];
-            dP[1] = curr_P[ 1] - init_P[ 1];
-            dP[2] = curr_P[ 2] - init_P[ 2];
-
-            dy[0] = init_R[ 4] - curr_R[ 4];
-            dy[1] = init_R[ 5] - curr_R[ 5];
-            dy[2] = init_R[ 6] - curr_R[ 6];
-
-            dz[0] = init_R[ 8] - curr_R[ 8];
-            dz[1] = init_R[ 9] - curr_R[ 9];
-            dz[2] = init_R[10] - curr_R[10];
-
             dR[0] =  DOT3(dz, init_R + 4);
             dR[1] = -DOT3(dz, init_R + 0);
             dR[2] =  DOT3(dy, init_R + 0);
+
+            user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
+            user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+        }
+        else if (button[3])
+        {
+            dR[0] =  DOT3(dz, init_R + 4);
+            dR[1] =  0;
+            dR[2] = -DOT3(dz, init_R + 0);
 
             user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
             user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);

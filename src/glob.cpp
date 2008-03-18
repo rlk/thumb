@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <stdexcept>
 #include <iostream>
 
 #include "glob.hpp"
@@ -56,8 +57,16 @@ const ogl::program *app::glob::load_program(std::string vert,
 
     if (program_map.find(name) == program_map.end())
     {
-        program_map[name].ptr = new ogl::program(vert, frag);
-        program_map[name].ref = 1;
+        try
+        {
+            program_map[name].ptr = new ogl::program(vert, frag);
+            program_map[name].ref = 1;
+        }
+        catch (std::runtime_error& e)
+        {
+            std::cerr << "Exception: " << e.what() << std::endl;
+            return 0;
+        }
     }
     else   program_map[name].ref++;
 
@@ -105,11 +114,11 @@ void app::glob::free_program(const ogl::program *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::texture *app::glob::load_texture(std::string name)
+const ogl::texture *app::glob::load_texture(std::string name, GLenum filter)
 {
     if (texture_map.find(name) == texture_map.end())
     {
-        texture_map[name].ptr = new ogl::texture(name);
+        texture_map[name].ptr = new ogl::texture(name, filter);
         texture_map[name].ref = 1;
     }
     else   texture_map[name].ref++;

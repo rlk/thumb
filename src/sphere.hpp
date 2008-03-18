@@ -46,7 +46,8 @@ namespace uni
 
         double p[3];
         double n[3];
-        double a;
+        double angle;
+        double tilt;
 
         // View vector, object-to-eye transform and inverse cache.
 
@@ -93,6 +94,10 @@ namespace uni
         const ogl::texture *test_plate_normal;
         const ogl::texture *test_plate_height;
 
+        const ogl::texture *test_north_color;
+        const ogl::texture *test_north_normal;
+        const ogl::texture *test_north_height;
+
         const ogl::program *draw_lit;
         const ogl::program *atmo_in;
         const ogl::program *atmo_out;
@@ -114,9 +119,10 @@ namespace uni
                double=DEFAULT_PATCH_BIAS, GLsizei=DEFAULT_PATCH_CACHE);
        ~sphere();
 
-        void turn(double=0);
+        void turn(double=0, double=0);
         void move(double=0, double=0, double=0,
                   double=0, double=1, double=0, double=0);
+        void norm();
 
         // Rendering pipeline.
 
@@ -134,8 +140,10 @@ namespace uni
 
         const double *get_p() const { return p; }
 
-        double get_a()   const { return a; }
-        void   set_a(double k) { a = k;    }
+        double get_a()   const { return angle; }
+        void   set_a(double k) { angle = k; norm(); }
+        double get_t()   const { return tilt;  }
+        void   set_t(double k) { tilt  = k; norm(); }
     };
 
     bool sphcmp(const sphere *, const sphere *);

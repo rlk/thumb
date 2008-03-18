@@ -34,6 +34,8 @@ class demo : public app::prog
 
     int key_move_L;
     int key_move_R;
+    int key_move_D;
+    int key_move_U;
     int key_move_F;
     int key_move_B;
 

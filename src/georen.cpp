@@ -18,106 +18,177 @@
 //-----------------------------------------------------------------------------
 
 uni::renbuf::renbuf(GLsizei w, GLsizei h, GLenum f, bool d, bool s,
-                    std::string vert, std::string frag) :
+                    std::string name) :
     ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s),
-    draw(glob->load_program(vert, frag))
+    draw_plate(glob->load_program(name + "-plate.vert",
+                                  name + "-plate.frag")),
+    draw_north(glob->load_program(name + "-north.vert",
+                                  name + "-north.frag")),
+    draw_south(glob->load_program(name + "-south.vert",
+                                  name + "-south.frag")),
+    draw_strip(glob->load_program(name + "-strip.vert",
+                                  name + "-strip.frag"))
 {
+    if (draw_plate)
+    {
+        draw_plate->bind();
+        {
+            draw_plate->uniform("cyl", 0);
+            draw_plate->uniform("src", 1);
+        }
+        draw_plate->free();
+    }
+
+    if (draw_north)
+    {
+        draw_north->bind();
+        {
+            draw_north->uniform("cyl", 0);
+            draw_north->uniform("src", 1);
+        }
+        draw_north->free();
+    }
+
+    if (draw_south)
+    {
+        draw_south->bind();
+        {
+            draw_south->uniform("cyl", 0);
+            draw_south->uniform("src", 1);
+        }
+        draw_south->free();
+    }
+
+    if (draw_strip)
+    {
+        draw_strip->bind();
+        {
+            draw_strip->uniform("cyl", 0);
+            draw_strip->uniform("src", 1);
+        }
+        draw_strip->free();
+    }
 }
 
 uni::renbuf::~renbuf()
 {
-    glob->free_program(draw);
+    if (draw_strip) glob->free_program(draw_strip);
+    if (draw_south) glob->free_program(draw_south);
+    if (draw_north) glob->free_program(draw_north);
+    if (draw_plate) glob->free_program(draw_plate);
 }
 
-void uni::renbuf::bind(bool proj) const
+void uni::renbuf::bind(int type) const
 {
     // Bind the render target and shader.
 
-    ogl::frame::bind(proj);
+    ogl::frame::bind(false);
 
-    draw->bind();
+    switch (type)
+    {
+    case type_plate: draw_plate->bind(); break;
+    case type_north: draw_north->bind(); break;
+    case type_south: draw_south->bind(); break;
+    case type_strip: draw_strip->bind(); break;
+    }
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
 }
 
-void uni::renbuf::free(bool proj) const
+void uni::renbuf::free(int type) const
 {
     // Unbind the render target and shader.
 
-    draw->free();
+    switch (type)
+    {
+    case type_plate: draw_plate->free(); break;
+    case type_north: draw_north->free(); break;
+    case type_south: draw_south->free(); break;
+    case type_strip: draw_strip->free(); break;
+    }
 
-    ogl::frame::free(proj);
+    ogl::frame::free();
 }
 
 //-----------------------------------------------------------------------------
 
 uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
-    uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false, "glsl/drawcyl.vert",
-                                                       "glsl/drawcyl.frag")
+    uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false, "glsl/drawcyl")
 {
 }
 
 //-----------------------------------------------------------------------------
 
 uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawdif.vert",
-                                              "glsl/drawdif.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawdif"), cyl(cyl)
 {
-    draw->bind();
-    {
-        draw->uniform("cyl",   0);
-        draw->uniform("color", 1);
-    }
-    draw->free();
 }
 
-void uni::difbuf::bind(bool) const
+void uni::difbuf::bind(int type) const
 {
-    uni::renbuf::bind(false);
+    uni::renbuf::bind(type);
     cyl.bind_color();
 }
 
-void uni::difbuf::free(bool) const
+void uni::difbuf::free(int type) const
 {
     cyl.free_color();
-    uni::renbuf::free(false);
+    uni::renbuf::free(type);
 }
 
 //-----------------------------------------------------------------------------
 
 uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawnrm.vert",
-                                              "glsl/drawnrm.frag"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawnrm"), cyl(cyl)
 {
-    draw->bind();
-    {
-        draw->uniform("cyl",    0);
-        draw->uniform("normal", 1);
-    }
-    draw->free();
 }
 
 void uni::nrmbuf::axis(const double *a) const
 {
-    draw->bind();
+    if (draw_plate)
     {
-        draw->uniform("axis", GLfloat(a[0]),
-                              GLfloat(a[1]),
-                              GLfloat(a[2]));
+        draw_plate->bind();
+        {
+            draw_plate->uniform("axis", a[0], a[1], a[2]);
+        }
+        draw_plate->free();
     }
-    draw->free();
+    if (draw_north)
+    {
+        draw_north->bind();
+        {
+            draw_north->uniform("axis", a[0], a[1], a[2]);
+        }
+        draw_north->free();
+    }
+    if (draw_south)
+    {
+        draw_south->bind();
+        {
+            draw_south->uniform("axis", a[0], a[1], a[2]);
+        }
+        draw_south->free();
+    }
+    if (draw_strip)
+    {
+        draw_strip->bind();
+        {
+            draw_strip->uniform("axis", a[0], a[1], a[2]);
+        }
+        draw_strip->free();
+    }
 }
 
-void uni::nrmbuf::bind(bool) const
+void uni::nrmbuf::bind(int type) const
 {
-    uni::renbuf::bind(false);
+    uni::renbuf::bind(type);
     cyl.bind_color();
 }
 
-void uni::nrmbuf::free(bool) const
+void uni::nrmbuf::free(int type) const
 {
     cyl.free_color();
-    uni::renbuf::free(false);
+    uni::renbuf::free(type);
 }
 
 //-----------------------------------------------------------------------------

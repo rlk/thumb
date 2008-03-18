@@ -50,9 +50,8 @@ app::user::user() :
     t0(0),
     tt(0),
     t1(0),
-    current_a0(0),
-    current_a1(0),
-    current_a(0)
+    current_a0(0), current_a1(0), current_a(0),
+    current_t0(0), current_t1(0), current_t(0)
 {
     const double S[16] = {
         0.5, 0.0, 0.0, 0.0,
@@ -237,7 +236,7 @@ void app::user::home()
 
 //-----------------------------------------------------------------------------
 
-bool app::user::dostep(double dt, const double *p, double& a)
+bool app::user::dostep(double dt, const double *p, double& a, double& t)
 {
     tt += dt;
 
@@ -246,11 +245,12 @@ bool app::user::dostep(double dt, const double *p, double& a)
     if (t0 <= tt && tt <= t1)
     {
         double k = (tt - t0) / (t1 - t0);
-        double t = 3 * k * k - 2 * k * k * k;
+        double T = 3 * k * k - 2 * k * k * k;
 
-        a = current_a = (1 - t) * current_a0 + t * current_a1;
+        a = current_a = (1 - T) * current_a0 + T * current_a1;
+        t = current_t = (1 - T) * current_t0 + T * current_t1;
 
-        slerp(current_M0, current_M1, p, t);
+        slerp(current_M0, current_M1, p, T);
 
         return false;
     }
@@ -262,6 +262,7 @@ bool app::user::dostep(double dt, const double *p, double& a)
         load_mat(current_M, current_M0);
         load_inv(current_I, current_M0);
         a = current_a = current_a0;
+        t = current_t = current_t0;
 
         return false;
     }
@@ -273,6 +274,7 @@ bool app::user::dostep(double dt, const double *p, double& a)
         load_mat(current_M, current_M1);
         load_inv(current_I, current_M1);
         a = current_a = current_a1;
+        t = current_t = current_t1;
 
         return true;
     }
@@ -286,6 +288,7 @@ void app::user::gocurr(double dt)
     t1 = tt + dt;
 
     current_a0 = current_a;
+    current_t0 = current_t;
 
     load_mat(current_M0, current_M);
     load_mat(current_M1, current_M);
@@ -311,6 +314,7 @@ void app::user::gocurr(double dt)
         current_M1[14] = get_real_attr(curr, "mE");
         current_M1[15] = get_real_attr(curr, "mF");
         current_a1     = get_real_attr(curr, "a");
+        current_t1     = get_real_attr(curr, "t");
     }
 
     // If we're teleporting, just set all matrices.
@@ -322,6 +326,7 @@ void app::user::gocurr(double dt)
         load_inv(current_I,  current_M1);
 
         current_a0 = current_a1 = current_a;
+        current_t0 = current_t1 = current_t;
     }
 }
 
@@ -358,7 +363,7 @@ void app::user::goprev(double dt)
     gocurr(dt);
 }
 
-void app::user::insert(double a)
+void app::user::insert(double a, double t)
 {
     mxml_node_t *node = mxmlNewElement(MXML_NO_PARENT, "key");
 
@@ -379,10 +384,12 @@ void app::user::insert(double a)
     set_real_attr(node, "mE", current_M[14]);
     set_real_attr(node, "mF", current_M[15]);
     set_real_attr(node, "a", a);
+    set_real_attr(node, "t", t);
 
     mxmlAdd(root, MXML_ADD_AFTER, curr, node);
 
     current_a = a;
+    current_t = t;
     gonext(1);
 
     dirty = true;

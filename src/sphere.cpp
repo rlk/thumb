@@ -87,10 +87,12 @@ uni::sphere::sphere(uni::geodat& dat,
     
     memset(p, 0, 3 * sizeof (double));
 
-    n[0] = 0;
-    n[1] = 1;
-    n[2] = 0;
-    a    = 0;
+    n[0]  = 0;
+    n[1]  = 1;
+    n[2]  = 0;
+    angle = 0;
+    tilt  = 0;
+    
     d0   = 1.0;
     d1   = 2.0;
 
@@ -101,9 +103,13 @@ uni::sphere::sphere(uni::geodat& dat,
     test_kx = 1.0 / (2.0 * M_PI);
     test_ky = 1.0 / (1.0 * M_PI);
 
-    test_plate_color  = glob->load_texture("test/plate-color.png");
+    test_plate_color  = glob->load_texture("test/plate-color.png", GL_NEAREST);
     test_plate_height = glob->load_texture("test/plate-height.png");
     test_plate_normal = glob->load_texture("test/plate-normal.png");
+
+    test_north_color  = glob->load_texture("test/north-color.png", GL_NEAREST);
+    test_north_height = glob->load_texture("test/north-height.png");
+    test_north_normal = glob->load_texture("test/north-normal.png");
 
     // Initialize atmosphere rendering.
 
@@ -153,14 +159,28 @@ void uni::sphere::move(double px, double py, double pz,
     n[1] = ny;
     n[2] = nz;
 
-    a    = ra;
+    angle = ra;
 
     normalize(n);
 }
 
-void uni::sphere::turn(double dr)
+void uni::sphere::turn(double da, double dt)
 {
-    a += dr;
+    angle += da;
+    tilt  += dt;
+
+    norm();
+}
+
+void uni::sphere::norm()
+{
+    double N[3] = { 0, 1, 0 };
+    double M[16];
+
+    load_rot_mat(M, 1, 0, 0, tilt);
+
+    mult_mat_vec3(n, M, N);
+    normalize(n);
 }
 
 //-----------------------------------------------------------------------------
@@ -237,7 +257,8 @@ void uni::sphere::transform(app::frustum_v& frusta)
 
     Rmul_xlt_mat(M, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(M, M, A);              // Planet tilt
-    Rmul_rot_mat(M, 0, 1, 0, a);        // Planet rotation
+//  Rmul_rot_mat(M, 1, 0, 0, -tilt);    // Planet tilt
+    Rmul_rot_mat(M, 0, 1, 0, angle);    // Planet rotation
 
     // Compose the camera-to-object transform.
 
@@ -245,7 +266,8 @@ void uni::sphere::transform(app::frustum_v& frusta)
 
     Lmul_xlt_inv(I, p[0], p[1], p[2]);  // Planet position
     mult_mat_mat(I, B, I);              // Planet tilt
-    Lmul_rot_inv(I, 0, 1, 0, a);        // Planet rotation
+//  Lmul_rot_inv(I, 1, 0, 0, tilt);     // Planet tilt
+    Lmul_rot_inv(I, 0, 1, 0, angle);    // Planet rotation
 
     // HACK: inefficient
 
@@ -562,7 +584,7 @@ void uni::sphere::draw(int i)
 
                 // Draw the texture coordinates.
 
-                ren.cyl()->bind();
+                ren.cyl()->bind(renbuf::type_plate);
                 dat.idx()->bind();
                 vtx.bind();
                 {
@@ -570,7 +592,7 @@ void uni::sphere::draw(int i)
                 }
                 vtx.free();
                 dat.idx()->free();
-                ren.cyl()->free();
+                ren.cyl()->free(renbuf::type_plate);
 
                 glPushMatrix();
                 {
@@ -578,8 +600,8 @@ void uni::sphere::draw(int i)
 
                     // Enable rendering of the BACK of the view volumes.
 
-//                  glEnable(GL_DEPTH_CLAMP_NV);
                     glEnable(GL_CULL_FACE);
+//                  glEnable(GL_DEPTH_CLAMP_NV);
 //                  glCullFace(GL_FRONT);
 
                     // Alpha test discards texels outside of texture borders.
@@ -590,36 +612,41 @@ void uni::sphere::draw(int i)
 
                     // Draw the diffuse maps.
 
-                    ren.dif()->bind();
+                    ren.dif()->bind(renbuf::type_plate);
                     {
-//                      color.draw(frusta[i], vp);
-
                         ogl::program::current->uniform("d", test_dx, test_dy);
                         ogl::program::current->uniform("k", test_kx, test_ky);
 
                         test_plate_color->draw();
                     }
-                    ren.dif()->free();
+                    ren.dif()->free(renbuf::type_plate);
+/*
+                    ren.dif()->bind(renbuf::type_north);
+                    {
+                        ogl::program::current->uniform("d", test_dx, test_dy);
+                        ogl::program::current->uniform("k", test_kx, test_ky);
 
+                        test_north_color->draw();
+                    }
+                    ren.dif()->free(renbuf::type_north);
+*/
                     // Draw the normal maps.
 
                     ren.nrm()->axis(a);
-                    ren.nrm()->bind();
+                    ren.nrm()->bind(renbuf::type_plate);
                     {
-//                      normal.draw(frusta[i], vp);
-
                         ogl::program::current->uniform("d", test_dx, test_dy);
                         ogl::program::current->uniform("k", test_kx, test_ky);
 
                         test_plate_normal->draw();
                     }
-                    ren.nrm()->free();
+                    ren.nrm()->free(renbuf::type_plate);
 
                     // Revert the state.
 
 //                  glCullFace(GL_BACK);
-                    glDisable(GL_ALPHA_TEST);
 //                  glDisable(GL_DEPTH_CLAMP_NV);
+                    glDisable(GL_ALPHA_TEST);
                 }
                 glPopMatrix();
 

@@ -51,6 +51,10 @@ namespace app
         double current_a1;
         double current_a;
 
+        double current_t0;
+        double current_t1;
+        double current_t;
+
         void init();
         bool load();
         void save();
@@ -80,12 +84,12 @@ namespace app
 
         // Automatic view controls.
 
-        bool dostep(double, const double *, double&);
+        bool dostep(double, const double *, double&, double&);
         void gocurr(double);
         void goinit(double);
         void gonext(double);
         void goprev(double);
-        void insert(double);
+        void insert(double, double);
         void remove();
     };
 }

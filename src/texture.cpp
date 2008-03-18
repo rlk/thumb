@@ -23,12 +23,14 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::texture::texture(std::string name) : name   (name),
-                                          object (0),
-                                          target (GL_TEXTURE_2D),
-                                          intform(GL_RGBA),
-                                          extform(GL_RGBA),
-                                          type   (GL_UNSIGNED_BYTE)
+ogl::texture::texture(std::string name, GLenum filter) :
+    name   (name),
+    object (0),
+    target (GL_TEXTURE_2D),
+    filter (filter),
+    intform(GL_RGBA),
+    extform(GL_RGBA),
+    type   (GL_UNSIGNED_BYTE)
 {
     init();
 }
@@ -185,14 +187,14 @@ void ogl::texture::load_img(std::string name)
 
     if (target == GL_TEXTURE_2D)
     {
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
 //      glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
     }
     else
     {
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER,GL_LINEAR);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
     }
 
     if (border)
