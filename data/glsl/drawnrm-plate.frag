@@ -20,7 +20,10 @@ void main()
 
     mat3 T;
 
-    T[0] = cross(axis, N);
+    const vec3 Y = vec3(0.0, 1.0, 0.0);
+
+    T[0] = cross(Y, N);
+//  T[0] = cross(axis, N);
     T[1] = cross(N, T[0]);
     T[2] = N;
 

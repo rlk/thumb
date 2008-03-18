@@ -46,7 +46,7 @@ namespace uni
         void transform(const double *, const double *, double, int);
         void project  (      double *, const double *, double);
 
-        void seed(geonrm&, geopos&, GLsizei);
+        void seed(geonrm&, geopos&, geotex&, GLsizei, double, double);
 
         const double *get() const { return n; }
 

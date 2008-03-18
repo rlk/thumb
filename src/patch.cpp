@@ -71,10 +71,12 @@ void uni::point::transform(const double *M,
     }
 }
 
-void uni::point::seed(geonrm& nrm, geopos& pos, GLsizei i)
+void uni::point::seed(geonrm& nrm, geopos& pos, geotex& tex,
+                      GLsizei i, double u, double v)
 {
-    nrm.seed(i, GLfloat(N[0]), GLfloat(N[1]), GLfloat(N[2]));
-    pos.seed(i, GLfloat(V[0]), GLfloat(V[1]), GLfloat(V[2]));
+    nrm.seed(i, GLfloat(N[0]), GLfloat(N[1]), GLfloat(N[2]), 1.0);
+    pos.seed(i, GLfloat(V[0]), GLfloat(V[1]), GLfloat(V[2]), 0.0);
+    tex.seed(i, GLfloat(u   ), GLfloat(v   ), GLfloat(n[0]), GLfloat(n[2]));
 }
 
 void uni::point::draw(double r) const
@@ -263,10 +265,10 @@ void uni::patch::seed(geonrm& nrm, geopos& pos, geotex& tex,
         P[1]->transform(M, I, rr, frame);
         P[2]->transform(M, I, rr, frame);
 
-        P[0]->seed(nrm, pos, i0);
-        P[1]->seed(nrm, pos, i1);
-        P[2]->seed(nrm, pos, i2);
-
+        P[0]->seed(nrm, pos, tex, i0, t[0], t[1]);
+        P[1]->seed(nrm, pos, tex, i1, t[2], t[3]);
+        P[2]->seed(nrm, pos, tex, i2, t[4], t[5]);
+/*
         tex.seed(i0, GLfloat((t[0])),
                      GLfloat((t[1])),
                      GLfloat((t[0] + PI) * 0.5  / PI),
@@ -279,6 +281,7 @@ void uni::patch::seed(geonrm& nrm, geopos& pos, geotex& tex,
                      GLfloat((t[5])),
                      GLfloat((t[4] + PI) * 0.5  / PI),
                      GLfloat((t[5] + PI  * 0.5) / PI));
+*/
     }
     else
     {
