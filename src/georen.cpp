@@ -145,40 +145,6 @@ uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
 
 void uni::nrmbuf::axis(const double *a) const
 {
-/*
-    if (draw_plate)
-    {
-        draw_plate->bind();
-        {
-            draw_plate->uniform("axis", a[0], a[1], a[2]);
-        }
-        draw_plate->free();
-    }
-    if (draw_north)
-    {
-        draw_north->bind();
-        {
-            draw_north->uniform("axis", a[0], a[1], a[2]);
-        }
-        draw_north->free();
-    }
-    if (draw_south)
-    {
-        draw_south->bind();
-        {
-            draw_south->uniform("axis", a[0], a[1], a[2]);
-        }
-        draw_south->free();
-    }
-    if (draw_strip)
-    {
-        draw_strip->bind();
-        {
-            draw_strip->uniform("axis", a[0], a[1], a[2]);
-        }
-        draw_strip->free();
-    }
-*/
 }
 
 void uni::nrmbuf::bind(int type) const

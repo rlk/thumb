@@ -185,17 +185,8 @@ void ogl::texture::load_img(std::string name)
 
     // Set some useful default state.
 
-    if (target == GL_TEXTURE_2D)
-    {
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
-//      glTexParameteri(target, GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);
-    }
-    else
-    {
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
-    }
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
 
     if (border)
     {

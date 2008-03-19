@@ -438,11 +438,17 @@ void uni::sphere::prep()
             {
 //              int w = int(dat.vtx_len());
 //              int h = int(count);
-
+/*
                 for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
                 {
-//                  height.draw(*i, vp, w, h);
+                    ogl::program::current->uniform("d", test_dx, test_dy);
+                    ogl::program::current->uniform("k", test_kx, test_ky);
 
+                    test_plate_height->draw();
+                }
+*/
+                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                {
                     ogl::program::current->uniform("d", test_dx, test_dy);
                     ogl::program::current->uniform("k", test_kx, test_ky);
 
@@ -605,7 +611,7 @@ void uni::sphere::draw(int i)
                     glAlphaFunc(GL_GREATER, 0.5);
 
                     // Draw the diffuse maps.
-
+/*
                     ren.dif()->bind(renbuf::type_plate);
                     {
                         ogl::program::current->uniform("d", test_dx, test_dy);
@@ -614,19 +620,16 @@ void uni::sphere::draw(int i)
                         test_plate_color->draw();
                     }
                     ren.dif()->free(renbuf::type_plate);
-/*
+*/
+
                     ren.dif()->bind(renbuf::type_north);
                     {
-                        ogl::program::current->uniform("d", test_dx, test_dy);
-                        ogl::program::current->uniform("k", test_kx, test_ky);
-
                         test_north_color->draw();
                     }
                     ren.dif()->free(renbuf::type_north);
-*/
-                    // Draw the normal maps.
 
-//                  ren.nrm()->axis(a);
+                    // Draw the normal maps.
+/*
                     ren.nrm()->bind(renbuf::type_plate);
                     {
                         ogl::program::current->uniform("d", test_dx, test_dy);
@@ -635,6 +638,12 @@ void uni::sphere::draw(int i)
                         test_plate_normal->draw();
                     }
                     ren.nrm()->free(renbuf::type_plate);
+*/
+                    ren.nrm()->bind(renbuf::type_north);
+                    {
+                        test_north_normal->draw();
+                    }
+                    ren.nrm()->free(renbuf::type_north);
 
                     // Revert the state.
 
