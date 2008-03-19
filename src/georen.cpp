@@ -145,6 +145,7 @@ uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
 
 void uni::nrmbuf::axis(const double *a) const
 {
+/*
     if (draw_plate)
     {
         draw_plate->bind();
@@ -177,6 +178,7 @@ void uni::nrmbuf::axis(const double *a) const
         }
         draw_strip->free();
     }
+*/
 }
 
 void uni::nrmbuf::bind(int type) const

@@ -11,17 +11,8 @@ void main()
     // Look up texture coordinates of parent points.
 
     vec2 k  = texture2DRect(lut, vec2(gl_FragCoord.x, 0.5)).xw * 65535.0;;
-    vec4 k0 = texture2DRect(src, vec2(k.x, gl_FragCoord.y));
-    vec4 k1 = texture2DRect(src, vec2(k.y, gl_FragCoord.y));
-    vec2 t0 = k0.xy;
-    vec2 t1 = k1.xy;
-    vec3 n0 = vec3(k0.z, 0.0, k0.w);
-    vec3 n1 = vec3(k1.z, 0.0, k1.w);
-
-    n0.y = sqrt(1.0 - n0.x * n0.x - n0.y * n0.y);
-    n1.y = sqrt(1.0 - n1.x * n1.x - n1.y * n1.y);
-
-    vec3 nn = normalize(n0 + n1);
+    vec2 t0 = texture2DRect(src, vec2(k.x, gl_FragCoord.y)).xy;
+    vec2 t1 = texture2DRect(src, vec2(k.y, gl_FragCoord.y)).xy;
 
     // Evaluate the haversine geodesic midpoint.
 
@@ -38,11 +29,5 @@ void main()
 
     vec2 m = atan(y, x) + vec2(t0.x, 0.0);
 
-    // Compute normalized [0,1] lat/lon.
-
-    vec2 off = vec2(pi, 0.5 * pi);
-    vec2 scl = vec2(2.0 * pi, pi);
-
-    gl_FragColor = vec4(m, nn.x, nn.z);
-//  gl_FragColor = vec4(m, 0, 1);
+    gl_FragColor = vec4(m, 0, 1);
 }

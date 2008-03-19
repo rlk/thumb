@@ -52,6 +52,7 @@ namespace uni
         // View vector, object-to-eye transform and inverse cache.
 
         double vp[3];
+        double O[16];
         double M[16];
         double I[16];
 

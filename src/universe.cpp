@@ -123,7 +123,7 @@ double uni::universe::rate() const
 
 void uni::universe::turn(double a, double t)
 {
-    if (S[0]) S[0]->turn(a * 4.0, t * 4.0);
+    if (S[0]) S[0]->turn(a * 5.0, t * 5.0);
 }
 
 //-----------------------------------------------------------------------------

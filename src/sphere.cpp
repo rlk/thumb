@@ -236,28 +236,17 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 
 void uni::sphere::transform(app::frustum_v& frusta)
 {
-    double A[16];
-    double B[16];
-
     // Compute the planetary tilt transformation.
 
-    load_idt(A);
-
-    A[4] = n[0];
-    A[5] = n[1];
-    A[6] = n[2];
-
-    crossprod(A + 8, A + 0, A + 4);
-
-    load_xps(B, A);
+    load_rot_mat(O, 1, 0, 0, tilt);     // Planet tilt
+    Rmul_rot_mat(O, 0, 1, 0, angle);    // Planet rotation
 
     // Compose the object-to-camera transformation.
 
     load_mat(M, ::user->get_I());
 
     Rmul_xlt_mat(M, p[0], p[1], p[2]);  // Planet position
-    mult_mat_mat(M, M, A);              // Planet tilt
-//  Rmul_rot_mat(M, 1, 0, 0, -tilt);    // Planet tilt
+    Rmul_rot_mat(M, 1, 0, 0, tilt);     // Planet tilt
     Rmul_rot_mat(M, 0, 1, 0, angle);    // Planet rotation
 
     // Compose the camera-to-object transform.
@@ -265,8 +254,7 @@ void uni::sphere::transform(app::frustum_v& frusta)
     load_mat(I, ::user->get_M());
 
     Lmul_xlt_inv(I, p[0], p[1], p[2]);  // Planet position
-    mult_mat_mat(I, B, I);              // Planet tilt
-//  Lmul_rot_inv(I, 1, 0, 0, tilt);     // Planet tilt
+    Lmul_rot_inv(I, 1, 0, 0, tilt);     // Planet tilt
     Lmul_rot_inv(I, 0, 1, 0, angle);    // Planet rotation
 
     // HACK: inefficient
@@ -542,20 +530,17 @@ void uni::sphere::draw(int i)
 
     GLfloat L[4];
     double  t[4];
-    double  a[4];
-    double  A[16];
 
-    load_mat(A, ::user->get_M());
+    mult_xps_vec3(t, O, p);
 
-    mult_xps_vec3(t, A, p);
-    mult_xps_vec3(a, A, n);
-
+    t[0] = -t[0];
+    t[1] = -t[1];
+    t[2] = -t[2];
     normalize(t);
-    normalize(a);
 
-    L[0] = GLfloat(-t[0]);
-    L[1] = GLfloat(-t[1]);
-    L[2] = GLfloat(-t[2]);
+    L[0] = GLfloat(t[0]);
+    L[1] = GLfloat(t[1]);
+    L[2] = GLfloat(t[2]);
     L[3] = 0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
@@ -581,6 +566,15 @@ void uni::sphere::draw(int i)
                 glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+
+                glMatrixMode(GL_TEXTURE);
+                {
+                    double T[16];
+
+                    load_xps(T, M);
+                    glLoadMatrixd(T);
+                }
+                glMatrixMode(GL_MODELVIEW);
 
                 // Draw the texture coordinates.
 
@@ -632,7 +626,7 @@ void uni::sphere::draw(int i)
 */
                     // Draw the normal maps.
 
-                    ren.nrm()->axis(a);
+//                  ren.nrm()->axis(a);
                     ren.nrm()->bind(renbuf::type_plate);
                     {
                         ogl::program::current->uniform("d", test_dx, test_dy);
