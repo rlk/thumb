@@ -8,8 +8,6 @@ uniform vec2 k;
 
 void main()
 {
-    vec2 two = vec2(2.0);
-
     vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy;
     vec2 t = c * k + d;
 

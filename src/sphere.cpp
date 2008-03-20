@@ -407,21 +407,24 @@ void uni::sphere::prep()
 {
     if (count)
     {
+        // Compute the eye-to-object normal matrix transpose.
+
         dat.lut()->bind(GL_TEXTURE1);
         dat.rad()->bind(GL_TEXTURE3);
         {
-            // Generate texture coordinates.
-
-            tex.proc(count);
-
             // Generate normals.
 
             nrm.proc(count);
 
-            // Generate positions.
-
             nrm.bind(GL_TEXTURE2);
             {
+                // Generate texture coordinates.
+
+                tex.uniform("M", M, true);
+                tex.proc(count);
+
+                // Generate positions.
+
                 pos.proc(count);
             }
             nrm.free(GL_TEXTURE2);
@@ -438,6 +441,7 @@ void uni::sphere::prep()
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
             acc.init(count);
+
             acc.bind_proc(progset::prog_plate);
             {
                 ogl::program::current->uniform("d", test_dx, test_dy);
@@ -447,6 +451,22 @@ void uni::sphere::prep()
                     test_plate_height->draw();
             }
             acc.free_proc(progset::prog_plate);
+            acc.swap();
+
+            acc.bind_proc(progset::prog_north);
+            {
+                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                    test_north_height->draw();
+            }
+            acc.free_proc(progset::prog_north);
+            acc.swap();
+
+            acc.bind_proc(progset::prog_south);
+            {
+                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                    test_south_height->draw();
+            }
+            acc.free_proc(progset::prog_south);
             acc.swap();
 
 /*

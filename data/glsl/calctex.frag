@@ -2,7 +2,10 @@
 
 uniform sampler2DRect src;
 uniform sampler2DRect lut;
+uniform sampler2DRect nrm;
 uniform float         siz;
+
+uniform mat4 M;
 
 void main()
 {
@@ -13,6 +16,9 @@ void main()
     vec2 k  = texture2DRect(lut, vec2(gl_FragCoord.x, 0.5)).xw * 65535.0;;
     vec2 t0 = texture2DRect(src, vec2(k.x, gl_FragCoord.y)).xy;
     vec2 t1 = texture2DRect(src, vec2(k.y, gl_FragCoord.y)).xy;
+    vec3 n  = texture2DRect(nrm, gl_FragCoord.xy).xyz;
+
+    vec3 N = (M * vec4(normalize(n), 0.0)).xyz;
 
     // Evaluate the haversine geodesic midpoint.
 
@@ -29,5 +35,5 @@ void main()
 
     vec2 m = atan(y, x) + vec2(t0.x, 0.0);
 
-    gl_FragColor = vec4(m, 0, 1);
+    gl_FragColor = vec4(m, N.x, N.z);
 }

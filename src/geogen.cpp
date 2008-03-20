@@ -664,6 +664,15 @@ void uni::geogen::proc(GLsizei c)
     }
 }
 
+void uni::geogen::uniform(std::string name, const double *M, bool t)
+{
+    calc->bind();
+    {
+        calc->uniform(name, M, t);
+    }
+    calc->free();
+}
+
 //-----------------------------------------------------------------------------
 
 uni::geonrm::geonrm(GLsizei d, GLsizei h) :
@@ -757,6 +766,11 @@ uni::geotex::geotex(GLsizei d, GLsizei h) :
                       "glsl/calctex.frag",
                       "glsl/showtex.frag")
 {
+    calc->bind();
+    {
+        calc->uniform("nrm", 2);
+    }
+    calc->free();
 }
 
 //-----------------------------------------------------------------------------
@@ -797,12 +811,14 @@ void uni::geoacc::init(GLsizei c)
     // Initialize the ZR min/max using the accumulation buffer.
 
     dst->bind(true);
-    copy->bind();
-    {
-         glRecti(0, 0, GLint(w), GLint(c));
-    }
-    copy->free();
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
     dst->free(true);
+
+    src->bind(true);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    src->free(true);
 }
 
 void uni::geoacc::bind_proc(int type) const

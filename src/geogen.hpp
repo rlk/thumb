@@ -199,6 +199,8 @@ namespace uni
         virtual void fini(GLsizei);
 
         void proc(GLsizei);
+
+        void uniform(std::string, const double *, bool);
     };
 
     //-------------------------------------------------------------------------
