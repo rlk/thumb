@@ -4,3 +4,6 @@ You can bound the far clipping plane of a light projection to the far extent of 
 This is exactly opposite of view frustum testing, where the near plane is important, and the far plane is unimportant. By sneaking the light's far plane into the near plane slot during frustum testing, We can trick the view far-clip-finder into computing the near-clip distance of a lightsource.
 
 Computing the frustum union of a stereo projection is tougher than it initially seems.  The left plane is determined by the position of the right eye, and vice versa.
+
+This function computes a nice mixing parameter based on texture coordinate derivatives: float G = 1.0 - abs(log(g.x / g.y) / log(N)); where N is a configurable parameter.
+

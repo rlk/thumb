@@ -19,63 +19,22 @@
 
 uni::renbuf::renbuf(GLsizei w, GLsizei h, GLenum f, bool d, bool s,
                     std::string name) :
-    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s),
-    draw_plate(glob->load_program(name + "-plate.vert",
-                                  name + "-plate.frag")),
-    draw_north(glob->load_program(name + "-north.vert",
-                                  name + "-north.frag")),
-    draw_south(glob->load_program(name + "-south.vert",
-                                  name + "-south.frag")),
-    draw_strip(glob->load_program(name + "-strip.vert",
-                                  name + "-strip.frag"))
+    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s), draw(name)
 {
-    if (draw_plate)
-    {
-        draw_plate->bind();
-        {
-            draw_plate->uniform("cyl", 0);
-            draw_plate->uniform("src", 1);
-        }
-        draw_plate->free();
-    }
-
-    if (draw_north)
-    {
-        draw_north->bind();
-        {
-            draw_north->uniform("cyl", 0);
-            draw_north->uniform("src", 1);
-        }
-        draw_north->free();
-    }
-
-    if (draw_south)
-    {
-        draw_south->bind();
-        {
-            draw_south->uniform("cyl", 0);
-            draw_south->uniform("src", 1);
-        }
-        draw_south->free();
-    }
-
-    if (draw_strip)
-    {
-        draw_strip->bind();
-        {
-            draw_strip->uniform("cyl", 0);
-            draw_strip->uniform("src", 1);
-        }
-        draw_strip->free();
-    }
+    draw.uniform("cyl", 0);
+    draw.uniform("src", 1);
 }
 
 uni::renbuf::~renbuf()
 {
-    if (draw_strip) glob->free_program(draw_strip);
-    if (draw_south) glob->free_program(draw_south);
-    if (draw_north) glob->free_program(draw_north);
-    if (draw_plate) glob->free_program(draw_plate);
+}
+
+void uni::renbuf::init(GLfloat r, GLfloat g, GLfloat b) const
+{
+    ogl::frame::bind(false);
+    glClearColor(r, g, b, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    ogl::frame::free();
 }
 
 void uni::renbuf::bind(int type) const
@@ -84,28 +43,14 @@ void uni::renbuf::bind(int type) const
 
     ogl::frame::bind(false);
 
-    switch (type)
-    {
-    case type_plate: draw_plate->bind(); break;
-    case type_north: draw_north->bind(); break;
-    case type_south: draw_south->bind(); break;
-    case type_strip: draw_strip->bind(); break;
-    }
-
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    draw.bind(type);
 }
 
 void uni::renbuf::free(int type) const
 {
     // Unbind the render target and shader.
 
-    switch (type)
-    {
-    case type_plate: draw_plate->free(); break;
-    case type_north: draw_north->free(); break;
-    case type_south: draw_south->free(); break;
-    case type_strip: draw_strip->free(); break;
-    }
+    draw.free(type);
 
     ogl::frame::free();
 }

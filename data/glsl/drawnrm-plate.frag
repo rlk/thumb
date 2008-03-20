@@ -12,7 +12,10 @@ void main()
     vec2 t = c.xy * k + d;
 
     vec2  a = step(vec2(0.0), t) * step(t, vec2(1.0));
-    float k = a.x * a.y;
+    float K = a.x * a.y;
+
+    float q = 1.0 - abs(sin(c.y));
+    q = q * q * (3.0 - 2.0 * q);
 
     vec3 N = vec3(c.z, sin(c.y), c.w);
     mat3 T;
@@ -25,5 +28,6 @@ void main()
 
     vec3 n = T * (normalize(texture2D(src, t).xyz) * 2.0 - 1.0);
 
-    gl_FragColor = vec4((n + 1.0) * 0.5, k);
+    gl_FragColor = vec4((n + 1.0) * 0.5 * K * q, K * q);
+//  gl_FragColor = vec4((N + 1.0) * 0.5, k);
 }

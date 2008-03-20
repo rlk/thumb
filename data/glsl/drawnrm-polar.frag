@@ -3,13 +3,18 @@
 uniform sampler2DRect cyl;
 uniform sampler2D     src;
 
+uniform float up;
+
 void main()
 {
     vec4 c = texture2DRect(cyl, gl_FragCoord.xy);
     vec2 t = vec2((c.z + 1.0) * 0.5, (-c.w + 1.0) * 0.5);
 
     vec2  a = step(vec2(0.0), t) * step(t, vec2(1.0));
-    float k = a.x * a.y;
+    float K = a.x * a.y;
+
+    float q = max(0.0, up * sin(c.y));
+    q = q * q * (3.0 - 2.0 * q);
 
     vec3 N = vec3(c.z, sin(c.y), c.w);
     mat3 T;
@@ -22,6 +27,5 @@ void main()
 
     vec3 n = T * (normalize(texture2D(src, t).xyz) * 2.0 - 1.0);
 
-    gl_FragColor = vec4((n + 1.0) * 0.5, k);
-//  gl_FragColor = vec4((N + 1.0) * 0.5, k);
+    gl_FragColor = vec4((n + 1.0) * 0.5 * K * q, K * q);
 }

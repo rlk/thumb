@@ -111,6 +111,10 @@ uni::sphere::sphere(uni::geodat& dat,
     test_north_height = glob->load_texture("test/north-height.png");
     test_north_normal = glob->load_texture("test/north-normal.png");
 
+    test_south_color  = glob->load_texture("test/south-color.png", GL_NEAREST);
+    test_south_height = glob->load_texture("test/south-height.png");
+    test_south_normal = glob->load_texture("test/south-normal.png");
+
     // Initialize atmosphere rendering.
 
     draw_atmo = ::conf->get_i("atmo");
@@ -584,7 +588,8 @@ void uni::sphere::draw(int i)
 
                 // Draw the texture coordinates.
 
-                ren.cyl()->bind(renbuf::type_plate);
+                ren.cyl()->init();
+                ren.cyl()->bind(progset::prog_plate);
                 dat.idx()->bind();
                 vtx.bind();
                 {
@@ -592,7 +597,7 @@ void uni::sphere::draw(int i)
                 }
                 vtx.free();
                 dat.idx()->free();
-                ren.cyl()->free(renbuf::type_plate);
+                ren.cyl()->free(progset::prog_plate);
 
                 glPushMatrix();
                 {
@@ -606,50 +611,70 @@ void uni::sphere::draw(int i)
 
                     // Alpha test discards texels outside of texture borders.
 
-                    glDisable(GL_BLEND);
-                    glEnable(GL_ALPHA_TEST);
-                    glAlphaFunc(GL_GREATER, 0.5);
+//                  glDisable(GL_BLEND);
+//                  glEnable(GL_ALPHA_TEST);
+//                  glAlphaFunc(GL_GREATER, 0.5);
+
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_ONE, GL_ONE);
 
                     // Draw the diffuse maps.
-/*
-                    ren.dif()->bind(renbuf::type_plate);
+
+                    ren.dif()->init();
+
+                    ren.dif()->bind(progset::prog_plate);
                     {
                         ogl::program::current->uniform("d", test_dx, test_dy);
                         ogl::program::current->uniform("k", test_kx, test_ky);
 
                         test_plate_color->draw();
                     }
-                    ren.dif()->free(renbuf::type_plate);
-*/
+                    ren.dif()->free(progset::prog_plate);
 
-                    ren.dif()->bind(renbuf::type_north);
+                    ren.dif()->bind(progset::prog_north);
                     {
                         test_north_color->draw();
                     }
-                    ren.dif()->free(renbuf::type_north);
+                    ren.dif()->free(progset::prog_north);
+
+                    ren.dif()->bind(progset::prog_south);
+                    {
+                        test_south_color->draw();
+                    }
+                    ren.dif()->free(progset::prog_south);
 
                     // Draw the normal maps.
-/*
-                    ren.nrm()->bind(renbuf::type_plate);
+
+                    ren.nrm()->init(0.0, 0.0, 0.0);
+
+                    ren.nrm()->bind(progset::prog_plate);
                     {
                         ogl::program::current->uniform("d", test_dx, test_dy);
                         ogl::program::current->uniform("k", test_kx, test_ky);
 
                         test_plate_normal->draw();
                     }
-                    ren.nrm()->free(renbuf::type_plate);
-*/
-                    ren.nrm()->bind(renbuf::type_north);
+                    ren.nrm()->free(progset::prog_plate);
+
+                    ren.nrm()->bind(progset::prog_north);
                     {
                         test_north_normal->draw();
                     }
-                    ren.nrm()->free(renbuf::type_north);
+                    ren.nrm()->free(progset::prog_north);
+
+                    ren.nrm()->bind(progset::prog_south);
+                    {
+                        test_south_normal->draw();
+                    }
+                    ren.nrm()->free(progset::prog_south);
 
                     // Revert the state.
 
+                    glDisable(GL_BLEND);
+
 //                  glCullFace(GL_BACK);
 //                  glDisable(GL_DEPTH_CLAMP_NV);
-                    glDisable(GL_ALPHA_TEST);
+//                  glDisable(GL_ALPHA_TEST);
                 }
                 glPopMatrix();
 

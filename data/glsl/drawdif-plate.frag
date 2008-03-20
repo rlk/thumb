@@ -8,10 +8,16 @@ uniform vec2 k;
 
 void main()
 {
-    vec2 t = texture2DRect(cyl, gl_FragCoord.xy).xy * k + d;
+    vec2 two = vec2(2.0);
+
+    vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy;
+    vec2 t = c * k + d;
+
+    float q = 1.0 - abs(sin(c.y));
+    q = q * q * (3.0 - 2.0 * q);
 
     vec2  a = step(vec2(0.0), t) * step(t, vec2(1.0));
-    float k = a.x * a.y;
+    float K = a.x * a.y;
 
-    gl_FragColor = vec4(texture2D(src, t).rgb, k);
+    gl_FragColor = vec4(texture2D(src, t).rgb * K * q, K * q);
 }

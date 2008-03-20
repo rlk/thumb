@@ -99,6 +99,10 @@ namespace uni
         const ogl::texture *test_north_normal;
         const ogl::texture *test_north_height;
 
+        const ogl::texture *test_south_color;
+        const ogl::texture *test_south_normal;
+        const ogl::texture *test_south_height;
+
         const ogl::program *draw_lit;
         const ogl::program *atmo_in;
         const ogl::program *atmo_out;
