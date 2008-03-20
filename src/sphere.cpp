@@ -438,19 +438,23 @@ void uni::sphere::prep()
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
             acc.init(count);
+            acc.bind_proc(progset::prog_plate);
+            {
+                ogl::program::current->uniform("d", test_dx, test_dy);
+                ogl::program::current->uniform("k", test_kx, test_ky);
+
+                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                    test_plate_height->draw();
+            }
+            acc.free_proc(progset::prog_plate);
+            acc.swap();
+
+/*
+            acc.init(count);
             acc.bind_proc();
             {
 //              int w = int(dat.vtx_len());
 //              int h = int(count);
-/*
-                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                {
-                    ogl::program::current->uniform("d", test_dx, test_dy);
-                    ogl::program::current->uniform("k", test_kx, test_ky);
-
-                    test_plate_height->draw();
-                }
-*/
                 for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
                 {
                     ogl::program::current->uniform("d", test_dx, test_dy);
@@ -461,6 +465,7 @@ void uni::sphere::prep()
             }
             acc.free_proc();
             acc.swap();
+*/
         }
         tex.free(GL_TEXTURE4);
         nrm.free(GL_TEXTURE3);
@@ -707,7 +712,7 @@ void uni::sphere::draw(int i)
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                    glColor4f(1.0f, 1.0f, 1.0f, 0.05f);
+                    glColor4f(0.0f, 0.0f, 0.0f, 0.25f);
 
                     ren.bind();
                     dat.idx()->bind();

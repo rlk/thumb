@@ -151,14 +151,14 @@ void demo::click(int i, int b, int m, bool d)
     if      (d && b == SDL_BUTTON_WHEELUP)
     {
         if (m & KMOD_SHIFT)
-            universe.turn(0.0, +1.0);
+            universe.turn(0.0, -1.0);
         else
             universe.turn(+1.0, 0.0);
     }
     else if (d && b == SDL_BUTTON_WHEELDOWN)
     {
         if (m & KMOD_SHIFT)
-            universe.turn(0.0, -1.0);
+            universe.turn(0.0, +1.0);
         else
             universe.turn(-1.0, 0.0);
     }

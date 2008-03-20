@@ -766,7 +766,8 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
     uni::geobuf(vtx_count(d), h, "glsl/trivial.vert",
                                  "glsl/copyacc.frag",
                                  "glsl/calcacc.frag",
-                                 "glsl/showpos.frag")
+                                 "glsl/showpos.frag"),
+    draw("glsl/drawacc")
 {
     copy->bind();
     {
@@ -783,6 +784,12 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
         calc->uniform("tex", 4);
     }
     calc->free();
+
+    draw.uniform("src", 0);
+    draw.uniform("map", 1);
+    draw.uniform("pos", 2);
+    draw.uniform("nrm", 3);
+    draw.uniform("tex", 4);
 }
 
 void uni::geoacc::init(GLsizei c)
@@ -796,6 +803,22 @@ void uni::geoacc::init(GLsizei c)
     }
     copy->free();
     dst->free(true);
+}
+
+void uni::geoacc::bind_proc(int type) const
+{
+    src->bind_color();
+    dst->bind(true);
+
+    draw.bind(type);
+}
+
+void uni::geoacc::free_proc(int type) const
+{
+    draw.free(type);
+
+    dst->free(true);
+    src->free_color();
 }
 
 //-----------------------------------------------------------------------------
