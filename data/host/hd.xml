@@ -1,16 +1,5 @@
 <?xml version="1.0"?>
 <host>
-
-  <gui w="1920" h="1080">
-      <corner name="BL" x="-0.888" y="-0.5" z="-1.5"/>
-      <corner name="BR" x=" 0.888" y="-0.5" z="-1.5"/>
-      <corner name="TL" x="-0.888" y=" 0.5" z="-1.5"/>
-  </gui>
-
-<!--
-  <eye x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0"/>
-  <eye x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1"/>
--->
   <buffer w="1920" h="1080"/>
 
   <node name="hd">
@@ -18,12 +7,8 @@
     <tile>
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x="-0.888" y="-0.5" z="-1.5"/>
-        <corner name="BR" x=" 0.888" y="-0.5" z="-1.5"/>
-        <corner name="TL" x="-0.888" y=" 0.5" z="-1.5"/>
+        <perspective aspect="1.777" fov="60.0" />
       </frustum>
-<!--
--->
     </tile>
   </node>
 </host>

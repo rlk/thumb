@@ -11,10 +11,10 @@ void main()
     vec4 C = texture2DRect(cyl, gl_FragCoord.xy);
     vec4 D = texture2DRect(dif, gl_FragCoord.xy);
     vec4 N = texture2DRect(nrm, gl_FragCoord.xy);
-
+/*
     D.rgb = D.rgb / D.a;
     N.rgb = N.rgb / N.a;
-
+*/
     vec3 n = normalize((N.rgb * 2.0) - 1.0);
 
     vec3 d = max(dot(n, L), 0.0) * gl_LightSource[0].diffuse.rgb;

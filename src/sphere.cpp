@@ -442,32 +442,42 @@ void uni::sphere::prep()
 
             acc.init(count);
 
-            acc.bind_proc(progset::prog_plate);
+            if (!::prog->option(2))
             {
-                ogl::program::current->uniform("d", test_dx, test_dy);
-                ogl::program::current->uniform("k", test_kx, test_ky);
-
-                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                    test_plate_height->draw();
+                acc.bind_proc(progset::prog_plate);
+                {
+                    ogl::program::current->uniform("d", test_dx, test_dy);
+                    ogl::program::current->uniform("k", test_kx, test_ky);
+                    
+                    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                        test_plate_height->draw();
+                }
+                acc.free_proc(progset::prog_plate);
+                acc.swap();
             }
-            acc.free_proc(progset::prog_plate);
-            acc.swap();
 
-            acc.bind_proc(progset::prog_north);
+            if (!::prog->option(3))
             {
-                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                    test_north_height->draw();
+                acc.bind_proc(progset::prog_north);
+                {
+                    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                        test_north_height->draw();
+                }
+                acc.free_proc(progset::prog_north);
+                acc.swap();
             }
-            acc.free_proc(progset::prog_north);
-            acc.swap();
-
-            acc.bind_proc(progset::prog_south);
+            
+            
+            if (!::prog->option(4))
             {
-                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                    test_south_height->draw();
+                acc.bind_proc(progset::prog_south);
+                {
+                    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                        test_south_height->draw();
+                }
+                acc.free_proc(progset::prog_south);
+                acc.swap();
             }
-            acc.free_proc(progset::prog_south);
-            acc.swap();
 
 /*
             acc.init(count);
@@ -647,51 +657,69 @@ void uni::sphere::draw(int i)
 
                     ren.dif()->init();
 
-                    ren.dif()->bind(progset::prog_plate);
+                    if (!::prog->option(2))
                     {
-                        ogl::program::current->uniform("d", test_dx, test_dy);
-                        ogl::program::current->uniform("k", test_kx, test_ky);
-
-                        test_plate_color->draw();
+                        ren.dif()->bind(progset::prog_plate);
+                        {
+                            ogl::program::current->uniform("d", test_dx, test_dy);
+                            ogl::program::current->uniform("k", test_kx, test_ky);
+                            
+                            test_plate_color->draw();
+                        }
+                        ren.dif()->free(progset::prog_plate);
                     }
-                    ren.dif()->free(progset::prog_plate);
 
-                    ren.dif()->bind(progset::prog_north);
+                    if (!::prog->option(3))
                     {
-                        test_north_color->draw();
+                        ren.dif()->bind(progset::prog_north);
+                        {
+                            test_north_color->draw();
+                        }
+                        ren.dif()->free(progset::prog_north);
                     }
-                    ren.dif()->free(progset::prog_north);
 
-                    ren.dif()->bind(progset::prog_south);
+                    if (!::prog->option(4))
                     {
-                        test_south_color->draw();
+                        ren.dif()->bind(progset::prog_south);
+                        {
+                            test_south_color->draw();
+                        }
+                        ren.dif()->free(progset::prog_south);
                     }
-                    ren.dif()->free(progset::prog_south);
 
                     // Draw the normal maps.
 
                     ren.nrm()->init(0.0, 0.0, 0.0);
 
-                    ren.nrm()->bind(progset::prog_plate);
+                    if (!::prog->option(2))
                     {
-                        ogl::program::current->uniform("d", test_dx, test_dy);
-                        ogl::program::current->uniform("k", test_kx, test_ky);
-
-                        test_plate_normal->draw();
+                        ren.nrm()->bind(progset::prog_plate);
+                        {
+                            ogl::program::current->uniform("d", test_dx, test_dy);
+                            ogl::program::current->uniform("k", test_kx, test_ky);
+                            
+                            test_plate_normal->draw();
+                        }
+                        ren.nrm()->free(progset::prog_plate);
                     }
-                    ren.nrm()->free(progset::prog_plate);
 
-                    ren.nrm()->bind(progset::prog_north);
+                    if (!::prog->option(3))
                     {
-                        test_north_normal->draw();
+                        ren.nrm()->bind(progset::prog_north);
+                        {
+                            test_north_normal->draw();
+                        }
+                        ren.nrm()->free(progset::prog_north);
                     }
-                    ren.nrm()->free(progset::prog_north);
 
-                    ren.nrm()->bind(progset::prog_south);
+                    if (!::prog->option(4))
                     {
-                        test_south_normal->draw();
+                        ren.nrm()->bind(progset::prog_south);
+                        {
+                            test_south_normal->draw();
+                        }
+                        ren.nrm()->free(progset::prog_south);
                     }
-                    ren.nrm()->free(progset::prog_south);
 
                     // Revert the state.
 

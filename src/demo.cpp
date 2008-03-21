@@ -234,8 +234,11 @@ void demo::timer(int t)
             else
                 user->gonext(10.0);
         }
-        universe.set_a(a);
-        universe.set_t(t);
+        else
+        {
+            universe.set_a(a);
+            universe.set_t(t);
+        }
     }
     else
     {

@@ -271,12 +271,15 @@ bool app::user::dostep(double dt, const double *p, double& a, double& t)
 
     else if (tt > t1)
     {
+        return true;
+/*
         load_mat(current_M, current_M1);
         load_inv(current_I, current_M1);
         a = current_a = current_a1;
         t = current_t = current_t1;
 
         return true;
+*/
     }
 
     return true;
