@@ -103,6 +103,9 @@ namespace uni
         const ogl::texture *test_south_normal;
         const ogl::texture *test_south_height;
 
+        const ogl::texture *test_blend_normal;
+        const ogl::texture *test_blend_height;
+
         const ogl::program *draw_lit;
         const ogl::program *atmo_in;
         const ogl::program *atmo_out;
@@ -135,6 +138,7 @@ namespace uni
         void step();
         void prep();
         void pass();
+        void wire();
         void draw(int);
 
         // State queries.

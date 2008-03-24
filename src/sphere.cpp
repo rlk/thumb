@@ -115,6 +115,9 @@ uni::sphere::sphere(uni::geodat& dat,
     test_south_height = glob->load_texture("test/south-height.png");
     test_south_normal = glob->load_texture("test/south-normal.png");
 
+    test_blend_height = glob->load_texture("test/blend-height.png");
+    test_blend_normal = glob->load_texture("test/blend-normal.png");
+
     // Initialize atmosphere rendering.
 
     draw_atmo = ::conf->get_i("atmo");
@@ -442,7 +445,7 @@ void uni::sphere::prep()
 
             acc.init(count);
 
-            if (!::prog->option(2))
+//            if (!::prog->option(4))
             {
                 acc.bind_proc(progset::prog_plate);
                 {
@@ -456,7 +459,7 @@ void uni::sphere::prep()
                 acc.swap();
             }
 
-            if (!::prog->option(3))
+//            if (!::prog->option(5))
             {
                 acc.bind_proc(progset::prog_north);
                 {
@@ -468,7 +471,7 @@ void uni::sphere::prep()
             }
             
             
-            if (!::prog->option(4))
+//            if (!::prog->option(6))
             {
                 acc.bind_proc(progset::prog_south);
                 {
@@ -548,6 +551,13 @@ void uni::sphere::pass()
         }
 }
 
+void uni::sphere::wire()
+{
+    for (int k = 0; k < 20; ++k)
+        if (C[k])
+            C[k]->wire(0.0f, 0.0f, 0.0f);
+}
+
 void uni::sphere::draw(int i)
 {
     bool in = (sqrt(DOT3(vp, vp)) < a1);
@@ -581,6 +591,11 @@ void uni::sphere::draw(int i)
     t[0] = -t[0];
     t[1] = -t[1];
     t[2] = -t[2];
+/*
+    t[0] = 0.0;
+    t[1] = 1.0;
+    t[2] = 0.5;
+*/
     normalize(t);
 
     L[0] = GLfloat(t[0]);
@@ -657,7 +672,7 @@ void uni::sphere::draw(int i)
 
                     ren.dif()->init();
 
-                    if (!::prog->option(2))
+                    if (!::prog->option(4))
                     {
                         ren.dif()->bind(progset::prog_plate);
                         {
@@ -669,7 +684,7 @@ void uni::sphere::draw(int i)
                         ren.dif()->free(progset::prog_plate);
                     }
 
-                    if (!::prog->option(3))
+                    if (!::prog->option(5))
                     {
                         ren.dif()->bind(progset::prog_north);
                         {
@@ -678,7 +693,7 @@ void uni::sphere::draw(int i)
                         ren.dif()->free(progset::prog_north);
                     }
 
-                    if (!::prog->option(4))
+                    if (!::prog->option(6))
                     {
                         ren.dif()->bind(progset::prog_south);
                         {
@@ -691,7 +706,7 @@ void uni::sphere::draw(int i)
 
                     ren.nrm()->init(0.0, 0.0, 0.0);
 
-                    if (!::prog->option(2))
+//                  if (!::prog->option(4))
                     {
                         ren.nrm()->bind(progset::prog_plate);
                         {
@@ -703,7 +718,7 @@ void uni::sphere::draw(int i)
                         ren.nrm()->free(progset::prog_plate);
                     }
 
-                    if (!::prog->option(3))
+//                  if (!::prog->option(5))
                     {
                         ren.nrm()->bind(progset::prog_north);
                         {
@@ -712,7 +727,7 @@ void uni::sphere::draw(int i)
                         ren.nrm()->free(progset::prog_north);
                     }
 
-                    if (!::prog->option(4))
+//                  if (!::prog->option(6))
                     {
                         ren.nrm()->bind(progset::prog_south);
                         {
@@ -733,47 +748,86 @@ void uni::sphere::draw(int i)
 
                 // Draw the illuminated geometry.
 
-                glClear(GL_DEPTH_BUFFER_BIT);
-                glEnable(GL_DEPTH_TEST);
-
-                land_prog->bind();
+                if (!::prog->option(1))
                 {
-                    land_prog->uniform("dif", 1);
-                    land_prog->uniform("nrm", 2);
+                    glClear(GL_DEPTH_BUFFER_BIT);
+                    glEnable(GL_DEPTH_TEST);
 
-                    ren.bind();
-                    dat.idx()->bind();
-                    vtx.bind();
+                    land_prog->bind();
                     {
-                        pass();
+                        land_prog->uniform("dif", 1);
+                        land_prog->uniform("nrm", 2);
+
+                        ren.bind();
+                        dat.idx()->bind();
+                        vtx.bind();
+                        {
+                            pass();
+                        }
+                        vtx.free();
+                        dat.idx()->free();
+                        ren.free();
                     }
-                    vtx.free();
-                    dat.idx()->free();
-                    ren.free();
+                    land_prog->free();
                 }
-                land_prog->free();
 
-                        // Draw wireframe as requested.
-
-                if (::prog->option(1))
+                if (::prog->option(2))
                 {
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                    glColor4f(0.0f, 0.0f, 0.0f, 0.25f);
+                    glClear(GL_DEPTH_BUFFER_BIT);
+                    glEnable(GL_DEPTH_TEST);
+                    glDisable(GL_LIGHTING);
+                    glLineWidth(3.0);
+                    glEnable(GL_LINE_SMOOTH);
 
                     ren.bind();
                     dat.idx()->bind();
                     vtx.bind();
                     {
-                        pass();
+                        wire();
                     }
                     vtx.free();
                     dat.idx()->free();
                     ren.free();
 
-                    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-                    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                    glLineWidth(1.0);
+                }
+
+                // Draw wireframe as requested.
+
+                if (::prog->option(3))
+                {
+                    ren.bind();
+                    dat.idx()->bind();
+                    vtx.bind();
+                    {
+                        glEnable(GL_DEPTH_TEST);
+                        glColorMask(0, 0, 0, 0);
+                        pass();
+
+                        glEnable(GL_BLEND);
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+                        glLineWidth(1.5);
+                        glEnable(GL_LINE_SMOOTH);
+                        glEnable(GL_POLYGON_OFFSET_LINE);
+                        glEnable(GL_CULL_FACE);
+                        glPolygonOffset(-0.5, -0.5);
+
+                        glColorMask(1, 1, 1, 1);
+                        pass();
+
+                        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                        glLineWidth(1.0);
+                        glDisable(GL_POLYGON_OFFSET_LINE);
+                    }
+                    vtx.free();
+                    dat.idx()->free();
+                    ren.free();
                 }
             }
             glPopClientAttrib();

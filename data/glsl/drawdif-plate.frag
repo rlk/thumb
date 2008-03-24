@@ -17,5 +17,6 @@ void main()
     vec2  a = step(vec2(0.0), t) * step(t, vec2(1.0));
     float K = a.x * a.y;
 
-    gl_FragColor = vec4(texture2D(src, t).rgb * K * q, K * q);
+//  gl_FragColor = vec4(texture2D(src, t).rgb * K * q, K * q);
+    gl_FragColor = vec4(texture2D(src, t).rgb, 1.0);
 }

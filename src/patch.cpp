@@ -208,43 +208,39 @@ double uni::patch::value(const double *p)
 }
 
 
-void uni::patch::bound(GLfloat r, GLfloat g, GLfloat b)
+void uni::patch::wire(GLfloat r, GLfloat g, GLfloat b)
 {
-    double dr0 = r0 - rr;
-    double dr1 = r1 - rr; 
-
-    glColor4f(r, g, b, 0.1f);
-
-    glBegin(GL_LINE_LOOP);
+    if (leaf())
     {
-        P[0]->draw(dr1);
-        P[1]->draw(dr1);
-        P[2]->draw(dr1);
-    }
-    glEnd();
+        double dr = 0.5 * (r1 + r0) - rr;
 
-    glBegin(GL_LINE_LOOP);
+        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+        glBegin(GL_TRIANGLES);
+        {
+            P[0]->draw(dr);
+            P[1]->draw(dr);
+            P[2]->draw(dr);
+        }
+        glEnd();
+
+        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+        glBegin(GL_LINE_LOOP);
+        {
+            P[0]->draw(dr);
+            P[1]->draw(dr);
+            P[2]->draw(dr);
+        }
+        glEnd();
+    }
+    else
     {
-        P[0]->draw(dr0);
-        P[1]->draw(dr0);
-        P[2]->draw(dr0);
+        if (C[0]) C[0]->wire(r, g, b);
+        if (C[1]) C[1]->wire(r, g, b);
+        if (C[2]) C[2]->wire(r, g, b);
+        if (C[3]) C[3]->wire(r, g, b);
     }
-    glEnd();
-
-    glColor4f(r, g, b, 0.1f);
-
-    glBegin(GL_LINES);
-    {
-        P[0]->draw(dr0);
-        P[0]->draw(dr1);
-
-        P[1]->draw(dr0);
-        P[1]->draw(dr1);
-
-        P[2]->draw(dr0);
-        P[2]->draw(dr1);
-    }
-    glEnd();
 }
 
 //-----------------------------------------------------------------------------

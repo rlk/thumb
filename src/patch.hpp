@@ -75,7 +75,6 @@ namespace uni
 
         int  visible(app::frustum_v&);
         double value(const double *);
-        void   bound(GLfloat, GLfloat, GLfloat);
 
         bool leaf();
 
@@ -93,6 +92,7 @@ namespace uni
                                              const double *, int);
         patch *step(context&, app::frustum_v&,
                     const double *, double, int, GLsizei&);
+        void   wire(GLfloat, GLfloat, GLfloat);
         void   draw(context&, GLsizei, GLsizei, GLsizei);
         void   view(GLsizei, const GLfloat *);
     };

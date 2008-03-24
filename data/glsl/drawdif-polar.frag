@@ -17,5 +17,6 @@ void main()
     float q = max(0.0, up * sin(c.y));
     q = q * q * (3.0 - 2.0 * q);
 
-    gl_FragColor = vec4(texture2D(src, t).rgb * K * q, K * q);
+//  gl_FragColor = vec4(texture2D(src, t).rgb * K * q, K * q);
+    gl_FragColor = vec4(texture2D(src, t).rgb, 1.0);
 }

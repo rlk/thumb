@@ -44,6 +44,7 @@ void main()
     float M1 = (s - off) * scl * mag;
 
     float M = M0 + M1 * q;
+//  float M = M1;
 
     vec4 D = vec4(P + N * M, M);
 
