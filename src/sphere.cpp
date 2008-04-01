@@ -378,8 +378,6 @@ void uni::sphere::step()
 
             d0 = pos.min_d();
             d1 = pos.max_d();
-
-            d0 = 100000;
         }
     }
 }
@@ -600,6 +598,7 @@ void uni::sphere::draw(int i)
 
                     // Draw the diffuse maps.
 
+                    ren.dif()->init();
                     ren.dif()->bind();
                     {
                         color.draw(frusta[i], vp);
@@ -608,6 +607,7 @@ void uni::sphere::draw(int i)
 
                     // Draw the normal maps.
 
+                    ren.nrm()->init();
                     ren.nrm()->bind();
                     {
                         normal.draw(frusta[i], vp);

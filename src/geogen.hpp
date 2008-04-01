@@ -15,7 +15,6 @@
 
 #include "opengl.hpp"
 #include "program.hpp"
-#include "progset.hpp"
 #include "default.hpp"
 #include "buffer.hpp"
 #include "image.hpp"
@@ -249,16 +248,11 @@ namespace uni
 
     class geoacc : public geobuf
     {
-        progset draw;
-
     public:
 
         geoacc(GLsizei, GLsizei);
 
         void init(GLsizei);
-
-        void bind_proc(int=0) const;
-        void free_proc(int=0) const;
     };
 
     //-------------------------------------------------------------------------
