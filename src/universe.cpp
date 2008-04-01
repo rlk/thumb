@@ -24,15 +24,8 @@
 
 uni::universe::universe()
 {
-/*
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
-*/
-
-    // TEST
-
-    double r0 = 6000000; 
-    double r1 = 6000000 + 65535 * 25.0;
 
     // Configure the data sources.
 

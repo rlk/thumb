@@ -26,10 +26,8 @@ void main()
 
     if (a.x * a.y < 1.0) discard;
 
-//  const float off =     0.5;
-//  const float scl =     1.0;
-    const float off =     0.0;
-    const float scl =    25.0;
+    const float off =     0.5;
+    const float scl =     1.0;
     const float mag = 65535.0;
 
 //  vec4 S = texture2DRect(src, gl_FragCoord.xy);
@@ -42,7 +40,5 @@ void main()
 
     vec4 D = vec4(P + N * M, M);
 
-//    gl_FragColor = mix(S, D, a.x * a.y);
     gl_FragColor = D;
-//    gl_FragColor = vec4(P, 0.0);
 }

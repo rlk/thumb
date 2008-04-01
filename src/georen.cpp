@@ -19,10 +19,16 @@
 
 uni::renbuf::renbuf(GLsizei w, GLsizei h, GLenum f, bool d, bool s,
                     std::string name) :
-    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s), draw(name)
+    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s),
+    draw(::glob->load_program(name + ".vert",
+                              name + ".frag"))
 {
-    draw.uniform("cyl", 0);
-    draw.uniform("src", 1);
+    draw->bind();
+    {
+        draw->uniform("cyl", 0);
+        draw->uniform("src", 1);
+    }
+    draw->free();
 }
 
 uni::renbuf::~renbuf()
@@ -32,25 +38,29 @@ uni::renbuf::~renbuf()
 void uni::renbuf::init(GLfloat r, GLfloat g, GLfloat b) const
 {
     ogl::frame::bind(false);
+
     glClearColor(r, g, b, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT |
+            GL_DEPTH_BUFFER_BIT |
+            GL_STENCIL_BUFFER_BIT);
+
     ogl::frame::free();
 }
 
-void uni::renbuf::bind(int type) const
+void uni::renbuf::bind() const
 {
     // Bind the render target and shader.
 
     ogl::frame::bind(false);
 
-    draw.bind(type);
+    draw->bind();
 }
 
-void uni::renbuf::free(int type) const
+void uni::renbuf::free() const
 {
     // Unbind the render target and shader.
 
-    draw.free(type);
+    draw->free();
 
     ogl::frame::free();
 }
@@ -69,16 +79,16 @@ uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
 {
 }
 
-void uni::difbuf::bind(int type) const
+void uni::difbuf::bind() const
 {
-    uni::renbuf::bind(type);
+    uni::renbuf::bind();
     cyl.bind_color();
 }
 
-void uni::difbuf::free(int type) const
+void uni::difbuf::free() const
 {
     cyl.free_color();
-    uni::renbuf::free(type);
+    uni::renbuf::free();
 }
 
 //-----------------------------------------------------------------------------
@@ -88,20 +98,16 @@ uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
 {
 }
 
-void uni::nrmbuf::axis(const double *a) const
+void uni::nrmbuf::bind() const
 {
-}
-
-void uni::nrmbuf::bind(int type) const
-{
-    uni::renbuf::bind(type);
+    uni::renbuf::bind();
     cyl.bind_color();
 }
 
-void uni::nrmbuf::free(int type) const
+void uni::nrmbuf::free() const
 {
     cyl.free_color();
-    uni::renbuf::free(type);
+    uni::renbuf::free();
 }
 
 //-----------------------------------------------------------------------------

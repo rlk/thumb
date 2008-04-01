@@ -96,28 +96,6 @@ uni::sphere::sphere(uni::geodat& dat,
     d0   = 1.0;
     d1   = 2.0;
 
-    // Set up test resources.
-
-    test_dx = 0.5;
-    test_dy = 0.5;
-    test_kx = 1.0 / (2.0 * M_PI);
-    test_ky = 1.0 / (1.0 * M_PI);
-
-    test_plate_color  = glob->load_texture("test/plate-color.png", GL_NEAREST);
-    test_plate_height = glob->load_texture("test/plate-height.png");
-    test_plate_normal = glob->load_texture("test/plate-normal.png");
-
-    test_north_color  = glob->load_texture("test/north-color.png", GL_NEAREST);
-    test_north_height = glob->load_texture("test/north-height.png");
-    test_north_normal = glob->load_texture("test/north-normal.png");
-
-    test_south_color  = glob->load_texture("test/south-color.png", GL_NEAREST);
-    test_south_height = glob->load_texture("test/south-height.png");
-    test_south_normal = glob->load_texture("test/south-normal.png");
-
-    test_blend_height = glob->load_texture("test/blend-height.png");
-    test_blend_normal = glob->load_texture("test/blend-normal.png");
-
     // Initialize atmosphere rendering.
 
     draw_atmo = ::conf->get_i("atmo");
@@ -444,61 +422,16 @@ void uni::sphere::prep()
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
             acc.init(count);
-
-//            if (!::prog->option(4))
-            {
-                acc.bind_proc(progset::prog_plate);
-                {
-                    ogl::program::current->uniform("d", test_dx, test_dy);
-                    ogl::program::current->uniform("k", test_kx, test_ky);
-                    
-                    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                        test_plate_height->draw();
-                }
-                acc.free_proc(progset::prog_plate);
-                acc.swap();
-            }
-
-//            if (!::prog->option(5))
-            {
-                acc.bind_proc(progset::prog_north);
-                {
-                    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                        test_north_height->draw();
-                }
-                acc.free_proc(progset::prog_north);
-                acc.swap();
-            }
-            
-            
-//            if (!::prog->option(6))
-            {
-                acc.bind_proc(progset::prog_south);
-                {
-                    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                        test_south_height->draw();
-                }
-                acc.free_proc(progset::prog_south);
-                acc.swap();
-            }
-
-/*
-            acc.init(count);
             acc.bind_proc();
             {
-//              int w = int(dat.vtx_len());
-//              int h = int(count);
-                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                {
-                    ogl::program::current->uniform("d", test_dx, test_dy);
-                    ogl::program::current->uniform("k", test_kx, test_ky);
+                int w = int(dat.vtx_len());
+                int h = int(count);
 
-                    test_plate_height->draw();
-                }
+                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+                    height.draw(*i, vp, w, h);
             }
             acc.free_proc();
             acc.swap();
-*/
         }
         tex.free(GL_TEXTURE4);
         nrm.free(GL_TEXTURE3);
@@ -639,7 +572,7 @@ void uni::sphere::draw(int i)
                 // Draw the texture coordinates.
 
                 ren.cyl()->init();
-                ren.cyl()->bind(progset::prog_plate);
+                ren.cyl()->bind();
                 dat.idx()->bind();
                 vtx.bind();
                 {
@@ -647,7 +580,7 @@ void uni::sphere::draw(int i)
                 }
                 vtx.free();
                 dat.idx()->free();
-                ren.cyl()->free(progset::prog_plate);
+                ren.cyl()->free();
 
                 glPushMatrix();
                 {
@@ -656,93 +589,36 @@ void uni::sphere::draw(int i)
                     // Enable rendering of the BACK of the view volumes.
 
                     glEnable(GL_CULL_FACE);
-//                  glEnable(GL_DEPTH_CLAMP_NV);
-//                  glCullFace(GL_FRONT);
+                    glEnable(GL_DEPTH_CLAMP_NV);
+                    glCullFace(GL_FRONT);
 
                     // Alpha test discards texels outside of texture borders.
 
-//                  glDisable(GL_BLEND);
-//                  glEnable(GL_ALPHA_TEST);
-//                  glAlphaFunc(GL_GREATER, 0.5);
-
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_ONE, GL_ONE);
+                    glDisable(GL_BLEND);
+                    glEnable(GL_ALPHA_TEST);
+                    glAlphaFunc(GL_GREATER, 0.5);
 
                     // Draw the diffuse maps.
 
-                    ren.dif()->init();
-
-                    if (!::prog->option(4))
+                    ren.dif()->bind();
                     {
-                        ren.dif()->bind(progset::prog_plate);
-                        {
-                            ogl::program::current->uniform("d", test_dx, test_dy);
-                            ogl::program::current->uniform("k", test_kx, test_ky);
-                            
-                            test_plate_color->draw();
-                        }
-                        ren.dif()->free(progset::prog_plate);
+                        color.draw(frusta[i], vp);
                     }
-
-                    if (!::prog->option(5))
-                    {
-                        ren.dif()->bind(progset::prog_north);
-                        {
-                            test_north_color->draw();
-                        }
-                        ren.dif()->free(progset::prog_north);
-                    }
-
-                    if (!::prog->option(6))
-                    {
-                        ren.dif()->bind(progset::prog_south);
-                        {
-                            test_south_color->draw();
-                        }
-                        ren.dif()->free(progset::prog_south);
-                    }
+                    ren.dif()->free();
 
                     // Draw the normal maps.
 
-                    ren.nrm()->init(0.0, 0.0, 0.0);
-
-//                  if (!::prog->option(4))
+                    ren.nrm()->bind();
                     {
-                        ren.nrm()->bind(progset::prog_plate);
-                        {
-                            ogl::program::current->uniform("d", test_dx, test_dy);
-                            ogl::program::current->uniform("k", test_kx, test_ky);
-                            
-                            test_plate_normal->draw();
-                        }
-                        ren.nrm()->free(progset::prog_plate);
+                        normal.draw(frusta[i], vp);
                     }
-
-//                  if (!::prog->option(5))
-                    {
-                        ren.nrm()->bind(progset::prog_north);
-                        {
-                            test_north_normal->draw();
-                        }
-                        ren.nrm()->free(progset::prog_north);
-                    }
-
-//                  if (!::prog->option(6))
-                    {
-                        ren.nrm()->bind(progset::prog_south);
-                        {
-                            test_south_normal->draw();
-                        }
-                        ren.nrm()->free(progset::prog_south);
-                    }
+                    ren.nrm()->free();
 
                     // Revert the state.
 
-                    glDisable(GL_BLEND);
-
-//                  glCullFace(GL_BACK);
-//                  glDisable(GL_DEPTH_CLAMP_NV);
-//                  glDisable(GL_ALPHA_TEST);
+                    glCullFace(GL_BACK);
+                    glDisable(GL_DEPTH_CLAMP_NV);
+                    glDisable(GL_ALPHA_TEST);
                 }
                 glPopMatrix();
 

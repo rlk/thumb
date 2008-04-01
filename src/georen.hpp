@@ -16,7 +16,7 @@
 #include <string>
 
 #include "opengl.hpp"
-#include "progset.hpp"
+#include "program.hpp"
 #include "frame.hpp"
 
 namespace uni
@@ -28,7 +28,7 @@ namespace uni
     {
     protected:
 
-        progset draw;
+        const ogl::program *draw;
 
     public:
 
@@ -37,8 +37,8 @@ namespace uni
 
         void init(GLfloat=0.0f, GLfloat=0.0f, GLfloat=0.0f) const;
 
-        virtual void bind(int) const;
-        virtual void free(int) const;
+        virtual void bind() const;
+        virtual void free() const;
     };
 
     //-------------------------------------------------------------------------
@@ -60,8 +60,8 @@ namespace uni
     public:
         difbuf(GLsizei, GLsizei, cylbuf&);
 
-        void bind(int) const;
-        void free(int) const;
+        void bind() const;
+        void free() const;
     };
 
     //-------------------------------------------------------------------------
@@ -74,10 +74,8 @@ namespace uni
     public:
         nrmbuf(GLsizei, GLsizei, cylbuf&);
 
-        void axis(const double *) const;
-
-        void bind(int) const;
-        void free(int) const;
+        void bind() const;
+        void free() const;
     };
 
     //-------------------------------------------------------------------------
