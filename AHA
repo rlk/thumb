@@ -7,3 +7,4 @@ Computing the frustum union of a stereo projection is tougher than it initially 
 
 This function computes a nice mixing parameter based on texture coordinate derivatives: float G = 1.0 - abs(log(g.x / g.y) / log(N)); where N is a configurable parameter.
 
+The virtual mip-map may be stored in memory in the old style: a 2x2 2D texture. It will need to be rounded out to powers of two to work properly... the 169x85 BMNG map is stored in a 512x256 texture.

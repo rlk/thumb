@@ -1,3 +1,45 @@
+geomap properties
+
+    w ... columns
+    h ... rows
+    c ... channels per pixel
+    b ... bytes per channel
+    p ... page size in pixels
+
+geomap access
+
+    s ... normalized col-wise coordinate
+    t ... normalized row-wise coordinate
+    l ... mipmap level
+
+geomap temporaries
+
+    x ... normalized page local col-wise coordinate
+    y ... normalized page local row-wise coordinate
+    i ... page row
+    j ... page column
+
+
+x =  frac((w * s) / (p * 2^l))
+j = floor((w * s) / (p * 2^l))
+
+y =  frac((h * t) / (p * 2^l))
+i = floor((h * t) / (p * 2^l))
+
+P.rgb  = I(i, j, l)
+
+D.rgba = C(P.x * p + x,
+           P.y * p + y)
+
+I index is a 3D texture... [ceil(w/p), ceil(h/p), log2(max(w, h))]
+     or is a 2D texture with by-hand mipmapping
+
+C cache is a 2D texture... [p * n, P * m]
+
+Where n and m are the cache extents in pages.
+
+-------------------------------------------------------------------------------
+
 non-root tile configs aren't written
 edges are not straight lines, at least not before sphere correction
 interactive FOV and off-axis tweaking may help
