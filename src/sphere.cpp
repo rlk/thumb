@@ -585,6 +585,16 @@ void uni::sphere::draw(int i)
                 dat.idx()->free();
                 ren.cyl()->free();
 
+                // Draw the diffuse maps.
+
+                ren.dif()->init();
+                ren.dif()->bind();
+                {
+                    color.draw();
+                }
+                ren.dif()->free();
+
+/*
                 glPushMatrix();
                 {
                     glLoadMatrixd(M);
@@ -611,14 +621,14 @@ void uni::sphere::draw(int i)
                     ren.dif()->free();
 
                     // Draw the normal maps.
-/*
+
                     ren.nrm()->init();
                     ren.nrm()->bind();
                     {
                         normal.draw(frusta[i], vp);
                     }
                     ren.nrm()->free();
-*/
+
                     // Revert the state.
 
                     glCullFace(GL_BACK);
@@ -626,7 +636,7 @@ void uni::sphere::draw(int i)
                     glDisable(GL_ALPHA_TEST);
                 }
                 glPopMatrix();
-
+*/
                 // Draw the illuminated geometry.
 
                 if (!::prog->option(1))
@@ -652,31 +662,6 @@ void uni::sphere::draw(int i)
                     land_prog->free();
                 }
 
-                // Draw the base geometry as requested.
-
-                if (::prog->option(2))
-                {
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    glClear(GL_DEPTH_BUFFER_BIT);
-                    glEnable(GL_DEPTH_TEST);
-                    glDisable(GL_LIGHTING);
-                    glLineWidth(3.0);
-                    glEnable(GL_LINE_SMOOTH);
-
-                    ren.bind();
-                    dat.idx()->bind();
-                    vtx.bind();
-                    {
-                        wire();
-                    }
-                    vtx.free();
-                    dat.idx()->free();
-                    ren.free();
-
-                    glLineWidth(1.0);
-                }
-
                 // Draw wireframe as requested.
 
                 if (::prog->option(3))
@@ -685,28 +670,22 @@ void uni::sphere::draw(int i)
                     dat.idx()->bind();
                     vtx.bind();
                     {
-                        glEnable(GL_DEPTH_TEST);
-                        glColorMask(0, 0, 0, 0);
-                        pass();
+                        glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT);
+                        {
+                            glEnable(GL_BLEND);
+                            glEnable(GL_LINE_SMOOTH);
+                            glEnable(GL_POLYGON_OFFSET_LINE);
 
-                        glEnable(GL_BLEND);
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+                            glLineWidth(1.5);
+                            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                            glPolygonOffset(-0.5, -0.5);
 
-                        glLineWidth(1.5);
-                        glEnable(GL_LINE_SMOOTH);
-                        glEnable(GL_POLYGON_OFFSET_LINE);
-                        glEnable(GL_CULL_FACE);
-                        glPolygonOffset(-0.5, -0.5);
-
-                        glColorMask(1, 1, 1, 1);
-                        pass();
-
-                        glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-                        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-                        glLineWidth(1.0);
-                        glDisable(GL_POLYGON_OFFSET_LINE);
+                            glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+                            pass();
+                            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+                        }
+                        glPopAttrib();
                     }
                     vtx.free();
                     dat.idx()->free();
