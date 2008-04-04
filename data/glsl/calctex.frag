@@ -35,5 +35,7 @@ void main()
 
     vec2 m = atan(y, x) + vec2(t0.x, 0.0);
 
+//  vec2 m = vec2(atan(N.x, N.z), asin(N.y));
+
     gl_FragColor = vec4(m, N.x, N.z);
 }

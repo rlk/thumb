@@ -16,12 +16,14 @@
 //-----------------------------------------------------------------------------
 
 uni::geomap::geomap() :
-    index(glob->load_texture("mipmap.png"))
+    index(glob->load_texture("mipmap-test.png", GL_NEAREST)),
+    cache(glob->load_texture("world.200408-07-00-00.png"))
 {
 }
 
 uni::geomap::~geomap()
 {
+    glob->free_texture(cache);
     glob->free_texture(index);
 }
 
@@ -30,8 +32,13 @@ uni::geomap::~geomap()
 void uni::geomap::draw()
 {
     index->bind(GL_TEXTURE1);
+    cache->bind(GL_TEXTURE2);
     {
-        ogl::program::current->uniform("size", 86400.0, 43200.0);
+        ogl::program::current->uniform("index", 1);
+        ogl::program::current->uniform("cache", 2);
+
+        ogl::program::current->uniform("data_size", 86400.0, 43200.0);
+        ogl::program::current->uniform("page_size",   512.0,   512.0);
 
         glMatrixMode(GL_PROJECTION);
         {
@@ -55,6 +62,7 @@ void uni::geomap::draw()
             glPopMatrix();
         }
     }
+    cache->free(GL_TEXTURE2);
     index->free(GL_TEXTURE1);
 }
 

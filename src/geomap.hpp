@@ -25,6 +25,7 @@ namespace uni
     class geomap
     {
         const ogl::texture *index;
+        const ogl::texture *cache;
 
     public:
 
