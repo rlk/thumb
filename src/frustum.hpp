@@ -114,8 +114,8 @@ namespace app
         void cast() const;
     };
 
-    typedef std::vector<frustum *>           frustum_v;
-    typedef std::vector<frustum *>::iterator frustum_i;
+    typedef std::vector<frustum *>                 frustum_v;
+    typedef std::vector<frustum *>::const_iterator frustum_i;
 }
 
 //-----------------------------------------------------------------------------

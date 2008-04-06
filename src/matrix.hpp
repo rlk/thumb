@@ -13,6 +13,8 @@
 #ifndef MATRIX_HPP
 #define MATRIX_HPP
 
+#include <cmath>
+
 /*---------------------------------------------------------------------------*/
 
 #ifndef PI
@@ -97,6 +99,19 @@ void mult_xps_vec4(double *, const double *, const double *);
 
 //-----------------------------------------------------------------------------
 
+#define v_cp2(u, v) { \
+    (u)[0] = (v)[0];  \
+    (u)[1] = (v)[1];  \
+}
+
+#define v_cp3(u, v) { \
+    (u)[0] = (v)[0];  \
+    (u)[1] = (v)[1];  \
+    (u)[2] = (v)[2];  \
+}
+
+//-----------------------------------------------------------------------------
+
 #define normalize(v) {                          \
     double k = 1.0 / sqrt(DOT3((v), (v)));      \
     (v)[0] *= k;                                \
@@ -126,6 +141,8 @@ void set_quaternion(double *, const double *);
 
 void set_basis(double *, const double *, const double *, const double *);
 void set_plane(double *, const double *, const double *, const double *);
+
+double solid_angle(const double *, const double *, const double *);
 
 //-----------------------------------------------------------------------------
 

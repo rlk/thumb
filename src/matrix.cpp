@@ -510,6 +510,25 @@ void set_plane(double *P, const double *a, const double *b, const double *c)
     P[3] = -DOT3(P, a);
 }
 
+double solid_angle(const double *a, const double *b, const double *c)
+{
+    double t[4];
+
+    crossprod(t, b, c);
+
+    double n = DOT3(a, t);
+
+    double la = sqrt(DOT3(a, a));
+    double lb = sqrt(DOT3(b, b));
+    double lc = sqrt(DOT3(c, c));
+
+    double d = la * lb * lc + (DOT3(a, b) * lc +
+                               DOT3(a, c) * lb +
+                               DOT3(b, c) * la);
+
+    return 2.0 * atan(n / d);
+}
+
 //-----------------------------------------------------------------------------
 
 // Round to the nearest integer.  Round 0.5 toward negative infinity.

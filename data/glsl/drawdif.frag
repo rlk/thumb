@@ -24,6 +24,16 @@ float miplev(vec2 p)
 
 vec3 mipref(vec2 c, float l)
 {
+    const vec2 t = exp2(vec2(-l, -l - 1.0));
+
+    const vec2 px = 1.0 - t.x + c * t.y;
+    const vec2 py = 1.0 - t.y + c * t.y;
+
+    return vec3(texture2D(index, vec2(px.s, py.t)).r,
+                texture2D(index, vec2(px.s, px.t)).r,
+                texture2D(index, vec2(py.s, px.t)).r);
+
+/*
     const float t0 = exp2(-l      );
     const float t1 = exp2(-l - 1.0);
 
@@ -33,6 +43,7 @@ vec3 mipref(vec2 c, float l)
                                       1.0 - t0 + c.t * t1)).r,
                 texture2D(index, vec2(1.0 - t1 + c.s * t1,
                                       1.0 - t0 + c.t * t1)).r);
+*/
 }
 
 void main()
@@ -48,11 +59,11 @@ void main()
 
     // Determine the mipmap levels.
 
-    float l  = miplev(c * data_size);
-    float l0 = floor(l);
-    float l1 = ceil (l);
+    float ll = miplev(c * data_size);
+    float l0 = floor(ll);
+    float l1 = ceil (ll);
 
-    float k = l - l0;
+    float ld = ll - l0;
 
     // Look up the two pages in the index.
 
@@ -72,10 +83,8 @@ void main()
     vec4 D0 = texture2D(cache, q0);
     vec4 D1 = texture2D(cache, q1);
 
-//  gl_FragColor = D0;
-    gl_FragColor = mix(D0, D1, k);
-//  gl_FragColor = texture2D(cache, c);
-//  gl_FragColor = vec4(C0 * 16.0, 1.0);
+//  gl_FragColor = mix(D0, D1, ld);
+    gl_FragColor = vec4(c, 0.0, 1.0);
 }
 
 //-----------------------------------------------------------------------------

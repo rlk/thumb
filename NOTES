@@ -1,4 +1,51 @@
 
+All nodes are ordered.  They may be compared for significance.
+
+** It is not actually necessary to compute the significance of a node, it is only necessary to compare the significance of two nodes.
+
+Significance is defined by the quantity of error that a node introduces.
+
+The primary constraint is the number of nodes.
+
+The secondary constraint for patches is: they must be within one level of their neighbor in depth.
+
+The secondary constraint for pages is: their ancestor must be included.
+    (This is not strictly true. The lower-res page must be included, but there is a good chance the lower-res page for THAT must be included as well, etc...)
+
+Sort, add, and remove... THEN chop at the limit.  Hopefully then the failed constraints will occur among the less significant nodes.
+
+When counting patches, once counts the leaves.  When counting images, one counts all nodes.
+
+
+General dumb approach for images:
+
+    enqueue the root
+    initialize the output list to contain only the root
+
+    while the queue is not empty and the output list has fewer than N nodes
+        dequeue a node
+        for each subdivision of that node
+            if the subdivision is visible
+                add it to the output list
+                enqueue it (with priority)
+
+General dumb approach for patches:
+
+    for each of the 20 root nodes
+        if the node is visible
+            enqueue it
+
+    while the queue has more than 0 and less than N nodes
+        dequeue the highest priority node
+        for each subdivision of that node
+            if the subdivision is visible
+                enqueue it
+
+(this is an extremely clever means of ensuring that a patch with a loose bound giving erroneous visibility is omitted)
+
+-------------------------------------------------------------------------------
+
+
 geomap properties
 
     w ... columns

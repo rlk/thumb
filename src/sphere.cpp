@@ -47,7 +47,6 @@ uni::sphere::sphere(uni::geodat& dat,
 
     bias (bias),
     cache(cache),
-    frame(0),
 
     dat(dat),
     tex(dat.depth(), cache),
@@ -73,15 +72,7 @@ uni::sphere::sphere(uni::geodat& dat,
     land_out(glob->load_program("glsl/GroundFromSpace.vert",
                                 "glsl/GroundFromSpace.frag"))
 {
-    // Initialize all points.
-
-    for (int k = 0; k < 12; ++k)
-        P[k] = (new point(dat.ico()->point_v(k)))->ref();
-
-    // Initialize all patches.
-
-    for (int k = 0; k < 20; ++k)
-        C[k] = 0;
+    S = new spatch[cache];
 
     // Set default configuration.
     
@@ -127,10 +118,7 @@ uni::sphere::~sphere()
     if (atmo_unit) delete atmo_unit;
     if (atmo_pool) delete atmo_pool;
 
-    // Delete all patches and points.
-
-    for (int k = 0; k < 20; ++k) if (C[k]) delete C[k];
-    for (int k = 0; k < 12; ++k) if (P[k]) delete P[k];
+    delete S;
 }
 
 void uni::sphere::move(double px, double py, double pz,
@@ -290,6 +278,8 @@ void uni::sphere::view(app::frustum_v& frusta)
             vp[2] = p[2];
 
             dist = sqrt(DOT3(vp, vp));
+
+            normalize(vp);
         }
         else
         {
@@ -308,17 +298,19 @@ void uni::sphere::view(app::frustum_v& frusta)
             atmo_pool->view(1, 0, 0);
         }
     }
-    else
-    {
-        // The sphere is not visible.  Delete any existing patches.
+}
 
-        for (int k = 0; k < 20; ++k)
-            if (C[k])
-            {
-                delete(C[k]);
-                C[k] = 0;
-            }
-    }
+bool uni::sphere::test(const double *n0,
+                       const double *n1,
+                       const double *n2) const
+{
+    // Return true if any part of the given shell falls within any frustum.
+
+    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+        if ((*i)->test_shell(n0, n1, n2, r0, r1) >= 0)
+            return true;
+
+    return false;
 }
 
 void uni::sphere::step()
@@ -331,44 +323,44 @@ void uni::sphere::step()
 
         for (int k = 0; k < 20; ++k)
         {
-            if (C[k] == 0)
-            {
-                const int    *i  = dat.ico()->point_i(k);
+            const int    *i  = dat.ico()->point_i(k);
+            const int    *j  = dat.ico()->patch_i(k);
 
-                const double *t0 = dat.ico()->patch_c(k, 0);
-                const double *t1 = dat.ico()->patch_c(k, 1);
-                const double *t2 = dat.ico()->patch_c(k, 2);
+            const double *n0 = dat.ico()->point_v(i[0]);
+            const double *n1 = dat.ico()->point_v(i[1]);
+            const double *n2 = dat.ico()->point_v(i[2]);
 
-                C[k] = new patch(P[i[0]], t0,
-                                 P[i[1]], t1,
-                                 P[i[2]], t2, r0, r0, r1);
-            }
+            if (test(n0, n1, n2))
+                S[count++].init(n0, dat.ico()->patch_c(k, 0), j[0],
+                                n1, dat.ico()->patch_c(k, 1), j[1],
+                                n2, dat.ico()->patch_c(k, 2), j[2], vp, r0, 0);
+        }
 
-            const int *i = dat.ico()->patch_i(k);
-            const int *j = dat.ico()->patch_j(k);
+        while (count < cache)
+        {
+            int i = -1;
+            int j = -1;
 
-            context ctx(C[k], C[i[0]], j[0],
-                              C[i[1]], j[1],
-                              C[i[2]], j[2]);
+            for (j = 0; j < count; ++j)
+                if (S[j].able(S) && (i == -1 || S[j].more(S + i)))
+                    i = j;
 
-            C[k] = C[k]->step(ctx, frusta, vp, bias, 0, count);
+            if (i == -1 || !S[i].subd(S, i, count, cache, r0, r1, frusta, vp))
+                break;
         }
 
         // Set up geometry generation.
 
-        if ((count = std::min(count, cache)))
+        if (count)
         {
-            frame++;
-
             // Seed the normal and position generators.
 
             nrm.init();
             pos.init();
             tex.init();
             {
-                for (int k = 0; k < 20; ++k)
-                    if (C[k])
-                        C[k]->seed(nrm, pos, tex, M, I, frame);
+                for (int k = 0; k < count; ++k)
+                    S[k].seed(k, nrm, pos, tex, r0, M, I);
             }
             tex.fini(count);
             nrm.fini(count);
@@ -473,18 +465,8 @@ void uni::sphere::pass()
     GLsizei vc = dat.vtx_len();
     GLsizei tc = dat.idx_len();
 
-    for (int k = 0; k < 20; ++k)
-        if (C[k])
-        {
-            const int *i = dat.ico()->patch_i(k);
-            const int *j = dat.ico()->patch_j(k);
-
-            context ctx(C[k], C[i[0]], j[0],
-                              C[i[1]], j[1],
-                              C[i[2]], j[2]);
-
-            C[k]->draw(ctx, cache, vc, tc);
-        }
+    for (int k = 0; k < count; ++k)
+        S[k].draw(S, k, cache, vc, tc);
 }
 
 void uni::sphere::wire()
@@ -675,6 +657,7 @@ void uni::sphere::draw(int i)
                             glEnable(GL_BLEND);
                             glEnable(GL_LINE_SMOOTH);
                             glEnable(GL_POLYGON_OFFSET_LINE);
+                            glDisable(GL_CULL_FACE);
 
                             glLineWidth(1.5);
                             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

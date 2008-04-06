@@ -365,6 +365,9 @@ void app::frustum::set_horizon(double r)
     view_planes[4][0] = view_pos[0];
     view_planes[4][1] = view_pos[1];
     view_planes[4][2] = view_pos[2];
+
+    normalize(view_planes[4]);
+
     view_planes[4][3] = -r * r / sqrt(DOT3(view_pos, view_pos));
 
     view_count = 5;

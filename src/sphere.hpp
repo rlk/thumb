@@ -21,6 +21,7 @@
 #include "georen.hpp"
 #include "geomap.hpp"
 #include "patch.hpp"
+#include "spatch.hpp"
 #include "pool.hpp"
 
 //-----------------------------------------------------------------------------
@@ -29,6 +30,8 @@ namespace uni
 {
     class sphere
     {
+        spatch *S;
+
         // Seed patches
 
         patch  *C[20];
@@ -100,6 +103,10 @@ namespace uni
 
         void atmo_prep(const ogl::program *) const;
         void transform(app::frustum_v&);
+
+        bool test(const double *,
+                  const double *,
+                  const double *) const;
 
     public:
     
