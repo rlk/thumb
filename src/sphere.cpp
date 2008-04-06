@@ -33,7 +33,7 @@ uni::sphere::sphere(uni::geodat& dat,
                     uni::geomap& normal,
                     uni::geomap& height,
                     double r0,
-                    double r1, double bias, GLsizei cache) :
+                    double r1, GLsizei cache) :
 
     count(0),
 
@@ -45,7 +45,6 @@ uni::sphere::sphere(uni::geodat& dat,
     visible(false),
     dist(0),
 
-    bias (bias),
     cache(cache),
 
     dat(dat),
@@ -279,7 +278,7 @@ void uni::sphere::view(app::frustum_v& frusta)
 
             dist = sqrt(DOT3(vp, vp));
 
-            normalize(vp);
+            printf("%f\n", dist - r0);
         }
         else
         {
@@ -321,6 +320,22 @@ void uni::sphere::step()
     {
         // Refine the icosahedron to fit the current view.
 
+        int ii[20];
+
+        for (int k = 0; k < 20; ++k)
+        {
+            const int    *i  = dat.ico()->point_i(k);
+
+            const double *n0 = dat.ico()->point_v(i[0]);
+            const double *n1 = dat.ico()->point_v(i[1]);
+            const double *n2 = dat.ico()->point_v(i[2]);
+
+            if (test(n0, n1, n2))
+                ii[k] = count++;
+            else
+                ii[k] = -1;
+        }
+
         for (int k = 0; k < 20; ++k)
         {
             const int    *i  = dat.ico()->point_i(k);
@@ -330,10 +345,11 @@ void uni::sphere::step()
             const double *n1 = dat.ico()->point_v(i[1]);
             const double *n2 = dat.ico()->point_v(i[2]);
 
-            if (test(n0, n1, n2))
-                S[count++].init(n0, dat.ico()->patch_c(k, 0), j[0],
-                                n1, dat.ico()->patch_c(k, 1), j[1],
-                                n2, dat.ico()->patch_c(k, 2), j[2], vp, r0, 0);
+            if (ii[k] >= 0)
+                S[ii[k]].init(ii[k], n0, dat.ico()->patch_c(k, 0), ii[j[0]],
+                              n1, dat.ico()->patch_c(k, 1), ii[j[1]],
+                              n2, dat.ico()->patch_c(k, 2), ii[j[2]],
+                              vp, r0, 0);
         }
 
         while (count < cache)
@@ -342,7 +358,7 @@ void uni::sphere::step()
             int j = -1;
 
             for (j = 0; j < count; ++j)
-                if (S[j].able(S) && (i == -1 || S[j].more(S + i)))
+                if (i == -1 || S[j].more(S + i))
                     i = j;
 
             if (i == -1 || !S[i].subd(S, i, count, cache, r0, r1, frusta, vp))
@@ -467,13 +483,6 @@ void uni::sphere::pass()
 
     for (int k = 0; k < count; ++k)
         S[k].draw(S, k, cache, vc, tc);
-}
-
-void uni::sphere::wire()
-{
-    for (int k = 0; k < 20; ++k)
-        if (C[k])
-            C[k]->wire(0.0f, 0.0f, 0.0f);
 }
 
 void uni::sphere::draw(int i)

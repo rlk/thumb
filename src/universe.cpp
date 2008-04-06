@@ -60,12 +60,9 @@ uni::universe::universe()
 
     // Configure the geometry generator and renderer.
 
-    double patch_bias  = ::conf->get_i("patch_bias");
-    int    patch_cache = ::conf->get_i("patch_cache");
-    int    patch_depth = ::conf->get_i("patch_depth");
+    int patch_cache = ::conf->get_i("patch_cache");
+    int patch_depth = ::conf->get_i("patch_depth");
 
-    if (patch_bias == 0)
-        patch_bias = DEFAULT_PATCH_BIAS;
     if (patch_cache == 0)
         patch_cache = DEFAULT_PATCH_CACHE;
     if (patch_depth == 0)
@@ -78,7 +75,7 @@ uni::universe::universe()
     // Create the earth.
 
     S[0] = new sphere(*D, *R, *color, *normal, *height,
-                      r0, r1, patch_bias, patch_cache);
+                      r0, r1, patch_cache);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
 }
 

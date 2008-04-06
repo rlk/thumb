@@ -20,7 +20,6 @@
 #include "geogen.hpp"
 #include "georen.hpp"
 #include "geomap.hpp"
-#include "patch.hpp"
 #include "spatch.hpp"
 #include "pool.hpp"
 
@@ -31,11 +30,6 @@ namespace uni
     class sphere
     {
         spatch *S;
-
-        // Seed patches
-
-        patch  *C[20];
-        point  *P[12];
         GLsizei count;
 
         // Min and max radius
@@ -68,11 +62,9 @@ namespace uni
         double d0;
         double d1;
 
-        // LOD bias, patch recursion depth, cache size.
+        // Cache size.
 
-        double  bias;
         GLsizei cache;
-        int     frame;
 
         // OpenGL state
 
@@ -110,8 +102,8 @@ namespace uni
 
     public:
     
-        sphere(geodat&, georen&, geomap&, geomap&, geomap&, double, double,
-               double=DEFAULT_PATCH_BIAS, GLsizei=DEFAULT_PATCH_CACHE);
+        sphere(geodat&, georen&, geomap&, geomap&, geomap&,
+               double, double, GLsizei=DEFAULT_PATCH_CACHE);
        ~sphere();
 
         void turn(double=0, double=0);
