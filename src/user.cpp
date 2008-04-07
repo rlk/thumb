@@ -462,12 +462,13 @@ void app::user::slerp(const double *A,
 
     // Orthonormalize.
 
-    normalize(current_M + 0);
-    normalize(current_M + 8);
 
     crossprod(current_M + 4, current_M + 8, current_M + 0);
+    normalize(current_M + 4);
     crossprod(current_M + 0, current_M + 4, current_M + 8);
+    normalize(current_M + 0);
     crossprod(current_M + 8, current_M + 0, current_M + 4);
+    normalize(current_M + 8);
 
     load_inv(current_I, current_M);
 }

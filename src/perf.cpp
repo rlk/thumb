@@ -162,15 +162,13 @@ void app::perf::step()
 
 void app::perf::dump()
 {
-    int fps = int(ceil(1000.0 * frames / ticks));
-    int ms  = ticks / frames;
-
-//  std::cout << double(ticks) / double(frames) << std::endl;
+    int   fps = int(ceil(1000.0 * frames / ticks));
+    double ms = double(ticks) / double(frames);
 
     std::ostringstream str;
 
-    str << ms  << "ms "
-        << fps << "fps";
+    str << std::fixed << std::setprecision(3) << std::setw(6) << ms  << "ms "
+                                              << std::setw(4) << fps << "fps";
 
     SDL_WM_SetCaption(str.str().c_str(),
                       str.str().c_str());
