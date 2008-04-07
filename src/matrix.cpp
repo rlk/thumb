@@ -481,6 +481,15 @@ void set_quaternion(double *M, const double *q)
     M[15] = 1;
 }
 
+void orthonormalize(double *M)
+{
+    normalize(M + 8);
+    crossprod(M + 4, M + 8, M + 0);
+    normalize(M + 4);
+    crossprod(M + 0, M + 4, M + 8);
+    normalize(M + 0);
+}
+
 //-----------------------------------------------------------------------------
 
 void set_basis(double *M, const double *x, const double *y, const double *z)

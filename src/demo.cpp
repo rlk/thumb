@@ -127,18 +127,22 @@ void demo::attr_prev()
 
 void demo::point(int i, const double *p, const double *q)
 {
-/* TODO
-    int x = 0;
-    int y = 0;
+    load_mat(init_R, curr_R);    
+    set_quaternion(curr_R, q);
 
-    ::host->gui_pick(x, y, p, v);
-*/
-
-    if (curr->point(i, p, q) == false)
+    if (button[1])
     {
-        set_quaternion(curr_R, q);
+        if (modifiers & KMOD_SHIFT)
+        {
+            double a0 = DEG(atan2(init_R[9], init_R[8]));
+            double a1 = DEG(atan2(curr_R[9], curr_R[8]));
 
-        prog::point(i, p, q);
+            user->turn(0.0, 0.0, a0 - a1);
+        }
+        else
+        {
+            user->tumble(init_R, curr_R);
+        }
     }
 }
 
@@ -147,6 +151,7 @@ void demo::click(int i, int b, int m, bool d)
     attr_off();
 
     button[b] = d;
+    modifiers = m;
 
     if      (d && b == SDL_BUTTON_WHEELUP)
     {
@@ -161,11 +166,6 @@ void demo::click(int i, int b, int m, bool d)
             universe.turn(0.0, +1.0);
         else
             universe.turn(-1.0, 0.0);
-    }
-
-    else if (d && b == 1)
-    {
-        memcpy(init_R, curr_R, 16 * sizeof (double));
     }
     else
     {
@@ -244,6 +244,15 @@ void demo::timer(int t)
     {
         // Handle navigation.
 
+        double dP[3], kp = dt * universe.rate();
+
+        dP[0] = curr_P[ 0] - init_P[ 0];
+        dP[1] = curr_P[ 1] - init_P[ 1];
+        dP[2] = curr_P[ 2] - init_P[ 2];
+
+        user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+        
+/*
         double kp = dt * universe.rate();
         double kr = dt * view_turn_rate;
 
@@ -283,6 +292,7 @@ void demo::timer(int t)
             user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
         }
         else
+*/
         {
             // Handle auto-attract mode.
 

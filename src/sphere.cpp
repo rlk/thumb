@@ -278,7 +278,7 @@ void uni::sphere::view(app::frustum_v& frusta)
 
             dist = sqrt(DOT3(vp, vp));
 
-            printf("%f\n", dist - r0);
+//          printf("%f\n", dist - r0);
         }
         else
         {

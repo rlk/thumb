@@ -62,6 +62,7 @@ class demo : public app::prog
     // Demo state.
 
     int button[4];
+    int modifiers;
 
     bool   attr_mode;
     bool   attr_stop;

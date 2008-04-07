@@ -136,6 +136,7 @@ void mult_xps_vec4(double *, const double *, const double *);
 
 void get_quaternion(double *, const double *);
 void set_quaternion(double *, const double *);
+void orthonormalize(double *);
 
 //-----------------------------------------------------------------------------
 

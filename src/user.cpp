@@ -95,6 +95,18 @@ void app::user::get_point(double *P, const double *p,
     mult_mat_vec3(V, current_M, M + 8);
 }
 
+void app::user::set_default()
+{
+    memcpy(default_M, current_M, 16 * sizeof (double));
+    memcpy(default_I, current_I, 16 * sizeof (double));
+}
+
+void app::user::get_default()
+{
+    memcpy(current_M, default_M, 16 * sizeof (double));
+    memcpy(current_I, default_I, 16 * sizeof (double));
+}
+
 //-----------------------------------------------------------------------------
 
 void app::user::init()
@@ -232,6 +244,21 @@ void app::user::home()
 {
     load_idt(current_M);
     load_idt(current_I);
+}
+
+void app::user::tumble(const double *A,
+                       const double *B)
+{
+    double T[16];
+
+    load_xps(T, B);
+
+    mult_mat_mat(current_M, current_M, A);
+    mult_mat_mat(current_M, current_M, T);
+
+    orthonormalize(current_M);
+
+    load_inv(current_I, current_M);
 }
 
 //-----------------------------------------------------------------------------
@@ -460,15 +487,7 @@ void app::user::slerp(const double *A,
     ::slerp(current_M + 0, A + 0, B + 0, t);
     ::slerp(current_M + 8, A + 8, B + 8, t);
 
-    // Orthonormalize.
-
-
-    crossprod(current_M + 4, current_M + 8, current_M + 0);
-    normalize(current_M + 4);
-    crossprod(current_M + 0, current_M + 4, current_M + 8);
-    normalize(current_M + 0);
-    crossprod(current_M + 8, current_M + 0, current_M + 4);
-    normalize(current_M + 8);
+    orthonormalize(current_M);
 
     load_inv(current_I, current_M);
 }

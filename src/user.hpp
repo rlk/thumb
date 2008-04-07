@@ -32,6 +32,9 @@ namespace app
         double current_I[16];
         double current_S[16];
 
+        double default_M[16];
+        double default_I[16];
+
         // Automatic demo state
 
         mxml_node_t *head;
@@ -75,12 +78,18 @@ namespace app
         const double *get_I() const { return current_I; }
         const double *get_S() const { return current_S; }
 
+        void set_default();
+        void get_default();
+
         // Interactive view controls.
 
         void turn(double, double, double, const double *);
         void turn(double, double, double);
         void move(double, double, double);
         void home();
+
+        void tumble(const double *,
+                    const double *);
 
         // Automatic view controls.
 
