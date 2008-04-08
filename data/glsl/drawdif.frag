@@ -32,18 +32,6 @@ vec3 mipref(vec2 c, float l)
     return vec3(texture2D(index, vec2(px.s, py.t)).r,
                 texture2D(index, vec2(px.s, px.t)).r,
                 texture2D(index, vec2(py.s, px.t)).r);
-
-/*
-    const float t0 = exp2(-l      );
-    const float t1 = exp2(-l - 1.0);
-
-    return vec3(texture2D(index, vec2(1.0 - t0 + c.s * t1,
-                                      1.0 - t1 + c.t * t1)).r,
-                texture2D(index, vec2(1.0 - t0 + c.s * t1,
-                                      1.0 - t0 + c.t * t1)).r,
-                texture2D(index, vec2(1.0 - t1 + c.s * t1,
-                                      1.0 - t0 + c.t * t1)).r);
-*/
 }
 
 void main()
@@ -83,8 +71,8 @@ void main()
     vec4 D0 = texture2D(cache, q0);
     vec4 D1 = texture2D(cache, q1);
 
-//  gl_FragColor = mix(D0, D1, ld);
-    gl_FragColor = vec4(c, 0.0, 1.0);
+    gl_FragColor = mix(D0, D1, ld);
+//  gl_FragColor = vec4(c, 0.0, 1.0);
 }
 
 //-----------------------------------------------------------------------------

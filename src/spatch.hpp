@@ -28,7 +28,7 @@ namespace uni
         int    d;
         double k;
 
-        void init(int, const double *, const double *, int, 
+        void init(const double *, const double *, int, 
                   const double *, const double *, int,
                   const double *, const double *, int,
                   const double *, double, int);

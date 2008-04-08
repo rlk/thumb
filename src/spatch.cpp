@@ -16,7 +16,7 @@
 
 //-----------------------------------------------------------------------------
 
-void uni::spatch::init(int ii, const double *n0, const double *t0, int i0,
+void uni::spatch::init(const double *n0, const double *t0, int i0,
                        const double *n1, const double *t1, int i1,
                        const double *n2, const double *t2, int i2,
                        const double *vp, double r, int dd)
@@ -215,18 +215,23 @@ bool uni::spatch::subd(spatch *V,
 
     // Initialize the new patches.
 
-    if (i0 >= 0) V[i0].init(i0, n[0], t[0], i[0][0],
+    if (i0 >= 0) V[i0].init(n[0], t[0], i[0][0],
                             N[2], T[2], i3,
                             N[1], T[1], i[2][1], vp, r0, d + 1);
-    if (i1 >= 0) V[i1].init(i1, N[2], T[2], i[0][1],
+    if (i1 >= 0) V[i1].init(N[2], T[2], i[0][1],
                             n[1], t[1], i[1][0],
                             N[0], T[0], i3,      vp, r0, d + 1);
-    if (i2 >= 0) V[i2].init(i2, N[1], T[1], i3,
+    if (i2 >= 0) V[i2].init(N[1], T[1], i3,
                             N[0], T[0], i[1][1],
                             n[2], t[2], i[2][0], vp, r0, d + 1);
-    if (i3 >= 0) V[i3].init(i3, N[0], T[0], i2,
+    if (i3 >= 0) V[i3].init(N[0], T[0], i2,
                             N[1], T[1], i0,
                             N[2], T[2], i1,      vp, r0, d + 1);
+
+    // HACK
+
+    if (i0 == -1 && i1 == -1 && i2 == -1)
+        k = -1;
 
     return true;
 }

@@ -1,4 +1,20 @@
 
+Note: if a parent map is visible then at least one of its children is visible.
+    (this is not the case with patches)
+
+WHILE there's space left in the cache
+    Find the single largest divisible texel on the screen
+    IF none was found
+        BREAK
+    ELSE
+        FOR each subdivision
+            IF the subdivision is visible AND there is cache space
+                Add it to the cache
+
+The largest texel will have the smallest normalized texcoord derivative.
+
+-------------------------------------------------------------------------------
+
 All nodes are ordered.  They may be compared for significance.
 
 ** It is not actually necessary to compute the significance of a node, it is only necessary to compare the significance of two nodes.

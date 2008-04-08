@@ -45,9 +45,9 @@ uni::universe::universe()
     if (n_lod == 0) n_lod = DEFAULT_NORMAL_LOD;
     if (h_lod == 0) h_lod = DEFAULT_HEIGHT_LOD;
 
-    color  = new geomap();
-    normal = new geomap();
-    height = new geomap();
+    color  = new geomap("world.200408.xml", r0, r1);
+    normal = 0;
+    height = 0;
 
 /*
     color  = new geomap(c_name.c_str(), 86400, 43200, 3, 1, 512, pow(2, c_lod),

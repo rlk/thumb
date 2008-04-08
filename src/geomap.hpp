@@ -20,19 +20,50 @@
 namespace uni
 {
     //-------------------------------------------------------------------------
+    // Geomap page
+
+    class page
+    {
+        int    d;
+        int    i;
+        int    j;
+        double W;
+        double E;
+        double S;
+        double N;
+
+        page *P[4];
+
+    public:
+
+        page(int, int, int, int, int, int, double, double, double, double);
+       ~page();
+
+        void draw(double);
+    };
+
+    //-------------------------------------------------------------------------
     // Geomap
 
     class geomap
     {
-        const ogl::texture *index;
-        const ogl::texture *cache;
+        std::string name;
+
+        int    c;
+        int    b;
+        int    s;
+        int    d;
+        double r0;
+        double r1;
+
+        page *P;
 
     public:
 
-        geomap();
+        geomap(std::string, double, double);
        ~geomap();
 
-        void draw();
+        void draw(double);
     };
 }
 

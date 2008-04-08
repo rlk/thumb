@@ -278,7 +278,7 @@ void uni::sphere::view(app::frustum_v& frusta)
 
             dist = sqrt(DOT3(vp, vp));
 
-//          printf("%f\n", dist - r0);
+            printf("%f\n", dist - r0);
         }
         else
         {
@@ -346,22 +346,21 @@ void uni::sphere::step()
             const double *n2 = dat.ico()->point_v(i[2]);
 
             if (ii[k] >= 0)
-                S[ii[k]].init(ii[k], n0, dat.ico()->patch_c(k, 0), ii[j[0]],
+                S[ii[k]].init(n0, dat.ico()->patch_c(k, 0), ii[j[0]],
                               n1, dat.ico()->patch_c(k, 1), ii[j[1]],
                               n2, dat.ico()->patch_c(k, 2), ii[j[2]],
                               vp, r0, 0);
         }
 
-        while (count < cache)
+        while (0 < count && count < cache)
         {
-            int i = -1;
-            int j = -1;
+            int i = 0;
 
-            for (j = 0; j < count; ++j)
-                if (i == -1 || S[j].more(S + i))
+            for (int j = 0; j < count; ++j)
+                if (S[j].more(S + i))
                     i = j;
 
-            if (i == -1 || !S[i].subd(S, i, count, cache, r0, r1, frusta, vp))
+            if (S[i].k < 0 || !S[i].subd(S, i, count, cache, r0, r1, frusta, vp))
                 break;
         }
 
@@ -577,14 +576,14 @@ void uni::sphere::draw(int i)
                 ren.cyl()->free();
 
                 // Draw the diffuse maps.
-
+/*
                 ren.dif()->init();
                 ren.dif()->bind();
                 {
                     color.draw();
                 }
                 ren.dif()->free();
-
+*/
 /*
                 glPushMatrix();
                 {
@@ -628,6 +627,7 @@ void uni::sphere::draw(int i)
                 }
                 glPopMatrix();
 */
+
                 // Draw the illuminated geometry.
 
                 if (!::prog->option(1))
@@ -652,6 +652,27 @@ void uni::sphere::draw(int i)
                     }
                     land_prog->free();
                 }
+
+                glPushMatrix();
+                {
+                    glLoadMatrixd(M);
+
+                    glPushAttrib(GL_ENABLE_BIT);
+                    {
+                        glDisable(GL_TEXTURE_2D);
+                        glDisable(GL_LIGHTING);
+                        glDisable(GL_CULL_FACE);
+
+                        glEnable(GL_BLEND);
+                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                        glDepthMask(0);
+                        color.draw(r0);
+                        glDepthMask(1);
+                    }
+                    glPopAttrib();
+                }
+                glPopMatrix();
 
                 // Draw wireframe as requested.
 
