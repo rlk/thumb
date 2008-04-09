@@ -68,11 +68,6 @@ uni::page::page(int w, int h, int s,
         sphere_to_vector(v, cE, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
     }
 
-    if (x == 0 && y == 0)
-        printf("%d %f %f %f %f %f %f %f %f\n", d,
-               DEG(cW), DEG(cE), DEG(cS), DEG(cN),
-               n[0], n[1], n[2], DEG(a));
-
     // Create subpages as necessary.
 
     P[0] = 0;
@@ -111,7 +106,7 @@ bool uni::page::view(app::frustum_v& frusta, double r0, double r1)
 
 void uni::page::draw(app::frustum_v& frusta, double r0, double r1)
 {
-    if (d == 4 && view(frusta, r0, r1))
+    if (view(frusta, r0, r1))
     {
         count++;
 
