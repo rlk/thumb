@@ -26,6 +26,8 @@
 
 namespace app
 {
+    //-------------------------------------------------------------------------
+
     class frustum
     {
     private:
@@ -96,11 +98,12 @@ namespace app
 
         // Visibility testers
 
+        int test_bound(const double *,
+                       const double *);
         int test_shell(const double *, 
                        const double *, 
                        const double *, double, double) const;
-        int test_bound(const double *,
-                       const double *);
+        int test_cap  (const double *, double, double, double) const;
 
         const double *get_user_pos() const { return user_pos; }
         const double *get_view_pos() const { return view_pos; }
@@ -116,6 +119,8 @@ namespace app
 
     typedef std::vector<frustum *>                 frustum_v;
     typedef std::vector<frustum *>::const_iterator frustum_i;
+
+    //-------------------------------------------------------------------------
 }
 
 //-----------------------------------------------------------------------------

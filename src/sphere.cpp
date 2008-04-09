@@ -278,7 +278,7 @@ void uni::sphere::view(app::frustum_v& frusta)
 
             dist = sqrt(DOT3(vp, vp));
 
-            printf("%f\n", dist - r0);
+//          printf("%f\n", dist - r0);
         }
         else
         {
@@ -533,7 +533,7 @@ void uni::sphere::draw(int i)
 
     glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT | GL_COLOR_BUFFER_BIT);
     {
-        if (count)
+        if (1 || count)
         {
             glEnable(GL_COLOR_MATERIAL);
             glEnable(GL_DEPTH_TEST);
@@ -630,7 +630,7 @@ void uni::sphere::draw(int i)
 
                 // Draw the illuminated geometry.
 
-                if (!::prog->option(1))
+                if (!::prog->option(2))
                 {
                     glClear(GL_DEPTH_BUFFER_BIT);
                     glEnable(GL_DEPTH_TEST);
@@ -653,6 +653,8 @@ void uni::sphere::draw(int i)
                     land_prog->free();
                 }
 
+                // Test draw the color geomap.
+
                 glPushMatrix();
                 {
                     glLoadMatrixd(M);
@@ -662,12 +664,13 @@ void uni::sphere::draw(int i)
                         glDisable(GL_TEXTURE_2D);
                         glDisable(GL_LIGHTING);
                         glDisable(GL_CULL_FACE);
+                        glDisable(GL_DEPTH_TEST);
 
                         glEnable(GL_BLEND);
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                         glDepthMask(0);
-                        color.draw(r0);
+                        color.draw(frusta, r0, r1);
                         glDepthMask(1);
                     }
                     glPopAttrib();
@@ -732,6 +735,8 @@ void uni::sphere::draw(int i)
         }
     }
     glPopAttrib();
+
+    printf("\n");
 }
 
 //-----------------------------------------------------------------------------

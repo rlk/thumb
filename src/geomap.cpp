@@ -17,11 +17,13 @@
 #include "matrix.hpp"
 #include "glob.hpp"
 
+static int count;
+
 //-----------------------------------------------------------------------------
 
 uni::page::page(int w, int h, int s,
                 int x, int y, int d,
-                double _W, double _E, double _S, double _N) : d(d)
+                double _W, double _E, double _S, double _N) : d(d), a(0)
 {
     int t = s << d;
 
@@ -36,6 +38,40 @@ uni::page::page(int w, int h, int s,
     E = (_W + (_E - _W) * (x + t) / w);
     S = (_S + (_N - _S) * (y    ) / h);
     N = (_S + (_N - _S) * (y + t) / h);
+
+    // Compute the cap normal.
+
+    const double cW = std::max(W, -M_PI);
+    const double cE = std::min(E,  M_PI);
+    const double cS = std::max(S, -M_PI_2);
+    const double cN = std::min(N,  M_PI_2);
+
+    const double cH = (cW + cE) / 2;
+    const double cV = (cS + cN) / 2;
+
+    sphere_to_vector(n, cH, cV, 1.0);
+
+    // Compute the cap angle.
+
+    double v[3];
+
+    if (S < M_PI_2 && M_PI_2 < N)
+    {
+        sphere_to_vector(v, cW, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cE, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
+    }
+    else
+    {
+        sphere_to_vector(v, cW, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cW, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cE, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cE, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
+    }
+
+    if (x == 0 && y == 0)
+        printf("%d %f %f %f %f %f %f %f %f\n", d,
+               DEG(cW), DEG(cE), DEG(cS), DEG(cN),
+               n[0], n[1], n[2], DEG(a));
 
     // Create subpages as necessary.
 
@@ -64,48 +100,93 @@ uni::page::~page()
     if (P[0]) delete P[0];
 }
 
-void uni::page::draw(double r)
+bool uni::page::view(app::frustum_v& frusta, double r0, double r1)
 {
-    if (d == 0)
+    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+        if ((*i)->test_cap(n, a, r0, r1) >= 0)
+            return true;
+    
+    return false;
+}
+
+void uni::page::draw(app::frustum_v& frusta, double r0, double r1)
+{
+    if (d == 4 && view(frusta, r0, r1))
     {
-        const GLfloat c0[4] = { 1.0f, 1.0f, 0.0f, 0.5f };
-        const GLfloat c1[4] = { 1.0f, 1.0f, 0.0f, 0.0f };
+        count++;
 
-        double r0 = r;
-        double r1 = r + 10000.0;
+        double M[16];
 
-        double nw[3];
-        double sw[3];
-        double ne[3];
-        double se[3];
+        load_idt(M);
 
-        sphere_to_vector(nw, W, N, 1);
-        sphere_to_vector(sw, W, S, 1);
-        sphere_to_vector(ne, E, N, 1);
-        sphere_to_vector(se, E, S, 1);
+        M[8]  = n[0];
+        M[9]  = n[1];
+        M[10] = n[2];
 
-        glBegin(GL_QUAD_STRIP);
+        crossprod(M + 4, M + 8, M + 0);
+        normalize(M + 4);
+        crossprod(M + 0, M + 4, M + 8);
+        normalize(M + 0);
+
+        glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+
+        for (int c = 0; c < 128; ++c)
         {
-            glColor4fv(c0); glVertex3d(nw[0] * r0, nw[1] * r0, nw[2] * r0);
-            glColor4fv(c1); glVertex3d(nw[0] * r1, nw[1] * r1, nw[2] * r1);
+            glPushMatrix();
+            {
+                glMultMatrixd(M);
+                glRotated(360.0 * c / 128.0, 0.0, 0.0, 1.0);
+                glRotated(DEG(a),            1.0, 0.0, 0.0);
 
-            glColor4fv(c0); glVertex3d(sw[0] * r0, sw[1] * r0, sw[2] * r0);
-            glColor4fv(c1); glVertex3d(sw[0] * r1, sw[1] * r1, sw[2] * r1);
+                glBegin(GL_POINTS);
+                {
+                    glVertex3d(0.0, 0.0, r0);
+                }
+                glEnd();
+            }
+            glPopMatrix();
+        }
 
-            glColor4fv(c0); glVertex3d(se[0] * r0, se[1] * r0, se[2] * r0);
-            glColor4fv(c1); glVertex3d(se[0] * r1, se[1] * r1, se[2] * r1);
+        glBegin(GL_LINE_LOOP);
+        {
+            const double cW = std::max(W, -M_PI);
+            const double cE = std::min(E,  M_PI);
+            const double cS = std::max(S, -M_PI_2);
+            const double cN = std::min(N,  M_PI_2);
 
-            glColor4fv(c0); glVertex3d(ne[0] * r0, ne[1] * r0, ne[2] * r0);
-            glColor4fv(c1); glVertex3d(ne[0] * r1, ne[1] * r1, ne[2] * r1);
+            double v[3], k = 0.01;
+
+            for (double x = cW; x < cE; x += k)
+            {
+                sphere_to_vector(v, x, cS, r0);
+                glVertex3dv(v);
+            }
+            for (double x = cS; x < cN; x += k)
+            {
+                sphere_to_vector(v, cE, x, r0);
+                glVertex3dv(v);
+            }
+            for (double x = cE; x > cW; x -= k)
+            {
+                sphere_to_vector(v, x, cN, r0);
+                glVertex3dv(v);
+            }
+            for (double x = cN; x > cS; x -= k)
+            {
+                sphere_to_vector(v, cW, x, r0);
+                glVertex3dv(v);
+            }
         }
         glEnd();
     }
-    else
+
     {
-        if (P[0]) P[0]->draw(r);
-        if (P[1]) P[1]->draw(r);
-        if (P[2]) P[2]->draw(r);
-        if (P[3]) P[3]->draw(r);
+        if (P[0]) P[0]->draw(frusta, r0, r1);
+/*
+        if (P[1]) P[1]->draw(frusta, r0, r1);
+        if (P[2]) P[2]->draw(frusta, r0, r1);
+        if (P[3]) P[3]->draw(frusta, r0, r1);
+*/
     }
 }
 
@@ -155,9 +236,14 @@ uni::geomap::~geomap()
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::draw(double r)
+void uni::geomap::draw(app::frustum_v& frusta, double r0, double r1)
 {
-    if (P) P->draw(r);
+    count = 0;
+
+    if (P) P->draw(frusta, r0, r1);
+
+    printf("%d\n", count);
+
 /*
     index->bind(GL_TEXTURE1);
     cache->bind(GL_TEXTURE2);

@@ -739,6 +739,51 @@ int app::frustum::test_shell(const double *n0,
 
 //-----------------------------------------------------------------------------
 
+static int test_cap_plane(const double *n, double a,
+                          const double *P, double r0, double r1)
+{
+    // Short circuit a total miss of the sphere.
+
+    if (-P[3] > r1) return -1;
+    if ( P[3] > r1) return +1;
+
+    // An intersection has occurred so there's work to do.
+
+    double a0 = acos(-P[3] / r0);
+    double a1 = acos(-P[3] / r1);
+    double am = std::max(a0, a1);
+
+    double d = acos(DOT3(n, P));
+
+    if (d + a < am) return +1;
+    if (d - a > am) return -1;
+
+    return 0;
+}
+
+int app::frustum::test_cap(const double *n, double a,
+                                 double r0, double r1) const
+{
+/*
+    return test_cap_plane(n, a, view_planes[2], r0, r1);
+*/
+    int i, d, c = 0;
+
+    // Test the planes of this frustum.
+
+    for (i = view_count - 1; i >= 0; --i)
+        if ((d = test_cap_plane(n, a, view_planes[i], r0, r1)) < 0)
+            return -1;
+        else
+            c += d;
+
+    // If all planes pass fully, return short-circuiting pass.
+
+    return (c == view_count) ? 1 : 0;
+}
+
+//-----------------------------------------------------------------------------
+
 void app::frustum::pick(double *p, double *q, double x, double y) const
 {
     // Return the pick vector for (x, y) in the current user space.

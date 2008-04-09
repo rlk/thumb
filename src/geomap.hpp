@@ -14,6 +14,7 @@
 #define GEOMAP
 
 #include "texture.hpp"
+#include "frustum.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -32,6 +33,9 @@ namespace uni
         double S;
         double N;
 
+        double n[3];
+        double a;
+
         page *P[4];
 
     public:
@@ -39,7 +43,8 @@ namespace uni
         page(int, int, int, int, int, int, double, double, double, double);
        ~page();
 
-        void draw(double);
+        bool view(app::frustum_v&, double, double);
+        void draw(app::frustum_v&, double, double);
     };
 
     //-------------------------------------------------------------------------
@@ -63,7 +68,7 @@ namespace uni
         geomap(std::string, double, double);
        ~geomap();
 
-        void draw(double);
+        void draw(app::frustum_v&, double, double);
     };
 }
 
