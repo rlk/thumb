@@ -1,4 +1,32 @@
 
+For each map
+    Add the root page to the catalog
+    Compute its weight
+
+WHILE there's space left in the catalog
+    Find the worst page in the catalog
+    IF none was found
+        BREAK
+    ELSE
+        FOR each subdivision
+            IF the subdivision is visible AND there is cache space
+                Add it to the catalog
+                Compute its weight
+
+FOR each page in the catalog
+    IF the page is in the cache
+        Move it to the front of the LRU queue
+    ELSE
+        Request the page
+
+FOR each loaded page
+    Delete the LRU page from the cache and the LRU queue
+    Notify its map of the deletion
+    Insert the new page into the cache and the LRU queue
+    Notify its map of the insertion
+
+-------------------------------------------------------------------------------
+
 Note: if a parent map is visible then at least one of its children is visible.
     (this is not the case with patches)
 

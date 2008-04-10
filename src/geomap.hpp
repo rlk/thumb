@@ -35,6 +35,7 @@ namespace uni
 
         double n[3];
         double a;
+        double r;
 
         page *P[4];
 
@@ -45,6 +46,10 @@ namespace uni
 
         bool view(app::frustum_v&, double, double);
         void draw(app::frustum_v&, double, double);
+
+        int subd(app::frustum_v&, page **, int, int, double, double);
+
+        double angle(const double *, double);
     };
 
     //-------------------------------------------------------------------------
@@ -61,14 +66,23 @@ namespace uni
         double r0;
         double r1;
 
-        page *P;
+        page   *P;
+        page  **V;
+        double *K;
+        int     m;
+
+        const ogl::texture *index;
 
     public:
 
         geomap(std::string, double, double);
        ~geomap();
 
-        void draw(app::frustum_v&, double, double);
+        void insert_page(int, int, int, int, int);
+        void delete_page(int, int, int);
+
+        void wire(app::frustum_v&, const double *, double, double);
+        void draw();
     };
 }
 

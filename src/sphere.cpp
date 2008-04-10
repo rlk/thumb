@@ -576,14 +576,14 @@ void uni::sphere::draw(int i)
                 ren.cyl()->free();
 
                 // Draw the diffuse maps.
-/*
+
                 ren.dif()->init();
                 ren.dif()->bind();
                 {
                     color.draw();
                 }
                 ren.dif()->free();
-*/
+
 /*
                 glPushMatrix();
                 {
@@ -664,13 +664,14 @@ void uni::sphere::draw(int i)
                         glDisable(GL_TEXTURE_2D);
                         glDisable(GL_LIGHTING);
                         glDisable(GL_CULL_FACE);
-                        glDisable(GL_DEPTH_TEST);
+//                      glDisable(GL_DEPTH_TEST);
 
                         glEnable(GL_BLEND);
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+                        glLineWidth(2.0);
                         glDepthMask(0);
-                        color.draw(frusta, r0, r1);
+                        color.wire(frusta, vp, r0, r1);
                         glDepthMask(1);
                     }
                     glPopAttrib();

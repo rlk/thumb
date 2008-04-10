@@ -71,8 +71,10 @@ void main()
     vec4 D0 = texture2D(cache, q0);
     vec4 D1 = texture2D(cache, q1);
 
-    gl_FragColor = mix(D0, D1, ld);
+//  gl_FragColor = mix(D0, D1, ld);
 //  gl_FragColor = vec4(c, 0.0, 1.0);
+    gl_FragColor = vec4(mix(C0, C1, ld), 1.0);
+//  gl_FragColor = vec4(C1, 1.0);
 }
 
 //-----------------------------------------------------------------------------

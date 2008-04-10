@@ -17,7 +17,7 @@
 #include "matrix.hpp"
 #include "glob.hpp"
 
-static int count;
+//static int count;
 
 //-----------------------------------------------------------------------------
 
@@ -55,17 +55,17 @@ uni::page::page(int w, int h, int s,
 
     double v[3];
 
-    if (S < M_PI_2 && M_PI_2 < N)
+    if (cS < M_PI_2 && M_PI_2 < cN)
     {
-        sphere_to_vector(v, cW, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
-        sphere_to_vector(v, cE, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, W, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, E, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
     }
     else
     {
-        sphere_to_vector(v, cW, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
-        sphere_to_vector(v, cW, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
-        sphere_to_vector(v, cE, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
-        sphere_to_vector(v, cE, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, W, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, W, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, E, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, E, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
     }
 
     // Create subpages as necessary.
@@ -97,98 +97,150 @@ uni::page::~page()
 
 bool uni::page::view(app::frustum_v& frusta, double r0, double r1)
 {
+    // TODO: cache this result.
+
     for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
         if ((*i)->test_cap(n, a, r0, r1) >= 0)
-            return true;
+        {
+            if (d == 0) return true;
+
+            if (P[0] && P[0]->view(frusta, r0, r1)) return true;
+            if (P[1] && P[1]->view(frusta, r0, r1)) return true;
+            if (P[2] && P[2]->view(frusta, r0, r1)) return true;
+            if (P[3] && P[3]->view(frusta, r0, r1)) return true;
+
+            return false;
+        }
     
     return false;
 }
 
 void uni::page::draw(app::frustum_v& frusta, double r0, double r1)
 {
-    if (view(frusta, r0, r1))
+    double rr = r0 + 10000.0;
+
+    GLfloat color[8][3] = {
+        { 1.0f, 0.0f, 0.0f },
+        { 1.0f, 0.5f, 0.0f },
+        { 1.0f, 1.0f, 0.0f },
+        { 0.0f, 1.0f, 0.0f },
+        { 0.0f, 1.0f, 1.0f },
+        { 0.0f, 0.0f, 1.0f },
+        { 1.0f, 0.0f, 1.0f },
+        { 0.0f, 0.0f, 0.0f },
+    };
+
+    glColor3fv(color[d]);
+
+    // Draw the cap bound.
+
+    double M[16];
+
+    load_idt(M);
+
+    M[8]  = n[0];
+    M[9]  = n[1];
+    M[10] = n[2];
+
+    crossprod(M + 4, M + 8, M + 0);
+    normalize(M + 4);
+    crossprod(M + 0, M + 4, M + 8);
+    normalize(M + 0);
+
+    for (int c = 0; c < 128; ++c)
     {
-        count++;
-
-        double M[16];
-
-        load_idt(M);
-
-        M[8]  = n[0];
-        M[9]  = n[1];
-        M[10] = n[2];
-
-        crossprod(M + 4, M + 8, M + 0);
-        normalize(M + 4);
-        crossprod(M + 0, M + 4, M + 8);
-        normalize(M + 0);
-
-        glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
-
-        for (int c = 0; c < 128; ++c)
+        glPushMatrix();
         {
-            glPushMatrix();
-            {
-                glMultMatrixd(M);
-                glRotated(360.0 * c / 128.0, 0.0, 0.0, 1.0);
-                glRotated(DEG(a),            1.0, 0.0, 0.0);
+            glMultMatrixd(M);
+            glRotated(360.0 * c / 128.0, 0.0, 0.0, 1.0);
+            glRotated(DEG(a),            1.0, 0.0, 0.0);
 
-                glBegin(GL_POINTS);
-                {
-                    glVertex3d(0.0, 0.0, r0);
-                }
-                glEnd();
+            glBegin(GL_POINTS);
+            {
+                glVertex3d(0.0, 0.0, rr);
             }
-            glPopMatrix();
+            glEnd();
         }
-
-        glBegin(GL_LINE_LOOP);
-        {
-            const double cW = std::max(W, -M_PI);
-            const double cE = std::min(E,  M_PI);
-            const double cS = std::max(S, -M_PI_2);
-            const double cN = std::min(N,  M_PI_2);
-
-            double v[3], k = 0.01;
-
-            for (double x = cW; x < cE; x += k)
-            {
-                sphere_to_vector(v, x, cS, r0);
-                glVertex3dv(v);
-            }
-            for (double x = cS; x < cN; x += k)
-            {
-                sphere_to_vector(v, cE, x, r0);
-                glVertex3dv(v);
-            }
-            for (double x = cE; x > cW; x -= k)
-            {
-                sphere_to_vector(v, x, cN, r0);
-                glVertex3dv(v);
-            }
-            for (double x = cN; x > cS; x -= k)
-            {
-                sphere_to_vector(v, cW, x, r0);
-                glVertex3dv(v);
-            }
-        }
-        glEnd();
+        glPopMatrix();
     }
 
+    // Draw the border.
+
+    glBegin(GL_LINE_LOOP);
     {
-        if (P[0]) P[0]->draw(frusta, r0, r1);
-/*
-        if (P[1]) P[1]->draw(frusta, r0, r1);
-        if (P[2]) P[2]->draw(frusta, r0, r1);
-        if (P[3]) P[3]->draw(frusta, r0, r1);
-*/
+        const double cW = std::max(W, -M_PI);
+        const double cE = std::min(E,  M_PI);
+        const double cS = std::max(S, -M_PI_2);
+        const double cN = std::min(N,  M_PI_2);
+
+        double v[3], k = 0.01, o = 0.001;
+
+        for (double x = cW + o; x < cE - o; x += k)
+        {
+            sphere_to_vector(v, x, cS + o, rr);
+            glVertex3dv(v);
+        }
+        for (double x = cS + o; x < cN - o; x += k)
+        {
+            sphere_to_vector(v, cE - o, x, rr);
+            glVertex3dv(v);
+        }
+        for (double x = cE - o; x > cW + o; x -= k)
+        {
+            sphere_to_vector(v, x, cN - o, rr);
+            glVertex3dv(v);
+        }
+        for (double x = cN - o; x > cS + o; x -= k)
+        {
+            sphere_to_vector(v, cW + o, x, rr);
+            glVertex3dv(v);
+        }
     }
+    glEnd();
+}
+
+int uni::page::subd(app::frustum_v& frusta, page **V,
+                    int in, int im, double r0, double r1)
+{
+    // Append any visible subpatches to the given array.
+
+    if (in < im && P[0] && P[0]->view(frusta, r0, r1)) V[in++] = P[0];
+    if (in < im && P[1] && P[1]->view(frusta, r0, r1)) V[in++] = P[1];
+    if (in < im && P[2] && P[2]->view(frusta, r0, r1)) V[in++] = P[2];
+    if (in < im && P[3] && P[3]->view(frusta, r0, r1)) V[in++] = P[3];
+
+    return in;
+}
+
+double uni::page::angle(const double *v, double r)
+{
+    double d, R;
+
+    if (a > M_PI_2)
+    {
+        d = sqrt(DOT3(v, v));
+        R = r;
+    }
+    else
+    {
+        double p[3];
+
+        p[0] = n[0] * r - v[0];
+        p[1] = n[1] * r - v[1];
+        p[2] = n[2] * r - v[2];
+
+        d = sqrt(DOT3(p, p));
+        R = tan(a) * r;
+    }
+
+    return 2.0 * M_PI * (1.0 - cos(atan(R / d)));
 }
 
 //-----------------------------------------------------------------------------
 
 uni::geomap::geomap(std::string name, double r0, double r1) :
-    name(name), r0(r0), r1(r1), P(0)
+    name(name), r0(r0), r1(r1), P(0), V(0), K(0), m(32),
+    index(glob->load_texture("mipmap8.png", GL_NEAREST))
 {
     app::serial file(name.c_str());
     
@@ -221,30 +273,82 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
         // Generate the mipmap pyramid catalog.
 
         P = new page(w, h, s, 0, 0, d, W, E, S, N);
+
+        V = new  page*[m];
+        K = new double[m];
     }
 }
 
 uni::geomap::~geomap()
 {
-    if (P) delete P;
+    if (P) delete    P;
+    if (V) delete [] V;
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::draw(app::frustum_v& frusta, double r0, double r1)
+void uni::geomap::wire(app::frustum_v& frusta,
+                       const double *vp, double r0, double r1)
 {
-    count = 0;
+    memset(V, 0, m * sizeof (page *));
+    memset(K, 0, m * sizeof (double));
 
-    if (P) P->draw(frusta, r0, r1);
+    if (P)
+    {
+        int n = 1;
 
-    printf("%d\n", count);
+        // Seed the cache using the root of the page tree.
 
-/*
+        V[0] = P;
+        K[0] = P->angle(vp, r0);
+
+        // While there is still room in the cache...
+
+        while (n < m)
+        {
+            int j = 0;
+
+            // Find the worst page.
+
+            for (int i = 1; i < n; ++i)
+                printf("%4.2f ", K[i]);
+            printf("\n");
+
+            for (int i = 1; i < n; ++i)
+                if (K[i] > K[j]) j = i;
+
+            // If it exists...
+
+            if (K[j] > 0)
+            {
+                // Subdivide it.
+
+                int t = n;
+                K[j]  = 0;
+                n     = V[j]->subd(frusta, V, n, m, r0, r1);
+
+                // Compute the value of each new page.
+
+                for (; t < n; ++t)
+                    K[t] = V[t]->angle(vp, r0);
+            }
+            else break;
+        }
+
+        // Draw all pages.
+
+        printf("%d\n", n);
+
+        for (int i = 0; i < n; ++i)
+            V[i]->draw(frusta, r0, r1);
+    }
+}
+
+void uni::geomap::draw()
+{
     index->bind(GL_TEXTURE1);
-    cache->bind(GL_TEXTURE2);
     {
         ogl::program::current->uniform("index", 1);
-        ogl::program::current->uniform("cache", 2);
 
         ogl::program::current->uniform("data_size", 86400.0, 43200.0);
         ogl::program::current->uniform("page_size",   512.0,   512.0);
@@ -271,9 +375,7 @@ void uni::geomap::draw(app::frustum_v& frusta, double r0, double r1)
             glPopMatrix();
         }
     }
-    cache->free(GL_TEXTURE2);
     index->free(GL_TEXTURE1);
-*/
 }
 
 //-----------------------------------------------------------------------------

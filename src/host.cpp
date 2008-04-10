@@ -430,7 +430,9 @@ void app::host::root_loop()
 
         // Call the timer handler for each jiffy that has passed.
 
-        while (SDL_GetTicks() - tock >= JIFFY)
+        int tick = SDL_GetTicks();
+
+        while (tick - tock >= JIFFY)
         {
             tock += JIFFY;
             timer(JIFFY);

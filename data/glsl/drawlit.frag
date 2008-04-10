@@ -25,13 +25,14 @@ void main()
 
 //  gl_FragColor = vec4(D.rgb * min(d + a, 1.0), 1.0);
 //  gl_FragColor = vec4((n + 1.0) * 0.5, 1.0);
-//  gl_FragColor = vec4(D.rgb, 1.0);
+    gl_FragColor = vec4(D.rgb, 1.0);
 //  gl_FragColor = vec4(vec3(D.a), 1.0);
-
+/*
     const float pi = 3.14159265358979323846;
 
     const vec2 ck = vec2(0.5, 1.0) / pi;
     const vec2 cd = vec2(0.5, 0.5);
 
     gl_FragColor = vec4(C.xy * ck + cd, 0.0, 1.0);
+*/
 }
