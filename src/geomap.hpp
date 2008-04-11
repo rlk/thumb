@@ -47,7 +47,12 @@ namespace uni
         bool view(app::frustum_v&, double, double);
         void draw(app::frustum_v&, double, double);
 
-        int subd(app::frustum_v&, page **, int, int, double, double);
+        int get_d() const { return d; }
+        int get_i() const { return i; }
+        int get_j() const { return j; }
+
+//      int subd(app::frustum_v&, page **, int, int, double, double);
+        page *child(int i) { return P[i]; };
 
         double angle(const double *, double);
     };
@@ -57,7 +62,7 @@ namespace uni
 
     class geomap
     {
-        std::string name;
+        std::string pattern;
 
         int    c;
         int    b;
@@ -83,6 +88,10 @@ namespace uni
 
         void wire(app::frustum_v&, const double *, double, double);
         void draw();
+
+        std::string name(const page *);
+
+        page *root() { return P; }
     };
 }
 

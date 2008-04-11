@@ -29,11 +29,12 @@
 
 uni::sphere::sphere(uni::geodat& dat,
                     uni::georen& ren,
+                    uni::geocsh& cache,
                     uni::geomap& color,
                     uni::geomap& normal,
                     uni::geomap& height,
                     double r0,
-                    double r1, GLsizei cache) :
+                    double r1, GLsizei lines) :
 
     count(0),
 
@@ -45,17 +46,18 @@ uni::sphere::sphere(uni::geodat& dat,
     visible(false),
     dist(0),
 
-    cache(cache),
+    lines(lines),
 
     dat(dat),
-    tex(dat.depth(), cache),
-    nrm(dat.depth(), cache),
-    pos(dat.depth(), cache),
-    acc(dat.depth(), cache),
-    ext(dat.depth(), cache),
-    vtx(dat.depth(), cache),
+    tex(dat.depth(), lines),
+    nrm(dat.depth(), lines),
+    pos(dat.depth(), lines),
+    acc(dat.depth(), lines),
+    ext(dat.depth(), lines),
+    vtx(dat.depth(), lines),
     ren(ren),
 
+    cache(cache),
     color(color),
     normal(normal),
     height(height),
@@ -71,7 +73,7 @@ uni::sphere::sphere(uni::geodat& dat,
     land_out(glob->load_program("glsl/GroundFromSpace.vert",
                                 "glsl/GroundFromSpace.frag"))
 {
-    S = new spatch[cache];
+    S = new spatch[lines];
 
     // Set default configuration.
     
@@ -352,7 +354,7 @@ void uni::sphere::step()
                               vp, r0, 0);
         }
 
-        while (0 < count && count < cache)
+        while (0 < count && count < lines)
         {
             int i = 0;
 
@@ -360,7 +362,7 @@ void uni::sphere::step()
                 if (S[j].more(S + i))
                     i = j;
 
-            if (S[i].k < 0 || !S[i].subd(S, i, count, cache, r0, r1, frusta, vp))
+            if (S[i].k < 0 || !S[i].subd(S, i, count, lines, r0, r1, frusta, vp))
                 break;
         }
 
@@ -481,7 +483,7 @@ void uni::sphere::pass()
     GLsizei tc = dat.idx_len();
 
     for (int k = 0; k < count; ++k)
-        S[k].draw(S, k, cache, vc, tc);
+        S[k].draw(S, k, lines, vc, tc);
 }
 
 void uni::sphere::draw(int i)
@@ -575,15 +577,30 @@ void uni::sphere::draw(int i)
                 dat.idx()->free();
                 ren.cyl()->free();
 
-                // Draw the diffuse maps.
+                cache.init();
+                cache.seed(vp, r0, r1, color);
+                cache.proc(vp, r0, r1, frusta);
 
+                cache.bind(GL_TEXTURE2);
+                {
+                    ren.dif()->init();
+                    ren.dif()->bind();
+                    {
+                        color.draw();
+                    }
+                    ren.dif()->free();
+                }
+                cache.free(GL_TEXTURE2);
+
+                // Draw the diffuse maps.
+/*
                 ren.dif()->init();
                 ren.dif()->bind();
                 {
                     color.draw();
                 }
                 ren.dif()->free();
-
+*/
 /*
                 glPushMatrix();
                 {
@@ -654,7 +671,7 @@ void uni::sphere::draw(int i)
                 }
 
                 // Test draw the color geomap.
-
+/*
                 glPushMatrix();
                 {
                     glLoadMatrixd(M);
@@ -677,7 +694,7 @@ void uni::sphere::draw(int i)
                     glPopAttrib();
                 }
                 glPopMatrix();
-
+*/
                 // Draw wireframe as requested.
 
                 if (::prog->option(3))

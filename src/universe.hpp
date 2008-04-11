@@ -15,6 +15,7 @@
 
 #include "sphere.hpp"
 #include "geomap.hpp"
+#include "geocsh.hpp"
 #include "frustum.hpp"
 
 //-----------------------------------------------------------------------------
@@ -25,6 +26,7 @@ namespace uni
     {
         geodat *D;
         georen *R;
+        geocsh *cache;
         geomap *color;
         geomap *normal;
         geomap *height;

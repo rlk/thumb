@@ -55,7 +55,7 @@ uni::page::page(int w, int h, int s,
 
     double v[3];
 
-    if (cS < M_PI_2 && M_PI_2 < cN)
+    if (cS < 0 && 0 < cN)
     {
         sphere_to_vector(v, W, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
         sphere_to_vector(v, E, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
@@ -198,7 +198,7 @@ void uni::page::draw(app::frustum_v& frusta, double r0, double r1)
     }
     glEnd();
 }
-
+/*
 int uni::page::subd(app::frustum_v& frusta, page **V,
                     int in, int im, double r0, double r1)
 {
@@ -211,35 +211,46 @@ int uni::page::subd(app::frustum_v& frusta, page **V,
 
     return in;
 }
+*/
 
 double uni::page::angle(const double *v, double r)
 {
-    double d, R;
+    // Leaves return zero because they can't be subdivided anyway.
 
-    if (a > M_PI_2)
+    if (d > 0)
     {
-        d = sqrt(DOT3(v, v));
-        R = r;
+        double D, R;
+
+        // If a page covers most of the sphere, just use the sphere itself.
+
+        if (a > M_PI_2)
+        {
+            D = sqrt(DOT3(v, v));
+            R = r;
+        }
+        else
+        {
+            double p[3];
+
+            p[0] = n[0] * r - v[0];
+            p[1] = n[1] * r - v[1];
+            p[2] = n[2] * r - v[2];
+
+            D = sqrt(DOT3(p, p));
+            R = tan(a) * r;
+        }
+
+        // Compute the solid angle of the given radius and distance.
+
+        return 2.0 * M_PI * (1.0 - cos(atan(R / D)));
     }
-    else
-    {
-        double p[3];
-
-        p[0] = n[0] * r - v[0];
-        p[1] = n[1] * r - v[1];
-        p[2] = n[2] * r - v[2];
-
-        d = sqrt(DOT3(p, p));
-        R = tan(a) * r;
-    }
-
-    return 2.0 * M_PI * (1.0 - cos(atan(R / d)));
+    return 0.0;
 }
 
 //-----------------------------------------------------------------------------
 
 uni::geomap::geomap(std::string name, double r0, double r1) :
-    name(name), r0(r0), r1(r1), P(0), V(0), K(0), m(32),
+    r0(r0), r1(r1), P(0), V(0), K(0), m(32),
     index(glob->load_texture("mipmap8.png", GL_NEAREST))
 {
     app::serial file(name.c_str());
@@ -247,6 +258,8 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
     if (app::node map = app::find(file.get_head(), "map"))
     {
         // Load the map configuration from the file.
+
+        pattern = app::get_attr_s(map, "name");
 
         double W = app::get_attr_f(map, "W", -M_PI);
         double E = app::get_attr_f(map, "E",  M_PI);
@@ -290,6 +303,7 @@ uni::geomap::~geomap()
 void uni::geomap::wire(app::frustum_v& frusta,
                        const double *vp, double r0, double r1)
 {
+/*
     memset(V, 0, m * sizeof (page *));
     memset(K, 0, m * sizeof (double));
 
@@ -309,10 +323,6 @@ void uni::geomap::wire(app::frustum_v& frusta,
             int j = 0;
 
             // Find the worst page.
-
-            for (int i = 1; i < n; ++i)
-                printf("%4.2f ", K[i]);
-            printf("\n");
 
             for (int i = 1; i < n; ++i)
                 if (K[i] > K[j]) j = i;
@@ -337,11 +347,10 @@ void uni::geomap::wire(app::frustum_v& frusta,
 
         // Draw all pages.
 
-        printf("%d\n", n);
-
         for (int i = 0; i < n; ++i)
             V[i]->draw(frusta, r0, r1);
     }
+*/
 }
 
 void uni::geomap::draw()
@@ -349,6 +358,7 @@ void uni::geomap::draw()
     index->bind(GL_TEXTURE1);
     {
         ogl::program::current->uniform("index", 1);
+        ogl::program::current->uniform("cache", 2);
 
         ogl::program::current->uniform("data_size", 86400.0, 43200.0);
         ogl::program::current->uniform("page_size",   512.0,   512.0);
@@ -376,6 +386,17 @@ void uni::geomap::draw()
         }
     }
     index->free(GL_TEXTURE1);
+}
+
+std::string uni::geomap::name(const page *P)
+{
+    char str[256];
+
+    // Construct the file name.
+
+    sprintf(str, pattern.c_str(), P->get_d(), P->get_i(), P->get_j());
+
+    return std::string(str);
 }
 
 //-----------------------------------------------------------------------------

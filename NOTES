@@ -17,7 +17,8 @@ FOR each page in the catalog
     IF the page is in the cache
         Move it to the front of the LRU queue
     ELSE
-        Request the page
+        IF the page has not been requested
+            Request the page
 
 FOR each loaded page
     Delete the LRU page from the cache and the LRU queue

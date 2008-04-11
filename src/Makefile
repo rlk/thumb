@@ -24,6 +24,7 @@ OBJS=	serial.o \
         geogen.o \
         georen.o \
         geomap.o \
+        geocsh.o \
 	progset.o \
 	spatch.o \
 	sphere.o \

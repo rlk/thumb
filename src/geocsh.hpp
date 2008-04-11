@@ -13,31 +13,113 @@
 #ifndef GEOCSH
 #define GEOCSH
 
+#include <SDL.h>
+#include <SDL_thread.h>
+
+#include <list>
+#include <queue>
+
+#include "glob.hpp"
+#include "geomap.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace uni
 {
+    //-------------------------------------------------------------------------
+    // Loaded page queue
+
+    class loaded_queue
+    {
+        struct load;
+
+        std::queue<load> Q;
+
+        SDL_mutex *mutex;
+
+    public:
+
+        loaded_queue();
+       ~loaded_queue();
+
+        void enqueue(geomap *,  page *,  unsigned char *);
+        bool dequeue(geomap **, page **, unsigned char **);
+    };
+
+    //-------------------------------------------------------------------------
+    // Needed page queue
+
+    class needed_queue
+    {
+        struct need;
+
+        std::list<need> Q;
+
+        SDL_mutex *mutex;
+        SDL_sem   *sem;
+        bool       run;
+
+    public:
+
+        needed_queue();
+       ~needed_queue();
+
+        void enqueue(loaded_queue *,  geomap *,  page *);
+        bool dequeue(loaded_queue **, geomap **, page **);
+
+        void stop();
+    };
+
+    //-------------------------------------------------------------------------
+    // Geometry data cache
+
     class geocsh
     {
-        const ogl::texture *cache;
+        struct index_line
+        {
+            geomap *M;
+            page   *P;
+            double  k;
+        };
+        struct cache_line
+        {
+            geomap *M;
+            int     x;
+            int     y;
+        };
 
         int c;
         int b;
         int s;
         int w;
         int h;
+        int n;
+        int m;
+
+        index_line *index;
+        ogl::image *cache;
+
+        std::list<page *>             cache_lru;
+        std::map <page *, cache_line> cache_map;
+
+        needed_queue *need_Q;
+        loaded_queue *load_Q;
+        SDL_Thread   *loader;
 
     public:
 
-        geocsh();
+        geocsh(int, int, int, int, int);
        ~geocsh();
 
-        bool request(std::string&, int&, int&);
+        void init();
+        void seed(const double *, double, double, geomap&);
+        void proc(const double *, double, double, app::frustum_v&);
 
-        void bind();
-        void free();
+        void bind(GLenum unit) { cache->bind(unit); }
+        void free(GLenum unit) { cache->free(unit); }
     };
 }
 
 //-----------------------------------------------------------------------------
 
+#endif

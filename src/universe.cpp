@@ -45,28 +45,18 @@ uni::universe::universe()
     if (n_lod == 0) n_lod = DEFAULT_NORMAL_LOD;
     if (h_lod == 0) h_lod = DEFAULT_HEIGHT_LOD;
 
+    cache  = new geocsh(3, 1, 512, 8, 4);
     color  = new geomap("world.200408.xml", r0, r1);
     normal = 0;
     height = 0;
-
-/*
-    color  = new geomap(c_name.c_str(), 86400, 43200, 3, 1, 512, pow(2, c_lod),
-                        r0, r1, -PI, PI, -PI / 2, PI / 2);
-    normal = new geomap(n_name.c_str(), 86400, 43200, 3, 1, 512, pow(2, n_lod),
-                        r0, r1, -PI, PI, -PI / 2, PI / 2);
-    height = new geomap(h_name.c_str(), 86400, 43200, 1, 2, 512, pow(2, h_lod),
-                        r0, r1, -PI, PI, -PI / 2, PI / 2);
-*/
 
     // Configure the geometry generator and renderer.
 
     int patch_cache = ::conf->get_i("patch_cache");
     int patch_depth = ::conf->get_i("patch_depth");
 
-    if (patch_cache == 0)
-        patch_cache = DEFAULT_PATCH_CACHE;
-    if (patch_depth == 0)
-        patch_depth = DEFAULT_PATCH_DEPTH;
+    if (patch_cache == 0) patch_cache = DEFAULT_PATCH_CACHE;
+    if (patch_depth == 0) patch_depth = DEFAULT_PATCH_DEPTH;
 
     D = new geodat(patch_depth);
     R = new georen(::host->get_buffer_w(),
@@ -74,20 +64,17 @@ uni::universe::universe()
 
     // Create the earth.
 
-    S[0] = new sphere(*D, *R, *color, *normal, *height,
+    S[0] = new sphere(*D, *R, *cache, *color, *normal, *height,
                       r0, r1, patch_cache);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
 }
 
 uni::universe::~universe()
 {
-/*
-    delete S[2];
-    delete S[1];
-*/
     if (height) delete height;
     if (normal) delete normal;
     if (color)  delete color;
+    if (cache)  delete cache;
 
     delete S[0];
     delete R;

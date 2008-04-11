@@ -19,6 +19,7 @@
 #include "frustum.hpp"
 #include "geogen.hpp"
 #include "georen.hpp"
+#include "geocsh.hpp"
 #include "geomap.hpp"
 #include "spatch.hpp"
 #include "pool.hpp"
@@ -64,7 +65,7 @@ namespace uni
 
         // Cache size.
 
-        GLsizei cache;
+        GLsizei lines;
 
         // OpenGL state
 
@@ -77,6 +78,7 @@ namespace uni
         geovtx  vtx;
         georen& ren;
 
+        geocsh& cache;
         geomap& color;
         geomap& normal;
         geomap& height;
@@ -102,7 +104,7 @@ namespace uni
 
     public:
     
-        sphere(geodat&, georen&, geomap&, geomap&, geomap&,
+        sphere(geodat&, georen&, geocsh&, geomap&, geomap&, geomap&,
                double, double, GLsizei=DEFAULT_PATCH_CACHE);
        ~sphere();
 
