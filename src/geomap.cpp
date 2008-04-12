@@ -254,7 +254,7 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
 
         w = app::get_attr_d(map, "w", 1024);
         h = app::get_attr_d(map, "h", 512);
-        s = app::get_attr_d(map, "s", 512);
+        s = app::get_attr_d(map, "s", 510);
         c = app::get_attr_d(map, "c", 3);
         b = app::get_attr_d(map, "b", 1);
 
@@ -283,6 +283,17 @@ uni::geomap::~geomap()
 
 void uni::geomap::index_page(int d, int i, int j, const GLubyte *p)
 {
+    int dj = 256 >> d;
+    int di = 128 >> d;
+
+    j += 512 - dj * 2;
+    i += 256 - di * 2;
+
+    index->blit(p + 0, j,      i + di, 1, 1);
+    index->blit(p + 1, j,      i,      1, 1);
+    index->blit(p + 2, j + di, i,      1, 1);
+
+/*
     int di = 128;
     int dj = 256;
 
@@ -303,6 +314,7 @@ void uni::geomap::index_page(int d, int i, int j, const GLubyte *p)
         index->blit(p + 1, j,      i,      1, 1);
         index->blit(p + 2, j + di, i,      1, 1);
     }
+*/
 }
 
 void uni::geomap::cache_page(const page *Q, int x, int y)
@@ -315,7 +327,7 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
 
     p[0] = GLubyte(x);
     p[1] = GLubyte(y);
-    p[2] = GLubyte(d);
+    p[2] = 0xFF;
 
     index_page(d, i, j, p);
 }
@@ -332,6 +344,8 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
     p[1] = 0x00;
     p[2] = 0x00;
 
+    // This only needs to update the D pixel.
+
     index_page(d, i, j, p);
 }
 
@@ -345,7 +359,8 @@ void uni::geomap::draw()
         ogl::program::current->uniform("cache", 2);
 
         ogl::program::current->uniform("data_size", w, h);
-        ogl::program::current->uniform("page_size", s, s);
+        ogl::program::current->uniform("page_size", s + 2, s + 2);
+        ogl::program::current->uniform("tile_size", s, s);
 
         glMatrixMode(GL_PROJECTION);
         {

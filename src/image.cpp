@@ -36,11 +36,7 @@ void ogl::image::blit(const GLvoid *P, GLsizei X, GLsizei Y,
 {
     bind();
     {
-        if (0 <= X && X < w &&
-            0 <= Y && Y < h)
-            glTexSubImage2D(target, 0, X, Y, W, H, formext, type, P);
-        else
-            printf("*** %d %d %d %d\n", X, Y, w, h);
+        glTexSubImage2D(target, 0, X, Y, W, H, formext, type, P);
     }
     free();
 

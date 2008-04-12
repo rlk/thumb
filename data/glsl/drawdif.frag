@@ -7,6 +7,7 @@ uniform sampler2D     index;
 uniform sampler2D     cache;
 
 uniform vec2 data_size;
+uniform vec2 tile_size;
 uniform vec2 page_size;
 uniform vec2 pool_size;
 
@@ -16,9 +17,12 @@ float miplev(vec2 p)
 {
     const vec2 dpdx = dFdx(p);
     const vec2 dpdy = dFdy(p);
-
+/*
     float rho = length(vec2(length(dpdx),
                             length(dpdy)));
+*/
+    float rho = max(length(dpdx),
+                    length(dpdy));
 
     return clamp(log2(rho), 0.0, 7.0);
 }
@@ -50,33 +54,34 @@ void main()
 
     float ll = miplev(c * data_size);
     float l0 = floor(ll);
-    float l1 = ceil (ll);
+    float l1 = l0 + 1.0;
 
     float ld = ll - l0;
 
-    // Look up the two pages in the index.
-/*
-    vec3 C0 = mipref(c, l0);
-    vec3 C1 = mipref(c, l1);
-*/
     // Compute the cache coordinates for these pages.
 
-    vec2 p0 = (data_size * c) / (page_size * exp2(l0));
-    vec2 p1 = (data_size * c) / (page_size * exp2(l1));
+    vec2 p0 = (data_size * c) / (tile_size * exp2(l0));
+    vec2 p1 = (data_size * c) / (tile_size * exp2(l1));
 
-    vec3 C0 = mipref(floor(p0) / vec2(256.0, 128.0), l0) * 255.0;
-    vec3 C1 = mipref(floor(p1) / vec2(256.0, 128.0), l1) * 255.0;
+    // Look up the two pages in the index.
+
+    vec3 norm = vec3(255.0, 255.0, 1.0);
+
+    vec3 C0 = mipref((floor(p0) + 0.5) / vec2(256.0, 128.0), l0) * norm;
+    vec3 C1 = mipref((floor(p1) + 0.5) / vec2(256.0, 128.0), l1) * norm;
 
     vec2 q0 = (fract(p0) + C0.xy) * page_size / pool_size;
     vec2 q1 = (fract(p1) + C1.xy) * page_size / pool_size;
 
     // Reference the cache and write the color.
-
+/*
+    vec4 D0 = texture2D(cache, q0) * vec4(vec3(C0.z), 1.0);
+    vec4 D1 = texture2D(cache, q1) * vec4(vec3(C1.z), 1.0);
+*/
     vec4 D0 = texture2D(cache, q0);
     vec4 D1 = texture2D(cache, q1);
 
     gl_FragColor = mix(D0, D1, ld);
-//  gl_FragColor = D0;
 }
 
 //-----------------------------------------------------------------------------

@@ -72,7 +72,7 @@ static unsigned char *load_png(std::string name)
                     memcpy(p + i * w * c * b, bp[r], w * c * b);
         }
 
-        printf("%s %d %d %d %d\n", name.c_str(), w, h, b, c);
+//      printf("%s %d %d %d %d\n", name.c_str(), w, h, b, c);
     }
 
     // Release all resources.
@@ -282,9 +282,9 @@ static int loader_func(void *data)
 //=============================================================================
 
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
-    c(c), b(b), s(s), w(w), h(h), n(0), m(w * h), count(0),
+    c(c), b(b), s(s), S(s + 2), w(w), h(h), n(0), m(w * h), count(0),
     index(new index_line[m]),
-    cache(glob->new_image(w * s, h * s, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
+    cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
 {
     need_Q = new needed_queue();
     load_Q = new loaded_queue();
@@ -337,16 +337,8 @@ void uni::geocsh::proc_cache()
     page      *Q, *P;
     unsigned char *D;
 
-    while (load_Q->dequeue(&M, &P, &D))
+    while (load_Q->dequeue(&M, &P, &D) && D)
     {
-        // Make sure this page is still desired.  (Bench this.)
-/*
-        bool b = false;
-
-        for (int i = 0; i < n && !b; ++i)
-            if (index[i].P == P)
-                b = true;
-*/
         if (cache_map.find(P) == cache_map.end())
         {
             int x = count % w;
@@ -376,7 +368,7 @@ void uni::geocsh::proc_cache()
 
             M->cache_page(P, x, y);
 
-            cache->blit(D, x * s, y * s, s, s);
+            cache->blit(D, x * S, y * S, S, S);
             count++;
         }
 
@@ -457,7 +449,7 @@ void uni::geocsh::bind(GLenum unit) const
 {
     cache->bind(unit);
 
-    ogl::program::current->uniform("pool_size", w * s, h * s);
+    ogl::program::current->uniform("pool_size", w * S, h * S);
 }
 
 void uni::geocsh::free(GLenum unit) const

@@ -97,6 +97,7 @@ namespace uni
         int c;
         int b;
         int s;
+        int S;
         int w;
         int h;
         int n;
