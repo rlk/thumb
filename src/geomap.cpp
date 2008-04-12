@@ -198,20 +198,6 @@ void uni::page::draw(app::frustum_v& frusta, double r0, double r1)
     }
     glEnd();
 }
-/*
-int uni::page::subd(app::frustum_v& frusta, page **V,
-                    int in, int im, double r0, double r1)
-{
-    // Append any visible subpatches to the given array.
-
-    if (in < im && P[0] && P[0]->view(frusta, r0, r1)) V[in++] = P[0];
-    if (in < im && P[1] && P[1]->view(frusta, r0, r1)) V[in++] = P[1];
-    if (in < im && P[2] && P[2]->view(frusta, r0, r1)) V[in++] = P[2];
-    if (in < im && P[3] && P[3]->view(frusta, r0, r1)) V[in++] = P[3];
-
-    return in;
-}
-*/
 
 double uni::page::angle(const double *v, double r)
 {
@@ -250,8 +236,8 @@ double uni::page::angle(const double *v, double r)
 //-----------------------------------------------------------------------------
 
 uni::geomap::geomap(std::string name, double r0, double r1) :
-    r0(r0), r1(r1), P(0), V(0), K(0), m(32),
-    index(glob->load_texture("mipmap8.png", GL_NEAREST))
+    d(0), r0(r0), r1(r1), P(0),
+    index(glob->new_image(512, 256, GL_TEXTURE_2D, GL_LUMINANCE8, GL_LUMINANCE))
 {
     app::serial file(name.c_str());
     
@@ -266,9 +252,8 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
         double S = app::get_attr_f(map, "S", -M_PI_2);
         double N = app::get_attr_f(map, "N",  M_PI_2);
 
-        int w = app::get_attr_d(map, "w", 1024);
-        int h = app::get_attr_d(map, "h", 512);
-
+        w = app::get_attr_d(map, "w", 1024);
+        h = app::get_attr_d(map, "h", 512);
         s = app::get_attr_d(map, "s", 512);
         c = app::get_attr_d(map, "c", 3);
         b = app::get_attr_d(map, "b", 1);
@@ -286,72 +271,71 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
         // Generate the mipmap pyramid catalog.
 
         P = new page(w, h, s, 0, 0, d, W, E, S, N);
-
-        V = new  page*[m];
-        K = new double[m];
     }
 }
 
 uni::geomap::~geomap()
 {
-    if (P) delete    P;
-    if (V) delete [] V;
+    if (P) delete P;
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::wire(app::frustum_v& frusta,
-                       const double *vp, double r0, double r1)
+void uni::geomap::index_page(int d, int i, int j, const GLubyte *p)
 {
-/*
-    memset(V, 0, m * sizeof (page *));
-    memset(K, 0, m * sizeof (double));
+    int di = 128;
+    int dj = 256;
 
-    if (P)
+    if (d < 8)
     {
-        int n = 1;
-
-        // Seed the cache using the root of the page tree.
-
-        V[0] = P;
-        K[0] = P->angle(vp, r0);
-
-        // While there is still room in the cache...
-
-        while (n < m)
+        while (d > 0)
         {
-            int j = 0;
+            i += di;
+            j += dj;
 
-            // Find the worst page.
+            di /= 2;
+            dj /= 2;
 
-            for (int i = 1; i < n; ++i)
-                if (K[i] > K[j]) j = i;
-
-            // If it exists...
-
-            if (K[j] > 0)
-            {
-                // Subdivide it.
-
-                int t = n;
-                K[j]  = 0;
-                n     = V[j]->subd(frusta, V, n, m, r0, r1);
-
-                // Compute the value of each new page.
-
-                for (; t < n; ++t)
-                    K[t] = V[t]->angle(vp, r0);
-            }
-            else break;
+            d--;
         }
 
-        // Draw all pages.
-
-        for (int i = 0; i < n; ++i)
-            V[i]->draw(frusta, r0, r1);
+        index->blit(p + 0, j,      i + di, 1, 1);
+        index->blit(p + 1, j,      i,      1, 1);
+        index->blit(p + 2, j + di, i,      1, 1);
     }
-*/
 }
+
+void uni::geomap::cache_page(const page *Q, int x, int y)
+{
+    int d = Q->get_d();
+    int i = Q->get_i();
+    int j = Q->get_j();
+
+    GLubyte p[3];
+
+    p[0] = GLubyte(x);
+    p[1] = GLubyte(y);
+    p[2] = GLubyte(d);
+
+    index_page(d, i, j, p);
+}
+
+void uni::geomap::eject_page(const page *Q, int x, int y)
+{
+    int d = Q->get_d();
+    int i = Q->get_i();
+    int j = Q->get_j();
+
+    GLubyte p[3];
+
+    p[0] = 0x00;
+    p[1] = 0x00;
+    p[2] = 0x00;
+
+    index_page(d, i, j, p);
+}
+
+//-----------------------------------------------------------------------------
 
 void uni::geomap::draw()
 {
@@ -360,8 +344,8 @@ void uni::geomap::draw()
         ogl::program::current->uniform("index", 1);
         ogl::program::current->uniform("cache", 2);
 
-        ogl::program::current->uniform("data_size", 86400.0, 43200.0);
-        ogl::program::current->uniform("page_size",   512.0,   512.0);
+        ogl::program::current->uniform("data_size", w, h);
+        ogl::program::current->uniform("page_size", s, s);
 
         glMatrixMode(GL_PROJECTION);
         {

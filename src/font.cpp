@@ -80,7 +80,7 @@ app::text::text(int w, int h) :
     outer_h = next_power_of_2(inner_h);
 
     if (outer_w && outer_h)
-        data = ::glob->new_image(outer_w, outer_h, GL_TEXTURE_2D, GL_RGBA8);
+        data = ::glob->new_image(outer_w, outer_h);
 }
 
 app::text::~text()

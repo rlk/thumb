@@ -17,7 +17,6 @@
 #include <SDL_thread.h>
 
 #include <list>
-#include <queue>
 
 #include "glob.hpp"
 #include "geomap.hpp"
@@ -33,7 +32,7 @@ namespace uni
     {
         struct load;
 
-        std::queue<load> Q;
+        std::list<load> Q;
 
         SDL_mutex *mutex;
 
@@ -41,6 +40,8 @@ namespace uni
 
         loaded_queue();
        ~loaded_queue();
+
+        bool find(const page *);
 
         void enqueue(geomap *,  page *,  unsigned char *);
         bool dequeue(geomap **, page **, unsigned char **);
@@ -64,6 +65,8 @@ namespace uni
         needed_queue();
        ~needed_queue();
 
+        bool find(const page *);
+
         void enqueue(loaded_queue *,  geomap *,  page *);
         bool dequeue(loaded_queue **, geomap **, page **);
 
@@ -81,11 +84,14 @@ namespace uni
             page   *P;
             double  k;
         };
+
         struct cache_line
         {
             geomap *M;
             int     x;
             int     y;
+
+            cache_line(geomap *M=0, int x=0, int y=0) : M(M), x(x), y(y) { }
         };
 
         int c;
@@ -95,6 +101,7 @@ namespace uni
         int h;
         int n;
         int m;
+        int count;
 
         index_line *index;
         ogl::image *cache;
@@ -106,6 +113,9 @@ namespace uni
         loaded_queue *load_Q;
         SDL_Thread   *loader;
 
+        void proc_index(const double *, double, double, app::frustum_v&);
+        void proc_cache();
+
     public:
 
         geocsh(int, int, int, int, int);
@@ -115,8 +125,10 @@ namespace uni
         void seed(const double *, double, double, geomap&);
         void proc(const double *, double, double, app::frustum_v&);
 
-        void bind(GLenum unit) { cache->bind(unit); }
-        void free(GLenum unit) { cache->free(unit); }
+        void bind(GLenum) const;
+        void free(GLenum) const;
+
+        void draw() const;
     };
 }
 

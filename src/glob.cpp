@@ -270,9 +270,10 @@ void app::glob::free_pool(ogl::pool *p)
 
 //-----------------------------------------------------------------------------
 
-ogl::image *app::glob::new_image(GLsizei w, GLsizei h, GLenum t, GLenum f)
+ogl::image *app::glob::new_image(GLsizei w, GLsizei h, GLenum T,
+                                 GLenum fi, GLenum fe, GLenum t)
 {
-    ogl::image *p = new ogl::image(w, h, t, f);
+    ogl::image *p = new ogl::image(w, h, T, fi, fe, t);
 
     image_set.insert(p);
 

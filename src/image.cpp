@@ -15,8 +15,9 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::image::image(GLsizei w, GLsizei h, GLenum t, GLenum f) :
-    target(t), format(f), p(0), w(w), h(h)
+ogl::image::image(GLsizei w, GLsizei h,
+                  GLenum T, GLenum fi, GLenum fe, GLenum t) :
+    target(T), object(0), formint(fi), formext(fe), type(t), p(0), w(w), h(h)
 {
     init();
 }
@@ -25,17 +26,21 @@ ogl::image::~image()
 {
     fini();
 
-    if (p) delete [] p;
+//  if (p) delete [] p;
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::image::blit(const GLubyte *P, GLsizei X, GLsizei Y,
-                                        GLsizei W, GLsizei H)
+void ogl::image::blit(const GLvoid *P, GLsizei X, GLsizei Y,
+                                       GLsizei W, GLsizei H)
 {
     bind();
     {
-        glTexSubImage2D(target, 0, X, Y, W, H, GL_RGBA, GL_UNSIGNED_BYTE, P);
+        if (0 <= X && X < w &&
+            0 <= Y && Y < h)
+            glTexSubImage2D(target, 0, X, Y, W, H, formext, type, P);
+        else
+            printf("*** %d %d %d %d\n", X, Y, w, h);
     }
     free();
 
@@ -46,7 +51,7 @@ void ogl::image::zero()
 {
     bind();
     {
-        glTexImage2D(target, 0, format, w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+        glTexImage2D(target, 0, formint, w, h, 0, formext, type, 0);
     }
     free();
 
@@ -82,36 +87,42 @@ void ogl::image::init()
     glGenTextures(1,     &object);
     glBindTexture(target, object);
 
-    glTexImage2D(target, 0, format, w, h, 0,
-                 GL_RGBA, GL_UNSIGNED_BYTE, p);
+    glTexImage2D(target, 0, formint, w, h, 0, formext, type, p);
 
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+/*
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+*/
 
     // If we have a buffer, we must be reloading.  It's no longer needed.
-
+    /*
     if (p)
     {
         delete [] p;
         p = 0;
     }
+    */
 
     OGLCK();
 }
 
 void ogl::image::fini()
 {
+    /*
     // Allocate and store a copy of the image in main memory.
 
     p = new GLubyte[w * h * 4];
 
     bind();
     {
-        glGetTexImage(target, 0, GL_RGBA, GL_UNSIGNED_BYTE, p);
+        glGetTexImage(target, 0, formext, type, p);
     }
     free();
+    */
 
     // Delete the texture object.
 

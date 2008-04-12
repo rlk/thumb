@@ -13,8 +13,8 @@
 #ifndef GEOMAP
 #define GEOMAP
 
-#include "texture.hpp"
 #include "frustum.hpp"
+#include "image.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -51,8 +51,7 @@ namespace uni
         int get_i() const { return i; }
         int get_j() const { return j; }
 
-//      int subd(app::frustum_v&, page **, int, int, double, double);
-        page *child(int i) { return P[i]; };
+        page *child(int c) { return P[c]; }
 
         double angle(const double *, double);
     };
@@ -64,27 +63,27 @@ namespace uni
     {
         std::string pattern;
 
+        int    w;
+        int    h;
         int    c;
         int    b;
         int    s;
         int    d;
         double r0;
         double r1;
-
         page   *P;
-        page  **V;
-        double *K;
-        int     m;
 
-        const ogl::texture *index;
+        ogl::image *index;
+
+        void index_page(int, int, int, const GLubyte *);
 
     public:
 
         geomap(std::string, double, double);
        ~geomap();
 
-        void insert_page(int, int, int, int, int);
-        void delete_page(int, int, int);
+        void cache_page(const page *, int, int);
+        void eject_page(const page *, int, int);
 
         void wire(app::frustum_v&, const double *, double, double);
         void draw();

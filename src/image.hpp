@@ -22,19 +22,25 @@ namespace ogl
     class image
     {
         GLenum target;
-        GLenum format;
         GLuint object;
+        GLenum formint;
+        GLenum formext;
+        GLenum type;
 
-        GLubyte *p;
-        GLsizei  w;
-        GLsizei  h;
+        GLvoid *p;
+        GLsizei w;
+        GLsizei h;
 
     public:
 
-        image(GLsizei, GLsizei, GLenum=GL_TEXTURE_2D, GLenum=GL_RGBA8);
+        image(GLsizei, GLsizei,
+              GLenum=GL_TEXTURE_2D,
+              GLenum=GL_RGBA8,
+              GLenum=GL_RGBA,
+              GLenum=GL_UNSIGNED_BYTE);
        ~image();
 
-        void blit(const GLubyte *, GLsizei, GLsizei, GLsizei, GLsizei);
+        void blit(const GLvoid *, GLsizei, GLsizei, GLsizei, GLsizei);
         void zero();
 
         void bind(GLenum=GL_TEXTURE0) const;

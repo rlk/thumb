@@ -99,13 +99,13 @@ uni::sphere::sphere(uni::geodat& dat,
     atmo_pool->add_node(atmo_node);
     atmo_node->add_unit(atmo_unit);
 
-    double S[16];
+    double M[16];
     double I[16];
 
-    load_scl_mat(S, a1, a1, a1);
+    load_scl_mat(M, a1, a1, a1);
     load_scl_inv(I, a1, a1, a1);
 
-    atmo_unit->transform(S, I);
+    atmo_unit->transform(M, I);
 }
 
 uni::sphere::~sphere()
@@ -119,7 +119,7 @@ uni::sphere::~sphere()
     if (atmo_unit) delete atmo_unit;
     if (atmo_pool) delete atmo_pool;
 
-    delete S;
+    delete [] S;
 }
 
 void uni::sphere::move(double px, double py, double pz,
@@ -581,16 +581,16 @@ void uni::sphere::draw(int i)
                 cache.seed(vp, r0, r1, color);
                 cache.proc(vp, r0, r1, frusta);
 
-                cache.bind(GL_TEXTURE2);
+                ren.dif()->init();
+                ren.dif()->bind();
                 {
-                    ren.dif()->init();
-                    ren.dif()->bind();
+                    cache.bind(GL_TEXTURE2);
                     {
                         color.draw();
                     }
-                    ren.dif()->free();
+                    cache.free(GL_TEXTURE2);
                 }
-                cache.free(GL_TEXTURE2);
+                ren.dif()->free();
 
                 // Draw the diffuse maps.
 /*
@@ -647,11 +647,11 @@ void uni::sphere::draw(int i)
 
                 // Draw the illuminated geometry.
 
+                glClear(GL_DEPTH_BUFFER_BIT);
+                glEnable(GL_DEPTH_TEST);
+
                 if (!::prog->option(2))
                 {
-                    glClear(GL_DEPTH_BUFFER_BIT);
-                    glEnable(GL_DEPTH_TEST);
-
                     land_prog->bind();
                     {
                         land_prog->uniform("dif", 1);
@@ -669,6 +669,9 @@ void uni::sphere::draw(int i)
                     }
                     land_prog->free();
                 }
+
+                if (::prog->option(4))
+                    cache.draw();
 
                 // Test draw the color geomap.
 /*

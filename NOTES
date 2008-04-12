@@ -1,4 +1,21 @@
 
+Abstract hierarchical data structure:
+
+    arity
+    constraint function
+        eg: parents-of-leaves must be represented
+        eg: cousins must be within depth 1
+    set size
+    node weighting function
+
+iterate:
+    recompute the weights of all nodes
+    resolve for the optimal subset of the given size
+
+Constant storage, amortized constant update time
+
+-------------------------------------------------------------------------------
+
 For each map
     Add the root page to the catalog
     Compute its weight

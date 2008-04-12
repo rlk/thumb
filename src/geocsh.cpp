@@ -26,8 +26,6 @@ static unsigned char *load_png(std::string name)
     png_bytep    *bp = 0;
     FILE         *fp = 0;
 
-    std::cout << name << std::endl;
-
     // Initialize all PNG import data structures.
 
     if (!(fp = fopen(name.c_str(), "rb")))
@@ -73,6 +71,8 @@ static unsigned char *load_png(std::string name)
                 for (int i = 0, r = h - 1; i < h; ++i, --r)
                     memcpy(p + i * w * c * b, bp[r], w * c * b);
         }
+
+        printf("%s %d %d %d %d\n", name.c_str(), w, h, b, c);
     }
 
     // Release all resources.
@@ -106,12 +106,30 @@ uni::loaded_queue::~loaded_queue()
     if (mutex) SDL_DestroyMutex(mutex);
 }
 
+bool uni::loaded_queue::find(const page *P)
+{
+    bool b = false;
+
+    SDL_mutexP(mutex);
+    {
+        for (std::list<load>::iterator i = Q.begin(); i != Q.end(); ++i)
+            if (i->P == P)
+            {
+                b = true;
+                break;
+            }
+    }
+    SDL_mutexV(mutex);
+
+    return b;
+}
+
 void uni::loaded_queue::enqueue(geomap *M, page *P, unsigned char *D)
 {
     // Enqueue the request.
 
     SDL_mutexP(mutex);
-    Q.push(load(M, P, D));
+    Q.push_back(load(M, P, D));
     SDL_mutexV(mutex);
 }
 
@@ -122,17 +140,18 @@ bool uni::loaded_queue::dequeue(geomap **M, page **P, unsigned char **D)
     // If the queue is not empty, dequeue.
 
     SDL_mutexP(mutex);
-
-    if (!Q.empty())
     {
-        load L = Q.front(); Q.pop();
+        if (!Q.empty())
+        {
+            *M = Q.front().M;
+            *P = Q.front().P;
+            *D = Q.front().D;
 
-        *M = L.M;
-        *P = L.P;
-        *D = L.D;
-         b = true;
+            Q.pop_front();
+
+            b = true;
+        }
     }
-
     SDL_mutexV(mutex);
 
     return b;
@@ -163,14 +182,32 @@ uni::needed_queue::~needed_queue()
     if (mutex) SDL_DestroyMutex(mutex);
 }
 
+bool uni::needed_queue::find(const page *P)
+{
+    bool b = false;
+
+    SDL_mutexP(mutex);
+    {
+        for (std::list<need>::iterator i = Q.begin(); i != Q.end(); ++i)
+            if (i->P == P)
+            {
+                b = true;
+                break;
+            }
+    }
+    SDL_mutexV(mutex);
+
+    return b;
+}
+
 void uni::needed_queue::enqueue(loaded_queue *L, geomap *M, page *P)
 {
+    bool b = true;
+
     // Enqueue the request.
 
     SDL_mutexP(mutex);
     {
-        bool b = true;
-
         for (std::list<need>::iterator i = Q.begin(); i != Q.end(); ++i)
             if (i->P == P) b = false;
 
@@ -180,7 +217,7 @@ void uni::needed_queue::enqueue(loaded_queue *L, geomap *M, page *P)
 
     // Signal the consumer.
 
-    SDL_SemPost(sem);
+    if (b) SDL_SemPost(sem);
 }
 
 bool uni::needed_queue::dequeue(loaded_queue **L, geomap **M, page **P)
@@ -194,12 +231,15 @@ bool uni::needed_queue::dequeue(loaded_queue **L, geomap **M, page **P)
     // Dequeue the request.
 
     SDL_mutexP(mutex);
-    if ((b = run))
     {
-        *L = Q.front().L;
-        *M = Q.front().M;
-        *P = Q.front().P;
-        Q.pop_front();
+        if ((b = run))
+        {
+            *L = Q.front().L;
+            *M = Q.front().M;
+            *P = Q.front().P;
+
+            Q.pop_front();
+        }
     }
     SDL_mutexV(mutex);
 
@@ -242,8 +282,9 @@ static int loader_func(void *data)
 //=============================================================================
 
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
-    c(c), b(b), s(s), w(w), h(h), n(0), m(w * h), index(new index_line[m]),
-    cache(glob->new_image(w * s, h * s, GL_TEXTURE_2D, GL_RGB))
+    c(c), b(b), s(s), w(w), h(h), n(0), m(w * h), count(0),
+    index(new index_line[m]),
+    cache(glob->new_image(w * s, h * s, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
 {
     need_Q = new needed_queue();
     load_Q = new loaded_queue();
@@ -286,21 +327,69 @@ void uni::geocsh::seed(const double *vp, double r0, double r1, geomap& map)
     n++;
 }
 
-void uni::geocsh::proc(const double *vp,
-                       double r0, double r1, app::frustum_v& frusta)
+//-----------------------------------------------------------------------------
+
+void uni::geocsh::proc_cache()
 {
     // Pop each of the incoming pages from the loader queue.
 
-    geomap        *M;
-    page          *P;
+    geomap    *N, *M;
+    page      *Q, *P;
     unsigned char *D;
 
     while (load_Q->dequeue(&M, &P, &D))
     {
-        if (D) ::free(D);
-    }
+        // Make sure this page is still desired.  (Bench this.)
+/*
+        bool b = false;
 
-    // While there is still room in the cache...
+        for (int i = 0; i < n && !b; ++i)
+            if (index[i].P == P)
+                b = true;
+*/
+        if (cache_map.find(P) == cache_map.end())
+        {
+            int x = count % w;
+            int y = count / w;
+
+            // If the cache is full, delete the LRU page.
+
+            if (count == m)
+            {
+                Q = cache_lru.front();
+                cache_lru.pop_front();
+
+                N = cache_map[Q].M;
+                x = cache_map[Q].x;
+                y = cache_map[Q].y;
+
+                N->eject_page(Q, x, y);
+                cache_map.erase(Q);
+
+                count--;
+            }
+
+            // Insert the new page.
+
+            cache_map[P] = cache_line(M, x, y);
+            cache_lru.push_back(P);
+
+            M->cache_page(P, x, y);
+
+            cache->blit(D, x * s, y * s, s, s);
+            count++;
+        }
+
+        // Release the image buffer.
+
+        ::free(D);
+    }
+}
+
+void uni::geocsh::proc_index(const double *vp,
+                             double r0, double r1, app::frustum_v& frusta)
+{
+    // While there is still room in the index...
 
     while (n < m)
     {
@@ -334,7 +423,7 @@ void uni::geocsh::proc(const double *vp,
         else break;
     }
 
-    // Check if each desired page is already in the cache.
+    // Check if each indexed page is already in the cache.
 
     for (int i = 0; i < n; ++i)
 
@@ -342,7 +431,9 @@ void uni::geocsh::proc(const double *vp,
         {
             // It is not.  Request it.
 
-            need_Q->enqueue(load_Q, index[i].M, index[i].P);
+            if (!need_Q->find(index[i].P) &&
+                !load_Q->find(index[i].P))
+                need_Q->enqueue(load_Q, index[i].M, index[i].P);
         }
         else
         {
@@ -351,6 +442,81 @@ void uni::geocsh::proc(const double *vp,
             cache_lru.remove   (index[i].P);
             cache_lru.push_back(index[i].P);
         }
+}
+
+void uni::geocsh::proc(const double *vp,
+                       double r0, double r1, app::frustum_v& frusta)
+{
+    proc_index(vp, r0, r1, frusta);
+    proc_cache();
+}
+
+//-----------------------------------------------------------------------------
+
+void uni::geocsh::bind(GLenum unit) const
+{
+    cache->bind(unit);
+
+    ogl::program::current->uniform("pool_size", w * s, h * s);
+}
+
+void uni::geocsh::free(GLenum unit) const
+{
+    cache->free(unit);
+}
+
+void uni::geocsh::draw() const
+{
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_LIGHTING);
+        glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+
+        cache->bind(GL_TEXTURE0);
+        {
+            glMatrixMode(GL_PROJECTION);
+            {
+                glPushMatrix();
+                glLoadIdentity();
+            }
+            glMatrixMode(GL_TEXTURE);
+            {
+                glPushMatrix();
+                glLoadIdentity();
+            } 
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glPushMatrix();
+                glLoadIdentity();
+            }
+
+            glBegin(GL_QUADS);
+            {
+                glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
+                glTexCoord2f(1.0f, 0.0f); glVertex2f(+0.0f, -1.0f);
+                glTexCoord2f(1.0f, 1.0f); glVertex2f(+0.0f, +0.0f);
+                glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, +0.0f);
+            }
+            glEnd();
+
+            glMatrixMode(GL_PROJECTION);
+            {
+                glPopMatrix();
+            }
+            glMatrixMode(GL_TEXTURE);
+            {
+                glPopMatrix();
+            }
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glPopMatrix();
+            }
+        }
+        cache->free(GL_TEXTURE0);
+    }
+    glPopAttrib();
 }
 
 //-----------------------------------------------------------------------------
