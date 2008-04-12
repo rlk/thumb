@@ -291,7 +291,7 @@ void uni::geomap::index_page(int d, int i, int j, const GLubyte *p)
 
     index->blit(p + 0, j,      i + di, 1, 1);
     index->blit(p + 1, j,      i,      1, 1);
-    index->blit(p + 2, j + di, i,      1, 1);
+    index->blit(p + 2, j + dj, i,      1, 1);
 
 /*
     int di = 128;

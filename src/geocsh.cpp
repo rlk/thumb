@@ -65,6 +65,9 @@ static unsigned char *load_png(std::string name)
 
         // Allocate a buffer and copy the pixel data to it.
 
+        // TODO: consider inverting the pngs to make this unnecessary.
+        // TODO: consider byte order interleaving for optimal upload.
+
         if ((p = (unsigned char *) malloc(w * h * c * b)))
         {
             if ((bp = png_get_rows(rp, ip)))

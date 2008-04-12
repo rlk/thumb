@@ -63,25 +63,29 @@ void main()
     vec2 p0 = (data_size * c) / (tile_size * exp2(l0));
     vec2 p1 = (data_size * c) / (tile_size * exp2(l1));
 
+    vec2 s0 = vec2(256.0, 128.0) / exp2(l0);
+    vec2 s1 = vec2(256.0, 128.0) / exp2(l1);
+
     // Look up the two pages in the index.
 
     vec3 norm = vec3(255.0, 255.0, 1.0);
 
-    vec3 C0 = mipref((floor(p0) + 0.5) / vec2(256.0, 128.0), l0) * norm;
-    vec3 C1 = mipref((floor(p1) + 0.5) / vec2(256.0, 128.0), l1) * norm;
+    vec3 C0 = mipref(p0 / s0, l0);
+    vec3 C1 = mipref(p1 / s1, l1);
 
-    vec2 q0 = (fract(p0) + C0.xy) * page_size / pool_size;
-    vec2 q1 = (fract(p1) + C1.xy) * page_size / pool_size;
+    vec2 q0 = (fract(p0) + C0.xy * 255.0) * page_size / pool_size;
+    vec2 q1 = (fract(p1) + C1.xy * 255.0) * page_size / pool_size;
 
     // Reference the cache and write the color.
 /*
     vec4 D0 = texture2D(cache, q0) * vec4(vec3(C0.z), 1.0);
     vec4 D1 = texture2D(cache, q1) * vec4(vec3(C1.z), 1.0);
 */
-    vec4 D0 = texture2D(cache, q0);
-    vec4 D1 = texture2D(cache, q1);
+    vec4 D0 = texture2D(cache, q0) * C0.z;
+    vec4 D1 = texture2D(cache, q1) * C1.z;
 
     gl_FragColor = mix(D0, D1, ld);
+//  gl_FragColor = vec4(C0 * vec3(32.0, 64.0, 1.0), 1.0);
 }
 
 //-----------------------------------------------------------------------------
