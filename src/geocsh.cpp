@@ -18,83 +18,111 @@
 
 //=============================================================================
 
-static unsigned char *load_png(std::string name)
+bool load_png(png_bytepp bp, std::string name)
 {
-    unsigned char *p = 0;
-    png_structp   rp = 0;
-    png_infop     ip = 0;
-    png_bytep    *bp = 0;
-    FILE         *fp = 0;
+    png_structp rp = 0;
+    png_infop   ip = 0;
+    FILE       *fp = 0;
+
+    bool rr = false;
 
     // Initialize all PNG import data structures.
 
-    if (!(fp = fopen(name.c_str(), "rb")))
-        return 0;
-
-    if (!(rp = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0)))
-        return 0;
-
-    if (!(ip = png_create_info_struct(rp)))
-        return 0;
-
-    // Enable the default PNG error handler.
-
-    if (setjmp(png_jmpbuf(rp)) == 0)
+    if ((fp = fopen(name.c_str(), "rb")))
     {
-        // Read the PNG header.
-
-        png_init_io (rp, fp);
-        png_read_png(rp, ip, PNG_TRANSFORM_PACKING |
-                             PNG_TRANSFORM_SWAP_ENDIAN, 0);
-        
-        // Extract image properties.
-
-        GLsizei w = GLsizei(png_get_image_width (rp, ip));
-        GLsizei h = GLsizei(png_get_image_height(rp, ip));
-        GLsizei b = GLsizei(png_get_bit_depth   (rp, ip)) / 8;
-        GLsizei c = 1;
-
-        switch (png_get_color_type(rp, ip))
+        if ((rp = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0)))
         {
-        case PNG_COLOR_TYPE_GRAY:       c = 1; break;
-        case PNG_COLOR_TYPE_GRAY_ALPHA: c = 2; break;
-        case PNG_COLOR_TYPE_RGB:        c = 3; break;
-        case PNG_COLOR_TYPE_RGB_ALPHA:  c = 4; break;
-        default: throw std::runtime_error("Unsupported PNG color type");
+            if ((ip = png_create_info_struct(rp)))
+            {
+                // Enable the default PNG error handler.
+
+                if (setjmp(png_jmpbuf(rp)) == 0)
+                {
+                    // Read the PNG.
+
+                    png_init_io   (rp, fp);
+                    png_read_info (rp, ip);
+                    png_read_image(rp, bp);
+
+                    rr = true;
+                }
+
+                png_destroy_read_struct(&rp, &ip, 0);
+            }
         }
-
-        // Allocate a buffer and copy the pixel data to it.
-
-        // TODO: consider inverting the pngs to make this unnecessary.
-        // TODO: consider byte order interleaving for optimal upload.
-
-        if ((p = (unsigned char *) malloc(w * h * c * b)))
-        {
-            if ((bp = png_get_rows(rp, ip)))
-                for (int i = 0, r = h - 1; i < h; ++i, --r)
-                    memcpy(p + i * w * c * b, bp[r], w * c * b);
-        }
-
-//      printf("%s %d %d %d %d\n", name.c_str(), w, h, b, c);
+        fclose(fp);
     }
+    return rr;
+}
 
-    // Release all resources.
+//=============================================================================
 
-    png_destroy_read_struct(&rp, &ip, 0);
-    fclose(fp);
+uni::buffer_pool::buffer_pool(int w, int h, int c, int b) :
+    w(w), h(h), c(c), b(b)
+{
+    mutex = SDL_CreateMutex();
+}
 
-    return p;
+uni::buffer_pool::~buffer_pool()
+{
+    if (mutex) SDL_DestroyMutex(mutex);
+
+    // Free all buffers.
+
+    while (!avail.empty())
+    {
+        if (avail.front().rp) free(avail.front().rp);
+        if (avail.front().pp) free(avail.front().pp);
+        
+        avail.pop_front();
+    }
+}
+
+uni::buffer_pool::buff uni::buffer_pool::get()
+{
+    buff B;
+
+    SDL_mutexP(mutex);
+    {
+        if (avail.empty())
+        {
+            // No buffers available.  Allocate and initialize a new one.
+
+            B.pp = (GLubyte   *) malloc(h * w * c * b);
+            B.rp = (png_bytep *) malloc(h * sizeof (png_bytep));
+
+            for (int i = 0; i < h; ++i)
+                B.rp[h - i - 1] = B.pp + i * w * c * b;
+        }
+        else
+        {
+            // Buffers are available.  Return one.
+
+            B = avail.front();
+            avail.pop_front();
+        }
+    }
+    SDL_mutexV(mutex);
+
+    return B;
+}
+
+void uni::buffer_pool::put(buff B)
+{
+    // Add the given buffer to the available list.
+
+    avail.push_front(B);
 }
 
 //=============================================================================
 
 struct uni::loaded_queue::load
 {
-    geomap        *M;
-    page          *P;
-    unsigned char *D;
+    geomap           *M;
+    page             *P;
+    buffer_pool::buff b;
 
-    load(geomap *M, page *P, unsigned char *D) : M(M), P(P), D(D) { }
+    load(geomap *M, page *P, buffer_pool::buff b) : M(M), P(P), b(b) { }
 };
 
 //-----------------------------------------------------------------------------
@@ -127,18 +155,18 @@ bool uni::loaded_queue::find(const page *P)
     return b;
 }
 
-void uni::loaded_queue::enqueue(geomap *M, page *P, unsigned char *D)
+void uni::loaded_queue::enqueue(geomap *M, page *P, buffer_pool::buff b)
 {
     // Enqueue the request.
 
     SDL_mutexP(mutex);
-    Q.push_back(load(M, P, D));
+    Q.push_back(load(M, P, b));
     SDL_mutexV(mutex);
 }
 
-bool uni::loaded_queue::dequeue(geomap **M, page **P, unsigned char **D)
+bool uni::loaded_queue::dequeue(geomap **M, page **P, buffer_pool::buff *b)
 {
-    bool b = false;
+    bool rr = false;
 
     // If the queue is not empty, dequeue.
 
@@ -148,27 +176,26 @@ bool uni::loaded_queue::dequeue(geomap **M, page **P, unsigned char **D)
         {
             *M = Q.front().M;
             *P = Q.front().P;
-            *D = Q.front().D;
+            *b = Q.front().b;
 
             Q.pop_front();
 
-            b = true;
+            rr = true;
         }
     }
     SDL_mutexV(mutex);
 
-    return b;
+    return rr;
 }
 
 //=============================================================================
 
 struct uni::needed_queue::need
 {
-    loaded_queue *L;
-    geomap       *M;
-    page         *P;
+    geomap *M;
+    page   *P;
 
-    need(loaded_queue *L, geomap *M, page *P) : L(L), M(M), P(P) { }
+    need(geomap *M, page *P) : M(M), P(P) { }
 };
 
 //-----------------------------------------------------------------------------
@@ -203,27 +230,22 @@ bool uni::needed_queue::find(const page *P)
     return b;
 }
 
-void uni::needed_queue::enqueue(loaded_queue *L, geomap *M, page *P)
+void uni::needed_queue::enqueue(geomap *M, page *P)
 {
-    bool b = true;
-
     // Enqueue the request.
 
     SDL_mutexP(mutex);
     {
-        for (std::list<need>::iterator i = Q.begin(); i != Q.end(); ++i)
-            if (i->P == P) b = false;
-
-        if (b) Q.push_back(need(L, M, P));
+        Q.push_back(need(M, P));
     }
     SDL_mutexV(mutex);
 
     // Signal the consumer.
 
-    if (b) SDL_SemPost(sem);
+    SDL_SemPost(sem);
 }
 
-bool uni::needed_queue::dequeue(loaded_queue **L, geomap **M, page **P)
+bool uni::needed_queue::dequeue(geomap **M, page **P)
 {
     bool b;
 
@@ -237,7 +259,6 @@ bool uni::needed_queue::dequeue(loaded_queue **L, geomap **M, page **P)
     {
         if ((b = run))
         {
-            *L = Q.front().L;
             *M = Q.front().M;
             *P = Q.front().P;
 
@@ -262,37 +283,51 @@ void uni::needed_queue::stop()
     SDL_SemPost(sem);
 }
 
+//=============================================================================
+
+struct loader_args
+{
+    uni::buffer_pool  *B;
+    uni::needed_queue *N;
+    uni::loaded_queue *L;
+};
+
 static int loader_func(void *data)
 {
-    uni::needed_queue *N = (uni::needed_queue *) data;
-    uni::loaded_queue *L = 0;
-    uni::geomap       *M = 0;
-    uni::page         *P = 0;
+    struct loader_args *args = (struct loader_args *) data;
+
+    uni::geomap *M = 0;
+    uni::page   *P = 0;
 
     // Dequeue the next request.
 
-    while (N->dequeue(&L, &M, &P))
+    while (args->N->dequeue(&M, &P))
     {
         // Load and enqueue the page.
 
-        if (L && M && P)
-            L->enqueue(M, P, load_png(M->name(P)));
+        uni::buffer_pool::buff b = args->B->get();
+
+        if (load_png(b.rp, M->name(P)))
+            args->L->enqueue(M, P, b);
+
+        // Else mark the page as dead.
     }
 
     return 0;
 }
-
-//=============================================================================
 
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     c(c), b(b), s(s), S(s + 2), w(w), h(h), n(0), m(w * h), count(0),
     index(new index_line[m]),
     cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
 {
-    need_Q = new needed_queue();
-    load_Q = new loaded_queue();
+    loader_args *args = new loader_args;
 
-    loader = SDL_CreateThread(loader_func, (void *) need_Q);
+    args->B = balloc = new buffer_pool(S, S, c, b);
+    args->N = need_Q = new needed_queue();
+    args->L = load_Q = new loaded_queue();
+
+    loader = SDL_CreateThread(loader_func, (void *) args);
 }
 
 uni::geocsh::~geocsh()
@@ -303,6 +338,7 @@ uni::geocsh::~geocsh()
 
     if (need_Q) delete need_Q;
     if (load_Q) delete load_Q;
+    if (balloc) delete balloc;
 
     if (index) delete [] index;
 
@@ -336,11 +372,12 @@ void uni::geocsh::proc_cache()
 {
     // Pop each of the incoming pages from the loader queue.
 
-    geomap    *N, *M;
-    page      *Q, *P;
-    unsigned char *D;
+    geomap *N, *M;
+    page   *Q, *P;
 
-    while (load_Q->dequeue(&M, &P, &D) && D)
+    buffer_pool::buff b;
+
+    while (load_Q->dequeue(&M, &P, &b))
     {
         if (cache_map.find(P) == cache_map.end())
         {
@@ -371,13 +408,13 @@ void uni::geocsh::proc_cache()
 
             M->cache_page(P, x, y);
 
-            cache->blit(D, x * S, y * S, S, S);
+            cache->blit(b.pp, x * S, y * S, S, S);
             count++;
         }
 
         // Release the image buffer.
 
-        ::free(D);
+        balloc->put(b);
     }
 }
 
@@ -428,7 +465,7 @@ void uni::geocsh::proc_index(const double *vp,
 
             if (!need_Q->find(index[i].P) &&
                 !load_Q->find(index[i].P))
-                need_Q->enqueue(load_Q, index[i].M, index[i].P);
+                need_Q->enqueue(index[i].M, index[i].P);
         }
         else
         {

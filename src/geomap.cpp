@@ -272,10 +272,14 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
 
         P = new page(w, h, s, 0, 0, d, W, E, S, N);
     }
+
+    image = new GLubyte[512 * 256];
 }
 
 uni::geomap::~geomap()
 {
+    if (image) delete [] image;
+
     if (P) delete P;
 }
 
@@ -283,38 +287,18 @@ uni::geomap::~geomap()
 
 void uni::geomap::index_page(int d, int i, int j, const GLubyte *p)
 {
-    int dj = 256 >> d;
-    int di = 128 >> d;
-
-    j += 512 - dj * 2;
-    i += 256 - di * 2;
-
-    index->blit(p + 0, j,      i + di, 1, 1);
-    index->blit(p + 1, j,      i,      1, 1);
-    index->blit(p + 2, j + dj, i,      1, 1);
-
-/*
-    int di = 128;
-    int dj = 256;
-
     if (d < 8)
     {
-        while (d > 0)
-        {
-            i += di;
-            j += dj;
+        int dj = 256 >> d;
+        int di = 128 >> d;
 
-            di /= 2;
-            dj /= 2;
-
-            d--;
-        }
+        j += 512 - dj * 2;
+        i += 256 - di * 2;
 
         index->blit(p + 0, j,      i + di, 1, 1);
         index->blit(p + 1, j,      i,      1, 1);
-        index->blit(p + 2, j + di, i,      1, 1);
+        index->blit(p + 2, j + dj, i,      1, 1);
     }
-*/
 }
 
 void uni::geomap::cache_page(const page *Q, int x, int y)

@@ -69,6 +69,7 @@ namespace app
 
         int  tock;
         int  mode;
+        bool bench;
 
         bool calibrate_state;
         int  calibrate_index;

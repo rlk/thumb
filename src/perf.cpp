@@ -77,7 +77,7 @@ app::perf::~perf()
 
 //-----------------------------------------------------------------------------
 
-void app::perf::step()
+void app::perf::step(bool log)
 {
     if (val && avg)
     {
@@ -95,11 +95,11 @@ void app::perf::step()
 
         // Dump averages.
 
-        if (tot++ == lim) dump();
+        if (tot++ == lim) dump(log);
     }
 }
 
-void app::perf::dump()
+void app::perf::dump(bool log)
 {
     if (num) std::cout << std::endl;
 
@@ -149,7 +149,7 @@ app::perf::~perf()
 {
 }
 
-void app::perf::step()
+void app::perf::step(bool log)
 {
     int dt = int(SDL_GetTicks()) - last;
 
@@ -157,10 +157,10 @@ void app::perf::step()
     ticks  += dt;
     last   += dt;
 
-    if (frames == limit) dump();
+    if (frames == limit) dump(log);
 }
 
-void app::perf::dump()
+void app::perf::dump(bool log)
 {
     int   fps = int(ceil(1000.0 * frames / ticks));
     double ms = double(ticks) / double(frames);
@@ -174,6 +174,8 @@ void app::perf::dump()
                       str.str().c_str());
     frames = 0;
     ticks  = 0;
+
+    if (log) std::cout << ms << std::endl;
 }
 
 #endif // not NVPM ============================================================

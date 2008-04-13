@@ -1,3 +1,8 @@
+-------------------------------------------------------------------------------
+
+Mark unfound PNGs in the page.  This will improve cache optimization.
+
+-------------------------------------------------------------------------------
 
 test/norm mode should NOT be a view attribute
 

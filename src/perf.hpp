@@ -47,8 +47,8 @@ namespace app
         perf(int=DEFAULT_PERF_AVERAGE);
        ~perf();
 
-        void step();
-        void dump();
+        void step(bool=false);
+        void dump(bool=false);
     };
 
 #else // not NVPM -------------------------------------------------------------
@@ -65,8 +65,8 @@ namespace app
         perf(int=DEFAULT_PERF_AVERAGE);
        ~perf();
 
-        void step();
-        void dump();
+        void step(bool=false);
+        void dump(bool=false);
     };
 
 #endif // not NVPM ------------------------------------------------------------

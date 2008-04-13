@@ -15,6 +15,7 @@
 
 #include <SDL.h>
 #include <SDL_thread.h>
+#include <png.h>
 
 #include <list>
 
@@ -25,6 +26,38 @@
 
 namespace uni
 {
+    //-------------------------------------------------------------------------
+    // Thread-safe PNG-to-GL image buffer manager.
+
+    class buffer_pool
+    {
+    public:
+
+        struct buff
+        {
+            GLubyte   *pp;
+            png_bytep *rp;
+        };
+
+    private:
+
+        int w;
+        int h;
+        int c;
+        int b;
+
+        std::list<buff> avail;
+        SDL_mutex      *mutex;
+
+    public:
+
+        buffer_pool(int, int, int, int);
+       ~buffer_pool();
+
+        buff get();
+        void put(buff);
+    };
+
     //-------------------------------------------------------------------------
     // Loaded page queue
 
@@ -43,8 +76,8 @@ namespace uni
 
         bool find(const page *);
 
-        void enqueue(geomap *,  page *,  unsigned char *);
-        bool dequeue(geomap **, page **, unsigned char **);
+        void enqueue(geomap *,  page *,  buffer_pool::buff);
+        bool dequeue(geomap **, page **, buffer_pool::buff *);
     };
 
     //-------------------------------------------------------------------------
@@ -67,8 +100,8 @@ namespace uni
 
         bool find(const page *);
 
-        void enqueue(loaded_queue *,  geomap *,  page *);
-        bool dequeue(loaded_queue **, geomap **, page **);
+        void enqueue(geomap *,  page *);
+        bool dequeue(geomap **, page **);
 
         void stop();
     };
@@ -90,7 +123,6 @@ namespace uni
             geomap *M;
             int     x;
             int     y;
-
             cache_line(geomap *M=0, int x=0, int y=0) : M(M), x(x), y(y) { }
         };
 
@@ -104,12 +136,13 @@ namespace uni
         int m;
         int count;
 
-        index_line *index;
-        ogl::image *cache;
+        index_line  *index;
+        ogl::image  *cache;
 
         std::list<page *>             cache_lru;
         std::map <page *, cache_line> cache_map;
 
+        buffer_pool  *balloc;
         needed_queue *need_Q;
         loaded_queue *load_Q;
         SDL_Thread   *loader;

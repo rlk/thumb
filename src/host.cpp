@@ -18,7 +18,6 @@
 #include "tracker.hpp"
 #include "opengl.hpp"
 #include "matrix.hpp"
-#include "perf.hpp"
 #include "data.hpp"
 #include "conf.hpp"
 #include "glob.hpp"
@@ -247,6 +246,7 @@ void app::host::fini_client()
 app::host::host(std::string filename, std::string tag) :
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
+    bench(::conf->get_i("bench")),
     calibrate_state(false),
     calibrate_index(0),
     file(filename.c_str())
@@ -430,12 +430,19 @@ void app::host::root_loop()
 
         // Call the timer handler for each jiffy that has passed.
 
-        int tick = SDL_GetTicks();
-
-        while (tick - tock >= JIFFY)
+        if (bench)
         {
-            tock += JIFFY;
             timer(JIFFY);
+        }
+        else
+        {
+            int tick = SDL_GetTicks();
+
+            while (tick - tock >= JIFFY)
+            {
+                tock += JIFFY;
+                timer(JIFFY);
+            }
         }
 
         // Call the paint handler.
@@ -787,7 +794,7 @@ void app::host::front()
     // Swap the back buffer to the front.
 
     SDL_GL_SwapBuffers();
-    ::perf->step();
+    ::perf->step(bench);
 }
 
 void app::host::close()

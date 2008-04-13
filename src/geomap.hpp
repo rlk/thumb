@@ -73,6 +73,7 @@ namespace uni
         double r1;
         page   *P;
 
+        GLubyte    *image;
         ogl::image *index;
 
         void index_page(int, int, int, const GLubyte *);

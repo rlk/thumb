@@ -77,31 +77,11 @@ void main()
     vec2 q1 = (fract(p1) + C1.xy * 255.0) * page_size / pool_size;
 
     // Reference the cache and write the color.
-/*
-    vec4 D0 = texture2D(cache, q0) * vec4(vec3(C0.z), 1.0);
-    vec4 D1 = texture2D(cache, q1) * vec4(vec3(C1.z), 1.0);
-*/
+
     vec4 D0 = texture2D(cache, q0) * C0.z;
     vec4 D1 = texture2D(cache, q1) * C1.z;
 
     gl_FragColor = mix(D0, D1, ld);
-//  gl_FragColor = vec4(C0 * vec3(32.0, 64.0, 1.0), 1.0);
 }
 
 //-----------------------------------------------------------------------------
-
-/*
-uniform vec2 d;
-uniform vec2 k;
-
-void main()
-{
-    vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy;
-    vec2 t = c * k + d;
-
-    vec2  a = step(vec2(0.0), t) * step(t, vec2(1.0));
-    float K = a.x * a.y;
-
-    gl_FragColor = vec4(texture2D(index, t).rgb, K);
-}
-*/
