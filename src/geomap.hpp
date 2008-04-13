@@ -73,6 +73,8 @@ namespace uni
         double r1;
         page   *P;
 
+        bool dirty;
+
         GLubyte    *image;
         ogl::image *index;
 
@@ -86,7 +88,7 @@ namespace uni
         void cache_page(const page *, int, int);
         void eject_page(const page *, int, int);
 
-        void wire(app::frustum_v&, const double *, double, double);
+        void proc();
         void draw();
 
         std::string name(const page *);

@@ -580,6 +580,7 @@ void uni::sphere::draw(int i)
                 cache.init();
                 cache.seed(vp, r0, r1, color);
                 cache.proc(vp, r0, r1, frusta);
+                color.proc();
 
                 ren.dif()->init();
                 ren.dif()->bind();

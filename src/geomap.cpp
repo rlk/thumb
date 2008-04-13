@@ -236,7 +236,7 @@ double uni::page::angle(const double *v, double r)
 //-----------------------------------------------------------------------------
 
 uni::geomap::geomap(std::string name, double r0, double r1) :
-    d(0), r0(r0), r1(r1), P(0),
+    d(0), r0(r0), r1(r1), P(0), dirty(false),
     index(glob->new_image(512, 256, GL_TEXTURE_2D, GL_LUMINANCE8, GL_LUMINANCE))
 {
     app::serial file(name.c_str());
@@ -274,6 +274,8 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
     }
 
     image = new GLubyte[512 * 256];
+
+    memset(image, 0, 512 * 256);
 }
 
 uni::geomap::~geomap()
@@ -294,10 +296,16 @@ void uni::geomap::index_page(int d, int i, int j, const GLubyte *p)
 
         j += 512 - dj * 2;
         i += 256 - di * 2;
-
+/*
         index->blit(p + 0, j,      i + di, 1, 1);
         index->blit(p + 1, j,      i,      1, 1);
         index->blit(p + 2, j + dj, i,      1, 1);
+*/
+        image[(i + di) * 512 + (j     )] = p[0];
+        image[(i     ) * 512 + (j     )] = p[1];
+        image[(i     ) * 512 + (j + dj)] = p[2];
+
+        dirty = true;
     }
 }
 
@@ -331,6 +339,14 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
     // This only needs to update the D pixel.
 
     index_page(d, i, j, p);
+}
+
+void uni::geomap::proc()
+{
+    if (dirty)
+        index->blit(image, 0, 0, 512, 256);
+
+    dirty = false;
 }
 
 //-----------------------------------------------------------------------------

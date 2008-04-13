@@ -3,8 +3,11 @@
 test1.dat geocsh initially working
 test2.dat eliminate data copy from load_png
 test3.dat implement image buffer pool
-test4.dat this config with vsync on
+test4.dat same (vsync on)
           processor contention is killing png load
+test5.dat single mipmap blit instead of multiple
+test6.dat some (vsync on)
+          consolidating image updates helps!  (a little)
 
 -------------------------------------------------------------------------------
 
