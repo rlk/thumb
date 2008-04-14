@@ -579,8 +579,10 @@ void uni::sphere::draw(int i)
 
                 cache.init();
                 cache.seed(vp, r0, r1, color);
+                cache.seed(vp, r0, r1, normal);
                 cache.proc(vp, r0, r1, frusta);
                 color.proc();
+                normal.proc();
 
                 ren.dif()->init();
                 ren.dif()->bind();
@@ -592,6 +594,17 @@ void uni::sphere::draw(int i)
                     cache.free(GL_TEXTURE2);
                 }
                 ren.dif()->free();
+
+                ren.nrm()->init();
+                ren.nrm()->bind();
+                {
+                    cache.bind(GL_TEXTURE2);
+                    {
+                        normal.draw();
+                    }
+                    cache.free(GL_TEXTURE2);
+                }
+                ren.nrm()->free();
 
                 // Draw the diffuse maps.
 /*
