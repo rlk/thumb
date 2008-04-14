@@ -36,6 +36,7 @@ namespace uni
         double n[3];
         double a;
         double r;
+        double f;
 
         page *P[4];
 
@@ -45,7 +46,7 @@ namespace uni
        ~page();
 
         bool view(app::frustum_v&, double, double);
-        void draw(app::frustum_v&, double, double);
+        void draw(                 double, double);
 
         int get_d() const { return d; }
         int get_i() const { return i; }
@@ -78,7 +79,11 @@ namespace uni
         GLubyte    *image;
         ogl::image *index;
 
-        void index_page(int, int, int, const GLubyte *);
+        GLubyte& index_x(int, int, int);
+        GLubyte& index_y(int, int, int);
+        GLubyte& index_l(int, int, int);
+
+        void index_page(int, int, int, GLubyte, GLubyte, GLubyte);
 
     public:
 

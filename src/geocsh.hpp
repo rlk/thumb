@@ -45,6 +45,7 @@ namespace uni
         int h;
         int c;
         int b;
+        int N;
 
         std::list<buff> avail;
         SDL_mutex      *mutex;
@@ -163,6 +164,7 @@ namespace uni
         void free(GLenum) const;
 
         void draw() const;
+        void wire(double, double) const;
     };
 }
 

@@ -58,7 +58,7 @@ void main()
 
     float ld = ll - l0;
 
-    // Compute the cache coordinates for these pages.
+    // Compute index coordinates for these pages.
 
     vec2 p0 = (data_size * c) / (tile_size * exp2(l0));
     vec2 p1 = (data_size * c) / (tile_size * exp2(l1));
@@ -68,18 +68,24 @@ void main()
 
     // Look up the two pages in the index.
 
-    vec3 norm = vec3(255.0, 255.0, 1.0);
+    vec3 C0 = mipref(p0 / s0, l0) * 255.0;
+    vec3 C1 = mipref(p1 / s1, l1) * 255.0;
 
-    vec3 C0 = mipref(p0 / s0, l0);
-    vec3 C1 = mipref(p1 / s1, l1);
+    // Compute cache coordinates for these pages.
 
-    vec2 q0 = (fract(p0) + C0.xy * 255.0) * page_size / pool_size;
-    vec2 q1 = (fract(p1) + C1.xy * 255.0) * page_size / pool_size;
+    p0 = (data_size * c) / (tile_size * exp2(C0.z));
+    p1 = (data_size * c) / (tile_size * exp2(C1.z));
+/*
+    vec2 q0 = (fract(p0) + C0.xy) * page_size / pool_size;
+    vec2 q1 = (fract(p1) + C1.xy) * page_size / pool_size;
+*/
+    vec2 q0 = (fract(p0) * tile_size + 1.0 + C0.xy * page_size) / pool_size;
+    vec2 q1 = (fract(p1) * tile_size + 1.0 + C1.xy * page_size) / pool_size;
 
     // Reference the cache and write the color.
 
-    vec4 D0 = texture2D(cache, q0) * C0.z;
-    vec4 D1 = texture2D(cache, q1) * C1.z;
+    vec4 D0 = texture2D(cache, q0);
+    vec4 D1 = texture2D(cache, q1);
 
     gl_FragColor = mix(D0, D1, ld);
 }

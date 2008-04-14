@@ -58,7 +58,7 @@ bool load_png(png_bytepp bp, std::string name)
 //=============================================================================
 
 uni::buffer_pool::buffer_pool(int w, int h, int c, int b) :
-    w(w), h(h), c(c), b(b)
+    w(w), h(h), c(c), b(b), N(0)
 {
     mutex = SDL_CreateMutex();
 }
@@ -93,6 +93,10 @@ uni::buffer_pool::buff uni::buffer_pool::get()
 
             for (int i = 0; i < h; ++i)
                 B.rp[h - i - 1] = B.pp + i * w * c * b;
+
+            N++;
+
+            printf("pool size = %d\n", N);
         }
         else
         {
@@ -111,7 +115,11 @@ void uni::buffer_pool::put(buff B)
 {
     // Add the given buffer to the available list.
 
-    avail.push_front(B);
+    SDL_mutexP(mutex);
+    {
+        avail.push_front(B);
+    }
+    SDL_mutexV(mutex);
 }
 
 //=============================================================================
@@ -321,6 +329,13 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     index(new index_line[m]),
     cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
 {
+    cache->bind(GL_TEXTURE0);
+    {
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    }
+    cache->free(GL_TEXTURE0);
+
     loader_args *args = new loader_args;
 
     args->B = balloc = new buffer_pool(S, S, c, b);
@@ -401,6 +416,24 @@ void uni::geocsh::proc_cache()
                 count--;
             }
 
+            // Debug
+
+            static const GLfloat color[][3] = {
+                { 1.0f, 0.0f, 0.0f },
+                { 1.0f, 0.5f, 0.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 0.0f, 0.0f, 1.0f },
+                { 1.0f, 0.0f, 1.0f },
+                { 0.0f, 0.0f, 0.0f },
+                { 1.0f, 1.0f, 1.0f },
+            };
+
+            glPixelTransferf(GL_RED_SCALE,   color[P->get_d()][0]);
+            glPixelTransferf(GL_GREEN_SCALE, color[P->get_d()][1]);
+            glPixelTransferf(GL_BLUE_SCALE,  color[P->get_d()][2]);
+
             // Insert the new page.
 
             cache_map[P] = cache_line(M, x, y);
@@ -410,6 +443,10 @@ void uni::geocsh::proc_cache()
 
             cache->blit(b.pp, x * S, y * S, S, S);
             count++;
+
+            glPixelTransferf(GL_RED_SCALE,   1.0f);
+            glPixelTransferf(GL_GREEN_SCALE, 1.0f);
+            glPixelTransferf(GL_BLUE_SCALE,  1.0f);
         }
 
         // Release the image buffer.
@@ -436,6 +473,14 @@ void uni::geocsh::proc_index(const double *vp,
 
         if (index[j].k > 0)
         {
+            for (int i = 0; i < n; ++i)
+                printf("%4.2f ", index[i].k);
+        
+            printf("[%d %d %d]\n",
+                   index[j].P->get_d(),
+                   index[j].P->get_i(),
+                   index[j].P->get_j());
+
             index[j].k = 0;
 
             for (int i = 0; i < 4 && n < m; ++i)
@@ -549,6 +594,13 @@ void uni::geocsh::draw() const
         cache->free(GL_TEXTURE0);
     }
     glPopAttrib();
+}
+
+void uni::geocsh::wire(double r0, double r1) const
+{
+    for (int i = 0; i < n; ++i)
+        if (index[i].P->get_d() == 6)
+            index[i].P->draw(r0, r1);
 }
 
 //-----------------------------------------------------------------------------

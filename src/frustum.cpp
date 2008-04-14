@@ -233,10 +233,10 @@ void app::frustum::calc_user_planes(const double *p)
 
     // Compute the user-space view frustum bounding planes.
 
-    set_plane(user_planes[0], user_pos, user_points[0], user_points[2]);
-    set_plane(user_planes[1], user_pos, user_points[3], user_points[1]);
-    set_plane(user_planes[2], user_pos, user_points[1], user_points[0]);
-    set_plane(user_planes[3], user_pos, user_points[2], user_points[3]);
+    set_plane(user_planes[0], user_pos, user_points[0], user_points[2]); // L
+    set_plane(user_planes[1], user_pos, user_points[3], user_points[1]); // R
+    set_plane(user_planes[2], user_pos, user_points[1], user_points[0]); // B
+    set_plane(user_planes[3], user_pos, user_points[2], user_points[3]); // T
 
     // Cache the distance from the user to the display plane.
 

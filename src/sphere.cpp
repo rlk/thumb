@@ -671,7 +671,7 @@ void uni::sphere::draw(int i)
                     land_prog->free();
                 }
 
-                if (::prog->option(4))
+                if (!::prog->option(4))
                     cache.draw();
 
                 // Test draw the color geomap.
@@ -685,14 +685,13 @@ void uni::sphere::draw(int i)
                         glDisable(GL_TEXTURE_2D);
                         glDisable(GL_LIGHTING);
                         glDisable(GL_CULL_FACE);
-//                      glDisable(GL_DEPTH_TEST);
 
                         glEnable(GL_BLEND);
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
                         glLineWidth(2.0);
                         glDepthMask(0);
-                        color.wire(frusta, vp, r0, r1);
+                        cache.wire(r0, r1);
                         glDepthMask(1);
                     }
                     glPopAttrib();

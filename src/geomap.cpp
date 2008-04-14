@@ -17,7 +17,24 @@
 #include "matrix.hpp"
 #include "glob.hpp"
 
-//static int count;
+static void dump(const GLubyte *v)
+{
+    int w = 32;
+    int h = 16;
+
+    for (int i = 0; i < h; ++i)
+    {
+        for (int j = 0; j < w; ++j)
+        {
+            int r = 256 -  1 - i;
+            int c = 512 - 32 + j;
+
+            printf("%02x ", v[r * 512 + c]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
 
 //-----------------------------------------------------------------------------
 
@@ -57,16 +74,18 @@ uni::page::page(int w, int h, int s,
 
     if (cS < 0 && 0 < cN)
     {
-        sphere_to_vector(v, W, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
-        sphere_to_vector(v, E, cV, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cW, 0, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cE, 0, 1.0); a = std::max(a, acos(DOT3(v, n)));
     }
-    else
+
     {
-        sphere_to_vector(v, W, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
-        sphere_to_vector(v, W, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
-        sphere_to_vector(v, E, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
-        sphere_to_vector(v, E, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cW, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cW, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cE, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
+        sphere_to_vector(v, cE, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
     }
+
+    f = ((cE - cW) * (cN - cS)) / ((E - W) * (N - S));
 
     // Create subpages as necessary.
 
@@ -115,11 +134,11 @@ bool uni::page::view(app::frustum_v& frusta, double r0, double r1)
     return false;
 }
 
-void uni::page::draw(app::frustum_v& frusta, double r0, double r1)
+void uni::page::draw(double r0, double r1)
 {
-    double rr = r0 + 10000.0;
+    double rr = (r0 + r1) * 0.5;
 
-    GLfloat color[8][3] = {
+    static const GLfloat color[8][3] = {
         { 1.0f, 0.0f, 0.0f },
         { 1.0f, 0.5f, 0.0f },
         { 1.0f, 1.0f, 0.0f },
@@ -201,6 +220,8 @@ void uni::page::draw(app::frustum_v& frusta, double r0, double r1)
 
 double uni::page::angle(const double *v, double r)
 {
+    double aa = 0.0;
+
     // Leaves return zero because they can't be subdivided anyway.
 
     if (d > 0)
@@ -228,9 +249,13 @@ double uni::page::angle(const double *v, double r)
 
         // Compute the solid angle of the given radius and distance.
 
-        return 2.0 * M_PI * (1.0 - cos(atan(R / D)));
+        aa = 2.0 * M_PI * (1.0 - cos(atan(R / D)));
     }
-    return 0.0;
+
+    if (d == 7)
+        printf("%d %d %d %f\n", d, i, j, aa);
+
+    return aa / f;
 }
 
 //-----------------------------------------------------------------------------
@@ -274,8 +299,7 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
     }
 
     image = new GLubyte[512 * 256];
-
-    memset(image, 0, 512 * 256);
+    memset(image, 0x00, 512 * 256);
 }
 
 uni::geomap::~geomap()
@@ -287,25 +311,57 @@ uni::geomap::~geomap()
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::index_page(int d, int i, int j, const GLubyte *p)
+GLubyte& uni::geomap::index_x(int d, int i, int j)
 {
-    if (d < 8)
+    int dj = 256 >> d;
+    int di = 128 >> d;
+
+    int jj = j + 512 - (dj << 1);
+    int ii = i + 256 - (di << 1);
+
+    return image[(ii + di) * 512 + (jj     )];
+}
+
+GLubyte& uni::geomap::index_y(int d, int i, int j)
+{
+    int dj = 256 >> d;
+    int di = 128 >> d;
+
+    int jj = j + 512 - (dj << 1);
+    int ii = i + 256 - (di << 1);
+
+    return image[(ii     ) * 512 + (jj     )];
+}
+
+GLubyte& uni::geomap::index_l(int d, int i, int j)
+{
+    int dj = 256 >> d;
+    int di = 128 >> d;
+
+    int jj = j + 512 - (dj << 1);
+    int ii = i + 256 - (di << 1);
+
+    return image[(ii     ) * 512 + (jj + dj)];
+}
+
+//-----------------------------------------------------------------------------
+
+void uni::geomap::index_page(int d, int i, int j,
+                             GLubyte x, GLubyte y, GLubyte l)
+{
+    if (d >= 0)
     {
-        int dj = 256 >> d;
-        int di = 128 >> d;
+        int j2 = j << 1;
+        int i2 = i << 1;
 
-        j += 512 - dj * 2;
-        i += 256 - di * 2;
-/*
-        index->blit(p + 0, j,      i + di, 1, 1);
-        index->blit(p + 1, j,      i,      1, 1);
-        index->blit(p + 2, j + dj, i,      1, 1);
-*/
-        image[(i + di) * 512 + (j     )] = p[0];
-        image[(i     ) * 512 + (j     )] = p[1];
-        image[(i     ) * 512 + (j + dj)] = p[2];
+        index_l(d, i, j) = l;
+        index_x(d, i, j) = x;
+        index_y(d, i, j) = y;
 
-        dirty = true;
+        index_page(d - 1, i2 + 0, j2 + 0, x, y, l);
+        index_page(d - 1, i2 + 1, j2 + 0, x, y, l);
+        index_page(d - 1, i2 + 0, j2 + 1, x, y, l);
+        index_page(d - 1, i2 + 1, j2 + 1, x, y, l);
     }
 }
 
@@ -315,13 +371,14 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
     int i = Q->get_i();
     int j = Q->get_j();
 
-    GLubyte p[3];
+//  printf("cache %d %d %d %d %d\n", d, i, j, x, y);
 
-    p[0] = GLubyte(x);
-    p[1] = GLubyte(y);
-    p[2] = 0xFF;
-
-    index_page(d, i, j, p);
+    if (d < 8)
+    {
+        index_page(d, i, j, GLubyte(x), GLubyte(y), GLubyte(d));
+//      dump(image);
+        dirty = true;
+    }
 }
 
 void uni::geomap::eject_page(const page *Q, int x, int y)
@@ -330,15 +387,18 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
     int i = Q->get_i();
     int j = Q->get_j();
 
-    GLubyte p[3];
+//  printf("eject %d %d %d %d %d\n", d, i, j, x, y);
 
-    p[0] = 0x00;
-    p[1] = 0x00;
-    p[2] = 0x00;
+    if (d < 7)
+    {
+        index_page(d, i, j,
+                   index_x(d + 1, i >> 1, j >> 1),
+                   index_y(d + 1, i >> 1, j >> 1),
+                   index_l(d + 1, i >> 1, j >> 1));
 
-    // This only needs to update the D pixel.
-
-    index_page(d, i, j, p);
+//      dump(image);
+        dirty = true;
+    }
 }
 
 void uni::geomap::proc()
