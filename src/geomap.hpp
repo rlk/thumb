@@ -83,7 +83,9 @@ namespace uni
         GLubyte& index_y(int, int, int);
         GLubyte& index_l(int, int, int);
 
-        void index_page(int, int, int, GLubyte, GLubyte, GLubyte);
+        void do_index(int, int, int, GLubyte, GLubyte, GLubyte);
+        void do_eject(int, int, int, GLubyte, GLubyte, GLubyte,
+                                     GLubyte, GLubyte, GLubyte);
 
     public:
 

@@ -430,11 +430,7 @@ void app::host::root_loop()
 
         // Call the timer handler for each jiffy that has passed.
 
-        if (bench)
-        {
-            timer(JIFFY);
-        }
-        else
+        if (bench == 0)
         {
             int tick = SDL_GetTicks();
 
@@ -443,6 +439,18 @@ void app::host::root_loop()
                 tock += JIFFY;
                 timer(JIFFY);
             }
+        }
+        if (bench == 1)
+        {
+            timer(JIFFY);
+        }
+        if (bench == 2)
+        {
+            int tick = SDL_GetTicks();
+
+            timer(tick - tock);
+
+            tock = tick;
         }
 
         // Call the paint handler.

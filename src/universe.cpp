@@ -45,7 +45,7 @@ uni::universe::universe()
     if (n_lod == 0) n_lod = DEFAULT_NORMAL_LOD;
     if (h_lod == 0) h_lod = DEFAULT_HEIGHT_LOD;
 
-    cache  = new geocsh(3, 1, 510, 8, 4);
+    cache  = new geocsh(3, 1, 510, 8, 8);
     color  = new geomap("world.200408.xml", r0, r1);
     normal = 0;
     height = 0;

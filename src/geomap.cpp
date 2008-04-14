@@ -252,9 +252,6 @@ double uni::page::angle(const double *v, double r)
         aa = 2.0 * M_PI * (1.0 - cos(atan(R / D)));
     }
 
-    if (d == 7)
-        printf("%d %d %d %f\n", d, i, j, aa);
-
     return aa / f;
 }
 
@@ -299,7 +296,7 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
     }
 
     image = new GLubyte[512 * 256];
-    memset(image, 0x00, 512 * 256);
+    memset(image, 0xFF, 512 * 256);
 }
 
 uni::geomap::~geomap()
@@ -346,7 +343,7 @@ GLubyte& uni::geomap::index_l(int d, int i, int j)
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::index_page(int d, int i, int j,
+void uni::geomap::do_index(int d, int i, int j,
                              GLubyte x, GLubyte y, GLubyte l)
 {
     if (d >= 0)
@@ -354,14 +351,42 @@ void uni::geomap::index_page(int d, int i, int j,
         int j2 = j << 1;
         int i2 = i << 1;
 
-        index_l(d, i, j) = l;
-        index_x(d, i, j) = x;
-        index_y(d, i, j) = y;
+        if (index_l(d, i, j) > l)
+        {
+            index_l(d, i, j) = l;
+            index_x(d, i, j) = x;
+            index_y(d, i, j) = y;
+        }
 
-        index_page(d - 1, i2 + 0, j2 + 0, x, y, l);
-        index_page(d - 1, i2 + 1, j2 + 0, x, y, l);
-        index_page(d - 1, i2 + 0, j2 + 1, x, y, l);
-        index_page(d - 1, i2 + 1, j2 + 1, x, y, l);
+        do_index(d - 1, i2 + 0, j2 + 0, x, y, l);
+        do_index(d - 1, i2 + 1, j2 + 0, x, y, l);
+        do_index(d - 1, i2 + 0, j2 + 1, x, y, l);
+        do_index(d - 1, i2 + 1, j2 + 1, x, y, l);
+    }
+}
+
+void uni::geomap::do_eject(int d, int i, int j,
+                           GLubyte x0, GLubyte y0, GLubyte l0,
+                           GLubyte x1, GLubyte y1, GLubyte l1)
+{
+    if (d >= 0)
+    {
+        int j2 = j << 1;
+        int i2 = i << 1;
+
+        if (index_x(d, i, j) == x0 &&
+            index_y(d, i, j) == y0 &&
+            index_l(d, i, j) == l0)
+        {
+            index_x(d, i, j) = x1;
+            index_y(d, i, j) = y1;
+            index_l(d, i, j) = l1;
+        }
+
+        do_eject(d - 1, i2 + 0, j2 + 0, x0, y0, l0, x1, y1, l1);
+        do_eject(d - 1, i2 + 1, j2 + 0, x0, y0, l0, x1, y1, l1);
+        do_eject(d - 1, i2 + 0, j2 + 1, x0, y0, l0, x1, y1, l1);
+        do_eject(d - 1, i2 + 1, j2 + 1, x0, y0, l0, x1, y1, l1);
     }
 }
 
@@ -375,7 +400,7 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
 
     if (d < 8)
     {
-        index_page(d, i, j, GLubyte(x), GLubyte(y), GLubyte(d));
+        do_index(d, i, j, GLubyte(x), GLubyte(y), GLubyte(d));
 //      dump(image);
         dirty = true;
     }
@@ -391,10 +416,13 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 
     if (d < 7)
     {
-        index_page(d, i, j,
-                   index_x(d + 1, i >> 1, j >> 1),
-                   index_y(d + 1, i >> 1, j >> 1),
-                   index_l(d + 1, i >> 1, j >> 1));
+        do_eject(d, i, j,
+                 GLubyte(x),
+                 GLubyte(y),
+                 GLubyte(d),
+                 index_x(d + 1, i >> 1, j >> 1),
+                 index_y(d + 1, i >> 1, j >> 1),
+                 index_l(d + 1, i >> 1, j >> 1));
 
 //      dump(image);
         dirty = true;

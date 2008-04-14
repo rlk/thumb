@@ -15,6 +15,7 @@
 #include <png.h>
 
 #include "geocsh.hpp"
+#include "conf.hpp"
 
 //=============================================================================
 
@@ -343,6 +344,8 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     args->L = load_Q = new loaded_queue();
 
     loader = SDL_CreateThread(loader_func, (void *) args);
+
+    debug = ::conf->get_i("debug");
 }
 
 uni::geocsh::~geocsh()
@@ -392,7 +395,8 @@ void uni::geocsh::proc_cache()
 
     buffer_pool::buff b;
 
-    while (load_Q->dequeue(&M, &P, &b))
+//  while (load_Q->dequeue(&M, &P, &b))
+    if (load_Q->dequeue(&M, &P, &b))
     {
         if (cache_map.find(P) == cache_map.end())
         {
@@ -430,9 +434,12 @@ void uni::geocsh::proc_cache()
                 { 1.0f, 1.0f, 1.0f },
             };
 
-            glPixelTransferf(GL_RED_SCALE,   color[P->get_d()][0]);
-            glPixelTransferf(GL_GREEN_SCALE, color[P->get_d()][1]);
-            glPixelTransferf(GL_BLUE_SCALE,  color[P->get_d()][2]);
+            if (debug)
+            {
+                glPixelTransferf(GL_RED_SCALE,   color[P->get_d()][0]);
+                glPixelTransferf(GL_GREEN_SCALE, color[P->get_d()][1]);
+                glPixelTransferf(GL_BLUE_SCALE,  color[P->get_d()][2]);
+            }
 
             // Insert the new page.
 
@@ -444,9 +451,12 @@ void uni::geocsh::proc_cache()
             cache->blit(b.pp, x * S, y * S, S, S);
             count++;
 
-            glPixelTransferf(GL_RED_SCALE,   1.0f);
-            glPixelTransferf(GL_GREEN_SCALE, 1.0f);
-            glPixelTransferf(GL_BLUE_SCALE,  1.0f);
+            if (debug)
+            {
+                glPixelTransferf(GL_RED_SCALE,   1.0f);
+                glPixelTransferf(GL_GREEN_SCALE, 1.0f);
+                glPixelTransferf(GL_BLUE_SCALE,  1.0f);
+            }
         }
 
         // Release the image buffer.
@@ -473,6 +483,7 @@ void uni::geocsh::proc_index(const double *vp,
 
         if (index[j].k > 0)
         {
+/*
             for (int i = 0; i < n; ++i)
                 printf("%4.2f ", index[i].k);
         
@@ -480,7 +491,7 @@ void uni::geocsh::proc_index(const double *vp,
                    index[j].P->get_d(),
                    index[j].P->get_i(),
                    index[j].P->get_j());
-
+*/
             index[j].k = 0;
 
             for (int i = 0; i < 4 && n < m; ++i)

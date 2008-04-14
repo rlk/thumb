@@ -137,6 +137,8 @@ namespace uni
         int m;
         int count;
 
+        bool debug;
+
         index_line  *index;
         ogl::image  *cache;
 
