@@ -327,7 +327,7 @@ static int loader_func(void *data)
 
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     c(c), b(b), s(s), S(s + 2), w(w), h(h), n(0), m(w * h), count(0),
-    index(new index_line[m]),
+//  index(new index_line[m]),
     cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
 {
     cache->bind(GL_TEXTURE0);
@@ -358,7 +358,7 @@ uni::geocsh::~geocsh()
     if (load_Q) delete load_Q;
     if (balloc) delete balloc;
 
-    if (index) delete [] index;
+//  if (index) delete [] index;
 
     if (cache) glob->free_image(cache);
 }
@@ -369,17 +369,26 @@ void uni::geocsh::init()
 {
     // Reset the page index to empty.
 
-    memset(index, 0, m * sizeof (index_line));
+//  memset(index, 0, m * sizeof (index_line));
     n = 0;
+    index_map.clear();
 }
 
 void uni::geocsh::seed(const double *vp, double r0, double r1, geomap& map)
 {
     // Seed the index with the root page of the given map.
-
+/*
     index[n].M = &map;
     index[n].P =  map.root();
     index[n].k =  map.root()->angle(vp, r0);
+*/
+
+    index_line L;
+
+    L.M = &map;
+    L.P =  map.root();
+
+    index_map.insert(std::pair<double, index_line>(L.P->angle(vp, r0), L));
 
     n++;
 }
@@ -395,8 +404,7 @@ void uni::geocsh::proc_cache()
 
     buffer_pool::buff b;
 
-//  while (load_Q->dequeue(&M, &P, &b))
-    if (load_Q->dequeue(&M, &P, &b))
+    while (load_Q->dequeue(&M, &P, &b))
     {
         if (cache_map.find(P) == cache_map.end())
         {
@@ -472,6 +480,63 @@ void uni::geocsh::proc_index(const double *vp,
 
     while (n < m)
     {
+        // If a worst page exists, subdivide it.
+
+        index_m::iterator i = index_map.begin();
+
+        if (i->first > 0)
+        {
+            index_line C, L = i->second;
+
+            index_map.erase (i);
+            index_map.insert(index_m::value_type(0, L));
+
+            for (int i = 0; i < 4 && n < m; ++i)
+
+                if (L.P->child(i) && L.P->child(i)->view(frusta, r0, r1))
+                {
+                    C.M = L.M;
+                    C.P = L.P->child(i);
+
+                    double k = C.P->angle(vp, r0);
+
+                    index_map.insert(index_m::value_type(k, C));
+                    n++;
+                }
+        }
+
+        // If no worst page exists, no more subdivision can be done.
+
+        else break;
+    }
+
+    // Check if each indexed page is already in the cache.
+
+    for (index_m::iterator i = index_map.begin(); i != index_map.end(); ++i)
+    {
+        geomap *M = i->second.M;
+        page   *P = i->second.P;
+
+        if (cache_map.find(P) == cache_map.end())
+        {
+            // It is not.  Request it.
+
+            if (!need_Q->find(P) &&
+                !load_Q->find(P))
+                need_Q->enqueue(M, P);
+        }
+        else
+        {
+            // It is. Bump it to the end of the LRU queue.
+
+            cache_lru.remove   (P);
+            cache_lru.push_back(P);
+        }
+    }
+
+/*
+    while (n < m)
+    {
         int j = 0;
 
         // Find the worst page.
@@ -483,15 +548,6 @@ void uni::geocsh::proc_index(const double *vp,
 
         if (index[j].k > 0)
         {
-/*
-            for (int i = 0; i < n; ++i)
-                printf("%4.2f ", index[i].k);
-        
-            printf("[%d %d %d]\n",
-                   index[j].P->get_d(),
-                   index[j].P->get_i(),
-                   index[j].P->get_j());
-*/
             index[j].k = 0;
 
             for (int i = 0; i < 4 && n < m; ++i)
@@ -530,6 +586,7 @@ void uni::geocsh::proc_index(const double *vp,
             cache_lru.remove   (index[i].P);
             cache_lru.push_back(index[i].P);
         }
+*/
 }
 
 void uni::geocsh::proc(const double *vp,
@@ -609,9 +666,11 @@ void uni::geocsh::draw() const
 
 void uni::geocsh::wire(double r0, double r1) const
 {
+/*
     for (int i = 0; i < n; ++i)
         if (index[i].P->get_d() == 6)
             index[i].P->draw(r0, r1);
+*/
 }
 
 //-----------------------------------------------------------------------------

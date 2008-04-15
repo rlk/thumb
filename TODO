@@ -9,6 +9,7 @@ Remove pages from the needed queue when they are eliminated from the working set
 Find the bottleneck.
 
 Modularize the mipmap shaders.
+Generalize geomap to work with sizes other than 512x256.
 
 -------------------------------------------------------------------------------
 

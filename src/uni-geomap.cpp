@@ -16,7 +16,7 @@
 #include "app-serial.hpp"
 #include "matrix.hpp"
 #include "app-glob.hpp"
-/*
+
 static void dump(const GLubyte *v)
 {
     int w = 32;
@@ -35,7 +35,7 @@ static void dump(const GLubyte *v)
     }
     printf("\n");
 }
-*/
+
 //-----------------------------------------------------------------------------
 
 uni::page::page(int w, int h, int s,
@@ -396,8 +396,6 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
     int i = Q->get_i();
     int j = Q->get_j();
 
-//  printf("cache %d %d %d %d %d\n", d, i, j, x, y);
-
     if (d < 8)
     {
         do_index(d, i, j, GLubyte(x), GLubyte(y), GLubyte(d));
@@ -412,17 +410,15 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
     int i = Q->get_i();
     int j = Q->get_j();
 
-//  printf("eject %d %d %d %d %d\n", d, i, j, x, y);
-
-    if (d < 7)
+    if (d < 8)
     {
-        do_eject(d, i, j,
-                 GLubyte(x),
-                 GLubyte(y),
-                 GLubyte(d),
-                 index_x(d + 1, i >> 1, j >> 1),
-                 index_y(d + 1, i >> 1, j >> 1),
-                 index_l(d + 1, i >> 1, j >> 1));
+        GLubyte x1 = (d < 7) ? index_x(d + 1, i >> 1, j >> 1) : 0xFF;
+        GLubyte y1 = (d < 7) ? index_y(d + 1, i >> 1, j >> 1) : 0xFF;
+        GLubyte l1 = (d < 7) ? index_l(d + 1, i >> 1, j >> 1) : 0xFF;
+
+        do_eject(d, i, j, GLubyte(x),
+                          GLubyte(y),
+                          GLubyte(d), x1, y1, l1);
 
 //      dump(image);
         dirty = true;

@@ -116,9 +116,10 @@ namespace uni
         {
             geomap *M;
             page   *P;
-            double  k;
         };
-
+        typedef std::multimap<double,
+                              index_line,
+                              std::greater<double> > index_m;
         struct cache_line
         {
             geomap *M;
@@ -126,6 +127,7 @@ namespace uni
             int     y;
             cache_line(geomap *M=0, int x=0, int y=0) : M(M), x(x), y(y) { }
         };
+        typedef std::map<page *, cache_line> cache_m;
 
         int c;
         int b;
@@ -139,11 +141,12 @@ namespace uni
 
         bool debug;
 
-        index_line  *index;
+//      index_line  *index;
         ogl::image  *cache;
 
-        std::list<page *>             cache_lru;
-        std::map <page *, cache_line> cache_map;
+        std::list<page *> cache_lru;
+        cache_m           cache_map;
+        index_m           index_map;
 
         buffer_pool  *balloc;
         needed_queue *need_Q;

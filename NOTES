@@ -1,5 +1,16 @@
 -------------------------------------------------------------------------------
 
+Loader thread:
+
+    Find a page which is listed in the index but not in the cache
+
+    Sort pages by... depth (higher d values earlier)
+                     angle (larger first)
+        heigher D implies higher A
+        so... just A then?
+
+-------------------------------------------------------------------------------
+
 test1.dat geocsh initially working
 test2.dat eliminate data copy from load_png
 test3.dat implement image buffer pool
