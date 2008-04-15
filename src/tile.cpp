@@ -13,7 +13,7 @@
 #include "default.hpp"
 #include "tile.hpp"
 #include "normal.hpp"
-#include "dome.hpp"
+#include "app-dome.hpp"
 
 //-----------------------------------------------------------------------------
 

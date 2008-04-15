@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "dome.hpp"
+#include "app-dome.hpp"
 #include "matrix.hpp"
 #include "glob.hpp"
 #include "user.hpp"
