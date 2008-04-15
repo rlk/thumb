@@ -13,7 +13,7 @@
 #ifndef BUFFER_HPP
 #define BUFFER_HPP
 
-#include "opengl.hpp"
+#include "ogl-opengl.hpp"
 
 //-----------------------------------------------------------------------------
 

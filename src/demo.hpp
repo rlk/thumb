@@ -15,12 +15,12 @@
 
 #include <set>
 
-#include "opengl.hpp"
-#include "universe.hpp"
-#include "world.hpp"
-#include "mode.hpp"
-#include "glob.hpp"
-#include "prog.hpp"
+#include "ogl-opengl.hpp"
+#include "uni-universe.hpp"
+#include "wrl-world.hpp"
+#include "mode-mode.hpp"
+#include "app-glob.hpp"
+#include "app-prog.hpp"
 
 //-----------------------------------------------------------------------------
 

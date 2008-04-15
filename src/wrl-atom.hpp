@@ -20,8 +20,8 @@
 #include <mxml.h>
 
 #include "matrix.hpp"
-#include "param.hpp"
-#include "pool.hpp"
+#include "wrl-param.hpp"
+#include "ogl-pool.hpp"
 
 //-----------------------------------------------------------------------------
 

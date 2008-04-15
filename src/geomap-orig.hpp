@@ -19,9 +19,9 @@
 #include <list>
 #include <queue>
 
-#include "texture.hpp"
-#include "frustum.hpp"
-#include "opengl.hpp"
+#include "ogl-texture.hpp"
+#include "app-frustum.hpp"
+#include "ogl-opengl.hpp"
 
 //-----------------------------------------------------------------------------
 

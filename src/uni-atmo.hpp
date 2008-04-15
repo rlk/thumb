@@ -13,7 +13,7 @@
 #ifndef ATMO_HPP
 #define ATMO_HPP
 
-#include "pool.hpp"
+#include "ogl-pool.hpp"
 
 //-----------------------------------------------------------------------------
 

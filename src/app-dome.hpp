@@ -13,9 +13,9 @@
 #ifndef DOME_HPP
 #define DOME_HPP
 
-#include "disp.hpp"
-#include "program.hpp"
-#include "texture.hpp"
+#include "app-disp.hpp"
+#include "ogl-program.hpp"
+#include "ogl-texture.hpp"
 
 //-----------------------------------------------------------------------------
 

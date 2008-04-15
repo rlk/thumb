@@ -10,9 +10,9 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "world.hpp"
-#include "font.hpp"
-#include "gui.hpp"
+#include "wrl-world.hpp"
+#include "app-font.hpp"
+#include "gui-gui.hpp"
 
 //-----------------------------------------------------------------------------
 

@@ -16,14 +16,14 @@
 #include <iostream>
 #include <cstring>
 
-#include "opengl.hpp"
+#include "ogl-opengl.hpp"
 #include "demo.hpp"
 #include "app-conf.hpp"
-#include "user.hpp"
-#include "host.hpp"
-#include "edit.hpp"
-#include "play.hpp"
-#include "info.hpp"
+#include "app-user.hpp"
+#include "app-host.hpp"
+#include "mode-edit.hpp"
+#include "mode-play.hpp"
+#include "mode-info.hpp"
 
 //-----------------------------------------------------------------------------
 

@@ -11,10 +11,10 @@
 //  General Public License for more details.
 
 #include "util.hpp"
-#include "opengl.hpp"
+#include "ogl-opengl.hpp"
 #include "matrix.hpp"
-#include "user.hpp"
-#include "glob.hpp"
+#include "app-user.hpp"
+#include "app-glob.hpp"
 #include "constraint.hpp"
 
 //-----------------------------------------------------------------------------

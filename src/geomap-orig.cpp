@@ -17,9 +17,9 @@
 #include <string>
 #include <png.h>
 
-#include "geomap.hpp"
+#include "uni-geomap.hpp"
 #include "default.hpp"
-#include "program.hpp"
+#include "ogl-program.hpp"
 #include "matrix.hpp"
 #include "util.hpp"
 

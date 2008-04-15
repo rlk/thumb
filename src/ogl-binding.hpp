@@ -15,8 +15,8 @@
 
 #include <string>
 
-#include "program.hpp"
-#include "texture.hpp"
+#include "ogl-program.hpp"
+#include "ogl-texture.hpp"
 
 //-----------------------------------------------------------------------------
 

@@ -16,7 +16,7 @@
 #include <set>
 #include <cstring>
 
-#include "pool.hpp"
+#include "ogl-pool.hpp"
 
 //-----------------------------------------------------------------------------
 

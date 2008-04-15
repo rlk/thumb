@@ -15,7 +15,7 @@
 
 #include "obj.hpp"
 #include "app-data.hpp"
-#include "glob.hpp"
+#include "app-glob.hpp"
 #include "matrix.hpp"
 
 //-----------------------------------------------------------------------------

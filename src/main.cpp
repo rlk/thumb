@@ -17,17 +17,17 @@
 #include <SDL.h>
 
 #include "main.hpp"
-#include "host.hpp"
+#include "app-host.hpp"
 #include "util.hpp"
 #include "tracker.hpp"
-#include "opengl.hpp"
+#include "ogl-opengl.hpp"
 #include "demo.hpp"
 #include "app-data.hpp"
 #include "app-conf.hpp"
-#include "glob.hpp"
-#include "lang.hpp"
-#include "user.hpp"
-#include "perf.hpp"
+#include "app-glob.hpp"
+#include "app-lang.hpp"
+#include "app-user.hpp"
+#include "app-perf.hpp"
 
 //-----------------------------------------------------------------------------
 // Global application state.

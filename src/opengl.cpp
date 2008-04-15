@@ -16,7 +16,7 @@
 #include <sstream>
 #include <fstream>
 
-#include "opengl.hpp"
+#include "ogl-opengl.hpp"
 #include "util.hpp"
 #include "app-conf.hpp"
 

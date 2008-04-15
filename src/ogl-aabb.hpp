@@ -13,7 +13,7 @@
 #ifndef AABB_HPP
 #define AABB_HPP
 
-#include "opengl.hpp"
+#include "ogl-opengl.hpp"
 
 //-----------------------------------------------------------------------------
 

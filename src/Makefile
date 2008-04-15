@@ -12,64 +12,63 @@ CD= cd
 CP= cp
 
 TARG= ../thumb
-OBJS=	serial.o \
+OBJS=	app-serial.o \
 	tracker.o \
-	opengl.o \
+	ogl-opengl.o \
 	ogl-aabb.o \
 	obj.o \
 	matrix.o \
-	lut.o \
-	patch.o \
+	ogl-lut.o \
 	ogl-buffer.o \
-        geogen.o \
-        georen.o \
-        geomap.o \
-        geocsh.o \
-	progset.o \
-	spatch.o \
-	sphere.o \
-	universe.o \
+        uni-geogen.o \
+        uni-georen.o \
+        uni-geomap.o \
+        uni-geocsh.o \
+	ogl-progset.o \
+	uni-spatch.o \
+	uni-sphere.o \
+	uni-universe.o \
 	wrl-atom.o \
-	world.o \
-	solid.o \
-	joint.o \
-	operation.o \
+	wrl-world.o \
+	wrl-solid.o \
+	wrl-joint.o \
+	ops-operation.o \
 	constraint.o \
-	program.o \
-	texture.o \
-	surface.o \
+	ogl-program.o \
+	ogl-texture.o \
+	ogl-surface.o \
 	ogl-binding.o \
-	image.o \
-	frame.o \
-	mesh.o \
-	pool.o \
-	data.o \
-	lang.o \
+	ogl-image.o \
+	ogl-frame.o \
+	ogl-mesh.o \
+	ogl-pool.o \
+	app-data.o \
+	app-lang.o \
 	app-conf.o \
-	edit.o \
-	play.o \
-	info.o \
-	mode.o \
+	mode-edit.o \
+	mode-play.o \
+	mode-info.o \
+	mode-mode.o \
 	demo.o \
-	user.o \
-	glob.o \
-	prog.o \
+	app-user.o \
+	app-glob.o \
+	app-prog.o \
 	util.o \
-	font.o \
+	app-font.o \
 	cnt-control.o \
-	gui.o \
-	param.o \
+	gui-gui.o \
+	wrl-param.o \
 	dir.o \
-	perf.o \
+	app-perf.o \
 	odeutil.o \
-	frustum.o \
-	normal.o \
+	app-frustum.o \
+	app-normal.o \
 	app-dome.o \
-	varrier.o \
-	message.o \
-	view.o \
-	tile.o \
-	host.o \
+	app-varrier.o \
+	app-message.o \
+	app-view.o \
+	app-tile.o \
+	app-host.o \
 	main.o
 
 LIBS= -lmxml -lode -ljpeg -lpng -lz -lm

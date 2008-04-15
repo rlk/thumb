@@ -12,9 +12,9 @@
 
 #include "app-dome.hpp"
 #include "matrix.hpp"
-#include "glob.hpp"
-#include "user.hpp"
-#include "prog.hpp"
+#include "app-glob.hpp"
+#include "app-user.hpp"
+#include "app-prog.hpp"
 
 //-----------------------------------------------------------------------------
 

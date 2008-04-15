@@ -13,8 +13,8 @@
 #include <sstream>
 
 #include "cnt-control.hpp"
-#include "joint.hpp"
-#include "solid.hpp"
+#include "wrl-joint.hpp"
+#include "wrl-solid.hpp"
 
 //-----------------------------------------------------------------------------
 
