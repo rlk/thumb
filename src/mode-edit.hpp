@@ -14,7 +14,7 @@
 #define EDIT_HPP
 
 #include "mode-mode.hpp"
-#include "constraint.hpp"
+#include "wrl-constraint.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ namespace mode
 
         // Edit-mode state.
 
-        constraint transform;
+        wrl::constraint transform;
 
         bool drag;
         bool move;

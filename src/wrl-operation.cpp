@@ -12,27 +12,27 @@
 
 #include <iostream>
 
-#include "ops-operation.hpp"
 #include "matrix.hpp"
 #include "wrl-world.hpp"
+#include "wrl-operation.hpp"
 
 //-----------------------------------------------------------------------------
 
 // This atom set remains empty at all times. It is used as a return value
 // when an undo or redo should cause the selection to be cleared.
 
-namespace ops
+namespace wrl
 {
     static wrl::atom_set deselection;
 }
 
 //-----------------------------------------------------------------------------
 
-ops::create_op::create_op(wrl::atom_set& S) : operation(S)
+wrl::create_op::create_op(wrl::atom_set& S) : operation(S)
 {
 }
 
-ops::create_op::~create_op()
+wrl::create_op::~create_op()
 {
     // An undone create operation contains the only reference to the created
     // atoms. If this operation is deleted before being redone then these
@@ -45,14 +45,14 @@ ops::create_op::~create_op()
             delete (*i);
 }
 
-wrl::atom_set& ops::create_op::undo(wrl::world *w)
+wrl::atom_set& wrl::create_op::undo(wrl::world *w)
 {
     w->delete_set(selection);
     done = false;
     return deselection;
 }
 
-wrl::atom_set& ops::create_op::redo(wrl::world *w)
+wrl::atom_set& wrl::create_op::redo(wrl::world *w)
 {
     w->create_set(selection);
     done = true;
@@ -61,11 +61,11 @@ wrl::atom_set& ops::create_op::redo(wrl::world *w)
 
 //-----------------------------------------------------------------------------
 
-ops::delete_op::delete_op(wrl::atom_set& S) : operation(S)
+wrl::delete_op::delete_op(wrl::atom_set& S) : operation(S)
 {
 }
 
-ops::delete_op::~delete_op()
+wrl::delete_op::~delete_op()
 {
     // A non-undone delete operation contains the only reference to the deleted
     // atom. If this operation is deleted before being undone then these atoms
@@ -78,14 +78,14 @@ ops::delete_op::~delete_op()
             delete (*i);
 }
 
-wrl::atom_set& ops::delete_op::undo(wrl::world *w)
+wrl::atom_set& wrl::delete_op::undo(wrl::world *w)
 {
     w->create_set(selection);
     done = false;
     return selection;
 }
 
-wrl::atom_set& ops::delete_op::redo(wrl::world *w)
+wrl::atom_set& wrl::delete_op::redo(wrl::world *w)
 {
     w->delete_set(selection);
     done = true;
@@ -94,20 +94,20 @@ wrl::atom_set& ops::delete_op::redo(wrl::world *w)
 
 //-----------------------------------------------------------------------------
 
-ops::modify_op::modify_op(wrl::atom_set& S, const double *M) : operation(S)
+wrl::modify_op::modify_op(wrl::atom_set& S, const double *M) : operation(S)
 {
     load_mat(T, M);
     load_inv(I, M);
 }
 
-wrl::atom_set& ops::modify_op::undo(wrl::world *w)
+wrl::atom_set& wrl::modify_op::undo(wrl::world *w)
 {
     w->modify_set(selection, I);
     done = false;
     return selection;
 }
 
-wrl::atom_set& ops::modify_op::redo(wrl::world *w)
+wrl::atom_set& wrl::modify_op::redo(wrl::world *w)
 {
     w->modify_set(selection, T);
     done = true;
@@ -116,7 +116,7 @@ wrl::atom_set& ops::modify_op::redo(wrl::world *w)
 
 //-----------------------------------------------------------------------------
 
-ops::embody_op::embody_op(wrl::atom_set& S, int id) : operation(S)
+wrl::embody_op::embody_op(wrl::atom_set& S, int id) : operation(S)
 {
     wrl::atom_set::iterator i;
 
@@ -129,14 +129,14 @@ ops::embody_op::embody_op(wrl::atom_set& S, int id) : operation(S)
     }
 }
 
-wrl::atom_set& ops::embody_op::undo(wrl::world *w)
+wrl::atom_set& wrl::embody_op::undo(wrl::world *w)
 {
     w->embody_set(selection, old_id);
     done = false;
     return selection;
 }
 
-wrl::atom_set& ops::embody_op::redo(wrl::world *w)
+wrl::atom_set& wrl::embody_op::redo(wrl::world *w)
 {
     w->embody_set(selection, new_id);
     done = true;
@@ -145,7 +145,7 @@ wrl::atom_set& ops::embody_op::redo(wrl::world *w)
 
 //-----------------------------------------------------------------------------
 
-ops::enjoin_op::enjoin_op(wrl::atom_set& S) : operation(S), one_id(0),two_id(0)
+wrl::enjoin_op::enjoin_op(wrl::atom_set& S) : operation(S), one_id(0),two_id(0)
 {
     wrl::atom_set::iterator i;
 
@@ -169,7 +169,7 @@ ops::enjoin_op::enjoin_op(wrl::atom_set& S) : operation(S), one_id(0),two_id(0)
     if (j != ids.rend()) two_id = *(j++);
 }
 
-wrl::atom_set& ops::enjoin_op::undo(wrl::world *)
+wrl::atom_set& wrl::enjoin_op::undo(wrl::world *)
 {
     wrl::atom_set::iterator i;
 
@@ -182,7 +182,7 @@ wrl::atom_set& ops::enjoin_op::undo(wrl::world *)
     return selection;
 }
 
-wrl::atom_set& ops::enjoin_op::redo(wrl::world *)
+wrl::atom_set& wrl::enjoin_op::redo(wrl::world *)
 {
     wrl::atom_set::iterator i;
 

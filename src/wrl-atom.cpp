@@ -12,7 +12,7 @@
 
 #include "ogl-opengl.hpp"
 #include "matrix.hpp"
-#include "odeutil.hpp"
+#include "ode.hpp"
 
 #include "wrl-atom.hpp"
 #include "app-glob.hpp"

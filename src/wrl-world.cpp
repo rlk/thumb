@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include "odeutil.hpp"
+#include "ode.hpp"
 #include "matrix.hpp"
 #include "wrl-world.hpp"
 #include "wrl-solid.hpp"
@@ -379,7 +379,7 @@ void wrl::world::play_step(double dt)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::doop(ops::operation_p op)
+void wrl::world::doop(wrl::operation_p op)
 {
     // Delete all redo-able operations.
 
@@ -716,32 +716,32 @@ void wrl::world::do_create()
 
     // (This will have nullified all broken joint target IDs.)
 
-    if (!sel.empty()) doop(new ops::create_op(sel));
+    if (!sel.empty()) doop(new wrl::create_op(sel));
 }
 
 void wrl::world::do_delete()
 {
-    if (!sel.empty()) doop(new ops::delete_op(sel));
+    if (!sel.empty()) doop(new wrl::delete_op(sel));
 }
 
 void wrl::world::do_enjoin()
 {
-    if (!sel.empty()) doop(new ops::enjoin_op(sel));
+    if (!sel.empty()) doop(new wrl::enjoin_op(sel));
 }
 
 void wrl::world::do_embody()
 {
-    if (!sel.empty()) doop(new ops::embody_op(sel, serial++));
+    if (!sel.empty()) doop(new wrl::embody_op(sel, serial++));
 }
 
 void wrl::world::do_debody()
 {
-    if (!sel.empty()) doop(new ops::embody_op(sel, 0));
+    if (!sel.empty()) doop(new wrl::embody_op(sel, 0));
 }
 
 void wrl::world::do_modify(const double *M)
 {
-    if (!sel.empty()) doop(new ops::modify_op(sel, M));
+    if (!sel.empty()) doop(new wrl::modify_op(sel, M));
 }
 
 //-----------------------------------------------------------------------------

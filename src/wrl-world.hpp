@@ -18,7 +18,7 @@
 #include "wrl-atom.hpp"
 #include "ogl-pool.hpp"
 #include "ogl-frame.hpp"
-#include "ops-operation.hpp"
+#include "wrl-operation.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -72,10 +72,10 @@ namespace wrl
 
         int serial;
 
-        ops::operation_l undo_list;
-        ops::operation_l redo_list;
+        wrl::operation_l undo_list;
+        wrl::operation_l redo_list;
 
-        void doop(ops::operation_p);
+        void doop(wrl::operation_p);
 
         // Stuff to be moved to where it belongs.
 

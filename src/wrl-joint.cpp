@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include "odeutil.hpp"
+#include "ode.hpp"
 #include "ogl-opengl.hpp"
 #include "wrl-joint.hpp"
 

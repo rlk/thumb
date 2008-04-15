@@ -12,63 +12,63 @@ CD= cd
 CP= cp
 
 TARG= ../thumb
-OBJS=	app-serial.o \
-	tracker.o \
-	ogl-opengl.o \
-	ogl-aabb.o \
+OBJS=   util.o \
+	dir.o \
+	ode.o \
 	obj.o \
 	matrix.o \
+	tracker.o \
 	ogl-lut.o \
-	ogl-buffer.o \
-        uni-geogen.o \
-        uni-georen.o \
-        uni-geomap.o \
-        uni-geocsh.o \
+	ogl-aabb.o \
+	ogl-binding.o \
 	ogl-progset.o \
-	uni-spatch.o \
-	uni-sphere.o \
-	uni-universe.o \
-	wrl-atom.o \
-	wrl-world.o \
-	wrl-solid.o \
-	wrl-joint.o \
-	ops-operation.o \
-	constraint.o \
 	ogl-program.o \
 	ogl-texture.o \
 	ogl-surface.o \
-	ogl-binding.o \
+	ogl-buffer.o \
 	ogl-image.o \
 	ogl-frame.o \
 	ogl-mesh.o \
 	ogl-pool.o \
-	app-data.o \
-	app-lang.o \
-	app-conf.o \
+	ogl-opengl.o \
+	gui-control.o \
+	gui-gui.o \
 	mode-edit.o \
 	mode-play.o \
 	mode-info.o \
 	mode-mode.o \
-	demo.o \
-	app-user.o \
-	app-glob.o \
-	app-prog.o \
-	util.o \
-	app-font.o \
-	cnt-control.o \
-	gui-gui.o \
+	wrl-constraint.o \
+	wrl-operation.o \
 	wrl-param.o \
-	dir.o \
-	app-perf.o \
-	odeutil.o \
+	wrl-atom.o \
+	wrl-solid.o \
+	wrl-joint.o \
+	wrl-world.o \
+        uni-geomap.o \
+        uni-geocsh.o \
+        uni-geogen.o \
+        uni-georen.o \
+	uni-spatch.o \
+	uni-sphere.o \
+	uni-universe.o \
 	app-frustum.o \
-	app-normal.o \
 	app-dome.o \
+	app-normal.o \
 	app-varrier.o \
 	app-message.o \
+	app-serial.o \
+	app-font.o \
 	app-view.o \
 	app-tile.o \
 	app-host.o \
+	app-user.o \
+	app-perf.o \
+	app-lang.o \
+	app-glob.o \
+	app-conf.o \
+	app-data.o \
+	app-prog.o \
+	demo.o \
 	main.o
 
 LIBS= -lmxml -lode -ljpeg -lpng -lz -lm

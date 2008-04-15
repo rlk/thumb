@@ -12,7 +12,7 @@
 
 #include <sstream>
 
-#include "cnt-control.hpp"
+#include "gui-control.hpp"
 #include "wrl-joint.hpp"
 #include "wrl-solid.hpp"
 

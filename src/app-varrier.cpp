@@ -12,7 +12,7 @@
 
 #include <SDL_keyboard.h>
 
-#include "varrier.hpp"
+#include "app-varrier.hpp"
 #include "matrix.hpp"
 #include "util.hpp"
 

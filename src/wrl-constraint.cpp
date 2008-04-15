@@ -11,15 +11,15 @@
 //  General Public License for more details.
 
 #include "util.hpp"
-#include "ogl-opengl.hpp"
 #include "matrix.hpp"
+#include "ogl-opengl.hpp"
 #include "app-user.hpp"
 #include "app-glob.hpp"
-#include "constraint.hpp"
+#include "wrl-constraint.hpp"
 
 //-----------------------------------------------------------------------------
 
-constraint::constraint() : mode(0), axis(1), grid(3)
+wrl::constraint::constraint() : mode(0), axis(1), grid(3)
 {
     pool = glob->new_pool();
     node = new ogl::node();
@@ -56,7 +56,7 @@ constraint::constraint() : mode(0), axis(1), grid(3)
     orient();
 }
 
-constraint::~constraint()
+wrl::constraint::~constraint()
 {
     int i;
 
@@ -68,7 +68,7 @@ constraint::~constraint()
 
 //-----------------------------------------------------------------------------
 
-void constraint::orient()
+void wrl::constraint::orient()
 {
     T[12] = M[12];
     T[13] = M[13];
@@ -96,7 +96,7 @@ void constraint::orient()
     node->transform(T);
 }
 
-void constraint::set_grid(int g)
+void wrl::constraint::set_grid(int g)
 {
     static const int a[] = {
          1,
@@ -131,7 +131,7 @@ void constraint::set_grid(int g)
     set_mode(mode);
 }
 
-void constraint::set_mode(int m)
+void wrl::constraint::set_mode(int m)
 {
     mode = m;
 
@@ -145,13 +145,13 @@ void constraint::set_mode(int m)
     node->transform(T);
 }
 
-void constraint::set_axis(int a)
+void wrl::constraint::set_axis(int a)
 {
     axis = a;
     orient();
 }
 
-void constraint::set_transform(const double *A)
+void wrl::constraint::set_transform(const double *A)
 {
     load_mat(M, A);
     orient();
@@ -167,8 +167,8 @@ static double snap(double f, double d)
     return (fabs(f0 - f) < fabs(f1 - f)) ? f0 : f1;
 }
 
-void constraint::calc_rot(double& a, double& d, const double *p,
-                                                const double *v) const
+void wrl::constraint::calc_rot(double& a, double& d, const double *p,
+                                                     const double *v) const
 {
     double q[3], t = (DOT3(T + 12, T + 8) - DOT3(p, T + 8)) / DOT3(v, T + 8);
 
@@ -183,8 +183,8 @@ void constraint::calc_rot(double& a, double& d, const double *p,
     d = snap(dd,       (grid_d));
 }
 
-void constraint::calc_pos(double& x, double& y, const double *p,
-                                                const double *v) const
+void wrl::constraint::calc_pos(double& x, double& y, const double *p,
+                                                     const double *v) const
 {
     double q[3], t = (DOT3(T + 12, T + 8) - DOT3(p, T + 8)) / DOT3(v, T + 8);
 
@@ -201,7 +201,7 @@ void constraint::calc_pos(double& x, double& y, const double *p,
 
 //-----------------------------------------------------------------------------
 
-bool constraint::point(double *M, const double *p, const double *v)
+bool wrl::constraint::point(double *M, const double *p, const double *v)
 {
     if (mode)
     {
@@ -237,7 +237,7 @@ bool constraint::point(double *M, const double *p, const double *v)
     return false;
 }
 
-void constraint::click(const double *p, const double *v)
+void wrl::constraint::click(const double *p, const double *v)
 {
     calc_rot(mouse_a, mouse_d, p, v);
     calc_pos(mouse_x, mouse_y, p, v);
@@ -245,13 +245,13 @@ void constraint::click(const double *p, const double *v)
 
 //-----------------------------------------------------------------------------
 
-double constraint::view(const double *frustum)
+double wrl::constraint::view(const double *frustum)
 {
            pool->prep();
     return pool->view(0, 5, frustum);
 }
 
-void constraint::draw()
+void wrl::constraint::draw()
 {
     glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT |
                  GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

@@ -13,9 +13,9 @@
 #include <iostream>
 #include <ode/ode.h>
 
-#include "odeutil.hpp"
-#include "ogl-opengl.hpp"
+#include "ode.hpp"
 #include "matrix.hpp"
+#include "ogl-opengl.hpp"
 #include "wrl-solid.hpp"
 
 //-----------------------------------------------------------------------------
