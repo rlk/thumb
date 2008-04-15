@@ -11,7 +11,7 @@
 //  General Public License for more details.
 
 #include "glob.hpp"
-#include "atmo.hpp"
+#include "uni-atmo.hpp"
 
 //-----------------------------------------------------------------------------
 

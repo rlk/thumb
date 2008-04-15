@@ -15,7 +15,7 @@
 #include <png.h>
 
 #include "geocsh.hpp"
-#include "conf.hpp"
+#include "app-conf.hpp"
 
 //=============================================================================
 

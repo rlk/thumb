@@ -14,7 +14,7 @@
 #include "matrix.hpp"
 #include "odeutil.hpp"
 
-#include "atom.hpp"
+#include "wrl-atom.hpp"
 #include "glob.hpp"
 
 //-----------------------------------------------------------------------------

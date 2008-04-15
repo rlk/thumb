@@ -12,7 +12,7 @@
 
 #include <sstream>
 
-#include "control.hpp"
+#include "cnt-control.hpp"
 #include "joint.hpp"
 #include "solid.hpp"
 

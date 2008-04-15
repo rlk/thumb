@@ -16,7 +16,7 @@
 #include "serial.hpp"
 #include "matrix.hpp"
 #include "glob.hpp"
-
+/*
 static void dump(const GLubyte *v)
 {
     int w = 32;
@@ -35,7 +35,7 @@ static void dump(const GLubyte *v)
     }
     printf("\n");
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 uni::page::page(int w, int h, int s,

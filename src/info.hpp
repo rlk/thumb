@@ -13,7 +13,7 @@
 #ifndef INFO_HPP
 #define INFO_HPP
 
-#include "control.hpp"
+#include "cnt-control.hpp"
 #include "mode.hpp"
 
 //-----------------------------------------------------------------------------

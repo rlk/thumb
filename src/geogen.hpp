@@ -16,7 +16,7 @@
 #include "opengl.hpp"
 #include "program.hpp"
 #include "default.hpp"
-#include "buffer.hpp"
+#include "ogl-buffer.hpp"
 #include "image.hpp"
 #include "frame.hpp"
 #include "lut.hpp"

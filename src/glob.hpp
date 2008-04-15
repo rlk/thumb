@@ -18,7 +18,7 @@
 
 #include "program.hpp"
 #include "texture.hpp"
-#include "binding.hpp"
+#include "ogl-binding.hpp"
 #include "surface.hpp"
 #include "image.hpp"
 #include "frame.hpp"

@@ -19,7 +19,7 @@
 #include "solid.hpp"
 #include "edit.hpp"
 #include "host.hpp"
-#include "conf.hpp"
+#include "app-conf.hpp"
 #include "user.hpp"
 
 //-----------------------------------------------------------------------------

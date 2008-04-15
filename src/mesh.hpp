@@ -16,8 +16,8 @@
 #include <vector>
 
 #include "opengl.hpp"
-#include "aabb.hpp"
-#include "binding.hpp"
+#include "ogl-aabb.hpp"
+#include "ogl-binding.hpp"
 
 //-----------------------------------------------------------------------------
 

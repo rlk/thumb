@@ -2,6 +2,14 @@
 
 Mark unfound PNGs in the page.  This will improve cache optimization.
 
+Eliminate all pages smaller than some cutoff.
+
+Remove pages from the needed queue when they are eliminated from the working set.  The serialization of page loading results in heavy latency and unnecessary CPU load.
+
+Find the bottleneck.
+
+Modularize the mipmap shaders.
+
 -------------------------------------------------------------------------------
 
 test/norm mode should NOT be a view attribute

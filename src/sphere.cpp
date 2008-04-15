@@ -22,7 +22,7 @@
 #include "glob.hpp"
 #include "prog.hpp"
 #include "user.hpp"
-#include "conf.hpp"
+#include "app-conf.hpp"
 #include "util.hpp"
 
 //=============================================================================

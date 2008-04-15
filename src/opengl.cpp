@@ -18,7 +18,7 @@
 
 #include "opengl.hpp"
 #include "util.hpp"
-#include "conf.hpp"
+#include "app-conf.hpp"
 
 //-----------------------------------------------------------------------------
 

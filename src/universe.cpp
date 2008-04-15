@@ -16,7 +16,7 @@
 #include "geomap.hpp"
 #include "matrix.hpp"
 #include "glob.hpp"
-#include "conf.hpp"
+#include "app-conf.hpp"
 #include "host.hpp"
 #include "user.hpp"
 

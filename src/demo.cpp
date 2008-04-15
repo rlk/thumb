@@ -18,7 +18,7 @@
 
 #include "opengl.hpp"
 #include "demo.hpp"
-#include "conf.hpp"
+#include "app-conf.hpp"
 #include "user.hpp"
 #include "host.hpp"
 #include "edit.hpp"

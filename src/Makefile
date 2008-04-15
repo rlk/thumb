@@ -1,8 +1,8 @@
 
-#CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
+CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
-CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 
@@ -15,12 +15,12 @@ TARG= ../thumb
 OBJS=	serial.o \
 	tracker.o \
 	opengl.o \
-	aabb.o \
+	ogl-aabb.o \
 	obj.o \
 	matrix.o \
 	lut.o \
 	patch.o \
-	buffer.o \
+	ogl-buffer.o \
         geogen.o \
         georen.o \
         geomap.o \
@@ -29,7 +29,7 @@ OBJS=	serial.o \
 	spatch.o \
 	sphere.o \
 	universe.o \
-	atom.o \
+	wrl-atom.o \
 	world.o \
 	solid.o \
 	joint.o \
@@ -38,14 +38,14 @@ OBJS=	serial.o \
 	program.o \
 	texture.o \
 	surface.o \
-	binding.o \
+	ogl-binding.o \
 	image.o \
 	frame.o \
 	mesh.o \
 	pool.o \
 	data.o \
 	lang.o \
-	conf.o \
+	app-conf.o \
 	edit.o \
 	play.o \
 	info.o \
@@ -56,7 +56,7 @@ OBJS=	serial.o \
 	prog.o \
 	util.o \
 	font.o \
-	control.o \
+	cnt-control.o \
 	gui.o \
 	param.o \
 	dir.o \
@@ -64,7 +64,7 @@ OBJS=	serial.o \
 	odeutil.o \
 	frustum.o \
 	normal.o \
-	dome.o \
+	app-dome.o \
 	varrier.o \
 	message.o \
 	view.o \

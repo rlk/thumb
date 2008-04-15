@@ -14,7 +14,7 @@
 #define JOINT_HPP
 
 #include "param.hpp"
-#include "atom.hpp"
+#include "wrl-atom.hpp"
 
 //-----------------------------------------------------------------------------
 

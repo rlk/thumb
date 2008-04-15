@@ -15,7 +15,7 @@
 
 #include <ode/ode.h>
 
-#include "atom.hpp"
+#include "wrl-atom.hpp"
 #include "pool.hpp"
 #include "frame.hpp"
 #include "operation.hpp"

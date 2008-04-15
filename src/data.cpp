@@ -20,8 +20,8 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
-#include "data.hpp"
-#include "conf.hpp"
+#include "app-data.hpp"
+#include "app-conf.hpp"
 #include "util.hpp"
 #include "dir.hpp"
 

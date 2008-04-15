@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "data.hpp"
-#include "conf.hpp"
+#include "app-data.hpp"
+#include "app-conf.hpp"
 #include "lang.hpp"
 
 //-----------------------------------------------------------------------------

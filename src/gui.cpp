@@ -15,8 +15,8 @@
 #include <SDL_keyboard.h>
 
 #include "gui.hpp"
-#include "data.hpp"
-#include "conf.hpp"
+#include "app-data.hpp"
+#include "app-conf.hpp"
 #include "lang.hpp"
 #include "user.hpp"
 #include "host.hpp"

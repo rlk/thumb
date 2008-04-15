@@ -17,7 +17,7 @@
 
 #include "opengl.hpp"
 #include "prog.hpp"
-#include "conf.hpp"
+#include "app-conf.hpp"
 #include "host.hpp"
 
 //-----------------------------------------------------------------------------
