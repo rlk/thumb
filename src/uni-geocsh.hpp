@@ -108,26 +108,69 @@ namespace uni
     };
 
     //-------------------------------------------------------------------------
+    // Geometry data buffer
+
+    class buffer
+    {
+        png_uint_32 w;
+        png_uint_32 h;
+        png_byte    c;
+        png_byte    b;
+
+        GLubyte   *dat;
+        png_bytep *row;
+
+        bool ret;
+
+    public:
+
+        buffer(int, int, int, int);
+       ~buffer();
+
+        buffer *load(std::string);
+
+        const GLvoid *data() const { return dat; }
+        bool          stat() const { return ret; }
+    };
+
+    //-------------------------------------------------------------------------
     // Geometry data cache
 
     class geocsh
     {
-        struct index_line
+        typedef std::list<buffer *> buff_list;
+
+        // Needed page
+
+        struct need
         {
             geomap *M;
             page   *P;
+            need(geomap *M=0, page *P=0) : M(M), P(P) { }
         };
-        typedef std::multimap<double,
-                              index_line,
-                              std::greater<double> > index_m;
-        struct cache_line
+        typedef std::multimap<double, need, std::greater<double> > need_map;
+
+        // Loaded page
+
+        struct load
+        {
+            geomap *M;
+            page   *P;
+            buffer *B;
+            load(geomap *M=0, page *P=0, buffer *B=0) : M(M), P(P), B(B) { }
+        };
+        typedef std::list<load> load_list;
+
+        // Cache index
+
+        struct line
         {
             geomap *M;
             int     x;
             int     y;
-            cache_line(geomap *M=0, int x=0, int y=0) : M(M), x(x), y(y) { }
+            line(geomap *M=0, int x=0, int y=0) : M(M), x(x), y(y) { }
         };
-        typedef std::map<page *, cache_line> cache_m;
+        typedef std::map<page *, line> line_map;
 
         int c;
         int b;
@@ -141,20 +184,21 @@ namespace uni
 
         bool debug;
 
-//      index_line  *index;
         ogl::image  *cache;
 
         std::list<page *> cache_lru;
-        cache_m           cache_map;
-        index_m           index_map;
+        line_map          cache_idx;
 
-        buffer_pool  *balloc;
-        needed_queue *need_Q;
-        loaded_queue *load_Q;
-        SDL_Thread   *loader;
+        need_map  needs;
+        load_list loads;
+        buff_list buffs;
 
-        void proc_index(const double *, double, double, app::frustum_v&);
-        void proc_cache();
+        SDL_mutex  *need_mutex;
+        SDL_mutex  *load_mutex;
+        SDL_Thread *load_thread;
+
+        void proc_needs(const double *, double, double, app::frustum_v&);
+        void proc_loads();
 
     public:
 
@@ -170,6 +214,11 @@ namespace uni
 
         void draw() const;
         void wire(double, double) const;
+
+        // Data access service API.
+
+        bool get_needed(geomap **, page **, buffer **);
+        void put_loaded(geomap *,  page *,  buffer *);
     };
 }
 

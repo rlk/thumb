@@ -119,16 +119,7 @@ void ogl::texture::load_png(const void *buf, size_t len)
         GLsizei w = GLsizei(png_get_image_width (rp, ip));
         GLsizei h = GLsizei(png_get_image_height(rp, ip));
         GLsizei b = GLsizei(png_get_bit_depth   (rp, ip)) / 8;
-        GLsizei c = 1;
-
-        switch (png_get_color_type(rp, ip))
-        {
-        case PNG_COLOR_TYPE_GRAY:       c = 1; break;
-        case PNG_COLOR_TYPE_GRAY_ALPHA: c = 2; break;
-        case PNG_COLOR_TYPE_RGB:        c = 3; break;
-        case PNG_COLOR_TYPE_RGB_ALPHA:  c = 4; break;
-        default: throw std::runtime_error("Unsupported PNG color type");
-        }
+        GLsizei c = GLsizei(png_get_channels    (rp, ip));
 
         target  = GL_TEXTURE_2D;
         border  = 0;
@@ -162,6 +153,8 @@ void ogl::texture::load_png(const void *buf, size_t len)
                                 0, -border,
                                 i - border,
                                 w, 1, extform, type, bp[j]);
+
+            // TODO: convert this to png_read_image with upside-down row array.
 
             OGLCK();
         }

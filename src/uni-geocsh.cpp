@@ -18,46 +18,93 @@
 #include "app-conf.hpp"
 
 //=============================================================================
+// Data loader threads query the cache object for requests, load the requested
+// data, and submit the loaded buffer back to the cache object.
 
-bool load_png(png_bytepp bp, std::string name)
+static int loader_func(void *data)
+{
+    uni::geocsh *C = (uni::geocsh *) data;
+    uni::geomap *M = 0;
+    uni::page   *P = 0;
+    uni::buffer *B = 0;
+
+    while (C->get_needed(&M, &P, &B))
+           C->put_loaded( M,  P,  B->load(M->name(P)));
+
+    return 0;
+}
+
+//=============================================================================
+// Geometry data buffer
+
+uni::buffer::buffer(int w, int h, int c, int b) :
+    w(png_uint_32(w)),
+    h(png_uint_32(h)),
+    c(png_byte(c)),
+    b(png_byte(b)),
+    ret(false)
+{
+    // Allocate a pixel buffer and an array of row pointers.
+
+    dat = new GLubyte[w * h * c * b];
+    row = new png_bytep[h];
+
+    // Initialize the row pointers to index the pixel buffer upside-down.
+
+    if (dat && row)
+        for (int i = 0; i < h; ++i)
+            row[h - i - 1] = dat + i * w * c * b;
+}
+
+uni::buffer::~buffer()
+{
+    if (row) delete [] row;
+    if (dat) delete [] dat;
+}
+
+uni::buffer *uni::buffer::load(std::string name)
 {
     png_structp rp = 0;
     png_infop   ip = 0;
     FILE       *fp = 0;
 
-    bool rr = false;
+    ret = false;
 
     // Initialize all PNG import data structures.
 
-    if ((fp = fopen(name.c_str(), "rb")))
+    if (dat && row && (fp = fopen(name.c_str(), "rb")))
     {
         if ((rp = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0)))
         {
             if ((ip = png_create_info_struct(rp)))
             {
-                // Enable the default PNG error handler.
-
                 if (setjmp(png_jmpbuf(rp)) == 0)
                 {
                     // Read the PNG.
 
-                    png_init_io   (rp, fp);
-                    png_read_info (rp, ip);
-                    png_read_image(rp, bp);
+                    png_init_io  (rp, fp);
+                    png_read_info(rp, ip);
 
-                    rr = true;
+                    if (png_get_image_width (rp, ip) == w &&
+                        png_get_image_height(rp, ip) == h &&
+                        png_get_channels    (rp, ip) == c &&
+                        png_get_bit_depth   (rp, ip) == b * 8)
+                    {
+                        png_read_image(rp, row);
+                        ret = true;
+                    }
                 }
-
                 png_destroy_read_struct(&rp, &ip, 0);
             }
         }
         fclose(fp);
     }
-    return rr;
+
+    return this;
 }
 
 //=============================================================================
-
+/*
 uni::buffer_pool::buffer_pool(int w, int h, int c, int b) :
     w(w), h(h), c(c), b(b), N(0)
 {
@@ -122,9 +169,9 @@ void uni::buffer_pool::put(buff B)
     }
     SDL_mutexV(mutex);
 }
-
+*/
 //=============================================================================
-
+/*
 struct uni::loaded_queue::load
 {
     geomap           *M;
@@ -196,9 +243,9 @@ bool uni::loaded_queue::dequeue(geomap **M, page **P, buffer_pool::buff *b)
 
     return rr;
 }
-
+*/
 //=============================================================================
-
+/*
 struct uni::needed_queue::need
 {
     geomap *M;
@@ -291,43 +338,11 @@ void uni::needed_queue::stop()
 
     SDL_SemPost(sem);
 }
-
+*/
 //=============================================================================
-
-struct loader_args
-{
-    uni::buffer_pool  *B;
-    uni::needed_queue *N;
-    uni::loaded_queue *L;
-};
-
-static int loader_func(void *data)
-{
-    struct loader_args *args = (struct loader_args *) data;
-
-    uni::geomap *M = 0;
-    uni::page   *P = 0;
-
-    // Dequeue the next request.
-
-    while (args->N->dequeue(&M, &P))
-    {
-        // Load and enqueue the page.
-
-        uni::buffer_pool::buff b = args->B->get();
-
-        if (load_png(b.rp, M->name(P)))
-            args->L->enqueue(M, P, b);
-
-        // Else mark the page as dead.
-    }
-
-    return 0;
-}
 
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     c(c), b(b), s(s), S(s + 2), w(w), h(h), n(0), m(w * h), count(0),
-//  index(new index_line[m]),
     cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
 {
     cache->bind(GL_TEXTURE0);
@@ -337,28 +352,21 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     }
     cache->free(GL_TEXTURE0);
 
-    loader_args *args = new loader_args;
-
-    args->B = balloc = new buffer_pool(S, S, c, b);
-    args->N = need_Q = new needed_queue();
-    args->L = load_Q = new loaded_queue();
-
-    loader = SDL_CreateThread(loader_func, (void *) args);
+    need_mutex  = SDL_CreateMutex();
+    load_mutex  = SDL_CreateMutex();
+    load_thread = SDL_CreateThread(loader_func, (void *) this);
 
     debug = ::conf->get_i("debug");
 }
 
 uni::geocsh::~geocsh()
 {
-    need_Q->stop();
+    SDL_WaitThread(load_thread, 0);
 
-    SDL_WaitThread(loader, 0);
+    SDL_DestroyMutex(load_mutex);
+    SDL_DestroyMutex(need_mutex);
 
-    if (need_Q) delete need_Q;
-    if (load_Q) delete load_Q;
-    if (balloc) delete balloc;
-
-//  if (index) delete [] index;
+    // TODO: free the buffer list
 
     if (cache) glob->free_image(cache);
 }
@@ -367,140 +375,147 @@ uni::geocsh::~geocsh()
 
 void uni::geocsh::init()
 {
-    // Reset the page index to empty.
+    // Reset the needed pages.
 
-//  memset(index, 0, m * sizeof (index_line));
+    SDL_mutexP(need_mutex);
+    needs.clear();
+    SDL_mutexV(need_mutex);
+
     n = 0;
-    index_map.clear();
 }
 
 void uni::geocsh::seed(const double *vp, double r0, double r1, geomap& map)
 {
-    // Seed the index with the root page of the given map.
-/*
-    index[n].M = &map;
-    index[n].P =  map.root();
-    index[n].k =  map.root()->angle(vp, r0);
-*/
+    // Seed the needed pages with the root page of the given map.
 
-    index_line L;
+    geomap *M = &map;
+    page   *P =  map.root();
 
-    L.M = &map;
-    L.P =  map.root();
-
-    index_map.insert(std::pair<double, index_line>(L.P->angle(vp, r0), L));
+    SDL_mutexP(need_mutex);
+    needs.insert(need_map::value_type(P->angle(vp, r0), need(M, P)));
+    SDL_mutexV(need_mutex);
 
     n++;
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::geocsh::proc_cache()
+void uni::geocsh::proc_loads()
 {
-    // Pop each of the incoming pages from the loader queue.
+    // Pop each of the loaded pages from the queue.
 
-    geomap *N, *M;
-    page   *Q, *P;
-
-    buffer_pool::buff b;
-
-    while (load_Q->dequeue(&M, &P, &b))
+    while (!loads.empty())
     {
-        if (cache_map.find(P) == cache_map.end())
+        geomap *M = loads.front().M;
+        page   *P = loads.front().P;
+        buffer *B = loads.front().B;
+
+        loads.pop_front();
+
+        // Debug mode scales the page color to make depth apparent.
+
+        if (debug)
         {
-            int x = count % w;
-            int y = count / w;
-
-            // If the cache is full, delete the LRU page.
-
-            if (count == m)
-            {
-                Q = cache_lru.front();
-                cache_lru.pop_front();
-
-                N = cache_map[Q].M;
-                x = cache_map[Q].x;
-                y = cache_map[Q].y;
-
-                N->eject_page(Q, x, y);
-                cache_map.erase(Q);
-
-                count--;
-            }
-
-            // Debug
-
             static const GLfloat color[][3] = {
-                { 1.0f, 0.0f, 0.0f },
-                { 1.0f, 0.5f, 0.0f },
-                { 1.0f, 1.0f, 0.0f },
-                { 0.0f, 1.0f, 0.0f },
-                { 0.0f, 1.0f, 1.0f },
-                { 0.0f, 0.0f, 1.0f },
-                { 1.0f, 0.0f, 1.0f },
-                { 0.0f, 0.0f, 0.0f },
-                { 1.0f, 1.0f, 1.0f },
+                { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.5f, 0.0f },
+                { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f },
+                { 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f },
             };
 
-            if (debug)
+            glPixelTransferf(GL_RED_SCALE,   color[P->get_d()][0]);
+            glPixelTransferf(GL_GREEN_SCALE, color[P->get_d()][1]);
+            glPixelTransferf(GL_BLUE_SCALE,  color[P->get_d()][2]);
+        }
+
+        // If the page was correctly loaded...
+
+        if (B->stat())
+        {
+            // If this page is not already cached (highly unlikely)...
+
+            if (cache_idx.find(P) == cache_idx.end())
             {
-                glPixelTransferf(GL_RED_SCALE,   color[P->get_d()][0]);
-                glPixelTransferf(GL_GREEN_SCALE, color[P->get_d()][1]);
-                glPixelTransferf(GL_BLUE_SCALE,  color[P->get_d()][2]);
-            }
+                int x = count % w;
+                int y = count / w;
 
-            // Insert the new page.
+                // If the cache is full, delete the LRU page.
 
-            cache_map[P] = cache_line(M, x, y);
-            cache_lru.push_back(P);
+                if (count == m)
+                {
+                    page   *Q = cache_lru.front();
+                    geomap *N = cache_idx[Q].M;
 
-            M->cache_page(P, x, y);
+                    x = cache_idx[Q].x;
+                    y = cache_idx[Q].y;
 
-            cache->blit(b.pp, x * S, y * S, S, S);
-            count++;
+                    N->eject_page(Q, x, y);
 
-            if (debug)
-            {
-                glPixelTransferf(GL_RED_SCALE,   1.0f);
-                glPixelTransferf(GL_GREEN_SCALE, 1.0f);
-                glPixelTransferf(GL_BLUE_SCALE,  1.0f);
+                    cache_idx.erase(Q);
+                    cache_lru.pop_front();
+
+                    count--;
+                }
+
+                // Insert the new page.
+
+                cache_idx.insert(line_map::value_type(P, line(M, x, y)));
+                cache_lru.push_back(P);
+
+                M->cache_page(P, x, y);
+
+                cache->blit(B->data(), x * S, y * S, S, S);
+                count++;
             }
         }
+        // TODO: mark the page as dead.
 
         // Release the image buffer.
 
-        balloc->put(b);
+        buffs.push_front(B);
+    }
+
+    // Revert the debug mode scale.
+
+    if (debug)
+    {
+        glPixelTransferf(GL_RED_SCALE,   1.0f);
+        glPixelTransferf(GL_GREEN_SCALE, 1.0f);
+        glPixelTransferf(GL_BLUE_SCALE,  1.0f);
     }
 }
 
-void uni::geocsh::proc_index(const double *vp,
+void uni::geocsh::proc_needs(const double *vp,
                              double r0, double r1, app::frustum_v& frusta)
 {
-    // While there is still room in the index...
+    // While the needed page count is less than the limit.
 
     while (n < m)
     {
-        // If a worst page exists, subdivide it.
+        // If a worst page exists...
 
-        index_m::iterator i = index_map.begin();
+        need_map::iterator i = needs.begin();
 
         if (i->first > 0)
         {
-            index_line C, L = i->second;
+            need L = i->second;
 
-            index_map.erase (i);
-            index_map.insert(index_m::value_type(0, L));
+            // Eliminate it from further consideration.
+
+            needs.erase (i);
+            needs.insert(need_map::value_type(0, L));
+
+            // Subdivide it.
 
             for (int i = 0; i < 4 && n < m; ++i)
 
                 if (L.P->child(i) && L.P->child(i)->view(frusta, r0, r1))
                 {
-                    C.M = L.M;
-                    C.P = L.P->child(i);
+                    need C(L.M, L.P->child(i));
 
                     double k = C.P->angle(vp, r0);
 
-                    index_map.insert(index_m::value_type(k, C));
+                    needs.insert(need_map::value_type(k, C));
                     n++;
                 }
         }
@@ -510,90 +525,49 @@ void uni::geocsh::proc_index(const double *vp,
         else break;
     }
 
-    // Check if each indexed page is already in the cache.
+    // Check if any needed page is already in the cache.
 
-    for (index_m::iterator i = index_map.begin(); i != index_map.end(); ++i)
+    for (need_map::iterator i = needs.begin(); i != needs.end();)
     {
-        geomap *M = i->second.M;
-        page   *P = i->second.P;
+        page *P = i->second.P;
 
-        if (cache_map.find(P) == cache_map.end())
+        if (cache_idx.find(P) != cache_idx.end())
         {
-            // It is not.  Request it.
-
-            if (!need_Q->find(P) &&
-                !load_Q->find(P))
-                need_Q->enqueue(M, P);
-        }
-        else
-        {
-            // It is. Bump it to the end of the LRU queue.
+            // If found, bump it to the end of the LRU queue.
 
             cache_lru.remove   (P);
             cache_lru.push_back(P);
+
+            // And remove it from the needs map.
+
+            needs.erase(i++);
+            n--;
         }
+        else ++i;
     }
-
-/*
-    while (n < m)
-    {
-        int j = 0;
-
-        // Find the worst page.
-
-        for (int i = 1; i < n; ++i)
-            if (index[i].k > index[j].k) j = i;
-        
-        // If a worst page exists, subdivide it.
-
-        if (index[j].k > 0)
-        {
-            index[j].k = 0;
-
-            for (int i = 0; i < 4 && n < m; ++i)
-                if (index[j].P->child(i) && 
-                    index[j].P->child(i)->view(frusta, r0, r1))
-                {
-                    index[n].M = index[j].M;
-                    index[n].P = index[j].P->child(i);
-                    index[n].k = index[n].P->angle(vp, r0);
-
-                    n++;
-                }
-        }
-
-        // If no worst page exists, no more subdivision can be done.
-
-        else break;
-    }
-
-    // Check if each indexed page is already in the cache.
-
-    for (int i = 0; i < n; ++i)
-
-        if (cache_map.find(index[i].P) == cache_map.end())
-        {
-            // It is not.  Request it.
-
-            if (!need_Q->find(index[i].P) &&
-                !load_Q->find(index[i].P))
-                need_Q->enqueue(index[i].M, index[i].P);
-        }
-        else
-        {
-            // It is. Bump it to the end of the LRU queue.
-
-            cache_lru.remove   (index[i].P);
-            cache_lru.push_back(index[i].P);
-        }
-*/
 }
 
 void uni::geocsh::proc(const double *vp,
                        double r0, double r1, app::frustum_v& frusta)
 {
-    proc_index(vp, r0, r1, frusta);
-    proc_cache();
+    SDL_mutexP(load_mutex);
+    proc_loads();
+    SDL_mutexV(load_mutex);
+
+    SDL_mutexP(need_mutex);
+    proc_needs(vp, r0, r1, frusta);
+    SDL_mutexV(need_mutex);
+}
+
+//-----------------------------------------------------------------------------
+
+bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
+{
+    return true;
+}
+
+void uni::geocsh::put_loaded(geomap *M, page *P, buffer *B)
+{
 }
 
 //-----------------------------------------------------------------------------
