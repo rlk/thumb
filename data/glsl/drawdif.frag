@@ -75,10 +75,7 @@ void main()
 
     p0 = (data_size * c) / (tile_size * exp2(C0.z));
     p1 = (data_size * c) / (tile_size * exp2(C1.z));
-/*
-    vec2 q0 = (fract(p0) + C0.xy) * page_size / pool_size;
-    vec2 q1 = (fract(p1) + C1.xy) * page_size / pool_size;
-*/
+
     vec2 q0 = (fract(p0) * tile_size + 1.0 + C0.xy * page_size) / pool_size;
     vec2 q1 = (fract(p1) * tile_size + 1.0 + C1.xy * page_size) / pool_size;
 

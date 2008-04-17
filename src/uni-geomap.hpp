@@ -28,15 +28,18 @@ namespace uni
         int    d;
         int    i;
         int    j;
+/*
         double W;
         double E;
         double S;
         double N;
-
+*/
         double n[3];
         double a;
         double r;
         double f;
+
+        bool live;
 
         page *P[4];
 
@@ -55,6 +58,9 @@ namespace uni
         page *child(int c) { return P[c]; }
 
         double angle(const double *, double);
+
+        bool get_live() const { return live;  }
+        void set_dead()       { live = false; }
     };
 
     //-------------------------------------------------------------------------

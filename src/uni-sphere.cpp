@@ -684,7 +684,7 @@ void uni::sphere::draw(int i)
                     land_prog->free();
                 }
 
-                if (!::prog->option(4))
+                if (::prog->option(4))
                     cache.draw();
 
                 // Test draw the color geomap.

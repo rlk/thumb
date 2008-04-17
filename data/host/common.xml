@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+<host>
+  <node name="2560x1600">
+    <buffer w="2560" h="1600"/>
+    <window x="0" y="0" w="2560" h="1600"/>
+    <tile>
+      <viewport x="0" y="0" w="2560" h="1600"/>
+      <frustum>
+        <perspective aspect="1.600" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
+  <node name="1920x1080">
+    <buffer w="1920" h="1080"/>
+    <window x="0" y="0" w="1920" h="1080"/>
+    <tile>
+      <viewport x="0" y="0" w="1920" h="1080"/>
+      <frustum>
+        <perspective aspect="1.777" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
+  <node name="1024x768">
+    <buffer w="1024" h="768"/>
+    <window x="0" y="0" w="1024" h="768"/>
+    <tile>
+      <viewport x="0" y="0" w="1024" h="768"/>
+      <frustum>
+        <perspective aspect="1.333" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
+  <node name="640x480">
+    <buffer w="640" h="480"/>
+    <window x="0" y="0" w="640" h="480"/>
+    <tile>
+      <viewport x="0" y="0" w="640" h="480"/>
+      <frustum>
+        <perspective aspect="1.333" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
+  <node name="320x240">
+    <buffer w="320" h="240"/>
+    <window x="0" y="0" w="320" h="240"/>
+    <tile>
+      <viewport x="0" y="0" w="320" h="240"/>
+      <frustum>
+        <perspective aspect="1.333" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+</host>

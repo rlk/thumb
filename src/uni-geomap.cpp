@@ -17,6 +17,7 @@
 #include "matrix.hpp"
 #include "app-glob.hpp"
 
+/*
 static void dump(const GLubyte *v)
 {
     int w = 32;
@@ -35,12 +36,13 @@ static void dump(const GLubyte *v)
     }
     printf("\n");
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 uni::page::page(int w, int h, int s,
                 int x, int y, int d,
-                double _W, double _E, double _S, double _N) : d(d), a(0)
+                double _W, double _E, double _S, double _N) :
+    d(d), a(0), live(true)
 {
     int t = s << d;
 
@@ -50,6 +52,8 @@ uni::page::page(int w, int h, int s,
     j = x / t;
 
     // Compute the texture boundries.
+
+    double W, E, S, N;
 
     W = (_W + (_E - _W) * (x    ) / w);
     E = (_W + (_E - _W) * (x + t) / w);
@@ -118,24 +122,26 @@ bool uni::page::view(app::frustum_v& frusta, double r0, double r1)
 {
     // TODO: cache this result.
 
-    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-        if ((*i)->test_cap(n, a, r0, r1) >= 0)
-        {
-            if (d == 0) return true;
+    if (live)
+        for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+            if ((*i)->test_cap(n, a, r0, r1) >= 0)
+            {
+                if (d == 0) return true;
 
-            if (P[0] && P[0]->view(frusta, r0, r1)) return true;
-            if (P[1] && P[1]->view(frusta, r0, r1)) return true;
-            if (P[2] && P[2]->view(frusta, r0, r1)) return true;
-            if (P[3] && P[3]->view(frusta, r0, r1)) return true;
+                if (P[0] && P[0]->view(frusta, r0, r1)) return true;
+                if (P[1] && P[1]->view(frusta, r0, r1)) return true;
+                if (P[2] && P[2]->view(frusta, r0, r1)) return true;
+                if (P[3] && P[3]->view(frusta, r0, r1)) return true;
 
-            return false;
-        }
+                return false;
+            }
     
     return false;
 }
 
 void uni::page::draw(double r0, double r1)
 {
+/*
     double rr = (r0 + r1) * 0.5;
 
     static const GLfloat color[8][3] = {
@@ -216,6 +222,7 @@ void uni::page::draw(double r0, double r1)
         }
     }
     glEnd();
+*/
 }
 
 double uni::page::angle(const double *v, double r)

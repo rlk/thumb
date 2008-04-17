@@ -1,14 +1,10 @@
 -------------------------------------------------------------------------------
 
-Mark unfound PNGs in the page.  This will improve cache optimization.
-
-Eliminate all pages smaller than some cutoff.
-
-Remove pages from the needed queue when they are eliminated from the working set.  The serialization of page loading results in heavy latency and unnecessary CPU load.
+Make height work.
 
 Find the bottleneck.
 
-Modularize the mipmap shaders.
+Modularize and optimize the mipmap shaders.
 Generalize geomap to work with sizes other than 512x256.
 
 -------------------------------------------------------------------------------

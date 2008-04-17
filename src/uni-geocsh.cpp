@@ -258,7 +258,7 @@ void uni::geocsh::proc_loads()
                 count++;
             }
         }
-        // TODO: mark the page as dead.
+        else P->set_dead();
 
         // Release the image buffer.
 
