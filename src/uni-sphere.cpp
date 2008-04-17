@@ -649,8 +649,7 @@ void uni::sphere::draw(int i)
 
                     if (::prog->option(5)) pos.draw();
                     if (::prog->option(6)) nrm.draw();
-//                  if (::prog->option(7)) tex.draw();
-                    if (::prog->option(7)) dat.lut()->draw();
+                    if (::prog->option(7)) tex.draw();
                 }
                 glPopAttrib();
 

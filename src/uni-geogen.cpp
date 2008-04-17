@@ -238,14 +238,14 @@ void uni::geolut::subdiv(GLushort *p, GLsizei d,
 
         // Set the source operands for each edge bisection.
 
-        p[con.get(r3, c3) * 2 + 0] = con.get(r1, c1);
-        p[con.get(r3, c3) * 2 + 1] = con.get(r2, c2);
+        p[con.get(r3, c3) * 4 + 0] = con.get(r1, c1);
+        p[con.get(r3, c3) * 4 + 3] = con.get(r2, c2);
 
-        p[con.get(r4, c4) * 2 + 0] = con.get(r2, c2);
-        p[con.get(r4, c4) * 2 + 1] = con.get(r0, c0);
+        p[con.get(r4, c4) * 4 + 0] = con.get(r2, c2);
+        p[con.get(r4, c4) * 4 + 3] = con.get(r0, c0);
 
-        p[con.get(r5, c5) * 2 + 0] = con.get(r0, c0);
-        p[con.get(r5, c5) * 2 + 1] = con.get(r1, c1);
+        p[con.get(r5, c5) * 4 + 0] = con.get(r0, c0);
+        p[con.get(r5, c5) * 4 + 3] = con.get(r1, c1);
 
         // Recursively process all sub-triangles.
 
@@ -258,40 +258,29 @@ void uni::geolut::subdiv(GLushort *p, GLsizei d,
 
 uni::geolut::geolut(GLsizei d, geocon& con) :
     ogl::image(vtx_count(d), 1, GL_TEXTURE_RECTANGLE_ARB,
+                                GL_FLOAT_RGBA32_NV,
+                                GL_RGBA,
+                                GL_UNSIGNED_SHORT)
+/* L16A16 doesnt work on FX.
                                 GL_LUMINANCE16_ALPHA16,
                                 GL_LUMINANCE_ALPHA,
                                 GL_UNSIGNED_SHORT)
+*/
 {
     GLsizei m = 1 << d;
     GLsizei c = vtx_count(d);
 
     // Initialize the geometry cache bisection lookup table.
 
-    GLushort *p = new GLushort[c * 2];
+    GLushort *p = new GLushort[c * 4];
 
-    memset(p, 0, c * 2 * sizeof (GLushort));
+    memset(p, 0, c * 4 * sizeof (GLushort));
     subdiv(p, d, 0, 0, 0, m, m, 0, con);
 
     // Copy the lookup table to the texture.
 
     blit(p, 0, 0, c, 1);
-/*
-    bind(GL_TEXTURE0);
-    {
-        glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, c, 1,
-                        GL_LUMINANCE_ALPHA, GL_UNSIGNED_SHORT, p);
 
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
-                        GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
-                        GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
-                        GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
-                        GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-    }
-    free(GL_TEXTURE0);
-*/
     OGLCK();
 
     delete [] p;
