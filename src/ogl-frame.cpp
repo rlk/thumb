@@ -133,6 +133,36 @@ void ogl::frame::free(bool proj) const
 
 //-----------------------------------------------------------------------------
 
+void ogl::frame::draw() const
+{
+    bind_color(GL_TEXTURE0);
+    {
+
+        glMatrixMode(GL_PROJECTION);
+        {
+            glPushMatrix();
+            glLoadIdentity();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glPushMatrix();
+            glLoadIdentity();
+        }
+
+        glRecti(-1, -1, +1, +1);
+
+        glMatrixMode(GL_PROJECTION);
+        {
+            glPopMatrix();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glPopMatrix();
+        }
+    }
+    free_color(GL_TEXTURE0);
+}
+
 void ogl::frame::init()
 {
      // Initialize the color render buffer object.

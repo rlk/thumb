@@ -44,6 +44,7 @@ namespace ogl
         virtual void bind(bool=false) const;
         virtual void free(bool=false) const;
 
+        void draw() const;
         void init();
         void fini();
     };

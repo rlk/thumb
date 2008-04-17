@@ -420,7 +420,7 @@ void uni::sphere::prep()
         dat.rad()->free(GL_TEXTURE3);
         dat.lut()->free(GL_TEXTURE1);
 
-        // Bind all generated attribute for use in terrain accumulation.
+        // Bind all generated attributes for use in terrain accumulation.
 /*
         pos.bind(GL_TEXTURE2);
         nrm.bind(GL_TEXTURE3);
@@ -474,6 +474,14 @@ void uni::sphere::prep()
         vtx.read_v(count);
         pos.free_frame();
 
+        // Update the data caches.
+
+        cache.init();
+        cache.seed(vp, r0, r1, color);
+        cache.seed(vp, r0, r1, normal);
+        cache.proc(vp, r0, r1, frusta);
+        color.proc();
+        normal.proc();
     }
 }
 
@@ -577,12 +585,7 @@ void uni::sphere::draw(int i)
                 dat.idx()->free();
                 ren.cyl()->free();
 
-                cache.init();
-                cache.seed(vp, r0, r1, color);
-                cache.seed(vp, r0, r1, normal);
-                cache.proc(vp, r0, r1, frusta);
-                color.proc();
-                normal.proc();
+                // Accumulate the textures.
 
                 ren.dif()->init();
                 ren.dif()->bind();
@@ -605,59 +608,6 @@ void uni::sphere::draw(int i)
                     cache.free(GL_TEXTURE2);
                 }
                 ren.nrm()->free();
-
-                // Draw the diffuse maps.
-/*
-                ren.dif()->init();
-                ren.dif()->bind();
-                {
-                    color.draw();
-                }
-                ren.dif()->free();
-*/
-/*
-                glPushMatrix();
-                {
-                    glLoadMatrixd(M);
-
-                    // Enable rendering of the BACK of the view volumes.
-
-                    glEnable(GL_CULL_FACE);
-                    glEnable(GL_DEPTH_CLAMP_NV);
-                    glCullFace(GL_FRONT);
-
-                    // Alpha test discards texels outside of texture borders.
-
-                    glDisable(GL_BLEND);
-                    glEnable(GL_ALPHA_TEST);
-                    glAlphaFunc(GL_GREATER, 0.5);
-
-                    // Draw the diffuse maps.
-
-                    ren.dif()->init();
-                    ren.dif()->bind();
-                    {
-                        color.draw(frusta[i], vp);
-                    }
-                    ren.dif()->free();
-
-                    // Draw the normal maps.
-
-                    ren.nrm()->init();
-                    ren.nrm()->bind();
-                    {
-                        normal.draw(frusta[i], vp);
-                    }
-                    ren.nrm()->free();
-
-                    // Revert the state.
-
-                    glCullFace(GL_BACK);
-                    glDisable(GL_DEPTH_CLAMP_NV);
-                    glDisable(GL_ALPHA_TEST);
-                }
-                glPopMatrix();
-*/
 
                 // Draw the illuminated geometry.
 
@@ -684,10 +634,15 @@ void uni::sphere::draw(int i)
                     land_prog->free();
                 }
 
+                // Test draw the color geomap.
+
                 if (::prog->option(4))
                     cache.draw();
 
-                // Test draw the color geomap.
+                if (::prog->option(5)) pos.draw();
+                if (::prog->option(6)) nrm.draw();
+                if (::prog->option(7)) tex.draw();
+
 /*
                 glPushMatrix();
                 {

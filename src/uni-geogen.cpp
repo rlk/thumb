@@ -527,12 +527,10 @@ uni::geobuf::~geobuf()
 void uni::geobuf::draw() const
 {
     // Draw the output buffer.
-/*
+
     show->bind();
     src->draw();
     show->free();
-*/
-    std::cerr << "geobuff::draw removed" << std::endl;
 }
 
 void uni::geobuf::null() const
