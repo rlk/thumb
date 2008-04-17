@@ -258,7 +258,9 @@ void uni::geolut::subdiv(GLushort *p, GLsizei d,
 
 uni::geolut::geolut(GLsizei d, geocon& con) :
     ogl::image(vtx_count(d), 1, GL_TEXTURE_RECTANGLE_ARB,
-                                GL_LUMINANCE16_ALPHA16)
+                                GL_LUMINANCE16_ALPHA16,
+                                GL_LUMINANCE_ALPHA,
+                                GL_UNSIGNED_SHORT)
 {
     GLsizei m = 1 << d;
     GLsizei c = vtx_count(d);
@@ -272,6 +274,8 @@ uni::geolut::geolut(GLsizei d, geocon& con) :
 
     // Copy the lookup table to the texture.
 
+    blit(p, 0, 0, c, 1);
+/*
     bind(GL_TEXTURE0);
     {
         glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB, 0, 0, 0, c, 1,
@@ -283,9 +287,11 @@ uni::geolut::geolut(GLsizei d, geocon& con) :
                         GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
                         GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
     }
     free(GL_TEXTURE0);
-
+*/
     OGLCK();
 
     delete [] p;

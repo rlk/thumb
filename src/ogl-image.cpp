@@ -74,6 +74,52 @@ void ogl::image::free(GLenum unit) const
     glActiveTextureARB(GL_TEXTURE0);
 }
 
+void ogl::image::draw() const
+{
+    GLfloat s = (target == GL_TEXTURE_RECTANGLE_ARB) ? w : 1.0;
+    GLfloat t = (target == GL_TEXTURE_RECTANGLE_ARB) ? h : 1.0;
+
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        glEnable(target);
+        glDisable(GL_LIGHTING);
+
+        bind(GL_TEXTURE0);
+        {
+            glMatrixMode(GL_PROJECTION);
+            {
+                glPushMatrix();
+                glLoadIdentity();
+            }
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glPushMatrix();
+                glLoadIdentity();
+            }
+
+            glBegin(GL_QUADS);
+            {
+                glTexCoord2f(0, 0); glVertex2f(-1.0f, -1.0f);
+                glTexCoord2f(s, 0); glVertex2f(+1.0f, -1.0f);
+                glTexCoord2f(s, t); glVertex2f(+1.0f, +1.0f);
+                glTexCoord2f(0, t); glVertex2f(-1.0f, +1.0f);
+            }
+            glEnd();
+
+            glMatrixMode(GL_PROJECTION);
+            {
+                glPopMatrix();
+            }
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glPopMatrix();
+            }
+        }
+        free(GL_TEXTURE0);
+    }
+    glPopAttrib();
+}
+
 //-----------------------------------------------------------------------------
 
 void ogl::image::init()
