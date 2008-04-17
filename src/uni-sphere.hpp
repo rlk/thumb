@@ -78,7 +78,8 @@ namespace uni
         geovtx  vtx;
         georen& ren;
 
-        geocsh& cache;
+        geocsh& cache_s;
+        geocsh& cache_h;
         geomap& color;
         geomap& normal;
         geomap& height;
@@ -104,7 +105,7 @@ namespace uni
 
     public:
     
-        sphere(geodat&, georen&, geocsh&, geomap&, geomap&, geomap&,
+        sphere(geodat&, georen&, geocsh&, geocsh&, geomap&, geomap&, geomap&,
                double, double, GLsizei=DEFAULT_PATCH_CACHE);
        ~sphere();
 

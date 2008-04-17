@@ -57,6 +57,9 @@ namespace uni
 
     class geocsh
     {
+        static const GLenum form[2][4];
+        static const GLenum type[2];
+
         typedef std::list<buffer *> buff_list;
 
         // Needed page

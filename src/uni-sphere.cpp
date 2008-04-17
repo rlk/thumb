@@ -29,7 +29,8 @@
 
 uni::sphere::sphere(uni::geodat& dat,
                     uni::georen& ren,
-                    uni::geocsh& cache,
+                    uni::geocsh& cache_s,
+                    uni::geocsh& cache_h,
                     uni::geomap& color,
                     uni::geomap& normal,
                     uni::geomap& height,
@@ -57,7 +58,9 @@ uni::sphere::sphere(uni::geodat& dat,
     vtx(dat.depth(), lines),
     ren(ren),
 
-    cache(cache),
+    cache_s(cache_s),
+    cache_h(cache_h),
+
     color(color),
     normal(normal),
     height(height),
@@ -388,6 +391,21 @@ void uni::sphere::step()
             d0 = pos.min_d();
             d1 = pos.max_d();
         }
+
+        // Update the data caches.
+
+        cache_s.init();
+        cache_s.seed(vp, r0, r1, color);
+        cache_s.seed(vp, r0, r1, normal);
+        cache_s.proc(vp, r0, r1, frusta);
+
+        cache_h.init();
+        cache_h.seed(vp, r0, r1, height);
+        cache_h.proc(vp, r0, r1, frusta);
+
+        color.proc();
+        normal.proc();
+        height.proc();
     }
 }
 
@@ -421,29 +439,27 @@ void uni::sphere::prep()
         dat.lut()->free(GL_TEXTURE1);
 
         // Bind all generated attributes for use in terrain accumulation.
-/*
-        pos.bind(GL_TEXTURE2);
-        nrm.bind(GL_TEXTURE3);
-        tex.bind(GL_TEXTURE4);
+
+        pos.bind(GL_TEXTURE4);
+        nrm.bind(GL_TEXTURE5);
+        tex.bind(GL_TEXTURE6);
+        cache_h.bind(GL_TEXTURE2);
         {
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
             acc.init(count);
             acc.bind_proc();
             {
-                int w = int(dat.vtx_len());
-                int h = int(count);
-
-                for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-                    height.draw(*i, vp, w, h);
+                height.draw();
             }
             acc.free_proc();
             acc.swap();
         }
-        tex.free(GL_TEXTURE4);
-        nrm.free(GL_TEXTURE3);
-        pos.free(GL_TEXTURE2);
-*/
+        cache_h.free(GL_TEXTURE2);
+        tex.free(GL_TEXTURE6);
+        nrm.free(GL_TEXTURE5);
+        pos.free(GL_TEXTURE4);
+
         // Find the extrema of the accumulated positions.
 /*
         acc.bind(GL_TEXTURE1);
@@ -465,23 +481,15 @@ void uni::sphere::prep()
         nrm.free_frame();
 
         // Copy the generated positions to the vertex buffer.
-/*
+
         acc.bind_frame();
         vtx.read_v(count);
         acc.free_frame();
-*/
+/*
         pos.bind_frame();
         vtx.read_v(count);
         pos.free_frame();
-
-        // Update the data caches.
-
-        cache.init();
-        cache.seed(vp, r0, r1, color);
-        cache.seed(vp, r0, r1, normal);
-        cache.proc(vp, r0, r1, frusta);
-        color.proc();
-        normal.proc();
+*/
     }
 }
 
@@ -590,22 +598,22 @@ void uni::sphere::draw(int i)
                 ren.dif()->init();
                 ren.dif()->bind();
                 {
-                    cache.bind(GL_TEXTURE2);
+                    cache_s.bind(GL_TEXTURE2);
                     {
                         color.draw();
                     }
-                    cache.free(GL_TEXTURE2);
+                    cache_s.free(GL_TEXTURE2);
                 }
                 ren.dif()->free();
 
                 ren.nrm()->init();
                 ren.nrm()->bind();
                 {
-                    cache.bind(GL_TEXTURE2);
+                    cache_s.bind(GL_TEXTURE2);
                     {
                         normal.draw();
                     }
-                    cache.free(GL_TEXTURE2);
+                    cache_s.free(GL_TEXTURE2);
                 }
                 ren.nrm()->free();
 
@@ -636,8 +644,8 @@ void uni::sphere::draw(int i)
 
                 // Test draw the color geomap.
 
-                if (::prog->option(4))
-                    cache.draw();
+                if (::prog->option(4)) cache_s.draw();
+                if (::prog->option(5)) cache_h.draw();
 
                 // Test draw the GPGPU buffers.
 
@@ -647,9 +655,9 @@ void uni::sphere::draw(int i)
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glDisable(GL_DEPTH_TEST);
 
-                    if (::prog->option(5)) pos.draw();
-                    if (::prog->option(6)) nrm.draw();
-                    if (::prog->option(7)) tex.draw();
+                    if (::prog->option(6)) pos.draw();
+                    if (::prog->option(7)) nrm.draw();
+                    if (::prog->option(8)) tex.draw();
                 }
                 glPopAttrib();
 

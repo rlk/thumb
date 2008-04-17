@@ -82,7 +82,10 @@ void ogl::image::draw() const
     glPushAttrib(GL_ENABLE_BIT);
     {
         glEnable(target);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
         glDisable(GL_LIGHTING);
+        glDisable(GL_BLEND);
 
         bind(GL_TEXTURE0);
         {

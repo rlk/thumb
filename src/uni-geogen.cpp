@@ -218,7 +218,7 @@ uni::geocon::~geocon()
 
 GLushort uni::geocon::get(GLsizei r, GLsizei c)
 {
-    return (r < n - c) ? index[r * n + c] : 0xFFFF;
+    return ((r < n - c) ? index[r * n + c] : 0xFFFF);
 }
 
 //-----------------------------------------------------------------------------
@@ -804,11 +804,10 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 
     calc->bind();
     {
-        calc->uniform("src", 0);
-        calc->uniform("map", 1);
-        calc->uniform("pos", 2);
-        calc->uniform("nrm", 3);
-        calc->uniform("tex", 4);
+        calc->uniform("src", 3);
+        calc->uniform("pos", 4);
+        calc->uniform("nrm", 5);
+        calc->uniform("tex", 6);
     }
     calc->free();
 }

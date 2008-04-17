@@ -94,6 +94,17 @@ uni::buffer *uni::buffer::load(std::string name)
                         png_get_bit_depth   (rp, ip) == b * 8)
                     {
                         png_read_image(rp, row);
+
+                        // TODO: optimize swab
+
+                        if (b == 2)
+                            for (png_uint_32 i = 0; i < w * h * c * b; i += 2)
+                            {
+                                GLubyte t  = dat[i + 0];
+                                dat[i + 0] = dat[i + 1];
+                                dat[i + 1] = t;
+                            }
+
                         ret = true;
                     }
                 }
@@ -108,9 +119,41 @@ uni::buffer *uni::buffer::load(std::string name)
 
 //=============================================================================
 
+const GLenum uni::geocsh::form[2][4] = {
+    {
+        GL_LUMINANCE,
+        GL_LUMINANCE_ALPHA,
+        GL_RGB,
+        GL_RGBA,
+    },
+    {
+        GL_LUMINANCE16,
+        GL_LUMINANCE16_ALPHA16,
+        GL_RGB16,
+        GL_RGBA16,
+    },
+};
+
+const GLenum uni::geocsh::type[2] = {
+    GL_UNSIGNED_BYTE,
+    GL_UNSIGNED_SHORT
+};
+
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
-    c(c), b(b), s(s), S(s + 2), w(w), h(h), n(0), m(w * h), count(0), run(true),
-    cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
+    c(c),
+    b(b),
+    s(s),
+    S(s + 2),
+    w(w),
+    h(h),
+    n(0),
+    m(w * h),
+    count(0),
+    run(true),
+    cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D,
+                          form[b - 1][c - 1],
+                          form[    0][c - 1],
+                          type[b - 1]))
 {
     cache->bind(GL_TEXTURE0);
     {
@@ -452,10 +495,10 @@ void uni::geocsh::draw() const
 
             glBegin(GL_QUADS);
             {
-                glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
-                glTexCoord2f(1.0f, 0.0f); glVertex2f(-1.0f + a,     -1.0f);
-                glTexCoord2f(1.0f, 1.0f); glVertex2f(-1.0f + a,     +0.0f);
-                glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, +0.0f);
+                glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f,     -1.0f);
+                glTexCoord2f(1.0f, 0.0f); glVertex2f(-1.0f + a, -1.0f);
+                glTexCoord2f(1.0f, 1.0f); glVertex2f(-1.0f + a, +0.0f);
+                glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f,     +0.0f);
             }
             glEnd();
 

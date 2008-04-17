@@ -26,7 +26,8 @@ namespace uni
     {
         geodat *D;
         georen *R;
-        geocsh *cache;
+        geocsh *cache_s;
+        geocsh *cache_h;
         geomap *color;
         geomap *normal;
         geomap *height;

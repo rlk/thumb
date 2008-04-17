@@ -45,10 +45,12 @@ uni::universe::universe()
     if (n_lod == 0) n_lod = DEFAULT_NORMAL_LOD;
     if (h_lod == 0) h_lod = DEFAULT_HEIGHT_LOD;
 
-    cache  = new geocsh(3, 1, 510, 8, 4);
+    cache_s = new geocsh(3, 1, 510, 8, 8);
+    cache_h = new geocsh(1, 2, 510, 8, 4);
+
     color  = new geomap("world.200408.xml", r0, r1);
     normal = new geomap("srtm_ramp2_normal.xml", r0, r1);
-    height = 0;
+    height = new geomap("srtm_ramp2.xml", r0, r1);
 
     // Configure the geometry generator and renderer.
 
@@ -64,7 +66,7 @@ uni::universe::universe()
 
     // Create the earth.
 
-    S[0] = new sphere(*D, *R, *cache, *color, *normal, *height,
+    S[0] = new sphere(*D, *R, *cache_s, *cache_h, *color, *normal, *height,
                       r0, r1, patch_cache);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
 }
@@ -74,7 +76,9 @@ uni::universe::~universe()
     if (height) delete height;
     if (normal) delete normal;
     if (color)  delete color;
-    if (cache)  delete cache;
+
+    if (cache_h)  delete cache_h;
+    if (cache_s)  delete cache_s;
 
     delete S[0];
     delete R;
