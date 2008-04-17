@@ -16,6 +16,7 @@
 
 #include "uni-geocsh.hpp"
 #include "app-conf.hpp"
+#include "app-host.hpp"
 
 //=============================================================================
 // Data loader threads query the cache object for requests, load the requested
@@ -70,6 +71,8 @@ uni::buffer *uni::buffer::load(std::string name)
 
     ret = false;
 
+//  std::cout << name << std::endl;
+
     // Initialize all PNG import data structures.
 
     if (dat && row && (fp = fopen(name.c_str(), "rb")))
@@ -104,245 +107,9 @@ uni::buffer *uni::buffer::load(std::string name)
 }
 
 //=============================================================================
-/*
-uni::buffer_pool::buffer_pool(int w, int h, int c, int b) :
-    w(w), h(h), c(c), b(b), N(0)
-{
-    mutex = SDL_CreateMutex();
-}
-
-uni::buffer_pool::~buffer_pool()
-{
-    if (mutex) SDL_DestroyMutex(mutex);
-
-    // Free all buffers.
-
-    while (!avail.empty())
-    {
-        if (avail.front().rp) free(avail.front().rp);
-        if (avail.front().pp) free(avail.front().pp);
-        
-        avail.pop_front();
-    }
-}
-
-uni::buffer_pool::buff uni::buffer_pool::get()
-{
-    buff B;
-
-    SDL_mutexP(mutex);
-    {
-        if (avail.empty())
-        {
-            // No buffers available.  Allocate and initialize a new one.
-
-            B.pp = (GLubyte   *) malloc(h * w * c * b);
-            B.rp = (png_bytep *) malloc(h * sizeof (png_bytep));
-
-            for (int i = 0; i < h; ++i)
-                B.rp[h - i - 1] = B.pp + i * w * c * b;
-
-            N++;
-
-            printf("pool size = %d\n", N);
-        }
-        else
-        {
-            // Buffers are available.  Return one.
-
-            B = avail.front();
-            avail.pop_front();
-        }
-    }
-    SDL_mutexV(mutex);
-
-    return B;
-}
-
-void uni::buffer_pool::put(buff B)
-{
-    // Add the given buffer to the available list.
-
-    SDL_mutexP(mutex);
-    {
-        avail.push_front(B);
-    }
-    SDL_mutexV(mutex);
-}
-*/
-//=============================================================================
-/*
-struct uni::loaded_queue::load
-{
-    geomap           *M;
-    page             *P;
-    buffer_pool::buff b;
-
-    load(geomap *M, page *P, buffer_pool::buff b) : M(M), P(P), b(b) { }
-};
-
-//-----------------------------------------------------------------------------
-
-uni::loaded_queue::loaded_queue()
-{
-    mutex = SDL_CreateMutex();
-}
-
-uni::loaded_queue::~loaded_queue()
-{
-    if (mutex) SDL_DestroyMutex(mutex);
-}
-
-bool uni::loaded_queue::find(const page *P)
-{
-    bool b = false;
-
-    SDL_mutexP(mutex);
-    {
-        for (std::list<load>::iterator i = Q.begin(); i != Q.end(); ++i)
-            if (i->P == P)
-            {
-                b = true;
-                break;
-            }
-    }
-    SDL_mutexV(mutex);
-
-    return b;
-}
-
-void uni::loaded_queue::enqueue(geomap *M, page *P, buffer_pool::buff b)
-{
-    // Enqueue the request.
-
-    SDL_mutexP(mutex);
-    Q.push_back(load(M, P, b));
-    SDL_mutexV(mutex);
-}
-
-bool uni::loaded_queue::dequeue(geomap **M, page **P, buffer_pool::buff *b)
-{
-    bool rr = false;
-
-    // If the queue is not empty, dequeue.
-
-    SDL_mutexP(mutex);
-    {
-        if (!Q.empty())
-        {
-            *M = Q.front().M;
-            *P = Q.front().P;
-            *b = Q.front().b;
-
-            Q.pop_front();
-
-            rr = true;
-        }
-    }
-    SDL_mutexV(mutex);
-
-    return rr;
-}
-*/
-//=============================================================================
-/*
-struct uni::needed_queue::need
-{
-    geomap *M;
-    page   *P;
-
-    need(geomap *M, page *P) : M(M), P(P) { }
-};
-
-//-----------------------------------------------------------------------------
-
-uni::needed_queue::needed_queue() : run(true)
-{
-    mutex = SDL_CreateMutex();
-    sem   = SDL_CreateSemaphore(0);
-}
-
-uni::needed_queue::~needed_queue()
-{
-    if (sem)   SDL_DestroySemaphore(sem);
-    if (mutex) SDL_DestroyMutex(mutex);
-}
-
-bool uni::needed_queue::find(const page *P)
-{
-    bool b = false;
-
-    SDL_mutexP(mutex);
-    {
-        for (std::list<need>::iterator i = Q.begin(); i != Q.end(); ++i)
-            if (i->P == P)
-            {
-                b = true;
-                break;
-            }
-    }
-    SDL_mutexV(mutex);
-
-    return b;
-}
-
-void uni::needed_queue::enqueue(geomap *M, page *P)
-{
-    // Enqueue the request.
-
-    SDL_mutexP(mutex);
-    {
-        Q.push_back(need(M, P));
-    }
-    SDL_mutexV(mutex);
-
-    // Signal the consumer.
-
-    SDL_SemPost(sem);
-}
-
-bool uni::needed_queue::dequeue(geomap **M, page **P)
-{
-    bool b;
-
-    // Wait for the signal to proceed.
-
-    SDL_SemWait(sem);
-
-    // Dequeue the request.
-
-    SDL_mutexP(mutex);
-    {
-        if ((b = run))
-        {
-            *M = Q.front().M;
-            *P = Q.front().P;
-
-            Q.pop_front();
-        }
-    }
-    SDL_mutexV(mutex);
-
-    return b;
-}
-
-void uni::needed_queue::stop()
-{
-    // Clear the run flag.
-
-    SDL_mutexP(mutex);
-    run = false;
-    SDL_mutexV(mutex);
-
-    // Signal the loader to notice the change.
-
-    SDL_SemPost(sem);
-}
-*/
-//=============================================================================
 
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
-    c(c), b(b), s(s), S(s + 2), w(w), h(h), n(0), m(w * h), count(0),
+    c(c), b(b), s(s), S(s + 2), w(w), h(h), n(0), m(w * h), count(0), run(true),
     cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D, GL_RGB8, GL_RGB))
 {
     cache->bind(GL_TEXTURE0);
@@ -352,19 +119,42 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     }
     cache->free(GL_TEXTURE0);
 
+    debug = ::conf->get_i("debug");
+
+    // Initialize the IPC.
+
+    need_cond   = SDL_CreateCond();
     need_mutex  = SDL_CreateMutex();
     load_mutex  = SDL_CreateMutex();
-    load_thread = SDL_CreateThread(loader_func, (void *) this);
+    buff_mutex  = SDL_CreateMutex();
 
-    debug = ::conf->get_i("debug");
+    // Start the data loader threads.
+
+    int threads = std::max(1, ::conf->get_i("loader_threads"));
+
+    for (int i = 0; i < threads; ++i)
+        load_thread.push_back(SDL_CreateThread(loader_func, (void *) this));
 }
 
 uni::geocsh::~geocsh()
 {
-    SDL_WaitThread(load_thread, 0);
+    run = false;
 
+    // Signal the loader threads to exit.  Join them.
+
+    SDL_CondBroadcast(need_cond);
+
+    std::vector<SDL_Thread *>::iterator i;
+
+    for (i = load_thread.begin(); i != load_thread.end(); ++i)
+        SDL_WaitThread(*i, 0);
+
+    // Release all our IPC.
+
+    SDL_DestroyMutex(buff_mutex);
     SDL_DestroyMutex(load_mutex);
     SDL_DestroyMutex(need_mutex);
+    SDL_DestroyCond (need_cond);
 
     // TODO: free the buffer list
 
@@ -472,7 +262,9 @@ void uni::geocsh::proc_loads()
 
         // Release the image buffer.
 
+        SDL_mutexP(buff_mutex);
         buffs.push_front(B);
+        SDL_mutexV(buff_mutex);
     }
 
     // Revert the debug mode scale.
@@ -550,24 +342,68 @@ void uni::geocsh::proc_needs(const double *vp,
 void uni::geocsh::proc(const double *vp,
                        double r0, double r1, app::frustum_v& frusta)
 {
+    // Process all loaded pages.
+
     SDL_mutexP(load_mutex);
     proc_loads();
     SDL_mutexV(load_mutex);
 
+    // Process all needed pages.
+
     SDL_mutexP(need_mutex);
     proc_needs(vp, r0, r1, frusta);
     SDL_mutexV(need_mutex);
+
+    // If there are outstanding pages, signal the page loader threads.
+
+    if (n) SDL_CondBroadcast(need_cond);
 }
 
 //-----------------------------------------------------------------------------
 
 bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
 {
-    return true;
+    // Wait for the needed page map to be non-empty and remove the first.
+
+    SDL_mutexP(need_mutex);
+    {
+        SDL_CondWait(need_cond, need_mutex);
+
+        if (!needs.empty())
+        {
+            *M = needs.begin()->second.M;
+            *P = needs.begin()->second.P;
+
+            needs.erase(needs.begin());
+            n--;
+        }
+    }
+    SDL_mutexV(need_mutex);
+
+    // Acquire a buffer to receive the loaded page.
+
+    SDL_mutexP(buff_mutex);
+    {
+        if (buffs.empty())
+            *B = new buffer(S, S, c, b);
+        else
+        {
+            *B = buffs.front();
+             buffs.pop_front();
+        }
+    }
+    SDL_mutexV(buff_mutex);
+
+    return run;
 }
 
 void uni::geocsh::put_loaded(geomap *M, page *P, buffer *B)
 {
+    // Add the loaded page to the incoming queue.
+
+    SDL_mutexP(load_mutex);
+    loads.push_back(load(M, P, B));
+    SDL_mutexV(load_mutex);
 }
 
 //-----------------------------------------------------------------------------
@@ -586,6 +422,9 @@ void uni::geocsh::free(GLenum unit) const
 
 void uni::geocsh::draw() const
 {
+    GLfloat a = (GLfloat(::host->get_window_h() * w) /
+                 GLfloat(::host->get_window_w() * h));
+
     glPushAttrib(GL_ENABLE_BIT);
     {
         glEnable(GL_TEXTURE_2D);
@@ -614,8 +453,8 @@ void uni::geocsh::draw() const
             glBegin(GL_QUADS);
             {
                 glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f, -1.0f);
-                glTexCoord2f(1.0f, 0.0f); glVertex2f(+0.0f, -1.0f);
-                glTexCoord2f(1.0f, 1.0f); glVertex2f(+0.0f, +0.0f);
+                glTexCoord2f(1.0f, 0.0f); glVertex2f(-1.0f + a,     -1.0f);
+                glTexCoord2f(1.0f, 1.0f); glVertex2f(-1.0f + a,     +0.0f);
                 glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f, +0.0f);
             }
             glEnd();

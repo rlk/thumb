@@ -27,87 +27,6 @@
 namespace uni
 {
     //-------------------------------------------------------------------------
-    // Thread-safe PNG-to-GL image buffer manager.
-
-    class buffer_pool
-    {
-    public:
-
-        struct buff
-        {
-            GLubyte   *pp;
-            png_bytep *rp;
-        };
-
-    private:
-
-        int w;
-        int h;
-        int c;
-        int b;
-        int N;
-
-        std::list<buff> avail;
-        SDL_mutex      *mutex;
-
-    public:
-
-        buffer_pool(int, int, int, int);
-       ~buffer_pool();
-
-        buff get();
-        void put(buff);
-    };
-
-    //-------------------------------------------------------------------------
-    // Loaded page queue
-
-    class loaded_queue
-    {
-        struct load;
-
-        std::list<load> Q;
-
-        SDL_mutex *mutex;
-
-    public:
-
-        loaded_queue();
-       ~loaded_queue();
-
-        bool find(const page *);
-
-        void enqueue(geomap *,  page *,  buffer_pool::buff);
-        bool dequeue(geomap **, page **, buffer_pool::buff *);
-    };
-
-    //-------------------------------------------------------------------------
-    // Needed page queue
-
-    class needed_queue
-    {
-        struct need;
-
-        std::list<need> Q;
-
-        SDL_mutex *mutex;
-        SDL_sem   *sem;
-        bool       run;
-
-    public:
-
-        needed_queue();
-       ~needed_queue();
-
-        bool find(const page *);
-
-        void enqueue(geomap *,  page *);
-        bool dequeue(geomap **, page **);
-
-        void stop();
-    };
-
-    //-------------------------------------------------------------------------
     // Geometry data buffer
 
     class buffer
@@ -182,6 +101,7 @@ namespace uni
         int m;
         int count;
 
+        bool run;
         bool debug;
 
         ogl::image  *cache;
@@ -193,9 +113,12 @@ namespace uni
         load_list loads;
         buff_list buffs;
 
+        SDL_cond   *need_cond;
         SDL_mutex  *need_mutex;
         SDL_mutex  *load_mutex;
-        SDL_Thread *load_thread;
+        SDL_mutex  *buff_mutex;
+
+        std::vector<SDL_Thread *> load_thread;
 
         void proc_needs(const double *, double, double, app::frustum_v&);
         void proc_loads();
