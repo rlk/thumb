@@ -639,9 +639,19 @@ void uni::sphere::draw(int i)
                 if (::prog->option(4))
                     cache.draw();
 
-                if (::prog->option(5)) pos.draw();
-                if (::prog->option(6)) nrm.draw();
-                if (::prog->option(7)) tex.draw();
+                // Test draw the GPGPU buffers.
+
+                glPushAttrib(GL_ENABLE_BIT);
+                {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                    glDisable(GL_DEPTH_TEST);
+
+                    if (::prog->option(5)) pos.draw();
+                    if (::prog->option(6)) nrm.draw();
+                    if (::prog->option(7)) tex.draw();
+                }
+                glPopAttrib();
 
 /*
                 glPushMatrix();

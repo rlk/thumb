@@ -137,7 +137,6 @@ void ogl::frame::draw() const
 {
     bind_color(GL_TEXTURE0);
     {
-
         glMatrixMode(GL_PROJECTION);
         {
             glPushMatrix();

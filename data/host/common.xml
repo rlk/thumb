@@ -22,6 +22,17 @@
     </tile>
   </node>
 
+  <node name="1920x1080x2">
+    <buffer w="960" h="540"/>
+    <window x="0" y="0" w="1920" h="1080"/>
+    <tile>
+      <viewport x="0" y="0" w="1920" h="1080"/>
+      <frustum>
+        <perspective aspect="1.777" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
   <node name="1024x768">
     <buffer w="1024" h="768"/>
     <window x="0" y="0" w="1024" h="768"/>

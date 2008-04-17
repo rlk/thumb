@@ -510,8 +510,29 @@ uni::geobuf::geobuf(GLsizei w, GLsizei h, std::string rect_vert,
     show->bind();
     {
         show->uniform("src", 0);
+        show->uniform("size", w, h);
     }
     show->free();
+
+    // Disable filtering on GPGPU buffers.
+
+    ping->bind_color(GL_TEXTURE0);
+    {
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    ping->free_color(GL_TEXTURE0);
+
+    pong->bind_color(GL_TEXTURE0);
+    {
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    pong->free_color(GL_TEXTURE0);
 }
 
 uni::geobuf::~geobuf()
