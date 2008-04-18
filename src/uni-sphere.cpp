@@ -443,19 +443,19 @@ void uni::sphere::prep()
         pos.bind(GL_TEXTURE4);
         nrm.bind(GL_TEXTURE5);
         tex.bind(GL_TEXTURE6);
-        cache_h.bind(GL_TEXTURE2);
         {
             // Accumulate terrain maps.  TODO: move this to geotex::proc?
 
             acc.init(count);
             acc.bind_proc();
             {
+                cache_h.bind(GL_TEXTURE2);
                 height.draw();
+                cache_h.free(GL_TEXTURE2);
             }
             acc.free_proc();
             acc.swap();
         }
-        cache_h.free(GL_TEXTURE2);
         tex.free(GL_TEXTURE6);
         nrm.free(GL_TEXTURE5);
         pos.free(GL_TEXTURE4);
@@ -657,7 +657,8 @@ void uni::sphere::draw(int i)
 
                     if (::prog->option(6)) pos.draw();
                     if (::prog->option(7)) nrm.draw();
-                    if (::prog->option(8)) tex.draw();
+//                  if (::prog->option(8)) tex.draw();
+                    if (::prog->option(8)) acc.draw();
                 }
                 glPopAttrib();
 

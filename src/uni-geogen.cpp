@@ -814,8 +814,6 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 
 void uni::geoacc::init(GLsizei c)
 {
-    // Initialize the ZR min/max using the accumulation buffer.
-
     dst->bind(true);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);

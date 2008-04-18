@@ -6,8 +6,8 @@ uniform sampler2DRect pos;
 uniform sampler2DRect nrm;
 uniform sampler2DRect tex;
 
-uniform sampler2D     index;
-uniform sampler2D     cache;
+uniform sampler2D index;
+uniform sampler2D cache;
 
 uniform vec2 data_size;
 uniform vec2 tile_size;

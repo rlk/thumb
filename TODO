@@ -1,6 +1,7 @@
 -------------------------------------------------------------------------------
 
-Make height work.
+Fix height bug at patch corner.
+Parallel radius extrema reduction.
 
 Find the bottleneck.
 
