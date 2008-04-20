@@ -72,9 +72,17 @@ void main()
     vec3 C1 = mipref(p1 / s1, l1) * 255.0;
 
     // Compute cache coordinates for these pages.
-
+/*
     p0 = (data_size * c) / (tile_size * exp2(C0.z));
     p1 = (data_size * c) / (tile_size * exp2(C1.z));
+*/
+
+    vec2 tt = data_size / tile_size;
+
+    p0 = tt * c / C0.z;
+    p1 = tt * c / C1.z;
+
+    // p0 * tile_size / tile_size
 
     vec2 q0 = (fract(p0) * tile_size + 1.0 + C0.xy * page_size) / pool_size;
     vec2 q1 = (fract(p1) * tile_size + 1.0 + C1.xy * page_size) / pool_size;
@@ -84,7 +92,8 @@ void main()
     vec4 D0 = texture2D(cache, q0);
     vec4 D1 = texture2D(cache, q1);
 
-    gl_FragColor = mix(D0, D1, ld);
+//  gl_FragColor = mix(D0, D1, ld);
+    gl_FragColor = D1;
 }
 
 //-----------------------------------------------------------------------------

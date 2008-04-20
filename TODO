@@ -2,6 +2,7 @@
 
 Fix height bug at patch corner.
 Parallel radius extrema reduction.
+Fix cracking between cached pages.
 
 Find the bottleneck.
 

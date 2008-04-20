@@ -157,7 +157,7 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
 {
     cache->bind(GL_TEXTURE0);
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     cache->free(GL_TEXTURE0);
@@ -224,11 +224,14 @@ void uni::geocsh::seed(const double *vp, double r0, double r1, geomap& map)
     geomap *M = &map;
     page   *P =  map.root();
 
-    SDL_mutexP(need_mutex);
-    needs.insert(need_map::value_type(P->angle(vp, r0), need(M, P)));
-    SDL_mutexV(need_mutex);
+    if (P->get_live())
+    {
+        SDL_mutexP(need_mutex);
+        needs.insert(need_map::value_type(P->angle(vp, r0), need(M, P)));
+        SDL_mutexV(need_mutex);
 
-    n++;
+        n++;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -325,7 +328,7 @@ void uni::geocsh::proc_needs(const double *vp,
 {
     // While the needed page count is less than the limit.
 
-    while (n < m)
+    while (0 < n && n < m)
     {
         // If a worst page exists...
 
@@ -342,11 +345,11 @@ void uni::geocsh::proc_needs(const double *vp,
 
             // Subdivide it.
 
-            for (int i = 0; i < 4 && n < m; ++i)
+            for (int j = 0; j < 4 && n < m; ++j)
 
-                if (L.P->child(i) && L.P->child(i)->view(frusta, r0, r1))
+                if (L.P->child(j) && L.P->child(j)->view(frusta, r0, r1))
                 {
-                    need C(L.M, L.P->child(i));
+                    need C(L.M, L.P->child(j));
 
                     double k = C.P->angle(vp, r0);
 

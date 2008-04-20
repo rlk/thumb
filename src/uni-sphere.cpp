@@ -439,7 +439,7 @@ void uni::sphere::prep()
         dat.lut()->free(GL_TEXTURE1);
 
         // Bind all generated attributes for use in terrain accumulation.
-
+/*
         pos.bind(GL_TEXTURE4);
         nrm.bind(GL_TEXTURE5);
         tex.bind(GL_TEXTURE6);
@@ -459,7 +459,7 @@ void uni::sphere::prep()
         tex.free(GL_TEXTURE6);
         nrm.free(GL_TEXTURE5);
         pos.free(GL_TEXTURE4);
-
+*/
         // Find the extrema of the accumulated positions.
 /*
         acc.bind(GL_TEXTURE1);
@@ -481,15 +481,15 @@ void uni::sphere::prep()
         nrm.free_frame();
 
         // Copy the generated positions to the vertex buffer.
-
+/*
         acc.bind_frame();
         vtx.read_v(count);
         acc.free_frame();
-/*
+*/
         pos.bind_frame();
         vtx.read_v(count);
         pos.free_frame();
-*/
+
     }
 }
 

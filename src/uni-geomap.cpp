@@ -405,8 +405,8 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
 
     if (d < 8)
     {
-        do_index(d, i, j, GLubyte(x), GLubyte(y), GLubyte(d));
-//      dump(image);
+        do_index(d, i, j, GLubyte(x), GLubyte(y), GLubyte(1 << d));
+//        dump(image);
         dirty = true;
     }
 }
@@ -425,9 +425,9 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 
         do_eject(d, i, j, GLubyte(x),
                           GLubyte(y),
-                          GLubyte(d), x1, y1, l1);
+                 GLubyte(1 << d), x1, y1, l1);
 
-//      dump(image);
+//        dump(image);
         dirty = true;
     }
 }
