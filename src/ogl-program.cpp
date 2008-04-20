@@ -73,28 +73,55 @@ void ogl::program::free() const
 
 //-----------------------------------------------------------------------------
 
+std::string ogl::program::load(std::string name)
+{
+    std::string            base;
+    std::string::size_type incl = 0;
+
+    size_t len;
+
+    // Load the named program file.
+
+    base.append((const char *) ::data->load(name, &len));
+
+    // Scan the string for #include directives.
+
+    while ((incl = base.find("#include", incl)) != std::string::npos)
+    {
+        // Parse the included file name.
+
+        std::string::size_type lq = base.find("\"", incl);
+        std::string::size_type rq = base.find("\"", lq+1);
+
+        std::string file(base, lq + 1, rq - lq - 1);
+
+        // Replace the include directive with the loaded string.
+
+        base.replace(incl, rq - incl + 1, load(file));
+    }
+
+    // Return the final string.
+
+    return base;
+}
+
 void ogl::program::init()
 {
     // Load the shader files.
 
-    size_t vert_siz;
-    size_t frag_siz;
-
-    const GLcharARB *vert_txt =
-        (const GLcharARB *) ::data->load(vert_name, &vert_siz);
-    const GLcharARB *frag_txt =
-        (const GLcharARB *) ::data->load(frag_name, &frag_siz);
-
-    GLint vert_len = GLint(vert_siz);
-    GLint frag_len = GLint(frag_siz);
+    std::string vert_txt = load(vert_name);
+    std::string frag_txt = load(frag_name);
 
     // Compile the vertex shader.
 
-    if (vert_txt)
+    if (!vert_txt.empty())
     {
         vert = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
 
-        glShaderSourceARB (vert, 1, &vert_txt, &vert_len);
+        const char *data = vert_txt.data();
+        GLint       size = vert_txt.size();
+
+        glShaderSourceARB (vert, 1, &data, &size);
         glCompileShaderARB(vert);
         
         log(vert, vert_name);
@@ -102,11 +129,14 @@ void ogl::program::init()
 
     // Compile the frag shader.
 
-    if (frag_txt)
+    if (!frag_txt.empty())
     {
         frag = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
 
-        glShaderSourceARB (frag, 1, &frag_txt, &frag_len);
+        const char *data = frag_txt.data();
+        GLint       size = frag_txt.size();
+
+        glShaderSourceARB (frag, 1, &data, &size);
         glCompileShaderARB(frag);
         
         log(frag, frag_name);
@@ -120,10 +150,10 @@ void ogl::program::init()
     if (frag) glAttachObjectARB(prog, frag);
 
     // Bind the tangent attribute if needed.  (HACK)
-
+/*
     if (strstr(vert_txt,  "attribute vec3 Tangent"))
         glBindAttribLocationARB(prog, 6, "Tangent");
-
+*/
     glLinkProgramARB(prog);
 
     log(prog, vert_name);

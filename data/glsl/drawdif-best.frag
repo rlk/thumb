@@ -7,7 +7,7 @@ uniform vec2          cylk;
 uniform vec2          cyld;
 
 #include "glsl/mipmap-common.frag"
-#include "glsl/mipmapL.frag"
+#include "glsl/mipmap0.frag"
 
 //-----------------------------------------------------------------------------
 
@@ -17,14 +17,7 @@ void main()
 
     vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy * cylk + cyld;
 
-    // Determine the mipmap levels.
-
-    float ll = miplevL(c * data_size);
-    float l0 = floor(ll);
-    float l1 = l0 + 1.0;
-
-    gl_FragColor = mix(cacherefL(c, l0),
-                       cacherefL(c, l1), ll - l0);
+    gl_FragColor = cacheref0(c);
 }
 
 //-----------------------------------------------------------------------------

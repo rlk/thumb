@@ -1,5 +1,6 @@
 
-CFLAGS= -g -Wall
+CFLAGS= -O3 -Wall -DNDEBUG -fno-rtti
+#CFLAGS= -g -Wall
 #CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti

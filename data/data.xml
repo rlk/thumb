@@ -16,4 +16,16 @@
       glsl/ReliefFromAtmosphere.frag
     </option>
   </file>
+
+  <file name="glsl/drawdif.frag">
+    <option type="string" name="mipmap" value="linear">
+      glsl/drawdif.frag
+    </option>
+    <option type="string" name="mipmap" value="nearest">
+      glsl/drawdif-nearest.frag
+    </option>
+    <option type="string" name="mipmap" value="best">
+      glsl/drawdif-best.frag
+    </option>
+  </file>
 </data>

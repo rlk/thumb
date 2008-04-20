@@ -32,6 +32,8 @@ namespace ogl
 
         void log(GLhandleARB, std::string&);
 
+        std::string load(std::string);
+
     public:
 
         static const program *current;
