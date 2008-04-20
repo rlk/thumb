@@ -19,19 +19,28 @@ ogl::lut::lut(GLsizei w,
     target(T), object(0), formint(fi), formext(fe), type(t), w(w)
 {
     glGenTextures(1, &object);
-    glBindTexture(T,  object);
 
-    glTexImage1D(target, 0, fi, w, 0, fe, t, 0);
+    bind();
+    {
+        glTexImage1D(target, 0, fi, w, 0, fe, t, 0);
 
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
+        ogl::new_texture(target);
+    }
     OGLCK();
 }
 
 ogl::lut::~lut()
 {
+    bind();
+    {
+        ogl::del_texture(target);
+    }
+    free();
+
     glDeleteTextures(1, &object);
     OGLCK();
 }

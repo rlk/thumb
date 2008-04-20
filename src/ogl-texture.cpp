@@ -254,11 +254,23 @@ void ogl::texture::init()
 
     load_img(name);
 
+    bind();
+    {
+        ogl::new_texture(target);
+    }
+    free();
+
     OGLCK();
 }
 
 void ogl::texture::fini()
 {
+    bind();
+    {
+        ogl::del_texture(target);
+    }
+    free();
+
     glDeleteTextures(1, &object);
 
     OGLCK();

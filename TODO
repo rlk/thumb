@@ -7,8 +7,6 @@ Fix height bug at patch corner.
 Parallel radius extrema reduction.
 Fix cracking between cached pages.
 
-Find the bottleneck.
-
 Modularize and optimize the mipmap shaders.
 Generalize geomap to work with sizes other than 512x256.
 

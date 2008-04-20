@@ -25,8 +25,6 @@ ogl::image::image(GLsizei w, GLsizei h,
 ogl::image::~image()
 {
     fini();
-
-//  if (p) delete [] p;
 }
 
 //-----------------------------------------------------------------------------
@@ -129,47 +127,33 @@ void ogl::image::init()
 {
     // Create a new texture object.
 
-    glGenTextures(1,     &object);
-    glBindTexture(target, object);
+    glGenTextures(1, &object);
 
-    glTexImage2D(target, 0, formint, w, h, 0, formext, type, p);
-
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-/*
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-    glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
-*/
-
-    // If we have a buffer, we must be reloading.  It's no longer needed.
-    /*
-    if (p)
+    bind();
     {
-        delete [] p;
-        p = 0;
+        glBindTexture(target, object);
+
+        glTexImage2D(target, 0, formint, w, h, 0, formext, type, p);
+
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+        ogl::new_texture(target);
     }
-    */
+    free();
 
     OGLCK();
 }
 
 void ogl::image::fini()
 {
-    /*
-    // Allocate and store a copy of the image in main memory.
-
-    p = new GLubyte[w * h * 4];
+    // Delete the texture object.
 
     bind();
     {
-        glGetTexImage(target, 0, formext, type, p);
+        ogl::del_texture(target);
     }
     free();
-    */
-
-    // Delete the texture object.
 
     glDeleteTextures(1, &object);
     OGLCK();

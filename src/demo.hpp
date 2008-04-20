@@ -48,7 +48,7 @@ class demo : public app::prog
     // Entity state.
 
     uni::universe universe;
-    wrl::world    world;
+//  wrl::world    world;
 
     // Editor mode.
 

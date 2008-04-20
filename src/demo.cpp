@@ -27,10 +27,10 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo() : draw_sphere(false)
+demo::demo() : edit(0), play(0), info(0), curr(0), draw_sphere(false)
 {
 //  edit = new mode::edit(world);
-    play = new mode::play(world);
+//  play = new mode::play(world);
 //  info = new mode::info(world);
 
     // Initialize the demo configuration.
@@ -70,13 +70,11 @@ demo::demo() : draw_sphere(false)
     load_idt(init_R);
     load_idt(curr_R);
 
-    curr = 0;
-
     attr_time = conf->get_f("attract_delay");
     attr_curr = 0;
     attr_mode = false;
 
-    goto_mode(play);
+//  goto_mode(play);
 }
 
 demo::~demo()
@@ -167,7 +165,7 @@ void demo::click(int i, int b, int m, bool d)
         else
             universe.turn(-1.0, 0.0);
     }
-    else
+    else if (curr)
     {
         if (curr->click(i, b, m, d) == false)
             prog::click(i, b, m, d);
@@ -186,7 +184,7 @@ void demo::keybd(int c, int k, int m, bool d)
 */
     // Let the current mode take it.
 
-    if (curr->keybd(c, k, m, d) == false)
+    if (curr == 0 || curr->keybd(c, k, m, d) == false)
     {
         int dd = d ? +1 : -1;
 
@@ -303,8 +301,10 @@ void demo::timer(int t)
         }
     }
 
-    curr->timer(t);
-    prog::timer(t);
+    if (curr)
+        curr->timer(t);
+    else
+        prog::timer(t);
 }
 
 void demo::value(int d, int a, double v)

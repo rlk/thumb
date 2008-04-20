@@ -179,6 +179,7 @@ void ogl::frame::init()
         glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
         glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
+        ogl::new_texture(target);
         glBindTexture(target, 0);
     }
 
@@ -207,6 +208,7 @@ void ogl::frame::init()
         glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB,
                                 GL_COMPARE_R_TO_TEXTURE_ARB);
 
+        ogl::new_texture(target);
         glBindTexture(target, 0);
     }
 
@@ -264,8 +266,22 @@ void ogl::frame::init()
 
 void ogl::frame::fini()
 {
-    if (color)  glDeleteTextures(1, &color);
-    if (depth)  glDeleteTextures(1, &depth);
+    if (color)
+    {
+        glBindTexture(target, color);
+        ogl::del_texture(target);
+        glBindTexture(target, 0);
+
+        glDeleteTextures(1, &color);
+    }
+    if (depth)
+    {
+        glBindTexture(target, depth);
+        ogl::del_texture(target);
+        glBindTexture(target, 0);
+
+        glDeleteTextures(1, &depth);
+    }
 
     if (buffer) glDeleteFramebuffersEXT(1, &buffer);
 }

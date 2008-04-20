@@ -340,3 +340,61 @@ void ogl::draw_axes()
 }
 
 //-----------------------------------------------------------------------------
+
+static int texture_total = 0;
+
+static int texture_size(GLenum target)
+{
+    int   T  = 0;
+    GLint l0 = 0;
+    GLint l1 = 0;
+    /*
+    glGetTexParameteriv(target, GL_TEXTURE_BASE_LEVEL, &l0);
+    glGetTexParameteriv(target, GL_TEXTURE_MAX_LEVEL,  &l1);
+
+    printf("%d %d\n", l0, l1);
+    */
+    for (GLint level = l0; level <= l1; ++level)
+    {
+        GLint w, h, d, r, g, b, a, l, i, z;
+        
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_WIDTH,          &w);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_HEIGHT,         &h);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_DEPTH,          &d);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_RED_SIZE,       &r);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_GREEN_SIZE,     &g);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_BLUE_SIZE,      &b);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_ALPHA_SIZE,     &a);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_LUMINANCE_SIZE, &l);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_INTENSITY_SIZE, &i);
+        glGetTexLevelParameteriv(target, level, GL_TEXTURE_DEPTH_SIZE,     &z);
+
+        printf("w%04d h%04d d%04d r%02d g%02d b%02d a%02d l%02d i%02d z%02d", 
+               w, h, d, r, g, b, a, l, i, z);
+
+        T += w * h * d * (r + g + b + a + l + i + z) / 8;
+    }
+    return T;
+}
+
+void ogl::new_texture(GLenum target)
+{
+    printf("new ");
+
+    texture_total += texture_size(target);
+
+    printf(" Total: %d (%4.2fMB)\n", texture_total,
+           double(texture_total) / (1024 * 1024));
+}
+
+void ogl::del_texture(GLenum target)
+{
+    printf("del ");
+
+    texture_total -= texture_size(target);
+
+    printf(" Total: %d (%4.2fMB)\n", texture_total,
+           double(texture_total) / (1024 * 1024));
+}
+
+//-----------------------------------------------------------------------------
