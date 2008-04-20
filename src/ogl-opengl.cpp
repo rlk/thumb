@@ -158,11 +158,34 @@ void ogl::check_err(const char *file, int line)
         str << std::endl;
 
         std::cerr << str;
-        assert(0);
+//      assert(0);
 
         throw std::runtime_error(str.str().c_str());
     }
 }
+
+//-----------------------------------------------------------------------------
+
+#ifdef _WIN32
+
+#include <GL/wglext.h>
+
+static void sync(bool on)
+{
+    PFNWGLSWAPINTERVALEXTPROC _wglSwapInvervalEXT = 0;
+
+    if ((_wglSwapInvervalEXT = (PFNWGLSWAPINTERVALEXTPROC)
+          wglGetProcAddress("wglSwapIntervalEXT")))
+         _wglSwapInvervalEXT(on ? 1 : 0);
+}
+
+#else
+
+static void sync(bool on)
+{
+}
+
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -289,6 +312,8 @@ void ogl::init()
         do_z_only = true;
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    sync(::conf->get_i("sync") ? true : false);
 }
 
 //-----------------------------------------------------------------------------

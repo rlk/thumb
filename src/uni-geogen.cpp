@@ -428,7 +428,7 @@ double uni::georad::func(double x)
 // GPU Gems 2 chapter 24
 
 uni::georad::georad(GLsizei n) :
-    lut(n, GL_TEXTURE_1D, GL_LUMINANCE16, GL_LUMINANCE)
+    lut(n, GL_TEXTURE_1D, GL_LUMINANCE16, GL_LUMINANCE, GL_UNSIGNED_SHORT)
 {
     GLushort *p = new GLushort[n];
     GLsizei   i;
@@ -440,9 +440,7 @@ uni::georad::georad(GLsizei n) :
 
     // Copy the table to the texture.
 
-    glTexSubImage1D(GL_TEXTURE_1D, 0, 0, n,
-                    GL_LUMINANCE, GL_UNSIGNED_SHORT, p);
-    OGLCK();
+    blit(p, 0, n);
 
     delete [] p;
 }

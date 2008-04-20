@@ -3,7 +3,7 @@
 
   <!-- Host configuration -->
 
-<!--<option type="string" name="host_file">host/sharp.xml</option>-->
+  <option type="string" name="host_file">host/common.xml</option>
 
   <option type="string" name="exec_dir">/home/rlk/src/thumb/</option>
   <option type="string" name="data_dir">/home/rlk/data/</option>
@@ -11,19 +11,16 @@
   <option type="int" name="window_fullscreen">0</option>
   <option type="int" name="window_noframe">0</option>
 
-  <option type="float" name="attract_delay">120.0</option>
+  <option type="float" name="attract_delay">600.0</option>
 
-  <option type="int" name="atmo">1</option>
+  <option type="int" name="atmo">0</option>
+  <option type="int" name="sync">0</option>
+  <option type="int" name="debug">0</option>
 
   <!-- Terrain renderer configuration -->
 
-  <option type="float" name="patch_bias">10.0</option>
-  <option type="int"   name="patch_cache">1024</option>
-  <option type="int"   name="patch_depth">4</option>
-  <option type="int"   name="image_pool_size">24</option>
-  <option type="int"   name="image_color_lod">16</option>
-  <option type="int"   name="image_normal_lod">16</option>
-  <option type="int"   name="image_height_lod">16</option>
+  <option type="int"   name="patch_cache">128</option>
+  <option type="int"   name="patch_depth">3</option>
 
   <!-- Tracker configuration -->
 
@@ -39,10 +36,17 @@
   <option type="int"    name="sans_size">14</option>
   <option type="int"    name="mono_size">14</option>
 
-  <!-- Keyboard commands -->
+  <!-- Qwerty keyboard commands -->
 
-  <option type="int" name="key_undo">103</option>
-  <option type="int" name="key_redo">107</option>
+  <option type="int" name="key_move_L">97</option>
+  <option type="int" name="key_move_R">100</option>
+  <option type="int" name="key_move_D">113</option>
+  <option type="int" name="key_move_U">101</option>
+  <option type="int" name="key_move_F">119</option>
+  <option type="int" name="key_move_B">115</option>
+
+  <!-- Dvorak keyboard commands 
+
   <option type="int" name="key_move_L">97</option>
   <option type="int" name="key_move_R">101</option>
   <option type="int" name="key_move_F">44</option>
@@ -50,6 +54,8 @@
   <option type="int" name="key_axis_X">113</option>
   <option type="int" name="key_axis_Y">102</option>
   <option type="int" name="key_axis_Z">59</option>
+  <option type="int" name="key_undo">103</option>
+  <option type="int" name="key_redo">107</option>
   <option type="int" name="key_home">13</option>
   <option type="int" name="key_position_mode">121</option>
   <option type="int" name="key_rotation_mode">112</option>
@@ -61,6 +67,8 @@
   <option type="int" name="key_selection_extend">46</option>
   <option type="int" name="key_selection_clone">106</option>
   <option type="int" name="key_selection_clear">32</option>
+  -->
+
   <option type="int" name="key_info">282</option>
   <option type="int" name="key_edit">283</option>
   <option type="int" name="key_play">284</option>

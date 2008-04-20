@@ -62,10 +62,10 @@ uni::page::page(int w, int h, int s,
 
     // Compute the cap normal.
 
-    const double cW = std::max(W, -M_PI);
-    const double cE = std::min(E,  M_PI);
-    const double cS = std::max(S, -M_PI_2);
-    const double cN = std::min(N,  M_PI_2);
+    const double cW = std::max(W, -PI);
+    const double cE = std::min(E,  PI);
+    const double cS = std::max(S, -PI_2);
+    const double cN = std::min(N,  PI_2);
 
     const double cH = (cW + cE) / 2;
     const double cV = (cS + cN) / 2;
@@ -193,10 +193,10 @@ void uni::page::draw(double r0, double r1)
 
     glBegin(GL_LINE_LOOP);
     {
-        const double cW = std::max(W, -M_PI);
-        const double cE = std::min(E,  M_PI);
-        const double cS = std::max(S, -M_PI_2);
-        const double cN = std::min(N,  M_PI_2);
+        const double cW = std::max(W, -PI);
+        const double cE = std::min(E,  PI);
+        const double cS = std::max(S, -PI_2);
+        const double cN = std::min(N,  PI_2);
 
         double v[3], k = 0.01, o = 0.001;
 
@@ -237,7 +237,7 @@ double uni::page::angle(const double *v, double r)
 
         // If a page covers most of the sphere, just use the sphere itself.
 
-        if (a > M_PI_2)
+        if (a > PI_2)
         {
             D = sqrt(DOT3(v, v));
             R = r;
@@ -256,7 +256,7 @@ double uni::page::angle(const double *v, double r)
 
         // Compute the solid angle of the given radius and distance.
 
-        aa = 2.0 * M_PI * (1.0 - cos(atan(R / D)));
+        aa = 2.0 * PI * (1.0 - cos(atan(R / D)));
     }
 
     return aa / f;
@@ -276,10 +276,10 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
 
         pattern = app::get_attr_s(map, "name");
 
-        double W = app::get_attr_f(map, "W", -M_PI);
-        double E = app::get_attr_f(map, "E",  M_PI);
-        double S = app::get_attr_f(map, "S", -M_PI_2);
-        double N = app::get_attr_f(map, "N",  M_PI_2);
+        double W = app::get_attr_f(map, "W", -PI);
+        double E = app::get_attr_f(map, "E",  PI);
+        double S = app::get_attr_f(map, "S", -PI_2);
+        double N = app::get_attr_f(map, "N",  PI_2);
 
         w = app::get_attr_d(map, "w", 1024);
         h = app::get_attr_d(map, "h", 512);
@@ -403,9 +403,11 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
     int i = Q->get_i();
     int j = Q->get_j();
 
+    int l = 1 << d;
+
     if (d < 8)
     {
-        do_index(d, i, j, GLubyte(x), GLubyte(y), GLubyte(1 << d));
+        do_index(d, i, j, GLubyte(x), GLubyte(y), GLubyte(l));
 //        dump(image);
         dirty = true;
     }
@@ -417,6 +419,8 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
     int i = Q->get_i();
     int j = Q->get_j();
 
+    int l = 1 << d;
+
     if (d < 8)
     {
         GLubyte x1 = (d < 7) ? index_x(d + 1, i >> 1, j >> 1) : 0xFF;
@@ -425,7 +429,7 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 
         do_eject(d, i, j, GLubyte(x),
                           GLubyte(y),
-                 GLubyte(1 << d), x1, y1, l1);
+                          GLubyte(l), x1, y1, l1);
 
 //        dump(image);
         dirty = true;
@@ -442,17 +446,43 @@ void uni::geomap::proc()
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::draw()
+void uni::geomap::init(int pool_w, int pool_h) const
+{
+    ogl::program::current->uniform("index", 1);
+    ogl::program::current->uniform("cache", 2);
+    ogl::program::current->uniform("rp2",   3);
+
+    ogl::program::current->uniform("data_size", w, h);
+/*
+    ogl::program::current->uniform("page_size", s + 2, s + 2);
+    ogl::program::current->uniform("tile_size", s, s);
+    ogl::program::current->uniform("base_size", 256.0, 128.0);
+*/
+    ogl::program::current->uniform("data_over_tile",
+                                   double(w) / s,
+                                   double(h) / s);
+    ogl::program::current->uniform("data_over_tile_base",
+                                   double(w) / (256.0 * s),
+                                   double(h) / (128.0 * s));
+
+    ogl::program::current->uniform("tile_over_pool",
+                                   double(s) / pool_w,
+                                   double(s) / pool_h);
+    ogl::program::current->uniform("page_over_pool",
+                                   double(s + 2) / pool_w,
+                                   double(s + 2) / pool_h);
+    ogl::program::current->uniform("step_over_pool",
+                                   1.0 / pool_w,
+                                   1.0 / pool_h);
+
+    ogl::program::current->uniform("cylk", 0.5 / PI, 1.0 / PI);
+    ogl::program::current->uniform("cyld", 0.5,      0.5     );
+}
+
+void uni::geomap::draw() const
 {
     index->bind(GL_TEXTURE1);
     {
-        ogl::program::current->uniform("index", 1);
-        ogl::program::current->uniform("cache", 2);
-
-        ogl::program::current->uniform("data_size", w, h);
-        ogl::program::current->uniform("page_size", s + 2, s + 2);
-        ogl::program::current->uniform("tile_size", s, s);
-
         glMatrixMode(GL_PROJECTION);
         {
             glPushMatrix();

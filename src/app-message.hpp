@@ -38,7 +38,10 @@ namespace app
     class host_error : public std::runtime_error
     {
         std::string mesg(const char *s) {
+/* W32 HACK
             return std::string(s) + ": " + hstrerror(h_errno);
+*/
+            return std::string(s) + ": " + strerror(errno);
         }
 
     public:

@@ -29,8 +29,8 @@
 
 //-----------------------------------------------------------------------------
 
-typedef std::vector<std::string> strvec;
-typedef std::set   <std::string> strset;
+typedef std::vector<std::string> str_vec;
+typedef std::set   <std::string> str_set;
 
 //-----------------------------------------------------------------------------
 

@@ -841,8 +841,8 @@ void gui::finder::refresh()
 
     // List all files and subdirectories in the current directory.
 
-    strset dirs;
-    strset regs;
+    str_set dirs;
+    str_set regs;
 
     ::data->list(cwd, dirs, regs);
 
@@ -850,10 +850,10 @@ void gui::finder::refresh()
 
     add(new finder_dir("..", this));
 
-    for (strset::iterator i = dirs.begin(); i != dirs.end(); ++i)
+    for (str_set::iterator i = dirs.begin(); i != dirs.end(); ++i)
         add(new finder_dir(*i, this));
 
-    for (strset::iterator i = regs.begin(); i != regs.end(); ++i)
+    for (str_set::iterator i = regs.begin(); i != regs.end(); ++i)
         add(new finder_reg(*i, this));
 
     add(new gui::filler());

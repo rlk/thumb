@@ -10,10 +10,45 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "uni-georen.hpp"
 #include "matrix.hpp"
 #include "app-glob.hpp"
+#include "uni-georen.hpp"
 
+
+//-----------------------------------------------------------------------------
+
+uni::rp2lut::rp2lut()
+    : ogl::lut(16, GL_TEXTURE_1D, GL_LUMINANCE16_ALPHA16,
+                   GL_LUMINANCE_ALPHA, GL_UNSIGNED_SHORT)
+{
+    GLushort *p = new GLushort[32];
+    GLsizei   i;
+    GLsizei   n = 16;
+    int       d = 1 << n;
+
+    // Compute the recipricol power-of-two function normalized to 16 bits.
+
+    for (i = 0; i < n; ++i, d /= 2)
+    {
+        p[i * 2 + 0] = GLushort(std::min(d,     0xFFFF));
+        p[i * 2 + 1] = GLushort(std::min(d / 2, 0xFFFF));
+    }
+
+    // Copy the table to the texture.
+
+    blit(p, 0, n);
+
+    // This lookup table does not interpolate.
+
+    bind();
+    {
+        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    }
+    free();
+
+    delete [] p;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -118,6 +153,7 @@ uni::georen::georen(GLsizei w, GLsizei h) :
     draw(0),
 //    draw(glob->load_program("glsl/drawlit.vert",
 //                            "glsl/drawlit.frag")),
+    _rp2(),
     _cyl(w, h),
     _dif(w, h, _cyl),
     _nrm(w, h, _cyl)

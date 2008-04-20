@@ -14,23 +14,38 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::lut::lut(GLsizei n, GLenum t, GLenum f, GLenum e) : n(n), target(t)
+ogl::lut::lut(GLsizei w,
+              GLenum T, GLenum fi, GLenum fe, GLenum t) :
+    target(T), object(0), formint(fi), formext(fe), type(t), w(w)
 {
-    glGenTextures(1, &texture);
-    glBindTexture(t,  texture);
+    glGenTextures(1, &object);
+    glBindTexture(T,  object);
 
-    glTexImage1D(t, 0, f, n, 0, e, GL_UNSIGNED_BYTE, 0);
+    glTexImage1D(target, 0, fi, w, 0, fe, t, 0);
 
-    glTexParameteri(t, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(t, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(t, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 
     OGLCK();
 }
 
 ogl::lut::~lut()
 {
-    glDeleteTextures(1, &texture);
+    glDeleteTextures(1, &object);
+    OGLCK();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::lut::blit(const GLvoid *P, GLsizei X, GLsizei W) const
+{
+    bind();
+    {
+        glTexSubImage1D(target, 0, X, W, formext, type, P);
+    }
+    free();
+
     OGLCK();
 }
 
@@ -40,7 +55,7 @@ void ogl::lut::bind(GLenum unit) const
 {
     glActiveTextureARB(unit);
     {
-        glBindTexture(target, texture);
+        glBindTexture(target, object);
     }
     glActiveTextureARB(GL_TEXTURE0);
     OGLCK();

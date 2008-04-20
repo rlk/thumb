@@ -1,5 +1,100 @@
 -------------------------------------------------------------------------------
 
+nearest nearest
+       PS  61%
+       FPS 184
+       tex  7%
+       rop 14%
+
+linear nearest (+ linear filtering doesn't hurt)
+       PS  61%
+       FPS 187 
+       tex  7%
+       rop 14%
+
+nearest linear (- doubling the texture refs has a penalty)
+       PS  65%
+       FPS 162
+       tex  6.5%
+       rop 12%
+
+linear linear
+       PS  65%
+       FPS 162
+       tex  6.5%
+       rop 12%
+
+nearest nearest with cacheref (+ no change)
+       PS  61%
+       FPS 184
+       tex  7%
+       rop 14%
+
+nearest linear with cacheref (+ no change)
+       PS  65%
+       FPS 162
+       tex  6.5%
+       rop 12%
+
+nearest linear with data_over_tile (+ slightly better)
+       PS  64%
+       FPS 167
+       tex  6.3%
+       rop 13%
+
+nearest linear with rp2 lookup (- worse!)
+       PS  66%
+       FPS 164
+       tex 5.7%
+       rop 12%
+
+nearest linear with data_over_tile_base (+ nicely better!)
+       PS  63%
+       FPS 178
+       tex  7.1%
+       rop 13%
+
+with fwidth (+ nice speedup, - some quality degradation)
+       PS  60%
+       FPS 188
+       tex  7.5%
+       rop 14%
+
+with tile/step/page_over_pool (= no change)
+       PS  60%
+       FPS 189
+       tex  7.5%
+       rop 14%
+
+nearest nearest after all that
+       PS  58%
+       FPS 209
+       tex  8%
+       rop 16%
+
+nearest nearest L = 0
+       PS  51%
+       FPS 236
+       tex 9.3%
+       rop 18%
+
+To try:
+    reduce mipref to 2 texrefs and fps goes up 178 to 183
+    short mipmap?
+
+-------------------------------------------------------------------------------
+
+cyl   0 (drawdif/drawnrm)
+src   0 (calcacc)
+index 1
+cache 2
+rp2   3
+pos   4 (calcacc)
+nrm   5 (calcacc)
+tex   6 (calcacc)
+
+-------------------------------------------------------------------------------
+
 Loader thread:
 
     Find a page which is listed in the index but not in the cache

@@ -101,8 +101,9 @@ namespace uni
         void cache_page(const page *, int, int);
         void eject_page(const page *, int, int);
 
+        void init(int, int) const;
         void proc();
-        void draw();
+        void draw() const;
 
         std::string name(const page *);
 

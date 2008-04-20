@@ -1,5 +1,6 @@
 
-CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
+CFLAGS= -g -Wall
+#CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
@@ -7,9 +8,6 @@ CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #------------------------------------------------------------------------------
 
 CC= g++
-RM= rm
-CD= cd
-CP= cp
 
 TARG= ../thumb
 OBJS=   util.o \
@@ -71,56 +69,60 @@ OBJS=   util.o \
 	demo.o \
 	main.o
 
-LIBS= -lmxml -lode -ljpeg -lpng -lz -lm
 DEPS= $(OBJS:.o=.d)
 
 #------------------------------------------------------------------------------
 
-ifeq ($(shell uname), Darwin)
-	INCDIR += -I/opt/local/include
-	LIBS   += -framework OpenGL
+ifeq "$(MAKE)" "mingw32-make"
 
-	SDL_CONF = /opt/local/bin/sdl-config
-	FT2_CONF = /opt/local/bin/freetype-config
-else
-	LIBS += -lGL
+	RM = del
 
-	SDL_CONF = sdl-config
-	FT2_CONF = freetype-config
+	INCDIR  = -Ic:/include -Ic:/include/SDL
+	LIBDIR  = -Lc:/lib
+
+	LIBS=   -lfreetype -lmxml -lode -ljpeg -lpng -lz -lm \
+		-lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lws2_32
+
+else #-------------------------------------------------------------------------
+
+	RM = rm -f
+
+	SDLCONF = /opt/local/bin/sdl-config
+	FT2CONF = /opt/local/bin/freetype-config
+
+	INCDIR  = -I$(HOME)/include
+	LIBDIR  = -L$(HOME)/lib
+
+	CFLAGS += $(shell $(SDLCONF) --cflags) \
+		  $(shell $(FT2CONF) --cflags)
+	LIBS    = $(shell $(SDLCONF) --libs) \
+		  $(shell $(FT2CONF) --libs) \
+		-lmxml -lode -ljpeg -lpng -lz -lm -lGL
 endif
 
 #------------------------------------------------------------------------------
 
-INCDIR += -I$(HOME)/include
-LIBDIR += -L$(HOME)/lib
-
-OPTS +=   $(shell $(SDL_CONF) --cflags) \
-	  $(shell $(FT2_CONF) --cflags)
-LIBS +=   $(shell $(SDL_CONF) --libs) \
-	  $(shell $(FT2_CONF) --libs)
-
-#------------------------------------------------------------------------------
-
 ifdef NVPM
-	LIBS += -lNVPerfSDK
-	OPTS += -DNVPM
+	LIBS   += -lNVPerfSDK
+	CFLAGS += -DNVPM
 endif
 
 #------------------------------------------------------------------------------
 
 %.d : %.cpp
-	$(CC) $(CFLAGS) $(OPTS) $(INCDIR) -MM -MF $@ -MT $*.o $< > /dev/null
+	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $<
+#	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $< > /dev/null
 
 %.o : %.cpp Makefile
-	$(CC) $(CFLAGS) $(OPTS) $(INCDIR) -c $<
+	$(CC) $(CFLAGS) $(INCDIR) -c $<
 
 #------------------------------------------------------------------------------
 
 $(TARG) : $(OBJS)
-	$(CC) $(CFLAGS) $(OPTS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
+	$(CC) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :
-	$(RM) -f $(TARG) $(OBJS) $(DEPS)
+	$(RM) $(OBJS) $(DEPS) "$(TARG)"
 
 #------------------------------------------------------------------------------
 

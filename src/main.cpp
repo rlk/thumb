@@ -116,9 +116,11 @@ static void position(int x, int y)
 
     // SDL looks to the environment for window position.
 
-#ifdef _WIN32
+#ifdef _WIN32 // W32 HACK
+/*
     sprintf(buf, "SDL_VIDEO_WINDOW_POS=%d,%d", x, y);
     putenv(buf);
+*/
 #else
     sprintf(buf, "%d,%d", x, y);
     setenv("SDL_VIDEO_WINDOW_POS", buf, 1);

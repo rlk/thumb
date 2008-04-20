@@ -1,5 +1,8 @@
 -------------------------------------------------------------------------------
 
+Shader linking using data.xml?
+    Allow concatenation as a data operation?
+
 Fix height bug at patch corner.
 Parallel radius extrema reduction.
 Fix cracking between cached pages.

@@ -29,9 +29,9 @@
 
 demo::demo() : draw_sphere(false)
 {
-    edit = new mode::edit(world);
+//  edit = new mode::edit(world);
     play = new mode::play(world);
-    info = new mode::info(world);
+//  info = new mode::info(world);
 
     // Initialize the demo configuration.
 
@@ -81,9 +81,9 @@ demo::demo() : draw_sphere(false)
 
 demo::~demo()
 {
-    delete info;
-    delete play;
-    delete edit;
+    if (info) delete info;
+    if (play) delete play;
+    if (edit) delete edit;
 }
 
 //-----------------------------------------------------------------------------
@@ -179,14 +179,14 @@ void demo::keybd(int c, int k, int m, bool d)
     prog::keybd(c, k, m, d);
 
     // Handle mode transitions.
-
+/*
     if      (d && k == key_edit && curr != edit) goto_mode(edit);
     else if (d && k == key_play && curr != play) goto_mode(play);
     else if (d && k == key_info && curr != info) goto_mode(info);
-
+*/
     // Let the current mode take it.
 
-    else if (curr->keybd(c, k, m, d) == false)
+    if (curr->keybd(c, k, m, d) == false)
     {
         int dd = d ? +1 : -1;
 

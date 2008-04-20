@@ -109,6 +109,15 @@ uni::sphere::sphere(uni::geodat& dat,
     load_scl_inv(I, a1, a1, a1);
 
     atmo_unit->transform(M, I);
+
+    // Initialize texturing uniforms.
+
+    ren.dif()->bind();
+    {
+        color.init(cache_s.pool_w(),
+                   cache_s.pool_h());
+    }
+    ren.dif()->free();
 }
 
 uni::sphere::~sphere()
@@ -396,16 +405,21 @@ void uni::sphere::step()
 
         cache_s.init();
         cache_s.seed(vp, r0, r1, color);
+/*
         cache_s.seed(vp, r0, r1, normal);
+*/
         cache_s.proc(vp, r0, r1, frusta);
-
+/*
         cache_h.init();
         cache_h.seed(vp, r0, r1, height);
         cache_h.proc(vp, r0, r1, frusta);
+*/
 
         color.proc();
+/*
         normal.proc();
         height.proc();
+*/
     }
 }
 
@@ -489,7 +503,6 @@ void uni::sphere::prep()
         pos.bind_frame();
         vtx.read_v(count);
         pos.free_frame();
-
     }
 }
 
@@ -597,6 +610,7 @@ void uni::sphere::draw(int i)
 
                 ren.dif()->init();
                 ren.dif()->bind();
+//              ren.rp2()->bind(GL_TEXTURE3);
                 {
                     cache_s.bind(GL_TEXTURE2);
                     {
@@ -604,8 +618,9 @@ void uni::sphere::draw(int i)
                     }
                     cache_s.free(GL_TEXTURE2);
                 }
+//              ren.rp2()->free(GL_TEXTURE3);
                 ren.dif()->free();
-
+/*
                 ren.nrm()->init();
                 ren.nrm()->bind();
                 {
@@ -616,7 +631,7 @@ void uni::sphere::draw(int i)
                     cache_s.free(GL_TEXTURE2);
                 }
                 ren.nrm()->free();
-
+*/
                 // Draw the illuminated geometry.
 
                 glClear(GL_DEPTH_BUFFER_BIT);

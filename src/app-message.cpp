@@ -117,7 +117,7 @@ void app::message::send(SOCKET s)
 {
     // Send the payload on the given socket.
 
-    if (::send(s, &payload, payload.size + 2, 0) == -1)
+    if (::send(s, (const char *) &payload, payload.size + 2, 0) == -1)
         throw std::runtime_error(strerror(errno));
 }
 
@@ -125,7 +125,7 @@ void app::message::recv(SOCKET s)
 {
     // Block until receipt of the payload head and data.
 
-    if (::recv(s, &payload, 2, 0) == -1)
+    if (::recv(s, (char *) &payload, 2, 0) == -1)
         throw std::runtime_error(strerror(errno));
 
     // TODO: repeat until payload size is received.

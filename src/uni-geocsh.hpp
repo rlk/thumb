@@ -141,6 +141,9 @@ namespace uni
         void draw() const;
         void wire(double, double) const;
 
+        int pool_w() const { return w * S; }
+        int pool_h() const { return h * S; }
+
         // Data access service API.
 
         bool get_needed(geomap **, page **, buffer **);

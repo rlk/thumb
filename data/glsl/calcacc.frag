@@ -57,8 +57,12 @@ void main()
 
     // Compute cache coordinates for these pages.
 
-    p0 = (data_size * c) / (tile_size * exp2(C0.z));
+    vec2 tt = data_size / tile_size;
 
+    p0 = tt * c / C0.z;
+/*
+    p0 = (data_size * c) / (tile_size * exp2(C0.z));
+*/
     vec2 q0 = (fract(p0) * tile_size + 1.0 + C0.xy * page_size) / pool_size;
 
     // Reference the cache and write the color.

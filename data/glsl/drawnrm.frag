@@ -62,30 +62,36 @@ void main()
     // Compute index coordinates for these pages.
 
     vec2 p0 = (data_size * c) / (tile_size * exp2(l0));
-    vec2 p1 = (data_size * c) / (tile_size * exp2(l1));
+//    vec2 p1 = (data_size * c) / (tile_size * exp2(l1));
 
     vec2 s0 = vec2(256.0, 128.0) / exp2(l0);
-    vec2 s1 = vec2(256.0, 128.0) / exp2(l1);
+//    vec2 s1 = vec2(256.0, 128.0) / exp2(l1);
 
     // Look up the two pages in the index.
 
     vec3 C0 = mipref(p0 / s0, l0) * 255.0;
-    vec3 C1 = mipref(p1 / s1, l1) * 255.0;
+//    vec3 C1 = mipref(p1 / s1, l1) * 255.0;
 
     // Compute cache coordinates for these pages.
-
+/*
     p0 = (data_size * c) / (tile_size * exp2(C0.z));
     p1 = (data_size * c) / (tile_size * exp2(C1.z));
+*/
+    vec2 tt = data_size / tile_size;
+
+    p0 = tt * c / C0.z;
+//    p1 = tt * c / C1.z;
 
     vec2 q0 = (fract(p0) * tile_size + 1.0 + C0.xy * page_size) / pool_size;
-    vec2 q1 = (fract(p1) * tile_size + 1.0 + C1.xy * page_size) / pool_size;
+//    vec2 q1 = (fract(p1) * tile_size + 1.0 + C1.xy * page_size) / pool_size;
 
     // Reference the cache and find the normal.
 
     vec3 D0 = texture2D(cache, q0).rgb;
-    vec3 D1 = texture2D(cache, q1).rgb;
+//    vec3 D1 = texture2D(cache, q1).rgb;
 
-    vec3 n = normalize(mix(D0, D1, ld) * 2.0 - 1.0);
+//  vec3 n = normalize(mix(D0, D1, ld) * 2.0 - 1.0);
+    vec3 n = normalize(D0 * 2.0 - 1.0);
 
     // Tranform it into tangent space and write it.
 

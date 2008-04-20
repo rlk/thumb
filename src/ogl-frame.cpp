@@ -243,8 +243,6 @@ void ogl::frame::init()
         throw std::runtime_error("Framebuffer incomplete attachment");
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
         throw std::runtime_error("Framebuffer missing attachment");
-    case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-        throw std::runtime_error("Framebuffer duplicate attachment");
     case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
         throw std::runtime_error("Framebuffer dimensions");
     case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:

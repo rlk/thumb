@@ -3,29 +3,38 @@
 //-----------------------------------------------------------------------------
 
 uniform sampler2DRect cyl;
-uniform sampler2D     index;
-uniform sampler2D     cache;
+//uniform sampler1D     rp2;
+uniform sampler2D     index; // 1
+uniform sampler2D     cache; // 2
 
 uniform vec2 data_size;
+/*
 uniform vec2 tile_size;
+uniform vec2 base_size;
 uniform vec2 page_size;
 uniform vec2 pool_size;
+*/
+
+uniform vec2 data_over_tile;
+uniform vec2 data_over_tile_base;
+uniform vec2 tile_over_pool;
+uniform vec2 page_over_pool;
+uniform vec2 step_over_pool;
+
+uniform vec2 cylk;
+uniform vec2 cyld;
 
 //-----------------------------------------------------------------------------
 
 float miplev(vec2 p)
 {
-    const vec2 dpdx = dFdx(p);
-    const vec2 dpdy = dFdy(p);
-/*
-    float rho = length(vec2(length(dpdx),
-                            length(dpdy)));
-*/
-    float rho = max(length(dpdx),
-                    length(dpdy));
+    vec2  w   = fwidth(p);
+    float rho = max(w.x, w.y);
 
     return clamp(log2(rho), 0.0, 7.0);
 }
+
+//-----------------------------------------------------------------------------
 
 vec3 mipref(vec2 c, float l)
 {
@@ -39,16 +48,63 @@ vec3 mipref(vec2 c, float l)
                 texture2D(index, vec2(p1.s, p0.t)).r);
 }
 
-void main()
+vec3 mipref0(vec2 c)
+{
+    const vec2 p0 = c * 0.5;
+    const vec2 p1 = c * 0.5 + 0.5;
+
+    return vec3(texture2D(index, vec2(p0.s, p1.t)).r,
+                texture2D(index, vec2(p0.s, p0.t)).r,
+                texture2D(index, vec2(p1.s, p0.t)).r);
+}
+
+//-----------------------------------------------------------------------------
+
+vec4 cacheref(vec2 c, float l)
+{
+    // Look up the two pages in the index.
+
+    vec3 C = mipref(data_over_tile_base * c, l) * 255.0;
+
+    // Compute cache coordinates for these pages.
+
+    vec2 p = data_over_tile * c / C.z;
+
+    vec2 q = (tile_over_pool * fract(p) +
+              page_over_pool * C.xy     +
+              step_over_pool);
+
+    // Return the color in the cache.
+
+    return texture2D(cache, q);
+}
+
+vec4 cacheref0(vec2 c)
+{
+    // Look up the two pages in the index.
+
+    vec3 C = mipref0(data_over_tile_base * c) * 255.0;
+
+    // Compute cache coordinates for these pages.
+
+    vec2 p = data_over_tile * c / C.z;
+
+    vec2 q = (tile_over_pool * fract(p) +
+              page_over_pool * C.xy     +
+              step_over_pool);
+
+    // Return the color in the cache.
+
+    return texture2D(cache, q);
+}
+
+//-----------------------------------------------------------------------------
+
+void mainl()
 {
     // Determine the coordinate of this pixel.
 
-    const float pi = 3.14159265358979323846;
-
-    const vec2 ck = vec2(0.5, 1.0) / pi;
-    const vec2 cd = vec2(0.5, 0.5);
-
-    vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy * ck + cd;
+    vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy * cylk + cyld;
 
     // Determine the mipmap levels.
 
@@ -58,42 +114,17 @@ void main()
 
     float ld = ll - l0;
 
-    // Compute index coordinates for these pages.
+    gl_FragColor = mix(cacheref(c, l0),
+                       cacheref(c, l1), ld);
+}
 
-    vec2 p0 = (data_size * c) / (tile_size * exp2(l0));
-    vec2 p1 = (data_size * c) / (tile_size * exp2(l1));
+void main()
+{
+    // Determine the coordinate of this pixel.
 
-    vec2 s0 = vec2(256.0, 128.0) / exp2(l0);
-    vec2 s1 = vec2(256.0, 128.0) / exp2(l1);
+    vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy * cylk + cyld;
 
-    // Look up the two pages in the index.
-
-    vec3 C0 = mipref(p0 / s0, l0) * 255.0;
-    vec3 C1 = mipref(p1 / s1, l1) * 255.0;
-
-    // Compute cache coordinates for these pages.
-/*
-    p0 = (data_size * c) / (tile_size * exp2(C0.z));
-    p1 = (data_size * c) / (tile_size * exp2(C1.z));
-*/
-
-    vec2 tt = data_size / tile_size;
-
-    p0 = tt * c / C0.z;
-    p1 = tt * c / C1.z;
-
-    // p0 * tile_size / tile_size
-
-    vec2 q0 = (fract(p0) * tile_size + 1.0 + C0.xy * page_size) / pool_size;
-    vec2 q1 = (fract(p1) * tile_size + 1.0 + C1.xy * page_size) / pool_size;
-
-    // Reference the cache and write the color.
-
-    vec4 D0 = texture2D(cache, q0);
-    vec4 D1 = texture2D(cache, q1);
-
-//  gl_FragColor = mix(D0, D1, ld);
-    gl_FragColor = D1;
+    gl_FragColor = cacheref0(c);
 }
 
 //-----------------------------------------------------------------------------

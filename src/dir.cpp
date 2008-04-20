@@ -41,6 +41,11 @@ static void dir_done()
     D = 0;
 }
 
+static bool dir_make(std::string& dir)
+{
+    return (mkdir(dir.c_str(), 0777) == 0);
+}
+
 #else // _WIN32 ---------------------------------------------------------------
 
 #include <windows.h>
@@ -71,6 +76,11 @@ static void dir_done()
     H = INVALID_HANDLE_VALUE;
 }
 
+static bool dir_make(std::string& dir)
+{
+    return (CreateDirectory(dir.c_str(), 0) != 0);
+}
+
 #endif //----------------------------------------------------------------------
 
 static bool is_dir(std::string& name)
@@ -94,6 +104,7 @@ static bool is_reg(std::string& name)
 }
 
 //-----------------------------------------------------------------------------
+
 void dir(std::string path, std::set<std::string>& dirs,
                            std::set<std::string>& regs)
 {
@@ -135,7 +146,7 @@ bool mkpath(std::string path, bool reg)
 
     if (is_dir(where) || mkpath(where, false))
     {
-        if (reg || mkdir(path.c_str(), 0777) == 0)
+        if (reg || dir_make(path))
             return true;
         else
             return false;

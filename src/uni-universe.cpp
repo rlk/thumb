@@ -46,7 +46,7 @@ uni::universe::universe()
     if (h_lod == 0) h_lod = DEFAULT_HEIGHT_LOD;
 
     cache_s = new geocsh(3, 1, 510, 8, 4);
-    cache_h = new geocsh(1, 2, 510, 8, 4);
+//  cache_h = new geocsh(1, 2, 510, 8, 4);
 
     color  = new geomap("world.200408.xml", r0, r1);
     normal = new geomap("srtm_ramp2_normal.xml", r0, r1);

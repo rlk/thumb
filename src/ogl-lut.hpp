@@ -21,17 +21,23 @@ namespace ogl
 {
     class lut
     {
-        GLsizei n;
-
         GLenum target;
-        GLuint texture;
+        GLuint object;
+        GLenum formint;
+        GLenum formext;
+        GLenum type;
+
+        GLsizei w;
 
     public:
 
         lut(GLsizei, GLenum=GL_TEXTURE_1D,
                      GLenum=GL_RGBA8,
-                     GLenum=GL_RGBA);
+                     GLenum=GL_RGBA,
+                     GLenum=GL_UNSIGNED_BYTE);
         ~lut();
+
+        void blit(const GLvoid *, GLsizei, GLsizei) const;
 
         void bind(GLenum=GL_TEXTURE0) const;
         void free(GLenum=GL_TEXTURE0) const;

@@ -54,7 +54,7 @@ app::file_buffer::file_buffer(std::string name)
 
     // Open the named file for reading and determine its size.
 
-    if ((fd = open(name.c_str(), O_RDONLY)) == -1)
+    if ((fd = open(name.c_str(), O_RDONLY | O_BINARY)) == -1)
         throw open_error(name);
 
     if (fstat(fd, &info) != 0)
@@ -127,8 +127,8 @@ bool app::file_archive::save(std::string name,
     return false;
 }
 
-void app::file_archive::list(std::string name, strset& dirs,
-                                               strset& regs) const
+void app::file_archive::list(std::string name, str_set& dirs,
+                                               str_set& regs) const
 {
     std::string curr = path + "/" + name;
 
@@ -284,7 +284,7 @@ bool app::data::save(std::string name, const void *ptr, size_t *len)
     return false;
 }
 
-void app::data::list(std::string name, strset& dirs, strset& regs) const
+void app::data::list(std::string name, str_set& dirs, str_set& regs) const
 {
     // Merge the file lists of all archives.
 

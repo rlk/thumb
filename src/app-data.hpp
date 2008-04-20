@@ -119,7 +119,7 @@ namespace app
         virtual bool     find(std::string)                         const = 0;
         virtual buffer_p load(std::string)                         const = 0;
         virtual bool     save(std::string, const void *, size_t *) const = 0;
-        virtual void     list(std::string, strset&, strset&)       const = 0;
+        virtual void     list(std::string, str_set&, str_set&)      const = 0;
 
         virtual ~archive() { }
     };
@@ -146,7 +146,7 @@ namespace app
         virtual bool     find(std::string)                         const;
         virtual buffer_p load(std::string)                         const;
         virtual bool     save(std::string, const void *, size_t *) const;
-        virtual void     list(std::string, strset&, strset&)       const;
+        virtual void     list(std::string, str_set&, str_set&)     const;
 
     public:
 
@@ -204,7 +204,7 @@ namespace app
 
         const void *load(std::string name,               size_t *size=0);
         bool        save(std::string name, const void *, size_t *size=0);
-        void        list(std::string name, strset& dirs, strset& regs) const;
+        void        list(std::string name, str_set& dirs, str_set& regs) const;
         void        free(std::string name);
     };
 }

@@ -48,7 +48,7 @@ static void nodelay(int sd)
     socklen_t len = sizeof (int);
     int       val = 1;
         
-    if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, &val, len) < 0)
+    if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *) &val, len) < 0)
         throw std::runtime_error(strerror(errno));
 }
 
@@ -56,6 +56,7 @@ static void nodelay(int sd)
 
 void app::host::fork_client(const char *name, const char *addr)
 {
+#ifndef _WIN32 // W32 HACK
     const char *args[4];
     char line[256];
 
@@ -76,12 +77,14 @@ void app::host::fork_client(const char *name, const char *addr)
 
         exit(0);
     }
+#endif
 }
 
 //-----------------------------------------------------------------------------
 
 void app::host::init_listen(app::node node)
 {
+#ifndef _WIN32 // W32 HACK
     int port = get_attr_d(node, "port");
 
     // If we have a port assignment then we must listen on it.
@@ -112,10 +115,12 @@ void app::host::init_listen(app::node node)
 
         listen(listen_sd, 16);
     }
+#endif
 }
 
 void app::host::poll_listen()
 {
+#ifndef _WIN32 // W32 HACK
     // NOTE: This must not occur between a host::send/host::recv pair.
 
     if (listen_sd != INVALID_SOCKET)
@@ -153,6 +158,7 @@ void app::host::poll_listen()
             }
         }
     }
+#endif
 }
 
 void app::host::fini_listen()
@@ -167,6 +173,7 @@ void app::host::fini_listen()
 
 void app::host::init_server(app::node node)
 {
+#ifndef _WIN32 // W32 HACK
     // If we have a server assignment then we must connect to it.
 
     if (app::node server = find(node, "server"))
@@ -198,6 +205,7 @@ void app::host::init_server(app::node node)
 
         nodelay(server_sd);
     }
+#endif
 }
 
 void app::host::fini_server()

@@ -21,6 +21,10 @@
 #define PI 3.14159265358979323846
 #endif
 
+#ifndef PI_2
+#define PI_2 1.57079632679489661923
+#endif
+
 #ifndef DEG
 #define DEG(r) (180.0 * (r) / PI)
 #endif
