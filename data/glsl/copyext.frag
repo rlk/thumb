@@ -7,5 +7,7 @@ void main()
 {
     vec4 P = texture2DRect(pos, gl_FragCoord.xy);
 
-    gl_FragColor = vec4(-P.z, -P.z, P.w, P.w);
+    float rr = dot(P.xyz, P.xyz);
+
+    gl_FragColor = vec4(rr, rr, 0.0, 1.0);
 }

@@ -124,6 +124,12 @@ uni::sphere::sphere(uni::geodat& dat,
                     cache_s.pool_h());
     }
     ren.nrm()->free();
+    acc.bind_proc();
+    {
+        height.init(cache_h.pool_w(),
+                    cache_h.pool_h());
+    }
+    acc.free_proc();
 }
 
 uni::sphere::~sphere()
@@ -432,17 +438,14 @@ void uni::sphere::step()
         cache_s.seed(vp, r0, r1, color);
         cache_s.seed(vp, r0, r1, normal);
         cache_s.proc(vp, r0, r1, frusta);
-/*
+
         cache_h.init();
         cache_h.seed(vp, r0, r1, height);
         cache_h.proc(vp, r0, r1, frusta);
-*/
 
         color.proc();
         normal.proc();
-/*
         height.proc();
-*/
     }
 }
 
@@ -476,7 +479,7 @@ void uni::sphere::prep()
         dat.lut()->free(GL_TEXTURE1);
 
         // Bind all generated attributes for use in terrain accumulation.
-/*
+
         pos.bind(GL_TEXTURE4);
         nrm.bind(GL_TEXTURE5);
         tex.bind(GL_TEXTURE6);
@@ -496,15 +499,15 @@ void uni::sphere::prep()
         tex.free(GL_TEXTURE6);
         nrm.free(GL_TEXTURE5);
         pos.free(GL_TEXTURE4);
-*/
+
         // Find the extrema of the accumulated positions.
-/*
+
         acc.bind(GL_TEXTURE1);
         {
             ext.proc(count);
         }
         acc.free(GL_TEXTURE1);
-*/
+
         // Copy the generated coordinates to the vertex buffer.
 
         tex.bind_frame();
@@ -518,14 +521,22 @@ void uni::sphere::prep()
         nrm.free_frame();
 
         // Copy the generated positions to the vertex buffer.
-/*
+
         acc.bind_frame();
         vtx.read_v(count);
         acc.free_frame();
-*/
+/*
         pos.bind_frame();
         vtx.read_v(count);
         pos.free_frame();
+*/
+        const GLfloat *E = ext.rmap();
+
+        d0 = sqrt(E[0]);
+        d1 = sqrt(E[1]);
+        ext.umap();
+
+//      printf("%f %f\n", d0, d1);
     }
 }
 
@@ -556,7 +567,7 @@ void uni::sphere::draw(int i)
 
     // TODO: calc_projection can move to whereever the bounds are first known.
 
-    frusta[i]->calc_projection(d0 / 2.0, d1 * 2.0);
+    frusta[i]->calc_projection(d0 / 2, d1);
     frusta[i]->draw();
 
     glLoadIdentity();
@@ -571,11 +582,7 @@ void uni::sphere::draw(int i)
     t[0] = -t[0];
     t[1] = -t[1];
     t[2] = -t[2];
-/*
-    t[0] = 0.0;
-    t[1] = 1.0;
-    t[2] = 0.5;
-*/
+
     normalize(t);
 
     L[0] = GLfloat(t[0]);

@@ -1,8 +1,8 @@
 -------------------------------------------------------------------------------
 
-Fix height bug at patch corner.
 Parallel radius extrema reduction.
 Fix cracking between cached pages.
+Fix cracking between spatches.
 
 Generalize geomap to work with sizes other than 512x256.
 

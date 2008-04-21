@@ -158,7 +158,7 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     cache->bind(GL_TEXTURE0);
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     cache->free(GL_TEXTURE0);
 
@@ -457,8 +457,6 @@ void uni::geocsh::put_loaded(geomap *M, page *P, buffer *B)
 void uni::geocsh::bind(GLenum unit) const
 {
     cache->bind(unit);
-
-//  ogl::program::current->uniform("pool_size", w * S, h * S);
 }
 
 void uni::geocsh::free(GLenum unit) const

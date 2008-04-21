@@ -87,6 +87,30 @@ dif + nrm nearest
 dif + nrm best
        FPS 143
 
+dif + nrm + acc nearest
+       FPS 128
+
+Full function best 128/3
+       SoCal   136
+       Rainier 143
+     
+Full function best 128/4
+       SoCal   112
+       Rainier 116
+     
+Full function + ext (unread) best 128/3
+       SoCal   130
+       Rainier 137
+     
+Full function + ext (unread) best 128/4
+       SoCal   102
+       Rainier 110
+     
+Full function + ext best 128/3
+       SoCal   139
+       Rainier 135
+     
+
 To try:
     reduce mipref to 2 texrefs and fps goes up 178 to 183
     short mipmap?

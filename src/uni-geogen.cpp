@@ -832,18 +832,41 @@ uni::geoext::geoext(GLsizei d, GLsizei h) :
                                  "glsl/calcext.frag",
                                  "glsl/showpos.frag"),
 
-    buff(GL_PIXEL_PACK_BUFFER_ARB, 4 * h * sizeof (GLfloat))
+    buff(GL_PIXEL_PACK_BUFFER_ARB, 4 * sizeof (GLfloat))
 {
     copy->bind();
     {
         copy->uniform("pos", 1);
     }
     copy->free();
+
+    // Don't let src or dst references touch the border (giving zero).
+
+    src->bind();
+    {
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    src->free();
+
+    dst->bind();
+    {
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+        glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                        GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    }
+    dst->free();
 }
 
 void uni::geoext::proc(GLsizei c)
 {
-    // Initialize the ZR min/max using the accumulation buffer.
+    int W, W2;
+    int H, H2;
+
+    // Initialize the extrema using the accumulation buffer.
 
     bind_proc();
     {
@@ -855,20 +878,33 @@ void uni::geoext::proc(GLsizei c)
 
     swap();
 
-    // Performa a parallel reduction of the ZR min/max buffer.
+    // Performa a horizontal parallel reduction of the extrema.
 
-    for (GLsizei W = w; W > 1; W /= 2)
+    for (W = w; W > 1; W = W2)
     {
+        W2 = (W + 1) / 2;
+
         bind_proc();
         {
-            GLint W2 = GLint((W % 2 == 0) ? W / 2 : W / 2 + 1);
-
-            calc->uniform("siz", GLfloat(W2), 0.0f);
-
-            glRecti(0, 0, W2, GLint(c));
+            calc->uniform("off", GLfloat(W2), 0.0f);
+            glRecti(0, 0, W2, c);
         }
         free_proc();
+        swap();
+    }
 
+    // Performa a vertical reduction of the extrema.
+
+    for (H = c; H > 1; H = H2)
+    {
+        H2 = H / 2;
+
+        bind_proc();
+        {
+            calc->uniform("off", 0.0f, GLfloat(H2));
+            glRecti(0, 0, 1, H2);
+        }
+        free_proc();
         swap();
     }
 
@@ -877,7 +913,7 @@ void uni::geoext::proc(GLsizei c)
     bind_proc();
     buff.bind();
     {
-        glReadPixels(0, 0, 1, c, GL_RGBA, GL_FLOAT, 0);
+        glReadPixels(0, 0, 1, 1, GL_RGBA, GL_FLOAT, 0);
     }
     buff.free();
     free_proc();

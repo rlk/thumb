@@ -30,7 +30,7 @@ uni::universe::universe()
     // Configure the data sources.
 
     cache_s = new geocsh(3, 1, 510, 8, 8);
-//  cache_h = new geocsh(1, 2, 510, 8, 4);
+    cache_h = new geocsh(1, 2, 510, 8, 4);
 
     color  = new geomap("world.200408.xml", r0, r1);
     normal = new geomap("srtm_ramp2_normal.xml", r0, r1);

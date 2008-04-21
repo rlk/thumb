@@ -14,7 +14,7 @@
   <option type="float" name="attract_delay">600.0</option>
 
   <option type="int" name="atmo">0</option>
-  <option type="int" name="sync">0</option>
+  <option type="int" name="sync">1</option>
   <option type="int" name="debug">0</option>
 
   <option type="string" name="mipmap">best</option>

@@ -21,7 +21,7 @@ void main()
     vec3 N = (M * vec4(normalize(n), 0.0)).xyz;
 
     // Evaluate the haversine geodesic midpoint.
-/*
+
     vec3 v = vec3(t0.y, t1.y, t1.x - t0.x);
 
     vec3 c = cos(v);
@@ -34,9 +34,10 @@ void main()
     vec2 x = vec2(b.x, length(b));
 
     vec2 m = atan(y, x) + vec2(t0.x, 0.0);
-*/
-
+/*
     vec2 m = vec2(atan(N.x, N.z), asin(N.y));
+*/
+    // TODO: consider subdividing object-space normal and using atan/asin.
 
     gl_FragColor = vec4(m, N.x, N.z);
 }
