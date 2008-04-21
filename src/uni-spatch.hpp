@@ -27,6 +27,8 @@ namespace uni
         int    i[3][2];
         int    d;
         double k;
+        double N[3];
+        double a;
 
         void init(const double *, const double *, int, 
                   const double *, const double *, int,
@@ -49,8 +51,7 @@ namespace uni
         bool less(const spatch *) const;
         bool more(const spatch *) const;
         void draw(const spatch *, int, GLsizei, GLsizei, GLsizei) const;
-
-        int  blame(const spatch *) const;
+        void wire(double, double) const;
 
         bool subd(spatch *, int, int&, int, double, double, app::frustum_v&, const double *);
     };

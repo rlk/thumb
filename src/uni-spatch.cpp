@@ -21,21 +21,21 @@ void uni::spatch::init(const double *n0, const double *t0, int i0,
                        const double *n2, const double *t2, int i2,
                        const double *vp, double r, int dd)
 {
-    double a[3];
-    double b[3];
-    double c[3];
+    double v0[3];
+    double v1[3];
+    double v2[3];
 
-    a[0] = n0[0] * r - vp[0];
-    a[1] = n0[1] * r - vp[1];
-    a[2] = n0[2] * r - vp[2];
+    v0[0] = n0[0] * r - vp[0];
+    v0[1] = n0[1] * r - vp[1];
+    v0[2] = n0[2] * r - vp[2];
 
-    b[0] = n1[0] * r - vp[0];
-    b[1] = n1[1] * r - vp[1];
-    b[2] = n1[2] * r - vp[2];
+    v1[0] = n1[0] * r - vp[0];
+    v1[1] = n1[1] * r - vp[1];
+    v1[2] = n1[2] * r - vp[2];
 
-    c[0] = n2[0] * r - vp[0];
-    c[1] = n2[1] * r - vp[1];
-    c[2] = n2[2] * r - vp[2];
+    v2[0] = n2[0] * r - vp[0];
+    v2[1] = n2[1] * r - vp[1];
+    v2[2] = n2[2] * r - vp[2];
 
     v_cp3(n[0], n0);
     v_cp3(n[1], n1);
@@ -50,7 +50,19 @@ void uni::spatch::init(const double *n0, const double *t0, int i0,
     i[2][0] = i[2][1] = i2;
 
     d = dd;
-    k = fabs(solid_angle(a, b, c));
+    k = fabs(solid_angle(v0, v1, v2));
+
+    N[0] = n0[0] + n1[0] + n2[0];
+    N[1] = n0[1] + n1[1] + n2[1];
+    N[2] = n0[2] + n1[2] + n2[2];
+
+    normalize(N);
+
+    double d =      DOT3(n0, N);
+    d = std::min(d, DOT3(n1, N));
+    d = std::min(d, DOT3(n2, N));
+
+    a = acos(d);
 }
 
 bool uni::spatch::less(const spatch *S) const
@@ -91,20 +103,6 @@ bool uni::spatch::able(const spatch *V) const
     return true;
 }
 
-int uni::spatch::blame(const spatch *V) const
-{
-    if (i[0][0] >= 0 && V[i[0][0]].d < d) return i[0][0];
-    if (i[0][1] >= 0 && V[i[0][1]].d < d) return i[0][1];
-
-    if (i[1][0] >= 0 && V[i[1][0]].d < d) return i[1][0];
-    if (i[1][1] >= 0 && V[i[1][1]].d < d) return i[1][1];
-
-    if (i[2][0] >= 0 && V[i[2][0]].d < d) return i[2][0];
-    if (i[2][1] >= 0 && V[i[2][1]].d < d) return i[2][1];
-
-    return -1;
-}
-
 bool uni::spatch::test(const double *n0,
                        const double *n1,
                        const double *n2,
@@ -113,9 +111,12 @@ bool uni::spatch::test(const double *n0,
     // Return true if any part of the given shell falls within any frustum.
 
     for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+        if ((*i)->test_cap(N, a, r0, r1) >= 0)
+            return true;
+/*
         if ((*i)->test_shell(n0, n1, n2, r0, r1) >= 0)
             return true;
-
+*/
     return false;
 }
 
@@ -288,6 +289,38 @@ void uni::spatch::draw(const spatch *V, int line,
     glTexCoordPointer(4, GL_FLOAT, 4 * sizeof (GLfloat), cp);
             
     glDrawElements(GL_TRIANGLES, tc * 3, GL_UNSIGNED_SHORT, tp);
+}
+
+void uni::spatch::wire(double r0, double r1) const
+{
+    glColor4f(1.0f, 0.5f, 0.0f, 0.5f);
+
+    glBegin(GL_LINE_LOOP);
+    {
+        glVertex3d(n[0][0] * r0, n[0][1] * r0, n[0][2] * r0);
+        glVertex3d(n[1][0] * r0, n[1][1] * r0, n[1][2] * r0);
+        glVertex3d(n[2][0] * r0, n[2][1] * r0, n[2][2] * r0);
+    }
+    glEnd();
+
+    glBegin(GL_LINE_LOOP);
+    {
+        glVertex3d(n[0][0] * r1, n[0][1] * r1, n[0][2] * r1);
+        glVertex3d(n[1][0] * r1, n[1][1] * r1, n[1][2] * r1);
+        glVertex3d(n[2][0] * r1, n[2][1] * r1, n[2][2] * r1);
+    }
+    glEnd();
+
+    glBegin(GL_LINES);
+    {
+        glVertex3d(n[0][0] * r0, n[0][1] * r0, n[0][2] * r0);
+        glVertex3d(n[0][0] * r1, n[0][1] * r1, n[0][2] * r1);
+        glVertex3d(n[1][0] * r0, n[1][1] * r0, n[1][2] * r0);
+        glVertex3d(n[1][0] * r1, n[1][1] * r1, n[1][2] * r1);
+        glVertex3d(n[2][0] * r0, n[2][1] * r0, n[2][2] * r0);
+        glVertex3d(n[2][0] * r1, n[2][1] * r1, n[2][2] * r1);
+    }
+    glEnd();
 }
 
 /*

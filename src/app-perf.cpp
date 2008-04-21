@@ -113,7 +113,7 @@ void app::perf::dump(bool log)
 
         // Output the counter name.
 
-        std::cout << std::left  << std::setw(27) << n
+        std::cout << std::left  << std::setw(36) << std::setfill('.') << n
                   << std::right << std::setw( 9) << std::setprecision(3);
 
         // Output the counter value.

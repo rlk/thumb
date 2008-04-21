@@ -317,12 +317,31 @@ bool uni::sphere::test(const double *n0,
                        const double *n1,
                        const double *n2) const
 {
+    // HACK HACK
+
+    double N[3];
+
+    N[0] = n0[0] + n1[0] + n2[0];
+    N[1] = n0[1] + n1[1] + n2[1];
+    N[2] = n0[2] + n1[2] + n2[2];
+
+    normalize(N);
+
+    double d =      DOT3(n0, N);
+    d = std::min(d, DOT3(n1, N));
+    d = std::min(d, DOT3(n2, N));
+
+    double a = acos(d);
+
     // Return true if any part of the given shell falls within any frustum.
 
     for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+        if ((*i)->test_cap(N, a, r0, r1) >= 0)
+            return true;
+/*
         if ((*i)->test_shell(n0, n1, n2, r0, r1) >= 0)
             return true;
-
+*/
     return false;
 }
 
@@ -399,6 +418,10 @@ void uni::sphere::step()
 
             d0 = pos.min_d();
             d1 = pos.max_d();
+/*
+            d0 = 1e3;
+            d1 = 1e7;
+*/
         }
 
         // Update the data caches.
@@ -686,15 +709,12 @@ void uni::sphere::draw(int i)
                     {
                         glDisable(GL_TEXTURE_2D);
                         glDisable(GL_LIGHTING);
-                        glDisable(GL_CULL_FACE);
 
                         glEnable(GL_BLEND);
                         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-                        glLineWidth(2.0);
-                        glDepthMask(0);
-                        cache.wire(r0, r1);
-                        glDepthMask(1);
+                        for (int k = 0; k < count; ++k)
+                            S[k].wire(r0, r1);
                     }
                     glPopAttrib();
                 }

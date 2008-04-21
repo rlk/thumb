@@ -1,6 +1,5 @@
 
-CFLAGS= -O3 -Wall -DNDEBUG -fno-rtti
-#CFLAGS= -g -Wall
+CFLAGS= -g -Wall
 #CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
@@ -78,8 +77,8 @@ ifeq "$(MAKE)" "mingw32-make"
 
 	RM = del
 
-	INCDIR  = -Ic:/include -Ic:/include/SDL
-	LIBDIR  = -Lc:/lib
+	INCDIR  = -Ic:/rlk/include -Ic:/rlk/include/SDL
+	LIBDIR  = -Lc:/rlk/lib
 
 	LIBS=   -lfreetype -lmxml -lode -ljpeg -lpng -lz -lm \
 		-lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lws2_32

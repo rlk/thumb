@@ -718,11 +718,36 @@ static int test_shell_plane(const double *n0,
     return 0;
 }
 
+static bool test_shell_point(const double *p,
+                             const double *n0,
+                             const double *n1,
+                             const double *n2, double r0, double r1)
+{
+    double rr = DOT3(p, p);
+
+    if (r0 * r0 < rr && rr < r1 * r1)
+    {
+        double n[3];
+
+        crossprod(n, n0, n1); if (DOT3(n, p) < 0.0) return false; 
+        crossprod(n, n1, n2); if (DOT3(n, p) < 0.0) return false; 
+        crossprod(n, n2, n0); if (DOT3(n, p) < 0.0) return false;
+
+        return true;
+    }
+    return false;
+}
+
 int app::frustum::test_shell(const double *n0,
                              const double *n1,
                              const double *n2, double r0, double r1) const
 {
     int i, d, c = 0;
+
+    // If the viewpoint is within the shell, conservative pass.
+
+    if (test_shell_point(view_pos, n0, n1, n2, r0, r1))
+        return 0;
 
     // Test the planes of this frustum.
 
@@ -764,9 +789,6 @@ static int test_cap_plane(const double *n, double a,
 int app::frustum::test_cap(const double *n, double a,
                                  double r0, double r1) const
 {
-/*
-    return test_cap_plane(n, a, view_planes[2], r0, r1);
-*/
     int i, d, c = 0;
 
     // Test the planes of this frustum.
