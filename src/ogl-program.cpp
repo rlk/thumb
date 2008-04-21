@@ -84,6 +84,8 @@ std::string ogl::program::load(std::string name)
 
     base.append((const char *) ::data->load(name, &len));
 
+    ::data->free(name);
+
     // Scan the string for #include directives.
 
     while ((incl = base.find("#include", incl)) != std::string::npos)
@@ -157,11 +159,6 @@ void ogl::program::init()
     glLinkProgramARB(prog);
 
     log(prog, vert_name);
-
-    // Free the shader files.
-
-    ::data->free(frag_name);
-    ::data->free(vert_name);
 
     OGLCK();
 }

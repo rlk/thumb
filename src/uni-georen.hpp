@@ -99,7 +99,7 @@ namespace uni
 
         const ogl::program *draw;
 
-        rp2lut _rp2;
+//      rp2lut _rp2;
         cylbuf _cyl;
         difbuf _dif;
         nrmbuf _nrm;
@@ -109,7 +109,7 @@ namespace uni
         georen(GLsizei, GLsizei);
        ~georen();
 
-        const rp2lut *rp2() const { return &_rp2; }
+//      const rp2lut *rp2() const { return &_rp2; }
         const cylbuf *cyl() const { return &_cyl; }
         const difbuf *dif() const { return &_dif; }
         const nrmbuf *nrm() const { return &_nrm; }

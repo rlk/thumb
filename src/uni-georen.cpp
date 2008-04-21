@@ -153,7 +153,7 @@ uni::georen::georen(GLsizei w, GLsizei h) :
     draw(0),
 //    draw(glob->load_program("glsl/drawlit.vert",
 //                            "glsl/drawlit.frag")),
-    _rp2(),
+//    _rp2(),
     _cyl(w, h),
     _dif(w, h, _cyl),
     _nrm(w, h, _cyl)

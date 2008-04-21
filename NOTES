@@ -78,6 +78,15 @@ nearest nearest L = 0
        tex 9.3%
        rop 18%
 
+dif + nrm linear
+       FPS 105
+
+dif + nrm nearest
+       FPS 130
+
+dif + nrm best
+       FPS 143
+
 To try:
     reduce mipref to 2 texrefs and fps goes up 178 to 183
     short mipmap?

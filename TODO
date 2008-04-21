@@ -1,13 +1,9 @@
 -------------------------------------------------------------------------------
 
-Shader linking using data.xml?
-    Allow concatenation as a data operation?
-
 Fix height bug at patch corner.
 Parallel radius extrema reduction.
 Fix cracking between cached pages.
 
-Modularize and optimize the mipmap shaders.
 Generalize geomap to work with sizes other than 512x256.
 
 Fix the atmosphere.

@@ -450,7 +450,7 @@ void uni::geomap::init(int pool_w, int pool_h) const
 {
     ogl::program::current->uniform("index", 1);
     ogl::program::current->uniform("cache", 2);
-    ogl::program::current->uniform("rp2",   3);
+//  ogl::program::current->uniform("rp2",   3);
 
     ogl::program::current->uniform("data_size", w, h);
 /*

@@ -118,6 +118,12 @@ uni::sphere::sphere(uni::geodat& dat,
                    cache_s.pool_h());
     }
     ren.dif()->free();
+    ren.nrm()->bind();
+    {
+        normal.init(cache_s.pool_w(),
+                    cache_s.pool_h());
+    }
+    ren.nrm()->free();
 }
 
 uni::sphere::~sphere()
@@ -418,19 +424,13 @@ void uni::sphere::step()
 
             d0 = pos.min_d();
             d1 = pos.max_d();
-/*
-            d0 = 1e3;
-            d1 = 1e7;
-*/
         }
 
         // Update the data caches.
 
         cache_s.init();
         cache_s.seed(vp, r0, r1, color);
-/*
         cache_s.seed(vp, r0, r1, normal);
-*/
         cache_s.proc(vp, r0, r1, frusta);
 /*
         cache_h.init();
@@ -439,8 +439,8 @@ void uni::sphere::step()
 */
 
         color.proc();
-/*
         normal.proc();
+/*
         height.proc();
 */
     }
@@ -633,7 +633,6 @@ void uni::sphere::draw(int i)
 
                 ren.dif()->init();
                 ren.dif()->bind();
-//              ren.rp2()->bind(GL_TEXTURE3);
                 {
                     cache_s.bind(GL_TEXTURE2);
                     {
@@ -641,9 +640,8 @@ void uni::sphere::draw(int i)
                     }
                     cache_s.free(GL_TEXTURE2);
                 }
-//              ren.rp2()->free(GL_TEXTURE3);
                 ren.dif()->free();
-/*
+
                 ren.nrm()->init();
                 ren.nrm()->bind();
                 {
@@ -654,7 +652,7 @@ void uni::sphere::draw(int i)
                     cache_s.free(GL_TEXTURE2);
                 }
                 ren.nrm()->free();
-*/
+
                 // Draw the illuminated geometry.
 
                 glClear(GL_DEPTH_BUFFER_BIT);

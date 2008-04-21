@@ -7,7 +7,7 @@ uniform vec2          cylk;
 uniform vec2          cyld;
 
 #include "glsl/mipmap-common.frag"
-#include "glsl/mipmapL.frag"
+#include "glsl/mipmap0.frag"
 
 //-----------------------------------------------------------------------------
 
@@ -18,16 +18,9 @@ void main()
     vec4 C = texture2DRect(cyl, gl_FragCoord.xy);
     vec2 c = C.xy * cylk + cyld;
 
-    // Determine the mipmap levels.
+    // Sample the normal.
 
-    float ll = miplevL(c * data_size);
-    float l0 = floor(ll);
-    float l1 = l0 + 1.0;
-
-    // Sample the normal.  TODO: normalization may be unnecessary.
-
-    vec3 n = normalize(mix(cacherefL(c, l0),
-                           cacherefL(c, l1), ll - l0).xyz * 2.0 - 1.0);
+    vec3 n = cacheref0(c) * 2.0 - 1.0;
 
     // Transform it into tangent space and write it.  TODO: in drawlit?
 

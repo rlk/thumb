@@ -23,6 +23,8 @@ void main()
     float l0 = floor(ll);
     float l1 = l0 + 1.0;
 
+    // Sample the color.
+
     gl_FragColor = mix(cacherefL(c, l0),
                        cacherefL(c, l1), ll - l0);
 }

@@ -28,4 +28,16 @@
       glsl/drawdif-best.frag
     </option>
   </file>
+
+  <file name="glsl/drawnrm.frag">
+    <option type="string" name="mipmap" value="linear">
+      glsl/drawnrm.frag
+    </option>
+    <option type="string" name="mipmap" value="nearest">
+      glsl/drawnrm-nearest.frag
+    </option>
+    <option type="string" name="mipmap" value="best">
+      glsl/drawnrm-best.frag
+    </option>
+  </file>
 </data>

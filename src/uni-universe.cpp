@@ -29,22 +29,6 @@ uni::universe::universe()
 
     // Configure the data sources.
 
-    std::string c_name = ::conf->get_s("data_dir");
-    std::string n_name = ::conf->get_s("data_dir");
-    std::string h_name = ::conf->get_s("data_dir");
-
-    int c_lod = ::conf->get_i("image_color_lod");
-    int n_lod = ::conf->get_i("image_normal_lod");
-    int h_lod = ::conf->get_i("image_height_lod");
-
-    c_name.append("earth/earth-color/earth-color");
-    n_name.append("earth/earth-normal/earth-normal");
-    h_name.append("earth/earth-height/earth-height");
-
-    if (c_lod == 0) c_lod = DEFAULT_COLOR_LOD;
-    if (n_lod == 0) n_lod = DEFAULT_NORMAL_LOD;
-    if (h_lod == 0) h_lod = DEFAULT_HEIGHT_LOD;
-
     cache_s = new geocsh(3, 1, 510, 8, 8);
 //  cache_h = new geocsh(1, 2, 510, 8, 4);
 
