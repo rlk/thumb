@@ -266,7 +266,8 @@ double uni::page::angle(const double *v, double r)
 
 uni::geomap::geomap(std::string name, double r0, double r1) :
     d(0), r0(r0), r1(r1), P(0), dirty(false),
-    index(glob->new_image(512, 256, GL_TEXTURE_2D, GL_LUMINANCE8, GL_LUMINANCE))
+    index(glob->new_image(512, 256, GL_TEXTURE_2D, GL_LUMINANCE16, GL_LUMINANCE, GL_UNSIGNED_SHORT))
+//    index(glob->new_image(512, 256, GL_TEXTURE_2D, GL_LUMINANCE8, GL_LUMINANCE))
 {
     app::serial file(name.c_str());
     
@@ -302,8 +303,14 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
         P = new page(w, h, s, 0, 0, d, W, E, S, N);
     }
 
+    S = s + 2;
+
+    image = new GLushort[512 * 256];
+    memset(image, 0xFF, 512 * 256 * 2);
+/*
     image = new GLubyte[512 * 256];
     memset(image, 0xFF, 512 * 256);
+*/
 }
 
 uni::geomap::~geomap()
@@ -315,7 +322,7 @@ uni::geomap::~geomap()
 
 //-----------------------------------------------------------------------------
 
-GLubyte& uni::geomap::index_x(int d, int i, int j)
+GLushort& uni::geomap::index_x(int d, int i, int j)
 {
     int dj = 256 >> d;
     int di = 128 >> d;
@@ -326,7 +333,7 @@ GLubyte& uni::geomap::index_x(int d, int i, int j)
     return image[(ii + di) * 512 + (jj     )];
 }
 
-GLubyte& uni::geomap::index_y(int d, int i, int j)
+GLushort& uni::geomap::index_y(int d, int i, int j)
 {
     int dj = 256 >> d;
     int di = 128 >> d;
@@ -337,7 +344,7 @@ GLubyte& uni::geomap::index_y(int d, int i, int j)
     return image[(ii     ) * 512 + (jj     )];
 }
 
-GLubyte& uni::geomap::index_l(int d, int i, int j)
+GLushort& uni::geomap::index_l(int d, int i, int j)
 {
     int dj = 256 >> d;
     int di = 128 >> d;
@@ -351,7 +358,7 @@ GLubyte& uni::geomap::index_l(int d, int i, int j)
 //-----------------------------------------------------------------------------
 
 void uni::geomap::do_index(int d, int i, int j,
-                             GLubyte x, GLubyte y, GLubyte l)
+                           GLushort x, GLushort y, GLushort l)
 {
     if (d >= 0)
     {
@@ -373,8 +380,8 @@ void uni::geomap::do_index(int d, int i, int j,
 }
 
 void uni::geomap::do_eject(int d, int i, int j,
-                           GLubyte x0, GLubyte y0, GLubyte l0,
-                           GLubyte x1, GLubyte y1, GLubyte l1)
+                           GLushort x0, GLushort y0, GLushort l0,
+                           GLushort x1, GLushort y1, GLushort l1)
 {
     if (d >= 0)
     {
@@ -407,7 +414,7 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
 
     if (d < 8)
     {
-        do_index(d, i, j, GLubyte(x), GLubyte(y), GLubyte(l));
+        do_index(d, i, j, GLushort(x * S), GLushort(y * S), GLushort(l));
 //        dump(image);
         dirty = true;
     }
@@ -423,13 +430,13 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 
     if (d < 8)
     {
-        GLubyte x1 = (d < 7) ? index_x(d + 1, i >> 1, j >> 1) : 0xFF;
-        GLubyte y1 = (d < 7) ? index_y(d + 1, i >> 1, j >> 1) : 0xFF;
-        GLubyte l1 = (d < 7) ? index_l(d + 1, i >> 1, j >> 1) : 0xFF;
+        GLushort x1 = (d < 7) ? index_x(d + 1, i >> 1, j >> 1) : 0xFFFF;
+        GLushort y1 = (d < 7) ? index_y(d + 1, i >> 1, j >> 1) : 0xFFFF;
+        GLushort l1 = (d < 7) ? index_l(d + 1, i >> 1, j >> 1) : 0xFFFF;
 
-        do_eject(d, i, j, GLubyte(x),
-                          GLubyte(y),
-                          GLubyte(l), x1, y1, l1);
+        do_eject(d, i, j, GLushort(x * S),
+                          GLushort(y * S),
+                          GLushort(l), x1, y1, l1);
 
 //        dump(image);
         dirty = true;
@@ -453,11 +460,12 @@ void uni::geomap::init(int pool_w, int pool_h) const
 //  ogl::program::current->uniform("rp2",   3);
 
     ogl::program::current->uniform("data_size", w, h);
-/*
-    ogl::program::current->uniform("page_size", s + 2, s + 2);
+
+    ogl::program::current->uniform("page_size", S, S);
     ogl::program::current->uniform("tile_size", s, s);
     ogl::program::current->uniform("base_size", 256.0, 128.0);
-*/
+    ogl::program::current->uniform("pool_size", pool_w, pool_h);
+
     ogl::program::current->uniform("data_over_tile",
                                    double(w) / s,
                                    double(h) / s);
@@ -469,8 +477,8 @@ void uni::geomap::init(int pool_w, int pool_h) const
                                    double(s) / pool_w,
                                    double(s) / pool_h);
     ogl::program::current->uniform("page_over_pool",
-                                   double(s + 2) / pool_w,
-                                   double(s + 2) / pool_h);
+                                   double(S) / pool_w,
+                                   double(S) / pool_h);
     ogl::program::current->uniform("step_over_pool",
                                    1.0 / pool_w,
                                    1.0 / pool_h);

@@ -24,15 +24,15 @@ vec4 cacherefL(vec2 c, float l)
 {
     // Look up the two pages in the index.
 
-    vec3 C = miprefL(data_over_tile_base * c, l) * 255.0;
+    vec3 C = miprefL(data_over_tile_base * c, l) * 65535.0;
 
     // Compute cache coordinates for these pages.
 
     vec2 p = data_over_tile * c / C.z;
 
-    vec2 q = (tile_over_pool * fract(p) +
-              page_over_pool * C.xy     +
-              step_over_pool);
+    // TODO: optimize
+
+    vec2 q = (tile_size * fract(p) + C.xy + 1.0) / pool_size;
 
     // Return the color in the cache.
 

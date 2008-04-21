@@ -501,13 +501,13 @@ void uni::sphere::prep()
         pos.free(GL_TEXTURE4);
 
         // Find the extrema of the accumulated positions.
-
+/*
         acc.bind(GL_TEXTURE1);
         {
             ext.proc(count);
         }
         acc.free(GL_TEXTURE1);
-
+*/
         // Copy the generated coordinates to the vertex buffer.
 
         tex.bind_frame();
@@ -530,13 +530,13 @@ void uni::sphere::prep()
         vtx.read_v(count);
         pos.free_frame();
 */
+/*
         const GLfloat *E = ext.rmap();
 
         d0 = sqrt(E[0]);
         d1 = sqrt(E[1]);
         ext.umap();
-
-//      printf("%f %f\n", d0, d1);
+*/
     }
 }
 

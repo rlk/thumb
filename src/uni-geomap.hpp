@@ -75,6 +75,7 @@ namespace uni
         int    c;
         int    b;
         int    s;
+        int    S;
         int    d;
         double r0;
         double r1;
@@ -82,16 +83,17 @@ namespace uni
 
         bool dirty;
 
-        GLubyte    *image;
+//      GLubyte    *image;
+        GLushort   *image;
         ogl::image *index;
 
-        GLubyte& index_x(int, int, int);
-        GLubyte& index_y(int, int, int);
-        GLubyte& index_l(int, int, int);
+        GLushort& index_x(int, int, int);
+        GLushort& index_y(int, int, int);
+        GLushort& index_l(int, int, int);
 
-        void do_index(int, int, int, GLubyte, GLubyte, GLubyte);
-        void do_eject(int, int, int, GLubyte, GLubyte, GLubyte,
-                                     GLubyte, GLubyte, GLubyte);
+        void do_index(int, int, int, GLushort, GLushort, GLushort);
+        void do_eject(int, int, int, GLushort, GLushort, GLushort,
+                                     GLushort, GLushort, GLushort);
 
     public:
 
