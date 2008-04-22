@@ -94,10 +94,10 @@ namespace app
         // Automatic view controls.
 
         bool dostep(double, const double *, double&, double&);
-        void gocurr(double);
+        void gocurr(double, double=0);
         void goinit(double);
-        void gonext(double);
-        void goprev(double);
+        void gonext(double, double=0);
+        void goprev(double, double=0);
         void insert(double, double);
         void remove();
     };

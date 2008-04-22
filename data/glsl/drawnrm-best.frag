@@ -20,7 +20,7 @@ void main()
 
     // Sample the normal.
 
-    vec3 n = cacheref0(c) * 2.0 - 1.0;
+    vec3 n = cacheref0(c).xyz * 2.0 - 1.0;
 
     // Transform it into tangent space and write it.  TODO: in drawlit?
 

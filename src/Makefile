@@ -1,9 +1,9 @@
 
-CFLAGS= -g -Wall
+#CFLAGS= -g -Wall
 #CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
-#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
+CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 
@@ -42,10 +42,10 @@ OBJS=   util.o \
 	wrl-solid.o \
 	wrl-joint.o \
 	wrl-world.o \
-        uni-geomap.o \
-        uni-geocsh.o \
-        uni-geogen.o \
-        uni-georen.o \
+	uni-geomap.o \
+	uni-geocsh.o \
+	uni-geogen.o \
+	uni-georen.o \
 	uni-spatch.o \
 	uni-sphere.o \
 	uni-universe.o \
@@ -87,8 +87,8 @@ else #-------------------------------------------------------------------------
 
 	RM = rm -f
 
-	SDLCONF = /opt/local/bin/sdl-config
-	FT2CONF = /opt/local/bin/freetype-config
+	SDLCONF = sdl-config
+	FT2CONF = freetype-config
 
 	INCDIR  = -I$(HOME)/include
 	LIBDIR  = -L$(HOME)/lib

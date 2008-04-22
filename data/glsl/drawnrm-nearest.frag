@@ -20,7 +20,7 @@ void main()
 
     // Sample the normal.
 
-    vec3 n = cacherefL(c, floor(miplevL(c * data_size))) * 2.0 - 1.0;
+    vec3 n = cacherefL(c, floor(miplevL(c * data_size))).xyz * 2.0 - 1.0;
 
     // Transform it into tangent space and write it.  TODO: in drawlit?
 

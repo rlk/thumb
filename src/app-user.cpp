@@ -310,10 +310,10 @@ bool app::user::dostep(double dt, const double *p, double& a, double& t)
     return true;
 }
 
-void app::user::gocurr(double dt)
+void app::user::gocurr(double dt, double wt)
 {
-    t0 = tt;
-    t1 = tt + dt;
+    t0 = tt + wt;
+    t1 = t0 + dt;
 
     current_a0 = current_a;
     current_t0 = current_t;
@@ -367,7 +367,7 @@ void app::user::goinit(double dt)
     gocurr(dt);
 }
 
-void app::user::gonext(double dt)
+void app::user::gonext(double dt, double wt)
 {
     // Advance to the next key, or begin again at the first.
 
@@ -376,10 +376,10 @@ void app::user::gonext(double dt)
     if (curr == 0)
         curr = root->child;
 
-    gocurr(dt);
+    gocurr(dt, wt);
 }
 
-void app::user::goprev(double dt)
+void app::user::goprev(double dt, double wt)
 {
     // Advance to the next key, or begin again at the first.
 
@@ -388,7 +388,7 @@ void app::user::goprev(double dt)
     if (curr == 0)
         curr = root->last_child;
 
-    gocurr(dt);
+    gocurr(dt, wt);
 }
 
 void app::user::insert(double a, double t)

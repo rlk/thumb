@@ -54,8 +54,13 @@ app::file_buffer::file_buffer(std::string name)
 
     // Open the named file for reading and determine its size.
 
+#ifndef _WIN32
+    if ((fd = open(name.c_str(), O_RDONLY)) == -1)
+        throw open_error(name);
+#else
     if ((fd = open(name.c_str(), O_RDONLY | O_BINARY)) == -1)
         throw open_error(name);
+#endif
 
     if (fstat(fd, &info) != 0)
         throw stat_error(name);

@@ -379,22 +379,26 @@ static int texture_size(GLenum target)
 
 void ogl::new_texture(GLenum target)
 {
+/*
     printf("new ");
 
     texture_total += texture_size(target);
 
     printf(" Total: %d (%4.2fMB)\n", texture_total,
            double(texture_total) / (1024 * 1024));
+*/
 }
 
 void ogl::del_texture(GLenum target)
 {
+/*
     printf("del ");
 
     texture_total -= texture_size(target);
 
     printf(" Total: %d (%4.2fMB)\n", texture_total,
            double(texture_total) / (1024 * 1024));
+*/
 }
 
 //-----------------------------------------------------------------------------

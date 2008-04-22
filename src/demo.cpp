@@ -230,7 +230,7 @@ void demo::timer(int t)
             if (attr_stop)
                 attr_off();
             else
-                user->gonext(5.0);
+                user->gonext(10.0, 5.0);
         }
         else
         {
