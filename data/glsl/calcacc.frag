@@ -19,9 +19,9 @@ void main()
     const vec2 ck = vec2(0.5, 1.0) / pi;
     const vec2 cd = vec2(0.5, 0.5);
 
-    // TODO: worry about international date line?
-
     vec2 c = texture2DRect(tex, gl_FragCoord.xy).xy * ck + cd;
+
+    c.x -= step(1.0, c.x);
 
     // Reference the cache.
 

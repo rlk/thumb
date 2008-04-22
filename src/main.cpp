@@ -116,11 +116,9 @@ static void position(int x, int y)
 
     // SDL looks to the environment for window position.
 
-#ifdef _WIN32 // W32 HACK
-/*
+#ifdef _WIN32
     sprintf(buf, "SDL_VIDEO_WINDOW_POS=%d,%d", x, y);
     putenv(buf);
-*/
 #else
     sprintf(buf, "%d,%d", x, y);
     setenv("SDL_VIDEO_WINDOW_POS", buf, 1);
@@ -144,12 +142,15 @@ static void video()
     if (conf->get_i("window_fullscreen")) m |= SDL_FULLSCREEN;
     if (conf->get_i("window_noframe"))    m |= SDL_NOFRAME;
 
+    // Unframed windows have no cursor and may be positioned.
+
     if (m & SDL_NOFRAME)
+    {
         SDL_ShowCursor(SDL_DISABLE);
+        position(x, y);
+    }
 
     // Initialize the video.
-
-    position(x, y);
 
     if (SDL_SetVideoMode(w, h, b, m) == 0)
         throw std::runtime_error(SDL_GetError());

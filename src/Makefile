@@ -77,8 +77,8 @@ ifeq "$(MAKE)" "mingw32-make"
 
 	RM = del
 
-	INCDIR  = -Ic:/include -Ic:/include/SDL
-	LIBDIR  = -Lc:/lib
+	INCDIR  = -Ic:/rlk/include -Ic:/rlk/include/SDL
+	LIBDIR  = -Lc:/rlk/lib
 
 	LIBS=   -lfreetype -lmxml -lode -ljpeg -lpng -lz -lm \
 		-lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lws2_32

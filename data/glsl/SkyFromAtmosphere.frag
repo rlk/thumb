@@ -8,7 +8,6 @@
 
 uniform mat4 eye_to_object_mat;
 uniform mat4 eye_to_object_inv;
-//uniform vec3 v3LightPos;
 uniform float g;
 uniform float g2;
 
@@ -18,7 +17,7 @@ varying vec3 color_M;
 
 void main (void)
 {
-    vec3 v3LightPos = (eye_to_object_inv * gl_LightSource[0].position).xyz;
+    vec3 v3LightPos = gl_LightSource[0].position.xyz;
 
     float fCos = dot(v3LightPos, v3Direction) / length(v3Direction);
 

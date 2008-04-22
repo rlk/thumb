@@ -14,7 +14,7 @@
 #define SOCKET_HPP
 
 //-----------------------------------------------------------------------------
-// These definitions homogenize Winsock with Berkeley Sockets
+// These definitions homogenize Winsock with Berkeley Sockets. (needs work)
 
 #ifdef _WIN32
 #include <io.h>
@@ -22,7 +22,13 @@
 
 typedef int socklen_t;
 
-#else
+#define ECONNREFUSED WSAECONNREFUSED
+#define sock_errno WSAGetLastError()
+
+#else // not _WIN32 -----------------------------------------------------------
+
+#define sock_errno errno
+
 #include <stddef.h>
 #include <unistd.h>
 #include <sys/types.h>
@@ -36,7 +42,8 @@ typedef int socklen_t;
 typedef int SOCKET;
 #define SOCKET_ERROR   -1
 #define INVALID_SOCKET -1
-#endif
+
+#endif //----------------------------------------------------------------------
 
 typedef struct sockaddr_in sockaddr_t;
 

@@ -11,8 +11,6 @@ uniform mat4 eye_to_object_mat;
 uniform mat4 eye_to_object_inv;
 varying float day;
 
-//uniform vec3 v3CameraPos;		// The camera's current position
-//uniform vec3 v3LightPos;		// The direction vector to the light source
 uniform vec3 v3InvWavelength;	// 1 / pow(wavelength, 4) for the red, green, and blue channels
 uniform float fCameraHeight;	// The camera's current height
 uniform float fCameraHeight2;	// fCameraHeight^2
@@ -43,7 +41,7 @@ void main(void)
     // Compute the camera, light, and vertex positions in object space.
 
     vec3 v3CameraPos = (eye_to_object_mat * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-    vec3 v3LightPos  = (eye_to_object_inv * gl_LightSource[0].position).xyz;
+    vec3 v3LightPos  = gl_LightSource[0].position.xyz;
     vec3 v3Pos       = (eye_to_object_mat * (gl_ModelViewMatrix * gl_Vertex)).xyz;
     // Get the ray from the camera to the vertex and its length (which is the far point of the ray passing through the atmosphere)
 //	vec3 v3Pos = gl_Vertex.xyz;

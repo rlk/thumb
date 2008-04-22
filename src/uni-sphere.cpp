@@ -54,7 +54,9 @@ uni::sphere::sphere(uni::geodat& dat,
     nrm(dat.depth(), lines),
     pos(dat.depth(), lines),
     acc(dat.depth(), lines),
+#ifdef CONF_CALCEXT
     ext(dat.depth(), lines),
+#endif
     vtx(dat.depth(), lines),
     ren(ren),
 
@@ -191,7 +193,10 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 
         P->uniform("eye_to_object_mat", I, false);
         P->uniform("eye_to_object_inv", M, true);
-
+/*
+        P->uniform("eye_to_object_mat", I, false);
+        P->uniform("eye_to_object_inv", M, true);
+*/
         double R = 0.650;
         double G = 0.570;
         double B = 0.475;
@@ -501,13 +506,15 @@ void uni::sphere::prep()
         pos.free(GL_TEXTURE4);
 
         // Find the extrema of the accumulated positions.
-/*
+
+#ifdef CONF_CALCEXT
         acc.bind(GL_TEXTURE1);
         {
             ext.proc(count);
         }
         acc.free(GL_TEXTURE1);
-*/
+#endif
+
         // Copy the generated coordinates to the vertex buffer.
 
         tex.bind_frame();
@@ -530,13 +537,14 @@ void uni::sphere::prep()
         vtx.read_v(count);
         pos.free_frame();
 */
-/*
+
+#ifdef CONF_CALCEXT
         const GLfloat *E = ext.rmap();
 
         d0 = sqrt(E[0]);
         d1 = sqrt(E[1]);
         ext.umap();
-*/
+#endif
     }
 }
 
@@ -578,16 +586,16 @@ void uni::sphere::draw(int i)
     double  t[4];
 
     mult_xps_vec3(t, O, p);
-
-    t[0] = -t[0];
-    t[1] = -t[1];
-    t[2] = -t[2];
-
+/*
+    t[0] = p[0];
+    t[1] = p[1];
+    t[2] = p[2];
+*/
     normalize(t);
 
-    L[0] = GLfloat(t[0]);
-    L[1] = GLfloat(t[1]);
-    L[2] = GLfloat(t[2]);
+    L[0] = GLfloat(-t[0]);
+    L[1] = GLfloat(-t[1]);
+    L[2] = GLfloat(-t[2]);
     L[3] = 0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);

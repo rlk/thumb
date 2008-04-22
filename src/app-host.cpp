@@ -15,9 +15,10 @@
 
 #include <string.h>
 
+#include "util.hpp"
+#include "matrix.hpp"
 #include "tracker.hpp"
 #include "ogl-opengl.hpp"
-#include "matrix.hpp"
 #include "app-data.hpp"
 #include "app-conf.hpp"
 #include "app-glob.hpp"
@@ -49,7 +50,7 @@ static void nodelay(int sd)
     int       val = 1;
         
     if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *) &val, len) < 0)
-        throw std::runtime_error(strerror(errno));
+        throw std::runtime_error(strerror(sock_errno));
 }
 
 //-----------------------------------------------------------------------------
@@ -84,7 +85,6 @@ void app::host::fork_client(const char *name, const char *addr)
 
 void app::host::init_listen(app::node node)
 {
-#ifndef _WIN32 // W32 HACK
     int port = get_attr_d(node, "port");
 
     // If we have a port assignment then we must listen on it.
@@ -100,27 +100,25 @@ void app::host::init_listen(app::node node)
 
         // Create a socket, set no-delay, bind the port, and listen.
 
-        if ((listen_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
-            throw std::runtime_error(strerror(errno));
+        if ((listen_sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+            throw std::runtime_error(strerror(sock_errno));
         
         nodelay(listen_sd);
 
         while (bind(listen_sd, (struct sockaddr *) &address, addresslen) < 0)
-            if (errno == EINVAL)
+            if (sock_errno == EINVAL)
             {
                 std::cerr << "Waiting for port expiration" << std::endl;
                 usleep(250000);
             }
-            else throw std::runtime_error(strerror(errno));
+            else throw std::runtime_error(strerror(sock_errno));
 
         listen(listen_sd, 16);
     }
-#endif
 }
 
 void app::host::poll_listen()
 {
-#ifndef _WIN32 // W32 HACK
     // NOTE: This must not occur between a host::send/host::recv pair.
 
     if (listen_sd != INVALID_SOCKET)
@@ -138,7 +136,7 @@ void app::host::poll_listen()
         {
             if (n < 0)
             {
-                if (errno != EINTR)
+                if (sock_errno != EINTR)
                     throw app::sock_error("select");
             }
             else
@@ -158,7 +156,6 @@ void app::host::poll_listen()
             }
         }
     }
-#endif
 }
 
 void app::host::fini_listen()
@@ -173,7 +170,6 @@ void app::host::fini_listen()
 
 void app::host::init_server(app::node node)
 {
-#ifndef _WIN32 // W32 HACK
     // If we have a server assignment then we must connect to it.
 
     if (app::node server = find(node, "server"))
@@ -192,11 +188,11 @@ void app::host::init_server(app::node node)
 
         // Create a socket and connect.
 
-        if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == -1)
+        if ((server_sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
             throw app::sock_error(addr);
 
         while (connect(server_sd, (struct sockaddr *) &address, addresslen) <0)
-            if (errno == ECONNREFUSED)
+            if (sock_errno == ECONNREFUSED)
             {
                 std::cerr << "Waiting for " << addr << std::endl;
                 usleep(250000);
@@ -205,7 +201,6 @@ void app::host::init_server(app::node node)
 
         nodelay(server_sd);
     }
-#endif
 }
 
 void app::host::fini_server()

@@ -13,9 +13,9 @@
 #ifndef SPHERE_HPP
 #define SPHERE_HPP
 
+#include "default.hpp"
 #include "ogl-opengl.hpp"
 #include "ogl-texture.hpp"
-#include "default.hpp"
 #include "app-frustum.hpp"
 #include "uni-geogen.hpp"
 #include "uni-georen.hpp"
@@ -74,7 +74,9 @@ namespace uni
         geonrm  nrm;
         geopos  pos;
         geoacc  acc;
+#ifdef CONF_CALCEXT
         geoext  ext;
+#endif
         geovtx  vtx;
         georen& ren;
 

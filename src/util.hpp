@@ -29,6 +29,12 @@
 
 //-----------------------------------------------------------------------------
 
+#ifdef _WIN32
+#define usleep(t) Sleep(t)
+#endif
+
+//-----------------------------------------------------------------------------
+
 typedef std::vector<std::string> str_vec;
 typedef std::set   <std::string> str_set;
 

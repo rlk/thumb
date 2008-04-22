@@ -5,7 +5,6 @@ Fix cracking between spatches.
 
 Generalize geomap to work with sizes other than 512x256.
 
-Fix the atmosphere.
 Fix the varrier.
 Fix the tracking interaction.
 Fix the joystick interaction.

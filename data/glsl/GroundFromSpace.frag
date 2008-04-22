@@ -5,7 +5,7 @@ uniform sampler2DRect nrm;
 
 varying float day;
 
-void main (void)
+void main(void)
 {
     vec2 p = gl_FragCoord.xy;
 
