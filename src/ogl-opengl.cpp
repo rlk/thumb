@@ -170,19 +170,24 @@ void ogl::check_err(const char *file, int line)
 
 #include <GL/wglext.h>
 
-static void sync(bool on)
+static void sync(int interval)
 {
-    PFNWGLSWAPINTERVALEXTPROC _wglSwapInvervalEXT = 0;
+    PFNWGLSWAPINTERVALEXTPROC _wglSwapInvervalEXT;
 
     if ((_wglSwapInvervalEXT = (PFNWGLSWAPINTERVALEXTPROC)
           wglGetProcAddress("wglSwapIntervalEXT")))
-         _wglSwapInvervalEXT(on ? 1 : 0);
+         _wglSwapInvervalEXT(interval);
 }
 
 #else
 
-static void sync(bool on)
+static void sync(int interval)
 {
+    PFNGLXSWAPINTERVALSGIPROC _glXSwapInvervalSGI;
+
+    if ((_glXSwapInvervalSGI = (PFNGLXSWAPINTERVALSGIPROC)
+          glXGetProcAddress((const GLubyte *) "glXSwapIntervalSGI")))
+         _glXSwapInvervalSGI(interval);
 }
 
 #endif
@@ -313,7 +318,7 @@ void ogl::init()
 
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    sync(::conf->get_i("sync") ? true : false);
+    sync(::conf->get_i("sync"));
 }
 
 //-----------------------------------------------------------------------------

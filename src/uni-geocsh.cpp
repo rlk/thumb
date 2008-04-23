@@ -402,18 +402,24 @@ void uni::geocsh::proc(const double *vp,
 
     // If there are outstanding pages, signal the page loader threads.
 
-    if (n) SDL_CondBroadcast(need_cond);
+    if (!needs.empty())
+        SDL_CondBroadcast(need_cond);
 }
 
 //-----------------------------------------------------------------------------
 
 bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
 {
+    *M = 0;
+    *P = 0;
+    *B = 0;
+
     // Wait for the needed page map to be non-empty and remove the first.
 
     SDL_mutexP(need_mutex);
     {
-        SDL_CondWait(need_cond, need_mutex);
+        if (needs.empty())
+            SDL_CondWait(need_cond, need_mutex);
 
         if (!needs.empty())
         {
@@ -421,24 +427,26 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
             *P = needs.begin()->second.P;
 
             needs.erase(needs.begin());
-            n--;
         }
     }
     SDL_mutexV(need_mutex);
 
     // Acquire a buffer to receive the loaded page.
 
-    SDL_mutexP(buff_mutex);
+    if (*M && *P)
     {
-        if (buffs.empty())
-            *B = new buffer(S, S, c, b);
-        else
+        SDL_mutexP(buff_mutex);
         {
-            *B = buffs.front();
-             buffs.pop_front();
+            if (buffs.empty())
+                *B = new buffer(S, S, c, b);
+            else
+            {
+                *B = buffs.front();
+                buffs.pop_front();
+            }
         }
+        SDL_mutexV(buff_mutex);
     }
-    SDL_mutexV(buff_mutex);
 
     return run;
 }
