@@ -18,6 +18,7 @@
 #include "ogl-opengl.hpp"
 #include "uni-universe.hpp"
 #include "wrl-world.hpp"
+#include "dev-input.hpp"
 #include "mode-mode.hpp"
 #include "app-glob.hpp"
 #include "app-prog.hpp"
@@ -31,16 +32,6 @@ class demo : public app::prog
     int key_edit;
     int key_play;
     int key_info;
-
-    int key_move_L;
-    int key_move_R;
-    int key_move_D;
-    int key_move_U;
-    int key_move_F;
-    int key_move_B;
-
-    double view_move_rate;
-    double view_turn_rate;
 
     int tracker_head_sensor;
     int tracker_hand_sensor;
@@ -61,8 +52,7 @@ class demo : public app::prog
 
     // Demo state.
 
-    int button[4];
-    int modifiers;
+    dev::input *input;
 
     bool   attr_mode;
     bool   attr_stop;
@@ -73,13 +63,6 @@ class demo : public app::prog
     void attr_off();
     void attr_next();
     void attr_prev();
-
-    // Tracker cache.
-
-    double init_P[3], init_R[16];
-    double curr_P[3], curr_R[16];
-
-    bool draw_sphere;
 
 public:
 

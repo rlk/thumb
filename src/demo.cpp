@@ -10,9 +10,6 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <SDL_keyboard.h>
-#include <SDL_mouse.h>
-
 #include <iostream>
 #include <cstring>
 
@@ -21,64 +18,51 @@
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-host.hpp"
+#include "dev-mouse.hpp"
 #include "mode-edit.hpp"
 #include "mode-play.hpp"
 #include "mode-info.hpp"
 
 //-----------------------------------------------------------------------------
 
-demo::demo() : edit(0), play(0), info(0), curr(0), draw_sphere(false)
+demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 {
-//  edit = new mode::edit(world);
-//  play = new mode::play(world);
-//  info = new mode::info(world);
+    std::string input_mode = conf->get_s("input_mode");
 
     // Initialize the demo configuration.
+
+/*
+    tracker_head_sensor = conf->get_i("tracker_head_sensor");
+    tracker_hand_sensor = conf->get_i("tracker_hand_sensor");
+*/
+
+    // Initialize the input handler.
+
+    if (input_mode == "mouse") input = new dev::mouse(universe);
+
+    // Initialize attract mode.
+
+    attr_time = conf->get_f("attract_delay");
+    attr_curr = 0;
+    attr_mode = false;
+
+    // Initialize the application state.
 
     key_edit   = conf->get_i("key_edit");
     key_play   = conf->get_i("key_play");
     key_info   = conf->get_i("key_info");
 
-    key_move_L = conf->get_i("key_move_L");
-    key_move_R = conf->get_i("key_move_R");
-    key_move_D = conf->get_i("key_move_D");
-    key_move_U = conf->get_i("key_move_U");
-    key_move_F = conf->get_i("key_move_F");
-    key_move_B = conf->get_i("key_move_B");
-
-    view_move_rate = conf->get_f("view_move_rate");
-    view_turn_rate = conf->get_f("view_turn_rate");
-
-    tracker_head_sensor = conf->get_i("tracker_head_sensor");
-    tracker_hand_sensor = conf->get_i("tracker_hand_sensor");
-
-    // Initialize the demo state.
-
-    button[0] = 0;
-    button[1] = 0;
-    button[2] = 0;
-    button[3] = 0;
-
-    init_P[0] = 0;
-    init_P[1] = 0;
-    init_P[2] = 0;
-
-    curr_P[0] = 0;
-    curr_P[1] = 0;
-    curr_P[2] = 0;
-
-    load_idt(init_R);
-    load_idt(curr_R);
-
-    attr_time = conf->get_f("attract_delay");
-    attr_curr = 0;
-    attr_mode = false;
+//  edit = new mode::edit(world);
+//  play = new mode::play(world);
+//  info = new mode::info(world);
 
 //  goto_mode(play);
 }
 
 demo::~demo()
 {
+    if (input) delete input;
+
     if (info) delete info;
     if (play) delete play;
     if (edit) delete edit;
@@ -125,47 +109,16 @@ void demo::attr_prev()
 
 void demo::point(int i, const double *p, const double *q)
 {
-    load_mat(init_R, curr_R);    
-    set_quaternion(curr_R, q);
-
-    if (button[1])
-    {
-        if (modifiers & KMOD_SHIFT)
-        {
-            double a0 = DEG(atan2(init_R[9], init_R[8]));
-            double a1 = DEG(atan2(curr_R[9], curr_R[8]));
-
-            user->turn(0.0, 0.0, a0 - a1);
-        }
-        else
-        {
-            user->tumble(init_R, curr_R);
-        }
-    }
+    if (input && input->point(i, p, q))
+        attr_off();
 }
 
 void demo::click(int i, int b, int m, bool d)
 {
-    attr_off();
+    if (input && input->click(i, b, m, d))
+        attr_off();
 
-    button[b] = d;
-    modifiers = m;
-
-    if      (d && b == SDL_BUTTON_WHEELUP)
-    {
-        if (m & KMOD_SHIFT)
-            universe.turn(0.0, -1.0);
-        else
-            universe.turn(+1.0, 0.0);
-    }
-    else if (d && b == SDL_BUTTON_WHEELDOWN)
-    {
-        if (m & KMOD_SHIFT)
-            universe.turn(0.0, +1.0);
-        else
-            universe.turn(-1.0, 0.0);
-    }
-    else if (curr)
+    if (curr)
     {
         if (curr->click(i, b, m, d) == false)
             prog::click(i, b, m, d);
@@ -174,36 +127,25 @@ void demo::click(int i, int b, int m, bool d)
 
 void demo::keybd(int c, int k, int m, bool d)
 {
-    prog::keybd(c, k, m, d);
-
-    // Handle mode transitions.
-/*
-    if      (d && k == key_edit && curr != edit) goto_mode(edit);
-    else if (d && k == key_play && curr != play) goto_mode(play);
-    else if (d && k == key_info && curr != info) goto_mode(info);
-*/
-    // Let the current mode take it.
-
-    if (curr == 0 || curr->keybd(c, k, m, d) == false)
+    if (input && input->keybd(c, k, m, d))
+        attr_off();
+    else
     {
-        int dd = d ? +1 : -1;
+        prog::keybd(c, k, m, d);
 
-        // Handle view motion keys.
+        // Handle mode transitions.
 
-        if      (k == key_move_L) { curr_P[0] -= dd; attr_off(); }
-        else if (k == key_move_R) { curr_P[0] += dd; attr_off(); }
-        else if (k == key_move_D) { curr_P[1] -= dd; attr_off(); }
-        else if (k == key_move_U) { curr_P[1] += dd; attr_off(); }
-        else if (k == key_move_F) { curr_P[2] -= dd; attr_off(); }
-        else if (k == key_move_B) { curr_P[2] += dd; attr_off(); }
+        if      (d && k == key_edit && curr != edit) goto_mode(edit);
+        else if (d && k == key_play && curr != play) goto_mode(play);
+        else if (d && k == key_info && curr != info) goto_mode(info);
 
-        else if (d)
+        // Let the current mode take it.
+
+        if (curr == 0 || curr->keybd(c, k, m, d) == false)
         {
-            if (k == SDLK_HOME) ::user->home();
-
             // Handle guided view keys.
 
-            if (m & KMOD_SHIFT)
+            if (d && (m & KMOD_SHIFT))
             {
                 if      (k == SDLK_PAGEUP)   attr_next();
                 else if (k == SDLK_PAGEDOWN) attr_prev();
@@ -222,10 +164,10 @@ void demo::timer(int t)
 
     if (attr_mode)
     {
-        double a = 0.0;
-        double t = 0.0;
+        double axis = 0.0;
+        double tilt = 0.0;
 
-        if (user->dostep(dt, universe.get_p(), a, t))
+        if (user->dostep(dt, universe.get_p(), axis, tilt))
         {
             if (attr_stop)
                 attr_off();
@@ -234,22 +176,22 @@ void demo::timer(int t)
         }
         else
         {
-            universe.set_a(a);
-            universe.set_t(t);
+            universe.set_a(axis);
+            universe.set_t(tilt);
         }
     }
     else
     {
-        // Handle navigation.
+        if (input && input->timer(t))
+            attr_off();
+        else
+        {
+            attr_curr += dt;
 
-        double dP[3], kp = dt * universe.rate();
-
-        dP[0] = curr_P[ 0] - init_P[ 0];
-        dP[1] = curr_P[ 1] - init_P[ 1];
-        dP[2] = curr_P[ 2] - init_P[ 2];
-
-        user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
-        
+            if (attr_curr > attr_time)
+                attr_on();
+        }
+    }
 /*
         double kp = dt * universe.rate();
         double kr = dt * view_turn_rate;
@@ -291,15 +233,6 @@ void demo::timer(int t)
         }
         else
 */
-        {
-            // Handle auto-attract mode.
-
-            attr_curr += dt;
-
-            if (attr_curr > attr_time)
-                attr_on();
-        }
-    }
 
     if (curr)
         curr->timer(t);
@@ -309,12 +242,8 @@ void demo::timer(int t)
 
 void demo::value(int d, int a, double v)
 {
-    if (fabs(v) > 0.1)
-    {
+    if (input && input->value(d, a, v))
         attr_off();
-
-        if (a == 0) universe.turn(v);
-    }
 }
 
 //-----------------------------------------------------------------------------
