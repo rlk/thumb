@@ -264,6 +264,9 @@ app::host::host(std::string filename, std::string tag) :
     buffer[0] = DEFAULT_PIXEL_WIDTH;
     buffer[1] = DEFAULT_PIXEL_HEIGHT;
 
+    window_full  = 0;
+    window_frame = 1;
+
     // Read host.xml and configure using tag match.
 
     app::node root;
@@ -292,6 +295,9 @@ app::host::host(std::string filename, std::string tag) :
                 window[1] = get_attr_d(win, "y", 0);
                 window[2] = get_attr_d(win, "w", DEFAULT_PIXEL_WIDTH);
                 window[3] = get_attr_d(win, "h", DEFAULT_PIXEL_HEIGHT);
+
+                window_full  = get_attr_d(win, "full",  0);
+                window_frame = get_attr_d(win, "frame", 1);
             }
 
             // Extract local off-screen buffer configuration.
@@ -585,7 +591,8 @@ void app::host::draw()
 
 int app::host::get_window_m() const
 {
-    return root() ? 0 : SDL_NOFRAME;
+    return ((window_full  ? SDL_FULLSCREEN : 0) |
+            (window_frame ? 0 : SDL_NOFRAME));
 }
 
 //-----------------------------------------------------------------------------

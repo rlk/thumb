@@ -50,11 +50,12 @@ namespace dev
     public:
 
         gamepad(uni::universe&);
-       ~gamepad();
 
         virtual bool click(int, int, int, bool);
         virtual bool value(int, int, double);
         virtual bool timer(int);
+
+        virtual ~gamepad();
     };
 }
 

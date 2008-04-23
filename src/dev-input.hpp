@@ -26,6 +26,8 @@ namespace dev
         virtual bool keybd(int, int, int, bool);
         virtual bool value(int, int, double);
         virtual bool timer(int);
+
+        virtual ~input() { }
     };
 }
 

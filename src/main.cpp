@@ -139,9 +139,6 @@ static void video()
 
     int b = conf->get_i("window_b");
 
-    if (conf->get_i("window_fullscreen")) m |= SDL_FULLSCREEN;
-    if (conf->get_i("window_noframe"))    m |= SDL_NOFRAME;
-
     // Unframed windows have no cursor and may be positioned.
 
     if (m & SDL_NOFRAME)

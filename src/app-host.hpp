@@ -79,6 +79,9 @@ namespace app
         int window[4];
         int buffer[2];
 
+        int window_full;
+        int window_frame;
+
         std::vector<view *> views;
         std::vector<tile *> tiles;
 

@@ -47,12 +47,13 @@ namespace dev
     public:
 
         mouse(uni::universe&);
-       ~mouse();
 
         virtual bool point(int, const double *, const double *);
         virtual bool click(int, int, int, bool);
         virtual bool keybd(int, int, int, bool);
         virtual bool timer(int);
+
+        virtual ~mouse();
     };
 }
 
