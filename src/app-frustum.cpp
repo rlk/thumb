@@ -206,11 +206,11 @@ void app::frustum::calc_calibrated()
 
     // Compute any unspecified screen corner.
 
-    if (!b[0] &&  b[1] &&  b[2] &&  b[3]) calc_corner_1(c[0], c[3], c[2], c[1]);
-    if ( b[0] && !b[1] &&  b[2] &&  b[3]) calc_corner_1(c[1], c[2], c[0], c[3]);
-    if ( b[0] &&  b[1] && !b[2] &&  b[3]) calc_corner_1(c[2], c[1], c[3], c[0]);
-    if ( b[0] &&  b[1] &&  b[2] && !b[3]) calc_corner_1(c[3], c[0], c[1], c[2]);
-    if (!b[0] && !b[1] && !b[2] && !b[3]) calc_corner_4(c[0], c[1], c[2], c[3],
+    if (!b[0] &&  b[1] &&  b[2] &&  b[3]) calc_corner_1(c[0],c[3],c[2],c[1]);
+    if ( b[0] && !b[1] &&  b[2] &&  b[3]) calc_corner_1(c[1],c[2],c[0],c[3]);
+    if ( b[0] &&  b[1] && !b[2] &&  b[3]) calc_corner_1(c[2],c[1],c[3],c[0]);
+    if ( b[0] &&  b[1] &&  b[2] && !b[3]) calc_corner_1(c[3],c[0],c[1],c[2]);
+    if (!b[0] && !b[1] && !b[2] && !b[3]) calc_corner_4(c[0],c[1],c[2],c[3],
                                                         aspect, fov);
 
     // Apply the calibration transform to the configured frustum corners.
@@ -219,17 +219,40 @@ void app::frustum::calc_calibrated()
     mult_mat_vec3(user_points[1], T, c[1]);
     mult_mat_vec3(user_points[2], T, c[2]);
     mult_mat_vec3(user_points[3], T, c[3]);
-/*
-    printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 0], T[ 4], T[ 8], T[12]);
-    printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 1], T[ 5], T[ 9], T[13]);
-    printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 2], T[ 6], T[10], T[14]);
-    printf("%+8.3f %+8.3f %+8.3f %+8.3f\n", T[ 3], T[ 7], T[11], T[15]);
-*/
+
+    // Cache the display basis.
+
+    load_idt(user_basis);
+
+    user_basis[0] = user_points[1][0] - user_points[0][0];
+    user_basis[1] = user_points[1][1] - user_points[0][1];
+    user_basis[2] = user_points[1][2] - user_points[0][2];
+
+    user_basis[4] = user_points[2][0] - user_points[0][0];
+    user_basis[5] = user_points[2][1] - user_points[0][1];
+    user_basis[6] = user_points[2][2] - user_points[0][2];
+
+    normalize(user_basis + 0);
+    normalize(user_basis + 4);
+    crossprod(user_basis + 8, user_basis + 0, user_basis + 4);
+    normalize(user_basis + 8);
 }
 
 void app::frustum::calc_user_planes(const double *p)
 {
+    // Compute the calibrated user position, and display-space position.
+
     mult_mat_vec3(user_pos, T, p);
+
+    // Compute the vector from the screen center to the viewer.
+
+    double v[3];
+
+    v[0] = p[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
+    v[1] = p[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
+    v[2] = p[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
+
+    mult_mat_vec3(disp_pos, user_basis, v);
 
     // Compute the user-space view frustum bounding planes.
 
@@ -245,20 +268,6 @@ void app::frustum::calc_user_planes(const double *p)
     set_plane(display_plane, user_points[0], user_points[1], user_points[2]);
 
     user_dist = DOT3(display_plane, user_pos) + display_plane[3];
-/*
-    printf("%f %f %f %f\n",
-           user_planes[0][0], user_planes[0][1],
-           user_planes[0][2], user_planes[0][3]);
-    printf("%f %f %f %f\n",
-           user_planes[1][0], user_planes[1][1],
-           user_planes[1][2], user_planes[1][3]);
-    printf("%f %f %f %f\n",
-           user_planes[2][0], user_planes[2][1],
-           user_planes[2][2], user_planes[2][3]);
-    printf("%f %f %f %f\n",
-           user_planes[3][0], user_planes[3][1],
-           user_planes[3][2], user_planes[3][3]);
-*/
 }
 
 void app::frustum::calc_view_planes(const double *M,
@@ -308,26 +317,6 @@ void app::frustum::calc_view_points(double n, double f)
 
 void app::frustum::calc_projection(double n, double f)
 {
-    // Compute the display plane basis.
-
-    double B[16];
-    double A[16];
-
-    load_idt(B);
-
-    B[0] = user_points[1][0] - user_points[0][0];
-    B[1] = user_points[1][1] - user_points[0][1];
-    B[2] = user_points[1][2] - user_points[0][2];
-
-    B[4] = user_points[2][0] - user_points[0][0];
-    B[5] = user_points[2][1] - user_points[0][1];
-    B[6] = user_points[2][2] - user_points[0][2];
-
-    normalize(B + 0);
-    normalize(B + 4);
-    crossprod(B + 8, B + 0, B + 4);
-    normalize(B + 8);
-
     // Compute the screen corner vectors.
 
     double v[4][4];
@@ -341,16 +330,18 @@ void app::frustum::calc_projection(double n, double f)
 
     // Generate the off-axis projection.
 
-    double l = DOT3(B + 0, v[0]) * n / user_dist;
-    double r = DOT3(B + 0, v[1]) * n / user_dist;
-    double b = DOT3(B + 4, v[0]) * n / user_dist;
-    double t = DOT3(B + 4, v[2]) * n / user_dist;
+    double l = DOT3(user_basis + 0, v[0]) * n / user_dist;
+    double r = DOT3(user_basis + 0, v[1]) * n / user_dist;
+    double b = DOT3(user_basis + 4, v[0]) * n / user_dist;
+    double t = DOT3(user_basis + 4, v[2]) * n / user_dist;
 
     load_persp(P, l, r, b, t, n, f);
 
     // Orient the projection and move the apex to the origin.
 
-    load_xps(A, B);
+    double A[16];
+
+    load_xps(A, user_basis);
 
     mult_mat_mat(P, P, A);
     Rmul_xlt_inv(P, user_pos[0],
@@ -400,9 +391,7 @@ void app::frustum::calc_dome_planes(const double *p,
         P[i][0] = o[0] + v[0] * t;
         P[i][1] = o[1] + v[1] * t;
         P[i][2] = o[2] + v[2] * t;
-/*
-        printf("%f %f %f\n", P[i][0], P[i][1], P[i][2]);
-*/
+
         C[0] += P[i][0];
         C[1] += P[i][1];
         C[2] += P[i][2];
@@ -455,9 +444,7 @@ void app::frustum::calc_dome_planes(const double *p,
     double r = max4(x[0], x[1], x[2], x[3]);
     double b = min4(y[0], y[1], y[2], y[3]);
     double t = max4(y[0], y[1], y[2], y[3]);
-/*
-    printf("%f %f %f %f\n", l, r, b, t);
-*/
+
     user_points[0][0] = C[0] + R[0] * l + U[0] * b;
     user_points[0][1] = C[1] + R[1] * l + U[1] * b;
     user_points[0][2] = C[2] + R[2] * l + U[2] * b;
@@ -473,17 +460,30 @@ void app::frustum::calc_dome_planes(const double *p,
     user_points[3][0] = C[0] + R[0] * r + U[0] * t;
     user_points[3][1] = C[1] + R[1] * r + U[1] * t;
     user_points[3][2] = C[2] + R[2] * r + U[2] * t;
-/*
-    printf("%f %f %f\n",
-           user_points[0][0], user_points[0][1], user_points[0][2]);
-    printf("%f %f %f\n",
-           user_points[1][0], user_points[1][1], user_points[1][2]);
-    printf("%f %f %f\n",
-           user_points[2][0], user_points[2][1], user_points[2][2]);
-    printf("%f %f %f\n",
-           user_points[3][0], user_points[3][1], user_points[3][2]);
-*/
+
     calc_user_planes(p);
+}
+
+double app::frustum::get_w() const
+{
+    double d[3];
+
+    d[0] = user_points[1][0] - user_points[0][0];
+    d[1] = user_points[1][1] - user_points[0][1];
+    d[2] = user_points[1][2] - user_points[0][2];
+
+    return sqrt(DOT3(d, d));
+}
+
+double app::frustum::get_h() const
+{
+    double d[3];
+
+    d[0] = user_points[2][0] - user_points[0][0];
+    d[1] = user_points[2][1] - user_points[0][1];
+    d[2] = user_points[2][2] - user_points[0][2];
+
+    return sqrt(DOT3(d, d));
 }
 
 //-----------------------------------------------------------------------------
@@ -509,6 +509,7 @@ app::frustum::frustum(frustum& that)
 
     memcpy(user_points, that.user_points, 4 * 3 * sizeof (double));
     memcpy(user_planes, that.user_planes, 4 * 4 * sizeof (double));
+    memcpy(user_basis,  that.user_basis,     16 * sizeof (double));
 
     memcpy(P, that.P, 16 * sizeof (double));
 }
@@ -698,9 +699,9 @@ static int test_shell_plane(const double *n0,
             R0 = std::min(R0, l2);
         }
 
-        if (l0 >= 0 && l1 >= 0) R0 =std::min(R0, closest_point(p0, l0, p1, l1));
-        if (l1 >= 0 && l2 >= 0) R0 =std::min(R0, closest_point(p1, l1, p2, l2));
-        if (l2 >= 0 && l0 >= 0) R0 =std::min(R0, closest_point(p2, l2, p0, l0));
+        if (l0 >= 0 && l1 >= 0) R0=std::min(R0, closest_point(p0, l0, p1, l1));
+        if (l1 >= 0 && l2 >= 0) R0=std::min(R0, closest_point(p1, l1, p2, l2));
+        if (l2 >= 0 && l0 >= 0) R0=std::min(R0, closest_point(p2, l2, p0, l0));
     }
 
     // Interpret the computed radii as hit or miss.
@@ -849,16 +850,6 @@ void app::frustum::draw() const
 
 void app::frustum::cast() const
 {
-/*
-    printf("%f %f %f\n",
-           user_points[0][0], user_points[0][1], user_points[0][2]);
-    printf("%f %f %f\n",
-           user_points[1][0], user_points[1][1], user_points[1][2]);
-    printf("%f %f %f\n",
-           user_points[2][0], user_points[2][1], user_points[2][2]);
-    printf("%f %f %f\n",
-           user_points[3][0], user_points[3][1], user_points[3][2]);
-*/
     glBegin(GL_QUADS);
     {
         glTexCoord3dv(user_points[0]);
@@ -869,6 +860,18 @@ void app::frustum::cast() const
         glVertex2f(+1.0f, +1.0f);
         glTexCoord3dv(user_points[2]);
         glVertex2f(-1.0f, +1.0f);
+    }
+    glEnd();
+}
+
+void app::frustum::rect() const
+{
+    glBegin(GL_QUADS);
+    {
+        glVertex3dv(user_points[0]);
+        glVertex3dv(user_points[1]);
+        glVertex3dv(user_points[3]);
+        glVertex3dv(user_points[2]);
     }
     glEnd();
 }

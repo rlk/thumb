@@ -29,8 +29,9 @@ static int loader_func(void *data)
     uni::page   *P = 0;
     uni::buffer *B = 0;
 
-    while (C->get_needed(&M, &P, &B))
-           C->put_loaded( M,  P,  B->load(M->name(P)));
+    while  (C->get_needed(&M, &P, &B))
+        if (M && P && B)
+            C->put_loaded( M,  P,  B->load(M->name(P)));
 
     return 0;
 }

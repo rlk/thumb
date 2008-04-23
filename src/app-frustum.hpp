@@ -40,6 +40,7 @@ namespace app
 
         double user_pos[3];
         double view_pos[3];
+        double disp_pos[3];
 
         double user_dist;
 
@@ -49,6 +50,8 @@ namespace app
         double view_points[8][3];
         double user_planes[4][4];
         double view_planes[5][4];
+
+        double user_basis[16];
 
         int    view_count;
 
@@ -107,7 +110,11 @@ namespace app
 
         const double *get_user_pos() const { return user_pos; }
         const double *get_view_pos() const { return view_pos; }
+        const double *get_disp_pos() const { return disp_pos; }
         const double *get_P()        const { return P;        }
+
+        double get_w() const;
+        double get_h() const;
 
         // Perspective projection application
 
@@ -115,6 +122,7 @@ namespace app
 
         void draw() const;
         void cast() const;
+        void rect() const;
     };
 
     typedef std::vector<frustum *>                 frustum_v;

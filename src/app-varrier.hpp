@@ -13,15 +13,24 @@
 #ifndef VARRIER_HPP
 #define VARRIER_HPP
 
-#include "app-serial.hpp"
+#include "app-disp.hpp"
+#include "ogl-program.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace app
 {
-    class varrier
+    class varrier : public disp
     {
-        app::node node;
+        frustum *frustL;
+        frustum *frustR;
+
+        int x;
+        int y;
+        int w;
+        int h;
+
+        const ogl::program *P;
 
         double pitch;
         double angle;
@@ -29,15 +38,24 @@ namespace app
         double shift;
         double cycle;
 
+        double pix;
+
+        app::node node;
+
+        void bind_transform(GLenum, const frustum *);
+        void free_transform(GLenum);
+
     public:
 
-        varrier(app::node);
+        varrier(app::node, app::node, const int *);
         
-        // Calibration input handler
-
         bool input_keybd(int, int, int, bool);
 
-        void draw() const;
+        virtual bool pick(double *, double *, int, int);
+        virtual void prep(view_v&, frustum_v&);
+        virtual void draw(view_v&, int&, bool);
+
+        virtual ~varrier();
     };
 }
 

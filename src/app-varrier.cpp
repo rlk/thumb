@@ -12,14 +12,54 @@
 
 #include <SDL_keyboard.h>
 
-#include "app-varrier.hpp"
-#include "matrix.hpp"
 #include "util.hpp"
+#include "matrix.hpp"
+#include "app-user.hpp"
+#include "app-glob.hpp"
+#include "app-prog.hpp"
+#include "ogl-opengl.hpp"
+#include "app-varrier.hpp"
 
 //-----------------------------------------------------------------------------
 
-app::varrier::varrier(app::node node) : node(node)
+app::varrier::varrier(app::node tile,
+                      app::node node, const int *window) :
+    frustL(0),
+    frustR(0),
+    P(0),
+    node(node)
 {
+    app::node curr;
+
+    x = window[0];
+    y = window[1];
+    w = window[2];
+    h = window[3];
+
+    // Check the display definition for a frustum.
+
+    if      ((curr = find(node, "frustum")))
+    {
+        frustL = new app::frustum(curr);
+        frustR = new app::frustum(curr);
+    }
+
+    // If none, check the tile definition for one.
+
+    else if ((curr = find(tile, "frustum")))
+    {
+        frustL = new app::frustum(curr);
+        frustR = new app::frustum(curr);
+    }
+
+    // If still none, create a default.
+
+    else
+    {
+        frustL = new app::frustum(0);
+        frustR = new app::frustum(0);
+    }
+
     // Initialize the linescreen from the XML node or by setting defaults.
 
     pitch = get_attr_f(node, "pitch", 200.0000);
@@ -27,6 +67,14 @@ app::varrier::varrier(app::node node) : node(node)
     thick = get_attr_f(node, "thick",   0.0160);
     shift = get_attr_f(node, "shift",   0.0000);
     cycle = get_attr_f(node, "cycle",   0.8125);
+
+    pix = frustL->get_w() / (3 * w);
+}
+
+app::varrier::~varrier()
+{
+    if (frustR) delete frustR;
+    if (frustL) delete frustL;
 }
 
 //-----------------------------------------------------------------------------
@@ -41,10 +89,10 @@ bool app::varrier::input_keybd(int c, int k, int m, bool d)
 
         if (m & KMOD_SHIFT)
         {
-            if      (k == SDLK_LEFT)  { angle -= 0.01; b = true; }
-            else if (k == SDLK_RIGHT) { angle += 0.01; b = true; }
-            else if (k == SDLK_DOWN)  { pitch -= 0.01; b = true; }
-            else if (k == SDLK_UP)    { pitch += 0.01; b = true; }
+            if      (k == SDLK_LEFT)  { angle -= 0.01000; b = true; }
+            else if (k == SDLK_RIGHT) { angle += 0.01000; b = true; }
+            else if (k == SDLK_DOWN)  { pitch -= 0.01000; b = true; }
+            else if (k == SDLK_UP)    { pitch += 0.01000; b = true; }
         }
         else
         {
@@ -72,67 +120,192 @@ bool app::varrier::input_keybd(int c, int k, int m, bool d)
 
 //-----------------------------------------------------------------------------
 
-void app::varrier::draw() const
+bool app::varrier::pick(double *p, double *q, int wx, int wy)
 {
-/*
-    double R[3];
-    double U[3];
-    double N[3];
-    double v[3];
-    double w[3];
+    if (frustL)
+    {
+        double kx = double(wx - x) / w;
+        double ky = double(wy - y) / h;
 
-    double dx, dy;
-    double pp, ss;
+        if (0.0 <= kx && kx < 1.0 &&
+            0.0 <= ky && ky < 1.0)
+            frustL->pick(p, q, kx, ky);
 
-    // Compute the screen space basis.
+        return true;
+    }
+    return false;
+}
 
-    R[0] = BR[0] - BL[0];
-    R[1] = BR[1] - BL[1];
-    R[2] = BR[2] - BL[2];
+void app::varrier::prep(view_v& views, frustum_v& frusta)
+{
+    // Apply the viewpoint and view to my frusta.  Add the to the list.
 
-    U[0] = TL[0] - BL[0];
-    U[1] = TL[1] - BL[1];
-    U[2] = TL[2] - BL[2];
+    if (frustL)
+    {
+        frustL->calc_user_planes(views[0]->get_p());
+        frustL->calc_view_planes(::user->get_M(),
+                                 ::user->get_I());
+        frusta.push_back(frustL);
+    }
+    if (frustR)
+    {
+        frustR->calc_user_planes(views[1]->get_p());
+        frustR->calc_view_planes(::user->get_M(),
+                                 ::user->get_I());
+        frusta.push_back(frustR);
+    }
 
-    crossprod(N, R, U);
 
-    normalize(R);
-    normalize(U);
-    normalize(N);
+    // Ensure the draw shader is initialized.
 
-    // Find the vector from the center of the screen to the eye.
+    if (P == 0 && (P = ::glob->load_program("glsl/combiner.vert",
+                                            "glsl/combiner.frag")))
+    {
+        P->bind();
+        {
+            P->uniform("L_map", 0);
+            P->uniform("R_map", 1);
+        }
+        P->free();
+    }
+}
 
-    v[0] = P[0] - (TL[0] + BR[0]) * 0.5;
-    v[1] = P[1] - (TL[1] + BR[1]) * 0.5;
-    v[2] = P[2] - (TL[2] + BR[2]) * 0.5;
+//-----------------------------------------------------------------------------
 
-    // Transform this vector into screen space.
-
-    w[0] = v[0] * R[0] + v[1] * R[1] + v[2] * R[2];
-    w[1] = v[0] * U[0] + v[1] * U[1] + v[2] * U[2];
-    w[2] = v[0] * N[0] + v[1] * N[1] + v[2] * N[2];
+void app::varrier::bind_transform(GLenum unit, const frustum *frust)
+{
+    const double *v = frust->get_disp_pos();
 
     // Compute the parallax due to optical thickness.
 
-    dx = thick * w[0] / w[2];
-    dy = thick * w[1] / w[2];
+    double dx = thick * v[0] / v[2];
+    double dy = thick * v[1] / v[2];
 
     // Compute the pitch and shift reduction due to optical thickness.
 
-    pp = pitch * (w[2] - thick) / w[2];
-    ss = shift * (w[2] - thick) / w[2];
+    double pp = pitch * (v[2] - thick) / v[2];
+    double ss = shift * (v[2] - thick) / v[2];
 
     // Compose the line screen transformation matrix.
 
+    glActiveTextureARB(unit);
     glMatrixMode(GL_TEXTURE);
     {
+        glPushMatrix();
         glLoadIdentity();
         glScaled(pp, pp, 1);
         glRotated(-angle, 0, 0, 1);
         glTranslated(dx - ss, dy, 0);
     }
     glMatrixMode(GL_MODELVIEW);
-*/
+    glActiveTextureARB(GL_TEXTURE0);
+}
+
+void app::varrier::free_transform(GLenum unit)
+{
+    glActiveTextureARB(unit);
+    glMatrixMode(GL_TEXTURE);
+    {
+        glPopMatrix();
+    }
+    glMatrixMode(GL_MODELVIEW);
+    glActiveTextureARB(GL_TEXTURE0);
+}
+
+//-----------------------------------------------------------------------------
+
+void app::varrier::draw(view_v& views, int &i, bool calibrate)
+{
+    // Draw the scene to the off-screen buffers.
+
+    if (views[0])
+    {
+        views[0]->bind();
+        {
+            if (calibrate)
+            {
+                const GLubyte *c = views[0]->get_c();
+                glClearColor(c[0], c[1], c[2], c[3]);
+                glClear(GL_COLOR_BUFFER_BIT);
+            }
+            else ::prog->draw(i++);
+        }
+        views[0]->free();
+    }
+    if (views[1])
+    {
+        views[1]->bind();
+        {
+            if (calibrate)
+            {
+                const GLubyte *c = views[1]->get_c();
+                glClearColor(c[0], c[1], c[2], c[3]);
+                glClear(GL_COLOR_BUFFER_BIT);
+            }
+            else ::prog->draw(i++);
+        }
+        views[1]->free();
+    }
+
+    if (P)
+    {
+        // Combine the off-screen buffers to the screen.
+
+        const double kx = double(views[0]->get_w()) / w;
+        const double ky = double(views[0]->get_h()) / h;
+
+        glViewport(x, y, w, h);
+
+        bind_transform(GL_TEXTURE0, frustL);
+        bind_transform(GL_TEXTURE1, frustR);
+        views[0]->bind_color(GL_TEXTURE0);
+        views[1]->bind_color(GL_TEXTURE1);
+        P->bind();
+        {
+            double W = frustL->get_w();
+            double H = frustL->get_h();
+
+            glMatrixMode(GL_PROJECTION);
+            {
+                glPushMatrix();
+                glLoadIdentity();
+                glOrtho(-W / 2, +W / 2, -H / 2, +H / 2, -1, +1);
+            }
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glPushMatrix();
+                glLoadIdentity();
+            }
+
+            P->uniform("cycle", cycle);
+            P->uniform("offset", -pix, 0, +pix);
+            P->uniform("frag_d", -x * kx, -y * ky);
+            P->uniform("frag_k",      kx,      ky);
+
+            glBegin(GL_QUADS);
+            {
+                glVertex2f(-W / 2, -H / 2);
+                glVertex2f(+W / 2, -H / 2);
+                glVertex2f(+W / 2, +H / 2);
+                glVertex2f(-W / 2, +H / 2);
+            }
+            glEnd();
+
+            glMatrixMode(GL_PROJECTION);
+            {
+                glPopMatrix();
+            }
+            glMatrixMode(GL_MODELVIEW);
+            {
+                glPopMatrix();
+            }
+        }
+        P->free();
+        views[0]->bind_color(GL_TEXTURE0);
+        views[1]->bind_color(GL_TEXTURE1);
+        free_transform(GL_TEXTURE1);
+        free_transform(GL_TEXTURE0);
+    }
 }
 
 //-----------------------------------------------------------------------------

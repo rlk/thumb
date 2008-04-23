@@ -586,11 +586,6 @@ void uni::sphere::draw(int i)
     double  t[4];
 
     mult_xps_vec3(t, O, p);
-/*
-    t[0] = p[0];
-    t[1] = p[1];
-    t[2] = p[2];
-*/
     normalize(t);
 
     L[0] = GLfloat(-t[0]);
