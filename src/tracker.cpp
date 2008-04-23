@@ -10,9 +10,10 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <string.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdlib>
+#include <cstdio>
+#include <cmath>
 
 #include "matrix.hpp"
 
@@ -32,18 +33,6 @@ typedef unsigned int uint32_t;
 #ifdef __APPLE__
 #include <sys/shm.h>
 #include <stdint.h>
-#endif
-
-#include <math.h>
-
-//-----------------------------------------------------------------------------
-
-#ifndef PI
-#define PI 3.14159265358979323846
-#endif
-
-#ifndef RAD
-#define RAD(d) (PI * (d) / 180.0)
 #endif
 
 //-----------------------------------------------------------------------------
@@ -231,11 +220,11 @@ bool tracker_sensor(int id, double p[3], double q[4])
 
 bool tracker_values(int id, double& a)
 {
-    // Confirm that valuators ID and ID+1 exist.
+    // Confirm that valuator ID exists.
 
     if (control != (struct control_header *) (-1))
     {
-        if ((uint32_t) id < control->val_count - 1)
+        if ((uint32_t) id < control->val_count)
         {
             // Check that valuator ID has changed.
 

@@ -52,6 +52,7 @@ OBJS=   util.o \
 	dev-input.o \
 	dev-mouse.o \
 	dev-gamepad.o \
+	dev-tracker.o \
 	app-frustum.o \
 	app-dome.o \
 	app-normal.o \

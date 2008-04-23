@@ -345,7 +345,7 @@ void ogl::draw_axes()
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 static int texture_total = 0;
 
 static int texture_size(GLenum target)
@@ -353,12 +353,10 @@ static int texture_size(GLenum target)
     int   T  = 0;
     GLint l0 = 0;
     GLint l1 = 0;
-    /*
-    glGetTexParameteriv(target, GL_TEXTURE_BASE_LEVEL, &l0);
-    glGetTexParameteriv(target, GL_TEXTURE_MAX_LEVEL,  &l1);
 
-    printf("%d %d\n", l0, l1);
-    */
+//  glGetTexParameteriv(target, GL_TEXTURE_BASE_LEVEL, &l0);
+//  glGetTexParameteriv(target, GL_TEXTURE_MAX_LEVEL,  &l1);
+
     for (GLint level = l0; level <= l1; ++level)
     {
         GLint w, h, d, r, g, b, a, l, i, z;
@@ -381,6 +379,7 @@ static int texture_size(GLenum target)
     }
     return T;
 }
+*/
 
 void ogl::new_texture(GLenum target)
 {

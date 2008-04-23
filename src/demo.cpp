@@ -20,6 +20,7 @@
 #include "app-host.hpp"
 #include "dev-mouse.hpp"
 #include "dev-gamepad.hpp"
+#include "dev-tracker.hpp"
 #include "mode-edit.hpp"
 #include "mode-play.hpp"
 #include "mode-info.hpp"
@@ -30,17 +31,11 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 {
     std::string input_mode = conf->get_s("input_mode");
 
-    // Initialize the demo configuration.
-
-/*
-    tracker_head_sensor = conf->get_i("tracker_head_sensor");
-    tracker_hand_sensor = conf->get_i("tracker_hand_sensor");
-*/
-
     // Initialize the input handler.
 
-    if (input_mode == "mouse")   input = new dev::mouse  (universe);
-    if (input_mode == "gamepad") input = new dev::gamepad(universe);
+    if      (input_mode == "gamepad") input = new dev::gamepad(universe);
+    else if (input_mode == "tracker") input = new dev::tracker(universe);
+    else                              input = new dev::mouse  (universe);
 
     // Initialize attract mode.
 
@@ -194,47 +189,6 @@ void demo::timer(int t)
                 attr_on();
         }
     }
-/*
-        double kp = dt * universe.rate();
-        double kr = dt * view_turn_rate;
-
-        double dP[3];
-        double dR[3];
-        double dz[3];
-        double dy[3];
-
-        dP[0] = curr_P[ 0] - init_P[ 0];
-        dP[1] = curr_P[ 1] - init_P[ 1];
-        dP[2] = curr_P[ 2] - init_P[ 2];
-        
-        dy[0] = init_R[ 4] - curr_R[ 4];
-        dy[1] = init_R[ 5] - curr_R[ 5];
-        dy[2] = init_R[ 6] - curr_R[ 6];
-
-        dz[0] = init_R[ 8] - curr_R[ 8];
-        dz[1] = init_R[ 9] - curr_R[ 9];
-        dz[2] = init_R[10] - curr_R[10];
-
-        if (button[1])
-        {
-            dR[0] =  DOT3(dz, init_R + 4);
-            dR[1] = -DOT3(dz, init_R + 0);
-            dR[2] =  DOT3(dy, init_R + 0);
-
-            user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
-            user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
-        }
-        else if (button[3])
-        {
-            dR[0] =  DOT3(dz, init_R + 4);
-            dR[1] =  0;
-            dR[2] = -DOT3(dz, init_R + 0);
-
-            user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
-            user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
-        }
-        else
-*/
 
     if (curr)
         curr->timer(t);
@@ -257,11 +211,6 @@ void demo::prep(app::frustum_v& frusta)
 
 void demo::draw(int i)
 {
-/*
-    GLfloat A[4] = { 0.45f, 0.50f, 0.55f, 0.0f };
-    GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
-*/
-
     GLfloat A[4] = { 0.25f, 0.25f, 0.25f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 1.00f, 0.0f };
 

@@ -426,15 +426,15 @@ void app::host::root_loop()
             double v;
             bool   b;
 
-            if (tracker_button(0, b)) click(1, 0, 0, b);
-            if (tracker_button(1, b)) click(1, 1, 0, b);
-            if (tracker_button(2, b)) click(1, 2, 0, b);
+            if (tracker_button(0, b)) click(0, 0, 0, b);
+            if (tracker_button(1, b)) click(0, 1, 0, b);
+            if (tracker_button(2, b)) click(0, 2, 0, b);
 
-            if (tracker_values(0, v)) value(1, 0, v);
-            if (tracker_values(1, v)) value(1, 1, v);
+            if (tracker_values(0, v)) value(0, 0, v);
+            if (tracker_values(1, v)) value(0, 1, v);
 
-            if (tracker_sensor(0, p, q)) point(1, p, q);
-            if (tracker_sensor(1, p, q)) point(2, p, q);
+            if (tracker_sensor(0, p, q)) point(0, p, q);
+            if (tracker_sensor(1, p, q)) point(1, p, q);
         }
 
         // Call the timer handler for each jiffy that has passed.
