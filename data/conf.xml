@@ -31,6 +31,22 @@
   <option type="int" name="tracker_key">4126</option>
   <option type="int" name="control_key">4127</option>
 
+  <!-- Gamepad input configuration -->
+
+  <option type="int" name="gamepad_device">0</option>
+  <option type="int" name="gamepad_axis_X">0</option>
+  <option type="int" name="gamepad_axis_Y">1</option>
+  <option type="int" name="gamepad_axis_Z">3</option>
+  <option type="int" name="gamepad_axis_A">5</option>
+  <option type="int" name="gamepad_axis_T">6</option>
+
+  <option type="int" name="gamepad_butn_L">3</option>
+  <option type="int" name="gamepad_butn_R">1</option>
+  <option type="int" name="gamepad_butn_D">2</option>
+  <option type="int" name="gamepad_butn_U">5</option>
+  <option type="int" name="gamepad_butn_F">4</option>
+  <option type="int" name="gamepad_butn_B">0</option>
+
   <!-- GUI options -->
 
   <option type="string" name="sans_font">FreeSans.ttf</option>
@@ -88,11 +104,10 @@
   <option type="string" name="shadows">map</option>
   <option type="string" name="z_only">false</option>
 
-
   <!-- Navigation options. -->
 
   <option type="float" name="view_move_rate">1.000000</option>
-  <option type="float" name="view_turn_rate">90.00000</option>
+  <option type="float" name="view_turn_rate">60.00000</option>
 
   <!-- Misc. options -->
 

@@ -34,9 +34,9 @@ dev::mouse::mouse(uni::universe& universe) :
     view_move_rate = conf->get_f("view_move_rate");
     view_turn_rate = conf->get_f("view_turn_rate");
 
-    init_P[0] = curr_P[0] = 0;
-    init_P[1] = curr_P[1] = 0;
-    init_P[2] = curr_P[2] = 0;
+    motion[0] = 0;
+    motion[1] = 0;
+    motion[2] = 0;
 
     load_idt(init_R);
     load_idt(curr_R);
@@ -102,12 +102,12 @@ bool dev::mouse::keybd(int c, int k, int m, bool d)
 
     modifiers = m;
 
-    if      (k == key_move_L) { curr_P[0] -= dd; return true; }
-    else if (k == key_move_R) { curr_P[0] += dd; return true; }
-    else if (k == key_move_D) { curr_P[1] -= dd; return true; }
-    else if (k == key_move_U) { curr_P[1] += dd; return true; }
-    else if (k == key_move_F) { curr_P[2] -= dd; return true; }
-    else if (k == key_move_B) { curr_P[2] += dd; return true; }
+    if      (k == key_move_L) { motion[0] -= dd; return true; }
+    else if (k == key_move_R) { motion[0] += dd; return true; }
+    else if (k == key_move_D) { motion[1] -= dd; return true; }
+    else if (k == key_move_U) { motion[1] += dd; return true; }
+    else if (k == key_move_F) { motion[2] -= dd; return true; }
+    else if (k == key_move_B) { motion[2] += dd; return true; }
     
     else if (d)
     {
@@ -119,17 +119,11 @@ bool dev::mouse::keybd(int c, int k, int m, bool d)
 
 bool dev::mouse::timer(int t)
 {
-    double dt = t / 1000.0;
+    double kp = t * universe.move_rate() / 1000.0;
 
-    double dP[3], kp = dt * universe.rate();
+    user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
 
-    dP[0] = curr_P[0] - init_P[0];
-    dP[1] = curr_P[1] - init_P[1];
-    dP[2] = curr_P[2] - init_P[2];
-
-    user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
-
-    if (DOT3(dP, dP) > 0.1)
+    if (DOT3(motion, motion) > 0)
         return true;
     else
         return false;

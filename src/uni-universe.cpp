@@ -87,7 +87,16 @@ void uni::universe::draw(int i)
     S[0]->draw(i);
 }
 
-double uni::universe::rate() const
+double uni::universe::turn_rate() const
+{
+    double a = S[0] ? S[0]->altitude() : 1.0;
+
+    double k = a * 360.0 / 1e8;
+
+    return std::min(k, 30.0);
+}
+
+double uni::universe::move_rate() const
 {
     return S[0] ? S[0]->altitude() : 1.0;
 }

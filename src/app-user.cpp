@@ -199,6 +199,8 @@ void app::user::turn(double rx, double ry, double rz, const double *R)
     turn(rx, ry, rz);
     mult_mat_mat(current_M, current_M, T);
 
+    orthonormalize(current_M);
+
     load_inv(current_I, current_M);
 }
 
@@ -229,6 +231,8 @@ void app::user::turn(double rx, double ry, double rz)
     Lmul_rot_mat(current_M, yx, yy, yz, ry);
     Lmul_rot_mat(current_M, zx, zy, zz, rz);
     Lmul_xlt_mat(current_M, px, py, pz);
+
+    orthonormalize(current_M);
 
     load_inv(current_I, current_M);
 }

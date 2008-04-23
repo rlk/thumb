@@ -19,6 +19,7 @@
 #include "app-user.hpp"
 #include "app-host.hpp"
 #include "dev-mouse.hpp"
+#include "dev-gamepad.hpp"
 #include "mode-edit.hpp"
 #include "mode-play.hpp"
 #include "mode-info.hpp"
@@ -38,7 +39,8 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 
     // Initialize the input handler.
 
-    if (input_mode == "mouse") input = new dev::mouse(universe);
+    if (input_mode == "mouse")   input = new dev::mouse  (universe);
+    if (input_mode == "gamepad") input = new dev::gamepad(universe);
 
     // Initialize attract mode.
 
@@ -273,7 +275,7 @@ void demo::draw(int i)
         glEnable(GL_NORMALIZE);
         glEnable(GL_LIGHTING);
 
-        glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
+        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         universe.draw(i);

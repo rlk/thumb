@@ -41,8 +41,10 @@ namespace uni
         void prep(app::frustum_v&);
         void draw(int);
 
-        double rate() const;
-        void   turn(double=0, double=0);
+        double turn_rate() const;
+        double move_rate() const;
+
+        void turn(double=0, double=0);
 
         const double *get_p() const { return S[0] ? S[0]->get_p() : 0; }
 

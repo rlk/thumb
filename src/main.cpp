@@ -193,7 +193,7 @@ static void init(const char *tag)
 
     // Initialize the controllers.
 
-    if ((joy = SDL_JoystickOpen(conf->get_i("joystick"))))
+    if ((joy = SDL_JoystickOpen(conf->get_i("gamepad_device"))))
         SDL_JoystickEventState(SDL_ENABLE);
 
     int tracker_key = conf->get_i("tracker_key");

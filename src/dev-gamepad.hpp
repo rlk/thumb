@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DEV_MOUSE
-#define DEV_MOUSE
+#ifndef DEV_GAMEPAD
+#define DEV_GAMEPAD
 
 #include <vector>
 
@@ -22,36 +22,38 @@
 
 namespace dev
 {
-    class mouse : public input
+    class gamepad : public input
     {
         uni::universe& universe;
 
-        int key_move_L;
-        int key_move_R;
-        int key_move_D;
-        int key_move_U;
-        int key_move_F;
-        int key_move_B;
+        int gamepad_axis_X;
+        int gamepad_axis_Y;
+        int gamepad_axis_Z;
+        int gamepad_axis_A;
+        int gamepad_axis_T;
+
+        int gamepad_butn_L;
+        int gamepad_butn_R;
+        int gamepad_butn_D;
+        int gamepad_butn_U;
+        int gamepad_butn_F;
+        int gamepad_butn_B;
 
         double view_move_rate;
         double view_turn_rate;
 
         std::vector<bool> button;
 
-        int modifiers;
-
-        double init_R[16];
-        double curr_R[16];
         int    motion[3];
+        double rotate[5];
 
     public:
 
-        mouse(uni::universe&);
-       ~mouse();
+        gamepad(uni::universe&);
+       ~gamepad();
 
-        virtual bool point(int, const double *, const double *);
         virtual bool click(int, int, int, bool);
-        virtual bool keybd(int, int, int, bool);
+        virtual bool value(int, int, double);
         virtual bool timer(int);
     };
 }
