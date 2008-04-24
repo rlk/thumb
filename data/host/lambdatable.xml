@@ -1,76 +1,84 @@
 <?xml version="1.0"?>
-<host>
-
-  <gui w="1024" h="768">
-      <corner name="BL" x="-3.301" y="-1.395" z="-5.0"/>
-      <corner name="BR" x="-1.197" y="-1.395" z="-5.0"/>
-      <corner name="TL" x="-3.301" y="-0.072" z="-5.0"/>
-  </gui>
-
-  <buffer w="640" h="480"/>
-
-  <node name="teiburu" port="2827">
-    <client name="teiburu1" addr="teiburu1-10"/>
-    <client name="teiburu2" addr="teiburu2-10"/>
-    <client name="teiburu3" addr="teiburu3-10"/>
-    <window x="0" y="0" w="1024" h="768"/>
-    <tile>
-      <viewport x="0" y="0" w="1024" h="768"/>
-      <corner name="BL" x="-0.666" y="-0.5" z="-2.0"/>
-      <corner name="BR" x=" 0.666" y="-0.5" z="-2.0"/>
-      <corner name="TL" x="-0.666" y=" 0.5" z="-2.0"/>
-    </tile>
-  </node>
-
-  <node name="teiburu3">
-    <server addr="teiburu" port="2827"/>
-    <window x="0" y="0" w="2560" h="3200"/>
-    <tile>
-      <viewport x="0" y="0"    w="2560" h="1600"/>
-      <corner name="BL" x="-3.301" y="-1.395" z="-5.0"/>
-      <corner name="BR" x="-1.197" y="-1.395" z="-5.0"/>
-      <corner name="TL" x="-3.301" y="-0.072" z="-5.0"/>
-    </tile>
-    <tile>
-      <viewport x="0" y="1600" w="2560" h="1600"/>
-      <corner name="BL" x="-3.301" y=" 0.072" z="-5.0"/>
-      <corner name="BR" x="-1.197" y=" 0.072" z="-5.0"/>
-      <corner name="TL" x="-3.301" y=" 1.395" z="-5.0"/>
-    </tile>
-  </node>
-
-  <node name="teiburu2">
-    <server addr="teiburu" port="2827"/>
-    <window x="0" y="0" w="2560" h="3200"/>
-    <tile>
-      <viewport x="0" y="0"    w="2560" h="1600"/>
-      <corner name="BL" x="-1.052" y="-1.395" z="-5.0"/>
-      <corner name="BR" x=" 1.052" y="-1.395" z="-5.0"/>
-      <corner name="TL" x="-1.052" y="-0.072" z="-5.0"/>
-    </tile>
-    <tile>
-      <viewport x="0" y="1600" w="2560" h="1600"/>
-      <corner name="BL" x="-1.052" y=" 0.072" z="-5.0"/>
-      <corner name="BR" x=" 1.052" y=" 0.072" z="-5.0"/>
-      <corner name="TL" x="-1.052" y=" 1.395" z="-5.0"/>
-    </tile>
-  </node>
-
-  <node name="teiburu1">
-    <server addr="teiburu" port="2827"/>
-    <window x="0" y="0" w="2560" h="3200"/>
-    <tile>
-      <viewport x="0" y="0"    w="2560" h="1600"/>
-      <corner name="BL" x=" 1.197" y="-1.395" z="-5.0"/>
-      <corner name="BR" x=" 3.301" y="-1.395" z="-5.0"/>
-      <corner name="TL" x=" 1.197" y="-0.072" z="-5.0"/>
-    </tile>
-    <tile>
-      <viewport x="0" y="1600" w="2560" h="1600"/>
-      <corner name="BL" x=" 1.197" y=" 0.072" z="-5.0"/>
-      <corner name="BR" x=" 3.301" y=" 0.072" z="-5.0"/>
-      <corner name="TL" x=" 1.197" y=" 1.395" z="-5.0"/>
-    </tile>
-  </node>
-
-</host>
+  <host>
+  
+<!--<buffer w="2560" h="1600"/>-->
+    <buffer w="1280" h="800"/>
+  
+    <node name="lambdatable" port="2827">
+      <client name="lambdatable1" addr="teiburu1-10"/>
+      <client name="lambdatable2" addr="teiburu2-10"/>
+      <client name="lambdatable3" addr="teiburu3-10"/>
+      <window x="0" y="0" w="1024" h="768"/>
+      <tile>
+        <viewport x="0" y="0" w="1024" h="768"/>
+        <frustum>
+          <corner name="BL" x="-0.666" y="-0.5" z="-2.0"/>
+          <corner name="BR" x=" 0.666" y="-0.5" z="-2.0"/>
+          <corner name="TL" x="-0.666" y=" 0.5" z="-2.0"/>
+        </frustum>
+      </tile>
+    </node>
+  
+    <node name="lambdatable3">
+      <server addr="teiburu" port="2827"/>
+      <window x="0" y="0" w="2560" h="3200" full="1"/>
+      <tile>
+        <viewport x="0" y="0"    w="2560" h="1600"/>
+        <frustum>
+          <corner name="BL" x="-3.301" y="-1.395" z="-5.0"/>
+          <corner name="BR" x="-1.197" y="-1.395" z="-5.0"/>
+          <corner name="TL" x="-3.301" y="-0.072" z="-5.0"/>
+        </frustum>
+      </tile>
+      <tile>
+        <viewport x="0" y="1600" w="2560" h="1600"/>
+        <frustum>
+          <corner name="BL" x="-3.301" y=" 0.072" z="-5.0"/>
+          <corner name="BR" x="-1.197" y=" 0.072" z="-5.0"/>
+          <corner name="TL" x="-3.301" y=" 1.395" z="-5.0"/>
+        </frustum>
+      </tile>
+    </node>
+  
+    <node name="lambdatable2">
+      <server addr="teiburu" port="2827"/>
+      <window x="0" y="0" w="2560" h="3200" full="1"/>
+      <tile>
+        <viewport x="0" y="0"    w="2560" h="1600"/>
+        <frustum>
+          <corner name="BL" x="-1.052" y="-1.395" z="-5.0"/>
+          <corner name="BR" x=" 1.052" y="-1.395" z="-5.0"/>
+          <corner name="TL" x="-1.052" y="-0.072" z="-5.0"/>
+        </frustum>
+      </tile>
+      <tile>
+        <viewport x="0" y="1600" w="2560" h="1600"/>
+        <frustum>
+          <corner name="BL" x="-1.052" y=" 0.072" z="-5.0"/>
+          <corner name="BR" x=" 1.052" y=" 0.072" z="-5.0"/>
+          <corner name="TL" x="-1.052" y=" 1.395" z="-5.0"/>
+        </frustum>
+      </tile>
+    </node>
+  
+    <node name="lambdatable1">
+      <server addr="teiburu" port="2827"/>
+      <window x="0" y="0" w="2560" h="3200" full="1"/>
+      <tile>
+        <viewport x="0" y="0"    w="2560" h="1600"/>
+        <frustum>
+          <corner name="BL" x=" 1.197" y="-1.395" z="-5.0"/>
+          <corner name="BR" x=" 3.301" y="-1.395" z="-5.0"/>
+          <corner name="TL" x=" 1.197" y="-0.072" z="-5.0"/>
+        </frustum>
+      </tile>
+      <tile>
+        <viewport x="0" y="1600" w="2560" h="1600"/>
+        <frustum>
+          <corner name="BL" x=" 1.197" y=" 0.072" z="-5.0"/>
+          <corner name="BR" x=" 3.301" y=" 0.072" z="-5.0"/>
+          <corner name="TL" x=" 1.197" y=" 1.395" z="-5.0"/>
+        </frustum>
+      </tile>
+    </node>
+  </host>
