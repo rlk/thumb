@@ -41,6 +41,8 @@ namespace uni
 
         bool ret;
 
+        void swab();
+
     public:
 
         buffer(int, int, int, int);

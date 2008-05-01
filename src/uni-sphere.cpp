@@ -99,7 +99,7 @@ uni::sphere::sphere(uni::geodat& dat,
 
     atmo_pool = glob->new_pool();
     atmo_node = new ogl::node();
-    atmo_unit = new ogl::unit("solid/inverted_sphere.obj");
+    atmo_unit = new ogl::unit("solid/inverted-sphere-5.obj");
 
     atmo_pool->add_node(atmo_node);
     atmo_node->add_unit(atmo_unit);

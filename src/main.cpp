@@ -144,7 +144,9 @@ static void video()
     if (m & SDL_NOFRAME)
     {
         SDL_ShowCursor(SDL_DISABLE);
-        position(x, y);
+
+        if ((m & SDL_FULLSCREEN) == 0)
+            position(x, y);
     }
 
     // Initialize the video.
@@ -159,7 +161,7 @@ static void video()
     ogl::init();
 }
 
-static void init(const char *tag)
+static void init(std::string tag)
 {
     // Initialize data access and configuration.
 
@@ -171,11 +173,16 @@ static void init(const char *tag)
     std::string lang_conf = conf->get_s("lang_file");
     std::string host_conf = conf->get_s("host_file");
 
-    if (conf->get_i("tag_host_file"))
-        host_conf = host_conf + tag + ".xml";
+    if (lang_conf.empty()) lang_conf = DEFAULT_LANG_FILE;
+    if (host_conf.empty()) host_conf = DEFAULT_HOST_FILE;
 
-    lang = new app::lang(lang_conf.empty() ? DEFAULT_LANG_FILE : lang_conf);
-    host = new app::host(host_conf.empty() ? DEFAULT_HOST_FILE : host_conf, tag);
+    // If the given tag is an XML file name, use it as config file.
+
+    if (tag.size() > 4 && tag.rfind(".xml") == tag.size() - 4)
+        host_conf = tag;
+
+    lang = new app::lang(lang_conf);
+    host = new app::host(host_conf, tag);
 
     // Initialize the OpenGL context.
 
@@ -236,7 +243,7 @@ int main(int argc, char *argv[])
 
             SDL_EnableUNICODE(1);
 
-            init(argc > 1 ? argv[1] : DEFAULT_TAG);
+            init(std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
             {
                 host->loop();
             }

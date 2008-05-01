@@ -561,22 +561,19 @@ void app::host::loop()
 
 void app::host::draw()
 {
-//  if (!calibrate_state)
-    {
-        std::vector<frustum *> frusta;
+    std::vector<frustum *> frusta;
 
-        // Acculumate a list of frusta and preprocess the app.
+    // Acculumate a list of frusta and preprocess the app.
 
-        for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-            (*i)->prep(views, frusta);
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        (*i)->prep(views, frusta);
 
-        ::prog->prep(frusta);
-    }
+    ::prog->prep(frusta);
 
     // Render all tiles.
     
-    glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+//  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+//  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     int c = 0;
 
@@ -633,14 +630,6 @@ void app::host::point(int i, const double *p, const double *q)
         M.put_real(q[3]);
 
         send(M);
-    }
-
-    // Calibrating a tile?
-
-    if (calibrate_state)
-    {
-        if (tile_input_point(i, p, q))
-            return;
     }
 
     // Let the application have the click event.

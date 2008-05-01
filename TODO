@@ -1,10 +1,11 @@
+isn't there a brief optimization somewhere in mipmap.frag?
+is the primary depth buffer necessary?
+
+
 Fix cracking between cached pages.
 Fix cracking between spatches.
 
 Generalize geomap to work with sizes other than 512x256.
-
-Fix the varrier.
-Fix the tracking interaction.
 
 -------------------------------------------------------------------------------
 

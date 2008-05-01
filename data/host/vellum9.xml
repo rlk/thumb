@@ -1,0 +1,50 @@
+ <?xml version="1.0"?>
+   <host>
+     <view x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0" />
+     <view x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1" />
+     <buffer w="320" h="240" />
+     <node name="host/vellum9.xml">
+       <server addr="vellum" port="2827" />
+       <window x="0" y="0" w="3200" h="2400" frame="0" />
+       <tile index="33">
+         <viewport x="0" y="0" w="1600" h="1200" />
+         <frustum>
+           <corner name="BL" x="  2.7136" y="  3.7108" z=" -4.0478" />
+           <corner name="BR" x="  3.7625" y="  3.7108" z=" -3.2301" />
+           <corner name="TL" x="  2.7136" y="  4.7108" z=" -4.0478" />
+         </frustum>
+         <disp type="varrier" pitch="536.853420" angle="-10.430000"
+thick="0.023800" shift="-0.002750" cycle="0.750000" />
+       </tile>
+       <tile index="34">
+         <viewport x="0" y="1200" w="1600" h="1200" />
+         <frustum>
+           <corner name="BL" x="  3.8294" y="  3.7043" z=" -3.1712" />
+           <corner name="BR" x="  4.5261" y="  3.7043" z=" -2.0383" />
+           <corner name="TL" x="  3.8294" y="  4.7043" z=" -3.1712" />
+         </frustum>
+         <disp type="varrier" pitch="536.85342" angle="-10.460"
+thick="0.0235" shift="-0.00120" cycle="0.75" />
+       </tile>
+       <tile index="35">
+         <viewport x="1600" y="0" w="1600" h="1200" />
+         <frustum>
+           <corner name="BL" x="  4.5557" y="  3.7101" z=" -1.9476" />
+           <corner name="BR" x="  4.8570" y="  3.7101" z=" -0.6522" />
+           <corner name="TL" x="  4.5557" y="  4.7101" z=" -1.9476" />
+         </frustum>
+         <disp type="varrier" pitch="536.85342" angle="-10.460"
+thick="0.0241" shift="0.00050" cycle="0.75" />
+       </tile>
+       <tile index="36">
+         <viewport x="1600" y="1200" w="1600" h="1200" />
+         <frustum>
+           <corner name="BL" x="  4.8522" y="  3.7051" z=" -0.5633" />
+           <corner name="BR" x="  4.8132" y="  3.7051" z="  0.7661" />
+           <corner name="TL" x="  4.8522" y="  4.7051" z=" -0.5633" />
+         </frustum>
+         <disp type="varrier" pitch="536.85342" angle="-10.500"
+thick="0.0233" shift="-0.00100" cycle="0.75" />
+       </tile>
+     </node>
+   </host>

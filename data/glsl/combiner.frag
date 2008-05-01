@@ -11,7 +11,7 @@ uniform vec2 frag_d;
 
 void main()
 {
-    vec2 p = (gl_FragCoord.xy + frag_d) * frag_k;
+    vec2 p = gl_FragCoord.xy * frag_k + frag_d;
 
     const vec4 L = texture2DRect(L_map, p);
     const vec4 R = texture2DRect(R_map, p);

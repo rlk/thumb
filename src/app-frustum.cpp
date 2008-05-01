@@ -248,11 +248,11 @@ void app::frustum::calc_user_planes(const double *p)
 
     double v[3];
 
-    v[0] = p[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
-    v[1] = p[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
-    v[2] = p[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
+    v[0] = user_pos[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
+    v[1] = user_pos[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
+    v[2] = user_pos[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
 
-    mult_mat_vec3(disp_pos, user_basis, v);
+    mult_xps_vec3(disp_pos, user_basis, v);
 
     // Compute the user-space view frustum bounding planes.
 

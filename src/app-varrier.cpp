@@ -98,8 +98,8 @@ bool app::varrier::input_keybd(int c, int k, int m, bool d)
         {
             if      (k == SDLK_LEFT)  { shift -= 0.00005; b = true; }
             else if (k == SDLK_RIGHT) { shift += 0.00005; b = true; }
-            else if (k == SDLK_DOWN)  { thick -= 0.00010; b = true; }
-            else if (k == SDLK_UP)    { thick += 0.00010; b = true; }
+            else if (k == SDLK_DOWN)  { thick += 0.00010; b = true; }
+            else if (k == SDLK_UP)    { thick -= 0.00010; b = true; }
         }
     }
 
@@ -227,6 +227,7 @@ void app::varrier::draw(view_v& views, int &i, bool calibrate)
                 const GLubyte *c = views[0]->get_c();
                 glClearColor(c[0], c[1], c[2], c[3]);
                 glClear(GL_COLOR_BUFFER_BIT);
+                i++;
             }
             else ::prog->draw(i++);
         }
@@ -241,6 +242,7 @@ void app::varrier::draw(view_v& views, int &i, bool calibrate)
                 const GLubyte *c = views[1]->get_c();
                 glClearColor(c[0], c[1], c[2], c[3]);
                 glClear(GL_COLOR_BUFFER_BIT);
+                i++;
             }
             else ::prog->draw(i++);
         }

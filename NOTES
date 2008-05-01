@@ -1,5 +1,25 @@
 -------------------------------------------------------------------------------
 
+vellum no sync
+
+128/4 8x8 8x4 nearest 640x480   59ms
+128/3 8x8 8x4 nearest 640x480   49ms
+ 64/4 8x8 8x4 nearest 640x480   54ms
+ 64/3 8x8 8x4 nearest 640x480   48ms
+ 64/3 8x8 8x4 best    640x480   44ms
+ 64/3 8x4 8x4 best    640x480   44ms
+ 64/3 8x8 8x8 best    640x480   44ms
+256/3 8x8 8x8 best    640x480   52ms
+256/3 8x8 8x8 linear  640x480   63ms
+256/3 8x8 8x8 best    320x240   39ms
+256/3 8x8 8x8 best    512x384   43ms
+256/3 8x8 8x8 best    640x480   50ms  optimization C.xy
+256/3 8x8 8x8 best    640x480   50ms  optimization over_pool
+256/3 8x8 8x8 best    640x480   38ms  atmo 0
+256/3 8x8 8x8 best    640x480   42ms  reduced sphere
+
+-------------------------------------------------------------------------------
+
 nearest nearest
        PS  61%
        FPS 184

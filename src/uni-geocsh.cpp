@@ -64,6 +64,46 @@ uni::buffer::~buffer()
     if (dat) delete [] dat;
 }
 
+//-----------------------------------------------------------------------------
+
+#define SWAB32(d) (d) = ((((d) & 0xFF00FF00) >> 8) | \
+                         (((d) & 0x00FF00FF) << 8));
+
+void uni::buffer::swab()
+{
+    int i, m, n = w * h * c * b;
+
+    unsigned int *q = (unsigned int *) dat;
+
+    if (n % 64 == 0)
+    {
+        for (i = 0, m = n >> 2; i < m; i += 16)
+        {
+            SWAB32(q[i +  0]);
+            SWAB32(q[i +  1]);
+            SWAB32(q[i +  2]);
+            SWAB32(q[i +  3]);
+            SWAB32(q[i +  4]);
+            SWAB32(q[i +  5]);
+            SWAB32(q[i +  6]);
+            SWAB32(q[i +  7]);
+            SWAB32(q[i +  8]);
+            SWAB32(q[i +  9]);
+            SWAB32(q[i + 10]);
+            SWAB32(q[i + 11]);
+            SWAB32(q[i + 12]);
+            SWAB32(q[i + 13]);
+            SWAB32(q[i + 14]);
+            SWAB32(q[i + 15]);
+        }
+    }
+    else
+    {
+        for (i = 0, m = n >> 2; i < m; ++i)
+            SWAB32(q[i]);
+    }
+}
+
 uni::buffer *uni::buffer::load(std::string name)
 {
     png_structp rp = 0;
@@ -71,8 +111,6 @@ uni::buffer *uni::buffer::load(std::string name)
     FILE       *fp = 0;
 
     ret = false;
-
-//  std::cout << name << std::endl;
 
     // Initialize all PNG import data structures.
 
@@ -95,16 +133,7 @@ uni::buffer *uni::buffer::load(std::string name)
                         png_get_bit_depth   (rp, ip) == b * 8)
                     {
                         png_read_image(rp, row);
-
-                        // TODO: optimize swab
-
-                        if (b == 2)
-                            for (png_uint_32 i = 0; i < w * h * c * b; i += 2)
-                            {
-                                GLubyte t  = dat[i + 0];
-                                dat[i + 0] = dat[i + 1];
-                                dat[i + 1] = t;
-                            }
+                        if (b == 2) swab();
 
                         ret = true;
                     }

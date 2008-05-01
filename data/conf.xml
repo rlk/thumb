@@ -25,10 +25,15 @@
 
   <!-- Tracker configuration -->
 
-  <option type="int" name="tracker_head_sensor">0</option>
-  <option type="int" name="tracker_hand_sensor">1</option>
   <option type="int" name="tracker_key">4126</option>
   <option type="int" name="control_key">4127</option>
+
+  <option type="int" name="tracker_head_sensor">0</option>
+  <option type="int" name="tracker_hand_sensor">1</option>
+  <option type="int" name="tracker_axis_A">0</option>
+  <option type="int" name="tracker_axis_T">1</option>
+  <option type="int" name="tracker_butn_fly">0</option>
+  <option type="int" name="tracker_butn_home">2</option>
 
   <!-- Gamepad input configuration -->
 

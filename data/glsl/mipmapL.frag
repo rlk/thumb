@@ -32,7 +32,7 @@ vec4 cacherefL(vec2 c, float l)
 
     // TODO: optimize
 
-    vec2 q = (tile_size * fract(p) + C.xy + 1.0) / pool_size;
+    vec2 q = (tile_size * fract(p) + C.xy) * over_pool;
 
     // Return the color in the cache.
 

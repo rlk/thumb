@@ -22,12 +22,8 @@ vec4 cacheref0(vec2 c)
 
     // TODO: optimize
 
-    vec2 q = (tile_size * fract(p) + C.xy + 1.0) / pool_size;
-/*
-    vec2 q = (tile_over_pool * fract(p) +
-              page_over_pool * C.xy     +
-              step_over_pool);
-*/
+    vec2 q = (tile_size * fract(p) + C.xy) * over_pool;
+
     // Return the color in the cache.
 
     return texture2D(cache, q);
