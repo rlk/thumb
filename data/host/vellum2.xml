@@ -2,7 +2,7 @@
    <host>
      <view x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0" />
      <view x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1" />
-     <buffer w="320" h="240" />
+     <buffer w="640" h="480" />
      <node name="host/vellum2.xml">
        <server addr="vellum" port="2827" />
        <window x="0" y="0" w="3200" h="2400" frame="0" />
@@ -14,7 +14,7 @@
            <corner name="TL" x=" -2.6867" y="  2.5383" z=" -4.2895" />
          </frustum>
          <disp type="varrier" pitch="536.853420" angle="-10.480000"
-thick="0.023700" shift="-0.000800" cycle="0.750000" />
+thick="0.023700" shift="-0.000650" cycle="0.750000" />
        </tile>
        <tile index="6">
          <viewport x="0" y="1200" w="1600" h="1200" />
@@ -24,7 +24,7 @@ thick="0.023700" shift="-0.000800" cycle="0.750000" />
            <corner name="TL" x=" -1.3612" y="  2.5348" z=" -4.7881" />
          </frustum>
          <disp type="varrier" pitch="536.853420" angle="-10.510000"
-thick="0.023900" shift="-0.001000" cycle="0.750000" />
+thick="0.023900" shift="-0.000650" cycle="0.750000" />
        </tile>
        <tile index="7">
          <viewport x="1600" y="0" w="1600" h="1200" />
@@ -34,7 +34,7 @@ thick="0.023900" shift="-0.001000" cycle="0.750000" />
            <corner name="TL" x="  0.0483" y="  2.5439" z=" -4.9570" />
          </frustum>
          <disp type="varrier" pitch="536.853420" angle="-10.485000"
-thick="0.025200" shift="-0.000400" cycle="0.750000" />
+thick="0.024600" shift="-0.000200" cycle="0.750000" />
        </tile>
        <tile index="8">
          <viewport x="1600" y="1200" w="1600" h="1200" />
@@ -44,7 +44,7 @@ thick="0.025200" shift="-0.000400" cycle="0.750000" />
            <corner name="TL" x="  1.4365" y="  2.5349" z=" -4.6690" />
          </frustum>
          <disp type="varrier" pitch="536.853420" angle="-10.470000"
-thick="0.023300" shift="0.000200" cycle="0.750000" />
+thick="0.023400" shift="0.000250" cycle="0.750000" />
        </tile>
      </node>
    </host>

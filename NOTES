@@ -1,5 +1,25 @@
 -------------------------------------------------------------------------------
 
+main  while working
+main      available += map oldest working
+
+load  loader buffer = available--
+load  loaded += loader buffer
+
+load  loader buffer = available--
+load  loaded += loader buffer
+
+main  new = loaded--
+main  unmap new
+main  gltexsubimage new
+main  working += new
+
+all working buffers are transferring...
+
+
+
+-------------------------------------------------------------------------------
+
 vellum no sync
 
 128/4 8x8 8x4 nearest 640x480   59ms

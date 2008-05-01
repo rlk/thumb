@@ -25,6 +25,7 @@ namespace app
         frustum *frustL;
         frustum *frustR;
 
+        int count;
         int x;
         int y;
         int w;

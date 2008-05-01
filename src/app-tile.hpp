@@ -44,8 +44,9 @@ namespace app
 
         bool pick(double *, double *, int, int);
 
-        void set_type(int i) { current = i; }
         bool is_index(int i) const { return (i == index); }
+
+        void cycle() { current = (current + 1) % display.size(); }
     };
 
     typedef std::vector<tile *>           tile_v;

@@ -31,6 +31,8 @@ app::varrier::varrier(app::node tile,
 {
     app::node curr;
 
+    count = 0;
+
     x = window[0];
     y = window[1];
     w = window[2];
@@ -233,6 +235,7 @@ void app::varrier::draw(view_v& views, int &i, bool calibrate)
         }
         views[0]->free();
     }
+
     if (views[1])
     {
         views[1]->bind();
@@ -248,6 +251,8 @@ void app::varrier::draw(view_v& views, int &i, bool calibrate)
         }
         views[1]->free();
     }
+
+    count++;
 
     if (P)
     {

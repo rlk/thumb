@@ -10,10 +10,10 @@
 
     <client name="host/vellum1.xml" addr="vellum15-10"/>
     <client name="host/vellum2.xml" addr="vellum10-10"/>
-    <client name="host/vellum3.xml" addr="vellum5-10" />
+<!--<client name="host/vellum3.xml" addr="vellum5-10" />-->
     <client name="host/vellum4.xml" addr="vellum14-10"/>
     <client name="host/vellum5.xml" addr="vellum9-10" />
-    <client name="host/vellum6.xml" addr="vellum4-10" />
+<!--<client name="host/vellum6.xml" addr="vellum4-10" />-->
     <client name="host/vellum7.xml" addr="vellum13-10"/>
     <client name="host/vellum8.xml" addr="vellum8-10" />
     <client name="host/vellum9.xml" addr="vellum3-10" />

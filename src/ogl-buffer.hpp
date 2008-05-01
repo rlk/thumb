@@ -28,7 +28,7 @@ namespace ogl
 
     public:
 
-        buffer(GLenum, GLsizei, GLenum=GL_STREAM_DRAW_ARB);
+        buffer(GLenum, GLsizei, GLenum=GL_DYNAMIC_DRAW_ARB);
        ~buffer();
 
         void  bind()       const;

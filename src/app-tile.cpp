@@ -62,10 +62,9 @@ app::tile::tile(app::node node) : current(0)
 */
     }
 
-    // If no displays were configured, create a default normal display.
+    // Create a fall-back normal display.
 
-    if (display.empty()) 
-        display.push_back(new app::normal(node, 0, window));
+    display.push_back(new app::normal(node, 0, window));
 }
 
 app::tile::~tile()

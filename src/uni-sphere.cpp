@@ -439,18 +439,18 @@ void uni::sphere::step()
 
         // Update the data caches.
 
+        cache_h.init();
+        cache_h.seed(vp, r0, r1, height);
+        cache_h.proc(vp, r0, r1, frusta);
+
         cache_s.init();
         cache_s.seed(vp, r0, r1, color);
         cache_s.seed(vp, r0, r1, normal);
         cache_s.proc(vp, r0, r1, frusta);
 
-        cache_h.init();
-        cache_h.seed(vp, r0, r1, height);
-        cache_h.proc(vp, r0, r1, frusta);
-
-        color.proc();
-        normal.proc();
         height.proc();
+        normal.proc();
+        color.proc();
     }
 }
 

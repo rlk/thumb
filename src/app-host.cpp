@@ -684,9 +684,18 @@ void app::host::keybd(int c, int k, int m, bool d)
 
     if (d && (m & KMOD_CTRL))
     {
+        // Cycling display mode?
+
+        if (k == SDLK_RETURN)
+        {
+            for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
+                (*t)->cycle();
+            return;
+        }
+
         // Toggling calibration mode?
 
-        if (k == SDLK_TAB)
+        else if (k == SDLK_TAB)
         {
             calibrate_state = !calibrate_state;
             printf("state %d\n", calibrate_state);

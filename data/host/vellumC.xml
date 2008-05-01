@@ -2,7 +2,7 @@
    <host>
      <view x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0" />
      <view x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1" />
-     <buffer w="320" h="240" />
+     <buffer w="640" h="480" />
      <node name="host/vellumC.xml">
        <server addr="vellum" port="2827" />
        <window x="0" y="0" w="3200" h="2400" frame="0" />
@@ -14,7 +14,7 @@
            <corner name="TL" x="  2.7140" y="  5.8004" z=" -4.0516" />
          </frustum>
          <disp type="varrier" pitch="536.853420" angle="-10.480000"
-thick="0.024100" shift="-0.003350" cycle="0.750000" />
+thick="0.024100" shift="-0.003200" cycle="0.750000" />
        </tile>
        <tile index="46">
          <viewport x="0" y="1200" w="1600" h="1200" />
@@ -44,7 +44,7 @@ thick="0.023300" shift="-0.002800" cycle="0.750000" />
            <corner name="TL" x="  4.8563" y="  5.7941" z=" -0.5626" />
          </frustum>
          <disp type="varrier" pitch="536.853420" angle="-10.390000"
-thick="0.023900" shift="-0.002900" cycle="0.750000" />
+thick="0.023900" shift="-0.002850" cycle="0.750000" />
        </tile>
      </node>
    </host>

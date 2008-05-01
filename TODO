@@ -1,4 +1,10 @@
-isn't there a brief optimization somewhere in mipmap.frag?
+Add a varrier-mode mono option
+    Allow view objects to be disabled?
+
+Consider rechecking the tracker after the draw but before the combine.
+    Perhaps do the combine in response to the flip message.
+    And include a sensor update there.
+
 is the primary depth buffer necessary?
 
 

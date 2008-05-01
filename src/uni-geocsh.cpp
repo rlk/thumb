@@ -44,6 +44,10 @@ uni::buffer::buffer(int w, int h, int c, int b) :
     h(png_uint_32(h)),
     c(png_byte(c)),
     b(png_byte(b)),
+    dat(0),
+    row(0),
+    ptr(0),
+    pbo(GL_PIXEL_UNPACK_BUFFER_ARB, w * h * c * b),
     ret(false)
 {
     // Allocate a pixel buffer and an array of row pointers.
@@ -65,42 +69,46 @@ uni::buffer::~buffer()
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 #define SWAB32(d) (d) = ((((d) & 0xFF00FF00) >> 8) | \
                          (((d) & 0x00FF00FF) << 8));
+*/
+#define SWAB32(d) ((((d) & 0xFF00FF00) >> 8) | \
+                   (((d) & 0x00FF00FF) << 8));
 
-void uni::buffer::swab()
+void uni::buffer::swab(GLubyte *dst, GLubyte *src)
 {
-    int i, m, n = w * h * c * b;
+    unsigned int *d = (unsigned int *) dst;
+    unsigned int *s = (unsigned int *) src;
 
-    unsigned int *q = (unsigned int *) dat;
+    int i, m, n = w * h * c * b;
 
     if (n % 64 == 0)
     {
         for (i = 0, m = n >> 2; i < m; i += 16)
         {
-            SWAB32(q[i +  0]);
-            SWAB32(q[i +  1]);
-            SWAB32(q[i +  2]);
-            SWAB32(q[i +  3]);
-            SWAB32(q[i +  4]);
-            SWAB32(q[i +  5]);
-            SWAB32(q[i +  6]);
-            SWAB32(q[i +  7]);
-            SWAB32(q[i +  8]);
-            SWAB32(q[i +  9]);
-            SWAB32(q[i + 10]);
-            SWAB32(q[i + 11]);
-            SWAB32(q[i + 12]);
-            SWAB32(q[i + 13]);
-            SWAB32(q[i + 14]);
-            SWAB32(q[i + 15]);
+            d[i +  0] = SWAB32(s[i +  0]);
+            d[i +  1] = SWAB32(s[i +  1]);
+            d[i +  2] = SWAB32(s[i +  2]);
+            d[i +  3] = SWAB32(s[i +  3]);
+            d[i +  4] = SWAB32(s[i +  4]);
+            d[i +  5] = SWAB32(s[i +  5]);
+            d[i +  6] = SWAB32(s[i +  6]);
+            d[i +  7] = SWAB32(s[i +  7]);
+            d[i +  8] = SWAB32(s[i +  8]);
+            d[i +  9] = SWAB32(s[i +  9]);
+            d[i + 10] = SWAB32(s[i + 10]);
+            d[i + 11] = SWAB32(s[i + 11]);
+            d[i + 12] = SWAB32(s[i + 12]);
+            d[i + 13] = SWAB32(s[i + 13]);
+            d[i + 14] = SWAB32(s[i + 14]);
+            d[i + 15] = SWAB32(s[i + 15]);
         }
     }
     else
     {
         for (i = 0, m = n >> 2; i < m; ++i)
-            SWAB32(q[i]);
+            d[i] = SWAB32(s[i]);
     }
 }
 
@@ -133,7 +141,20 @@ uni::buffer *uni::buffer::load(std::string name)
                         png_get_bit_depth   (rp, ip) == b * 8)
                     {
                         png_read_image(rp, row);
-                        if (b == 2) swab();
+/*
+                        if (ptr)
+                        {
+                            if (b == 2)
+                                swab(ptr, dat);
+                            else
+                                memcpy(ptr, dat, w * h * c * b);
+                        }
+                        else
+*/
+                        {
+                            if (b == 2)
+                                swab(dat, dat);
+                        }
 
                         ret = true;
                     }
@@ -144,17 +165,24 @@ uni::buffer *uni::buffer::load(std::string name)
         fclose(fp);
     }
 
+//  std::cout << name << (ret ? " ok" : " FAIL") << std::endl;
+
     return this;
+}
+
+void uni::buffer::buff()
+{
+    glBufferSubDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0, w * h * c * b, dat);
 }
 
 //=============================================================================
 
-const GLenum uni::geocsh::form[2][4] = {
+const GLenum uni::geocsh::iform[2][4] = {
     {
         GL_LUMINANCE,
         GL_LUMINANCE_ALPHA,
-        GL_RGB,
-        GL_RGBA,
+        GL_RGB8,
+        GL_RGBA8,
     },
     {
         GL_LUMINANCE16,
@@ -164,9 +192,26 @@ const GLenum uni::geocsh::form[2][4] = {
     },
 };
 
-const GLenum uni::geocsh::type[2] = {
-    GL_UNSIGNED_BYTE,
-    GL_UNSIGNED_SHORT
+const GLenum uni::geocsh::eform[4] = {
+    GL_LUMINANCE,
+    GL_LUMINANCE_ALPHA,
+    GL_RGB,
+    GL_RGBA,
+};
+
+const GLenum uni::geocsh::ctype[2][4] = {
+    {
+        GL_UNSIGNED_BYTE,
+        GL_UNSIGNED_BYTE,
+        GL_UNSIGNED_BYTE,
+        GL_UNSIGNED_BYTE,
+    },
+    {
+        GL_UNSIGNED_SHORT,
+        GL_UNSIGNED_SHORT,
+        GL_UNSIGNED_SHORT,
+        GL_UNSIGNED_SHORT,
+    }
 };
 
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
@@ -181,10 +226,15 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     count(0),
     run(true),
     cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D,
-                          form[b - 1][c - 1],
-                          form[    0][c - 1],
-                          type[b - 1]))
+                          iform[b - 1][c - 1],
+                          eform       [c - 1],
+                          ctype[b - 1][c - 1]))
 {
+    int threads = std::max(1, ::conf->get_i("loader_threads"));
+    int buffers = std::max(8, ::conf->get_i("loader_buffers"));
+
+    debug = ::conf->get_i("debug");
+
     cache->bind(GL_TEXTURE0);
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
@@ -192,21 +242,27 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     }
     cache->free(GL_TEXTURE0);
 
-    debug = ::conf->get_i("debug");
-
     // Initialize the IPC.
 
-    need_cond   = SDL_CreateCond();
-    need_mutex  = SDL_CreateMutex();
-    load_mutex  = SDL_CreateMutex();
-    buff_mutex  = SDL_CreateMutex();
+    need_cond  = SDL_CreateCond();
+    buff_cond  = SDL_CreateCond();
+
+    need_mutex = SDL_CreateMutex();
+    load_mutex = SDL_CreateMutex();
+    buff_mutex = SDL_CreateMutex();
 
     // Start the data loader threads.
 
-    int threads = std::max(1, ::conf->get_i("loader_threads"));
-
     for (int i = 0; i < threads; ++i)
         load_thread.push_back(SDL_CreateThread(loader_func, (void *) this));
+
+    // Initialize some loader buffers.
+
+    for (int i = 0; i < buffers; ++i)
+//      waits.push_back(new buffer(S, S, c, b));
+        buffs.push_back(new buffer(S, S, c, b));
+
+    SDL_CondBroadcast(buff_cond);
 }
 
 uni::geocsh::~geocsh()
@@ -216,6 +272,7 @@ uni::geocsh::~geocsh()
     // Signal the loader threads to exit.  Join them.
 
     SDL_CondBroadcast(need_cond);
+    SDL_CondBroadcast(buff_cond);
 
     std::vector<SDL_Thread *>::iterator i;
 
@@ -227,7 +284,9 @@ uni::geocsh::~geocsh()
     SDL_DestroyMutex(buff_mutex);
     SDL_DestroyMutex(load_mutex);
     SDL_DestroyMutex(need_mutex);
-    SDL_DestroyCond (need_cond);
+
+    SDL_DestroyCond(buff_cond);
+    SDL_DestroyCond(need_cond);
 
     // TODO: free the buffer list
 
@@ -294,6 +353,12 @@ void uni::geocsh::proc_loads()
             glPixelTransferf(GL_BLUE_SCALE,  color[P->get_d()][2]);
         }
 
+        // Unmap the PBO.
+/*
+        B->bind();
+        B->umap();
+        B->free();
+*/
         // If the page was correctly loaded...
 
         if (B->stat())
@@ -330,17 +395,28 @@ void uni::geocsh::proc_loads()
 
                 M->cache_page(P, x, y);
 
-                cache->blit(B->data(), x * S, y * S, S, S);
+                // Blit the cache using the PBO.
+
+                B->bind();
+                B->buff();
+                cache->blit(0, x * S, y * S, S, S);
+                B->free();
+
+//              cache->blit(B->data(), x * S, y * S, S, S);
+
                 count++;
             }
         }
         else P->set_dead();
 
-        // Release the image buffer.
+        // Put the buffer in the VRAM upload wait state. 
+
+//      waits.push_back(B);
 
         SDL_mutexP(buff_mutex);
-        buffs.push_front(B);
+        buffs.push_back(B);
         SDL_mutexV(buff_mutex);
+        SDL_CondBroadcast(buff_cond);
     }
 
     // Revert the debug mode scale.
@@ -418,6 +494,30 @@ void uni::geocsh::proc_needs(const double *vp,
 void uni::geocsh::proc(const double *vp,
                        double r0, double r1, app::frustum_v& frusta)
 {
+    // Reactivate waiting transfer buffers.  (This will block if necessary.)
+/*
+    SDL_mutexP(buff_mutex);
+    {
+        while (!waits.empty())
+        {
+            buffer *B = waits.front();
+
+            B->bind();
+//          B->zero();
+            B->wmap();
+            B->free();
+
+            buffs.push_back(B);
+            waits.pop_front();
+        }
+    }
+    SDL_mutexV(buff_mutex);
+*/
+    // If there are available buffers, signal the page loader theads.
+/*
+    if (!buffs.empty())
+        SDL_CondBroadcast(buff_cond);
+*/
     // Process all loaded pages.
 
     SDL_mutexP(load_mutex);
@@ -468,8 +568,9 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
         SDL_mutexP(buff_mutex);
         {
             if (buffs.empty())
-                *B = new buffer(S, S, c, b);
-            else
+                SDL_CondWait(buff_cond, buff_mutex);
+
+            if (!buffs.empty())
             {
                 *B = buffs.front();
                 buffs.pop_front();

@@ -21,6 +21,7 @@
 
 #include "app-glob.hpp"
 #include "uni-geomap.hpp"
+#include "ogl-buffer.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -38,10 +39,13 @@ namespace uni
 
         GLubyte   *dat;
         png_bytep *row;
+        GLubyte   *ptr;
+
+        ogl::buffer pbo;
 
         bool ret;
 
-        void swab();
+        void swab(GLubyte *, GLubyte *);
 
     public:
 
@@ -52,6 +56,13 @@ namespace uni
 
         const GLvoid *data() const { return dat; }
         bool          stat() const { return ret; }
+
+        void bind() {                   pbo.bind(); }
+        void free() {                   pbo.free(); }
+        void zero() {                   pbo.zero(); }
+        void wmap() { ptr = (GLubyte *) pbo.wmap(); }
+        void umap() { ptr = 0;          pbo.umap(); }
+        void buff();
     };
 
     //-------------------------------------------------------------------------
@@ -59,8 +70,9 @@ namespace uni
 
     class geocsh
     {
-        static const GLenum form[2][4];
-        static const GLenum type[2];
+        static const GLenum iform[2][4];
+        static const GLenum eform   [4];
+        static const GLenum ctype[2][4];
 
         typedef std::list<buffer *> buff_list;
 
@@ -117,8 +129,11 @@ namespace uni
         need_map  needs;
         load_list loads;
         buff_list buffs;
+        buff_list waits;
 
         SDL_cond   *need_cond;
+        SDL_cond   *buff_cond;
+
         SDL_mutex  *need_mutex;
         SDL_mutex  *load_mutex;
         SDL_mutex  *buff_mutex;
