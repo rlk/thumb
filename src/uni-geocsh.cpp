@@ -69,10 +69,7 @@ uni::buffer::~buffer()
 }
 
 //-----------------------------------------------------------------------------
-/*
-#define SWAB32(d) (d) = ((((d) & 0xFF00FF00) >> 8) | \
-                         (((d) & 0x00FF00FF) << 8));
-*/
+
 #define SWAB32(d) ((((d) & 0xFF00FF00) >> 8) | \
                    (((d) & 0x00FF00FF) << 8));
 
@@ -141,7 +138,7 @@ uni::buffer *uni::buffer::load(std::string name)
                         png_get_bit_depth   (rp, ip) == b * 8)
                     {
                         png_read_image(rp, row);
-/*
+
                         if (ptr)
                         {
                             if (b == 2)
@@ -150,7 +147,6 @@ uni::buffer *uni::buffer::load(std::string name)
                                 memcpy(ptr, dat, w * h * c * b);
                         }
                         else
-*/
                         {
                             if (b == 2)
                                 swab(dat, dat);
@@ -164,8 +160,6 @@ uni::buffer *uni::buffer::load(std::string name)
         }
         fclose(fp);
     }
-
-//  std::cout << name << (ret ? " ok" : " FAIL") << std::endl;
 
     return this;
 }
@@ -259,8 +253,7 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     // Initialize some loader buffers.
 
     for (int i = 0; i < buffers; ++i)
-//      waits.push_back(new buffer(S, S, c, b));
-        buffs.push_back(new buffer(S, S, c, b));
+        waits.push_back(new buffer(S, S, c, b));
 
     SDL_CondBroadcast(buff_cond);
 }
@@ -354,11 +347,11 @@ void uni::geocsh::proc_loads()
         }
 
         // Unmap the PBO.
-/*
+
         B->bind();
         B->umap();
         B->free();
-*/
+
         // If the page was correctly loaded...
 
         if (B->stat())
@@ -398,11 +391,8 @@ void uni::geocsh::proc_loads()
                 // Blit the cache using the PBO.
 
                 B->bind();
-                B->buff();
                 cache->blit(0, x * S, y * S, S, S);
                 B->free();
-
-//              cache->blit(B->data(), x * S, y * S, S, S);
 
                 count++;
             }
@@ -411,12 +401,7 @@ void uni::geocsh::proc_loads()
 
         // Put the buffer in the VRAM upload wait state. 
 
-//      waits.push_back(B);
-
-        SDL_mutexP(buff_mutex);
-        buffs.push_back(B);
-        SDL_mutexV(buff_mutex);
-        SDL_CondBroadcast(buff_cond);
+        waits.push_back(B);
     }
 
     // Revert the debug mode scale.
@@ -495,7 +480,7 @@ void uni::geocsh::proc(const double *vp,
                        double r0, double r1, app::frustum_v& frusta)
 {
     // Reactivate waiting transfer buffers.  (This will block if necessary.)
-/*
+
     SDL_mutexP(buff_mutex);
     {
         while (!waits.empty())
@@ -503,7 +488,7 @@ void uni::geocsh::proc(const double *vp,
             buffer *B = waits.front();
 
             B->bind();
-//          B->zero();
+            B->zero();
             B->wmap();
             B->free();
 
@@ -512,12 +497,12 @@ void uni::geocsh::proc(const double *vp,
         }
     }
     SDL_mutexV(buff_mutex);
-*/
+
     // If there are available buffers, signal the page loader theads.
-/*
+
     if (!buffs.empty())
         SDL_CondBroadcast(buff_cond);
-*/
+
     // Process all loaded pages.
 
     SDL_mutexP(load_mutex);
