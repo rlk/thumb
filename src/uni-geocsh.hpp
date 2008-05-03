@@ -45,7 +45,10 @@ namespace uni
 
         bool ret;
 
-        void swab(GLubyte *, GLubyte *);
+        void mask1us(GLubyte *, GLubyte *);
+        void mask3ub(GLubyte *, GLubyte *);
+
+//      void swab(GLubyte *, GLubyte *);
 
     public:
 
@@ -62,7 +65,6 @@ namespace uni
         void zero() {                   pbo.zero(); }
         void wmap() { ptr = (GLubyte *) pbo.wmap(); }
         void umap() { ptr = 0;          pbo.umap(); }
-        void buff();
     };
 
     //-------------------------------------------------------------------------
@@ -70,9 +72,15 @@ namespace uni
 
     class geocsh
     {
+/*
         static const GLenum iform[2][4];
         static const GLenum eform   [4];
         static const GLenum ctype[2][4];
+*/
+
+        static GLenum internal_format(int, int);
+        static GLenum external_format(int, int);
+        static GLenum      pixel_type(int, int);
 
         typedef std::list<buffer *> buff_list;
 

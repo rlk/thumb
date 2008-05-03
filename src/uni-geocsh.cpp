@@ -47,7 +47,8 @@ uni::buffer::buffer(int w, int h, int c, int b) :
     dat(0),
     row(0),
     ptr(0),
-    pbo(GL_PIXEL_UNPACK_BUFFER_ARB, w * h * c * b),
+    pbo(GL_PIXEL_UNPACK_BUFFER_ARB, w * h * 4),
+//  pbo(GL_PIXEL_UNPACK_BUFFER_ARB, w * h * c * b),
     ret(false)
 {
     // Allocate a pixel buffer and an array of row pointers.
@@ -69,7 +70,7 @@ uni::buffer::~buffer()
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 #define SWAB32(d) ((((d) & 0xFF00FF00) >> 8) | \
                    (((d) & 0x00FF00FF) << 8));
 
@@ -108,6 +109,48 @@ void uni::buffer::swab(GLubyte *dst, GLubyte *src)
             d[i] = SWAB32(s[i]);
     }
 }
+*/
+
+void uni::buffer::mask1us(GLubyte *dst, GLubyte *src)
+{
+    uint32_t *d = (uint32_t *) dst;
+    uint8_t  *s = (uint8_t  *) src;
+
+    int i, n = w * h;
+
+    // LA
+
+    for (i = 0; i < n; ++i)
+    {
+        uint32_t h = uint32_t(s[i * 2 + 0]);
+        uint32_t l = uint32_t(s[i * 2 + 1]);
+
+        uint32_t a = (h || l) ? 0xFFFF0000 : 0x00000000;
+
+        d[i] = (l | (h << 8) | a);
+    }
+}
+
+void uni::buffer::mask3ub(GLubyte *dst, GLubyte *src)
+{
+    uint32_t *d = (uint32_t *) dst;
+    uint8_t  *s = (uint8_t  *) src;
+
+    int i, n = w * h;
+
+    // BGRA
+
+    for (i = 0; i < n; ++i)
+    {
+        uint32_t r = uint32_t(s[i * 3 + 0]);
+        uint32_t g = uint32_t(s[i * 3 + 1]);
+        uint32_t b = uint32_t(s[i * 3 + 2]);
+
+        uint32_t a = (r || g || b) ? 0xFF000000 : 0x00000000;
+
+        d[i] = (r | (g << 8) | (b << 16) | a);
+    }
+}
 
 uni::buffer *uni::buffer::load(std::string name)
 {
@@ -141,15 +184,8 @@ uni::buffer *uni::buffer::load(std::string name)
 
                         if (ptr)
                         {
-                            if (b == 2)
-                                swab(ptr, dat);
-                            else
-                                memcpy(ptr, dat, w * h * c * b);
-                        }
-                        else
-                        {
-                            if (b == 2)
-                                swab(dat, dat);
+                            if (c == 1 && b == 2) mask1us(ptr, dat);
+                            if (c == 3 && b == 1) mask3ub(ptr, dat);
                         }
 
                         ret = true;
@@ -166,49 +202,31 @@ uni::buffer *uni::buffer::load(std::string name)
     return this;
 }
 
-void uni::buffer::buff()
-{
-    glBufferSubDataARB(GL_PIXEL_UNPACK_BUFFER_ARB, 0, w * h * c * b, dat);
-}
-
 //=============================================================================
 
-const GLenum uni::geocsh::iform[2][4] = {
-    {
-        GL_LUMINANCE,
-        GL_LUMINANCE_ALPHA,
-        GL_RGB8,
-        GL_RGBA8,
-    },
-    {
-        GL_LUMINANCE16,
-        GL_LUMINANCE16_ALPHA16,
-        GL_RGB16,
-        GL_RGBA16,
-    },
-};
+GLenum uni::geocsh::internal_format(int c, int b)
+{
+    if (c == 3 && b == 1) return GL_RGBA8;
+    if (c == 1 && b == 2) return GL_LUMINANCE16_ALPHA16;
 
-const GLenum uni::geocsh::eform[4] = {
-    GL_LUMINANCE,
-    GL_LUMINANCE_ALPHA,
-    GL_RGB,
-    GL_RGBA,
-};
+    return GL_RGBA;
+}
 
-const GLenum uni::geocsh::ctype[2][4] = {
-    {
-        GL_UNSIGNED_BYTE,
-        GL_UNSIGNED_BYTE,
-        GL_UNSIGNED_BYTE,
-        GL_UNSIGNED_BYTE,
-    },
-    {
-        GL_UNSIGNED_SHORT,
-        GL_UNSIGNED_SHORT,
-        GL_UNSIGNED_SHORT,
-        GL_UNSIGNED_SHORT,
-    }
-};
+GLenum uni::geocsh::external_format(int c, int b)
+{
+    if (c == 3 && b == 1) return GL_BGRA;
+    if (c == 1 && b == 2) return GL_LUMINANCE_ALPHA;
+
+    return GL_RGBA;
+}
+
+GLenum uni::geocsh::pixel_type(int c, int b)
+{
+    if (c == 3 && b == 1) return GL_UNSIGNED_INT_8_8_8_8_REV;
+    if (c == 1 && b == 2) return GL_UNSIGNED_SHORT;
+
+    return GL_UNSIGNED_BYTE;
+}
 
 uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     c(c),
@@ -222,9 +240,9 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     count(0),
     run(true),
     cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D,
-                          iform[b - 1][c - 1],
-                          eform       [c - 1],
-                          ctype[b - 1][c - 1]))
+                          internal_format(b, c),
+                          external_format(b, c),
+                               pixel_type(b, c)))
 {
     int threads = std::max(1, ::conf->get_i("loader_threads"));
     int buffers = std::max(8, ::conf->get_i("loader_buffers"));
@@ -235,6 +253,10 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     {
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+/*
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+*/
     }
     cache->free(GL_TEXTURE0);
 

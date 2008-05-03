@@ -12,7 +12,7 @@ vec3 mipref0(vec2 c)
 
 vec4 cacheref0(vec2 c)
 {
-    // Look up the two pages in the index.
+    // Look up the page in the index.
 
     vec3 C = mipref0(data_over_tile_base * c) * 65535.0;
 

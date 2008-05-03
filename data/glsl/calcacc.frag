@@ -24,17 +24,21 @@ void main()
 
     float s = cacheref0(c).r;
 
-    // Compute the position.
+    if (bool(s))
+    {
+        // Compute the position.
 
-    const float off =     0.5;
-    const float mag = 65535.0;
+        const float off =     0.5;
+        const float mag = 65535.0;
 
-    vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
-    vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
+        vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
+        vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
 
-    float M = (s - off) * mag;
+        float M = (s - off) * mag;
 
-    gl_FragColor = vec4(P + N * M, M);
+        gl_FragColor = vec4(P + N * M, M);
+    }
+    else discard;
 }
 
 //-----------------------------------------------------------------------------
