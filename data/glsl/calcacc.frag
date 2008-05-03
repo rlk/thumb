@@ -22,23 +22,21 @@ void main()
 
     // Reference the cache.
 
-    float s = cacheref0(c).r;
+    vec4 s = cacheref0(c);
 
-    if (bool(s))
-    {
-        // Compute the position.
+    if (s.a < 1.0) discard;
 
-        const float off =     0.5;
-        const float mag = 65535.0;
+    // Compute the position.
 
-        vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
-        vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
+    const float off =     0.5;
+    const float mag = 65535.0;
 
-        float M = (s - off) * mag;
+    vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
+    vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
 
-        gl_FragColor = vec4(P + N * M, M);
-    }
-    else discard;
+    float M = (s.r - off) * mag;
+
+    gl_FragColor = vec4(P + N * M, M);
 }
 
 //-----------------------------------------------------------------------------

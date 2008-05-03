@@ -1,13 +1,15 @@
 <?xml version="1.0"?>
-<!--<map name="c:/data/earth/srtm_ramp2/srtm_ramp2-%02x-%02x-%02x.png"-->
-<map name="/data/evl/rlk/earth/srtm_ramp2/srtm_ramp2-%02x-%02x-%02x.png"
-     w="86400"
-     h="43200"
+<map name="/data/evl/rlk/earth/NED/NED_%02d_%03d_%03d.png"
+     w="412080"
+     h="196860"
      s="510"
      c="1"
      b="2"
-     W="-3.14159265358979323846"
-     E=" 3.14159265358979323846"
-     S="-1.57079632679489661923"
-     N=" 1.57079632679489661923"
+     order="lsb"
+     W="-3.16631815132637957413"
+     E="-1.16849793421020365175"
+     S=" 0.26034220379636839426"
+     N=" 1.21474641642860095125"
+     vert="glsl/trivial.vert"
+     frag="glsl/calcacc.frag"
      />

@@ -41,11 +41,13 @@ uni::universe::universe()
     geomap *nrm0 = new geomap(cache_s, "srtm_ramp2_normal.xml", r0, r1);
     geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          r0, r1);
     geomap *hgt0 = new geomap(cache_h, "srtm_ramp2.xml",        r0, r1);
+    geomap *hgt1 = new geomap(cache_h, "NED.xml",               r0, r1);
 
     color.push_back(dif0);
     normal.push_back(nrm0);
     normal.push_back(nrm1);
     height.push_back(hgt0);
+    height.push_back(hgt1);
 
     // Configure the geometry generator and renderer.
 

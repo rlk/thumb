@@ -31,7 +31,7 @@ static int loader_func(void *data)
 
     while  (C->get_needed(&M, &P, &B))
         if (M && P && B)
-            C->put_loaded( M,  P,  B->load(M->name(P)));
+            C->put_loaded( M,  P,  B->load(M->name(P), M->swab()));
 
     return 0;
 }
@@ -48,7 +48,6 @@ uni::buffer::buffer(int w, int h, int c, int b) :
     row(0),
     ptr(0),
     pbo(GL_PIXEL_UNPACK_BUFFER_ARB, w * h * 4),
-//  pbo(GL_PIXEL_UNPACK_BUFFER_ARB, w * h * c * b),
     ret(false)
 {
     // Allocate a pixel buffer and an array of row pointers.
@@ -111,7 +110,27 @@ void uni::buffer::swab(GLubyte *dst, GLubyte *src)
 }
 */
 
-void uni::buffer::mask1us(GLubyte *dst, GLubyte *src)
+void uni::buffer::swab1us(GLubyte *dst, const GLubyte *src) const
+{
+    uint32_t *d = (uint32_t *) dst;
+    uint8_t  *s = (uint8_t  *) src;
+
+    int i, n = w * h;
+
+    // LA
+
+    for (i = 0; i < n; ++i)
+    {
+        uint32_t h = uint32_t(s[i * 2 + 0]);
+        uint32_t l = uint32_t(s[i * 2 + 1]);
+
+        uint32_t a = (h || l) ? 0xFFFF0000 : 0x00000000;
+
+        d[i] = (h | (l << 8) | a);
+    }
+}
+
+void uni::buffer::mask1us(GLubyte *dst, const GLubyte *src) const
 {
     uint32_t *d = (uint32_t *) dst;
     uint8_t  *s = (uint8_t  *) src;
@@ -131,7 +150,7 @@ void uni::buffer::mask1us(GLubyte *dst, GLubyte *src)
     }
 }
 
-void uni::buffer::mask3ub(GLubyte *dst, GLubyte *src)
+void uni::buffer::mask3ub(GLubyte *dst, const GLubyte *src) const
 {
     uint32_t *d = (uint32_t *) dst;
     uint8_t  *s = (uint8_t  *) src;
@@ -148,11 +167,11 @@ void uni::buffer::mask3ub(GLubyte *dst, GLubyte *src)
 
         uint32_t a = (r || g || b) ? 0xFF000000 : 0x00000000;
 
-        d[i] = (r | (g << 8) | (b << 16) | a);
+        d[i] = (b | (g << 8) | (r << 16) | a);
     }
 }
 
-uni::buffer *uni::buffer::load(std::string name)
+uni::buffer *uni::buffer::load(std::string name, bool swab)
 {
     png_structp rp = 0;
     png_infop   ip = 0;
@@ -184,8 +203,15 @@ uni::buffer *uni::buffer::load(std::string name)
 
                         if (ptr)
                         {
-                            if (c == 1 && b == 2) mask1us(ptr, dat);
-                            if (c == 3 && b == 1) mask3ub(ptr, dat);
+                            if (c == 3 && b == 1)
+                                mask3ub(ptr, dat);
+                            if (c == 1 && b == 2)
+                            {
+                                if (swab)
+                                    swab1us(ptr, dat);
+                                else
+                                    mask1us(ptr, dat);
+                            }
                         }
 
                         ret = true;
@@ -240,9 +266,9 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     count(0),
     run(true),
     cache(glob->new_image(w * S, h * S, GL_TEXTURE_2D,
-                          internal_format(b, c),
-                          external_format(b, c),
-                               pixel_type(b, c)))
+                          internal_format(c, b),
+                          external_format(c, b),
+                               pixel_type(c, b)))
 {
     int threads = std::max(1, ::conf->get_i("loader_threads"));
     int buffers = std::max(8, ::conf->get_i("loader_buffers"));
@@ -251,12 +277,12 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
 
     cache->bind(GL_TEXTURE0);
     {
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 /*
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 */
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     }
     cache->free(GL_TEXTURE0);
 
@@ -620,9 +646,11 @@ void uni::geocsh::draw() const
     glPushAttrib(GL_ENABLE_BIT);
     {
         glEnable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
         glDisable(GL_LIGHTING);
-        glDisable(GL_BLEND);
         glDisable(GL_DEPTH_TEST);
+
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
         cache->bind(GL_TEXTURE0);
         {

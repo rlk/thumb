@@ -45,8 +45,9 @@ namespace uni
 
         bool ret;
 
-        void mask1us(GLubyte *, GLubyte *);
-        void mask3ub(GLubyte *, GLubyte *);
+        void swab1us(GLubyte *, const GLubyte *) const;
+        void mask1us(GLubyte *, const GLubyte *) const;
+        void mask3ub(GLubyte *, const GLubyte *) const;
 
 //      void swab(GLubyte *, GLubyte *);
 
@@ -55,7 +56,7 @@ namespace uni
         buffer(int, int, int, int);
        ~buffer();
 
-        buffer *load(std::string);
+        buffer *load(std::string, bool);
 
         const GLvoid *data() const { return dat; }
         bool          stat() const { return ret; }

@@ -380,7 +380,6 @@ static int texture_size(GLenum target)
     return T;
 }
 */
-
 void ogl::new_texture(GLenum target)
 {
 /*

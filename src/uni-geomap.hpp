@@ -83,6 +83,7 @@ namespace uni
         int    D;
         int mip_w;
         int mip_h;
+        bool  lsb;
         page   *P;
 
         bool dirty;
@@ -115,7 +116,8 @@ namespace uni
 
         std::string name(const page *);
 
-        page *root() { return P; }
+        page *root() { return P;   }
+        bool  swab() { return lsb; }
     };
 
     typedef std::list<geomap *>           geomap_l;

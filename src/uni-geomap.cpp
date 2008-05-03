@@ -11,6 +11,8 @@
 //  General Public License for more details.
 
 #include <cmath>
+#include <cstring>
+#include <iostream>
 
 #include "uni-geomap.hpp"
 #include "uni-geocsh.hpp"
@@ -258,6 +260,7 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
     D(0),
     mip_w(1),
     mip_h(1),
+    lsb(false),
     P(0),
     dirty(false),
     cache(cache),
@@ -285,6 +288,8 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
         s = app::get_attr_d(map, "s", 510);
         c = app::get_attr_d(map, "c", 3);
         b = app::get_attr_d(map, "b", 1);
+
+        lsb = (strcmp(app::get_attr_s(map, "order", "msb"), "lsb") == 0);
 
         // Compute the extents of the mipmap pyramid.
 

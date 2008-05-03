@@ -38,7 +38,7 @@ void main()
         T[1] = normalize(cross(N, T[0]));
         T[2] = N;
 
-        gl_FragColor = vec4((T * n.xyz + 1.0) * 0.5, n.a);
+        gl_FragColor = vec4((T * n.xyz + 1.0) * 0.5, 1.0);
     }
     else discard;
 }
