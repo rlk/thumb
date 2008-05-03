@@ -27,15 +27,25 @@ uni::universe::universe()
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
 
-    // Configure the data sources.
+    // Create the caches.
 
-    cache_s = new geocsh(3, 1, 510, 8, 8);
-    cache_h = new geocsh(1, 2, 510, 8, 8);
+    geocsh *cache_s = new geocsh(3, 1, 510, 8, 8);
+    geocsh *cache_h = new geocsh(1, 2, 510, 8, 8);
 
-    color  = new geomap("world.200408.xml",      r0, r1);
-    normal = new geomap("NED_norm.xml", r0, r1);
-//  normal = new geomap("srtm_ramp2_normal.xml", r0, r1);
-    height = new geomap("srtm_ramp2.xml",        r0, r1);
+    caches.push_back(cache_s);
+    caches.push_back(cache_h);
+
+    // Create the maps.
+
+    geomap *dif0 = new geomap(cache_s, "world.200408.xml",      r0, r1);
+    geomap *nrm0 = new geomap(cache_s, "srtm_ramp2_normal.xml", r0, r1);
+//  geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          r0, r1);
+    geomap *hgt0 = new geomap(cache_h, "srtm_ramp2.xml",        r0, r1);
+
+    color.push_back(dif0);
+    normal.push_back(nrm0);
+//  normal.push_back(nrm1);
+    height.push_back(hgt0);
 
     // Configure the geometry generator and renderer.
 
@@ -51,19 +61,17 @@ uni::universe::universe()
 
     // Create the earth.
 
-    S[0] = new sphere(*D, *R, *cache_s, *cache_h, *color, *normal, *height,
+    S[0] = new sphere(*D, *R, color, normal, height, caches,
                       r0, r1, patch_cache);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
 }
 
 uni::universe::~universe()
 {
-    if (height) delete height;
-    if (normal) delete normal;
-    if (color)  delete color;
-
-    if (cache_h)  delete cache_h;
-    if (cache_s)  delete cache_s;
+    while (!height.empty()) { delete height.front(); height.pop_front(); }
+    while (!normal.empty()) { delete normal.front(); normal.pop_front(); }
+    while (! color.empty()) { delete  color.front();  color.pop_front(); }
+    while (!caches.empty()) { delete caches.front(); caches.pop_front(); }
 
     delete S[0];
     delete R;

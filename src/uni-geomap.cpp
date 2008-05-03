@@ -13,31 +13,12 @@
 #include <cmath>
 
 #include "uni-geomap.hpp"
+#include "uni-geocsh.hpp"
 #include "app-serial.hpp"
 #include "app-glob.hpp"
 #include "matrix.hpp"
 #include "util.hpp"
 
-/*
-static void dump(const GLubyte *v)
-{
-    int w = 32;
-    int h = 16;
-
-    for (int i = 0; i < h; ++i)
-    {
-        for (int j = 0; j < w; ++j)
-        {
-            int r = mip_h -  1 - i;
-            int c = mip_w - 32 + j;
-
-            printf("%02x ", v[r * mip_w + c]);
-        }
-        printf("\n");
-    }
-    printf("\n");
-}
-*/
 //-----------------------------------------------------------------------------
 
 uni::page::page(int w, int h, int s,
@@ -265,14 +246,32 @@ double uni::page::angle(const double *v, double r)
 
 //-----------------------------------------------------------------------------
 
-uni::geomap::geomap(std::string name, double r0, double r1) :
-    D(0), mip_w(1), mip_h(1), r0(r0), r1(r1), P(0), dirty(false)
+uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
+    ext_W(-PI),
+    ext_E( PI),
+    ext_S(-PI_2),
+    ext_N( PI_2),
+    r0(r0),
+    r1(r1),
+    s(0),
+    S(0),
+    D(0),
+    mip_w(1),
+    mip_h(1),
+    P(0),
+    dirty(false),
+    cache(cache),
+    image(0),
+    index(0)
 {
     app::serial file(name.c_str());
     
     if (app::node map = app::find(file.get_head(), "map"))
     {
         // Load the map configuration from the file.
+
+        std::string vert = app::get_attr_s(map, "vert");
+        std::string frag = app::get_attr_s(map, "frag");
 
         pattern = app::get_attr_s(map, "name");
 
@@ -287,10 +286,10 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
         c = app::get_attr_d(map, "c", 3);
         b = app::get_attr_d(map, "b", 1);
 
+        // Compute the extents of the mipmap pyramid.
+
         mip_w = 2 * next_power_of_2(w / s);
         mip_h = 2 * next_power_of_2(h / s);
-
-        // Compute the depth of the mipmap pyramid.
 
         int t = s;
 
@@ -300,11 +299,27 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
             D += 1;
         }
 
-        printf("%d %d %d\n", mip_w, mip_h, D);
-
         // Generate the mipmap pyramid catalog.
 
         P = new page(w, h, s, 0, 0, D, ext_W, ext_E, ext_S, ext_N);
+
+        // Load and initialize the shader.
+
+        prog = ::glob->load_program(vert, frag);
+
+        prog->bind();
+        {
+            // Surface shaders use this.
+
+            prog->uniform("cyl", 0);
+
+            // Height shaders use these.
+
+            prog->uniform("pos", 4);
+            prog->uniform("nrm", 5);
+            prog->uniform("tex", 6);
+        }
+        prog->free();
     }
 
     S = s + 2;
@@ -320,6 +335,8 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
 uni::geomap::~geomap()
 {
     if (image) delete [] image;
+
+    if (prog) ::glob->free_program(prog);
 
     if (P) delete P;
 }
@@ -421,7 +438,6 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
         do_index(d, i, j, GLushort(x * S + 1),
                           GLushort(y * S + 1),
                           GLushort(l));
-//      dump(image);
         dirty = true;
     }
 }
@@ -444,9 +460,15 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
                           GLushort(y * S + 1),
                           GLushort(l), x1, y1, l1);
 
-//      dump(image);
         dirty = true;
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void uni::geomap::seed(const double *vp, double r0, double r1)
+{
+    cache->seed(vp, r0, r1, *this);
 }
 
 void uni::geomap::proc()
@@ -457,40 +479,34 @@ void uni::geomap::proc()
     dirty = false;
 }
 
-//-----------------------------------------------------------------------------
-
-void uni::geomap::init(int pool_w, int pool_h) const
-{
-    ogl::program::current->uniform("index", 1);
-    ogl::program::current->uniform("cache", 2);
-
-    ogl::program::current->uniform("data_size", w, h);
-
-    ogl::program::current->uniform("tile_size", s, s);
-    ogl::program::current->uniform("over_pool", 1.0 / pool_w, 1.0 / pool_h);
-
-    ogl::program::current->uniform("data_over_tile",
-                                   double(w) / double(s),
-                                   double(h) / double(s));
-    ogl::program::current->uniform("data_over_tile_base",
-                                   double(2 * w) / double(mip_w * s),
-                                   double(2 * h) / double(mip_h * s));
-
-    ogl::program::current->uniform("cylk",    1.0 / (ext_E - ext_W),
-                                              1.0 / (ext_N - ext_S));
-    ogl::program::current->uniform("cyld", -ext_W / (ext_E - ext_W),
-                                           -ext_S / (ext_N - ext_S));
-
-/*
-    ogl::program::current->uniform("cylk", 0.5 / PI, 1.0 / PI);
-    ogl::program::current->uniform("cyld", 0.5,      0.5     );
-*/
-}
-
 void uni::geomap::draw() const
 {
+    prog->bind();
     index->bind(GL_TEXTURE1);
+    cache->bind(GL_TEXTURE2);
     {
+        // Initialize the uniforms.
+
+        prog->uniform("index", 1);
+        prog->uniform("cache", 2);
+
+        prog->uniform("data_size", w, h);
+        prog->uniform("tile_size", s, s);
+        prog->uniform("over_pool", 1.0 / cache->pool_w(),
+                                   1.0 / cache->pool_h());
+
+        prog->uniform("data_over_tile",      double(    w) / (        s),
+                                             double(    h) / (        s));
+        prog->uniform("data_over_tile_base", double(2 * w) / (mip_w * s),
+                                             double(2 * h) / (mip_h * s));
+
+        prog->uniform("cylk",    1.0 / (ext_E - ext_W),
+                                 1.0 / (ext_N - ext_S));
+        prog->uniform("cyld", -ext_W / (ext_E - ext_W),
+                              -ext_S / (ext_N - ext_S));
+
+        // Render a full-screen quad.
+
         glMatrixMode(GL_PROJECTION);
         {
             glPushMatrix();
@@ -513,7 +529,9 @@ void uni::geomap::draw() const
             glPopMatrix();
         }
     }
+    cache->free(GL_TEXTURE2);
     index->free(GL_TEXTURE1);
+    prog->free();
 }
 
 std::string uni::geomap::name(const page *P)

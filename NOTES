@@ -1,22 +1,43 @@
 -------------------------------------------------------------------------------
 
-main  while working
-main      available += map oldest working
+step
+    foreach csh
+        csh.init
+    foreach map
+        map.csh.seed(vp, r0, r1, map)
+    foreach csh
+        csh.proc
+    foreach map
+        map.proc
 
-load  loader buffer = available--
-load  loaded += loader buffer
+draw
+    foreach map type
+        foreach map
+            map.shd.bind()
+            map.csh.bind()
+            map.uniform(map.csh.pool_w, map.csh.pool_w)
+            map.draw()
+            map.csh.free()
+            map.shd.free()
 
-load  loader buffer = available--
-load  loaded += loader buffer
+-------------------------------------------------------------------------------
 
-main  new = loaded--
-main  unmap new
-main  gltexsubimage new
-main  working += new
+step
+    csh.init()
+    csh.seed(map)
+    csh.proc()
+    map.proc()
 
-all working buffers are transferring...
+prep
+    height draw
 
-
+draw
+    shd.bind()
+    csh.bind()
+    map.uniform(csh.pool_w, csh.pool_h)
+    map.draw()
+    csh.free()
+    shd.free()
 
 -------------------------------------------------------------------------------
 
@@ -33,7 +54,7 @@ vellum no sync
 256/3 8x8 8x8 linear  640x480   63ms
 256/3 8x8 8x8 best    320x240   39ms
 256/3 8x8 8x8 best    512x384   43ms
-256/3 8x8 8x8 best    640x480   50ms  optimization C.xy
+256/3 8x8 8x8 best    640x480   50ms  optimization C.xy + 1
 256/3 8x8 8x8 best    640x480   50ms  optimization over_pool
 256/3 8x8 8x8 best    640x480   38ms  atmo 0
 256/3 8x8 8x8 best    640x480   42ms  reduced sphere

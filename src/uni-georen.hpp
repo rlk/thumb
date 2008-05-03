@@ -37,13 +37,9 @@ namespace uni
 
     class renbuf : public ogl::frame
     {
-    protected:
-
-        const ogl::program *draw;
-
     public:
 
-        renbuf(GLsizei, GLsizei, GLenum, bool, bool, std::string);
+        renbuf(GLsizei, GLsizei, GLenum, bool, bool);
        ~renbuf();
 
         void init(GLfloat=0.0f, GLfloat=0.0f, GLfloat=0.0f) const;
@@ -57,8 +53,13 @@ namespace uni
 
     class cylbuf : public renbuf
     {
+        const ogl::program *draw;
+
     public:
         cylbuf(GLsizei, GLsizei);
+
+        void bind() const;
+        void free() const;
     };
 
     //-------------------------------------------------------------------------
@@ -97,9 +98,6 @@ namespace uni
         GLsizei w;
         GLsizei h;
 
-        const ogl::program *draw;
-
-//      rp2lut _rp2;
         cylbuf _cyl;
         difbuf _dif;
         nrmbuf _nrm;
@@ -109,7 +107,6 @@ namespace uni
         georen(GLsizei, GLsizei);
        ~georen();
 
-//      const rp2lut *rp2() const { return &_rp2; }
         const cylbuf *cyl() const { return &_cyl; }
         const difbuf *dif() const { return &_dif; }
         const nrmbuf *nrm() const { return &_nrm; }

@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
-<!--<map name="/home/rlk/data/earth/world.200408/world.200408-%02x-%02x-%02x.png"-->
-<!--<map name="c:/data/earth/world.200408/world.200408-%02x-%02x-%02x.png"-->
 <map name="/data/evl/rlk/earth/world.200408/world.200408-%02x-%02x-%02x.png"
      w="86400"
      h="43200"
@@ -11,4 +9,6 @@
      E=" 3.14159265358979323846"
      S="-1.57079632679489661923"
      N=" 1.57079632679489661923"
+     vert="glsl/drawdif.vert"
+     frag="glsl/drawdif.frag"
      />

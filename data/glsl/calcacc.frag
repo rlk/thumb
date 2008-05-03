@@ -1,9 +1,11 @@
 #extension GL_ARB_texture_rectangle : enable
 
-uniform sampler2DRect src;
 uniform sampler2DRect pos;
 uniform sampler2DRect nrm;
 uniform sampler2DRect tex;
+
+uniform vec2 cylk;
+uniform vec2 cyld;
 
 #include "glsl/mipmap-common.frag"
 #include "glsl/mipmap0.frag"
@@ -14,12 +16,7 @@ void main()
 {
     // Determine the coordinate of this pixel.
 
-    const float pi = 3.14159265358979323846;
-
-    const vec2 ck = vec2(0.5, 1.0) / pi;
-    const vec2 cd = vec2(0.5, 0.5);
-
-    vec2 c = texture2DRect(tex, gl_FragCoord.xy).xy * ck + cd;
+    vec2 c = texture2DRect(tex, gl_FragCoord.xy).xy * cylk + cyld;
 
     c.x -= step(1.0, c.x);
 

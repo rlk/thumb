@@ -80,11 +80,10 @@ namespace uni
         geovtx  vtx;
         georen& ren;
 
-        geocsh& cache_s;
-        geocsh& cache_h;
-        geomap& color;
-        geomap& normal;
-        geomap& height;
+        geomap_l& color;
+        geomap_l& normal;
+        geomap_l& height;
+        geocsh_l& caches;
 
         const ogl::program *draw_lit;
         const ogl::program *atmo_in;
@@ -107,7 +106,7 @@ namespace uni
 
     public:
     
-        sphere(geodat&, georen&, geocsh&, geocsh&, geomap&, geomap&, geomap&,
+        sphere(geodat&, georen&, geomap_l&, geomap_l&, geomap_l&, geocsh_l&,
                double, double, GLsizei=DEFAULT_PATCH_CACHE);
        ~sphere();
 

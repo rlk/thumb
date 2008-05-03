@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-<!--<map name="c:/data/earth/srtm_ramp2/srtm_ramp2-%02x-%02x-%02x.png"-->
 <map name="/data/evl/rlk/earth/srtm_ramp2/srtm_ramp2-%02x-%02x-%02x.png"
      w="86400"
      h="43200"
@@ -10,4 +9,6 @@
      E=" 3.14159265358979323846"
      S="-1.57079632679489661923"
      N=" 1.57079632679489661923"
+     vert="glsl/trivial.vert"
+     frag="glsl/calcacc.frag"
      />

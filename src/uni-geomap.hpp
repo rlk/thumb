@@ -13,7 +13,10 @@
 #ifndef GEOMAP
 #define GEOMAP
 
+#include <list>
+
 #include "app-frustum.hpp"
+#include "ogl-program.hpp"
 #include "ogl-image.hpp"
 
 //-----------------------------------------------------------------------------
@@ -28,12 +31,6 @@ namespace uni
         int    d;
         int    i;
         int    j;
-/*
-        double W;
-        double E;
-        double S;
-        double N;
-*/
         double n[3];
         double a;
         double r;
@@ -66,6 +63,7 @@ namespace uni
     //-------------------------------------------------------------------------
     // Geomap
 
+    class geocsh;
     class geomap
     {
         std::string pattern;
@@ -74,6 +72,8 @@ namespace uni
         double ext_E;
         double ext_S;
         double ext_N;
+        double r0;
+        double r1;
         int    w;
         int    h;
         int    c;
@@ -83,12 +83,13 @@ namespace uni
         int    D;
         int mip_w;
         int mip_h;
-        double r0;
-        double r1;
         page   *P;
 
         bool dirty;
 
+        const ogl::program *prog;
+
+        geocsh     *cache;
         GLushort   *image;
         ogl::image *index;
 
@@ -102,13 +103,13 @@ namespace uni
 
     public:
 
-        geomap(std::string, double, double);
+        geomap(geocsh *, std::string, double, double);
        ~geomap();
 
         void cache_page(const page *, int, int);
         void eject_page(const page *, int, int);
 
-        void init(int, int) const;
+        void seed(const double *, double, double);
         void proc();
         void draw() const;
 
@@ -116,6 +117,9 @@ namespace uni
 
         page *root() { return P; }
     };
+
+    typedef std::list<geomap *>           geomap_l;
+    typedef std::list<geomap *>::iterator geomap_i;
 }
 
 //-----------------------------------------------------------------------------

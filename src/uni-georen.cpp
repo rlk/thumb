@@ -52,18 +52,9 @@ uni::rp2lut::rp2lut()
 
 //-----------------------------------------------------------------------------
 
-uni::renbuf::renbuf(GLsizei w, GLsizei h, GLenum f, bool d, bool s,
-                    std::string name) :
-    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s),
-    draw(::glob->load_program(name + ".vert",
-                              name + ".frag"))
+uni::renbuf::renbuf(GLsizei w, GLsizei h, GLenum f, bool d, bool s) :
+    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s)
 {
-    draw->bind();
-    {
-        draw->uniform("cyl", 0);
-        draw->uniform("src", 1);
-    }
-    draw->free();
 }
 
 uni::renbuf::~renbuf()
@@ -88,14 +79,14 @@ void uni::renbuf::bind() const
 
     ogl::frame::bind(false);
 
-    draw->bind();
+//  draw->bind();
 }
 
 void uni::renbuf::free() const
 {
     // Unbind the render target and shader.
 
-    draw->free();
+//  draw->free();
 
     ogl::frame::free();
 }
@@ -103,14 +94,28 @@ void uni::renbuf::free() const
 //-----------------------------------------------------------------------------
 
 uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
-    uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false, "glsl/drawcyl")
+    uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false),
+    draw(::glob->load_program("glsl/drawcyl.vert",
+                              "glsl/drawcyl.frag"))
 {
+}
+
+void uni::cylbuf::bind() const
+{
+    uni::renbuf::bind();
+    draw->bind();
+}
+
+void uni::cylbuf::free() const
+{
+    draw->free();
+    uni::renbuf::free();
 }
 
 //-----------------------------------------------------------------------------
 
 uni::difbuf::difbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawdif"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, false, false), cyl(cyl)
 {
 }
 
@@ -129,7 +134,7 @@ void uni::difbuf::free() const
 //-----------------------------------------------------------------------------
 
 uni::nrmbuf::nrmbuf(GLsizei w, GLsizei h, uni::cylbuf& cyl) :
-    uni::renbuf(w, h, GL_RGBA8, false, false, "glsl/drawnrm"), cyl(cyl)
+    uni::renbuf(w, h, GL_RGBA8, false, false), cyl(cyl)
 {
 }
 
@@ -150,36 +155,18 @@ void uni::nrmbuf::free() const
 uni::georen::georen(GLsizei w, GLsizei h) :
     w(w),
     h(h),
-    draw(0),
-//    draw(glob->load_program("glsl/drawlit.vert",
-//                            "glsl/drawlit.frag")),
-//    _rp2(),
     _cyl(w, h),
     _dif(w, h, _cyl),
     _nrm(w, h, _cyl)
 {
-/*
-    draw->bind();
-    {
-        draw->uniform("cyl", 0);
-        draw->uniform("dif", 1);
-        draw->uniform("nrm", 2);
-    }
-    draw->free();
-*/
 }
 
 uni::georen::~georen()
 {
-//   glob->free_program(draw);
 }
 
 void uni::georen::bind() const
 {
-    // Bind the deferred illumination shader.
-
-//  draw->bind();
-
     // Bind the diffuse and normal render targets as textures.
 
     _cyl.bind_color(GL_TEXTURE0);
@@ -194,10 +181,6 @@ void uni::georen::free() const
     _nrm.free_color(GL_TEXTURE2);
     _dif.free_color(GL_TEXTURE1);
     _cyl.free_color(GL_TEXTURE0);
-
-    // Unbind the deferred illumination shader.
-
-//  draw->free();
 }
 
 //-----------------------------------------------------------------------------

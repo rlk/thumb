@@ -29,11 +29,10 @@
 
 uni::sphere::sphere(uni::geodat& dat,
                     uni::georen& ren,
-                    uni::geocsh& cache_s,
-                    uni::geocsh& cache_h,
-                    uni::geomap& color,
-                    uni::geomap& normal,
-                    uni::geomap& height,
+                    uni::geomap_l& color,
+                    uni::geomap_l& normal,
+                    uni::geomap_l& height,
+                    uni::geocsh_l& caches,
                     double r0,
                     double r1, GLsizei lines) :
 
@@ -60,12 +59,10 @@ uni::sphere::sphere(uni::geodat& dat,
     vtx(dat.depth(), lines),
     ren(ren),
 
-    cache_s(cache_s),
-    cache_h(cache_h),
-
-    color(color),
+    color (color),
     normal(normal),
     height(height),
+    caches(caches),
 
     draw_lit(glob->load_program("glsl/drawlit.vert",
                                 "glsl/drawlit.frag")),
@@ -114,6 +111,8 @@ uni::sphere::sphere(uni::geodat& dat,
 
     // Initialize texturing uniforms.
 
+    // TODO: this has to happen per frame.
+    /*
     ren.dif()->bind();
     {
         color.init(cache_s.pool_w(),
@@ -132,6 +131,7 @@ uni::sphere::sphere(uni::geodat& dat,
                     cache_h.pool_h());
     }
     acc.free_proc();
+    */
 }
 
 uni::sphere::~sphere()
@@ -439,18 +439,42 @@ void uni::sphere::step()
 
         // Update the data caches.
 
+        geocsh_i c;
+        geomap_i m;
+
+        for (c = caches.begin(); c != caches.end(); ++c)
+            (*c)->init();
+
+        for (m =  color.begin(); m !=  color.end(); ++m)
+            (*m)->seed(vp, r0, r1);
+        for (m = normal.begin(); m != normal.end(); ++m)
+            (*m)->seed(vp, r0, r1);
+        for (m = height.begin(); m != height.end(); ++m)
+            (*m)->seed(vp, r0, r1);
+
+        for (c = caches.begin(); c != caches.end(); ++c)
+            (*c)->proc(vp, r0, r1, frusta);
+
+        for (m =  color.begin(); m !=  color.end(); ++m)
+            (*m)->proc();
+        for (m = normal.begin(); m != normal.end(); ++m)
+            (*m)->proc();
+        for (m = height.begin(); m != height.end(); ++m)
+            (*m)->proc();
+/*
         cache_h.init();
         cache_h.seed(vp, r0, r1, height);
         cache_h.proc(vp, r0, r1, frusta);
 
         cache_s.init();
-//      cache_s.seed(vp, r0, r1, color);
+        cache_s.seed(vp, r0, r1, color);
         cache_s.seed(vp, r0, r1, normal);
         cache_s.proc(vp, r0, r1, frusta);
 
         height.proc();
         normal.proc();
         color.proc();
+*/
     }
 }
 
@@ -489,16 +513,15 @@ void uni::sphere::prep()
         nrm.bind(GL_TEXTURE5);
         tex.bind(GL_TEXTURE6);
         {
-            // Accumulate terrain maps.  TODO: move this to geotex::proc?
+            // Accumulate terrain maps.
 
             acc.init(count);
-            acc.bind_proc();
+            acc.bind_proc(); // overkill
             {
-                cache_h.bind(GL_TEXTURE2);
-                height.draw();
-                cache_h.free(GL_TEXTURE2);
+                for (geomap_i m = height.begin(); m != height.end(); ++m)
+                    (*m)->draw();
             }
-            acc.free_proc();
+            acc.free_proc(); // overkill
             acc.swap();
         }
         tex.free(GL_TEXTURE6);
@@ -532,6 +555,7 @@ void uni::sphere::prep()
         acc.bind_frame();
         vtx.read_v(count);
         acc.free_frame();
+
 /*
         pos.bind_frame();
         vtx.read_v(count);
@@ -644,22 +668,16 @@ void uni::sphere::draw(int i)
                 ren.dif()->init();
                 ren.dif()->bind();
                 {
-                    cache_s.bind(GL_TEXTURE2);
-                    {
-                        color.draw();
-                    }
-                    cache_s.free(GL_TEXTURE2);
+                    for (geomap_i m =  color.begin(); m !=  color.end(); ++m)
+                        (*m)->draw();
                 }
                 ren.dif()->free();
 
                 ren.nrm()->init();
                 ren.nrm()->bind();
                 {
-                    cache_s.bind(GL_TEXTURE2);
-                    {
-                        normal.draw();
-                    }
-                    cache_s.free(GL_TEXTURE2);
+                    for (geomap_i m = normal.begin(); m != normal.end(); ++m)
+                        (*m)->draw();
                 }
                 ren.nrm()->free();
 
@@ -690,8 +708,8 @@ void uni::sphere::draw(int i)
 
                 // Test draw the color geomap.
 
-                if (::prog->option(4)) cache_s.draw();
-                if (::prog->option(5)) cache_h.draw();
+                if (::prog->option(4)) (*(  caches.begin()))->draw();
+                if (::prog->option(5)) (*(++caches.begin()))->draw();
 
                 // Test draw the GPGPU buffers.
 

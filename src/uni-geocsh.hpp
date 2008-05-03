@@ -166,6 +166,9 @@ namespace uni
         bool get_needed(geomap **, page **, buffer **);
         void put_loaded(geomap *,  page *,  buffer *);
     };
+
+    typedef std::list<geocsh *>           geocsh_l;
+    typedef std::list<geocsh *>::iterator geocsh_i;
 }
 
 //-----------------------------------------------------------------------------

@@ -26,11 +26,12 @@ namespace uni
     {
         geodat *D;
         georen *R;
-        geocsh *cache_s;
-        geocsh *cache_h;
-        geomap *color;
-        geomap *normal;
-        geomap *height;
+
+        geomap_l color;
+        geomap_l normal;
+        geomap_l height;
+        geocsh_l caches;
+
         sphere *S[3];
 
     public:
@@ -48,10 +49,10 @@ namespace uni
 
         const double *get_p() const { return S[0] ? S[0]->get_p() : 0; }
 
-        double get_a() const { return S[0] ? S[0]->get_a() : 0; }
-        void   set_a(double k) { if (S[0]) S[0]->set_a(k); }
-        double get_t() const { return S[0] ? S[0]->get_t() : 0; }
-        void   set_t(double k) { if (S[0]) S[0]->set_t(k); }
+        double get_a() const   { return S[0] ? S[0]->get_a( ) : 0; }
+        void   set_a(double k) {    if (S[0])  S[0]->set_a(k);     }
+        double get_t() const   { return S[0] ? S[0]->get_t( ) : 0; }
+        void   set_t(double k) {    if (S[0])  S[0]->set_t(k);     }
     };
 }
 
