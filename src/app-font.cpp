@@ -16,6 +16,7 @@
 #include "app-font.hpp"
 #include "app-data.hpp"
 #include "app-glob.hpp"
+#include "util.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -53,20 +54,6 @@ void app::glyph::draw(int x, int y) const
 }
 
 //-----------------------------------------------------------------------------
-
-static int next_power_of_2(int n)
-{
-    if (n > 0)
-    {
-        int m = 1;
-
-        while (m < n)
-            m <<= 1;
-
-        return m;
-    }
-    return 0;
-}
 
 app::text::text(int w, int h) :
     data(0),

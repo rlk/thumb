@@ -444,7 +444,7 @@ void uni::sphere::step()
         cache_h.proc(vp, r0, r1, frusta);
 
         cache_s.init();
-        cache_s.seed(vp, r0, r1, color);
+//      cache_s.seed(vp, r0, r1, color);
         cache_s.seed(vp, r0, r1, normal);
         cache_s.proc(vp, r0, r1, frusta);
 

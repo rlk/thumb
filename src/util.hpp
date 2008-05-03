@@ -59,19 +59,9 @@ typedef std::set   <std::string> str_set;
                                               max4(e, f, g, h))
 
 //-----------------------------------------------------------------------------
-/*
-#include <mxml.h>
 
-#define MXML_FORALL(t, i, n) \
-    for (i = mxmlFindElement((t), (t), (n), 0, 0, MXML_DESCEND); i; \
-         i = mxmlFindElement((i), (t), (n), 0, 0, MXML_NO_DESCEND))
+int next_power_of_2(int);
 
-void   set_attr_i(mxml_node_t *, const char *, int);
-int    get_attr_i(mxml_node_t *, const char *, int=0);
-
-void   set_attr_f(mxml_node_t *, const char *, double);
-double get_attr_f(mxml_node_t *, const char *, double=0);
-*/
 //-----------------------------------------------------------------------------
 
 #endif

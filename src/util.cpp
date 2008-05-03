@@ -14,54 +14,20 @@
 #include <iomanip>
 
 #include "util.hpp"
-/*
-//-----------------------------------------------------------------------------
-
-void set_attr_i(mxml_node_t *node, const char *name, int i)
-{
-    if (node && name)
-    {
-        std::ostringstream value;
-    
-        value << i;
-
-        mxmlElementSetAttr(node, name, value.str().c_str());
-    }
-}
-
-int get_attr_i(mxml_node_t *node, const char *name, int k)
-{
-    const char *c;
-
-    if (node && (c = mxmlElementGetAttr(node, name)))
-        return atoi(c);
-    else
-        return k;
-}
 
 //-----------------------------------------------------------------------------
 
-void set_attr_f(mxml_node_t *node, const char *name, double k)
+int next_power_of_2(int n)
 {
-    if (node && name)
-    {
-        std::ostringstream value;
-    
-        value << std::right << std::setw(8) << std::setprecision(5) << k;
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n++;
 
-        mxmlElementSetAttr(node, name, value.str().c_str());
-    }
-}
-
-double get_attr_f(mxml_node_t *node, const char *name, double k)
-{
-    const char *c;
-
-    if (node && (c = mxmlElementGetAttr(node, name)))
-        return atof(c);
-    else
-        return k;
+    return n;
 }
 
 //-----------------------------------------------------------------------------
-*/

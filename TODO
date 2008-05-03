@@ -1,5 +1,4 @@
-Add a varrier-mode mono option
-    Allow view objects to be disabled?
+convert geomip upload to PBO
 
 Consider rechecking the tracker after the draw but before the combine.
     Perhaps do the combine in response to the flip message.

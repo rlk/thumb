@@ -5,7 +5,8 @@ float miplevL(vec2 p)
     vec2  w   = fwidth(p);
     float rho = max(w.x, w.y);
 
-    return clamp(log2(rho), 0.0, 7.0);
+//  return clamp(log2(rho), 0.0, 7.0);
+    return max(log2(rho), 0.0);
 }
 
 vec3 miprefL(vec2 c, float l)

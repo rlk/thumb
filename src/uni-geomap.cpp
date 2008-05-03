@@ -14,8 +14,9 @@
 
 #include "uni-geomap.hpp"
 #include "app-serial.hpp"
-#include "matrix.hpp"
 #include "app-glob.hpp"
+#include "matrix.hpp"
+#include "util.hpp"
 
 /*
 static void dump(const GLubyte *v)
@@ -27,10 +28,10 @@ static void dump(const GLubyte *v)
     {
         for (int j = 0; j < w; ++j)
         {
-            int r = 256 -  1 - i;
-            int c = 512 - 32 + j;
+            int r = mip_h -  1 - i;
+            int c = mip_w - 32 + j;
 
-            printf("%02x ", v[r * 512 + c]);
+            printf("%02x ", v[r * mip_w + c]);
         }
         printf("\n");
     }
@@ -103,10 +104,10 @@ uni::page::page(int w, int h, int s,
         const int X = (x + t / 2);
         const int Y = (y + t / 2);
 
-        /* Has children? */ P[0] = new page(w, h, s, x, y, d-1, _W, _E, _S, _N);
-        if (X < w         ) P[1] = new page(w, h, s, X, y, d-1, _W, _E, _S, _N);
-        if (         Y < h) P[2] = new page(w, h, s, x, Y, d-1, _W, _E, _S, _N);
-        if (X < w && Y < h) P[3] = new page(w, h, s, X, Y, d-1, _W, _E, _S, _N);
+        /* Has children? */ P[0]=new page(w, h, s, x, y, d-1, _W, _E, _S, _N);
+        if (X < w         ) P[1]=new page(w, h, s, X, y, d-1, _W, _E, _S, _N);
+        if (         Y < h) P[2]=new page(w, h, s, x, Y, d-1, _W, _E, _S, _N);
+        if (X < w && Y < h) P[3]=new page(w, h, s, X, Y, d-1, _W, _E, _S, _N);
     }
 }
 
@@ -265,8 +266,7 @@ double uni::page::angle(const double *v, double r)
 //-----------------------------------------------------------------------------
 
 uni::geomap::geomap(std::string name, double r0, double r1) :
-    d(0), r0(r0), r1(r1), P(0), dirty(false),
-    index(glob->new_image(512, 256, GL_TEXTURE_2D, GL_LUMINANCE16, GL_LUMINANCE, GL_UNSIGNED_SHORT))
+    D(0), mip_w(1), mip_h(1), r0(r0), r1(r1), P(0), dirty(false)
 {
     app::serial file(name.c_str());
     
@@ -276,16 +276,19 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
 
         pattern = app::get_attr_s(map, "name");
 
-        double W = app::get_attr_f(map, "W", -PI);
-        double E = app::get_attr_f(map, "E",  PI);
-        double S = app::get_attr_f(map, "S", -PI_2);
-        double N = app::get_attr_f(map, "N",  PI_2);
+        ext_W = app::get_attr_f(map, "W", -PI);
+        ext_E = app::get_attr_f(map, "E",  PI);
+        ext_S = app::get_attr_f(map, "S", -PI_2);
+        ext_N = app::get_attr_f(map, "N",  PI_2);
 
         w = app::get_attr_d(map, "w", 1024);
         h = app::get_attr_d(map, "h", 512);
         s = app::get_attr_d(map, "s", 510);
         c = app::get_attr_d(map, "c", 3);
         b = app::get_attr_d(map, "b", 1);
+
+        mip_w = 2 * next_power_of_2(w / s);
+        mip_h = 2 * next_power_of_2(h / s);
 
         // Compute the depth of the mipmap pyramid.
 
@@ -294,18 +297,24 @@ uni::geomap::geomap(std::string name, double r0, double r1) :
         while (t < w || t < h)
         {
             t *= 2;
-            d += 1;
+            D += 1;
         }
+
+        printf("%d %d %d\n", mip_w, mip_h, D);
 
         // Generate the mipmap pyramid catalog.
 
-        P = new page(w, h, s, 0, 0, d, W, E, S, N);
+        P = new page(w, h, s, 0, 0, D, ext_W, ext_E, ext_S, ext_N);
     }
 
     S = s + 2;
 
-    image = new GLushort[512 * 256];
-    memset(image, 0xFF, 512 * 256 * 2);
+    image = new GLushort[mip_w * mip_h];
+    index = glob->new_image(mip_w, mip_h,
+                            GL_TEXTURE_2D, GL_LUMINANCE16,
+                            GL_LUMINANCE, GL_UNSIGNED_SHORT);
+
+    memset(image, 0xFF, mip_w * mip_h * 2);
 }
 
 uni::geomap::~geomap()
@@ -319,35 +328,35 @@ uni::geomap::~geomap()
 
 GLushort& uni::geomap::index_x(int d, int i, int j)
 {
-    int dj = 256 >> d;
-    int di = 128 >> d;
+    int dj = mip_w >> (d + 1);
+    int di = mip_h >> (d + 1);
 
-    int jj = j + 512 - (dj << 1);
-    int ii = i + 256 - (di << 1);
+    int jj = j + mip_w - (dj << 1);
+    int ii = i + mip_h - (di << 1);
 
-    return image[(ii + di) * 512 + (jj     )];
+    return image[(ii + di) * mip_w + (jj     )];
 }
 
 GLushort& uni::geomap::index_y(int d, int i, int j)
 {
-    int dj = 256 >> d;
-    int di = 128 >> d;
+    int dj = mip_w >> (d + 1);
+    int di = mip_h >> (d + 1);
 
-    int jj = j + 512 - (dj << 1);
-    int ii = i + 256 - (di << 1);
+    int jj = j + mip_w - (dj << 1);
+    int ii = i + mip_h - (di << 1);
 
-    return image[(ii     ) * 512 + (jj     )];
+    return image[(ii     ) * mip_w + (jj     )];
 }
 
 GLushort& uni::geomap::index_l(int d, int i, int j)
 {
-    int dj = 256 >> d;
-    int di = 128 >> d;
+    int dj = mip_w >> (d + 1);
+    int di = mip_h >> (d + 1);
 
-    int jj = j + 512 - (dj << 1);
-    int ii = i + 256 - (di << 1);
+    int jj = j + mip_w - (dj << 1);
+    int ii = i + mip_h - (di << 1);
 
-    return image[(ii     ) * 512 + (jj + dj)];
+    return image[(ii     ) * mip_w + (jj + dj)];
 }
 
 //-----------------------------------------------------------------------------
@@ -407,12 +416,12 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
 
     int l = 1 << d;
 
-    if (d < 8)
+    if (d < D)
     {
         do_index(d, i, j, GLushort(x * S + 1),
                           GLushort(y * S + 1),
                           GLushort(l));
-//        dump(image);
+//      dump(image);
         dirty = true;
     }
 }
@@ -425,17 +434,17 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 
     int l = 1 << d;
 
-    if (d < 8)
+    if (d < D)
     {
-        GLushort x1 = (d < 7) ? index_x(d + 1, i >> 1, j >> 1) : 0xFFFF;
-        GLushort y1 = (d < 7) ? index_y(d + 1, i >> 1, j >> 1) : 0xFFFF;
-        GLushort l1 = (d < 7) ? index_l(d + 1, i >> 1, j >> 1) : 0xFFFF;
+        GLushort x1 = (d < D-1) ? index_x(d + 1, i >> 1, j >> 1) : 0xFFFF;
+        GLushort y1 = (d < D-1) ? index_y(d + 1, i >> 1, j >> 1) : 0xFFFF;
+        GLushort l1 = (d < D-1) ? index_l(d + 1, i >> 1, j >> 1) : 0xFFFF;
 
         do_eject(d, i, j, GLushort(x * S + 1),
                           GLushort(y * S + 1),
                           GLushort(l), x1, y1, l1);
 
-//        dump(image);
+//      dump(image);
         dirty = true;
     }
 }
@@ -443,7 +452,7 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 void uni::geomap::proc()
 {
     if (dirty)
-        index->blit(image, 0, 0, 512, 256);
+        index->blit(image, 0, 0, mip_w, mip_h);
 
     dirty = false;
 }
@@ -461,14 +470,21 @@ void uni::geomap::init(int pool_w, int pool_h) const
     ogl::program::current->uniform("over_pool", 1.0 / pool_w, 1.0 / pool_h);
 
     ogl::program::current->uniform("data_over_tile",
-                                   double(w) / s,
-                                   double(h) / s);
+                                   double(w) / double(s),
+                                   double(h) / double(s));
     ogl::program::current->uniform("data_over_tile_base",
-                                   double(w) / (256.0 * s),
-                                   double(h) / (128.0 * s));
+                                   double(2 * w) / double(mip_w * s),
+                                   double(2 * h) / double(mip_h * s));
 
+    ogl::program::current->uniform("cylk",    1.0 / (ext_E - ext_W),
+                                              1.0 / (ext_N - ext_S));
+    ogl::program::current->uniform("cyld", -ext_W / (ext_E - ext_W),
+                                           -ext_S / (ext_N - ext_S));
+
+/*
     ogl::program::current->uniform("cylk", 0.5 / PI, 1.0 / PI);
     ogl::program::current->uniform("cyld", 0.5,      0.5     );
+*/
 }
 
 void uni::geomap::draw() const

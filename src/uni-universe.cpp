@@ -33,7 +33,8 @@ uni::universe::universe()
     cache_h = new geocsh(1, 2, 510, 8, 8);
 
     color  = new geomap("world.200408.xml",      r0, r1);
-    normal = new geomap("srtm_ramp2_normal.xml", r0, r1);
+    normal = new geomap("NED_norm.xml", r0, r1);
+//  normal = new geomap("srtm_ramp2_normal.xml", r0, r1);
     height = new geomap("srtm_ramp2.xml",        r0, r1);
 
     // Configure the geometry generator and renderer.

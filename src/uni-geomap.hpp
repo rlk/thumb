@@ -70,20 +70,25 @@ namespace uni
     {
         std::string pattern;
 
+        double ext_W;
+        double ext_E;
+        double ext_S;
+        double ext_N;
         int    w;
         int    h;
         int    c;
         int    b;
         int    s;
         int    S;
-        int    d;
+        int    D;
+        int mip_w;
+        int mip_h;
         double r0;
         double r1;
         page   *P;
 
         bool dirty;
 
-//      GLubyte    *image;
         GLushort   *image;
         ogl::image *index;
 

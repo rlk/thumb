@@ -161,6 +161,8 @@ uni::buffer *uni::buffer::load(std::string name)
         fclose(fp);
     }
 
+//  std::cout << name << (ret ? " ok" : " FAIL") << std::endl;
+
     return this;
 }
 
