@@ -684,6 +684,11 @@ void uni::sphere::draw(int i)
                         vtx.bind();
                         {
                             pass();
+/*
+                            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                            pass();
+                            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+*/
                         }
                         vtx.free();
                         dat.idx()->free();

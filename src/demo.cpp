@@ -211,8 +211,11 @@ void demo::prep(app::frustum_v& frusta)
 
 void demo::draw(int i)
 {
+/*
     GLfloat A[4] = { 0.25f, 0.25f, 0.25f, 0.0f };
-    GLfloat D[4] = { 1.00f, 1.00f, 1.00f, 0.0f };
+*/
+    GLfloat A[4] = { 0.45f, 0.45f, 0.45f, 0.0f };
+    GLfloat D[4] = { 1.00f, 1.00f, 0.90f, 0.0f };
 
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, D);

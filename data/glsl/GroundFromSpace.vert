@@ -90,10 +90,10 @@ void main(void)
 
     // Calculate the attenuation factor for the ground
     gl_FrontSecondaryColor.rgb = v3Attenuate;
-
+/*
     day = pow(max(0.0, dot(normalize(gl_NormalMatrix * gl_Normal),
                            gl_LightSource[0].position.xyz)), 5.0);
-
+*/
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
     gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
     gl_TexCoord[1] = gl_TextureMatrix[1] * gl_MultiTexCoord1;
