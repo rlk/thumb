@@ -713,7 +713,7 @@ uni::geopos::geopos(GLsizei d, GLsizei h) :
     calc->free();
 }
 
-void uni::geopos::init()
+void uni::geopos::init(double sea, const double *pos)
 {
     geogen::init();
 
@@ -728,6 +728,13 @@ void uni::geopos::init()
 
     d0 =  std::numeric_limits<GLfloat>::max();
     d1 = -std::numeric_limits<GLfloat>::max();
+
+    // HACK!
+
+    calc->bind();
+    calc->uniform("sea", sea);
+    calc->uniform("pos", pos[0], pos[1], pos[2]);
+    calc->free();
 }
 
 void uni::geopos::seed(GLsizei i, GLfloat x, GLfloat y, GLfloat z, GLfloat w)

@@ -20,6 +20,8 @@ void main()
 
     c.x -= step(1.0, c.x);
 
+//  c = floor(c * data_size + 0.5) / data_size;
+
     // Reference the cache.
 
     vec4 s = cacheref0(c);

@@ -17,6 +17,7 @@
 
 #include "app-frustum.hpp"
 #include "ogl-program.hpp"
+#include "ogl-buffer.hpp"
 #include "ogl-image.hpp"
 
 //-----------------------------------------------------------------------------
@@ -90,9 +91,10 @@ namespace uni
 
         const ogl::program *prog;
 
-        geocsh     *cache;
-        GLushort   *image;
-        ogl::image *index;
+        geocsh      *cache;
+        GLushort    *image;
+        ogl::buffer *buffer;
+        ogl::image  *index;
 
         GLushort& index_x(int, int, int);
         GLushort& index_y(int, int, int);

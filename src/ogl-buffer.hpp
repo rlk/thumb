@@ -39,6 +39,7 @@ namespace ogl
 
         void *rmap() const;
         void *wmap() const;
+        void *amap() const;
         void  umap() const;
     };
 }

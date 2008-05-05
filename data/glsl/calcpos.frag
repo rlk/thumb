@@ -5,7 +5,10 @@ uniform sampler2DRect lut;
 uniform sampler2DRect nrm;
 uniform sampler1D     rad;
 uniform float         siz;
+uniform float         sea;
+uniform vec3          pos;
 
+/* HACK!
 void main()
 {
     const float pi = 3.14159265358979323844;
@@ -25,4 +28,12 @@ void main()
     vec3 d = 0.5 * (p0 - p1);
 
     gl_FragColor = vec4(p + N.xyz * length(d) * r, 0.0);
+}
+*/
+
+void main()
+{
+    vec4 N = texture2DRect(nrm, gl_FragCoord.xy);
+
+    gl_FragColor = vec4(pos + N.xyz * sea, 0.0);
 }

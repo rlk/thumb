@@ -329,17 +329,24 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 
     S = s + 2;
 
-    image = new GLushort[mip_w * mip_h];
     index = glob->new_image(mip_w, mip_h,
                             GL_TEXTURE_2D, GL_LUMINANCE16,
                             GL_LUMINANCE, GL_UNSIGNED_SHORT);
 
-    memset(image, 0xFF, mip_w * mip_h * 2);
+    buffer = new ogl::buffer(GL_PIXEL_UNPACK_BUFFER_ARB, mip_w * mip_h * 2);
+
+    buffer->bind();
+    {
+        image = (GLushort *) buffer->amap();
+    }
+    buffer->free();
+    
+    if (image) memset(image, 0xFF, mip_w * mip_h * 2);
 }
 
 uni::geomap::~geomap()
 {
-    if (image) delete [] image;
+    if (buffer) delete buffer;
 
     if (prog) ::glob->free_program(prog);
 
@@ -440,10 +447,19 @@ void uni::geomap::cache_page(const page *Q, int x, int y)
 
     if (d < D)
     {
-        do_index(d, i, j, GLushort(x * S + 1),
-                          GLushort(y * S + 1),
-                          GLushort(l));
-        dirty = true;
+        if (image == 0)
+        { 
+            buffer->bind();
+            image = (GLushort *) buffer->amap();
+            buffer->free();
+        }
+        if (image)
+        {
+            do_index(d, i, j, GLushort(x * S + 1),
+                              GLushort(y * S + 1),
+                              GLushort(l));
+            dirty = true;
+        }
     }
 }
 
@@ -457,15 +473,23 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 
     if (d < D)
     {
-        GLushort x1 = (d < D-1) ? index_x(d + 1, i >> 1, j >> 1) : 0xFFFF;
-        GLushort y1 = (d < D-1) ? index_y(d + 1, i >> 1, j >> 1) : 0xFFFF;
-        GLushort l1 = (d < D-1) ? index_l(d + 1, i >> 1, j >> 1) : 0xFFFF;
+        if (image == 0)
+        {
+            buffer->bind();
+            image = (GLushort *) buffer->amap();
+            buffer->free();
+        }
+        if (image)
+        {
+            GLushort x1 = (d < D-1) ? index_x(d + 1, i >> 1, j >> 1) : 0xFFFF;
+            GLushort y1 = (d < D-1) ? index_y(d + 1, i >> 1, j >> 1) : 0xFFFF;
+            GLushort l1 = (d < D-1) ? index_l(d + 1, i >> 1, j >> 1) : 0xFFFF;
 
-        do_eject(d, i, j, GLushort(x * S + 1),
-                          GLushort(y * S + 1),
-                          GLushort(l), x1, y1, l1);
-
-        dirty = true;
+            do_eject(d, i, j, GLushort(x * S + 1),
+                              GLushort(y * S + 1),
+                              GLushort(l), x1, y1, l1);
+            dirty = true;
+        }
     }
 }
 
@@ -479,7 +503,16 @@ void uni::geomap::seed(const double *vp, double r0, double r1)
 void uni::geomap::proc()
 {
     if (dirty)
-        index->blit(image, 0, 0, mip_w, mip_h);
+    {
+        buffer->bind();
+        buffer->umap();
+        {
+            index->blit(0, 0, 0, mip_w, mip_h);
+        }
+        buffer->free();
+
+        image = 0;
+    }
 
     dirty = false;
 }
@@ -497,6 +530,9 @@ void uni::geomap::draw() const
 
         prog->uniform("data_size", w, h);
         prog->uniform("tile_size", s, s);
+        prog->uniform("page_size", S, S);
+        prog->uniform("pool_size", cache->pool_w(), cache->pool_h());
+        prog->uniform("over_page", 1.0 / S, 1.0 / S);
         prog->uniform("over_pool", 1.0 / cache->pool_w(),
                                    1.0 / cache->pool_h());
 

@@ -225,7 +225,7 @@ namespace uni
 
         geopos(GLsizei, GLsizei);
 
-        virtual void init();
+        virtual void init(double, const double *);
         virtual void seed(GLsizei, GLfloat=0, GLfloat=0, GLfloat=0, GLfloat=0);
         virtual void fini(GLsizei);
 

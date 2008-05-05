@@ -75,6 +75,11 @@ void *ogl::buffer::wmap() const
     return glMapBufferARB(t, GL_WRITE_ONLY_ARB);
 }
 
+void *ogl::buffer::amap() const
+{
+    return glMapBufferARB(t, GL_READ_WRITE_ARB);
+}
+
 void ogl::buffer::umap() const
 {
     glUnmapBufferARB(t);

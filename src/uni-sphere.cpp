@@ -418,10 +418,14 @@ void uni::sphere::step()
 
         if (count)
         {
+            double Z1[3], Z0[3] = { 0.0, 0.0, 0.0 };
+
+            mult_mat_vec3(Z1, M, Z0);
+
             // Seed the normal and position generators.
 
             nrm.init();
-            pos.init();
+            pos.init(r0, Z1);
             tex.init();
             {
                 for (int k = 0; k < count; ++k)

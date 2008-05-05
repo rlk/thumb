@@ -1,7 +1,4 @@
-adapt drawnrm and calcacc to recognize nodata
-compute the true bounds of NED/NED_norm
 convert geomip upload to PBO
-lighten the diffuse shading
 
 Consider rechecking the tracker after the draw but before the combine.
     Perhaps do the combine in response to the flip message.
