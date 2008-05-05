@@ -817,7 +817,7 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
     calc->free();
 }
 
-void uni::geoacc::init(GLsizei c)
+void uni::geoacc::init(GLsizei c, double sea, const double *ori)
 {
     dst->bind(true);
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
@@ -828,6 +828,13 @@ void uni::geoacc::init(GLsizei c)
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     src->free(true);
+
+    calc->bind();
+    {
+        calc->uniform("sea", sea);
+        calc->uniform("ori", ori[0], ori[1], ori[2]);
+    }
+    calc->free();
 }
 
 //-----------------------------------------------------------------------------

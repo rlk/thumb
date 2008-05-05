@@ -23,30 +23,26 @@ void main()
 
     c.x -= step(1.0, c.x);
 
-//  if (c == clamp(c, 0.0, 1.0))
-    {
-        // Reference the cache.
+    // Reference the cache.
 
-        vec4 s = cacheref0(c);
+    vec4 s = cacheref0(c);
 
-        if (s.a < 1.0) discard;
+    if (s.a < 1.0) discard;
 
-        // Compute the position.
+    // Compute the position.
 
-        const float off =     0.5;
-        const float mag = 65535.0;
+    const float off =     0.5;
+    const float mag = 65535.0;
 
-//      vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
-        vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
+//  vec3 P = texture2DRect(pos, gl_FragCoord.xy).xyz;
+    vec3 N = texture2DRect(nrm, gl_FragCoord.xy).xyz;
 
-        float M = (s.r - off) * mag;
+    float M = (s.r - off) * mag;
 
-//      gl_FragColor = vec4(P + normalize(N) * M, M);
+//  gl_FragColor = vec4(P + normalize(N) * M, M);
 
-//      gl_FragColor = vec4(ori + N * (sea + M), M);
-        gl_FragColor = vec4(ori + N * (sea + M), 0.0);
-    }
-//  else discard;
+//  gl_FragColor = vec4(ori + N * (sea + M), M);
+    gl_FragColor = vec4(ori + N * (sea + M), 0.0);
 }
 
 //-----------------------------------------------------------------------------

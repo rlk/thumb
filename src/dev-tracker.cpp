@@ -13,6 +13,7 @@
 #include <SDL_joystick.h>
 
 #include "matrix.hpp"
+#include "app-prog.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-host.hpp"
@@ -78,10 +79,7 @@ bool dev::tracker::click(int i, int b, int m, bool d)
 {
     button[b] = d;
 
-    if      (b == tracker_butn_home)
-        ::user->home();
-
-    else if (b == tracker_butn_fly)
+    if (b == tracker_butn_fly)
     {
         init_P[0] = curr_P[0];
         init_P[1] = curr_P[1];
@@ -89,6 +87,8 @@ bool dev::tracker::click(int i, int b, int m, bool d)
 
         load_mat(init_R, curr_R);
     }
+    else if (b == 1 && d) ::user->home();
+    else if (b == 2 && d) ::prog->toggle(2);
 
     return true;
 }

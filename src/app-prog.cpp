@@ -115,7 +115,7 @@ void app::prog::keybd(int c, int k, int m, bool d)
         else if (m & KMOD_SHIFT)
         {
             if (SDLK_F1 <= k && k <= SDLK_F12)
-                options ^= (1 << (k - SDLK_F1));
+                toggle(k - SDLK_F1);
         }
     }
 }
@@ -125,6 +125,11 @@ void app::prog::keybd(int c, int k, int m, bool d)
 bool app::prog::option(int b) const
 {
     return (options & (1 << b)) ? true : false;
+}
+
+void app::prog::toggle(int b)
+{
+    options ^= (1 << b);
 }
 
 //-----------------------------------------------------------------------------

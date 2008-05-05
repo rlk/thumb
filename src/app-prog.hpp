@@ -45,6 +45,7 @@ namespace app
         virtual void draw(int)             { }
 
         bool option(int) const;
+        void toggle(int);
 
         virtual ~prog() { }
     };

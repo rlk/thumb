@@ -490,7 +490,7 @@ void uni::sphere::prep()
 
                 // Generate positions.
 
-                pos.proc(count);
+//              pos.proc(count);
             }
             nrm.free(GL_TEXTURE2);
         }
@@ -503,9 +503,13 @@ void uni::sphere::prep()
         nrm.bind(GL_TEXTURE5);
         tex.bind(GL_TEXTURE6);
         {
+            double Z1[3], Z0[3] = { 0.0, 0.0, 0.0 };
+
+            mult_mat_vec3(Z1, M, Z0);
+
             // Accumulate terrain maps.
 
-            acc.init(count);
+            acc.init(count, r0, Z1);
             acc.bind_proc(); // overkill
             {
                 for (geomap_i m = height.begin(); m != height.end(); ++m)
@@ -578,7 +582,7 @@ void uni::sphere::draw(int i)
     const ogl::program *atmo_prog = draw_lit;
     const ogl::program *land_prog = draw_lit;
 
-    if (draw_atmo)
+    if (draw_atmo && !::prog->option(2))
     {
         atmo_prog = in ? atmo_in : atmo_out;
         land_prog = in ? land_in : land_out;
@@ -655,13 +659,16 @@ void uni::sphere::draw(int i)
 
                 // Accumulate the textures.
 
-                ren.dif()->init();
-                ren.dif()->bind();
+                ren.dif()->init(1.0f, 1.0f, 1.0f);
+                if (!::prog->option(2))
                 {
-                    for (geomap_i m =  color.begin(); m !=  color.end(); ++m)
-                        (*m)->draw();
+                    ren.dif()->bind();
+                    {
+                        for (geomap_i m =  color.begin(); m !=  color.end(); ++m)
+                            (*m)->draw();
+                    }
+                    ren.dif()->free();
                 }
-                ren.dif()->free();
 
                 ren.nrm()->init();
                 ren.nrm()->bind();
@@ -676,7 +683,6 @@ void uni::sphere::draw(int i)
                 glClear(GL_DEPTH_BUFFER_BIT);
                 glEnable(GL_DEPTH_TEST);
 
-                if (!::prog->option(2))
                 {
                     land_prog->bind();
                     {
@@ -688,11 +694,13 @@ void uni::sphere::draw(int i)
                         vtx.bind();
                         {
                             pass();
-/*
-                            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-                            pass();
-                            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-*/
+
+                            if (!::prog->option(11))
+                            {
+                                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                                pass();
+                                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                            }
                         }
                         vtx.free();
                         dat.idx()->free();
@@ -777,7 +785,7 @@ void uni::sphere::draw(int i)
 
         // Draw the atmosphere.
 
-        if (draw_atmo)
+        if (draw_atmo && !::prog->option(2))
         {
             glEnable(GL_DEPTH_CLAMP_NV);
             {

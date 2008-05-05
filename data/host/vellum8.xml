@@ -2,7 +2,7 @@
    <host>
      <view x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0" />
      <view x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1" />
-     <buffer w="640" h="480" />
+     <buffer w="320" h="240" />
      <node name="host/vellum8.xml">
        <server addr="vellum" port="2827" />
        <window x="0" y="0" w="3200" h="2400" frame="0" />

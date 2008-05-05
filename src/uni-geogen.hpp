@@ -252,7 +252,7 @@ namespace uni
 
         geoacc(GLsizei, GLsizei);
 
-        void init(GLsizei);
+        void init(GLsizei, double, const double *);
     };
 
     //-------------------------------------------------------------------------

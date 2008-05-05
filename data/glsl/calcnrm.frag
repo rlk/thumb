@@ -11,6 +11,8 @@ void main()
     vec3 n0 = texture2DRect(src, vec2(k.x, gl_FragCoord.y)).xyz;
     vec3 n1 = texture2DRect(src, vec2(k.y, gl_FragCoord.y)).xyz;
 
-    gl_FragColor = vec4(normalize(n0 + n1), acos(dot(n0, n1)));
+    gl_FragColor = vec4(normalize(n0 + n1), 0.0);
+//  gl_FragColor = vec4(normalize(n0 + n1), acos(dot(n0, n1)));
 //  gl_FragColor = vec4((n0 + n1) * 0.5, acos(dot(n0, n1)));
+//  gl_FragColor = vec4((n0 + n1) * 0.5, 0.0);
 }
