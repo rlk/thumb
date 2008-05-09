@@ -1,5 +1,6 @@
 <?xml version="1.0"?>
-<map name="/data/evl/rlk/earth/srtm_ramp2_normal/srtm_ramp2_normal-%02x-%02x-%02x.png"
+<!--<map name="/data/evl/rlk/earth/srtm_ramp2_normal/srtm_ramp2_normal-%02x-%02x-%02x.png"-->
+<map name="e:/earth/srtm_ramp2_normal/srtm_ramp2_normal-%02x-%02x-%02x.png"
      w="86400"
      h="43200"
      s="510"

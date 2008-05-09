@@ -9,6 +9,8 @@
   <option type="string" name="input_mode">mouse</option>
 
   <option type="int" name="loader_threads">1</option>
+  <option type="int" name="loader_buffers">64</option>
+
   <option type="float" name="attract_delay">600.0</option>
 
   <option type="int" name="atmo">1</option>
@@ -16,11 +18,11 @@
   <option type="int" name="bench">0</option>
   <option type="int" name="debug">0</option>
 
-  <option type="string" name="mipmap">linear</option>
+  <option type="string" name="mipmap">best</option>
 
   <!-- Terrain renderer configuration -->
 
-  <option type="int"   name="patch_cache">128</option>
+  <option type="int"   name="patch_cache">256</option>
   <option type="int"   name="patch_depth">3</option>
 
   <!-- Tracker configuration -->

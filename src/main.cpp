@@ -118,7 +118,7 @@ static void position(int x, int y)
 
 #ifdef _WIN32
     sprintf(buf, "SDL_VIDEO_WINDOW_POS=%d,%d", x, y);
-    putenv(buf);
+//  putenv(buf);
 #else
     sprintf(buf, "%d,%d", x, y);
     setenv("SDL_VIDEO_WINDOW_POS", buf, 1);
