@@ -15,6 +15,7 @@
 #include "app-normal.hpp"
 #include "app-dome.hpp"
 #include "app-varrier.hpp"
+#include "app-anaglyph.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -56,10 +57,8 @@ app::tile::tile(app::node node) : current(0)
             display.push_back(new app::dome    (node, curr, window));
         if (strcmp(t, "varrier")  == 0)
             display.push_back(new app::varrier (node, curr, window));
-/*
         if (strcmp(t, "anaglyph") == 0)
             display.push_back(new app::anaglyph(node, curr, window));
-*/
     }
 
     // Create a fall-back normal display.

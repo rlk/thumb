@@ -2,6 +2,17 @@
 <host>
   <buffer w="1024" h="768"/>
 
+  <node name="3200x2260">
+    <buffer w="3200" h="2260"/>
+    <window x="0" y="0" w="3200" h="2260" full="1"/>
+    <tile>
+      <viewport x="0" y="0" w="3200" h="2260"/>
+      <frustum>
+        <perspective aspect="1.416" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
   <node name="1600x1200x2">
     <buffer w="1600" h="1200"/>
     <window x="0" y="0" w="3200" h="1200"/>

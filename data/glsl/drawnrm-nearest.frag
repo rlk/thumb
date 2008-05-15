@@ -18,9 +18,16 @@ void main()
     vec4 C = texture2DRect(cyl, gl_FragCoord.xy);
     vec2 c = C.xy * cylk + cyld;
 
+    vec2 b = step(vec2(0.0), c) * step(c, vec2(1.0));
+
     // Sample the normal.
 
-    vec3 n = cacherefL(c, floor(miplevL(c * data_size))).xyz * 2.0 - 1.0;
+    vec4 t = cacherefL(c, floor(miplevL(c * data_size)));
+
+//  if (t.a < 1.0) discard;
+    float a = t.a * b.x * b.y;
+
+    vec3 n = t.xyz * 2.0 - 1.0;
 
     // Transform it into tangent space and write it.  TODO: in drawlit?
 
@@ -33,7 +40,7 @@ void main()
     T[1] = normalize(cross(N, T[0]));
     T[2] = N;
 
-    gl_FragColor = vec4((T * n + 1.0) * 0.5, 1.0);
+    gl_FragColor = vec4((T * n + 1.0) * 0.5, a);
 }
 
 //-----------------------------------------------------------------------------

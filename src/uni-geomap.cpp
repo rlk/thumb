@@ -517,7 +517,7 @@ void uni::geomap::proc()
     dirty = false;
 }
 
-void uni::geomap::draw() const
+void uni::geomap::draw(double sea, const double *ori) const
 {
     prog->bind();
     index->bind(GL_TEXTURE1);
@@ -545,6 +545,17 @@ void uni::geomap::draw() const
                                  1.0 / (ext_N - ext_S));
         prog->uniform("cyld", -ext_W / (ext_E - ext_W),
                               -ext_S / (ext_N - ext_S));
+
+        prog->uniform("minL",     0.0);
+        prog->uniform("maxL", D - 1.0);
+
+        // HACK!
+
+        if (ori)
+        {
+            prog->uniform("sea", sea);
+            prog->uniform("ori", ori[0], ori[1], ori[2]);
+        }
 
         // Render a full-screen quad.
 

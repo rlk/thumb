@@ -17,6 +17,8 @@ void main()
 
     vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy * cylk + cyld;
 
+    c.x -= step(1.0, c.x);
+
     // Determine the mipmap levels.
 
     float ll = miplevL(c * data_size);
@@ -25,8 +27,12 @@ void main()
 
     // Sample the color.
 
-    gl_FragColor = mix(cacherefL(c, l0),
-                       cacherefL(c, l1), ll - l0);
+    vec4 cc = mix(cacherefL(c, l0),
+                  cacherefL(c, l1), ll - l0);
+
+    if (cc.a < 1.0) discard;
+
+    gl_FragColor = vec4(cc.rgb, 1.0);
 }
 
 //-----------------------------------------------------------------------------

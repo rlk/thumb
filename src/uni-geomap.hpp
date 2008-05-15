@@ -114,7 +114,7 @@ namespace uni
 
         void seed(const double *, double, double);
         void proc();
-        void draw() const;
+        void draw(double, const double *) const;
 
         std::string name(const page *);
 

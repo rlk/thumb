@@ -512,8 +512,11 @@ void uni::sphere::prep()
             acc.init(count, r0, Z1);
             acc.bind_proc(); // overkill
             {
+                glEnable(GL_BLEND);
+                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                 for (geomap_i m = height.begin(); m != height.end(); ++m)
-                    (*m)->draw();
+                    (*m)->draw(r0, Z1);
+                glDisable(GL_BLEND);
             }
             acc.free_proc(); // overkill
             acc.swap();
@@ -665,7 +668,7 @@ void uni::sphere::draw(int i)
                     ren.dif()->bind();
                     {
                         for (geomap_i m =  color.begin(); m !=  color.end(); ++m)
-                            (*m)->draw();
+                            (*m)->draw(0, 0);
                     }
                     ren.dif()->free();
                 }
@@ -673,8 +676,11 @@ void uni::sphere::draw(int i)
                 ren.nrm()->init();
                 ren.nrm()->bind();
                 {
+                    glEnable(GL_BLEND);
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     for (geomap_i m = normal.begin(); m != normal.end(); ++m)
-                        (*m)->draw();
+                        (*m)->draw(0, 0);
+                    glDisable(GL_BLEND);
                 }
                 ren.nrm()->free();
 

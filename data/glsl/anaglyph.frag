@@ -6,17 +6,17 @@ uniform sampler2DRect R_map;
 uniform vec2 frag_k;
 uniform vec2 frag_d;
 
+uniform vec4 luma;
+
 void main()
 {
-    const vec4 luma = { 0.30, 0.59, 0.11, 0.00 };
-
-    vec2 p = (gl_FragCoord.xy + frag_d) * frag_k;
+    vec2 p = gl_FragCoord.xy * frag_k + frag_d;
 
     const vec4 L = texture2DRect(L_map, p);
     const vec4 R = texture2DRect(R_map, p);
 
-//  gl_FragColor = vec4(dot(R, luma) * 0.36, 0.0, dot(L, luma), 1.0);
-    gl_FragColor = vec4(dot(R, luma),
-                        dot(L, luma), 
-                        dot(L, luma), 1.0);
+    const float l = 2.0 * dot(L, luma);
+    const float r = 2.0 * dot(R, luma) * 0.3 / 0.7;
+
+    gl_FragColor = vec4(l, r, r, 1.0);
 }

@@ -21,15 +21,14 @@ void main()
 
     vec2 c = texture2DRect(tex, gl_FragCoord.xy).xy * cylk + cyld;
 
-    c.x -= step(1.0, c.x);
+    vec2 b = step(vec2(0.0), c) * step(c, vec2(1.0));
 
-//  if (c == clamp(c, 0.0, 1.0))
     {
         // Reference the cache.
 
         vec4 s = cacheref0(c);
 
-        if (s.a < 1.0) discard;
+	float a = s.a * b.x * b.y;
 
         // Compute the position.
 
@@ -44,9 +43,8 @@ void main()
 //      gl_FragColor = vec4(P + normalize(N) * M, M);
 
 //      gl_FragColor = vec4(ori + N * (sea + M), M);
-        gl_FragColor = vec4(ori + N * (sea + M), 0.0);
+        gl_FragColor = vec4(ori + N * (sea + M), a);
     }
-//  else discard;
 }
 
 //-----------------------------------------------------------------------------

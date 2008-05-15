@@ -3,12 +3,12 @@
 
   <!-- Host configuration -->
 
-  <option type="string" name="host_file">host/common.xml</option>
+  <option type="string" name="host_file">host/4k.xml</option>
   <option type="string" name="exec_dir">/home/rlk/src/thumb/</option>
 
   <option type="string" name="input_mode">mouse</option>
 
-  <option type="int" name="loader_threads">1</option>
+  <option type="int" name="loader_threads">3</option>
   <option type="int" name="loader_buffers">64</option>
 
   <option type="float" name="attract_delay">600.0</option>
@@ -18,12 +18,12 @@
   <option type="int" name="bench">0</option>
   <option type="int" name="debug">0</option>
 
-  <option type="string" name="mipmap">best</option>
+  <option type="string" name="mipmap">nearest</option>
 
   <!-- Terrain renderer configuration -->
 
   <option type="int"   name="patch_cache">256</option>
-  <option type="int"   name="patch_depth">3</option>
+  <option type="int"   name="patch_depth">5</option>
 
   <!-- Tracker configuration -->
 
@@ -60,16 +60,16 @@
   <option type="int"    name="sans_size">14</option>
   <option type="int"    name="mono_size">14</option>
 
-  <!-- Qwerty keyboard commands -->
+  <!-- Qwerty keyboard commands
 
   <option type="int" name="key_move_L">97</option>
   <option type="int" name="key_move_R">100</option>
   <option type="int" name="key_move_D">113</option>
   <option type="int" name="key_move_U">101</option>
   <option type="int" name="key_move_F">119</option>
-  <option type="int" name="key_move_B">115</option>
+  <option type="int" name="key_move_B">115</option> -->
 
-  <!-- Dvorak keyboard commands 
+  <!-- Dvorak keyboard commands -->
 
   <option type="int" name="key_move_L">97</option>
   <option type="int" name="key_move_R">101</option>
@@ -77,7 +77,6 @@
   <option type="int" name="key_move_U">46</option>
   <option type="int" name="key_move_F">44</option>
   <option type="int" name="key_move_B">111</option>
-  -->
 
   <!--
   <option type="int" name="key_axis_X">113</option>

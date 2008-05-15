@@ -29,8 +29,8 @@ uni::universe::universe()
 
     // Create the caches.
 
-    geocsh *cache_s = new geocsh(3, 1, 510, 8, 8);
-    geocsh *cache_h = new geocsh(1, 2, 510, 8, 8);
+    geocsh *cache_s = new geocsh(3, 1, 510, 16,  8);
+    geocsh *cache_h = new geocsh(1, 2, 510,  8,  8);
 
     caches.push_back(cache_s);
     caches.push_back(cache_h);

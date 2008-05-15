@@ -10,6 +10,9 @@ uniform vec2 pool_size;
 uniform vec2 over_page;
 uniform vec2 over_pool;
 
+uniform float minL;
+uniform float maxL;
+
 uniform vec2 data_over_tile;
 uniform vec2 data_over_tile_base;
 

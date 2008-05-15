@@ -26,9 +26,17 @@ void main()
 
     // Sample the normal.  TODO: normalization may be unnecessary.
 
+    vec4 n0 = cacherefL(c, l0) * vec4(vec3(2.0), 1.0)
+                               - vec4(vec3(1.0), 0.0);
+    vec4 n1 = cacherefL(c, l1) * vec4(vec3(2.0), 1.0)
+                               - vec4(vec3(1.0), 0.0);
+    vec4 n = mix(n0, n1, ll - l0);
+
+    if (n.a < 1.0) discard;
+/*
     vec3 n = normalize(mix(cacherefL(c, l0),
                            cacherefL(c, l1), ll - l0).xyz * 2.0 - 1.0);
-
+*/
     // Transform it into tangent space and write it.  TODO: in drawlit?
 
     vec3 N = vec3(C.z, sin(C.y), C.w);
@@ -40,7 +48,7 @@ void main()
     T[1] = normalize(cross(N, T[0]));
     T[2] = N;
 
-    gl_FragColor = vec4((T * n + 1.0) * 0.5, 1.0);
+    gl_FragColor = vec4((T * n.xyz + 1.0) * 0.5, 1.0);
 }
 
 //-----------------------------------------------------------------------------

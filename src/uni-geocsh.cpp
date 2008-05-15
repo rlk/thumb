@@ -587,7 +587,7 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
 
     SDL_mutexP(need_mutex);
     {
-//        if (needs.empty())
+        if (needs.empty())
             SDL_CondWait(need_cond, need_mutex);
 
         if (!needs.empty())
@@ -606,7 +606,7 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
     {
         SDL_mutexP(buff_mutex);
         {
-//            if (buffs.empty())
+            if (buffs.empty())
                 SDL_CondWait(buff_cond, buff_mutex);
 
             if (!buffs.empty())

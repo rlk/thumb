@@ -17,6 +17,8 @@ void main()
 
     vec2 c = texture2DRect(cyl, gl_FragCoord.xy).xy * cylk + cyld;
 
+    c.x -= step(1.0, c.x);
+
     gl_FragColor = cacherefL(c, floor(miplevL(c * data_size)));
 }
 
