@@ -27,10 +27,18 @@ uni::universe::universe()
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
 
+    int image_cache_w = std::min(::conf->get_i("image_cache_w"), 2);
+    int image_cache_h = std::min(::conf->get_i("image_cache_h"), 2);
+
+    int height_cache_w = std::min(::conf->get_i("height_cache_w"), 2);
+    int height_cache_h = std::min(::conf->get_i("height_cache_h"), 2);
+
     // Create the caches.
 
-    geocsh *cache_s = new geocsh(3, 1, 510, 16,  8);
-    geocsh *cache_h = new geocsh(1, 2, 510,  8,  8);
+    geocsh *cache_s = new geocsh(3, 1, 510, image_cache_w,
+                                            image_cache_h);
+    geocsh *cache_h = new geocsh(1, 2, 510, height_cache_w,
+                                            height_cache_h);
 
     caches.push_back(cache_s);
     caches.push_back(cache_h);
