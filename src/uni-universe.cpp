@@ -27,11 +27,11 @@ uni::universe::universe()
     double r0 = 6372797.0;
     double r1 = 6372797.0 + 8844.0;
 
-    int image_cache_w = std::min(::conf->get_i("image_cache_w"), 2);
-    int image_cache_h = std::min(::conf->get_i("image_cache_h"), 2);
+    int image_cache_w = std::max(::conf->get_i("image_cache_w"), 2);
+    int image_cache_h = std::max(::conf->get_i("image_cache_h"), 2);
 
-    int height_cache_w = std::min(::conf->get_i("height_cache_w"), 2);
-    int height_cache_h = std::min(::conf->get_i("height_cache_h"), 2);
+    int height_cache_w = std::max(::conf->get_i("height_cache_w"), 2);
+    int height_cache_h = std::max(::conf->get_i("height_cache_h"), 2);
 
     // Create the caches.
 
