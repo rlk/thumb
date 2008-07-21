@@ -1,9 +1,9 @@
 
-#CFLAGS= -g -Wall
+CFLAGS= -g -Wall
 #CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
-CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
 
 #------------------------------------------------------------------------------
 
@@ -90,10 +90,17 @@ ifeq "$(MAKE)" "mingw32-make"
 
 else #-------------------------------------------------------------------------
 
-	RM = rm -f
-
+ifeq ($(shell uname), Darwin)
+	SDLCONF = /opt/local/bin/sdl-config
+	FT2CONF = /opt/local/bin/freetype-config
+	OGLLIB  = -framework OpenGL
+else
 	SDLCONF = sdl-config
 	FT2CONF = freetype-config
+	OGLLIB  = -lGL
+endif
+
+	RM = rm -f
 
 	INCDIR  = -I$(HOME)/include
 	LIBDIR  = -L$(HOME)/lib
@@ -102,7 +109,7 @@ else #-------------------------------------------------------------------------
 		  $(shell $(FT2CONF) --cflags)
 	LIBS    = $(shell $(SDLCONF) --libs) \
 		  $(shell $(FT2CONF) --libs) \
-		-lmxml -lode -ljpeg -lpng -lz -lm -lGL
+		-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 endif
 
 #------------------------------------------------------------------------------

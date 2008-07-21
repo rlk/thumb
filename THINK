@@ -1,7 +1,51 @@
+Passing the viewport in the vertices of the quad would eliminate the need to use frag_k frag_d
+
 smoothstep a quad in sphere coords
 compute user_frust
 inverse user_frust in dome-draw
 
+frustum object
+
+    eye space positions
+    can compute/use world positions
+    knows its XML dom
+        can take FOV and tweaks
+        can take calibration input events
+    knows its eye index
+        can take a list of eyes
+        can recompute it's planes based on (tracked) eye
+            for both projection determination
+            and culling
+    can create frustum based on horizon
+        and add it to the list of frusta being passed around
+    can test aabb
+    can test shell
+    can provide frusta points and/or splits and/or split bound frusta
+        for correct shadow rendering
+    can provide LOD info at a point?
+        what does that mean exactly?
+
+    the code that computes the eye frustum of a dome segment could be the same that computes the light frustum of a split
+
+
+uses
+    sphere->view
+    patch->view
+    pool->view
+
+
+-------------------------------------------------------------------------------
+
+A proper water bouyancy model could be used for helium ballons!
+
+Normalize the cross products in patch_vector_test?
+
+
+
+
+simplify sphere draw to assume the FragCoord is accurate
+complete the event API rewrite
+implement culling within frustum
 
 -------------------------------------------------------------------------------
 

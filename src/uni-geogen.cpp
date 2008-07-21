@@ -258,7 +258,8 @@ void uni::geolut::subdiv(GLushort *p, GLsizei d,
 
 uni::geolut::geolut(GLsizei d, geocon& con) :
     ogl::image(vtx_count(d), 1, GL_TEXTURE_RECTANGLE_ARB,
-                                GL_FLOAT_RGBA32_NV,
+                                GL_RGBA32F_ARB,
+//                              GL_FLOAT_RGBA32_NV,
                                 GL_RGBA,
                                 GL_UNSIGNED_SHORT)
 /* L16A16 doesnt work on FX.
@@ -474,9 +475,11 @@ uni::geobuf::geobuf(GLsizei w, GLsizei h, std::string rect_vert,
                                           std::string show_frag) :
 
     ping(glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                               GL_FLOAT_RGBA32_NV, false)),
+                               GL_RGBA32F_ARB, false)),
+//                             GL_FLOAT_RGBA32_NV, false)),
     pong(glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                               GL_FLOAT_RGBA32_NV, false)),
+                               GL_RGBA32F_ARB, false)),
+//                             GL_FLOAT_RGBA32_NV, false)),
     src(ping),
     dst(pong),
 

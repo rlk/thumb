@@ -1,5 +1,32 @@
 -------------------------------------------------------------------------------
 
+Could the cracking problem be mitigated by explicitly rounding height positions to the enarest integral pixel?  Is it the nearest logic of the hardware that is the problem?  Would the floor(x + 0.5) approach be more stable?  Pass (w,h) and quantize the normalized coordinate.  Should be no perf penalty, as it's only necessary in calcacc.  Answer: NO.
+
+Create "full" versions of calcacc, drawdif, and drawnrm that don't check their bounds.
+
+Benchmark blending versus discard. Alpha can be raised to a power to penalize border blends.
+
+Alternatively, look into clamping the mipmap index to a border.  Is there a cache coordinate that can always be used as out of bounds?
+
+Modify the image buffer of the mipmap index to use a mapped PBO. Modyfy it freely, umap and blit at proc. Map on first need next frame. This will require read mapping as well as write, and will be somewhat not-sequential, so it may are may not be an improvement. However, it will eliminate a large data copy.
+
+-------------------------------------------------------------------------------
+
+Fast texture upload formats?
+
+internal   type                          external
+GL_RGB5    GL_UNSIGNED_SHORT_5_6_5       GL_RGB
+GL_RGB8    GL_UNSIGNED_INT_8_8_8_8_REV   GL_BGRA
+GL_RGBA4   GL_UNSIGNED_SHORT_4_4_4_4_REV GL_BGRA
+GL_RGB5_A1 GL_UNSIGNED_SHORT_1_5_5_5_REV GL_BGRA
+GL_RGBA8   GL_UNSIGNED_INT_8_8_8_8_REV   GL_BGRA
+
+-------------------------------------------------------------------------------
+
+NOTE: round to nearest = floor(x + 0.5)
+
+-------------------------------------------------------------------------------
+
 step
     foreach csh
         csh.init

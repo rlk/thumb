@@ -179,7 +179,11 @@ static void sync(int interval)
          _wglSwapInvervalEXT(interval);
 }
 
-#else
+#endif
+
+//-----------------------------------------------------------------------------
+
+#ifdef __linux__
 
 static void sync(int interval)
 {
@@ -188,6 +192,17 @@ static void sync(int interval)
     if ((_glXSwapInvervalSGI = (PFNGLXSWAPINTERVALSGIPROC)
           glXGetProcAddress((const GLubyte *) "glXSwapIntervalSGI")))
          _glXSwapInvervalSGI(interval);
+}
+
+#endif
+
+//-----------------------------------------------------------------------------
+
+#ifdef __APPLE__
+
+static void sync(int inverval)
+{
+    // TODO: Figure out how to do this on Apple.
 }
 
 #endif

@@ -94,7 +94,8 @@ void uni::renbuf::free() const
 //-----------------------------------------------------------------------------
 
 uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
-    uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false),
+    uni::renbuf(w, h, GL_RGBA32F_ARB, true, false),
+//  uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false),
     draw(::glob->load_program("glsl/drawcyl.vert",
                               "glsl/drawcyl.frag"))
 {

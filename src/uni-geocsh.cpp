@@ -240,7 +240,8 @@ GLenum uni::geocsh::internal_format(int c, int b)
 
 GLenum uni::geocsh::external_format(int c, int b)
 {
-    if (c == 3 && b == 1) return GL_BGRA;
+//  if (c == 3 && b == 1) return GL_BGRA;
+    if (c == 3 && b == 1) return GL_RGBA;
     if (c == 1 && b == 2) return GL_LUMINANCE_ALPHA;
 
     return GL_RGBA;
@@ -587,7 +588,7 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
 
     SDL_mutexP(need_mutex);
     {
-        if (needs.empty())
+//       if (needs.empty())
             SDL_CondWait(need_cond, need_mutex);
 
         if (!needs.empty())
@@ -606,7 +607,7 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
     {
         SDL_mutexP(buff_mutex);
         {
-            if (buffs.empty())
+//          if (buffs.empty())
                 SDL_CondWait(buff_cond, buff_mutex);
 
             if (!buffs.empty())

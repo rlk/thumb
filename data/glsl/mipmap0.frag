@@ -2,8 +2,8 @@
 
 vec3 mipref0(vec2 c)
 {
-    const vec2 p0 = c * 0.5;
-    const vec2 p1 = c * 0.5 + 0.5;
+    vec2 p0 = c * 0.5;
+    vec2 p1 = c * 0.5 + 0.5;
 
     return vec3(texture2D(index, vec2(p0.s, p1.t)).r,
                 texture2D(index, vec2(p0.s, p0.t)).r,

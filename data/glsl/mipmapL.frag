@@ -11,10 +11,10 @@ float miplevL(vec2 p)
 
 vec3 miprefL(vec2 c, float l)
 {
-    const vec2 t = exp2(vec2(-l, -l - 1.0));
+    vec2 t = exp2(vec2(-l, -l - 1.0));
 
-    const vec2 p0 = 1.0 - t.x + c * t.y;
-    const vec2 p1 = 1.0 - t.y + c * t.y;
+    vec2 p0 = 1.0 - t.x + c * t.y;
+    vec2 p1 = 1.0 - t.y + c * t.y;
 
     return vec3(texture2D(index, vec2(p0.s, p1.t)).r,
                 texture2D(index, vec2(p0.s, p0.t)).r,
