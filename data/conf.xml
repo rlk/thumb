@@ -8,7 +8,7 @@
 
   <option type="string" name="input_mode">mouse</option>
 
-  <option type="int" name="loader_threads">3</option>
+  <option type="int" name="loader_threads">1</option>
   <option type="int" name="loader_buffers">64</option>
 
   <option type="float" name="attract_delay">600.0</option>

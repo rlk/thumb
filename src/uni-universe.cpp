@@ -74,20 +74,23 @@ uni::universe::universe()
     S[0] = new sphere(*D, *R, color, normal, height, caches,
                       r0, r1, patch_cache);
     S[0]->move(0.0, 0.0, -r0 * 2.0);
+
+    // Create the galaxy.
+
+    G = new galaxy("hipparcos.bin");
 }
 
 uni::universe::~universe()
 {
-    while (!height.empty()) { delete height.front(); height.pop_front(); }
-    while (!normal.empty()) { delete normal.front(); normal.pop_front(); }
-    while (! color.empty()) { delete  color.front();  color.pop_front(); }
-    while (!caches.empty()) { delete caches.front(); caches.pop_front(); }
-
+    delete G;
     delete S[0];
     delete R;
     delete D;
 
-//  uni::geomap::fini();
+    while (!height.empty()) { delete height.front(); height.pop_front(); }
+    while (!normal.empty()) { delete normal.front(); normal.pop_front(); }
+    while (! color.empty()) { delete  color.front();  color.pop_front(); }
+    while (!caches.empty()) { delete caches.front(); caches.pop_front(); }
 }
 
 //-----------------------------------------------------------------------------
@@ -96,6 +99,8 @@ void uni::universe::prep(app::frustum_v& frusta)
 {
     // Preprocess all objects.
 
+    G->view(frusta);
+
     S[0]->view(frusta);
     S[0]->step();
     S[0]->prep();
@@ -103,6 +108,8 @@ void uni::universe::prep(app::frustum_v& frusta)
 
 void uni::universe::draw(int i)
 {
+    G->draw();
+
     S[0]->draw(i);
 }
 

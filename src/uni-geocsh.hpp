@@ -18,6 +18,7 @@
 #include <png.h>
 
 #include <list>
+#include <set>
 
 #include "app-glob.hpp"
 #include "uni-geomap.hpp"
@@ -47,6 +48,7 @@ namespace uni
 
         void swab1us(GLubyte *, const GLubyte *) const;
         void mask1us(GLubyte *, const GLubyte *) const;
+        void swab3ub(GLubyte *, const GLubyte *) const;
         void mask3ub(GLubyte *, const GLubyte *) const;
 
 //      void swab(GLubyte *, GLubyte *);
@@ -73,12 +75,6 @@ namespace uni
 
     class geocsh
     {
-/*
-        static const GLenum iform[2][4];
-        static const GLenum eform   [4];
-        static const GLenum ctype[2][4];
-*/
-
         static GLenum internal_format(int, int);
         static GLenum external_format(int, int);
         static GLenum      pixel_type(int, int);
@@ -92,8 +88,13 @@ namespace uni
             geomap *M;
             page   *P;
             need(geomap *M=0, page *P=0) : M(M), P(P) { }
+
+            bool operator<(const need& that) const {
+                return (P < that.P || M < that.M);
+            }
         };
         typedef std::multimap<double, need, std::greater<double> > need_map;
+        typedef std::set<need>                                     need_set;
 
         // Loaded page
 
@@ -135,17 +136,19 @@ namespace uni
         std::list<page *> cache_lru;
         line_map          cache_idx;
 
-        need_map  needs;
+        need_map  seeds;
+        need_set  needs;
         load_list loads;
         buff_list buffs;
         buff_list waits;
 
-        SDL_cond   *need_cond;
-        SDL_cond   *buff_cond;
+        SDL_sem   *need_sem;
+        SDL_sem   *buff_sem;
 
-        SDL_mutex  *need_mutex;
-        SDL_mutex  *load_mutex;
-        SDL_mutex  *buff_mutex;
+        SDL_mutex *seed_mutex;
+        SDL_mutex *need_mutex;
+        SDL_mutex *load_mutex;
+        SDL_mutex *buff_mutex;
 
         std::vector<SDL_Thread *> load_thread;
 

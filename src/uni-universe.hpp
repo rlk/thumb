@@ -14,6 +14,7 @@
 #define UNIVERSE_HPP
 
 #include "uni-sphere.hpp"
+#include "uni-galaxy.hpp"
 #include "uni-geomap.hpp"
 #include "uni-geocsh.hpp"
 #include "app-frustum.hpp"
@@ -33,6 +34,7 @@ namespace uni
         geocsh_l caches;
 
         sphere *S[3];
+        galaxy *G;
 
     public:
 

@@ -150,7 +150,7 @@ void uni::buffer::mask1us(GLubyte *dst, const GLubyte *src) const
     }
 }
 
-void uni::buffer::mask3ub(GLubyte *dst, const GLubyte *src) const
+void uni::buffer::swab3ub(GLubyte *dst, const GLubyte *src) const
 {
     uint32_t *d = (uint32_t *) dst;
     uint8_t  *s = (uint8_t  *) src;
@@ -168,6 +168,27 @@ void uni::buffer::mask3ub(GLubyte *dst, const GLubyte *src) const
         uint32_t a = (r || g || b) ? 0xFF000000 : 0x00000000;
 
         d[i] = (b | (g << 8) | (r << 16) | a);
+    }
+}
+
+void uni::buffer::mask3ub(GLubyte *dst, const GLubyte *src) const
+{
+    uint32_t *d = (uint32_t *) dst;
+    uint8_t  *s = (uint8_t  *) src;
+
+    int i, n = w * h;
+
+    // RGBA
+
+    for (i = 0; i < n; ++i)
+    {
+        uint32_t r = uint32_t(s[i * 3 + 0]);
+        uint32_t g = uint32_t(s[i * 3 + 1]);
+        uint32_t b = uint32_t(s[i * 3 + 2]);
+
+        uint32_t a = (r || g || b) ? 0xFF000000 : 0x00000000;
+
+        d[i] = (r | (g << 8) | (b << 16) | a);
     }
 }
 
@@ -204,7 +225,12 @@ uni::buffer *uni::buffer::load(std::string name, bool swab)
                         if (ptr)
                         {
                             if (c == 3 && b == 1)
+#ifdef __APPLE__
                                 mask3ub(ptr, dat);
+#else
+                                swab3ub(ptr, dat);
+#endif
+
                             if (c == 1 && b == 2)
                             {
                                 if (swab)
@@ -293,8 +319,8 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
 
     // Initialize the IPC.
 
-    need_cond  = SDL_CreateCond();
-    buff_cond  = SDL_CreateCond();
+    need_sem   = SDL_CreateSemaphore(0);
+    buff_sem   = SDL_CreateSemaphore(0);
 
     need_mutex = SDL_CreateMutex();
     load_mutex = SDL_CreateMutex();
@@ -309,8 +335,6 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
 
     for (int i = 0; i < buffers; ++i)
         waits.push_back(new buffer(S, S, c, b));
-
-    SDL_CondBroadcast(buff_cond);
 }
 
 uni::geocsh::~geocsh()
@@ -318,9 +342,6 @@ uni::geocsh::~geocsh()
     run = false;
 
     // Signal the loader threads to exit.  Join them.
-
-    SDL_CondBroadcast(need_cond);
-    SDL_CondBroadcast(buff_cond);
 
     std::vector<SDL_Thread *>::iterator i;
 
@@ -333,8 +354,8 @@ uni::geocsh::~geocsh()
     SDL_DestroyMutex(load_mutex);
     SDL_DestroyMutex(need_mutex);
 
-    SDL_DestroyCond(buff_cond);
-    SDL_DestroyCond(need_cond);
+    SDL_DestroySemaphore(buff_sem);
+    SDL_DestroySemaphore(need_sem);
 
     // TODO: free the buffer list
 
@@ -345,12 +366,9 @@ uni::geocsh::~geocsh()
 
 void uni::geocsh::init()
 {
-    // Reset the needed pages.
+    // Reset the seeded pages.
 
-    SDL_mutexP(need_mutex);
-    needs.clear();
-    SDL_mutexV(need_mutex);
-
+    seeds.clear();
     n = 0;
 }
 
@@ -363,10 +381,7 @@ void uni::geocsh::seed(const double *vp, double r0, double r1, geomap& map)
 
     if (P->get_live())
     {
-        SDL_mutexP(need_mutex);
-        needs.insert(need_map::value_type(P->angle(vp, r0), need(M, P)));
-        SDL_mutexV(need_mutex);
-
+        seeds.insert(need_map::value_type(P->angle(vp, r0), need(M, P)));
         n++;
     }
 }
@@ -478,7 +493,7 @@ void uni::geocsh::proc_needs(const double *vp,
     {
         // If a worst page exists...
 
-        need_map::iterator i = needs.begin();
+        need_map::iterator i = seeds.begin();
 
         if (i->first > 0)
         {
@@ -486,8 +501,8 @@ void uni::geocsh::proc_needs(const double *vp,
 
             // Eliminate it from further consideration.
 
-            needs.erase (i);
-            needs.insert(need_map::value_type(0, L));
+            seeds.erase (i);
+            seeds.insert(need_map::value_type(0, L));
 
             // Subdivide it.
 
@@ -499,7 +514,7 @@ void uni::geocsh::proc_needs(const double *vp,
 
                     double k = C.P->angle(vp, r0);
 
-                    needs.insert(need_map::value_type(k, C));
+                    seeds.insert(need_map::value_type(k, C));
                     n++;
                 }
         }
@@ -511,7 +526,7 @@ void uni::geocsh::proc_needs(const double *vp,
 
     // Check if any needed page is already in the cache.
 
-    for (need_map::iterator i = needs.begin(); i != needs.end();)
+    for (need_map::iterator i = seeds.begin(); i != seeds.end(); ++i)
     {
         page *P = i->second.P;
 
@@ -521,13 +536,17 @@ void uni::geocsh::proc_needs(const double *vp,
 
             cache_lru.remove   (P);
             cache_lru.push_back(P);
-
-            // And remove it from the needs map.
-
-            needs.erase(i++);
-            n--;
         }
-        else ++i;
+        else
+        {
+            // Otherwise add it to the needed set.
+
+            if (needs.find(i->second) == needs.end())
+            {
+                needs.insert(i->second);
+                SDL_SemPost(need_sem);
+            }
+        }
     }
 }
 
@@ -549,14 +568,11 @@ void uni::geocsh::proc(const double *vp,
 
             buffs.push_back(B);
             waits.pop_front();
+
+            SDL_SemPost(buff_sem);
         }
     }
     SDL_mutexV(buff_mutex);
-
-    // If there are available buffers, signal the page loader theads.
-
-    if (!buffs.empty())
-        SDL_CondBroadcast(buff_cond);
 
     // Process all loaded pages.
 
@@ -569,11 +585,6 @@ void uni::geocsh::proc(const double *vp,
     SDL_mutexP(need_mutex);
     proc_needs(vp, r0, r1, frusta);
     SDL_mutexV(need_mutex);
-
-    // If there are outstanding pages, signal the page loader threads.
-
-    if (!needs.empty())
-        SDL_CondBroadcast(need_cond);
 }
 
 //-----------------------------------------------------------------------------
@@ -586,18 +597,13 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
 
     // Wait for the needed page map to be non-empty and remove the first.
 
+    SDL_SemWait(need_sem);
     SDL_mutexP(need_mutex);
     {
-//       if (needs.empty())
-            SDL_CondWait(need_cond, need_mutex);
+        *M = needs.begin()->M;
+        *P = needs.begin()->P;
 
-        if (!needs.empty())
-        {
-            *M = needs.begin()->second.M;
-            *P = needs.begin()->second.P;
-
-            needs.erase(needs.begin());
-        }
+        needs.erase(needs.begin());
     }
     SDL_mutexV(need_mutex);
 
@@ -605,16 +611,11 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
 
     if (*M && *P)
     {
+        SDL_SemWait(buff_sem);
         SDL_mutexP(buff_mutex);
         {
-//          if (buffs.empty())
-                SDL_CondWait(buff_cond, buff_mutex);
-
-            if (!buffs.empty())
-            {
-                *B = buffs.front();
-                buffs.pop_front();
-            }
+            *B = buffs.front();
+            buffs.pop_front();
         }
         SDL_mutexV(buff_mutex);
     }
