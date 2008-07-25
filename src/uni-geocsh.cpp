@@ -346,7 +346,10 @@ uni::geocsh::~geocsh()
     std::vector<SDL_Thread *>::iterator i;
 
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
+    {
+        SDL_SemPost(need_sem);
         SDL_WaitThread(*i, 0);
+    }
 
     // Release all our IPC.
 
@@ -600,10 +603,13 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
     SDL_SemWait(need_sem);
     SDL_mutexP(need_mutex);
     {
-        *M = needs.begin()->M;
-        *P = needs.begin()->P;
+        if (!needs.empty())
+        {
+            *M = needs.begin()->M;
+            *P = needs.begin()->P;
 
-        needs.erase(needs.begin());
+            needs.erase(needs.begin());
+        }
     }
     SDL_mutexV(need_mutex);
 
