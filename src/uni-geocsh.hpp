@@ -51,8 +51,6 @@ namespace uni
         void swab3ub(GLubyte *, const GLubyte *) const;
         void mask3ub(GLubyte *, const GLubyte *) const;
 
-//      void swab(GLubyte *, GLubyte *);
-
     public:
 
         buffer(int, int, int, int);

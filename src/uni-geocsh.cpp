@@ -200,6 +200,8 @@ uni::buffer *uni::buffer::load(std::string name, bool swab)
 
     ret = false;
 
+//  std::cout << "loading " << name << std::endl;
+
     // Initialize all PNG import data structures.
 
     if (dat && row && (fp = fopen(name.c_str(), "rb")))
@@ -266,8 +268,11 @@ GLenum uni::geocsh::internal_format(int c, int b)
 
 GLenum uni::geocsh::external_format(int c, int b)
 {
-//  if (c == 3 && b == 1) return GL_BGRA;
+#ifdef __APPLE__
     if (c == 3 && b == 1) return GL_RGBA;
+#else
+    if (c == 3 && b == 1) return GL_BGRA;
+#endif
     if (c == 1 && b == 2) return GL_LUMINANCE_ALPHA;
 
     return GL_RGBA;
@@ -347,8 +352,11 @@ uni::geocsh::~geocsh()
 
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
     {
+/*
         SDL_SemPost(need_sem);
         SDL_WaitThread(*i, 0);
+*/
+        SDL_KillThread(*i);
     }
 
     // Release all our IPC.
@@ -601,31 +609,34 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
     // Wait for the needed page map to be non-empty and remove the first.
 
     SDL_SemWait(need_sem);
-    SDL_mutexP(need_mutex);
-    {
-        if (!needs.empty())
-        {
-            *M = needs.begin()->M;
-            *P = needs.begin()->P;
 
-            needs.erase(needs.begin());
+    if (run)
+    {
+        SDL_mutexP(need_mutex);
+        {
+            if (!needs.empty())
+            {
+                *M = needs.begin()->M;
+                *P = needs.begin()->P;
+
+                needs.erase(needs.begin());
+            }
+        }
+        SDL_mutexV(need_mutex);
+
+        // Acquire a buffer to receive the loaded page.
+
+        if (*M && *P)
+        {
+            SDL_SemWait(buff_sem);
+            SDL_mutexP(buff_mutex);
+            {
+                *B = buffs.front();
+                buffs.pop_front();
+            }
+            SDL_mutexV(buff_mutex);
         }
     }
-    SDL_mutexV(need_mutex);
-
-    // Acquire a buffer to receive the loaded page.
-
-    if (*M && *P)
-    {
-        SDL_SemWait(buff_sem);
-        SDL_mutexP(buff_mutex);
-        {
-            *B = buffs.front();
-            buffs.pop_front();
-        }
-        SDL_mutexV(buff_mutex);
-    }
-
     return run;
 }
 
