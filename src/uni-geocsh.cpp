@@ -352,11 +352,11 @@ uni::geocsh::~geocsh()
 
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
     {
-/*
         SDL_SemPost(need_sem);
         SDL_WaitThread(*i, 0);
-*/
+/*
         SDL_KillThread(*i);
+*/
     }
 
     // Release all our IPC.
@@ -399,18 +399,40 @@ void uni::geocsh::seed(const double *vp, double r0, double r1, geomap& map)
 
 //-----------------------------------------------------------------------------
 
+void uni::geocsh::proc_waits()
+{
+    // Reactivate waiting transfer buffers.  (This will block if necessary.)
+
+    SDL_mutexP(buff_mutex);
+    {
+        while (!waits.empty())
+        {
+            buffer *B = waits.front();
+
+            B->bind();
+            B->zero();
+            B->wmap();
+            B->free();
+
+            buffs.push_back(B);
+            waits.pop_front();
+
+            SDL_SemPost(buff_sem);
+        }
+    }
+    SDL_mutexV(buff_mutex);
+}
+
 void uni::geocsh::proc_loads()
 {
+    geomap *M;
+    page   *P;
+    buffer *B;
+
     // Pop each of the loaded pages from the queue.
 
-    while (!loads.empty())
+    while (get_loaded(&M, &P, &B))
     {
-        geomap *M = loads.front().M;
-        page   *P = loads.front().P;
-        buffer *B = loads.front().B;
-
-        loads.pop_front();
-
         // Debug mode scales the page color to make depth apparent.
 
         if (debug)
@@ -552,11 +574,15 @@ void uni::geocsh::proc_needs(const double *vp,
         {
             // Otherwise add it to the needed set.
 
-            if (needs.find(i->second) == needs.end())
+            SDL_mutexP(need_mutex);
             {
-                needs.insert(i->second);
-                SDL_SemPost(need_sem);
+                if (needs.find(i->second) == needs.end())
+                {
+                    needs.insert(i->second);
+                    SDL_SemPost(need_sem);
+                }
             }
+            SDL_mutexV(need_mutex);
         }
     }
 }
@@ -564,38 +590,11 @@ void uni::geocsh::proc_needs(const double *vp,
 void uni::geocsh::proc(const double *vp,
                        double r0, double r1, app::frustum_v& frusta)
 {
-    // Reactivate waiting transfer buffers.  (This will block if necessary.)
+    // Process all waiting buffers, loaded pages, and needed pages.
 
-    SDL_mutexP(buff_mutex);
-    {
-        while (!waits.empty())
-        {
-            buffer *B = waits.front();
-
-            B->bind();
-            B->zero();
-            B->wmap();
-            B->free();
-
-            buffs.push_back(B);
-            waits.pop_front();
-
-            SDL_SemPost(buff_sem);
-        }
-    }
-    SDL_mutexV(buff_mutex);
-
-    // Process all loaded pages.
-
-    SDL_mutexP(load_mutex);
+    proc_waits();
     proc_loads();
-    SDL_mutexV(load_mutex);
-
-    // Process all needed pages.
-
-    SDL_mutexP(need_mutex);
     proc_needs(vp, r0, r1, frusta);
-    SDL_mutexV(need_mutex);
 }
 
 //-----------------------------------------------------------------------------
@@ -640,12 +639,40 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
     return run;
 }
 
+bool uni::geocsh::get_loaded(geomap **M, page **P, buffer **B)
+{
+    bool r;
+
+    // Return the next loaded page from the incoming queue.
+
+    SDL_mutexP(load_mutex);
+    {
+        if (loads.empty())
+            r = false;
+        else
+        {
+            r = true;
+
+            *M = loads.front().M;
+            *P = loads.front().P;
+            *B = loads.front().B;
+
+            loads.pop_front();
+        }
+    }
+    SDL_mutexV(load_mutex);
+
+    return r;
+}
+
 void uni::geocsh::put_loaded(geomap *M, page *P, buffer *B)
 {
     // Add the loaded page to the incoming queue.
 
     SDL_mutexP(load_mutex);
-    loads.push_back(load(M, P, B));
+    {
+        loads.push_back(load(M, P, B));
+    }
     SDL_mutexV(load_mutex);
 }
 

@@ -150,8 +150,9 @@ namespace uni
 
         std::vector<SDL_Thread *> load_thread;
 
-        void proc_needs(const double *, double, double, app::frustum_v&);
+        void proc_waits();
         void proc_loads();
+        void proc_needs(const double *, double, double, app::frustum_v&);
 
     public:
 
@@ -174,6 +175,7 @@ namespace uni
         // Data access service API.
 
         bool get_needed(geomap **, page **, buffer **);
+        bool get_loaded(geomap **, page **, buffer **);
         void put_loaded(geomap *,  page *,  buffer *);
     };
 
