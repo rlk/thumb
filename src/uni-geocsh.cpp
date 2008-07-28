@@ -351,13 +351,10 @@ uni::geocsh::~geocsh()
     std::vector<SDL_Thread *>::iterator i;
 
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
-    {
         SDL_SemPost(need_sem);
+
+    for (i = load_thread.begin(); i != load_thread.end(); ++i)
         SDL_WaitThread(*i, 0);
-/*
-        SDL_KillThread(*i);
-*/
-    }
 
     // Release all our IPC.
 
