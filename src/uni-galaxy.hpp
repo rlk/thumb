@@ -30,7 +30,7 @@ namespace uni
 
     public:
 
-        void read(FILE *);
+        const void *read(const void *);
     };
 
     typedef std::vector<star>           star_v;
@@ -49,9 +49,10 @@ namespace uni
 
     public:
 
-        void read(FILE *);
+        const void *read(const void *);
 
-        void draw(app::frustum_v&);
+        void view(app::frustum_v&);
+        void draw() const;
     };
 
     typedef std::vector<node>           node_v;
@@ -61,6 +62,9 @@ namespace uni
 
     class galaxy
     {
+        double M[16];
+        double I[16];
+
         GLuint  buffer;
         GLuint  texture;
 
@@ -69,13 +73,15 @@ namespace uni
         star_v S;
         node_v N;
 
+        app::frustum_v frusta;
+
     public:
 
         galaxy(const char *);
        ~galaxy();
 
         void view(app::frustum_v&);
-        void draw();
+        void draw(int i) const;
     };
 
     //-------------------------------------------------------------------------

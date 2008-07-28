@@ -15,6 +15,34 @@
 
 #include "util.hpp"
 
+#include "socket.hpp" // for ntohl()
+
+//-----------------------------------------------------------------------------
+
+float ntohf(float src)
+{
+    float dst;
+
+    uint32_t *s = (uint32_t *) (&src);
+    uint32_t *d = (uint32_t *) (&dst);
+
+    *d = ntohl(*s);
+
+    return dst;
+}
+
+int ntohi(int src)
+{
+    int dst;
+
+    uint32_t *s = (uint32_t *) (&src);
+    uint32_t *d = (uint32_t *) (&dst);
+
+    *d = ntohl(*s);
+
+    return dst;
+}
+
 //-----------------------------------------------------------------------------
 
 int next_power_of_2(int n)

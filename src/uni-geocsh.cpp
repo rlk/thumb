@@ -349,12 +349,16 @@ uni::geocsh::~geocsh()
     // Signal the loader threads to exit.  Join them.
 
     std::vector<SDL_Thread *>::iterator i;
-
+/*
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
         SDL_SemPost(need_sem);
 
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
         SDL_WaitThread(*i, 0);
+*/
+
+    for (i = load_thread.begin(); i != load_thread.end(); ++i)
+        SDL_KillThread(*i);
 
     // Release all our IPC.
 
@@ -519,7 +523,7 @@ void uni::geocsh::proc_needs(const double *vp,
 {
     // While the needed page count is less than the limit.
 
-    while (0 < n && n < m)
+    while (0 < n && n < m * 3 / 4)
     {
         // If a worst page exists...
 
@@ -554,6 +558,18 @@ void uni::geocsh::proc_needs(const double *vp,
         else break;
     }
 
+    // HACK: clear the need queue.
+/*
+    SDL_mutexP(need_mutex);
+    {
+        while (!needs.empty())
+        {
+            SDL_SemWait(need_sem);
+            needs.erase(needs.begin());
+        }
+    }
+    SDL_mutexV(need_mutex);
+*/
     // Check if any needed page is already in the cache.
 
     for (need_map::iterator i = seeds.begin(); i != seeds.end(); ++i)

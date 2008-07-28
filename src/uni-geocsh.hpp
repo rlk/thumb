@@ -88,7 +88,9 @@ namespace uni
             need(geomap *M=0, page *P=0) : M(M), P(P) { }
 
             bool operator<(const need& that) const {
-                return (P < that.P || M < that.M);
+                return (P->get_d() < that.P->get_d() ||
+                        P->get_i() < that.P->get_i() ||
+                        P->get_j() < that.P->get_j() || P < that.P);
             }
         };
         typedef std::multimap<double, need, std::greater<double> > need_map;

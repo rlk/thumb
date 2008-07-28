@@ -701,7 +701,7 @@ void uni::sphere::draw(int i)
                         {
                             pass();
 
-                            if (!::prog->option(11))
+                            if (::prog->option(11))
                             {
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                                 pass();

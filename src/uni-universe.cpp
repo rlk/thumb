@@ -108,7 +108,7 @@ void uni::universe::prep(app::frustum_v& frusta)
 
 void uni::universe::draw(int i)
 {
-    G->draw();
+    G->draw(i);
 
     S[0]->draw(i);
 }
