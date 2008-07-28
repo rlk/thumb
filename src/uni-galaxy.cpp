@@ -66,7 +66,7 @@ void uni::node::draw() const
 
 //=============================================================================
 
-uni::galaxy::galaxy(const char *filename)
+uni::galaxy::galaxy(const char *filename) : magnitude(100.0f)
 {
     int N_num = 0;
     int S_num = 0;
@@ -106,10 +106,16 @@ uni::galaxy::galaxy(const char *filename)
     glBufferDataARB(GL_ARRAY_BUFFER_ARB, 20 * S_num,
                     &S.front(), GL_STATIC_DRAW_ARB);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+    // Initialize the program.
+
+    starprog = ::glob->load_program("star.vert", "star.frag");
 }
 
 uni::galaxy::~galaxy()
 {
+    ::glob->free_program(starprog);
+
     if (buffer) glDeleteBuffersARB(1, &buffer);
 }
 
@@ -164,15 +170,29 @@ void uni::galaxy::draw(int i) const
         glDisable(GL_LIGHTING);
         glDisable(GL_DEPTH_TEST);
 
+        glEnable(GL_POINT_SPRITE_ARB);
+        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+        glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+
         glEnable(GL_BLEND);
-        
+        glBlendFunc(GL_ONE, GL_ONE);
+
         glPushMatrix();
         {
-            glLoadMatrixd(M);
-            glScalef(1e11, 1e11, 1e11);
+            const double k = 1e11;
 
-            glPointSize(2.0);
-            N[0].draw();
+            glLoadMatrixd(M);
+            glScalef(k, k, k);
+
+            starprog->bind();
+            {
+                const double *p = frusta[i]->get_view_pos();
+
+                starprog->uniform("Multiplier", magnitude);
+                starprog->uniform("Position", p[0] / k, p[1] / k, p[2] / k);
+                N[0].draw();
+            }
+            starprog->free();
         }
         glPopMatrix();
     }

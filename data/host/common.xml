@@ -49,7 +49,7 @@
 
   <node name="2560x1600">
     <buffer w="2560" h="1600"/>
-    <window x="0" y="0" w="2560" h="1600"/>
+    <window x="0" y="0" w="2560" h="1600" full="1" />
     <tile>
       <viewport x="0" y="0" w="2560" h="1600"/>
       <frustum>

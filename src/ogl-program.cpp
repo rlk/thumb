@@ -151,11 +151,13 @@ void ogl::program::init()
     if (vert) glAttachObjectARB(prog, vert);
     if (frag) glAttachObjectARB(prog, frag);
 
-    // Bind the tangent attribute if needed.  (HACK)
-/*
-    if (strstr(vert_txt,  "attribute vec3 Tangent"))
+    // Bind the attributes as needed.  (HACK)
+
+    if (vert_txt.find("attribute vec3 Tangent")    != vert_txt.npos)
         glBindAttribLocationARB(prog, 6, "Tangent");
-*/
+    if (vert_txt.find("attribute float Magnitude") != vert_txt.npos)
+        glBindAttribLocationARB(prog, 6, "Magnitude");
+
     glLinkProgramARB(prog);
 
     log(prog, vert_name);

@@ -8,13 +8,13 @@
 
   <option type="string" name="input_mode">mouse</option>
 
-  <option type="int" name="loader_threads">1</option>
-  <option type="int" name="loader_buffers">64</option>
+  <option type="int" name="loader_threads">2</option>
+  <option type="int" name="loader_buffers">32</option>
 
   <option type="float" name="attract_delay">600.0</option>
 
   <option type="int" name="atmo">1</option>
-  <option type="int" name="sync">1</option>
+  <option type="int" name="sync">0</option>
   <option type="int" name="bench">0</option>
   <option type="int" name="debug">0</option>
 
@@ -22,7 +22,7 @@
 
   <!-- Terrain renderer configuration -->
 
-  <option type="int" name="patch_cache">128</option>
+  <option type="int" name="patch_cache">256</option>
   <option type="int" name="patch_depth">4</option>
 
   <option type="int" name="image_cache_w">8</option>
@@ -65,23 +65,23 @@
   <option type="int"    name="sans_size">14</option>
   <option type="int"    name="mono_size">14</option>
 
-  <!-- Qwerty keyboard commands -->
+  <!-- Qwerty keyboard commands
 
   <option type="int" name="key_move_L">97</option>
   <option type="int" name="key_move_R">100</option>
   <option type="int" name="key_move_D">113</option>
   <option type="int" name="key_move_U">101</option>
   <option type="int" name="key_move_F">119</option>
-  <option type="int" name="key_move_B">115</option>
+  <option type="int" name="key_move_B">115</option> -->
 
-  <!-- Dvorak keyboard commands
+  <!-- Dvorak keyboard commands -->
 
   <option type="int" name="key_move_L">97</option>
   <option type="int" name="key_move_R">101</option>
   <option type="int" name="key_move_D">39</option>
   <option type="int" name="key_move_U">46</option>
   <option type="int" name="key_move_F">44</option>
-  <option type="int" name="key_move_B">111</option> -->
+  <option type="int" name="key_move_B">111</option>
 
   <!--
   <option type="int" name="key_axis_X">113</option>

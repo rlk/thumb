@@ -15,6 +15,7 @@
 
 #include "app-glob.hpp"
 #include "app-frustum.hpp"
+#include "ogl-program.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -74,6 +75,8 @@ namespace uni
         node_v N;
 
         app::frustum_v frusta;
+
+        const ogl::program *starprog;
 
     public:
 

@@ -12,6 +12,8 @@ Fix cracking between spatches.
 
 Generalize geomap to work with sizes other than 512x256.
 
+Rework cluster config storage.
+
 -------------------------------------------------------------------------------
 
 test/norm mode should NOT be a view attribute
