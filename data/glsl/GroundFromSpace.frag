@@ -19,6 +19,6 @@ void main(void)
     vec3 a =                       gl_LightModel.ambient.rgb;
 //  vec3 a = vec3(day) *           gl_LightModel.ambient.rgb;
 
-//  gl_FragColor = gl_Color + vec4(D * (d + a), 1.0) * gl_SecondaryColor;
-    gl_FragColor = gl_Color + vec4(D * min(d + a, 1.0), 1.0);
+    gl_FragColor = gl_Color + vec4(D * (d + a), 1.0) * gl_SecondaryColor;
+//  gl_FragColor = gl_Color + vec4(D * min(d + a, 1.0), 1.0);
 }
