@@ -28,13 +28,20 @@ namespace uni
         geodat *D;
         georen *R;
 
-        geomap_l color;
-        geomap_l normal;
-        geomap_l height;
+        geomap_l Ecolor;
+        geomap_l Enormal;
+        geomap_l Eheight;
+
+        geomap_l Mcolor;
+        geomap_l Mnormal;
+        geomap_l Mheight;
+
         geocsh_l caches;
 
-        sphere *S[3];
+        sphere *S[2];
         galaxy *G;
+
+        int N;
 
     public:
 

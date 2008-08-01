@@ -24,16 +24,19 @@
 
 uni::universe::universe()
 {
-    double r0 = 6372797.0;
-    double r1 = 6372797.0 + 8844.0;
+    double Er0 = 6372797.0;
+    double Er1 = 6372797.0 + 8844.0;
+
+    double Mr0 = 1737100.0;
+    double Mr1 = 1737100.0;
+
+    // Create the caches.
 
     int image_cache_w = std::max(::conf->get_i("image_cache_w"), 2);
     int image_cache_h = std::max(::conf->get_i("image_cache_h"), 2);
 
     int height_cache_w = std::max(::conf->get_i("height_cache_w"), 2);
     int height_cache_h = std::max(::conf->get_i("height_cache_h"), 2);
-
-    // Create the caches.
 
     geocsh *cache_s = new geocsh(3, 1, 510, image_cache_w,
                                             image_cache_h);
@@ -44,18 +47,26 @@ uni::universe::universe()
     caches.push_back(cache_h);
 
     // Create the maps.
+/*
+    geomap *dif0 = new geomap(cache_s, "world.200408.xml",      Er0, Er1);
+    geomap *nrm0 = new geomap(cache_s, "srtm_ramp2_normal.xml", Er0, Er1);
+    geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          Er0, Er1);
+    geomap *hgt0 = new geomap(cache_h, "srtm_ramp2.xml",        Er0, Er1);
+    geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
 
-    geomap *dif0 = new geomap(cache_s, "world.200408.xml",      r0, r1);
-    geomap *nrm0 = new geomap(cache_s, "srtm_ramp2_normal.xml", r0, r1);
-    geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          r0, r1);
-    geomap *hgt0 = new geomap(cache_h, "srtm_ramp2.xml",        r0, r1);
-    geomap *hgt1 = new geomap(cache_h, "NED.xml",               r0, r1);
+    Ecolor.push_back(dif0);
+    Enormal.push_back(nrm0);
+    Enormal.push_back(nrm1);
+    Eheight.push_back(hgt0);
+    Eheight.push_back(hgt1);
+*/
+    geomap *dif2 = new geomap(cache_s, "moon-750.xml",          Mr0, Mr1);
+    geomap *nrm2 = new geomap(cache_s, "moon-normal.xml",       Mr0, Mr1);
+    geomap *hgt2 = new geomap(cache_h, "moon-height.xml",       Mr0, Mr1);
 
-    color.push_back(dif0);
-    normal.push_back(nrm0);
-    normal.push_back(nrm1);
-    height.push_back(hgt0);
-    height.push_back(hgt1);
+    Mcolor.push_back(dif2);
+    Mnormal.push_back(nrm2);
+    Mheight.push_back(hgt2);
 
     // Configure the geometry generator and renderer.
 
@@ -69,27 +80,45 @@ uni::universe::universe()
     R = new georen(::host->get_buffer_w(),
                    ::host->get_buffer_h());
 
-    // Create the earth.
-
-    S[0] = new sphere(*D, *R, color, normal, height, caches,
-                      r0, r1, patch_cache);
-    S[0]->move(0.0, 0.0, -r0 * 2.0);
-
     // Create the galaxy.
 
     G = new galaxy("hipparcos.bin");
+
+    // Create the Earth.
+/*
+    S[1] = new sphere(*D, *R, Ecolor, Enormal, Eheight,
+                      caches, Er0, Er1, patch_cache, true);
+    S[1]->move(-384400000.0, 0.0, -Er0 * 2.0);
+*/
+//  S[1]->move(0.0, 0.0, -Er0 * 2.0);
+
+    // Create the Moon.
+
+    S[0] = new sphere(*D, *R, Mcolor, Mnormal, Mheight,
+                      caches, Mr0, Mr1, patch_cache, false);
+//  S[0]->move(384400000.0, 0.0, -Er0 * 2.0);
+    S[0]->move(0.0, 0.0, -Er0 * 2.0);
+
+    N = 1;
 }
 
 uni::universe::~universe()
 {
+    for (int s = 0; s < N; ++s)
+        delete S[s];
+
     delete G;
-    delete S[0];
     delete R;
     delete D;
 
-    while (!height.empty()) { delete height.front(); height.pop_front(); }
-    while (!normal.empty()) { delete normal.front(); normal.pop_front(); }
-    while (! color.empty()) { delete  color.front();  color.pop_front(); }
+    while (!Eheight.empty()) { delete Eheight.front(); Eheight.pop_front(); }
+    while (!Enormal.empty()) { delete Enormal.front(); Enormal.pop_front(); }
+    while (! Ecolor.empty()) { delete  Ecolor.front();  Ecolor.pop_front(); }
+
+    while (!Mheight.empty()) { delete Mheight.front(); Mheight.pop_front(); }
+    while (!Mnormal.empty()) { delete Mnormal.front(); Mnormal.pop_front(); }
+    while (! Mcolor.empty()) { delete  Mcolor.front();  Mcolor.pop_front(); }
+
     while (!caches.empty()) { delete caches.front(); caches.pop_front(); }
 }
 
@@ -97,20 +126,29 @@ uni::universe::~universe()
 
 void uni::universe::prep(app::frustum_v& frusta)
 {
+    int s;
+
     // Preprocess all objects.
 
     G->view(frusta);
 
-    S[0]->view(frusta);
-    S[0]->step();
-    S[0]->prep();
+    for (s = 0; s < N; ++s) S[s]->view(frusta);
+
+    std::sort(S + 0, S + N, sphcmp);
+
+    for (s = 0; s < N; ++s) S[s]->step();
+    for (s = 0; s < N; ++s) S[s]->prep();
 }
 
 void uni::universe::draw(int i)
 {
+    int s;
+
+    // Draw all objects.
+
     G->draw(i);
 
-    S[0]->draw(i);
+    for (s = 0; s < N; ++s) S[s]->draw(i);
 }
 
 double uni::universe::turn_rate() const

@@ -58,6 +58,7 @@ namespace uni
 
         // Current eye distance and depth range.
 
+        bool   atmosphere;
         bool   visible;
         double dist;
         double d0;
@@ -107,7 +108,7 @@ namespace uni
     public:
     
         sphere(geodat&, georen&, geomap_l&, geomap_l&, geomap_l&, geocsh_l&,
-               double, double, GLsizei=DEFAULT_PATCH_CACHE);
+               double, double, GLsizei=DEFAULT_PATCH_CACHE, bool=false);
        ~sphere();
 
         void turn(double=0, double=0);

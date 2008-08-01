@@ -34,7 +34,7 @@ uni::sphere::sphere(uni::geodat& dat,
                     uni::geomap_l& height,
                     uni::geocsh_l& caches,
                     double r0,
-                    double r1, GLsizei lines) :
+                    double r1, GLsizei lines, bool atmosphere) :
 
     count(0),
 
@@ -92,7 +92,7 @@ uni::sphere::sphere(uni::geodat& dat,
 
     // Initialize atmosphere rendering.
 
-    draw_atmo = ::conf->get_i("atmo");
+    draw_atmo = ((::conf->get_i("atmo") != 0) && atmosphere);
 
     atmo_pool = glob->new_pool();
     atmo_node = new ogl::node();
@@ -308,8 +308,6 @@ void uni::sphere::view(app::frustum_v& frusta)
             vp[2] = p[2];
 
             dist = sqrt(DOT3(vp, vp));
-
-//          printf("%f\n", dist - r0);
         }
         else
         {

@@ -523,7 +523,7 @@ void uni::geocsh::proc_needs(const double *vp,
 {
     // While the needed page count is less than the limit.
 
-    while (0 < n && n < m * 3 / 4)
+    while (0 < n && n < m)
     {
         // If a worst page exists...
 

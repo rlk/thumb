@@ -293,8 +293,8 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 
         // Compute the extents of the mipmap pyramid.
 
-        mip_w = 2 * next_power_of_2(w / s);
-        mip_h = 2 * next_power_of_2(h / s);
+        mip_w = 2 * next_power_of_2(std::max(w / s, 1));
+        mip_h = 2 * next_power_of_2(std::max(h / s, 1));
 
         int t = s;
 
