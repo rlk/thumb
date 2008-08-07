@@ -42,6 +42,7 @@ namespace uni
         galaxy *G;
 
         int N;
+        int serial;
 
     public:
 

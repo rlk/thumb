@@ -109,7 +109,7 @@ uni::galaxy::galaxy(const char *filename) : magnitude(50.0f)
 
     // Initialize the program.
 
-    starprog = ::glob->load_program("star.vert", "star.frag");
+    starprog = ::glob->load_program("glsl/star.vert", "glsl/star.frag");
 }
 
 uni::galaxy::~galaxy()

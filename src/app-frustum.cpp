@@ -261,6 +261,22 @@ void app::frustum::calc_user_planes(const double *p)
     set_plane(user_planes[2], user_pos, user_points[1], user_points[0]); // B
     set_plane(user_planes[3], user_pos, user_points[2], user_points[3]); // T
 
+    // Cache the solid angle of the frustum.
+
+    double u[4][3];
+
+    for (int i = 0; i < 4; ++i)
+    {
+        u[i][0] = user_points[i][0] - user_pos[0];
+        u[i][1] = user_points[i][1] - user_pos[1];
+        u[i][2] = user_points[i][2] - user_pos[2];
+
+        normalize(u[i]);
+    }
+
+    user_angle = (solid_angle(u[0], u[2], u[1]) +
+                  solid_angle(u[1], u[2], u[3]));
+
     // Cache the distance from the user to the display plane.
 
     double display_plane[4];
@@ -285,6 +301,7 @@ void app::frustum::calc_view_planes(const double *M,
     view_count = 4;
 }
 
+/*
 void app::frustum::calc_view_points(double n, double f)
 {
     double v[4][3];
@@ -314,7 +331,7 @@ void app::frustum::calc_view_points(double n, double f)
         view_points[i + 4][2] = view_pos[2] + v[i][2] * f / user_dist;
     }
 }
-
+*/
 void app::frustum::calc_projection(double n, double f)
 {
     // Compute the screen corner vectors.
@@ -466,6 +483,8 @@ void app::frustum::calc_dome_planes(const double *p,
 
 double app::frustum::get_w() const
 {
+    // Compute and return the physical width of the display.
+
     double d[3];
 
     d[0] = user_points[1][0] - user_points[0][0];
@@ -477,6 +496,8 @@ double app::frustum::get_w() const
 
 double app::frustum::get_h() const
 {
+    // Compute and return the physical height of the display.
+
     double d[3];
 
     d[0] = user_points[2][0] - user_points[0][0];
@@ -486,10 +507,17 @@ double app::frustum::get_h() const
     return sqrt(DOT3(d, d));
 }
 
+double app::frustum::pixels(double angle) const
+{
+    // Estimate and return the number of pixels in the given solid angle.
+
+    return pixel_w * pixel_h * angle / user_angle;
+}
+
 //-----------------------------------------------------------------------------
 
-app::frustum::frustum(app::node node)
-    : node(node), user_dist(1.0), view_count(0)
+app::frustum::frustum(app::node node, int w, int h)
+    : node(node), user_dist(1.0), view_count(0), pixel_w(w), pixel_h(h)
 {
     user_pos[0] = 0.0;
     user_pos[1] = 0.0;
@@ -505,7 +533,11 @@ app::frustum::frustum(frustum& that)
 
     memcpy(user_pos, that.user_pos, 3 * sizeof (double));
 
-    user_dist = that.user_dist;
+    pixel_w = that.pixel_w;
+    pixel_h = that.pixel_h;
+
+    user_angle = that.user_angle;
+    user_dist  = that.user_dist;
 
     memcpy(user_points, that.user_points, 4 * 3 * sizeof (double));
     memcpy(user_planes, that.user_planes, 4 * 4 * sizeof (double));

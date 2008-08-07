@@ -22,14 +22,14 @@
 
 //-----------------------------------------------------------------------------
 
-uni::universe::universe()
+uni::universe::universe() : serial(0)
 {
     double Er0 = 6372797.0;
     double Er1 = 6372797.0 + 8844.0;
-
+/*
     double Mr0 = 1737100.0;
     double Mr1 = 1737100.0;
-
+*/
     // Create the caches.
 
     int image_cache_w = std::max(::conf->get_i("image_cache_w"), 2);
@@ -47,19 +47,22 @@ uni::universe::universe()
     caches.push_back(cache_h);
 
     // Create the maps.
-/*
+
     geomap *dif0 = new geomap(cache_s, "world.200408.xml",      Er0, Er1);
     geomap *nrm0 = new geomap(cache_s, "srtm_ramp2_normal.xml", Er0, Er1);
-    geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          Er0, Er1);
     geomap *hgt0 = new geomap(cache_h, "srtm_ramp2.xml",        Er0, Er1);
-    geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
 
     Ecolor.push_back(dif0);
     Enormal.push_back(nrm0);
-    Enormal.push_back(nrm1);
     Eheight.push_back(hgt0);
+/*
+    geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          Er0, Er1);
+    geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
+
+    Enormal.push_back(nrm1);
     Eheight.push_back(hgt1);
 */
+/*
     geomap *dif2 = new geomap(cache_s, "moon-750.xml",          Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "moon-normal.xml",       Mr0, Mr1);
     geomap *hgt2 = new geomap(cache_h, "moon-height.xml",       Mr0, Mr1);
@@ -67,7 +70,7 @@ uni::universe::universe()
     Mcolor.push_back(dif2);
     Mnormal.push_back(nrm2);
     Mheight.push_back(hgt2);
-
+*/
     // Configure the geometry generator and renderer.
 
     int patch_cache = ::conf->get_i("patch_cache");
@@ -85,20 +88,19 @@ uni::universe::universe()
     G = new galaxy("hipparcos.bin");
 
     // Create the Earth.
-/*
-    S[1] = new sphere(*D, *R, Ecolor, Enormal, Eheight,
+
+    S[0] = new sphere(*D, *R, Ecolor, Enormal, Eheight,
                       caches, Er0, Er1, patch_cache, true);
-    S[1]->move(-384400000.0, 0.0, -Er0 * 2.0);
-*/
-//  S[1]->move(0.0, 0.0, -Er0 * 2.0);
+    S[0]->move(384400000.0, 0.0, -Er0 * 2.0);
+//  S[0]->move(0.0, 0.0, -Er0 * 2.0);
 
     // Create the Moon.
-
+/*
     S[0] = new sphere(*D, *R, Mcolor, Mnormal, Mheight,
                       caches, Mr0, Mr1, patch_cache, false);
 //  S[0]->move(384400000.0, 0.0, -Er0 * 2.0);
     S[0]->move(0.0, 0.0, -Er0 * 2.0);
-
+*/
     N = 1;
 }
 
@@ -128,15 +130,32 @@ void uni::universe::prep(app::frustum_v& frusta)
 {
     int s;
 
-    // Preprocess all objects.
+    serial++;
+
+    // Update the view of each object.
 
     G->view(frusta);
 
     for (s = 0; s < N; ++s) S[s]->view(frusta);
 
+    // Sort the spheres by distance.
+
     std::sort(S + 0, S + N, sphcmp);
 
-    for (s = 0; s < N; ++s) S[s]->step();
+    // Perform visibility processing.
+
+    for (s = 0; s < N; ++s) S[s]->step(serial);
+
+    geomap_i m;
+    geocsh_i c;
+    
+    for (c = caches.begin(); c != caches.end(); ++c)
+        (*c)->proc(frusta, serial);
+
+    for (m =  Ecolor.begin(); m !=  Ecolor.end(); ++m) (*m)->proc();
+    for (m = Enormal.begin(); m != Enormal.end(); ++m) (*m)->proc();
+    for (m = Eheight.begin(); m != Eheight.end(); ++m) (*m)->proc();
+
     for (s = 0; s < N; ++s) S[s]->prep();
 }
 

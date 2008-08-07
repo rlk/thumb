@@ -26,7 +26,9 @@
 uni::page::page(int w, int h, int s,
                 int x, int y, int d,
                 double _W, double _E, double _S, double _N) :
-    d(d), a(0), live(true)
+    st(page_default), d(d), a(0),
+    visible_cache_serial(0),
+    visible_cache_result(false)
 {
     int t = s << d;
 
@@ -65,7 +67,7 @@ uni::page::page(int w, int h, int s,
         sphere_to_vector(v, cW, 0, 1.0); a = std::max(a, acos(DOT3(v, n)));
         sphere_to_vector(v, cE, 0, 1.0); a = std::max(a, acos(DOT3(v, n)));
     }
-
+    /* else HACK? */
     {
         sphere_to_vector(v, cW, cS, 1.0); a = std::max(a, acos(DOT3(v, n)));
         sphere_to_vector(v, cW, cN, 1.0); a = std::max(a, acos(DOT3(v, n)));
@@ -86,11 +88,12 @@ uni::page::page(int w, int h, int s,
     {
         const int X = (x + t / 2);
         const int Y = (y + t / 2);
+        const int c =  d - 1;
 
-        /* Has children? */ P[0]=new page(w, h, s, x, y, d-1, _W, _E, _S, _N);
-        if (X < w         ) P[1]=new page(w, h, s, X, y, d-1, _W, _E, _S, _N);
-        if (         Y < h) P[2]=new page(w, h, s, x, Y, d-1, _W, _E, _S, _N);
-        if (X < w && Y < h) P[3]=new page(w, h, s, X, Y, d-1, _W, _E, _S, _N);
+        /* Has children? */ P[0] = new page(w, h, s, x, y, c, _W, _E, _S, _N);
+        if (X < w         ) P[1] = new page(w, h, s, X, y, c, _W, _E, _S, _N);
+        if (         Y < h) P[2] = new page(w, h, s, x, Y, c, _W, _E, _S, _N);
+        if (X < w && Y < h) P[3] = new page(w, h, s, X, Y, c, _W, _E, _S, _N);
     }
 }
 
@@ -102,30 +105,61 @@ uni::page::~page()
     if (P[0]) delete P[0];
 }
 
-bool uni::page::view(app::frustum_v& frusta, double r0, double r1)
+bool uni::page::visible(app::frustum_v& F, double r0, double r1, int N)
 {
-    // TODO: cache this result.
+    if (visible_cache_serial != N)
+    {
+        bool r = false;
 
-    if (live)
-        for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
-            if ((*i)->test_cap(n, a, r0, r1) >= 0)
+        // Check each frustum in turn.
+
+        for (app::frustum_i f = F.begin(); !r && f != F.end(); ++f)
+        {
+            // Loosely test the page against the frustum.
+
+            if ((*f)->test_cap(n, a, r0, r1) >= 0)
             {
-                if (d == 0) return true;
-
-                if (P[0] && P[0]->view(frusta, r0, r1)) return true;
-                if (P[1] && P[1]->view(frusta, r0, r1)) return true;
-                if (P[2] && P[2]->view(frusta, r0, r1)) return true;
-                if (P[3] && P[3]->view(frusta, r0, r1)) return true;
-
-                return false;
+                // Tighten the test by testing children.
+/*
+                r = ((P[0] && P[0]->visible(F, r0, r1, N)) ||
+                     (P[1] && P[1]->visible(F, r0, r1, N)) ||
+                     (P[2] && P[2]->visible(F, r0, r1, N)) ||
+                     (P[3] && P[3]->visible(F, r0, r1, N)));
+*/
+                r = true;
             }
-    
+        }
+
+        // Cache the result.  We'll be back here soon.
+        
+        visible_cache_serial = N;
+        visible_cache_result = r;
+    }
+
+    return visible_cache_result;
+}
+
+bool uni::page::needed(app::frustum_v& F, double r0, double r1, int N, int s)
+{
+    // A page is visible if there exists a frustum that intersects it
+    // and where it has a texel/pixel ratio of less than the cutoff.
+
+    if (visible(F, r0, r1, N))
+    {
+        const double *vp = F[0]->get_view_pos();
+        const double  sa = angle(vp, r0);
+
+        // HACK: should use the frustum that sees the page.
+
+        if (s * s / F[0]->pixels(sa) < 1.0)
+            return true;
+    }
     return false;
 }
 
+/*
 void uni::page::draw(double r0, double r1)
 {
-/*
     double rr = (r0 + r1) * 0.5;
 
     static const GLfloat color[8][3] = {
@@ -206,8 +240,8 @@ void uni::page::draw(double r0, double r1)
         }
     }
     glEnd();
-*/
 }
+*/
 
 double uni::page::angle(const double *v, double r)
 {
@@ -260,9 +294,9 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
     D(0),
     mip_w(1),
     mip_h(1),
-    lsb(false),
-    P(0),
     dirty(false),
+    lsb(false),
+    root(0),
     cache(cache),
     image(0),
     index(0)
@@ -306,7 +340,7 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 
         // Generate the mipmap pyramid catalog.
 
-        P = new page(w, h, s, 0, 0, D, ext_W, ext_E, ext_S, ext_N);
+        root = new page(w, h, s, 0, 0, D, ext_W, ext_E, ext_S, ext_N);
 
         // Load and initialize the shader.
 
@@ -350,7 +384,7 @@ uni::geomap::~geomap()
 
     if (prog) ::glob->free_program(prog);
 
-    if (P) delete P;
+    if (root) delete root;
 }
 
 //-----------------------------------------------------------------------------
@@ -495,10 +529,45 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::seed(const double *vp, double r0, double r1)
+void uni::geomap::view_page(page *P, app::frustum_v& F, double r0, double r1, int N)
 {
-    cache->seed(vp, r0, r1, *this);
+    page *C;
+
+    // If this page is visible...
+
+    if (P->needed(F, r0, r1, N, s))
+    {
+        // Load it or ping it.
+
+        switch(P->get_state())
+        {
+        case page_default:
+            cache->add_needed(this, P);
+            break;
+
+        case page_cached:
+            cache->use_needed(this, P);
+            break;
+
+        default:
+            break;
+        }
+
+        // Whether cached, loading or missing, check the children.
+
+        if ((C = P->child(0))) view_page(C, F, r0, r1, N);
+        if ((C = P->child(1))) view_page(C, F, r0, r1, N);
+        if ((C = P->child(2))) view_page(C, F, r0, r1, N);
+        if ((C = P->child(3))) view_page(C, F, r0, r1, N);
+    }
 }
+
+void uni::geomap::view(app::frustum_v& F, double r0, double r1, int N)
+{
+    view_page(root, F, r0, r1, N);
+}
+
+//-----------------------------------------------------------------------------
 
 void uni::geomap::proc()
 {

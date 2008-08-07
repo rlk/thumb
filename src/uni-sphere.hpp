@@ -47,12 +47,12 @@ namespace uni
         double angle;
         double tilt;
 
-        // View vector, object-to-eye transform and inverse cache.
+        // Transform cache
 
-        double vp[3];
-        double O[16];
-        double M[16];
-        double I[16];
+        double vp[3];           // Object space view position
+        double M[16];           // Object-to-eye transform
+        double I[16];           // Eye-to-object transform
+        double O[16];           // Planet orientation transform
 
         app::frustum_v frusta;
 
@@ -119,7 +119,7 @@ namespace uni
         // Rendering pipeline.
 
         void view(app::frustum_v&);
-        void step();
+        void step(int);
         void prep();
         void pass();
         void wire();

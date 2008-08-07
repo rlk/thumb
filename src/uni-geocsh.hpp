@@ -58,9 +58,7 @@ namespace uni
 
         buffer *load(std::string, bool);
 
-        const GLvoid *data() const { return dat; }
-        bool          stat() const { return ret; }
-
+        bool stat() const { return ret; }
         void bind() {                   pbo.bind(); }
         void free() {                   pbo.free(); }
         void zero() {                   pbo.zero(); }
@@ -131,39 +129,34 @@ namespace uni
         bool run;
         bool debug;
 
-        ogl::image  *cache;
+        ogl::image *cache;
 
         std::list<page *> cache_lru;
         line_map          cache_idx;
 
-        need_map  seeds;
-        need_set  needs;
         load_list loads;
         buff_list buffs;
         buff_list waits;
+        need_set  needs;
 
-        SDL_sem   *need_sem;
-        SDL_sem   *buff_sem;
-
-        SDL_mutex *seed_mutex;
         SDL_mutex *need_mutex;
         SDL_mutex *load_mutex;
         SDL_mutex *buff_mutex;
+        SDL_sem   *need_sem;
+        SDL_sem   *buff_sem;
 
         std::vector<SDL_Thread *> load_thread;
 
         void proc_waits();
         void proc_loads();
-        void proc_needs(const double *, double, double, app::frustum_v&);
+        void proc_needs(app::frustum_v&, int);
 
     public:
 
         geocsh(int, int, int, int, int);
        ~geocsh();
 
-        void init();
-        void seed(const double *, double, double, geomap&);
-        void proc(const double *, double, double, app::frustum_v&);
+        void proc(app::frustum_v&, int);
 
         void bind(GLenum) const;
         void free(GLenum) const;
@@ -175,6 +168,10 @@ namespace uni
         int pool_h() const { return h * S; }
 
         // Data access service API.
+
+        void add_needed(geomap *, page *);
+        void del_needed(geomap *, page *);
+        void use_needed(geomap *, page *);
 
         bool get_needed(geomap **, page **, buffer **);
         bool get_loaded(geomap **, page **, buffer **);

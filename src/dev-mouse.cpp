@@ -41,7 +41,7 @@ dev::mouse::mouse(uni::universe& universe) :
     load_idt(init_R);
     load_idt(curr_R);
 
-    button.reserve(5);
+    button = std::vector<bool>(5, false);
 }
 
 dev::mouse::~mouse()

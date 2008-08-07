@@ -1,5 +1,51 @@
 -------------------------------------------------------------------------------
 
+A page of data is needed if
+    There exists a frustum such that
+        The page is visible
+        The average page res ratio (texels per screen pixel) is less than 4
+
+compute the solid angle of each frustum to get res ratio?
+
+geomap::view
+    iterate the page tree
+        from the root to the res limit
+            test pages for neededness using the sphere's transform
+            if needed
+                if state is "needed", keep it
+                if state is "loading", keep it
+                if state is "default", set "needed"
+            else
+                set state to "default"
+                (note, do not eject if loaded)
+
+How do "needed" pages get reset to "default" when they fall out of view?
+    With a needed set (reasonably fast insert and delete)
+        Which is iterated with each tested.
+    
+geocsh::get_needed
+    dequeue (and map) a buff
+    find the "most" "needed" page in any geomap
+        mark that page "loading"
+
+loader_func
+    geocsh::get_needed
+    load the page into the buff
+    enqueue a load
+
+geocsh::proc_loads
+    if the cache is full
+        find the LRU page
+        eject it and mark it "default"
+    upload the page to the cache
+    mark the page "loaded"
+    enqueue a buff
+
+
+* merge wait with buff
+
+-------------------------------------------------------------------------------
+
 Could the cracking problem be mitigated by explicitly rounding height positions to the enarest integral pixel?  Is it the nearest logic of the hardware that is the problem?  Would the floor(x + 0.5) approach be more stable?  Pass (w,h) and quantize the normalized coordinate.  Should be no perf penalty, as it's only necessary in calcacc.  Answer: NO.
 
 Create "full" versions of calcacc, drawdif, and drawnrm that don't check their bounds.

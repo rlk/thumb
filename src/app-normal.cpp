@@ -31,17 +31,17 @@ app::normal::normal(app::node tile,
     // Check the display definition for a frustum.
 
     if      ((curr = find(node, "frustum")))
-        frust = new app::frustum(curr);
+        frust = new app::frustum(curr, w, h);
 
     // If none, check the tile definition for one.
 
     else if ((curr = find(tile, "frustum")))
-        frust = new app::frustum(curr);
+        frust = new app::frustum(curr, w, h);
 
     // If still none, create a default.
 
     else
-        frust = new app::frustum(0);
+        frust = new app::frustum(0, w, h);
 
     // Note the view index.
 

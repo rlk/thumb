@@ -28,6 +28,9 @@ namespace app
 {
     //-------------------------------------------------------------------------
 
+    // "user" denotes tracker coordinates.
+    // "viem" denotes world coordinates.
+
     class frustum
     {
     private:
@@ -47,13 +50,16 @@ namespace app
         // Frustum bounding planes and points
 
         double user_points[4][3];
-        double view_points[8][3];
+//      double view_points[8][3];
         double user_planes[4][4];
         double view_planes[5][4];
 
         double user_basis[16];
+        double user_angle;
 
         int    view_count;
+        int    pixel_w;
+        int    pixel_h;
 
         // Projection transform
 
@@ -79,13 +85,13 @@ namespace app
 
     public:
 
-        frustum(app::node);
+        frustum(app::node, int, int);
         frustum(frustum&);
 
         // View state mutators
 
         void calc_projection (double, double);
-        void calc_view_points(double, double);
+//      void calc_view_points(double, double);
         void calc_user_planes(const double *);
         void calc_view_planes(const double *,
                               const double *);
@@ -113,8 +119,9 @@ namespace app
         const double *get_disp_pos() const { return disp_pos; }
         const double *get_P()        const { return P;        }
 
-        double get_w() const;
-        double get_h() const;
+        double get_w()        const;
+        double get_h()        const;
+        double pixels(double) const;
 
         // Perspective projection application
 

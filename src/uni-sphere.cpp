@@ -360,7 +360,7 @@ bool uni::sphere::test(const double *n0,
     return false;
 }
 
-void uni::sphere::step()
+void uni::sphere::step(int serial)
 {
     count = 0;
 
@@ -439,30 +439,16 @@ void uni::sphere::step()
             d1 = pos.max_d();
         }
 
-        // Update the data caches.
+        // Update the map page states.
 
-        geocsh_i c;
         geomap_i m;
-
-        for (c = caches.begin(); c != caches.end(); ++c)
-            (*c)->init();
-
+    
         for (m =  color.begin(); m !=  color.end(); ++m)
-            (*m)->seed(vp, r0, r1);
+            (*m)->view(frusta, r0, r1, serial);
         for (m = normal.begin(); m != normal.end(); ++m)
-            (*m)->seed(vp, r0, r1);
+            (*m)->view(frusta, r0, r1, serial);
         for (m = height.begin(); m != height.end(); ++m)
-            (*m)->seed(vp, r0, r1);
-
-        for (c = caches.begin(); c != caches.end(); ++c)
-            (*c)->proc(vp, r0, r1, frusta);
-
-        for (m =  color.begin(); m !=  color.end(); ++m)
-            (*m)->proc();
-        for (m = normal.begin(); m != normal.end(); ++m)
-            (*m)->proc();
-        for (m = height.begin(); m != height.end(); ++m)
-            (*m)->proc();
+            (*m)->view(frusta, r0, r1, serial);
     }
 }
 

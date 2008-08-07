@@ -42,24 +42,24 @@ app::varrier::varrier(app::node tile,
 
     if      ((curr = find(node, "frustum")))
     {
-        frustL = new app::frustum(curr);
-        frustR = new app::frustum(curr);
+        frustL = new app::frustum(curr, w, h);
+        frustR = new app::frustum(curr, w, h);
     }
 
     // If none, check the tile definition for one.
 
     else if ((curr = find(tile, "frustum")))
     {
-        frustL = new app::frustum(curr);
-        frustR = new app::frustum(curr);
+        frustL = new app::frustum(curr, w, h);
+        frustR = new app::frustum(curr, w, h);
     }
 
     // If still none, create a default.
 
     else
     {
-        frustL = new app::frustum(0);
-        frustR = new app::frustum(0);
+        frustL = new app::frustum(0, w, h);
+        frustR = new app::frustum(0, w, h);
     }
 
     // Initialize the linescreen from the XML node or by setting defaults.

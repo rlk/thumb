@@ -31,19 +31,19 @@ app::dome::dome(app::node tile, app::node node, const int *window)
     // Check the display definition for a frustum.
 
     if      ((curr = find(node, "frustum")))
-        proj_frust = new app::frustum(curr);
+        proj_frust = new app::frustum(curr, w, h);
 
     // If none, check the tile definition for one.
 
     else if ((curr = find(tile, "frustum")))
-        proj_frust = new app::frustum(curr);
+        proj_frust = new app::frustum(curr, w, h);
 
     // If still none, create a default.
 
     else
-        proj_frust = new app::frustum(0);
+        proj_frust = new app::frustum(0, w, h);
 
-    user_frust = new app::frustum(0);
+    user_frust = new app::frustum(0, w, h);
 
     // Note the view index.
 

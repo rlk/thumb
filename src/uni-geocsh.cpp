@@ -57,7 +57,7 @@ uni::buffer::buffer(int w, int h, int c, int b) :
 
     // Initialize the row pointers to index the pixel buffer upside-down.
 
-    if (dat && row)
+    if (row)
         for (int i = 0; i < h; ++i)
             row[h - i - 1] = dat + i * w * c * b;
 }
@@ -324,12 +324,12 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
 
     // Initialize the IPC.
 
-    need_sem   = SDL_CreateSemaphore(0);
     buff_sem   = SDL_CreateSemaphore(0);
+    need_sem   = SDL_CreateSemaphore(0);
 
-    need_mutex = SDL_CreateMutex();
     load_mutex = SDL_CreateMutex();
     buff_mutex = SDL_CreateMutex();
+    need_mutex = SDL_CreateMutex();
 
     // Start the data loader threads.
 
@@ -349,53 +349,26 @@ uni::geocsh::~geocsh()
     // Signal the loader threads to exit.  Join them.
 
     std::vector<SDL_Thread *>::iterator i;
-/*
-    for (i = load_thread.begin(); i != load_thread.end(); ++i)
-        SDL_SemPost(need_sem);
 
+/*
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
         SDL_WaitThread(*i, 0);
 */
-
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
         SDL_KillThread(*i);
 
     // Release all our IPC.
 
+    SDL_DestroyMutex(need_mutex);
     SDL_DestroyMutex(buff_mutex);
     SDL_DestroyMutex(load_mutex);
-    SDL_DestroyMutex(need_mutex);
 
-    SDL_DestroySemaphore(buff_sem);
     SDL_DestroySemaphore(need_sem);
+    SDL_DestroySemaphore(buff_sem);
 
     // TODO: free the buffer list
 
     if (cache) glob->free_image(cache);
-}
-
-//-----------------------------------------------------------------------------
-
-void uni::geocsh::init()
-{
-    // Reset the seeded pages.
-
-    seeds.clear();
-    n = 0;
-}
-
-void uni::geocsh::seed(const double *vp, double r0, double r1, geomap& map)
-{
-    // Seed the needed pages with the root page of the given map.
-
-    geomap *M = &map;
-    page   *P =  map.root();
-
-    if (P->get_live())
-    {
-        seeds.insert(need_map::value_type(P->angle(vp, r0), need(M, P)));
-        n++;
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -460,50 +433,47 @@ void uni::geocsh::proc_loads()
 
         if (B->stat())
         {
-            // If this page is not already cached (highly unlikely)...
+            int x = count % w;
+            int y = count / w;
 
-            if (cache_idx.find(P) == cache_idx.end())
+            // If the cache is full, delete the LRU page.
+
+            if (count == m)
             {
-                int x = count % w;
-                int y = count / w;
+                page   *Q = cache_lru.front();
+                geomap *N = cache_idx[Q].M;
 
-                // If the cache is full, delete the LRU page.
+                x = cache_idx[Q].x;
+                y = cache_idx[Q].y;
 
-                if (count == m)
-                {
-                    page   *Q = cache_lru.front();
-                    geomap *N = cache_idx[Q].M;
+                N->eject_page(Q, x, y);
+                Q->set_state(page_default);
 
-                    x = cache_idx[Q].x;
-                    y = cache_idx[Q].y;
+                cache_idx.erase(Q);
+                cache_lru.pop_front();
 
-                    N->eject_page(Q, x, y);
-
-                    cache_idx.erase(Q);
-                    cache_lru.pop_front();
-
-                    count--;
-                }
-
-                // Insert the new page.
-
-                cache_idx.insert(line_map::value_type(P, line(M, x, y)));
-                cache_lru.push_back(P);
-
-                M->cache_page(P, x, y);
-
-                // Blit the cache using the PBO.
-
-                B->bind();
-                cache->blit(0, x * S, y * S, S, S);
-                B->free();
-
-                count++;
+                count--;
             }
-        }
-        else P->set_dead();
 
-        // Put the buffer in the VRAM upload wait state. 
+            // Insert the new page.
+
+            cache_idx.insert(line_map::value_type(P, line(M, x, y)));
+            cache_lru.push_back(P);
+
+            M->cache_page(P, x, y);
+            P->set_state(page_cached);
+
+            // Blit the cache using the PBO.
+
+            B->bind();
+            cache->blit(0, x * S, y * S, S, S);
+            B->free();
+
+            count++;
+        }
+        else P->set_state(page_missing);
+
+        // Let the buffer wait, transferring asynchronously.
 
         waits.push_back(B);
     }
@@ -518,96 +488,71 @@ void uni::geocsh::proc_loads()
     }
 }
 
-void uni::geocsh::proc_needs(const double *vp,
-                             double r0, double r1, app::frustum_v& frusta)
+void uni::geocsh::proc_needs(app::frustum_v& F, int N)
 {
-    // While the needed page count is less than the limit.
+    // Remove any unneeded pages from the needed set.
 
-    while (0 < n && n < m)
-    {
-        // If a worst page exists...
-
-        need_map::iterator i = seeds.begin();
-
-        if (i->first > 0)
-        {
-            need L = i->second;
-
-            // Eliminate it from further consideration.
-
-            seeds.erase (i);
-            seeds.insert(need_map::value_type(0, L));
-
-            // Subdivide it.
-
-            for (int j = 0; j < 4 && n < m; ++j)
-
-                if (L.P->child(j) && L.P->child(j)->view(frusta, r0, r1))
-                {
-                    need C(L.M, L.P->child(j));
-
-                    double k = C.P->angle(vp, r0);
-
-                    seeds.insert(need_map::value_type(k, C));
-                    n++;
-                }
-        }
-
-        // If no worst page exists, no more subdivision can be done.
-
-        else break;
-    }
-
-    // HACK: clear the need queue.
-/*
     SDL_mutexP(need_mutex);
     {
-        while (!needs.empty())
+        for (need_set::iterator i = needs.begin(); i != needs.end();)
         {
-            SDL_SemWait(need_sem);
-            needs.erase(needs.begin());
+            geomap *M = i->M;
+            page   *P = i->P;
+
+            if (P->needed(F, M->get_r0(), M->get_r1(), N, s))
+                ++i;
+            else
+            {
+//              assert(SDL_SemValue(need_sem) == needs.size());
+
+                if (SDL_SemValue(need_sem) > 0) // HACK
+                    SDL_SemWait(need_sem);
+
+                needs.erase(i++);
+                P->set_state(page_default);
+            }
         }
     }
     SDL_mutexV(need_mutex);
-*/
-    // Check if any needed page is already in the cache.
-
-    for (need_map::iterator i = seeds.begin(); i != seeds.end(); ++i)
-    {
-        page *P = i->second.P;
-
-        if (cache_idx.find(P) != cache_idx.end())
-        {
-            // If found, bump it to the end of the LRU queue.
-
-            cache_lru.remove   (P);
-            cache_lru.push_back(P);
-        }
-        else
-        {
-            // Otherwise add it to the needed set.
-
-            SDL_mutexP(need_mutex);
-            {
-                if (needs.find(i->second) == needs.end())
-                {
-                    needs.insert(i->second);
-                    SDL_SemPost(need_sem);
-                }
-            }
-            SDL_mutexV(need_mutex);
-        }
-    }
 }
 
-void uni::geocsh::proc(const double *vp,
-                       double r0, double r1, app::frustum_v& frusta)
+void uni::geocsh::proc(app::frustum_v& frusta, int N)
 {
     // Process all waiting buffers, loaded pages, and needed pages.
 
     proc_waits();
     proc_loads();
-    proc_needs(vp, r0, r1, frusta);
+    proc_needs(frusta, N);
+}
+
+//-----------------------------------------------------------------------------
+
+// Invariants: A page is in the need set IFF its state is page_needed.
+// The value of need_sem equals the number of elements in the need set
+// and thus the number of pages with state page_needed.
+
+// TODO: confirm that the unlikely race condition between del_need and
+// get_need is impossible. This is complicated by iterator invalidation.
+
+void uni::geocsh::add_needed(geomap *M, page *P)
+{
+    SDL_mutexP(need_mutex);
+    {
+        P->set_state(page_needed);
+        needs.insert(need(M, P));
+        SDL_SemPost(need_sem);
+    }
+    SDL_mutexV(need_mutex);
+}
+
+void uni::geocsh::use_needed(geomap *M, page *P)
+{
+    // Move the page to the end of the LRU queue.
+
+    assert(P->get_state() == page_cached);
+
+    cache_lru.remove   (P);
+    cache_lru.push_back(P);
 }
 
 //-----------------------------------------------------------------------------
@@ -621,34 +566,33 @@ bool uni::geocsh::get_needed(geomap **M, page **P, buffer **B)
     // Wait for the needed page map to be non-empty and remove the first.
 
     SDL_SemWait(need_sem);
-
-    if (run)
+    SDL_mutexP(need_mutex);
     {
-        SDL_mutexP(need_mutex);
+        if (!needs.empty())
         {
-            if (!needs.empty())
-            {
-                *M = needs.begin()->M;
-                *P = needs.begin()->P;
+            *M = needs.begin()->M;
+            *P = needs.begin()->P;
 
-                needs.erase(needs.begin());
-            }
-        }
-        SDL_mutexV(need_mutex);
+            needs.erase(needs.begin());
 
-        // Acquire a buffer to receive the loaded page.
-
-        if (*M && *P)
-        {
-            SDL_SemWait(buff_sem);
-            SDL_mutexP(buff_mutex);
-            {
-                *B = buffs.front();
-                buffs.pop_front();
-            }
-            SDL_mutexV(buff_mutex);
+            (*P)->set_state(page_loading);
         }
     }
+    SDL_mutexV(need_mutex);
+
+    // Acquire a buffer to receive the loaded page.
+
+    if (*M && *P)
+    {
+        SDL_SemWait(buff_sem);
+        SDL_mutexP(buff_mutex);
+        {
+            *B = buffs.front();
+            buffs.pop_front();
+        }
+        SDL_mutexV(buff_mutex);
+    }
+
     return run;
 }
 
@@ -675,11 +619,19 @@ bool uni::geocsh::get_loaded(geomap **M, page **P, buffer **B)
     }
     SDL_mutexV(load_mutex);
 
+    assert(*M);
+    assert(*P);
+    assert(*B);
+
     return r;
 }
 
 void uni::geocsh::put_loaded(geomap *M, page *P, buffer *B)
 {
+    assert(M);
+    assert(P);
+    assert(B);
+
     // Add the loaded page to the incoming queue.
 
     SDL_mutexP(load_mutex);
