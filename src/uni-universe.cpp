@@ -26,10 +26,12 @@ uni::universe::universe() : serial(0)
 {
     double Er0 = 6372797.0;
     double Er1 = 6372797.0 + 8844.0;
-/*
-    double Mr0 = 1737100.0;
-    double Mr1 = 1737100.0;
-*/
+
+    double Mr0 =   1737100.0;
+    double Mr1 =   1737100.0;
+
+    double Mo  = 384400000.0;
+
     // Create the caches.
 
     int image_cache_w = std::max(::conf->get_i("image_cache_w"), 2);
@@ -49,6 +51,7 @@ uni::universe::universe() : serial(0)
     // Create the maps.
 
     geomap *dif0 = new geomap(cache_s, "world.200408.xml",      Er0, Er1);
+
     geomap *nrm0 = new geomap(cache_s, "srtm_ramp2_normal.xml", Er0, Er1);
     geomap *hgt0 = new geomap(cache_h, "srtm_ramp2.xml",        Er0, Er1);
 
@@ -62,7 +65,6 @@ uni::universe::universe() : serial(0)
     Enormal.push_back(nrm1);
     Eheight.push_back(hgt1);
 */
-/*
     geomap *dif2 = new geomap(cache_s, "moon-750.xml",          Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "moon-normal.xml",       Mr0, Mr1);
     geomap *hgt2 = new geomap(cache_h, "moon-height.xml",       Mr0, Mr1);
@@ -70,7 +72,7 @@ uni::universe::universe() : serial(0)
     Mcolor.push_back(dif2);
     Mnormal.push_back(nrm2);
     Mheight.push_back(hgt2);
-*/
+
     // Configure the geometry generator and renderer.
 
     int patch_cache = ::conf->get_i("patch_cache");
@@ -91,17 +93,16 @@ uni::universe::universe() : serial(0)
 
     S[0] = new sphere(*D, *R, Ecolor, Enormal, Eheight,
                       caches, Er0, Er1, patch_cache, true);
-    S[0]->move(384400000.0, 0.0, -Er0 * 2.0);
-//  S[0]->move(0.0, 0.0, -Er0 * 2.0);
+    S[0]->move(0.0, 0.0, -2.0 * Er0);
 
     // Create the Moon.
-/*
-    S[0] = new sphere(*D, *R, Mcolor, Mnormal, Mheight,
+
+    S[1] = new sphere(*D, *R, Mcolor, Mnormal, Mheight,
                       caches, Mr0, Mr1, patch_cache, false);
-//  S[0]->move(384400000.0, 0.0, -Er0 * 2.0);
-    S[0]->move(0.0, 0.0, -Er0 * 2.0);
-*/
-    N = 1;
+    S[1]->move(Mo, 0.0, -2.0 * Er0);
+    S[1]->turn(90.0, 0.0);
+
+    N = 2;
 }
 
 uni::universe::~universe()
@@ -156,6 +157,10 @@ void uni::universe::prep(app::frustum_v& frusta)
     for (m = Enormal.begin(); m != Enormal.end(); ++m) (*m)->proc();
     for (m = Eheight.begin(); m != Eheight.end(); ++m) (*m)->proc();
 
+    for (m =  Mcolor.begin(); m !=  Mcolor.end(); ++m) (*m)->proc();
+    for (m = Mnormal.begin(); m != Mnormal.end(); ++m) (*m)->proc();
+    for (m = Mheight.begin(); m != Mheight.end(); ++m) (*m)->proc();
+
     for (s = 0; s < N; ++s) S[s]->prep();
 }
 
@@ -167,7 +172,8 @@ void uni::universe::draw(int i)
 
     G->draw(i);
 
-    for (s = 0; s < N; ++s) S[s]->draw(i);
+//  for (s = 0; s < N; ++s) S[s]->draw(i);
+    for (s = N - 1; s >= 0; --s) S[s]->draw(i);
 }
 
 double uni::universe::turn_rate() const

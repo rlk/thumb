@@ -125,6 +125,7 @@ namespace uni
         int n;
         int m;
         int count;
+        double cutoff;
 
         bool run;
         bool debug;

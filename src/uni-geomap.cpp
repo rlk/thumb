@@ -18,15 +18,16 @@
 #include "uni-geocsh.hpp"
 #include "app-serial.hpp"
 #include "app-glob.hpp"
+#include "app-conf.hpp"
 #include "matrix.hpp"
 #include "util.hpp"
 
 //-----------------------------------------------------------------------------
 
 uni::page::page(int w, int h, int s,
-                int x, int y, int d,
+                int x, int y, int d, int c,
                 double _W, double _E, double _S, double _N) :
-    st(page_default), d(d), a(0),
+    st(page_default), d(d), c(c), a(0),
     visible_cache_serial(0),
     visible_cache_result(false)
 {
@@ -88,12 +89,11 @@ uni::page::page(int w, int h, int s,
     {
         const int X = (x + t / 2);
         const int Y = (y + t / 2);
-        const int c =  d - 1;
 
-        /* Has children? */ P[0] = new page(w, h, s, x, y, c, _W, _E, _S, _N);
-        if (X < w         ) P[1] = new page(w, h, s, X, y, c, _W, _E, _S, _N);
-        if (         Y < h) P[2] = new page(w, h, s, x, Y, c, _W, _E, _S, _N);
-        if (X < w && Y < h) P[3] = new page(w, h, s, X, Y, c, _W, _E, _S, _N);
+        /* Has children? */ P[0] = new page(w, h, s, x, y, d - 1, c + 1, _W, _E, _S, _N);
+        if (X < w         ) P[1] = new page(w, h, s, X, y, d - 1, c + 1, _W, _E, _S, _N);
+        if (         Y < h) P[2] = new page(w, h, s, x, Y, d - 1, c + 1, _W, _E, _S, _N);
+        if (X < w && Y < h) P[3] = new page(w, h, s, X, Y, d - 1, c + 1, _W, _E, _S, _N);
     }
 }
 
@@ -139,7 +139,8 @@ bool uni::page::visible(app::frustum_v& F, double r0, double r1, int N)
     return visible_cache_result;
 }
 
-bool uni::page::needed(app::frustum_v& F, double r0, double r1, int N, int s)
+bool uni::page::needed(app::frustum_v& F, double r0, double r1,
+                       int N, int s, double cutoff)
 {
     // A page is visible if there exists a frustum that intersects it
     // and where it has a texel/pixel ratio of less than the cutoff.
@@ -151,7 +152,7 @@ bool uni::page::needed(app::frustum_v& F, double r0, double r1, int N, int s)
 
         // HACK: should use the frustum that sees the page.
 
-        if (s * s / F[0]->pixels(sa) < 1.0)
+        if (c < 2 || s * s / F[0]->pixels(sa) < cutoff)
             return true;
     }
     return false;
@@ -340,7 +341,7 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 
         // Generate the mipmap pyramid catalog.
 
-        root = new page(w, h, s, 0, 0, D, ext_W, ext_E, ext_S, ext_N);
+        root = new page(w, h, s, 0, 0, D, 0, ext_W, ext_E, ext_S, ext_N);
 
         // Load and initialize the shader.
 
@@ -360,6 +361,8 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
         }
         prog->free();
     }
+
+    cutoff = ::conf->get_f("texel_cutoff");
 
     S = s + 2;
 
@@ -535,7 +538,7 @@ void uni::geomap::view_page(page *P, app::frustum_v& F, double r0, double r1, in
 
     // If this page is visible...
 
-    if (P->needed(F, r0, r1, N, s))
+    if (P->needed(F, r0, r1, N, s, cutoff))
     {
         // Load it or ping it.
 

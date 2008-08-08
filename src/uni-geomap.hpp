@@ -48,7 +48,8 @@ namespace uni
     {
         page_state_t st;        // State
 
-        int     d;              // Depth
+        int     d;              // Depth (0 is base)
+        int     c;              // Depth (0 is root)
         int     i;              // Row
         int     j;              // Column
         double  f;              // Data fraction (page area / data area)
@@ -61,7 +62,7 @@ namespace uni
 
     public:
 
-        page(int, int, int, int, int, int, double, double, double, double);
+        page(int, int, int, int, int, int, int, double, double, double, double);
        ~page();
 
         void view(app::frustum_v&, double, double, int, int);
@@ -76,7 +77,7 @@ namespace uni
         double angle(const double *, double);
 
         bool visible(app::frustum_v&, double, double, int);
-        bool needed (app::frustum_v&, double, double, int, int);
+        bool needed (app::frustum_v&, double, double, int, int, double);
 
         page_state_t get_state() const          { return st; }
         void         set_state(page_state_t nst) { st = nst; }
@@ -99,6 +100,7 @@ namespace uni
         double ext_N;
         double r0;              // Planet's minimum radius
         double r1;              // Planet's maximum radius
+        double cutoff;          // Pixels/texel resolution cutoff
 
         int    w;               // Total map width  in pixels
         int    h;               // Total map height in pixels

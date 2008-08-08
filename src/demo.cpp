@@ -173,8 +173,10 @@ void demo::timer(int t)
         }
         else
         {
+/*
             universe.set_a(axis);
             universe.set_t(tilt);
+*/
         }
     }
     else

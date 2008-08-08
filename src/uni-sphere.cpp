@@ -585,17 +585,18 @@ void uni::sphere::draw(int i)
 
     glLoadIdentity();
 
-    // Position a directional lightsource at the origin.  TODO: move this?
+    // Position the sun.
 
     GLfloat L[4];
     double  t[4];
+    double  S[4] = { 0.0, 0.0, 149000000000.0 };
 
-    mult_xps_vec3(t, O, p);
+    mult_xps_vec3(t, O, S);
     normalize(t);
 
-    L[0] = GLfloat(-t[0]);
-    L[1] = GLfloat(-t[1]);
-    L[2] = GLfloat(-t[2]);
+    L[0] = GLfloat(t[0]);
+    L[1] = GLfloat(t[1]);
+    L[2] = GLfloat(t[2]);
     L[3] = 0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);

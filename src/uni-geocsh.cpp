@@ -305,6 +305,8 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
     int threads = std::max(1, ::conf->get_i("loader_threads"));
     int buffers = std::max(8, ::conf->get_i("loader_buffers"));
 
+    cutoff = ::conf->get_f("texel_cutoff");
+
     debug = ::conf->get_i("debug");
 
     cache->bind(GL_TEXTURE0);
@@ -471,7 +473,11 @@ void uni::geocsh::proc_loads()
 
             count++;
         }
-        else P->set_state(page_missing);
+        else
+        {
+            std::cout << "missing " << M->name(P) << std::endl;
+            P->set_state(page_missing);
+        }
 
         // Let the buffer wait, transferring asynchronously.
 
@@ -499,7 +505,7 @@ void uni::geocsh::proc_needs(app::frustum_v& F, int N)
             geomap *M = i->M;
             page   *P = i->P;
 
-            if (P->needed(F, M->get_r0(), M->get_r1(), N, s))
+            if (P->needed(F, M->get_r0(), M->get_r1(), N, s, cutoff))
                 ++i;
             else
             {

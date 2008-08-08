@@ -19,6 +19,7 @@
   <option type="int" name="debug">0</option>
 
   <option type="string" name="mipmap">best</option>
+  <option type="float"  name="texel_cutoff">1.0</option>
 
   <!-- Terrain renderer configuration -->
 
