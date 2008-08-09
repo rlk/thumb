@@ -124,7 +124,13 @@ void app::normal::draw(view_v& views, int &i, bool calibrate)
 
         views[index]->bind();
         {
-            ::prog->draw(i++);
+            if (calibrate)
+            {
+                const GLubyte *c = views[index]->get_c();
+                glClearColor(c[0], c[1], c[2], c[3]);
+                glClear(GL_COLOR_BUFFER_BIT);
+            }
+            else ::prog->draw(i++);
         }
         views[index]->free();
 

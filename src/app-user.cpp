@@ -51,8 +51,7 @@ app::user::user() :
     tt(0),
     t1(0),
     current_a0(0), current_a1(0), current_a(0),
-    current_t0(0), current_t1(0), current_t(0),
-    scale(1.0)
+    current_t0(0), current_t1(0), current_t(0)
 {
     const double S[16] = {
         0.5, 0.0, 0.0, 0.0,
@@ -106,26 +105,6 @@ void app::user::get_default()
 {
     memcpy(current_M, default_M, 16 * sizeof (double));
     memcpy(current_I, default_I, 16 * sizeof (double));
-}
-
-const double *app::user::get_M()
-{
-    double S[16];
-
-    load_scl_mat(S, scale, scale, scale);
-    mult_mat_mat(scaled_M, S, current_M);
-
-    return scaled_M;
-}
-
-const double *app::user::get_I()
-{
-    double S[16];
-
-    load_scl_inv(S, scale, scale, scale);
-    mult_mat_mat(scaled_I, current_I, S);
-
-    return scaled_I;
 }
 
 //-----------------------------------------------------------------------------
@@ -288,6 +267,11 @@ void app::user::tumble(const double *A,
 
 //-----------------------------------------------------------------------------
 
+static double cubic(double t)
+{
+    return 3 * t * t - 2 * t * t * t;
+}
+
 bool app::user::dostep(double dt, const double *p, double& a, double& t)
 {
     tt += dt;
@@ -297,7 +281,7 @@ bool app::user::dostep(double dt, const double *p, double& a, double& t)
     if (t0 <= tt && tt <= t1)
     {
         double k = (tt - t0) / (t1 - t0);
-        double T = 3 * k * k - 2 * k * k * k;
+        double T = cubic(cubic(cubic(k)));
 
         a = current_a = (1 - T) * current_a0 + T * current_a1;
         t = current_t = (1 - T) * current_t0 + T * current_t1;
