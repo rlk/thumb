@@ -51,7 +51,8 @@ app::user::user() :
     tt(0),
     t1(0),
     current_a0(0), current_a1(0), current_a(0),
-    current_t0(0), current_t1(0), current_t(0)
+    current_t0(0), current_t1(0), current_t(0),
+    scale(1.0)
 {
     const double S[16] = {
         0.5, 0.0, 0.0, 0.0,
@@ -105,6 +106,26 @@ void app::user::get_default()
 {
     memcpy(current_M, default_M, 16 * sizeof (double));
     memcpy(current_I, default_I, 16 * sizeof (double));
+}
+
+const double *app::user::get_M()
+{
+    double S[16];
+
+    load_scl_mat(S, scale, scale, scale);
+    mult_mat_mat(scaled_M, S, current_M);
+
+    return scaled_M;
+}
+
+const double *app::user::get_I()
+{
+    double S[16];
+
+    load_scl_inv(S, scale, scale, scale);
+    mult_mat_mat(scaled_I, current_I, S);
+
+    return scaled_I;
 }
 
 //-----------------------------------------------------------------------------
@@ -302,12 +323,11 @@ bool app::user::dostep(double dt, const double *p, double& a, double& t)
 
     else if (tt > t1)
     {
-/*
         load_mat(current_M, current_M1);
         load_inv(current_I, current_M1);
         a = current_a = current_a1;
         t = current_t = current_t1;
-*/
+
         return true;
     }
 

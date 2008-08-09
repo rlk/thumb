@@ -475,7 +475,7 @@ void uni::geocsh::proc_loads()
         }
         else
         {
-            std::cout << "missing " << M->name(P) << std::endl;
+//          std::cout << "missing " << M->name(P) << std::endl;
             P->set_state(page_missing);
         }
 
@@ -509,8 +509,6 @@ void uni::geocsh::proc_needs(app::frustum_v& F, int N)
                 ++i;
             else
             {
-//              assert(SDL_SemValue(need_sem) == needs.size());
-
                 if (SDL_SemValue(need_sem) > 0) // HACK
                     SDL_SemWait(need_sem);
 
@@ -554,8 +552,6 @@ void uni::geocsh::add_needed(geomap *M, page *P)
 void uni::geocsh::use_needed(geomap *M, page *P)
 {
     // Move the page to the end of the LRU queue.
-
-    assert(P->get_state() == page_cached);
 
     cache_lru.remove   (P);
     cache_lru.push_back(P);
@@ -625,19 +621,11 @@ bool uni::geocsh::get_loaded(geomap **M, page **P, buffer **B)
     }
     SDL_mutexV(load_mutex);
 
-    assert(*M);
-    assert(*P);
-    assert(*B);
-
     return r;
 }
 
 void uni::geocsh::put_loaded(geomap *M, page *P, buffer *B)
 {
-    assert(M);
-    assert(P);
-    assert(B);
-
     // Add the loaded page to the incoming queue.
 
     SDL_mutexP(load_mutex);

@@ -103,8 +103,8 @@ endif
 
 	RM = rm -f
 
-	INCDIR  = -I$(HOME)/include
-	LIBDIR  = -L$(HOME)/lib
+	INCDIR  = -I$(HOME)/rlk/include
+	LIBDIR  = -L$(HOME)/rlk/lib
 
 	CFLAGS += $(shell $(SDLCONF) --cflags) \
 		  $(shell $(FT2CONF) --cflags)

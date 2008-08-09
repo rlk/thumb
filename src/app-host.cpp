@@ -825,7 +825,7 @@ void app::host::close()
         recv(M);
     }
 
-    // Sind sync to the server.
+    // Send sync to the server.
 
     if (server_sd != INVALID_SOCKET)
     {

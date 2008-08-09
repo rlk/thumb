@@ -172,7 +172,6 @@ void uni::universe::draw(int i)
 
     G->draw(i);
 
-//  for (s = 0; s < N; ++s) S[s]->draw(i);
     for (s = N - 1; s >= 0; --s) S[s]->draw(i);
 }
 
@@ -187,7 +186,12 @@ double uni::universe::turn_rate() const
 
 double uni::universe::move_rate() const
 {
-    return S[0] ? S[0]->altitude() : 1.0;
+    return std::min(1.0e12, S[0] ? S[0]->altitude() : 1.0);
+}
+
+double uni::universe::head_dist() const
+{
+  return move_rate() * 0.1;
 }
 
 void uni::universe::turn(double a, double t)

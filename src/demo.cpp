@@ -104,6 +104,13 @@ void demo::attr_prev()
 
 //-----------------------------------------------------------------------------
 
+void demo::trigger(int b)
+{
+    attr_next();
+}
+
+//-----------------------------------------------------------------------------
+
 void demo::point(int i, const double *p, const double *q)
 {
     if (input && input->point(i, p, q))

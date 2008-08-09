@@ -47,6 +47,8 @@ namespace app
         bool option(int) const;
         void toggle(int);
 
+        virtual void trigger(int) { }
+
         virtual ~prog() { }
     };
 }

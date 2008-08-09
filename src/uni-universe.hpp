@@ -54,6 +54,7 @@ namespace uni
 
         double turn_rate() const;
         double move_rate() const;
+        double head_dist() const;
 
         void turn(double=0, double=0);
 

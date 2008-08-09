@@ -77,6 +77,8 @@ public:
 
     void prep(app::frustum_v&);
     void draw(int);
+
+    virtual void trigger(int);
 };
 
 //-----------------------------------------------------------------------------

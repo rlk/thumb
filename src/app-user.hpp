@@ -35,6 +35,9 @@ namespace app
         double default_M[16];
         double default_I[16];
 
+        double scaled_M[16];
+        double scaled_I[16];
+
         // Automatic demo state
 
         mxml_node_t *head;
@@ -58,6 +61,8 @@ namespace app
         double current_t1;
         double current_t;
 
+        double scale;
+
         void init();
         bool load();
         void save();
@@ -74,8 +79,8 @@ namespace app
         void get_point(double *, const double *,
                        double *, const double *) const;
 
-        const double *get_M() const { return current_M; }
-        const double *get_I() const { return current_I; }
+        const double *get_M();// const; //{ return current_M; }
+        const double *get_I();// const; //{ return current_I; }
         const double *get_S() const { return current_S; }
 
         void set_default();
