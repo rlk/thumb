@@ -26,15 +26,13 @@
 //-----------------------------------------------------------------------------
 
 app::user::user() :
-    root(0),
-    keya(0),
-    keyb(0),
-    keyc(0),
-    keyd(0),
     file("demo.xml"),
-    t0(0),
-    tt(0),
-    t1(0)
+    root(0),
+    prev(0),
+    curr(0),
+    next(0),
+    pred(0),
+    tt(0)
 {
     const double S[16] = {
         0.5, 0.0, 0.0, 0.0,
@@ -47,8 +45,20 @@ app::user::user() :
     load_idt(current_I);
     load_mat(current_S, S);
 
-    load_idt(current_M0);
-    load_idt(current_M1);
+    // Initialize the demo input.
+
+    root = find(file.get_head(), "demo");
+    curr = find(root, "key");
+
+    prev = cycle_prev(curr);
+    next = cycle_next(curr);
+    pred = cycle_next(next);
+
+    // Initialize the transformation using the initial state.
+
+    double time;
+
+    dostep(0.0, time);
 }
 
 //-----------------------------------------------------------------------------
@@ -70,26 +80,26 @@ void app::user::get_point(double *P, const double *p,
 
 //-----------------------------------------------------------------------------
 
-app::node app::user::cycle_next(app::node curr)
+app::node app::user::cycle_next(app::node n)
 {
     // Return the next key, or the first key if there is no next.  O(1).
 
-    app::node  node = next(root, curr, "key");
-    if (!node) node = find(c,          "key");
+    app::node  node = app::next(root, n, "key");
+    if (!node) node = app::find(root,    "key");
 
     return node;
 }
 
-app::node app::user::cycle_prev(app::node curr)
+app::node app::user::cycle_prev(app::node n)
 {
     // Return the previous key, or the last key if there is no previous.  O(n).
 
     app::node last = 0;
     app::node node = 0;
 
-    for (node = find(root,       "key"); node;
-         node = next(root, node, "key"))
-        if (get_next(node) == curr)
+    for (node = app::find(root,       "key"); node;
+         node = app::next(root, node, "key"))
+        if (cycle_next(node) == n)
             return node;
         else
             last = node;
@@ -177,242 +187,138 @@ void app::user::tumble(const double *A,
 
 //-----------------------------------------------------------------------------
 
-#if 0
-static double cubic(double t)
+double app::user::interpolate(const char *name, double k)
 {
-    return 3 * t * t - 2 * t * t * t;
+    const double y0 = get_attr_f(prev, name, k);
+    const double y1 = get_attr_f(curr, name, k);
+    const double y2 = get_attr_f(next, name, k);
+    const double y3 = get_attr_f(pred, name, k);
+
+    const double a0 = y3 - y2 - y0 + y1;
+    const double a1 = y0 - y1 - a0;
+    const double a2 = y2 - y0;
+    const double a3 = y1;
+
+    const double t2 = tt * tt;
+
+    return a0 * tt * t2 + a1 * t2 + a2 * tt + a3;
 }
 
-bool app::user::dostep(double dt, const double *p, double& a, double& t)
+bool app::user::dostep(double dt, double &time)
 {
+    // Advance the bezier interpolator.
+
     tt += dt;
 
-    // Interpolate between the current endpoint transforms.
+    // Advance the keys if necessary.
 
-    if (t0 <= tt && tt <= t1)
+    while (tt > 1.0)
     {
-        double k = (tt - t0) / (t1 - t0);
-//      double T = cubic(cubic(cubic(k)));
-        double T = k;
+        tt -= 1.0;
 
-        a = current_a = (1 - T) * current_a0 + T * current_a1;
-        t = current_t = (1 - T) * current_t0 + T * current_t1;
-
-        slerp(current_M0, current_M1, p, T);
-
-        return false;
+        curr = cycle_next(curr);
+        prev = cycle_prev(curr);
+        next = cycle_next(curr);
+        pred = cycle_next(next);
     }
 
-    // Clamp to the beginning of the interpolation.
+    // Interpolate the current demo state.  This could use some caching.
 
-    else if (tt < t0)
-    {
-        load_mat(current_M, current_M0);
-        load_inv(current_I, current_M0);
-        a = current_a = current_a0;
-        t = current_t = current_t0;
+    double p[3];
+    double q[4];
 
-        return false;
-    }
+    p[0] = interpolate("x", 0);
+    p[1] = interpolate("y", 0);
+    p[2] = interpolate("z", 0);
 
-    // Clamp to the end of the interpolation.
+    q[0] = interpolate("t", 0);
+    q[1] = interpolate("u", 0);
+    q[2] = interpolate("v", 0);
+    q[3] = interpolate("w", 0);
 
-    else if (tt > t1)
-    {
-/*
-        load_mat(current_M, current_M1);
-        load_inv(current_I, current_M1);
-        a = current_a = current_a1;
-        t = current_t = current_t1;
-*/
-        return true;
-    }
+    time = interpolate("time", 0);
+
+    // Compute current transform from the interpolated values.
+
+    set_quaternion(current_M, q);
+
+    current_M[12] = p[0];
+    current_M[13] = p[1];
+    current_M[14] = p[2];
+
+    load_inv(current_I, current_M);
 
     return true;
 }
 
-void app::user::gocurr(double dt, double wt)
+void app::user::gonext()
 {
-    t0 = tt + wt;
-    t1 = t0 + dt;
+    // Teleport to the next key.
 
-    current_a0 = current_a;
-    current_t0 = current_t;
+    tt = 0.0;
 
-    load_mat(current_M0, current_M);
-    load_mat(current_M1, current_M);
-
-    // Load the destination matrix from the XML element.
-
-    if (curr)
-    {
-        current_M1[ 0] = get_real_attr(curr, "m0");
-        current_M1[ 1] = get_real_attr(curr, "m1");
-        current_M1[ 2] = get_real_attr(curr, "m2");
-        current_M1[ 3] = get_real_attr(curr, "m3");
-        current_M1[ 4] = get_real_attr(curr, "m4");
-        current_M1[ 5] = get_real_attr(curr, "m5");
-        current_M1[ 6] = get_real_attr(curr, "m6");
-        current_M1[ 7] = get_real_attr(curr, "m7");
-        current_M1[ 8] = get_real_attr(curr, "m8");
-        current_M1[ 9] = get_real_attr(curr, "m9");
-        current_M1[10] = get_real_attr(curr, "mA");
-        current_M1[11] = get_real_attr(curr, "mB");
-        current_M1[12] = get_real_attr(curr, "mC");
-        current_M1[13] = get_real_attr(curr, "mD");
-        current_M1[14] = get_real_attr(curr, "mE");
-        current_M1[15] = get_real_attr(curr, "mF");
-        current_a1     = get_real_attr(curr, "a");
-        current_t1     = get_real_attr(curr, "t");
-        current_log   = (get_real_attr(curr, "log") > 0.0);
-    }
-
-    // If we're teleporting, just set all matrices.
-
-    if (dt == 0)
-    {
-        load_mat(current_M0, current_M1);
-        load_mat(current_M,  current_M1);
-        load_inv(current_I,  current_M1);
-
-        current_a = current_a0 = current_a1;
-        current_t = current_t0 = current_t1;
-    }
+    curr = cycle_next(curr);
+    prev = cycle_prev(curr);
+    next = cycle_next(curr);
+    pred = cycle_next(next);
 }
 
-void app::user::goinit(double dt)
+void app::user::goprev()
 {
-    // Advance to the first key, or begin again at the first.
+    // Teleport to the previous key.
 
-    curr = root->child;
+    tt = 0.0;
 
-    gocurr(dt);
+    curr = cycle_prev(curr);
+    prev = cycle_prev(curr);
+    next = cycle_next(curr);
+    pred = cycle_next(next);
 }
 
-void app::user::gonext(double dt, double wt)
+void app::user::insert(double time)
 {
-    // Advance to the next key, or begin again at the first.
+    double q[4];
 
-    if (curr != 0)
-        curr = mxmlWalkNext(curr, root, MXML_NO_DESCEND);
-    if (curr == 0)
-    {
-        curr = root->child;
-        loop++;
-    }
+    get_quaternion(q, current_M);
 
-    gocurr(dt, wt);
-}
+    // Insert a new key after the current key.
 
-void app::user::goprev(double dt, double wt)
-{
-    // Advance to the next key, or begin again at the first.
+    app::node node = create("key");
 
-    if (curr != 0)
-        curr = mxmlWalkPrev(curr, root, MXML_NO_DESCEND);
-    if (curr == 0)
-        curr = root->last_child;
+    set_attr_f(node, "x", current_M[12]);
+    set_attr_f(node, "y", current_M[13]);
+    set_attr_f(node, "z", current_M[14]);
 
-    gocurr(dt, wt);
-}
+    set_attr_f(node, "t", q[0]);
+    set_attr_f(node, "u", q[1]);
+    set_attr_f(node, "v", q[2]);
+    set_attr_f(node, "w", q[3]);
 
-void app::user::insert(double a, double t)
-{
-    mxml_node_t *node = mxmlNewElement(MXML_NO_PARENT, "key");
+    set_attr_f(node, "time", time);
 
-    set_real_attr(node, "m0", current_M[ 0]);
-    set_real_attr(node, "m1", current_M[ 1]);
-    set_real_attr(node, "m2", current_M[ 2]);
-    set_real_attr(node, "m3", current_M[ 3]);
-    set_real_attr(node, "m4", current_M[ 4]);
-    set_real_attr(node, "m5", current_M[ 5]);
-    set_real_attr(node, "m6", current_M[ 6]);
-    set_real_attr(node, "m7", current_M[ 7]);
-    set_real_attr(node, "m8", current_M[ 8]);
-    set_real_attr(node, "m9", current_M[ 9]);
-    set_real_attr(node, "mA", current_M[10]);
-    set_real_attr(node, "mB", current_M[11]);
-    set_real_attr(node, "mC", current_M[12]);
-    set_real_attr(node, "mD", current_M[13]);
-    set_real_attr(node, "mE", current_M[14]);
-    set_real_attr(node, "mF", current_M[15]);
-    set_real_attr(node, "a", a);
-    set_real_attr(node, "t", t);
+    app::insert(root, curr, node);
 
-    mxmlAdd(root, MXML_ADD_AFTER, curr, node);
-
-    current_a = a;
-    current_t = t;
-    gonext(1);
-
-    dirty = true;
+    curr = node;
+    prev = cycle_prev(curr);
+    next = cycle_next(curr);
+    pred = cycle_next(next);
 }
 
 void app::user::remove()
 {
-    mxml_node_t *node = curr;
+    app::node node = cycle_next(curr);
 
-    gonext(1);
+    // Remove the current key (if it's not the only one left).
 
-    mxmlDelete(node);
+    if (node != curr)
+    {
+        app::remove(curr);
 
-    dirty = true;
+        curr = node;
+        prev = cycle_prev(curr);
+        next = cycle_next(curr);
+        pred = cycle_next(next);
+    }
 }
 
-//-----------------------------------------------------------------------------
-
-void app::user::slerp(const double *A,
-                      const double *B,
-                      const double *p, double t)
-{
-    double a[3];
-    double b[3];
-    double c[3];
-
-    a[0] = A[12];
-    a[1] = A[13];
-    a[2] = A[14];
-
-    b[0] = B[12];
-    b[1] = B[13];
-    b[2] = B[14];
-
-    // Slerp the position about the given center.
-
-    if (p)
-    {
-        a[0] -= p[0];
-        a[1] -= p[1];
-        a[2] -= p[2];
-
-        b[0] -= p[0];
-        b[1] -= p[1];
-        b[2] -= p[2];
-
-        ::slerp(c, a, b, t);
-
-        c[0] += p[0];
-        c[1] += p[1];
-        c[2] += p[2];
-    }
-    else
-    {
-        ::slerp(c, a, b, t);
-    }
-
-    current_M[12] = c[0];
-    current_M[13] = c[1];
-    current_M[14] = c[2];
-    current_M[15] = 1;
-
-    // Slerp the rotation about the position.
-
-    ::slerp(current_M + 0, A + 0, B + 0, t);
-    ::slerp(current_M + 8, A + 8, B + 8, t);
-
-    orthonormalize(current_M);
-
-    load_inv(current_I, current_M);
-}
-#endif
 //-----------------------------------------------------------------------------

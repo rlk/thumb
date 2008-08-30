@@ -75,23 +75,15 @@ bool dev::mouse::point(int i, const double *p, const double *q)
 
 bool dev::mouse::click(int i, int b, int m, bool d)
 {
+    double now = universe.get_time();
+
     button[b] = d;
     modifiers = m;
 
     if      (d && b == SDL_BUTTON_WHEELUP)
-    {
-        if (m & KMOD_SHIFT)
-            universe.turn( 0.0, -1.0);
-        else
-            universe.turn(+1.0,  0.0);
-    }
+        universe.set_time(now + 15.0 * 60.0);
     else if (d && b == SDL_BUTTON_WHEELDOWN)
-    {
-        if (m & KMOD_SHIFT)
-            universe.turn( 0.0, +1.0);
-        else
-            universe.turn(-1.0,  0.0);
-    }
+        universe.set_time(now - 15.0 * 60.0);
 
     return true;
 }
@@ -111,7 +103,7 @@ bool dev::mouse::keybd(int c, int k, int m, bool d)
     
     else if (d)
     {
-        if (k == SDLK_HOME) { ::user->home(); return true; }
+        if (k == SDLK_RETURN) { ::user->home(); return true; }
     }
 
     return false;

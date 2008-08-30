@@ -209,3 +209,32 @@ app::node app::next(node tree,
 }
 
 //-----------------------------------------------------------------------------
+
+app::node app::create(const char *tag)
+{
+    return mxmlNewElement(MXML_NO_PARENT, tag);
+}
+
+void app::insert(node parent, node prev, node curr)
+{
+    if (parent && curr)
+    {
+        if (prev)
+            mxmlAdd(parent, MXML_ADD_AFTER, prev, curr);
+        else
+            mxmlAdd(parent, MXML_ADD_TO_PARENT, 0, curr);
+
+        for (app::node elem = curr; elem; elem = elem->parent)
+            elem->user_data = (void *) 1;
+    }
+}
+
+void app::remove(node curr)
+{
+    for (app::node elem = curr; elem; elem = elem->parent)
+        elem->user_data = (void *) 1;
+
+    if (curr) mxmlDelete(curr);
+}
+
+//-----------------------------------------------------------------------------

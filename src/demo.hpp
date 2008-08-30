@@ -54,16 +54,17 @@ class demo : public app::prog
 
     dev::input *input;
 
-    bool   attr_mode;
-    bool   attr_stop;
     double attr_curr;
     double attr_time;
-    double slerp_time;
+    bool   attr_mode;
 
     void attr_on();
     void attr_off();
+    void attr_step(double);
     void attr_next();
     void attr_prev();
+    void attr_ins();
+    void attr_del();
 
 public:
 

@@ -27,7 +27,7 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo() : edit(0), play(0), info(0), curr(0), input(0), slerp_time(10.0)
+demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 {
     std::string input_mode = conf->get_s("input_mode");
 
@@ -45,23 +45,15 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0), slerp_time(10.0)
 
     // Initialize the application state.
 
-    key_edit   = conf->get_i("key_edit");
-    key_play   = conf->get_i("key_play");
-    key_info   = conf->get_i("key_info");
+    key_edit  = conf->get_i("key_edit");
+    key_play  = conf->get_i("key_play");
+    key_info  = conf->get_i("key_info");
 
 //  edit = new mode::edit(world);
 //  play = new mode::play(world);
 //  info = new mode::info(world);
 
 //  goto_mode(play);
-
-    double a;
-    double t;
-
-    user->getrot(a, t);
-
-    universe.set_a(a);
-    universe.set_t(t);
 
 //  if (::conf->get_i("movie")) attr_on();
 }
@@ -88,28 +80,45 @@ void demo::goto_mode(mode::mode *next)
 void demo::attr_on()
 {
     attr_mode = true;
-    attr_stop = false;
-    ::user->gonext(slerp_time);
+    attr_curr = 0.0;
 }
 
 void demo::attr_off()
 {
     attr_mode = false;
-    attr_curr = 0;
+    attr_curr = 0.0;
+}
+
+void demo::attr_step(double dt)
+{
+    double time = 0.0;
+
+    if (user->dostep(dt, time))
+        universe.set_time(time);
 }
 
 void demo::attr_next()
 {
-    attr_mode = true;
-    attr_stop = true;
-    ::user->gonext(2.0);
+    ::user->gonext();
+    attr_step(0.0);
 }
 
 void demo::attr_prev()
 {
-    attr_mode = true;
-    attr_stop = true;
-    ::user->goprev(2.0);
+    ::user->goprev();
+    attr_step(0.0);
+}
+
+void demo::attr_ins()
+{
+    ::user->insert(universe.get_time());
+    attr_step(0.0);
+}
+
+void demo::attr_del()
+{
+    ::user->remove();
+    attr_step(0.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -163,9 +172,8 @@ void demo::keybd(int c, int k, int m, bool d)
             {
                 if      (k == SDLK_PAGEUP)   attr_next();
                 else if (k == SDLK_PAGEDOWN) attr_prev();
-                else if (k == SDLK_INSERT)   ::user->insert(universe.get_a(),
-                                                            universe.get_t());
-                else if (k == SDLK_DELETE)   ::user->remove();
+                else if (k == SDLK_END)      attr_ins();
+                else if (k == SDLK_HOME)     attr_del();
                 else if (k == SDLK_SPACE)    attr_on();
             }
         }
@@ -177,29 +185,15 @@ void demo::timer(int t)
     double dt = t / 1000.0;
 
     if (attr_mode)
-    {
-        double axis = 0.0;
-        double tilt = 0.0;
-
-        if (user->dostep(dt, universe.get_p(), axis, tilt))
-        {
-            if (attr_stop)
-                attr_off();
-            else
-                user->gonext(slerp_time, 0.0);
-        }
-        else
-        {
-            universe.set_a(axis);
-            universe.set_t(tilt);
-        }
-    }
+        attr_step(dt);
     else
     {
         if (input && input->timer(t))
             attr_off();
         else
         {
+            // If the attract delay has expired, enable attract mode.
+
             attr_curr += dt;
 
             if (attr_curr > attr_time)

@@ -22,7 +22,7 @@
 
 //-----------------------------------------------------------------------------
 
-uni::universe::universe() : G(0), serial(0)
+uni::universe::universe() : G(0), serial(0), time(0)
 {
     double Er0 = 6372797.0;
     double Er1 = 6372797.0 + 8844.0;
@@ -195,11 +195,6 @@ double uni::universe::move_rate() const
 double uni::universe::head_dist() const
 {
   return move_rate() * 0.1;
-}
-
-void uni::universe::turn(double a, double t)
-{
-    if (S[0]) S[0]->turn(a * 5.0, t * 5.0);
 }
 
 //-----------------------------------------------------------------------------

@@ -102,7 +102,7 @@ bool dev::gamepad::timer(int t)
         user->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
 
     if (ba || bt)
-        universe.turn(rotate[3] * ka, rotate[4] * ka);
+        universe.set_time(universe.get_time() + dt * ka);
 
     if (bx || by || bz || ba || bt || DOT3(motion, motion) > 0)
         return true;

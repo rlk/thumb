@@ -62,6 +62,12 @@ namespace app
               node, const char * =0,
                     const char * =0,
                     const char * =0);
+
+    // Mutators
+
+    node create(const char *);
+    void insert(node, node, node);
+    void remove(node);
 }
 
 //-----------------------------------------------------------------------------

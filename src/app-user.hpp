@@ -38,13 +38,15 @@ namespace app
         app::serial file;
 
         app::node root;
-        app::node keya;
-        app::node keyb;
-        app::node keyc;
-        app::node keyd;
+        app::node prev;
+        app::node curr;
+        app::node next;
+        app::node pred;
 
         app::node cycle_next(app::node);
         app::node cycle_prev(app::node);
+
+        double interpolate(const char *, double);
 
         double tt;
 
@@ -71,17 +73,11 @@ namespace app
 
         // Automatic view controls.
 
-        bool dostep(double, const double *, double&, double&);
-        void gocurr(double, double=0);
-        void goinit(double);
-        void gonext(double, double=0);
-        void goprev(double, double=0);
-        void insert(double, double);
+        bool dostep(double, double&);
+        void gonext();
+        void goprev();
+        void insert(double);
         void remove();
-
-        void getrot(double& a, double& t) { a = current_a; t = current_t; }
-
-        bool sample() const { return (current_log && (loop == 1)); }
     };
 }
 

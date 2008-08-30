@@ -145,7 +145,7 @@ bool dev::tracker::timer(int t)
     bool bt = (fabs(rotate[1]) > 0.1);
 
     if (ba || bt)
-        universe.turn(rotate[0] * ka, rotate[1] * ka);
+        universe.set_time(universe.get_time() + dt * ka);
 
     if (ba || bt || button[tracker_butn_fly])
         return true;

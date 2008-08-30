@@ -471,7 +471,7 @@ void app::host::root_loop()
         
         frame++;
 
-        if (::user->sample() && movie && (frame % movie) == 0)
+        if (movie && (frame % movie) == 0)
         {
             char buf[256];
 
@@ -825,7 +825,7 @@ void app::host::front()
     // Swap the back buffer to the front.
 
     SDL_GL_SwapBuffers();
-    ::perf->step(bench && ::user->sample());
+    ::perf->step(bench);
 }
 
 void app::host::close()

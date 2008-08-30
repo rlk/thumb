@@ -355,10 +355,10 @@ uni::geocsh::~geocsh()
 /*
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
         SDL_WaitThread(*i, 0);
-*/
+
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
         SDL_KillThread(*i);
-
+*/
     // Release all our IPC.
 
     SDL_DestroyMutex(need_mutex);
