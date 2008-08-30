@@ -250,6 +250,8 @@ app::host::host(std::string filename, std::string tag) :
     server_sd(INVALID_SOCKET),
     listen_sd(INVALID_SOCKET),
     bench(::conf->get_i("bench")),
+    movie(::conf->get_i("movie")),
+    frame(0),
     calibrate_state(false),
     calibrate_index(0),
     file(filename.c_str())
@@ -437,9 +439,7 @@ void app::host::root_loop()
             if (tracker_sensor(1, p, q)) point(1, p, q);
         }
 
-        // Call the timer handler for each jiffy that has passed.
-
-        if (bench == 0)
+        if (bench == 0)  // Advance by JIFFYs until sim clock meets wall clock.
         {
             int tick = SDL_GetTicks();
 
@@ -449,11 +449,11 @@ void app::host::root_loop()
                 timer(JIFFY);
             }
         }
-        if (bench == 1)
+        if (bench == 1) // Advance by exactly one JIFFY.
         {
             timer(JIFFY);
         }
-        if (bench == 2)
+        if (bench == 2) // Advance sim clock to wall clock in exactly on update.
         {
             int tick = SDL_GetTicks();
 
@@ -466,6 +466,21 @@ void app::host::root_loop()
 
         paint();
         front();
+
+        // Count frames and record a movie, if requested.
+        
+        frame++;
+
+        if (::user->sample() && movie && (frame % movie) == 0)
+        {
+            char buf[256];
+
+            sprintf(buf, "frame%05d.png", frame / movie);
+
+            ::prog->snap(std::string(buf),
+                         ::host->get_window_w(),
+                         ::host->get_window_h());
+        }
     }
 }
 
@@ -810,7 +825,7 @@ void app::host::front()
     // Swap the back buffer to the front.
 
     SDL_GL_SwapBuffers();
-    ::perf->step(bench);
+    ::perf->step(bench && ::user->sample());
 }
 
 void app::host::close()

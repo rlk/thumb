@@ -17,6 +17,7 @@
 #include <mxml.h>
 
 #include "ogl-program.hpp"
+#include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -32,44 +33,24 @@ namespace app
         double current_I[16];
         double current_S[16];
 
-        double default_M[16];
-        double default_I[16];
+        // Automatic demo file.
 
-        // Automatic demo state
+        app::serial file;
 
-        mxml_node_t *head;
-        mxml_node_t *root;
-        mxml_node_t *curr;
+        app::node root;
+        app::node keya;
+        app::node keyb;
+        app::node keyc;
+        app::node keyd;
 
-        bool dirty;
+        app::node cycle_next(app::node);
+        app::node cycle_prev(app::node);
 
-        double t0;
         double tt;
-        double t1;
-
-        double current_M0[16];
-        double current_M1[16];
-
-        double current_a0;
-        double current_a1;
-        double current_a;
-
-        double current_t0;
-        double current_t1;
-        double current_t;
-
-        void init();
-        bool load();
-        void save();
-
-        void slerp(const double *,
-                   const double *,
-                   const double *, double);
 
     public:
 
         user();
-       ~user();
 
         void get_point(double *, const double *,
                        double *, const double *) const;
@@ -77,9 +58,6 @@ namespace app
         const double *get_M() const { return current_M; }
         const double *get_I() const { return current_I; }
         const double *get_S() const { return current_S; }
-
-        void set_default();
-        void get_default();
 
         // Interactive view controls.
 
@@ -100,6 +78,10 @@ namespace app
         void goprev(double, double=0);
         void insert(double, double);
         void remove();
+
+        void getrot(double& a, double& t) { a = current_a; t = current_t; }
+
+        bool sample() const { return (current_log && (loop == 1)); }
     };
 }
 

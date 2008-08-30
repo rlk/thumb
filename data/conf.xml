@@ -3,23 +3,25 @@
 
   <!-- Host configuration -->
 
-  <option type="string" name="host_file">host/starcave.xml</option>
-  <option type="string" name="exec_dir">/home/covise/rlk/src/thumb/</option>
+  <option type="string" name="host_file">host/common.xml</option>
+  <option type="string" name="exec_dir">/home/evl/rlk/src/thumb/</option>
+  <option type="string" name="data_dir">/data/evl/rlk/</option>
 
-  <option type="string" name="input_mode">tracker</option>
+  <option type="string" name="input_mode">mouse</option>
 
   <option type="int" name="loader_threads">2</option>
   <option type="int" name="loader_buffers">32</option>
 
-  <option type="float" name="attract_delay">600.0</option>
+  <option type="float" name="attract_delay">0.0</option>
 
   <option type="int" name="atmo">1</option>
   <option type="int" name="sync">0</option>
-  <option type="int" name="bench">0</option>
+  <option type="int" name="bench">1</option>
   <option type="int" name="debug">0</option>
+  <option type="int" name="movie">0</option>
 
   <option type="string" name="mipmap">best</option>
-  <option type="float"  name="texel_cutoff">1.0</option>
+  <option type="float"  name="texel_cutoff">0.5</option>
 
   <!-- Terrain renderer configuration -->
 

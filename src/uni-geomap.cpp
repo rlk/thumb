@@ -311,7 +311,7 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
         std::string vert = app::get_attr_s(map, "vert");
         std::string frag = app::get_attr_s(map, "frag");
 
-        pattern = app::get_attr_s(map, "name");
+        pattern = ::conf->get_s("data_dir") + app::get_attr_s(map, "name");
 
         ext_W = app::get_attr_f(map, "W", -PI);
         ext_E = app::get_attr_f(map, "E",  PI);

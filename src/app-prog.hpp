@@ -27,11 +27,9 @@ namespace app
 
         unsigned int options;
 
-    protected:
+    public:
 
         void snap(std::string, int, int) const;
-
-    public:
 
         prog();
 

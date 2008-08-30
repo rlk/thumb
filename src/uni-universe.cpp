@@ -22,16 +22,15 @@
 
 //-----------------------------------------------------------------------------
 
-uni::universe::universe() : serial(0)
+uni::universe::universe() : G(0), serial(0)
 {
     double Er0 = 6372797.0;
     double Er1 = 6372797.0 + 8844.0;
-
+/*
     double Mr0 =   1737100.0;
     double Mr1 =   1737100.0;
-
     double Mo  = 384400000.0;
-
+*/
     // Create the caches.
 
     int image_cache_w = std::max(::conf->get_i("image_cache_w"), 2);
@@ -58,13 +57,13 @@ uni::universe::universe() : serial(0)
     Ecolor.push_back(dif0);
     Enormal.push_back(nrm0);
     Eheight.push_back(hgt0);
-/*
+
     geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          Er0, Er1);
     geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
 
     Enormal.push_back(nrm1);
     Eheight.push_back(hgt1);
-*/
+/*
     geomap *dif2 = new geomap(cache_s, "moon-750.xml",          Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "moon-normal.xml",       Mr0, Mr1);
     geomap *hgt2 = new geomap(cache_h, "moon-height.xml",       Mr0, Mr1);
@@ -72,7 +71,7 @@ uni::universe::universe() : serial(0)
     Mcolor.push_back(dif2);
     Mnormal.push_back(nrm2);
     Mheight.push_back(hgt2);
-
+*/
     // Configure the geometry generator and renderer.
 
     int patch_cache = ::conf->get_i("patch_cache");
@@ -87,7 +86,7 @@ uni::universe::universe() : serial(0)
 
     // Create the galaxy.
 
-    G = new galaxy("hipparcos.bin");
+//  G = new galaxy("hipparcos.bin");
 
     // Create the Earth.
 
@@ -95,14 +94,17 @@ uni::universe::universe() : serial(0)
                       caches, Er0, Er1, patch_cache, true);
     S[0]->move(0.0, 0.0, -2.0 * Er0);
 
-    // Create the Moon.
+    N = 1;
 
+    // Create the Moon.
+/*
     S[1] = new sphere(*D, *R, Mcolor, Mnormal, Mheight,
                       caches, Mr0, Mr1, patch_cache, false);
     S[1]->move(Mo, 0.0, -2.0 * Er0);
     S[1]->turn(90.0, 0.0);
 
     N = 2;
+*/
 }
 
 uni::universe::~universe()
@@ -110,7 +112,8 @@ uni::universe::~universe()
     for (int s = 0; s < N; ++s)
         delete S[s];
 
-    delete G;
+    if (G) delete G;
+
     delete R;
     delete D;
 
@@ -135,7 +138,7 @@ void uni::universe::prep(app::frustum_v& frusta)
 
     // Update the view of each object.
 
-    G->view(frusta);
+    if (G) G->view(frusta);
 
     for (s = 0; s < N; ++s) S[s]->view(frusta);
 
@@ -170,7 +173,7 @@ void uni::universe::draw(int i)
 
     // Draw all objects.
 
-    G->draw(i);
+    if (G) G->draw(i);
 
     for (s = N - 1; s >= 0; --s) S[s]->draw(i);
 }

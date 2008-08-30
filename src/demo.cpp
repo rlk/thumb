@@ -27,7 +27,7 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
+demo::demo() : edit(0), play(0), info(0), curr(0), input(0), slerp_time(10.0)
 {
     std::string input_mode = conf->get_s("input_mode");
 
@@ -54,6 +54,16 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 //  info = new mode::info(world);
 
 //  goto_mode(play);
+
+    double a;
+    double t;
+
+    user->getrot(a, t);
+
+    universe.set_a(a);
+    universe.set_t(t);
+
+//  if (::conf->get_i("movie")) attr_on();
 }
 
 demo::~demo()
@@ -79,7 +89,7 @@ void demo::attr_on()
 {
     attr_mode = true;
     attr_stop = false;
-    ::user->gonext(5.0);
+    ::user->gonext(slerp_time);
 }
 
 void demo::attr_off()
@@ -176,14 +186,12 @@ void demo::timer(int t)
             if (attr_stop)
                 attr_off();
             else
-                user->gonext(10.0, 5.0);
+                user->gonext(slerp_time, 0.0);
         }
         else
         {
-/*
             universe.set_a(axis);
             universe.set_t(tilt);
-*/
         }
     }
     else

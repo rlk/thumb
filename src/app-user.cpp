@@ -21,37 +21,20 @@
 #include "app-user.hpp"
 #include "app-data.hpp"
 #include "app-glob.hpp"
-
-//-----------------------------------------------------------------------------
-
-static double get_real_attr(mxml_node_t *node, const char *name)
-{
-    if (const char *c = mxmlElementGetAttr(node, name))
-        return atof(c);
-    else
-        return 0;
-}
-
-static void set_real_attr(mxml_node_t *node, const char *name, double k)
-{
-    std::ostringstream value;
-
-    value << std::setprecision(3) << k;
-
-    mxmlElementSetAttr(node, name, value.str().c_str());
-}
+#include "app-prog.hpp"
 
 //-----------------------------------------------------------------------------
 
 app::user::user() :
-    head(0),
     root(0),
-    curr(0),
+    keya(0),
+    keyb(0),
+    keyc(0),
+    keyd(0),
+    file("demo.xml"),
     t0(0),
     tt(0),
-    t1(0),
-    current_a0(0), current_a1(0), current_a(0),
-    current_t0(0), current_t1(0), current_t(0)
+    t1(0)
 {
     const double S[16] = {
         0.5, 0.0, 0.0, 0.0,
@@ -66,16 +49,6 @@ app::user::user() :
 
     load_idt(current_M0);
     load_idt(current_M1);
- 
-    init();
-    load();
-
-    gonext(0);
-}
-
-app::user::~user()
-{
-    save();
 }
 
 //-----------------------------------------------------------------------------
@@ -95,96 +68,33 @@ void app::user::get_point(double *P, const double *p,
     mult_mat_vec3(V, current_M, M + 8);
 }
 
-void app::user::set_default()
-{
-    memcpy(default_M, current_M, 16 * sizeof (double));
-    memcpy(default_I, current_I, 16 * sizeof (double));
-}
-
-void app::user::get_default()
-{
-    memcpy(current_M, default_M, 16 * sizeof (double));
-    memcpy(current_I, default_I, 16 * sizeof (double));
-}
-
 //-----------------------------------------------------------------------------
 
-void app::user::init()
+app::node app::user::cycle_next(app::node curr)
 {
-    head = mxmlNewElement(NULL, "?xml");
-    root = mxmlNewElement(head, "demo");
+    // Return the next key, or the first key if there is no next.  O(1).
 
-    mxmlElementSetAttr(head, "version",  "1.0");
-    mxmlElementSetAttr(head, "?", NULL);
+    app::node  node = next(root, curr, "key");
+    if (!node) node = find(c,          "key");
 
-    dirty = false;
+    return node;
 }
 
-//-----------------------------------------------------------------------------
-
-static mxml_type_t load_cb(mxml_node_t *node)
+app::node app::user::cycle_prev(app::node curr)
 {
-    std::string name(node->value.element.name);
+    // Return the previous key, or the last key if there is no previous.  O(n).
 
-    if (name == "key")
-        return MXML_REAL;
-    else
-        return MXML_ELEMENT;
-}
+    app::node last = 0;
+    app::node node = 0;
 
-bool app::user::load()
-{
-    if (head) mxmlDelete(head);
+    for (node = find(root,       "key"); node;
+         node = next(root, node, "key"))
+        if (get_next(node) == curr)
+            return node;
+        else
+            last = node;
 
-    const char *buff;
-
-    if ((buff = (const char *) ::data->load(DEFAULT_DEMO_FILE)))
-    {
-        head = mxmlLoadString(NULL, buff, load_cb);
-        root = mxmlFindElement(head, head, "demo", 0, 0, MXML_DESCEND_FIRST);
-        curr = 0;
-    }
-
-    ::data->free(DEFAULT_DEMO_FILE);
-
-    dirty = false;
-
-    return root ? true : false;
-}
-
-//-----------------------------------------------------------------------------
-
-static const char *save_cb(mxml_node_t *node, int where)
-{
-    std::string name(node->value.element.name);
-
-    switch (where)
-    {
-    case MXML_WS_AFTER_OPEN:  return "\n";
-    case MXML_WS_AFTER_CLOSE: return "\n";
-
-    case MXML_WS_BEFORE_OPEN:
-        if (name == "key") return "  ";
-        break;
-    }
-
-    return NULL;
-}
-
-void app::user::save()
-{
-    if (dirty)
-    {
-        char *buff;
-
-        if ((buff = mxmlSaveAllocString(head, save_cb)))
-        {
-            ::data->save(DEFAULT_DEMO_FILE, buff);
-            free(buff);
-        }
-
-        dirty = false;
-    }
+    return last;
 }
 
 //-----------------------------------------------------------------------------
@@ -267,6 +177,7 @@ void app::user::tumble(const double *A,
 
 //-----------------------------------------------------------------------------
 
+#if 0
 static double cubic(double t)
 {
     return 3 * t * t - 2 * t * t * t;
@@ -281,7 +192,8 @@ bool app::user::dostep(double dt, const double *p, double& a, double& t)
     if (t0 <= tt && tt <= t1)
     {
         double k = (tt - t0) / (t1 - t0);
-        double T = cubic(cubic(cubic(k)));
+//      double T = cubic(cubic(cubic(k)));
+        double T = k;
 
         a = current_a = (1 - T) * current_a0 + T * current_a1;
         t = current_t = (1 - T) * current_t0 + T * current_t1;
@@ -307,11 +219,12 @@ bool app::user::dostep(double dt, const double *p, double& a, double& t)
 
     else if (tt > t1)
     {
+/*
         load_mat(current_M, current_M1);
         load_inv(current_I, current_M1);
         a = current_a = current_a1;
         t = current_t = current_t1;
-
+*/
         return true;
     }
 
@@ -351,6 +264,7 @@ void app::user::gocurr(double dt, double wt)
         current_M1[15] = get_real_attr(curr, "mF");
         current_a1     = get_real_attr(curr, "a");
         current_t1     = get_real_attr(curr, "t");
+        current_log   = (get_real_attr(curr, "log") > 0.0);
     }
 
     // If we're teleporting, just set all matrices.
@@ -361,8 +275,8 @@ void app::user::gocurr(double dt, double wt)
         load_mat(current_M,  current_M1);
         load_inv(current_I,  current_M1);
 
-        current_a0 = current_a1 = current_a;
-        current_t0 = current_t1 = current_t;
+        current_a = current_a0 = current_a1;
+        current_t = current_t0 = current_t1;
     }
 }
 
@@ -382,7 +296,10 @@ void app::user::gonext(double dt, double wt)
     if (curr != 0)
         curr = mxmlWalkNext(curr, root, MXML_NO_DESCEND);
     if (curr == 0)
+    {
         curr = root->child;
+        loop++;
+    }
 
     gocurr(dt, wt);
 }
@@ -497,5 +414,5 @@ void app::user::slerp(const double *A,
 
     load_inv(current_I, current_M);
 }
-
+#endif
 //-----------------------------------------------------------------------------

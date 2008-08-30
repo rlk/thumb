@@ -58,6 +58,7 @@ class demo : public app::prog
     bool   attr_stop;
     double attr_curr;
     double attr_time;
+    double slerp_time;
 
     void attr_on();
     void attr_off();

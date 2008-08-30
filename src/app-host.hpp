@@ -70,6 +70,8 @@ namespace app
         int  tock;
         int  mode;
         int  bench;
+        int  movie;
+        int  frame;
 
         bool calibrate_state;
         int  calibrate_index;
