@@ -40,6 +40,7 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
     // Initialize attract mode.
 
     attr_time = conf->get_f("attract_delay");
+    attr_rate = conf->get_f("attract_speed");
     attr_curr = 0;
     attr_mode = false;
 
@@ -56,6 +57,8 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 //  goto_mode(play);
 
 //  if (::conf->get_i("movie")) attr_on();
+
+    attr_step(0.0);
 }
 
 demo::~demo()
@@ -91,32 +94,63 @@ void demo::attr_off()
 
 void demo::attr_step(double dt)
 {
+    // Move the camera forward and update the universe.
+
     double time = 0.0;
 
-    if (user->dostep(dt, time))
+//  if (user->dostep(dt * attr_rate, universe.move_rate(), time))
+    if (user->dostep(dt * attr_rate, universe.move_rate(), time))
         universe.set_time(time);
 }
 
 void demo::attr_next()
 {
+    // Teleport to the next key.
+
+    attr_off();
     ::user->gonext();
     attr_step(0.0);
 }
 
 void demo::attr_prev()
 {
+    // Teleport to the previous key.
+
+    attr_off();
     ::user->goprev();
+    attr_step(0.0);
+}
+
+void demo::attr_half_fwd()
+{
+    // Teleport half way to the next key.
+
+    attr_off();
+    ::user->gohalf();
+    attr_step(0.0);
+}
+
+void demo::attr_half_rev()
+{
+    // Teleport half way to the previouskey.
+
+    attr_prev();
+    ::user->gohalf();
     attr_step(0.0);
 }
 
 void demo::attr_ins()
 {
+    // Insert a new key here and update the universe.
+
     ::user->insert(universe.get_time());
     attr_step(0.0);
 }
 
 void demo::attr_del()
 {
+    // Remove the current key.
+
     ::user->remove();
     attr_step(0.0);
 }
@@ -172,6 +206,8 @@ void demo::keybd(int c, int k, int m, bool d)
             {
                 if      (k == SDLK_PAGEUP)   attr_next();
                 else if (k == SDLK_PAGEDOWN) attr_prev();
+                else if (k == SDLK_0)        attr_half_fwd();
+                else if (k == SDLK_9)        attr_half_rev();
                 else if (k == SDLK_END)      attr_ins();
                 else if (k == SDLK_HOME)     attr_del();
                 else if (k == SDLK_SPACE)    attr_on();

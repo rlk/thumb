@@ -55,6 +55,7 @@ class demo : public app::prog
     dev::input *input;
 
     double attr_curr;
+    double attr_rate;
     double attr_time;
     bool   attr_mode;
 
@@ -63,6 +64,8 @@ class demo : public app::prog
     void attr_step(double);
     void attr_next();
     void attr_prev();
+    void attr_half_fwd();
+    void attr_half_rev();
     void attr_ins();
     void attr_del();
 

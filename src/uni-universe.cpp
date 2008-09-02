@@ -136,6 +136,10 @@ void uni::universe::prep(app::frustum_v& frusta)
 
     serial++;
 
+    // Update the object transforms based on time.
+
+    if (S[0]) S[0]->set_a(time * 360 / (60.0 * 60.0 * 24.0));
+
     // Update the view of each object.
 
     if (G) G->view(frusta);
