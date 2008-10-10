@@ -14,6 +14,7 @@
 #define MESSAGE_H
 
 #include <string>
+#include <cstring>
 #include <stdexcept>
 #include <errno.h>
 

@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <iostream>
+#include <cstring>
 #include <cmath>
 #include <queue>
 #include <limits>

@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <math.h>
+#include <algorithm>
 
 #include "uni-universe.hpp"
 #include "uni-geomap.hpp"

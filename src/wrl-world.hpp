@@ -14,6 +14,7 @@
 #define WORLD_HPP
 
 #include <ode/ode.h>
+#include <algorithm>
 
 #include "wrl-atom.hpp"
 #include "ogl-pool.hpp"
