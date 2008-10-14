@@ -11,7 +11,12 @@ void main()
 //  vec4 C = texture2DRect(cyl, gl_FragCoord.xy);
     vec4 D = texture2DRect(dif, gl_FragCoord.xy);
     vec4 N = texture2DRect(nrm, gl_FragCoord.xy);
+/*
+    C.rg = C.rg + vec2(3.14159, 0.0);
+    C.rg = C.rg / vec2(6.28318, 1.5707);
 
+    C.rg = C.rg * vec2(-1.0 / 3.14159, 1.0 / 1.5707);
+*/
 //  vec4 Cx = texture2DRect(cyl, gl_FragCoord.xy + vec2(1.0, 0.0));
 //  vec4 Cy = texture2DRect(cyl, gl_FragCoord.xy + vec2(0.0, 1.0));
 
@@ -23,8 +28,8 @@ void main()
     vec3 d = max(dot(n, L), 0.0) * gl_LightSource[0].diffuse.rgb;
     vec3 a =                       gl_LightModel.ambient.rgb;
 
-//  gl_FragColor = vec4(D.rgb * min(d + a, 1.0), 1.0);
     gl_FragColor = vec4(D.rgb * min(d, 1.0), 1.0);
+//  gl_FragColor = vec4(N.rgb, 1.0);
 //  gl_FragColor = vec4(D.rgb, 1.0);
 //  gl_FragColor = vec4(d, 1.0);
 //  gl_FragColor = vec4((n + 1.0) * 0.5, 1.0);

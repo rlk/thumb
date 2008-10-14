@@ -754,13 +754,15 @@ void uni::sphere::draw(int i)
                             glEnable(GL_LINE_SMOOTH);
                             glEnable(GL_POLYGON_OFFSET_LINE);
                             glDisable(GL_CULL_FACE);
+                            glDisable(GL_LIGHTING);
 
-                            glLineWidth(1.5);
+                            glLineWidth(0.5);
                             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                             glPolygonOffset(-0.5, -0.5);
 
-                            glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+//                          glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+                            glColor4f(1.0f, 1.0f, 1.0f, 0.9f);
                             pass();
                             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
                         }

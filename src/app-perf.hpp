@@ -55,16 +55,19 @@ namespace app
 
     class perf
     {
+        int total;
         int frames;
         int ticks;
         int limit;
         int last;
+        int fault;
 
     public:
 
         perf(int=DEFAULT_PERF_AVERAGE);
        ~perf();
 
+        void miss();
         void step(bool=false);
         void dump(bool=false);
     };

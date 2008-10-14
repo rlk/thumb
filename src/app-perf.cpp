@@ -141,7 +141,7 @@ void app::perf::dump(bool log)
 
 #else // not NVPM =============================================================
 
-app::perf::perf(int n) : frames(0), ticks(0), limit(n), last(0)
+app::perf::perf(int n) : total(0), frames(0), ticks(0), limit(n), last(0)
 {
 }
 
@@ -149,10 +149,16 @@ app::perf::~perf()
 {
 }
 
+void app::perf::miss()
+{
+    fault++;
+}
+
 void app::perf::step(bool log)
 {
     int dt = int(SDL_GetTicks()) - last;
 
+    total  +=  1;
     frames +=  1;
     ticks  += dt;
     last   += dt;
@@ -172,10 +178,12 @@ void app::perf::dump(bool log)
 
     SDL_WM_SetCaption(str.str().c_str(),
                       str.str().c_str());
+
+    if (log) std::cout << total << " " << fault << " " << ms << std::endl;
+
+    fault  = 0;
     frames = 0;
     ticks  = 0;
-
-    if (log) std::cout << ms << std::endl;
 }
 
 #endif // not NVPM ============================================================

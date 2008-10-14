@@ -2,7 +2,7 @@
 
 uniform sampler2DRect map;
 
-uniform mat4  P;
+uniform mat4  proj;
 varying vec3  ray;
 uniform vec3  pos;
 uniform vec2  siz;
@@ -22,7 +22,7 @@ void main()
                   (-b - sqrt(b * b - 4.0 * a * c)) / (2.0 * a));
 
     vec3 v = (pos + ray * t) / rad;
-    vec4 s = P * vec4(v, 1.0);
+    vec4 s = proj * vec4(v, 1.0);
 
     s = vec4(s.xyz / s.w, 1.0);
 
@@ -51,5 +51,8 @@ void main()
 
     vec2 C = siz * (s.xy + 1.0) * 0.5;
 
-    gl_FragColor = vec4(texture2DRect(map, C).rgb * k.x * k.y, 1.0);
+    vec3 m = mix(vec3(1.0, 0.0, 0.0), vec3(1.0), k.x * k.y);
+
+    gl_FragColor = vec4(texture2DRect(map, C).rgb * m, 1.0);
+//  gl_FragColor = vec4(texture2DRect(map, C).rgb, 1.0);
 }

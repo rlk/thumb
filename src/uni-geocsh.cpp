@@ -17,6 +17,7 @@
 #include "uni-geocsh.hpp"
 #include "app-conf.hpp"
 #include "app-host.hpp"
+#include "app-perf.hpp"
 
 //=============================================================================
 // Data loader threads query the cache object for requests, load the requested
@@ -309,6 +310,7 @@ uni::geocsh::geocsh(int c, int b, int s, int w, int h) :
 
     debug = ::conf->get_i("debug");
 
+    cache->zero();
     cache->bind(GL_TEXTURE0);
     {
         if (b == 2) // HACK!
@@ -414,10 +416,24 @@ void uni::geocsh::proc_loads()
         if (debug)
         {
             static const GLfloat color[][3] = {
-                { 1.0f, 0.0f, 0.0f }, { 1.0f, 0.5f, 0.0f },
-                { 1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f, 0.0f },
-                { 0.0f, 1.0f, 1.0f }, { 0.0f, 0.0f, 1.0f },
-                { 1.0f, 0.0f, 1.0f }, { 0.0f, 0.0f, 0.0f },
+                { 1.0f, 0.0f, 0.0f },
+                { 1.0f, 0.5f, 0.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 0.0f, 0.0f, 1.0f },
+                { 1.0f, 0.0f, 0.0f },
+                { 1.0f, 0.5f, 0.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 0.0f, 0.0f, 1.0f },
+                { 1.0f, 0.0f, 0.0f },
+                { 1.0f, 0.5f, 0.0f },
+                { 1.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 0.0f },
+                { 0.0f, 1.0f, 1.0f },
+                { 0.0f, 0.0f, 1.0f },
             };
 
             glPixelTransferf(GL_RED_SCALE,   color[P->get_d()][0]);
@@ -540,6 +556,8 @@ void uni::geocsh::proc(app::frustum_v& frusta, int N)
 
 void uni::geocsh::add_needed(geomap *M, page *P)
 {
+    ::perf->miss();
+
     SDL_mutexP(need_mutex);
     {
         P->set_state(page_needed);
@@ -655,9 +673,11 @@ void uni::geocsh::draw() const
     glPushAttrib(GL_ENABLE_BIT);
     {
         glEnable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
+//      glEnable(GL_BLEND);
         glDisable(GL_LIGHTING);
         glDisable(GL_DEPTH_TEST);
+
+        glDisable(GL_BLEND);
 
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

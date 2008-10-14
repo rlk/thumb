@@ -142,6 +142,8 @@ bool uni::page::visible(app::frustum_v& F, double r0, double r1, int N)
 bool uni::page::needed(app::frustum_v& F, double r0, double r1,
                        int N, int s, double cutoff)
 {
+    if (c <= 2) return true; // HACK
+
     // A page is visible if there exists a frustum that intersects it
     // and where it has a texel/pixel ratio of less than the cutoff.
 

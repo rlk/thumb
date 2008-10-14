@@ -49,7 +49,7 @@ void app::prog::snap(std::string filename, int w, int h) const
         // Initialize the PNG header.
 
         png_init_io (writep, filep);
-        png_set_compression_level(writep, 9);
+//      png_set_compression_level(writep, 9);
         png_set_IHDR(writep, infop, w, h, 8, PNG_COLOR_TYPE_RGB,
                                              PNG_INTERLACE_NONE,
                                              PNG_COMPRESSION_TYPE_DEFAULT,

@@ -114,7 +114,10 @@ void app::dome::prep(view_v& views, frustum_v& frusta)
     {
         // Apply the viewpoint and view to my frustum.
 
-        user_frust->calc_dome_planes(views[index]->get_p(), proj_frust, radius);
+        user_frust->calc_dome_planes(views[index]->get_p(),
+                                     proj_frust, radius,
+                                     tk[0] - tk[2] * 0.5, tk[1] + tk[2] * 0.5,
+                                     pk[0] - pk[2] * 0.5, pk[1] + pk[2] * 0.5);
         user_frust->calc_view_planes(::user->get_M(),
                                      ::user->get_I());
         user_frust->calc_projection(0.1, 10.0);
@@ -205,7 +208,7 @@ void app::dome::draw(view_v& views, int &i, bool calibrate)
                     draw_P->uniform("tk", RAD(tk[0]), RAD(tk[1]), RAD(tk[2]));
                     draw_P->uniform("pk", RAD(pk[0]), RAD(pk[1]), RAD(pk[2]));
 
-                    draw_P->uniform("P", user_frust->get_P());
+                    draw_P->uniform("proj", user_frust->get_P());
 
                     proj_frust->cast();
                 }

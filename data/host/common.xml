@@ -91,6 +91,17 @@
     </tile>
   </node>
 
+  <node name="1280x720">
+    <buffer w="1280" h="720"/>
+    <window x="0" y="0" w="1280" h="720"/>
+    <tile>
+      <viewport x="0" y="0" w="1280" h="720"/>
+      <frustum>
+        <perspective aspect="1.777" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
   <node name="640x480">
     <buffer w="640" h="480"/>
     <window x="0" y="0" w="640" h="480"/>
@@ -120,6 +131,28 @@
       <viewport x="0" y="0" w="320" h="240"/>
       <frustum>
         <perspective aspect="1.333" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
+  <node name="160x120">
+    <buffer w="160" h="120"/>
+    <window x="0" y="0" w="160" h="120"/>
+    <tile>
+      <viewport x="0" y="0" w="160" h="120"/>
+      <frustum>
+        <perspective aspect="1.333" fov="60.0" />
+      </frustum>
+    </tile>
+  </node>
+
+  <node name="1x1">
+    <buffer w="1" h="1"/>
+    <window x="0" y="0" w="1" h="1"/>
+    <tile>
+      <viewport x="0" y="0" w="1" h="1"/>
+      <frustum>
+        <perspective aspect="1.0" fov="60.0" />
       </frustum>
     </tile>
   </node>

@@ -382,14 +382,17 @@ void app::frustum::set_horizon(double r)
 }
 
 void app::frustum::calc_dome_planes(const double *p,
-                                    const frustum *proj, double rad)
+                                    const frustum *proj,
+                                    double rad,
+                                    double t0, double t1,
+                                    double p0, double p1)
 {
     const double *o = proj->user_pos;
 
     double P[4][3], R[3], U[3], B[3], C[3] = { 0.0f, 0.0f, 0.0f };
 
     // Compute the points at which proj intersects the dome.
-
+/*
     for (int i = 0; i < 4; ++i)
     {
         double v[3];
@@ -417,6 +420,29 @@ void app::frustum::calc_dome_planes(const double *p,
     C[0] *= 0.25;
     C[1] *= 0.25;
     C[2] *= 0.25;
+    */
+
+    P[0][0] =  rad * sin(RAD(t0)) * cos(RAD(p0));
+    P[0][1] =  rad *                sin(RAD(p0));
+    P[0][2] = -rad * cos(RAD(t0)) * cos(RAD(p0));
+
+    P[1][0] =  rad * sin(RAD(t1)) * cos(RAD(p0));
+    P[1][1] =  rad *                sin(RAD(p0));
+    P[1][2] = -rad * cos(RAD(t1)) * cos(RAD(p0));
+
+    P[2][0] =  rad * sin(RAD(t0)) * cos(RAD(p1));
+    P[2][1] =  rad *                sin(RAD(p1));
+    P[2][2] = -rad * cos(RAD(t0)) * cos(RAD(p1));
+
+    P[3][0] =  rad * sin(RAD(t1)) * cos(RAD(p1));
+    P[3][1] =  rad *                sin(RAD(p1));
+    P[3][2] = -rad * cos(RAD(t1)) * cos(RAD(p1));
+
+    C[0] = 0.25 * (P[0][0] + P[1][0] + P[2][0] + P[3][0]);
+    C[1] = 0.25 * (P[0][1] + P[1][1] + P[2][1] + P[3][1]);
+    C[2] = 0.25 * (P[0][2] + P[1][2] + P[2][2] + P[3][2]);
+
+    /* Compute a frustum that encompasses these. */
 
     B[0] = p[0] - C[0];
     B[1] = p[1] - C[1];

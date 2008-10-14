@@ -186,7 +186,7 @@ void app::user::tumble(const double *A,
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 double app::user::interpolate(const char *name, double t)
 {
     const double y0 = get_attr_f(prev, name, 0);
@@ -199,7 +199,7 @@ double app::user::interpolate(const char *name, double t)
                   (-1 * y0             +y2     ) * t +
                   (         2 * y1             ));
 }
-
+*/
 /*
 double app::user::interpolate(const char *name, double t)
 {
@@ -229,7 +229,7 @@ double app::user::interpolate(const char *name, double t)
     return(a0 * y1 + a1 * m0 + a2 * m1 + a3 * y2);
 }
 */
-/*
+ /*
 double app::user::interpolate(const char *name, double t)
 {
     // Cubic Bezier keyframe interpolator.
@@ -248,8 +248,7 @@ double app::user::interpolate(const char *name, double t)
 
     return a0 * t * t2 + a1 * t2 + a2 * t + a3;
 }
-*/
-/*
+ */
 double app::user::interpolate(const char *name, double t)
 {
     // Linear interpolator.
@@ -259,9 +258,10 @@ double app::user::interpolate(const char *name, double t)
     const double y2 = get_attr_f(next, name, 0);
 //  const double y3 = get_attr_f(pred, name, 0);
 
-    return y1 * (1.0 - t) + y2 * t;
+    double k = 3 * t * t - 2 * t * t * t;
+
+    return y1 * (1.0 - k) + y2 * k;
 }
-*/
 
 bool app::user::dostep(double dt, double ss, double &time)
 {

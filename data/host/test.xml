@@ -1,34 +1,22 @@
 <?xml version="1.0"?>
 <host>
-  <buffer w="640" h="480"/>
+  <buffer w="1920" h="1080"/>
 
   <view x="0.0" y="0.0" z="0.0" r="1" g="0" b="1"/>
 
   <node name="test">
-    <window x="0" y="0" w="1280" h="480"/>
+    <window x="0" y="0" w="1920" h="1080"/>
     <tile index="0">
-      <viewport x="0" y="0" w="640" h="480"/>
+      <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0"/>
-        <rotation p="0.0" y="0.0" r="0.0"/>
-        <position p="0.0" t="0.0" r="27.5"/>
-      </frustum>
-<!--
-      <disp type="dome" view="0" radius="27.5"
-            t0="-45" t1="45" dt="10" p0="0" p1="60" dp="10"/>
--->
-    </tile>
-    <tile index="1">
-      <viewport x="640" y="0" w="640" h="480"/>
-      <frustum>
-        <perspective aspect="1.333" fov="60.0"/>
+        <perspective aspect="1.777" fov="100.0"/>
         <rotation p="0.0" y="0.0" r="0.0"/>
         <position p="0.0" t="0.0" r="0.0"/>
       </frustum>
-<!--
+
       <disp type="dome" view="0" radius="27.5"
-            t0="-45" t1="45" dt="10" p0="0" p1="60" dp="10"/>
--->
+            t0="-135" t1="-45" dt="10" p0="0" p1="60" dp="10"/>
+
     </tile>
   </node>
 </host>

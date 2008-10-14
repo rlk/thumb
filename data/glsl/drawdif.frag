@@ -30,7 +30,7 @@ void main()
     vec4 cc = mix(cacherefL(c, l0),
                   cacherefL(c, l1), ll - l0);
 
-    if (cc.a < 1.0) discard;
+//  if (cc.a < 1.0) discard;
 
     gl_FragColor = vec4(cc.rgb, 1.0);
 }

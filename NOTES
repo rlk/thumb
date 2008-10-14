@@ -1,5 +1,9 @@
 -------------------------------------------------------------------------------
 
+plot [0:4800][0:33] "test-8800-1024" using 1:2 with lines, "test-8800-1024" using 1:3 with lines
+
+-------------------------------------------------------------------------------
+
 A page of data is needed if
     There exists a frustum such that
         The page is visible

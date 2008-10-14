@@ -60,10 +60,11 @@ uni::universe::universe() : G(0), serial(0), time(0)
     Eheight.push_back(hgt0);
 
     geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          Er0, Er1);
-    geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
+//  geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
 
     Enormal.push_back(nrm1);
-    Eheight.push_back(hgt1);
+//  Eheight.push_back(hgt1);
+
 /*
     geomap *dif2 = new geomap(cache_s, "moon-750.xml",          Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "moon-normal.xml",       Mr0, Mr1);
