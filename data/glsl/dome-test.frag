@@ -69,9 +69,9 @@ void main()
     float dT = fwidth(T);
     float dP = fwidth(P);
 
-    vec4 langle = vec4(5.0, 15.0, 45.0, 90.0);
-    vec4 lcolor = vec4(0.2,  0.5,  1.0,  1.0);
-    vec4 lwidth = vec4(1.0,  2.0,  4.0,  6.0);
+    vec4 langle = vec4(1.0, 5.0, 15.0, 45.0);
+    vec4 lcolor = vec4(0.5, 0.8,  1.0,  1.0);
+    vec4 lwidth = vec4(1.0, 2.0,  4.0,  8.0);
 
     vec4 tt = line(vec4(T), vec4(dT), langle, lwidth) * lcolor;
     vec4 pp = line(vec4(P), vec4(dP), langle, lwidth) * lcolor;
@@ -82,5 +82,5 @@ void main()
 //  float X = max(ttt, ppp) * k.x * k.y;
     float X = max(ttt, ppp);
 
-    gl_FragColor = vec4(X, X, X, 1.0);
+    gl_FragColor = vec4(0.5 * X, X, 0.5 * X, 1.0);
 }

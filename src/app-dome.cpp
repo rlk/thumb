@@ -154,7 +154,7 @@ void app::dome::prep(view_v& views, frustum_v& frusta)
         grid = ::glob->load_texture("dome-grid.png");
 }
 
-void app::dome::draw(view_v& views, int &i, bool calibrate)
+void app::dome::draw(view_v& views, int &i, bool calibrate, bool me)
 {
     if (views[index])
     {

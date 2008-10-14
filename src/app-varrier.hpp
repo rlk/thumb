@@ -54,7 +54,7 @@ namespace app
 
         virtual bool pick(double *, double *, int, int);
         virtual void prep(view_v&, frustum_v&);
-        virtual void draw(view_v&, int&, bool);
+        virtual void draw(view_v&, int&, bool, bool);
 
         virtual ~varrier();
     };

@@ -123,7 +123,7 @@ void app::anaglyph::prep(view_v& views, frustum_v& frusta)
 
 //-----------------------------------------------------------------------------
 
-void app::anaglyph::draw(view_v& views, int &i, bool calibrate)
+void app::anaglyph::draw(view_v& views, int &i, bool calibrate, bool me)
 {
     // Draw the scene to the off-screen buffers.
 

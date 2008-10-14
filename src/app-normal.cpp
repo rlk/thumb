@@ -116,7 +116,7 @@ void app::normal::prep(view_v& views, frustum_v& frusta)
     }
 }
 
-void app::normal::draw(view_v& views, int &i, bool calibrate)
+void app::normal::draw(view_v& views, int &i, bool calibrate, bool me)
 {
     if (views[index])
     {

@@ -216,7 +216,7 @@ void app::varrier::free_transform(GLenum unit)
 
 //-----------------------------------------------------------------------------
 
-void app::varrier::draw(view_v& views, int &i, bool calibrate)
+void app::varrier::draw(view_v& views, int &i, bool calibrate, bool me)
 {
     // Draw the scene to the off-screen buffers.
 
