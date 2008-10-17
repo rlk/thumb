@@ -15,6 +15,7 @@
 #include "matrix.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
+#include "app-prog.hpp"
 #include "dev-wiimote.hpp"
 
 #ifdef ENABLE_WIIMOTE
@@ -44,9 +45,11 @@ struct tilt_state
     char  address[256];
     int   status;
     float x;
-    float z;
+    float y;
     struct button_state A;
     struct button_state B;
+    struct button_state C;
+    struct button_state Z;
     struct button_state plus;
     struct button_state minus;
     struct button_state home;
@@ -129,6 +132,8 @@ static int get_wiimote(void *data)
 
                 set_button(&state.A,     wiimote.keys.a);
                 set_button(&state.B,     wiimote.keys.b);
+                set_button(&state.C,     wiimote.ext.nunchuk.keys.c);
+                set_button(&state.Z,     wiimote.ext.nunchuk.keys.z);
                 set_button(&state.plus,  wiimote.keys.plus);
                 set_button(&state.minus, wiimote.keys.minus);
                 set_button(&state.home,  wiimote.keys.home);
@@ -136,6 +141,11 @@ static int get_wiimote(void *data)
                 set_button(&state.R,     wiimote.keys.right);
                 set_button(&state.U,     wiimote.keys.up);
                 set_button(&state.D,     wiimote.keys.down);
+
+                state.x = (wiimote.ext.nunchuk.joyx - 128.0f) / 128.0f;
+                state.y = (wiimote.ext.nunchuk.joyy - 128.0f) / 128.0f;
+
+
 /*
                     if (isnormal(wiimote.tilt.y))
                     {
@@ -166,6 +176,19 @@ dev::wiimote::wiimote(uni::universe& universe) :
     memset(&state, 0, sizeof (struct tilt_state));
 
     strcpy(state.address, ::conf->get_s("wiimote").c_str());
+
+    move[0] = 0;
+    move[1] = 0;
+    move[2] = 0;
+
+    turn[0] = 0;
+    turn[1] = 0;
+    turn[2] = 0;
+    turn[3] = 0;
+    turn[4] = 0;
+
+    view_move_rate = conf->get_f("view_move_rate");
+    view_turn_rate = conf->get_f("view_turn_rate");
 
     // Create the mutex and sensor thread.
 
@@ -200,19 +223,32 @@ dev::wiimote::~wiimote()
 bool dev::wiimote::timer(int t)
 {
     int ch = BUTTON_NC;
+    int P  = 0;
+    int M  = 0;
+
+    double dt = t / 1000.0;
+
+    double kr = dt * view_turn_rate;
+    double kp = dt * universe.move_rate();
+    double ka = dt * universe.turn_rate();
+
 
     SDL_mutexP(mutex);
     {
-        switch (get_button(&state.A))
-        {
-        case BUTTON_UP: printf("A up\n"); break;
-        case BUTTON_DN: printf("A dn\n"); break;
-        default:                          break;
-        }
+        if (get_button(&state.plus)  == BUTTON_DN) P = 1;
+        if (get_button(&state.minus) == BUTTON_DN) M = 1;
+
+        move[0] = (fabs(state.x) > 0.25) ? +state.x : 0.0;
+        move[2] = (fabs(state.y) > 0.25) ? -state.y : 0.0;
     }
     SDL_mutexV(mutex);
 
-    return false;
+    if (P) ::prog->trigger(1);
+    if (M) ::prog->trigger(2);
+
+    user->move(move[0] * kp, move[1] * kp, move[2] * kp);
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------

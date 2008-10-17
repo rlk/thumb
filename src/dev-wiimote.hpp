@@ -26,6 +26,12 @@ namespace dev
     {
         uni::universe& universe;
 
+        double view_move_rate;
+        double view_turn_rate;
+
+        double move[3];
+        double turn[5];
+
     public:
 
         wiimote(uni::universe&);

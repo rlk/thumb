@@ -161,7 +161,8 @@ void demo::attr_del()
 
 void demo::trigger(int b)
 {
-    attr_next();
+    if (b == 1) attr_next();
+    if (b == 2) attr_prev();
 }
 
 //-----------------------------------------------------------------------------
