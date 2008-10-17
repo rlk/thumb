@@ -1,35 +1,29 @@
-<?xml version="1.0"?>
-<host>
-
-  <buffer w="800" h="600"/>
-
-  <node name="dome">
-    <window x="0" y="0" w="1600" h="600"/>
-    <tile>
-      <viewport x="0" y="0" w="800" h="600"/>
-      <corner name="BL" x="-0.666" y="-0.5" z="-1.5"/>
-      <corner name="BR" x=" 0.666" y="-0.5" z="-1.5"/>
-      <corner name="TL" x="-0.666" y=" 0.5" z="-1.5"/>
-
-      <region>
-        <corner ix="100" iy="100" ox="0"   oy="0"/>
-        <corner ix="700" iy="100" ox="800" oy="0"/>
-        <corner ix="700" iy="500" ox="800" oy="600"/>
-        <corner ix="100" iy="500" ox="0"   oy="600"/>
-      </region>
-    </tile>
-    <tile>
-      <viewport x="800" y="0" w="800" h="600"/>
-      <corner name="BL" x="-0.666" y="-0.5" z="-1.5"/>
-      <corner name="BR" x=" 0.666" y="-0.5" z="-1.5"/>
-      <corner name="TL" x="-0.666" y=" 0.5" z="-1.5"/>
-
-      <region>
-        <corner ix="200" iy="200" ox="100" oy="100"/>
-        <corner ix="600" iy="200" ox="700" oy="100"/>
-        <corner ix="600" iy="400" ox="700" oy="500"/>
-        <corner ix="200" iy="400" ox="100" oy="500"/>
-      </region>
-    </tile>
-  </node>
-</host>
+ <?xml version="1.0"?>
+   <host>
+     <buffer w="1920" h="1080" />
+     <node name="host/dome.xml" port="2827">
+       <client name="host/dome1.xml" addr="lilbob" />
+       <client name="host/dome2.xml" addr="lildoug" />
+       <window x="0" y="0" w="3840" h="1080" frame="0" />
+       <tile index="0">
+         <viewport x="0" y="0" w="1920" h="1080" />
+         <frustum>
+           <perspective aspect="1.807000" fov="59.600000" />
+           <rotation p="17.000000" y="0.000000" r="0.500000" />
+           <position p="-1.000000" t="0.100000" r="27.500000" />
+         </frustum>
+         <disp type="dome" view="0" radius="27.5" t0="36" t1="108"
+dt="10" p0="0" p1="70" dp="10" />
+       </tile>
+       <tile index="1">
+         <viewport x="1920" y="0" w="1920" h="1080" />
+         <frustum>
+           <perspective aspect="1.767000" fov="58.800000" />
+           <rotation p="17.000000" y="-0.200000" r="0.800000" />
+           <position p="-1.000000" t="89.800000" r="27.500000" />
+         </frustum>
+         <disp type="dome" view="0" radius="27.5" t0="-36" t1="36"
+dt="10" p0="0" p1="70" dp="10" />
+       </tile>
+     </node>
+   </host>

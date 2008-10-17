@@ -1,0 +1,29 @@
+ <?xml version="1.0"?>
+   <host>
+     <buffer w="1920" h="1080" />
+     <node name="host/dome2.xml">
+       <server addr="lilben" port="2827" />
+       <window x="0" y="0" w="3840" h="1080" frame="0" />
+       <tile index="4">
+         <viewport x="0" y="0" w="1920" h="1080" />
+         <frustum>
+           <perspective aspect="1.777000" fov="45.000000" />
+           <rotation p="37.000000" y="-2.000000" r="-1.000000" />
+           <position p="0.000000" t="0.000000" r="27.500000" />
+         </frustum>
+         <disp type="dome" view="0" radius="27.5" t0="108" t1="180"
+dt="10" p0="0" p1="70" dp="10" />
+       </tile>
+       <tile index="5">
+         <viewport x="1920" y="0" w="1920" h="1080" />
+         <frustum>
+           <perspective aspect="1.777000" fov="37.000000" />
+           <rotation p="38.000000" y="-3.000000" r="0.000000" />
+           <position p="0.000000" t="0.000000" r="27.500000" />
+         </frustum>
+         <disp type="dome" view="0" radius="27.5" t0="0" t1="260" dt="10"
+p0="70" p1="100" dp="10" />
+       </tile>
+     </node>
+   </host>
+&gt;

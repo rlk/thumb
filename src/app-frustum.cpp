@@ -598,8 +598,8 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
 
             if (m & KMOD_SHIFT)
             {
-                if      (k == SDLK_LEFT)     T += 1.0 * s;
-                else if (k == SDLK_RIGHT)    T -= 1.0 * s;
+                if      (k == SDLK_LEFT)     y += 1.0 * s;
+                else if (k == SDLK_RIGHT)    y -= 1.0 * s;
                 else if (k == SDLK_UP)       P += 1.0 * s;
                 else if (k == SDLK_DOWN)     P -= 1.0 * s;
                 else if (k == SDLK_PAGEUP)   R += 1.0 * s;
@@ -607,8 +607,8 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
             }
             else
             {
-                if      (k == SDLK_LEFT)     y += 1.0 * s;
-                else if (k == SDLK_RIGHT)    y -= 1.0 * s;
+                if      (k == SDLK_LEFT)     T += 1.0 * s;
+                else if (k == SDLK_RIGHT)    T -= 1.0 * s;
                 else if (k == SDLK_UP)       p += 1.0 * s;
                 else if (k == SDLK_DOWN)     p -= 1.0 * s;
                 else if (k == SDLK_PAGEUP)   r += 1.0 * s;
