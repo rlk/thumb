@@ -7,7 +7,8 @@
   <option type="string" name="exec_dir">/home/evl/rlk/src/thumb/</option>
   <option type="string" name="data_dir">/data/evl/rlk/</option>
 
-  <option type="string" name="input_mode">mouse</option>
+  <option type="string" name="input_mode">wiimote</option>
+  <option type="string" name="wiimote">00:1B:7A:3E:45:7F</option>
 
   <option type="int" name="loader_threads">2</option>
   <option type="int" name="loader_buffers">32</option>

@@ -266,7 +266,7 @@ double app::user::interpolate(const char *name, double t)
 bool app::user::dostep(double dt, double ss, double &time)
 {
     double p[3];
-    double v[3];
+//  double v[3];
     double q[4];
 
     // Compute the velocity over time dt.

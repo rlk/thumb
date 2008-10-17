@@ -54,6 +54,7 @@ OBJS=   util.o \
 	dev-mouse.o \
 	dev-gamepad.o \
 	dev-tracker.o \
+	dev-wiimote.o \
 	app-frustum.o \
 	app-dome.o \
 	app-normal.o \
@@ -118,6 +119,11 @@ endif
 ifdef NVPM
 	LIBS   += -lNVPerfSDK
 	CFLAGS += -DNVPM
+endif
+
+ifdef WII
+	LIBS   += -lcwiimote -lbluetooth
+	CFLAGS += -DENABLE_WIIMOTE
 endif
 
 #------------------------------------------------------------------------------

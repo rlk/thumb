@@ -21,6 +21,7 @@
 #include "dev-mouse.hpp"
 #include "dev-gamepad.hpp"
 #include "dev-tracker.hpp"
+#include "dev-wiimote.hpp"
 #include "mode-edit.hpp"
 #include "mode-play.hpp"
 #include "mode-info.hpp"
@@ -35,6 +36,7 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 
     if      (input_mode == "gamepad") input = new dev::gamepad(universe);
     else if (input_mode == "tracker") input = new dev::tracker(universe);
+    else if (input_mode == "wiimote") input = new dev::wiimote(universe);
     else                              input = new dev::mouse  (universe);
 
     // Initialize attract mode.

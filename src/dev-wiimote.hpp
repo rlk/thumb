@@ -10,33 +10,43 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#ifndef DEV_WIIMOTE
+#define DEV_WIIMOTE
+
+#include "uni-universe.hpp"
 #include "dev-input.hpp"
 
 //-----------------------------------------------------------------------------
 
-bool dev::input::point(int i, const double *p, const double *q)
+namespace dev
 {
-    return false;
-}
+#ifdef ENABLE_WIIMOTE
 
-bool dev::input::click(int i, int b, int m, bool d)
-{
-    return false;
-}
+    class wiimote : public input
+    {
+        uni::universe& universe;
 
-bool dev::input::keybd(int c, int k, int m, bool d)
-{
-    return false;
-}
+    public:
 
-bool dev::input::value(int d, int a, double v)
-{
-    return false;
-}
+        wiimote(uni::universe&);
+        virtual bool timer(int);
+        virtual ~wiimote();
+    };
 
-bool dev::input::timer(int t)
-{
-    return false;
+#else  // ENABLE_WIIMOTE
+
+    class wiimote : public input
+    {
+    public:
+
+        wiimote(uni::universe&) { }
+        virtual bool timer(int) { return false; }
+        virtual ~wiimote()      { }
+    };
+
+#endif // ENABLE_WIIMOTE
 }
 
 //-----------------------------------------------------------------------------
+
+#endif

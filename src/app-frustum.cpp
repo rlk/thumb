@@ -387,7 +387,7 @@ void app::frustum::calc_dome_planes(const double *p,
                                     double t0, double t1,
                                     double p0, double p1)
 {
-    const double *o = proj->user_pos;
+//  const double *o = proj->user_pos;
 
     double P[4][3], R[3], U[3], B[3], C[3] = { 0.0f, 0.0f, 0.0f };
 
