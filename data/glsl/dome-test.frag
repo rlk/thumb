@@ -36,7 +36,7 @@ void main()
 
     vec3 v = (pos + ray * t) / rad;
 
-    float T = atan2(-v.x, -v.z);
+    float T = atan(-v.x, -v.z);
     float P = asin(v.y);
 
     /* Compute the fades. */

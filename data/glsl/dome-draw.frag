@@ -26,7 +26,7 @@ void main()
 
     s = vec4(s.xyz / s.w, 1.0);
 
-    float T = atan2(-v.x, -v.z);
+    float T = atan(-v.x, -v.z);
     float P = asin(v.y);
 
     vec2 p;
@@ -51,8 +51,9 @@ void main()
 
     vec2 C = siz * (s.xy + 1.0) * 0.5;
 
-    vec3 m = mix(vec3(1.0, 0.0, 0.0), vec3(1.0), k.x * k.y);
+//  vec3 m = mix(vec3(1.0, 0.0, 0.0), vec3(1.0), k.x * k.y);
 
-    gl_FragColor = vec4(texture2DRect(map, C).rgb * m, 1.0);
+//  gl_FragColor = vec4(texture2DRect(map, C).rgb * m, 1.0);
 //  gl_FragColor = vec4(texture2DRect(map, C).rgb, 1.0);
+    gl_FragColor = vec4(texture2DRect(map, C).rgb * k.x * k.y, 1.0);
 }

@@ -28,22 +28,19 @@ app::dome::dome(app::node tile, app::node node, const int *window)
     w = window[2];
     h = window[3];
 
-    // Check the display definition for a frustum.
+    // Check the tile definition for the projector frustum.
 
-    if      ((curr = find(node, "frustum")))
+    if ((curr = find(tile, "frustum")))
         proj_frust = new app::frustum(curr, w, h);
-
-    // If none, check the tile definition for one.
-
-    else if ((curr = find(tile, "frustum")))
-        proj_frust = new app::frustum(curr, w, h);
-
-    // If still none, create a default.
-
     else
-        proj_frust = new app::frustum(0, w, h);
+        proj_frust = new app::frustum(   0, w, h);
 
-    user_frust = new app::frustum(0, w, h);
+    // Check the display definition for the user frustum.
+
+    if ((curr = find(node, "frustum")))
+        user_frust = new app::frustum(curr, w, h);
+    else
+        user_frust = new app::frustum(   0, w, h);
 
     // Note the view index.
 
@@ -51,7 +48,7 @@ app::dome::dome(app::node tile, app::node node, const int *window)
 
     // Get other stuff.
 
-    radius = get_attr_f(node, "radius", 55.0);
+    radius = get_attr_f(node, "radius", 27.5);
 
     tk[0] = get_attr_f(node, "t0",  0.0);
     tk[1] = get_attr_f(node, "t1", 90.0);
@@ -114,13 +111,10 @@ void app::dome::prep(view_v& views, frustum_v& frusta)
     {
         // Apply the viewpoint and view to my frustum.
 
-        user_frust->calc_dome_planes(views[index]->get_p(),
-                                     proj_frust, radius,
-                                     tk[0] - tk[2] * 0.5, tk[1] + tk[2] * 0.5,
-                                     pk[0] - pk[2] * 0.5, pk[1] + pk[2] * 0.5);
+        user_frust->calc_user_planes(views[index]->get_p());
         user_frust->calc_view_planes(::user->get_M(),
                                      ::user->get_I());
-        user_frust->calc_projection(0.1, 10.0);
+        user_frust->calc_projection(1.0, 2.0 * radius);
 
         // Add my frustum to the list.
 

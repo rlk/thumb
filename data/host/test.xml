@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <host>
-  <buffer w="1920" h="1080"/>
+  <buffer w="1024" h="768"/>
 
   <view x="0.0" y="0.0" z="0.0" r="1" g="0" b="1"/>
 
   <node name="test">
-    <window x="0" y="0" w="1920" h="1080"/>
+    <window x="0" y="0" w="1024" h="768"/>
     <tile index="0">
-      <viewport x="0" y="0" w="1920" h="1080"/>
+      <viewport x="0" y="0" w="1024" h="768"/>
       <frustum>
-        <perspective aspect="1.777" fov="100.0"/>
+        <perspective aspect="1.333" fov="100.0"/>
         <rotation p="0.0" y="0.0" r="0.0"/>
         <position p="0.0" t="0.0" r="0.0"/>
       </frustum>

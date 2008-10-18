@@ -3,11 +3,11 @@
 
   <!-- Host configuration -->
 
-  <option type="string" name="host_file">host/test.xml</option>
+  <option type="string" name="host_file">host/common.xml</option>
   <option type="string" name="exec_dir">/home/evl/rlk/src/thumb/</option>
   <option type="string" name="data_dir">/data/evl/rlk/</option>
 
-  <option type="string" name="input_mode">wiimote</option>
+  <option type="string" name="input_mode">mouse</option>
   <option type="string" name="wiimote">00:1B:7A:3E:45:7F</option>
 
   <option type="int" name="loader_threads">2</option>
@@ -70,23 +70,23 @@
   <option type="int"    name="sans_size">14</option>
   <option type="int"    name="mono_size">14</option>
 
-  <!-- Qwerty keyboard commands
+  <!-- Qwerty keyboard commands -->
 
   <option type="int" name="key_move_L">97</option>
   <option type="int" name="key_move_R">100</option>
   <option type="int" name="key_move_D">113</option>
   <option type="int" name="key_move_U">101</option>
   <option type="int" name="key_move_F">119</option>
-  <option type="int" name="key_move_B">115</option> -->
+  <option type="int" name="key_move_B">115</option>
 
-  <!-- Dvorak keyboard commands -->
+  <!-- Dvorak keyboard commands
 
   <option type="int" name="key_move_L">97</option>
   <option type="int" name="key_move_R">101</option>
   <option type="int" name="key_move_D">39</option>
   <option type="int" name="key_move_U">46</option>
   <option type="int" name="key_move_F">44</option>
-  <option type="int" name="key_move_B">111</option>
+  <option type="int" name="key_move_B">111</option> -->
 
   <!--
   <option type="int" name="key_axis_X">113</option>

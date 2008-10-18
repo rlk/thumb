@@ -95,8 +95,6 @@ namespace app
         void calc_user_planes(const double *);
         void calc_view_planes(const double *,
                               const double *);
-        void calc_dome_planes(const double *, const frustum *,
-                              double, double, double, double, double);
 
         void set_horizon(double);
 
