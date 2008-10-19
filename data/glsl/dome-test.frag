@@ -81,6 +81,11 @@ void main()
 
 //  float X = max(ttt, ppp) * k.x * k.y;
     float X = max(ttt, ppp);
+/*
+    vec3 C = mix(vec3(1.0, 1.0, 0.5),
+                 vec3(0.5, 0.5, 0.5), k.x * k.y) * X;
+*/
+    vec3 C = vec3(0.5, 1.0, 0.5) * k.x * k.y * X;
 
-    gl_FragColor = vec4(0.5 * X, X, 0.5 * X, 1.0);
+    gl_FragColor = vec4(C, 1.0);
 }

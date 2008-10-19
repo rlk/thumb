@@ -25,7 +25,7 @@
 
 void app::frustum::get_calibration(double& P, double& T, double& R,
                                    double& p, double& y, double& r,
-                                   double& F, double& A)
+                                   double& H, double& V)
 {
     P =  0.0;  // Position phi
     T =  0.0;  // Position theta
@@ -33,8 +33,8 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
     p =  0.0;  // Rotation pitch
     y =  0.0;  // Rotation yaw
     r =  0.0;  // Rotation roll
-    F = 60.0;  // Field of view
-    A =  1.33; // Aspect ratio
+    H = 60.0;  // Horizontal field of view
+    V = 40.0;  // Vertical   field of view
 
     // Extract the calibration matrix from the serialization node.
 
@@ -56,15 +56,15 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
         }
         if ((curr = find(node, "perspective")))
         {
-            A = get_attr_f(curr, "aspect", A);
-            F = get_attr_f(curr, "fov",    F);
+            H = get_attr_f(curr, "hfov", H);
+            V = get_attr_f(curr, "vfov", V);
         }
     }
 }
 
 void app::frustum::set_calibration(double P, double T, double R,
                                    double p, double y, double r,
-                                   double F, double A)
+                                   double H, double V)
 {
     // Update the calibration matrix in the serialization node.
 
@@ -86,17 +86,17 @@ void app::frustum::set_calibration(double P, double T, double R,
         }
         if ((curr = find(node, "perspective")))
         {
-            set_attr_f(curr, "aspect", A);
-            set_attr_f(curr, "fov",    F);
+            set_attr_f(curr, "hfov", H);
+            set_attr_f(curr, "vfov", V);
         }
     }
 }
 
 void app::frustum::mat_calibration(double *M)
 {
-    double P, T, R, p, y, r, F, A;
+    double P, T, R, p, y, r, H, V;
 
-    get_calibration(P, T, R, p, y, r, F, A);
+    get_calibration(P, T, R, p, y, r, H, V);
 
     load_rot_mat(M, 0, 1, 0, T);
     Rmul_rot_mat(M, 1, 0, 0, P);
@@ -112,12 +112,12 @@ void app::frustum::mat_calibration(double *M)
 void app::frustum::calc_corner_4(double *c0,
                                  double *c1,
                                  double *c2,
-                                 double *c3, double aspect, double fov)
+                                 double *c3, double H, double V)
 {
-    // Compute screen corners given perspective field-of-view and aspect ratio.
+    // Compute screen corners given perspective fields-of-view.
 
-    const double x = tan(RAD(fov * 0.5));
-    const double y = x / aspect;
+    const double x = tan(RAD(H * 0.5));
+    const double y = tan(RAD(V * 0.5));
 
     c0[0] = -x; c0[1] = -y; c0[2] = -1;
     c1[0] = +x; c1[1] = -y; c1[2] = -1;
@@ -140,8 +140,8 @@ void app::frustum::calc_calibrated()
 {
     bool b[4] = { false, false, false, false };
 
-    double aspect =  1.333;
-    double fov    = 60.000;
+    double hfov = 60.000;
+    double vfov = 40.000;
 
     double c[4][3];
 
@@ -190,12 +190,12 @@ void app::frustum::calc_calibrated()
             }
         }
 
-        // Extract field-of-view and aspect ratio.
+        // Extract fields-of-view.
 
         if ((curr = find(node, "perspective")))
         {
-            aspect = get_attr_f(curr, "aspect");
-            fov    = get_attr_f(curr, "fov");
+            hfov = get_attr_f(curr, "hfov");
+            vfov = get_attr_f(curr, "vfov");
         }
 
         // Extract the calibration.
@@ -211,7 +211,7 @@ void app::frustum::calc_calibrated()
     if ( b[0] &&  b[1] && !b[2] &&  b[3]) calc_corner_1(c[2],c[1],c[3],c[0]);
     if ( b[0] &&  b[1] &&  b[2] && !b[3]) calc_corner_1(c[3],c[0],c[1],c[2]);
     if (!b[0] && !b[1] && !b[2] && !b[3]) calc_corner_4(c[0],c[1],c[2],c[3],
-                                                        aspect, fov);
+                                                        hfov, vfov);
 
     // Apply the calibration transform to the configured frustum corners.
 
@@ -464,36 +464,36 @@ bool app::frustum::input_keybd(int c, int k, int m, bool d)
     {
         if (m & KMOD_CTRL)
         {
-            double P, T, R, p, y, r, s, F, A;
+            double P, T, R, p, y, r, s, H, V;
 
             s = ((m & KMOD_CAPS) || (m & KMOD_ALT)) ? 0.1 : 1.0;
 
-            get_calibration(P, T, R, p, y, r, F, A);
+            get_calibration(P, T, R, p, y, r, H, V);
 
             if (m & KMOD_SHIFT)
             {
-                if      (k == SDLK_LEFT)     y += 1.0 * s;
-                else if (k == SDLK_RIGHT)    y -= 1.0 * s;
-                else if (k == SDLK_UP)       P += 1.0 * s;
-                else if (k == SDLK_DOWN)     P -= 1.0 * s;
-                else if (k == SDLK_PAGEUP)   R += 1.0 * s;
-                else if (k == SDLK_PAGEDOWN) R -= 1.0 * s;
+                if      (k == SDLK_LEFT)     T += 0.5 * s;
+                else if (k == SDLK_RIGHT)    T -= 0.5 * s;
+                else if (k == SDLK_UP)       P += 0.5 * s;
+                else if (k == SDLK_DOWN)     P -= 0.5 * s;
+                else if (k == SDLK_PAGEUP)   R += 0.5 * s;
+                else if (k == SDLK_PAGEDOWN) R -= 0.5 * s;
             }
             else
             {
-                if      (k == SDLK_LEFT)     T += 1.0 * s;
-                else if (k == SDLK_RIGHT)    T -= 1.0 * s;
-                else if (k == SDLK_UP)       p += 1.0 * s;
-                else if (k == SDLK_DOWN)     p -= 1.0 * s;
+                if      (k == SDLK_LEFT)     y -= 0.5 * s;
+                else if (k == SDLK_RIGHT)    y += 0.5 * s;
+                else if (k == SDLK_UP)       p -= 0.5 * s;
+                else if (k == SDLK_DOWN)     p += 0.5 * s;
                 else if (k == SDLK_PAGEUP)   r += 1.0 * s;
                 else if (k == SDLK_PAGEDOWN) r -= 1.0 * s;
-                else if (k == SDLK_HOME)     F += 1.0 * s;
-                else if (k == SDLK_END)      F -= 1.0 * s;
-                else if (k == SDLK_INSERT)   A += 0.1 * s;
-                else if (k == SDLK_DELETE)   A -= 0.1 * s;
+                else if (k == SDLK_INSERT)   H += 1.0 * s;
+                else if (k == SDLK_DELETE)   H -= 1.0 * s;
+                else if (k == SDLK_HOME)     V += 1.0 * s;
+                else if (k == SDLK_END)      V -= 1.0 * s;
             }
 
-            set_calibration(P, T, R, p, y, r, F, A);
+            set_calibration(P, T, R, p, y, r, H, V);
             calc_calibrated();
 
             return true;

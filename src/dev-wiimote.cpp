@@ -106,6 +106,8 @@ static int get_wiimote(void *data)
 {
     wiimote_t wiimote = WIIMOTE_INIT;
 
+    printf("Wiimote %s connecting...\n", state.address);
+
     if (wiimote_connect(&wiimote, state.address) < 0)
         fprintf(stderr, "%s\n", wiimote_get_error());
     else
@@ -232,7 +234,6 @@ bool dev::wiimote::timer(int t)
     double kp = dt * universe.move_rate();
     double ka = dt * universe.turn_rate();
 
-
     SDL_mutexP(mutex);
     {
         if (get_button(&state.plus)  == BUTTON_DN) P = 1;
@@ -243,10 +244,10 @@ bool dev::wiimote::timer(int t)
     }
     SDL_mutexV(mutex);
 
+    user->move(move[0] * kp, move[1] * kp, move[2] * kp);
+
     if (P) ::prog->trigger(1);
     if (M) ::prog->trigger(2);
-
-    user->move(move[0] * kp, move[1] * kp, move[2] * kp);
 
     return true;
 }
