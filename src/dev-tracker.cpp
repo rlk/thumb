@@ -87,9 +87,9 @@ bool dev::tracker::click(int i, int b, int m, bool d)
 
         load_mat(init_R, curr_R);
     }
-//  else if (b == 1 && d) ::user->home();
-    else if (b == 1 && !d) { ::prog->trigger(1); return false; } // HACK
-    else if (b == 2 && d) ::prog->toggle(2);
+
+    else if (b == 1 && !d) { ::prog->next(); return false; }
+    else if (b == 2 &&  d) { ::prog->toggle(2); }
 
     return true;
 }

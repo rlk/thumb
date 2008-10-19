@@ -99,10 +99,13 @@ void demo::attr_step(double dt)
     // Move the camera forward and update the universe.
 
     double time = 0.0;
+    int    opts =   0;
 
-//  if (user->dostep(dt * attr_rate, universe.move_rate(), time))
-    if (user->dostep(dt * attr_rate, universe.move_rate(), time))
+    if (user->dostep(dt * attr_rate, universe.move_rate(), time, opts))
+    {
         universe.set_time(time);
+        set_options(opts);
+    }
 }
 
 void demo::attr_next()
@@ -123,29 +126,11 @@ void demo::attr_prev()
     attr_step(0.0);
 }
 
-void demo::attr_half_fwd()
-{
-    // Teleport half way to the next key.
-
-    attr_off();
-    ::user->gohalf();
-    attr_step(0.0);
-}
-
-void demo::attr_half_rev()
-{
-    // Teleport half way to the previouskey.
-
-    attr_prev();
-    ::user->gohalf();
-    attr_step(0.0);
-}
-
 void demo::attr_ins()
 {
     // Insert a new key here and update the universe.
 
-    ::user->insert(universe.get_time());
+    ::user->insert(universe.get_time(), get_options());
     attr_step(0.0);
 }
 
@@ -159,10 +144,14 @@ void demo::attr_del()
 
 //-----------------------------------------------------------------------------
 
-void demo::trigger(int b)
+void demo::next()
 {
-    if (b == 1) attr_next();
-    if (b == 2) attr_prev();
+    attr_next();
+}
+
+void demo::prev()
+{
+    attr_prev();
 }
 
 //-----------------------------------------------------------------------------
@@ -209,8 +198,6 @@ void demo::keybd(int c, int k, int m, bool d)
             {
                 if      (k == SDLK_PAGEUP)   attr_next();
                 else if (k == SDLK_PAGEDOWN) attr_prev();
-                else if (k == SDLK_0)        attr_half_fwd();
-                else if (k == SDLK_9)        attr_half_rev();
                 else if (k == SDLK_END)      attr_ins();
                 else if (k == SDLK_HOME)     attr_del();
                 else if (k == SDLK_SPACE)    attr_on();

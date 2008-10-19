@@ -1,3 +1,13 @@
+Image overlay
+Route wiimote events through host
+Think about a Z-varying blend
+    Or just planar-varying blends?
+Refine attr mode
+    Add option handling
+wiimote only at the root
+
+-------------------------------------------------------------------------------
+
 convert geomip upload to PBO
 
 Consider rechecking the tracker after the draw but before the combine.
@@ -6,13 +16,12 @@ Consider rechecking the tracker after the draw but before the combine.
 
 is the primary depth buffer necessary?
 
-
 Fix cracking between cached pages.
 Fix cracking between spatches.
 
-Generalize geomap to work with sizes other than 512x256.
+- Generalize geomap to work with sizes other than 512x256.
 
-Rework cluster config storage.
+- Rework cluster config storage.
 
 -------------------------------------------------------------------------------
 
@@ -22,12 +31,12 @@ test pattern mode actually goes in the eye,
      which is who draws the app or not, depending
      or maybe the tile owns the eye instead of the host
 
-a module system like tile frustum/varrier could be used to modularize input.
-    trackd module
-    joystick module
-    wiimote module
-    SDL module?
-in general, event handling could stand to be homogenized
+- a module system like tile frustum/varrier could be used to modularize input.
+-     trackd module
+-     joystick module
+-     wiimote module
+-     SDL module?
+- in general, event handling could stand to be homogenized
 
 It will be necessary to have multiple worlds
     spread around the universe

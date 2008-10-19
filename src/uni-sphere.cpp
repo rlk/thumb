@@ -647,6 +647,8 @@ void uni::sphere::draw(int i)
 
                 // Accumulate the textures.
 
+                glDisable(GL_DEPTH_TEST);
+
                 ren.dif()->init(1.0f, 1.0f, 1.0f);
                 if (!::prog->option(2))
                 {
@@ -661,11 +663,15 @@ void uni::sphere::draw(int i)
                 ren.nrm()->init();
                 ren.nrm()->bind();
                 {
+/*
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+*/
                     for (geomap_i m = normal.begin(); m != normal.end(); ++m)
                         (*m)->draw(0, 0);
+/*
                     glDisable(GL_BLEND);
+*/
                 }
                 ren.nrm()->free();
 

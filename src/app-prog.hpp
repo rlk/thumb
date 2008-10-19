@@ -42,10 +42,14 @@ namespace app
         virtual void prep(app::frustum_v&) { }
         virtual void draw(int)             { }
 
+        int  get_options() const;
+        void set_options(int);
+
         bool option(int) const;
         void toggle(int);
 
-        virtual void trigger(int) { }
+        virtual void next() { }
+        virtual void prev() { }
 
         virtual ~prog() { }
     };

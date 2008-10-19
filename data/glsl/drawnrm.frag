@@ -18,6 +18,9 @@ void main()
     vec4 C = texture2DRect(cyl, gl_FragCoord.xy);
     vec2 c = C.xy * cylk + cyld;
 
+    if (any(   lessThan(c.xy, vec2(0.0))) ||
+        any(greaterThan(c.xy, vec2(1.0)))) discard;
+
     // Determine the mipmap levels.
 
     float ll = miplevL(c * data_size);

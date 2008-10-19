@@ -73,11 +73,11 @@ namespace app
 
         // Automatic view controls.
 
-        bool dostep(double, double, double&);
+        bool dostep(double, double, double&, int&);
         void gonext();
         void goprev();
         void gohalf();
-        void insert(double);
+        void insert(double, int);
         void remove();
     };
 }

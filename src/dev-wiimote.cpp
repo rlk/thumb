@@ -246,8 +246,8 @@ bool dev::wiimote::timer(int t)
 
     user->move(move[0] * kp, move[1] * kp, move[2] * kp);
 
-    if (P) ::prog->trigger(1);
-    if (M) ::prog->trigger(2);
+    if (P) ::prog->next();
+    if (M) ::prog->prev();
 
     return true;
 }

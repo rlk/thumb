@@ -34,7 +34,7 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
     y =  0.0;  // Rotation yaw
     r =  0.0;  // Rotation roll
     H = 60.0;  // Horizontal field of view
-    V = 40.0;  // Vertical   field of view
+    V = 45.0;  // Vertical   field of view
 
     // Extract the calibration matrix from the serialization node.
 
@@ -141,7 +141,7 @@ void app::frustum::calc_calibrated()
     bool b[4] = { false, false, false, false };
 
     double hfov = 60.000;
-    double vfov = 40.000;
+    double vfov = 45.000;
 
     double c[4][3];
 

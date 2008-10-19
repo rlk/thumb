@@ -57,8 +57,9 @@ app::user::user() :
     // Initialize the transformation using the initial state.
 
     double time;
+    int    opts;
 
-    dostep(0.0, 0, time);
+    dostep(0.0, 0, time, opts);
 }
 
 //-----------------------------------------------------------------------------
@@ -186,101 +187,23 @@ void app::user::tumble(const double *A,
 }
 
 //-----------------------------------------------------------------------------
-/*
+
 double app::user::interpolate(const char *name, double t)
 {
-    const double y0 = get_attr_f(prev, name, 0);
+    // Cubic interpolator.
+
     const double y1 = get_attr_f(curr, name, 0);
     const double y2 = get_attr_f(next, name, 0);
-    const double y3 = get_attr_f(pred, name, 0);
-
-    return 0.5 * ((-1 * y0 +3 * y1 -3 * y2 + y3) * t * t * t +
-                  ( 2 * y0 -5 * y1 +4 * y2 - y3) * t * t +
-                  (-1 * y0             +y2     ) * t +
-                  (         2 * y1             ));
-}
-*/
-/*
-double app::user::interpolate(const char *name, double t)
-{
-    // Cubic Hermite keyframe interpolator.
-
-    const double y0 = get_attr_f(prev, name, 0);
-    const double y1 = get_attr_f(curr, name, 0);
-    const double y2 = get_attr_f(next, name, 0);
-    const double y3 = get_attr_f(pred, name, 0);
-
-    double tension = 0.0;
-    double bias    = 0.0;
-
-    double t2 = t * t;
-    double t3 = t * t2;
-
-    double m0  = ((y1 - y0) * (1 + bias) * (1 - tension) / 2 +
-                  (y2 - y1) * (1 - bias) * (1 - tension) / 2);
-    double m1  = ((y2 - y1) * (1 + bias) * (1 - tension) / 2 +
-                  (y3 - y2) * (1 - bias) * (1 - tension) / 2);
-
-    double a0 =  2 * t3 - 3 * t2 + 1;
-    double a1 =      t3 - 2 * t2 + t;
-    double a2 =      t3 -     t2;
-    double a3 = -2 * t3 + 3 * t2;
-
-    return(a0 * y1 + a1 * m0 + a2 * m1 + a3 * y2);
-}
-*/
- /*
-double app::user::interpolate(const char *name, double t)
-{
-    // Cubic Bezier keyframe interpolator.
-
-    const double y0 = get_attr_f(prev, name, 0);
-    const double y1 = get_attr_f(curr, name, 0);
-    const double y2 = get_attr_f(next, name, 0);
-    const double y3 = get_attr_f(pred, name, 0);
-
-    const double a0 = y3 - y2 - y0 + y1;
-    const double a1 = y0 - y1 - a0;
-    const double a2 = y2 - y0;
-    const double a3 = y1;
-
-    const double t2 = t * t;
-
-    return a0 * t * t2 + a1 * t2 + a2 * t + a3;
-}
- */
-double app::user::interpolate(const char *name, double t)
-{
-    // Linear interpolator.
-
-//  const double y0 = get_attr_f(prev, name, 0);
-    const double y1 = get_attr_f(curr, name, 0);
-    const double y2 = get_attr_f(next, name, 0);
-//  const double y3 = get_attr_f(pred, name, 0);
 
     double k = 3 * t * t - 2 * t * t * t;
 
     return y1 * (1.0 - k) + y2 * k;
 }
 
-bool app::user::dostep(double dt, double ss, double &time)
+bool app::user::dostep(double dt, double ss, double &time, int &opts)
 {
     double p[3];
-//  double v[3];
     double q[4];
-
-    // Compute the velocity over time dt.
-/*
-    v[0] = interpolate("x", tt + dt) - interpolate("x", tt);
-    v[1] = interpolate("y", tt + dt) - interpolate("y", tt);
-    v[2] = interpolate("z", tt + dt) - interpolate("z", tt);
-
-    double s = sqrt(DOT3(v, v)) / dt;
-
-    // Advance the bezier interpolator, scaled to match desired speed.
-
-    if (dt > 0 && s > 0) tt += dt * ss / s;
-*/
 
     tt += dt;
 
@@ -295,6 +218,13 @@ bool app::user::dostep(double dt, double ss, double &time)
         next = cycle_next(curr);
         pred = cycle_next(next);
     }
+
+    // Transition the options flags at the halfway point.
+
+    if (tt < 0.5)
+        opts = get_attr_f(curr, "opts", 0);
+    else
+        opts = get_attr_f(next, "opts", 0);
 
     // Interpolate the current demo state.  This could use some caching.
 
@@ -355,7 +285,7 @@ void app::user::goprev()
     pred = cycle_next(next);
 }
 
-void app::user::insert(double time)
+void app::user::insert(double time, int opts)
 {
     double q[4];
 
@@ -375,6 +305,7 @@ void app::user::insert(double time)
     set_attr_f(node, "w", q[3]);
 
     set_attr_f(node, "time", time);
+    set_attr_d(node, "opts", opts);
 
     app::insert(root, curr, node);
 

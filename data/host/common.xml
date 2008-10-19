@@ -2,30 +2,19 @@
 <host>
   <buffer w="1024" h="768"/>
 
-  <node name="3200x2260">
-    <buffer w="3200" h="2260"/>
-    <window x="0" y="0" w="3200" h="2260" full="1"/>
-    <tile>
-      <viewport x="0" y="0" w="3200" h="2260"/>
-      <frustum>
-        <perspective aspect="1.416" fov="60.0" />
-      </frustum>
-    </tile>
-  </node>
-
   <node name="1600x1200x2">
     <buffer w="1600" h="1200"/>
     <window x="0" y="0" w="3200" h="1200"/>
     <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
     <tile>
       <viewport x="1600" y="0" w="1600" h="1200"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -36,13 +25,13 @@
     <tile>
       <viewport x="0" y="0" w="800" h="600"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
     <tile>
       <viewport x="800" y="0" w="800" h="600"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -53,7 +42,7 @@
     <tile>
       <viewport x="0" y="0" w="2560" h="1600"/>
       <frustum>
-        <perspective aspect="1.600" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -64,7 +53,7 @@
     <tile>
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <perspective aspect="1.777" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -75,7 +64,7 @@
     <tile>
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <perspective aspect="1.777" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -86,7 +75,7 @@
     <tile>
       <viewport x="0" y="0" w="1024" h="768"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0"/>
       </frustum>
     </tile>
   </node>
@@ -97,7 +86,7 @@
     <tile>
       <viewport x="0" y="0" w="1280" h="720"/>
       <frustum>
-        <perspective aspect="1.777" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -108,7 +97,7 @@
     <tile>
       <viewport x="0" y="0" w="640" h="480"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -119,7 +108,7 @@
     <tile>
       <viewport x="0" y="0" w="512" h="384"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -130,7 +119,7 @@
     <tile>
       <viewport x="0" y="0" w="320" h="240"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -141,7 +130,7 @@
     <tile>
       <viewport x="0" y="0" w="160" h="120"/>
       <frustum>
-        <perspective aspect="1.333" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>
@@ -152,7 +141,7 @@
     <tile>
       <viewport x="0" y="0" w="1" h="1"/>
       <frustum>
-        <perspective aspect="1.0" fov="60.0" />
+        <perspective hfov="60.0" vfov="45.0" />
       </frustum>
     </tile>
   </node>

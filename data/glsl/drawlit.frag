@@ -28,8 +28,8 @@ void main()
     vec3 d = max(dot(n, L), 0.0) * gl_LightSource[0].diffuse.rgb;
     vec3 a =                       gl_LightModel.ambient.rgb;
 
-    gl_FragColor = vec4(D.rgb * min(d, 1.0), 1.0);
-//  gl_FragColor = vec4(N.rgb, 1.0);
+//  gl_FragColor = vec4(D.rgb * min(d, 1.0), 1.0);
+    gl_FragColor = vec4(N.rgb, 1.0);
 //  gl_FragColor = vec4(D.rgb, 1.0);
 //  gl_FragColor = vec4(d, 1.0);
 //  gl_FragColor = vec4((n + 1.0) * 0.5, 1.0);

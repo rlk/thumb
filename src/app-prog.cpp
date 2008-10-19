@@ -122,6 +122,16 @@ void app::prog::keybd(int c, int k, int m, bool d)
 
 //-----------------------------------------------------------------------------
 
+int app::prog::get_options() const
+{
+    return options;
+}
+
+void app::prog::set_options(int B)
+{
+    options = B;
+}
+
 bool app::prog::option(int b) const
 {
     return (options & (1 << b)) ? true : false;

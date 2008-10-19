@@ -64,8 +64,6 @@ class demo : public app::prog
     void attr_step(double);
     void attr_next();
     void attr_prev();
-    void attr_half_fwd();
-    void attr_half_rev();
     void attr_ins();
     void attr_del();
 
@@ -83,7 +81,8 @@ public:
     void prep(app::frustum_v&);
     void draw(int);
 
-    virtual void trigger(int);
+    void next();
+    void prev();
 };
 
 //-----------------------------------------------------------------------------
