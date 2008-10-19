@@ -32,7 +32,8 @@ app::user::user() :
     curr(0),
     next(0),
     pred(0),
-    tt(0)
+    tt(0),
+    stopped(true)
 {
     const double S[16] = {
         0.5, 0.0, 0.0, 0.0,
@@ -59,7 +60,22 @@ app::user::user() :
     double time;
     int    opts;
 
-    dostep(0.0, 0, time, opts);
+    set_state(curr, time, opts);
+}
+
+void app::user::set(const double p[3], const double q[4])
+{
+    // Compute the current transform and inverse from the given values.
+
+    set_quaternion(current_M, q);
+
+    current_M[12] = p[0];
+    current_M[13] = p[1];
+    current_M[14] = p[2];
+
+    orthonormalize(current_M);
+
+    load_inv(current_I, current_M);
 }
 
 //-----------------------------------------------------------------------------
@@ -188,70 +204,121 @@ void app::user::tumble(const double *A,
 
 //-----------------------------------------------------------------------------
 
-double app::user::interpolate(const char *name, double t)
+double app::user::interpolate(app::node A,
+                              app::node B, const char *name, double t)
 {
     // Cubic interpolator.
 
-    const double y1 = get_attr_f(curr, name, 0);
-    const double y2 = get_attr_f(next, name, 0);
+    const double y1 = get_attr_f(A, name, 0);
+    const double y2 = get_attr_f(B, name, 0);
 
     double k = 3 * t * t - 2 * t * t * t;
 
     return y1 * (1.0 - k) + y2 * k;
 }
 
-bool app::user::dostep(double dt, double ss, double &time, int &opts)
+void app::user::erp_state(app::node A,
+                          app::node B, double tt, double &time, int &opts)
 {
+    // Apply the interpolation of the given state nodes.
+
     double p[3];
     double q[4];
 
-    tt += dt;
+    p[0] = interpolate(A, B, "x", tt);
+    p[1] = interpolate(A, B, "y", tt);
+    p[2] = interpolate(A, B, "z", tt);
 
-    // Advance the keys if necessary.
+    q[0] = interpolate(A, B, "t", tt);
+    q[1] = interpolate(A, B, "u", tt);
+    q[2] = interpolate(A, B, "v", tt);
+    q[3] = interpolate(A, B, "w", tt);
 
-    while (tt > 1.0)
-    {
-        tt -= 1.0;
-
-        curr = cycle_next(curr);
-        prev = cycle_prev(curr);
-        next = cycle_next(curr);
-        pred = cycle_next(next);
-    }
-
-    // Transition the options flags at the halfway point.
+    time = interpolate(A, B, "time", tt);
 
     if (tt < 0.5)
-        opts = get_attr_f(curr, "opts", 0);
+        opts = get_attr_f(A, "opts", 0);
     else
-        opts = get_attr_f(next, "opts", 0);
+        opts = get_attr_f(B, "opts", 0);
 
-    // Interpolate the current demo state.  This could use some caching.
+    set(p, q);
+}
 
-    p[0] = interpolate("x", tt);
-    p[1] = interpolate("y", tt);
-    p[2] = interpolate("z", tt);
+void app::user::set_state(app::node A, double &time, int &opts)
+{
+    // Apply the given state node.
 
-    q[0] = interpolate("t", tt);
-    q[1] = interpolate("u", tt);
-    q[2] = interpolate("v", tt);
-    q[3] = interpolate("w", tt);
+    double p[3];
+    double q[4];
 
-    time = interpolate("time", tt);
+    p[0] = get_attr_f(A, "x", 0);
+    p[1] = get_attr_f(A, "y", 0);
+    p[2] = get_attr_f(A, "z", 0);
 
-    // Compute current transform from the interpolated values.
+    q[0] = get_attr_f(A, "t", 0);
+    q[1] = get_attr_f(A, "u", 0);
+    q[2] = get_attr_f(A, "v", 0);
+    q[3] = get_attr_f(A, "w", 0);
 
-    set_quaternion(current_M, q);
+    time = get_attr_f(A, "time", 0);
+    opts = get_attr_f(A, "opts", 0);
 
-    current_M[12] = p[0];
-    current_M[13] = p[1];
-    current_M[14] = p[2];
+    set(p, q);
+}
 
-    orthonormalize(current_M);
+bool app::user::dostep(double dt, double ss, double &time, int &opts)
+{
+    // If we're starting backward, advance to the previous state.
 
-    load_inv(current_I, current_M);
+    if (stopped && dt < 0.0)
+    {
+        if (tt == 0.0)
+        {
+            stopped = false;
+            goprev();
+            tt = 1.0;
+        }
+    }
 
-    return true;
+    // If we're starting foreward, advance to the next state.
+
+    if (stopped && dt > 0.0)
+    {
+        if (tt == 1.0)
+        {
+            stopped = false;
+            gonext();
+            tt = 0.0;
+        }
+    }
+
+    tt += dt;
+
+    // If we're going backward, stop at the current state.
+
+    if (dt < 0.0 && tt < 0.0)
+    {
+        stopped = true;
+        set_state(curr, time, opts);
+        tt = 0.0;
+        return true;
+    }
+
+    // If we're going forward, stop at the next state.
+
+    if (dt > 0.0 && tt > 1.0)
+    {
+        stopped = true;
+        set_state(next, time, opts);
+        tt = 1.0;
+        return true;
+    }
+
+    // Otherwise just interpolate the two.
+    
+    erp_state(curr, next, tt, time, opts);
+
+    return false;
 }
 
 void app::user::gohalf()
@@ -265,8 +332,6 @@ void app::user::gonext()
 {
     // Teleport to the next key.
 
-    tt = 0.0;
-
     curr = cycle_next(curr);
     prev = cycle_prev(curr);
     next = cycle_next(curr);
@@ -277,8 +342,6 @@ void app::user::goprev()
 {
     // Teleport to the previous key.
 
-    tt = 0.0;
-
     curr = cycle_prev(curr);
     prev = cycle_prev(curr);
     next = cycle_next(curr);
@@ -287,45 +350,34 @@ void app::user::goprev()
 
 void app::user::insert(double time, int opts)
 {
-    double q[4];
-
-    get_quaternion(q, current_M);
-
-    // Insert a new key after the current key.
-
-    app::node node = create("key");
-
-    set_attr_f(node, "x", current_M[12]);
-    set_attr_f(node, "y", current_M[13]);
-    set_attr_f(node, "z", current_M[14]);
-
-    set_attr_f(node, "t", q[0]);
-    set_attr_f(node, "u", q[1]);
-    set_attr_f(node, "v", q[2]);
-    set_attr_f(node, "w", q[3]);
-
-    set_attr_f(node, "time", time);
-    set_attr_d(node, "opts", opts);
-
-    app::insert(root, curr, node);
-
-    curr = node;
-    prev = cycle_prev(curr);
-    next = cycle_next(curr);
-    pred = cycle_next(next);
-
-    tt = 0.0;
-}
-
-void app::user::remove()
-{
-    app::node node = cycle_next(curr);
-
-    // Remove the current key (if it's not the only one left).
-
-    if (node != curr)
+    if (stopped)
     {
-        app::remove(curr);
+        // If we're waiting at the end of a step, advance.
+
+        if (tt == 1.0)
+            gonext();
+
+        double q[4];
+
+        get_quaternion(q, current_M);
+
+        // Insert a new key after the current key.
+
+        app::node node = create("key");
+
+        set_attr_f(node, "x", current_M[12]);
+        set_attr_f(node, "y", current_M[13]);
+        set_attr_f(node, "z", current_M[14]);
+
+        set_attr_f(node, "t", q[0]);
+        set_attr_f(node, "u", q[1]);
+        set_attr_f(node, "v", q[2]);
+        set_attr_f(node, "w", q[3]);
+
+        set_attr_f(node, "time", time);
+        set_attr_d(node, "opts", opts);
+
+        app::insert(root, curr, node);
 
         curr = node;
         prev = cycle_prev(curr);
@@ -333,6 +385,33 @@ void app::user::remove()
         pred = cycle_next(next);
 
         tt = 0.0;
+    }
+}
+
+void app::user::remove()
+{
+    if (stopped)
+    {
+        // If we're waiting at the end of a step, advance.
+
+        if (tt == 1.0)
+            gonext();
+
+        // Remove the current key (if it's not the only one left).
+
+        app::node node = cycle_next(curr);
+
+        if (node != curr)
+        {
+            app::remove(curr);
+
+            curr = node;
+            prev = cycle_prev(curr);
+            next = cycle_next(curr);
+            pred = cycle_next(next);
+
+            tt = 0.0;
+        }
     }
 }
 

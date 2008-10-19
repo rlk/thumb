@@ -32,10 +32,17 @@ namespace dev
         double move[3];
         double turn[5];
 
+        void translate(int t);
+
     public:
 
         wiimote(uni::universe&);
+
+        virtual bool point(int, const double *, const double *);
+        virtual bool click(int, int, int, bool);
+        virtual bool value(int, int, double);
         virtual bool timer(int);
+
         virtual ~wiimote();
     };
 
@@ -46,7 +53,6 @@ namespace dev
     public:
 
         wiimote(uni::universe&) { }
-        virtual bool timer(int) { return false; }
         virtual ~wiimote()      { }
     };
 

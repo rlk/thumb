@@ -33,6 +33,8 @@ namespace app
         double current_I[16];
         double current_S[16];
 
+        void set(const double[3], const double[4]);
+
         // Automatic demo file.
 
         app::serial file;
@@ -46,9 +48,14 @@ namespace app
         app::node cycle_next(app::node);
         app::node cycle_prev(app::node);
 
-        double interpolate(const char *, double);
+        double interpolate(app::node, app::node, const char *, double);
+
+        void erp_state(app::node, app::node, double, double&, int&);
+        void set_state(app::node,                    double&, int&);
 
         double tt;
+
+        bool stopped;
 
     public:
 

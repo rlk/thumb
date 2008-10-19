@@ -54,10 +54,12 @@ class demo : public app::prog
 
     dev::input *input;
 
+    double attr_sign;
     double attr_curr;
     double attr_rate;
     double attr_time;
     bool   attr_mode;
+    bool   attr_stop;
 
     void attr_on();
     void attr_off();

@@ -1,10 +1,13 @@
+texcoord/diffuse/normal-only draw modes
+    Get rid of GPGPU buffers?
+    Move cache displays to center of screen
 Image overlay
 Route wiimote events through host
 Think about a Z-varying blend
     Or just planar-varying blends?
-Refine attr mode
-    Add option handling
-wiimote only at the root
+- wiimote only at the root
+- Refine attr mode
+-     Add option handling
 
 -------------------------------------------------------------------------------
 

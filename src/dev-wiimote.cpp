@@ -16,6 +16,7 @@
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-prog.hpp"
+#include "app-host.hpp"
 #include "dev-wiimote.hpp"
 
 #ifdef ENABLE_WIIMOTE
@@ -106,8 +107,6 @@ static int get_wiimote(void *data)
 {
     wiimote_t wiimote = WIIMOTE_INIT;
 
-    printf("Wiimote %s connecting...\n", state.address);
-
     if (wiimote_connect(&wiimote, state.address) < 0)
         fprintf(stderr, "%s\n", wiimote_get_error());
     else
@@ -194,8 +193,11 @@ dev::wiimote::wiimote(uni::universe& universe) :
 
     // Create the mutex and sensor thread.
 
-    mutex  = SDL_CreateMutex();
-    thread = SDL_CreateThread(get_wiimote, 0);
+    if (::host->root())
+    {
+        mutex  = SDL_CreateMutex();
+        thread = SDL_CreateThread(get_wiimote, 0);
+    }
 }
 
 dev::wiimote::~wiimote()
@@ -222,7 +224,7 @@ dev::wiimote::~wiimote()
 
 //-----------------------------------------------------------------------------
 
-bool dev::wiimote::timer(int t)
+void dev::wiimote::translate(int t)
 {
     int ch = BUTTON_NC;
     int P  = 0;
@@ -250,6 +252,30 @@ bool dev::wiimote::timer(int t)
     if (M) ::prog->prev();
 
     return true;
+}
+
+//-----------------------------------------------------------------------------
+
+bool dev::wiimote::point(int i, const double *p, const double *q)
+{
+    return false;
+}
+
+bool dev::wiimote::click(int i, int b, int m, bool d)
+{
+    return false;
+}
+
+bool dev::wiimote::value(int d, int a, double v)
+{
+    return false;
+}
+bool dev::wiimote::timer(int t)
+{
+    if (::host->root())
+        translate(t);
+
+    return false;
 }
 
 //-----------------------------------------------------------------------------

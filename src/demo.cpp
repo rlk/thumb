@@ -43,8 +43,10 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 
     attr_time = conf->get_f("attract_delay");
     attr_rate = conf->get_f("attract_speed");
-    attr_curr = 0;
+    attr_curr = 0.0;
+    attr_sign = 1.0;
     attr_mode = false;
+    attr_stop = false;
 
     // Initialize the application state.
 
@@ -84,25 +86,35 @@ void demo::goto_mode(mode::mode *next)
 
 void demo::attr_on()
 {
-    attr_mode = true;
     attr_curr = 0.0;
+    attr_mode = true;
+    attr_stop = false;
 }
 
 void demo::attr_off()
 {
-    attr_mode = false;
     attr_curr = 0.0;
+    attr_mode = false;
 }
 
 void demo::attr_step(double dt)
 {
     // Move the camera forward and update the universe.
 
-    double time = 0.0;
-    int    opts =   0;
-
-    if (user->dostep(dt * attr_rate, universe.move_rate(), time, opts))
+    if (attr_mode)
     {
+        double time = 0.0;
+        int    opts =   0;
+
+        if (user->dostep(attr_rate * attr_sign * dt,
+                         universe.move_rate(), time, opts))
+        {
+            if (attr_stop)
+            {
+                attr_curr = 0.0;
+                attr_mode = false;
+            }
+        }
         universe.set_time(time);
         set_options(opts);
     }
@@ -110,20 +122,22 @@ void demo::attr_step(double dt)
 
 void demo::attr_next()
 {
-    // Teleport to the next key.
+    // Play forward to the next key.
 
-    attr_off();
-    ::user->gonext();
-    attr_step(0.0);
+    attr_sign =  1.0;
+    attr_curr =  0.0;
+    attr_stop = true;
+    attr_mode = true;
 }
 
 void demo::attr_prev()
 {
-    // Teleport to the previous key.
+    // Play backward to the previous key.
 
-    attr_off();
-    ::user->goprev();
-    attr_step(0.0);
+    attr_sign = -1.0;
+    attr_curr =  0.0;
+    attr_stop = true;
+    attr_mode = true;
 }
 
 void demo::attr_ins()
