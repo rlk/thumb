@@ -88,8 +88,18 @@ bool dev::tracker::click(int i, int b, int m, bool d)
         load_mat(init_R, curr_R);
     }
 
-    else if (b == 1 && !d) { ::prog->next(); return false; }
-    else if (b == 2 &&  d) { ::prog->toggle(2); }
+    else if (b == 1 && !d)
+    {
+        ::prog->next();
+        return false;
+    }
+    else if (b == 2 &&  d)
+    {
+        ::prog->tgl_option(3);
+        ::prog->clr_option(2);
+        ::prog->clr_option(1);
+        ::prog->clr_option(0);
+    }
 
     return true;
 }

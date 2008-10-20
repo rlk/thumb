@@ -86,13 +86,16 @@ namespace uni
         geomap_l& height;
         geocsh_l& caches;
 
-        const ogl::program *draw_lit;
-        const ogl::program *atmo_in;
-        const ogl::program *atmo_out;
-        const ogl::program *land_in;
-        const ogl::program *land_out;
+        const ogl::program *draw_atmo_in;
+        const ogl::program *draw_atmo_out;
+        const ogl::program *draw_land_in;
+        const ogl::program *draw_land_out;
 
-        bool draw_atmo;
+        const ogl::program *draw_land;
+        const ogl::program *draw_diff;
+        const ogl::program *draw_norm;
+        const ogl::program *draw_texc;
+        const ogl::program *draw_mono;
 
         ogl::pool *atmo_pool;
         ogl::node *atmo_node;

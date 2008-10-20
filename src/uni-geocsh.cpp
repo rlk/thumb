@@ -667,8 +667,8 @@ void uni::geocsh::free(GLenum unit) const
 
 void uni::geocsh::draw() const
 {
-    GLfloat a = (GLfloat(::host->get_window_h() * w) /
-                 GLfloat(::host->get_window_w() * h));
+    GLfloat a = 0.5f * (GLfloat(::host->get_window_h() * w) /
+                        GLfloat(::host->get_window_w() * h));
 
     glPushAttrib(GL_ENABLE_BIT);
     {
@@ -701,10 +701,16 @@ void uni::geocsh::draw() const
 
             glBegin(GL_QUADS);
             {
+                glTexCoord2f(0.0f, 0.0f); glVertex2f(-a, -a);
+                glTexCoord2f(1.0f, 0.0f); glVertex2f( a, -a);
+                glTexCoord2f(1.0f, 1.0f); glVertex2f( a,  a);
+                glTexCoord2f(0.0f, 1.0f); glVertex2f(-a,  a);
+/*
                 glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f,     -1.0f);
                 glTexCoord2f(1.0f, 0.0f); glVertex2f(-1.0f + a, -1.0f);
                 glTexCoord2f(1.0f, 1.0f); glVertex2f(-1.0f + a, +0.0f);
                 glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f,     +0.0f);
+*/
             }
             glEnd();
 

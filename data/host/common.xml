@@ -53,7 +53,7 @@
     <tile>
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
+        <perspective hfov="80.0" vfov="50.0" />
       </frustum>
     </tile>
   </node>

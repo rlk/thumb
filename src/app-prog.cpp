@@ -115,7 +115,7 @@ void app::prog::keybd(int c, int k, int m, bool d)
         else if (m & KMOD_SHIFT)
         {
             if (SDLK_F1 <= k && k <= SDLK_F12)
-                toggle(k - SDLK_F1);
+                tgl_option(k - SDLK_F1);
         }
     }
 }
@@ -131,23 +131,23 @@ void app::prog::set_options(int B)
 {
     options = B;
 }
-/*
-void app::prog::set_option(int b)
-{
-    option |=  (1 << b);
-}
 
-void app::prog::clr_option(int b)
-{
-    option &= ~(1 << b);
-}
-*/
-bool app::prog::option(int b) const
+bool app::prog::get_option(int b) const
 {
     return (options & (1 << b)) ? true : false;
 }
 
-void app::prog::toggle(int b)
+void app::prog::set_option(int b)
+{
+    options |=  (1 << b);
+}
+
+void app::prog::clr_option(int b)
+{
+    options &= ~(1 << b);
+}
+
+void app::prog::tgl_option(int b)
 {
     options ^= (1 << b);
 }

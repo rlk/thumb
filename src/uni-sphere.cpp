@@ -43,6 +43,7 @@ uni::sphere::sphere(uni::geodat& dat,
     a0(r0 * 1.000),
     a1(a0 * 1.025),
 
+    atmosphere(atmosphere),
     visible(false),
     dist(0),
 
@@ -64,16 +65,20 @@ uni::sphere::sphere(uni::geodat& dat,
     height(height),
     caches(caches),
 
-    draw_lit(glob->load_program("glsl/drawlit.vert",
-                                "glsl/drawlit.frag")),
-    atmo_in (glob->load_program("glsl/SkyFromAtmosphere.vert",
-                                "glsl/SkyFromAtmosphere.frag")),
-    atmo_out(glob->load_program("glsl/SkyFromSpace.vert",
-                                "glsl/SkyFromSpace.frag")),
-    land_in (glob->load_program("glsl/GroundFromAtmosphere.vert",
-                                "glsl/GroundFromAtmosphere.frag")),
-    land_out(glob->load_program("glsl/GroundFromSpace.vert",
-                                "glsl/GroundFromSpace.frag"))
+    draw_atmo_in (glob->load_program("glsl/SkyFromAtmosphere.vert",
+                                     "glsl/SkyFromAtmosphere.frag")),
+    draw_atmo_out(glob->load_program("glsl/SkyFromSpace.vert",
+                                     "glsl/SkyFromSpace.frag")),
+    draw_land_in (glob->load_program("glsl/GroundFromAtmosphere.vert",
+                                     "glsl/GroundFromAtmosphere.frag")),
+    draw_land_out(glob->load_program("glsl/GroundFromSpace.vert",
+                                     "glsl/GroundFromSpace.frag")),
+
+    draw_land(glob->load_program("glsl/final.vert", "glsl/final-land.frag")),
+    draw_diff(glob->load_program("glsl/final.vert", "glsl/final-diff.frag")),
+    draw_norm(glob->load_program("glsl/final.vert", "glsl/final-norm.frag")),
+    draw_texc(glob->load_program("glsl/final.vert", "glsl/final-texc.frag")),
+    draw_mono(glob->load_program("glsl/final.vert", "glsl/final-mono.frag"))
 {
     S = new spatch[lines];
 
@@ -92,8 +97,6 @@ uni::sphere::sphere(uni::geodat& dat,
 
     // Initialize atmosphere rendering.
 
-    draw_atmo = ((::conf->get_i("atmo") != 0) && atmosphere);
-
     atmo_pool = glob->new_pool();
     atmo_node = new ogl::node();
     atmo_unit = new ogl::unit("solid/inverted_sphere.obj");
@@ -108,39 +111,20 @@ uni::sphere::sphere(uni::geodat& dat,
     load_scl_inv(I, a1, a1, a1);
 
     atmo_unit->transform(M, I);
-
-    // Initialize texturing uniforms.
-
-    // TODO: this has to happen per frame.
-    /*
-    ren.dif()->bind();
-    {
-        color.init(cache_s.pool_w(),
-                   cache_s.pool_h());
-    }
-    ren.dif()->free();
-    ren.nrm()->bind();
-    {
-        normal.init(cache_s.pool_w(),
-                    cache_s.pool_h());
-    }
-    ren.nrm()->free();
-    acc.bind_proc();
-    {
-        height.init(cache_h.pool_w(),
-                    cache_h.pool_h());
-    }
-    acc.free_proc();
-    */
 }
 
 uni::sphere::~sphere()
 {
-    glob->free_program(land_out);
-    glob->free_program(land_in);
-    glob->free_program(atmo_out);
-    glob->free_program(atmo_in);
-    glob->free_program(draw_lit);
+    glob->free_program(draw_mono);
+    glob->free_program(draw_texc);
+    glob->free_program(draw_norm);
+    glob->free_program(draw_diff);
+    glob->free_program(draw_land);
+
+    glob->free_program(draw_land_out);
+    glob->free_program(draw_land_in);
+    glob->free_program(draw_atmo_out);
+    glob->free_program(draw_atmo_in);
 
     if (atmo_unit) delete atmo_unit;
     if (atmo_pool) delete atmo_pool;
@@ -193,10 +177,7 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 
         P->uniform("eye_to_object_mat", I, false);
         P->uniform("eye_to_object_inv", M, true);
-/*
-        P->uniform("eye_to_object_mat", I, false);
-        P->uniform("eye_to_object_inv", M, true);
-*/
+
         double R = 0.650;
         double G = 0.570;
         double B = 0.475;
@@ -320,7 +301,7 @@ void uni::sphere::view(app::frustum_v& frusta)
 
         // Prep the atmosphere model.
 
-        if (draw_atmo)
+        if (atmosphere)
         {
             atmo_pool->prep();
             atmo_pool->view(1, 0, 0);
@@ -497,9 +478,12 @@ void uni::sphere::prep()
             acc.bind_proc(); // overkill
             {
                 glEnable(GL_BLEND);
-                glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                for (geomap_i m = height.begin(); m != height.end(); ++m)
-                    (*m)->draw(r0, Z1);
+                {
+                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                    for (geomap_i m = height.begin(); m != height.end(); ++m)
+                        (*m)->draw(r0, Z1);
+                }
                 glDisable(GL_BLEND);
             }
             acc.free_proc(); // overkill
@@ -566,16 +550,26 @@ void uni::sphere::draw(int i)
 {
     bool in = (sqrt(DOT3(vp, vp)) < a1);
 
-    const ogl::program *atmo_prog = draw_lit;
-    const ogl::program *land_prog = draw_lit;
+    // Translate application toggles into shader selections.
 
-    if (draw_atmo && !::prog->option(2))
+    const ogl::program *atmo_prog = 0;
+    const ogl::program *land_prog = 0;
+
+    if      (::prog->get_option(0)) land_prog = draw_diff;
+    else if (::prog->get_option(1)) land_prog = draw_norm;
+    else if (::prog->get_option(2)) land_prog = draw_texc;
+    else if (::prog->get_option(3)) land_prog = draw_mono;
+    else if (atmosphere)
     {
-        atmo_prog = in ? atmo_in : atmo_out;
-        land_prog = in ? land_in : land_out;
+        atmo_prog = in ? draw_atmo_in : draw_atmo_out;
+        land_prog = in ? draw_land_in : draw_land_out;
 
         atmo_prep(atmo_prog);
         atmo_prep(land_prog);
+    }
+    else
+    {
+        land_prog = draw_land;
     }
 
     // TODO: calc_projection can move to whereever the bounds are first known.
@@ -650,7 +644,7 @@ void uni::sphere::draw(int i)
                 glDisable(GL_DEPTH_TEST);
 
                 ren.dif()->init(1.0f, 1.0f, 1.0f);
-                if (!::prog->option(2))
+                if (!::prog->get_option(2))
                 {
                     ren.dif()->bind();
                     {
@@ -663,15 +657,8 @@ void uni::sphere::draw(int i)
                 ren.nrm()->init();
                 ren.nrm()->bind();
                 {
-/*
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-*/
                     for (geomap_i m = normal.begin(); m != normal.end(); ++m)
                         (*m)->draw(0, 0);
-/*
-                    glDisable(GL_BLEND);
-*/
                 }
                 ren.nrm()->free();
 
@@ -679,7 +666,6 @@ void uni::sphere::draw(int i)
 
                 glClear(GL_DEPTH_BUFFER_BIT);
                 glEnable(GL_DEPTH_TEST);
-
                 {
                     land_prog->bind();
                     {
@@ -692,7 +678,8 @@ void uni::sphere::draw(int i)
                         {
                             pass();
 
-                            if (!::prog->option(11))
+//                          if (!::prog->get_option(11))
+                            if (in)
                             {
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                                 pass();
@@ -706,26 +693,20 @@ void uni::sphere::draw(int i)
                     land_prog->free();
                 }
 
-                // Test draw the color geomap.
-
-                if (::prog->option(4)) (*(  caches.begin()))->draw();
-                if (::prog->option(5)) (*(++caches.begin()))->draw();
-
                 // Test draw the GPGPU buffers.
-
+/*
                 glPushAttrib(GL_ENABLE_BIT);
                 {
                     glEnable(GL_BLEND);
                     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
                     glDisable(GL_DEPTH_TEST);
 
-                    if (::prog->option(6)) pos.draw();
-                    if (::prog->option(7)) nrm.draw();
-//                  if (::prog->option(8)) tex.draw();
-                    if (::prog->option(8)) acc.draw();
+                    if (::prog->get_option( 8)) pos.draw();
+                    if (::prog->get_option( 9)) nrm.draw();
+                    if (::prog->get_option(10)) tex.draw();
                 }
                 glPopAttrib();
-
+*/
 /*
                 glPushMatrix();
                 {
@@ -748,7 +729,7 @@ void uni::sphere::draw(int i)
 */
                 // Draw wireframe as requested.
 
-                if (::prog->option(3))
+                if (::prog->get_option(7))
                 {
                     ren.bind();
                     dat.idx()->bind();
@@ -767,7 +748,6 @@ void uni::sphere::draw(int i)
                             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                             glPolygonOffset(-0.5, -0.5);
 
-//                          glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
                             glColor4f(1.0f, 1.0f, 1.0f, 0.9f);
                             pass();
                             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
@@ -784,7 +764,7 @@ void uni::sphere::draw(int i)
 
         // Draw the atmosphere.
 
-        if (draw_atmo && !::prog->option(2))
+        if (atmo_prog)
         {
             glEnable(GL_DEPTH_CLAMP_NV);
             {
@@ -804,6 +784,11 @@ void uni::sphere::draw(int i)
             }
             glDisable(GL_DEPTH_CLAMP_NV);
         }
+
+        // Test draw the color geomap.
+
+        if (::prog->get_option(5)) (*(caches.begin()))->draw();
+
     }
     glPopAttrib();
 }

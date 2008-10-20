@@ -27,8 +27,7 @@ extern "C" {
 
 //-----------------------------------------------------------------------------
 
-//#define FILTER(A, B) { (A) = ((A) * 7.0 + (B)) / 8.0; }
-#define FILTER(A, B) { (A) = (B); }
+#define FILTER(A, B) { (A) = ((A) * 7.0 + (B)) / 8.0; }
 
 //-----------------------------------------------------------------------------
 
@@ -361,26 +360,46 @@ bool dev::wiimote::click(int i, int b, int m, bool d)
         if      (button[BUTTON_TWO])
             switch (b)
             {
-            case BUTTON_R: ::prog->toggle(11); break;
-            case BUTTON_L: ::prog->toggle(10); break;
-            case BUTTON_D: ::prog->toggle( 9); break;
-            case BUTTON_U: ::prog->toggle( 8); break;
+            case BUTTON_R: ::prog->tgl_option(11); break;
+            case BUTTON_L: ::prog->tgl_option(10); break;
+            case BUTTON_D: ::prog->tgl_option( 9); break;
+            case BUTTON_U: ::prog->tgl_option( 8); break;
             }
         else if (button[BUTTON_ONE])
             switch (b)
             {
-            case BUTTON_R: ::prog->toggle( 7); break;
-            case BUTTON_L: ::prog->toggle( 6); break;
-            case BUTTON_D: ::prog->toggle( 5); break;
-            case BUTTON_U: ::prog->toggle( 4); break;
+            case BUTTON_R: ::prog->tgl_option( 7); break;
+            case BUTTON_L: ::prog->tgl_option( 6); break;
+            case BUTTON_D: ::prog->tgl_option( 5); break;
+            case BUTTON_U: ::prog->tgl_option( 4); break;
             }
         else
             switch (b)
             {
-            case BUTTON_R: ::prog->toggle( 3); break;
-            case BUTTON_L: ::prog->toggle( 2); break;
-            case BUTTON_D: ::prog->toggle( 1); break;
-            case BUTTON_U: ::prog->toggle( 0); break;
+            case BUTTON_R:
+                ::prog->tgl_option(3);
+                ::prog->clr_option(2);
+                ::prog->clr_option(1);
+                ::prog->clr_option(0);
+                break;
+            case BUTTON_L:
+                ::prog->clr_option(3);
+                ::prog->tgl_option(2);
+                ::prog->clr_option(1);
+                ::prog->clr_option(0);
+                break;
+            case BUTTON_D:
+                ::prog->clr_option(3);
+                ::prog->clr_option(2);
+                ::prog->tgl_option(1);
+                ::prog->clr_option(0);
+                break;
+            case BUTTON_U:
+                ::prog->clr_option(3);
+                ::prog->clr_option(2);
+                ::prog->clr_option(1);
+                ::prog->tgl_option(0);
+                break;
             }
     }
 

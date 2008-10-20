@@ -1,14 +1,27 @@
-More wiimote events
-Route wiimote events through host
-texcoord/diffuse/normal-only draw modes
-    Get rid of GPGPU buffers?
-    Move cache displays to center of screen
+Fix exit segfault
+Patch display
+- More wiimote events
+- Route wiimote events through host
+- texcoord/diffuse/normal-only draw modes
+-     Get rid of GPGPU buffers?
+-     Move cache displays to center of screen
 Image overlay
 Think about a Z-varying dome blend
     Or just planar-varying dome blends?
 - wiimote only at the root
 - Refine attr mode
 -     Add option handling
+
+0 diffuse
+1 normal
+2 texc
+3 monochrome
+4
+5 cache
+6 lo tris
+7 hi tris
+8
+9
 
 -------------------------------------------------------------------------------
 
