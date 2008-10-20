@@ -60,7 +60,7 @@ struct button_state
 
 struct tilt_state
 {
-    char  address[256];
+    char  address[32];
     int   status;
     float joyx;
     float joyy;
@@ -84,6 +84,8 @@ struct tilt_state
 static struct tilt_state state;
 static SDL_mutex        *mutex  = NULL;
 static SDL_Thread       *thread = NULL;
+
+static wiimote_t wiimote = WIIMOTE_INIT;
 
 //-----------------------------------------------------------------------------
 
@@ -137,7 +139,7 @@ static int continuity(int d)
 
 static int get_wiimote(void *data)
 {
-    wiimote_t wiimote = WIIMOTE_INIT;
+//  wiimote_t wiimote = WIIMOTE_INIT;
 
     if (wiimote_connect(&wiimote, state.address) < 0)
         fprintf(stderr, "%s\n", wiimote_get_error());
@@ -145,7 +147,7 @@ static int get_wiimote(void *data)
     {
         int running = 1;
 
-        printf("Wiimote %s connected\n", state.address);
+//      printf("Wiimote %s connected\n", state.address);
 
         wiimote.led.one  = 1;
         wiimote.mode.ir  = 1;
@@ -188,8 +190,10 @@ static int get_wiimote(void *data)
             }
             SDL_mutexV(mutex);
         }
+
         wiimote_disconnect(&wiimote);
     }
+
     return 0;
 }
 
@@ -224,36 +228,32 @@ dev::wiimote::wiimote(uni::universe& universe) :
     state.joyy = 128;
 
     strcpy(state.address, ::conf->get_s("wiimote").c_str());
-
-    // Create the mutex and sensor thread.
-
-    if (::host->root())
-    {
-        mutex  = SDL_CreateMutex();
-        thread = SDL_CreateThread(get_wiimote, 0);
-    }
 }
 
 dev::wiimote::~wiimote()
 {
+
+    int status;
+
+    // Set the status of the tilt sensor thread.
+
     if (mutex)
     {
-        int status;
-
-        // Get/set the status of the tilt sensor thread.
-
         SDL_mutexP(mutex);
         state.status = 0;
         SDL_mutexV(mutex);
-
-        // Kill the thread and destroy the mutex.
-
-        SDL_WaitThread(thread, &status);
-        SDL_DestroyMutex(mutex);
-
-        mutex  = NULL;
-        thread = NULL;
     }
+
+    // Kill the thread.
+
+    if (thread)
+//      SDL_KillThread(thread);
+        SDL_WaitThread(thread, &status);
+
+    // Destroy the mutex.
+
+    if (mutex)
+        SDL_DestroyMutex(mutex);
 }
 
 //-----------------------------------------------------------------------------
@@ -446,48 +446,56 @@ bool dev::wiimote::value(int d, int a, double v)
 
 bool dev::wiimote::timer(int t)
 {
-    double dt = t / 1000.0;
-
-    double kr = dt * view_turn_rate * 3.0;
-    double kp = dt * universe.move_rate();
-    double ka = dt * universe.turn_rate();
-
-    // Translate Wiimote state changes to host events.
-
-    if (::host->root())
-        translate();
-
-    // Handle pointing.
-
-    if (button[BUTTON_B])
+    if (mutex == 0 && thread == 0 && ::host->root())
     {
-        double dR[3];
-        double dz[3];
-        double dy[3];
+        // Create the mutex and sensor thread.
 
-        dy[0] = init_R[ 4] - curr_R[ 4];
-        dy[1] = init_R[ 5] - curr_R[ 5];
-        dy[2] = init_R[ 6] - curr_R[ 6];
-
-        dz[0] = init_R[ 8] - curr_R[ 8];
-        dz[1] = init_R[ 9] - curr_R[ 9];
-        dz[2] = init_R[10] - curr_R[10];
-
-        dR[0] =  DOT3(dz, init_R + 4);
-        dR[1] = -DOT3(dz, init_R + 0);
-        dR[2] =  DOT3(dy, init_R + 0);
-
-        user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
+        mutex  = SDL_CreateMutex();
+        thread = SDL_CreateThread(get_wiimote, 0);
     }
+    else
+    {
+        double dt = t / 1000.0;
 
-    // Handle joysticks.
+        double kr = dt * view_turn_rate * 3.0;
+        double kp = dt * universe.move_rate();
+        double ka = dt * universe.turn_rate();
 
-    user->move(move[0] * kp, move[1] * kp, move[2] * kp);
-    user->turn(turn[0] * kr, turn[1] * kr, turn[2] * kr);
+        // Translate Wiimote state changes to host events.
 
-    universe.set_time(universe.get_time() + ka * time * 600.0);
+        if (::host->root())
+            translate();
 
+        // Handle pointing.
 
+        if (button[BUTTON_B])
+        {
+            double dR[3];
+            double dz[3];
+            double dy[3];
+
+            dy[0] = init_R[ 4] - curr_R[ 4];
+            dy[1] = init_R[ 5] - curr_R[ 5];
+            dy[2] = init_R[ 6] - curr_R[ 6];
+
+            dz[0] = init_R[ 8] - curr_R[ 8];
+            dz[1] = init_R[ 9] - curr_R[ 9];
+            dz[2] = init_R[10] - curr_R[10];
+
+            dR[0] =  DOT3(dz, init_R + 4);
+            dR[1] = -DOT3(dz, init_R + 0);
+            dR[2] =  DOT3(dy, init_R + 0);
+
+            user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
+        }
+
+        // Handle joysticks.
+
+        user->move(move[0] * kp, move[1] * kp, move[2] * kp);
+        user->turn(turn[0] * kr, turn[1] * kr, turn[2] * kr);
+
+        universe.set_time(universe.get_time() + ka * time * 600.0);
+    }
     return false;
 }
 

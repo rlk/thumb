@@ -1,5 +1,4 @@
-Fix exit segfault
-Patch display
+- Patch display
 - More wiimote events
 - Route wiimote events through host
 - texcoord/diffuse/normal-only draw modes
@@ -11,6 +10,8 @@ Think about a Z-varying dome blend
 - wiimote only at the root
 - Refine attr mode
 -     Add option handling
+
+Fix exit segfault
 
 0 diffuse
 1 normal

@@ -67,7 +67,7 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
 
 demo::~demo()
 {
-    if (input) delete input;
+//  if (input) delete input;
 
     if (info) delete info;
     if (play) delete play;
