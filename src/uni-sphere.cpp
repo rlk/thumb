@@ -516,16 +516,20 @@ void uni::sphere::prep()
         nrm.free_frame();
 
         // Copy the generated positions to the vertex buffer.
-
-        acc.bind_frame();
-        vtx.read_v(count);
-        acc.free_frame();
-
 /*
-        pos.bind_frame();
-        vtx.read_v(count);
-        pos.free_frame();
+        if (height.empty())
+        {
+            pos.bind_frame();
+            vtx.read_v(count);
+            pos.free_frame();
+        }
+        else
 */
+        {
+            acc.bind_frame();
+            vtx.read_v(count);
+            acc.free_frame();
+        }
 
 #ifdef CONF_CALCEXT
         const GLfloat *E = ext.rmap();
@@ -583,9 +587,9 @@ void uni::sphere::draw(int i)
 
     GLfloat L[4];
     double  t[4];
-    double  S[4] = { 0.0, 0.0, 149000000000.0 };
+    double  sun[4] = { 0.0, 0.0, 149000000000.0 };
 
-    mult_xps_vec3(t, O, S);
+    mult_xps_vec3(t, O, sun);
     normalize(t);
 
     L[0] = GLfloat(t[0]);
@@ -707,26 +711,29 @@ void uni::sphere::draw(int i)
                 }
                 glPopAttrib();
 */
-/*
-                glPushMatrix();
+
+                if (::prog->get_option(6))
                 {
-                    glLoadMatrixd(M);
-
-                    glPushAttrib(GL_ENABLE_BIT);
+                    glPushMatrix();
                     {
-                        glDisable(GL_TEXTURE_2D);
-                        glDisable(GL_LIGHTING);
+                        glLoadMatrixd(M);
 
-                        glEnable(GL_BLEND);
-                        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+                        glPushAttrib(GL_ENABLE_BIT);
+                        {
+                            glDisable(GL_TEXTURE_2D);
+                            glDisable(GL_LIGHTING);
 
-                        for (int k = 0; k < count; ++k)
-                            S[k].wire(r0, r1);
+                            glEnable(GL_BLEND);
+                            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+                            for (int k = 0; k < count; ++k)
+                                S[k].wire(r0, r1);
+                        }
+                        glPopAttrib();
                     }
-                    glPopAttrib();
+                    glPopMatrix();
                 }
-                glPopMatrix();
-*/
+
                 // Draw wireframe as requested.
 
                 if (::prog->get_option(7))

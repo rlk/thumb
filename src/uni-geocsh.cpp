@@ -701,16 +701,12 @@ void uni::geocsh::draw() const
 
             glBegin(GL_QUADS);
             {
+                glColor3f(1.0f, 1.0f, 1.0f);
+
                 glTexCoord2f(0.0f, 0.0f); glVertex2f(-a, -a);
                 glTexCoord2f(1.0f, 0.0f); glVertex2f( a, -a);
                 glTexCoord2f(1.0f, 1.0f); glVertex2f( a,  a);
                 glTexCoord2f(0.0f, 1.0f); glVertex2f(-a,  a);
-/*
-                glTexCoord2f(0.0f, 0.0f); glVertex2f(-1.0f,     -1.0f);
-                glTexCoord2f(1.0f, 0.0f); glVertex2f(-1.0f + a, -1.0f);
-                glTexCoord2f(1.0f, 1.0f); glVertex2f(-1.0f + a, +0.0f);
-                glTexCoord2f(0.0f, 1.0f); glVertex2f(-1.0f,     +0.0f);
-*/
             }
             glEnd();
 
