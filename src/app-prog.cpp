@@ -131,7 +131,17 @@ void app::prog::set_options(int B)
 {
     options = B;
 }
+/*
+void app::prog::set_option(int b)
+{
+    option |=  (1 << b);
+}
 
+void app::prog::clr_option(int b)
+{
+    option &= ~(1 << b);
+}
+*/
 bool app::prog::option(int b) const
 {
     return (options & (1 << b)) ? true : false;

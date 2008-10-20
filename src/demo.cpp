@@ -226,19 +226,18 @@ void demo::timer(int t)
 
     if (attr_mode)
         attr_step(dt);
-    else
+
+    if (input)
+        input->timer(t);
+
+    // If the attract delay has expired, enable attract mode.
+
+    if (!attr_mode)
     {
-        if (input && input->timer(t))
-            attr_off();
-        else
-        {
-            // If the attract delay has expired, enable attract mode.
+        attr_curr += dt;
 
-            attr_curr += dt;
-
-            if (attr_curr > attr_time)
-                attr_on();
-        }
+        if (attr_curr > attr_time)
+            attr_on();
     }
 
     if (curr)

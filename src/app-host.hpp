@@ -51,17 +51,6 @@ namespace app
         void send(message&);
         void recv(message&);
 
-        // Event handlers
-
-        void point(int, const double *, const double *);
-        void click(int, int, int, bool);
-        void keybd(int, int, int, bool);
-        void value(int, int, double);
-        void timer(int);
-        void paint();
-        void front();
-        void close();
-
         // Event loops
 
         void root_loop();
@@ -96,9 +85,22 @@ namespace app
         host(std::string, std::string);
        ~host();
 
+        // Event handlers
+
+        void point(int, const double *, const double *);
+        void click(int, int, int, bool);
+        void keybd(int, int, int, bool);
+        void value(int, int, double);
+        void timer(int);
+        void paint();
+        void front();
+        void close();
+
         bool root() const { return (server_sd == INVALID_SOCKET); }
         void loop();
         void draw();
+
+        // Configuration queries.
 
         int get_window_x() const { return window[0]; }
         int get_window_y() const { return window[1]; }

@@ -13,6 +13,8 @@
 #ifndef DEV_WIIMOTE
 #define DEV_WIIMOTE
 
+#include <vector>
+
 #include "uni-universe.hpp"
 #include "dev-input.hpp"
 
@@ -29,10 +31,16 @@ namespace dev
         double view_move_rate;
         double view_turn_rate;
 
-        double move[3];
-        double turn[5];
+        std::vector<bool> button;
 
-        void translate(int t);
+        double init_R[16];
+        double curr_R[16];
+
+        double move[3];
+        double turn[3];
+        double time;
+
+        void translate();
 
     public:
 

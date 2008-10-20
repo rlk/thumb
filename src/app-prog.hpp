@@ -44,7 +44,10 @@ namespace app
 
         int  get_options() const;
         void set_options(int);
-
+/*
+        void set_option(int);
+        void clr_option(int);
+*/
         bool option(int) const;
         void toggle(int);
 
