@@ -1,17 +1,17 @@
+Fix exit segfault?
+
+- Think about a Z-varying dome blend
+-     Or just planar-varying dome blends?
 - Patch display
 - More wiimote events
 - Route wiimote events through host
 - texcoord/diffuse/normal-only draw modes
 -     Get rid of GPGPU buffers?
 -     Move cache displays to center of screen
-Image overlay
-Think about a Z-varying dome blend
-    Or just planar-varying dome blends?
+- Image overlay
 - wiimote only at the root
 - Refine attr mode
 -     Add option handling
-
-Fix exit segfault
 
 0 diffuse
 1 normal

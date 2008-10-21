@@ -36,6 +36,7 @@ namespace app
 
         double tk[3];
         double pk[3];
+        double zk[3];
 
         const ogl::program *draw_P;
         const ogl::program *test_P;

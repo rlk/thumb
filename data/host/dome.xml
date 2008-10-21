@@ -1,11 +1,9 @@
  <?xml version="1.0"?>
    <host>
-     <buffer w="1024" h="768" />
+     <buffer w="1920" h="1080" />
      <node name="host/dome.xml" port="2827">
-<!--
        <client name="host/dome1.xml" addr="lilbob" />
        <client name="host/dome2.xml" addr="lildoug" />
--->
        <window x="0" y="0" w="3840" h="1080" frame="0" />
        <tile index="0">
          <viewport x="0" y="0" w="1920" h="1080" />
@@ -17,7 +15,7 @@
          <disp type="dome" view="0" radius="27.5" t0="-45" t1="45"
 dt="20" p0="0" p1="55" dp="20">
            <frustum>
-             <perspective hfov="100.0" vfov="70" />
+             <perspective hfov="110.0" vfov="75" />
              <rotation p="30.000000" y="0.000000" r="0.000000" />
            </frustum>
          </disp>
@@ -32,7 +30,7 @@ dt="20" p0="0" p1="55" dp="20">
          <disp type="dome" view="0" radius="27.5" t0="-135" t1="-45"
 dt="20" p0="0" p1="55" dp="20">
            <frustum>
-             <perspective hfov="100.0" vfov="70" />
+             <perspective hfov="110.0" vfov="75" />
              <rotation p="30.000000" y="-90.000000" r="0.000000" />
            </frustum>
          </disp>

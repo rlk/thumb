@@ -1,8 +1,8 @@
  <?xml version="1.0"?>
    <host>
-     <buffer w="1024" h="768" />
+     <buffer w="1920" h="1080" />
      <node name="host/dome2.xml">
-       <server addr="lilben" port="2827" />
+<!--       <server addr="lilben" port="2827" />-->
        <window x="0" y="0" w="3840" h="1080" frame="0" />
        <tile index="4">
          <viewport x="0" y="0" w="1920" h="1080" />
@@ -11,8 +11,7 @@
            <rotation p="34.650000" y="-3.650000" r="0.300000" />
            <position p="-1.000000" t="13.300000" r="27.500000" />
          </frustum>
-         <disp type="dome" view="0" radius="27.5" t0="-90" t1="90"
-dt="20" p0="55" p1="100" dp="20">
+         <disp type="dome" view="0" radius="27.5" t0="-360" t1="360" dt="20" p0="55" p1="100" dp="20" z0="-2.0" z1="0.0" dz="0.25">
            <frustum>
              <perspective hfov="100.000000" vfov="70.000000" />
              <rotation p="70.000000" y="0.000000" r="0.000000" />
@@ -26,8 +25,7 @@ dt="20" p0="55" p1="100" dp="20">
            <rotation p="34.700000" y="-4.050000" r="-0.600000" />
            <position p="-1.000000" t="-166.300000" r="27.500000" />
          </frustum>
-         <disp type="dome" view="0" radius="27.5" t0="90" t1="-90"
-dt="20" p0="55" p1="100" dp="20">
+         <disp type="dome" view="0" radius="27.5" t0="-360" t1="360" dt="20" p0="55" p1="100" dp="20" z0="0.0" z1="2.0" dz="0.25">
            <frustum>
              <perspective hfov="100.000000" vfov="70.000000" />
              <rotation p="70.000000" y="180.000000" r="0.000000" />

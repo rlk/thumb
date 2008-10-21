@@ -1,7 +1,7 @@
  <?xml version="1.0"?>
    <host>
-     <buffer w="1024" h="768" />
-     <node name="host/dome1.xml">
+     <buffer w="1920" h="1080" />
+       <node name="host/dome1.xml">
        <server addr="lilben" port="2827" />
        <window x="0" y="0" w="3840" h="1080" frame="0" />
        <tile index="2">
@@ -14,7 +14,7 @@
          <disp type="dome" view="0" radius="27.5" t0="135" t1="-135"
 dt="20" p0="0" p1="55" dp="20">
            <frustum>
-             <perspective hfov="100.000000" vfov="70.000000" />
+             <perspective hfov="110.000000" vfov="75.000000" />
              <rotation p="30.000000" y="180.000000" r="0.000000" />
            </frustum>
          </disp>
@@ -29,7 +29,7 @@ dt="20" p0="0" p1="55" dp="20">
          <disp type="dome" view="0" radius="27.5" t0="45" t1="135"
 dt="20" p0="0" p1="55" dp="20">
            <frustum>
-             <perspective hfov="100.000000" vfov="70.000000" />
+             <perspective hfov="110.000000" vfov="75.000000" />
              <rotation p="30.000000" y="90.000000" r="0.000000" />
            </frustum>
          </disp>

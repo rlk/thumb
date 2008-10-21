@@ -446,56 +446,55 @@ bool dev::wiimote::value(int d, int a, double v)
 
 bool dev::wiimote::timer(int t)
 {
+    double dt = t / 1000.0;
+
+    double kr = dt * view_turn_rate * 3.0;
+    double kp = dt * universe.move_rate();
+    double ka = dt * universe.turn_rate();
+
+    // Create the mutex and sensor thread.
+
     if (mutex == 0 && thread == 0 && ::host->root())
     {
-        // Create the mutex and sensor thread.
-
         mutex  = SDL_CreateMutex();
         thread = SDL_CreateThread(get_wiimote, 0);
     }
-    else
+
+    // Handle pointing.
+
+    if (button[BUTTON_B])
     {
-        double dt = t / 1000.0;
+        double dR[3];
+        double dz[3];
+        double dy[3];
 
-        double kr = dt * view_turn_rate * 3.0;
-        double kp = dt * universe.move_rate();
-        double ka = dt * universe.turn_rate();
+        dy[0] = init_R[ 4] - curr_R[ 4];
+        dy[1] = init_R[ 5] - curr_R[ 5];
+        dy[2] = init_R[ 6] - curr_R[ 6];
 
-        // Translate Wiimote state changes to host events.
+        dz[0] = init_R[ 8] - curr_R[ 8];
+        dz[1] = init_R[ 9] - curr_R[ 9];
+        dz[2] = init_R[10] - curr_R[10];
 
-        if (::host->root())
-            translate();
+        dR[0] =  DOT3(dz, init_R + 4);
+        dR[1] = -DOT3(dz, init_R + 0);
+        dR[2] =  DOT3(dy, init_R + 0);
 
-        // Handle pointing.
-
-        if (button[BUTTON_B])
-        {
-            double dR[3];
-            double dz[3];
-            double dy[3];
-
-            dy[0] = init_R[ 4] - curr_R[ 4];
-            dy[1] = init_R[ 5] - curr_R[ 5];
-            dy[2] = init_R[ 6] - curr_R[ 6];
-
-            dz[0] = init_R[ 8] - curr_R[ 8];
-            dz[1] = init_R[ 9] - curr_R[ 9];
-            dz[2] = init_R[10] - curr_R[10];
-
-            dR[0] =  DOT3(dz, init_R + 4);
-            dR[1] = -DOT3(dz, init_R + 0);
-            dR[2] =  DOT3(dy, init_R + 0);
-
-            user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
-        }
-
-        // Handle joysticks.
-
-        user->move(move[0] * kp, move[1] * kp, move[2] * kp);
-        user->turn(turn[0] * kr, turn[1] * kr, turn[2] * kr);
-
-        universe.set_time(universe.get_time() + ka * time * 600.0);
+        user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
     }
+
+    // Handle joysticks.
+
+    user->move(move[0] * kp, move[1] * kp, move[2] * kp);
+    user->turn(turn[0] * kr, turn[1] * kr, turn[2] * kr);
+
+    universe.set_time(universe.get_time() + ka * time * 600.0);
+
+    // Translate Wiimote state changes to host events.
+
+    if (::host->root())
+        translate();
+
     return false;
 }
 

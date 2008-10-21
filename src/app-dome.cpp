@@ -50,13 +50,17 @@ app::dome::dome(app::node tile, app::node node, const int *window)
 
     radius = get_attr_f(node, "radius", 27.5);
 
-    tk[0] = get_attr_f(node, "t0",  0.0);
-    tk[1] = get_attr_f(node, "t1", 90.0);
-    tk[2] = get_attr_f(node, "dt", 10.0);
+    tk[0] = get_attr_f(node, "t0",   0.0);
+    tk[1] = get_attr_f(node, "t1",  90.0);
+    tk[2] = get_attr_f(node, "dt",  10.0);
 
-    pk[0] = get_attr_f(node, "p0",  0.0);
-    pk[1] = get_attr_f(node, "p1", 90.0);
-    pk[2] = get_attr_f(node, "dp", 10.0);
+    pk[0] = get_attr_f(node, "p0",   0.0);
+    pk[1] = get_attr_f(node, "p1",  90.0);
+    pk[2] = get_attr_f(node, "dp",  10.0);
+
+    zk[0] = get_attr_f(node, "z0", -10.0);
+    zk[1] = get_attr_f(node, "z1",  10.0);
+    zk[2] = get_attr_f(node, "dz",   0.25);
 }
 
 app::dome::~dome()
@@ -178,6 +182,7 @@ void app::dome::draw(view_v& views, int &i, bool calibrate, bool me)
 
                     test_P->uniform("tk", RAD(tk[0]), RAD(tk[1]), RAD(tk[2]));
                     test_P->uniform("pk", RAD(pk[0]), RAD(pk[1]), RAD(pk[2]));
+                    test_P->uniform("zk",     zk[0],      zk[1],      zk[2]);
 
                     proj_frust->cast();
                 }
@@ -201,6 +206,7 @@ void app::dome::draw(view_v& views, int &i, bool calibrate, bool me)
 
                     draw_P->uniform("tk", RAD(tk[0]), RAD(tk[1]), RAD(tk[2]));
                     draw_P->uniform("pk", RAD(pk[0]), RAD(pk[1]), RAD(pk[2]));
+                    draw_P->uniform("zk",     zk[0],      zk[1],      zk[2]);
 
                     draw_P->uniform("proj", user_frust->get_P());
 
