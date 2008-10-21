@@ -15,6 +15,7 @@
 
 #include "uni-sphere.hpp"
 #include "uni-galaxy.hpp"
+#include "uni-slides.hpp"
 #include "uni-geomap.hpp"
 #include "uni-geocsh.hpp"
 #include "app-frustum.hpp"
@@ -40,6 +41,7 @@ namespace uni
 
         sphere *S[2];
         galaxy *G;
+        slides *Z;
 
         int N;
         int serial;

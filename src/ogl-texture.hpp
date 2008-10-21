@@ -32,6 +32,8 @@ namespace ogl
         GLenum  extform;
         GLenum  type;
         GLsizei border;
+        GLsizei width;
+        GLsizei height;
 
         void load_png(const void *, size_t);
         void load_jpg(const void *, size_t);
@@ -46,6 +48,10 @@ namespace ogl
 
         void bind(GLenum=GL_TEXTURE0) const;
         void free(GLenum=GL_TEXTURE0) const;
+
+        GLsizei gett() const { return target; }
+        GLsizei getw() const { return width;  }
+        GLsizei geth() const { return height; }
 
         void draw() const;
         void init();

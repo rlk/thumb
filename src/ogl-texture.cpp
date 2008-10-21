@@ -116,8 +116,8 @@ void ogl::texture::load_png(const void *buf, size_t len)
         
         // Extract image properties.
 
-        GLsizei w = GLsizei(png_get_image_width (rp, ip));
-        GLsizei h = GLsizei(png_get_image_height(rp, ip));
+        width     = GLsizei(png_get_image_width (rp, ip));
+        height    = GLsizei(png_get_image_height(rp, ip));
         GLsizei b = GLsizei(png_get_bit_depth   (rp, ip)) / 8;
         GLsizei c = GLsizei(png_get_channels    (rp, ip));
 
@@ -127,34 +127,35 @@ void ogl::texture::load_png(const void *buf, size_t len)
         extform = form_tag[0    ][c - 1];
         type    = type_tag[b - 1];
 
-        if      ( POT(w - 2) &&  POT(h - 2)) border = 1;
-        else if (!POT(w    ) || !POT(h    )) target = GL_TEXTURE_RECTANGLE_ARB;
+        if      ( POT(width - 2) &&  POT(height - 2))
+            border = 1;
+        else if (!POT(width    ) || !POT(height    ))
+            target = GL_TEXTURE_RECTANGLE_ARB;
 
         // Read the pixel data.
 
         if ((bp = png_get_rows(rp, ip)))
         {
+            GLsizei stride = (width + border * 2) * b * c;
+
+            GLubyte *p = new GLubyte[height * stride];
+
             // Initialize the texture object.
 
             glBindTexture(target, object);
 
-/* TODO: GENERATE_MIPMAP + TexSubImage is SLOW
             if (target == GL_TEXTURE_2D)
                 glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-*/
-            glTexImage2D(target, 0, intform, w, h, border, extform, type, 0);
-
-            OGLCK();
 
             // Copy all rows to the new texture.
 
-            for (GLsizei i = 0, j = h - 1; j >= 0; ++i, --j)
-                glTexSubImage2D(target,
-                                0, -border,
-                                i - border,
-                                w, 1, extform, type, bp[j]);
+            for (GLsizei i = 0, j = height - 1; j >= 0; ++i, --j)
+                memcpy(p + stride * i, bp[j], stride);
 
-            // TODO: convert this to png_read_image with upside-down row array.
+            glTexImage2D(target, 0, intform, width, height,
+                         border, extform, type, p);
+
+            delete [] p;
 
             OGLCK();
         }
@@ -179,7 +180,11 @@ void ogl::texture::load_img(std::string name)
     // Set some useful default state.
 
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
-    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
+
+    if (target == GL_TEXTURE_2D && filter == GL_LINEAR)
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    else
+        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
 
     if (border)
     {

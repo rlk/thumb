@@ -49,6 +49,7 @@ OBJS=   util.o \
 	uni-spatch.o \
 	uni-sphere.o \
 	uni-galaxy.o \
+	uni-slides.o \
 	uni-universe.o \
 	dev-input.o \
 	dev-mouse.o \

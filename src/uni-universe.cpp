@@ -23,7 +23,7 @@
 
 //-----------------------------------------------------------------------------
 
-uni::universe::universe() : G(0), serial(0), time(0)
+uni::universe::universe() : G(0), Z(0), serial(0), time(0)
 {
     double Er0 = 6372797.0;
     double Er1 = 6372797.0 + 8844.0;
@@ -87,6 +87,7 @@ uni::universe::universe() : G(0), serial(0), time(0)
     // Create the galaxy.
 
     G = new galaxy("hipparcos.bin");
+    Z = new slides("slides.xml");
 
     // Create the Earth.
 
@@ -112,6 +113,7 @@ uni::universe::~universe()
         delete S[s];
 
     if (G) delete G;
+    if (Z) delete Z;
 
     delete R;
     delete D;
@@ -142,6 +144,7 @@ void uni::universe::prep(app::frustum_v& frusta)
     // Update the view of each object.
 
     if (G) G->view(frusta);
+    if (Z) Z->view(frusta);
 
     for (s = 0; s < N; ++s) S[s]->view(frusta);
 
@@ -179,6 +182,8 @@ void uni::universe::draw(int i)
     if (G) G->draw(i);
 
     for (s = N - 1; s >= 0; --s) S[s]->draw(i);
+
+    if (Z) Z->draw(i);
 }
 
 double uni::universe::turn_rate() const

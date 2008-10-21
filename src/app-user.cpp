@@ -204,6 +204,11 @@ void app::user::tumble(const double *A,
 
 //-----------------------------------------------------------------------------
 
+static double cubic(double t)
+{
+    return 3 * t * t - 2 * t * t * t;
+}
+
 double app::user::interpolate(app::node A,
                               app::node B, const char *name, double t)
 {
@@ -212,7 +217,7 @@ double app::user::interpolate(app::node A,
     const double y1 = get_attr_f(A, name, 0);
     const double y2 = get_attr_f(B, name, 0);
 
-    double k = 3 * t * t - 2 * t * t * t;
+    double k = cubic(cubic(t));
 
     return y1 * (1.0 - k) + y2 * k;
 }
