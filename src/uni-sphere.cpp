@@ -703,7 +703,7 @@ void uni::sphere::draw(int i)
 
                 // Draw patch bounds as requested.
 
-                if (::prog->get_option(10))
+                if (!::prog->get_option(10))
                 {
                     glPushMatrix();
                     {

@@ -16,6 +16,24 @@
 
 //-----------------------------------------------------------------------------
 
+static void subdiv(const double a[3], const double e[3], double r)
+{
+    double b[3];
+    double c[3];
+    double d[3];
+
+    bisection(c, a, e);
+    bisection(b, a, c);
+    bisection(d, c, e);
+
+    glVertex3f(a[0] * r, a[1] * r, a[2] * r);
+    glVertex3f(b[0] * r, b[1] * r, b[2] * r);
+    glVertex3f(c[0] * r, c[1] * r, c[2] * r);
+    glVertex3f(d[0] * r, d[1] * r, d[2] * r);
+}
+
+//-----------------------------------------------------------------------------
+
 void uni::spatch::init(const double *n0, const double *t0, int i0,
                        const double *n1, const double *t1, int i1,
                        const double *n2, const double *t2, int i2,
@@ -293,6 +311,12 @@ void uni::spatch::draw(const spatch *V, int line,
 
 void uni::spatch::wire(double r0, double r1) const
 {
+    double m[3][3];
+
+    bisection(m[0], n[0], n[1]);
+    bisection(m[1], n[1], n[2]);
+    bisection(m[2], n[2], n[0]);
+
     glColor4f(1.0f, 0.5f, 0.0f, 0.5f);
 
     glBegin(GL_LINE_LOOP);
@@ -305,9 +329,14 @@ void uni::spatch::wire(double r0, double r1) const
 
     glBegin(GL_LINE_LOOP);
     {
+        subdiv(n[0], n[1], r1);
+        subdiv(n[1], n[2], r1);
+        subdiv(n[2], n[0], r1);
+/*
         glVertex3d(n[0][0] * r1, n[0][1] * r1, n[0][2] * r1);
         glVertex3d(n[1][0] * r1, n[1][1] * r1, n[1][2] * r1);
         glVertex3d(n[2][0] * r1, n[2][1] * r1, n[2][2] * r1);
+*/
     }
     glEnd();
 
@@ -322,106 +351,5 @@ void uni::spatch::wire(double r0, double r1) const
     }
     glEnd();
 }
-
-/*
-    const GLfloat red[4] = { 1.0f, 0.0f, 0.0f, 1.0f };
-    const GLfloat grn[4] = { 0.0f, 1.0f, 0.0f, 1.0f };
-    const GLfloat blu[4] = { 0.0f, 0.0f, 1.0f, 1.0f };
-    const GLfloat yel[4] = { 1.0f, 1.0f, 0.0f, 1.0f };
-    const GLfloat wht[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    const GLfloat gry[4] = { 0.5f, 0.5f, 0.5f, 0.5f };
-    const GLfloat blk[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
-*/
-/*
-    glBegin(GL_LINES);
-    {
-        bool d0 = ((i[0][0] >= 0 && V[i[0][0]].d < d) ||
-                   (i[0][1] >= 0 && V[i[0][1]].d < d));
-        bool d1 = ((i[1][0] >= 0 && V[i[1][0]].d < d) ||
-                   (i[1][1] >= 0 && V[i[1][1]].d < d));
-        bool d2 = ((i[2][0] >= 0 && V[i[2][0]].d < d) ||
-                   (i[2][1] >= 0 && V[i[2][1]].d < d));
-
-        glColor4fv(d0 ? A : B);
-        glVertex3d(n[0][0] * r, n[0][1] * r, n[0][2] * r);
-        glVertex3d(n[1][0] * r, n[1][1] * r, n[1][2] * r);
-
-        glColor4fv(d1 ? A : B);
-        glVertex3d(n[1][0] * r, n[1][1] * r, n[1][2] * r);
-        glVertex3d(n[2][0] * r, n[2][1] * r, n[2][2] * r);
-
-        glColor4fv(d2 ? A : B);
-        glVertex3d(n[0][0] * r, n[0][1] * r, n[0][2] * r);
-        glVertex3d(n[2][0] * r, n[2][1] * r, n[2][2] * r);
-    }
-    glEnd();
-*/
-/*
-    glColor4fv(gry);
-
-    glEnable(GL_LIGHTING);
-    glBegin(GL_TRIANGLES);
-    {
-        glNormal3dv(N);
-        glVertex3d(n[0][0] * r, n[0][1] * r, n[0][2] * r);
-        glVertex3d(n[1][0] * r, n[1][1] * r, n[1][2] * r);
-        glVertex3d(n[2][0] * r, n[2][1] * r, n[2][2] * r);
-    }
-    glEnd();
-    glDisable(GL_LIGHTING);
-
-    glColor4fv(blk);
-    glBegin(GL_LINE_LOOP);
-    {
-        glVertex3d(n[0][0] * r, n[0][1] * r, n[0][2] * r);
-        glVertex3d(n[1][0] * r, n[1][1] * r, n[1][2] * r);
-        glVertex3d(n[2][0] * r, n[2][1] * r, n[2][2] * r);
-    }
-    glEnd();
-*/
-/*
-    glBegin(GL_LINES);
-    {
-        double k = 1.01;
-
-        for (int ii = 0; ii < 3; ++ii)
-        {
-            if (i[ii][0] >= 0 && i[ii][0] == i[ii][1])
-            {
-                glColor4fv(blu);
-                glVertex3d(N[0] * r * k, N[1] * r * k, N[2] * r * k);
-
-                glColor4fv(red);
-                glVertex3d(V[i[ii][0]].N[0] * r,
-                           V[i[ii][0]].N[1] * r,
-                           V[i[ii][0]].N[2] * r);
-            }
-            else
-            {
-                if (i[ii][0] >= 0)
-                {
-                    glColor4fv(yel);
-                    glVertex3d(N[0] * r * k, N[1] * r * k, N[2] * r * k);
-
-                    glColor4fv(red);
-                    glVertex3d(V[i[ii][0]].N[0] * r,
-                               V[i[ii][0]].N[1] * r,
-                               V[i[ii][0]].N[2] * r);
-                }
-                if (i[ii][1] >= 0)
-                {
-                    glColor4fv(grn);
-                    glVertex3d(N[0] * r * k, N[1] * r * k, N[2] * r * k);
-
-                    glColor4fv(red);
-                    glVertex3d(V[i[ii][1]].N[0] * r,
-                               V[i[ii][1]].N[1] * r,
-                               V[i[ii][1]].N[2] * r);
-                }
-            }
-        }
-    }
-    glEnd();
-*/
 
 //-----------------------------------------------------------------------------
