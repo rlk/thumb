@@ -98,7 +98,9 @@ void app::frustum::mat_calibration(double *M)
 
     get_calibration(P, T, R, p, y, r, H, V);
 
-    load_rot_mat(M, 0, 1, 0, T);
+    load_idt(M);
+
+    Rmul_rot_mat(M, 0, 1, 0, T);
     Rmul_rot_mat(M, 1, 0, 0, P);
     Rmul_xlt_mat(M, 0, 0, R);
 
@@ -332,6 +334,7 @@ void app::frustum::calc_view_points(double n, double f)
     }
 }
 */
+
 void app::frustum::calc_projection(double n, double f)
 {
     // Compute the screen corner vectors.

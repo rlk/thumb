@@ -56,6 +56,8 @@ void uni::slide::draw() const
         {
             glMultMatrixd(M);
 
+            glRotatef(30.0f, 1.0f, 0.0f, 0.0f);
+
             glEnable(texture->gett());
 
             texture->bind();

@@ -29,6 +29,9 @@ namespace app
 
         // View matrix and inverse cache
 
+        double cache_M[16];
+        double cache_I[16];
+
         double current_M[16];
         double current_I[16];
         double current_S[16];
@@ -47,6 +50,8 @@ namespace app
 
         app::node cycle_next(app::node);
         app::node cycle_prev(app::node);
+
+        void correct();
 
         double interpolate(app::node, app::node, const char *, double);
 
