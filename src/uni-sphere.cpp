@@ -23,6 +23,7 @@
 #include "app-prog.hpp"
 #include "app-user.hpp"
 #include "app-conf.hpp"
+#include "app-host.hpp"
 #include "util.hpp"
 
 //=============================================================================
@@ -78,7 +79,8 @@ uni::sphere::sphere(uni::geodat& dat,
     draw_diff(glob->load_program("glsl/final.vert", "glsl/final-diff.frag")),
     draw_norm(glob->load_program("glsl/final.vert", "glsl/final-norm.frag")),
     draw_texc(glob->load_program("glsl/final.vert", "glsl/final-texc.frag")),
-    draw_mono(glob->load_program("glsl/final.vert", "glsl/final-mono.frag"))
+    draw_mono(glob->load_program("glsl/final.vert", "glsl/final-mono.frag")),
+    draw_dtex(glob->load_program("glsl/final.vert", "glsl/final-dtex.frag"))
 {
     S = new spatch[lines];
 
@@ -115,6 +117,7 @@ uni::sphere::sphere(uni::geodat& dat,
 
 uni::sphere::~sphere()
 {
+    glob->free_program(draw_dtex);
     glob->free_program(draw_mono);
     glob->free_program(draw_texc);
     glob->free_program(draw_norm);
@@ -563,6 +566,7 @@ void uni::sphere::draw(int i)
     else if (::prog->get_option(1)) land_prog = draw_norm;
     else if (::prog->get_option(2)) land_prog = draw_texc;
     else if (::prog->get_option(3)) land_prog = draw_mono;
+    else if (::prog->get_option(4)) land_prog = draw_dtex;
     else if (atmosphere)
     {
         atmo_prog = in ? draw_atmo_in : draw_atmo_out;
@@ -697,22 +701,9 @@ void uni::sphere::draw(int i)
                     land_prog->free();
                 }
 
-                // Test draw the GPGPU buffers.
-/*
-                glPushAttrib(GL_ENABLE_BIT);
-                {
-                    glEnable(GL_BLEND);
-                    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-                    glDisable(GL_DEPTH_TEST);
+                // Draw patch bounds as requested.
 
-                    if (::prog->get_option( 8)) pos.draw();
-                    if (::prog->get_option( 9)) nrm.draw();
-                    if (::prog->get_option(10)) tex.draw();
-                }
-                glPopAttrib();
-*/
-
-                if (::prog->get_option(6))
+                if (::prog->get_option(10))
                 {
                     glPushMatrix();
                     {
@@ -736,7 +727,7 @@ void uni::sphere::draw(int i)
 
                 // Draw wireframe as requested.
 
-                if (::prog->get_option(7))
+                if (::prog->get_option(11))
                 {
                     ren.bind();
                     dat.idx()->bind();
@@ -794,8 +785,25 @@ void uni::sphere::draw(int i)
 
         // Test draw the color geomap.
 
-        if (::prog->get_option(5)) (*(caches.begin()))->draw();
+        if (::prog->get_option(7)) (*(  caches.begin()))->draw();
+        if (::prog->get_option(6)) (*(++caches.begin()))->draw();
 
+        // Test draw the GPGPU buffers.
+
+        glPushAttrib(GL_ENABLE_BIT);
+        {
+            int w = ::host->get_buffer_w();
+            int h = ::host->get_buffer_h();
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glDisable(GL_DEPTH_TEST);
+
+            if (::prog->get_option(5)) acc.draw(w, h);
+            if (::prog->get_option(8)) nrm.draw(w, h);
+            if (::prog->get_option(9)) tex.draw(w, h);
+        }
+        glPopAttrib();
     }
     glPopAttrib();
 }

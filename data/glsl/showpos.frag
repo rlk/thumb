@@ -4,10 +4,11 @@ uniform sampler2DRect src;
 
 uniform float range;
 uniform vec2  size;
+uniform vec2  window;
 
 void main()
 {
-    vec2 t = gl_FragCoord.xy;
+    vec2 t = (gl_FragCoord.xy - 0.5 * window + size) * 0.5;
     vec2 a = step(vec2(0.0), t) * step(t, size);
 
     float K = a.x * a.y;

@@ -357,50 +357,70 @@ bool dev::wiimote::click(int i, int b, int m, bool d)
 
     if (d)
     {
+        int i, n = -1;
+
         if      (button[BUTTON_TWO])
             switch (b)
             {
-            case BUTTON_R: ::prog->tgl_option(11); break;
-            case BUTTON_L: ::prog->tgl_option(10); break;
-            case BUTTON_D: ::prog->tgl_option( 9); break;
-            case BUTTON_U: ::prog->tgl_option( 8); break;
+            case BUTTON_R: n = 11; break;
+            case BUTTON_L: n = 10; break;
+            case BUTTON_D: n =  9; break;
+            case BUTTON_U: n =  8; break;
             }
         else if (button[BUTTON_ONE])
             switch (b)
             {
-            case BUTTON_R: ::prog->tgl_option( 7); break;
-            case BUTTON_L: ::prog->tgl_option( 6); break;
-            case BUTTON_D: ::prog->tgl_option( 5); break;
-            case BUTTON_U: ::prog->tgl_option( 4); break;
+            case BUTTON_R: n =  7; break;
+            case BUTTON_L: n =  6; break;
+            case BUTTON_D: n =  5; break;
+            case BUTTON_U: n =  4; break;
             }
         else
             switch (b)
             {
-            case BUTTON_R:
-                ::prog->tgl_option(3);
-                ::prog->clr_option(2);
-                ::prog->clr_option(1);
-                ::prog->clr_option(0);
-                break;
-            case BUTTON_L:
-                ::prog->clr_option(3);
-                ::prog->tgl_option(2);
-                ::prog->clr_option(1);
-                ::prog->clr_option(0);
-                break;
-            case BUTTON_D:
-                ::prog->clr_option(3);
-                ::prog->clr_option(2);
-                ::prog->tgl_option(1);
-                ::prog->clr_option(0);
-                break;
-            case BUTTON_U:
-                ::prog->clr_option(3);
-                ::prog->clr_option(2);
-                ::prog->clr_option(1);
-                ::prog->tgl_option(0);
-                break;
+            case BUTTON_R: n =  3; break;
+            case BUTTON_L: n =  2; break;
+            case BUTTON_D: n =  1; break;
+            case BUTTON_U: n =  0; break;
             }
+
+        // Options 0-4 are mutually exclusive.
+
+        if (0 <= n && n <= 4)
+        {
+            for (i = 0; i <= 4; ++i)
+                if (i == n)
+                    ::prog->tgl_option(i);
+                else
+                    ::prog->clr_option(i);
+        }
+
+        // Options 5-6 are mutually exclusive.
+
+        if (5 <= n && n <= 6)
+        {
+            for (i = 5; i <= 6; ++i)
+                if (i == n)
+                    ::prog->tgl_option(i);
+                else
+                    ::prog->clr_option(i);
+        }
+
+        // Options 7-9 are mutually exclusive.
+
+        if (7 <= n && n <= 9)
+        {
+            for (i = 7; i <= 9; ++i)
+                if (i == n)
+                    ::prog->tgl_option(i);
+                else
+                    ::prog->clr_option(i);
+        }
+
+        // Options 10-11 are free.
+
+        if (n == 10) ::prog->tgl_option(n);
+        if (n == 11) ::prog->tgl_option(n);
     }
 
     // Home goes home.

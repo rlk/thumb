@@ -1,4 +1,5 @@
-Fix exit segfault?
+Broken moon
+Make patch bounds not intersect the planet
 
 - Think about a Z-varying dome blend
 -     Or just planar-varying dome blends?
@@ -13,16 +14,18 @@ Fix exit segfault?
 - Refine attr mode
 -     Add option handling
 
-0 diffuse
-1 normal
-2 texc
-3 monochrome
-4
-5 cache
-6 lo tris
-7 hi tris
-8
-9
+-  U  0 diffuse
+-  D  1 normal
+-  L  2 texc
+-  R  3 monochrome
+- 1U  4 dtexc
+- 1D  5 acc buffer
+- 1L  6 height cache
+- 1R  7 surface cache
+- 2U  8 nrm buffer
+- 2D  9 tex buffer
+- 2L 10 lo tris
+- 2R 11 hi tris
 
 -------------------------------------------------------------------------------
 

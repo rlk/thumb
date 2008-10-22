@@ -20,6 +20,7 @@
 #include "app-conf.hpp"
 #include "app-host.hpp"
 #include "app-user.hpp"
+#include "app-prog.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -146,7 +147,8 @@ void uni::universe::prep(app::frustum_v& frusta)
     if (G) G->view(frusta);
     if (Z) Z->view(frusta);
 
-    for (s = 0; s < N; ++s) S[s]->view(frusta);
+    for (s = 0; s < N; ++s)
+        S[s]->view(frusta);
 
     // Sort the spheres by distance.
 
@@ -154,7 +156,15 @@ void uni::universe::prep(app::frustum_v& frusta)
 
     // Perform visibility processing.
 
-    for (s = 0; s < N; ++s) S[s]->step(serial);
+    // HACK: if the GPGPU buffers are shown, step only one sphere.
+
+    if (::prog->get_option(7) ||
+        ::prog->get_option(8) ||
+        ::prog->get_option(9))
+        S[0]->step(serial);
+    else
+        for (s = 0; s < N; ++s)
+            S[s]->step(serial);
 
     geomap_i m;
     geocsh_i c;
@@ -181,7 +191,15 @@ void uni::universe::draw(int i)
 
     if (G) G->draw(i);
 
-    for (s = N - 1; s >= 0; --s) S[s]->draw(i);
+    // HACK: if the GPGPU buffers are shown, draw only one sphere.
+
+    if (::prog->get_option(7) ||
+        ::prog->get_option(8) ||
+        ::prog->get_option(9))
+        S[0]->draw(i);
+    else
+        for (s = N - 1; s >= 0; --s)
+            S[s]->draw(i);
 
     if (Z) Z->draw(i);
 }

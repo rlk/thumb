@@ -542,12 +542,13 @@ uni::geobuf::~geobuf()
     glob->free_frame(ping);
 }
 
-void uni::geobuf::draw() const
+void uni::geobuf::draw(int w, int h) const
 {
     // Draw the output buffer.
 
     show->bind();
-    src->draw();
+    show->uniform("window", w, h);
+    src->draw(w, h);
     show->free();
 }
 

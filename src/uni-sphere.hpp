@@ -96,6 +96,7 @@ namespace uni
         const ogl::program *draw_norm;
         const ogl::program *draw_texc;
         const ogl::program *draw_mono;
+        const ogl::program *draw_dtex;
 
         ogl::pool *atmo_pool;
         ogl::node *atmo_node;

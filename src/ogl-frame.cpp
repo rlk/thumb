@@ -133,7 +133,7 @@ void ogl::frame::free(bool proj) const
 
 //-----------------------------------------------------------------------------
 
-void ogl::frame::draw() const
+void ogl::frame::draw(int w, int h) const
 {
     bind_color(GL_TEXTURE0);
     {

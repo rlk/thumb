@@ -170,8 +170,8 @@ namespace uni
         void bind(GLenum unit) const { src->bind_color(unit); }
         void free(GLenum unit) const { src->free_color(unit); }
 
-        void draw() const;
-        void null() const;
+        void draw(int, int) const;
+        void null()         const;
         void swap();
     };
 
