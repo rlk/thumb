@@ -317,7 +317,7 @@ void uni::spatch::wire(double r0, double r1) const
     bisection(m[1], n[1], n[2]);
     bisection(m[2], n[2], n[0]);
 
-    glColor4f(1.0f, 0.5f, 0.0f, 0.5f);
+    glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
 
     glBegin(GL_LINE_LOOP);
     {
