@@ -19,10 +19,10 @@
      <slide x="8" y="-800" z="0" t="-0.5" u="0" v="0" w="0.866" image="quality-adaptation.png" />
 
      <slide x="0" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="performance.png" />
-     <slide x="4" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="frametime-data.png" />
-     <slide x="8" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="frametime-geometry.png" />
-     <slide x="12" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="frametime-pagefaults.png" />
-     <slide x="16" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="frametime-resolution.png" />
+     <slide x="4" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="frametime-pagefaults.png" />
+     <slide x="8" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="frametime-resolution.png" />
+     <slide x="12" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="frametime-geometry.png" />
+     <slide x="16" y="-1000" z="0" t="-0.5" u="0" v="0" w="0.866" image="frametime-data.png" />
 
      <slide x="0" y="-1200" z="0" t="-0.5" u="0" v="0" w="0.866" image="installations.png" />
      <slide x="4" y="-1200" z="0" t="-0.5" u="0" v="0" w="0.866" image="dome.png" />
