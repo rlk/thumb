@@ -10,9 +10,9 @@
      <slide x="04" y="-400" z="0" t="-0.5" u="0" v="0" w="0.866" image="background.png" />
 
      <slide x="0" y="-600" z="0" t="-0.5" u="0" v="0" w="0.866" image="pipeline.png" />
-     <slide x="4" y="-600" z="0" t="-0.5" u="0" v="0" w="0.866" image="rendering.png" />
+     <slide x="4" y="-600" z="0" t="-0.5" u="0" v="0" w="0.866" image="visibility.png" />
      <slide x="8" y="-600" z="0" t="-0.5" u="0" v="0" w="0.866" image="generation.png" />
-     <slide x="12" y="-600" z="0" t="-0.5" u="0" v="0" w="0.866" image="visibility.png" />
+     <slide x="12" y="-600" z="0" t="-0.5" u="0" v="0" w="0.866" image="rendering.png" />
 
      <slide x="0" y="-800" z="0" t="-0.5" u="0" v="0" w="0.866" image="out-of-core.png" />
      <slide x="4" y="-800" z="0" t="-0.5" u="0" v="0" w="0.866" image="overlay.png" />
