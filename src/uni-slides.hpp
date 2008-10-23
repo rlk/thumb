@@ -36,7 +36,7 @@ namespace uni
         slide(app::node);
        ~slide();
 
-        void draw() const;
+        void draw(const double *) const;
     };
 
     typedef std::list<slide *>                 slide_l;

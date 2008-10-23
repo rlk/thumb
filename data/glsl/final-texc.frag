@@ -4,8 +4,6 @@ uniform sampler2DRect cyl;
 uniform sampler2DRect dif;
 uniform sampler2DRect nrm;
 
-varying vec3 L;
-
 void main()
 {
     vec4 C = texture2DRect(cyl, gl_FragCoord.xy);

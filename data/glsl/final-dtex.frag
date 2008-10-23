@@ -4,8 +4,6 @@ uniform sampler2DRect cyl;
 uniform sampler2DRect dif;
 uniform sampler2DRect nrm;
 
-varying vec3 L;
-
 float width(float k)
 {
     return length(vec2(dFdx(k), dFdy(k)));

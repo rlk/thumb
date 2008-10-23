@@ -47,9 +47,9 @@ uni::slide::~slide()
 
 //-----------------------------------------------------------------------------
 
-void uni::slide::draw() const
+void uni::slide::draw(const double *p) const
 {
-    if (texture)
+    if (texture && distance(p, M + 12) < 100.0)
     {
         glPushAttrib(GL_ENABLE_BIT);
         glPushMatrix();
@@ -148,6 +148,8 @@ void uni::slides::draw(int i) const
     glPushAttrib(GL_ENABLE_BIT);
     glPushMatrix();
     {
+        const double *p = frusta[i]->get_view_pos();
+
         // Set up the GL state for slide rendering.
 
         glDisable(GL_LIGHTING);
@@ -167,7 +169,7 @@ void uni::slides::draw(int i) const
         // Draw all slides.
 
         for (slide_c i = all.begin(); i != all.end(); ++i)
-            (*i)->draw();
+            (*i)->draw(p);
     }
     glPopMatrix();
     glPopAttrib();

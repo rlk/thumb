@@ -3,7 +3,7 @@
 
   <!-- Host configuration -->
 
-  <option type="string" name="host_file">host/common.xml</option>
+  <option type="string" name="host_file">host/smalldome.xml</option>
   <option type="string" name="exec_dir">/home/evl/rlk/src/thumb/</option>
   <option type="string" name="data_dir">/data/evl/rlk/</option>
 

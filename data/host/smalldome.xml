@@ -1,0 +1,22 @@
+ <?xml version="1.0"?>
+   <host>
+     <buffer w="960" h="540" />
+     <node name="test">
+       <window x="0" y="0" w="960" h="540" />
+       <tile index="0">
+         <viewport x="0" y="0" w="960" h="540" />
+         <frustum>
+           <perspective hfov="58.900000" vfov="35.000000" />
+           <rotation p="17.000000" y="3.600000" r="-0.100000" />
+           <position p="-1.000000" t="-8.000000" r="27.500000" />
+         </frustum>
+         <disp type="dome" view="0" radius="27.5" t0="-45" t1="45"
+dt="20" p0="0" p1="55" dp="20">
+           <frustum>
+             <perspective hfov="110.0" vfov="75" />
+             <rotation p="30.000000" y="0.000000" r="0.000000" />
+           </frustum>
+         </disp>
+       </tile>
+     </node>
+   </host>
