@@ -54,11 +54,11 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-//  edit = new mode::edit(world);
-//  play = new mode::play(world);
-//  info = new mode::info(world);
+    edit = new mode::edit(world);
+    play = new mode::play(world);
+    info = new mode::info(world);
 
-//  goto_mode(play);
+    goto_mode(play);
 
 //  if (::conf->get_i("movie")) attr_on();
 

@@ -50,6 +50,7 @@ OBJS=   util.o \
 	uni-sphere.o \
 	uni-galaxy.o \
 	uni-slides.o \
+	uni-overlay.o \
 	uni-universe.o \
 	dev-input.o \
 	dev-mouse.o \

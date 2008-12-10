@@ -88,12 +88,12 @@ uni::universe::universe() : G(0), Z(0), serial(0), time(0)
     // Create the galaxy.
 
     G = new galaxy("hipparcos.bin");
-    Z = new slides("slides.xml");
+//  Z = new slides("slides.xml");
 
     // Create the Earth.
 
     S[0] = new sphere(*D, *R, Ecolor, Enormal, Eheight,
-                      caches, Er0, Er1, patch_cache, true);
+                      caches, Er0, Er1, patch_cache, true, true);
     S[0]->move(0.0, 0.0, -2.0 * Er0);
 
     N = 1;
@@ -101,7 +101,7 @@ uni::universe::universe() : G(0), Z(0), serial(0), time(0)
     // Create the Moon.
 
     S[1] = new sphere(*D, *R, Mcolor, Mnormal, Mheight,
-                      caches, Mr0, Mr1, patch_cache, false);
+                      caches, Mr0, Mr1, patch_cache, false, false);
     S[1]->move(Mo, 0.0, -2.0 * Er0);
     S[1]->turn(90.0, 0.0);
 

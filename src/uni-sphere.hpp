@@ -102,6 +102,8 @@ namespace uni
         ogl::node *atmo_node;
         ogl::unit *atmo_unit;
 
+        overlay *over;
+        
         void atmo_prep(const ogl::program *) const;
         void transform(app::frustum_v&);
 
@@ -112,7 +114,8 @@ namespace uni
     public:
     
         sphere(geodat&, georen&, geomap_l&, geomap_l&, geomap_l&, geocsh_l&,
-               double, double, GLsizei=DEFAULT_PATCH_CACHE, bool=false);
+               double, double, GLsizei=DEFAULT_PATCH_CACHE,
+               bool=false, bool=false);
        ~sphere();
 
         void turn(double=0, double=0);

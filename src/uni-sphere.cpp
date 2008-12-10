@@ -19,11 +19,13 @@
 #include "ogl-opengl.hpp"
 #include "matrix.hpp"
 #include "uni-sphere.hpp"
+#include "uni-overlay.hpp"
 #include "app-glob.hpp"
 #include "app-prog.hpp"
 #include "app-user.hpp"
 #include "app-conf.hpp"
 #include "app-host.hpp"
+#include "default.hpp"
 #include "util.hpp"
 
 //=============================================================================
@@ -35,7 +37,7 @@ uni::sphere::sphere(uni::geodat& dat,
                     uni::geomap_l& height,
                     uni::geocsh_l& caches,
                     double r0,
-                    double r1, GLsizei lines, bool atmosphere) :
+                    double r1, GLsizei lines, bool atmo_p, bool over_p) :
 
     count(0),
 
@@ -44,7 +46,7 @@ uni::sphere::sphere(uni::geodat& dat,
     a0(r0 * 1.000),
     a1(a0 * 1.025),
 
-    atmosphere(atmosphere),
+    atmosphere(atmo_p),
     visible(false),
     dist(0),
 
@@ -80,7 +82,9 @@ uni::sphere::sphere(uni::geodat& dat,
     draw_norm(glob->load_program("glsl/final.vert", "glsl/final-norm.frag")),
     draw_texc(glob->load_program("glsl/final.vert", "glsl/final-texc.frag")),
     draw_mono(glob->load_program("glsl/final.vert", "glsl/final-mono.frag")),
-    draw_dtex(glob->load_program("glsl/final.vert", "glsl/final-dtex.frag"))
+    draw_dtex(glob->load_program("glsl/final.vert", "glsl/final-dtex.frag")),
+
+    over(0)
 {
     S = new spatch[lines];
 
@@ -113,10 +117,20 @@ uni::sphere::sphere(uni::geodat& dat,
     load_scl_inv(I, a1, a1, a1);
 
     atmo_unit->transform(M, I);
+
+    // Initialize overlay rendering.
+
+    if (olay)
+    {
+        int port = conf->get_i("overlay_port");
+        over = new overlay(port ? port : DEFAULT_OVERLAY_PORT);
+    }
 }
 
 uni::sphere::~sphere()
 {
+    if (over) delete over;
+
     glob->free_program(draw_dtex);
     glob->free_program(draw_mono);
     glob->free_program(draw_texc);
