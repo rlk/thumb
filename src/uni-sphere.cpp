@@ -120,10 +120,7 @@ uni::sphere::sphere(uni::geodat& dat,
     // Initialize overlay rendering.
 
     if (over_p)
-    {
-        int port = conf->get_i("overlay_port");
-        over = new overlay(port ? port : DEFAULT_OVERLAY_PORT);
-    }
+        over = new overlay();
 }
 
 uni::sphere::~sphere()

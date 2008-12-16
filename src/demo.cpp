@@ -252,6 +252,11 @@ void demo::value(int d, int a, double v)
         attr_off();
 }
 
+void demo::messg(const char *ibuf, char *obuf)
+{
+    universe.script(ibuf, obuf);
+}
+
 //-----------------------------------------------------------------------------
 
 void demo::prep(app::frustum_v& frusta)

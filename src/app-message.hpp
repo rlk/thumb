@@ -22,15 +22,18 @@
 
 //-----------------------------------------------------------------------------
 
+#define DATAMAX 256
+
 #define E_REPLY 0
 #define E_POINT 1
 #define E_CLICK 2
 #define E_KEYBD 3
 #define E_VALUE 4
-#define E_TIMER 5
-#define E_PAINT 6
-#define E_FRONT 7
-#define E_CLOSE 8
+#define E_MESSG 5
+#define E_TIMER 6
+#define E_PAINT 7
+#define E_FRONT 8
+#define E_CLOSE 9
 
 namespace app
 {
@@ -67,7 +70,7 @@ namespace app
 
         struct { unsigned char type;
                  unsigned char size;
-                 char          data[256]; } payload;
+                 char          data[DATAMAX]; } payload;
 
         int index;
 
@@ -79,15 +82,17 @@ namespace app
 
         // Data marshalling
 
+        void   put_text(const char *);
         void   put_real(double);
         void   put_bool(bool);
         void   put_byte(int);
         void   put_word(int);
 
-        double get_real();
-        bool   get_bool();
-        int    get_byte();
-        int    get_word();
+        const char *get_text();
+        double      get_real();
+        bool        get_bool();
+        int         get_byte();
+        int         get_word();
 
         // Network IO
 

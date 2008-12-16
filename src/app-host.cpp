@@ -74,11 +74,9 @@ void app::host::fork_client(const char *name, const char *addr)
 
 //-----------------------------------------------------------------------------
 
-void app::host::init_listen(app::node node)
+SOCKET app::host::init_socket(int port)
 {
-    int port = get_attr_d(node, "port");
-
-    // If we have a port assignment then we must listen on it.
+    int sd = INVALID_SOCKET;
 
     if (port)
     {
@@ -91,12 +89,12 @@ void app::host::init_listen(app::node node)
 
         // Create a socket, set no-delay, bind the port, and listen.
 
-        if ((listen_sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+        if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
             throw std::runtime_error(strerror(sock_errno));
         
-        nodelay(listen_sd);
+        nodelay(sd);
 
-        while (bind(listen_sd, (struct sockaddr *) &address, addresslen) < 0)
+        while (bind(sd, (struct sockaddr *) &address, addresslen) < 0)
             if (sock_errno == EINVAL)
             {
                 std::cerr << "Waiting for port expiration" << std::endl;
@@ -104,37 +102,48 @@ void app::host::init_listen(app::node node)
             }
             else throw std::runtime_error(strerror(sock_errno));
 
-        listen(listen_sd, 16);
+        listen(sd, 16);
     }
+    return sd;
+}
+
+void app::host::init_listen(app::node node)
+{
+    client_cd = init_socket(get_attr_d(node, "port"));
+    script_cd = init_socket(DEFAULT_SCRIPT_PORT);
 }
 
 void app::host::poll_listen()
 {
     // NOTE: This must not occur between a host::send/host::recv pair.
 
-    if (listen_sd != INVALID_SOCKET)
-    {
-        struct timeval tv = { 0, 0 };
+    struct timeval tv = { 0, 0 };
 
-        fd_set sd;
+    fd_set fds;
         
-        FD_ZERO(&sd);
-        FD_SET(listen_sd, &sd);
+    FD_ZERO(&fds);
 
-        // Check for an incomming client connection.
+    if (client_cd != INVALID_SOCKET) FD_SET(client_cd, &fds);
+    if (script_cd != INVALID_SOCKET) FD_SET(script_cd, &fds);
 
-        if (int n = select(listen_sd + 1, &sd, NULL, NULL, &tv))
+    int m = std::max(client_cd, script_cd);
+
+    // Check for an incomming client connection.
+
+    if (int n = select(m + 1, &fds, NULL, NULL, &tv))
+    {
+        if (n < 0)
         {
-            if (n < 0)
-            {
-                if (sock_errno != EINTR)
-                    throw app::sock_error("select");
-            }
-            else
-            {
-                // Accept the connection.
+            if (sock_errno != EINTR)
+                throw app::sock_error("select");
+        }
+        else
+        {
+            // Accept any client connection.
 
-                if (int sd = accept(listen_sd, 0, 0))
+            if (client_cd != INVALID_SOCKET && FD_ISSET(client_cd, &fds))
+            {
+                if (int sd = accept(client_cd, 0, 0))
                 {
                     if (sd < 0)
                         throw app::sock_error("accept");
@@ -145,16 +154,100 @@ void app::host::poll_listen()
                     }
                 }
             }
+
+            // Accept any script connection.
+
+            if (script_cd != INVALID_SOCKET && FD_ISSET(script_cd, &fds))
+            {
+                if (int sd = accept(script_cd, 0, 0))
+                {
+                    if (sd < 0)
+                        throw app::sock_error("accept");
+                    else
+                    {
+                        nodelay(sd);
+                        script_sd.push_back(sd);
+                    }
+                }
+            }
         }
     }
 }
 
 void app::host::fini_listen()
 {
-    if (listen_sd != INVALID_SOCKET)
-        ::close(listen_sd);
+    if (client_cd != INVALID_SOCKET) ::close(client_cd);
+    if (script_cd != INVALID_SOCKET) ::close(script_cd);
 
-    listen_sd = INVALID_SOCKET;
+    client_cd = INVALID_SOCKET;
+    script_cd = INVALID_SOCKET;
+}
+
+void app::host::poll_script()
+{
+    struct timeval tv = { 0, 0 };
+
+    fd_set fds;
+    int m = 0;
+
+    // Initialize the socket descriptor set with all connected sockets.
+
+    FD_ZERO(&fds);
+
+    for (SOCKET_i i = script_sd.begin(); i != script_sd.end(); ++i)
+    {
+        FD_SET(*i, &fds);
+        m = std::max(m, *i);
+    }
+
+    // Check for activity on all sockets.
+
+    if (int n = select(m + 1, &fds, NULL, NULL, &tv))
+    {
+        if (n < 0)
+        {
+            if (sock_errno != EINTR)
+                throw std::runtime_error(strerror(sock_errno));
+        }
+        else
+        {
+            for (SOCKET_i t, i = script_sd.begin(); i != script_sd.end(); i = t)
+            {
+                // Step lightly in case *i is removed from the vector.
+
+                t = i;
+                t++;
+
+                // Check for and handle script input.
+
+                if (FD_ISSET(*i, &fds))
+                {
+                    char ibuf[256];
+                    char obuf[256];
+
+                    ssize_t sz;
+
+                    memset(ibuf, 256, 0);
+                    memset(obuf, 256, 0);
+
+                    if ((sz = ::recv(*i, ibuf, 256, 0)) <= 0)
+                    {
+                        ::close(*i);
+                        script_sd.erase(i);
+                    }
+                    else
+                    {
+                        // Process the command and return any result.
+
+                        messg(ibuf, obuf);
+                        sz = strlen(obuf);
+
+                        if (sz > 0) ::send(*i, obuf, sz, 0);
+                    }
+                }
+            }
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -220,18 +313,41 @@ void app::host::init_client(app::node node)
 
 void app::host::fini_client()
 {
-    for (unsigned int i = 0; i < client_sd.size(); ++i)
+    while (!client_sd.empty())
     {
+        int sd = client_sd.front();
         char c;
 
         // Wait for EOF (orderly shutdown by the remote).
 
-        while (::recv(client_sd[i], &c, 1, 0) > 0)
+        while (::recv(sd, &c, 1, 0) > 0)
             ;
 
         // Close the socket.
 
-        ::close(client_sd[i]);
+        ::close(sd);
+
+        client_sd.pop_front();
+    }
+}
+
+void app::host::fini_script()
+{
+    while (!script_sd.empty())
+    {
+        int sd = script_sd.front();
+        char c;
+
+        // Wait for EOF (orderly shutdown by the remote).
+
+        while (::recv(sd, &c, 1, 0) > 0)
+            ;
+
+        // Close the socket.
+
+        ::close(sd);
+
+        script_sd.pop_front();
     }
 }
 
@@ -239,7 +355,8 @@ void app::host::fini_client()
 
 app::host::host(std::string filename, std::string tag) :
     server_sd(INVALID_SOCKET),
-    listen_sd(INVALID_SOCKET),
+    client_cd(INVALID_SOCKET),
+    script_cd(INVALID_SOCKET),
     bench(::conf->get_i("bench")),
     movie(::conf->get_i("movie")),
     frame(0),
@@ -338,6 +455,7 @@ app::host::~host()
     for (i = views.begin(); i != views.end(); ++i)
         delete (*i);
     
+    fini_script();
     fini_client();
     fini_server();
     fini_listen();
@@ -409,6 +527,10 @@ void app::host::root_loop()
                 close();
                 return;
             }
+
+        // Check for script input events.
+
+        poll_script();
 
         // Dispatch tracker events.
 
@@ -525,6 +647,11 @@ void app::host::node_loop()
             int    a = M.get_byte();
             double p = M.get_real();
             value(i, a, p);
+            break;
+        }
+        case E_MESSG:
+        {
+            messg(M.get_text(), NULL);
             break;
         }
         case E_TIMER:
@@ -755,6 +882,24 @@ void app::host::value(int i, int a, double v)
     // Let the application handle it.
 
     ::prog->value(i, a, v);
+}
+
+void app::host::messg(const char *ibuf, char *obuf)
+{
+    // Forward the event to all clients.
+
+    if (!client_sd.empty())
+    {
+        message M(E_MESSG);
+
+        M.put_text(ibuf);
+
+        send(M);
+    }
+
+    // Let the application handle it.
+
+    ::prog->messg(ibuf, obuf);
 }
 
 void app::host::timer(int t)

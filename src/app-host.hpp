@@ -14,7 +14,7 @@
 #define HOST_HPP
 
 #include <string>
-#include <vector>
+#include <list>
 
 #include "ogl-texture.hpp"
 #include "app-message.hpp"
@@ -26,27 +26,32 @@
 
 namespace app
 {
-    typedef std::vector<SOCKET>           SOCKET_v;
-    typedef std::vector<SOCKET>::iterator SOCKET_i;
+    typedef std::list<SOCKET>           SOCKET_v;
+    typedef std::list<SOCKET>::iterator SOCKET_i;
 
     class host
     {
         // Network handling
 
-        void fork_client(const char *, const char *);
-        void poll_listen();
+        void   fork_client(const char *, const char *);
+        void   poll_listen();
+        void   poll_script();
+        void   fini_script();
 
-        void init_listen(app::node);
-        void init_server(app::node);
-        void init_client(app::node);
+        SOCKET init_socket(int);
+        void   init_listen(app::node);
+        void   init_server(app::node);
+        void   init_client(app::node);
 
-        void fini_listen();
-        void fini_server();
-        void fini_client();
+        void   fini_listen();
+        void   fini_server();
+        void   fini_client();
 
         SOCKET   server_sd;
-        SOCKET   listen_sd;
+        SOCKET   client_cd;
         SOCKET_v client_sd;
+        SOCKET   script_cd;
+        SOCKET_v script_sd;
 
         void send(message&);
         void recv(message&);
@@ -91,6 +96,7 @@ namespace app
         void click(int, int, int, bool);
         void keybd(int, int, int, bool);
         void value(int, int, double);
+        void messg(const char *, char *);
         void timer(int);
         void paint();
         void front();

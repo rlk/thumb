@@ -40,6 +40,7 @@ namespace uni
         geocsh_l caches;
 
         sphere *S[2];
+        sphere *M;
         galaxy *G;
         slides *Z;
 
@@ -55,6 +56,8 @@ namespace uni
 
         void prep(app::frustum_v&);
         void draw(int);
+
+        void script(const char *, char *);
 
         double turn_rate() const;
         double move_rate() const;

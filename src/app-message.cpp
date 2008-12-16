@@ -20,6 +20,20 @@ app::message::message(unsigned char type) : index(0)
     payload.size = 0;
 }
 
+void app::message::put_text(const char *text)
+{
+    size_t n = std::min(size_t(DATAMAX - 1), strlen(text));
+
+    memset(payload.data, 0, DATAMAX);
+    strncpy(payload.data, text, n);
+    payload.size = (unsigned char) n;
+}
+
+const char *app::message::get_text()
+{
+    return payload.data;
+}
+
 void app::message::put_real(double d)
 {
     // Append a double to the payload data.
@@ -105,6 +119,7 @@ const char *app::message::tag() const
     case E_CLICK: return "click";
     case E_KEYBD: return "keybd";
     case E_VALUE: return "value";
+    case E_MESSG: return "messg";
     case E_TIMER: return "timer";
     case E_PAINT: return "paint";
     case E_FRONT: return "front";

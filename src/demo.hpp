@@ -78,6 +78,7 @@ public:
     void click(int, int, int, bool);
     void keybd(int, int, int, bool);
     void value(int, int, double);
+    void messg(const char *, char *);
     void timer(int);
 
     void prep(app::frustum_v&);

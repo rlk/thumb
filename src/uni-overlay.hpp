@@ -13,36 +13,42 @@
 #ifndef UNI_OVERLAY_HPP
 #define UNI_OVERLAY_HPP
 
-#include <vector>
-
-#include "socket.hpp"
-
 //-----------------------------------------------------------------------------
 
 namespace uni
 {
-    // TODO: Remove duplication with app-host.hpp
-
-    typedef std::vector<SOCKET>           SOCKET_v;
-    typedef std::vector<SOCKET>::iterator SOCKET_i;
-
     class overlay
     {
-        SOCKET   listen_sd;
-        SOCKET_v client_sd;
+        // Overlay control messages
 
-        void init_listen(int);
-        void poll_listen();
-        void fini_listen();
+        void m_moveto(const char *, char *);
+        void m_lookup(const char *, char *);
+        void m_get_position(const char *, char *);
 
-        void step_client(SOCKET_i);
-        void poll_client();
-        void fini_client();
+        void m_model_create  (const char *, char *);
+        void m_model_delete  (const char *, char *);
+        void m_model_position(const char *, char *);
+        void m_model_rotation(const char *, char *);
+        void m_model_scale   (const char *, char *);
+
+        void m_image_create  (const char *, char *);
+        void m_image_delete  (const char *, char *);
+        void m_image_position(const char *, char *);
+        void m_image_rotation(const char *, char *);
+        void m_image_scale   (const char *, char *);
+
+        void m_capture_color (const char *, char *);
+        void m_capture_radius(const char *, char *);
+
+        void m_data_hide(const char *, char *);
+        void m_data_show(const char *, char *);
 
     public:
 
-        overlay(int);
+        overlay();
        ~overlay();
+
+        void script(const char *, char *);
 
         void step();
 

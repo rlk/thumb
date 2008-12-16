@@ -16,157 +16,112 @@
 #include "uni-overlay.hpp"
 #include "util.hpp"
 
+#define MAXSTR 256
+
 //-----------------------------------------------------------------------------
 
-void uni::overlay::init_listen(int port)
+void uni::overlay::m_moveto(const char *ibuf, char *obuf)
 {
-    socklen_t  addresslen = sizeof (sockaddr_t);
-    sockaddr_t address;
+    float lat;
+    float lon;
 
-    address.sin_family      = AF_INET;
-    address.sin_port        = htons(port);
-    address.sin_addr.s_addr = INADDR_ANY;
-
-    // Create a socket, set no-delay, bind the port, and listen.
-
-    if ((listen_sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
-        throw std::runtime_error(strerror(sock_errno));
-        
-    nodelay(listen_sd);
-
-    while (bind(listen_sd, (struct sockaddr *) &address, addresslen) < 0)
-        if (sock_errno == EINVAL)
-        {
-            std::cerr << "Waiting for port expiration" << std::endl;
-            usleep(250000);
-        }
-        else throw std::runtime_error(strerror(sock_errno));
-
-    listen(listen_sd, 16);
+    if (sscanf(ibuf, "%f %f\n", &lat, &lon) == 2)
+        printf("moveto(%f, %f)\n", lat, lon);
 }
 
-void uni::overlay::poll_listen()
+void uni::overlay::m_lookup(const char *ibuf, char *obuf)
 {
-    if (listen_sd != INVALID_SOCKET)
+    float x;
+    float y;
+
+    if (sscanf(ibuf, "%f %f\n", &x, &y) == 2)
     {
-        struct timeval tv = { 0, 0 };
+        printf("lookup(%f, %f)\n", x, y);
 
-        fd_set sd;
-        
-        FD_ZERO(&sd);
-        FD_SET(listen_sd, &sd);
-
-        // Check for an incomming client connection.
-
-        if (int n = select(listen_sd + 1, &sd, NULL, NULL, &tv))
-        {
-            if (n < 0)
-            {
-                if (sock_errno != EINTR)
-                    throw std::runtime_error(strerror(sock_errno));
-            }
-            else
-            {
-                // Accept the connection.
-
-                if (int sd = accept(listen_sd, 0, 0))
-                {
-                    if (sd < 0)
-                        throw std::runtime_error(strerror(sock_errno));
-                    else
-                    {
-                        nodelay(sd);
-                        client_sd.push_back(sd);
-                    }
-                }
-            }
-        }
+        sprintf(obuf, "%f %f\n", 0.0f, 0.0f);
     }
 }
 
-void uni::overlay::fini_listen()
+void uni::overlay::m_get_position(const char *ibuf, char *obuf)
 {
-    if (listen_sd != INVALID_SOCKET)
-        ::close(listen_sd);
-
-    listen_sd = INVALID_SOCKET;
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::overlay::step_client(SOCKET_i i)
+void uni::overlay::m_model_create(const char *ibuf, char *obuf)
+{
+    char filename[MAXSTR];
+
+    if (sscanf(ibuf, "%s", filename) == 1)
+        printf("model create %s\n", filename);
+}
+
+void uni::overlay::m_model_delete(const char *ibuf, char *obuf)
 {
 }
 
-void uni::overlay::poll_client()
+void uni::overlay::m_model_position(const char *ibuf, char *obuf)
 {
-    fd_set fds;
-    int m = 0;
-
-    // Initialize the socket descriptor set with all connected sockets.
-
-    FD_ZERO(&fds);
-
-    for (SOCKET_i i = client_sd.begin(); i != client_sd.end(); ++i)
-    {
-        if (*i != INVALID_SOCKET)
-            FD_SET(*i, &fds);
-        m = MAX(m, *i);
-    }
-
-    // Check for activity on all sockets.
-
-    if (int n = select(m + 1, &sd, NULL, NULL, &tv))
-    {
-        if (n < 0)
-        {
-            if (sock_errno != EINTR)
-                throw std::runtime_error(strerror(sock_errno));
-        }
-        else
-        {
-            for (SOCKET_i i = client_sd.begin(); i != client_sd.end(); ++i)
-                if (*i != INVALID_SOCKET && FD_ISSET(*i, &fds))
-                    recv_client(*i);
-        }
-    }
 }
 
-void uni::overlay::fini_client()
+void uni::overlay::m_model_rotation(const char *ibuf, char *obuf)
 {
-    for (SOCKET_i i = client_sd.begin(); i != client_sd.end(); ++i)
-    {
-        char c;
+}
 
-        // Wait for EOF (orderly shutdown by the remote).
+void uni::overlay::m_model_scale(const char *ibuf, char *obuf)
+{
+}
 
-        while (::recv(*i, &c, 1, 0) > 0)
-            ;
+//-----------------------------------------------------------------------------
 
-        // Close the socket.
+void uni::overlay::script(const char *ibuf, char *obuf)
+{
+    char key[MAXSTR];
+    const char *val;
 
-        ::close(*i);
-    }
+    sscanf(ibuf, "%s\n", key);
+    val = ibuf + strlen(key);
+
+    // Dispatch the message to the proper handler function.
+
+    if      (!strcmp(key, "lookup"))         m_lookup(val, obuf);
+    else if (!strcmp(key, "moveto"))         m_moveto(val, obuf);
+    else if (!strcmp(key, "get_position"))   m_get_position(val, obuf);
+
+    else if (!strcmp(key, "model_create"))   m_model_create  (val, obuf);
+    else if (!strcmp(key, "model_delete"))   m_model_delete  (val, obuf);
+    else if (!strcmp(key, "model_position")) m_model_position(val, obuf);
+    else if (!strcmp(key, "model_rotation")) m_model_rotation(val, obuf);
+    else if (!strcmp(key, "model_scale"))    m_model_scale   (val, obuf);
+/*
+    else if (!strcmp(key, "image_create"))   m_image_create  (val, obuf);
+    else if (!strcmp(key, "image_delete"))   m_image_delete  (val, obuf);
+    else if (!strcmp(key, "image_position")) m_image_position(val, obuf);
+    else if (!strcmp(key, "image_rotation")) m_image_rotation(val, obuf);
+    else if (!strcmp(key, "image_scale"))    m_image_scale   (val, obuf);
+
+    else if (!strcmp(key, "capture_color"))  m_capture_color (val, obuf);
+    else if (!strcmp(key, "capture_radius")) m_capture_radius(val, obuf);
+
+    else if (!strcmp(key, "data_hide"))      m_data_hide(val, obuf);
+    else if (!strcmp(key, "data_show"))      m_data_show(val, obuf);
+*/
 }
 
 //-----------------------------------------------------------------------------
 
 void uni::overlay::step()
 {
-    poll_listen();
-    poll_client();
 }
 
 //-----------------------------------------------------------------------------
 
-uni::overlay::overlay(int port)
+uni::overlay::overlay()
 {
-    init_listen(port);
 }
 
 uni::overlay::~overlay()
 {
-    fini_listen();
 }
 
 //-----------------------------------------------------------------------------

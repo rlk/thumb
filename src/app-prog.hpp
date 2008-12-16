@@ -37,6 +37,7 @@ namespace app
         virtual void click(int, int, int, bool)                 { }
         virtual void keybd(int, int, int, bool);
         virtual void value(int, int, double)                    { }
+        virtual void messg(const char *, char *)                { }
         virtual void timer(int)                                 { }
         
         virtual void prep(app::frustum_v&) { }

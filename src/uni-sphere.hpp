@@ -135,6 +135,8 @@ namespace uni
 
         // State queries.
 
+        void script(const char *i, char *o) { if (over) over->script(i, o); }
+
         double distance() const { return dist;       }
         double altitude() const { return dist - r0;  }
         int    maxcount() const { return int(count); }
