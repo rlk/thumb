@@ -29,6 +29,7 @@ typedef int socklen_t;
 
 #define sock_errno errno
 
+#include <errno.h>
 #include <stddef.h>
 #include <unistd.h>
 #include <sys/types.h>

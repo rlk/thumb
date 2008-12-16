@@ -9,7 +9,7 @@ CFLAGS= -g -Wall
 
 CC= g++
 
-TARG= ../thumb
+TARG= thumb
 OBJS=   util.o \
 	dir.o \
 	ode.o \
@@ -134,16 +134,19 @@ endif
 	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $<
 #	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $< > /dev/null
 
-%.o : %.cpp Makefile
+%.o : %.cpp #Makefile
 	$(CC) $(CFLAGS) $(INCDIR) -c $<
 
 #------------------------------------------------------------------------------
 
-$(TARG) : $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
+../$(TARG) : $(OBJS)
+	$(CC) $(CFLAGS) -o ../$(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :
 	$(RM) $(OBJS) $(DEPS) "$(TARG)"
+
+test : ../$(TARG)
+	(cd ..; ./$(TARG))
 
 #------------------------------------------------------------------------------
 

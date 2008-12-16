@@ -44,15 +44,6 @@ static unsigned long lookup(const char *hostname)
     return A.s_addr;
 }
 
-static void nodelay(int sd)
-{
-    socklen_t len = sizeof (int);
-    int       val = 1;
-        
-    if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *) &val, len) < 0)
-        throw std::runtime_error(strerror(sock_errno));
-}
-
 //-----------------------------------------------------------------------------
 
 void app::host::fork_client(const char *name, const char *addr)

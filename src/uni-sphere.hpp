@@ -22,6 +22,7 @@
 #include "uni-geocsh.hpp"
 #include "uni-geomap.hpp"
 #include "uni-spatch.hpp"
+#include "uni-overlay.hpp"
 #include "ogl-pool.hpp"
 
 //-----------------------------------------------------------------------------

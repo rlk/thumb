@@ -63,6 +63,8 @@ typedef std::set   <std::string> str_set;
 float ntohf(float);
 int   ntohi(int);
 
+void nodelay(int);
+
 int next_power_of_2(int);
 
 //-----------------------------------------------------------------------------

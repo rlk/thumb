@@ -12,6 +12,7 @@
 
 #include <sstream>
 #include <iomanip>
+#include <stdexcept>
 
 #include "util.hpp"
 
@@ -41,6 +42,17 @@ int ntohi(int src)
     *d = ntohl(*s);
 
     return dst;
+}
+
+//-----------------------------------------------------------------------------
+
+void nodelay(int sd)
+{
+    socklen_t len = sizeof (int);
+    int       val = 1;
+        
+    if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *) &val, len) < 0)
+        throw std::runtime_error(strerror(sock_errno));
 }
 
 //-----------------------------------------------------------------------------

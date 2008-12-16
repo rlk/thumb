@@ -19,7 +19,6 @@
 #include "ogl-opengl.hpp"
 #include "matrix.hpp"
 #include "uni-sphere.hpp"
-#include "uni-overlay.hpp"
 #include "app-glob.hpp"
 #include "app-prog.hpp"
 #include "app-user.hpp"
@@ -120,7 +119,7 @@ uni::sphere::sphere(uni::geodat& dat,
 
     // Initialize overlay rendering.
 
-    if (olay)
+    if (over_p)
     {
         int port = conf->get_i("overlay_port");
         over = new overlay(port ? port : DEFAULT_OVERLAY_PORT);
@@ -360,6 +359,8 @@ bool uni::sphere::test(const double *n0,
 
 void uni::sphere::step(int serial)
 {
+    if (over) over->step();
+
     count = 0;
 
     if (visible)

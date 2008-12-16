@@ -13,16 +13,41 @@
 #ifndef UNI_OVERLAY_HPP
 #define UNI_OVERLAY_HPP
 
+#include <vector>
+
+#include "socket.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace uni
 {
+    // TODO: Remove duplication with app-host.hpp
+
+    typedef std::vector<SOCKET>           SOCKET_v;
+    typedef std::vector<SOCKET>::iterator SOCKET_i;
+
     class overlay
     {
+        SOCKET   listen_sd;
+        SOCKET_v client_sd;
+
+        void init_listen(int);
+        void poll_listen();
+        void fini_listen();
+
+        void step_client(SOCKET_i);
+        void poll_client();
+        void fini_client();
+
     public:
 
         overlay(int);
        ~overlay();
+
+        void step();
+
+        void draw_images();
+        void draw_models();
     };
 }
 
