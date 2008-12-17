@@ -129,7 +129,7 @@ void uni::overlay::m_get_position(const char *ibuf, char *obuf)
 
 void uni::overlay::m_model_create(const char *ibuf, char *obuf)
 {
-    int  index = -1;
+    int  index = 0;
     char filename[MAXSTR];
 
     if (sscanf(ibuf, "%s", filename) == 1)
@@ -138,7 +138,7 @@ void uni::overlay::m_model_create(const char *ibuf, char *obuf)
 
         // Find an unused model index.
 
-        index = 0;
+        index = 1;
 
         while (models.find(index) != models.end())
             index++;
@@ -149,17 +149,17 @@ void uni::overlay::m_model_create(const char *ibuf, char *obuf)
 
         try
         {
-            m = new_model(filename);
+            m = new model(filename);
         }
         catch (app::find_error& e)
         {
-            index = -1;
+            index = 0;
         }
 
         if (m)
         {
-            models[index] = new model(filename);
-            node->add_unit(models[index]->get_unit());
+            models[index] = m;
+            node->add_unit(m->get_unit());
         }
     }
 
@@ -197,14 +197,14 @@ void uni::overlay::m_model_position(const char *ibuf, char *obuf)
     float rad;
     char  coord[256];
 
-    if (sscanf(ibuf, "%d %f %f %f %s", &index, &lat, &lon, &rad, coord) == 5)
+    if (sscanf(ibuf, "%d %s %f %f %f", &index, coord, &lat, &lon, &rad) == 5)
     {
         if (models.find(index) != models.end())
         {
             models[index]->position(lat, lon, rad);
 
-            printf("model position(%d, %f, %f, %f, %s)\n",
-                   index, lat, lon, rad, coord);
+            printf("model position(%d, %s, %f, %f, %f)\n",
+                   index, coord, lat, lon, rad);
             state = 1;
         }
     }
@@ -288,13 +288,12 @@ void uni::overlay::m_image_position(const char *ibuf, char *obuf)
     int   index;
     float lat;
     float lon;
-    float rad;
     char  coord[256];
 
-    if (sscanf(ibuf, "%d %s %f %f %f", &index, coord, &lat, &lon, &rad) == 5)
+    if (sscanf(ibuf, "%d %s %f %f", &index, coord, &lat, &lon) == 4)
     {
-        printf("image position(%d, %s, %f, %f, %f)\n",
-               index, coord, lat, lon, rad);
+        printf("image position(%d, %s, %f, %f)\n",
+               index, coord, lat, lon);
         state = 1;
     }
 
@@ -349,7 +348,13 @@ void uni::overlay::m_capture_color(const char *ibuf, char *obuf)
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", 1);
+    if (obuf)
+    {
+        if (state)
+            sprintf(obuf, "color.png\n");
+        else
+            sprintf(obuf, "0\n");
+    }
 }
 
 void uni::overlay::m_capture_radius(const char *ibuf, char *obuf)
@@ -368,7 +373,13 @@ void uni::overlay::m_capture_radius(const char *ibuf, char *obuf)
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", 1);
+    if (obuf)
+    {
+        if (state)
+            sprintf(obuf, "radius.png\n");
+        else
+            sprintf(obuf, "0\n");
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -437,7 +448,7 @@ void uni::overlay::script(const char *ibuf, char *obuf)
     else if (!strcmp(key, "data_hide"))      m_data_hide(val, obuf);
     else if (!strcmp(key, "data_show"))      m_data_show(val, obuf);
 
-    else if (obuf) sprintf(obuf, "unrecognized keyword '%s'\n", key);
+    else if (obuf) sprintf(obuf, "0\n");
 }
 
 //-----------------------------------------------------------------------------
