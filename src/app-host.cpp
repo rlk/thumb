@@ -767,7 +767,7 @@ void app::host::point(int i, const double *p, const double *q)
 
     // Let the application have the click event.
 
-    else ::prog->point(i, p, q);
+    ::prog->point(i, p, q);
 }
 
 void app::host::click(int i, int b, int m, bool d)

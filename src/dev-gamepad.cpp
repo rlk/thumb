@@ -35,6 +35,8 @@ dev::gamepad::gamepad(uni::universe& universe) :
     gamepad_butn_F = conf->get_i("gamepad_butn_F");
     gamepad_butn_B = conf->get_i("gamepad_butn_B");
 
+    gamepad_butn_H = conf->get_i("gamepad_butn_H");
+
     view_move_rate = conf->get_f("view_move_rate");
     view_turn_rate = conf->get_f("view_turn_rate");
 
@@ -67,6 +69,8 @@ bool dev::gamepad::click(int i, int b, int m, bool d)
     else if (b == gamepad_butn_U) { motion[1] += dd; return true; }
     else if (b == gamepad_butn_F) { motion[2] -= dd; return true; }
     else if (b == gamepad_butn_B) { motion[2] += dd; return true; }
+
+    else if (b == gamepad_butn_H) { ::user->home(); return true; }
 
     return false;
 }

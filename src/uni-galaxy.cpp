@@ -66,7 +66,7 @@ void uni::node::draw() const
 
 //=============================================================================
 
-uni::galaxy::galaxy(const char *filename) : magnitude(75.0f)
+uni::galaxy::galaxy(const char *filename) : magnitude(150.0f)
 {
     int N_num = 0;
     int S_num = 0;

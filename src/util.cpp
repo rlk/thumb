@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <sstream>
+#include <cstring>
 #include <iomanip>
 #include <stdexcept>
 

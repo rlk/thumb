@@ -4,6 +4,7 @@ CFLAGS= -g -Wall
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
+#CFLAGS= -O2 -fno-rtti -Wall -DNDEBUG
 
 #------------------------------------------------------------------------------
 

@@ -38,6 +38,7 @@ namespace dev
         int gamepad_butn_U;
         int gamepad_butn_F;
         int gamepad_butn_B;
+        int gamepad_butn_H;
 
         double view_move_rate;
         double view_turn_rate;

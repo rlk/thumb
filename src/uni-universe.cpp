@@ -94,7 +94,7 @@ uni::universe::universe() : G(0), Z(0), serial(0), time(0)
 
     S[0] = new sphere(*D, *R, Ecolor, Enormal, Eheight,
                       caches, Er0, Er1, patch_cache, true, false);
-    S[0]->move(0.0, 0.0, -2.0 * Er0);
+    S[0]->move(-Mo, 0.0, -2.0 * Er0);
 
     N = 1;
 
@@ -102,7 +102,7 @@ uni::universe::universe() : G(0), Z(0), serial(0), time(0)
 
     S[1] = M = new sphere(*D, *R, Mcolor, Mnormal, Mheight,
                           caches, Mr0, Mr1, patch_cache, false, true);
-    S[1]->move(Mo, 0.0, -2.0 * Er0);
+    S[1]->move(0.0, 0.0, -2.0 * Er0);
     S[1]->turn(90.0, 0.0);
 
     N = 2;
