@@ -277,6 +277,7 @@ void uni::sphere::transform(app::frustum_v& frusta)
     // Apply the transform to the atmosphere.
 
     if (atmo_node) atmo_node->transform(M);
+    if (over)           over->transform(M);
 }
 
 //-----------------------------------------------------------------------------
@@ -319,6 +320,8 @@ void uni::sphere::view(app::frustum_v& frusta)
             atmo_pool->prep();
             atmo_pool->view(1, 0, 0);
         }
+
+        if (over) over->prep();
     }
 }
 
@@ -356,8 +359,6 @@ bool uni::sphere::test(const double *n0,
 
 void uni::sphere::step(int serial)
 {
-    if (over) over->step();
-
     count = 0;
 
     if (visible)
@@ -771,6 +772,10 @@ void uni::sphere::draw(int i)
             }
             glPopClientAttrib();
         }
+
+        // Draw the overlay models.
+
+        if (over) over->draw_models();
 
         // Draw the atmosphere.
 

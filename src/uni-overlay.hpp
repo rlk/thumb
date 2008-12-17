@@ -13,6 +13,10 @@
 #ifndef UNI_OVERLAY_HPP
 #define UNI_OVERLAY_HPP
 
+#include <map>
+
+#include "ogl-pool.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace uni
@@ -43,6 +47,39 @@ namespace uni
         void m_data_hide(const char *, char *);
         void m_data_show(const char *, char *);
 
+        // Model overlay
+
+        class model
+        {
+            ogl::unit *unit;
+
+            float lat;
+            float lon;
+            float rad;
+            float rot;
+            float scl;
+
+            void apply();
+
+        public:
+
+            model(const char *);
+           ~model();
+
+            void position(float, float, float);
+            void rotation(float);
+            void scale   (float);
+
+            ogl::unit *get_unit() { return unit; }
+        };
+
+        typedef model *model_p;
+
+        std::map<int, model_p> models;
+
+        ogl::pool *pool;
+        ogl::node *node;
+
     public:
 
         overlay();
@@ -50,7 +87,9 @@ namespace uni
 
         void script(const char *, char *);
 
-        void step();
+        void transform(const double *M) { node->transform(M); }
+
+        void prep();
 
         void draw_images();
         void draw_models();

@@ -433,7 +433,8 @@ void ogl::node::draw(int id, bool color, bool alpha)
 {
     // Proceed if this node passed visibility test ID.
 
-    if (get_bit(test_cache, id))
+// HACK
+//  if (get_bit(test_cache, id))
     {
         // Select the batch vector.  Confirm that it is non-empty.
 
