@@ -145,14 +145,21 @@ void uni::overlay::m_model_create(const char *ibuf, char *obuf)
 
         // Create a new model.
 
+        model_p m = 0;
+
         try
         {
-            models[index] = new model(filename);
-            node->add_unit(models[index]->get_unit());
+            m = new_model(filename);
         }
         catch (app::find_error& e)
         {
             index = -1;
+        }
+
+        if (m)
+        {
+            models[index] = new model(filename);
+            node->add_unit(models[index]->get_unit());
         }
     }
 
