@@ -23,29 +23,40 @@
 
 void uni::overlay::m_moveto(const char *ibuf, char *obuf)
 {
+    int   state = 0;
     float lat;
     float lon;
+    float rad;
 
-    if (sscanf(ibuf, "%f %f\n", &lat, &lon) == 2)
-        printf("moveto(%f, %f)\n", lat, lon);
+    if (sscanf(ibuf, "%f %f %f\n", &lat, &lon, &rad) == 3)
+    {
+        printf("moveto(%f, %f, %f)\n", lat, lon, rad);
+        state = 1;
+    }
+
+    if (obuf) sprintf(obuf, "%d\n", state);
 }
 
 void uni::overlay::m_lookup(const char *ibuf, char *obuf)
 {
+    int   state = 0;
     float x;
     float y;
 
     if (sscanf(ibuf, "%f %f\n", &x, &y) == 2)
     {
         printf("lookup(%f, %f)\n", x, y);
-
-        if (obuf)
-            sprintf(obuf, "%f %f\n", 0.0f, 0.0f);
+        state = 1;
     }
+
+    if (obuf) sprintf(obuf, "%d\n", state);
 }
 
 void uni::overlay::m_get_position(const char *ibuf, char *obuf)
 {
+    printf("get position\n");
+
+    if (obuf) sprintf(obuf, "%f %f %f\n", 0.0f, 0.0f, 0.0f);
 }
 
 //-----------------------------------------------------------------------------
