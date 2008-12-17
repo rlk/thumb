@@ -167,6 +167,7 @@ void app::host::poll_listen()
                     {
                         nodelay(sd);
                         script_sd.push_back(sd);
+                        printf("script socket connected\n");
                     }
                 }
             }
@@ -227,17 +228,20 @@ void app::host::poll_script()
 
                     ssize_t sz;
 
-                    memset(ibuf, 256, 0);
-                    memset(obuf, 256, 0);
+                    memset(ibuf, 0, 256);
+                    memset(obuf, 0, 256);
 
                     if ((sz = ::recv(*i, ibuf, 256, 0)) <= 0)
                     {
+                        printf("script socket disconnected\n");
                         ::close(*i);
                         script_sd.erase(i);
                     }
                     else
                     {
                         // Process the command and return any result.
+
+                        printf("script socket received [%s]\n", ibuf);
 
                         messg(ibuf, obuf);
                         sz = strlen(obuf);
