@@ -17,14 +17,14 @@
 
 uni::atmo::atmo(double r0, double r1) : r0(r0), r1(r1),
 
-    atmo_in (glob->load_program("glsl/SkyFromAtmosphere.vert",
-                                "glsl/SkyFromAtmosphere.frag")),
-    atmo_out(glob->load_program("glsl/SkyFromSpace.vert",
-                                "glsl/SkyFromSpace.frag")),
-    land_in (glob->load_program("glsl/GroundFromAtmosphere.vert",
-                                "glsl/GroundFromAtmosphere.frag")),
-    land_out(glob->load_program("glsl/GroundFromSpace.vert",
-                                "glsl/GroundFromSpace.frag"))
+    atmo_in (glob->load_program("glsl/uni/SkyFromAtmosphere.vert",
+                                "glsl/uni/SkyFromAtmosphere.frag")),
+    atmo_out(glob->load_program("glsl/uni/SkyFromSpace.vert",
+                                "glsl/uni/SkyFromSpace.frag")),
+    land_in (glob->load_program("glsl/uni/GroundFromAtmosphere.vert",
+                                "glsl/uni/GroundFromAtmosphere.frag")),
+    land_out(glob->load_program("glsl/uni/GroundFromSpace.vert",
+                                "glsl/uni/GroundFromSpace.frag"))
 {
     pool = glob->new_pool();
     node = new ogl::node();

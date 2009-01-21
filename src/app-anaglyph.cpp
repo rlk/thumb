@@ -109,8 +109,8 @@ void app::anaglyph::prep(view_v& views, frustum_v& frusta)
 
     // Ensure the draw shader is initialized.
 
-    if (P == 0 && (P = ::glob->load_program("glsl/anaglyph.vert",
-                                            "glsl/anaglyph.frag")))
+    if (P == 0 && (P = ::glob->load_program("glsl/dsp/anaglyph.vert",
+                                            "glsl/dsp/anaglyph.frag")))
     {
         P->bind();
         {

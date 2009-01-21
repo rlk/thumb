@@ -9,6 +9,6 @@
      E=" 3.14159265358979323846"
      S="-1.57079632679489661923"
      N=" 1.57079632679489661923"
-     vert="glsl/drawnrm.vert"
-     frag="glsl/drawnrm.frag"
+     vert="glsl/uni/drawnrm.vert"
+     frag="glsl/uni/drawnrm.frag"
      />

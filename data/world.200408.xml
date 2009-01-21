@@ -9,6 +9,6 @@
      E=" 3.14159265358979323846"
      S="-1.57079632679489661923"
      N=" 1.57079632679489661923"
-     vert="glsl/drawdif.vert"
-     frag="glsl/drawdif.frag"
+     vert="glsl/uni/drawdif.vert"
+     frag="glsl/uni/drawdif.frag"
      />

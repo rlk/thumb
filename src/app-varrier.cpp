@@ -160,8 +160,9 @@ void app::varrier::prep(view_v& views, frustum_v& frusta)
 
     // Ensure the draw shader is initialized.
 
-    if (P == 0 && (P = ::glob->load_program("glsl/combiner.vert",
-                                            "glsl/combiner.frag")))
+    if ((P == 0) &&
+        (P = ::glob->load_program("glsl/dsp/combiner.vert",
+                                  "glsl/dsp/combiner.frag")))
     {
         P->bind();
         {

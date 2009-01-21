@@ -694,10 +694,10 @@ void uni::geogen::uniform(std::string name, const double *M, bool t)
 
 uni::geonrm::geonrm(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "glsl/trivial.vert",
-                      "glsl/copybuf.frag",
-                      "glsl/calcnrm.frag",
-                      "glsl/shownrm.frag")
+    uni::geogen(d, h, "glsl/uni/trivial.vert",
+                      "glsl/uni/copybuf.frag",
+                      "glsl/uni/calcnrm.frag",
+                      "glsl/uni/shownrm.frag")
 {
 }
 
@@ -705,10 +705,10 @@ uni::geonrm::geonrm(GLsizei d, GLsizei h) :
 
 uni::geopos::geopos(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "glsl/trivial.vert",
-                      "glsl/copybuf.frag",
-                      "glsl/calcpos.frag",
-                      "glsl/showpos.frag")
+    uni::geogen(d, h, "glsl/uni/trivial.vert",
+                      "glsl/uni/copybuf.frag",
+                      "glsl/uni/calcpos.frag",
+                      "glsl/uni/showpos.frag")
 {
     calc->bind();
     {
@@ -785,10 +785,10 @@ void uni::geopos::fini(GLsizei c)
 
 uni::geotex::geotex(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "glsl/trivial.vert",
-                      "glsl/copybuf.frag",
-                      "glsl/calctex.frag",
-                      "glsl/showtex.frag")
+    uni::geogen(d, h, "glsl/uni/trivial.vert",
+                      "glsl/uni/copybuf.frag",
+                      "glsl/uni/calctex.frag",
+                      "glsl/uni/showtex.frag")
 {
     calc->bind();
     {
@@ -801,10 +801,10 @@ uni::geotex::geotex(GLsizei d, GLsizei h) :
 
 uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 
-    uni::geobuf(vtx_count(d), h, "glsl/trivial.vert",
-                                 "glsl/copyacc.frag",
-                                 "glsl/calcacc.frag",
-                                 "glsl/showpos.frag")
+    uni::geobuf(vtx_count(d), h, "glsl/uni/trivial.vert",
+                                 "glsl/uni/copyacc.frag",
+                                 "glsl/uni/calcacc.frag",
+                                 "glsl/uni/showpos.frag")
 {
     copy->bind();
     {
@@ -846,10 +846,10 @@ void uni::geoacc::init(GLsizei c, double sea, const double *ori)
 
 uni::geoext::geoext(GLsizei d, GLsizei h) :
 
-    uni::geobuf(vtx_count(d), h, "glsl/trivial.vert",
-                                 "glsl/copyext.frag",
-                                 "glsl/calcext.frag",
-                                 "glsl/showpos.frag"),
+    uni::geobuf(vtx_count(d), h, "glsl/uni/trivial.vert",
+                                 "glsl/uni/copyext.frag",
+                                 "glsl/uni/calcext.frag",
+                                 "glsl/uni/showpos.frag"),
 
     buff(GL_PIXEL_PACK_BUFFER_ARB, 4 * sizeof (GLfloat))
 {

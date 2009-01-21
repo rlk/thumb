@@ -6,38 +6,38 @@
     </option>
   </file>
 
-  <file name="glsl/GroundFromSpace.frag">
+  <file name="glsl/uni/GroundFromSpace.frag">
     <option type="int" name="relief" value="1">
-      glsl/ReliefFromSpace.frag
+      glsl/uni/ReliefFromSpace.frag
     </option>
   </file>
-  <file name="glsl/GroundFromAtmosphere.frag">
+  <file name="glsl/uni/GroundFromAtmosphere.frag">
     <option type="int" name="relief" value="1">
-      glsl/ReliefFromAtmosphere.frag
+      glsl/uni/ReliefFromAtmosphere.frag
     </option>
   </file>
 
-  <file name="glsl/drawdif.frag">
+  <file name="glsl/uni/drawdif.frag">
     <option type="string" name="mipmap" value="linear">
-      glsl/drawdif-best.frag
+      glsl/uni/drawdif-best.frag
     </option>
     <option type="string" name="mipmap" value="nearest">
-      glsl/drawdif-best.frag
+      glsl/uni/drawdif-best.frag
     </option>
     <option type="string" name="mipmap" value="best">
-      glsl/drawdif-best.frag
+      glsl/uni/drawdif-best.frag
     </option>
   </file>
 
-  <file name="glsl/drawnrm.frag">
+  <file name="glsl/uni/drawnrm.frag">
     <option type="string" name="mipmap" value="linear">
-      glsl/drawnrm.frag
+      glsl/uni/drawnrm.frag
     </option>
     <option type="string" name="mipmap" value="nearest">
-      glsl/drawnrm-nearest.frag
+      glsl/uni/drawnrm-nearest.frag
     </option>
     <option type="string" name="mipmap" value="best">
-      glsl/drawnrm-best.frag
+      glsl/uni/drawnrm-best.frag
     </option>
   </file>
 </data>

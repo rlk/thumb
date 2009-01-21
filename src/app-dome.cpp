@@ -127,8 +127,9 @@ void app::dome::prep(view_v& views, frustum_v& frusta)
 
     // Ensure the shaders are initialized.
 
-    if (draw_P == 0 && (draw_P = ::glob->load_program("glsl/dome-draw.vert",
-                                                      "glsl/dome-draw.frag")))
+    if ((draw_P == 0) &&
+        (draw_P = ::glob->load_program("glsl/dsp/dome-draw.vert",
+                                       "glsl/dsp/dome-draw.frag")))
     {
         draw_P->bind();
         {
@@ -136,8 +137,9 @@ void app::dome::prep(view_v& views, frustum_v& frusta)
         }
         draw_P->free();
     }
-    if (test_P == 0 && (test_P = ::glob->load_program("glsl/dome-test.vert",
-                                                      "glsl/dome-test.frag")))
+    if ((test_P == 0) &&
+        (test_P = ::glob->load_program("glsl/dsp/dome-test.vert",
+                                       "glsl/dsp/dome-test.frag")))
     {
         test_P->bind();
         {
