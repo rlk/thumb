@@ -27,6 +27,8 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
                                    double& p, double& y, double& r,
                                    double& H, double& V)
 {
+    // Assign defaults for any undefined parameters.
+
     P =  0.0;  // Position phi
     T =  0.0;  // Position theta
     R =  0.0;  // Position rho
@@ -36,7 +38,7 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
     H = 60.0;  // Horizontal field of view
     V = 45.0;  // Vertical   field of view
 
-    // Extract the calibration matrix from the serialization node.
+    // Extract the calibration from the serialization node.
 
     if (node)
     {
@@ -66,7 +68,7 @@ void app::frustum::set_calibration(double P, double T, double R,
                                    double p, double y, double r,
                                    double H, double V)
 {
-    // Update the calibration matrix in the serialization node.
+    // Update the calibration in the serialization node.
 
     if (node)
     {
@@ -94,6 +96,8 @@ void app::frustum::set_calibration(double P, double T, double R,
 
 void app::frustum::mat_calibration(double *M)
 {
+    // Convert the current calibration to a transformation matrix.
+
     double P, T, R, p, y, r, H, V;
 
     get_calibration(P, T, R, p, y, r, H, V);
@@ -140,14 +144,14 @@ void app::frustum::calc_corner_1(double *d, const double *a,
 
 void app::frustum::calc_calibrated()
 {
+    // Extract the frustum definition from the serialization node.
+
     bool b[4] = { false, false, false, false };
 
     double hfov = 60.000;
     double vfov = 45.000;
 
     double c[4][3];
-
-    // Extract the frustum definition from the serialization node.
 
     if (node)
     {

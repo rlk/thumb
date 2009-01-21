@@ -595,7 +595,8 @@ void uni::sphere::draw(int i)
 
     // TODO: calc_projection can move to whereever the bounds are first known.
 
-    frusta[i]->calc_projection(d0 / 2, d1);
+//  frusta[i]->calc_projection(d0 / 2, d1);
+    frusta[i]->calc_projection(d0 / 10.0, d1);
     frusta[i]->draw();
 
     glLoadIdentity();

@@ -19,17 +19,14 @@
 
 //-----------------------------------------------------------------------------
 
-// TODO: frustum should be able to evaluate LOD?
-//       or at least encapsulate view position (which it sorfof does)
-
 // TODO: technically not necessary to store user_points?
 
 namespace app
 {
     //-------------------------------------------------------------------------
 
-    // "user" denotes tracker coordinates.
-    // "viem" denotes world coordinates.
+    // USER denotes tracker coordinates. VIEW denotes world coordinates. Thus,
+    // VIEW_PLANES is a cache of the view-transformed USER_PLANES.
 
     class frustum
     {

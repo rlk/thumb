@@ -43,7 +43,8 @@ void main()
 //      gl_FragColor = vec4(P + normalize(N) * M, M);
 
 //      gl_FragColor = vec4(ori + N * (sea + M), M);
-        gl_FragColor = vec4(ori + N * (sea + M), a);
+//      gl_FragColor = vec4(ori + N * (sea + M), a);
+        gl_FragColor = vec4(ori + N * (sea), a);
     }
 }
 
