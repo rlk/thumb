@@ -161,8 +161,8 @@ void dpy::varrier::prep(app::view_v& views, app::frustum_v& frusta)
     // Ensure the draw shader is initialized.
 
     if ((P == 0) &&
-        (P = ::glob->load_program("glsl/dsp/combiner.vert",
-                                  "glsl/dsp/combiner.frag")))
+        (P = ::glob->load_program("glsl/dpy/combiner.vert",
+                                  "glsl/dpy/combiner.frag")))
     {
         P->bind();
         {

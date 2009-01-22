@@ -128,8 +128,8 @@ void dpy::dome::prep(app::view_v& views, app::frustum_v& frusta)
     // Ensure the shaders are initialized.
 
     if ((draw_P == 0) &&
-        (draw_P = ::glob->load_program("glsl/dsp/dome-draw.vert",
-                                       "glsl/dsp/dome-draw.frag")))
+        (draw_P = ::glob->load_program("glsl/dpy/dome-draw.vert",
+                                       "glsl/dpy/dome-draw.frag")))
     {
         draw_P->bind();
         {
@@ -138,8 +138,8 @@ void dpy::dome::prep(app::view_v& views, app::frustum_v& frusta)
         draw_P->free();
     }
     if ((test_P == 0) &&
-        (test_P = ::glob->load_program("glsl/dsp/dome-test.vert",
-                                       "glsl/dsp/dome-test.frag")))
+        (test_P = ::glob->load_program("glsl/dpy/dome-test.vert",
+                                       "glsl/dpy/dome-test.frag")))
     {
     }
 }
