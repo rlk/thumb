@@ -9,18 +9,15 @@ CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #------------------------------------------------------------------------------
 
 CC= g++
-
 TARG= thumb
 OBJS=   util.o \
 	dir.o \
 	ode.o \
 	obj.o \
 	matrix.o \
-	tracker.o \
 	ogl-lut.o \
 	ogl-aabb.o \
 	ogl-binding.o \
-	ogl-progset.o \
 	ogl-program.o \
 	ogl-texture.o \
 	ogl-surface.o \
@@ -79,6 +76,9 @@ OBJS=   util.o \
 	demo.o \
 	main.o
 
+#	ogl-progset.o \
+#	tracker.o \
+
 DEPS= $(OBJS:.o=.d)
 
 #------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ endif
 	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $<
 #	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $< > /dev/null
 
-%.o : %.cpp #Makefile
+%.o : %.cpp Makefile
 	$(CC) $(CFLAGS) $(INCDIR) -c $<
 
 #------------------------------------------------------------------------------

@@ -45,6 +45,8 @@ namespace dev
 
         std::vector<bool> button;
 
+        void translate();
+
     public:
 
         tracker(uni::universe&);

@@ -15,7 +15,6 @@
 
 #include "matrix.hpp"
 #include "ogl-opengl.hpp"
-#include "tracker.hpp"
 #include "wrl-solid.hpp"
 #include "mode-edit.hpp"
 #include "app-host.hpp"
@@ -211,40 +210,6 @@ void mode::edit::draw(const double *points)
 {
     world.draw(true, points);
     transform.draw();
-
-    if (tracker_status())
-    {
-        glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT |
-                     GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glPushMatrix();
-        {
-            glEnable(GL_BLEND);
-            glEnable(GL_LINE_SMOOTH);
-
-            glDisable(GL_TEXTURE_2D);
-            glDisable(GL_LIGHTING);
-
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glDepthMask(GL_FALSE);
-
-            glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
-
-            glLineWidth(2.0f);
-
-            glBegin(GL_LINES);
-            {
-                glVertex3f(point_p[0],
-                           point_p[1],
-                           point_p[2]);
-                glVertex3f(point_p[0] + point_v[0] * 100.0f,
-                           point_p[1] + point_v[1] * 100.0f,
-                           point_p[2] + point_v[2] * 100.0f);
-            }
-            glEnd();
-        }
-        glPopMatrix();
-        glPopAttrib();
-    }
 }
 
 //-----------------------------------------------------------------------------

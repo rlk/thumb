@@ -17,7 +17,6 @@
 
 #include "util.hpp"
 #include "matrix.hpp"
-#include "tracker.hpp"
 #include "ogl-opengl.hpp"
 #include "app-data.hpp"
 #include "app-conf.hpp"
@@ -535,26 +534,6 @@ void app::host::root_loop()
         // Check for script input events.
 
         poll_script();
-
-        // Dispatch tracker events.
-
-        if (tracker_status())
-        {
-            double p[3];
-            double q[3];
-            double v;
-            bool   b;
-
-            if (tracker_button(0, b)) click(0, 0, 0, b);
-            if (tracker_button(1, b)) click(0, 1, 0, b);
-            if (tracker_button(2, b)) click(0, 2, 0, b);
-
-            if (tracker_values(0, v)) value(0, 0, v);
-            if (tracker_values(1, v)) value(0, 1, v);
-
-            if (tracker_sensor(0, p, q)) point(0, p, q);
-            if (tracker_sensor(1, p, q)) point(1, p, q);
-        }
 
         if (bench == 0)  // Advance by JIFFYs until sim clock meets wall clock.
         {

@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef OGL_PROGSET_HPP
-#define OGL_PROGSET_HPP
+#ifndef UNI_PROGSET_HPP
+#define UNI_PROGSET_HPP
 
 #include "ogl-program.hpp"
 

@@ -232,7 +232,6 @@ dev::wiimote::wiimote(uni::universe& universe) :
 
 dev::wiimote::~wiimote()
 {
-
     int status;
 
     // Set the status of the tilt sensor thread.

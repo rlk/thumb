@@ -17,17 +17,16 @@
 #include <SDL.h>
 
 #include "main.hpp"
-#include "app-host.hpp"
 #include "util.hpp"
-#include "tracker.hpp"
-#include "ogl-opengl.hpp"
 #include "demo.hpp"
+#include "app-host.hpp"
 #include "app-data.hpp"
 #include "app-conf.hpp"
 #include "app-glob.hpp"
 #include "app-lang.hpp"
 #include "app-user.hpp"
 #include "app-perf.hpp"
+#include "ogl-opengl.hpp"
 
 //-----------------------------------------------------------------------------
 // Global application state.
@@ -199,22 +198,10 @@ static void init(std::string tag)
 
     if ((joy = SDL_JoystickOpen(conf->get_i("gamepad_device"))))
         SDL_JoystickEventState(SDL_ENABLE);
-
-    int tracker_key = conf->get_i("tracker_key");
-    int control_key = conf->get_i("control_key");
-
-    if (tracker_key == 0)
-        tracker_key = DEFAULT_TRACKER_KEY;
-    if (control_key == 0)
-        control_key = DEFAULT_CONTROL_KEY;
-
-    tracker_init(tracker_key, control_key);
 }
 
 static void fini()
 {
-    tracker_fini();
-
     if (joy) SDL_JoystickClose(joy);
 
     if (prog) delete prog;
