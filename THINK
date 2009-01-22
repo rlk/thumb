@@ -1,3 +1,73 @@
+Thumb features to consider
+
+    Move tracker usage out of host and into the timer method of a
+    tracker device.
+
+    Modify the data object to note the most recently used directory
+        auto-associates MTLs with OBJs
+        simplifies the glsl include mechanism
+
+    It's NOT completely reasonable to demand GFFX or GLSL
+
+    HDR
+        float16
+        AGC optional
+        Bloom optional
+        Be sure to allow for fallback
+
+    Adaptive terrain
+
+    New sky
+        clouds?
+            http://www.gamedev.net/community/forums/topic.asp?topic_id=86024
+        Should be efficient to render into a cubemap per frame
+
+    Take a serious look at state reloading
+
+    Replay
+        (this is crucial)
+        Performance testing and benchmarking
+
+    Particle systems
+        Clouds
+        Smoke
+        Puffs of dust at physical collision
+        Snow
+        Rain
+        Definitely based on point sprites
+            No fallback is strictly necessary
+        Possibly with normal maps
+        Possibly with physics interaction
+            Explosion debris
+        Possibly animated on smoothed vector field
+            Leaves
+
+    Grass
+        Coverage-map-based
+        Is grass just a form of particle?
+
+    Skinning
+        Automatic generation of ODE capsules to fit bones
+
+    Fur
+
+    Are there any opportunities for scissor-rectangle optimizations?
+
+    SSAO/SSDO
+        Depth unsharp mask is cheaper, with fewer artifacts
+            Not physically correct, but may be a nice visual effect
+        Would definitely add detail to shadowed areas
+        May require linear depth (float16)
+        (cliche/hacky?)
+
+    Vertex Array Object
+        easy fallback
+
+    If all rendering is confined to pool, then GL 1, 2, and 3 profiles
+    should be easy to implement.
+
+-------------------------------------------------------------------------------
+
 Passing the viewport in the vertices of the quad would eliminate the need to use frag_k frag_d
 
 smoothstep a quad in sphere coords
@@ -27,45 +97,10 @@ frustum object
 
     the code that computes the eye frustum of a dome segment could be the same that computes the light frustum of a split
 
-
 uses
     sphere->view
     patch->view
     pool->view
-
-
--------------------------------------------------------------------------------
-
-A proper water bouyancy model could be used for helium ballons!
-
-Normalize the cross products in patch_vector_test?
-
-
-
-
-simplify sphere draw to assume the FragCoord is accurate
-complete the event API rewrite
-implement culling within frustum
-
--------------------------------------------------------------------------------
-
-rotate y around global y axis
-rotate p around local  x axis
-rotate r around local  z axis
-
-translate r down global z axis
-rotate    p around global x axis
-rotate    t around global y axis
-
-or
-
-rotate r around global z axis
-rotate p around global x axis
-rotate y around local  y axis
-
-translate r down global z axis
-rotate    p around global x axis
-rotate    t around global y axis
 
 -------------------------------------------------------------------------------
 
@@ -103,208 +138,6 @@ disps
 
 -------------------------------------------------------------------------------
 
-view has
-    frustum
-    frame
-
-It's not necessary to have a frame per view-tile
-    per view is sufficient
-    thus the host owns the frames?
-
-view.draw
-        calls prog->draw
-        	passes frustum?              
-        returns frame
-
-tile.draw
-        mode.draw
-                passes frames
-                passes frusta?
-
-viewport object
-    takes a prog and supplies frag bias and offset
-
-OR just assume all rendering is done offscreen?
-    simplifies sphere draw
-
-mode::normal.draw
-    calls prog->draw with frustum
-    draws screen rect
-
-mode::varrier.draw
-    does left view setup
-    calls prog->draw with left view frustum
-    does right view setup
-    calls prog->draw with right view frustum
-    draws screen rect
-
-mode::dome.draw
-    extracts view-center frustum
-    call prog->draw with view-center frustum
-    draws screen rect
-
-
-the prep frusta are wrong for dome mode
-set_head sets the user frustum, not the projector frustum
-
-gl_FragCoord gives wrong values when rendering direct to screen
-
-
--------------------------------------------------------------------------------
-
-Host abstraction
-
-    host object
-        takes a name tag
-        loads XML config
-            defines the client/server status
-                if this host is a client, listen for a connection
-                if this host has clients, connect a socket to each
-
-    main loop
-        if this host is not a client
-            SDL event loop
-                submit each event to the host object
-                    forward the event to the prog
-                    send to all clients
-        else
-            select on the incoming socket
-                submit each event to this
-                    forwand the event to the prog
-                    send to all clients
-
-events
-    track(d, p, v)
-    stick(d, x, y)
-    point(x, y)
-    click(b, d)
-    keybd(k, d)
-    timer(dt)
-    paint()   wait for response... swap
-    close()   wait for response... exit
-
--------------------------------------------------------------------------------
-
 Cracking may be occuring because one interpolant is k while the other is k-1
 
-
-Bouncing between eyes and tiles screws with patch hierarchy coherence
-    nearly all leaves are invalidated when the tile changes
-
-define a plural frame buffer?
-    give an array of
-        view frustum planes
-        view point
-        frame area
-    frustum union planes
-
-for each patch
-    given the sphere area (normal and radius)
-    determine the eye area (x0 y0 x1 y1)
-    determine the frame area (x0 y0 x1 y1)
-    determine the pixel density (sphere area / frame area)
-
-    for each geomap
-        for each tile touching the sphere area
-            with at least the maximum pixel density
-            enqueue texture object and frame area
-
-    for each queued texture object
-        render all frame areas (or just the union of all frame areas?)
-
-
-send [sphere area, frame rect] pairs to the root of the geomap
-    let tiles accumulate rects
-draw the geomap
-
-(this could enable smart LOD blending)
-
-
 -------------------------------------------------------------------------------
-
-Rationalle: Don't count VRAM usage and buffer storage separately.
-    Just let the GL handle it.
-    The GL can reload its own internal buffers faster anyway
-    Don't keep buffers.  Delete after upload.  Reduces redundancy
-
-
-A file request is
-    a filename
-    a pointer to a tile
-    a pointer to a geomap?
-
-A file response is
-    a pixel buffer
-    a pointer to a tile
-
-* test and data request need to be combined...
-
-A tile is presented with a sphere area and screen area
-    if the sphere area overlaps with this tile's sphere area
-        if this tile is a leaf or its density is greater than requested
-            I'm it
-        if I'm not it send the areas to any/all children
-        if none of them are it
-            I'm it
-        if I'm it
-            push this tile on the draw stack
-            add the screen area to this tile's draw area
-
-A tile needs to draw itself
-    append self onto the geomap LRU queue
-
-    if state is ejected
-        acquire the geomap static queue mutex
-        enqueue the file request in the geomap static request queue
-        release the geomap static queue mutex
-        post the request queue semaphore
-        set state to waiting
-
-    if state is ready
-        bind the texture
-
-A tile is issued a texture object
-    store it
-    set state to ready
-
-A tile is ordered to eject
-    delete the texture object
-    set state to ejected
-
-geomap cycle responses
-    while response queue is not empty
-
-        while the geomap local texture quantity is too large
-           pop head of LRU tile queue
-           order LRU tile to eject
-           update the geomap local texture quantity
-
-        upload the texture
-        update the geomap texture quantity
-
-        issue the texture object to the tile
-
-geomap load thread
-    loop
-        wait on the request queue semaphore
-        acquire the geomap static request queue mutex
-        pop the request from the queue
-        release the geomap static request queue mutex
-
-        load the file
-
-        wait on the respond queue semaphore
-        acquire the geomap static respond queue mutex
-        move the file to the response queue buffer
-        release the geomap static respond queue mutex
-
-
-request queue semaphore indicates number of used requests
-respond queue semaphore indicates number of free load slots
-
-
-
-0   1300 650 512    0  0                   3  2
-1   650 650 512      0  0   0  1
-2   325 325 512      
-

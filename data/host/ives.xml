@@ -14,7 +14,7 @@
           <corner name="BR" x=" 1.0521" y=" 3.1354" z="-1.3614" />
           <corner name="TL" x="-1.0521" y=" 4.4531" z="-1.3614" />
         </frustum>
-        <disp type="varrier" pitch="266.67083" angle="-7.572" thick="0.016" shift="-0.00013" cycle="0.8125" />
+        <display type="varrier" pitch="266.67083" angle="-7.572" thick="0.016" shift="-0.00013" cycle="0.8125" />
       </tile>
     </node>
   </host>

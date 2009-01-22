@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "app-serial.hpp"
-#include "app-disp.hpp"
+#include "dpy-display.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -26,9 +26,9 @@ namespace app
     {
     private:
 
-        int    index;
-        disp_v display;
-        int    current;
+        int            index;
+        int            current;
+        dpy::display_v display;
 
     public:
 

@@ -10,41 +10,53 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef NORMAL_HPP
-#define NORMAL_HPP
+#ifndef DOME_HPP
+#define DOME_HPP
 
-#include "app-disp.hpp"
+#include "dpy-display.hpp"
 #include "ogl-program.hpp"
 
 //-----------------------------------------------------------------------------
 
-namespace app
+namespace dpy
 {
-    class normal : public disp
+    class dome : public display
     {
-        int      index;
-        frustum *frust;
+        int    index;
+        double radius;
+
+        app::frustum *proj_frust;
+        app::frustum *user_frust;
 
         int x;
         int y;
         int w;
         int h;
 
-        const ogl::program *P;
+        double tk[3];
+        double pk[3];
+        double zk[3];
+
+        const ogl::program *draw_P;
+        const ogl::program *test_P;
 
     public:
 
-        normal(app::node, app::node, const int *);
+        dome(app::node, app::node, const int *);
 
-        bool input_point(int, const double *, const double *);
-        bool input_click(int, int, int, bool);
-        bool input_keybd(int, int, int, bool);
+        // Calibration handlers.
+
+        virtual bool input_point(int, const double *, const double *);
+        virtual bool input_click(int, int, int, bool);
+        virtual bool input_keybd(int, int, int, bool);
+
+        // Rendering handlers.
 
         virtual bool pick(double *, double *, int, int);
-        virtual void prep(view_v&, frustum_v&);
-        virtual void draw(view_v&, int&, bool, bool);
+        virtual void prep(app::view_v&, app::frustum_v&);
+        virtual void draw(app::view_v&, int&, bool, bool);
 
-        virtual ~normal();
+        virtual ~dome();
     };
 }
 

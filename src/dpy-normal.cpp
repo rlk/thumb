@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "app-normal.hpp"
+#include "dpy-normal.hpp"
 #include "matrix.hpp"
 #include "app-glob.hpp"
 #include "app-user.hpp"
@@ -18,7 +18,7 @@
 
 //-----------------------------------------------------------------------------
 
-app::normal::normal(app::node tile,
+dpy::normal::normal(app::node tile,
                     app::node node, const int *window) : frust(0), P(0)
 {
     app::node curr;
@@ -30,12 +30,12 @@ app::normal::normal(app::node tile,
 
     // Check the display definition for a frustum.
 
-    if      ((curr = find(node, "frustum")))
+    if      ((curr = app::find(node, "frustum")))
         frust = new app::frustum(curr, w, h);
 
     // If none, check the tile definition for one.
 
-    else if ((curr = find(tile, "frustum")))
+    else if ((curr = app::find(tile, "frustum")))
         frust = new app::frustum(curr, w, h);
 
     // If still none, create a default.
@@ -45,34 +45,34 @@ app::normal::normal(app::node tile,
 
     // Note the view index.
 
-    index = get_attr_d(node, "view");
+    index = app::get_attr_d(node, "view");
 }
 
-app::normal::~normal()
+dpy::normal::~normal()
 {
     if (frust) delete frust;
 }
 
 //-----------------------------------------------------------------------------
 
-bool app::normal::input_point(int i, const double *p, const double *q)
+bool dpy::normal::input_point(int i, const double *p, const double *q)
 {
     return frust ? frust->input_point(i, p, q) : false;
 }
 
-bool app::normal::input_click(int i, int b, int m, bool d)
+bool dpy::normal::input_click(int i, int b, int m, bool d)
 {
     return frust ? frust->input_click(i, b, m, d) : false;
 }
 
-bool app::normal::input_keybd(int c, int k, int m, bool d)
+bool dpy::normal::input_keybd(int c, int k, int m, bool d)
 {
     return frust ? frust->input_keybd(c, k, m, d) : false;
 }
 
 //-----------------------------------------------------------------------------
 
-bool app::normal::pick(double *p, double *q, int wx, int wy)
+bool dpy::normal::pick(double *p, double *q, int wx, int wy)
 {
     if (frust)
     {
@@ -88,7 +88,7 @@ bool app::normal::pick(double *p, double *q, int wx, int wy)
     return false;
 }
 
-void app::normal::prep(view_v& views, frustum_v& frusta)
+void dpy::normal::prep(app::view_v& views, app::frustum_v& frusta)
 {
     if (frust)
     {
@@ -116,7 +116,7 @@ void app::normal::prep(view_v& views, frustum_v& frusta)
     }
 }
 
-void app::normal::draw(view_v& views, int &i, bool calibrate, bool me)
+void dpy::normal::draw(app::view_v& views, int &i, bool calibrate, bool me)
 {
     if (views[index])
     {

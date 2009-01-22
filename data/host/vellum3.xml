@@ -15,7 +15,7 @@
         <corner name="BR" x="  3.7583" y="  1.5320" z= " -3.2298"/>
         <corner name="TL" x="  2.7175" y="  2.5320" z= " -4.0578"/>
       </frustum>
-      <disp type="varrier" pitch="536.85342" angle="-10.465" thick="0.0227" shift ="-0.00175" cycle="0.75"/>
+      <display type="varrier" pitch="536.85342" angle="-10.465" thick="0.0227" shift ="-0.00175" cycle="0.75"/>
     </tile>
     <tile index="10">
       <viewport x="0" y="1200" w="1600" h="1200"/>
@@ -24,7 +24,7 @@
         <corner name="BR" x="  4.5144" y="  1.5252" z= " -2.0323"/>
         <corner name="TL" x="  3.8199" y="  2.5252" z= " -3.1666"/>
       </frustum>
-      <disp type="varrier" pitch="536.85342" angle="-10.445" thick="0.0239" shift ="-0.00120" cycle="0.75"/>
+      <display type="varrier" pitch="536.85342" angle="-10.445" thick="0.0239" shift ="-0.00120" cycle="0.75"/>
     </tile>
     <tile index="11">
       <viewport x="1600" y="0" w="1600" h="1200"/>
@@ -33,7 +33,7 @@
         <corner name="BR" x="  4.8531" y="  1.5322" z= " -0.6482"/>
         <corner name="TL" x="  4.5554" y="  2.5322" z= " -1.9444"/>
       </frustum>
-      <disp type="varrier" pitch="536.85342" angle="-10.520" thick="0.0250" shift ="0.00060" cycle="0.75"/>
+      <display type="varrier" pitch="536.85342" angle="-10.520" thick="0.0250" shift ="0.00060" cycle="0.75"/>
     </tile>
     <tile index="12">
       <viewport x="1600" y="1200" w="1600" h="1200"/>
@@ -42,7 +42,7 @@
         <corner name="BR" x="  4.8006" y="  1.5271" z= "  0.7714"/>
         <corner name="TL" x="  4.8400" y="  2.5271" z= " -0.5580"/>
       </frustum>
-      <disp type="varrier" pitch="536.85342" angle="-10.490" thick="0.0237" shift ="-0.00075" cycle="0.75"/>
+      <display type="varrier" pitch="536.85342" angle="-10.490" thick="0.0237" shift ="-0.00075" cycle="0.75"/>
     </tile>
   </node>
 </host>

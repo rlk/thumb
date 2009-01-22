@@ -13,8 +13,8 @@
         <perspective aspect="1.0" fov="90.0"/>
         <rotation y="0"/>
       </frustum>
-      <disp type="normal">
-      </disp>
+      <display type="normal">
+      </display>
     </tile>
     <tile index="1">
       <viewport x="256" y="0" w="256" h="256"/>
@@ -22,8 +22,8 @@
         <perspective aspect="1.0" fov="90.0"/>
         <rotation y="-90"/>
       </frustum>
-      <disp type="normal">
-      </disp>
+      <display type="normal">
+      </display>
     </tile>
     <tile index="2">
       <viewport x="512" y="0" w="256" h="256"/>
@@ -31,8 +31,8 @@
         <perspective aspect="1.0" fov="90.0"/>
         <rotation y="-180"/>
       </frustum>
-      <disp type="normal">
-      </disp>
+      <display type="normal">
+      </display>
     </tile>
     <tile index="3">
       <viewport x="768" y="0" w="256" h="256"/>
@@ -40,8 +40,8 @@
         <perspective aspect="1.0" fov="90.0"/>
         <rotation y="-270"/>
       </frustum>
-      <disp type="normal">
-      </disp>
+      <display type="normal">
+      </display>
     </tile>
   </node>
 </host>

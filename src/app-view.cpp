@@ -32,7 +32,7 @@ app::view::view(app::node node, const int *buffer) :
 
 app::view::~view()
 {
-//  if (back) ::glob->free_frame(back);
+//  if (back) ::glob->free_frame(back); HACK
 }
 
 void app::view::set_head(const double *p,

@@ -30,7 +30,7 @@ uni::universe::universe() : G(0), Z(0), serial(0), time(0)
     double Er1 =   6372797.0 +  8844.0;
     double Mr0 =   1737100.0;
     double Mr1 =   1737100.0 + 10000.0;
-    double Mo  = 384400000.0;
+//  double Mo  = 384400000.0;
 
     // Create the caches.
 

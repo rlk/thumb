@@ -18,12 +18,12 @@
 #include "app-glob.hpp"
 #include "app-prog.hpp"
 #include "ogl-opengl.hpp"
-#include "app-varrier.hpp"
+#include "dpy-anaglyph.hpp"
 
 //-----------------------------------------------------------------------------
 
-app::varrier::varrier(app::node tile,
-                      app::node node, const int *window) :
+dpy::anaglyph::anaglyph(app::node tile,
+                        app::node node, const int *window) :
     frustL(0),
     frustR(0),
     P(0),
@@ -40,7 +40,7 @@ app::varrier::varrier(app::node tile,
 
     // Check the display definition for a frustum.
 
-    if      ((curr = find(node, "frustum")))
+    if      ((curr = app::find(node, "frustum")))
     {
         frustL = new app::frustum(curr, w, h);
         frustR = new app::frustum(curr, w, h);
@@ -48,7 +48,7 @@ app::varrier::varrier(app::node tile,
 
     // If none, check the tile definition for one.
 
-    else if ((curr = find(tile, "frustum")))
+    else if ((curr = app::find(tile, "frustum")))
     {
         frustL = new app::frustum(curr, w, h);
         frustR = new app::frustum(curr, w, h);
@@ -61,19 +61,9 @@ app::varrier::varrier(app::node tile,
         frustL = new app::frustum(0, w, h);
         frustR = new app::frustum(0, w, h);
     }
-
-    // Initialize the linescreen from the XML node or by setting defaults.
-
-    pitch = get_attr_f(node, "pitch", 200.0000);
-    angle = get_attr_f(node, "angle",   7.0000);
-    thick = get_attr_f(node, "thick",   0.0160);
-    shift = get_attr_f(node, "shift",   0.0000);
-    cycle = get_attr_f(node, "cycle",   0.8125);
-
-    pix = frustL->get_w() / (3 * w);
 }
 
-app::varrier::~varrier()
+dpy::anaglyph::~anaglyph()
 {
     if (frustR) delete frustR;
     if (frustL) delete frustL;
@@ -81,48 +71,7 @@ app::varrier::~varrier()
 
 //-----------------------------------------------------------------------------
 
-bool app::varrier::input_keybd(int c, int k, int m, bool d)
-{
-    bool b = false;
-
-    if (m & KMOD_CTRL)
-    {
-        // Calibrate linescreen parameters.
-
-        if (m & KMOD_SHIFT)
-        {
-            if      (k == SDLK_LEFT)  { angle -= 0.01000; b = true; }
-            else if (k == SDLK_RIGHT) { angle += 0.01000; b = true; }
-            else if (k == SDLK_DOWN)  { pitch -= 0.01000; b = true; }
-            else if (k == SDLK_UP)    { pitch += 0.01000; b = true; }
-        }
-        else
-        {
-            if      (k == SDLK_LEFT)  { shift -= 0.00005; b = true; }
-            else if (k == SDLK_RIGHT) { shift += 0.00005; b = true; }
-            else if (k == SDLK_DOWN)  { thick += 0.00010; b = true; }
-            else if (k == SDLK_UP)    { thick -= 0.00010; b = true; }
-        }
-    }
-
-    if (b)
-    {
-        // Update the values in the XML node.
-
-        set_attr_f(node, "pitch", pitch);
-        set_attr_f(node, "angle", angle);
-        set_attr_f(node, "thick", thick);
-        set_attr_f(node, "shift", shift);
-        set_attr_f(node, "cycle", cycle);
-
-        return true;
-    }
-    return false;
-}
-
-//-----------------------------------------------------------------------------
-
-bool app::varrier::pick(double *p, double *q, int wx, int wy)
+bool dpy::anaglyph::pick(double *p, double *q, int wx, int wy)
 {
     if (frustL)
     {
@@ -138,7 +87,7 @@ bool app::varrier::pick(double *p, double *q, int wx, int wy)
     return false;
 }
 
-void app::varrier::prep(view_v& views, frustum_v& frusta)
+void dpy::anaglyph::prep(app::view_v& views, app::frustum_v& frusta)
 {
     // Apply the viewpoint and view to my frusta.  Add the to the list.
 
@@ -160,9 +109,8 @@ void app::varrier::prep(view_v& views, frustum_v& frusta)
 
     // Ensure the draw shader is initialized.
 
-    if ((P == 0) &&
-        (P = ::glob->load_program("glsl/dsp/combiner.vert",
-                                  "glsl/dsp/combiner.frag")))
+    if (P == 0 && (P = ::glob->load_program("glsl/dsp/anaglyph.vert",
+                                            "glsl/dsp/anaglyph.frag")))
     {
         P->bind();
         {
@@ -175,49 +123,7 @@ void app::varrier::prep(view_v& views, frustum_v& frusta)
 
 //-----------------------------------------------------------------------------
 
-void app::varrier::bind_transform(GLenum unit, const frustum *frust)
-{
-    const double *v = frust->get_disp_pos();
-
-    // Compute the parallax due to optical thickness.
-
-    double dx = thick * v[0] / v[2];
-    double dy = thick * v[1] / v[2];
-
-    // Compute the pitch and shift reduction due to optical thickness.
-
-    double pp = pitch * (v[2] - thick) / v[2];
-    double ss = shift * (v[2] - thick) / v[2];
-
-    // Compose the line screen transformation matrix.
-
-    glActiveTextureARB(unit);
-    glMatrixMode(GL_TEXTURE);
-    {
-        glPushMatrix();
-        glLoadIdentity();
-        glScaled(pp, pp, 1);
-        glRotated(-angle, 0, 0, 1);
-        glTranslated(dx - ss, dy, 0);
-    }
-    glMatrixMode(GL_MODELVIEW);
-    glActiveTextureARB(GL_TEXTURE0);
-}
-
-void app::varrier::free_transform(GLenum unit)
-{
-    glActiveTextureARB(unit);
-    glMatrixMode(GL_TEXTURE);
-    {
-        glPopMatrix();
-    }
-    glMatrixMode(GL_MODELVIEW);
-    glActiveTextureARB(GL_TEXTURE0);
-}
-
-//-----------------------------------------------------------------------------
-
-void app::varrier::draw(view_v& views, int &i, bool calibrate, bool me)
+void dpy::anaglyph::draw(app::view_v& views, int &i, bool calibrate, bool me)
 {
     // Draw the scene to the off-screen buffers.
 
@@ -264,8 +170,6 @@ void app::varrier::draw(view_v& views, int &i, bool calibrate, bool me)
 
         glViewport(x, y, w, h);
 
-        bind_transform(GL_TEXTURE0, frustL);
-        bind_transform(GL_TEXTURE1, frustR);
         views[0]->bind_color(GL_TEXTURE0);
         views[1]->bind_color(GL_TEXTURE1);
         P->bind();
@@ -285,10 +189,9 @@ void app::varrier::draw(view_v& views, int &i, bool calibrate, bool me)
                 glLoadIdentity();
             }
 
-            P->uniform("cycle", cycle);
-            P->uniform("offset", -pix, 0, +pix);
             P->uniform("frag_d", -x * kx, -y * ky);
             P->uniform("frag_k",      kx,      ky);
+            P->uniform("luma", 0.30, 0.59, 0.11, 0.00);
 
             glBegin(GL_QUADS);
             {
@@ -311,8 +214,6 @@ void app::varrier::draw(view_v& views, int &i, bool calibrate, bool me)
         P->free();
         views[0]->bind_color(GL_TEXTURE0);
         views[1]->bind_color(GL_TEXTURE1);
-        free_transform(GL_TEXTURE1);
-        free_transform(GL_TEXTURE0);
     }
 }
 

@@ -10,52 +10,58 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DOME_HPP
-#define DOME_HPP
+#ifndef VARRIER_HPP
+#define VARRIER_HPP
 
-#include "app-disp.hpp"
+#include "dpy-display.hpp"
 #include "ogl-program.hpp"
-#include "ogl-texture.hpp"
+#include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 
-namespace app
+namespace dpy
 {
-    class dome : public disp
+    class varrier : public display
     {
-        int      index;
-        double   radius;
+        app::frustum *frustL;
+        app::frustum *frustR;
 
-        frustum *proj_frust;
-        frustum *user_frust;
-
+        int count;
         int x;
         int y;
         int w;
         int h;
 
-        double tk[3];
-        double pk[3];
-        double zk[3];
+        const ogl::program *P;
 
-        const ogl::program *draw_P;
-        const ogl::program *test_P;
+        double pitch;
+        double angle;
+        double thick;
+        double shift;
+        double cycle;
 
-        const ogl::texture *grid;
+        double pix;
+
+        app::node node;
+
+        void bind_transform(GLenum, const app::frustum *);
+        void free_transform(GLenum);
 
     public:
 
-        dome(app::node, app::node, const int *);
+        varrier(app::node, app::node, const int *);
 
-        bool input_point(int, const double *, const double *);
-        bool input_click(int, int, int, bool);
-        bool input_keybd(int, int, int, bool);
+        // Calibration handlers.
+        
+        virtual bool input_keybd(int, int, int, bool);
+
+        // Rendering handlers.
 
         virtual bool pick(double *, double *, int, int);
-        virtual void prep(view_v&, frustum_v&);
-        virtual void draw(view_v&, int&, bool, bool);
+        virtual void prep(app::view_v&, app::frustum_v&);
+        virtual void draw(app::view_v&, int&, bool, bool);
 
-        virtual ~dome();
+        virtual ~varrier();
     };
 }
 

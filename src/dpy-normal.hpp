@@ -10,22 +10,22 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef VARRIER_HPP
-#define VARRIER_HPP
+#ifndef NORMAL_HPP
+#define NORMAL_HPP
 
-#include "app-disp.hpp"
+#include "dpy-display.hpp"
 #include "ogl-program.hpp"
+#include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 
-namespace app
+namespace dpy
 {
-    class varrier : public disp
+    class normal : public display
     {
-        frustum *frustL;
-        frustum *frustR;
+        int           index;
+        app::frustum *frust;
 
-        int count;
         int x;
         int y;
         int w;
@@ -33,30 +33,23 @@ namespace app
 
         const ogl::program *P;
 
-        double pitch;
-        double angle;
-        double thick;
-        double shift;
-        double cycle;
-
-        double pix;
-
-        app::node node;
-
-        void bind_transform(GLenum, const frustum *);
-        void free_transform(GLenum);
-
     public:
 
-        varrier(app::node, app::node, const int *);
-        
-        bool input_keybd(int, int, int, bool);
+        normal(app::node, app::node, const int *);
+
+        // Calibration handlers.
+
+        virtual bool input_point(int, const double *, const double *);
+        virtual bool input_click(int, int, int, bool);
+        virtual bool input_keybd(int, int, int, bool);
+
+        // Rendering handlers.
 
         virtual bool pick(double *, double *, int, int);
-        virtual void prep(view_v&, frustum_v&);
-        virtual void draw(view_v&, int&, bool, bool);
+        virtual void prep(app::view_v&, app::frustum_v&);
+        virtual void draw(app::view_v&, int&, bool, bool);
 
-        virtual ~varrier();
+        virtual ~normal();
     };
 }
 

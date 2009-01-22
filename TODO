@@ -1,30 +1,3 @@
-Make patch bounds not intersect the planet
-
-- Think about a Z-varying dome blend
--     Or just planar-varying dome blends?
-- Patch display
-- More wiimote events
-- Route wiimote events through host
-- texcoord/diffuse/normal-only draw modes
--     Get rid of GPGPU buffers?
--     Move cache displays to center of screen
-- Image overlay
-- wiimote only at the root
-- Refine attr mode
--     Add option handling
-
--  U  1    0 diffuse
--  D  2    1 normal
--  L  4    2 texc
--  R  8    3 monochrome
-- 1U  16   4 dtexc
-- 1D  32   5 acc buffer
-- 1L  64   6 height cache
-- 1R  128  7 surface cache
-- 2U  256  8 nrm buffer
-- 2D  512  9 tex buffer
-- 2L  1024 10 lo tris
-- 2R  2048 11 hi tris
 
 -------------------------------------------------------------------------------
 
@@ -39,106 +12,17 @@ is the primary depth buffer necessary?
 Fix cracking between cached pages.
 Fix cracking between spatches.
 
-- Generalize geomap to work with sizes other than 512x256.
-
-- Rework cluster config storage.
-
 -------------------------------------------------------------------------------
-
-test/norm mode should NOT be a view attribute
-
-test pattern mode actually goes in the eye,
-     which is who draws the app or not, depending
-     or maybe the tile owns the eye instead of the host
-
-- a module system like tile frustum/varrier could be used to modularize input.
--     trackd module
--     joystick module
--     wiimote module
--     SDL module?
-- in general, event handling could stand to be homogenized
-
-It will be necessary to have multiple worlds
-    spread around the universe
-    taking a world transform from the universe
-
--------------------------------------------------------------------------------
-
-generalize tile specification to allow
-    specification using
-        corner or
-        fov plus transform
-generalize frustum handling to allow
-    unions of frusta for stereo
-generalize screen-filling rectangle to allow
-    arbitrary edge-blended polygon
-
-
-The 7900 bug may involve the quantity of geometry / utilization of the geometry cache.  A workaround may involve doing a full-cache PBO-to-VBO copy regardless of the cache state.
-
-short term:
-    fix lightsource position
-    can the initial connect socket be closed early?
-
-map atlas
-patch cracking
-more data
-consider forward rendering
-
-The 3 phases of sphere generation can be pipelined.  The only requirement is in being able to predict the view frustum 2 frames in advance.  To do this, simply consider the difference from the last frame and extrapolate.  This will be correct for constant velocity, which will cover 90% of circumstances.
 
 If the range extrema of each heightmap is stored as metadata then an extremely tight tile visibility becomes possible.  Patch visibility with no round trip may follow from this.
-
-tellurion
-        rework/generalize/fix shell visibility
-        specular map NOT part of normal map (res will differ)
-        cloud map NOT part of color map (must animate)
-        CWD in fork_client
-
-        bug in geomap when teleporting
-        map atlas
-        patch crack
-        more data
-        destination select
-        stars
-        sun
-        mars
-        moon
-        hilo normal map (or XY gives an extra channel in normal map)
-        dxt color map   (becomes possible with implicit-border atlas)
-
-
-
 
 There's no need to respect the jiffy in edit mode.
     To ignore it would improve performance on huge scenes nicely.
 Don't free-run in edit mode.
-Create a staging area for vert_cache.
-Generalize binding further:
-    zbuffer
-    diffuse
-    ambient
-binding comparison modes: color, depth
-Add AABB and bound sphere caching to mesh
-Add AABB and bound sphere update to segment/element
-tune near and far using bound
-implement visibility checking in batcher
-implement SSM
-implement PSSM
-sort meshes
-sort bindings
-mutable bindings to reduce state change
-use non-interleaved VBOs and bind only the necessary attributes
 
-Apparently geoms in different spaces collide even when their collision bits indicate they should not.  This is a problem because dynamic objects always collide with static.
 Clone light should clone the shadow and lightmap references.
 Convert light and camera entity draw to use OBJ
 Reduce the number of string passes by value in the gui module.
-
-
-General
-    read gotw.ca/gotw
-        #54 shrinking vectors
 
 Control panes on function keys?
     F5 info about
@@ -162,10 +46,6 @@ Add DDS support
     Cube map load
     DXT load
     Mipmap load
-Incorporate some of the shading/buffer/image/state lessons learned from atmo.
-Incorporate perf module from atmo.  Stats in GUI?
-Generalize the "follow" mechanism to "enable".
-Move sky/earth/sun ownership to scene.
 
 Water.
     Bouyancy force.
@@ -183,8 +63,6 @@ Partial run.
 Refresh button on finder.
     Make Up button nicer.
     Icon view.
-Optimize constraint drawing -- integrate display lists with glob?  Use OBJ?
-Optimize wire drawing.
 Conveyer solid property.
 Static / package data archives with Z compression.
 Figure out why repeated runs differ.
@@ -193,24 +71,4 @@ Figure out why repeated runs differ.
 OBJ support:
     map wrapping
     map scale and translate
-
-Data archives
-
-    a common path naming scheme that transparently accesses all archives
-    in prioritized order
-
-    priority
-        cwd    rw
-        home   rw
-        pak2   r
-        pak1   r
-        pak0   r
-        static r
-
-    load searches r archives in order
-    save searches w archives in order
-
-file
-pack
-link
 

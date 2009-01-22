@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "app-dome.hpp"
+#include "dpy-dome.hpp"
 #include "matrix.hpp"
 #include "app-glob.hpp"
 #include "app-user.hpp"
@@ -18,8 +18,8 @@
 
 //-----------------------------------------------------------------------------
 
-app::dome::dome(app::node tile, app::node node, const int *window)
-    : proj_frust(0), user_frust(0), draw_P(0), test_P(0), grid(0)
+dpy::dome::dome(app::node tile, app::node node, const int *window)
+    : proj_frust(0), user_frust(0), draw_P(0), test_P(0)
 {
     app::node curr;
 
@@ -30,40 +30,40 @@ app::dome::dome(app::node tile, app::node node, const int *window)
 
     // Check the tile definition for the projector frustum.
 
-    if ((curr = find(tile, "frustum")))
+    if ((curr = app::find(tile, "frustum")))
         proj_frust = new app::frustum(curr, w, h);
     else
         proj_frust = new app::frustum(   0, w, h);
 
     // Check the display definition for the user frustum.
 
-    if ((curr = find(node, "frustum")))
+    if ((curr = app::find(node, "frustum")))
         user_frust = new app::frustum(curr, w, h);
     else
         user_frust = new app::frustum(   0, w, h);
 
     // Note the view index.
 
-    index = get_attr_d(node, "view");
+    index = app::get_attr_d(node, "view");
 
     // Get other stuff.
 
-    radius = get_attr_f(node, "radius", 27.5);
+    radius = app::get_attr_f(node, "radius", 27.5);
 
-    tk[0] = get_attr_f(node, "t0",   0.0);
-    tk[1] = get_attr_f(node, "t1",  90.0);
-    tk[2] = get_attr_f(node, "dt",  10.0);
+    tk[0] = app::get_attr_f(node, "t0",   0.0);
+    tk[1] = app::get_attr_f(node, "t1",  90.0);
+    tk[2] = app::get_attr_f(node, "dt",  10.0);
 
-    pk[0] = get_attr_f(node, "p0",   0.0);
-    pk[1] = get_attr_f(node, "p1",  90.0);
-    pk[2] = get_attr_f(node, "dp",  10.0);
+    pk[0] = app::get_attr_f(node, "p0",   0.0);
+    pk[1] = app::get_attr_f(node, "p1",  90.0);
+    pk[2] = app::get_attr_f(node, "dp",  10.0);
 
-    zk[0] = get_attr_f(node, "z0", -10.0);
-    zk[1] = get_attr_f(node, "z1",  10.0);
-    zk[2] = get_attr_f(node, "dz",   0.25);
+    zk[0] = app::get_attr_f(node, "z0", -10.0);
+    zk[1] = app::get_attr_f(node, "z1",  10.0);
+    zk[2] = app::get_attr_f(node, "dz",   0.25);
 }
 
-app::dome::~dome()
+dpy::dome::~dome()
 {
     if (user_frust) delete user_frust;
     if (proj_frust) delete proj_frust;
@@ -71,24 +71,24 @@ app::dome::~dome()
 
 //-----------------------------------------------------------------------------
 
-bool app::dome::input_point(int i, const double *p, const double *q)
+bool dpy::dome::input_point(int i, const double *p, const double *q)
 {
     return proj_frust ? proj_frust->input_point(i, p, q) : false;
 }
 
-bool app::dome::input_click(int i, int b, int m, bool d)
+bool dpy::dome::input_click(int i, int b, int m, bool d)
 {
     return proj_frust ? proj_frust->input_click(i, b, m, d) : false;
 }
 
-bool app::dome::input_keybd(int c, int k, int m, bool d)
+bool dpy::dome::input_keybd(int c, int k, int m, bool d)
 {
     return proj_frust ? proj_frust->input_keybd(c, k, m, d) : false;
 }
 
 //-----------------------------------------------------------------------------
 
-bool app::dome::pick(double *p, double *q, int wx, int wy)
+bool dpy::dome::pick(double *p, double *q, int wx, int wy)
 {
     if (user_frust)
     {
@@ -104,7 +104,7 @@ bool app::dome::pick(double *p, double *q, int wx, int wy)
     return false;
 }
 
-void app::dome::prep(view_v& views, frustum_v& frusta)
+void dpy::dome::prep(app::view_v& views, app::frustum_v& frusta)
 {
     double p[3] = { 0.0, 0.0, 0.0 };
 
@@ -141,20 +141,10 @@ void app::dome::prep(view_v& views, frustum_v& frusta)
         (test_P = ::glob->load_program("glsl/dsp/dome-test.vert",
                                        "glsl/dsp/dome-test.frag")))
     {
-        test_P->bind();
-        {
-            test_P->uniform("map", 0);
-        }
-        test_P->free();
     }
-
-    // Ensure the test grid is initialized.
-
-    if (grid == 0)
-        grid = ::glob->load_texture("dome-grid.png");
 }
 
-void app::dome::draw(view_v& views, int &i, bool calibrate, bool me)
+void dpy::dome::draw(app::view_v& views, int &i, bool calibrate, bool me)
 {
     if (views[index])
     {
@@ -174,7 +164,6 @@ void app::dome::draw(view_v& views, int &i, bool calibrate, bool me)
         {
             if (test_P)
             {
-                grid->bind(GL_TEXTURE0);
                 test_P->bind();
                 {
                     const double *p = proj_frust->get_user_pos();
@@ -189,7 +178,6 @@ void app::dome::draw(view_v& views, int &i, bool calibrate, bool me)
                     proj_frust->cast();
                 }
                 test_P->free();
-                grid->free(GL_TEXTURE0);
             }
         }
         else

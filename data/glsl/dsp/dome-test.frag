@@ -1,7 +1,5 @@
 #extension GL_ARB_texture_rectangle : enable
 
-uniform sampler2DRect map;
-
 varying vec3  ray;
 uniform vec3  pos;
 uniform float rad;

@@ -1,6 +1,6 @@
 
-CFLAGS= -g -Wall
-#CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
+#CFLAGS= -g -Wall
+CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
@@ -58,11 +58,11 @@ OBJS=   util.o \
 	dev-gamepad.o \
 	dev-tracker.o \
 	dev-wiimote.o \
+	dpy-dome.o \
+	dpy-normal.o \
+	dpy-varrier.o \
+	dpy-anaglyph.o \
 	app-frustum.o \
-	app-dome.o \
-	app-normal.o \
-	app-varrier.o \
-	app-anaglyph.o \
 	app-message.o \
 	app-serial.o \
 	app-font.o \

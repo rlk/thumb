@@ -15,21 +15,18 @@
 
 #include <vector>
 
-#include "app-serial.hpp"
 #include "app-frustum.hpp"
 #include "app-view.hpp"
 
 //-----------------------------------------------------------------------------
 
-namespace app
+namespace dpy
 {
     // Interface for display handling (Mono/Varrier/Dome/Anaglyph/etc)
 
-    class disp
+    class display
     {
     public:
-
-        disp() { }
 
         virtual bool input_point(int, const double *, const double *) {
             return false;
@@ -42,14 +39,14 @@ namespace app
         }
 
         virtual bool pick(double *, double *, int, int) { return false; }
-        virtual void prep(view_v&, frustum_v&)       { }
-        virtual void draw(view_v&, int&, bool, bool) { }
+        virtual void prep(app::view_v&, app::frustum_v&)  = 0;
+        virtual void draw(app::view_v&, int&, bool, bool) = 0;
 
-        virtual ~disp() { }
+        virtual ~display() { }
     };
 
-    typedef std::vector<disp *>           disp_v;
-    typedef std::vector<disp *>::iterator disp_i;
+    typedef std::vector<display *>           display_v;
+    typedef std::vector<display *>::iterator display_i;
 }
 
 //-----------------------------------------------------------------------------

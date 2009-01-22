@@ -13,17 +13,17 @@
 #ifndef ANAGLYPH_HPP
 #define ANAGLYPH_HPP
 
-#include "app-disp.hpp"
+#include "dpy-display.hpp"
 #include "ogl-program.hpp"
 
 //-----------------------------------------------------------------------------
 
-namespace app
+namespace dpy
 {
-    class anaglyph : public disp
+    class anaglyph : public display
     {
-        frustum *frustL;
-        frustum *frustR;
+        app::frustum *frustL;
+        app::frustum *frustR;
 
         int count;
         int x;
@@ -35,16 +35,18 @@ namespace app
 
         app::node node;
 
-        void bind_transform(GLenum, const frustum *);
+        void bind_transform(GLenum, const app::frustum *);
         void free_transform(GLenum);
 
     public:
 
         anaglyph(app::node, app::node, const int *);
         
+        // Rendering handlers.
+
         virtual bool pick(double *, double *, int, int);
-        virtual void prep(view_v&, frustum_v&);
-        virtual void draw(view_v&, int&, bool, bool);
+        virtual void prep(app::view_v&, app::frustum_v&);
+        virtual void draw(app::view_v&, int&, bool, bool);
 
         virtual ~anaglyph();
     };

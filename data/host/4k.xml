@@ -11,8 +11,8 @@
       <frustum>
         <perspective aspect="1.416" fov="60.0" />
       </frustum>
-      <disp type="normal"/>
-      <disp type="anaglyph"/>
+      <display type="normal"/>
+      <display type="anaglyph"/>
     </tile>
   </node>
 </host>

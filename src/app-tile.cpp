@@ -12,10 +12,10 @@
 
 #include "default.hpp"
 #include "app-tile.hpp"
-#include "app-normal.hpp"
-#include "app-dome.hpp"
-#include "app-varrier.hpp"
-#include "app-anaglyph.hpp"
+#include "dpy-normal.hpp"
+#include "dpy-dome.hpp"
+#include "dpy-varrier.hpp"
+#include "dpy-anaglyph.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -46,24 +46,24 @@ app::tile::tile(app::node node) : current(0)
 
     // Extract all display configurations.
 
-    for (curr = find(node,       "disp"); curr;
-         curr = next(node, curr, "disp"))
+    for (curr = find(node,       "display"); curr;
+         curr = next(node, curr, "display"))
     {
         const char *t = get_attr_s(curr, "type", "normal");
 
         if (strcmp(t, "normal")   == 0)
-            display.push_back(new app::normal  (node, curr, window));
+            display.push_back(new dpy::normal  (node, curr, window));
         if (strcmp(t, "dome")     == 0)
-            display.push_back(new app::dome    (node, curr, window));
+            display.push_back(new dpy::dome    (node, curr, window));
         if (strcmp(t, "varrier")  == 0)
-            display.push_back(new app::varrier (node, curr, window));
+            display.push_back(new dpy::varrier (node, curr, window));
         if (strcmp(t, "anaglyph") == 0)
-            display.push_back(new app::anaglyph(node, curr, window));
+            display.push_back(new dpy::anaglyph(node, curr, window));
     }
 
     // Create a fall-back normal display.
 
-    display.push_back(new app::normal(node, 0, window));
+    display.push_back(new dpy::normal(node, 0, window));
 }
 
 app::tile::~tile()

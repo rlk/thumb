@@ -11,13 +11,13 @@
            <rotation p="16.900000" y="3.300000" r="-0.300000" />
            <position p="-1.000000" t="173.000000" r="27.500000" />
          </frustum>
-         <disp type="dome" view="0" radius="27.5" t0="135" t1="-135"
+         <display type="dome" view="0" radius="27.5" t0="135" t1="-135"
 dt="20" p0="0" p1="55" dp="20">
            <frustum>
              <perspective hfov="110.000000" vfov="75.000000" />
              <rotation p="30.000000" y="180.000000" r="0.000000" />
            </frustum>
-         </disp>
+         </display>
        </tile>
        <tile index="3">
          <viewport x="1920" y="0" w="1920" h="1080" />
@@ -26,13 +26,13 @@ dt="20" p0="0" p1="55" dp="20">
            <rotation p="17.000000" y="3.200000" r="0.300000" />
            <position p="-1.200000" t="83.000000" r="27.500000" />
          </frustum>
-         <disp type="dome" view="0" radius="27.5" t0="45" t1="135"
+         <display type="dome" view="0" radius="27.5" t0="45" t1="135"
 dt="20" p0="0" p1="55" dp="20">
            <frustum>
              <perspective hfov="110.000000" vfov="75.000000" />
              <rotation p="30.000000" y="90.000000" r="0.000000" />
            </frustum>
-         </disp>
+         </display>
        </tile>
      </node>
    </host>
