@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef MODE_HPP
-#define MODE_HPP
+#ifndef MODE_MODE_HPP
+#define MODE_MODE_HPP
 
 #include "wrl-world.hpp"
 

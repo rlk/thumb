@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GEOGEN_HPP
-#define GEOGEN_HPP
+#ifndef UNI_GEOGEN_HPP
+#define UNI_GEOGEN_HPP
 
 #include "ogl-opengl.hpp"
 #include "ogl-program.hpp"

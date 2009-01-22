@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef TEXTURE_HPP
-#define TEXTURE_HPP
+#ifndef OGL_TEXTURE_HPP
+#define OGL_TEXTURE_HPP
 
 #include <string>
 

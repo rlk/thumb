@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DISP_HPP
-#define DISP_HPP
+#ifndef DPY_DISPLAY_HPP
+#define DPY_DISPLAY_HPP
 
 #include <vector>
 

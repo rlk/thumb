@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GEOREN_HPP
-#define GEOREN_HPP
+#ifndef UNI_GEOREN_HPP
+#define UNI_GEOREN_HPP
 
 #include <string>
 

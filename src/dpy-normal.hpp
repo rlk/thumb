@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef NORMAL_HPP
-#define NORMAL_HPP
+#ifndef DPY_NORMAL_HPP
+#define DPY_NORMAL_HPP
 
 #include "dpy-display.hpp"
 #include "ogl-program.hpp"

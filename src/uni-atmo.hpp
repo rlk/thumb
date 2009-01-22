@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef ATMO_HPP
-#define ATMO_HPP
+#ifndef UNI_ATMO_HPP
+#define UNI_ATMO_HPP
 
 #include "ogl-pool.hpp"
 

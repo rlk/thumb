@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef PLAY_HPP
-#define PLAY_HPP
+#ifndef MODE_PLAY_HPP
+#define MODE_PLAY_HPP
 
 #include "mode-mode.hpp"
 

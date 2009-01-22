@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef HOST_HPP
-#define HOST_HPP
+#ifndef APP_HOST_HPP
+#define APP_HOST_HPP
 
 #include <string>
 #include <list>

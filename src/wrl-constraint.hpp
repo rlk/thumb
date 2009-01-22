@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef CONSTRAINT_HPP
-#define CONSTRAINT_HPP
+#ifndef WRL_CONSTRAINT_HPP
+#define WRL_CONSTRAINT_HPP
 
 #include <set>
 #include <cstring>

@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef BINDING_HPP
-#define BINDING_HPP
+#ifndef OGL_BINDING_HPP
+#define OGL_BINDING_HPP
 
 #include <string>
 

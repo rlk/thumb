@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef AABB_HPP
-#define AABB_HPP
+#ifndef OGL_AABB_HPP
+#define OGL_AABB_HPP
 
 #include "ogl-opengl.hpp"
 

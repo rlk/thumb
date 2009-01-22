@@ -10,11 +10,10 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef WORLD_HPP
-#define WORLD_HPP
+#ifndef WRL_WORLD_HPP
+#define WRL_WORLD_HPP
 
 #include <ode/ode.h>
-#include <algorithm>
 
 #include "wrl-atom.hpp"
 #include "ogl-pool.hpp"

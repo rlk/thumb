@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef IMAGE_HPP
-#define IMAGE_HPP
+#ifndef OGL_IMAGE_HPP
+#define OGL_IMAGE_HPP
 
 #include "ogl-opengl.hpp"
 

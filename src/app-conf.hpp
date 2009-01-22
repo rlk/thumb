@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef CONF_HPP
-#define CONF_HPP
+#ifndef APP_CONF_HPP
+#define APP_CONF_HPP
 
 #include <string>
 #include <mxml.h>

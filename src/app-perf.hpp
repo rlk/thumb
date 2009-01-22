@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef PERF_HPP
-#define PERF_HPP
+#ifndef APP_PERF_HPP
+#define APP_PERF_HPP
 
 #include <map>
 

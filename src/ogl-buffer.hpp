@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef BUFFER_HPP
-#define BUFFER_HPP
+#ifndef OGL_BUFFER_HPP
+#define OGL_BUFFER_HPP
 
 #include "ogl-opengl.hpp"
 

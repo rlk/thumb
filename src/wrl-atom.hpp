@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef ATOM_HPP
-#define ATOM_HPP
+#ifndef WRL_ATOM_HPP
+#define WRL_ATOM_HPP
 
 #include <set>
 #include <map>

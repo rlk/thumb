@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef INFO_HPP
-#define INFO_HPP
+#ifndef MODE_INFO_HPP
+#define MODE_INFO_HPP
 
 #include "gui-control.hpp"
 #include "mode-mode.hpp"

@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef VARRIER_HPP
-#define VARRIER_HPP
+#ifndef DPY_VARRIER_HPP
+#define DPY_VARRIER_HPP
 
 #include "dpy-display.hpp"
 #include "ogl-program.hpp"

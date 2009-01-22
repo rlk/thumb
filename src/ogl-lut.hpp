@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef LUT_HPP
-#define LUT_HPP
+#ifndef OGL_LUT_HPP
+#define OGL_LUT_HPP
 
 #include "ogl-opengl.hpp"
 

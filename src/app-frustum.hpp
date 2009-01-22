@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef FRUSTUM_HPP
-#define FRUSTUM_HPP
+#ifndef APP_FRUSTUM_HPP
+#define APP_FRUSTUM_HPP
 
 #include <vector>
 

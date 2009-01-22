@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef PROGRAM_HPP
-#define PROGRAM_HPP
+#ifndef OGL_PROGRAM_HPP
+#define OGL_PROGRAM_HPP
 
 #include <string>
 

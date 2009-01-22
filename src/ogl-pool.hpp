@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef POOL_HPP
-#define POOL_HPP
+#ifndef OGL_POOL_HPP
+#define OGL_POOL_HPP
 
 #include <string>
 #include <vector>

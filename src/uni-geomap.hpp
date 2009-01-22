@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GEOMAP
-#define GEOMAP
+#ifndef UNI_GEOMAP_HPP
+#define UNI_GEOMAP_HPP
 
 #include <SDL.h>
 #include <SDL_thread.h>

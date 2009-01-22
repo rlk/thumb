@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SPATCH_HPP
-#define SPATCH_HPP
+#ifndef UNI_SPATCH_HPP
+#define UNI_SPATCH_HPP
 
 #include "app-frustum.hpp"
 #include "uni-geogen.hpp"

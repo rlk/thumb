@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef PARAM_HPP
-#define PARAM_HPP
+#ifndef WRL_PARAM_HPP
+#define WRL_PARAM_HPP
 
 #include <string>
 #include <map>

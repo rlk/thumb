@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SPHERE_HPP
-#define SPHERE_HPP
+#ifndef UNI_SPHERE_HPP
+#define UNI_SPHERE_HPP
 
 #include "default.hpp"
 #include "ogl-opengl.hpp"

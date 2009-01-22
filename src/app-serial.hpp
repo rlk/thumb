@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SERIAL_HPP
-#define SERIAL_HPP
+#ifndef APP_SERIAL_HPP
+#define APP_SERIAL_HPP
 
 #include <string>
 #include <map>

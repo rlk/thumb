@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef PROG_HPP
-#define PROG_HPP
+#ifndef APP_PROG_HPP
+#define APP_PROG_HPP
 
 #include "app-frustum.hpp"
 

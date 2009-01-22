@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef TILE_HPP
-#define TILE_HPP
+#ifndef APP_TILE_HPP
+#define APP_TILE_HPP
 
 #include <vector>
 

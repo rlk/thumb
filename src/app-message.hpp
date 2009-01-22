@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef MESSAGE_H
-#define MESSAGE_H
+#ifndef APP_MESSAGE_H
+#define APP_MESSAGE_H
 
 #include <string>
 #include <cstring>

@@ -10,10 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GL_HPP
-#define GL_HPP
-
-#include <string>
+#ifndef OGL_OPENGL_HPP
+#define OGL_OPENGL_HPP
 
 //-----------------------------------------------------------------------------
 
@@ -131,52 +129,6 @@ namespace ogl
     void init();
 }
 
-//-----------------------------------------------------------------------------
-/*
-namespace ogl
-{
-    class fbo
-    {
-        GLuint frame;
-        GLuint color;
-        GLuint depth;
-
-        GLsizei w;
-        GLsizei h;
-
-        GLint fb_cache[1];
-        GLint vp_cache[4];
-
-    public:
-
-        fbo(GLint, GLint, GLsizei, GLsizei);
-       ~fbo();
-
-        void push_frame(bool=false);
-        void  pop_frame();
-
-        void bind_color(GLenum) const;
-        void bind_depth(GLenum) const;
-    };
-}
-*/
-//-----------------------------------------------------------------------------
- /*
-namespace ogl
-{
-    class vbo
-    {
-        GLuint buffer;
-
-    public:
-
-        vbo(GLenum, GLenum, GLsizei);
-       ~vbo();
-
-        void bind(GLenum) const;
-    };
-}
- */
 //-----------------------------------------------------------------------------
 
 namespace ogl

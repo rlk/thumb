@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef ANAGLYPH_HPP
-#define ANAGLYPH_HPP
+#ifndef DPY_ANAGLYPH_HPP
+#define DPY_ANAGLYPH_HPP
 
 #include "dpy-display.hpp"
 #include "ogl-program.hpp"

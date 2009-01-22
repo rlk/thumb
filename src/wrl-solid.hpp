@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SOLID_HPP
-#define SOLID_HPP
+#ifndef WRL_SOLID_HPP
+#define WRL_SOLID_HPP
 
 #include "wrl-param.hpp"
 #include "wrl-atom.hpp"

@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef FONT_HPP
-#define FONT_HPP
+#ifndef APP_FONT_HPP
+#define APP_FONT_HPP
 
 #include <string>
 #include <vector>

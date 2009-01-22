@@ -1,5 +1,5 @@
-#ifndef FRAME_HPP
-#define FRAME_HPP
+#ifndef OGL_FRAME_HPP
+#define OGL_FRAME_HPP
 
 #include <vector>
 

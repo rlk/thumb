@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef VIEW_HPP
-#define VIEW_HPP
+#ifndef APP_VIEW_HPP
+#define APP_VIEW_HPP
 
 #include "app-serial.hpp"
 #include "ogl-frame.hpp"

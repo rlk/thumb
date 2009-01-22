@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GLOB_HPP
-#define GLOB_HPP
+#ifndef APP_GLOB_HPP
+#define APP_GLOB_HPP
 
 #include <map>
 #include <set>

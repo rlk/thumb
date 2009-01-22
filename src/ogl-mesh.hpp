@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef MESH_HPP
-#define MESH_HPP
+#ifndef OGL_MESH_HPP
+#define OGL_MESH_HPP
 
 #include <vector>
 

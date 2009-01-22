@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DOME_HPP
-#define DOME_HPP
+#ifndef DPY_DOME_HPP
+#define DPY_DOME_HPP
 
 #include "dpy-display.hpp"
 #include "ogl-program.hpp"

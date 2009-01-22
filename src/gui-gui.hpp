@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GUI_HPP
-#define GUI_HPP
+#ifndef GUI_GUI_HPP
+#define GUI_GUI_HPP
 
 #include <vector>
 

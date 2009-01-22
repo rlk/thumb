@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GEOCSH
-#define GEOCSH
+#ifndef UNI_GEOCSH_HPP
+#define UNI_GEOCSH_HPP
 
 #include <SDL.h>
 #include <SDL_thread.h>
