@@ -14,10 +14,15 @@
 
 //-----------------------------------------------------------------------------
 
-app::message::message(unsigned char type) : index(0)
+app::message::message() : index(0)
+{
+    payload.type = 0;
+    payload.size = 0;
+}
+
+void app::message::put_type(unsigned char type)
 {
     payload.type = type;
-    payload.size = 0;
 }
 
 void app::message::put_text(const char *text)

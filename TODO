@@ -1,8 +1,7 @@
-progset belongs in uni instead of ogl
-Move calibration color into view.  Calibration image instead?
-Move tracker usage out of host and into the timer method of a tracker device.
-do the TODOs and the HACKs
 
+Move buffer size into view.
+Move calibration color buffer clear into view.  Calibration image instead?
+do the TODOs and the HACKs
 
 -------------------------------------------------------------------------------
 

@@ -1,5 +1,63 @@
 -------------------------------------------------------------------------------
 
+Events
+
+    point
+        i device index
+        p position
+        q orientation
+    click
+        i device index
+        b button number
+        m modifier state
+        d up/down
+    keybd
+        c character
+        k key
+        m modifier state
+        d up/down
+    timer
+        t time passed in milliseconds
+    value
+        d device index
+        a axis index
+        v value
+    messg
+        input  buffer
+        output buffer
+    paint
+    front/frame
+    start
+    close
+  * enter
+  * leave
+
+  * Does not correspond to a host message
+
+    Devices must be able to translate from one event type to another and
+    forward the translation back through the host.
+
+    The host encodes and decodes events to a binary buffer.
+
+    Return values:
+
+        The event has dirtied the screen
+        I have handled the event
+
+    The message event produces a response
+
+    Point events entail the conversion from (x,y) to (p,q) and back
+
+    Modes take
+        enter
+        leave
+
+    Stateful objects take
+        start
+        close
+
+-------------------------------------------------------------------------------
+
 plot [0:4800][0:33] "test-8800-1024" using 1:2 with lines, "test-8800-1024" using 1:3 with lines
 
 -------------------------------------------------------------------------------

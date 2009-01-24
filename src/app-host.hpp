@@ -17,8 +17,8 @@
 #include <list>
 
 #include "ogl-texture.hpp"
-#include "app-message.hpp"
 #include "app-serial.hpp"
+#include "app-event.hpp"
 #include "app-view.hpp"
 #include "app-tile.hpp"
 
@@ -53,8 +53,8 @@ namespace app
         SOCKET   script_cd;
         SOCKET_v script_sd;
 
-        void send(message&);
-        void recv(message&);
+        void send(event *);
+        void sync();
 
         // Event loops
 
@@ -65,10 +65,14 @@ namespace app
         int  mode;
         int  bench;
         int  movie;
-        int  frame;
+        int  count;
 
-        bool calibrate_state;
-        int  calibrate_index;
+        // Calibration handlers
+
+        bool calibration_state;
+        int  calibration_index;
+
+        int do_calibration(event *E);
 
         // Window config
 
@@ -91,7 +95,7 @@ namespace app
        ~host();
 
         // Event handlers
-
+/*
         void point(int, const double *, const double *);
         void click(int, int, int, bool);
         void keybd(int, int, int, bool);
@@ -101,10 +105,13 @@ namespace app
         void paint();
         void front();
         void close();
+*/
+        int handle(event *);
 
         bool root() const { return (server_sd == INVALID_SOCKET); }
         void loop();
         void draw();
+        void swap() const;
 
         // Configuration queries.
 
@@ -117,10 +124,11 @@ namespace app
         int get_buffer_h() const { return buffer[1]; }
 
         void set_head(const double *, const double *);
-
+/*
         bool tile_input_point(int, const double *, const double *);
         bool tile_input_click(int, int, int, bool);
         bool tile_input_keybd(int, int, int, bool);
+*/
     };
 }
 

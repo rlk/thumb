@@ -242,7 +242,7 @@ void app::host::poll_script()
 
                         printf("script socket received [%s]\n", ibuf);
 
-                        messg(ibuf, obuf);
+//                      messg(ibuf, obuf);
                         sz = strlen(obuf);
 
                         if (sz > 0) ::send(*i, obuf, sz, 0);
@@ -356,15 +356,55 @@ void app::host::fini_script()
 
 //-----------------------------------------------------------------------------
 
+int app::host::do_calibration(event *E)
+{
+    // Handle calibration state input.
+
+    if ((E->get_type() == E_KEYBD) &&
+        (E->data.keybd.d)          &&
+        (E->data.keybd.m & KMOD_CTRL))
+
+        switch (E->data.keybd.k)
+        {
+        case SDLK_TAB:
+            calibration_state = !calibration_state;
+            return R_DRAW;
+
+        case SDLK_SPACE:
+            calibration_index++;
+            return R_DRAW;
+
+        case SDLK_BACKSPACE:
+            calibration_index--;
+            return R_DRAW;
+
+        case SDLK_RETURN:
+            for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+                (*i)->cycle();
+            return R_DRAW;
+        }
+
+    // Dispatch a calibration event to the current tile.
+
+    if (calibration_state)
+        for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+            if ((*i)->is_index(calibration_index))
+                return (*i)->handle(E);
+
+    return R_IGNORED;
+}
+
+//-----------------------------------------------------------------------------
+
 app::host::host(std::string filename, std::string tag) :
     server_sd(INVALID_SOCKET),
     client_cd(INVALID_SOCKET),
     script_cd(INVALID_SOCKET),
     bench(::conf->get_i("bench")),
     movie(::conf->get_i("movie")),
-    frame(0),
-    calibrate_state(false),
-    calibrate_index(0),
+    count(0),
+    calibration_state(false),
+    calibration_index(0),
     file(filename.c_str())
 {
     // Set some reasonable defaults.
@@ -468,110 +508,103 @@ app::host::~host()
 
 void app::host::root_loop()
 {
-    std::vector<tile *>::iterator i;
-
     double p[3];
     double q[4];
 
-    // TODO: decide on a device numbering for mouse/trackd/joystick
+    int R = 0;
 
-    while (1)
+    while ((R & R_EXIT) == 0)
     {
-        SDL_Event e;
+        R = 0;
 
-        // While there are available SDL events, dispatch event handlers.
+        // Translate and dispatch SDL events.
+
+        SDL_Event e;
+        event     E;
 
         while (SDL_PollEvent(&e))
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                for (i = tiles.begin(); i != tiles.end(); ++i)
+                for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
                     if ((*i)->pick(p, q, e.motion.x, e.motion.y))
-                        point(0, p, q);
+                        R |= handle(E.mk_point(0, p, q));
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                click(0, e.button.button, SDL_GetModState(), true);
+                R |= handle(E.mk_click(0, e.button.button,
+                                       SDL_GetModState(), true));
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                click(0, e.button.button, SDL_GetModState(), false);
+                R |= handle(E.mk_click(0, e.button.button,
+                                       SDL_GetModState(), false));
                 break;
 
             case SDL_KEYDOWN:
-                keybd(e.key.keysym.unicode,
-                      e.key.keysym.sym,
-                      e.key.keysym.mod, true);
+                R |= handle(E.mk_keybd(e.key.keysym.unicode,
+                                       e.key.keysym.sym,
+                                       e.key.keysym.mod, true));
                 break;
 
             case SDL_KEYUP:
-                keybd(e.key.keysym.unicode,
-                      e.key.keysym.sym,
-                      e.key.keysym.mod, false);
+                R |= handle(E.mk_keybd(e.key.keysym.unicode,
+                                       e.key.keysym.sym,
+                                       e.key.keysym.mod, false));
                 break;
 
             case SDL_JOYAXISMOTION:
-                value(e.jaxis.which,
-                      e.jaxis.axis,
-                      e.jaxis.value / 32768.0);
+                R |= handle(E.mk_value(e.jaxis.which,
+                                       e.jaxis.axis,
+                                       e.jaxis.value / 32768.0));
                 break;
 
             case SDL_JOYBUTTONDOWN:
-                click(e.jbutton.which,
-                      e.jbutton.button, 0, true);
+                R |= handle(E.mk_click(e.jbutton.which,
+                                       e.jbutton.button, 0, true));
                 break;
 
             case SDL_JOYBUTTONUP:
-                click(e.jbutton.which,
-                      e.jbutton.button, 0, false);
+                R |= handle(E.mk_click(e.jbutton.which,
+                                       e.jbutton.button, 0, false));
                 break;
 
             case SDL_QUIT:
-                close();
-                return;
+                R |= handle(E.mk_close()) | R_EXIT;
+                break;
             }
 
         // Check for script input events.
 
-        poll_script();
+// TODO: re-enable
+//      poll_script();
+//      poll_listen();
 
-        if (bench == 0)  // Advance by JIFFYs until sim clock meets wall clock.
-        {
-            int tick = SDL_GetTicks();
+        // Advance to the current time, or by one JIFFY when benchmarking.
 
-            while (tick - tock >= JIFFY)
-            {
-                tock += JIFFY;
-                timer(JIFFY);
-            }
-        }
-        if (bench == 1) // Advance by exactly one JIFFY.
-        {
-            timer(JIFFY);
-        }
-        if (bench == 2) // Advance sim clock to wall clock in exactly on update.
-        {
-            int tick = SDL_GetTicks();
+        for (int tick = bench ? (tock + JIFFY) : SDL_GetTicks();
+             tick - tock >= JIFFY;
+             tock        += JIFFY)
 
-            timer(tick - tock);
-
-            tock = tick;
-        }
+            R |= handle(E.mk_timer(JIFFY));
 
         // Call the paint handler.
 
-        paint();
-        front();
+        if (R & R_DRAW)
+        {
+            R |= handle(E.mk_paint());
+            R |= handle(E.mk_frame());
+        }
 
         // Count frames and record a movie, if requested.
         
-        frame++;
+        count++;
 
-        if (movie && (frame % movie) == 0)
+        if (movie && (count % movie) == 0)
         {
             char buf[256];
 
-            sprintf(buf, "frame%05d.png", frame / movie);
+            sprintf(buf, "frame%05d.png", count / movie);
 
             ::prog->snap(std::string(buf),
                          ::host->get_window_w(),
@@ -582,85 +615,10 @@ void app::host::root_loop()
 
 void app::host::node_loop()
 {
+    event E;
+
     while (1)
-    {
-        message M(0);
-
-        M.recv(server_sd);
-
-        switch (M.type())
-        {
-        case E_POINT:
-        {
-            double p[3];
-            double q[4];
-
-            int i = M.get_byte();
-            p[0]  = M.get_real();
-            p[1]  = M.get_real();
-            p[2]  = M.get_real();
-            q[0]  = M.get_real();
-            q[1]  = M.get_real();
-            q[2]  = M.get_real();
-            q[3]  = M.get_real();
-            point(i, p, q);
-            break;
-        }
-        case E_CLICK:
-        {
-            int  i = M.get_byte();
-            int  b = M.get_byte();
-            int  m = M.get_byte();
-            bool d = M.get_bool();
-            click(i, b, m, d);
-            break;
-        }
-        case E_KEYBD:
-        {
-            int  c = M.get_word();
-            int  k = M.get_word();
-            int  m = M.get_word();
-            bool d = M.get_bool();
-            keybd(c, k, m, d);
-            break;
-        }
-        case E_VALUE:
-        {
-            int    i = M.get_byte();
-            int    a = M.get_byte();
-            double p = M.get_real();
-            value(i, a, p);
-            break;
-        }
-        case E_MESSG:
-        {
-            messg(M.get_text(), NULL);
-            break;
-        }
-        case E_TIMER:
-        {
-            timer(M.get_word());
-            break;
-        }
-        case E_PAINT:
-        {
-            paint();
-            break;
-        }
-        case E_FRONT:
-        {
-            front();
-            break;
-        }
-        case E_CLOSE:
-        {
-            close();
-            return;
-        }
-        default:
-            break;
-        }
-    }
+        handle(E.recv(server_sd));
 }
 
 void app::host::loop()
@@ -688,13 +646,10 @@ void app::host::draw()
 
     // Render all tiles.
     
-//  glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-//  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     int c = 0;
 
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        (*i)->draw(views, c, calibrate_state, calibrate_index);
+        (*i)->draw(views, c, calibration_state, calibration_index);
 
     // If doing network sync, wait until the rendering has finished.
 
@@ -710,24 +665,35 @@ int app::host::get_window_m() const
 
 //-----------------------------------------------------------------------------
 
-void app::host::send(message& M)
-{
-    // Send a message to all clients.
+// Send the given event to all connected clients.
 
+void app::host::send(event *E)
+{
     for (SOCKET_i i = client_sd.begin(); i != client_sd.end(); ++i)
-        M.send(*i);
+        E->send(*i);
 }
 
-void app::host::recv(message& M)
+// Barrier-sync. Await an acknowledgement from all connected clients and
+// send an acknowledgement to the server. This has the effect of a tree-
+// wide recursive barrier synchronization.
+
+void app::host::sync()
 {
-    // Receive a message from all clients (should be E_REPLY).
+    char buf[1] = { '\0' };
+
+    // Recieve a message from all connected clients.
 
     for (SOCKET_i i = client_sd.begin(); i != client_sd.end(); ++i)
-        M.recv(*i);
+        ::recv(*i,        buf, 1, 0);
+
+    // Send a message to any connected server.
+
+    if (server_sd != INVALID_SOCKET)
+        ::send(server_sd, buf, 1, 0);
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void app::host::point(int i, const double *p, const double *q)
 {
     // Forward the event to all clients.
@@ -771,7 +737,7 @@ void app::host::click(int i, int b, int m, bool d)
 
     // Calibrating a tile?
 
-    if (calibrate_state)
+    if (calibration_state)
     {
         if (tile_input_click(i, b, m, d))
             return;
@@ -813,8 +779,8 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         else if (k == SDLK_TAB)
         {
-            calibrate_state = !calibrate_state;
-            printf("state %d\n", calibrate_state);
+            calibration_state = !calibration_state;
+            printf("state %d\n", calibration_state);
             return;
         }
 
@@ -822,20 +788,20 @@ void app::host::keybd(int c, int k, int m, bool d)
 
         else if (k == SDLK_SPACE)
         {
-            calibrate_index++;
-            printf("index %d\n", calibrate_index);
+            calibration_index++;
+            printf("index %d\n", calibration_index);
             return;
         }
         else if (k == SDLK_BACKSPACE)
         {
-            calibrate_index--;
-            printf("index %d\n", calibrate_index);
+            calibration_index--;
+            printf("index %d\n", calibration_index);
             return;
         }
 
         // Calibrating a tile?
 
-        else if (calibrate_state)
+        else if (calibration_state)
         {
             tile_input_keybd(c, k, m, d);
             return;
@@ -930,13 +896,13 @@ void app::host::paint()
     }
 }
 
-void app::host::front()
+void app::host::frame()
 {
     // Forward the event to all clients.
 
     if (!client_sd.empty())
     {
-        message M(E_FRONT);
+        message M(E_FRAME);
 
         send(M);
     }
@@ -967,15 +933,44 @@ void app::host::close()
         R.send(server_sd);
     }
 }
+*/
+// Handle the given user event. 
+
+int app::host::handle(event *E)
+{
+    int R = 0;
+
+    // Forward the message to all clients.
+
+    send(E);
+
+    // Handle the event, or pass it along to the application.
+
+    switch (E->get_type())
+    {
+    case E_PAINT: draw();
+    case E_START:
+    case E_CLOSE: sync(); return R_HANDLED;
+    case E_FRAME: swap(); return R_HANDLED;
+
+    default:
+        if ((R = do_calibration(E)) ||
+            (R = ::prog->handle(E)))
+            return R;
+    }
+
+    return R_IGNORED;
+}
 
 //-----------------------------------------------------------------------------
+
+// Forward the given position and orientation to all view objects.  This is
+// usually called per-frame in response to a head motion tracker input.
 
 void app::host::set_head(const double *p,
                          const double *q)
 {
-    std::vector<view *>::iterator i;
-
-    for (i = views.begin(); i != views.end(); ++i)
+    for (view_i i = views.begin(); i != views.end(); ++i)
         (*i)->set_head(p, q);
 }
 
@@ -1016,11 +1011,11 @@ void app::host::gui_view() const
 }
 #endif
 //-----------------------------------------------------------------------------
-
+/*
 bool app::host::tile_input_point(int i, const double *p, const double *q)
 {
     for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(calibrate_index) && (*t)->input_point(i, p, q))
+        if ((*t)->is_index(calibration_index) && (*t)->input_point(i, p, q))
             return true;
 
     return false;
@@ -1029,7 +1024,7 @@ bool app::host::tile_input_point(int i, const double *p, const double *q)
 bool app::host::tile_input_click(int i, int b, int m, bool d)
 {
     for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(calibrate_index) && (*t)->input_click(i, b, m, d))
+        if ((*t)->is_index(calibration_index) && (*t)->input_click(i, b, m, d))
             return true;
 
     return false;
@@ -1038,10 +1033,10 @@ bool app::host::tile_input_click(int i, int b, int m, bool d)
 bool app::host::tile_input_keybd(int c, int k, int m, bool d)
 {
     for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(calibrate_index) && (*t)->input_keybd(c, k, m, d))
+        if ((*t)->is_index(calibration_index) && (*t)->input_keybd(c, k, m, d))
             return true;
 
     return false;
 }
-
+*/
 //-----------------------------------------------------------------------------

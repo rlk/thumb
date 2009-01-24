@@ -29,11 +29,12 @@
 #define E_CLICK 2
 #define E_KEYBD 3
 #define E_VALUE 4
-#define E_MESSG 5
+#define E_INPUT 5
 #define E_TIMER 6
 #define E_PAINT 7
-#define E_FRONT 8
-#define E_CLOSE 9
+#define E_FRAME 8
+#define E_START 9
+#define E_CLOSE 10
 
 namespace app
 {
@@ -78,7 +79,7 @@ namespace app
 
     public:
 
-        message(unsigned char);
+        message();
 
         // Data marshalling
 

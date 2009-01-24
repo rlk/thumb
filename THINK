@@ -1,5 +1,11 @@
 Thumb features to consider
 
+    It would be nice to have an #ifdef mechanism in the shaders
+        This would make it easier to produce modal shaders without
+        explicit conditionals.
+            Debug view modes
+            Capability fallbacks
+
     Modify the data object to note the most recently used directory
         auto-associates MTLs with OBJs
         simplifies the glsl include mechanism
