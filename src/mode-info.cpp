@@ -13,7 +13,6 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include "app-host.hpp"
 #include "mode-info.hpp"
 
 //-----------------------------------------------------------------------------

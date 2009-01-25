@@ -15,8 +15,8 @@
 
 #include <string>
 #include <cstring>
-#include <stdexcept>
 #include <errno.h>
+#include <stdexcept>
 
 #include "socket.hpp"
 
@@ -40,13 +40,6 @@
 #define E_FRAME 9
 #define E_START 10
 #define E_CLOSE 11
-
-// Event responses
-
-#define R_IGNORED 0
-#define R_HANDLED 1
-#define R_DRAW    2
-#define R_EXIT    4
 
 //-----------------------------------------------------------------------------
 
@@ -113,38 +106,38 @@ namespace app
 
         // Type-specific data
 
-        struct point_data_s
+        struct point_data_t
         {
             int    i;
             double p[3];
             double q[4];
         };
-        struct click_data_s
+        struct click_data_t
         {
             int    i;
             int    b;
             int    m;
             bool   d;
         };
-        struct keybd_data_s
+        struct keybd_data_t
         {
             int    c;
             int    k;
             int    m;
             bool   d;
         };
-        struct value_data_s
+        struct value_data_t
         {
             int    i;
             int    a;
             double v;
         };
-        struct input_data_s
+        struct input_data_t
         {
             char *src;
             char *dst;
         };
-        struct timer_data_s
+        struct timer_data_t
         {
             int dt;
         };
@@ -152,12 +145,12 @@ namespace app
         // Data union
 
         union {
-            point_data_s point;
-            click_data_s click;
-            keybd_data_s keybd;
-            value_data_s value;
-            input_data_s input;
-            timer_data_s timer;
+            point_data_t point;
+            click_data_t click;
+            keybd_data_t keybd;
+            value_data_t value;
+            input_data_t input;
+            timer_data_t timer;
         } data;
 
         void          put_type(unsigned char);

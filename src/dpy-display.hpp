@@ -19,6 +19,14 @@
 #include "app-view.hpp"
 
 //-----------------------------------------------------------------------------
+// Forward declarations
+
+namespace app
+{
+    class event;
+}
+
+//-----------------------------------------------------------------------------
 
 namespace dpy
 {
@@ -28,17 +36,9 @@ namespace dpy
     {
     public:
 
-        virtual bool input_point(int, const double *, const double *) {
-            return false;
-        }
-        virtual bool input_click(int, int, int, bool) {
-            return false;
-        }
-        virtual bool input_keybd(int, int, int, bool) {
-            return false;
-        }
+        bool project_event(app::event *, int, int) { return false; }
+        bool process_event(app::event *)           { return false; }
 
-        virtual bool pick(double *, double *, int, int) { return false; }
         virtual void prep(app::view_v&, app::frustum_v&)  = 0;
         virtual void draw(app::view_v&, int&, bool, bool) = 0;
 

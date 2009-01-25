@@ -14,6 +14,15 @@
 #define DEV_INPUT
 
 //-----------------------------------------------------------------------------
+// Forward declarations
+
+namespace app
+{
+    class event;
+}
+
+//-----------------------------------------------------------------------------
+// Input device base class
 
 namespace dev
 {
@@ -21,11 +30,7 @@ namespace dev
     {
     public:
 
-        virtual bool point(int, const double *, const double *);
-        virtual bool click(int, int, int, bool);
-        virtual bool keybd(int, int, int, bool);
-        virtual bool value(int, int, double);
-        virtual bool timer(int);
+        bool process_event(app::event *) { return false; }
 
         virtual ~input() { }
     };

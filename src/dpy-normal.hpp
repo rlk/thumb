@@ -18,6 +18,14 @@
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
+// Forward declarations
+
+namespace
+{
+    class event;
+}
+
+//-----------------------------------------------------------------------------
 
 namespace dpy
 {
@@ -28,7 +36,7 @@ namespace dpy
 
     class normal : public display
     {
-        int           index;
+        int           view_i;
         app::frustum *frust;
 
         int x;
@@ -37,6 +45,8 @@ namespace dpy
         int h;
 
         const ogl::program *P;
+
+        virtual bool process_start(app::event *);
 
     public:
 
@@ -49,8 +59,8 @@ namespace dpy
 
         // Event handers.
 
-        virtual int project_event(event *, int, int);
-        virtual int process_event(event *);
+        virtual bool project_event(app::event *, int, int);
+        virtual bool process_event(app::event *);
 
         virtual ~normal();
     };

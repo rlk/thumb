@@ -13,9 +13,11 @@
 #include "default.hpp"
 #include "app-tile.hpp"
 #include "dpy-normal.hpp"
+/*
 #include "dpy-dome.hpp"
 #include "dpy-varrier.hpp"
 #include "dpy-anaglyph.hpp"
+*/
 
 //-----------------------------------------------------------------------------
 
@@ -53,32 +55,20 @@ app::tile::tile(app::node node) : current(0)
 
         if (strcmp(t, "normal")   == 0)
             display.push_back(new dpy::normal  (node, curr, window));
+/*
         if (strcmp(t, "dome")     == 0)
             display.push_back(new dpy::dome    (node, curr, window));
         if (strcmp(t, "varrier")  == 0)
             display.push_back(new dpy::varrier (node, curr, window));
         if (strcmp(t, "anaglyph") == 0)
             display.push_back(new dpy::anaglyph(node, curr, window));
+*/
     }
-
-    // Create a fall-back normal display.
-
-    display.push_back(new dpy::normal(node, 0, window));
 }
 
 app::tile::~tile()
 {
     // TODO: release the display objects.
-}
-
-//-----------------------------------------------------------------------------
-
-bool app::tile::pick(double *p, double *q, int x, int y)
-{
-    if (display[current])
-        return display[current]->pick(p, q, x, y);
-    else
-        return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -101,12 +91,20 @@ void app::tile::draw(view_v& views, int& c, bool calibrate_state,
 
 //-----------------------------------------------------------------------------
 
-int app::tile::handle(app::event *E)
+bool app::tile::project_event(app::event *E, int x, int y)
 {
     if (display[current])
-        return display[current]->handle(E);
+        return display[current]->project_event(E, x, y);
     else
-        return R_IGNORED;
+        return false;
+}
+
+bool app::tile::process_event(app::event *E)
+{
+    if (display[current])
+        return display[current]->process_event(E);
+    else
+        return false;
 }
 
 //-----------------------------------------------------------------------------

@@ -16,13 +16,14 @@
 #include <stdexcept>
 
 #include "ogl-opengl.hpp"
+#include "app-event.hpp"
 #include "app-prog.hpp"
 #include "app-conf.hpp"
 #include "app-host.hpp"
 
 //-----------------------------------------------------------------------------
 
-void app::prog::snap(std::string filename, int w, int h) const
+void app::prog::screenshot(std::string filename, int w, int h) const
 {
     FILE       *filep  = NULL;
     png_structp writep = NULL;
@@ -97,27 +98,45 @@ app::prog::prog() : options(0)
     key_init = ::conf->get_i("key_init");
 }
 
-void app::prog::keybd(int c, int k, int m, bool d)
+bool app::prog::process_event(app::event *E)
 {
-    SDL_Event user = { SDL_USEREVENT };
-    SDL_Event quit = { SDL_QUIT      };
+    // Handle the global key bindings.
 
-    if (d)
+    if (E->get_type() == E_KEYBD && E->data.keybd.d)
     {
+        const int k = E->data.keybd.k;
+        const int m = E->data.keybd.m;
+
+        SDL_Event user = { SDL_USEREVENT };
+        SDL_Event quit = { SDL_QUIT      };
+
+        // Take a screenshot.
+
         if (k == key_snap)
-            snap(::conf->get_s("screenshot_file"),
-                 ::host->get_window_w(),
-                 ::host->get_window_h());
-
-        else if (k == key_exit) SDL_PushEvent(&quit);
-        else if (k == key_init) SDL_PushEvent(&user);
-
-        else if (m & KMOD_SHIFT)
         {
-            if (SDLK_F1 <= k && k <= SDLK_F12)
-                tgl_option(k - SDLK_F1);
+            screenshot(::conf->get_s("screenshot_file"),
+                       ::host->get_window_w(),
+                       ::host->get_window_h());
+
+            return true;
+        }
+
+        // Exit or reload.
+
+        else if (k == key_exit) { SDL_PushEvent(&quit); return true; }
+        else if (k == key_init) { SDL_PushEvent(&user); return true; }
+
+        // Toggle a debugging option.
+
+        else if ((SDLK_F1 <= k && k <= SDLK_F12) && (m & KMOD_SHIFT))
+        {
+            tgl_option(k - SDLK_F1);
+            ::host->post_draw();
+            return true;
         }
     }
+
+    return false;
 }
 
 //-----------------------------------------------------------------------------

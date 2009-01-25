@@ -13,8 +13,6 @@
 #ifndef DEV_MOUSE
 #define DEV_MOUSE
 
-#include <vector>
-
 #include "uni-universe.hpp"
 #include "dev-input.hpp"
 
@@ -26,6 +24,8 @@ namespace dev
     {
         uni::universe& universe;
 
+        // Configuration
+
         int key_move_L;
         int key_move_R;
         int key_move_D;
@@ -36,22 +36,27 @@ namespace dev
         double view_move_rate;
         double view_turn_rate;
 
-        std::vector<bool> button;
+        // Navigation state
 
-        int modifiers;
+        bool dragging;
+        int  modifier;
 
         double init_R[16];
         double curr_R[16];
         int    motion[3];
 
+        // Event handlers
+
+        bool process_point(app::event *);
+        bool process_click(app::event *);
+        bool process_keybd(app::event *);
+        bool process_timer(app::event *);
+
     public:
 
         mouse(uni::universe&);
 
-        virtual bool point(int, const double *, const double *);
-        virtual bool click(int, int, int, bool);
-        virtual bool keybd(int, int, int, bool);
-        virtual bool timer(int);
+        bool process_event(app::event *);
 
         virtual ~mouse();
     };

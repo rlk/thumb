@@ -13,21 +13,23 @@
 #ifndef APP_HOST_HPP
 #define APP_HOST_HPP
 
+#include <vector>
 #include <string>
-#include <list>
 
-#include "ogl-texture.hpp"
+#include "socket.hpp"
 #include "app-serial.hpp"
-#include "app-event.hpp"
-#include "app-view.hpp"
-#include "app-tile.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace app
 {
-    typedef std::list<SOCKET>           SOCKET_v;
-    typedef std::list<SOCKET>::iterator SOCKET_i;
+    // Forward declarations of pointed-to classes.
+
+    class tile;
+    class view;
+    class event;
+
+    // Application host
 
     class host
     {
@@ -58,6 +60,9 @@ namespace app
 
         // Event loops
 
+        bool draw_flag;
+        bool exit_flag;
+
         void root_loop();
         void node_loop();
 
@@ -72,7 +77,7 @@ namespace app
         bool calibration_state;
         int  calibration_index;
 
-        int do_calibration(event *E);
+        bool do_calibration(event *E);
 
         // Window config
 
@@ -80,8 +85,8 @@ namespace app
         int window_full;
         int window_frame;
 
-        std::vector<view *> views;
-        std::vector<tile *> tiles;
+        std::vector<app::view *> views;
+        std::vector<app::tile *> tiles;
 
         // Configuration serializer
 
@@ -97,8 +102,8 @@ namespace app
         void draw();
         void swap() const;
 
-        int project_event(event *, int, int);
-        int process_event(event *);
+        bool project_event(event *, int, int);
+        bool process_event(event *);
 
         // Configuration queries.
 
@@ -109,6 +114,9 @@ namespace app
         int get_window_m() const;
 
         void set_head(const double *, const double *);
+
+        void post_draw() { draw_flag = true; }
+        void post_exit() { exit_flag = true; }
     };
 }
 

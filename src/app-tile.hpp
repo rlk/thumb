@@ -15,7 +15,6 @@
 
 #include <vector>
 
-#include "app-event.hpp"
 #include "app-serial.hpp"
 #include "dpy-display.hpp"
 
@@ -23,6 +22,12 @@
 
 namespace app
 {
+    // Forward declarations
+
+    class event;
+
+    // Display tile
+
     class tile
     {
     private:
@@ -43,8 +48,8 @@ namespace app
 
         // Event handlers.
 
-        int project_event(event *, int, int);
-        int process_event(event *);
+        bool project_event(event *, int, int);
+        bool process_event(event *);
 
         bool is_index(int i) const { return (i == index); }
 

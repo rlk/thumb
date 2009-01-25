@@ -12,6 +12,7 @@
 
 #include "dpy-normal.hpp"
 #include "matrix.hpp"
+#include "app-event.hpp"
 #include "app-glob.hpp"
 #include "app-user.hpp"
 #include "app-prog.hpp"
@@ -45,67 +46,52 @@ dpy::normal::normal(app::node tile,
 
     // Note the view index.
 
-    index = app::get_attr_d(node, "view");
+    view_i = app::get_attr_d(node, "view");
 }
 
 dpy::normal::~normal()
 {
-    if (frust) delete frust;
+    delete frust;
 }
 
 //-----------------------------------------------------------------------------
 
 void dpy::normal::prep(app::view_v& views, app::frustum_v& frusta)
 {
-    if (frust)
-    {
-        // Apply the viewpoint and view to my frustum.
+    // Apply the viewpoint and view to my frustum.
 
-        frust->calc_user_planes(views[index]->get_p());
+    frust->calc_user_planes(views[view_i]->get_p());
 
-        // Add my frustum to the list.
+    // Add my frustum to the list.
 
-        frusta.push_back(frust);
-    }
-
-    // Ensure the draw shader is initialized.
-
-    if (P == 0 && (P = ::glob->load_program("glsl/dpy/normal.vert",
-                                            "glsl/dpy/normal.frag")))
-    {
-        P->bind();
-        {
-            P->uniform("map", 0);
-        }
-        P->free();
-    }
+    frusta.push_back(frust);
 }
 
 void dpy::normal::draw(app::view_v& views, app::frustum *frust)
 {
-    if (views[index])
+    if (views[view_i])
     {
         // Draw the scene to the off-screen buffer.
 
-        views[index]->bind();
+        views[view_i]->bind();
         {
             if (calibrate)
-                views[index]->draw();
+                views[view_i]->draw();
             else
                 ::prog->draw(frust);
         }
-        views[index]->free();
+        views[view_i]->free();
 
         // Draw the off-screen buffer to the screen.
 
         if (P)
         {
-            const double kx = double(views[index]->get_w()) / w;
-            const double ky = double(views[index]->get_h()) / h;
+            const double kx = double(views[view_i]->get_w()) / w;
+            const double ky = double(views[view_i]->get_h()) / h;
 
             glViewport(x, y, w, h);
 
-            views[index]->bind_color(GL_TEXTURE0);
+            views[view_i]->bind_color(GL_TEXTURE0);
             P->bind();
             {
                 P->uniform("frag_d", -x * kx, -y * ky);
@@ -121,42 +107,75 @@ void dpy::normal::draw(app::view_v& views, app::frustum *frust)
                 glEnd();
             }
             P->free();
-            views[index]->free_color(GL_TEXTURE0);
+            views[view_i]->free_color(GL_TEXTURE0);
         }
     }
 }
 
 //-----------------------------------------------------------------------------
 
-bool dpy::normal::pick(double *p, double *q, int wx, int wy)
+bool dpy::normal::project_event(app::event *E, int x, int y)
 {
+    // Determine whether the pointer falls within the viewport.
+
     if (frust)
     {
-        double kx = double(wx - x) / w;
-        double ky = double(wy - y) / h;
+        double X = double(wx - x) / w;
+        double Y = double(wy - y) / h;
 
-        if (0.0 <= kx && kx < 1.0 &&
-            0.0 <= ky && ky < 1.0)
-            frust->pick(p, q, kx, ky);
+        if (0.0 <= X && X < 1.0 &&
+            0.0 <= Y && Y < 1.0)
 
-        return true;
+            // Let the frustum project the pointer into space.
+
+            return frust->project_event(E, X, Y))
     }
     return false;
 }
 
-bool dpy::normal::input_point(int i, const double *p, const double *q)
+bool dpy::normal::process_start(app::event *E)
 {
-    return frust ? frust->input_point(i, p, q) : false;
+    // Initialize the shader.
+
+    if ((P = ::glob->load_program("glsl/dpy/normal.vert",
+                                  "glsl/dpy/normal.frag")))
+    {
+        P->bind();
+        {
+            P->uniform("map", 0);
+        }
+        P->free();
+    }
+    return false;
 }
 
-bool dpy::normal::input_click(int i, int b, int m, bool d)
+bool dpy::normal::process_close(app::event *E)
 {
-    return frust ? frust->input_click(i, b, m, d) : false;
+    // Finalize the shader.
+
+    ::glob->free_program(P);
+
+    P = 0;
+
+    return false;
 }
 
-bool dpy::normal::input_keybd(int c, int k, int m, bool d)
+bool dpy::normal::process_event(app::event *E)
 {
-    return frust ? frust->input_keybd(c, k, m, d) : false;
+    // Do the local startup or shutdown.
+
+    switch (E.get_type())
+    {
+    case E_START: process_start(E);
+    case E_CLOSE: process_close(E);
+    }
+
+    // Let the frustum handle the event.
+
+    if (frust)
+        return frust->process_event(app::event *E);
+    else
+        return false;
 }
 
 //-----------------------------------------------------------------------------

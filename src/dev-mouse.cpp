@@ -16,13 +16,16 @@
 #include "matrix.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
+#include "app-host.hpp"
+#include "app-event.hpp"
 #include "dev-mouse.hpp"
 
 //-----------------------------------------------------------------------------
 
 dev::mouse::mouse(uni::universe& universe) :
     universe(universe),
-    modifiers(0)
+    dragging(false),
+    modifier(0)
 {
     key_move_L = conf->get_i("key_move_L");
     key_move_R = conf->get_i("key_move_R");
@@ -40,8 +43,6 @@ dev::mouse::mouse(uni::universe& universe) :
 
     load_idt(init_R);
     load_idt(curr_R);
-
-    button = std::vector<bool>(5, false);
 }
 
 dev::mouse::~mouse()
@@ -50,14 +51,15 @@ dev::mouse::~mouse()
 
 //-----------------------------------------------------------------------------
 
-bool dev::mouse::point(int i, const double *p, const double *q)
+bool dev::mouse::process_point(app::event *E)
 {
     load_mat(init_R, curr_R);    
-    set_quaternion(curr_R, q);
 
-    if (button[SDL_BUTTON_LEFT])
+    set_quaternion(curr_R, E->data.point.q);
+
+    if (dragging)
     {
-        if (modifiers & KMOD_SHIFT)
+        if (modifier & KMOD_SHIFT)
         {
             double a0 = DEG(atan2(init_R[9], init_R[8]));
             double a1 = DEG(atan2(curr_R[9], curr_R[8]));
@@ -68,31 +70,57 @@ bool dev::mouse::point(int i, const double *p, const double *q)
         {
             ::user->tumble(init_R, curr_R);
         }
+
+        ::host->post_draw();
         return true;
     }
     return false;
 }
 
-bool dev::mouse::click(int i, int b, int m, bool d)
+bool dev::mouse::process_click(app::event *E)
 {
+    const bool d = E->data.click.d;
+    const int  b = E->data.click.b;
+    const int  m = E->data.click.m;
+
     double now = universe.get_time();
 
-    button[b] = d;
-    modifiers = m;
+    // Handle rotating the view.
 
-    if      (d && b == SDL_BUTTON_WHEELUP)
+    if (b == SDL_BUTTON_LEFT)
+    {
+        dragging = d;
+        modifier = m;
+        return true;
+    }
+
+    // Handle rotating the universe.
+
+    else if (d && b == SDL_BUTTON_WHEELUP)
+    {
         universe.set_time(now + 15.0 * 60.0);
+        return true;
+    }
     else if (d && b == SDL_BUTTON_WHEELDOWN)
+    {
         universe.set_time(now - 15.0 * 60.0);
+        return true;
+    }
 
-    return true;
+    return false;
 }
 
-bool dev::mouse::keybd(int c, int k, int m, bool d)
+bool dev::mouse::process_keybd(app::event *E)
 {
+    const bool d = E->data.keybd.d;
+    const int  k = E->data.keybd.k;
+    const int  m = E->data.keybd.m;
+
     int dd = d ? +1 : -1;
 
-    modifiers = m;
+    modifier = m;
+
+    // Handle motion keys.
 
     if      (k == key_move_L) { motion[0] -= dd; return true; }
     else if (k == key_move_R) { motion[0] += dd; return true; }
@@ -101,24 +129,43 @@ bool dev::mouse::keybd(int c, int k, int m, bool d)
     else if (k == key_move_F) { motion[2] -= dd; return true; }
     else if (k == key_move_B) { motion[2] += dd; return true; }
     
+    // Teleport home.
+
     else if (d)
     {
-        if (k == SDLK_RETURN) { ::user->home(); return true; }
+        if (k == SDLK_RETURN)
+        {
+            ::user->home();
+            ::host->post_draw();
+            return true;
+        }
     }
 
     return false;
 }
 
-bool dev::mouse::timer(int t)
+bool dev::mouse::process_timer(app::event *E)
 {
-    double kp = t * universe.move_rate() / 1000.0;
+    double kp = E->data.timer.dt * universe.move_rate() * 0.0001;
 
-    user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
+    user->move(motion[0] * kp,
+               motion[1] * kp,
+               motion[2] * kp);
 
-    if (DOT3(motion, motion) > 0)
-        return true;
-    else
-        return false;
+    return false;
+}
+
+bool dev::mouse::process_event(app::event *E)
+{
+    switch (E->get_type())
+    {
+    case E_POINT: return process_point(E);
+    case E_CLICK: return process_click(E);
+    case E_KEYBD: return process_keybd(E);
+    case E_TIMER: return process_timer(E);
+    }
+
+    return false;
 }
 
 //-----------------------------------------------------------------------------

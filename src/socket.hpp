@@ -13,6 +13,8 @@
 #ifndef SOCKET_HPP
 #define SOCKET_HPP
 
+#include <list>
+
 //-----------------------------------------------------------------------------
 // These definitions homogenize Winsock with Berkeley Sockets. (needs work)
 
@@ -47,6 +49,10 @@ typedef int SOCKET;
 #endif //----------------------------------------------------------------------
 
 typedef struct sockaddr_in sockaddr_t;
+
+typedef std::list<SOCKET>           SOCKET_v;
+typedef std::list<SOCKET>::iterator SOCKET_i;
+
 
 //-----------------------------------------------------------------------------
 

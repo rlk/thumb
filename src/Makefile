@@ -50,15 +50,8 @@ OBJS=   util.o \
 	uni-slides.o \
 	uni-overlay.o \
 	uni-universe.o \
-	dev-input.o \
 	dev-mouse.o \
-	dev-gamepad.o \
-	dev-tracker.o \
-	dev-wiimote.o \
-	dpy-dome.o \
 	dpy-normal.o \
-	dpy-varrier.o \
-	dpy-anaglyph.o \
 	app-event.o \
 	app-frustum.o \
 	app-serial.o \
@@ -76,9 +69,12 @@ OBJS=   util.o \
 	demo.o \
 	main.o
 
-#	ogl-progset.o \
-#	app-message.o \
-#	tracker.o \
+#	dev-gamepad.o \
+#	dev-tracker.o \
+#	dev-wiimote.o \
+#	dpy-dome.o \
+#	dpy-varrier.o \
+#	dpy-anaglyph.o \
 
 DEPS= $(OBJS:.o=.d)
 

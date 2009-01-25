@@ -13,15 +13,19 @@
 #ifndef DEMO_HPP
 #define DEMO_HPP
 
-#include <set>
-
 #include "ogl-opengl.hpp"
 #include "uni-universe.hpp"
 #include "wrl-world.hpp"
 #include "dev-input.hpp"
-#include "mode-mode.hpp"
-#include "app-glob.hpp"
 #include "app-prog.hpp"
+
+//-----------------------------------------------------------------------------
+// Forward declarations
+
+namespace mode
+{
+    class mode;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -69,17 +73,18 @@ class demo : public app::prog
     void attr_ins();
     void attr_del();
 
+    // Event handlers
+
+    bool process_keybd(app::event *);
+    bool process_input(app::event *);
+    bool process_timer(app::event *);
+
 public:
 
     demo();
    ~demo();
 
-    void point(int, const double *, const double *);
-    void click(int, int, int, bool);
-    void keybd(int, int, int, bool);
-    void value(int, int, double);
-    void messg(const char *, char *);
-    void timer(int);
+    bool process_event(app::event *);
 
     void prep(app::frustum_v&);
     void draw(int);

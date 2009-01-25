@@ -19,6 +19,12 @@
 
 namespace app
 {
+    // Forward declarations.
+
+    class event;
+
+    // Application interface.
+
     class prog
     {
         int key_snap;
@@ -29,19 +35,15 @@ namespace app
 
     public:
 
-        void snap(std::string, int, int) const;
+        void screenshot(std::string, int, int) const;
 
         prog();
 
-        virtual void point(int, const double *, const double *) { }
-        virtual void click(int, int, int, bool)                 { }
-        virtual void keybd(int, int, int, bool);
-        virtual void value(int, int, double)                    { }
-        virtual void messg(const char *, char *)                { }
-        virtual void timer(int)                                 { }
-        
-        virtual void prep(app::frustum_v&) { }
-        virtual void draw(int)             { }
+        virtual bool process_event(event *);
+        virtual void prep(frustum_v&) { }
+        virtual void draw(int)        { }
+
+        // Debug toggles.
 
         int  get_options() const;
         void set_options(int);

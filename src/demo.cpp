@@ -14,14 +14,21 @@
 #include <cstring>
 
 #include "ogl-opengl.hpp"
+
 #include "demo.hpp"
+
+#include "app-event.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-host.hpp"
+
 #include "dev-mouse.hpp"
+/*
 #include "dev-gamepad.hpp"
 #include "dev-tracker.hpp"
 #include "dev-wiimote.hpp"
+*/
+
 #include "mode-edit.hpp"
 #include "mode-play.hpp"
 #include "mode-info.hpp"
@@ -33,11 +40,11 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
     std::string input_mode = conf->get_s("input_mode");
 
     // Initialize the input handler.
-
+/*
     if      (input_mode == "gamepad") input = new dev::gamepad(universe);
     else if (input_mode == "tracker") input = new dev::tracker(universe);
     else if (input_mode == "wiimote") input = new dev::wiimote(universe);
-    else                              input = new dev::mouse  (universe);
+    else */                           input = new dev::mouse  (universe);
 
     // Initialize attract mode.
 
@@ -170,69 +177,47 @@ void demo::prev()
 
 //-----------------------------------------------------------------------------
 
-void demo::point(int i, const double *p, const double *q)
+bool demo::process_keybd(app::event *E)
 {
-    if (input && input->point(i, p, q))
-        attr_off();
-}
+    const bool d = E->data.keybd.d;
+    const int  k = E->data.keybd.k;
+    const int  m = E->data.keybd.m;
 
-void demo::click(int i, int b, int m, bool d)
-{
-    if (input && input->click(i, b, m, d))
-        attr_off();
+    // Handle application mode transitions.
 
-    if (curr)
+    if (d)
     {
-        if (curr->click(i, b, m, d) == false)
-            prog::click(i, b, m, d);
+        if (k == key_edit && curr != edit) { goto_mode(edit); return true; }
+        if (k == key_play && curr != play) { goto_mode(play); return true; }
+        if (k == key_info && curr != info) { goto_mode(info); return true; }
     }
-}
 
-void demo::keybd(int c, int k, int m, bool d)
-{
-    if (input && input->keybd(c, k, m, d))
-        attr_off();
-    else
+    // Handle attract mode controls.
+
+    if (d && (m & KMOD_SHIFT))
     {
-        prog::keybd(c, k, m, d);
-
-        // Handle mode transitions.
-
-        if      (d && k == key_edit && curr != edit) goto_mode(edit);
-        else if (d && k == key_play && curr != play) goto_mode(play);
-        else if (d && k == key_info && curr != info) goto_mode(info);
-
-        // Let the current mode take it.
-
-        if (curr == 0 || curr->keybd(c, k, m, d) == false)
-        {
-            // Handle guided view keys.
-
-            if (d && (m & KMOD_SHIFT))
-            {
-                if      (k == SDLK_PAGEUP)   attr_next();
-                else if (k == SDLK_PAGEDOWN) attr_prev();
-                else if (k == SDLK_END)      attr_ins();
-                else if (k == SDLK_HOME)     attr_del();
-                else if (k == SDLK_SPACE)    attr_on();
-            }
-        }
+        if      (k == SDLK_PAGEUP)   { attr_next(); return true; }
+        else if (k == SDLK_PAGEDOWN) { attr_prev(); return true; }
+        else if (k == SDLK_END)      { attr_ins();  return true; }
+        else if (k == SDLK_HOME)     { attr_del();  return true; }
+        else if (k == SDLK_SPACE)    { attr_on();   return true; }
     }
+
+    return false;
 }
 
-void demo::timer(int t)
+bool demo::process_timer(app::event *E)
 {
-    double dt = t / 1000.0;
+    double dt = E->data.timer.dt * 0.001;
+
+    // Step attract mode, if enabled.
 
     if (attr_mode)
         attr_step(dt);
 
-    if (input)
-        input->timer(t);
+    // Otherwise, if the attract delay has expired, enable attract mode.
 
-    // If the attract delay has expired, enable attract mode.
-
-    if (!attr_mode)
+    else
     {
         attr_curr += dt;
 
@@ -240,21 +225,45 @@ void demo::timer(int t)
             attr_on();
     }
 
-    if (curr)
-        curr->timer(t);
-    else
-        prog::timer(t);
+    // Always return IGNORED to allow other objects to process time.
+
+    return false;
 }
 
-void demo::value(int d, int a, double v)
+bool demo::process_input(app::event *E)
 {
-    if (input && input->value(d, a, v))
+    // Assume all script inputs are meaningful.  Pass them to the universe.
+
+    universe.script(E->data.input.src, NULL);
+    return true;
+}
+
+bool demo::process_event(app::event *E)
+{
+    bool R = false;
+
+    // Attempt to process the given event.
+
+    switch (E->get_type())
+    {
+    case E_KEYBD: R = process_keybd(E); break;
+    case E_INPUT: R = process_input(E); break;
+    case E_TIMER: R = process_timer(E); break;
+    }
+
+    // Allow the device, the application mode, or the base to handle the event.
+
+    if (R || (input && input->process_event(E))
+          || (curr  &&  curr->process_event(E))
+          || (        ::prog->process_event(E)))
+
+        // If the event was handled, disable the attract mode.
+    {
         attr_off();
-}
+        return true;
+    }
 
-void demo::messg(const char *ibuf, char *obuf)
-{
-    universe.script(ibuf, obuf);
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -266,27 +275,11 @@ void demo::prep(app::frustum_v& frusta)
 
 void demo::draw(int i)
 {
-/*
     GLfloat A[4] = { 0.25f, 0.25f, 0.25f, 0.0f };
-*/
-/*
-    if (::prog->get_option(2))
-    {
-        GLfloat A[4] = { 0.10f, 0.10f, 0.10f, 0.0f };
-        GLfloat D[4] = { 0.90f, 0.90f, 0.90f, 0.0f };
+    GLfloat D[4] = { 1.00f, 1.00f, 1.00f, 0.0f };
 
-        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
-    }
-    else
-*/
-    {
-        GLfloat A[4] = { 0.25f, 0.25f, 0.25f, 0.0f };
-        GLfloat D[4] = { 1.00f, 1.00f, 1.00f, 0.0f };
-
-        glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
-        glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
-    }
+    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
 
     glPushAttrib(GL_ENABLE_BIT);
     {

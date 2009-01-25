@@ -17,13 +17,16 @@
 
 #include "util.hpp"
 #include "matrix.hpp"
+#include "default.hpp"
 #include "ogl-opengl.hpp"
+#include "app-event.hpp"
+#include "app-view.hpp"
+#include "app-tile.hpp"
 #include "app-data.hpp"
 #include "app-conf.hpp"
 #include "app-glob.hpp"
 #include "app-user.hpp"
 #include "app-host.hpp"
-#include "app-perf.hpp"
 #include "app-prog.hpp"
 
 #define JIFFY (1000 / 60)
@@ -354,7 +357,7 @@ void app::host::fini_script()
 
 //-----------------------------------------------------------------------------
 
-int app::host::do_calibration(event *E)
+bool app::host::do_calibration(event *E)
 {
     // Handle calibration state input.
 
@@ -366,20 +369,28 @@ int app::host::do_calibration(event *E)
         {
         case SDLK_TAB:
             calibration_state = !calibration_state;
-            return R_DRAW;
+
+            post_draw();
+            return true;
 
         case SDLK_SPACE:
             calibration_index++;
-            return R_DRAW;
+
+            post_draw();
+            return true;
 
         case SDLK_BACKSPACE:
             calibration_index--;
-            return R_DRAW;
+
+            post_draw();
+            return true;
 
         case SDLK_RETURN:
             for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
                 (*i)->cycle();
-            return R_DRAW;
+
+            post_draw();
+            return true;
         }
 
     // Dispatch a calibration event to the current tile.
@@ -389,7 +400,7 @@ int app::host::do_calibration(event *E)
             if ((*i)->is_index(calibration_index))
                 return (*i)->process_event(E);
 
-    return R_IGNORED;
+    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -398,6 +409,8 @@ app::host::host(std::string filename, std::string tag) :
     server_sd(INVALID_SOCKET),
     client_cd(INVALID_SOCKET),
     script_cd(INVALID_SOCKET),
+    draw_flag(false),
+    exit_flag(false),
     bench(::conf->get_i("bench")),
     movie(::conf->get_i("movie")),
     count(0),
@@ -485,12 +498,8 @@ app::host::~host()
 
 void app::host::root_loop()
 {
-    int R = 0;
-
-    while (!(R & R_EXIT))
+    while (exit_flag == false)
     {
-        R = 0;
-
         // Translate and dispatch SDL events.
 
         SDL_Event e;
@@ -500,50 +509,51 @@ void app::host::root_loop()
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                if (     project_event(&E, e.motion.x, e.motion.y))
-                    R |= process_event(&E);
+                if (project_event(&E, e.motion.x, e.motion.y))
+                    process_event(&E);
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                R |= process_event(E.mk_click(0, e.button.button,
-                                              SDL_GetModState(), true));
+                process_event(E.mk_click(0, e.button.button,
+                                         SDL_GetModState(), true));
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                R |= process_event(E.mk_click(0, e.button.button,
-                                              SDL_GetModState(), false));
+                process_event(E.mk_click(0, e.button.button,
+                                         SDL_GetModState(), false));
                 break;
 
             case SDL_KEYDOWN:
-                R |= process_event(E.mk_keybd(e.key.keysym.unicode,
-                                              e.key.keysym.sym,
-                                              e.key.keysym.mod, true));
+                process_event(E.mk_keybd(e.key.keysym.unicode,
+                                         e.key.keysym.sym,
+                                         e.key.keysym.mod, true));
                 break;
 
             case SDL_KEYUP:
-                R |= process_event(E.mk_keybd(e.key.keysym.unicode,
-                                              e.key.keysym.sym,
-                                              e.key.keysym.mod, false));
+                process_event(E.mk_keybd(e.key.keysym.unicode,
+                                         e.key.keysym.sym,
+                                         e.key.keysym.mod, false));
                 break;
 
             case SDL_JOYAXISMOTION:
-                R |= process_event(E.mk_value(e.jaxis.which,
-                                              e.jaxis.axis,
-                                              e.jaxis.value / 32768.0));
+                process_event(E.mk_value(e.jaxis.which,
+                                         e.jaxis.axis,
+                                         e.jaxis.value / 32768.0));
                 break;
 
             case SDL_JOYBUTTONDOWN:
-                R |= process_event(E.mk_click(e.jbutton.which,
-                                              e.jbutton.button, 0, true));
+                process_event(E.mk_click(e.jbutton.which,
+                                         e.jbutton.button, 0, true));
                 break;
 
             case SDL_JOYBUTTONUP:
-                R |= process_event(E.mk_click(e.jbutton.which,
-                                              e.jbutton.button, 0, false));
+                process_event(E.mk_click(e.jbutton.which,
+                                         e.jbutton.button, 0, false));
                 break;
 
             case SDL_QUIT:
-                R |= process_event(E.mk_close()) | R_EXIT;
+                process_event(E.mk_close());
+                post_exit();
                 break;
             }
 
@@ -559,14 +569,16 @@ void app::host::root_loop()
              tick - tock >= JIFFY;
              tock        += JIFFY)
 
-            R |= process_event(E.mk_timer(JIFFY));
+            process_event(E.mk_timer(JIFFY));
 
-        // Call the paint handler.
+        // Call the render handler.
 
-        if (R & R_DRAW)
+        if (draw_flag)
         {
-            R |= process_event(E.mk_paint());
-            R |= process_event(E.mk_frame());
+            process_event(E.mk_paint());
+            process_event(E.mk_frame());
+
+            draw_flag = false;
         }
 
         // Count frames and record a movie, if requested.
@@ -579,9 +591,9 @@ void app::host::root_loop()
 
             sprintf(buf, "frame%05d.png", count / movie);
 
-            ::prog->snap(std::string(buf),
-                         ::host->get_window_w(),
-                         ::host->get_window_h());
+            ::prog->screenshot(std::string(buf),
+                               ::host->get_window_w(),
+                               ::host->get_window_h());
         }
     }
 }
@@ -671,41 +683,39 @@ void app::host::sync()
 
 // Ask each tile to project the event into the virtual space.
 
-int app::host::project_event(event *E, int x, int y)
+bool app::host::project_event(event *E, int x, int y)
 {
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
         if ((*i)->project_event(E, x, y))
-            return R_HANDLED;
+            return true;
 
-    return R_IGNORED;
+    return false;
 }
 
 // Handle the given user event. 
 
-int app::host::process_event(event *E)
+bool app::host::process_event(event *E)
 {
-    int R = 0;
-
     // Forward the message to all clients.
 
     send(E);
 
-    // Handle the event, or pass it along to the application.
+    // Allow the application to process the event.
+
+    ::prog->process_event(E);
+
+    // Handle the event locally, as needed.
 
     switch (E->get_type())
     {
     case E_PAINT: draw();
     case E_START:
-    case E_CLOSE: sync(); return R_HANDLED;
-    case E_FRAME: swap(); return R_HANDLED;
+    case E_CLOSE: sync(); return true;
+    case E_FRAME: swap(); return true;
 
     default:
-        if ((R = do_calibration(E)) ||
-            (R = ::prog->process_event(E)))
-            return R;
+        return do_calibration(E);
     }
-
-    return R_IGNORED;
 }
 
 //-----------------------------------------------------------------------------
