@@ -114,8 +114,6 @@ void app::host::init_listen(app::node node)
 
 void app::host::poll_listen()
 {
-    // NOTE: This must not occur between a host::send/host::recv pair.
-
     struct timeval tv = { 0, 0 };
 
     fd_set fds;
@@ -389,7 +387,7 @@ int app::host::do_calibration(event *E)
     if (calibration_state)
         for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
             if ((*i)->is_index(calibration_index))
-                return (*i)->handle(E);
+                return (*i)->process_event(E);
 
     return R_IGNORED;
 }
@@ -409,16 +407,12 @@ app::host::host(std::string filename, std::string tag) :
 {
     // Set some reasonable defaults.
 
-    window[0] = 0;
-    window[1] = 0;
-    window[2] = DEFAULT_PIXEL_WIDTH;
-    window[3] = DEFAULT_PIXEL_HEIGHT;
-
-    buffer[0] = DEFAULT_PIXEL_WIDTH;
-    buffer[1] = DEFAULT_PIXEL_HEIGHT;
-
-    window_full  = 0;
-    window_frame = 1;
+    window_full    = 0;
+    window_frame   = 1;
+    window_size[0] = 0;
+    window_size[1] = 0;
+    window_size[2] = DEFAULT_PIXEL_WIDTH;
+    window_size[3] = DEFAULT_PIXEL_HEIGHT;
 
     // Read host.xml and configure using tag match.
 
@@ -428,14 +422,6 @@ app::host::host(std::string filename, std::string tag) :
 
     if ((root = find(file.get_head(), "host")))
     {
-        // Extract global off-screen buffer configuration.
-
-        if (app::node buf = find(root, "buffer"))
-        {
-            buffer[0] = get_attr_d(buf, "w", DEFAULT_PIXEL_WIDTH);
-            buffer[1] = get_attr_d(buf, "h", DEFAULT_PIXEL_HEIGHT);
-        }
-
         // Locate the configuration for this node.
 
         if ((node = find(root, "node", "name", tag.c_str())))
@@ -444,21 +430,12 @@ app::host::host(std::string filename, std::string tag) :
 
             if (app::node win = find(node, "window"))
             {
-                window[0] = get_attr_d(win, "x", 0);
-                window[1] = get_attr_d(win, "y", 0);
-                window[2] = get_attr_d(win, "w", DEFAULT_PIXEL_WIDTH);
-                window[3] = get_attr_d(win, "h", DEFAULT_PIXEL_HEIGHT);
-
-                window_full  = get_attr_d(win, "full",  0);
-                window_frame = get_attr_d(win, "frame", 1);
-            }
-
-            // Extract local off-screen buffer configuration.
-
-            if (app::node buf = find(node, "buffer"))
-            {
-                buffer[0] = get_attr_d(buf, "w", DEFAULT_PIXEL_WIDTH);
-                buffer[1] = get_attr_d(buf, "h", DEFAULT_PIXEL_HEIGHT);
+                window_full    = get_attr_d(win, "full",  0);
+                window_frame   = get_attr_d(win, "frame", 1);
+                window_size[0] = get_attr_d(win, "x", 0);
+                window_size[1] = get_attr_d(win, "y", 0);
+                window_size[2] = get_attr_d(win, "w", DEFAULT_PIXEL_WIDTH);
+                window_size[3] = get_attr_d(win, "h", DEFAULT_PIXEL_HEIGHT);
             }
 
             // Create a tile object for each configured tile.
@@ -479,14 +456,14 @@ app::host::host(std::string filename, std::string tag) :
 
     for (curr = find(root,       "view"); curr;
          curr = next(root, curr, "view"))
-        views.push_back(new view(curr, buffer));
+        views.push_back(new view(curr));
 
     // If no views or tiles were configured, instance defaults.
 
-    if (views.empty()) views.push_back(new view(0, buffer));
+    if (views.empty()) views.push_back(new view(0));
     if (tiles.empty()) tiles.push_back(new tile(0));
 
-    // Start the timer.
+    // Start the timer.  TODO: move this to start?
 
     tock = SDL_GetTicks();
 }
@@ -508,12 +485,9 @@ app::host::~host()
 
 void app::host::root_loop()
 {
-    double p[3];
-    double q[4];
-
     int R = 0;
 
-    while ((R & R_EXIT) == 0)
+    while (!(R & R_EXIT))
     {
         R = 0;
 
@@ -526,51 +500,50 @@ void app::host::root_loop()
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-                    if ((*i)->pick(p, q, e.motion.x, e.motion.y))
-                        R |= handle(E.mk_point(0, p, q));
+                if (     project_event(&E, e.motion.x, e.motion.y))
+                    R |= process_event(&E);
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                R |= handle(E.mk_click(0, e.button.button,
-                                       SDL_GetModState(), true));
+                R |= process_event(E.mk_click(0, e.button.button,
+                                              SDL_GetModState(), true));
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                R |= handle(E.mk_click(0, e.button.button,
-                                       SDL_GetModState(), false));
+                R |= process_event(E.mk_click(0, e.button.button,
+                                              SDL_GetModState(), false));
                 break;
 
             case SDL_KEYDOWN:
-                R |= handle(E.mk_keybd(e.key.keysym.unicode,
-                                       e.key.keysym.sym,
-                                       e.key.keysym.mod, true));
+                R |= process_event(E.mk_keybd(e.key.keysym.unicode,
+                                              e.key.keysym.sym,
+                                              e.key.keysym.mod, true));
                 break;
 
             case SDL_KEYUP:
-                R |= handle(E.mk_keybd(e.key.keysym.unicode,
-                                       e.key.keysym.sym,
-                                       e.key.keysym.mod, false));
+                R |= process_event(E.mk_keybd(e.key.keysym.unicode,
+                                              e.key.keysym.sym,
+                                              e.key.keysym.mod, false));
                 break;
 
             case SDL_JOYAXISMOTION:
-                R |= handle(E.mk_value(e.jaxis.which,
-                                       e.jaxis.axis,
-                                       e.jaxis.value / 32768.0));
+                R |= process_event(E.mk_value(e.jaxis.which,
+                                              e.jaxis.axis,
+                                              e.jaxis.value / 32768.0));
                 break;
 
             case SDL_JOYBUTTONDOWN:
-                R |= handle(E.mk_click(e.jbutton.which,
-                                       e.jbutton.button, 0, true));
+                R |= process_event(E.mk_click(e.jbutton.which,
+                                              e.jbutton.button, 0, true));
                 break;
 
             case SDL_JOYBUTTONUP:
-                R |= handle(E.mk_click(e.jbutton.which,
-                                       e.jbutton.button, 0, false));
+                R |= process_event(E.mk_click(e.jbutton.which,
+                                              e.jbutton.button, 0, false));
                 break;
 
             case SDL_QUIT:
-                R |= handle(E.mk_close()) | R_EXIT;
+                R |= process_event(E.mk_close()) | R_EXIT;
                 break;
             }
 
@@ -586,14 +559,14 @@ void app::host::root_loop()
              tick - tock >= JIFFY;
              tock        += JIFFY)
 
-            R |= handle(E.mk_timer(JIFFY));
+            R |= process_event(E.mk_timer(JIFFY));
 
         // Call the paint handler.
 
         if (R & R_DRAW)
         {
-            R |= handle(E.mk_paint());
-            R |= handle(E.mk_frame());
+            R |= process_event(E.mk_paint());
+            R |= process_event(E.mk_frame());
         }
 
         // Count frames and record a movie, if requested.
@@ -618,7 +591,7 @@ void app::host::node_loop()
     event E;
 
     while (1)
-        handle(E.recv(server_sd));
+        process_event(E.recv(server_sd));
 }
 
 void app::host::loop()
@@ -641,6 +614,8 @@ void app::host::draw()
 
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
         (*i)->prep(views, frusta);
+
+    // TODO: apply the ::user transform to all frusta.
 
     ::prog->prep(frusta);
 
@@ -693,250 +668,21 @@ void app::host::sync()
 }
 
 //-----------------------------------------------------------------------------
-/*
-void app::host::point(int i, const double *p, const double *q)
+
+// Ask each tile to project the event into the virtual space.
+
+int app::host::project_event(event *E, int x, int y)
 {
-    // Forward the event to all clients.
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        if ((*i)->project_event(E, x, y))
+            return R_HANDLED;
 
-    if (!client_sd.empty())
-    {
-        message M(E_POINT);
-
-        M.put_byte(i);
-        M.put_real(p[0]);
-        M.put_real(p[1]);
-        M.put_real(p[2]);
-        M.put_real(q[0]);
-        M.put_real(q[1]);
-        M.put_real(q[2]);
-        M.put_real(q[3]);
-
-        send(M);
-    }
-
-    // Let the application have the click event.
-
-    ::prog->point(i, p, q);
+    return R_IGNORED;
 }
 
-void app::host::click(int i, int b, int m, bool d)
-{
-    // Forward the event to all clients.
-
-    if (!client_sd.empty())
-    {
-        message M(E_CLICK);
-
-        M.put_byte(i);
-        M.put_byte(b);
-        M.put_byte(m);
-        M.put_bool(d);
-
-        send(M);
-    }
-
-    // Calibrating a tile?
-
-    if (calibration_state)
-    {
-        if (tile_input_click(i, b, m, d))
-            return;
-    }
-
-    // Let the application have the click event.
-
-    else ::prog->click(i, b, m, d);
-}
-
-void app::host::keybd(int c, int k, int m, bool d)
-{
-    // Forward the event to all clients.
-
-    if (!client_sd.empty())
-    {
-        message M(E_KEYBD);
-
-        M.put_word(c);
-        M.put_word(k);
-        M.put_word(m);
-        M.put_bool(d);
-
-        send(M);
-    }
-
-    if (d && (m & KMOD_CTRL))
-    {
-        // Cycling display mode?
-
-        if (k == SDLK_RETURN)
-        {
-            for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-                (*t)->cycle();
-            return;
-        }
-
-        // Toggling calibration mode?
-
-        else if (k == SDLK_TAB)
-        {
-            calibration_state = !calibration_state;
-            printf("state %d\n", calibration_state);
-            return;
-        }
-
-        // Selecting calibration tile?
-
-        else if (k == SDLK_SPACE)
-        {
-            calibration_index++;
-            printf("index %d\n", calibration_index);
-            return;
-        }
-        else if (k == SDLK_BACKSPACE)
-        {
-            calibration_index--;
-            printf("index %d\n", calibration_index);
-            return;
-        }
-
-        // Calibrating a tile?
-
-        else if (calibration_state)
-        {
-            tile_input_keybd(c, k, m, d);
-            return;
-        }
-    }
-
-    // If none of the above, let the application have the keybd event.
-
-    ::prog->keybd(c, k, m, d);
-}
-
-void app::host::value(int i, int a, double v)
-{
-    // Forward the event to all clients.
-
-    if (!client_sd.empty())
-    {
-        message M(E_VALUE);
-
-        M.put_byte(i);
-        M.put_byte(a);
-        M.put_real(v);
-
-        send(M);
-    }
-
-    // Let the application handle it.
-
-    ::prog->value(i, a, v);
-}
-
-void app::host::messg(const char *ibuf, char *obuf)
-{
-    // Forward the event to all clients.
-
-    if (!client_sd.empty())
-    {
-        message M(E_MESSG);
-
-        M.put_text(ibuf);
-
-        send(M);
-    }
-
-    // Let the application handle it.
-
-    ::prog->messg(ibuf, obuf);
-}
-
-void app::host::timer(int t)
-{
-    // Forward the event to all clients.
-
-    if (!client_sd.empty())
-    {
-        message M(E_TIMER);
-
-        M.put_word(t);
-
-        send(M);
-    }
-
-    // Let the application handle it.
-
-    ::prog->timer(t);
-
-    // Check for connecting clients.
-
-    poll_listen();
-}
-
-void app::host::paint()
-{
-    // Forward the event to all clients, draw, and wait for sync.
-
-    if (!client_sd.empty())
-    {
-        message M(E_PAINT);
-
-        send(M);
-        draw( );
-        recv(M);
-    }
-    else draw();
-
-    // Send sync to the server.
-
-    if (server_sd != INVALID_SOCKET)
-    {
-        message R(E_REPLY);
-        R.send(server_sd);
-    }
-}
-
-void app::host::frame()
-{
-    // Forward the event to all clients.
-
-    if (!client_sd.empty())
-    {
-        message M(E_FRAME);
-
-        send(M);
-    }
-
-    // Swap the back buffer to the front.
-
-    SDL_GL_SwapBuffers();
-    ::perf->step(bench);
-}
-
-void app::host::close()
-{
-    // Forward the event to all clients.  Wait for sync.
-
-    if (!client_sd.empty())
-    {
-        message M(E_CLOSE);
-
-        send(M);
-        recv(M);
-    }
-
-    // Send sync to the server.
-
-    if (server_sd != INVALID_SOCKET)
-    {
-        message R(E_REPLY);
-        R.send(server_sd);
-    }
-}
-*/
 // Handle the given user event. 
 
-int app::host::handle(event *E)
+int app::host::process_event(event *E)
 {
     int R = 0;
 
@@ -955,7 +701,7 @@ int app::host::handle(event *E)
 
     default:
         if ((R = do_calibration(E)) ||
-            (R = ::prog->handle(E)))
+            (R = ::prog->process_event(E)))
             return R;
     }
 
@@ -974,69 +720,4 @@ void app::host::set_head(const double *p,
         (*i)->set_head(p, q);
 }
 
-//-----------------------------------------------------------------------------
-#ifdef SNIP
-void app::host::gui_pick(int& x, int& y, const double *p,
-                                         const double *q) const
-{
-    // Compute the point (x, y) at which the vector V from P hits the GUI.
-
-    double q[3];
-    double w[3];
-
-    // TODO: convert this to take a quaternion
-
-    mult_mat_vec3(q, gui_I, p);
-    mult_xps_vec3(w, gui_I, v);
-
-    normalize(w);
-
-    x = int(nearestint(q[0] - q[2] * w[0] / w[2]));
-    y = int(nearestint(q[1] - q[2] * w[1] / w[2]));
-}
-
-void app::host::gui_size(int& w, int& h) const
-{
-    // Return the configured resolution of the GUI.
-
-    w = gui_w;
-    h = gui_h;
-}
-
-void app::host::gui_view() const
-{
-    // Apply the transform taking GUI coordinates to eye coordinates.
-
-    glMultMatrixd(gui_M);
-}
-#endif
-//-----------------------------------------------------------------------------
-/*
-bool app::host::tile_input_point(int i, const double *p, const double *q)
-{
-    for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(calibration_index) && (*t)->input_point(i, p, q))
-            return true;
-
-    return false;
-}
-
-bool app::host::tile_input_click(int i, int b, int m, bool d)
-{
-    for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(calibration_index) && (*t)->input_click(i, b, m, d))
-            return true;
-
-    return false;
-}
-
-bool app::host::tile_input_keybd(int c, int k, int m, bool d)
-{
-    for (tile_i t = tiles.begin(); t != tiles.end(); ++t)
-        if ((*t)->is_index(calibration_index) && (*t)->input_keybd(c, k, m, d))
-            return true;
-
-    return false;
-}
-*/
 //-----------------------------------------------------------------------------

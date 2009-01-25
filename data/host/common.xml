@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <host>
-  <buffer w="1024" h="768"/>
+  <view w="1024" h="768"/>
 
   <node name="1600x1200x2">
-    <buffer w="1600" h="1200"/>
+    <view w="1600" h="1200"/>
     <window x="0" y="0" w="3200" h="1200"/>
     <tile>
       <viewport x="0" y="0" w="1600" h="1200"/>
@@ -20,7 +20,7 @@
   </node>
 
   <node name="800x600x2">
-    <buffer w="800" h="600"/>
+    <view w="800" h="600"/>
     <window x="0" y="0" w="1600" h="600"/>
     <tile>
       <viewport x="0" y="0" w="800" h="600"/>
@@ -37,7 +37,7 @@
   </node>
 
   <node name="2560x1600">
-    <buffer w="2560" h="1600"/>
+    <view w="2560" h="1600"/>
     <window x="0" y="0" w="2560" h="1600" full="1" />
     <tile>
       <viewport x="0" y="0" w="2560" h="1600"/>
@@ -48,7 +48,7 @@
   </node>
 
   <node name="1920x1080">
-    <buffer w="1920" h="1080"/>
+    <view w="1920" h="1080"/>
     <window x="0" y="0" w="1920" h="1080"/>
     <tile>
       <viewport x="0" y="0" w="1920" h="1080"/>
@@ -59,7 +59,7 @@
   </node>
 
   <node name="1920x1080x2">
-    <buffer w="960" h="540"/>
+    <view w="960" h="540"/>
     <window x="0" y="0" w="1920" h="1080"/>
     <tile>
       <viewport x="0" y="0" w="1920" h="1080"/>
@@ -70,7 +70,7 @@
   </node>
 
   <node name="1024x768">
-    <buffer w="1024" h="768"/>
+    <view w="1024" h="768"/>
     <window x="0" y="0" w="1024" h="768"/>
     <tile>
       <viewport x="0" y="0" w="1024" h="768"/>
@@ -81,7 +81,7 @@
   </node>
 
   <node name="1280x720">
-    <buffer w="1280" h="720"/>
+    <view w="1280" h="720"/>
     <window x="0" y="0" w="1280" h="720"/>
     <tile>
       <viewport x="0" y="0" w="1280" h="720"/>
@@ -92,7 +92,7 @@
   </node>
 
   <node name="640x480">
-    <buffer w="640" h="480"/>
+    <view w="640" h="480"/>
     <window x="0" y="0" w="640" h="480"/>
     <tile>
       <viewport x="0" y="0" w="640" h="480"/>
@@ -103,7 +103,7 @@
   </node>
 
   <node name="512x384">
-    <buffer w="512" h="384"/>
+    <view w="512" h="384"/>
     <window x="0" y="0" w="512" h="384"/>
     <tile>
       <viewport x="0" y="0" w="512" h="384"/>
@@ -114,7 +114,7 @@
   </node>
 
   <node name="320x240">
-    <buffer w="320" h="240"/>
+    <view w="320" h="240"/>
     <window x="0" y="0" w="320" h="240"/>
     <tile>
       <viewport x="0" y="0" w="320" h="240"/>
@@ -125,7 +125,7 @@
   </node>
 
   <node name="160x120">
-    <buffer w="160" h="120"/>
+    <view w="160" h="120"/>
     <window x="0" y="0" w="160" h="120"/>
     <tile>
       <viewport x="0" y="0" w="160" h="120"/>
@@ -136,7 +136,7 @@
   </node>
 
   <node name="1x1">
-    <buffer w="1" h="1"/>
+    <view w="1" h="1"/>
     <window x="0" y="0" w="1" h="1"/>
     <tile>
       <viewport x="0" y="0" w="1" h="1"/>

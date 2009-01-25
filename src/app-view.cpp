@@ -11,14 +11,13 @@
 //  General Public License for more details.
 
 #include "matrix.hpp"
+#include "default.hpp"
 #include "app-view.hpp"
 #include "app-glob.hpp"
 
 //-----------------------------------------------------------------------------
 
-app::view::view(app::node node, const int *buffer) :
-    w(buffer[0]),
-    h(buffer[1]), back(0)
+app::view::view(app::node node) : back(0)
 {
     v[0] = p[0] = get_attr_f(node, "x");
     v[1] = p[1] = get_attr_f(node, "y");
@@ -28,6 +27,9 @@ app::view::view(app::node node, const int *buffer) :
     c[1] = GLubyte(get_attr_f(node, "g", 1.0) * 0xFF);
     c[2] = GLubyte(get_attr_f(node, "b", 1.0) * 0xFF);
     c[3] = GLubyte(get_attr_f(node, "a", 1.0) * 0xFF);
+
+    w = get_attr_d(node, "w", DEFAULT_PIXEL_WIDTH);
+    h = get_attr_d(node, "h", DEFAULT_PIXEL_HEIGHT);
 }
 
 app::view::~view()
@@ -68,6 +70,14 @@ void app::view::free()
 
     if (back)
         back->free();
+}
+
+void app::view::draw()
+{
+    // Clear the bound back buffer to the calibration color.
+
+    glClearColor(c[0], c[1], c[2], c[3]);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 /*

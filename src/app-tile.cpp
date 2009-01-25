@@ -73,29 +73,10 @@ app::tile::~tile()
 
 //-----------------------------------------------------------------------------
 
-bool app::tile::input_point(int i, const double *p, const double *q)
+bool app::tile::pick(double *p, double *q, int x, int y)
 {
-    if (display[current] &&
-        display[current]->input_point(i, p, q))
-        return true;
-    else
-        return false;
-}
-
-bool app::tile::input_click(int i, int b, int m, bool d)
-{
-    if (display[current] &&
-        display[current]->input_click(i, b, m, d))
-        return true;
-    else
-        return false;
-}
-
-bool app::tile::input_keybd(int c, int k, int m, bool d)
-{
-    if (display[current] &&
-        display[current]->input_keybd(c, k, m, d))
-        return true;
+    if (display[current])
+        return display[current]->pick(p, q, x, y);
     else
         return false;
 }
@@ -120,12 +101,12 @@ void app::tile::draw(view_v& views, int& c, bool calibrate_state,
 
 //-----------------------------------------------------------------------------
 
-bool app::tile::pick(double *p, double *q, int x, int y)
+int app::tile::handle(app::event *E)
 {
     if (display[current])
-        return display[current]->pick(p, q, x, y);
+        return display[current]->handle(E);
     else
-        return false;
+        return R_IGNORED;
 }
 
 //-----------------------------------------------------------------------------

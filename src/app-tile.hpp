@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include "app-event.hpp"
 #include "app-serial.hpp"
 #include "dpy-display.hpp"
 
@@ -35,14 +36,15 @@ namespace app
         tile(app::node);
        ~tile();
 
-        bool input_point(int, const double *, const double *);
-        bool input_click(int, int, int, bool);
-        bool input_keybd(int, int, int, bool);
+        // Rendering handlers.
 
         void prep(view_v&, frustum_v&);
         void draw(view_v&, int&, bool, int);
 
-        bool pick(double *, double *, int, int);
+        // Event handlers.
+
+        int project_event(event *, int, int);
+        int process_event(event *);
 
         bool is_index(int i) const { return (i == index); }
 

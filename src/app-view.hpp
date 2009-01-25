@@ -33,20 +33,20 @@ namespace app
 
     public:
 
-        view(app::node, const int *);
+        view(app::node);
        ~view();
 
         void set_head(const double *,
                       const double *);
 
-        const double  *get_p() const { return p; }
-        const GLubyte *get_c() const { return c; }
+        void bind();
+        void free();
+        void draw();
 
         int get_w() const { return w; }
         int get_h() const { return h; }
 
-        void bind();
-        void free();
+        const double *get_p() const { return p; }
 
         void bind_color(GLenum t) const { if (back) back->bind_color(t); }
         void free_color(GLenum t) const { if (back) back->free_color(t); }

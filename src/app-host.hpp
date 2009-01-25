@@ -76,9 +76,7 @@ namespace app
 
         // Window config
 
-        int window[4];
-        int buffer[2];
-
+        int window_size[4];
         int window_full;
         int window_frame;
 
@@ -94,41 +92,23 @@ namespace app
         host(std::string, std::string);
        ~host();
 
-        // Event handlers
-/*
-        void point(int, const double *, const double *);
-        void click(int, int, int, bool);
-        void keybd(int, int, int, bool);
-        void value(int, int, double);
-        void messg(const char *, char *);
-        void timer(int);
-        void paint();
-        void front();
-        void close();
-*/
-        int handle(event *);
-
         bool root() const { return (server_sd == INVALID_SOCKET); }
         void loop();
         void draw();
         void swap() const;
 
+        int project_event(event *, int, int);
+        int process_event(event *);
+
         // Configuration queries.
 
-        int get_window_x() const { return window[0]; }
-        int get_window_y() const { return window[1]; }
-        int get_window_w() const { return window[2]; }
-        int get_window_h() const { return window[3]; }
+        int get_window_x() const { return window_size[0]; }
+        int get_window_y() const { return window_size[1]; }
+        int get_window_w() const { return window_size[2]; }
+        int get_window_h() const { return window_size[3]; }
         int get_window_m() const;
-        int get_buffer_w() const { return buffer[0]; }
-        int get_buffer_h() const { return buffer[1]; }
 
         void set_head(const double *, const double *);
-/*
-        bool tile_input_point(int, const double *, const double *);
-        bool tile_input_click(int, int, int, bool);
-        bool tile_input_keybd(int, int, int, bool);
-*/
     };
 }
 

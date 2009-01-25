@@ -21,6 +21,11 @@
 
 namespace dpy
 {
+    // A "normal" display is an ordinary 2D screen.  It is monoscopic, with
+    // only a single frustum, rendering directly to the onscreen framebuffer
+    // using only a single view.  It's only configuration option is which of
+    // multiple views it uses.
+
     class normal : public display
     {
         int           index;
@@ -37,17 +42,15 @@ namespace dpy
 
         normal(app::node, app::node, const int *);
 
-        // Calibration handlers.
-
-        virtual bool input_point(int, const double *, const double *);
-        virtual bool input_click(int, int, int, bool);
-        virtual bool input_keybd(int, int, int, bool);
-
         // Rendering handlers.
 
-        virtual bool pick(double *, double *, int, int);
         virtual void prep(app::view_v&, app::frustum_v&);
-        virtual void draw(app::view_v&, int&, bool, bool);
+        virtual void draw(app::view_v&, app::frustum *, int);
+
+        // Event handers.
+
+        virtual int project_event(event *, int, int);
+        virtual int process_event(event *);
 
         virtual ~normal();
     };

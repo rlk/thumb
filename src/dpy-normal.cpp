@@ -55,39 +55,6 @@ dpy::normal::~normal()
 
 //-----------------------------------------------------------------------------
 
-bool dpy::normal::input_point(int i, const double *p, const double *q)
-{
-    return frust ? frust->input_point(i, p, q) : false;
-}
-
-bool dpy::normal::input_click(int i, int b, int m, bool d)
-{
-    return frust ? frust->input_click(i, b, m, d) : false;
-}
-
-bool dpy::normal::input_keybd(int c, int k, int m, bool d)
-{
-    return frust ? frust->input_keybd(c, k, m, d) : false;
-}
-
-//-----------------------------------------------------------------------------
-
-bool dpy::normal::pick(double *p, double *q, int wx, int wy)
-{
-    if (frust)
-    {
-        double kx = double(wx - x) / w;
-        double ky = double(wy - y) / h;
-
-        if (0.0 <= kx && kx < 1.0 &&
-            0.0 <= ky && ky < 1.0)
-            frust->pick(p, q, kx, ky);
-
-        return true;
-    }
-    return false;
-}
-
 void dpy::normal::prep(app::view_v& views, app::frustum_v& frusta)
 {
     if (frust)
@@ -95,8 +62,6 @@ void dpy::normal::prep(app::view_v& views, app::frustum_v& frusta)
         // Apply the viewpoint and view to my frustum.
 
         frust->calc_user_planes(views[index]->get_p());
-        frust->calc_view_planes(::user->get_M(),
-                                ::user->get_I());
 
         // Add my frustum to the list.
 
@@ -116,7 +81,7 @@ void dpy::normal::prep(app::view_v& views, app::frustum_v& frusta)
     }
 }
 
-void dpy::normal::draw(app::view_v& views, int &i, bool calibrate, bool me)
+void dpy::normal::draw(app::view_v& views, app::frustum *frust)
 {
     if (views[index])
     {
@@ -125,12 +90,9 @@ void dpy::normal::draw(app::view_v& views, int &i, bool calibrate, bool me)
         views[index]->bind();
         {
             if (calibrate)
-            {
-                const GLubyte *c = views[index]->get_c();
-                glClearColor(c[0], c[1], c[2], c[3]);
-                glClear(GL_COLOR_BUFFER_BIT);
-            }
-            else ::prog->draw(i++);
+                views[index]->draw();
+            else
+                ::prog->draw(frust);
         }
         views[index]->free();
 
@@ -162,6 +124,39 @@ void dpy::normal::draw(app::view_v& views, int &i, bool calibrate, bool me)
             views[index]->free_color(GL_TEXTURE0);
         }
     }
+}
+
+//-----------------------------------------------------------------------------
+
+bool dpy::normal::pick(double *p, double *q, int wx, int wy)
+{
+    if (frust)
+    {
+        double kx = double(wx - x) / w;
+        double ky = double(wy - y) / h;
+
+        if (0.0 <= kx && kx < 1.0 &&
+            0.0 <= ky && ky < 1.0)
+            frust->pick(p, q, kx, ky);
+
+        return true;
+    }
+    return false;
+}
+
+bool dpy::normal::input_point(int i, const double *p, const double *q)
+{
+    return frust ? frust->input_point(i, p, q) : false;
+}
+
+bool dpy::normal::input_click(int i, int b, int m, bool d)
+{
+    return frust ? frust->input_click(i, b, m, d) : false;
+}
+
+bool dpy::normal::input_keybd(int c, int k, int m, bool d)
+{
+    return frust ? frust->input_keybd(c, k, m, d) : false;
 }
 
 //-----------------------------------------------------------------------------

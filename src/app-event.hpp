@@ -20,7 +20,6 @@
 
 #include "socket.hpp"
 
-// TODO: Flag and cache the encoded state.  Don't re-encode.
 // TODO: Allow response string.
 
 //-----------------------------------------------------------------------------
@@ -79,36 +78,40 @@ namespace app
 
     class event
     {
-        // Network IO buffer
-
-        union swap { double d; int i; uint32_t l[2]; };
+        // Network payload buffer
 
         struct { unsigned char type;
                  unsigned char size;
                  char          data[DATAMAX]; } payload;
 
-        int index;
+        bool payload_cache;
+        int  payload_index;
+
+        void payload_encode();
+        void payload_decode();
 
         // Data marshalling functions
 
-        const char   *get_text();
-        double        get_real();
-        bool          get_bool();
-        int           get_byte();
-        int           get_word();
+        union swap { double d; int i; uint32_t l[2]; };
 
-        void          put_text(const char *);
-        void          put_real(double);
-        void          put_bool(bool);
-        void          put_byte(int);
-        void          put_word(int);
+        const char *get_text();
+        double      get_real();
+        bool        get_bool();
+        int         get_byte();
+        int         get_word();
+
+        void        put_text(const char *);
+        void        put_real(double);
+        void        put_bool(bool);
+        void        put_byte(int);
+        void        put_word(int);
 
     public:
 
         event();
        ~event();
 
-        // Type-specific payloads
+        // Type-specific data
 
         struct point_data_s
         {
@@ -146,7 +149,7 @@ namespace app
             int dt;
         };
 
-        // Payload union
+        // Data union
 
         union {
             point_data_s point;
@@ -158,7 +161,7 @@ namespace app
         } data;
 
         void          put_type(unsigned char);
-        unsigned char get_type();
+        unsigned char get_type() const;
 
         // Event builders
 
