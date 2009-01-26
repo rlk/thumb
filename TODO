@@ -6,6 +6,13 @@ do the TODOs and the HACKs
 Refactor app::prog->next()/prev()
     move all attr_* to app::user?
 
+Modernize the GL
+    Eliminate immedate mode stuff
+        most everything can be moved into the pool handler
+    Eliminate fixed function stuff
+    Eliminate the attribute stack usage
+    Is glUniform slow?
+
 -------------------------------------------------------------------------------
 
 convert geomip upload to PBO

@@ -51,13 +51,13 @@ OBJS=   util.o \
 	uni-overlay.o \
 	uni-universe.o \
 	dev-mouse.o \
+	dpy-channel.o \
+	dpy-display.o \
 	dpy-normal.o \
 	app-event.o \
 	app-frustum.o \
 	app-serial.o \
 	app-font.o \
-	app-view.o \
-	app-tile.o \
 	app-host.o \
 	app-user.o \
 	app-perf.o \

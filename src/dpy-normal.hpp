@@ -13,16 +13,17 @@
 #ifndef DPY_NORMAL_HPP
 #define DPY_NORMAL_HPP
 
+#include <vector>
+
 #include "dpy-display.hpp"
-#include "ogl-program.hpp"
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
 
-namespace
+namespace ogl
 {
-    class event;
+    class program;
 }
 
 //-----------------------------------------------------------------------------
@@ -36,26 +37,25 @@ namespace dpy
 
     class normal : public display
     {
-        int           view_i;
+        int           chani;
         app::frustum *frust;
-
-        int x;
-        int y;
-        int w;
-        int h;
 
         const ogl::program *P;
 
         virtual bool process_start(app::event *);
+        virtual bool process_close(app::event *);
 
     public:
 
-        normal(app::node, app::node, const int *);
+        normal(app::node);
+
+        virtual void get_frusta(std::vector<app::frustum *>&);
 
         // Rendering handlers.
 
-        virtual void prep(app::view_v&, app::frustum_v&);
-        virtual void draw(app::view_v&, app::frustum *, int);
+        virtual void prep(dpy::channel *, int, app::frustum *);
+        virtual void draw(dpy::channel *, int);
+        virtual void test(dpy::channel *, int);
 
         // Event handers.
 

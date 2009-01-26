@@ -270,6 +270,8 @@ bool demo::process_event(app::event *E)
 
 void demo::prep(app::frustum_v& frusta)
 {
+    // Pass the frusta to the world.
+
     universe.prep(frusta);
 }
 

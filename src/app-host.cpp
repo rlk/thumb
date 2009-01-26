@@ -384,13 +384,6 @@ bool app::host::do_calibration(event *E)
 
             post_draw();
             return true;
-
-        case SDLK_RETURN:
-            for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-                (*i)->cycle();
-
-            post_draw();
-            return true;
         }
 
     // Dispatch a calibration event to the current tile.
@@ -451,11 +444,22 @@ app::host::host(std::string filename, std::string tag) :
                 window_size[3] = get_attr_d(win, "h", DEFAULT_PIXEL_HEIGHT);
             }
 
-            // Create a tile object for each configured tile.
+            // Create a display object for each configured display.
 
-            for (curr = find(node,       "tile"); curr;
-                 curr = next(node, curr, "tile"))
-                tiles.push_back(new tile(curr));
+            for (curr = find(node,       "display"); curr;
+                 curr = next(node, curr, "display"))
+            {
+                const char *t = get_attr_s(curr, "type", "normal");
+
+                if (strcmp(t, "normal")   == 0)
+                    displays.push_back(new dpy::normal  (curr));
+                if (strcmp(t, "dome")     == 0)
+                    displays.push_back(new dpy::dome    (curr));
+                if (strcmp(t, "varrier")  == 0)
+                    displays.push_back(new dpy::varrier (curr));
+                if (strcmp(t, "anaglyph") == 0)
+                    displays.push_back(new dpy::anaglyph(curr));
+            }
 
             // Start the network syncronization.
 
@@ -620,8 +624,6 @@ void app::host::loop()
 
 void app::host::draw()
 {
-    std::vector<frustum *> frusta;
-
     // Acculumate a list of frusta and preprocess the app.
 
     for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
@@ -692,6 +694,35 @@ bool app::host::project_event(event *E, int x, int y)
     return false;
 }
 
+bool app::host::process_start(event *E)
+{
+    // Forward the start event to all views and tiles.
+
+    for (view_i i = views.begin(); i != views.end(); ++i)
+        (*i)->process_event(E);
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        (*i)->process_event(E);
+
+    // Make a list of all display frusta.
+
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        (*i)->get_frusta(frusta);
+}
+
+bool app::host::process_close(event *E)
+{
+    // Free the list of display frusta.
+
+    frusta.clear();
+
+    // Forward the close event to all views and tiles.
+
+    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        (*i)->process_event(E);
+    for (view_i i = views.begin(); i != views.end(); ++i)
+        (*i)->process_event(E);
+}
+
 // Handle the given user event. 
 
 bool app::host::process_event(event *E)
@@ -708,10 +739,11 @@ bool app::host::process_event(event *E)
 
     switch (E->get_type())
     {
-    case E_PAINT: draw();
-    case E_START:
-    case E_CLOSE: sync(); return true;
-    case E_FRAME: swap(); return true;
+    case E_PAINT: draw(); sync(); return true;
+    case E_FRAME: swap();         return true;
+
+    case E_START: process_start(); sync(); return true;
+    case E_CLOSE: process_close(); sync(); return true;
 
     default:
         return do_calibration(E);

@@ -12,6 +12,10 @@ Thumb features to consider
 
     It's NOT completely reasonable to demand GFFX or GLSL
 
+    Valve's distance-alpha texturing is killer
+        It allows GUI text to scale to Varrier/LambdaVision
+        It allows foliage to fade in and out with distance
+
     HDR
         float16
         AGC optional

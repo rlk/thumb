@@ -16,35 +16,44 @@
 #include <vector>
 
 #include "app-serial.hpp"
-#include "dpy-display.hpp"
+
+//-----------------------------------------------------------------------------
+// Forward declarations
+
+namespace app
+{
+    class event;
+}
+
+namespace dpy
+{
+    class display;
+}
 
 //-----------------------------------------------------------------------------
 
 namespace app
 {
-    // Forward declarations
-
-    class event;
-
     // Display tile
 
     class tile
     {
     private:
 
-        int            index;
-        int            current;
-        dpy::display_v display;
+        int           index;
+        dpy::display *display;
 
     public:
 
         tile(app::node);
        ~tile();
 
+
         // Rendering handlers.
 
-        void prep(view_v&, frustum_v&);
-        void draw(view_v&, int&, bool, int);
+        void prep(view *, frustum_v&);
+        void draw(view *, int);
+        void test(view *, int);
 
         // Event handlers.
 
@@ -52,8 +61,6 @@ namespace app
         bool process_event(event *);
 
         bool is_index(int i) const { return (i == index); }
-
-        void cycle() { current = (current + 1) % display.size(); }
     };
 
     typedef std::vector<tile *>           tile_v;

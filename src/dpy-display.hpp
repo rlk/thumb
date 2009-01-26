@@ -13,10 +13,7 @@
 #ifndef DPY_DISPLAY_HPP
 #define DPY_DISPLAY_HPP
 
-#include <vector>
-
-#include "app-frustum.hpp"
-#include "app-view.hpp"
+#include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 // Forward declarations
@@ -24,6 +21,12 @@
 namespace app
 {
     class event;
+    class frustum;
+}
+
+namespace dpy
+{
+    class channel;
 }
 
 //-----------------------------------------------------------------------------
@@ -34,13 +37,27 @@ namespace dpy
 
     class display
     {
+    protected:
+
+        int index;
+        int viewport[4];
+
     public:
 
-        bool project_event(app::event *, int, int) { return false; }
-        bool process_event(app::event *)           { return false; }
+        display(app::node);
 
-        virtual void prep(app::view_v&, app::frustum_v&)  = 0;
-        virtual void draw(app::view_v&, int&, bool, bool) = 0;
+        virtual void get_frusta(std::vector<app::frustum *>&) { }
+
+        // Rendering handlers.
+
+        virtual void prep(dpy::channel *, int, app::frustum *) = 0;
+        virtual void draw(dpy::channel *, int)                 = 0;
+        virtual void test(dpy::channel *, int)                 = 0;
+
+        // Event handlers.
+
+        virtual bool project_event(app::event *, int, int) { return false; }
+        virtual bool process_event(app::event *)           { return false; }
 
         virtual ~display() { }
     };

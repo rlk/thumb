@@ -1,148 +1,15 @@
 <?xml version="1.0"?>
 <host>
-  <view w="1024" h="768"/>
-
-  <node name="1600x1200x2">
-    <view w="1600" h="1200"/>
-    <window x="0" y="0" w="3200" h="1200"/>
-    <tile>
-      <viewport x="0" y="0" w="1600" h="1200"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-    <tile>
-      <viewport x="1600" y="0" w="1600" h="1200"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="800x600x2">
-    <view w="800" h="600"/>
-    <window x="0" y="0" w="1600" h="600"/>
-    <tile>
-      <viewport x="0" y="0" w="800" h="600"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-    <tile>
-      <viewport x="800" y="0" w="800" h="600"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="2560x1600">
-    <view w="2560" h="1600"/>
-    <window x="0" y="0" w="2560" h="1600" full="1" />
-    <tile>
-      <viewport x="0" y="0" w="2560" h="1600"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="1920x1080">
-    <view w="1920" h="1080"/>
-    <window x="0" y="0" w="1920" h="1080"/>
-    <tile>
-      <viewport x="0" y="0" w="1920" h="1080"/>
-      <frustum>
-        <perspective hfov="80.0" vfov="50.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="1920x1080x2">
-    <view w="960" h="540"/>
-    <window x="0" y="0" w="1920" h="1080"/>
-    <tile>
-      <viewport x="0" y="0" w="1920" h="1080"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
 
   <node name="1024x768">
-    <view w="1024" h="768"/>
     <window x="0" y="0" w="1024" h="768"/>
-    <tile>
+    <channel w="1024" h="768"/>
+    <display type="normal" index="1">
       <viewport x="0" y="0" w="1024" h="768"/>
       <frustum>
         <perspective hfov="60.0" vfov="45.0"/>
       </frustum>
-    </tile>
+    </display>
   </node>
 
-  <node name="1280x720">
-    <view w="1280" h="720"/>
-    <window x="0" y="0" w="1280" h="720"/>
-    <tile>
-      <viewport x="0" y="0" w="1280" h="720"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="640x480">
-    <view w="640" h="480"/>
-    <window x="0" y="0" w="640" h="480"/>
-    <tile>
-      <viewport x="0" y="0" w="640" h="480"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="512x384">
-    <view w="512" h="384"/>
-    <window x="0" y="0" w="512" h="384"/>
-    <tile>
-      <viewport x="0" y="0" w="512" h="384"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="320x240">
-    <view w="320" h="240"/>
-    <window x="0" y="0" w="320" h="240"/>
-    <tile>
-      <viewport x="0" y="0" w="320" h="240"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="160x120">
-    <view w="160" h="120"/>
-    <window x="0" y="0" w="160" h="120"/>
-    <tile>
-      <viewport x="0" y="0" w="160" h="120"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
-
-  <node name="1x1">
-    <view w="1" h="1"/>
-    <window x="0" y="0" w="1" h="1"/>
-    <tile>
-      <viewport x="0" y="0" w="1" h="1"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0" />
-      </frustum>
-    </tile>
-  </node>
 </host>

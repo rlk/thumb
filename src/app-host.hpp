@@ -28,6 +28,7 @@ namespace app
     class tile;
     class view;
     class event;
+    class frustum;
 
     // Application host
 
@@ -79,14 +80,19 @@ namespace app
 
         bool do_calibration(event *E);
 
+        bool process_start(event *E);
+        bool process_close(event *E);
+
+        std::vector<frustum *> frusta;
+
         // Window config
 
         int window_size[4];
         int window_full;
         int window_frame;
 
-        std::vector<app::view *> views;
-        std::vector<app::tile *> tiles;
+        std::vector<app::display *> displays;
+        std::vector<app::channel *> channels;
 
         // Configuration serializer
 

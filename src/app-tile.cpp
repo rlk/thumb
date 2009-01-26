@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 
-app::tile::tile(app::node node) : current(0)
+app::tile::tile(app::node node) : display(0)
 {
     app::node curr;
 
@@ -46,10 +46,9 @@ app::tile::tile(app::node node) : current(0)
         window[3] = get_attr_d(curr, "h", DEFAULT_PIXEL_HEIGHT);
     }
 
-    // Extract all display configurations.
+    // Extract a display configurations.
 
-    for (curr = find(node,       "display"); curr;
-         curr = next(node, curr, "display"))
+    if ((curr = find(node, "display")))
     {
         const char *t = get_attr_s(curr, "type", "normal");
 
@@ -73,20 +72,22 @@ app::tile::~tile()
 
 //-----------------------------------------------------------------------------
 
-void app::tile::prep(view_v& views, frustum_v& frusta)
+void app::tile::get_frusta(frustum_v& frusta)
 {
-    if (display[current])
-        display[current]->prep(views, frusta);
+    if (display)
+        display->get_frusta(frusta);
 }
 
-void app::tile::draw(view_v& views, int& c, bool calibrate_state,
-                                            int  calibrate_index)
+void app::tile::draw(view *views, int frusti)
 {
-    bool calibrate_me = calibrate_state && ((calibrate_index == index) ||
-                                            (calibrate_index == -1));
+    if (display)
+        display->draw(views, frusti)
+}
 
-    if (display[current])
-        display[current]->draw(views, c, calibrate_state, calibrate_me);
+void app::tile::test(view *views, int calibi)
+{
+    if (display)
+        display->test(views, frusti)
 }
 
 //-----------------------------------------------------------------------------

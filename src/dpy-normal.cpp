@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cassert>
+
 #include "dpy-normal.hpp"
 #include "matrix.hpp"
 #include "app-event.hpp"
@@ -19,34 +21,20 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::normal::normal(app::node tile,
-                    app::node node, const int *window) : frust(0), P(0)
+dpy::normal::normal(app::node node) : display(node), frust(0), P(0)
 {
     app::node curr;
 
-    x = window[0];
-    y = window[1];
-    w = window[2];
-    h = window[3];
-
-    // Check the display definition for a frustum.
+    // Check the display definition for a frustum, or create a default
 
     if      ((curr = app::find(node, "frustum")))
-        frust = new app::frustum(curr, w, h);
-
-    // If none, check the tile definition for one.
-
-    else if ((curr = app::find(tile, "frustum")))
-        frust = new app::frustum(curr, w, h);
-
-    // If still none, create a default.
-
+        frust = new app::frustum(curr, viewport[2], viewport[3]);
     else
-        frust = new app::frustum(0, w, h);
+        frust = new app::frustum(0,    viewport[2], viewport[3]);
 
-    // Note the view index.
+    // Note the channel index.
 
-    view_i = app::get_attr_d(node, "view");
+    chani = app::get_attr_d(node, "channel");
 }
 
 dpy::normal::~normal()
@@ -56,12 +44,8 @@ dpy::normal::~normal()
 
 //-----------------------------------------------------------------------------
 
-void dpy::normal::prep(app::view_v& views, app::frustum_v& frusta)
+void dpy::normal::get_frusta(app::frustum_v& frusta)
 {
-    // Apply the viewpoint and view to my frustum.
-
-    frust->calc_user_planes(views[view_i]->get_p());
-
     // Add my frustum to the list.
 
     frusta.push_back(frust);
@@ -69,6 +53,8 @@ void dpy::normal::prep(app::view_v& views, app::frustum_v& frusta)
 
 void dpy::normal::draw(app::view_v& views, app::frustum *frust)
 {
+    assert(P);
+
     if (views[view_i])
     {
         // Draw the scene to the off-screen buffer.
