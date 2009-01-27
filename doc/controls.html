@@ -10,7 +10,14 @@
 
     <h1>Thumb Controls</h1>
 
+    <!------------------------------------------------------------------------>
+
     <h2>Calibration controls</h2>
+
+    <p>This section describes the calibration control bindings hard-coded in Thumb. The number of complexity of these may at first seem ridiculous. However, these bindings are not active under normal circumstances, and are hidden behind an explicit calibration mode.
+They are here for experts, and never need to be touched by the vast majority of users.</p>
+
+    <p>Calibrating a Varrier or a multi-projector dome can be an arduous task. Years of experience have shown that a solid set of keyboard bindings make the performance of these tasks far quicker and easier than any GUI interface. While it takes longer for the beginner calibrator to <emph>learn</emph> to perform a calibration, the keyboard allows the expert calibrator to work very quickly without the need to shift attention from the display to the interface.</p>
 
     <h3>Calibration state controls</h3>
 
@@ -18,10 +25,35 @@
 
       <tr><td><code>Control-Tab</code><td>Toggle calibration mode. In calibration mode, the normal distribution of events is interrupted. Instead of being sent to the application, events are routed instead to the application configuration. This allows view frusta and display modes to be tuned interactively.
 
-      <tr><td><code>Control-Space</code><td>Cycle forward through the list of configurable tiles.
+      <tr><td><code>Control-Space</code><td>Cycle forward through the list of configurable displays.
 
-      <tr><td><code>Control-Backspace</code><td>Cycle backward through the list of configurable tiles.
+      <tr><td><code>Control-Backspace</code><td>Cycle backward through the list of configurable displays.
 
+    </table>
+
+    <!------------------------------------------------------------------------>
+
+    <h3>Frustum calibration controls</h3>
+
+    <p>The value of <i>d</i> depends upon the state of the <code>Caps Lock</code> modifier key. <code>Caps Lock OFF</code> gives coarse control with <i>d = 0.5</i>, while <code>Caps Lock ON</code> gives fine control with <i>d = 0.05</i>. While in calibration mode...</p>
+
+    <table>
+      <tr><td><code>Control-Left</code><td>Yaw decrease <i>d</i>
+      <tr><td><code>Control-Right</code><td>Yaw increase <i>d</i>
+      <tr><td><code>Control-Up</code><td>Pitch decrease <i>d</i>
+      <tr><td><code>Control-Down</code><td>Pitch increase <i>d</i>
+      <tr><td><code>Control-PageUp</code><td>Roll decrease <i>d</i>
+      <tr><td><code>Control-PageDown</code><td>Roll increase <i>d</i>
+      <tr><td><code>Control-Insert</code><td>Horizontal FOV increase <i>d</i>
+      <tr><td><code>Control-Delete</code><td>Horizontal FOV decrease <i>d</i>
+      <tr><td><code>Control-Home</code><td>Vertical FOV increase <i>d</i>
+      <tr><td><code>Control-End</code><td>Vertical FOV decrease <i>d</i>
+      <tr><td><code>Control-Shift-Left</code><td>Theta increase <i>d</i>
+      <tr><td><code>Control-Shift-Right</code><td>Theta decrease <i>d</i>
+      <tr><td><code>Control-Shift-Up</code><td>Phi increase <i>d</i>
+      <tr><td><code>Control-Shift-Down</code><td>Phi decrease <i>d</i>
+      <tr><td><code>Control-Shift-PageUp</code><td>Rho increase <i>d</i>
+      <tr><td><code>Control-Shift-PageDown</code><td>Rho decrease <i>d</i>
     </table>
 
     <!------------------------------------------------------------------------>
@@ -31,14 +63,14 @@
     <p>While in calibration mode, with a Varrier display configuration selected...</p>
 
     <table>
-      <tr><td><code>Left</code><td>Shift decrease 0.00005
-      <tr><td><code>Right</code><td>Shift increase 0.00005
-      <tr><td><code>Up</code><td>Optical thickness decrease 0.0001
-      <tr><td><code>Down</code><td>Optical thickness increase 0.0001
-      <tr><td><code>Shift-Left</code><td>Angle decrease 0.01
-      <tr><td><code>Shift-Right</code><td>Angle increase by 0.01
-      <tr><td><code>Shift-Up</code><td>Pitch increase 0.01
-      <tr><td><code>Shift-Down</code><td>Pitch decrease 0.01
+      <tr><td><code>Control-Left</code><td>Shift decrease 0.00005
+      <tr><td><code>Control-Right</code><td>Shift increase 0.00005
+      <tr><td><code>Control-Up</code><td>Optical thickness decrease 0.0001
+      <tr><td><code>Control-Down</code><td>Optical thickness increase 0.0001
+      <tr><td><code>Control-Shift-Left</code><td>Angle decrease 0.01
+      <tr><td><code>Control-Shift-Right</code><td>Angle increase 0.01
+      <tr><td><code>Control-Shift-Up</code><td>Pitch increase 0.01
+      <tr><td><code>Control-Shift-Down</code><td>Pitch decrease 0.01
     </table>
 
     <!------------------------------------------------------------------------>

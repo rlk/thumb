@@ -13,6 +13,8 @@
 #ifndef DPY_DISPLAY_HPP
 #define DPY_DISPLAY_HPP
 
+#include <vector>
+
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
@@ -42,6 +44,8 @@ namespace dpy
         int index;
         int viewport[4];
 
+        void fill(double, double, int, int) const;
+
     public:
 
         display(app::node);
@@ -50,9 +54,9 @@ namespace dpy
 
         // Rendering handlers.
 
-        virtual void prep(dpy::channel *, int, app::frustum *) = 0;
-        virtual void draw(dpy::channel *, int)                 = 0;
-        virtual void test(dpy::channel *, int)                 = 0;
+        virtual void prep(dpy::channel **, int)      = 0;
+        virtual int  draw(dpy::channel **, int, int) = 0;
+        virtual void test(dpy::channel **, int, int) = 0;
 
         // Event handlers.
 

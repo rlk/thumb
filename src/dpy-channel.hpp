@@ -18,7 +18,7 @@
 //-----------------------------------------------------------------------------
 // Forward declarations
 
-namelpace ogl
+namespace ogl
 {
     class frame;
 }
@@ -40,8 +40,8 @@ namespace dpy
 
     public:
 
-        view(app::node);
-       ~view();
+        channel(app::node);
+       ~channel();
 
         void set_head(const double *,
                       const double *);
@@ -50,7 +50,7 @@ namespace dpy
         void fini();
         void bind() const;
         void free() const;
-        void draw() const;
+        void test() const;
 
         int get_w() const { return w; }
         int get_h() const { return h; }

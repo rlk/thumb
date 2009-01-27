@@ -20,16 +20,26 @@
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
+// Forward declarations
 
 namespace app
 {
-    // Forward declarations of pointed-to classes.
-
     class tile;
     class view;
     class event;
     class frustum;
+}
 
+namespace dpy
+{
+    class channel;
+    class display;
+}
+
+//-----------------------------------------------------------------------------
+
+namespace app
+{
     // Application host
 
     class host
@@ -91,8 +101,8 @@ namespace app
         int window_full;
         int window_frame;
 
-        std::vector<app::display *> displays;
-        std::vector<app::channel *> channels;
+        std::vector<dpy::display *> displays;
+        std::vector<dpy::channel *> channels;
 
         // Configuration serializer
 

@@ -12,12 +12,13 @@
 
 #include <cassert>
 
-#include "dpy-normal.hpp"
 #include "matrix.hpp"
-#include "app-event.hpp"
 #include "app-glob.hpp"
-#include "app-user.hpp"
 #include "app-prog.hpp"
+#include "app-event.hpp"
+#include "app-frustum.hpp"
+#include "dpy-channel.hpp"
+#include "dpy-normal.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -34,7 +35,7 @@ dpy::normal::normal(app::node node) : display(node), frust(0), P(0)
 
     // Note the channel index.
 
-    chani = app::get_attr_d(node, "channel");
+    chani = std::max(0, app::get_attr_d(node, "channel"));
 }
 
 dpy::normal::~normal()
@@ -46,55 +47,88 @@ dpy::normal::~normal()
 
 void dpy::normal::get_frusta(app::frustum_v& frusta)
 {
+    assert(frust);
+
     // Add my frustum to the list.
 
     frusta.push_back(frust);
 }
 
-void dpy::normal::draw(app::view_v& views, app::frustum *frust)
+void dpy::normal::prep(dpy::channel ** chanv, int chanc)
 {
-    assert(P);
+    assert(frust);
 
-    if (views[view_i])
+    // Apply the channel view position to the frustum.
+
+    if (chani < chanc)
+        frust->calc_user_planes(chanv[chani]->get_p());
+}
+
+int dpy::normal::draw(dpy::channel ** chanv, int chanc, int frusti)
+{
+    if (chani < chanc)
     {
+        assert(chanv[chani]);
+        assert(P);
+
         // Draw the scene to the off-screen buffer.
 
-        views[view_i]->bind();
+        chanv[chani]->bind();
         {
-            if (calibrate)
-                views[view_i]->draw();
-            else
-                ::prog->draw(frust);
+            ::prog->draw(frusti);
         }
-        views[view_i]->free();
+        chanv[chani]->free();
 
         // Draw the off-screen buffer to the screen.
 
-        if (P)
+        chanv[chani]->bind_color(GL_TEXTURE0);
         {
-            const double kx = double(views[view_i]->get_w()) / w;
-            const double ky = double(views[view_i]->get_h()) / h;
-
-            glViewport(x, y, w, h);
-
-            views[view_i]->bind_color(GL_TEXTURE0);
             P->bind();
             {
-                P->uniform("frag_d", -x * kx, -y * ky);
-                P->uniform("frag_k",      kx,      ky);
-
-                glBegin(GL_QUADS);
-                {
-                    glVertex2f(-1.0f, -1.0f);
-                    glVertex2f(+1.0f, -1.0f);
-                    glVertex2f(+1.0f, +1.0f);
-                    glVertex2f(-1.0f, +1.0f);
-                }
-                glEnd();
+                fill(frust->get_w(),
+                     frust->get_h(),
+                     chanv[chani]->get_w(),
+                     chanv[chani]->get_h());
             }
             P->free();
-            views[view_i]->free_color(GL_TEXTURE0);
         }
+        chanv[chani]->free_color(GL_TEXTURE0);
+    }
+
+    // Return the number of frusta used.
+
+    return 1;
+}
+
+void dpy::normal::test(dpy::channel **chanv, int chanc, int index)
+{
+    if (chani < chanc)
+    {
+        assert(chanv[chani]);
+        assert(P);
+
+        // Draw the calibration pattern to the off-screen buffer.
+
+        chanv[chani]->bind();
+        {
+            chanv[chani]->test();
+        }
+        chanv[chani]->free();
+
+        // Draw the off-screen buffer to the screen.
+
+        chanv[chani]->bind_color(GL_TEXTURE0);
+        {
+            P->bind();
+            {
+                fill(frust->get_w(),
+                     frust->get_h(),
+                     chanv[chani]->get_w(),
+                     chanv[chani]->get_h());
+            }
+            P->free();
+        }
+        chanv[chani]->free_color(GL_TEXTURE0);
     }
 }
 
@@ -102,21 +136,21 @@ void dpy::normal::draw(app::view_v& views, app::frustum *frust)
 
 bool dpy::normal::project_event(app::event *E, int x, int y)
 {
+    assert(frust);
+
     // Determine whether the pointer falls within the viewport.
 
-    if (frust)
-    {
-        double X = double(wx - x) / w;
-        double Y = double(wy - y) / h;
+    double X = double(x - viewport[0]) / double(viewport[2]);
+    double Y = double(viewport[1] - y) / double(viewport[3]);
 
-        if (0.0 <= X && X < 1.0 &&
-            0.0 <= Y && Y < 1.0)
+    if (0.0 <= X && X < 1.0 &&
+        0.0 <= Y && Y < 1.0)
 
-            // Let the frustum project the pointer into space.
+        // Let the frustum project the pointer into space.
 
-            return frust->project_event(E, X, Y))
-    }
-    return false;
+        return frust->project_event(E, X, Y);
+    else
+        return false;
 }
 
 bool dpy::normal::process_start(app::event *E)
@@ -148,9 +182,11 @@ bool dpy::normal::process_close(app::event *E)
 
 bool dpy::normal::process_event(app::event *E)
 {
+    assert(frust);
+
     // Do the local startup or shutdown.
 
-    switch (E.get_type())
+    switch (E->get_type())
     {
     case E_START: process_start(E);
     case E_CLOSE: process_close(E);
@@ -158,10 +194,7 @@ bool dpy::normal::process_event(app::event *E)
 
     // Let the frustum handle the event.
 
-    if (frust)
-        return frust->process_event(app::event *E);
-    else
-        return false;
+    return frust->process_event(E);
 }
 
 //-----------------------------------------------------------------------------

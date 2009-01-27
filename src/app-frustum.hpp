@@ -19,14 +19,17 @@
 
 //-----------------------------------------------------------------------------
 
-// TODO: technically not necessary to store user_points?
-
 namespace app
 {
+    // Forward declarations
+
+    class event;
+
     //-------------------------------------------------------------------------
 
     // USER denotes tracker coordinates. VIEW denotes world coordinates. Thus,
-    // VIEW_PLANES is a cache of the view-transformed USER_PLANES.
+    // VIEW_PLANES is a cache of the view-transformed USER_PLANES, with a fifth
+    // plane for use in horizon culling.
 
     class frustum
     {
@@ -47,7 +50,7 @@ namespace app
         // Frustum bounding planes and points
 
         double user_points[4][3];
-//      double view_points[8][3];
+        double view_points[8][3];
         double user_planes[4][4];
         double view_planes[5][4];
 
@@ -88,18 +91,12 @@ namespace app
         // View state mutators
 
         void calc_projection (double, double);
-//      void calc_view_points(double, double);
+        void calc_view_points(double, double);
         void calc_user_planes(const double *);
         void calc_view_planes(const double *,
                               const double *);
 
         void set_horizon(double);
-
-        // Calibration input handlers
-
-        bool input_point(int, const double *, const double *);
-        bool input_click(int, int, int, bool);
-        bool input_keybd(int, int, int, bool);
 
         // Visibility testers
 
@@ -110,6 +107,8 @@ namespace app
                        const double *, double, double) const;
         int test_cap  (const double *, double, double, double) const;
 
+        // Queries.
+
         const double *get_user_pos() const { return user_pos; }
         const double *get_view_pos() const { return view_pos; }
         const double *get_disp_pos() const { return disp_pos; }
@@ -119,9 +118,12 @@ namespace app
         double get_h()        const;
         double pixels(double) const;
 
-        // Perspective projection application
+        // Event handlers
 
-        void pick(double *, double *, double, double) const;
+        bool project_event(event *, double, double) const;
+        bool process_event(event *);
+
+        // Perspective projection application
 
         void draw() const;
         void cast() const;

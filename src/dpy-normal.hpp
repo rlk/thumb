@@ -53,9 +53,9 @@ namespace dpy
 
         // Rendering handlers.
 
-        virtual void prep(dpy::channel *, int, app::frustum *);
-        virtual void draw(dpy::channel *, int);
-        virtual void test(dpy::channel *, int);
+        virtual void prep(dpy::channel **, int);
+        virtual int  draw(dpy::channel **, int, int);
+        virtual void test(dpy::channel **, int, int);
 
         // Event handers.
 

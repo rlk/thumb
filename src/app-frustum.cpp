@@ -13,10 +13,10 @@
 #include <cmath>
 #include <cstring>
 
-#include <SDL_mouse.h>
 #include <SDL_keyboard.h>
 
 #include "app-frustum.hpp"
+#include "app-event.hpp"
 #include "ogl-opengl.hpp"
 #include "matrix.hpp"
 #include "util.hpp"
@@ -307,7 +307,6 @@ void app::frustum::calc_view_planes(const double *M,
     view_count = 4;
 }
 
-/*
 void app::frustum::calc_view_points(double n, double f)
 {
     double v[4][3];
@@ -337,7 +336,6 @@ void app::frustum::calc_view_points(double n, double f)
         view_points[i + 4][2] = view_pos[2] + v[i][2] * f / user_dist;
     }
 }
-*/
 
 void app::frustum::calc_projection(double n, double f)
 {
@@ -451,62 +449,6 @@ app::frustum::frustum(frustum& that)
     memcpy(user_basis,  that.user_basis,     16 * sizeof (double));
 
     memcpy(P, that.P, 16 * sizeof (double));
-}
-
-//-----------------------------------------------------------------------------
-
-bool app::frustum::input_point(int i, const double *p, const double *q)
-{
-    return false;
-}
-
-bool app::frustum::input_click(int i, int b, int m, bool d)
-{
-    return false;
-}
-
-bool app::frustum::input_keybd(int c, int k, int m, bool d)
-{
-    if (d)
-    {
-        if (m & KMOD_CTRL)
-        {
-            double P, T, R, p, y, r, s, H, V;
-
-            s = ((m & KMOD_CAPS) || (m & KMOD_ALT)) ? 0.1 : 1.0;
-
-            get_calibration(P, T, R, p, y, r, H, V);
-
-            if (m & KMOD_SHIFT)
-            {
-                if      (k == SDLK_LEFT)     T += 0.5 * s;
-                else if (k == SDLK_RIGHT)    T -= 0.5 * s;
-                else if (k == SDLK_UP)       P += 0.5 * s;
-                else if (k == SDLK_DOWN)     P -= 0.5 * s;
-                else if (k == SDLK_PAGEUP)   R += 0.5 * s;
-                else if (k == SDLK_PAGEDOWN) R -= 0.5 * s;
-            }
-            else
-            {
-                if      (k == SDLK_LEFT)     y -= 0.5 * s;
-                else if (k == SDLK_RIGHT)    y += 0.5 * s;
-                else if (k == SDLK_UP)       p -= 0.5 * s;
-                else if (k == SDLK_DOWN)     p += 0.5 * s;
-                else if (k == SDLK_PAGEUP)   r += 1.0 * s;
-                else if (k == SDLK_PAGEDOWN) r -= 1.0 * s;
-                else if (k == SDLK_INSERT)   H += 1.0 * s;
-                else if (k == SDLK_DELETE)   H -= 1.0 * s;
-                else if (k == SDLK_HOME)     V += 1.0 * s;
-                else if (k == SDLK_END)      V -= 1.0 * s;
-            }
-
-            set_calibration(P, T, R, p, y, r, H, V);
-            calc_calibrated();
-
-            return true;
-        }
-    }
-    return false;
 }
 
 //-----------------------------------------------------------------------------
@@ -746,13 +688,15 @@ int app::frustum::test_cap(const double *n, double a,
 
 //-----------------------------------------------------------------------------
 
-void app::frustum::pick(double *p, double *q, double x, double y) const
+bool app::frustum::project_event(event *E, double x, double y) const
 {
-    // Return the pick vector for (x, y) in the current user space.
+    // Return the point event for (x, y) in the current user space.
 
     double B[16], k = 1.0 - x - y;
 
     load_idt(B);
+
+    // Compute the Z axis of the pointer space.
 
     B[ 8] = user_pos[0] - (user_points[2][0] * k +
                            user_points[3][0] * x +
@@ -764,18 +708,100 @@ void app::frustum::pick(double *p, double *q, double x, double y) const
                            user_points[3][2] * x +
                            user_points[0][2] * y);
 
+    // Complete an orthonormal basis of the pointer space.
+
     normalize(B + 8);
     crossprod(B + 0, B + 4, B + 8);
     normalize(B + 0);
     crossprod(B + 4, B + 8, B + 0);
     normalize(B + 4);
 
+    // Convert the pointer space basis matrix to a quaternion.
+
+    double q[3];
+
     get_quaternion(q, B);
 
-    p[0] = user_pos[0];
-    p[1] = user_pos[1];
-    p[2] = user_pos[2];
+    // Store the pointer origin and direction in the event.
+
+    E->mk_point(0, user_pos, q);
+
+    return true;
 }
+
+bool app::frustum::process_event(app::event *E)
+{
+    if (E->get_type() == E_KEYBD && E->data.keybd.d)
+    {
+        const int k = E->data.keybd.k;
+        const int m = E->data.keybd.m;
+
+        if (m & KMOD_CTRL)
+        {
+            double d = ((m & KMOD_CAPS) || (m & KMOD_ALT)) ? 0.05 : 0.5;
+
+            double dP = 0;
+            double dT = 0;
+            double dR = 0;
+            double dp = 0;
+            double dy = 0;
+            double dr = 0;
+            double dH = 0;
+            double dV = 0;
+
+            bool b = false;
+
+            // Interpret the key event.
+
+            if (m & KMOD_SHIFT)
+            {
+                if      (k == SDLK_LEFT)     { dT =  d; b = true; }
+                else if (k == SDLK_RIGHT)    { dT = -d; b = true; }
+                else if (k == SDLK_UP)       { dP =  d; b = true; }
+                else if (k == SDLK_DOWN)     { dP = -d; b = true; }
+                else if (k == SDLK_PAGEUP)   { dR =  d; b = true; }
+                else if (k == SDLK_PAGEDOWN) { dR = -d; b = true; }
+            }
+            else
+            {
+                if      (k == SDLK_LEFT)     { dy = -d; b = true; }
+                else if (k == SDLK_RIGHT)    { dy =  d; b = true; }
+                else if (k == SDLK_UP)       { dp = -d; b = true; }
+                else if (k == SDLK_DOWN)     { dp =  d; b = true; }
+                else if (k == SDLK_PAGEUP)   { dr =  d; b = true; }
+                else if (k == SDLK_PAGEDOWN) { dr = -d; b = true; }
+                else if (k == SDLK_INSERT)   { dH =  d; b = true; }
+                else if (k == SDLK_DELETE)   { dH = -d; b = true; }
+                else if (k == SDLK_HOME)     { dV =  d; b = true; }
+                else if (k == SDLK_END)      { dV = -d; b = true; }
+            }
+
+            // If changes occurred, apply them to the calibration.
+
+            if (b)
+            {
+                double P, T, R, p, y, r, H, V;
+
+                get_calibration(P, T, R, p, y, r, H, V);
+                P += dP;
+                T += dT;
+                R += dR;
+                p += dp;
+                y += dy;
+                r += dr;
+                H += dH;
+                V += dV;
+                set_calibration(P, T, R, p, y, r, H, V);
+                calc_calibrated();
+
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+//-----------------------------------------------------------------------------
 
 void app::frustum::draw() const
 {
