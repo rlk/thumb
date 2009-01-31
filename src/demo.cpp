@@ -22,7 +22,6 @@
 #include "app-event.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
-#include "app-host.hpp"
 
 #include "wrl-world.hpp"
 #include "uni-universe.hpp"
@@ -40,7 +39,7 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo() :
+demo::demo(int w, int h) :
     universe(0), world(0), edit(0), play(0), info(0), curr(0), input(0)
 {
     std::string input_mode = conf->get_s("input_mode");
@@ -67,7 +66,8 @@ demo::demo() :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-    world = new wrl::world();
+//  universe = new uni::universe(w, h);
+    world    = new wrl::world();
 
     edit = new mode::edit(world);
     play = new mode::play(world);
@@ -89,6 +89,7 @@ demo::~demo()
     if (edit) delete edit;
 
     if (world) delete world;
+    if (universe) delete universe;
 }
 
 //-----------------------------------------------------------------------------
@@ -273,7 +274,7 @@ bool demo::process_event(app::event *E)
 
     if (R || (input && input->process_event(E))
           || (curr  &&  curr->process_event(E))
-          || (        ::prog->process_event(E)))
+          || (          prog::process_event(E)))
 
         // If the event was handled, disable the attract mode.
     {

@@ -23,7 +23,7 @@
 
 //-----------------------------------------------------------------------------
 
-uni::universe::universe() : G(0), Z(0), serial(0), time(0)
+uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
 {
     double Er0 =   6372797.0;
     double Er1 =   6372797.0 +  8844.0;
@@ -81,8 +81,7 @@ uni::universe::universe() : G(0), Z(0), serial(0), time(0)
     if (patch_depth == 0) patch_depth = DEFAULT_PATCH_DEPTH;
 
     D = new geodat(patch_depth);
-    R = new georen(::host->get_buffer_w(),
-                   ::host->get_buffer_h());
+    R = new georen(w, h);
 
     // Create the galaxy.
 

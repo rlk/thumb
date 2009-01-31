@@ -440,6 +440,14 @@ app::host::host(std::string filename, std::string tag) :
                 window_size[3] = get_attr_d(win, "h", DEFAULT_PIXEL_HEIGHT);
             }
 
+            // Extract the off-screen buffer size, or use the window size.
+
+            if (app::node buf = find(node, "buffer"))
+            {
+                buffer_size[0] = get_attr_d(buf, "w", window_size[2]);
+                buffer_size[1] = get_attr_d(buf, "h", window_size[3]);
+            }
+
             // Create a display object for each configured display.
 
             for (curr = find(node,       "display"); curr;
@@ -498,12 +506,19 @@ app::host::~host()
 
 void app::host::root_loop()
 {
+    event E;
+
+    // Kick things off with a START event.
+
+    process_event(E.mk_start());
+
+    // Process incoming events until an exit is posted.
+
     while (exit_flag == false)
     {
         // Translate and dispatch SDL events.
 
         SDL_Event e;
-        event     E;
 
         while (SDL_PollEvent(&e))
             switch (e.type)
@@ -643,17 +658,16 @@ void app::host::draw()
             frusi += (*i)->test(chanc, chanv, calibration_index);
         else
             frusi += (*i)->draw(chanc, chanv, frusi, frusv[frusi]);
+}
 
+void app::host::swap() const
+{
     // If doing network sync, wait until the rendering has finished.
 
     if (server_sd != INVALID_SOCKET || !client_sd.empty())
         glFinish();
-}
 
-int app::host::get_window_m() const
-{
-    return ((window_full  ? SDL_FULLSCREEN : 0) |
-            (window_frame ? 0 : SDL_NOFRAME));
+    SDL_GL_SwapBuffers();
 }
 
 //-----------------------------------------------------------------------------
@@ -735,6 +749,15 @@ bool app::host::process_event(event *E)
 
     send(E);
 
+    // Process a START event first.
+
+    if (E->get_type() == E_START)
+    {
+        process_start(E);
+        sync();
+        return true;
+    }
+
     // Allow the application to process the event.
 
     ::prog->process_event(E);
@@ -745,12 +768,17 @@ bool app::host::process_event(event *E)
     {
     case E_PAINT: draw(); sync(); return true;
     case E_FRAME: swap();         return true;
-
-    case E_START: process_start(E); sync(); return true;
-    case E_CLOSE: process_close(E); sync(); return true;
-
     default:
         return process_calib(E);
+    }
+
+    // Process a CLOSE event last.
+
+    if (E->get_type() == E_CLOSE)
+    {
+        process_close(E);
+        sync();
+        return true;
     }
 }
 
@@ -764,6 +792,12 @@ void app::host::set_head(const double *p,
 {
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         (*i)->set_head(p, q);
+}
+
+int app::host::get_window_m() const
+{
+    return ((window_full  ? SDL_FULLSCREEN : 0) |
+            (window_frame ? 0 : SDL_NOFRAME));
 }
 
 //-----------------------------------------------------------------------------

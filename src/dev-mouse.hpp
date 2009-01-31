@@ -53,7 +53,7 @@ namespace dev
 
         mouse();
 
-        bool process_event(app::event *);
+        virtual bool process_event(app::event *);
 
         virtual ~mouse();
     };

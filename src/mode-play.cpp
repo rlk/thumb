@@ -21,6 +21,10 @@ mode::play::play(wrl::world *w) : mode(w)
 {
 }
 
+mode::play::~play()
+{
+}
+
 //-----------------------------------------------------------------------------
 // START and CLOSE events are generated whenever a mode transition occurs.
 

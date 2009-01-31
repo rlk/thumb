@@ -40,6 +40,8 @@ wrl::world::world() : light_P(30), light_T(30), serial(1)
 
     // Initialize the editor physical system.
 
+    dInitODE();
+
     edit_space = dHashSpaceCreate(0);
     edit_point = dCreateRay(edit_space, 100);
     edit_focus = 0;
@@ -86,6 +88,8 @@ wrl::world::~world()
 
     dGeomDestroy (edit_point);
     dSpaceDestroy(edit_space);
+
+    dCloseODE();
 
     // Finalize the render pools.
 

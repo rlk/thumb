@@ -51,7 +51,7 @@ namespace uni
 
     public:
 
-        universe();
+        universe(int, int);
        ~universe();
 
         void prep(app::frustum_v&);

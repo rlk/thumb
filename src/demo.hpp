@@ -91,7 +91,7 @@ class demo : public app::prog
 
 public:
 
-    demo();
+    demo(int, int);
    ~demo();
 
     bool process_event(app::event *);

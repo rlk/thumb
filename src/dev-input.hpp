@@ -30,7 +30,7 @@ namespace dev
     {
     public:
 
-        bool process_event(app::event *) { return false; }
+        virtual bool process_event(app::event *) { return false; }
 
         virtual ~input() { }
     };

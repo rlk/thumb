@@ -89,9 +89,10 @@ namespace app
 
         // Window config
 
-        int window_size[4];
         int window_full;
         int window_frame;
+        int window_size[4];
+        int buffer_size[2];
 
         std::vector<dpy::display *> displays;
         std::vector<dpy::channel *> channels;
@@ -116,11 +117,13 @@ namespace app
 
         // Configuration queries.
 
+        int get_window_m() const;
         int get_window_x() const { return window_size[0]; }
         int get_window_y() const { return window_size[1]; }
         int get_window_w() const { return window_size[2]; }
         int get_window_h() const { return window_size[3]; }
-        int get_window_m() const;
+        int get_buffer_w() const { return buffer_size[0]; }
+        int get_buffer_h() const { return buffer_size[1]; }
 
         void set_head(const double *, const double *);
 

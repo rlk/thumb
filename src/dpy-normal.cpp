@@ -189,8 +189,8 @@ bool dpy::normal::process_event(app::event *E)
 
     switch (E->get_type())
     {
-    case E_START: process_start(E);
-    case E_CLOSE: process_close(E);
+    case E_START: process_start(E); break;
+    case E_CLOSE: process_close(E); break;
     }
 
     // Let the frustum handle the event.
