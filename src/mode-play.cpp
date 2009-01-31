@@ -10,44 +10,65 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "mode-play.hpp"
 #include "main.hpp"
+#include "app-event.hpp"
+#include "wrl-world.hpp"
+#include "mode-play.hpp"
 
 //-----------------------------------------------------------------------------
 
-mode::play::play(wrl::world& w) : mode(w)
+mode::play::play(wrl::world *w) : mode(w)
 {
 }
 
 //-----------------------------------------------------------------------------
+// START and CLOSE events are generated whenever a mode transition occurs.
 
-void mode::play::enter()
+bool mode::play::process_start(app::event *E)
 {
-    world.play_init();
+    assert(world);
+
+    world->play_init();
     clr_time();
+
+    return false;
 }
 
-void mode::play::leave()
+bool mode::play::process_close(app::event *E)
 {
-    world.play_fini();
+    assert(world);
+
+    world->play_fini();
+
+    return false;
+}
+
+bool mode::play::process_timer(app::event *E)
+{
+    assert(E);
+    assert(world);
+
+    world->play_step(E->data.timer.dt * 0.001);
+
+    return false;
 }
 
 //-----------------------------------------------------------------------------
 
-bool mode::play::timer(int t)
+bool mode::play::process_event(app::event *E)
 {
-    world.play_step(t / 1000.0);
-    return true;
-}
+    assert(E);
 
-double mode::play::view(const double *planes)
-{
-    return world.view(false, planes);
-}
+    bool R = false;
 
-void mode::play::draw(const double *points)
-{
-    world.draw(false, points);
+    switch (E->get_type())
+    {
+    case E_START: R |= process_start(E); break;
+    case E_CLOSE: R |= process_close(E); break;
+    case E_TIMER: R |= process_timer(E); break;
+    }
+
+    return R || mode::process_event(E);
 }
 
 //-----------------------------------------------------------------------------

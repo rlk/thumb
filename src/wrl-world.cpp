@@ -1100,8 +1100,9 @@ void draw_light_fini()
 
 //-----------------------------------------------------------------------------
 
-double wrl::world::view(bool edit, const double *planes)
+double wrl::world::prep(int frusc, app::frustum **frusv, bool edit)
 {
+/*
     double line_d = 0;
 
     if (edit)
@@ -1113,10 +1114,13 @@ double wrl::world::view(bool edit, const double *planes)
     frust_dist = fill_pool->view(0, 5, planes);
 
     return std::max(frust_dist, line_d);
+*/
+    return 0;
 }
 
-void wrl::world::draw(bool edit, const double *points)
+void wrl::world::draw(int frusi, app::frustum *frusp, bool edit)
 {
+/*
     GLfloat L[4];
     double  l[4], c[4], d[4];
 
@@ -1245,6 +1249,7 @@ void wrl::world::draw(bool edit, const double *points)
         line_pool->draw_fini();
         line_fini();
     }
+*/
 }
 
 //-----------------------------------------------------------------------------

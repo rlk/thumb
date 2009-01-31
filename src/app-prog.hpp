@@ -13,16 +13,18 @@
 #ifndef APP_PROG_HPP
 #define APP_PROG_HPP
 
-#include "app-frustum.hpp"
+//-----------------------------------------------------------------------------
+
+namespace app
+{
+    class event;
+    class frustum;
+}
 
 //-----------------------------------------------------------------------------
 
 namespace app
 {
-    // Forward declarations.
-
-    class event;
-
     // Application interface.
 
     class prog
@@ -39,9 +41,10 @@ namespace app
 
         prog();
 
+        virtual void prep(int, app::frustum **) { }
+        virtual void draw(int, app::frustum  *) { }
+
         virtual bool process_event(event *);
-        virtual void prep(frustum_v&) { }
-        virtual void draw(int)        { }
 
         // Debug toggles.
 

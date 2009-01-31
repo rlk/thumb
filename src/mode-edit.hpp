@@ -14,7 +14,13 @@
 #define MODE_EDIT_HPP
 
 #include "mode-mode.hpp"
-#include "wrl-constraint.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace wrl
+{
+    class constraint;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -47,7 +53,7 @@ namespace mode
 
         // Edit-mode state.
 
-        wrl::constraint transform;
+        wrl::constraint *xform;
 
         bool drag;
         bool move;
@@ -55,17 +61,23 @@ namespace mode
         double point_p[3];
         double point_v[3];
 
+        // Event handlers.
+
+        bool process_point(app::event *);
+        bool process_click(app::event *);
+        bool process_keybd(app::event *);
+        bool process_timer(app::event *);
+
     public:
 
-        edit(wrl::world&);
+        edit(wrl::world *);
 
-        virtual bool point(int, const double *, const double *);
-        virtual bool click(int, int, int, bool);
-        virtual bool keybd(int, int, int, bool);
-        virtual bool timer(int);
+        virtual double prep(int, app::frustum **);
+        virtual void   draw(int, app::frustum  *);
 
-        virtual double view(const double *);
-        virtual void   draw(const double *);
+        virtual bool process_event(app::event *);
+
+        virtual ~edit();
     };
 }
 

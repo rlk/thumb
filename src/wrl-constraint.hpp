@@ -16,7 +16,19 @@
 #include <set>
 #include <cstring>
 
-#include "ogl-pool.hpp"
+//-----------------------------------------------------------------------------
+
+namespace app
+{
+    class frustum;
+}
+
+namespace ogl
+{
+    class unit;
+    class node;
+    class pool;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -57,7 +69,7 @@ namespace wrl
     public:
 
         constraint();
-        ~constraint();
+       ~constraint();
 
         void set_mode(int);
         void set_axis(int);
@@ -68,8 +80,8 @@ namespace wrl
         bool point(double *, const double *, const double *);
         void click(          const double *, const double *);
 
-        double view(const double *);
-        void   draw();
+        double prep(int, app::frustum **);
+        void   draw(int, app::frustum  *);
     };
 }
 

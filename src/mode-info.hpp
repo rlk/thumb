@@ -13,8 +13,14 @@
 #ifndef MODE_INFO_HPP
 #define MODE_INFO_HPP
 
-#include "gui-control.hpp"
 #include "mode-mode.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace cnt
+{
+    class control;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -26,18 +32,12 @@ namespace mode
 
     public:
 
-        info(wrl::world&);
+        info(wrl::world *);
 
-        virtual void enter();
-        virtual void leave();
+        virtual double prep(int, app::frustum **);
+        virtual void   draw(int, app::frustum  *);
 
-        virtual bool point(int, const double *, const double *);
-        virtual bool click(int, int, int, bool);
-        virtual bool keybd(int, int, int, bool);
-        virtual bool timer(int);
-
-        virtual double view(const double *);
-        virtual void   draw(const double *);
+        virtual bool process_event(app::event *);
     };
 }
 

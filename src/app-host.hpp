@@ -20,12 +20,9 @@
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
-// Forward declarations
 
 namespace app
 {
-    class tile;
-    class view;
     class event;
     class frustum;
 }
@@ -40,8 +37,6 @@ namespace dpy
 
 namespace app
 {
-    // Application host
-
     class host
     {
         // Network handling
@@ -83,17 +78,14 @@ namespace app
         int  movie;
         int  count;
 
-        // Calibration handlers
+        // Event/Calibration handlers
 
         bool calibration_state;
         int  calibration_index;
 
-        bool do_calibration(event *E);
-
-        bool process_start(event *E);
-        bool process_close(event *E);
-
-        std::vector<frustum *> frusta;
+        bool process_calib(event *E);
+        void process_start(event *E);
+        void process_close(event *E);
 
         // Window config
 
@@ -103,6 +95,7 @@ namespace app
 
         std::vector<dpy::display *> displays;
         std::vector<dpy::channel *> channels;
+        std::vector<app::frustum *> frustums;
 
         // Configuration serializer
 

@@ -15,6 +15,7 @@
 
 #include "ode.hpp"
 #include "matrix.hpp"
+#include "ogl-pool.hpp"
 #include "ogl-opengl.hpp"
 #include "wrl-solid.hpp"
 

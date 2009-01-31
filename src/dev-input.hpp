@@ -14,7 +14,6 @@
 #define DEV_INPUT
 
 //-----------------------------------------------------------------------------
-// Forward declarations
 
 namespace app
 {
@@ -22,10 +21,11 @@ namespace app
 }
 
 //-----------------------------------------------------------------------------
-// Input device base class
 
 namespace dev
 {
+    // Input device base class
+
     class input
     {
     public:

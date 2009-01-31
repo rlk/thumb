@@ -18,7 +18,6 @@
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
-// Forward declarations
 
 namespace app
 {
@@ -50,18 +49,21 @@ namespace dpy
 
         display(app::node);
 
-        virtual void get_frusta(std::vector<app::frustum *>&) { }
+        virtual void get_frustums(std::vector<app::frustum *>&) { }
 
         // Rendering handlers.
 
-        virtual void prep(dpy::channel **, int)      = 0;
-        virtual int  draw(dpy::channel **, int, int) = 0;
-        virtual void test(dpy::channel **, int, int) = 0;
+        virtual void prep(int, dpy::channel **)      = 0;
+        virtual int  draw(int, dpy::channel **,
+                          int, app::frustum  *)      = 0;
+        virtual int  test(int, dpy::channel **, int) = 0;
 
         // Event handlers.
 
         virtual bool project_event(app::event *, int, int) { return false; }
         virtual bool process_event(app::event *)           { return false; }
+
+        bool is_index(int i) const { return (index == i); }
 
         virtual ~display() { }
     };

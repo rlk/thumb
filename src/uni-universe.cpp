@@ -18,7 +18,6 @@
 #include "matrix.hpp"
 #include "app-glob.hpp"
 #include "app-conf.hpp"
-#include "app-host.hpp"
 #include "app-user.hpp"
 #include "app-prog.hpp"
 

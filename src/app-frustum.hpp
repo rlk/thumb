@@ -21,10 +21,13 @@
 
 namespace app
 {
-    // Forward declarations
-
     class event;
+}
 
+//-----------------------------------------------------------------------------
+
+namespace app
+{
     //-------------------------------------------------------------------------
 
     // USER denotes tracker coordinates. VIEW denotes world coordinates. Thus,

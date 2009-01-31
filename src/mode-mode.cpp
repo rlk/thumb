@@ -10,44 +10,24 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <SDL.h>
+#include <cassert>
 
-#include "ogl-opengl.hpp"
+#include "wrl-world.hpp"
 #include "mode-mode.hpp"
-#include "app-host.hpp"
 
 //-----------------------------------------------------------------------------
 
-bool mode::mode::point(int i, const double *p, const double *q)
+double mode::mode::prep(int frusc, app::frustum **frusv)
 {
-    return false;
+    assert(world);
+    return world->prep(frusc, frusv, false);
 }
 
-bool mode::mode::click(int i, int b, int m, bool d)
+void mode::mode::draw(int frusi, app::frustum *frusp)
 {
-    return false;
-}
-
-bool mode::mode::keybd(int c, int k, int m, bool d)
-{
-    return false;
-}
-
-bool mode::mode::timer(int t)
-{
-    return false;
+    assert(world);
+    world->draw(frusi, frusp, false);
 }
 
 //-----------------------------------------------------------------------------
 
-double mode::mode::view(const double *planes)
-{
-    return world.view(true, planes);
-}
-
-void mode::mode::draw(const double *points)
-{
-    world.draw(true, points);
-}
-
-//-----------------------------------------------------------------------------

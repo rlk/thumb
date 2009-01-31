@@ -12,14 +12,16 @@
 
 #include <cassert>
 
-#include "app-glob.hpp"
 #include "matrix.hpp"
 #include "default.hpp"
+#include "app-glob.hpp"
+#include "app-event.hpp"
+#include "ogl-frame.hpp"
 #include "dpy-channel.hpp"
 
 //-----------------------------------------------------------------------------
 
-dpy::channel::channel(app::node node) : back(0)
+dpy::channel::channel(app::node node) : buffer(0)
 {
     v[0] = p[0] = app::get_attr_f(node, "x");
     v[1] = p[1] = app::get_attr_f(node, "y");
@@ -54,46 +56,74 @@ void dpy::channel::set_head(const double *p,
     this->p[2] = p[2] + w[2];
 }
 
-void dpy::channel::init()
+//-----------------------------------------------------------------------------
+
+void dpy::channel::test() const
 {
-    // Initialize the off-screen render target.
+    // Clear the bound buffer buffer to the calibration color.
 
-    assert(back == 0);
-    back = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                                   GL_RGBA8, true, false);
-}
-
-void dpy::channel::fini()
-{
-    // Finalize the off-screen render target.
-
-    assert(back);
-    ::glob->free_frame(back);
-    back = 0;
+    glClearColor(c[0], c[1], c[2], c[3]);
+    glClear(GL_COLOR_BUFFER_BIT);
 }
 
 void dpy::channel::bind() const
 {
     // Bind the off-screen render target.
 
-    assert(back);
-    back->bind();
+    assert(buffer);
+    buffer->bind();
 }
 
 void dpy::channel::free() const
 {
     // Unbind the off-screen render target.
 
-    assert(back);
-    back->free();
+    assert(buffer);
+    buffer->free();
 }
 
-void dpy::channel::test() const
+void dpy::channel::bind_color(GLenum t) const
 {
-    // Clear the bound back buffer to the calibration color.
+    // Bind the off-screen render target for reading.
 
-    glClearColor(c[0], c[1], c[2], c[3]);
-    glClear(GL_COLOR_BUFFER_BIT);
+    assert(buffer);
+    buffer->bind_color(t);
+}
+
+void dpy::channel::free_color(GLenum t) const
+{
+    // Unbind the off-screen render target for reading.
+
+    assert(buffer);
+    buffer->free_color(t);
+}
+
+//-----------------------------------------------------------------------------
+
+bool dpy::channel::process_event(app::event *E)
+{
+    switch (E->get_type())
+    {
+    case E_START:
+
+        // Initialize the off-screen render target.
+
+        assert(buffer == 0);
+        buffer = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
+                                         GL_RGBA8, true, false);
+        break;
+
+    case E_CLOSE:
+
+        // Finalize the off-screen render target.
+
+        assert(buffer != 0);
+        ::glob->free_frame(buffer);
+        buffer = 0;
+
+        break;
+    }
+    return false;
 }
 
 //-----------------------------------------------------------------------------

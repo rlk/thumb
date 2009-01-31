@@ -16,9 +16,22 @@
 #include <ode/ode.h>
 
 #include "wrl-atom.hpp"
-#include "ogl-pool.hpp"
-#include "ogl-frame.hpp"
 #include "wrl-operation.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace app
+{
+    class frustum;
+}
+
+namespace ogl
+{
+    class unit;
+    class node;
+    class pool;
+    class frame;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -122,7 +135,7 @@ namespace wrl
         void embody_set(atom_set&, atom_map&);
         void modify_set(atom_set&, const double *);
 
-        // Undo-able / redo-able operation.
+        // Undo-able / redo-able operations
 
         void do_create();
         void do_delete();
@@ -134,7 +147,7 @@ namespace wrl
         void undo();
         void redo();
 
-        // File I/O.
+        // File I/O
 
         void init();
         void load(std::string);
@@ -142,8 +155,8 @@ namespace wrl
 
         // Rendering methods
 
-        double view(bool, const double *);
-        void   draw(bool, const double *);
+        double prep(int, app::frustum **, bool);
+        void   draw(int, app::frustum  *, bool);
     };
 }
 

@@ -19,15 +19,14 @@
 #include "matrix.hpp"
 #include "default.hpp"
 #include "ogl-opengl.hpp"
+#include "dpy-channel.hpp"
+#include "dpy-display.hpp"
+#include "dpy-normal.hpp"
 #include "app-event.hpp"
-#include "app-view.hpp"
-#include "app-tile.hpp"
-#include "app-data.hpp"
 #include "app-conf.hpp"
-#include "app-glob.hpp"
 #include "app-user.hpp"
-#include "app-host.hpp"
 #include "app-prog.hpp"
+#include "app-host.hpp"
 
 #define JIFFY (1000 / 60)
 
@@ -357,7 +356,7 @@ void app::host::fini_script()
 
 //-----------------------------------------------------------------------------
 
-bool app::host::do_calibration(event *E)
+bool app::host::process_calib(event *E)
 {
     // Handle calibration state input.
 
@@ -369,27 +368,24 @@ bool app::host::do_calibration(event *E)
         {
         case SDLK_TAB:
             calibration_state = !calibration_state;
-
             post_draw();
             return true;
 
         case SDLK_SPACE:
             calibration_index++;
-
             post_draw();
             return true;
 
         case SDLK_BACKSPACE:
             calibration_index--;
-
             post_draw();
             return true;
         }
 
-    // Dispatch a calibration event to the current tile.
+    // Dispatch a calibration event to the current display.
 
     if (calibration_state)
-        for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+        for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
             if ((*i)->is_index(calibration_index))
                 return (*i)->process_event(E);
 
@@ -453,12 +449,14 @@ app::host::host(std::string filename, std::string tag) :
 
                 if (strcmp(t, "normal")   == 0)
                     displays.push_back(new dpy::normal  (curr));
+/*
                 if (strcmp(t, "dome")     == 0)
                     displays.push_back(new dpy::dome    (curr));
                 if (strcmp(t, "varrier")  == 0)
                     displays.push_back(new dpy::varrier (curr));
                 if (strcmp(t, "anaglyph") == 0)
                     displays.push_back(new dpy::anaglyph(curr));
+*/
             }
 
             // Start the network syncronization.
@@ -469,16 +467,16 @@ app::host::host(std::string filename, std::string tag) :
         }
     }
 
-    // Create a view object for each configured view.
+    // Create a channel object for each configured channel.
 
-    for (curr = find(root,       "view"); curr;
-         curr = next(root, curr, "view"))
-        views.push_back(new view(curr));
+    for (curr = find(root,       "channel"); curr;
+         curr = next(root, curr, "channel"))
+        channels.push_back(new dpy::channel(curr));
 
-    // If no views or tiles were configured, instance defaults.
+    // If no channels or displays were configured, instance defaults.
 
-    if (views.empty()) views.push_back(new view(0));
-    if (tiles.empty()) tiles.push_back(new tile(0));
+    if (channels.empty()) channels.push_back(new dpy::channel(0));
+    if (displays.empty()) displays.push_back(new dpy::normal (0));
 
     // Start the timer.  TODO: move this to start?
 
@@ -487,9 +485,7 @@ app::host::host(std::string filename, std::string tag) :
 
 app::host::~host()
 {
-    std::vector<view *>::iterator i;
-
-    for (i = views.begin(); i != views.end(); ++i)
+    for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         delete (*i);
     
     fini_script();
@@ -624,21 +620,29 @@ void app::host::loop()
 
 void app::host::draw()
 {
-    // Acculumate a list of frusta and preprocess the app.
+    int            chanc =  channels.size();
+    int            frusc =  frustums.size();
+    dpy::channel **chanv = &channels.front();
+    app::frustum **frusv = &frustums.front();
 
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        (*i)->prep(views, frusta);
+    // Acculumate a list of frustums and preprocess the app.
 
-    // TODO: apply the ::user transform to all frusta.
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+        (*i)->prep(chanc, chanv);
 
-    ::prog->prep(frusta);
+    // TODO: apply the ::user transform to all frustums.
 
-    // Render all tiles.
+    ::prog->prep(frusc, frusv);
+
+    // Render all displays.
     
-    int c = 0;
+    int frusi = 0;
 
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        (*i)->draw(views, c, calibration_state, calibration_index);
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+        if (calibration_state)
+            frusi += (*i)->test(chanc, chanv, calibration_index);
+        else
+            frusi += (*i)->draw(chanc, chanv, frusi, frusv[frusi]);
 
     // If doing network sync, wait until the rendering has finished.
 
@@ -683,43 +687,43 @@ void app::host::sync()
 
 //-----------------------------------------------------------------------------
 
-// Ask each tile to project the event into the virtual space.
+// Ask each display to project the event into the virtual space.
 
 bool app::host::project_event(event *E, int x, int y)
 {
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         if ((*i)->project_event(E, x, y))
             return true;
 
     return false;
 }
 
-bool app::host::process_start(event *E)
+void app::host::process_start(event *E)
 {
-    // Forward the start event to all views and tiles.
+    // Forward the start event to all channels and displays.
 
-    for (view_i i = views.begin(); i != views.end(); ++i)
+    for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         (*i)->process_event(E);
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         (*i)->process_event(E);
 
-    // Make a list of all display frusta.
+    // Make a list of all display frustums.
 
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
-        (*i)->get_frusta(frusta);
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+        (*i)->get_frustums(frustums);
 }
 
-bool app::host::process_close(event *E)
+void app::host::process_close(event *E)
 {
-    // Free the list of display frusta.
+    // Free the list of display frustums.
 
-    frusta.clear();
+    frustums.clear();
 
-    // Forward the close event to all views and tiles.
+    // Forward the close event to all channels and displays.
 
-    for (tile_i i = tiles.begin(); i != tiles.end(); ++i)
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         (*i)->process_event(E);
-    for (view_i i = views.begin(); i != views.end(); ++i)
+    for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         (*i)->process_event(E);
 }
 
@@ -742,23 +746,23 @@ bool app::host::process_event(event *E)
     case E_PAINT: draw(); sync(); return true;
     case E_FRAME: swap();         return true;
 
-    case E_START: process_start(); sync(); return true;
-    case E_CLOSE: process_close(); sync(); return true;
+    case E_START: process_start(E); sync(); return true;
+    case E_CLOSE: process_close(E); sync(); return true;
 
     default:
-        return do_calibration(E);
+        return process_calib(E);
     }
 }
 
 //-----------------------------------------------------------------------------
 
-// Forward the given position and orientation to all view objects.  This is
+// Forward the given position and orientation to all channel objects.  This is
 // usually called per-frame in response to a head motion tracker input.
 
 void app::host::set_head(const double *p,
                          const double *q)
 {
-    for (view_i i = views.begin(); i != views.end(); ++i)
+    for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         (*i)->set_head(p, q);
 }
 

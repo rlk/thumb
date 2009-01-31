@@ -15,7 +15,6 @@
 
 #include "default.hpp"
 #include "ogl-opengl.hpp"
-#include "ogl-texture.hpp"
 #include "app-frustum.hpp"
 #include "uni-geogen.hpp"
 #include "uni-georen.hpp"
@@ -23,7 +22,16 @@
 #include "uni-geomap.hpp"
 #include "uni-spatch.hpp"
 #include "uni-overlay.hpp"
-#include "ogl-pool.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class unit;
+    class node;
+    class pool;
+    class program;
+}
 
 //-----------------------------------------------------------------------------
 

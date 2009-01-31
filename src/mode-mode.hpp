@@ -13,7 +13,18 @@
 #ifndef MODE_MODE_HPP
 #define MODE_MODE_HPP
 
-#include "wrl-world.hpp"
+//-----------------------------------------------------------------------------
+
+namespace app
+{
+    class event;
+    class frustum;
+}
+
+namespace wrl
+{
+    class world;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -23,22 +34,16 @@ namespace mode
     {
     protected:
 
-        wrl::world& world;
+        wrl::world* world;
 
     public:
 
-        mode(wrl::world& w) : world(w) { }
+        mode(wrl::world *w) : world(w) { }
 
-        virtual void enter() { }
-        virtual void leave() { }
+        virtual double prep(int, app::frustum **);
+        virtual void   draw(int, app::frustum  *);
 
-        virtual bool point(int, const double *, const double *);
-        virtual bool click(int, int, int, bool);
-        virtual bool keybd(int, int, int, bool);
-        virtual bool timer(int);
-
-        virtual double view(const double *);
-        virtual void   draw(const double *);
+        virtual bool process_event(app::event *) { return false; }
 
         virtual ~mode() { }
     };

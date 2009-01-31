@@ -21,14 +21,23 @@
 
 #include "matrix.hpp"
 #include "wrl-param.hpp"
-#include "ogl-pool.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class unit;
+}
+
+namespace wrl
+{
+    class world;
+}
 
 //-----------------------------------------------------------------------------
 
 namespace wrl
 {
-    class world;
-
     class atom
     {
     protected:

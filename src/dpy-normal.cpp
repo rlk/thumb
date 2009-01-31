@@ -45,16 +45,16 @@ dpy::normal::~normal()
 
 //-----------------------------------------------------------------------------
 
-void dpy::normal::get_frusta(app::frustum_v& frusta)
+void dpy::normal::get_frustums(app::frustum_v& frustums)
 {
     assert(frust);
 
     // Add my frustum to the list.
 
-    frusta.push_back(frust);
+    frustums.push_back(frust);
 }
 
-void dpy::normal::prep(dpy::channel ** chanv, int chanc)
+void dpy::normal::prep(int chanc, dpy::channel ** chanv)
 {
     assert(frust);
 
@@ -64,7 +64,8 @@ void dpy::normal::prep(dpy::channel ** chanv, int chanc)
         frust->calc_user_planes(chanv[chani]->get_p());
 }
 
-int dpy::normal::draw(dpy::channel ** chanv, int chanc, int frusti)
+int dpy::normal::draw(int chanc, dpy::channel **chanv,
+                      int frusi, app::frustum  *frusp)
 {
     if (chani < chanc)
     {
@@ -75,7 +76,7 @@ int dpy::normal::draw(dpy::channel ** chanv, int chanc, int frusti)
 
         chanv[chani]->bind();
         {
-            ::prog->draw(frusti);
+            ::prog->draw(frusi, frusp);
         }
         chanv[chani]->free();
 
@@ -95,12 +96,10 @@ int dpy::normal::draw(dpy::channel ** chanv, int chanc, int frusti)
         chanv[chani]->free_color(GL_TEXTURE0);
     }
 
-    // Return the number of frusta used.
-
-    return 1;
+    return 1;  // Return the total number of frusta.
 }
 
-void dpy::normal::test(dpy::channel **chanv, int chanc, int index)
+int dpy::normal::test(int chanc, dpy::channel **chanv, int index)
 {
     if (chani < chanc)
     {
@@ -130,6 +129,8 @@ void dpy::normal::test(dpy::channel **chanv, int chanc, int index)
         }
         chanv[chani]->free_color(GL_TEXTURE0);
     }
+
+    return 1;  // Return the total number of frusta.
 }
 
 //-----------------------------------------------------------------------------

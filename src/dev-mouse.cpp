@@ -22,8 +22,7 @@
 
 //-----------------------------------------------------------------------------
 
-dev::mouse::mouse(uni::universe& universe) :
-    universe(universe),
+dev::mouse::mouse() :
     dragging(false),
     modifier(0)
 {
@@ -83,7 +82,7 @@ bool dev::mouse::process_click(app::event *E)
     const int  b = E->data.click.b;
     const int  m = E->data.click.m;
 
-    double now = universe.get_time();
+//  double now = universe.get_time();
 
     // Handle rotating the view.
 
@@ -96,6 +95,8 @@ bool dev::mouse::process_click(app::event *E)
 
     // Handle rotating the universe.
 
+/* TODO: convert this into a script event.
+
     else if (d && b == SDL_BUTTON_WHEELUP)
     {
         universe.set_time(now + 15.0 * 60.0);
@@ -106,7 +107,7 @@ bool dev::mouse::process_click(app::event *E)
         universe.set_time(now - 15.0 * 60.0);
         return true;
     }
-
+*/
     return false;
 }
 
@@ -146,7 +147,8 @@ bool dev::mouse::process_keybd(app::event *E)
 
 bool dev::mouse::process_timer(app::event *E)
 {
-    double kp = E->data.timer.dt * universe.move_rate() * 0.0001;
+//  double kp = E->data.timer.dt * universe.move_rate() * 0.0001;
+    double kp = E->data.timer.dt;
 
     user->move(motion[0] * kp,
                motion[1] * kp,
@@ -157,15 +159,17 @@ bool dev::mouse::process_timer(app::event *E)
 
 bool dev::mouse::process_event(app::event *E)
 {
+    bool R = false;
+
     switch (E->get_type())
     {
-    case E_POINT: return process_point(E);
-    case E_CLICK: return process_click(E);
-    case E_KEYBD: return process_keybd(E);
-    case E_TIMER: return process_timer(E);
+    case E_POINT: R |= process_point(E); break;
+    case E_CLICK: R |= process_click(E); break;
+    case E_KEYBD: R |= process_keybd(E); break;
+    case E_TIMER: R |= process_timer(E); break;
     }
 
-    return false;
+    return R || dev::input::process_event(E);
 }
 
 //-----------------------------------------------------------------------------

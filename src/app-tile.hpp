@@ -18,7 +18,6 @@
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
-// Forward declarations
 
 namespace app
 {
@@ -34,8 +33,6 @@ namespace dpy
 
 namespace app
 {
-    // Display tile
-
     class tile
     {
     private:

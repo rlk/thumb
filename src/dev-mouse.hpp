@@ -13,7 +13,6 @@
 #ifndef DEV_MOUSE
 #define DEV_MOUSE
 
-#include "uni-universe.hpp"
 #include "dev-input.hpp"
 
 //-----------------------------------------------------------------------------
@@ -22,8 +21,6 @@ namespace dev
 {
     class mouse : public input
     {
-        uni::universe& universe;
-
         // Configuration
 
         int key_move_L;
@@ -54,7 +51,7 @@ namespace dev
 
     public:
 
-        mouse(uni::universe&);
+        mouse();
 
         bool process_event(app::event *);
 

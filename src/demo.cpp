@@ -13,6 +13,8 @@
 #include <iostream>
 #include <cstring>
 
+#include <SDL/SDL_keyboard.h>
+
 #include "ogl-opengl.hpp"
 
 #include "demo.hpp"
@@ -21,6 +23,9 @@
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-host.hpp"
+
+#include "wrl-world.hpp"
+#include "uni-universe.hpp"
 
 #include "dev-mouse.hpp"
 /*
@@ -35,16 +40,17 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
+demo::demo() :
+    universe(0), world(0), edit(0), play(0), info(0), curr(0), input(0)
 {
     std::string input_mode = conf->get_s("input_mode");
 
     // Initialize the input handler.
 /*
-    if      (input_mode == "gamepad") input = new dev::gamepad(universe);
-    else if (input_mode == "tracker") input = new dev::tracker(universe);
-    else if (input_mode == "wiimote") input = new dev::wiimote(universe);
-    else */                           input = new dev::mouse  (universe);
+    if      (input_mode == "gamepad") input = new dev::gamepad();
+    else if (input_mode == "tracker") input = new dev::tracker();
+    else if (input_mode == "wiimote") input = new dev::wiimote();
+    else */                           input = new dev::mouse  ();
 
     // Initialize attract mode.
 
@@ -60,6 +66,8 @@ demo::demo() : edit(0), play(0), info(0), curr(0), input(0)
     key_edit  = conf->get_i("key_edit");
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
+
+    world = new wrl::world();
 
     edit = new mode::edit(world);
     play = new mode::play(world);
@@ -79,14 +87,20 @@ demo::~demo()
     if (info) delete info;
     if (play) delete play;
     if (edit) delete edit;
+
+    if (world) delete world;
 }
 
 //-----------------------------------------------------------------------------
 
 void demo::goto_mode(mode::mode *next)
 {
-    if (curr) curr->leave();
-    if (next) next->enter();
+    // Synthesize CLOSE and START events for the mode transition.
+
+    app::event E;
+
+    if (curr) { E.mk_close(); curr->process_event(&E); }
+    if (next) { E.mk_start(); next->process_event(&E); }
 
     curr = next;
 }
@@ -108,13 +122,13 @@ void demo::attr_step(double dt)
 {
     // Move the camera forward and update the universe.
 
-    if (attr_mode)
+    if (attr_mode && universe)
     {
         double time = 0.0;
         int    opts =   0;
 
         if (user->dostep(attr_rate * attr_sign * dt,
-                         universe.move_rate(), time, opts))
+                         universe->move_rate(), time, opts))
         {
             if (attr_stop)
             {
@@ -122,7 +136,7 @@ void demo::attr_step(double dt)
                 attr_mode = false;
             }
         }
-        universe.set_time(time);
+        universe->set_time(time);
         set_options(opts);
     }
 }
@@ -149,9 +163,11 @@ void demo::attr_prev()
 
 void demo::attr_ins()
 {
+    double t = universe ? universe->get_time() : 0;
+
     // Insert a new key here and update the universe.
 
-    ::user->insert(universe.get_time(), get_options());
+    ::user->insert(t, get_options());
     attr_step(0.0);
 }
 
@@ -234,7 +250,9 @@ bool demo::process_input(app::event *E)
 {
     // Assume all script inputs are meaningful.  Pass them to the universe.
 
-    universe.script(E->data.input.src, NULL);
+    if (universe)
+        universe->script(E->data.input.src, NULL);
+
     return true;
 }
 
@@ -268,14 +286,22 @@ bool demo::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-void demo::prep(app::frustum_v& frusta)
+void demo::prep(int frusc, app::frustum **frusv)
 {
-    // Pass the frusta to the world.
+    if (curr)
+        curr->prep(frusc, frusv);
 
-    universe.prep(frusta);
+    // TODO: get the draw range return.
+
+//  universe->prep(frusc, frusv);
 }
 
-void demo::draw(int i)
+void demo::draw(int frusi, app::frustum *frusp)
+{
+}
+
+/*
+void demo::draw(int frusi, app::frustum **frusv)
 {
     GLfloat A[4] = { 0.25f, 0.25f, 0.25f, 0.0f };
     GLfloat D[4] = { 1.00f, 1.00f, 1.00f, 0.0f };
@@ -293,10 +319,10 @@ void demo::draw(int i)
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        universe.draw(i);
+        universe->draw(i);
     }
     glPopAttrib();
 }
-
+*/
 //-----------------------------------------------------------------------------
 

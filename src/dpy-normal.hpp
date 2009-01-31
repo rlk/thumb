@@ -19,7 +19,6 @@
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
-// Forward declarations
 
 namespace ogl
 {
@@ -49,13 +48,14 @@ namespace dpy
 
         normal(app::node);
 
-        virtual void get_frusta(std::vector<app::frustum *>&);
+        virtual void get_frustums(std::vector<app::frustum *>&);
 
         // Rendering handlers.
 
-        virtual void prep(dpy::channel **, int);
-        virtual int  draw(dpy::channel **, int, int);
-        virtual void test(dpy::channel **, int, int);
+        virtual void prep(int, dpy::channel **);
+        virtual int  draw(int, dpy::channel **,
+                          int, app::frustum  *);
+        virtual int  test(int, dpy::channel **, int);
 
         // Event handers.
 

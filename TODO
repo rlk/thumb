@@ -1,3 +1,5 @@
+Get rid of main.hpp entirely
+    encapsulate that state
 
 Move buffer size into view.
 Move calibration color buffer clear into view.  Calibration image instead?

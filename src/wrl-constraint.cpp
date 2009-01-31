@@ -245,14 +245,18 @@ void wrl::constraint::click(const double *p, const double *v)
 
 //-----------------------------------------------------------------------------
 
-double wrl::constraint::view(const double *frustum)
+double wrl::constraint::prep(int frusc, app::frustum **frusv)
 {
+/*
            pool->prep();
-    return pool->view(0, 5, frustum);
+    return pool->view(0, 5, frusc, frusv);
+*/
+    return 0;
 }
 
-void wrl::constraint::draw()
+void wrl::constraint::draw(int frusi, app::frustum *frusp)
 {
+/*
     glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT |
                  GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glPushMatrix();
@@ -282,6 +286,7 @@ void wrl::constraint::draw()
     }
     glPopMatrix();
     glPopAttrib();
+*/
 }
 
 //-----------------------------------------------------------------------------

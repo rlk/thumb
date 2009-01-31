@@ -16,11 +16,15 @@
 #include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
-// Forward declarations
 
 namespace ogl
 {
     class frame;
+}
+
+namespace app
+{
+    class event;
 }
 
 //-----------------------------------------------------------------------------
@@ -29,36 +33,40 @@ namespace dpy
 {
     class channel
     {
-        double  v[3];      // View position, in head coordinates
-        double  p[3];      // View position, in user coordinates (cached)
-        GLubyte c[4];      // Calibration target color
+        double  v[3];        // View position, in head coordinates
+        double  p[3];        // View position, in user coordinates (cached)
+        GLubyte c[4];        // Calibration target color
 
-        int w;
-        int h;
-
-        ogl::frame *back;  // Off-screen render target
+        int w;               // Off-screen render target width
+        int h;               // Off-screen render target height
+        ogl::frame *buffer;  // Off-screen render target
 
     public:
 
         channel(app::node);
        ~channel();
 
+        // Accessors
+
         void set_head(const double *,
                       const double *);
 
-        void init();
-        void fini();
-        void bind() const;
-        void free() const;
-        void test() const;
-
-        int get_w() const { return w; }
-        int get_h() const { return h; }
-
+        int           get_w() const { return w; }
+        int           get_h() const { return h; }
         const double *get_p() const { return p; }
 
-        void bind_color(GLenum t) const { if (back) back->bind_color(t); }
-        void free_color(GLenum t) const { if (back) back->free_color(t); }
+        // Rendering methods
+
+        void test() const;
+        void bind() const;
+        void free() const;
+
+        void bind_color(GLenum t) const;
+        void free_color(GLenum t) const;
+
+        // Event handler
+
+        bool process_event(app::event *);
     };
 
     typedef std::vector<channel *>           channel_v;

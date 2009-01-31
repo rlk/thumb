@@ -40,13 +40,13 @@ namespace cnt
 
     class editor : public gui::editor
     {
-        wrl::world& world;
+        wrl::world *world;
         int         count;
         int         key;
 
     public:
 
-        editor(wrl::world& w, int k) :
+        editor(wrl::world *w, int k) :
             gui::editor(""), world(w), key(k) { }
 
         void apply();
@@ -58,13 +58,13 @@ namespace cnt
 
     class bitmap : public gui::bitmap
     {
-        wrl::world& world;
+        wrl::world *world;
         int         count;
         int         key;
 
     public:
 
-        bitmap(wrl::world& w, int k) :
+        bitmap(wrl::world *w, int k) :
             gui::bitmap(), world(w), key(k) { }
 
         void apply();
@@ -78,14 +78,14 @@ namespace cnt
     {
     protected:
 
-        wrl::world&  world;
+        wrl::world  *world;
         gui::widget *state;
 
         void do_create(wrl::atom *);
 
     public:
 
-        create_button(wrl::world& w, gui::widget *s, std::string label) :
+        create_button(wrl::world *w, gui::widget *s, std::string label) :
             gui::button(label), world(w), state(s) { }
     };
 
@@ -95,7 +95,7 @@ namespace cnt
     class new_ball_button : public create_button
     {
     public:
-        new_ball_button(wrl::world& w, gui::widget *s) :
+        new_ball_button(wrl::world *w, gui::widget *s) :
             create_button(w, s, "Ball") { }
         void apply();
     };
@@ -103,7 +103,7 @@ namespace cnt
     class new_hinge_button : public create_button
     {
     public:
-        new_hinge_button(wrl::world& w, gui::widget *s) :
+        new_hinge_button(wrl::world *w, gui::widget *s) :
             create_button(w, s, "Hinge") { }
         void apply();
     };
@@ -111,7 +111,7 @@ namespace cnt
     class new_hinge2_button : public create_button
     {
     public:
-        new_hinge2_button(wrl::world& w, gui::widget *s) :
+        new_hinge2_button(wrl::world *w, gui::widget *s) :
             create_button(w, s, "Hinge2") { }
         void apply();
     };
@@ -119,7 +119,7 @@ namespace cnt
     class new_slider_button : public create_button
     {
     public:
-        new_slider_button(wrl::world& w, gui::widget *s) :
+        new_slider_button(wrl::world *w, gui::widget *s) :
             create_button(w, s, "Slider") { }
         void apply();
     };
@@ -127,7 +127,7 @@ namespace cnt
     class new_amotor_button : public create_button
     {
     public:
-        new_amotor_button(wrl::world& w, gui::widget *s) :
+        new_amotor_button(wrl::world *w, gui::widget *s) :
             create_button(w, s, "AMotor") { }
         void apply();
     };
@@ -135,7 +135,7 @@ namespace cnt
     class new_universal_button : public create_button
     {
     public:
-        new_universal_button(wrl::world& w, gui::widget *s) :
+        new_universal_button(wrl::world *w, gui::widget *s) :
             create_button(w, s, "Universal") { }
         void apply();
     };
@@ -149,7 +149,7 @@ namespace cnt
 
     public:
 
-        new_box_button(wrl::world& w, gui::widget *s, gui::widget *n) :
+        new_box_button(wrl::world *w, gui::widget *s, gui::widget *n) :
             create_button(w, s, "Box"), name(n) { }
         void apply();
     };
@@ -160,7 +160,7 @@ namespace cnt
 
     public:
 
-        new_sphere_button(wrl::world& w, gui::widget *s, gui::widget *n) :
+        new_sphere_button(wrl::world *w, gui::widget *s, gui::widget *n) :
             create_button(w, s, "Sphere"), name(n) { }
         void apply();
     };
@@ -170,53 +170,53 @@ namespace cnt
 
     class init_button : public gui::button
     {
-        wrl::world&  world;
+        wrl::world  *world;
         gui::widget *state;
 
     public:
-        init_button(wrl::world& w, gui::widget *s) :
+        init_button(wrl::world *w, gui::widget *s) :
             gui::button("New"), world(w), state(s) { }
 
-        void apply() { world.init(); state->show(); }
+        void apply() { world->init(); state->show(); }
     };
 
     class load_button : public gui::button
     {
-        wrl::world&  world;
+        wrl::world  *world;
         gui::widget *state;
         gui::widget *name;
 
     public:
-        load_button(wrl::world& w, gui::widget *s, gui::widget *n) :
+        load_button(wrl::world *w, gui::widget *s, gui::widget *n) :
             gui::button("Load"), world(w), state(s), name(n) { }
 
-        void apply() { world.load(name->value()); state->show(); }
+        void apply() { world->load(name->value()); state->show(); }
     };
 
     class save_all_button : public gui::button
     {
-        wrl::world&  world;
+        wrl::world  *world;
         gui::widget *state;
         gui::widget *name;
 
     public:
-        save_all_button(wrl::world& w, gui::widget *s, gui::widget *n) :
+        save_all_button(wrl::world *w, gui::widget *s, gui::widget *n) :
             gui::button("Save All"), world(w), state(s), name(n) { }
 
-        void apply() { world.save(name->value(), true); state->show(); }
+        void apply() { world->save(name->value(), true); state->show(); }
     };
 
     class save_sel_button : public gui::button
     {
-        wrl::world&  world;
+        wrl::world  *world;
         gui::widget *state;
         gui::widget *name;
 
     public:
-        save_sel_button(wrl::world& w, gui::widget *s, gui::widget *n) :
+        save_sel_button(wrl::world *w, gui::widget *s, gui::widget *n) :
             gui::button("Save Selected"), world(w), state(s), name(n) { }
 
-        void apply() { world.save(name->value(), false); state->show(); }
+        void apply() { world->save(name->value(), false); state->show(); }
     };
 
     //-------------------------------------------------------------------------
@@ -241,19 +241,19 @@ namespace cnt
     class world_panel : public gui::vgroup
     {
     public:
-        world_panel(wrl::world&, gui::widget *);
+        world_panel(wrl::world *, gui::widget *);
     };
 
     class solid_panel : public gui::vgroup
     {
     public:
-        solid_panel(wrl::world&, gui::widget *);
+        solid_panel(wrl::world *, gui::widget *);
     };
 
     class joint_panel : public gui::vgroup
     {
     public:
-        joint_panel(wrl::world&, gui::widget *);
+        joint_panel(wrl::world *, gui::widget *);
     };
 
     //-------------------------------------------------------------------------
@@ -262,7 +262,7 @@ namespace cnt
     class control : public gui::dialog
     {
     public:
-        control(wrl::world&, int, int);
+        control(wrl::world *, int, int);
     };
 }
 

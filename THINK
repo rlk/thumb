@@ -1,5 +1,7 @@
 Thumb features to consider
 
+    Normal display renders directly to the on-screen framebuffer?
+
     It would be nice to have an #ifdef mechanism in the shaders
         This would make it easier to produce modal shaders without
         explicit conditionals.
@@ -30,6 +32,7 @@ Thumb features to consider
         Should be efficient to render into a cubemap per frame
 
     Take a serious look at state reloading
+        start/close
 
     Replay
         (this is crucial)

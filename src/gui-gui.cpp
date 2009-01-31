@@ -1190,6 +1190,22 @@ void gui::frame::draw(const widget *focus, const widget *input) const
 //-----------------------------------------------------------------------------
 // Top level dialog.
 
+/* Let start and close activate show and hide
+
+void mode::info::enter()
+{
+    gui->show();
+    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
+                        SDL_DEFAULT_REPEAT_INTERVAL);
+}
+
+void mode::info::leave()
+{
+    SDL_EnableKeyRepeat(0, 0);
+    gui->hide();
+}
+*/
+
 gui::dialog::dialog()
 {
     root  = 0;

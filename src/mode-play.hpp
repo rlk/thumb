@@ -21,17 +21,18 @@ namespace mode
 {
     class play : public mode
     {
+        bool process_start(app::event *);
+        bool process_close(app::event *);
+        bool process_timer(app::event *);
+
     public:
 
-        play(wrl::world&);
+        play(wrl::world *);
 
-        virtual void enter();
-        virtual void leave();
+        virtual double prep(int, app::frustum **);
+        virtual void   draw(int, app::frustum  *);
 
-        virtual bool timer(int);
-
-        virtual double view(const double *);
-        virtual void   draw(const double *);
+        virtual bool process_event(app::event *);
     };
 }
 

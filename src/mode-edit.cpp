@@ -10,20 +10,23 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cassert>
+
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
 #include "matrix.hpp"
-#include "ogl-opengl.hpp"
-#include "wrl-solid.hpp"
-#include "mode-edit.hpp"
-#include "app-host.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
+#include "app-event.hpp"
+#include "wrl-world.hpp"
+#include "wrl-solid.hpp"
+#include "wrl-constraint.hpp"
+#include "mode-edit.hpp"
 
 //-----------------------------------------------------------------------------
 
-mode::edit::edit(wrl::world &w) : mode(w)
+mode::edit::edit(wrl::world *w) : mode(w)
 {
     // Initialize edit mode configuration.
 
@@ -60,44 +63,67 @@ mode::edit::edit(wrl::world &w) : mode(w)
     point_v[0] =  0;
     point_v[1] =  0;
     point_v[2] = -1;
+
+    xform = new wrl::constraint;
+}
+
+mode::edit::~edit()
+{
+    delete xform;
 }
 
 //-----------------------------------------------------------------------------
 
-bool mode::edit::point(int i, const double *p, const double *q)
+bool mode::edit::process_point(app::event *E)
 {
-    double M[16];
+    assert(E);
+    assert(world);
+    assert(xform);
 
-    ::user->get_point(point_p, p,
-                      point_v, q);
+    // Transform the point event into world space.
 
-    world.edit_pick(point_p, point_v);
+    ::user->get_point(point_p, E->data.point.p,
+                      point_v, E->data.point.q);
+
+    world->edit_pick(point_p, point_v);
+
+    // If there is a drag in progress...
 
     if (drag)
     {
+        double M[16];
+
         // If the current drag has produced a previous transform, undo it.
 
         if (move)
         {
-            world.undo();
+            world->undo();
             move = false;
         }
 
         // Apply the transform of the current drag.
 
-        if (transform.point(M, point_p, point_v))
+        if (xform->point(M, point_p, point_v))
         {
-            world.do_modify(M);
+            world->do_modify(M);
             move = true;
         }
 
         return true;
     }
-    return mode::point(i, p, q);
+    return false;
 }
 
-bool mode::edit::click(int i, int b, int m, bool d)
+bool mode::edit::process_click(app::event *E)
 {
+    assert(E);
+    assert(world);
+    assert(xform);
+
+    const int  b = E->data.click.b;
+    const int  m = E->data.click.m;
+    const bool d = E->data.click.d;
+
     if (b == SDL_BUTTON_LEFT)
     {
         drag = false;
@@ -106,15 +132,15 @@ bool mode::edit::click(int i, int b, int m, bool d)
         {
             // If a selected entity is clicked, a drag may be beginning.
 
-            if (world.check_selection())
+            if (world->check_selection())
             {
-                transform.click(point_p, point_v);
+                xform->click(point_p, point_v);
                 drag = true;
             }
         }
         else
         {
-            if (dGeomID geom = world.get_focus())
+            if (dGeomID geom = world->get_focus())
             {
                 wrl::atom *focus = (wrl::atom *) dGeomGetData(geom);
 
@@ -129,14 +155,14 @@ bool mode::edit::click(int i, int b, int m, bool d)
                     else
                         focus->get_world(M);
 
-                    transform.set_transform(M);
+                    xform->set_transform(M);
                 }
                 else
                 {
                     // A non-dragged release toggles selection.
 
                     if (move == false)
-                        world.click_selection(focus);
+                        world->click_selection(focus);
                 }
             }
         }
@@ -145,71 +171,171 @@ bool mode::edit::click(int i, int b, int m, bool d)
 
         return true;
     }
-    return mode::click(i, b, m, d);
+    return false;
 }
 
-bool mode::edit::keybd(int c, int k, int m, bool d)
+bool mode::edit::process_keybd(app::event *E)
 {
-    if (d)
+    assert(E);
+    assert(world);
+    assert(xform);
+
+    if (E->data.keybd.d)
     {
+        const int k = E->data.keybd.k;
+
         // Handle basic editing operations.
 
-        if      (k == key_selection_delete) world.do_delete();
-        else if (k == key_selection_invert) world.invert_selection();
-        else if (k == key_selection_extend) world.extend_selection();
-        else if (k == key_selection_clear)  world.clear_selection();
-        else if (k == key_selection_clone)  world.clone_selection();
+        if      (k == key_selection_delete)
+        {
+            world->do_delete();
+            return true;
+        }
+        else if (k == key_selection_invert)
+        {
+            world->invert_selection();
+            return true;
+        }
+        else if (k == key_selection_extend)
+        {
+            world->extend_selection();
+            return true;
+        }
+        else if (k == key_selection_clear)
+        {
+            world->clear_selection();
+            return true;
+        }
+        else if (k == key_selection_clone)
+        {
+            world->clone_selection();
+            return true;
+        }
 
-        else if (k == key_undo) world.undo();
-        else if (k == key_redo) world.redo();
+        // Handle undo and redo.
+
+        else if (k == key_undo)
+        {
+            world->undo();
+            return true;
+        }
+        else if (k == key_redo)
+        {
+            world->redo();
+            return true;
+        }
 
         // Handle body and joint creation and destruction.
 
-        else if (k == key_make_body)    world.do_embody();
-        else if (k == key_make_nonbody) world.do_debody();
-        else if (k == key_make_joint)   world.do_enjoin();
+        else if (k == key_make_body)
+        {
+            world->do_embody();
+            return true;
+        }
+        else if (k == key_make_nonbody)
+        {
+            world->do_debody();
+            return true;
+        }
+        else if (k == key_make_joint)
+        {
+            world->do_enjoin();
+            return true;
+        }
 
         // Handle constraint keys.
 
-        else if ('0' <= k && k <= '9')   transform.set_grid(int(k - '0'));
-        else if (k == key_position_mode) transform.set_mode(0);
-        else if (k == key_rotation_mode) transform.set_mode(1);
-        else if (k == key_axis_X)        transform.set_axis(0);
-        else if (k == key_axis_Y)        transform.set_axis(1);
-        else if (k == key_axis_Z)        transform.set_axis(2);
-
+        else if ('0' <= k && k <= '9')
+        {
+            xform->set_grid(int(k - '0'));
+            return true;
+        }
+        else if (k == key_position_mode)
+        {
+            xform->set_mode(0);
+            return true;
+        }
+        else if (k == key_rotation_mode)
+        {
+            xform->set_mode(1);
+            return true;
+        }
+        else if (k == key_axis_X)
+        {
+            xform->set_axis(0);
+            return true;
+        }
+        else if (k == key_axis_Y)
+        {
+            xform->set_axis(1);
+            return true;
+        }
+        else if (k == key_axis_Z)
+        {
+            xform->set_axis(2);
+            return true;
+        }
         else if (k == key_home)
         {
             double M[16];
 
             load_idt(M);
-            transform.set_transform(M);
+            xform->set_transform(M);
+            return true;
         }
-
-        else return false;
     }
-    else return false;
+    return false;
+}
 
-    return true;
+bool mode::edit::process_timer(app::event *E)
+{
+    assert(world);
+
+    world->edit_step(0);
+    return false;
 }
 
 //-----------------------------------------------------------------------------
 
-bool mode::edit::timer(int t)
+double mode::edit::prep(int frusc, app::frustum **frusv)
 {
-    world.edit_step(0);
-    return true;
+    assert(world);
+    assert(xform);
+
+    // Prep the world and the constrant.  Combine the ranges.
+
+    return std::max(world->prep(frusc, frusv, true),
+                    xform->prep(frusc, frusv));
 }
 
-double mode::edit::view(const double *planes)
+void mode::edit::draw(int frusi, app::frustum *frusp)
 {
-    return std::max(world.view(true, planes), transform.view(planes));
+    assert(world);
+    assert(xform);
+
+    // Draw the world and the constraint.
+
+    world->draw(frusi, frusp, true);
+    xform->draw(frusi, frusp);
 }
 
-void mode::edit::draw(const double *points)
+//-----------------------------------------------------------------------------
+
+bool mode::edit::process_event(app::event *E)
 {
-    world.draw(true, points);
-    transform.draw();
+    assert(E);
+
+    bool R = false;
+
+    switch (E->get_type())
+    {
+    case E_POINT: R |= process_point(E); break;
+    case E_CLICK: R |= process_click(E); break;
+    case E_KEYBD: R |= process_keybd(E); break;
+    case E_TIMER: R |= process_timer(E); break;
+    }
+
+    return R || mode::process_event(E);
 }
 
 //-----------------------------------------------------------------------------

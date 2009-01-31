@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cassert>
 #include <sstream>
 
 #include "gui-control.hpp"
@@ -20,13 +21,17 @@
 
 void cnt::editor::apply()
 {
-    world.set_param(key, str);
+    assert(world);
+
+    world->set_param(key, str);
     is_changed = false;
 }
 
 void cnt::editor::show()
 {
-    if ((count = world.get_param(key, str)) == 0)
+    assert(world);
+
+    if ((count = world->get_param(key, str)) == 0)
         str = "";
 
     update();
@@ -51,21 +56,25 @@ void cnt::editor::show()
 
 void cnt::bitmap::apply()
 {
+    assert(world);
+
     std::ostringstream sout;
 
     sout << bits;
 
     std::string val = sout.str();
 
-    world.set_param(key, val);
+    world->set_param(key, val);
     is_changed = false;
 }
 
 void cnt::bitmap::show()
 {
+    assert(world);
+
     std::string val;
 
-    if ((count = world.get_param(key, val)) == 0)
+    if ((count = world->get_param(key, val)) == 0)
         bits = 0;
     else
     {
@@ -93,11 +102,14 @@ void cnt::bitmap::show()
 
 void cnt::create_button::do_create(wrl::atom *atom)
 {
+    assert(world);
+    assert(state);
+
     // Select the new entity and add a create operation for it.
 
-    world.clear_selection();
-    world.click_selection(atom);
-    world.do_create();
+    world->clear_selection();
+    world->click_selection(atom);
+    world->do_create();
 
     // Update the GUI to reflect the new entity state.
 
@@ -145,8 +157,9 @@ void cnt::new_sphere_button::apply()
 }
 
 //-----------------------------------------------------------------------------
+// The Solid control panel
 
-cnt::solid_panel::solid_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
+cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("solid", ".obj", E);
@@ -213,8 +226,9 @@ cnt::solid_panel::solid_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 }
 
 //-----------------------------------------------------------------------------
+// The World control panel
 
-cnt::world_panel::world_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
+cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("world", ".xml", E);
@@ -238,8 +252,9 @@ cnt::world_panel::world_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 }
 
 //-----------------------------------------------------------------------------
+// The Joint control panel
 
-cnt::joint_panel::joint_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
+cnt::joint_panel::joint_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
     add((new gui::frame)->
         add((new gui::harray)->
@@ -316,8 +331,9 @@ cnt::joint_panel::joint_panel(wrl::world& W, gui::widget *w) : gui::vgroup()
 }
 
 //-----------------------------------------------------------------------------
+// The toplevel control panel
 
-cnt::control::control(wrl::world& W, int w, int h)
+cnt::control::control(wrl::world *W, int w, int h)
 {
     gui::option *O = new gui::option;
 

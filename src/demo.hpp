@@ -13,18 +13,28 @@
 #ifndef DEMO_HPP
 #define DEMO_HPP
 
-#include "ogl-opengl.hpp"
-#include "uni-universe.hpp"
-#include "wrl-world.hpp"
-#include "dev-input.hpp"
 #include "app-prog.hpp"
 
 //-----------------------------------------------------------------------------
-// Forward declarations
 
 namespace mode
 {
     class mode;
+}
+
+namespace dev
+{
+    class input;
+}
+
+namespace wrl
+{
+    class world;
+}
+
+namespace uni
+{
+    class universe;
 }
 
 //-----------------------------------------------------------------------------
@@ -42,8 +52,8 @@ class demo : public app::prog
 
     // Entity state.
 
-    uni::universe universe;
-    wrl::world    world;
+    uni::universe *universe;
+    wrl::world    *world;
 
     // Editor mode.
 
@@ -86,8 +96,8 @@ public:
 
     bool process_event(app::event *);
 
-    void prep(app::frustum_v&);
-    void draw(int);
+    void prep(int, app::frustum **);
+    void draw(int, app::frustum  *);
 
     void next();
     void prev();

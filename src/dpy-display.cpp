@@ -20,11 +20,6 @@ dpy::display::display(app::node node)
 {
     app::node curr;
 
-    viewport[0] = 0;
-    viewport[1] = 0;
-    viewport[2] = DEFAULT_PIXEL_WIDTH;
-    viewport[3] = DEFAULT_PIXEL_HEIGHT;
-
     // Check for view and tile indices.
 
     index = app::get_attr_d(node, "index", 0);
@@ -37,6 +32,13 @@ dpy::display::display(app::node node)
         viewport[1] = app::get_attr_d(curr, "y");
         viewport[2] = app::get_attr_d(curr, "w", DEFAULT_PIXEL_WIDTH);
         viewport[3] = app::get_attr_d(curr, "h", DEFAULT_PIXEL_HEIGHT);
+    }
+    else
+    {
+        viewport[0] = 0;
+        viewport[1] = 0;
+        viewport[2] = DEFAULT_PIXEL_WIDTH;
+        viewport[3] = DEFAULT_PIXEL_HEIGHT;
     }
 }
 

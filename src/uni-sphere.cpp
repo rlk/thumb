@@ -16,14 +16,14 @@
 #include <queue>
 #include <math.h>
 
+#include "ogl-pool.hpp"
 #include "ogl-opengl.hpp"
+#include "ogl-program.hpp"
 #include "matrix.hpp"
 #include "uni-sphere.hpp"
 #include "app-glob.hpp"
 #include "app-prog.hpp"
 #include "app-user.hpp"
-#include "app-conf.hpp"
-#include "app-host.hpp"
 #include "default.hpp"
 #include "util.hpp"
 
@@ -819,8 +819,12 @@ void uni::sphere::draw(int i)
 
         glPushAttrib(GL_ENABLE_BIT);
         {
+/* TODO
             int w = ::host->get_buffer_w();
             int h = ::host->get_buffer_h();
+*/
+            int w = 640;
+            int h = 480;
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
