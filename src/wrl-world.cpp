@@ -1106,7 +1106,58 @@ void draw_light_fini()
 
 double wrl::world::prep(int frusc, app::frustum **frusv, bool edit)
 {
+    return 0;
+}
+
+void wrl::world::draw(int frusi, app::frustum *frusp, bool edit)
+{
+    // Compute the light source position.
+
+    double  l[3];
+    GLfloat L[4];
+
+    l[0] = sin(RAD(light_T)) * cos(RAD(light_P));
+    l[1] =                     sin(RAD(light_P));
+    l[2] = cos(RAD(light_T)) * cos(RAD(light_P));
+
+    L[0] = GLfloat(l[0]);
+    L[1] = GLfloat(l[1]);
+    L[2] = GLfloat(l[2]);
+    L[3] = 0;
+
+    glLightfv(GL_LIGHT0, GL_POSITION, L);
+
+    // Render the fill geometry.
+
+    fill_pool->draw_init();
+    {
+        fill_pool->draw(0, true, false);
+    }
+    fill_pool->draw_fini();
+
+    // Render the line geometry.
+
+    if (edit)
+    {
+        line_init();
+        line_pool->draw_init();
+
+        glColor3f(1.0f, 0.0f, 0.0f);
+        stat_node->draw(0, true, false);
+
+        glColor3f(0.0f, 1.0f, 0.0f);
+        dyna_node->draw(0, true, false);
+
+        line_pool->draw_fini();
+        line_fini();
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 /*
+double wrl::world::prep(int frusc, app::frustum **frusv, bool edit)
+{
     double line_d = 0;
 
     if (edit)
@@ -1118,13 +1169,13 @@ double wrl::world::prep(int frusc, app::frustum **frusv, bool edit)
     frust_dist = fill_pool->view(0, 5, planes);
 
     return std::max(frust_dist, line_d);
-*/
     return 0;
 }
+*/
 
+/*
 void wrl::world::draw(int frusi, app::frustum *frusp, bool edit)
 {
-/*
     GLfloat L[4];
     double  l[4], c[4], d[4];
 
@@ -1253,7 +1304,6 @@ void wrl::world::draw(int frusi, app::frustum *frusp, bool edit)
         line_pool->draw_fini();
         line_fini();
     }
-*/
 }
-
+*/
 //-----------------------------------------------------------------------------

@@ -61,6 +61,8 @@ app::user::user() :
     int    opts;
 
     set_state(curr, time, opts);
+
+    move(0, 0, 1);
 }
 
 void app::user::set(const double p[3], const double q[4])
@@ -95,21 +97,6 @@ void app::user::get_point(double *P, const double *p,
     mult_mat_vec3(V, current_M, M + 8);
 }
 
-/*
-const double *app::user::get_M()
-{
-    load_mat(cache_M, current_M);
-    Lmul_rot_mat(cache_M, 1.0, 0.0, 0.0, -45.0);
-    return cache_M;
-}
-
-const double *app::user::get_I()
-{
-    load_mat(cache_I, current_I);
-    Rmul_rot_inv(cache_I, 1.0, 0.0, 0.0, -45.0);
-    return cache_I;
-}
-*/
 //-----------------------------------------------------------------------------
 
 app::node app::user::cycle_next(app::node n)
@@ -433,6 +420,13 @@ void app::user::remove()
             tt = 0.0;
         }
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void app::user::draw() const
+{
+    glLoadMatrixd(current_M);
 }
 
 //-----------------------------------------------------------------------------

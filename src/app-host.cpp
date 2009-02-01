@@ -602,7 +602,7 @@ void app::host::root_loop()
 
         // Call the render handler.
 
-        if (draw_flag)
+//      if (draw_flag) HACK
         {
             process_event(E.mk_paint());
             process_event(E.mk_frame());
@@ -812,7 +812,7 @@ bool app::host::process_event(event *E)
 
 const app::frustum *app::host::get_overlay() const
 {
-    // Return the frustum of the 2D overlay.  It may be configured...
+    // Return a frustum for 2D overlay.  It may be configured...
 
     if (overlay) return overlay;
 

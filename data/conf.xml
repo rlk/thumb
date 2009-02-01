@@ -3,9 +3,9 @@
 
   <!-- Host configuration -->
 
-  <option type="string" name="host_file">host/smalldome.xml</option>
-  <option type="string" name="exec_dir">/home/evl/rlk/src/thumb/</option>
-  <option type="string" name="data_dir">/data/evl/rlk/</option>
+  <option type="string" name="host_file">host/common.xml</option>
+  <option type="string" name="exec_dir">/Users/rlk/src/thumb/</option>
+  <option type="string" name="data_dir">/Users/rlk/data/</option>
 
   <option type="string" name="input_mode">mouse</option>
   <option type="string" name="wiimote">00:1B:7A:3E:45:7F</option>

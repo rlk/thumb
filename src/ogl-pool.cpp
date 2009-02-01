@@ -598,8 +598,11 @@ void ogl::pool::prep()
 {
     // Bind the VBO and EBO.
 
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         vbo);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
+    if (resort || rebuff)
+    {
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB,         vbo);
+        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
+    }
 
     // Update the VBO and EBO as necessary.
 
@@ -608,8 +611,11 @@ void ogl::pool::prep()
 
     // Unbind the VBO and EBO.
 
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+    if (resort || rebuff)
+    {
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
+        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+    }
 }
 
 double ogl::pool::view(int id, int n, const double *V)

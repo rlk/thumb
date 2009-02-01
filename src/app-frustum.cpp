@@ -901,7 +901,7 @@ void app::frustum::rect() const
 
 void app::frustum::overlay() const
 {
-    // Produce a unit-to-pixel projection.
+    // Produce a unit-to-pixel projection for 2D overlay rendering.
 
     glMatrixMode(GL_PROJECTION);
     {

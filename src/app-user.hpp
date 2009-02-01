@@ -91,6 +91,10 @@ namespace app
         void gohalf();
         void insert(double, int);
         void remove();
+
+        // Transform application.
+
+        void draw() const;
     };
 }
 

@@ -16,6 +16,7 @@
 #include <SDL_mouse.h>
 
 #include "mode-info.hpp"
+#include "app-user.hpp"
 #include "app-host.hpp"
 #include "app-event.hpp"
 #include "app-frustum.hpp"
@@ -47,11 +48,13 @@ void mode::info::draw(int frusi, app::frustum *frusp)
     assert(world);
     assert(gui);
 
+     frusp->draw();
+    ::user->draw();
+
     world->draw(frusi, frusp, true);
 
     overlay->overlay();
 
-//  glLoadIdentity();
     gui->draw();
 }
 
