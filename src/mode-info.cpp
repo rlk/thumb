@@ -42,10 +42,16 @@ double mode::info::prep(int frusc, app::frustum **frusv)
 
 void mode::info::draw(int frusi, app::frustum *frusp)
 {
+    const app::frustum *overlay = ::host->get_overlay();
+
     assert(world);
     assert(gui);
 
     world->draw(frusi, frusp, true);
+
+    overlay->overlay();
+
+//  glLoadIdentity();
     gui->draw();
 }
 
@@ -60,6 +66,8 @@ bool mode::info::process_event(app::event *E)
     assert(E);
     assert(gui);
 
+    ::host->post_draw();
+
     // Translate event data into GUI method calls.
 
     switch (E->get_type())
@@ -73,7 +81,7 @@ bool mode::info::process_event(app::event *E)
 
     case E_CLICK:
  
-       if (E->data.click.m == SDL_BUTTON_LEFT)
+        if (E->data.click.b == SDL_BUTTON_LEFT)
         {
             gui->click(E->data.click.m,
                        E->data.click.d);

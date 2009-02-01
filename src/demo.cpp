@@ -302,6 +302,8 @@ void demo::draw(int frusi, app::frustum *frusp)
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
+    frusp->calc_projection(0.1, 100.0);
+
     if (curr)
         curr->draw(frusi, frusp);
 }

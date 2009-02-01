@@ -119,6 +119,7 @@ int dpy::normal::test(int chanc, dpy::channel **chanv, int index)
 
         // Draw the off-screen buffer to the screen.
 
+        glClearColor(0.0, 0.0, 0.0, 0.0);
         glClear(GL_COLOR_BUFFER_BIT |
                 GL_DEPTH_BUFFER_BIT);
 
@@ -147,15 +148,13 @@ bool dpy::normal::pointer_to_3D(app::event *E, int x, int y)
 
     // Determine whether the pointer falls within the viewport.
 
-    y = viewport[3] - y;
-
     if (viewport[0] <= x && x < viewport[0] + viewport[2] &&
         viewport[1] <= y && y < viewport[1] + viewport[3])
 
         // Let the frustum project the pointer into space.
 
         return frust->pointer_to_3D(E, x - viewport[0],
-                                       y - viewport[1]);
+                         viewport[3] - y + viewport[1]);
     else
         return false;
 }

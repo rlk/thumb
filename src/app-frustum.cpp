@@ -866,8 +866,7 @@ void app::frustum::draw() const
 {
     glMatrixMode(GL_PROJECTION);
     {
-        glLoadIdentity();
-        glMultMatrixd(P);
+        glLoadMatrixd(P);
     }
     glMatrixMode(GL_MODELVIEW);
 }
@@ -898,6 +897,29 @@ void app::frustum::rect() const
         glVertex3dv(user_points[2]);
     }
     glEnd();
+}
+
+void app::frustum::overlay() const
+{
+    // Produce a unit-to-pixel projection.
+
+    glMatrixMode(GL_PROJECTION);
+    {
+        glLoadMatrixd(P);
+    }
+    glMatrixMode(GL_MODELVIEW);
+    {
+        glLoadIdentity();
+
+        glTranslated(user_points[0][0],
+                     user_points[0][1],
+                     user_points[0][2]);
+
+        glMultMatrixd(user_basis);
+
+        glScaled(get_w() / pixel_w,
+                 get_h() / pixel_h, 1.0);
+    }
 }
 
 //-----------------------------------------------------------------------------

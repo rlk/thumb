@@ -134,6 +134,8 @@ namespace app
         void draw() const;
         void cast() const;
         void rect() const;
+
+        void overlay() const;
     };
 
     typedef std::vector<frustum *>                 frustum_v;

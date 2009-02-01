@@ -1252,25 +1252,6 @@ void gui::dialog::draw() const
     {
         glPushAttrib(GL_ENABLE_BIT);
         {
-            glMatrixMode(GL_TEXTURE);
-            {
-                glLoadIdentity();
-            }
-            glMatrixMode(GL_PROJECTION);
-            {
-                glLoadIdentity();
-/* TODO: GUI must take its projection
-                user->mult_P();
-*/
-            }
-            glMatrixMode(GL_MODELVIEW);
-            {
-                glLoadIdentity();
-/* TODO: GUI must know its own transform
-                host->gui_view();
-*/
-            }
-
             glDisable(GL_LIGHTING);
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_TEXTURE_2D);

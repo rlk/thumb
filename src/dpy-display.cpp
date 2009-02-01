@@ -85,10 +85,10 @@ void dpy::display::fill(double screen_w, double screen_h,
 
     glBegin(GL_QUADS);
     {
-        glVertex2f(-sw, -sh);
-        glVertex2f(+sw, -sh);
-        glVertex2f(+sw, +sh);
-        glVertex2f(-sw, +sh);
+        glVertex2d(-sw, -sh);
+        glVertex2d(+sw, -sh);
+        glVertex2d(+sw, +sh);
+        glVertex2d(-sw, +sh);
     }
     glEnd();
 

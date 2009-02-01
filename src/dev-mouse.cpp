@@ -86,7 +86,7 @@ bool dev::mouse::process_click(app::event *E)
 
     // Handle rotating the view.
 
-    if (b == SDL_BUTTON_LEFT)
+    if (b == SDL_BUTTON_RIGHT)
     {
         dragging = d;
         modifier = m;
