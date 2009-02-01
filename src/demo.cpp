@@ -73,7 +73,7 @@ demo::demo(int w, int h) :
     play = new mode::play(world);
     info = new mode::info(world);
 
-    goto_mode(play);
+    goto_mode(info);
 
 //  if (::conf->get_i("movie")) attr_on();
 
@@ -82,14 +82,13 @@ demo::demo(int w, int h) :
 
 demo::~demo()
 {
-//  if (input) delete input; HACK HACK HACK (wiimote segfaults on exit)
-
     if (info) delete info;
     if (play) delete play;
     if (edit) delete edit;
 
-    if (world) delete world;
+    if (world)    delete world;
     if (universe) delete universe;
+    if (input)    delete input;
 }
 
 //-----------------------------------------------------------------------------
@@ -299,6 +298,12 @@ void demo::prep(int frusc, app::frustum **frusv)
 
 void demo::draw(int frusi, app::frustum *frusp)
 {
+    glClearColor(0.1f, 0.2f, 0.4f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT |
+            GL_DEPTH_BUFFER_BIT);
+
+    if (curr)
+        curr->draw(frusi, frusp);
 }
 
 /*

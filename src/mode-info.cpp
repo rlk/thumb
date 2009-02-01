@@ -16,6 +16,8 @@
 #include <SDL_mouse.h>
 
 #include "mode-info.hpp"
+#include "app-host.hpp"
+#include "app-event.hpp"
 #include "gui-control.hpp"
 
 //-----------------------------------------------------------------------------
@@ -52,11 +54,52 @@ void mode::info::draw(int frusi, app::frustum *frusp)
 
 bool mode::info::process_event(app::event *E)
 {
+    assert(E);
     assert(gui);
-/* TODO
-    return ( gui->process_event(E) ||
-            mode::process_event(E));
-*/
+
+    // Translate event data into GUI method calls.
+
+    switch (E->get_type())
+    {
+    case E_POINT:
+
+        gui->point(E->data.point.p,
+                   E->data.point.q);
+        return true;
+
+    case E_CLICK:
+ 
+       if (E->data.click.m == SDL_BUTTON_LEFT)
+        {
+            gui->click(E->data.click.m,
+                       E->data.click.d);
+            return true;
+        }
+        return false;
+
+    case E_KEYBD:
+
+        gui->keybd(E->data.keybd.c,
+                   E->data.keybd.k,
+                   E->data.keybd.m);
+        return true;
+
+    case E_START:
+
+        host->post_draw();
+        gui->show();
+        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
+                            SDL_DEFAULT_REPEAT_INTERVAL);
+        return false;
+
+    case E_CLOSE:
+
+        SDL_EnableKeyRepeat(0, 0);
+        gui->hide();
+        host->post_draw();
+        return false;
+    }
+
     return mode::process_event(E);
 }
 

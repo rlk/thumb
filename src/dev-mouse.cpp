@@ -159,6 +159,8 @@ bool dev::mouse::process_timer(app::event *E)
 
 bool dev::mouse::process_event(app::event *E)
 {
+    assert(E);
+
     bool R = false;
 
     switch (E->get_type())

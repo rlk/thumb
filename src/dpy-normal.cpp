@@ -54,7 +54,7 @@ void dpy::normal::get_frustums(app::frustum_v& frustums)
     frustums.push_back(frust);
 }
 
-void dpy::normal::prep(int chanc, dpy::channel ** chanv)
+void dpy::normal::prep(int chanc, dpy::channel **chanv)
 {
     assert(frust);
 
@@ -81,6 +81,9 @@ int dpy::normal::draw(int chanc, dpy::channel **chanv,
         chanv[chani]->free();
 
         // Draw the off-screen buffer to the screen.
+
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);
 
         chanv[chani]->bind_color(GL_TEXTURE0);
         {
@@ -115,6 +118,9 @@ int dpy::normal::test(int chanc, dpy::channel **chanv, int index)
         chanv[chani]->free();
 
         // Draw the off-screen buffer to the screen.
+
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);
 
         chanv[chani]->bind_color(GL_TEXTURE0);
         {

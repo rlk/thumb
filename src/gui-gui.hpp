@@ -412,7 +412,7 @@ namespace gui
 
         dialog();
 
-        void point(int, int);
+        void point(const double *, const double *);
         void click(int, bool);
         void keybd(int, int, int);
     

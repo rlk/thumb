@@ -1190,22 +1190,6 @@ void gui::frame::draw(const widget *focus, const widget *input) const
 //-----------------------------------------------------------------------------
 // Top level dialog.
 
-/* Let start and close activate show and hide
-
-void mode::info::enter()
-{
-    gui->show();
-    SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-                        SDL_DEFAULT_REPEAT_INTERVAL);
-}
-
-void mode::info::leave()
-{
-    SDL_EnableKeyRepeat(0, 0);
-    gui->hide();
-}
-*/
-
 gui::dialog::dialog()
 {
     root  = 0;
@@ -1218,8 +1202,12 @@ gui::dialog::~dialog()
     if (root) delete root;
 }
 
-void gui::dialog::point(int x, int y)
+void gui::dialog::point(const double *p,
+                        const double *q)
 {
+    int x = 0;
+    int y = 0;
+
     // Dragging outside of a widget should not defocus it.
 
     if (focus && focus->pressed())

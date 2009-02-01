@@ -19,9 +19,10 @@
 #include "matrix.hpp"
 #include "default.hpp"
 #include "ogl-opengl.hpp"
+#include "dpy-normal.hpp"
 #include "dpy-channel.hpp"
 #include "dpy-display.hpp"
-#include "dpy-normal.hpp"
+#include "app-frustum.hpp"
 #include "app-event.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
@@ -485,10 +486,6 @@ app::host::host(std::string filename, std::string tag) :
 
     if (channels.empty()) channels.push_back(new dpy::channel(0));
     if (displays.empty()) displays.push_back(new dpy::normal (0));
-
-    // Start the timer.  TODO: move this to start?
-
-    tock = SDL_GetTicks();
 }
 
 app::host::~host()
@@ -635,21 +632,29 @@ void app::host::loop()
 
 void app::host::draw()
 {
+    // Channel and frustum vectors are passed C-style.
+
     int            chanc =  channels.size();
     int            frusc =  frustums.size();
     dpy::channel **chanv = &channels.front();
     app::frustum **frusv = &frustums.front();
 
-    // Acculumate a list of frustums and preprocess the app.
+    // Prepare all displays for rendering (cheap).
 
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         (*i)->prep(chanc, chanv);
 
-    // TODO: apply the ::user transform to all frustums.
+    // Cache the transformed frustums (cheap).
+
+    for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
+        (*i)->calc_view_planes(::user->get_M(),
+                               ::user->get_I());
+
+    // Do the render prepass (maybe moderately expensive).
 
     ::prog->prep(frusc, frusv);
 
-    // Render all displays.
+    // Render all displays (probably very expensive).
     
     int frusi = 0;
 
@@ -725,6 +730,10 @@ void app::host::process_start(event *E)
 
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         (*i)->get_frustums(frustums);
+
+    // Start the timer.
+
+    tock = SDL_GetTicks();
 }
 
 void app::host::process_close(event *E)

@@ -128,7 +128,7 @@ static int get_button(struct button_state *B)
 
 static int continuity(int d)
 {
-    /* HACK: This works around an apparent bug in libcwiimote 0.4. */
+    /* NOTE: This works around an apparent bug in libcwiimote 0.4. */
 
     if ( 512 <= d && d <  768) return d - 256;
     if (1024 <= d && d < 1280) return d - 512;
