@@ -18,7 +18,6 @@
 #include "app-data.hpp"
 #include "app-conf.hpp"
 #include "app-lang.hpp"
-#include "app-user.hpp"
 #include "app-host.hpp"
 #include "util.hpp"
 
@@ -33,7 +32,7 @@ gui::widget::widget() : area(0, 0, 0, 0)
 
 gui::widget::~widget()
 {
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         delete (*i);
 
     child.clear();
@@ -117,7 +116,7 @@ bool gui::tree::exp_w() const
 
     // A group is horizontally expanding if any child is.
 
-    for (widget_v::const_iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_c i = child.begin(); i != child.end(); ++i)
         b |= (*i)->exp_w();
 
     return b;
@@ -129,7 +128,7 @@ bool gui::tree::exp_h() const
 
     // A group is vertically expanding if any child is.
 
-    for (widget_v::const_iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_c i = child.begin(); i != child.end(); ++i)
         b |= (*i)->exp_h();
 
     return b;
@@ -141,7 +140,7 @@ gui::widget *gui::tree::enter(int x, int y)
 
     // Search all child nodes for the widget containing the given point.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         if ((w = (*i)->enter(x, y)))
             return w;
 
@@ -152,7 +151,7 @@ void gui::tree::show()
 {
     // Show all child nodes.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         (*i)->show();
 }
 
@@ -160,7 +159,7 @@ void gui::tree::hide()
 {
     // Hide all child nodes.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         (*i)->hide();
 }
 
@@ -168,7 +167,7 @@ void gui::tree::draw(const widget *focus, const widget *input) const
 {
     // Draw all child nodes.
 
-    for (widget_v::const_iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_c i = child.begin(); i != child.end(); ++i)
         (*i)->draw(focus, input);
 }
 
@@ -176,7 +175,7 @@ gui::tree::~tree()
 {
     // Delete all child nodes.
 
-    for (widget_v::const_iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_c i = child.begin(); i != child.end(); ++i)
         delete (*i);
 
     child.clear();
@@ -670,7 +669,7 @@ void gui::scroll::layup()
 {
     // Find the widest child width.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         (*i)->layup();
 
@@ -694,13 +693,13 @@ void gui::scroll::laydn(int x, int y, int w, int h)
 
     // Count the number of expanding children.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         if ((*i)->exp_h())
             c++;
 
     // Give children requested vertical space.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         int dy = (*i)->get_h() + ((*i)->exp_h() ? (excess / c) : 0);
 
@@ -834,7 +833,7 @@ void gui::finder::refresh()
 {
     // Delete all child nodes.
 
-    for (widget_v::const_iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_c i = child.begin(); i != child.end(); ++i)
         delete (*i);
 
     child.clear();
@@ -863,7 +862,7 @@ void gui::finder::refresh()
     child_d = 0;
     child_h = 0;
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         child_h += (*i)->get_h();
 
     // Lay out this new widget hierarchy.
@@ -924,7 +923,7 @@ void gui::harray::layup()
 {
     // Find the widest child width and the highest child height.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         (*i)->layup();
 
@@ -945,7 +944,7 @@ void gui::harray::laydn(int x, int y, int w, int h)
 
     // Distribute horizontal space evenly to all children.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i, ++c)
+    for (widget_i i = child.begin(); i != child.end(); ++i, ++c)
     {
         int x0 = x + (c    ) * w / n;
         int x1 = x + (c + 1) * w / n;
@@ -961,7 +960,7 @@ void gui::varray::layup()
 {
     // Find the widest child width and the highest child height.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         (*i)->layup();
 
@@ -982,7 +981,7 @@ void gui::varray::laydn(int x, int y, int w, int h)
 
     // Distribute vertical space evenly to all children.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i, --c)
+    for (widget_i i = child.begin(); i != child.end(); ++i, --c)
     {
         int y0 = y + (c    ) * h / n;
         int y1 = y + (c + 1) * h / n;
@@ -998,7 +997,7 @@ void gui::hgroup::layup()
 {
     // Find the highest child height.  Sum the child widths.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         (*i)->layup();
 
@@ -1015,13 +1014,13 @@ void gui::hgroup::laydn(int x, int y, int w, int h)
 
     // Count the number of expanding children.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         if ((*i)->exp_w())
             c++;
 
     // Give children requested space.  Distribute excess among the expanders.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         int dx = (*i)->get_w() + ((*i)->exp_w() ? (excess / c) : 0);
 
@@ -1038,7 +1037,7 @@ void gui::vgroup::layup()
 {
     // Find the widest child width.  Sum the child heights.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         (*i)->layup();
 
@@ -1055,13 +1054,13 @@ void gui::vgroup::laydn(int x, int y, int w, int h)
 
     // Count the number of expanding children.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         if ((*i)->exp_h())
             c++;
 
     // Give children requested space.  Distribute excess among the expanders.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         int dy = (*i)->get_h() + ((*i)->exp_h() ? (excess / c) : 0);
 
@@ -1078,7 +1077,7 @@ void gui::option::layup()
 {
     // Find the largest child width extent.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         (*i)->layup();
 
@@ -1093,7 +1092,7 @@ void gui::option::laydn(int x, int y, int w, int h)
 
     // Give children all available space.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         (*i)->laydn(x, y, w, h);
 }
 
@@ -1114,7 +1113,7 @@ void gui::frame::layup()
 {
     // Find the largest child width extent.  Pad it.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
     {
         (*i)->layup();
 
@@ -1132,7 +1131,7 @@ void gui::frame::laydn(int x, int y, int w, int h)
 
     // Give children all available space.
 
-    for (widget_v::iterator i = child.begin(); i != child.end(); ++i)
+    for (widget_i i = child.begin(); i != child.end(); ++i)
         (*i)->laydn(x + border,
                     y + border,
                     w - border * 2,
@@ -1202,12 +1201,8 @@ gui::dialog::~dialog()
     if (root) delete root;
 }
 
-void gui::dialog::point(const double *p,
-                        const double *q)
+void gui::dialog::point(int x, int y)
 {
-    int x = 0;
-    int y = 0;
-
     // Dragging outside of a widget should not defocus it.
 
     if (focus && focus->pressed())

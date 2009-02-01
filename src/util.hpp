@@ -17,7 +17,7 @@
 #include <vector>
 #include <set>
 
-#include <math.h>
+#include <cmath>
 
 // TODO: Put this stuff where it belongs.
 
@@ -66,6 +66,8 @@ int   ntohi(int);
 void nodelay(int);
 
 int next_power_of_2(int);
+
+int nearest_int(double);
 
 //-----------------------------------------------------------------------------
 

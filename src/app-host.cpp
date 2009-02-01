@@ -406,6 +406,7 @@ app::host::host(std::string filename, std::string tag) :
     count(0),
     calibration_state(false),
     calibration_index(0),
+    overlay(0),
     file(filename.c_str())
 {
     // Set some reasonable defaults.
@@ -474,6 +475,19 @@ app::host::host(std::string filename, std::string tag) :
             init_server(node);
             init_client(node);
         }
+
+        // Determine the overlay area.
+
+        if (app::node over = find(root, "overlay"))
+        {
+            int w = get_attr_d(over, "w", DEFAULT_PIXEL_WIDTH);
+            int h = get_attr_d(over, "h", DEFAULT_PIXEL_HEIGHT);
+
+            if      ((curr = app::find(node, "frustum")))
+                overlay = new app::frustum(curr, w, h);
+            else
+                overlay = new app::frustum(0,    w, h);
+        }
     }
 
     // Create a channel object for each configured channel.
@@ -490,6 +504,9 @@ app::host::host(std::string filename, std::string tag) :
 
 app::host::~host()
 {
+    if (overlay)
+        delete overlay;
+
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         delete (*i);
     
@@ -521,7 +538,7 @@ void app::host::root_loop()
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                if (project_event(&E, e.motion.x, e.motion.y))
+                if (pointer_to_3D(&E, e.motion.x, e.motion.y))
                     process_event(&E);
                 break;
 
@@ -708,10 +725,10 @@ void app::host::sync()
 
 // Ask each display to project the event into the virtual space.
 
-bool app::host::project_event(event *E, int x, int y)
+bool app::host::pointer_to_3D(event *E, int x, int y)
 {
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
-        if ((*i)->project_event(E, x, y))
+        if ((*i)->pointer_to_3D(E, x, y))
             return true;
 
     return false;
@@ -793,6 +810,26 @@ bool app::host::process_event(event *E)
 
 //-----------------------------------------------------------------------------
 
+const app::frustum *app::host::get_overlay() const
+{
+    // Return the frustum of the 2D overlay.  It may be configured...
+
+    if (overlay) return overlay;
+
+    // ... or we may need to default to one of the display frustums.
+
+    if (!displays.empty())
+        return displays.front()->get_overlay();
+    else
+        return 0;
+}
+
+int app::host::get_window_m() const
+{
+    return ((window_full  ? SDL_FULLSCREEN : 0) |
+            (window_frame ? 0 : SDL_NOFRAME));
+}
+
 // Forward the given position and orientation to all channel objects.  This is
 // usually called per-frame in response to a head motion tracker input.
 
@@ -801,12 +838,6 @@ void app::host::set_head(const double *p,
 {
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         (*i)->set_head(p, q);
-}
-
-int app::host::get_window_m() const
-{
-    return ((window_full  ? SDL_FULLSCREEN : 0) |
-            (window_frame ? 0 : SDL_NOFRAME));
 }
 
 //-----------------------------------------------------------------------------

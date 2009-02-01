@@ -78,7 +78,9 @@ namespace gui
         virtual ~widget();
     };
 
-    typedef std::vector<widget *> widget_v;
+    typedef std::vector<widget *>                 widget_v;
+    typedef std::vector<widget *>::iterator       widget_i;
+    typedef std::vector<widget *>::const_iterator widget_c;
 
     //-------------------------------------------------------------------------
     // Tree definition widgets.
@@ -412,7 +414,7 @@ namespace gui
 
         dialog();
 
-        void point(const double *, const double *);
+        void point(int, int);
         void click(int, bool);
         void keybd(int, int, int);
     

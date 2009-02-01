@@ -71,4 +71,15 @@ int next_power_of_2(int n)
     return n;
 }
 
+int nearest_int(double d)
+{
+    double f = floor(d);
+    double c =  ceil(d);
+
+    if (fabs(f - d) < fabs(c - d))
+        return int(f);
+    else
+        return int(c);
+}
+
 //-----------------------------------------------------------------------------

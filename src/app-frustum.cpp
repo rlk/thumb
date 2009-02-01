@@ -688,25 +688,84 @@ int app::frustum::test_cap(const double *n, double a,
 
 //-----------------------------------------------------------------------------
 
-bool app::frustum::project_event(event *E, double x, double y) const
+bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
 {
+    double M[16], V[3], plane[4], point[3];
+
+    // Determine the pointer vector from the quaternion.
+
+    set_quaternion(M, E->data.point.q);
+
+    V[0] = -M[ 8];
+    V[1] = -M[ 9];
+    V[2] = -M[10];
+
+    // Find the plane of the display.
+
+    set_plane(plane, user_points[0],
+                     user_points[1],
+                     user_points[2]);
+
+    // Compute the point of intersection with the display plane.
+
+    double t = -(plane[3] + DOT3(E->data.point.p, plane)) / DOT3(V, plane);
+
+    point[0] = E->data.point.p[0] + V[0] * t - user_points[0][0];
+    point[1] = E->data.point.p[1] + V[1] * t - user_points[0][1];
+    point[2] = E->data.point.p[2] + V[2] * t - user_points[0][2];
+
+    // Project this point into screen space.
+
+    double R[3];
+    double U[3];
+
+    R[0] = user_points[1][0] - user_points[0][0];
+    R[1] = user_points[1][1] - user_points[0][1];
+    R[2] = user_points[1][2] - user_points[0][2];
+
+    U[0] = user_points[2][0] - user_points[0][0];
+    U[1] = user_points[2][1] - user_points[0][1];
+    U[2] = user_points[2][2] - user_points[0][2];
+
+    normalize(R);
+    normalize(U);
+
+    double u = DOT3(point, R);
+    double v = DOT3(point, U);
+
+    // Confirm that the point falls within the frustum.
+
+    if (0 < u && u < 1 && 0 < v && v < 1)
+    {
+        x = nearest_int(u * double(pixel_w) / get_w());
+        y = nearest_int(v * double(pixel_h) / get_h());
+        return true;
+    }
+    return false;
+}
+
+bool app::frustum::pointer_to_3D(event *E, int x, int y) const
+{
+    double X = double(x) / double(pixel_w);
+    double Y = double(y) / double(pixel_h);
+
     // Return the point event for (x, y) in the current user space.
 
-    double B[16], k = 1.0 - x - y;
+    double B[16], k = 1.0 - X - Y;
 
     load_idt(B);
 
     // Compute the Z axis of the pointer space.
 
-    B[ 8] = user_pos[0] - (user_points[2][0] * k +
-                           user_points[3][0] * x +
-                           user_points[0][0] * y);
-    B[ 9] = user_pos[1] - (user_points[2][1] * k +
-                           user_points[3][1] * x +
-                           user_points[0][1] * y);
-    B[10] = user_pos[2] - (user_points[2][2] * k +
-                           user_points[3][2] * x +
-                           user_points[0][2] * y);
+    B[ 8] = user_pos[0] - (user_points[0][0] * k +
+                           user_points[1][0] * X +
+                           user_points[2][0] * Y);
+    B[ 9] = user_pos[1] - (user_points[0][1] * k +
+                           user_points[1][1] * X +
+                           user_points[2][1] * Y);
+    B[10] = user_pos[2] - (user_points[0][2] * k +
+                           user_points[1][2] * X +
+                           user_points[2][2] * Y);
 
     // Complete an orthonormal basis of the pointer space.
 

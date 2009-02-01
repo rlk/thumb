@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <host>
-
+<!--
+  <overlay w="1024" h="768">
+    <frustum>
+      <perspective hfov="60.0" vfov="45.0"/>
+    </frustum>
+  </overlay>
+-->
   <node name="1024x768">
     <window x="0" y="0" w="1024" h="768"/>
     <channel w="1024" h="768"/>

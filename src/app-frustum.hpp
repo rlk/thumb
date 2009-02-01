@@ -119,11 +119,14 @@ namespace app
 
         double get_w()        const;
         double get_h()        const;
+        int    get_pixel_w()  const { return pixel_w; }
+        int    get_pixel_h()  const { return pixel_h; }
         double pixels(double) const;
 
         // Event handlers
 
-        bool project_event(event *, double, double) const;
+        bool pointer_to_3D(event *, int,  int)  const;
+        bool pointer_to_2D(event *, int&, int&) const;
         bool process_event(event *);
 
         // Perspective projection application

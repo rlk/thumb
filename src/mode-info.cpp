@@ -18,18 +18,17 @@
 #include "mode-info.hpp"
 #include "app-host.hpp"
 #include "app-event.hpp"
+#include "app-frustum.hpp"
 #include "gui-control.hpp"
 
 //-----------------------------------------------------------------------------
 
 mode::info::info(wrl::world *w) : mode(w), gui(0)
 {
-    int gui_w = 1024;
-    int gui_h =  768;
+    const app::frustum *overlay = ::host->get_overlay();
 
-    /* TODO: make this seek the "right" size */
-
-    gui = new cnt::control(w, gui_w, gui_h);
+    gui = new cnt::control(w, overlay->get_pixel_w(),
+                              overlay->get_pixel_h());
 }
 
 //-----------------------------------------------------------------------------
@@ -54,6 +53,10 @@ void mode::info::draw(int frusi, app::frustum *frusp)
 
 bool mode::info::process_event(app::event *E)
 {
+    const app::frustum *overlay = ::host->get_overlay();
+    int x = 0;
+    int y = 0;
+
     assert(E);
     assert(gui);
 
@@ -63,8 +66,9 @@ bool mode::info::process_event(app::event *E)
     {
     case E_POINT:
 
-        gui->point(E->data.point.p,
-                   E->data.point.q);
+        if (overlay)
+            overlay->pointer_to_2D(E, x, y);
+        gui->point(x, y);
         return true;
 
     case E_CLICK:

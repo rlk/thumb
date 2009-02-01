@@ -98,6 +98,8 @@ namespace app
         std::vector<dpy::channel *> channels;
         std::vector<app::frustum *> frustums;
 
+        app::frustum *overlay;
+
         // Configuration serializer
 
         app::serial file;
@@ -112,7 +114,7 @@ namespace app
         void draw();
         void swap() const;
 
-        bool project_event(event *, int, int);
+        bool pointer_to_3D(event *, int, int);
         bool process_event(event *);
 
         // Configuration queries.
@@ -124,6 +126,8 @@ namespace app
         int get_window_h() const { return window_size[3]; }
         int get_buffer_w() const { return buffer_size[0]; }
         int get_buffer_h() const { return buffer_size[1]; }
+
+        const app::frustum *get_overlay() const;
 
         void set_head(const double *, const double *);
 

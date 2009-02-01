@@ -59,8 +59,10 @@ namespace dpy
 
         // Event handers.
 
-        virtual bool project_event(app::event *, int, int);
+        virtual bool pointer_to_3D(app::event *, int, int);
         virtual bool process_event(app::event *);
+
+        virtual app::frustum *get_overlay() const { return frust; }
 
         virtual ~normal();
     };

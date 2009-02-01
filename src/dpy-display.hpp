@@ -60,8 +60,10 @@ namespace dpy
 
         // Event handlers.
 
-        virtual bool project_event(app::event *, int, int) { return false; }
+        virtual bool pointer_to_3D(app::event *, int, int) { return false; }
         virtual bool process_event(app::event *)           { return false; }
+
+        virtual app::frustum *get_overlay() const = 0;
 
         bool is_index(int i) const { return (index == i); }
 

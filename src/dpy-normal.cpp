@@ -141,21 +141,21 @@ int dpy::normal::test(int chanc, dpy::channel **chanv, int index)
 
 //-----------------------------------------------------------------------------
 
-bool dpy::normal::project_event(app::event *E, int x, int y)
+bool dpy::normal::pointer_to_3D(app::event *E, int x, int y)
 {
     assert(frust);
 
     // Determine whether the pointer falls within the viewport.
 
-    double X = double(x - viewport[0]) / double(viewport[2]);
-    double Y = double(viewport[1] - y) / double(viewport[3]);
+    y = viewport[3] - y;
 
-    if (0.0 <= X && X < 1.0 &&
-        0.0 <= Y && Y < 1.0)
+    if (viewport[0] <= x && x < viewport[0] + viewport[2] &&
+        viewport[1] <= y && y < viewport[1] + viewport[3])
 
         // Let the frustum project the pointer into space.
 
-        return frust->project_event(E, X, Y);
+        return frust->pointer_to_3D(E, x - viewport[0],
+                                       y - viewport[1]);
     else
         return false;
 }
