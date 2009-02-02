@@ -155,8 +155,11 @@ namespace wrl
 
         // Rendering methods
 
-        double prep(int, app::frustum **, bool);
-        void   draw(int, app::frustum  *, bool);
+        double prep_fill(int, app::frustum **);
+        double prep_line(int, app::frustum **);
+
+        void   draw_fill(int, app::frustum  *);
+        void   draw_line(int, app::frustum  *);
     };
 }
 

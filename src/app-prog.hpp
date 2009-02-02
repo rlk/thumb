@@ -41,8 +41,8 @@ namespace app
 
         prog();
 
-        virtual void prep(int, app::frustum **) { }
-        virtual void draw(int, app::frustum  *) { }
+        virtual double prep(int, app::frustum **) { return 0; }
+        virtual void   draw(int, app::frustum  *) {           }
 
         virtual bool process_event(event *);
 

@@ -667,9 +667,22 @@ void app::host::draw()
         (*i)->calc_view_planes(::user->get_M(),
                                ::user->get_I());
 
-    // Do the render prepass (maybe moderately expensive).
+    // Do the render prepass (possibly moderately expensive).
 
-    ::prog->prep(frusc, frusv);
+    double dist = ::prog->prep(frusc, frusv);
+
+    printf("%f\n", dist);
+
+    // Apply the far plane distance to all frustums, caching projections.
+
+    for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
+        (*i)->calc_projection(1.0, dist);
+
+    // Clear the entire window.
+
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT |
+            GL_DEPTH_BUFFER_BIT);
 
     // Render all displays (probably very expensive).
     

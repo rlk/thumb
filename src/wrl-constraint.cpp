@@ -15,6 +15,7 @@
 #include "ogl-opengl.hpp"
 #include "app-user.hpp"
 #include "app-glob.hpp"
+#include "app-frustum.hpp"
 #include "wrl-constraint.hpp"
 
 //-----------------------------------------------------------------------------
@@ -247,11 +248,18 @@ void wrl::constraint::click(const double *p, const double *v)
 
 double wrl::constraint::prep(int frusc, app::frustum **frusv)
 {
-/*
-           pool->prep();
-    return pool->view(0, 5, frusc, frusv);
-*/
-    return 0;
+    double dist = 0.0;
+
+    // Prep the geometry pool.
+
+    pool->prep();
+
+    // Cache the visibility and determine the far plane distance.
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+        dist = std::max(dist, pool->view(frusi, 4,
+                                         frusv[frusi]->get_planes()));
+    return dist;
 }
 
 void wrl::constraint::draw(int frusi, app::frustum *frusp)

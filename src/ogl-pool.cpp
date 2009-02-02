@@ -433,8 +433,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
 {
     // Proceed if this node passed visibility test ID.
 
-// HACK
-//  if (get_bit(test_cache, id))
+    if (get_bit(test_cache, id))
     {
         // Select the batch vector.  Confirm that it is non-empty.
 
@@ -620,14 +619,14 @@ void ogl::pool::prep()
 
 double ogl::pool::view(int id, int n, const double *V)
 {
-    double max = 0;
+    double dist = 0;
 
     // Test all nodes for visibility.  Find the range of the farthest node.
 
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        max = std::max(max, (*i)->view(id, n, V));
+        dist = std::max(dist, (*i)->view(id, n, V));
 
-    return max;
+    return dist;
 }
 
 //-----------------------------------------------------------------------------

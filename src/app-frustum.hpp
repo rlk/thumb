@@ -123,6 +123,9 @@ namespace app
         int    get_pixel_h()  const { return pixel_h; }
         double pixels(double) const;
 
+        const double *get_planes() const { return view_planes[0]; }
+        const double *get_points() const { return view_points[0]; }
+
         // Event handlers
 
         bool pointer_to_3D(event *, int,  int)  const;

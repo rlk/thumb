@@ -20,6 +20,7 @@
 #include "app-glob.hpp"
 #include "app-data.hpp"
 #include "app-user.hpp"
+#include "app-frustum.hpp"
 #include "util.hpp"
 #include "main.hpp"
 
@@ -1104,13 +1105,43 @@ void draw_light_fini()
 
 //-----------------------------------------------------------------------------
 
-double wrl::world::prep(int frusc, app::frustum **frusv, bool edit)
+double wrl::world::prep_fill(int frusc, app::frustum **frusv)
 {
-    return 0;
+    double dist = 0.0;
+
+    // Prep the fill geometry pool.
+
+    fill_pool->prep();
+
+    // Cache the fill visibility and determine the far plane distance.
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+        dist = std::max(dist, fill_pool->view(frusi, 4,
+                                              frusv[frusi]->get_planes()));
+    return dist;
 }
 
-void wrl::world::draw(int frusi, app::frustum *frusp, bool edit)
+double wrl::world::prep_line(int frusc, app::frustum **frusv)
 {
+    double dist = 0.0;
+
+    // Prep the line geometry pool.
+
+    line_pool->prep();
+
+    // Cache the line visibility and determine the far plane distance.
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+        dist = std::max(dist, line_pool->view(frusi, 4,
+                                              frusv[frusi]->get_planes()));
+    return dist;
+}
+
+void wrl::world::draw_fill(int frusi, app::frustum *frusp)
+{
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
     // Compute the light source position.
 
     double  l[3];
@@ -1131,26 +1162,28 @@ void wrl::world::draw(int frusi, app::frustum *frusp, bool edit)
 
     fill_pool->draw_init();
     {
-        fill_pool->draw(0, true, false);
+        fill_pool->draw(frusi, true, false);
     }
     fill_pool->draw_fini();
+}
 
+void wrl::world::draw_line(int frusi, app::frustum *frusp)
+{
     // Render the line geometry.
 
-    if (edit)
+    line_init();
     {
-        line_init();
         line_pool->draw_init();
+        {
+            glColor3f(1.0f, 0.0f, 0.0f);
+            stat_node->draw(0, true, false);
 
-        glColor3f(1.0f, 0.0f, 0.0f);
-        stat_node->draw(0, true, false);
-
-        glColor3f(0.0f, 1.0f, 0.0f);
-        dyna_node->draw(0, true, false);
-
+            glColor3f(0.0f, 1.0f, 0.0f);
+            dyna_node->draw(0, true, false);
+        }
         line_pool->draw_fini();
-        line_fini();
     }
+    line_fini();
 }
 
 //-----------------------------------------------------------------------------

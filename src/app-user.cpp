@@ -62,7 +62,7 @@ app::user::user() :
 
     set_state(curr, time, opts);
 
-    move(0, 0, 1);
+    move(0, 2, 5);
 }
 
 void app::user::set(const double p[3], const double q[4])
@@ -426,7 +426,9 @@ void app::user::remove()
 
 void app::user::draw() const
 {
-    glLoadMatrixd(current_M);
+    // This is a view matrix rather than a model matrix.  It must be inverse.
+
+    glLoadMatrixd(current_I);
 }
 
 //-----------------------------------------------------------------------------

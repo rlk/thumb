@@ -20,13 +20,13 @@
 double mode::mode::prep(int frusc, app::frustum **frusv)
 {
     assert(world);
-    return world->prep(frusc, frusv, false);
+    return world->prep_fill(frusc, frusv);
 }
 
 void mode::mode::draw(int frusi, app::frustum *frusp)
 {
     assert(world);
-    world->draw(frusi, frusp, false);
+    world->draw_fill(frusi, frusp);
 }
 
 //-----------------------------------------------------------------------------

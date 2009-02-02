@@ -121,7 +121,7 @@
 
   <!-- Navigation options. -->
 
-  <option type="float" name="view_move_rate">1.000000</option>
+  <option type="float" name="view_move_rate">0.050000</option>
   <option type="float" name="view_turn_rate">60.00000</option>
 
   <!-- Misc. options -->

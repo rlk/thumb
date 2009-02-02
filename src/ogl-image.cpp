@@ -137,8 +137,6 @@ void ogl::image::init()
 
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-        ogl::new_texture(target);
     }
     free();
 
@@ -148,12 +146,6 @@ void ogl::image::init()
 void ogl::image::fini()
 {
     // Delete the texture object.
-
-    bind();
-    {
-        ogl::del_texture(target);
-    }
-    free();
 
     glDeleteTextures(1, &object);
     OGLCK();

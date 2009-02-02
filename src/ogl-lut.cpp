@@ -14,8 +14,7 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::lut::lut(GLsizei w,
-              GLenum T, GLenum fi, GLenum fe, GLenum t) :
+ogl::lut::lut(GLsizei w, GLenum T, GLenum fi, GLenum fe, GLenum t) :
     target(T), object(0), formint(fi), formext(fe), type(t), w(w)
 {
     glGenTextures(1, &object);
@@ -27,20 +26,14 @@ ogl::lut::lut(GLsizei w,
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-
-        ogl::new_texture(target);
     }
+    free();
+
     OGLCK();
 }
 
 ogl::lut::~lut()
 {
-    bind();
-    {
-        ogl::del_texture(target);
-    }
-    free();
-
     glDeleteTextures(1, &object);
     OGLCK();
 }

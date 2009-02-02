@@ -131,17 +131,4 @@ namespace ogl
 
 //-----------------------------------------------------------------------------
 
-namespace ogl
-{
-    void get_framebuffer(GLint[1], GLint[4]);
-    void set_framebuffer(GLint[1], GLint[4]);
-
-    void draw_axes();
-
-    void new_texture(GLenum);
-    void del_texture(GLenum);
-}
-
-//-----------------------------------------------------------------------------
-
 #endif

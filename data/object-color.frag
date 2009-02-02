@@ -39,5 +39,6 @@ void main()
     vec4 KD =     max(dot(L, N), 0.0) * Kd;
     vec4 KA =   gl_LightModel.ambient * Kd;
 
-    gl_FragColor = vec4(((KS + KD) * S + KA).rgb, KD.a);
+//  gl_FragColor = vec4(((KS + KD) * S + KA).rgb, KD.a);
+    gl_FragColor = Kd;
 }

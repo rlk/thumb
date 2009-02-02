@@ -38,7 +38,8 @@ double mode::info::prep(int frusc, app::frustum **frusv)
 {
     assert(world);
 
-    return world->prep(frusc, frusv, true);
+    return std::max(world->prep_fill(frusc, frusv),
+                    world->prep_line(frusc, frusv));
 }
 
 void mode::info::draw(int frusi, app::frustum *frusp)
@@ -51,7 +52,8 @@ void mode::info::draw(int frusi, app::frustum *frusp)
      frusp->draw();
     ::user->draw();
 
-    world->draw(frusi, frusp, true);
+    world->draw_fill(frusi, frusp);
+    world->draw_line(frusi, frusp);
 
     overlay->overlay();
 

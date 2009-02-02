@@ -1,5 +1,11 @@
 Thumb features to consider
 
+    Consider multithreading
+        Pipelining?
+        Double-buffering data?
+           The node-local transform cache is already a doubled buffer?
+        Backgrounded data loading?
+
     Normal display renders directly to the on-screen framebuffer?
 
     It would be nice to have an #ifdef mechanism in the shaders

@@ -82,9 +82,6 @@ int dpy::normal::draw(int chanc, dpy::channel **chanv,
 
         // Draw the off-screen buffer to the screen.
 
-        glClear(GL_COLOR_BUFFER_BIT |
-                GL_DEPTH_BUFFER_BIT);
-
         chanv[chani]->bind_color(GL_TEXTURE0);
         {
             P->bind();
@@ -118,10 +115,6 @@ int dpy::normal::test(int chanc, dpy::channel **chanv, int index)
         chanv[chani]->free();
 
         // Draw the off-screen buffer to the screen.
-
-        glClearColor(0.0, 0.0, 0.0, 0.0);
-        glClear(GL_COLOR_BUFFER_BIT |
-                GL_DEPTH_BUFFER_BIT);
 
         chanv[chani]->bind_color(GL_TEXTURE0);
         {

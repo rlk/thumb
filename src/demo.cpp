@@ -286,23 +286,26 @@ bool demo::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-void demo::prep(int frusc, app::frustum **frusv)
+double demo::prep(int frusc, app::frustum **frusv)
 {
-    if (curr)
-        curr->prep(frusc, frusv);
+    // Prep the current mode, giving the far plane distance.
 
-    // TODO: get the draw range return.
+    if (curr)
+        return curr->prep(frusc, frusv);
+    else
+        return 1.0;
 
 //  universe->prep(frusc, frusv);
 }
 
 void demo::draw(int frusi, app::frustum *frusp)
 {
+    // Clear the render target.
+
     glClearColor(0.1f, 0.2f, 0.4f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
-    frusp->calc_projection(0.1, 100.0);
 
     if (curr)
         curr->draw(frusi, frusp);

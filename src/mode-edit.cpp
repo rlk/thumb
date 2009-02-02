@@ -19,6 +19,7 @@
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-event.hpp"
+#include "app-frustum.hpp"
 #include "wrl-world.hpp"
 #include "wrl-solid.hpp"
 #include "wrl-constraint.hpp"
@@ -302,9 +303,10 @@ double mode::edit::prep(int frusc, app::frustum **frusv)
     assert(world);
     assert(xform);
 
-    // Prep the world and the constrant.  Combine the ranges.
+    // Prep the world and the constraint.  Combine the ranges.
 
-    return std::max(world->prep(frusc, frusv, true),
+    return std::max(std::max(world->prep_fill(frusc, frusv),
+                             world->prep_line(frusc, frusv)),
                     xform->prep(frusc, frusv));
 }
 
@@ -315,7 +317,12 @@ void mode::edit::draw(int frusi, app::frustum *frusp)
 
     // Draw the world and the constraint.
 
-    world->draw(frusi, frusp, true);
+     frusp->draw();
+    ::user->draw();
+
+    world->draw_fill(frusi, frusp);
+    world->draw_line(frusi, frusp);
+
     xform->draw(frusi, frusp);
 }
 
