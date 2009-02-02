@@ -943,36 +943,6 @@ void wrl::world::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
-static void line_init()
-{
-    // Set up for Z-offset anti-aliased line drawing.
-
-    glEnable(GL_BLEND);
-    glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_POLYGON_OFFSET_LINE);
-
-    glDisable(GL_LIGHTING);
-    glDisable(GL_TEXTURE_2D);
-
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(GL_FALSE);
-
-    glPolygonOffset(-1.1f, -4.0f);
-
-    glUseProgramObjectARB(0);
-}
-
-static void line_fini()
-{
-    glDepthMask(GL_TRUE);
-
-    glDisable(GL_POLYGON_OFFSET_LINE);
-    glDisable(GL_LINE_SMOOTH);
-    glDisable(GL_BLEND);
-}
-
-//-----------------------------------------------------------------------------
-
 void get_ortho_light(double *a,
                      double *z,
                      double *M,
@@ -1116,7 +1086,7 @@ double wrl::world::prep_fill(int frusc, app::frustum **frusv)
     // Cache the fill visibility and determine the far plane distance.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        dist = std::max(dist, fill_pool->view(frusi, 4,
+        dist = std::max(dist, fill_pool->view(frusi, 5,
                                               frusv[frusi]->get_planes()));
     return dist;
 }
@@ -1132,7 +1102,7 @@ double wrl::world::prep_line(int frusc, app::frustum **frusv)
     // Cache the line visibility and determine the far plane distance.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        dist = std::max(dist, line_pool->view(frusi, 4,
+        dist = std::max(dist, line_pool->view(frusi, 5,
                                               frusv[frusi]->get_planes()));
     return dist;
 }
@@ -1171,7 +1141,7 @@ void wrl::world::draw_line(int frusi, app::frustum *frusp)
 {
     // Render the line geometry.
 
-    line_init();
+    ogl::line_state_init();
     {
         line_pool->draw_init();
         {
@@ -1183,7 +1153,7 @@ void wrl::world::draw_line(int frusi, app::frustum *frusp)
         }
         line_pool->draw_fini();
     }
-    line_fini();
+    ogl::line_state_fini();
 }
 
 //-----------------------------------------------------------------------------

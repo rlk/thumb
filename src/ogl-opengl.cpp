@@ -337,3 +337,31 @@ void ogl::init()
 }
 
 //-----------------------------------------------------------------------------
+
+void ogl::line_state_init()
+{
+    // Set up for Z-offset anti-aliased line drawing.
+
+    glEnable(GL_BLEND);
+    glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POLYGON_OFFSET_LINE);
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(GL_FALSE);
+
+    glPolygonOffset(-1.1f, -4.0f);
+}
+
+void ogl::line_state_fini()
+{
+    glDepthMask(GL_TRUE);
+
+    glDisable(GL_POLYGON_OFFSET_LINE);
+    glDisable(GL_LINE_SMOOTH);
+    glDisable(GL_BLEND);
+}
+
+//-----------------------------------------------------------------------------

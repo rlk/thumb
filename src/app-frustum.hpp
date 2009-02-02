@@ -54,8 +54,8 @@ namespace app
 
         double user_points[4][3];
         double view_points[8][3];
-        double user_planes[4][4];
-        double view_planes[5][4];
+        double user_planes[4][4];  //   L R B T
+        double view_planes[6][4];  // N L R B T H
 
         double user_basis[16];
         double user_angle;

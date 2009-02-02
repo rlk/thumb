@@ -257,44 +257,32 @@ double wrl::constraint::prep(int frusc, app::frustum **frusv)
     // Cache the visibility and determine the far plane distance.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        dist = std::max(dist, pool->view(frusi, 4,
+        dist = std::max(dist, pool->view(frusi, 5,
                                          frusv[frusi]->get_planes()));
     return dist;
 }
 
 void wrl::constraint::draw(int frusi, app::frustum *frusp)
 {
-/*
-    glPushAttrib(GL_ENABLE_BIT | GL_POLYGON_BIT |
-                 GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glPushMatrix();
+    // Draw the oriented constraint grid.
+
+    ogl::line_state_init();
     {
-        // Set up for Z-offset anti-aliased line drawing.
-
-        glEnable(GL_BLEND);
-        glEnable(GL_LINE_SMOOTH);
-
-        glDisable(GL_TEXTURE_2D);
-        glDisable(GL_LIGHTING);
-
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glDepthMask(GL_FALSE);
-
-        glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-
-        glLineWidth(2.0f);
-
-        // Draw the oriented constraint grid.
-
-        pool->draw_init();
+        glPushMatrix();
         {
-            pool->draw(0, true, false);
+            glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+
+            glLineWidth(2.0f);
+
+            pool->draw_init();
+            {
+                pool->draw(0, true, false);
+            }
+            pool->draw_fini();
         }
-        pool->draw_fini();
+        glPopMatrix();
     }
-    glPopMatrix();
-    glPopAttrib();
-*/
+    ogl::line_state_fini();
 }
 
 //-----------------------------------------------------------------------------

@@ -85,16 +85,20 @@ void app::user::set(const double p[3], const double q[4])
 void app::user::get_point(double *P, const double *p,
                           double *V, const double *q) const
 {
-    double M[16];
+    double M[16], v[3];
 
     // Determine the point direction of the given quaternion.
 
     set_quaternion(M, q);
 
+    v[0] = -M[ 8];
+    v[1] = -M[ 9];
+    v[2] = -M[10];
+
     // Transform the point position and direction to world space.
 
     mult_mat_vec3(P, current_M, p);
-    mult_mat_vec3(V, current_M, M + 8);
+    mult_xps_vec3(V, current_I, v);
 }
 
 //-----------------------------------------------------------------------------

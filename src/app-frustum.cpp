@@ -295,16 +295,26 @@ void app::frustum::calc_user_planes(const double *p)
 void app::frustum::calc_view_planes(const double *M,
                                     const double *I)
 {
+    // Compute the world-space view position.
+
     mult_mat_vec3(view_pos, M, user_pos);
 
     // Compute the world-space view frustum bounding planes.
 
-    mult_xps_vec4(view_planes[0], I, user_planes[0]);
-    mult_xps_vec4(view_planes[1], I, user_planes[1]);
-    mult_xps_vec4(view_planes[2], I, user_planes[2]);
-    mult_xps_vec4(view_planes[3], I, user_planes[3]);
+    double near_plane[4];
 
-    view_count = 4;
+    near_plane[0] = -user_basis[ 8];
+    near_plane[1] = -user_basis[ 9];
+    near_plane[2] = -user_basis[10];
+    near_plane[3] =  0;
+
+    mult_xps_vec4(view_planes[0], I, near_plane);     // N
+    mult_xps_vec4(view_planes[1], I, user_planes[0]); // L
+    mult_xps_vec4(view_planes[2], I, user_planes[1]); // R
+    mult_xps_vec4(view_planes[3], I, user_planes[2]); // B
+    mult_xps_vec4(view_planes[4], I, user_planes[3]); // T
+
+    view_count = 5;
 }
 
 void app::frustum::calc_view_points(double n, double f)
@@ -313,11 +323,16 @@ void app::frustum::calc_view_points(double n, double f)
 
     // Compute the world-space frustum corner vectors.
 
+    crossprod(v[0], view_planes[3], view_planes[1]);
+    crossprod(v[1], view_planes[2], view_planes[3]);
+    crossprod(v[2], view_planes[1], view_planes[4]);
+    crossprod(v[3], view_planes[4], view_planes[2]);
+/*    
     crossprod(v[0], view_planes[2], view_planes[0]);
     crossprod(v[1], view_planes[1], view_planes[2]);
     crossprod(v[2], view_planes[0], view_planes[3]);
     crossprod(v[3], view_planes[3], view_planes[1]);
-    
+*/  
     normalize(v[0]);
     normalize(v[1]);
     normalize(v[2]);
@@ -375,15 +390,15 @@ void app::frustum::set_horizon(double r)
 {
     // Use the view position and given radius to compute the horizon plane.
 
-    view_planes[4][0] = view_pos[0];
-    view_planes[4][1] = view_pos[1];
-    view_planes[4][2] = view_pos[2];
+    view_planes[5][0] = view_pos[0];
+    view_planes[5][1] = view_pos[1];
+    view_planes[5][2] = view_pos[2];
 
-    normalize(view_planes[4]);
+    normalize(view_planes[5]);
 
-    view_planes[4][3] = -r * r / sqrt(DOT3(view_pos, view_pos));
+    view_planes[5][3] = -r * r / sqrt(DOT3(view_pos, view_pos));
 
-    view_count = 5;
+    view_count = 6;
 }
 
 double app::frustum::get_w() const
@@ -901,7 +916,7 @@ void app::frustum::rect() const
 
 void app::frustum::overlay() const
 {
-    // Produce a unit-to-pixel projection for 2D overlay rendering.
+    // Produce a unit-to-pixel projection for 2D overlay.
 
     glMatrixMode(GL_PROJECTION);
     {

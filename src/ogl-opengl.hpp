@@ -127,6 +127,9 @@ namespace ogl
     bool check_ext(const char *);
 
     void init();
+
+    void line_state_init();
+    void line_state_fini();
 }
 
 //-----------------------------------------------------------------------------
