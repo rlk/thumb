@@ -207,7 +207,9 @@ void wrl::world::play_init()
     dWorldSetGravity(play_world, 0, -32, 0);
     dWorldSetAutoDisableFlag(play_world, 1);
 
-    // Create a body and segment for each active entity group.
+    // Create a body and mass for each active entity group.
+
+    mass_map play_mass;
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
         if ((id = (*i)->body()))
@@ -215,14 +217,12 @@ void wrl::world::play_init()
             if (play_body[id] == 0)
             {
                 dBodyID body = dBodyCreate(play_world);
+                dMass   mass;
+
+                dMassSetZero(&mass);
 
                 play_body[id] = body;
-
-                // Initialize the mass.
-
-                dMass mass;
-                dMassSetZero(&mass);
-                dBodySetMass(body, &mass);
+                play_mass[id] = mass;
 
                 // Associate the render node.
 
@@ -234,8 +234,11 @@ void wrl::world::play_init()
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
     {
-        dBodyID body = play_body[(*i)->body()];
+        id = (*i)->body();
+
+        dBodyID body = play_body[id];
         dGeomID geom;
+        dMass   mass;
 
         // Add the geom to the correct space.
 
@@ -254,26 +257,21 @@ void wrl::world::play_init()
             
             if (body)
             {
-                dMass total;
-                dMass local;
-
-                (*i)->get_mass(&local);
-
-                dBodyGetMass(body, &total);
-                dMassAdd(&total, &local);
-                dBodySetMass(body, &total);
+                (*i)->get_mass(&mass);
+                dMassAdd(&play_mass[id], &mass);
             }
         }
     }
 
     for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
-        if (dBodyID body = b->second)
+    {
+        int     id   = b->first;
+        dBodyID body = b->second;
+        dMass   mass = play_mass[id];
+
+        if (body)
         {
             // Center the body on its center of mass.
-
-            dMass mass;
-
-            dBodyGetMass(body, &mass);
 
             double M[16];
 
@@ -290,6 +288,7 @@ void wrl::world::play_init()
 
             ((ogl::node *) dBodyGetData(body))->transform(M);
         }
+    }
 
     // Create and attach all joints.
 

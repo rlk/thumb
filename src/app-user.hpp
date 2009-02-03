@@ -78,6 +78,7 @@ namespace app
         void turn(double, double, double, const double *);
         void turn(double, double, double);
         void move(double, double, double);
+        void look(double, double);
         void home();
 
         void tumble(const double *,

@@ -13,6 +13,8 @@
 #include <cassert>
 
 #include "wrl-world.hpp"
+#include "app-user.hpp"
+#include "app-frustum.hpp"
 #include "mode-mode.hpp"
 
 //-----------------------------------------------------------------------------
@@ -20,12 +22,21 @@
 double mode::mode::prep(int frusc, app::frustum **frusv)
 {
     assert(world);
+
+    // Prep the world.
+
     return world->prep_fill(frusc, frusv);
 }
 
 void mode::mode::draw(int frusi, app::frustum *frusp)
 {
     assert(world);
+
+    // Draw the world.
+
+     frusp->draw();
+    ::user->draw();
+
     world->draw_fill(frusi, frusp);
 }
 

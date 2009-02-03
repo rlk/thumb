@@ -38,6 +38,7 @@ namespace ogl
 namespace wrl
 {
     typedef std::map<int, dBodyID>     body_map;
+    typedef std::map<int, dMass>       mass_map;
     typedef std::map<int, ogl::node *> node_map;
     
     class world

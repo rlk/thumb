@@ -50,6 +50,8 @@ dev::mouse::~mouse()
 
 //-----------------------------------------------------------------------------
 
+#ifdef CONFIG_UNCONSTRAINED_TUMBLE
+
 bool dev::mouse::process_point(app::event *E)
 {
     load_mat(init_R, curr_R);    
@@ -75,6 +77,33 @@ bool dev::mouse::process_point(app::event *E)
     }
     return false;
 }
+
+#else
+
+bool dev::mouse::process_point(app::event *E)
+{
+    load_mat(init_R, curr_R);
+
+    set_quaternion(curr_R, E->data.point.q);
+
+    if (dragging)
+    {
+        double p0 = DEG(atan2(init_R[9], init_R[10]));
+        double p1 = DEG(atan2(curr_R[9], curr_R[10]));
+
+        double t0 = DEG(atan2(init_R[8], init_R[10]));
+        double t1 = DEG(atan2(curr_R[8], curr_R[10]));
+
+        ::user->look((t1 - t0) * view_turn_rate,
+                     (p0 - p1) * view_turn_rate);
+
+        ::host->post_draw();
+        return true;
+    }
+    return false;
+}
+
+#endif
 
 bool dev::mouse::process_click(app::event *E)
 {

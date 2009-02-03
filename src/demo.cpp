@@ -269,10 +269,10 @@ bool demo::process_event(app::event *E)
     case E_TIMER: R = process_timer(E); break;
     }
 
-    // Allow the device, the application mode, or the base to handle the event.
+    // Allow the application mode, the device, or the base to handle the event.
 
-    if (R || (input && input->process_event(E))
-          || (curr  &&  curr->process_event(E))
+    if (R || (curr  &&  curr->process_event(E))
+          || (input && input->process_event(E))
           || (          prog::process_event(E)))
 
         // If the event was handled, disable the attract mode.

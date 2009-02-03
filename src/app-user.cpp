@@ -134,6 +134,8 @@ app::node app::user::cycle_prev(app::node n)
 
 void app::user::turn(double rx, double ry, double rz, const double *R)
 {
+    // Turn in the given coordinate system.
+
     double T[16];
 
     load_xps(T, R);
@@ -183,6 +185,24 @@ void app::user::turn(double rx, double ry, double rz)
 void app::user::move(double dx, double dy, double dz)
 {
     Rmul_xlt_mat(current_M, dx, dy, dz);
+
+    load_inv(current_I, current_M);
+}
+
+void app::user::look(double dt, double dp)
+{
+    const double x = current_M[12];
+    const double y = current_M[13];
+    const double z = current_M[14];
+
+    // Apply a mouselook-style local rotation transform.
+
+    Lmul_xlt_inv(current_M, x, y, z);
+    Lmul_rot_mat(current_M, 0, 1, 0, dt);
+    Lmul_xlt_mat(current_M, x, y, z);
+    Rmul_rot_mat(current_M, 1, 0, 0, dp);
+
+    orthonormalize(current_M);
 
     load_inv(current_I, current_M);
 }
