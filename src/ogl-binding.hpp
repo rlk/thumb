@@ -15,6 +15,7 @@
 
 #include <string>
 
+#include "app-serial.hpp"
 #include "ogl-program.hpp"
 #include "ogl-texture.hpp"
 

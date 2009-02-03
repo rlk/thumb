@@ -106,6 +106,8 @@ app::serial::serial(const char *name) : file(name), head(0)
 app::serial::~serial()
 {
     save();
+
+    if (head) mxmlDelete(head);
 }
 
 //-----------------------------------------------------------------------------

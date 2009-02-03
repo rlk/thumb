@@ -14,6 +14,7 @@
 #include <cstring>
 
 #include "ogl-program.hpp"
+#include "app-serial.hpp"
 #include "app-data.hpp"
 
 //-----------------------------------------------------------------------------
@@ -38,15 +39,34 @@ void ogl::program::log(GLhandleARB handle, std::string& name)
     }
 }
 
+GLhandleARB ogl::program::compile(GLenum type, std::string& name,
+                                               std::string& text)
+{
+    GLhandleARB handle;
+
+    // Compile the given shader text.
+
+    if (!text.empty())
+    {
+        handle = glCreateShaderObjectARB(type);
+
+        const char *data = text.data();
+        GLint       size = text.size();
+
+        glShaderSourceARB (handle, 1, &data, &size);
+        glCompileShaderARB(handle);
+        
+        log(handle, name);
+    }
+
+    return handle;
+}
+
 //-----------------------------------------------------------------------------
 
 const ogl::program *ogl::program::current = NULL;
 
-ogl::program::program(std::string vert_name,
-                      std::string frag_name) :
-    vert_name(vert_name),
-    frag_name(frag_name),
-    vert(0), frag(0)
+ogl::program::program(std::string name) : name(name), vert(0), frag(0)
 {
     init();
 }
@@ -109,64 +129,71 @@ std::string ogl::program::load(std::string name)
 
 void ogl::program::init()
 {
-    // Load the shader files.
+    std::string path = "program/" + name;
 
-    std::string vert_txt = load(vert_name);
-    std::string frag_txt = load(frag_name);
+    app::serial file(path.c_str());
+    app::node   root;
+    app::node   curr;
 
-    // Compile the vertex shader.
-
-    if (!vert_txt.empty())
+    if ((root = app::find(file.get_head(), "program")))
     {
-        vert = glCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+        std::string vert_name(app::get_attr_s(root, "vert"));
+        std::string frag_name(app::get_attr_s(root, "frag"));
 
-        const char *data = vert_txt.data();
-        GLint       size = vert_txt.size();
+        // Load the shader files.
 
-        glShaderSourceARB (vert, 1, &data, &size);
-        glCompileShaderARB(vert);
-        
-        log(vert, vert_name);
+        std::string vert_text = load(vert_name);
+        std::string frag_text = load(frag_name);
+
+        // Compile the shaders.
+
+        vert = compile(GL_VERTEX_SHADER_ARB,   vert_name, vert_text);
+        frag = compile(GL_FRAGMENT_SHADER_ARB, frag_name, frag_text);
+
+        // Link the shader objects to a program object.
+
+        prog = glCreateProgramObjectARB();
+
+        if (vert) glAttachObjectARB(prog, vert);
+        if (frag) glAttachObjectARB(prog, frag);
+
+        // Bind the attributes.
+
+        for (curr = app::find(root,       "attribute"); curr;
+             curr = app::next(root, curr, "attribute"))
+
+            glBindAttribLocationARB(prog, app::get_attr_d(curr, "location"),
+                                          app::get_attr_s(curr, "name"));
+
+        // Link the program.
+
+        glLinkProgramARB(prog);
+        log(prog, vert_name);
+        OGLCK();
+
+        // Set the sampler uniforms.
+
+        bind();
+        {
+            for (curr = app::find(root,       "sampler"); curr;
+                 curr = app::next(root, curr, "sampler"))
+            {
+                std::string name(app::get_attr_s(curr, "name"));
+                int         unit=app::get_attr_d(curr, "unit");
+
+                uniform(name, unit);
+            
+                sampler_map[name] = unit;
+            }
+        }
+        free();
     }
-
-    // Compile the frag shader.
-
-    if (!frag_txt.empty())
-    {
-        frag = glCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
-
-        const char *data = frag_txt.data();
-        GLint       size = frag_txt.size();
-
-        glShaderSourceARB (frag, 1, &data, &size);
-        glCompileShaderARB(frag);
-        
-        log(frag, frag_name);
-    }
-
-    // Link these shader objects to a program object.
-
-    prog = glCreateProgramObjectARB();
-
-    if (vert) glAttachObjectARB(prog, vert);
-    if (frag) glAttachObjectARB(prog, frag);
-
-    // Bind the attributes as needed.  (HACK)
-
-    if (vert_txt.find("attribute vec3 Tangent")    != vert_txt.npos)
-        glBindAttribLocationARB(prog, 6, "Tangent");
-    if (vert_txt.find("attribute float Magnitude") != vert_txt.npos)
-        glBindAttribLocationARB(prog, 6, "Magnitude");
-
-    glLinkProgramARB(prog);
-
-    log(prog, vert_name);
-
-    OGLCK();
 }
 
 void ogl::program::fini()
 {
+    sampler_map.clear();
+
     if (prog) glDeleteObjectARB(prog);
     if (vert) glDeleteObjectARB(vert);
     if (frag) glDeleteObjectARB(frag);

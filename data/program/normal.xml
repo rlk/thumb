@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<program vert="glsl/dpy/normal.vert"
+         frag="glsl/dpy/normal.frag" >
+  <sampler name="map" unit="0" />
+</program>

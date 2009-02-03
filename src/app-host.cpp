@@ -586,43 +586,43 @@ void app::host::root_loop()
                 break;
             }
 
-        // Check for script input events.
-
-// TODO: re-enable
-//      poll_script();
-//      poll_listen();
-
-        // Advance to the current time, or by one JIFFY when benchmarking.
-
-        for (int tick = bench ? (tock + JIFFY) : SDL_GetTicks();
-             tick - tock >= JIFFY;
-             tock        += JIFFY)
-
-            process_event(E.mk_timer(JIFFY));
-
-        // Call the render handler.
-
-//      if (draw_flag) HACK
+        if (exit_flag == false)
         {
+            // Check for script input events.
+
+            // TODO: re-enable
+            //      poll_script();
+            //      poll_listen();
+
+            // Advance to the current time, or by one JIFFY when benchmarking.
+
+            for (int tick = bench ? (tock + JIFFY) : SDL_GetTicks();
+                 tick - tock >= JIFFY;
+                 tock        += JIFFY)
+
+                process_event(E.mk_timer(JIFFY));
+
+            // Call the render handler.
+
             process_event(E.mk_paint());
             process_event(E.mk_frame());
 
             draw_flag = false;
-        }
 
-        // Count frames and record a movie, if requested.
+            // Count frames and record a movie, if requested.
         
-        count++;
+            count++;
 
-        if (movie && (count % movie) == 0)
-        {
-            char buf[256];
+            if (movie && (count % movie) == 0)
+            {
+                char buf[256];
 
-            sprintf(buf, "frame%05d.png", count / movie);
+                sprintf(buf, "frame%05d.png", count / movie);
 
-            ::prog->screenshot(std::string(buf),
-                               ::host->get_window_w(),
-                               ::host->get_window_h());
+                ::prog->screenshot(std::string(buf),
+                                   ::host->get_window_w(),
+                                   ::host->get_window_h());
+            }
         }
     }
 }
@@ -787,7 +787,7 @@ bool app::host::process_event(event *E)
 
     send(E);
 
-    // Process a START event first.
+    // Ensure START events are processed by the host before anyone else.
 
     if (E->get_type() == E_START)
     {
@@ -796,28 +796,22 @@ bool app::host::process_event(event *E)
         return true;
     }
 
-    // Allow the application to process the event.
+    // Allow the application or the calibration to process the event.
 
-    ::prog->process_event(E);
+    if (::prog->process_event(E)
+        ||      process_calib(E))
+        return true;
 
     // Handle the event locally, as needed.
 
     switch (E->get_type())
     {
-    case E_PAINT: draw(); sync(); return true;
-    case E_FRAME: swap();         return true;
-    default:
-        return process_calib(E);
+    case E_PAINT: draw(); sync();           return true;
+    case E_FRAME: swap();                   return true;
+    case E_CLOSE: process_close(E); sync(); return true;
     }
 
-    // Process a CLOSE event last.
-
-    if (E->get_type() == E_CLOSE)
-    {
-        process_close(E);
-        sync();
-        return true;
-    }
+    return false;
 }
 
 //-----------------------------------------------------------------------------

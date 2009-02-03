@@ -14,6 +14,7 @@
 #define OGL_PROGRAM_HPP
 
 #include <string>
+#include <map>
 
 #include "ogl-opengl.hpp"
 
@@ -23,14 +24,18 @@ namespace ogl
 {
     class program
     {
-        std::string vert_name;
-        std::string frag_name;
+        std::string name;
 
         GLhandleARB vert;
         GLhandleARB frag;
         GLhandleARB prog;
 
+        std::map<std::string, int> sampler_map;
+
         void log(GLhandleARB, std::string&);
+
+        GLhandleARB compile(GLenum, std::string&,
+                                    std::string&);
 
         std::string load(std::string);
 
@@ -38,15 +43,15 @@ namespace ogl
 
         static const program *current;
 
-        const std::string& get_vert_name() const { return vert_name; }
-        const std::string& get_frag_name() const { return frag_name; }
+        const std::string& get_name() const { return name; }
 
-        program(std::string, std::string);
+        program(std::string);
        ~program();
 
         void bind() const;
         void free() const;
 
+        int  unit(std::string& name) { return sampler_map[name]; }
         void init();
         void fini();
 

@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include "ogl-binding.hpp"
+#include "app-serial.hpp"
 #include "app-glob.hpp"
 
 //-----------------------------------------------------------------------------
@@ -19,25 +20,31 @@ GLfloat ogl::binding::split[4];
 
 //-----------------------------------------------------------------------------
 
-ogl::binding::binding(std::string name) : name(name)
+ogl::binding::binding(std::string name) : name(name), depth(0), color(0)
 {
-    color = glob->load_program("object-color.vert", "object-color.frag");
-    depth = glob->load_program("object-depth.vert", "object-depth.frag");
+    std::string path = "material/" + name + ".xml";
 
-    diff = glob->load_texture("solid/metal_box_diffuse.png");
-    bump = glob->load_texture("solid/metal_box_bump.png");
-/*
-    diff = glob->load_texture("solid/world-200408-color-05-00-00.png");
-    bump = glob->load_texture("solid/world-normal-05-00-00.png");
-*/
+    app::serial file(path.c_str());
+    app::node   root;
+    app::node   node;
+
+    if ((root = app::find(file.get_head(), "material")))
+    {
+        if ((node = app::find(root, "program", "mode", "color")))
+            color = glob->load_program(app::get_attr_s(node, "name"));
+
+        if ((node = app::find(root, "program", "mode", "depth")))
+            depth = glob->load_program(app::get_attr_s(node, "name"));
+    }
     init();
 }
 
 ogl::binding::~binding()
 {
+/*
     glob->free_texture(bump);
     glob->free_texture(diff);
-
+*/
     glob->free_program(depth);
     glob->free_program(color);
 }
@@ -68,6 +75,8 @@ bool ogl::binding::color_eq(const binding *that) const
 
 void ogl::binding::bind(bool c) const
 {
+    // TODO: Minimize rebindings
+
     if (c)
     {
         color->bind();
@@ -88,21 +97,8 @@ void ogl::binding::bind(bool c) const
 
 void ogl::binding::init()
 {
-    color->bind();
-    {
-        color->uniform("diffuse", 0);
-        color->uniform("bump",    1);
-        color->uniform("shadow0", 2);
-        color->uniform("shadow1", 3);
-        color->uniform("shadow2", 4);
-    }
-    color->free();
-
-    depth->bind();
-    {
-        depth->uniform("diffuse", 0);
-    }
-    depth->free();
+    assert(depth);
+    assert(color);
 }
 
 void ogl::binding::fini()

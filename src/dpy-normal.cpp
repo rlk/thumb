@@ -156,15 +156,8 @@ bool dpy::normal::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((P = ::glob->load_program("glsl/dpy/normal.vert",
-                                  "glsl/dpy/normal.frag")))
-    {
-        P->bind();
-        {
-            P->uniform("map", 0);
-        }
-        P->free();
-    }
+    P = ::glob->load_program("normal.xml");
+
     return false;
 }
 

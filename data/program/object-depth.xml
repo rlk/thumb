@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<program vert="object-depth.vert"
+         frag="object-depth.frag" >
+  <sampler name="diffuse" unit="0" />
+</program>

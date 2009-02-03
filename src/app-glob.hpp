@@ -76,7 +76,9 @@ namespace app
 
         // Named, reference-counted GL state.
 
-        const ogl::program *load_program(std::string, std::string);
+        const ogl::program *load_program(std::string, std::string) { return 0; } // HACK HACK HACK
+
+        const ogl::program *load_program(std::string);
         const ogl::texture *load_texture(std::string, GLenum=GL_LINEAR);
         const ogl::binding *load_binding(std::string);
         const ogl::surface *load_surface(std::string);
@@ -86,7 +88,7 @@ namespace app
         const ogl::binding *dupe_binding(const ogl::binding *);
         const ogl::surface *dupe_surface(const ogl::surface *);
 
-        void free_program(std::string, std::string);
+        void free_program(std::string);
         void free_texture(std::string);
         void free_binding(std::string);
         void free_surface(std::string);
