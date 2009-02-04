@@ -20,7 +20,10 @@ GLfloat ogl::binding::split[4];
 
 //-----------------------------------------------------------------------------
 
-ogl::binding::binding(std::string name) : name(name), depth(0), color(0)
+ogl::binding::binding(std::string name) :
+    name(name),
+    depth_program(0),
+    color_program(0)
 {
     std::string path = "material/" + name + ".xml";
 
@@ -30,23 +33,61 @@ ogl::binding::binding(std::string name) : name(name), depth(0), color(0)
 
     if ((root = app::find(file.get_head(), "material")))
     {
+        // Load the color-mode program.
+
         if ((node = app::find(root, "program", "mode", "color")))
-            color = glob->load_program(app::get_attr_s(node, "name"));
+            color_program = glob->load_program(app::get_attr_s(node, "file"));
+
+        // Load the depth-mode program.
 
         if ((node = app::find(root, "program", "mode", "depth")))
-            depth = glob->load_program(app::get_attr_s(node, "name"));
+            depth_program = glob->load_program(app::get_attr_s(node, "file"));
+
+        // Load all textures.
+
+        for (node = app::find(root,       "texture"); node;
+             node = app::next(root, node, "texture"))
+        {
+            std::string name(app::get_attr_s(node, "name"));
+            std::string file(app::get_attr_s(node, "file"));
+
+            std::string path = "texture/" + file;
+
+            // Determine the texture unit binding for each texture.
+
+            GLenum depth_unit = depth_program ? depth_program->unit(name) : 0;
+            GLenum color_unit = color_program ? color_program->unit(name) : 0;
+
+            // Load the texture (with reference count +2).
+
+            if (depth_unit)
+                depth_texture[depth_unit] = ::glob->load_texture(path);
+            if (color_unit)
+                color_texture[color_unit] = ::glob->load_texture(path);
+        }
     }
     init();
 }
 
 ogl::binding::~binding()
 {
-/*
-    glob->free_texture(bump);
-    glob->free_texture(diff);
-*/
-    glob->free_program(depth);
-    glob->free_program(color);
+    // Free all textures.
+
+    unit_map::iterator i;
+
+    for (i = color_texture.begin(); i != color_texture.end(); ++i)
+        ::glob->free_texture(i->second);
+
+    for (i = depth_texture.begin(); i != depth_texture.end(); ++i)
+        ::glob->free_texture(i->second);
+
+    color_texture.clear();
+    depth_texture.clear();
+
+    // Free all programs.
+
+    if (depth_program) glob->free_program(depth_program);
+    if (color_program) glob->free_program(color_program);
 }
 
 //-----------------------------------------------------------------------------
@@ -63,12 +104,12 @@ void ogl::binding::set_split(GLfloat a, GLfloat b, GLfloat c, GLfloat d)
 
 bool ogl::binding::depth_eq(const binding *that) const
 {
-    return (depth == that->depth);
+    return (depth_program == that->depth_program);
 }
 
 bool ogl::binding::color_eq(const binding *that) const
 {
-    return (color == that->color);
+    return (color_program == that->color_program);
 }
 
 //-----------------------------------------------------------------------------
@@ -77,19 +118,23 @@ void ogl::binding::bind(bool c) const
 {
     // TODO: Minimize rebindings
 
+    unit_map::const_iterator i;
+
     if (c)
     {
-        color->bind();
-        color->uniform("split", split[0], split[1], split[2], split[3]);
+        if (color_program)
+            color_program->bind();
 
-        diff->bind(GL_TEXTURE0);
-        bump->bind(GL_TEXTURE1);
+        for (i = color_texture.begin(); i != color_texture.end(); ++i)
+            i->second->bind(i->first);
     }
     else
     {
-        depth->bind();
+        if (depth_program)
+            depth_program->bind();
 
-        diff->bind(GL_TEXTURE0);
+        for (i = color_texture.begin(); i != color_texture.end(); ++i)
+            i->second->bind(i->first);
     }
 }
 
@@ -97,8 +142,6 @@ void ogl::binding::bind(bool c) const
 
 void ogl::binding::init()
 {
-    assert(depth);
-    assert(color);
 }
 
 void ogl::binding::fini()

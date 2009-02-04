@@ -14,6 +14,7 @@
 #define OGL_BINDING_HPP
 
 #include <string>
+#include <map>
 
 #include "app-serial.hpp"
 #include "ogl-program.hpp"
@@ -23,17 +24,19 @@
 
 namespace ogl
 {
+    typedef std::map<GLenum, const ogl::texture *> unit_map;
+
     class binding
     {
         static GLfloat split[4];
 
         std::string name;
 
-        const ogl::program *depth;
-        const ogl::program *color;
+        const ogl::program *depth_program;
+        const ogl::program *color_program;
 
-        const ogl::texture *diff;
-        const ogl::texture *bump;
+        unit_map depth_texture;
+        unit_map color_texture;
 
     public:
 

@@ -30,7 +30,7 @@ namespace ogl
         GLhandleARB frag;
         GLhandleARB prog;
 
-        std::map<std::string, int> sampler_map;
+        std::map<std::string, GLenum> sampler_map;
 
         void log(GLhandleARB, std::string&);
 
@@ -51,9 +51,10 @@ namespace ogl
         void bind() const;
         void free() const;
 
-        int  unit(std::string& name) { return sampler_map[name]; }
         void init();
         void fini();
+
+        GLenum unit(std::string&) const;
 
         void uniform(std::string, int)                            const;
         void uniform(std::string, double)                         const;
