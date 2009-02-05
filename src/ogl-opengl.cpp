@@ -315,9 +315,8 @@ void ogl::init()
 
     if (has_fbo && has_shader)
     {
-        option = ::conf->get_s("shadows");
+        option = ::conf->get_s("shadow_method");
 
-        if (option == "csm")  do_shadows = 2;
         if (option == "map")  do_shadows = 1;
         else                  do_shadows = 0;
 

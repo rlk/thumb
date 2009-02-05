@@ -13,12 +13,20 @@
 #ifndef OGL_BINDING_HPP
 #define OGL_BINDING_HPP
 
+#include <vector>
 #include <string>
 #include <map>
 
 #include "app-serial.hpp"
-#include "ogl-program.hpp"
-#include "ogl-texture.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class frame;
+    class program;
+    class texture;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -28,6 +36,8 @@ namespace ogl
 
     class binding
     {
+        static std::vector<ogl::frame *> shadow;
+
         static GLfloat split[4];
 
         std::string name;
@@ -38,7 +48,21 @@ namespace ogl
         unit_map depth_texture;
         unit_map color_texture;
 
+        static bool init_shadow();
+
     public:
+
+        static int  shadow_count();
+
+        static bool bind_shadow_frame(int);
+        static bool bind_shadow_color(int, GLenum=GL_TEXTURE0);
+        static bool bind_shadow_depth(int, GLenum=GL_TEXTURE0);
+
+        static void draw_shadow_color(int);
+
+        static void free_shadow_frame(int);
+        static void free_shadow_color(int);
+        static void free_shadow_depth(int);
 
         const std::string& get_name() const { return name; }
 

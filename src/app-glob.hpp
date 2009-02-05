@@ -101,13 +101,18 @@ namespace app
         // Anonymous GL state.
 
         ogl::pool  *new_pool ();
-        ogl::image *new_image(GLsizei, GLsizei,
+        ogl::image *new_image(GLsizei,
+                              GLsizei,
                               GLenum=GL_TEXTURE_2D,
                               GLenum=GL_RGBA8,
                               GLenum=GL_RGBA,
                               GLenum=GL_UNSIGNED_BYTE);
-        ogl::frame *new_frame(GLsizei, GLsizei, GLenum, GLenum,
-                              bool=true, bool=false);
+        ogl::frame *new_frame(GLsizei,
+                              GLsizei,
+                              GLenum=GL_TEXTURE_2D,
+                              GLenum=GL_RGBA8,
+                              bool=true,
+                              bool=false);
 
         void free_pool (ogl::pool  *);
         void free_image(ogl::image *);

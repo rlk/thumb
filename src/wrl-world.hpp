@@ -30,7 +30,6 @@ namespace ogl
     class unit;
     class node;
     class pool;
-    class frame;
 }
 
 //-----------------------------------------------------------------------------
@@ -90,10 +89,6 @@ namespace wrl
         wrl::operation_l redo_list;
 
         void doop(wrl::operation_p);
-
-        // Stuff to be moved to where it belongs.
-
-        ogl::frame *shadow[3];
 
     public:
 

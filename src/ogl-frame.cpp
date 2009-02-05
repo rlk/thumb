@@ -148,7 +148,48 @@ void ogl::frame::draw(int w, int h) const
             glLoadIdentity();
         }
 
-        glRecti(-1, -1, +1, +1);
+//      glRecti(-1, -1, +1, +1);
+        glRecti(-1, -1, 0, 0);
+
+        glMatrixMode(GL_PROJECTION);
+        {
+            glPopMatrix();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glPopMatrix();
+        }
+    }
+    free_color(GL_TEXTURE0);
+}
+
+void ogl::frame::draw() const
+{
+    bind_color(GL_TEXTURE0);
+    {
+        glMatrixMode(GL_PROJECTION);
+        {
+            glPushMatrix();
+            glLoadIdentity();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glPushMatrix();
+            glLoadIdentity();
+        }
+
+        glBegin(GL_QUADS);
+        {
+            glTexCoord2f(0.0f, 0.0f);
+            glVertex2f(-1.0f, -1.0f);
+            glTexCoord2f(1.0f, 0.0f);
+            glVertex2f( 0.0f, -1.0f);
+            glTexCoord2f(1.0f, 1.0f);
+            glVertex2f( 0.0f,  0.0f);
+            glTexCoord2f(0.0f, 1.0f);
+            glVertex2f(-1.0f,  0.0f);
+        }
+        glEnd();
 
         glMatrixMode(GL_PROJECTION);
         {

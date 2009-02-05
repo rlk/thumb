@@ -28,17 +28,9 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::world::world() : light_P(30), light_T(30), serial(1)
+//wrl::world::world() : light_P(30), light_T(30), serial(1)
+wrl::world::world() : light_P(45), light_T(0), serial(1)
 {
-/*
-    shadow[0] = 0;
-    shadow[1] = 0;
-    shadow[2] = 0;
-*/
-    shadow[0] = glob->new_frame(1024, 1024, GL_TEXTURE_2D, 0, true, false);
-    shadow[1] = glob->new_frame(1024, 1024, GL_TEXTURE_2D, 0, true, false);
-    shadow[2] = glob->new_frame(1024, 1024, GL_TEXTURE_2D, 0, true, false);
-
     // Initialize the editor physical system.
 
     dInitODE();
@@ -63,10 +55,6 @@ wrl::world::world() : light_P(30), light_T(30), serial(1)
 
 wrl::world::~world()
 {
-    if (shadow[2]) glob->free_frame(shadow[2]);
-    if (shadow[1]) glob->free_frame(shadow[1]);
-    if (shadow[0]) glob->free_frame(shadow[0]);
-
     // Delete all operations.
 
     while (!undo_list.empty())
@@ -1116,14 +1104,14 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     double  l[3];
     GLfloat L[4];
 
-    l[0] = sin(RAD(light_T)) * cos(RAD(light_P));
-    l[1] =                     sin(RAD(light_P));
-    l[2] = cos(RAD(light_T)) * cos(RAD(light_P));
+    l[0] = sin(RAD(light_T)) * cos(RAD(light_P)) * 64;
+    l[1] =                     sin(RAD(light_P)) * 64;
+    l[2] = cos(RAD(light_T)) * cos(RAD(light_P)) * 64;
 
     L[0] = GLfloat(l[0]);
     L[1] = GLfloat(l[1]);
     L[2] = GLfloat(l[2]);
-    L[3] = 0.0;
+    L[3] = 1.0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
@@ -1134,6 +1122,58 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
         fill_pool->draw(frusi, true, false);
     }
     fill_pool->draw_fini();
+
+    // Render the light view.
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+
+    if (ogl::binding::bind_shadow_frame(0))
+    {
+        double M[16];
+        double I[16];
+        app::frustum F(0, 1024, 1024);
+
+        F.calc_split(*frusp, M, I, l, 0, 1);
+
+        double f = fill_pool->view(8, 5, F.get_planes());
+        F.calc_projection(1, f);
+        F.draw();
+
+        // View from the light's perspective.
+
+        glLoadMatrixd(I);
+
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);
+
+        fill_pool->draw_init();
+        {
+            fill_pool->draw(8, true, false);
+        }
+        fill_pool->draw_fini();
+        frusp->wire();
+
+        ogl::binding::free_shadow_frame(0);
+
+        glUseProgramObjectARB(0);
+        glPushAttrib(GL_ENABLE_BIT);
+        {
+            glEnable(GL_TEXTURE_2D);
+            glDisable(GL_LIGHTING);
+            glDisable(GL_DEPTH_TEST);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            ogl::binding::draw_shadow_color(0);
+        }
+        glPopAttrib();
+    }
+
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+    glPopMatrix();
 }
 
 void wrl::world::draw_line(int frusi, app::frustum *frusp)

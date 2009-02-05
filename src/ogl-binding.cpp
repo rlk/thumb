@@ -10,13 +10,92 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "ogl-binding.hpp"
-#include "app-serial.hpp"
+#include "app-conf.hpp"
 #include "app-glob.hpp"
+#include "ogl-frame.hpp"
+#include "ogl-texture.hpp"
+#include "ogl-program.hpp"
+#include "ogl-binding.hpp"
 
 //-----------------------------------------------------------------------------
 
 GLfloat ogl::binding::split[4];
+
+std::vector<ogl::frame *> ogl::binding::shadow;
+
+bool ogl::binding::init_shadow()
+{
+    // Initialize the shadow maps if necessary.
+
+    if (shadow.empty())
+    {
+        if (ogl::do_shadows)
+        {
+            int n = ::conf->get_i("shadow_map_splits");
+            int s = ::conf->get_i("shadow_map_resolution");
+
+            shadow.reserve(n);
+
+            for (int i = 0; i < n; ++i)
+                shadow.push_back(::glob->new_frame(s, s));
+        }
+    }
+    return !shadow.empty();
+}
+
+bool ogl::binding::bind_shadow_frame(int i)
+{
+    if (init_shadow() && shadow[i])
+    {
+        shadow[i]->bind();
+        return true;
+    }
+    return false;
+}
+
+bool ogl::binding::bind_shadow_color(int i, GLenum unit)
+{
+    if (init_shadow() && shadow[i])
+    {
+        shadow[i]->bind_color(unit);
+        return true;
+    }
+    return false;
+}
+
+bool ogl::binding::bind_shadow_depth(int i, GLenum unit)
+{
+    if (init_shadow() && shadow[i])
+    {
+        shadow[i]->bind_depth(unit);
+        return true;
+    }
+    return false;
+}
+
+void ogl::binding::draw_shadow_color(int i)
+{
+    if (shadow[i])
+        shadow[i]->draw();
+}
+
+void ogl::binding::free_shadow_frame(int i)
+{
+    if (shadow[i])
+        shadow[i]->free();
+}
+
+void ogl::binding::free_shadow_color(int i)
+{
+    if (shadow[i])
+        shadow[i]->free_color();
+}
+
+void ogl::binding::free_shadow_depth(int i)
+{
+    if (shadow[i])
+        shadow[i]->free_depth();
+}
 
 //-----------------------------------------------------------------------------
 
@@ -66,7 +145,6 @@ ogl::binding::binding(std::string name) :
                 color_texture[color_unit] = ::glob->load_texture(path);
         }
     }
-    init();
 }
 
 ogl::binding::~binding()

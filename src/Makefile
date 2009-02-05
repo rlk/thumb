@@ -13,8 +13,8 @@ TARG= thumb
 OBJS=   util.o \
 	dir.o \
 	ode.o \
-	obj.o \
 	matrix.o \
+	ogl-obj.o \
 	ogl-lut.o \
 	ogl-aabb.o \
 	ogl-binding.o \

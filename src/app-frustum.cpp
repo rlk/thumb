@@ -327,12 +327,7 @@ void app::frustum::calc_view_points(double n, double f)
     crossprod(v[1], view_planes[2], view_planes[3]);
     crossprod(v[2], view_planes[1], view_planes[4]);
     crossprod(v[3], view_planes[4], view_planes[2]);
-/*    
-    crossprod(v[0], view_planes[2], view_planes[0]);
-    crossprod(v[1], view_planes[1], view_planes[2]);
-    crossprod(v[2], view_planes[0], view_planes[3]);
-    crossprod(v[3], view_planes[3], view_planes[1]);
-*/  
+
     normalize(v[0]);
     normalize(v[1]);
     normalize(v[2]);
@@ -386,6 +381,144 @@ void app::frustum::calc_projection(double n, double f)
                     user_pos[2]);
 }
 
+void app::frustum::calc_split(frustum& that, double *B, double *I,
+                              const double *L, double c0, double c1)
+{
+    // Compute a light frustum encompassing THAT frustum, over the view-space
+    // range C0 to C1, as seen by the light at position L. Begin by computing
+    // the corners of the C0 to C1 subset of THAT frustum.
+
+    const double d0 = 1.0 - c0;
+    const double d1 = 1.0 - c1;
+
+    double p[8][3];
+
+    for (int i = 0, j = 4; i < 4; ++i, ++j)
+    {
+        p[i][0] = c0 * that.view_points[j][0] + d0 * that.view_points[i][0];
+        p[i][1] = c0 * that.view_points[j][1] + d0 * that.view_points[i][1];
+        p[i][2] = c0 * that.view_points[j][2] + d0 * that.view_points[i][2];
+
+        p[j][0] = c1 * that.view_points[j][0] + d1 * that.view_points[i][0];
+        p[j][1] = c1 * that.view_points[j][1] + d1 * that.view_points[i][1];
+        p[j][2] = c1 * that.view_points[j][2] + d1 * that.view_points[i][2];
+    }
+
+    // Compute the center of THAT frustum, giving the light center.
+
+    double c[3];
+
+    // TODO: See what happens if this point is placed on the near plane.
+
+    c[0] = (p[0][0] + p[3][0] + p[4][0] + p[7][0]) * 0.25;
+    c[1] = (p[0][1] + p[3][1] + p[4][1] + p[7][1]) * 0.25;
+    c[2] = (p[0][2] + p[3][2] + p[4][2] + p[7][2]) * 0.25;
+
+    // Find the transformation matrix for this light's coordinate system...
+
+    load_idt(B);
+
+    // The Z axis is the vector from the light center to the light position.
+
+    B[ 8] = L[0] - c[0];
+    B[ 9] = L[1] - c[1];
+    B[10] = L[2] - c[2];
+
+    normalize(B + 8);
+
+    // The X axis lies along one of the horizontal edges of THAT frustum.
+    // TODO: there's probably a smarter way to select frustum orientation.
+
+    B[ 0] = p[5][0] - p[4][0];
+    B[ 1] = p[5][1] - p[4][1];
+    B[ 2] = p[5][2] - p[4][2];
+
+    normalize(B + 0);
+
+    // The Y axis is the cross product of these.
+
+    crossprod(B + 4, B + 8, B + 0);
+    normalize(B + 4);
+
+    // Be sure the X axis is orthogonal...
+
+    crossprod(B + 0, B + 4, B + 8);
+    normalize(B + 0);
+
+    // And move the origin at the light source position.
+
+    B[12] = L[0];
+    B[13] = L[1];
+    B[14] = L[2];
+
+    // Compute the inverse... TODO optimize this.
+
+    load_inv(I, B);
+
+    // Transform the corners of THAT frustum into this light space.
+
+    double q[8][3];
+
+    mult_mat_vec3(q[0], I, p[0]);
+    mult_mat_vec3(q[1], I, p[1]);
+    mult_mat_vec3(q[2], I, p[2]);
+    mult_mat_vec3(q[3], I, p[3]);
+    mult_mat_vec3(q[4], I, p[4]);
+    mult_mat_vec3(q[5], I, p[5]);
+    mult_mat_vec3(q[6], I, p[6]);
+    mult_mat_vec3(q[7], I, p[7]);
+
+    // Project these corners onto a common plane at unit distance.
+
+    q[0][0] /= -q[0][2]; q[0][1] /= -q[0][2];
+    q[1][0] /= -q[1][2]; q[1][1] /= -q[1][2];
+    q[2][0] /= -q[2][2]; q[2][1] /= -q[2][2];
+    q[3][0] /= -q[3][2]; q[3][1] /= -q[3][2];
+    q[4][0] /= -q[4][2]; q[4][1] /= -q[4][2];
+    q[5][0] /= -q[5][2]; q[5][1] /= -q[5][2];
+    q[6][0] /= -q[6][2]; q[6][1] /= -q[6][2];
+    q[7][0] /= -q[7][2]; q[7][1] /= -q[7][2];
+
+    // Find the orthogonal frustum extrema.
+
+    double l = min8(q[0][0], q[1][0], q[2][0], q[3][0],
+                    q[4][0], q[5][0], q[6][0], q[7][0]);
+    double r = max8(q[0][0], q[1][0], q[2][0], q[3][0],
+                    q[4][0], q[5][0], q[6][0], q[7][0]);
+    double b = min8(q[0][1], q[1][1], q[2][1], q[3][1],
+                    q[4][1], q[5][1], q[6][1], q[7][1]);
+    double t = max8(q[0][1], q[1][1], q[2][1], q[3][1],
+                    q[4][1], q[5][1], q[6][1], q[7][1]);
+
+    // Set up this frustum.
+
+    load_idt(user_basis);
+    load_idt(T);
+
+    user_points[0][0] =  l;
+    user_points[0][1] =  b;
+    user_points[0][2] = -1;
+
+    user_points[1][0] =  r;
+    user_points[1][1] =  b;
+    user_points[1][2] = -1;
+
+    user_points[2][0] =  l;
+    user_points[2][1] =  t;
+    user_points[2][2] = -1;
+
+    user_points[3][0] =  r;
+    user_points[3][1] =  t;
+    user_points[3][2] = -1;
+
+    double O[3] = { 0, 0, 0 };
+
+    calc_user_planes(O);
+    calc_view_planes(B, I);
+
+    // This frustum is now ready for view culling and calc_projection.
+}
+
 void app::frustum::set_horizon(double r)
 {
     // Use the view position and given radius to compute the horizon plane.
@@ -400,6 +533,8 @@ void app::frustum::set_horizon(double r)
 
     view_count = 6;
 }
+
+//-----------------------------------------------------------------------------
 
 double app::frustum::get_w() const
 {
@@ -876,6 +1011,50 @@ bool app::frustum::process_event(app::event *E)
 }
 
 //-----------------------------------------------------------------------------
+
+void app::frustum::wire() const
+{
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        glDisable(GL_TEXTURE_2D);
+        glDisable(GL_LIGHTING);
+        glDisable(GL_DEPTH_TEST);
+
+        glColor3f(1.0f, 1.0f, 0.0f);
+
+        glBegin(GL_LINES);
+        {
+            glVertex3dv(view_points[0]);
+            glVertex3dv(view_points[4]);
+            glVertex3dv(view_points[1]);
+            glVertex3dv(view_points[5]);
+            glVertex3dv(view_points[2]);
+            glVertex3dv(view_points[6]);
+            glVertex3dv(view_points[3]);
+            glVertex3dv(view_points[7]);
+        }
+        glEnd();
+
+        glBegin(GL_LINE_LOOP);
+        {
+            glVertex3dv(view_points[0]);
+            glVertex3dv(view_points[1]);
+            glVertex3dv(view_points[3]);
+            glVertex3dv(view_points[2]);
+        }
+        glEnd();
+
+        glBegin(GL_LINE_LOOP);
+        {
+            glVertex3dv(view_points[4]);
+            glVertex3dv(view_points[5]);
+            glVertex3dv(view_points[7]);
+            glVertex3dv(view_points[6]);
+        }
+        glEnd();
+    }
+    glPopAttrib();
+}
 
 void app::frustum::draw() const
 {

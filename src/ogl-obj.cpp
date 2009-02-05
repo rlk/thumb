@@ -13,7 +13,7 @@
 #include <iostream>
 #include <sstream>
 
-#include "obj.hpp"
+#include "ogl-obj.hpp"
 #include "app-data.hpp"
 #include "app-glob.hpp"
 #include "matrix.hpp"

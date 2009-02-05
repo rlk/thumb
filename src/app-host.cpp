@@ -670,12 +670,15 @@ void app::host::draw()
     // Do render prepass and determine view distance (possibly expensive).
 
     double min_dist = 1.0;
-    double max_dist = ::prog->prep(frusc, frusv);
+    double max_dist = std::max(10.0, ::prog->prep(frusc, frusv));
 
     // Cache the frustum projections (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->calc_projection(min_dist, max_dist);
+    {
+        (*i)->calc_projection (min_dist, max_dist);
+        (*i)->calc_view_points(min_dist, max_dist);
+    }
 
     // Clear the entire window.
 
