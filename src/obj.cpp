@@ -70,34 +70,6 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
     if (si < 0) si += sv.size(); else si--;
     if (ni < 0) ni += nv.size(); else ni--;
 
-    // HACK
-
-    for (int vj = 0; vj < vi; ++vj)
-        if (fabs(vv[vi].v[0] - vv[vj].v[0]) < 0.01 &&
-            fabs(vv[vi].v[1] - vv[vj].v[1]) < 0.01 &&
-            fabs(vv[vi].v[2] - vv[vj].v[2]) < 0.01)
-        {
-            vi = vj;
-            break;
-        }
-
-    for (int sj = 0; sj < si; ++sj)
-        if (fabs(sv[si].v[0] - sv[sj].v[0]) < 0.01 &&
-            fabs(sv[si].v[1] - sv[sj].v[1]) < 0.01)
-        {
-            si = sj;
-            break;
-        }
-
-    for (int nj = 0; nj < ni; ++nj)
-        if (fabs(nv[ni].v[0] - nv[nj].v[0]) < 0.01 &&
-            fabs(nv[ni].v[1] - nv[nj].v[1]) < 0.01 &&
-            fabs(nv[ni].v[2] - nv[nj].v[2]) < 0.01)
-        {
-            ni = nj;
-            break;
-        }
-
     // If we have not seen this index set before...
 
     iset key(vi, si, ni);
