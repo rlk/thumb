@@ -1,5 +1,4 @@
 # Exported from Wings 3D 0.98.34
-mtllib domino.mtl
 o cube2
 #8 vertices, 6 faces
 v -0.50000000 -1.00000000 0.10000000
@@ -35,7 +34,7 @@ vn 1.00000000 0.0000000e+0 0.0000000e+0
 vn 0.0000000e+0 -1.00000000 0.0000000e+0
 vn 0.0000000e+0 0.0000000e+0 -1.00000000
 g cube2_black
-usemtl black
+usemtl default
 f 1//1 4//10 3//7 2//4
 f 1//2 5//13 8//23 4//12
 f 2//6 6//18 5//15 1//3

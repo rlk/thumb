@@ -113,10 +113,20 @@ void ogl::mesh::calc_tangent()
         tk[2] += t[2];
     }
 
-    // Normalize all tangent vectors.
+    // Orthonormalize all tangent vectors.
 
-    for (vec3_v::iterator ti = tv.begin(); ti != tv.end(); ++ti)
-        normalize(ti->v);
+    assert(tv.size() == nv.size());
+
+    for (unsigned int i = 0; i < tv.size(); ++i)
+    {
+        GLfloat b[3];
+
+        crossprod(b, nv[i].v, tv[i].v);
+        normalize(b);
+
+        crossprod(tv[i].v, b, nv[i].v);
+        normalize(tv[i].v);
+    }
 }
 
 //-----------------------------------------------------------------------------

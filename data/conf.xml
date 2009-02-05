@@ -92,8 +92,21 @@
   <option type="int" name="key_make_joint">106</option>       <!-- j -->
 
   <option type="int" name="key_selection_invert">105</option> <!-- i -->
-  <option type="int" name="key_selection_extend">101</option> <!-- e -->
+  <option type="int" name="key_selection_extend">103</option> <!-- g -->
   <option type="int" name="key_selection_clone">99</option>   <!-- c -->
+
+  <!-- Common keyboard commands -->
+
+  <option type="int" name="key_home">13</option>            <!-- Return    -->
+  <option type="int" name="key_selection_delete">8</option> <!-- Backspace -->
+  <option type="int" name="key_selection_clear">32</option> <!-- Spacebar  -->
+
+  <option type="int" name="key_exit">27</option>   <!-- ESC -->
+  <option type="int" name="key_info">282</option>  <!-- F1  -->
+  <option type="int" name="key_edit">283</option>  <!-- F2  -->
+  <option type="int" name="key_play">284</option>  <!-- F3  -->
+  <option type="int" name="key_init">291</option>  <!-- F10 -->
+  <option type="int" name="key_snap">292</option>  <!-- F11 -->
 
   <!-- Dvorak keyboard commands
 
@@ -121,19 +134,6 @@
   <option type="int" name="key_selection_extend">46</option>
   <option type="int" name="key_selection_clone">106</option>
 -->
-
-  <!-- Common keyboard commands -->
-
-  <option type="int" name="key_home">13</option>            <!-- Return    -->
-  <option type="int" name="key_selection_delete">8</option> <!-- Backspace -->
-  <option type="int" name="key_selection_clear">32</option> <!-- Spacebar  -->
-
-  <option type="int" name="key_exit">27</option>   <!-- ESC -->
-  <option type="int" name="key_info">282</option>  <!-- F1  -->
-  <option type="int" name="key_edit">283</option>  <!-- F2  -->
-  <option type="int" name="key_play">284</option>  <!-- F3  -->
-  <option type="int" name="key_init">291</option>  <!-- F10 -->
-  <option type="int" name="key_snap">292</option>  <!-- F11 -->
 
   <!-- Scene renderer configuration -->
 

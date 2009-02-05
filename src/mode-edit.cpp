@@ -284,6 +284,29 @@ bool mode::edit::process_keybd(app::event *E)
             xform->set_transform(M);
             return true;
         }
+
+        // Handle lighting keys.
+
+        else if (k == SDLK_LEFT)
+        {
+            world->mov_light(-10, 0);
+            return true;
+        }
+        else if (k == SDLK_RIGHT)
+        {
+            world->mov_light(+10, 0);
+            return true;
+        }
+        else if (k == SDLK_DOWN)
+        {
+            world->mov_light(0, -10);
+            return true;
+        }
+        else if (k == SDLK_UP)
+        {
+            world->mov_light(0, +10);
+            return true;
+        }
     }
     return false;
 }

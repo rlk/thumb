@@ -165,6 +165,7 @@ void ogl::check_err(const char *file, int line)
 }
 
 //-----------------------------------------------------------------------------
+// WGL swap interval
 
 #ifdef _WIN32
 
@@ -182,6 +183,7 @@ static void sync(int interval)
 #endif
 
 //-----------------------------------------------------------------------------
+// GLX swap interval 
 
 #ifdef __linux__
 
@@ -197,12 +199,15 @@ static void sync(int interval)
 #endif
 
 //-----------------------------------------------------------------------------
+// CGL swap interval
 
 #ifdef __APPLE__
 
-static void sync(int inverval)
+#include <OpenGL/OpenGL.h>
+
+static void sync(int interval)
 {
-    // TODO: Figure out how to do this on Apple.
+    CGLSetParameter(CGLGetCurrentContext(), kCGLCPSwapInterval, &interval);
 }
 
 #endif

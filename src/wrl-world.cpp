@@ -451,12 +451,12 @@ int wrl::world::get_param(int k, std::string& expr)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::mov_light(int dx, int dy)
+void wrl::world::mov_light(int dt, int dp)
 {
     // Move the lightsource.  
 
-    light_P -= dy;
-    light_T += dx;
+    light_P += dp;
+    light_T += dt;
 
     // Ensure the spherical coordinates remain within bounds.
 
@@ -1123,7 +1123,7 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     L[0] = GLfloat(l[0]);
     L[1] = GLfloat(l[1]);
     L[2] = GLfloat(l[2]);
-    L[3] = 0;
+    L[3] = 0.0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
