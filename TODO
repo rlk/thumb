@@ -1,3 +1,7 @@
+Ranged frustum extents will optimize shadow maps nicely
+    It will significantly reduce the size of far-from-scene camera frustums
+    It will improve depth utilization of far-from-scene shadow maps
+
 Get rid of main.hpp entirely
     encapsulate that state
 

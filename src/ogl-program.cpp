@@ -203,14 +203,14 @@ void ogl::program::fini()
 
 //-----------------------------------------------------------------------------
 
-GLenum ogl::program::unit(std::string& name) const
+GLenum ogl::program::unit(std::string name) const
 {
     // Determine the texture unit of the named sampler uniform.
 
     std::map<std::string, GLenum>::const_iterator i;
 
     if ((i = sampler_map.find(name)) == sampler_map.end())
-        return GL_TEXTURE0;
+        return 0;
     else
         return i->second;
 }

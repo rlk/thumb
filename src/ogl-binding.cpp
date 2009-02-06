@@ -110,17 +110,30 @@ ogl::binding::binding(std::string name) :
     app::node   root;
     app::node   node;
 
+    init_shadow();
+
     if ((root = app::find(file.get_head(), "material")))
     {
+        // Load the depth-mode program.
+
+        if ((node = app::find(root, "program", "mode", "depth")))
+            depth_program = glob->load_program(app::get_attr_s(node, "file"));
+
         // Load the color-mode program.
 
         if ((node = app::find(root, "program", "mode", "color")))
             color_program = glob->load_program(app::get_attr_s(node, "file"));
 
-        // Load the depth-mode program.
+        // Determine the shadow map bindings.  TODO: generalize this.
 
-        if ((node = app::find(root, "program", "mode", "depth")))
-            depth_program = glob->load_program(app::get_attr_s(node, "file"));
+        GLenum unit;
+
+        if (0 < shadow.size() && (unit = color_program->unit("shadow0")))
+            light_texture[unit] = shadow[0];
+        if (1 < shadow.size() && (unit = color_program->unit("shadow1")))
+            light_texture[unit] = shadow[1];
+        if (2 < shadow.size() && (unit = color_program->unit("shadow2")))
+            light_texture[unit] = shadow[2];
 
         // Load all textures.
 
@@ -150,8 +163,8 @@ ogl::binding::binding(std::string name) :
 ogl::binding::~binding()
 {
     // Free all textures.
-
-    unit_map::iterator i;
+    
+    unit_texture::iterator i;
 
     for (i = color_texture.begin(); i != color_texture.end(); ++i)
         ::glob->free_texture(i->second);
@@ -161,6 +174,7 @@ ogl::binding::~binding()
 
     color_texture.clear();
     depth_texture.clear();
+    light_texture.clear();
 
     // Free all programs.
 
@@ -196,23 +210,27 @@ void ogl::binding::bind(bool c) const
 {
     // TODO: Minimize rebindings
 
-    unit_map::const_iterator i;
+    unit_texture::const_iterator ti;
+    unit_frame  ::const_iterator fi;
 
     if (c)
     {
         if (color_program)
             color_program->bind();
 
-        for (i = color_texture.begin(); i != color_texture.end(); ++i)
-            i->second->bind(i->first);
+        for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
+            ti->second->bind(ti->first);
+
+        for (fi = light_texture.begin(); fi != light_texture.end(); ++fi)
+            fi->second->bind_depth(fi->first);
     }
     else
     {
         if (depth_program)
             depth_program->bind();
 
-        for (i = color_texture.begin(); i != color_texture.end(); ++i)
-            i->second->bind(i->first);
+        for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
+            ti->second->bind(ti->first);
     }
 }
 

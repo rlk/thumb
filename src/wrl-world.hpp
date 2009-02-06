@@ -15,11 +15,15 @@
 
 #include <ode/ode.h>
 
-#include "app-frustum.hpp"
 #include "wrl-atom.hpp"
 #include "wrl-operation.hpp"
 
 //-----------------------------------------------------------------------------
+
+namespace app
+{
+    class frustum;
+}
 
 namespace ogl
 {
@@ -40,12 +44,12 @@ namespace wrl
     {
         // ODE edit state
 
+        double        focus_dist;
+        double        frust_dist;
+
         dSpaceID      edit_space;
         dGeomID       edit_point;
         dGeomID       edit_focus;
-
-        double focus_dist;
-        double frust_dist;
 
         // ODE play state
 
@@ -61,14 +65,13 @@ namespace wrl
         atom_set all;
         atom_set sel;
 
-        double light_P;
-        double light_T;
-        double light_v[3];
-        double light_M[16];
-        double light_I[16];
+        int shadow_res;
 
-        app::frustum light_frust;
-        int          light_frusi;
+        double lite_P;
+        double lite_T;
+        double lite_v[3];
+        double lite_M[16];
+        double lite_I[16];
 
         // Batcher state
 
@@ -112,7 +115,7 @@ namespace wrl
         dSpaceID get_space() const { return edit_space; }
         dGeomID  get_focus() const { return edit_focus; }
 
-        void mov_light(int, int);
+        void mov_lite(int, int);
         void set_param(int, std::string&);
         int  get_param(int, std::string&);
 
@@ -153,6 +156,7 @@ namespace wrl
 
         // Rendering methods
 
+        void   prep_lite(int, app::frustum **);
         double prep_fill(int, app::frustum **);
         double prep_line(int, app::frustum **);
 

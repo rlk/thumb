@@ -289,22 +289,22 @@ bool mode::edit::process_keybd(app::event *E)
 
         else if (k == SDLK_LEFT)
         {
-            world->mov_light(-10, 0);
+            world->mov_lite(-5, 0);
             return true;
         }
         else if (k == SDLK_RIGHT)
         {
-            world->mov_light(+10, 0);
+            world->mov_lite(+5, 0);
             return true;
         }
         else if (k == SDLK_DOWN)
         {
-            world->mov_light(0, -10);
+            world->mov_lite(0, -5);
             return true;
         }
         else if (k == SDLK_UP)
         {
-            world->mov_light(0, +10);
+            world->mov_lite(0, +5);
             return true;
         }
     }

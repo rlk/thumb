@@ -30,10 +30,9 @@
 //-----------------------------------------------------------------------------
 
 wrl::world::world() :
-    light_P(45),
-    light_T( 0),
-    light_frust(0, ::conf->get_i("shadow_map_resolution"),
-                   ::conf->get_i("shadow_map_resolution")),
+    shadow_res(::conf->get_i("shadow_map_resolution")),
+    lite_P(45),
+    lite_T( 0),
     serial(1)
 {
     // Initialize the editor physical system.
@@ -59,7 +58,7 @@ wrl::world::world() :
 
     // Initialize the lighting state.
 
-    mov_light(0, 0);
+    mov_lite(0, 0);
 }
 
 wrl::world::~world()
@@ -448,26 +447,26 @@ int wrl::world::get_param(int k, std::string& expr)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::mov_light(int dt, int dp)
+void wrl::world::mov_lite(int dt, int dp)
 {
     // Move the lightsource.  
 
-    light_P += dp;
-    light_T += dt;
+    lite_P += dp;
+    lite_T += dt;
 
     // Ensure the spherical coordinates remain within bounds.
 
-    if (light_P >   90) light_P  =  90;
-    if (light_P <    0) light_P  =   0;
+    if (lite_P >   90) lite_P  =  90;
+    if (lite_P <    0) lite_P  =   0;
 
-    if (light_T >  180) light_T -= 360;
-    if (light_T < -180) light_T += 360;
+    if (lite_T >  180) lite_T -= 360;
+    if (lite_T < -180) lite_T += 360;
 
     // Compute the light vector.
 
-    light_v[0] = sin(RAD(light_T)) * cos(RAD(light_P)) * 64.0;
-    light_v[1] =                     sin(RAD(light_P)) * 64.0;
-    light_v[2] = cos(RAD(light_T)) * cos(RAD(light_P)) * 64.0;
+    lite_v[0] = sin(RAD(lite_T)) * cos(RAD(lite_P)) * 64.0;
+    lite_v[1] =                     sin(RAD(lite_P)) * 64.0;
+    lite_v[2] = cos(RAD(lite_T)) * cos(RAD(lite_P)) * 64.0;
 }
 
 void wrl::world::node_insert(int id, ogl::unit *unit)
@@ -944,49 +943,60 @@ void wrl::world::save(std::string filename, bool save_all)
 }
 
 //-----------------------------------------------------------------------------
-/*
-void draw_light_init(double l, double r,
-                     double b, double t, 
-                     double n, double f, double *M)
-{
-    // Setup the light's view transform.
 
-    glMatrixMode(GL_PROJECTION);
+void wrl::world::prep_lite(int frusc, app::frustum **frusv)
+{
+    app::frustum frust(0, shadow_res, shadow_res);
+    int          frusi = frusc + 1;
+
+    // Compute a lighting frustum encompasing all view frusta.
+
+    frust.calc_union(frusc, frusv, 0, 1, lite_v, lite_M, lite_I);
+
+    // Cache the fill visibility for the light.
+
+    double d = fill_pool->view(frusi, 5, frust.get_planes());
+
+    // Use the visible range to determine the light projection.
+    // TODO: this would benefit from near plane ranging.
+
+    frust.calc_projection(1.0, std::max(d, 10.0));
+
+    // Render the fill geometry to the shadow buffer.
+
+    if (ogl::binding::bind_shadow_frame(0))
     {
-        glPushMatrix();
+        frust.draw();
+
+        // View from the light's perspective.
+
+        glLoadMatrixd(lite_I);
+
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);
+
+        fill_pool->draw_init();
+        {
+            fill_pool->draw(frusi, false, false);
+        }
+        fill_pool->draw_fini();
+    }
+    ogl::binding::free_shadow_frame(0);
+
+    // Apply the light transform.
+
+    glActiveTextureARB(GL_TEXTURE1);
+    glMatrixMode(GL_TEXTURE);
+    {
         glLoadIdentity();
-        glOrtho(l, r, b, t, n, f);
+        glMultMatrixd(::user->get_S());
+        glMultMatrixd(frust.get_P());
+        glMultMatrixd(lite_I);
+        glMultMatrixd(::user->get_M());
     }
     glMatrixMode(GL_MODELVIEW);
-    {
-        glPushMatrix();
-        glLoadMatrixd(M);
-    }
-
-    // Set up the GL state for shadow map rendering.
-
-    glColorMask(0, 0, 0, 0);
-
-    glEnable(GL_DEPTH_TEST);
-
-    glClear(GL_DEPTH_BUFFER_BIT);
+    glActiveTextureARB(GL_TEXTURE0);
 }
-
-void draw_light_fini()
-{
-    glColorMask(1, 1, 1, 1);
-
-    glMatrixMode(GL_PROJECTION);
-    {
-        glPopMatrix();
-    }
-    glMatrixMode(GL_MODELVIEW);
-    {
-        glPopMatrix();
-    }
-}
-*/
-//-----------------------------------------------------------------------------
 
 double wrl::world::prep_fill(int frusc, app::frustum **frusv)
 {
@@ -1007,44 +1017,7 @@ double wrl::world::prep_fill(int frusc, app::frustum **frusv)
     for (int frusi = 0; frusi < frusc; ++frusi)
         frusv[frusi]->calc_view_points(1.0, dist);
 
-    // Compute a lighting frustum encompasing all view frusta.
-
-    light_frust.calc_union(frusc, frusv, 0, 1, light_v, light_M, light_I);
-    light_frusi = frusc + 1;
-
-    // Cache the fill visibility for the light.
-
-    double d = fill_pool->view(light_frusi, 5, light_frust.get_planes());
-
-    // Use the visible range to determine the light projection.
-    // TODO: this would benefit from near plane ranging.
-
-    light_frust.calc_projection(1.0, std::max(d, 10.0));
-
-    // Render the fill geometry to the shadow buffer.
-
-    if (ogl::binding::bind_shadow_frame(0))
-    {
-        light_frust.draw();
-
-        // View from the light's perspective.
-
-        glLoadMatrixd(light_I);
-
-        glClear(GL_COLOR_BUFFER_BIT |
-                GL_DEPTH_BUFFER_BIT);
-
-        fill_pool->draw_init();
-        {
-            fill_pool->draw(light_frusi, true, false);
-        }
-        fill_pool->draw_fini();
-
-        for (int frusi = 0; frusi < frusc; ++frusi)
-            frusv[frusi]->wire();
-
-        ogl::binding::free_shadow_frame(0);
-    }
+    prep_lite(frusc, frusv);
 
     return dist;
 }
@@ -1074,9 +1047,9 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 
     GLfloat L[4];
 
-    L[0] = GLfloat(light_v[0]);
-    L[1] = GLfloat(light_v[1]);
-    L[2] = GLfloat(light_v[2]);
+    L[0] = GLfloat(lite_v[0]);
+    L[1] = GLfloat(lite_v[1]);
+    L[2] = GLfloat(lite_v[2]);
     L[3] = 1.0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);

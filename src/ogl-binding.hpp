@@ -32,12 +32,13 @@ namespace ogl
 
 namespace ogl
 {
-    typedef std::map<GLenum, const ogl::texture *> unit_map;
-
     class binding
     {
-        static std::vector<ogl::frame *> shadow;
+        typedef std::map<GLenum, const ogl::texture *> unit_texture;
+        typedef std::map<GLenum, const ogl::frame   *> unit_frame;
 
+        static std::vector<ogl::frame *> shadow;
+        
         static GLfloat split[4];
 
         std::string name;
@@ -45,8 +46,9 @@ namespace ogl
         const ogl::program *depth_program;
         const ogl::program *color_program;
 
-        unit_map depth_texture;
-        unit_map color_texture;
+        unit_texture depth_texture;
+        unit_texture color_texture;
+        unit_frame   light_texture;
 
         static bool init_shadow();
 

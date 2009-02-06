@@ -294,47 +294,19 @@ double demo::prep(int frusc, app::frustum **frusv)
         return curr->prep(frusc, frusv);
     else
         return 1.0;
-
-//  universe->prep(frusc, frusv);
 }
 
 void demo::draw(int frusi, app::frustum *frusp)
 {
     // Clear the render target.
 
-//  glClearColor(0.1f, 0.2f, 0.4f, 0.0f);
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.1f, 0.2f, 0.4f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
-
 
     if (curr)
         curr->draw(frusi, frusp);
 }
 
-/*
-void demo::draw(int frusi, app::frustum **frusv)
-{
-    GLfloat A[4] = { 0.25f, 0.25f, 0.25f, 0.0f };
-    GLfloat D[4] = { 1.00f, 1.00f, 1.00f, 0.0f };
-
-    glLightModelfv(GL_LIGHT_MODEL_AMBIENT, A);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, D);
-
-    glPushAttrib(GL_ENABLE_BIT);
-    {
-        glEnable(GL_DEPTH_TEST);
-        glEnable(GL_CULL_FACE);
-        glEnable(GL_NORMALIZE);
-        glEnable(GL_LIGHTING);
-
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-        universe->draw(i);
-    }
-    glPopAttrib();
-}
-*/
 //-----------------------------------------------------------------------------
 

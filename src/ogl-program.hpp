@@ -54,7 +54,7 @@ namespace ogl
         void init();
         void fini();
 
-        GLenum unit(std::string&) const;
+        GLenum unit(std::string) const;
 
         void uniform(std::string, int)                            const;
         void uniform(std::string, double)                         const;

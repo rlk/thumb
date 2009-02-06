@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
-<program vert="object-color.vert"
-         frag="object-color.frag" >
+<program vert="glsl/object-color.vert"
+         frag="glsl/object-color.frag" >
   <sampler name="diffuse" unit="0" />
   <sampler name="normal"  unit="1" />
   <sampler name="shadow0" unit="2" />
