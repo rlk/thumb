@@ -15,15 +15,11 @@
 
 #include <ode/ode.h>
 
+#include "app-frustum.hpp"
 #include "wrl-atom.hpp"
 #include "wrl-operation.hpp"
 
 //-----------------------------------------------------------------------------
-
-namespace app
-{
-    class frustum;
-}
 
 namespace ogl
 {
@@ -67,6 +63,12 @@ namespace wrl
 
         double light_P;
         double light_T;
+        double light_v[3];
+        double light_M[16];
+        double light_I[16];
+
+        app::frustum light_frust;
+        int          light_frusi;
 
         // Batcher state
 

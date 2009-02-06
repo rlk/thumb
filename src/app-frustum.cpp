@@ -381,7 +381,169 @@ void app::frustum::calc_projection(double n, double f)
                     user_pos[2]);
 }
 
-void app::frustum::calc_split(frustum& that, double *B, double *I,
+void app::frustum::calc_union(int frusc, app::frustum **frusv,
+                              double c0, double c1, const double *L,
+                              double *M, double *I)
+{
+    // Compute a light frustum encompassing the given array of frustums, over
+    // the view-space range C0 to C1, as seen by the light at position L.
+
+    double l =  std::numeric_limits<double>::max();
+    double r = -std::numeric_limits<double>::max();
+    double b =  std::numeric_limits<double>::max();
+    double t = -std::numeric_limits<double>::max();
+
+    // Begin by computing the center point of all C0 to C1 subsets.
+
+    double C[3] = { 0.0, 0.0, 0.0 }, cc = 0.5 * (c0 + c1), dd = 1.0 - cc;
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+    {
+        const frustum *f = frusv[frusi];
+
+        C[0] += (cc * f->view_points[0][0] + dd * f->view_points[4][0] +
+                 cc * f->view_points[3][0] + dd * f->view_points[7][0]) * 0.5;
+        C[1] += (cc * f->view_points[0][1] + dd * f->view_points[4][1] +
+                 cc * f->view_points[3][1] + dd * f->view_points[7][1]) * 0.5;
+        C[2] += (cc * f->view_points[0][2] + dd * f->view_points[4][2] +
+                 cc * f->view_points[3][2] + dd * f->view_points[7][2]) * 0.5;
+    }
+
+    C[0] /= frusc;
+    C[1] /= frusc;
+    C[2] /= frusc;
+
+    // Compute the transform and inverse for the light's coordinate system...
+
+    load_idt(M);
+
+    // The Z axis is the vector from the light center to the light position.
+
+    M[ 8] = L[0] - C[0];
+    M[ 9] = L[1] - C[1];
+    M[10] = L[2] - C[2];
+
+    normalize(M + 8);
+
+    // The Y axis is "up".
+
+//  if (L[1] < 0.5 * M_SQRT2) HACK
+    {
+        M[4] = 0.0;
+        M[5] = 1.0;
+        M[6] = 0.0;
+    }
+/*
+    else
+    {
+        M[4] = 0.0;
+        M[5] = 0.0;
+        M[6] = 1.0;
+    }
+*/
+    // The X axis is the cross product of these.
+
+    crossprod(M + 0, M + 4, M + 8);
+    normalize(M + 0);
+
+    // Be sure the Y axis is orthogonal...
+
+    crossprod(M + 4, M + 8, M + 0);
+    normalize(M + 4);
+
+    // The inverse basis is the transpose.
+
+    load_xps(I, M);
+
+    // Apply the lightsourse position transform to the matrix...
+
+    M[12] = L[0];
+    M[13] = L[1];
+    M[14] = L[2];
+
+    // ... and to the inverse.
+
+    I[12] = -DOT3(L, M + 0);
+    I[13] = -DOT3(L, M + 4);
+    I[14] = -DOT3(L, M + 8);
+
+    // Now transform each frustum into this space and find the extent union.
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+    {
+        const frustum *f = frusv[frusi];
+        const double  d0 = 1.0 - c0;
+        const double  d1 = 1.0 - c1;
+
+        for (int i = 0, j = 4; i < 4; ++i, ++j)
+        {
+            double p0[3], p1[3];
+            double q0[3], q1[3];
+
+            // Compute the corners of the C0 to C1 subset of this frustum.
+
+            p0[0] = c0 * f->view_points[j][0] + d0 * f->view_points[i][0];
+            p0[1] = c0 * f->view_points[j][1] + d0 * f->view_points[i][1];
+            p0[2] = c0 * f->view_points[j][2] + d0 * f->view_points[i][2];
+
+            p1[0] = c1 * f->view_points[j][0] + d1 * f->view_points[i][0];
+            p1[1] = c1 * f->view_points[j][1] + d1 * f->view_points[i][1];
+            p1[2] = c1 * f->view_points[j][2] + d1 * f->view_points[i][2];
+
+            // Transform the corners of this frustum into light space.
+
+            mult_mat_vec3(q0, I, p0);
+            mult_mat_vec3(q1, I, p1);
+
+            // Project these corners onto a common plane at unit distance.
+
+            q0[0] /= -q0[2]; q0[1] /= -q0[2];
+            q1[0] /= -q1[2]; q1[1] /= -q1[2];
+
+            // Find the frustum extrema.
+
+            l = std::min(l, q0[0]);
+            l = std::min(l, q1[0]);
+            r = std::max(r, q0[0]);
+            r = std::max(r, q1[0]);
+            b = std::min(b, q0[1]);
+            b = std::min(b, q1[1]);
+            t = std::max(t, q0[1]);
+            t = std::max(t, q1[1]);
+        }
+    }
+
+    // Set up the frustum.
+
+    load_idt(user_basis);
+    load_idt(T);
+
+    user_points[0][0] =  l;
+    user_points[0][1] =  b;
+    user_points[0][2] = -1;
+
+    user_points[1][0] =  r;
+    user_points[1][1] =  b;
+    user_points[1][2] = -1;
+
+    user_points[2][0] =  l;
+    user_points[2][1] =  t;
+    user_points[2][2] = -1;
+
+    user_points[3][0] =  r;
+    user_points[3][1] =  t;
+    user_points[3][2] = -1;
+
+    double O[3] = { 0, 0, 0 };
+
+    calc_user_planes(O);
+    calc_view_planes(M, I);
+
+    // This frustum is now ready for view culling and calc_projection.
+}
+
+/*
+void app::frustum::calc_split(frustum& that, double *M, double *I,
                               const double *L, double c0, double c1)
 {
     // Compute a light frustum encompassing THAT frustum, over the view-space
@@ -414,46 +576,52 @@ void app::frustum::calc_split(frustum& that, double *B, double *I,
     c[1] = (p[0][1] + p[3][1] + p[4][1] + p[7][1]) * 0.25;
     c[2] = (p[0][2] + p[3][2] + p[4][2] + p[7][2]) * 0.25;
 
-    // Find the transformation matrix for this light's coordinate system...
+    // Find the transform and inverse for this light's coordinate system...
 
-    load_idt(B);
+    load_idt(M);
 
     // The Z axis is the vector from the light center to the light position.
 
-    B[ 8] = L[0] - c[0];
-    B[ 9] = L[1] - c[1];
-    B[10] = L[2] - c[2];
+    M[ 8] = L[0] - c[0];
+    M[ 9] = L[1] - c[1];
+    M[10] = L[2] - c[2];
 
-    normalize(B + 8);
+    normalize(M + 8);
 
     // The X axis lies along one of the horizontal edges of THAT frustum.
     // TODO: there's probably a smarter way to select frustum orientation.
 
-    B[ 0] = p[5][0] - p[4][0];
-    B[ 1] = p[5][1] - p[4][1];
-    B[ 2] = p[5][2] - p[4][2];
+    M[ 0] = p[5][0] - p[4][0];
+    M[ 1] = p[5][1] - p[4][1];
+    M[ 2] = p[5][2] - p[4][2];
 
-    normalize(B + 0);
+    normalize(M + 0);
 
     // The Y axis is the cross product of these.
 
-    crossprod(B + 4, B + 8, B + 0);
-    normalize(B + 4);
+    crossprod(M + 4, M + 8, M + 0);
+    normalize(M + 4);
 
     // Be sure the X axis is orthogonal...
 
-    crossprod(B + 0, B + 4, B + 8);
-    normalize(B + 0);
+    crossprod(M + 0, M + 4, M + 8);
+    normalize(M + 0);
 
-    // And move the origin at the light source position.
+    // The inverse basis is the transpose basis.
 
-    B[12] = L[0];
-    B[13] = L[1];
-    B[14] = L[2];
+    load_xps(I, M);
 
-    // Compute the inverse... TODO optimize this.
+    // Apply the lightsourse position transform to the matrix...
 
-    load_inv(I, B);
+    M[12] = L[0];
+    M[13] = L[1];
+    M[14] = L[2];
+
+    // ... and to the inverse.
+
+    I[12] = -DOT3(L, M + 0);
+    I[13] = -DOT3(L, M + 4);
+    I[14] = -DOT3(L, M + 8);
 
     // Transform the corners of THAT frustum into this light space.
 
@@ -479,7 +647,7 @@ void app::frustum::calc_split(frustum& that, double *B, double *I,
     q[6][0] /= -q[6][2]; q[6][1] /= -q[6][2];
     q[7][0] /= -q[7][2]; q[7][1] /= -q[7][2];
 
-    // Find the orthogonal frustum extrema.
+    // Find the frustum extrema.
 
     double l = min8(q[0][0], q[1][0], q[2][0], q[3][0],
                     q[4][0], q[5][0], q[6][0], q[7][0]);
@@ -514,10 +682,11 @@ void app::frustum::calc_split(frustum& that, double *B, double *I,
     double O[3] = { 0, 0, 0 };
 
     calc_user_planes(O);
-    calc_view_planes(B, I);
+    calc_view_planes(M, I);
 
     // This frustum is now ready for view culling and calc_projection.
 }
+*/
 
 void app::frustum::set_horizon(double r)
 {

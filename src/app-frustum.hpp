@@ -99,8 +99,8 @@ namespace app
         void calc_view_planes(const double *,
                               const double *);
 
-        void calc_split(frustum&, double *, double *,
-                        const double *, double, double);
+        void calc_union(int, frustum **, double,   double,
+                        const double *,  double *, double *);
 
         void set_horizon(double);
 

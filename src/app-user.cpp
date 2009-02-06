@@ -62,7 +62,8 @@ app::user::user() :
 
     set_state(curr, time, opts);
 
-    turn(-90.0, 0.0, 0.0);
+//  turn(-90.0, 0.0, 0.0);
+    move(0.0, 2.0, 5.0);
 }
 
 void app::user::set(const double p[3], const double q[4])

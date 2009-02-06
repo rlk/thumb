@@ -19,6 +19,7 @@
 #include "wrl-joint.hpp"
 #include "app-glob.hpp"
 #include "app-data.hpp"
+#include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-frustum.hpp"
 #include "util.hpp"
@@ -28,8 +29,12 @@
 
 //-----------------------------------------------------------------------------
 
-//wrl::world::world() : light_P(30), light_T(30), serial(1)
-wrl::world::world() : light_P(45), light_T(0), serial(1)
+wrl::world::world() :
+    light_P(45),
+    light_T( 0),
+    light_frust(0, ::conf->get_i("shadow_map_resolution"),
+                   ::conf->get_i("shadow_map_resolution")),
+    serial(1)
 {
     // Initialize the editor physical system.
 
@@ -51,6 +56,10 @@ wrl::world::world() : light_P(45), light_T(0), serial(1)
     fill_pool->add_node(fill_node);
     line_pool->add_node(stat_node);
     line_pool->add_node(dyna_node);
+
+    // Initialize the lighting state.
+
+    mov_light(0, 0);
 }
 
 wrl::world::~world()
@@ -453,6 +462,12 @@ void wrl::world::mov_light(int dt, int dp)
 
     if (light_T >  180) light_T -= 360;
     if (light_T < -180) light_T += 360;
+
+    // Compute the light vector.
+
+    light_v[0] = sin(RAD(light_T)) * cos(RAD(light_P)) * 64.0;
+    light_v[1] =                     sin(RAD(light_P)) * 64.0;
+    light_v[2] = cos(RAD(light_T)) * cos(RAD(light_P)) * 64.0;
 }
 
 void wrl::world::node_insert(int id, ogl::unit *unit)
@@ -929,96 +944,7 @@ void wrl::world::save(std::string filename, bool save_all)
 }
 
 //-----------------------------------------------------------------------------
-
-void get_ortho_light(double *a,
-                     double *z,
-                     double *M,
-                     double *I,
-                     double *V, const double *light, const double *points)
-{
-    // Find the major axis of the view frustum.
-
-    double N[3], F[3], major[3];
-
-    N[0] = (points[ 0] + points[ 3] + points[ 6] + points[ 9]) * 0.25;
-    N[1] = (points[ 1] + points[ 4] + points[ 7] + points[10]) * 0.25;
-    N[2] = (points[ 2] + points[ 5] + points[ 8] + points[11]) * 0.25;
-
-    F[0] = (points[12] + points[15] + points[18] + points[21]) * 0.25;
-    F[1] = (points[13] + points[16] + points[19] + points[22]) * 0.25;
-    F[2] = (points[14] + points[17] + points[20] + points[23]) * 0.25;
-
-    major[0] = F[0] - N[0];
-    major[1] = F[1] - N[1];
-    major[2] = F[2] - N[2];
-
-    normalize(major);
-
-    // Compute the light source modelview matrix.
-
-    load_idt(I);
-
-    crossprod(I + 0, major, light); normalize(I + 0);
-    crossprod(I + 4, light, I + 0); normalize(I + 4);
-    crossprod(I + 8, I + 0, I + 4); normalize(I + 8);
-
-    load_xps(M, I);
-
-    // Find the extent of the frustum in light space.
-
-    double v[24];
-
-    mult_mat_vec3(v +  0, M, points +  0);
-    mult_mat_vec3(v +  3, M, points +  3);
-    mult_mat_vec3(v +  6, M, points +  6);
-    mult_mat_vec3(v +  9, M, points +  9);
-    mult_mat_vec3(v + 12, M, points + 12);
-    mult_mat_vec3(v + 15, M, points + 15);
-    mult_mat_vec3(v + 18, M, points + 18);
-    mult_mat_vec3(v + 21, M, points + 21);
-
-    a[0] = min8(v[ 0], v[ 3], v[ 6], v[ 9], v[12], v[15], v[18], v[21]);
-    a[1] = min8(v[ 1], v[ 4], v[ 7], v[10], v[13], v[16], v[19], v[22]);
-    a[2] = min8(v[ 2], v[ 5], v[ 8], v[11], v[14], v[17], v[20], v[23]);
-
-    z[0] = max8(v[ 0], v[ 3], v[ 6], v[ 9], v[12], v[15], v[18], v[21]);
-    z[1] = max8(v[ 1], v[ 4], v[ 7], v[10], v[13], v[16], v[19], v[22]);
-    z[2] = max8(v[ 2], v[ 5], v[ 8], v[11], v[14], v[17], v[20], v[23]);
-
-    // Compute the light source frustum planes.
-
-    double A[3];
-    double Z[3];
-
-    mult_mat_vec3(A, I, a);
-    mult_mat_vec3(Z, I, z);
-
-    V[ 0] =  I[ 8];    // Far clipping plane (useful range of illumination)
-    V[ 1] =  I[ 9];
-    V[ 2] =  I[10];
-    V[ 3] = -I[ 8] * A[0] - I[ 9] * A[1] - I[10] * A[2];
-
-    V[ 4] =  I[ 0];    // Left clipping plane
-    V[ 5] =  I[ 1];
-    V[ 6] =  I[ 2];
-    V[ 7] = -I[ 0] * A[0] - I[ 1] * A[1] - I[ 2] * A[2];
-
-    V[ 8] = -I[ 0];    // Right clipping plane
-    V[ 9] = -I[ 1];
-    V[10] = -I[ 2];
-    V[11] =  I[ 0] * Z[0] + I[ 1] * Z[1] + I[ 2] * Z[2];
-
-    V[12] =  I[ 4];    // Bottom clipping plane
-    V[13] =  I[ 5];
-    V[14] =  I[ 6];
-    V[15] = -I[ 4] * A[0] - I[ 5] * A[1] - I[ 6] * A[2];
-
-    V[16] = -I[ 4];    // Top clipping plane
-    V[17] = -I[ 5];
-    V[18] = -I[ 6];
-    V[19] =  I[ 4] * Z[0] + I[ 5] * Z[1] + I[ 6] * Z[2];
-}
-
+/*
 void draw_light_init(double l, double r,
                      double b, double t, 
                      double n, double f, double *M)
@@ -1059,12 +985,12 @@ void draw_light_fini()
         glPopMatrix();
     }
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 double wrl::world::prep_fill(int frusc, app::frustum **frusv)
 {
-    double dist = 0.0;
+    double dist = 10.0;
 
     // Prep the fill geometry pool.
 
@@ -1075,6 +1001,51 @@ double wrl::world::prep_fill(int frusc, app::frustum **frusv)
     for (int frusi = 0; frusi < frusc; ++frusi)
         dist = std::max(dist, fill_pool->view(frusi, 5,
                                               frusv[frusi]->get_planes()));
+
+    // Estimate the corners of all frusta so their union may be found.
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+        frusv[frusi]->calc_view_points(1.0, dist);
+
+    // Compute a lighting frustum encompasing all view frusta.
+
+    light_frust.calc_union(frusc, frusv, 0, 1, light_v, light_M, light_I);
+    light_frusi = frusc + 1;
+
+    // Cache the fill visibility for the light.
+
+    double d = fill_pool->view(light_frusi, 5, light_frust.get_planes());
+
+    // Use the visible range to determine the light projection.
+    // TODO: this would benefit from near plane ranging.
+
+    light_frust.calc_projection(1.0, std::max(d, 10.0));
+
+    // Render the fill geometry to the shadow buffer.
+
+    if (ogl::binding::bind_shadow_frame(0))
+    {
+        light_frust.draw();
+
+        // View from the light's perspective.
+
+        glLoadMatrixd(light_I);
+
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);
+
+        fill_pool->draw_init();
+        {
+            fill_pool->draw(light_frusi, true, false);
+        }
+        fill_pool->draw_fini();
+
+        for (int frusi = 0; frusi < frusc; ++frusi)
+            frusv[frusi]->wire();
+
+        ogl::binding::free_shadow_frame(0);
+    }
+
     return dist;
 }
 
@@ -1101,16 +1072,11 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 
     // Compute the light source position.
 
-    double  l[3];
     GLfloat L[4];
 
-    l[0] = sin(RAD(light_T)) * cos(RAD(light_P)) * 64;
-    l[1] =                     sin(RAD(light_P)) * 64;
-    l[2] = cos(RAD(light_T)) * cos(RAD(light_P)) * 64;
-
-    L[0] = GLfloat(l[0]);
-    L[1] = GLfloat(l[1]);
-    L[2] = GLfloat(l[2]);
+    L[0] = GLfloat(light_v[0]);
+    L[1] = GLfloat(light_v[1]);
+    L[2] = GLfloat(light_v[2]);
     L[3] = 1.0;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
@@ -1123,57 +1089,18 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     }
     fill_pool->draw_fini();
 
-    // Render the light view.
+    // Render the shadow buffer.
 
-    glMatrixMode(GL_PROJECTION);
-    glPushMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-
-    if (ogl::binding::bind_shadow_frame(0))
+    glUseProgramObjectARB(0);
+    glPushAttrib(GL_ENABLE_BIT);
     {
-        double M[16];
-        double I[16];
-        app::frustum F(0, 1024, 1024);
-
-        F.calc_split(*frusp, M, I, l, 0, 1);
-
-        double f = fill_pool->view(8, 5, F.get_planes());
-        F.calc_projection(1, f);
-        F.draw();
-
-        // View from the light's perspective.
-
-        glLoadMatrixd(I);
-
-        glClear(GL_COLOR_BUFFER_BIT |
-                GL_DEPTH_BUFFER_BIT);
-
-        fill_pool->draw_init();
-        {
-            fill_pool->draw(8, true, false);
-        }
-        fill_pool->draw_fini();
-        frusp->wire();
-
-        ogl::binding::free_shadow_frame(0);
-
-        glUseProgramObjectARB(0);
-        glPushAttrib(GL_ENABLE_BIT);
-        {
-            glEnable(GL_TEXTURE_2D);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_DEPTH_TEST);
-            glColor3f(1.0f, 1.0f, 1.0f);
-            ogl::binding::draw_shadow_color(0);
-        }
-        glPopAttrib();
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_LIGHTING);
+        glDisable(GL_DEPTH_TEST);
+        glColor3f(1.0f, 1.0f, 1.0f);
+        ogl::binding::draw_shadow_color(0);
     }
-
-    glMatrixMode(GL_PROJECTION);
-    glPopMatrix();
-    glMatrixMode(GL_MODELVIEW);
-    glPopMatrix();
+    glPopAttrib();
 }
 
 void wrl::world::draw_line(int frusi, app::frustum *frusp)
