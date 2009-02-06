@@ -54,6 +54,7 @@ OBJS=   util.o \
 	dpy-channel.o \
 	dpy-display.o \
 	dpy-normal.o \
+	dpy-anaglyph.o \
 	app-event.o \
 	app-frustum.o \
 	app-serial.o \
@@ -74,7 +75,6 @@ OBJS=   util.o \
 #	dev-wiimote.o \
 #	dpy-dome.o \
 #	dpy-varrier.o \
-#	dpy-anaglyph.o \
 
 DEPS= $(OBJS:.o=.d)
 

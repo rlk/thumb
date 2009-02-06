@@ -1090,7 +1090,7 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     fill_pool->draw_fini();
 
     // Render the shadow buffer.
-
+/*
     glUseProgramObjectARB(0);
     glPushAttrib(GL_ENABLE_BIT);
     {
@@ -1101,6 +1101,7 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
         ogl::binding::draw_shadow_color(0);
     }
     glPopAttrib();
+*/
 }
 
 void wrl::world::draw_line(int frusi, app::frustum *frusp)

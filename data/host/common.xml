@@ -18,4 +18,17 @@
     </display>
   </node>
 
+  <node name="1024x768-anaglyph">
+    <window x="0" y="0" w="1024" h="768"/>
+    <channel w="1024" h="768" x="-0.0125"/>
+    <channel w="1024" h="768" x=" 0.0125"/>
+
+    <display type="anaglyph" index="1">
+      <viewport x="0" y="0" w="1024" h="768"/>
+      <frustum>
+        <perspective hfov="60.0" vfov="45.0"/>
+      </frustum>
+    </display>
+  </node>
+
 </host>

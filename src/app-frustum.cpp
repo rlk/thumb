@@ -427,20 +427,19 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
 
     // The Y axis is "up".
 
-//  if (L[1] < 0.5 * M_SQRT2) HACK
+    if (L[1] > sqrt(L[0] * L[0] + L[2] * L[2]))
     {
-        M[4] = 0.0;
-        M[5] = 1.0;
-        M[6] = 0.0;
+        M[4] =  0.0;
+        M[5] =  1.0;
+        M[6] =  0.0;
     }
-/*
     else
     {
-        M[4] = 0.0;
-        M[5] = 0.0;
-        M[6] = 1.0;
+        M[4] =  0.0;
+        M[5] =  0.0;
+        M[6] = -1.0;
     }
-*/
+
     // The X axis is the cross product of these.
 
     crossprod(M + 0, M + 4, M + 8);

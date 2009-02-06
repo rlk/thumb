@@ -19,9 +19,10 @@
 #include "matrix.hpp"
 #include "default.hpp"
 #include "ogl-opengl.hpp"
-#include "dpy-normal.hpp"
 #include "dpy-channel.hpp"
 #include "dpy-display.hpp"
+#include "dpy-normal.hpp"
+#include "dpy-anaglyph.hpp"
 #include "app-frustum.hpp"
 #include "app-event.hpp"
 #include "app-conf.hpp"
@@ -457,17 +458,23 @@ app::host::host(std::string filename, std::string tag) :
             {
                 const char *t = get_attr_s(curr, "type", "normal");
 
-                if (strcmp(t, "normal")   == 0)
+                if      (strcmp(t, "normal")   == 0)
                     displays.push_back(new dpy::normal  (curr));
 /*
-                if (strcmp(t, "dome")     == 0)
+                else if (strcmp(t, "dome")     == 0)
                     displays.push_back(new dpy::dome    (curr));
-                if (strcmp(t, "varrier")  == 0)
+                else if (strcmp(t, "varrier")  == 0)
                     displays.push_back(new dpy::varrier (curr));
-                if (strcmp(t, "anaglyph") == 0)
-                    displays.push_back(new dpy::anaglyph(curr));
 */
+                else if (strcmp(t, "anaglyph") == 0)
+                    displays.push_back(new dpy::anaglyph(curr));
             }
+
+            // Create a channel object for each configured channel.
+
+            for (curr = find(node,       "channel"); curr;
+                 curr = next(node, curr, "channel"))
+                channels.push_back(new dpy::channel(curr));
 
             // Start the network syncronization.
 
@@ -489,12 +496,6 @@ app::host::host(std::string filename, std::string tag) :
                 overlay = new app::frustum(0,    w, h);
         }
     }
-
-    // Create a channel object for each configured channel.
-
-    for (curr = find(root,       "channel"); curr;
-         curr = next(root, curr, "channel"))
-        channels.push_back(new dpy::channel(curr));
 
     // If no channels or displays were configured, instance defaults.
 

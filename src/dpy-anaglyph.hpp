@@ -13,8 +13,17 @@
 #ifndef DPY_ANAGLYPH_HPP
 #define DPY_ANAGLYPH_HPP
 
+#include <vector>
+
 #include "dpy-display.hpp"
-#include "ogl-program.hpp"
+#include "app-serial.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class program;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -25,28 +34,30 @@ namespace dpy
         app::frustum *frustL;
         app::frustum *frustR;
 
-        int count;
-        int x;
-        int y;
-        int w;
-        int h;
-
         const ogl::program *P;
 
-        app::node node;
-
-        void bind_transform(GLenum, const app::frustum *);
-        void free_transform(GLenum);
+        virtual bool process_start(app::event *);
+        virtual bool process_close(app::event *);
 
     public:
 
-        anaglyph(app::node, app::node, const int *);
-        
+        anaglyph(app::node);
+
+        virtual void get_frustums(std::vector<app::frustum *>&);
+
         // Rendering handlers.
 
-        virtual bool pick(double *, double *, int, int);
-        virtual void prep(app::view_v&, app::frustum_v&);
-        virtual void draw(app::view_v&, int&, bool, bool);
+        virtual void prep(int, dpy::channel **);
+        virtual int  draw(int, dpy::channel **,
+                          int, app::frustum  *);
+        virtual int  test(int, dpy::channel **, int);
+
+        // Event handers.
+
+        virtual bool pointer_to_3D(app::event *, int, int);
+        virtual bool process_event(app::event *);
+
+        virtual app::frustum *get_overlay() const { return frustL; }
 
         virtual ~anaglyph();
     };
