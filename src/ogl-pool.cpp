@@ -34,7 +34,6 @@ bool ogl::elem::depth_eq(const elem& that) const
 
     if (typ == that.typ && off + num == that.off)
     {
-        if (bnd == that.bnd) return true;
         if (bnd && that.bnd) return bnd->depth_eq(that.bnd);
     }
     return false;
@@ -46,7 +45,6 @@ bool ogl::elem::color_eq(const elem& that) const
 
     if (typ == that.typ && off + num == that.off)
     {
-        if (bnd == that.bnd) return true;
         if (bnd && that.bnd) return bnd->color_eq(that.bnd);
     }
     return false;
@@ -456,6 +454,8 @@ void ogl::node::draw(int id, bool color, bool alpha)
                 glMultMatrixd(M);
 
                 for (elem_i i = b; i != e; ++i) i->draw(color);
+
+                my_aabb.draw();
             }
             glPopMatrix();
         }

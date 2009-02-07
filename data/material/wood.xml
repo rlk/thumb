@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<material>
+  <program mode="depth" file="object-depth.xml" />
+  <program mode="color" file="object-color.xml" />
+  <texture name="diffuse" file="wood-diffuse.png" />
+  <texture name="normal"  file="default-normal.png" />
+</material>

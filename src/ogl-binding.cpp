@@ -194,14 +194,53 @@ void ogl::binding::set_split(GLfloat a, GLfloat b, GLfloat c, GLfloat d)
 
 //-----------------------------------------------------------------------------
 
+// Determine whether two bindings are equivalent in depth rendering mode.
+
 bool ogl::binding::depth_eq(const binding *that) const
 {
-    return (depth_program == that->depth_program);
+    // If the pointers are the same then they are trivially equivalent.
+
+    if (that == this)
+        return true;
+
+    // If both bindings are opaque then they are functionally equivalent.
+
+    if (opaque() && that->opaque())
+        return true;
+
+    // If the programs differ then the bindings are not equivalent.
+
+    if (depth_program != that->depth_program)
+        return false;
+
+    // If the textures differ then the bindings are not equivalent.
+
+    if (depth_texture != that->depth_texture)
+        return false;
+
+    return true;
 }
+
+// Determine whether two bindings are equivalent in color rendering mode.
 
 bool ogl::binding::color_eq(const binding *that) const
 {
-    return (color_program == that->color_program);
+    // If the pointers are the same then they are trivially equivalent.
+
+    if (that == this)
+        return true;
+
+    // If the programs differ then the bindings are not equivalent.
+
+    if (color_program != that->color_program)
+        return false;
+
+    // If the textures differ then the bindings are not equivalent.
+
+    if (color_texture != that->color_texture)
+        return false;
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------

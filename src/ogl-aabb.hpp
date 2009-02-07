@@ -35,6 +35,7 @@ namespace ogl
                     const double *);
         bool   test(const double *, int, 
                     const double *, int&);
+        void   draw() const;
 
         double length(int i) const { return z[i] - a[i]; }
     };

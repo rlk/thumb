@@ -977,9 +977,14 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv)
 
         fill_pool->draw_init();
         {
+            glCullFace(GL_FRONT);
             fill_pool->draw(frusi, false, false);
+            glCullFace(GL_BACK);
         }
         fill_pool->draw_fini();
+
+        for (int i = 0; i < frusc; ++i)
+            frusv[i]->wire();
     }
     ogl::binding::free_shadow_frame(0);
 
@@ -1063,7 +1068,7 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     fill_pool->draw_fini();
 
     // Render the shadow buffer.
-/*
+
     glUseProgramObjectARB(0);
     glPushAttrib(GL_ENABLE_BIT);
     {
@@ -1074,7 +1079,6 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
         ogl::binding::draw_shadow_color(0);
     }
     glPopAttrib();
-*/
 }
 
 void wrl::world::draw_line(int frusi, app::frustum *frusp)

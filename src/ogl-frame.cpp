@@ -148,8 +148,7 @@ void ogl::frame::draw(int w, int h) const
             glLoadIdentity();
         }
 
-//      glRecti(-1, -1, +1, +1);
-        glRecti(-1, -1, 0, 0);
+        glRecti(-1, -1, +1, +1);
 
         glMatrixMode(GL_PROJECTION);
         {
@@ -165,6 +164,11 @@ void ogl::frame::draw(int w, int h) const
 
 void ogl::frame::draw() const
 {
+    GLfloat l = -1.0f;
+    GLfloat r = -0.5f;
+    GLfloat b = -1.0f;
+    GLfloat t = -0.5f;
+
     bind_color(GL_TEXTURE0);
     {
         glMatrixMode(GL_PROJECTION);
@@ -180,14 +184,10 @@ void ogl::frame::draw() const
 
         glBegin(GL_QUADS);
         {
-            glTexCoord2f(0.0f, 0.0f);
-            glVertex2f(-1.0f, -1.0f);
-            glTexCoord2f(1.0f, 0.0f);
-            glVertex2f( 0.0f, -1.0f);
-            glTexCoord2f(1.0f, 1.0f);
-            glVertex2f( 0.0f,  0.0f);
-            glTexCoord2f(0.0f, 1.0f);
-            glVertex2f(-1.0f,  0.0f);
+            glTexCoord2f(0.0f, 0.0f); glVertex2f(l, b);
+            glTexCoord2f(1.0f, 0.0f); glVertex2f(r, b);
+            glTexCoord2f(1.0f, 1.0f); glVertex2f(r, t);
+            glTexCoord2f(0.0f, 1.0f); glVertex2f(l, t);
         }
         glEnd();
 

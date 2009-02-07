@@ -73,7 +73,7 @@ namespace ogl
 
         static void set_split(GLfloat, GLfloat, GLfloat, GLfloat);
 
-        bool opaque() const { return true; }
+        bool opaque() const { return true; } // TODO: flag masked/translucent
 
         bool depth_eq(const binding *) const;
         bool color_eq(const binding *) const;

@@ -348,6 +348,7 @@ void ogl::line_state_init()
 
     glEnable(GL_BLEND);
     glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_POLYGON_OFFSET_LINE);
 
     glDisable(GL_LIGHTING);
