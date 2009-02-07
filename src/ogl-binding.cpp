@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cmath>
+
 #include "app-conf.hpp"
 #include "app-glob.hpp"
 #include "ogl-frame.hpp"
@@ -19,9 +21,20 @@
 
 //-----------------------------------------------------------------------------
 
-GLfloat ogl::binding::split[4];
+double ogl::binding::split_depth[4];
 
 std::vector<ogl::frame *> ogl::binding::shadow;
+
+double ogl::binding::split(int i, double n, double f)
+{
+    double k = double(i) / double(shadow.size());
+
+    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
+
+    split_depth[i] = (n - 1 / c) * f / (f - n);
+
+    return (c - n) / (f - n);
+}
 
 bool ogl::binding::init_shadow()
 {
@@ -41,6 +54,14 @@ bool ogl::binding::init_shadow()
         }
     }
     return !shadow.empty();
+}
+
+int ogl::binding::shadow_count()
+{
+    if (init_shadow())
+        return shadow.size();
+    else
+        return 0;
 }
 
 bool ogl::binding::bind_shadow_frame(int i)
@@ -76,7 +97,7 @@ bool ogl::binding::bind_shadow_depth(int i, GLenum unit)
 void ogl::binding::draw_shadow_color(int i)
 {
     if (shadow[i])
-        shadow[i]->draw();
+        shadow[i]->draw(i, shadow.size());
 }
 
 void ogl::binding::free_shadow_frame(int i)
@@ -184,16 +205,6 @@ ogl::binding::~binding()
 
 //-----------------------------------------------------------------------------
 
-void ogl::binding::set_split(GLfloat a, GLfloat b, GLfloat c, GLfloat d)
-{
-    split[0] = a;
-    split[1] = b;
-    split[2] = c;
-    split[3] = d; 
-}
-
-//-----------------------------------------------------------------------------
-
 // Determine whether two bindings are equivalent in depth rendering mode.
 
 bool ogl::binding::depth_eq(const binding *that) const
@@ -262,13 +273,18 @@ void ogl::binding::bind(bool c) const
 
         for (fi = light_texture.begin(); fi != light_texture.end(); ++fi)
             fi->second->bind_depth(fi->first);
+
+        color_program->uniform("split", split_depth[0],
+                                        split_depth[1],
+                                        split_depth[2],
+                                        split_depth[3]);
     }
     else
     {
         if (depth_program)
             depth_program->bind();
 
-        for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
+        for (ti = depth_texture.begin(); ti != depth_texture.end(); ++ti)
             ti->second->bind(ti->first);
     }
 }

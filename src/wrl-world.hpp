@@ -156,7 +156,7 @@ namespace wrl
 
         // Rendering methods
 
-        void   prep_lite(int, app::frustum **);
+        void   prep_lite(int, app::frustum **, double, double);
         double prep_fill(int, app::frustum **);
         double prep_line(int, app::frustum **);
 

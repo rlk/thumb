@@ -39,7 +39,7 @@ namespace ogl
 
         static std::vector<ogl::frame *> shadow;
         
-        static GLfloat split[4];
+        static double split_depth[4];
 
         std::string name;
 
@@ -53,6 +53,8 @@ namespace ogl
         static bool init_shadow();
 
     public:
+
+        static double split(int, double, double);
 
         static int  shadow_count();
 
@@ -70,8 +72,6 @@ namespace ogl
 
         binding(std::string);
        ~binding();
-
-        static void set_split(GLfloat, GLfloat, GLfloat, GLfloat);
 
         bool opaque() const { return true; } // TODO: flag masked/translucent
 

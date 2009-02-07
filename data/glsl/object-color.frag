@@ -15,9 +15,22 @@ void main()
     vec3 V = normalize(V_v);
     vec3 L = normalize(L_v);
 
-    vec4  D = texture2D(diffuse, gl_TexCoord[0].xy);
-    vec3  N = texture2D(normal,  gl_TexCoord[0].xy).rgb;
-    float S = shadow2DProj(shadow0, gl_TexCoord[1]).r;
+    vec4  D  = texture2D(diffuse, gl_TexCoord[0].xy);
+    vec3  N  = texture2D(normal,  gl_TexCoord[0].xy).rgb;
+    float S0 = shadow2DProj(shadow0, gl_TexCoord[1]).r;
+    float S1 = shadow2DProj(shadow1, gl_TexCoord[2]).r;
+    float S2 = shadow2DProj(shadow2, gl_TexCoord[3]).r;
+
+    float kx = step(split.y, gl_FragCoord.z);
+    float ky = step(split.z, gl_FragCoord.z);
+
+    float S = mix(S0, mix(S1, S2, ky), kx);
+
+
+    vec3 Z = mix(vec3(1.0, 0.0, 0.0),
+                  mix(vec3(0.0, 1.0, 0.0),
+                      vec3(0.0, 0.0, 1.0), ky), kx);
+
 
     N = normalize(2.0 * N - 1.0);
 
@@ -30,7 +43,7 @@ void main()
 
     vec3 KS = pow(max(dot(V, R), 0.0), Ns)         * Ks;
     vec3 KD =     max(dot(L, N), 0.0)      * D.rgb * Kd;
-    vec3 KA =                                D.rgb * Ka;
+    vec3 KA =                                D.rgb * Ka * Z;
 
     gl_FragColor = vec4(((KS + KD) * S + KA).rgb, D.a);
 }

@@ -15,6 +15,7 @@
 #include "ode.hpp"
 
 #include "wrl-atom.hpp"
+#include "ogl-pool.hpp"
 #include "app-glob.hpp"
 
 //-----------------------------------------------------------------------------

@@ -13,6 +13,7 @@
 #include "util.hpp"
 #include "matrix.hpp"
 #include "ogl-opengl.hpp"
+#include "ogl-pool.hpp"
 #include "app-user.hpp"
 #include "app-glob.hpp"
 #include "app-frustum.hpp"

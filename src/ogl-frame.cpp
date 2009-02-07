@@ -133,7 +133,7 @@ void ogl::frame::free(bool proj) const
 
 //-----------------------------------------------------------------------------
 
-void ogl::frame::draw(int w, int h) const
+void ogl::frame::draw() const
 {
     bind_color(GL_TEXTURE0);
     {
@@ -162,12 +162,14 @@ void ogl::frame::draw(int w, int h) const
     free_color(GL_TEXTURE0);
 }
 
-void ogl::frame::draw() const
+void ogl::frame::draw(int i, int n) const
 {
-    GLfloat l = -1.0f;
-    GLfloat r = -0.5f;
+    GLfloat k =  2.0f / n;
+
+    GLfloat l = -1.0f + (i    ) * k;
+    GLfloat r = -1.0f + (i + 1) * k;
     GLfloat b = -1.0f;
-    GLfloat t = -0.5f;
+    GLfloat t = -1.0f + k;
 
     bind_color(GL_TEXTURE0);
     {

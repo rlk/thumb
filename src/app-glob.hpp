@@ -15,14 +15,22 @@
 
 #include <map>
 #include <set>
+#include <string>
 
-#include "ogl-program.hpp"
-#include "ogl-texture.hpp"
-#include "ogl-binding.hpp"
-#include "ogl-surface.hpp"
-#include "ogl-image.hpp"
-#include "ogl-frame.hpp"
-#include "ogl-pool.hpp"
+#include "ogl-opengl.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class program;
+    class texture;
+    class binding;
+    class surface;
+    class image;
+    class frame;
+    class pool;
+}
 
 //-----------------------------------------------------------------------------
 

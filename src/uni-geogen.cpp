@@ -548,7 +548,7 @@ void uni::geobuf::draw(int w, int h) const
 
     show->bind();
     show->uniform("window", w, h);
-    src->draw(w, h);
+    src->draw();
     show->free();
 }
 

@@ -13,6 +13,13 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "ogl-program.hpp"
+#include "ogl-texture.hpp"
+#include "ogl-binding.hpp"
+#include "ogl-surface.hpp"
+#include "ogl-image.hpp"
+#include "ogl-frame.hpp"
+#include "ogl-pool.hpp"
 #include "app-glob.hpp"
 
 //=============================================================================

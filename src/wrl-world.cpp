@@ -13,17 +13,19 @@
 #include <iostream>
 
 #include "ode.hpp"
+#include "util.hpp"
+#include "main.hpp"
 #include "matrix.hpp"
-#include "wrl-world.hpp"
-#include "wrl-solid.hpp"
-#include "wrl-joint.hpp"
+#include "ogl-pool.hpp"
+#include "app-prog.hpp"
 #include "app-glob.hpp"
 #include "app-data.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-frustum.hpp"
-#include "util.hpp"
-#include "main.hpp"
+#include "wrl-solid.hpp"
+#include "wrl-joint.hpp"
+#include "wrl-world.hpp"
 
 #define MAX_CONTACTS 4
 
@@ -944,63 +946,72 @@ void wrl::world::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::prep_lite(int frusc, app::frustum **frusv)
+void wrl::world::prep_lite(int frusc, app::frustum **frusv,
+                           double n, double f)
 {
-    app::frustum frust(0, shadow_res, shadow_res);
-    int          frusi = frusc + 1;
+    int m = ogl::binding::shadow_count();
 
-    // Compute a lighting frustum encompasing all view frusta.
-
-    frust.calc_union(frusc, frusv, 0, 1, lite_v, lite_M, lite_I);
-
-    // Cache the fill visibility for the light.
-
-    double d = fill_pool->view(frusi, 5, frust.get_planes());
-
-    // Use the visible range to determine the light projection.
-    // TODO: this would benefit from near plane ranging.
-
-//  frust.calc_projection(1.0, std::max(d, 10.0));
-
-    // Render the fill geometry to the shadow buffer.
-
-    if (ogl::binding::bind_shadow_frame(0))
+    for (int i = 0; i < m; ++i)
     {
-        frust.draw();
+        app::frustum frust(0, shadow_res, shadow_res);
+        int          frusi = frusc + i + 1;
 
-        // View from the light's perspective.
+        double c0 = ogl::binding::split(i,     n, f);
+        double c1 = ogl::binding::split(i + 1, n, f);
 
-        glLoadMatrixd(lite_I);
+        // Compute a lighting frustum encompasing all view frusta.
 
-        glClear(GL_COLOR_BUFFER_BIT |
-                GL_DEPTH_BUFFER_BIT);
+        frust.calc_union(frusc, frusv, c0, c1, lite_v, lite_M, lite_I);
 
-        fill_pool->draw_init();
+        // Cache the fill visibility for the light.
+
+        /*double d =*/ fill_pool->view(frusi, 5, frust.get_planes());
+
+        // Use the visible range to determine the light projection.
+        // TODO: this would benefit from near plane ranging.
+
+        // frust.calc_projection(1.0, std::max(d, 10.0));
+
+        // Render the fill geometry to the shadow buffer.
+
+        if (ogl::binding::bind_shadow_frame(i))
         {
-            glCullFace(GL_FRONT);
-            fill_pool->draw(frusi, false, false);
-            glCullFace(GL_BACK);
+            frust.draw();
+
+            // View from the light's perspective.
+
+            glLoadMatrixd(lite_I);
+
+            glClear(GL_COLOR_BUFFER_BIT |
+                    GL_DEPTH_BUFFER_BIT);
+
+            fill_pool->draw_init();
+            {
+                glCullFace(GL_FRONT);
+                fill_pool->draw(frusi, false, false);
+                glCullFace(GL_BACK);
+            }
+            fill_pool->draw_fini();
+
+            for (int i = 0; i < frusc; ++i)
+                frusv[i]->wire();
         }
-        fill_pool->draw_fini();
+        ogl::binding::free_shadow_frame(i);
 
-        for (int i = 0; i < frusc; ++i)
-            frusv[i]->wire();
+        // Apply the light transform.
+
+        glActiveTextureARB(GL_TEXTURE1 + i);
+        glMatrixMode(GL_TEXTURE);
+        {
+            glLoadIdentity();
+            glMultMatrixd(::user->get_S());
+            glMultMatrixd(frust.get_P());
+            glMultMatrixd(lite_I);
+            glMultMatrixd(::user->get_M());
+        }
+        glMatrixMode(GL_MODELVIEW);
+        glActiveTextureARB(GL_TEXTURE0);
     }
-    ogl::binding::free_shadow_frame(0);
-
-    // Apply the light transform.
-
-    glActiveTextureARB(GL_TEXTURE1);
-    glMatrixMode(GL_TEXTURE);
-    {
-        glLoadIdentity();
-        glMultMatrixd(::user->get_S());
-        glMultMatrixd(frust.get_P());
-        glMultMatrixd(lite_I);
-        glMultMatrixd(::user->get_M());
-    }
-    glMatrixMode(GL_MODELVIEW);
-    glActiveTextureARB(GL_TEXTURE0);
 }
 
 double wrl::world::prep_fill(int frusc, app::frustum **frusv)
@@ -1022,7 +1033,7 @@ double wrl::world::prep_fill(int frusc, app::frustum **frusv)
     for (int frusi = 0; frusi < frusc; ++frusi)
         frusv[frusi]->calc_view_points(1.0, dist);
 
-    prep_lite(frusc, frusv);
+    prep_lite(frusc, frusv, 1.0, dist);
 
     return dist;
 }
@@ -1069,16 +1080,21 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 
     // Render the shadow buffer.
 
-    glUseProgramObjectARB(0);
-    glPushAttrib(GL_ENABLE_BIT);
+    if (::prog->get_option(3))
     {
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_DEPTH_TEST);
-        glColor3f(1.0f, 1.0f, 1.0f);
-        ogl::binding::draw_shadow_color(0);
+        glUseProgramObjectARB(0);
+        glPushAttrib(GL_ENABLE_BIT);
+        {
+            glEnable(GL_TEXTURE_2D);
+            glDisable(GL_LIGHTING);
+            glDisable(GL_DEPTH_TEST);
+            glColor3f(1.0f, 1.0f, 1.0f);
+            ogl::binding::draw_shadow_color(0);
+            ogl::binding::draw_shadow_color(1);
+            ogl::binding::draw_shadow_color(2);
+        }
+        glPopAttrib();
     }
-    glPopAttrib();
 }
 
 void wrl::world::draw_line(int frusi, app::frustum *frusp)

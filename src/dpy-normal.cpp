@@ -17,6 +17,7 @@
 #include "app-prog.hpp"
 #include "app-event.hpp"
 #include "app-frustum.hpp"
+#include "ogl-program.hpp"
 #include "dpy-channel.hpp"
 #include "dpy-normal.hpp"
 
