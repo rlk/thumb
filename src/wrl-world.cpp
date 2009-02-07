@@ -960,7 +960,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv)
     // Use the visible range to determine the light projection.
     // TODO: this would benefit from near plane ranging.
 
-    frust.calc_projection(1.0, std::max(d, 10.0));
+//  frust.calc_projection(1.0, std::max(d, 10.0));
 
     // Render the fill geometry to the shadow buffer.
 

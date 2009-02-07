@@ -167,7 +167,7 @@ void ogl::unit::merge_bound(aabb& b)
 {
     // Merge the local mesh bounding volume with the given one.
 
-    b.merge(my_aabb);
+    if (active) b.merge(my_aabb);
 }
 
 //-----------------------------------------------------------------------------

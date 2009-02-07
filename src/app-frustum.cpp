@@ -337,13 +337,15 @@ void app::frustum::calc_view_points(double n, double f)
 
     for (int i = 0; i < 4; ++i)
     {
-        view_points[i + 0][0] = view_pos[0] + v[i][0] * n / user_dist;
-        view_points[i + 0][1] = view_pos[1] + v[i][1] * n / user_dist;
-        view_points[i + 0][2] = view_pos[2] + v[i][2] * n / user_dist;
+        double k = DOT3(v[i], view_planes[0]);
 
-        view_points[i + 4][0] = view_pos[0] + v[i][0] * f / user_dist;
-        view_points[i + 4][1] = view_pos[1] + v[i][1] * f / user_dist;
-        view_points[i + 4][2] = view_pos[2] + v[i][2] * f / user_dist;
+        view_points[i + 0][0] = view_pos[0] + v[i][0] * n / k;
+        view_points[i + 0][1] = view_pos[1] + v[i][1] * n / k;
+        view_points[i + 0][2] = view_pos[2] + v[i][2] * n / k;
+
+        view_points[i + 4][0] = view_pos[0] + v[i][0] * f / k;
+        view_points[i + 4][1] = view_pos[1] + v[i][1] * f / k;
+        view_points[i + 4][2] = view_pos[2] + v[i][2] * f / k;
     }
 }
 
@@ -392,6 +394,8 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
     double r = -std::numeric_limits<double>::max();
     double b =  std::numeric_limits<double>::max();
     double t = -std::numeric_limits<double>::max();
+    double n =  std::numeric_limits<double>::max();
+    double f = -std::numeric_limits<double>::max();
 
     // Begin by computing the center point of all C0 to C1 subsets.
 
@@ -470,7 +474,7 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
 
     for (int frusi = 0; frusi < frusc; ++frusi)
     {
-        const frustum *f = frusv[frusi];
+        const frustum *F = frusv[frusi];
         const double  d0 = 1.0 - c0;
         const double  d1 = 1.0 - c1;
 
@@ -481,13 +485,13 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
 
             // Compute the corners of the C0 to C1 subset of this frustum.
 
-            p0[0] = c0 * f->view_points[j][0] + d0 * f->view_points[i][0];
-            p0[1] = c0 * f->view_points[j][1] + d0 * f->view_points[i][1];
-            p0[2] = c0 * f->view_points[j][2] + d0 * f->view_points[i][2];
+            p0[0] = c0 * F->view_points[j][0] + d0 * F->view_points[i][0];
+            p0[1] = c0 * F->view_points[j][1] + d0 * F->view_points[i][1];
+            p0[2] = c0 * F->view_points[j][2] + d0 * F->view_points[i][2];
 
-            p1[0] = c1 * f->view_points[j][0] + d1 * f->view_points[i][0];
-            p1[1] = c1 * f->view_points[j][1] + d1 * f->view_points[i][1];
-            p1[2] = c1 * f->view_points[j][2] + d1 * f->view_points[i][2];
+            p1[0] = c1 * F->view_points[j][0] + d1 * F->view_points[i][0];
+            p1[1] = c1 * F->view_points[j][1] + d1 * F->view_points[i][1];
+            p1[2] = c1 * F->view_points[j][2] + d1 * F->view_points[i][2];
 
             // Transform the corners of this frustum into light space.
 
@@ -509,6 +513,10 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
             b = std::min(b, q1[1]);
             t = std::max(t, q0[1]);
             t = std::max(t, q1[1]);
+            n = std::min(n, -q0[2]);
+            n = std::min(n, -q1[2]);
+            f = std::max(f, -q0[2]);
+            f = std::max(f, -q1[2]);
         }
     }
 
@@ -537,6 +545,7 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
 
     calc_user_planes(O);
     calc_view_planes(M, I);
+    calc_projection (n, f);
 
     // This frustum is now ready for view culling and calc_projection.
 }
@@ -1182,11 +1191,13 @@ bool app::frustum::process_event(app::event *E)
 
 void app::frustum::wire() const
 {
-    glPushAttrib(GL_ENABLE_BIT);
+    glPushAttrib(GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
     {
         glDisable(GL_TEXTURE_2D);
         glDisable(GL_LIGHTING);
-        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_BLEND);
+
+        glDepthMask(GL_FALSE);
 
         glColor3f(1.0f, 1.0f, 0.0f);
 
@@ -1213,6 +1224,17 @@ void app::frustum::wire() const
         glEnd();
 
         glBegin(GL_LINE_LOOP);
+        {
+            glVertex3dv(view_points[4]);
+            glVertex3dv(view_points[5]);
+            glVertex3dv(view_points[7]);
+            glVertex3dv(view_points[6]);
+        }
+        glEnd();
+
+        glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+
+        glBegin(GL_QUADS);
         {
             glVertex3dv(view_points[4]);
             glVertex3dv(view_points[5]);
