@@ -997,6 +997,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
             {
                 glCullFace(GL_FRONT);
                 fill_pool->draw(frusi, false, false);
+                fill_pool->draw(frusi, false, true);
                 glCullFace(GL_BACK);
             }
             fill_pool->draw_fini();
@@ -1066,6 +1067,8 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
+    glAlphaFunc(GL_GREATER, 0.5f);
+
     // Compute the light source position.
 
     GLfloat L[4];
@@ -1082,6 +1085,7 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     fill_pool->draw_init();
     {
         fill_pool->draw(frusi, true, false);
+        fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
 

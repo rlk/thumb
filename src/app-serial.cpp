@@ -58,15 +58,18 @@ void app::serial::load()
 
     // Load the data stream and parse the XML.
 
+/* TODO: push this catch up to where a default may be supplied.
     try
     {
+*/
         if (const char *buff = (const char *) ::data->load(file))
             head = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
+/*
     }
     catch (find_error& e)
     {
     }
-
+*/
     // Release the data stream.
 
     ::data->free(file);

@@ -254,6 +254,18 @@ bool ogl::binding::color_eq(const binding *that) const
     return true;
 }
 
+// Determine whether the material binding is opaque.
+
+bool ogl::binding::opaque() const
+{
+    // HACK: test lowest-unit-numbered texture for opacity.
+
+    if (!color_texture.empty())
+        return (*color_texture.begin()).second->opaque();
+
+    return true;
+}
+
 //-----------------------------------------------------------------------------
 
 void ogl::binding::bind(bool c) const
@@ -266,20 +278,22 @@ void ogl::binding::bind(bool c) const
     if (c)
     {
         if (color_program)
+        {
             color_program->bind();
+
+            // TODO: there's a chance this can be lofted.
+
+            color_program->uniform("split", split_depth[0],
+                                            split_depth[1],
+                                            split_depth[2],
+                                            split_depth[3]);
+        }
 
         for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
             ti->second->bind(ti->first);
 
         for (fi = light_texture.begin(); fi != light_texture.end(); ++fi)
             fi->second->bind_depth(fi->first);
-
-        // TODO: there's a chance this can be lofted.
-
-        color_program->uniform("split", split_depth[0],
-                                        split_depth[1],
-                                        split_depth[2],
-                                        split_depth[3]);
     }
     else
     {

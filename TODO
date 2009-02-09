@@ -1,8 +1,11 @@
-Cube map test
 Script to convert MTL to XML
 Sky
 Sky illumination
 Terrain
+
+grep '.hpp' *.hpp 
+
+Check all Kizhi textures to ensure that opaque are RGB and masked are RGBA.
 
 When seeking the near plane distance, it's important to consider only objects which are in view.  It's not only a question of "how far in front of this plane is this box" but "how far in front of this plane is the portion of the box in front of all these other planes too?" This is a very challenging problem.
 

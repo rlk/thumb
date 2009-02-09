@@ -56,6 +56,9 @@ namespace ogl
         void draw() const;
         void init();
         void fini();
+
+        bool opaque() const { return (extform == GL_LUMINANCE ||
+                                      extform == GL_RGB); }
     };
 }
 

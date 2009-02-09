@@ -3,7 +3,7 @@
 
   <!-- Host configuration -->
 
-  <option type="string" name="host_file">host/cube.xml</option>
+  <option type="string" name="host_file">host/common.xml</option>
   <option type="string" name="exec_dir">/Users/rlk/src/thumb/</option>
   <option type="string" name="data_dir">/Users/rlk/data/</option>
 

@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <iostream>
 
+#include "default.hpp"
 #include "ogl-program.hpp"
 #include "ogl-texture.hpp"
 #include "ogl-binding.hpp"
@@ -61,7 +62,7 @@ const ogl::program *app::glob::load_program(std::string name)
 {
     if (program_map.find(name) == program_map.end())
     {
-        try
+        try // TODO: load a default
         {
             program_map[name].ptr = new ogl::program(name);
             program_map[name].ref = 1;
@@ -161,6 +162,28 @@ const ogl::binding *app::glob::load_binding(std::string name)
 {
     if (binding_map.find(name) == binding_map.end())
     {
+        try
+        {
+            binding_map[name].ptr = new ogl::binding(name);
+            binding_map[name].ref = 1;
+        }
+        catch (std::runtime_error& e)
+        {
+            if (name == "default")
+                return 0;
+            else
+                return load_binding("default");
+        }
+    }
+    else   binding_map[name].ref++;
+
+    return binding_map[name].ptr;
+}
+/*
+const ogl::binding *app::glob::load_binding(std::string name)
+{
+    if (binding_map.find(name) == binding_map.end())
+    {
         binding_map[name].ptr = new ogl::binding(name);
         binding_map[name].ref = 1;
     }
@@ -168,7 +191,7 @@ const ogl::binding *app::glob::load_binding(std::string name)
 
     return binding_map[name].ptr;
 }
-
+*/
 const ogl::binding *app::glob::dupe_binding(const ogl::binding *p)
 {
     if (p)

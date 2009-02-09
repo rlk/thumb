@@ -62,7 +62,7 @@ namespace ogl
 
         elem(const binding *, const GLuint *, GLenum, GLsizei, GLuint, GLuint);
 
-        bool opaque() const { return bnd->opaque(); }
+        bool opaque() const { return bnd ? bnd->opaque() : true; }
 
         bool depth_eq(const elem&) const;
         bool color_eq(const elem&) const;
@@ -140,8 +140,8 @@ namespace ogl
 
         elem_v opaque_depth;
         elem_v opaque_color;
-        elem_v transp_depth;
-        elem_v transp_color;
+        elem_v masked_depth;
+        elem_v masked_color;
 
     public:
 

@@ -353,8 +353,8 @@ void ogl::node::sort(GLuint *e, GLuint d)
 
     opaque_depth.clear();
     opaque_color.clear();
-    transp_depth.clear();
-    transp_color.clear();
+    masked_depth.clear();
+    masked_color.clear();
 
     for (elem_v::iterator i = my_elem.begin(); i != my_elem.end(); ++i)
     {
@@ -376,19 +376,19 @@ void ogl::node::sort(GLuint *e, GLuint d)
         }
         else
         {
-            // Transp depth batches
+            // Masked depth batches
 
-            if (transp_depth.empty() || !transp_depth.back().depth_eq(*i))
-                transp_depth.push_back(*i);
+            if (masked_depth.empty() || !masked_depth.back().depth_eq(*i))
+                masked_depth.push_back(*i);
             else
-                transp_depth.back().merge(*i);
+                masked_depth.back().merge(*i);
 
-            // Transp color batches
+            // Masked color batches
 
-            if (transp_color.empty() || !transp_color.back().color_eq(*i))
-                transp_color.push_back(*i);
+            if (masked_color.empty() || !masked_color.back().color_eq(*i))
+                masked_color.push_back(*i);
             else
-                transp_color.back().merge(*i);
+                masked_color.back().merge(*i);
         }
     }
 }
@@ -439,14 +439,16 @@ void ogl::node::draw(int id, bool color, bool alpha)
         elem_i e;
 
         if (color)
-            if (alpha) { b = transp_color.begin(); e = transp_color.end(); }
+            if (alpha) { b = masked_color.begin(); e = masked_color.end(); }
             else       { b = opaque_color.begin(); e = opaque_color.end(); }
         else
-            if (alpha) { b = transp_depth.begin(); e = transp_depth.end(); }
+            if (alpha) { b = masked_depth.begin(); e = masked_depth.end(); }
             else       { b = opaque_depth.begin(); e = opaque_depth.end(); }
 
         if (b != e)
         {
+            if (alpha) { glEnable(GL_ALPHA_TEST); };
+
             // Render the selected batches.
 
             glPushMatrix();
@@ -458,6 +460,8 @@ void ogl::node::draw(int id, bool color, bool alpha)
 //              my_aabb.draw();
             }
             glPopMatrix();
+
+            if (alpha) { glDisable(GL_ALPHA_TEST); };
         }
     }
 }

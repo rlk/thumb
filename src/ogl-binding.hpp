@@ -73,10 +73,9 @@ namespace ogl
         binding(std::string);
        ~binding();
 
-        bool opaque() const { return true; } // TODO: flag masked/translucent
-
         bool depth_eq(const binding *) const;
         bool color_eq(const binding *) const;
+        bool opaque() const;
 
         void bind(bool) const;
 
