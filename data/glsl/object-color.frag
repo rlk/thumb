@@ -80,7 +80,7 @@ void main()
 
     vec3 KS = pow(max(dot(V, R), 0.0), Ns)         * Ks;
     vec3 KD =     max(dot(L, N), 0.0)      * D.rgb * Kd;
-    vec3 KA =                                D.rgb * Ka;// * Z;
+    vec3 KA =                                D.rgb * Ka;
 
     gl_FragColor = vec4(((KS + KD) * S + KA).rgb, D.a);
 }

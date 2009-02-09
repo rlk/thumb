@@ -1,47 +1,43 @@
 <?xml version="1.0"?>
 <host>
-  <buffer w="256" h="256"/>
-
-  <view x="0.0" y="0.0" z="0.0"/>
+  <overlay w="1024" h="1024">
+    <frustum>
+      <perspective hfov="90.0" vfov="90.0"/>
+      <rotation y="0"/>
+    </frustum>
+  </overlay>
 
   <node name="cube">
     <window x="0" y="0" w="1024" h="256"/>
+    <channel w="256" h="256" x="0.0" y="0.0" z="0.0"/>
 
-    <tile index="0">
+    <display type="normal" index="0">
       <viewport x="0" y="0" w="256" h="256"/>
       <frustum>
-        <perspective aspect="1.0" fov="90.0"/>
+        <perspective hfov="90.0" vfov="90.0"/>
         <rotation y="0"/>
       </frustum>
-      <display type="normal">
-      </display>
-    </tile>
-    <tile index="1">
+    </display>
+    <display type="normal" index="1">
       <viewport x="256" y="0" w="256" h="256"/>
       <frustum>
-        <perspective aspect="1.0" fov="90.0"/>
+        <perspective hfov="90.0" vfov="90.0"/>
         <rotation y="-90"/>
       </frustum>
-      <display type="normal">
-      </display>
-    </tile>
-    <tile index="2">
+    </display>
+    <display type="normal" index="2">
       <viewport x="512" y="0" w="256" h="256"/>
       <frustum>
-        <perspective aspect="1.0" fov="90.0"/>
+        <perspective hfov="90.0" vfov="90.0"/>
         <rotation y="-180"/>
       </frustum>
-      <display type="normal">
-      </display>
-    </tile>
-    <tile index="3">
+    </display>
+    <display type="normal" index="3">
       <viewport x="768" y="0" w="256" h="256"/>
       <frustum>
-        <perspective aspect="1.0" fov="90.0"/>
+        <perspective hfov="90.0" vfov="90.0"/>
         <rotation y="-270"/>
       </frustum>
-      <display type="normal">
-      </display>
-    </tile>
+    </display>
   </node>
 </host>

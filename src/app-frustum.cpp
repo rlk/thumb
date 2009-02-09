@@ -756,6 +756,14 @@ app::frustum::frustum(app::node node, int w, int h)
     user_pos[2] = 0.0;
 
     calc_calibrated();
+
+    double M[16];
+
+    load_idt(M);
+
+    calc_view_planes(M, M);
+    calc_projection(1.0, 10.0);
+    calc_view_points(1.0, 10.0);
 }
 
 app::frustum::frustum(frustum& that)
@@ -1057,15 +1065,15 @@ bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
     normalize(R);
     normalize(U);
 
-    double u = DOT3(point, R);
-    double v = DOT3(point, U);
+    double u = DOT3(point, R) / get_w();
+    double v = DOT3(point, U) / get_h();
 
     // Confirm that the point falls within the frustum.
 
     if (0 < u && u < 1 && 0 < v && v < 1)
     {
-        x = nearest_int(u * double(pixel_w) / get_w());
-        y = nearest_int(v * double(pixel_h) / get_h());
+        x = nearest_int(u * double(pixel_w));
+        y = nearest_int(v * double(pixel_h));
         return true;
     }
     return false;
