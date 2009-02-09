@@ -15,6 +15,7 @@
 
 #include <ode/ode.h>
 
+#include "ogl-range.hpp"
 #include "wrl-atom.hpp"
 #include "wrl-operation.hpp"
 
@@ -156,9 +157,9 @@ namespace wrl
 
         // Rendering methods
 
-        void   prep_lite(int, app::frustum **, double, double);
-        double prep_fill(int, app::frustum **);
-        double prep_line(int, app::frustum **);
+        void       prep_lite(int, app::frustum **, ogl::range);
+        ogl::range prep_fill(int, app::frustum **);
+        ogl::range prep_line(int, app::frustum **);
 
         void   draw_fill(int, app::frustum  *);
         void   draw_line(int, app::frustum  *);

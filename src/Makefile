@@ -17,6 +17,7 @@ OBJS=   util.o \
 	ogl-obj.o \
 	ogl-lut.o \
 	ogl-aabb.o \
+	ogl-range.o \
 	ogl-binding.o \
 	ogl-program.o \
 	ogl-texture.o \

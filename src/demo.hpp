@@ -96,8 +96,8 @@ public:
 
     bool process_event(app::event *);
 
-    double prep(int, app::frustum **);
-    void   draw(int, app::frustum  *);
+    ogl::range prep(int, app::frustum **);
+    void       draw(int, app::frustum  *);
 
     void next();
     void prev();

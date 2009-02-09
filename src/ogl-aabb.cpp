@@ -12,8 +12,80 @@
 
 #include <algorithm>
 
-#include "ogl-aabb.hpp"
 #include "matrix.hpp"
+#include "ogl-opengl.hpp"
+#include "ogl-aabb.hpp"
+
+//-----------------------------------------------------------------------------
+
+double ogl::aabb::max(const double *P) const
+{
+    // Find the corner most positive w.r.t the plane.  Return the distance.
+
+    if (P[0] > 0)
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return z[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3];
+            else
+                return z[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3];
+        else
+            if (P[2] > 0)
+                return z[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3];
+            else
+                return z[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
+    else
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return a[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3];
+            else
+                return a[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3];
+        else
+            if (P[2] > 0)
+                return a[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3];
+            else
+                return a[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
+}
+
+double ogl::aabb::min(const double *P) const
+{
+    // Find the corner most negative w.r.t the plane.  Return the distance.
+
+    if (P[0] > 0)
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return a[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
+            else
+                return a[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3];
+        else
+            if (P[2] > 0)
+                return a[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3];
+            else
+                return a[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3];
+    else
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return z[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
+            else
+                return z[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3];
+        else
+            if (P[2] > 0)
+                return z[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3];
+            else
+                return z[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3];
+}
+
+double ogl::aabb::max(const double *M, const double *V) const
+{
+    double P[4];
+
+    // Transform the clipping plane into the bounding box's local space.
+
+    mult_xps_vec4(P, M, V);
+
+    // Find the corner most positive w.r.t the plane.  Return distance.
+
+    return max(P);
+}
 
 //-----------------------------------------------------------------------------
 
@@ -50,7 +122,7 @@ void ogl::aabb::merge(const aabb& that)
     z[2] = std::max(z[2], that.z[2]);
 }
 
-double ogl::aabb::dist(const double *M, const double *V)
+ogl::range ogl::aabb::get_range(const double *M, const double *V) const
 {
     double P[4];
 
@@ -58,43 +130,20 @@ double ogl::aabb::dist(const double *M, const double *V)
 
     mult_xps_vec4(P, M, V);
 
-    // Find the corner most positive w.r.t the plane.  Return distance.
-
-    if (P[0] > 0)
-        if (P[1] > 0)
-            if (P[2] > 0)
-                return z[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3];
-            else
-                return z[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3];
-        else
-            if (P[2] > 0)
-                return z[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3];
-            else
-                return z[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
-    else
-        if (P[1] > 0)
-            if (P[2] > 0)
-                return a[0] * P[0] + z[1] * P[1] + z[2] * P[2] + P[3];
-            else
-                return a[0] * P[0] + z[1] * P[1] + a[2] * P[2] + P[3];
-        else
-            if (P[2] > 0)
-                return a[0] * P[0] + a[1] * P[1] + z[2] * P[2] + P[3];
-            else
-                return a[0] * P[0] + a[1] * P[1] + a[2] * P[2] + P[3];
+    return range(min(P), max(P));
 }
 
 bool ogl::aabb::test(const double *M, int  n,
-                     const double *V, int &hint)
+                     const double *V, int &hint) const
 {
     // Use the hint to check the likely cull plane.
 
-    if (dist(M, V + 4 * hint) < 0) return false;
+    if (max(M, V + 4 * hint) < 0) return false;
 
     // The hint was no good.  Check all the other planes.
 
     for (int i = 0; i < n; ++i)
-        if (i != hint && dist(M, V + 4 * i) < 0)
+        if (i != hint && max(M, V + 4 * i) < 0)
         {
             // Plane i is a hit.  Set it as the hint for next time.
 

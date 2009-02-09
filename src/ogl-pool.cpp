@@ -402,7 +402,7 @@ void ogl::node::transform(const double *M)
 
 //-----------------------------------------------------------------------------
 
-double ogl::node::view(int id, int n, const double *V)
+ogl::range ogl::node::view(int id, int n, const double *V)
 {
     // Get the cached culler hint.
 
@@ -422,9 +422,9 @@ double ogl::node::view(int id, int n, const double *V)
     // If this node is visible, return the AABB max distance from plane 0.
 
     if (bit && V)
-        return my_aabb.dist(M, V);
+        return my_aabb.get_range(M, V);
     else
-        return 0.0;
+        return ogl::range();
 }
 
 void ogl::node::draw(int id, bool color, bool alpha)
@@ -455,7 +455,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
 
                 for (elem_i i = b; i != e; ++i) i->draw(color);
 
-                my_aabb.draw();
+//              my_aabb.draw();
             }
             glPopMatrix();
         }
@@ -617,16 +617,16 @@ void ogl::pool::prep()
     }
 }
 
-double ogl::pool::view(int id, int n, const double *V)
+ogl::range ogl::pool::view(int id, int n, const double *V)
 {
-    double dist = 0;
+    ogl::range r;
 
     // Test all nodes for visibility.  Find the range of the farthest node.
 
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        dist = std::max(dist, (*i)->view(id, n, V));
+        r.merge((*i)->view(id, n, V));
 
-    return dist;
+    return r;
 }
 
 //-----------------------------------------------------------------------------

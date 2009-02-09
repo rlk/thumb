@@ -13,7 +13,7 @@
 #ifndef OGL_AABB_HPP
 #define OGL_AABB_HPP
 
-#include "ogl-opengl.hpp"
+#include "ogl-range.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -24,6 +24,10 @@ namespace ogl
         double a[3];
         double z[3];
 
+        double min(const double *)                 const;
+        double max(const double *)                 const;
+        double max(const double *, const double *) const;
+
     public:
 
         aabb();
@@ -31,10 +35,10 @@ namespace ogl
         void merge(double, double, double);
         void merge(const aabb&);
 
-        double dist(const double *,
-                    const double *);
+        ogl::range get_range(const double *, const double *) const;
+
         bool   test(const double *, int, 
-                    const double *, int&);
+                    const double *, int&) const;
         void   draw() const;
 
         double length(int i) const { return z[i] - a[i]; }

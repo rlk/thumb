@@ -286,14 +286,14 @@ bool demo::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-double demo::prep(int frusc, app::frustum **frusv)
+ogl::range demo::prep(int frusc, app::frustum **frusv)
 {
-    // Prep the current mode, giving the far plane distance.
+    // Prep the current mode, giving the view range.
 
     if (curr)
         return curr->prep(frusc, frusv);
     else
-        return 1.0;
+        return ogl::range();
 }
 
 void demo::draw(int frusi, app::frustum *frusp)

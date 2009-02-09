@@ -34,12 +34,16 @@ mode::info::info(wrl::world *w) : mode(w), gui(0)
 
 //-----------------------------------------------------------------------------
 
-double mode::info::prep(int frusc, app::frustum **frusv)
+ogl::range mode::info::prep(int frusc, app::frustum **frusv)
 {
     assert(world);
 
-    return std::max(world->prep_fill(frusc, frusv),
-                    world->prep_line(frusc, frusv));
+    ogl::range r;
+
+    r.merge(world->prep_fill(frusc, frusv));
+    r.merge(world->prep_line(frusc, frusv));
+
+    return r;
 }
 
 void mode::info::draw(int frusi, app::frustum *frusp)

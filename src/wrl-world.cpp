@@ -946,31 +946,39 @@ void wrl::world::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::prep_lite(int frusc, app::frustum **frusv,
-                           double n, double f)
+void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 {
+    // Compute the shadow map split depths.
+
+    const double n = r.get_n();
+    const double f = r.get_f();
+
     int m = ogl::binding::shadow_count();
+
+    double c[4];
+
+    for (int i = 0; i <= m; ++i)
+        c[i] = ogl::binding::split(i, n, f);
+
+    // Render each of the shadow maps.
 
     for (int i = 0; i < m; ++i)
     {
         app::frustum frust(0, shadow_res, shadow_res);
         int          frusi = frusc + i + 1;
 
-        double c0 = ogl::binding::split(i,     n, f);
-        double c1 = ogl::binding::split(i + 1, n, f);
-
         // Compute a lighting frustum encompasing all view frusta.
 
-        frust.calc_union(frusc, frusv, c0, c1, lite_v, lite_M, lite_I);
+        frust.calc_union(frusc, frusv, c[i], c[i+1], lite_v, lite_M, lite_I);
 
         // Cache the fill visibility for the light.
 
-        /*double d =*/ fill_pool->view(frusi, 5, frust.get_planes());
+        ogl::range s = fill_pool->view(frusi, 5, frust.get_planes());
 
         // Use the visible range to determine the light projection.
-        // TODO: this would benefit from near plane ranging.
+        // TODO: optimize usinge calc_union's discovered range.
 
-        // frust.calc_projection(1.0, std::max(d, 10.0));
+        frust.calc_projection(s.get_n(), s.get_f());
 
         // Render the fill geometry to the shadow buffer.
 
@@ -1014,9 +1022,9 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv,
     }
 }
 
-double wrl::world::prep_fill(int frusc, app::frustum **frusv)
+ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 {
-    double dist = 10.0;
+    ogl::range r;
 
     // Prep the fill geometry pool.
 
@@ -1025,22 +1033,21 @@ double wrl::world::prep_fill(int frusc, app::frustum **frusv)
     // Cache the fill visibility and determine the far plane distance.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        dist = std::max(dist, fill_pool->view(frusi, 5,
-                                              frusv[frusi]->get_planes()));
+        r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()));
 
-    // Estimate the corners of all frusta so their union may be found.
+    // Temporarily set the corners of all frustums for shadow adaptation.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        frusv[frusi]->calc_view_points(1.0, dist);
+        frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
 
-    prep_lite(frusc, frusv, 1.0, dist);
+    prep_lite(frusc, frusv, r);
 
-    return dist;
+    return r;
 }
 
-double wrl::world::prep_line(int frusc, app::frustum **frusv)
+ogl::range wrl::world::prep_line(int frusc, app::frustum **frusv)
 {
-    double dist = 0.0;
+    ogl::range r;
 
     // Prep the line geometry pool.
 
@@ -1049,9 +1056,9 @@ double wrl::world::prep_line(int frusc, app::frustum **frusv)
     // Cache the line visibility and determine the far plane distance.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        dist = std::max(dist, line_pool->view(frusi, 5,
-                                              frusv[frusi]->get_planes()));
-    return dist;
+        r.merge(line_pool->view(frusi, 5, frusv[frusi]->get_planes()));
+
+    return r;
 }
 
 void wrl::world::draw_fill(int frusi, app::frustum *frusp)
@@ -1116,157 +1123,4 @@ void wrl::world::draw_line(int frusi, app::frustum *frusp)
     ogl::line_state_fini();
 }
 
-//-----------------------------------------------------------------------------
-
-/*
-double wrl::world::prep(int frusc, app::frustum **frusv, bool edit)
-{
-    double line_d = 0;
-
-    if (edit)
-    {
-                 line_pool->prep();
-        line_d = line_pool->view(0, 5, planes);
-    }
-                 fill_pool->prep();
-    frust_dist = fill_pool->view(0, 5, planes);
-
-    return std::max(frust_dist, line_d);
-    return 0;
-}
-*/
-
-/*
-void wrl::world::draw(int frusi, app::frustum *frusp, bool edit)
-{
-    GLfloat L[4];
-    double  l[4], c[4], d[4];
-
-    const double n =     1000.0; // ::user->get_n(); HACK
-    const double f = 10000000.0; // ::user->get_f(); HACK
-
-    const int m = 3;
-
-    // Compute the light source position.
-
-    l[0] = sin(RAD(light_T)) * cos(RAD(light_P));
-    l[1] =                     sin(RAD(light_P));
-    l[2] = cos(RAD(light_T)) * cos(RAD(light_P));
-    l[3] = 0;
-
-    L[0] = GLfloat(l[0]);
-    L[1] = GLfloat(l[1]);
-    L[2] = GLfloat(l[2]);
-    L[3] = 0;
-
-    glLightfv(GL_LIGHT0, GL_POSITION, L);
-
-    fill_pool->draw_init();
-    {
-        // Compute the splits.
-
-        for (int i = 0; i <= m; ++i)
-        {
-            double iom = double(i) / double(m);
-
-            c[i] = (n * pow(f / n, iom) + n + (f - n) * iom) / 2;
-
-            d[i] = (n - 1 / c[i]) * f / (f - n);
-        }
-
-        // Compute the light projection parameters.
-
-        for (int i = 0; i < m; ++i)
-        {
-            double M[16], I[16], V[20], a[3], z[3];
-
-            double split[24];
-
-            double kn = (c[i + 0] - n) / (f - n);
-            double kf = (c[i + 1] - n) / (f - n);
-
-            LERP(split +  0, points +  0, points + 12, kn);
-            LERP(split +  3, points +  3, points + 15, kn);
-            LERP(split +  6, points +  6, points + 18, kn);
-            LERP(split +  9, points +  9, points + 21, kn);
-            LERP(split + 12, points +  0, points + 12, kf);
-            LERP(split + 15, points +  3, points + 15, kf);
-            LERP(split + 18, points +  6, points + 18, kf);
-            LERP(split + 21, points +  9, points + 21, kf);
-
-            get_ortho_light(a, z, M, I, V, l, split);
-
-            float D = fill_pool->view(i + 1, 5, V);
-
-            if (D < 1.0) D = 1.0;
-
-            // Set up the shadow map rendering destination.
-
-            shadow[i]->bind();
-            draw_light_init(a[0], z[0], a[1], z[1], -a[2] - D, -a[2], M);
-            {
-                // Draw the scene to the depth buffer.
-
-                glCullFace(GL_FRONT);
-                fill_pool->draw(i + 1, false, false);
-                glCullFace(GL_BACK);
-            }
-            draw_light_fini();
-            shadow[i]->free();
-
-            // Set up the shadow projection.
-
-            glActiveTextureARB(GL_TEXTURE1 + i);
-            glMatrixMode(GL_TEXTURE);
-            {
-                glLoadIdentity();
-
-                glMultMatrixd(::user->get_S());
-                glOrtho(a[0], z[0], a[1], z[1], -a[2] - D, -a[2]);
-                glMultMatrixd(M);
-                glMultMatrixd(::user->get_M());
-            }
-            glMatrixMode(GL_MODELVIEW);
-            glActiveTextureARB(GL_TEXTURE0);
-        }
-
-        // Set up the shadow map rendering sources.
-
-        shadow[0]->bind_depth(GL_TEXTURE2);
-        shadow[1]->bind_depth(GL_TEXTURE3);
-        shadow[2]->bind_depth(GL_TEXTURE4);
-        {
-            ogl::binding::set_split(GLfloat(d[0]),
-                                    GLfloat(d[1]),
-                                    GLfloat(d[2]),
-                                    GLfloat(d[3]));
-
-            // Draw the scene to the color buffer.
-
-            fill_pool->draw(0, true, false);
-        }
-        shadow[2]->free_depth(GL_TEXTURE4);
-        shadow[1]->free_depth(GL_TEXTURE3);
-        shadow[0]->free_depth(GL_TEXTURE2);
-    }
-    fill_pool->draw_fini();
-
-    // Draw the editing widgets.
-
-    if (edit)
-    {
-        line_init();
-        line_pool->draw_init();
-
-        glColor3f(1.0f, 0.0f, 0.0f);
-        stat_node->draw(0, true, false);
-
-        glColor3f(0.0f, 1.0f, 0.0f);
-        dyna_node->draw(0, true, false);
-
-        line_pool->draw_fini();
-        line_fini();
-    }
-}
-*/
 //-----------------------------------------------------------------------------

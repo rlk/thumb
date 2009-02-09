@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2009 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,35 +10,32 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <cassert>
+#include <algorithm>
 
-#include "wrl-world.hpp"
-#include "app-user.hpp"
-#include "app-frustum.hpp"
-#include "mode-mode.hpp"
+#include "ogl-range.hpp"
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::mode::prep(int frusc, app::frustum **frusv)
+ogl::range::range(double n, double f) : n(n), f(f)
 {
-    assert(world);
-
-    // Prep the world.
-
-    return world->prep_fill(frusc, frusv);
 }
 
-void mode::mode::draw(int frusi, app::frustum *frusp)
+ogl::range::range()
 {
-    assert(world);
+    n =  std::numeric_limits<double>::max();
+    f = -std::numeric_limits<double>::max();
+}
 
-    // Draw the world.
+void ogl::range::merge(double z)
+{
+    n = std::min(n, z);
+    f = std::max(f, z);
+}
 
-     frusp->draw();
-    ::user->draw();
-
-    world->draw_fill(frusi, frusp);
+void ogl::range::merge(const range& that)
+{
+    n = std::min(n, that.n);
+    f = std::max(f, that.f);
 }
 
 //-----------------------------------------------------------------------------
-

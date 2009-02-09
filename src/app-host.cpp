@@ -18,6 +18,7 @@
 #include "util.hpp"
 #include "matrix.hpp"
 #include "default.hpp"
+#include "ogl-range.hpp"
 #include "ogl-opengl.hpp"
 #include "dpy-channel.hpp"
 #include "dpy-display.hpp"
@@ -670,15 +671,14 @@ void app::host::draw()
 
     // Do render prepass and determine view distance (possibly expensive).
 
-    double min_dist = 1.0;
-    double max_dist = std::max(10.0, ::prog->prep(frusc, frusv));
+    ogl::range r = ::prog->prep(frusc, frusv);
 
     // Cache the frustum projections (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
     {
-        (*i)->calc_projection (min_dist, max_dist);
-        (*i)->calc_view_points(min_dist, max_dist);
+        (*i)->calc_projection (r.get_n(), r.get_f());
+        (*i)->calc_view_points(r.get_n(), r.get_f());
     }
 
     // Clear the entire window.

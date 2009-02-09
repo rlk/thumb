@@ -16,6 +16,8 @@
 #include <set>
 #include <cstring>
 
+#include "ogl-range.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -80,8 +82,8 @@ namespace wrl
         bool point(double *, const double *, const double *);
         void click(          const double *, const double *);
 
-        double prep(int, app::frustum **);
-        void   draw(int, app::frustum  *);
+        ogl::range prep(int, app::frustum **);
+        void       draw(int, app::frustum  *);
     };
 }
 

@@ -34,8 +34,8 @@ namespace mode
 
         info(wrl::world *);
 
-        virtual double prep(int, app::frustum **);
-        virtual void   draw(int, app::frustum  *);
+        virtual ogl::range prep(int, app::frustum **);
+        virtual void       draw(int, app::frustum  *);
 
         virtual bool process_event(app::event *);
     };

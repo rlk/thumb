@@ -13,6 +13,8 @@
 #ifndef MODE_MODE_HPP
 #define MODE_MODE_HPP
 
+#include "ogl-range.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -40,8 +42,8 @@ namespace mode
 
         mode(wrl::world *w) : world(w) { }
 
-        virtual double prep(int, app::frustum **);
-        virtual void   draw(int, app::frustum  *);
+        virtual ogl::range prep(int, app::frustum **);
+        virtual void       draw(int, app::frustum  *);
 
         virtual bool process_event(app::event *) { return false; }
 

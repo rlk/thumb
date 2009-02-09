@@ -31,7 +31,7 @@ double ogl::binding::split(int i, double n, double f)
 
     double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
 
-    split_depth[i] = (n - 1 / c) * f / (f - n);
+    split_depth[i] = (1 - n / c) * f / (f - n);
 
     return (c - n) / (f - n);
 }
@@ -273,6 +273,8 @@ void ogl::binding::bind(bool c) const
 
         for (fi = light_texture.begin(); fi != light_texture.end(); ++fi)
             fi->second->bind_depth(fi->first);
+
+        // TODO: there's a chance this can be lofted.
 
         color_program->uniform("split", split_depth[0],
                                         split_depth[1],

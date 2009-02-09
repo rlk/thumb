@@ -31,7 +31,7 @@ mode::edit::edit(wrl::world *w) : mode(w)
 {
     // Initialize edit mode configuration.
 
-    key_undo             = conf->get_i("key_undo");
+    key_redo             = conf->get_i("key_redo");
     key_redo             = conf->get_i("key_redo");
 
     key_axis_X           = conf->get_i("key_axis_X");
@@ -321,16 +321,20 @@ bool mode::edit::process_timer(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-double mode::edit::prep(int frusc, app::frustum **frusv)
+ogl::range mode::edit::prep(int frusc, app::frustum **frusv)
 {
     assert(world);
     assert(xform);
 
     // Prep the world and the constraint.  Combine the ranges.
+    
+    ogl::range r;
 
-    return std::max(std::max(world->prep_fill(frusc, frusv),
-                             world->prep_line(frusc, frusv)),
-                    xform->prep(frusc, frusv));
+    r.merge(world->prep_fill(frusc, frusv));
+    r.merge(world->prep_line(frusc, frusv));
+    r.merge(xform->prep     (frusc, frusv));
+
+    return r;
 }
 
 void mode::edit::draw(int frusi, app::frustum *frusp)

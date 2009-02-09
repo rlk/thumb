@@ -247,9 +247,9 @@ void wrl::constraint::click(const double *p, const double *v)
 
 //-----------------------------------------------------------------------------
 
-double wrl::constraint::prep(int frusc, app::frustum **frusv)
+ogl::range wrl::constraint::prep(int frusc, app::frustum **frusv)
 {
-    double dist = 0.0;
+    ogl::range r;
 
     // Prep the geometry pool.
 
@@ -258,9 +258,9 @@ double wrl::constraint::prep(int frusc, app::frustum **frusv)
     // Cache the visibility and determine the far plane distance.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        dist = std::max(dist, pool->view(frusi, 5,
-                                         frusv[frusi]->get_planes()));
-    return dist;
+        r.merge(pool->view(frusi, 5, frusv[frusi]->get_planes()));
+
+    return r;
 }
 
 void wrl::constraint::draw(int frusi, app::frustum *frusp)
