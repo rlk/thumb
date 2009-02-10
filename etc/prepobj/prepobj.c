@@ -98,6 +98,8 @@ int main(int argc, char *argv[])
 {
     if      (argc > 2) mtltoxml(argv[1], argv[2]);
     else if (argc > 1) mtltoxml(argv[1], NULL);
+    else
+        fprintf(stderr, "Usage: %s <obj> [dir]\n", argv[0]);
 
     return 0;
 }

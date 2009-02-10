@@ -1,0 +1,26 @@
+
+                            prepobj.c
+
+prepobj.c preprocesses an OBJ/MTL file pair for use with Thumb.  It
+eliminates identical vertices in the OBJ in order to optimize
+rendering performance and ensure that Thumb can produce correct
+tangent vectors at load time.  It also performs a basic triangle
+reordering in order to improve the object's average cache miss ratio,
+further improving run-time performance.
+
+prepobj.c also reads and translates the MTL file, giving a series of
+Thumb material specification XML files.  Each resulting XML file is
+named after the diffuse texture given in the map_Kd element of the
+input material. If multiple materials use the same diffuse texture,
+then they will be collapsed into a single material.  The usemtl
+references in the OBJ file are rewritten to use the new material
+names.
+
+Usage:
+
+    prepobj <obj> [dir]
+
+        obj ... The OBJ file to be processed
+        dir ... An optional subdirectory name to be prepended to all
+                material file and texture names.
+

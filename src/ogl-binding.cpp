@@ -123,7 +123,8 @@ void ogl::binding::free_shadow_depth(int i)
 ogl::binding::binding(std::string name) :
     name(name),
     depth_program(0),
-    color_program(0)
+    color_program(0),
+    cull_mode(GL_BACK)
 {
     std::string path = "material/" + name + ".xml";
 
@@ -177,6 +178,18 @@ ogl::binding::binding(std::string name) :
                 depth_texture[depth_unit] = ::glob->load_texture(path);
             if (color_unit)
                 color_texture[color_unit] = ::glob->load_texture(path);
+        }
+
+        // Initialize all options.
+
+        if ((node = app::find(root, "option", "name", "cull")))
+        {
+            std::string cull(app::get_attr_s(node, "value"));
+
+            if      (cull == "none")  cull_mode = 0;
+            else if (cull == "back")  cull_mode = GL_BACK;
+            else if (cull == "front") cull_mode = GL_FRONT;
+            else if (cull == "both")  cull_mode = GL_FRONT_AND_BACK;
         }
     }
 }
@@ -294,6 +307,17 @@ void ogl::binding::bind(bool c) const
 
         for (fi = light_texture.begin(); fi != light_texture.end(); ++fi)
             fi->second->bind_depth(fi->first);
+
+        // TODO: Abstract this to minimize resetting
+        // TODO: Add depth test options
+
+        if (cull_mode)
+        {
+            glEnable(GL_CULL_FACE);
+            glCullFace(cull_mode);
+        }
+        else
+            glDisable(GL_CULL_FACE);
     }
     else
     {

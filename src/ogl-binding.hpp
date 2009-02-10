@@ -50,6 +50,8 @@ namespace ogl
         unit_texture color_texture;
         unit_frame   light_texture;
 
+        GLenum cull_mode;
+
         static bool init_shadow();
 
     public:

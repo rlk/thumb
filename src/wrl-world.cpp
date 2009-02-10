@@ -466,9 +466,9 @@ void wrl::world::mov_lite(int dt, int dp)
 
     // Compute the light vector.
 
-    lite_v[0] = sin(RAD(lite_T)) * cos(RAD(lite_P)) * 64.0;
-    lite_v[1] =                     sin(RAD(lite_P)) * 64.0;
-    lite_v[2] = cos(RAD(lite_T)) * cos(RAD(lite_P)) * 64.0;
+    lite_v[0] = sin(RAD(lite_T)) * cos(RAD(lite_P)) * 256.0;
+    lite_v[1] =                    sin(RAD(lite_P)) * 256.0;
+    lite_v[2] = cos(RAD(lite_T)) * cos(RAD(lite_P)) * 256.0;
 }
 
 void wrl::world::node_insert(int id, ogl::unit *unit)
@@ -1065,7 +1065,6 @@ ogl::range wrl::world::prep_line(int frusc, app::frustum **frusv)
 void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 {
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
 
     glAlphaFunc(GL_GREATER, 0.5f);
 
