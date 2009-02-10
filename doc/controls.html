@@ -10,13 +10,92 @@
 
     <h1>Thumb Controls</h1>
 
+    <!------------------------------------------------------------------------>
+
+    <h2>Basic interaction and viewing controls</h2>
+
+    <table>
+
+      <tr><td><code>Right mouse button</code><td>Pan the camera. (<code>Command-Left mouse button</code> on single-button Macs.)
+
+      <tr><td><code>A D</code><td>Move the camera left and right.
+      <tr><td><code>W S</code><td>Move the camera forward and backward.
+      <tr><td><code>Q E</code><td>Move the camera down and up.
+
+      <tr><td><code>F1</code><td>Info mode, allowing the loading, storing, and configuration of worlds, solid objects, and physical joints.
+      <tr><td><code>F2</code><td>Edit mode, allowing the manipulation of entities in the world.
+      <tr><td><code>F3</code><td>Play mode, allowing the execution of the physical system and interaction with the world.
+
+    </table>
+
+    <!------------------------------------------------------------------------>
+
+    <h2>Editing controls</h2>
+
+    <p>The following controls allow the manipulation of entities in the 3D world while in Edit Mode (<code>F2</code>). The world consists of solid entities and joint entities, which may be organized into static and dynamic bodies.  Lolid and joint entities may be combined into dynamic bodies, and the joints of a given body may be linked to other bodies.</p>
+
+    <p>Static bodies are highlighted in red, and dynamic bodies are highlighted in green.</p>
+
+    <p>The editor features unlimited undo and redo, but these apply only to editing operations (entity creation, deletion, positioning, rotation, embodiment, joining) and not to physical parameter manipulation, entity selection, or transform constraint configuration.</p>
+
+The editing control keys may be customized in the <code>conf.xml</code> file. Here is a map of the default bound editing control keys:</p>
+
     <pre>
-      _ 1 2 3 4 5 6 7 8 9 0 _ _ Del
+      _ 1 2 3 4 5 6 7 8 9 0 _ _ BSp
       __ Q W E R T Y U I _ _ _ _ __
       ___ A S D _ G _ J _ _ _ _ Ret
       ____ Z X C V B N _ _ _ _ ____
                Spacebar
     </pre>
+
+    <table>
+      <tr><td><code>Left mouse button</code><td>Click an entity to toggle its selection.  Click and drag to move or rotate the selected entities, subject to the current transform constraint.
+      <tr><td><code>Shift-Left mouse button</code><td>Click an object to center the transform constraint upon it.
+
+      <tr><td><code>U</code><td>Undo the last editing operation
+      <tr><td><code>V</code><td>Redo the next editing operation
+      <tr><td><code>T</code><td>Set the transform mode to translation.
+      <tr><td><code>R</code><td>Set the transform mode to rotation.
+      <tr><td><code>X</code><td>Set the transform constraint to the X plane.
+      <tr><td><code>Y</code><td>Set the transform constraint to the Y plane.
+      <tr><td><code>Z</code><td>Set the transform constraint to the Z plane.
+      <tr><td><code>0 1 2 3 4 5 6 7 8 9</code><td>Set the resolution of the transform constraint.
+      <tr><td><code>B</code><td>Convert the selected set of entities to a dynamic rigid body.
+      <tr><td><code>N</code><td>Convert the selected set of entities to a static non-body.
+      <tr><td><code>J</code><td>Set the target of the selected joints to the selected body.  To link two bodies by a joint, include the joint as a part of the first body (using <code>B</code>), then select the joint and the second body, and link them using <code>J<code>.
+      <tr><td><code>I</code><td>Invert the current selection
+      <tr><td><code>C</code><td>Clone the current selection
+      <tr><td><code>G</code><td>Grow the current selection to include other entities in the same body, or entities targeted by selected joints.
+      <tr><td><code>Space</code><td>Deselect the current selection
+      <tr><td><code>Backspace</code><td>Delete the current selection
+      <tr><td><code>Return</code><td>Center the transform constraint about the origin.
+    </table>
+
+    <!------------------------------------------------------------------------>
+
+    <h2>Camera motion scripting controls</h2>
+
+    <p>The Thumb camera may be programmed to follow a predefined path through a scene, for use in demonstration, movie capture, and debugging.</p>
+
+    <p>The script is stored in an XML file in a hidden directory within the user's home directory: <code>~/.thumb/demo.xml</code>. (To access this directory under Mac OSX, select the Finder menu item &ldquo;Go/Go To Folder...&rdquo; and type <code>.thumb</code>.) Thumb does not currently supply a GUI interface to select and save camera script files, and if multiple different scripts are needed then this <code>demo.xml</code> file must by copied and renamed by hand.</p>
+
+    <p>The content of the file consists of a series of keyframe camera positions, defined interactively within Thumb using the following keyboard commands.</p>
+
+    <table>
+
+      <tr><td><code>Shift-PageUp</code><td>Move the camera to the next keyframe in the script. If the camera is at the last keyframe, it will cycle to the first.
+
+      <tr><td><code>Shift-PageDown</code><td>Move the camera to the previous keyframe in the script. If the camera is at the first keyframe, it will cycle to the last.
+
+      <tr><td><code>Shift-End</code><td>Insert the camera position as a new keyframe, after the current keyframe.
+
+      <tr><td><code>Shift-Home</code><td>Delete the current keyframe.
+
+      <tr><td><code>Shift-Space</code><td>Begin playing back the script at the current keyframe. When the script reaches the last keyframe, it will cycle back to the first.
+
+    </table>
+
+    <p>Script playback mode will be automatically enabled after a period of inactivity, by default 2 minutes. During script playback, any interaction will stop playback, leaving the camera in the position where the script was stopped.</p>
 
     <!------------------------------------------------------------------------>
 

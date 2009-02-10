@@ -122,13 +122,12 @@ void demo::attr_step(double dt)
 {
     // Move the camera forward and update the universe.
 
-    if (attr_mode && universe)
+    if (attr_mode)
     {
         double time = 0.0;
         int    opts =   0;
 
-        if (user->dostep(attr_rate * attr_sign * dt,
-                         universe->move_rate(), time, opts))
+        if (user->dostep(attr_rate * attr_sign * dt, time, opts))
         {
             if (attr_stop)
             {
@@ -136,7 +135,7 @@ void demo::attr_step(double dt)
                 attr_mode = false;
             }
         }
-        universe->set_time(time);
+//      universe->set_time(time);
         set_options(opts);
     }
 }
@@ -269,11 +268,13 @@ bool demo::process_event(app::event *E)
     case E_TIMER: R = process_timer(E); break;
     }
 
+    if (R) return true;
+
     // Allow the application mode, the device, or the base to handle the event.
 
-    if (R || (curr  &&  curr->process_event(E))
-          || (input && input->process_event(E))
-          || (          prog::process_event(E)))
+    if ((curr  &&  curr->process_event(E)) ||
+        (input && input->process_event(E)) ||
+        (          prog::process_event(E)))
 
         // If the event was handled, disable the attract mode.
     {

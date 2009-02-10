@@ -61,9 +61,6 @@ app::user::user() :
     int    opts;
 
     set_state(curr, time, opts);
-
-//  turn(-90.0, 0.0, 0.0);
-    move(0.0, 2.0, 5.0);
 }
 
 void app::user::set(const double p[3], const double q[4])
@@ -298,7 +295,7 @@ void app::user::set_state(app::node A, double &time, int &opts)
     set(p, q);
 }
 
-bool app::user::dostep(double dt, double ss, double &time, int &opts)
+bool app::user::dostep(double dt, double &time, int &opts)
 {
     // If we're starting backward, advance to the previous state.
 

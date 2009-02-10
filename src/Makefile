@@ -1,10 +1,4 @@
-
-#CFLAGS= -g -Wall
-CFLAGS= -g -Wall -ansi -pedantic -fno-rtti -Wunused-macros
-#CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
-#CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
-#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
-#CFLAGS= -O2 -fno-rtti -Wall -DNDEBUG
+-include ../Makedefs
 
 #------------------------------------------------------------------------------
 
@@ -71,7 +65,6 @@ OBJS=   util.o \
 	demo.o \
 	main.o
 
-#	dev-gamepad.o \
 #	dev-tracker.o \
 #	dev-wiimote.o \
 #	dpy-dome.o \
@@ -80,33 +73,21 @@ OBJS=   util.o \
 DEPS= $(OBJS:.o=.d)
 
 #------------------------------------------------------------------------------
+# Windows MinGW build
 
 ifeq "$(MAKE)" "mingw32-make"
 
-	RM = del
-
-	INCDIR  = -Ie:/rlk/include -Ie:/rlk/include/SDL
-	LIBDIR  = -Le:/rlk/lib
+	INCDIR += -Ie:/rlk/include -Ie:/rlk/include/SDL
+	LIBDIR += -Le:/rlk/lib
 
 	LIBS=   -lfreetype -lmxml -lode -ljpeg -lpng -lz -lm \
 		-lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lws2_32
 
 else #-------------------------------------------------------------------------
+# Linux/OSX build
 
-ifeq ($(shell uname), Darwin)
-	SDLCONF = /opt/local/bin/sdl-config
-	FT2CONF = /opt/local/bin/freetype-config
-	OGLLIB  = -framework OpenGL
-else
-	SDLCONF = sdl-config
-	FT2CONF = freetype-config
-	OGLLIB  = -lGL
-endif
-
-	RM = rm -f
-
-	INCDIR  = -I$(HOME)/include
-	LIBDIR  = -L$(HOME)/lib
+	INCDIR += -I$(HOME)/include
+	LIBDIR += -L$(HOME)/lib
 
 	CFLAGS += $(shell $(SDLCONF) --cflags) \
 		  $(shell $(FT2CONF) --cflags)

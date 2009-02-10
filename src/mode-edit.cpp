@@ -31,7 +31,7 @@ mode::edit::edit(wrl::world *w) : mode(w)
 {
     // Initialize edit mode configuration.
 
-    key_redo             = conf->get_i("key_redo");
+    key_undo             = conf->get_i("key_undo");
     key_redo             = conf->get_i("key_redo");
 
     key_axis_X           = conf->get_i("key_axis_X");

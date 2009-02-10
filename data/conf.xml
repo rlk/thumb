@@ -14,7 +14,7 @@
   <option type="int" name="loader_buffers">32</option>
 
   <option type="float" name="attract_delay">120.0</option>
-  <option type="float" name="attract_speed">0.025</option>
+  <option type="float" name="attract_speed">0.25</option>
 
   <option type="int" name="atmo">1</option>
   <option type="int" name="sync">1</option>
