@@ -47,6 +47,7 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
     iset_m::iterator ii;
 
     char cc;
+    int   i;
     int  vi = 0;
     int  si = 0;
     int  ni = 0;
@@ -62,7 +63,15 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
 
     std::istringstream win(word);
 
-    win >> vi >> cc >> si >> cc >> ni;
+//  win >> vi >> cc >> si >> cc >> ni;
+
+    // TODO: optimize
+
+    if (win >> i) vi = i; else win.clear();
+    win >> cc;
+    if (win >> i) si = i; else win.clear();
+    win >> cc;
+    if (win >> i) ni = i; else win.clear();
 
     // Convert face indices to vector cache indices.
 

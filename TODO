@@ -1,7 +1,6 @@
-glossy materials
+direct rendering to normal display
+non-centered bounding box computation
 shadow options (map count, pcf)
-demo test
-.App bundle
 loading zipped data files
 Sky
 Sky illumination

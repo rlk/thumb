@@ -1,8 +1,5 @@
 <?xml version="1.0"?>
 <material>
-  <program mode="depth" file="object-depth.xml" />
-  <program mode="color" file="object-color.xml" />
-  <texture name="specular" file="default-specular.png" />
-  <texture name="diffuse"  file="joint-diffuse.png" />
-  <texture name="normal"   file="default-normal.png" />
+  <program mode="depth" file="joint-depth.xml" />
+  <program mode="color" file="joint-color.xml" />
 </material>
