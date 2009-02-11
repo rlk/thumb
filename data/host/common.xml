@@ -7,6 +7,17 @@
     </frustum>
   </overlay>
 -->
+  <node name="800x600">
+    <window x="0" y="0" w="800" h="600"/>
+    <channel w="800" h="600"/>
+    <display type="normal" index="1">
+      <viewport x="0" y="0" w="800" h="600"/>
+      <frustum>
+        <perspective hfov="60.0" vfov="45.0"/>
+      </frustum>
+    </display>
+  </node>
+
   <node name="1024x768">
     <window x="0" y="0" w="1024" h="768"/>
     <channel w="1024" h="768"/>

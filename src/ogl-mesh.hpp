@@ -113,6 +113,7 @@ namespace ogl
 
         // State modifiers
 
+        void apply_offset(const double *);
         void calc_tangent();
 
         void add_vert(vec3&,  vec3&,  vec2&);

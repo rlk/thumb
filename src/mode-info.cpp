@@ -103,7 +103,7 @@ bool mode::info::process_event(app::event *E)
         gui->keybd(E->data.keybd.c,
                    E->data.keybd.k,
                    E->data.keybd.m);
-        return true;
+        return false;
 
     case E_START:
 

@@ -14,6 +14,7 @@
 #include <sstream>
 
 #include "ogl-obj.hpp"
+#include "ogl-aabb.hpp"
 #include "app-data.hpp"
 #include "app-glob.hpp"
 #include "matrix.hpp"
@@ -59,13 +60,14 @@ int obj::obj::read_fi(std::istream& lin, ogl::vec3_v& vv,
 
     if ((lin >> word) == 0 || word.empty()) return -1;
 
-    // Parse an index set.
+    // TODO: profile and benchmark this
+    // Parse an index set.  (This is probably unnecessary).
 
     std::istringstream win(word);
 
 //  win >> vi >> cc >> si >> cc >> ni;
 
-    // TODO: optimize
+    // TODO: Optimize.  If v//n is detected, hop to a function doing only that.
 
     if (win >> i) vi = i; else win.clear();
     win >> cc;
@@ -280,6 +282,19 @@ obj::obj::obj(std::string name)
 
     for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
         (*i)->calc_tangent();
+
+    // Center the object.
+
+    ogl::aabb bound;
+
+    for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
+        (*i)->merge_bound(bound);
+
+    double c[3];
+    bound.offset(c);
+
+    for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
+        (*i)->apply_offset(c);
 }
 
 obj::obj::~obj()

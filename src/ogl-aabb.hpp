@@ -41,7 +41,13 @@ namespace ogl
                     const double *, int&) const;
         void   draw() const;
 
-        double length(int i) const { return z[i] - a[i]; }
+        double length(int i)       const { return z[i] - a[i]; }
+        void   center(double c[3]) const { c[0] =  0.5 * (a[0] + z[0]);
+                                           c[1] =  0.5 * (a[1] + z[1]);
+                                           c[2] =  0.5 * (a[2] + z[2]); }
+        void   offset(double c[3]) const { c[0] = -0.5 * (a[0] + z[0]);
+                                           c[1] = -0.5 * (a[1] + z[1]);
+                                           c[2] = -0.5 * (a[2] + z[2]); }
     };
 }
 

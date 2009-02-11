@@ -507,7 +507,7 @@ static GLuint read_img(const char *filename)
 
     GLuint o = 0;
 
-    if (filename)
+    if (filename && GL_is_initialized)
     {
         int w;
         int h;

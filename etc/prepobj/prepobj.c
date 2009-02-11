@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "obj.h"
@@ -35,15 +36,16 @@ static const char *toxml(const char *image, const char *dir)
     {
         fprintf(fp, "<?xml version=\"1.0\"?>\n");
         fprintf(fp, "<material>\n");
-        fprintf(fp, "  <program mode=\"depth\" file=\"object-depth.xml\"/>\n");
-        fprintf(fp, "  <program mode=\"color\" file=\"object-color.xml\"/>\n");
+        fprintf(fp, "  <program mode=\"depth\"    file=\"object-depth.xml\"/>\n");
+        fprintf(fp, "  <program mode=\"color\"    file=\"object-color.xml\"/>\n");
+        fprintf(fp, "  <texture name=\"specular\" file=\"matte-specular.png\"/>\n");
 
         if (dir)
-            fprintf(fp, "  <texture name=\"diffuse\" file=\"%s/%s\"/>\n", dir, image);
+            fprintf(fp, "  <texture name=\"diffuse\"  file=\"%s/%s\"/>\n", dir, image);
         else
-            fprintf(fp, "  <texture name=\"diffuse\" file=\"%s\"/>\n", image);
+            fprintf(fp, "  <texture name=\"diffuse\"  file=\"%s\"/>\n", image);
 
-        fprintf(fp, "  <texture name=\"normal\" file=\"default-normal.png\"/>\n");
+        fprintf(fp, "  <texture name=\"normal\"   file=\"default-normal.png\"/>\n");
         fprintf(fp, "</material>\n");
 
         fclose(fp);
@@ -52,12 +54,12 @@ static const char *toxml(const char *image, const char *dir)
     return newname;
 }
 
-static int load(const char *filename)
+static int load(const char *filename, float scale)
 {
     int fi = obj_add_file(filename);
     int qc = 32;
 
-    obj_scale_file(fi, 0.01);
+    obj_scale_file(fi, scale);
 
     printf("%s initial vertex count: %d\n", filename, obj_num_vert(fi));
     obj_uniq_file(fi);
@@ -70,9 +72,11 @@ static int load(const char *filename)
     return fi;
 }
 
-static void mtltoxml(const char *filename, const char *dir)
+static void mtltoxml(const char *in,
+                     const char *out,
+                     const char *dir, float scale)
 {
-    int fi = load(filename);
+    int fi = load(in, scale);
     int mc = obj_num_mtrl(fi);
     int mi;
 
@@ -89,17 +93,18 @@ static void mtltoxml(const char *filename, const char *dir)
             obj_set_mtrl_name(fi, mi, "default");
     }
 
-    obj_write_file(fi, "out.obj", "out.mtl");
+    obj_write_file(fi, out, NULL);
 }
 
 /*---------------------------------------------------------------------------*/
 
 int main(int argc, char *argv[])
 {
-    if      (argc > 2) mtltoxml(argv[1], argv[2]);
-    else if (argc > 1) mtltoxml(argv[1], NULL);
+    if      (argc > 4) mtltoxml(argv[1], argv[2], argv[3], atof(argv[4]));
+    else if (argc > 3) mtltoxml(argv[1], argv[2], argv[3], 1.0f);
+    else if (argc > 2) mtltoxml(argv[1], argv[2], NULL,    1.0f);
     else
-        fprintf(stderr, "Usage: %s <obj> [dir]\n", argv[0]);
+        fprintf(stderr, "Usage: %s <in.obj> <out.obj> [dir] [scale]\n", argv[0]);
 
     return 0;
 }

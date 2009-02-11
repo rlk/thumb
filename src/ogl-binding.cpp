@@ -310,7 +310,7 @@ void ogl::binding::bind(bool c) const
 
         // TODO: Abstract this to minimize resetting
         // TODO: Add depth test options
-
+/* TODO: make this not broken
         if (cull_mode)
         {
             glEnable(GL_CULL_FACE);
@@ -318,6 +318,7 @@ void ogl::binding::bind(bool c) const
         }
         else
             glDisable(GL_CULL_FACE);
+*/
     }
     else
     {

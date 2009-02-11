@@ -1,0 +1,326 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+  <head>
+    <link rel=stylesheet type="text/css" href="style.css">
+    <style type="text/css">
+      pre { background: #FFFFCC; padding: 1.0em; }
+    </style>
+    <title>OBJ Processing</title>
+  </head>
+  <body>
+    <!------------------------------------------------------------------------>
+
+    <h1>OBJ Processing</h1>
+
+    <p>This is a step-by-step description of how to process and load OBJ objects with MTL materials and textures in Thumb. This description uses the Kizhi models as examples. We're using Mac OSX here, but the process will be the same under Linux.</p>
+
+    <!------------------------------------------------------------------------>
+
+    <h2>The OBJ preprocessing tool</h2>
+
+    <p>Before we can process models, we must first make sure we have the model preprocessing tool, <code>prepobj</code>.  It is found in the Thumb distribution in <code>etc/prepobj/</code>.  Open a shell terminal, and change to this directory.</p>
+
+    <pre>
+$ <b>cd etc/prepobj/</b>
+$ <b>ls</b>
+Makefile        README          obj.c           obj.h           prepobj.c
+    </pre>
+
+    <p>If you have a source distribution of Thumb, then you will need to build the tool using <code>make</code>...</p>
+
+    <pre>
+$ <b>make</b>
+cc -Wall -O2 -I/opt/local/include -c prepobj.c
+cc -Wall -O2 -I/opt/local/include -c obj.c
+cc -Wall -O2 -o prepobj prepobj.o obj.o -L/opt/local/lib -ljpeg -lpng -lz -lm -framework OpenGL
+    </pre>
+
+    <p>... However, if you have a binary distribution of Thumb, then the executable <code>prepobj</code> will already exist.</p>
+
+    <pre>
+$ <b>ls</b>
+Makefile        obj.c           obj.o           prepobj.c
+README          obj.h           prepobj         prepobj.o
+    </pre>
+
+    <!------------------------------------------------------------------------>
+
+    <h2>Preprocessing OBJs</h2>
+
+    <p>The example models are in ZIP files, and I have unzipped them all in a directory.</p>
+
+    <pre>
+$ <b>ls -lhF</b>
+total 1007128
+drwxr-xr-x  26 rlk  staff   884B Feb 11 09:26 belfry_modelBob/
+-rw-r--r--   1 rlk  staff    46M Feb 11 08:59 belfry_modelBob.zip
+drwxr-xr-x  39 rlk  staff   1.3K Feb 11 09:26 belfry_normal_maps/
+-rw-r--r--   1 rlk  staff    32M Feb 11 09:00 belfry_normal_maps.zip
+drwxr-xr-x  64 rlk  staff   2.1K Feb 11 09:26 pokrov_modelBob/
+-rw-r--r--   1 rlk  staff   130M Feb 11 09:03 pokrov_modelBob.zip
+drwxr-xr-x  62 rlk  staff   2.1K Feb 11 09:26 pokrov_normal_maps/
+-rw-r--r--   1 rlk  staff    50M Feb 11 09:04 pokrov_normal_maps.zip
+drwxr-xr-x  74 rlk  staff   2.5K Feb 10 13:45 transfiguration_modelBob/
+-rw-r--r--   1 rlk  staff   161M Feb 11 09:08 transfiguration_modelBob.zip
+drwxr-xr-x  72 rlk  staff   2.4K Feb 11 09:26 transfiguration_normal_maps/
+-rw-r--r--   1 rlk  staff    73M Feb 11 09:10 transfiguration_normal_maps.zip
+    </pre>
+
+    <p>Wow, <code>transfiguration_modelBob</code> is 161MB compressed.  That's big.  We'll begin by looking at the smallest one, <code>belfry_modelBob</code>. In this directory we find an OBJ, an MTL, and a number of PNG images.</p>
+
+    <pre>
+$ <b>cd belfry_modelBob/</b>
+$ <b>ls</b>
+b_balcony_alpa.png      b_t_entry_floor.png     b_t_stolbi_down.png
+b_balcony_solid.png     b_t_entry_sides.png     b_t_wall_panels2.png
+b_basementstones.png    b_t_okno.png            b_t_walls3.png
+b_t_4stolbi.png         b_t_roofbot.png         b_t_walls4.png
+b_t_cross2.png          b_t_roofc.png           b_t_yarus2.png
+b_t_doms_shimers.png    b_t_rooftop.png         b_t_yarus2b.png
+b_t_door.png            b_t_rooftopcentr.png    belfry.mtl
+b_t_door_wind.png       b_t_stolbi3.png         belfry.obj
+    </pre>
+
+    <h3>What happens to the MTL file...</h3>
+
+    <p>If we peek in the MTL file, be see that it has a number of limitations.  Here's part of it...</p>
+
+    <pre>
+newmtl lambert7SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd b_t_walls3.png
+Ni 1.00
+newmtl lambert8SG
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd b_t_wall_panels2.png
+Ni 1.00
+    </pre>
+
+    <p>This MTL was exported from Maya. It contains information that is useless to us (<code>Tf</code> and <code>Ni</code>), and it omits information that we truly need (such as the name of a normal map image). It also includes information that is just flat-out wrong, like the <code>Kd</code> line indicating a black diffuse material.</p>
+
+    <p>Thumb would prefer to acquire this information from a more flexible XML-based file, so one of the objectives of <code>prepobj</code> is to parse the MTL file and output a new XML file for each material defined there. Maya materials have uninformative default names like &ldquo;lambert7SG&rdquo; that don't lend themselves to informative and unique XML file names, so <code>prepobj</code> will instead use the <code>map_Kd</code> file name to generate the name of the XML file.</p>
+
+    <h3>What happens to the OBJ file...</h3>
+
+    <p>We would also like to perform a number of operations on the 3D model stored in the OBJ file.</p>
+
+    <h4>Vertex optimizations</h4>
+
+    <p>There is a possibility (indeed, a high likelyhood, in the case of a Maya export) that the OBJ contains redundant information. There may be two or more vertices that have the same position, normal, and texture coordinate, and these may be merged into a single vertex.</p>
+
+    <p>Eliminating these duplicate vertices not only improves rendering performance, it makes it possible for Thumb to compute smooth tangent space basis vectors for each vertex, which makes per-pixel illumination possible. Thus <code>prepobj</code> will take the time to do this.</p>
+
+    <h4>Triangle optimizations</h4>
+
+    <p>Further optimization may be achieved by changing the order in which triangles are rendered. When a triangle is rendered, each of its three vertices is processed and cached in a queue. When the next triangle is rendered, the GPU first checks this cache to see if any of the new triangle's vertices are there. If they are, then the vertices need not be processed, and performance is improved. Triangles may be re-ordered to increase the utilization of this cache.</p>
+
+    <p>The cache-ability of a triangle mesh is measured using a value called the Average Cache Miss Ratio (ACMR). This is the average number of vertices that must be processed for each triangle it a mesh. It varies from as much as 3 in the worst case down to around 0.5, though anything below 1.0 is good in practice. Minimizing this value is a theoretically challenging problem, but <code>prepobj</code> will make a basic attempt.</p>
+
+    <h4>Material remapping</h4>
+
+    <p>As described above, the MTL file is translated into a series of XML files, and the names are changed to be more descriptive. For this to work, the same name remapping must be applied to the material references within the OBJ.</p>
+
+    <h4>Transformation</h4>
+
+    <p>Thumb assumes that one 3D unit has a real-world length of one meter, though the 3D modeller may not share this assumption. So, <code>prepobj</code> takes an optional scaling parameter that allows the unit of measure to be changed.</p>
+
+    <h3>Making sure we can run it</h3>
+
+    <p>First, lets make sure we can run <code>prepobj</code> from the directory where our OBJ is stored...</p>
+
+    <pre>
+$ <b>prepobj</b>
+bash: prepobj: command not found
+    </pre>
+
+    <p>Nope.  There are two ways around this.  The first is to supply the full path name of the <code>prepobj</code> executable on the command line...</p>
+
+    <pre>
+$ <b>~/src/thumb/etc/prepobj/prepobj</b>
+Usage: /Users/rlk/src/thumb/etc/prepobj/prepobj &lt;in.obj&gt; &lt;out.obj&gt; [dir] [scale]
+    </pre>
+
+    <p>The other way is to add this directory to the current <code>PATH</code>.  This is for the bash shell.</p>
+
+    <pre>
+$ <b>export PATH=$PATH:~/src/thumb/etc/prepobj</b>
+    </pre>
+
+    <p>Now we can use the command directly...</p>
+
+    <pre>
+$ <b>prepobj</b>
+Usage: /Users/rlk/src/thumb/etc/prepobj/prepobj &lt;in.obj&gt; &lt;out.obj&gt; [dir] [scale]
+    </pre>
+
+    <h3>Run it!</h3>
+
+    <p>Finally we can pre-process an OBJ file.  <code>prepobj</code> takes up to four parameters. The first two are the obvious ones: the input OBJ file name and the output OBJ file name.</p>
+
+    <p>The third parameter is an optional directory name. It's a good idea to organize the Thumb texture and material directories using subdirectories.  In this example, I'm going to want the Kizhi textures and materials to be placed in <code>data/textures/kizhi/</code> and <code>data/materials/kizhi/</code> respectively. For this to work out, the texture names in the XML files and the material names in the OBJ file must include the subdirectory name, and this option specifies it.</p>
+
+    <p>The fourth option is the scaling parameter. The Kizhi examples are measured in centimeters, so we want to scale by 0.01 to convert to meters.</p>
+
+    <pre>
+$ <b>prepobj belfry.obj belfry-opt.obj kizhi 0.01</b>
+belfry.obj initial vertex count: 11731
+belfry.obj final   vertex count: 10008
+belfry.obj initial ACMR: 1.425216
+belfry.obj final   ACMR: 1.115313
+    </pre>
+
+    <p>The output shows us that there was indeed redundant information in the OBJ. The vertex count dropped from 11731 to 10008, a savings of 15%. Likewise the triangle reordering paid off, reducing the ACMR by 22%. We've also got a new XML file for each of our materials.</p>
+
+    <pre>
+$ <b>ls</b>
+b_balcony_alpa.png      b_t_entry_floor.png     b_t_stolbi_down.png
+b_balcony_alpa.xml      b_t_entry_floor.xml     b_t_stolbi_down.xml
+b_balcony_solid.png     b_t_entry_sides.png     b_t_wall_panels2.png
+b_balcony_solid.xml     b_t_entry_sides.xml     b_t_wall_panels2.xml
+b_basementstones.png    b_t_okno.png            b_t_walls3.png
+b_basementstones.xml    b_t_okno.xml            b_t_walls3.xml
+b_t_4stolbi.png         b_t_roofbot.png         b_t_walls4.png
+b_t_4stolbi.xml         b_t_roofbot.xml         b_t_walls4.xml
+b_t_cross2.png          b_t_roofc.png           b_t_yarus2.png
+b_t_cross2.xml          b_t_roofc.xml           b_t_yarus2.xml
+b_t_doms_shimers.png    b_t_rooftop.png         b_t_yarus2b.png
+b_t_doms_shimers.xml    b_t_rooftop.xml         b_t_yarus2b.xml
+b_t_door.png            b_t_rooftopcentr.png    belfry-opt.obj
+b_t_door.xml            b_t_rooftopcentr.xml    belfry.mtl
+b_t_door_wind.png       b_t_stolbi3.png         belfry.obj
+b_t_door_wind.xml       b_t_stolbi3.xml
+    </pre>
+
+    <p>Lets take a quick peek at one of the XML files just to see what's going on. Here is <code>b_t_door.xml</code>:</p>
+
+    <pre>
+&lt;?xml version="1.0"?&gt;
+&lt;material&gt;
+  &lt;program mode="depth"    file="object-depth.xml"/&gt;
+  &lt;program mode="color"    file="object-color.xml"/&gt;
+  &lt;texture name="specular" file="matte-specular.png"/&gt;
+  &lt;texture name="diffuse"  file="kizhi/b_t_door.png"/&gt;
+  &lt;texture name="normal"   file="default-normal.png"/&gt;
+&lt;/material&gt;
+    </pre>
+
+    <p>First off, we see the name of the PNG has been included as a &ldquo;diffuse&rdquo; texture, and our &ldquo;kizhi&rdquo; directory has been prepended to the name, as requested. In addition, a number of defaults have been selected. <code>object-depth.xml</code> and <code>object-color.xml</code> define the shaders that will be used to render this material. The &ldquo;specular&rdquo; and &ldquo;normal&rdquo; textures are other images that influence the appearance of this material, and both have been set to default values. <code>matte-specular.png</code> is a specular map for non-shiny surfaces, and <code>default-normal.png</code> is a normal map for flat surfaces. If specular and normal maps are available, then this file should be modified to refer to them.</p>
+
+    <h3>Installing our new model</h3>
+
+    <p>To use model, we copy the OBJ, the material XMLs and the texture PNGs into the Thumb data tree.  This may be either the data tree located with the executable, or one in your home directory, in <code>~/.thumb/</code>.</p>
+
+    <pre>
+$ <b>cp belfry-opt.obj ~/src/thumb/data/solid/kizhi/</b>
+$ <b>cp *.xml ~/src/thumb/data/material/kizhi/</b>
+$ <b>cp *.png ~/src/thumb/data/texture/kizhi/</b>
+    </pre>
+
+    <h3>Viewing our model</h3>
+
+    <p>When we start Thumb, we are presented with the World tab of the Info Mode. To load an object, click on the Solid button.</p>
+
+    <center><img src="images/world-tab.jpg"></center>
+
+    <p>Now we see the Solid tab, which gives a list of files in the root of the solid data directory.  One of them is our kizhi directory.  Click it...</p>
+
+    <center><img src="images/solid-tab.jpg"></center>
+
+    <p>Here we see the contents of the kizhi directory, which currently includes only the optimized belfry model that we just copied there.  Select it and click the <code>Box</code> button (since the belfry is roughly box-shaped), and the models loads.</p>
+
+    <center><img src="images/kizhi-dir.jpg"></center>
+
+    <p>We see it there in the background.</p>
+
+    <center><img src="images/belfry-loaded.jpg"></center>
+
+    <p>Now press F2 to leave Info Mode and go to Edit Mode, where we can manipulate the scene. Pan the camera by dragging with the right mouse button (on a one-button Mac, use the Command key with the left mouse button). Move the camera around the scene with the <code>W</code>, <code>A</code>, <code>S</code>, and <code>D</code>, keys.</p>
+
+    <center><img src="images/belfry-viewed.jpg"></center>
+
+    <p>The red box outline indicates that the belfry is selected. The white grid indicates that dragging the belfry with the left mouse button will translate it in the horizontal plane.</p>
+
+    <p>To provide some context in which to view the object, press <code>F1</code> to return to the Solid tab of the Info Mode.  Click &ldquo;<code>..</code>&rdquo; to return to the parent directory, and load the object called <code>grassy_ground.obj</code>.</p>
+
+    <center><img src="images/belfry-with-grass.jpg"></center>
+
+    <p>The belfry is embedded in the ground, so we'll have to move it. Press <code>Spacebar</code> to deselect everything, and left click on the belfry to select it (notice the red box returns).</p>
+
+    <p>Press the <code>Z</code>. Notice that the white grid is now vertical, indicating that dragging with the left mouse button will move the belfry in the vertical plane.</p>
+
+    <center><img src="images/belfry-moving.jpg"></center>
+
+    <p>Here we've moved it into place on the grass.</p>
+
+    <center><img src="images/belfry-moved.jpg"></center>
+
+    <!------------------------------------------------------------------------>
+
+    <h2>Moving on</h2>
+
+    <p>Let's return to the models and pre-process another one. This time we'll do the pokrov model, which is a bit bigger. Instead of just running the <code>prepobj</code> command, include the <code>time</code> command at the beginning. This will not only preprocess the OBJ, it'll tell us how long it took...</p>
+
+    <pre>
+$ <b>time prepobj pokrov.obj pokrov-opt.obj kizhi 0.01</b>
+pokrov.obj initial vertex count: 166074
+pokrov.obj final   vertex count: 128264
+pokrov.obj initial ACMR: 1.360569
+pokrov.obj final   ACMR: 0.915145
+
+real	0m12.829s
+user	0m10.769s
+sys	0m0.383s
+    </pre>
+
+    <p>There's a 22% reduction in vertex count and a 32% reduction in vertex rendering cost, and it took 12 seconds to accomplish. Copy the new data into the Thumb data tree...</p>
+
+    <pre>
+$ <b>cp pokrov-opt.obj ~/src/thumb/data/solid/kizhi/</b>
+$ <b>cp *.xml ~/src/thumb/data/material/kizhi/</b>
+$ <b>cp *.png ~/src/thumb/data/texture/kizhi/</b>
+    </pre>
+
+    <p>Here we see the belfry and the pokrov together. To rotate the pokrov in this manner, press <code>R</code> to set the constraint to rotate mode and press <code>Y</code> to set the rotation about the Y axis.</p>
+
+    <center><img src="images/belfry-and-pokrov.jpg"></center>
+
+    <p>Finally, the transfiguration model...</p>
+
+    <pre>
+$ time prepobj transfiguration.obj transfiguration-opt.obj kizhi 0.01
+transfiguration.obj initial vertex count: 174549
+transfiguration.obj final   vertex count: 122419
+transfiguration.obj initial ACMR: 1.630062
+transfiguration.obj final   ACMR: 1.332885
+
+real	0m15.490s
+user	0m13.920s
+sys	0m0.449s
+    </pre>
+
+    <p>... And here it is in Thumb. I did load all three models simultaneously, but the number of textures was too much for the 512MB GeForce 8600 GT in my laptop. A video board with more memory should handly it smoothly.</p>
+
+    <center><img src="images/transfiguration.jpg"></center>
+
+    <!------------------------------------------------------------------------>
+
+    <h2>Caveats</h2>
+
+    <p>There are a couple of things to watch out for:</p>
+
+    <p>If there are two different materials in the MTL file with the same <code>map_Kd</code> value, then one will over-write the other. This shouldn't be a problem, since the diffuse material is really the only significant piece of information in a material specification. If there are two separate OBJs sharing a texture name, then either be certain that it's the same texture image in both cases, or use the directory option to keep them separate.</p>
+
+    <p>If a PNG image has an alpha channel, then it is assumed that the alpha channel defines a mask. This is important, as all masked geometry must be rendered <i>after</i> all opaque geometry. Please be certain that no opaque textures accidentally have unused alpha channels.</p>
+
+    <!------------------------------------------------------------------------>
+    
+    <p style="text-align:right"><i>robert.kooima (at) gmail.com</i></p>
+
+  </body>
+</html>

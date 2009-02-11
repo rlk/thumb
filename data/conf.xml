@@ -106,7 +106,7 @@
   <option type="int" name="key_edit">283</option>  <!-- F2  -->
   <option type="int" name="key_play">284</option>  <!-- F3  -->
   <option type="int" name="key_init">291</option>  <!-- F10 -->
-  <option type="int" name="key_snap">292</option>  <!-- F11 -->
+  <option type="int" name="key_snap">290</option>  <!-- F9 -->
 
   <!-- Dvorak keyboard commands
 

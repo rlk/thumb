@@ -1064,6 +1064,7 @@ ogl::range wrl::world::prep_line(int frusc, app::frustum **frusv)
 
 void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 {
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
     glAlphaFunc(GL_GREATER, 0.5f);

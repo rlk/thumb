@@ -1,6 +1,6 @@
 -include ../../Makedefs
 
-CFLAGS= -Wall -O2
+CFLAGS= -Wall -O3
 
 TARG= prepobj
 OBJS= prepobj.o obj.o
@@ -16,5 +16,8 @@ $(TARG) : $(OBJS)
 
 clean :
 	$(RM) $(TARG) $(OBJS)
+
+install : $(TARG)
+	$(CP) $(TARG) $(INSTALLDIR)
 
 #------------------------------------------------------------------------------

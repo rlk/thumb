@@ -22,10 +22,21 @@
       <tr><td><code>W S</code><td>Move the camera forward and backward.
       <tr><td><code>Q E</code><td>Move the camera down and up.
 
-      <tr><td><code>F1</code><td>Info mode, allowing the loading, storing, and configuration of worlds, solid objects, and physical joints.
-      <tr><td><code>F2</code><td>Edit mode, allowing the manipulation of entities in the world.
-      <tr><td><code>F3</code><td>Play mode, allowing the execution of the physical system and interaction with the world.
+      <tr><td><code>F1</code><td>Info Mode, allowing the loading, storing, and configuration of worlds, solid objects, and physical joints.
+      <tr><td><code>F2</code><td>Edit Mode, allowing the manipulation of entities in the world.
+      <tr><td><code>F3</code><td>Play Mode, allowing the execution of the physical system and interaction with the world.
 
+    </table>
+
+    <!------------------------------------------------------------------------>
+
+    <h2>Lighting controls</h2>
+
+    <p>While in Edit mode...</p>
+
+    <table>
+      <tr><td><code>Left/Right Arrow</code><td>Rotate the light source left and right.
+      <tr><td><code>Up/Down Arrow</code><td>Rotate the light source up and down.
     </table>
 
     <!------------------------------------------------------------------------>
@@ -59,16 +70,32 @@ The editing control keys may be customized in the <code>conf.xml</code> file. He
       <tr><td><code>X</code><td>Set the transform constraint to the X plane.
       <tr><td><code>Y</code><td>Set the transform constraint to the Y plane.
       <tr><td><code>Z</code><td>Set the transform constraint to the Z plane.
-      <tr><td><code>0 1 2 3 4 5 6 7 8 9</code><td>Set the resolution of the transform constraint.
+      <tr><td><code>0 1 2 3 4 5 6 7 8 9</code><td>Set the transform constraint resolution (see below).
       <tr><td><code>B</code><td>Convert the selected set of entities to a dynamic rigid body.
       <tr><td><code>N</code><td>Convert the selected set of entities to a static non-body.
       <tr><td><code>J</code><td>Set the target of the selected joints to the selected body.  To link two bodies by a joint, include the joint as a part of the first body (using <code>B</code>), then select the joint and the second body, and link them using <code>J<code>.
       <tr><td><code>I</code><td>Invert the current selection
       <tr><td><code>C</code><td>Clone the current selection
-      <tr><td><code>G</code><td>Grow the current selection to include other entities in the same body, or entities targeted by selected joints.
+      <tr><td><code>G</code><td>Grow the current selection to include other entities in selected bodies, or entities targeted by selected joints.
       <tr><td><code>Space</code><td>Deselect the current selection
       <tr><td><code>Backspace</code><td>Delete the current selection
       <tr><td><code>Return</code><td>Center the transform constraint about the origin.
+    </table>
+
+    <p>The resolution of the transform constraint varies as follows:</p>
+
+    <table>
+      <tr><td class="ctr">Value<td class="ctr">Position<td class="ctr">Rotation
+      <tr><td class="ctr"><code>0</code><td class="ctr">1/16 meters<td class="ctr">1 degree
+      <tr><td class="ctr"><code>1</code><td class="ctr">1/8 meters<td class="ctr">3 degrees
+      <tr><td class="ctr"><code>2</code><td class="ctr">1/4 meters<td class="ctr">5 degrees
+      <tr><td class="ctr"><code>3</code><td class="ctr">1/2 meters<td class="ctr">10 degrees
+      <tr><td class="ctr"><code>4</code><td class="ctr">1 meter<td class="ctr">15 degrees
+      <tr><td class="ctr"><code>5</code><td class="ctr">2 meters<td class="ctr">20 degrees
+      <tr><td class="ctr"><code>6</code><td class="ctr">4 meters<td class="ctr">30 degrees
+      <tr><td class="ctr"><code>7</code><td class="ctr">8 meters<td class="ctr">45 degrees
+      <tr><td class="ctr"><code>8</code><td class="ctr">16 meters<td class="ctr">60 degrees
+      <tr><td class="ctr"><code>9</code><td class="ctr">32 meters<td class="ctr">90 degrees
     </table>
 
     <!------------------------------------------------------------------------>
