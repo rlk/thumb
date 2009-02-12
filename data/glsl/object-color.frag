@@ -55,21 +55,16 @@ void main()
     float S0 = shadow(shadow0, gl_TexCoord[1]);
     float S1 = shadow(shadow1, gl_TexCoord[2]);
     float S2 = shadow(shadow2, gl_TexCoord[3]);
-/*
-    float S0 = shadow2DProj(shadow0, gl_TexCoord[1]).r;
-    float S1 = shadow2DProj(shadow1, gl_TexCoord[2]).r;
-    float S2 = shadow2DProj(shadow2, gl_TexCoord[3]).r;
-*/
+
     float kx = step(split.y, gl_FragCoord.z);
     float ky = step(split.z, gl_FragCoord.z);
 
-    float lit = mix(S0, mix(S1, S2, ky), kx);
-
-
+    float lit = mix(S0, mix(S1, S2, ky), kx) * step(0.0, L.z);
+/*
     vec3 Z = mix(vec3(1.0, 0.0, 0.0),
                   mix(vec3(0.0, 1.0, 0.0),
                       vec3(0.0, 0.0, 1.0), ky), kx);
-
+*/
 
     N = normalize(2.0 * N - 1.0);
 

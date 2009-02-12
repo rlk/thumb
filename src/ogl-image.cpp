@@ -45,7 +45,13 @@ void ogl::image::zero()
 {
     bind();
     {
-        glTexImage2D(target, 0, formint, w, h, 0, formext, type, 0);
+        // TODO: Figure out why this doesn't fully zero the texture.
+
+        GLubyte *P = new GLubyte[w * h * 4];
+
+        glTexSubImage2D(target, 0, 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, P);
+
+        delete [] P;
     }
     free();
 

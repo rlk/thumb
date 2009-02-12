@@ -24,6 +24,7 @@
 
 bool ogl::has_multitexture;
 bool ogl::has_shader;
+bool ogl::has_s3tc;
 bool ogl::has_fbo;
 bool ogl::has_vbo;
 bool ogl::has_dre;
@@ -32,6 +33,7 @@ int  ogl::do_shadows;
 bool ogl::do_z_only;
 bool ogl::do_reflect;
 bool ogl::do_refract;
+bool ogl::do_texture_compression;
 
 //-----------------------------------------------------------------------------
 
@@ -109,8 +111,6 @@ PFNGLDRAWRANGEELEMENTSEXTPROC        glDrawRangeElementsEXT;
 bool ogl::check_ext(const char *needle)
 {
     const GLubyte *haystack, *c;
-
-    return true;
 
     // Allow the configuration file to override OpenGL (dangerous).
 
@@ -222,6 +222,7 @@ void ogl::init()
     has_shader       = check_ext("ARB_shader_objects");
     has_shader      &= check_ext("ARB_vertex_shader");
     has_shader      &= check_ext("ARB_fragment_shader");
+    has_s3tc         = check_ext("EXT_texture_compression_s3tc");
     has_fbo          = check_ext("EXT_framebuffer_object");
     has_vbo          = check_ext("ARB_vertex_buffer_object");
     has_dre          = check_ext("EXT_draw_range_elements");
@@ -308,6 +309,13 @@ void ogl::init()
         PROC(PFNGLDRAWRANGEELEMENTSEXTPROC,       glDrawRangeElementsEXT);
     }
     catch (std::runtime_error&e) { has_dre = false; }
+
+    // GL_EXT_texture_compression_s3tc
+
+    if (has_s3tc && ::conf->get_i("texture_compression"))
+        do_texture_compression = true;
+    else
+        do_texture_compression = false;
 
     // Configuration options
 

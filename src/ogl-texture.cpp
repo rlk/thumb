@@ -132,6 +132,16 @@ void ogl::texture::load_png(const void *buf, size_t len)
         else if (!POT(width    ) || !POT(height    ))
             target = GL_TEXTURE_RECTANGLE_ARB;
 
+        // Switch to compressed textures, as requested.
+
+        if (do_texture_compression)
+        {
+            if (intform == GL_RGB)
+                intform =  GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
+            if (intform == GL_RGBA)
+                intform =  GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
+        }
+
         // Read the pixel data.
 
         if ((bp = png_get_rows(rp, ip)))

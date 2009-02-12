@@ -1,5 +1,6 @@
+compressed texture option
+fix line of pixels is bitmap widget
 direct rendering to normal display
-non-centered bounding box computation
 shadow options (map count, pcf)
 loading zipped data files
 Sky

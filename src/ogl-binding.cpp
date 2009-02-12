@@ -12,6 +12,7 @@
 
 #include <cmath>
 
+#include "default.hpp"
 #include "app-conf.hpp"
 #include "app-glob.hpp"
 #include "ogl-frame.hpp"
@@ -139,12 +140,14 @@ ogl::binding::binding(std::string name) :
         // Load the depth-mode program.
 
         if ((node = app::find(root, "program", "mode", "depth")))
-            depth_program = glob->load_program(app::get_attr_s(node, "file"));
+            depth_program = glob->load_program(app::get_attr_s(node, "file",
+                                                   DEFAULT_DEPTH_PROGRAM));
 
         // Load the color-mode program.
 
         if ((node = app::find(root, "program", "mode", "color")))
-            color_program = glob->load_program(app::get_attr_s(node, "file"));
+            color_program = glob->load_program(app::get_attr_s(node, "file",
+                                                   DEFAULT_COLOR_PROGRAM));
 
         // Determine the shadow map bindings.  TODO: generalize this.
 

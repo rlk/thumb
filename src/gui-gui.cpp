@@ -393,7 +393,7 @@ void gui::bitmap::draw(const widget *focus, const widget *input) const
                 glColor3ubv(color);
             else
                 glColor3f(0.0f, 0.0f, 0.0f);
-            
+
             text->draw(i);
         }
     }

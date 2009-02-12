@@ -114,6 +114,7 @@ namespace ogl
 {
     extern bool has_multitexture;
     extern bool has_shader;
+    extern bool has_s3tc;
     extern bool has_fbo;
     extern bool has_vbo;
     extern bool has_dre;
@@ -122,6 +123,7 @@ namespace ogl
     extern bool do_z_only;
     extern bool do_reflect;
     extern bool do_refract;
+    extern bool do_texture_compression;
 
     void check_err(const char *, int);
     bool check_ext(const char *);
