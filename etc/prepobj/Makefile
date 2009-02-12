@@ -20,4 +20,13 @@ clean :
 install : $(TARG)
 	$(CP) $(TARG) $(INSTALLDIR)
 
+osxdist : $(TARG)
+
+	$(CH) /opt/local/lib/libjpeg.62.dylib      \
+          @executable_path/../../lib/libjpeg.62.dylib    $(TARG)
+	$(CH) /opt/local/lib/libpng12.0.dylib      \
+          @executable_path/../../lib/libpng12.0.dylib    $(TARG)
+	$(CH) /opt/local/lib/libz.1.dylib          \
+          @executable_path/../../lib/libz.1.dylib        $(TARG)
+
 #------------------------------------------------------------------------------
