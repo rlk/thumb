@@ -12,7 +12,7 @@ clean :
 
 osxdist : $(TARG)
 
-	mkdir lib
+	mkdir -p lib
 
 	$(CP) /opt/local/lib/libSDL-1.2.0.dylib    lib
 	$(CP) /opt/local/lib/libfreetype.6.dylib   lib
@@ -33,11 +33,11 @@ osxdist : $(TARG)
 
 $(APP) :
 
-	mkdir $(APP)
-	mkdir $(APP)/Contents
-	mkdir $(APP)/Contents/MacOS
-	mkdir $(APP)/Contents/Resources
-	mkdir $(APP)/Contents/Frameworks
+	mkdir -p $(APP)
+	mkdir -p $(APP)/Contents
+	mkdir -p $(APP)/Contents/MacOS
+	mkdir -p $(APP)/Contents/Resources
+	mkdir -p $(APP)/Contents/Frameworks
 
 	$(CH) /opt/local/lib/libSDL-1.2.0.dylib    \
           @executable_path/../Frameworks/libSDL-1.2.0.dylib  $(TARG)

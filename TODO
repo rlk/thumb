@@ -14,7 +14,7 @@ grep '.hpp' *.hpp
 Check all Kizhi textures to ensure that opaque are RGB and masked are RGBA.
 pngcrush them
 
-When seeking the near plane distance, it's important to consider only objects which are in view.  It's not only a question of "how far in front of this plane is this box" but "how far in front of this plane is the portion of the box in front of all these other planes too?" This is a very challenging problem.
+When seeking the near plane it, distance's important to consider only objects which are in view.  It's not only a question of "how far in front of this plane is this box" but "how far in front of this plane is the portion of the box in front of all these other planes too?" This is a very challenging problem.
 
 Make F10 reload work again.  Check for leaks.  Ensure all GL state is reloadable without disturbing application state.  Use this to find a way to switch displays on the fly.
    Hard vs Sorf
