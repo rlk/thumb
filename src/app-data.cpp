@@ -214,19 +214,17 @@ std::string app::data::translate(std::string& file) const
 
 app::data::data(std::string file) : file(file), head(0), root(0)
 {
-    // Use a writable archive in the user's home directory.
+    std::string path;
 
-    char *home;
+    // Locate a read-write archive.
 
-    if ((home = getenv("HOME")))
-    {
-        std::string name = std::string(home) + "/.thumb";
-        archives.push_back(new file_archive(name, true));
-    }
+    if (find_rw_data(path))
+        archives.push_back(new file_archive(path, true));
 
-    // Use read-only archive in the current working directory.
+    // Locate a read-only archive.
 
-    archives.push_back(new file_archive("data", false));
+    if (find_ro_data(path))
+        archives.push_back(new file_archive(path, false));
 
     // Load the data mapping configuration file.
 

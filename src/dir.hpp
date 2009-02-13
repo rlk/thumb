@@ -23,6 +23,9 @@ void dir(std::string, std::set<std::string>&,
 
 bool mkpath(std::string, bool=true);
 
+bool find_ro_data(std::string&);
+bool find_rw_data(std::string&);
+
 //-----------------------------------------------------------------------------
 
 #endif
