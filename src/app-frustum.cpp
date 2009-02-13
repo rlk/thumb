@@ -755,15 +755,19 @@ app::frustum::frustum(app::node node, int w, int h)
     user_pos[1] = 0.0;
     user_pos[2] = 0.0;
 
+    // Load the configuration and perform a calibration.
+
     calc_calibrated();
+
+    // Load sufficient defaults to allow immediate basic usage.
 
     double M[16];
 
     load_idt(M);
 
     calc_view_planes(M, M);
-    calc_projection(1.0, 10.0);
-    calc_view_points(1.0, 10.0);
+    calc_projection (0.5, 5.0);
+    calc_view_points(0.5, 5.0);
 }
 
 app::frustum::frustum(frustum& that)

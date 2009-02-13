@@ -1257,8 +1257,6 @@ void gui::dialog::draw() const
             glDisable(GL_TEXTURE_2D);
 
             glEnable(GL_BLEND);
-            glEnable(GL_DEPTH_CLAMP_NV); // TODO: better
-
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             root->draw(focus, input);

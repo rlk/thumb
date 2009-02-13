@@ -75,8 +75,6 @@ demo::demo(int w, int h) :
 
     goto_mode(info);
 
-//  if (::conf->get_i("movie")) attr_on();
-
     attr_step(0.0);
 }
 

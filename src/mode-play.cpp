@@ -11,18 +11,58 @@
 //  General Public License for more details.
 
 #include "main.hpp"
+#include "app-conf.hpp"
+#include "app-prog.hpp"
+#include "app-user.hpp"
+#include "app-host.hpp"
 #include "app-event.hpp"
+#include "app-frustum.hpp"
 #include "wrl-world.hpp"
 #include "mode-play.hpp"
 
 //-----------------------------------------------------------------------------
 
-mode::play::play(wrl::world *w) : mode(w)
+mode::play::play(wrl::world *w) :
+    mode(w),
+    count(0),
+    movie(::conf->get_i("movie"))
 {
 }
 
 mode::play::~play()
 {
+}
+
+//-----------------------------------------------------------------------------
+
+void mode::play::draw(int frusi, app::frustum *frusp)
+{
+    assert(world);
+
+    // Draw the world.
+
+     frusp->draw();
+    ::user->draw();
+
+    world->draw_fill(frusi, frusp);
+
+    // Count frames and record a movie, if requested.
+        
+    if (movie)
+    {
+        count++;
+
+        if ((count % movie) == 0)
+        {
+            char buf[256];
+
+            sprintf(buf, "frame%05d.png", count / movie);
+
+            ::prog->screenshot(std::string(buf),
+                               ::host->get_window_w(),
+                               ::host->get_window_h());
+        }
+    }
 }
 
 //-----------------------------------------------------------------------------

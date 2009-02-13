@@ -209,10 +209,6 @@ static bool is_data_dir(std::string dir)
 {
     std::string file(dir + "/" + DEFAULT_DATA_FILE);
 
-    FILE *fp = fopen("/Users/rlk/log.txt", "a");
-    fprintf(fp, "%s %d %d\n", file.c_str(), is_dir(dir), is_reg(file));
-    fclose(fp);
-
     if (is_dir(dir) && is_reg(file))
         return true;
     else

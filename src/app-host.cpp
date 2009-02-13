@@ -404,7 +404,6 @@ app::host::host(std::string filename, std::string tag) :
     draw_flag(false),
     exit_flag(false),
     bench(::conf->get_i("bench")),
-    movie(::conf->get_i("movie")),
     count(0),
     calibration_state(false),
     calibration_index(0),
@@ -610,21 +609,6 @@ void app::host::root_loop()
             process_event(E.mk_frame());
 
             draw_flag = false;
-
-            // Count frames and record a movie, if requested.
-        
-            count++;
-
-            if (movie && (count % movie) == 0)
-            {
-                char buf[256];
-
-                sprintf(buf, "frame%05d.png", count / movie);
-
-                ::prog->screenshot(std::string(buf),
-                                   ::host->get_window_w(),
-                                   ::host->get_window_h());
-            }
         }
     }
 }

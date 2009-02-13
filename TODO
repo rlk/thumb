@@ -3,7 +3,6 @@ prepobj normalmap
 OBJ island
 Sky
 document movie making
-make it runnable with double click... .app
 shadow options (map count, pcf)
 loading zipped data files
 Sky illumination
