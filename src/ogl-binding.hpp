@@ -40,6 +40,7 @@ namespace ogl
         static std::vector<ogl::frame *> shadow;
         
         static double split_depth[4];
+        static double world_light[3];
 
         std::string name;
 
@@ -57,6 +58,7 @@ namespace ogl
     public:
 
         static double split(int, double, double);
+        static void   light(const double *);
 
         static int  shadow_count();
 

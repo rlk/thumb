@@ -501,6 +501,11 @@ app::host::host(std::string filename, std::string tag) :
 
     if (channels.empty()) channels.push_back(new dpy::channel(0));
     if (displays.empty()) displays.push_back(new dpy::normal (0));
+
+    // If no overlay has been defined, clone the first display frustum.
+
+    if (overlay == 0)
+        overlay = new app::frustum(*(displays.front()->get_overlay()));
 }
 
 app::host::~host()
@@ -816,6 +821,8 @@ const app::frustum *app::host::get_overlay() const
         return displays.front()->get_overlay();
     else
         return 0;
+
+    // TODO: this fallback is obsolete.
 }
 
 int app::host::get_window_m() const

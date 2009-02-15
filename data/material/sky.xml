@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<material>
+  <program mode="depth" file="sky.xml" />
+  <program mode="color" file="sky.xml" />
+  <texture name="fill"  file="sky-fill.png"
+                        wrap_s="clamp-to-edge"
+                        wrap_t="clamp-to-edge"/>
+  <texture name="glow"  file="sky-glow.png"
+                        wrap_s="clamp-to-edge"
+                        wrap_t="clamp-to-edge"/>
+</material>

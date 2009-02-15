@@ -84,6 +84,9 @@ namespace wrl
         ogl::node *stat_node;
         ogl::node *dyna_node;
 
+        ogl::pool *atmo_pool;
+        ogl::node *atmo_node;
+
         void node_insert(int, ogl::unit *);
         void node_remove(int, ogl::unit *);
 

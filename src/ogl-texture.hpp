@@ -46,6 +46,8 @@ namespace ogl
         texture(std::string, GLenum=GL_LINEAR);
        ~texture();
 
+        void param_i(GLenum, GLint) const;
+
         void bind(GLenum=GL_TEXTURE0) const;
         void free(GLenum=GL_TEXTURE0) const;
 

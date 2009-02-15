@@ -210,6 +210,17 @@ void ogl::texture::load_img(std::string name)
 
 //-----------------------------------------------------------------------------
 
+void ogl::texture::param_i(GLenum key, GLint val) const
+{
+    bind();
+    {
+        glTexParameteri(target, key, val);
+    }
+    free();
+}
+
+//-----------------------------------------------------------------------------
+
 void ogl::texture::bind(GLenum unit) const
 {
     glActiveTextureARB(unit);

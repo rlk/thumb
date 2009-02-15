@@ -784,7 +784,9 @@ app::frustum::frustum(frustum& that)
     user_dist  = that.user_dist;
 
     memcpy(user_points, that.user_points, 4 * 3 * sizeof (double));
+    memcpy(view_points, that.view_points, 8 * 3 * sizeof (double));
     memcpy(user_planes, that.user_planes, 4 * 4 * sizeof (double));
+    memcpy(view_planes, that.view_planes, 6 * 4 * sizeof (double));
     memcpy(user_basis,  that.user_basis,     16 * sizeof (double));
 
     memcpy(P, that.P, 16 * sizeof (double));

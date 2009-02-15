@@ -123,7 +123,7 @@ endif
 	$(CC) $(CFLAGS) -o ../$(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :
-	$(RM) $(OBJS) $(DEPS) "$(TARG)"
+	$(RM) $(OBJS) $(DEPS) "../$(TARG)"
 
 test : ../$(TARG)
 	(cd ..; ./$(TARG))

@@ -23,8 +23,16 @@
 //-----------------------------------------------------------------------------
 
 double ogl::binding::split_depth[4];
+double ogl::binding::world_light[3];
 
 std::vector<ogl::frame *> ogl::binding::shadow;
+
+void ogl::binding::light(const double *v)
+{
+    world_light[0] = v[0];
+    world_light[1] = v[1];
+    world_light[2] = v[2];
+}
 
 double ogl::binding::split(int i, double n, double f)
 {
@@ -177,10 +185,29 @@ ogl::binding::binding(std::string name) :
 
             // Load the texture (with reference count +2).
 
+            const ogl::texture *dt;
+            const ogl::texture *ct;
+
             if (depth_unit)
-                depth_texture[depth_unit] = ::glob->load_texture(path);
+                depth_texture[depth_unit] = dt = ::glob->load_texture(path);
             if (color_unit)
-                color_texture[color_unit] = ::glob->load_texture(path);
+                color_texture[color_unit] = ct = ::glob->load_texture(path);
+
+            // HACK set some texture parameters.
+
+            std::string wrap_t(app::get_attr_s(node, "wrap_t", "repeat"));
+            std::string wrap_s(app::get_attr_s(node, "wrap_s", "repeat"));
+
+            if (wrap_t == "clamp-to-edge")
+            {
+                ct->param_i(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                dt->param_i(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+            }
+            if (wrap_s == "clamp-to-edge")
+            {
+                ct->param_i(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                dt->param_i(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+            }
         }
 
         // Initialize all options.
@@ -303,6 +330,9 @@ void ogl::binding::bind(bool c) const
                                             split_depth[1],
                                             split_depth[2],
                                             split_depth[3]);
+            color_program->uniform("light", world_light[0],
+                                            world_light[1],
+                                            world_light[2]);
         }
 
         for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)

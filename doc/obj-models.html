@@ -238,22 +238,22 @@ b_t_door_wind.xml       b_t_stolbi3.xml
 
     <h3>Installing our new model</h3>
 
-    <p>To use model, we copy the OBJ, the material XMLs and the texture PNGs into the Thumb data tree.  This may be either the data tree located with the executable, or one in your home directory, in <code>~/.thumb/</code>.</p>
+    <p>To view our model, we must copy the OBJ, the material XMLs and the texture PNGs into the Thumb <i>data tree</i>. The Thumb data tree is actually an overlay of a number of data sources, both user-defined and system-defined.  The simplest way to add content to the data tree is to place it in a directory called <code>.thumb/</code> in your home directory. This content will be merged with any content in the system-defined data tree, and will override it. This allows users to customize Thumb's behavior freely, without having to make changes to their Thumb installation.</p>
 
-    <p>Create these directories if necessary...</p>
+    <p>So, create the data tree directories if necessary...</p>
 
     <pre>
-$ <b>mkdir ~/src/thumb/data/solid/kizhi/</b>
-$ <b>mkdir ~/src/thumb/data/material/kizhi/</b>
-$ <b>mkdir ~/src/thumb/data/texture/kizhi/</b>
+$ <b>mkdir -p ~/.thumb/solid/kizhi/</b>
+$ <b>mkdir -p ~/.thumb/material/kizhi/</b>
+$ <b>mkdir -p ~/.thumb/texture/kizhi/</b>
     </pre>
 
     <p>... and copy the files to them.</p>
 
     <pre>
-$ <b>cp belfry-opt.obj ~/src/thumb/data/solid/kizhi/</b>
-$ <b>cp *.xml ~/src/thumb/data/material/kizhi/</b>
-$ <b>cp *.png ~/src/thumb/data/texture/kizhi/</b>
+$ <b>cp belfry-opt.obj ~/.thumb/solid/kizhi/</b>
+$ <b>cp *.xml          ~/.thumb/material/kizhi/</b>
+$ <b>cp *.png          ~/.thumb/texture/kizhi/</b>
     </pre>
 
     <h3>Loading our model</h3>

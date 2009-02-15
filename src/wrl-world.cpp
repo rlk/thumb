@@ -47,6 +47,9 @@ wrl::world::world() :
 
     // Initialize the render pools.
 
+    atmo_pool = glob->new_pool();
+    atmo_node = new ogl::node;
+
     fill_pool = glob->new_pool();
     fill_node = new ogl::node;
 
@@ -57,6 +60,8 @@ wrl::world::world() :
     fill_pool->add_node(fill_node);
     line_pool->add_node(stat_node);
     line_pool->add_node(dyna_node);
+    atmo_pool->add_node(atmo_node);
+    atmo_node->add_unit(new ogl::unit("solid/sky.obj"));
 
     // Initialize the lighting state.
 
@@ -459,7 +464,7 @@ void wrl::world::mov_lite(int dt, int dp)
     // Ensure the spherical coordinates remain within bounds.
 
     if (lite_P >   90) lite_P  =  90;
-    if (lite_P <    0) lite_P  =   0;
+    if (lite_P <  -90) lite_P  = -90;
 
     if (lite_T >  180) lite_T -= 360;
     if (lite_T < -180) lite_T += 360;
@@ -469,6 +474,8 @@ void wrl::world::mov_lite(int dt, int dp)
     lite_v[0] = sin(RAD(lite_T)) * cos(RAD(lite_P)) * 256.0;
     lite_v[1] =                    sin(RAD(lite_P)) * 256.0;
     lite_v[2] = cos(RAD(lite_T)) * cos(RAD(lite_P)) * 256.0;
+
+    ogl::binding::light(lite_v);
 }
 
 void wrl::world::node_insert(int id, ogl::unit *unit)
@@ -1027,6 +1034,11 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 {
     ogl::range r;
 
+    // Prep the atmosphere.  Assume it is always visible.
+
+    atmo_pool->prep();
+    atmo_pool->view(0, 0, 0);
+
     // Prep the fill geometry pool.
 
     fill_pool->prep();
@@ -1042,6 +1054,12 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
         frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
 
     prep_lite(frusc, frusv, r);
+
+    double M[16];
+    load_scl_mat(M, r.get_f(),
+                    r.get_f(),
+                    r.get_f());
+    atmo_node->transform(M);
 
     return r;
 }
@@ -1067,8 +1085,6 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
-    glAlphaFunc(GL_GREATER, 0.5f);
-
     // Compute the light source position.
 
     GLfloat L[4];
@@ -1082,12 +1098,40 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 
     // Render the fill geometry.
 
+    glAlphaFunc(GL_GREATER, 0.5f);
+
     fill_pool->draw_init();
     {
         fill_pool->draw(frusi, true, false);
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
+
+    // Render the atmosphere.  HACKy.
+
+    glPushAttrib(GL_ENABLE_BIT);
+    glPushMatrix();
+    {
+        double M[16];
+
+        load_mat(M, ::user->get_M());
+
+        glTranslated(M[12], M[13], M[14]);
+
+        glAlphaFunc(GL_GREATER, 0.0f);
+        glDisable(GL_ALPHA_TEST);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        atmo_pool->draw_init();
+        {
+            atmo_pool->draw(frusi, true, false);
+            atmo_pool->draw(frusi, true, true);
+        }
+        atmo_pool->draw_fini();
+    }
+    glPopMatrix();
+    glPopAttrib();
 
     // Render the shadow buffer.
 

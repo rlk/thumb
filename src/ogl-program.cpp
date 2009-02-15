@@ -42,7 +42,7 @@ void ogl::program::log(GLhandleARB handle, std::string& name)
 GLhandleARB ogl::program::compile(GLenum type, std::string& name,
                                                std::string& text)
 {
-    GLhandleARB handle;
+    GLhandleARB handle = 0;
 
     // Compile the given shader text.
 
