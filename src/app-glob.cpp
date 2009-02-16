@@ -62,13 +62,15 @@ const ogl::program *app::glob::load_program(std::string name)
 {
     if (program_map.find(name) == program_map.end())
     {
-        try // TODO: load a default
+        try
         {
             program_map[name].ptr = new ogl::program(name);
             program_map[name].ref = 1;
         }
         catch (std::runtime_error& e)
         {
+            // TODO: be nice.
+
             std::cerr << "Exception: " << e.what() << std::endl;
             return 0;
         }
@@ -112,12 +114,23 @@ void app::glob::free_program(const ogl::program *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::texture *app::glob::load_texture(std::string name, GLenum filter)
+const ogl::texture *app::glob::load_texture(std::string name,
+                                            std::string fallback)
 {
     if (texture_map.find(name) == texture_map.end())
     {
-        texture_map[name].ptr = new ogl::texture(name, filter);
-        texture_map[name].ref = 1;
+        try
+        {
+            texture_map[name].ptr = new ogl::texture(name);
+            texture_map[name].ref = 1;
+        }
+        catch (std::runtime_error& e)
+        {
+            if (name == fallback)
+                return 0;
+            else
+                return load_texture(fallback, fallback);
+        }
     }
     else   texture_map[name].ref++;
 
@@ -158,7 +171,8 @@ void app::glob::free_texture(const ogl::texture *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::binding *app::glob::load_binding(std::string name)
+const ogl::binding *app::glob::load_binding(std::string name,
+                                            std::string fallback)
 {
     if (binding_map.find(name) == binding_map.end())
     {
@@ -169,29 +183,17 @@ const ogl::binding *app::glob::load_binding(std::string name)
         }
         catch (std::runtime_error& e)
         {
-            if (name == "default")
+            if (name == fallback)
                 return 0;
             else
-                return load_binding("default");
+                return load_binding(fallback, fallback);
         }
     }
     else   binding_map[name].ref++;
 
     return binding_map[name].ptr;
 }
-/*
-const ogl::binding *app::glob::load_binding(std::string name)
-{
-    if (binding_map.find(name) == binding_map.end())
-    {
-        binding_map[name].ptr = new ogl::binding(name);
-        binding_map[name].ref = 1;
-    }
-    else   binding_map[name].ref++;
 
-    return binding_map[name].ptr;
-}
-*/
 const ogl::binding *app::glob::dupe_binding(const ogl::binding *p)
 {
     if (p)

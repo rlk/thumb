@@ -22,7 +22,7 @@
 //-----------------------------------------------------------------------------
 
 ogl::mesh::mesh(std::string& name) :
-    material(glob->load_binding(name)),
+    material(glob->load_binding(name, "default.xml")),
     min(std::numeric_limits<GLuint>::max()),
     max(std::numeric_limits<GLuint>::min()),
     dirty_verts(false),

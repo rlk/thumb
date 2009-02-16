@@ -176,8 +176,10 @@ bool dev::mouse::process_keybd(app::event *E)
 
 bool dev::mouse::process_timer(app::event *E)
 {
-//  double kp = E->data.timer.dt * universe.move_rate() * 0.0001;
-    double kp = E->data.timer.dt * view_move_rate * 0.001;
+    double kp = E->data.timer.dt * view_move_rate * 0.001;;
+
+    if (modifier & KMOD_SHIFT) kp *= 10.0;
+    if (modifier & KMOD_CTRL)  kp *=  0.1;
 
     user->move(motion[0] * kp,
                motion[1] * kp,

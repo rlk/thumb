@@ -7,51 +7,79 @@
 
 /*---------------------------------------------------------------------------*/
 
-static const char *toxml(const char *image, const char *dir)
+int strrep(char *dst, const char *src, const char *A, const char *B)
 {
-    static char newname[256];
-    static char xmlname[256];
-    char *c;
+    char *rep;
+
+    if ((rep = strstr(src, A)))
+    {
+        strncpy(dst, src, rep - src);
+        if (B) strcat(dst, B);
+        strcat(dst, rep + strlen(A));
+
+        return 1;
+    }
+
+    return 0;
+}
+
+/*---------------------------------------------------------------------------*/
+
+static const char *toxml(const char *origname, const char *dir)
+{
+    static char mtrlname[256];
+
+    char filename[256];
+    char diffname[256];
+    char normname[256];
+
     FILE *fp;
 
-    assert(image);
+    assert(origname);
+
+    memset(mtrlname, 0, 256);
+    memset(filename, 0, 256);
+    memset(diffname, 0, 256);
+    memset(normname, 0, 256);
+
+    /* foo_diffuse.png -> dir/foo_diffuse.png */
 
     if (dir)
     {
-        strcpy(newname, dir);
-        strcat(newname, "/");
-        strcat(newname, image);
+        strcpy(diffname, dir);
+        strcat(diffname, "/");
     }
-    else
-        strcpy(newname, image);
+    strcat(diffname, origname);
 
-    strcpy(xmlname, image);
+    /* dir/foo_diffuse.png -> dir/foo */
 
-    if ((c = strrchr(newname, '.'))) *c = '\0';
-    if ((c = strrchr(xmlname, '.'))) *c = '\0';
+    strrep(mtrlname, diffname, "_diffuse.png", 0);
 
-    strcat(xmlname, ".xml");
+    /* dir/foo_diffuse.png -> dir/foo.xml */
 
-    if ((fp = fopen(xmlname, "w")))
+    strrep(filename, diffname, "_diffuse.png", ".xml");
+
+    /* dir/foo_diffuse.png -> dir/foo_normal.xml */
+
+    strrep(normname, diffname, "_diffuse.png", "_normal.png");
+
+    /* Write the XML */
+
+    if ((fp = fopen(filename, "w")))
     {
         fprintf(fp, "<?xml version=\"1.0\"?>\n");
         fprintf(fp, "<material>\n");
         fprintf(fp, "  <program mode=\"depth\"    file=\"object-depth.xml\"/>\n");
         fprintf(fp, "  <program mode=\"color\"    file=\"object-color.xml\"/>\n");
         fprintf(fp, "  <texture name=\"specular\" file=\"matte-specular.png\"/>\n");
-
-        if (dir)
-            fprintf(fp, "  <texture name=\"diffuse\"  file=\"%s/%s\"/>\n", dir, image);
-        else
-            fprintf(fp, "  <texture name=\"diffuse\"  file=\"%s\"/>\n", image);
-
-        fprintf(fp, "  <texture name=\"normal\"   file=\"default-normal.png\"/>\n");
+        fprintf(fp, "  <texture name=\"diffuse\"  file=\"%s\"/>\n", diffname);
+        fprintf(fp, "  <texture name=\"normal\"   file=\"%s\"/>\n", normname);
         fprintf(fp, "</material>\n");
 
         fclose(fp);
     }
 
-    return newname;
+    return mtrlname;
 }
 
 static int load(const char *filename, float scale)

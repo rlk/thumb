@@ -18,7 +18,8 @@
 //=============================================================================
 
 uni::slide::slide(app::node node) :
-    texture(::glob->load_texture(app::get_attr_s(node, "image")))
+    texture(::glob->load_texture(app::get_attr_s(node, "image"),
+                                 app::get_attr_s(node, "image")))
 {
     // Extract the slide transformation from the node.
 

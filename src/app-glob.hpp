@@ -87,8 +87,8 @@ namespace app
         const ogl::program *load_program(std::string, std::string) { return 0; } // HACK HACK HACK
 
         const ogl::program *load_program(std::string);
-        const ogl::texture *load_texture(std::string, GLenum=GL_LINEAR);
-        const ogl::binding *load_binding(std::string);
+        const ogl::texture *load_texture(std::string, std::string);
+        const ogl::binding *load_binding(std::string, std::string);
         const ogl::surface *load_surface(std::string);
 
         const ogl::program *dupe_program(const ogl::program *);

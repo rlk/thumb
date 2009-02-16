@@ -148,12 +148,14 @@ void cnt::new_universal_button::apply()
 
 void cnt::new_box_button::apply()
 {
-    do_create(new wrl::box(name->value()));
+    if (!name->value().empty())
+        do_create(new wrl::box(name->value()));
 }
 
 void cnt::new_sphere_button::apply()
 {
-    do_create(new wrl::sphere(name->value()));
+    if (!name->value().empty())
+        do_create(new wrl::sphere(name->value()));
 }
 
 //-----------------------------------------------------------------------------

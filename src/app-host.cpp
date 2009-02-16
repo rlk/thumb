@@ -561,13 +561,13 @@ void app::host::root_loop()
             case SDL_KEYDOWN:
                 process_event(E.mk_keybd(e.key.keysym.unicode,
                                          e.key.keysym.sym,
-                                         e.key.keysym.mod, true));
+                                         SDL_GetModState(), true));
                 break;
 
             case SDL_KEYUP:
                 process_event(E.mk_keybd(e.key.keysym.unicode,
                                          e.key.keysym.sym,
-                                         e.key.keysym.mod, false));
+                                         SDL_GetModState(), false));
                 break;
 
             case SDL_JOYAXISMOTION:

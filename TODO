@@ -1,4 +1,4 @@
-prepobj normalmap
+Terrain
 Shift-F3 to go into movie mode?
    document movie making
 OBJ island
@@ -8,7 +8,6 @@ Wireframe mode
 shadow options (map count, pcf)
 loading zipped data files
 Sky illumination
-Terrain
 
 grep '.hpp' *.hpp 
 

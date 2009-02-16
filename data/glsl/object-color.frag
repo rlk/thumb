@@ -80,4 +80,5 @@ void main()
     vec3 KA =                                D.rgb * Ka;
 
     gl_FragColor = vec4(((KS + KD) * lit + KA).rgb, D.a);
+//  gl_FragColor = vec4(N * 0.5 + 0.5, 1.0);
 }

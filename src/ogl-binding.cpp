@@ -176,7 +176,8 @@ ogl::binding::binding(std::string name) :
             std::string name(app::get_attr_s(node, "name"));
             std::string file(app::get_attr_s(node, "file"));
 
-            std::string path = "texture/" + file;
+            std::string path     = "texture/" + file;
+            std::string fallback = "texture/default-" + name + ".png";
 
             // Determine the texture unit binding for each texture.
 
@@ -185,14 +186,15 @@ ogl::binding::binding(std::string name) :
 
             // Load the texture (with reference count +2).
 
-            const ogl::texture *dt;
-            const ogl::texture *ct;
+            const ogl::texture *dt = 0;
+            const ogl::texture *ct = 0;
 
-            if (depth_unit)
-                depth_texture[depth_unit] = dt = ::glob->load_texture(path);
-            if (color_unit)
-                color_texture[color_unit] = ct = ::glob->load_texture(path);
+            if (depth_unit) dt = ::glob->load_texture(path, fallback);
+            if (color_unit) ct = ::glob->load_texture(path, fallback);
 
+            if (dt) depth_texture[depth_unit] = dt;
+            if (ct) color_texture[color_unit] = ct;
+            
             // HACK set some texture parameters.
 
             std::string wrap_t(app::get_attr_s(node, "wrap_t", "repeat"));
@@ -200,13 +202,13 @@ ogl::binding::binding(std::string name) :
 
             if (wrap_t == "clamp-to-edge")
             {
-                ct->param_i(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                dt->param_i(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                if (ct) ct->param_i(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+                if (dt) dt->param_i(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
             }
             if (wrap_s == "clamp-to-edge")
             {
-                ct->param_i(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                dt->param_i(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                if (ct) ct->param_i(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+                if (dt) dt->param_i(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
             }
         }
 
