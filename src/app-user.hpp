@@ -35,8 +35,10 @@ namespace app
         double current_M[16];
         double current_I[16];
         double current_S[16];
+        double current_L[3];
+        double current_t;
 
-        void set(const double[3], const double[4]);
+        void set(const double *, const double *, double);
 
         // Automatic demo file.
 
@@ -55,8 +57,8 @@ namespace app
 
         double interpolate(app::node, app::node, const char *, double);
 
-        void erp_state(app::node, app::node, double, double&, int&);
-        void set_state(app::node,                    double&, int&);
+        void erp_state(app::node, app::node, double, int&);
+        void set_state(app::node,                    int&);
 
         double tt;
 
@@ -72,6 +74,7 @@ namespace app
         const double *get_M() const { return current_M; }
         const double *get_I() const { return current_I; }
         const double *get_S() const { return current_S; }
+        const double *get_L() const { return current_L; }
 
         // Interactive view controls.
 
@@ -79,6 +82,7 @@ namespace app
         void turn(double, double, double);
         void move(double, double, double);
         void look(double, double);
+        void pass(double);
         void home();
 
         void tumble(const double *,
@@ -86,11 +90,11 @@ namespace app
 
         // Automatic view controls.
 
-        bool dostep(double, double&, int&);
+        bool dostep(double, int&);
         void gonext();
         void goprev();
         void gohalf();
-        void insert(double, int);
+        void insert(int);
         void remove();
 
         // Transform application.

@@ -68,11 +68,7 @@ namespace wrl
 
         int shadow_res;
 
-        double lite_P;
-        double lite_T;
-        double lite_v[3];
-        double lite_M[16];
-        double lite_I[16];
+        double light[3];
 
         // Batcher state
 
@@ -119,7 +115,6 @@ namespace wrl
         dSpaceID get_space() const { return edit_space; }
         dGeomID  get_focus() const { return edit_focus; }
 
-        void mov_lite(int, int);
         void set_param(int, std::string&);
         int  get_param(int, std::string&);
 

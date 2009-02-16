@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <sys/time.h>
+
 #include <sstream>
 #include <iomanip>
 #include <iostream>
@@ -22,6 +24,9 @@
 #include "app-data.hpp"
 #include "app-glob.hpp"
 #include "app-prog.hpp"
+
+// TODO: The use of set() is haphazzard.  current_M/I are accessed directly.
+// Clarify this interface.
 
 //-----------------------------------------------------------------------------
 
@@ -41,10 +46,9 @@ app::user::user() :
         0.0, 0.0, 0.5, 0.0,
         0.5, 0.5, 0.5, 1.0,
     };
-
-    load_idt(current_M);
-    load_idt(current_I);
     load_mat(current_S, S);
+
+    home();
 
     // Initialize the demo input.
 
@@ -57,25 +61,44 @@ app::user::user() :
 
     // Initialize the transformation using the initial state.
 
-    double time;
-    int    opts;
+    int opts;
 
-    set_state(curr, time, opts);
+    set_state(curr, opts);
 }
 
-void app::user::set(const double p[3], const double q[4])
+void app::user::set(const double *p, const double *q, double t)
 {
     // Compute the current transform and inverse from the given values.
 
-    set_quaternion(current_M, q);
+    if (q)
+        set_quaternion(current_M, q);
 
-    current_M[12] = p[0];
-    current_M[13] = p[1];
-    current_M[14] = p[2];
+    if (p)
+    {
+        current_M[12] = p[0];
+        current_M[13] = p[1];
+        current_M[14] = p[2];
+    }
 
-    orthonormalize(current_M);
+    if (p || q)
+    {
+        orthonormalize(current_M);
+        load_inv(current_I, current_M);
+    }
 
-    load_inv(current_I, current_M);
+    // Compute the current lighting vector from the fiven time.  HACK.
+
+    if (t)
+    {
+        current_t = t;
+
+        double M[16], L[3] = { 0.0, 0.0, 1.0 };
+
+        load_rot_mat(M, 1.0, 0.0, 0.0, 45.0);
+        Rmul_rot_mat(M, 0.0, 1.0, 0.0, 360.0 * t / (24.0 * 60.0 * 60.0));
+
+        mult_mat_vec3(current_L, M, L);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -205,10 +228,23 @@ void app::user::look(double dt, double dp)
     load_inv(current_I, current_M);
 }
 
+void app::user::pass(double dt)
+{
+    current_t += dt;
+
+    set(0, 0, current_t);
+}
+
 void app::user::home()
 {
     load_idt(current_M);
     load_idt(current_I);
+
+    struct timeval tv;
+
+    gettimeofday(&tv, 0);
+
+    set(0, 0, tv.tv_sec + tv.tv_usec * 0.000001);
 }
 
 void app::user::tumble(const double *A,
@@ -247,12 +283,13 @@ double app::user::interpolate(app::node A,
 }
 
 void app::user::erp_state(app::node A,
-                          app::node B, double tt, double &time, int &opts)
+                          app::node B, double tt, int &opts)
 {
     // Apply the interpolation of the given state nodes.
 
     double p[3];
     double q[4];
+    double time;
 
     p[0] = interpolate(A, B, "x", tt);
     p[1] = interpolate(A, B, "y", tt);
@@ -270,15 +307,16 @@ void app::user::erp_state(app::node A,
     else
         opts = get_attr_f(B, "opts", 0);
 
-    set(p, q);
+    set(p, q, time);
 }
 
-void app::user::set_state(app::node A, double &time, int &opts)
+void app::user::set_state(app::node A, int &opts)
 {
     // Apply the given state node.
 
     double p[3];
     double q[4];
+    double time;
 
     p[0] = get_attr_f(A, "x", 0);
     p[1] = get_attr_f(A, "y", 0);
@@ -292,10 +330,10 @@ void app::user::set_state(app::node A, double &time, int &opts)
     time = get_attr_f(A, "time", 0);
     opts = get_attr_f(A, "opts", 0);
 
-    set(p, q);
+    set(p, q, time);
 }
 
-bool app::user::dostep(double dt, double &time, int &opts)
+bool app::user::dostep(double dt, int &opts)
 {
     // If we're starting backward, advance to the previous state.
 
@@ -328,7 +366,7 @@ bool app::user::dostep(double dt, double &time, int &opts)
     if (dt < 0.0 && tt < 0.0)
     {
         stopped = true;
-        set_state(curr, time, opts);
+        set_state(curr, opts);
         tt = 0.0;
         return true;
     }
@@ -338,14 +376,14 @@ bool app::user::dostep(double dt, double &time, int &opts)
     if (dt > 0.0 && tt > 1.0)
     {
         stopped = true;
-        set_state(next, time, opts);
+        set_state(next, opts);
         tt = 1.0;
         return true;
     }
 
     // Otherwise just interpolate the two.
     
-    erp_state(curr, next, tt, time, opts);
+    erp_state(curr, next, tt, opts);
 
     return false;
 }
@@ -377,7 +415,7 @@ void app::user::goprev()
     pred = cycle_next(next);
 }
 
-void app::user::insert(double time, int opts)
+void app::user::insert(int opts)
 {
     if (stopped)
     {
@@ -403,7 +441,7 @@ void app::user::insert(double time, int opts)
         set_attr_f(node, "v", q[2]);
         set_attr_f(node, "w", q[3]);
 
-        set_attr_f(node, "time", time);
+        set_attr_f(node, "time", current_t);
         set_attr_d(node, "opts", opts);
 
         app::insert(root, curr, node);

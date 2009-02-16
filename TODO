@@ -1,8 +1,10 @@
-Shift-F3 to go into movie mode?
-Move time-of-day to user
 prepobj normalmap
+Shift-F3 to go into movie mode?
+   document movie making
 OBJ island
-document movie making
+document conf settings
+test GL fallbacks
+Wireframe mode
 shadow options (map count, pcf)
 loading zipped data files
 Sky illumination

@@ -184,6 +184,7 @@ bool mode::edit::process_keybd(app::event *E)
     if (E->data.keybd.d)
     {
         const int k = E->data.keybd.k;
+        const int m = E->data.keybd.m;
 
         // Handle basic editing operations.
 
@@ -278,33 +279,27 @@ bool mode::edit::process_keybd(app::event *E)
         }
         else if (k == key_home)
         {
-            double M[16];
-
-            load_idt(M);
-            xform->set_transform(M);
+            if (m & KMOD_SHIFT)
+                ::user->home();
+            else
+            {
+                double M[16];
+                load_idt(M);
+                xform->set_transform(M);
+            }
             return true;
         }
 
-        // Handle lighting keys.
+        // Handle time (lighting) keys.
 
         else if (k == SDLK_LEFT)
         {
-            world->mov_lite(-5, 0);
+            ::user->pass(-1800.0);
             return true;
         }
         else if (k == SDLK_RIGHT)
         {
-            world->mov_lite(+5, 0);
-            return true;
-        }
-        else if (k == SDLK_DOWN)
-        {
-            world->mov_lite(0, -5);
-            return true;
-        }
-        else if (k == SDLK_UP)
-        {
-            world->mov_lite(0, +5);
+            ::user->pass(+1800.0);
             return true;
         }
     }

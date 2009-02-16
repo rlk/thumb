@@ -32,10 +32,7 @@
 //-----------------------------------------------------------------------------
 
 wrl::world::world() :
-    shadow_res(::conf->get_i("shadow_map_resolution")),
-    lite_P(45),
-    lite_T( 0),
-    serial(1)
+    shadow_res(::conf->get_i("shadow_map_resolution")), serial(1)
 {
     // Initialize the editor physical system.
 
@@ -62,10 +59,6 @@ wrl::world::world() :
     line_pool->add_node(dyna_node);
     atmo_pool->add_node(atmo_node);
     atmo_node->add_unit(new ogl::unit("solid/sky.obj"));
-
-    // Initialize the lighting state.
-
-    mov_lite(0, 0);
 }
 
 wrl::world::~world()
@@ -453,30 +446,6 @@ int wrl::world::get_param(int k, std::string& expr)
 }
 
 //-----------------------------------------------------------------------------
-
-void wrl::world::mov_lite(int dt, int dp)
-{
-    // Move the lightsource.  
-
-    lite_P += dp;
-    lite_T += dt;
-
-    // Ensure the spherical coordinates remain within bounds.
-
-    if (lite_P >   90) lite_P  =  90;
-    if (lite_P <  -90) lite_P  = -90;
-
-    if (lite_T >  180) lite_T -= 360;
-    if (lite_T < -180) lite_T += 360;
-
-    // Compute the light vector.
-
-    lite_v[0] = sin(RAD(lite_T)) * cos(RAD(lite_P)) * 256.0;
-    lite_v[1] =                    sin(RAD(lite_P)) * 256.0;
-    lite_v[2] = cos(RAD(lite_T)) * cos(RAD(lite_P)) * 256.0;
-
-    ogl::binding::light(lite_v);
-}
 
 void wrl::world::node_insert(int id, ogl::unit *unit)
 {
@@ -955,6 +924,9 @@ void wrl::world::save(std::string filename, bool save_all)
 
 void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 {
+    double lite_M[16];
+    double lite_I[16];
+
     // Compute the shadow map split depths.
 
     const double n = r.get_n();
@@ -976,7 +948,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
         // Compute a lighting frustum encompasing all view frusta.
 
-        frust.calc_union(frusc, frusv, c[i], c[i+1], lite_v, lite_M, lite_I);
+        frust.calc_union(frusc, frusv, c[i], c[i+1], light, lite_M, lite_I);
 
         // Cache the fill visibility for the light.
 
@@ -1019,6 +991,8 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
         glActiveTextureARB(GL_TEXTURE1 + i);
         glMatrixMode(GL_TEXTURE);
         {
+            // TODO: eliminate the use of ::user here.
+
             glLoadIdentity();
             glMultMatrixd(::user->get_S());
             glMultMatrixd(frust.get_P());
@@ -1033,6 +1007,16 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 {
     ogl::range r;
+
+    // Position the light source.
+
+    const double *L = ::user->get_L();
+
+    light[0] = L[0] * 256.0f;
+    light[1] = L[1] * 256.0f;
+    light[2] = L[2] * 256.0f;
+
+    ogl::binding::light(light);
 
     // Prep the atmosphere.  Assume it is always visible.
 
@@ -1089,10 +1073,10 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 
     GLfloat L[4];
 
-    L[0] = GLfloat(lite_v[0]);
-    L[1] = GLfloat(lite_v[1]);
-    L[2] = GLfloat(lite_v[2]);
-    L[3] = 1.0;
+    L[0] = GLfloat(light[0]);
+    L[1] = GLfloat(light[1]);
+    L[2] = GLfloat(light[2]);
+    L[3] = 1.0f;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 

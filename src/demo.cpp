@@ -118,14 +118,13 @@ void demo::attr_off()
 
 void demo::attr_step(double dt)
 {
-    // Move the camera forward and update the universe.
+    // Move the camera forward.
 
     if (attr_mode)
     {
-        double time = 0.0;
-        int    opts =   0;
+        int opts = 0;
 
-        if (user->dostep(attr_rate * attr_sign * dt, time, opts))
+        if (user->dostep(attr_rate * attr_sign * dt, opts))
         {
             if (attr_stop)
             {
@@ -133,7 +132,6 @@ void demo::attr_step(double dt)
                 attr_mode = false;
             }
         }
-//      universe->set_time(time);
         set_options(opts);
     }
 }
@@ -160,11 +158,9 @@ void demo::attr_prev()
 
 void demo::attr_ins()
 {
-    double t = universe ? universe->get_time() : 0;
+    // Insert a new key here.
 
-    // Insert a new key here and update the universe.
-
-    ::user->insert(t, get_options());
+    ::user->insert(get_options());
     attr_step(0.0);
 }
 
