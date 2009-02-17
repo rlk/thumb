@@ -1,7 +1,4 @@
-Figure out why shadows (with terrain loaded) don't work when looking into the sun.
-Render sky on far clipping plane
-
-OBJ island
+Make GLSL compilation failure recoverable (LESS ANNOYING)
 document conf settings
 test GL fallbacks
 shadow options (map count, pcf)

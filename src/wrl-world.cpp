@@ -1114,8 +1114,6 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glDepthRange(0.99, 1.0);
-
         atmo_pool->draw_init();
         {
             atmo_pool->draw(frusi, true, false);
