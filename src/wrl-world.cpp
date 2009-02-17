@@ -33,7 +33,8 @@
 //-----------------------------------------------------------------------------
 
 wrl::world::world() :
-    shadow_res(::conf->get_i("shadow_map_resolution")), serial(1)
+    shadow_res(::conf->get_i("shadow_map_resolution")),
+    serial(1)
 {
     // Initialize the editor physical system.
 
@@ -1018,9 +1019,9 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 
     const double *L = ::user->get_L();
 
-    light[0] = L[0] * 512.0f;
-    light[1] = L[1] * 512.0f;
-    light[2] = L[2] * 512.0f;
+    light[0] = L[0] * 8192.0f;
+    light[1] = L[1] * 8192.0f;
+    light[2] = L[2] * 8192.0f;
 
     ogl::binding::light(light);
 
@@ -1099,7 +1100,7 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 
     // Render the atmosphere.  HACKy.
 
-    glPushAttrib(GL_ENABLE_BIT);
+    glPushAttrib(GL_ENABLE_BIT | GL_VIEWPORT_BIT);
     glPushMatrix();
     {
         double M[16];
@@ -1112,6 +1113,8 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
         glDisable(GL_ALPHA_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glDepthRange(0.99, 1.0);
 
         atmo_pool->draw_init();
         {

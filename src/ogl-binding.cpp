@@ -36,15 +36,27 @@ void ogl::binding::light(const double *v)
 
 double ogl::binding::split(int i, double n, double f)
 {
-    double F = (f < 100.0) ? f : 100.0;
-
-    double k = double(i) / double(shadow.size());
-
+    double c, k = double(i) / double(shadow.size());
+/*
     double c = (n * pow(F / n, k) + n + (F - n) * k) * 0.5;
+*/
+/*
+    double c = n * pow(f / n, pow(k, 0.666));
+*/
+    
+    switch (i)
+    {
+    case 0: c =     n; break;
+    case 1: c =  35.0; break;
+    case 2: c = 120.0; break;
+    case 3: c = 300.0; break;
+    }
 
     split_depth[i] = (1 - n / c) * f / (f - n);
 
-    return (c - n) / (f - n);
+    double r = (c - n) / (f - n);
+
+    return r;
 }
 
 bool ogl::binding::init_shadow()

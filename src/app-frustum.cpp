@@ -430,12 +430,14 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
     normalize(M + 8);
 
     // The Y axis is "up".
-
+/*
     if (L[1] > sqrt(L[0] * L[0] + L[2] * L[2]))
     {
+*/
         M[4] =  0.0;
         M[5] =  1.0;
         M[6] =  0.0;
+/*
     }
     else
     {
@@ -443,7 +445,7 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
         M[5] =  0.0;
         M[6] = -1.0;
     }
-
+*/
     // The X axis is the cross product of these.
 
     crossprod(M + 0, M + 4, M + 8);
@@ -505,20 +507,22 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
 
             // Find the frustum extrema.
 
-            l = std::min(l, q0[0]);
-            l = std::min(l, q1[0]);
-            r = std::max(r, q0[0]);
-            r = std::max(r, q1[0]);
-            b = std::min(b, q0[1]);
-            b = std::min(b, q1[1]);
-            t = std::max(t, q0[1]);
-            t = std::max(t, q1[1]);
+            l = std::min(l,  q0[0]);
+            l = std::min(l,  q1[0]);
+            r = std::max(r,  q0[0]);
+            r = std::max(r,  q1[0]);
+            b = std::min(b,  q0[1]);
+            b = std::min(b,  q1[1]);
+            t = std::max(t,  q0[1]);
+            t = std::max(t,  q1[1]);
             n = std::min(n, -q0[2]);
             n = std::min(n, -q1[2]);
             f = std::max(f, -q0[2]);
             f = std::max(f, -q1[2]);
         }
     }
+
+    n = std::max(n, 1.0);
 
     // Set up the frustum.
 
@@ -1318,6 +1322,42 @@ void app::frustum::overlay() const
         glScaled(get_w() / pixel_w,
                  get_h() / pixel_h, 1.0);
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void app::frustum::draw_user_plane(double k) const
+{
+    const double j = 1.0 - k;
+
+    glBegin(GL_QUADS);
+    {
+        glVertex3d(user_pos[0] * j + user_points[0][0] * k,
+                   user_pos[1] * j + user_points[0][1] * k,
+                   user_pos[2] * j + user_points[0][2] * k);
+        glVertex3d(user_pos[0] * j + user_points[1][0] * k,
+                   user_pos[1] * j + user_points[1][1] * k,
+                   user_pos[2] * j + user_points[1][2] * k);
+        glVertex3d(user_pos[0] * j + user_points[2][0] * k,
+                   user_pos[1] * j + user_points[2][1] * k,
+                   user_pos[2] * j + user_points[2][2] * k);
+        glVertex3d(user_pos[0] * j + user_points[3][0] * k,
+                   user_pos[1] * j + user_points[3][1] * k,
+                   user_pos[2] * j + user_points[3][2] * k);
+    }
+    glEnd();
+}
+
+void app::frustum::draw_view_plane_far() const
+{
+    glBegin(GL_QUADS);
+    {
+        glVertex3dv(view_points[4]);
+        glVertex3dv(view_points[5]);
+        glVertex3dv(view_points[7]);
+        glVertex3dv(view_points[6]);
+    }
+    glEnd();
 }
 
 //-----------------------------------------------------------------------------

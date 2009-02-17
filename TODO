@@ -8,6 +8,7 @@ shadow options (map count, pcf)
 loading zipped data files
 Sky illumination
 The entire attract mode needs to be scrapped and replaced
+Give some indication that a long load is occurring
 
 grep '.hpp' *.hpp 
 

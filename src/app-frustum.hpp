@@ -143,6 +143,9 @@ namespace app
         void rect() const;
 
         void overlay() const;
+
+        void draw_user_plane(double) const;
+        void draw_view_plane_far() const;
     };
 
     typedef std::vector<frustum *>                 frustum_v;

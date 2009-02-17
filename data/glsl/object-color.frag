@@ -60,11 +60,10 @@ void main()
     float ky = step(split.z, gl_FragCoord.z);
 
     float lit = mix(S0, mix(S1, S2, ky), kx) * step(0.0, L.z);
-/*
+
     vec3 Z = mix(vec3(1.0, 0.0, 0.0),
                   mix(vec3(0.0, 1.0, 0.0),
                       vec3(0.0, 0.0, 1.0), ky), kx);
-*/
 
     N = normalize(2.0 * N - 1.0);
 

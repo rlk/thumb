@@ -31,6 +31,7 @@ namespace ogl
     class unit;
     class node;
     class pool;
+    class binding;
 }
 
 //-----------------------------------------------------------------------------
