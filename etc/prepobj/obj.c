@@ -1936,22 +1936,15 @@ void obj_init_file(int fi)
 
 /*---------------------------------------------------------------------------*/
 
-const struct obj_vert *VVV;
+static const struct obj_vert *V = 0;
 
-/*
-int obj_cmp_vert(void *data, const void *a, const void *b)
-*/
 int obj_cmp_vert(const void *a, const void *b)
 {
     const int vi = *((const int *) a);
     const int vj = *((const int *) b);
-/*
-    const struct obj_vert *v = (const struct obj_vert *) data;
-*/
-    const struct obj_vert *v = (const struct obj_vert *) VVV;
 
-    const struct obj_vert *va = v + vi;
-    const struct obj_vert *vb = v + vj;
+    const struct obj_vert *va = V + vi;
+    const struct obj_vert *vb = V + vj;
 
     if (va->v[0] < vb->v[0] - EPSILON) return -1;
     if (va->v[0] > vb->v[0] + EPSILON) return +1;
@@ -2001,7 +1994,7 @@ void obj_uniq_file(int fi)
     int li;
     int wc = 0;
 
-    VVV = vv;
+    V = vv;
 
     memcpy(wv, vv, vc * sizeof (struct obj_vert));
     memset(del, 0, vc * sizeof (int));
@@ -2014,9 +2007,7 @@ void obj_uniq_file(int fi)
             src_map[vi] = vi;
 
         /* Rearrange the vertex indices to sort the vertices. */
-/*
-        qsort_r(src_map, vc, sizeof (int), vv, obj_cmp_vert);
-*/
+
         qsort(src_map, vc, sizeof (int), obj_cmp_vert);
 
         /* Copy the source map to the destination. */

@@ -1,10 +1,13 @@
-Terrain
+Figure out why shadows (with terrain loaded) don't work when looking into the sun.
+Test the new kizhi models. with normal maps.
 Shift-F3 to go into movie mode?
    document movie making
+Render sky on far clipping plane
+Wireframe mode
+
 OBJ island
 document conf settings
 test GL fallbacks
-Wireframe mode
 shadow options (map count, pcf)
 loading zipped data files
 Sky illumination

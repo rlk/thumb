@@ -16,14 +16,14 @@
 //-----------------------------------------------------------------------------
 
 #ifdef __linux__
+/*
 #include "gl.h"
 #include "glx.h"
 #include "glext.h"
-/*
+*/
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
-*/
 #define glGetProcAddress(n) glXGetProcAddressARB((GLubyte *) n)
 #endif
 

@@ -51,13 +51,13 @@ static const char *toxml(const char *origname, const char *dir)
     }
     strcat(diffname, origname);
 
+    /* foo_diffuse.png -> foo.xml */
+
+    strrep(filename, origname, "_diffuse.png", ".xml");
+
     /* dir/foo_diffuse.png -> dir/foo */
 
     strrep(mtrlname, diffname, "_diffuse.png", 0);
-
-    /* dir/foo_diffuse.png -> dir/foo.xml */
-
-    strrep(filename, diffname, "_diffuse.png", ".xml");
 
     /* dir/foo_diffuse.png -> dir/foo_normal.xml */
 
