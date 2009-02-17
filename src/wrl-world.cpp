@@ -1123,23 +1123,8 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     glPopMatrix();
     glPopAttrib();
 
-    // Render the shadow buffer.
-
-    if (::prog->get_option(3))
-    {
-        glUseProgramObjectARB(0);
-        glPushAttrib(GL_ENABLE_BIT);
-        {
-            glEnable(GL_TEXTURE_2D);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_DEPTH_TEST);
-            glColor3f(1.0f, 1.0f, 1.0f);
-            ogl::binding::draw_shadow_color(0);
-            ogl::binding::draw_shadow_color(1);
-            ogl::binding::draw_shadow_color(2);
-        }
-        glPopAttrib();
-    }
+    if (::prog->get_option(4)) draw_debug_wireframe(frusi);
+    if (::prog->get_option(3)) draw_debug_shadowmap();
 }
 
 void wrl::world::draw_line(int frusi, app::frustum *frusp)
@@ -1157,6 +1142,51 @@ void wrl::world::draw_line(int frusi, app::frustum *frusp)
             dyna_node->draw(0, true, false);
         }
         line_pool->draw_fini();
+    }
+    ogl::line_state_fini();
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::world::draw_debug_shadowmap()
+{
+    // Render the shadow buffer.
+
+    glUseProgramObjectARB(0);
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        glEnable(GL_TEXTURE_2D);
+        glDisable(GL_LIGHTING);
+        glDisable(GL_DEPTH_TEST);
+
+        glColor3f(1.0f, 1.0f, 1.0f);
+
+        ogl::binding::draw_shadow_color(0);
+        ogl::binding::draw_shadow_color(1);
+        ogl::binding::draw_shadow_color(2);
+    }
+    glPopAttrib();
+}
+
+void wrl::world::draw_debug_wireframe(int frusi)
+{
+    // Render the fill geometry in wireframe.
+
+    ogl::line_state_init();
+    {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        glLineWidth(1.0);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        {
+            fill_pool->draw_init();
+            {
+                fill_pool->draw(frusi, true, false);
+                fill_pool->draw(frusi, true, true);
+            }
+            fill_pool->draw_fini();
+        }
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
     ogl::line_state_fini();
 }

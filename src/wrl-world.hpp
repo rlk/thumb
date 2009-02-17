@@ -161,6 +161,9 @@ namespace wrl
 
         void   draw_fill(int, app::frustum  *);
         void   draw_line(int, app::frustum  *);
+
+        void draw_debug_shadowmap();
+        void draw_debug_wireframe(int);
     };
 }
 

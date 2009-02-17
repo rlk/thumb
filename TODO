@@ -1,6 +1,5 @@
 Figure out why shadows (with terrain loaded) don't work when looking into the sun.
 Render sky on far clipping plane
-Wireframe mode
 
 OBJ island
 document conf settings
