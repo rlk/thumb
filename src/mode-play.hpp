@@ -25,14 +25,9 @@ namespace mode
         bool process_close(app::event *);
         bool process_timer(app::event *);
 
-        int  count;
-        bool movie;
-
     public:
 
         play(wrl::world *);
-
-        virtual void draw(int, app::frustum  *);
 
         virtual bool process_event(app::event *);
 

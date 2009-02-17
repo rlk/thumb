@@ -403,7 +403,8 @@ app::host::host(std::string filename, std::string tag) :
     script_cd(INVALID_SOCKET),
     draw_flag(false),
     exit_flag(false),
-    bench(::conf->get_i("bench")),
+    bench(0),
+    movie(0),
     count(0),
     calibration_state(false),
     calibration_index(0),
@@ -614,6 +615,24 @@ void app::host::root_loop()
             process_event(E.mk_frame());
 
             draw_flag = false;
+
+            // Count frames and record a movie, if requested.
+        
+            if (movie)
+            {
+                count++;
+
+                if ((count % movie) == 0)
+                {
+                    char buf[256];
+
+                    sprintf(buf, "frame%05d.png", count / movie);
+
+                    ::prog->screenshot(std::string(buf),
+                                       get_window_w(),
+                                       get_window_h());
+                }
+            }
         }
     }
 }

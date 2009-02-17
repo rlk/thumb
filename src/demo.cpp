@@ -22,6 +22,7 @@
 #include "app-event.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
+#include "app-host.hpp"
 
 #include "wrl-world.hpp"
 #include "uni-universe.hpp"
@@ -127,10 +128,7 @@ void demo::attr_step(double dt)
         if (user->dostep(attr_rate * attr_sign * dt, opts))
         {
             if (attr_stop)
-            {
-                attr_curr = 0.0;
-                attr_mode = false;
-            }
+                attr_off();
         }
         set_options(opts);
     }
@@ -209,7 +207,17 @@ bool demo::process_keybd(app::event *E)
         else if (k == SDLK_PAGEDOWN) { attr_prev(); return true; }
         else if (k == SDLK_END)      { attr_ins();  return true; }
         else if (k == SDLK_HOME)     { attr_del();  return true; }
-        else if (k == SDLK_SPACE)    { attr_on();   return true; }
+
+        else if (k == SDLK_SPACE)
+        {
+            if (m & KMOD_CTRL)
+            {
+                ::host->set_bench_mode(1);
+                ::host->set_movie_mode(2);
+            }
+            attr_on();
+            return true;
+        }
     }
 
     return false;
@@ -272,6 +280,9 @@ bool demo::process_event(app::event *E)
 
         // If the event was handled, disable the attract mode.
     {
+        ::host->set_bench_mode(0);
+        ::host->set_movie_mode(0);
+
         attr_off();
         return true;
     }

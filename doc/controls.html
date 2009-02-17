@@ -121,6 +121,8 @@ The editing control keys may be customized in the <code>conf.xml</code> file. He
 
       <tr><td><code>Shift-Space</code><td>Begin playing back the script at the current keyframe. When the script reaches the last keyframe, it will cycle back to the first.
 
+      <tr><td><code>Control-Shift-Space</code><td>Begin recording a movie of the script at the current keyframe. A series of frames are written to PNG images in the current working directory. The resulting movie will have a frame rate of 30 frames per second, though the actual recording will likely move much more slowly due to the expense of compressing each frame to the disk.</p>
+
     </table>
 
     <p>Script playback mode will be automatically enabled after a period of inactivity, by default 2 minutes. During script playback, any interaction will stop playback, leaving the camera in the position where the script was stopped.</p>

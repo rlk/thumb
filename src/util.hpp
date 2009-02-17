@@ -43,8 +43,8 @@ typedef std::set   <std::string> str_set;
 #define get_bit(b, i) (((b) >> ((i)    )) & 1)
 #define get_oct(b, i) (((b) >> ((i) * 3)) & 7)
 
-#define set_bit(b, i, n) ((b) & (~(1 << ((i)    ))) | ((n) << ((i)    )))
-#define set_oct(b, i, n) ((b) & (~(7 << ((i) * 3))) | ((n) << ((i) * 3)))
+#define set_bit(b, i, n) (((b) & (~(1 << ((i)    )))) | ((n) << ((i)    )))
+#define set_oct(b, i, n) (((b) & (~(7 << ((i) * 3)))) | ((n) << ((i) * 3)))
 
 //-----------------------------------------------------------------------------
 
