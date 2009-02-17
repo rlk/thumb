@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <algorithm>
+#include <limits>
 
 #include "ogl-range.hpp"
 

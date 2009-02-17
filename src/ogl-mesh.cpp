@@ -13,6 +13,7 @@
 #include <iostream>
 #include <cmath>
 #include <memory>
+#include <cassert>
 
 #include "matrix.hpp"
 #include "ogl-opengl.hpp"

@@ -12,6 +12,7 @@
 
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <stdlib.h>
 #include <errno.h>
 
 #include "default.hpp"
@@ -58,7 +59,7 @@ static bool get_app_res_path(std::string& path)
 
     return true;
 }
-#endif __APPLE__
+#endif // __APPLE__
 
 //-----------------------------------------------------------------------------
 #ifndef _WIN32

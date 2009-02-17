@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <iostream>
+#include <algorithm>
 
 #include "ode.hpp"
 #include "util.hpp"

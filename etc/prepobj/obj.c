@@ -22,9 +22,9 @@
 /*---------------------------------------------------------------------------*/
 
 #ifdef __linux__
-#include <GL/gl.h>
-#include <GL/glx.h>
-#include <GL/glext.h>
+#include "gl.h"
+#include "glx.h"
+#include "glext.h"
 #define glGetProcAddress(n) glXGetProcAddressARB((GLubyte *) n)
 #endif
 
@@ -1936,12 +1936,19 @@ void obj_init_file(int fi)
 
 /*---------------------------------------------------------------------------*/
 
+const struct obj_vert *VVV;
+
+/*
 int obj_cmp_vert(void *data, const void *a, const void *b)
+*/
+int obj_cmp_vert(const void *a, const void *b)
 {
     const int vi = *((const int *) a);
     const int vj = *((const int *) b);
-
+/*
     const struct obj_vert *v = (const struct obj_vert *) data;
+*/
+    const struct obj_vert *v = (const struct obj_vert *) VVV;
 
     const struct obj_vert *va = v + vi;
     const struct obj_vert *vb = v + vj;
@@ -1994,6 +2001,8 @@ void obj_uniq_file(int fi)
     int li;
     int wc = 0;
 
+    VVV = vv;
+
     memcpy(wv, vv, vc * sizeof (struct obj_vert));
     memset(del, 0, vc * sizeof (int));
 
@@ -2005,8 +2014,10 @@ void obj_uniq_file(int fi)
             src_map[vi] = vi;
 
         /* Rearrange the vertex indices to sort the vertices. */
-
+/*
         qsort_r(src_map, vc, sizeof (int), vv, obj_cmp_vert);
+*/
+        qsort(src_map, vc, sizeof (int), obj_cmp_vert);
 
         /* Copy the source map to the destination. */
 
@@ -2024,7 +2035,7 @@ void obj_uniq_file(int fi)
         /* Eliminate duplicate vertices from the destination maps. */
 
         for (vi = 0, vj = 1; vj < vc; ++vi, ++vj)
-            if (obj_cmp_vert(vv, src_map + vi, src_map + vj) == 0)
+            if (obj_cmp_vert(src_map + vi, src_map + vj) == 0)
             {
                 dst_inv[src_map[vj]] = dst_inv[src_map[vi]];
                 dst_map[vj]          = dst_map[vi];
