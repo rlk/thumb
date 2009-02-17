@@ -36,9 +36,11 @@ void ogl::binding::light(const double *v)
 
 double ogl::binding::split(int i, double n, double f)
 {
+    double F = (f < 100.0) ? f : 100.0;
+
     double k = double(i) / double(shadow.size());
 
-    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
+    double c = (n * pow(F / n, k) + n + (F - n) * k) * 0.5;
 
     split_depth[i] = (1 - n / c) * f / (f - n);
 
@@ -357,7 +359,7 @@ bool ogl::binding::bind(bool c) const
             return true;
         }
     }
-    return false;
+    return true; // HACK HACK HACK HACK HACK
 }
 
 //-----------------------------------------------------------------------------

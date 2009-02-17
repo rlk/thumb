@@ -64,10 +64,9 @@ void ogl::elem::draw(bool color) const
     // Bind this batch's state and render all elements.
 
     if (bnd)
-    {
-        if (bnd->bind(color))
-            glDrawRangeElementsEXT(typ, min, max, num, GL_UNSIGNED_INT, off);
-    }
+        bnd->bind(color);
+
+    glDrawRangeElementsEXT(typ, min, max, num, GL_UNSIGNED_INT, off);
 }
 
 //=============================================================================

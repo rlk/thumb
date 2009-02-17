@@ -929,8 +929,8 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
     // Compute the shadow map split depths.
 
-    const double n = r.get_n();
-    const double f = r.get_f();
+    double n = r.get_n();
+    double f = r.get_f();
 
     int m = ogl::binding::shadow_count();
 
@@ -972,6 +972,9 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT);
 
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            glPolygonOffset(1.1f, 4.0f);
+
             fill_pool->draw_init();
             {
                 glCullFace(GL_FRONT);
@@ -980,6 +983,8 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
                 glCullFace(GL_BACK);
             }
             fill_pool->draw_fini();
+
+            glDisable(GL_POLYGON_OFFSET_FILL);
 
             for (int i = 0; i < frusc; ++i)
                 frusv[i]->wire();
@@ -1012,9 +1017,9 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 
     const double *L = ::user->get_L();
 
-    light[0] = L[0] * 1024.0f;
-    light[1] = L[1] * 1024.0f;
-    light[2] = L[2] * 1024.0f;
+    light[0] = L[0] * 512.0f;
+    light[1] = L[1] * 512.0f;
+    light[2] = L[2] * 512.0f;
 
     ogl::binding::light(light);
 
