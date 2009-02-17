@@ -81,7 +81,7 @@ namespace ogl
         bool color_eq(const binding *) const;
         bool opaque() const;
 
-        void bind(bool) const;
+        bool bind(bool) const;
 
         void init();
         void fini();

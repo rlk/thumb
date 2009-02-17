@@ -1012,9 +1012,9 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 
     const double *L = ::user->get_L();
 
-    light[0] = L[0] * 256.0f;
-    light[1] = L[1] * 256.0f;
-    light[2] = L[2] * 256.0f;
+    light[0] = L[0] * 1024.0f;
+    light[1] = L[1] * 1024.0f;
+    light[2] = L[2] * 1024.0f;
 
     ogl::binding::light(light);
 

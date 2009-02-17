@@ -313,7 +313,7 @@ bool ogl::binding::opaque() const
 
 //-----------------------------------------------------------------------------
 
-void ogl::binding::bind(bool c) const
+bool ogl::binding::bind(bool c) const
 {
     // TODO: Minimize rebindings
 
@@ -335,34 +335,29 @@ void ogl::binding::bind(bool c) const
             color_program->uniform("light", world_light[0],
                                             world_light[1],
                                             world_light[2]);
+
+            for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
+                ti->second->bind(ti->first);
+
+            for (fi = light_texture.begin(); fi != light_texture.end(); ++fi)
+                fi->second->bind_depth(fi->first);
+
+            return true;
         }
-
-        for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
-            ti->second->bind(ti->first);
-
-        for (fi = light_texture.begin(); fi != light_texture.end(); ++fi)
-            fi->second->bind_depth(fi->first);
-
-        // TODO: Abstract this to minimize resetting
-        // TODO: Add depth test options
-/* TODO: make this not broken
-        if (cull_mode)
-        {
-            glEnable(GL_CULL_FACE);
-            glCullFace(cull_mode);
-        }
-        else
-            glDisable(GL_CULL_FACE);
-*/
     }
     else
     {
         if (depth_program)
+        {
             depth_program->bind();
 
-        for (ti = depth_texture.begin(); ti != depth_texture.end(); ++ti)
-            ti->second->bind(ti->first);
+            for (ti = depth_texture.begin(); ti != depth_texture.end(); ++ti)
+                ti->second->bind(ti->first);
+            
+            return true;
+        }
     }
+    return false;
 }
 
 //-----------------------------------------------------------------------------
