@@ -36,14 +36,13 @@ void ogl::binding::light(const double *v)
 
 double ogl::binding::split(int i, double n, double f)
 {
-    double c, k = double(i) / double(shadow.size());
-/*
+    double k = double(i) / double(shadow.size());
+
     double c = (n * pow(F / n, k) + n + (F - n) * k) * 0.5;
-*/
-/*
-    double c = n * pow(f / n, pow(k, 0.666));
-*/
-    
+
+/* HACK
+    double c;
+
     switch (i)
     {
     case 0: c =     n; break;
@@ -51,7 +50,7 @@ double ogl::binding::split(int i, double n, double f)
     case 2: c = 120.0; break;
     case 3: c = 300.0; break;
     }
-
+*/
     split_depth[i] = (1 - n / c) * f / (f - n);
 
     double r = (c - n) / (f - n);
@@ -209,7 +208,7 @@ ogl::binding::binding(std::string name) :
             if (dt) depth_texture[depth_unit] = dt;
             if (ct) color_texture[color_unit] = ct;
             
-            // HACK set some texture parameters.
+            // Set some texture parameters.  TODO: generalize this.
 
             std::string wrap_t(app::get_attr_s(node, "wrap_t", "repeat"));
             std::string wrap_s(app::get_attr_s(node, "wrap_s", "repeat"));

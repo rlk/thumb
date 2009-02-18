@@ -127,7 +127,7 @@ namespace app
         int get_buffer_w() const { return buffer_size[0]; }
         int get_buffer_h() const { return buffer_size[1]; }
 
-        const app::frustum *get_overlay() const;
+        const app::frustum *get_overlay() const { return overlay; }
 
         void set_head(const double *, const double *);
 

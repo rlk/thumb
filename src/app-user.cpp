@@ -86,7 +86,8 @@ void app::user::set(const double *p, const double *q, double t)
         load_inv(current_I, current_M);
     }
 
-    // Compute the current lighting vector from the fiven time.  HACK.
+    // Compute the current lighting vector from the given time.
+    // TODO: compute this from lat/lon/date/time.
 
     if (t)
     {

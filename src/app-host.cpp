@@ -828,22 +828,6 @@ bool app::host::process_event(event *E)
 
 //-----------------------------------------------------------------------------
 
-const app::frustum *app::host::get_overlay() const
-{
-    // Return a frustum for 2D overlay.  It may be configured...
-
-    if (overlay) return overlay;
-
-    // ... or we may need to default to one of the display frustums.
-
-    if (!displays.empty())
-        return displays.front()->get_overlay();
-    else
-        return 0;
-
-    // TODO: this fallback is obsolete.
-}
-
 int app::host::get_window_m() const
 {
     return ((window_full  ? SDL_FULLSCREEN : 0) |

@@ -17,6 +17,7 @@
 
 #include "util.hpp"
 #include "matrix.hpp"
+#include "default.hpp"
 #include "ogl-opengl.hpp"
 #include "app-event.hpp"
 #include "app-frustum.hpp"
@@ -29,14 +30,14 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
 {
     // Assign defaults for any undefined parameters.
 
-    P =  0.0;  // Position phi
-    T =  0.0;  // Position theta
-    R =  0.0;  // Position rho
-    p =  0.0;  // Rotation pitch
-    y =  0.0;  // Rotation yaw
-    r =  0.0;  // Rotation roll
-    H = 60.0;  // Horizontal field of view
-    V = 45.0;  // Vertical   field of view
+    P = 0.0;               // Position phi
+    T = 0.0;               // Position theta
+    R = 0.0;               // Position rho
+    p = 0.0;               // Rotation pitch
+    y = 0.0;               // Rotation yaw
+    r = 0.0;               // Rotation roll
+    H = DEFAULT_HORZ_FOV;  // Horizontal field of view
+    V = DEFAULT_VERT_FOV;  // Vertical   field of view
 
     // Extract the calibration from the serialization node.
 
@@ -148,8 +149,8 @@ void app::frustum::calc_calibrated()
 
     bool b[4] = { false, false, false, false };
 
-    double hfov = 60.000;
-    double vfov = 45.000;
+    double hfov = DEFAULT_HORZ_FOV;
+    double vfov = DEFAULT_VERT_FOV;
 
     double c[4][3];
 
