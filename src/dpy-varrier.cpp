@@ -177,7 +177,10 @@ void dpy::varrier::prep(app::view_v& views, app::frustum_v& frusta)
 
 void dpy::varrier::bind_transform(GLenum unit, const app::frustum *frust)
 {
+    /* TODO: reinstate get_disp_pos circa r1585.
     const double *v = frust->get_disp_pos();
+    */
+    const double *v = { 0.0, 0.0, 1.0 };
 
     // Compute the parallax due to optical thickness.
 

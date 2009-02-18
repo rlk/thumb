@@ -81,8 +81,7 @@ namespace wrl
         ogl::node *stat_node;
         ogl::node *dyna_node;
 
-        ogl::pool *atmo_pool;
-        ogl::node *atmo_node;
+        const ogl::binding *sky;
 
         void node_insert(int, ogl::unit *);
         void node_remove(int, ogl::unit *);
@@ -95,6 +94,10 @@ namespace wrl
         wrl::operation_l redo_list;
 
         void doop(wrl::operation_p);
+
+        void draw_sky(app::frustum *);
+        void draw_debug_shadowmap();
+        void draw_debug_wireframe(int);
 
     public:
 
@@ -162,9 +165,6 @@ namespace wrl
 
         void   draw_fill(int, app::frustum  *);
         void   draw_line(int, app::frustum  *);
-
-        void draw_debug_shadowmap();
-        void draw_debug_wireframe(int);
     };
 }
 

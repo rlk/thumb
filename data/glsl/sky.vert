@@ -6,8 +6,9 @@ uniform vec3 light;
 
 void main()
 {
-    V_v = gl_Vertex.xyz;
+    V_v = normalize(gl_Normal.xyz);
     L_v = normalize(light);
 
-    gl_Position = ftransform();
+    gl_Position = gl_Vertex;
+//  gl_Position = ftransform();
 }

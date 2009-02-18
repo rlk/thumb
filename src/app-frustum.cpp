@@ -251,16 +251,6 @@ void app::frustum::calc_user_planes(const double *p)
 
     mult_mat_vec3(user_pos, T, p);
 
-    // Compute the vector from the screen center to the viewer.
-
-    double v[3];
-
-    v[0] = user_pos[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
-    v[1] = user_pos[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
-    v[2] = user_pos[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
-
-    mult_xps_vec3(disp_pos, user_basis, v);
-
     // Compute the user-space view frustum bounding planes.
 
     set_plane(user_planes[0], user_pos, user_points[0], user_points[2]); // L
@@ -1323,42 +1313,6 @@ void app::frustum::overlay() const
         glScaled(get_w() / pixel_w,
                  get_h() / pixel_h, 1.0);
     }
-}
-
-//-----------------------------------------------------------------------------
-
-void app::frustum::draw_user_plane(double k) const
-{
-    const double j = 1.0 - k;
-
-    glBegin(GL_QUADS);
-    {
-        glVertex3d(user_pos[0] * j + user_points[0][0] * k,
-                   user_pos[1] * j + user_points[0][1] * k,
-                   user_pos[2] * j + user_points[0][2] * k);
-        glVertex3d(user_pos[0] * j + user_points[1][0] * k,
-                   user_pos[1] * j + user_points[1][1] * k,
-                   user_pos[2] * j + user_points[1][2] * k);
-        glVertex3d(user_pos[0] * j + user_points[2][0] * k,
-                   user_pos[1] * j + user_points[2][1] * k,
-                   user_pos[2] * j + user_points[2][2] * k);
-        glVertex3d(user_pos[0] * j + user_points[3][0] * k,
-                   user_pos[1] * j + user_points[3][1] * k,
-                   user_pos[2] * j + user_points[3][2] * k);
-    }
-    glEnd();
-}
-
-void app::frustum::draw_view_plane_far() const
-{
-    glBegin(GL_QUADS);
-    {
-        glVertex3dv(view_points[4]);
-        glVertex3dv(view_points[5]);
-        glVertex3dv(view_points[7]);
-        glVertex3dv(view_points[6]);
-    }
-    glEnd();
 }
 
 //-----------------------------------------------------------------------------

@@ -34,6 +34,7 @@
 
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution")),
+    sky(::glob->load_binding("sky", "sky")),
     serial(1)
 {
     // Initialize the editor physical system.
@@ -46,9 +47,6 @@ wrl::world::world() :
 
     // Initialize the render pools.
 
-    atmo_pool = glob->new_pool();
-    atmo_node = new ogl::node;
-
     fill_pool = glob->new_pool();
     fill_node = new ogl::node;
 
@@ -59,8 +57,6 @@ wrl::world::world() :
     fill_pool->add_node(fill_node);
     line_pool->add_node(stat_node);
     line_pool->add_node(dyna_node);
-    atmo_pool->add_node(atmo_node);
-    atmo_node->add_unit(new ogl::unit("solid/sky.obj"));
 }
 
 wrl::world::~world()
@@ -1013,8 +1009,6 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
 ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 {
-    ogl::range r;
-
     // Position the light source.
 
     const double *L = ::user->get_L();
@@ -1025,16 +1019,13 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 
     ogl::binding::light(light);
 
-    // Prep the atmosphere.  Assume it is always visible.
-
-    atmo_pool->prep();
-    atmo_pool->view(0, 0, 0);
-
     // Prep the fill geometry pool.
 
     fill_pool->prep();
 
     // Cache the fill visibility and determine the far plane distance.
+
+    ogl::range r;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
         r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()));
@@ -1045,12 +1036,6 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
         frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
 
     prep_lite(frusc, frusv, r);
-
-    double M[16];
-    load_scl_mat(M, r.get_f(),
-                    r.get_f(),
-                    r.get_f());
-    atmo_node->transform(M);
 
     return r;
 }
@@ -1098,31 +1083,9 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     }
     fill_pool->draw_fini();
 
-    // Render the atmosphere.  HACKy.
+    // Render the sky.
 
-    glPushAttrib(GL_ENABLE_BIT | GL_VIEWPORT_BIT);
-    glPushMatrix();
-    {
-        double M[16];
-
-        load_mat(M, ::user->get_M());
-
-        glTranslated(M[12], M[13], M[14]);
-
-        glAlphaFunc(GL_GREATER, 0.0f);
-        glDisable(GL_ALPHA_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        atmo_pool->draw_init();
-        {
-            atmo_pool->draw(frusi, true, false);
-            atmo_pool->draw(frusi, true, true);
-        }
-        atmo_pool->draw_fini();
-    }
-    glPopMatrix();
-    glPopAttrib();
+    draw_sky(frusp);
 
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);
     if (::prog->get_option(3)) draw_debug_shadowmap();
@@ -1148,6 +1111,42 @@ void wrl::world::draw_line(int frusi, app::frustum *frusp)
 }
 
 //-----------------------------------------------------------------------------
+
+void wrl::world::draw_sky(app::frustum *frusp)
+{
+    const double *vp = frusp->get_view_pos();
+    const double *v0 = frusp->get_points() + 0;
+    const double *v1 = frusp->get_points() + 3;
+    const double *v2 = frusp->get_points() + 6;
+    const double *v3 = frusp->get_points() + 9;
+
+    sky->bind(true);
+
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    {
+        // Draw the far plane of the clip space, offset by one unit of
+        // depth buffer distance.  Pass the world-space vectors from the
+        // view position toward the screen corners for use in sky display.
+
+        glPolygonOffset(0.0, -1.0);
+
+        glBegin(GL_QUADS);
+        {
+            glNormal3d(v0[0] - vp[0], v0[1] - vp[1], v0[2] - vp[2]);
+            glVertex3d(-1, -1, +1);
+            glNormal3d(v1[0] - vp[0], v1[1] - vp[1], v1[2] - vp[2]);
+            glVertex3d(+1, -1, +1);
+            glNormal3d(v3[0] - vp[0], v3[1] - vp[1], v3[2] - vp[2]);
+            glVertex3d(+1, +1, +1);
+            glNormal3d(v2[0] - vp[0], v2[1] - vp[1], v2[2] - vp[2]);
+            glVertex3d(-1, +1, +1);
+        }
+        glEnd();
+    }
+    glDisable(GL_POLYGON_OFFSET_FILL);
+
+    glUseProgramObjectARB(0);
+}
 
 void wrl::world::draw_debug_shadowmap()
 {

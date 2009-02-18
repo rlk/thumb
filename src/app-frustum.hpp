@@ -46,7 +46,6 @@ namespace app
 
         double user_pos[3];
         double view_pos[3];
-        double disp_pos[3];
 
         double user_dist;
 
@@ -117,7 +116,7 @@ namespace app
 
         const double *get_user_pos() const { return user_pos; }
         const double *get_view_pos() const { return view_pos; }
-        const double *get_disp_pos() const { return disp_pos; }
+//      const double *get_disp_pos() const { return disp_pos; }
         const double *get_P()        const { return P;        }
 
         double get_w()        const;
@@ -143,9 +142,6 @@ namespace app
         void rect() const;
 
         void overlay() const;
-
-        void draw_user_plane(double) const;
-        void draw_view_plane_far() const;
     };
 
     typedef std::vector<frustum *>                 frustum_v;

@@ -38,7 +38,7 @@ double ogl::binding::split(int i, double n, double f)
 {
     double k = double(i) / double(shadow.size());
 
-    double c = (n * pow(F / n, k) + n + (F - n) * k) * 0.5;
+    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
 
 /* HACK
     double c;
