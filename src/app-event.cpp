@@ -380,6 +380,14 @@ app::event *app::event::mk_close()
     return this;
 }
 
+app::event *app::event::mk_flush()
+{
+    put_type(E_FLUSH);
+
+    payload_cache = false;
+    return this;
+}
+
 //-----------------------------------------------------------------------------
 
 app::event *app::event::recv(SOCKET s)

@@ -40,6 +40,7 @@
 #define E_FRAME 9
 #define E_START 10
 #define E_CLOSE 11
+#define E_FLUSH 12
 
 //-----------------------------------------------------------------------------
 
@@ -168,6 +169,7 @@ namespace app
         event *mk_frame();
         event *mk_start();
         event *mk_close();
+        event *mk_flush();
 
         // Network IO
 

@@ -33,6 +33,7 @@ namespace mode
     public:
 
         info(wrl::world *);
+       ~info();
 
         virtual ogl::range prep(int, app::frustum **);
         virtual void       draw(int, app::frustum  *);

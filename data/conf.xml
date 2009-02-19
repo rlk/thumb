@@ -71,6 +71,32 @@
   <option type="int"    name="sans_size">14</option>
   <option type="int"    name="mono_size">14</option>
 
+  <!-- Dvorak keyboard commands -->
+
+  <option type="int" name="key_move_L">97</option>
+  <option type="int" name="key_move_R">101</option>
+  <option type="int" name="key_move_D">39</option>
+  <option type="int" name="key_move_U">46</option>
+  <option type="int" name="key_move_F">44</option>
+  <option type="int" name="key_move_B">111</option>
+
+  <option type="int" name="key_axis_X">113</option>
+  <option type="int" name="key_axis_Y">102</option>
+  <option type="int" name="key_axis_Z">59</option>
+  <option type="int" name="key_position_mode">121</option>
+  <option type="int" name="key_rotation_mode">112</option>
+
+  <option type="int" name="key_undo">103</option>
+  <option type="int" name="key_redo">107</option>
+  <option type="int" name="key_make_body">120</option>
+  <option type="int" name="key_make_nonbody">98</option>
+  <option type="int" name="key_make_joint">104</option>
+
+  <option type="int" name="key_selection_delete">8</option>
+  <option type="int" name="key_selection_invert">99</option>
+  <option type="int" name="key_selection_extend">105</option>
+  <option type="int" name="key_selection_clone">106</option>
+
   <!-- Qwerty keyboard commands -->
 
   <option type="int" name="key_move_L">97</option>            <!-- a -->
@@ -108,33 +134,6 @@
   <option type="int" name="key_play">284</option>  <!-- F3  -->
   <option type="int" name="key_init">291</option>  <!-- F10 -->
   <option type="int" name="key_snap">290</option>  <!-- F9 -->
-
-  <!-- Dvorak keyboard commands
-
-  <option type="int" name="key_move_L">97</option>
-  <option type="int" name="key_move_R">101</option>
-  <option type="int" name="key_move_D">39</option>
-  <option type="int" name="key_move_U">46</option>
-  <option type="int" name="key_move_F">44</option>
-  <option type="int" name="key_move_B">111</option>
-
-  <option type="int" name="key_axis_X">113</option>
-  <option type="int" name="key_axis_Y">102</option>
-  <option type="int" name="key_axis_Z">59</option>
-  <option type="int" name="key_position_mode">121</option>
-  <option type="int" name="key_rotation_mode">112</option>
-
-  <option type="int" name="key_undo">103</option>
-  <option type="int" name="key_redo">107</option>
-  <option type="int" name="key_make_body">120</option>
-  <option type="int" name="key_make_nonbody">98</option>
-  <option type="int" name="key_make_joint">104</option>
-
-  <option type="int" name="key_selection_delete">8</option>
-  <option type="int" name="key_selection_invert">99</option>
-  <option type="int" name="key_selection_extend">46</option>
-  <option type="int" name="key_selection_clone">106</option>
--->
 
   <!-- Scene renderer configuration -->
 

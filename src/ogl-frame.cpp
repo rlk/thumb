@@ -253,53 +253,53 @@ void ogl::frame::init()
         glBindTexture(target, 0);
     }
 
-    // Initialize the frame buffer object.
-
     glGenFramebuffersEXT(1, &buffer);
     push(buffer);
-
-    if (has_stencil)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                  GL_STENCIL_ATTACHMENT_EXT,
-                                  target, depth, 0);
-    if (has_depth)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                  GL_DEPTH_ATTACHMENT_EXT,
-                                  target, depth, 0);
-    if (color)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                  GL_COLOR_ATTACHMENT0_EXT,
-                                  target, color, 0);
-    else
     {
-        glDrawBuffer(GL_NONE);
-        glReadBuffer(GL_NONE);
+        // Initialize the frame buffer object.
+
+        if (has_stencil)
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                      GL_STENCIL_ATTACHMENT_EXT,
+                                      target, depth, 0);
+        if (has_depth)
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                      GL_DEPTH_ATTACHMENT_EXT,
+                                      target, depth, 0);
+        if (color)
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                      GL_COLOR_ATTACHMENT0_EXT,
+                                      target, color, 0);
+        else
+        {
+            glDrawBuffer(GL_NONE);
+            glReadBuffer(GL_NONE);
+        }
+
+        // Confirm the frame buffer object status.
+
+        switch (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT))
+        {
+        case GL_FRAMEBUFFER_COMPLETE_EXT:
+            break; 
+        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+            throw std::runtime_error("Framebuffer incomplete attachment");
+        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+            throw std::runtime_error("Framebuffer missing attachment");
+        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+            throw std::runtime_error("Framebuffer dimensions");
+        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+            throw std::runtime_error("Framebuffer formats");
+        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+            throw std::runtime_error("Framebuffer draw buffer");
+        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+            throw std::runtime_error("Framebuffer read buffer");
+        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+            throw std::runtime_error("Framebuffer unsupported");
+        default:
+            throw std::runtime_error("Framebuffer error");
+        }
     }
-
-    // Confirm the frame buffer object status.
-
-    switch (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT))
-    {
-    case GL_FRAMEBUFFER_COMPLETE_EXT:
-        break; 
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-        throw std::runtime_error("Framebuffer incomplete attachment");
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-        throw std::runtime_error("Framebuffer missing attachment");
-    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-        throw std::runtime_error("Framebuffer dimensions");
-    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-        throw std::runtime_error("Framebuffer formats");
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-        throw std::runtime_error("Framebuffer draw buffer");
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-        throw std::runtime_error("Framebuffer read buffer");
-    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-        throw std::runtime_error("Framebuffer unsupported");
-    default:
-        throw std::runtime_error("Framebuffer error");
-    }
-
     pop();
 
     OGLCK();

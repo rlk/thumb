@@ -760,6 +760,7 @@ app::frustum::frustum(app::node node, int w, int h)
 
     load_idt(M);
 
+    calc_user_planes(user_pos);
     calc_view_planes(M, M);
     calc_projection (0.5, 5.0);
     calc_view_points(0.5, 5.0);

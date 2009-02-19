@@ -29,6 +29,7 @@
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-prog.hpp"
+#include "app-glob.hpp"
 #include "app-host.hpp"
 
 #define JIFFY (1000 / 60)
@@ -514,6 +515,9 @@ app::host::~host()
     if (overlay)
         delete overlay;
 
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+        delete (*i);
+    
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         delete (*i);
     
@@ -585,6 +589,10 @@ void app::host::root_loop()
             case SDL_JOYBUTTONUP:
                 process_event(E.mk_click(e.jbutton.which,
                                          e.jbutton.button, 0, false));
+                break;
+
+            case SDL_USEREVENT:
+                process_event(E.mk_flush());
                 break;
 
             case SDL_QUIT:
@@ -821,6 +829,8 @@ bool app::host::process_event(event *E)
     case E_PAINT: draw(); sync();           return true;
     case E_FRAME: swap();                   return true;
     case E_CLOSE: process_close(E); sync(); return true;
+    case E_FLUSH: ::glob->fini();
+                  ::glob->init(); return true;
     }
 
     return false;

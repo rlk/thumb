@@ -181,11 +181,12 @@ bool mode::edit::process_keybd(app::event *E)
     assert(world);
     assert(xform);
 
-    if (E->data.keybd.d)
-    {
-        const int k = E->data.keybd.k;
-        const int m = E->data.keybd.m;
+    const bool d = E->data.keybd.d;
+    const int  k = E->data.keybd.k;
+    const int  m = E->data.keybd.m;
 
+    if (d)
+    {
         // Handle basic editing operations.
 
         if      (k == key_selection_delete)

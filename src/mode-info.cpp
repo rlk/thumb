@@ -32,6 +32,12 @@ mode::info::info(wrl::world *w) : mode(w), gui(0)
                               overlay->get_pixel_h());
 }
 
+mode::info::~info()
+{
+    assert(gui);
+    delete gui;
+}
+
 //-----------------------------------------------------------------------------
 
 ogl::range mode::info::prep(int frusc, app::frustum **frusv)
