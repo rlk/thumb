@@ -15,6 +15,7 @@
 #include "default.hpp"
 #include "app-conf.hpp"
 #include "app-glob.hpp"
+#include "app-serial.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-texture.hpp"
 #include "ogl-program.hpp"
@@ -189,8 +190,7 @@ ogl::binding::binding(std::string name) :
             std::string name(app::get_attr_s(node, "name"));
             std::string file(app::get_attr_s(node, "file"));
 
-            std::string path     = "texture/" + file;
-            std::string fallback = "texture/default-" + name + ".png";
+            std::string fallback = "default-" + name + ".png";
 
             // Determine the texture unit binding for each texture.
 
@@ -202,27 +202,11 @@ ogl::binding::binding(std::string name) :
             const ogl::texture *dt = 0;
             const ogl::texture *ct = 0;
 
-            if (depth_unit) dt = ::glob->load_texture(path, fallback);
-            if (color_unit) ct = ::glob->load_texture(path, fallback);
+            if (depth_unit) dt = ::glob->load_texture(file, fallback);
+            if (color_unit) ct = ::glob->load_texture(file, fallback);
 
             if (dt) depth_texture[depth_unit] = dt;
             if (ct) color_texture[color_unit] = ct;
-            
-            // Set some texture parameters.  TODO: generalize this.
-
-            std::string wrap_t(app::get_attr_s(node, "wrap_t", "repeat"));
-            std::string wrap_s(app::get_attr_s(node, "wrap_s", "repeat"));
-
-            if (wrap_t == "clamp-to-edge")
-            {
-                if (ct) ct->param_i(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-                if (dt) dt->param_i(GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-            }
-            if (wrap_s == "clamp-to-edge")
-            {
-                if (ct) ct->param_i(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-                if (dt) dt->param_i(GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            }
         }
 
         // Initialize all options.

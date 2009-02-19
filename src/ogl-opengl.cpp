@@ -158,7 +158,6 @@ void ogl::check_err(const char *file, int line)
         str << std::endl;
 
         std::cerr << str;
-        assert(0);
 
         throw std::runtime_error(str.str().c_str());
     }

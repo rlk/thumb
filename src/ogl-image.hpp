@@ -27,9 +27,11 @@ namespace ogl
         GLenum formext;
         GLenum type;
 
-        GLvoid *p;
-        GLsizei w;
-        GLsizei h;
+        GLubyte *p;
+        GLsizei  w;
+        GLsizei  h;
+        GLsizei  b;
+        GLsizei  c;
 
     public:
 

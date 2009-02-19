@@ -19,7 +19,7 @@
 
 //-----------------------------------------------------------------------------
 
-void ogl::program::log(GLhandleARB handle, std::string& name)
+bool ogl::program::log(GLhandleARB handle, std::string& name)
 {
     char *log = 0;
     GLint len = 0;
@@ -36,7 +36,10 @@ void ogl::program::log(GLhandleARB handle, std::string& name)
         std::cerr << log  << std::endl;
 
         delete [] log;
+
+        return true;
     }
+    return false;
 }
 
 GLhandleARB ogl::program::compile(GLenum type, std::string& name,
@@ -56,7 +59,7 @@ GLhandleARB ogl::program::compile(GLenum type, std::string& name,
         glShaderSourceARB (handle, 1, &data, &size);
         glCompileShaderARB(handle);
         
-        log(handle, name);
+        bindable = !log(handle, name);
     }
 
     return handle;
@@ -66,7 +69,8 @@ GLhandleARB ogl::program::compile(GLenum type, std::string& name,
 
 const ogl::program *ogl::program::current = NULL;
 
-ogl::program::program(std::string name) : name(name), vert(0), frag(0)
+ogl::program::program(std::string name) :
+    name(name), vert(0), frag(0), prog(0), bindable(false)
 {
     init();
 }
@@ -80,9 +84,12 @@ ogl::program::~program()
 
 void ogl::program::bind() const
 {
-    current = this;
-    glUseProgramObjectARB(prog);
-    OGLCK();
+    if (bindable)
+    {
+        current = this;
+        glUseProgramObjectARB(prog);
+        OGLCK();
+    }
 }
 
 void ogl::program::free() const
@@ -168,7 +175,9 @@ void ogl::program::init()
         // Link the program.
 
         glLinkProgramARB(prog);
-        log(prog, vert_name);
+
+        bindable = !log(prog, path);
+
         OGLCK();
 
         // Set the sampler uniforms.
@@ -219,46 +228,58 @@ GLenum ogl::program::unit(std::string name) const
 
 void ogl::program::uniform(std::string name, int d) const
 {
-    int loc;
+    if (bindable)
+    {
+        int loc;
 
-    if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform1iARB(loc, d);
+        if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
+            glUniform1iARB(loc, d);
 
-    OGLCK();
+        OGLCK();
+    }
 }
 
 void ogl::program::uniform(std::string name, double a) const
 {
-    int loc;
+    if (bindable)
+    {
+        int loc;
 
-    if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform1fARB(loc, GLfloat(a));
+        if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
+            glUniform1fARB(loc, GLfloat(a));
 
-    OGLCK();
+        OGLCK();
+    }
 }
 
 void ogl::program::uniform(std::string name, double a,
                                              double b) const
 {
-    int loc;
+    if (bindable)
+    {
+        int loc;
 
-    if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform2fARB(loc, GLfloat(a),
-                            GLfloat(b));
-    OGLCK();
+        if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
+            glUniform2fARB(loc, GLfloat(a),
+                                GLfloat(b));
+        OGLCK();
+    }
 }
 
 void ogl::program::uniform(std::string name, double a,
                                              double b,
                                              double c) const
 {
-    int loc;
+    if (bindable)
+    {
+        int loc;
 
-    if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform3fARB(loc, GLfloat(a),
-                            GLfloat(b),
-                            GLfloat(c));
-    OGLCK();
+        if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
+            glUniform3fARB(loc, GLfloat(a),
+                                GLfloat(b),
+                                GLfloat(c));
+        OGLCK();
+    }
 }
 
 void ogl::program::uniform(std::string name, double a,
@@ -266,44 +287,50 @@ void ogl::program::uniform(std::string name, double a,
                                              double c,
                                              double d) const
 {
-    int loc;
+    if (bindable)
+    {
+        int loc;
 
-    if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
-        glUniform4fARB(loc, GLfloat(a),
-                            GLfloat(b),
-                            GLfloat(c),
-                            GLfloat(d));
-    OGLCK();
+        if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
+            glUniform4fARB(loc, GLfloat(a),
+                                GLfloat(b),
+                                GLfloat(c),
+                                GLfloat(d));
+        OGLCK();
+    }
 }
 
 void ogl::program::uniform(std::string name, const double *M, bool t) const
 {
-    int loc;
-
-    if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
+    if (bindable)
     {
-        GLfloat T[16];
+        int loc;
 
-        T[ 0] = GLfloat(M[ 0]);
-        T[ 1] = GLfloat(M[ 1]);
-        T[ 2] = GLfloat(M[ 2]);
-        T[ 3] = GLfloat(M[ 3]);
-        T[ 4] = GLfloat(M[ 4]);
-        T[ 5] = GLfloat(M[ 5]);
-        T[ 6] = GLfloat(M[ 6]);
-        T[ 7] = GLfloat(M[ 7]);
-        T[ 8] = GLfloat(M[ 8]);
-        T[ 9] = GLfloat(M[ 9]);
-        T[10] = GLfloat(M[10]);
-        T[11] = GLfloat(M[11]);
-        T[12] = GLfloat(M[12]);
-        T[13] = GLfloat(M[13]);
-        T[14] = GLfloat(M[14]);
-        T[15] = GLfloat(M[15]);
+        if ((loc = glGetUniformLocationARB(prog, name.c_str())) >= 0)
+        {
+            GLfloat T[16];
 
-        glUniformMatrix4fvARB(loc, 1, t, T);
+            T[ 0] = GLfloat(M[ 0]);
+            T[ 1] = GLfloat(M[ 1]);
+            T[ 2] = GLfloat(M[ 2]);
+            T[ 3] = GLfloat(M[ 3]);
+            T[ 4] = GLfloat(M[ 4]);
+            T[ 5] = GLfloat(M[ 5]);
+            T[ 6] = GLfloat(M[ 6]);
+            T[ 7] = GLfloat(M[ 7]);
+            T[ 8] = GLfloat(M[ 8]);
+            T[ 9] = GLfloat(M[ 9]);
+            T[10] = GLfloat(M[10]);
+            T[11] = GLfloat(M[11]);
+            T[12] = GLfloat(M[12]);
+            T[13] = GLfloat(M[13]);
+            T[14] = GLfloat(M[14]);
+            T[15] = GLfloat(M[15]);
+
+            glUniformMatrix4fvARB(loc, 1, t, T);
+        }
+        OGLCK();
     }
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

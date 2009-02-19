@@ -15,6 +15,7 @@
 #include <png.h>
 
 #include "ogl-texture.hpp"
+#include "app-serial.hpp"
 #include "app-data.hpp"
 
 //-----------------------------------------------------------------------------
@@ -23,11 +24,11 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::texture::texture(std::string name, GLenum filter) :
+ogl::texture::texture(std::string name) :
     name   (name),
     object (0),
     target (GL_TEXTURE_2D),
-    filter (filter),
+    filter (GL_LINEAR),
     intform(GL_RGBA),
     extform(GL_RGBA),
     type   (GL_UNSIGNED_BYTE)
@@ -155,7 +156,11 @@ void ogl::texture::load_png(const void *buf, size_t len)
             glBindTexture(target, object);
 
             if (target == GL_TEXTURE_2D)
+            {
                 glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+                glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
+                                        GL_LINEAR_MIPMAP_LINEAR);
+            }
 
             // Copy all rows to the new texture.
 
@@ -178,34 +183,126 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
 //-----------------------------------------------------------------------------
 
+static GLenum wrap_key(const char *name)
+{
+    if (name)
+    {
+        if (strcmp("s", name) == 0)
+            return GL_TEXTURE_WRAP_S;
+        if (strcmp("t", name) == 0)
+            return GL_TEXTURE_WRAP_T;
+        if (strcmp("r", name) == 0)
+            return GL_TEXTURE_WRAP_R;
+    }
+    return 0;
+}
+
+static GLuint wrap_val(const char *name)
+{
+    if (name)
+    {
+        if (strcmp(  "repeat",          name) == 0)
+            return GL_REPEAT;
+        if (strcmp(  "clamp",           name) == 0)
+            return GL_CLAMP;
+        if (strcmp(  "clamp-to-edge",   name) == 0)
+            return GL_CLAMP_TO_EDGE;
+        if (strcmp(  "clamp-to-border", name) == 0)
+            return GL_CLAMP_TO_BORDER;
+    }
+    return 0;
+}
+
+static GLenum filter_key(const char *name)
+{
+    if (name)
+    {
+        if (strcmp("min", name) == 0)
+            return GL_TEXTURE_MIN_FILTER;
+        if (strcmp("mag", name) == 0)
+            return GL_TEXTURE_MAG_FILTER;
+    }
+    return 0;
+}
+
+static GLint filter_val(const char *name)
+{
+    if (name)
+    {
+        if (strcmp(  "nearest",                name) == 0)
+            return GL_NEAREST;
+        if (strcmp(  "linear",                 name) == 0)
+            return GL_LINEAR;
+        if (strcmp(  "nearest-mipmap-nearest", name) == 0)
+            return GL_NEAREST_MIPMAP_NEAREST;
+        if (strcmp(  "linear-mipmap-nearest",  name) == 0)
+            return GL_LINEAR_MIPMAP_LINEAR;
+        if (strcmp(  "nearest-mipmap-linear",  name) == 0)
+            return GL_NEAREST_MIPMAP_NEAREST;
+        if (strcmp(  "linear-mipmap-linear",   name) == 0)
+            return GL_LINEAR_MIPMAP_LINEAR;
+    }
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::texture::load_xml(std::string name)
+{
+    // Convert the image name to an XML parameter file name.
+
+    std::string path(name, 0, name.rfind("."));
+
+    path.append(".xml");
+
+    // Attempt to load the XML file.
+
+    try
+    {
+        app::serial file(path.c_str());
+        app::node   root;
+        app::node   node;
+
+        if ((root = app::find(file.get_head(), "texture")))
+        {
+            // Parse and apply wrap modes.
+
+            for (node = app::find(root,       "wrap"); node;
+                 node = app::next(root, node, "wrap"))
+            {
+                GLenum key = wrap_key(app::get_attr_s(node, "axis"));
+                GLenum val = wrap_val(app::get_attr_s(node, "value"));
+
+                if (key && val) glTexParameteri(target, key, val);
+            }
+
+            // Parse and apply filter modes.
+
+            for (node = app::find(root,       "filter"); node;
+                 node = app::next(root, node, "filter"))
+            {
+                GLenum key = filter_key(app::get_attr_s(node, "type"));
+                GLenum val = filter_val(app::get_attr_s(node, "value"));
+
+                if (key && val) glTexParameteri(target, key, val);
+            }
+        }
+    }
+    catch (app::find_error& e)
+    {
+    }
+}
+
 void ogl::texture::load_img(std::string name)
 {
+    // Load and parse the data file.
+
     size_t      len;
-    const void *buf = ::data->load(name.c_str(), &len);
+    const void *buf = ::data->load(name, &len);
 
     if (buf) load_png(buf, len);
 
     ::data->free(name);
-
-    // Set some useful default state.
-
-    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, filter);
-
-    if (target == GL_TEXTURE_2D && filter == GL_LINEAR)
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-    else
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, filter);
-
-    if (border)
-    {
-        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    }
-    else
-    {
-        glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -276,9 +373,12 @@ void ogl::texture::draw() const
 
 void ogl::texture::init()
 {
+    std::string path = "texture/" + name;
+
     glGenTextures(1, &object);
 
-    load_img(name);
+    load_img(path);
+    load_xml(path);
 
     OGLCK();
 }

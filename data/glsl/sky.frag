@@ -16,5 +16,4 @@ void main()
     vec4 Kf = texture2D(fill, vec2((L.y + 1.0) / 2.0, V.y));
 
     gl_FragColor = vec4(Kf.rgb + Kg.rgb, Kf.a);
-//  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
 }

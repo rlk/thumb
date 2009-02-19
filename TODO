@@ -1,7 +1,3 @@
-GL fini/init does not reset texture parameters
-ogl::binding fini/init does nothing.  Keep it that way.
-
-Make GLSL compilation failure recoverable (LESS ANNOYING)
 Make F10 reload work again.  Check for leaks.  Ensure all GL state is reloadable without disturbing application state.  Use this to find a way to switch displays on the fly.
    Hard vs Sorf
        Hard is a close/start
@@ -12,6 +8,7 @@ Create a Standard Benchmark
 
 benchmark and optimize the OBJ loader
 
+read JPG from data buffer
 shadow options (map count, pcf)
 document conf settings
 document material system

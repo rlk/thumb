@@ -17,8 +17,6 @@
 #include <string>
 #include <map>
 
-#include "app-serial.hpp"
-
 //-----------------------------------------------------------------------------
 
 namespace ogl

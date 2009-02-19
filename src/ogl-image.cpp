@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cstring>
+
 #include "ogl-opengl.hpp"
 #include "ogl-image.hpp"
 
@@ -17,14 +19,20 @@
 
 ogl::image::image(GLsizei w, GLsizei h,
                   GLenum T, GLenum fi, GLenum fe, GLenum t) :
-    target(T), object(0), formint(fi), formext(fe), type(t), p(0), w(w), h(h)
+    target(T), object(0), formint(fi), formext(fe), type(t), w(w), h(h)
 {
+    p = new GLubyte[w * h * 4];
+
+    memset(p, 0, w * h * 4);
+
     init();
 }
 
 ogl::image::~image()
 {
     fini();
+
+    delete [] p;
 }
 
 //-----------------------------------------------------------------------------
@@ -43,15 +51,11 @@ void ogl::image::blit(const GLvoid *P, GLsizei X, GLsizei Y,
 
 void ogl::image::zero()
 {
+    memset(p, 0, w * h * 4);
+
     bind();
     {
-        // TODO: Figure out why this doesn't fully zero the texture.
-
-        GLubyte *P = new GLubyte[w * h * 4];
-
-        glTexSubImage2D(target, 0, 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, P);
-
-        delete [] P;
+        glTexSubImage2D(target, 0, 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, p);
     }
     free();
 
@@ -151,6 +155,14 @@ void ogl::image::init()
 
 void ogl::image::fini()
 {
+    // Read back the contents of the image.
+
+    bind();
+    {
+        glGetTexImage(target, 0, GL_RGBA, GL_UNSIGNED_BYTE, p);
+    }
+    free();
+
     // Delete the texture object.
 
     glDeleteTextures(1, &object);

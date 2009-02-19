@@ -37,13 +37,15 @@ namespace ogl
 
         void load_png(const void *, size_t);
         void load_jpg(const void *, size_t);
+
         void load_img(std::string);
+        void load_xml(std::string);
 
     public:
 
         const std::string& get_name() const { return name; }
 
-        texture(std::string, GLenum=GL_LINEAR);
+        texture(std::string);
        ~texture();
 
         void param_i(GLenum, GLint) const;

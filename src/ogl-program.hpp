@@ -30,9 +30,11 @@ namespace ogl
         GLhandleARB frag;
         GLhandleARB prog;
 
+        bool bindable;
+
         std::map<std::string, GLenum> sampler_map;
 
-        void log(GLhandleARB, std::string&);
+        bool log(GLhandleARB, std::string&);
 
         GLhandleARB compile(GLenum, std::string&,
                                     std::string&);
