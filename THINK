@@ -1,5 +1,8 @@
 Thumb features to consider
 
+    Allow the execution of the physical system to be a "change" to the world
+        Represent it as a set of transforms and it can be undoable
+
     Rework the GUI to use the pool.
         Atlas the glyphs; forget about the words.
 

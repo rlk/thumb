@@ -34,7 +34,7 @@
 
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution")),
-    sky(::glob->load_binding("sky", "sky")),
+    sky(::glob->load_binding("sky-basic", "sky-basic")),
     serial(1)
 {
     // Initialize the editor physical system.

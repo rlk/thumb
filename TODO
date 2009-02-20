@@ -6,10 +6,12 @@ Anisotropy option
 Performance measures (don't depend on NVperf)
 Create a Standard Benchmark
 
+Figure out some nice way of changing resolution/mode
 benchmark and optimize the OBJ loader
 
 read JPG from data buffer
-shadow options (map count, pcf)
+modularize the basic shader
+    shadow options (map count, pcf)
 document conf settings
 document material system
 test GL fallbacks
