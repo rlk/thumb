@@ -295,12 +295,16 @@ bool mode::edit::process_keybd(app::event *E)
 
         else if (k == SDLK_LEFT)
         {
-            ::user->pass(-1800.0);
+            if      (m & KMOD_SHIFT) ::user->pass(-3600.0);
+            else if (m & KMOD_CTRL)  ::user->pass( -300.0);
+            else                     ::user->pass(-1200.0);
             return true;
         }
         else if (k == SDLK_RIGHT)
         {
-            ::user->pass(+1800.0);
+            if      (m & KMOD_SHIFT) ::user->pass(+3600.0);
+            else if (m & KMOD_CTRL)  ::user->pass( +300.0);
+            else                     ::user->pass(+1200.0);
             return true;
         }
     }

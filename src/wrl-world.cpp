@@ -34,7 +34,7 @@
 
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution")),
-    sky(::glob->load_binding("sky-basic", "sky-basic")),
+    sky(::glob->load_binding("sky-water", "sky-water")),
     serial(1)
 {
     // Initialize the editor physical system.
@@ -1085,6 +1085,8 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
 
     // Render the sky.
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     draw_sky(frusp);
 
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);

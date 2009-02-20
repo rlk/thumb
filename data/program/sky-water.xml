@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<program vert="glsl/sky-water.vert"
+         frag="glsl/sky-water.frag" >
+  <sampler name="fill"  unit="0" />
+  <sampler name="glow"  unit="1" />
+  <sampler name="norm"  unit="2" />
+</program>

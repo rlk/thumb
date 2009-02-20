@@ -1,3 +1,11 @@
+loading zipped data files
+   XML
+   OBJ
+      get some more canonical examples
+          bunny
+          happy buddha
+          dragon
+          tweety
 Make F10 reload work again.  Check for leaks.  Ensure all GL state is reloadable without disturbing application state.  Use this to find a way to switch displays on the fly.
    Hard vs Sorf
        Hard is a close/start
@@ -15,7 +23,6 @@ modularize the basic shader
 document conf settings
 document material system
 test GL fallbacks
-loading zipped data files
 Sky illumination
 The entire attract mode needs to be scrapped and replaced
 Give some indication that a long load is occurring

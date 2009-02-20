@@ -159,6 +159,41 @@ void cnt::new_sphere_button::apply()
 }
 
 //-----------------------------------------------------------------------------
+
+void cnt::init_button::apply()
+{
+    world->init();
+    state->show();
+}
+
+void cnt::load_button::apply()
+{
+    if (!name->value().empty())
+    {
+        world->load(name->value());
+        state->show();
+    }
+}
+
+void cnt::save_all_button::apply()
+{
+    if (!name->value().empty())
+    {
+        world->save(name->value(), true);
+        state->show();
+    }
+}
+
+void cnt::save_sel_button::apply()
+{
+    if (!name->value().empty())
+    {
+        world->save(name->value(), false);
+        state->show();
+    }
+}
+
+//-----------------------------------------------------------------------------
 // The Solid control panel
 
 cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
