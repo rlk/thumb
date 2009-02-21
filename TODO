@@ -14,6 +14,14 @@ Anisotropy option
 Performance measures (don't depend on NVperf)
 Create a Standard Benchmark
 
+The images in the doc might be best dithered down to 8 bit PNGs.  JPGs just look like hell.
+
+HDR
+    implemented in channel
+    configure a downsample index to be taken as bloom buffer
+    downsample to 1x1 and bind this as texture, giving average luminance for tonemapping
+
+
 Figure out some nice way of changing resolution/mode
 benchmark and optimize the OBJ loader
 

@@ -3,6 +3,5 @@
   <program mode="color" file="sky-water.xml" />
   <texture name="fill"  file="sky-fill.png" />
   <texture name="glow"  file="sky-glow.png" />
-<!--  <texture name="norm"  file="water-normal.png" />-->
-  <texture name="norm"  file="test-normal.png" />
+  <texture name="norm"  file="water-normal.png" />
 </material>

@@ -2,7 +2,8 @@
 varying vec3 V_v;
 varying vec3 L_v;
 
-uniform vec3 light;
+uniform vec3  light;
+uniform float time;
 
 void main()
 {
@@ -10,5 +11,4 @@ void main()
     L_v = normalize(light);
 
     gl_Position = gl_Vertex;
-//  gl_Position = ftransform();
 }

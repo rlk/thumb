@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <SDL.h>
 #include <cmath>
 
 #include "default.hpp"
@@ -332,6 +333,8 @@ bool ogl::binding::bind(bool c) const
             color_program->uniform("light", world_light[0],
                                             world_light[1],
                                             world_light[2]);
+
+            color_program->uniform("time", SDL_GetTicks() * 0.001f);
 
             for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
                 ti->second->bind(ti->first);
