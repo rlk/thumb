@@ -129,6 +129,8 @@ namespace ogl
     extern bool do_reflect;
     extern bool do_refract;
     extern bool do_texture_compression;
+    extern bool do_hdr_tonemap;
+    extern bool do_hdr_bloom;
 
     void check_err(const char *, int);
     bool check_ext(const char *);

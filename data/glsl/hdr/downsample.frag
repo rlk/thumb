@@ -24,18 +24,12 @@ void main()
     b.z = 1.0 - k2.x * k2.y;
     b.w = 1.0 - k3.x * k3.y;
 
-/*
-    vec4 c0 = texture2DRect(src, t0);
-    vec4 c1 = texture2DRect(src, t1);
-    vec4 c2 = texture2DRect(src, t2);
-    vec4 c3 = texture2DRect(src, t3);
-*/
+    b = b / dot(b, vec4(1.0));
+
     mat4 C = mat4(texture2DRect(src, t0),
                   texture2DRect(src, t1),
                   texture2DRect(src, t2),
                   texture2DRect(src, t3));
 
-    gl_FragColor = (C * b) / dot(b, vec4(1.0));
-
-//  gl_FragColor = (c0 + c1 + c2 + c3) * 0.25;
+    gl_FragColor = C * b;
 }

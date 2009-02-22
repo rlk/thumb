@@ -34,6 +34,8 @@ bool ogl::do_z_only;
 bool ogl::do_reflect;
 bool ogl::do_refract;
 bool ogl::do_texture_compression;
+bool ogl::do_hdr_tonemap;
+bool ogl::do_hdr_bloom;
 
 //-----------------------------------------------------------------------------
 
@@ -322,6 +324,8 @@ void ogl::init()
 
     if (has_fbo && has_shader)
     {
+        // Shadowing
+
         option = ::conf->get_s("shadow_method");
 
         if (option == "map")  do_shadows = 1;
@@ -329,12 +333,19 @@ void ogl::init()
 
         do_reflect = (::conf->get_s("reflect") == "false") ? false : true;
         do_refract = (::conf->get_s("refract") == "false") ? false : true;
+
+        // HDR
+
+        do_hdr_tonemap = ::conf->get_i("hdr_tonemap");
+        do_hdr_bloom   = ::conf->get_i("hdr_bloom");
     }
     else
     {
-        do_shadows = 0;
-        do_reflect = false;
-        do_refract = false;
+        do_shadows     = 0;
+        do_reflect     = false;
+        do_refract     = false;
+        do_hdr_tonemap = false;
+        do_hdr_bloom   = false;
     }
 
     if (::conf->get_s("z_only") == "false")
