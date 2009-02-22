@@ -69,9 +69,6 @@ const ogl::program *app::glob::load_program(std::string name)
         }
         catch (std::runtime_error& e)
         {
-            // TODO: be nice.
-
-            std::cerr << "Exception: " << e.what() << std::endl;
             return 0;
         }
     }

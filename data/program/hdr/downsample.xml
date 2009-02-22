@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<program vert="glsl/hdr/downsample.vert"
+         frag="glsl/hdr/downsample.frag" >
+  <sampler name="src"  unit="0" />
+</program>

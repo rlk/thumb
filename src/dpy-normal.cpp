@@ -68,18 +68,19 @@ void dpy::normal::prep(int chanc, dpy::channel **chanv)
 int dpy::normal::draw(int chanc, dpy::channel **chanv,
                       int frusi, app::frustum  *frusp)
 {
-/*
     if (chani < chanc)
     {
         assert(chanv[chani]);
         assert(P);
 
         // Draw the scene to the off-screen buffer.
+
         chanv[chani]->bind();
         {
             ::prog->draw(frusi, frusp);
         }
         chanv[chani]->free();
+        chanv[chani]->proc();
 
         // Draw the off-screen buffer to the screen.
 
@@ -96,8 +97,6 @@ int dpy::normal::draw(int chanc, dpy::channel **chanv,
         }
         chanv[chani]->free_color(GL_TEXTURE0);
     }
-*/
-    ::prog->draw(frusi, frusp);
 
     return 1;  // Return the total number of frusta.
 }

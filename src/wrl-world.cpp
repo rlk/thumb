@@ -969,10 +969,10 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT);
-
+/*
             glEnable(GL_POLYGON_OFFSET_FILL);
             glPolygonOffset(1.1f, 4.0f);
-
+*/
             fill_pool->draw_init();
             {
                 glCullFace(GL_FRONT);
@@ -981,9 +981,9 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
                 glCullFace(GL_BACK);
             }
             fill_pool->draw_fini();
-
+/*
             glDisable(GL_POLYGON_OFFSET_FILL);
-
+*/
             for (int i = 0; i < frusc; ++i)
                 frusv[i]->wire();
         }

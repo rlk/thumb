@@ -277,9 +277,11 @@ void wrl::constraint::draw(int frusi, app::frustum *frusp)
 
             pool->draw_init();
             {
-                pool->draw(0, true, false);
+                pool->draw(frusi, true, false);
             }
             pool->draw_fini();
+
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         }
         glPopMatrix();
     }

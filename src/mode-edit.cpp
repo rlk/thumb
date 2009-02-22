@@ -332,7 +332,7 @@ ogl::range mode::edit::prep(int frusc, app::frustum **frusv)
 
     r.merge(world->prep_fill(frusc, frusv));
     r.merge(world->prep_line(frusc, frusv));
-    r.merge(xform->prep     (frusc, frusv));
+    /*r.merge(*/xform->prep     (frusc, frusv);//);
 
     return r;
 }

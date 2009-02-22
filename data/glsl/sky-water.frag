@@ -38,10 +38,10 @@ void main()
 
     // Reflect a downward view vector across the water.
 
-    float up   = step(V.y, 0.0);
-    float down = step(0.0, V.y);
+    float dn = step(V.y, 0.0);
+//  float up = step(0.0, V.y);
 
-    V = mix(reflect(V, N), V, down);
+    V = mix(V, reflect(V, N), dn);
 
     // Look up the sky fill and glow colors.
 
@@ -50,11 +50,12 @@ void main()
 
     // Mix the ocean color using a Fresnel coefficient.
 
-    float f = clamp(pow(1.0 - dot(N, V), 1.2), 0.0, 1.0) * up + down;
+    float f = mix(1.0, clamp(pow(1.0 - dot(N, V), 1.2), 0.0, 1.0), dn);
 
     vec4 Ko = vec4(0.0, 0.5, 0.5, 1.0);
 
     vec4 K = mix(Ko, Kf + Kg, f);
 
     gl_FragColor = vec4(K.rgb, Kf.a);
+//  gl_FragColor = vec4(vec3(f), 1.0);
 }

@@ -48,6 +48,9 @@ namespace ogl
         void draw(int, int) const;
         void init();
         void fini();
+
+        GLsizei get_w() const { return w; }
+        GLsizei get_h() const { return h; }
     };
 }
 

@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<program vert="glsl/hdr/h_gaussian.vert"
+         frag="glsl/hdr/h_gaussian.frag" >
+  <sampler name="src"  unit="0" />
+</program>

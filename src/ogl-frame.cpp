@@ -299,6 +299,10 @@ void ogl::frame::init()
         default:
             throw std::runtime_error("Framebuffer error");
         }
+
+        // OSX likes to leave confusing garbage lying around in VRAM.
+
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     pop();
 

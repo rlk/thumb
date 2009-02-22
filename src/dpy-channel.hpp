@@ -20,6 +20,7 @@
 namespace ogl
 {
     class frame;
+    class program;
 }
 
 namespace app
@@ -33,13 +34,28 @@ namespace dpy
 {
     class channel
     {
-        double  v[3];        // View position, in head coordinates
-        double  p[3];        // View position, in user coordinates (cached)
-        GLubyte c[4];        // Calibration target color
+        static const ogl::program *downsample;
+        static const ogl::program *h_gaussian;
+        static const ogl::program *v_gaussian;
+        static const ogl::program *tonemap;
 
-        int w;               // Off-screen render target width
-        int h;               // Off-screen render target height
-        ogl::frame *buffer;  // Off-screen render target
+        static ogl::frame *blur;  // Bloom buffer
+        static ogl::frame *ping;  // Process ping-pong buffer
+        static ogl::frame *pong;  // Process ping-pong buffer
+
+        ogl::frame *src;          // Off-screen render target
+        ogl::frame *dst;          // Off-screen render target
+        int w;                    // Off-screen render target width
+        int h;                    // Off-screen render target height
+
+        bool processed;
+
+        double  v[3];             // View position, in head coordinates
+        double  p[3];             // View position, in user coordinates (cache)
+        GLubyte c[4];             // Calibration target color
+
+        void process_start();
+        void process_close();
 
     public:
 
@@ -60,6 +76,7 @@ namespace dpy
         void test() const;
         void bind() const;
         void free() const;
+        void proc();
 
         void bind_color(GLenum t) const;
         void free_color(GLenum t) const;
