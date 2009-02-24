@@ -169,24 +169,24 @@ void dpy::channel::proc()
 
         downsample_max->bind();
         {
-            apply(src,  pong, w,  h,  w2, h2);
-            apply(pong, blur, w2, h2, w4, w4);
+            apply(src,  ping, w,  h,  w2, h2);
+            apply(ping, blur, w2, h2, w4, w4);
         }
         downsample_max->free();
 
-        // Apply the horizontal Gaussion from blur to pong.
+        // Apply the horizontal Gaussion from blur to ping.
 
         h_gaussian->bind();
         {
-            apply(blur, pong, w4, h4, w4, h4);
+            apply(blur, ping, w4, h4, w4, h4);
         }   
         h_gaussian->free();
 
-        // Apply the vertical Gaussion from pong back to blur.
+        // Apply the vertical Gaussion from ping back to blur.
 
         v_gaussian->bind();
         {
-            apply(pong, blur, w4, h4, w4, h4);
+            apply(ping, blur, w4, h4, w4, h4);
         }   
         v_gaussian->free();
     }
@@ -200,7 +200,7 @@ void dpy::channel::proc()
             int W = w;
             int H = h;
 
-            // Downsample the source to the ping buffer.
+            // Downsample the source framebuffer to the ping buffer.
 
             if (W > 1 || W > 1)
             {
@@ -224,7 +224,7 @@ void dpy::channel::proc()
                 pong = temp;
             }
 
-            // The average color is now in ping.
+            // The average framebuffer color is now in pixel (0,0) of ping.
         }
         downsample_avg->free();
     }
@@ -274,8 +274,9 @@ void dpy::channel::proc()
 
     // The image in src has be processed and left in dst.  Flag this fact
     // so that the dst buffer is subsequently used instead of the src buffer.
-    
-    processed = true;
+
+    if (ogl::do_hdr_tonemap || ogl::do_hdr_bloom)
+        processed = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -292,22 +293,22 @@ void dpy::channel::process_start()
         // Initialize the off-screen render target.
 
         src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                                      GL_RGBA16F_ARB, true,  false);
+                                GL_RGBA16F_ARB, true, true,  false);
 
         dst = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                                      GL_RGBA8,       false, false);
+                                GL_RGBA8,       true, false, false);
 
         // Initialize the static ping-pong buffers, if necessary.
         
         if (blur == 0)
             blur = ::glob->new_frame(w4, h4, GL_TEXTURE_RECTANGLE_ARB,
-                                             GL_RGBA16F_ARB, false, false);
+                                     GL_RGBA16F_ARB, true, false, false);
         if (ping == 0)
             ping = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE_ARB,
-                                             GL_RGBA16F_ARB, false, false);
+                                     GL_RGBA16F_ARB, true, false, false);
         if (pong == 0)
             pong = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE_ARB,
-                                             GL_RGBA16F_ARB, false, false);
+                                     GL_RGBA16F_ARB, true, false, false);
 
         // Initialize the static programs, if necessary.
 
@@ -329,7 +330,7 @@ void dpy::channel::process_start()
         // Initialize the off-screen render target.
 
         src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                                      GL_RGB8, true, false);
+                                GL_RGB8, true, true, false);
     }
 }
 

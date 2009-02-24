@@ -22,6 +22,7 @@
 
 //-----------------------------------------------------------------------------
 
+bool ogl::has_depth_stencil;
 bool ogl::has_multitexture;
 bool ogl::has_shader;
 bool ogl::has_s3tc;
@@ -219,14 +220,15 @@ void ogl::init()
 {
     // Query GL capabilities.
 
-    has_multitexture = check_ext("ARB_multitexture");
-    has_shader       = check_ext("ARB_shader_objects");
-    has_shader      &= check_ext("ARB_vertex_shader");
-    has_shader      &= check_ext("ARB_fragment_shader");
-    has_s3tc         = check_ext("EXT_texture_compression_s3tc");
-    has_fbo          = check_ext("EXT_framebuffer_object");
-    has_vbo          = check_ext("ARB_vertex_buffer_object");
-    has_dre          = check_ext("EXT_draw_range_elements");
+    has_depth_stencil = check_ext("EXT_packed_depth_stencil");
+    has_multitexture  = check_ext("ARB_multitexture");
+    has_shader        = check_ext("ARB_shader_objects");
+    has_shader       &= check_ext("ARB_vertex_shader");
+    has_shader       &= check_ext("ARB_fragment_shader");
+    has_s3tc          = check_ext("EXT_texture_compression_s3tc");
+    has_fbo           = check_ext("EXT_framebuffer_object");
+    has_vbo           = check_ext("ARB_vertex_buffer_object");
+    has_dre           = check_ext("EXT_draw_range_elements");
 
     // GL_ARB_multitexture
 

@@ -53,7 +53,7 @@ uni::rp2lut::rp2lut()
 //-----------------------------------------------------------------------------
 
 uni::renbuf::renbuf(GLsizei w, GLsizei h, GLenum f, bool d, bool s) :
-    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, d, s)
+    ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, f, true, d, s)
 {
 }
 

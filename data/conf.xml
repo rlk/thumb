@@ -141,8 +141,8 @@
   <option type="int" name="shadow_map_splits">3</option>
   <option type="int" name="shadow_map_resolution">1024</option>
 <!--
-  <option type="int" name="hdr_tonemap">1</option>
   <option type="int" name="hdr_bloom">1</option>
+  <option type="int" name="hdr_tonemap">1</option>
   <option type="int" name="texture_compression">1</option>
 -->
 

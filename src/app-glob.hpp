@@ -117,6 +117,7 @@ namespace app
                               GLenum=GL_TEXTURE_2D,
                               GLenum=GL_RGBA8,
                               bool=true,
+                              bool=true,
                               bool=false);
 
         void free_pool (ogl::pool  *);

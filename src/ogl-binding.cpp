@@ -16,6 +16,7 @@
 #include "default.hpp"
 #include "app-conf.hpp"
 #include "app-glob.hpp"
+#include "app-user.hpp" // TODO: excise
 #include "app-serial.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-texture.hpp"
@@ -28,9 +29,14 @@ double ogl::binding::split_depth[4];
 double ogl::binding::world_light[3];
 
 std::vector<ogl::frame *> ogl::binding::shadow;
+            ogl::frame *  ogl::binding::env = 0;
+
+//-----------------------------------------------------------------------------
 
 void ogl::binding::light(const double *v)
 {
+    prep_env();
+
     world_light[0] = v[0];
     world_light[1] = v[1];
     world_light[2] = v[2];
@@ -74,7 +80,10 @@ bool ogl::binding::init_shadow()
             shadow.reserve(n);
 
             for (int i = 0; i < n; ++i)
-                shadow.push_back(::glob->new_frame(s, s));
+                shadow.push_back(::glob->new_frame(s, s,
+                                                   GL_TEXTURE_2D,
+                                                   GL_RGBA8,
+                                                   false, true, false));
         }
     }
     return !shadow.empty();
@@ -144,6 +153,53 @@ void ogl::binding::free_shadow_depth(int i)
 
 //-----------------------------------------------------------------------------
 
+bool ogl::binding::init_env()
+{
+    if (env == 0)
+        env = ::glob->new_frame(128, 128, GL_TEXTURE_CUBE_MAP,
+                                GL_RGBA8, true, false, false);
+
+    return (env != 0);
+}
+
+void ogl::binding::prep_env()
+{
+    if (init_env())
+    {
+        env->bind(GL_TEXTURE_CUBE_MAP_POSITIVE_X);
+        glClearColor(1.0, 0.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        env->free();
+
+        env->bind(GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
+        glClearColor(0.0, 1.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        env->free();
+
+        env->bind(GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
+        glClearColor(0.0, 0.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        env->free();
+
+        env->bind(GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
+        glClearColor(1.0, 1.0, 0.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        env->free();
+
+        env->bind(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
+        glClearColor(0.0, 1.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        env->free();
+
+        env->bind(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
+        glClearColor(1.0, 0.0, 1.0, 1.0);
+        glClear(GL_COLOR_BUFFER_BIT);
+        env->free();
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 ogl::binding::binding(std::string name) :
     name(name),
     depth_program(0),
@@ -172,16 +228,21 @@ ogl::binding::binding(std::string name) :
             color_program = glob->load_program(app::get_attr_s(node, "file",
                                                    DEFAULT_COLOR_PROGRAM));
 
-        // Determine the shadow map bindings.  TODO: generalize this.
+        // Determine the framebuffer bindings.  TODO: generalize this.
 
         GLenum unit;
 
-        if (0 < shadow.size() && (unit = color_program->unit("shadow0")))
-            light_texture[unit] = shadow[0];
-        if (1 < shadow.size() && (unit = color_program->unit("shadow1")))
-            light_texture[unit] = shadow[1];
-        if (2 < shadow.size() && (unit = color_program->unit("shadow2")))
-            light_texture[unit] = shadow[2];
+        if (color_program)
+        {
+            if (0 < shadow.size() && (unit = color_program->unit("shadow0")))
+                depth_frame[unit] = shadow[0];
+            if (1 < shadow.size() && (unit = color_program->unit("shadow1")))
+                depth_frame[unit] = shadow[1];
+            if (2 < shadow.size() && (unit = color_program->unit("shadow2")))
+                depth_frame[unit] = shadow[2];
+            if ((unit = color_program->unit("env_diffuse")))
+                color_frame[unit] = env;
+        }
 
         // Load all textures.
 
@@ -238,7 +299,9 @@ ogl::binding::~binding()
 
     color_texture.clear();
     depth_texture.clear();
-    light_texture.clear();
+
+    color_frame.clear();
+    depth_frame.clear();
 
     // Free all programs.
 
@@ -324,7 +387,7 @@ bool ogl::binding::bind(bool c) const
         {
             color_program->bind();
 
-            // TODO: there's a chance this can be lofted.
+            // TODO: There's a chance this can be lofted.
 
             color_program->uniform("split", split_depth[0],
                                             split_depth[1],
@@ -336,10 +399,20 @@ bool ogl::binding::bind(bool c) const
 
             color_program->uniform("time", SDL_GetTicks() * 0.001f);
 
+            // TODO: Do this only for shaders that require it.
+
+            color_program->uniform("view_M", ::user->get_I());
+            color_program->uniform("view_I", ::user->get_M());
+
+            // Bind all textures
+
             for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
                 ti->second->bind(ti->first);
 
-            for (fi = light_texture.begin(); fi != light_texture.end(); ++fi)
+            for (fi = color_frame.begin(); fi != color_frame.end(); ++fi)
+                fi->second->bind_color(fi->first);
+
+            for (fi = depth_frame.begin(); fi != depth_frame.end(); ++fi)
                 fi->second->bind_depth(fi->first);
 
             return true;

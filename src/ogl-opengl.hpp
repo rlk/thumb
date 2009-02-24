@@ -117,6 +117,7 @@ extern PFNGLDRAWRANGEELEMENTSEXTPROC        glDrawRangeElementsEXT;
 
 namespace ogl
 {
+    extern bool has_depth_stencil;
     extern bool has_multitexture;
     extern bool has_shader;
     extern bool has_s3tc;

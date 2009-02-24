@@ -1,3 +1,6 @@
+Excise frame::bind(proj) and frame::draw(int, int)
+Figure out a good way for static bindings to init and fini.
+
 Document all engine features, with paper references, as necessary.
     pssm
     diffuse irradiance environment map [Hanrahan][King]

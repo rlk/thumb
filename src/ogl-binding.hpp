@@ -36,6 +36,7 @@ namespace ogl
         typedef std::map<GLenum, const ogl::frame   *> unit_frame;
 
         static std::vector<ogl::frame *> shadow;
+        static             ogl::frame *  env;
         
         static double split_depth[4];
         static double world_light[3];
@@ -44,14 +45,15 @@ namespace ogl
 
         const ogl::program *depth_program;
         const ogl::program *color_program;
-
-        unit_texture depth_texture;
-        unit_texture color_texture;
-        unit_frame   light_texture;
+        unit_texture        depth_texture;
+        unit_texture        color_texture;
+        unit_frame          depth_frame;
+        unit_frame          color_frame;
 
         GLenum cull_mode;
 
         static bool init_shadow();
+        static bool init_env();
 
     public:
 
@@ -69,6 +71,9 @@ namespace ogl
         static void free_shadow_frame(int);
         static void free_shadow_color(int);
         static void free_shadow_depth(int);
+
+        static void prep_env();
+
 
         const std::string& get_name() const { return name; }
 

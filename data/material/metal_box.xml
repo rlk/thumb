@@ -1,8 +1,9 @@
 <?xml version="1.0"?>
 <material>
   <program mode="depth" file="object-depth.xml" />
-  <program mode="color" file="object-color.xml" />
-  <texture name="specular" file="metal_box_specular.png" />
-  <texture name="diffuse"  file="metal_box_diffuse.png" />
-  <texture name="normal"   file="metal_box_normal.png" />
+  <program mode="color" file="irradiance-env.xml" />
+
+  <texture name="mat_specular" file="metal_box_specular.png" />
+  <texture name="mat_diffuse"  file="metal_box_diffuse.png" />
+  <texture name="mat_normal"   file="metal_box_normal.png" />
 </material>

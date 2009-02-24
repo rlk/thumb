@@ -2,6 +2,10 @@
 
 #include "ogl-frame.hpp"
 
+// CAVEAT: This implementation only allows a stencil buffer to be used in
+// the presence of a depth buffer.  The OpenGL implementation must support
+// EXT_packed_depth_stencil.
+
 //-----------------------------------------------------------------------------
 
 std::vector<GLuint> ogl::frame::stack;
@@ -20,12 +24,14 @@ void ogl::frame::pop()
 
 //-----------------------------------------------------------------------------
 
-ogl::frame::frame(GLsizei w, GLsizei h, GLenum t, GLenum f, bool d, bool s) :
+ogl::frame::frame(GLsizei w, GLsizei h,
+                  GLenum  t, GLenum  f, bool c, bool d, bool s) :
     target(t),
     format(f),
     buffer(0),
     color(0),
     depth(0),
+    has_color(c),
     has_depth(d),
     has_stencil(s),
     w(w),
@@ -133,34 +139,33 @@ void ogl::frame::free(bool proj) const
 
 //-----------------------------------------------------------------------------
 
-void ogl::frame::draw() const
+void ogl::frame::bind(int target) const
 {
-    bind_color(GL_TEXTURE0);
-    {
-        glMatrixMode(GL_PROJECTION);
-        {
-            glPushMatrix();
-            glLoadIdentity();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glPushMatrix();
-            glLoadIdentity();
-        }
+    glPushAttrib(GL_VIEWPORT_BIT);
 
-        glRecti(-1, -1, +1, +1);
+    push(buffer);
 
-        glMatrixMode(GL_PROJECTION);
-        {
-            glPopMatrix();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glPopMatrix();
-        }
-    }
-    free_color(GL_TEXTURE0);
+    // TODO: there's probably a smarter way to handle cube face switching.
+
+    if (target)
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                  GL_COLOR_ATTACHMENT0_EXT,
+                                  target, color, 0);
+    glViewport(0, 0, w, h);
+
+    OGLCK();
 }
+
+void ogl::frame::free() const
+{
+    glPopAttrib();
+
+    pop();
+
+    OGLCK();
+}
+
+//-----------------------------------------------------------------------------
 
 void ogl::frame::draw(int i, int n) const
 {
@@ -205,103 +210,187 @@ void ogl::frame::draw(int i, int n) const
     free_color(GL_TEXTURE0);
 }
 
-void ogl::frame::init()
+void ogl::frame::draw() const
+{
+    bind_color(GL_TEXTURE0);
+    {
+        glMatrixMode(GL_PROJECTION);
+        {
+            glPushMatrix();
+            glLoadIdentity();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glPushMatrix();
+            glLoadIdentity();
+        }
+
+        glRecti(-1, -1, +1, +1);
+
+        glMatrixMode(GL_PROJECTION);
+        {
+            glPopMatrix();
+        }
+        glMatrixMode(GL_MODELVIEW);
+        {
+            glPopMatrix();
+        }
+    }
+    free_color(GL_TEXTURE0);
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::frame::init_cube()
+{
+     // Initialize the cube map color render buffer object.
+
+    glBindTexture(target, color);
+
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format,
+                 w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, format,
+                 w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, format,
+                 w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, format,
+                 w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, format,
+                 w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, format,
+                 w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_R,     GL_CLAMP_TO_EDGE);
+
+    glBindTexture(target, 0);
+}
+
+void ogl::frame::init_color()
 {
      // Initialize the color render buffer object.
 
-    if (format)
-    {
-        glGenTextures(1,     &color);
-        glBindTexture(target, color);
+    glBindTexture(target, color);
 
-        glTexImage2D(target, 0, format, w, h, 0,
-                     GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    glTexImage2D(target, 0, format, w, h, 0,
+                 GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-        glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
-        glBindTexture(target, 0);
-    }
+    glBindTexture(target, 0);
+}
 
+void ogl::frame::init_depth()
+{
     // Initialize the depth and stencil render buffer objects.
 
-    if (has_depth)
-    {
-        glGenTextures(1,     &depth);
-        glBindTexture(target, depth);
+    glBindTexture(target, depth);
 
 #ifdef GL_DEPTH_STENCIL_EXT
-        if (has_stencil)
-            glTexImage2D(target, 0, GL_DEPTH24_STENCIL8_EXT, w, h, 0,
-                         GL_DEPTH_STENCIL_EXT, GL_UNSIGNED_INT_24_8_EXT, NULL);
-        else
+    if (has_stencil && ogl::has_depth_stencil)
+        glTexImage2D(target, 0, GL_DEPTH24_STENCIL8_EXT, w, h, 0,
+                     GL_DEPTH_STENCIL_EXT, GL_UNSIGNED_INT_24_8_EXT, NULL);
+    else
 #endif
-            glTexImage2D(target, 0, GL_DEPTH_COMPONENT24,    w, h, 0,
-                         GL_DEPTH_COMPONENT,   GL_UNSIGNED_BYTE,         NULL);
+        glTexImage2D(target, 0, GL_DEPTH_COMPONENT24,    w, h, 0,
+                     GL_DEPTH_COMPONENT,   GL_UNSIGNED_BYTE,         NULL);
 
-        glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
-        glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
-        glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
+    glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB,
+                            GL_COMPARE_R_TO_TEXTURE_ARB);
 
-        glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB,
-                                GL_COMPARE_R_TO_TEXTURE_ARB);
+    glBindTexture(target, 0);
+}
 
-        glBindTexture(target, 0);
-    }
+void ogl::frame::init_frame()
+{
+    // Initialize the frame buffer object.
 
-    glGenFramebuffersEXT(1, &buffer);
-    push(buffer);
+    if (has_stencil)
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                  GL_STENCIL_ATTACHMENT_EXT,
+                                  target, depth, 0);
+    if (has_depth)
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
+                                  GL_DEPTH_ATTACHMENT_EXT,
+                                  target, depth, 0);
+    if (has_color)
     {
-        // Initialize the frame buffer object.
-
-        if (has_stencil)
+        if (target == GL_TEXTURE_CUBE_MAP)
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                      GL_STENCIL_ATTACHMENT_EXT,
-                                      target, depth, 0);
-        if (has_depth)
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                      GL_DEPTH_ATTACHMENT_EXT,
-                                      target, depth, 0);
-        if (color)
+                                      GL_COLOR_ATTACHMENT0_EXT,
+                                      GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+                                      color, 0);
+        else
             glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                                       GL_COLOR_ATTACHMENT0_EXT,
                                       target, color, 0);
+    }
+    else
+    {
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+    }
+
+    OGLCK();
+
+    // Confirm the frame buffer object status.
+
+    switch (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT))
+    {
+    case GL_FRAMEBUFFER_COMPLETE_EXT:
+        break; 
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+        throw std::runtime_error("Framebuffer incomplete attachment");
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+        throw std::runtime_error("Framebuffer missing attachment");
+    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
+        throw std::runtime_error("Framebuffer dimensions");
+    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
+        throw std::runtime_error("Framebuffer formats");
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+        throw std::runtime_error("Framebuffer draw buffer");
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+        throw std::runtime_error("Framebuffer read buffer");
+    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+        throw std::runtime_error("Framebuffer unsupported");
+    default:
+        throw std::runtime_error("Framebuffer error");
+    }
+}
+
+void ogl::frame::init()
+{
+    if (has_color)
+    {
+        glGenTextures(1, &color);
+
+        if (target == GL_TEXTURE_CUBE_MAP)
+            init_cube();
         else
-        {
-            glDrawBuffer(GL_NONE);
-            glReadBuffer(GL_NONE);
-        }
+            init_color();
+    }
+    if (has_depth)
+    {
+        glGenTextures(1, &depth);
+        init_depth();
+    }
 
-        // Confirm the frame buffer object status.
+    glGenFramebuffersEXT(1, &buffer);
 
-        switch (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT))
-        {
-        case GL_FRAMEBUFFER_COMPLETE_EXT:
-            break; 
-        case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
-            throw std::runtime_error("Framebuffer incomplete attachment");
-        case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
-            throw std::runtime_error("Framebuffer missing attachment");
-        case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-            throw std::runtime_error("Framebuffer dimensions");
-        case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-            throw std::runtime_error("Framebuffer formats");
-        case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
-            throw std::runtime_error("Framebuffer draw buffer");
-        case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
-            throw std::runtime_error("Framebuffer read buffer");
-        case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
-            throw std::runtime_error("Framebuffer unsupported");
-        default:
-            throw std::runtime_error("Framebuffer error");
-        }
-
-        // OSX likes to leave confusing garbage lying around in VRAM.
-
+    push(buffer);
+    {
+        init_frame();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     pop();

@@ -309,9 +309,10 @@ void app::glob::free_image(ogl::image *p)
 //-----------------------------------------------------------------------------
 
 ogl::frame *app::glob::new_frame(GLsizei w, GLsizei h,
-                                 GLenum t,  GLenum c, bool d, bool s)
+                                 GLenum  t, GLenum  f,
+                                 bool c, bool d, bool s)
 {
-    ogl::frame *p = new ogl::frame(w, h, t, c, d, s);
+    ogl::frame *p = new ogl::frame(w, h, t, f, c, d, s);
 
     frame_set.insert(p);
 

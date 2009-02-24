@@ -36,7 +36,7 @@ namespace ogl
         GLsizei height;
 
         void load_png(const void *, size_t);
-        void load_jpg(const void *, size_t);
+        void load_jpg(const void *, size_t); // TODO
 
         void load_img(std::string);
         void load_xml(std::string);
@@ -57,7 +57,7 @@ namespace ogl
         GLsizei getw() const { return width;  }
         GLsizei geth() const { return height; }
 
-        void draw() const;
+//      void draw() const;
         void init();
         void fini();
 

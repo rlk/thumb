@@ -23,16 +23,22 @@ namespace ogl
         GLuint color;
         GLuint depth;
 
+        bool has_color;
         bool has_depth;
         bool has_stencil;
 
         GLsizei w;
         GLsizei h;
 
+        void init_cube ();
+        void init_color();
+        void init_depth();
+        void init_frame();
+
     public:
 
-        frame(GLsizei, GLsizei, GLenum=GL_TEXTURE_2D,
-              GLenum=GL_RGBA8, bool=true, bool=false);
+        frame(GLsizei, GLsizei, GLenum,
+              GLenum, bool, bool, bool);
 
         virtual ~frame();
 
@@ -41,11 +47,15 @@ namespace ogl
         void bind_depth(GLenum=GL_TEXTURE0) const;
         void free_depth(GLenum=GL_TEXTURE0) const;
 
-        virtual void bind(bool=false) const;
-        virtual void free(bool=false) const;
+        virtual void bind(bool) const;
+        virtual void free(bool) const;
 
-        void draw()         const;
+        virtual void bind(int=0) const;
+        virtual void free()      const;
+
         void draw(int, int) const;
+        void draw()         const;
+
         void init();
         void fini();
 

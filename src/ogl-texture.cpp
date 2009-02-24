@@ -339,7 +339,7 @@ void ogl::texture::free(GLenum unit) const
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void ogl::texture::draw() const
 {
     bind(GL_TEXTURE1);
@@ -368,7 +368,7 @@ void ogl::texture::draw() const
     }
     free(GL_TEXTURE1);
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void ogl::texture::init()

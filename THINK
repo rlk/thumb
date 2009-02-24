@@ -180,6 +180,20 @@ Final cubemap generation
 
 -------------------------------------------------------------------------------
 
+Rendering:
+
+    Binding manages static environment maps
+
+    If the environment changed
+        World asks the binding for an environment map
+        World renders 6 views of the sky
+
+        Binding manages the computation of diffuse env map from specular
+
+    Each individual binding knows what texture names to bind to env maps
+
+-------------------------------------------------------------------------------
+
 target display size      1920 1080
 
 offscreen render size    1280  720
