@@ -158,6 +158,39 @@ static void apply(ogl::frame *src,
 
 void dpy::channel::proc()
 {
+    // Bloom the frame buffer.
+
+    if (ogl::do_hdr_bloom)
+    {
+        int w2 = HALF(w), w4 = HALF(w2);
+        int h2 = HALF(h), h4 = HALF(h2);
+
+        // Max-downsample the image to produce the un-blurred bloom.
+
+        downsample_max->bind();
+        {
+            apply(src,  pong, w,  h,  w2, h2);
+            apply(pong, blur, w2, h2, w4, w4);
+        }
+        downsample_max->free();
+
+        // Apply the horizontal Gaussion from blur to pong.
+
+        h_gaussian->bind();
+        {
+            apply(blur, pong, w4, h4, w4, h4);
+        }   
+        h_gaussian->free();
+
+        // Apply the vertical Gaussion from pong back to blur.
+
+        v_gaussian->bind();
+        {
+            apply(pong, blur, w4, h4, w4, h4);
+        }   
+        v_gaussian->free();
+    }
+
     // Compute the average color using downsampling.
 
     if (ogl::do_hdr_tonemap)
@@ -194,33 +227,6 @@ void dpy::channel::proc()
             // The average color is now in ping.
         }
         downsample_avg->free();
-    }
-
-    // Bloom the frame buffer.
-
-    if (ogl::do_hdr_bloom)
-    {
-        downsample_max->bind();
-        {
-            apply(src, blur, w, h, HALF(w), HALF(h));
-        }
-        downsample_max->free();
-
-        // Apply the horizontal Gaussion from blur to pong.
-
-        h_gaussian->bind();
-        {
-            apply(blur, pong, HALF(w), HALF(h), HALF(w), HALF(h));
-        }   
-        h_gaussian->free();
-
-        // Apply the vertical Gaussion from pong back to blur.
-
-        v_gaussian->bind();
-        {
-            apply(pong, blur, HALF(w), HALF(h), HALF(w), HALF(h));
-        }   
-        v_gaussian->free();
     }
 
     if (ogl::do_hdr_tonemap)
@@ -280,6 +286,9 @@ void dpy::channel::process_start()
 
     if (ogl::do_hdr_tonemap || ogl::do_hdr_bloom)
     {
+        int w2 = HALF(w), w4 = HALF(w2);
+        int h2 = HALF(h), h4 = HALF(h2);
+
         // Initialize the off-screen render target.
 
         src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
@@ -291,17 +300,14 @@ void dpy::channel::process_start()
         // Initialize the static ping-pong buffers, if necessary.
         
         if (blur == 0)
-            blur = ::glob->new_frame(HALF(w), HALF(h),
-                                     GL_TEXTURE_RECTANGLE_ARB,
-                                     GL_RGBA16F_ARB, false, false);
+            blur = ::glob->new_frame(w4, h4, GL_TEXTURE_RECTANGLE_ARB,
+                                             GL_RGBA16F_ARB, false, false);
         if (ping == 0)
-            ping = ::glob->new_frame(HALF(w), HALF(h),
-                                     GL_TEXTURE_RECTANGLE_ARB,
-                                     GL_RGBA16F_ARB, false, false);
+            ping = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE_ARB,
+                                             GL_RGBA16F_ARB, false, false);
         if (pong == 0)
-            pong = ::glob->new_frame(HALF(w), HALF(h),
-                                     GL_TEXTURE_RECTANGLE_ARB,
-                                     GL_RGBA16F_ARB, false, false);
+            pong = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE_ARB,
+                                             GL_RGBA16F_ARB, false, false);
 
         // Initialize the static programs, if necessary.
 

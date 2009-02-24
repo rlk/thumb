@@ -14,8 +14,8 @@ void main()
 
     float E = 1.0 / L;
 
-    vec3 b = texture2DRect(bloom, d * gl_FragCoord.xy).rgb;
-    vec3 c = texture2DRect(src,       gl_FragCoord.xy).rgb;
+    vec3 b = texture2DRect(bloom, 0.25 * gl_FragCoord.xy).rgb;
+    vec3 c = texture2DRect(src,          gl_FragCoord.xy).rgb;
 
     vec3 C = 1.0 - exp(-E * c);
 
