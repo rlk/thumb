@@ -72,6 +72,8 @@ namespace ogl
         static void free_shadow_color(int);
         static void free_shadow_depth(int);
 
+        static void bind_env(int);
+        static void free_env();
         static void prep_env();
 
 

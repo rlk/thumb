@@ -920,6 +920,63 @@ void wrl::world::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
+void wrl::world::prep_env()
+{
+    static const GLenum target[] = {
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Z
+    };
+
+    static const double n[8][3] = {
+        { -1.0, -1.0, -1.0 }, // 0
+        {  1.0, -1.0, -1.0 }, // 1
+        { -1.0,  1.0, -1.0 }, // 2
+        {  1.0,  1.0, -1.0 }, // 3
+        { -1.0, -1.0,  1.0 }, // 4
+        {  1.0, -1.0,  1.0 }, // 5
+        { -1.0,  1.0,  1.0 }, // 6
+        {  1.0,  1.0,  1.0 }  // 7
+    };
+
+    static const int i[6][4] = {
+        { 2, 6, 4, 0 },
+        { 7, 3, 1, 5 },
+        { 4, 5, 1, 0 },
+        { 2, 3, 7, 6 },
+        { 3, 2, 0, 1 },
+        { 6, 7, 5, 4 },
+    };
+
+    sky->bind(true);
+
+    glEnable(GL_POLYGON_OFFSET_FILL);
+    {
+        for (int k = 0; k < 6; ++k)
+        {
+            ogl::binding::bind_env(target[k]);
+            {
+                glBegin(GL_QUADS);
+                {
+                    glNormal3dv(n[i[k][0]]); glVertex3d(-1, -1, +1);
+                    glNormal3dv(n[i[k][1]]); glVertex3d(+1, -1, +1);
+                    glNormal3dv(n[i[k][2]]); glVertex3d(+1, +1, +1);
+                    glNormal3dv(n[i[k][3]]); glVertex3d(-1, +1, +1);
+                }
+                glEnd();
+            }
+            ogl::binding::free_env();
+        }
+    }
+    glDisable(GL_POLYGON_OFFSET_FILL);
+
+    glUseProgramObjectARB(0);
+    ogl::binding::prep_env();
+}
+
 void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 {
     double lite_M[16];
@@ -1036,6 +1093,7 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
         frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
 
     prep_lite(frusc, frusv, r);
+    prep_env();
 
     return r;
 }

@@ -35,8 +35,6 @@ std::vector<ogl::frame *> ogl::binding::shadow;
 
 void ogl::binding::light(const double *v)
 {
-    prep_env();
-
     world_light[0] = v[0];
     world_light[1] = v[1];
     world_light[2] = v[2];
@@ -156,46 +154,24 @@ void ogl::binding::free_shadow_depth(int i)
 bool ogl::binding::init_env()
 {
     if (env == 0)
-        env = ::glob->new_frame(128, 128, GL_TEXTURE_CUBE_MAP,
+        env = ::glob->new_frame(256, 256, GL_TEXTURE_CUBE_MAP,
                                 GL_RGBA8, true, false, false);
 
     return (env != 0);
 }
 
+void ogl::binding::bind_env(int target)
+{
+    if (init_env()) env->bind(target);
+}
+
+void ogl::binding::free_env()
+{
+    if (init_env()) env->free();
+}
+
 void ogl::binding::prep_env()
 {
-    if (init_env())
-    {
-        env->bind(GL_TEXTURE_CUBE_MAP_POSITIVE_X);
-        glClearColor(1.0, 0.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        env->free();
-
-        env->bind(GL_TEXTURE_CUBE_MAP_POSITIVE_Y);
-        glClearColor(0.0, 1.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        env->free();
-
-        env->bind(GL_TEXTURE_CUBE_MAP_POSITIVE_Z);
-        glClearColor(0.0, 0.0, 1.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        env->free();
-
-        env->bind(GL_TEXTURE_CUBE_MAP_NEGATIVE_X);
-        glClearColor(1.0, 1.0, 0.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        env->free();
-
-        env->bind(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y);
-        glClearColor(0.0, 1.0, 1.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        env->free();
-
-        env->bind(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z);
-        glClearColor(1.0, 0.0, 1.0, 1.0);
-        glClear(GL_COLOR_BUFFER_BIT);
-        env->free();
-    }
 }
 
 //-----------------------------------------------------------------------------

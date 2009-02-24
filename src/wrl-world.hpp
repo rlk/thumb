@@ -95,7 +95,11 @@ namespace wrl
 
         void doop(wrl::operation_p);
 
+        // ...
+
+        void prep_env();
         void draw_sky(app::frustum *);
+
         void draw_debug_shadowmap();
         void draw_debug_wireframe(int);
 
