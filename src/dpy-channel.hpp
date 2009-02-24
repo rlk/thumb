@@ -35,6 +35,7 @@ namespace dpy
     class channel
     {
         static const ogl::program *downsample_avg;
+        static const ogl::program *downsample_max;
         static const ogl::program *h_gaussian;
         static const ogl::program *v_gaussian;
         static const ogl::program *tonemap;

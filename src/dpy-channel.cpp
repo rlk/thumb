@@ -26,6 +26,7 @@
 //-----------------------------------------------------------------------------
 
 const ogl::program *dpy::channel::downsample_avg = 0;
+const ogl::program *dpy::channel::downsample_max = 0;
 const ogl::program *dpy::channel::h_gaussian     = 0;
 const ogl::program *dpy::channel::v_gaussian     = 0;
 const ogl::program *dpy::channel::tonemap        = 0;
@@ -157,128 +158,118 @@ static void apply(ogl::frame *src,
 
 void dpy::channel::proc()
 {
-    if (ogl::do_hdr_tonemap || ogl::do_hdr_bloom)
+    // Compute the average color using downsampling.
+
+    if (ogl::do_hdr_tonemap)
     {
-        assert(downsample_avg);
-        assert(h_gaussian);
-        assert(v_gaussian);
-        assert(tonemap);
-        assert(src);
-        assert(blur);
-        assert(ping);
-        assert(pong);
-
-        // Downsample the scene.
-
         downsample_avg->bind();
         {
             int W = w;
             int H = h;
 
-            // Downsample the source to the blur buffer.
+            // Downsample the source to the ping buffer.
 
             if (W > 1 || W > 1)
             {
-                apply(src, blur, W, H, HALF(W), HALF(H));
+                apply(src, ping, W, H, HALF(W), HALF(H));
                 W = HALF(W);
                 H = HALF(H);
             }
 
-            if (ogl::do_hdr_tonemap)
+            // Subsequent downsamplings work from ping to pong, and swap.
+
+            while (W > 1 || H > 1)
             {
-                // Downsample the blur to the ping buffer.
+                apply(ping, pong, W, H, HALF(W), HALF(H));
+                W = HALF(W);
+                H = HALF(H);
 
-                if (W > 1 || H > 1)
-                {
-                    apply(blur, ping, W, H, HALF(W), HALF(H));
-                    W = HALF(W);
-                    H = HALF(H);
-                }
+                ogl::frame *temp;
 
-                // Subsequent downsamplings work from ping to pong, and swap.
-
-                while (W > 1 || H > 1)
-                {
-                    apply(ping, pong, W, H, HALF(W), HALF(H));
-                    W = HALF(W);
-                    H = HALF(H);
-
-                    ogl::frame *temp;
-
-                    temp = ping;
-                    ping = pong;
-                    pong = temp;
-                }
-
-                // The average color is now in pong.
+                temp = ping;
+                ping = pong;
+                pong = temp;
             }
+
+            // The average color is now in ping.
         }
         downsample_avg->free();
+    }
 
-        if (ogl::do_hdr_bloom)
+    // Bloom the frame buffer.
+
+    if (ogl::do_hdr_bloom)
+    {
+        downsample_max->bind();
         {
-            // Apply the horizontal Gaussion from blur to pong.
-
-            h_gaussian->bind();
-            {
-                apply(blur, pong, HALF(w), HALF(h), HALF(w), HALF(h));
-            }   
-            h_gaussian->bind();
-
-            // Apply the vertical Gaussion from pong back to blur.
-
-            v_gaussian->bind();
-            {
-                apply(pong, blur, HALF(w), HALF(h), HALF(w), HALF(h));
-            }   
-            v_gaussian->bind();
+            apply(src, blur, w, h, HALF(w), HALF(h));
         }
+        downsample_max->free();
 
-        if (ogl::do_hdr_tonemap)
-        {
-            // Tone-map the original image using the downsampled average
-            // scene color and (optionally) the blurred bloom buffer.
+        // Apply the horizontal Gaussion from blur to pong.
 
-            tonemap->bind();
-            {
-                if (ogl::do_hdr_bloom)
-                {
-                    ping->bind_color(GL_TEXTURE1);
-                    blur->bind_color(GL_TEXTURE2);
-                    {
-                        apply(src, dst, w, h, w, h);
-                    }
-                    blur->free_color(GL_TEXTURE2);
-                    ping->free_color(GL_TEXTURE1);
-                }
-                else
-                {
-                    ping->bind_color(GL_TEXTURE1);
-                    {
-                        apply(src, dst, w, h, w, h);
-                    }
-                    ping->free_color(GL_TEXTURE1);
-                }
-            }
-            tonemap->free();
-        }
-        else if (ogl::do_hdr_bloom)
+        h_gaussian->bind();
         {
-            // Sum the original image with the blurred bloom buffer.
-            
-            bloom->bind();
+            apply(blur, pong, HALF(w), HALF(h), HALF(w), HALF(h));
+        }   
+        h_gaussian->free();
+
+        // Apply the vertical Gaussion from pong back to blur.
+
+        v_gaussian->bind();
+        {
+            apply(pong, blur, HALF(w), HALF(h), HALF(w), HALF(h));
+        }   
+        v_gaussian->free();
+    }
+
+    if (ogl::do_hdr_tonemap)
+    {
+        // Tone-map the original image using the downsampled average
+        // scene color and (optionally) the blurred bloom buffer.
+
+        tonemap->bind();
+        {
+            if (ogl::do_hdr_bloom)
             {
-                blur->bind_color(GL_TEXTURE1);
+                ping->bind_color(GL_TEXTURE1);
+                blur->bind_color(GL_TEXTURE2);
                 {
                     apply(src, dst, w, h, w, h);
                 }
-                blur->free_color(GL_TEXTURE1);
+                blur->free_color(GL_TEXTURE2);
+                ping->free_color(GL_TEXTURE1);
             }
-            bloom->free();
+            else
+            {
+                ping->bind_color(GL_TEXTURE1);
+                {
+                    apply(src, dst, w, h, w, h);
+                }
+                ping->free_color(GL_TEXTURE1);
+            }
         }
-
-        processed = true;
+        tonemap->free();
     }
+    else if (ogl::do_hdr_bloom)
+    {
+        // Sum the original image with the blurred bloom buffer.
+            
+        bloom->bind();
+        {
+            blur->bind_color(GL_TEXTURE1);
+            {
+                apply(src, dst, w, h, w, h);
+            }
+            blur->free_color(GL_TEXTURE1);
+        }
+        bloom->free();
+    }
+
+    // The image in src has be processed and left in dst.  Flag this fact
+    // so that the dst buffer is subsequently used instead of the src buffer.
+    
+    processed = true;
 }
 
 //-----------------------------------------------------------------------------
@@ -316,6 +307,8 @@ void dpy::channel::process_start()
 
         if (downsample_avg == 0)
             downsample_avg = ::glob->load_program("hdr/downsample-avg.xml");
+        if (downsample_max == 0)
+            downsample_max = ::glob->load_program("hdr/downsample-max.xml");
         if (h_gaussian     == 0)
             h_gaussian     = ::glob->load_program("hdr/h-gaussian.xml");
         if (v_gaussian     == 0)
@@ -345,12 +338,14 @@ void dpy::channel::process_close()
     if (v_gaussian)     ::glob->free_program(v_gaussian);
     if (h_gaussian)     ::glob->free_program(h_gaussian);
     if (downsample_avg) ::glob->free_program(downsample_avg);
+    if (downsample_max) ::glob->free_program(downsample_max);
 
     bloom          = 0;
     tonemap        = 0;
     v_gaussian     = 0;
     h_gaussian     = 0;
     downsample_avg = 0;
+    downsample_max = 0;
 
     // Finalize the static ping-pong buffers, if necessary.
 
