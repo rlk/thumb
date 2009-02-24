@@ -306,7 +306,7 @@ void ogl::texture::load_img(std::string name)
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void ogl::texture::param_i(GLenum key, GLint val) const
 {
     bind();
@@ -315,7 +315,7 @@ void ogl::texture::param_i(GLenum key, GLint val) const
     }
     free();
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void ogl::texture::bind(GLenum unit) const

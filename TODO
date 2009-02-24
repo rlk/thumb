@@ -1,11 +1,17 @@
-loading zipped data files
-   XML
-   OBJ
-      get some more canonical examples
-          bunny
-          happy buddha
-          dragon
-          tweety
+Document all engine features, with paper references, as necessary.
+    pssm
+    diffuse irradiance environment map [Hanrahan][King]
+    hdr [DebevecSG98]
+
+Cube map convolution!
+    diffuse irradiance environment maps
+    specular irradiance environment maps
+    do it in float16 to allow for preetham skies and hdr
+    mipmap level determines specular exponent (or something?)
+    ATI's edge fixup:
+        Set the edges equal, giving offset. Herp nearby pixels toward offset.
+
+Make joints clickable and visible through geometry
 Make F10 reload work again.  Check for leaks.  Ensure all GL state is reloadable without disturbing application state.  Use this to find a way to switch displays on the fly.
    Hard vs Sorf
        Hard is a close/start
@@ -13,19 +19,10 @@ Make F10 reload work again.  Check for leaks.  Ensure all GL state is reloadable
 Anisotropy option
 Performance measures (don't depend on NVperf)
 Create a Standard Benchmark
-
 The images in the doc might be best dithered down to 8 bit PNGs.  JPGs just look like hell.
-
-HDR
-    implemented in channel
-    configure a downsample index to be taken as bloom buffer
-    downsample to 1x1 and bind this as texture, giving average luminance for tonemapping
-
-
 Figure out some nice way of changing resolution/mode
 benchmark and optimize the OBJ loader
-
-read JPG from data buffer
+JPG texture support
 modularize the basic shader
     shadow options (map count, pcf)
 document conf settings

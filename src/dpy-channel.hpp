@@ -34,10 +34,11 @@ namespace dpy
 {
     class channel
     {
-        static const ogl::program *downsample;
+        static const ogl::program *downsample_avg;
         static const ogl::program *h_gaussian;
         static const ogl::program *v_gaussian;
         static const ogl::program *tonemap;
+        static const ogl::program *bloom;
 
         static ogl::frame *blur;  // Bloom buffer
         static ogl::frame *ping;  // Process ping-pong buffer

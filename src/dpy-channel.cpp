@@ -25,10 +25,11 @@
 
 //-----------------------------------------------------------------------------
 
-const ogl::program *dpy::channel::downsample = 0;
-const ogl::program *dpy::channel::h_gaussian = 0;
-const ogl::program *dpy::channel::v_gaussian = 0;
-const ogl::program *dpy::channel::tonemap    = 0;
+const ogl::program *dpy::channel::downsample_avg = 0;
+const ogl::program *dpy::channel::h_gaussian     = 0;
+const ogl::program *dpy::channel::v_gaussian     = 0;
+const ogl::program *dpy::channel::tonemap        = 0;
+const ogl::program *dpy::channel::bloom          = 0;
 
 ogl::frame *dpy::channel::blur = 0;
 ogl::frame *dpy::channel::ping = 0;
@@ -156,9 +157,9 @@ static void apply(ogl::frame *src,
 
 void dpy::channel::proc()
 {
-    if (ogl::do_hdr_tonemap)
+    if (ogl::do_hdr_tonemap || ogl::do_hdr_bloom)
     {
-        assert(downsample);
+        assert(downsample_avg);
         assert(h_gaussian);
         assert(v_gaussian);
         assert(tonemap);
@@ -169,10 +170,8 @@ void dpy::channel::proc()
 
         // Downsample the scene.
 
-        downsample->bind();
+        downsample_avg->bind();
         {
-            ogl::frame *temp;
-
             int W = w;
             int H = h;
 
@@ -185,31 +184,36 @@ void dpy::channel::proc()
                 H = HALF(H);
             }
 
-            // Downsample the blur to the ping buffer.
-
-            if (W > 1 || H > 1)
+            if (ogl::do_hdr_tonemap)
             {
-                apply(blur, ping, W, H, HALF(W), HALF(H));
-                W = HALF(W);
-                H = HALF(H);
+                // Downsample the blur to the ping buffer.
+
+                if (W > 1 || H > 1)
+                {
+                    apply(blur, ping, W, H, HALF(W), HALF(H));
+                    W = HALF(W);
+                    H = HALF(H);
+                }
+
+                // Subsequent downsamplings work from ping to pong, and swap.
+
+                while (W > 1 || H > 1)
+                {
+                    apply(ping, pong, W, H, HALF(W), HALF(H));
+                    W = HALF(W);
+                    H = HALF(H);
+
+                    ogl::frame *temp;
+
+                    temp = ping;
+                    ping = pong;
+                    pong = temp;
+                }
+
+                // The average color is now in pong.
             }
-
-            // Subsequent downsamplings work from ping to pong, and swap them.
-
-            while (W > 1 || H > 1)
-            {
-                apply(ping, pong, W, H, HALF(W), HALF(H));
-                W = HALF(W);
-                H = HALF(H);
-
-                temp = ping;
-                ping = pong;
-                pong = temp;
-            }
-
-            // The average color is now in pong.
         }
-        downsample->free();
+        downsample_avg->free();
 
         if (ogl::do_hdr_bloom)
         {
@@ -230,31 +234,48 @@ void dpy::channel::proc()
             v_gaussian->bind();
         }
 
-        // Apply the tonemapping to the original image using the downsampled
-        // average scene color and the blurred bloom buffer.
-
-        tonemap->bind();
+        if (ogl::do_hdr_tonemap)
         {
-            if (ogl::do_hdr_bloom)
+            // Tone-map the original image using the downsampled average
+            // scene color and (optionally) the blurred bloom buffer.
+
+            tonemap->bind();
             {
-                ping->bind_color(GL_TEXTURE1);
-                blur->bind_color(GL_TEXTURE2);
+                if (ogl::do_hdr_bloom)
                 {
-                    apply(src, dst, w, h, w, h);
+                    ping->bind_color(GL_TEXTURE1);
+                    blur->bind_color(GL_TEXTURE2);
+                    {
+                        apply(src, dst, w, h, w, h);
+                    }
+                    blur->free_color(GL_TEXTURE2);
+                    ping->free_color(GL_TEXTURE1);
                 }
-                blur->free_color(GL_TEXTURE2);
-                ping->free_color(GL_TEXTURE1);
-            }
-            else
-            {
-                ping->bind_color(GL_TEXTURE1);
+                else
                 {
-                    apply(src, dst, w, h, w, h);
+                    ping->bind_color(GL_TEXTURE1);
+                    {
+                        apply(src, dst, w, h, w, h);
+                    }
+                    ping->free_color(GL_TEXTURE1);
                 }
-                ping->free_color(GL_TEXTURE1);
             }
+            tonemap->free();
         }
-        tonemap->free();
+        else if (ogl::do_hdr_bloom)
+        {
+            // Sum the original image with the blurred bloom buffer.
+            
+            bloom->bind();
+            {
+                blur->bind_color(GL_TEXTURE1);
+                {
+                    apply(src, dst, w, h, w, h);
+                }
+                blur->free_color(GL_TEXTURE1);
+            }
+            bloom->free();
+        }
 
         processed = true;
     }
@@ -266,7 +287,7 @@ void dpy::channel::process_start()
 {
     assert(src == 0);
 
-    if (ogl::do_hdr_tonemap)
+    if (ogl::do_hdr_tonemap || ogl::do_hdr_bloom)
     {
         // Initialize the off-screen render target.
 
@@ -293,14 +314,16 @@ void dpy::channel::process_start()
 
         // Initialize the static programs, if necessary.
 
-        if (downsample == 0)
-            downsample = ::glob->load_program("hdr/downsample.xml");
-        if (h_gaussian == 0)
-            h_gaussian = ::glob->load_program("hdr/h_gaussian.xml");
-        if (v_gaussian == 0)
-            v_gaussian = ::glob->load_program("hdr/v_gaussian.xml");
-        if (tonemap == 0)
-            tonemap    = ::glob->load_program("hdr/tonemap.xml");
+        if (downsample_avg == 0)
+            downsample_avg = ::glob->load_program("hdr/downsample-avg.xml");
+        if (h_gaussian     == 0)
+            h_gaussian     = ::glob->load_program("hdr/h-gaussian.xml");
+        if (v_gaussian     == 0)
+            v_gaussian     = ::glob->load_program("hdr/v-gaussian.xml");
+        if (tonemap        == 0)
+            tonemap        = ::glob->load_program("hdr/tonemap.xml");
+        if (bloom          == 0)
+            bloom          = ::glob->load_program("hdr/bloom.xml");
     }
     else
     {
@@ -317,15 +340,17 @@ void dpy::channel::process_close()
 
     // Finalize the static programs, if necessary.
 
-    if (tonemap)    ::glob->free_program(tonemap);
-    if (v_gaussian) ::glob->free_program(v_gaussian);
-    if (h_gaussian) ::glob->free_program(h_gaussian);
-    if (downsample) ::glob->free_program(downsample);
+    if (bloom)          ::glob->free_program(bloom);
+    if (tonemap)        ::glob->free_program(tonemap);
+    if (v_gaussian)     ::glob->free_program(v_gaussian);
+    if (h_gaussian)     ::glob->free_program(h_gaussian);
+    if (downsample_avg) ::glob->free_program(downsample_avg);
 
-    tonemap    = 0;
-    v_gaussian = 0;
-    h_gaussian = 0;
-    downsample = 0;
+    bloom          = 0;
+    tonemap        = 0;
+    v_gaussian     = 0;
+    h_gaussian     = 0;
+    downsample_avg = 0;
 
     // Finalize the static ping-pong buffers, if necessary.
 

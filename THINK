@@ -1,5 +1,37 @@
 Thumb features to consider
 
+   Rewrite the GUI mechanism
+       to use a glyph map instead of a wordmap
+       to use VBOs instead of immediate mode
+
+   loading zipped data files
+      XML
+      OBJ
+          get some more canonical examples
+              bunny
+              happy buddha
+              dragon
+              tweety
+              armadillo
+
+    Grab the pointer during play mode
+        this would allow modular control modalities
+            3rd person control
+            neverball tilt
+            car driving
+
+    Replay mode will need to be strong
+        support demo and benchmarking
+        two approaches 
+            1 capture all the events
+                this is easy, since they dist mechanism is in place
+                the physics will not be reproducible
+            2 capture the state of the physical system
+                this will lead to BIG replays
+                the physics SHOULD be reproducible
+                records only play mode
+                would allow REWIND!
+
     Allow the execution of the physical system to be a "change" to the world
         Represent it as a set of transforms and it can be undoable
 
@@ -30,25 +62,24 @@ Thumb features to consider
         It allows GUI text to scale to Varrier/LambdaVision
         It allows foliage to fade in and out with distance
 
-    HDR
-        float16
-        AGC optional
-        Bloom optional
-        Be sure to allow for fallback
++   HDR
++       float16
++       AGC optional
++       Bloom optional
++       Be sure to allow for fallback
 
     Adaptive terrain
+
+    Skinning
+        Automatic generation of ODE capsules to fit bones
 
     New sky
         clouds?
             http://www.gamedev.net/community/forums/topic.asp?topic_id=86024
         Should be efficient to render into a cubemap per frame
 
-    Take a serious look at state reloading
-        start/close
-
-    Replay
-        (this is crucial)
-        Performance testing and benchmarking
++   Take a serious look at state reloading
++       start/close
 
     Particle systems
         Clouds
@@ -68,9 +99,6 @@ Thumb features to consider
         Coverage-map-based
         Is grass just a form of particle?
 
-    Skinning
-        Automatic generation of ODE capsules to fit bones
-
     Fur
 
     Are there any opportunities for scissor-rectangle optimizations?
@@ -87,6 +115,68 @@ Thumb features to consider
 
     If all rendering is confined to pool, then GL 1, 2, and 3 profiles
     should be easy to implement.
+
+-------------------------------------------------------------------------------
+
+Input:
+
+    The environment map
+        L           RGB nxn cube map (arbitrary format)
+
+    Spherical harmonics basis Ylm(N) (a scalar) for all normals N
+        Y00(N)     (this one is a constant)
+
+        Y1+1(N)
+        Y10(N)
+        Y1-1(N)
+
+        Y2-2(N)
+        Y2-1(N)
+        Y20(N)
+        Y2+1(N)
+        Y2+2(N)     8 nxn cube-mapped scalars
+
+        These can ALL be computed at run time.
+
+    Solid angle of each cube map texel 
+        dw          1 nxn cube-mapped scalar
+
+
+Intermediate
+
+    In order to Sum L(N) * Ylm(N) * dw(N) for all N
+        Giving 9 RGB values...
+
+    nxn texture
+        First pass, make 6x2 texture accesses
+            swizzle XYZ to permute the normal from nxn to all N.
+            get L(N)
+            get dw(N)
+            compute Ylm(N)
+
+        Log2(n) passes: quad parallel reduction of the nxn texture
+
+
+*** SOMEHOW collect these 9 values from the 9 textures ***
+    Do this in a generalizable fashion in order to accommodate more than
+    2 bands of spherical harmonics
+
+Final cubemap generation
+
+    For each of 6 mxm faces
+
+        compute N
+        compute E(N) from equation (11) Hanrahan
+
+    It may be advisable to do this in a (m+2)x(m+2) buffer and
+    PBO glTexSubImage the data into a bordered cube map.
+
+    ATI's edge fudge may work out
+
+    Or a really bletchy hack: the cube map faces could simply be stretched
+    such that the edge pixels actually fall in the crack.  This would
+    guarantee that the edges of adjacent faces match up.
+
 
 -------------------------------------------------------------------------------
 
