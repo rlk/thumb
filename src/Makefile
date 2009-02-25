@@ -12,9 +12,10 @@ OBJS=   util.o \
 	ogl-lut.o \
 	ogl-aabb.o \
 	ogl-range.o \
-	ogl-binding.o \
+	ogl-uniform.o \
 	ogl-program.o \
 	ogl-texture.o \
+	ogl-binding.o \
 	ogl-surface.o \
 	ogl-buffer.o \
 	ogl-image.o \

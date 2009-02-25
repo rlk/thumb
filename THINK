@@ -152,15 +152,14 @@ Program needs
 
     attribute name and location
 
-Currently...
-    program sampler name may be special -- THIS IS WRONG
-            shadow0
-            shadow1
-            shadow2
-            env_diffuse
-            env_specular
-            ...
+sampler
+uniform
+program
+texture
+binding
+surface
 
+process
 
 -------------------------------------------------------------------------------
 

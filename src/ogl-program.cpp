@@ -13,8 +13,9 @@
 #include <iostream>
 #include <cstring>
 
+#include "ogl-uniform.hpp"
 #include "ogl-program.hpp"
-#include "app-serial.hpp"
+#include "app-glob.hpp"
 #include "app-data.hpp"
 
 //-----------------------------------------------------------------------------
@@ -82,6 +83,21 @@ ogl::program::~program()
 
 //-----------------------------------------------------------------------------
 
+void ogl::program::prep() const
+{
+    uniform_map::const_iterator i;
+
+    if (uniforms.empty() == false)
+    {
+        bind();
+
+        for (i = uniforms.begin(); i != uniforms.end(); ++i)
+            i->first->apply(i->second);
+
+        free();
+    }
+}
+
 void ogl::program::bind() const
 {
     if (bindable)
@@ -134,13 +150,65 @@ std::string ogl::program::load(std::string name)
     return base;
 }
 
+void ogl::program::init_attributes(app::node root)
+{
+    app::node curr;
+
+    // Bind the attributes.
+
+    for (curr = app::find(root,       "attribute"); curr;
+         curr = app::next(root, curr, "attribute"))
+
+        glBindAttribLocationARB(prog, app::get_attr_d(curr, "location"),
+                                      app::get_attr_s(curr, "name"));
+}
+
+void ogl::program::init_samplers(app::node root)
+{
+    app::node curr;
+
+    // Set the samplers.
+
+    for (curr = app::find(root,       "sampler"); curr;
+         curr = app::next(root, curr, "sampler"))
+    {
+        std::string name(app::get_attr_s(curr, "name"));
+        int         unit=app::get_attr_d(curr, "unit");
+
+        uniform(name, unit);
+            
+        samplers[name] = GL_TEXTURE0 + unit;
+    }
+}
+
+void ogl::program::init_uniforms(app::node root)
+{
+    app::node curr;
+
+    // Get the uniforms.
+
+    for (curr = app::find(root,       "uniform"); curr;
+         curr = app::next(root, curr, "uniform"))
+    {
+        std::string name (app::get_attr_s(curr, "name"));
+        std::string value(app::get_attr_s(curr, "value"));
+        int         size =app::get_attr_d(curr, "size");
+
+        ogl::uniform *p = ::glob->load_uniform(value, size);
+
+        if (p)
+            uniforms[p] = glGetUniformLocationARB(prog, name.c_str());
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 void ogl::program::init()
 {
     std::string path = "program/" + name;
 
     app::serial file(path.c_str());
     app::node   root;
-    app::node   curr;
 
     if ((root = app::find(file.get_head(), "program")))
     {
@@ -164,44 +232,34 @@ void ogl::program::init()
         if (vert) glAttachObjectARB(prog, vert);
         if (frag) glAttachObjectARB(prog, frag);
 
-        // Bind the attributes.
-
-        for (curr = app::find(root,       "attribute"); curr;
-             curr = app::next(root, curr, "attribute"))
-
-            glBindAttribLocationARB(prog, app::get_attr_d(curr, "location"),
-                                          app::get_attr_s(curr, "name"));
-
         // Link the program.
 
+        init_attributes(root);
         glLinkProgramARB(prog);
 
         bindable = !log(prog, path);
 
-        OGLCK();
-
-        // Set the sampler uniforms.
+        // Configure the program.
 
         bind();
         {
-            for (curr = app::find(root,       "sampler"); curr;
-                 curr = app::next(root, curr, "sampler"))
-            {
-                std::string name(app::get_attr_s(curr, "name"));
-                int         unit=app::get_attr_d(curr, "unit");
-
-                uniform(name, unit);
-            
-                sampler_map[name] = GL_TEXTURE0 + unit;
-            }
+            init_samplers(root);
+            init_uniforms(root);
         }
         free();
+        OGLCK();
     }
 }
 
 void ogl::program::fini()
 {
-    sampler_map.clear();
+    uniform_map::iterator i;
+
+    for (i = uniforms.begin(); i != uniforms.end(); ++i)
+        ::glob->free_uniform(i->first);
+
+    uniforms.clear();
+    samplers.clear();
 
     if (prog) glDeleteObjectARB(prog);
     if (vert) glDeleteObjectARB(vert);
@@ -218,7 +276,7 @@ GLenum ogl::program::unit(std::string name) const
 
     std::map<std::string, GLenum>::const_iterator i;
 
-    if ((i = sampler_map.find(name)) == sampler_map.end())
+    if ((i = samplers.find(name)) == samplers.end())
         return 0;
     else
         return i->second;

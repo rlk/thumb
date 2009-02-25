@@ -23,6 +23,7 @@
 
 namespace ogl
 {
+    class uniform;
     class program;
     class texture;
     class binding;
@@ -38,6 +39,12 @@ namespace app
 {
     class glob
     {
+        struct uniform
+        {
+            ogl::uniform *ptr;
+            int           ref;
+        };
+
         struct program
         {
             ogl::program *ptr;
@@ -62,6 +69,7 @@ namespace app
             int           ref;
         };
 
+        std::map<std::string, uniform> uniform_map;
         std::map<std::string, program> program_map;
         std::map<std::string, texture> texture_map;
         std::map<std::string, binding> binding_map;
@@ -71,33 +79,34 @@ namespace app
         std::set<ogl::image *> image_set;
         std::set<ogl::frame *> frame_set;
 
-        GLuint vbo;
-        GLuint ebo;
-
     public:
 
-        glob() : vbo(0), ebo(0) { }
+        glob() { }
        ~glob();
 
         // Named, reference-counted GL state.
 
         const ogl::program *load_program(std::string, std::string) { return 0; } // HACK HACK HACK
 
+              ogl::uniform *load_uniform(std::string, GLsizei);
         const ogl::program *load_program(std::string);
         const ogl::texture *load_texture(std::string, std::string);
         const ogl::binding *load_binding(std::string, std::string);
         const ogl::surface *load_surface(std::string);
 
+              ogl::uniform *dupe_uniform(      ogl::uniform *);
         const ogl::program *dupe_program(const ogl::program *);
         const ogl::texture *dupe_texture(const ogl::texture *);
         const ogl::binding *dupe_binding(const ogl::binding *);
         const ogl::surface *dupe_surface(const ogl::surface *);
 
+        void free_uniform(std::string);
         void free_program(std::string);
         void free_texture(std::string);
         void free_binding(std::string);
         void free_surface(std::string);
 
+        void free_uniform(      ogl::uniform *);
         void free_program(const ogl::program *);
         void free_texture(const ogl::texture *);
         void free_binding(const ogl::binding *);
@@ -124,8 +133,9 @@ namespace app
         void free_image(ogl::image *);
         void free_frame(ogl::frame *);
 
-        // Flush and reload.
+        // Render prep, state flush, and state reload.
 
+        void prep();
         void init();
         void fini();
     };

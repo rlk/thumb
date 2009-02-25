@@ -16,7 +16,15 @@
 #include <string>
 #include <map>
 
+#include "app-serial.hpp"
 #include "ogl-opengl.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class uniform;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -24,15 +32,19 @@ namespace ogl
 {
     class program
     {
+        typedef std::map<ogl::uniform *, GLint>  uniform_map;
+        typedef std::map<std::string,    GLenum> sampler_map;
+
         std::string name;
 
         GLhandleARB vert;
         GLhandleARB frag;
         GLhandleARB prog;
 
-        bool bindable;
+        uniform_map uniforms;
+        sampler_map samplers;
 
-        std::map<std::string, GLenum> sampler_map;
+        bool bindable;
 
         bool log(GLhandleARB, std::string&);
 
@@ -41,15 +53,18 @@ namespace ogl
 
         std::string load(std::string);
 
-    public:
+        void init_attributes(app::node);
+        void init_uniforms  (app::node);
+        void init_samplers  (app::node);
 
-        static const program *current;
+    public:
 
         const std::string& get_name() const { return name; }
 
         program(std::string);
        ~program();
 
+        void prep() const;
         void bind() const;
         void free() const;
 
@@ -64,6 +79,8 @@ namespace ogl
         void uniform(std::string, double, double, double)         const;
         void uniform(std::string, double, double, double, double) const;
         void uniform(std::string, const double *, bool=false)     const;
+
+        static const program *current;
     };
 }
 

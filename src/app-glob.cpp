@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "default.hpp"
+#include "ogl-uniform.hpp"
 #include "ogl-program.hpp"
 #include "ogl-texture.hpp"
 #include "ogl-binding.hpp"
@@ -22,6 +23,8 @@
 #include "ogl-frame.hpp"
 #include "ogl-pool.hpp"
 #include "app-glob.hpp"
+
+// TODO: Template some of this repetition?
 
 //=============================================================================
 
@@ -33,6 +36,7 @@ app::glob::~glob()
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, binding>::iterator bi;
     std::map<std::string, program>::iterator pi;
+    std::map<std::string, uniform>::iterator ui;
 
     for (si = surface_map.begin(); si != surface_map.end(); ++si)
         delete si->second.ptr;
@@ -46,6 +50,9 @@ app::glob::~glob()
     for (pi = program_map.begin(); pi != program_map.end(); ++pi)
         delete pi->second.ptr;
 
+    for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
+        delete ui->second.ptr;
+
     std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
 
@@ -54,6 +61,59 @@ app::glob::~glob()
 
     for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
         delete (*fi);
+}
+
+//-----------------------------------------------------------------------------
+
+ogl::uniform *app::glob::load_uniform(std::string name, GLsizei size)
+{
+    if (uniform_map.find(name) == uniform_map.end())
+    {
+        try
+        {
+            uniform_map[name].ptr = new ogl::uniform(name, size);
+            uniform_map[name].ref = 1;
+        }
+        catch (std::runtime_error& e)
+        {
+            return 0;
+        }
+    }
+    else   uniform_map[name].ref++;
+
+    return uniform_map[name].ptr;
+}
+
+ogl::uniform *app::glob::dupe_uniform(ogl::uniform *p)
+{
+    if (p)
+    {
+        const std::string& name = p->get_name();
+
+        if (uniform_map.find(name) != uniform_map.end())
+        {
+            uniform_map[name].ref++;
+            return uniform_map[name].ptr;
+        }
+    }
+    return 0;
+}
+
+void app::glob::free_uniform(std::string name)
+{
+    if (uniform_map.find(name) != uniform_map.end())
+    {
+        if (--uniform_map[name].ref == 0)
+        {
+            delete uniform_map[name].ptr;
+            uniform_map.erase(name);
+        }
+    }
+}
+
+void app::glob::free_uniform(ogl::uniform *p)
+{
+    if (p) free_uniform(p->get_name());
 }
 
 //-----------------------------------------------------------------------------
@@ -327,6 +387,16 @@ void app::glob::free_frame(ogl::frame *p)
 }
 
 //-----------------------------------------------------------------------------
+
+void app::glob::prep()
+{
+    // Render pre-pass all OpenGL state.
+
+    std::map<std::string, program>::iterator pi;
+    
+    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+        pi->second.ptr->prep();
+}
 
 void app::glob::init()
 {

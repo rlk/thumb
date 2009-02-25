@@ -331,8 +331,7 @@ bool ogl::binding::bind(bool c) const
         {
             color_program->bind();
 
-            // TODO: There's a chance this can be lofted.
-
+/*
             color_program->uniform("split", split_depth[0],
                                             split_depth[1],
                                             split_depth[2],
@@ -343,11 +342,9 @@ bool ogl::binding::bind(bool c) const
 
             color_program->uniform("time", SDL_GetTicks() * 0.001f);
 
-            // TODO: Do this only for shaders that require it.
-
             color_program->uniform("view_M", ::user->get_I());
             color_program->uniform("view_I", ::user->get_M());
-
+*/
             // Bind all textures
 
             for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
