@@ -137,16 +137,18 @@ Program needs
         name
         unit
         proc
-            shadow
+            shadow_map
             diffuse_irradiance
             specular_irradiance
         extra
     uniform
         name
         value
-            shadow_map_split
-            view_matrix
-            view_inverse         (This will enable the GL3 transition)
+            pssm_distance
+            view_matrix         (These will enable the GL3 transition)
+            view_inverse
+            light_position
+            time
 
     attribute name and location
 
