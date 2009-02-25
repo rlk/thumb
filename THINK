@@ -158,8 +158,29 @@ program
 texture
 binding
 surface
+process
+
+-------------------------------------------------------------------------------
+
+GLOB now acts as a factor.  Not generic enough.
 
 process
+
+    bind_frame(face)
+    bind_color
+    bind_depth
+    free_frame(face)
+    free_color
+    free_depth
+
+    prep
+
+processes:
+    shadow maps
+    sky cubemap
+    irradiance env map
+    particle system
+    water wave sim    
 
 -------------------------------------------------------------------------------
 
