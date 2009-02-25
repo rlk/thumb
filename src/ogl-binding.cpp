@@ -105,26 +105,6 @@ bool ogl::binding::bind_shadow_frame(int i)
     return false;
 }
 
-bool ogl::binding::bind_shadow_color(int i, GLenum unit)
-{
-    if (init_shadow() && shadow[i])
-    {
-        shadow[i]->bind_color(unit);
-        return true;
-    }
-    return false;
-}
-
-bool ogl::binding::bind_shadow_depth(int i, GLenum unit)
-{
-    if (init_shadow() && shadow[i])
-    {
-        shadow[i]->bind_depth(unit);
-        return true;
-    }
-    return false;
-}
-
 void ogl::binding::draw_shadow_color(int i)
 {
     if (shadow[i])
@@ -135,18 +115,6 @@ void ogl::binding::free_shadow_frame(int i)
 {
     if (shadow[i])
         shadow[i]->free();
-}
-
-void ogl::binding::free_shadow_color(int i)
-{
-    if (shadow[i])
-        shadow[i]->free_color();
-}
-
-void ogl::binding::free_shadow_depth(int i)
-{
-    if (shadow[i])
-        shadow[i]->free_depth();
 }
 
 //-----------------------------------------------------------------------------

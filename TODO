@@ -1,3 +1,4 @@
+Normal map mipmap generation should NOT box-filter.
 Excise frame::bind(proj) and frame::draw(int, int)
 Figure out a good way for static bindings to init and fini.
 

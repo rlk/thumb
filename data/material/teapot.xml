@@ -1,9 +1,11 @@
 <?xml version="1.0"?>
 <material>
-  <program mode="depth" file="object-depth.xml" />
-  <program mode="color" file="irradiance-env.xml" />
+  <program mode="depth" file="object-depth.xml">
+  </program>
 
-  <texture name="mat_specular" file="highly-specular.png" />
-  <texture name="mat_diffuse"  file="teapot-diffuse.png" />
-  <texture name="mat_normal"   file="default-normal.png" />
+  <program mode="color" file="irradiance-env.xml">
+    <texture sampler="mat_specular"  file="highly-specular.png" />
+    <texture sampler="mat_diffuse"   file="teapot-diffuse.png" />
+    <texture sampler="mat_normal"    file="default-normal.png" />
+  </program>
 </material>

@@ -63,15 +63,16 @@ namespace ogl
         static int  shadow_count();
 
         static bool bind_shadow_frame(int);
+        static void free_shadow_frame(int);
+        static void draw_shadow_color(int);
+/*
         static bool bind_shadow_color(int, GLenum=GL_TEXTURE0);
         static bool bind_shadow_depth(int, GLenum=GL_TEXTURE0);
 
-        static void draw_shadow_color(int);
 
-        static void free_shadow_frame(int);
         static void free_shadow_color(int);
         static void free_shadow_depth(int);
-
+*/
         static void bind_env(int);
         static void free_env();
         static void prep_env();

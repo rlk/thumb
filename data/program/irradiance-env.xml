@@ -1,13 +1,21 @@
 <?xml version="1.0"?>
 <program vert="glsl/irradiance-env.vert"
          frag="glsl/irradiance-env.frag" >
+
   <sampler name="mat_diffuse"  unit="0" />
   <sampler name="mat_specular" unit="1" />
   <sampler name="mat_normal"   unit="2" />
-  <sampler name="env_diffuse"  unit="3" />
-  <sampler name="env_specular" unit="4" />
-  <sampler name="shadow0"      unit="5" />
-  <sampler name="shadow1"      unit="6" />
-  <sampler name="shadow2"      unit="7" />
+
+  <sampler name="env_diffuse"  unit="3" proc="diffuse_irradiance" />
+  <sampler name="env_specular" unit="4" proc="specular_irradiance" />
+
+  <sampler name="shadow[0]"    unit="5" proc="shadow" level="0" />
+  <sampler name="shadow[1]"    unit="6" proc="shadow" level="1" />
+  <sampler name="shadow[2]"    unit="7" proc="shadow" level="2" />
+
+  <uniform name="shadow_map_split" value="shadow_map_split" />
+  <uniform name="view_matrix"      value="view_matrix" />
+  <uniform name="view_inverse"     value="view_inverse" />
+
   <attribute name="Tangent" location="6" />
 </program>

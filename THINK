@@ -118,6 +118,50 @@ Thumb features to consider
 
 -------------------------------------------------------------------------------
 
+Binding needs
+
+    color mode
+        program.xml
+
+        texture name and file name
+        texture name and procedural name
+            (this allows shaders to rename procedurals)
+        uniform name and procedural name
+
+    depth mode
+        program.xml
+        ...
+
+Program needs
+    sampler
+        name
+        unit
+        proc
+            shadow
+            diffuse_irradiance
+            specular_irradiance
+        extra
+    uniform
+        name
+        value
+            shadow_map_split
+            view_matrix
+            view_inverse         (This will enable the GL3 transition)
+
+    attribute name and location
+
+Currently...
+    program sampler name may be special -- THIS IS WRONG
+            shadow0
+            shadow1
+            shadow2
+            env_diffuse
+            env_specular
+            ...
+
+
+-------------------------------------------------------------------------------
+
 Input:
 
     The environment map
