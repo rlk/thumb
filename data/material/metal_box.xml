@@ -1,9 +1,14 @@
 <?xml version="1.0"?>
 <material>
   <program mode="depth" file="object-depth.xml" />
-  <program mode="color" file="irradiance-env.xml" />
 
-  <texture name="mat_specular" file="metal_box_specular.png" />
-  <texture name="mat_diffuse"  file="metal_box_diffuse.png" />
-  <texture name="mat_normal"   file="metal_box_normal.png" />
+  <program mode="color" file="irradiance-env.xml">
+    <texture sampler="diff_map"  file="metal_box_diffuse.png" />
+    <texture sampler="spec_map"  file="metal_box_specular.png" />
+    <texture sampler="norm_map"  file="metal_box_normal.png" />
+    <texture sampler="spec_env"  proc="spec_irradiance" />
+    <texture sampler="shadow[0]" proc="shadow" level="0" />
+    <texture sampler="shadow[1]" proc="shadow" level="1" />
+    <texture sampler="shadow[2]" proc="shadow" level="2" />
+  </program>
 </material>

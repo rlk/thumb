@@ -16,7 +16,6 @@
 #include "default.hpp"
 #include "app-conf.hpp"
 #include "app-glob.hpp"
-#include "app-user.hpp" // TODO: excise
 #include "app-serial.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-texture.hpp"
@@ -25,44 +24,12 @@
 
 //-----------------------------------------------------------------------------
 
-double ogl::binding::split_depth[4];
-double ogl::binding::world_light[3];
-
 std::vector<ogl::frame *> ogl::binding::shadow;
-            ogl::frame *  ogl::binding::env = 0;
+
+ogl::frame *ogl::binding::diff_irradiance = 0;
+ogl::frame *ogl::binding::spec_irradiance = 0;
 
 //-----------------------------------------------------------------------------
-
-void ogl::binding::light(const double *v)
-{
-    world_light[0] = v[0];
-    world_light[1] = v[1];
-    world_light[2] = v[2];
-}
-
-double ogl::binding::split(int i, double n, double f)
-{
-    double k = double(i) / double(shadow.size());
-
-    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
-
-/* HACK
-    double c;
-
-    switch (i)
-    {
-    case 0: c =     n; break;
-    case 1: c =  35.0; break;
-    case 2: c = 120.0; break;
-    case 3: c = 300.0; break;
-    }
-*/
-    split_depth[i] = (1 - n / c) * f / (f - n);
-
-    double r = (c - n) / (f - n);
-
-    return r;
-}
 
 bool ogl::binding::init_shadow()
 {
@@ -89,15 +56,12 @@ bool ogl::binding::init_shadow()
 
 int ogl::binding::shadow_count()
 {
-    if (init_shadow())
-        return shadow.size();
-    else
-        return 0;
+    return shadow.size();
 }
 
-bool ogl::binding::bind_shadow_frame(int i)
+bool ogl::binding::bind_shadow(int i)
 {
-    if (init_shadow() && shadow[i])
+    if (i < int(shadow.size()) && shadow[i])
     {
         shadow[i]->bind();
         return true;
@@ -105,50 +69,108 @@ bool ogl::binding::bind_shadow_frame(int i)
     return false;
 }
 
-void ogl::binding::draw_shadow_color(int i)
+void ogl::binding::free_shadow(int i)
 {
-    if (shadow[i])
-        shadow[i]->draw(i, shadow.size());
-}
-
-void ogl::binding::free_shadow_frame(int i)
-{
-    if (shadow[i])
+    if (i < int(shadow.size()) && shadow[i])
+    {
         shadow[i]->free();
+    }
 }
 
 //-----------------------------------------------------------------------------
 
-bool ogl::binding::init_env()
+bool ogl::binding::init_irradiance()
 {
-    if (env == 0)
-        env = ::glob->new_frame(256, 256, GL_TEXTURE_CUBE_MAP,
-                                GL_RGBA8, true, false, false);
+    // Initialize the irradiance maps if necessary.
 
-    return (env != 0);
+    if (spec_irradiance == 0)
+        spec_irradiance = ::glob->new_frame(256, 256, GL_TEXTURE_CUBE_MAP,
+                                            GL_RGBA8, true, false, false);
+
+    return (spec_irradiance != 0);
 }
 
-void ogl::binding::bind_env(int target)
+bool ogl::binding::bind_irradiance(int target)
 {
-    if (init_env()) env->bind(target);
+    if (spec_irradiance)
+        spec_irradiance->bind(target);
+
+    return spec_irradiance;
 }
 
-void ogl::binding::free_env()
+void ogl::binding::free_irradiance()
 {
-    if (init_env()) env->free();
+    if (spec_irradiance)
+        spec_irradiance->free();
 }
 
-void ogl::binding::prep_env()
+void ogl::binding::prep_irradiance()
 {
 }
 
 //-----------------------------------------------------------------------------
+
+const ogl::program *ogl::binding::init_program(app::node node,
+                                               unit_texture& texture,
+                                               unit_frame&   c_frame,
+                                               unit_frame&   d_frame)
+{
+    const char         *name = 0;
+    const ogl::program *prog = 0;
+
+    // Load the program.
+
+    if ((name = app::get_attr_s(node, "file", 0)) &&
+        (prog = glob->load_program(std::string(name))))
+    {
+        // Load all textures.
+
+        app::node curr;
+
+        for (curr = app::find(node,       "texture"); curr;
+             curr = app::next(node, curr, "texture"))
+        {
+            // Determine the sampler name.
+
+            std::string sampler(app::get_attr_s(curr, "sampler"));
+
+            // Determine the texture unit binding for this sampler.
+
+            if (GLenum unit = prog->unit(sampler))
+            {
+                // Handle an image file texture.
+
+                if (const char *s = app::get_attr_s(curr, "file"))
+                {
+                    std::string file(s);
+                    std::string fail = "default-" + sampler + ".png";
+
+                    texture[unit] = ::glob->load_texture(file, fail);
+                }
+
+                // Handle a procedural texture.
+                
+                if (const char *s = app::get_attr_s(curr, "proc"))
+                {
+                    std::string proc(s);
+
+                    if (proc == "diff_irradiance")
+                        c_frame[unit] = diff_irradiance;
+                    if (proc == "spec_irradiance")
+                        c_frame[unit] = spec_irradiance;
+                    if (proc == "shadow")
+                        d_frame[unit] = shadow[app::get_attr_d(curr, "level")];
+                }
+            }
+        }
+    }
+    return prog;
+}
 
 ogl::binding::binding(std::string name) :
     name(name),
     depth_program(0),
-    color_program(0),
-    cull_mode(GL_BACK)
+    color_program(0)
 {
     std::string path = "material/" + name + ".xml";
 
@@ -156,76 +178,28 @@ ogl::binding::binding(std::string name) :
     app::node   root;
     app::node   node;
 
+    // Initialize the shared procedural materials, if necessary.
+
     init_shadow();
+    init_irradiance();
+
+    // Load the local material bindings.
 
     if ((root = app::find(file.get_head(), "material")))
     {
-        // Load the depth-mode program.
+        // Load the depth-mode bindings.
 
         if ((node = app::find(root, "program", "mode", "depth")))
-            depth_program = glob->load_program(app::get_attr_s(node, "file",
-                                                   DEFAULT_DEPTH_PROGRAM));
+            depth_program = init_program(node, depth_texture,
+                                               depth_c_frame,
+                                               depth_d_frame);
 
-        // Load the color-mode program.
+        // Load the color-mode bindings.
 
         if ((node = app::find(root, "program", "mode", "color")))
-            color_program = glob->load_program(app::get_attr_s(node, "file",
-                                                   DEFAULT_COLOR_PROGRAM));
-
-        // Determine the framebuffer bindings.  TODO: generalize this.
-
-        GLenum unit;
-
-        if (color_program)
-        {
-            if (0 < shadow.size() && (unit = color_program->unit("shadow0")))
-                depth_frame[unit] = shadow[0];
-            if (1 < shadow.size() && (unit = color_program->unit("shadow1")))
-                depth_frame[unit] = shadow[1];
-            if (2 < shadow.size() && (unit = color_program->unit("shadow2")))
-                depth_frame[unit] = shadow[2];
-            if ((unit = color_program->unit("env_diffuse")))
-                color_frame[unit] = env;
-        }
-
-        // Load all textures.
-
-        for (node = app::find(root,       "texture"); node;
-             node = app::next(root, node, "texture"))
-        {
-            std::string name(app::get_attr_s(node, "name"));
-            std::string file(app::get_attr_s(node, "file"));
-
-            std::string fallback = "default-" + name + ".png";
-
-            // Determine the texture unit binding for each texture.
-
-            GLenum depth_unit = depth_program ? depth_program->unit(name) : 0;
-            GLenum color_unit = color_program ? color_program->unit(name) : 0;
-
-            // Load the texture (with reference count +2).
-
-            const ogl::texture *dt = 0;
-            const ogl::texture *ct = 0;
-
-            if (depth_unit) dt = ::glob->load_texture(file, fallback);
-            if (color_unit) ct = ::glob->load_texture(file, fallback);
-
-            if (dt) depth_texture[depth_unit] = dt;
-            if (ct) color_texture[color_unit] = ct;
-        }
-
-        // Initialize all options.
-
-        if ((node = app::find(root, "option", "name", "cull")))
-        {
-            std::string cull(app::get_attr_s(node, "value"));
-
-            if      (cull == "none")  cull_mode = 0;
-            else if (cull == "back")  cull_mode = GL_BACK;
-            else if (cull == "front") cull_mode = GL_FRONT;
-            else if (cull == "both")  cull_mode = GL_FRONT_AND_BACK;
-        }
+            color_program = init_program(node, color_texture,
+                                               color_c_frame,
+                                               color_d_frame);
     }
 }
 
@@ -244,8 +218,28 @@ ogl::binding::~binding()
     color_texture.clear();
     depth_texture.clear();
 
-    color_frame.clear();
-    depth_frame.clear();
+    // TODO: Free all frames. They are statically owned by the bindings.
+    // This may be an argument for the process object as a frame abstraction.
+
+/*
+    unit_frame::iterator j;
+
+    for (j = color_d_frame.begin(); j != color_d_frame.end(); ++j)
+        ::glob->free_frame(j->second);
+
+    for (j = color_c_frame.begin(); j != color_c_frame.end(); ++j)
+        ::glob->free_frame(j->second);
+
+    for (j = depth_d_frame.begin(); j != depth_d_frame.end(); ++j)
+        ::glob->free_frame(j->second);
+
+    for (j = depth_c_frame.begin(); j != depth_c_frame.end(); ++j)
+        ::glob->free_frame(j->second);
+*/
+    color_d_frame.clear();
+    color_c_frame.clear();
+    depth_d_frame.clear();
+    depth_c_frame.clear();
 
     // Free all programs.
 
@@ -331,29 +325,15 @@ bool ogl::binding::bind(bool c) const
         {
             color_program->bind();
 
-/*
-            color_program->uniform("split", split_depth[0],
-                                            split_depth[1],
-                                            split_depth[2],
-                                            split_depth[3]);
-            color_program->uniform("light", world_light[0],
-                                            world_light[1],
-                                            world_light[2]);
-
-            color_program->uniform("time", SDL_GetTicks() * 0.001f);
-
-            color_program->uniform("view_M", ::user->get_I());
-            color_program->uniform("view_I", ::user->get_M());
-*/
             // Bind all textures
 
             for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
                 ti->second->bind(ti->first);
 
-            for (fi = color_frame.begin(); fi != color_frame.end(); ++fi)
+            for (fi = color_c_frame.begin(); fi != color_c_frame.end(); ++fi)
                 fi->second->bind_color(fi->first);
 
-            for (fi = depth_frame.begin(); fi != depth_frame.end(); ++fi)
+            for (fi = color_d_frame.begin(); fi != color_d_frame.end(); ++fi)
                 fi->second->bind_depth(fi->first);
 
             return true;
@@ -368,20 +348,16 @@ bool ogl::binding::bind(bool c) const
             for (ti = depth_texture.begin(); ti != depth_texture.end(); ++ti)
                 ti->second->bind(ti->first);
             
+            for (fi = depth_c_frame.begin(); fi != depth_c_frame.end(); ++fi)
+                fi->second->bind_depth(fi->first);
+
+            for (fi = depth_d_frame.begin(); fi != depth_d_frame.end(); ++fi)
+                fi->second->bind_depth(fi->first);
+
             return true;
         }
     }
-    return true; // HACK HACK HACK HACK HACK
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::binding::init()
-{
-}
-
-void ogl::binding::fini()
-{
+    return true; // HACK HACK (Convert ALL objects to use material bindings.)
 }
 
 //-----------------------------------------------------------------------------

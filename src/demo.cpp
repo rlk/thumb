@@ -16,6 +16,7 @@
 #include <SDL/SDL_keyboard.h>
 
 #include "ogl-opengl.hpp"
+#include "ogl-uniform.hpp"
 
 #include "demo.hpp"
 
@@ -23,6 +24,7 @@
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-host.hpp"
+#include "app-glob.hpp"
 
 #include "wrl-world.hpp"
 #include "uni-universe.hpp"
@@ -51,6 +53,13 @@ demo::demo(int w, int h) :
     else if (input_mode == "tracker") input = new dev::tracker();
     else if (input_mode == "wiimote") input = new dev::wiimote();
     else */                           input = new dev::mouse  ();
+
+    // Initialize the uniforms.
+
+    uniform_light_position = ::glob->load_uniform("light_position", 3);
+    uniform_view_matrix    = ::glob->load_uniform("view_matrix",   16);
+    uniform_view_inverse   = ::glob->load_uniform("view_inverse",  16);
+    uniform_time           = ::glob->load_uniform("time",           1);
 
     // Initialize attract mode.
 
@@ -81,6 +90,11 @@ demo::demo(int w, int h) :
 
 demo::~demo()
 {
+    ::glob->free_uniform(uniform_time);
+    ::glob->free_uniform(uniform_view_inverse);
+    ::glob->free_uniform(uniform_view_matrix);
+    ::glob->free_uniform(uniform_light_position);
+
     if (info) delete info;
     if (play) delete play;
     if (edit) delete edit;
@@ -294,12 +308,28 @@ bool demo::process_event(app::event *E)
 
 ogl::range demo::prep(int frusc, app::frustum **frusv)
 {
+    double t = SDL_GetTicks() * 0.001f;
+
+    // Set the frame-constant uniforms.
+
+    uniform_light_position->set(::user->get_L());
+    uniform_view_matrix   ->set(::user->get_I());
+    uniform_view_inverse  ->set(::user->get_M());
+
+    uniform_time->set(&t);
+
     // Prep the current mode, giving the view range.
 
+    ogl::range r;
+
     if (curr)
-        return curr->prep(frusc, frusv);
+        r = curr->prep(frusc, frusv);
     else
-        return ogl::range();
+        r = ogl::range();
+
+    ::glob->prep();
+
+    return r;
 }
 
 void demo::draw(int frusi, app::frustum *frusp)

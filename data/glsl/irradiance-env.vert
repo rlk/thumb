@@ -1,8 +1,8 @@
 
 attribute vec3 Tangent;
 
-uniform mat4 view_M;
-uniform mat4 view_I;
+uniform mat4 view_matrix;
+uniform mat4 view_inverse;
 
 varying vec3 V_v;
 varying vec3 T_v;
@@ -18,9 +18,9 @@ void main()
 
     // Compute the view, normal, and tangent world-space varyings.
 
-    V_v = (     V_e       * view_M).xyz;
-    N_v = (vec4(N_e, 0.0) * view_M).xyz;
-    T_v = (vec4(T_e, 0.0) * view_M).xyz;
+    V_v = (     V_e       * view_matrix).xyz;
+    N_v = (vec4(N_e, 0.0) * view_matrix).xyz;
+    T_v = (vec4(T_e, 0.0) * view_matrix).xyz;
 
     // Material and shadow map texture coordinates.
 

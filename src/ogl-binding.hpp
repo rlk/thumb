@@ -17,6 +17,8 @@
 #include <string>
 #include <map>
 
+#include "app-serial.hpp"
+
 //-----------------------------------------------------------------------------
 
 namespace ogl
@@ -33,42 +35,46 @@ namespace ogl
     class binding
     {
         typedef std::map<GLenum, const ogl::texture *> unit_texture;
-        typedef std::map<GLenum, const ogl::frame   *> unit_frame;
+        typedef std::map<GLenum,       ogl::frame   *> unit_frame;
+
+        // Shared binding attributes.
 
         static std::vector<ogl::frame *> shadow;
-        static             ogl::frame *  env;
-        
-        static double split_depth[4];
-        static double world_light[3];
+        static ogl::frame *diff_irradiance;
+        static ogl::frame *spec_irradiance;
+
+        static bool init_shadow();
+        static bool init_irradiance();
+
+        // Local binding attributes.
 
         std::string name;
 
-        const ogl::program *depth_program;
-        const ogl::program *color_program;
-        unit_texture        depth_texture;
-        unit_texture        color_texture;
-        unit_frame          depth_frame;
-        unit_frame          color_frame;
+        const ogl::program *depth_program;  // Depth mode shader program
+        unit_texture        depth_texture;  // Depth mode texture bindings
+        unit_frame          depth_c_frame;  // Depth mode color frame bindings
+        unit_frame          depth_d_frame;  // Depth mode depth frame bindings
 
-        GLenum cull_mode;
+        const ogl::program *color_program;  // Color mode shader program
+        unit_texture        color_texture;  // Color mode texture bindings
+        unit_frame          color_c_frame;  // Color mode color frame bindings
+        unit_frame          color_d_frame;  // Color mode depth frame bindings
 
-        static bool init_shadow();
-        static bool init_env();
+        const ogl::program *init_program(app::node, unit_texture&,
+                                                    unit_frame&,
+                                                    unit_frame&);
 
     public:
 
-        static double split(int, double, double);
-        static void   light(const double *);
-
         static int  shadow_count();
+        static bool bind_shadow(int);
+        static void free_shadow(int);
 
-        static bool bind_shadow_frame(int);
-        static void free_shadow_frame(int);
-        static void draw_shadow_color(int);
+        static bool bind_irradiance(int);
+        static void free_irradiance();
+        static void prep_irradiance();
 
-        static void bind_env(int);
-        static void free_env();
-        static void prep_env();
+        // Local binding methods.
 
         const std::string& get_name() const { return name; }
 
@@ -80,9 +86,6 @@ namespace ogl
         bool opaque() const;
 
         bool bind(bool) const;
-
-        void init();
-        void fini();
     };
 }
 

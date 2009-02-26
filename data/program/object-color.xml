@@ -1,11 +1,15 @@
 <?xml version="1.0"?>
 <program vert="glsl/object-color.vert"
          frag="glsl/object-color.frag" >
-  <sampler name="diffuse"  unit="0" />
-  <sampler name="normal"   unit="1" />
-  <sampler name="specular" unit="2" />
-  <sampler name="shadow0"  unit="3" />
-  <sampler name="shadow1"  unit="4" />
-  <sampler name="shadow2"  unit="5" />
+
+  <sampler name="diff_map"  unit="0" />
+  <sampler name="spec_map"  unit="1" />
+  <sampler name="norm_map"  unit="2" />
+  <sampler name="shadow[0]" unit="3" />
+  <sampler name="shadow[1]" unit="4" />
+  <sampler name="shadow[2]" unit="5" />
+
+  <uniform name="pssm_depth" value="pssm_depth" size="4"/>
+
   <attribute name="Tangent" location="6" />
 </program>

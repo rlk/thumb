@@ -32,6 +32,11 @@ namespace wrl
     class world;
 }
 
+namespace ogl
+{
+    class uniform;
+}
+
 namespace uni
 {
     class universe;
@@ -63,6 +68,13 @@ class demo : public app::prog
     mode::mode *curr;
 
     void goto_mode(mode::mode *);
+
+    // Renderer uniforms.
+
+    ogl::uniform *uniform_light_position;
+    ogl::uniform *uniform_view_matrix;
+    ogl::uniform *uniform_view_inverse;
+    ogl::uniform *uniform_time;
 
     // Demo state.
 

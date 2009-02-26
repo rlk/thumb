@@ -18,6 +18,7 @@
 #include "main.hpp"
 #include "matrix.hpp"
 #include "ogl-pool.hpp"
+#include "ogl-uniform.hpp"
 #include "app-prog.hpp"
 #include "app-glob.hpp"
 #include "app-data.hpp"
@@ -47,16 +48,21 @@ wrl::world::world() :
 
     // Initialize the render pools.
 
-    fill_pool = glob->new_pool();
+    fill_pool = ::glob->new_pool();
     fill_node = new ogl::node;
 
-    line_pool = glob->new_pool();
+    line_pool = ::glob->new_pool();
     stat_node = new ogl::node;
     dyna_node = new ogl::node;
 
     fill_pool->add_node(fill_node);
     line_pool->add_node(stat_node);
     line_pool->add_node(dyna_node);
+
+    // Initialize the uniforms.
+
+    uniform_light_position = ::glob->load_uniform("light_position", 3);
+    uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",  4);
 }
 
 wrl::world::~world()
@@ -86,10 +92,15 @@ wrl::world::~world()
 
     dCloseODE();
 
+    // Finalize the uniforms.
+
+    ::glob->free_uniform(uniform_pssm_depth);
+    ::glob->free_uniform(uniform_light_position);
+
     // Finalize the render pools.
 
-    glob->free_pool(fill_pool);
-    glob->free_pool(line_pool);
+    ::glob->free_pool(fill_pool);
+    ::glob->free_pool(line_pool);
 }
 
 //-----------------------------------------------------------------------------
@@ -920,6 +931,46 @@ void wrl::world::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
+double wrl::world::split_coeff(int i, int m, double n, double f)
+{
+    double k = double(i) / double(m);
+
+    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
+/*
+    double c;
+
+    switch (i)
+    {
+    case 0: c =     n; break;
+    case 1: c =  35.0; break;
+    case 2: c = 120.0; break;
+    case 3: c = 300.0; break;
+    }
+*/
+
+    return (c - n) / (f - n);
+}
+
+double wrl::world::split_depth(int i, int m, double n, double f)
+{
+    double k = double(i) / double(m);
+
+    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
+/*
+    double c;
+
+    switch (i)
+    {
+    case 0: c =     n; break;
+    case 1: c =  35.0; break;
+    case 2: c = 120.0; break;
+    case 3: c = 300.0; break;
+    }
+*/
+
+    return (1 - n / c) * f / (f - n);
+}
+
 void wrl::world::prep_env()
 {
     static const GLenum target[] = {
@@ -957,7 +1008,7 @@ void wrl::world::prep_env()
     {
         for (int k = 0; k < 6; ++k)
         {
-            ogl::binding::bind_env(target[k]);
+            if (ogl::binding::bind_irradiance(target[k]))
             {
                 glBegin(GL_QUADS);
                 {
@@ -967,14 +1018,14 @@ void wrl::world::prep_env()
                     glNormal3dv(n[i[k][3]]); glVertex3d(-1, +1, +1);
                 }
                 glEnd();
+
+                ogl::binding::free_irradiance();
             }
-            ogl::binding::free_env();
         }
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
 
-    glUseProgramObjectARB(0);
-    ogl::binding::prep_env();
+    ogl::binding::prep_irradiance();
 }
 
 void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
@@ -990,9 +1041,15 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
     int m = ogl::binding::shadow_count();
 
     double c[4];
+    double d[4];
 
-    for (int i = 0; i <= m; ++i)
-        c[i] = ogl::binding::split(i, n, f);
+    for (int i = 0; i <= m && i < 4; ++i) // TODO: generalize split count
+    {
+        c[i] = split_coeff(i, m, n, f);
+        d[i] = split_depth(i, m, n, f);
+    }
+
+    uniform_pssm_depth->set(d);
 
     // Render each of the shadow maps.
 
@@ -1016,7 +1073,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
         // Render the fill geometry to the shadow buffer.
 
-        if (ogl::binding::bind_shadow_frame(i))
+        if (ogl::binding::bind_shadow(i))
         {
             frust.draw();
 
@@ -1044,7 +1101,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
             for (int i = 0; i < frusc; ++i)
                 frusv[i]->wire();
         }
-        ogl::binding::free_shadow_frame(i);
+        ogl::binding::free_shadow(i);
 
         // Apply the light transform.
 
@@ -1070,11 +1127,9 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
 
     const double *L = ::user->get_L();
 
-    light[0] = L[0] * 8192.0f;
-    light[1] = L[1] * 8192.0f;
-    light[2] = L[2] * 8192.0f;
-
-    ogl::binding::light(light);
+    light[0] = L[0];
+    light[1] = L[1];
+    light[2] = L[2];
 
     // Prep the fill geometry pool.
 
@@ -1148,7 +1203,6 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     draw_sky(frusp);
 
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);
-    if (::prog->get_option(3)) draw_debug_shadowmap();
 }
 
 void wrl::world::draw_line(int frusi, app::frustum *frusp)
@@ -1206,26 +1260,6 @@ void wrl::world::draw_sky(app::frustum *frusp)
     glDisable(GL_POLYGON_OFFSET_FILL);
 
     glUseProgramObjectARB(0);
-}
-
-void wrl::world::draw_debug_shadowmap()
-{
-    // Render the shadow buffer.
-
-    glUseProgramObjectARB(0);
-    glPushAttrib(GL_ENABLE_BIT);
-    {
-        glEnable(GL_TEXTURE_2D);
-        glDisable(GL_LIGHTING);
-        glDisable(GL_DEPTH_TEST);
-
-        glColor3f(1.0f, 1.0f, 1.0f);
-
-        ogl::binding::draw_shadow_color(0);
-        ogl::binding::draw_shadow_color(1);
-        ogl::binding::draw_shadow_color(2);
-    }
-    glPopAttrib();
 }
 
 void wrl::world::draw_debug_wireframe(int frusi)

@@ -2,25 +2,22 @@
 <program vert="glsl/irradiance-env.vert"
          frag="glsl/irradiance-env.frag" >
 
-  <sampler name="mat_diffuse"  unit="0" />
-  <sampler name="mat_specular" unit="1" />
-  <sampler name="mat_normal"   unit="2" />
+  <sampler name="diff_map"  unit="0" />
+  <sampler name="spec_map"  unit="1" />
+  <sampler name="norm_map"  unit="2" />
 
-  <sampler name="env_diffuse"  unit="3" proc="diffuse_irradiance" />
-  <sampler name="env_specular" unit="4" proc="specular_irradiance" />
+<!--
+  <sampler name="diff_env"  unit="3" />
+-->
+  <sampler name="spec_env"  unit="4" />
 
-  <sampler name="shadow[0]"    unit="5" proc="shadow" level="0" />
-  <sampler name="shadow[1]"    unit="6" proc="shadow" level="1" />
-  <sampler name="shadow[2]"    unit="7" proc="shadow" level="2" />
+  <sampler name="shadow[0]" unit="5" />
+  <sampler name="shadow[1]" unit="6" />
+  <sampler name="shadow[2]" unit="7" />
 
-  <uniform name="pssm_distance"   value="pssm_distance"   size="4"/>
-  <uniform name="proj_matrix"     value="proj_matrix"     size="16"/>
+  <uniform name="pssm_depth"      value="pssm_depth"      size="4"/>
   <uniform name="view_matrix"     value="view_matrix"     size="16"/>
   <uniform name="view_inverse"    value="view_inverse"    size="16"/>
-  <uniform name="lite_matrix"     value="lite_matrix"     size="16"/>
-  <uniform name="lite_inverse[0]" value="lite_inverse[0]" size="16"/>
-  <uniform name="lite_inverse[1]" value="lite_inverse[1]" size="16"/>
-  <uniform name="lite_inverse[2]" value="lite_inverse[2]" size="16"/>
 
   <attribute name="Tangent" location="6" />
 </program>

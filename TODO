@@ -1,3 +1,5 @@
+Convert shadow map texture matrices to named uniforms
+Optimize texture rebinding
 Normal map mipmap generation should NOT box-filter.
 Gsync?
 Excise frame::bind(proj) and frame::draw(int, int)

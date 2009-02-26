@@ -1,13 +1,14 @@
 
-uniform sampler2D       mat_diffuse;
-uniform sampler2D       mat_specular;
-uniform sampler2D       mat_normal;
-uniform samplerCube     env_diffuse;
-uniform sampler2DShadow shadow0;
-uniform sampler2DShadow shadow1;
-uniform sampler2DShadow shadow2;
+uniform sampler2D       diff_map;
+uniform sampler2D       spec_map;
+uniform sampler2D       norm_map;
+/*
+uniform samplerCube     diff_env;
+*/
+uniform samplerCube     spec_env;
+uniform sampler2DShadow shadow[3];
 
-uniform vec4 split;
+uniform vec4 pssm_depth;
 
 varying vec3 V_v;
 varying vec3 N_v;
@@ -32,18 +33,18 @@ void main()
 
     // Look up the material textures.
 
-    vec4  D_c = texture2D(mat_diffuse,  gl_TexCoord[0].xy);
-    vec4  S_c = texture2D(mat_specular, gl_TexCoord[0].xy);
-    vec3  N_c = texture2D(mat_normal,   gl_TexCoord[0].xy).rgb;
+    vec4 D_c = texture2D(diff_map, gl_TexCoord[0].xy);
+    vec4 S_c = texture2D(spec_map, gl_TexCoord[0].xy);
+    vec3 N_c = texture2D(norm_map, gl_TexCoord[0].xy).rgb;
 
     // Look up the shadow map textures.
 
-    float S0  = shadow(shadow0, gl_TexCoord[1]);
-    float S1  = shadow(shadow1, gl_TexCoord[2]);
-    float S2  = shadow(shadow2, gl_TexCoord[3]);
+    float S0 = shadow(shadow[0], gl_TexCoord[1]);
+    float S1 = shadow(shadow[1], gl_TexCoord[2]);
+    float S2 = shadow(shadow[2], gl_TexCoord[3]);
 
-    float s0 = step(split.z, gl_FragCoord.z);
-    float s1 = step(split.y, gl_FragCoord.z);
+    float s0 = step(pssm_depth.y, gl_FragCoord.z);
+    float s1 = step(pssm_depth.z, gl_FragCoord.z);
     float ss = mix(S0, mix(S1, S2, s1), s0);
 
     // Transform the fragment normal from tangent to world space.
@@ -54,6 +55,5 @@ void main()
 
     vec3 R = reflect(V_w, N);
 
-//  gl_FragColor = textureCube(env_diffuse, N);
-    gl_FragColor = textureCube(env_diffuse, R);
+    gl_FragColor = textureCube(spec_env, R);
 }

@@ -34,16 +34,17 @@ void ogl::uniform::set(const double *p)
 
 void ogl::uniform::apply(GLint location) const
 {
-    switch (len)
-    {
-    case  1: glUniform1fv(location, 1, val); break;
-    case  2: glUniform2fv(location, 1, val); break;
-    case  3: glUniform3fv(location, 1, val); break;
-    case  4: glUniform4fv(location, 1, val); break;
+    if (location >= 0)
+        switch (len)
+        {
+        case  1: glUniform1fv(location, 1, val); break;
+        case  2: glUniform2fv(location, 1, val); break;
+        case  3: glUniform3fv(location, 1, val); break;
+        case  4: glUniform4fv(location, 1, val); break;
 
-    case  9: glUniformMatrix3fv(location, 1, GL_FALSE, val); break;
-    case 16: glUniformMatrix4fv(location, 1, GL_FALSE, val); break;
-    }
+        case  9: glUniformMatrix3fv(location, 1, GL_FALSE, val); break;
+        case 16: glUniformMatrix4fv(location, 1, GL_FALSE, val); break;
+        }
 }
 
 //-----------------------------------------------------------------------------

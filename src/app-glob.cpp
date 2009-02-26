@@ -411,10 +411,10 @@ void app::glob::init()
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         ti->second.ptr->init();
-
+/*
     for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
         bi->second.ptr->init();
-
+*/
     std::set<ogl::pool  *>::iterator qi;
     std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
@@ -449,10 +449,10 @@ void app::glob::fini()
     std::map<std::string, binding>::iterator bi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, program>::iterator pi;
-
+/*
     for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
         bi->second.ptr->fini();
-
+*/
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         ti->second.ptr->fini();
 

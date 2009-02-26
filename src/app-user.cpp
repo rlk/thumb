@@ -93,7 +93,7 @@ void app::user::set(const double *p, const double *q, double t)
     {
         current_t = t;
 
-        double M[16], L[3] = { 0.0, 0.0, 1.0 };
+        double M[16], L[3] = { 0.0, 0.0, 8192.0 }; // HACK
 
         load_rot_mat(M, 1.0, 0.0, 0.0, 45.0);
         Rmul_rot_mat(M, 0.0, 1.0, 0.0, 360.0 * t / (24.0 * 60.0 * 60.0));

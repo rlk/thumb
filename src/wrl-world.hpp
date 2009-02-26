@@ -32,6 +32,7 @@ namespace ogl
     class node;
     class pool;
     class binding;
+    class uniform;
 }
 
 //-----------------------------------------------------------------------------
@@ -97,10 +98,15 @@ namespace wrl
 
         // ...
 
+        double split_coeff(int, int, double, double);
+        double split_depth(int, int, double, double);
+
+        ogl::uniform *uniform_light_position;
+        ogl::uniform *uniform_pssm_depth;
+
         void prep_env();
         void draw_sky(app::frustum *);
 
-        void draw_debug_shadowmap();
         void draw_debug_wireframe(int);
 
     public:

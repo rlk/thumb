@@ -1,8 +1,13 @@
 <?xml version="1.0"?>
 <material>
   <program mode="depth" file="object-depth.xml" />
-  <program mode="color" file="object-color.xml" />
-  <texture name="specular" file="default-specular.png" />
-  <texture name="diffuse"  file="default-diffuse.png" />
-  <texture name="normal"   file="default-normal.png" />
+
+  <program mode="color" file="object-color.xml">
+    <texture sampler="diff_map"  file="default-diffuse.png" />
+    <texture sampler="spec_map"  file="default-specular.png" />
+    <texture sampler="norm_map"  file="default-normal.png" />
+    <texture sampler="shadow[0]" proc="shadow" level="0" />
+    <texture sampler="shadow[1]" proc="shadow" level="1" />
+    <texture sampler="shadow[2]" proc="shadow" level="2" />
+  </program>
 </material>
