@@ -1,5 +1,16 @@
 Thumb features to consider
 
+   Add an oriented target object
+       Use the join mechanism to define paths
+           For cameras
+           For trains?
+       Joint parameters could define
+           hermite strength 
+           interpolation time
+
+   If ODE has a convex geom type, add it.
+       Document the caveats.
+
    Rewrite the GUI mechanism
        to use a glyph map instead of a wordmap
        to use VBOs instead of immediate mode
@@ -69,6 +80,10 @@ Thumb features to consider
 +       Be sure to allow for fallback
 
     Adaptive terrain
+        Make sure the terrain interacts well with the water
+            red extincts at 4.5 meters
+            green extincts at 70 meters
+            blue extincts at 300 meters
 
     Skinning
         Automatic generation of ODE capsules to fit bones
