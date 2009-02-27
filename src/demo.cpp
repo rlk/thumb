@@ -59,6 +59,7 @@ demo::demo(int w, int h) :
     uniform_light_position = ::glob->load_uniform("light_position", 3);
     uniform_view_matrix    = ::glob->load_uniform("view_matrix",   16);
     uniform_view_inverse   = ::glob->load_uniform("view_inverse",  16);
+    uniform_view_position  = ::glob->load_uniform("view_position",  3);
     uniform_time           = ::glob->load_uniform("time",           1);
 
     // Initialize attract mode.
@@ -91,6 +92,7 @@ demo::demo(int w, int h) :
 demo::~demo()
 {
     ::glob->free_uniform(uniform_time);
+    ::glob->free_uniform(uniform_view_position);
     ::glob->free_uniform(uniform_view_inverse);
     ::glob->free_uniform(uniform_view_matrix);
     ::glob->free_uniform(uniform_light_position);
@@ -315,6 +317,7 @@ ogl::range demo::prep(int frusc, app::frustum **frusv)
     uniform_light_position->set(::user->get_L());
     uniform_view_matrix   ->set(::user->get_I());
     uniform_view_inverse  ->set(::user->get_M());
+    uniform_view_position ->set(::user->get_M() + 12);
 
     uniform_time->set(&t);
 

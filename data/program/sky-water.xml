@@ -7,4 +7,5 @@
 
   <uniform name="light_position" value="light_position" size="3"/>
   <uniform name="time"           value="time"           size="1"/>
+  <uniform name="view_position"  value="view_position"  size="3"/>
 </program>

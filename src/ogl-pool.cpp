@@ -673,10 +673,6 @@ void ogl::pool::draw(int id, bool color, bool alpha)
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
         (*i)->draw(id, color, alpha);
 
-    // TODO: something smarter.
-
-    glUseProgramObjectARB(0);
-
     OGLCK();
 }
 

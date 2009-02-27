@@ -155,7 +155,7 @@ namespace ogl
     struct meshcmp
     {
         bool operator()(const mesh *m1, const mesh *m2) const {
-            return (m1->count_verts() > m2->count_verts());
+            return (m1->state() < m2->state());
         }
     };
 }

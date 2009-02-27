@@ -199,6 +199,19 @@ processes:
 
 -------------------------------------------------------------------------------
 
+passes
+    shadow0 fill depth opaque   1
+    shadow0 fill depth masked   0
+    shadow1 fill depth opaque   1
+    shadow1 fill depth masked   0
+    shadow2 fill depth opaque   1
+    shadow2 fill depth masked   0
+    fill color opaque           108
+    fill color masked           0
+    constraint                  0
+
+-------------------------------------------------------------------------------
+
 Input:
 
     The environment map

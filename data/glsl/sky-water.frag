@@ -7,17 +7,19 @@ varying vec3 V_v;
 varying vec3 L_v;
 
 uniform float time;
+uniform vec3  view_position;
 
 void main()
 {
     vec3 V = normalize(V_v);
     vec3 L = normalize(L_v);
 
-    // Compute water texture coordinates as seen from 5 meters up.
-
-    const float h = 5.0;
-    
-    vec2 t0 = V.xz * h / V.y;
+    // Compute water texture coordinates.
+/*
+    float h = view_position.y;
+    vec2 t0 = -view_position.xz + V.xz * view_position.y / V.y;
+*/
+    vec2 t0 = V.xz * 5.0 / V.y;
 
     vec2 t1 = 0.0600 * t0 + vec2(-0.01, -0.02) * time;
     vec2 t2 = 0.1300 * t0 + vec2( 0.01,  0.03) * time;
