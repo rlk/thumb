@@ -1098,8 +1098,10 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 /*
             glDisable(GL_POLYGON_OFFSET_FILL);
 */
+/*
             for (int i = 0; i < frusc; ++i)
                 frusv[i]->wire();
+*/
         }
         ogl::binding::free_shadow(i);
 
@@ -1260,8 +1262,6 @@ void wrl::world::draw_sky(app::frustum *frusp)
         glEnd();
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
-
-    glUseProgramObjectARB(0);
 }
 
 void wrl::world::draw_debug_wireframe(int frusi)

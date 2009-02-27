@@ -24,16 +24,14 @@
 
 bool ogl::has_depth_stencil;
 bool ogl::has_multitexture;
-bool ogl::has_shader;
+bool ogl::has_glsl;
 bool ogl::has_s3tc;
 bool ogl::has_fbo;
 bool ogl::has_vbo;
 bool ogl::has_dre;
 
-int  ogl::do_shadows;
+int  ogl::do_shadow;
 bool ogl::do_z_only;
-bool ogl::do_reflect;
-bool ogl::do_refract;
 bool ogl::do_texture_compression;
 bool ogl::do_hdr_tonemap;
 bool ogl::do_hdr_bloom;
@@ -216,31 +214,31 @@ static void sync(int interval)
 
 //-----------------------------------------------------------------------------
 
-void ogl::init()
+static void init_ext()
 {
     // Query GL capabilities.
 
-    has_depth_stencil = check_ext("EXT_packed_depth_stencil");
-    has_multitexture  = check_ext("ARB_multitexture");
-    has_shader        = check_ext("ARB_shader_objects");
-    has_shader       &= check_ext("ARB_vertex_shader");
-    has_shader       &= check_ext("ARB_fragment_shader");
-    has_s3tc          = check_ext("EXT_texture_compression_s3tc");
-    has_fbo           = check_ext("EXT_framebuffer_object");
-    has_vbo           = check_ext("ARB_vertex_buffer_object");
-    has_dre           = check_ext("EXT_draw_range_elements");
+    ogl::has_depth_stencil = ogl::check_ext("EXT_packed_depth_stencil");
+    ogl::has_multitexture  = ogl::check_ext("ARB_multitexture");
+    ogl::has_glsl          = ogl::check_ext("ARB_shader_objects");
+    ogl::has_glsl         &= ogl::check_ext("ARB_vertex_shader");
+    ogl::has_glsl         &= ogl::check_ext("ARB_fragment_shader");
+    ogl::has_s3tc          = ogl::check_ext("EXT_texture_compression_s3tc");
+    ogl::has_fbo           = ogl::check_ext("EXT_framebuffer_object");
+    ogl::has_vbo           = ogl::check_ext("ARB_vertex_buffer_object");
+    ogl::has_dre           = ogl::check_ext("EXT_draw_range_elements");
 
     // GL_ARB_multitexture
 
-    if (has_multitexture) try
+    if (ogl::has_multitexture) try
     {
         PROC(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
     }
-    catch (std::runtime_error& e) { has_multitexture = false; }
+    catch (std::runtime_error& e) { ogl::has_multitexture = false; }
 
     // GL_ARB_shader_objects
 
-    if (has_shader) try
+    if (ogl::has_glsl) try
     {
         PROC(PFNGLGETOBJECTPARAMETERIVARBPROC,   glGetObjectParameterivARB);
         PROC(PFNGLCREATEPROGRAMOBJECTARBPROC,    glCreateProgramObjectARB);
@@ -262,22 +260,22 @@ void ogl::init()
         PROC(PFNGLUNIFORM4FARBPROC,              glUniform4fARB);
         PROC(PFNGLUNIFORMMATRIX4FVARBPROC,       glUniformMatrix4fvARB);
     }
-    catch (std::runtime_error& e) { has_shader = false; }
+    catch (std::runtime_error& e) { ogl::has_glsl = false; }
         
     // GL_ARB_vertex_shader
 
-    if (has_shader) try
+    if (ogl::has_glsl) try
     {
         PROC(PFNGLDISABLEVERTEXATTRIBARRAYARBPROC,glDisableVertexAttribArrayARB);
         PROC(PFNGLENABLEVERTEXATTRIBARRAYARBPROC,glEnableVertexAttribArrayARB);
         PROC(PFNGLVERTEXATTRIBPOINTERARBPROC,    glVertexAttribPointerARB);
         PROC(PFNGLBINDATTRIBLOCATIONARBPROC,     glBindAttribLocationARB);
     }
-    catch (std::runtime_error& e) { has_shader = false; }
+    catch (std::runtime_error& e) { ogl::has_glsl = false; }
 
     // GL_EXT_framebuffer_object
 
-    if (has_fbo) try
+    if (ogl::has_fbo) try
     {
         PROC(PFNGLBINDRENDERBUFFEREXTPROC,       glBindRenderbufferEXT);
         PROC(PFNGLGENRENDERBUFFERSEXTPROC,       glGenRenderbuffersEXT);
@@ -291,11 +289,11 @@ void ogl::init()
         PROC(PFNGLFRAMEBUFFERRENDERBUFFEREXTPROC,glFramebufferRenderbufferEXT);
         PROC(PFNGLCHECKFRAMEBUFFERSTATUSEXTPROC, glCheckFramebufferStatusEXT);
     }
-    catch (std::runtime_error& e) { has_fbo = false; }
+    catch (std::runtime_error& e) { ogl::has_fbo = false; }
 
     // GL_ARB_vertex_buffer_object
 
-    if (has_vbo) try
+    if (ogl::has_vbo) try
     {
         PROC(PFNGLGENBUFFERSARBPROC,             glGenBuffersARB);
         PROC(PFNGLBINDBUFFERARBPROC,             glBindBufferARB);
@@ -305,59 +303,73 @@ void ogl::init()
         PROC(PFNGLBUFFERSUBDATAARBPROC,          glBufferSubDataARB);
         PROC(PFNGLDELETEBUFFERSARBPROC,          glDeleteBuffersARB);
     }
-    catch (std::runtime_error& e) { has_vbo = false; }
+    catch (std::runtime_error& e) { ogl::has_vbo = false; }
 
-    if (has_dre) try
+    // GL_EXT_draw_range_elements
+
+    if (ogl::has_dre) try
     {
         PROC(PFNGLDRAWRANGEELEMENTSEXTPROC,       glDrawRangeElementsEXT);
     }
-    catch (std::runtime_error&e) { has_dre = false; }
+    catch (std::runtime_error&e) { ogl::has_dre = false; }
+}
 
-    // GL_EXT_texture_compression_s3tc
+static void init_opt()
+{
+    std::string option;
 
-    if (has_s3tc && ::conf->get_i("texture_compression"))
-        do_texture_compression = true;
-    else
-        do_texture_compression = false;
+    ogl::do_shadow              = 0;
+    ogl::do_z_only              = false;
+    ogl::do_texture_compression = false;
+    ogl::do_hdr_tonemap         = false;
+    ogl::do_hdr_bloom           = false;
 
     // Configuration options
 
-    std::string option;
+    if (ogl::has_s3tc && ::conf->get_i("texture_compression"))
+        ogl::do_texture_compression = true;
 
-    if (has_fbo && has_shader)
+    if (ogl::has_fbo)
     {
-        // Shadowing
+        if (ogl::has_glsl)
+        {
+            // Shadowing
 
-        option = ::conf->get_s("shadow_method");
+            option = ::conf->get_s("shadow_method");
 
-        if (option == "map")  do_shadows = 1;
-        else                  do_shadows = 0;
+            if (option == "map")  ogl::do_shadow = 1;
 
-        do_reflect = (::conf->get_s("reflect") == "false") ? false : true;
-        do_refract = (::conf->get_s("refract") == "false") ? false : true;
+            // HDR
 
-        // HDR
+            ogl::do_hdr_tonemap = ::conf->get_i("hdr_tonemap");
+            ogl::do_hdr_bloom   = ::conf->get_i("hdr_bloom");
+        }
 
-        do_hdr_tonemap = ::conf->get_i("hdr_tonemap");
-        do_hdr_bloom   = ::conf->get_i("hdr_bloom");
-    }
-    else
-    {
-        do_shadows     = 0;
-        do_reflect     = false;
-        do_refract     = false;
-        do_hdr_tonemap = false;
-        do_hdr_bloom   = false;
+        // Z-only pass
+
+        ogl::do_z_only = ::conf->get_i("z_only");
     }
 
-    if (::conf->get_s("z_only") == "false")
-        do_z_only = false;
-    else
-        do_z_only = true;
-
-    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+    // Set vertical blanking synchronization state.
 
     sync(::conf->get_i("sync"));
+}
+
+static void init_state()
+{
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glEnableClientState(GL_NORMAL_ARRAY);
+    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+    glEnableVertexAttribArrayARB(6);
+}
+
+void ogl::init()
+{
+    init_ext();
+    init_opt();
+    init_state();
 }
 
 //-----------------------------------------------------------------------------
@@ -401,11 +413,7 @@ void ogl::line_state_init()
 
     glEnable(GL_BLEND);
     glEnable(GL_LINE_SMOOTH);
-    glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_POLYGON_OFFSET_LINE);
-
-    glDisable(GL_LIGHTING);
-    glDisable(GL_TEXTURE_2D);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE);

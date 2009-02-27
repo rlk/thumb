@@ -102,16 +102,14 @@ void ogl::program::bind() const
 {
     if (bindable)
     {
-        current = this;
         glUseProgramObjectARB(prog);
+        current = this;
         OGLCK();
     }
 }
 
 void ogl::program::free() const
 {
-    glUseProgramObjectARB(0);
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

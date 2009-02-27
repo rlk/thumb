@@ -37,7 +37,7 @@ bool ogl::binding::init_shadow()
 
     if (shadow.empty())
     {
-        if (ogl::do_shadows)
+        if (ogl::do_shadow)
         {
             int n = ::conf->get_i("shadow_map_splits");
             int s = ::conf->get_i("shadow_map_resolution");

@@ -11,9 +11,27 @@ namespace ogl
 {
     class frame
     {
-        static std::vector<GLuint> stack;
+        struct state
+        {
+            GLuint  o;
+            GLint   x;
+            GLint   y;
+            GLsizei w;
+            GLsizei h;
 
-        static void push(GLuint);
+            state(GLuint o, GLint x, GLint y, GLsizei w, GLsizei h)
+                : o(o), x(x), y(y), w(w), h(h) { }
+
+            void apply()
+            {
+                glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, o);
+                glViewport(x, y, w, h);
+            }
+        };
+
+        static std::vector<state> stack;
+
+        static void push(GLuint, GLint, GLint, GLsizei, GLsizei);
         static void pop();
 
         GLenum target;
@@ -47,11 +65,9 @@ namespace ogl
         void bind_depth(GLenum=GL_TEXTURE0) const;
         void free_depth(GLenum=GL_TEXTURE0) const;
 
-        virtual void bind(bool) const;
-        virtual void free(bool) const;
-
-        virtual void bind(int=0) const;
-        virtual void free()      const;
+        virtual void bind(int) const;
+        virtual void bind()    const;
+        virtual void free()    const;
 
         void draw(int, int) const;
         void draw()         const;

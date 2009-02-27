@@ -7,7 +7,7 @@
 // EXT_packed_depth_stencil.
 
 //-----------------------------------------------------------------------------
-
+/*
 std::vector<GLuint> ogl::frame::stack;
 
 void ogl::frame::push(GLuint o)
@@ -20,6 +20,21 @@ void ogl::frame::pop()
 {
     stack.pop_back();
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, stack.back());
+}
+*/
+
+std::vector<ogl::frame::state> ogl::frame::stack;
+
+void ogl::frame::push(GLuint o, GLint x, GLint y, GLsizei w, GLsizei h)
+{
+    stack.push_back(state(o, x, y, w, h));
+    stack.back().apply();
+}
+
+void ogl::frame::pop()
+{
+    stack.pop_back();
+    stack.back().apply();
 }
 
 //-----------------------------------------------------------------------------
@@ -37,7 +52,7 @@ ogl::frame::frame(GLsizei w, GLsizei h,
     w(w),
     h(h)
 {
-    if (stack.empty()) stack.push_back(0);
+    if (stack.empty()) stack.push_back(state(0, 0, 0, 0, 0));
 
     init();
 }
@@ -69,6 +84,7 @@ void ogl::frame::free_depth(GLenum unit) const
 
 //-----------------------------------------------------------------------------
 
+/*
 void ogl::frame::bind(bool proj) const
 {
     // Store the current viewport state.
@@ -118,14 +134,13 @@ void ogl::frame::free(bool proj) const
 
     OGLCK();
 }
+*/
 
 //-----------------------------------------------------------------------------
 
 void ogl::frame::bind(int target) const
 {
-    glPushAttrib(GL_VIEWPORT_BIT);
-
-    push(buffer);
+    push(buffer, 0, 0, w, h);
 
     // TODO: there's probably a smarter way to handle cube face switching.
 
@@ -133,17 +148,18 @@ void ogl::frame::bind(int target) const
         glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
                                   GL_COLOR_ATTACHMENT0_EXT,
                                   target, color, 0);
-    glViewport(0, 0, w, h);
+    OGLCK();
+}
 
+void ogl::frame::bind() const
+{
+    push(buffer, 0, 0, w, h);
     OGLCK();
 }
 
 void ogl::frame::free() const
 {
-    glPopAttrib();
-
     pop();
-
     OGLCK();
 }
 
@@ -364,7 +380,7 @@ void ogl::frame::init()
 
     glGenFramebuffersEXT(1, &buffer);
 
-    push(buffer);
+    push(buffer, 0, 0, w, h);
     {
         init_frame();
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);

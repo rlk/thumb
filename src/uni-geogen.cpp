@@ -580,7 +580,8 @@ void uni::geobuf::free_proc() const
 {
     calc->free();
 
-    dst->free(true);
+//  dst->free(true); HACK
+    dst->free();
     src->free_color();
 }
 
@@ -822,15 +823,19 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 
 void uni::geoacc::init(GLsizei c, double sea, const double *ori)
 {
-    dst->bind(true);
+//  dst->bind(true); TODO: set up the one-to-one MVP
+    dst->bind();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    dst->free(true);
+    dst->free();
+//  dst->free(true);
 
-    src->bind(true);
+//  src->bind(true);
+    src->bind();
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT);
-    src->free(true);
+    src->free();
+//  src->free(true);
 
     calc->bind();
     {
