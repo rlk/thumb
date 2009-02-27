@@ -1218,6 +1218,8 @@ void wrl::world::draw_line(int frusi, app::frustum *frusp)
 
             glColor3f(0.0f, 1.0f, 0.0f);
             dyna_node->draw(0, true, false);
+
+            glColor3f(1.0f, 1.0f, 1.0f);
         }
         line_pool->draw_fini();
     }

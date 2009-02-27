@@ -8,7 +8,7 @@ Figure out a good way for static bindings to init and fini.
 Document all engine features, with paper references, as necessary.
     pssm
     diffuse irradiance environment map [Hanrahan][King]
-    hdr [DebevecSG98]
+    hdr [DebevecSG98][Reinhard?]
 
 Cube map convolution!
     diffuse irradiance environment maps

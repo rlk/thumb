@@ -66,20 +66,11 @@ void ogl::image::zero()
 
 void ogl::image::bind(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, object);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
+    ogl::bind_texture(target, unit, object);
 }
 
 void ogl::image::free(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, 0);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
 }
 
 void ogl::image::draw() const
@@ -141,8 +132,6 @@ void ogl::image::init()
 
     bind();
     {
-        glBindTexture(target, object);
-
         glTexImage2D(target, 0, formint, w, h, 0, formext, type, p);
 
         glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

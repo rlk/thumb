@@ -153,7 +153,7 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
             // Initialize the texture object.
 
-            glBindTexture(target, object);
+            ogl::bind_texture(target, GL_TEXTURE0, object);
 
             if (target == GL_TEXTURE_2D)
             {
@@ -320,22 +320,11 @@ void ogl::texture::param_i(GLenum key, GLint val) const
 
 void ogl::texture::bind(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, object);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
-    OGLCK();
+    ogl::bind_texture(target, unit, object);
 }
 
 void ogl::texture::free(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, 0);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

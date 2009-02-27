@@ -51,38 +51,20 @@ ogl::frame::~frame()
 
 void ogl::frame::bind_color(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, color);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
+    ogl::bind_texture(target, unit, color);
 }
 
 void ogl::frame::free_color(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, 0);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
 }
 
 void ogl::frame::bind_depth(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, depth);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
+    ogl::bind_texture(target, unit, depth);
 }
 
 void ogl::frame::free_depth(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, 0);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
 }
 
 //-----------------------------------------------------------------------------
@@ -245,7 +227,7 @@ void ogl::frame::init_cube()
 {
      // Initialize the cube map color render buffer object.
 
-    glBindTexture(target, color);
+    ogl::bind_texture(target, 0, color);
 
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format,
                  w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -265,15 +247,13 @@ void ogl::frame::init_cube()
     glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_R,     GL_CLAMP_TO_EDGE);
-
-    glBindTexture(target, 0);
 }
 
 void ogl::frame::init_color()
 {
      // Initialize the color render buffer object.
 
-    glBindTexture(target, color);
+    ogl::bind_texture(target, 0, color);
 
     glTexImage2D(target, 0, format, w, h, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -282,15 +262,13 @@ void ogl::frame::init_color()
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
-
-    glBindTexture(target, 0);
 }
 
 void ogl::frame::init_depth()
 {
     // Initialize the depth and stencil render buffer objects.
 
-    glBindTexture(target, depth);
+    ogl::bind_texture(target, 0, depth);
 
 #ifdef GL_DEPTH_STENCIL_EXT
     if (has_stencil && ogl::has_depth_stencil)
@@ -308,8 +286,6 @@ void ogl::frame::init_depth()
 
     glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB,
                             GL_COMPARE_R_TO_TEXTURE_ARB);
-
-    glBindTexture(target, 0);
 }
 
 void ogl::frame::init_frame()

@@ -362,6 +362,39 @@ void ogl::init()
 
 //-----------------------------------------------------------------------------
 
+#define MAX_TEXTURE_UNITS 16
+
+static GLenum current_object[MAX_TEXTURE_UNITS];
+static GLenum current_unit = GL_TEXTURE0;
+
+void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
+{
+    // Bind a texture OBJECT to TARGET of texture UNIT with as little state
+    // change as possible.  If UNIT is zero, then use whatever is current.
+
+    int u = unit ? int(unit         - GL_TEXTURE0)
+                 : int(current_unit - GL_TEXTURE0);
+
+    if (current_object[u] != object)
+    {
+        current_object[u]  = object;
+
+        if (unit)
+        {
+            if (current_unit != unit)
+            {
+                current_unit  = unit;
+                glActiveTextureARB(unit);
+            }
+        }
+
+        glBindTexture(target, object);
+    }
+    OGLCK();
+}
+
+//-----------------------------------------------------------------------------
+
 void ogl::line_state_init()
 {
     // Set up for Z-offset anti-aliased line drawing.

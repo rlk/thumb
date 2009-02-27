@@ -55,22 +55,11 @@ void ogl::lut::blit(const GLvoid *P, GLsizei X, GLsizei W) const
 
 void ogl::lut::bind(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, object);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
-    OGLCK();
+    ogl::bind_texture(target, unit, object);
 }
 
 void ogl::lut::free(GLenum unit) const
 {
-    glActiveTextureARB(unit);
-    {
-        glBindTexture(target, 0);
-    }
-    glActiveTextureARB(GL_TEXTURE0);
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------
