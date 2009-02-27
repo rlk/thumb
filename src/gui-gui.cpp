@@ -1260,6 +1260,7 @@ void gui::dialog::draw() const
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glUseProgramObjectARB(0);
+            glActiveTextureARB(GL_TEXTURE0);
 
             root->draw(focus, input);
 /*

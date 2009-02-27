@@ -96,6 +96,13 @@ namespace wrl
 
         void doop(wrl::operation_p);
 
+        // Environment
+
+        ogl::pool *env_pool;
+        ogl::node *env_node[6];
+
+        void prep_env();
+
         // ...
 
         double split_coeff(int, int, double, double);
@@ -104,7 +111,6 @@ namespace wrl
         ogl::uniform *uniform_light_position;
         ogl::uniform *uniform_pssm_depth;
 
-        void prep_env();
         void draw_sky(app::frustum *);
 
         void draw_debug_wireframe(int);
