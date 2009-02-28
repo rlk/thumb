@@ -56,4 +56,5 @@ void main()
     vec3 R = reflect(V_w, N);
 
     gl_FragColor = textureCube(spec_env, R);
+//  gl_FragColor = textureCube(spec_env, N);
 }

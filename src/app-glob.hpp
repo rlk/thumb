@@ -92,7 +92,7 @@ namespace app
         const ogl::program *load_program(std::string);
         const ogl::texture *load_texture(std::string, std::string);
         const ogl::binding *load_binding(std::string, std::string);
-        const ogl::surface *load_surface(std::string);
+        const ogl::surface *load_surface(std::string, bool);
 
               ogl::uniform *dupe_uniform(      ogl::uniform *);
         const ogl::program *dupe_program(const ogl::program *);

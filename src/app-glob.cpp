@@ -285,11 +285,11 @@ void app::glob::free_binding(const ogl::binding *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::surface *app::glob::load_surface(std::string name)
+const ogl::surface *app::glob::load_surface(std::string name, bool center)
 {
     if (surface_map.find(name) == surface_map.end())
     {
-        surface_map[name].ptr = new ogl::surface(name);
+        surface_map[name].ptr = new ogl::surface(name, center);
         surface_map[name].ref = 1;
     }
     else   surface_map[name].ref++;
@@ -395,7 +395,8 @@ void app::glob::prep()
     std::map<std::string, program>::iterator pi;
     
     for (pi = program_map.begin(); pi != program_map.end(); ++pi)
-        pi->second.ptr->prep();
+        if (pi->second.ptr)
+            pi->second.ptr->prep();
 }
 
 void app::glob::init()

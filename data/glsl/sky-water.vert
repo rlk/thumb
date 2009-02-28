@@ -1,14 +1,13 @@
 
 varying vec3 V_v;
-varying vec3 L_v;
 
-uniform vec3  light_position;
 uniform float time;
 
 void main()
 {
-    V_v = normalize(gl_Normal.xyz);
-    L_v = normalize(light_position);
+    V_v = gl_Vertex.xyz;
 
-    gl_Position = gl_Vertex;
+    // Transform texture coordinates [0,1] to clip space coordinates [-1,+1].
+
+    gl_Position = vec4(gl_MultiTexCoord0.xy * 2.0 - 1.0, 1.0, 1.0);
 }

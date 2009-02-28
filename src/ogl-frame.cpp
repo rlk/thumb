@@ -383,7 +383,6 @@ void ogl::frame::init()
     push(buffer, 0, 0, w, h);
     {
         init_frame();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     }
     pop();
 

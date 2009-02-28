@@ -70,19 +70,19 @@ wrl::world::world() :
     env_node[4] = new ogl::node;
     env_node[5] = new ogl::node;
 
+    env_node[0]->add_unit(new ogl::unit("util/cube_face_negative_x.obj", false));
+    env_node[1]->add_unit(new ogl::unit("util/cube_face_positive_x.obj", false));
+    env_node[2]->add_unit(new ogl::unit("util/cube_face_negative_y.obj", false));
+    env_node[3]->add_unit(new ogl::unit("util/cube_face_positive_y.obj", false));
+    env_node[4]->add_unit(new ogl::unit("util/cube_face_negative_z.obj", false));
+    env_node[5]->add_unit(new ogl::unit("util/cube_face_positive_z.obj", false));
+
     env_pool->add_node(env_node[0]);
     env_pool->add_node(env_node[1]);
     env_pool->add_node(env_node[2]);
     env_pool->add_node(env_node[3]);
     env_pool->add_node(env_node[4]);
     env_pool->add_node(env_node[5]);
-
-    env_node[0]->add_unit(new ogl::unit("util/cube_face_negative_x.obj"));
-    env_node[1]->add_unit(new ogl::unit("util/cube_face_positive_x.obj"));
-    env_node[2]->add_unit(new ogl::unit("util/cube_face_negative_y.obj"));
-    env_node[3]->add_unit(new ogl::unit("util/cube_face_positive_y.obj"));
-    env_node[4]->add_unit(new ogl::unit("util/cube_face_negative_z.obj"));
-    env_node[5]->add_unit(new ogl::unit("util/cube_face_positive_z.obj"));
 
     // Initialize the uniforms.
 
@@ -999,15 +999,7 @@ double wrl::world::split_depth(int i, int m, double n, double f)
 
 void wrl::world::prep_env()
 {
-    static const GLenum target[] = {
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Z
-    };
-
+/*
     static const double n[8][3] = {
         { -1.0, -1.0, -1.0 }, // 0
         {  1.0, -1.0, -1.0 }, // 1
@@ -1027,22 +1019,46 @@ void wrl::world::prep_env()
         { 3, 2, 0, 1 },
         { 6, 7, 5, 4 },
     };
+*/
+    static const GLenum target[] = {
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Z
+    };
 
     sky->bind(true);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
+
+    env_pool->prep();
+    env_pool->draw_init();
     {
         for (int k = 0; k < 6; ++k)
         {
             if (ogl::binding::bind_irradiance(target[k]))
             {
+                env_node[k]->draw(0, true, false);
+                ogl::binding::free_irradiance();
+            }
+        }
+    }
+    env_pool->draw_fini();
+
+    glDisable(GL_POLYGON_OFFSET_FILL);
+
+    ogl::binding::prep_irradiance();
+
+/*
                 glBegin(GL_QUADS);
                 {
                     glNormal3dv(n[i[k][0]]); glVertex3d(-1, -1, +1);
                     glNormal3dv(n[i[k][1]]); glVertex3d(+1, -1, +1);
                     glNormal3dv(n[i[k][2]]); glVertex3d(+1, +1, +1);
                     glNormal3dv(n[i[k][3]]); glVertex3d(-1, +1, +1);
-/*
+
                     printf("# Cube face %d\n", k);
                     printf("v %2d %2d %2d\n",
                            int(n[i[k][0]][0]),
@@ -1066,17 +1082,9 @@ void wrl::world::prep_env()
                     printf("vt -1  1\n");
 
                     printf("f -4/-4/-1 -3/-3/-1 -2/-2/-1 -1/-1/-1\n");
-*/
                 }
                 glEnd();
-
-                ogl::binding::free_irradiance();
-            }
-        }
-    }
-    glDisable(GL_POLYGON_OFFSET_FILL);
-
-    ogl::binding::prep_irradiance();
+*/
 }
 
 void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
@@ -1301,14 +1309,14 @@ void wrl::world::draw_sky(app::frustum *frusp)
 
         glBegin(GL_QUADS);
         {
-            glNormal3d(v0[0] - vp[0], v0[1] - vp[1], v0[2] - vp[2]);
-            glVertex3d(-1, -1, +1);
-            glNormal3d(v1[0] - vp[0], v1[1] - vp[1], v1[2] - vp[2]);
-            glVertex3d(+1, -1, +1);
-            glNormal3d(v3[0] - vp[0], v3[1] - vp[1], v3[2] - vp[2]);
-            glVertex3d(+1, +1, +1);
-            glNormal3d(v2[0] - vp[0], v2[1] - vp[1], v2[2] - vp[2]);
-            glVertex3d(-1, +1, +1);
+            glTexCoord2d(0, 0);
+            glVertex3d(v0[0] - vp[0], v0[1] - vp[1], v0[2] - vp[2]);
+            glTexCoord2d(1, 0);
+            glVertex3d(v1[0] - vp[0], v1[1] - vp[1], v1[2] - vp[2]);
+            glTexCoord2d(1, 1);
+            glVertex3d(v3[0] - vp[0], v3[1] - vp[1], v3[2] - vp[2]);
+            glTexCoord2d(0, 1);
+            glVertex3d(v2[0] - vp[0], v2[1] - vp[1], v2[2] - vp[2]);
         }
         glEnd();
     }

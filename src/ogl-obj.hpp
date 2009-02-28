@@ -70,7 +70,7 @@ namespace obj
 
     public:
 
-        obj(std::string);
+        obj(std::string, bool);
        ~obj();
 
         // Mesh accessors

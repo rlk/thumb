@@ -31,7 +31,8 @@ namespace ogl
 
         const std::string& get_name() const { return name; }
 
-        surface(std::string name) : name(name), data(new obj::obj(name)) { }
+        surface(std::string name, bool center)
+            : name(name), data(new obj::obj(name, center)) { }
 
         // Mesh accessors
 

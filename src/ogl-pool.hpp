@@ -100,7 +100,7 @@ namespace ogl
 
     public:
 
-        unit(std::string);
+        unit(std::string, bool=true);
         unit(const unit&);
        ~unit();
 

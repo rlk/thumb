@@ -4,15 +4,15 @@ uniform sampler2D fill;
 uniform sampler2D norm;
 
 varying vec3 V_v;
-varying vec3 L_v;
 
 uniform float time;
 uniform vec3  view_position;
+uniform vec3  light_position;
 
 void main()
 {
     vec3 V = normalize(V_v);
-    vec3 L = normalize(L_v);
+    vec3 L = normalize(light_position);
 
     // Compute water texture coordinates.
 /*
@@ -59,5 +59,4 @@ void main()
     vec4 K = mix(Ko, Kf + Kg, f);
 
     gl_FragColor = vec4(K.rgb, Kf.a);
-//  gl_FragColor = vec4(vec3(f), 1.0);
 }

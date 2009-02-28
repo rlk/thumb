@@ -237,7 +237,7 @@ void obj::obj::read_vn(std::istream& lin, ogl::vec3_v& nv)
 
 //-----------------------------------------------------------------------------
 
-obj::obj::obj(std::string name)
+obj::obj::obj(std::string name, bool center)
 {
     // Initialize the input file.
 
@@ -283,18 +283,22 @@ obj::obj::obj(std::string name)
     for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
         (*i)->calc_tangent();
 
-    // Center the object.
+    // Optionally center the object about the origin.
 
-    ogl::aabb bound;
+    if (center)
+    {
+        ogl::aabb bound;
+        ogl::mesh_i i;
+        double c[3];
 
-    for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
-        (*i)->merge_bound(bound);
+        for (i = meshes.begin(); i != meshes.end(); ++i)
+            (*i)->merge_bound(bound);
 
-    double c[3];
-    bound.offset(c);
+        bound.offset(c);
 
-    for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
-        (*i)->apply_offset(c);
+        for (i = meshes.begin(); i != meshes.end(); ++i)
+            (*i)->apply_offset(c);
+    }
 }
 
 obj::obj::~obj()

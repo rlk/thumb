@@ -73,13 +73,13 @@ void ogl::elem::draw(bool color) const
 
 //=============================================================================
 
-ogl::unit::unit(std::string name) :
+ogl::unit::unit(std::string name, bool center) :
     vc(0),
     ec(0),
     my_node(0),
     rebuff(true),
     active(true),
-    surf(glob->load_surface(name))
+    surf(glob->load_surface(name, center))
 {
     load_idt(M);
     load_idt(I);
@@ -198,8 +198,8 @@ ogl::node::node() :
     vc(0), ec(0),
     rebuff(true),
     my_pool(0),
-    test_cache(0),
-    hint_cache(0)
+    test_cache(0xFFFFFFFF),
+    hint_cache(0x00000000)
 {
     load_idt(M);
 }
@@ -618,11 +618,8 @@ void ogl::pool::prep()
 
     // Unbind the VBO and EBO.
 
-    if (resort || rebuff)
-    {
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
-        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-    }
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
 
 ogl::range ogl::pool::view(int id, int n, const double *V)
