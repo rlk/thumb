@@ -4,16 +4,18 @@
   </program>
 
   <program mode="color" file="irradiance-env.xml">
-    <texture sampler="spec_map"  file="highly-specular.png" />
-    <texture sampler="diff_map"  file="teapot-diffuse.png" />
-    <texture sampler="norm_map"  file="default-normal.png" />
+    <texture sampler="spec_map"  name="highly-specular.png" />
+    <texture sampler="diff_map"  name="teapot-diffuse.png" />
+    <texture sampler="norm_map"  name="default-normal.png" />
 <!--
-    <texture sampler="diff_env"  proc="diff_irradiance" />
+    <texture sampler="diff_env"  name="diff_irradiance" />
+    <texture sampler="spec_env"  name="spec_irradiance" />
 -->
-    <texture sampler="spec_env"  proc="spec_irradiance" />
-
+    <process sampler="spec_env"  name="d_omega" />
+<!--
     <texture sampler="shadow[0]" proc="shadow" level="0" />
     <texture sampler="shadow[1]" proc="shadow" level="1" />
     <texture sampler="shadow[2]" proc="shadow" level="2" />
+-->
   </program>
 </material>

@@ -1,3 +1,15 @@
+//  Copyright (C) 2009 Robert Kooima
+//
+//  THUMB is free software; you can redistribute it and/or modify it under
+//  the terms of  the GNU General Public License as  published by the Free
+//  Software  Foundation;  either version 2  of the  License,  or (at your
+//  option) any later version.
+//
+//  This program  is distributed in the  hope that it will  be useful, but
+//  WITHOUT   ANY  WARRANTY;   without  even   the  implied   warranty  of
+//  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
+//  General Public License for more details.
+
 #include <stdexcept>
 
 #include "ogl-frame.hpp"
@@ -7,21 +19,6 @@
 // EXT_packed_depth_stencil.
 
 //-----------------------------------------------------------------------------
-/*
-std::vector<GLuint> ogl::frame::stack;
-
-void ogl::frame::push(GLuint o)
-{
-    stack.push_back(o);
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, stack.back());
-}
-
-void ogl::frame::pop()
-{
-    stack.pop_back();
-    glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, stack.back());
-}
-*/
 
 std::vector<ogl::frame::state> ogl::frame::stack;
 
@@ -52,7 +49,16 @@ ogl::frame::frame(GLsizei w, GLsizei h,
     w(w),
     h(h)
 {
-    if (stack.empty()) stack.push_back(state(0, 0, 0, 0, 0));
+    // If this is the first frame buffer, initialize the frame buffer stack
+    // with the on-screen frame buffer (FBO 0) and the current viewport.
+
+    if (stack.empty())
+    {
+        GLint v[4];
+
+        glGetIntegerv(GL_VIEWPORT, v);
+        stack.push_back(state(0, v[0], v[1], v[2], v[3]));
+    }
 
     init();
 }
@@ -84,60 +90,6 @@ void ogl::frame::free_depth(GLenum unit) const
 
 //-----------------------------------------------------------------------------
 
-/*
-void ogl::frame::bind(bool proj) const
-{
-    // Store the current viewport state.
-
-    glPushAttrib(GL_VIEWPORT_BIT);
-
-    // Enable this framebuffer object's state.
-
-    push(buffer);
-
-    glViewport(0, 0, w, h);
-
-    // Set up a one-to-one model-view-projection transformation, if requested.
-
-    if (proj)
-    {
-        glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
-        glLoadIdentity();
-        glOrtho(0, w, 0, h, 0, 1);
-
-        glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
-        glLoadIdentity();
-    }
-    OGLCK();
-}
-
-void ogl::frame::free(bool proj) const
-{
-    // Restore the previous transformation, if requested.
-
-    if (proj)
-    {
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
-    }
-
-    // Restore the previous viewport and bind the default frame buffer.
-
-    glPopAttrib();
-
-    pop();
-
-    OGLCK();
-}
-*/
-
-//-----------------------------------------------------------------------------
-
 void ogl::frame::bind(int target) const
 {
     push(buffer, 0, 0, w, h);
@@ -161,80 +113,6 @@ void ogl::frame::free() const
 {
     pop();
     OGLCK();
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::frame::draw(int i, int n) const
-{
-    GLfloat k =  2.0f / n;
-
-    GLfloat l = -1.0f + (i    ) * k;
-    GLfloat r = -1.0f + (i + 1) * k;
-    GLfloat b = -1.0f;
-    GLfloat t = -1.0f + k;
-
-    bind_color(GL_TEXTURE0);
-    {
-        glMatrixMode(GL_PROJECTION);
-        {
-            glPushMatrix();
-            glLoadIdentity();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glPushMatrix();
-            glLoadIdentity();
-        }
-
-        glBegin(GL_QUADS);
-        {
-            glTexCoord2f(0.0f, 0.0f); glVertex2f(l, b);
-            glTexCoord2f(1.0f, 0.0f); glVertex2f(r, b);
-            glTexCoord2f(1.0f, 1.0f); glVertex2f(r, t);
-            glTexCoord2f(0.0f, 1.0f); glVertex2f(l, t);
-        }
-        glEnd();
-
-        glMatrixMode(GL_PROJECTION);
-        {
-            glPopMatrix();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glPopMatrix();
-        }
-    }
-    free_color(GL_TEXTURE0);
-}
-
-void ogl::frame::draw() const
-{
-    bind_color(GL_TEXTURE0);
-    {
-        glMatrixMode(GL_PROJECTION);
-        {
-            glPushMatrix();
-            glLoadIdentity();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glPushMatrix();
-            glLoadIdentity();
-        }
-
-        glRecti(-1, -1, +1, +1);
-
-        glMatrixMode(GL_PROJECTION);
-        {
-            glPopMatrix();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glPopMatrix();
-        }
-    }
-    free_color(GL_TEXTURE0);
 }
 
 //-----------------------------------------------------------------------------

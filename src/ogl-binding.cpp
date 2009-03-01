@@ -17,17 +17,16 @@
 #include "app-conf.hpp"
 #include "app-glob.hpp"
 #include "app-serial.hpp"
+#include "ogl-pool.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-texture.hpp"
+#include "ogl-process.hpp"
 #include "ogl-program.hpp"
 #include "ogl-binding.hpp"
 
 //-----------------------------------------------------------------------------
 
 std::vector<ogl::frame *> ogl::binding::shadow;
-
-ogl::frame *ogl::binding::diff_irradiance = 0;
-ogl::frame *ogl::binding::spec_irradiance = 0;
 
 //-----------------------------------------------------------------------------
 
@@ -78,7 +77,7 @@ void ogl::binding::free_shadow(int i)
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 bool ogl::binding::init_irradiance()
 {
     // Initialize the irradiance maps if necessary.
@@ -86,42 +85,39 @@ bool ogl::binding::init_irradiance()
     if (spec_irradiance == 0)
         spec_irradiance = ::glob->new_frame(256, 256, GL_TEXTURE_CUBE_MAP,
                                             GL_RGBA8, true, false, false);
+    if (omega == 0)
+    {
+        omega           = ::glob->new_frame(256, 256, GL_TEXTURE_CUBE_MAP,
+                                            GL_RGBA8, true, false, false);
+        
+    }
 
     return (spec_irradiance != 0);
 }
 
-bool ogl::binding::bind_irradiance(int target)
+void ogl::binding::prep_irradiance(const ogl::program *prog)
 {
-    if (spec_irradiance)
-        spec_irradiance->bind(target);
+    // Compute the specular cube map by evaluating the given program.
 
-    return spec_irradiance;
+    proc_cube(prog, spec_irradiance);
 }
-
-void ogl::binding::free_irradiance()
-{
-    if (spec_irradiance)
-        spec_irradiance->free();
-}
-
-void ogl::binding::prep_irradiance()
-{
-}
+*/
 
 //-----------------------------------------------------------------------------
 
 const ogl::program *ogl::binding::init_program(app::node node,
                                                unit_texture& texture,
+                                               unit_process& process,
                                                unit_frame&   c_frame,
                                                unit_frame&   d_frame)
 {
-    const char         *name = 0;
+    const char         *file = 0;
     const ogl::program *prog = 0;
 
     // Load the program.
 
-    if ((name = app::get_attr_s(node, "file", 0)) &&
-        (prog = glob->load_program(std::string(name))))
+    if ((file = app::get_attr_s(node, "file", 0)) &&
+        (prog = glob->load_program(std::string(file))))
     {
         // Load all textures.
 
@@ -130,37 +126,35 @@ const ogl::program *ogl::binding::init_program(app::node node,
         for (curr = app::find(node,       "texture"); curr;
              curr = app::next(node, curr, "texture"))
         {
-            // Determine the sampler name.
+            // Determine the sampler and image file names.
 
             std::string sampler(app::get_attr_s(curr, "sampler"));
+            std::string name   (app::get_attr_s(curr, "name"));
 
             // Determine the texture unit binding for this sampler.
 
             if (GLenum unit = prog->unit(sampler))
             {
-                // Handle an image file texture.
+                std::string fail = "default-" + sampler + ".png";
+                texture[unit] = ::glob->load_texture(name, fail);
+            }
+        }
 
-                if (const char *s = app::get_attr_s(curr, "file"))
-                {
-                    std::string file(s);
-                    std::string fail = "default-" + sampler + ".png";
+        // Load all processes.
 
-                    texture[unit] = ::glob->load_texture(file, fail);
-                }
+        for (curr = app::find(node,       "process"); curr;
+             curr = app::next(node, curr, "process"))
+        {
+            // Determine the sampler and image file names.
 
-                // Handle a procedural texture.
-                
-                if (const char *s = app::get_attr_s(curr, "proc"))
-                {
-                    std::string proc(s);
+            std::string sampler(app::get_attr_s(curr, "sampler"));
+            std::string name   (app::get_attr_s(curr, "name"));
 
-                    if (proc == "diff_irradiance")
-                        c_frame[unit] = diff_irradiance;
-                    if (proc == "spec_irradiance")
-                        c_frame[unit] = spec_irradiance;
-                    if (proc == "shadow")
-                        d_frame[unit] = shadow[app::get_attr_d(curr, "level")];
-                }
+            // Determine the texture unit binding for this sampler.
+
+            if (GLenum unit = prog->unit(sampler))
+            {
+                process[unit] = ::glob->load_process(name);
             }
         }
     }
@@ -181,7 +175,6 @@ ogl::binding::binding(std::string name) :
     // Initialize the shared procedural materials, if necessary.
 
     init_shadow();
-    init_irradiance();
 
     // Load the local material bindings.
 
@@ -191,6 +184,7 @@ ogl::binding::binding(std::string name) :
 
         if ((node = app::find(root, "program", "mode", "depth")))
             depth_program = init_program(node, depth_texture,
+                                               depth_process,
                                                depth_c_frame,
                                                depth_d_frame);
 
@@ -198,6 +192,7 @@ ogl::binding::binding(std::string name) :
 
         if ((node = app::find(root, "program", "mode", "color")))
             color_program = init_program(node, color_texture,
+                                               color_process,
                                                color_c_frame,
                                                color_d_frame);
     }
@@ -217,6 +212,19 @@ ogl::binding::~binding()
 
     color_texture.clear();
     depth_texture.clear();
+
+    // Free all processes.
+    
+    unit_process::iterator j;
+
+    for (j = color_process.begin(); j != color_process.end(); ++j)
+        ::glob->free_process(j->second);
+
+    for (j = depth_process.begin(); j != depth_process.end(); ++j)
+        ::glob->free_process(j->second);
+
+    color_process.clear();
+    depth_process.clear();
 
     // TODO: Free all frames. They are statically owned by the bindings.
     // This may be an argument for the process object as a frame abstraction.
@@ -317,6 +325,7 @@ bool ogl::binding::bind(bool c) const
     // TODO: Minimize rebindings
 
     unit_texture::const_iterator ti;
+    unit_process::const_iterator pi;
     unit_frame  ::const_iterator fi;
 
     if (c)
@@ -329,6 +338,9 @@ bool ogl::binding::bind(bool c) const
 
             for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
                 ti->second->bind(ti->first);
+
+            for (pi = color_process.begin(); pi != color_process.end(); ++pi)
+                pi->second->bind(pi->first);
 
             for (fi = color_c_frame.begin(); fi != color_c_frame.end(); ++fi)
                 fi->second->bind_color(fi->first);
@@ -347,6 +359,9 @@ bool ogl::binding::bind(bool c) const
 
             for (ti = depth_texture.begin(); ti != depth_texture.end(); ++ti)
                 ti->second->bind(ti->first);
+            
+            for (pi = depth_process.begin(); pi != depth_process.end(); ++pi)
+                pi->second->bind(pi->first);
             
             for (fi = depth_c_frame.begin(); fi != depth_c_frame.end(); ++fi)
                 fi->second->bind_depth(fi->first);

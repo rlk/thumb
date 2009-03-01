@@ -96,13 +96,6 @@ namespace wrl
 
         void doop(wrl::operation_p);
 
-        // Environment
-
-        ogl::pool *env_pool;
-        ogl::node *env_node[6];
-
-        void prep_env();
-
         // ...
 
         double split_coeff(int, int, double, double);

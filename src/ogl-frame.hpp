@@ -31,6 +31,8 @@ namespace ogl
 
         static std::vector<state> stack;
 
+    protected:
+
         static void push(GLuint, GLint, GLint, GLsizei, GLsizei);
         static void pop();
 
@@ -69,11 +71,8 @@ namespace ogl
         virtual void bind()    const;
         virtual void free()    const;
 
-        void draw(int, int) const;
-        void draw()         const;
-
-        void init();
-        void fini();
+        virtual void init();
+        virtual void fini();
 
         GLsizei get_w() const { return w; }
         GLsizei get_h() const { return h; }

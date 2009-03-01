@@ -1,0 +1,118 @@
+//  Copyright (C) 2009 Robert Kooima
+//
+//  THUMB is free software; you can redistribute it and/or modify it under
+//  the terms of  the GNU General Public License as  published by the Free
+//  Software  Foundation;  either version 2  of the  License,  or (at your
+//  option) any later version.
+//
+//  This program  is distributed in the  hope that it will  be useful, but
+//  WITHOUT   ANY  WARRANTY;   without  even   the  implied   warranty  of
+//  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
+//  General Public License for more details.
+
+#include "app-glob.hpp"
+#include "ogl-pool.hpp"
+#include "ogl-frame.hpp"
+#include "ogl-binding.hpp"
+#include "ogl-process.hpp"
+
+//-----------------------------------------------------------------------------
+
+ogl::pool *ogl::process::cube_pool = 0;
+ogl::node *ogl::process::cube_node[6];
+
+//-----------------------------------------------------------------------------
+
+ogl::process::process()
+{
+    init_cube();
+}
+
+ogl::process::~process()
+{
+    fini_cube();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::process::init_cube()
+{
+    static const char *cube_file[] = {
+        "util/cube_face_negative_x.obj",
+        "util/cube_face_positive_x.obj",
+        "util/cube_face_negative_y.obj",
+        "util/cube_face_positive_y.obj",
+        "util/cube_face_negative_z.obj",
+        "util/cube_face_positive_z.obj"
+    };
+
+    if (cube_pool == 0)
+    {
+        cube_pool = ::glob->new_pool();
+
+        cube_node[0] = new ogl::node;
+        cube_node[1] = new ogl::node;
+        cube_node[2] = new ogl::node;
+        cube_node[3] = new ogl::node;
+        cube_node[4] = new ogl::node;
+        cube_node[5] = new ogl::node;
+
+        cube_node[0]->add_unit(new ogl::unit(cube_file[0], false));
+        cube_node[1]->add_unit(new ogl::unit(cube_file[1], false));
+        cube_node[2]->add_unit(new ogl::unit(cube_file[2], false));
+        cube_node[3]->add_unit(new ogl::unit(cube_file[3], false));
+        cube_node[4]->add_unit(new ogl::unit(cube_file[4], false));
+        cube_node[5]->add_unit(new ogl::unit(cube_file[5], false));
+
+        cube_pool->add_node(cube_node[0]);
+        cube_pool->add_node(cube_node[1]);
+        cube_pool->add_node(cube_node[2]);
+        cube_pool->add_node(cube_node[3]);
+        cube_pool->add_node(cube_node[4]);
+        cube_pool->add_node(cube_node[5]);
+    }
+}
+
+void ogl::process::fini_cube()
+{
+    ::glob->free_pool(cube_pool);
+}
+
+void ogl::process::proc_cube(const ogl::binding *bind,
+                                   ogl::frame   *cube)
+{
+    static const GLenum target[] = {
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+        GL_TEXTURE_CUBE_MAP_POSITIVE_Z
+    };
+
+    // Apply the given binding to all faces of the given cube map.
+
+    if (bind->bind(true))
+    {
+        cube_pool->prep();
+        cube_pool->draw_init();
+        {
+            glEnable(GL_POLYGON_OFFSET_FILL);
+            {
+                glPolygonOffset(0.0, -1.0f);
+
+                for (int k = 0; k < 6; ++k)
+                {
+                    cube->bind(target[k]);
+                    cube_node[k]->draw(0, true, false);
+                    cube->free();
+                }
+            }
+            glDisable(GL_POLYGON_OFFSET_FILL);
+        }
+        cube_pool->draw_fini();
+    }
+}
+
+//-----------------------------------------------------------------------------
+

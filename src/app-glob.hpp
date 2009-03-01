@@ -25,6 +25,7 @@ namespace ogl
 {
     class uniform;
     class program;
+    class process;
     class texture;
     class binding;
     class surface;
@@ -51,6 +52,12 @@ namespace app
             int           ref;
         };
 
+        struct process
+        {
+            ogl::process *ptr;
+            int           ref;
+        };
+
         struct texture
         {
             ogl::texture *ptr;
@@ -71,6 +78,7 @@ namespace app
 
         std::map<std::string, uniform> uniform_map;
         std::map<std::string, program> program_map;
+        std::map<std::string, process> process_map;
         std::map<std::string, texture> texture_map;
         std::map<std::string, binding> binding_map;
         std::map<std::string, surface> surface_map;
@@ -90,24 +98,28 @@ namespace app
 
               ogl::uniform *load_uniform(std::string, GLsizei);
         const ogl::program *load_program(std::string);
+        const ogl::process *load_process(std::string);
         const ogl::texture *load_texture(std::string, std::string);
         const ogl::binding *load_binding(std::string, std::string);
         const ogl::surface *load_surface(std::string, bool);
 
               ogl::uniform *dupe_uniform(      ogl::uniform *);
         const ogl::program *dupe_program(const ogl::program *);
+        const ogl::process *dupe_process(const ogl::process *);
         const ogl::texture *dupe_texture(const ogl::texture *);
         const ogl::binding *dupe_binding(const ogl::binding *);
         const ogl::surface *dupe_surface(const ogl::surface *);
 
         void free_uniform(std::string);
         void free_program(std::string);
+        void free_process(std::string);
         void free_texture(std::string);
         void free_binding(std::string);
         void free_surface(std::string);
 
         void free_uniform(      ogl::uniform *);
         void free_program(const ogl::program *);
+        void free_process(const ogl::process *);
         void free_texture(const ogl::texture *);
         void free_binding(const ogl::binding *);
         void free_surface(const ogl::surface *);

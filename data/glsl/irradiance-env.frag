@@ -8,6 +8,10 @@ uniform samplerCube     diff_env;
 uniform samplerCube     spec_env;
 uniform sampler2DShadow shadow[3];
 
+uniform mat4 irradiance_R;
+uniform mat4 irradiance_G;
+uniform mat4 irradiance_B;
+
 uniform vec4 pssm_depth;
 
 varying vec3 V_v;
@@ -55,6 +59,14 @@ void main()
 
     vec3 R = reflect(V_w, N);
 
-    gl_FragColor = textureCube(spec_env, R);
-//  gl_FragColor = textureCube(spec_env, N);
+//  gl_FragColor = textureCube(spec_env, R);
+    gl_FragColor = textureCube(spec_env, N);
+
+/*
+    vec4 T = vec4(normalize(N), 1.0);
+
+    gl_FragColor = vec4(dot(T, irradiance_R * T),
+                        dot(T, irradiance_G * T),
+                        dot(T, irradiance_B * T), 1.0);
+*/
 }

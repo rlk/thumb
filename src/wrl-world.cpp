@@ -59,31 +59,6 @@ wrl::world::world() :
     line_pool->add_node(stat_node);
     line_pool->add_node(dyna_node);
 
-    // Initialize the environment pool.
-
-    env_pool = ::glob->new_pool();
-
-    env_node[0] = new ogl::node;
-    env_node[1] = new ogl::node;
-    env_node[2] = new ogl::node;
-    env_node[3] = new ogl::node;
-    env_node[4] = new ogl::node;
-    env_node[5] = new ogl::node;
-
-    env_node[0]->add_unit(new ogl::unit("util/cube_face_negative_x.obj", false));
-    env_node[1]->add_unit(new ogl::unit("util/cube_face_positive_x.obj", false));
-    env_node[2]->add_unit(new ogl::unit("util/cube_face_negative_y.obj", false));
-    env_node[3]->add_unit(new ogl::unit("util/cube_face_positive_y.obj", false));
-    env_node[4]->add_unit(new ogl::unit("util/cube_face_negative_z.obj", false));
-    env_node[5]->add_unit(new ogl::unit("util/cube_face_positive_z.obj", false));
-
-    env_pool->add_node(env_node[0]);
-    env_pool->add_node(env_node[1]);
-    env_pool->add_node(env_node[2]);
-    env_pool->add_node(env_node[3]);
-    env_pool->add_node(env_node[4]);
-    env_pool->add_node(env_node[5]);
-
     // Initialize the uniforms.
 
     uniform_light_position = ::glob->load_uniform("light_position", 3);
@@ -124,7 +99,6 @@ wrl::world::~world()
 
     // Finalize the render pools.
 
-    ::glob->free_pool( env_pool);
     ::glob->free_pool(fill_pool);
     ::glob->free_pool(line_pool);
 }
@@ -997,96 +971,6 @@ double wrl::world::split_depth(int i, int m, double n, double f)
     return (1 - n / c) * f / (f - n);
 }
 
-void wrl::world::prep_env()
-{
-/*
-    static const double n[8][3] = {
-        { -1.0, -1.0, -1.0 }, // 0
-        {  1.0, -1.0, -1.0 }, // 1
-        { -1.0,  1.0, -1.0 }, // 2
-        {  1.0,  1.0, -1.0 }, // 3
-        { -1.0, -1.0,  1.0 }, // 4
-        {  1.0, -1.0,  1.0 }, // 5
-        { -1.0,  1.0,  1.0 }, // 6
-        {  1.0,  1.0,  1.0 }  // 7
-    };
-
-    static const int i[6][4] = {
-        { 2, 6, 4, 0 },
-        { 7, 3, 1, 5 },
-        { 4, 5, 1, 0 },
-        { 2, 3, 7, 6 },
-        { 3, 2, 0, 1 },
-        { 6, 7, 5, 4 },
-    };
-*/
-    static const GLenum target[] = {
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_X,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
-        GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
-        GL_TEXTURE_CUBE_MAP_POSITIVE_Z
-    };
-
-    sky->bind(true);
-
-    glEnable(GL_POLYGON_OFFSET_FILL);
-
-    env_pool->prep();
-    env_pool->draw_init();
-    {
-        for (int k = 0; k < 6; ++k)
-        {
-            if (ogl::binding::bind_irradiance(target[k]))
-            {
-                env_node[k]->draw(0, true, false);
-                ogl::binding::free_irradiance();
-            }
-        }
-    }
-    env_pool->draw_fini();
-
-    glDisable(GL_POLYGON_OFFSET_FILL);
-
-    ogl::binding::prep_irradiance();
-
-/*
-                glBegin(GL_QUADS);
-                {
-                    glNormal3dv(n[i[k][0]]); glVertex3d(-1, -1, +1);
-                    glNormal3dv(n[i[k][1]]); glVertex3d(+1, -1, +1);
-                    glNormal3dv(n[i[k][2]]); glVertex3d(+1, +1, +1);
-                    glNormal3dv(n[i[k][3]]); glVertex3d(-1, +1, +1);
-
-                    printf("# Cube face %d\n", k);
-                    printf("v %2d %2d %2d\n",
-                           int(n[i[k][0]][0]),
-                           int(n[i[k][0]][1]),
-                           int(n[i[k][0]][2]));
-                    printf("v %2d %2d %2d\n",
-                           int(n[i[k][1]][0]),
-                           int(n[i[k][1]][1]),
-                           int(n[i[k][1]][2]));
-                    printf("v %2d %2d %2d\n",
-                           int(n[i[k][2]][0]),
-                           int(n[i[k][2]][1]),
-                           int(n[i[k][2]][2]));
-                    printf("v %2d %2d %2d\n",
-                           int(n[i[k][3]][0]),
-                           int(n[i[k][3]][1]),
-                           int(n[i[k][3]][2]));
-                    printf("vt -1 -1\n");
-                    printf("vt  1 -1\n");
-                    printf("vt  1  1\n");
-                    printf("vt -1  1\n");
-
-                    printf("f -4/-4/-1 -3/-3/-1 -2/-2/-1 -1/-1/-1\n");
-                }
-                glEnd();
-*/
-}
-
 void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 {
     double lite_M[16];
@@ -1209,7 +1093,11 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
         frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
 
     prep_lite(frusc, frusv, r);
-    prep_env();
+
+    // Ask the binding system to compute the irradiance environment using
+    // the sky shader.
+
+//  ogl::binding::prep_irradiance(sky);
 
     return r;
 }

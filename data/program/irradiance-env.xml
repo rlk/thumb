@@ -18,6 +18,9 @@
   <uniform name="pssm_depth"      value="pssm_depth"      size="4"/>
   <uniform name="view_matrix"     value="view_matrix"     size="16"/>
   <uniform name="view_inverse"    value="view_inverse"    size="16"/>
+  <uniform name="irradiance_R"    value="irradiance_R"    size="16"/>
+  <uniform name="irradiance_G"    value="irradiance_G"    size="16"/>
+  <uniform name="irradiance_B"    value="irradiance_B"    size="16"/>
 
   <attribute name="Tangent" location="6" />
 </program>

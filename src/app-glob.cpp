@@ -12,16 +12,22 @@
 
 #include <stdexcept>
 #include <iostream>
+/*
+#include "ogl-spec-irradiance.hpp"
+#include "ogl-diff-irradiance.hpp"
+*/
+#include "ogl-d-omega.hpp"
 
-#include "default.hpp"
 #include "ogl-uniform.hpp"
 #include "ogl-program.hpp"
 #include "ogl-texture.hpp"
 #include "ogl-binding.hpp"
 #include "ogl-surface.hpp"
+
 #include "ogl-image.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-pool.hpp"
+
 #include "app-glob.hpp"
 
 // TODO: Template some of this repetition?
@@ -167,6 +173,62 @@ void app::glob::free_program(std::string name)
 void app::glob::free_program(const ogl::program *p)
 {
     if (p) free_program(p->get_name());
+}
+
+//-----------------------------------------------------------------------------
+
+const ogl::process *app::glob::load_process(std::string name)
+{
+    if (process_map.find(name) == process_map.end())
+    {
+        ogl::process *ptr = 0;
+/*
+        if      (name == "spec_irradiance") ptr = new ogl::spec_irradiance();
+        else if (name == "diff_irradiance") ptr = new ogl::diff_irradiance();
+        else if (name == "d_omega")         ptr = new ogl::d_omega();
+*/
+        if (name == "d_omega")         ptr = new ogl::d_omega();
+        if (ptr)
+        {
+            process_map[name].ptr = ptr;
+            process_map[name].ref = 1;
+        }
+    }
+    else   process_map[name].ref++;
+
+    return process_map[name].ptr;
+}
+
+const ogl::process *app::glob::dupe_process(const ogl::process *p)
+{
+    if (p)
+    {
+        const std::string& name = p->get_name();
+
+        if (process_map.find(name) != process_map.end())
+        {
+            process_map[name].ref++;
+            return process_map[name].ptr;
+        }
+    }
+    return 0;
+}
+
+void app::glob::free_process(std::string name)
+{
+    if (process_map.find(name) != process_map.end())
+    {
+        if (--process_map[name].ref == 0)
+        {
+            delete process_map[name].ptr;
+            process_map.erase(name);
+        }
+    }
+}
+
+void app::glob::free_process(const ogl::process *p)
+{
+    if (p) free_process(p->get_name());
 }
 
 //-----------------------------------------------------------------------------
@@ -404,18 +466,26 @@ void app::glob::init()
     // Reacquire all OpenGL state.
 
     std::map<std::string, program>::iterator pi;
+    std::map<std::string, process>::iterator Pi;
     std::map<std::string, texture>::iterator ti;
-    std::map<std::string, binding>::iterator bi;
+//  std::map<std::string, binding>::iterator bi;
 
     for (pi = program_map.begin(); pi != program_map.end(); ++pi)
-        pi->second.ptr->init();
+        if (pi->second.ptr)
+            pi->second.ptr->init();
+
+    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
+        if (Pi->second.ptr)
+            Pi->second.ptr->init();
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
-        ti->second.ptr->init();
-/*
-    for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-        bi->second.ptr->init();
-*/
+        if (ti->second.ptr)
+            ti->second.ptr->init();
+
+//  for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+//      if (bi->second.ptr)
+//          bi->second.ptr->init();
+
     std::set<ogl::pool  *>::iterator qi;
     std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
@@ -447,18 +517,26 @@ void app::glob::fini()
     for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
         (*qi)->fini();
 
-    std::map<std::string, binding>::iterator bi;
+//  std::map<std::string, binding>::iterator bi;
     std::map<std::string, texture>::iterator ti;
+    std::map<std::string, process>::iterator Pi;
     std::map<std::string, program>::iterator pi;
-/*
-    for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-        bi->second.ptr->fini();
-*/
+
+//  for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+//      if (bi->second.ptr)
+//          bi->second.ptr->fini();
+
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
-        ti->second.ptr->fini();
+        if (ti->second.ptr)
+            ti->second.ptr->fini();
+
+    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
+        if (Pi->second.ptr)
+            Pi->second.ptr->fini();
 
     for (pi = program_map.begin(); pi != program_map.end(); ++pi)
-        pi->second.ptr->fini();
+        if (pi->second.ptr)
+            pi->second.ptr->fini();
 }
 
 //-----------------------------------------------------------------------------

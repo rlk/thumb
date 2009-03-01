@@ -177,23 +177,27 @@ process
 
 -------------------------------------------------------------------------------
 
-GLOB now acts as a factor.  Not generic enough.
+GLOB now acts as a factory?  Not generic enough.
 
 process
 
-    bind_frame(face)
-    bind_color
-    bind_depth
-    free_frame(face)
-    free_color
-    free_depth
+    bind_in(face)
 
-    prep
+    bool dirty
+    void touch
+
+    bind_out(unit)
+        runs if dirty
+           dirty if uniforms changed
+
+    init  (bouncers)
+    fini
 
 processes:
     shadow maps
     sky cubemap
     irradiance env map
+    generate the omega cube map
     particle system
     water wave sim    
 

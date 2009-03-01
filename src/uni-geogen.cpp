@@ -546,7 +546,7 @@ void uni::geobuf::draw(int w, int h) const
 
     show->bind();
     show->uniform("window", w, h);
-    src->draw();
+//  src->draw();   HACK removed
     show->free();
 }
 

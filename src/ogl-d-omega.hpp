@@ -1,4 +1,4 @@
-//  Copyright (C) 2007 Robert Kooima
+//  Copyright (C) 2009 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,52 +10,40 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef OGL_TEXTURE_HPP
-#define OGL_TEXTURE_HPP
+#ifndef OGL_D_OMEGA_HPP
+#define OGL_D_OMEGA_HPP
 
-#include <string>
-
-#include "ogl-opengl.hpp"
+#include "ogl-process.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace ogl
 {
-    class texture
+    class frame;
+    class binding;
+}
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class d_omega : public process
     {
         std::string name;
 
-        GLuint  object;
-        GLenum  target;
-        GLenum  filter;
-        GLenum  intform;
-        GLenum  extform;
-        GLenum  type;
-        GLsizei border;
-        GLsizei width;
-        GLsizei height;
-
-        void load_png(const void *, size_t);
-        void load_jpg(const void *, size_t); // TODO
-
-        void load_img(std::string);
-        void load_xml(std::string);
+        const ogl::binding *calc;
+              ogl::frame   *cube;
 
     public:
 
         const std::string& get_name() const { return name; }
 
-        texture(std::string);
-       ~texture();
+        d_omega();
+       ~d_omega();
 
-        void bind(GLenum=GL_TEXTURE0) const;
-        void free(GLenum=GL_TEXTURE0) const;
+        void bind(GLenum) const;
 
         void init();
-        void fini();
-
-        bool opaque() const { return (extform == GL_LUMINANCE ||
-                                      extform == GL_RGB); }
     };
 }
 

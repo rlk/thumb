@@ -61,6 +61,9 @@ demo::demo(int w, int h) :
     uniform_view_inverse   = ::glob->load_uniform("view_inverse",  16);
     uniform_view_position  = ::glob->load_uniform("view_position",  3);
     uniform_time           = ::glob->load_uniform("time",           1);
+    uniform_irradiance_R   = ::glob->load_uniform("irradiance_R",   16);
+    uniform_irradiance_G   = ::glob->load_uniform("irradiance_G",   16);
+    uniform_irradiance_B   = ::glob->load_uniform("irradiance_B",   16);
 
     // Initialize attract mode.
 
@@ -91,6 +94,9 @@ demo::demo(int w, int h) :
 
 demo::~demo()
 {
+    ::glob->free_uniform(uniform_irradiance_B);
+    ::glob->free_uniform(uniform_irradiance_G);
+    ::glob->free_uniform(uniform_irradiance_R);
     ::glob->free_uniform(uniform_time);
     ::glob->free_uniform(uniform_view_position);
     ::glob->free_uniform(uniform_view_inverse);
@@ -308,6 +314,48 @@ bool demo::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
+static void cathedral(double M[3][16])
+{
+    static const double L0_0[3] = {  0.79,  0.44,  0.54 };
+    static const double L1n1[3] = {  0.39,  0.35,  0.60 };
+    static const double L1_0[3] = { -0.34, -0.18, -0.27 };
+    static const double L1p1[3] = { -0.29, -0.06,  0.01 };
+    static const double L2n2[3] = { -0.11, -0.05, -0.12 };
+    static const double L2n1[3] = { -0.26, -0.22, -0.47 };
+    static const double L2_0[3] = { -0.16, -0.09, -0.15 };
+    static const double L2p1[3] = {  0.56,  0.21,  0.14 };
+    static const double L2p2[3] = {  0.21, -0.05, -0.30 };
+
+    static const double c1 = 0.429043;
+    static const double c2 = 0.511664;
+    static const double c3 = 0.743125;
+    static const double c4 = 0.886227;
+    static const double c5 = 0.247708;
+
+    for (int i = 0; i < 3; ++i)
+    {
+        M[i][ 0] =  c1 * L2p2[i];
+        M[i][ 1] =  c1 * L2n2[i];
+        M[i][ 2] =  c1 * L2p1[i];
+        M[i][ 3] =  c2 * L1p1[i];
+
+        M[i][ 4] =  c1 * L2n2[i];
+        M[i][ 5] = -c1 * L2p2[i];
+        M[i][ 6] =  c1 * L2n1[i];
+        M[i][ 7] =  c2 * L1n1[i];
+
+        M[i][ 8] =  c1 * L2p1[i];
+        M[i][ 9] =  c1 * L2n1[i];
+        M[i][10] =  c3 * L2_0[i];
+        M[i][11] =  c2 * L1_0[i];
+
+        M[i][12] =  c2 * L1p1[i];
+        M[i][13] =  c2 * L1n1[i];
+        M[i][14] =  c2 * L1_0[i];
+        M[i][15] =  c4 * L0_0[i] - c5 * L2_0[i];
+    }
+}
+
 ogl::range demo::prep(int frusc, app::frustum **frusv)
 {
     double t = SDL_GetTicks() * 0.001f;
@@ -320,6 +368,13 @@ ogl::range demo::prep(int frusc, app::frustum **frusv)
     uniform_view_position ->set(::user->get_M() + 12);
 
     uniform_time->set(&t);
+
+    double M[3][16];
+    cathedral(M);
+
+    uniform_irradiance_R->set(M[0]);
+    uniform_irradiance_G->set(M[1]);
+    uniform_irradiance_B->set(M[2]);
 
     // Prep the current mode, giving the view range.
 

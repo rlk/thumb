@@ -41,7 +41,6 @@ void main()
     // Reflect a downward view vector across the water.
 
     float dn = step(V.y, 0.0);
-//  float up = step(0.0, V.y);
 
     V = mix(V, reflect(V, N), dn);
 

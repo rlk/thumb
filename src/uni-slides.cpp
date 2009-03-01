@@ -59,14 +59,15 @@ void uni::slide::draw(const double *p) const
 
             glRotatef(30.0f, 1.0f, 0.0f, 0.0f);
 
-            glEnable(texture->gett());
+//          HACK gett getw geth have been removed.
+//          glEnable(texture->gett());
 
             texture->bind();
             {
                 glBegin(GL_QUADS);
                 {
-                    int w = texture->getw();
-                    int h = texture->geth();
+                    int w = 1920; // texture->getw();
+                    int h = 1080; // texture->geth();
 
                     double a = double(w) / double(h);
 
