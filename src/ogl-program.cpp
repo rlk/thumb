@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 
-bool ogl::program::log(GLhandleARB handle, std::string& name)
+bool ogl::program::log(GLhandleARB handle, const std::string& name)
 {
     char *log = 0;
     GLint len = 0;
@@ -43,8 +43,8 @@ bool ogl::program::log(GLhandleARB handle, std::string& name)
     return false;
 }
 
-GLhandleARB ogl::program::compile(GLenum type, std::string& name,
-                                               std::string& text)
+GLhandleARB ogl::program::compile(GLenum type, const std::string& name,
+                                               const std::string& text)
 {
     GLhandleARB handle = 0;
 
@@ -114,7 +114,7 @@ void ogl::program::free() const
 
 //-----------------------------------------------------------------------------
 
-std::string ogl::program::load(std::string name)
+std::string ogl::program::load(const std::string& name)
 {
     std::string            base;
     std::string::size_type incl = 0;
@@ -158,7 +158,7 @@ void ogl::program::init_attributes(app::node root)
          curr = app::next(root, curr, "attribute"))
 
         glBindAttribLocationARB(prog, app::get_attr_d(curr, "location"),
-                                      app::get_attr_s(curr, "name"));
+                                      app::get_attr_s(curr, "name").c_str());
 }
 
 void ogl::program::init_samplers(app::node root)
@@ -170,12 +170,14 @@ void ogl::program::init_samplers(app::node root)
     for (curr = app::find(root,       "sampler"); curr;
          curr = app::next(root, curr, "sampler"))
     {
-        std::string name(app::get_attr_s(curr, "name"));
-        int         unit=app::get_attr_d(curr, "unit");
+        const std::string name = app::get_attr_s(curr, "name");
+        const int         unit = app::get_attr_d(curr, "unit");
 
-        uniform(name, unit);
-            
-        samplers[name] = GL_TEXTURE0 + unit;
+        if (!name.empty())
+        {
+            uniform(name, unit);
+            samplers[name] = GL_TEXTURE0 + unit;
+        }
     }
 }
 
@@ -188,14 +190,15 @@ void ogl::program::init_uniforms(app::node root)
     for (curr = app::find(root,       "uniform"); curr;
          curr = app::next(root, curr, "uniform"))
     {
-        std::string name (app::get_attr_s(curr, "name"));
-        std::string value(app::get_attr_s(curr, "value"));
-        int         size =app::get_attr_d(curr, "size");
+        const std::string name  = app::get_attr_s(curr, "name");
+        const std::string value = app::get_attr_s(curr, "value");
+        const int         size  = app::get_attr_d(curr, "size");
 
-        ogl::uniform *p = ::glob->load_uniform(value, size);
-
-        if (p)
-            uniforms[p] = glGetUniformLocationARB(prog, name.c_str());
+        if (!value.empty())
+        {
+            if (ogl::uniform *p = ::glob->load_uniform(value, size))
+                uniforms[p] = glGetUniformLocationARB(prog, name.c_str());
+        }
     }
 }
 
@@ -205,18 +208,18 @@ void ogl::program::init()
 {
     std::string path = "program/" + name;
 
-    app::serial file(path.c_str());
+    app::serial file(path);
     app::node   root;
 
     if ((root = app::find(file.get_head(), "program")))
     {
-        std::string vert_name(app::get_attr_s(root, "vert"));
-        std::string frag_name(app::get_attr_s(root, "frag"));
+        const std::string vert_name = app::get_attr_s(root, "vert");
+        const std::string frag_name = app::get_attr_s(root, "frag");
 
         // Load the shader files.
 
-        std::string vert_text = load(vert_name);
-        std::string frag_text = load(frag_name);
+        const std::string vert_text = load(vert_name);
+        const std::string frag_text = load(frag_name);
 
         // Compile the shaders.
 

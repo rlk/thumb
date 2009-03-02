@@ -50,22 +50,22 @@ namespace app
 
     class host_error : public std::runtime_error
     {
-        std::string mesg(const char *s) {
-            return std::string(s) + ": " + hstrerror(h_errno);
+        std::string mesg(const std::string& s) {
+            return s + ": " + hstrerror(h_errno);
         }
 
     public:
-        host_error(const char *s) : std::runtime_error(mesg(s)) { }
+        host_error(const std::string& s) : std::runtime_error(mesg(s)) { }
     };
 
     class sock_error : public std::runtime_error
     {
-        std::string mesg(const char *s) {
-            return std::string(s) + ": " + strerror(errno);
+        std::string mesg(const std::string& s) {
+            return s + ": " + strerror(errno);
         }
 
     public:
-        sock_error(const char *s) : std::runtime_error(mesg(s)) { }
+        sock_error(const std::string& s) : std::runtime_error(mesg(s)) { }
     };
 
     //-------------------------------------------------------------------------

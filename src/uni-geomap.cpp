@@ -310,8 +310,8 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
     {
         // Load the map configuration from the file.
 
-        std::string vert = app::get_attr_s(map, "vert");
-        std::string frag = app::get_attr_s(map, "frag");
+        const std::string vert = app::get_attr_s(map, "vert");
+        const std::string frag = app::get_attr_s(map, "frag");
 
         pattern = ::conf->get_s("data_dir") + app::get_attr_s(map, "name");
 
@@ -326,7 +326,7 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
         c = app::get_attr_d(map, "c", 3);
         b = app::get_attr_d(map, "b", 1);
 
-        lsb = (strcmp(app::get_attr_s(map, "order", "msb"), "lsb") == 0);
+        lsb = (app::get_attr_s(map, "order") == "lsb");
 
         // Compute the extents of the mipmap pyramid.
 

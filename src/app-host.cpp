@@ -268,14 +268,17 @@ void app::host::init_server(app::node node)
         socklen_t  addresslen = sizeof (sockaddr_t);
         sockaddr_t address;
 
-        const char *addr = get_attr_s(server, "addr", DEFAULT_HOST);
-        int         port = get_attr_d(server, "port", DEFAULT_PORT);
+        std::string addr = get_attr_s(server, "addr");
+        int         port = get_attr_d(server, "port");
+
+        if (addr.empty()) addr = DEFAULT_HOST;
+        if (port == 0)    port = DEFAULT_PORT;
 
         // Look up the given host name.
 
         address.sin_family      = AF_INET;
         address.sin_port        = htons (port);
-        address.sin_addr.s_addr = lookup(addr);
+        address.sin_addr.s_addr = lookup(addr.c_str());
 
         // Create a socket and connect.
 
@@ -313,8 +316,8 @@ void app::host::init_client(app::node node)
     for (curr = find(node,       "client"); curr;
          curr = next(node, curr, "client"))
     {
-        fork_client(get_attr_s(curr, "name"),
-                    get_attr_s(curr, "addr"));
+        fork_client(get_attr_s(curr, "name").c_str(),
+                    get_attr_s(curr, "addr").c_str());
     }
 }
 
@@ -458,18 +461,16 @@ app::host::host(std::string filename, std::string tag) :
             for (curr = find(node,       "display"); curr;
                  curr = next(node, curr, "display"))
             {
-                const char *t = get_attr_s(curr, "type", "normal");
+                const std::string t = get_attr_s(curr, "type");
 
-                if      (strcmp(t, "normal")   == 0)
-                    displays.push_back(new dpy::normal  (curr));
-/*
-                else if (strcmp(t, "dome")     == 0)
-                    displays.push_back(new dpy::dome    (curr));
-                else if (strcmp(t, "varrier")  == 0)
-                    displays.push_back(new dpy::varrier (curr));
-*/
-                else if (strcmp(t, "anaglyph") == 0)
+                if      (t == "anaglyph")
                     displays.push_back(new dpy::anaglyph(curr));
+//              else if (t == "dome")
+//                  displays.push_back(new dpy::dome    (curr));
+//              else if (t == "varrier")
+//                  displays.push_back(new dpy::varrier (curr));
+                else
+                    displays.push_back(new dpy::normal  (curr));
             }
 
             // Create a channel object for each configured channel.

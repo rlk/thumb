@@ -46,12 +46,12 @@ namespace ogl
 
         bool bindable;
 
-        bool log(GLhandleARB, std::string&);
+        bool log(GLhandleARB, const std::string&);
 
-        GLhandleARB compile(GLenum, std::string&,
-                                    std::string&);
+        GLhandleARB compile(GLenum, const std::string&,
+                                    const std::string&);
 
-        std::string load(std::string);
+        std::string load(const std::string&);
 
         void init_attributes(app::node);
         void init_uniforms  (app::node);

@@ -163,16 +163,17 @@ void app::frustum::calc_calibrated()
         for (curr = find(node,       "corner"); curr;
              curr = next(node, curr, "corner"))
         {
+            const std::string name = get_attr_s(curr, "name");
             double *v = 0;
 
             // Determine which corner is being specified.
 
-            if (const char *name = get_attr_s(curr, "name"))
+            if (!name.empty())
             {
-                if      (strcmp(name, "BL") == 0) { v = c[0]; b[0] = true; }
-                else if (strcmp(name, "BR") == 0) { v = c[1]; b[1] = true; }
-                else if (strcmp(name, "TL") == 0) { v = c[2]; b[2] = true; }
-                else if (strcmp(name, "TR") == 0) { v = c[3]; b[3] = true; }
+                if      (name == "BL") { v = c[0]; b[0] = true; }
+                else if (name == "BR") { v = c[1]; b[1] = true; }
+                else if (name == "TL") { v = c[2]; b[2] = true; }
+                else if (name == "TR") { v = c[3]; b[3] = true; }
             }
 
             if (v)
@@ -185,14 +186,11 @@ void app::frustum::calc_calibrated()
 
                 // Convert dimensions if necessary.
 
-                if (const char *dim = get_attr_s(curr, "dim"))
+                if (get_attr_s(curr, "dim") == "mm")
                 {
-                    if (strcmp(dim, "mm") == 0)
-                    {
-                        v[0] /= 304.8;
-                        v[1] /= 304.8;
-                        v[2] /= 304.8;
-                    }
+                    v[0] /= 304.8;
+                    v[1] /= 304.8;
+                    v[2] /= 304.8;
                 }
             }
         }

@@ -101,7 +101,7 @@ void app::serial::save()
 
 //-----------------------------------------------------------------------------
 
-app::serial::serial(const char *name) : file(name), head(0)
+app::serial::serial(const std::string& name) : file(name), head(0)
 {
     load();
 }
@@ -115,13 +115,13 @@ app::serial::~serial()
 
 //-----------------------------------------------------------------------------
 
-void app::set_attr_d(app::node elem, const char *name, int d)
+void app::set_attr_d(app::node elem, const std::string& name, int d)
 {
-    if (elem && name)
+    if (elem && !name.empty())
     {
         // Store the integer attribute as text.
 
-        mxmlElementSetAttrf(elem, name, "%d", d);
+        mxmlElementSetAttrf(elem, name.c_str(), "%d", d);
 
         // Touch the tree.
 
@@ -130,11 +130,11 @@ void app::set_attr_d(app::node elem, const char *name, int d)
     }
 }
 
-int app::get_attr_d(node elem, const char *name, int d)
+int app::get_attr_d(node elem, const std::string& name, int d)
 {
     const char *c;
 
-    if (elem && (c = mxmlElementGetAttr(elem, name)))
+    if (elem && !name.empty() && (c = mxmlElementGetAttr(elem, name.c_str())))
         return atoi(c);
     else
         return d;
@@ -142,13 +142,13 @@ int app::get_attr_d(node elem, const char *name, int d)
 
 //-----------------------------------------------------------------------------
 
-void app::set_attr_f(node elem, const char *name, double f)
+void app::set_attr_f(node elem, const std::string& name, double f)
 {
-    if (elem && name)
+    if (elem && !name.empty())
     {
         // Store the double attribute as text.
 
-        mxmlElementSetAttrf(elem, name, "%f", f);
+        mxmlElementSetAttrf(elem, name.c_str(), "%f", f);
 
         // Touch the tree.
 
@@ -157,25 +157,26 @@ void app::set_attr_f(node elem, const char *name, double f)
     }
 }
 
-double app::get_attr_f(node elem, const char *name, double k)
+double app::get_attr_f(node elem, const std::string& name, double f)
 {
     const char *c;
 
-    if (elem && (c = mxmlElementGetAttr(elem, name)))
+    if (elem && !name.empty() && (c = mxmlElementGetAttr(elem, name.c_str())))
         return atof(c);
     else
-        return k;
+        return f;
 }
 
 //-----------------------------------------------------------------------------
 
-void app::set_attr_s(node elem, const char *name, const char *s)
+void app::set_attr_s(node elem, const std::string& name,
+                                const std::string& s)
 {
-    if (elem && name)
+    if (elem && !name.empty())
     {
         // Store the text attribute.
 
-        mxmlElementSetAttr(elem, name, s);
+        mxmlElementSetAttr(elem, name.c_str(), s.c_str());
 
         // Touch the tree.
 
@@ -184,12 +185,13 @@ void app::set_attr_s(node elem, const char *name, const char *s)
     }
 }
 
-const char *app::get_attr_s(node elem, const char *name, const char *s)
+std::string app::get_attr_s(node elem, const std::string& name,
+                                       const std::string& s)
 {
     const char *c;
 
-    if (elem && (c = mxmlElementGetAttr(elem, name)))
-        return c;
+    if (elem && !name.empty() && (c = mxmlElementGetAttr(elem, name.c_str())))
+        return std::string(c);
     else
         return s;
 }
@@ -197,27 +199,33 @@ const char *app::get_attr_s(node elem, const char *name, const char *s)
 //-----------------------------------------------------------------------------
 
 app::node app::find(node tree,
-                    const char *name,
-                    const char *attr,
-                    const char *valu)
+                    const std::string& name,
+                    const std::string& attr,
+                    const std::string& valu)
 {
-    return mxmlFindElement(tree, tree, name, attr, valu, MXML_DESCEND);
+    return mxmlFindElement(tree, tree,
+                           name.empty() ? 0 : name.c_str(),
+                           attr.empty() ? 0 : attr.c_str(),
+                           valu.empty() ? 0 : valu.c_str(), MXML_DESCEND);
 }
 
 app::node app::next(node tree,
                     node iter,
-                    const char *name,
-                    const char *attr,
-                    const char *valu)
+                    const std::string& name,
+                    const std::string& attr,
+                    const std::string& valu)
 {
-    return mxmlFindElement(iter, tree, name, attr, valu, MXML_NO_DESCEND);
+    return mxmlFindElement(iter, tree,
+                           name.empty() ? 0 : name.c_str(),
+                           attr.empty() ? 0 : attr.c_str(),
+                           valu.empty() ? 0 : valu.c_str(), MXML_NO_DESCEND);
 }
 
 //-----------------------------------------------------------------------------
 
-app::node app::create(const char *tag)
+app::node app::create(const std::string& tag)
 {
-    return mxmlNewElement(MXML_NO_PARENT, tag);
+    return mxmlNewElement(MXML_NO_PARENT, tag.c_str());
 }
 
 void app::insert(node parent, node prev, node curr)
@@ -236,6 +244,8 @@ void app::insert(node parent, node prev, node curr)
 
 void app::remove(node curr)
 {
+    // Touch the tree.
+
     for (app::node elem = curr; elem; elem = elem->parent)
         elem->user_data = (void *) 1;
 

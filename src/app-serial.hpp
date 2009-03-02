@@ -36,7 +36,7 @@ namespace app
 
     public:
 
-        serial(const char *);
+        serial(const std::string&);
        ~serial();
 
         node get_head() { return head; }
@@ -44,28 +44,28 @@ namespace app
 
     // Serialization attribute mutators
 
-    void        set_attr_d(node, const char *, int);
-    int         get_attr_d(node, const char *, int =0);
+    void        set_attr_d(node, const std::string&, int = 0);
+    int         get_attr_d(node, const std::string&, int = 0);
 
-    void        set_attr_f(node, const char *, double);
-    double      get_attr_f(node, const char *, double =0);
+    void        set_attr_f(node, const std::string&, double = 0);
+    double      get_attr_f(node, const std::string&, double = 0);
 
-    void        set_attr_s(node, const char *, const char * =0);
-    const char *get_attr_s(node, const char *, const char * =0);
+    void        set_attr_s(node, const std::string&, const std::string& = "");
+    std::string get_attr_s(node, const std::string&, const std::string& = "");
 
     // Element iteration
 
-    node find(node, const char * =0,
-                    const char * =0,
-                    const char * =0);
+    node find(node, const std::string& = "",
+                    const std::string& = "",
+                    const std::string& = "");
     node next(node,
-              node, const char * =0,
-                    const char * =0,
-                    const char * =0);
+              node, const std::string& = "",
+                    const std::string& = "",
+                    const std::string& = "");
 
     // Mutators
 
-    node create(const char *);
+    node create(const std::string&);
     void insert(node, node, node);
     void remove(node);
 }

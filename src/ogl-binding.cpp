@@ -111,13 +111,12 @@ const ogl::program *ogl::binding::init_program(app::node node,
                                                unit_frame&   c_frame,
                                                unit_frame&   d_frame)
 {
-    const char         *file = 0;
-    const ogl::program *prog = 0;
-
     // Load the program.
 
-    if ((file = app::get_attr_s(node, "file", 0)) &&
-        (prog = glob->load_program(std::string(file))))
+    const std::string   file = app::get_attr_s(node, "file");
+    const ogl::program *prog = 0;
+
+    if (!file.empty() && (prog = glob->load_program(file)))
     {
         // Load all textures.
 
@@ -128,15 +127,17 @@ const ogl::program *ogl::binding::init_program(app::node node,
         {
             // Determine the sampler and image file names.
 
-            std::string sampler(app::get_attr_s(curr, "sampler"));
-            std::string name   (app::get_attr_s(curr, "name"));
+            const std::string sampler = app::get_attr_s(curr, "sampler");
+            const std::string name    = app::get_attr_s(curr, "name");
+
+            const std::string fail = "default-" + sampler + ".png";
 
             // Determine the texture unit binding for this sampler.
 
             if (GLenum unit = prog->unit(sampler))
             {
-                std::string fail = "default-" + sampler + ".png";
-                texture[unit] = ::glob->load_texture(name, fail);
+                if (const ogl::texture *T = ::glob->load_texture(name, fail))
+                    texture[unit] = T;
             }
         }
 
@@ -147,14 +148,15 @@ const ogl::program *ogl::binding::init_program(app::node node,
         {
             // Determine the sampler and image file names.
 
-            std::string sampler(app::get_attr_s(curr, "sampler"));
-            std::string name   (app::get_attr_s(curr, "name"));
+            const std::string sampler = app::get_attr_s(curr, "sampler");
+            const std::string name    = app::get_attr_s(curr, "name");
 
             // Determine the texture unit binding for this sampler.
 
             if (GLenum unit = prog->unit(sampler))
             {
-                process[unit] = ::glob->load_process(name);
+                if (const ogl::process *P = ::glob->load_process(name))
+                    process[unit] = P;
             }
         }
     }

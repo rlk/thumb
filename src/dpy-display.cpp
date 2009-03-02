@@ -76,10 +76,11 @@ void dpy::display::fill(double screen_w, double screen_h,
 
     // Load uniforms to map from fragment coordinates to buffer coordinates.
 
-    const ogl::program *P = ogl::program::current;
-
-    P->uniform("frag_d", -viewport[0] * kx, -viewport[1] * ky);
-    P->uniform("frag_k",                kx,                ky);
+    if (const ogl::program *P = ogl::program::current)
+    {
+        P->uniform("frag_d", -viewport[0] * kx, -viewport[1] * ky);
+        P->uniform("frag_k",                kx,                ky);
+    }
 
     // Draw the screen-space quad.
 

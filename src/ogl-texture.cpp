@@ -183,64 +183,49 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
 //-----------------------------------------------------------------------------
 
-static GLenum wrap_key(const char *name)
+static GLenum wrap_key(const std::string& name)
 {
-    if (name)
+    if (!name.empty())
     {
-        if (strcmp("s", name) == 0)
-            return GL_TEXTURE_WRAP_S;
-        if (strcmp("t", name) == 0)
-            return GL_TEXTURE_WRAP_T;
-        if (strcmp("r", name) == 0)
-            return GL_TEXTURE_WRAP_R;
+        if (name == "s") return GL_TEXTURE_WRAP_S;
+        if (name == "t") return GL_TEXTURE_WRAP_T;
+        if (name == "r") return GL_TEXTURE_WRAP_R;
     }
     return 0;
 }
 
-static GLuint wrap_val(const char *name)
+static GLuint wrap_val(const std::string& name)
 {
-    if (name)
+    if (!name.empty())
     {
-        if (strcmp(  "repeat",          name) == 0)
-            return GL_REPEAT;
-        if (strcmp(  "clamp",           name) == 0)
-            return GL_CLAMP;
-        if (strcmp(  "clamp-to-edge",   name) == 0)
-            return GL_CLAMP_TO_EDGE;
-        if (strcmp(  "clamp-to-border", name) == 0)
-            return GL_CLAMP_TO_BORDER;
+        if (name == "repeat")          return GL_REPEAT;
+        if (name == "clamp")           return GL_CLAMP;
+        if (name == "clamp-to-edge")   return GL_CLAMP_TO_EDGE;
+        if (name == "clamp-to-border") return GL_CLAMP_TO_BORDER;
     }
     return 0;
 }
 
-static GLenum filter_key(const char *name)
+static GLenum filter_key(const std::string& name)
 {
-    if (name)
+    if (!name.empty())
     {
-        if (strcmp("min", name) == 0)
-            return GL_TEXTURE_MIN_FILTER;
-        if (strcmp("mag", name) == 0)
-            return GL_TEXTURE_MAG_FILTER;
+        if (name == "min") return GL_TEXTURE_MIN_FILTER;
+        if (name == "mag") return GL_TEXTURE_MAG_FILTER;
     }
     return 0;
 }
 
-static GLint filter_val(const char *name)
+static GLint filter_val(const std::string& name)
 {
-    if (name)
+    if (!name.empty())
     {
-        if (strcmp(  "nearest",                name) == 0)
-            return GL_NEAREST;
-        if (strcmp(  "linear",                 name) == 0)
-            return GL_LINEAR;
-        if (strcmp(  "nearest-mipmap-nearest", name) == 0)
-            return GL_NEAREST_MIPMAP_NEAREST;
-        if (strcmp(  "linear-mipmap-nearest",  name) == 0)
-            return GL_LINEAR_MIPMAP_LINEAR;
-        if (strcmp(  "nearest-mipmap-linear",  name) == 0)
-            return GL_NEAREST_MIPMAP_NEAREST;
-        if (strcmp(  "linear-mipmap-linear",   name) == 0)
-            return GL_LINEAR_MIPMAP_LINEAR;
+        if (name == "nearest")                return GL_NEAREST;
+        if (name == "linear")                 return GL_LINEAR;
+        if (name == "nearest-mipmap-nearest") return GL_NEAREST_MIPMAP_NEAREST;
+        if (name == "linear-mipmap-nearest")  return GL_LINEAR_MIPMAP_LINEAR;
+        if (name == "nearest-mipmap-linear")  return GL_NEAREST_MIPMAP_NEAREST;
+        if (name == "linear-mipmap-linear")   return GL_LINEAR_MIPMAP_LINEAR;
     }
     return 0;
 }
