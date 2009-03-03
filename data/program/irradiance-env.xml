@@ -5,14 +5,15 @@
   <sampler name="diff_map"  unit="0" />
   <sampler name="spec_map"  unit="1" />
   <sampler name="norm_map"  unit="2" />
+  <sampler name="shadow[0]" unit="3" />
+  <sampler name="shadow[1]" unit="4" />
+  <sampler name="shadow[2]" unit="5" />
+
+  <sampler name="spec_env"  unit="6" />
 
 <!--
-  <sampler name="diff_env"  unit="3" />
+  <sampler name="diff_env"  unit="7" />
 -->
-  <sampler name="spec_env"  unit="4" />
-  <sampler name="shadow[0]" unit="5" />
-  <sampler name="shadow[1]" unit="6" />
-  <sampler name="shadow[2]" unit="7" />
 
   <uniform name="pssm_depth"       value="pssm_depth"       size="4"/>
   <uniform name="view_matrix"      value="view_matrix"      size="16"/>

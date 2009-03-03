@@ -165,32 +165,32 @@ void ogl::aabb::draw() const
 {
     glBegin(GL_LINES);
     {
-        glVertex3f(a[0], a[1], a[2]);
-        glVertex3f(z[0], a[1], a[2]);
-        glVertex3f(a[0], z[1], a[2]);
-        glVertex3f(z[0], z[1], a[2]);
-        glVertex3f(a[0], a[1], z[2]);
-        glVertex3f(z[0], a[1], z[2]);
-        glVertex3f(a[0], z[1], z[2]);
-        glVertex3f(z[0], z[1], z[2]);
+        glVertex3d(a[0], a[1], a[2]);
+        glVertex3d(z[0], a[1], a[2]);
+        glVertex3d(a[0], z[1], a[2]);
+        glVertex3d(z[0], z[1], a[2]);
+        glVertex3d(a[0], a[1], z[2]);
+        glVertex3d(z[0], a[1], z[2]);
+        glVertex3d(a[0], z[1], z[2]);
+        glVertex3d(z[0], z[1], z[2]);
 
-        glVertex3f(a[0], a[1], a[2]);
-        glVertex3f(a[0], z[1], a[2]);
-        glVertex3f(z[0], a[1], a[2]);
-        glVertex3f(z[0], z[1], a[2]);
-        glVertex3f(a[0], a[1], z[2]);
-        glVertex3f(a[0], z[1], z[2]);
-        glVertex3f(z[0], a[1], z[2]);
-        glVertex3f(z[0], z[1], z[2]);
+        glVertex3d(a[0], a[1], a[2]);
+        glVertex3d(a[0], z[1], a[2]);
+        glVertex3d(z[0], a[1], a[2]);
+        glVertex3d(z[0], z[1], a[2]);
+        glVertex3d(a[0], a[1], z[2]);
+        glVertex3d(a[0], z[1], z[2]);
+        glVertex3d(z[0], a[1], z[2]);
+        glVertex3d(z[0], z[1], z[2]);
 
-        glVertex3f(a[0], a[1], a[2]);
-        glVertex3f(a[0], a[1], z[2]);
-        glVertex3f(z[0], a[1], a[2]);
-        glVertex3f(z[0], a[1], z[2]);
-        glVertex3f(a[0], z[1], a[2]);
-        glVertex3f(a[0], z[1], z[2]);
-        glVertex3f(z[0], z[1], a[2]);
-        glVertex3f(z[0], z[1], z[2]);
+        glVertex3d(a[0], a[1], a[2]);
+        glVertex3d(a[0], a[1], z[2]);
+        glVertex3d(z[0], a[1], a[2]);
+        glVertex3d(z[0], a[1], z[2]);
+        glVertex3d(a[0], z[1], a[2]);
+        glVertex3d(a[0], z[1], z[2]);
+        glVertex3d(z[0], z[1], a[2]);
+        glVertex3d(z[0], z[1], z[2]);
     }
     glEnd();
 }

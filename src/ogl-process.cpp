@@ -75,7 +75,7 @@ void ogl::process::init_cube()
 
 void ogl::process::fini_cube()
 {
-    ::glob->free_pool(cube_pool);
+//  ::glob->free_pool(cube_pool);
 }
 
 void ogl::process::proc_cube(const ogl::binding *bind,

@@ -19,7 +19,7 @@ varying vec3 V_v;
 varying vec3 N_v;
 varying vec3 T_v;
 
-float shadow(sampler2DShadow sampler, vec4 coord)
+float get_shadow(sampler2DShadow sampler, vec4 coord)
 {
     return shadow2DProj(sampler, coord).r;
 }
@@ -49,9 +49,9 @@ void main()
 
     // Look up the shadow map textures.
 
-    float S0 = shadow(shadow[0], gl_TexCoord[1]);
-    float S1 = shadow(shadow[1], gl_TexCoord[2]);
-    float S2 = shadow(shadow[2], gl_TexCoord[3]);
+    float S0 = get_shadow(shadow[0], gl_TexCoord[1]);
+    float S1 = get_shadow(shadow[1], gl_TexCoord[2]);
+    float S2 = get_shadow(shadow[2], gl_TexCoord[3]);
 
     float s0 = step(pssm_depth.y, gl_FragCoord.z);
     float s1 = step(pssm_depth.z, gl_FragCoord.z);
@@ -66,7 +66,7 @@ void main()
     vec3 R = reflect(V_w, N);
 
 //  gl_FragColor = textureCube(spec_env, R);
-    gl_FragColor = vec4(textureCube(spec_env, N).rgb * mix(0.8, 1.0, ss), 1.0);
+    gl_FragColor = vec4(textureCube(spec_env, N).rgb * mix(0.5, 1.0, ss), 1.0);
 
 /*
     vec4 T = vec4(normalize(N), 1.0);

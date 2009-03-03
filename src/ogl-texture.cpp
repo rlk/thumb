@@ -360,6 +360,7 @@ void ogl::texture::init()
 void ogl::texture::fini()
 {
     glDeleteTextures(1, &object);
+    object = 0;
 
     OGLCK();
 }

@@ -191,6 +191,7 @@ const ogl::process *app::glob::load_process(const std::string& name)
         else if (name == "shadow0")         ptr = new ogl::shadow(0);
         else if (name == "shadow1")         ptr = new ogl::shadow(1);
         else if (name == "shadow2")         ptr = new ogl::shadow(2);
+
         if (ptr)
         {
             process_map[name].ptr = ptr;
@@ -468,18 +469,18 @@ void app::glob::init()
 {
     // Reacquire all OpenGL state.
 
-    std::set<ogl::pool  *>::iterator qi;
-    std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
+    std::set<ogl::image *>::iterator ii;
+    std::set<ogl::pool  *>::iterator qi;
 
-    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
-        (*qi)->init();
+    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
+        (*fi)->init();
 
     for (ii = image_set.begin(); ii != image_set.end(); ++ii)
         (*ii)->init();
 
-    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
-        (*fi)->init();
+    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
+        (*qi)->init();
 
     std::map<std::string, program>::iterator pi;
     std::map<std::string, texture>::iterator ti;
@@ -505,6 +506,17 @@ void app::glob::init()
 
 void app::glob::fini()
 {
+    // Null all texture bindings.
+
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE0, 0);
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE1, 0);
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE2, 0);
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE3, 0);
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE4, 0);
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE5, 0);
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE6, 0);
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE7, 0);
+
     // Release all OpenGL state.
 
 //  std::map<std::string, binding>::iterator bi;
@@ -528,18 +540,18 @@ void app::glob::fini()
         if (pi->second.ptr)
             pi->second.ptr->fini();
 
-    std::set<ogl::frame *>::iterator fi;
-    std::set<ogl::image *>::iterator ii;
     std::set<ogl::pool  *>::iterator qi;
+    std::set<ogl::image *>::iterator ii;
+    std::set<ogl::frame *>::iterator fi;
 
-    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
-        (*fi)->fini();
+    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
+        (*qi)->fini();
 
     for (ii = image_set.begin(); ii != image_set.end(); ++ii)
         (*ii)->fini();
 
-    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
-        (*qi)->fini();
+    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
+        (*fi)->fini();
 }
 
 //-----------------------------------------------------------------------------

@@ -9,7 +9,7 @@ uniform vec4 pssm_depth;
 varying vec3 V_v;
 varying vec3 L_v;
 
-float shadow(sampler2DShadow sampler, vec4 coord)
+float get_shadow(sampler2DShadow sampler, vec4 coord)
 {
     return shadow2DProj(sampler, coord).r;
 }
@@ -50,9 +50,9 @@ void main()
     vec4  S  = texture2D(spec_map, gl_TexCoord[0].xy);
     vec4  D  = texture2D(diff_map, gl_TexCoord[0].xy);
     vec3  N  = texture2D(norm_map, gl_TexCoord[0].xy).rgb;
-    float S0 = shadow(shadow[0], gl_TexCoord[1]);
-    float S1 = shadow(shadow[1], gl_TexCoord[2]);
-    float S2 = shadow(shadow[2], gl_TexCoord[3]);
+    float S0 = get_shadow(shadow[0], gl_TexCoord[1]);
+    float S1 = get_shadow(shadow[1], gl_TexCoord[2]);
+    float S2 = get_shadow(shadow[2], gl_TexCoord[3]);
 
     float kx = step(pssm_depth.y, gl_FragCoord.z);
     float ky = step(pssm_depth.z, gl_FragCoord.z);

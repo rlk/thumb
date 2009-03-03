@@ -269,10 +269,10 @@ void ogl::frame::init()
 
 void ogl::frame::fini()
 {
+    if (buffer) glDeleteFramebuffersEXT(1, &buffer);
+
     if (color) glDeleteTextures(1, &color);
     if (depth) glDeleteTextures(1, &depth);
-
-    if (buffer) glDeleteFramebuffersEXT(1, &buffer);
 }
 
 //-----------------------------------------------------------------------------

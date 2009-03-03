@@ -92,8 +92,6 @@ ogl::binding::binding(std::string name) :
     app::node   root;
     app::node   node;
 
-    // Initialize the shared procedural materials, if necessary.
-
     // Load the local material bindings.
 
     if ((root = app::find(file.get_head(), "material")))
@@ -144,6 +142,9 @@ ogl::binding::~binding()
 
     if (depth_program) glob->free_program(depth_program);
     if (color_program) glob->free_program(color_program);
+
+    depth_program = 0;
+    color_program = 0;
 }
 
 //-----------------------------------------------------------------------------
