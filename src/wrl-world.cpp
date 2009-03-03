@@ -19,6 +19,7 @@
 #include "matrix.hpp"
 #include "ogl-pool.hpp"
 #include "ogl-uniform.hpp"
+#include "ogl-process.hpp"
 #include "app-prog.hpp"
 #include "app-glob.hpp"
 #include "app-data.hpp"
@@ -59,10 +60,16 @@ wrl::world::world() :
     line_pool->add_node(stat_node);
     line_pool->add_node(dyna_node);
 
-    // Initialize the uniforms.
+    // Initialize the render uniforms and processes.
 
     uniform_light_position = ::glob->load_uniform("light_position", 3);
     uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",  4);
+    uniform_shadow[0]      = ::glob->load_uniform("shadow_matrix[0]", 16);
+    uniform_shadow[1]      = ::glob->load_uniform("shadow_matrix[1]", 16);
+    uniform_shadow[2]      = ::glob->load_uniform("shadow_matrix[2]", 16);
+    process_shadow[0]      = ::glob->load_process("shadow0");
+    process_shadow[1]      = ::glob->load_process("shadow1");
+    process_shadow[2]      = ::glob->load_process("shadow2");
 }
 
 wrl::world::~world()
@@ -94,6 +101,12 @@ wrl::world::~world()
 
     // Finalize the uniforms.
 
+    ::glob->free_process(process_shadow[2]);
+    ::glob->free_process(process_shadow[1]);
+    ::glob->free_process(process_shadow[0]);
+    ::glob->free_uniform(uniform_shadow[2]);
+    ::glob->free_uniform(uniform_shadow[1]);
+    ::glob->free_uniform(uniform_shadow[0]);
     ::glob->free_uniform(uniform_pssm_depth);
     ::glob->free_uniform(uniform_light_position);
 
@@ -981,12 +994,12 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
     double n = r.get_n();
     double f = r.get_f();
 
-    int m = ogl::binding::shadow_count();
+    int m = 3; // TODO: generalize split count
 
     double c[4];
     double d[4];
 
-    for (int i = 0; i <= m && i < 4; ++i) // TODO: generalize split count
+    for (int i = 0; i <= m; ++i)
     {
         c[i] = split_coeff(i, m, n, f);
         d[i] = split_depth(i, m, n, f);
@@ -1016,7 +1029,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
         // Render the fill geometry to the shadow buffer.
 
-        if (ogl::binding::bind_shadow(i))
+        process_shadow[i]->bind_frame();
         {
             frust.draw();
 
@@ -1026,10 +1039,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT);
-/*
-            glEnable(GL_POLYGON_OFFSET_FILL);
-            glPolygonOffset(1.1f, 4.0f);
-*/
+
             fill_pool->draw_init();
             {
                 glCullFace(GL_FRONT);
@@ -1038,31 +1048,19 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
                 glCullFace(GL_BACK);
             }
             fill_pool->draw_fini();
-/*
-            glDisable(GL_POLYGON_OFFSET_FILL);
-*/
-/*
-            for (int i = 0; i < frusc; ++i)
-                frusv[i]->wire();
-*/
         }
-        ogl::binding::free_shadow(i);
+        process_shadow[i]->free_frame();
 
-        // Apply the light transform.
+        // Compute the light transform.
 
-        glActiveTextureARB(GL_TEXTURE1 + i);
-        glMatrixMode(GL_TEXTURE);
-        {
-            // TODO: eliminate the use of ::user here.
+        double M[16];
 
-            glLoadIdentity();
-            glMultMatrixd(::user->get_S());
-            glMultMatrixd(frust.get_P());
-            glMultMatrixd(lite_I);
-            glMultMatrixd(::user->get_M());
-        }
-        glMatrixMode(GL_MODELVIEW);
-        glActiveTextureARB(GL_TEXTURE0);
+        load_mat    (M,    ::user->get_S()); // TODO: eliminate the use of ::user here.
+        mult_mat_mat(M, M, frust.get_P());
+        mult_mat_mat(M, M, lite_I);
+        mult_mat_mat(M, M, ::user->get_M());
+
+        uniform_shadow[i]->set(M);
     }
 }
 

@@ -12,6 +12,7 @@ OBJS=   util.o \
 	ogl-lut.o \
 	ogl-aabb.o \
 	ogl-range.o \
+	ogl-shadow.o \
 	ogl-d-omega.o \
 	ogl-process.o \
 	ogl-uniform.o \

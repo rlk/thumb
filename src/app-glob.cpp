@@ -17,6 +17,7 @@
 #include "ogl-diff-irradiance.hpp"
 */
 #include "ogl-d-omega.hpp"
+#include "ogl-shadow.hpp"
 
 #include "ogl-uniform.hpp"
 #include "ogl-program.hpp"
@@ -71,7 +72,7 @@ app::glob::~glob()
 
 //-----------------------------------------------------------------------------
 
-ogl::uniform *app::glob::load_uniform(std::string name, GLsizei size)
+ogl::uniform *app::glob::load_uniform(const std::string& name, GLsizei size)
 {
     if (uniform_map.find(name) == uniform_map.end())
     {
@@ -105,7 +106,7 @@ ogl::uniform *app::glob::dupe_uniform(ogl::uniform *p)
     return 0;
 }
 
-void app::glob::free_uniform(std::string name)
+void app::glob::free_uniform(const std::string& name)
 {
     if (uniform_map.find(name) != uniform_map.end())
     {
@@ -124,7 +125,7 @@ void app::glob::free_uniform(ogl::uniform *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::program *app::glob::load_program(std::string name)
+const ogl::program *app::glob::load_program(const std::string& name)
 {
     if (program_map.find(name) == program_map.end())
     {
@@ -158,7 +159,7 @@ const ogl::program *app::glob::dupe_program(const ogl::program *p)
     return 0;
 }
 
-void app::glob::free_program(std::string name)
+void app::glob::free_program(const std::string& name)
 {
     if (program_map.find(name) != program_map.end())
     {
@@ -177,7 +178,7 @@ void app::glob::free_program(const ogl::program *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::process *app::glob::load_process(std::string name)
+const ogl::process *app::glob::load_process(const std::string& name)
 {
     if (process_map.find(name) == process_map.end())
     {
@@ -185,9 +186,11 @@ const ogl::process *app::glob::load_process(std::string name)
 /*
         if      (name == "spec_irradiance") ptr = new ogl::spec_irradiance();
         else if (name == "diff_irradiance") ptr = new ogl::diff_irradiance();
-        else if (name == "d_omega")         ptr = new ogl::d_omega();
 */
-        if (name == "d_omega")         ptr = new ogl::d_omega();
+        if      (name == "d_omega")         ptr = new ogl::d_omega();
+        else if (name == "shadow0")         ptr = new ogl::shadow(0);
+        else if (name == "shadow1")         ptr = new ogl::shadow(1);
+        else if (name == "shadow2")         ptr = new ogl::shadow(2);
         if (ptr)
         {
             process_map[name].ptr = ptr;
@@ -214,7 +217,7 @@ const ogl::process *app::glob::dupe_process(const ogl::process *p)
     return 0;
 }
 
-void app::glob::free_process(std::string name)
+void app::glob::free_process(const std::string& name)
 {
     if (process_map.find(name) != process_map.end())
     {
@@ -233,8 +236,8 @@ void app::glob::free_process(const ogl::process *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::texture *app::glob::load_texture(std::string name,
-                                            std::string fallback)
+const ogl::texture *app::glob::load_texture(const std::string& name,
+                                            const std::string& fallback)
 {
     if (texture_map.find(name) == texture_map.end())
     {
@@ -271,7 +274,7 @@ const ogl::texture *app::glob::dupe_texture(const ogl::texture *p)
     return 0;
 }
 
-void app::glob::free_texture(std::string name)
+void app::glob::free_texture(const std::string& name)
 {
     if (texture_map.find(name) != texture_map.end())
     {
@@ -290,8 +293,8 @@ void app::glob::free_texture(const ogl::texture *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::binding *app::glob::load_binding(std::string name,
-                                            std::string fallback)
+const ogl::binding *app::glob::load_binding(const std::string& name,
+                                            const std::string& fallback)
 {
     if (binding_map.find(name) == binding_map.end())
     {
@@ -328,7 +331,7 @@ const ogl::binding *app::glob::dupe_binding(const ogl::binding *p)
     return 0;
 }
 
-void app::glob::free_binding(std::string name)
+void app::glob::free_binding(const std::string& name)
 {
     if (binding_map.find(name) != binding_map.end())
     {
@@ -347,11 +350,11 @@ void app::glob::free_binding(const ogl::binding *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::surface *app::glob::load_surface(std::string name, bool center)
+const ogl::surface *app::glob::load_surface(const std::string& name, bool cent)
 {
     if (surface_map.find(name) == surface_map.end())
     {
-        surface_map[name].ptr = new ogl::surface(name, center);
+        surface_map[name].ptr = new ogl::surface(name, cent);
         surface_map[name].ref = 1;
     }
     else   surface_map[name].ref++;
@@ -374,7 +377,7 @@ const ogl::surface *app::glob::dupe_surface(const ogl::surface *p)
     return 0;
 }
 
-void app::glob::free_surface(std::string name)
+void app::glob::free_surface(const std::string& name)
 {
     if (surface_map.find(name) != surface_map.end())
     {

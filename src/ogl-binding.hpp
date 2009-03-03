@@ -39,13 +39,6 @@ namespace ogl
     {
         typedef std::map<GLenum, const ogl::texture *> unit_texture;
         typedef std::map<GLenum, const ogl::process *> unit_process;
-        typedef std::map<GLenum,       ogl::frame   *> unit_frame;
-
-        // Shared binding attributes.
-
-        static std::vector<ogl::frame *> shadow;
-
-        static bool init_shadow();
 
         // Local binding attributes.
 
@@ -54,27 +47,15 @@ namespace ogl
         const ogl::program *depth_program;  // Depth mode shader program
         unit_texture        depth_texture;  // Depth mode texture bindings
         unit_process        depth_process;  // Depth mode process bindings
-        unit_frame          depth_c_frame;  // Depth mode color frame bindings
-        unit_frame          depth_d_frame;  // Depth mode depth frame bindings
 
         const ogl::program *color_program;  // Color mode shader program
         unit_texture        color_texture;  // Color mode texture bindings
         unit_process        color_process;  // Color mode process bindings
-        unit_frame          color_c_frame;  // Color mode color frame bindings
-        unit_frame          color_d_frame;  // Color mode depth frame bindings
 
         const ogl::program *init_program(app::node, unit_texture&,
-                                                    unit_process&,
-                                                    unit_frame&,
-                                                    unit_frame&);
+                                                    unit_process&);
 
     public:
-
-        static int  shadow_count();
-        static bool bind_shadow(int);
-        static void free_shadow(int);
-
-        static void prep_irradiance(const ogl::program *);
 
         // Local binding methods.
 

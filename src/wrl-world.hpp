@@ -33,6 +33,7 @@ namespace ogl
     class pool;
     class binding;
     class uniform;
+    class process;
 }
 
 //-----------------------------------------------------------------------------
@@ -103,6 +104,9 @@ namespace wrl
 
         ogl::uniform *uniform_light_position;
         ogl::uniform *uniform_pssm_depth;
+        ogl::uniform *uniform_shadow[3];
+
+        const ogl::process *process_shadow[3];
 
         void draw_sky(app::frustum *);
 

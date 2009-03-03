@@ -1,6 +1,8 @@
 
 attribute vec3 Tangent;
 
+uniform mat4 shadow_matrix[3];
+
 varying vec3 V_v;
 varying vec3 L_v;
 
@@ -20,9 +22,9 @@ void main()
     // Diffuse and shadow map texture coordinates.
 
     gl_TexCoord[0] = gl_MultiTexCoord0;
-    gl_TexCoord[1] = gl_TextureMatrix[1] * eye;
-    gl_TexCoord[2] = gl_TextureMatrix[2] * eye;
-    gl_TexCoord[3] = gl_TextureMatrix[3] * eye;
+    gl_TexCoord[1] = shadow_matrix[0] * eye;
+    gl_TexCoord[2] = shadow_matrix[1] * eye;
+    gl_TexCoord[3] = shadow_matrix[2] * eye;
 
     gl_Position = ftransform();
 }

@@ -35,6 +35,8 @@ namespace ogl
     {
     protected:
 
+        std::string name;
+
         static ogl::pool *cube_pool;
         static ogl::node *cube_node[6];
 
@@ -44,12 +46,13 @@ namespace ogl
 
     public:
 
-        virtual const std::string& get_name() const = 0;
+        virtual const std::string& get_name() const { return name; }
 
-        process();
+        process(const std::string&);
 
-        virtual void exec(const ogl::binding *) const { }
-        virtual void bind(GLenum)               const { }
+        virtual void bind_frame() const { }
+        virtual void free_frame() const { }
+        virtual void bind(GLenum) const { }
 
         virtual void init() { }
         virtual void fini() { }

@@ -92,16 +92,18 @@ namespace app
         glob() { }
        ~glob();
 
-        // Named, reference-counted GL state.
-
         const ogl::program *load_program(std::string, std::string) { return 0; } // HACK HACK HACK
 
-              ogl::uniform *load_uniform(std::string, GLsizei);
-        const ogl::program *load_program(std::string);
-        const ogl::process *load_process(std::string);
-        const ogl::texture *load_texture(std::string, std::string);
-        const ogl::binding *load_binding(std::string, std::string);
-        const ogl::surface *load_surface(std::string, bool);
+        // Named, reference-counted GL state.
+
+              ogl::uniform *load_uniform(const std::string&, GLsizei);
+        const ogl::program *load_program(const std::string&);
+        const ogl::process *load_process(const std::string&);
+        const ogl::texture *load_texture(const std::string&,
+                                         const std::string&);
+        const ogl::binding *load_binding(const std::string&,
+                                         const std::string&);
+        const ogl::surface *load_surface(const std::string&, bool);
 
               ogl::uniform *dupe_uniform(      ogl::uniform *);
         const ogl::program *dupe_program(const ogl::program *);
@@ -110,12 +112,12 @@ namespace app
         const ogl::binding *dupe_binding(const ogl::binding *);
         const ogl::surface *dupe_surface(const ogl::surface *);
 
-        void free_uniform(std::string);
-        void free_program(std::string);
-        void free_process(std::string);
-        void free_texture(std::string);
-        void free_binding(std::string);
-        void free_surface(std::string);
+        void free_uniform(const std::string&);
+        void free_program(const std::string&);
+        void free_process(const std::string&);
+        void free_texture(const std::string&);
+        void free_binding(const std::string&);
+        void free_surface(const std::string&);
 
         void free_uniform(      ogl::uniform *);
         void free_program(const ogl::program *);

@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef OGL_D_OMEGA_HPP
-#define OGL_D_OMEGA_HPP
+#ifndef OGL_SHADOW_HPP
+#define OGL_SHADOW_HPP
 
 #include "ogl-process.hpp"
 
@@ -27,19 +27,20 @@ namespace ogl
 
 namespace ogl
 {
-    class d_omega : public process
+    class shadow : public process
     {
-        const ogl::binding *calc;
-              ogl::frame   *cube;
+        ogl::frame *buff;
+
+        int index;
 
     public:
 
-        d_omega();
-       ~d_omega();
+        shadow(int);
+       ~shadow();
 
+        void bind_frame() const;
+        void free_frame() const;
         void bind(GLenum) const;
-
-        void init();
     };
 }
 

@@ -12,47 +12,48 @@
 
 #include <cassert>
 
+#include "app-conf.hpp"
 #include "app-glob.hpp"
 #include "ogl-frame.hpp"
-#include "ogl-binding.hpp"
-#include "ogl-d-omega.hpp"
+#include "ogl-shadow.hpp"
 
 //-----------------------------------------------------------------------------
 
-ogl::d_omega::d_omega() :
-    process("d_omega"),
+ogl::shadow::shadow(int i) :
+    process("shadow" + ("0123456789ABCDEF"[i])),
 
-    calc(::glob->load_binding("d-omega", "d-omega")),
-    cube(::glob->new_frame(256, 256, GL_TEXTURE_CUBE_MAP,
-                           GL_RGBA16F_ARB, true, false, false))
+    buff(::glob->new_frame(::conf->get_i("shadow_map_resolution"),
+                           ::conf->get_i("shadow_map_resolution"),
+                           GL_TEXTURE_2D, GL_RGBA8, false, true, false)),
+    index(i)
 {
-    init();
 }
 
-ogl::d_omega::~d_omega()
+ogl::shadow::~shadow()
 {
-    assert(calc);
-    assert(cube);
+    assert(buff);
 
-    ::glob->free_frame(cube);
-    ::glob->free_binding(calc);
+    ::glob->free_frame(buff);
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::d_omega::bind(GLenum unit) const
+void ogl::shadow::bind_frame() const
 {
-    assert(cube);
-
-    cube->bind_color(unit);
+    assert(buff);
+    buff->bind();
 }
 
-void ogl::d_omega::init()
+void ogl::shadow::free_frame() const
 {
-    assert(calc);
-    assert(cube);
+    assert(buff);
+    buff->free();
+}
 
-    proc_cube(calc, cube);
+void ogl::shadow::bind(GLenum unit) const
+{
+    assert(buff);
+    buff->bind_depth(unit);
 }
 
 //-----------------------------------------------------------------------------

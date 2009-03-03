@@ -23,7 +23,7 @@ ogl::node *ogl::process::cube_node[6];
 
 //-----------------------------------------------------------------------------
 
-ogl::process::process()
+ogl::process::process(const std::string& name) : name(name)
 {
     init_cube();
 }

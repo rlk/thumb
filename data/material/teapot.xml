@@ -7,15 +7,10 @@
     <texture sampler="spec_map"  name="highly-specular.png" />
     <texture sampler="diff_map"  name="teapot-diffuse.png" />
     <texture sampler="norm_map"  name="default-normal.png" />
-<!--
-    <texture sampler="diff_env"  name="diff_irradiance" />
-    <texture sampler="spec_env"  name="spec_irradiance" />
--->
+
     <process sampler="spec_env"  name="d_omega" />
-<!--
-    <texture sampler="shadow[0]" proc="shadow" level="0" />
-    <texture sampler="shadow[1]" proc="shadow" level="1" />
-    <texture sampler="shadow[2]" proc="shadow" level="2" />
--->
+    <process sampler="shadow[0]" name="shadow0" />
+    <process sampler="shadow[1]" name="shadow1" />
+    <process sampler="shadow[2]" name="shadow2" />
   </program>
 </material>

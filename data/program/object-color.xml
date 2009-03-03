@@ -9,7 +9,10 @@
   <sampler name="shadow[1]" unit="4" />
   <sampler name="shadow[2]" unit="5" />
 
-  <uniform name="pssm_depth" value="pssm_depth" size="4"/>
+  <uniform name="pssm_depth"       value="pssm_depth"       size="4" />
+  <uniform name="shadow_matrix[0]" value="shadow_matrix[0]" size="16" />
+  <uniform name="shadow_matrix[1]" value="shadow_matrix[1]" size="16" />
+  <uniform name="shadow_matrix[2]" value="shadow_matrix[2]" size="16" />
 
   <attribute name="Tangent" location="6" />
 </program>

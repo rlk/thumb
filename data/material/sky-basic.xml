@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <material>
-  <program mode="color" file="sky-basic.xml" />
-  <texture name="fill"  file="sky-fill.png" />
-  <texture name="glow"  file="sky-glow.png" />
+  <program mode="color" file="sky-basic.xml">
+    <texture name="fill" name="sky-fill.png" />
+    <texture name="glow" name="sky-glow.png" />
+  </program>
 </material>

@@ -13,6 +13,7 @@ uniform mat4 irradiance_G;
 uniform mat4 irradiance_B;
 
 uniform vec4 pssm_depth;
+uniform vec3 light_position;
 
 varying vec3 V_v;
 varying vec3 N_v;
@@ -30,6 +31,11 @@ void main()
     vec3 V_w = normalize(V_v);
     vec3 N_w = normalize(N_v);
     vec3 T_w = normalize(T_v);
+
+    // TODO: uniform light_direction.
+    // This is gonna cause problems.
+
+    float lit = step(0.0, dot(N_w, normalize(light_position)));
 
     // Construct a tangent space basis in world space.
 
@@ -49,7 +55,7 @@ void main()
 
     float s0 = step(pssm_depth.y, gl_FragCoord.z);
     float s1 = step(pssm_depth.z, gl_FragCoord.z);
-    float ss = mix(S0, mix(S1, S2, s1), s0);
+    float ss = mix(S0, mix(S1, S2, s1), s0) * lit;
 
     // Transform the fragment normal from tangent to world space.
 
@@ -60,7 +66,7 @@ void main()
     vec3 R = reflect(V_w, N);
 
 //  gl_FragColor = textureCube(spec_env, R);
-    gl_FragColor = textureCube(spec_env, N);
+    gl_FragColor = vec4(textureCube(spec_env, N).rgb * mix(0.8, 1.0, ss), 1.0);
 
 /*
     vec4 T = vec4(normalize(N), 1.0);
