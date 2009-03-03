@@ -70,7 +70,7 @@ void main()
     vec3  Ka = vec3(0.5);
     vec3  Kd = vec3(0.5);
     vec3  Ks = vec3(1.0);
-    float Ns = S.a * 64.0;
+    float Ns = max(1.0, S.a * 64.0);
 
     vec3 KS = pow(max(dot(V, R), 0.0), Ns) * S.rgb * Ks;
     vec3 KD =     max(dot(L, N), 0.0)      * D.rgb * Kd;

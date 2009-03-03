@@ -69,11 +69,17 @@ static const char *toxml(const char *origname, const char *dir)
     {
         fprintf(fp, "<?xml version=\"1.0\"?>\n");
         fprintf(fp, "<material>\n");
-        fprintf(fp, "  <program mode=\"depth\"    file=\"object-depth.xml\"/>\n");
-        fprintf(fp, "  <program mode=\"color\"    file=\"object-color.xml\"/>\n");
-        fprintf(fp, "  <texture name=\"specular\" file=\"matte-specular.png\"/>\n");
-        fprintf(fp, "  <texture name=\"diffuse\"  file=\"%s\"/>\n", diffname);
-        fprintf(fp, "  <texture name=\"normal\"   file=\"%s\"/>\n", normname);
+        fprintf(fp, "  <program mode=\"depth\"    file=\"object-depth.xml\">\n");
+        fprintf(fp, "    <texture sampler=\"diff_map\"  name=\"%s\"/>\n", diffname);
+        fprintf(fp, "  </program mode>\n");
+        fprintf(fp, "  <program mode=\"color\"    file=\"object-color.xml\">\n");
+        fprintf(fp, "    <texture sampler=\"spec_map\"  name=\"matte-specular.png\"/>\n");
+        fprintf(fp, "    <texture sampler=\"diff_map\"  name=\"%s\"/>\n", diffname);
+        fprintf(fp, "    <texture sampler=\"norm_map\"  name=\"%s\"/>\n", normname);
+        fprintf(fp, "    <process sampler=\"shadow[0]\" name=\"shadow0\"/>\n");
+        fprintf(fp, "    <process sampler=\"shadow[1]\" name=\"shadow1\"/>\n");
+        fprintf(fp, "    <process sampler=\"shadow[2]\" name=\"shadow2\"/>\n");
+        fprintf(fp, "  </program mode>\n");
         fprintf(fp, "</material>\n");
 
         fclose(fp);

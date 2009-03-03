@@ -2,6 +2,7 @@
 attribute vec3 Tangent;
 
 uniform mat4 shadow_matrix[3];
+uniform vec3 light_position;
 
 varying vec3 V_v;
 varying vec3 L_v;
