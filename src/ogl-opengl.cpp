@@ -415,6 +415,20 @@ void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
     OGLCK();
 }
 
+void ogl::free_texture()
+{
+    for (int u = GL_TEXTURE0 + MAX_TEXTURE_UNITS - 1; u >= GL_TEXTURE0; --u)
+    {
+        glActiveTextureARB(u);
+
+        glBindTexture(GL_TEXTURE_1D,            0);
+        glBindTexture(GL_TEXTURE_2D,            0);
+        glBindTexture(GL_TEXTURE_3D,            0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP,      0);
+        glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
+    }
+}
+
 //-----------------------------------------------------------------------------
 
 void ogl::line_state_init()

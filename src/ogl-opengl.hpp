@@ -142,6 +142,7 @@ namespace ogl
     void init();
 
     void bind_texture(GLenum, GLenum, GLuint);
+    void free_texture();
 
     void line_state_init();
     void line_state_fini();

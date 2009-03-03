@@ -485,7 +485,6 @@ void app::glob::init()
     std::map<std::string, program>::iterator pi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, process>::iterator Pi;
-//  std::map<std::string, binding>::iterator bi;
 
     for (pi = program_map.begin(); pi != program_map.end(); ++pi)
         if (pi->second.ptr)
@@ -498,35 +497,19 @@ void app::glob::init()
     for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
         if (Pi->second.ptr)
             Pi->second.ptr->init();
-
-//  for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-//      if (bi->second.ptr)
-//          bi->second.ptr->init();
 }
 
 void app::glob::fini()
 {
     // Null all texture bindings.
 
-    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE0, 0);
-    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE1, 0);
-    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE2, 0);
-    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE3, 0);
-    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE4, 0);
-    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE5, 0);
-    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE6, 0);
-    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE7, 0);
+    ogl::free_texture();
 
     // Release all OpenGL state.
 
-//  std::map<std::string, binding>::iterator bi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, process>::iterator Pi;
     std::map<std::string, program>::iterator pi;
-
-//  for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-//      if (bi->second.ptr)
-//          bi->second.ptr->fini();
 
     for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
         if (Pi->second.ptr)
