@@ -32,7 +32,6 @@ ogl::shadow::shadow(int i) :
 ogl::shadow::~shadow()
 {
     assert(buff);
-
     ::glob->free_frame(buff);
 }
 

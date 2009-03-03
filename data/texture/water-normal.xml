@@ -2,4 +2,5 @@
 <texture>
   <filter type="min" value="linear-mipmap-linear" />
   <filter type="mag" value="linear" />
+  <option name="normalize-mipmap"/>
 </texture>

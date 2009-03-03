@@ -15,24 +15,27 @@ void main()
     vec3 L = normalize(light_position);
 
     // Compute water texture coordinates.
-/*
-    float h = view_position.y;
+
+    float h =  view_position.y;
     vec2 t0 = -view_position.xz + V.xz * view_position.y / V.y;
-*/
+/*
     vec2 t0 = V.xz * 5.0 / V.y;
+*/
 
-    vec2 t1 = 0.0600 * t0 + vec2(-0.01, -0.02) * time;
-    vec2 t2 = 0.1300 * t0 + vec2( 0.01,  0.03) * time;
-    vec2 t3 = 0.2500 * t0 + vec2( 0.04, -0.05) * time;
+    vec2 t1 = 0.0005 * t0 + vec2(-0.003,  0.005) * time;
+    vec2 t2 = 0.0050 * t0 + vec2(-0.010, -0.020) * time;
+    vec2 t3 = 0.0220 * t0 + vec2( 0.014,  0.030) * time;
+    vec2 t4 = 0.0510 * t0 + vec2( 0.040, -0.050) * time;
 
-    // The water normal is the sum of three normal map references.
+    // The water normal is the sum of multiple normal map references.
 
     const vec3 ck = vec3(-2.0, +2.0, -2.0);
     const vec3 cd = vec3(+1.0, -1.0, +1.0);
 
-    vec3 N = normalize(texture2D(norm, t1).xzy * ck + cd +
-                       texture2D(norm, t2).xzy * ck + cd +
-                       texture2D(norm, t3).xzy * ck + cd);
+    vec3 N = normalize((texture2D(norm, t1).xzy * ck + cd) +
+                       (texture2D(norm, t2).xzy * ck + cd) +
+                       (texture2D(norm, t3).xzy * ck + cd) +
+                       (texture2D(norm, t4).xzy * ck + cd));
 
     // Fade the normal to vertical toward the horizon.
 
@@ -58,4 +61,5 @@ void main()
     vec4 K = mix(Ko, Kf + Kg, f);
 
     gl_FragColor = vec4(K.rgb, Kf.a);
+//  gl_FragColor = vec4(vec3(dot(N, L)), 1.0);
 }

@@ -24,7 +24,7 @@
     <display type="normal" index="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <perspective hfov="60.0" vfov="45.0"/>
+        <perspective hfov="60.0" vfov="35.0"/>
       </frustum>
     </display>
   </node>

@@ -242,12 +242,15 @@ void ogl::program::init()
 
         // Configure the program.
 
-        bind();
+        if (bindable)
         {
-            init_samplers(root);
-            init_uniforms(root);
+            bind();
+            {
+                init_samplers(root);
+                init_uniforms(root);
+            }
+            free();
         }
-        free();
         OGLCK();
     }
 }
@@ -265,6 +268,10 @@ void ogl::program::fini()
     if (prog) glDeleteObjectARB(prog);
     if (vert) glDeleteObjectARB(vert);
     if (frag) glDeleteObjectARB(frag);
+
+    prog = 0;
+    vert = 0;
+    frag = 0;
 
     OGLCK();
 }

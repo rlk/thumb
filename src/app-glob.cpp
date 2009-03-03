@@ -468,27 +468,6 @@ void app::glob::init()
 {
     // Reacquire all OpenGL state.
 
-    std::map<std::string, program>::iterator pi;
-    std::map<std::string, process>::iterator Pi;
-    std::map<std::string, texture>::iterator ti;
-//  std::map<std::string, binding>::iterator bi;
-
-    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
-        if (pi->second.ptr)
-            pi->second.ptr->init();
-
-    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
-        if (Pi->second.ptr)
-            Pi->second.ptr->init();
-
-    for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
-        if (ti->second.ptr)
-            ti->second.ptr->init();
-
-//  for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-//      if (bi->second.ptr)
-//          bi->second.ptr->init();
-
     std::set<ogl::pool  *>::iterator qi;
     std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
@@ -501,11 +480,53 @@ void app::glob::init()
 
     for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
         (*fi)->init();
+
+    std::map<std::string, program>::iterator pi;
+    std::map<std::string, texture>::iterator ti;
+    std::map<std::string, process>::iterator Pi;
+//  std::map<std::string, binding>::iterator bi;
+
+    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+        if (pi->second.ptr)
+            pi->second.ptr->init();
+
+    for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
+        if (ti->second.ptr)
+            ti->second.ptr->init();
+
+    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
+        if (Pi->second.ptr)
+            Pi->second.ptr->init();
+
+//  for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+//      if (bi->second.ptr)
+//          bi->second.ptr->init();
 }
 
 void app::glob::fini()
 {
     // Release all OpenGL state.
+
+//  std::map<std::string, binding>::iterator bi;
+    std::map<std::string, texture>::iterator ti;
+    std::map<std::string, process>::iterator Pi;
+    std::map<std::string, program>::iterator pi;
+
+//  for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+//      if (bi->second.ptr)
+//          bi->second.ptr->fini();
+
+    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
+        if (Pi->second.ptr)
+            Pi->second.ptr->fini();
+
+    for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
+        if (ti->second.ptr)
+            ti->second.ptr->fini();
+
+    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+        if (pi->second.ptr)
+            pi->second.ptr->fini();
 
     std::set<ogl::frame *>::iterator fi;
     std::set<ogl::image *>::iterator ii;
@@ -519,27 +540,6 @@ void app::glob::fini()
 
     for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
         (*qi)->fini();
-
-//  std::map<std::string, binding>::iterator bi;
-    std::map<std::string, texture>::iterator ti;
-    std::map<std::string, process>::iterator Pi;
-    std::map<std::string, program>::iterator pi;
-
-//  for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-//      if (bi->second.ptr)
-//          bi->second.ptr->fini();
-
-    for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
-        if (ti->second.ptr)
-            ti->second.ptr->fini();
-
-    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
-        if (Pi->second.ptr)
-            Pi->second.ptr->fini();
-
-    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
-        if (pi->second.ptr)
-            pi->second.ptr->fini();
 }
 
 //-----------------------------------------------------------------------------
