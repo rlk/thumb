@@ -68,6 +68,11 @@ PFNGLUNIFORM1FARBPROC                glUniform1fARB;
 PFNGLUNIFORM2FARBPROC                glUniform2fARB;
 PFNGLUNIFORM3FARBPROC                glUniform3fARB;
 PFNGLUNIFORM4FARBPROC                glUniform4fARB;
+PFNGLUNIFORM1FVARBPROC               glUniform1fvARB;
+PFNGLUNIFORM2FVARBPROC               glUniform2fvARB;
+PFNGLUNIFORM3FVARBPROC               glUniform3fvARB;
+PFNGLUNIFORM4FVARBPROC               glUniform4fvARB;
+PFNGLUNIFORMMATRIX3FVARBPROC         glUniformMatrix3fvARB;
 PFNGLUNIFORMMATRIX4FVARBPROC         glUniformMatrix4fvARB;
 
 // GL_ARB_vertex_shader
@@ -258,6 +263,11 @@ static void init_ext()
         PROC(PFNGLUNIFORM2FARBPROC,              glUniform2fARB);
         PROC(PFNGLUNIFORM3FARBPROC,              glUniform3fARB);
         PROC(PFNGLUNIFORM4FARBPROC,              glUniform4fARB);
+        PROC(PFNGLUNIFORM1FVARBPROC,             glUniform1fvARB);
+        PROC(PFNGLUNIFORM2FVARBPROC,             glUniform2fvARB);
+        PROC(PFNGLUNIFORM3FVARBPROC,             glUniform3fvARB);
+        PROC(PFNGLUNIFORM4FVARBPROC,             glUniform4fvARB);
+        PROC(PFNGLUNIFORMMATRIX3FVARBPROC,       glUniformMatrix3fvARB);
         PROC(PFNGLUNIFORMMATRIX4FVARBPROC,       glUniformMatrix4fvARB);
     }
     catch (std::runtime_error& e) { ogl::has_glsl = false; }
