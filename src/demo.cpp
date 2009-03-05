@@ -61,6 +61,7 @@ demo::demo(int w, int h) :
     uniform_view_inverse   = ::glob->load_uniform("view_inverse",  16);
     uniform_view_position  = ::glob->load_uniform("view_position",  3);
     uniform_time           = ::glob->load_uniform("time",           1);
+
     uniform_reflection_cubemap_size
         = ::glob->load_uniform("reflection_cubemap_size",           1);
     uniform_irradiance_cubemap_size

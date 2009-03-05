@@ -54,7 +54,7 @@ void main()
 
     // Mix the ocean color using a Fresnel coefficient.
 
-    float f = mix(1.0, clamp(pow(1.0 - dot(N, V), 1.2), 0.0, 1.0), dn);
+    float f = mix(1.0, clamp(pow(1.0 - dot(N, V), 2.0), 0.0, 1.0), dn);
 
     vec4 Ko = vec4(0.0, 0.5, 0.5, 1.0);
 

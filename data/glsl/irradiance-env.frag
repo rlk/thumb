@@ -64,10 +64,11 @@ void main()
     // Reflect the world-space view across the normal.
 
     vec3 R = reflect(V_w, N);
-
+/*
     gl_FragColor = vec4(textureCube(reflection_env, R).rgb *
                         textureCube(d_omega,        R).rgb * 8000.0, 1.0);
-//  gl_FragColor = vec4(textureCube(d_omega, N).rgb * 10000.0, 1.0);
+*/
+    gl_FragColor = vec4(textureCube(d_omega, N).rgb, 1.0);
 
 /*
     vec4 T = vec4(normalize(N), 1.0);

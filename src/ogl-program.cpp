@@ -250,6 +250,7 @@ void ogl::program::init()
                 init_uniforms(root);
             }
             free();
+            prep();
         }
         OGLCK();
     }

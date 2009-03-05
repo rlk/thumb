@@ -950,9 +950,8 @@ double wrl::world::split_coeff(int i, int m, double n, double f)
 {
     double k = double(i) / double(m);
 
-/*
     double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
-*/
+/*
     double c;
 
     switch (i)
@@ -962,7 +961,7 @@ double wrl::world::split_coeff(int i, int m, double n, double f)
     case 2: c = 120.0; break;
     case 3: c = 300.0; break;
     }
-
+*/
     return (c - n) / (f - n);
 }
 
@@ -970,9 +969,8 @@ double wrl::world::split_depth(int i, int m, double n, double f)
 {
     double k = double(i) / double(m);
 
-/*
     double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
-*/
+/*
     double c;
 
     switch (i)
@@ -982,7 +980,7 @@ double wrl::world::split_depth(int i, int m, double n, double f)
     case 2: c = 120.0; break;
     case 3: c = 300.0; break;
     }
-
+*/
     return (1 - n / c) * f / (f - n);
 }
 
@@ -1031,11 +1029,11 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
         // Render the fill geometry to the shadow buffer.
 
-        glEnable(GL_POLYGON_OFFSET_FILL);
+//      glEnable(GL_POLYGON_OFFSET_FILL);
         process_shadow[i]->bind_frame();
         {
+//          glPolygonOffset(1.1f, 4.0f);
             frust.draw();
-            glPolygonOffset(1.1f, 4.0f);
 
             // View from the light's perspective.
 
@@ -1054,7 +1052,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
             fill_pool->draw_fini();
         }
         process_shadow[i]->free_frame();
-        glDisable(GL_POLYGON_OFFSET_FILL);
+//      glDisable(GL_POLYGON_OFFSET_FILL);
 
         // Compute the light transform.
 
