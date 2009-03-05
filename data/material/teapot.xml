@@ -8,7 +8,9 @@
     <texture sampler="diff_map"  name="teapot-diffuse.png" />
     <texture sampler="norm_map"  name="default-normal.png" />
 
-    <process sampler="spec_env"  name="d_omega" />
+    <process sampler="reflection_env"  name="reflection_env" />
+    <process sampler="d_omega"         name="d_omega" />
+
     <process sampler="shadow[0]" name="shadow0" />
     <process sampler="shadow[1]" name="shadow1" />
     <process sampler="shadow[2]" name="shadow2" />

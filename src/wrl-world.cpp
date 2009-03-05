@@ -70,6 +70,7 @@ wrl::world::world() :
     process_shadow[0]      = ::glob->load_process("shadow0");
     process_shadow[1]      = ::glob->load_process("shadow1");
     process_shadow[2]      = ::glob->load_process("shadow2");
+    process_reflection     = ::glob->load_process("reflection_env");
 }
 
 wrl::world::~world()
@@ -101,6 +102,7 @@ wrl::world::~world()
 
     // Finalize the uniforms.
 
+    ::glob->free_process(process_reflection);
     ::glob->free_process(process_shadow[2]);
     ::glob->free_process(process_shadow[1]);
     ::glob->free_process(process_shadow[0]);
@@ -948,8 +950,9 @@ double wrl::world::split_coeff(int i, int m, double n, double f)
 {
     double k = double(i) / double(m);
 
-    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
 /*
+    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
+*/
     double c;
 
     switch (i)
@@ -959,7 +962,6 @@ double wrl::world::split_coeff(int i, int m, double n, double f)
     case 2: c = 120.0; break;
     case 3: c = 300.0; break;
     }
-*/
 
     return (c - n) / (f - n);
 }
@@ -968,8 +970,9 @@ double wrl::world::split_depth(int i, int m, double n, double f)
 {
     double k = double(i) / double(m);
 
-    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
 /*
+    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
+*/
     double c;
 
     switch (i)
@@ -979,7 +982,6 @@ double wrl::world::split_depth(int i, int m, double n, double f)
     case 2: c = 120.0; break;
     case 3: c = 300.0; break;
     }
-*/
 
     return (1 - n / c) * f / (f - n);
 }
@@ -1029,9 +1031,11 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
         // Render the fill geometry to the shadow buffer.
 
+        glEnable(GL_POLYGON_OFFSET_FILL);
         process_shadow[i]->bind_frame();
         {
             frust.draw();
+            glPolygonOffset(1.1f, 4.0f);
 
             // View from the light's perspective.
 
@@ -1050,6 +1054,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
             fill_pool->draw_fini();
         }
         process_shadow[i]->free_frame();
+        glDisable(GL_POLYGON_OFFSET_FILL);
 
         // Compute the light transform.
 
@@ -1095,7 +1100,7 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
     // Ask the binding system to compute the irradiance environment using
     // the sky shader.
 
-//  ogl::binding::prep_irradiance(sky);
+    process_reflection->draw(sky);
 
     return r;
 }

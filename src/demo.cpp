@@ -61,10 +61,22 @@ demo::demo(int w, int h) :
     uniform_view_inverse   = ::glob->load_uniform("view_inverse",  16);
     uniform_view_position  = ::glob->load_uniform("view_position",  3);
     uniform_time           = ::glob->load_uniform("time",           1);
+    uniform_reflection_cubemap_size
+        = ::glob->load_uniform("reflection_cubemap_size",           1);
+    uniform_irradiance_cubemap_size
+        = ::glob->load_uniform("irradiance_cubemap_size",           1);
+
+    double rs = ::conf->get_i("reflection_cubemap_size", 128);
+    double is = ::conf->get_i("irradiance_cubemap_size", 128);
+
+    uniform_reflection_cubemap_size->set(&rs);
+    uniform_irradiance_cubemap_size->set(&is);
+
+/*
     uniform_irradiance_R   = ::glob->load_uniform("irradiance_R",   16);
     uniform_irradiance_G   = ::glob->load_uniform("irradiance_G",   16);
     uniform_irradiance_B   = ::glob->load_uniform("irradiance_B",   16);
-
+*/
     // Initialize attract mode.
 
     attr_time = conf->get_f("attract_delay");
@@ -94,9 +106,13 @@ demo::demo(int w, int h) :
 
 demo::~demo()
 {
+/*
     ::glob->free_uniform(uniform_irradiance_B);
     ::glob->free_uniform(uniform_irradiance_G);
     ::glob->free_uniform(uniform_irradiance_R);
+*/
+    ::glob->free_uniform(uniform_irradiance_cubemap_size);
+    ::glob->free_uniform(uniform_reflection_cubemap_size);
     ::glob->free_uniform(uniform_time);
     ::glob->free_uniform(uniform_view_position);
     ::glob->free_uniform(uniform_view_inverse);
@@ -313,7 +329,7 @@ bool demo::process_event(app::event *E)
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 static void cathedral(double M[3][16])
 {
     static const double L0_0[3] = {  0.79,  0.44,  0.54 };
@@ -355,7 +371,7 @@ static void cathedral(double M[3][16])
         M[i][15] =  c4 * L0_0[i] - c5 * L2_0[i];
     }
 }
-
+*/
 ogl::range demo::prep(int frusc, app::frustum **frusv)
 {
     double t = SDL_GetTicks() * 0.001f;
@@ -368,14 +384,14 @@ ogl::range demo::prep(int frusc, app::frustum **frusv)
     uniform_view_position ->set(::user->get_M() + 12);
 
     uniform_time->set(&t);
-
+/*
     double M[3][16];
     cathedral(M);
 
     uniform_irradiance_R->set(M[0]);
     uniform_irradiance_G->set(M[1]);
     uniform_irradiance_B->set(M[2]);
-
+*/
     // Prep the current mode, giving the view range.
 
     ogl::range r;

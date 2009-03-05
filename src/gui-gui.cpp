@@ -592,7 +592,7 @@ void gui::editor::point(int x, int y)
 void gui::editor::keybd(int c, int k, int m)
 {
     int n = int(str.length());
-    int s = (k & KMOD_SHIFT);
+    int s = (m & KMOD_SHIFT);
 
     switch (k)
     {

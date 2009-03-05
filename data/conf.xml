@@ -68,8 +68,12 @@
 
   <option type="string" name="sans_font">FreeSans.ttf</option>
   <option type="string" name="mono_font">FreeMono.ttf</option>
+  <option type="int"    name="sans_size">12</option>
+  <option type="int"    name="mono_size">12</option>
+<!--
   <option type="int"    name="sans_size">14</option>
   <option type="int"    name="mono_size">14</option>
+-->
 
   <!-- Dvorak keyboard commands
 

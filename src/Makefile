@@ -13,6 +13,7 @@ OBJS=   util.o \
 	ogl-aabb.o \
 	ogl-range.o \
 	ogl-shadow.o \
+	ogl-reflection-env.o \
 	ogl-d-omega.o \
 	ogl-process.o \
 	ogl-uniform.o \
@@ -130,7 +131,7 @@ clean :
 	$(RM) $(OBJS) $(DEPS) "../$(TARG)"
 
 test : ../$(TARG)
-	(cd ..; ./$(TARG) 1920x1080)
+	(cd ..; ./$(TARG) 960x540)
 
 #------------------------------------------------------------------------------
 

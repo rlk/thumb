@@ -29,6 +29,17 @@
     </display>
   </node>
 
+  <node name="960x540">
+    <window x="0" y="0" w="960" h="540"/>
+    <channel w="960" h="540"/>
+    <display type="normal" index="1">
+      <viewport x="0" y="0" w="960" h="540"/>
+      <frustum>
+        <perspective hfov="60.0" vfov="35.0"/>
+      </frustum>
+    </display>
+  </node>
+
   <node name="1024x768">
     <window x="0" y="0" w="1024" h="768"/>
     <channel w="1024" h="768"/>

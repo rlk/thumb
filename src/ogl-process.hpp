@@ -50,6 +50,8 @@ namespace ogl
 
         process(const std::string&);
 
+        virtual void draw(const ogl::binding *) const { };
+
         virtual void bind_frame() const { }
         virtual void free_frame() const { }
         virtual void bind(GLenum) const { }

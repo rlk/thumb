@@ -39,12 +39,12 @@ namespace app
         bool load();
         void save();
 
-        int         get_i(std::string);
-        float       get_f(std::string);
-        std::string get_s(std::string);
+        int         get_i(std::string, int         =  0);
+        double      get_f(std::string, double      =  0);
+        std::string get_s(std::string, std::string = "");
 
         void        set_i(std::string, int);
-        void        set_f(std::string, float);
+        void        set_f(std::string, double);
         void        set_s(std::string, std::string);
     };
 }

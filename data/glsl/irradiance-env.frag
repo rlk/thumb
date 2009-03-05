@@ -2,16 +2,16 @@
 uniform sampler2D       diff_map;
 uniform sampler2D       spec_map;
 uniform sampler2D       norm_map;
-/*
-uniform samplerCube     diff_env;
-*/
-uniform samplerCube     spec_env;
-uniform sampler2DShadow shadow[3];
 
+uniform samplerCube     reflection_env;
+uniform samplerCube     d_omega;
+
+uniform sampler2DShadow shadow[3];
+/*
 uniform mat4 irradiance_R;
 uniform mat4 irradiance_G;
 uniform mat4 irradiance_B;
-
+*/
 uniform vec4 pssm_depth;
 uniform vec3 light_position;
 
@@ -48,7 +48,7 @@ void main()
     vec3 N_c = texture2D(norm_map, gl_TexCoord[0].xy).rgb;
 
     // Look up the shadow map textures.
-
+/*
     float S0 = get_shadow(shadow[0], gl_TexCoord[1]);
     float S1 = get_shadow(shadow[1], gl_TexCoord[2]);
     float S2 = get_shadow(shadow[2], gl_TexCoord[3]);
@@ -56,7 +56,7 @@ void main()
     float s0 = step(pssm_depth.y, gl_FragCoord.z);
     float s1 = step(pssm_depth.z, gl_FragCoord.z);
     float ss = mix(S0, mix(S1, S2, s1), s0) * lit;
-
+*/
     // Transform the fragment normal from tangent to world space.
 
     vec3 N = M * normalize(2.0 * N_c - 1.0);
@@ -65,8 +65,9 @@ void main()
 
     vec3 R = reflect(V_w, N);
 
-//  gl_FragColor = textureCube(spec_env, R);
-    gl_FragColor = vec4(textureCube(spec_env, N).rgb * mix(0.5, 1.0, ss), 1.0);
+    gl_FragColor = vec4(textureCube(reflection_env, R).rgb *
+                        textureCube(d_omega,        R).rgb * 8000.0, 1.0);
+//  gl_FragColor = vec4(textureCube(d_omega, N).rgb * 10000.0, 1.0);
 
 /*
     vec4 T = vec4(normalize(N), 1.0);

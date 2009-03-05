@@ -13,6 +13,7 @@
 #include <cassert>
 
 #include "app-glob.hpp"
+#include "app-conf.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-binding.hpp"
 #include "ogl-d-omega.hpp"
@@ -23,8 +24,10 @@ ogl::d_omega::d_omega() :
     process("d_omega"),
 
     calc(::glob->load_binding("d-omega", "d-omega")),
-    cube(::glob->new_frame(256, 256, GL_TEXTURE_CUBE_MAP,
-                           GL_RGBA16F_ARB, true, false, false))
+    cube(::glob->new_frame(::conf->get_i("reflection_cubemap_size", 128),
+                           ::conf->get_i("reflection_cubemap_size", 128),
+                           GL_TEXTURE_CUBE_MAP,
+                           GL_RGBA32F_ARB, true, false, false))
 {
     init();
 }

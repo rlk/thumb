@@ -1,8 +1,6 @@
-Convert shadow map texture matrices to named uniforms
 Normal map mipmap generation should NOT box-filter.
 Gsync?
 Excise frame::bind(proj) and frame::draw(int, int)
-Figure out a good way for static bindings to init and fini.
 
 Document all engine features, with paper references, as necessary.
     pssm

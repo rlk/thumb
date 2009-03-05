@@ -12,10 +12,8 @@
 
 #include <stdexcept>
 #include <iostream>
-/*
-#include "ogl-spec-irradiance.hpp"
-#include "ogl-diff-irradiance.hpp"
-*/
+
+#include "ogl-reflection-env.hpp"
 #include "ogl-d-omega.hpp"
 #include "ogl-shadow.hpp"
 
@@ -187,10 +185,11 @@ const ogl::process *app::glob::load_process(const std::string& name)
         if      (name == "spec_irradiance") ptr = new ogl::spec_irradiance();
         else if (name == "diff_irradiance") ptr = new ogl::diff_irradiance();
 */
-        if      (name == "d_omega")         ptr = new ogl::d_omega();
-        else if (name == "shadow0")         ptr = new ogl::shadow(0);
-        else if (name == "shadow1")         ptr = new ogl::shadow(1);
-        else if (name == "shadow2")         ptr = new ogl::shadow(2);
+        if      (name == "d_omega")        ptr = new ogl::d_omega();
+        else if (name == "shadow0")        ptr = new ogl::shadow(0);
+        else if (name == "shadow1")        ptr = new ogl::shadow(1);
+        else if (name == "shadow2")        ptr = new ogl::shadow(2);
+        else if (name == "reflection_env") ptr = new ogl::reflection_env();
 
         if (ptr)
         {

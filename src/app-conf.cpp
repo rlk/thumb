@@ -126,7 +126,7 @@ mxml_node_t *app::conf::find(std::string type, std::string name)
 
 //-----------------------------------------------------------------------------
 
-int app::conf::get_i(std::string name)
+int app::conf::get_i(std::string name, int value)
 {
     mxml_node_t *node;
 
@@ -135,22 +135,22 @@ int app::conf::get_i(std::string name)
         if (node->child)
             return int(node->child->value.integer);
     }
-    return 0;
+    return value;
 }
 
-float app::conf::get_f(std::string name)
+double app::conf::get_f(std::string name, double value)
 {
     mxml_node_t *node;
 
     if ((node = find("float", name)))
     {
         if (node->child)
-            return float(node->child->value.real);
+            return double(node->child->value.real);
     }
-    return 0;
+    return value;
 }
 
-std::string app::conf::get_s(std::string name)
+std::string app::conf::get_s(std::string name, std::string value)
 {
     mxml_node_t *node;
 
@@ -159,7 +159,7 @@ std::string app::conf::get_s(std::string name)
         if (node->child)
             return node->child->value.text.string;
     }
-    return "";
+    return value;
 }
 
 //-----------------------------------------------------------------------------
@@ -183,7 +183,7 @@ void app::conf::set_i(std::string name, int value)
     dirty = true;
 }
 
-void app::conf::set_f(std::string name, float value)
+void app::conf::set_f(std::string name, double value)
 {
     // Set the value of an existing floating point option, or create a new one.
 

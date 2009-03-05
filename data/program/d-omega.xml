@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
 <program vert="glsl/d-omega.vert"
          frag="glsl/d-omega.frag" >
+  <uniform name="reflection_cubemap_size" value="reflection_cubemap_size" size="1" />
+  <attribute name="Tangent" location="6" />
 </program>
