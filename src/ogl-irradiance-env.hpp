@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef OGL_D_OMEGA_HPP
-#define OGL_D_OMEGA_HPP
+#ifndef OGL_IRRADIANCE_ENV_HPP
+#define OGL_IRRADIANCE_ENV_HPP
 
 #include "ogl-process.hpp"
 
@@ -20,6 +20,8 @@
 namespace ogl
 {
     class frame;
+    class program;
+    class process;
     class binding;
 }
 
@@ -27,18 +29,29 @@ namespace ogl
 
 namespace ogl
 {
-    class d_omega : public process
+    class irradiance_env : public process
     {
-        const ogl::binding *calc;
-              ogl::frame   *cube;
+        int rsize;
+        int isize;
+
+        const ogl::process *d;
+        const ogl::process *L;
+
+        const ogl::program *init;
+        const ogl::program *step;
+        const ogl::program *calc;
+
+        ogl::frame *ping;
+        ogl::frame *pong;
+        ogl::frame *cube;
 
     public:
 
-        d_omega();
-       ~d_omega();
+        irradiance_env();
+       ~irradiance_env();
 
-        void bind(GLenum) const;
-        void init();
+        void draw(const ogl::binding *) const;
+        void bind(GLenum)               const;
     };
 }
 

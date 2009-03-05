@@ -53,6 +53,7 @@ Refactor app::prog->next()/prev()
     move all attr_* to app::user?
 
 Modernize the GL
+    OpenGL ES 2.0 compatibility
     Eliminate immedate mode stuff
         most everything can be moved into the pool handler
     Eliminate fixed function stuff

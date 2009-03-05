@@ -10,7 +10,10 @@
   <sampler name="shadow[2]" unit="5" />
 
   <sampler name="reflection_env" unit="6" />
+  <sampler name="irradiance_env" unit="7" />
+<!--
   <sampler name="d_omega" unit="7" />
+-->
 
   <uniform name="pssm_depth"       value="pssm_depth"       size="4"/>
   <uniform name="view_matrix"      value="view_matrix"      size="16"/>

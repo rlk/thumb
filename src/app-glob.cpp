@@ -14,6 +14,7 @@
 #include <iostream>
 
 #include "ogl-reflection-env.hpp"
+#include "ogl-irradiance-env.hpp"
 #include "ogl-d-omega.hpp"
 #include "ogl-shadow.hpp"
 
@@ -36,10 +37,10 @@
 app::glob::~glob()
 {
     // Release all storage and OpenGL state.
-
     std::map<std::string, surface>::iterator si;
-    std::map<std::string, texture>::iterator ti;
     std::map<std::string, binding>::iterator bi;
+    std::map<std::string, process>::iterator Pi;
+    std::map<std::string, texture>::iterator ti;
     std::map<std::string, program>::iterator pi;
     std::map<std::string, uniform>::iterator ui;
 
@@ -48,6 +49,9 @@ app::glob::~glob()
 
     for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
         delete bi->second.ptr;
+
+    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
+        delete Pi->second.ptr;
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         delete ti->second.ptr;
@@ -181,15 +185,13 @@ const ogl::process *app::glob::load_process(const std::string& name)
     if (process_map.find(name) == process_map.end())
     {
         ogl::process *ptr = 0;
-/*
-        if      (name == "spec_irradiance") ptr = new ogl::spec_irradiance();
-        else if (name == "diff_irradiance") ptr = new ogl::diff_irradiance();
-*/
+
         if      (name == "d_omega")        ptr = new ogl::d_omega();
         else if (name == "shadow0")        ptr = new ogl::shadow(0);
         else if (name == "shadow1")        ptr = new ogl::shadow(1);
         else if (name == "shadow2")        ptr = new ogl::shadow(2);
         else if (name == "reflection_env") ptr = new ogl::reflection_env();
+        else if (name == "irradiance_env") ptr = new ogl::irradiance_env();
 
         if (ptr)
         {

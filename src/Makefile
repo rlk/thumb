@@ -14,6 +14,7 @@ OBJS=   util.o \
 	ogl-range.o \
 	ogl-shadow.o \
 	ogl-reflection-env.o \
+	ogl-irradiance-env.o \
 	ogl-d-omega.o \
 	ogl-process.o \
 	ogl-uniform.o \

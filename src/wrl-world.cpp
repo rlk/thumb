@@ -71,6 +71,7 @@ wrl::world::world() :
     process_shadow[1]      = ::glob->load_process("shadow1");
     process_shadow[2]      = ::glob->load_process("shadow2");
     process_reflection     = ::glob->load_process("reflection_env");
+    process_irradiance     = ::glob->load_process("irradiance_env");
 }
 
 wrl::world::~world()
@@ -102,6 +103,7 @@ wrl::world::~world()
 
     // Finalize the uniforms.
 
+    ::glob->free_process(process_irradiance);
     ::glob->free_process(process_reflection);
     ::glob->free_process(process_shadow[2]);
     ::glob->free_process(process_shadow[1]);
@@ -1099,6 +1101,7 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
     // the sky shader.
 
     process_reflection->draw(sky);
+    process_irradiance->draw(0);
 
     return r;
 }
@@ -1164,10 +1167,10 @@ void wrl::world::draw_line(int frusi, app::frustum *frusp)
         line_pool->draw_init();
         {
             glColor3f(1.0f, 0.0f, 0.0f);
-            stat_node->draw(0, true, false);
+            stat_node->draw(frusi, true, false);
 
             glColor3f(0.0f, 1.0f, 0.0f);
-            dyna_node->draw(0, true, false);
+            dyna_node->draw(frusi, true, false);
 
             glColor3f(1.0f, 1.0f, 1.0f);
         }

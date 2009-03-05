@@ -4,7 +4,8 @@ uniform sampler2D       spec_map;
 uniform sampler2D       norm_map;
 
 uniform samplerCube     reflection_env;
-uniform samplerCube     d_omega;
+uniform samplerCube     irradiance_env;
+//uniform samplerCube     d_omega;
 
 uniform sampler2DShadow shadow[3];
 /*
@@ -64,17 +65,7 @@ void main()
     // Reflect the world-space view across the normal.
 
     vec3 R = reflect(V_w, N);
-/*
-    gl_FragColor = vec4(textureCube(reflection_env, R).rgb *
-                        textureCube(d_omega,        R).rgb * 8000.0, 1.0);
-*/
-    gl_FragColor = vec4(textureCube(d_omega, N).rgb, 1.0);
 
-/*
-    vec4 T = vec4(normalize(N), 1.0);
-
-    gl_FragColor = vec4(dot(T, irradiance_R * T),
-                        dot(T, irradiance_G * T),
-                        dot(T, irradiance_B * T), 1.0);
-*/
+//  gl_FragColor = textureCube(reflection_env, R);
+    gl_FragColor = textureCube(irradiance_env, N);
 }
