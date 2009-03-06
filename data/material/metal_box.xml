@@ -7,7 +7,9 @@
     <texture sampler="spec_map"  name="metal_box_specular.png" />
     <texture sampler="norm_map"  name="metal_box_normal.png" />
 
-    <process sampler="spec_env"  name="d_omega" />
+    <process sampler="reflection_env"  name="reflection_env" />
+    <process sampler="irradiance_env"  name="irradiance_env" />
+
     <process sampler="shadow[0]" name="shadow0" />
     <process sampler="shadow[1]" name="shadow1" />
     <process sampler="shadow[2]" name="shadow2" />

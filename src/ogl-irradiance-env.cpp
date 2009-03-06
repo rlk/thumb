@@ -15,6 +15,7 @@
 #include "app-glob.hpp"
 #include "app-conf.hpp"
 
+#include "ogl-pool.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-program.hpp"
 #include "ogl-process.hpp"
@@ -26,21 +27,22 @@
 ogl::irradiance_env::irradiance_env() :
     process("irradiance-env"),
 
-    rsize(::conf->get_i("reflection_cubemap_size", 128)),
-    isize(::conf->get_i("irradiance_cubemap_size", 128)),
+    b(::conf->get_i("spherical-harmonic-order", 2)),
+    n(::conf->get_i("reflection_cubemap_size", 128)),
+    m(::conf->get_i("irradiance_cubemap_size", 128)),
 
-    d(::glob->load_process("d-omega")),
-    L(::glob->load_process("reflection-env")),
+    d(::glob->load_process("d_omega")),
+    L(::glob->load_process("reflection_env")),
 
-    init(::glob->load_program("irradiance-init", "irradiance-init")),
-    step(::glob->load_program("irradiance-sum",  "irradiance-sum")),
-    calc(::glob->load_program("irradiance-calc", "irradiance-calc")),
+    init(::glob->load_program("irr/irradiance-init.xml")),
+    step(::glob->load_program("irr/irradiance-sum.xml")),
+    calc(::glob->load_program("irr/irradiance-calc.xml")),
 
-    ping(::glob->new_frame(rsize, rsize, GL_TEXTURE_2D,
+    ping(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE_ARB,
                            GL_RGBA32F_ARB, true, false, false)),
-    pong(::glob->new_frame(rsize, rsize, GL_TEXTURE_2D,
+    pong(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE_ARB,
                            GL_RGBA32F_ARB, true, false, false)),
-    cube(::glob->new_frame(isize, isize, GL_TEXTURE_CUBE_MAP,
+    cube(::glob->new_frame(m, m, GL_TEXTURE_CUBE_MAP,
                            GL_RGBA16F_ARB, true, false, false))
 {
 }
@@ -63,16 +65,34 @@ ogl::irradiance_env::~irradiance_env()
 
 void ogl::irradiance_env::draw(const ogl::binding *bind) const
 {
-    
+    assert(ping);
+    assert(init);
+
+    ping->bind();
+    {
+        init->bind();
+
+        clip_pool->prep();
+        clip_pool->draw_init();
+        {
+            clip_node->draw();
+        }
+        clip_pool->draw_fini();
+    }
+    ping->free();
 }
 
 //-----------------------------------------------------------------------------
 
 void ogl::irradiance_env::bind(GLenum unit) const
 {
-    assert(cube);
+//  assert(cube);
+//  cube->bind_color(unit);
 
-    cube->bind_color(unit);
+//  d->bind(unit);
+//  L->bind(unit);
+
+    ping->bind_color(unit);
 }
 
 //-----------------------------------------------------------------------------

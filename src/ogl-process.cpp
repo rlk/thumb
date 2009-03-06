@@ -18,6 +18,9 @@
 
 //-----------------------------------------------------------------------------
 
+ogl::pool *ogl::process::clip_pool = 0;
+ogl::node *ogl::process::clip_node = 0;
+
 ogl::pool *ogl::process::cube_pool = 0;
 ogl::node *ogl::process::cube_node[6];
 
@@ -25,12 +28,30 @@ ogl::node *ogl::process::cube_node[6];
 
 ogl::process::process(const std::string& name) : name(name)
 {
+    init_clip();
     init_cube();
 }
 
 ogl::process::~process()
 {
+    fini_clip();
     fini_cube();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::process::init_clip()
+{
+    clip_pool = ::glob->new_pool();
+    clip_node = new ogl::node;
+
+    clip_node->add_unit(new ogl::unit("util/clip-fill.obj"));
+    clip_pool->add_node(clip_node);
+}
+
+void ogl::process::fini_clip()
+{
+//  ::glob->free_pool(clip_pool);
 }
 
 //-----------------------------------------------------------------------------
@@ -38,12 +59,12 @@ ogl::process::~process()
 void ogl::process::init_cube()
 {
     static const char *cube_file[] = {
-        "util/cube_face_negative_x.obj",
-        "util/cube_face_positive_x.obj",
-        "util/cube_face_negative_y.obj",
-        "util/cube_face_positive_y.obj",
-        "util/cube_face_negative_z.obj",
-        "util/cube_face_positive_z.obj"
+        "util/cube-face-negative-x.obj",
+        "util/cube-face-positive-x.obj",
+        "util/cube-face-negative-y.obj",
+        "util/cube-face-positive-y.obj",
+        "util/cube-face-negative-z.obj",
+        "util/cube-face-positive-z.obj"
     };
 
     if (cube_pool == 0)
@@ -104,7 +125,7 @@ void ogl::process::proc_cube(const ogl::binding *bind,
                 for (int k = 0; k < 6; ++k)
                 {
                     cube->bind(target[k]);
-                    cube_node[k]->draw(0, true, false);
+                    cube_node[k]->draw();
                     cube->free();
                 }
             }

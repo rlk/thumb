@@ -37,6 +37,16 @@ namespace ogl
 
         std::string name;
 
+        // Render to clipspace.
+
+        static ogl::pool *clip_pool;
+        static ogl::node *clip_node;
+
+        static void init_clip();
+        static void fini_clip();
+
+        // Render to cubemap.
+
         static ogl::pool *cube_pool;
         static ogl::node *cube_node[6];
 

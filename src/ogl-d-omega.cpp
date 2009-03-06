@@ -23,7 +23,7 @@
 ogl::d_omega::d_omega() :
     process("d_omega"),
 
-    calc(::glob->load_binding("d-omega", "d-omega")),
+    calc(::glob->load_binding("irr/d-omega", "irr/d-omega")),
     cube(::glob->new_frame(::conf->get_i("reflection_cubemap_size", 128),
                            ::conf->get_i("reflection_cubemap_size", 128),
                            GL_TEXTURE_CUBE_MAP,

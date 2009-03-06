@@ -4,8 +4,8 @@ uniform sampler2D       spec_map;
 uniform sampler2D       norm_map;
 
 uniform samplerCube     reflection_env;
-uniform samplerCube     irradiance_env;
-//uniform samplerCube     d_omega;
+//uniform samplerCube     irradiance_env;
+uniform sampler2DRect   irradiance_env;
 
 uniform sampler2DShadow shadow[3];
 /*
@@ -67,5 +67,6 @@ void main()
     vec3 R = reflect(V_w, N);
 
 //  gl_FragColor = textureCube(reflection_env, R);
-    gl_FragColor = textureCube(irradiance_env, N);
+//  gl_FragColor = textureCube(irradiance_env, N);
+    gl_FragColor = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 384.0);
 }

@@ -63,15 +63,19 @@ demo::demo(int w, int h) :
     uniform_time           = ::glob->load_uniform("time",           1);
 
     uniform_reflection_cubemap_size
-        = ::glob->load_uniform("reflection_cubemap_size",           1);
+        = ::glob->load_uniform("reflection_cubemap_size",  1);
     uniform_irradiance_cubemap_size
-        = ::glob->load_uniform("irradiance_cubemap_size",           1);
+        = ::glob->load_uniform("irradiance_cubemap_size",  1);
+    uniform_spherical_harmonic_order
+        = ::glob->load_uniform("spherical_harmonic_order", 1);
 
     double rs = ::conf->get_i("reflection_cubemap_size", 128);
     double is = ::conf->get_i("irradiance_cubemap_size", 128);
+    double sh = ::conf->get_i("spherical_harmonic_order",  2);
 
     uniform_reflection_cubemap_size->set(&rs);
     uniform_irradiance_cubemap_size->set(&is);
+    uniform_spherical_harmonic_order->set(&sh);
 
 /*
     uniform_irradiance_R   = ::glob->load_uniform("irradiance_R",   16);
@@ -112,6 +116,7 @@ demo::~demo()
     ::glob->free_uniform(uniform_irradiance_G);
     ::glob->free_uniform(uniform_irradiance_R);
 */
+    ::glob->free_uniform(uniform_spherical_harmonic_order);
     ::glob->free_uniform(uniform_irradiance_cubemap_size);
     ::glob->free_uniform(uniform_reflection_cubemap_size);
     ::glob->free_uniform(uniform_time);

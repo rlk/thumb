@@ -31,8 +31,9 @@ namespace ogl
 {
     class irradiance_env : public process
     {
-        int rsize;
-        int isize;
+        int b;
+        int n;
+        int m;
 
         const ogl::process *d;
         const ogl::process *L;

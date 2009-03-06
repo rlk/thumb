@@ -36,10 +36,11 @@
 
 app::glob::~glob()
 {
-    // Release all storage and OpenGL state.
+    // Release all storage and OpenGL state.  Order matters, unfortunately.
+
     std::map<std::string, surface>::iterator si;
-    std::map<std::string, binding>::iterator bi;
     std::map<std::string, process>::iterator Pi;
+    std::map<std::string, binding>::iterator bi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, program>::iterator pi;
     std::map<std::string, uniform>::iterator ui;
@@ -47,11 +48,11 @@ app::glob::~glob()
     for (si = surface_map.begin(); si != surface_map.end(); ++si)
         delete si->second.ptr;
 
-    for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-        delete bi->second.ptr;
-
     for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
         delete Pi->second.ptr;
+
+    for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+        delete bi->second.ptr;
 
     for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
         delete ti->second.ptr;

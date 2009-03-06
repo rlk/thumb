@@ -161,7 +161,7 @@ namespace ogl
         void sort(GLuint  *, GLuint);
 
         ogl::range view(int, int, const double *);
-        void       draw(int, bool, bool);
+        void       draw(int=0, bool=true, bool=false);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
@@ -205,7 +205,7 @@ namespace ogl
         void       prep();
 
         void draw_init();
-        void draw(int, bool, bool);
+        void draw(int=0, bool=true, bool=false);
         void draw_fini();
 
         void init();
