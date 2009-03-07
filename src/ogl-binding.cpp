@@ -68,12 +68,13 @@ const ogl::program *ogl::binding::init_program(app::node node,
 
             const std::string sampler = app::get_attr_s(curr, "sampler");
             const std::string name    = app::get_attr_s(curr, "name");
+            const int         index   = app::get_attr_d(curr, "index");
 
             // Determine the texture unit binding for this sampler.
 
             if (GLenum unit = prog->unit(sampler))
             {
-                if (const ogl::process *P = ::glob->load_process(name))
+                if (const ogl::process *P = ::glob->load_process(name, index))
                     process[unit] = P;
             }
         }

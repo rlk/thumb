@@ -13,6 +13,8 @@
 #ifndef OGL_IRRADIANCE_ENV_HPP
 #define OGL_IRRADIANCE_ENV_HPP
 
+#include <vector>
+
 #include "ogl-process.hpp"
 
 //-----------------------------------------------------------------------------
@@ -35,6 +37,8 @@ namespace ogl
         int n;
         int m;
 
+        std::vector<const ogl::process *> Y;
+
         const ogl::process *d;
         const ogl::process *L;
 
@@ -48,7 +52,7 @@ namespace ogl
 
     public:
 
-        irradiance_env();
+        irradiance_env(const std::string&);
        ~irradiance_env();
 
         void draw(const ogl::binding *) const;

@@ -19,8 +19,8 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::shadow::shadow(int i) :
-    process(std::string("shadow") + std::string(1, "0123456789ABCDEF"[i])),
+ogl::shadow::shadow(const std::string& name, int i) :
+    process(name),
 
     buff(::glob->new_frame(::conf->get_i("shadow_map_resolution"),
                            ::conf->get_i("shadow_map_resolution"),

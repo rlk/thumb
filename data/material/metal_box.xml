@@ -10,8 +10,8 @@
     <process sampler="reflection_env"  name="reflection_env" />
     <process sampler="irradiance_env"  name="irradiance_env" />
 
-    <process sampler="shadow[0]" name="shadow0" />
-    <process sampler="shadow[1]" name="shadow1" />
-    <process sampler="shadow[2]" name="shadow2" />
+    <process sampler="shadow[0]" name="shadow" index="0" />
+    <process sampler="shadow[1]" name="shadow" index="1" />
+    <process sampler="shadow[2]" name="shadow" index="2" />
   </program>
 </material>

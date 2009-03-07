@@ -52,11 +52,11 @@ namespace ogl
 
         static void init_cube();
         static void fini_cube();
-        static void proc_cube(const ogl::binding *, ogl::frame *);
+        static void proc_cube(ogl::frame *);
 
     public:
 
-        virtual const std::string& get_name() const { return name; }
+        const std::string& get_name() const { return name; }
 
         process(const std::string&);
 

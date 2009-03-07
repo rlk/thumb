@@ -24,8 +24,8 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::irradiance_env::irradiance_env() :
-    process("irradiance-env"),
+ogl::irradiance_env::irradiance_env(const std::string& name) :
+    process(name),
 
     b(::conf->get_i("spherical-harmonic-order", 2)),
     n(::conf->get_i("reflection_cubemap_size", 128)),
@@ -45,10 +45,17 @@ ogl::irradiance_env::irradiance_env() :
     cube(::glob->new_frame(m, m, GL_TEXTURE_CUBE_MAP,
                            GL_RGBA16F_ARB, true, false, false))
 {
+    Y.push_back(::glob->load_process("sh_basis", 0));
 }
 
 ogl::irradiance_env::~irradiance_env()
 {
+
+    std::vector<const ogl::process *>::const_iterator i;
+
+    for (i = Y.begin(); i != Y.end(); ++i)
+        ::glob->free_process(*i);
+
     ::glob->free_process(d);
     ::glob->free_process(L);
 
@@ -92,7 +99,9 @@ void ogl::irradiance_env::bind(GLenum unit) const
 //  d->bind(unit);
 //  L->bind(unit);
 
-    ping->bind_color(unit);
+    Y[0]->bind(unit);
+
+//  ping->bind_color(unit);
 }
 
 //-----------------------------------------------------------------------------

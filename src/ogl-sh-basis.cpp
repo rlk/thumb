@@ -16,24 +16,25 @@
 #include "app-conf.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-program.hpp"
-#include "ogl-d-omega.hpp"
+#include "ogl-sh-basis.hpp"
 
 //-----------------------------------------------------------------------------
 
-ogl::d_omega::d_omega(const std::string& name) :
+ogl::sh_basis::sh_basis(const std::string& name, int i) :
     process(name),
 
-    prog(::glob->load_program("irr/d-omega.xml")),
+    prog(::glob->load_program("irr/sh-basis.xml")),
 
     cube(::glob->new_frame(::conf->get_i("reflection_cubemap_size", 128),
                            ::conf->get_i("reflection_cubemap_size", 128),
                            GL_TEXTURE_CUBE_MAP,
-                           GL_RGBA32F_ARB, true, false, false))
+                           GL_RGBA32F_ARB, true, false, false)),
+    index(i)
 {
     init();
 }
 
-ogl::d_omega::~d_omega()
+ogl::sh_basis::~sh_basis()
 {
     assert(prog);
     assert(cube);
@@ -44,19 +45,22 @@ ogl::d_omega::~d_omega()
 
 //-----------------------------------------------------------------------------
 
-void ogl::d_omega::bind(GLenum unit) const
+void ogl::sh_basis::bind(GLenum unit) const
 {
     assert(cube);
 
     cube->bind_color(unit);
 }
 
-void ogl::d_omega::init()
+void ogl::sh_basis::init()
 {
     assert(prog);
     assert(cube);
 
     prog->bind();
+    prog->uniform("l", 0);
+    prog->uniform("m", 0);
+
     proc_cube(cube);
 }
 

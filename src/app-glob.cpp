@@ -12,9 +12,11 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <sstream>
 
 #include "ogl-reflection-env.hpp"
 #include "ogl-irradiance-env.hpp"
+#include "ogl-sh-basis.hpp"
 #include "ogl-d-omega.hpp"
 #include "ogl-shadow.hpp"
 
@@ -111,12 +113,14 @@ ogl::uniform *app::glob::dupe_uniform(ogl::uniform *p)
 
 void app::glob::free_uniform(const std::string& name)
 {
-    if (uniform_map.find(name) != uniform_map.end())
+    std::map<std::string, uniform>::iterator i;
+
+    if ((i = uniform_map.find(name)) != uniform_map.end())
     {
-        if (--uniform_map[name].ref == 0)
+        if (--i->second.ref == 0)
         {
-            delete uniform_map[name].ptr;
-            uniform_map.erase(name);
+            delete i->second.ptr;
+            uniform_map.erase(i);
         }
     }
 }
@@ -164,12 +168,14 @@ const ogl::program *app::glob::dupe_program(const ogl::program *p)
 
 void app::glob::free_program(const std::string& name)
 {
-    if (program_map.find(name) != program_map.end())
+    std::map<std::string, program>::iterator i;
+
+    if ((i = program_map.find(name)) != program_map.end())
     {
-        if (--program_map[name].ref == 0)
+        if (--i->second.ref == 0)
         {
-            delete program_map[name].ptr;
-            program_map.erase(name);
+            delete i->second.ptr;
+            program_map.erase(i);
         }
     }
 }
@@ -181,28 +187,38 @@ void app::glob::free_program(const ogl::program *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::process *app::glob::load_process(const std::string& name)
+const ogl::process *app::glob::load_process(const std::string& name, int i)
 {
-    if (process_map.find(name) == process_map.end())
+    // Mangle the process name and the argument.
+
+    std::ostringstream str;
+
+    str << name << i;
+
+    if (process_map.find(str.str()) == process_map.end())
     {
         ogl::process *ptr = 0;
 
-        if      (name == "d_omega")        ptr = new ogl::d_omega();
-        else if (name == "shadow0")        ptr = new ogl::shadow(0);
-        else if (name == "shadow1")        ptr = new ogl::shadow(1);
-        else if (name == "shadow2")        ptr = new ogl::shadow(2);
-        else if (name == "reflection_env") ptr = new ogl::reflection_env();
-        else if (name == "irradiance_env") ptr = new ogl::irradiance_env();
+        if       (name == "d_omega")
+            ptr = new ogl::d_omega       (str.str());
+        else if  (name == "shadow")
+            ptr = new ogl::shadow        (str.str(), i);
+        else if  (name == "sh_basis")
+            ptr = new ogl::sh_basis      (str.str(), i);
+        else if  (name == "reflection_env")
+            ptr = new ogl::reflection_env(str.str());
+        else if  (name == "irradiance_env")
+            ptr = new ogl::irradiance_env(str.str());
 
         if (ptr)
         {
-            process_map[name].ptr = ptr;
-            process_map[name].ref = 1;
+            process_map[str.str()].ptr = ptr;
+            process_map[str.str()].ref = 1;
         }
     }
-    else   process_map[name].ref++;
+    else   process_map[str.str()].ref++;
 
-    return process_map[name].ptr;
+    return process_map[str.str()].ptr;
 }
 
 const ogl::process *app::glob::dupe_process(const ogl::process *p)
@@ -222,12 +238,14 @@ const ogl::process *app::glob::dupe_process(const ogl::process *p)
 
 void app::glob::free_process(const std::string& name)
 {
-    if (process_map.find(name) != process_map.end())
+    std::map<std::string, process>::iterator i;
+
+    if ((i = process_map.find(name)) != process_map.end())
     {
-        if (--process_map[name].ref == 0)
+        if (--i->second.ref == 0)
         {
-            delete process_map[name].ptr;
-            process_map.erase(name);
+            delete i->second.ptr;
+            process_map.erase(i);
         }
     }
 }
@@ -279,12 +297,14 @@ const ogl::texture *app::glob::dupe_texture(const ogl::texture *p)
 
 void app::glob::free_texture(const std::string& name)
 {
-    if (texture_map.find(name) != texture_map.end())
+    std::map<std::string, texture>::iterator i;
+
+    if ((i = texture_map.find(name)) != texture_map.end())
     {
-        if (--texture_map[name].ref == 0)
+        if (--i->second.ref == 0)
         {
-            delete texture_map[name].ptr;
-            texture_map.erase(name);
+            delete i->second.ptr;
+            texture_map.erase(i);
         }
     }
 }
@@ -336,12 +356,14 @@ const ogl::binding *app::glob::dupe_binding(const ogl::binding *p)
 
 void app::glob::free_binding(const std::string& name)
 {
-    if (binding_map.find(name) != binding_map.end())
+    std::map<std::string, binding>::iterator i;
+
+    if ((i = binding_map.find(name)) != binding_map.end())
     {
-        if (--binding_map[name].ref == 0)
+        if (--i->second.ref == 0)
         {
-            delete binding_map[name].ptr;
-            binding_map.erase(name);
+            delete i->second.ptr;
+            binding_map.erase(i);
         }
     }
 }
@@ -382,12 +404,14 @@ const ogl::surface *app::glob::dupe_surface(const ogl::surface *p)
 
 void app::glob::free_surface(const std::string& name)
 {
-    if (surface_map.find(name) != surface_map.end())
+    std::map<std::string, surface>::iterator i;
+
+    if ((i = surface_map.find(name)) != surface_map.end())
     {
-        if (--surface_map[name].ref == 0)
+        if (--i->second.ref == 0)
         {
-            delete surface_map[name].ptr;
-            surface_map.erase(name);
+            delete i->second.ptr;
+            surface_map.erase(i);
         }
     }
 }

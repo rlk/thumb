@@ -35,7 +35,7 @@ namespace ogl
 
     public:
 
-        shadow(int);
+        shadow(const std::string&, int);
        ~shadow();
 
         void bind_frame() const;

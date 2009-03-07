@@ -20,7 +20,7 @@
 namespace ogl
 {
     class frame;
-    class binding;
+    class program;
 }
 
 //-----------------------------------------------------------------------------
@@ -29,12 +29,12 @@ namespace ogl
 {
     class d_omega : public process
     {
-        const ogl::binding *calc;
+        const ogl::program *prog;
               ogl::frame   *cube;
 
     public:
 
-        d_omega();
+        d_omega(const std::string&);
        ~d_omega();
 
         void bind(GLenum) const;

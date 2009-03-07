@@ -13,7 +13,6 @@
 #include "app-glob.hpp"
 #include "ogl-pool.hpp"
 #include "ogl-frame.hpp"
-#include "ogl-binding.hpp"
 #include "ogl-process.hpp"
 
 //-----------------------------------------------------------------------------
@@ -99,8 +98,7 @@ void ogl::process::fini_cube()
 //  ::glob->free_pool(cube_pool);
 }
 
-void ogl::process::proc_cube(const ogl::binding *bind,
-                                   ogl::frame   *cube)
+void ogl::process::proc_cube(ogl::frame *cube)
 {
     static const GLenum target[] = {
         GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
@@ -111,28 +109,25 @@ void ogl::process::proc_cube(const ogl::binding *bind,
         GL_TEXTURE_CUBE_MAP_POSITIVE_Z
     };
 
-    // Apply the given binding to all faces of the given cube map.
+    // Apply the current binding to all faces of the given cube map.
 
-    if (bind->bind(true))
+    cube_pool->prep();
+    cube_pool->draw_init();
     {
-        cube_pool->prep();
-        cube_pool->draw_init();
+        glEnable(GL_POLYGON_OFFSET_FILL);
         {
-            glEnable(GL_POLYGON_OFFSET_FILL);
-            {
-                glPolygonOffset(0.0, -1.0f);
+            glPolygonOffset(0.0, -1.0f);
 
-                for (int k = 0; k < 6; ++k)
-                {
-                    cube->bind(target[k]);
-                    cube_node[k]->draw();
-                    cube->free();
-                }
+            for (int k = 0; k < 6; ++k)
+            {
+                cube->bind(target[k]);
+                cube_node[k]->draw();
+                cube->free();
             }
-            glDisable(GL_POLYGON_OFFSET_FILL);
         }
-        cube_pool->draw_fini();
+        glDisable(GL_POLYGON_OFFSET_FILL);
     }
+    cube_pool->draw_fini();
 }
 
 //-----------------------------------------------------------------------------

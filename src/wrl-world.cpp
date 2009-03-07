@@ -67,9 +67,9 @@ wrl::world::world() :
     uniform_shadow[0]      = ::glob->load_uniform("shadow_matrix[0]", 16);
     uniform_shadow[1]      = ::glob->load_uniform("shadow_matrix[1]", 16);
     uniform_shadow[2]      = ::glob->load_uniform("shadow_matrix[2]", 16);
-    process_shadow[0]      = ::glob->load_process("shadow0");
-    process_shadow[1]      = ::glob->load_process("shadow1");
-    process_shadow[2]      = ::glob->load_process("shadow2");
+    process_shadow[0]      = ::glob->load_process("shadow", 0);
+    process_shadow[1]      = ::glob->load_process("shadow", 1);
+    process_shadow[2]      = ::glob->load_process("shadow", 2);
     process_reflection     = ::glob->load_process("reflection_env");
     process_irradiance     = ::glob->load_process("irradiance_env");
 }

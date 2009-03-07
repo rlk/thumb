@@ -1,3 +1,4 @@
+Test visibility in the cube configuration.
 Normal map mipmap generation should NOT box-filter.
 Gsync?
 Excise frame::bind(proj) and frame::draw(int, int)

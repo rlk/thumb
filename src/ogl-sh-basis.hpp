@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef OGL_REFLECTION_ENV_HPP
-#define OGL_REFLECTION_ENV_HPP
+#ifndef OGL_SH_BASIS_HPP
+#define OGL_SH_BASIS_HPP
 
 #include "ogl-process.hpp"
 
@@ -20,25 +20,27 @@
 namespace ogl
 {
     class frame;
-    class binding;
+    class program;
 }
 
 //-----------------------------------------------------------------------------
 
 namespace ogl
 {
-    class reflection_env : public process
+    class sh_basis : public process
     {
-        ogl::frame *cube;
+        const ogl::program *prog;
+              ogl::frame   *cube;
+
+        int index;
 
     public:
 
-        reflection_env(const std::string&);
-       ~reflection_env();
-
-        void draw(const ogl::binding *) const;
+        sh_basis(const std::string&, int);
+       ~sh_basis();
 
         void bind(GLenum) const;
+        void init();
     };
 }
 

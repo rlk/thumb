@@ -98,7 +98,7 @@ namespace app
 
               ogl::uniform *load_uniform(const std::string&, GLsizei);
         const ogl::program *load_program(const std::string&);
-        const ogl::process *load_process(const std::string&);
+        const ogl::process *load_process(const std::string&, int=0);
         const ogl::texture *load_texture(const std::string&,
                                          const std::string&);
         const ogl::binding *load_binding(const std::string&,

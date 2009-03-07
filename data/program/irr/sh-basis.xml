@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<program vert="glsl/irr/sh-basis.vert"
+         frag="glsl/irr/sh-basis.frag" >
+</program>

@@ -7,8 +7,8 @@
     <texture sampler="spec_map"  name="default-specular.png" />
     <texture sampler="norm_map"  name="default-normal.png" />
 
-    <process sampler="shadow[0]" name="shadow0" />
-    <process sampler="shadow[1]" name="shadow1" />
-    <process sampler="shadow[2]" name="shadow2" />
+    <process sampler="shadow[0]" name="shadow" index="0" />
+    <process sampler="shadow[1]" name="shadow" index="1" />
+    <process sampler="shadow[2]" name="shadow" index="2" />
   </program>
 </material>

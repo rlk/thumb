@@ -20,8 +20,8 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::reflection_env::reflection_env() :
-    process("reflection-env"),
+ogl::reflection_env::reflection_env(const std::string& name) :
+    process(name),
 
     cube(::glob->new_frame(::conf->get_i("reflection_cubemap_size", 128),
                            ::conf->get_i("reflection_cubemap_size", 128),
@@ -44,7 +44,8 @@ void ogl::reflection_env::draw(const ogl::binding *calc) const
 {
     assert(cube);
 
-    proc_cube(calc, cube);
+    if (calc->bind(true))
+        proc_cube(cube);
 }
 
 void ogl::reflection_env::bind(GLenum unit) const
