@@ -32,7 +32,8 @@ namespace ogl
         const ogl::program *prog;
               ogl::frame   *cube;
 
-        int index;
+        int l;
+        int m;
 
     public:
 

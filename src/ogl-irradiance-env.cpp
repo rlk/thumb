@@ -45,7 +45,8 @@ ogl::irradiance_env::irradiance_env(const std::string& name) :
     cube(::glob->new_frame(m, m, GL_TEXTURE_CUBE_MAP,
                            GL_RGBA16F_ARB, true, false, false))
 {
-    Y.push_back(::glob->load_process("sh_basis", 0));
+    for (int i = 0; i < 25; ++i)
+        Y.push_back(::glob->load_process("sh_basis", i));
 }
 
 ogl::irradiance_env::~irradiance_env()

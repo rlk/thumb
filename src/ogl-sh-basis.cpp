@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <cassert>
+#include <cmath>
 
 #include "app-glob.hpp"
 #include "app-conf.hpp"
@@ -29,8 +30,10 @@ ogl::sh_basis::sh_basis(const std::string& name, int i) :
                            ::conf->get_i("reflection_cubemap_size", 128),
                            GL_TEXTURE_CUBE_MAP,
                            GL_RGBA32F_ARB, true, false, false)),
-    index(i)
+    l(int(sqrt(i))),
+    m(i - l - l * l)
 {
+    printf("%d %d %d\n", i, l, m);
     init();
 }
 
@@ -58,8 +61,8 @@ void ogl::sh_basis::init()
     assert(cube);
 
     prog->bind();
-    prog->uniform("l", 0);
-    prog->uniform("m", 0);
+    prog->uniform("l", l);
+    prog->uniform("m", m);
 
     proc_cube(cube);
 }
