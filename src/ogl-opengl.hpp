@@ -124,11 +124,15 @@ namespace ogl
 {
     extern bool has_depth_stencil;
     extern bool has_multitexture;
+    extern bool has_multisample;
+    extern bool has_anisotropic;
     extern bool has_glsl;
     extern bool has_s3tc;
     extern bool has_fbo;
     extern bool has_vbo;
     extern bool has_dre;
+
+    extern int  max_anisotropy;
 
     extern int  do_shadow;
     extern bool do_z_only;
@@ -139,7 +143,7 @@ namespace ogl
     void check_err(const char *, int);
     bool check_ext(const char *);
 
-    void init();
+    void init(bool);
 
     void bind_texture(GLenum, GLenum, GLuint);
     void free_texture();

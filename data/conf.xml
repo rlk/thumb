@@ -26,6 +26,12 @@
   <option type="string" name="mipmap">mipmap</option>
   <option type="float"  name="texel_cutoff">0.5</option>
 
+  <!-- OpenGL context configuration -->
+
+  <option type="int" name="multisample_samples">0</option>
+  <option type="int" name="multisample_buffers">0</option>
+  <option type="int" name="max_anisotropy">4</option>
+
   <!-- Terrain renderer configuration -->
 
   <option type="int" name="patch_cache">256</option>

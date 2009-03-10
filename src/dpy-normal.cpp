@@ -98,6 +98,8 @@ int dpy::normal::draw(int chanc, dpy::channel **chanv,
         chanv[chani]->free_color(GL_TEXTURE0);
     }
 
+//  ::prog->draw(frusi, frusp);
+
     return 1;  // Return the total number of frusta.
 }
 

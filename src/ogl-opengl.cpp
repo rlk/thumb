@@ -24,11 +24,15 @@
 
 bool ogl::has_depth_stencil;
 bool ogl::has_multitexture;
+bool ogl::has_multisample;
+bool ogl::has_anisotropic;
 bool ogl::has_glsl;
 bool ogl::has_s3tc;
 bool ogl::has_fbo;
 bool ogl::has_vbo;
 bool ogl::has_dre;
+
+int  ogl::max_anisotropy;
 
 int  ogl::do_shadow;
 bool ogl::do_z_only;
@@ -225,6 +229,8 @@ static void init_ext()
 
     ogl::has_depth_stencil = ogl::check_ext("EXT_packed_depth_stencil");
     ogl::has_multitexture  = ogl::check_ext("ARB_multitexture");
+    ogl::has_multisample   = ogl::check_ext("ARB_multisample");
+    ogl::has_anisotropic    = ogl::check_ext("EXT_texture_filter_anisotropic");
     ogl::has_glsl          = ogl::check_ext("ARB_shader_objects");
     ogl::has_glsl         &= ogl::check_ext("ARB_vertex_shader");
     ogl::has_glsl         &= ogl::check_ext("ARB_fragment_shader");
@@ -328,6 +334,7 @@ static void init_opt()
 {
     std::string option;
 
+    ogl::max_anisotropy         = 0;
     ogl::do_shadow              = 0;
     ogl::do_z_only              = false;
     ogl::do_texture_compression = false;
@@ -338,6 +345,18 @@ static void init_opt()
 
     if (ogl::has_s3tc && ::conf->get_i("texture_compression"))
         ogl::do_texture_compression = true;
+
+    if (ogl::has_anisotropic)
+    {
+        int max;
+
+        glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max);
+
+        ogl::max_anisotropy = ::conf->get_i("max_anisotropy");
+
+        ogl::max_anisotropy = std::min(ogl::max_anisotropy, max);
+        ogl::max_anisotropy = std::max(ogl::max_anisotropy, 1);
+    }
 
     if (ogl::has_fbo)
     {
@@ -365,7 +384,7 @@ static void init_opt()
     sync(::conf->get_i("sync"));
 }
 
-static void init_state()
+static void init_state(bool multisample)
 {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
@@ -373,13 +392,16 @@ static void init_state()
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableVertexAttribArrayARB(6);
+
+    if (ogl::has_multisample && multisample)
+        glEnable(GL_MULTISAMPLE_ARB);
 }
 
-void ogl::init()
+void ogl::init(bool multisample)
 {
     init_ext();
     init_opt();
-    init_state();
+    init_state(multisample);
 }
 
 //-----------------------------------------------------------------------------

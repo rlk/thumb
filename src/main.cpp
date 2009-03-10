@@ -114,7 +114,7 @@ static void position(int x, int y)
     char buf[32];
 
     // SDL looks to the environment for window position.
-
+    // TODO: SDL_putenv?
 #ifdef _WIN32
     sprintf(buf, "SDL_VIDEO_WINDOW_POS=%d,%d", x, y);
 //  putenv(buf);
@@ -134,10 +134,6 @@ static void video()
     int w = host->get_window_w();
     int h = host->get_window_h();
 
-    // TODO: fold these into host config.
-
-    int b = conf->get_i("window_b");
-
     // Unframed windows have no cursor and may be positioned.
 
     if (m & SDL_NOFRAME)
@@ -148,16 +144,52 @@ static void video()
             position(x, y);
     }
 
-    // Initialize the video.
+    // Look up the GL context parameters.
 
-    if (SDL_SetVideoMode(w, h, b, m) == 0)
-        throw std::runtime_error(SDL_GetError());
-    
-    SDL_WM_SetCaption("Thumb", "Thumb");
+    int mults = conf->get_i("multisample_samples");
+    int multb = conf->get_i("multisample_buffers");
+    int color =  8;
+    int depth = 24;
+
+    for (;;)
+    {
+        // Configure the GL context.
+
+        SDL_GL_SetAttribute(SDL_GL_RED_SIZE,           color);
+        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,         color);
+        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,          color);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         depth);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, multb);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, mults);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,           1);
+
+        // Attempt to initialize the video mode.
+
+        if (SDL_SetVideoMode(w, h, 0, m))
+            break;
+        else
+        {
+            // If failed, try reducing the requirements.
+
+            if      (mults >  0) mults /=  2;
+            else if (multb >  0) multb  =  0;
+            else if (depth > 16) depth  = 16;
+            else if (color >  5) color  =  5;
+
+            // After all reductions, fail.
+
+            else throw std::runtime_error(SDL_GetError());
+        }
+    }
 
     // Initialize the OpenGL state.
 
-    ogl::init();
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multb);
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &mults);
+
+    ogl::init(multb > 0 && mults > 0);
+
+    SDL_WM_SetCaption("Thumb", "Thumb");
 }
 
 static void init(std::string tag)
@@ -223,12 +255,6 @@ int main(int argc, char *argv[])
     {
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) == 0)
         {
-            SDL_GL_SetAttribute(SDL_GL_RED_SIZE,     5);
-            SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,   5);
-            SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,    5);
-            SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,  16);
-            SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-
             SDL_EnableUNICODE(1);
 
             init(std::string(argc > 1 ? argv[1] : DEFAULT_TAG));

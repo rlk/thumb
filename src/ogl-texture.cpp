@@ -162,6 +162,10 @@ void ogl::texture::load_png(const void *buf, size_t len)
                                         GL_LINEAR_MIPMAP_LINEAR);
             }
 
+            if (ogl::has_anisotropic)
+                glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                                              ogl::max_anisotropy);
+
             // Copy all rows to the new texture.
 
             for (GLsizei i = 0, j = height - 1; j >= 0; ++i, --j)

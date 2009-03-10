@@ -21,7 +21,6 @@ Make F10 reload work again.  Check for leaks.  Ensure all GL state is reloadable
    Hard vs Sorf
        Hard is a close/start
        Soft is a glob::fini/init
-Anisotropy option
 Performance measures (don't depend on NVperf)
 Create a Standard Benchmark
 The images in the doc might be best dithered down to 8 bit PNGs.  JPGs just look like hell.

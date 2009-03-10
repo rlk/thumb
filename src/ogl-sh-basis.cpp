@@ -33,7 +33,6 @@ ogl::sh_basis::sh_basis(const std::string& name, int i) :
     l(int(sqrt(i))),
     m(i - l - l * l)
 {
-    printf("%d %d %d\n", i, l, m);
     init();
 }
 
