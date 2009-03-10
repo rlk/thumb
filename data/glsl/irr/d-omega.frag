@@ -39,7 +39,7 @@ void main()
     c = normalize(vec3(-1.0, -1.0,  1.0));
     d = normalize(vec3(-1.0,  1.0,  1.0));
 */
-    float r = solid_angle(a, b, c, d) * 8192.12;
+    float r = solid_angle(a, b, c, d);
 
     gl_FragColor = vec4(vec3(r), 1.0);
 }

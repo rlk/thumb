@@ -66,7 +66,11 @@ void main()
 
     vec3 R = reflect(V_w, N);
 
+    float x = textureCube(irradiance_env, N).r * 2048.0; 
+    vec3 CC = (vec3(0.0, 1.0, 0.0) * x -
+               vec3(1.0, 0.0, 0.0) * x);
+
 //  gl_FragColor = textureCube(reflection_env, R);
-    gl_FragColor = textureCube(irradiance_env, N);
+    gl_FragColor = vec4(CC, 1.0);
 //  gl_FragColor = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 384.0);
 }

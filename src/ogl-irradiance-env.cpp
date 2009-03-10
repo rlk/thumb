@@ -45,7 +45,8 @@ ogl::irradiance_env::irradiance_env(const std::string& name) :
     cube(::glob->new_frame(m, m, GL_TEXTURE_CUBE_MAP,
                            GL_RGBA16F_ARB, true, false, false))
 {
-    Y.push_back(::glob->load_process("sh_basis", 0));
+    for (int i = 0; i < (b + 1) * (b + 1); ++i)
+        Y.push_back(::glob->load_process("sh_basis", i));
 }
 
 ogl::irradiance_env::~irradiance_env()
@@ -99,7 +100,7 @@ void ogl::irradiance_env::bind(GLenum unit) const
 //  d->bind(unit);
 //  L->bind(unit);
 
-    Y[0]->bind(unit);
+    Y[1]->bind(unit);
 
 //  ping->bind_color(unit);
 }

@@ -27,10 +27,10 @@ namespace ogl
 
         GLuint object;
 
-        void fill(float *, const float *,
-                           const float *,
-                           const float *,
-                           const float *) const;
+        void fill(float *, const double *,
+                           const double *,
+                           const double *,
+                           const double *) const;
 
     public:
 
