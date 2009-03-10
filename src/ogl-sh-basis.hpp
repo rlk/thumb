@@ -19,29 +19,28 @@
 
 namespace ogl
 {
-    class frame;
-    class program;
-}
-
-//-----------------------------------------------------------------------------
-
-namespace ogl
-{
     class sh_basis : public process
     {
-        const ogl::program *prog;
-              ogl::frame   *cube;
-
+        int n;
         int l;
         int m;
+
+        GLuint object;
+
+        void fill(float *, const float *,
+                           const float *,
+                           const float *,
+                           const float *) const;
 
     public:
 
         sh_basis(const std::string&, int);
        ~sh_basis();
 
-        void bind(GLenum) const;
         void init();
+        void fini();
+
+        void bind(GLenum) const;
     };
 }
 
