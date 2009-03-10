@@ -90,7 +90,7 @@ static double K(int l, int m)
 
     return sqrt(n / d);
 }
-
+/*
 static double P(int l, int m, double x)
 {
     double pmm = 1.0; 
@@ -125,15 +125,28 @@ static double P(int l, int m, double x)
 
     return pll; 
 }
+*/
+
+static double P(int l, int m, double x)
+{
+    if (l == m    ) return pow(-1, m) * factorial(factorial(2 * m - 1)) * pow(1 - x * x, m / 2.0);
+    if (l == m + 1) return x * (2 * m + 1) * P(m, m, x);
+
+    return ((2 * l - 1) * P(l - 1, m, x) * x -
+            (l + m - 1) * P(l - 1, m, x)) / (l - m);
+}
 
 static double Y(int l, int m, double x, double y, double z)
 {
-    const double phi = atan2(y, x);
+    // Not everyone agrees on the orientation of the axes or the meaning
+    // of theta and phi. In the end, it doesn't matter. These make sense:
 
-    if (m > 0.0f) return M_SQRT2 * K(l, +m) * cos(+m * phi) * P(l, +m, z);
-    if (m < 0.0f) return M_SQRT2 * K(l, -m) * sin(-m * phi) * P(l, -m, z);
+    const double phi = atan2(-z, -x);
 
-    return K(l, 0) * P(l, 0, z);
+    if (m > 0.0f) return M_SQRT2 * K(l, +m) * cos(+m * phi) * P(l, +m, y);
+    if (m < 0.0f) return M_SQRT2 * K(l, -m) * sin(-m * phi) * P(l, -m, y);
+
+    return K(l, 0) * P(l, 0, y);
 }
 
 static double domega(const double *a,
@@ -153,10 +166,8 @@ static double domega(const double *a,
     crossprod(bcd, b, d);
     crossprod(dcb, d, b);
 
-    // TODO: Why this negation?
-
-    return -2.0 * (atan2(DOT3(a, bcd), 1.0 + ab + ad + bd) +
-                   atan2(DOT3(c, dcb), 1.0 + bc + cd + bd));
+    return 2.0 * (atan2(DOT3(a, bcd), 1.0 + ab + ad + bd) +
+                  atan2(DOT3(c, dcb), 1.0 + bc + cd + bd));
 }
 
 //-----------------------------------------------------------------------------
