@@ -1,4 +1,7 @@
 <?xml version="1.0"?>
 <program vert="glsl/irr/irradiance-init.vert"
          frag="glsl/irr/irradiance-init.frag" >
+  <sampler name="L" unit="0" />
+  <sampler name="d" unit="1" />
+  <sampler name="Y" unit="2" />
 </program>

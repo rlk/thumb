@@ -75,19 +75,47 @@ void ogl::irradiance_env::draw(const ogl::binding *bind) const
 {
     assert(ping);
     assert(init);
+    assert(L);
+    assert(d);
 
-    ping->bind();
+    // Begin the process of projecting the reflection environment map onto
+    // the spherical harmonic basis.  For each basis function, multiply each
+    // of the six faces of the reflection map by the corresponding face of
+    // the basis map and weight the result by the normalized solid angle.
+    // Sum these six results and store the output in an n * n section of the
+    // ping buffer.  The ping buffer is a b+1 * b+1 array of these n * n
+    // accumulations.
+
+    clip_pool->prep();
+    clip_pool->draw_init();
     {
         init->bind();
-
-        clip_pool->prep();
-        clip_pool->draw_init();
+        ping->bind();
         {
-            clip_node->draw();
+            int B = b + 1;
+            int i;
+            int r;
+            int c;
+
+            L->bind(GL_TEXTURE0);
+            d->bind(GL_TEXTURE1);
+
+            for (i = 0, r = 0; r < B; ++r)
+            {
+                for (c = 0; c < B; ++c, ++i)
+                {
+                    Y[i]->bind(GL_TEXTURE2);
+
+                    init->uniform("loc", double(c), double(r));
+                    init->uniform("siz", double(B), double(B));
+
+                    clip_node->draw();
+                }
+            }
         }
-        clip_pool->draw_fini();
+        ping->free();
     }
-    ping->free();
+    clip_pool->draw_fini();
 }
 
 //-----------------------------------------------------------------------------
@@ -97,12 +125,12 @@ void ogl::irradiance_env::bind(GLenum unit) const
 //  assert(cube);
 //  cube->bind_color(unit);
 
-    d->bind(unit);
+//  d->bind(unit);
 //  L->bind(unit);
 
 //  Y[3]->bind(unit);
 
-//  ping->bind_color(unit);
+    ping->bind_color(unit);
 }
 
 //-----------------------------------------------------------------------------

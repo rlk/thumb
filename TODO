@@ -1,3 +1,8 @@
+Add cubemap size conf for d-omega and sh-basis
+    maybe assume d-omege size is sh-basis size initialized with reflection size
+    spherical_harmonic_order
+    spherical_harmonic_cubemap_size
+
 Test visibility in the cube configuration.
 Normal map mipmap generation should NOT box-filter.
 Gsync?
