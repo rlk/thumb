@@ -1,3 +1,4 @@
+#extension GL_ARB_texture_rectangle : enable
 
 uniform sampler2D       diff_map;
 uniform sampler2D       spec_map;
