@@ -13,34 +13,27 @@
 #ifndef OGL_SH_BASIS_HPP
 #define OGL_SH_BASIS_HPP
 
-#include "ogl-process.hpp"
+#include "ogl-cubelut.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace ogl
 {
-    class sh_basis : public process
+    class sh_basis : public cubelut
     {
-        int n;
         int l;
         int m;
 
-        GLuint object;
+    protected:
 
         void fill(float *, const double *,
                            const double *,
                            const double *,
                            const double *) const;
-
     public:
 
         sh_basis(const std::string&, int);
        ~sh_basis();
-
-        void init();
-        void fini();
-
-        void bind(GLenum) const;
     };
 }
 

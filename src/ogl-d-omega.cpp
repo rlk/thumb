@@ -12,52 +12,81 @@
 
 #include <cassert>
 
-#include "app-glob.hpp"
+#include "matrix.hpp"
 #include "app-conf.hpp"
-#include "ogl-frame.hpp"
-#include "ogl-program.hpp"
 #include "ogl-d-omega.hpp"
 
 //-----------------------------------------------------------------------------
 
 ogl::d_omega::d_omega(const std::string& name) :
-    process(name),
-
-    prog(::glob->load_program("irr/d-omega.xml")),
-
-    cube(::glob->new_frame(::conf->get_i("reflection_cubemap_size", 128),
-                           ::conf->get_i("reflection_cubemap_size", 128),
-                           GL_TEXTURE_CUBE_MAP,
-                           GL_RGBA32F_ARB, true, false, false))
+    cubelut(name, ::conf->get_i("reflection_cubemap_size", 128))
 {
     init();
 }
 
 ogl::d_omega::~d_omega()
 {
-    assert(prog);
-    assert(cube);
-
-    ::glob->free_frame(cube);
-    ::glob->free_program(prog);
+    fini();
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::d_omega::bind(GLenum unit) const
+void ogl::d_omega::fill(float *p, const double *a,
+                                  const double *b,
+                                  const double *c,
+                                  const double *d) const
 {
-    assert(cube);
+    double u[3];
+    double v[3];
 
-    cube->bind_color(unit);
-}
+    u[0] = b[0] - a[0];
+    u[1] = b[1] - a[1];
+    u[2] = b[2] - a[2];
 
-void ogl::d_omega::init()
-{
-    assert(prog);
-    assert(cube);
+    v[0] = d[0] - a[0];
+    v[1] = d[1] - a[1];
+    v[2] = d[2] - a[2];
 
-    prog->bind();
-    proc_cube(cube);
+    int i;
+    int j;
+    int k;
+
+    for (k = 0, i = -1; i <= n; ++i)
+        for (j = -1; j <= n; ++j, ++k)
+        {
+            const double s0 = (double(j) + 0.0) / double(n);
+            const double s1 = (double(j) + 1.0) / double(n);
+            const double t0 = (double(i) + 0.0) / double(n);
+            const double t1 = (double(i) + 1.0) / double(n);
+
+            double A[3];
+            double B[3];
+            double C[3];
+            double D[3];
+
+            A[0] = a[0] + u[0] * s0 + v[0] * t0;
+            A[1] = a[1] + u[1] * s0 + v[1] * t0;
+            A[2] = a[2] + u[2] * s0 + v[2] * t0;
+
+            B[0] = a[0] + u[0] * s1 + v[0] * t0;
+            B[1] = a[1] + u[1] * s1 + v[1] * t0;
+            B[2] = a[2] + u[2] * s1 + v[2] * t0;
+
+            C[0] = a[0] + u[0] * s1 + v[0] * t1;
+            C[1] = a[1] + u[1] * s1 + v[1] * t1;
+            C[2] = a[2] + u[2] * s1 + v[2] * t1;
+
+            D[0] = a[0] + u[0] * s0 + v[0] * t1;
+            D[1] = a[1] + u[1] * s0 + v[1] * t1;
+            D[2] = a[2] + u[2] * s0 + v[2] * t1;
+
+            normalize(A);
+            normalize(B);
+            normalize(C);
+            normalize(D);
+
+            p[k] = float(angle(D, C, B, A) / (4.0 * M_PI));
+        }
 }
 
 //-----------------------------------------------------------------------------

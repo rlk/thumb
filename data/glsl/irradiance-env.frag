@@ -66,7 +66,7 @@ void main()
 
     vec3 R = reflect(V_w, N);
 
-    float x = textureCube(irradiance_env, N).r * 4096.0; 
+    float x = textureCube(irradiance_env, N).r * 2048.0 * 12.0;
 
     vec3 CC = (mix(vec3(0.0, 0.0, 0.0), 
                    vec3(0.0, 1.0, 0.0), clamp( x, 0.0, 1.0)) +

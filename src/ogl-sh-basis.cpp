@@ -14,22 +14,16 @@
 #include <cmath>
 
 #include "matrix.hpp"
-#include "app-glob.hpp"
 #include "app-conf.hpp"
-#include "ogl-frame.hpp"
-#include "ogl-program.hpp"
 #include "ogl-sh-basis.hpp"
 
 //-----------------------------------------------------------------------------
 
 ogl::sh_basis::sh_basis(const std::string& name, int i) :
-    process(name),
+    cubelut(name, ::conf->get_i("reflection_cubemap_size", 128)),
 
-    n(::conf->get_i("reflection_cubemap_size", 128)),
     l(int(sqrt(i))),
-    m(i - l - l * l),
-
-    object(0)
+    m(i - l - l * l)
 {
     init();
 }
@@ -90,9 +84,12 @@ static double K(int l, int m)
 
     return sqrt(n / d);
 }
-/*
+
 static double P(int l, int m, double x)
 {
+    // This function was adapted from "Spherical Harmonic Lighting:
+    // The Gritty Details" by Robin Green.
+
     double pmm = 1.0; 
     double pll = 0.0; 
     
@@ -125,8 +122,8 @@ static double P(int l, int m, double x)
 
     return pll; 
 }
-*/
 
+/*
 static double P(int l, int m, double x)
 {
     if (l == m    ) return pow(-1, m) * factorial(factorial(2 * m - 1)) * pow(1 - x * x, m / 2.0);
@@ -135,7 +132,7 @@ static double P(int l, int m, double x)
     return ((2 * l - 1) * P(l - 1, m, x) * x -
             (l + m - 1) * P(l - 1, m, x)) / (l - m);
 }
-
+*/
 static double Y(int l, int m, double x, double y, double z)
 {
     // Not everyone agrees on the orientation of the axes or the meaning
@@ -147,27 +144,6 @@ static double Y(int l, int m, double x, double y, double z)
     if (m < 0.0f) return M_SQRT2 * K(l, -m) * sin(-m * phi) * P(l, -m, y);
 
     return K(l, 0) * P(l, 0, y);
-}
-
-static double domega(const double *a,
-                     const double *b,
-                     const double *c,
-                     const double *d)
-{
-    double ab = DOT3(a, b);
-    double ad = DOT3(a, d);
-    double bc = DOT3(b, c);
-    double bd = DOT3(b, d);
-    double cd = DOT3(c, d);
-
-    double bcd[3];
-    double dcb[3];
-
-    crossprod(bcd, b, d);
-    crossprod(dcb, d, b);
-
-    return 2.0 * (atan2(DOT3(a, bcd), 1.0 + ab + ad + bd) +
-                  atan2(DOT3(c, dcb), 1.0 + bc + cd + bd));
 }
 
 //-----------------------------------------------------------------------------
@@ -195,125 +171,19 @@ void ogl::sh_basis::fill(float *p, const double *a,
     for (k = 0, i = -1; i <= n; ++i)
         for (j = -1; j <= n; ++j, ++k)
         {
-            const double s0 = (double(j) + 0.0) / double(n);
             const double ss = (double(j) + 0.5) / double(n);
-            const double s1 = (double(j) + 1.0) / double(n);
-            const double t0 = (double(i) + 0.0) / double(n);
             const double tt = (double(i) + 0.5) / double(n);
-            const double t1 = (double(i) + 1.0) / double(n);
 
             double N[3];
-            double A[3];
-            double B[3];
-            double C[3];
-            double D[3];
 
             N[0] = a[0] + u[0] * ss + v[0] * tt;
             N[1] = a[1] + u[1] * ss + v[1] * tt;
             N[2] = a[2] + u[2] * ss + v[2] * tt;
 
-            A[0] = a[0] + u[0] * s0 + v[0] * t0;
-            A[1] = a[1] + u[1] * s0 + v[1] * t0;
-            A[2] = a[2] + u[2] * s0 + v[2] * t0;
-
-            B[0] = a[0] + u[0] * s1 + v[0] * t0;
-            B[1] = a[1] + u[1] * s1 + v[1] * t0;
-            B[2] = a[2] + u[2] * s1 + v[2] * t0;
-
-            C[0] = a[0] + u[0] * s1 + v[0] * t1;
-            C[1] = a[1] + u[1] * s1 + v[1] * t1;
-            C[2] = a[2] + u[2] * s1 + v[2] * t1;
-
-            D[0] = a[0] + u[0] * s0 + v[0] * t1;
-            D[1] = a[1] + u[1] * s0 + v[1] * t1;
-            D[2] = a[2] + u[2] * s0 + v[2] * t1;
-
             normalize(N);
-            normalize(A);
-            normalize(B);
-            normalize(C);
-            normalize(D);
 
-            p[k + 0] = float(Y(l, m, N[0], N[1], N[2]) * domega(A, B, C, D));
+            p[k] = float(Y(l, m, N[0], N[1], N[2]));
         }
-}
-
-void ogl::sh_basis::init()
-{
-    assert(object == 0);
-
-    static const double v[8][3] = {
-        { -1.0f, -1.0f, -1.0f },
-        {  1.0f, -1.0f, -1.0f },
-        { -1.0f,  1.0f, -1.0f },
-        {  1.0f,  1.0f, -1.0f },
-        { -1.0f, -1.0f,  1.0f },
-        {  1.0f, -1.0f,  1.0f },
-        { -1.0f,  1.0f,  1.0f },
-        {  1.0f,  1.0f,  1.0f } 
-    };
-
-    const GLenum  i = GL_LUMINANCE32F_ARB;
-    const GLenum  e = GL_LUMINANCE;
-    const GLenum  t = GL_FLOAT;
-
-    const GLsizei b = 1;
-    const GLsizei w = n + 2 * b;
-    const GLsizei h = n + 2 * b;
-
-    glGenTextures(1, &object);
-
-    ogl::bind_texture(GL_TEXTURE_CUBE_MAP, 0, object);
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP);
-
-    float *p = new float[w * h];
-
-    fill(p, v[7], v[3], v[1], v[5]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, i, w, h, b, e, t, p);
-    
-    fill(p, v[2], v[6], v[4], v[0]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, i, w, h, b, e, t, p);
-
-    fill(p, v[2], v[3], v[7], v[6]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, i, w, h, b, e, t, p);
-    
-    fill(p, v[4], v[5], v[1], v[0]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, i, w, h, b, e, t, p);
-
-    fill(p, v[6], v[7], v[5], v[4]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, i, w, h, b, e, t, p);
-    
-    fill(p, v[3], v[2], v[0], v[1]);
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, i, w, h, b, e, t, p);
-
-    delete [] p;
-
-    OGLCK();
-}
-
-void ogl::sh_basis::fini()
-{
-    assert(object);
-
-    glDeleteTextures(1, &object);
-    object = 0;
-
-    OGLCK();
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::sh_basis::bind(GLenum unit) const
-{
-    assert(object);
-
-    ogl::bind_texture(GL_TEXTURE_CUBE_MAP, unit, object);
 }
 
 //-----------------------------------------------------------------------------

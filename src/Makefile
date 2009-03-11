@@ -17,6 +17,7 @@ OBJS=   util.o \
 	ogl-irradiance-env.o \
 	ogl-sh-basis.o \
 	ogl-d-omega.o \
+	ogl-cubelut.o \
 	ogl-process.o \
 	ogl-uniform.o \
 	ogl-program.o \

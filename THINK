@@ -42,6 +42,7 @@ Thumb features to consider
                 the physics SHOULD be reproducible
                 records only play mode
                 would allow REWIND!
+        differential encoding may enable greater compression
 
     Allow the execution of the physical system to be a "change" to the world
         Represent it as a set of transforms and it can be undoable
@@ -112,8 +113,20 @@ Thumb features to consider
             Leaves
 
     Grass
+        Chapter5-Andersson-Terrain_Rendering_in_Frostbite.pdf
         Coverage-map-based
         Is grass just a form of particle?
+        Flower is informative
+            The ground has a relatively homogeneous color
+            Blades of grass use a gradient from ground color to grass color
+            Level of detail transition is key
+        Normal mapping could be significant
+        Randomly jittered uniform grid?
+            offset max = half cell width
+            be deterministic
+
+         Back-to-front for blending
+         Front-to-back for masking  <-- Z-cull?  Worth benching.
 
     Fur
 

@@ -13,32 +13,24 @@
 #ifndef OGL_D_OMEGA_HPP
 #define OGL_D_OMEGA_HPP
 
-#include "ogl-process.hpp"
+#include "ogl-cubelut.hpp"
 
 //-----------------------------------------------------------------------------
 
 namespace ogl
 {
-    class frame;
-    class program;
-}
-
-//-----------------------------------------------------------------------------
-
-namespace ogl
-{
-    class d_omega : public process
+    class d_omega : public cubelut
     {
-        const ogl::program *prog;
-              ogl::frame   *cube;
+    protected:
 
+        void fill(float *, const double *,
+                           const double *,
+                           const double *,
+                           const double *) const;
     public:
 
         d_omega(const std::string&);
        ~d_omega();
-
-        void bind(GLenum) const;
-        void init();
     };
 }
 

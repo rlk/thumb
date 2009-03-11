@@ -97,10 +97,10 @@ void ogl::irradiance_env::bind(GLenum unit) const
 //  assert(cube);
 //  cube->bind_color(unit);
 
-//  d->bind(unit);
+    d->bind(unit);
 //  L->bind(unit);
 
-    Y[3]->bind(unit);
+//  Y[3]->bind(unit);
 
 //  ping->bind_color(unit);
 }
