@@ -23,33 +23,36 @@
 
 wrl::constraint::constraint() : mode(0), axis(1), grid(3)
 {
-    pool = glob->new_pool();
-    node = new ogl::node();
+    pool = ::glob->new_pool();
 
-    rot[0] = new ogl::unit("wire/constraint_rot_0.obj");
-    rot[1] = new ogl::unit("wire/constraint_rot_1.obj");
-    rot[2] = new ogl::unit("wire/constraint_rot_2.obj");
-    rot[3] = new ogl::unit("wire/constraint_rot_3.obj");
-    rot[4] = new ogl::unit("wire/constraint_rot_4.obj");
-    rot[5] = new ogl::unit("wire/constraint_rot_5.obj");
-    rot[6] = new ogl::unit("wire/constraint_rot_6.obj");
-    rot[7] = new ogl::unit("wire/constraint_rot_7.obj");
-    rot[8] = new ogl::unit("wire/constraint_rot_8.obj");
-    rot[9] = new ogl::unit("wire/constraint_rot_9.obj");
+    for (int i = 0; i < 10; ++i)
+    {
+        pool->add_node(rot[i] = new ogl::node());
+        pool->add_node(pos[i] = new ogl::node());
+    }
 
-    pos[0] = new ogl::unit("wire/constraint_pos_0.obj");
-    pos[1] = new ogl::unit("wire/constraint_pos_1.obj");
-    pos[2] = new ogl::unit("wire/constraint_pos_2.obj");
-    pos[3] = new ogl::unit("wire/constraint_pos_3.obj");
-    pos[4] = new ogl::unit("wire/constraint_pos_4.obj");
-    pos[5] = new ogl::unit("wire/constraint_pos_5.obj");
-    pos[6] = new ogl::unit("wire/constraint_pos_6.obj");
-    pos[7] = new ogl::unit("wire/constraint_pos_7.obj");
-    pos[8] = new ogl::unit("wire/constraint_pos_8.obj");
-    pos[9] = new ogl::unit("wire/constraint_pos_9.obj");
+    rot[0]->add_unit(new ogl::unit("wire/constraint_rot_0.obj"));
+    rot[0]->add_unit(new ogl::unit("wire/constraint_rot_0.obj"));
+    rot[1]->add_unit(new ogl::unit("wire/constraint_rot_1.obj"));
+    rot[2]->add_unit(new ogl::unit("wire/constraint_rot_2.obj"));
+    rot[3]->add_unit(new ogl::unit("wire/constraint_rot_3.obj"));
+    rot[4]->add_unit(new ogl::unit("wire/constraint_rot_4.obj"));
+    rot[5]->add_unit(new ogl::unit("wire/constraint_rot_5.obj"));
+    rot[6]->add_unit(new ogl::unit("wire/constraint_rot_6.obj"));
+    rot[7]->add_unit(new ogl::unit("wire/constraint_rot_7.obj"));
+    rot[8]->add_unit(new ogl::unit("wire/constraint_rot_8.obj"));
+    rot[9]->add_unit(new ogl::unit("wire/constraint_rot_9.obj"));
 
-    node->add_unit(pos[3]);
-    pool->add_node(node);
+    pos[0]->add_unit(new ogl::unit("wire/constraint_pos_0.obj"));
+    pos[1]->add_unit(new ogl::unit("wire/constraint_pos_1.obj"));
+    pos[2]->add_unit(new ogl::unit("wire/constraint_pos_2.obj"));
+    pos[3]->add_unit(new ogl::unit("wire/constraint_pos_3.obj"));
+    pos[4]->add_unit(new ogl::unit("wire/constraint_pos_4.obj"));
+    pos[5]->add_unit(new ogl::unit("wire/constraint_pos_5.obj"));
+    pos[6]->add_unit(new ogl::unit("wire/constraint_pos_6.obj"));
+    pos[7]->add_unit(new ogl::unit("wire/constraint_pos_7.obj"));
+    pos[8]->add_unit(new ogl::unit("wire/constraint_pos_8.obj"));
+    pos[9]->add_unit(new ogl::unit("wire/constraint_pos_9.obj"));
 
     load_idt(M);
     load_idt(T);
@@ -60,12 +63,7 @@ wrl::constraint::constraint() : mode(0), axis(1), grid(3)
 
 wrl::constraint::~constraint()
 {
-    int i;
-
-    for (i = 0; i < 10; ++i) delete pos[i];
-    for (i = 0; i < 10; ++i) delete rot[i];
-    
-    delete pool;
+    ::glob->free_pool(pool);
 }
 
 //-----------------------------------------------------------------------------
@@ -95,7 +93,11 @@ void wrl::constraint::orient()
         break;
     }
 
-    node->transform(T);
+    for (int i = 0; i < 10; ++i)
+    {
+        rot[i]->transform(T);
+        pos[i]->transform(T);
+    }
 }
 
 void wrl::constraint::set_grid(int g)
@@ -136,7 +138,7 @@ void wrl::constraint::set_grid(int g)
 void wrl::constraint::set_mode(int m)
 {
     mode = m;
-
+/*
     node->clear();
 
     if (m)
@@ -145,6 +147,7 @@ void wrl::constraint::set_mode(int m)
         node->add_unit(pos[grid]);
 
     node->transform(T);
+*/
 }
 
 void wrl::constraint::set_axis(int a)
@@ -277,7 +280,10 @@ void wrl::constraint::draw(int frusi, app::frustum *frusp)
 
             pool->draw_init();
             {
-                pool->draw(frusi, true, false);
+                if (mode)
+                    rot[grid]->draw(frusi, true, false);
+                else
+                    pos[grid]->draw(frusi, true, false);
             }
             pool->draw_fini();
 

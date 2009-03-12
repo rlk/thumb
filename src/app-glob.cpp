@@ -65,8 +65,12 @@ app::glob::~glob()
     for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
         delete ui->second.ptr;
 
+    std::set<ogl::pool  *>::iterator qi;
     std::set<ogl::image *>::iterator ii;
     std::set<ogl::frame *>::iterator fi;
+
+    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
+        delete (*qi);
 
     for (ii = image_set.begin(); ii != image_set.end(); ++ii)
         delete (*ii);

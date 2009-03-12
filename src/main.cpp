@@ -239,9 +239,9 @@ static void fini()
 
     if (prog) delete prog;
     if (perf) delete perf;
-    if (glob) delete glob;
     if (user) delete user;
     if (host) delete host;
+    if (glob) delete glob;
     if (lang) delete lang;
     if (conf) delete conf;
     if (data) delete data;

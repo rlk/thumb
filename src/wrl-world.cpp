@@ -92,7 +92,12 @@ wrl::world::~world()
     // Finalize the scene.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+    {
+        fill_node->rem_unit((*i)->get_fill());
+        stat_node->rem_unit((*i)->get_line());
+        dyna_node->rem_unit((*i)->get_line());
         delete (*i);
+    }
 
     // Finalize the editor physical system.
 

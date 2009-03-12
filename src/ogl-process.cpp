@@ -10,12 +10,16 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cassert>
+
 #include "app-glob.hpp"
 #include "ogl-pool.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-process.hpp"
 
 //-----------------------------------------------------------------------------
+
+int ogl::process::count = 0;
 
 ogl::pool *ogl::process::clip_pool = 0;
 ogl::node *ogl::process::clip_node = 0;
@@ -27,20 +31,28 @@ ogl::node *ogl::process::cube_node[6];
 
 ogl::process::process(const std::string& name) : name(name)
 {
-    init_clip();
-    init_cube();
+    if (count++ == 0)
+    {
+        init_clip();
+        init_cube();
+    }
 }
 
 ogl::process::~process()
 {
-    fini_clip();
-    fini_cube();
+    if (--count == 0)
+    {
+        fini_clip();
+        fini_cube();
+    }
 }
 
 //-----------------------------------------------------------------------------
 
 void ogl::process::init_clip()
 {
+    assert(clip_pool == 0);
+
     clip_pool = ::glob->new_pool();
     clip_node = new ogl::node;
 
@@ -50,13 +62,19 @@ void ogl::process::init_clip()
 
 void ogl::process::fini_clip()
 {
-//  ::glob->free_pool(clip_pool);
+    assert(clip_pool != 0);
+
+    ::glob->free_pool(clip_pool);
+
+    clip_pool = 0;
 }
 
 //-----------------------------------------------------------------------------
 
 void ogl::process::init_cube()
 {
+    assert(cube_pool == 0);
+
     static const char *cube_file[] = {
         "util/cube-face-negative-x.obj",
         "util/cube-face-positive-x.obj",
@@ -95,7 +113,11 @@ void ogl::process::init_cube()
 
 void ogl::process::fini_cube()
 {
-//  ::glob->free_pool(cube_pool);
+    assert(cube_pool != 0);
+
+    ::glob->free_pool(cube_pool);
+
+    cube_pool = 0;
 }
 
 void ogl::process::proc_cube(ogl::frame *cube)

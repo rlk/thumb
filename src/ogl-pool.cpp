@@ -103,8 +103,6 @@ ogl::unit::unit(const unit& that) :
 
 ogl::unit::~unit()
 {
-    if (my_node) my_node->rem_unit(this);
-
     // Delete all cache meshes.
 
     for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
@@ -206,9 +204,8 @@ ogl::node::node() :
 
 ogl::node::~node()
 {
-    clear();
-
-    if (my_pool) my_pool->rem_node(this);
+    for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
+        delete (*i);
 }
 
 //-----------------------------------------------------------------------------
@@ -239,42 +236,48 @@ void ogl::node::set_pool(pool_p p)
 
 void ogl::node::add_unit(unit_p p)
 {
-    // Insert the given unit into the unit set.
+    if (p && my_unit.find(p) == my_unit.end())
+    {
+        // Insert the given unit into the unit set.
 
-    my_unit.insert(p);
-    p->set_node(this);
+        my_unit.insert(p);
+        p->set_node(this);
 
-    // Include the unit's vertex and element counts.
+        // Include the unit's vertex and element counts.
 
-    vc += p->vcount();
-    ec += p->ecount();
+        vc += p->vcount();
+        ec += p->ecount();
 
-    if (my_pool) my_pool->add_vcount(+p->vcount());
-    if (my_pool) my_pool->add_ecount(+p->ecount());
+        if (my_pool) my_pool->add_vcount(+p->vcount());
+        if (my_pool) my_pool->add_ecount(+p->ecount());
 
-    // Mark this node's pool for a resort.
+        // Mark this node's pool for a resort.
 
-    if (my_pool) my_pool->set_resort();
+        if (my_pool) my_pool->set_resort();
+    }
 }
 
 void ogl::node::rem_unit(unit_p p)
 {
-    // Erase the given unit from the unit set.
+    if (p && my_unit.find(p) != my_unit.end())
+    {
+        // Erase the given unit from the unit set.
 
-    my_unit.erase(p);
-    p->set_node(0);
+        my_unit.erase(p);
+        p->set_node(0);
 
-    // Omit the unit's vertex and element counts.
+        // Omit the unit's vertex and element counts.
 
-    vc -= p->vcount();
-    ec -= p->ecount();
+        vc -= p->vcount();
+        ec -= p->ecount();
 
-    if (my_pool) my_pool->add_vcount(-p->vcount());
-    if (my_pool) my_pool->add_ecount(-p->ecount());
+        if (my_pool) my_pool->add_vcount(-p->vcount());
+        if (my_pool) my_pool->add_ecount(-p->ecount());
 
-    // Mark this node's pool for a resort.
+        // Mark this node's pool for a resort.
 
-    if (my_pool) my_pool->set_resort();
+        if (my_pool) my_pool->set_resort();
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -479,8 +482,8 @@ ogl::pool::pool() : vc(0), ec(0), resort(true), rebuff(true), vbo(0), ebo(0)
 
 ogl::pool::~pool()
 {
-    while (!my_node.empty())
-        delete (*my_node.begin());
+    for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
+        delete (*i);
 
     fini();
 }

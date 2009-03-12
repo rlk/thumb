@@ -43,10 +43,8 @@ namespace wrl
         double M[16];
         double T[16];
 
-        ogl::unit *rot[10];
-        ogl::unit *pos[10];
-
-        ogl::node *node;
+        ogl::node *rot[10];
+        ogl::node *pos[10];
         ogl::pool *pool;
 
         int    mode;

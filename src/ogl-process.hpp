@@ -37,6 +37,8 @@ namespace ogl
 
         std::string name;
 
+        static int count;
+
         // Render to clipspace.
 
         static ogl::pool *clip_pool;
