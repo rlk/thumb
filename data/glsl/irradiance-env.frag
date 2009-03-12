@@ -78,6 +78,6 @@ void main()
 
     vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 128.0 * 3.0).rgb;
 
-    gl_FragColor = vec4(C * 12.0 * 4096.0, 1.0);
-//  gl_FragColor = vec4(C, 1.0);
+//  gl_FragColor = vec4(C * 12.0 * 4096.0, 1.0);
+    gl_FragColor = vec4(C, 1.0);
 }

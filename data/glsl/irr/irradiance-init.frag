@@ -12,11 +12,20 @@ void main()
     vec3 z = vec3(t, s, 1.0);
 
     gl_FragColor =
+        (textureCube(L,  x) * textureCube(Y,  x).r +
+         textureCube(L, -x) * textureCube(Y, -x).r +
+         textureCube(L,  y) * textureCube(Y,  y).r +
+         textureCube(L, -y) * textureCube(Y, -y).r +
+         textureCube(L,  z) * textureCube(Y,  z).r +
+         textureCube(L, -z) * textureCube(Y, -z).r) / 6.0;
+/*
+    gl_FragColor =
         (textureCube(L,  x) * textureCube(d,  x).r * textureCube(Y,  x).r +
          textureCube(L, -x) * textureCube(d, -x).r * textureCube(Y, -x).r +
          textureCube(L,  y) * textureCube(d,  y).r * textureCube(Y,  y).r +
          textureCube(L, -y) * textureCube(d, -y).r * textureCube(Y, -y).r +
          textureCube(L,  z) * textureCube(d,  z).r * textureCube(Y,  z).r +
          textureCube(L, -z) * textureCube(d, -z).r * textureCube(Y, -z).r);
+*/
 }
 

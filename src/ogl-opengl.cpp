@@ -439,15 +439,17 @@ void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
 
 void ogl::free_texture()
 {
-    for (int u = GL_TEXTURE0 + MAX_TEXTURE_UNITS - 1; u >= GL_TEXTURE0; --u)
+    for (int u = MAX_TEXTURE_UNITS - 1; u >= 0; --u)
     {
-        glActiveTextureARB(u);
+        glActiveTextureARB(GL_TEXTURE0 + u);
 
         glBindTexture(GL_TEXTURE_1D,            0);
         glBindTexture(GL_TEXTURE_2D,            0);
         glBindTexture(GL_TEXTURE_3D,            0);
         glBindTexture(GL_TEXTURE_CUBE_MAP,      0);
         glBindTexture(GL_TEXTURE_RECTANGLE_ARB, 0);
+
+        current_object[u] = 0;
     }
 }
 
