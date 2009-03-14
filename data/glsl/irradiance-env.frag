@@ -4,9 +4,10 @@ uniform sampler2D       diff_map;
 uniform sampler2D       spec_map;
 uniform sampler2D       norm_map;
 
-uniform samplerCube     reflection_env;
-//niform samplerCube     irradiance_env;
-uniform sampler2DRect   irradiance_env;
+//uniform samplerCube     reflection_env;
+//uniform samplerCube     irradiance_env;
+uniform sampler2DRect   reflection_env[2];
+uniform sampler2DRect   irradiance_env[2];
 
 uniform sampler2DShadow shadow[3];
 /*
@@ -21,7 +22,7 @@ varying vec3 V_v;
 varying vec3 N_v;
 varying vec3 T_v;
 
-vec3 irradiance(vec3 N)
+vec3 irradiance(sampler2DRect env, vec3 N)
 {
     const float c1 = 0.429043;
     const float c2 = 0.511664;
@@ -41,15 +42,15 @@ vec3 irradiance(vec3 N)
     vec3 L7 = vec3( 0.56,  0.21,  0.14);
     vec3 L8 = vec3( 0.21, -0.05, -0.30);
 */
-    vec3 L0 = texture2DRect(irradiance_env, vec2(0.5, 0.5)).rgb; // L0 0 = 0
-    vec3 L1 = texture2DRect(irradiance_env, vec2(1.5, 0.5)).rgb; // L1-1 = 1
-    vec3 L2 = texture2DRect(irradiance_env, vec2(2.5, 0.5)).rgb; // L1 0 = 2
-    vec3 L3 = texture2DRect(irradiance_env, vec2(0.5, 1.5)).rgb; // L1 1 = 3
-    vec3 L4 = texture2DRect(irradiance_env, vec2(1.5, 1.5)).rgb; // L2-2 = 4
-    vec3 L5 = texture2DRect(irradiance_env, vec2(2.5, 1.5)).rgb; // L2-1 = 5
-    vec3 L6 = texture2DRect(irradiance_env, vec2(0.5, 2.5)).rgb; // L2 0 = 6
-    vec3 L7 = texture2DRect(irradiance_env, vec2(1.5, 2.5)).rgb; // L2 1 = 7
-    vec3 L8 = texture2DRect(irradiance_env, vec2(2.5, 2.5)).rgb; // L2 2 = 8
+    vec3 L0 = texture2DRect(env, vec2(0.5, 0.5)).rgb; // L0 0 = 0
+    vec3 L1 = texture2DRect(env, vec2(1.5, 0.5)).rgb; // L1-1 = 1
+    vec3 L2 = texture2DRect(env, vec2(2.5, 0.5)).rgb; // L1 0 = 2
+    vec3 L3 = texture2DRect(env, vec2(0.5, 1.5)).rgb; // L1 1 = 3
+    vec3 L4 = texture2DRect(env, vec2(1.5, 1.5)).rgb; // L2-2 = 4
+    vec3 L5 = texture2DRect(env, vec2(2.5, 1.5)).rgb; // L2-1 = 5
+    vec3 L6 = texture2DRect(env, vec2(0.5, 2.5)).rgb; // L2 0 = 6
+    vec3 L7 = texture2DRect(env, vec2(1.5, 2.5)).rgb; // L2 1 = 7
+    vec3 L8 = texture2DRect(env, vec2(2.5, 2.5)).rgb; // L2 2 = 8
 
     float x =  N.x;
     float y = -N.y;
@@ -98,7 +99,7 @@ void main()
     vec3 N_c = texture2D(norm_map, gl_TexCoord[0].xy).rgb;
 
     // Look up the shadow map textures.
-/*
+
     float S0 = get_shadow(shadow[0], gl_TexCoord[1]);
     float S1 = get_shadow(shadow[1], gl_TexCoord[2]);
     float S2 = get_shadow(shadow[2], gl_TexCoord[3]);
@@ -106,7 +107,7 @@ void main()
     float s0 = step(pssm_depth.y, gl_FragCoord.z);
     float s1 = step(pssm_depth.z, gl_FragCoord.z);
     float ss = mix(S0, mix(S1, S2, s1), s0) * lit;
-*/
+
     // Transform the fragment normal from tangent to world space.
 
     vec3 N = M * normalize(2.0 * N_c - 1.0);
@@ -117,10 +118,11 @@ void main()
 
 //  vec3 C = textureCube(reflection_env, R).rgb;
 
-    vec4 C = vec4(irradiance(N), 1.0);
+    vec4 C0 = vec4(irradiance(irradiance_env[0], N), 1.0);
+    vec4 C1 = vec4(irradiance(irradiance_env[1], N), 1.0);
 
 //  vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 3.0).rgb;
 
 //  gl_FragColor = vec4(abs(C) * 4.0, 1.0);
-    gl_FragColor = C * D_c;
+    gl_FragColor = mix(C0, C1, ss) * D_c;
 }

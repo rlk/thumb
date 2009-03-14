@@ -9,11 +9,10 @@
   <sampler name="shadow[1]" unit="4" />
   <sampler name="shadow[2]" unit="5" />
 
-  <sampler name="reflection_env" unit="6" />
-  <sampler name="irradiance_env" unit="7" />
-<!--
-  <sampler name="d_omega" unit="7" />
--->
+  <sampler name="reflection_env[0]" unit="6" />
+  <sampler name="reflection_env[1]" unit="7" />
+  <sampler name="irradiance_env[0]" unit="8" />
+  <sampler name="irradiance_env[1]" unit="9" />
 
   <uniform name="pssm_depth"       value="pssm_depth"       size="4"/>
   <uniform name="view_matrix"      value="view_matrix"      size="16"/>
@@ -23,10 +22,5 @@
   <uniform name="shadow_matrix[1]" value="shadow_matrix[1]" size="16" />
   <uniform name="shadow_matrix[2]" value="shadow_matrix[2]" size="16" />
 
-<!--
-  <uniform name="irradiance_R"    value="irradiance_R"    size="16"/>
-  <uniform name="irradiance_G"    value="irradiance_G"    size="16"/>
-  <uniform name="irradiance_B"    value="irradiance_B"    size="16"/>
--->
   <attribute name="Tangent" location="6" />
 </program>

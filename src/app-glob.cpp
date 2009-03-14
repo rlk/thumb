@@ -210,9 +210,9 @@ const ogl::process *app::glob::load_process(const std::string& name, int i)
         else if  (name == "sh_basis")
             ptr = new ogl::sh_basis      (str.str(), i);
         else if  (name == "reflection_env")
-            ptr = new ogl::reflection_env(str.str());
+            ptr = new ogl::reflection_env(str.str(), i);
         else if  (name == "irradiance_env")
-            ptr = new ogl::irradiance_env(str.str());
+            ptr = new ogl::irradiance_env(str.str(), i);
 
         if (ptr)
         {

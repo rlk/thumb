@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::reflection_env::reflection_env(const std::string& name) :
+ogl::reflection_env::reflection_env(const std::string& name, int i) :
     process(name),
 
     cube(::glob->new_frame(::conf->get_i("reflection_cubemap_size", 128),

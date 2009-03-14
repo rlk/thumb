@@ -24,7 +24,7 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::irradiance_env::irradiance_env(const std::string& name) :
+ogl::irradiance_env::irradiance_env(const std::string& name, int i) :
     process(name),
 
     b(::conf->get_i("spherical-harmonic-order", 2)),
@@ -32,7 +32,7 @@ ogl::irradiance_env::irradiance_env(const std::string& name) :
     m(::conf->get_i("irradiance_cubemap_size", 128)),
 
     d(::glob->load_process("d_omega")),
-    L(::glob->load_process("reflection_env")),
+    L(::glob->load_process("reflection_env", i)),
 
     init(::glob->load_program("irr/irradiance-init.xml")),
     step(::glob->load_program("irr/irradiance-sum.xml")),

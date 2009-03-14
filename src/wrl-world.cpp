@@ -36,7 +36,8 @@
 
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution")),
-    sky(::glob->load_binding("sky-water-light", "sky-water-light")),
+    sky_light(::glob->load_binding("sky-water-light", "sky-water-light")),
+    sky_shade(::glob->load_binding("sky-water-shade", "sky-water-shade")),
     serial(1)
 {
     // Initialize the editor physical system.
@@ -70,8 +71,10 @@ wrl::world::world() :
     process_shadow[0]      = ::glob->load_process("shadow", 0);
     process_shadow[1]      = ::glob->load_process("shadow", 1);
     process_shadow[2]      = ::glob->load_process("shadow", 2);
-    process_reflection     = ::glob->load_process("reflection_env");
-    process_irradiance     = ::glob->load_process("irradiance_env");
+    process_reflection[0]  = ::glob->load_process("reflection_env", 0);
+    process_reflection[1]  = ::glob->load_process("reflection_env", 1);
+    process_irradiance[0]  = ::glob->load_process("irradiance_env", 0);
+    process_irradiance[1]  = ::glob->load_process("irradiance_env", 1);
 }
 
 wrl::world::~world()
@@ -108,8 +111,10 @@ wrl::world::~world()
 
     // Finalize the uniforms.
 
-    ::glob->free_process(process_irradiance);
-    ::glob->free_process(process_reflection);
+    ::glob->free_process(process_irradiance[1]);
+    ::glob->free_process(process_irradiance[0]);
+    ::glob->free_process(process_reflection[1]);
+    ::glob->free_process(process_reflection[0]);
     ::glob->free_process(process_shadow[2]);
     ::glob->free_process(process_shadow[1]);
     ::glob->free_process(process_shadow[0]);
@@ -1105,8 +1110,10 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
     // Ask the binding system to compute the irradiance environment using
     // the sky shader.
 
-    process_reflection->draw(sky);
-    process_irradiance->draw(0);
+    process_reflection[0]->draw(sky_shade);
+    process_reflection[1]->draw(sky_light);
+    process_irradiance[0]->draw(0);
+    process_irradiance[1]->draw(0);
 
     return r;
 }
@@ -1194,7 +1201,7 @@ void wrl::world::draw_sky(app::frustum *frusp)
     const double *v2 = frusp->get_points() + 6;
     const double *v3 = frusp->get_points() + 9;
 
-    sky->bind(true);
+    sky_light->bind(true);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     {

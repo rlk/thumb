@@ -33,7 +33,7 @@ namespace ogl
 
     public:
 
-        reflection_env(const std::string&);
+        reflection_env(const std::string&, int);
        ~reflection_env();
 
         void draw(const ogl::binding *) const;

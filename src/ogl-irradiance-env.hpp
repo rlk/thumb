@@ -52,7 +52,7 @@ namespace ogl
 
     public:
 
-        irradiance_env(const std::string&);
+        irradiance_env(const std::string&, int);
        ~irradiance_env();
 
         void draw(const ogl::binding *) const;
