@@ -21,6 +21,54 @@ varying vec3 V_v;
 varying vec3 N_v;
 varying vec3 T_v;
 
+vec3 irradiance(vec3 N)
+{
+    const float c1 = 0.429043;
+    const float c2 = 0.511664;
+    const float c3 = 0.743125;
+    const float c4 = 0.886227;
+    const float c5 = 0.247708;
+
+    // Grace Cathedral
+/*    
+    vec3 L0 = vec3( 0.79,  0.44,  0.54);
+    vec3 L1 = vec3( 0.39,  0.35,  0.60);
+    vec3 L2 = vec3(-0.34, -0.18, -0.27);
+    vec3 L3 = vec3(-0.29, -0.06,  0.01);
+    vec3 L4 = vec3(-0.11, -0.05, -0.12);
+    vec3 L5 = vec3(-0.26, -0.22, -0.47);
+    vec3 L6 = vec3(-0.16, -0.09, -0.15);
+    vec3 L7 = vec3( 0.56,  0.21,  0.14);
+    vec3 L8 = vec3( 0.21, -0.05, -0.30);
+*/
+    vec3 L0 = texture2DRect(irradiance_env, vec2(0.5, 0.5)).rgb; // L0 0 = 0
+    vec3 L1 = texture2DRect(irradiance_env, vec2(1.5, 0.5)).rgb; // L1-1 = 1
+    vec3 L2 = texture2DRect(irradiance_env, vec2(2.5, 0.5)).rgb; // L1 0 = 2
+    vec3 L3 = texture2DRect(irradiance_env, vec2(0.5, 1.5)).rgb; // L1 1 = 3
+    vec3 L4 = texture2DRect(irradiance_env, vec2(1.5, 1.5)).rgb; // L2-2 = 4
+    vec3 L5 = texture2DRect(irradiance_env, vec2(2.5, 1.5)).rgb; // L2-1 = 5
+    vec3 L6 = texture2DRect(irradiance_env, vec2(0.5, 2.5)).rgb; // L2 0 = 6
+    vec3 L7 = texture2DRect(irradiance_env, vec2(1.5, 2.5)).rgb; // L2 1 = 7
+    vec3 L8 = texture2DRect(irradiance_env, vec2(2.5, 2.5)).rgb; // L2 2 = 8
+
+    float x =  N.x;
+    float y = -N.y;
+    float z = -N.z;
+
+    vec3 E;
+
+    E   =       c1 *  L8 * (x * x - y * y)
+        +       c3 *  L6 * (z * z)
+        +       c4 *  L0
+        -       c5 *  L6
+        + 2.0 * c1 * (L4 * x * y + L7 * x * z + L5 * y * z)
+        + 2.0 * c2 * (L3 * x     + L1 * y     + L2 * z    );
+
+    return E * 4.0;
+
+//  return N * 0.5 + 0.5;
+}
+
 float get_shadow(sampler2DShadow sampler, vec4 coord)
 {
     return shadow2DProj(sampler, coord).r;
@@ -66,18 +114,13 @@ void main()
     // Reflect the world-space view across the normal.
 
     vec3 R = reflect(V_w, N);
-/*
-    float x = textureCube(irradiance_env, N).r * 2048.0 * 12.0;
 
-    vec3 CC = (mix(vec3(0.0, 0.0, 0.0), 
-                   vec3(0.0, 1.0, 0.0), clamp( x, 0.0, 1.0)) +
-               mix(vec3(0.0, 0.0, 0.0), 
-                   vec3(1.0, 0.0, 0.0), clamp(-x, 0.0, 1.0)));
-*/
-//  gl_FragColor = textureCube(reflection_env, R);
+//  vec3 C = textureCube(reflection_env, R).rgb;
 
-    vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 128.0 * 3.0).rgb;
+    vec4 C = vec4(irradiance(N), 1.0);
 
-//  gl_FragColor = vec4(C * 12.0 * 4096.0, 1.0);
-    gl_FragColor = vec4(C, 1.0);
+//  vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 3.0).rgb;
+
+//  gl_FragColor = vec4(abs(C) * 4.0, 1.0);
+    gl_FragColor = C * D_c;
 }

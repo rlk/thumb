@@ -46,8 +46,8 @@ namespace ogl
         const ogl::program *step;
         const ogl::program *calc;
 
-        ogl::frame *ping;
-        ogl::frame *pong;
+        ogl::frame *bufA;
+        ogl::frame *bufB;
         ogl::frame *cube;
 
     public:

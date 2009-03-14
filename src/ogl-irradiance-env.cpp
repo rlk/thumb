@@ -38,15 +38,31 @@ ogl::irradiance_env::irradiance_env(const std::string& name) :
     step(::glob->load_program("irr/irradiance-sum.xml")),
     calc(::glob->load_program("irr/irradiance-calc.xml")),
 
-    ping(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE_ARB,
+    bufA(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE_ARB,
                            GL_RGBA32F_ARB, true, false, false)),
-    pong(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE_ARB,
+    bufB(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE_ARB,
                            GL_RGBA32F_ARB, true, false, false)),
     cube(::glob->new_frame(m, m, GL_TEXTURE_CUBE_MAP,
                            GL_RGBA16F_ARB, true, false, false))
 {
+    // Load the procedural textures for all spherical harmonic bases.
+
     for (int i = 0; i < (b + 1) * (b + 1); ++i)
         Y.push_back(::glob->load_process("sh_basis", i));
+
+    // Disable filtering on the integral working buffers.
+
+    bufA->bind_color();
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                    GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                    GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+    bufB->bind_color();
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                    GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+                    GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 ogl::irradiance_env::~irradiance_env()
@@ -64,8 +80,8 @@ ogl::irradiance_env::~irradiance_env()
     ::glob->free_program(step);
     ::glob->free_program(calc);
 
-    ::glob->free_frame(ping);
-    ::glob->free_frame(pong);
+    ::glob->free_frame(bufA);
+    ::glob->free_frame(bufB);
     ::glob->free_frame(cube);
 }
 
@@ -73,47 +89,92 @@ ogl::irradiance_env::~irradiance_env()
 
 void ogl::irradiance_env::draw(const ogl::binding *bind) const
 {
-    assert(ping);
+    assert(bufA);
+    assert(bufB);
     assert(init);
+    assert(step);
     assert(L);
     assert(d);
 
-    // Begin the process of projecting the reflection environment map onto
-    // the spherical harmonic basis.  For each basis function, multiply each
-    // of the six faces of the reflection map by the corresponding face of
-    // the basis map and weight the result by the normalized solid angle.
-    // Sum these six results and store the output in an n * n section of the
-    // ping buffer.  The ping buffer is a b+1 * b+1 array of these n * n
-    // accumulations.
+    int i;
+    int r;
+    int c;
+
+    ogl::frame *ping = bufA;
+    ogl::frame *pong = bufB;
+    ogl::frame *temp;
+
+    double test[9][3] = {
+        { 1.0, 1.0, 1.0 },
+        { 1.0, 0.0, 0.0 },
+        { 0.0, 1.0, 0.0 },
+        { 0.0, 0.0, 1.0 },
+        { 1.0, 1.0, 0.0 },
+        { 1.0, 0.0, 1.0 },
+        { 0.0, 1.0, 1.0 },
+        { 0.0, 0.0, 0.0 },
+        { 0.0, 0.0, 0.0 }
+    };
 
     clip_pool->prep();
     clip_pool->draw_init();
     {
+        // Begin the process of projecting the reflection environment
+        // map onto the spherical harmonic basis.  For each basis
+        // function, multiply each of the six faces of the reflection
+        // map by the corresponding face of the basis map and weight
+        // the result by the normalized solid angle.  Sum these six
+        // results and store the output in an n * n section of the
+        // ping buffer.  The ping buffer is a b+1 * b+1 array of these
+        // n * n accumulations.
+
         init->bind();
+        init->uniform("siz", double(b + 1), double(b + 1));
+
         ping->bind();
         {
-            int B = b + 1;
-            int i;
-            int r;
-            int c;
-
             L->bind(GL_TEXTURE0);
             d->bind(GL_TEXTURE1);
 
-            for (i = 0, r = 0; r < B; ++r)
-            {
-                for (c = 0; c < B; ++c, ++i)
+            for (i = 0, r = 0; r <= b; ++r)
+                for (c = 0; c <= b; ++c, ++i)
                 {
                     Y[i]->bind(GL_TEXTURE2);
 
                     init->uniform("loc", double(c), double(r));
-                    init->uniform("siz", double(B), double(B));
+                    init->uniform("test", test[i][0], test[i][1], test[i][2]);
 
                     clip_node->draw();
                 }
-            }
         }
         ping->free();
+
+        // Continue the projection by performing a parallel sum of the
+        // contents of all b+1 * b+1 arrays using a 2D additive
+        // downsampling.  Each step does a 2*2 downsampling of the
+        // ping buffer into the pong buffer before logically swapping
+        // the ping with the pong.  After log2(n) steps, the ping
+        // buffer contairs a b+1 * b+1 array of pixels giving the
+        // final spherical harmonic coefficients.
+
+        step->bind();
+
+        for (i = n / 2; i > 0; i /= 2)
+        {
+            pong->bind();
+            {
+                ping->bind_color(GL_TEXTURE0);
+
+                step->uniform("siz", double(i) / double(n),
+                                     double(i) / double(n));
+                clip_node->draw();
+            }
+            pong->free();
+
+            temp = ping;
+            ping = pong;
+            pong = temp;
+        }
     }
     clip_pool->draw_fini();
 }
@@ -130,7 +191,12 @@ void ogl::irradiance_env::bind(GLenum unit) const
 
 //  Y[3]->bind(unit);
 
-    ping->bind_color(unit);
+    if (1 /*log2(n) is odd*/)
+        bufB->bind_color(unit);
+    else
+        bufA->bind_color(unit);
+/*
+*/
 }
 
 //-----------------------------------------------------------------------------
