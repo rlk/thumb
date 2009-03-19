@@ -72,6 +72,8 @@ class demo : public app::prog
     // Renderer uniforms.
 
     ogl::uniform *uniform_light_position;
+    ogl::uniform *uniform_light_theta_cos;
+    ogl::uniform *uniform_light_theta;
     ogl::uniform *uniform_view_matrix;
     ogl::uniform *uniform_view_inverse;
     ogl::uniform *uniform_view_position;
@@ -79,11 +81,14 @@ class demo : public app::prog
     ogl::uniform *uniform_reflection_cubemap_size;
     ogl::uniform *uniform_irradiance_cubemap_size;
     ogl::uniform *uniform_spherical_harmonic_order;
-/*
-    ogl::uniform *uniform_irradiance_R;
-    ogl::uniform *uniform_irradiance_G;
-    ogl::uniform *uniform_irradiance_B;
-*/
+    ogl::uniform *uniform_XYZRGB;
+    ogl::uniform *uniform_perez[5];
+    ogl::uniform *uniform_zenith_luminance;
+
+    void init_uniforms();
+    void free_uniforms();
+    void prep_uniforms() const;
+    
     // Demo state.
 
     dev::input *input;

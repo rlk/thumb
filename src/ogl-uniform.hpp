@@ -35,6 +35,10 @@ namespace ogl
         uniform(std::string, GLsizei);
        ~uniform();
 
+        void set(double);
+        void set(double, double);
+        void set(double, double, double);
+        void set(double, double, double, double);
         void set(const double *);
 
         void apply(GLint) const;

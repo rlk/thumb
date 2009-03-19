@@ -42,25 +42,28 @@
 
 //-----------------------------------------------------------------------------
 
-demo::demo(int w, int h) :
-    universe(0), world(0), edit(0), play(0), info(0), curr(0), input(0)
+void demo::init_uniforms()
 {
-    std::string input_mode = conf->get_s("input_mode");
-
-    // Initialize the input handler.
-/*
-    if      (input_mode == "gamepad") input = new dev::gamepad();
-    else if (input_mode == "tracker") input = new dev::tracker();
-    else if (input_mode == "wiimote") input = new dev::wiimote();
-    else */                           input = new dev::mouse  ();
-
     // Initialize the uniforms.
 
-    uniform_light_position = ::glob->load_uniform("light_position", 3);
-    uniform_view_matrix    = ::glob->load_uniform("view_matrix",   16);
-    uniform_view_inverse   = ::glob->load_uniform("view_inverse",  16);
-    uniform_view_position  = ::glob->load_uniform("view_position",  3);
-    uniform_time           = ::glob->load_uniform("time",           1);
+    uniform_light_position   = ::glob->load_uniform("light_position",   3);
+    uniform_light_theta_cos  = ::glob->load_uniform("light_theta_cos",  1);
+    uniform_light_theta      = ::glob->load_uniform("light_theta",      1);
+
+    uniform_view_matrix      = ::glob->load_uniform("view_matrix",     16);
+    uniform_view_inverse     = ::glob->load_uniform("view_inverse",    16);
+    uniform_view_position    = ::glob->load_uniform("view_position",    3);
+    uniform_time             = ::glob->load_uniform("time",             1);
+
+    uniform_XYZRGB           = ::glob->load_uniform("XYZRGB",           9);
+
+    uniform_perez[0]         = ::glob->load_uniform("perez[0]",         3);
+    uniform_perez[1]         = ::glob->load_uniform("perez[1]",         3);
+    uniform_perez[2]         = ::glob->load_uniform("perez[2]",         3);
+    uniform_perez[3]         = ::glob->load_uniform("perez[3]",         3);
+    uniform_perez[4]         = ::glob->load_uniform("perez[4]",         3);
+
+    uniform_zenith_luminance = ::glob->load_uniform("zenith_luminance", 3);
 
     uniform_reflection_cubemap_size
         = ::glob->load_uniform("reflection_cubemap_size",  1);
@@ -69,19 +72,136 @@ demo::demo(int w, int h) :
     uniform_spherical_harmonic_order
         = ::glob->load_uniform("spherical_harmonic_order", 1);
 
-    double rs = ::conf->get_i("reflection_cubemap_size", 128);
-    double is = ::conf->get_i("irradiance_cubemap_size", 128);
-    double sh = ::conf->get_i("spherical_harmonic_order",  2);
+    // Set the constant uniforms.
 
-    uniform_reflection_cubemap_size->set(&rs);
-    uniform_irradiance_cubemap_size->set(&is);
-    uniform_spherical_harmonic_order->set(&sh);
+    uniform_reflection_cubemap_size->set(
+        double(::conf->get_i("reflection_cubemap_size", 128)));
+    uniform_irradiance_cubemap_size->set(
+        double(::conf->get_i("irradiance_cubemap_size", 128)));
+    uniform_spherical_harmonic_order->set(
+        double(::conf->get_i("spherical_harmonic_order",  2)));
 
+    static const double XYZRGB[9] = {     /* 709 */
+        +3.240479, -0.969256, +0.055648,
+        -1.537150, +1.875991, -0.204043,
+        -0.498530, +0.041556, +1.057311
+    };
+    uniform_XYZRGB->set(XYZRGB);
+}
+
+void demo::free_uniforms()
+{
+    ::glob->free_uniform(uniform_zenith_luminance);
+    ::glob->free_uniform(uniform_perez[4]);
+    ::glob->free_uniform(uniform_perez[3]);
+    ::glob->free_uniform(uniform_perez[2]);
+    ::glob->free_uniform(uniform_perez[1]);
+    ::glob->free_uniform(uniform_perez[0]);
+    ::glob->free_uniform(uniform_XYZRGB);
+    ::glob->free_uniform(uniform_spherical_harmonic_order);
+    ::glob->free_uniform(uniform_irradiance_cubemap_size);
+    ::glob->free_uniform(uniform_reflection_cubemap_size);
+    ::glob->free_uniform(uniform_time);
+    ::glob->free_uniform(uniform_view_position);
+    ::glob->free_uniform(uniform_view_inverse);
+    ::glob->free_uniform(uniform_view_matrix);
+    ::glob->free_uniform(uniform_light_theta);
+    ::glob->free_uniform(uniform_light_theta_cos);
+    ::glob->free_uniform(uniform_light_position);
+}
+
+void demo::prep_uniforms() const
+{
+    const double T = 3.0;
+
+    const double *M = ::user->get_M();
+    const double *I = ::user->get_I();
+    const double *L = ::user->get_L();
+
+    // Set the viewing uniforms
+
+    uniform_view_matrix  ->set(I);
+    uniform_view_inverse ->set(M);
+    uniform_view_position->set(M + 12);
+
+    // The lighting uniforms
+
+    double y = L[1] / sqrt(DOT3(L, L)), t = acos(y);
+
+    uniform_light_position ->set(L);
+    uniform_light_theta    ->set(t);
+    uniform_light_theta_cos->set(y);
+
+    // The current time
+
+    uniform_time->set(double(SDL_GetTicks() * 0.001));
+
+    // Perez model luminance distribution coefficients
+
+    static const double perez_Y[5][2] = {
+        {  0.1787, -1.4630 },
+        { -0.3554,  0.4275 },
+        { -0.0227,  5.3251 },
+        {  0.1206, -2.5771 },
+        { -0.0670,  0.2703 }
+    };
+    static const double perez_x[5][2] = {
+        { -0.0193, -0.2592 },
+        { -0.0665,  0.0008 },
+        { -0.0004,  0.2125 },
+        { -0.0641, -0.8989 },
+        { -0.0033,  0.0452 }
+    };
+    static const double perez_y[5][2] = {
+        { -0.0167, -0.2608 },
+        { -0.0950,  0.0092 },
+        { -0.0079,  0.2102 },
+        { -0.0441, -1.6537 },
+        { -0.0109,  0.0529 }
+    };
+
+    for (int i = 0; i < 5; ++i)
+        uniform_perez[i]->set(perez_Y[i][0] * T + perez_Y[i][1],
+                              perez_x[i][0] * T + perez_x[i][1],
+                              perez_y[i][0] * T + perez_y[i][1]);
+
+    // Zenith luminance
+
+    const double T2 = T  * T;
+    const double t2 = t  * t;
+    const double t3 = t2 * t;
+
+    double Z[3], chi = (4.0 / 9.0 - T / 120.0) * (M_PI - 2.0 * t);
+
+    Z[0] = ((4.0453 * T - 4.9710) * tan(chi) - 0.2155 * T + 2.4192);
+
+    Z[1] = (( 0.00166 * t3 - 0.00375 * t2 + 0.00209 * t + 0.00000) * T2 +
+            (-0.02903 * t3 + 0.06377 * t2 - 0.03202 * t + 0.00394) * T  +
+            ( 0.11693 * t3 - 0.21196 * t2 + 0.06052 * t + 0.25886));
+
+    Z[2] = (( 0.00275 * t3 - 0.00610 * t2 + 0.00317 * t + 0.00000) * T2 +
+            (-0.04214 * t3 + 0.08970 * t2 - 0.04153 * t + 0.00516) * T  +
+            ( 0.15346 * t3 - 0.26756 * t2 + 0.06670 * t + 0.26688));
+
+    uniform_zenith_luminance->set(Z);
+}
+
+//-----------------------------------------------------------------------------
+
+demo::demo(int w, int h) :
+    universe(0), world(0), edit(0), play(0), info(0), curr(0), input(0)
+{
+    std::string input_mode = conf->get_s("input_mode");
+
+    init_uniforms();
+
+    // Initialize the input handler.
 /*
-    uniform_irradiance_R   = ::glob->load_uniform("irradiance_R",   16);
-    uniform_irradiance_G   = ::glob->load_uniform("irradiance_G",   16);
-    uniform_irradiance_B   = ::glob->load_uniform("irradiance_B",   16);
-*/
+    if      (input_mode == "gamepad") input = new dev::gamepad();
+    else if (input_mode == "tracker") input = new dev::tracker();
+    else if (input_mode == "wiimote") input = new dev::wiimote();
+    else */                           input = new dev::mouse  ();
+
     // Initialize attract mode.
 
     attr_time = conf->get_f("attract_delay");
@@ -111,19 +231,8 @@ demo::demo(int w, int h) :
 
 demo::~demo()
 {
-/*
-    ::glob->free_uniform(uniform_irradiance_B);
-    ::glob->free_uniform(uniform_irradiance_G);
-    ::glob->free_uniform(uniform_irradiance_R);
-*/
-    ::glob->free_uniform(uniform_spherical_harmonic_order);
-    ::glob->free_uniform(uniform_irradiance_cubemap_size);
-    ::glob->free_uniform(uniform_reflection_cubemap_size);
-    ::glob->free_uniform(uniform_time);
-    ::glob->free_uniform(uniform_view_position);
-    ::glob->free_uniform(uniform_view_inverse);
-    ::glob->free_uniform(uniform_view_matrix);
-    ::glob->free_uniform(uniform_light_position);
+
+    free_uniforms();
 
     if (info) delete info;
     if (play) delete play;
@@ -335,70 +444,12 @@ bool demo::process_event(app::event *E)
 }
 
 //-----------------------------------------------------------------------------
-/*
-static void cathedral(double M[3][16])
-{
-    static const double L0_0[3] = {  0.79,  0.44,  0.54 };
-    static const double L1n1[3] = {  0.39,  0.35,  0.60 };
-    static const double L1_0[3] = { -0.34, -0.18, -0.27 };
-    static const double L1p1[3] = { -0.29, -0.06,  0.01 };
-    static const double L2n2[3] = { -0.11, -0.05, -0.12 };
-    static const double L2n1[3] = { -0.26, -0.22, -0.47 };
-    static const double L2_0[3] = { -0.16, -0.09, -0.15 };
-    static const double L2p1[3] = {  0.56,  0.21,  0.14 };
-    static const double L2p2[3] = {  0.21, -0.05, -0.30 };
 
-    static const double c1 = 0.429043;
-    static const double c2 = 0.511664;
-    static const double c3 = 0.743125;
-    static const double c4 = 0.886227;
-    static const double c5 = 0.247708;
-
-    for (int i = 0; i < 3; ++i)
-    {
-        M[i][ 0] =  c1 * L2p2[i];
-        M[i][ 1] =  c1 * L2n2[i];
-        M[i][ 2] =  c1 * L2p1[i];
-        M[i][ 3] =  c2 * L1p1[i];
-
-        M[i][ 4] =  c1 * L2n2[i];
-        M[i][ 5] = -c1 * L2p2[i];
-        M[i][ 6] =  c1 * L2n1[i];
-        M[i][ 7] =  c2 * L1n1[i];
-
-        M[i][ 8] =  c1 * L2p1[i];
-        M[i][ 9] =  c1 * L2n1[i];
-        M[i][10] =  c3 * L2_0[i];
-        M[i][11] =  c2 * L1_0[i];
-
-        M[i][12] =  c2 * L1p1[i];
-        M[i][13] =  c2 * L1n1[i];
-        M[i][14] =  c2 * L1_0[i];
-        M[i][15] =  c4 * L0_0[i] - c5 * L2_0[i];
-    }
-}
-*/
 ogl::range demo::prep(int frusc, app::frustum **frusv)
 {
-    double t = SDL_GetTicks() * 0.001f;
-
-    // Set the frame-constant uniforms.
-
-    uniform_light_position->set(::user->get_L());
-    uniform_view_matrix   ->set(::user->get_I());
-    uniform_view_inverse  ->set(::user->get_M());
-    uniform_view_position ->set(::user->get_M() + 12);
-
-    uniform_time->set(&t);
-/*
-    double M[3][16];
-    cathedral(M);
-
-    uniform_irradiance_R->set(M[0]);
-    uniform_irradiance_G->set(M[1]);
-    uniform_irradiance_B->set(M[2]);
-*/
     // Prep the current mode, giving the view range.
+
+    prep_uniforms();
 
     ogl::range r;
 

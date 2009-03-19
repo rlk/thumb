@@ -52,9 +52,9 @@ vec3 irradiance(sampler2DRect env, vec3 N)
     vec3 L7 = texture2DRect(env, vec2(1.5, 2.5)).rgb; // L2 1 = 7
     vec3 L8 = texture2DRect(env, vec2(2.5, 2.5)).rgb; // L2 2 = 8
 
-    float x =  N.x;
-    float y = -N.y;
-    float z = -N.z;
+    float x = N.x;
+    float y = N.z;
+    float z = N.y;
 
     vec3 E;
 
@@ -65,9 +65,7 @@ vec3 irradiance(sampler2DRect env, vec3 N)
         + 2.0 * c1 * (L4 * x * y + L7 * x * z + L5 * y * z)
         + 2.0 * c2 * (L3 * x     + L1 * y     + L2 * z    );
 
-    return E * 4.0;
-
-//  return N * 0.5 + 0.5;
+    return E * 5.0;
 }
 
 float get_shadow(sampler2DShadow sampler, vec4 coord)
@@ -124,5 +122,6 @@ void main()
 //  vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 3.0).rgb;
 
 //  gl_FragColor = vec4(abs(C) * 4.0, 1.0);
-    gl_FragColor = mix(C0, C1, ss) * D_c;
+//  gl_FragColor = mix(C0, C1, ss) * D_c;
+    gl_FragColor = vec4(N_w * 0.5 + 0.5, 1.0);
 }

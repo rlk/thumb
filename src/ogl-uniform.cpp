@@ -26,11 +26,39 @@ ogl::uniform::~uniform()
 
 //-----------------------------------------------------------------------------
 
+void ogl::uniform::set(double a)
+{
+    val[0] = a;
+}
+
+void ogl::uniform::set(double a, double b)
+{
+    val[0] = a;
+    val[1] = b;
+}
+
+void ogl::uniform::set(double a, double b, double c)
+{
+    val[0] = a;
+    val[1] = b;
+    val[2] = c;
+}
+
+void ogl::uniform::set(double a, double b, double c, double d)
+{
+    val[0] = a;
+    val[1] = b;
+    val[2] = c;
+    val[3] = d;
+}
+
 void ogl::uniform::set(const double *p)
 {
     for (int i = 0; i < len; ++i)
         val[i] = GLfloat(p[i]);
 }
+
+//-----------------------------------------------------------------------------
 
 void ogl::uniform::apply(GLint location) const
 {

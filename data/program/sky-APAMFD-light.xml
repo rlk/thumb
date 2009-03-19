@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<program vert="glsl/sky.vert"
+         frag="glsl/sky-APAMFD-light.frag" >
+
+  <uniform name="light_position"  value="light_position"  size="3" />
+  <uniform name="light_theta"     value="light_theta"     size="1" />
+  <uniform name="light_theta_cos" value="light_theta_cos" size="1" />
+
+  <uniform name="perez[0]" value="perez[0]" size="3" />
+  <uniform name="perez[1]" value="perez[1]" size="3" />
+  <uniform name="perez[2]" value="perez[2]" size="3" />
+  <uniform name="perez[3]" value="perez[3]" size="3" />
+  <uniform name="perez[4]" value="perez[4]" size="3" />
+
+  <uniform name="zenith_luminance" value="zenith_luminance" size="3" />
+
+  <uniform name="XYZRGB" value="XYZRGB" size="9"/>
+</program>

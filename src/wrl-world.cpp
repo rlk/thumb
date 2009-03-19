@@ -36,6 +36,7 @@
 
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution")),
+//  sky_light(::glob->load_binding("sky-APAMFD-light", "sky-APAMFD-light")),
     sky_light(::glob->load_binding("sky-water-light", "sky-water-light")),
     sky_shade(::glob->load_binding("sky-water-shade", "sky-water-shade")),
     serial(1)
@@ -75,6 +76,10 @@ wrl::world::world() :
     process_reflection[1]  = ::glob->load_process("reflection_env", 1);
     process_irradiance[0]  = ::glob->load_process("irradiance_env", 0);
     process_irradiance[1]  = ::glob->load_process("irradiance_env", 1);
+
+//  click_selection(new wrl::box("solid/bunny.obj"));
+    click_selection(new wrl::box("solid/buddha.obj"));
+    do_create();
 }
 
 wrl::world::~world()

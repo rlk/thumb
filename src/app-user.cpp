@@ -95,10 +95,18 @@ void app::user::set(const double *p, const double *q, double t)
 
         double M[16], L[3] = { 0.0, 0.0, 8192.0 }; // HACK
 
-        load_rot_mat(M, 1.0, 0.0, 0.0, 45.0);
+        load_rot_mat(M, 1.0, 0.0, 0.0, 60.0);
         Rmul_rot_mat(M, 0.0, 1.0, 0.0, 360.0 * t / (24.0 * 60.0 * 60.0));
 
         mult_mat_vec3(current_L, M, L);
+/*
+        double phi   = RAD(30.0);
+        double theta = RAD(60.0);
+
+        current_L[0] = (sin(phi) * sin(theta));
+        current_L[1] = (           cos(theta));
+        current_L[2] = (cos(phi) * sin(theta));
+*/
     }
 }
 

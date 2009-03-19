@@ -14,6 +14,7 @@
 #define OGL_MESH_HPP
 
 #include <vector>
+#include <deque>
 
 #include "ogl-opengl.hpp"
 #include "ogl-aabb.hpp"
@@ -41,6 +42,17 @@ namespace ogl
 
     typedef std::vector<vec2> vec2_v;
     typedef std::vector<vec3> vec3_v;
+
+    // While contiguous buffers are required during rendering, there is no
+    // continuity requirement for loader caches. So, there's a possibility
+    // that a deque will outperform a vector during mesh loading. It turns
+    // out that a vector is about 5% faster on my system, but it's worth
+    // having the capability to switch representations and test.
+
+    typedef std::vector<vec2> vec2_d;
+    typedef std::vector<vec3> vec3_d;
+//  typedef std::deque<vec2>  vec2_d;
+//  typedef std::deque<vec3>  vec3_d;
 
     //-------------------------------------------------------------------------
 

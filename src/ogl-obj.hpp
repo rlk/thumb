@@ -52,7 +52,7 @@ namespace obj
         ogl::mesh_v meshes;
 
         // Read handlers.
-
+/*
         void read_use(std::istream&, iset_m&);
         int  read_fi (std::istream&, ogl::vec3_v&,
                                      ogl::vec2_v&,
@@ -67,6 +67,25 @@ namespace obj
         void read_v  (std::istream&, ogl::vec3_v&);
         void read_vt (std::istream&, ogl::vec2_v&);
         void read_vn (std::istream&, ogl::vec3_v&);
+*/
+        const char *read_fi (const char *, ogl::vec3_d&,
+                                           ogl::vec2_d&,
+                                           ogl::vec3_d&, iset_m&, int &);
+        const char *read_li (const char *, ogl::vec3_d&,
+                                           ogl::vec2_d&, iset_m&, int &);
+
+        const char *read_c  (const char *);
+        const char *read_use(const char *, iset_m&);
+        const char *read_f  (const char *, ogl::vec3_d&,
+                                           ogl::vec2_d&,
+                                           ogl::vec3_d&, iset_m&);
+        const char *read_l  (const char *, ogl::vec3_d&,
+                                           ogl::vec2_d&, iset_m&);
+        const char *read_v  (const char *, ogl::vec3_d&);
+        const char *read_vt (const char *, ogl::vec2_d&);
+        const char *read_vn (const char *, ogl::vec3_d&);
+
+        void center();
 
     public:
 

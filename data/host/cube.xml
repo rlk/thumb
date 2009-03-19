@@ -7,7 +7,7 @@
     </frustum>
   </overlay>
 
-  <node name="cube">
+  <node name="four">
     <window x="0" y="0" w="1024" h="256"/>
     <channel w="256" h="256" x="0.0" y="0.0" z="0.0"/>
 
@@ -37,6 +37,47 @@
       <frustum>
         <perspective hfov="90.0" vfov="90.0"/>
         <rotation y="-270"/>
+      </frustum>
+    </display>
+  </node>
+
+  <node name="plus">
+    <window x="0" y="0" w="768" h="768"/>
+    <channel w="256" h="256" x="0.0" y="0.0" z="0.0"/>
+
+    <display type="normal" index="0">
+      <viewport x="256" y="256" w="256" h="256"/>
+      <frustum>
+        <perspective hfov="90.0" vfov="90.0"/>
+        <rotation p="90"/>
+      </frustum>
+    </display>
+    <display type="normal" index="1">
+      <viewport x="256" y="0" w="256" h="256"/>
+      <frustum>
+        <perspective hfov="90.0" vfov="90.0"/>
+        <rotation y="0"/>
+      </frustum>
+    </display>
+    <display type="normal" index="2">
+      <viewport x="0" y="256" w="256" h="256"/>
+      <frustum>
+        <perspective hfov="90.0" vfov="90.0"/>
+        <rotation y="90" r="90"/>
+      </frustum>
+    </display>
+    <display type="normal" index="3">
+      <viewport x="512" y="256" w="256" h="256"/>
+      <frustum>
+        <perspective hfov="90.0" vfov="90.0"/>
+        <rotation y="-90" r="-90"/>
+      </frustum>
+    </display>
+    <display type="normal" index="4">
+      <viewport x="256" y="512" w="256" h="256"/>
+      <frustum>
+        <perspective hfov="90.0" vfov="90.0"/>
+        <rotation y="-180" r="-180"/>
       </frustum>
     </display>
   </node>
