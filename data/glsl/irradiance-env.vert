@@ -20,7 +20,7 @@ void main()
 
     // Compute the view, normal, and tangent world-space varyings.
 
-    V_v = (     V_e       * view_matrix).xyz;
+    V_v = (     V_e       * view_matrix).xyz;  // view_inverse??
     N_v = (vec4(N_e, 0.0) * view_matrix).xyz;
     T_v = (vec4(T_e, 0.0) * view_matrix).xyz;
 
