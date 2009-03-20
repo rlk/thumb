@@ -49,7 +49,7 @@ void main()
 
     // Look up the sky fill and glow colors.
 
-//  vec4 Kg = texture2D(glow, vec2((L.y + 1.0) / 2.0, dot(V, L)));
+    vec4 Kg = texture2D(glow, vec2((L.y + 1.0) / 2.0, dot(V, L)));
     vec4 Kf = texture2D(fill, vec2((L.y + 1.0) / 2.0, V.y));
 
     // Mix the ocean color using a Fresnel coefficient.
@@ -58,7 +58,7 @@ void main()
 
     vec4 Ko = vec4(0.0, 0.5, 0.5, 1.0);
 
-    vec4 K = mix(Ko, Kf, f);
+    vec4 K = mix(Ko, Kf + Kg, f);
 
     gl_FragColor = vec4(K.rgb, Kf.a);
 //  gl_FragColor = vec4((Kf + Kg).rgb, Kf.a);

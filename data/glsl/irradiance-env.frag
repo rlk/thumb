@@ -65,7 +65,7 @@ vec3 irradiance(sampler2DRect env, vec3 N)
         + 2.0 * c1 * (L4 * x * y + L7 * x * z + L5 * y * z)
         + 2.0 * c2 * (L3 * x     + L1 * y     + L2 * z    );
 
-    return E * 5.0;
+    return E * 4.0;
 }
 
 float get_shadow(sampler2DShadow sampler, vec4 coord)
@@ -121,5 +121,6 @@ void main()
 
 //  gl_FragColor = vec4(abs(C) * 4.0, 1.0);
     gl_FragColor = mix(C0, C1, ss) * D_c;
+//  gl_FragColor = mix(C0, C1, ss);
 //  gl_FragColor = vec4(T_v * 0.5 + 0.5, 1.0);
 }

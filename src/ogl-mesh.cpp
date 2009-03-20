@@ -103,9 +103,7 @@ void ogl::mesh::calc_tangent()
         t[1] = ds1[1] * dv0[1] - ds0[1] * dv1[1];
         t[2] = ds1[1] * dv0[2] - ds0[1] * dv1[2];
 
-        r = GLfloat(sqrt(DOT3(t, t)));
-
-        if (isnormal(r))
+        if ((r = GLfloat(sqrt(DOT3(t, t)))) > 0.0f)
         {
             t[0] /= r;
             t[1] /= r;
