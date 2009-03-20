@@ -153,8 +153,9 @@ namespace ogl
 
         // Buffer object writers
 
-        void buffv(GLfloat *, GLfloat *, GLfloat *, GLfloat *);
-        void buffe(GLuint  *);
+        void buffv(const GLfloat *, const GLfloat *,
+                   const GLfloat *, const GLfloat *);
+        void buffe(const GLuint  *);
     };
 
     typedef mesh                               *mesh_p;

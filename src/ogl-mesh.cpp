@@ -297,27 +297,46 @@ void ogl::mesh::cache_lines(const ogl::mesh *that, GLuint d)
 
 //-----------------------------------------------------------------------------
 
-void ogl::mesh::buffv(GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u)
+static void buffer(GLintptr off, GLsizeiptr siz, const GLvoid *dat)
+{
+    const GLubyte   *buf = (const GLubyte *) dat;
+    const GLsizeiptr max = 1024 * 256;
+
+    // This works around an apparent bug under OSX 10.5.6 (using an NVIDIA
+    // GeForce 8800GT) that corrupts uploads larger than about a megabyte.
+
+    while (siz > 0)
+    {
+        GLsizeiptr len = std::min(siz, max);
+
+        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, off, len, buf);
+
+        off += len;
+        buf += len;
+        siz -= len;
+    }
+}
+
+void ogl::mesh::buffv(const GLfloat *v,
+                      const GLfloat *n,
+                      const GLfloat *t,
+                      const GLfloat *u)
 {
     // Copy all cached vertex data to the bound array buffer object.
 
     if (dirty_verts)
     {
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(v),
-                           vv.size() * sizeof (vec3), &vv.front());
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(n),
-                           nv.size() * sizeof (vec3), &nv.front());
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(t),
-                           tv.size() * sizeof (vec3), &tv.front());
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, GLintptrARB(u),
-                           uv.size() * sizeof (vec2), &uv.front());
+        buffer(GLintptrARB(v), vv.size() * sizeof (vec3), &vv.front());
+        buffer(GLintptrARB(n), nv.size() * sizeof (vec3), &nv.front());
+        buffer(GLintptrARB(t), tv.size() * sizeof (vec3), &tv.front());
+        buffer(GLintptrARB(u), uv.size() * sizeof (vec2), &uv.front());
 
         OGLCK();
     }
     dirty_verts = false;
 }
 
-void ogl::mesh::buffe(GLuint *e)
+void ogl::mesh::buffe(const GLuint *e)
 {
     // Copy all cached index data to the bound element array buffer object.
 
