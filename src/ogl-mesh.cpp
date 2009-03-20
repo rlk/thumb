@@ -97,31 +97,38 @@ void ogl::mesh::calc_tangent()
 
         // Compute the tangent vector.
 
-        GLfloat t[3];
+        GLfloat r, t[3];
 
         t[0] = ds1[1] * dv0[0] - ds0[1] * dv1[0];
         t[1] = ds1[1] * dv0[1] - ds0[1] * dv1[1];
         t[2] = ds1[1] * dv0[2] - ds0[1] * dv1[2];
 
-        normalize(t);
+        r = GLfloat(sqrt(DOT3(t, t)));
 
-        // Accumulate the vertex tangent vectors.
+        if (isnormal(r))
+        {
+            t[0] /= r;
+            t[1] /= r;
+            t[2] /= r;
 
-        GLfloat *ti = tv[fi->i].v;
-        GLfloat *tj = tv[fi->j].v;
-        GLfloat *tk = tv[fi->k].v;
+            // Accumulate the vertex tangent vectors.
 
-        ti[0] += t[0];
-        ti[1] += t[1];
-        ti[2] += t[2];
+            GLfloat *ti = tv[fi->i].v;
+            GLfloat *tj = tv[fi->j].v;
+            GLfloat *tk = tv[fi->k].v;
 
-        tj[0] += t[0];
-        tj[1] += t[1];
-        tj[2] += t[2];
+            ti[0] += t[0];
+            ti[1] += t[1];
+            ti[2] += t[2];
 
-        tk[0] += t[0];
-        tk[1] += t[1];
-        tk[2] += t[2];
+            tj[0] += t[0];
+            tj[1] += t[1];
+            tj[2] += t[2];
+
+            tk[0] += t[0];
+            tk[1] += t[1];
+            tk[2] += t[2];
+        }
     }
 
     // Orthonormalize all tangent vectors.

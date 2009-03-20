@@ -81,10 +81,8 @@ void main()
     vec3 N_w = normalize(N_v);
     vec3 T_w = normalize(T_v);
 
-    // TODO: uniform light_direction.
-    // This is gonna cause problems.
-
     float lit = step(0.0, dot(N_w, normalize(light_position)));
+//  float lit = smoothstep(0.0, 0.33, dot(N_w, normalize(light_position)));
 
     // Construct a tangent space basis in world space.
 
@@ -122,6 +120,6 @@ void main()
 //  vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 3.0).rgb;
 
 //  gl_FragColor = vec4(abs(C) * 4.0, 1.0);
-//  gl_FragColor = mix(C0, C1, ss) * D_c;
-    gl_FragColor = vec4(N_w * 0.5 + 0.5, 1.0);
+    gl_FragColor = mix(C0, C1, ss) * D_c;
+//  gl_FragColor = vec4(T_v * 0.5 + 0.5, 1.0);
 }
