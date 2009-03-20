@@ -23,29 +23,6 @@
 namespace obj
 {
     //-------------------------------------------------------------------------
-/*
-    struct iset
-    {
-        int vi;
-        int si;
-        int ni;
-
-        iset(int v, int s, int n) : vi(v), si(s), ni(n) { }
-    };
-
-    struct icmp
-    {
-        bool operator()(const iset& A, const iset& B) const {
-            if (A.vi < B.vi) return true;
-            if (A.si < B.si) return true;
-            if (A.ni < B.ni) return true;
-
-            return false;
-        }
-    };
-
-    typedef std::map<iset, int, icmp> iset_m;
-*/
 
     struct iset
     {
@@ -66,30 +43,27 @@ namespace obj
     {
         ogl::mesh_v meshes;
 
+        // Reader caches.
+
+        ogl::vec3_d vv;
+        ogl::vec2_d sv;
+        ogl::vec3_d nv;
+
+        indx_v ii;
+        iset_v is;
+
         // Read handlers.
 
-        // TODO: make these members instead of arguments?
-
-        const char *read_fi (const char *, ogl::vec3_d&,
-                                           ogl::vec2_d&,
-                                           ogl::vec3_d&,
-                                           indx_v&, iset_v&, int&);
-        const char *read_li (const char *, ogl::vec3_d&,
-                                           ogl::vec2_d&,
-                                           indx_v&, iset_v&, int&);
+        const char *read_fi (const char *, int&);
+        const char *read_li (const char *, int&);
 
         const char *read_c  (const char *);
-        const char *read_use(const char *, indx_v&);
-        const char *read_f  (const char *, ogl::vec3_d&,
-                                           ogl::vec2_d&,
-                                           ogl::vec3_d&,
-                                           indx_v&, iset_v&);
-        const char *read_l  (const char *, ogl::vec3_d&,
-                                           ogl::vec2_d&,
-                                           indx_v&, iset_v&);
-        const char *read_v  (const char *, ogl::vec3_d&, indx_v&);
-        const char *read_vt (const char *, ogl::vec2_d&);
-        const char *read_vn (const char *, ogl::vec3_d&);
+        const char *read_use(const char *);
+        const char *read_f  (const char *);
+        const char *read_l  (const char *);
+        const char *read_v  (const char *);
+        const char *read_vt (const char *);
+        const char *read_vn (const char *);
 
         void center();
 

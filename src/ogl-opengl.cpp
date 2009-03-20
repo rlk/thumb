@@ -49,9 +49,9 @@ bool ogl::do_hdr_bloom;
                          throw std::runtime_error(#n)
 
 // GL_ARB_multitexture
-
+/*
 PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
-
+*/
 // GL_ARB_shader_objects
 
 PFNGLGETOBJECTPARAMETERIVARBPROC     glGetObjectParameterivARB;
@@ -230,7 +230,7 @@ static void init_ext()
     ogl::has_depth_stencil = ogl::check_ext("EXT_packed_depth_stencil");
     ogl::has_multitexture  = ogl::check_ext("ARB_multitexture");
     ogl::has_multisample   = ogl::check_ext("ARB_multisample");
-    ogl::has_anisotropic    = ogl::check_ext("EXT_texture_filter_anisotropic");
+    ogl::has_anisotropic   = ogl::check_ext("EXT_texture_filter_anisotropic");
     ogl::has_glsl          = ogl::check_ext("ARB_shader_objects");
     ogl::has_glsl         &= ogl::check_ext("ARB_vertex_shader");
     ogl::has_glsl         &= ogl::check_ext("ARB_fragment_shader");
@@ -240,13 +240,13 @@ static void init_ext()
     ogl::has_dre           = ogl::check_ext("EXT_draw_range_elements");
 
     // GL_ARB_multitexture
-
+/*
     if (ogl::has_multitexture) try
     {
         PROC(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
     }
     catch (std::runtime_error& e) { ogl::has_multitexture = false; }
-
+*/
     // GL_ARB_shader_objects
 
     if (ogl::has_glsl) try

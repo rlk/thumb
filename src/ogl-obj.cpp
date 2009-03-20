@@ -99,10 +99,7 @@ static const char *scannl(const char *p)
 
 //-----------------------------------------------------------------------------
 
-const char *obj::obj::read_fi(const char *p, ogl::vec3_d& vv,
-                                             ogl::vec2_d& sv,
-                                             ogl::vec3_d& nv,
-                                             indx_v& ii, iset_v& is, int& i)
+const char *obj::obj::read_fi(const char *p, int& i)
 {
     // Read the next index set specification.
 
@@ -111,12 +108,13 @@ const char *obj::obj::read_fi(const char *p, ogl::vec3_d& vv,
     int  ni = 0;
     char *q;
 
-    {                vi = int(strtol(  p, &q, 0)); p = q; }
-    if (*p == '/') { si = int(strtol(++p, &q, 0)); p = q; }
-    if (*p == '/') { ni = int(strtol(++p, &q, 0)); p = q; }
-
-    if (vi)
+    if ((vi = int(strtol(p, &q, 0))))
     {
+        p = q;
+
+        if (*p == '/') { si = int(strtol(++p, &q, 0)); p = q; }
+        if (*p == '/') { ni = int(strtol(++p, &q, 0)); p = q; }
+
         // Convert face indices to vector cache indices.
 
         if (vi < 0) vi += vv.size(); else vi--;
@@ -147,9 +145,7 @@ const char *obj::obj::read_fi(const char *p, ogl::vec3_d& vv,
     return p;
 }
 
-const char *obj::obj::read_li(const char *p, ogl::vec3_d& vv,
-                                             ogl::vec2_d& sv,
-                                             indx_v& ii, iset_v& is, int& i)
+const char *obj::obj::read_li(const char *p, int& i)
 {
     // Read the next index set specification.
 
@@ -157,11 +153,12 @@ const char *obj::obj::read_li(const char *p, ogl::vec3_d& vv,
     int  si = 0;
     char *q;
 
-    {                vi = int(strtol(  p, &q, 0)); p = q; }
-    if (*p == '/') { si = int(strtol(++p, &q, 0)); p = q; }
-
-    if (vi)
+    if ((vi = int(strtol(p, &q, 0))))
     {
+        p = q;
+
+        if (*p == '/') { si = int(strtol(++p, &q, 0)); p = q; }
+
         // Convert face indices to vector cache indices.
 
         if (vi < 0) vi += vv.size(); else vi--;
@@ -191,7 +188,7 @@ const char *obj::obj::read_li(const char *p, ogl::vec3_d& vv,
 
 //-----------------------------------------------------------------------------
 
-const char *obj::obj::read_use(const char *p, indx_v& ii)
+const char *obj::obj::read_use(const char *p)
 {
     // Scan for the beginning of the material name.
 
@@ -227,7 +224,7 @@ const char *obj::obj::read_c(const char *p)
     return p;
 }
 
-const char *obj::obj::read_v(const char *p, ogl::vec3_d& vv, indx_v& ii)
+const char *obj::obj::read_v(const char *p)
 {
     ogl::vec3 v;
     char     *q;
@@ -238,15 +235,16 @@ const char *obj::obj::read_v(const char *p, ogl::vec3_d& vv, indx_v& ii)
     {
         v.v[0] = strtof(p + 1, &q); p = q;
         v.v[1] = strtof(p,     &q); p = q;
-        v.v[2] = strtof(p,     &q); p = scannl(q);
+        v.v[2] = strtof(p,     &q); p = q;
 
         vv.push_back( v);
         ii.push_back(-1);
     }
-    return p;
+
+    return scannl(p);
 }
 
-const char *obj::obj::read_vt(const char *p, ogl::vec2_d& sv)
+const char *obj::obj::read_vt(const char *p)
 {
     ogl::vec2 v;
     char     *q;
@@ -256,14 +254,15 @@ const char *obj::obj::read_vt(const char *p, ogl::vec2_d& sv)
     while (token_vt(p))
     {
         v.v[0] = strtof(p + 2, &q); p = q;
-        v.v[1] = strtof(p,     &q); p = scannl(q);
+        v.v[1] = strtof(p,     &q); p = q;
 
         sv.push_back(v);
     }
-    return p;
+
+    return scannl(p);
 }
 
-const char *obj::obj::read_vn(const char *p, ogl::vec3_d& nv)
+const char *obj::obj::read_vn(const char *p)
 {
     ogl::vec3 v;
     char     *q;
@@ -274,19 +273,17 @@ const char *obj::obj::read_vn(const char *p, ogl::vec3_d& nv)
     {
         v.v[0] = strtof(p + 2, &q); p = q;
         v.v[1] = strtof(p,     &q); p = q;
-        v.v[2] = strtof(p,     &q); p = scannl(q);
+        v.v[2] = strtof(p,     &q); p = q;
 
         nv.push_back(v);
     }
-    return p;
+
+    return scannl(p);
 }
 
 //-----------------------------------------------------------------------------
 
-const char *obj::obj::read_f(const char *p, ogl::vec3_d& vv,
-                                            ogl::vec2_d& sv,
-                                            ogl::vec3_d& nv,
-                                            indx_v& ii, iset_v& is)
+const char *obj::obj::read_f(const char *p)
 {
     // Make sure we've got a mesh to receive faces.
     
@@ -305,7 +302,7 @@ const char *obj::obj::read_f(const char *p, ogl::vec3_d& vv,
 
         int i;
 
-        while ((p = read_fi(p, vv, sv, nv, ii, is, i)) && i >= 0)
+        while ((p = read_fi(p, i)) && i >= 0)
             iv.push_back(GLuint(i));
 
         p = scannl(p);
@@ -320,9 +317,7 @@ const char *obj::obj::read_f(const char *p, ogl::vec3_d& vv,
     return p;
 }
 
-const char *obj::obj::read_l(const char *p, ogl::vec3_d& vv,
-                                            ogl::vec2_d& sv,
-                                            indx_v& ii, iset_v& is)
+const char *obj::obj::read_l(const char *p)
 {
     // Make sure we've got a mesh to receive lines.
     
@@ -341,7 +336,7 @@ const char *obj::obj::read_l(const char *p, ogl::vec3_d& vv,
 
         int i;
 
-        while ((p = read_li(p, vv, sv, ii, is, i)) && i >= 0)
+        while ((p = read_li(p, i)) && i >= 0)
             iv.push_back(GLuint(i));
 
         p = scannl(p);
@@ -363,19 +358,18 @@ obj::obj::obj(std::string name, bool c)
     struct timeval t0;
     struct timeval t1;
 
+    // Reserving the vector caches gives only about about 2% improvement.
+/*
+    vv.reserve(1024 * 1024);
+    sv.reserve(1024 * 1024);
+    nv.reserve(1024 * 1024);
+    ii.reserve(1024 * 1024);
+    is.reserve(1024 * 1024);
+*/
     // Initialize the input file.
 
     if (const char *p = (const char *) ::data->load(name))
     {
-        // Initialize the vector caches.
-
-        ogl::vec3_d vv;
-        ogl::vec2_d sv;
-        ogl::vec3_d nv;
-
-        indx_v ii;
-        iset_v is;
-
         // Process data until the end of the file is reached.
 
         gettimeofday(&t0, 0);
@@ -383,12 +377,12 @@ obj::obj::obj(std::string name, bool c)
         while (*p)
         {
             if      (token_c  (p)) p = read_c  (p);
-            else if (token_f  (p)) p = read_f  (p, vv, sv, nv, ii, is);
-            else if (token_l  (p)) p = read_l  (p, vv, sv,     ii, is);
-            else if (token_v  (p)) p = read_v  (p, vv, ii);
-            else if (token_vt (p)) p = read_vt (p, sv);
-            else if (token_vn (p)) p = read_vn (p, nv);
-            else if (token_use(p)) p = read_use(p, ii);
+            else if (token_f  (p)) p = read_f  (p);
+            else if (token_l  (p)) p = read_l  (p);
+            else if (token_v  (p)) p = read_v  (p);
+            else if (token_vt (p)) p = read_vt (p);
+            else if (token_vn (p)) p = read_vn (p);
+            else if (token_use(p)) p = read_use(p);
             else                   p = scannl(p);
         }
 
@@ -397,6 +391,14 @@ obj::obj::obj(std::string name, bool c)
 
     printf("%s %f\n", name.c_str(), (double(t1.tv_sec  - t0.tv_sec) + 
                                      double(t1.tv_usec - t0.tv_usec) * 0.000001));
+
+    // Release the cached data.
+
+    vv.clear();
+    sv.clear();
+    nv.clear();
+    ii.clear();
+    is.clear();
 
     // Release the open data file.
 

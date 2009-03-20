@@ -21,10 +21,16 @@
 #include "glx.h"
 #include "glext.h"
 */
+/*
+#include "/usr/share/doc/NVIDIA_GLX-1.0/include/GL/gl.h"
+#include "/usr/share/doc/NVIDIA_GLX-1.0/include/GL/glx.h"
+#include "/usr/share/doc/NVIDIA_GLX-1.0/include/GL/glext.h"
+*/
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
-#define glGetProcAddress(n) glXGetProcAddressARB((GLubyte *) n)
+//#define glGetProcAddress(n) glXGetProcAddressARB((GLubyte *) n)
+#define glGetProcAddress(n) glXGetProcAddress((GLubyte *) n)
 #endif
 
 #ifdef _WIN32
@@ -45,9 +51,9 @@
 #ifndef __APPLE__
 
 // GL_ARB_multitexture
-
+/*
 extern PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
-
+*/
 // GL_ARB_shader_objects
 
 extern PFNGLGETOBJECTPARAMETERIVARBPROC     glGetObjectParameterivARB;

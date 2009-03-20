@@ -78,8 +78,8 @@ wrl::world::world() :
     process_irradiance[1]  = ::glob->load_process("irradiance_env", 1);
 
 //  click_selection(new wrl::box("solid/bunny.obj"));
-//  click_selection(new wrl::box("solid/buddha.obj"));
-//  do_create();
+    click_selection(new wrl::box("solid/buddha.obj"));
+    do_create();
 }
 
 wrl::world::~world()
