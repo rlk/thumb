@@ -14,6 +14,7 @@
 #define OBJ_HPP
 
 #include <map>
+#include <vector>
 
 #include "ogl-mesh.hpp"
 
@@ -22,7 +23,7 @@
 namespace obj
 {
     //-------------------------------------------------------------------------
-
+/*
     struct iset
     {
         int vi;
@@ -44,6 +45,20 @@ namespace obj
     };
 
     typedef std::map<iset, int, icmp> iset_m;
+*/
+
+    struct iset
+    {
+        int vi;
+        int si;
+        int ni;
+        int ii;
+
+        iset(int v, int s, int n, int i) : vi(v), si(s), ni(n), ii(i) { }
+    };
+
+    typedef std::vector<int>  indx_v;
+    typedef std::vector<iset> iset_v;
 
     //-------------------------------------------------------------------------
 
@@ -52,36 +67,27 @@ namespace obj
         ogl::mesh_v meshes;
 
         // Read handlers.
-/*
-        void read_use(std::istream&, iset_m&);
-        int  read_fi (std::istream&, ogl::vec3_v&,
-                                     ogl::vec2_v&,
-                                     ogl::vec3_v&, iset_m&);
-        void read_f  (std::istream&, ogl::vec3_v&,
-                                     ogl::vec2_v&,
-                                     ogl::vec3_v&, iset_m&);
-        int  read_li (std::istream&, ogl::vec3_v&,
-                                     ogl::vec2_v&, iset_m&);
-        void read_l  (std::istream&, ogl::vec3_v&,
-                                     ogl::vec2_v&, iset_m&);
-        void read_v  (std::istream&, ogl::vec3_v&);
-        void read_vt (std::istream&, ogl::vec2_v&);
-        void read_vn (std::istream&, ogl::vec3_v&);
-*/
+
+        // TODO: make these members instead of arguments?
+
         const char *read_fi (const char *, ogl::vec3_d&,
                                            ogl::vec2_d&,
-                                           ogl::vec3_d&, iset_m&, int &);
+                                           ogl::vec3_d&,
+                                           indx_v&, iset_v&, int&);
         const char *read_li (const char *, ogl::vec3_d&,
-                                           ogl::vec2_d&, iset_m&, int &);
+                                           ogl::vec2_d&,
+                                           indx_v&, iset_v&, int&);
 
         const char *read_c  (const char *);
-        const char *read_use(const char *, iset_m&);
+        const char *read_use(const char *, indx_v&);
         const char *read_f  (const char *, ogl::vec3_d&,
                                            ogl::vec2_d&,
-                                           ogl::vec3_d&, iset_m&);
+                                           ogl::vec3_d&,
+                                           indx_v&, iset_v&);
         const char *read_l  (const char *, ogl::vec3_d&,
-                                           ogl::vec2_d&, iset_m&);
-        const char *read_v  (const char *, ogl::vec3_d&);
+                                           ogl::vec2_d&,
+                                           indx_v&, iset_v&);
+        const char *read_v  (const char *, ogl::vec3_d&, indx_v&);
         const char *read_vt (const char *, ogl::vec2_d&);
         const char *read_vn (const char *, ogl::vec3_d&);
 
