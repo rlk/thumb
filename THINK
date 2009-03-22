@@ -1,5 +1,7 @@
 Thumb features to consider
 
+   Seriously consider converting the world to Z-up.
+
    Add an oriented target object
        Use the join mechanism to define paths
            For cameras
@@ -87,6 +89,7 @@ Thumb features to consider
             blue extincts at 300 meters
         Atlas the textures
             http://www.gamedev.net/community/forums/mod/journal/journal.asp?jn=263350&reply_id=3198944
+
     Skinning
         Automatic generation of ODE capsules to fit bones
 
