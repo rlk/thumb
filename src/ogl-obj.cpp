@@ -388,10 +388,10 @@ obj::obj::obj(std::string name, bool c)
 
         gettimeofday(&t1, 0);
     }
-
+/*
     printf("%s %f\n", name.c_str(), (double(t1.tv_sec  - t0.tv_sec) + 
                                      double(t1.tv_usec - t0.tv_usec) * 0.000001));
-
+*/
     // Release the cached data.
 
     vv.clear();

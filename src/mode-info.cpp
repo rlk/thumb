@@ -91,6 +91,7 @@ bool mode::info::process_event(app::event *E)
 
         if (overlay)
             overlay->pointer_to_2D(E, x, y);
+
         gui->point(x, y);
         return true;
 

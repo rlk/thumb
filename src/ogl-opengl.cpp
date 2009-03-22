@@ -49,9 +49,9 @@ bool ogl::do_hdr_bloom;
                          throw std::runtime_error(#n)
 
 // GL_ARB_multitexture
-/*
+
 PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
-*/
+
 // GL_ARB_shader_objects
 
 PFNGLGETOBJECTPARAMETERIVARBPROC     glGetObjectParameterivARB;
@@ -240,13 +240,13 @@ static void init_ext()
     ogl::has_dre           = ogl::check_ext("EXT_draw_range_elements");
 
     // GL_ARB_multitexture
-/*
+
     if (ogl::has_multitexture) try
     {
         PROC(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
     }
     catch (std::runtime_error& e) { ogl::has_multitexture = false; }
-*/
+
     // GL_ARB_shader_objects
 
     if (ogl::has_glsl) try

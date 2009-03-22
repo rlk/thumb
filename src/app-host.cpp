@@ -51,7 +51,9 @@ static unsigned long lookup(const char *hostname)
 
 //-----------------------------------------------------------------------------
 
-void app::host::fork_client(const char *name, const char *addr)
+void app::host::fork_client(const char *name,
+                            const char *addr,
+                            const char *disp)
 {
 #ifndef _WIN32 // W32 HACK
     const char *args[4];
@@ -61,7 +63,8 @@ void app::host::fork_client(const char *name, const char *addr)
     {
         std::string dir = ::conf->get_s("exec_dir");
 
-        sprintf(line, "cd %s; ./thumb %s", dir.c_str(), name);
+        sprintf(line, "/bin/sh -c 'cd %s; DISPLAY=%s ./thumb %s'",
+                dir.c_str(), disp ? disp : ":0.0", name);
 
         // Allocate and build the client's ssh command line.
 
@@ -114,8 +117,8 @@ SOCKET app::host::init_socket(int port)
 
 void app::host::init_listen(app::node node)
 {
-    client_cd = init_socket(get_attr_d(node, "port"));
-    script_cd = init_socket(DEFAULT_SCRIPT_PORT);
+    if (clients) client_cd = init_socket(get_attr_d(node, "port"));
+    if (root())  script_cd = init_socket(DEFAULT_SCRIPT_PORT);
 }
 
 void app::host::poll_listen()
@@ -152,7 +155,11 @@ void app::host::poll_listen()
                         throw app::sock_error("accept");
                     else
                     {
+                        // HACK to generate a start event
+                        event E;
+                        E.mk_start();
                         nodelay(sd);
+                        E.send(sd);
                         client_sd.push_back(sd);
                     }
                 }
@@ -316,8 +323,12 @@ void app::host::init_client(app::node node)
     for (curr = find(node,       "client"); curr;
          curr = next(node, curr, "client"))
     {
+/*
         fork_client(get_attr_s(curr, "name").c_str(),
-                    get_attr_s(curr, "addr").c_str());
+                    get_attr_s(curr, "addr").c_str(),
+                    get_attr_s(curr, "disp").c_str());
+*/
+        clients++;
     }
 }
 
@@ -402,6 +413,7 @@ bool app::host::process_calib(event *E)
 //-----------------------------------------------------------------------------
 
 app::host::host(std::string filename, std::string tag) :
+    clients(0),
     server_sd(INVALID_SOCKET),
     client_cd(INVALID_SOCKET),
     script_cd(INVALID_SOCKET),
@@ -423,6 +435,8 @@ app::host::host(std::string filename, std::string tag) :
     window_size[1] = 0;
     window_size[2] = DEFAULT_PIXEL_WIDTH;
     window_size[3] = DEFAULT_PIXEL_HEIGHT;
+    buffer_size[0] = DEFAULT_PIXEL_WIDTH;
+    buffer_size[1] = DEFAULT_PIXEL_HEIGHT;
 
     // Read host.xml and configure using tag match.
 
@@ -475,15 +489,23 @@ app::host::host(std::string filename, std::string tag) :
 
             // Create a channel object for each configured channel.
 
-            for (curr = find(node,       "channel"); curr;
-                 curr = next(node, curr, "channel"))
-                channels.push_back(new dpy::channel(curr));
+            if (channels.empty())
+                for (curr = find(node,       "channel"); curr;
+                     curr = next(node, curr, "channel"))
+                    channels.push_back(new dpy::channel(curr));
+
+            // If there are no locally-defined channels, check the root.
+
+            if (channels.empty())
+                for (curr = find(root,       "channel"); curr;
+                     curr = next(root, curr, "channel"))
+                    channels.push_back(new dpy::channel(curr));
 
             // Start the network syncronization.
 
-            init_listen(node);
             init_server(node);
             init_client(node);
+            init_listen(node);
         }
 
         // Determine the overlay area.
@@ -493,7 +515,7 @@ app::host::host(std::string filename, std::string tag) :
             int w = get_attr_d(over, "w", DEFAULT_PIXEL_WIDTH);
             int h = get_attr_d(over, "h", DEFAULT_PIXEL_HEIGHT);
 
-            if      ((curr = app::find(node, "frustum")))
+            if      ((curr = app::find(over, "frustum")))
                 overlay = new app::frustum(curr, w, h);
             else
                 overlay = new app::frustum(0,    w, h);
@@ -536,7 +558,8 @@ void app::host::root_loop()
 
     // Kick things off with a START event.
 
-    process_event(E.mk_start());
+//  process_event(E.mk_start());
+    process_start(E.mk_start());  // HACK
 
     // Process incoming events until an exit is posted.
 
@@ -598,7 +621,6 @@ void app::host::root_loop()
 
             case SDL_QUIT:
                 process_event(E.mk_close());
-                post_exit();
                 break;
             }
 
@@ -606,9 +628,8 @@ void app::host::root_loop()
         {
             // Check for script input events.
 
-            // TODO: re-enable
-            //      poll_script();
-            //      poll_listen();
+//          poll_script();
+            poll_listen();
 
             // Advance to the current time, or by one JIFFY when benchmarking.
 
@@ -650,7 +671,7 @@ void app::host::node_loop()
 {
     event E;
 
-    while (1)
+    while (exit_flag == false)
         process_event(E.recv(server_sd));
 }
 
@@ -788,6 +809,8 @@ void app::host::process_start(event *E)
 
 void app::host::process_close(event *E)
 {
+    post_exit();
+
     // Free the list of display frustums.
 
     frustums.clear();

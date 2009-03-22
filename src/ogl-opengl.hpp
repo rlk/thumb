@@ -51,9 +51,9 @@
 #ifndef __APPLE__
 
 // GL_ARB_multitexture
-/*
+
 extern PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
-*/
+
 // GL_ARB_shader_objects
 
 extern PFNGLGETOBJECTPARAMETERIVARBPROC     glGetObjectParameterivARB;

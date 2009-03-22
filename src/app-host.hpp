@@ -41,7 +41,7 @@ namespace app
     {
         // Network handling
 
-        void   fork_client(const char *, const char *);
+        void   fork_client(const char *, const char *, const char *);
         void   poll_listen();
         void   poll_script();
         void   fini_script();
@@ -54,6 +54,8 @@ namespace app
         void   fini_listen();
         void   fini_server();
         void   fini_client();
+
+        int      clients;
 
         SOCKET   server_sd;
         SOCKET   client_cd;

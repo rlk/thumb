@@ -3,6 +3,15 @@
   <channel w="1920" h="1080" x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0"/>
   <channel w="1920" h="1080" x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1"/>
 
+  <overlay w="1920" h="1080">
+    <frustum>
+      <corner name="BL" x="    0" y=" -600" z="-1814" dim="mm"/>
+      <corner name="BR" x=" 1726" y=" -600" z=" -560" dim="mm"/>
+      <corner name="TL" x="    0" y="  600" z="-1814" dim="mm"/>
+      <corner name="TR" x=" 1726" y="  600" z=" -560" dim="mm"/>
+    </frustum>
+  </overlay>
+
   <node name="starcave" port="2827">
 
 <!--
@@ -16,8 +25,10 @@
     <client name="tile-2-1" addr="tile-2-1.local"/>
     <client name="tile-2-2" addr="tile-2-2.local"/>
 -->
+
+    <client name="tile-3-0-L" addr="tile-3-0.local" disp=":0.0"/>
 <!--
-    <client name="tile-3-0" addr="tile-3-0.local"/>
+    <client name="tile-3-0-R" addr="tile-3-0.local" disp=":0.1"/>
 -->
 <!--
     <client name="tile-3-1" addr="tile-3-1.local"/>
@@ -268,11 +279,11 @@
 
   <!-- Column 3 ----------------------------------------------------------- -->
 
-  <node name="tile-3-0">
+  <node name="tile-3-0-L">
     <server addr="10.0.2.1" port="2827"/>
-    <window x="0" y="0" w="3840" h="1080" frame="0"/>
+    <window x="0" y="0" w="1920" h="1080" frame="0"/>
     <display type="normal" channel="0">
-      <viewport x="0"    y="0" w="1920" h="1080"/>
+      <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
         <corner name="BL" x=" -771" y="-1759" z=" 1372" dim="mm"/>
         <corner name="BR" x="-1431" y="-1759" z=" -656" dim="mm"/>
@@ -280,8 +291,12 @@
         <corner name="TR" x="-1726" y=" -600" z=" -560" dim="mm"/>
       </frustum>
     </display>
+  </node>
+  <node name="tile-3-0-R">
+    <server addr="10.0.2.1" port="2827"/>
+    <window x="0" y="0" w="1920" h="1080" frame="0"/>
     <display type="normal" channel="1">
-      <viewport x="1920" y="0" w="1920" h="1080"/>
+      <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
         <corner name="BL" x=" -771" y="-1759" z=" 1372" dim="mm"/>
         <corner name="BR" x="-1431" y="-1759" z=" -656" dim="mm"/>
