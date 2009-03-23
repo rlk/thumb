@@ -1006,6 +1006,11 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
     double lite_M[16];
     double lite_I[16];
 
+    // Temporarily set the corners of all frustums for shadow adaptation.
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+        frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
+
     // Compute the shadow map split depths.
 
     double n = r.get_n();
@@ -1082,6 +1087,14 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
         uniform_shadow[i]->set(M);
     }
+
+    // Ask the binding system to compute the irradiance environment using
+    // the sky shader.
+
+    process_reflection[0]->draw(sky_shade);
+    process_reflection[1]->draw(sky_light);
+    process_irradiance[0]->draw(0);
+    process_irradiance[1]->draw(0);
 }
 
 ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
@@ -1106,20 +1119,20 @@ ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
         r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()));
 
     // Temporarily set the corners of all frustums for shadow adaptation.
-
+/*
     for (int frusi = 0; frusi < frusc; ++frusi)
         frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
-
-    prep_lite(frusc, frusv, r);
+*/
+//  prep_lite(frusc, frusv, r);
 
     // Ask the binding system to compute the irradiance environment using
     // the sky shader.
-
+/*
     process_reflection[0]->draw(sky_shade);
     process_reflection[1]->draw(sky_light);
     process_irradiance[0]->draw(0);
     process_irradiance[1]->draw(0);
-
+*/
     return r;
 }
 

@@ -23,9 +23,13 @@ ogl::range mode::mode::prep(int frusc, app::frustum **frusv)
 {
     assert(world);
 
-    // Prep the world.
+    ogl::range r;
 
-    return world->prep_fill(frusc, frusv);
+    r.merge(world->prep_fill(frusc, frusv));
+
+    world->prep_lite(frusc, frusv, r);
+
+    return r;
 }
 
 void mode::mode::draw(int frusi, app::frustum *frusp)

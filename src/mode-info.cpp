@@ -49,6 +49,8 @@ ogl::range mode::info::prep(int frusc, app::frustum **frusv)
     r.merge(world->prep_fill(frusc, frusv));
     r.merge(world->prep_line(frusc, frusv));
 
+    world->prep_lite(frusc, frusv, r);
+
     return r;
 }
 
