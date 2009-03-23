@@ -734,7 +734,7 @@ void app::host::draw()
         if (calibration_state)
             frusi += (*i)->test(chanc, chanv, calibration_index);
         else
-            frusi += (*i)->draw(chanc, chanv, frusi, frusv[frusi]);
+            frusi += (*i)->draw(chanc, chanv, frusi, frusv);
 }
 
 void app::host::swap() const

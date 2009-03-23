@@ -1,6 +1,7 @@
 #extension GL_ARB_texture_rectangle : enable
 
 uniform float         quality;
+uniform vec2          corner;
 uniform int           eyes;
 
 uniform sampler2DRect image[8];
@@ -46,14 +47,16 @@ void main()
 
     vec4 C[8];
 
-    C[0] = texture2DRect(image[0], gl_FragCoord.xy * quality);
-    C[1] = texture2DRect(image[1], gl_FragCoord.xy * quality);
-    C[2] = texture2DRect(image[2], gl_FragCoord.xy * quality);
-    C[3] = texture2DRect(image[3], gl_FragCoord.xy * quality);
-    C[4] = texture2DRect(image[4], gl_FragCoord.xy * quality);
-    C[5] = texture2DRect(image[5], gl_FragCoord.xy * quality);
-    C[6] = texture2DRect(image[6], gl_FragCoord.xy * quality);
-    C[7] = texture2DRect(image[7], gl_FragCoord.xy * quality);
+    vec2 p = (gl_FragCoord.xy - corner) * quality;
+
+    C[0] = texture2DRect(image[0], p);
+    C[1] = texture2DRect(image[1], p);
+    C[2] = texture2DRect(image[2], p);
+    C[3] = texture2DRect(image[3], p);
+    C[4] = texture2DRect(image[4], p);
+    C[5] = texture2DRect(image[5], p);
+    C[6] = texture2DRect(image[6], p);
+    C[7] = texture2DRect(image[7], p);
 
     /* Sum the modulation of each image against its waveform. */
 

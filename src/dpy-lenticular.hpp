@@ -39,6 +39,9 @@ namespace dpy
             double step2;
             double step3;
             double depth;
+
+            slice_param(double c) : cycle(c), step0(0), step1(0),
+                                    step2(0), step3(0), depth(0) { }
         };
 
         int channels;
@@ -72,7 +75,7 @@ namespace dpy
 
         virtual void prep(int, dpy::channel **);
         virtual int  draw(int, dpy::channel **,
-                          int, app::frustum  *);
+                          int, app::frustum **);
         virtual int  test(int, dpy::channel **, int);
 
         // Event handers.

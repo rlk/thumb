@@ -55,7 +55,7 @@ namespace dpy
 
         virtual void prep(int, dpy::channel **)      = 0;
         virtual int  draw(int, dpy::channel **,
-                          int, app::frustum  *)      = 0;
+                          int, app::frustum **)      = 0;
         virtual int  test(int, dpy::channel **, int) = 0;
 
         // Event handlers.

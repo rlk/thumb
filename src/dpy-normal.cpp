@@ -66,7 +66,7 @@ void dpy::normal::prep(int chanc, dpy::channel **chanv)
 }
 
 int dpy::normal::draw(int chanc, dpy::channel **chanv,
-                      int frusi, app::frustum  *frusp)
+                      int frusi, app::frustum **frusv)
 {
     if (chani < chanc)
     {
@@ -77,7 +77,7 @@ int dpy::normal::draw(int chanc, dpy::channel **chanv,
 
         chanv[chani]->bind();
         {
-            ::prog->draw(frusi, frusp);
+            ::prog->draw(frusi, frusv[frusi]);
         }
         chanv[chani]->free();
         chanv[chani]->proc();

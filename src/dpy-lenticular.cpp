@@ -37,13 +37,48 @@ dpy::lenticular::lenticular(app::node node) :
 {
     app::node curr;
 
-    // Find a frustum definition, or create a default.  Clone it per channel.
+    int i;
 
-    for (int i = 0; i < channels; ++i)
+    // Find a frustum definition, or create a default.  Clone the frustum and
+    // create a default slice for each channel.
+
+    for (i = 0; i < channels; ++i)
         if ((curr = app::find(node, "frustum")))
+        {
             frust.push_back(new app::frustum(curr, viewport[2], viewport[3]));
+            slice.push_back(slice_param(0.85));
+        }
         else
+        {
             frust.push_back(new app::frustum(0,    viewport[2], viewport[3]));
+            slice.push_back(slice_param(0.85));
+        }
+
+    // Configure the array.
+
+    if ((curr = app::find(node, "array")))
+    {
+        pitch   = app::get_attr_f(curr, "pitch", 100.0);
+        angle   = app::get_attr_f(curr, "angle",   0.0);
+        thick   = app::get_attr_f(curr, "thick",   0.1);
+        shift   = app::get_attr_f(curr, "shift",   0.0);
+        quality = app::get_attr_f(curr, "quality", 1.0);
+    }
+
+    // Configure the slices.
+
+    for (curr = app::find(node,       "slice"); curr;
+         curr = app::next(node, curr, "slice"))
+
+        if ((i = app::get_attr_d(curr, "index")) < int(slice.size()))
+        {
+            slice[i].cycle = app::get_attr_f(curr, "cycle");
+            slice[i].step0 = app::get_attr_f(curr, "step0");
+            slice[i].step1 = app::get_attr_f(curr, "step1");
+            slice[i].step2 = app::get_attr_f(curr, "step2");
+            slice[i].step3 = app::get_attr_f(curr, "step3");
+            slice[i].depth = app::get_attr_f(curr, "depth");
+        }
 }
 
 dpy::lenticular::~lenticular()
@@ -81,11 +116,21 @@ void dpy::lenticular::prep(int chanc, dpy::channel **chanv)
     int c = 0;
 
     for (i = frust.begin(); i != frust.end() && c < chanc; ++i, ++c)
+    {
+        const double *p = chanv[c]->get_p();
+
+        double q[3];
+
+        q[0] = p[0] * debug;
+        q[1] = p[1] * debug;
+        q[2] = p[2] * debug;
+
         (*i)->calc_user_planes(chanv[c]->get_p());
+    }
 }
 
 int dpy::lenticular::draw(int chanc, dpy::channel **chanv,
-                          int frusi, app::frustum  *frusp)
+                          int frusi, app::frustum **frusv)
 {
     int c;
 
@@ -94,7 +139,7 @@ int dpy::lenticular::draw(int chanc, dpy::channel **chanv,
     for (c = 0; c < chanc; ++c)
     {
         chanv[c]->bind();
-        ::prog->draw(frusi + c, frusp + c);
+        ::prog->draw(frusi + c, frusv[frusi + c]);
         chanv[c]->free();
     }
 
@@ -107,8 +152,16 @@ int dpy::lenticular::draw(int chanc, dpy::channel **chanv,
     {
         apply_uniforms();
 
-        fill(frust[0]->get_w(), frust[0]->get_h(),
-             chanv[0]->get_w(), chanv[0]->get_h());
+        glViewport(viewport[0], viewport[1],
+                   viewport[2], viewport[3]);
+        glBegin(GL_QUADS);
+        {
+            glVertex2i(-1, -1);
+            glVertex2i(+1, -1);
+            glVertex2i(+1, +1);
+            glVertex2i(-1, +1);
+        }
+        glEnd();
     }
     P->free();
 
@@ -137,8 +190,16 @@ int dpy::lenticular::test(int chanc, dpy::channel **chanv, int index)
     {
         apply_uniforms();
 
-        fill(frust[0]->get_w(), frust[0]->get_h(),
-             chanv[0]->get_w(), chanv[0]->get_h());
+        glViewport(viewport[0], viewport[1],
+                   viewport[2], viewport[3]);
+        glBegin(GL_QUADS);
+        {
+            glVertex2i(-1, -1);
+            glVertex2i(+1, -1);
+            glVertex2i(+1, +1);
+            glVertex2i(-1, +1);
+        }
+        glEnd();
     }
     P->free();
 
@@ -231,9 +292,9 @@ void dpy::lenticular::calc_transform(const double *u, double *v) const
 
     double M[16];
 
-    load_scl_mat(M, pp, pp, 1);
-    Rmul_rot_mat(M, -angle, 0, 0, 1);
-    Rmul_xlt_mat(M, dx, dy, 0);
+    load_scl_mat(M, pp, pp,  1);
+    Rmul_rot_mat(M,  0,  0,  1, -angle);
+    Rmul_xlt_mat(M, dx, dy,  0);
 
     // We only need to transform X, so return the first row.
 
@@ -259,6 +320,7 @@ void dpy::lenticular::apply_uniforms() const
 
     P->uniform("quality", quality);
     P->uniform("offset", -d, 0, d);
+    P->uniform("corner", viewport[0], viewport[1]);
 
     for (int i = 0; i < channels; ++i)
     {

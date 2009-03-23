@@ -73,7 +73,7 @@ void dpy::anaglyph::prep(int chanc, dpy::channel **chanv)
 }
 
 int dpy::anaglyph::draw(int chanc, dpy::channel **chanv,
-                        int frusi, app::frustum  *frusp)
+                        int frusi, app::frustum **frusv)
 {
     if (chanc > 1)
     {

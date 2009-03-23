@@ -40,6 +40,8 @@ ogl::frame *dpy::channel::pong = 0;
 
 dpy::channel::channel(app::node node) : src(0), dst(0), processed(false)
 {
+    // Extract the configuration.
+
     v[0] = p[0] = app::get_attr_f(node, "x");
     v[1] = p[1] = app::get_attr_f(node, "y");
     v[2] = p[2] = app::get_attr_f(node, "z");
@@ -51,6 +53,14 @@ dpy::channel::channel(app::node node) : src(0), dst(0), processed(false)
 
     w = app::get_attr_d(node, "w", DEFAULT_PIXEL_WIDTH);
     h = app::get_attr_d(node, "h", DEFAULT_PIXEL_HEIGHT);
+
+    // Optionally compute X from the inter-pupilary distance.
+
+    int    i = app::get_attr_d(node, "i");
+    int    n = app::get_attr_d(node, "n");
+    double d = app::get_attr_f(node, "d");
+
+    if (n) v[0] = p[0] = 0.5 * d * (i - 0.5 * (n - 1.0));
 }
 
 dpy::channel::~channel()
