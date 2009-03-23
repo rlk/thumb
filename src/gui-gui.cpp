@@ -1263,7 +1263,7 @@ void gui::dialog::draw() const
             glActiveTextureARB(GL_TEXTURE0);
 
             root->draw(focus, input);
-
+/*
             glBegin(GL_LINES);
             {
                 int s = 10;
@@ -1276,6 +1276,7 @@ void gui::dialog::draw() const
                 glVertex2i(last_x + s, last_y - s);
             }
             glEnd();
+*/
         }
         glPopAttrib();
     }

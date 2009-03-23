@@ -24,6 +24,7 @@
 #include "dpy-display.hpp"
 #include "dpy-normal.hpp"
 #include "dpy-anaglyph.hpp"
+#include "dpy-lenticular.hpp"
 #include "app-frustum.hpp"
 #include "app-event.hpp"
 #include "app-conf.hpp"
@@ -476,13 +477,15 @@ app::host::host(std::string filename, std::string tag) :
                 const std::string t = get_attr_s(curr, "type");
 
                 if      (t == "anaglyph")
-                    displays.push_back(new dpy::anaglyph(curr));
+                    displays.push_back(new dpy::anaglyph  (curr));
+                else if (t == "lenticular")
+                    displays.push_back(new dpy::lenticular(curr));
 //              else if (t == "dome")
-//                  displays.push_back(new dpy::dome    (curr));
+//                  displays.push_back(new dpy::dome      (curr));
 //              else if (t == "varrier")
-//                  displays.push_back(new dpy::varrier (curr));
+//                  displays.push_back(new dpy::varrier   (curr));
                 else
-                    displays.push_back(new dpy::normal  (curr));
+                    displays.push_back(new dpy::normal    (curr));
             }
 
             // Create a channel object for each configured channel.
@@ -526,10 +529,9 @@ app::host::host(std::string filename, std::string tag) :
     if (displays.empty()) displays.push_back(new dpy::normal (0));
 
     // If no overlay has been defined, clone the first display frustum.
-/*
+
     if (overlay == 0)
         overlay = new app::frustum(*(displays.front()->get_overlay()));
-*/
 }
 
 app::host::~host()

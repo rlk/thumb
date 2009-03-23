@@ -59,6 +59,7 @@ OBJS=   util.o \
 	dpy-display.o \
 	dpy-normal.o \
 	dpy-anaglyph.o \
+	dpy-lenticular.o \
 	app-event.o \
 	app-frustum.o \
 	app-serial.o \
@@ -134,7 +135,8 @@ clean :
 	$(RM) $(OBJS) $(DEPS) "../$(TARG)"
 
 test : ../$(TARG)
-	(cd ..; ./$(TARG) 960x540)
+	(cd ..; ./$(TARG))
+#	(cd ..; ./$(TARG) 960x540)
 
 #------------------------------------------------------------------------------
 

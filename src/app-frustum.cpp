@@ -249,6 +249,16 @@ void app::frustum::calc_user_planes(const double *p)
 
     mult_mat_vec3(user_pos, T, p);
 
+    // Compute the vector from the screen center to the viewer.
+ 	
+    double v[3];
+ 	
+    v[0] = user_pos[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
+    v[1] = user_pos[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
+    v[2] = user_pos[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
+ 	
+    mult_xps_vec3(disp_pos, user_basis, v);
+
     // Compute the user-space view frustum bounding planes.
 
     set_plane(user_planes[0], user_pos, user_points[0], user_points[2]); // L
@@ -602,6 +612,10 @@ app::frustum::frustum(app::node node, int w, int h)
     user_pos[1] = 0.0;
     user_pos[2] = 0.0;
 
+    disp_pos[0] = 0.0;
+    disp_pos[1] = 0.0;
+    disp_pos[2] = 0.0;
+
     // Load the configuration and perform a calibration.
 
     calc_calibrated();
@@ -624,6 +638,7 @@ app::frustum::frustum(frustum& that)
     // Copy the user-space data.
 
     memcpy(user_pos, that.user_pos, 3 * sizeof (double));
+    memcpy(disp_pos, that.disp_pos, 3 * sizeof (double));
 
     pixel_w = that.pixel_w;
     pixel_h = that.pixel_h;

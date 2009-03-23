@@ -30,9 +30,9 @@ namespace app
 {
     //-------------------------------------------------------------------------
 
-    // USER denotes tracker coordinates. VIEW denotes world coordinates. Thus,
-    // VIEW_PLANES is a cache of the view-transformed USER_PLANES, with a fifth
-    // plane for use in horizon culling.
+    // USER denotes tracker coordinates. VIEW denotes world coordinates. DISP
+    // denotes display-space coordinates. VIEW_PLANES is a cache of the view-
+    // transformed USER_PLANES, with a fifth plane for use in horizon culling.
 
     class frustum
     {
@@ -46,6 +46,7 @@ namespace app
 
         double user_pos[3];
         double view_pos[3];
+        double disp_pos[3];
 
         double user_dist;
 
@@ -116,7 +117,7 @@ namespace app
 
         const double *get_user_pos() const { return user_pos; }
         const double *get_view_pos() const { return view_pos; }
-//      const double *get_disp_pos() const { return disp_pos; }
+        const double *get_disp_pos() const { return disp_pos; }
         const double *get_P()        const { return P;        }
 
         double get_w()        const;
