@@ -78,39 +78,43 @@ mode::edit::~edit()
 bool mode::edit::process_point(app::event *E)
 {
     assert(E);
-    assert(world);
-    assert(xform);
 
-    // Transform the point event into world space.
-
-    ::user->get_point(point_p, E->data.point.p,
-                      point_v, E->data.point.q);
-
-    world->edit_pick(point_p, point_v);
-
-    // If there is a drag in progress...
-
-    if (drag)
+    if (E->data.point.i == 0)
     {
-        double M[16];
+        assert(world);
+        assert(xform);
 
-        // If the current drag has produced a previous transform, undo it.
+        // Transform the point event into world space.
 
-        if (move)
+        ::user->get_point(point_p, E->data.point.p,
+                          point_v, E->data.point.q);
+
+        world->edit_pick(point_p, point_v);
+
+        // If there is a drag in progress...
+
+        if (drag)
         {
-            world->undo();
-            move = false;
+            double M[16];
+
+            // If the current drag has produced a previous transform, undo it.
+            
+            if (move)
+            {
+                world->undo();
+                move = false;
+            }
+
+            // Apply the transform of the current drag.
+
+            if (xform->point(M, point_p, point_v))
+            {
+                world->do_modify(M);
+                move = true;
+            }
+
+            return true;
         }
-
-        // Apply the transform of the current drag.
-
-        if (xform->point(M, point_p, point_v))
-        {
-            world->do_modify(M);
-            move = true;
-        }
-
-        return true;
     }
     return false;
 }
@@ -332,7 +336,8 @@ ogl::range mode::edit::prep(int frusc, app::frustum **frusv)
 
     r.merge(world->prep_fill(frusc, frusv));
     r.merge(world->prep_line(frusc, frusv));
-    /*r.merge(*/xform->prep     (frusc, frusv);//);
+            xform->prep     (frusc, frusv);
+//  r.merge(xform->prep     (frusc, frusv));
 
     return r;
 }
@@ -349,8 +354,19 @@ void mode::edit::draw(int frusi, app::frustum *frusp)
 
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);
+    xform->draw     (frusi, frusp);
 
-    xform->draw(frusi, frusp);
+    ogl::line_state_init();
+    glBegin(GL_LINES);
+    {
+        double L = 100.0;
+        glVertex3d(point_p[0], point_p[1], point_p[2]);
+        glVertex3d(point_p[0] + point_v[0] * L,
+                   point_p[1] + point_v[1] * L,
+                   point_p[2] + point_v[2] * L);
+    }
+    glEnd();
+    ogl::line_state_fini();
 }
 
 //-----------------------------------------------------------------------------

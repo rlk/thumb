@@ -278,6 +278,7 @@ void wrl::constraint::draw(int frusi, app::frustum *frusp)
 
             glLineWidth(2.0f);
 
+//          glEnable(GL_DEPTH_CLAMP_NV);
             pool->draw_init();
             {
                 if (mode)
@@ -286,6 +287,7 @@ void wrl::constraint::draw(int frusi, app::frustum *frusp)
                     pos[grid]->draw(frusi, true, false);
             }
             pool->draw_fini();
+//          glDisable(GL_DEPTH_CLAMP_NV);
 
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         }

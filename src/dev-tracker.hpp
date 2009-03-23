@@ -15,7 +15,6 @@
 
 #include <vector>
 
-#include "uni-universe.hpp"
 #include "dev-input.hpp"
 
 //-----------------------------------------------------------------------------
@@ -24,7 +23,7 @@ namespace dev
 {
     class tracker : public input
     {
-        uni::universe& universe;
+        // Configuration
 
         int tracker_head_sensor;
         int tracker_hand_sensor;
@@ -35,26 +34,36 @@ namespace dev
         int tracker_axis_A;
         int tracker_axis_T;
 
+        int key_edit;
+        int key_play;
+        int key_info;
+
         double view_move_rate;
         double view_turn_rate;
 
-        double rotate[2];
+        // Navigation state
 
         double init_P[3], init_R[16];
         double curr_P[3], curr_R[16];
 
-        std::vector<bool> button;
+        bool   flying;
+        double joy_x;
+        double joy_y;
 
-        void translate();
+        // Event handlers
+
+        bool process_point(app::event *);
+        bool process_click(app::event *);
+        bool process_value(app::event *);
+        bool process_timer(app::event *);
+
+        void translate() const;
 
     public:
 
-        tracker(uni::universe&);
+        tracker();
 
-        virtual bool point(int, const double *, const double *);
-        virtual bool click(int, int, int, bool);
-        virtual bool value(int, int, double);
-        virtual bool timer(int);
+        virtual bool process_event(app::event *);
 
         virtual ~tracker();
     };

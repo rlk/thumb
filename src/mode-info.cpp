@@ -65,9 +65,13 @@ void mode::info::draw(int frusi, app::frustum *frusp)
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);
 
-    overlay->overlay();
-
-    gui->draw();
+    if (overlay)
+    {
+        glEnable(GL_DEPTH_CLAMP_NV);
+        overlay->overlay();
+        gui->draw();
+        glDisable(GL_DEPTH_CLAMP_NV);
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -89,11 +93,15 @@ bool mode::info::process_event(app::event *E)
     {
     case E_POINT:
 
-        if (overlay)
-            overlay->pointer_to_2D(E, x, y);
+        if (E->data.point.i == 0)
+        {
+            if (overlay)
+                overlay->pointer_to_2D(E, x, y);
 
-        gui->point(x, y);
-        return true;
+            gui->point(x, y);
+            return true;
+        }
+        return false;
 
     case E_CLICK:
  

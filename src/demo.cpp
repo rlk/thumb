@@ -30,9 +30,9 @@
 #include "uni-universe.hpp"
 
 #include "dev-mouse.hpp"
+#include "dev-tracker.hpp"
 /*
 #include "dev-gamepad.hpp"
-#include "dev-tracker.hpp"
 #include "dev-wiimote.hpp"
 */
 
@@ -196,11 +196,13 @@ demo::demo(int w, int h) :
     init_uniforms();
 
     // Initialize the input handler.
+
+    if      (input_mode == "tracker") input = new dev::tracker();
 /*
-    if      (input_mode == "gamepad") input = new dev::gamepad();
-    else if (input_mode == "tracker") input = new dev::tracker();
+    else if (input_mode == "gamepad") input = new dev::gamepad();
     else if (input_mode == "wiimote") input = new dev::wiimote();
-    else */                           input = new dev::mouse  ();
+*/
+    else                              input = new dev::mouse  ();
 
     // Initialize attract mode.
 

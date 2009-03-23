@@ -30,8 +30,8 @@ namespace ogl
         void merge(double);
         void merge(const range&);
 
-        double get_n() const { return (valid() && n > 0.5    ) ? n : 0.5; }
-        double get_f() const { return (valid() && f > get_n()) ? f : 5.0; }
+        double get_n() const { return (valid() && n > 0.5    ) ? n :   0.5; }
+        double get_f() const { return (valid() && f > get_n()) ? f : 100.0; }
 
         bool valid() const { return (n < f); }
     };

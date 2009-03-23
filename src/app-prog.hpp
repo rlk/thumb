@@ -13,6 +13,8 @@
 #ifndef APP_PROG_HPP
 #define APP_PROG_HPP
 
+#include <string>
+
 #include "ogl-range.hpp"
 
 //-----------------------------------------------------------------------------

@@ -1,3 +1,9 @@
+Near and far distances do not take into account the user's head position.
+    Load a single small object to see this in action.
+Make it possible to deselect/delete/clone/invert using the GUI.
+Find state loss in GUI
+
+
 Add cubemap size conf for d-omega and sh-basis
     maybe assume d-omege size is sh-basis size initialized with reflection size
     spherical_harmonic_order

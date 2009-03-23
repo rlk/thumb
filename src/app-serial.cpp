@@ -232,10 +232,7 @@ void app::insert(node parent, node prev, node curr)
 {
     if (parent && curr)
     {
-        if (prev)
-            mxmlAdd(parent, MXML_ADD_AFTER, prev, curr);
-        else
-            mxmlAdd(parent, MXML_ADD_TO_PARENT, 0, curr);
+        mxmlAdd(parent, MXML_ADD_AFTER, prev, curr);
 
         for (app::node elem = curr; elem; elem = elem->parent)
             elem->user_data = (void *) 1;

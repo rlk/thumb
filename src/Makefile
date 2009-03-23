@@ -53,6 +53,7 @@ OBJS=   util.o \
 	uni-slides.o \
 	uni-overlay.o \
 	uni-universe.o \
+	dev-tracker.o \
 	dev-mouse.o \
 	dpy-channel.o \
 	dpy-display.o \
@@ -73,7 +74,6 @@ OBJS=   util.o \
 	demo.o \
 	main.o
 
-#	dev-tracker.o \
 #	dev-wiimote.o \
 #	dpy-dome.o \
 #	dpy-varrier.o \

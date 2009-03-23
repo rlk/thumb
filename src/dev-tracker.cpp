@@ -10,12 +10,15 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cassert>
+
 #include "matrix.hpp"
 #include "default.hpp"
 #include "app-prog.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-host.hpp"
+#include "app-event.hpp"
 #include "dev-tracker.hpp"
 
 //=============================================================================
@@ -182,6 +185,32 @@ bool tracker_status(void)
 
 //-----------------------------------------------------------------------------
 
+static int tracker_count_sensors()
+{
+    if (tracker != (struct tracker_header *) (-1))
+        return int(tracker->count);
+    else
+        return 0;
+}
+
+static int tracker_count_values()
+{
+    if (control != (struct control_header *) (-1))
+        return int(control->val_count);
+    else
+        return 0;
+}
+
+static int tracker_count_buttons()
+{
+    if (control != (struct control_header *) (-1))
+        return int(control->but_count);
+    else
+        return 0;
+}
+
+//-----------------------------------------------------------------------------
+
 static bool tracker_sensor(int id, double p[3], double q[4])
 {
     // Confirm that sensor ID exists.
@@ -225,7 +254,7 @@ static bool tracker_sensor(int id, double p[3], double q[4])
     return false;
 }
 
-static bool tracker_values(int id, double& a)
+static bool tracker_value(int id, double& a)
 {
     // Confirm that valuator ID exists.
 
@@ -285,13 +314,9 @@ static bool tracker_button(int id, bool& b)
 
 //=============================================================================
 
-dev::tracker::tracker(uni::universe& universe) :
-    universe(universe)
+dev::tracker::tracker() : flying(false), joy_x(0), joy_y(0)
 {
     // Initialize the event state.
-
-    rotate[0] = 0;
-    rotate[1] = 0;
 
     init_P[0] = curr_P[0];
     init_P[1] = curr_P[1];
@@ -299,8 +324,6 @@ dev::tracker::tracker(uni::universe& universe) :
 
     load_idt(init_R);
     load_idt(curr_R);
-
-    button.reserve(3);
 
     // Configure the buttons and axes.
 
@@ -315,6 +338,10 @@ dev::tracker::tracker(uni::universe& universe) :
 
     view_move_rate      = conf->get_f("view_move_rate");
     view_turn_rate      = conf->get_f("view_turn_rate");
+
+    key_edit            = conf->get_i("key_edit");
+    key_play            = conf->get_i("key_play");
+    key_info            = conf->get_i("key_info");
 
     // Initialize the tracker interface.
 
@@ -334,31 +361,162 @@ dev::tracker::~tracker()
 
 //-----------------------------------------------------------------------------
 
-void dev::tracker::translate()
+void dev::tracker::translate() const
 {
-    // TODO: this was moved from app::host::root_loop() without testing.
+    // Translate tracker status changes into event messages.
 
     if (tracker_status())
     {
+        app::event E;
+
+        int    i;
+        bool   b;
+        double v;
         double p[3];
         double q[3];
-        double v;
-        bool   b;
 
-        if (tracker_button(0, b)) ::host->click(0, 0, 0, b);
-        if (tracker_button(1, b)) ::host->click(0, 1, 0, b);
-        if (tracker_button(2, b)) ::host->click(0, 2, 0, b);
+        for (i = 0; i < tracker_count_buttons(); ++i)
+            if (tracker_button(i, b))
+            {
+                switch (i)
+                {
+                case 2:  E.mk_keybd(0, key_play, 0, b); break;
+                case 3:  E.mk_keybd(0, key_edit, 0, b); break;
+                case 4:  E.mk_keybd(0, key_info, 0, b); break;
+                default: E.mk_click(0, i, 0, b);        break;
+                }
+                ::host->process_event(&E);
+            }
 
-        if (tracker_values(0, v)) ::host->value(0, 0, v);
-        if (tracker_values(1, v)) ::host->value(0, 1, v);
+        for (i = 0; i < tracker_count_values (); ++i)
+            if (tracker_value (i, v))
+                ::host->process_event(E.mk_value(0, i, v));
 
-        if (tracker_sensor(0, p, q)) ::host->point(0, p, q);
-        if (tracker_sensor(1, p, q)) ::host->point(1, p, q);
+        for (i = 0; i < tracker_count_sensors(); ++i)
+            if (tracker_sensor(i, p, q))
+                ::host->process_event(E.mk_point(i, p, q));
     }
 }
 
 //-----------------------------------------------------------------------------
 
+bool dev::tracker::process_point(app::event *E)
+{
+    const int i     = E->data.point.i;
+    const double *p = E->data.point.p;
+    const double *q = E->data.point.q;
+
+    if (i == tracker_head_sensor)
+        ::host->set_head(p, q);
+
+    if (i == tracker_hand_sensor)
+    {
+        curr_P[0] = p[0];
+        curr_P[1] = p[1];
+        curr_P[2] = p[2];
+
+        set_quaternion(curr_R, q);
+    }
+
+    return false;
+}
+
+bool dev::tracker::process_click(app::event *E)
+{
+    const int  b = E->data.click.b;
+    const bool d = E->data.click.d;
+
+    if (b == tracker_butn_fly)
+    {
+        flying = d;
+
+        init_P[0] = curr_P[0];
+        init_P[1] = curr_P[1];
+        init_P[2] = curr_P[2];
+
+        load_mat(init_R, curr_R);
+
+        return true;
+    }
+    return false;
+}
+
+bool dev::tracker::process_value(app::event *E)
+{
+    if (E->data.value.a == 0) joy_x = E->data.value.v;
+    if (E->data.value.a == 1) joy_y = E->data.value.v;
+
+    return false;
+}
+
+bool dev::tracker::process_timer(app::event *E)
+{
+    const double dt = E->data.timer.dt * 0.001;
+
+    const double kr = dt * view_turn_rate * 45.0;
+    const double kp = dt * view_move_rate;
+
+    // Translate state changes to host events.
+
+    if (::host->root())
+        translate();
+
+    // Handle navigation.
+
+    if (flying)
+    {
+        double dP[3];
+        double dR[3];
+        double dz[3];
+        double dy[3];
+
+        dP[0] = curr_P[ 0] - init_P[ 0];
+        dP[1] = curr_P[ 1] - init_P[ 1];
+        dP[2] = curr_P[ 2] - init_P[ 2];
+        
+        dy[0] = init_R[ 4] - curr_R[ 4];
+        dy[1] = init_R[ 5] - curr_R[ 5];
+        dy[2] = init_R[ 6] - curr_R[ 6];
+
+        dz[0] = init_R[ 8] - curr_R[ 8];
+        dz[1] = init_R[ 9] - curr_R[ 9];
+        dz[2] = init_R[10] - curr_R[10];
+
+        dR[0] =  DOT3(dz, init_R + 4);
+        dR[1] = -DOT3(dz, init_R + 0);
+        dR[2] =  DOT3(dy, init_R + 0);
+
+        ::user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
+        ::user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+    }
+
+    // Handle the passage of time.
+
+    if (fabs(joy_x) > 0.1)
+        ::user->pass(joy_x * dt * 4.0 * 3600.0);
+
+    return false;
+}
+
+bool dev::tracker::process_event(app::event *E)
+{
+    assert(E);
+
+    bool R = false;
+
+    switch (E->get_type())
+    {
+    case E_POINT: R |= process_point(E); break;
+    case E_CLICK: R |= process_click(E); break;
+    case E_VALUE: R |= process_value(E); break;
+    case E_TIMER: R |= process_timer(E); break;
+    }
+
+    return R || dev::input::process_event(E);
+}
+
+//-----------------------------------------------------------------------------
+/*
 bool dev::tracker::point(int i, const double *p, const double *q)
 {
     if (i == tracker_head_sensor)
@@ -471,5 +629,5 @@ bool dev::tracker::timer(int t)
     else
         return false;
 }
-
+*/
 //-----------------------------------------------------------------------------

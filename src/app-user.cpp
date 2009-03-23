@@ -312,9 +312,9 @@ void app::user::erp_state(app::node A,
     time = interpolate(A, B, "time", tt);
 
     if (tt < 0.5)
-        opts = get_attr_f(A, "opts", 0);
+        opts = get_attr_d(A, "opts", 0);
     else
-        opts = get_attr_f(B, "opts", 0);
+        opts = get_attr_d(B, "opts", 0);
 
     set(p, q, time);
 }
@@ -336,8 +336,8 @@ void app::user::set_state(app::node A, int &opts)
     q[2] = get_attr_f(A, "v", 0);
     q[3] = get_attr_f(A, "w", 0);
 
-    time = get_attr_f(A, "time", 0);
-    opts = get_attr_f(A, "opts", 0);
+    time = get_attr_d(A, "time", 0);
+    opts = get_attr_d(A, "opts", 0);
 
     set(p, q, time);
 }

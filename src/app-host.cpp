@@ -323,11 +323,9 @@ void app::host::init_client(app::node node)
     for (curr = find(node,       "client"); curr;
          curr = next(node, curr, "client"))
     {
-/*
         fork_client(get_attr_s(curr, "name").c_str(),
                     get_attr_s(curr, "addr").c_str(),
                     get_attr_s(curr, "disp").c_str());
-*/
         clients++;
     }
 }
@@ -528,9 +526,10 @@ app::host::host(std::string filename, std::string tag) :
     if (displays.empty()) displays.push_back(new dpy::normal (0));
 
     // If no overlay has been defined, clone the first display frustum.
-
+/*
     if (overlay == 0)
         overlay = new app::frustum(*(displays.front()->get_overlay()));
+*/
 }
 
 app::host::~host()
