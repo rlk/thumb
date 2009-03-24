@@ -142,7 +142,7 @@ void ogl::process::proc_cube(ogl::frame *cube)
 
             for (int k = 0; k < 6; ++k)
             {
-                cube->bind(target[k]);
+                cube->bind(int(target[k]));
                 cube_node[k]->draw();
                 cube->free();
             }

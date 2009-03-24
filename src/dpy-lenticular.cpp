@@ -140,7 +140,7 @@ int dpy::lenticular::draw(int chanc, dpy::channel **chanv,
 
     for (c = 0; c < chanc; ++c)
     {
-        chanv[c]->bind();
+        chanv[c]->bind(quality);
         ::prog->draw(frusi + c, frusv[frusi + c]);
         chanv[c]->free();
     }
@@ -281,6 +281,9 @@ bool dpy::lenticular::process_keybd(app::event *E)
                 else if (k == SDLK_RIGHT) { shift += 0.00001; b = true; }
                 else if (k == SDLK_DOWN)  { thick += 0.00010; b = true; }
                 else if (k == SDLK_UP)    { thick -= 0.00010; b = true; }
+
+                else if (k == SDLK_PAGEUP)   { debug = 50.0; b = true; }
+                else if (k == SDLK_PAGEDOWN) { debug =  1.0; b = true; }
             }
         }
     }
@@ -370,7 +373,7 @@ void dpy::lenticular::apply_uniforms() const
 
     const double w = frust[0]->get_w();
     const double h = frust[0]->get_h();
-    const double d = w / (3 * viewport[3]);
+    const double d = w / (3 * viewport[2]);
 
     P->uniform("size", w * 0.5, h * 0.5, 0.0, 1.0);
     P->uniform("eyes", channels);

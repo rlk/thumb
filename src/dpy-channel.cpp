@@ -93,12 +93,12 @@ void dpy::channel::test() const
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
-void dpy::channel::bind() const
+void dpy::channel::bind(double q) const
 {
     // Bind the off-screen render target.
 
     assert(src);
-    src->bind();
+    src->bind(q);
 }
 
 void dpy::channel::free() const

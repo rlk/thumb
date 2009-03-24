@@ -76,7 +76,7 @@ namespace dpy
         // Rendering methods
 
         void test() const;
-        void bind() const;
+        void bind(double=1.0) const;
         void free() const;
         void proc();
 

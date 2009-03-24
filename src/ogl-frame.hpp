@@ -67,9 +67,10 @@ namespace ogl
         void bind_depth(GLenum=GL_TEXTURE0) const;
         void free_depth(GLenum=GL_TEXTURE0) const;
 
-        virtual void bind(int) const;
-        virtual void bind()    const;
-        virtual void free()    const;
+        virtual void bind(double) const;
+        virtual void bind(int)    const;
+        virtual void bind()       const;
+        virtual void free()       const;
 
         virtual void init();
         virtual void fini();

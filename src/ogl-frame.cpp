@@ -109,6 +109,12 @@ void ogl::frame::bind() const
     OGLCK();
 }
 
+void ogl::frame::bind(double q) const
+{
+    push(buffer, 0, 0, int(w * q), int(h * q));
+    OGLCK();
+}
+
 void ogl::frame::free() const
 {
     pop();
