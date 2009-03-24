@@ -51,6 +51,11 @@
     <client name="tile-4-2-L" addr="tile-4-2.local" disp=":0.0"/>
     <client name="tile-4-2-R" addr="tile-4-2.local" disp=":0.1"/>
 
+    <client name="tile-5-0-L" addr="tile-5-0.local" disp=":0.0"/>
+    <client name="tile-5-0-R" addr="tile-5-0.local" disp=":0.1"/>
+    <client name="tile-5-1-L" addr="tile-5-1.local" disp=":0.0"/>
+    <client name="tile-5-1-R" addr="tile-5-1.local" disp=":0.1"/>
+
     <window x="0" y="0" w="1920" h="1080"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
@@ -483,26 +488,26 @@
   <node name="tile-5-0-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
-    <display type="normal" channel="0">
+    <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x=" 1066" y="-1759" z=" 1158" dim="mm"/>
-        <corner name="BR" x="-1066" y="-1759" z=" 1158" dim="mm"/>
-        <corner name="TL" x=" 1066" y=" -600" z=" 1468" dim="mm"/>
-        <corner name="TR" x="-1066" y=" -600" z=" 1468" dim="mm"/>
+        <corner name="BL" x="-1366" y="-1759" z="1532" dim="mm"/>
+        <corner name="BR" x=" 1366" y="-1759" z="1532" dim="mm"/>
+        <corner name="TL" x="-1366" y="-1759" z="   0" dim="mm"/>
+        <corner name="TR" x=" 1366" y="-1759" z="   0" dim="mm"/>
       </frustum>
     </display>
   </node>
   <node name="tile-5-0-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
-    <display type="normal" channel="1">
+    <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x=" 1066" y="-1759" z=" 1158" dim="mm"/>
-        <corner name="BR" x="-1066" y="-1759" z=" 1158" dim="mm"/>
-        <corner name="TL" x=" 1066" y=" -600" z=" 1468" dim="mm"/>
-        <corner name="TR" x="-1066" y=" -600" z=" 1468" dim="mm"/>
+        <corner name="BL" x="-1366" y="-1759" z="1177" dim="mm"/>
+        <corner name="BR" x=" 1366" y="-1759" z="1177" dim="mm"/>
+        <corner name="TL" x="-1366" y="-1759" z="-355" dim="mm"/>
+        <corner name="TR" x=" 1366" y="-1759" z="-355" dim="mm"/>
       </frustum>
     </display>
   </node>
@@ -513,10 +518,10 @@
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x=" 1066" y=" -600" z=" 1468" dim="mm"/>
-        <corner name="BR" x="-1066" y=" -600" z=" 1468" dim="mm"/>
-        <corner name="TL" x=" 1066" y="  600" z=" 1468" dim="mm"/>
-        <corner name="TR" x="-1066" y="  600" z=" 1468" dim="mm"/>
+        <corner name="BL" x="-1366" y="-1759" z="   25" dim="mm"/>
+        <corner name="BR" x=" 1366" y="-1759" z="   25" dim="mm"/>
+        <corner name="TL" x="-1366" y="-1759" z="-1507" dim="mm"/>
+        <corner name="TR" x=" 1366" y="-1759" z="-1507" dim="mm"/>
       </frustum>
     </display>
   </node>
@@ -526,10 +531,10 @@
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x=" 1066" y=" -600" z=" 1468" dim="mm"/>
-        <corner name="BR" x="-1066" y=" -600" z=" 1468" dim="mm"/>
-        <corner name="TL" x=" 1066" y="  600" z=" 1468" dim="mm"/>
-        <corner name="TR" x="-1066" y="  600" z=" 1468" dim="mm"/>
+        <corner name="BL" x="-1366" y="-1759" z="  115" dim="mm"/>
+        <corner name="BR" x=" 1366" y="-1759" z="  115" dim="mm"/>
+        <corner name="TL" x="-1366" y="-1759" z="-1417" dim="mm"/>
+        <corner name="TR" x=" 1366" y="-1759" z="-1417" dim="mm"/>
       </frustum>
     </display>
   </node>

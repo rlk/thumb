@@ -249,6 +249,9 @@ void app::user::home()
     load_idt(current_M);
     load_idt(current_I);
 
+    current_M[13] =  5.77;
+    current_I[13] = -5.77;
+
     struct timeval tv;
 
     gettimeofday(&tv, 0);
