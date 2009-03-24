@@ -114,13 +114,14 @@ void main()
 
 //  vec3 C = textureCube(reflection_env, R).rgb;
 
-    vec4 C0 = vec4(irradiance(irradiance_env[0], N), 1.0);
+//  vec4 C0 = vec4(irradiance(irradiance_env[0], N), 1.0);
     vec4 C1 = vec4(irradiance(irradiance_env[1], N), 1.0);
 
 //  vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 3.0).rgb;
 
 //  gl_FragColor = vec4(abs(C) * 4.0, 1.0);
-    gl_FragColor = mix(C0, C1, ss) * D_c;
+//  gl_FragColor = mix(C0, C1, ss) * D_c;
+    gl_FragColor = mix(C1 * 0.75, C1, ss) * D_c;
 //  gl_FragColor = mix(C0, C1, ss);
 //  gl_FragColor = vec4(T_v * 0.5 + 0.5, 1.0);
 }

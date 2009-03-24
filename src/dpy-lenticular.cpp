@@ -10,6 +10,8 @@
 
 #include <cassert>
 
+#include <SDL_keyboard.h>
+
 #include "matrix.hpp"
 #include "app-glob.hpp"
 #include "app-prog.hpp"
@@ -33,7 +35,7 @@ dpy::lenticular::lenticular(app::node node) :
     debug(  1.0),
     quality(1.0),
 
-    P(0)
+    P(0), node(node)
 {
     app::node curr;
 
@@ -56,13 +58,13 @@ dpy::lenticular::lenticular(app::node node) :
 
     // Configure the array.
 
-    if ((curr = app::find(node, "array")))
+    if ((array = app::find(node, "array")))
     {
-        pitch   = app::get_attr_f(curr, "pitch", 100.0);
-        angle   = app::get_attr_f(curr, "angle",   0.0);
-        thick   = app::get_attr_f(curr, "thick",   0.1);
-        shift   = app::get_attr_f(curr, "shift",   0.0);
-        quality = app::get_attr_f(curr, "quality", 1.0);
+        pitch   = app::get_attr_f(array, "pitch", 100.0);
+        angle   = app::get_attr_f(array, "angle",   0.0);
+        thick   = app::get_attr_f(array, "thick",   0.1);
+        shift   = app::get_attr_f(array, "shift",   0.0);
+        quality = app::get_attr_f(array, "quality", 1.0);
     }
 
     // Configure the slices.
@@ -247,26 +249,81 @@ bool dpy::lenticular::process_close(app::event *E)
     return false;
 }
 
+bool dpy::lenticular::process_keybd(app::event *E)
+{
+    const bool d = E->data.keybd.d;
+    const int  k = E->data.keybd.k;
+    const int  m = E->data.keybd.m;
+
+    bool b = false;
+
+    if (d && m & KMOD_CTRL)
+    {
+        if (m & KMOD_SHIFT)
+        {
+            if      (k == SDLK_LEFT)  { angle -= 0.00500; b = true; }
+            else if (k == SDLK_RIGHT) { angle += 0.00500; b = true; }
+            else if (k == SDLK_DOWN)  { pitch -= 0.01000; b = true; }
+            else if (k == SDLK_UP)    { pitch += 0.01000; b = true; }
+        }
+        else
+        {
+            if (m & KMOD_CAPS)
+            {
+                if      (k == SDLK_LEFT)  { shift -= 0.00010; b = true; }
+                else if (k == SDLK_RIGHT) { shift += 0.00010; b = true; }
+                else if (k == SDLK_DOWN)  { thick += 0.00100; b = true; }
+                else if (k == SDLK_UP)    { thick -= 0.00100; b = true; }
+            }
+            else
+            {
+                if      (k == SDLK_LEFT)  { shift -= 0.00001; b = true; }
+                else if (k == SDLK_RIGHT) { shift += 0.00001; b = true; }
+                else if (k == SDLK_DOWN)  { thick += 0.00010; b = true; }
+                else if (k == SDLK_UP)    { thick -= 0.00010; b = true; }
+            }
+        }
+    }
+
+    if (b)
+    {
+        // Update the values in the XML node.
+
+        app::set_attr_f(array, "pitch", pitch);
+        app::set_attr_f(array, "angle", angle);
+        app::set_attr_f(array, "thick", thick);
+        app::set_attr_f(array, "shift", shift);
+
+        return true;
+    }
+
+    return false;
+}
+
 bool dpy::lenticular::process_event(app::event *E)
 {
+    assert(E);
+
     std::vector<app::frustum *>::iterator i;
 
     // Do the local startup or shutdown.
 
+    bool R = false;
+
     switch (E->get_type())
     {
-    case E_START: process_start(E); break;
-    case E_CLOSE: process_close(E); break;
+    case E_KEYBD: R |= process_keybd(E); break;
+    case E_START: R |= process_start(E); break;
+    case E_CLOSE: R |= process_close(E); break;
     }
 
     // Let the frustums handle the event.
 
-    bool b = false;
+    if (R == false)
+        for (i = frust.begin(); i != frust.end(); ++i)
+            R |= (*i)->process_event(E);
 
-    for (i = frust.begin(); i != frust.end(); ++i)
-        b |= (*i)->process_event(E);
-
-    return b;
+    return R;
 }
 
 //-----------------------------------------------------------------------------

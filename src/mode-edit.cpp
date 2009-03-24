@@ -189,7 +189,7 @@ bool mode::edit::process_keybd(app::event *E)
     const int  k = E->data.keybd.k;
     const int  m = E->data.keybd.m;
 
-    if (d)
+    if (d && !(m & KMOD_CTRL))
     {
         // Handle basic editing operations.
 
@@ -299,16 +299,14 @@ bool mode::edit::process_keybd(app::event *E)
 
         else if (k == SDLK_LEFT)
         {
-            if      (m & KMOD_SHIFT) ::user->pass(-3600.0);
-            else if (m & KMOD_CTRL)  ::user->pass( -300.0);
-            else                     ::user->pass(-1200.0);
+            if (m & KMOD_SHIFT) ::user->pass(-3600.0);
+            else                ::user->pass( -600.0);
             return true;
         }
         else if (k == SDLK_RIGHT)
         {
-            if      (m & KMOD_SHIFT) ::user->pass(+3600.0);
-            else if (m & KMOD_CTRL)  ::user->pass( +300.0);
-            else                     ::user->pass(+1200.0);
+            if (m & KMOD_SHIFT) ::user->pass(+3600.0);
+            else                ::user->pass( +600.0);
             return true;
         }
     }

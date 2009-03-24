@@ -390,11 +390,13 @@ bool app::host::process_calib(event *E)
 
         case SDLK_SPACE:
             calibration_index++;
+            printf("calibrating index %d\n", calibration_index);
             post_draw();
             return true;
 
         case SDLK_BACKSPACE:
             calibration_index--;
+            printf("calibrating index %d\n", calibration_index);
             post_draw();
             return true;
         }
