@@ -17,6 +17,7 @@ uniform mat4 irradiance_B;
 */
 uniform vec4 pssm_depth;
 uniform vec3 light_position;
+uniform vec4 color_max;
 
 varying vec3 V_v;
 varying vec3 N_v;
@@ -119,10 +120,7 @@ void main()
 
 //  vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 3.0).rgb;
 
-//  gl_FragColor = vec4(abs(C) * 4.0, 1.0);
-    gl_FragColor = mix(C0, C1, ss) * D_c;
-//  gl_FragColor = vec4(X.g, X.g, X.g, 1.0);
-//  gl_FragColor = vec4(X, 1.0);
+    gl_FragColor = mix(C0, C1, ss) * max(D_c, color_max);
 //  gl_FragColor = mix(C0, C1, ss);
-//  gl_FragColor = vec4(T_v * 0.5 + 0.5, 1.0);
+//  gl_FragColor = vec4(N * 0.5 + 0.5, 1.0);
 }

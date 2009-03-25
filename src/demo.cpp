@@ -54,6 +54,7 @@ void demo::init_uniforms()
     uniform_view_inverse     = ::glob->load_uniform("view_inverse",    16);
     uniform_view_position    = ::glob->load_uniform("view_position",    3);
     uniform_time             = ::glob->load_uniform("time",             1);
+    uniform_color_max        = ::glob->load_uniform("color_max",        4);
 
     uniform_XYZRGB           = ::glob->load_uniform("XYZRGB",           9);
 
@@ -73,6 +74,8 @@ void demo::init_uniforms()
         = ::glob->load_uniform("spherical_harmonic_order", 1);
 
     // Set the constant uniforms.
+
+    uniform_color_max->set(0.0, 0.0, 0.0, 0.0);
 
     uniform_reflection_cubemap_size->set(
         double(::conf->get_i("reflection_cubemap_size", 128)));
@@ -101,6 +104,7 @@ void demo::free_uniforms()
     ::glob->free_uniform(uniform_spherical_harmonic_order);
     ::glob->free_uniform(uniform_irradiance_cubemap_size);
     ::glob->free_uniform(uniform_reflection_cubemap_size);
+    ::glob->free_uniform(uniform_color_max);
     ::glob->free_uniform(uniform_time);
     ::glob->free_uniform(uniform_view_position);
     ::glob->free_uniform(uniform_view_inverse);
@@ -131,6 +135,11 @@ void demo::prep_uniforms() const
     uniform_light_position ->set(L);
     uniform_light_theta    ->set(t);
     uniform_light_theta_cos->set(y);
+
+    if (get_option(5))
+        uniform_color_max->set(1.0, 1.0, 1.0, 0.0);
+    else
+        uniform_color_max->set(0.0, 0.0, 0.0, 0.0);
 
     // The current time
 

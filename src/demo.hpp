@@ -78,6 +78,7 @@ class demo : public app::prog
     ogl::uniform *uniform_view_inverse;
     ogl::uniform *uniform_view_position;
     ogl::uniform *uniform_time;
+    ogl::uniform *uniform_color_max;
     ogl::uniform *uniform_reflection_cubemap_size;
     ogl::uniform *uniform_irradiance_cubemap_size;
     ogl::uniform *uniform_spherical_harmonic_order;

@@ -95,7 +95,7 @@ void app::user::set(const double *p, const double *q, double t)
 
         double M[16], L[3] = { 0.0, 0.0, 8192.0 }; // HACK
 
-        load_rot_mat(M, 1.0, 0.0, 0.0, 60.0);
+        load_rot_mat(M, 1.0, 0.0, 0.0, 120.0);
         Rmul_rot_mat(M, 0.0, 1.0, 0.0, 360.0 * t / (24.0 * 60.0 * 60.0));
 
         mult_mat_vec3(current_L, M, L);
