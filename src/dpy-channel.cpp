@@ -12,6 +12,7 @@
 
 #include <cassert>
 
+#include "util.hpp"
 #include "matrix.hpp"
 #include "default.hpp"
 #include "app-glob.hpp"
@@ -40,11 +41,13 @@ ogl::frame *dpy::channel::pong = 0;
 
 dpy::channel::channel(app::node node) : src(0), dst(0), processed(false)
 {
+    double scale = unit_scale(app::get_attr_s(node, "unit", "ft"));
+
     // Extract the configuration.
 
-    v[0] = p[0] = app::get_attr_f(node, "x");
-    v[1] = p[1] = app::get_attr_f(node, "y");
-    v[2] = p[2] = app::get_attr_f(node, "z");
+    v[0] = p[0] = app::get_attr_f(node, "x") * scale;
+    v[1] = p[1] = app::get_attr_f(node, "y") * scale;
+    v[2] = p[2] = app::get_attr_f(node, "z") * scale;
 
     c[0] = GLubyte(app::get_attr_f(node, "r", 1.0) * 0xFF);
     c[1] = GLubyte(app::get_attr_f(node, "g", 1.0) * 0xFF);

@@ -249,8 +249,8 @@ void app::user::home()
     load_idt(current_M);
     load_idt(current_I);
 
-    current_M[13] =  5.77;
-    current_I[13] = -5.77;
+    current_M[13] =  1.759;
+    current_I[13] = -1.759;
 
     struct timeval tv;
 

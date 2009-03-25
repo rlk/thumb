@@ -52,6 +52,8 @@ namespace obj
         indx_v ii;
         iset_v is;
 
+        double scale;
+
         // Read handlers.
 
         const char *read_fi (const char *, int&);

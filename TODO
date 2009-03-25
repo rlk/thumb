@@ -1,6 +1,10 @@
-Make it possible to deselect/delete/clone/invert using the GUI.
+Add a scale option for meters/feet
+Reduce the green in the irradiance map
+Add a pssm split option hack to the world?
 Find state loss in GUI
+Make it possible to deselect/delete/clone/invert using the GUI.
 
+Convert 
 
 Add cubemap size conf for d-omega and sh-basis
     maybe assume d-omege size is sh-basis size initialized with reflection size

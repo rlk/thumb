@@ -21,6 +21,24 @@
 
 //-----------------------------------------------------------------------------
 
+double unit_scale(const std::string& unit)
+{
+    // Return a scaling factor to convert the named unit to meters.
+
+    if (unit == "mi") return 5280.0 * 12.0 * 2.54 / 100.0;
+    if (unit == "yd") return    3.0 * 12.0 * 2.54 / 100.0;
+    if (unit == "ft") return          12.0 * 2.54 / 100.0;
+    if (unit == "in") return                 2.54 / 100.0;
+
+    if (unit == "km") return 1000.000;
+    if (unit == "cm") return    0.010;
+    if (unit == "mm") return    0.001;
+
+    return 1.0;
+}
+
+//-----------------------------------------------------------------------------
+
 float ntohf(float src)
 {
     float dst;

@@ -868,6 +868,37 @@ void wrl::world::load(std::string name)
                                          MXML_DESCEND_FIRST);
         wrl::atom *a;
 
+        // Check for static split definitions.
+
+        const char *c;
+
+        split_static = false;
+        split[0]     = 0.0;
+        split[1]     = 0.0;
+        split[2]     = 0.0;
+        split[3]     = 0.0;
+
+        if ((c = mxmlElementGetAttr(T, "split0")))
+        {
+            split_static = true;
+            split[0] = strtof(c, 0);
+        }
+        if ((c = mxmlElementGetAttr(T, "split1")))
+        {
+            split_static = true;
+            split[1] = strtof(c, 0);
+        }
+        if ((c = mxmlElementGetAttr(T, "split2")))
+        {
+            split_static = true;
+            split[2] = strtof(c, 0);
+        }
+        if ((c = mxmlElementGetAttr(T, "split3")))
+        {
+            split_static = true;
+            split[3] = strtof(c, 0);
+        }
+
         // Find all geom elements.
 
         for (n = mxmlFindElement(T, T, "geom", 0, 0, MXML_DESCEND_FIRST); n;
@@ -965,39 +996,25 @@ void wrl::world::save(std::string filename, bool save_all)
 
 double wrl::world::split_coeff(int i, int m, double n, double f)
 {
-    double k = double(i) / double(m);
+    double c, k = double(i) / double(m);
 
-    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
-/*
-    double c;
+    if (split_static)
+        c = split[i];
+    else
+        c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
 
-    switch (i)
-    {
-    case 0: c =     n; break;
-    case 1: c =  35.0; break;
-    case 2: c = 120.0; break;
-    case 3: c = 300.0; break;
-    }
-*/
     return (c - n) / (f - n);
 }
 
 double wrl::world::split_depth(int i, int m, double n, double f)
 {
-    double k = double(i) / double(m);
+    double c, k = double(i) / double(m);
 
-    double c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
-/*
-    double c;
+    if (split_static)
+        c = split[i];
+    else
+        c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
 
-    switch (i)
-    {
-    case 0: c =     n; break;
-    case 1: c =  35.0; break;
-    case 2: c = 120.0; break;
-    case 3: c = 300.0; break;
-    }
-*/
     return (1 - n / c) * f / (f - n);
 }
 

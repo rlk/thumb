@@ -25,6 +25,8 @@ namespace dev
     {
         // Configuration
 
+        double scale;
+
         int tracker_head_sensor;
         int tracker_hand_sensor;
 

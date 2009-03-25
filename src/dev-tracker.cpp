@@ -12,6 +12,7 @@
 
 #include <cassert>
 
+#include "util.hpp"
 #include "matrix.hpp"
 #include "default.hpp"
 #include "app-prog.hpp"
@@ -327,6 +328,8 @@ dev::tracker::tracker() : flying(false), joy_x(0), joy_y(0)
 
     // Configure the buttons and axes.
 
+    scale = unit_scale(conf->get_s("tracker_unit", "ft"));
+
     tracker_head_sensor = conf->get_i("tracker_head_sensor");
     tracker_hand_sensor = conf->get_i("tracker_hand_sensor");
 
@@ -394,7 +397,13 @@ void dev::tracker::translate() const
 
         for (i = 0; i < tracker_count_sensors(); ++i)
             if (tracker_sensor(i, p, q))
+            {
+                p[0] *= scale;
+                p[1] *= scale;
+                p[2] *= scale;
+
                 ::host->process_event(E.mk_point(i, p, q));
+            }
     }
 }
 

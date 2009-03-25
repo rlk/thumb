@@ -18,7 +18,9 @@
 #include "ogl-aabb.hpp"
 #include "app-data.hpp"
 #include "app-glob.hpp"
+#include "app-conf.hpp"
 #include "matrix.hpp"
+#include "util.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -51,8 +53,6 @@ void obj::obj::center()
 
 static bool token_c(const char *p)
 {
-    // TODO: Check for a vert/face count comments and reserve vectors.
-
     return (*p && p[0] == '#');
 }
 
@@ -95,6 +95,25 @@ static const char *scannl(const char *p)
         case '\n': return p + 1;
         default  : p++;
         }
+}
+
+static const char *scanword(const char *p, std::string& word)
+{
+    // Scan for the beginning of a word.
+
+    const char *b = p + 6;
+    while ( isspace(*b)) b++;
+
+    // Scan for the end of the word.
+
+    const char *e = b;
+    while (!isspace(*e)) e++;
+
+    // Move the point forward.
+
+    word = std::string(b, e - b);
+
+    return e;
 }
 
 //-----------------------------------------------------------------------------
@@ -190,19 +209,11 @@ const char *obj::obj::read_li(const char *p, int& i)
 
 const char *obj::obj::read_use(const char *p)
 {
-    // Scan for the beginning of the material name.
+    std::string name;
 
-    const char *b = p + 6;
-    while ( isspace(*b)) b++;
+    // Create a new mesh using the named material.
 
-    // Scan for the end of the material name.
-
-    const char *e = b;
-    while (!isspace(*e)) e++;
-
-    // Create a new mesh using this material name.
-
-    std::string name(b, e - b);
+    p = scanword(p, name);
 
     meshes.push_back(new ogl::mesh(name));
 
@@ -218,9 +229,17 @@ const char *obj::obj::read_use(const char *p)
 
 const char *obj::obj::read_c(const char *p)
 {
-    while (token_c(p))
-        p = scannl(p);
+    // TODO: Check for a vert/face count comments and reserve vectors.
 
+    while (token_c(p))
+    {
+        std::string key;
+        std::string val;
+
+        p = scannl(scanword(scanword(p, key), val));
+
+        if (key == "unit") scale = unit_scale(val);
+    }
     return p;
 }
 
@@ -233,15 +252,15 @@ const char *obj::obj::read_v(const char *p)
 
     while (token_v(p))
     {
-        v.v[0] = strtof(p + 1, &q); p = q;
-        v.v[1] = strtof(p,     &q); p = q;
-        v.v[2] = strtof(p,     &q); p = q;
+        v.v[0] = scale * strtof(p + 1, &q); p = q;
+        v.v[1] = scale * strtof(p,     &q); p = q;
+        v.v[2] = scale * strtof(p,     &q); p = scannl(q);
 
         vv.push_back( v);
         ii.push_back(-1);
     }
 
-    return scannl(p);
+    return p;
 }
 
 const char *obj::obj::read_vt(const char *p)
@@ -254,12 +273,12 @@ const char *obj::obj::read_vt(const char *p)
     while (token_vt(p))
     {
         v.v[0] = strtof(p + 2, &q); p = q;
-        v.v[1] = strtof(p,     &q); p = q;
+        v.v[1] = strtof(p,     &q); p = scannl(q);
 
         sv.push_back(v);
     }
 
-    return scannl(p);
+    return p;
 }
 
 const char *obj::obj::read_vn(const char *p)
@@ -273,12 +292,12 @@ const char *obj::obj::read_vn(const char *p)
     {
         v.v[0] = strtof(p + 2, &q); p = q;
         v.v[1] = strtof(p,     &q); p = q;
-        v.v[2] = strtof(p,     &q); p = q;
+        v.v[2] = strtof(p,     &q); p = scannl(q);
 
         nv.push_back(v);
     }
 
-    return scannl(p);
+    return p;
 }
 
 //-----------------------------------------------------------------------------
@@ -353,7 +372,7 @@ const char *obj::obj::read_l(const char *p)
 
 //-----------------------------------------------------------------------------
 
-obj::obj::obj(std::string name, bool c)
+obj::obj::obj(std::string name, bool c) : scale(1)
 {
     struct timeval t0;
     struct timeval t1;

@@ -178,20 +178,13 @@ void app::frustum::calc_calibrated()
 
             if (v)
             {
+                double scale = unit_scale(get_attr_s(curr, "unit", "ft"));
+
                 // Extract the position.
 
-                v[0] = get_attr_f(curr, "x");
-                v[1] = get_attr_f(curr, "y");
-                v[2] = get_attr_f(curr, "z");
-
-                // Convert dimensions if necessary.
-
-                if (get_attr_s(curr, "dim") == "mm")
-                {
-                    v[0] /= 304.8;
-                    v[1] /= 304.8;
-                    v[2] /= 304.8;
-                }
+                v[0] = get_attr_f(curr, "x") * scale;
+                v[1] = get_attr_f(curr, "y") * scale;
+                v[2] = get_attr_f(curr, "z") * scale;
             }
         }
 

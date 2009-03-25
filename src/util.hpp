@@ -60,6 +60,8 @@ typedef std::set   <std::string> str_set;
 
 //-----------------------------------------------------------------------------
 
+double unit_scale(const std::string&);
+
 float ntohf(float);
 int   ntohi(int);
 

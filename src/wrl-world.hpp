@@ -69,8 +69,10 @@ namespace wrl
         atom_set all;
         atom_set sel;
 
-        int shadow_res;
+        int  shadow_res;
+        bool split_static;
 
+        double split[4];
         double light[3];
 
         // Batcher state
