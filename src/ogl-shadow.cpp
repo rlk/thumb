@@ -21,12 +21,20 @@
 
 ogl::shadow::shadow(const std::string& name, int i) :
     process(name),
+    index(i),
 
-    buff(::glob->new_frame(::conf->get_i("shadow_map_resolution"),
-                           ::conf->get_i("shadow_map_resolution"),
-                           GL_TEXTURE_2D, GL_RGBA8, false, true, false)),
-    index(i)
+    size(::conf->get_i("shadow_map_resolution")),
+    buff(::glob->new_frame(size, size, GL_TEXTURE_2D,
+                           GL_RGBA8, false, true, false))
 {
+    GLfloat C[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+    buff->bind_depth(GL_TEXTURE0);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
+
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, C);
 }
 
 ogl::shadow::~shadow()

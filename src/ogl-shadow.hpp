@@ -29,9 +29,10 @@ namespace ogl
 {
     class shadow : public process
     {
-        ogl::frame *buff;
-
         int index;
+        int size;
+
+        ogl::frame *buff;
 
     public:
 
