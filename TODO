@@ -1,6 +1,3 @@
-Add a scale option for meters/feet
-Reduce the green in the irradiance map
-Add a pssm split option hack to the world?
 Find state loss in GUI
 Make it possible to deselect/delete/clone/invert using the GUI.
 

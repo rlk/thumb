@@ -58,9 +58,9 @@ void main()
 
     float f = mix(1.0, clamp(pow(1.0 - dot(N, V), 2.0), 0.0, 1.0), dn);
 
-    vec4 Ko = vec4(0.0, 0.0, 0.0, 1.0);
+    vec3 Ko = vec3(0.0, 0.5, 0.5) * max(0.0, pow(L.y, 0.25));
 
-    vec4 K = mix(Ko, Kf + Kg + vec4(Ks, Ks, Ks, 1.0), f);
+    vec4 K = mix(vec4(Ko, 1.0), Kf + Kg + vec4(Ks, Ks, Ks, 1.0), f);
 
     gl_FragColor = vec4(K.rgb, Kf.a);
 //  gl_FragColor = vec4((Kf + Kg).rgb, Kf.a);

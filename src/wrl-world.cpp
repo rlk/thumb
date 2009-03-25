@@ -37,6 +37,7 @@
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution")),
 //  sky_light(::glob->load_binding("sky-APAMFD-light", "sky-APAMFD-light")),
+    sky      (::glob->load_binding("sky-water",       "sky-water")),
     sky_light(::glob->load_binding("sky-water-light", "sky-water-light")),
     sky_shade(::glob->load_binding("sky-water-shade", "sky-water-shade")),
     serial(1)
@@ -1236,7 +1237,7 @@ void wrl::world::draw_sky(app::frustum *frusp)
     const double *v2 = frusp->get_points() + 6;
     const double *v3 = frusp->get_points() + 9;
 
-    sky_light->bind(true);
+    sky->bind(true);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     {

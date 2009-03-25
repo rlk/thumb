@@ -85,6 +85,7 @@ namespace wrl
         ogl::node *stat_node;
         ogl::node *dyna_node;
 
+        const ogl::binding *sky;
         const ogl::binding *sky_light;
         const ogl::binding *sky_shade;
 
