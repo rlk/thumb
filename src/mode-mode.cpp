@@ -42,6 +42,11 @@ void mode::mode::draw(int frusi, app::frustum *frusp)
     ::user->draw();
 
     world->draw_fill(frusi, frusp);
+
+    // HACK!  There's a state leak here.  This happens to fix it.
+
+    ogl::line_state_init();
+    ogl::line_state_fini();
 }
 
 //-----------------------------------------------------------------------------

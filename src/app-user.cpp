@@ -170,9 +170,14 @@ void app::user::turn(double rx, double ry, double rz, const double *R)
 
     load_xps(T, R);
 
-    mult_mat_mat(current_M, current_M, R);
-    turn(rx, ry, rz);
-    mult_mat_mat(current_M, current_M, T);
+    if (::prog->get_option(6))
+    {
+        mult_mat_mat(current_M, current_M, R);
+        turn(rx, ry, rz);
+        mult_mat_mat(current_M, current_M, T);
+    }
+    else
+        turn(0, ry, 0);
 
     orthonormalize(current_M);
 

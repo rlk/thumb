@@ -1,3 +1,5 @@
+Fix play mode leak.
+Sync on load
 Find state loss in GUI
 Make it possible to deselect/delete/clone/invert using the GUI.
 
