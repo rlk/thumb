@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<program vert="glsl/uni/trivial.vert"
+         frag="glsl/uni/copybuf.frag" >
+  <sampler name="src" unit="0" />
+</program>

@@ -10,6 +10,5 @@
      E="-1.16849793421020365175"
      S=" 0.26034220379636839426"
      N=" 1.21474641642860095125"
-     vert="glsl/uni/trivial.vert"
-     frag="glsl/uni/calcacc.frag"
+     program="program/uni/calcacc.xml"
      />

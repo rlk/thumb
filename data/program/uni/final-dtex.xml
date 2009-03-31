@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<program vert="glsl/uni/final.vert"
+         frag="glsl/uni/final-dtex.frag" >
+</program>

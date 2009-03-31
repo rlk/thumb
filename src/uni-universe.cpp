@@ -49,15 +49,15 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
 
     // Create the maps.
 
-    geomap *dif0 = new geomap(cache_s, "world.200408.xml",      Er0, Er1);
+    geomap *dif0 = new geomap(cache_s, "universe/world.200408.xml",      Er0, Er1);
 
-    geomap *nrm0 = new geomap(cache_s, "srtm_ramp2_normal.xml", Er0, Er1);
-    geomap *hgt0 = new geomap(cache_h, "srtm_ramp2.xml",        Er0, Er1);
+    geomap *nrm0 = new geomap(cache_s, "universe/srtm_ramp2_normal.xml", Er0, Er1);
+    geomap *hgt0 = new geomap(cache_h, "universe/srtm_ramp2.xml",        Er0, Er1);
 
     Ecolor.push_back(dif0);
     Enormal.push_back(nrm0);
     Eheight.push_back(hgt0);
-
+/*
     geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          Er0, Er1);
     geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
 
@@ -71,7 +71,7 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
     Mcolor.push_back(dif2);
     Mnormal.push_back(nrm2);
     Mheight.push_back(hgt2);
-
+*/
     // Configure the geometry generator and renderer.
 
     int patch_cache = ::conf->get_i("patch_cache");

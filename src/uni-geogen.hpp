@@ -14,12 +14,20 @@
 #define UNI_GEOGEN_HPP
 
 #include "ogl-opengl.hpp"
-#include "ogl-program.hpp"
 #include "default.hpp"
 #include "ogl-buffer.hpp"
 #include "ogl-image.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-lut.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class program;
+}
+
+//-----------------------------------------------------------------------------
 
 namespace uni
 {
@@ -157,7 +165,6 @@ namespace uni
 
         geobuf(GLsizei, GLsizei, std::string,
                                  std::string,
-                                 std::string,
                                  std::string);
        ~geobuf();
 
@@ -188,7 +195,6 @@ namespace uni
     public:
 
         geogen(GLsizei, GLsizei, std::string,
-                                 std::string,
                                  std::string,
                                  std::string);
         virtual ~geogen() { }

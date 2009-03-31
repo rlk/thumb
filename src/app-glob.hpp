@@ -92,8 +92,6 @@ namespace app
         glob() { }
        ~glob();
 
-        const ogl::program *load_program(std::string, std::string) { return 0; } // HACK HACK HACK
-
         // Named, reference-counted GL state.
 
               ogl::uniform *load_uniform(const std::string&, GLsizei);

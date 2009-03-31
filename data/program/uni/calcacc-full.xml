@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+<program vert="glsl/uni/trivial.vert"
+         frag="glsl/uni/calcacc-full.frag" >
+  <sampler name="pos" unit="4" />
+  <sampler name="nrm" unit="5" />
+  <sampler name="tex" unit="6" />
+</program>

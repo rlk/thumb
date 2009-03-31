@@ -16,9 +16,17 @@
 #include <string>
 
 #include "ogl-opengl.hpp"
-#include "ogl-program.hpp"
 #include "ogl-frame.hpp"
 #include "ogl-lut.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
+    class program;
+}
+
+//-----------------------------------------------------------------------------
 
 namespace uni
 {

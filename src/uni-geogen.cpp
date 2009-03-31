@@ -17,6 +17,7 @@
 #include <limits>
 
 #include "ogl-opengl.hpp"
+#include "ogl-program.hpp"
 #include "uni-geogen.hpp"
 #include "matrix.hpp"
 #include "app-glob.hpp"
@@ -470,10 +471,9 @@ GLsizei uni::geodat::idx_len() const
 
 //=============================================================================
 
-uni::geobuf::geobuf(GLsizei w, GLsizei h, std::string rect_vert,
-                                          std::string copy_frag,
-                                          std::string calc_frag,
-                                          std::string show_frag) :
+uni::geobuf::geobuf(GLsizei w, GLsizei h, std::string copy_prog,
+                                          std::string calc_prog,
+                                          std::string show_prog) :
 
     ping(glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
                                GL_RGBA32F_ARB, true, false, false)),
@@ -484,12 +484,18 @@ uni::geobuf::geobuf(GLsizei w, GLsizei h, std::string rect_vert,
 
     w(w), h(h),
 
+    copy(glob->load_program(copy_prog)),
+    calc(glob->load_program(calc_prog)),
+    show(glob->load_program(show_prog))
+
+/*
     copy(glob->load_program(rect_vert, copy_frag)),
     calc(glob->load_program(rect_vert, calc_frag)),
     show(glob->load_program(rect_vert, show_frag))
+*/
 {
     // Initialize shader uniforms.
-
+/*
     copy->bind();
     {
         copy->uniform("src", 0);
@@ -505,6 +511,12 @@ uni::geobuf::geobuf(GLsizei w, GLsizei h, std::string rect_vert,
     show->bind();
     {
         show->uniform("src", 0);
+        show->uniform("size", w, h);
+    }
+    show->free();
+*/
+    show->bind();
+    {
         show->uniform("size", w, h);
     }
     show->free();
@@ -587,15 +599,13 @@ void uni::geobuf::free_proc() const
 
 //-----------------------------------------------------------------------------
 
-uni::geogen::geogen(GLsizei d, GLsizei h, std::string rect_vert,
-                                          std::string copy_frag,
-                                          std::string calc_frag,
-                                          std::string show_frag) :
+uni::geogen::geogen(GLsizei d, GLsizei h, std::string copy_prog,
+                                          std::string calc_prog,
+                                          std::string show_prog) :
 
-    geobuf(vtx_count(d), h, rect_vert,
-                            copy_frag,
-                            calc_frag,
-                            show_frag),
+    geobuf(vtx_count(d), h, copy_prog,
+                            calc_prog,
+                            show_prog),
 
     d(d), p(0), buff(GL_PIXEL_UNPACK_BUFFER_ARB, 3 * h * 4 * sizeof (GLfloat))
 {
@@ -693,10 +703,9 @@ void uni::geogen::uniform(std::string name, const double *M, bool t)
 
 uni::geonrm::geonrm(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "glsl/uni/trivial.vert",
-                      "glsl/uni/copybuf.frag",
-                      "glsl/uni/calcnrm.frag",
-                      "glsl/uni/shownrm.frag")
+    uni::geogen(d, h, "program/uni/copybuf.xml",
+                      "program/uni/calcnrm.xml",
+                      "program/uni/shownrm.xml")
 {
 }
 
@@ -704,17 +713,18 @@ uni::geonrm::geonrm(GLsizei d, GLsizei h) :
 
 uni::geopos::geopos(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "glsl/uni/trivial.vert",
-                      "glsl/uni/copybuf.frag",
-                      "glsl/uni/calcpos.frag",
-                      "glsl/uni/showpos.frag")
+    uni::geogen(d, h, "program/uni/copybuf.xml",
+                      "program/uni/calcpos.xml",
+                      "program/uni/showpos.xml")
 {
+/*    
     calc->bind();
     {
         calc->uniform("nrm", 2);
         calc->uniform("rad", 3);
     }
     calc->free();
+*/
 }
 
 void uni::geopos::init(double sea, const double *pos)
@@ -784,27 +794,28 @@ void uni::geopos::fini(GLsizei c)
 
 uni::geotex::geotex(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "glsl/uni/trivial.vert",
-                      "glsl/uni/copybuf.frag",
-                      "glsl/uni/calctex.frag",
-                      "glsl/uni/showtex.frag")
+    uni::geogen(d, h, "program/uni/copybuf.xml",
+                      "program/uni/calctex.xml",
+                      "program/uni/showtex.xml")
 {
+/*
     calc->bind();
     {
         calc->uniform("nrm", 2);
     }
     calc->free();
+*/
 }
 
 //-----------------------------------------------------------------------------
 
 uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 
-    uni::geobuf(vtx_count(d), h, "glsl/uni/trivial.vert",
-                                 "glsl/uni/copyacc.frag",
-                                 "glsl/uni/calcacc.frag",
-                                 "glsl/uni/showpos.frag")
+    uni::geobuf(vtx_count(d), h, "program/uni/copyacc.prog",
+                                 "program/uni/calcacc.prog",
+                                 "program/uni/showpos.prog")
 {
+/*
     copy->bind();
     {
         copy->uniform("pos", 2);
@@ -819,6 +830,7 @@ uni::geoacc::geoacc(GLsizei d, GLsizei h) :
         calc->uniform("tex", 6);
     }
     calc->free();
+*/
 }
 
 void uni::geoacc::init(GLsizei c, double sea, const double *ori)
@@ -849,19 +861,19 @@ void uni::geoacc::init(GLsizei c, double sea, const double *ori)
 
 uni::geoext::geoext(GLsizei d, GLsizei h) :
 
-    uni::geobuf(vtx_count(d), h, "glsl/uni/trivial.vert",
-                                 "glsl/uni/copyext.frag",
-                                 "glsl/uni/calcext.frag",
-                                 "glsl/uni/showpos.frag"),
+    uni::geobuf(vtx_count(d), h, "program/uni/copyext.xml",
+                                 "program/uni/calcext.xml",
+                                 "program/uni/showpos.xml"),
 
     buff(GL_PIXEL_PACK_BUFFER_ARB, 4 * sizeof (GLfloat))
 {
+/*
     copy->bind();
     {
         copy->uniform("pos", 1);
     }
     copy->free();
-
+*/
     // Don't let src or dst references touch the border (giving zero).
 
     src->bind();

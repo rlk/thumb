@@ -22,6 +22,7 @@
 #include "matrix.hpp"
 #include "uni-sphere.hpp"
 #include "app-glob.hpp"
+#include "app-host.hpp"
 #include "app-prog.hpp"
 #include "app-user.hpp"
 #include "default.hpp"
@@ -67,27 +68,17 @@ uni::sphere::sphere(uni::geodat& dat,
     height(height),
     caches(caches),
 
-    draw_atmo_in (glob->load_program("glsl/uni/SkyFromAtmosphere.vert",
-                                     "glsl/uni/SkyFromAtmosphere.frag")),
-    draw_atmo_out(glob->load_program("glsl/uni/SkyFromSpace.vert",
-                                     "glsl/uni/SkyFromSpace.frag")),
-    draw_land_in (glob->load_program("glsl/uni/GroundFromAtmosphere.vert",
-                                     "glsl/uni/GroundFromAtmosphere.frag")),
-    draw_land_out(glob->load_program("glsl/uni/GroundFromSpace.vert",
-                                     "glsl/uni/GroundFromSpace.frag")),
+    draw_atmo_in (glob->load_program("program/uni/SkyFromAtmosphere.xml")),
+    draw_atmo_out(glob->load_program("program/uni/SkyFromSpace.xml")),
+    draw_land_in (glob->load_program("program/uni/GroundFromAtmosphere.xml")),
+    draw_land_out(glob->load_program("program/uni/GroundFromSpace.xml")),
 
-    draw_land(glob->load_program("glsl/uni/final.vert",
-                                 "glsl/uni/final-land.frag")),
-    draw_diff(glob->load_program("glsl/uni/final.vert",
-                                 "glsl/uni/final-diff.frag")),
-    draw_norm(glob->load_program("glsl/uni/final.vert",
-                                 "glsl/uni/final-norm.frag")),
-    draw_texc(glob->load_program("glsl/uni/final.vert",
-                                 "glsl/uni/final-texc.frag")),
-    draw_mono(glob->load_program("glsl/uni/final.vert",
-                                 "glsl/uni/final-mono.frag")),
-    draw_dtex(glob->load_program("glsl/uni/final.vert",
-                                 "glsl/uni/final-dtex.frag")),
+    draw_land(glob->load_program("program/uni/final-land.xml")),
+    draw_diff(glob->load_program("program/uni/final-diff.xml")),
+    draw_norm(glob->load_program("program/uni/final-norm.xml")),
+    draw_texc(glob->load_program("program/uni/final-texc.xml")),
+    draw_mono(glob->load_program("program/uni/final-mono.xml")),
+    draw_dtex(glob->load_program("program/uni/final-dtex.xml")),
 
     over(0)
 {
@@ -819,12 +810,8 @@ void uni::sphere::draw(int i)
 
         glPushAttrib(GL_ENABLE_BIT);
         {
-/* TODO
             int w = ::host->get_buffer_w();
             int h = ::host->get_buffer_h();
-*/
-            int w = 640;
-            int h = 480;
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

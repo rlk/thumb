@@ -1,6 +1,7 @@
 Thumb features to consider
 
    Seriously consider converting the world to Z-up.
+   Related: put the sun in the right place using configured lat/lon/date/time
 
    Add an oriented target object
        Use the join mechanism to define paths

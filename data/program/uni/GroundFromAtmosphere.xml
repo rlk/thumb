@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<program vert="glsl/uni/GroundFromAtmosphere.vert"
+         frag="glsl/uni/GroundFromAtmosphere.frag" >
+</program>

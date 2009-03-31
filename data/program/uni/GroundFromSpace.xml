@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<program vert="glsl/uni/GroundFromSpace.vert"
+         frag="glsl/uni/GroundFromSpace.frag" >
+</program>

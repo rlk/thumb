@@ -310,9 +310,12 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
     {
         // Load the map configuration from the file.
 
+        const std::string program = app::get_attr_s(map, "program");
+
+/*
         const std::string vert = app::get_attr_s(map, "vert");
         const std::string frag = app::get_attr_s(map, "frag");
-
+*/
         pattern = ::conf->get_s("data_dir") + app::get_attr_s(map, "name");
 
         ext_W = app::get_attr_f(map, "W", -PI);
@@ -347,6 +350,8 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 
         // Load and initialize the shader.
 
+        prog = ::glob->load_program(program);
+/*
         prog = ::glob->load_program(vert, frag);
 
         prog->bind();
@@ -362,6 +367,7 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
             prog->uniform("tex", 6);
         }
         prog->free();
+*/
     }
 
     cutoff = ::conf->get_f("texel_cutoff");

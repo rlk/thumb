@@ -11,9 +11,9 @@
 //  General Public License for more details.
 
 #include "matrix.hpp"
+#include "ogl-program.hpp"
 #include "app-glob.hpp"
 #include "uni-georen.hpp"
-
 
 //-----------------------------------------------------------------------------
 
@@ -96,8 +96,7 @@ void uni::renbuf::free() const
 uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
     uni::renbuf(w, h, GL_RGBA32F_ARB, true, false),
 //  uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false),
-    draw(::glob->load_program("glsl/uni/drawcyl.vert",
-                              "glsl/uni/drawcyl.frag"))
+    draw(::glob->load_program("program/uni/drawcyl.xml"))
 {
 }
 
