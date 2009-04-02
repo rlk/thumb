@@ -127,7 +127,7 @@ void dpy::lenticular::prep(int chanc, dpy::channel **chanv)
         q[1] = p[1] * debug;
         q[2] = p[2] * debug;
 
-        (*i)->calc_user_planes(chanv[c]->get_p());
+        (*i)->set_viewpoint(chanv[c]->get_p());
     }
 }
 

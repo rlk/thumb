@@ -19,20 +19,21 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::mode::prep(int frusc, app::frustum **frusv)
+ogl::range mode::mode::prep(int frusc, const app::frustum **frusv)
 {
     assert(world);
 
-    ogl::range r;
-
-    r.merge(world->prep_fill(frusc, frusv));
-
-    world->prep_lite(frusc, frusv, r);
-
-    return r;
+    return world->prep_fill(frusc, frusv);
 }
 
-void mode::mode::draw(int frusi, app::frustum *frusp)
+void mode::mode::lite(int frusc, const app::frustum **frusv)
+{
+    assert(world);
+
+    world->lite(frusc, frusv);
+}
+
+void mode::mode::draw(int frusi, const app::frustum *frusp)
 {
     assert(world);
 

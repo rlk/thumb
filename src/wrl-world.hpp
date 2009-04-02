@@ -103,8 +103,8 @@ namespace wrl
 
         // ...
 
-        double split_coeff(int, int, double, double);
-        double split_depth(int, int, double, double);
+        double split_fract(int, int, const app::frustum *);
+        double split_depth(int, int, const app::frustum *);
 
         ogl::uniform *uniform_light_position;
         ogl::uniform *uniform_pssm_depth;
@@ -114,7 +114,7 @@ namespace wrl
         const ogl::process *process_reflection[2];
         const ogl::process *process_irradiance[2];
 
-        void draw_sky(app::frustum *);
+        void draw_sky(const app::frustum *);
 
         void draw_debug_wireframe(int);
 
@@ -178,12 +178,13 @@ namespace wrl
 
         // Rendering methods
 
-        void       prep_lite(int, app::frustum **, ogl::range);
-        ogl::range prep_fill(int, app::frustum **);
-        ogl::range prep_line(int, app::frustum **);
+        ogl::range prep_fill(int, const app::frustum **);
+        ogl::range prep_line(int, const app::frustum **);
 
-        void   draw_fill(int, app::frustum  *);
-        void   draw_line(int, app::frustum  *);
+        void lite(int, const app::frustum **);
+
+        void draw_fill(int, const app::frustum *);
+        void draw_line(int, const app::frustum *);
     };
 }
 

@@ -45,8 +45,9 @@ namespace app
 
         prog();
 
-        virtual ogl::range prep(int, app::frustum **) { return ogl::range(); }
-        virtual void       draw(int, app::frustum  *) {                      }
+        virtual ogl::range prep(int, const app::frustum **) = 0;
+        virtual void       lite(int, const app::frustum **) = 0;
+        virtual void       draw(int, const app::frustum  *) = 0;
 
         virtual bool process_event(event *);
 

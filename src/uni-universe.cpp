@@ -143,10 +143,10 @@ void uni::universe::prep(app::frustum_v& frusta)
     if (S[0]) S[0]->set_a(time * 360 / (60.0 * 60.0 * 24.0));
 
     // Update the view of each object.
-
+/*
     if (G) G->view(frusta);
     if (Z) Z->view(frusta);
-
+*/
     for (s = 0; s < N; ++s)
         S[s]->view(frusta);
 

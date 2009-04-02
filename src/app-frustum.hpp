@@ -60,6 +60,9 @@ namespace app
         double user_basis[16];
         double user_angle;
 
+        double n_dist;
+        double f_dist;
+
         int    view_count;
         int    pixel_w;
         int    pixel_h;
@@ -93,14 +96,13 @@ namespace app
 
         // View state mutators
 
-        void calc_projection (double, double);
-        void calc_view_points(double, double);
-        void calc_user_planes(const double *);
-        void calc_view_planes(const double *,
-                              const double *);
+        void set_distances(double, double);
+        void set_viewpoint(const double *);
+        void set_transform(const double *,
+                           const double *);
 
-        void calc_union(int, frustum **, double,   double,
-                        const double *,  double *, double *);
+        void calc_union(int, const frustum **, double,   double,
+                             const double  *,  double *, double *);
 
         void set_horizon(double);
 
@@ -128,6 +130,10 @@ namespace app
 
         const double *get_planes() const { return view_planes[0]; }
         const double *get_points() const { return view_points[0]; }
+
+        double get_split_coeff(double) const;
+        double get_split_fract(double) const;
+        double get_split_depth(double) const;
 
         // Event handlers
 

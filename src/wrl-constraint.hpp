@@ -80,8 +80,8 @@ namespace wrl
         bool point(double *, const double *, const double *);
         void click(          const double *, const double *);
 
-        ogl::range prep(int, app::frustum **);
-        void       draw(int, app::frustum  *);
+        ogl::range prep(int, const app::frustum **);
+        void       draw(int, const app::frustum  *);
     };
 }
 

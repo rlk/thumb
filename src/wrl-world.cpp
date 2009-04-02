@@ -65,18 +65,18 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    uniform_light_position = ::glob->load_uniform("light_position", 3);
-    uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",  4);
+    uniform_light_position = ::glob->load_uniform("light_position",    3);
+    uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",        4);
     uniform_shadow[0]      = ::glob->load_uniform("shadow_matrix[0]", 16);
     uniform_shadow[1]      = ::glob->load_uniform("shadow_matrix[1]", 16);
     uniform_shadow[2]      = ::glob->load_uniform("shadow_matrix[2]", 16);
-    process_shadow[0]      = ::glob->load_process("shadow", 0);
-    process_shadow[1]      = ::glob->load_process("shadow", 1);
-    process_shadow[2]      = ::glob->load_process("shadow", 2);
-    process_reflection[0]  = ::glob->load_process("reflection_env", 0);
-    process_reflection[1]  = ::glob->load_process("reflection_env", 1);
-    process_irradiance[0]  = ::glob->load_process("irradiance_env", 0);
-    process_irradiance[1]  = ::glob->load_process("irradiance_env", 1);
+    process_shadow[0]      = ::glob->load_process("shadow",            0);
+    process_shadow[1]      = ::glob->load_process("shadow",            1);
+    process_shadow[2]      = ::glob->load_process("shadow",            2);
+    process_reflection[0]  = ::glob->load_process("reflection_env",    0);
+    process_reflection[1]  = ::glob->load_process("reflection_env",    1);
+    process_irradiance[0]  = ::glob->load_process("irradiance_env",    0);
+    process_irradiance[1]  = ::glob->load_process("irradiance_env",    1);
 
 //  click_selection(new wrl::box("solid/bunny.obj"));
 //  click_selection(new wrl::box("solid/buddha.obj"));
@@ -995,44 +995,78 @@ void wrl::world::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
-double wrl::world::split_coeff(int i, int m, double n, double f)
+ogl::range wrl::world::prep_fill(int frusc, const app::frustum **frusv)
 {
-    double c, k = double(i) / double(m);
+    // Position the light source.
+
+    const double *L = ::user->get_L();
+
+    light[0] = L[0];
+    light[1] = L[1];
+    light[2] = L[2];
+
+    // Prep the fill geometry pool.
+
+    fill_pool->prep();
+
+    // Cache the fill visibility and determine the far plane distance.
+
+    ogl::range r;
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+        r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()));
+
+    return r;
+}
+
+ogl::range wrl::world::prep_line(int frusc, const app::frustum **frusv)
+{
+    ogl::range r;
+
+    // Prep the line geometry pool.
+
+    line_pool->prep();
+
+    // Cache the line visibility and determine the far plane distance.
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+        r.merge(line_pool->view(frusi, 5, frusv[frusi]->get_planes()));
+
+    return r;
+}
+
+//-----------------------------------------------------------------------------
+
+double wrl::world::split_fract(int i, int m, const app::frustum *frusp)
+{
+    double c;
 
     if (split_static)
         c = split[i];
     else
-        c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
-
-    return (c - n) / (f - n);
+        c = frusp->get_split_coeff(double(i) / double(m));
+    
+    return frusp->get_split_fract(c);
 }
 
-double wrl::world::split_depth(int i, int m, double n, double f)
+double wrl::world::split_depth(int i, int m, const app::frustum *frusp)
 {
-    double c, k = double(i) / double(m);
+    double c;
 
     if (split_static)
         c = split[i];
     else
-        c = (n * pow(f / n, k) + n + (f - n) * k) * 0.5;
-
-    return (1 - n / c) * f / (f - n);
+        c = frusp->get_split_coeff(double(i) / double(m));
+    
+    return frusp->get_split_depth(c);
 }
 
-void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
+void wrl::world::lite(int frusc, const app::frustum **frusv)
 {
     double lite_M[16];
     double lite_I[16];
 
-    // Temporarily set the corners of all frustums for shadow adaptation.
-
-    for (int frusi = 0; frusi < frusc; ++frusi)
-        frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
-
     // Compute the shadow map split depths.
-
-    double n = r.get_n();
-    double f = r.get_f();
 
     int m = 3; // TODO: generalize split count
 
@@ -1041,8 +1075,8 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
 
     for (int i = 0; i <= m; ++i)
     {
-        c[i] = split_coeff(i, m, n, f);
-        d[i] = split_depth(i, m, n, f);
+        c[i] = split_fract(i, m, frusv[0]);
+        d[i] = split_depth(i, m, frusv[0]);
     }
 
     uniform_pssm_depth->set(d);
@@ -1065,14 +1099,14 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
         // Use the visible range to determine the light projection.
         // TODO: optimize usinge calc_union's discovered range.
 
-        frust.calc_projection(s.get_n(), s.get_f());
+        frust.set_distances(s.get_n(), s.get_f());
 
         // Render the fill geometry to the shadow buffer.
 
-        glEnable(GL_POLYGON_OFFSET_FILL);
+//      glEnable(GL_POLYGON_OFFSET_FILL);
         process_shadow[i]->bind_frame();
         {
-            glPolygonOffset(1.1f, 4.0f);
+//          glPolygonOffset(1.1f, 4.0f);
             frust.draw();
 
             // View from the light's perspective.
@@ -1092,7 +1126,7 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
             fill_pool->draw_fini();
         }
         process_shadow[i]->free_frame();
-        glDisable(GL_POLYGON_OFFSET_FILL);
+//      glDisable(GL_POLYGON_OFFSET_FILL);
 
         // Compute the light transform.
 
@@ -1115,62 +1149,9 @@ void wrl::world::prep_lite(int frusc, app::frustum **frusv, ogl::range r)
     process_irradiance[1]->draw(0);
 }
 
-ogl::range wrl::world::prep_fill(int frusc, app::frustum **frusv)
-{
-    // Position the light source.
+//-----------------------------------------------------------------------------
 
-    const double *L = ::user->get_L();
-
-    light[0] = L[0];
-    light[1] = L[1];
-    light[2] = L[2];
-
-    // Prep the fill geometry pool.
-
-    fill_pool->prep();
-
-    // Cache the fill visibility and determine the far plane distance.
-
-    ogl::range r;
-
-    for (int frusi = 0; frusi < frusc; ++frusi)
-        r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()));
-
-    // Temporarily set the corners of all frustums for shadow adaptation.
-/*
-    for (int frusi = 0; frusi < frusc; ++frusi)
-        frusv[frusi]->calc_view_points(r.get_n(), r.get_f());
-*/
-//  prep_lite(frusc, frusv, r);
-
-    // Ask the binding system to compute the irradiance environment using
-    // the sky shader.
-/*
-    process_reflection[0]->draw(sky_shade);
-    process_reflection[1]->draw(sky_light);
-    process_irradiance[0]->draw(0);
-    process_irradiance[1]->draw(0);
-*/
-    return r;
-}
-
-ogl::range wrl::world::prep_line(int frusc, app::frustum **frusv)
-{
-    ogl::range r;
-
-    // Prep the line geometry pool.
-
-    line_pool->prep();
-
-    // Cache the line visibility and determine the far plane distance.
-
-    for (int frusi = 0; frusi < frusc; ++frusi)
-        r.merge(line_pool->view(frusi, 5, frusv[frusi]->get_planes()));
-
-    return r;
-}
-
-void wrl::world::draw_fill(int frusi, app::frustum *frusp)
+void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
 {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -1206,7 +1187,7 @@ void wrl::world::draw_fill(int frusi, app::frustum *frusp)
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);
 }
 
-void wrl::world::draw_line(int frusi, app::frustum *frusp)
+void wrl::world::draw_line(int frusi, const app::frustum *frusp)
 {
     // Render the line geometry.
 
@@ -1229,7 +1210,7 @@ void wrl::world::draw_line(int frusi, app::frustum *frusp)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::draw_sky(app::frustum *frusp)
+void wrl::world::draw_sky(const app::frustum *frusp)
 {
     const double *vp = frusp->get_view_pos();
     const double *v0 = frusp->get_points() + 0;

@@ -697,30 +697,32 @@ void app::host::draw()
     int            chanc =  channels.size();
     int            frusc =  frustums.size();
     dpy::channel **chanv = &channels.front();
-    app::frustum **frusv = &frustums.front();
+
+    const app::frustum **frusv = &frustums.front();
 
     // Prepare all displays for rendering (cheap).
 
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         (*i)->prep(chanc, chanv);
 
-    // Cache the transformed frustums (cheap).
+    // Cache the transformed frustum planes (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->calc_view_planes(::user->get_M(),
-                               ::user->get_I());
+        (*i)->set_transform(::user->get_M(),
+                            ::user->get_I());
 
-    // Do render prepass and determine view distance (possibly expensive).
+    // Determine visibility and view distance (moderately expensive).
 
     ogl::range r = ::prog->prep(frusc, frusv);
 
     // Cache the frustum projections (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-    {
-        (*i)->calc_projection (r.get_n(), r.get_f());
-        (*i)->calc_view_points(r.get_n(), r.get_f());
-    }
+        (*i)->set_distances(r.get_n(), r.get_f());
+
+    // Perform the lighting prepass (possibly expensive).
+
+    ::prog->lite(frusc, frusv);
 
     // Clear the entire window.
 

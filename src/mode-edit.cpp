@@ -323,7 +323,7 @@ bool mode::edit::process_timer(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::edit::prep(int frusc, app::frustum **frusv)
+ogl::range mode::edit::prep(int frusc, const app::frustum **frusv)
 {
     assert(world);
     assert(xform);
@@ -336,12 +336,12 @@ ogl::range mode::edit::prep(int frusc, app::frustum **frusv)
     r.merge(world->prep_line(frusc, frusv));
     r.merge(xform->prep     (frusc, frusv));
 
-    world->prep_lite(frusc, frusv, r);
+//  world->prep_lite(frusc, frusv, r);
 
     return r;
 }
 
-void mode::edit::draw(int frusi, app::frustum *frusp)
+void mode::edit::draw(int frusi, const app::frustum *frusp)
 {
     assert(world);
     assert(xform);

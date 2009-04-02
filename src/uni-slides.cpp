@@ -134,7 +134,7 @@ void uni::slides::view(app::frustum_v& frusta)
     {
         app::frustum *frust = new app::frustum(*(frusta[i]));
 
-        frust->calc_view_planes(I, M);
+        frust->set_transform(I, M);
 
         this->frusta.push_back(frust);
     }
@@ -144,7 +144,7 @@ void uni::slides::draw(int i) const
 {
     // Apply the projection.
 
-    frusta[i]->calc_projection(1.0, 1000.0);
+    frusta[i]->set_distances(1.0, 1000.0);
     frusta[i]->draw();
 
     glPushAttrib(GL_ENABLE_BIT);

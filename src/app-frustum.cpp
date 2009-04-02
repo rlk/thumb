@@ -235,7 +235,7 @@ void app::frustum::calc_calibrated()
     crossprod(user_basis + 8, user_basis + 0, user_basis + 4);
     normalize(user_basis + 8);
 }
-
+/*
 void app::frustum::calc_user_planes(const double *p)
 {
     // Compute the calibrated user position, and display-space position.
@@ -374,8 +374,159 @@ void app::frustum::calc_projection(double n, double f)
                     user_pos[1],
                     user_pos[2]);
 }
+*/
 
-void app::frustum::calc_union(int frusc, app::frustum **frusv,
+//-----------------------------------------------------------------------------
+
+void app::frustum::set_viewpoint(const double *p)
+{
+    // Compute the calibrated user position, and display-space position.
+
+    mult_mat_vec3(user_pos, T, p);
+
+    // Compute the vector from the screen center to the viewer.
+ 	
+    double v[3];
+ 	
+    v[0] = user_pos[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
+    v[1] = user_pos[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
+    v[2] = user_pos[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
+ 	
+    mult_xps_vec3(disp_pos, user_basis, v);
+
+    // Compute the user-space view frustum bounding planes.
+
+    set_plane(user_planes[0], user_pos, user_points[0], user_points[2]); // L
+    set_plane(user_planes[1], user_pos, user_points[3], user_points[1]); // R
+    set_plane(user_planes[2], user_pos, user_points[1], user_points[0]); // B
+    set_plane(user_planes[3], user_pos, user_points[2], user_points[3]); // T
+
+    // Cache the solid angle of the frustum.
+
+    double u[4][3];
+
+    for (int i = 0; i < 4; ++i)
+    {
+        u[i][0] = user_points[i][0] - user_pos[0];
+        u[i][1] = user_points[i][1] - user_pos[1];
+        u[i][2] = user_points[i][2] - user_pos[2];
+
+        normalize(u[i]);
+    }
+
+    user_angle = (solid_angle(u[0], u[2], u[1]) +
+                  solid_angle(u[1], u[2], u[3]));
+
+    // Cache the distance from the user to the display plane.
+
+    double display_plane[4];
+
+    set_plane(display_plane, user_points[0], user_points[1], user_points[2]);
+
+    user_dist = DOT3(display_plane, user_pos) + display_plane[3];
+}
+
+void app::frustum::set_transform(const double *M,
+                                 const double *I)
+{
+    // Cache the world-space view position.
+
+    mult_mat_vec3(view_pos, M, user_pos);
+
+    // Cache the world-space display corners.
+
+    mult_mat_vec3(view_points[0], M, user_points[0]);
+    mult_mat_vec3(view_points[1], M, user_points[1]);
+    mult_mat_vec3(view_points[2], M, user_points[2]);
+    mult_mat_vec3(view_points[3], M, user_points[3]);
+
+    // Cache the world-space view frustum bounding planes.
+
+    double near_plane[4];
+
+    near_plane[0] = -user_basis[ 8];
+    near_plane[1] = -user_basis[ 9];
+    near_plane[2] = -user_basis[10];
+    near_plane[3] = -DOT3(user_pos, near_plane);
+
+    mult_xps_vec4(view_planes[0], I, near_plane);     // N
+    mult_xps_vec4(view_planes[1], I, user_planes[0]); // L
+    mult_xps_vec4(view_planes[2], I, user_planes[1]); // R
+    mult_xps_vec4(view_planes[3], I, user_planes[2]); // B
+    mult_xps_vec4(view_planes[4], I, user_planes[3]); // T
+
+    view_count = 5;
+}
+
+void app::frustum::set_distances(double n, double f)
+{
+    // HACK: this is NOT idempotent.  The lengths of view_points are assumed.
+    // TODO: fix it by projecting view_points along user_basis[2] instead
+    // of dividing by user_dist.
+
+    const double nk = n_dist / user_dist;
+    const double fk = f_dist / user_dist;
+
+    n_dist = n;
+    f_dist = f;
+
+    // For each view frustum corner...
+
+    double u[4][3];
+    double v[4][3];
+        
+    for (int i = 0; i < 4; ++i)
+    {
+        // Compute the user-space vector from the view point to the corner.
+
+        u[i][0] = user_points[i][0] - user_pos[0];
+        u[i][1] = user_points[i][1] - user_pos[1];
+        u[i][2] = user_points[i][2] - user_pos[2];
+
+        // Compute the world-space vector from the view point to the corner.
+
+        v[i][0] = view_points[i][0] - view_pos[0];
+        v[i][1] = view_points[i][1] - view_pos[1];
+        v[i][2] = view_points[i][2] - view_pos[2];
+
+        // Cache the world-space near position.
+
+        view_points[i    ][0] = view_pos[0] + v[i][0] * nk;
+        view_points[i    ][1] = view_pos[1] + v[i][1] * nk;
+        view_points[i    ][2] = view_pos[2] + v[i][2] * nk;
+
+        // Cache the world-space far position.
+
+        view_points[i + 4][0] = view_pos[0] + v[i][0] * fk;
+        view_points[i + 4][1] = view_pos[1] + v[i][1] * fk;
+        view_points[i + 4][2] = view_pos[2] + v[i][2] * fk;
+    }
+
+    // Generate the off-axis projection.
+
+    double l = DOT3(user_basis + 0, u[0]) * nk;
+    double r = DOT3(user_basis + 0, u[1]) * nk;
+    double b = DOT3(user_basis + 4, u[0]) * nk;
+    double t = DOT3(user_basis + 4, u[2]) * nk;
+
+    load_persp(P, l, r, b, t, n, f);
+
+    // Orient the projection and move the apex to the origin.
+
+    double A[16];
+
+    load_xps(A, user_basis);
+
+    mult_mat_mat(P, P, A);
+    Rmul_xlt_inv(P, user_pos[0],
+                    user_pos[1],
+                    user_pos[2]);
+}
+
+//-----------------------------------------------------------------------------
+
+
+void app::frustum::calc_union(int frusc, const app::frustum **frusv,
                               double c0, double c1, const double *L,
                               double *M, double *I)
 {
@@ -539,10 +690,14 @@ void app::frustum::calc_union(int frusc, app::frustum **frusv,
 
     double O[3] = { 0, 0, 0 };
 
+    set_viewpoint(O);
+    set_transform(M, I);
+
+/*
     calc_user_planes(O);
     calc_view_planes(M, I);
     calc_projection (n, f);
-
+*/
     // This frustum is now ready for view culling and calc_projection.
 }
 
@@ -598,6 +753,24 @@ double app::frustum::pixels(double angle) const
 
 //-----------------------------------------------------------------------------
 
+double app::frustum::get_split_coeff(double k) const
+{
+    return (n_dist * pow(f_dist / n_dist,   k) +
+            n_dist +    (f_dist - n_dist) * k) * 0.5;
+}
+
+double app::frustum::get_split_fract(double c) const
+{
+    return                (c - n_dist) / (f_dist - n_dist);
+}
+
+double app::frustum::get_split_depth(double c) const
+{
+    return (f_dist / c) * (c - n_dist) / (f_dist - n_dist);
+}
+
+//-----------------------------------------------------------------------------
+
 app::frustum::frustum(app::node node, int w, int h)
     : node(node), user_dist(1.0), view_count(0), pixel_w(w), pixel_h(h)
 {
@@ -619,10 +792,16 @@ app::frustum::frustum(app::node node, int w, int h)
 
     load_idt(M);
 
+    set_viewpoint(user_pos);
+    set_transform(M, M);
+    set_distances(0.5, 100.0);
+
+/*
     calc_user_planes(user_pos);
     calc_view_planes(M, M);
     calc_projection (0.5, 100.0);
     calc_view_points(0.5, 100.0);
+*/
 }
 
 app::frustum::frustum(frustum& that)

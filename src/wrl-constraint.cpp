@@ -138,16 +138,6 @@ void wrl::constraint::set_grid(int g)
 void wrl::constraint::set_mode(int m)
 {
     mode = m;
-/*
-    node->clear();
-
-    if (m)
-        node->add_unit(rot[grid]);
-    else
-        node->add_unit(pos[grid]);
-
-    node->transform(T);
-*/
 }
 
 void wrl::constraint::set_axis(int a)
@@ -250,7 +240,7 @@ void wrl::constraint::click(const double *p, const double *v)
 
 //-----------------------------------------------------------------------------
 
-ogl::range wrl::constraint::prep(int frusc, app::frustum **frusv)
+ogl::range wrl::constraint::prep(int frusc, const app::frustum **frusv)
 {
     ogl::range r;
 
@@ -265,14 +255,11 @@ ogl::range wrl::constraint::prep(int frusc, app::frustum **frusv)
             r.merge(rot[grid]->view(frusi, 5, frusv[frusi]->get_planes()));
         else
             r.merge(pos[grid]->view(frusi, 5, frusv[frusi]->get_planes()));
-/*
-    for (int frusi = 0; frusi < frusc; ++frusi)
-        r.merge(pool->view(frusi, 5, frusv[frusi]->get_planes()));
-*/
+
     return r;
 }
 
-void wrl::constraint::draw(int frusi, app::frustum *frusp)
+void wrl::constraint::draw(int frusi, const app::frustum *frusp)
 {
     // Draw the oriented constraint grid.
 

@@ -68,8 +68,8 @@ void dpy::anaglyph::prep(int chanc, dpy::channel **chanv)
 
     // Apply the channel view positions to the frustums.
 
-    if (chanc > 0) frustL->calc_user_planes(chanv[0]->get_p());
-    if (chanc > 1) frustR->calc_user_planes(chanv[1]->get_p());
+    if (chanc > 0) frustL->set_viewpoint(chanv[0]->get_p());
+    if (chanc > 1) frustR->set_viewpoint(chanv[1]->get_p());
 }
 
 int dpy::anaglyph::draw(int chanc, dpy::channel **chanv,

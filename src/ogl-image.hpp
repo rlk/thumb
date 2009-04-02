@@ -30,8 +30,6 @@ namespace ogl
         GLubyte *p;
         GLsizei  w;
         GLsizei  h;
-        GLsizei  b;
-        GLsizei  c;
 
     public:
 

@@ -228,7 +228,7 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-//  universe = new uni::universe(w, h);
+    universe = new uni::universe(w, h);
     world    = new wrl::world();
 
     edit = new mode::edit(world);
@@ -242,7 +242,6 @@ demo::demo(int w, int h) :
 
 demo::~demo()
 {
-
     free_uniforms();
 
     if (info) delete info;
@@ -456,7 +455,7 @@ bool demo::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-ogl::range demo::prep(int frusc, app::frustum **frusv)
+ogl::range demo::prep(int frusc, const app::frustum **frusv)
 {
     // Prep the current mode, giving the view range.
 
@@ -474,7 +473,12 @@ ogl::range demo::prep(int frusc, app::frustum **frusv)
     return r;
 }
 
-void demo::draw(int frusi, app::frustum *frusp)
+void demo::lite(int frusc, const app::frustum **frusv)
+{
+    curr->lite(frusc, frusv);
+}
+
+void demo::draw(int frusi, const app::frustum *frusp)
 {
     // Clear the render target.
 

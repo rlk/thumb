@@ -62,7 +62,7 @@ void dpy::normal::prep(int chanc, dpy::channel **chanv)
     // Apply the channel view position to the frustum.
 
     if (chani < chanc)
-        frust->calc_user_planes(chanv[chani]->get_p());
+        frust->set_viewpoint(chanv[chani]->get_p());
 }
 
 int dpy::normal::draw(int chanc, dpy::channel **chanv,

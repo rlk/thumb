@@ -68,17 +68,21 @@ uni::sphere::sphere(uni::geodat& dat,
     height(height),
     caches(caches),
 
-    draw_atmo_in (glob->load_program("program/uni/SkyFromAtmosphere.xml")),
-    draw_atmo_out(glob->load_program("program/uni/SkyFromSpace.xml")),
-    draw_land_in (glob->load_program("program/uni/GroundFromAtmosphere.xml")),
-    draw_land_out(glob->load_program("program/uni/GroundFromSpace.xml")),
+    draw_atmo_in (glob->load_program("uni/SkyFromAtmosphere.xml")),
+    draw_atmo_out(glob->load_program("uni/SkyFromSpace.xml")),
+    draw_land_in (glob->load_program("uni/GroundFromAtmosphere.xml")),
+    draw_land_out(glob->load_program("uni/GroundFromSpace.xml")),
 
-    draw_land(glob->load_program("program/uni/final-land.xml")),
-    draw_diff(glob->load_program("program/uni/final-diff.xml")),
-    draw_norm(glob->load_program("program/uni/final-norm.xml")),
-    draw_texc(glob->load_program("program/uni/final-texc.xml")),
-    draw_mono(glob->load_program("program/uni/final-mono.xml")),
-    draw_dtex(glob->load_program("program/uni/final-dtex.xml")),
+    draw_land(glob->load_program("uni/final-land.xml")),
+    draw_diff(glob->load_program("uni/final-diff.xml")),
+    draw_norm(glob->load_program("uni/final-norm.xml")),
+    draw_texc(glob->load_program("uni/final-texc.xml")),
+    draw_mono(glob->load_program("uni/final-mono.xml")),
+    draw_dtex(glob->load_program("uni/final-dtex.xml")),
+
+    atmo_pool(0),
+    atmo_node(0),
+    atmo_unit(0),
 
     over(0)
 {
@@ -101,10 +105,10 @@ uni::sphere::sphere(uni::geodat& dat,
 
     atmo_pool = glob->new_pool();
     atmo_node = new ogl::node();
-    atmo_unit = new ogl::unit("solid/inverted_sphere.obj");
+//  atmo_unit = new ogl::unit("solid/inverted_sphere.obj");
 
     atmo_pool->add_node(atmo_node);
-    atmo_node->add_unit(atmo_unit);
+//  atmo_node->add_unit(atmo_unit);
 
     double M[16];
     double I[16];
@@ -112,7 +116,7 @@ uni::sphere::sphere(uni::geodat& dat,
     load_scl_mat(M, a1, a1, a1);
     load_scl_inv(I, a1, a1, a1);
 
-    atmo_unit->transform(M, I);
+//  atmo_unit->transform(M, I);
 
     // Initialize overlay rendering.
 
@@ -265,7 +269,7 @@ void uni::sphere::transform(app::frustum_v& frusta)
     {
         app::frustum *frust = new app::frustum(*(frusta[i]));
 
-        frust->calc_view_planes(I, M);
+        frust->set_transform(I, M);
         frust->set_horizon(r0);
 
         this->frusta.push_back(frust);

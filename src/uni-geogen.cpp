@@ -703,9 +703,9 @@ void uni::geogen::uniform(std::string name, const double *M, bool t)
 
 uni::geonrm::geonrm(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "program/uni/copybuf.xml",
-                      "program/uni/calcnrm.xml",
-                      "program/uni/shownrm.xml")
+    uni::geogen(d, h, "uni/copybuf.xml",
+                      "uni/calcnrm.xml",
+                      "uni/shownrm.xml")
 {
 }
 
@@ -713,9 +713,9 @@ uni::geonrm::geonrm(GLsizei d, GLsizei h) :
 
 uni::geopos::geopos(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "program/uni/copybuf.xml",
-                      "program/uni/calcpos.xml",
-                      "program/uni/showpos.xml")
+    uni::geogen(d, h, "uni/copybuf.xml",
+                      "uni/calcpos.xml",
+                      "uni/showpos.xml")
 {
 /*    
     calc->bind();
@@ -794,9 +794,9 @@ void uni::geopos::fini(GLsizei c)
 
 uni::geotex::geotex(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "program/uni/copybuf.xml",
-                      "program/uni/calctex.xml",
-                      "program/uni/showtex.xml")
+    uni::geogen(d, h, "uni/copybuf.xml",
+                      "uni/calctex.xml",
+                      "uni/showtex.xml")
 {
 /*
     calc->bind();
@@ -811,9 +811,9 @@ uni::geotex::geotex(GLsizei d, GLsizei h) :
 
 uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 
-    uni::geobuf(vtx_count(d), h, "program/uni/copyacc.prog",
-                                 "program/uni/calcacc.prog",
-                                 "program/uni/showpos.prog")
+    uni::geobuf(vtx_count(d), h, "uni/copyacc.xml",
+                                 "uni/calcacc.xml",
+                                 "uni/showpos.xml")
 {
 /*
     copy->bind();
@@ -861,9 +861,9 @@ void uni::geoacc::init(GLsizei c, double sea, const double *ori)
 
 uni::geoext::geoext(GLsizei d, GLsizei h) :
 
-    uni::geobuf(vtx_count(d), h, "program/uni/copyext.xml",
-                                 "program/uni/calcext.xml",
-                                 "program/uni/showpos.xml"),
+    uni::geobuf(vtx_count(d), h, "uni/copyext.xml",
+                                 "uni/calcext.xml",
+                                 "uni/showpos.xml"),
 
     buff(GL_PIXEL_PACK_BUFFER_ARB, 4 * sizeof (GLfloat))
 {

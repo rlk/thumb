@@ -34,6 +34,10 @@
 
 // TODO: Template some of this repetition?
 
+// NOTE: The map and set erase(key_type) functions don't seem to work
+// correctly under OSX.  For this reason, all map and set removals are
+// performed using a found iterator.
+
 //=============================================================================
 
 app::glob::~glob()
@@ -147,6 +151,7 @@ const ogl::program *app::glob::load_program(const std::string& name)
         }
         catch (std::runtime_error& e)
         {
+            std::cerr << "Failed to load program: " << name << std::endl;
             return 0;
         }
     }
@@ -438,9 +443,13 @@ ogl::pool *app::glob::new_pool()
 
 void app::glob::free_pool(ogl::pool *p)
 {
-    pool_set.erase(p);
+    std::set<ogl::pool *>::iterator i;
 
-    delete p;
+    if ((i = pool_set.find(p)) != pool_set.end())
+    {
+        pool_set.erase(i);
+        delete p;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -457,9 +466,13 @@ ogl::image *app::glob::new_image(GLsizei w, GLsizei h, GLenum T,
 
 void app::glob::free_image(ogl::image *p)
 {
-    image_set.erase(p);
+    std::set<ogl::image *>::iterator i;
 
-    delete p;
+    if ((i = image_set.find(p)) != image_set.end())
+    {
+        image_set.erase(i);
+        delete p;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -477,9 +490,13 @@ ogl::frame *app::glob::new_frame(GLsizei w, GLsizei h,
 
 void app::glob::free_frame(ogl::frame *p)
 {
-    frame_set.erase(p);
+    std::set<ogl::frame *>::iterator i;
 
-    delete p;
+    if ((i = frame_set.find(p)) != frame_set.end())
+    {
+        frame_set.erase(i);
+        delete p;
+    }
 }
 
 //-----------------------------------------------------------------------------
