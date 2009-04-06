@@ -140,7 +140,7 @@ void uni::universe::prep(int frusc, const app::frustum *const *frusv)
 
     // Update the object transforms based on time.
 
-    if (S[0]) S[0]->set_a(time * 360 / (60.0 * 60.0 * 24.0));
+//  if (S[0]) S[0]->set_a(time * 360 / (60.0 * 60.0 * 24.0));
 
     // Update the view of each object.
 /*

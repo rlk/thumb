@@ -57,9 +57,10 @@ namespace uni
 
         double p[3];
         double n[3];
+/*
         double angle;
         double tilt;
-
+*/
         // Transform cache
 
         double vp[3];           // Object space view position
@@ -131,9 +132,9 @@ namespace uni
                bool=false, bool=false);
        ~sphere();
 
-        void turn(double=0, double=0);
+//      void turn(double=0, double=0);
         void move(double=0, double=0, double=0,
-                  double=0, double=1, double=0, double=0);
+                  double=0, double=1, double=0);
         void norm();
 
         // Rendering pipeline.
@@ -154,11 +155,12 @@ namespace uni
         int    maxcount() const { return int(count); }
 
         const double *get_p() const { return p; }
-
+/*
         double get_a()   const { return angle; }
         void   set_a(double k) { angle = k; norm(); }
         double get_t()   const { return tilt;  }
         void   set_t(double k) { tilt  = k; norm(); }
+*/
     };
 
     bool sphcmp(const sphere *, const sphere *);

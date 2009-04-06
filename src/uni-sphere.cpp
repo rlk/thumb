@@ -95,8 +95,6 @@ uni::sphere::sphere(uni::geodat& dat,
     n[0]  = 0;
     n[1]  = 1;
     n[2]  = 0;
-    angle = 0;
-    tilt  = 0;
     
     d0   = 1.0;
     d1   = 2.0;
@@ -147,7 +145,7 @@ uni::sphere::~sphere()
 }
 
 void uni::sphere::move(double px, double py, double pz,
-                       double nx, double ny, double nz, double ra)
+                       double nx, double ny, double nz)
 {
     p[0] = px;
     p[1] = py;
@@ -157,11 +155,9 @@ void uni::sphere::move(double px, double py, double pz,
     n[1] = ny;
     n[2] = nz;
 
-    angle = ra;
-
     normalize(n);
 }
-
+/*
 void uni::sphere::turn(double da, double dt)
 {
     angle += da;
@@ -169,11 +165,13 @@ void uni::sphere::turn(double da, double dt)
 
     norm();
 }
-
+*/
 void uni::sphere::norm()
 {
     double N[3] = { 0, 1, 0 };
     double M[16];
+
+    double tilt = 0.0;
 
     load_rot_mat(M, 1, 0, 0, tilt);
 
@@ -234,6 +232,9 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 
 void uni::sphere::transform(int frusc, const app::frustum *const *frusv)
 {
+    double angle = ::user->get_t() * 360.0 / (60.0 * 60.0 * 24.0);
+    double tilt  = 0;
+
     // Compute the planetary tilt transformation.
 
     load_rot_mat(O, 1, 0, 0, tilt);     // Planet tilt
@@ -809,6 +810,8 @@ void uni::sphere::draw(int i)
 
         // Test draw the color geomap.
 
+        glUseProgramObjectARB(0);
+    
         if (::prog->get_option(7)) (*(  caches.begin()))->draw();
         if (::prog->get_option(6)) (*(++caches.begin()))->draw();
 

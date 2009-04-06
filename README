@@ -55,8 +55,8 @@ The default interaction mode uses the keyboard and mouse, as follows:
             Left-button drag      Pitch and Yaw the viewpoint
     Shift + Left-button drag      Roll the viewpoint
 
-            Mouse wheel           Rotate the Earth about its axis
-    Shift + Mouse wheel           Alter the axial tilt of the Earth
+//          Mouse wheel           Rotate the Earth about its axis
+//  Shift + Mouse wheel           Alter the axial tilt of the Earth
 
             W                     Move forward
             S                     Move backward
@@ -71,8 +71,8 @@ The default interaction mode uses the keyboard and mouse, as follows:
     Shift + F4                    Toggle monochrome relief-shading
     Shift + F5                    Toggle texture coordinate derivative display
     Shift + F6                    Toggle position accumulation buffer
-    Shift + F7                    Toggle color cache display
-    Shift + F8                    Toggle height cache display
+    Shift + F7                    Toggle height cache display
+    Shift + F8                    Toggle color cache display
 
     Shift + F9                    Toggle normal accumulation buffer
     Shift + F10                   Toggle texture coordinate accumulation buffer

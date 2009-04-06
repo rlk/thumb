@@ -78,6 +78,7 @@ namespace app
         const double  *get_I() const { return current_I; }
         const double  *get_S() const { return current_S; }
         const double  *get_L() const { return current_L; }
+        double         get_t() const { return current_t; }
         double get_move_rate() const { return move_rate; }
         double get_turn_rate() const { return turn_rate; }
 

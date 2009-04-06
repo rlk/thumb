@@ -122,19 +122,19 @@ bool dev::mouse::process_click(app::event *E)
 
     // Handle rotating the universe.
 
-/* TODO: convert this into a script event.
+    // TODO: convert this into a script event.
 
     else if (d && b == SDL_BUTTON_WHEELUP)
     {
-        universe.set_time(now + 15.0 * 60.0);
+        ::user->pass(+15.0 * 60.0);
         return true;
     }
     else if (d && b == SDL_BUTTON_WHEELDOWN)
     {
-        universe.set_time(now - 15.0 * 60.0);
+        ::user->pass(-15.0 * 60.0);
         return true;
     }
-*/
+
     return false;
 }
 
