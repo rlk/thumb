@@ -323,7 +323,7 @@ bool mode::edit::process_timer(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::edit::prep(int frusc, const app::frustum **frusv)
+ogl::range mode::edit::prep(int frusc, const app::frustum *const *frusv)
 {
     assert(world);
     assert(xform);
@@ -353,7 +353,7 @@ void mode::edit::draw(int frusi, const app::frustum *frusp)
 
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);
-    xform->draw     (frusi, frusp);
+    xform->draw     (frusi);
 /*
     ogl::line_state_init();
     glBegin(GL_LINES);

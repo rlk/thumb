@@ -178,10 +178,10 @@ namespace wrl
 
         // Rendering methods
 
-        ogl::range prep_fill(int, const app::frustum **);
-        ogl::range prep_line(int, const app::frustum **);
+        ogl::range prep_fill(int, const app::frustum *const *);
+        ogl::range prep_line(int, const app::frustum *const *);
 
-        void lite(int, const app::frustum **);
+        void lite(int, const app::frustum *const *);
 
         void draw_fill(int, const app::frustum *);
         void draw_line(int, const app::frustum *);

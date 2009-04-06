@@ -13,8 +13,6 @@
 #ifndef DPY_ANAGLYPH_HPP
 #define DPY_ANAGLYPH_HPP
 
-#include <vector>
-
 #include "dpy-display.hpp"
 #include "app-serial.hpp"
 
@@ -43,23 +41,25 @@ namespace dpy
 
         anaglyph(app::node);
 
-        virtual void get_frustums(std::vector<app::frustum *>&);
+        virtual ~anaglyph();
 
-        // Rendering handlers.
+        // Frustum queries
 
-        virtual void prep(int, dpy::channel **);
-        virtual int  draw(int, dpy::channel **,
-                          int, app::frustum **);
-        virtual int  test(int, dpy::channel **, int);
-
-        // Event handers.
-
-        virtual bool pointer_to_3D(app::event *, int, int);
-        virtual bool process_event(app::event *);
+        virtual int  get_frusc()                const;
+        virtual void get_frusv(app::frustum **) const;
 
         virtual app::frustum *get_overlay() const { return frustL; }
 
-        virtual ~anaglyph();
+        // Rendering handlers
+
+        virtual void prep(int, const dpy::channel * const *);
+        virtual void draw(int, const dpy::channel * const *, int);
+        virtual void test(int, const dpy::channel * const *, int);
+
+        // Event handers
+
+        virtual bool pointer_to_3D(app::event *, int, int);
+        virtual bool process_event(app::event *);
     };
 }
 

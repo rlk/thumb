@@ -50,8 +50,6 @@ namespace dpy
         int w;                    // Off-screen render target width
         int h;                    // Off-screen render target height
 
-        bool processed;
-
         double  v[3];             // View position, in head coordinates
         double  p[3];             // View position, in user coordinates (cache)
         GLubyte c[4];             // Calibration target color
@@ -78,7 +76,7 @@ namespace dpy
         void test() const;
         void bind(double=1.0) const;
         void free() const;
-        void proc();
+        void proc() const;
 
         void bind_color(GLenum t) const;
         void free_color(GLenum t) const;

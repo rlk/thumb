@@ -122,9 +122,9 @@ public:
 
     bool process_event(app::event *);
 
-    ogl::range prep(int, const app::frustum **);
-    void       lite(int, const app::frustum **);
-    void       draw(int, const app::frustum  *);
+    ogl::range prep(int, const app::frustum * const *);
+    void       lite(int, const app::frustum * const *);
+    void       draw(int, const app::frustum *);
 
     void next();
     void prev();

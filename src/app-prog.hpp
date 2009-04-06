@@ -41,17 +41,21 @@ namespace app
 
     public:
 
-        void screenshot(std::string, int, int) const;
-
         prog();
 
-        virtual ogl::range prep(int, const app::frustum **) = 0;
-        virtual void       lite(int, const app::frustum **) = 0;
-        virtual void       draw(int, const app::frustum  *) = 0;
+        virtual ~prog() { }
+
+        // Rendering handlers
+
+        virtual ogl::range prep(int, const app::frustum * const *) = 0;
+        virtual void       lite(int, const app::frustum * const *) = 0;
+        virtual void       draw(int, const app::frustum *)         = 0;
+
+        // Event handler
 
         virtual bool process_event(event *);
 
-        // Debug toggles.
+        // Debug toggles
 
         int  get_options() const;
         void set_options(int);
@@ -64,7 +68,7 @@ namespace app
         virtual void next() { }
         virtual void prev() { }
 
-        virtual ~prog() { }
+        void screenshot(std::string, int, int) const;
     };
 }
 

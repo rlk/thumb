@@ -42,9 +42,9 @@ namespace mode
 
         mode(wrl::world *w) : world(w) { }
 
-        virtual ogl::range prep(int, const app::frustum **);
-        virtual void       lite(int, const app::frustum **);
-        virtual void       draw(int, const app::frustum  *);
+        virtual ogl::range prep(int, const app::frustum *const *);
+        virtual void       lite(int, const app::frustum *const *);
+        virtual void       draw(int, const app::frustum *);
 
         virtual bool process_event(app::event *) { return false; }
 

@@ -101,8 +101,8 @@ namespace app
         void set_transform(const double *,
                            const double *);
 
-        void calc_union(int, const frustum **, double,   double,
-                             const double  *,  double *, double *);
+        void calc_union(int, const frustum *const *, double,   double,
+                             const double  *,        double *, double *);
 
         void set_horizon(double);
 

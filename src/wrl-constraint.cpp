@@ -240,7 +240,7 @@ void wrl::constraint::click(const double *p, const double *v)
 
 //-----------------------------------------------------------------------------
 
-ogl::range wrl::constraint::prep(int frusc, const app::frustum **frusv)
+ogl::range wrl::constraint::prep(int frusc, const app::frustum *const *frusv)
 {
     ogl::range r;
 
@@ -259,7 +259,7 @@ ogl::range wrl::constraint::prep(int frusc, const app::frustum **frusv)
     return r;
 }
 
-void wrl::constraint::draw(int frusi, const app::frustum *frusp)
+void wrl::constraint::draw(int frusi)
 {
     // Draw the oriented constraint grid.
 

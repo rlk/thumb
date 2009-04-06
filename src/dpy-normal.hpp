@@ -30,9 +30,9 @@ namespace ogl
 namespace dpy
 {
     // A "normal" display is an ordinary 2D screen.  It is monoscopic, with
-    // only a single frustum, rendering directly to the onscreen framebuffer
-    // using only a single view.  It's only configuration option is which of
-    // multiple views it uses.
+    // only a single frustum.  Its only configuration option is which of
+    // multiple channels it writes to, allowing it to be used for passive
+    // stereo (left/right or over/under) displays.
 
     class normal : public display
     {
@@ -48,23 +48,25 @@ namespace dpy
 
         normal(app::node);
 
-        virtual void get_frustums(std::vector<app::frustum *>&);
+        virtual ~normal();
 
-        // Rendering handlers.
+        // Frustum queries
 
-        virtual void prep(int, dpy::channel **);
-        virtual int  draw(int, dpy::channel **,
-                          int, app::frustum **);
-        virtual int  test(int, dpy::channel **, int);
-
-        // Event handers.
-
-        virtual bool pointer_to_3D(app::event *, int, int);
-        virtual bool process_event(app::event *);
+        virtual int  get_frusc()                const;
+        virtual void get_frusv(app::frustum **) const;
 
         virtual app::frustum *get_overlay() const { return frust; }
 
-        virtual ~normal();
+        // Rendering handlers
+
+        virtual void prep(int, const dpy::channel *const *);
+        virtual void draw(int, const dpy::channel *const *, int);
+        virtual void test(int, const dpy::channel *const *, int);
+
+        // Event handers
+
+        virtual bool pointer_to_3D(app::event *, int, int);
+        virtual bool process_event(app::event *);
     };
 }
 

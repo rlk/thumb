@@ -50,18 +50,23 @@ dpy::anaglyph::~anaglyph()
 
 //-----------------------------------------------------------------------------
 
-void dpy::anaglyph::get_frustums(app::frustum_v& frustums)
+int dpy::anaglyph::get_frusc() const
+{
+    return 2;
+}
+
+void dpy::anaglyph::get_frusv(app::frustum **frusv) const
 {
     assert(frustL);
     assert(frustR);
 
-    // Add my frustums to the list.
-
-    frustums.push_back(frustL);
-    frustums.push_back(frustR);
+    frusv[0] = frustL;
+    frusv[1] = frustR;
 }
 
-void dpy::anaglyph::prep(int chanc, dpy::channel **chanv)
+//-----------------------------------------------------------------------------
+
+void dpy::anaglyph::prep(int chanc, const dpy::channel *const *chanv)
 {
     assert(frustL);
     assert(frustR);
@@ -72,8 +77,7 @@ void dpy::anaglyph::prep(int chanc, dpy::channel **chanv)
     if (chanc > 1) frustR->set_viewpoint(chanv[1]->get_p());
 }
 
-int dpy::anaglyph::draw(int chanc, dpy::channel **chanv,
-                        int frusi, app::frustum **frusv)
+void dpy::anaglyph::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 {
     if (chanc > 1)
     {
@@ -111,15 +115,47 @@ int dpy::anaglyph::draw(int chanc, dpy::channel **chanv,
         chanv[1]->free_color(GL_TEXTURE1);
         chanv[0]->free_color(GL_TEXTURE0);
     }
-
-    return 2;  // Return the total number of frusta.
 }
 
-int dpy::anaglyph::test(int chanc, dpy::channel **chanv, int index)
+void dpy::anaglyph::test(int chanc, const dpy::channel *const *chanv, int index)
 {
-    // PUNT
+    if (chanc > 1)
+    {
+        assert(chanv[0]);
+        assert(chanv[1]);
+        assert(P);
 
-    return 2;
+        // Draw the scene to the off-screen buffer.
+
+        chanv[0]->bind();
+        {
+            chanv[0]->test();
+        }
+        chanv[0]->free();
+
+        chanv[1]->bind();
+        {
+            chanv[0]->test();
+        }
+        chanv[1]->free();
+
+        // Draw the off-screen buffer to the screen.
+
+        chanv[0]->bind_color(GL_TEXTURE0);
+        chanv[1]->bind_color(GL_TEXTURE1);
+        {
+            P->bind();
+            {
+                fill(frustL->get_w(),
+                     frustL->get_h(),
+                     chanv[0]->get_w(),
+                     chanv[0]->get_h());
+            }
+            P->free();
+        }
+        chanv[1]->free_color(GL_TEXTURE1);
+        chanv[0]->free_color(GL_TEXTURE0);
+    }
 }
 
 //-----------------------------------------------------------------------------

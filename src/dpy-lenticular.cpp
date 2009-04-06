@@ -85,9 +85,7 @@ dpy::lenticular::lenticular(app::node node) :
 
 dpy::lenticular::~lenticular()
 {
-    assert(!frust.empty());
-
-    std::vector<app::frustum *>::iterator i;
+    assert(channels && int(frust.size()) == channels);
 
     for (int i = 0; i < channels; ++i)
         delete frust[i];
@@ -95,31 +93,30 @@ dpy::lenticular::~lenticular()
 
 //-----------------------------------------------------------------------------
 
-void dpy::lenticular::get_frustums(app::frustum_v& frustums)
+int dpy::lenticular::get_frusc() const
 {
-    assert(!frust.empty());
+    return int(frust.size());
+}
+
+void dpy::lenticular::get_frusv(app::frustum **frusv) const
+{
+    assert(channels && int(frust.size()) == channels);
 
     // Add my frustums to the list.
 
-    std::vector<app::frustum *>::iterator i;
-
-    for (i = frust.begin(); i != frust.end(); ++i)
-        frustums.push_back(*i);
+    for (int i = 0; i < channels; ++i)
+        frusv[i] = frust[i];
 }
 
-void dpy::lenticular::prep(int chanc, dpy::channel **chanv)
+void dpy::lenticular::prep(int chanc, const dpy::channel *const *chanv)
 {
-    assert(!frust.empty());
+    assert(channels && int(frust.size()) == channels);
 
     // Apply the channel view positions to the frustums.
 
-    std::vector<app::frustum *>::iterator i;
-
-    int c = 0;
-
-    for (i = frust.begin(); i != frust.end() && c < chanc; ++i, ++c)
+    for (int i = 0; i < channels && i < chanc; ++i)
     {
-        const double *p = chanv[c]->get_p();
+        const double *p = chanv[i]->get_p();
 
         double q[3];
 
@@ -127,28 +124,27 @@ void dpy::lenticular::prep(int chanc, dpy::channel **chanv)
         q[1] = p[1] * debug;
         q[2] = p[2] * debug;
 
-        (*i)->set_viewpoint(chanv[c]->get_p());
+        frust[i]->set_viewpoint(q);
     }
 }
 
-int dpy::lenticular::draw(int chanc, dpy::channel **chanv,
-                          int frusi, app::frustum **frusv)
+void dpy::lenticular::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 {
-    int c;
+    int i;
 
     // Draw the scene to the off-screen buffers.
 
-    for (c = 0; c < chanc; ++c)
+    for (i = 0; i < chanc && i < channels; ++i)
     {
-        chanv[c]->bind(quality);
-        ::prog->draw(frusi + c, frusv[frusi + c]);
-        chanv[c]->free();
+        chanv[i]->bind(quality);
+        ::prog->draw(frusi + i, frust[i]);
+        chanv[i]->free();
     }
 
     // Draw the off-screen buffers to the screen.
 
-    for (c = 0; c < chanc; ++c)
-        chanv[c]->bind_color(GL_TEXTURE0 + c);
+    for (i = 0; i < chanc && i < channels; ++i)
+        chanv[i]->bind_color(GL_TEXTURE0 + i);
 
     P->bind();
     {
@@ -166,27 +162,25 @@ int dpy::lenticular::draw(int chanc, dpy::channel **chanv,
         glEnd();
     }
     P->free();
-
-    return channels;
 }
 
-int dpy::lenticular::test(int chanc, dpy::channel **chanv, int index)
+void dpy::lenticular::test(int chanc, const dpy::channel *const *chanv, int index)
 {
-    int c;
+    int i;
 
     // Draw the scene to the off-screen buffers.
 
-    for (c = 0; c < chanc; ++c)
+    for (i = 0; i < chanc && i < channels; ++i)
     {
-        chanv[c]->bind();
-        chanv[c]->test();
-        chanv[c]->free();
+        chanv[i]->bind();
+        chanv[i]->test();
+        chanv[i]->free();
     }
 
     // Draw the off-screen buffers to the screen.
 
-    for (c = 0; c < chanc; ++c)
-        chanv[c]->bind_color(GL_TEXTURE0 + c);
+    for (i = 0; i < chanc && i < channels; ++i)
+        chanv[i]->bind_color(GL_TEXTURE0 + i);
 
     P->bind();
     {
@@ -204,8 +198,6 @@ int dpy::lenticular::test(int chanc, dpy::channel **chanv, int index)
         glEnd();
     }
     P->free();
-
-    return channels;
 }
 
 //-----------------------------------------------------------------------------
@@ -374,6 +366,8 @@ void dpy::lenticular::apply_uniforms() const
     const double w = frust[0]->get_w();
     const double h = frust[0]->get_h();
     const double d = w / (3 * viewport[2]);
+
+    // TODO: cache these uniform locations (in process_start).
 
     P->uniform("size", w * 0.5, h * 0.5, 0.0, 1.0);
     P->uniform("eyes", channels);

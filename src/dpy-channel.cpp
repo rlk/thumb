@@ -39,7 +39,7 @@ ogl::frame *dpy::channel::pong = 0;
 
 //-----------------------------------------------------------------------------
 
-dpy::channel::channel(app::node node) : src(0), dst(0), processed(false)
+dpy::channel::channel(app::node node) : src(0), dst(0)
 {
     double scale = unit_scale(app::get_attr_s(node, "unit", "ft"));
 
@@ -116,7 +116,7 @@ void dpy::channel::bind_color(GLenum t) const
 {
     // Bind the off-screen render target for reading.
 
-    if (processed)
+    if (ogl::do_hdr_tonemap || ogl::do_hdr_bloom)
     {
         assert(dst);
         dst->bind_color(t);
@@ -132,7 +132,7 @@ void dpy::channel::free_color(GLenum t) const
 {
     // Unbind the off-screen render target for reading.
 
-    if (processed)
+    if (ogl::do_hdr_tonemap || ogl::do_hdr_bloom)
     {
         assert(dst);
         dst->free_color(t);
@@ -169,7 +169,7 @@ static void apply(ogl::frame *src,
     src->free_color();
 }
 
-void dpy::channel::proc()
+void dpy::channel::proc() const
 {
     // Bloom the frame buffer.
 
@@ -284,12 +284,6 @@ void dpy::channel::proc()
         }
         bloom->free();
     }
-
-    // The image in src has be processed and left in dst.  Flag this fact
-    // so that the dst buffer is subsequently used instead of the src buffer.
-
-    if (ogl::do_hdr_tonemap || ogl::do_hdr_bloom)
-        processed = true;
 }
 
 //-----------------------------------------------------------------------------

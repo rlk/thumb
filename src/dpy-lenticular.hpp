@@ -31,6 +31,8 @@ namespace dpy
 {
     class lenticular : public display
     {
+        // Modulation waveform configuration
+
         struct slice_param
         {
             double cycle;
@@ -46,18 +48,22 @@ namespace dpy
 
         int channels;
 
+        std::vector<slice_param> slice;
+
+        // Line screen configuration
+
         double pitch;
         double angle;
         double thick;
         double shift;
-
         double debug;
         double quality;
 
         std::vector<app::frustum *> frust;
-        std::vector<slice_param>    slice;
 
         const ogl::program *P;
+
+        // Configuration state and event handlers
 
         app::node node;
         app::node array;
@@ -66,6 +72,8 @@ namespace dpy
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);
 
+        // Rendering handers
+
         void calc_transform(const double *, double *) const;
         void apply_uniforms()                         const;
 
@@ -73,23 +81,25 @@ namespace dpy
 
         lenticular(app::node);
 
-        virtual void get_frustums(std::vector<app::frustum *>&);
+        virtual ~lenticular();
 
-        // Rendering handlers.
+        // Frustum queries
 
-        virtual void prep(int, dpy::channel **);
-        virtual int  draw(int, dpy::channel **,
-                          int, app::frustum **);
-        virtual int  test(int, dpy::channel **, int);
+        virtual int  get_frusc()                const;
+        virtual void get_frusv(app::frustum **) const;
+
+        virtual app::frustum *get_overlay() const { return frust[0]; }
+
+        // Rendering handlers
+
+        virtual void prep(int, const dpy::channel * const *);
+        virtual void draw(int, const dpy::channel * const *, int);
+        virtual void test(int, const dpy::channel * const *, int);
 
         // Event handers.
 
         virtual bool pointer_to_3D(app::event *, int, int);
         virtual bool process_event(app::event *);
-
-        virtual app::frustum *get_overlay() const { return frust[0]; }
-
-        virtual ~lenticular();
     };
 }
 

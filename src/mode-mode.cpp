@@ -19,14 +19,14 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::mode::prep(int frusc, const app::frustum **frusv)
+ogl::range mode::mode::prep(int frusc, const app::frustum *const *frusv)
 {
     assert(world);
 
     return world->prep_fill(frusc, frusv);
 }
 
-void mode::mode::lite(int frusc, const app::frustum **frusv)
+void mode::mode::lite(int frusc, const app::frustum *const *frusv)
 {
     assert(world);
 

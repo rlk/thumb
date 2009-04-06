@@ -28,6 +28,37 @@
     <p>Material specification also recognizes two distinct geometry types: opaque and transparent. "Transparent", in this case, does not necessarily imply a see-through surface, but instead connotes the existence of a mask in the alpha channel of the diffuse texture to be rendered using alpha testing.</p>
 
     <p>Nodes batch opaque and transparent geometry separately. Thus, there are 4 batch lists per node: opaque-color, opaque-depth, transparent-color, and transparent-depth. The purpose of this is two-fold. First, it becomes easy to insure that transparent geometry is rendered only after all opaque geometry is rendered, which is necessary for correct alpha-blending in the color buffer. Second, it maximizes the opportunity for "double-speed Z" rendering in depth mode, which is disabled when alpha-testing is enabled.</p>
+host::draw
+
+    <!------------------------------------------------------------------------>
+
+<pre>
+    dpy::prep(chanc, chanv)  // already has frustp 
+
+    frust::set_transform
+
+    prog::prep(frusc, frusv)
+        mode::prep(frusc, frusv)
+            world::prep_fill(frusc, frusv)
+            world::prep_line(frusc, frusv)
+        uni::prep(frusc, frusv)
+
+    frust::set_distances
+
+    prog::lite(frusc, frusv)
+        mode::lite(frusc, frusv)
+            world::lite(frusc, frusv)
+
+    glClear();
+
+    dpy::draw(chanc, chanv, frusi)    // already has frustp 
+        prog::draw(frusi, frusp)
+            mode::draw(frusi, frusp)
+                frusp::draw(frusi, frusp)
+                world::draw_fill(frusi, frusp)
+                world::draw_line(frusi, frusp)
+                xform::draw(frusi, frusp)
+</pre>
 
     <!------------------------------------------------------------------------>
 

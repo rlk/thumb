@@ -228,7 +228,7 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-    universe = new uni::universe(w, h);
+//  universe = new uni::universe(w, h);
     world    = new wrl::world();
 
     edit = new mode::edit(world);
@@ -455,7 +455,7 @@ bool demo::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-ogl::range demo::prep(int frusc, const app::frustum **frusv)
+ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
 {
     // Prep the current mode, giving the view range.
 
@@ -473,7 +473,7 @@ ogl::range demo::prep(int frusc, const app::frustum **frusv)
     return r;
 }
 
-void demo::lite(int frusc, const app::frustum **frusv)
+void demo::lite(int frusc, const app::frustum *const *frusv)
 {
     curr->lite(frusc, frusv);
 }

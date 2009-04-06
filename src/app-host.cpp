@@ -694,11 +694,12 @@ void app::host::draw()
 {
     // Channel and frustum vectors are passed C-style.
 
-    int            chanc =  channels.size();
-    int            frusc =  frustums.size();
-    dpy::channel **chanv = &channels.front();
+    const dpy::channel *const *chanv = &channels.front();
+    const app::frustum *const *frusv = &frustums.front();
 
-    const app::frustum **frusv = &frustums.front();
+    int chanc = channels.size();
+    int frusc = frustums.size();
+    int frusi = 0;
 
     // Prepare all displays for rendering (cheap).
 
@@ -732,13 +733,15 @@ void app::host::draw()
 
     // Render all displays (probably very expensive).
     
-    int frusi = 0;
-
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+    {
         if (calibration_state)
-            frusi += (*i)->test(chanc, chanv, calibration_index);
+            (*i)->test(chanc, chanv, calibration_index);
         else
-            frusi += (*i)->draw(chanc, chanv, frusi, frusv);
+            (*i)->draw(chanc, chanv, frusi);
+
+        frusi += (*i)->get_frusc();
+    }
 }
 
 void app::host::swap() const
@@ -802,10 +805,23 @@ void app::host::process_start(event *E)
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         (*i)->process_event(E);
 
+    // Determine the total number of display frustums.
+
+    int frusc = 0;
+    int frusi = 0;
+
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+        frusc += (*i)->get_frusc();
+
+    frustums.resize(frusc);
+
     // Make a list of all display frustums.
 
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
-        (*i)->get_frustums(frustums);
+    {
+                 (*i)->get_frusv(&frustums[frusi]);
+        frusi += (*i)->get_frusc();
+    }
 
     // Start the timer.
 

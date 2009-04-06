@@ -995,7 +995,7 @@ void wrl::world::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
-ogl::range wrl::world::prep_fill(int frusc, const app::frustum **frusv)
+ogl::range wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
 {
     // Position the light source.
 
@@ -1019,7 +1019,7 @@ ogl::range wrl::world::prep_fill(int frusc, const app::frustum **frusv)
     return r;
 }
 
-ogl::range wrl::world::prep_line(int frusc, const app::frustum **frusv)
+ogl::range wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
 {
     ogl::range r;
 
@@ -1061,7 +1061,7 @@ double wrl::world::split_depth(int i, int m, const app::frustum *frusp)
     return frusp->get_split_depth(c);
 }
 
-void wrl::world::lite(int frusc, const app::frustum **frusv)
+void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
     double lite_M[16];
     double lite_I[16];
@@ -1072,6 +1072,8 @@ void wrl::world::lite(int frusc, const app::frustum **frusv)
 
     double c[4];
     double d[4];
+
+    // TODO: is the first always sufficient?  Maybe MAX, MIN, or AVG?
 
     for (int i = 0; i <= m; ++i)
     {

@@ -526,7 +526,7 @@ void app::frustum::set_distances(double n, double f)
 //-----------------------------------------------------------------------------
 
 
-void app::frustum::calc_union(int frusc, const app::frustum **frusv,
+void app::frustum::calc_union(int frusc, const app::frustum *const *frusv,
                               double c0, double c1, const double *L,
                               double *M, double *I)
 {
@@ -692,6 +692,7 @@ void app::frustum::calc_union(int frusc, const app::frustum **frusv,
 
     set_viewpoint(O);
     set_transform(M, I);
+    set_distances(n, f);
 
 /*
     calc_user_planes(O);

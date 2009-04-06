@@ -43,16 +43,6 @@ OBJS=   util.o \
 	wrl-solid.o \
 	wrl-joint.o \
 	wrl-world.o \
-	uni-geomap.o \
-	uni-geocsh.o \
-	uni-geogen.o \
-	uni-georen.o \
-	uni-spatch.o \
-	uni-sphere.o \
-	uni-galaxy.o \
-	uni-slides.o \
-	uni-overlay.o \
-	uni-universe.o \
 	dev-tracker.o \
 	dev-mouse.o \
 	dpy-channel.o \
@@ -73,7 +63,17 @@ OBJS=   util.o \
 	app-data.o \
 	app-prog.o \
 	demo.o \
-	main.o
+	main.o \
+	uni-geomap.o \
+	uni-geocsh.o \
+	uni-geogen.o \
+	uni-georen.o \
+	uni-spatch.o \
+	uni-sphere.o \
+	uni-galaxy.o \
+	uni-slides.o \
+	uni-overlay.o \
+	uni-universe.o
 
 #	dev-wiimote.o \
 #	dpy-dome.o \

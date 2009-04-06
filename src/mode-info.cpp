@@ -40,7 +40,7 @@ mode::info::~info()
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::info::prep(int frusc, const app::frustum **frusv)
+ogl::range mode::info::prep(int frusc, const app::frustum *const *frusv)
 {
     assert(world);
 

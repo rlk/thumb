@@ -49,25 +49,27 @@ namespace dpy
 
         display(app::node);
 
-        virtual void get_frustums(std::vector<app::frustum *>&) { }
+        virtual ~display() { }
 
-        // Rendering handlers.
+        // Frustum queries
 
-        virtual void prep(int, dpy::channel **)      = 0;
-        virtual int  draw(int, dpy::channel **,
-                          int, app::frustum **)      = 0;
-        virtual int  test(int, dpy::channel **, int) = 0;
+        virtual int  get_frusc()                const { return 0; }
+        virtual void get_frusv(app::frustum **) const {           }
 
-        // Event handlers.
+        virtual app::frustum *get_overlay() const = 0;
+
+        // Rendering handlers
+
+        virtual void prep(int, const dpy::channel * const *)      = 0;
+        virtual void draw(int, const dpy::channel * const *, int) = 0;
+        virtual void test(int, const dpy::channel * const *, int) = 0;
+
+        // Event handlers
 
         virtual bool pointer_to_3D(app::event *, int, int) { return false; }
         virtual bool process_event(app::event *)           { return false; }
 
-        virtual app::frustum *get_overlay() const = 0;
-
         bool is_index(int i) const { return (index == i); }
-
-        virtual ~display() { }
     };
 
     typedef std::vector<display *>           display_v;
