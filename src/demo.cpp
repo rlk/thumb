@@ -468,8 +468,6 @@ ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
     else
         r = ogl::range();
 
-    ::glob->prep();
-
     return r;
 }
 

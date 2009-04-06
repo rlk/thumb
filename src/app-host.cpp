@@ -709,8 +709,7 @@ void app::host::draw()
     // Cache the transformed frustum planes (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_transform(::user->get_M(),
-                            ::user->get_I());
+        (*i)->set_transform(::user->get_M());
 
     // Determine visibility and view distance (moderately expensive).
 
@@ -724,6 +723,10 @@ void app::host::draw()
     // Perform the lighting prepass (possibly expensive).
 
     ::prog->lite(frusc, frusv);
+
+    // Update all modified uniforms.
+
+    ::glob->prep();
 
     // Clear the entire window.
 

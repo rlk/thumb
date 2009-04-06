@@ -31,8 +31,8 @@ namespace app
     //-------------------------------------------------------------------------
 
     // USER denotes tracker coordinates. VIEW denotes world coordinates. DISP
-    // denotes display-space coordinates. VIEW_PLANES is a cache of the view-
-    // transformed USER_PLANES, with a fifth plane for use in horizon culling.
+    // denotes display-space coordinates. Thus, VIEW_POINTS is a cache of the
+    // view-transformed USER_POINTS.
 
     class frustum
     {
@@ -48,29 +48,25 @@ namespace app
         double view_pos[3];
         double disp_pos[3];
 
-        double user_dist;
-
         // Frustum bounding planes and points
 
         double user_points[4][3];
         double view_points[8][3];
-        double user_planes[4][4];  //   L R B T
         double view_planes[6][4];  // N L R B T H
 
         double user_basis[16];
         double user_angle;
+        int    view_count;
 
         double n_dist;
         double f_dist;
 
-        int    view_count;
         int    pixel_w;
         int    pixel_h;
 
         // Projection transform
 
         double P[16];
-        double T[16];
 
         // Utility functions
 
@@ -98,13 +94,11 @@ namespace app
 
         void set_distances(double, double);
         void set_viewpoint(const double *);
-        void set_transform(const double *,
-                           const double *);
+        void set_transform(const double *);
+        void set_horizon  (double);
 
         void calc_union(int, const frustum *const *, double,   double,
                              const double  *,        double *, double *);
-
-        void set_horizon(double);
 
         // Visibility testers
 
@@ -143,10 +137,7 @@ namespace app
 
         // Perspective projection application
 
-        void wire() const;
         void draw() const;
-        void cast() const;
-        void rect() const;
 
         void overlay() const;
     };

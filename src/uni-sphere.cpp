@@ -269,7 +269,7 @@ void uni::sphere::transform(app::frustum_v& frusta)
     {
         app::frustum *frust = new app::frustum(*(frusta[i]));
 
-        frust->set_transform(I, M);
+        frust->set_transform(I);
         frust->set_horizon(r0);
 
         this->frusta.push_back(frust);

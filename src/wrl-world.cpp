@@ -1118,6 +1118,9 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT);
 
+            // NOTE: Uniforms have NOT been refreshed at this point.  The
+            // previous frame's uniforms are current.
+
             fill_pool->draw_init();
             {
                 glCullFace(GL_FRONT);

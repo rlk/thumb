@@ -134,7 +134,7 @@ void uni::slides::view(app::frustum_v& frusta)
     {
         app::frustum *frust = new app::frustum(*(frusta[i]));
 
-        frust->set_transform(I, M);
+        frust->set_transform(I);
 
         this->frusta.push_back(frust);
     }
