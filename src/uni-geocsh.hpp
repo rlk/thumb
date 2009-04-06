@@ -150,14 +150,14 @@ namespace uni
 
         void proc_waits();
         void proc_loads();
-        void proc_needs(app::frustum_v&, int);
+        void proc_needs(int, const app::frustum *const *, int);
 
     public:
 
         geocsh(int, int, int, int, int);
        ~geocsh();
 
-        void proc(app::frustum_v&, int);
+        void proc(int, const app::frustum *const *, int);
 
         void bind(GLenum) const;
         void free(GLenum) const;

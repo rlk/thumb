@@ -105,7 +105,8 @@ uni::page::~page()
     if (P[0]) delete P[0];
 }
 
-bool uni::page::visible(app::frustum_v& F, double r0, double r1, int N)
+bool uni::page::visible(int frusc, const app::frustum *const *frusv,
+                        double r0, double r1, int N)
 {
     if (visible_cache_serial != N)
     {
@@ -113,11 +114,11 @@ bool uni::page::visible(app::frustum_v& F, double r0, double r1, int N)
 
         // Check each frustum in turn.
 
-        for (app::frustum_i f = F.begin(); !r && f != F.end(); ++f)
+        for (int frusi = 0; !r && frusi < frusc; ++frusi)
         {
             // Loosely test the page against the frustum.
 
-            if ((*f)->test_cap(n, a, r0, r1) >= 0)
+            if (frusv[frusi]->test_cap(n, a, r0, r1) >= 0)
             {
                 // Tighten the test by testing children.
 /*
@@ -139,22 +140,22 @@ bool uni::page::visible(app::frustum_v& F, double r0, double r1, int N)
     return visible_cache_result;
 }
 
-bool uni::page::needed(app::frustum_v& F, double r0, double r1,
-                       int N, int s, double cutoff)
+bool uni::page::needed(int frusc, const app::frustum *const *frusv,
+                       double r0, double r1, int N, int s, double cutoff)
 {
     if (c <= 2) return true; // HACK
 
     // A page is visible if there exists a frustum that intersects it
     // and where it has a texel/pixel ratio of less than the cutoff.
 
-    if (visible(F, r0, r1, N))
+    if (visible(frusc, frusv, r0, r1, N))
     {
-        const double *vp = F[0]->get_view_pos();
+        const double *vp = frusv[0]->get_view_pos();
         const double  sa = angle(vp, r0);
 
         // HACK: should use the frustum that sees the page.
 
-        if (c < 2 || s * s / F[0]->pixels(sa) < cutoff)
+        if (c < 2 || s * s / frusv[0]->pixels(sa) < cutoff)
             return true;
     }
     return false;
@@ -540,13 +541,15 @@ void uni::geomap::eject_page(const page *Q, int x, int y)
 
 //-----------------------------------------------------------------------------
 
-void uni::geomap::view_page(page *P, app::frustum_v& F, double r0, double r1, int N)
+void uni::geomap::view_page(page *P,
+                            int frusc, const app::frustum *const *frusv,
+                            double r0, double r1, int N)
 {
     page *C;
 
     // If this page is visible...
 
-    if (P->needed(F, r0, r1, N, s, cutoff))
+    if (P->needed(frusc, frusv, r0, r1, N, s, cutoff))
     {
         // Load it or ping it.
 
@@ -566,16 +569,17 @@ void uni::geomap::view_page(page *P, app::frustum_v& F, double r0, double r1, in
 
         // Whether cached, loading or missing, check the children.
 
-        if ((C = P->child(0))) view_page(C, F, r0, r1, N);
-        if ((C = P->child(1))) view_page(C, F, r0, r1, N);
-        if ((C = P->child(2))) view_page(C, F, r0, r1, N);
-        if ((C = P->child(3))) view_page(C, F, r0, r1, N);
+        if ((C = P->child(0))) view_page(C, frusc, frusv, r0, r1, N);
+        if ((C = P->child(1))) view_page(C, frusc, frusv, r0, r1, N);
+        if ((C = P->child(2))) view_page(C, frusc, frusv, r0, r1, N);
+        if ((C = P->child(3))) view_page(C, frusc, frusv, r0, r1, N);
     }
 }
 
-void uni::geomap::view(app::frustum_v& F, double r0, double r1, int N)
+void uni::geomap::view(int frusc, const app::frustum *const *frusv,
+                       double r0, double r1, int N)
 {
-    view_page(root, F, r0, r1, N);
+    view_page(root, frusc, frusv, r0, r1, N);
 }
 
 //-----------------------------------------------------------------------------

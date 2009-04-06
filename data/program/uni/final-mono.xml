@@ -1,4 +1,6 @@
 <?xml version="1.0"?>
-<program vert="glsl/uni/final.vert"
+<program vert="glsl/uni/final-lite.vert"
          frag="glsl/uni/final-mono.frag" >
+  <sampler name="dif" unit="1" />
+  <sampler name="nrm" unit="2" />
 </program>

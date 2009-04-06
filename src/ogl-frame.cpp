@@ -90,6 +90,33 @@ void ogl::frame::free_depth(GLenum unit) const
 
 //-----------------------------------------------------------------------------
 
+void ogl::frame::bind(double q) const
+{
+    push(buffer, 0, 0, int(w * q), int(h * q));
+    OGLCK();
+}
+
+void ogl::frame::bind(bool b) const
+{
+    push(buffer, 0, 0, w, h);
+
+    // TODO: Eliminate this antiquated code (used by the uni modules).
+
+    if (b)
+    {
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glOrtho(0, w, 0, h, 0, 1);
+	
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+    }
+
+    OGLCK();
+}
+
 void ogl::frame::bind(int target) const
 {
     push(buffer, 0, 0, w, h);
@@ -109,14 +136,22 @@ void ogl::frame::bind() const
     OGLCK();
 }
 
-void ogl::frame::bind(double q) const
+void ogl::frame::free() const
 {
-    push(buffer, 0, 0, int(w * q), int(h * q));
+    pop();
     OGLCK();
 }
 
-void ogl::frame::free() const
+void ogl::frame::free(bool b) const
 {
+    if (b)
+    {
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+    }
+
     pop();
     OGLCK();
 }

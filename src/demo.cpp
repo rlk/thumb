@@ -228,7 +228,7 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-//  universe = new uni::universe(w, h);
+    universe = new uni::universe(w, h);
     world    = new wrl::world();
 
     edit = new mode::edit(world);
@@ -355,7 +355,7 @@ bool demo::process_keybd(app::event *E)
 
     // Handle application mode transitions.
 
-    if (d)
+    if (d && !(m & KMOD_SHIFT))
     {
         if (k == key_edit && curr != edit) { goto_mode(edit); return true; }
         if (k == key_play && curr != play) { goto_mode(play); return true; }
@@ -364,7 +364,7 @@ bool demo::process_keybd(app::event *E)
 
     // Handle attract mode controls.
 
-    if (d && (m & KMOD_SHIFT))
+    if (d &&  (m & KMOD_SHIFT))
     {
         if      (k == SDLK_PAGEUP)   { attr_next(); return true; }
         else if (k == SDLK_PAGEDOWN) { attr_prev(); return true; }
@@ -468,6 +468,13 @@ ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
     else
         r = ogl::range();
 
+    if (universe)
+    {
+        universe->prep(frusc, frusv);
+        ::user->put_move_rate(universe->get_move_rate());
+        ::user->put_turn_rate(universe->get_turn_rate());
+    }
+
     return r;
 }
 
@@ -486,6 +493,9 @@ void demo::draw(int frusi, const app::frustum *frusp)
 
     if (curr)
         curr->draw(frusi, frusp);
+
+    if (universe)
+        universe->draw(frusi);
 }
 
 //-----------------------------------------------------------------------------

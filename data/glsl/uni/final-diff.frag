@@ -1,8 +1,6 @@
 #extension GL_ARB_texture_rectangle : enable
 
-uniform sampler2DRect cyl;
 uniform sampler2DRect dif;
-uniform sampler2DRect nrm;
 
 void main()
 {

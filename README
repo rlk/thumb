@@ -63,15 +63,21 @@ The default interaction mode uses the keyboard and mouse, as follows:
             A                     Move left
             D                     Move right
 
-            Home                  Reset the viewpoint
             Escape                Exit
 
-    Shift + F3                    Toggle monochrome relief-shading
-    Shift + F4                    Toggle wireframe geometry
-    Shift + F5                    Toggle color/normal cache display
-    Shift + F6                    Toggle height cache display
-    Shift + F7/F8/F9              Toggle GPGPU buffer display
+    Shift + F1                    Toggle diffuse color display
+    Shift + F2                    Toggle normal map display
+    Shift + F3                    Toggle texture coordinate display
+    Shift + F4                    Toggle monochrome relief-shading
+    Shift + F5                    Toggle texture coordinate derivative display
+    Shift + F6                    Toggle position accumulation buffer
+    Shift + F7                    Toggle color cache display
+    Shift + F8                    Toggle height cache display
 
+    Shift + F9                    Toggle normal accumulation buffer
+    Shift + F10                   Toggle texture coordinate accumulation buffer
+
+    Shift + Return                Reset the viewpoint
     Shift + Spacebar              Enter auto-demo mode
     Shift + Page Up               Advance to next demo checkpoint
     Shift + Page Down             Advance to previous checkpoint

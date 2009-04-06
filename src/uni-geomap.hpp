@@ -76,8 +76,8 @@ namespace uni
 
         double angle(const double *, double);
 
-        bool visible(app::frustum_v&, double, double, int);
-        bool needed (app::frustum_v&, double, double, int, int, double);
+        bool visible(int, const app::frustum *const *, double, double, int);
+        bool needed (int, const app::frustum *const *, double, double, int, int, double);
 
         page_state_t get_state() const          { return st; }
         void         set_state(page_state_t nst) { st = nst; }
@@ -131,7 +131,8 @@ namespace uni
         void do_eject(int, int, int, GLushort, GLushort, GLushort,
                                      GLushort, GLushort, GLushort);
 
-        void view_page(page *, app::frustum_v&, double, double, int);
+        void view_page(page *, int, const app::frustum *const *,
+                       double, double, int);
 
     public:
 
@@ -141,7 +142,7 @@ namespace uni
         void cache_page(const page *, int, int);
         void eject_page(const page *, int, int);
 
-        void view(app::frustum_v&, double, double, int);
+        void view(int, const app::frustum *const *, double, double, int);
         void proc();
         void draw(double, const double *) const;
 

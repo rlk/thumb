@@ -35,9 +35,6 @@ dev::mouse::mouse() :
     key_move_F = conf->get_i("key_move_F");
     key_move_B = conf->get_i("key_move_B");
 
-    view_move_rate = conf->get_f("view_move_rate");
-    view_turn_rate = conf->get_f("view_turn_rate");
-
     motion[0] = 0;
     motion[1] = 0;
     motion[2] = 0;
@@ -96,8 +93,7 @@ bool dev::mouse::process_point(app::event *E)
         double t0 = DEG(atan2(init_R[8], init_R[10]));
         double t1 = DEG(atan2(curr_R[8], curr_R[10]));
 
-        ::user->look((t1 - t0) * view_turn_rate,
-                     (p0 - p1) * view_turn_rate);
+        ::user->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
 
         ::host->post_draw();
         return true;
@@ -192,7 +188,7 @@ bool dev::mouse::process_keybd(app::event *E)
 
 bool dev::mouse::process_timer(app::event *E)
 {
-    double kp = E->data.timer.dt * view_move_rate * 0.001;
+    double kp = E->data.timer.dt * ::user->get_move_rate() * 0.001;
 
     if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;

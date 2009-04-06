@@ -42,6 +42,9 @@ namespace app
 
         app::node node;
 
+        int pixel_w;
+        int pixel_h;
+
         // Current view point
 
         double user_pos[3];
@@ -60,9 +63,6 @@ namespace app
 
         double n_dist;
         double f_dist;
-
-        int    pixel_w;
-        int    pixel_h;
 
         // Projection transform
 
@@ -88,7 +88,7 @@ namespace app
     public:
 
         frustum(app::node, int, int);
-        frustum(frustum&);
+        frustum(const frustum&);
 
         // View state mutators
 

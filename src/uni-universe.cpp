@@ -132,7 +132,7 @@ uni::universe::~universe()
 
 //-----------------------------------------------------------------------------
 
-void uni::universe::prep(app::frustum_v& frusta)
+void uni::universe::prep(int frusc, const app::frustum *const *frusv)
 {
     int s;
 
@@ -148,7 +148,7 @@ void uni::universe::prep(app::frustum_v& frusta)
     if (Z) Z->view(frusta);
 */
     for (s = 0; s < N; ++s)
-        S[s]->view(frusta);
+        S[s]->view(frusc, frusv);
 
     // Sort the spheres by distance.
 
@@ -170,7 +170,7 @@ void uni::universe::prep(app::frustum_v& frusta)
     geocsh_i c;
     
     for (c = caches.begin(); c != caches.end(); ++c)
-        (*c)->proc(frusta, serial);
+        (*c)->proc(frusc, frusv, serial);
 
     for (m =  Ecolor.begin(); m !=  Ecolor.end(); ++m) (*m)->proc();
     for (m = Enormal.begin(); m != Enormal.end(); ++m) (*m)->proc();
@@ -209,7 +209,7 @@ void uni::universe::script(const char *ibuf, char *obuf)
     M->script(ibuf, obuf);
 }
 
-double uni::universe::turn_rate() const
+double uni::universe::get_turn_rate() const
 {
     double a = S[0] ? S[0]->altitude() : 1.0;
 
@@ -218,14 +218,9 @@ double uni::universe::turn_rate() const
     return std::min(k, 30.0);
 }
 
-double uni::universe::move_rate() const
+double uni::universe::get_move_rate() const
 {
     return std::min(1.0e12, S[0] ? S[0]->altitude() : 1.0);
-}
-
-double uni::universe::head_dist() const
-{
-  return move_rate() * 0.1;
 }
 
 //-----------------------------------------------------------------------------

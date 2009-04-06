@@ -15,7 +15,6 @@
 
 #include "default.hpp"
 #include "ogl-opengl.hpp"
-#include "app-frustum.hpp"
 #include "uni-geogen.hpp"
 #include "uni-georen.hpp"
 #include "uni-geocsh.hpp"
@@ -24,6 +23,11 @@
 #include "uni-overlay.hpp"
 
 //-----------------------------------------------------------------------------
+
+namespace app
+{
+    class frustum;
+}
 
 namespace ogl
 {
@@ -63,7 +67,7 @@ namespace uni
         double I[16];           // Eye-to-object transform
         double O[16];           // Planet orientation transform
 
-        app::frustum_v frusta;
+        std::vector<app::frustum *> frustums;
 
         // Current eye distance and depth range.
 
@@ -114,7 +118,7 @@ namespace uni
         overlay *over;
         
         void atmo_prep(const ogl::program *) const;
-        void transform(app::frustum_v&);
+        void transform(int, const app::frustum *const *);
 
         bool test(const double *,
                   const double *,
@@ -134,7 +138,7 @@ namespace uni
 
         // Rendering pipeline.
 
-        void view(app::frustum_v&);
+        void view(int, const app::frustum *const *);
         void step(int);
         void prep();
         void pass();

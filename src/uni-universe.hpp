@@ -54,14 +54,13 @@ namespace uni
         universe(int, int);
        ~universe();
 
-        void prep(app::frustum_v&);
+        void prep(int, const app::frustum *const *);
         void draw(int);
 
         void script(const char *, char *);
 
-        double turn_rate() const;
-        double move_rate() const;
-        double head_dist() const;
+        double get_turn_rate() const;
+        double get_move_rate() const;
 
         double get_time() const   { return time; }
         void   set_time(double t) { time = t;    }

@@ -510,7 +510,7 @@ void uni::geocsh::proc_loads()
     }
 }
 
-void uni::geocsh::proc_needs(app::frustum_v& F, int N)
+void uni::geocsh::proc_needs(int frusc, const app::frustum *const *frusv, int N)
 {
     // Remove any unneeded pages from the needed set.
 
@@ -521,7 +521,7 @@ void uni::geocsh::proc_needs(app::frustum_v& F, int N)
             geomap *M = i->M;
             page   *P = i->P;
 
-            if (P->needed(F, M->get_r0(), M->get_r1(), N, s, cutoff))
+            if (P->needed(frusc, frusv, M->get_r0(), M->get_r1(), N, s, cutoff))
                 ++i;
             else
             {
@@ -536,13 +536,13 @@ void uni::geocsh::proc_needs(app::frustum_v& F, int N)
     SDL_mutexV(need_mutex);
 }
 
-void uni::geocsh::proc(app::frustum_v& frusta, int N)
+void uni::geocsh::proc(int frusc, const app::frustum *const *frustv, int N)
 {
     // Process all waiting buffers, loaded pages, and needed pages.
 
     proc_waits();
     proc_loads();
-    proc_needs(frusta, N);
+    proc_needs(frusc, frustv, N);
 }
 
 //-----------------------------------------------------------------------------

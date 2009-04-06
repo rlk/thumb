@@ -23,6 +23,7 @@
 #include "app-user.hpp"
 #include "app-data.hpp"
 #include "app-glob.hpp"
+#include "app-conf.hpp"
 #include "app-prog.hpp"
 
 // TODO: The use of set() is haphazzard.  current_M/I are accessed directly.
@@ -49,6 +50,9 @@ app::user::user() :
     load_mat(current_S, S);
 
     home();
+
+    move_rate = ::conf->get_f("view_move_rate");
+    turn_rate = ::conf->get_f("view_turn_rate");
 
     // Initialize the demo input.
 

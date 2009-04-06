@@ -232,7 +232,7 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::transform(app::frustum_v& frusta)
+void uni::sphere::transform(int frusc, const app::frustum *const *frusv)
 {
     // Compute the planetary tilt transformation.
 
@@ -257,22 +257,22 @@ void uni::sphere::transform(app::frustum_v& frusta)
 
     // HACK: inefficient
 
-    while (!this->frusta.empty())
+    while (!frustums.empty())
     {
-        delete this->frusta.back();
-        this->frusta.pop_back();
+        delete frustums.back();
+        frustums.pop_back();
     }
 
     // Apply the transform to the frusta.
 
-    for (int i = 0; i < int(frusta.size()); ++i)
+    for (int frusi = 0; frusi < frusc; ++frusi)
     {
-        app::frustum *frust = new app::frustum(*(frusta[i]));
+        app::frustum *frusp = new app::frustum(*(frusv[frusi]));
 
-        frust->set_transform(I);
-        frust->set_horizon(r0);
+        frusp->set_transform(I);
+        frusp->set_horizon(r0);
 
-        this->frusta.push_back(frust);
+        frustums.push_back(frusp);
     }
 
     // Apply the transform to the atmosphere.
@@ -283,21 +283,21 @@ void uni::sphere::transform(app::frustum_v& frusta)
 
 //-----------------------------------------------------------------------------
 
-void uni::sphere::view(app::frustum_v& frusta)
+void uni::sphere::view(int frusc, const app::frustum *const *frusv)
 {
     // TODO: test for sphere visibility
 
     if ((visible = true))
     {
-        // Compose the local transform, and cache the local view frusta.
+        // Compose the local transform, and cache the local view frustums.
 
-        transform(frusta);
+        transform(frusc, frusv);
 
         // Cache the view position.
 
-        if (!frusta.empty())
+        if (!frustums.empty())
         {
-            const double *p = this->frusta[0]->get_view_pos();
+            const double *p = frustums[0]->get_view_pos();
 
             vp[0] = p[0];
             vp[1] = p[1];
@@ -348,7 +348,9 @@ bool uni::sphere::test(const double *n0,
 
     // Return true if any part of the given shell falls within any frustum.
 
-    for (app::frustum_i i = frusta.begin(); i != frusta.end(); ++i)
+    std::vector<app::frustum *>::const_iterator i;
+
+    for (i = frustums.begin(); i != frustums.end(); ++i)
         if ((*i)->test_cap(N, a, r0, r1) >= 0)
             return true;
 /*
@@ -406,7 +408,7 @@ void uni::sphere::step(int serial)
                 if (S[j].more(S + i))
                     i = j;
 
-            if (S[i].k < 0 || !S[i].subd(S, i, count, lines, r0, r1, frusta, vp))
+            if (S[i].k < 0 || !S[i].subd(S, i, count, lines, r0, r1, frustums, vp))
                 break;
         }
 
@@ -441,12 +443,15 @@ void uni::sphere::step(int serial)
 
         geomap_i m;
     
+        int                        frusc =  frustums.size();
+        const app::frustum *const *frusv = &frustums.front();
+
         for (m =  color.begin(); m !=  color.end(); ++m)
-            (*m)->view(frusta, r0, r1, serial);
+            (*m)->view(frusc, frusv, r0, r1, serial);
         for (m = normal.begin(); m != normal.end(); ++m)
-            (*m)->view(frusta, r0, r1, serial);
+            (*m)->view(frusc, frusv, r0, r1, serial);
         for (m = height.begin(); m != height.end(); ++m)
-            (*m)->view(frusta, r0, r1, serial);
+            (*m)->view(frusc, frusv, r0, r1, serial);
     }
 }
 
@@ -596,13 +601,9 @@ void uni::sphere::draw(int i)
 
     // TODO: calc_projection can move to whereever the bounds are first known.
 
-//  frusta[i]->calc_projection(d0 / 2, d1);
+    frustums[i]->set_distances(d0 / 2, d1);
+    frustums[i]->draw();
 
-    // TODO: Map the local frustum instead of indexing it.
-/*
-    frusta[i]->calc_projection(d0 / 10.0, d1);
-    frusta[i]->draw();
-*/
     glLoadIdentity();
 
     // Position the sun.
@@ -695,9 +696,10 @@ void uni::sphere::draw(int i)
                 {
                     land_prog->bind();
                     {
+/*
                         land_prog->uniform("dif", 1);
                         land_prog->uniform("nrm", 2);
-
+*/
                         ren.bind();
                         dat.idx()->bind();
                         vtx.bind();

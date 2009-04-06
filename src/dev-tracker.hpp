@@ -40,9 +40,6 @@ namespace dev
         int key_play;
         int key_info;
 
-        double view_move_rate;
-        double view_turn_rate;
-
         // Navigation state
 
         double init_P[3], init_R[16];

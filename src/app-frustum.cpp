@@ -620,8 +620,12 @@ double app::frustum::get_split_depth(double c) const
 
 //-----------------------------------------------------------------------------
 
-app::frustum::frustum(app::node node, int w, int h)
-    : node(node), view_count(0), pixel_w(w), pixel_h(h)
+app::frustum::frustum(app::node node, int w, int h) :
+    node(node),
+    pixel_w(w),
+    pixel_h(h),
+    user_angle(0),
+    view_count(0)
 {
     user_pos[0] = 0.0;
     user_pos[1] = 0.0;
@@ -646,18 +650,17 @@ app::frustum::frustum(app::node node, int w, int h)
     set_distances(0.5, 100.0);
 }
 
-app::frustum::frustum(frustum& that)
-    : node(0), view_count(0)
+app::frustum::frustum(const frustum& that) :
+    node(0),
+    pixel_w(that.pixel_w),
+    pixel_h(that.pixel_h),
+    user_angle(that.user_angle),
+    view_count(0)
 {
     // Copy the user-space data.
 
     memcpy(user_pos, that.user_pos, 3 * sizeof (double));
     memcpy(disp_pos, that.disp_pos, 3 * sizeof (double));
-
-    pixel_w = that.pixel_w;
-    pixel_h = that.pixel_h;
-
-    user_angle = that.user_angle;
 
     memcpy(user_points, that.user_points, 4 * 3 * sizeof (double));
     memcpy(view_points, that.view_points, 8 * 3 * sizeof (double));
