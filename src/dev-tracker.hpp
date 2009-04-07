@@ -61,10 +61,9 @@ namespace dev
     public:
 
         tracker();
+       ~tracker();
 
-        virtual bool process_event(app::event *);
-
-        virtual ~tracker();
+        bool process_event(app::event *);
     };
 }
 

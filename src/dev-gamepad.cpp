@@ -15,30 +15,27 @@
 #include "matrix.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
+#include "app-event.hpp"
 #include "dev-gamepad.hpp"
 
 //-----------------------------------------------------------------------------
 
-dev::gamepad::gamepad(uni::universe& universe) :
-    universe(universe)
+dev::gamepad::gamepad() : button(16, false)
 {
-    gamepad_axis_X = conf->get_i("gamepad_axis_X");
-    gamepad_axis_Y = conf->get_i("gamepad_axis_Y");
-    gamepad_axis_Z = conf->get_i("gamepad_axis_Z");
-    gamepad_axis_A = conf->get_i("gamepad_axis_A");
-    gamepad_axis_T = conf->get_i("gamepad_axis_T");
+    // Defaults are arbitrarily chosen to conform to the XBox 360 controller
 
-    gamepad_butn_L = conf->get_i("gamepad_butn_L");
-    gamepad_butn_R = conf->get_i("gamepad_butn_R");
-    gamepad_butn_D = conf->get_i("gamepad_butn_D");
-    gamepad_butn_U = conf->get_i("gamepad_butn_U");
-    gamepad_butn_F = conf->get_i("gamepad_butn_F");
-    gamepad_butn_B = conf->get_i("gamepad_butn_B");
+    gamepad_axis_X = conf->get_i("gamepad_axis_X",  0);
+    gamepad_axis_Y = conf->get_i("gamepad_axis_Y",  1);
+    gamepad_axis_Z = conf->get_i("gamepad_axis_Z",  2);
+    gamepad_axis_T = conf->get_i("gamepad_axis_T",  3);
 
-    gamepad_butn_H = conf->get_i("gamepad_butn_H");
-
-    view_move_rate = conf->get_f("view_move_rate");
-    view_turn_rate = conf->get_f("view_turn_rate");
+    gamepad_butn_L = conf->get_i("gamepad_butn_L", 13);
+    gamepad_butn_R = conf->get_i("gamepad_butn_R", 12);
+    gamepad_butn_D = conf->get_i("gamepad_butn_D",  8);
+    gamepad_butn_U = conf->get_i("gamepad_butn_U",  9);
+    gamepad_butn_F = conf->get_i("gamepad_butn_F", 14);
+    gamepad_butn_B = conf->get_i("gamepad_butn_B", 11);
+    gamepad_butn_H = conf->get_i("gamepad_butn_H",  4);
 
     motion[0] = 0;
     motion[1] = 0;
@@ -48,20 +45,16 @@ dev::gamepad::gamepad(uni::universe& universe) :
     rotate[1] = 0;
     rotate[2] = 0;
     rotate[3] = 0;
-    rotate[4] = 0;
-
-    button.reserve(16);
-}
-
-dev::gamepad::~gamepad()
-{
 }
 
 //-----------------------------------------------------------------------------
 
-bool dev::gamepad::click(int i, int b, int m, bool d)
+bool dev::gamepad::process_click(app::event *E)
 {
-    int dd = d ? +1 : -1;
+    const int  b = E->data.click.b;
+    const bool d = E->data.click.d;
+
+    const int dd = d ? +1 : -1;
 
     if      (b == gamepad_butn_L) { motion[0] -= dd; return true; }
     else if (b == gamepad_butn_R) { motion[0] += dd; return true; }
@@ -69,49 +62,61 @@ bool dev::gamepad::click(int i, int b, int m, bool d)
     else if (b == gamepad_butn_U) { motion[1] += dd; return true; }
     else if (b == gamepad_butn_F) { motion[2] -= dd; return true; }
     else if (b == gamepad_butn_B) { motion[2] += dd; return true; }
-
-    else if (b == gamepad_butn_H) { ::user->home(); return true; }
+    else if (b == gamepad_butn_H) { ::user->home();  return true; }
 
     return false;
 }
 
-bool dev::gamepad::value(int d, int a, double v)
+bool dev::gamepad::process_value(app::event *E)
 {
+    const int    a = E->data.value.a;
+    const double v = E->data.value.v;
+
     if      (a == gamepad_axis_X) { rotate[0] = -v; return true; }
     else if (a == gamepad_axis_Y) { rotate[1] =  v; return true; }
     else if (a == gamepad_axis_Z) { rotate[2] = -v; return true; }
-    else if (a == gamepad_axis_A) { rotate[3] =  v; return true; }
-    else if (a == gamepad_axis_T) { rotate[4] = -v; return true; }
+    else if (a == gamepad_axis_T) { rotate[3] = -v; return true; }
 
     return false;
 }
 
-bool dev::gamepad::timer(int t)
+bool dev::gamepad::process_timer(app::event *E)
 {
-    double dt = t / 1000.0;
+    const double dt = E->data.timer.dt * 0.001;
 
-    double kr = dt * view_turn_rate;
-    double kp = dt * universe.move_rate();
-    double ka = dt * universe.turn_rate();
+    const double kp = ::user->get_move_rate() * dt;
+    const double kr =              90.0 * dt;
+    const double kt = 3.0 * 60.0 * 60.0 * dt;
 
-    bool bx = (fabs(rotate[0]) > 0.1);
-    bool by = (fabs(rotate[1]) > 0.1);
-    bool bz = (fabs(rotate[2]) > 0.1);
-    bool ba = (fabs(rotate[3]) > 0.1);
-    bool bt = (fabs(rotate[4]) > 0.1);
+    const bool   bx = (fabs(rotate[0]) > 0.25);
+    const bool   by = (fabs(rotate[1]) > 0.25);
+    const bool   bz = (fabs(rotate[2]) > 0.25);
+    const bool   bt = (fabs(rotate[3]) > 0.25);
 
-    user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
+    const bool   bp = DOT3(motion, motion);
+    const bool   br = bx || by || bz;
 
-    if (bx || by || bz)
-        user->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
+    if (bp) ::user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
+    if (br) ::user->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
+    if (bt) ::user->pass(rotate[3] * kt);
 
-    if (ba || bt)
-        universe.set_time(universe.get_time() + dt * ka);
+    return false;
+}
 
-    if (bx || by || bz || ba || bt || DOT3(motion, motion) > 0)
-        return true;
-    else
-        return false;
+bool dev::gamepad::process_event(app::event *E)
+{
+    assert(E);
+
+    bool R = false;
+
+    switch (E->get_type())
+    {
+    case E_CLICK: R |= process_click(E); break;
+    case E_VALUE: R |= process_value(E); break;
+    case E_TIMER: R |= process_timer(E); break;
+    }
+
+    return R || dev::input::process_event(E);
 }
 
 //-----------------------------------------------------------------------------

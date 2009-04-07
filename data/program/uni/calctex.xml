@@ -2,5 +2,6 @@
 <program vert="glsl/uni/trivial.vert"
          frag="glsl/uni/calctex.frag" >
   <sampler name="src" unit="0" />
+  <sampler name="lut" unit="1" />
   <sampler name="nrm" unit="2" />
 </program>

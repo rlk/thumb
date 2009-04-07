@@ -12,8 +12,8 @@ void main()
     const vec2 ck = vec2(1.0, 1.0) / pi;
     const vec2 cd = vec2(1.0, 0.5);
 
-//  gl_FragColor = vec4(C.xy * ck + cd, 0.0, 1.0);
-
+    gl_FragColor = vec4(C.xy * ck + cd, 0.0, 1.0);
+/*
 //  const float M = 90.0;
 //  const float M = 10010366.1190095366677902;
     const float M = 1001036.61190095366677902;
@@ -25,4 +25,5 @@ void main()
     float k = s.x + s.y - s.x * s.y * 2.0;
 
     gl_FragColor = vec4(k, k, k, 1.0);
+*/
 }

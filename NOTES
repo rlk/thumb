@@ -1,5 +1,34 @@
 -------------------------------------------------------------------------------
 
+XBox 360 Controller
+
+    Axis
+    0    Left  stick X    (1 is right, -1 is left)
+    1    Left  stick Y    (1 is down,  -1 is up)
+    2    Right stick X    (1 is right, -1 is left)
+    3    Right stick Y    (1 is down,  -1 is up)
+    4    Left  trigger    (1 is pressed, -1 is released)
+    5    Right trigger    (1 is pressed, -1 is released)
+
+    Button
+    0    Digital pad up
+    1    Digital pad down
+    2    Digital pad left
+    3    Digital pad right
+    4    Start
+    5    Back
+    6    Left  stick
+    7    Right stick
+    8    Left  shoulder
+    9    Right shoulder
+    10   Logo
+    11   A
+    12   B
+    13   X
+    14   Y
+
+-------------------------------------------------------------------------------
+
 Events
 
     point

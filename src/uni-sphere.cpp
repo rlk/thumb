@@ -165,7 +165,7 @@ void uni::sphere::turn(double da, double dt)
 
     norm();
 }
-*/
+
 void uni::sphere::norm()
 {
     double N[3] = { 0, 1, 0 };
@@ -178,7 +178,7 @@ void uni::sphere::norm()
     mult_mat_vec3(n, M, N);
     normalize(n);
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void uni::sphere::atmo_prep(const ogl::program *P) const
@@ -233,7 +233,7 @@ void uni::sphere::atmo_prep(const ogl::program *P) const
 void uni::sphere::transform(int frusc, const app::frustum *const *frusv)
 {
     double angle = ::user->get_t() * 360.0 / (60.0 * 60.0 * 24.0);
-    double tilt  = 0;
+    double tilt  = 0.0;
 
     // Compute the planetary tilt transformation.
 

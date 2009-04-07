@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<program vert="glsl/uni/drawdif.vert"
-         frag="glsl/uni/drawdif.frag" >
+<program vert="glsl/uni/drawnrm.vert"
+         frag="glsl/uni/drawnrm.frag" >
   <sampler name="cyl" unit="0" />
 </program>

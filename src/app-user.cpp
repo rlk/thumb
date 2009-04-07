@@ -265,7 +265,8 @@ void app::user::home()
 
     gettimeofday(&tv, 0);
 
-    set(0, 0, tv.tv_sec + tv.tv_usec * 0.000001);
+//  set(0, 0, tv.tv_sec + tv.tv_usec * 0.000001);
+    set(0, 0, 1);
 }
 
 void app::user::tumble(const double *A,

@@ -15,7 +15,6 @@
 
 #include <vector>
 
-#include "uni-universe.hpp"
 #include "dev-input.hpp"
 
 //-----------------------------------------------------------------------------
@@ -24,12 +23,11 @@ namespace dev
 {
     class gamepad : public input
     {
-        uni::universe& universe;
+        // Configuration
 
         int gamepad_axis_X;
         int gamepad_axis_Y;
         int gamepad_axis_Z;
-        int gamepad_axis_A;
         int gamepad_axis_T;
 
         int gamepad_butn_L;
@@ -40,23 +38,25 @@ namespace dev
         int gamepad_butn_B;
         int gamepad_butn_H;
 
-        double view_move_rate;
-        double view_turn_rate;
+        // Navigation state
 
         std::vector<bool> button;
 
         int    motion[3];
-        double rotate[5];
+        double rotate[4];
+
+        // Event handlers
+
+        bool process_point(app::event *);
+        bool process_click(app::event *);
+        bool process_value(app::event *);
+        bool process_timer(app::event *);
 
     public:
 
-        gamepad(uni::universe&);
+        gamepad();
 
-        virtual bool click(int, int, int, bool);
-        virtual bool value(int, int, double);
-        virtual bool timer(int);
-
-        virtual ~gamepad();
+        bool process_event(app::event *);
     };
 }
 

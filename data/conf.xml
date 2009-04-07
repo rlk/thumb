@@ -7,7 +7,7 @@
   <option type="string" name="exec_dir">/Users/rlk/src/thumb/</option>
   <option type="string" name="data_dir">/Users/rlk/data/</option>
 
-  <option type="string" name="input_mode">mouse</option>
+  <option type="string" name="input_mode">gamepad</option>
   <option type="string" name="wiimote">00:1B:7A:3E:45:7F</option>
 
   <option type="int" name="loader_threads">2</option>
@@ -59,16 +59,16 @@
   <option type="int" name="gamepad_device">0</option>
   <option type="int" name="gamepad_axis_X">0</option>
   <option type="int" name="gamepad_axis_Y">1</option>
-  <option type="int" name="gamepad_axis_Z">3</option>
-  <option type="int" name="gamepad_axis_A">5</option>
-  <option type="int" name="gamepad_axis_T">6</option>
+  <option type="int" name="gamepad_axis_Z">2</option>
+  <option type="int" name="gamepad_axis_T">3</option>
 
-  <option type="int" name="gamepad_butn_L">3</option>
-  <option type="int" name="gamepad_butn_R">1</option>
-  <option type="int" name="gamepad_butn_D">2</option>
-  <option type="int" name="gamepad_butn_U">5</option>
-  <option type="int" name="gamepad_butn_F">4</option>
-  <option type="int" name="gamepad_butn_B">0</option>
+  <option type="int" name="gamepad_butn_L">13</option>
+  <option type="int" name="gamepad_butn_R">12</option>
+  <option type="int" name="gamepad_butn_D">8</option>
+  <option type="int" name="gamepad_butn_U">9</option>
+  <option type="int" name="gamepad_butn_F">14</option>
+  <option type="int" name="gamepad_butn_B">11</option>
+  <option type="int" name="gamepad_butn_H">4</option>
 
   <!-- GUI options -->
 

@@ -43,8 +43,9 @@ OBJS=   util.o \
 	wrl-solid.o \
 	wrl-joint.o \
 	wrl-world.o \
-	dev-tracker.o \
 	dev-mouse.o \
+	dev-tracker.o \
+	dev-gamepad.o \
 	dpy-channel.o \
 	dpy-display.o \
 	dpy-normal.o \
