@@ -36,7 +36,9 @@
 
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution")),
-//  sky_light(::glob->load_binding("sky-APAMFD-light", "sky-APAMFD-light")),
+
+    split_static(false),
+
     sky      (::glob->load_binding("sky-water",       "sky-water")),
     sky_light(::glob->load_binding("sky-water-light", "sky-water-light")),
     sky_shade(::glob->load_binding("sky-water-shade", "sky-water-shade")),
@@ -1184,11 +1186,11 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     fill_pool->draw_fini();
 
     // Render the sky.
-
+/*
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     draw_sky(frusp);
-
+*/
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);
 }
 

@@ -13,9 +13,21 @@
 #ifndef UNI_GALAXY_HPP
 #define UNI_GALAXY_HPP
 
+#include <vector>
+
 #include "app-glob.hpp"
-#include "app-frustum.hpp"
-#include "ogl-program.hpp"
+
+//-----------------------------------------------------------------------------
+
+namespace app
+{
+    class frustum;
+}
+
+namespace ogl
+{
+    class program;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -52,7 +64,6 @@ namespace uni
 
         const void *read(const void *);
 
-        void view(app::frustum_v&);
         void draw() const;
     };
 
@@ -74,7 +85,7 @@ namespace uni
         star_v S;
         node_v N;
 
-        app::frustum_v frusta;
+        std::vector<app::frustum *> frustums;
 
         const ogl::program *starprog;
 
@@ -83,8 +94,8 @@ namespace uni
         galaxy(const char *);
        ~galaxy();
 
-        void view(app::frustum_v&);
-        void draw(int i) const;
+        void view(int, const app::frustum *const *);
+        void draw(int) const;
     };
 
     //-------------------------------------------------------------------------

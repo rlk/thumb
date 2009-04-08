@@ -13,6 +13,8 @@
 #ifndef UNI_GEOGEN_HPP
 #define UNI_GEOGEN_HPP
 
+#include <string>
+
 #include "ogl-opengl.hpp"
 #include "default.hpp"
 #include "ogl-buffer.hpp"

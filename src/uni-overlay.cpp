@@ -465,7 +465,7 @@ uni::overlay::overlay()
 
 uni::overlay::~overlay()
 {
-    if (pool) delete pool;
+    if (pool) glob->free_pool(pool);
 }
 
 //-----------------------------------------------------------------------------

@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cassert>
+
 #include <SDL_joystick.h>
 
 #include "matrix.hpp"

@@ -12,6 +12,7 @@
 
 #include "matrix.hpp"
 #include "uni-galaxy.hpp"
+#include "app-frustum.hpp"
 #include "app-data.hpp"
 #include "app-user.hpp"
 
@@ -121,26 +122,26 @@ uni::galaxy::~galaxy()
 
 //-----------------------------------------------------------------------------
 
-void uni::galaxy::view(app::frustum_v& frusta)
+void uni::galaxy::view(int frusc, const app::frustum *const *frusv)
 {
     load_mat(M, ::user->get_I());
     load_mat(I, ::user->get_M());
 
-    while (!this->frusta.empty())
+    while (!frustums.empty())
     {
-        delete this->frusta.back();
-        this->frusta.pop_back();
+        delete frustums.back();
+        frustums.pop_back();
     }
 
     // Apply the transform to the frusta.
 
-    for (int i = 0; i < int(frusta.size()); ++i)
+    for (int frusi = 0; frusi < frusc; ++frusi)
     {
-        app::frustum *frust = new app::frustum(*(frusta[i]));
+        app::frustum *frusp = new app::frustum(*(frusv[frusi]));
 
-        frust->set_transform(I);
+        frusp->set_transform(I);
 
-        this->frusta.push_back(frust);
+        frustums.push_back(frusp);
     }
 }
 
@@ -160,8 +161,8 @@ void uni::galaxy::draw(int i) const
 
     // Apply the projection.
 
-    frusta[i]->set_distances(1.0, 1e16);
-    frusta[i]->draw();
+    frustums[i]->set_distances(1.0, 1e16);
+    frustums[i]->draw();
 
     // Draw, beginning with the root node of the hierarchy.
 
@@ -186,7 +187,7 @@ void uni::galaxy::draw(int i) const
 
             starprog->bind();
             {
-                const double *p = frusta[i]->get_view_pos();
+                const double *p = frustums[i]->get_view_pos();
 
                 starprog->uniform("Multiplier", magnitude);
                 starprog->uniform("Position", p[0] / k, p[1] / k, p[2] / k);

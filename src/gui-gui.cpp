@@ -1262,6 +1262,10 @@ void gui::dialog::draw() const
             glUseProgramObjectARB(0);
             glActiveTextureARB(GL_TEXTURE0);
 
+            glMatrixMode(GL_TEXTURE);
+            glLoadIdentity();
+            glMatrixMode(GL_MODELVIEW);
+
             root->draw(focus, input);
 
             glBegin(GL_LINES);

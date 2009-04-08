@@ -15,6 +15,7 @@
 
 #include "uni-universe.hpp"
 #include "uni-geomap.hpp"
+#include "ogl-opengl.hpp"
 #include "matrix.hpp"
 #include "app-glob.hpp"
 #include "app-conf.hpp"
@@ -85,7 +86,7 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
 
     // Create the galaxy.
 
-//  G = new galaxy("hipparcos.bin");
+    G = new galaxy("hipparcos.bin");
 //  Z = new slides("slides.xml");
 
     // Create the Earth.
@@ -138,15 +139,17 @@ void uni::universe::prep(int frusc, const app::frustum *const *frusv)
 
     serial++;
 
+    ogl::free_texture(); // TODO: eliminate
+
     // Update the object transforms based on time.
 
 //  if (S[0]) S[0]->set_a(time * 360 / (60.0 * 60.0 * 24.0));
 
     // Update the view of each object.
-/*
-    if (G) G->view(frusta);
-    if (Z) Z->view(frusta);
-*/
+
+    if (G) G->view(frusc, frusv);
+//  if (Z) Z->view(frusc, frusv);
+
     for (s = 0; s < N; ++s)
         S[s]->view(frusc, frusv);
 
@@ -186,6 +189,8 @@ void uni::universe::prep(int frusc, const app::frustum *const *frusv)
 void uni::universe::draw(int i)
 {
     int s;
+
+    ogl::free_texture(); // TODO: eliminate
 
     // Draw all objects.
 

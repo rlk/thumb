@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
 <program vert="glsl/uni/star.vert"
          frag="glsl/uni/star.frag" >
+  <attribute name="Magnitude" location="6" />
 </program>

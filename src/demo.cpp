@@ -233,7 +233,7 @@ demo::demo(int w, int h) :
     play = new mode::play(world);
     info = new mode::info(world);
 
-    goto_mode(info);
+    goto_mode(edit);
 
     attr_step(0.0);
 }
@@ -489,11 +489,12 @@ void demo::draw(int frusi, const app::frustum *frusp)
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
+    if (universe)
+        universe->draw(frusi);
+
     if (curr)
         curr->draw(frusi, frusp);
 
-    if (universe)
-        universe->draw(frusi);
 }
 
 //-----------------------------------------------------------------------------

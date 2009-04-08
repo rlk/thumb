@@ -124,6 +124,12 @@ uni::sphere::sphere(uni::geodat& dat,
 
 uni::sphere::~sphere()
 {
+    while (!frustums.empty())
+    {
+        delete frustums.back();
+        frustums.pop_back();
+    }
+
     if (over) delete over;
 
     glob->free_program(draw_dtex);
@@ -138,8 +144,7 @@ uni::sphere::~sphere()
     glob->free_program(draw_atmo_out);
     glob->free_program(draw_atmo_in);
 
-    if (atmo_unit) delete atmo_unit;
-    if (atmo_pool) delete atmo_pool;
+    if (atmo_pool) glob->free_pool(atmo_pool);
 
     delete [] S;
 }

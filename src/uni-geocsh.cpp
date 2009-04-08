@@ -361,6 +361,7 @@ uni::geocsh::~geocsh()
     for (i = load_thread.begin(); i != load_thread.end(); ++i)
         SDL_KillThread(*i);
 */
+
     // Release all our IPC.
 
     SDL_DestroyMutex(need_mutex);
@@ -370,7 +371,25 @@ uni::geocsh::~geocsh()
     SDL_DestroySemaphore(need_sem);
     SDL_DestroySemaphore(buff_sem);
 
-    // TODO: free the buffer list
+    // Release the loader buffers.
+
+    while (!waits.empty())
+    {
+        delete waits.front();
+        waits.pop_front();
+    }
+    while (!buffs.empty())
+    {
+        delete buffs.front();
+        buffs.pop_front();
+    }
+    while (!loads.empty())
+    {
+        delete loads.front().B;
+        loads.pop_front();
+    }
+
+    // Release the image cache.
 
     if (cache) glob->free_image(cache);
 }
