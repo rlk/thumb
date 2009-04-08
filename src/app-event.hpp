@@ -175,6 +175,8 @@ namespace app
 
         event *send(SOCKET);
         event *recv(SOCKET);
+
+        void set_dst(const char *); // TODO: eliminate
     };
 }
 

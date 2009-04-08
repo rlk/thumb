@@ -57,7 +57,7 @@ namespace uni
         void prep(int, const app::frustum *const *);
         void draw(int);
 
-        void script(const char *, char *);
+        const char *script(const char *);
 
         double get_turn_rate() const;
         double get_move_rate() const;

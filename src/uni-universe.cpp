@@ -209,9 +209,9 @@ void uni::universe::draw(int i)
     if (Z) Z->draw(i);
 }
 
-void uni::universe::script(const char *ibuf, char *obuf)
+const char *uni::universe::script(const char *text)
 {
-    M->script(ibuf, obuf);
+    return M->script(text);
 }
 
 double uni::universe::get_turn_rate() const

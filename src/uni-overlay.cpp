@@ -87,52 +87,52 @@ void uni::overlay::model::scale(float scale)
 
 //-----------------------------------------------------------------------------
 
-void uni::overlay::m_moveto(const char *ibuf, char *obuf)
+void uni::overlay::m_moveto(const char *text)
 {
     int   state = 0;
     float lat;
     float lon;
     float rad;
 
-    if (sscanf(ibuf, "%f %f %f\n", &lat, &lon, &rad) == 3)
+    if (sscanf(text, "%f %f %f\n", &lat, &lon, &rad) == 3)
     {
         printf("moveto(%f, %f, %f)\n", lat, lon, rad);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
-void uni::overlay::m_lookup(const char *ibuf, char *obuf)
+void uni::overlay::m_lookup(const char *text)
 {
     int   state = 0;
     float x;
     float y;
 
-    if (sscanf(ibuf, "%f %f\n", &x, &y) == 2)
+    if (sscanf(text, "%f %f\n", &x, &y) == 2)
     {
         printf("lookup(%f, %f)\n", x, y);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
-void uni::overlay::m_get_position(const char *ibuf, char *obuf)
+void uni::overlay::m_get_position(const char *text)
 {
     printf("get position\n");
 
-    if (obuf) sprintf(obuf, "%f %f %f\n", 0.0f, 0.0f, 0.0f);
+    sprintf(buffer, "%f %f %f\n", 0.0f, 0.0f, 0.0f);
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::overlay::m_model_create(const char *ibuf, char *obuf)
+void uni::overlay::m_model_create(const char *text)
 {
     int  index = 0;
     char filename[MAXSTR];
 
-    if (sscanf(ibuf, "%s", filename) == 1)
+    if (sscanf(text, "%s", filename) == 1)
     {
         printf("model create %s\n", filename);
 
@@ -163,15 +163,15 @@ void uni::overlay::m_model_create(const char *ibuf, char *obuf)
         }
     }
 
-    if (obuf) sprintf(obuf, "%d\n", index);
+    sprintf(buffer, "%d\n", index);
 }
 
-void uni::overlay::m_model_delete(const char *ibuf, char *obuf)
+void uni::overlay::m_model_delete(const char *text)
 {
     int state = 0;
     int index;
 
-    if (sscanf(ibuf, "%d", &index) == 1)
+    if (sscanf(text, "%d", &index) == 1)
     {
         if (models.find(index) != models.end())
         {
@@ -185,10 +185,10 @@ void uni::overlay::m_model_delete(const char *ibuf, char *obuf)
         }
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
-void uni::overlay::m_model_position(const char *ibuf, char *obuf)
+void uni::overlay::m_model_position(const char *text)
 {
     int   state = 0;
     int   index;
@@ -197,7 +197,7 @@ void uni::overlay::m_model_position(const char *ibuf, char *obuf)
     float rad;
     char  coord[256];
 
-    if (sscanf(ibuf, "%d %s %f %f %f", &index, coord, &lat, &lon, &rad) == 5)
+    if (sscanf(text, "%d %s %f %f %f", &index, coord, &lat, &lon, &rad) == 5)
     {
         if (models.find(index) != models.end())
         {
@@ -209,16 +209,16 @@ void uni::overlay::m_model_position(const char *ibuf, char *obuf)
         }
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
-void uni::overlay::m_model_rotation(const char *ibuf, char *obuf)
+void uni::overlay::m_model_rotation(const char *text)
 {
     int   state = 0;
     int   index;
     float angle;
 
-    if (sscanf(ibuf, "%d %f", &index, &angle) == 2)
+    if (sscanf(text, "%d %f", &index, &angle) == 2)
     {
         if (models.find(index) != models.end())
         {
@@ -229,16 +229,16 @@ void uni::overlay::m_model_rotation(const char *ibuf, char *obuf)
         }
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
-void uni::overlay::m_model_scale(const char *ibuf, char *obuf)
+void uni::overlay::m_model_scale(const char *text)
 {
     int   state = 0;
     int   index;
     float scale;
 
-    if (sscanf(ibuf, "%d %f", &index, &scale) == 2)
+    if (sscanf(text, "%d %f", &index, &scale) == 2)
     {
         if (models.find(index) != models.end())
         {
@@ -249,40 +249,40 @@ void uni::overlay::m_model_scale(const char *ibuf, char *obuf)
         }
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::overlay::m_image_create(const char *ibuf, char *obuf)
+void uni::overlay::m_image_create(const char *text)
 {
     int state = 0;
     char filename[MAXSTR];
 
-    if (sscanf(ibuf, "%s", filename) == 1)
+    if (sscanf(text, "%s", filename) == 1)
     {
         printf("image create %s\n", filename);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", 1);
+    sprintf(buffer, "%d\n", 1);
 }
 
-void uni::overlay::m_image_delete(const char *ibuf, char *obuf)
+void uni::overlay::m_image_delete(const char *text)
 {
     int state = 0;
     int index;
 
-    if (sscanf(ibuf, "%d", &index) == 1)
+    if (sscanf(text, "%d", &index) == 1)
     {
         printf("image delete %d\n", index);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
-void uni::overlay::m_image_position(const char *ibuf, char *obuf)
+void uni::overlay::m_image_position(const char *text)
 {
     int   state = 0;
     int   index;
@@ -290,49 +290,49 @@ void uni::overlay::m_image_position(const char *ibuf, char *obuf)
     float lon;
     char  coord[256];
 
-    if (sscanf(ibuf, "%d %s %f %f", &index, coord, &lat, &lon) == 4)
+    if (sscanf(text, "%d %s %f %f", &index, coord, &lat, &lon) == 4)
     {
         printf("image position(%d, %s, %f, %f)\n",
                index, coord, lat, lon);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
-void uni::overlay::m_image_rotation(const char *ibuf, char *obuf)
+void uni::overlay::m_image_rotation(const char *text)
 {
     int   state = 0;
     int   index;
     float angle;
 
-    if (sscanf(ibuf, "%d %f", &index, &angle) == 2)
+    if (sscanf(text, "%d %f", &index, &angle) == 2)
     {
         printf("image rotation(%d, %f)\n", index, angle);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
-void uni::overlay::m_image_scale(const char *ibuf, char *obuf)
+void uni::overlay::m_image_scale(const char *text)
 {
     int   state = 0;
     int   index;
     float scale;
 
-    if (sscanf(ibuf, "%d %f", &index, &scale) == 2)
+    if (sscanf(text, "%d %f", &index, &scale) == 2)
     {
         printf("image scale(%d, %f)\n", index, scale);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", state);
+    sprintf(buffer, "%d\n", state);
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::overlay::m_capture_color(const char *ibuf, char *obuf)
+void uni::overlay::m_capture_color(const char *text)
 {
     int   state = 0;
     float lat;
@@ -341,23 +341,20 @@ void uni::overlay::m_capture_color(const char *ibuf, char *obuf)
     float fov;
     char  coord[256];
 
-    if (sscanf(ibuf, "%s %f %f %f %f", coord, &lat, &lon, &rad, &fov) == 5)
+    if (sscanf(text, "%s %f %f %f %f", coord, &lat, &lon, &rad, &fov) == 5)
     {
         printf("capture_color(%s, %f, %f, %f, %f)\n",
                coord, lat, lon, rad, fov);
         state = 1;
     }
 
-    if (obuf)
-    {
-        if (state)
-            sprintf(obuf, "color.png\n");
-        else
-            sprintf(obuf, "0\n");
-    }
+    if (state)
+        sprintf(buffer, "color.png\n");
+    else
+        sprintf(buffer, "0\n");
 }
 
-void uni::overlay::m_capture_radius(const char *ibuf, char *obuf)
+void uni::overlay::m_capture_radius(const char *text)
 {
     int   state = 0;
     float lat;
@@ -366,89 +363,88 @@ void uni::overlay::m_capture_radius(const char *ibuf, char *obuf)
     float fov;
     char  coord[256];
 
-    if (sscanf(ibuf, "%s %f %f %f %f", coord, &lat, &lon, &rad, &fov) == 5)
+    if (sscanf(text, "%s %f %f %f %f", coord, &lat, &lon, &rad, &fov) == 5)
     {
         printf("capture_radius(%s, %f, %f, %f, %f)\n",
                coord, lat, lon, rad, fov);
         state = 1;
     }
 
-    if (obuf)
-    {
-        if (state)
-            sprintf(obuf, "radius.png\n");
-        else
-            sprintf(obuf, "0\n");
-    }
+    if (state)
+        sprintf(buffer, "radius.png\n");
+    else
+        sprintf(buffer, "0\n");
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::overlay::m_data_show(const char *ibuf, char *obuf)
+void uni::overlay::m_data_show(const char *text)
 {
     int  state = 0;
     char name[MAXSTR];
     int  prio;
 
-    if (sscanf(ibuf, "%s %d", name, &prio) == 2)
+    if (sscanf(text, "%s %d", name, &prio) == 2)
     {
         printf("data show(%s, %d)\n", name, prio);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", 1);
+    sprintf(buffer, "%d\n", 1);
 }
 
-void uni::overlay::m_data_hide(const char *ibuf, char *obuf)
+void uni::overlay::m_data_hide(const char *text)
 {
     int  state = 0;
     char name[MAXSTR];
     int  prio;
 
-    if (sscanf(ibuf, "%s %d", name, &prio) == 2)
+    if (sscanf(text, "%s %d", name, &prio) == 2)
     {
         printf("data hide(%s, %d)\n", name, prio);
         state = 1;
     }
 
-    if (obuf) sprintf(obuf, "%d\n", 1);
+    sprintf(buffer, "%d\n", 1);
 }
 
 //-----------------------------------------------------------------------------
 
-void uni::overlay::script(const char *ibuf, char *obuf)
+const char *uni::overlay::script(const char *text)
 {
     char key[MAXSTR];
     const char *val;
 
-    sscanf(ibuf, "%s\n", key);
-    val = ibuf + strlen(key);
+    sscanf(text, "%s\n", key);
+    val = text + strlen(key);
+
+    sprintf(buffer, "0\n");
 
     // Dispatch the message to the proper handler function.
 
-    if      (!strcmp(key, "lookup"))         m_lookup(val, obuf);
-    else if (!strcmp(key, "moveto"))         m_moveto(val, obuf);
-    else if (!strcmp(key, "get_position"))   m_get_position(val, obuf);
+    if      (!strcmp(key, "lookup"))         m_lookup        (val);
+    else if (!strcmp(key, "moveto"))         m_moveto        (val);
+    else if (!strcmp(key, "get_position"))   m_get_position  (val);
 
-    else if (!strcmp(key, "model_create"))   m_model_create  (val, obuf);
-    else if (!strcmp(key, "model_delete"))   m_model_delete  (val, obuf);
-    else if (!strcmp(key, "model_position")) m_model_position(val, obuf);
-    else if (!strcmp(key, "model_rotation")) m_model_rotation(val, obuf);
-    else if (!strcmp(key, "model_scale"))    m_model_scale   (val, obuf);
+    else if (!strcmp(key, "model_create"))   m_model_create  (val);
+    else if (!strcmp(key, "model_delete"))   m_model_delete  (val);
+    else if (!strcmp(key, "model_position")) m_model_position(val);
+    else if (!strcmp(key, "model_rotation")) m_model_rotation(val);
+    else if (!strcmp(key, "model_scale"))    m_model_scale   (val);
 
-    else if (!strcmp(key, "image_create"))   m_image_create  (val, obuf);
-    else if (!strcmp(key, "image_delete"))   m_image_delete  (val, obuf);
-    else if (!strcmp(key, "image_position")) m_image_position(val, obuf);
-    else if (!strcmp(key, "image_rotation")) m_image_rotation(val, obuf);
-    else if (!strcmp(key, "image_scale"))    m_image_scale   (val, obuf);
+    else if (!strcmp(key, "image_create"))   m_image_create  (val);
+    else if (!strcmp(key, "image_delete"))   m_image_delete  (val);
+    else if (!strcmp(key, "image_position")) m_image_position(val);
+    else if (!strcmp(key, "image_rotation")) m_image_rotation(val);
+    else if (!strcmp(key, "image_scale"))    m_image_scale   (val);
 
-    else if (!strcmp(key, "capture_color"))  m_capture_color (val, obuf);
-    else if (!strcmp(key, "capture_radius")) m_capture_radius(val, obuf);
+    else if (!strcmp(key, "capture_color"))  m_capture_color (val);
+    else if (!strcmp(key, "capture_radius")) m_capture_radius(val);
 
-    else if (!strcmp(key, "data_hide"))      m_data_hide(val, obuf);
-    else if (!strcmp(key, "data_show"))      m_data_show(val, obuf);
+    else if (!strcmp(key, "data_hide"))      m_data_hide     (val);
+    else if (!strcmp(key, "data_show"))      m_data_show     (val);
 
-    else if (obuf) sprintf(obuf, "0\n");
+    return buffer;
 }
 
 //-----------------------------------------------------------------------------

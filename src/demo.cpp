@@ -413,7 +413,7 @@ bool demo::process_input(app::event *E)
     // Assume all script inputs are meaningful.  Pass them to the universe.
 
     if (universe)
-        universe->script(E->data.input.src, NULL);
+        E->set_dst(universe->script(E->data.input.src));
 
     return true;
 }

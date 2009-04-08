@@ -23,29 +23,31 @@ namespace uni
 {
     class overlay
     {
+        char buffer[256];
+
         // Overlay control messages
 
-        void m_moveto(const char *, char *);
-        void m_lookup(const char *, char *);
-        void m_get_position(const char *, char *);
+        void m_moveto        (const char *);
+        void m_lookup        (const char *);
+        void m_get_position  (const char *);
 
-        void m_model_create  (const char *, char *);
-        void m_model_delete  (const char *, char *);
-        void m_model_position(const char *, char *);
-        void m_model_rotation(const char *, char *);
-        void m_model_scale   (const char *, char *);
+        void m_model_create  (const char *);
+        void m_model_delete  (const char *);
+        void m_model_position(const char *);
+        void m_model_rotation(const char *);
+        void m_model_scale   (const char *);
 
-        void m_image_create  (const char *, char *);
-        void m_image_delete  (const char *, char *);
-        void m_image_position(const char *, char *);
-        void m_image_rotation(const char *, char *);
-        void m_image_scale   (const char *, char *);
+        void m_image_create  (const char *);
+        void m_image_delete  (const char *);
+        void m_image_position(const char *);
+        void m_image_rotation(const char *);
+        void m_image_scale   (const char *);
 
-        void m_capture_color (const char *, char *);
-        void m_capture_radius(const char *, char *);
+        void m_capture_color (const char *);
+        void m_capture_radius(const char *);
 
-        void m_data_hide(const char *, char *);
-        void m_data_show(const char *, char *);
+        void m_data_hide     (const char *);
+        void m_data_show     (const char *);
 
         // Model overlay
 
@@ -85,7 +87,7 @@ namespace uni
         overlay();
        ~overlay();
 
-        void script(const char *, char *);
+        const char *script(const char *);
 
         void transform(const double *M) { node->transform(M); }
 

@@ -234,15 +234,13 @@ void app::host::poll_script()
 
                 if (FD_ISSET(*i, &fds))
                 {
-                    char ibuf[256];
-                    char obuf[256];
+                    char *obuf, ibuf[256];
 
-                    ssize_t sz;
+                    ssize_t size;
 
                     memset(ibuf, 0, 256);
-                    memset(obuf, 0, 256);
 
-                    if ((sz = ::recv(*i, ibuf, 256, 0)) <= 0)
+                    if ((size = ::recv(*i, ibuf, 256, 0)) <= 0)
                     {
                         printf("script socket disconnected\n");
                         ::close(*i);
@@ -254,10 +252,14 @@ void app::host::poll_script()
 
                         printf("script socket received [%s]\n", ibuf);
 
-//                      messg(ibuf, obuf);
-                        sz = strlen(obuf);
+                        event E;
 
-                        if (sz > 0) ::send(*i, obuf, sz, 0);
+                        E.mk_input(ibuf);
+                        process_event(&E);
+
+                        if ((obuf =        E.data.input.dst) &&
+                            (size = strlen(E.data.input.dst)))
+                            ::send(*i, obuf, size, 0);
                     }
                 }
             }
@@ -631,7 +633,7 @@ void app::host::root_loop()
         {
             // Check for script input events.
 
-//          poll_script();
+            poll_script();
             poll_listen();
 
             // Advance to the current time, or by one JIFFY when benchmarking.

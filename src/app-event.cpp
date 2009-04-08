@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cassert>
 #include <cstdlib>
 
 #include "app-event.hpp"
@@ -333,6 +334,7 @@ app::event *app::event::mk_input(const char *s)
     put_type(E_INPUT);
 
     data.input.src = strdup(s);
+    data.input.dst = 0;
 
     payload_cache = false;
     return this;
@@ -430,3 +432,16 @@ app::event *app::event::send(SOCKET s)
 }
 
 //-----------------------------------------------------------------------------
+
+void app::event::set_dst(const char *str)
+{
+    assert(payload.type == E_INPUT);
+
+    if (data.input.dst)
+        free(data.input.dst);
+
+    if (str)
+        data.input.dst = strdup(str);
+    else
+        data.input.dst = 0;
+}

@@ -148,13 +148,16 @@ namespace uni
 
         // State queries.
 
-        void script(const char *i, char *o) { if (over) over->script(i, o); }
-
         double distance() const { return dist;       }
         double altitude() const { return dist - r0;  }
         int    maxcount() const { return int(count); }
 
         const double *get_p() const { return p; }
+
+        const char *script(const char *text) {
+            return over ? over->script(text) : 0;
+        }
+
 /*
         double get_a()   const { return angle; }
         void   set_a(double k) { angle = k; norm(); }
