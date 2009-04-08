@@ -23,6 +23,9 @@ namespace uni
 {
     class overlay
     {
+        double M[16];
+        double I[16];
+
         char buffer[256];
 
         // Overlay control messages
@@ -89,7 +92,8 @@ namespace uni
 
         const char *script(const char *);
 
-        void transform(const double *M) { node->transform(M); }
+        void transform(const double *,
+                       const double *);
 
         void prep();
 

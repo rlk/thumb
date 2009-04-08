@@ -16,6 +16,7 @@
 
 #include "uni-overlay.hpp"
 #include "app-glob.hpp"
+#include "app-user.hpp"
 #include "app-data.hpp"
 #include "matrix.hpp"
 #include "util.hpp"
@@ -120,9 +121,15 @@ void uni::overlay::m_lookup(const char *text)
 
 void uni::overlay::m_get_position(const char *text)
 {
+    const double *p = ::user->get_M() + 12;
+    
+    double q[3];
+
+    mult_mat_vec3(q, I, p);
+
     printf("get position\n");
 
-    sprintf(buffer, "%f %f %f\n", 0.0f, 0.0f, 0.0f);
+    sprintf(buffer, "%f %f %f\n", q[0], q[1], q[2]);
 }
 
 //-----------------------------------------------------------------------------
@@ -462,6 +469,15 @@ uni::overlay::overlay()
 uni::overlay::~overlay()
 {
     if (pool) glob->free_pool(pool);
+}
+
+void uni::overlay::transform(const double *M,
+                             const double *I)
+{
+    memcpy(this->M, M, 16 * sizeof (double));
+    memcpy(this->I, I, 16 * sizeof (double));
+
+    node->transform(M);
 }
 
 //-----------------------------------------------------------------------------

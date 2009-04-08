@@ -472,6 +472,11 @@ app::host::host(std::string filename, std::string tag) :
                 buffer_size[0] = get_attr_d(buf, "w", window_size[2]);
                 buffer_size[1] = get_attr_d(buf, "h", window_size[3]);
             }
+            else
+            {
+                buffer_size[0] = window_size[2];
+                buffer_size[1] = window_size[3];
+            }
 
             // Create a display object for each configured display.
 

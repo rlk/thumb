@@ -284,7 +284,7 @@ void uni::sphere::transform(int frusc, const app::frustum *const *frusv)
     // Apply the transform to the atmosphere.
 
     if (atmo_node) atmo_node->transform(M);
-    if (over)           over->transform(M);
+    if (over)           over->transform(M, I);
 }
 
 //-----------------------------------------------------------------------------
