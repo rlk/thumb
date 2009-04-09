@@ -1,7 +1,39 @@
 Thumb features to consider
 
-   Seriously consider converting the world to Z-up.
-   Related: put the sun in the right place using configured lat/lon/date/time
+    Seriously consider converting the world to Z-up.
+    Related: put the sun in the right place using configured lat/lon/date/time
+
+    Finish the diffuse irradiance cubemap cache
+
+    Adaptive terrain
+        Make sure the terrain interacts well with the water
+            red extincts at 4.5 meters
+            green extincts at 70 meters
+            blue extincts at 300 meters
+        Atlas the textures
+            http://www.gamedev.net/community/forums/mod/journal/journal.asp?jn=263350&reply_id=3198944
+
+    Skinning / Skeletal animation
+        Automatic generation of ODE capsules to fit bones
+
+    Grass
+        Chapter5-Andersson-Terrain_Rendering_in_Frostbite.pdf
+        Coverage-map-based
+        Is grass just a form of particle?
+        Flower is informative
+            The ground has a relatively homogeneous color
+            Blades of grass use a gradient from ground color to grass color
+            Level of detail transition is key
+        Normal mapping could be significant
+        Randomly jittered uniform grid?
+            offset max = half cell width
+            be deterministic
+
+         Back-to-front for blending
+         Front-to-back for masking  <-- Z-cull?  Worth benching.
+
+    Precomputer radiance transferm implementation
+
 
    Add an oriented target object
        Use the join mechanism to define paths
@@ -17,6 +49,9 @@ Thumb features to consider
    Rewrite the GUI mechanism
        to use a glyph map instead of a wordmap
        to use VBOs instead of immediate mode
+       to use the pool
+           unifying all geometry processing
+               making porting and versioning easier
 
    loading zipped data files
       XML
@@ -27,6 +62,16 @@ Thumb features to consider
               dragon
               tweety
               armadillo
+
+    New sky
+        clouds?
+            http://www.gamedev.net/community/forums/topic.asp?topic_id=86024
+        Should be efficient to render into a cubemap per frame
+        Refine the images of the current mechanism
+            Possibly SOLVE for "correct" colors
+                using photographs
+                or simulating scattering
+        Preetham is useless
 
     Grab the pointer during play mode
         this would allow modular control modalities
@@ -50,9 +95,6 @@ Thumb features to consider
     Allow the execution of the physical system to be a "change" to the world
         Represent it as a set of transforms and it can be undoable
 
-    Rework the GUI to use the pool.
-        Atlas the glyphs; forget about the words.
-
     Consider multithreading
         Pipelining?
         Double-buffering data?
@@ -71,7 +113,7 @@ Thumb features to consider
         auto-associates MTLs with OBJs
         simplifies the glsl include mechanism
 
-    It's NOT completely reasonable to demand GFFX or GLSL
+    It's NOT completely reasonable to demand GFFX or GLS?
 
     Valve's distance-alpha texturing is killer
         It allows GUI text to scale to Varrier/LambdaVision
@@ -82,22 +124,6 @@ Thumb features to consider
 +       AGC optional
 +       Bloom optional
 +       Be sure to allow for fallback
-
-    Adaptive terrain
-        Make sure the terrain interacts well with the water
-            red extincts at 4.5 meters
-            green extincts at 70 meters
-            blue extincts at 300 meters
-        Atlas the textures
-            http://www.gamedev.net/community/forums/mod/journal/journal.asp?jn=263350&reply_id=3198944
-
-    Skinning
-        Automatic generation of ODE capsules to fit bones
-
-    New sky
-        clouds?
-            http://www.gamedev.net/community/forums/topic.asp?topic_id=86024
-        Should be efficient to render into a cubemap per frame
 
 +   Take a serious look at state reloading
 +       start/close
@@ -115,22 +141,6 @@ Thumb features to consider
             Explosion debris
         Possibly animated on smoothed vector field
             Leaves
-
-    Grass
-        Chapter5-Andersson-Terrain_Rendering_in_Frostbite.pdf
-        Coverage-map-based
-        Is grass just a form of particle?
-        Flower is informative
-            The ground has a relatively homogeneous color
-            Blades of grass use a gradient from ground color to grass color
-            Level of detail transition is key
-        Normal mapping could be significant
-        Randomly jittered uniform grid?
-            offset max = half cell width
-            be deterministic
-
-         Back-to-front for blending
-         Front-to-back for masking  <-- Z-cull?  Worth benching.
 
     Fur
 

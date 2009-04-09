@@ -140,5 +140,19 @@ test : ../$(TARG)
 #	(cd ..; ./$(TARG) 960x540)
 
 #------------------------------------------------------------------------------
+# "make images" generates contour images of all source files.
+
+SRCS= $(shell find . -name "*.cpp" -or -name "*.hpp")
+IMGS= $(SRCS:%=%.png)
+
+ESFLAGS= -Ecpp --no-header --color -MScroll
+CVFLAGS= -flatten -resize 25% -trim -normalize -quality 100 -colors 16
+
+%.png : %
+	enscript $(ESFLAGS) -p - $< | convert ps:- $(CVFLAGS) $@
+
+images : $(IMGS)
+
+#------------------------------------------------------------------------------
 
 -include $(DEPS)

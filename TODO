@@ -1,9 +1,11 @@
+offscreen buffer size still wrong in cluster mode?
+make planets work
+finish overlay
+
 Planet performance is abysmal in info and play mode?
 
 branch tellurion
 smooth buddha
-make planets work
-finish overlay
 MTL fallback
 
 Fix play mode leak.
