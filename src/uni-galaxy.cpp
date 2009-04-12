@@ -12,8 +12,10 @@
 
 #include "matrix.hpp"
 #include "uni-galaxy.hpp"
+#include "ogl-program.hpp"
 #include "app-frustum.hpp"
 #include "app-data.hpp"
+#include "app-glob.hpp"
 #include "app-user.hpp"
 
 #include "util.hpp"

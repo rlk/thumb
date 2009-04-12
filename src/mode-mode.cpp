@@ -14,6 +14,7 @@
 
 #include "wrl-world.hpp"
 #include "app-user.hpp"
+#include "ogl-opengl.hpp"
 #include "app-frustum.hpp"
 #include "mode-mode.hpp"
 

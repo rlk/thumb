@@ -1,5 +1,48 @@
 -------------------------------------------------------------------------------
 
+Separating the engine from the application
+
+    Compile all modules down to a library
+    Isolate all the headers
+
+    A lot of the stuff in main should be moved to app-prog
+       Is "app-exec" a better name?
+       Is "app-main" a better name?
+
+    Make it possible for the application to add data directories
+        Each data directory may have its own data config file
+
+    Think hard about the global objects
+
+        the application MUST instantiate the app-prog
+        the prog is the LAST of the global objects instantiated
+
+        order:
+            data
+            conf   // loads XML via data
+            lang   // selects file via conf and loads via data
+            host   // selects file via conf and loads via data
+
+            video()
+
+            user   // selects file via conf and loads via data
+            glob   // loads via data, currently needs GL context
+            perf
+            prog   // configures via conf and loads via glob
+
+    video() should be moved to app::host
+        This would also provide host with the ability to bound the video
+        on configuration change.
+
+    Decide where SDL goes
+        Either ONLY in the application or ONLY in the library
+
+    A serious rewrite of glob handling would allow GL objects to be created
+    in the absense of a context, relaxing the restrictions of prog creation
+    time.
+
+-------------------------------------------------------------------------------
+
 XBox 360 Controller
 
     Axis

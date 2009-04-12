@@ -42,7 +42,7 @@
 
     <p>Further optimization may be achieved by changing the order in which triangles are rendered. When a triangle is rendered, each of its three vertices is processed and the result is cached in a queue. When the next triangle is rendered, the GPU first checks this cache to see if any of the new triangle's vertices are there. If found, the vertices need not be processed, and performance improves. Triangles may be re-ordered to increase the utilization of this cache.</p>
 
-    <p>The cache-ability of a triangle mesh is measured using a value called the Average Cache Miss Ratio (ACMR). This is the average number of vertices that must be processed for each triangle it a mesh. It varies from as much as 3 in the worst case down to around 0.5, though anything below 1.0 is good in practice.
+    <p>The cache-ability of a triangle mesh is measured using a value called the Average Cache Miss Ratio (ACMR). This is the average number of vertices that must be processed for each triangle in a mesh. It varies from as much as 3 in the worst case down to around 0.5, though anything below 1.0 is good in practice.
 
     <h4>Scale correction</h4>
 
@@ -50,7 +50,7 @@
 
     <h4>Material remapping</h4>
 
-    <p>Described next, the MTL file is translated into a series of XML files, and the names are changed to be more descriptive. For this to work, the same name remapping must be applied to the material references within the OBJ.</p>
+    <p>Described next, the MTL file is translated into a series of XML files, and the names are changed in an effort to reduce name collisions. For this to work, the same name remapping must be applied to the material references within the OBJ.</p>
 
     <h3>What happens to the MTL file...</h3>
 
@@ -64,16 +64,9 @@ Ka 0.00 0.00 0.00
 Tf 1.00 1.00 1.00
 map_Kd b_t_walls3.png
 Ni 1.00
-newmtl lambert8SG
-illum 4
-Kd 0.00 0.00 0.00
-Ka 0.00 0.00 0.00
-Tf 1.00 1.00 1.00
-map_Kd b_t_wall_panels2.png
-Ni 1.00
     </pre>
 
-    <p>This MTL was exported from Maya. It contains information that is useless to us (<code>Tf</code> and <code>Ni</code>), and it omits information that we truly need (such as the name of a normal map image). It also includes information that is just flat-out wrong, like the <code>Kd</code> line indicating a black diffuse material.</p>
+    <p>This MTL was exported from Maya. It contains information that is useless to us, such as <code>illum</code>, <code>Tf</code> and <code>Ni</code>. It omits information that we truly need, such as the name of a normal map image. It also includes information that is just flat-out wrong, like the <code>Kd</code> line indicating a black diffuse material.</p>
 
     <p>Thumb would prefer to acquire this information from a more flexible XML-based file, so one of the objectives of pre-processing is to parse the MTL file and output a new XML file for each material defined there. Maya materials have uninformative default names like &ldquo;lambert7SG&rdquo; that don't lend themselves to informative and unique XML file names, so our pre-process will instead use the <code>map_Kd</code> file name to generate the name of the XML file.</p>
 
@@ -222,11 +215,13 @@ b_t_door_wind.xml       b_t_stolbi3.xml
     <pre>
 &lt;?xml version="1.0"?&gt;
 &lt;material&gt;
-  &lt;program mode="depth"    file="object-depth.xml"/&gt;
-  &lt;program mode="color"    file="object-color.xml"/&gt;
-  &lt;texture name="specular" file="matte-specular.png"/&gt;
-  &lt;texture name="diffuse"  file="kizhi/b_t_door.png"/&gt;
-  &lt;texture name="normal"   file="default-normal.png"/&gt;
+  &lt;program mode="depth" file="object-depth.xml"/&gt;
+  &lt;/program&gt;
+  &lt;program mode="color" file="object-color.xml"/&gt;
+    &lt;texture name="specular" file="matte-specular.png"/&gt;
+    &lt;texture name="diffuse"  file="kizhi/b_t_door.png"/&gt;
+    &lt;texture name="normal"   file="default-normal.png"/&gt;
+  &lt;/program&gt;
 &lt;/material&gt;
     </pre>
 

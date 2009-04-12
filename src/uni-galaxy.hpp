@@ -15,7 +15,7 @@
 
 #include <vector>
 
-#include "app-glob.hpp"
+#include "ogl-opengl.hpp"
 
 //-----------------------------------------------------------------------------
 
