@@ -171,7 +171,9 @@ void app::frustum::calc_calibrated()
 
             if (v)
             {
-                double scale = unit_scale(n.get_s("unit", "ft"));
+                const std::string unit = n.get_s("unit");
+
+                double scale = unit_scale(unit.empty() ? "ft" : unit);
 
                 // Extract the position.
 

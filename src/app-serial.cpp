@@ -118,6 +118,28 @@ void app::node::write(const std::string& name)
 
 //-----------------------------------------------------------------------------
 
+const char *app::node::get(const std::string& name) const
+{
+    // If this node has the named entity, return its string.
+
+    if (ptr && !name.empty())
+        return mxmlElementGetAttr(ptr, name.c_str());
+    else
+        return 0;
+}
+
+const char *app::node::get() const
+{
+    // If this node has a text child, return its string.
+
+    if (ptr && ptr->child && ptr->type == MXML_TEXT)
+        return ptr->child->value.text.string;
+    else
+        return 0;
+}
+
+//-----------------------------------------------------------------------------
+
 void app::node::set_i(const std::string& name, int i)
 {
     if (ptr && !name.empty())
@@ -129,12 +151,31 @@ void app::node::set_i(const std::string& name, int i)
     }
 }
 
+void app::node::set_i(int i)
+{
+    if (ptr)
+    {
+        while (ptr->child) mxmlDelete(ptr->child);
+
+        // Store the integer as a text element.
+
+        mxmlNewTextf(ptr, 0, "%d", i);
+        dirty();
+    }
+}
+
 int app::node::get_i(const std::string& name, int i)
 {
-    const char *c;
+    if (const char *c = get(name))
+        return strtol(c, 0, 0);
+    else
+        return i;
+}
 
-    if (ptr && !name.empty() && (c = mxmlElementGetAttr(ptr, name.c_str())))
-        return atoi(c);
+int app::node::get_i(int i)
+{
+    if (const char *c = get())
+        return strtol(c, 0, 0);
     else
         return i;
 }
@@ -152,12 +193,31 @@ void app::node::set_f(const std::string& name, double f)
     }
 }
 
+void app::node::set_f(double f)
+{
+    if (ptr)
+    {
+        while (ptr->child) mxmlDelete(ptr->child);
+
+        // Store the double as a text element.
+
+        mxmlNewTextf(ptr, 0, "%f", f);
+        dirty();
+    }
+}
+
 double app::node::get_f(const std::string& name, double f)
 {
-    const char *c;
+    if (const char *c = get(name))
+        return strtod(c, 0);
+    else
+        return f;
+}
 
-    if (ptr && !name.empty() && (c = mxmlElementGetAttr(ptr, name.c_str())))
-        return atof(c);
+double app::node::get_f(double f)
+{
+    if (const char *c = get())
+        return strtod(c, 0);
     else
         return f;
 }
@@ -176,15 +236,33 @@ void app::node::set_s(const std::string& name,
     }
 }
 
-std::string app::node::get_s(const std::string& name,
-                             const std::string& s)
+void app::node::set_s(const std::string& s)
 {
-    const char *c;
+    if (ptr)
+    {
+        while (ptr->child) mxmlDelete(ptr->child);
 
-    if (ptr && !name.empty() && (c = mxmlElementGetAttr(ptr, name.c_str())))
+        // Store the integer as a text element.
+
+        mxmlNewText(ptr, 0, s.c_str());
+        dirty();
+    }
+}
+
+std::string app::node::get_s(const std::string& name)
+{
+    if (const char *c = get(name))
         return std::string(c);
     else
-        return s;
+        return "";
+}
+
+std::string app::node::get_s()
+{
+    if (const char *c = get())
+        return std::string(c);
+    else
+        return "";
 }
 
 //-----------------------------------------------------------------------------

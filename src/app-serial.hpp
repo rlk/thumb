@@ -29,6 +29,9 @@ namespace app
     {
         struct mxml_node_s *ptr;
 
+        const char *get(const std::string&) const;
+        const char *get()                   const;
+
     public:
 
         node(const std::string&);
@@ -44,14 +47,22 @@ namespace app
         void read (const std::string&);
         void write(const std::string&);
 
-        // Attribute manipulation
+        // Data manipulation
 
-        void        set_i(const std::string&, int = 0);
-        int         get_i(const std::string&, int = 0);
+        void        set_i(const std::string&, int    = 0);
+        void        set_i(                    int    = 0);
+        int         get_i(const std::string&, int    = 0);
+        int         get_i(                    int    = 0);
+
         void        set_f(const std::string&, double = 0);
+        void        set_f(                    double = 0);
         double      get_f(const std::string&, double = 0);
-        void        set_s(const std::string&, const std::string& = "");
-        std::string get_s(const std::string&, const std::string& = "");
+        double      get_f(                    double = 0);
+
+        void        set_s(const std::string&, const std::string&);
+        void        set_s(const std::string&);
+        std::string get_s(const std::string&);
+        std::string get_s();
 
         // Iteration
 

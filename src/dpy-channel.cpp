@@ -41,7 +41,9 @@ ogl::frame *dpy::channel::pong = 0;
 
 dpy::channel::channel(app::node n) : src(0), dst(0)
 {
-    double scale = unit_scale(n.get_s("unit", "ft"));
+    const std::string unit = n.get_s("unit");
+
+    double scale = unit_scale(unit.empty() ? "ft" : unit);
 
     // Extract the configuration.
 
