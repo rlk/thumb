@@ -14,21 +14,69 @@
 #define APP_SERIAL_HPP
 
 #include <string>
-#include <map>
-
-#include <mxml.h>
 
 //-----------------------------------------------------------------------------
+// Forward-declare the Mini-XML node struct to eliminate the header dependency.
+
+struct mxml_node_s;
 
 namespace app
 {
-    typedef mxml_node_t *node;
+    //-------------------------------------------------------------------------
+    // Serializable node
 
-    class serial
+    class node
+    {
+        struct mxml_node_s *ptr;
+
+    public:
+
+        node(const std::string&);
+        node(struct mxml_node_s * = 0);
+
+        operator bool() const { return ptr; }
+
+        void dirty();
+        void clean();
+
+        // File IO
+
+        void read (const std::string&);
+        void write(const std::string&);
+
+        // Attribute manipulation
+
+        void        set_i(const std::string&, int = 0);
+        int         get_i(const std::string&, int = 0);
+        void        set_f(const std::string&, double = 0);
+        double      get_f(const std::string&, double = 0);
+        void        set_s(const std::string&, const std::string& = "");
+        std::string get_s(const std::string&, const std::string& = "");
+
+        // Iteration
+
+        node find(const std::string& = "",
+                  const std::string& = "",
+                  const std::string& = "");
+        node next(node,
+                  const std::string& = "",
+                  const std::string& = "",
+                  const std::string& = "");
+
+        // Hierarchy manipulation
+
+        void insert(node, node);
+        void remove();
+    };
+
+    //-------------------------------------------------------------------------
+    // Serializable file
+
+    class file
     {
     private:
 
-        std::string file;
+        std::string name;
         node        head;
 
         void load();
@@ -36,38 +84,11 @@ namespace app
 
     public:
 
-        serial(const std::string&);
-       ~serial();
+        file(const std::string&);
+       ~file();
 
         node get_head() { return head; }
     };
-
-    // Serialization attribute mutators
-
-    void        set_attr_d(node, const std::string&, int = 0);
-    int         get_attr_d(node, const std::string&, int = 0);
-
-    void        set_attr_f(node, const std::string&, double = 0);
-    double      get_attr_f(node, const std::string&, double = 0);
-
-    void        set_attr_s(node, const std::string&, const std::string& = "");
-    std::string get_attr_s(node, const std::string&, const std::string& = "");
-
-    // Element iteration
-
-    node find(node, const std::string& = "",
-                    const std::string& = "",
-                    const std::string& = "");
-    node next(node,
-              node, const std::string& = "",
-                    const std::string& = "",
-                    const std::string& = "");
-
-    // Mutators
-
-    node create(const std::string&);
-    void insert(node, node, node);
-    void remove(node);
 }
 
 //-----------------------------------------------------------------------------

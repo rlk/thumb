@@ -16,22 +16,20 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::display::display(app::node node)
+dpy::display::display(app::node p)
 {
-    app::node curr;
-
     // Check for view and tile indices.
 
-    index = app::get_attr_d(node, "index", 0);
+    index = p.get_i("index", 0);
 
     // Extract the window viewport rectangle.
 
-    if ((curr = app::find(node, "viewport")))
+    if (app::node n = p.find("viewport"))
     {
-        viewport[0] = app::get_attr_d(curr, "x");
-        viewport[1] = app::get_attr_d(curr, "y");
-        viewport[2] = app::get_attr_d(curr, "w", DEFAULT_PIXEL_WIDTH);
-        viewport[3] = app::get_attr_d(curr, "h", DEFAULT_PIXEL_HEIGHT);
+        viewport[0] = n.get_i("x");
+        viewport[1] = n.get_i("y");
+        viewport[2] = n.get_i("w", DEFAULT_PIXEL_WIDTH);
+        viewport[3] = n.get_i("h", DEFAULT_PIXEL_HEIGHT);
     }
     else
     {

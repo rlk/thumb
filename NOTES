@@ -9,6 +9,8 @@ Separating the engine from the application
        Is "app-exec" a better name?
        Is "app-main" a better name?
 
+    Rename app-serial to "app-file".
+
     Make it possible for the application to add data directories
         Each data directory may have its own data config file
 

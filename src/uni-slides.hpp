@@ -52,7 +52,7 @@ namespace uni
 
         slide_l all;
 
-        app::serial file;
+        app::file file;
 
         app::frustum_v frusta;
 

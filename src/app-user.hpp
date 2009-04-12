@@ -41,7 +41,7 @@ namespace app
 
         // Automatic demo file.
 
-        app::serial file;
+        app::file file;
 
         app::node root;
         app::node prev;

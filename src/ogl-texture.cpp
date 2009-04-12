@@ -248,30 +248,28 @@ void ogl::texture::load_xml(std::string name)
 
     try
     {
-        app::serial file(path.c_str());
+        app::file file(path.c_str());
         app::node   root;
         app::node   node;
 
-        if ((root = app::find(file.get_head(), "texture")))
+        if (app::node p = file.get_head().find("texture"))
         {
             // Parse and apply wrap modes.
 
-            for (node = app::find(root,       "wrap"); node;
-                 node = app::next(root, node, "wrap"))
+            for (app::node n = p.find("wrap"); n; n = p.next(n, "wrap"))
             {
-                GLenum key = wrap_key(app::get_attr_s(node, "axis"));
-                GLenum val = wrap_val(app::get_attr_s(node, "value"));
+                GLenum key = wrap_key(n.get_s("axis"));
+                GLenum val = wrap_val(n.get_s("value"));
 
                 if (key && val) glTexParameteri(target, key, val);
             }
 
             // Parse and apply filter modes.
 
-            for (node = app::find(root,       "filter"); node;
-                 node = app::next(root, node, "filter"))
+            for (app::node n = p.find("filter"); n; n = p.next(n, "filter"))
             {
-                GLenum key = filter_key(app::get_attr_s(node, "type"));
-                GLenum val = filter_val(app::get_attr_s(node, "value"));
+                GLenum key = filter_key(n.get_s("type"));
+                GLenum val = filter_val(n.get_s("value"));
 
                 if (key && val) glTexParameteri(target, key, val);
             }

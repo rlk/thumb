@@ -17,22 +17,22 @@
 
 //=============================================================================
 
-uni::slide::slide(app::node node) :
-    texture(::glob->load_texture(app::get_attr_s(node, "image"),
-                                 app::get_attr_s(node, "image")))
+uni::slide::slide(app::node n) :
+    texture(::glob->load_texture(n.get_s("image"),
+                                 n.get_s("image")))
 {
     // Extract the slide transformation from the node.
 
     double p[3];
     double q[4];
 
-    p[0] = app::get_attr_f(node, "x", 0);
-    p[1] = app::get_attr_f(node, "y", 0);
-    p[2] = app::get_attr_f(node, "z", 0);
-    q[0] = app::get_attr_f(node, "t", 0);
-    q[1] = app::get_attr_f(node, "u", 0);
-    q[2] = app::get_attr_f(node, "v", 0);
-    q[3] = app::get_attr_f(node, "w", 0);
+    p[0] = n.get_f("x", 0);
+    p[1] = n.get_f("y", 0);
+    p[2] = n.get_f("z", 0);
+    q[0] = n.get_f("t", 0);
+    q[1] = n.get_f("u", 0);
+    q[2] = n.get_f("v", 0);
+    q[3] = n.get_f("w", 0);
 
     set_quaternion(M, q);
 
@@ -92,16 +92,14 @@ void uni::slide::draw(const double *p) const
 uni::slides::slides(std::string filename) :
     file(filename.c_str())
 {
-    app::node root;
-    app::node curr;
+    app::node p;
 
-    if ((root = app::find(file.get_head(), "slides")))
+    if (app::node p = file.get_head().find("slides"))
     {
         // Create a slide object for each slide node.
 
-        for (curr = app::find(root,       "slide"); curr;
-             curr = app::next(root, curr, "slide"))
-            all.push_back(new slide(curr));
+        for (app::node n = p.find("slide"); n; n = p.next(n, "slide"))
+            all.push_back(new slide(n));
     }
 }
 

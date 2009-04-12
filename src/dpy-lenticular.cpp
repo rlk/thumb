@@ -23,10 +23,10 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::lenticular::lenticular(app::node node) :
-    display(node),
+dpy::lenticular::lenticular(app::node p) :
+    display(p),
 
-    channels(app::get_attr_d(node, "channels", 1)),
+    channels(p.get_i("channels", 1)),
 
     pitch(100.0),
     angle(  0.0),
@@ -35,51 +35,48 @@ dpy::lenticular::lenticular(app::node node) :
     debug(  1.0),
     quality(1.0),
 
-    P(0), node(node)
+    P(0)
 {
-    app::node curr;
-
     int i;
 
     // Find a frustum definition, or create a default.  Clone the frustum and
     // create a default slice for each channel.
 
     for (i = 0; i < channels; ++i)
-        if ((curr = app::find(node, "frustum")))
+        if (app::node n = p.find("frustum"))
         {
-            frust.push_back(new app::frustum(curr, viewport[2], viewport[3]));
+            frust.push_back(new app::frustum(n, viewport[2], viewport[3]));
             slice.push_back(slice_param(0.85));
         }
         else
         {
-            frust.push_back(new app::frustum(0,    viewport[2], viewport[3]));
+            frust.push_back(new app::frustum(n, viewport[2], viewport[3]));
             slice.push_back(slice_param(0.85));
         }
 
     // Configure the array.
 
-    if ((array = app::find(node, "array")))
+    if ((array = p.find("array")))
     {
-        pitch   = app::get_attr_f(array, "pitch", 100.0);
-        angle   = app::get_attr_f(array, "angle",   0.0);
-        thick   = app::get_attr_f(array, "thick",   0.1);
-        shift   = app::get_attr_f(array, "shift",   0.0);
-        quality = app::get_attr_f(array, "quality", 1.0);
+        pitch   = array.get_f("pitch", 100.0);
+        angle   = array.get_f("angle",   0.0);
+        thick   = array.get_f("thick",   0.1);
+        shift   = array.get_f("shift",   0.0);
+        quality = array.get_f("quality", 1.0);
     }
 
     // Configure the slices.
 
-    for (curr = app::find(node,       "slice"); curr;
-         curr = app::next(node, curr, "slice"))
+    for (app::node n = p.find("slice"); n; n = p.next(n, "slice"))
 
-        if ((i = app::get_attr_d(curr, "index")) < int(slice.size()))
+        if ((i = n.get_i("index")) < int(slice.size()))
         {
-            slice[i].cycle = app::get_attr_f(curr, "cycle");
-            slice[i].step0 = app::get_attr_f(curr, "step0");
-            slice[i].step1 = app::get_attr_f(curr, "step1");
-            slice[i].step2 = app::get_attr_f(curr, "step2");
-            slice[i].step3 = app::get_attr_f(curr, "step3");
-            slice[i].depth = app::get_attr_f(curr, "depth");
+            slice[i].cycle = n.get_f("cycle");
+            slice[i].step0 = n.get_f("step0");
+            slice[i].step1 = n.get_f("step1");
+            slice[i].step2 = n.get_f("step2");
+            slice[i].step3 = n.get_f("step3");
+            slice[i].depth = n.get_f("depth");
         }
 }
 
@@ -284,10 +281,10 @@ bool dpy::lenticular::process_keybd(app::event *E)
     {
         // Update the values in the XML node.
 
-        app::set_attr_f(array, "pitch", pitch);
-        app::set_attr_f(array, "angle", angle);
-        app::set_attr_f(array, "thick", thick);
-        app::set_attr_f(array, "shift", shift);
+        array.set_f("pitch", pitch);
+        array.set_f("angle", angle);
+        array.set_f("thick", thick);
+        array.set_f("shift", shift);
 
         return true;
     }

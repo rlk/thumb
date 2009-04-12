@@ -23,22 +23,20 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::anaglyph::anaglyph(app::node node) :
-    display(node), frustL(0), frustR(0), P(0)
+dpy::anaglyph::anaglyph(app::node p) :
+    display(p), frustL(0), frustR(0), P(0)
 {
-    app::node curr;
-
     // Check the display definition for a frustum, or create a default
 
-    if ((curr = app::find(node, "frustum")))
+    if (app::node n = p.find("frustum"))
     {
-        frustL = new app::frustum(curr, viewport[2], viewport[3]);
-        frustR = new app::frustum(curr, viewport[2], viewport[3]);
+        frustL = new app::frustum(n, viewport[2], viewport[3]);
+        frustR = new app::frustum(n, viewport[2], viewport[3]);
     }
     else
     {
-        frustL = new app::frustum(0,    viewport[2], viewport[3]);
-        frustR = new app::frustum(0,    viewport[2], viewport[3]);
+        frustL = new app::frustum(0, viewport[2], viewport[3]);
+        frustR = new app::frustum(0, viewport[2], viewport[3]);
     }
 }
 

@@ -25,13 +25,13 @@
 
 //-----------------------------------------------------------------------------
 
-const ogl::program *ogl::binding::init_program(app::node node,
+const ogl::program *ogl::binding::init_program(app::node p,
                                                unit_texture& texture,
                                                unit_process& process)
 {
     // Load the program.
 
-    const std::string   file = app::get_attr_s(node, "file");
+    const std::string   file = p.get_s("file");
     const ogl::program *prog = 0;
 
     if (!file.empty() && (prog = glob->load_program(file)))
@@ -40,13 +40,12 @@ const ogl::program *ogl::binding::init_program(app::node node,
 
         app::node curr;
 
-        for (curr = app::find(node,       "texture"); curr;
-             curr = app::next(node, curr, "texture"))
+        for (app::node n = p.find("texture"); n; n = p.next(n, "texture"))
         {
             // Determine the sampler and image file names.
 
-            const std::string sampler = app::get_attr_s(curr, "sampler");
-            const std::string name    = app::get_attr_s(curr, "name");
+            const std::string sampler = n.get_s("sampler");
+            const std::string name    = n.get_s("name");
 
             const std::string fail = "default-" + sampler + ".png";
 
@@ -61,14 +60,13 @@ const ogl::program *ogl::binding::init_program(app::node node,
 
         // Load all processes.
 
-        for (curr = app::find(node,       "process"); curr;
-             curr = app::next(node, curr, "process"))
+        for (app::node n = p.find("process"); n; n = p.next(n, "process"))
         {
             // Determine the sampler and image file names.
 
-            const std::string sampler = app::get_attr_s(curr, "sampler");
-            const std::string name    = app::get_attr_s(curr, "name");
-            const int         index   = app::get_attr_d(curr, "index");
+            const std::string sampler = n.get_s("sampler");
+            const std::string name    = n.get_s("name");
+            const int         index   = n.get_i("index");
 
             // Determine the texture unit binding for this sampler.
 
@@ -89,25 +87,23 @@ ogl::binding::binding(std::string name) :
 {
     std::string path = "material/" + name + ".xml";
 
-    app::serial file(path.c_str());
-    app::node   root;
-    app::node   node;
+    app::file file(path.c_str());
 
     // Load the local material bindings.
 
-    if ((root = app::find(file.get_head(), "material")))
+    if (app::node p = file.get_head().find("material"))
     {
         // Load the depth-mode bindings.
 
-        if ((node = app::find(root, "program", "mode", "depth")))
-            depth_program = init_program(node, depth_texture,
-                                               depth_process);
+        if (app::node n = p.find("program", "mode", "depth"))
+            depth_program = init_program(n, depth_texture,
+                                            depth_process);
 
         // Load the color-mode bindings.
 
-        if ((node = app::find(root, "program", "mode", "color")))
-            color_program = init_program(node, color_texture,
-                                               color_process);
+        if (app::node n = p.find("program", "mode", "color"))
+            color_program = init_program(n, color_texture,
+                                            color_process);
     }
 }
 

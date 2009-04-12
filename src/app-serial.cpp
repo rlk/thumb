@@ -21,12 +21,19 @@
 
 static const char *save_cb(mxml_node_t *node, int where)
 {
-    const char *space  = "                                                   ";
+    const char *space  = "                                                   "
+                         "                                                   "
+                         "                                                   ";
+
+    // Find a string giving the proper level of indentation for this node.
+
     const char *indent = space + strlen(space) - 1;
 
     for (mxml_node_t *curr = node->parent; curr; curr = curr->parent)
-        indent -= 2;
-        
+        indent = std::max(space, indent - 2);
+
+    // Return the proper whitespace for location of this node.
+
     switch (where)
     {
     case MXML_WS_AFTER_OPEN:
@@ -47,121 +54,109 @@ static const char *save_cb(mxml_node_t *node, int where)
 
 //-----------------------------------------------------------------------------
 
-void app::serial::load()
+app::node::node(const std::string& tag) :
+    ptr(mxmlNewElement(MXML_NO_PARENT, tag.c_str()))
+{
+}
+
+app::node::node(mxml_node_t *p) :
+    ptr(p)
+{
+}
+
+//-----------------------------------------------------------------------------
+
+void app::node::dirty()
+{
+    for (mxml_node_t *itr = ptr; itr; itr = itr->parent)
+        itr->user_data = (void *) 1;
+}
+
+void app::node::clean()
+{
+    if (ptr)
+        ptr->user_data = (void *) 0;
+}
+
+//-----------------------------------------------------------------------------
+
+void app::node::read(const std::string& name)
 {
     // Release any previously loaded DOM.
 
-    if (head)
-        mxmlDelete(head);
+    if (ptr) delete ptr;
 
-    head = 0;
+    ptr = 0;
 
     // Load the data stream and parse the XML.
 
-/* TODO: push this catch up to where a default may be supplied.
-    try
+    if (const char *buff = (const char *) ::data->load(name))
     {
-*/
-        if (const char *buff = (const char *) ::data->load(file))
-            head = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
-/*
+        ptr = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
+        clean();
     }
-    catch (find_error& e)
-    {
-    }
-*/
+        
     // Release the data stream.
 
-    ::data->free(file);
-
-    // Mark the DOM as clean.
-
-    if (head) head->user_data = 0;
+    ::data->free(name);
 }
 
-void app::serial::save()
+void app::node::write(const std::string& name)
 {
-    // Confirm that the DOM exists, and has been modified.
+    // If dirty, write the XML to a stream and store the stream.
 
-    if (head && head->user_data)
+    if (ptr && ptr->user_data)
     {
-        // Write the XML to a stream and store the stream.
-
-        if (char *buff = mxmlSaveAllocString(head, save_cb))
+        if (char *buff = mxmlSaveAllocString(ptr, save_cb))
         {
-            ::data->save(file, buff);
+            ::data->save(name, buff);
             free(buff);
         }
+        clean();
     }
-
-    // Mark the DOM as clean.
-
-    if (head) head->user_data = 0;
 }
 
 //-----------------------------------------------------------------------------
 
-app::serial::serial(const std::string& name) : file(name), head(0)
+void app::node::set_i(const std::string& name, int i)
 {
-    load();
-}
-
-app::serial::~serial()
-{
-    save();
-
-    if (head) mxmlDelete(head);
-}
-
-//-----------------------------------------------------------------------------
-
-void app::set_attr_d(app::node elem, const std::string& name, int d)
-{
-    if (elem && !name.empty())
+    if (ptr && !name.empty())
     {
         // Store the integer attribute as text.
 
-        mxmlElementSetAttrf(elem, name.c_str(), "%d", d);
-
-        // Touch the tree.
-
-        for (; elem; elem = elem->parent)
-            elem->user_data = (void *) 1;
+        mxmlElementSetAttrf(ptr, name.c_str(), "%d", i);
+        dirty();
     }
 }
 
-int app::get_attr_d(node elem, const std::string& name, int d)
+int app::node::get_i(const std::string& name, int i)
 {
     const char *c;
 
-    if (elem && !name.empty() && (c = mxmlElementGetAttr(elem, name.c_str())))
+    if (ptr && !name.empty() && (c = mxmlElementGetAttr(ptr, name.c_str())))
         return atoi(c);
     else
-        return d;
+        return i;
 }
 
 //-----------------------------------------------------------------------------
 
-void app::set_attr_f(node elem, const std::string& name, double f)
+void app::node::set_f(const std::string& name, double f)
 {
-    if (elem && !name.empty())
+    if (ptr && !name.empty())
     {
         // Store the double attribute as text.
 
-        mxmlElementSetAttrf(elem, name.c_str(), "%f", f);
-
-        // Touch the tree.
-
-        for (; elem; elem = elem->parent)
-            elem->user_data = (void *) 1;
+        mxmlElementSetAttrf(ptr, name.c_str(), "%f", f);
+        dirty();
     }
 }
 
-double app::get_attr_f(node elem, const std::string& name, double f)
+double app::node::get_f(const std::string& name, double f)
 {
     const char *c;
 
-    if (elem && !name.empty() && (c = mxmlElementGetAttr(elem, name.c_str())))
+    if (ptr && !name.empty() && (c = mxmlElementGetAttr(ptr, name.c_str())))
         return atof(c);
     else
         return f;
@@ -169,28 +164,24 @@ double app::get_attr_f(node elem, const std::string& name, double f)
 
 //-----------------------------------------------------------------------------
 
-void app::set_attr_s(node elem, const std::string& name,
-                                const std::string& s)
+void app::node::set_s(const std::string& name,
+                      const std::string& s)
 {
-    if (elem && !name.empty())
+    if (ptr && !name.empty())
     {
         // Store the text attribute.
 
-        mxmlElementSetAttr(elem, name.c_str(), s.c_str());
-
-        // Touch the tree.
-
-        for (; elem; elem = elem->parent)
-            elem->user_data = (void *) 1;
+        mxmlElementSetAttr(ptr, name.c_str(), s.c_str());
+        dirty();
     }
 }
 
-std::string app::get_attr_s(node elem, const std::string& name,
-                                       const std::string& s)
+std::string app::node::get_s(const std::string& name,
+                             const std::string& s)
 {
     const char *c;
 
-    if (elem && !name.empty() && (c = mxmlElementGetAttr(elem, name.c_str())))
+    if (ptr && !name.empty() && (c = mxmlElementGetAttr(ptr, name.c_str())))
         return std::string(c);
     else
         return s;
@@ -198,55 +189,68 @@ std::string app::get_attr_s(node elem, const std::string& name,
 
 //-----------------------------------------------------------------------------
 
-app::node app::find(node tree,
-                    const std::string& name,
-                    const std::string& attr,
-                    const std::string& valu)
+app::node app::node::find(const std::string& name,
+                          const std::string& attr,
+                          const std::string& valu)
 {
-    return mxmlFindElement(tree, tree,
-                           name.empty() ? 0 : name.c_str(),
-                           attr.empty() ? 0 : attr.c_str(),
-                           valu.empty() ? 0 : valu.c_str(), MXML_DESCEND);
+    if (ptr)
+        return mxmlFindElement(ptr, ptr,
+                               name.empty() ? 0 : name.c_str(),
+                               attr.empty() ? 0 : attr.c_str(),
+                               valu.empty() ? 0 : valu.c_str(),
+                               MXML_DESCEND);
+    else
+        return 0;
 }
 
-app::node app::next(node tree,
-                    node iter,
-                    const std::string& name,
-                    const std::string& attr,
-                    const std::string& valu)
+app::node app::node::next(app::node itr,
+                          const std::string& name,
+                          const std::string& attr,
+                          const std::string& valu)
 {
-    return mxmlFindElement(iter, tree,
-                           name.empty() ? 0 : name.c_str(),
-                           attr.empty() ? 0 : attr.c_str(),
-                           valu.empty() ? 0 : valu.c_str(), MXML_NO_DESCEND);
+    if (ptr && itr.ptr)
+        return mxmlFindElement(itr.ptr, ptr,
+                               name.empty() ? 0 : name.c_str(),
+                               attr.empty() ? 0 : attr.c_str(),
+                               valu.empty() ? 0 : valu.c_str(),
+                               MXML_NO_DESCEND);
+    else
+        return 0;
 }
 
 //-----------------------------------------------------------------------------
 
-app::node app::create(const std::string& tag)
+void app::node::insert(app::node parent,
+                       app::node after)
 {
-    return mxmlNewElement(MXML_NO_PARENT, tag.c_str());
-}
-
-void app::insert(node parent, node prev, node curr)
-{
-    if (parent && curr)
+    if (parent.ptr && ptr)
     {
-        mxmlAdd(parent, MXML_ADD_AFTER, prev, curr);
-
-        for (app::node elem = curr; elem; elem = elem->parent)
-            elem->user_data = (void *) 1;
+        mxmlAdd(parent.ptr, MXML_ADD_AFTER, after.ptr, ptr);
+        dirty();
     }
 }
 
-void app::remove(node curr)
+void app::node::remove()
 {
-    // Touch the tree.
+    if (ptr)
+    {
+        dirty();
+        mxmlDelete(ptr);
+    }
+}
 
-    for (app::node elem = curr; elem; elem = elem->parent)
-        elem->user_data = (void *) 1;
+//-----------------------------------------------------------------------------
 
-    if (curr) mxmlDelete(curr);
+app::file::file(const std::string& name) :
+    name(name),
+    head(0)
+{
+    head.read(name);
+}
+
+app::file::~file()
+{
+    head.write(name);
 }
 
 //-----------------------------------------------------------------------------

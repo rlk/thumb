@@ -23,20 +23,18 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::normal::normal(app::node node) : display(node), frust(0), P(0)
+dpy::normal::normal(app::node p) : display(p), frust(0), P(0)
 {
-    app::node curr;
-
     // Check the display definition for a frustum, or create a default
 
-    if ((curr = app::find(node, "frustum")))
-        frust = new app::frustum(curr, viewport[2], viewport[3]);
+    if (app::node n = p.find("frustum"))
+        frust = new app::frustum(n, viewport[2], viewport[3]);
     else
-        frust = new app::frustum(0,    viewport[2], viewport[3]);
+        frust = new app::frustum(0, viewport[2], viewport[3]);
 
     // Note the channel index.
 
-    chani = std::max(0, app::get_attr_d(node, "channel"));
+    chani = std::max(0, p.get_i("channel"));
 }
 
 dpy::normal::~normal()

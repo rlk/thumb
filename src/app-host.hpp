@@ -104,7 +104,7 @@ namespace app
 
         // Configuration serializer
 
-        app::serial file;
+        app::file file;
 
     public:
 

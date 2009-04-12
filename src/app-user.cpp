@@ -56,8 +56,8 @@ app::user::user() :
 
     // Initialize the demo input.
 
-    root = find(file.get_head(), "demo");
-    curr = find(root, "key");
+    root = file.get_head().find("demo");
+    curr = root.find("key");
 
     prev = cycle_prev(curr);
     next = cycle_next(curr);
@@ -141,27 +141,27 @@ app::node app::user::cycle_next(app::node n)
 {
     // Return the next key, or the first key if there is no next.  O(1).
 
-    app::node  node = app::next(root, n, "key");
-    if (!node) node = app::find(root,    "key");
+    app::node c = root.next(n, "key");
+    if (!c)   c = root.find(   "key");
 
-    return node;
+    return c;
 }
 
 app::node app::user::cycle_prev(app::node n)
 {
     // Return the previous key, or the last key if there is no previous.  O(n).
 
-    app::node last = 0;
-    app::node node = 0;
+    app::node l(0);
+    app::node c(0);
 
-    for (node = app::find(root,       "key"); node;
-         node = app::next(root, node, "key"))
-        if (cycle_next(node) == n)
-            return node;
+    for (c = root.find("key"); c; c = root.next(c, "key"))
+
+        if (cycle_next(c) == n)
+            return c;
         else
-            last = node;
+            l = c;
 
-    return last;
+    return l;
 }
 
 //-----------------------------------------------------------------------------
@@ -296,8 +296,8 @@ double app::user::interpolate(app::node A,
 {
     // Cubic interpolator.
 
-    const double y1 = get_attr_f(A, name, 0);
-    const double y2 = get_attr_f(B, name, 0);
+    const double y1 = A.get_f(name, 0);
+    const double y2 = B.get_f(name, 0);
 
     double k = cubic(cubic(t));
 
@@ -325,9 +325,9 @@ void app::user::erp_state(app::node A,
     time = interpolate(A, B, "time", tt);
 
     if (tt < 0.5)
-        opts = get_attr_d(A, "opts", 0);
+        opts = A.get_i("opts", 0);
     else
-        opts = get_attr_d(B, "opts", 0);
+        opts = B.get_i("opts", 0);
 
     set(p, q, time);
 }
@@ -340,17 +340,17 @@ void app::user::set_state(app::node A, int &opts)
     double q[4];
     double time;
 
-    p[0] = get_attr_f(A, "x", 0);
-    p[1] = get_attr_f(A, "y", 0);
-    p[2] = get_attr_f(A, "z", 0);
+    p[0] = A.get_f("x", 0);
+    p[1] = A.get_f("y", 0);
+    p[2] = A.get_f("z", 0);
 
-    q[0] = get_attr_f(A, "t", 0);
-    q[1] = get_attr_f(A, "u", 0);
-    q[2] = get_attr_f(A, "v", 0);
-    q[3] = get_attr_f(A, "w", 0);
+    q[0] = A.get_f("t", 0);
+    q[1] = A.get_f("u", 0);
+    q[2] = A.get_f("v", 0);
+    q[3] = A.get_f("w", 0);
 
-    time = get_attr_d(A, "time", 0);
-    opts = get_attr_d(A, "opts", 0);
+    time = A.get_i("time", 0);
+    opts = A.get_i("opts", 0);
 
     set(p, q, time);
 }
@@ -452,23 +452,23 @@ void app::user::insert(int opts)
 
         // Insert a new key after the current key.
 
-        app::node node = create("key");
+        app::node c("key");
 
-        set_attr_f(node, "x", current_M[12]);
-        set_attr_f(node, "y", current_M[13]);
-        set_attr_f(node, "z", current_M[14]);
+        c.set_f("x", current_M[12]);
+        c.set_f("y", current_M[13]);
+        c.set_f("z", current_M[14]);
 
-        set_attr_f(node, "t", q[0]);
-        set_attr_f(node, "u", q[1]);
-        set_attr_f(node, "v", q[2]);
-        set_attr_f(node, "w", q[3]);
+        c.set_f("t", q[0]);
+        c.set_f("u", q[1]);
+        c.set_f("v", q[2]);
+        c.set_f("w", q[3]);
 
-        set_attr_f(node, "time", current_t);
-        set_attr_d(node, "opts", opts);
+        c.set_f("time", current_t);
+        c.set_i("opts", opts);
 
-        app::insert(root, curr, node);
+        c.insert(root, curr);
 
-        curr = node;
+        curr = c;
         prev = cycle_prev(curr);
         next = cycle_next(curr);
         pred = cycle_next(next);
@@ -492,7 +492,7 @@ void app::user::remove()
 
         if (node != curr)
         {
-            app::remove(curr);
+            curr.remove();
 
             curr = node;
             prev = cycle_prev(curr);

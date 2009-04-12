@@ -39,31 +39,31 @@ ogl::frame *dpy::channel::pong = 0;
 
 //-----------------------------------------------------------------------------
 
-dpy::channel::channel(app::node node) : src(0), dst(0)
+dpy::channel::channel(app::node n) : src(0), dst(0)
 {
-    double scale = unit_scale(app::get_attr_s(node, "unit", "ft"));
+    double scale = unit_scale(n.get_s("unit", "ft"));
 
     // Extract the configuration.
 
-    v[0] = p[0] = app::get_attr_f(node, "x") * scale;
-    v[1] = p[1] = app::get_attr_f(node, "y") * scale;
-    v[2] = p[2] = app::get_attr_f(node, "z") * scale;
+    v[0] = p[0] = n.get_f("x") * scale;
+    v[1] = p[1] = n.get_f("y") * scale;
+    v[2] = p[2] = n.get_f("z") * scale;
 
-    c[0] = GLubyte(app::get_attr_f(node, "r", 1.0) * 0xFF);
-    c[1] = GLubyte(app::get_attr_f(node, "g", 1.0) * 0xFF);
-    c[2] = GLubyte(app::get_attr_f(node, "b", 1.0) * 0xFF);
-    c[3] = GLubyte(app::get_attr_f(node, "a", 1.0) * 0xFF);
+    c[0] = GLubyte(n.get_f("r", 1.0) * 0xFF);
+    c[1] = GLubyte(n.get_f("g", 1.0) * 0xFF);
+    c[2] = GLubyte(n.get_f("b", 1.0) * 0xFF);
+    c[3] = GLubyte(n.get_f("a", 1.0) * 0xFF);
 
-    w = app::get_attr_d(node, "w", DEFAULT_PIXEL_WIDTH);
-    h = app::get_attr_d(node, "h", DEFAULT_PIXEL_HEIGHT);
+    w = n.get_i("w", DEFAULT_PIXEL_WIDTH);
+    h = n.get_i("h", DEFAULT_PIXEL_HEIGHT);
 
     // Optionally compute X from the inter-pupilary distance.
 
-    int    i = app::get_attr_d(node, "i");
-    int    n = app::get_attr_d(node, "n");
-    double d = app::get_attr_f(node, "d");
+    int    ii = n.get_i("i");
+    int    in = n.get_i("n");
+    double id = n.get_f("d");
 
-    if (n) v[0] = p[0] = 0.5 * d * (i - 0.5 * (n - 1.0));
+    if (in) v[0] = p[0] = 0.5 * id * (ii - 0.5 * (in - 1.0));
 }
 
 dpy::channel::~channel()

@@ -65,7 +65,6 @@ namespace dpy
 
         // Configuration state and event handlers
 
-        app::node node;
         app::node array;
 
         virtual bool process_keybd(app::event *);

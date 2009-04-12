@@ -116,9 +116,9 @@ SOCKET app::host::init_socket(int port)
     return sd;
 }
 
-void app::host::init_listen(app::node node)
+void app::host::init_listen(app::node p)
 {
-    if (clients) client_cd = init_socket(get_attr_d(node, "port"));
+    if (clients) client_cd = init_socket(p.get_i("port"));
     if (root())  script_cd = init_socket(DEFAULT_SCRIPT_PORT);
 }
 
@@ -269,17 +269,17 @@ void app::host::poll_script()
 
 //-----------------------------------------------------------------------------
 
-void app::host::init_server(app::node node)
+void app::host::init_server(app::node p)
 {
     // If we have a server assignment then we must connect to it.
 
-    if (app::node server = find(node, "server"))
+    if (app::node n = p.find("server"))
     {
         socklen_t  addresslen = sizeof (sockaddr_t);
         sockaddr_t address;
 
-        std::string addr = get_attr_s(server, "addr");
-        int         port = get_attr_d(server, "port");
+        std::string addr = n.get_s("addr");
+        int         port = n.get_i("port");
 
         if (addr.empty()) addr = DEFAULT_HOST;
         if (port == 0)    port = DEFAULT_PORT;
@@ -317,18 +317,15 @@ void app::host::fini_server()
 
 //-----------------------------------------------------------------------------
 
-void app::host::init_client(app::node node)
+void app::host::init_client(app::node p)
 {
-    app::node curr;
-
     // Launch all client processes.
 
-    for (curr = find(node,       "client"); curr;
-         curr = next(node, curr, "client"))
+    for (app::node n = p.find("client"); n; n = p.next(n, "client"))
     {
-        fork_client(get_attr_s(curr, "name").c_str(),
-                    get_attr_s(curr, "addr").c_str(),
-                    get_attr_s(curr, "disp").c_str());
+        fork_client(n.get_s("name").c_str(),
+                    n.get_s("addr").c_str(),
+                    n.get_s("disp").c_str());
         clients++;
     }
 }
@@ -443,34 +440,30 @@ app::host::host(std::string filename, std::string tag) :
 
     // Read host.xml and configure using tag match.
 
-    app::node root;
-    app::node node;
-    app::node curr;
-
-    if ((root = find(file.get_head(), "host")))
+    if (app::node p = file.get_head().find("host"))
     {
         // Locate the configuration for this node.
 
-        if ((node = find(root, "node", "name", tag.c_str())))
+        if (app::node n = p.find("node", "name", tag.c_str()))
         {
             // Extract the on-screen window configuration.
 
-            if (app::node win = find(node, "window"))
+            if (app::node c = n.find("window"))
             {
-                window_full    = get_attr_d(win, "full",  0);
-                window_frame   = get_attr_d(win, "frame", 1);
-                window_size[0] = get_attr_d(win, "x", 0);
-                window_size[1] = get_attr_d(win, "y", 0);
-                window_size[2] = get_attr_d(win, "w", DEFAULT_PIXEL_WIDTH);
-                window_size[3] = get_attr_d(win, "h", DEFAULT_PIXEL_HEIGHT);
+                window_full    = c.get_i("full",  0);
+                window_frame   = c.get_i("frame", 1);
+                window_size[0] = c.get_i("x", 0);
+                window_size[1] = c.get_i("y", 0);
+                window_size[2] = c.get_i("w", DEFAULT_PIXEL_WIDTH);
+                window_size[3] = c.get_i("h", DEFAULT_PIXEL_HEIGHT);
             }
 
             // Extract the off-screen buffer size, or use the window size.
 
-            if (app::node buf = find(node, "buffer"))
+            if (app::node c = n.find("buffer"))
             {
-                buffer_size[0] = get_attr_d(buf, "w", window_size[2]);
-                buffer_size[1] = get_attr_d(buf, "h", window_size[3]);
+                buffer_size[0] = c.get_i("w", window_size[2]);
+                buffer_size[1] = c.get_i("h", window_size[3]);
             }
             else
             {
@@ -480,55 +473,52 @@ app::host::host(std::string filename, std::string tag) :
 
             // Create a display object for each configured display.
 
-            for (curr = find(node,       "display"); curr;
-                 curr = next(node, curr, "display"))
+            app::node c;
+
+            for (c = n.find("display"); c; c = n.next(c, "display"))
             {
-                const std::string t = get_attr_s(curr, "type");
+                const std::string t = c.get_s("type");
 
                 if      (t == "anaglyph")
-                    displays.push_back(new dpy::anaglyph  (curr));
+                    displays.push_back(new dpy::anaglyph  (c));
                 else if (t == "lenticular")
-                    displays.push_back(new dpy::lenticular(curr));
+                    displays.push_back(new dpy::lenticular(c));
 //              else if (t == "dome")
-//                  displays.push_back(new dpy::dome      (curr));
-//              else if (t == "varrier")
-//                  displays.push_back(new dpy::varrier   (curr));
+//                  displays.push_back(new dpy::dome      (c));
                 else
-                    displays.push_back(new dpy::normal    (curr));
+                    displays.push_back(new dpy::normal    (c));
             }
 
             // Create a channel object for each configured channel.
 
             if (channels.empty())
-                for (curr = find(node,       "channel"); curr;
-                     curr = next(node, curr, "channel"))
-                    channels.push_back(new dpy::channel(curr));
+                for (c = n.find("channel"); c; c = n.next(c, "channel"))
+                    channels.push_back(new dpy::channel(c));
 
             // If there are no locally-defined channels, check the root.
 
             if (channels.empty())
-                for (curr = find(root,       "channel"); curr;
-                     curr = next(root, curr, "channel"))
-                    channels.push_back(new dpy::channel(curr));
+                for (c = p.find("channel"); c; c = p.next(c, "channel"))
+                    channels.push_back(new dpy::channel(c));
 
             // Start the network syncronization.
 
-            init_server(node);
-            init_client(node);
-            init_listen(node);
+            init_server(n);
+            init_client(n);
+            init_listen(n);
         }
 
         // Determine the overlay area.
 
-        if (app::node over = find(root, "overlay"))
+        if (app::node n = p.find("overlay"))
         {
-            int w = get_attr_d(over, "w", DEFAULT_PIXEL_WIDTH);
-            int h = get_attr_d(over, "h", DEFAULT_PIXEL_HEIGHT);
+            int w = n.get_i("w", DEFAULT_PIXEL_WIDTH);
+            int h = n.get_i("h", DEFAULT_PIXEL_HEIGHT);
 
-            if      ((curr = app::find(over, "frustum")))
-                overlay = new app::frustum(curr, w, h);
+            if (app::node c = n.find("frustum"))
+                overlay = new app::frustum(c, w, h);
             else
-                overlay = new app::frustum(0,    w, h);
+                overlay = new app::frustum(0, w, h);
         }
     }
 

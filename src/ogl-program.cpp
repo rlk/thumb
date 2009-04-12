@@ -148,30 +148,24 @@ std::string ogl::program::load(const std::string& name)
     return base;
 }
 
-void ogl::program::init_attributes(app::node root)
+void ogl::program::init_attributes(app::node p)
 {
-    app::node curr;
-
     // Bind the attributes.
 
-    for (curr = app::find(root,       "attribute"); curr;
-         curr = app::next(root, curr, "attribute"))
+    for (app::node n = p.find("attribute"); n; n = p.next(n, "attribute"))
 
-        glBindAttribLocationARB(prog, app::get_attr_d(curr, "location"),
-                                      app::get_attr_s(curr, "name").c_str());
+        glBindAttribLocationARB(prog, n.get_i("location"),
+                                      n.get_s("name").c_str());
 }
 
-void ogl::program::init_samplers(app::node root)
+void ogl::program::init_samplers(app::node p)
 {
-    app::node curr;
-
     // Set the samplers.
 
-    for (curr = app::find(root,       "sampler"); curr;
-         curr = app::next(root, curr, "sampler"))
+    for (app::node n = p.find("sampler"); n; n = p.next(n, "sampler"))
     {
-        const std::string name = app::get_attr_s(curr, "name");
-        const int         unit = app::get_attr_d(curr, "unit");
+        const std::string name = n.get_s("name");
+        const int         unit = n.get_i("unit");
 
         if (!name.empty())
         {
@@ -181,23 +175,20 @@ void ogl::program::init_samplers(app::node root)
     }
 }
 
-void ogl::program::init_uniforms(app::node root)
+void ogl::program::init_uniforms(app::node p)
 {
-    app::node curr;
-
     // Get the uniforms.
 
-    for (curr = app::find(root,       "uniform"); curr;
-         curr = app::next(root, curr, "uniform"))
+    for (app::node n = p.find("uniform"); n; n = p.next(n, "uniform"))
     {
-        const std::string name  = app::get_attr_s(curr, "name");
-        const std::string value = app::get_attr_s(curr, "value");
-        const int         size  = app::get_attr_d(curr, "size");
+        const std::string name  = n.get_s("name");
+        const std::string value = n.get_s("value");
+        const int         size  = n.get_i("size");
 
         if (!value.empty())
         {
-            if (ogl::uniform *p = ::glob->load_uniform(value, size))
-                uniforms[p] = glGetUniformLocationARB(prog, name.c_str());
+            if (ogl::uniform *u = ::glob->load_uniform(value, size))
+                uniforms[u] = glGetUniformLocationARB(prog, name.c_str());
         }
     }
 }
@@ -208,13 +199,12 @@ void ogl::program::init()
 {
     std::string path = "program/" + name;
 
-    app::serial file(path);
-    app::node   root;
+    app::file file(path);
 
-    if ((root = app::find(file.get_head(), "program")))
+    if (app::node root = file.get_head().find("program"))
     {
-        const std::string vert_name = app::get_attr_s(root, "vert");
-        const std::string frag_name = app::get_attr_s(root, "frag");
+        const std::string vert_name = root.get_s("vert");
+        const std::string frag_name = root.get_s("frag");
 
         // Load the shader files.
 

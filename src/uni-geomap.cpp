@@ -305,32 +305,28 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
     image(0),
     index(0)
 {
-    app::serial file(name.c_str());
+    app::file file(name.c_str());
     
-    if (app::node map = app::find(file.get_head(), "map"))
+    if (app::node n = file.get_head().find("map"))
     {
         // Load the map configuration from the file.
 
-        const std::string program = app::get_attr_s(map, "program");
+        const std::string program = n.get_s("program");
 
-/*
-        const std::string vert = app::get_attr_s(map, "vert");
-        const std::string frag = app::get_attr_s(map, "frag");
-*/
-        pattern = ::conf->get_s("data_dir") + app::get_attr_s(map, "name");
+        pattern = ::conf->get_s("data_dir") + n.get_s("name");
 
-        ext_W = app::get_attr_f(map, "W", -PI);
-        ext_E = app::get_attr_f(map, "E",  PI);
-        ext_S = app::get_attr_f(map, "S", -PI_2);
-        ext_N = app::get_attr_f(map, "N",  PI_2);
+        ext_W = n.get_f("W", -PI);
+        ext_E = n.get_f("E",  PI);
+        ext_S = n.get_f("S", -PI_2);
+        ext_N = n.get_f("N",  PI_2);
 
-        w = app::get_attr_d(map, "w", 1024);
-        h = app::get_attr_d(map, "h", 512);
-        s = app::get_attr_d(map, "s", 510);
-        c = app::get_attr_d(map, "c", 3);
-        b = app::get_attr_d(map, "b", 1);
+        w     = n.get_i("w", 1024);
+        h     = n.get_i("h", 512);
+        s     = n.get_i("s", 510);
+        c     = n.get_i("c", 3);
+        b     = n.get_i("b", 1);
 
-        lsb = (app::get_attr_s(map, "order") == "lsb");
+        lsb = (n.get_s("order") == "lsb");
 
         // Compute the extents of the mipmap pyramid.
 
@@ -352,23 +348,6 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
         // Load and initialize the shader.
 
         prog = ::glob->load_program(program);
-/*
-        prog = ::glob->load_program(vert, frag);
-
-        prog->bind();
-        {
-            // Surface shaders use this.
-
-            prog->uniform("cyl", 0);
-
-            // Height shaders use these.
-
-            prog->uniform("pos", 4);
-            prog->uniform("nrm", 5);
-            prog->uniform("tex", 6);
-        }
-        prog->free();
-*/
     }
 
     cutoff = ::conf->get_f("texel_cutoff");

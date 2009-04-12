@@ -43,24 +43,22 @@ void app::frustum::get_calibration(double& P, double& T, double& R,
 
     if (node)
     {
-        app::node curr;
-
-        if ((curr = find(node, "position")))
+        if (app::node n = node.find("position"))
         {
-            P = get_attr_f(curr, "p", P);
-            T = get_attr_f(curr, "t", T);
-            R = get_attr_f(curr, "r", R);
+            P = n.get_f("p", P);
+            T = n.get_f("t", T);
+            R = n.get_f("r", R);
         }
-        if ((curr = find(node, "rotation")))
+        if (app::node n = node.find("rotation"))
         {
-            p = get_attr_f(curr, "p", p);
-            y = get_attr_f(curr, "y", y);
-            r = get_attr_f(curr, "r", r);
+            p = n.get_f("p", p);
+            y = n.get_f("y", y);
+            r = n.get_f("r", r);
         }
-        if ((curr = find(node, "perspective")))
+        if (app::node n = node.find("perspective"))
         {
-            H = get_attr_f(curr, "hfov", H);
-            V = get_attr_f(curr, "vfov", V);
+            H = n.get_f("hfov", H);
+            V = n.get_f("vfov", V);
         }
     }
 }
@@ -73,24 +71,22 @@ void app::frustum::set_calibration(double P, double T, double R,
 
     if (node)
     {
-        app::node curr;
-
-        if ((curr = find(node, "position")))
+        if (app::node n = node.find("position"))
         {
-            set_attr_f(curr, "p", P);
-            set_attr_f(curr, "t", T);
-            set_attr_f(curr, "r", R);
+            n.set_f("p", P);
+            n.set_f("t", T);
+            n.set_f("r", R);
         }
-        if ((curr = find(node, "rotation")))
+        if (app::node n = node.find("rotation"))
         {
-            set_attr_f(curr, "p", p);
-            set_attr_f(curr, "y", y);
-            set_attr_f(curr, "r", r);
+            n.set_f("p", p);
+            n.set_f("y", y);
+            n.set_f("r", r);
         }
-        if ((curr = find(node, "perspective")))
+        if (app::node n = node.find("perspective"))
         {
-            set_attr_f(curr, "hfov", H);
-            set_attr_f(curr, "vfov", V);
+            n.set_f("hfov", H);
+            n.set_f("vfov", V);
         }
     }
 }
@@ -156,14 +152,11 @@ void app::frustum::calc_calibrated()
 
     if (node)
     {
-        app::node curr;
-
         // Extract the screen corners.
 
-        for (curr = find(node,       "corner"); curr;
-             curr = next(node, curr, "corner"))
+        for (app::node n = node.find("corner"); n; n = node.next(n, "corner"))
         {
-            const std::string name = get_attr_s(curr, "name");
+            const std::string name = n.get_s("name");
             double *v = 0;
 
             // Determine which corner is being specified.
@@ -178,22 +171,22 @@ void app::frustum::calc_calibrated()
 
             if (v)
             {
-                double scale = unit_scale(get_attr_s(curr, "unit", "ft"));
+                double scale = unit_scale(n.get_s("unit", "ft"));
 
                 // Extract the position.
 
-                v[0] = get_attr_f(curr, "x") * scale;
-                v[1] = get_attr_f(curr, "y") * scale;
-                v[2] = get_attr_f(curr, "z") * scale;
+                v[0] = n.get_f("x") * scale;
+                v[1] = n.get_f("y") * scale;
+                v[2] = n.get_f("z") * scale;
             }
         }
 
         // Extract fields-of-view.
 
-        if ((curr = find(node, "perspective")))
+        if (app::node n = node.find("perspective"))
         {
-            hfov = get_attr_f(curr, "hfov");
-            vfov = get_attr_f(curr, "vfov");
+            hfov = n.get_f("hfov");
+            vfov = n.get_f("vfov");
         }
 
         // Extract the calibration.
