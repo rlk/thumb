@@ -60,7 +60,6 @@ OBJS=   util.o \
 	app-perf.o \
 	app-lang.o \
 	app-glob.o \
-	app-conf.o \
 	app-data.o \
 	app-prog.o \
 	demo.o \

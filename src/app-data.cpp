@@ -142,77 +142,39 @@ void app::file_archive::list(std::string name, str_set& dirs,
 
 //=============================================================================
 
-void app::data::load()
-{
-    if (head) mxmlDelete(head);
-
-    head = 0;
-    root = 0;
-
-    const char *buff;
-
-    if ((buff = (const char *) load(file)))
-    {
-        head = mxmlLoadString(NULL, buff, MXML_TEXT_CALLBACK);
-        root = mxmlFindElement(head, head, "data", 0, 0, MXML_DESCEND_FIRST);
-    }
-
-    free(file);
-}
-
-std::string app::data::translate(std::string& file) const
+std::string app::data::translate(const std::string& filename) const
 {
     // Try to map the named file onto a configured alternative.
 
-    if (::conf && root)
+    if (::conf && file.get_root())
     {
-        mxml_node_t *node;
-        mxml_node_t *curr;
+        // Locate the list of options for the named file.
 
-        // Find file elements with the given name.
-
-        for (node = mxmlFindElement(root, root, "file", "name", file.c_str(),
-                                    MXML_DESCEND_FIRST);
-             node;
-             node = mxmlFindElement(node, root, "file", "name", file.c_str(),
-                                    MXML_NO_DESCEND))
+        if (app::node n = file.get_root().find("file", "name", filename))
         {
-            // Find an option element matching the current config.
+            // Enumerate the options.
 
-            for (curr = mxmlFindElement(node, node, "option",
-                                        NULL, NULL, MXML_DESCEND_FIRST);
-                 curr;
-                 curr = mxmlFindElement(curr, node, "option",
-                                        NULL, NULL, MXML_NO_DESCEND))
+            for (app::node c = n.find("option"); c; c = n.next(c, "option"))
             {
-                std::string type (mxmlElementGetAttr(curr, "type"));
-                std::string name (mxmlElementGetAttr(curr, "name"));
-                std::string value(mxmlElementGetAttr(curr, "value"));
+                // If the option matches the config setting, return the target.
 
-                // If the option matches the setting, return the mapping.
+                const std::string name  = c.get_s("name");
+                const std::string value = c.get_s("value");
 
-                if (type == "string")
-                {
-                    if (::conf->get_s(name) == value)
-                        return std::string(curr->child->value.text.string);
-                }
-                if (type == "int")
-                {
-                    if (::conf->get_i(name) == atoi(value.c_str()))
-                        return std::string(curr->child->value.text.string);
-                }
+                if (::conf->get_s(name) == value)
+                    return c.get_s();
             }
         }
     }
 
-    // No mapping was found.  Return the original string.
+    // No configured option was found.  Return the original string.
 
-    return file;
+    return filename;
 }
 
 //-----------------------------------------------------------------------------
 
-app::data::data(std::string file) : file(file), head(0), root(0)
+app::data::data(const std::string& filename) : filename(filename), file("")
 {
     std::string path;
 
@@ -225,10 +187,6 @@ app::data::data(std::string file) : file(file), head(0), root(0)
 
     if (find_ro_data(path))
         archives.push_back(new file_archive(path, false));
-
-    // Load the data mapping configuration file.
-
-    load();
 }
 
 app::data::~data()
@@ -239,13 +197,16 @@ app::data::~data()
 
     for (i = archives.begin(); i != archives.end(); ++i)
         delete *i;
-
-    // Delete the configuration.
-
-    if (head) mxmlDelete(head);
 }
 
-const void *app::data::load(std::string name, size_t *len)
+void app::data::init()
+{
+    // The database is a chicken and its configuration is an egg.
+
+    if (!file.get_root()) file = app::file(filename);
+}
+
+const void *app::data::load(const std::string& name, size_t *len)
 {
     // If the named buffer has not yet been loaded, load it.
 
@@ -255,7 +216,7 @@ const void *app::data::load(std::string name, size_t *len)
 
         for (archive_c i = archives.begin(); i != archives.end(); ++i)
         {
-            std::string rename = translate(name);
+            const std::string rename = translate(name);
 
             if ((*i)->find(rename))
             {
@@ -276,7 +237,7 @@ const void *app::data::load(std::string name, size_t *len)
     }
 }
 
-bool app::data::save(std::string name, const void *ptr, size_t *len)
+bool app::data::save(const std::string& name, const void *ptr, size_t *len)
 {
     // Search the list of archives for the first one that can save this buffer.
 
@@ -287,7 +248,8 @@ bool app::data::save(std::string name, const void *ptr, size_t *len)
     return false;
 }
 
-void app::data::list(std::string name, str_set& dirs, str_set& regs) const
+void app::data::list(const std::string& name, str_set& dirs,
+                                              str_set& regs) const
 {
     // Merge the file lists of all archives.
 
@@ -295,7 +257,7 @@ void app::data::list(std::string name, str_set& dirs, str_set& regs) const
         (*i)->list(name, dirs, regs);
 }
 
-void app::data::free(std::string name)
+void app::data::free(const std::string& name)
 {
     // If the named buffer has been loaded, free it.
 

@@ -22,9 +22,9 @@
 
 #include <string.h>
 #include <errno.h>
-#include <mxml.h>
 
 #include "util.hpp"
+#include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -35,52 +35,52 @@ namespace app
 
     class find_error : public std::runtime_error
     {
-        std::string mesg(std::string& s) {
+        std::string mesg(const std::string& s) {
             return "Error finding file: " + s + ": " + strerror(errno);
         }
 
     public:
-        find_error(std::string& s) : std::runtime_error(mesg(s)) { }
+        find_error(const std::string& s) : std::runtime_error(mesg(s)) { }
     };
 
     class open_error : public std::runtime_error
     {
-        std::string mesg(std::string& s) {
+        std::string mesg(const std::string& s) {
             return "Error opening file: " + s + ": " + strerror(errno);
         }
 
     public:
-        open_error(std::string& s) : std::runtime_error(mesg(s)) { }
+        open_error(const std::string& s) : std::runtime_error(mesg(s)) { }
     };
 
     class stat_error : public std::runtime_error
     {
-        std::string mesg(std::string& s) {
+        std::string mesg(const std::string& s) {
             return "Error stating file: " + s + ": " + strerror(errno);
         }
 
     public:
-        stat_error(std::string& s) : std::runtime_error(mesg(s)) { }
+        stat_error(const std::string& s) : std::runtime_error(mesg(s)) { }
     };
 
     class read_error : public std::runtime_error
     {
-        std::string mesg(std::string& s) {
+        std::string mesg(const std::string& s) {
             return "Error reading file: " + s + ": " + strerror(errno);
         }
 
     public:
-        read_error(std::string& s) : std::runtime_error(mesg(s)) { }
+        read_error(const std::string& s) : std::runtime_error(mesg(s)) { }
     };
 
     class write_error : public std::runtime_error
     {
-        std::string mesg(std::string& s) {
+        std::string mesg(const std::string& s) {
             return "Error writing file: " + s + ": " + strerror(errno);
         }
 
     public:
-        write_error(std::string& s) : std::runtime_error(mesg(s)) { }
+        write_error(const std::string& s) : std::runtime_error(mesg(s)) { }
     };
 }
 
@@ -186,26 +186,25 @@ namespace app
 {
     class data
     {
-        std::string  file;
-        mxml_node_t *head;
-        mxml_node_t *root;
+        std::string filename;
+        app::file   file;
 
-        std::string translate(std::string&) const;
+        std::string translate(const std::string&) const;
 
         archive_l archives;
         buffer_m  buffers;
 
     public:
 
-        data(std::string);
+        data(const std::string&);
        ~data();
 
-        void load();
+        void init();
 
-        const void *load(std::string name,               size_t *size=0);
-        bool        save(std::string name, const void *, size_t *size=0);
-        void        list(std::string name, str_set& dirs, str_set& regs) const;
-        void        free(std::string name);
+        const void *load(const std::string&,               size_t * = 0);
+        bool        save(const std::string&, const void *, size_t * = 0);
+        void        free(const std::string&);
+        void        list(const std::string&, str_set&, str_set&) const;
     };
 }
 

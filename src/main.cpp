@@ -199,7 +199,7 @@ static void init(std::string tag)
     data = new app::data(DEFAULT_DATA_FILE);
     conf = new app::conf(DEFAULT_CONF_FILE);
 
-    conf->set_s("howdy", "pardner");
+    data->init();
 
     // Initialize language and host configuration.
 

@@ -92,17 +92,20 @@ void app::node::read(const std::string& name)
 
     ptr = 0;
 
-    // Load the data stream and parse the XML.
-
-    if (const char *buff = (const char *) ::data->load(name))
+    if (!name.empty())
     {
-        ptr = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
-        clean();
-    }
-        
-    // Release the data stream.
+        // Load the data stream and parse the XML.
 
-    ::data->free(name);
+        if (const char *buff = (const char *) ::data->load(name))
+        {
+            ptr = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
+            clean();
+        }
+        
+        // Release the data stream.
+
+        ::data->free(name);
+    }
 }
 
 void app::node::write(const std::string& name)
