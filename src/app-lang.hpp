@@ -14,7 +14,8 @@
 #define APP_LANG_HPP
 
 #include <string>
-#include <mxml.h>
+
+#include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -25,16 +26,16 @@ namespace app
 
     class lang
     {
-        std::string  curr;
-        mxml_node_t *head;
-        mxml_node_t *root;
+        std::string language;
+
+        app::file file;
+        app::node root;
 
     public:
 
-        lang(std::string);
-       ~lang();
+        lang(const std::string&);
 
-        std::string get(std::string);
+        std::string get(const std::string&);
     };
 }
 

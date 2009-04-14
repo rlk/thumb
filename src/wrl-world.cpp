@@ -25,6 +25,7 @@
 #include "app-data.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
+#include "app-serial.hpp"
 #include "app-frustum.hpp"
 #include "wrl-solid.hpp"
 #include "wrl-joint.hpp"
@@ -87,6 +88,15 @@ wrl::world::world() :
 
 wrl::world::~world()
 {
+    // Atoms own units, so units must be removed from nodes before deletion.
+
+    fill_node->clear();
+    stat_node->clear();
+    dyna_node->clear();
+
+    for (node_map::iterator j = nodes.begin(); j != nodes.end(); ++j)
+        j->second->clear();
+
     // Delete all operations.
 
     while (!undo_list.empty())
@@ -100,15 +110,10 @@ wrl::world::~world()
         redo_list.pop_front();
     }
 
-    // Finalize the scene.
+    // Finalize the atoms.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
-    {
-        fill_node->rem_unit((*i)->get_fill());
-        stat_node->rem_unit((*i)->get_line());
-        dyna_node->rem_unit((*i)->get_line());
         delete (*i);
-    }
 
     // Finalize the editor physical system.
 
@@ -506,7 +511,6 @@ void wrl::world::node_insert(int id, ogl::unit *unit)
         // Add the given unit to the node.
 
         nodes[id]->add_unit(unit);
-            
     }
     else fill_node->add_unit(unit);
 }
@@ -523,6 +527,7 @@ void wrl::world::node_remove(int id, ogl::unit *unit)
 
         if (nodes[id]->vcount() == 0)
         {
+            fill_pool->rem_node(nodes[id]);
             delete nodes[id];
             nodes.erase(id);
         }
@@ -773,7 +778,7 @@ void wrl::world::do_modify(const double *M)
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 static mxml_type_t load_cb(mxml_node_t *node)
 {
     std::string name(node->value.element.name);
@@ -846,7 +851,7 @@ static const char *save_cb(mxml_node_t *node, int where)
 
     return NULL;
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 void wrl::world::init()
@@ -857,142 +862,107 @@ void wrl::world::init()
 
 void wrl::world::load(std::string name)
 {
+    wrl::atom *a;
+
     // Clear the selection in preparation for selecting all loaded entities.
 
     sel.clear();
 
     // Load the named file.
 
-    if (const char *buff = (const char *) ::data->load(name))
+    app::file file(name);
+    app::node root(file.get_root().find("world"));
+
+    // Check for static split definitions.
+
+    split_static = (((split[0] = root.get_f("split0", 0.0)) > 0.0) |
+                    ((split[1] = root.get_f("split1", 0.0)) > 0.0) |
+                    ((split[2] = root.get_f("split2", 0.0)) > 0.0) |
+                    ((split[3] = root.get_f("split3", 0.0)) > 0.0));
+
+    // Find all geom elements.
+
+    for (app::node n = root.find("geom"); n; n = root.next(n, "geom"))
     {
-        mxml_node_t *n;
-        mxml_node_t *H = mxmlLoadString(0, buff, load_cb);
-        mxml_node_t *T = mxmlFindElement(H, H, "world", 0, 0,
-                                         MXML_DESCEND_FIRST);
-        wrl::atom *a;
+        std::string type = n.get_s("class");
 
-        // Check for static split definitions.
+        // Create a new solid for each recognized geom class.
 
-        const char *c;
+        if      (type == "box")    a = new wrl::box   ("");
+        else if (type == "sphere") a = new wrl::sphere("");
+        else continue;
 
-        split_static = false;
-        split[0]     = 0.0;
-        split[1]     = 0.0;
-        split[2]     = 0.0;
-        split[3]     = 0.0;
+        // Allow the new solid to parse its own attributes.
 
-        if ((c = mxmlElementGetAttr(T, "split0")))
-        {
-            split_static = true;
-            split[0] = strtof(c, 0);
-        }
-        if ((c = mxmlElementGetAttr(T, "split1")))
-        {
-            split_static = true;
-            split[1] = strtof(c, 0);
-        }
-        if ((c = mxmlElementGetAttr(T, "split2")))
-        {
-            split_static = true;
-            split[2] = strtof(c, 0);
-        }
-        if ((c = mxmlElementGetAttr(T, "split3")))
-        {
-            split_static = true;
-            split[3] = strtof(c, 0);
-        }
+        a->load(n);
 
-        // Find all geom elements.
+        // Select the new solid for addition to the world.
 
-        for (n = mxmlFindElement(T, T, "geom", 0, 0, MXML_DESCEND_FIRST); n;
-             n = mxmlFindElement(n, T, "geom", 0, 0, MXML_NO_DESCEND))
-
-            if (mxmlElementGetAttr(n, "class"))
-            {
-                std::string type(mxmlElementGetAttr(n, "class"));
-
-                // Create a new solid for each recognized geom class.
-
-                if      (type == "box")    a = new wrl::box   ("");
-                else if (type == "sphere") a = new wrl::sphere("");
-                else continue;
-
-                // Allow the new solid to parse its own attributes.
-
-                a->load(n);
-
-                // Select the new solid for addition to the world.
-
-                sel.insert(a);
-            }
-
-        // Find all joint elements.
-
-        for (n = mxmlFindElement(T, T, "joint", 0, 0, MXML_DESCEND_FIRST); n;
-             n = mxmlFindElement(n, T, "joint", 0, 0, MXML_NO_DESCEND))
-
-            if (mxmlElementGetAttr(n, "type"))
-            {
-                std::string type(mxmlElementGetAttr(n, "type"));
-
-                // Create a new joint for each recognized joint type.
-
-                if      (type == "ball")      a = new wrl::ball     ();
-                else if (type == "hinge")     a = new wrl::hinge    ();
-                else if (type == "hinge2")    a = new wrl::hinge2   ();
-                else if (type == "slider")    a = new wrl::slider   ();
-                else if (type == "amotor")    a = new wrl::amotor   ();
-                else if (type == "universal") a = new wrl::universal();
-                else continue;
-
-                // Allow the new joint to parse its own attributes.
-
-                a->load(n);
-
-                // Select the new joint for addition to the world.
-
-                sel.insert(a);
-            }
-
-        // Add the selected elements to the scene.
-
-        do_create();
-
-        // Ensure the body group serial number does not conflict.
-
-        for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
-        {
-            serial = std::max(serial, (*i)->body() + 1);
-            serial = std::max(serial, (*i)->join() + 1);
-        }
-
-        mxmlDelete(H);
+        sel.insert(a);
     }
 
-    ::data->free(name);
+    // Find all joint elements.
+
+    for (app::node n = root.find("joint"); n; n = root.next(n, "joint"))
+    {
+        std::string type = n.get_s("type");
+
+        // Create a new joint for each recognized joint type.
+
+        if      (type == "ball")      a = new wrl::ball     ();
+        else if (type == "hinge")     a = new wrl::hinge    ();
+        else if (type == "hinge2")    a = new wrl::hinge2   ();
+        else if (type == "slider")    a = new wrl::slider   ();
+        else if (type == "amotor")    a = new wrl::amotor   ();
+        else if (type == "universal") a = new wrl::universal();
+        else continue;
+
+        // Allow the new joint to parse its own attributes.
+
+        a->load(n);
+
+        // Select the new joint for addition to the world.
+
+        sel.insert(a);
+    }
+
+    // Add the selected elements to the scene.
+
+    do_create();
+
+    // Ensure the body group serial number does not conflict.
+
+    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+    {
+        serial = std::max(serial, (*i)->body() + 1);
+        serial = std::max(serial, (*i)->join() + 1);
+    }
 }
 
 void wrl::world::save(std::string filename, bool save_all)
 {
-    mxml_node_t *head = mxmlNewElement(0, "?xml");
-    mxml_node_t *root = mxmlNewElement(head, "world");
+    // Construct a new XML DOM using from the current world.
 
-    mxmlElementSetAttr(head, "version", "1.0");
-    mxmlElementSetAttr(head, "?", 0);
+    app::node head("?xml");
+    app::node body("world");
+
+    head.set_s("version", "1.0");
+    head.set_s("?", "");
+    
+    body.insert(head);
+
+    // Add some or all atoms to the DOM, as requested.
 
     if (save_all)
         for (atom_set::const_iterator i = all.begin(); i != all.end(); ++i)
-            (*i)->save(root);
+            (*i)->save(body);
     else
         for (atom_set::const_iterator i = sel.begin(); i != sel.end(); ++i)
-            (*i)->save(root);
+            (*i)->save(body);
 
-    if (char *buff = mxmlSaveAllocString(head, save_cb))
-    {
-        ::data->save(filename, buff);
-        free(buff);
-    }
-    mxmlDelete(head);
+    // Write the DOM to the named file.
+
+    head.write(filename);
 }
 
 //-----------------------------------------------------------------------------
@@ -1186,11 +1156,11 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     fill_pool->draw_fini();
 
     // Render the sky.
-/*
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     draw_sky(frusp);
-*/
+
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);
 }
 

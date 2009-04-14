@@ -317,80 +317,89 @@ void wrl::universal::step_init()
 
 //-----------------------------------------------------------------------------
 
-void wrl::joint::load(mxml_node_t *node)
+void wrl::joint::load(app::node node)
 {
-    mxml_node_t *join;
-
-    if ((join = mxmlFindElement(node, node, "join", 0, 0, MXML_DESCEND)))
-        join_id = join->child->value.integer;
+    if (app::node n = node.find("join"))
+        join_id = n.get_i();
 
     atom::load(node);
 }
 
-mxml_node_t *wrl::joint::save(mxml_node_t *node)
+void wrl::joint::save(app::node node)
 {
-    if (join_id) mxmlNewInteger(mxmlNewElement(node, "join"), join_id);
-    return atom::save(node);
+    if (join_id)
+    {
+        app::node n("join");
+        n.set_i(join_id);
+        n.insert(node);
+    }
+    atom::save(node);
 }
 
-mxml_node_t *wrl::ball::save(mxml_node_t *parent)
+void wrl::ball::save(app::node node)
 {
     // Create a new ball element.
 
-    mxml_node_t *node = mxmlNewElement(parent, "joint");
+    app::node n("joint");
 
-    mxmlElementSetAttr(node, "type", "ball");
-    return joint::save(node);
+    n.set_s("type", "ball");
+    n.insert(node);
+    joint::save(n);
 }
 
-mxml_node_t *wrl::hinge::save(mxml_node_t *parent)
+void wrl::hinge::save(app::node node)
 {
     // Create a new hinge element.
 
-    mxml_node_t *node = mxmlNewElement(parent, "joint");
+    app::node n("joint");
 
-    mxmlElementSetAttr(node, "type", "hinge");
-    return joint::save(node);
+    n.set_s("type", "hing");
+    n.insert(node);
+    joint::save(n);
 }
 
-mxml_node_t *wrl::hinge2::save(mxml_node_t *parent)
+void wrl::hinge2::save(app::node node)
 {
     // Create a new hinge2 element.
 
-    mxml_node_t *node = mxmlNewElement(parent, "joint");
+    app::node n("joint");
 
-    mxmlElementSetAttr(node, "type", "hinge2");
-    return joint::save(node);
+    n.set_s("type", "hinge2");
+    n.insert(node);
+    joint::save(n);
 }
 
-mxml_node_t *wrl::slider::save(mxml_node_t *parent)
+void wrl::slider::save(app::node node)
 {
     // Create a new slider element.
 
-    mxml_node_t *node = mxmlNewElement(parent, "joint");
+    app::node n("joint");
 
-    mxmlElementSetAttr(node, "type", "slider");
-    return joint::save(node);
+    n.set_s("type", "slider");
+    n.insert(node);
+    joint::save(n);
 }
 
-mxml_node_t *wrl::amotor::save(mxml_node_t *parent)
+void wrl::amotor::save(app::node node)
 {
     // Create a new amotor element.
 
-    mxml_node_t *node = mxmlNewElement(parent, "joint");
+    app::node n("joint");
 
-    mxmlElementSetAttr(node, "type", "amotor");
-    return joint::save(node);
+    n.set_s("type", "amotor");
+    n.insert(node);
+    joint::save(n);
 }
 
-mxml_node_t *wrl::universal::save(mxml_node_t *parent)
+void wrl::universal::save(app::node node)
 {
     // Create a new universal element.
 
-    mxml_node_t *node = mxmlNewElement(parent, "joint");
+    app::node n("joint");
 
-    mxmlElementSetAttr(node, "type", "universal");
-    return joint::save(node);
+    n.set_s("type", "universal");
+    n.insert(node);
+    joint::save(n);
 }
 
 //-----------------------------------------------------------------------------

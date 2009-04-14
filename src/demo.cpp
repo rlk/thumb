@@ -226,7 +226,7 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-    universe = new uni::universe(w, h);
+//  universe = new uni::universe(w, h);
     world    = new wrl::world();
 
     edit = new mode::edit(world);
@@ -498,4 +498,3 @@ void demo::draw(int frusi, const app::frustum *frusp)
 }
 
 //-----------------------------------------------------------------------------
-

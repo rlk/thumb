@@ -17,7 +17,8 @@
 #include <map>
 
 #include <ode/ode.h>
-#include <mxml.h>
+
+#include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -56,8 +57,8 @@ namespace wrl
 
         double value();
 
-        void load(mxml_node_t *);
-        void save(mxml_node_t *);
+        void load(app::node);
+        void save(app::node);
     };
 
     typedef std::map<int, param *> param_map;

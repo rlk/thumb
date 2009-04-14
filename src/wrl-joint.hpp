@@ -44,8 +44,8 @@ namespace wrl
 
         // File I/O
 
-        virtual void         load(mxml_node_t *);
-        virtual mxml_node_t *save(mxml_node_t *);
+        virtual void load(app::node);
+        virtual void save(app::node);
     };
 
     //-------------------------------------------------------------------------
@@ -63,7 +63,7 @@ namespace wrl
 
         virtual void play_init();
 
-        mxml_node_t *save(mxml_node_t *);
+        void save(app::node);
     };
 
     //-------------------------------------------------------------------------
@@ -82,7 +82,7 @@ namespace wrl
         virtual void play_init();
         virtual void step_init();
 
-        mxml_node_t *save(mxml_node_t *);
+        void save(app::node);
     };
 
     //-------------------------------------------------------------------------
@@ -100,7 +100,7 @@ namespace wrl
         virtual void play_init();
         virtual void step_init();
 
-        mxml_node_t *save(mxml_node_t *);
+        void save(app::node);
     };
 
     //-------------------------------------------------------------------------
@@ -118,7 +118,7 @@ namespace wrl
         virtual void play_init();
         virtual void step_init();
 
-        mxml_node_t *save(mxml_node_t *);
+        void save(app::node);
     };
 
     //-------------------------------------------------------------------------
@@ -136,7 +136,7 @@ namespace wrl
         virtual void play_init();
         virtual void step_init();
 
-        mxml_node_t *save(mxml_node_t *);
+        void save(app::node);
     };
 
     //-------------------------------------------------------------------------
@@ -154,7 +154,7 @@ namespace wrl
         virtual void play_init();
         virtual void step_init();
 
-        mxml_node_t *save(mxml_node_t *);
+        void save(app::node);
     };
 }
 

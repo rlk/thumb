@@ -21,11 +21,12 @@
 
 static bool onechild(mxml_node_t *node)
 {
-    // Return true if node has EXACTLY one child.
+    // Return true if a node is not the root and has EXACTLY one child.
 
-    return (node->type == MXML_ELEMENT && \
-            node->child &&
-            node->child == node->last_child);
+    return (node->type   == MXML_ELEMENT &&
+            node->parent &&
+            node->child  &&
+            node->child  == node->last_child);
 }
 
 static const char *save_cb(mxml_node_t *node, int where)
@@ -238,7 +239,7 @@ void app::node::set_s(const std::string& name,
     {
         // Store the text attribute.
 
-        mxmlElementSetAttr(ptr, name.c_str(), s.c_str());
+        mxmlElementSetAttr(ptr, name.c_str(), s.empty() ? 0 : s.c_str());
         dirty();
     }
 }

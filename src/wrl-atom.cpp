@@ -236,33 +236,27 @@ bool wrl::atom::get_param(int key, std::string& expr)
 
 //-----------------------------------------------------------------------------
 
-void wrl::atom::load(mxml_node_t *node)
+void wrl::atom::load(app::node node)
 {
-    mxml_node_t *n;
+    app::node n;
 
-    double p[3] = { 0, 0, 0    };
     double q[4] = { 0, 0, 0, 1 };
+    double p[3] = { 0, 0, 0    };
 
     load_idt(current_M);
 
     // Initialize the transform and body mappings.
 
-    for (n = node->child; n; 
-         n = mxmlFindElement(n, node, 0, 0, 0, MXML_NO_DESCEND))
-    {
-        std::string name(n->value.element.name);
+    if ((n = node.find("rot_x"))) q[0] = n.get_f();
+    if ((n = node.find("rot_y"))) q[1] = n.get_f();
+    if ((n = node.find("rot_z"))) q[2] = n.get_f();
+    if ((n = node.find("rot_w"))) q[3] = n.get_f();
 
-        if      (name == "rot_x") q[0] = n->child->value.real;
-        else if (name == "rot_y") q[1] = n->child->value.real;
-        else if (name == "rot_z") q[2] = n->child->value.real;
-        else if (name == "rot_w") q[3] = n->child->value.real;
+    if ((n = node.find("pos_x"))) p[0] = n.get_f();
+    if ((n = node.find("pos_y"))) p[1] = n.get_f();
+    if ((n = node.find("pos_z"))) p[2] = n.get_f();
 
-        else if (name == "pos_x") p[0] = n->child->value.real;
-        else if (name == "pos_y") p[1] = n->child->value.real;
-        else if (name == "pos_z") p[2] = n->child->value.real;
-
-        else if (name == "body") body_id = n->child->value.integer;
-    }
+    if ((n = node.find("body"))) body_id = n.get_i();
 
     // Compute and apply the transform.
 
@@ -276,13 +270,11 @@ void wrl::atom::load(mxml_node_t *node)
 
     // Initialize parameters.
 
-    param_map::iterator i;
-
-    for (i = params.begin(); i != params.end(); ++i)
+    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
         i->second->load(node);
 }
 
-mxml_node_t *wrl::atom::save(mxml_node_t *node)
+void wrl::atom::save(app::node node)
 {
     double q[4];
 
@@ -290,25 +282,28 @@ mxml_node_t *wrl::atom::save(mxml_node_t *node)
 
     get_quaternion(q, default_M);
 
-    mxmlNewReal(mxmlNewElement(node, "rot_x"), q[0]);
-    mxmlNewReal(mxmlNewElement(node, "rot_y"), q[1]);
-    mxmlNewReal(mxmlNewElement(node, "rot_z"), q[2]);
-    mxmlNewReal(mxmlNewElement(node, "rot_w"), q[3]);
+    app::node n;
 
-    mxmlNewReal(mxmlNewElement(node, "pos_x"), default_M[12]);
-    mxmlNewReal(mxmlNewElement(node, "pos_y"), default_M[13]);
-    mxmlNewReal(mxmlNewElement(node, "pos_z"), default_M[14]);
+    n = app::node("rot_x"); n.set_f(q[0]); n.insert(node);
+    n = app::node("rot_y"); n.set_f(q[1]); n.insert(node);
+    n = app::node("rot_z"); n.set_f(q[2]); n.insert(node);
+    n = app::node("rot_w"); n.set_f(q[3]); n.insert(node);
+
+    n = app::node("pos_x"); n.set_f(default_M[12]); n.insert(node);
+    n = app::node("pos_y"); n.set_f(default_M[13]); n.insert(node);
+    n = app::node("pos_z"); n.set_f(default_M[14]); n.insert(node);
+
+    if (body_id)
+    {
+        n = app::node("body");
+        n.set_i(body_id);
+        n.insert(node);
+    }
 
     // Add entity parameters to this element.
 
-    if (body_id) mxmlNewInteger(mxmlNewElement(node, "body"), body_id);
-
-    param_map::iterator i;
-
-    for (i = params.begin(); i != params.end(); ++i)
+    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
         i->second->save(node);
-
-    return node;
 }
 
 //-----------------------------------------------------------------------------

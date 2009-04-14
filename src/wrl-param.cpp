@@ -240,24 +240,19 @@ double wrl::param::value()
 
 //-----------------------------------------------------------------------------
 
-void wrl::param::load(mxml_node_t *node)
+void wrl::param::load(app::node node)
 {
-    mxml_node_t *n;
-
-    if ((n = mxmlFindElement(node, node, "param", "name",
-                             name.c_str(), MXML_DESCEND_FIRST)))
-    {
-        if (n->child->value.opaque)
-            expr = n->child->value.opaque;
-    }
+    if (app::node n = node.find("param", "name", name))
+        expr = n.get_s();
 }
 
-void wrl::param::save(mxml_node_t *node)
+void wrl::param::save(app::node node)
 {
-    mxml_node_t *n = mxmlNewElement(node, "param");
+    app::node n("param");
 
-    mxmlElementSetAttr(n, "name", name.c_str());
-    mxmlNewText(n, 0, expr.c_str());
+    n.set_s("name", name);
+    n.set_s(expr);
+    n.insert(node);
 }
 
 //-----------------------------------------------------------------------------

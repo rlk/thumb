@@ -44,8 +44,25 @@ app::glob::~glob()
 {
     // Release all storage and OpenGL state.  Order matters, unfortunately.
 
-    std::map<std::string, surface>::iterator si;
     std::map<std::string, process>::iterator Pi;
+
+    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
+        delete Pi->second.ptr;  // uses pool
+
+    std::set<ogl::pool  *>::iterator qi;
+    std::set<ogl::image *>::iterator ii;
+    std::set<ogl::frame *>::iterator fi;
+
+    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
+        delete (*qi);           // uses surface and binding
+
+    for (ii = image_set.begin(); ii != image_set.end(); ++ii)
+        delete (*ii);
+
+    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
+        delete (*fi);
+
+    std::map<std::string, surface>::iterator si;
     std::map<std::string, binding>::iterator bi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, program>::iterator pi;
@@ -53,9 +70,6 @@ app::glob::~glob()
 
     for (si = surface_map.begin(); si != surface_map.end(); ++si)
         delete si->second.ptr;
-
-    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
-        delete Pi->second.ptr;
 
     for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
         delete bi->second.ptr;
@@ -68,19 +82,6 @@ app::glob::~glob()
 
     for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
         delete ui->second.ptr;
-
-    std::set<ogl::pool  *>::iterator qi;
-    std::set<ogl::image *>::iterator ii;
-    std::set<ogl::frame *>::iterator fi;
-
-    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
-        delete (*qi);
-
-    for (ii = image_set.begin(); ii != image_set.end(); ++ii)
-        delete (*ii);
-
-    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
-        delete (*fi);
 }
 
 //-----------------------------------------------------------------------------

@@ -192,50 +192,52 @@ void wrl::solid::play_fini()
 
 //-----------------------------------------------------------------------------
 
-void wrl::solid::load(mxml_node_t *node)
+void wrl::solid::load(app::node node)
 {
-    mxml_node_t *tag;
-
     // Load the OBJ file.
 
-    if ((tag = mxmlFindElement(node, node, "file", 0, 0, MXML_DESCEND)))
+    if (app::node n = node.find("file"))
     {
-        name = std::string(tag->child->value.text.string);
+        name = n.get_s();
         fill = new ogl::unit(name);
-
         scale();
     }
     atom::load(node);
 }
 
-mxml_node_t *wrl::solid::save(mxml_node_t *node)
+void wrl::solid::save(app::node node)
 {
     // Add the OBJ file reference.
 
-    if (name.size())
-        mxmlNewText(mxmlNewElement(node, "file"), 0, name.c_str());
-
-    return atom::save(node);
+    if (!name.empty())
+    {
+        app::node n("file");
+        n.set_s(name);
+        n.insert(node);
+    }
+    atom::save(node);
 }
 
-mxml_node_t *wrl::box::save(mxml_node_t *parent)
+void wrl::box::save(app::node node)
 {
     // Create a new box element.
 
-    mxml_node_t *node = mxmlNewElement(parent, "geom");
+    app::node n("geom");
 
-    mxmlElementSetAttr(node, "class", "box");
-    return solid::save(node);
+    n.set_s("class", "box");
+    n.insert(node);
+    solid::save(n);
 }
 
-mxml_node_t *wrl::sphere::save(mxml_node_t *parent)
+void wrl::sphere::save(app::node node)
 {
     // Create a new sphere element.
 
-    mxml_node_t *node = mxmlNewElement(parent, "geom");
+    app::node n("geom");
 
-    mxmlElementSetAttr(node, "class", "sphere");
-    return solid::save(node);
+    n.set_s("class", "sphere");
+    n.insert(node);
+    solid::save(n);
 }
 
 //-----------------------------------------------------------------------------

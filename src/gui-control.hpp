@@ -175,7 +175,9 @@ namespace cnt
 
     public:
         init_button(wrl::world *w, gui::widget *s) :
-            gui::button("New"), world(w), state(s) { }
+            gui::button("New"),
+            world(w),
+            state(s) { }
         void apply();
     };
 
@@ -187,7 +189,10 @@ namespace cnt
 
     public:
         load_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            gui::button("Load"), world(w), state(s), name(n) { }
+            gui::button("Load"),
+            world(w),
+            state(s),
+            name(n) { }
         void apply();
     };
 

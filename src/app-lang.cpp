@@ -22,7 +22,7 @@ static std::string get_language()
 
     std::string loc = ::conf->get_s("lang");
 
-    if (loc.size() > 0)
+    if (!loc.empty())
         return loc;
 
     // Check for a language setting in the environment.
@@ -38,42 +38,25 @@ static std::string get_language()
 
 //-----------------------------------------------------------------------------
 
-app::lang::lang(std::string file)
+app::lang::lang(const std::string& name) :
+    language(get_language()),
+    file(name),
+    root(file.get_root().find("dict"))
 {
-    curr = get_language();
-
-    const char *buff;
-
-    if ((buff = (const char *) ::data->load(file)))
-    {
-        head = mxmlLoadString(0, buff, MXML_OPAQUE_CALLBACK);
-        root = mxmlFindElement(head, head, "dict", 0, 0, MXML_DESCEND_FIRST);
-    }
-
-    ::data->free(file);
-}
-
-app::lang::~lang()
-{
-    if (head) mxmlDelete(head);
 }
 
 //-----------------------------------------------------------------------------
 
-std::string app::lang::get(std::string message)
+std::string app::lang::get(const std::string& message)
 {
     // Find the requested message element.
 
-    mxml_node_t *mesg = mxmlFindElement(root, root, "message", "tag",
-                                        message.c_str(), MXML_DESCEND_FIRST);
-    if (mesg)
+    if (app::node n = root.find("message", "tag", message))
     {
         // Find the current language element.
 
-        mxml_node_t *text = mxmlFindElement(mesg, mesg, "text", "lang",
-                                            curr.c_str(), MXML_DESCEND_FIRST);
-
-        if (text) return text->child->value.opaque;
+        if (app::node c = n.find("text", "lang", language))
+            return c.get_s();
     }
 
     // On failure, return the raw message.
