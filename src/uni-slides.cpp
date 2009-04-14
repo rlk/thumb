@@ -94,7 +94,7 @@ uni::slides::slides(std::string filename) :
 {
     app::node p;
 
-    if (app::node p = file.get_head().find("slides"))
+    if (app::node p = file.get_root().find("slides"))
     {
         // Create a slide object for each slide node.
 

@@ -51,32 +51,32 @@ namespace app
 
         void        set_i(const std::string&, int    = 0);
         void        set_i(                    int    = 0);
-        int         get_i(const std::string&, int    = 0);
-        int         get_i(                    int    = 0);
+        int         get_i(const std::string&, int    = 0) const;
+        int         get_i(                    int    = 0) const;
 
         void        set_f(const std::string&, double = 0);
         void        set_f(                    double = 0);
-        double      get_f(const std::string&, double = 0);
-        double      get_f(                    double = 0);
+        double      get_f(const std::string&, double = 0) const;
+        double      get_f(                    double = 0) const;
 
         void        set_s(const std::string&, const std::string&);
         void        set_s(const std::string&);
-        std::string get_s(const std::string&);
-        std::string get_s();
+        std::string get_s(const std::string&)             const;
+        std::string get_s()                               const;
 
         // Iteration
 
         node find(const std::string& = "",
                   const std::string& = "",
-                  const std::string& = "");
+                  const std::string& = "") const;
         node next(node,
                   const std::string& = "",
                   const std::string& = "",
-                  const std::string& = "");
+                  const std::string& = "") const;
 
         // Hierarchy manipulation
 
-        void insert(node, node);
+        void insert(node, node = 0);
         void remove();
     };
 
@@ -88,7 +88,7 @@ namespace app
     private:
 
         std::string name;
-        node        head;
+        node        root;
 
         void load();
         void save();
@@ -98,7 +98,7 @@ namespace app
         file(const std::string&);
        ~file();
 
-        node get_head() { return head; }
+        node get_root() { return root; }
     };
 }
 

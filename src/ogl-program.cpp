@@ -201,7 +201,7 @@ void ogl::program::init()
 
     app::file file(path);
 
-    if (app::node root = file.get_head().find("program"))
+    if (app::node root = file.get_root().find("program"))
     {
         const std::string vert_name = root.get_s("vert");
         const std::string frag_name = root.get_s("frag");

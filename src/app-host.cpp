@@ -440,7 +440,7 @@ app::host::host(std::string filename, std::string tag) :
 
     // Read host.xml and configure using tag match.
 
-    if (app::node p = file.get_head().find("host"))
+    if (app::node p = file.get_root().find("host"))
     {
         // Locate the configuration for this node.
 

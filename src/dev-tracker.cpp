@@ -328,7 +328,9 @@ dev::tracker::tracker() : flying(false), joy_x(0), joy_y(0)
 
     // Configure the buttons and axes.
 
-    scale = unit_scale(conf->get_s("tracker_unit", "ft"));
+    const std::string unit = conf->get_s("tracker_unit");
+
+    scale = unit_scale(unit.empty() ? "ft" : unit);
 
     tracker_head_sensor = conf->get_i("tracker_head_sensor");
     tracker_hand_sensor = conf->get_i("tracker_hand_sensor");

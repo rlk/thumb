@@ -13,8 +13,7 @@
 #ifndef APP_CONF_HPP
 #define APP_CONF_HPP
 
-#include <string>
-#include <mxml.h>
+#include "app-serial.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -22,30 +21,58 @@ namespace app
 {
     class conf
     {
-        std::string  file;
-        mxml_node_t *head;
-        mxml_node_t *root;
+        app::file file;
+        app::node root;
 
-        mxml_node_t *find(std::string, std::string);
+        // Locate the named option, or return a null node.
 
-        bool dirty;
+        app::node locate(const std::string& name) const {
+            return root.find("option", "name", name);
+        }
+
+        // Locate the named option, or create one if need be.
+
+        app::node create(const std::string& key) {
+            if (app::node n = locate(key))
+                return n;
+            else
+            {
+                app::node c("option");
+                c.insert(root);
+                c.set_s("name", key);
+                return c;
+            }
+        }
 
     public:
 
-        conf(std::string);
-       ~conf();
+        conf(const std::string& name) :
+            file(name),
+            root(file.get_root().find("conf")) { }
 
-        void init();
-        bool load();
-        void save();
+        // Get options.
 
-        int         get_i(std::string, int         =  0);
-        double      get_f(std::string, double      =  0);
-        std::string get_s(std::string, std::string = "");
+        int         get_i(const std::string& key, int    val = 0) const {
+            return locate(key).get_i(val);
+        }
+        double      get_f(const std::string& key, double val = 0) const {
+            return locate(key).get_f(val);
+        }
+        std::string get_s(const std::string& key) const {
+            return locate(key).get_s();
+        }
 
-        void        set_i(std::string, int);
-        void        set_f(std::string, double);
-        void        set_s(std::string, std::string);
+        // Set options.
+
+        void        set_i(const std::string& key, int    val) {
+            create(key).set_i(val);
+        }
+        void        set_f(const std::string& key, double val) {
+            create(key).set_f(val);
+        }
+        void        set_s(const std::string& key, const std::string& val) {
+            create(key).set_s(val);
+        }
     };
 }
 

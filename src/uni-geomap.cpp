@@ -307,7 +307,7 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 {
     app::file file(name.c_str());
     
-    if (app::node n = file.get_head().find("map"))
+    if (app::node n = file.get_root().find("map"))
     {
         // Load the map configuration from the file.
 

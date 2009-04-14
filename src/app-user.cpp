@@ -56,7 +56,7 @@ app::user::user() :
 
     // Initialize the demo input.
 
-    root = file.get_head().find("demo");
+    root = file.get_root().find("demo");
     curr = root.find("key");
 
     prev = cycle_prev(curr);

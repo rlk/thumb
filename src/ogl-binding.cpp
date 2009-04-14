@@ -91,7 +91,7 @@ ogl::binding::binding(std::string name) :
 
     // Load the local material bindings.
 
-    if (app::node p = file.get_head().find("material"))
+    if (app::node p = file.get_root().find("material"))
     {
         // Load the depth-mode bindings.
 

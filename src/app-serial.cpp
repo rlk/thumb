@@ -19,35 +19,39 @@
 
 //-----------------------------------------------------------------------------
 
+static bool onechild(mxml_node_t *node)
+{
+    // Return true if node has EXACTLY one child.
+
+    return (node->type == MXML_ELEMENT && \
+            node->child &&
+            node->child == node->last_child);
+}
+
 static const char *save_cb(mxml_node_t *node, int where)
 {
     const char *space  = "                                                   "
                          "                                                   "
                          "                                                   ";
 
-    // Find a string giving the proper level of indentation for this node.
-
-    const char *indent = space + strlen(space) - 1;
-
-    for (mxml_node_t *curr = node->parent; curr; curr = curr->parent)
-        indent = std::max(space, indent - 2);
-
-    // Return the proper whitespace for location of this node.
-
-    switch (where)
+    if (node->type == MXML_ELEMENT)
     {
-    case MXML_WS_AFTER_OPEN:
-    case MXML_WS_AFTER_CLOSE:
-        return "\n";
+        // Find a string giving proper indentation for this node.
 
-    case MXML_WS_BEFORE_OPEN:
-        return indent;
+        const char *indent = space + strlen(space);
 
-    case MXML_WS_BEFORE_CLOSE:
-        if (node->child)
-            return indent;
-        else
-            return 0;
+        for (mxml_node_t *n = node->parent; n; n = n->parent)
+            indent = std::max(space, indent - 2);
+
+        // Return the proper whitespace for location of this node.
+
+        switch (where)
+        {
+        case MXML_WS_BEFORE_OPEN:  return                      indent;
+        case MXML_WS_AFTER_OPEN:   return onechild(node) ? 0 : "\n";
+        case MXML_WS_BEFORE_CLOSE: return onechild(node) ? 0 : indent;
+        case MXML_WS_AFTER_CLOSE:  return                      "\n";
+        }
     }
     return 0;
 }
@@ -132,7 +136,7 @@ const char *app::node::get() const
 {
     // If this node has a text child, return its string.
 
-    if (ptr && ptr->child && ptr->type == MXML_TEXT)
+    if (ptr && ptr->child && ptr->child->type == MXML_TEXT)
         return ptr->child->value.text.string;
     else
         return 0;
@@ -164,7 +168,7 @@ void app::node::set_i(int i)
     }
 }
 
-int app::node::get_i(const std::string& name, int i)
+int app::node::get_i(const std::string& name, int i) const
 {
     if (const char *c = get(name))
         return strtol(c, 0, 0);
@@ -172,7 +176,7 @@ int app::node::get_i(const std::string& name, int i)
         return i;
 }
 
-int app::node::get_i(int i)
+int app::node::get_i(int i) const
 {
     if (const char *c = get())
         return strtol(c, 0, 0);
@@ -206,7 +210,7 @@ void app::node::set_f(double f)
     }
 }
 
-double app::node::get_f(const std::string& name, double f)
+double app::node::get_f(const std::string& name, double f) const
 {
     if (const char *c = get(name))
         return strtod(c, 0);
@@ -214,7 +218,7 @@ double app::node::get_f(const std::string& name, double f)
         return f;
 }
 
-double app::node::get_f(double f)
+double app::node::get_f(double f) const
 {
     if (const char *c = get())
         return strtod(c, 0);
@@ -249,7 +253,7 @@ void app::node::set_s(const std::string& s)
     }
 }
 
-std::string app::node::get_s(const std::string& name)
+std::string app::node::get_s(const std::string& name) const
 {
     if (const char *c = get(name))
         return std::string(c);
@@ -257,7 +261,7 @@ std::string app::node::get_s(const std::string& name)
         return "";
 }
 
-std::string app::node::get_s()
+std::string app::node::get_s() const
 {
     if (const char *c = get())
         return std::string(c);
@@ -269,14 +273,14 @@ std::string app::node::get_s()
 
 app::node app::node::find(const std::string& name,
                           const std::string& attr,
-                          const std::string& valu)
+                          const std::string& data) const
 {
     if (ptr)
-        return mxmlFindElement(ptr, ptr,
-                               name.empty() ? 0 : name.c_str(),
-                               attr.empty() ? 0 : attr.c_str(),
-                               valu.empty() ? 0 : valu.c_str(),
-                               MXML_DESCEND);
+        return app::node(mxmlFindElement(ptr, ptr,
+                                         name.empty() ? 0 : name.c_str(),
+                                         attr.empty() ? 0 : attr.c_str(),
+                                         data.empty() ? 0 : data.c_str(),
+                                         MXML_DESCEND));
     else
         return 0;
 }
@@ -284,14 +288,14 @@ app::node app::node::find(const std::string& name,
 app::node app::node::next(app::node itr,
                           const std::string& name,
                           const std::string& attr,
-                          const std::string& valu)
+                          const std::string& data) const
 {
     if (ptr && itr.ptr)
-        return mxmlFindElement(itr.ptr, ptr,
-                               name.empty() ? 0 : name.c_str(),
-                               attr.empty() ? 0 : attr.c_str(),
-                               valu.empty() ? 0 : valu.c_str(),
-                               MXML_NO_DESCEND);
+        return app::node(mxmlFindElement(itr.ptr, ptr,
+                                         name.empty() ? 0 : name.c_str(),
+                                         attr.empty() ? 0 : attr.c_str(),
+                                         data.empty() ? 0 : data.c_str(),
+                                         MXML_NO_DESCEND));
     else
         return 0;
 }
@@ -321,14 +325,14 @@ void app::node::remove()
 
 app::file::file(const std::string& name) :
     name(name),
-    head(0)
+    root(0)
 {
-    head.read(name);
+    root.read(name);
 }
 
 app::file::~file()
 {
-    head.write(name);
+    root.write(name);
 }
 
 //-----------------------------------------------------------------------------

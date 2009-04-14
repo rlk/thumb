@@ -16,7 +16,7 @@
 #include "app-data.hpp"
 
 //-----------------------------------------------------------------------------
-
+/*
 void app::conf::init()
 {
     head = mxmlNewElement(NULL, "?xml");
@@ -226,19 +226,5 @@ void app::conf::set_s(std::string name, std::string value)
 
     dirty = true;
 }
-
-//-----------------------------------------------------------------------------
-
-app::conf::conf(std::string file) : file(file), head(0), root(0), dirty(false)
-{
-    if (load() == false)
-        init();
-}
-
-app::conf::~conf()
-{
-    save();
-    if (head) mxmlDelete(head);
-}
-
+*/
 //-----------------------------------------------------------------------------

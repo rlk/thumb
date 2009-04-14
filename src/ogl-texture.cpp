@@ -252,7 +252,7 @@ void ogl::texture::load_xml(std::string name)
         app::node   root;
         app::node   node;
 
-        if (app::node p = file.get_head().find("texture"))
+        if (app::node p = file.get_root().find("texture"))
         {
             // Parse and apply wrap modes.
 
