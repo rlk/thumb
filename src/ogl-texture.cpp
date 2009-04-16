@@ -15,7 +15,7 @@
 #include <png.h>
 
 #include "ogl-texture.hpp"
-#include "app-serial.hpp"
+#include "app-file.hpp"
 #include "app-data.hpp"
 
 //-----------------------------------------------------------------------------

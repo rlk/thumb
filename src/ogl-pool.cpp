@@ -464,7 +464,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
                 for (elem_i i = b; i != e; ++i) i->draw(color);
 
 //              TODO: make this an option  ogl::draw_bounding_boxes
-//              my_aabb.draw();
+                my_aabb.draw();
             }
             glPopMatrix();
 
@@ -647,12 +647,12 @@ void ogl::pool::draw_init()
     glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
 
     // Enable and attach the vertex arrays.
-/*
+
     glEnableVertexAttribArrayARB(6);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
-*/
+
     GLfloat *v = (GLfloat *) (0);
     GLfloat *n = (GLfloat *) (vc * sizeof (GLfloat) * 3);
     GLfloat *t = (GLfloat *) (vc * sizeof (GLfloat) * 6);
@@ -679,12 +679,12 @@ void ogl::pool::draw(int id, bool color, bool alpha)
 void ogl::pool::draw_fini()
 {
     // Disable the vertex arrays.
-/*
+
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
     glDisableVertexAttribArrayARB(6);
-*/
+
     // Unbind the VBO and EBO.
 
     glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);

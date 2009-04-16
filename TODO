@@ -1,6 +1,8 @@
 offscreen buffer size still wrong in cluster mode?
-make planets work
+    this effects the Adler (it's broken)
 finish overlay
+include the function name in the response string?
+    pug fugly
 
 Planet performance is abysmal in info and play mode?
 
@@ -8,7 +10,7 @@ branch tellurion
 smooth buddha
 MTL fallback
 
-Fix play mode leak.
+Fix play mode GL state leak.
 Sync on load
 Find state loss in GUI
 Make it possible to deselect/delete/clone/invert using the GUI.
@@ -44,7 +46,6 @@ Performance measures (don't depend on NVperf)
 Create a Standard Benchmark
 The images in the doc might be best dithered down to 8 bit PNGs.  JPGs just look like hell.
 Figure out some nice way of changing resolution/mode
-benchmark and optimize the OBJ loader
 JPG texture support
 modularize the basic shader
     shadow options (map count, pcf)

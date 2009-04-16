@@ -14,7 +14,7 @@
 #define DPY_ANAGLYPH_HPP
 
 #include "dpy-display.hpp"
-#include "app-serial.hpp"
+#include "app-file.hpp"
 
 //-----------------------------------------------------------------------------
 

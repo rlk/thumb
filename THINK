@@ -32,7 +32,7 @@ Thumb features to consider
          Back-to-front for blending
          Front-to-back for masking  <-- Z-cull?  Worth benching.
 
-    Precomputer radiance transferm implementation
+    Precomputed radiance transferm implementation
 
 
    Add an oriented target object
@@ -145,6 +145,13 @@ Thumb features to consider
     Fur
 
     Are there any opportunities for scissor-rectangle optimizations?
+
+    Consider manually double buffering the GL framebuffer objects
+        See if AFR rendering gets any better
+        Begin by testing shadow rendering
+        Clear buffers AFTER use but BEFORE Swap
+            to indicate that the buffer need not be synced for SFR?
+        http://developer.nvidia.com/object/sli_best_practices.html
 
     SSAO/SSDO
         Depth unsharp mask is cheaper, with fewer artifacts

@@ -321,13 +321,13 @@ void uni::sphere::view(int frusc, const app::frustum *const *frusv)
         }
 
         // Prep the atmosphere model.
-
+/*
         if (atmosphere)
         {
             atmo_pool->prep();
             atmo_pool->view(1, 0, 0);
         }
-
+*/
         if (over) over->prep();
     }
 }
@@ -702,10 +702,6 @@ void uni::sphere::draw(int i)
                 {
                     land_prog->bind();
                     {
-/*
-                        land_prog->uniform("dif", 1);
-                        land_prog->uniform("nrm", 2);
-*/
                         ren.bind();
                         dat.idx()->bind();
                         vtx.bind();
@@ -788,7 +784,8 @@ void uni::sphere::draw(int i)
 
         // Draw the overlay models.
 
-        if (over) over->draw_models();
+        if (over)
+            over->draw_models();
 
         // Draw the atmosphere.
 

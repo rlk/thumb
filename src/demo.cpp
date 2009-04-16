@@ -226,7 +226,7 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-//  universe = new uni::universe(w, h);
+    universe = new uni::universe(w, h);
     world    = new wrl::world();
 
     edit = new mode::edit(world);
@@ -460,12 +460,12 @@ ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
     prep_uniforms();
 
     ogl::range r;
-
+/*
     if (curr)
         r = curr->prep(frusc, frusv);
     else
         r = ogl::range();
-
+*/
     if (universe)
     {
         universe->prep(frusc, frusv);
@@ -491,10 +491,10 @@ void demo::draw(int frusi, const app::frustum *frusp)
 
     if (universe)
         universe->draw(frusi);
-
+/*
     if (curr)
         curr->draw(frusi, frusp);
-
+*/
 }
 
 //-----------------------------------------------------------------------------

@@ -53,7 +53,7 @@ OBJS=   util.o \
 	dpy-lenticular.o \
 	app-event.o \
 	app-frustum.o \
-	app-serial.o \
+	app-file.o \
 	app-font.o \
 	app-host.o \
 	app-user.o \

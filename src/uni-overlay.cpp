@@ -31,9 +31,9 @@ uni::overlay::model::model(const char *filename)
 
     lat =       0.0f;
     lon =       0.0f;
-    rad = 1800000.0f;
+    rad = 2000000.0f;
     rot =       0.0f;
-    scl =  100000.0f;
+    scl = 1000000.0f;
 
     apply();
 }
@@ -463,7 +463,8 @@ uni::overlay::overlay()
 
     pool->add_node(node);
 
-//  m_model_create("solid/metal_box.obj\n", 0);
+    m_model_create("solid/metal_box.obj\n");
+//  m_model_create("solid/metal_box.obj\n");
 }
 
 uni::overlay::~overlay()
@@ -490,12 +491,12 @@ void uni::overlay::prep()
 
 void uni::overlay::draw_models()
 {
+    glPushMatrix();
     glPushAttrib(GL_ENABLE_BIT);
     {
-/*
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-*/
+
         glEnable(GL_DEPTH_TEST);
         glDepthFunc(GL_LEQUAL);
 
@@ -504,6 +505,7 @@ void uni::overlay::draw_models()
         pool->draw_fini();
     }
     glPopAttrib();
+    glPopMatrix();
 }
 
 //-----------------------------------------------------------------------------

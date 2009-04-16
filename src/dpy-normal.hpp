@@ -16,7 +16,7 @@
 #include <vector>
 
 #include "dpy-display.hpp"
-#include "app-serial.hpp"
+#include "app-file.hpp"
 
 //-----------------------------------------------------------------------------
 

@@ -13,7 +13,7 @@
 #ifndef APP_CONF_HPP
 #define APP_CONF_HPP
 
-#include "app-serial.hpp"
+#include "app-file.hpp"
 
 //-----------------------------------------------------------------------------
 

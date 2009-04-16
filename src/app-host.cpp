@@ -719,7 +719,7 @@ void app::host::draw()
 
     // Perform the lighting prepass (possibly expensive).
 
-    ::prog->lite(frusc, frusv);
+//  ::prog->lite(frusc, frusv);
 
     // Update all modified uniforms.
 

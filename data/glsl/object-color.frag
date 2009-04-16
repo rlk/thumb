@@ -2,18 +2,19 @@
 uniform sampler2D       spec_map;
 uniform sampler2D       diff_map;
 uniform sampler2D       norm_map;
+/*
 uniform sampler2DShadow shadow[3];
 
 uniform vec4 pssm_depth;
-
+*/
 varying vec3 V_v;
 varying vec3 L_v;
-
+/*
 float get_shadow(sampler2DShadow sampler, vec4 coord)
 {
     return shadow2DProj(sampler, coord).r;
 }
-
+*/
 /*
 float shadow(sampler2DShadow sampler, vec4 coord)
 {
@@ -50,6 +51,7 @@ void main()
     vec4  S  = texture2D(spec_map, gl_TexCoord[0].xy);
     vec4  D  = texture2D(diff_map, gl_TexCoord[0].xy);
     vec3  N  = texture2D(norm_map, gl_TexCoord[0].xy).rgb;
+/*
     float S0 = get_shadow(shadow[0], gl_TexCoord[1]);
     float S1 = get_shadow(shadow[1], gl_TexCoord[2]);
     float S2 = get_shadow(shadow[2], gl_TexCoord[3]);
@@ -62,7 +64,7 @@ void main()
     vec3 Z = mix(vec3(1.0, 0.0, 0.0),
                   mix(vec3(0.0, 1.0, 0.0),
                       vec3(0.0, 0.0, 1.0), ky), kx);
-
+*/
     N = normalize(2.0 * N - 1.0);
 
     vec3 R = reflect(L, N);
@@ -76,5 +78,6 @@ void main()
     vec3 KD =     max(dot(L, N), 0.0)      * D.rgb * Kd;
     vec3 KA =                                D.rgb * Ka;
 
-    gl_FragColor = vec4(((KS + KD) * lit + KA).rgb, D.a);
+//  gl_FragColor = vec4(((KS + KD) * lit + KA).rgb, D.a);
+    gl_FragColor = vec4((KS + KD + KA).rgb, D.a);
 }

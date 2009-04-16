@@ -1,78 +1,71 @@
 <?xml version="1.0"?>
-<host>
-<!--
-  <overlay w="1024" h="768">
-    <frustum>
-      <perspective hfov="60.0" vfov="45.0"/>
-    </frustum>
-  </overlay>
--->
-  <node name="320x240">
-    <window x="0" y="0" w="320" h="240"/>
-    <channel w="320" h="240"/>
-    <display type="normal" index="1">
-      <viewport x="0" y="0" w="320" h="240"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0"/>
-      </frustum>
-    </display>
-  </node>
-
-  <node name="800x600">
-    <window x="0" y="0" w="800" h="600"/>
-    <channel w="800" h="600"/>
-    <display type="normal" index="1">
-      <viewport x="0" y="0" w="800" h="600"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0"/>
-      </frustum>
-    </display>
-  </node>
-
-  <node name="1920x1080">
-    <window x="0" y="0" w="1920" h="1080"/>
-    <channel w="1920" h="1080"/>
-    <display type="normal" index="1">
-      <viewport x="0" y="0" w="1920" h="1080"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="35.0"/>
-      </frustum>
-    </display>
-  </node>
-
-  <node name="960x540">
-    <window x="0" y="0" w="960" h="540"/>
-    <channel w="960" h="540"/>
-    <display type="normal" index="1">
-      <viewport x="0" y="0" w="960" h="540"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="35.0"/>
-      </frustum>
-    </display>
-  </node>
-
-  <node name="1024x768">
-    <window x="0" y="0" w="1024" h="768"/>
-    <channel w="1024" h="768"/>
-    <display type="normal" index="1">
-      <viewport x="0" y="0" w="1024" h="768"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0"/>
-      </frustum>
-    </display>
-  </node>
-
-  <node name="1024x768-anaglyph">
-    <window x="0" y="0" w="1024" h="768"/>
-    <channel w="1024" h="768" x="-0.0125"/>
-    <channel w="1024" h="768" x=" 0.0125"/>
-
-    <display type="anaglyph" index="1">
-      <viewport x="0" y="0" w="1024" h="768"/>
-      <frustum>
-        <perspective hfov="60.0" vfov="45.0"/>
-      </frustum>
-    </display>
-  </node>
-
-</host>
+  <host>
+    <!-- 320x240 ---------------------------------------------------------- -->
+    <node name="320x240">
+      <window x="0" y="0" w="320" h="240"/>
+      <channel w="320" h="240"/>
+      <display type="normal" index="1">
+        <viewport x="0" y="0" w="320" h="240"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="45.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 800x600 ---------------------------------------------------------- -->
+    <node name="800x600">
+      <window x="0" y="0" w="800" h="600"/>
+      <channel w="800" h="600"/>
+      <display type="normal" index="1">
+        <viewport x="0" y="0" w="800" h="600"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="45.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 1920x1080 (HD standard 16x9 aspect) ------------------------------ -->
+    <node name="1920x1080">
+      <window x="0" y="0" w="1920" h="1080"/>
+      <channel w="1920" h="1080"/>
+      <display type="normal" index="1">
+        <viewport x="0" y="0" w="1920" h="1080"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="35.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 960x540 (quarter HD 16x9 aspect) --------------------------------- -->
+    <node name="960x540">
+      <window x="0" y="0" w="960" h="540"/>
+      <channel w="960" h="540"/>
+      <display type="normal" index="1">
+        <viewport x="0" y="0" w="960" h="540"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="35.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 1024x768 --------------------------------------------------------- -->
+    <node name="1024x768">
+      <window x="0" y="0" w="1024" h="768"/>
+      <channel w="1024" h="768"/>
+      <display type="normal" index="1">
+        <viewport x="0" y="0" w="1024" h="768"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="45.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 1024x768 anaglphic stereo ---------------------------------------- -->
+    <node name="1024x768-anaglyph">
+      <window x="0" y="0" w="1024" h="768"/>
+      <channel w="1024" h="768" x="-0.0125"/>
+      <channel w="1024" h="768" x=" 0.0125"/>
+      <display type="anaglyph" index="1">
+        <viewport x="0" y="0" w="1024" h="768"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="45.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- ------------------------------------------------------------------ -->
+  </host>

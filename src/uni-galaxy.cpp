@@ -149,67 +149,65 @@ void uni::galaxy::view(int frusc, const app::frustum *const *frusv)
 
 void uni::galaxy::draw(int i) const
 {
-    // Bind the VBO.  Enable and attach the vertex arrays.
-
-    glEnableClientState(GL_COLOR_ARRAY);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableVertexAttribArrayARB(6);
-
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, buffer);
-
-    glColorPointer          (4,    GL_UNSIGNED_BYTE, 20, (GLvoid *)  0);
-    glVertexPointer         (3,    GL_FLOAT,         20, (GLvoid *)  4);
-    glVertexAttribPointerARB(6, 1, GL_FLOAT,      0, 20, (GLvoid *) 16);
-
-    // Apply the projection.
-
-    frustums[i]->set_distances(1.0, 1e16);
-    frustums[i]->draw();
-
-    // Draw, beginning with the root node of the hierarchy.
-
-    glPushAttrib(GL_ENABLE_BIT);
+    glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
     {
-        glDisable(GL_LIGHTING);
-        glDisable(GL_DEPTH_TEST);
+        // Bind the VBO.  Enable and attach the vertex arrays.
 
-        glEnable(GL_POINT_SPRITE_ARB);
-        glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-        glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+        glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableVertexAttribArrayARB(6);
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_ONE, GL_ONE);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, buffer);
 
-        glPushMatrix();
+        glColorPointer          (4,    GL_UNSIGNED_BYTE, 20, (GLvoid *)  0);
+        glVertexPointer         (3,    GL_FLOAT,         20, (GLvoid *)  4);
+        glVertexAttribPointerARB(6, 1, GL_FLOAT,      0, 20, (GLvoid *) 16);
+
+        // Apply the projection.
+
+        frustums[i]->set_distances(1.0, 1e16);
+        frustums[i]->draw();
+
+        // Draw, beginning with the root node of the hierarchy.
+
+        glPushAttrib(GL_ENABLE_BIT);
         {
-            const double k = 1e11;
+            glDisable(GL_LIGHTING);
+            glDisable(GL_DEPTH_TEST);
 
-            glLoadMatrixd(M);
-            glScalef(k, k, k);
+            glEnable(GL_POINT_SPRITE_ARB);
+            glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+            glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
 
-            starprog->bind();
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_ONE, GL_ONE);
+
+            glPushMatrix();
             {
-                const double *p = frustums[i]->get_view_pos();
+                const double k = 1e11;
 
-                starprog->uniform("Multiplier", magnitude);
-                starprog->uniform("Position", p[0] / k, p[1] / k, p[2] / k);
-                N[0].draw();
+                glLoadMatrixd(M);
+                glScalef(k, k, k);
+
+                starprog->bind();
+                {
+                    const double *p = frustums[i]->get_view_pos();
+
+                    starprog->uniform("Multiplier", magnitude);
+                    starprog->uniform("Position", p[0] / k, p[1] / k, p[2] / k);
+                    N[0].draw();
+                }
+                starprog->free();
             }
-            starprog->free();
+            glPopMatrix();
         }
-        glPopMatrix();
+        glPopAttrib();
+
+        // Unbind the VBO.
+
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
     }
-    glPopAttrib();
-
-    // Disable the vertex arrays and unbind the VBO.
-
-    glDisableVertexAttribArrayARB(6);
-    glDisableClientState(GL_VERTEX_ARRAY);
-    glDisableClientState(GL_COLOR_ARRAY);
-
-    // Unbind the VBO and EBO.
-
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+    glPopClientAttrib();
 }
 
 //=============================================================================

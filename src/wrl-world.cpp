@@ -25,7 +25,7 @@
 #include "app-data.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
-#include "app-serial.hpp"
+#include "app-file.hpp"
 #include "app-frustum.hpp"
 #include "wrl-solid.hpp"
 #include "wrl-joint.hpp"
@@ -778,81 +778,6 @@ void wrl::world::do_modify(const double *M)
 }
 
 //-----------------------------------------------------------------------------
-/*
-static mxml_type_t load_cb(mxml_node_t *node)
-{
-    std::string name(node->value.element.name);
-
-    if (name == "param") return MXML_OPAQUE;
-
-    if (name == "world") return MXML_ELEMENT;
-    if (name == "joint") return MXML_ELEMENT;
-    if (name == "light") return MXML_ELEMENT;
-    if (name == "geom")  return MXML_ELEMENT;
-
-    if (name == "body")  return MXML_INTEGER;
-    if (name == "join")  return MXML_INTEGER;
-
-    if (name == "rot_x") return MXML_REAL;
-    if (name == "rot_y") return MXML_REAL;
-    if (name == "rot_z") return MXML_REAL;
-    if (name == "rot_w") return MXML_REAL;
-
-    if (name == "pos_x") return MXML_REAL;
-    if (name == "pos_y") return MXML_REAL;
-    if (name == "pos_z") return MXML_REAL;
-
-    return MXML_TEXT;
-}
-
-static const char *save_cb(mxml_node_t *node, int where)
-{
-    std::string name(node->value.element.name);
-
-    switch (where)
-    {
-    case MXML_WS_AFTER_OPEN:
-        if (name == "?xml")  return "\n";
-        if (name == "geom")  return "\n";
-        if (name == "joint") return "\n";
-        if (name == "world") return "\n";
-        if (name == "light") return "\n";
-        break;
-
-    case MXML_WS_BEFORE_OPEN:
-        if (name == "geom")  return "  ";
-        if (name == "joint") return "  ";
-        if (name == "light") return "  ";
-
-        if (name == "file")  return "    ";
-        if (name == "param") return "    ";
-        if (name == "body")  return "    ";
-        if (name == "join")  return "    ";
-
-        if (name == "rot_x") return "    ";
-        if (name == "rot_y") return "    ";
-        if (name == "rot_z") return "    ";
-        if (name == "rot_w") return "    ";
-
-        if (name == "pos_x") return "    ";
-        if (name == "pos_y") return "    ";
-        if (name == "pos_z") return "    ";
-        break;
-
-    case MXML_WS_BEFORE_CLOSE:
-        if (name == "geom")  return "  ";
-        if (name == "joint") return "  ";
-        if (name == "light") return "  ";
-        break;
-
-    case MXML_WS_AFTER_CLOSE:
-        return "\n";
-    }
-
-    return NULL;
-}
-*/
-//-----------------------------------------------------------------------------
 
 void wrl::world::init()
 {
@@ -1156,11 +1081,11 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     fill_pool->draw_fini();
 
     // Render the sky.
-
+/*
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     draw_sky(frusp);
-
+*/
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);
 }
 

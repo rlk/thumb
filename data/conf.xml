@@ -15,7 +15,7 @@
     <option name="debug">0</option>
     <option name="bench">0</option>
     <option name="movie">0</option>
-    <option name="mipmap">test</option>
+    <option name="mipmap">best</option>
     <option name="texel_cutoff">0.5</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>

@@ -168,8 +168,7 @@ namespace ogl
     struct meshcmp
     {
         bool operator()(const mesh *m1, const mesh *m2) const {
-//          return (m1->state() < m2->state());
-            return (m1 < m2);
+            return (m1->state() < m2->state());
         }
     };
 }

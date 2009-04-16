@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
 <material>
   <program mode="depth" file="object-depth.xml" />
-
   <program mode="color" file="irradiance-env.xml">
     <texture sampler="diff_map"  name="default-diffuse.png" />
     <texture sampler="spec_map"  name="default-specular.png" />
