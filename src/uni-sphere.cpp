@@ -119,7 +119,7 @@ uni::sphere::sphere(uni::geodat& dat,
     // Initialize overlay rendering.
 
     if (over_p)
-        over = new overlay();
+        over = new overlay(r0);
 }
 
 uni::sphere::~sphere()

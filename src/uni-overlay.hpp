@@ -23,22 +23,29 @@ namespace uni
 {
     class overlay
     {
+        double radius;
+
         double M[16];
         double I[16];
 
-        char buffer[256];
+        void  world_to_sphere(double&, double&, double&,
+                              double,  double,  double);
+        bool screen_to_sphere(double&, double&, double&,
+                              double,  double);
 
         // Overlay control messages
 
-        void m_moveto        (const char *);
-        void m_lookup        (const char *);
-        void m_get_position  (const char *);
+        char buffer[256];
 
-        void m_model_create  (const char *);
-        void m_model_delete  (const char *);
-        void m_model_position(const char *);
-        void m_model_rotation(const char *);
-        void m_model_scale   (const char *);
+        void m_moveto        (const char *);
+        void m_lookup        (const char *); //
+        void m_get_position  (const char *); //
+
+        void m_model_create  (const char *); //
+        void m_model_delete  (const char *); //
+        void m_model_position(const char *); //
+        void m_model_rotation(const char *); //
+        void m_model_scale   (const char *); //
 
         void m_image_create  (const char *);
         void m_image_delete  (const char *);
@@ -58,11 +65,11 @@ namespace uni
         {
             ogl::unit *unit;
 
-            float lat;
-            float lon;
-            float rad;
-            float rot;
-            float scl;
+            double lat;
+            double lon;
+            double rad;
+            double rot;
+            double scl;
 
             void apply();
 
@@ -71,9 +78,9 @@ namespace uni
             model(const char *);
            ~model();
 
-            void position(float, float, float);
-            void rotation(float);
-            void scale   (float);
+            void position(double, double, double);
+            void rotation(double);
+            void scale   (double);
 
             ogl::unit *get_unit() { return unit; }
         };
@@ -87,7 +94,7 @@ namespace uni
 
     public:
 
-        overlay();
+        overlay(double);
        ~overlay();
 
         const char *script(const char *);

@@ -42,6 +42,9 @@
 
 void app::glob::dump()
 {
+    // Print the number of cached objects, with names, if possible. This
+    // helps track down resource leaks.
+
     if (int qc =  pool_set.size()) printf("%3d pools\n", qc);
     if (int ic = image_set.size()) printf("%3d images\n", ic);
     if (int fc = frame_set.size()) printf("%3d frames\n", fc);
@@ -90,48 +93,22 @@ void app::glob::dump()
 
 app::glob::~glob()
 {
+    // If all GLOB users properly release their objects then nothing will
+    // remain at this point. Deletion here is particularly difficult due
+    // to circular dependencies among objects. For these reasons, we take
+    // a hard stance on GLOB cleanup.  Assert that it is already done.
+
     dump();
 
-    // Release all storage and OpenGL state.  Order matters, unfortunately.
+    assert( pool_set.empty());
+    assert(image_set.empty());
+    assert(frame_set.empty());
 
-    std::map<std::string, process>::iterator Pi;
-
-    for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
-        delete Pi->second.ptr;  // uses pool and process
-
-    std::set<ogl::pool  *>::iterator qi;
-    std::set<ogl::image *>::iterator ii;
-    std::set<ogl::frame *>::iterator fi;
-
-    for (qi =  pool_set.begin(); qi !=  pool_set.end(); ++qi)
-        delete (*qi);           // uses surface and binding
-
-    for (ii = image_set.begin(); ii != image_set.end(); ++ii)
-        delete (*ii);
-
-    for (fi = frame_set.begin(); fi != frame_set.end(); ++fi)
-        delete (*fi);
-
-    std::map<std::string, surface>::iterator si;
-    std::map<std::string, binding>::iterator bi;
-    std::map<std::string, texture>::iterator ti;
-    std::map<std::string, program>::iterator pi;
-    std::map<std::string, uniform>::iterator ui;
-
-    for (si = surface_map.begin(); si != surface_map.end(); ++si)
-        delete si->second.ptr;
-
-    for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-        delete bi->second.ptr;
-
-    for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
-        delete ti->second.ptr;
-
-    for (pi = program_map.begin(); pi != program_map.end(); ++pi)
-        delete pi->second.ptr;
-
-    for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
-        delete ui->second.ptr;
+    assert(surface_map.empty());
+    assert(binding_map.empty());
+    assert(texture_map.empty());
+    assert(program_map.empty());
+    assert(uniform_map.empty());
 }
 
 //-----------------------------------------------------------------------------

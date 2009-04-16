@@ -15,9 +15,12 @@
 #include <stdexcept>
 
 #include "uni-overlay.hpp"
+#include "app-frustum.hpp"
+#include "app-event.hpp"
 #include "app-glob.hpp"
 #include "app-user.hpp"
 #include "app-data.hpp"
+#include "app-host.hpp"
 #include "matrix.hpp"
 #include "util.hpp"
 
@@ -31,9 +34,9 @@ uni::overlay::model::model(const char *filename)
 
     lat =       0.0f;
     lon =       0.0f;
-    rad = 2000000.0f;
+    rad = 1737100.0f;
     rot =       0.0f;
-    scl = 1000000.0f;
+    scl =  100000.0f;
 
     apply();
 }
@@ -48,13 +51,13 @@ void uni::overlay::model::apply()
     double M[16];
     double I[16];
 
-    load_rot_mat(M,   0,   1,   0,  lon);
+    load_rot_mat(M,   0,   1,   0,  lon + 180);
     Rmul_rot_mat(M,   1,   0,   0, -lat);
     Rmul_rot_mat(M,   0,   0,   1,  rot);
     Rmul_xlt_mat(M,   0,   0, rad);
     Rmul_scl_mat(M, scl, scl, scl);
 
-    load_rot_inv(I,   0,   1,   0,  lon);
+    load_rot_inv(I,   0,   1,   0,  lon + 180);
     Rmul_rot_inv(I,   1,   0,   0, -lat);
     Rmul_rot_inv(I,   0,   0,   1,  rot);
     Rmul_xlt_inv(I,   0,   0, rad);
@@ -63,7 +66,7 @@ void uni::overlay::model::apply()
     unit->transform(M, I);
 }
 
-void uni::overlay::model::position(float lat, float lon, float rad)
+void uni::overlay::model::position(double lat, double lon, double rad)
 {
     this->lat = lat;
     this->lon = lon;
@@ -72,18 +75,99 @@ void uni::overlay::model::position(float lat, float lon, float rad)
     apply();
 }
 
-void uni::overlay::model::rotation(float angle)
+void uni::overlay::model::rotation(double angle)
 {
     this->rot = angle;
 
     apply();
 }
 
-void uni::overlay::model::scale(float scale)
+void uni::overlay::model::scale(double scale)
 {
     this->scl = scale;
 
     apply();
+}
+
+//=============================================================================
+
+void uni::overlay::world_to_sphere(double& lat,
+                                   double& lon,
+                                   double& alt, double x, double y, double z)
+{
+    // Return the spherical coordinates of the given position.
+
+    alt = sqrt(x * x + y * y + z * z);
+
+    lon = DEG(atan2(x, z));
+    lat = DEG(asin(y / alt));
+
+    // Correct the longitude.  It's 180 out of phase.
+
+    lon += 180.0;
+
+    if (lon >  180.0)
+        lon -= 360.0;
+}
+
+bool uni::overlay::screen_to_sphere(double& lat,
+                                    double& lon,
+                                    double& alt, double x, double y)
+{
+    // Ask the host for the pointer vector in world space.
+
+    const app::frustum *F = ::host->get_overlay();
+
+    app::event E;
+
+    F->pointer_to_3D(&E, int(x * F->get_pixel_w()),
+                         int(y * F->get_pixel_h()));
+
+    // Extract the position and direction of the pointer.
+
+    double R[16], P[3], V[3];
+
+    P[0] = E.data.point.p[0];
+    P[1] = E.data.point.p[1];
+    P[2] = E.data.point.p[1];
+
+    set_quaternion(R, E.data.point.q);
+
+    V[0] = -R[ 8];
+    V[1] = -R[ 9];
+    V[2] = -R[10];
+
+    // Transform the pointer to local space.
+
+    double p[3], v[3];
+
+    mult_mat_vec3(p, I, P);
+    mult_xps_vec3(v, M, V);
+
+    // Solve for the intersection of the pointer and the sphere.
+
+    double a =       DOT3(v, v);
+    double b = 2.0 * DOT3(p, v);
+    double c =       DOT3(p, p) - radius * radius;
+
+    double d = b * b - 4.0 * a * c;
+    double t;
+
+    if      (d < 0) return false;
+    else if (d > 0)
+        t = std::min((-b + sqrt(d)) / (2.0 * a),
+                     (-b - sqrt(d)) / (2.0 * a));
+    else
+        t = (-b) / (2.0 * a);
+
+    // Return this position in spherical coordinates.
+
+    world_to_sphere(lat, lon, alt, 
+                    p[0] + v[0] * t,
+                    p[1] + v[1] * t,
+                    p[2] + v[2] * t);
+
+    return true;
 }
 
 //-----------------------------------------------------------------------------
@@ -91,11 +175,11 @@ void uni::overlay::model::scale(float scale)
 void uni::overlay::m_moveto(const char *text)
 {
     int   state = 0;
-    float lat;
-    float lon;
-    float rad;
+    double lat;
+    double lon;
+    double rad;
 
-    if (sscanf(text, "%f %f %f\n", &lat, &lon, &rad) == 3)
+    if (sscanf(text, "%lf %lf %lf\n", &lat, &lon, &rad) == 3)
     {
         printf("moveto(%f, %f, %f)\n", lat, lon, rad);
         state = 1;
@@ -106,30 +190,37 @@ void uni::overlay::m_moveto(const char *text)
 
 void uni::overlay::m_lookup(const char *text)
 {
-    int   state = 0;
-    float x;
-    float y;
+    double x;
+    double y;
+    double lat = 360;
+    double lon = 360;
+    double alt =   0;
 
-    if (sscanf(text, "%f %f\n", &x, &y) == 2)
+    if (sscanf(text, "%lf %lf\n", &x, &y) == 2)
     {
         printf("lookup(%f, %f)\n", x, y);
-        state = 1;
+
+        screen_to_sphere(lat, lon, alt, x, y);
     }
 
-    sprintf(buffer, "%d\n", state);
+    sprintf(buffer, "%f %f %f\n", lat, lon, alt);
 }
 
 void uni::overlay::m_get_position(const char *text)
 {
-    const double *p = ::user->get_M() + 12;
-    
-    double q[3];
+    double P[3] = { 0.0, 0.0, 0.0 };
+    double p[3];
+    double lat = 360;
+    double lon = 360;
+    double alt =   0;
 
-    mult_mat_vec3(q, I, p);
+    mult_mat_vec3(p, I, P);
+
+    world_to_sphere(lat, lon, alt, p[0], p[1], p[2]);
 
     printf("get position\n");
 
-    sprintf(buffer, "%f %f %f\n", q[0], q[1], q[2]);
+    sprintf(buffer, "%f %f %f\n", lat, lon, alt);
 }
 
 //-----------------------------------------------------------------------------
@@ -197,14 +288,14 @@ void uni::overlay::m_model_delete(const char *text)
 
 void uni::overlay::m_model_position(const char *text)
 {
-    int   state = 0;
-    int   index;
-    float lat;
-    float lon;
-    float rad;
-    char  coord[256];
+    int    state = 0;
+    int    index;
+    double lat;
+    double lon;
+    double rad;
+    char   coord[256];
 
-    if (sscanf(text, "%d %s %f %f %f", &index, coord, &lat, &lon, &rad) == 5)
+    if (sscanf(text, "%d %s %lf %lf %lf", &index, coord, &lat, &lon, &rad) == 5)
     {
         if (models.find(index) != models.end())
         {
@@ -221,11 +312,11 @@ void uni::overlay::m_model_position(const char *text)
 
 void uni::overlay::m_model_rotation(const char *text)
 {
-    int   state = 0;
-    int   index;
-    float angle;
+    int    state = 0;
+    int    index;
+    double angle;
 
-    if (sscanf(text, "%d %f", &index, &angle) == 2)
+    if (sscanf(text, "%d %lf", &index, &angle) == 2)
     {
         if (models.find(index) != models.end())
         {
@@ -241,11 +332,11 @@ void uni::overlay::m_model_rotation(const char *text)
 
 void uni::overlay::m_model_scale(const char *text)
 {
-    int   state = 0;
-    int   index;
-    float scale;
+    int    state = 0;
+    int    index;
+    double scale;
 
-    if (sscanf(text, "%d %f", &index, &scale) == 2)
+    if (sscanf(text, "%d %lf", &index, &scale) == 2)
     {
         if (models.find(index) != models.end())
         {
@@ -263,7 +354,7 @@ void uni::overlay::m_model_scale(const char *text)
 
 void uni::overlay::m_image_create(const char *text)
 {
-    int state = 0;
+    int  state = 0;
     char filename[MAXSTR];
 
     if (sscanf(text, "%s", filename) == 1)
@@ -291,13 +382,13 @@ void uni::overlay::m_image_delete(const char *text)
 
 void uni::overlay::m_image_position(const char *text)
 {
-    int   state = 0;
-    int   index;
-    float lat;
-    float lon;
-    char  coord[256];
+    int    state = 0;
+    int    index;
+    double lat;
+    double lon;
+    char   coord[256];
 
-    if (sscanf(text, "%d %s %f %f", &index, coord, &lat, &lon) == 4)
+    if (sscanf(text, "%d %s %lf %lf", &index, coord, &lat, &lon) == 4)
     {
         printf("image position(%d, %s, %f, %f)\n",
                index, coord, lat, lon);
@@ -309,11 +400,11 @@ void uni::overlay::m_image_position(const char *text)
 
 void uni::overlay::m_image_rotation(const char *text)
 {
-    int   state = 0;
-    int   index;
-    float angle;
+    int    state = 0;
+    int    index;
+    double angle;
 
-    if (sscanf(text, "%d %f", &index, &angle) == 2)
+    if (sscanf(text, "%d %lf", &index, &angle) == 2)
     {
         printf("image rotation(%d, %f)\n", index, angle);
         state = 1;
@@ -324,11 +415,11 @@ void uni::overlay::m_image_rotation(const char *text)
 
 void uni::overlay::m_image_scale(const char *text)
 {
-    int   state = 0;
-    int   index;
-    float scale;
+    int    state = 0;
+    int    index;
+    double scale;
 
-    if (sscanf(text, "%d %f", &index, &scale) == 2)
+    if (sscanf(text, "%d %lf", &index, &scale) == 2)
     {
         printf("image scale(%d, %f)\n", index, scale);
         state = 1;
@@ -341,14 +432,14 @@ void uni::overlay::m_image_scale(const char *text)
 
 void uni::overlay::m_capture_color(const char *text)
 {
-    int   state = 0;
-    float lat;
-    float lon;
-    float rad;
-    float fov;
-    char  coord[256];
+    int    state = 0;
+    double lat;
+    double lon;
+    double rad;
+    double fov;
+    char   coord[256];
 
-    if (sscanf(text, "%s %f %f %f %f", coord, &lat, &lon, &rad, &fov) == 5)
+    if (sscanf(text, "%s %lf %lf %lf %lf", coord, &lat, &lon, &rad, &fov) == 5)
     {
         printf("capture_color(%s, %f, %f, %f, %f)\n",
                coord, lat, lon, rad, fov);
@@ -363,14 +454,14 @@ void uni::overlay::m_capture_color(const char *text)
 
 void uni::overlay::m_capture_radius(const char *text)
 {
-    int   state = 0;
-    float lat;
-    float lon;
-    float rad;
-    float fov;
-    char  coord[256];
+    int    state = 0;
+    double lat;
+    double lon;
+    double rad;
+    double fov;
+    char   coord[256];
 
-    if (sscanf(text, "%s %f %f %f %f", coord, &lat, &lon, &rad, &fov) == 5)
+    if (sscanf(text, "%s %lf %lf %lf %lf", coord, &lat, &lon, &rad, &fov) == 5)
     {
         printf("capture_radius(%s, %f, %f, %f, %f)\n",
                coord, lat, lon, rad, fov);
@@ -456,7 +547,7 @@ const char *uni::overlay::script(const char *text)
 
 //-----------------------------------------------------------------------------
 
-uni::overlay::overlay()
+uni::overlay::overlay(double r) : radius(r)
 {
     pool = glob->new_pool();
     node = new ogl::node();
