@@ -87,6 +87,8 @@ namespace app
         std::set<ogl::image *> image_set;
         std::set<ogl::frame *> frame_set;
 
+        void dump();
+
     public:
 
         glob() { }

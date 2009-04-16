@@ -27,7 +27,7 @@
 
 uni::overlay::model::model(const char *filename)
 {
-    unit = new ogl::unit(filename);
+    unit = new ogl::unit(filename, false);
 
     lat =       0.0f;
     lon =       0.0f;
@@ -40,7 +40,7 @@ uni::overlay::model::model(const char *filename)
 
 uni::overlay::model::~model()
 {
-    if (unit) free(unit);
+    if (unit) delete unit;
 }
 
 void uni::overlay::model::apply()
@@ -48,14 +48,14 @@ void uni::overlay::model::apply()
     double M[16];
     double I[16];
 
-    load_rot_mat(M,   1,   0,   0, -lat);
-    Rmul_rot_mat(M,   0,   1,   0,  lon);
+    load_rot_mat(M,   0,   1,   0,  lon);
+    Rmul_rot_mat(M,   1,   0,   0, -lat);
     Rmul_rot_mat(M,   0,   0,   1,  rot);
     Rmul_xlt_mat(M,   0,   0, rad);
     Rmul_scl_mat(M, scl, scl, scl);
 
-    load_rot_inv(I,   1,   0,   0, -lat);
-    Rmul_rot_inv(I,   0,   1,   0,  lon);
+    load_rot_inv(I,   0,   1,   0,  lon);
+    Rmul_rot_inv(I,   1,   0,   0, -lat);
     Rmul_rot_inv(I,   0,   0,   1,  rot);
     Rmul_xlt_inv(I,   0,   0, rad);
     Rmul_scl_inv(I, scl, scl, scl);
@@ -469,7 +469,19 @@ uni::overlay::overlay()
 
 uni::overlay::~overlay()
 {
-    if (pool) glob->free_pool(pool);
+    // Delete any loaded models.
+
+    std::map<int, model_p>::iterator i;
+
+    for (i = models.begin(); i != models.end(); ++i)
+    {
+        node->rem_unit(i->second->get_unit());
+        delete i->second;
+    }
+
+    // Delete the render pool objects.
+
+    glob->free_pool(pool);
 }
 
 void uni::overlay::transform(const double *M,

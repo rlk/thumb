@@ -40,14 +40,64 @@
 
 //=============================================================================
 
+void app::glob::dump()
+{
+    if (int qc =  pool_set.size()) printf("%3d pools\n", qc);
+    if (int ic = image_set.size()) printf("%3d images\n", ic);
+    if (int fc = frame_set.size()) printf("%3d frames\n", fc);
+
+    std::map<std::string, surface>::iterator si;
+    std::map<std::string, binding>::iterator bi;
+    std::map<std::string, texture>::iterator ti;
+    std::map<std::string, program>::iterator pi;
+    std::map<std::string, uniform>::iterator ui;
+
+    if (int sc = surface_map.size())
+    {
+        printf("%3d surfaces\n", sc);
+        for (si = surface_map.begin(); si != surface_map.end(); ++si)
+            printf("    %s\n", si->second.ptr->get_name().c_str());
+    }
+
+    if (int bc = binding_map.size())
+    {
+        printf("%3d bindings\n", bc);
+        for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+            printf("    %s\n", bi->second.ptr->get_name().c_str());
+    }
+
+    if (int tc = texture_map.size())
+    {
+        printf("%3d textures\n", tc);
+        for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
+            printf("    %s\n", ti->second.ptr->get_name().c_str());
+    }
+
+    if (int pc = program_map.size())
+    {
+        printf("%3d programs\n", pc);
+        for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+            printf("    %s\n", pi->second.ptr->get_name().c_str());
+    }
+
+    if (int uc = uniform_map.size())
+    {
+        printf("%3d uniforms\n", uc);
+        for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
+            printf("    %s\n", ui->second.ptr->get_name().c_str());
+    }
+}
+
 app::glob::~glob()
 {
+    dump();
+
     // Release all storage and OpenGL state.  Order matters, unfortunately.
 
     std::map<std::string, process>::iterator Pi;
 
     for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
-        delete Pi->second.ptr;  // uses pool
+        delete Pi->second.ptr;  // uses pool and process
 
     std::set<ogl::pool  *>::iterator qi;
     std::set<ogl::image *>::iterator ii;

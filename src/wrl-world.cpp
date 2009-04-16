@@ -141,6 +141,12 @@ wrl::world::~world()
 
     ::glob->free_pool(fill_pool);
     ::glob->free_pool(line_pool);
+
+    // Finalize the sky materials.
+
+    ::glob->free_binding(sky_shade);
+    ::glob->free_binding(sky_light);
+    ::glob->free_binding(sky);
 }
 
 //-----------------------------------------------------------------------------

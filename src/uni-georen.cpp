@@ -100,6 +100,11 @@ uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
 {
 }
 
+uni::cylbuf::~cylbuf()
+{
+    ::glob->free_program(draw);
+}
+
 void uni::cylbuf::bind() const
 {
     uni::renbuf::bind();

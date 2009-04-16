@@ -464,7 +464,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
                 for (elem_i i = b; i != e; ++i) i->draw(color);
 
 //              TODO: make this an option  ogl::draw_bounding_boxes
-                my_aabb.draw();
+//              my_aabb.draw();
             }
             glPopMatrix();
 

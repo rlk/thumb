@@ -460,12 +460,12 @@ ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
     prep_uniforms();
 
     ogl::range r;
-/*
+
     if (curr)
         r = curr->prep(frusc, frusv);
     else
         r = ogl::range();
-*/
+
     if (universe)
     {
         universe->prep(frusc, frusv);
@@ -491,10 +491,9 @@ void demo::draw(int frusi, const app::frustum *frusp)
 
     if (universe)
         universe->draw(frusi);
-/*
+
     if (curr)
         curr->draw(frusi, frusp);
-*/
 }
 
 //-----------------------------------------------------------------------------

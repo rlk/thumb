@@ -354,9 +354,9 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 
     S = s + 2;
 
-    index = glob->new_image(mip_w, mip_h,
-                            GL_TEXTURE_2D, GL_LUMINANCE16,
-                            GL_LUMINANCE, GL_UNSIGNED_SHORT);
+    index = ::glob->new_image(mip_w, mip_h,
+                              GL_TEXTURE_2D, GL_LUMINANCE16,
+                              GL_LUMINANCE, GL_UNSIGNED_SHORT);
 
     buffer = new ogl::buffer(GL_PIXEL_UNPACK_BUFFER_ARB, mip_w * mip_h * 2);
 
@@ -372,6 +372,8 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 uni::geomap::~geomap()
 {
     if (buffer) delete buffer;
+
+    if (index) ::glob->free_image(index);
 
     if (prog) ::glob->free_program(prog);
 

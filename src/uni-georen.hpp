@@ -65,6 +65,7 @@ namespace uni
 
     public:
         cylbuf(GLsizei, GLsizei);
+       ~cylbuf();
 
         void bind() const;
         void free() const;
