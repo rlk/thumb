@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <cstring>
+#include <cstdlib>
 
 #include <mxml.h>
 

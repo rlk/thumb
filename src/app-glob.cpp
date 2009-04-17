@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <sstream>
+#include <cassert>
 
 #include "ogl-reflection-env.hpp"
 #include "ogl-irradiance-env.hpp"
