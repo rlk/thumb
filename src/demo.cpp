@@ -226,7 +226,7 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-    universe = new uni::universe(w, h);
+//  universe = new uni::universe(w, h);
     world    = new wrl::world();
 
     edit = new mode::edit(world);
@@ -435,9 +435,9 @@ bool demo::process_event(app::event *E)
 
     // Allow the application mode, the device, or the base to handle the event.
 
-    if ((curr  &&  curr->process_event(E)) ||
-        (input && input->process_event(E)) ||
-        (          prog::process_event(E)))
+    if ((          prog::process_event(E)) ||
+        (curr  &&  curr->process_event(E)) ||
+        (input && input->process_event(E)))
 
         // If the event was handled, disable the attract mode.
     {

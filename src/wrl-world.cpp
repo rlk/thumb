@@ -1087,11 +1087,11 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     fill_pool->draw_fini();
 
     // Render the sky.
-/*
+
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     draw_sky(frusp);
-*/
+
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);
 }
 

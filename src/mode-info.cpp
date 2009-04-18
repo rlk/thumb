@@ -115,8 +115,6 @@ bool mode::info::process_event(app::event *E)
 
     case E_KEYBD:
 
-        if (E->data.keybd.k == SDLK_ESCAPE)
-            ::host->post_exit();
         if (E->data.keybd.d)
             gui->keybd(E->data.keybd.c,
                        E->data.keybd.k,
