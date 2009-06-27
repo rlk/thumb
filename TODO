@@ -1,5 +1,3 @@
-offscreen buffer size still wrong in cluster mode?
-    this effects the Adler (it's broken)
 finish overlay
 include the function name in the response string?
     pug fugly

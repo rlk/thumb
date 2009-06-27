@@ -1,9 +1,15 @@
 Thumb features to consider
 
+    Solve for the sky.  Seriously.
+        Use the exponential curve fit technique.
+        Remove altitude from the equation to reduce the order.
+
     Seriously consider converting the world to Z-up.
     Related: put the sun in the right place using configured lat/lon/date/time
 
     Finish the diffuse irradiance cubemap cache
+
+    Scaling objects
 
     Adaptive terrain
         Make sure the terrain interacts well with the water

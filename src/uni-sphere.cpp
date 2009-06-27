@@ -605,6 +605,8 @@ void uni::sphere::draw(int i)
         land_prog = draw_land;
     }
 
+    ogl::curr_texture(GL_TEXTURE0);
+
     // TODO: calc_projection can move to whereever the bounds are first known.
 
     frustums[i]->set_distances(d0 / 2, d1);
@@ -636,12 +638,17 @@ void uni::sphere::draw(int i)
             glEnable(GL_DEPTH_TEST);
             glEnable(GL_CULL_FACE);
             glEnable(GL_TEXTURE_2D);
-            glEnable(GL_NORMALIZE);
+//          glEnable(GL_NORMALIZE);
 
             glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 
             glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
             {
+                double T[16];
+
+                load_xps(T, M);
+                ogl::xfrm_texture(GL_TEXTURE0, T);
+
                 glEnableClientState(GL_VERTEX_ARRAY);
                 glEnableClientState(GL_NORMAL_ARRAY);
                 glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -649,15 +656,6 @@ void uni::sphere::draw(int i)
                 glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-
-                glMatrixMode(GL_TEXTURE);
-                {
-                    double T[16];
-
-                    load_xps(T, M);
-                    glLoadMatrixd(T);
-                }
-                glMatrixMode(GL_MODELVIEW);
 
                 // Draw the texture coordinates.
 
@@ -786,7 +784,7 @@ void uni::sphere::draw(int i)
 
         if (over)
             over->draw_models();
-
+        
         // Draw the atmosphere.
 
         if (atmo_prog)

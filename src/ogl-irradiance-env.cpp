@@ -191,12 +191,10 @@ void ogl::irradiance_env::bind(GLenum unit) const
 
 //  Y[3]->bind(unit);
 
-    if (1 /*log2(n) is odd*/)
+    if (1) // log2(n) is odd
         bufB->bind_color(unit);
     else
         bufA->bind_color(unit);
-/*
-*/
 }
 
 //-----------------------------------------------------------------------------

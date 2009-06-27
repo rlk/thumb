@@ -554,6 +554,7 @@ uni::overlay::overlay(double r) : radius(r)
 
     pool->add_node(node);
 
+//  m_model_create("wire/wire_sphere.obj\n");
     m_model_create("solid/metal_box.obj\n");
 //  m_model_create("solid/metal_box.obj\n");
 }

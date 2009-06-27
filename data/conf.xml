@@ -1,7 +1,8 @@
 <?xml version="1.0"?>
   <conf>
     <!-- Host configuration -->
-    <option name="host_file">host/common.xml</option>
+    <option name="host_file">host/local-cluster.xml</option>
+<!--<option name="host_file">host/common.xml</option>-->
     <option name="exec_dir">/Users/rlk/src/thumb/</option>
     <option name="data_dir">/Users/rlk/data/</option>
     <option name="input_mode">mouse</option>

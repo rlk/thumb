@@ -411,6 +411,18 @@ void ogl::init(bool multisample)
 static GLenum current_object[MAX_TEXTURE_UNITS];
 static GLenum current_unit = GL_TEXTURE0;
 
+void ogl::curr_texture(GLenum unit)
+{
+    if (unit)
+    {
+        if (current_unit != unit)
+        {
+            current_unit  = unit;
+            glActiveTextureARB(unit);
+        }
+    }
+}
+
 void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
 {
     // Bind a texture OBJECT to TARGET of texture UNIT with as little state
@@ -422,15 +434,7 @@ void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
     if (current_object[u] != object)
     {
         current_object[u]  = object;
-
-        if (unit)
-        {
-            if (current_unit != unit)
-            {
-                current_unit  = unit;
-                glActiveTextureARB(unit);
-            }
-        }
+        curr_texture(unit);
 
         glBindTexture(target, object);
     }
@@ -446,6 +450,18 @@ void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
         glBindTexture(target, object);
 */
     OGLCK();
+}
+
+void ogl::xfrm_texture(GLenum unit, const GLdouble *M)
+{
+    // Load matrix M as texture matrix UNIT.
+
+    curr_texture(unit);
+    glMatrixMode(GL_TEXTURE);
+    {
+        glLoadMatrixd(M);
+    }
+    glMatrixMode(GL_MODELVIEW);
 }
 
 void ogl::free_texture()

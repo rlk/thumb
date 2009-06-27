@@ -151,7 +151,9 @@ namespace ogl
 
     void init(bool);
 
+    void curr_texture(GLenum);
     void bind_texture(GLenum, GLenum, GLuint);
+    void xfrm_texture(GLenum, const GLdouble *);
     void free_texture();
 
     void line_state_init();
