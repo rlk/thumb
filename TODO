@@ -12,6 +12,7 @@ Fix play mode GL state leak.
 Sync on load
 Find state loss in GUI
 Make it possible to deselect/delete/clone/invert using the GUI.
+Blender XML format??
 
 Add cubemap size conf for d-omega and sh-basis
     maybe assume d-omege size is sh-basis size initialized with reflection size

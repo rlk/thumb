@@ -42,6 +42,10 @@
 
 //-----------------------------------------------------------------------------
 
+#define TELLURION 1
+
+//-----------------------------------------------------------------------------
+
 void demo::init_uniforms()
 {
     // Initialize the uniforms.
@@ -226,7 +230,7 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-//  universe = new uni::universe(w, h);
+    universe = new uni::universe(w, h);
     world    = new wrl::world();
 
     edit = new mode::edit(world);
@@ -257,12 +261,14 @@ void demo::goto_mode(mode::mode *next)
 {
     // Synthesize CLOSE and START events for the mode transition.
 
+#ifndef TELLURION
     app::event E;
 
     if (curr) { E.mk_close(); curr->process_event(&E); }
     if (next) { E.mk_start(); next->process_event(&E); }
 
     curr = next;
+#endif
 }
 
 void demo::attr_on()
@@ -478,7 +484,8 @@ ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
 
 void demo::lite(int frusc, const app::frustum *const *frusv)
 {
-    curr->lite(frusc, frusv);
+    if (curr)
+        curr->lite(frusc, frusv);
 }
 
 void demo::draw(int frusi, const app::frustum *frusp)

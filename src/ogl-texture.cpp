@@ -293,17 +293,6 @@ void ogl::texture::load_img(std::string name)
 }
 
 //-----------------------------------------------------------------------------
-/*
-void ogl::texture::param_i(GLenum key, GLint val) const
-{
-    bind();
-    {
-        glTexParameteri(target, key, val);
-    }
-    free();
-}
-*/
-//-----------------------------------------------------------------------------
 
 void ogl::texture::bind(GLenum unit) const
 {
@@ -314,37 +303,6 @@ void ogl::texture::free(GLenum unit) const
 {
 }
 
-//-----------------------------------------------------------------------------
-/*
-void ogl::texture::draw() const
-{
-    bind(GL_TEXTURE1);
-    {
-        glMatrixMode(GL_PROJECTION);
-        {
-            glPushMatrix();
-            glLoadIdentity();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glPushMatrix();
-            glLoadIdentity();
-        }
-
-        glRecti(-1, -1, +1, +1);
-
-        glMatrixMode(GL_PROJECTION);
-        {
-            glPopMatrix();
-        }
-        glMatrixMode(GL_MODELVIEW);
-        {
-            glPopMatrix();
-        }
-    }
-    free(GL_TEXTURE1);
-}
-*/
 //-----------------------------------------------------------------------------
 
 void ogl::texture::init()

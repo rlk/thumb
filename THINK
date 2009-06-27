@@ -9,6 +9,22 @@ Thumb features to consider
 
     Finish the diffuse irradiance cubemap cache
 
+    Would PSSM be improved using an atlas of 4 shadow maps?
+        It would reduce the consumption of texture units
+        It would reduce the number of state changes during rendering
+
+    If GLOB objects could be instanced without a GL context, many things
+    would be simplified
+        Does it make sense to derive each from a base class with abstract
+        init/fini functions?  Is this advantageous?
+        We could change resolution, or change host configuration.
+        We could instanciate the program object separate from the engine.
+
+    DDS loader
+        explicit mipmap and offline compression are handy
+        direct access to TTVol1
+        combine this with auto-gunzip for good compaction
+
     Scaling objects
 
     Adaptive terrain
@@ -31,12 +47,15 @@ Thumb features to consider
             Blades of grass use a gradient from ground color to grass color
             Level of detail transition is key
         Normal mapping could be significant
+        Gauss-filtered (non-box) mipmaps could be huge
+           The peak of the pyramid should be transparent
         Randomly jittered uniform grid?
             offset max = half cell width
             be deterministic
+        Make Jinghua's meditative prairie
 
-         Back-to-front for blending
-         Front-to-back for masking  <-- Z-cull?  Worth benching.
+        Back-to-front for blending
+        Front-to-back for masking  <-- Z-cull?  Worth benching.
 
     Precomputed radiance transferm implementation
 
@@ -68,6 +87,8 @@ Thumb features to consider
               dragon
               tweety
               armadillo
+          Pixar ball
+          Amiga ball
 
     New sky
         clouds?
