@@ -38,6 +38,11 @@ namespace dev
         int gamepad_butn_B;
         int gamepad_butn_H;
 
+        bool gamepad_fly;
+
+        double gamepad_r_min;
+        double gamepad_r_max;
+
         // Navigation state
 
         std::vector<bool> button;

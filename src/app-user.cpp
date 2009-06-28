@@ -257,16 +257,142 @@ void app::user::home()
 {
     load_idt(current_M);
     load_idt(current_I);
-/*
-    current_M[13] =  1.759;
-    current_I[13] = -1.759;
-*/
-    struct timeval tv;
 
-    gettimeofday(&tv, 0);
+    // HACK
+
+    double M[16];
+
+    M[0] =  1; M[4] =  0; M[ 8] =  0;  M[12] =  0;
+    M[1] =  0; M[5] =  0; M[ 9] = -1;  M[13] =  0;
+    M[2] =  0; M[6] = -1; M[10] =  0;  M[14] =  2150000;
+    M[3] =  0; M[7] =  0; M[11] =  0;  M[15] =  1;
+
+    load_mat(current_M, M);
+    load_inv(current_I, M);
+
+//  current_M[13] =  1.759;
+//  current_I[13] = -1.759;
+
+//  struct timeval tv;
+
+//  gettimeofday(&tv, 0);
 
 //  set(0, 0, tv.tv_sec + tv.tv_usec * 0.000001);
     set(0, 0, 1);
+}
+
+/*
+void app::user::orbit(double a, const double *p)
+{
+    const double rx = current_M[0];
+    const double ry = current_M[1];
+    const double rz = current_M[2];
+
+    Lmul_xlt_inv(current_M, p[0], p[1], p[2]);
+    Lmul_rot_mat(current_M, rx, ry, rz, a);
+    Lmul_xlt_mat(current_M, p[0], p[1], p[2]);
+
+    orthonormalize(current_M);
+
+    load_inv(current_I, current_M);
+}
+*/
+
+void app::user::fly(double dp, double dy, double dz, double r0, double r1)
+{
+    double X[3];
+    double Z[3];
+    double P[3];
+    double N[3];
+
+    X[0] = current_M[ 0];
+    X[1] = current_M[ 1];
+    X[2] = current_M[ 2];
+
+    Z[0] = current_M[ 8];
+    Z[1] = current_M[ 9];
+    Z[2] = current_M[10];
+
+    P[0] = current_M[12];
+    P[1] = current_M[13];
+    P[2] = current_M[14];
+
+    N[0] = current_M[12];
+    N[1] = current_M[13];
+    N[2] = current_M[14];
+
+    normalize(N);
+
+    // Yaw about the "out" vector.
+
+    if (fabs(dy) > 0.25)
+        Lmul_rot_mat(current_M, N[0], N[1], N[2], dy);
+
+    // Pitch about the "right" vector.
+
+    if (fabs(dp) > 0.25)
+    {
+        Lmul_xlt_inv(current_M, P[0], P[1], P[2]);
+        Lmul_rot_mat(current_M, X[0], X[1], X[2], dp);
+        Lmul_xlt_mat(current_M, P[0], P[1], P[2]);
+    }
+
+    // Move about the "forward" vector.
+
+    Lmul_xlt_mat(current_M, Z[0] * dz, Z[1] * dz, Z[2] * dz);
+
+    // Determine the current pitch and altitude.
+
+    X[0] = current_M[ 0];
+    X[1] = current_M[ 1];
+    X[2] = current_M[ 2];
+
+    P[0] = current_M[12];
+    P[1] = current_M[13];
+    P[2] = current_M[14];
+
+    N[0] = current_M[12];
+    N[1] = current_M[13];
+    N[2] = current_M[14];
+
+    normalize(N);
+
+    double p = -DEG(asin(DOT3(N, current_M + 8)));
+    double r = sqrt(DOT3(P, P));
+
+    // Clamp the pitch and altitude.
+
+    double rr0 = (r1 - r0) / 100.0;
+    double rr1 = (r1 - r0) /  10.0;
+
+    double p0 = -30.0 * (1.0 - 1.0 / (1.0 + (+r - r0) / rr0));
+    double p1 =  30.0 * (1.0 - 1.0 / (1.0 + (-r + r1) / rr1));
+
+    if (r < r0) r = r0;
+    if (r > r1) r = r1;
+    if (p < p0) p = p0;
+    if (p > p1) p = p1;
+
+    // Compute the transform with the clamped pitch and altitude.
+
+    current_M[4] = N[0];
+    current_M[5] = N[1];
+    current_M[6] = N[2];
+    crossprod(current_M + 8, current_M + 0, current_M + 4);
+
+    Lmul_xlt_inv(current_M, P[0], P[1], P[2]);
+    Lmul_rot_mat(current_M, X[0], X[1], X[2], p);
+    Lmul_xlt_mat(current_M, P[0], P[1], P[2]);
+
+    current_M[12] = N[0] * r;
+    current_M[13] = N[1] * r;
+    current_M[14] = N[2] * r;
+
+    // 
+
+    orthonormalize(current_M);
+
+    load_inv(current_I, current_M);
 }
 
 void app::user::tumble(const double *A,

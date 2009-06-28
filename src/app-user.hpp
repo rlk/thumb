@@ -90,6 +90,8 @@ namespace app
         void pass(double);
         void home();
 
+        void fly(double, double, double, double, double);
+
         void tumble(const double *,
                     const double *);
 

@@ -39,6 +39,11 @@ dev::gamepad::gamepad() : button(16, false)
     gamepad_butn_B = conf->get_i("gamepad_butn_B", 11);
     gamepad_butn_H = conf->get_i("gamepad_butn_H",  4);
 
+    gamepad_fly = (conf->get_s("gamepad_mode") == "fly");
+
+    gamepad_r_min = conf->get_f("gamepad_r_min", 6372797.0);
+    gamepad_r_max = conf->get_f("gamepad_r_max", 6381641.0);
+
     motion[0] = 0;
     motion[1] = 0;
     motion[2] = 0;
@@ -98,9 +103,20 @@ bool dev::gamepad::process_timer(app::event *E)
     const bool   bp = DOT3(motion, motion);
     const bool   br = bx || by || bz;
 
-    if (bp) ::user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
-    if (br) ::user->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
-    if (bt) ::user->pass(rotate[3] * kt);
+    if (gamepad_fly)
+    {
+        if (bp || br) ::user->fly(rotate[1] * kr,
+                                  rotate[0] * kr,
+                                  motion[2] * kp,
+                                  gamepad_r_min,
+                                  gamepad_r_max);
+    }
+    else
+    {
+        if (bp) ::user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
+        if (br) ::user->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
+        if (bt) ::user->pass(rotate[3] * kt);
+    }
 
     return false;
 }

@@ -22,15 +22,17 @@
 
 //=============================================================================
 
+#define TWEAK(b) (255 - (255 - b) / 2)
+
 const void *uni::star::read(const void *buf)
 {
     const GLubyte *b = (const GLubyte *) buf;
     const GLfloat *f = (const GLfloat *) buf;
 
-    col[0] = b[0];
-    col[1] = b[1];
-    col[2] = b[2];
-    col[3] = b[3];
+    col[0] = TWEAK(b[0]);
+    col[1] = TWEAK(b[1]);
+    col[2] = TWEAK(b[2]);
+    col[3] = TWEAK(b[3]);
 
     pos[0] = ntohf(f[1]);
     pos[1] = ntohf(f[2]);

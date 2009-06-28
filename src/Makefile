@@ -135,8 +135,8 @@ clean :
 	$(RM) $(OBJS) $(DEPS) "../$(TARG)"
 
 test : ../$(TARG)
-	(cd ..; ./$(TARG))
-#	(cd ..; ./$(TARG) 960x540)
+#	(cd ..; ./$(TARG))
+	(cd ..; ./$(TARG) 960x540down)
 
 #------------------------------------------------------------------------------
 # "make images" generates contour images of all source files.
