@@ -28,9 +28,9 @@
 
 //-----------------------------------------------------------------------------
 
-uni::overlay::model::model(const char *filename)
+uni::overlay::model::model(const char *filename) :
+    unit(new ogl::unit(filename, false))
 {
-    unit = new ogl::unit(filename, false);
 
     lat =       0.0f;
     lon =       0.0f;
@@ -234,13 +234,6 @@ void uni::overlay::m_model_create(const char *text)
     {
         printf("model create %s\n", filename);
 
-        // Find an unused model index.
-
-        index = 1;
-
-        while (models.find(index) != models.end())
-            index++;
-
         // Create a new model.
 
         model_p m = 0;
@@ -248,16 +241,19 @@ void uni::overlay::m_model_create(const char *text)
         try
         {
             m = new model(filename);
-        }
-        catch (app::find_error& e)
-        {
-            index = 0;
-        }
 
-        if (m)
-        {
+            // Find an unused model index.
+
+            index = 1;
+
+            while (models.find(index) != models.end())
+                index++;
+
             models[index] = m;
             node->add_unit(m->get_unit());
+        }
+        catch (std::runtime_error& e)
+        {
         }
     }
 
@@ -555,7 +551,7 @@ uni::overlay::overlay(double r) : radius(r)
     pool->add_node(node);
 
 //  m_model_create("wire/wire_sphere.obj\n");
-    m_model_create("solid/metal_box.obj\n");
+//  m_model_create("solid/metal_box.obj\n");
 //  m_model_create("solid/metal_box.obj\n");
 }
 

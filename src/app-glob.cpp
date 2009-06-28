@@ -120,8 +120,11 @@ ogl::uniform *app::glob::load_uniform(const std::string& name, GLsizei size)
     {
         try
         {
-            uniform_map[name].ptr = new ogl::uniform(name, size);
-            uniform_map[name].ref = 1;
+            if (ogl::uniform *p = new ogl::uniform(name, size))
+            {
+                uniform_map[name].ptr = p;
+                uniform_map[name].ref = 1;
+            }
         }
         catch (std::runtime_error& e)
         {
@@ -175,8 +178,11 @@ const ogl::program *app::glob::load_program(const std::string& name)
     {
         try
         {
-            program_map[name].ptr = new ogl::program(name);
-            program_map[name].ref = 1;
+            if (ogl::program *p = new ogl::program(name))
+            {
+                program_map[name].ptr = p;
+                program_map[name].ref = 1;
+            }
         }
         catch (std::runtime_error& e)
         {
@@ -302,8 +308,11 @@ const ogl::texture *app::glob::load_texture(const std::string& name,
     {
         try
         {
-            texture_map[name].ptr = new ogl::texture(name);
-            texture_map[name].ref = 1;
+            if (ogl::texture *p = new ogl::texture(name))
+            {
+                texture_map[name].ptr = p;
+                texture_map[name].ref = 1;
+            }
         }
         catch (std::runtime_error& e)
         {
@@ -361,8 +370,11 @@ const ogl::binding *app::glob::load_binding(const std::string& name,
     {
         try
         {
-            binding_map[name].ptr = new ogl::binding(name);
-            binding_map[name].ref = 1;
+            if (ogl::binding *p = new ogl::binding(name))
+            {
+                binding_map[name].ptr = p;
+                binding_map[name].ref = 1;
+            }
         }
         catch (std::runtime_error& e)
         {
@@ -417,8 +429,11 @@ const ogl::surface *app::glob::load_surface(const std::string& name, bool cent)
 {
     if (surface_map.find(name) == surface_map.end())
     {
-        surface_map[name].ptr = new ogl::surface(name, cent);
-        surface_map[name].ref = 1;
+        if (ogl::surface *p = new ogl::surface(name, cent))
+        {
+            surface_map[name].ptr = p;
+            surface_map[name].ref = 1;
+        }
     }
     else   surface_map[name].ref++;
 
