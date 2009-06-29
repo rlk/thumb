@@ -32,6 +32,10 @@
 //-----------------------------------------------------------------------------
 
 app::user::user() :
+    move_rate(1.0),
+    turn_rate(1.0),
+    move_rate_k(1.0),
+    turn_rate_k(1.0),
     file(DEFAULT_DEMO_FILE),
     root(0),
     prev(0),
@@ -51,8 +55,8 @@ app::user::user() :
 
     home();
 
-    move_rate = ::conf->get_f("view_move_rate");
-    turn_rate = ::conf->get_f("view_turn_rate");
+    move_rate_k = ::conf->get_f("view_move_rate");
+    turn_rate_k = ::conf->get_f("view_turn_rate");
 
     // Initialize the demo input.
 

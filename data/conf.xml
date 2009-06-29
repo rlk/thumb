@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
   <conf>
     <!-- Host configuration -->
-    <option name="host_file">host/local-cluster.xml</option>
-<!--    <option name="host_file">host/common.xml</option>-->
+<!--<option name="host_file">host/local-cluster.xml</option>-->
+    <option name="host_file">host/common.xml</option>
     <option name="exec_dir">/Users/rlk/src/thumb/</option>
     <option name="data_dir">/Users/rlk/data/</option>
-    <option name="input_mode">mouse</option>
+    <option name="input_mode">gamepad</option>
     <option name="wiimote">00:1B:7A:3E:45:7F</option>
     <option name="loader_threads">2</option>
     <option name="loader_buffers">32</option>
@@ -123,7 +123,7 @@
     -->
     <option name="z_only">false</option>
     <!-- Navigation options. -->
-    <option name="view_move_rate">10.000000</option>
+    <option name="view_move_rate">0.500000</option>
     <option name="view_turn_rate">2.00000</option>
     <!-- Misc. options -->
     <option name="screenshot_file">snap.png</option>
