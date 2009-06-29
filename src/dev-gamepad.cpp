@@ -91,8 +91,8 @@ bool dev::gamepad::process_timer(app::event *E)
 {
     const double dt = E->data.timer.dt * 0.001;
 
-    const double kp = ::user->get_move_rate()        * dt;
-    const double kr = ::user->get_turn_rate() * 45.0 * dt;
+    const double kp =        dt;
+    const double kr = 45.0 * dt;
     const double kt = 3.0 * 60.0 * 60.0 * dt;
 
     const bool   bx = (fabs(rotate[0]) > 0.25);

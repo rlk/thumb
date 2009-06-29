@@ -334,20 +334,23 @@ void app::user::fly(double dp, double dy, double dz, double r0, double r1)
     // Yaw about the "out" vector.
 
     if (fabs(dy) > 0.25)
-        Lmul_rot_mat(current_M, N[0], N[1], N[2], dy);
+        Lmul_rot_mat(current_M, N[0], N[1], N[2], dy * get_turn_rate());
 
     // Pitch about the "right" vector.
 
     if (fabs(dp) > 0.25)
     {
         Lmul_xlt_inv(current_M, P[0], P[1], P[2]);
-        Lmul_rot_mat(current_M, X[0], X[1], X[2], dp);
+        Lmul_rot_mat(current_M, X[0], X[1], X[2], dp * get_turn_rate());
         Lmul_xlt_mat(current_M, P[0], P[1], P[2]);
     }
 
     // Move about the "forward" vector.
 
-    Lmul_xlt_mat(current_M, Z[0] * dz, Z[1] * dz, Z[2] * dz);
+    Lmul_xlt_mat(current_M,
+                 Z[0] * dz * get_move_rate(),
+                 Z[1] * dz * get_move_rate(),
+                 Z[2] * dz * get_move_rate());
 
     // Determine the current pitch and altitude.
 
