@@ -68,6 +68,8 @@ app::user::user() :
     int opts;
 
     set_state(curr, opts);
+
+    home();
 }
 
 void app::user::set(const double *p, const double *q, double t)

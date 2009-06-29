@@ -105,11 +105,11 @@ bool dev::gamepad::process_timer(app::event *E)
 
     if (gamepad_fly)
     {
-        if (bp || br) ::user->fly(rotate[1] * kr,
-                                  rotate[0] * kr,
-                                  motion[2] * kp,
-                                  gamepad_r_min,
-                                  gamepad_r_max);
+        ::user->fly(rotate[1] * kr,
+                    rotate[0] * kr,
+                               -kp,
+                    gamepad_r_min,
+                    gamepad_r_max);
     }
     else
     {
