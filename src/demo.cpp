@@ -394,6 +394,10 @@ bool demo::process_timer(app::event *E)
 {
     double dt = E->data.timer.dt * 0.001;
 
+    // 
+
+    ::user->auto_step(dt);
+
     // Step attract mode, if enabled.
 
     if (attr_mode)
@@ -476,7 +480,7 @@ ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
     {
         universe->prep(frusc, frusv);
         ::user->put_move_rate(universe->get_move_rate());
-        ::user->put_turn_rate(universe->get_turn_rate());
+//      ::user->put_turn_rate(universe->get_turn_rate());
     }
 
     return r;

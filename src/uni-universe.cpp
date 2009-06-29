@@ -218,6 +218,8 @@ const char *uni::universe::script(const char *text)
 
 double uni::universe::get_turn_rate() const
 {
+    // HACK: this should be get_pass_rate.
+
     double a = S[0] ? S[0]->altitude() : 1.0;
 
     double k = a * 360.0 / 1e8;

@@ -306,6 +306,8 @@ void app::user::orbit(double a, const double *p)
 
 void app::user::fly(double dp, double dy, double dz, double r0, double r1)
 {
+    // TODO: flyto here?
+
     double X[3];
     double Z[3];
     double P[3];
@@ -634,6 +636,50 @@ void app::user::remove()
             tt = 0.0;
         }
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void app::user::auto_step(double dt)
+{
+    double n[3];
+    double v[3];
+
+    n[0] = current_M[12];
+    n[1] = current_M[13];
+    n[2] = current_M[14];
+
+    normalize(n);
+
+    double a  = acos(DOT3(auto_n1, n));
+    double a0 = acos(DOT3(auto_n1, auto_n0));
+
+    if (DEG(a) < 5.0)
+    {
+        auto_b = false;
+    }
+    else
+    {
+        v[0] = auto_n1[0] - n[0];
+        v[1] = auto_n1[1] - n[1];
+        v[2] = auto_n1[2] - n[2];
+    }
+}
+
+void app::user::auto_init(const double *n)
+{
+    auto_n0[0] = current_M[12];
+    auto_n0[0] = current_M[13];
+    auto_n0[0] = current_M[14];
+
+    auto_n1[0] = n[0];
+    auto_n1[1] = n[1];
+    auto_n1[2] = n[2];
+
+    normalize(auto_n0);
+    normalize(auto_n1);
+
+    auto_b = true;
 }
 
 //-----------------------------------------------------------------------------

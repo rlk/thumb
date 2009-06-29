@@ -41,6 +41,12 @@ namespace app
 
         void set(const double *, const double *, double);
 
+        // A bit of a hack: fly-to state.
+
+        bool   auto_b;
+        double auto_n0[3];
+        double auto_n1[3];
+
         // Automatic demo file.
 
         app::file file;
@@ -96,6 +102,11 @@ namespace app
 
         void tumble(const double *,
                     const double *);
+
+        // Autopilot
+
+        void auto_init(const double *);
+        void auto_step(double);
 
         // Automatic view controls.
 

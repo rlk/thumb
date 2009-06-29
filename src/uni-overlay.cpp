@@ -181,7 +181,12 @@ void uni::overlay::m_moveto(const char *text)
 
     if (sscanf(text, "%lf %lf %lf\n", &lat, &lon, &rad) == 3)
     {
+        const double test[3] = { 0.0, 1.0, 0.0 };
+
         printf("moveto(%f, %f, %f)\n", lat, lon, rad);
+
+        ::user->auto_init(test);
+
         state = 1;
     }
 
@@ -553,6 +558,9 @@ uni::overlay::overlay(double r) : radius(r)
 //  m_model_create("wire/wire_sphere.obj\n");
 //  m_model_create("solid/metal_box.obj\n");
 //  m_model_create("solid/metal_box.obj\n");
+
+    const double test[3] = { 0.0, 1.0, 0.0 };
+//  ::user->auto_init(test);
 }
 
 uni::overlay::~overlay()
