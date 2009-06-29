@@ -159,6 +159,11 @@ void uni::galaxy::draw(int i) const
         glEnableClientState(GL_VERTEX_ARRAY);
         glEnableVertexAttribArrayARB(6);
 
+        // TODO: Find the code that's leaving these arrays enabled.
+
+        glDisableClientState(GL_NORMAL_ARRAY);
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+
         glBindBufferARB(GL_ARRAY_BUFFER_ARB, buffer);
 
         glColorPointer          (4,    GL_UNSIGNED_BYTE, 20, (GLvoid *)  0);

@@ -1,6 +1,6 @@
 #------------------------------------------------------------------------------
 
-CFLAGS= -g -Wall -ansi -pedantic -fno-rtti
+CFLAGS= -O0 -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti
 #CFLAGS= -fprofile-arcs -ftest-coverage -Wall -ansi -pedantic -DNDEBUG -fno-rtti
