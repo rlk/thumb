@@ -58,6 +58,9 @@ app::user::user() :
     move_rate_k = ::conf->get_f("view_move_rate");
     turn_rate_k = ::conf->get_f("view_turn_rate");
 
+    fly_r_min = ::conf->get_f("fly_r_min", 6372797.0);
+    fly_r_max = ::conf->get_f("fly_r_max", 6381641.0);
+
     // Initialize the demo input.
 
     root = file.get_root().find("demo");
@@ -304,7 +307,7 @@ void app::user::orbit(double a, const double *p)
 }
 */
 
-void app::user::fly(double dp, double dy, double dz, double r0, double r1)
+void app::user::fly(double dp, double dy, double dz)
 {
     // TODO: flyto here?
 
@@ -373,16 +376,16 @@ void app::user::fly(double dp, double dy, double dz, double r0, double r1)
 
     // Clamp the pitch and altitude.
 
-    double rr0 = (r1 - r0) / 100.0;
-    double rr1 = (r1 - r0) /  10.0;
+    const double rr0 = (fly_r_max - fly_r_min) / 100.0;
+    const double rr1 = (fly_r_max - fly_r_min) /  10.0;
 
-    double p0 = -30.0 * (1.0 - 1.0 / (1.0 + (+r - r0) / rr0));
-    double p1 =  30.0 * (1.0 - 1.0 / (1.0 + (-r + r1) / rr1));
+    double p0 = -30.0 * (1.0 - 1.0 / (1.0 + (+r - fly_r_min) / rr0));
+    double p1 =  30.0 * (1.0 - 1.0 / (1.0 + (-r + fly_r_max) / rr1));
 
-    if (r < r0) r = r0;
-    if (r > r1) r = r1;
-    if (p < p0) p = p0;
-    if (p > p1) p = p1;
+    r = std::max(r, fly_r_min);
+    r = std::min(r, fly_r_max);
+    p = std::max(p, p0);
+    p = std::min(p, p1);
 
     // Compute the transform with the clamped pitch and altitude.
 
@@ -645,27 +648,61 @@ void app::user::remove()
 
 void app::user::auto_step(double dt)
 {
-    double n[3];
-    double v[3];
-
-    n[0] = current_M[12];
-    n[1] = current_M[13];
-    n[2] = current_M[14];
-
-    normalize(n);
-
-    double a  = acos(DOT3(auto_n1, n));
-    double a0 = acos(DOT3(auto_n1, auto_n0));
-
-    if (DEG(a) < 5.0)
+    if (auto_b)
     {
-        auto_b = false;
-    }
-    else
-    {
-        v[0] = auto_n1[0] - n[0];
-        v[1] = auto_n1[1] - n[1];
-        v[2] = auto_n1[2] - n[2];
+        double n[3];
+        double v[3];
+        double u[3];
+
+        // Find the unit vector pointing out of the planet.
+
+        n[0] = current_M[12];
+        n[1] = current_M[13];
+        n[2] = current_M[14];
+
+        normalize(n);
+
+        // Find the vector to the destination.
+
+        v[0] = auto_n1[0] * fly_r_min - current_M[12];
+        v[1] = auto_n1[1] * fly_r_min - current_M[13];
+        v[2] = auto_n1[2] * fly_r_min - current_M[14];
+
+        // Find the yaw angle to the destination vector.
+
+        double k = DOT3(current_M + 4, v);
+
+        u[0] = v[0] - current_M[4] * k;
+        u[1] = v[1] - current_M[5] * k;
+        u[2] = v[2] - current_M[6] * k;
+
+        normalize(u);
+
+        double dy, y = -DEG(asin(DOT3(u, current_M)));
+
+        dy = y;
+        dy = std::min(dy,  45.0 * dt);
+        dy = std::max(dy, -45.0 * dt);
+
+        // Find the starting and current angles.
+/*
+        double a  = DEG(acos(DOT3(auto_n1, n)));
+        double a0 = DEG(acos(DOT3(auto_n1, auto_n0)));
+*/
+        // Find the pitch angle.
+/*
+        double t = 1.0 - pow(2.0 * a / a0 - 1.0, 2.0);
+        double r = fly_r_min + t * (fly_r_max - fly_r_min);
+
+        double dr = r - sqrt(DOT3(current_M + 12, current_M + 12));
+
+        double dp, p = dr;
+
+        dp = p;
+        dp = std::min(dp,  15.0 * dt);
+        dp = std::max(dp, -15.0 * dt);
+*/
+        fly(0, dy, -2.0 * dt);
     }
 }
 
@@ -683,6 +720,11 @@ void app::user::auto_init(const double *n)
     normalize(auto_n1);
 
     auto_b = true;
+}
+
+void app::user::auto_stop()
+{
+    auto_b = false;
 }
 
 //-----------------------------------------------------------------------------

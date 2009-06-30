@@ -49,9 +49,6 @@ namespace dev
 
         bool gamepad_fly;
 
-        double gamepad_r_min;
-        double gamepad_r_max;
-
         double calibrate(double, double, double);
 
         // Navigation state

@@ -50,9 +50,6 @@ dev::gamepad::gamepad() : button(16, false)
 
     gamepad_fly = (conf->get_s("gamepad_mode") == "fly");
 
-    gamepad_r_min = conf->get_f("gamepad_r_min", 6372797.0);
-    gamepad_r_max = conf->get_f("gamepad_r_max", 6381641.0);
-
     motion[0] = 0;
     motion[1] = 0;
     motion[2] = 0;
@@ -138,10 +135,7 @@ bool dev::gamepad::process_timer(app::event *E)
     if (gamepad_fly)
     {
         ::user->fly(rotate[1] * kr,
-                    rotate[0] * kr,
-                               -kp,
-                    gamepad_r_min,
-                    gamepad_r_max);
+                    rotate[0] * kr, -kp);
     }
     else
     {

@@ -43,9 +43,14 @@ namespace app
 
         // A bit of a hack: fly-to state.
 
+        double fly_r_min;
+        double fly_r_max;
+
         bool   auto_b;
         double auto_n0[3];
         double auto_n1[3];
+        double auto_r0;
+        double auto_r1;
 
         // Automatic demo file.
 
@@ -98,7 +103,7 @@ namespace app
         void pass(double);
         void home();
 
-        void fly(double, double, double, double, double);
+        void fly(double, double, double);
 
         void tumble(const double *,
                     const double *);
@@ -107,6 +112,7 @@ namespace app
 
         void auto_init(const double *);
         void auto_step(double);
+        void auto_stop();
 
         // Automatic view controls.
 

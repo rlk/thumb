@@ -91,6 +91,21 @@ void uni::overlay::model::scale(double scale)
 
 //=============================================================================
 
+void uni::overlay::sphere_to_world(double v[3], double lat, double lon)
+{
+    double w[3];
+
+    w[0] = cos(RAD(-lat)) * cos(RAD(lon + 180.0));
+    w[1] = sin(RAD(-lat));
+    w[2] = cos(RAD(-lat)) * sin(RAD(lon + 180.0));
+
+//  mult_mat_vec3(v, M, w);
+
+    v[0] = w[0];
+    v[1] = w[1];
+    v[2] = w[2];
+}
+
 void uni::overlay::world_to_sphere(double& lat,
                                    double& lon,
                                    double& alt, double x, double y, double z)
@@ -177,21 +192,33 @@ void uni::overlay::m_moveto(const char *text)
     int   state = 0;
     double lat;
     double lon;
-    double rad;
 
-    if (sscanf(text, "%lf %lf %lf\n", &lat, &lon, &rad) == 3)
+    if (sscanf(text, "%lf %lf\n", &lat, &lon) == 2)
     {
-        const double test[3] = { 0.0, 1.0, 0.0 };
+        double v[3];
 
-        printf("moveto(%f, %f, %f)\n", lat, lon, rad);
+        sphere_to_world(v, lat, lon);
 
-        ::user->auto_init(test);
+        printf("moveto(%f, %f) (%f %f %f)\n", lat, lon, v[0], v[1], v[2]);
+
+        ::user->auto_init(v);
 
         state = 1;
     }
 
     sprintf(buffer, "%d\n", state);
 }
+
+void uni::overlay::m_movecancel(const char *text)
+{
+    printf("movecancel\n");
+
+    ::user->auto_stop();
+
+    sprintf(buffer, "1\n");
+}
+
+//-----------------------------------------------------------------------------
 
 void uni::overlay::m_lookup(const char *text)
 {
@@ -514,7 +541,7 @@ const char *uni::overlay::script(const char *text)
     char key[MAXSTR];
     const char *val;
 
-    sscanf(text, "%s\n", key);
+    sscanf(text, "%s", key);
     val = text + strlen(key);
 
     sprintf(buffer, "0\n");
@@ -523,6 +550,7 @@ const char *uni::overlay::script(const char *text)
 
     if      (!strcmp(key, "lookup"))         m_lookup        (val);
     else if (!strcmp(key, "moveto"))         m_moveto        (val);
+    else if (!strcmp(key, "movecancel"))     m_movecancel    (val);
     else if (!strcmp(key, "get_position"))   m_get_position  (val);
 
     else if (!strcmp(key, "model_create"))   m_model_create  (val);
@@ -558,9 +586,11 @@ uni::overlay::overlay(double r) : radius(r)
 //  m_model_create("wire/wire_sphere.obj\n");
 //  m_model_create("solid/metal_box.obj\n");
 //  m_model_create("solid/metal_box.obj\n");
-
+/*
     const double test[3] = { 0.0, 1.0, 0.0 };
-//  ::user->auto_init(test);
+
+    ::user->auto_init(test);
+*/
 }
 
 uni::overlay::~overlay()

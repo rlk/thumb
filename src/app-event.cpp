@@ -408,6 +408,8 @@ app::event *app::event::recv(SOCKET s)
 
     // TODO: repeat until payload size is received.
 
+    memset(payload.data, 0, DATAMAX);
+
     if (payload.size > 0)
         if (::recv(s,  payload.data, payload.size, 0) == -1)
             throw app::sock_error("recv");

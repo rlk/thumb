@@ -16,5 +16,6 @@ void main()
     color = gl_Color.rgb;
 
     gl_Position  = ftransform();
-    gl_PointSize = s;
+//  gl_PointSize = s;
+    gl_PointSize = 2.0;
 }

@@ -28,6 +28,7 @@ namespace uni
         double M[16];
         double I[16];
 
+        void  sphere_to_world(double*, double,  double);
         void  world_to_sphere(double&, double&, double&,
                               double,  double,  double);
         bool screen_to_sphere(double&, double&, double&,
@@ -37,7 +38,8 @@ namespace uni
 
         char buffer[256];
 
-        void m_moveto        (const char *);
+        void m_moveto        (const char *); //
+        void m_movecancel    (const char *); //
         void m_lookup        (const char *); //
         void m_get_position  (const char *); //
 
