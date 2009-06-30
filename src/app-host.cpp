@@ -248,18 +248,28 @@ void app::host::poll_script()
                     }
                     else
                     {
-                        // Process the command and return any result.
+                        char *buf = ibuf;
+                        char *end;
 
-                        printf("script socket received [%s]\n", ibuf);
+                        while ((end = strchr(buf, '\n')))
+                        {
+                           *end = '\0';
 
-                        event E;
+                            printf("script socket received [%s]\n", buf);
 
-                        E.mk_input(ibuf);
-                        process_event(&E);
+                            // Process the command and return any result.
 
-                        if ((obuf =        E.data.input.dst) &&
-                            (size = strlen(E.data.input.dst)))
-                            ::send(*i, obuf, size, 0);
+                            event E;
+
+                            E.mk_input(buf);
+                            process_event(&E);
+
+                            if ((obuf =        E.data.input.dst) &&
+                                (size = strlen(E.data.input.dst)))
+                                ::send(*i, obuf, size, 0);
+
+                            buf = end + 1;
+                        }
                     }
                 }
             }

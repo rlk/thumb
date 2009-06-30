@@ -25,10 +25,10 @@ void app::event::put_type(unsigned char t)
     {
         if (data.input.src) free(data.input.src);
         if (data.input.dst) free(data.input.dst);
-
-        data.input.src = 0;
-        data.input.dst = 0;
     }
+
+    data.input.src = 0;
+    data.input.dst = 0;
 
     payload.type = t;
 }

@@ -53,6 +53,7 @@ app::user::user() :
     };
     load_mat(current_S, S);
 
+    auto_b = false;
     home();
 
     move_rate_k = ::conf->get_f("view_move_rate");
@@ -681,8 +682,8 @@ void app::user::auto_step(double dt)
         double dy, y = -DEG(asin(DOT3(u, current_M)));
 
         dy = y;
-        dy = std::min(dy,  45.0 * dt);
-        dy = std::max(dy, -45.0 * dt);
+        dy = std::min(dy,  20.0 * dt);
+        dy = std::max(dy, -20.0 * dt);
 
         // Find the starting and current angles.
 /*
