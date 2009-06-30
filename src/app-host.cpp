@@ -602,7 +602,7 @@ void app::host::root_loop()
             case SDL_JOYAXISMOTION:
                 process_event(E.mk_value(e.jaxis.which,
                                          e.jaxis.axis,
-                                         e.jaxis.value / 32768.0));
+                                         e.jaxis.value));
                 break;
 
             case SDL_JOYBUTTONDOWN:

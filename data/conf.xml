@@ -55,6 +55,11 @@
     <option name="gamepad_mode">fly</option>
     <option name="gamepad_r_min">1800000</option>
     <option name="gamepad_r_max">2500000</option>
+    <!-- Gamepad calibration -->
+    <option name="gamepad_axis_X_min">-32768</option>
+    <option name="gamepad_axis_X_max"> 32767</option>
+    <option name="gamepad_axis_Y_min">-32768</option>
+    <option name="gamepad_axis_Y_max"> 32767</option>
     <!-- GUI options -->
     <option name="sans_font">FreeSans.ttf</option>
     <option name="mono_font">FreeMono.ttf</option>

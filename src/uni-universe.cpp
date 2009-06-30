@@ -86,7 +86,7 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
 
     // Create the galaxy.
 
-//  G = new galaxy("hipparcos.bin");
+    G = new galaxy("hipparcos.bin");
 //  Z = new slides("slides.xml");
 
     // Create the Earth.

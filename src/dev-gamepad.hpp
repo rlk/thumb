@@ -38,10 +38,21 @@ namespace dev
         int gamepad_butn_B;
         int gamepad_butn_H;
 
+        double gamepad_axis_X_min;
+        double gamepad_axis_X_max;
+        double gamepad_axis_Y_min;
+        double gamepad_axis_Y_max;
+        double gamepad_axis_Z_min;
+        double gamepad_axis_Z_max;
+        double gamepad_axis_T_min;
+        double gamepad_axis_T_max;
+
         bool gamepad_fly;
 
         double gamepad_r_min;
         double gamepad_r_max;
+
+        double calibrate(double, double, double);
 
         // Navigation state
 

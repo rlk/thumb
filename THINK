@@ -1,3 +1,24 @@
+A new distribution abstraction, taking into account scripting
+
+    Idea...
+        Isolate the world as a database of objects
+            let a network client be a long-running database deamon
+                a client has:
+                    a copy of the 3D database
+                    local configuration
+                        display surface, etc
+            the 2D gui must be constructible atop this
+        send messages to manipulate
+            the database
+                assume all assets are local
+                    to minimize the protocol complexity
+            the deamon state
+                stereo mode, calibration, etc
+        provide an API to this database
+            map the API onto the scripting language
+        the physics simulator and editor live entirely outside of this
+        
+
 Thumb features to consider
 
     Solve for the sky.  Seriously.

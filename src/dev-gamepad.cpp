@@ -39,6 +39,15 @@ dev::gamepad::gamepad() : button(16, false)
     gamepad_butn_B = conf->get_i("gamepad_butn_B", 11);
     gamepad_butn_H = conf->get_i("gamepad_butn_H",  4);
 
+    gamepad_axis_X_min = conf->get_f("gamepad_axis_X_min", -32768.0);
+    gamepad_axis_X_max = conf->get_f("gamepad_axis_X_max",  32767.0);
+    gamepad_axis_Y_min = conf->get_f("gamepad_axis_Y_min", -32768.0);
+    gamepad_axis_Y_max = conf->get_f("gamepad_axis_Y_max",  32767.0);
+    gamepad_axis_Z_min = conf->get_f("gamepad_axis_Z_min", -32768.0);
+    gamepad_axis_Z_max = conf->get_f("gamepad_axis_Z_max",  32767.0);
+    gamepad_axis_T_min = conf->get_f("gamepad_axis_T_min", -32768.0);
+    gamepad_axis_T_max = conf->get_f("gamepad_axis_T_max",  32767.0);
+
     gamepad_fly = (conf->get_s("gamepad_mode") == "fly");
 
     gamepad_r_min = conf->get_f("gamepad_r_min", 6372797.0);
@@ -52,6 +61,13 @@ dev::gamepad::gamepad() : button(16, false)
     rotate[1] = 0;
     rotate[2] = 0;
     rotate[3] = 0;
+}
+
+//-----------------------------------------------------------------------------
+
+double dev::gamepad::calibrate(double val, double min, double max)
+{
+    return 2.0 * (val - min) / (max - min) - 1.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -79,10 +95,26 @@ bool dev::gamepad::process_value(app::event *E)
     const int    a = E->data.value.a;
     const double v = E->data.value.v;
 
-    if      (a == gamepad_axis_X) { rotate[0] = -v; return true; }
-    else if (a == gamepad_axis_Y) { rotate[1] =  v; return true; }
-    else if (a == gamepad_axis_Z) { rotate[2] = -v; return true; }
-    else if (a == gamepad_axis_T) { rotate[3] = -v; return true; }
+    if      (a == gamepad_axis_X)
+    {
+        rotate[0] = -calibrate(v, gamepad_axis_X_min, gamepad_axis_X_max);
+        return true;
+    }
+    else if (a == gamepad_axis_Y)
+    {
+        rotate[1] = +calibrate(v, gamepad_axis_Y_min, gamepad_axis_Y_max);
+        return true;
+    }
+    else if (a == gamepad_axis_Z)
+    {
+        rotate[2] = -calibrate(v, gamepad_axis_Z_min, gamepad_axis_Z_max);
+        return true;
+    }
+    else if (a == gamepad_axis_T)
+    {
+        rotate[3] = -calibrate(v, gamepad_axis_T_min, gamepad_axis_T_max);
+        return true;
+    }
 
     return false;
 }
