@@ -128,7 +128,7 @@
     -->
     <option name="z_only">false</option>
     <!-- Navigation options. -->
-    <option name="view_move_rate">0.500000</option>
+    <option name="view_move_rate">0.15000</option>
     <option name="view_turn_rate">1.00000</option>
     <!-- Misc. options -->
     <option name="screenshot_file">snap.png</option>

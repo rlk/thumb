@@ -42,7 +42,7 @@ namespace app
         // Network handling
 
         void   fork_client(const char *, const char *, const char *);
-        void   poll_listen();
+        void   poll_listen(bool);
         void   poll_script();
         void   fini_script();
 

@@ -122,7 +122,7 @@ void app::host::init_listen(app::node p)
     if (root())  script_cd = init_socket(DEFAULT_SCRIPT_PORT);
 }
 
-void app::host::poll_listen()
+void app::host::poll_listen(bool wait)
 {
     struct timeval tv = { 0, 0 };
 
@@ -137,7 +137,7 @@ void app::host::poll_listen()
 
     // Check for an incomming client connection.
 
-    if (int n = select(m + 1, &fds, NULL, NULL, &tv))
+    if (int n = select(m + 1, &fds, NULL, NULL, wait ? 0 : &tv))
     {
         if (n < 0)
         {
@@ -531,6 +531,14 @@ app::host::host(std::string filename, std::string tag) :
 
     if (overlay == 0)
         overlay = new app::frustum(*(displays.front()->get_overlay()));
+
+    // HACK: wait until all clients have connected.
+
+    while (int(client_sd.size()) < clients)
+    {
+        poll_listen(true);
+        printf("%2d clients connected\n", int(client_sd.size()));
+    }
 }
 
 app::host::~host()
@@ -629,7 +637,7 @@ void app::host::root_loop()
             // Check for script input events.
 
             poll_script();
-            poll_listen();
+            poll_listen(false);
 
             // Advance to the current time, or by one JIFFY when benchmarking.
 
