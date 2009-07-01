@@ -682,8 +682,8 @@ void app::user::auto_step(double dt)
         double dy, y = -DEG(asin(DOT3(u, current_M)));
 
         dy = y;
-        dy = std::min(dy,  20.0 * dt);
-        dy = std::max(dy, -20.0 * dt);
+        dy = std::min(dy,  90.0 * dt);
+        dy = std::max(dy, -90.0 * dt);
 
         // Find the starting and current angles.
 /*

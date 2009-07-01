@@ -95,9 +95,9 @@ void uni::overlay::sphere_to_world(double v[3], double lat, double lon)
 {
     double w[3];
 
-    w[0] = cos(RAD(lat)) * sin(RAD(lon));
+    w[0] = cos(RAD(lat)) * sin(RAD(lon + 180.0));
     w[1] = sin(RAD(lat));
-    w[2] = cos(RAD(lat)) * cos(RAD(lon));
+    w[2] = cos(RAD(lat)) * cos(RAD(lon + 180.0));
 
 //  mult_mat_vec3(v, M, w);
 
