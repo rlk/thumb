@@ -323,13 +323,14 @@ void app::user::orbit(double a, const double *p)
 }
 */
 
-void app::user::fly(double dp, double dy, double dz)
+void app::user::fly(double dp, double dy, double dz, double rr)
 {
     // TODO: flyto here?
 
     double X[3];
     double Z[3];
     double P[3];
+    double Q[3];
     double N[3];
 
     X[0] = current_M[ 0];
@@ -377,9 +378,9 @@ void app::user::fly(double dp, double dy, double dz)
     X[1] = current_M[ 1];
     X[2] = current_M[ 2];
 
-    P[0] = current_M[12];
-    P[1] = current_M[13];
-    P[2] = current_M[14];
+    Q[0] = current_M[12];
+    Q[1] = current_M[13];
+    Q[2] = current_M[14];
 
     N[0] = current_M[12];
     N[1] = current_M[13];
@@ -388,20 +389,39 @@ void app::user::fly(double dp, double dy, double dz)
     normalize(N);
 
     double p = -DEG(asin(DOT3(N, current_M + 8)));
-    double r = sqrt(DOT3(P, P));
+    double r = sqrt(DOT3(Q, Q));
 
-    // Clamp the pitch and altitude.
+    // Compute the pitch and altitude.
 
-    const double rr0 = (fly_r_max - fly_r_min) / 100.0;
-    const double rr1 = (fly_r_max - fly_r_min) /  10.0;
+    if (rr > 0.0)
+    {
+        double d[3];
 
-    double p0 = -30.0 * (1.0 - 1.0 / (1.0 + (+r - fly_r_min) / rr0));
-    double p1 =  30.0 * (1.0 - 1.0 / (1.0 + (-r + fly_r_max) / rr1));
+        d[0] = auto_n1[0] * auto_r1 - Q[0];
+        d[1] = auto_n1[1] * auto_r1 - Q[1];
+        d[2] = auto_n1[2] * auto_r1 - Q[2];
 
-    r = std::max(r, fly_r_min);
-    r = std::min(r, fly_r_max);
-    p = std::max(p, p0);
-    p = std::min(p, p1);
+        normalize(d);
+
+        double pp = DEG(asin(DOT3(N, d)));
+
+//      printf("dr=%f pp=%f\n", rr-r, pp);
+        r = rr;
+//      p = pp;
+    }
+    else
+    {
+        const double rr0 = (fly_r_max - fly_r_min) / 100.0;
+        const double rr1 = (fly_r_max - fly_r_min) /  10.0;
+
+        double p0 = -30.0 * (1.0 - 1.0 / (1.0 + (+r - fly_r_min) / rr0));
+        double p1 =  30.0 * (1.0 - 1.0 / (1.0 + (-r + fly_r_max) / rr1));
+
+        r = std::max(r, fly_r_min);
+        r = std::min(r, fly_r_max);
+        p = std::max(p, p0);
+        p = std::min(p, p1);
+    }
 
     // Compute the transform with the clamped pitch and altitude.
 
@@ -410,9 +430,9 @@ void app::user::fly(double dp, double dy, double dz)
     current_M[6] = N[2];
     crossprod(current_M + 8, current_M + 0, current_M + 4);
 
-    Lmul_xlt_inv(current_M, P[0], P[1], P[2]);
+    Lmul_xlt_inv(current_M, Q[0], Q[1], Q[2]);
     Lmul_rot_mat(current_M, X[0], X[1], X[2], p);
-    Lmul_xlt_mat(current_M, P[0], P[1], P[2]);
+    Lmul_xlt_mat(current_M, Q[0], Q[1], Q[2]);
 
     current_M[12] = N[0] * r;
     current_M[13] = N[1] * r;
@@ -695,45 +715,43 @@ void app::user::auto_step(double dt)
         dy = std::min(dy,  90.0 * dt);
         dy = std::max(dy, -90.0 * dt);
 
-        // Find the starting and current angles.
-/*
-        double a  = DEG(acos(DOT3(auto_n1, n)));
-        double a0 = DEG(acos(DOT3(auto_n1, auto_n0)));
-*/
-        // Find the pitch angle.
-/*
-        double t = 1.0 - pow(2.0 * a / a0 - 1.0, 2.0);
-        double r = fly_r_min + t * (fly_r_max - fly_r_min);
+        // Compute the forward velocity.
 
-        double dr = r - sqrt(DOT3(current_M + 12, current_M + 12));
-
-        double dp, p = dr;
-
-        dp = p;
-        dp = std::min(dp,  15.0 * dt);
-        dp = std::max(dp, -15.0 * dt);
-*/
-/*
-        if (fabs(y) > 5.0)
-            fly(0, dy,  1.0 * dt);
-        else
-            fly(0, dy, -2.0 * dt);
-*/
         double dz = 1.0 - cubic(fabs(y) / 10.0);
 
-        fly(0, dy, (1.0 - 3.0 * dz) * dt);
+        // Find the starting and current angles.
+
+        double a  = DEG(acos(DOT3(auto_n1, n)));
+        double a0 = DEG(acos(DOT3(auto_n1, auto_n0)));
+
+        // Compute the desired altitude.
+
+        double t = 1.0 - pow(2.0 * a / a0 - 1.0, 2.0);
+        double r;
+
+        if (a > a0 * 0.5)
+            r = auto_r0 + t * (fly_r_max - auto_r0);  // Going up
+        else
+            r = auto_r1 + t * (fly_r_max - auto_r1);  // Going down
+
+        // Apply the yaw, velocity, and altitude.
+
+        fly(0.0, dy, (1.0 - 3.0 * dz) * dt, r);
     }
 }
 
 void app::user::auto_init(const double *n)
 {
     auto_n0[0] = current_M[12];
-    auto_n0[0] = current_M[13];
-    auto_n0[0] = current_M[14];
+    auto_n0[1] = current_M[13];
+    auto_n0[2] = current_M[14];
 
     auto_n1[0] = n[0];
     auto_n1[1] = n[1];
     auto_n1[2] = n[2];
+
+    auto_r0 = sqrt(DOT3(auto_n0, auto_n0));
+    auto_r1 = fly_r_min;
 
     normalize(auto_n0);
     normalize(auto_n1);

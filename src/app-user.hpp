@@ -103,7 +103,7 @@ namespace app
         void pass(double);
         void home();
 
-        void fly(double, double, double);
+        void fly(double, double, double, double=0.0);
 
         void tumble(const double *,
                     const double *);
