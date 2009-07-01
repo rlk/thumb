@@ -582,10 +582,14 @@ uni::overlay::overlay(double r) : radius(r)
     node = new ogl::node();
 
     pool->add_node(node);
+/*
+    m_model_create("wire/wire_sphere.obj\n");
+    m_model_position("1 world -43.3 -11.2 1800000");
+    m_moveto("-43.3 -11.2");
+*/
+//  m_model_create("solid/wood_box.obj\n");
+//  m_model_create("solid/flag.obj\n");
 
-//  m_model_create("wire/wire_sphere.obj\n");
-//  m_model_create("solid/metal_box.obj\n");
-//  m_model_create("solid/metal_box.obj\n");
 /*
     const double test[3] = { 0.0, 1.0, 0.0 };
 

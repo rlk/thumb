@@ -240,6 +240,8 @@ void app::host::poll_script()
 
                     memset(ibuf, 0, 256);
 
+                    // Read until newline.
+
                     if ((size = ::recv(*i, ibuf, 256, 0)) <= 0)
                     {
                         printf("script socket disconnected\n");

@@ -75,7 +75,7 @@
         <viewport x="0" y="0" w="960" h="540"/>
         <frustum>
           <perspective hfov="60.0" vfov="35.0"/>
-          <rotation p="-30.0"/>
+          <rotation p="-45.0"/>
         </frustum>
       </display>
     </node>

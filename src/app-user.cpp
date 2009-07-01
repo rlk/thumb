@@ -31,6 +31,21 @@
 
 //-----------------------------------------------------------------------------
 
+static double cubic(double t)
+{
+    if (t < 0.0) return 0.0;
+    if (t > 1.0) return 1.0;
+
+    return 3 * t * t - 2 * t * t * t;
+}
+
+static double smoothstep(double a, double z, double t)
+{
+    return cubic((t - a) / (z - a)) * (z - a) + a;
+}
+
+//-----------------------------------------------------------------------------
+
 app::user::user() :
     move_rate(1.0),
     turn_rate(1.0),
@@ -427,11 +442,6 @@ void app::user::tumble(const double *A,
 
 //-----------------------------------------------------------------------------
 
-static double cubic(double t)
-{
-    return 3 * t * t - 2 * t * t * t;
-}
-
 double app::user::interpolate(app::node A,
                               app::node B, const char *name, double t)
 {
@@ -703,7 +713,15 @@ void app::user::auto_step(double dt)
         dp = std::min(dp,  15.0 * dt);
         dp = std::max(dp, -15.0 * dt);
 */
-        fly(0, dy, -2.0 * dt);
+/*
+        if (fabs(y) > 5.0)
+            fly(0, dy,  1.0 * dt);
+        else
+            fly(0, dy, -2.0 * dt);
+*/
+        double dz = 1.0 - cubic(fabs(y) / 10.0);
+
+        fly(0, dy, (1.0 - 3.0 * dz) * dt);
     }
 }
 
