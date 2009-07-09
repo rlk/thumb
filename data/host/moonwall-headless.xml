@@ -1,28 +1,12 @@
 <?xml version="1.0"?>
   <host>
-    <!-- lrohead ----------------------------------------------------- -->
-    <node name="lrohead" port="2827">
-      <client name="bashful" addr="bashful"/>
+    <!-- bashful ----------------------------------------------------- -->
+    <node name="bashful" port="2827">
       <client name="doc"     addr="doc"/>
       <client name="grumpy"  addr="grumpy"/>
       <client name="sleepy"  addr="sleepy"/>
       <client name="sneezy"  addr="sneezy"/>
       <client name="dopey"   addr="dopey"/>
-      <window x="0" y="0" w="680" h="300"/>
-      <buffer w="680" h="300" />
-      <display type="normal"> 
-        <frustum>
-          <viewport x="0" y="0" w="680" h="300"/>
-          <corner name="BL" x="-6.724" y="-2.826" z="-7.471" />
-          <corner name="BR" x="-3.378" y="-2.826" z="-7.471" />
-          <corner name="TL" x="-6.724" y="-0.956" z="-7.471" />
-          <rotation p="-45.0"/>
-        </frustum>
-      </display>
-    </node>
-    <!-- bashful ----------------------------------------------------- -->
-    <node name="bashful">
-      <server addr="lrohead" port="2827"/>
       <window x="0" y="0" w="2720" h="760" full="1" frame="0"/>
       <buffer w="1360" h="760" />
       <display type="normal"> <!-- Index 1 Row 0 Col 0 -->
@@ -46,7 +30,7 @@
     </node>
     <!-- doc     ----------------------------------------------------- -->
     <node name="doc">
-      <server addr="lrohead" port="2827"/>
+      <server addr="bashful" port="2827"/>
       <window x="0" y="0" w="2720" h="760" full="1" frame="0"/>
       <buffer w="1360" h="760" />
       <display type="normal"> <!-- Index 3 Row 0 Col 2 -->
@@ -70,7 +54,7 @@
     </node>
     <!-- sneezy  ----------------------------------------------------- -->
     <node name="sneezy">
-      <server addr="lrohead" port="2827"/>
+      <server addr="bashful" port="2827"/>
       <window x="0" y="0" w="2720" h="760" full="1" frame="0"/>
       <buffer w="1360" h="760" />
       <display type="normal"> <!-- Index 5 Row 1 Col 0 -->
@@ -94,7 +78,7 @@
     </node>
     <!-- sleepy  ----------------------------------------------------- -->
     <node name="sleepy">
-      <server addr="lrohead" port="2827"/>
+      <server addr="bashful" port="2827"/>
       <window x="0" y="0" w="2720" h="760" full="1" frame="0"/>
       <buffer w="1360" h="760" />
       <display type="normal"> <!-- Index 7 Row 1 Col 2 -->
@@ -118,7 +102,7 @@
     </node>
     <!-- dopey   ----------------------------------------------------- -->
     <node name="dopey">
-      <server addr="lrohead" port="2827"/>
+      <server addr="bashful" port="2827"/>
       <window x="0" y="0" w="2720" h="760" full="1" frame="0"/>
       <buffer w="1360" h="760" />
       <display type="normal"> <!-- Index 9 Row 2 Col 0 -->
@@ -142,7 +126,7 @@
     </node>
     <!-- grumpy  ----------------------------------------------------- -->
     <node name="grumpy">
-      <server addr="lrohead" port="2827"/>
+      <server addr="bashful" port="2827"/>
       <window x="0" y="0" w="2720" h="760" full="1" frame="0"/>
       <buffer w="1360" h="760" />
       <display type="normal"> <!-- Index 11 Row 2 Col 2 -->

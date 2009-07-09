@@ -21,6 +21,7 @@
 #include "app-conf.hpp"
 #include "app-user.hpp"
 #include "app-prog.hpp"
+#include "app-host.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -58,6 +59,7 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
     Ecolor.push_back(dif0);
     Enormal.push_back(nrm0);
     Eheight.push_back(hgt0);
+
 /*
     geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          Er0, Er1);
     geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
@@ -65,6 +67,7 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
     Enormal.push_back(nrm1);
     Eheight.push_back(hgt1);
 */
+
     geomap *dif2 = new geomap(cache_s, "universe/moon-750.xml",          Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "universe/moon-normal.xml",       Mr0, Mr1);
     geomap *hgt2 = new geomap(cache_h, "universe/moon-height.xml",       Mr0, Mr1);
