@@ -1,5 +1,22 @@
 -------------------------------------------------------------------------------
 
+display
+    offscreen type
+       binding frustum to channel number
+       but not rendering onscreen
+channel
+    add buffer dump
+
+host
+    if inset frustum is defined
+        call through to frustum->set_transform
+    if inset channel is defined
+        call through to channel->dump
+
+display lighting / show height using set_option
+
+-------------------------------------------------------------------------------
+
 Separating the engine from the application
 
     Compile all modules down to a library

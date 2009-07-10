@@ -17,6 +17,9 @@ A new distribution abstraction, taking into account scripting
         provide an API to this database
             map the API onto the scripting language
         the physics simulator and editor live entirely outside of this
+
+
+It may be worthwhile to generalize the camera concept to allow multiple viewers, offscreen renders, insets, etc.
         
 
 Thumb features to consider
