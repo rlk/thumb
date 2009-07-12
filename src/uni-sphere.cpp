@@ -618,9 +618,15 @@ void uni::sphere::draw(int i)
 
     GLfloat L[4];
     double  t[4];
+/* HACK
     double  sun[4] = { 0.0, 0.0, 149000000000.0 };
 
     mult_xps_vec3(t, O, sun);
+*/
+    t[0] = vp[0];
+    t[1] = vp[1];
+    t[2] = vp[2];
+
     normalize(t);
 
     L[0] = GLfloat(t[0]);
