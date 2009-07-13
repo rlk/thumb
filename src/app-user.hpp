@@ -47,8 +47,12 @@ namespace app
         double fly_r_max;
 
         bool   auto_b;
+        double auto_t;
+        double auto_T;
         double auto_n0[3];
         double auto_n1[3];
+        double auto_q0[4];
+        double auto_q1[4];
         double auto_r0;
         double auto_r1;
 

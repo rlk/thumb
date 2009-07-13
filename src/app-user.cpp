@@ -403,7 +403,7 @@ void app::user::fly(double dp, double dy, double dz, double rr)
 
         normalize(d);
 
-        double pp = DEG(asin(DOT3(N, d)));
+//      double pp = DEG(asin(DOT3(N, d)));
 
 //      printf("dr=%f pp=%f\n", rr-r, pp);
         r = rr;
@@ -676,7 +676,7 @@ void app::user::remove()
 }
 
 //-----------------------------------------------------------------------------
-
+/*
 void app::user::auto_step(double dt)
 {
     if (auto_b)
@@ -739,9 +739,41 @@ void app::user::auto_step(double dt)
         fly(0.0, dy, (1.0 - 3.0 * dz) * dt, r);
     }
 }
+*/
+void app::user::auto_step(double dt)
+{
+    if (auto_b)
+    {
+        double n[3];
+        double q[4];
+
+        auto_t += dt;
+
+        double t = auto_T / auto_t;
+
+        double r = smoothstep(auto_r0, auto_r1, t);
+
+        n[0] = smoothstep(auto_n0[0], auto_n1[0], t);
+        n[1] = smoothstep(auto_n0[1], auto_n1[1], t);
+        n[2] = smoothstep(auto_n0[2], auto_n1[2], t);
+
+        q[0] = smoothstep(auto_q0[0], auto_q1[0], t);
+        q[1] = smoothstep(auto_q0[1], auto_q1[1], t);
+        q[2] = smoothstep(auto_q0[2], auto_q1[2], t);
+        q[3] = smoothstep(auto_q0[2], auto_q1[2], t);
+
+        set_quaternion(current_M, q);
+
+        current_M[12] = n[0] * r;
+        current_M[13] = n[1] * r;
+        current_M[14] = n[2] * r;
+    }
+}
 
 void app::user::auto_init(const double *n)
 {
+    // Compute the source and destination positions.
+
     auto_n0[0] = current_M[12];
     auto_n0[1] = current_M[13];
     auto_n0[2] = current_M[14];
@@ -750,13 +782,45 @@ void app::user::auto_init(const double *n)
     auto_n1[1] = n[1];
     auto_n1[2] = n[2];
 
-    auto_r0 = sqrt(DOT3(auto_n0, auto_n0));
-    auto_r1 = fly_r_min;
-
     normalize(auto_n0);
     normalize(auto_n1);
 
+    // Compute the source and destination radii.
+
+    auto_r0 = sqrt(DOT3(current_M + 12, current_M + 12));
+    auto_r1 = fly_r_min;
+
+    // Compute the destination transform.
+
+    double d[3];
+    double M[16];
+    double r[3];
+
+    load_idt(M);
+
+    d[0] = auto_n0[0] - auto_n1[0];
+    d[1] = auto_n0[1] - auto_n1[1];
+    d[2] = auto_n0[2] - auto_n1[2];
+
+    M[4] = auto_n1[0];
+    M[5] = auto_n1[1];
+    M[6] = auto_n1[2];
+
+    crossprod(M + 0, M + 4, d);
+    normalize(M + 0);
+    crossprod(M + 8, M + 0, M + 4);
+    normalize(M + 8);
+
+    // Capture the source and destination orientation.
+
+    get_quaternion(auto_q0, current_M);
+    get_quaternion(auto_q1, M);
+
+    // Initialize the timer.
+
     auto_b = true;
+    auto_t = 0;
+    auto_T = DEG(acos(DOT3(auto_n1, auto_n0))) / 45.0;
 }
 
 void app::user::auto_stop()
