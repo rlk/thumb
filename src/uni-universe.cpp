@@ -75,10 +75,12 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
 */
 /*
     geomap *dif2 = new geomap(cache_s, "universe/moon-750.xml",          Mr0, Mr1);
-*/
-    geomap *dif2 = new geomap(cache_m, "universe/clem750v2.xml",         Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "universe/moon-normal.xml",       Mr0, Mr1);
     geomap *hgt2 = new geomap(cache_h, "universe/moon-height.xml",       Mr0, Mr1);
+*/
+    geomap *dif2 = new geomap(cache_m, "universe/clem750v2.xml",         Mr0, Mr1);
+    geomap *nrm2 = new geomap(cache_s, "universe/ulcn2005-normal.xml",   Mr0, Mr1);
+    geomap *hgt2 = new geomap(cache_h, "universe/ulcn2005-height.xml",   Mr0, Mr1);
 
     Mcolor.push_back(dif2);
     Mnormal.push_back(nrm2);
