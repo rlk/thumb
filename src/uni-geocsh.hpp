@@ -46,6 +46,7 @@ namespace uni
 
         bool ret;
 
+        void mask1ub(GLubyte *, const GLubyte *) const;
         void swab1us(GLubyte *, const GLubyte *) const;
         void mask1us(GLubyte *, const GLubyte *) const;
         void swab3ub(GLubyte *, const GLubyte *) const;

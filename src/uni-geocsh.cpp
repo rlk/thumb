@@ -193,6 +193,27 @@ void uni::buffer::mask3ub(GLubyte *dst, const GLubyte *src) const
     }
 }
 
+void uni::buffer::mask1ub(GLubyte *dst, const GLubyte *src) const
+{
+    uint32_t *d = (uint32_t *) dst;
+    uint8_t  *s = (uint8_t  *) src;
+
+    int i, n = w * h;
+
+    // RGBA
+
+    for (i = 0; i < n; ++i)
+    {
+        uint32_t r = uint32_t(s[i]);
+        uint32_t g = uint32_t(s[i]);
+        uint32_t b = uint32_t(s[i]);
+
+        uint32_t a = (r || g || b) ? 0xFF000000 : 0x00000000;
+
+        d[i] = (r | (g << 8) | (b << 16) | a);
+    }
+}
+
 uni::buffer *uni::buffer::load(std::string name, bool swab)
 {
     png_structp rp = 0;
@@ -241,6 +262,9 @@ uni::buffer *uni::buffer::load(std::string name, bool swab)
                                 else
                                     mask1us(ptr, dat);
                             }
+
+                            if (c == 1 && b == 1)
+                                mask1ub(ptr, dat);
                         }
 
                         ret = true;
@@ -261,6 +285,7 @@ uni::buffer *uni::buffer::load(std::string name, bool swab)
 
 GLenum uni::geocsh::internal_format(int c, int b)
 {
+    if (c == 1 && b == 1) return GL_RGBA8;
     if (c == 3 && b == 1) return GL_RGBA8;
     if (c == 1 && b == 2) return GL_LUMINANCE16_ALPHA16;
 
@@ -269,6 +294,7 @@ GLenum uni::geocsh::internal_format(int c, int b)
 
 GLenum uni::geocsh::external_format(int c, int b)
 {
+    if (c == 1 && b == 1) return GL_RGBA;
 #ifdef __APPLE__
     if (c == 3 && b == 1) return GL_RGBA;
 #else
@@ -281,6 +307,7 @@ GLenum uni::geocsh::external_format(int c, int b)
 
 GLenum uni::geocsh::pixel_type(int c, int b)
 {
+    if (c == 1 && b == 1) return GL_UNSIGNED_INT_8_8_8_8_REV;
     if (c == 3 && b == 1) return GL_UNSIGNED_INT_8_8_8_8_REV;
     if (c == 1 && b == 2) return GL_UNSIGNED_SHORT;
 
