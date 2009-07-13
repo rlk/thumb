@@ -264,7 +264,7 @@ uni::buffer *uni::buffer::load(std::string name, bool swab)
                             }
 
                             if (c == 1 && b == 1)
-                                mask1ub(ptr, dat);
+				memcpy(ptr, dat, w * h);
                         }
 
                         ret = true;
@@ -285,7 +285,7 @@ uni::buffer *uni::buffer::load(std::string name, bool swab)
 
 GLenum uni::geocsh::internal_format(int c, int b)
 {
-    if (c == 1 && b == 1) return GL_RGBA8;
+    if (c == 1 && b == 1) return GL_LUMINANCE;
     if (c == 3 && b == 1) return GL_RGBA8;
     if (c == 1 && b == 2) return GL_LUMINANCE16_ALPHA16;
 
@@ -294,7 +294,7 @@ GLenum uni::geocsh::internal_format(int c, int b)
 
 GLenum uni::geocsh::external_format(int c, int b)
 {
-    if (c == 1 && b == 1) return GL_RGBA;
+    if (c == 1 && b == 1) return GL_LUMINANCE;
 #ifdef __APPLE__
     if (c == 3 && b == 1) return GL_RGBA;
 #else
@@ -307,7 +307,7 @@ GLenum uni::geocsh::external_format(int c, int b)
 
 GLenum uni::geocsh::pixel_type(int c, int b)
 {
-    if (c == 1 && b == 1) return GL_UNSIGNED_INT_8_8_8_8_REV;
+    if (c == 1 && b == 1) return GL_UNSIGNED_BYTE;
     if (c == 3 && b == 1) return GL_UNSIGNED_INT_8_8_8_8_REV;
     if (c == 1 && b == 2) return GL_UNSIGNED_SHORT;
 

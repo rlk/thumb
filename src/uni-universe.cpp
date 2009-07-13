@@ -35,17 +35,23 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
 
     // Create the caches.
 
+    int mono_cache_w = std::max(::conf->get_i("image_cache_w"), 2);
+    int mono_cache_h = std::max(::conf->get_i("image_cache_h"), 2);
+
     int image_cache_w = std::max(::conf->get_i("image_cache_w"), 2);
     int image_cache_h = std::max(::conf->get_i("image_cache_h"), 2);
 
     int height_cache_w = std::max(::conf->get_i("height_cache_w"), 2);
     int height_cache_h = std::max(::conf->get_i("height_cache_h"), 2);
 
+    geocsh *cache_m = new geocsh(1, 1, 510, mono_cache_w,
+                                            mono_cache_h);
     geocsh *cache_s = new geocsh(3, 1, 510, image_cache_w,
                                             image_cache_h);
     geocsh *cache_h = new geocsh(1, 2, 510, height_cache_w,
                                             height_cache_h);
 
+    caches.push_back(cache_m);
     caches.push_back(cache_s);
     caches.push_back(cache_h);
 
@@ -70,7 +76,7 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
 /*
     geomap *dif2 = new geomap(cache_s, "universe/moon-750.xml",          Mr0, Mr1);
 */
-    geomap *dif2 = new geomap(cache_s, "universe/clem750v2.xml",         Mr0, Mr1);
+    geomap *dif2 = new geomap(cache_m, "universe/clem750v2.xml",         Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "universe/moon-normal.xml",       Mr0, Mr1);
     geomap *hgt2 = new geomap(cache_h, "universe/moon-height.xml",       Mr0, Mr1);
 
