@@ -41,7 +41,7 @@ static double cubic(double t)
 
 static double smoothstep(double a, double z, double t)
 {
-    return cubic((t - a) / (z - a)) * (z - a) + a;
+    return a + (z - a) * cubic(t);
 }
 
 //-----------------------------------------------------------------------------
@@ -744,29 +744,34 @@ void app::user::auto_step(double dt)
 {
     if (auto_b)
     {
-        double n[3];
-        double q[4];
-
         auto_t += dt;
 
-        double t = auto_T / auto_t;
+        double t = auto_t / auto_T;
 
-        double r = smoothstep(auto_r0, auto_r1, t);
+	if (t < 1.0)
+	{
+	    double r = smoothstep(auto_r0, auto_r1, t);
+	    double n[3];
+	    double q[4];
 
-        n[0] = smoothstep(auto_n0[0], auto_n1[0], t);
-        n[1] = smoothstep(auto_n0[1], auto_n1[1], t);
-        n[2] = smoothstep(auto_n0[2], auto_n1[2], t);
+	    n[0] = smoothstep(auto_n0[0], auto_n1[0], t);
+	    n[1] = smoothstep(auto_n0[1], auto_n1[1], t);
+	    n[2] = smoothstep(auto_n0[2], auto_n1[2], t);
 
-        q[0] = smoothstep(auto_q0[0], auto_q1[0], t);
-        q[1] = smoothstep(auto_q0[1], auto_q1[1], t);
-        q[2] = smoothstep(auto_q0[2], auto_q1[2], t);
-        q[3] = smoothstep(auto_q0[2], auto_q1[2], t);
+	    normalize(n);
 
-        set_quaternion(current_M, q);
+	    q[0] = smoothstep(auto_q0[0], auto_q1[0], t);
+	    q[1] = smoothstep(auto_q0[1], auto_q1[1], t);
+	    q[2] = smoothstep(auto_q0[2], auto_q1[2], t);
+	    q[3] = smoothstep(auto_q0[3], auto_q1[3], t);
 
-        current_M[12] = n[0] * r;
-        current_M[13] = n[1] * r;
-        current_M[14] = n[2] * r;
+	    set_quaternion(current_M, q);
+
+	    current_M[12] = n[0] * r;
+	    current_M[13] = n[1] * r;
+	    current_M[14] = n[2] * r;
+	}
+	else auto_b = false;
     }
 }
 
@@ -792,9 +797,8 @@ void app::user::auto_init(const double *n)
 
     // Compute the destination transform.
 
-    double d[3];
     double M[16];
-    double r[3];
+    double d[3];
 
     load_idt(M);
 
@@ -820,7 +824,7 @@ void app::user::auto_init(const double *n)
 
     auto_b = true;
     auto_t = 0;
-    auto_T = DEG(acos(DOT3(auto_n1, auto_n0))) / 45.0;
+    auto_T = DEG(acos(DOT3(auto_n1, auto_n0))) / 15.0;
 }
 
 void app::user::auto_stop()
