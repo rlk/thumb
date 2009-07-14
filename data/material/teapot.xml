@@ -3,16 +3,16 @@
   <program mode="depth" file="object-depth.xml">
   </program>
 
-  <program mode="color" file="irradiance-env.xml">
+  <program mode="color" file="object-color.xml">
     <texture sampler="spec_map"  name="highly-specular.png" />
     <texture sampler="diff_map"  name="teapot-diffuse.png" />
     <texture sampler="norm_map"  name="default-normal.png" />
-
+<!--
     <process sampler="reflection_env[0]" name="reflection_env" index="0" />
     <process sampler="reflection_env[1]" name="reflection_env" index="1" />
     <process sampler="irradiance_env[0]" name="irradiance_env" index="0" />
     <process sampler="irradiance_env[1]" name="irradiance_env" index="1" />
-
+-->
     <process sampler="shadow[0]" name="shadow" index="0" />
     <process sampler="shadow[1]" name="shadow" index="1" />
     <process sampler="shadow[2]" name="shadow" index="2" />
