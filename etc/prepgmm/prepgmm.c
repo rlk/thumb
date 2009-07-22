@@ -164,6 +164,73 @@ static int read_png(file * restrict file,
 
 //-----------------------------------------------------------------------------
 
+static void write_gmm(const char * restrict gmm,
+                            page * restrict page,
+                            vert * restrict vert, int count, int n, int e)
+{
+    // Initialize an index queue.
+
+    uint32_t *p = (uint32_t *) calloc(count, sizeof (uint32_t));
+    uint32_t  i = 0;
+    uint32_t  c = 0;
+
+    // Push the root onto the queue.
+
+    p[c++] = 0;
+
+    // Make a breadth-first traversal of all pages meeting the error criterion.
+
+    for (i = 0; i < c; ++i)
+    {
+        const uint32_t k = p[i];
+
+        if (page[k].err > e)
+        {
+            const uint32_t k0 = page[k].sub[0];
+            const uint32_t k1 = page[k].sub[1];
+            const uint32_t k2 = page[k].sub[2];
+            const uint32_t k3 = page[k].sub[3];
+
+            page[k].sub[0] = c + 0;
+            page[k].sub[1] = c + 1;
+            page[k].sub[2] = c + 2;
+            page[k].sub[3] = c + 3;
+
+            p[c++] = k0;
+            p[c++] = k1;
+            p[c++] = k2;
+            p[c++] = k3;
+        }
+    }
+
+    // Open a GMM file for writing.
+
+    FILE *fp;
+
+    if ((fp = fopen(gmm, "wb")))
+    {
+        // Write the record count.
+
+        fwrite(&c, sizeof (uint32_t), 1, fp);
+
+        // Write the page heads.
+
+        for (i = 0; i < c; ++i)
+            fwrite(page + i,         sizeof (page), 1,         fp);
+
+        // Write the page data.
+
+        for (i = 0; i < c; ++i)
+            fwrite(vert + i * n * n, sizeof (vert), 1 * n * n, fp);
+
+        fclose(fp);
+    }
+
+    free(p);
+}
+
+//-----------------------------------------------------------------------------
+
 // Copy a subsampling of a portion of a buffer. The destination size is NxN.
 // The total source size is WxH. R and C give the row and column of source
 // corner. D is the pixel skip. Samples outside of the source give zero.
@@ -216,9 +283,16 @@ static uint16_t get_file(file * restrict file, int r, int c)
 
 // Get the Z value at vertex (R, C) of page K, which has size NxN.
 
-static uint16_t get_vert(vert * restrict vert, int n, int k, int r, int c)
+static uint16_t get_z(vert * restrict vert, int n, int k, int r, int c)
 {
     return vert[n * n * k + n * r + c].z;
+}
+
+static void put_u(vert * restrict vert, int n, int k, int r, int c, int u)
+{
+    const int i = n * n * k + n * r + c;
+
+    vert[i].u = (uint16_t) u;
 }
 
 // Put the value (X, Y, Z) in vertex (R, C) of page K, which has size NxN.
@@ -345,7 +419,7 @@ static void dometa(page * restrict page,
         for     (int i = 0; i < n; ++i)
             for (int j = 0; j < n; ++j)
             {
-                vert *v = vert + n * n * k + n * i + j;
+                struct vert_s *v = vert + n * n * k + n * i + j;
 
                 page[k].min = min3(page[k].min, v->z, v->u);
                 page[k].max = max3(page[k].max, v->z, v->u);
@@ -401,6 +475,8 @@ static void proc(const char * restrict png,
         dometa(page, vert,        n, 0, 0, 0, 0);
 
         // Write the output file.
+
+        write_gmm(gmm, page, vert, count, n, max2(e, 0));
 
         // (in breadth-first order, limited by the error bound)
     }
