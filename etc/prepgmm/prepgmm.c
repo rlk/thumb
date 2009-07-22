@@ -7,12 +7,21 @@
 
 //-----------------------------------------------------------------------------
 
+struct file_s
+{
+    uint16_t *p;
+    uint16_t  w;
+    uint16_t  h;
+    uint16_t  c;
+    uint16_t  b;
+};
+
 struct page_s
 {
     uint32_t sub[4];
-    uint16_t min[3];
-    uint16_t max[3];
-    float    err;
+    uint16_t min;
+    uint16_t max;
+    uint16_t err;
 };
 
 struct vert_s
@@ -23,6 +32,7 @@ struct vert_s
     uint16_t u;
 };
 
+typedef struct file_s file;
 typedef struct page_s page;
 typedef struct vert_s vert;
 
@@ -35,6 +45,33 @@ static void fail(const char * restrict error)
 }
 
 //-----------------------------------------------------------------------------
+
+// Find the extrema of two values.
+
+#define min2(A, B) (((A) < (B)) ? (A) : (B))
+#define max2(A, B) (((A) > (B)) ? (A) : (B))
+
+// Find the extrema of three values.
+
+static uint16_t min3(uint16_t a, uint16_t b, uint16_t c)
+{
+    return min2(min2(a, b), c);
+}
+static uint16_t max3(uint16_t a, uint16_t b, uint16_t c)
+{
+    return max2(max2(a, b), c);
+}
+
+// Find the extrema of four values.
+
+static uint16_t min4(uint16_t a, uint16_t b, uint16_t c, uint16_t d)
+{
+    return min2(min2(a, b), min2(c, d));
+}
+static uint16_t max4(uint16_t a, uint16_t b, uint16_t c, uint16_t d)
+{
+    return max2(max2(a, b), max2(c, d));
+}
 
 // Test whether N is a power of two.
 
@@ -60,20 +97,23 @@ static int number_of_pages(int n, int w, int h)
 
 //-----------------------------------------------------------------------------
 
-static void *read_png(const char * restrict filename, int * restrict w,
-                                                      int * restrict h,
-                                                      int * restrict c,
-                                                      int * restrict b)
+static int read_png(file * restrict file,
+              const char * restrict name)
 {
-    FILE         *fp = NULL;
-    png_structp   rp = NULL;
-    png_infop     ip = NULL;
-    png_bytep    *bp = NULL;
-    unsigned char *p = NULL;
+    png_structp rp = NULL;
+    png_infop   ip = NULL;
+    png_bytep  *bp = NULL;
+    FILE       *fp = NULL;
+
+    file->p = 0;
+    file->w = 0;
+    file->h = 0;
+    file->b = 0;
+    file->c = 0;
 
     // Initialize all PNG import data structures.
 
-    if (!(fp = fopen(filename, "rb")))
+    if (!(fp = fopen(name, "rb")))
         fail(strerror(errno));
 
     if (!(rp = png_create_read_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0)))
@@ -91,10 +131,10 @@ static void *read_png(const char * restrict filename, int * restrict w,
         png_init_io (rp, fp);
         png_read_png(rp, ip, PNG_TRANSFORM_SWAP_ENDIAN, NULL);
         
-        *w = (int) png_get_image_width (rp, ip);
-        *h = (int) png_get_image_height(rp, ip);
-        *c = (int) png_get_channels    (rp, ip);
-        *b = (int) png_get_bit_depth   (rp, ip) >> 3;
+        file->w = (uint16_t) png_get_image_width (rp, ip);
+        file->h = (uint16_t) png_get_image_height(rp, ip);
+        file->c = (uint16_t) png_get_channels    (rp, ip);
+        file->b = (uint16_t) png_get_bit_depth   (rp, ip) >> 3;
 
         // Read the pixel data.
 
@@ -104,9 +144,13 @@ static void *read_png(const char * restrict filename, int * restrict w,
 
             int i, j, s = png_get_rowbytes(rp, ip);
 
-            if ((p = (unsigned char *) malloc((*w) * (*h) * (*c) * (*b))))
-                for (i = 0, j = *h - 1; j >= 0; ++i, --j)
-                    memcpy(p + s * i, bp[j], s);
+            if ((file->p = (uint16_t *) malloc((size_t) file->w *
+                                               (size_t) file->h *
+                                               (size_t) file->c *
+                                               (size_t) file->b)))
+
+                for (i = 0, j = file->h - 1; j >= 0; ++i, --j)
+                    memcpy(file->p + s * i, bp[j], s);
         }
     }
 
@@ -115,7 +159,7 @@ static void *read_png(const char * restrict filename, int * restrict w,
     png_destroy_read_struct(&rp, &ip, NULL);
     fclose(fp);
 
-    return p;
+    return (file->p ? 1 : 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -123,7 +167,7 @@ static void *read_png(const char * restrict filename, int * restrict w,
 // Copy a subsampling of a portion of a buffer. The destination size is NxN.
 // The total source size is WxH. R and C give the row and column of source
 // corner. D is the pixel skip. Samples outside of the source give zero.
-
+/*
 static void copy(vert * restrict data, 
        const uint16_t * restrict buff, int n, int w, int h,
                                               int r, int c, int d)
@@ -143,7 +187,6 @@ static void copy(vert * restrict data,
             data[k].x = x;
             data[k].y = y;
             data[k].z = z;
-            data[k].u = 
         }
 }
 
@@ -156,29 +199,179 @@ static int step(page * restrict head,
     {
         int i;
         int j;
-
-        copy(data[k * n * n]
-                
     }
+}
+*/
+//-----------------------------------------------------------------------------
+
+// Get the value at pixel (R, C) of image FILE.
+
+static uint16_t get_file(file * restrict file, int r, int c)
+{
+    const int w = (int) file->w;
+    const int h = (int) file->h;
+
+    return (r < h && c < w) ? file->p[w * r + c] : 0;
+}
+
+// Get the Z value at vertex (R, C) of page K, which has size NxN.
+
+static uint16_t get_vert(vert * restrict vert, int n, int k, int r, int c)
+{
+    return vert[n * n * k + n * r + c].z;
+}
+
+// Put the value (X, Y, Z) in vertex (R, C) of page K, which has size NxN.
+
+static void put_vert(vert * restrict vert, int n, int k, int r, int c,
+                                                  int x, int y, int z)
+{
+    const int i = n * n * k + n * r + c;
+
+    vert[i].x = (uint16_t) x;
+    vert[i].y = (uint16_t) y;
+    vert[i].z = (uint16_t) z;
+    vert[i].u = (uint16_t) z;
+}
+
+//-----------------------------------------------------------------------------
+
+// Recursively create the NxN page hierarchy starting at pixel (R, C) of FILE.
+// P points to the current page index and D gives the sample density.
+
+static int domake(page * restrict page,
+                  vert * restrict vert,
+                  file * restrict file, int n, int r, int c, int d, int *p)
+{
+    // Copy and advance the index counter.
+
+    const int k = (*p)++;
+
+    // Copy the page data.
+
+    for     (int i = 0; i < n; ++i)
+        for (int j = 0; j < n; ++j)
+        {
+            const int y = r + i * d;
+            const int x = c + j * d;
+
+            put_vert(vert, n, k, i, j, x, y, get_file(file, y, x));
+        }
+
+    // Recursively process sub-pages, as necessary.
+
+    if (d > 1)
+    {
+        const int m = n * d / 2;
+
+        page[k].sub[0] = domake(page, vert, file, n, r,     c,     d / 2, p);
+        page[k].sub[1] = domake(page, vert, file, n, r,     c + m, d / 2, p);
+        page[k].sub[2] = domake(page, vert, file, n, r + m, c,     d / 2, p);
+        page[k].sub[3] = domake(page, vert, file, n, r + m, c + m, d / 2, p);
+    }
+
+    return k;
+}
+
+// Compute the metadata of VERT[K], which has parent VERT[P] and size NxN.
+
+static void dometa(page * restrict page,
+                   vert * restrict vert, int n, int p, int k, int x, int y)
+{
+    const int k0 = (int) page[k].sub[0];
+    const int k1 = (int) page[k].sub[1];
+    const int k2 = (int) page[k].sub[2];
+    const int k3 = (int) page[k].sub[3];
+
+    int err = 0;
+
+    // If this page has a parent...
+
+    if (k)
+    {
+        // Compute all geomorph values.  Find the maximum.
+
+        const int di = y * (n - 1) / 2;
+        const int dj = x * (n - 1) / 2;
+
+        for     (int i = 0; i < n; ++i)
+            for (int j = 0; j < n; ++j)
+            {
+                int i0, i1;
+                int j0, j1;
+
+                if (i % 2) { i0 = di + (i-1) / 2; i1 = di + (i+1) / 2; }
+                else       { i0 = di + (i  ) / 2; i1 = di + (i  ) / 2; }
+                if (j % 2) { j0 = dj + (j-1) / 2; j1 = dj + (j+1) / 2; }
+                else       { j0 = dj + (j  ) / 2; j1 = dj + (j  ) / 2; }
+
+                uint16_t z  = get_z(vert, n, p, i,  j);
+                uint16_t z0 = get_z(vert, n, p, i0, j0);
+                uint16_t z1 = get_z(vert, n, p, i1, j1);
+
+                uint16_t u  = (z0 + z1) / 2;
+
+                put_u(vert, n, k, i, j, u);
+
+                err = max2(err, abs(z - u));
+            }
+    }
+
+    // If this page has children...
+
+    if (k0 && k1 && k2 && k3)
+    {
+        // Recursively process the children.
+
+        dometa(page, vert, n, k, k0, 0, 0);
+        dometa(page, vert, n, k, k1, 0, 1);
+        dometa(page, vert, n, k, k2, 1, 0);
+        dometa(page, vert, n, k, k3, 1, 1);
+
+        // Take the union of the child bounds.
+
+        page[k].min = min4(page[k0].min, page[k1].min,
+                           page[k2].min, page[k3].min);
+        page[k].max = max4(page[k0].max, page[k1].max,
+                           page[k2].max, page[k3].max);
+    }
+    else
+    {
+        // Compute leaf bounds from vertex extreme plus geomorph.
+
+        page[k].min =  32767;
+        page[k].max = -32768;
+
+        for     (int i = 0; i < n; ++i)
+            for (int j = 0; j < n; ++j)
+            {
+                vert *v = vert + n * n * k + n * i + j;
+
+                page[k].min = min3(page[k].min, v->z, v->u);
+                page[k].max = max3(page[k].max, v->z, v->u);
+            }
+    }
+
+    // Push the maximum geomorph magnitude up the tree.
+
+    page[p].err = max3(page[p].err, page[k].err, err);
 }
 
 // Process PNG file SRC, writing GMM file DST with page size N and error
 // bound E.
 
-static void proc(const char * restrict src,
-                 const char * restrict dst, int n, float e)
+static void proc(const char * restrict png,
+                 const char * restrict gmm, int n, int e)
 {
     // Load the input image file.
 
-    uint16_t *p;
-    int w;
-    int h;
-    int c;
-    int b;
+    file file;
 
-    if ((p = (uint16_t *) read_png(src, &w, &h, &c, &b)))
+    if (read_png(&file, png))
     {
-        int m = w > h ? w : h;
+        const int w = (int) file.w;
+        const int h = (int) file.h;
+        const int m = w > h ? w : h;
 
         // Validate all inputs.
 
@@ -189,21 +382,27 @@ static void proc(const char * restrict src,
             !is_power_of_two(h - 1))
             fail("Input image size must be power of 2 plus 1");
 
-        if (c != 1) fail("Input image color must be grayscale");
-        if (b != 2) fail("Input image depth must be 16 bit");
+        if (file.c != 1) fail("Input image color must be grayscale");
+        if (file.b != 2) fail("Input image depth must be 16 bit");
 
         // Allocate storage for the generated data.
 
         int count = number_of_pages(n, w, h);
 
-        page *head = calloc(count,         sizeof (page));
-        vert *data = calloc(count * n * n, sizeof (vert));
+        page *page = calloc(count,         sizeof (page));
+        vert *vert = calloc(count * n * n, sizeof (vert));
 
         // Convert.
 
-        step(head, data, n, p, w, h, 0, 0, (m - 1) / (n - 1));
+        int d = (m - 1) / (n - 1);
+        int p = 0;
 
-        free(p);
+        domake(page, vert, &file, n, 0, 0, d, &p);
+        dometa(page, vert,        n, 0, 0, 0, 0);
+
+        // Write the output file.
+
+        // (in breadth-first order, limited by the error bound)
     }
 }
 
