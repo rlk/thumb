@@ -43,8 +43,8 @@ static int is_power_of_two(int n)
     return ((n & (n - 1)) == 0);
 }
 
-// Determine the total number of NxN pages in the mipmap hierarchy of an image
-// of size WxH.
+// Determine the maximum number of NxN pages in the mipmap hierarchy of an
+// image of size WxH.
 
 static int number_of_pages(int n, int w, int h)
 {
@@ -120,28 +120,45 @@ static void *read_png(const char * restrict filename, int * restrict w,
 
 //-----------------------------------------------------------------------------
 
-// Copy a subsampling of a portion of a buffer.  N is the destination size.
-// W is the source width.  R and C are the row and column of source corner.
-// S is the pixel skip.
+// Copy a subsampling of a portion of a buffer. The destination size is NxN.
+// The total source size is WxH. R and C give the row and column of source
+// corner. D is the pixel skip. Samples outside of the source give zero.
 
-static void copy(uint16_t * restrict dst, int n,
-           const uint16_t * restrict src, int w, int r, int c, int s)
+static void copy(vert * restrict data, 
+       const uint16_t * restrict buff, int n, int w, int h,
+                                              int r, int c, int d)
 {
     int i;
     int j;
 
     for     (i = 0; i < n; ++i)
         for (j = 0; j < n; ++j)
-            dst[i * n + j] = src[(r + i * s) * w + (c + j * s)];
+        {
+            const int k = j + i * n;
+            const int y = r + i * d;
+            const int x = c + j * d;
+
+            int z = (y < h && x < w) ? buff[(r + i * d) * w + (c + j * d)] : 0;
+
+            data[k].x = x;
+            data[k].y = y;
+            data[k].z = z;
+            data[k].u = 
+        }
 }
 
-static void step(page * restrict head,
-                 vert * restrict data, int n,
-                 const uint16_t * restrict src,
-                 int w, int h, int r, int c, int s)
+static int step(page * restrict head,
+                vert * restrict data,
+      const uint16_t * restrict buff, int n, int w, int h,
+                                      int r, int c, int d, int p, int k)
 {
-    if (s > 0)
+    if (d > 0)
     {
+        int i;
+        int j;
+
+        copy(data[k * n * n]
+                
     }
 }
 

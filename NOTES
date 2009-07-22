@@ -1,11 +1,44 @@
 -------------------------------------------------------------------------------
 
+Terrain notes
+
+    There is a lot of flatness in an island height map
+        Prune the geometry tree to optimize this away
+            If all four children are flat, stop
+            More generally,
+                if all four children meet the minimum error, stop
+
+    Structure the metadata separately from the data
+        This would allow the data to be loaded into a single VBO
+            if VRAM availability allows it
+
+    In most circumstances, 32-bit floats won't be needed
+        Shorts suffice
+            for both data and bounds
+
+    Uniforms determine the mapping from XYZ to
+        3D position space
+        2D texture coordinate
+
+    Normals are assumed to be image-mapped
+
+uniform
+program
+process
+texture
+binding
+surface
+terrain ... TFG!
+
+-------------------------------------------------------------------------------
+
 display
     offscreen type
        binding frustum to channel number
        but not rendering onscreen
 channel
     add buffer dump
+    no-head-track option
 
 host
     if inset frustum is defined
