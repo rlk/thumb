@@ -87,7 +87,7 @@ ogl::binding::binding(std::string name) :
 {
     std::string path = "material/" + name + ".xml";
 
-    app::file file(path.c_str());
+    app::file file(path);
 
     // Load the local material bindings.
 

@@ -20,6 +20,7 @@
 #include "ogl-pool.hpp"
 #include "ogl-uniform.hpp"
 #include "ogl-process.hpp"
+#include "ogl-terrain.hpp"
 #include "app-prog.hpp"
 #include "app-glob.hpp"
 #include "app-data.hpp"
@@ -39,6 +40,7 @@ wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution")),
 
     split_static(false),
+    land(0),
 
     sky      (::glob->load_binding("sky-water",       "sky-water")),
     sky_light(::glob->load_binding("sky-water-light", "sky-water-light")),
@@ -141,6 +143,8 @@ wrl::world::~world()
 
     ::glob->free_pool(fill_pool);
     ::glob->free_pool(line_pool);
+
+    ::glob->free_terrain(land);
 
     // Finalize the sky materials.
 
@@ -811,6 +815,11 @@ void wrl::world::load(std::string name)
                     ((split[2] = root.get_f("split2", 0.0)) > 0.0) |
                     ((split[3] = root.get_f("split3", 0.0)) > 0.0));
 
+    // Check for a terrain definition.
+
+    if (!root.get_s("land").empty())
+        land = ::glob->load_terrain(root.get_s("land"));
+
     // Find all geom elements.
 
     for (app::node n = root.find("geom"); n; n = root.next(n, "geom"))
@@ -917,7 +926,12 @@ ogl::range wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
     ogl::range r;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
+    {
         r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()));
+
+        if (land)
+            r.merge(land->view(frusv[frusi]->get_planes(), 5));
+    }
 
     return r;
 }
@@ -1074,6 +1088,11 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     L[3] = 1.0f;
 
     glLightfv(GL_LIGHT0, GL_POSITION, L);
+
+    // Render the terrain.
+
+    if (land)
+        land->draw(frusp->get_view_pos(), frusp->get_planes(), 5);
 
     // Render the fill geometry.
 
