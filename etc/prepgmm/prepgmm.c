@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include <string.h>
@@ -32,13 +33,13 @@ struct vert_s
     uint16_t u;
 };
 
-typedef struct file_s file;
-typedef struct page_s page;
-typedef struct vert_s vert;
+typedef struct file_s *file_p;
+typedef struct page_s *page_p;
+typedef struct vert_s *vert_p;
 
 //-----------------------------------------------------------------------------
 
-static void fail(const char * restrict error)
+static void fail(const char *error)
 {
     fprintf(stderr, "Error: %s\n", error);
     exit(EXIT_FAILURE);
@@ -83,22 +84,32 @@ static int is_power_of_two(int n)
 // Determine the maximum number of NxN pages in the mipmap hierarchy of an
 // image of size WxH.
 
-static int number_of_pages(int n, int w, int h)
+static int number_of_pages(int n, int m)
 {
-    const int r = (h > n) ? ((h - 1) / (n - 1)) : 1;
-    const int c = (w > n) ? ((w - 1) / (n - 1)) : 1;
+    int c = (m - 1) / (n - 1);
 
-    if (h > n || w > n)
-        return (r * c) + number_of_pages(n, (w - 1) / 2 + 1,
-                                            (h - 1) / 2 + 1);
+    if (m > n)
+        return (c * c) + number_of_pages(n, (m - 1) / 2 + 1);
     else
-        return (r * c);
+        return (c * c);
+}
+
+// Determine the interpolated value at point (I/N, J/N) of the quad with
+// values Z0, Z1, Z2, Z3 at the corners.
+
+static int interp(int z0, int z1,
+                  int z2, int z3, int i, int j, int n)
+{
+    if (i > j)
+        return z2 + (z0 - z2) * (n - i) / n + (z3 - z2) * j / n;
+    else
+        return z1 + (z0 - z1) * (n - j) / n + (z3 - z1) * i / n;
 }
 
 //-----------------------------------------------------------------------------
 
-static int read_png(file * restrict file,
-              const char * restrict name)
+static int read_png(file_p file,
+              const char * name)
 {
     png_structp rp = NULL;
     png_infop   ip = NULL;
@@ -150,7 +161,7 @@ static int read_png(file * restrict file,
                                                (size_t) file->b)))
 
                 for (i = 0, j = file->h - 1; j >= 0; ++i, --j)
-                    memcpy(file->p + s * i, bp[j], s);
+                    memcpy((uint8_t *) file->p + s * i, bp[j], s);
         }
     }
 
@@ -164,9 +175,9 @@ static int read_png(file * restrict file,
 
 //-----------------------------------------------------------------------------
 
-static void write_gmm(const char * restrict gmm,
-                            page * restrict page,
-                            vert * restrict vert, int count, int n, int e)
+static int write_gmm(const char * gmm,
+                           page_p page,
+                           vert_p vert, int count, int n, int e)
 {
     // Initialize an index queue.
 
@@ -216,64 +227,27 @@ static void write_gmm(const char * restrict gmm,
         // Write the page heads.
 
         for (i = 0; i < c; ++i)
-            fwrite(page + i,         sizeof (page), 1,         fp);
+            fwrite(page + i,         sizeof (struct page_s), 1,         fp);
 
         // Write the page data.
 
         for (i = 0; i < c; ++i)
-            fwrite(vert + i * n * n, sizeof (vert), 1 * n * n, fp);
+            fwrite(vert + i * n * n, sizeof (struct vert_s), 1 * n * n, fp);
 
         fclose(fp);
     }
+    else fail(strerror(errno));
 
     free(p);
+
+    return c;
 }
 
-//-----------------------------------------------------------------------------
-
-// Copy a subsampling of a portion of a buffer. The destination size is NxN.
-// The total source size is WxH. R and C give the row and column of source
-// corner. D is the pixel skip. Samples outside of the source give zero.
-/*
-static void copy(vert * restrict data, 
-       const uint16_t * restrict buff, int n, int w, int h,
-                                              int r, int c, int d)
-{
-    int i;
-    int j;
-
-    for     (i = 0; i < n; ++i)
-        for (j = 0; j < n; ++j)
-        {
-            const int k = j + i * n;
-            const int y = r + i * d;
-            const int x = c + j * d;
-
-            int z = (y < h && x < w) ? buff[(r + i * d) * w + (c + j * d)] : 0;
-
-            data[k].x = x;
-            data[k].y = y;
-            data[k].z = z;
-        }
-}
-
-static int step(page * restrict head,
-                vert * restrict data,
-      const uint16_t * restrict buff, int n, int w, int h,
-                                      int r, int c, int d, int p, int k)
-{
-    if (d > 0)
-    {
-        int i;
-        int j;
-    }
-}
-*/
 //-----------------------------------------------------------------------------
 
 // Get the value at pixel (R, C) of image FILE.
 
-static uint16_t get_file(file * restrict file, int r, int c)
+static uint16_t get_file(file_p file, int r, int c)
 {
     const int w = (int) file->w;
     const int h = (int) file->h;
@@ -283,12 +257,14 @@ static uint16_t get_file(file * restrict file, int r, int c)
 
 // Get the Z value at vertex (R, C) of page K, which has size NxN.
 
-static uint16_t get_z(vert * restrict vert, int n, int k, int r, int c)
+static uint16_t get_z(vert_p vert, int n, int k, int r, int c)
 {
     return vert[n * n * k + n * r + c].z;
 }
 
-static void put_u(vert * restrict vert, int n, int k, int r, int c, int u)
+// Get the geomorph value at vertex (R, C) of page K, which has size NxN.
+
+static void put_u(vert_p vert, int n, int k, int r, int c, int u)
 {
     const int i = n * n * k + n * r + c;
 
@@ -297,8 +273,8 @@ static void put_u(vert * restrict vert, int n, int k, int r, int c, int u)
 
 // Put the value (X, Y, Z) in vertex (R, C) of page K, which has size NxN.
 
-static void put_vert(vert * restrict vert, int n, int k, int r, int c,
-                                                  int x, int y, int z)
+static void put_vert(vert_p vert, int n, int k, int r, int c,
+                                                int x, int y, int z)
 {
     const int i = n * n * k + n * r + c;
 
@@ -309,28 +285,61 @@ static void put_vert(vert * restrict vert, int n, int k, int r, int c,
 }
 
 //-----------------------------------------------------------------------------
-
+/*
+static char tochar(uint16_t n)
+{
+    const char *str = "0123456789ABCDEF*";
+    return str[n * 16 / 65535];
+}
+*/
 // Recursively create the NxN page hierarchy starting at pixel (R, C) of FILE.
 // P points to the current page index and D gives the sample density.
 
-static int domake(page * restrict page,
-                  vert * restrict vert,
-                  file * restrict file, int n, int r, int c, int d, int *p)
+static int domake(page_p page,
+                  vert_p vert,
+                  file_p file, int n, int r, int c, int d, int *p)
 {
     // Copy and advance the index counter.
 
     const int k = (*p)++;
 
-    // Copy the page data.
+    // Sample the page data.
 
     for     (int i = 0; i < n; ++i)
+    {
         for (int j = 0; j < n; ++j)
         {
-            const int y = r + i * d;
-            const int x = c + j * d;
+            // Copy the sample.
 
-            put_vert(vert, n, k, i, j, x, y, get_file(file, y, x));
+            const int y0 = r + i * d;
+            const int x0 = c + j * d;
+            const int z0 = get_file(file, y0, x0);
+
+            put_vert(vert, n, k, i, j, x0, y0, z0);
+
+//          printf("%c", tochar(z0));
+
+            // Scan the interpolation for maximum error.
+
+            if (d > 1 && i < n - 1 && j < n - 1)
+            {
+                int z1 = get_file(file, y0,     x0 + d);
+                int z2 = get_file(file, y0 + d, x0    );
+                int z3 = get_file(file, y0 + d, x0 + d);
+
+                for     (int ii = 0; ii <= d; ++ii)
+                    for (int jj = 0; jj <= d; ++jj)
+                    {
+                        const int zo = get_file(file, y0 + ii, x0 + jj);
+                        const int zi = interp(z0, z1, z2, z3, ii, jj, d);
+
+                        page[k].err = max2(page[k].err, abs(zi - zo));
+                    }
+            }
         }
+//      printf("\n");
+    }
+//  printf("\n");
 
     // Recursively process sub-pages, as necessary.
 
@@ -349,21 +358,19 @@ static int domake(page * restrict page,
 
 // Compute the metadata of VERT[K], which has parent VERT[P] and size NxN.
 
-static void dometa(page * restrict page,
-                   vert * restrict vert, int n, int p, int k, int x, int y)
+static void dometa(page_p page,
+                   vert_p vert, int n, int p, int k, int x, int y)
 {
     const int k0 = (int) page[k].sub[0];
     const int k1 = (int) page[k].sub[1];
     const int k2 = (int) page[k].sub[2];
     const int k3 = (int) page[k].sub[3];
 
-    int err = 0;
-
     // If this page has a parent...
 
     if (k)
     {
-        // Compute all geomorph values.  Find the maximum.
+        // Compute all geomorph values.
 
         const int di = y * (n - 1) / 2;
         const int dj = x * (n - 1) / 2;
@@ -379,15 +386,10 @@ static void dometa(page * restrict page,
                 if (j % 2) { j0 = dj + (j-1) / 2; j1 = dj + (j+1) / 2; }
                 else       { j0 = dj + (j  ) / 2; j1 = dj + (j  ) / 2; }
 
-                uint16_t z  = get_z(vert, n, p, i,  j);
                 uint16_t z0 = get_z(vert, n, p, i0, j0);
                 uint16_t z1 = get_z(vert, n, p, i1, j1);
 
-                uint16_t u  = (z0 + z1) / 2;
-
-                put_u(vert, n, k, i, j, u);
-
-                err = max2(err, abs(z - u));
+                put_u(vert, n, k, i, j, (z0 + z1) / 2);
             }
     }
 
@@ -413,33 +415,29 @@ static void dometa(page * restrict page,
     {
         // Compute leaf bounds from vertex extreme plus geomorph.
 
-        page[k].min =  32767;
-        page[k].max = -32768;
+        page[k].min = 0xFFFF;
+        page[k].max = 0x0000;
 
         for     (int i = 0; i < n; ++i)
             for (int j = 0; j < n; ++j)
             {
-                struct vert_s *v = vert + n * n * k + n * i + j;
+                vert_p v = vert + n * n * k + n * i + j;
 
                 page[k].min = min3(page[k].min, v->z, v->u);
                 page[k].max = max3(page[k].max, v->z, v->u);
             }
     }
-
-    // Push the maximum geomorph magnitude up the tree.
-
-    page[p].err = max3(page[p].err, page[k].err, err);
 }
 
 // Process PNG file SRC, writing GMM file DST with page size N and error
 // bound E.
 
-static void proc(const char * restrict png,
-                 const char * restrict gmm, int n, int e)
+static void proc(const char * png,
+                 const char * gmm, int n, int e)
 {
     // Load the input image file.
 
-    file file;
+    struct file_s file;
 
     if (read_png(&file, png))
     {
@@ -461,30 +459,36 @@ static void proc(const char * restrict png,
 
         // Allocate storage for the generated data.
 
-        int count = number_of_pages(n, w, h);
+        int count = number_of_pages(n, m);
 
-        page *page = calloc(count,         sizeof (page));
-        vert *vert = calloc(count * n * n, sizeof (vert));
+        printf("%8d pages max\n", count);
 
-        // Convert.
+        page_p page = (page_p) calloc(count,         sizeof (struct page_s));
+        vert_p vert = (vert_p) calloc(count * n * n, sizeof (struct vert_s));
 
-        int d = (m - 1) / (n - 1);
-        int p = 0;
+        if (page && vert)
+        {
+            // Convert.
 
-        domake(page, vert, &file, n, 0, 0, d, &p);
-        dometa(page, vert,        n, 0, 0, 0, 0);
+            int d = (m - 1) / (n - 1);
+            int p = 0;
 
-        // Write the output file.
+            domake(page, vert, &file, n, 0, 0, d, &p);
+            dometa(page, vert,        n, 0, 0, 0, 0);
 
-        write_gmm(gmm, page, vert, count, n, max2(e, 0));
+            // Write the output file.
 
-        // (in breadth-first order, limited by the error bound)
+            count = write_gmm(gmm, page, vert, count, n, max2(e, 0));
+
+            printf("%8d pages out\n", count);
+        }
+        else fail("Memory allocation failure");
     }
 }
 
 //-----------------------------------------------------------------------------
 
-static void usage(const char * restrict name)
+static void usage(const char * name)
 {
     fprintf(stderr, "usage: %s src.png dst.gmm n e\n", name);
     fprintf(stderr, "\tsrc.png ... input  PNG image\n");

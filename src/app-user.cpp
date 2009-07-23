@@ -283,8 +283,7 @@ void app::user::home()
     load_idt(current_M);
     load_idt(current_I);
 
-    // HACK
-
+#ifdef TELLURION
     double M[16];
 
     M[0] =  1; M[4] =  0; M[ 8] =  0;  M[12] =  0;
@@ -294,9 +293,10 @@ void app::user::home()
 
     load_mat(current_M, M);
     load_inv(current_I, M);
+#endif
 
-//  current_M[13] =  1.759;
-//  current_I[13] = -1.759;
+    current_M[13] =  1.759;
+    current_I[13] = -1.759;
 
 //  struct timeval tv;
 

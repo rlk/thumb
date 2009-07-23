@@ -42,10 +42,6 @@
 
 //-----------------------------------------------------------------------------
 
-#define TELLURION 1
-
-//-----------------------------------------------------------------------------
-
 void demo::init_uniforms()
 {
     // Initialize the uniforms.
@@ -230,7 +226,9 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
+#ifdef TELLURION
     universe = new uni::universe(w, h);
+#endif
     world    = new wrl::world();
 
     edit = new mode::edit(world);

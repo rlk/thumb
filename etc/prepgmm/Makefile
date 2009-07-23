@@ -1,11 +1,15 @@
 -include ../../Makedefs
 
 CC= gcc -std=c99
-CFLAGS= -Wall -pedantic -g
+#CFLAGS= -m64 -Wall -pedantic -g
+CFLAGS= -m64 -Wall -pedantic -g -O3
 
 TARG= prepgmm
 OBJS= prepgmm.o
 LIBS= -lpng -lz -lm
+
+INCDIR= -I/usr/X11/include
+LIBDIR= -L/usr/X11/lib
 
 #------------------------------------------------------------------------------
 
