@@ -817,8 +817,10 @@ void wrl::world::load(std::string name)
 
     // Check for a terrain definition.
 
-    if (!root.get_s("land").empty())
-        land = ::glob->load_terrain(root.get_s("land"));
+    std::string land_name = root.get_s("land");
+
+    if (!land_name.empty())
+        land = ::glob->load_terrain(land_name);
 
     // Find all geom elements.
 

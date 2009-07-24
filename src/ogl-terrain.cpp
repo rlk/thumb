@@ -67,6 +67,8 @@ ogl::terrain::terrain(std::string name) :
                 page = (const page_s *) (buff + sizeof (head_s));
                 vert = (const vert_s *) (buff + sizeof (head_s)
                                               + sizeof (page_s) * head->c);
+
+                ::data->free(data);
             }
         }
     }
@@ -75,18 +77,18 @@ ogl::terrain::terrain(std::string name) :
 
     double xs = head ? s / head->m : 1.0;
     double zs =        h / 65536.0;
-
 /*
     load_idt(M);
     load_idt(I);
 */
+
     load_rot_mat(M, 1, 0, 0, -90);
     Rmul_scl_mat(M, xs, xs, zs);
 }
 
 ogl::terrain::~terrain()
 {
-    if (!data.empty()) ::data->free(data);
+//  if (!data.empty()) ::data->free(data);
 }
 
 //-----------------------------------------------------------------------------
@@ -109,10 +111,7 @@ void ogl::terrain::draw(const double *p,
     glPushMatrix();
     {
         glMultMatrixd(M);
-        /*
-        glRotatef(-90.0f, 1.0f, 0.0f, 0.0f);
-        glScalef(0.1f, 0.1f, 0.0001f);
-        */
+
         glBegin(GL_POINTS);
         {
             for (int i = 0; i < head->n * head->n; ++i)
