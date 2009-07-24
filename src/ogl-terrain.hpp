@@ -22,6 +22,7 @@
 
 namespace ogl
 {
+    struct head_s;
     struct page_s;
     struct vert_s;
 
@@ -32,10 +33,14 @@ namespace ogl
 
         const uint8_t *buff;
 
-        int count;
-
+        const head_s *head;
         const page_s *page;
         const vert_s *vert;
+
+        double s;
+        double h;
+        double M[16];
+        double I[16];
 
     public:
 

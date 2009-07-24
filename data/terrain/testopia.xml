@@ -1,2 +1,2 @@
 <?xml version="1.0"?>
-  <terrain file="testopia.gmm" />
+  <terrain file="testopia.gmm" size="1000.0" height="10.0" />

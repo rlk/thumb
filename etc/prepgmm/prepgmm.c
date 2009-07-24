@@ -8,6 +8,13 @@
 
 //-----------------------------------------------------------------------------
 
+struct head_s
+{
+    uint32_t c;
+    uint16_t n;
+    uint16_t m;
+};
+
 struct file_s
 {
     uint16_t *p;
@@ -19,19 +26,20 @@ struct file_s
 
 struct page_s
 {
+    int16_t min;
+    int16_t max;
+    int16_t err;
+    int16_t pad;
+
     uint32_t sub[4];
-    uint16_t min;
-    uint16_t max;
-    uint16_t err;
-    uint16_t pad;
 };
 
 struct vert_s
 {
-    uint16_t x;
-    uint16_t y;
-    uint16_t z;
-    uint16_t u;
+    int16_t x;
+    int16_t y;
+    int16_t z;
+    int16_t u;
 };
 
 typedef struct file_s *file_p;
@@ -178,7 +186,7 @@ static int read_png(file_p file,
 
 static int write_gmm(const char * gmm,
                            page_p page,
-                           vert_p vert, int count, int n, int e)
+                           vert_p vert, int count, int n, int m, int e)
 {
     // Initialize an index queue.
 
@@ -221,9 +229,15 @@ static int write_gmm(const char * gmm,
 
     if ((fp = fopen(gmm, "wb")))
     {
-        // Write the record count.
+        // Write the header.
 
-        fwrite(&c, sizeof (uint32_t), 1, fp);
+        struct head_s head;
+
+        head.c = c;
+        head.n = n;
+        head.m = m;
+
+        fwrite(&head, sizeof (struct head_s), 1, fp);
 
         // Write the page heads.
 
@@ -248,12 +262,12 @@ static int write_gmm(const char * gmm,
 
 // Get the value at pixel (R, C) of image FILE.
 
-static uint16_t get_file(file_p file, int r, int c)
+static int get_file(file_p file, int r, int c)
 {
     const int w = (int) file->w;
     const int h = (int) file->h;
 
-    return (r < h && c < w) ? file->p[w * r + c] : 0;
+    return (r < h && c < w) ? ((int) file->p[w * r + c] - 32768) : -32768;
 }
 
 // Get the Z value at vertex (R, C) of page K, which has size NxN.
@@ -286,19 +300,13 @@ static void put_vert(vert_p vert, int n, int k, int r, int c,
 }
 
 //-----------------------------------------------------------------------------
-/*
-static char tochar(uint16_t n)
-{
-    const char *str = "0123456789ABCDEF*";
-    return str[n * 16 / 65535];
-}
-*/
+
 // Recursively create the NxN page hierarchy starting at pixel (R, C) of FILE.
-// P points to the current page index and D gives the sample density.
+// P points to the current page index and S gives the sample density.
 
 static int domake(page_p page,
                   vert_p vert,
-                  file_p file, int n, int r, int c, int d, int *p)
+                  file_p file, int n, int d, int r, int c, int s, int *p)
 {
     // Copy and advance the index counter.
 
@@ -307,51 +315,45 @@ static int domake(page_p page,
     // Sample the page data.
 
     for     (int i = 0; i < n; ++i)
-    {
         for (int j = 0; j < n; ++j)
         {
             // Copy the sample.
 
-            const int y0 = r + i * d;
-            const int x0 = c + j * d;
+            const int y0 = r + i * s;
+            const int x0 = c + j * s;
             const int z0 = get_file(file, y0, x0);
 
-            put_vert(vert, n, k, i, j, x0, y0, z0);
-
-//          printf("%c", tochar(z0));
+            put_vert(vert, n, k, i, j, x0 + d, y0 + d, z0);
 
             // Scan the interpolation for maximum error.
 
-            if (d > 1 && i < n - 1 && j < n - 1)
+            if (s > 1 && i < n - 1 && j < n - 1)
             {
-                int z1 = get_file(file, y0,     x0 + d);
-                int z2 = get_file(file, y0 + d, x0    );
-                int z3 = get_file(file, y0 + d, x0 + d);
+                int z1 = get_file(file, y0,     x0 + s);
+                int z2 = get_file(file, y0 + s, x0    );
+                int z3 = get_file(file, y0 + s, x0 + s);
 
-                for     (int ii = 0; ii <= d; ++ii)
-                    for (int jj = 0; jj <= d; ++jj)
+                for     (int ii = 0; ii <= s; ++ii)
+                    for (int jj = 0; jj <= s; ++jj)
                     {
                         const int zo = get_file(file, y0 + ii, x0 + jj);
-                        const int zi = interp(z0, z1, z2, z3, ii, jj, d);
+                        const int zi = interp(z0, z1, z2, z3, ii, jj, s);
 
                         page[k].err = max2(page[k].err, abs(zi - zo));
                     }
             }
         }
-//      printf("\n");
-    }
-//  printf("\n");
 
     // Recursively process sub-pages, as necessary.
 
-    if (d > 1)
+    if (s > 1)
     {
-        const int m = n * d / 2;
+        const int m = n * s / 2;
 
-        page[k].sub[0] = domake(page, vert, file, n, r,     c,     d / 2, p);
-        page[k].sub[1] = domake(page, vert, file, n, r,     c + m, d / 2, p);
-        page[k].sub[2] = domake(page, vert, file, n, r + m, c,     d / 2, p);
-        page[k].sub[3] = domake(page, vert, file, n, r + m, c + m, d / 2, p);
+        page[k].sub[0] = domake(page, vert, file, n, d, r,     c,     s / 2, p);
+        page[k].sub[1] = domake(page, vert, file, n, d, r,     c + m, s / 2, p);
+        page[k].sub[2] = domake(page, vert, file, n, d, r + m, c,     s / 2, p);
+        page[k].sub[3] = domake(page, vert, file, n, d, r + m, c + m, s / 2, p);
     }
 
     return k;
@@ -416,8 +418,8 @@ static void dometa(page_p page,
     {
         // Compute leaf bounds from vertex extreme plus geomorph.
 
-        page[k].min = 0xFFFF;
-        page[k].max = 0x0000;
+        page[k].min =  32767;
+        page[k].max = -32768;
 
         for     (int i = 0; i < n; ++i)
             for (int j = 0; j < n; ++j)
@@ -471,15 +473,16 @@ static void proc(const char * png,
         {
             // Convert.
 
-            int d = (m - 1) / (n - 1);
-            int p = 0;
+            int d = -(m - 1) / 2;
+            int s =  (m - 1) / (n - 1);
+            int p =  0;
 
-            domake(page, vert, &file, n, 0, 0, d, &p);
-            dometa(page, vert,        n, 0, 0, 0, 0);
+            domake(page, vert, &file, n, d, 0, 0, s, &p);
+            dometa(page, vert,        n,    0, 0, 0, 0);
 
             // Write the output file.
 
-            count = write_gmm(gmm, page, vert, count, n, max2(e, 0));
+            count = write_gmm(gmm, page, vert, count, n, m, max2(e, 0));
 
             printf("%8d pages out\n", count);
         }
