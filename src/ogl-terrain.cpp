@@ -29,9 +29,10 @@ struct ogl::page_s
     int16_t min;
     int16_t max;
     int16_t err;
-    int16_t par;
+    int16_t pad;
 
-    uint32_t sub[4];
+    uint32_t up;
+    uint32_t ch[4];
 };
 
 struct ogl::vert_s
@@ -133,10 +134,10 @@ void ogl::terrain::calc_bound(int16_t x0, int16_t y0,
     const int xm = (x0 + x1) / 2;
     const int ym = (y0 + y1) / 2;
 
-    if (page[k].sub[0]) calc_bound(x0, y0, xm, ym, page[k].sub[0]);
-    if (page[k].sub[1]) calc_bound(xm, y0, x1, ym, page[k].sub[1]);
-    if (page[k].sub[2]) calc_bound(x0, ym, xm, y1, page[k].sub[2]);
-    if (page[k].sub[3]) calc_bound(xm, ym, x1, y1, page[k].sub[3]);
+    if (page[k].ch[0]) calc_bound(x0, y0, xm, ym, page[k].ch[0]);
+    if (page[k].ch[1]) calc_bound(xm, y0, x1, ym, page[k].ch[1]);
+    if (page[k].ch[2]) calc_bound(x0, ym, xm, y1, page[k].ch[2]);
+    if (page[k].ch[3]) calc_bound(xm, ym, x1, y1, page[k].ch[3]);
 }
 
 //-----------------------------------------------------------------------------
@@ -149,24 +150,6 @@ ogl::range ogl::terrain::view(const double *V, int n) const
 }
 
 //-----------------------------------------------------------------------------
-#if 0
-void ogl::terrain::traverse(int k, int kn, int ks, int ke, int kw) const
-{
-    if (page[k].sub[0])
-        traverse(page[k].sub[0], k2, ks ? page[ks].sub[2] : 0,
-                                 k1, kw ? page[kw].sub[1] : 0);
-    if (page[k].sub[1])
-        traverse(page[k].sub[1], k3, ks ? page[ks].sub[3] : 0,
-                                 ke ? page[ke].sub[0] : 0, k0);
-    if (page[k].sub[2])
-        traverse(page[k].sub[2], kn ? page[kn].sub[0] : 0, k0,
-                                 k3, kw ? page[kw].sub[3] : 0);
-    if (page[k].sub[3])
-        traverse(page[k].sub[3], kn ? page[kn].sub[1] : 0, k1,
-                                 ke ? page[ke].sub[2] : 0, k2);
-}
-#endif
-//-----------------------------------------------------------------------------
 
 // Determine whether the resolution and distance to page k indicate that
 // it should be drawn (regardless of its visibility).
@@ -176,8 +159,15 @@ bool ogl::terrain::page_test(int k, const double *p) const
     double d = bound[k].get_distance(p);
     double e =  page[k].err * h / 65536;
 
-    return (d > 0.0) ? (atan2(e, d) < 0.01) : true;
+    if (d > 0.0)
+        return (atan2(e, d) < 0.01);
+    else
+        return !(page[k].ch[0] && page[k].ch[1] &&
+                 page[k].ch[2] && page[k].ch[3]);
 }
+
+// TODO: This does not properly enforce the constraint that adjacent pages
+// be within one level-of-detail of one another.
 
 void ogl::terrain::page_draw(int k, int kn, int ks, int ke, int kw,
                              const double *p, const double *V, int n) const
@@ -186,57 +176,11 @@ void ogl::terrain::page_draw(int k, int kn, int ks, int ke, int kw,
     {
         if (page_test(k, p))
         {
-            const bool bn = (kn == 0) || !page_test(page[kn].par, p);
-            const bool bs = (ks == 0) || !page_test(page[ks].par, p);
-            const bool be = (ke == 0) || !page_test(page[ke].par, p);
-            const bool bw = (kw == 0) || !page_test(page[kw].par, p);
+            const bool bn = (kn == 0) || !page_test(page[kn].up, p);
+            const bool bs = (ks == 0) || !page_test(page[ks].up, p);
+            const bool be = (ke == 0) || !page_test(page[ke].up, p);
+            const bool bw = (kw == 0) || !page_test(page[kw].up, p);
 
-            bound[k].draw(bn, bs, be, bw);
-        }
-        else 
-        {
-            const int k0 = page[k].sub[0];
-            const int k1 = page[k].sub[1];
-            const int k2 = page[k].sub[2];
-            const int k3 = page[k].sub[3];
-
-            if (k0) page_draw(k0, k2, ks ? page[ks].sub[2] : 0,
-                                  k1, kw ? page[kw].sub[1] : 0, p, V, n);
-            if (k1) page_draw(k1, k3, ks ? page[ks].sub[3] : 0,
-                                  ke ? page[ke].sub[0] : 0, k0, p, V, n);
-            if (k2) page_draw(k2, kn ? page[kn].sub[0] : 0, k0,
-                                  k3, kw ? page[kw].sub[3] : 0, p, V, n);
-            if (k3) page_draw(k3, kn ? page[kn].sub[1] : 0, k1,
-                                  ke ? page[ke].sub[2] : 0, k2, p, V, n);
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
-/*
-double ogl::terrain::page_lod(int k, const double *p) const
-{
-    double d = bound[k].get_distance(p);
-    double e =  page[k].err * h / 65536;
-
-    if (d > 0)
-        return atan2(e, d);
-    else
-        return M_PI * 2.0;
-}
-
-void ogl::terrain::page_draw(int k, const double *p,
-                                    const double *V, int n) const
-{
-    if (bound[k].test(V,n))
-    {
-        const int k0 = page[k].sub[0];
-        const int k1 = page[k].sub[1];
-        const int k2 = page[k].sub[2];
-        const int k3 = page[k].sub[3];
-
-        if (!k0 || !k1 || !k2 || !k3 || page_lod(k, p) < 0.01)
-        {
             glBegin(GL_POINTS);
             {
                 const vert_s *v = vert + head->n * head->n * k;
@@ -248,14 +192,25 @@ void ogl::terrain::page_draw(int k, const double *p,
         }
         else
         {
-            if (k0) page_draw(k0, p, V, n);
-            if (k1) page_draw(k1, p, V, n);
-            if (k2) page_draw(k2, p, V, n);
-            if (k3) page_draw(k3, p, V, n);
+            const int k0 = page[k].ch[0];
+            const int k1 = page[k].ch[1];
+            const int k2 = page[k].ch[2];
+            const int k3 = page[k].ch[3];
+
+            if (k0) page_draw(k0, k2, ks ? page[ks].ch[2] : 0,
+                                  k1, kw ? page[kw].ch[1] : 0, p, V, n);
+            if (k1) page_draw(k1, k3, ks ? page[ks].ch[3] : 0,
+                                  ke ? page[ke].ch[0] : 0, k0, p, V, n);
+            if (k2) page_draw(k2, kn ? page[kn].ch[0] : 0, k0,
+                                  k3, kw ? page[kw].ch[3] : 0, p, V, n);
+            if (k3) page_draw(k3, kn ? page[kn].ch[1] : 0, k1,
+                                  ke ? page[ke].ch[2] : 0, k2, p, V, n);
         }
     }
 }
-*/
+
+//-----------------------------------------------------------------------------
+
 void ogl::terrain::draw(const double *p,
                         const double *V, int n) const
 {
@@ -268,13 +223,12 @@ void ogl::terrain::draw(const double *p,
 
         glPushMatrix();
         {
-//          glMultMatrixd(M);
-
+            glMultMatrixd(M);
             page_draw(0, 0, 0, 0, 0, p, V, n);
         }
         glPopMatrix();
 
-        glColor3f(1.0f, 0.5f, 0.0);
+//      glColor3f(1.0f, 0.5f, 0.0);
 
 //      bound[0].draw();
     }

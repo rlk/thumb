@@ -29,9 +29,10 @@ struct page_s
     int16_t min;
     int16_t max;
     int16_t err;
-    int16_t par;
+    int16_t pad;
 
-    uint32_t sub[4];
+    uint32_t up;
+    uint32_t ch[4];
 };
 
 struct vert_s
@@ -206,22 +207,22 @@ static int write_gmm(const char * gmm,
 
         if (page[k].err > e)
         {
-            const uint32_t k0 = page[k].sub[0];
-            const uint32_t k1 = page[k].sub[1];
-            const uint32_t k2 = page[k].sub[2];
-            const uint32_t k3 = page[k].sub[3];
+            const uint32_t k0 = page[k].ch[0];
+            const uint32_t k1 = page[k].ch[1];
+            const uint32_t k2 = page[k].ch[2];
+            const uint32_t k3 = page[k].ch[3];
 
             if (k0 && k1 && k2 && k3)
             {
-                page[k0].par = i;
-                page[k1].par = i;
-                page[k2].par = i;
-                page[k3].par = i;
+                page[k0].up = i;
+                page[k1].up = i;
+                page[k2].up = i;
+                page[k3].up = i;
 
-                page[k].sub[0] = c + 0;
-                page[k].sub[1] = c + 1;
-                page[k].sub[2] = c + 2;
-                page[k].sub[3] = c + 3;
+                page[k].ch[0] = c + 0;
+                page[k].ch[1] = c + 1;
+                page[k].ch[2] = c + 2;
+                page[k].ch[3] = c + 3;
 
                 p[c++] = k0;
                 p[c++] = k1;
@@ -231,10 +232,10 @@ static int write_gmm(const char * gmm,
         }
         else
         {
-            page[k].sub[0] = 0;
-            page[k].sub[1] = 0;
-            page[k].sub[2] = 0;
-            page[k].sub[3] = 0;
+            page[k].ch[0] = 0;
+            page[k].ch[1] = 0;
+            page[k].ch[2] = 0;
+            page[k].ch[3] = 0;
         }
     }
 
@@ -365,10 +366,10 @@ static int domake(page_p page,
     {
         const int m = (n - 1) * s / 2;
 
-        page[k].sub[0] = domake(page, vert, file, n, d, r,     c,     s / 2, p);
-        page[k].sub[1] = domake(page, vert, file, n, d, r,     c + m, s / 2, p);
-        page[k].sub[2] = domake(page, vert, file, n, d, r + m, c,     s / 2, p);
-        page[k].sub[3] = domake(page, vert, file, n, d, r + m, c + m, s / 2, p);
+        page[k].ch[0] = domake(page, vert, file, n, d, r,     c,     s / 2, p);
+        page[k].ch[1] = domake(page, vert, file, n, d, r,     c + m, s / 2, p);
+        page[k].ch[2] = domake(page, vert, file, n, d, r + m, c,     s / 2, p);
+        page[k].ch[3] = domake(page, vert, file, n, d, r + m, c + m, s / 2, p);
     }
 
     return k;
@@ -379,10 +380,10 @@ static int domake(page_p page,
 static void dometa(page_p page,
                    vert_p vert, int n, int p, int k, int x, int y)
 {
-    const int k0 = (int) page[k].sub[0];
-    const int k1 = (int) page[k].sub[1];
-    const int k2 = (int) page[k].sub[2];
-    const int k3 = (int) page[k].sub[3];
+    const int k0 = (int) page[k].ch[0];
+    const int k1 = (int) page[k].ch[1];
+    const int k2 = (int) page[k].ch[2];
+    const int k3 = (int) page[k].ch[3];
 
     // If this page has a parent...
 

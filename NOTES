@@ -1,3 +1,12 @@
+-------------------------------------------------------------------------------
+
+Depth-first traversal with neighbor tracking.
+
+It's easy to detecte an adjacency mismatch:
+    Let the traverser return the tree depth
+    If two subtrees differ by more than 1, there's problem.
+
+-------------------------------------------------------------------------------
 
    x0 y0 z0 x1 y1 z1
 x0 X  X  X     X  X
@@ -17,6 +26,7 @@ Terrain notes
             If all four children are flat, stop
             More generally,
                 if all four children meet the minimum error, stop
+        Does this conflict with the adjacent resolution constraint?
 
     Structure the metadata separately from the data
         This would allow the data to be loaded into a single VBO
