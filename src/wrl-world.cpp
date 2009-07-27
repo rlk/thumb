@@ -86,6 +86,8 @@ wrl::world::world() :
 //  click_selection(new wrl::box("solid/bunny.obj"));
 //  click_selection(new wrl::box("solid/buddha.obj"));
 //  do_create();
+
+    load("world/land.xml");
 }
 
 wrl::world::~world()

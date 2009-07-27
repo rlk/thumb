@@ -2,7 +2,7 @@
 
 CC= gcc -std=c99
 #CFLAGS= -m64 -Wall -pedantic -g
-CFLAGS= -m64 -Wall -pedantic -g -O3
+CFLAGS= -m64 -Wall -pedantic -O3
 
 TARG= prepgmm
 OBJS= prepgmm.o

@@ -8,13 +8,6 @@
 
 //-----------------------------------------------------------------------------
 
-struct head_s
-{
-    uint32_t c;
-    uint16_t n;
-    uint16_t m;
-};
-
 struct file_s
 {
     uint16_t *p;
@@ -22,6 +15,13 @@ struct file_s
     uint16_t  h;
     uint16_t  c;
     uint16_t  b;
+};
+
+struct head_s
+{
+    uint32_t c;
+    uint16_t n;
+    uint16_t m;
 };
 
 struct page_s
@@ -63,22 +63,22 @@ static void fail(const char *error)
 
 // Find the extrema of three values.
 
-static uint16_t min3(uint16_t a, uint16_t b, uint16_t c)
+static int min3(int a, int b, int c)
 {
     return min2(min2(a, b), c);
 }
-static uint16_t max3(uint16_t a, uint16_t b, uint16_t c)
+static int max3(int a, int b, int c)
 {
     return max2(max2(a, b), c);
 }
 
 // Find the extrema of four values.
 
-static uint16_t min4(uint16_t a, uint16_t b, uint16_t c, uint16_t d)
+static int min4(int a, int b, int c, int d)
 {
     return min2(min2(a, b), min2(c, d));
 }
-static uint16_t max4(uint16_t a, uint16_t b, uint16_t c, uint16_t d)
+static int max4(int a, int b, int c, int d)
 {
     return max2(max2(a, b), max2(c, d));
 }
@@ -221,6 +221,13 @@ static int write_gmm(const char * gmm,
             p[c++] = k2;
             p[c++] = k3;
         }
+        else
+        {
+            page[k].sub[0] = 0;
+            page[k].sub[1] = 0;
+            page[k].sub[2] = 0;
+            page[k].sub[3] = 0;
+        }
     }
 
     // Open a GMM file for writing.
@@ -242,12 +249,12 @@ static int write_gmm(const char * gmm,
         // Write the page heads.
 
         for (i = 0; i < c; ++i)
-            fwrite(page + i,         sizeof (struct page_s), 1,         fp);
+            fwrite(page + p[i],         sizeof (struct page_s), 1,         fp);
 
         // Write the page data.
 
         for (i = 0; i < c; ++i)
-            fwrite(vert + i * n * n, sizeof (struct vert_s), 1 * n * n, fp);
+            fwrite(vert + p[i] * n * n, sizeof (struct vert_s), 1 * n * n, fp);
 
         fclose(fp);
     }
@@ -348,7 +355,7 @@ static int domake(page_p page,
 
     if (s > 1)
     {
-        const int m = n * s / 2;
+        const int m = (n - 1) * s / 2;
 
         page[k].sub[0] = domake(page, vert, file, n, d, r,     c,     s / 2, p);
         page[k].sub[1] = domake(page, vert, file, n, d, r,     c + m, s / 2, p);

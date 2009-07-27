@@ -151,7 +151,7 @@ bool uni::spatch::subd(spatch *V,
     int i2 = -1;
     int i3 = ii;
 
-    // If this spatch cannot be subdivided, recursively subdivide neightbors.
+    // If this spatch cannot be subdivided, recursively subdivide neighbors.
 
     while (!able(V))
     {

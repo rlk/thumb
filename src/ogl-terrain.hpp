@@ -17,6 +17,7 @@
 
 #include "ogl-opengl.hpp"
 #include "ogl-range.hpp"
+#include "ogl-aabb.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -37,10 +38,19 @@ namespace ogl
         const page_s *page;
         const vert_s *vert;
 
+        std::vector<ogl::aabb> bound;
+
         double s;
         double h;
         double M[16];
         double I[16];
+
+        void calc_bound(int16_t, int16_t,
+                        int16_t, int16_t, uint32_t);
+
+        bool  page_test(int, const double *) const;
+        void  page_draw(int, int, int, int, int, 
+                        const double *, const double *, int) const;
 
     public:
 

@@ -1267,7 +1267,7 @@ void gui::dialog::draw() const
             glMatrixMode(GL_MODELVIEW);
 
             root->draw(focus, input);
-
+/*
             glBegin(GL_LINES);
             {
                 int s = 10;
@@ -1280,6 +1280,7 @@ void gui::dialog::draw() const
                 glVertex2i(last_x + s, last_y - s);
             }
             glEnd();
+*/
         }
         glPopAttrib();
     }

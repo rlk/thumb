@@ -30,24 +30,31 @@ namespace ogl
 
     public:
 
+        aabb(double, double, double, double, double, double);
         aabb();
 
         void merge(double, double, double);
         void merge(const aabb&);
 
+        double get_distance(const double *) const;
+
+        ogl::range get_range(const double *)                 const;
         ogl::range get_range(const double *, const double *) const;
 
-        bool   test(const double *, int, 
-                    const double *, int&) const;
-        void   draw() const;
+        bool test(const double *, int)                       const;
+        bool test(const double *, int, const double *, int&) const;
 
-        double length(int i)       const { return z[i] - a[i]; }
-        void   center(double c[3]) const { c[0] =  0.5 * (a[0] + z[0]);
-                                           c[1] =  0.5 * (a[1] + z[1]);
-                                           c[2] =  0.5 * (a[2] + z[2]); }
-        void   offset(double c[3]) const { c[0] = -0.5 * (a[0] + z[0]);
-                                           c[1] = -0.5 * (a[1] + z[1]);
-                                           c[2] = -0.5 * (a[2] + z[2]); }
+        void draw(bool, bool, bool, bool) const;
+        void draw()                       const;
+
+        void center(double c[3]) const { c[0] =  0.5 * (a[0] + z[0]);
+                                         c[1] =  0.5 * (a[1] + z[1]);
+                                         c[2] =  0.5 * (a[2] + z[2]); }
+        void offset(double c[3]) const { c[0] = -0.5 * (a[0] + z[0]);
+                                         c[1] = -0.5 * (a[1] + z[1]);
+                                         c[2] = -0.5 * (a[2] + z[2]); }
+
+        double length(int i) const { return z[i] - a[i]; }
     };
 }
 
