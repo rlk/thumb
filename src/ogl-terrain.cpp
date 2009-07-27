@@ -29,7 +29,7 @@ struct ogl::page_s
     int16_t min;
     int16_t max;
     int16_t err;
-    int16_t pad;
+    int16_t par;
 
     uint32_t sub[4];
 };
@@ -186,10 +186,10 @@ void ogl::terrain::page_draw(int k, int kn, int ks, int ke, int kw,
     {
         if (page_test(k, p))
         {
-            const bool bn = kn ? page_test(kn, p) : false;
-            const bool bs = ks ? page_test(ks, p) : false;
-            const bool be = ke ? page_test(ke, p) : false;
-            const bool bw = kw ? page_test(kw, p) : false;
+            const bool bn = (kn == 0) || !page_test(page[kn].par, p);
+            const bool bs = (ks == 0) || !page_test(page[ks].par, p);
+            const bool be = (ke == 0) || !page_test(page[ke].par, p);
+            const bool bw = (kw == 0) || !page_test(page[kw].par, p);
 
             bound[k].draw(bn, bs, be, bw);
         }

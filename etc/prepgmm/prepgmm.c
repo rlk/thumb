@@ -29,7 +29,7 @@ struct page_s
     int16_t min;
     int16_t max;
     int16_t err;
-    int16_t pad;
+    int16_t par;
 
     uint32_t sub[4];
 };
@@ -211,15 +211,23 @@ static int write_gmm(const char * gmm,
             const uint32_t k2 = page[k].sub[2];
             const uint32_t k3 = page[k].sub[3];
 
-            page[k].sub[0] = c + 0;
-            page[k].sub[1] = c + 1;
-            page[k].sub[2] = c + 2;
-            page[k].sub[3] = c + 3;
+            if (k0 && k1 && k2 && k3)
+            {
+                page[k0].par = i;
+                page[k1].par = i;
+                page[k2].par = i;
+                page[k3].par = i;
 
-            p[c++] = k0;
-            p[c++] = k1;
-            p[c++] = k2;
-            p[c++] = k3;
+                page[k].sub[0] = c + 0;
+                page[k].sub[1] = c + 1;
+                page[k].sub[2] = c + 2;
+                page[k].sub[3] = c + 3;
+
+                p[c++] = k0;
+                p[c++] = k1;
+                p[c++] = k2;
+                p[c++] = k3;
+            }
         }
         else
         {
