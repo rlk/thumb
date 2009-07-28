@@ -46,7 +46,15 @@ struct ogl::vert_s
 //-----------------------------------------------------------------------------
 
 ogl::terrain::terrain(std::string name) :
-    name(name), buff(0), head(0), page(0), vert(0), bound(0), s(100), h(10)
+    name(name),
+    buff(0),
+    head(0),
+    page(0),
+    vert(0),
+    bound(0),
+    vbo(0),
+    s(100),
+    h(10)
 {
     app::file file("terrain/" + name);
 
@@ -94,14 +102,116 @@ ogl::terrain::terrain(std::string name) :
 
         calc_bound(-m, -m, +m, +m, 0);
     }
+
+    // Initialize the GL state.
+
+    init();
 }
 
 ogl::terrain::~terrain()
 {
+    // Finalize the GL state.
+
+    fini();
+
+    // Release the data.
+
     if (!data.empty()) ::data->free(data);
 }
 
 //-----------------------------------------------------------------------------
+
+static GLushort rdn2(GLushort i) { return ((i    ) / 2) * 2; }
+static GLushort rup2(GLushort i) { return ((i + 1) / 2) * 2; }
+
+static bool dif(GLushort i0, GLushort i1, GLushort i2)
+{
+    if (i0 == i1) return false;
+    if (i1 == i2) return false;
+    if (i2 == i0) return false;
+
+    return true;
+}
+
+// Calculate an index buffer for a geo-mipmap page.  Booleans n, s, e, w
+// indicate that page edge in the corresponding direction has low resolution.
+
+GLsizei ogl::terrain::calc_index(GLuint o, bool bn, bool bs,
+                                           bool be, bool bw)
+{
+    // Initialize the index buffer.
+
+    const GLushort n = head->n;
+
+    std::vector<GLushort> index;
+
+    for     (int i = 0; i < int(head->n) - 1; ++i)
+        for (int j = 0; j < int(head->n) - 1; ++j)
+        {
+            GLushort r0 = i,     c0 = j;
+            GLushort r1 = i,     c1 = j + 1;
+            GLushort r2 = i + 1, c2 = j;
+            GLushort r3 = i + 1, c3 = j + 1;
+
+            if ((i * 2) / (n - 1) == (j * 2) / (n - 1))
+            {
+                if (bs && i == 0)     { c0 = rdn2(c0); c1 = rdn2(c1); }
+                if (bn && i == n - 2) { c2 = rup2(c2); c3 = rup2(c3); }
+                if (bw && j == 0)     { r0 = rdn2(r0); r2 = rdn2(r2); }
+                if (be && j == n - 2) { r1 = rup2(r1); r3 = rup2(r3); }
+
+                if (dif(r0 * n + c0, r2 * n + c2, r3 * n + c3))
+                {
+                    index.push_back(r0 * n + c0);
+                    index.push_back(r3 * n + c3);
+                    index.push_back(r2 * n + c2);
+                }
+
+                if (dif(r0 * n + c0, r1 * n + c1, r3 * n + c3))
+                {
+                    index.push_back(r3 * n + c3);
+                    index.push_back(r0 * n + c0);
+                    index.push_back(r1 * n + c1);
+                }
+            }
+            else
+            {
+                if (bs && i == 0)     { c0 = rup2(c0); c1 = rup2(c1); }
+                if (bn && i == n - 2) { c2 = rdn2(c2); c3 = rdn2(c3); }
+                if (bw && j == 0)     { r0 = rup2(r0); r2 = rup2(r2); }
+                if (be && j == n - 2) { r1 = rdn2(r1); r3 = rdn2(r3); }
+
+                if (dif(r0 * n + c0, r1 * n + c1, r2 * n + c2))
+                {
+                    index.push_back(r1 * n + c1);
+                    index.push_back(r2 * n + c2);
+                    index.push_back(r0 * n + c0);
+                }
+
+                if (dif(r1 * n + c1, r2 * n + c2, r3 * n + c3))
+                {
+                    index.push_back(r2 * n + c2);
+                    index.push_back(r1 * n + c1);
+                    index.push_back(r3 * n + c3);
+                }
+            }
+        }
+
+    // Copy the indices to an element buffer object.
+
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, o);
+    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+                     index.size() * sizeof (GLushort),
+                    &index.front(), GL_STATIC_DRAW_ARB);
+
+    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+    return GLsizei(index.size());
+}
+
+// Recursively compute a view-space axis-aligned bounding box for page k.
+// The values [x0,x1] [y0,y1] give the planar bounds of page k implicitly
+// while the z bounds are explicit within the file.  
 
 void ogl::terrain::calc_bound(int16_t x0, int16_t y0,
                               int16_t x1, int16_t y1, uint32_t k)
@@ -176,19 +286,22 @@ void ogl::terrain::page_draw(int k, int kn, int ks, int ke, int kw,
     {
         if (page_test(k, p))
         {
-            const bool bn = (kn == 0) || !page_test(page[kn].up, p);
-            const bool bs = (ks == 0) || !page_test(page[ks].up, p);
-            const bool be = (ke == 0) || !page_test(page[ke].up, p);
-            const bool bw = (kw == 0) || !page_test(page[kw].up, p);
+            GLsizei vs = sizeof (vert_s);
 
-            glBegin(GL_POINTS);
-            {
-                const vert_s *v = vert + head->n * head->n * k;
+            const int bn = ((kn == 0) || !page_test(page[kn].up, p)) ? 0 : 1;
+            const int bs = ((ks == 0) || !page_test(page[ks].up, p)) ? 0 : 2;
+            const int be = ((ke == 0) || !page_test(page[ke].up, p)) ? 0 : 4;
+            const int bw = ((kw == 0) || !page_test(page[kw].up, p)) ? 0 : 8;
 
-                for (int i = 0; i < head->n * head->n; ++i)
-                    glVertex3sv((const GLshort *) (v + i));
-            }
-            glEnd();
+            const int b = bn + bs + be + bw;
+
+            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ibo[b]);
+
+            glVertexPointer(3, GL_SHORT,
+                            vs, (GLvoid *) (vs * head->n * head->n * k));
+
+            glDrawElements(GL_TRIANGLES, ibc[b],
+                           GL_UNSIGNED_SHORT, 0);
         }
         else
         {
@@ -218,19 +331,38 @@ void ogl::terrain::draw(const double *p,
     {
         glUseProgramObjectARB(0);
         glPointSize(3.0);
+        glLineWidth(1.0);
 
-        glColor3f(1.0f, 1.0f, 0.0);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glPushMatrix();
+        glEnableClientState(GL_VERTEX_ARRAY);
         {
-            glMultMatrixd(M);
-            page_draw(0, 0, 0, 0, 0, p, V, n);
+            glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
+
+            glColor4f(1.0f, 1.0f, 0.0f, 0.25f);
+            glPushMatrix();
+            {
+                glMultMatrixd(M);
+                page_draw(0, 0, 0, 0, 0, p, V, n);
+            }
+            glPopMatrix();
+/*
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glColor4f(1.0f, 1.0f, 0.0f, 0.25f);
+            glPushMatrix();
+            {
+                glMultMatrixd(M);
+                page_draw(0, 0, 0, 0, 0, p, V, n);
+            }
+            glPopMatrix();
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+*/
+
+            glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
         }
-        glPopMatrix();
-
-//      glColor3f(1.0f, 0.5f, 0.0);
-
-//      bound[0].draw();
+        glDisableClientState(GL_VERTEX_ARRAY);
     }
 }
 
@@ -238,10 +370,46 @@ void ogl::terrain::draw(const double *p,
 
 void ogl::terrain::init()
 {
+    if (head->c && vert)
+    {
+        // Initialize the vertex buffer object.
+
+        glGenBuffersARB(1, &vbo);
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
+        glBufferDataARB(GL_ARRAY_BUFFER_ARB,
+                        head->n * head->n * head->c * sizeof (vert_s), vert,
+                        GL_STATIC_DRAW_ARB);
+
+        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+        // Initialize the index buffer objects.
+
+        glGenBuffersARB(16, ibo);
+
+        ibc[ 0] = calc_index(ibo[ 0], false, false, false, false);
+        ibc[ 1] = calc_index(ibo[ 1],  true, false, false, false);
+        ibc[ 2] = calc_index(ibo[ 2], false,  true, false, false);
+        ibc[ 3] = calc_index(ibo[ 3],  true,  true, false, false);
+        ibc[ 4] = calc_index(ibo[ 4], false, false,  true, false);
+        ibc[ 5] = calc_index(ibo[ 5],  true, false,  true, false);
+        ibc[ 6] = calc_index(ibo[ 6], false,  true,  true, false);
+        ibc[ 7] = calc_index(ibo[ 7],  true,  true,  true, false);
+        ibc[ 8] = calc_index(ibo[ 8], false, false, false,  true);
+        ibc[ 9] = calc_index(ibo[ 9],  true, false, false,  true);
+        ibc[10] = calc_index(ibo[10], false,  true, false,  true);
+        ibc[11] = calc_index(ibo[11],  true,  true, false,  true);
+        ibc[12] = calc_index(ibo[12], false, false,  true,  true);
+        ibc[13] = calc_index(ibo[13],  true, false,  true,  true);
+        ibc[14] = calc_index(ibo[14], false,  true,  true,  true);
+        ibc[15] = calc_index(ibo[15],  true,  true,  true,  true);
+    }
 }
 
 void ogl::terrain::fini()
 {
+    glDeleteBuffers(16, ibo);
+    glDeleteBuffers(1, &vbo);
+    vbo = 0;
 }
 
 //-----------------------------------------------------------------------------

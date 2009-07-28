@@ -40,13 +40,18 @@ namespace ogl
 
         std::vector<ogl::aabb> bound;
 
+        GLuint  vbo;
+        GLuint  ibo[16];
+        GLsizei ibc[16];
+
         double s;
         double h;
         double M[16];
         double I[16];
 
-        void calc_bound(int16_t, int16_t,
-                        int16_t, int16_t, uint32_t);
+        GLsizei calc_index(GLuint, bool, bool, bool, bool);
+        void    calc_bound(int16_t, int16_t,
+                           int16_t, int16_t, uint32_t);
 
         bool  page_test(int, const double *) const;
         void  page_draw(int, int, int, int, int, 
