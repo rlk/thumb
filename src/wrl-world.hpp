@@ -108,6 +108,7 @@ namespace wrl
         double split_fract(int, int, const app::frustum *);
         double split_depth(int, int, const app::frustum *);
 
+        ogl::uniform *uniform_terrain_size;
         ogl::uniform *uniform_light_position;
         ogl::uniform *uniform_pssm_depth;
         ogl::uniform *uniform_shadow[3];

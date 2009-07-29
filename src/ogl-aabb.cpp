@@ -147,7 +147,7 @@ void ogl::aabb::merge(const aabb& that)
 // Compute the shortest distance from point p to this axis-aligned bounding
 // box.  There are 27 possible configurations.  This logic can be optimized
 // down to a single cascade of if statements, but at cost to clarity.
-
+/*
 double ogl::aabb::get_distance(const double *p) const
 {
     const bool x1 = (p[0] > z[0]);
@@ -199,6 +199,64 @@ double ogl::aabb::get_distance(const double *p) const
     // Side cases are least likely.
 
     else if (z1) return p[2] - z[2];
+    else if (z0) return a[2] - p[2];
+    else if (y1) return p[1] - z[1];
+    else if (y0) return a[1] - p[1];
+    else if (x1) return p[0] - z[0];
+    else         return a[0] - p[0];
+}
+*/
+double ogl::aabb::get_distance(const double *p) const
+{
+    const bool x1 = (p[0] > z[0]);
+    const bool y1 = (p[1] > z[1]);
+    const bool z1 = (p[2] > z[2]);
+    const bool x0 = (p[0] < a[0]);
+    const bool y0 = (p[1] < a[1]);
+    const bool z0 = (p[2] < a[2]);
+
+    // Eliminate the degenerate case to simplify the subsequent logic.
+
+    if (!x0 && !y0 && !z0 && !x1 && !y1 && !z1) return 0.0;
+
+    // Corner cases are most common.
+
+    else if (x1 && y1 && z1) return DIST3(p[0], p[1], p[2], z[0], z[1], z[2]);
+    else if (x0 && y1 && z1) return DIST3(p[0], p[1], p[2], a[0], z[1], z[2]);
+    else if (x1 && y0 && z1) return DIST3(p[0], p[1], p[2], z[0], a[1], z[2]);
+    else if (x0 && y0 && z1) return DIST3(p[0], p[1], p[2], a[0], a[1], z[2]);
+    else if (x1 && y1 && z0) return DIST3(p[0], p[1], p[2], z[0], z[1], a[2]);
+    else if (x0 && y1 && z0) return DIST3(p[0], p[1], p[2], a[0], z[1], a[2]);
+    else if (x1 && y0 && z0) return DIST3(p[0], p[1], p[2], z[0], a[1], a[2]);
+    else if (x0 && y0 && z0) return DIST3(p[0], p[1], p[2], a[0], a[1], a[2]);
+
+    // Edge cases are next.
+
+    else if (!z0 && !z1)
+    {
+        if      (x0 && y0) return DIST2(p[0], p[1], a[0], a[1]);
+        else if (x1 && y0) return DIST2(p[0], p[1], z[0], a[1]);
+        else if (x0 && y1) return DIST2(p[0], p[1], a[0], z[1]);
+        else if (x1 && y1) return DIST2(p[0], p[1], z[0], z[1]);
+    }
+    else if (!y0 && !y1)
+    {
+        if      (x0 && z0) return DIST2(p[0], p[2], a[0], a[2]);
+        else if (x1 && z0) return DIST2(p[0], p[2], z[0], a[2]);
+        else if (x0 && z1) return DIST2(p[0], p[2], a[0], z[2]);
+        else if (x1 && z1) return DIST2(p[0], p[2], z[0], z[2]);
+    }
+    else if (!x0 && !x1)
+    {
+        if      (y0 && z0) return DIST2(p[1], p[2], a[1], a[2]);
+        else if (y1 && z0) return DIST2(p[1], p[2], z[1], a[2]);
+        else if (y0 && z1) return DIST2(p[1], p[2], a[1], z[2]);
+        else if (y1 && y1) return DIST2(p[1], p[2], z[1], z[2]);
+    }
+
+    // Side cases are least likely.
+
+    if      (z1) return p[2] - z[2];
     else if (z0) return a[2] - p[2];
     else if (y1) return p[1] - z[1];
     else if (y0) return a[1] - p[1];

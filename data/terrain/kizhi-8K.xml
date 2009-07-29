@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+  <terrain file="kizhi-height-8K.gmm"
+           material="kizhi-terrain"
+           size="6553.6.0"
+           height="42.0" />

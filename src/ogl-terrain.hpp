@@ -23,6 +23,14 @@
 
 namespace ogl
 {
+    class binding;
+    class uniform;
+}
+
+//-----------------------------------------------------------------------------
+
+namespace ogl
+{
     struct head_s;
     struct page_s;
     struct vert_s;
@@ -37,6 +45,10 @@ namespace ogl
         const head_s *head;
         const page_s *page;
         const vert_s *vert;
+
+        const ogl::binding *material;
+
+        ogl::uniform *uniform_terrain_size;
 
         std::vector<ogl::aabb> bound;
 

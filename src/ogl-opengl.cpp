@@ -491,7 +491,7 @@ void ogl::line_state_init()
     glEnable(GL_POLYGON_OFFSET_LINE);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glDepthMask(GL_FALSE);
+//    glDepthMask(GL_FALSE);
 
     glPolygonOffset(-1.1f, -4.0f);
 }

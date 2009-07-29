@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<program vert="glsl/kizhi-terrain-color.vert"
+         frag="glsl/kizhi-terrain-color.frag" >
+
+  <sampler name="diff_map"  unit="0" />
+  <sampler name="spec_map"  unit="1" />
+  <sampler name="norm_map"  unit="2" />
+  <sampler name="shadow[0]" unit="3" />
+  <sampler name="shadow[1]" unit="4" />
+  <sampler name="shadow[2]" unit="5" />
+
+  <sampler name="irradiance_env[0]" unit="6" />
+  <sampler name="irradiance_env[1]" unit="7" />
+
+  <uniform name="terrain_size"     value="terrain_size"     size="3"/>
+  <uniform name="pssm_depth"       value="pssm_depth"       size="4"/>
+  <uniform name="view_matrix"      value="view_matrix"      size="16"/>
+  <uniform name="view_inverse"     value="view_inverse"     size="16"/>
+  <uniform name="light_position"   value="light_position"   size="3"/>
+  <uniform name="color_max"        value="color_max"        size="4"/>
+  <uniform name="shadow_matrix[0]" value="shadow_matrix[0]" size="16" />
+  <uniform name="shadow_matrix[1]" value="shadow_matrix[1]" size="16" />
+  <uniform name="shadow_matrix[2]" value="shadow_matrix[2]" size="16" />
+</program>

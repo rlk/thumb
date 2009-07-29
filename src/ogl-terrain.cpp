@@ -11,8 +11,11 @@
 //  General Public License for more details.
 
 #include "matrix.hpp"
+#include "app-glob.hpp"
 #include "app-data.hpp"
 #include "app-file.hpp"
+#include "ogl-binding.hpp"
+#include "ogl-uniform.hpp"
 #include "ogl-terrain.hpp"
 
 //-----------------------------------------------------------------------------
@@ -51,6 +54,7 @@ ogl::terrain::terrain(std::string name) :
     head(0),
     page(0),
     vert(0),
+    material(0),
     bound(0),
     vbo(0),
     s(100),
@@ -78,6 +82,8 @@ ogl::terrain::terrain(std::string name) :
                                               + sizeof (page_s) * head->c);
             }
         }
+
+        material = ::glob->load_binding(p.get_s("material"), "default.xml");
     }
 
     // Initialize the transformation.
@@ -93,10 +99,10 @@ ogl::terrain::terrain(std::string name) :
 
     // Intialize the view-space bounding volume cache.
 
+    const int m = (head->m - 1) / 2;
+
     if (page && head->c)
     {
-        const int m = (head->m - 1) / 2;
-
         bound.reserve(head->c);
         bound.resize (head->c);
 
@@ -106,17 +112,24 @@ ogl::terrain::terrain(std::string name) :
     // Initialize the GL state.
 
     init();
+
+    uniform_terrain_size = ::glob->load_uniform("terrain_size", 3);
+    uniform_terrain_size->set(m, m * 2, h); // HACK
 }
 
 ogl::terrain::~terrain()
 {
     // Finalize the GL state.
 
+    ::glob->free_uniform("terrain_size");
+
     fini();
 
     // Release the data.
 
     if (!data.empty()) ::data->free(data);
+
+    ::glob->free_binding(material);
 }
 
 //-----------------------------------------------------------------------------
@@ -270,7 +283,7 @@ bool ogl::terrain::page_test(int k, const double *p) const
     double e =  page[k].err * h / 65536;
 
     if (d > 0.0)
-        return (atan2(e, d) < 0.01);
+        return (atan2(e, d) < 0.005);
     else
         return !(page[k].ch[0] && page[k].ch[1] &&
                  page[k].ch[2] && page[k].ch[3]);
@@ -288,10 +301,10 @@ void ogl::terrain::page_draw(int k, int kn, int ks, int ke, int kw,
         {
             GLsizei vs = sizeof (vert_s);
 
-            const int bn = ((kn == 0) || !page_test(page[kn].up, p)) ? 0 : 1;
-            const int bs = ((ks == 0) || !page_test(page[ks].up, p)) ? 0 : 2;
-            const int be = ((ke == 0) || !page_test(page[ke].up, p)) ? 0 : 4;
-            const int bw = ((kw == 0) || !page_test(page[kw].up, p)) ? 0 : 8;
+            const int bn = (kn == 0 || page_test(page[kn].up, p)) ? 1 : 0;
+            const int bs = (ks == 0 || page_test(page[ks].up, p)) ? 2 : 0;
+            const int be = (ke == 0 || page_test(page[ke].up, p)) ? 4 : 0;
+            const int bw = (kw == 0 || page_test(page[kw].up, p)) ? 8 : 0;
 
             const int b = bn + bs + be + bw;
 
@@ -331,16 +344,17 @@ void ogl::terrain::draw(const double *p,
     {
         glUseProgramObjectARB(0);
         glPointSize(3.0);
-        glLineWidth(1.0);
 
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        if (material)
+            material->bind(true);
 
         glEnableClientState(GL_VERTEX_ARRAY);
         {
             glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
-
-            glColor4f(1.0f, 1.0f, 0.0f, 0.25f);
+/*
+            glDisable(GL_BLEND);
+            glColor4f(0.4f, 0.4f, 0.4f, 1.0f);
+*/
             glPushMatrix();
             {
                 glMultMatrixd(M);
@@ -348,17 +362,19 @@ void ogl::terrain::draw(const double *p,
             }
             glPopMatrix();
 /*
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glColor4f(1.0f, 1.0f, 0.0f, 0.25f);
+            ogl::line_state_init();
+            glBlendFunc(GL_ONE, GL_ONE);
+            glLineWidth(0.5);
             glPushMatrix();
             {
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                 glMultMatrixd(M);
                 page_draw(0, 0, 0, 0, 0, p, V, n);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             }
             glPopMatrix();
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            ogl::line_state_fini();
 */
-
             glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
             glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
         }
