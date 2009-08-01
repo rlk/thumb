@@ -5,15 +5,18 @@ uniform mat4 view_matrix;
 uniform mat4 view_inverse;
 uniform vec3 terrain_size;
 
+varying vec4 V_e;
 varying vec3 V_v;
-varying vec3 T_v;
-varying vec3 N_v;
 
 void main()
 {
     // Compute the view, normal, and tangent eye-space vectors.
 
-    vec4 V_e = gl_ModelViewMatrix * gl_Vertex;
+    V_e = gl_ModelViewMatrix * gl_Vertex;
+
+    // Compute the world-space view varying.
+
+    V_v = (view_inverse * V_e).xyz;
 
     // Material and shadow map texture coordinates.
 

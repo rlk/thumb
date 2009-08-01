@@ -2,12 +2,20 @@
 
 uniform vec3 terrain_size;
 
-uniform sampler2D       diff_map;
-uniform sampler2D       spec_map;
-uniform sampler2D       norm_map;
+uniform sampler2D diff_map;
+uniform sampler2D norm_map;
 
-uniform sampler2DRect   reflection_env[2];
-uniform sampler2DRect   irradiance_env[2];
+uniform sampler2D diff_0;
+uniform sampler2D diff_1;
+uniform sampler2D diff_2;
+uniform sampler2D diff_3;
+uniform sampler2D diff_4;
+uniform sampler2D diff_5;
+uniform sampler2D diff_6;
+uniform sampler2D diff_7;
+
+uniform sampler2DRect reflection_env[2];
+uniform sampler2DRect irradiance_env[2];
 
 uniform sampler2DShadow shadow[3];
 
@@ -15,9 +23,8 @@ uniform vec4 pssm_depth;
 uniform vec3 light_position;
 uniform vec4 color_max;
 
+varying vec4 V_e;
 varying vec3 V_v;
-varying vec3 N_v;
-varying vec3 T_v;
 
 vec3 irradiance(sampler2DRect env, vec3 N)
 {
@@ -58,12 +65,72 @@ float get_shadow(sampler2DShadow sampler, vec4 coord)
     return shadow2DProj(sampler, coord).r;
 }
 
+vec4 water(vec4 color, float depth)
+{
+    vec4 water = vec4(0.03, 0.15, 0.15, 1.0);
+
+    float k = clamp(-1.0 * depth, 0.0, 1.0);
+    float a = clamp( 0.9 - k,     0.0, 1.0);
+
+    return vec4(mix(color.rgb, water.rgb, k), a);
+}
+
 void main()
 {
-    // Look up the material textures.
+    const float w = 2048.0;
+    const float h = 4096.0;
 
-    vec4 D_c = texture2D(diff_map, gl_TexCoord[0].xy);
-    vec4 S_c = texture2D(spec_map, gl_TexCoord[0].xy);
+    const vec2 d00 = vec2(0.0,     0.0    );
+    const vec2 d01 = vec2(0.0,     1.0 / h);
+    const vec2 d10 = vec2(1.0 / w, 0.0    );
+    const vec2 d11 = vec2(1.0 / w, 1.0 / h);
+
+    // Look up the diffuse color.
+
+    vec2 k = fract(gl_TexCoord[0].xy * vec2(w, h));
+
+    vec4 K_00 = texture2D(diff_map, gl_TexCoord[0].xy + d00);
+    vec4 K_01 = texture2D(diff_map, gl_TexCoord[0].xy + d01);
+    vec4 K_10 = texture2D(diff_map, gl_TexCoord[0].xy + d10);
+    vec4 K_11 = texture2D(diff_map, gl_TexCoord[0].xy + d11);
+
+    vec4 A_00 = fract(255.0 * K_00 / 16.0);
+    vec4 A_01 = fract(255.0 * K_01 / 16.0);
+    vec4 A_10 = fract(255.0 * K_10 / 16.0);
+    vec4 A_11 = fract(255.0 * K_11 / 16.0);
+
+    vec4 B_00 = floor(255.0 * K_00 / 16.0) / 15.0;
+    vec4 B_01 = floor(255.0 * K_01 / 16.0) / 15.0;
+    vec4 B_10 = floor(255.0 * K_10 / 16.0) / 15.0;
+    vec4 B_11 = floor(255.0 * K_11 / 16.0) / 15.0;
+
+    vec4 D_a = mix(mix(A_00, A_01, k.y), mix(A_10, A_11, k.y), k.x);
+    vec4 D_b = mix(mix(B_00, B_01, k.y), mix(B_10, B_11, k.y), k.x);
+
+    float total = min(1.0, dot(D_a, vec4(1.0)) + dot(D_b, vec4(1.0)));
+
+    vec2 T = gl_TexCoord[0].xy * 512.0;
+
+    vec3 D_0 = texture2D(diff_0, T).rgb;
+    vec3 D_1 = texture2D(diff_1, T).rgb;
+//  vec3 D_2 = texture2D(diff_2, T).rgb;
+    vec3 D_3 = texture2D(diff_3, T).rgb;
+    vec3 D_4 = texture2D(diff_4, T).rgb;
+//  vec3 D_5 = texture2D(diff_5, T).rgb;
+    vec3 D_6 = texture2D(diff_6, T).rgb;
+    vec3 D_7 = texture2D(diff_7, T).rgb;
+
+    vec3 D_c = mix(D_7, D_0 * D_a.r +
+                        D_1 * D_a.g +
+//                      D_2 * D_a.b +
+                        D_3 * D_a.a +
+                        D_4 * D_b.r +
+//                      D_5 * D_b.g +
+                        D_6 * D_b.b +
+                        D_7 * D_b.a, total);
+
+    // Look up the normal map.
+
     vec3 N_c = texture2D(norm_map, gl_TexCoord[0].xy).rgb;
 
     vec3 N_w = normalize(2.0 * N_c - 1.0);
@@ -85,5 +152,11 @@ void main()
     vec4 C0 = vec4(irradiance(irradiance_env[0], N_w), 1.0);
     vec4 C1 = vec4(irradiance(irradiance_env[1], N_w), 1.0);
 
-    gl_FragColor = mix(C0, C1, ss) * max(D_c, color_max);
+    vec4 C = mix(C0, C1, ss) * vec4(D_c, 1.0);
+
+    float d = max(0.0, 1.0 + 0.0005 * V_e.z);
+
+    if (V_v.y < 0.0) C = water(C, V_v.y);
+
+    gl_FragColor = vec4(C.rgb, min(C.a, d));
 }

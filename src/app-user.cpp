@@ -294,10 +294,10 @@ void app::user::home()
     load_mat(current_M, M);
     load_inv(current_I, M);
 #endif
-
+/*
     current_M[13] =  1.759;
     current_I[13] = -1.759;
-
+*/
 //  struct timeval tv;
 
 //  gettimeofday(&tv, 0);

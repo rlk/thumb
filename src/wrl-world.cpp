@@ -1095,6 +1095,11 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
 
     // Render the terrain.
 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    draw_sky(frusp);
+
     if (land)
         land->draw(frusp->get_view_pos(), frusp->get_planes(), 5);
 
@@ -1110,11 +1115,11 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     fill_pool->draw_fini();
 
     // Render the sky.
-
+/*
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     draw_sky(frusp);
-
+*/
     if (::prog->get_option(4)) draw_debug_wireframe(frusi);
 }
 
@@ -1144,15 +1149,35 @@ void wrl::world::draw_line(int frusi, const app::frustum *frusp)
 void wrl::world::draw_sky(const app::frustum *frusp)
 {
     const double *vp = frusp->get_view_pos();
-    const double *v0 = frusp->get_points() + 0;
-    const double *v1 = frusp->get_points() + 3;
-    const double *v2 = frusp->get_points() + 6;
-    const double *v3 = frusp->get_points() + 9;
 
+/*
+    glBegin(GL_QUADS);
+    {
+        const double v0[3] = { -10000.0, 0.0, -10000.0 };
+        const double v1[3] = { -10000.0, 0.0,  10000.0 };
+        const double v2[3] = {  10000.0, 0.0,  10000.0 };
+        const double v3[3] = {  10000.0, 0.0, -10000.0 };
+
+        glTexCoord2d(0, 0);
+        glVertex3d(v0[0] - vp[0], v0[1] - vp[1], v0[2] - vp[2]);
+        glTexCoord2d(1, 0);
+        glVertex3d(v1[0] - vp[0], v1[1] - vp[1], v1[2] - vp[2]);
+        glTexCoord2d(1, 1);
+        glVertex3d(v3[0] - vp[0], v3[1] - vp[1], v3[2] - vp[2]);
+        glTexCoord2d(0, 1);
+        glVertex3d(v2[0] - vp[0], v2[1] - vp[1], v2[2] - vp[2]);
+    }
+    glEnd();
+*/
     sky->bind(true);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     {
+        const double *v0 = frusp->get_points() + 0;
+        const double *v1 = frusp->get_points() + 3;
+        const double *v2 = frusp->get_points() + 6;
+        const double *v3 = frusp->get_points() + 9;
+
         // Draw the far plane of the clip space, offset by one unit of
         // depth buffer distance.  Pass the world-space vectors from the
         // view position toward the screen corners for use in sky display.

@@ -3,14 +3,22 @@
          frag="glsl/kizhi-terrain-color.frag" >
 
   <sampler name="diff_map"  unit="0" />
-  <sampler name="spec_map"  unit="1" />
-  <sampler name="norm_map"  unit="2" />
+  <sampler name="norm_map"  unit="1" />
   <sampler name="shadow[0]" unit="3" />
   <sampler name="shadow[1]" unit="4" />
   <sampler name="shadow[2]" unit="5" />
 
   <sampler name="irradiance_env[0]" unit="6" />
   <sampler name="irradiance_env[1]" unit="7" />
+
+  <sampler name="diff_0" unit="8"  />
+  <sampler name="diff_1" unit="9"  />
+  <sampler name="diff_2" unit="10" />
+  <sampler name="diff_3" unit="11" />
+  <sampler name="diff_4" unit="12" />
+  <sampler name="diff_5" unit="13" />
+  <sampler name="diff_6" unit="14" />
+  <sampler name="diff_7" unit="15" />
 
   <uniform name="terrain_size"     value="terrain_size"     size="3"/>
   <uniform name="pssm_depth"       value="pssm_depth"       size="4"/>
