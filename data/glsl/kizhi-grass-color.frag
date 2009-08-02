@@ -97,6 +97,13 @@ void main()
 //  vec4 D_6 = texture2D(diff_6, T);
 //  vec4 D_7 = texture2D(diff_7, T);
 
+    vec4 D_c = mix(mix(mix(mix(mix(vec4(0.0),
+                                   D_5, D_b.g),
+                               D_4, D_b.r),
+                           D_2, D_a.b),
+                       D_1, D_a.g),
+                   D_0, D_a.r);
+/*
     vec4 D_c = (D_0 * D_a.r +
                 D_1 * D_a.g +
                 D_2 * D_a.b +
@@ -105,7 +112,7 @@ void main()
                 D_5 * D_b.g);
 //              D_6 * D_b.b +
 //              D_7 * D_b.a +
-
+*/
     // Look up the normal map.
 
     vec3 N_c = texture2D(norm_map, location).rgb;

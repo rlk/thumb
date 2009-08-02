@@ -496,7 +496,7 @@ bool ogl::terrain::gras_test(int k, const double *p) const
 {
     double d = bound[k].get_distance(p);
 
-    if (d > 50.0)
+    if (d > 100.0)
         return false;
     else
         return !(page[k].ch[0] && page[k].ch[1] &&

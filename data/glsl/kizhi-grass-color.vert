@@ -12,11 +12,11 @@ varying float alpha;
 
 void main()
 {
-    const float max_distance = 50.0;
+    const float max_distance = 100.0;
 
     vec3 d = texture2D(noise, gl_Vertex.xy / vec2(256.0)).xyz;
 
-    vec4 v = vec4(gl_Vertex.xy, gl_Vertex.zw);
+    vec4 v = vec4(gl_Vertex.xy + 2.0 * (d.xy - 0.5), gl_Vertex.zw);
 
     // Compute the view, normal, and tangent eye-space vectors.
     
