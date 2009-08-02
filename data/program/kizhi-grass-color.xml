@@ -4,6 +4,7 @@
 
   <sampler name="diff_map"  unit="0" />
   <sampler name="norm_map"  unit="1" />
+  <sampler name="noise"     unit="2" />
   <sampler name="shadow[0]" unit="3" />
   <sampler name="shadow[1]" unit="4" />
   <sampler name="shadow[2]" unit="5" />

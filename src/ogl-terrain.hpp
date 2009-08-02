@@ -54,23 +54,50 @@ namespace ogl
         std::vector<ogl::aabb> bound;
 
         GLuint  vbo;
-        GLuint  ibo[16];
-        GLsizei ibc[16];
+        GLuint  p_ibo[16];
+        GLsizei p_ibc[16];
+        GLuint  g_ibo[8][4];
+        GLsizei g_ibc[8];
 
         double s;
         double h;
         double M[16];
         double I[16];
 
+        GLsizei rand_index(GLuint *);
         GLsizei calc_index(GLuint, bool, bool, bool, bool);
         void    calc_bound(int16_t, int16_t,
                            int16_t, int16_t, uint32_t);
 
         bool  page_test(int, const double *) const;
+        void  page_sub0(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  page_sub1(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  page_sub2(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  page_sub3(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  page_subn(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  page_subs(int, int, int, int, int, 
+                        const double *, const double *, int) const;
         void  page_draw(int, int, int, int, int, 
                         const double *, const double *, int) const;
 
         bool  gras_test(int, const double *) const;
+        void  gras_sub0(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  gras_sub1(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  gras_sub2(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  gras_sub3(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  gras_subn(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+        void  gras_subs(int, int, int, int, int, 
+                        const double *, const double *, int) const;
         void  gras_draw(int, int, int, int, int, 
                         const double *, const double *, int) const;
 

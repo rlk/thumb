@@ -178,8 +178,6 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
             // Copy all rows to the new texture.
 
-            printf("%s %d\n", name.c_str(), subsample);
-
             if (subsample == 1)
                 for (GLsizei i = 0, j = h - 1; j >= 0; ++i, --j)
                     memcpy(p + s * i, bp[j], s);

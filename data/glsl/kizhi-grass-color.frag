@@ -89,7 +89,6 @@ void main()
     vec2 T = vec2(gl_TexCoord[0].x, 1.0 - gl_TexCoord[0].y);
 
     vec4 D_0 = texture2D(diff_0, T);
-/*
     vec4 D_1 = texture2D(diff_1, T);
     vec4 D_2 = texture2D(diff_2, T);
 //  vec4 D_3 = texture2D(diff_3, T);
@@ -97,9 +96,8 @@ void main()
     vec4 D_5 = texture2D(diff_5, T);
 //  vec4 D_6 = texture2D(diff_6, T);
 //  vec4 D_7 = texture2D(diff_7, T);
-*/
-/*
-    vec3 D_c = (D_0 * D_a.r +
+
+    vec4 D_c = (D_0 * D_a.r +
                 D_1 * D_a.g +
                 D_2 * D_a.b +
 //              D_3 * D_a.a +
@@ -107,9 +105,6 @@ void main()
                 D_5 * D_b.g);
 //              D_6 * D_b.b +
 //              D_7 * D_b.a +
-*/              
-
-    vec4 D_c = (D_0 * D_a.r);
 
     // Look up the normal map.
 
