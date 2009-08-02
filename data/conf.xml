@@ -126,6 +126,7 @@
     <option name="hdr_bloom">1</option>
     <option name="texture_compression">1</option>
     -->
+    <option type="int" name="texture_subsample">2</option>
     <option name="z_only">false</option>
     <!-- Navigation options. -->
 <!--

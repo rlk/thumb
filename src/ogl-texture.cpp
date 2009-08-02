@@ -16,6 +16,7 @@
 
 #include "ogl-texture.hpp"
 #include "app-file.hpp"
+#include "app-conf.hpp"
 #include "app-data.hpp"
 
 //-----------------------------------------------------------------------------
@@ -31,7 +32,8 @@ ogl::texture::texture(std::string name) :
     filter (GL_LINEAR),
     intform(GL_RGBA),
     extform(GL_RGBA),
-    type   (GL_UNSIGNED_BYTE)
+    type   (GL_UNSIGNED_BYTE),
+    subsample(::conf->get_i("texture_subsample"))
 {
     init();
 }
@@ -133,6 +135,11 @@ void ogl::texture::load_png(const void *buf, size_t len)
         else if (!POT(width    ) || !POT(height    ))
             target = GL_TEXTURE_RECTANGLE_ARB;
 
+        // Allow subsampling only on 8-bit, non-bordered, power-of-two textures.
+
+        if (b != 1 || border != 0 || target != GL_TEXTURE_2D)
+            subsample = 1;
+
         // Switch to compressed textures, as requested.
 
         if (do_texture_compression)
@@ -145,6 +152,66 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
         // Read the pixel data.
 
+        if ((bp = png_get_rows(rp, ip)))
+        {
+            GLsizei  w = width  / subsample;
+            GLsizei  h = height / subsample;
+
+            GLsizei  s = (w + border * 2) * b * c;
+
+            GLubyte *p = new GLubyte[h * s];
+
+            // Initialize the texture object.
+
+            ogl::bind_texture(target, GL_TEXTURE0, object);
+
+            if (target == GL_TEXTURE_2D)
+            {
+                glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+                glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
+                                        GL_LINEAR_MIPMAP_LINEAR);
+            }
+
+            if (ogl::has_anisotropic)
+                glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                                              ogl::max_anisotropy);
+
+            // Copy all rows to the new texture.
+
+            printf("%s %d\n", name.c_str(), subsample);
+
+            if (subsample == 1)
+                for (GLsizei i = 0, j = h - 1; j >= 0; ++i, --j)
+                    memcpy(p + s * i, bp[j], s);
+            else
+            {
+                for (GLsizei i = 0; i < h; ++i)
+                    for (GLsizei j = 0; j < w; ++j)
+                        for (GLsizei k = 0; k < c; ++k)
+                        {
+                            int a = 0;
+
+                            for (GLsizei t = 0; t < subsample; ++t)
+                                for (GLsizei s = 0; s < subsample; ++s)
+                                {
+                                    GLsizei y = i * subsample + t;
+                                    GLsizei x = j * subsample + s;
+
+                                    a += int(bp[height - y - 1][x * c + k]);
+                                }
+
+                            p[(i * w + j) * c + k]
+                                = GLubyte(a / (subsample * subsample));
+                        }
+            }
+
+            glTexImage2D(target, 0, intform, w, h, border, extform, type, p);
+
+            delete [] p;
+
+            OGLCK();
+        }
+/*
         if ((bp = png_get_rows(rp, ip)))
         {
             GLsizei stride = (width + border * 2) * b * c;
@@ -178,6 +245,7 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
             OGLCK();
         }
+*/
     }
 
     // Release all resources.
@@ -236,7 +304,39 @@ static GLint filter_val(const std::string& name)
 
 //-----------------------------------------------------------------------------
 
-void ogl::texture::load_xml(std::string name)
+void ogl::texture::load_opt(std::string name)
+{
+    // Convert the image name to an XML parameter file name.
+
+    std::string path(name, 0, name.rfind("."));
+
+    path.append(".xml");
+
+    // Attempt to load the XML file.
+
+    try
+    {
+        app::file file(path.c_str());
+        app::node   root;
+        app::node   node;
+
+        if (app::node p = file.get_root().find("texture"))
+        {
+            // Parse and apply options.
+
+            for (app::node n = p.find("option"); n; n = p.next(n, "option"))
+            {
+                if ("subsample" == n.get_s("name"))
+                     subsample   = n.get_i("value");
+            }
+        }
+    }
+    catch (app::find_error& e)
+    {
+    }
+}
+
+void ogl::texture::load_prm(std::string name)
 {
     // Convert the image name to an XML parameter file name.
 
@@ -311,8 +411,9 @@ void ogl::texture::init()
 
     glGenTextures(1, &object);
 
+    load_opt(path);
     load_img(path);
-    load_xml(path);
+    load_prm(path);
 
     OGLCK();
 }

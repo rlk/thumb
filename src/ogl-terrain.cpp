@@ -54,12 +54,17 @@ ogl::terrain::terrain(std::string name) :
     head(0),
     page(0),
     vert(0),
-    material(0),
+    land_bind(0),
+    gras_bind(0),
     bound(0),
     vbo(0),
     s(100),
     h(10)
 {
+    double x = 0.0;
+    double y = 0.0;
+    double z = 0.0;
+
     app::file file("terrain/" + name);
 
     // Parse the configuration.
@@ -69,6 +74,9 @@ ogl::terrain::terrain(std::string name) :
         data = p.get_s("file");
         s    = p.get_f("size",  100.0);
         h    = p.get_f("height", 10.0);
+        x    = p.get_f("x",       0.0);
+        y    = p.get_f("y",       0.0);
+        z    = p.get_f("z",       0.0);
 
         if (!data.empty())
         {
@@ -83,7 +91,8 @@ ogl::terrain::terrain(std::string name) :
             }
         }
 
-        material = ::glob->load_binding(p.get_s("material"), "default.xml");
+        land_bind = ::glob->load_binding(p.get_s("land"),  "default.xml");
+        gras_bind = ::glob->load_binding(p.get_s("grass"), "default.xml");
     }
 
     // Initialize the transformation.
@@ -92,9 +101,11 @@ ogl::terrain::terrain(std::string name) :
     double zs =        h / 65536.0;
 
     load_rot_mat(M, 1, 0, 0, -90);
+    Rmul_xlt_mat(M, x, y, z);
     Rmul_scl_mat(M, xs, xs, zs);
 
     load_rot_inv(I, 1, 0, 0, -90);
+    Lmul_xlt_mat(I, x, y, z);
     Lmul_scl_inv(I, xs, xs, zs);
 
     // Intialize the view-space bounding volume cache.
@@ -129,7 +140,8 @@ ogl::terrain::~terrain()
 
     if (!data.empty()) ::data->free(data);
 
-    ::glob->free_binding(material);
+    ::glob->free_binding(gras_bind);
+    ::glob->free_binding(land_bind);
 }
 
 //-----------------------------------------------------------------------------
@@ -337,44 +349,114 @@ void ogl::terrain::page_draw(int k, int kn, int ks, int ke, int kw,
 
 //-----------------------------------------------------------------------------
 
+bool ogl::terrain::gras_test(int k, const double *p) const
+{
+    double d = bound[k].get_distance(p);
+/*
+    double e =  page[k].err * h / 65536;
+
+    if (d > 0.0)
+        return (atan2(e, d) < 0.005);
+    else
+        return !(page[k].ch[0] && page[k].ch[1] &&
+                 page[k].ch[2] && page[k].ch[3]);
+*/
+
+    if (d > 50.0)
+        return false;
+    else
+        return !(page[k].ch[0] && page[k].ch[1] &&
+                 page[k].ch[2] && page[k].ch[3]);
+}
+
+void ogl::terrain::gras_draw(int k, int kn, int ks, int ke, int kw,
+                             const double *p, const double *V, int n) const
+{
+    if (bound[k].test(V, n))
+    {
+        if (gras_test(k, p))
+        {
+            GLsizei vs = sizeof (vert_s);
+
+            glVertexPointer(3, GL_SHORT,
+                            vs, (GLvoid *) (vs * head->n * head->n * k));
+
+            glDrawArrays(GL_POINTS, 0, head->n * head->n);
+        }
+        else
+        {
+            const int k0 = page[k].ch[0];
+            const int k1 = page[k].ch[1];
+            const int k2 = page[k].ch[2];
+            const int k3 = page[k].ch[3];
+
+            if (k0) gras_draw(k0, k2, ks ? page[ks].ch[2] : 0,
+                                  k1, kw ? page[kw].ch[1] : 0, p, V, n);
+            if (k1) gras_draw(k1, k3, ks ? page[ks].ch[3] : 0,
+                                  ke ? page[ke].ch[0] : 0, k0, p, V, n);
+            if (k2) gras_draw(k2, kn ? page[kn].ch[0] : 0, k0,
+                                  k3, kw ? page[kw].ch[3] : 0, p, V, n);
+            if (k3) gras_draw(k3, kn ? page[kn].ch[1] : 0, k1,
+                                  ke ? page[ke].ch[2] : 0, k2, p, V, n);
+        }
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 void ogl::terrain::draw(const double *p,
                         const double *V, int n) const
 {
     if (page && head->c > 0)
     {
-        glUseProgramObjectARB(0);
         glPointSize(3.0);
-
-        if (material)
-            material->bind(true);
 
         glEnableClientState(GL_VERTEX_ARRAY);
         {
             glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
-/*
-            glDisable(GL_BLEND);
-            glColor4f(0.4f, 0.4f, 0.4f, 1.0f);
-*/
+
+            //
+
+            if (land_bind)
+                land_bind->bind(true);
+
             glPushMatrix();
             {
                 glMultMatrixd(M);
                 page_draw(0, 0, 0, 0, 0, p, V, n);
             }
             glPopMatrix();
-/*
-            ogl::line_state_init();
-            glBlendFunc(GL_ONE, GL_ONE);
-            glLineWidth(0.5);
+
+            //
+
+            if (gras_bind)
+                gras_bind->bind(true);
+
+            glEnable(GL_POINT_SPRITE_ARB);
+            glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+
+            ogl::curr_texture(GL_TEXTURE0);
+            glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE); 
+
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+//          glDepthMask(GL_FALSE);
+            glEnable(GL_ALPHA_TEST);
+            glAlphaFunc(GL_GREATER, 0.1);
             glPushMatrix();
             {
-                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glTranslatef(0.0, 0.5, 0.0);
                 glMultMatrixd(M);
-                page_draw(0, 0, 0, 0, 0, p, V, n);
-                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                gras_draw(0, 0, 0, 0, 0, p, V, n);
             }
             glPopMatrix();
-            ogl::line_state_fini();
-*/
+            glDisable(GL_ALPHA_TEST);
+//          glDepthMask(GL_TRUE);
+
+            glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
+            glDisable(GL_POINT_SPRITE_ARB);
+
             glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
             glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
         }

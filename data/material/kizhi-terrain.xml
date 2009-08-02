@@ -4,7 +4,6 @@
     <program mode="color" file="kizhi-terrain-color.xml">
 
       <texture sampler="diff_map"  name="kizhi-map-4K.png" />
-      <texture sampler="diff_atl"  name="kizhi-atl-512.png" />
       <texture sampler="norm_map"  name="kizhi-normal-4K.png" />
 <!--
       <texture sampler="diff_0"  name="kizhi_longgrass_diffuse.png" />

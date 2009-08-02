@@ -46,7 +46,8 @@ namespace ogl
         const page_s *page;
         const vert_s *vert;
 
-        const ogl::binding *material;
+        const ogl::binding *land_bind;
+        const ogl::binding *gras_bind;
 
         ogl::uniform *uniform_terrain_size;
 
@@ -67,6 +68,10 @@ namespace ogl
 
         bool  page_test(int, const double *) const;
         void  page_draw(int, int, int, int, int, 
+                        const double *, const double *, int) const;
+
+        bool  gras_test(int, const double *) const;
+        void  gras_draw(int, int, int, int, int, 
                         const double *, const double *, int) const;
 
     public:
