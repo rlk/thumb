@@ -728,10 +728,10 @@ void ogl::terrain::init()
 void ogl::terrain::fini()
 {
     for (int i = 0; i < 8; ++i)
-        glDeleteBuffers(4, g_ibo[i]);
+        glDeleteBuffersARB(4, g_ibo[i]);
 
-    glDeleteBuffers(16, p_ibo);
-    glDeleteBuffers(1, &vbo);
+    glDeleteBuffersARB(16, p_ibo);
+    glDeleteBuffersARB(1, &vbo);
     vbo = 0;
 }
 
