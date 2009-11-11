@@ -13,6 +13,8 @@
 #ifndef DANPART_HPP
 #define DANPART_HPP
 
+#include <cuda.h>
+
 #include "app-prog.hpp"
 
 //-----------------------------------------------------------------------------
@@ -37,6 +39,11 @@ class danpart : public app::prog
     bool process_timer(app::event *);
 
     double pos[3];
+
+    // CUDA state.
+
+    CUdevice  device;
+    CUcontext context;
 
     void cuda_init();
     void cuda_fini();

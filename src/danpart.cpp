@@ -33,23 +33,33 @@
 
 //-----------------------------------------------------------------------------
 
-#include <cuda.h>
+static void warn(const char *str)
+{
+    std::cerr << str << std::endl;
+}
 
 void danpart::cuda_init()
 {
     if (cuInit(0) == CUDA_SUCCESS)
     {
-        int c = 0;
-
-        cuDeviceGetCount(&c);
-
-        printf("CUDA device count = %d\n", c);
+        if (cuDeviceGet(&device, 0) == CUDA_SUCCESS)
+        {
+            if (cuCtxCreate(&context, 0, device) == CUDA_SUCCESS)
+            {
+            }
+            else warn("CUDA create context failed");
+        }
+        else warn("CUDA get device failed");
     }
-    else printf("CUDA failed to initialize.\n");
+    else warn("CUDA initialization failed");
 }
 
 void danpart::cuda_fini()
 {
+    if (cuCtxDestroy(context) == CUDA_SUCCESS)
+    {
+    }
+    else warn("CUDA destroy context failed");
 }
 
 //-----------------------------------------------------------------------------
