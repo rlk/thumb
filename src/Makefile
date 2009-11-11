@@ -63,6 +63,7 @@ OBJS=   util.o \
 	app-glob.o \
 	app-data.o \
 	app-prog.o \
+	danpart.o \
 	demo.o \
 	main.o \
 	uni-geomap.o \
@@ -96,14 +97,15 @@ ifeq "$(MAKE)" "mingw32-make"
 else #-------------------------------------------------------------------------
 # Linux/OSX build
 
-	INCDIR += -I$(HOME)/include
-	LIBDIR += -L$(HOME)/lib
+	INCDIR += -I$(HOME)/include -I/usr/local/cuda/include
+	LIBDIR += -L$(HOME)/lib     -L/usr/local/cuda/lib64
 
 	CFLAGS += $(shell $(SDLCONF) --cflags) \
 		  $(shell $(FT2CONF) --cflags)
 	LIBS    = $(shell $(SDLCONF) --libs) \
 		  $(shell $(FT2CONF) --libs) \
-		-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
+		-lcuda -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
+#	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 endif
 
 #------------------------------------------------------------------------------
@@ -124,7 +126,8 @@ endif
 	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $<
 #	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $< > /dev/null
 
-%.o : %.cpp Makefile
+#%.o : %.cpp Makefile
+%.o : %.cpp
 	$(CC) $(CFLAGS) $(INCDIR) -c $<
 
 #------------------------------------------------------------------------------

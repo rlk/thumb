@@ -19,6 +19,7 @@
 #include "main.hpp"
 #include "util.hpp"
 #include "demo.hpp"
+#include "danpart.hpp"
 #include "app-host.hpp"
 #include "app-data.hpp"
 #include "app-conf.hpp"
@@ -226,8 +227,10 @@ static void init(std::string tag)
     user = new app::user();
     glob = new app::glob();
     perf = new app::perf();
-    prog = new demo(host->get_buffer_w(),
-                    host->get_buffer_h());
+    prog = new danpart();
+
+//  prog = new demo(::host->get_buffer_w(),
+//                  ::host->get_buffer_h());
 
     // Initialize the controllers.
 

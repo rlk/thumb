@@ -64,10 +64,10 @@ void app::host::fork_client(const char *name,
     {
         std::string dir = ::conf->get_s("exec_dir");
 
-//      sprintf(line, "/bin/sh -c 'cd %s; DISPLAY=%s ./thumb %s'",
-//              dir.c_str(), disp ? disp : ":0.0", name);
-        sprintf(line, "/bin/sh -c 'cd %s; ./thumb %s'",
-                dir.c_str(), name);
+        sprintf(line, "/bin/sh -c 'cd %s; DISPLAY=%s ./thumb %s'",
+                dir.c_str(), disp ? disp : ":0.0", name);
+//      sprintf(line, "/bin/sh -c 'cd %s; ./thumb %s'",
+//              dir.c_str(), name);
 
         // Allocate and build the client's ssh command line.
 
