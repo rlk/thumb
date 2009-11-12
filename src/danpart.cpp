@@ -32,9 +32,11 @@
 #include "dev-gamepad.hpp"
 
 #include <cudaGL.h>
-#include <cuda_runtime.h>
 
 //-----------------------------------------------------------------------------
+
+#define ALIGN_UP(offset, alignment) \
+    (offset) = ((offset) + (alignment) - 1) & ~((alignment) - 1)
 
 static void warn(const char *str)
 {
@@ -52,20 +54,19 @@ GLuint vbo_init(int w, int h)
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
     glBufferDataARB(GL_ARRAY_BUFFER_ARB, size, 0, GL_DYNAMIC_DRAW);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-/*
+
     if (cuGLRegisterBufferObject(vbo) != CUDA_SUCCESS)
         warn("CUDA register VBO failed");
-*/
+
     return vbo;
 }
 
 void vbo_fini(GLuint vbo)
 {
     glDeleteBuffersARB(1, &vbo);
-/*
+
     if (cuGLUnregisterBufferObject(vbo) != CUDA_SUCCESS)
         warn("CUDA unregister VBO failed");
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -78,6 +79,15 @@ void danpart::cuda_init()
         {
             if (cuGLCtxCreate(&context, 0, device) == CUDA_SUCCESS)
             {
+                if (cuModuleLoad(&module, "src/danpart.ptx") == CUDA_SUCCESS)
+                {
+                    if (cuModuleGetFunction(&function, module, "danpart") == CUDA_SUCCESS)
+                    {
+                        // YAY!
+                    }
+                    else warn("CUDA get function failed");
+                }
+                else warn("CUDA module load failed");
             }
             else warn("CUDA create context failed");
         }
@@ -96,34 +106,84 @@ void danpart::cuda_fini()
 
 void danpart::cuda_step()
 {
-/*
-    // map OpenGL buffer object for writing from CUDA
-    float4 *dptr;
+    CUdeviceptr d_vbo;
+    unsigned int size;
 
     float r1, r2, r3;
     
     r1 = 0.0001 * (rand()%10000);
     r2 = 0.0001 * (rand()%10000);
     r3 = 0.0001 * (rand()%10000);
+
     //printf ("r1 r2 r3 %f %f %f \n",r1,r2,r3);
-    targetX = sin(0.05 * anim);
-    targetY = cos(0.03 * anim);
-    targetZ = 0; 
 
     anim += 0.5;
 
+    // Map the buffer object.
 
-    CUDA_SAFE_CALL(cudaGLMapBufferObject( (void**)&dptr, vbo));
+    if (cuGLMapBufferObject(&d_vbo, &size, vbo) != CUDA_SUCCESS)
+        warn("CUDA GL map buffer failed");
 
-    // execute the kernel
+/*
     dim3 block(8, 8, 1);
     dim3 grid(mesh_width / block.x, mesh_height / block.y, 1);
     kernel<<< grid, block>>>(dptr, d_particleData, mesh_width, mesh_height,
 				max_age, anim, r1,r2,r3);
-
-    // unmap buffer object
-    CUDA_SAFE_CALL(cudaGLUnmapBufferObject( vbo));
 */
+
+    // Set the kernel parameters.
+
+    int offset = 0;
+    void *p;
+
+    p = (void *) (size_t) d_vbo;
+    ALIGN_UP(offset, __alignof(p));
+    cuParamSetv(function, offset, &p, sizeof (p));
+    offset += sizeof (p);
+
+    p = (void *) (size_t) d_particleData;
+    ALIGN_UP(offset, __alignof(p));
+    cuParamSetv(function, offset, &p, sizeof (p));
+    offset += sizeof (p);
+
+    ALIGN_UP(offset, __alignof(mesh_width));
+    cuParamSeti(function, offset, mesh_width);
+    offset += sizeof (mesh_width);
+
+    ALIGN_UP(offset, __alignof(mesh_height));
+    cuParamSeti(function, offset, mesh_height);
+    offset += sizeof (mesh_height);
+
+    ALIGN_UP(offset, __alignof(max_age));
+    cuParamSeti(function, offset, max_age);
+    offset += sizeof (max_age);
+
+    ALIGN_UP(offset, __alignof(anim));
+    cuParamSetf(function, offset, anim);
+    offset += sizeof (anim);
+
+    ALIGN_UP(offset, __alignof(r1));
+    cuParamSetf(function, offset, r1);
+    offset += sizeof (r1);
+
+    ALIGN_UP(offset, __alignof(r2));
+    cuParamSetf(function, offset, r2);
+    offset += sizeof (r2);
+
+    ALIGN_UP(offset, __alignof(r3));
+    cuParamSetf(function, offset, r3);
+    offset += sizeof (r3);
+
+    // Execute the kernel.
+
+    cuParamSetSize     (function, offset);
+    cuFuncSetBlockShape(function, 8, 8, 1);
+    cuLaunchGrid       (function, mesh_width / 8, mesh_height / 8);
+
+    // Unmap buffer object.
+
+    if (cuGLUnmapBufferObject(vbo) != CUDA_SUCCESS)
+        warn("CUDA GL unmap buffer failed");
 }
 
 //-----------------------------------------------------------------------------
@@ -136,7 +196,7 @@ void danpart::data_init()
 
     if ((h_particleData = (float *) malloc(size)))
     {
-        if (cudaMalloc((void **) &d_particleData, size) == cudaSuccess)
+        if (cuMemAlloc(&d_particleData, size) == CUDA_SUCCESS)
         {
             for (int i = 0; i < mesh_width * mesh_height; ++i)
         	{
@@ -151,7 +211,7 @@ void danpart::data_init()
             	h_particleData[4*i+3] = -10000;
         	}
 
-        	cudaMemcpy(d_particleData, h_particleData, size, cudaMemcpyHostToDevice);
+        	cuMemcpyHtoD(d_particleData, h_particleData, size);
         }
         else warn("CUDA malloc failed");
     }
@@ -162,7 +222,7 @@ void danpart::data_init()
 
 danpart::danpart() :
     input(0),
-
+    anim(0),
     max_age    (2000),
     mesh_width (1024),
     mesh_height(1024)
@@ -261,7 +321,7 @@ ogl::range danpart::prep(int frusc, const app::frustum *const *frusv)
 {
     ogl::range r(1.0, 100.0);
 
-//    cuda_step();
+    cuda_step();
 
     return r;
 }
@@ -274,7 +334,7 @@ void danpart::draw(int frusi, const app::frustum *frusp)
 {
     // Clear the render target.
 
-    glClearColor(1.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
@@ -310,7 +370,7 @@ void danpart::draw(int frusi, const app::frustum *frusp)
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
     // Draw the test triangle.
-
+/*
     glPushMatrix();
     glTranslatef(pos[0], pos[1], pos[2]);
     glBegin(GL_TRIANGLES);
@@ -322,6 +382,7 @@ void danpart::draw(int frusi, const app::frustum *frusp)
     }
     glEnd();
     glPopMatrix();    
+*/
 }
 
 //-----------------------------------------------------------------------------

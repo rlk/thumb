@@ -43,9 +43,11 @@ class danpart : public app::prog
 
     // CUDA state.
 
-    CUdevice  device;
-    CUcontext context;
-    GLuint    vbo;
+    CUdevice   device;
+    CUcontext  context;
+    CUmodule   module;
+    CUfunction function;
+    GLuint     vbo;
 
     void cuda_init();
     void cuda_fini();
@@ -53,12 +55,13 @@ class danpart : public app::prog
 
     // Particle system state.
 
-    int max_age;
-    int mesh_width;
-    int mesh_height;
+    float anim;
+    int   max_age;
+    int   mesh_width;
+    int   mesh_height;
 
-    float *h_particleData;
-    float *d_particleData;
+    CUdeviceptr d_particleData;
+    float      *h_particleData;
 
     void data_init();
 
