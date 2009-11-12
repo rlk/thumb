@@ -31,6 +31,9 @@
 #include "dev-tracker.hpp"
 #include "dev-gamepad.hpp"
 
+#include <cudaGL.h>
+#include <cuda_runtime.h>
+
 //-----------------------------------------------------------------------------
 
 static void warn(const char *str)
@@ -38,13 +41,42 @@ static void warn(const char *str)
     std::cerr << str << std::endl;
 }
 
+//-----------------------------------------------------------------------------
+
+GLuint vbo_init(int w, int h)
+{
+    GLsizei size = 8 * w * h * sizeof (float);
+    GLuint vbo;
+
+    glGenBuffersARB(1, &vbo);
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
+    glBufferDataARB(GL_ARRAY_BUFFER_ARB, size, 0, GL_DYNAMIC_DRAW);
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+/*
+    if (cuGLRegisterBufferObject(vbo) != CUDA_SUCCESS)
+        warn("CUDA register VBO failed");
+*/
+    return vbo;
+}
+
+void vbo_fini(GLuint vbo)
+{
+    glDeleteBuffersARB(1, &vbo);
+/*
+    if (cuGLUnregisterBufferObject(vbo) != CUDA_SUCCESS)
+        warn("CUDA unregister VBO failed");
+*/
+}
+
+//-----------------------------------------------------------------------------
+
 void danpart::cuda_init()
 {
     if (cuInit(0) == CUDA_SUCCESS)
     {
         if (cuDeviceGet(&device, 0) == CUDA_SUCCESS)
         {
-            if (cuCtxCreate(&context, 0, device) == CUDA_SUCCESS)
+            if (cuGLCtxCreate(&context, 0, device) == CUDA_SUCCESS)
             {
             }
             else warn("CUDA create context failed");
@@ -62,9 +94,78 @@ void danpart::cuda_fini()
     else warn("CUDA destroy context failed");
 }
 
+void danpart::cuda_step()
+{
+/*
+    // map OpenGL buffer object for writing from CUDA
+    float4 *dptr;
+
+    float r1, r2, r3;
+    
+    r1 = 0.0001 * (rand()%10000);
+    r2 = 0.0001 * (rand()%10000);
+    r3 = 0.0001 * (rand()%10000);
+    //printf ("r1 r2 r3 %f %f %f \n",r1,r2,r3);
+    targetX = sin(0.05 * anim);
+    targetY = cos(0.03 * anim);
+    targetZ = 0; 
+
+    anim += 0.5;
+
+
+    CUDA_SAFE_CALL(cudaGLMapBufferObject( (void**)&dptr, vbo));
+
+    // execute the kernel
+    dim3 block(8, 8, 1);
+    dim3 grid(mesh_width / block.x, mesh_height / block.y, 1);
+    kernel<<< grid, block>>>(dptr, d_particleData, mesh_width, mesh_height,
+				max_age, anim, r1,r2,r3);
+
+    // unmap buffer object
+    CUDA_SAFE_CALL(cudaGLUnmapBufferObject( vbo));
+*/
+}
+
 //-----------------------------------------------------------------------------
 
-danpart::danpart() : input(0)
+void danpart::data_init()
+{
+    size_t size = 4 * mesh_width * mesh_height * sizeof (float);
+
+    srand(time(NULL));
+
+    if ((h_particleData = (float *) malloc(size)))
+    {
+        if (cudaMalloc((void **) &d_particleData, size) == cudaSuccess)
+        {
+            for (int i = 0; i < mesh_width * mesh_height; ++i)
+        	{
+            	// set age to random ages < max age to force a respawn of the particle
+
+            	h_particleData[4*i] = rand() % max_age; // age
+
+            	// set all the velocities to get them off the screen
+
+            	h_particleData[4*i+1] = -10000;
+            	h_particleData[4*i+2] = -10000;
+            	h_particleData[4*i+3] = -10000;
+        	}
+
+        	cudaMemcpy(d_particleData, h_particleData, size, cudaMemcpyHostToDevice);
+        }
+        else warn("CUDA malloc failed");
+    }
+    else warn("Particle buffer malloc failed");
+}
+
+//-----------------------------------------------------------------------------
+
+danpart::danpart() :
+    input(0),
+
+    max_age    (2000),
+    mesh_width (1024),
+    mesh_height(1024)
 {
     std::string input_mode = conf->get_s("input_mode");
 
@@ -75,10 +176,14 @@ danpart::danpart() : input(0)
     else                              input = new dev::mouse  ();
 
     cuda_init();
+    vbo = vbo_init(mesh_width, mesh_height);
+    data_init();
 }
 
 danpart::~danpart()
 {
+    vbo_fini(vbo);
+
     cuda_fini();
 
     if (input) delete input;
@@ -156,6 +261,8 @@ ogl::range danpart::prep(int frusc, const app::frustum *const *frusv)
 {
     ogl::range r(1.0, 100.0);
 
+//    cuda_step();
+
     return r;
 }
 
@@ -171,10 +278,38 @@ void danpart::draw(int frusi, const app::frustum *frusp)
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
+    // Apply the projection and view transformations.
+
      frusp->draw();
     ::user->draw();
 
+    // Drop back to the fixed-function pipeline.
+
     glUseProgramObjectARB(0);
+
+    // Draw the particle array.
+
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
+    {
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glEnableClientState(GL_COLOR_ARRAY);
+        {
+            size_t size = 4 * mesh_width * mesh_height * sizeof (float);
+
+            glVertexPointer(4, GL_FLOAT, 0, 0);
+            glColorPointer (4, GL_FLOAT, 0, (GLvoid *) size);
+
+            glColor3f(1.0, 0.5, 0.0);
+    	    glPointSize(2.0);
+
+            glDrawArrays(GL_POINTS, 0, mesh_width * mesh_height);
+        }
+        glDisableClientState(GL_COLOR_ARRAY);
+        glDisableClientState(GL_VERTEX_ARRAY);
+    }
+    glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+
+    // Draw the test triangle.
 
     glPushMatrix();
     glTranslatef(pos[0], pos[1], pos[2]);
@@ -186,7 +321,7 @@ void danpart::draw(int frusi, const app::frustum *frusp)
         glVertex3f(0.0f, 1.0f, 0.0f);
     }
     glEnd();
-    glPopMatrix();
+    glPopMatrix();    
 }
 
 //-----------------------------------------------------------------------------

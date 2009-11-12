@@ -13,9 +13,10 @@
 #ifndef DANPART_HPP
 #define DANPART_HPP
 
-#include <cuda.h>
-
+#include "ogl-opengl.hpp"
 #include "app-prog.hpp"
+
+#include <cuda.h>
 
 //-----------------------------------------------------------------------------
 
@@ -44,9 +45,22 @@ class danpart : public app::prog
 
     CUdevice  device;
     CUcontext context;
+    GLuint    vbo;
 
     void cuda_init();
     void cuda_fini();
+    void cuda_step();
+
+    // Particle system state.
+
+    int max_age;
+    int mesh_width;
+    int mesh_height;
+
+    float *h_particleData;
+    float *d_particleData;
+
+    void data_init();
 
 public:
 

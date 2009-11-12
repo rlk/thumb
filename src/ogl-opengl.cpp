@@ -388,11 +388,6 @@ static void init_state(bool multisample)
 {
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glEnableClientState(GL_NORMAL_ARRAY);
-    glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-    glEnableVertexAttribArrayARB(6);
-
     if (ogl::has_multisample && multisample)
         glEnable(GL_MULTISAMPLE_ARB);
 }

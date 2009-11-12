@@ -104,7 +104,7 @@ else #-------------------------------------------------------------------------
 		  $(shell $(FT2CONF) --cflags)
 	LIBS    = $(shell $(SDLCONF) --libs) \
 		  $(shell $(FT2CONF) --libs) \
-		-lcuda -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
+		-lcuda -lcudart -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 #	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 endif
 
