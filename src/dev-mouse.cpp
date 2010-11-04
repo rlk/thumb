@@ -12,6 +12,7 @@
 
 #include <cassert>
 
+#include <SDL.h>
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
@@ -84,7 +85,7 @@ bool dev::mouse::process_point(app::event *E)
     load_mat(init_R, curr_R);
 
     set_quaternion(curr_R, E->data.point.q);
-
+    
     if (dragging)
     {
         double p0 = DEG(atan2(init_R[9], init_R[10]));

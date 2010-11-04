@@ -259,6 +259,8 @@ void app::user::look(double dt, double dp)
     const double y = current_M[13];
     const double z = current_M[14];
 
+    printf("%f %f\n", dt, dp);
+
     // Apply a mouselook-style local rotation transform.
 
     Lmul_xlt_inv(current_M, x, y, z);

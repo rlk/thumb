@@ -10,6 +10,7 @@
 
 #include <cassert>
 
+#include <SDL.h>
 #include <SDL_keyboard.h>
 
 #include "matrix.hpp"

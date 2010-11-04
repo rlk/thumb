@@ -2,7 +2,7 @@
 dan Sandin 8-22-10
 */
 
-#include "danGlobs.cxx"
+#include "danglobs.cpp"
 __constant__ float  refldata[REFL_DATA_MUNB][REFL_DATA_ROWS][REFL_DATA_ROW_ELEM];
 __constant__ float  injdata[INJT_DATA_MUNB][INJT_DATA_ROWS][INJT_DATA_ROW_ELEM];
 

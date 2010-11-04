@@ -32,7 +32,7 @@ ifeq ($(shell uname), Darwin)
 	FT2CONF = /opt/local/bin/freetype-config
 	INCDIR  = -I/opt/local/include
 	LIBDIR  = -L/opt/local/lib
-	OGLLIB  = -framework OpenGL
+	OGLLIB  = -framework OpenGL -framework ApplicationServices
 else
 	SDLCONF = sdl-config
 	FT2CONF = freetype-config

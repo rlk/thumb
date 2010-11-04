@@ -13,7 +13,8 @@
 #include <iostream>
 #include <cstring>
 
-#include <SDL/SDL_keyboard.h>
+#include <SDL.h>
+#include <SDL_keyboard.h>
 
 #include "ogl-opengl.hpp"
 #include "ogl-uniform.hpp"

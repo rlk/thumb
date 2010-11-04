@@ -13,6 +13,7 @@
 #include <iostream>
 #include <cstring>
 
+#include <SDL.h>
 #include <SDL/SDL_keyboard.h>
 
 #include "../ogl-opengl.hpp"
@@ -29,7 +30,6 @@
 #include "../dev-tracker.hpp"
 #include "../dev-gamepad.hpp"
 
-#include <SDL.h>
 #include <cuda.h>
 #include <cudaGL.h>
 
@@ -544,8 +544,8 @@ danpart::danpart() :
     input(0),
     anim(0),
     max_age    (2000),
-    mesh_width (256),
-    mesh_height(256)
+    mesh_width (1024),
+    mesh_height(1024)
 {
     std::string input_mode = conf->get_s("input_mode");
 

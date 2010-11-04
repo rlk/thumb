@@ -47,6 +47,7 @@ app::perf *perf;
 
 double get_key(int i)
 {
+    /*
     int    n;
     Uint8 *k = SDL_GetKeyState(&n);
 
@@ -54,6 +55,8 @@ double get_key(int i)
         return 1.0;
     else
         return 0.0;
+    */
+    return 0.0;
 }
 
 //-----------------------------------------------------------------------------

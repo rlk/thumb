@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstring>
 
+#include <SDL.h>
 #include <SDL_keyboard.h>
 
 #include "util.hpp"
