@@ -15,27 +15,29 @@
 
 #include <SDL/SDL_keyboard.h>
 
-#include "ogl-opengl.hpp"
-#include "ogl-uniform.hpp"
+#include "../ogl-opengl.hpp"
+#include "../ogl-uniform.hpp"
 
-#include "danpart.hpp"
+#include "../app-frustum.hpp"
+#include "../app-event.hpp"
+#include "../app-conf.hpp"
+#include "../app-user.hpp"
+#include "../app-host.hpp"
+#include "../app-glob.hpp"
 
-#include "app-frustum.hpp"
-#include "app-event.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-host.hpp"
-#include "app-glob.hpp"
+#include "../dev-mouse.hpp"
+#include "../dev-tracker.hpp"
+#include "../dev-gamepad.hpp"
 
-#include "dev-mouse.hpp"
-#include "dev-tracker.hpp"
-#include "dev-gamepad.hpp"
 #include <SDL.h>
+#include <cuda.h>
 #include <cudaGL.h>
+
 //My helper funtions
 
-#include "danGlobs.cxx"
-#include "danutils.cxx"
+#include "danpart.hpp"
+#include "danGlobs.cpp"
+#include "danutils.cpp"
 //-----------------------------------------------------------------------------
 
 #define ALIGN_UP(offset, alignment) \
@@ -82,7 +84,7 @@ void danpart::cuda_init()
         {
             if (cuGLCtxCreate(&context, 0, device) == CUDA_SUCCESS)
             {
-                if (cuModuleLoad(&module, "src/danpart.ptx") == CUDA_SUCCESS)
+                if (cuModuleLoad(&module, "src/dan/danpart.ptx") == CUDA_SUCCESS)
                 {
                     if (cuModuleGetFunction(&funcHandPoint1, module, "Point1") == CUDA_SUCCESS)
                     {

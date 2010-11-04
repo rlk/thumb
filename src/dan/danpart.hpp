@@ -13,11 +13,11 @@
 #ifndef DANPART_HPP
 #define DANPART_HPP
 
-#include "ogl-opengl.hpp"
-#include "app-prog.hpp"
+#include "../ogl-opengl.hpp"
+#include "../app-prog.hpp"
 
 #include <cuda.h>
-#include "danGlobs.cxx"
+#include "danglobs.cpp"
 //-----------------------------------------------------------------------------
 
 namespace dev

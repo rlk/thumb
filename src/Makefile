@@ -63,7 +63,6 @@ OBJS=   util.o \
 	app-glob.o \
 	app-data.o \
 	app-prog.o \
-	danpart.o \
 	demo.o \
 	main.o \
 	uni-geomap.o \
@@ -75,7 +74,9 @@ OBJS=   util.o \
 	uni-galaxy.o \
 	uni-slides.o \
 	uni-overlay.o \
-	uni-universe.o
+	uni-universe.o \
+	dan/danpart.o
+
 
 #	dev-wiimote.o \
 #	dpy-dome.o \
@@ -128,7 +129,7 @@ endif
 
 #%.o : %.cpp Makefile
 %.o : %.cpp
-	$(CC) $(CFLAGS) $(INCDIR) -c $<
+	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
 
 #------------------------------------------------------------------------------
 

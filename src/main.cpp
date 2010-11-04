@@ -19,7 +19,6 @@
 #include "main.hpp"
 #include "util.hpp"
 #include "demo.hpp"
-#include "danpart.hpp"
 #include "app-host.hpp"
 #include "app-data.hpp"
 #include "app-conf.hpp"
@@ -28,6 +27,8 @@
 #include "app-user.hpp"
 #include "app-perf.hpp"
 #include "ogl-opengl.hpp"
+
+#include "dan/danpart.hpp"
 
 //-----------------------------------------------------------------------------
 // Global application state.
