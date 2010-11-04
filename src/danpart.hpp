@@ -17,7 +17,7 @@
 #include "app-prog.hpp"
 
 #include <cuda.h>
-
+#include "danGlobs.cxx"
 //-----------------------------------------------------------------------------
 
 namespace dev
@@ -36,22 +36,30 @@ class danpart : public app::prog
     // Event handlers
 
     bool process_keybd(app::event *);
+    bool process_click(app::event *);
     bool process_point(app::event *);
     bool process_timer(app::event *);
 
-    double pos[3];
+    double headPos[3];
+    double wandPos[3];
+    double headVec[3];
+    double wandVec[3];
+	int trackDevID;
+	float state ;
 
     // CUDA state.
-
+// multpul function
     CUdevice   device;
     CUcontext  context;
     CUmodule   module;
-    CUfunction function;
-    GLuint     vbo;
+    CUfunction funcHandPoint1;
+    CUfunction funcHandPointSquars;
+   GLuint     vbo;
 
     void cuda_init();
     void cuda_fini();
     void cuda_step();
+    void cuda_stepPointSquars();
 
     // Particle system state.
 
@@ -62,8 +70,17 @@ class danpart : public app::prog
 
     CUdeviceptr d_particleData;
     float      *h_particleData;
-
+    //CUdeviceptr d_injectorData;
+    float      h_injectorData[INJT_DATA_MUNB][INJT_DATA_ROWS][INJT_DATA_ROW_ELEM];
+    //CUdeviceptr d_reflectorData;
+    float      h_reflectorData[REFL_DATA_MUNB][REFL_DATA_ROWS][REFL_DATA_ROW_ELEM];
+    CUdeviceptr d_debugData;
+    float      *h_debugData;
+	size_t sizeDebug;
+	size_t sizei;
+	size_t sizeRefl;
     void data_init();
+	
 
 public:
 

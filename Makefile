@@ -2,10 +2,13 @@
 
 TARG= thumb
 APP= Thumb.app
+
 #------------------------------------------------------------------------------
 
-$(TARG) :
+$(TARG) : FORCE
 	$(MAKE) -C src
+
+FORCE :
 
 clean :
 	$(MAKE) -C src clean

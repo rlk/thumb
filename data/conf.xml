@@ -3,8 +3,6 @@
     <!-- Host configuration -->
 <!--<option name="host_file">host/local-cluster.xml</option>-->
     <option name="host_file">host/common.xml</option>
-    <option name="exec_dir">/home/dan/thumb/</option>
-    <option name="data_dir">/home/dan/thumb/data/</option>
     <option name="input_mode">mouse</option>
     <option name="wiimote">00:1B:7A:3E:45:7F</option>
     <option name="loader_threads">2</option>
@@ -18,6 +16,10 @@
     <option name="movie">0</option>
     <option name="mipmap">best</option>
     <option name="texel_cutoff">0.5</option>
+    <!-- Cluster executable location -->
+    <option name="exec_dir">/home/dan/thumb/</option>
+    <!-- geomap data location -->
+     <option name="data_dir">/home/dan/thumb/data/</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>
     <option name="multisample_buffers">0</option>
@@ -128,11 +130,7 @@
     <option type="int" name="texture_subsample">2</option>
     <option name="z_only">false</option>
     <!-- Navigation options. -->
-<!--
-    <option name="view_move_rate">0.15000</option>
-    <option name="view_turn_rate">1.00000</option>
--->
-    <option name="view_move_rate">1.00000</option>
+    <option name="view_move_rate">5.00000</option>
     <option name="view_turn_rate">2.00000</option>
     <!-- Misc. options -->
     <option name="screenshot_file">snap.png</option>

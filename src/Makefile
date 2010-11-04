@@ -98,7 +98,7 @@ else #-------------------------------------------------------------------------
 # Linux/OSX build
 
 	INCDIR += -I$(HOME)/include -I/usr/local/cuda/include
-	LIBDIR += -L$(HOME)/lib     -L/usr/local/cuda/lib64
+	LIBDIR += -L$(HOME)/lib     -L/usr/local/cuda/lib
 
 	CFLAGS += $(shell $(SDLCONF) --cflags) \
 		  $(shell $(FT2CONF) --cflags)

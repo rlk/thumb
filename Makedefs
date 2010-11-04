@@ -41,5 +41,5 @@ endif
 
 #------------------------------------------------------------------------------
 
-INCDIR += -I$(HOME)/rlk/include
-LIBDIR += -L$(HOME)/rlk/lib
+INCDIR += -I$(HOME)/include
+LIBDIR += -L$(HOME)/lib
