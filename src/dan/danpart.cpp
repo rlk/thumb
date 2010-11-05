@@ -36,8 +36,9 @@
 //My helper funtions
 
 #include "danpart.hpp"
-#include "danGlobs.cpp"
+#include "danglobs.cpp"
 #include "danutils.cpp"
+
 //-----------------------------------------------------------------------------
 
 #define ALIGN_UP(offset, alignment) \
@@ -159,7 +160,6 @@ void danpart::cuda_stepPointSquars()
 		}
 	
     int offset = 0;
-/*
     void *p;
 
     p = (void *) (size_t) d_vbo;
@@ -171,7 +171,8 @@ void danpart::cuda_stepPointSquars()
     ALIGN_UP(offset, __alignof(p));
     cuParamSetv(funcHandPointSquars, offset, &p, sizeof (p));
     offset += sizeof (p);
-*/
+
+/*
     ALIGN_UP(offset, __alignof(d_vbo));
     cuParamSetv(funcHandPointSquars, offset, &d_vbo, sizeof (d_vbo));
     offset += sizeof (d_vbo);
@@ -179,6 +180,7 @@ void danpart::cuda_stepPointSquars()
     ALIGN_UP(offset, __alignof(d_particleData));
     cuParamSetv(funcHandPointSquars, offset, &d_particleData, sizeof (d_particleData));
     offset += sizeof (d_particleData);
+*/
 
     ALIGN_UP(offset, __alignof(mesh_width));
     cuParamSeti(funcHandPointSquars, offset, mesh_width);
@@ -364,7 +366,6 @@ void danpart::cuda_step()
 		}
 	
     int offset = 0;
-    /*
     void *p;
 
     p = (void *) (size_t) d_vbo;
@@ -382,7 +383,7 @@ void danpart::cuda_step()
     cuParamSetv(funcHandPoint1, offset, &p, sizeof (p));
     offset += sizeof (p);
 
-    */
+    /*
     ALIGN_UP(offset, __alignof(d_vbo));
     cuParamSetv(funcHandPoint1, offset, &d_vbo, sizeof (d_vbo));
     offset += sizeof (d_vbo);
@@ -390,6 +391,7 @@ void danpart::cuda_step()
     ALIGN_UP(offset, __alignof(d_particleData));
     cuParamSetv(funcHandPoint1, offset, &d_particleData, sizeof (d_particleData));
     offset += sizeof (d_particleData);
+    */
 
 /*
     p = (void *) (size_t) d_injectorData;
@@ -402,10 +404,11 @@ void danpart::cuda_step()
     cuParamSetv(funcHandPoint1, offset, &p, sizeof (p));
     offset += sizeof (p);
 */
+/*
     ALIGN_UP(offset, __alignof(d_debugData));
     cuParamSetv(funcHandPoint1, offset, &d_debugData, sizeof (d_debugData));
     offset += sizeof (d_debugData);
-
+*/
     ALIGN_UP(offset, __alignof(mesh_width));
     cuParamSeti(funcHandPoint1, offset, mesh_width);
     offset += sizeof (mesh_width);
@@ -567,8 +570,8 @@ danpart::danpart() :
     input(0),
     anim(0),
     max_age    (2000),
-    mesh_width (256),
-    mesh_height(256),
+    mesh_width (1024),
+    mesh_height(1024),
     
     particle(new ogl::sprite())
 {
