@@ -14,10 +14,12 @@
 #define DANPART_HPP
 
 #include "../ogl-opengl.hpp"
+#include "../ogl-sprite.hpp"
 #include "../app-prog.hpp"
 
 #include <cuda.h>
 #include "danglobs.cpp"
+
 //-----------------------------------------------------------------------------
 
 namespace dev
@@ -81,6 +83,7 @@ class danpart : public app::prog
 	size_t sizeRefl;
     void data_init();
 	
+    ogl::sprite *particle;
 
 public:
 

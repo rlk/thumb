@@ -567,8 +567,10 @@ danpart::danpart() :
     input(0),
     anim(0),
     max_age    (2000),
-    mesh_width (512),
-    mesh_height(512)
+    mesh_width (256),
+    mesh_height(256),
+    
+    particle(new ogl::sprite())
 {
     std::string input_mode = conf->get_s("input_mode");
 
@@ -589,6 +591,8 @@ danpart::~danpart()
 
     cuda_fini();
 
+    delete particle;
+    
     if (input) delete input;
 }
 
@@ -761,24 +765,17 @@ void danpart::draw(int frusi, const app::frustum *frusp)
             glVertexPointer(4, GL_FLOAT, 0, 0);
             glColorPointer (4, GL_FLOAT, 0, (GLvoid *) size);
 
-          if (drawType == points)
-              {   
-     	        glPointSize(1.0);
-				glEnable(GL_BLEND);
-				glEnable(GL_POINT_SMOOTH);
-				
+            if (drawType == points)
+            {   
+                particle->bind();
+                glDrawArrays(GL_POINTS, 0, mesh_width * mesh_height);
+                particle->free();
+            }
  
-                 glDrawArrays(GL_POINTS, 0, mesh_width * mesh_height);
-
-				glDisable(GL_POINT_SMOOTH);
-				glDisable(GL_BLEND);
-
-              }
- 
-         if (drawType == lines)
-             {
-                 glDrawArrays(GL_LINES, 0, mesh_width * mesh_height );
-             }
+            if (drawType == lines)
+            {
+                glDrawArrays(GL_LINES, 0, mesh_width * mesh_height );
+            }
 
         }
         glDisableClientState(GL_COLOR_ARRAY);

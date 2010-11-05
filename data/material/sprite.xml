@@ -1,0 +1,10 @@
+<?xml version="1.0"?>
+<material>
+  <program mode="depth" file="sprite-depth.xml">
+    <texture sampler="color"  name="sprite.png" />
+  </program>
+
+  <program mode="color" file="sprite-color.xml">
+    <texture sampler="color"  name="sprite.png" />
+  </program>
+</material>
