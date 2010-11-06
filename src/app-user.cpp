@@ -305,7 +305,7 @@ void app::user::home()
 //  gettimeofday(&tv, 0);
 
 //  set(0, 0, tv.tv_sec + tv.tv_usec * 0.000001);
-    set(0, 0, 40000.0);
+//  set(0, 0, 40000.0);
 }
 
 /*

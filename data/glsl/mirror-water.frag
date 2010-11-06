@@ -38,7 +38,6 @@ void main()
 
     N = mix(vec3(0.0, 1.0, 0.0), N, -V.y);
 
-
     // Reflect a downward view vector across the water.
 
     float dn = step(V.y, 0.0);
@@ -47,7 +46,7 @@ void main()
 
     // Look up a perturbed reflection color.
 
-    vec4 Kr = texture2DRect(refl, gl_FragCoord.xy + N.xz * 200.0);
+    vec4 Kr = texture2DRect(refl, gl_FragCoord.xy + N.xz * 100.0 / V.y);
 
     // Look up the sky fill and glow colors.
 
