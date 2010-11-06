@@ -8,7 +8,7 @@
 #define INJT_DATA_MUNB 20
 #define INJT_DATA_ROWS 8
 #define INJT_DATA_ROW_ELEM 3
-
+#define SOUND_SERV 1
 
 
 

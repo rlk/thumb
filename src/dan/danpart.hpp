@@ -50,6 +50,15 @@ class danpart : public app::prog
     double wandVec[3];
 	int trackDevID;
 	float state ;
+       int trigger,triggerold;
+       int but4,but4old;
+
+       // audio files
+       int chimes ;
+       int pinkNoise ;
+       int whiteNoise ;
+       int harmonicAlgorithm ;
+
 
     // CUDA state.
 // multpul function
@@ -64,6 +73,7 @@ class danpart : public app::prog
     void cuda_fini();
     void cuda_step();
     void cuda_stepPointSquars();
+
 
     // Particle system state.
 

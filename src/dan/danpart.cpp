@@ -12,8 +12,8 @@
 
 //-----------------------------------------------------------------------------
 
-#define FUCKING_BROKEN 0
-#define MESH_SIZE 256
+#define FUCKING_BROKEN 1
+#define MESH_SIZE 1024
 
 //-----------------------------------------------------------------------------
 
@@ -45,7 +45,7 @@
 #include "danpart.hpp"
 #include "danglobs.cpp"
 #include "danutils.cpp"
-
+#include "dansoundClient.cpp"
 //-----------------------------------------------------------------------------
 
 #define ALIGN_UP(offset, alignment) \
@@ -282,15 +282,18 @@ void danpart::cuda_step()
 
 
 //	 injector data 
+
+//	 injector data 
 	int injNum ;	
-	h_injectorData[0][0][0] =1;// number of injectors ~ ~   ~ means dont care
+	h_injectorData[0][0][0] =3;// number of injectors ~ ~   ~ means dont care
  	//injector 1
 	injNum =1;
 	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=3.0;h_injectorData[injNum][2][2]=0;//x,y,z position
+	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=2.0;h_injectorData[injNum][2][2]=0;//x,y,z position
 	h_injectorData[injNum][3][0]=0.2 * (sin(anim/5));h_injectorData[injNum][3][1]=0.000;h_injectorData[injNum][3][2]=0.2 * (cos(anim/5));//x,y,z velocity direction
 	//h_injectorData[injNum][3][0]=0.02 * (sin(anim));h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * (cos(anim));//x,y,z velocity
 	//h_injectorData[injNum][3][0]=0.02 *0.0;h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * -1;//x,y,z velocity
+	
 	h_injectorData[injNum][4][0]=0.00;h_injectorData[injNum][4][1]=0.00;h_injectorData[injNum][4][2]=.0;//x,y,z size
 	h_injectorData[injNum][5][0]=0.010;h_injectorData[injNum][5][1]=0.010;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
 	h_injectorData[injNum][6][0]=0.1;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
@@ -298,19 +301,26 @@ void danpart::cuda_step()
 	//
 	// injector 2
 	injNum =2;
-	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=20.5;h_injectorData[injNum][2][2]=0;//x,y,z position
+	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=0.0;// type, injection ratio ie streem volume, ~
+	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=2.5;h_injectorData[injNum][2][2]=0;//x,y,z position
 	h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=1.000;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-	h_injectorData[injNum][4][0]=3.000;h_injectorData[injNum][4][1]=3.0;h_injectorData[injNum][4][2]=0;//x,y,z size
+	h_injectorData[injNum][4][0]=1.000;h_injectorData[injNum][4][1]=1.0;h_injectorData[injNum][4][2]=0;//x,y,z size
 	h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
 	h_injectorData[injNum][6][0]=0.0;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
 	h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
 
- 	//injector 1
+ 	//injector 3
+	//sound fro inj3
+	if (SOUND_SERV ==1)
+	{
+		//audioGain(pinkNoise,but4);
+	
+		if ((but4old == 0) && (but4 ==1)){audioPlay(chimes,0.1);}
+	}
 	injNum =3;
-	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=0.0;// type, injection ratio ie streem volume, ~
-	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=3.0;h_injectorData[injNum][2][2]=0;//x,y,z position
-	h_injectorData[injNum][3][0]=0.2 * (sin(anim/5));h_injectorData[injNum][3][1]=0.000;h_injectorData[injNum][3][2]=0.2 * (cos(anim/5));//x,y,z velocity direction
+	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=but4;// type, injection ratio ie streem volume, ~
+	h_injectorData[injNum][2][0]=wandPos[0];h_injectorData[injNum][2][1]=wandPos[1];h_injectorData[injNum][2][2]=wandPos[2];//x,y,z position
+	h_injectorData[injNum][3][0]=wandVec[0];h_injectorData[injNum][3][1]=wandVec[1];h_injectorData[injNum][3][2]=wandVec[2];//x,y,z velocity direction
 	//h_injectorData[injNum][3][0]=0.02 * (sin(anim));h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * (cos(anim));//x,y,z velocity
 	//h_injectorData[injNum][3][0]=0.02 *0.0;h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * -1;//x,y,z velocity
 	h_injectorData[injNum][4][0]=0.00;h_injectorData[injNum][4][1]=0.00;h_injectorData[injNum][4][2]=.0;//x,y,z size
@@ -318,6 +328,8 @@ void danpart::cuda_step()
 	h_injectorData[injNum][6][0]=0.1;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
 	h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
 	//
+	if (but4){printf (" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}
+
 	for ( int n =1;n < h_injectorData[0][0][0] +1;n++)
 		{
 			// kludge to handel gimbel lock for velociys straight up			
@@ -327,8 +339,7 @@ void danpart::cuda_step()
 			h_injectorData[injNum][3][0]=h_injectorData[injNum][3][0]/length;h_injectorData[injNum][3][1]=h_injectorData[injNum][3][1]/length;h_injectorData[injNum][3][2]=h_injectorData[injNum][3][2]/length;
 			
 		}
-
-	//copy data to device	
+//copy data to device	
 	{
 	CUdeviceptr devPtr;
 	unsigned int bytes;
@@ -629,10 +640,23 @@ if (k == SDLK_UP && d==0){printf ("up up \n");state = 0;}
 }
 
 bool danpart::process_click(app::event *E)
-{   
+{  
+   const int  b = E->data.click.b;
+   const bool d = E->data.click.d;
+	printf (" b , d %d %d \n",b, d);
+	
+	if ((b ==1) & (d == 1)){but4old = but4;but4 = 1;}
+	if ((b ==1) & (d == 0)){but4old = but4;but4 = 0;}
+	
+//d true is change to down false change to up
+// return true clames event
+//b is button number
+//P position V vector p tracker in cave quadens q quaterian in cavequardinants
+  
 /*
     const int  b = E->data.click.b;
     const bool d = E->data.click.d;
+	
 */
 //d true is change to down false change to up
 // return true clames event
@@ -840,7 +864,7 @@ void danpart::draw(int frusi, const app::frustum *frusp)
     ::user->draw();
     
     // Draw the water and sky.
-    
+  /*  
     water->bind();
     {
         draw_scene();
@@ -848,11 +872,11 @@ void danpart::draw(int frusi, const app::frustum *frusp)
     }
     water->free();
     water->draw(frusp);
-
+*/
     // Draw the scene.
 
     draw_scene();
-//    draw_triangles();
+    draw_triangles();
 }
 
 //-----------------------------------------------------------------------------

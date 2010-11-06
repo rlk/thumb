@@ -380,6 +380,7 @@ void dev::tracker::translate() const
         for (i = 0; i < tracker_count_buttons(); ++i)
             if (tracker_button(i, b))
             {
+		/*
                 switch (i)
                 {
                 case 2:  E.mk_keybd(0, key_play, 0, b); break;
@@ -387,6 +388,8 @@ void dev::tracker::translate() const
                 case 4:  E.mk_keybd(0, key_info, 0, b); break;
                 default: E.mk_click(0, i, 0, b);        break;
                 }
+		*/
+                E.mk_click(0, i, 0, b);
                 ::host->process_event(&E);
             }
 

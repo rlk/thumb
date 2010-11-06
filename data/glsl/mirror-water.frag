@@ -1,3 +1,5 @@
+#extension GL_ARB_texture_rectangle : enable
+
 uniform sampler2D     glow;
 uniform sampler2D     fill;
 uniform sampler2D     norm;
