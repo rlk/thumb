@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>src/dan/danpart.cpp</string>
+	<string>data/glsl/sprite.vert</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -13,7 +13,7 @@
 					<key>filename</key>
 					<string>Makedefs</string>
 					<key>lastUsed</key>
-					<date>2010-11-04T18:44:04Z</date>
+					<date>2010-11-06T14:46:30Z</date>
 				</dict>
 				<dict>
 					<key>filename</key>
@@ -53,9 +53,7 @@
 							<key>filename</key>
 							<string>src/dan/danpart.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-04T18:46:51Z</date>
-							<key>selected</key>
-							<true/>
+							<date>2010-11-06T14:56:51Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -322,6 +320,10 @@
 						</dict>
 						<dict>
 							<key>filename</key>
+							<string>src/ogl-sprite.hpp</string>
+						</dict>
+						<dict>
+							<key>filename</key>
 							<string>src/ogl-surface.hpp</string>
 						</dict>
 						<dict>
@@ -425,6 +427,8 @@
 							<string>src/wrl-world.hpp</string>
 						</dict>
 					</array>
+					<key>expanded</key>
+					<true/>
 					<key>name</key>
 					<string>Header</string>
 				</dict>
@@ -657,6 +661,12 @@
 						</dict>
 						<dict>
 							<key>filename</key>
+							<string>src/ogl-sprite.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T14:42:32Z</date>
+						</dict>
+						<dict>
+							<key>filename</key>
 							<string>src/ogl-surface.cpp</string>
 						</dict>
 						<dict>
@@ -754,6 +764,8 @@
 							<string>src/wrl-world.cpp</string>
 						</dict>
 					</array>
+					<key>expanded</key>
+					<true/>
 					<key>name</key>
 					<string>Module</string>
 				</dict>
@@ -785,6 +797,68 @@
 				<dict>
 					<key>filename</key>
 					<string>data/lang.xml</string>
+				</dict>
+				<dict>
+					<key>children</key>
+					<array>
+						<dict>
+							<key>filename</key>
+							<string>data/material/sprite.xml</string>
+						</dict>
+					</array>
+					<key>expanded</key>
+					<true/>
+					<key>name</key>
+					<string>Material</string>
+				</dict>
+				<dict>
+					<key>children</key>
+					<array>
+						<dict>
+							<key>filename</key>
+							<string>data/program/sprite-color.xml</string>
+						</dict>
+						<dict>
+							<key>filename</key>
+							<string>data/program/sprite-depth.xml</string>
+						</dict>
+					</array>
+					<key>expanded</key>
+					<true/>
+					<key>name</key>
+					<string>Program</string>
+				</dict>
+				<dict>
+					<key>children</key>
+					<array>
+						<dict>
+							<key>filename</key>
+							<string>data/texture/sprite.xml</string>
+						</dict>
+					</array>
+					<key>expanded</key>
+					<true/>
+					<key>name</key>
+					<string>Texture</string>
+				</dict>
+				<dict>
+					<key>children</key>
+					<array>
+						<dict>
+							<key>filename</key>
+							<string>data/glsl/sprite.frag</string>
+						</dict>
+						<dict>
+							<key>filename</key>
+							<string>data/glsl/sprite.vert</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T14:56:51Z</date>
+						</dict>
+					</array>
+					<key>name</key>
+					<string>GLSL</string>
+					<key>selected</key>
+					<true/>
 				</dict>
 			</array>
 			<key>expanded</key>
@@ -819,6 +893,20 @@
 				<integer>7</integer>
 				<key>line</key>
 				<integer>10</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>data/glsl/sprite.vert</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>21</integer>
+				<key>line</key>
+				<integer>6</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -914,14 +1002,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>51</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>86</integer>
+				<integer>19</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>68</integer>
+			<integer>0</integer>
 		</dict>
 		<key>src/dan/danpart.cu</key>
 		<dict>
@@ -1025,11 +1113,12 @@
 		<string>src/Makefile</string>
 		<string>Makedefs</string>
 		<string>src/dan/danpart.cpp</string>
+		<string>data/glsl/sprite.vert</string>
 		<string>src/dan/danpart.cu</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{94, 51}, {1230, 977}}</string>
+	<string>{{59, 38}, {857, 990}}</string>
 </dict>
 </plist>

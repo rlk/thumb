@@ -1,7 +1,7 @@
 #------------------------------------------------------------------------------
 
-CFLAGS= -g -Wall
-#CFLAGS= -g -Wall -DCUDA_FORCE_API_VERSION=3010
+CFLAGS= -g -Wall -DCUDA_FORCE_API_VERSION=3010
+#CFLAGS= -g -Wall
 #CFLAGS= -O0 -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti -DTELLURION
