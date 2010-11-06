@@ -570,7 +570,12 @@ danpart::danpart(int w, int h) :
     mesh_height(MESH_SIZE),
     
     particle(new ogl::sprite()),
-    water(new ogl::mirror("mirror-water", w, h))
+    water(new ogl::mirror("mirror-water", w, h)),
+    
+    uniform_time          (::glob->load_uniform("time",             1)),
+    uniform_view_position (::glob->load_uniform("view_position",    3)),
+    uniform_light_position(::glob->load_uniform("light_position",   3))
+
 {
     std::string input_mode = conf->get_s("input_mode");
 
@@ -591,6 +596,10 @@ danpart::~danpart()
 
     cuda_fini();
 
+    ::glob->free_uniform(uniform_light_position);
+    ::glob->free_uniform(uniform_view_position);
+    ::glob->free_uniform(uniform_time);
+    
     delete water;
     delete particle;
     
@@ -799,6 +808,14 @@ ogl::range danpart::prep(int frusc, const app::frustum *const *frusv)
 {
     ogl::range r(0.1, 100.0);
 
+    // Set the scene uniforms.
+
+    uniform_time->set(double(SDL_GetTicks() * 0.001));
+    uniform_view_position ->set(::user->get_M() + 12);
+    uniform_light_position->set(::user->get_L());
+
+    // Run the particle simulation.
+
     cuda_step();
 	//cuda_stepPointSquars();
 
@@ -822,10 +839,20 @@ void danpart::draw(int frusi, const app::frustum *frusp)
      frusp->draw();
     ::user->draw();
     
-    // Draw the scene
+    // Draw the water and sky.
     
+    water->bind();
+    {
+        draw_scene();
+//        draw_triangles();
+    }
+    water->free();
+    water->draw(frusp);
+
+    // Draw the scene.
+
     draw_scene();
-    draw_triangles();
+//    draw_triangles();
 }
 
 //-----------------------------------------------------------------------------

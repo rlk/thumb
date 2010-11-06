@@ -15,7 +15,8 @@
 
 #include "../ogl-opengl.hpp"
 #include "../ogl-sprite.hpp"
-#include "../ogl-mirron.hpp"
+#include "../ogl-mirror.hpp"
+#include "../ogl-uniform.hpp"
 #include "../app-prog.hpp"
 
 #include <cuda.h>
@@ -87,8 +88,12 @@ class danpart : public app::prog
     void draw_scene();
     void draw_triangles();
     
-    ogl::sprite *particle;
-    ogl::mirror *water;
+    ogl::sprite  *particle;
+    ogl::mirror  *water;
+
+    ogl::uniform *uniform_time;
+    ogl::uniform *uniform_view_position;
+    ogl::uniform *uniform_light_position;
     
 public:
 

@@ -1,5 +1,11 @@
 <?xml version="1.0"?>
-<program vert="glsl/sprite.vert"
-         frag="glsl/sprite.frag" >
-  <sampler name="color" unit="0" />
+<program vert="glsl/mirror-water.vert"
+         frag="glsl/mirror-water.frag" >
+  <sampler name="fill"  unit="0" />
+  <sampler name="glow"  unit="1" />
+  <sampler name="norm"  unit="2" />
+  <sampler name="refl"  unit="3" />
+  <uniform name="light_position" value="light_position" size="3"/>
+  <uniform name="time"           value="time"           size="1"/>
+  <uniform name="view_position"  value="view_position"  size="3"/>
 </program>

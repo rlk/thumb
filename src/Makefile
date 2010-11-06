@@ -26,6 +26,7 @@ OBJS=   util.o \
 	ogl-surface.o \
 	ogl-terrain.o \
 	ogl-sprite.o \
+	ogl-mirror.o \
 	ogl-buffer.o \
 	ogl-image.o \
 	ogl-frame.o \

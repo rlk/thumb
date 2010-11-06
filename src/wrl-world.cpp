@@ -1150,25 +1150,6 @@ void wrl::world::draw_sky(const app::frustum *frusp)
 {
     const double *vp = frusp->get_view_pos();
 
-/*
-    glBegin(GL_QUADS);
-    {
-        const double v0[3] = { -10000.0, 0.0, -10000.0 };
-        const double v1[3] = { -10000.0, 0.0,  10000.0 };
-        const double v2[3] = {  10000.0, 0.0,  10000.0 };
-        const double v3[3] = {  10000.0, 0.0, -10000.0 };
-
-        glTexCoord2d(0, 0);
-        glVertex3d(v0[0] - vp[0], v0[1] - vp[1], v0[2] - vp[2]);
-        glTexCoord2d(1, 0);
-        glVertex3d(v1[0] - vp[0], v1[1] - vp[1], v1[2] - vp[2]);
-        glTexCoord2d(1, 1);
-        glVertex3d(v3[0] - vp[0], v3[1] - vp[1], v3[2] - vp[2]);
-        glTexCoord2d(0, 1);
-        glVertex3d(v2[0] - vp[0], v2[1] - vp[1], v2[2] - vp[2]);
-    }
-    glEnd();
-*/
     sky->bind(true);
 
     glEnable(GL_POLYGON_OFFSET_FILL);

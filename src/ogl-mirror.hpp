@@ -13,7 +13,14 @@
 #ifndef OGL_MIRROR_HPP
 #define OGL_MIRROR_HPP
 
+#include <string>
+
 //-----------------------------------------------------------------------------
+
+namespace app
+{
+    class frustum;
+}
 
 namespace ogl
 {
@@ -28,16 +35,17 @@ namespace ogl
     class mirror
     {
         const ogl::binding *binding;
-        const ogl::frame   *frame;
+
+        ogl::frame *frame;
         
     public:
         
         mirror(std::string, int, int);
        ~mirror();
        
-       void bind() const;
-       void free() const;
-       void draw() const;
+        void bind() const;
+        void free() const;
+        void draw(const app::frustum *frusp);
     };
 }
 

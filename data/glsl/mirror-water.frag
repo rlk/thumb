@@ -1,7 +1,7 @@
-
-uniform sampler2D glow;
-uniform sampler2D fill;
-uniform sampler2D norm;
+uniform sampler2D     glow;
+uniform sampler2D     fill;
+uniform sampler2D     norm;
+uniform sampler2DRect refl;
 
 varying vec3 V_v;
 
@@ -18,9 +18,6 @@ void main()
 
     float h =  view_position.y;
     vec2 t0 = -view_position.xz + V.xz * view_position.y / V.y;
-/*
-    vec2 t0 = V.xz * 5.0 / V.y;
-*/
 
     vec2 t1 = 0.0005 * t0 + vec2(-0.003,  0.005) * time;
     vec2 t2 = 0.0050 * t0 + vec2(-0.010, -0.020) * time;
@@ -41,11 +38,16 @@ void main()
 
     N = mix(vec3(0.0, 1.0, 0.0), N, -V.y);
 
+
     // Reflect a downward view vector across the water.
 
     float dn = step(V.y, 0.0);
 
     V = mix(V, reflect(V, N), dn);
+
+    // Look up a perturbed reflection color.
+
+    vec4 Kr = texture2DRect(refl, gl_FragCoord.xy + N.xz * 200.0);
 
     // Look up the sky fill and glow colors.
 
@@ -56,15 +58,16 @@ void main()
 
     // Mix the ocean color using a Fresnel coefficient.
 
-//  float f = mix(1.0, clamp(pow(1.0 - dot(N, V), 2.0), 0.0, 1.0), dn);
-    float f = mix(1.0, clamp(pow(1.0 - dot(N, V), 3.0), 0.0, 1.0), dn);
+    float f = mix(1.0, clamp(pow(1.0 - dot(N, V), 2.0), 0.0, 1.0), dn);
+//  float f = mix(1.0, clamp(pow(1.0 - dot(N, V), 3.0), 0.0, 1.0), dn);
 
 //  vec3 Ko = vec3(0.0, 0.5, 0.5) * max(0.0, pow(L.y, 0.25));
     vec3 Ko = vec3(0.03, 0.15, 0.15) * max(0.0, pow(L.y, 0.25));
 
-    vec4 K = mix(vec4(Ko, 1.0), Kf + Kg + vec4(Ks, Ks, Ks, 1.0), f);
+    vec4 K = mix(vec4(Ko, 1.0), Kr + Kf + Kg + vec4(Ks, Ks, Ks, 1.0), f);
 
+//    gl_FragColor = vec4(K.rgb, Kf.a);
     gl_FragColor = vec4(K.rgb, Kf.a);
-//  gl_FragColor = vec4((Kf + Kg).rgb, Kf.a);
-//  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+
+//    gl_FragColor = texture2DRect(refl, gl_FragCoord.xy);
 }
