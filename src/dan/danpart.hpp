@@ -15,6 +15,7 @@
 
 #include "../ogl-opengl.hpp"
 #include "../ogl-sprite.hpp"
+#include "../ogl-mirron.hpp"
 #include "../app-prog.hpp"
 
 #include <cuda.h>
@@ -56,7 +57,7 @@ class danpart : public app::prog
     CUmodule   module;
     CUfunction funcHandPoint1;
     CUfunction funcHandPointSquars;
-   GLuint     vbo;
+    GLuint     vbo;
 
     void cuda_init();
     void cuda_fini();
@@ -82,12 +83,16 @@ class danpart : public app::prog
 	size_t sizei;
 	size_t sizeRefl;
     void data_init();
-	
+    
+    void draw_scene();
+    void draw_triangles();
+    
     ogl::sprite *particle;
-
+    ogl::mirror *water;
+    
 public:
 
-    danpart();
+    danpart(int, int);
    ~danpart();
 
     bool process_event(app::event *);

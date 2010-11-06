@@ -562,14 +562,15 @@ data structure for reflectors
 
 //-----------------------------------------------------------------------------
 
-danpart::danpart() :
+danpart::danpart(int w, int h) :
     input(0),
     anim(0),
     max_age    (2000),
     mesh_width (MESH_SIZE),
     mesh_height(MESH_SIZE),
     
-    particle(new ogl::sprite())
+    particle(new ogl::sprite()),
+    water(new ogl::mirror("mirror-water", w, h))
 {
     std::string input_mode = conf->get_s("input_mode");
 
@@ -590,6 +591,7 @@ danpart::~danpart()
 
     cuda_fini();
 
+    delete water;
     delete particle;
     
     if (input) delete input;
@@ -717,42 +719,50 @@ bool danpart::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-ogl::range danpart::prep(int frusc, const app::frustum *const *frusv)
+void danpart::draw_triangles()
 {
-    ogl::range r(0.1, 100.0);
+    // Draw the test triangles.
 
-    cuda_step();
-	//cuda_stepPointSquars();
+    glPushMatrix();
+    {
+        glBegin(GL_TRIANGLES);
+        {
+            GLfloat h;
+        
+            h = 1.74f;
+    	
+            glColor3f(1.0f, 1.0f, 0.0f);
+            glVertex3f(0.0f, h, 0.0f);
+            glVertex3f(0.25f, h, 0.0f);
+            glVertex3f(0.0f, h, 0.25f);
 
-    return r;
+    	    h = 1.00f;
+
+            glColor3f(0.0f, 1.0f, 0.0f);
+            glVertex3f(0.0f, h, 0.0f);
+            glVertex3f(0.25f, h, 0.0f);
+            glVertex3f(0.0f, h, 0.25f);
+
+        	h=0.00f;
+    	
+            glColor3f(0.0f, 0.0f, 1.0f);
+            glVertex3f(0.0f, h, 0.0f);
+            glVertex3f(0.25f, h, 0.0f);
+            glVertex3f(0.0f, h, 0.25f);
+        }
+        glEnd();
+	}
+    glPopMatrix();    
 }
 
-void danpart::lite(int frusc, const app::frustum *const *frusv)
-{
-}
-
-void danpart::draw(int frusi, const app::frustum *frusp)
+void danpart::draw_scene()
 {
 	#include "dan_state.enum"
 
-    // Clear the render target.
-	
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT |
-            GL_DEPTH_BUFFER_BIT);
-
-    // Apply the projection and view transformations.
-
-     frusp->draw();
-    ::user->draw();
-
 	glEnable(GL_DEPTH_TEST);
 
-    // Drop back to the fixed-function pipeline.
-
-    glUseProgramObjectARB(0);
-
     // Draw the particle array.
+    
  	glPushMatrix();
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
     {
@@ -775,47 +785,47 @@ void danpart::draw(int frusi, const app::frustum *frusp)
             {
                 glDrawArrays(GL_LINES, 0, mesh_width * mesh_height );
             }
-
         }
         glDisableClientState(GL_COLOR_ARRAY);
         glDisableClientState(GL_VERTEX_ARRAY);
     }
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	glPopMatrix();
-//added
-    // Draw the test triangle.
+}
 
-    glPushMatrix();
-    //glTranslatef(pos[0], pos[1], pos[2]);
-     //printf(" pos[0] , pos[1] , pos[2] %f,%f,%f \n",pos[0], pos[1], pos[2]);
-    glTranslatef(0, 0, 0);
-for (int i =0; i<1;i++){
-	    //glTranslatef(0.0000001, 0, 0);
-    glBegin(GL_TRIANGLES);
-    {
-	float h;
-	h =1.74;
-        glColor3f(1.0f, 1.0f, 0.0f);
-        glVertex3f(0.0f, h, 0.0f);
-        glVertex3f(0.25f, h, 0.0f);
-        glVertex3f(0.0f, h, 0.25f);
-	h=1;
-        glColor3f(0.0f, 1.0f, 0.0f);
-        glVertex3f(0.0f, h, 0.0f);
-        glVertex3f(0.25f, h, 0.0f);
-        glVertex3f(0.0f, h, 0.25f);
-	h=0;
-        glColor3f(0.0f, 0.0f, 1.0f);
-        glVertex3f(0.0f, h, 0.0f);
-        glVertex3f(0.25f, h, 0.0f);
-        glVertex3f(0.0f, h, 0.25f);
+//-----------------------------------------------------------------------------
 
-    }
-    glEnd();
-	}
+ogl::range danpart::prep(int frusc, const app::frustum *const *frusv)
+{
+    ogl::range r(0.1, 100.0);
+
+    cuda_step();
+	//cuda_stepPointSquars();
+
+    return r;
+}
+
+void danpart::lite(int frusc, const app::frustum *const *frusv)
+{
+}
+
+void danpart::draw(int frusi, const app::frustum *frusp)
+{
+    // Clear the render target.
 	
-    glPopMatrix();    
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT |
+            GL_DEPTH_BUFFER_BIT);
 
+    // Apply the projection and view transformations.
+
+     frusp->draw();
+    ::user->draw();
+    
+    // Draw the scene
+    
+    draw_scene();
+    draw_triangles();
 }
 
 //-----------------------------------------------------------------------------

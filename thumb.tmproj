@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>data/glsl/sprite.vert</string>
+	<string>data/glsl/mirror-water.vert</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -43,7 +43,7 @@
 							<key>filename</key>
 							<string>src/dan/dan_state.enum</string>
 							<key>lastUsed</key>
-							<date>2010-11-04T18:16:02Z</date>
+							<date>2010-11-06T15:19:20Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -53,25 +53,19 @@
 							<key>filename</key>
 							<string>src/dan/danpart.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T14:56:51Z</date>
-						</dict>
-						<dict>
-							<key>filename</key>
-							<string>src/dan/danpart.cu</string>
-							<key>lastUsed</key>
-							<date>2010-11-04T18:40:41Z</date>
+							<date>2010-11-06T15:36:20Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
 							<string>src/dan/danpart.hpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-04T18:43:33Z</date>
+							<date>2010-11-06T15:36:18Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
 							<string>src/dan/danutils.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-04T18:46:51Z</date>
+							<date>2010-11-06T15:19:20Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -120,7 +114,7 @@
 							<key>filename</key>
 							<string>src/app-host.hpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-03T23:12:18Z</date>
+							<date>2010-11-06T15:32:18Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -135,6 +129,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/app-prog.hpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:32:25Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -151,6 +147,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/demo.hpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:32:34Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -183,6 +181,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/dpy-channel.hpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:31:42Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -249,6 +249,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/ogl-binding.hpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:27:16Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -265,6 +267,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/ogl-frame.hpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:29:50Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -281,6 +285,12 @@
 						<dict>
 							<key>filename</key>
 							<string>src/ogl-mesh.hpp</string>
+						</dict>
+						<dict>
+							<key>filename</key>
+							<string>src/ogl-mirror.hpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:36:25Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -492,6 +502,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/demo.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:33:03Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -524,6 +536,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/dpy-channel.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:31:35Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -557,7 +571,7 @@
 							<key>filename</key>
 							<string>src/main.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-04T18:42:14Z</date>
+							<date>2010-11-06T15:33:33Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -590,6 +604,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/ogl-binding.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:27:19Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -606,6 +622,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/ogl-frame.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:30:29Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -622,6 +640,12 @@
 						<dict>
 							<key>filename</key>
 							<string>src/ogl-mesh.cpp</string>
+						</dict>
+						<dict>
+							<key>filename</key>
+							<string>src/ogl-mirror.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:36:37Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -804,6 +828,14 @@
 						<dict>
 							<key>filename</key>
 							<string>data/material/sprite.xml</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:38:39Z</date>
+						</dict>
+						<dict>
+							<key>filename</key>
+							<string>data/material/mirror-water.xml</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:38:42Z</date>
 						</dict>
 					</array>
 					<key>expanded</key>
@@ -822,6 +854,12 @@
 							<key>filename</key>
 							<string>data/program/sprite-depth.xml</string>
 						</dict>
+						<dict>
+							<key>filename</key>
+							<string>data/program/mirror-water.xml</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:39:02Z</date>
+						</dict>
 					</array>
 					<key>expanded</key>
 					<true/>
@@ -834,6 +872,12 @@
 						<dict>
 							<key>filename</key>
 							<string>data/texture/sprite.xml</string>
+						</dict>
+						<dict>
+							<key>filename</key>
+							<string>data/texture/water-normal.xml</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:39:28Z</date>
 						</dict>
 					</array>
 					<key>expanded</key>
@@ -852,13 +896,27 @@
 							<key>filename</key>
 							<string>data/glsl/sprite.vert</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T14:56:51Z</date>
+							<date>2010-11-06T15:15:06Z</date>
+						</dict>
+						<dict>
+							<key>filename</key>
+							<string>data/glsl/mirror-water.frag</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:39:32Z</date>
+						</dict>
+						<dict>
+							<key>filename</key>
+							<string>data/glsl/mirror-water.vert</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:39:32Z</date>
+							<key>selected</key>
+							<true/>
 						</dict>
 					</array>
+					<key>expanded</key>
+					<true/>
 					<key>name</key>
 					<string>GLSL</string>
-					<key>selected</key>
-					<true/>
 				</dict>
 			</array>
 			<key>expanded</key>
@@ -899,14 +957,98 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>data/glsl/mirror-water.frag</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>18</integer>
+		</dict>
+		<key>data/glsl/mirror-water.vert</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>data/glsl/sprite.vert</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>21</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>6</integer>
+				<integer>9</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>data/material/mirror-water.xml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>data/material/sprite.xml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>27</integer>
+				<key>line</key>
+				<integer>7</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>data/program/mirror-water.xml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>data/texture/water-normal.xml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -981,7 +1123,21 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>101</integer>
+			<integer>100</integer>
+		</dict>
+		<key>src/app-prog.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>29</integer>
 		</dict>
 		<key>src/dan/dan_state.enum</key>
 		<dict>
@@ -1002,58 +1158,28 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>42</integer>
 				<key>line</key>
-				<integer>19</integer>
+				<integer>572</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
-		</dict>
-		<key>src/dan/danpart.cu</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>557</integer>
 		</dict>
 		<key>src/dan/danpart.hpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>4</integer>
 				<key>line</key>
-				<integer>19</integer>
+				<integer>91</integer>
 			</dict>
-			<key>columnSelection</key>
-			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
-			<key>selectFrom</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>18</integer>
-			</dict>
-			<key>selectTo</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>19</integer>
-			</dict>
+			<integer>54</integer>
 		</dict>
 		<key>src/dan/danutils.cpp</key>
 		<dict>
@@ -1069,19 +1195,91 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>src/main.cpp</key>
+		<key>src/demo.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>32</integer>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>199</integer>
+		</dict>
+		<key>src/demo.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>83</integer>
+		</dict>
+		<key>src/dpy-channel.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>31</integer>
+				<key>line</key>
+				<integer>303</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>53</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>26</integer>
+				<key>line</key>
+				<integer>303</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>31</integer>
+				<key>line</key>
+				<integer>303</integer>
+			</dict>
+		</dict>
+		<key>src/dpy-channel.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+		</dict>
+		<key>src/main.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>23</integer>
+				<key>line</key>
+				<integer>234</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>207</integer>
 		</dict>
 		<key>src/main.hpp</key>
 		<dict>
@@ -1097,6 +1295,106 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>src/ogl-binding.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>src/ogl-binding.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>20</integer>
+				<key>line</key>
+				<integer>63</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>23</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>16</integer>
+				<key>line</key>
+				<integer>63</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>27</integer>
+				<key>line</key>
+				<integer>63</integer>
+			</dict>
+		</dict>
+		<key>src/ogl-frame.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>9</integer>
+				<key>line</key>
+				<integer>121</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>27</integer>
+		</dict>
+		<key>src/ogl-frame.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>src/ogl-mirror.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>69</integer>
+				<key>line</key>
+				<integer>21</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>src/ogl-mirror.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>36</integer>
+				<key>line</key>
+				<integer>34</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
@@ -1105,6 +1403,9 @@
 		<string>src/dan/danpart.hpp</string>
 		<string>src/dan/danutils.cpp</string>
 		<string>src/app-host.hpp</string>
+		<string>src/app-prog.hpp</string>
+		<string>src/demo.hpp</string>
+		<string>src/demo.cpp</string>
 		<string>src/main.cpp</string>
 		<string>src/app-conf.hpp</string>
 		<string>src/app-data.cpp</string>
@@ -1113,8 +1414,21 @@
 		<string>src/Makefile</string>
 		<string>Makedefs</string>
 		<string>src/dan/danpart.cpp</string>
+		<string>src/ogl-mirror.hpp</string>
+		<string>src/ogl-mirror.cpp</string>
+		<string>data/material/sprite.xml</string>
+		<string>data/material/mirror-water.xml</string>
+		<string>data/program/mirror-water.xml</string>
+		<string>data/texture/water-normal.xml</string>
+		<string>data/glsl/mirror-water.frag</string>
+		<string>data/glsl/mirror-water.vert</string>
+		<string>src/dpy-channel.cpp</string>
+		<string>src/dpy-channel.hpp</string>
+		<string>src/ogl-frame.cpp</string>
+		<string>src/ogl-frame.hpp</string>
+		<string>src/ogl-binding.hpp</string>
+		<string>src/ogl-binding.cpp</string>
 		<string>data/glsl/sprite.vert</string>
-		<string>src/dan/danpart.cu</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
