@@ -14,6 +14,7 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <cstdio>
 
 #include "ogl-reflection-env.hpp"
 #include "ogl-irradiance-env.hpp"
