@@ -1,7 +1,11 @@
 <?xml version="1.0"?>
 <host>
-  <channel w="1920" h="1080" x="-0.1" y="0.0" z="0.0" r="0" g="1" b="0" />
-  <channel w="1920" h="1080" x=" 0.1" y="0.0" z="0.0" r="1" g="0" b="1" />
+  <channel w="1920" h="1080" x="-60.0" y="0.0" z="0.0" r="0" g="1" b="0" unit="mm" />
+  <channel w="1920" h="1080" x=" 60.0" y="0.0" z="0.0" r="1" g="0" b="1" unit="mm" />
+<!--
+  <channel w="1920" h="1080" x="-0.0" y="0.0" z="0.0" r="0" g="1" b="0" />
+  <channel w="1920" h="1080" x=" 0.0" y="0.0" z="0.0" r="1" g="0" b="1" />
+-->
 
   <!-- This determines the location of the GUI overlay -->
 
@@ -68,11 +72,12 @@
     </display>
   </node>
 
-  <!-- Column 0 ----------------------------------------------------------- -->
+  <!-- Column 0 -->
 
   <node name="tile-0-0-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -86,6 +91,7 @@
   <node name="tile-0-0-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -100,6 +106,7 @@
   <node name="tile-0-1-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -113,6 +120,7 @@
   <node name="tile-0-1-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -127,6 +135,7 @@
   <node name="tile-0-2-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -140,6 +149,7 @@
   <node name="tile-0-2-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -151,11 +161,12 @@
     </display>
   </node>
 
-  <!-- Column 1 ----------------------------------------------------------- -->
+  <!-- Column 1 -->
 
   <node name="tile-1-0-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -169,6 +180,7 @@
   <node name="tile-1-0-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -183,6 +195,7 @@
   <node name="tile-1-1-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -196,6 +209,7 @@
   <node name="tile-1-1-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -210,6 +224,7 @@
   <node name="tile-1-2-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -223,6 +238,7 @@
   <node name="tile-1-2-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -234,11 +250,12 @@
     </display>
   </node>
 
-  <!-- Column 2 ----------------------------------------------------------- -->
+  <!-- Column 2 -->
 
   <node name="tile-2-0-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -252,6 +269,7 @@
   <node name="tile-2-0-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -266,6 +284,7 @@
   <node name="tile-2-1-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -279,6 +298,7 @@
   <node name="tile-2-1-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -293,6 +313,7 @@
   <node name="tile-2-2-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -306,6 +327,7 @@
   <node name="tile-2-2-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -317,11 +339,12 @@
     </display>
   </node>
 
-  <!-- Column 3 ----------------------------------------------------------- -->
+  <!-- Column 3 -->
 
   <node name="tile-3-0-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -335,6 +358,7 @@
   <node name="tile-3-0-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -349,6 +373,7 @@
   <node name="tile-3-1-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -362,6 +387,7 @@
   <node name="tile-3-1-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -376,6 +402,7 @@
   <node name="tile-3-2-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -389,6 +416,7 @@
   <node name="tile-3-2-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -400,11 +428,12 @@
     </display>
   </node>
 
-  <!-- Column 4 ----------------------------------------------------------- -->
+  <!-- Column 4 -->
 
   <node name="tile-4-0-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -418,6 +447,7 @@
   <node name="tile-4-0-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -432,6 +462,7 @@
   <node name="tile-4-1-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -445,6 +476,7 @@
   <node name="tile-4-1-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -459,6 +491,7 @@
   <node name="tile-4-2-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -472,6 +505,7 @@
   <node name="tile-4-2-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
@@ -483,31 +517,33 @@
     </display>
   </node>
 
-  <!-- Floor -------------------------------------------------------------- -->
+  <!-- Floor -->
 
   <node name="tile-5-0-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
-    <display type="normal" channel="1">
+    <device index="0"/>
+    <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x="-1366" y="-1759" z="1532" unit="mm"/>
-        <corner name="BR" x=" 1366" y="-1759" z="1532" unit="mm"/>
-        <corner name="TL" x="-1366" y="-1759" z="   0" unit="mm"/>
-        <corner name="TR" x=" 1366" y="-1759" z="   0" unit="mm"/>
+        <corner name="BL" x="-1362" y="-1759" z="1482" unit="mm"/>
+        <corner name="BR" x=" 1362" y="-1759" z="1482" unit="mm"/>
+        <corner name="TL" x="-1362" y="-1759" z=" -50" unit="mm"/>
+        <corner name="TR" x=" 1362" y="-1759" z=" -50" unit="mm"/>
       </frustum>
     </display>
   </node>
   <node name="tile-5-0-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
-    <display type="normal" channel="0">
+    <device index="1"/>
+    <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x="-1366" y="-1759" z="1177" unit="mm"/>
-        <corner name="BR" x=" 1366" y="-1759" z="1177" unit="mm"/>
-        <corner name="TL" x="-1366" y="-1759" z="-355" unit="mm"/>
-        <corner name="TR" x=" 1366" y="-1759" z="-355" unit="mm"/>
+        <corner name="BL" x="-1362" y="-1759" z="1168" unit="mm"/>
+        <corner name="BR" x=" 1362" y="-1759" z="1168" unit="mm"/>
+        <corner name="TL" x="-1362" y="-1759" z="-364" unit="mm"/>
+        <corner name="TR" x=" 1362" y="-1759" z="-364" unit="mm"/>
       </frustum>
     </display>
   </node>
@@ -515,30 +551,30 @@
   <node name="tile-5-1-L">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="0"/>
     <display type="normal" channel="0">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x="-1366" y="-1759" z="   25" unit="mm"/>
-        <corner name="BR" x=" 1366" y="-1759" z="   25" unit="mm"/>
-        <corner name="TL" x="-1366" y="-1759" z="-1507" unit="mm"/>
-        <corner name="TR" x=" 1366" y="-1759" z="-1507" unit="mm"/>
+        <corner name="BL" x="-1362" y="-1759" z="  -50" unit="mm"/>
+        <corner name="BR" x=" 1362" y="-1759" z="  -50" unit="mm"/>
+        <corner name="TL" x="-1362" y="-1759" z="-1582" unit="mm"/>
+        <corner name="TR" x=" 1362" y="-1759" z="-1582" unit="mm"/>
       </frustum>
     </display>
   </node>
   <node name="tile-5-1-R">
     <server addr="10.0.2.1" port="2827"/>
     <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <device index="1"/>
     <display type="normal" channel="1">
       <viewport x="0" y="0" w="1920" h="1080"/>
       <frustum>
-        <corner name="BL" x="-1366" y="-1759" z="  115" unit="mm"/>
-        <corner name="BR" x=" 1366" y="-1759" z="  115" unit="mm"/>
-        <corner name="TL" x="-1366" y="-1759" z="-1417" unit="mm"/>
-        <corner name="TR" x=" 1366" y="-1759" z="-1417" unit="mm"/>
+        <corner name="BL" x="-1362" y="-1759" z="   90" unit="mm"/>
+        <corner name="BR" x=" 1362" y="-1759" z="   90" unit="mm"/>
+        <corner name="TL" x="-1362" y="-1759" z="-1442" unit="mm"/>
+        <corner name="TR" x=" 1362" y="-1759" z="-1442" unit="mm"/>
       </frustum>
     </display>
   </node>
-
-  <!-- -------------------------------------------------------------------- -->
 
 </host>
