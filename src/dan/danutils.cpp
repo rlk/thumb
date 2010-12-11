@@ -97,3 +97,7 @@ float distPointPlane(float x1, float y1, float z1,float x2, float y2, float z2,
 	return	sum/iter;		
 }
 
+float ftToM(float ft)
+{
+return 0.3048 * ft;
+}

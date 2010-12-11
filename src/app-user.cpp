@@ -69,7 +69,6 @@ app::user::user() :
     load_mat(current_S, S);
 
     auto_b = false;
-    home();
 
     move_rate_k = ::conf->get_f("view_move_rate");
     turn_rate_k = ::conf->get_f("view_turn_rate");
@@ -91,8 +90,6 @@ app::user::user() :
     int opts;
 
     set_state(curr, opts);
-
-//  home();
 }
 
 void app::user::set(const double *p, const double *q, double t)

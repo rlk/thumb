@@ -436,6 +436,7 @@ app::host::host(std::string filename, std::string tag) :
     bench(0),
     movie(0),
     count(0),
+    device(0),
     calibration_state(false),
     calibration_index(0),
     overlay(0),
@@ -484,6 +485,11 @@ app::host::host(std::string filename, std::string tag) :
                 buffer_size[0] = window_size[2];
                 buffer_size[1] = window_size[3];
             }
+
+            // Extract the preferred CUDA device configuration.
+
+            if (app::node c = n.find("device"))
+                device = c.get_i("index");
 
             // Create a display object for each configured display.
 
@@ -737,7 +743,7 @@ void app::host::draw()
     // Cache the frustum projections (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_distances(r.get_n(), r.get_f());
+        (*i)->set_distances(r.get_n() * 0.999, r.get_f());
 
     // Perform the lighting prepass (possibly expensive).
 

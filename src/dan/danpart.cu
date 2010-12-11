@@ -155,9 +155,9 @@ if (DEBUG == 1)
 	}
 			
 }
-	__device__ void  planeReflector1(float posX,float posY,float posZ,float newX, float newY,float newZ,unsigned int arrayLoc,unsigned int posLoc,int reflNum,float time,float4* pos, float* pdata,float* debugData)
+	__device__ void  planeReflector1(float posX,float posY,float posZ,unsigned int arrayLoc,unsigned int posLoc,int reflNum,float time,float4* pos, float* pdata,float* debugData)
 {
-	float xn =1,yn =1,zn =0, rad =1,damping =.7;
+	float xn =1,yn =1,zn =0, rad =1,damping =.7,noTraping;
 	float xp,yp,zp;
 
 	//indexices num injectors =0,position =[reflNum][1][0],normal =[reflNum][2][0], size =[reflNum][3][0] tuv jiter = [reflNum ][4][0],damping = [reflNum ][4][0],centrality of randum = 21
@@ -168,6 +168,7 @@ if (DEBUG == 1)
 	xn = refldata[reflNum][2][0];yn = refldata[reflNum][2][1];zn = refldata[reflNum][2][2];//normal
 	rad = refldata[reflNum][3][0];
 	damping = refldata[reflNum][5][0];
+	noTraping = refldata[reflNum][5][1];
 	xp = refldata[reflNum][1][0];yp = refldata[reflNum][1][1];zp = refldata[reflNum][1][2];//reflector position
 
 
@@ -177,9 +178,9 @@ if (DEBUG == 1)
     yn = yn/length;
     zn = zn/length;
 
-	float distx = newX - xp;//point position - reflector position
-	float disty = newY - yp;
-	float distz = newZ - zp;
+	float distx = posX - xp;//point position - reflector position
+	float disty = posY - yp;
+	float distz = posZ - zp;
 
 
 	 	float xv = pdata[arrayLoc+1];float yv = pdata[arrayLoc+2];float zv = pdata[arrayLoc+3];
@@ -198,15 +199,14 @@ if (DEBUG == 1)
 		     	float newVZ =(zv - 2.0*ndotv*zn);
 				// experments to lower traping  did not work
 				//damping =1;
-	      		//pos[posLoc].x  = posX + newVX;
-       			//pos[posLoc].y  = posY + newVY;
-       			//pos[posLoc].z  = posZ + newVZ;
-	      		//pos[posLoc].x  = posX - (newX - posX) + newVX;
-       			//pos[posLoc].y  = posY - (newY - posY) + newVY;
-       			//pos[posLoc].z  = posZ - (newZ - posZ  + newVZ);
-		      	pdata[arrayLoc+1] =newVX*damping;
-		       	pdata[arrayLoc+2] =newVY*damping;
-		     	pdata[arrayLoc+3] =newVZ*damping;
+				//one iteration wothout damping to prevent capture.
+	      		pos[posLoc].x  = posX + noTraping * newVX;
+       			pos[posLoc].y  = posY + noTraping * newVY;
+       			pos[posLoc].z  = posZ + noTraping * newVZ;
+
+		      	pdata[arrayLoc+1] = newVX*damping;
+		       	pdata[arrayLoc+2] = newVY*damping;
+		     	pdata[arrayLoc+3] = newVZ*damping;
 				
 				//pdata[arrayLoc] = 0;// temp set age to 0
 				
@@ -217,14 +217,14 @@ if (DEBUG == 1)
 
 extern "C"
 __global__ void Point1(float4* pos, float * pdata,float * debugData ,unsigned int width,
-unsigned int height, int max_age, float time, float r1, float r2, float r3)
+unsigned int height, int max_age, float time, float gravity, float colorFreq, float r3)
 {
 
 	// r1,r2,r3 curently not used
     unsigned int x = blockIdx.x*blockDim.x + threadIdx.x;
     unsigned int y = blockIdx.y*blockDim.y + threadIdx.y;
 	
-    unsigned int arrayLoc = y*width*7 + x*7;
+    unsigned int arrayLoc = y*width*PDATA_ROW_SIZE + x*PDATA_ROW_SIZE;
     unsigned int posLoc = y*width+x;
 	float newX,newY,newZ,posX,posY,posZ;
 
@@ -242,7 +242,7 @@ unsigned int height, int max_age, float time, float r1, float r2, float r3)
   	if (pdata[arrayLoc] >= max_age)
 		{
 		
-		int injecNum = ((arrayLoc/7) % (int) injdata[0][0][0]) +1;// pdata row mod number of injectors 
+		int injecNum = ((arrayLoc/PDATA_ROW_SIZE) % (int) injdata[0][0][0]) +1;// pdata row mod number of injectors 
 		injector2(arrayLoc,posLoc,injecNum,time,pos,pdata,debugData);
 		pdata[arrayLoc] = 0;//set age to 0
 
@@ -250,17 +250,9 @@ unsigned int height, int max_age, float time, float r1, float r2, float r3)
 
 		posX=pos[posLoc].x;posY=pos[posLoc].y;posZ=pos[posLoc].z;
  
-  // add velocity to position  ie intigrate
-		{
-      	newX = posX + pdata[arrayLoc+1];
-       	newY = posY + pdata[arrayLoc+2];
-       	newZ = posZ + pdata[arrayLoc+3];
-		}
+ 
 
-
-       pdata[arrayLoc] += 1;        // increase age
-       pdata[arrayLoc+2] -= 0.00001; // gravity
-
+ 
  
 	// reflector
 
@@ -268,12 +260,20 @@ unsigned int height, int max_age, float time, float r1, float r2, float r3)
 			{
 				
 				//planeReflector1( pos[posLoc].x, pos[posLoc].y, pos[posLoc].z,arrayLoc,posLoc,reflNum,time,pos,pdata,debugData);			
-				planeReflector1(posX,posY,posZ, newX, newY, newZ,arrayLoc,posLoc,reflNum,time,pos,pdata,debugData);			
+				if (refldata[reflNum][0][0] ==1)planeReflector1(posX,posY,posZ,arrayLoc,posLoc,reflNum,time,pos,pdata,debugData);			
 			}
 	
- 
+       pdata[arrayLoc] += 1;        // increase age
+       pdata[arrayLoc+2] -= gravity; // gravity
+
+		{ // add velocity to position  ie intigrate but not store in pos[]
+		posX=pos[posLoc].x;posY=pos[posLoc].y;posZ=pos[posLoc].z;// plane reflector modifyes position info
+      	newX = posX + pdata[arrayLoc+1];
+       	newY = posY + pdata[arrayLoc+2];
+       	newZ = posZ + pdata[arrayLoc+3];
+		}
+
 	
-	float colorFreq = 16.0f;
  
 			{
    	 		pos[width*height + posLoc].y = (cos(colorFreq * 2.0 * pdata[arrayLoc]/max_age))/2.0f + 0.5f ;//green

@@ -52,13 +52,18 @@ class danpart : public app::prog
 	float state ;
        int trigger,triggerold;
        int but4,but4old;
+       int but3,but3old;
+       int but2,but2old;
+       int but1,but1old;
 
        // audio files
        int chimes ;
        int pinkNoise ;
        int whiteNoise ;
        int harmonicAlgorithm ;
-
+       int texture_12 ;
+		int short_sound_01a;
+		int texture_17_swirls3;
 
     // CUDA state.
 // multpul function
@@ -78,9 +83,19 @@ class danpart : public app::prog
     // Particle system state.
 
     float anim;
-    int   max_age;
+	int   max_age;
+	float showFrameNo;
+	double showStartTime;
+	double showTime;
+	double lastShowTime;
+	float gravity;
+	float colorFreq;
+
     int   mesh_width;
     int   mesh_height;
+	int  draw_water_sky;
+
+	
 
     CUdeviceptr d_particleData;
     float      *h_particleData;
@@ -94,10 +109,17 @@ class danpart : public app::prog
 	size_t sizei;
 	size_t sizeRefl;
     void data_init();
-    
+    void pdata_init_age(int max_age);
+    void pdata_init_velocity(float vx,float vy,float vz);
+	void pdata_init_rand();
+  
     void draw_scene();
     void draw_triangles();
-    
+	int scene0Start;
+	void scene_data_0();
+	int scene3Start;	
+  	void scene_data_3();
+  
     ogl::sprite  *particle;
     ogl::mirror  *water;
 

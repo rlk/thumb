@@ -95,6 +95,7 @@ namespace app
         int window_frame;
         int window_size[4];
         int buffer_size[2];
+        int device;
 
         std::vector<dpy::display *> displays;
         std::vector<dpy::channel *> channels;
@@ -128,6 +129,7 @@ namespace app
         int get_window_h() const { return window_size[3]; }
         int get_buffer_w() const { return buffer_size[0]; }
         int get_buffer_h() const { return buffer_size[1]; }
+        int get_device()   const { return device; }
 
         const app::frustum *get_overlay() const { return overlay; }
 
