@@ -30,6 +30,10 @@ namespace dev
 
         int    button_A;
         int    button_H;
+        int    button_head_L;
+        int    button_head_R;
+        int    button_head_U;
+        int    button_head_D;
 
         // Navigation state
 

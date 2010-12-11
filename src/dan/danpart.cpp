@@ -722,6 +722,9 @@ bool danpart::process_point(app::event *E)
    	double V[3];
   	::user->get_point(P, p, V, q);
 	//printf( " id pos %i %f %f %f \n",trackDevID,P[0],P[1],P[2]);
+
+        P[0] += 0.1;
+        P[1] -= 0.1;
  
 	if (trackDevID ==1)
 		{

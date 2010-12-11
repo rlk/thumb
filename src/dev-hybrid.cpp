@@ -17,6 +17,7 @@
 #include "matrix.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
+#include "app-host.hpp"
 #include "app-event.hpp"
 #include "dev-hybrid.hpp"
 
@@ -26,13 +27,18 @@ dev::hybrid::hybrid()
 {
     // Defaults are arbitrarily chosen to conform to the XBox 360 controller
 
-    pos_axis_LR = conf->get_i("hybrid_pos_axis_LR", 0);
-    pos_axis_FB = conf->get_i("hybrid_pos_axis_FB", 1);
-    rot_axis_LR = conf->get_i("hybrid_rot_axis_LR", 2);
-    rot_axis_UD = conf->get_i("hybrid_rot_axis_UD", 3);
+    pos_axis_LR   = conf->get_i("hybrid_pos_axis_LR", 0);
+    pos_axis_FB   = conf->get_i("hybrid_pos_axis_FB", 1);
+    rot_axis_LR   = conf->get_i("hybrid_rot_axis_LR", 2);
+    rot_axis_UD   = conf->get_i("hybrid_rot_axis_UD", 3);
 
-    button_A    = conf->get_i("hybrid_button_A", 0);
-    button_H    = conf->get_i("hybrid_button_H", 5);
+    button_A      = conf->get_i("hybrid_button_A", 0);
+    button_H      = conf->get_i("hybrid_button_H", 5);
+
+    button_head_L = conf->get_i("hybrid_button_head_L", 13);
+    button_head_R = conf->get_i("hybrid_button_head_R", 12);
+    button_head_U = conf->get_i("hybrid_button_head_U", 14);
+    button_head_D = conf->get_i("hybrid_button_head_D", 11);
 
     position[0] = 0;
     position[1] = 0;
@@ -45,16 +51,22 @@ dev::hybrid::hybrid()
 
 bool dev::hybrid::process_click(app::event *E)
 {
-    const int  i = E->data.click.i;
     const int  b = E->data.click.b;
-    const int  m = E->data.click.m;
     const bool d = E->data.click.d;
     const int dd = d ? +1 : -1;
 
-    printf("process_click %d %d %d %d\n", i, b, m, d);
+    const double s = 0.05;
+
+    double p[3] = { 0, 0, 0    };
+    double q[4] = { 0, 0, 0, 1 };
 
     if (b == button_H) { ::user->home();  return true; }
 
+    else if (b == button_head_L) { p[0] = d ? -s : 0; ::host->set_head(p, q); }
+    else if (b == button_head_R) { p[0] = d ? +s : 0; ::host->set_head(p, q); }
+    else if (b == button_head_D) { p[1] = d ? -s : 0; ::host->set_head(p, q); }
+    else if (b == button_head_U) { p[1] = d ? +s : 0; ::host->set_head(p, q); }
+    
     return false;
 }
 
@@ -62,8 +74,6 @@ bool dev::hybrid::process_value(app::event *E)
 {
     const int    a = E->data.value.a;
     const double v = E->data.value.v / 32767.0;
-
-    printf("process_value %d %f\n", a, v);
 
     if      (a == pos_axis_LR) { position[0] = +v; return true; }
     else if (a == pos_axis_FB) { position[2] = +v; return true; }
@@ -83,8 +93,6 @@ bool dev::hybrid::process_timer(app::event *E)
     const double kp = dt * ::user->get_move_rate();
     const double kr = dt * ::user->get_turn_rate();
     const double kt = 3.0 * 60.0 * 60.0 * dt;
-
-    printf("%f %f\n", ::user->get_move_rate(), ::user->get_turn_rate());
 
     if (fabs(position[0]) > dz ||
         fabs(position[1]) > dz ||
