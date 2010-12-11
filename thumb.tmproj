@@ -3,7 +3,7 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>data/glsl/mirror-water.vert</string>
+	<string>data/glsl/mirror-water.frag</string>
 	<key>documents</key>
 	<array>
 		<dict>
@@ -19,7 +19,7 @@
 					<key>filename</key>
 					<string>src/Makefile</string>
 					<key>lastUsed</key>
-					<date>2010-11-04T18:46:50Z</date>
+					<date>2010-11-06T15:43:08Z</date>
 				</dict>
 				<dict>
 					<key>filename</key>
@@ -53,13 +53,13 @@
 							<key>filename</key>
 							<string>src/dan/danpart.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:36:20Z</date>
+							<date>2010-11-06T16:42:41Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
 							<string>src/dan/danpart.hpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:36:18Z</date>
+							<date>2010-11-06T16:29:38Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -148,7 +148,7 @@
 							<key>filename</key>
 							<string>src/demo.hpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:32:34Z</date>
+							<date>2010-11-06T16:21:35Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -268,7 +268,7 @@
 							<key>filename</key>
 							<string>src/ogl-frame.hpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:29:50Z</date>
+							<date>2010-11-06T16:31:53Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -290,7 +290,7 @@
 							<key>filename</key>
 							<string>src/ogl-mirror.hpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:36:25Z</date>
+							<date>2010-11-06T16:29:54Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -331,6 +331,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/ogl-sprite.hpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:52:33Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -497,13 +499,13 @@
 							<key>filename</key>
 							<string>src/app-user.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-09-29T17:24:27Z</date>
+							<date>2010-11-06T16:55:25Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
 							<string>src/demo.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:33:03Z</date>
+							<date>2010-11-06T16:24:58Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -537,7 +539,7 @@
 							<key>filename</key>
 							<string>src/dpy-channel.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:31:35Z</date>
+							<date>2010-11-06T15:59:13Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -550,6 +552,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/dpy-lenticular.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T16:00:13Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -558,6 +562,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/dpy-varrier.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T15:59:48Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -623,7 +629,7 @@
 							<key>filename</key>
 							<string>src/ogl-frame.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:30:29Z</date>
+							<date>2010-11-06T16:31:50Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -645,7 +651,7 @@
 							<key>filename</key>
 							<string>src/ogl-mirror.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:36:37Z</date>
+							<date>2010-11-06T16:32:36Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -687,7 +693,7 @@
 							<key>filename</key>
 							<string>src/ogl-sprite.cpp</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T14:42:32Z</date>
+							<date>2010-11-06T16:33:17Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -786,6 +792,8 @@
 						<dict>
 							<key>filename</key>
 							<string>src/wrl-world.cpp</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T16:04:22Z</date>
 						</dict>
 					</array>
 					<key>expanded</key>
@@ -816,7 +824,7 @@
 					<key>filename</key>
 					<string>data/demo.xml</string>
 					<key>lastUsed</key>
-					<date>2010-11-03T17:30:32Z</date>
+					<date>2010-11-06T19:38:15Z</date>
 				</dict>
 				<dict>
 					<key>filename</key>
@@ -835,7 +843,7 @@
 							<key>filename</key>
 							<string>data/material/mirror-water.xml</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:38:42Z</date>
+							<date>2010-11-06T16:31:29Z</date>
 						</dict>
 					</array>
 					<key>expanded</key>
@@ -849,6 +857,8 @@
 						<dict>
 							<key>filename</key>
 							<string>data/program/sprite-color.xml</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T16:44:12Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
@@ -858,7 +868,7 @@
 							<key>filename</key>
 							<string>data/program/mirror-water.xml</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:39:02Z</date>
+							<date>2010-11-06T16:31:32Z</date>
 						</dict>
 					</array>
 					<key>expanded</key>
@@ -877,7 +887,7 @@
 							<key>filename</key>
 							<string>data/texture/water-normal.xml</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:39:28Z</date>
+							<date>2010-11-06T16:10:39Z</date>
 						</dict>
 					</array>
 					<key>expanded</key>
@@ -891,26 +901,28 @@
 						<dict>
 							<key>filename</key>
 							<string>data/glsl/sprite.frag</string>
+							<key>lastUsed</key>
+							<date>2010-11-06T16:33:18Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
 							<string>data/glsl/sprite.vert</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:15:06Z</date>
+							<date>2010-11-06T16:53:40Z</date>
 						</dict>
 						<dict>
 							<key>filename</key>
 							<string>data/glsl/mirror-water.frag</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:39:32Z</date>
+							<date>2010-11-08T15:22:22Z</date>
+							<key>selected</key>
+							<true/>
 						</dict>
 						<dict>
 							<key>filename</key>
 							<string>data/glsl/mirror-water.vert</string>
 							<key>lastUsed</key>
-							<date>2010-11-06T15:39:32Z</date>
-							<key>selected</key>
-							<true/>
+							<date>2010-11-06T16:35:26Z</date>
 						</dict>
 					</array>
 					<key>expanded</key>
@@ -957,19 +969,33 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
+		<key>data/demo.xml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>2</integer>
+				<key>line</key>
+				<integer>2</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
 		<key>data/glsl/mirror-water.frag</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>53</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>59</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>18</integer>
+			<integer>20</integer>
 		</dict>
 		<key>data/glsl/mirror-water.vert</key>
 		<dict>
@@ -978,7 +1004,21 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>1</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>data/glsl/sprite.frag</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>25</integer>
+				<key>line</key>
+				<integer>8</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -1006,7 +1046,7 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>8</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -1032,9 +1072,23 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>0</integer>
+				<integer>35</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>6</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>data/program/sprite-color.xml</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>23</integer>
+				<key>line</key>
+				<integer>3</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -1060,14 +1114,14 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>38</integer>
+				<integer>11</integer>
 				<key>line</key>
-				<integer>131</integer>
+				<integer>28</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>110</integer>
+			<integer>12</integer>
 		</dict>
 		<key>src/app-conf.hpp</key>
 		<dict>
@@ -1139,6 +1193,20 @@
 			<key>firstVisibleLine</key>
 			<integer>29</integer>
 		</dict>
+		<key>src/app-user.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>2</integer>
+				<key>line</key>
+				<integer>307</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>272</integer>
+		</dict>
 		<key>src/dan/dan_state.enum</key>
 		<dict>
 			<key>caret</key>
@@ -1158,23 +1226,23 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>42</integer>
+				<integer>2</integer>
 				<key>line</key>
-				<integer>572</integer>
+				<integer>846</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>557</integer>
+			<integer>805</integer>
 		</dict>
 		<key>src/dan/danpart.hpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>4</integer>
+				<integer>30</integer>
 				<key>line</key>
-				<integer>91</integer>
+				<integer>94</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
@@ -1202,12 +1270,28 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>0</integer>
+				<integer>130</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>199</integer>
+			<integer>100</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>129</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>130</integer>
+			</dict>
 		</dict>
 		<key>src/demo.hpp</key>
 		<dict>
@@ -1216,44 +1300,88 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>0</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>83</integer>
-		</dict>
-		<key>src/dpy-channel.cpp</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>31</integer>
-				<key>line</key>
-				<integer>303</integer>
+				<integer>74</integer>
 			</dict>
 			<key>columnSelection</key>
 			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>53</integer>
+			<integer>43</integer>
 			<key>selectFrom</key>
 			<dict>
 				<key>column</key>
-				<integer>26</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>303</integer>
+				<integer>73</integer>
 			</dict>
 			<key>selectTo</key>
 			<dict>
 				<key>column</key>
-				<integer>31</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>303</integer>
+				<integer>74</integer>
+			</dict>
+		</dict>
+		<key>src/dpy-channel.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>171</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>194</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>155</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>171</integer>
 			</dict>
 		</dict>
 		<key>src/dpy-channel.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+		</dict>
+		<key>src/dpy-lenticular.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>116</integer>
+		</dict>
+		<key>src/dpy-varrier.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
@@ -1351,7 +1479,7 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>27</integer>
+			<integer>81</integer>
 		</dict>
 		<key>src/ogl-frame.hpp</key>
 		<dict>
@@ -1365,14 +1493,28 @@
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>35</integer>
 		</dict>
 		<key>src/ogl-mirror.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>69</integer>
+				<integer>55</integer>
+				<key>line</key>
+				<integer>62</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>37</integer>
+		</dict>
+		<key>src/ogl-mirror.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>18</integer>
 				<key>line</key>
 				<integer>21</integer>
 			</dict>
@@ -1381,19 +1523,63 @@
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
 		</dict>
-		<key>src/ogl-mirror.hpp</key>
+		<key>src/ogl-sprite.cpp</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>36</integer>
 				<key>line</key>
-				<integer>34</integer>
+				<integer>37</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>2</integer>
+		</dict>
+		<key>src/ogl-sprite.hpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>26</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
 			<integer>0</integer>
+		</dict>
+		<key>src/wrl-world.cpp</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>1183</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>1139</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>1148</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>1183</integer>
+			</dict>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
@@ -1416,19 +1602,28 @@
 		<string>src/dan/danpart.cpp</string>
 		<string>src/ogl-mirror.hpp</string>
 		<string>src/ogl-mirror.cpp</string>
+		<string>src/ogl-sprite.cpp</string>
+		<string>data/glsl/sprite.frag</string>
+		<string>src/ogl-sprite.hpp</string>
 		<string>data/material/sprite.xml</string>
 		<string>data/material/mirror-water.xml</string>
 		<string>data/program/mirror-water.xml</string>
 		<string>data/texture/water-normal.xml</string>
 		<string>data/glsl/mirror-water.frag</string>
+		<string>data/program/sprite-color.xml</string>
 		<string>data/glsl/mirror-water.vert</string>
 		<string>src/dpy-channel.cpp</string>
 		<string>src/dpy-channel.hpp</string>
 		<string>src/ogl-frame.cpp</string>
+		<string>src/wrl-world.cpp</string>
+		<string>src/dpy-varrier.cpp</string>
+		<string>src/dpy-lenticular.cpp</string>
 		<string>src/ogl-frame.hpp</string>
 		<string>src/ogl-binding.hpp</string>
 		<string>src/ogl-binding.cpp</string>
 		<string>data/glsl/sprite.vert</string>
+		<string>src/app-user.cpp</string>
+		<string>data/demo.xml</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>

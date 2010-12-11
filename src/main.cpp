@@ -231,10 +231,10 @@ static void init(std::string tag)
     user = new app::user();
     glob = new app::glob();
     perf = new app::perf();
-    prog = new danpart(::host->get_buffer_w(),
-                       ::host->get_buffer_h());
-//  prog = new demo(::host->get_buffer_w(),
-//                  ::host->get_buffer_h());
+//  prog = new danpart(::host->get_buffer_w(),
+//                     ::host->get_buffer_h());
+    prog = new demo(::host->get_buffer_w(),
+                    ::host->get_buffer_h());
 
     // Initialize the controllers.
 
