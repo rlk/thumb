@@ -33,8 +33,9 @@
 #include "../app-glob.hpp"
 
 #include "../dev-mouse.hpp"
-#include "../dev-tracker.hpp"
+#include "../dev-hybrid.hpp"
 #include "../dev-gamepad.hpp"
+#include "../dev-tracker.hpp"
 
 #include <cuda.h>
 #include <cudaGL.h>
@@ -399,7 +400,9 @@ void danpart::cuda_step()
  		cuEventSynchronize(stop);
  		float elapsedTime;
  		cuEventElapsedTime(&elapsedTime, start, stop);
+/*
 		printf (" cudaProcTime %f \n \n", elapsedTime );
+*/
 		cuEventDestroy (start ); cuEventDestroy (stop );
 		}
 
@@ -632,8 +635,9 @@ danpart::danpart(int w, int h) :
 
     // Initialize the input handler.
 
-    if      (input_mode == "tracker") input = new dev::tracker();
+    if      (input_mode == "hybrid")  input = new dev::hybrid();
     else if (input_mode == "gamepad") input = new dev::gamepad();
+    else if (input_mode == "tracker") input = new dev::tracker();
     else                              input = new dev::mouse  ();
 
     cuda_init();

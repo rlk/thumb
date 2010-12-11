@@ -92,8 +92,8 @@ namespace app
         const double  *get_S() const { return current_S; }
         const double  *get_L() const { return current_L; }
         double         get_t() const { return current_t; }
-        double get_move_rate() const { return move_rate * move_rate_k; }
-        double get_turn_rate() const { return turn_rate * move_rate_k; }
+        double get_move_rate() const { return move_rate_k; }
+        double get_turn_rate() const { return turn_rate_k; }
 
         void put_move_rate(double r) { move_rate = r; }
         void put_turn_rate(double r) { turn_rate = r; }
