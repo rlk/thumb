@@ -36,6 +36,7 @@
 #include "../dev-hybrid.hpp"
 #include "../dev-tracker.hpp"
 #include "../dev-gamepad.hpp"
+#include "../matrix.hpp"
 
 #include <cuda.h>
 #include <cudaGL.h>
@@ -742,7 +743,9 @@ bool danpart::process_point(app::event *E)
     double *q = E->data.point.q;
 	trackDevID =E->data.point.i;
  
-  
+    const double *A = ::user->get_M();
+    double B[16];  
+ 
    	double P[3];
    	double V[3];
   	::user->get_point(P, p, V, q);
@@ -755,8 +758,14 @@ bool danpart::process_point(app::event *E)
 		}
 	if (trackDevID == tracker_hand_sensor)
 		{
-			wandPos[0]=P[0];wandPos[1]=P[1];wandPos[2]=P[2];
-			wandVec[0]=V[0];wandVec[1]=V[1];wandVec[2]=V[2];
+            double t[3], o[3] = { 0.0, 0.150, 0.0 };
+
+            set_quaternion(B, q);
+            mult_mat_vec3(t, B, o);
+            mult_mat_vec3(o, A, t);
+
+			wandPos[0]=P[0]+t[0];wandPos[1]=P[1]+t[1];wandPos[2]=P[2]+t[2];
+			wandVec[0]=V[0];     wandVec[1]=V[1];     wandVec[2]=V[2];
 		}
 
 //P position V vector p position tracker in cave quadens q quaterian in cavequardinants

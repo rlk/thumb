@@ -7,7 +7,9 @@
 #ifdef linux
 #include <time.h>
 #endif
+#ifndef PI
 #define PI 3.14159
+#endif
 #define DEGTORAD   3.14159/180.0
 #define LOG2 3.321928
 

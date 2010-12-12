@@ -144,11 +144,14 @@ static bool tracker_init(int t_key, int c_key)
         sensors = (sensor   *) calloc(tracker->count,     sizeof (sensor));
 
     // Initialize the calibration transform.
-
+#if NEXCAVE
     T[ 0] =  1.0; T[ 4] =  0.0;  T[ 8] =  0.0;  T[12] =  0.0;
     T[ 1] =  0.0; T[ 5] =  0.0;  T[ 9] =  1.0;  T[13] =  0.0;
     T[ 2] =  0.0; T[ 6] = -1.0;  T[10] =  0.0;  T[14] =  0.0;
     T[ 3] =  0.0; T[ 7] =  0.0;  T[11] =  0.0;  T[15] =  1.0;
+#else
+    load_idt(T);
+#endif
 
     return true;
 }
@@ -257,19 +260,19 @@ static bool tracker_sensor(int id, double p[3], double q[4])
                 t[0] = double(S->r[0]);
                 t[1] = double(S->r[1]);
                 t[2] = double(S->r[2]);
-#if 1
-                /* StarCAVE-style tracking */
-
-                load_rot_mat(M, 0, 1, 0, t[0]);
-                Rmul_rot_mat(M, 1, 0, 0, t[1]);
-                Rmul_rot_mat(M, 0, 0, 1, t[2]);
-#else
+#if NEXCAVE
                 /* NexCAVE-style tracking */
 
 		load_idt(M);
                 Rmul_rot_mat(M, 0, 0, 1, -t[0]);
                 Rmul_rot_mat(M, 1, 0, 0,  t[1]);
                 Rmul_rot_mat(M, 0, 1, 0,  t[2]);
+#else
+                /* StarCAVE-style tracking */
+
+                load_rot_mat(M, 0, 1, 0, t[0]);
+                Rmul_rot_mat(M, 1, 0, 0, t[1]);
+                Rmul_rot_mat(M, 0, 0, 1, t[2]);
 #endif
                 get_quaternion(q, M);
 
