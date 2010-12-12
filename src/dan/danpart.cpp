@@ -34,9 +34,8 @@
 
 #include "../dev-mouse.hpp"
 #include "../dev-hybrid.hpp"
-#include "../dev-gamepad.hpp"
 #include "../dev-tracker.hpp"
-#include "../matrix.hpp"
+#include "../dev-gamepad.hpp"
 
 #include <cuda.h>
 #include <cudaGL.h>
@@ -144,7 +143,8 @@ void danpart::cuda_stepPointSquars()
 	if ( (nowTime - startTime) > intigrate_time)
 		{
 		
-		printf ("%f ms %f FR/sec  ",intigrate_time/frNum*1000,frNum/intigrate_time); startTime = nowTime;  frNum =0;
+		if (FR_RATE_PRINT >0) printf("%f ms %f FR/sec  ",intigrate_time/frNum*1000,frNum/intigrate_time);
+         startTime = nowTime;  frNum =0;
 		}
 	frNum++; 
 	
@@ -238,7 +238,7 @@ void danpart::cuda_stepPointSquars()
  		cuEventSynchronize(stop);
  		float elapsedTime;
  		cuEventElapsedTime(&elapsedTime, start, stop);
-		printf (" cudaProcTime %f \n \n", elapsedTime );
+		if (FR_RATE_PRINT >0) printf(" cudaProcTime %f \n \n", elapsedTime );
 		cuEventDestroy (start ); cuEventDestroy (stop );
 		}
 	
@@ -266,7 +266,8 @@ void danpart::cuda_step()
 	if ( (nowTime - startTime) > intigrate_time)
 		{
 		
-		printf ("%f ms %f FR/sec  ",intigrate_time/frNum*1000,frNum/intigrate_time); startTime = nowTime;  frNum =0;
+		if (FR_RATE_PRINT >0) printf("%f ms %f FR/sec  ",intigrate_time/frNum*1000,frNum/intigrate_time);
+         startTime = nowTime;  frNum =0;
 		}
 	frNum++; 
 	// not curently used  
@@ -274,23 +275,34 @@ void danpart::cuda_step()
 	// seen data
 	//printf ("showTime %f \n",showTime);
 
-/*
-	float sceneTime0 = 0;
-	float sceneTime1 = 10;
-	float sceneTime2 = 100000000;
-	if (showTime < sceneTime1)
+	double sceneTime0 = 0;
+	double sceneTime1 = 1000*30;
+	double sceneTime2 = 10000000* 30;
+    //printf ("showFrameNo lastShowFrameNo %f %f \n",showFrameNo,lastShowFrameNo);
+	if (showFrameNo < sceneTime1)
 	{
-		if (lastShowTime < sceneTime0 && showTime >= sceneTime0){scene0Start =1;}
+		if (lastShowFrameNo < sceneTime0 && showFrameNo >= sceneTime0){scene0Start =1;}
 		scene_data_0();
 	}
 
-	if (showTime >= sceneTime1 && showTime < sceneTime2)
+	if (showFrameNo >= sceneTime1 && showFrameNo < sceneTime2)
 	{
-		if (lastShowTime < sceneTime1 && showTime >= sceneTime1){scene3Start =1;}
+		if (lastShowFrameNo < sceneTime1 && showFrameNo >= sceneTime1){scene3Start =1;}
 		scene_data_3();
 	}
-*/
-		scene_data_3();
+
+	
+	
+	for ( int n =1;n < h_injectorData[0][0][0] +1;n++)
+		{
+			// kludge to handel gimbel lock for velociys straight up			
+			if (h_injectorData[n][3][0 ] ==0 && h_injectorData[n][3][2 ] ==0){ h_injectorData[n][3][0 ] += .0001;}
+			// noramalize velocity vector
+			//float length = sqrt(h_injectorData[n][3][0] * h_injectorData[n][3][0] + h_injectorData[n][3][1] * h_injectorData[n][3][1] + h_injectorData[n][3][2] * h_injectorData[n][3][2]);
+			//h_injectorData[n][3][0]=h_injectorData[n][3][0]/length;h_injectorData[n][3][1]=h_injectorData[n][3][1]/length;h_injectorData[n][3][2]=h_injectorData[n][3][2]/length;
+			
+		}
+
 
 	//copy injdata data to device	
 	{
@@ -323,7 +335,7 @@ void danpart::cuda_step()
 		}
 	
     int offset = 0;
-
+//printf ("disappear_age %d\n",disappear_age);
 #if FUCKING_BROKEN
     void *p;
 
@@ -366,7 +378,11 @@ void danpart::cuda_step()
     cuParamSeti(funcHandPoint1, offset, max_age);
     offset += sizeof (max_age);
 
-    ALIGN_UP(offset, __alignof(anim));
+    ALIGN_UP(offset, __alignof(disappear_age));
+    cuParamSeti(funcHandPoint1, offset, disappear_age);
+    offset += sizeof (disappear_age);
+
+   ALIGN_UP(offset, __alignof(anim));
     cuParamSetf(funcHandPoint1, offset, anim);
     offset += sizeof (anim);
 
@@ -401,9 +417,7 @@ void danpart::cuda_step()
  		cuEventSynchronize(stop);
  		float elapsedTime;
  		cuEventElapsedTime(&elapsedTime, start, stop);
-/*
-		printf (" cudaProcTime %f \n \n", elapsedTime );
-*/
+		if (FR_RATE_PRINT >0) printf(" cudaProcTime %f \n \n", elapsedTime );
 		cuEventDestroy (start ); cuEventDestroy (stop );
 		}
 
@@ -413,13 +427,17 @@ void danpart::cuda_step()
 		printf (" cu debug first 18 location ingroups of 3 \n");
 		for (unsigned int i =0; i < 18;i = i + 3)
 		{
-		printf( " %f %f %f \n",h_debugData[i],h_debugData[i+1],h_debugData[i+2]);
+		if (DEBUG_PRINT >0)printf( " %f %f %f \n",h_debugData[i],h_debugData[i+1],h_debugData[i+2]);
 		
 		}
 
 	}
+
 but4old = but4;
-lastShowTime = showTime;	
+but1old = but1;
+triggerold = trigger;
+lastShowTime = showTime;
+lastShowFrameNo = showFrameNo;
 }
 
 //---------------------------------------------------
@@ -457,6 +475,7 @@ lastShowTime = showTime;
 				h_particleData[PDATA_ROW_SIZE * i +4] = 0.0002 * (rand()%10000) -1.0 ;
 				h_particleData[PDATA_ROW_SIZE * i +5] = 0.0002 * (rand()%10000) -1.0 ;
 				h_particleData[PDATA_ROW_SIZE * i +6] = 0.0002 * (rand()%10000) -1.0 ;
+                //printf ( "rnd num %f %f %f \n", h_particleData[PDATA_ROW_SIZE * i +4],h_particleData[PDATA_ROW_SIZE * i +5],h_particleData[PDATA_ROW_SIZE * i +6]);
 
         	}
 
@@ -572,7 +591,7 @@ data structure for reflectors
 	trackDevID =0;
 	state =0;
 	trigger =0;
-	but4 =0;
+	trigger =0;
 	but3 =0;
 	but2 =0;
 	but1 =0;
@@ -582,7 +601,7 @@ scene3Start =0;
 
 // init timeres
 	showStartTime = getTimeInSecs();
-printf ("showstartTime  %f \n",showStartTime);
+if (DEBUG_PRINT >0) printf("showstartTime  %f \n",showStartTime);
 //init sound server
 	if ((SOUND_SERV ==1) && (::host->root() == 1))
 	{
@@ -591,19 +610,16 @@ printf ("showstartTime  %f \n",showStartTime);
 		printf (" audioConectToServer ");
 		audioConectToServer( "137.110.118.239");
 		//audioConectToServer( "192.168.1.101");
+        
 
-		// get handels for audio files
-		//harmonicAlgorithm = audioGetHandKludge("harmonicAlgorithm22.5.wav");printf ("harmonicAlgorithm %i \n",harmonicAlgorithm);
-		//audioGain(harmonicAlgorithm,1);audioPos(harmonicAlgorithm,0,0,0);;audioLoop(harmonicAlgorithm,1);audioPlay(harmonicAlgorithm,1.0);
-		//audioLoop(harmonicAlgorithm,1);audioPlay(harmonicAlgorithm,1.0);
 		chimes =audioGetHandKludge("chimes.wav");printf(" chimes %i \n",chimes);
+ 		//chimes =audioGetHandKludge("Laurie12_12_10/10120600_Rez.1.wav");printf(" chimes %i \n",chimes);
+ 
+        audioGlobalGain(0.3);
 		audioPlay(chimes,1.0);
 	//	audioLoop(chimes,0);
 	//	audioPlay(chimes,1.0);
-
-		//audioDirectionDegGain(harmonicAlgorithm,1.0,1.0);
-		//audioDirectionDegGain(chimes,0.0,1.0);
-
+ 
 		pinkNoise =audioGetHandKludge("cdtds.31.pinkNoise.wav");printf ("pinkNoise %i \n",pinkNoise);//audioLoop(pinkNoise,0);audioGain(pinkNoise,1);
 		texture_12 =audioGetHandKludge("dan_texture_12.wav");printf ("texture_12 %i \n",texture_12);//audioLoop(whiteNoise,0);audioGain(whiteNoise,1);
 		audioGain(pinkNoise,0);audioLoop(pinkNoise,1);audioPlay(pinkNoise,1.0);
@@ -620,7 +636,7 @@ printf ("showstartTime  %f \n",showStartTime);
 danpart::danpart(int w, int h) :
     input(0),
     anim(0),
-    max_age(2000),showFrameNo(0),showStartTime(0),showTime(0),lastShowTime(-1),gravity(.0001),colorFreq(16),
+    max_age(2000),disappear_age(2000),showFrameNo(0),lastShowFrameNo(-1),showStartTime(0),showTime(0),lastShowTime(-1),gravity(.0001),colorFreq(16),
     mesh_width (CUDA_MESH_WIDTH),
     mesh_height(CUDA_MESH_HEIGHT),draw_water_sky(1),
     
@@ -634,14 +650,11 @@ danpart::danpart(int w, int h) :
 {
     std::string input_mode = conf->get_s("input_mode");
 
-    tracker_head_sensor = ::conf->get_i("tracker_head_sensor");
-    tracker_hand_sensor = ::conf->get_i("tracker_hand_sensor");
-
     // Initialize the input handler.
 
-    if      (input_mode == "hybrid")  input = new dev::hybrid();
+    if      (input_mode == "tracker") input = new dev::tracker();
+    else if (input_mode == "hybrid")  input = new dev::hybrid();
     else if (input_mode == "gamepad") input = new dev::gamepad();
-    else if (input_mode == "tracker") input = new dev::tracker();
     else                              input = new dev::mouse  ();
 
     cuda_init();
@@ -673,17 +686,17 @@ bool danpart::process_keybd(app::event *E)
   const bool d = E->data.keybd.d;
   const int  k = E->data.keybd.k;
   const int  m = E->data.keybd.m;
- printf(" d,k, m %d %d %d \n" ,d,k,m);
+ if (DEBUG_PRINT >0)printf(" d,k, m %d %d %d \n" ,d,k,m);
 
 
 // d: 1 is godown o go up
 // m : 1 is shift or controle
 //k is key code
 
-if (k == SDLK_p)printf ("p \n");
+if (k == SDLK_p)if (DEBUG_PRINT >0) printf("p \n");
 
-if (k == SDLK_UP && d==1){printf ("up down \n");state = 1;}
-if (k == SDLK_UP && d==0){printf ("up up \n");state = 0;}
+if (k == SDLK_UP && d==1){if (DEBUG_PRINT >0) {printf("up down \n");}state = 1;}
+if (k == SDLK_UP && d==0){if (DEBUG_PRINT >0) {printf("up up \n");}state = 0;}
 //printf ("state= %f \n", state);
     return false;
 }
@@ -692,10 +705,18 @@ bool danpart::process_click(app::event *E)
 {  
    const int  b = E->data.click.b;
    const bool d = E->data.click.d;
-	printf (" b , d %d %d \n",b, d);
+	if (DEBUG_PRINT >0) printf(" b , d %d %d \n",b, d);
 	
 	if ((b ==1) & (d == 1)){but4old = but4;but4 = 1;}
 	if ((b ==1) & (d == 0)){but4old = but4;but4 = 0;}
+
+	if ((b ==4) & (d == 1)){but1old = but1;but1 = 1;}
+	if ((b ==4) & (d == 0)){but1old = but1;but1 = 0;}
+
+	if ((b ==0) & (d == 1)){triggerold = trigger;trigger = 1;}
+	if ((b ==0) & (d == 0)){triggerold = trigger;trigger = 0;}
+  	if ((b ==3) & (d == 1)){::user->home();}
+   
 	
 //d true is change to down false change to up
 // return true clames event
@@ -726,9 +747,6 @@ bool danpart::process_point(app::event *E)
    	double V[3];
   	::user->get_point(P, p, V, q);
 	//printf( " id pos %i %f %f %f \n",trackDevID,P[0],P[1],P[2]);
-
-        P[0] += 0.1;
-        P[1] -= 0.1;
  
 	if (trackDevID == tracker_head_sensor)
 		{
@@ -739,7 +757,6 @@ bool danpart::process_point(app::event *E)
 		{
 			wandPos[0]=P[0];wandPos[1]=P[1];wandPos[2]=P[2];
 			wandVec[0]=V[0];wandVec[1]=V[1];wandVec[2]=V[2];
-			set_quaternion(wandM, q);
 		}
 
 //P position V vector p position tracker in cave quadens q quaterian in cavequardinants
@@ -812,29 +829,10 @@ void danpart::draw_triangles()
 
     glPushMatrix();
     {
-        double M[16];
-
-        glTranslated(wandPos[0], wandPos[1], wandPos[2]);
-        mult_mat_mat(M, ::user->get_M(), wandM);
-        M[12] = M[13] = M[14] = 0.0;
-        glMultMatrixd(M);
-        glColor3f(.2, .2, 1.0f);
-        glBegin(GL_TRIANGLES);
-        {
-            glVertex3d(0.0, 0.00,  0.0);
-            glVertex3d(0.0, 0.05, -0.5);
-            glVertex3d(0.0, 0.00, -0.5);
-        }
-        glEnd();
-    }
-    glPopMatrix();
-   
-    glPushMatrix();
-    {
         glBegin(GL_TRIANGLES);
         {
             GLfloat h;
-/*
+	       
              h = 1.74f;
     	    float x = wandPos[0];
     	    float y = wandPos[1];
@@ -848,7 +846,7 @@ void danpart::draw_triangles()
             glVertex3f(x, y, z);
             glVertex3f(x+dx,y+dy,z+dz);
             glVertex3f(x+dx,y+dy-.1,z+dz);
-*/
+   
             h = 1.74f;
     	
             glColor3f(1.0f, 1.0f, 0.0f);
@@ -966,7 +964,7 @@ void danpart::draw(int frusi, const app::frustum *frusp)
     draw_scene();
     draw_triangles();
 }
-
+////////////////////////////////////////////////////////////////////////////////////////////////
 void danpart::scene_data_0()
 {
  
@@ -976,7 +974,9 @@ void danpart::scene_data_0()
 	//gravity = 0.0001;
 	colorFreq =16;
 	max_age = 2000;
-/*
+    disappear_age =200;
+
+
 	if (scene0Start == 1)
 		{
 			size_t size = PDATA_ROW_SIZE * CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT * sizeof (float);
@@ -984,10 +984,10 @@ void danpart::scene_data_0()
 			pdata_init_velocity(-10000, -10000, -10000);
 			pdata_init_rand();
 			cuMemcpyHtoD(d_particleData, h_particleData, size);
-			printf("scene0Start \n");
+			if (DEBUG_PRINT >0)printf("scene0Start \n");
 		}
 
-*/
+
 //printf( "in sean1 \n");
 
  // anim += 0.001;// .0001
@@ -1010,39 +1010,26 @@ void danpart::scene_data_0()
 
 	if ((SOUND_SERV ==1)&& (::host->root() == 1))
 		{
-		//audioGain(texture_12,but4);
+		//audioGain(texture_12,trigger);
 	
-			//if ((but4old == 0) && (but4 ==1)){audioPlay(short_sound_01a,0.1);audioGain(texture_12,1);}
-			if ((but4old == 0) && (but4 ==1)){audioFadeUp( texture_12, 1, 1, short_sound_01a);}
-			if ((but4old == 1) && (but4 ==0)){audioFadeOut( texture_12, 10, -1);}
+			//if ((triggerold == 0) && (trigger ==1)){audioPlay(short_sound_01a,0.1);audioGain(texture_12,1);}
+			if ((triggerold == 0) && (trigger ==1)){audioFadeUp( texture_12, 1, 1, short_sound_01a);}
+			if ((triggerold == 1) && (trigger ==0)){audioFadeOut( texture_12, 10, -1);}
 
 		}
 	injNum =1;
-	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=but4;// type, injection ratio ie streem volume, ~
+	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=trigger;// type, injection ratio ie streem volume, ~
 	h_injectorData[injNum][2][0]=wandPos[0];h_injectorData[injNum][2][1]=wandPos[1];h_injectorData[injNum][2][2]=wandPos[2];//x,y,z position
 	h_injectorData[injNum][3][0]=wandVec[0];h_injectorData[injNum][3][1]=wandVec[1];h_injectorData[injNum][3][2]=wandVec[2];//x,y,z velocity direction
 	//h_injectorData[injNum][3][0]=0.02 * (sin(anim));h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * (cos(anim));//x,y,z velocity
 	//h_injectorData[injNum][3][0]=0.02 *0.0;h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * -1;//x,y,z velocity
 	h_injectorData[injNum][4][0]=0.00;h_injectorData[injNum][4][1]=0.00;h_injectorData[injNum][4][2]=.0;//x,y,z size
-	h_injectorData[injNum][5][0]=0.110;h_injectorData[injNum][5][1]=0.110;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
+	h_injectorData[injNum][5][0]=0.010;h_injectorData[injNum][5][1]=0.010;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
 	h_injectorData[injNum][6][0]=.1;h_injectorData[injNum][6][1]=0.1;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
 	h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
-	//if (but4){printf (" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}
+	//if (trigger){printf (" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}
 
-	for ( int n =1;n < h_injectorData[0][0][0] +1;n++)
-		{
-			// kludge to handel gimbel lock for velociys straight up			
-			if (h_injectorData[n][3][0 ] ==0 && h_injectorData[n][3][2 ] ==0){ h_injectorData[n][3][0 ] += .0001;}
-			// noramalize velocity vector
-			float length = sqrt(h_injectorData[injNum][3][0] * h_injectorData[injNum][3][0] + h_injectorData[injNum][3][1] * h_injectorData[injNum][3][1] + h_injectorData[injNum][3][2] * h_injectorData[injNum][3][2]);
-			h_injectorData[injNum][3][0]=h_injectorData[injNum][3][0]/length;h_injectorData[injNum][3][1]=h_injectorData[injNum][3][1]/length;h_injectorData[injNum][3][2]=h_injectorData[injNum][3][2]/length;
-			
-		}
-    //cuMemcpyHtoD(d_injectorData, h_injectorData, sizei);
-	///	 injector data 
-	//float reflectorNum =0;
-	//int reflectI;
-	//reflectI = (int) reflectorNum *3*8;//8 sets of 3 vallues
+	
 	float damping =.9;
 	float no_traping =0;
 	h_reflectorData[0][0][0] =7;// number of reflectors ~ ~   ~ means dont care
@@ -1112,7 +1099,7 @@ void danpart::scene_data_0()
 
 scene0Start =0;
 }
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void danpart::scene_data_3()
 {
 
@@ -1121,19 +1108,21 @@ void danpart::scene_data_3()
 // particalsysparamiteres--------------
 	gravity = .000005;	
 	max_age = 2000;
+    disappear_age =2000;
 	colorFreq =64 *max_age/2000.0 ;
 
 // reload  rnd < max_age in to pdata
-/*
+
 	if (scene3Start == 1)
 		{
 			size_t size = PDATA_ROW_SIZE * CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT * sizeof (float);
-			//pdata_init_age( max_age);
-			//pdata_init_velocity(-10000, -10000, -10000);
-			//pdata_init_rand();
+			pdata_init_age( max_age);
+			pdata_init_velocity(-10000, -10000, -10000);
+			pdata_init_rand();
 			cuMemcpyHtoD(d_particleData, h_particleData, size);
+            //printf( "in start sean3 \n");
 		}
-*/
+
 
 //printf( "in sean3 \n");
  
@@ -1191,15 +1180,15 @@ void danpart::scene_data_3()
 	//sound for inj3
 	if ((SOUND_SERV ==1)&& (::host->root() == 1))
 		{
-		//audioGain(texture_12,but4);
+		//audioGain(texture_12,trigger);
 	
-			//if ((but4old == 0) && (but4 ==1)){audioPlay(short_sound_01a,0.1);audioGain(texture_12,1);}
-			if ((but4old == 0) && (but4 ==1)){audioFadeUp( texture_12, 1, 1, short_sound_01a);}
-			if ((but4old == 1) && (but4 ==0)){audioFadeOut( texture_12, 10, -1);}
+			//if ((triggerold == 0) && (trigger ==1)){audioPlay(short_sound_01a,0.1);audioGain(texture_12,1);}
+			if ((triggerold == 0) && (trigger ==1)){audioFadeUp( texture_12, 1, 1, short_sound_01a);}
+			if ((triggerold == 1) && (trigger ==0)){audioFadeOut( texture_12, 10, -1);}
 
 		}
 	injNum =3;
-	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=but4;// type, injection ratio ie streem volume, ~
+	h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=trigger;// type, injection ratio ie streem volume, ~
 	h_injectorData[injNum][2][0]=wandPos[0];h_injectorData[injNum][2][1]=wandPos[1];h_injectorData[injNum][2][2]=wandPos[2];//x,y,z position
 	h_injectorData[injNum][3][0]=wandVec[0];h_injectorData[injNum][3][1]=wandVec[1];h_injectorData[injNum][3][2]=wandVec[2];//x,y,z velocity direction
 	//h_injectorData[injNum][3][0]=0.02 * (sin(anim));h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * (cos(anim));//x,y,z velocity
@@ -1209,17 +1198,8 @@ void danpart::scene_data_3()
 	h_injectorData[injNum][6][0]=0.1;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
 	h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
 	//
-	if (but4){printf (" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}
+	if (trigger){if (DEBUG_PRINT >0) {printf(" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}}
 
-	for ( int n =1;n < h_injectorData[0][0][0] +1;n++)
-		{
-			// kludge to handel gimbel lock for velociys straight up			
-			if (h_injectorData[n][3][0 ] ==0 && h_injectorData[n][3][2 ] ==0){ h_injectorData[n][3][0 ] += .0001;}
-			// noramalize velocity vector
-			float length = sqrt(h_injectorData[injNum][3][0] * h_injectorData[injNum][3][0] + h_injectorData[injNum][3][1] * h_injectorData[injNum][3][1] + h_injectorData[injNum][3][2] * h_injectorData[injNum][3][2]);
-			h_injectorData[injNum][3][0]=h_injectorData[injNum][3][0]/length;h_injectorData[injNum][3][1]=h_injectorData[injNum][3][1]/length;h_injectorData[injNum][3][2]=h_injectorData[injNum][3][2]/length;
-			
-		}
     //cuMemcpyHtoD(d_injectorData, h_injectorData, sizei);
 	///	 injector data 
 	//float reflectorNum =0;
@@ -1240,7 +1220,7 @@ void danpart::scene_data_3()
 	
 	reflNum = 2;
 	h_reflectorData[reflNum ][0][0]=1;// type, ~, ~  0 is off 1 is plane reflector
-	h_reflectorData[reflNum ][1][0]=ftToM(5);    h_reflectorData[reflNum ][1][1]= 0.0;h_reflectorData[reflNum ][1][2]=0;//x,y,z position
+	h_reflectorData[reflNum ][1][0]=ftToM(5);h_reflectorData[reflNum ][1][1]= 0.0;h_reflectorData[reflNum ][1][2]=0;//x,y,z position
 	h_reflectorData[reflNum ][2][0]= -1.0;  h_reflectorData[reflNum ][2][1]=0;    h_reflectorData[reflNum ][2][2]=0;//x,y,z normal
 	h_reflectorData[reflNum ][3][0]=ftToM(5.00); h_reflectorData[reflNum ][3][1]=0.00; h_reflectorData[reflNum ][3][2]=0;//reflector radis ,~,~ 
 	h_reflectorData[reflNum ][4][0]=0.000;h_reflectorData[reflNum ][4][1]=0.000;h_reflectorData[reflNum ][4][2]=0.000;//t,u,v jiter  not implimented = speed 

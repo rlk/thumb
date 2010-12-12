@@ -80,8 +80,9 @@ __device__ void  injector2(unsigned int arrayLoc,unsigned int posLoc,int injNum,
 	injdata[injNum][7][0];//centrality of rnd distribution speed dt tu 
 
 */
-	if ((pdata[arrayLoc+4] +1) /2 >  injdata[injNum][1][1]){ return;}// reterns without injection ?????
-	
+	//if ((pdata[arrayLoc+4] +1) /2 <  injdata[injNum][1][1]){ return;}// reterns without injection ?????
+	pdata[arrayLoc] = 0;//set age to 0
+
 	rnd1 = (distRnd1(pdata[arrayLoc+4] , (int)injdata[injNum][7][0])+1)/2;
 	rnd2 = (distRnd1(pdata[arrayLoc+5] , (int)injdata[injNum][7][1])+1)/2;
 	rnd3 = (distRnd1(pdata[arrayLoc+6] , (int)injdata[injNum][7][2])+1)/2;
@@ -217,7 +218,7 @@ if (DEBUG == 1)
 
 extern "C"
 __global__ void Point1(float4* pos, float * pdata,float * debugData ,unsigned int width,
-unsigned int height, int max_age, float time, float gravity, float colorFreq, float r3)
+unsigned int height, int max_age,int disappear_age, float time, float gravity, float colorFreq, float r3)
 {
 
 	// r1,r2,r3 curently not used
@@ -243,13 +244,12 @@ unsigned int height, int max_age, float time, float gravity, float colorFreq, fl
 		{
 		
 		int injecNum = ((arrayLoc/PDATA_ROW_SIZE) % (int) injdata[0][0][0]) +1;// pdata row mod number of injectors 
-		injector2(arrayLoc,posLoc,injecNum,time,pos,pdata,debugData);
-		pdata[arrayLoc] = 0;//set age to 0
+		if(( injdata[injecNum][1][1]) )  injector2(arrayLoc,posLoc,injecNum,time,pos,pdata,debugData);
+		
 
         }
 
 		posX=pos[posLoc].x;posY=pos[posLoc].y;posZ=pos[posLoc].z;
- 
  
 
  
@@ -280,6 +280,8 @@ unsigned int height, int max_age, float time, float gravity, float colorFreq, fl
     		pos[width*height + posLoc].x = (cos(colorFreq * 1.0 * pdata[arrayLoc]/max_age))/2.0f + 0.5f ;//red
     		pos[width*height + posLoc].z = (cos(colorFreq * 4.0 * pdata[arrayLoc]/max_age))/2.0f + 0.5f ;//blue
     		// write output vertex
+            if (pdata[arrayLoc] > disappear_age){pdata[arrayLoc+1] =10000;pdata[arrayLoc+2] =10000;pdata[arrayLoc+3] =10000;}
+
     		 pos[posLoc] = make_float4(newX, newY, newZ, 1.0f);
 			}
 

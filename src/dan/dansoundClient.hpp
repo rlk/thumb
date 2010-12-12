@@ -7,6 +7,9 @@
 	int aMaxHandel;
 	int aPosInd;
 	int aFadeStateInd,aFadeIncrimentInd,aFadeTargetGainInd,aFadeStopOnOutInd;
+    
+    float aGlobalGain =1;
+    float aOldGlobalGain =0;
 
 void error(char *msg);
 void zerotmpbuffer();
@@ -31,6 +34,7 @@ void audioPos (int handel,float x,float y,float z);
 void audioPosOnCnOnly (int handel,float x,float y,float z);
 
 void audioGain (int handel,float g);
+void audioGlobalGain(float);
 void audioGainOnCnOnly (int handel,float g);
 
 void audioPitch (int handel,float g);

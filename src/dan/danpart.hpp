@@ -47,7 +47,6 @@ class danpart : public app::prog
     int tracker_head_sensor;
     int tracker_hand_sensor;
 
-    double wandM[16];
     double headPos[3];
     double wandPos[3];
     double headVec[3];
@@ -88,7 +87,9 @@ class danpart : public app::prog
 
     float anim;
 	int   max_age;
+    int disappear_age;
 	float showFrameNo;
+    float lastShowFrameNo;
 	double showStartTime;
 	double showTime;
 	double lastShowTime;

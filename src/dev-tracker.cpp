@@ -257,7 +257,7 @@ static bool tracker_sensor(int id, double p[3], double q[4])
                 t[0] = double(S->r[0]);
                 t[1] = double(S->r[1]);
                 t[2] = double(S->r[2]);
-#if 0
+#if 1
                 /* StarCAVE-style tracking */
 
                 load_rot_mat(M, 0, 1, 0, t[0]);

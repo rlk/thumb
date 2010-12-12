@@ -50,7 +50,7 @@ bool ogl::do_hdr_bloom;
 
 // GL_ARB_multitexture
 
-// PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
+PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
 
 // GL_ARB_shader_objects
 
@@ -243,7 +243,7 @@ static void init_ext()
 
     if (ogl::has_multitexture) try
     {
-//      PROC(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
+        PROC(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
     }
     catch (std::runtime_error& e) { ogl::has_multitexture = false; }
 

@@ -121,6 +121,7 @@ void audioConectToServer( const char* hostName)
 			audioState [i][aFadeIncrimentInd]=0;
 			audioState [i][aFadeTargetGainInd]=1;
 			audioState [i][aFadeStopOnOutInd]=0;
+			
 
 
 		}
@@ -221,7 +222,7 @@ void audioGain (int handel,float g)
 {
 //SSVO <handle> <gain> 	Sets the sound gain, values from 0.0 to 1.0
 zerotmpbuffer();
-sprintf(tmpbuffer,"SSVO %i %f\n",handel,g*g); 
+sprintf(tmpbuffer,"SSVO %i %f\n",handel,g*g *aGlobalGain*aGlobalGain); 
 printf(tmpbuffer);
  write(sockfd,tmpbuffer,strlen(tmpbuffer));
  audioState[handel][aGainInd] = g;
@@ -231,6 +232,13 @@ void audioGainOnCnOnly (int handel,float g)
 if (audioState [handel][aGainInd] != g) {audioGain ( handel, g);}	
 }
 //-----------------------------------------------------
+
+
+void audioGlobalGain(float g)
+{
+aGlobalGain =g;
+}
+
 void audioPitch (int handel,float g)
 {
 //SSPI <handle> <gain> undocumented pitch change.
@@ -291,7 +299,7 @@ void audioDirectionDegGain (int handel,float d,float g)
 {
 //SSDV <handle> <direction> <gain> 	Sets the sound direction and gain in one command.
 zerotmpbuffer();
-sprintf(tmpbuffer,"SSDV %i %f %f\n",handel,d,g); 
+sprintf(tmpbuffer,"SSDV %i %f %f\n",handel,d,g*g*aGlobalGain*aGlobalGain); 
 
 write(sockfd,tmpbuffer,strlen(tmpbuffer));
  
@@ -374,10 +382,13 @@ void audioProcess()
 				}
 
 
-
+            if ((aGlobalGain != aOldGlobalGain)&&(audioState [i][aFadeStateInd] == 0))
+                {
+                    audioGain(i,audioState [i][aGainInd]);  
+                }
 
 		}
-
+        aOldGlobalGain = aGlobalGain;
 }
 
 

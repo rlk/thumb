@@ -52,7 +52,7 @@
 
 // GL_ARB_multitexture
 
-//extern PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
+extern PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
 
 // GL_ARB_shader_objects
 
