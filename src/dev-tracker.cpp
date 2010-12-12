@@ -95,6 +95,8 @@ static struct sensor *sensors = NULL;
 static uint32_t      *buttons = NULL;
 static float         *values  = NULL;
 
+static double T[16];
+
 //-----------------------------------------------------------------------------
 
 static bool tracker_init(int t_key, int c_key)
@@ -140,6 +142,13 @@ static bool tracker_init(int t_key, int c_key)
     }
     if (tracker != (struct tracker_header *) (-1))
         sensors = (sensor   *) calloc(tracker->count,     sizeof (sensor));
+
+    // Initialize the calibration transform.
+
+    T[ 0] =  1.0; T[ 4] =  0.0;  T[ 8] =  0.0;  T[12] =  0.0;
+    T[ 1] =  0.0; T[ 5] =  0.0;  T[ 9] =  1.0;  T[13] =  0.0;
+    T[ 2] =  0.0; T[ 6] = -1.0;  T[10] =  0.0;  T[14] =  0.0;
+    T[ 3] =  0.0; T[ 7] =  0.0;  T[11] =  0.0;  T[15] =  1.0;
 
     return true;
 }
@@ -233,18 +242,35 @@ static bool tracker_sensor(int id, double p[3], double q[4])
 
                 // Return the position of sensor ID.
 
-                p[0] = double(S->p[0]);
-                p[1] = double(S->p[1]);
-                p[2] = double(S->p[2]);
+		double t[3];
+
+                t[0] = double(S->p[0]);
+                t[1] = double(S->p[1]);
+                t[2] = double(S->p[2]);
+
+                mult_mat_vec3(p, T, t);
 
                 // Return the orientation of sensor ID.
 
                 double M[16];
 
-                load_rot_mat(M, 0, 1, 0, S->r[0]);
-                Rmul_rot_mat(M, 1, 0, 0, S->r[1]);
-                Rmul_rot_mat(M, 0, 0, 1, S->r[2]);
+                t[0] = double(S->r[0]);
+                t[1] = double(S->r[1]);
+                t[2] = double(S->r[2]);
+#if 0
+                /* StarCAVE-style tracking */
 
+                load_rot_mat(M, 0, 1, 0, t[0]);
+                Rmul_rot_mat(M, 1, 0, 0, t[1]);
+                Rmul_rot_mat(M, 0, 0, 1, t[2]);
+#else
+                /* NexCAVE-style tracking */
+
+		load_idt(M);
+                Rmul_rot_mat(M, 0, 0, 1, -t[0]);
+                Rmul_rot_mat(M, 1, 0, 0,  t[1]);
+                Rmul_rot_mat(M, 0, 1, 0,  t[2]);
+#endif
                 get_quaternion(q, M);
 
                 return true;
@@ -413,7 +439,7 @@ void dev::tracker::translate() const
 
 bool dev::tracker::process_point(app::event *E)
 {
-    const int i     = E->data.point.i;
+    const int     i = E->data.point.i;
     const double *p = E->data.point.p;
     const double *q = E->data.point.q;
 

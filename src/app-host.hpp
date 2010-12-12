@@ -97,6 +97,8 @@ namespace app
         int buffer_size[2];
         int device;
 
+	double T[16];
+
         std::vector<dpy::display *> displays;
         std::vector<dpy::channel *> channels;
         std::vector<app::frustum *> frustums;

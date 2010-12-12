@@ -12,7 +12,7 @@
 
 //-----------------------------------------------------------------------------
 
-#define FUCKING_BROKEN 0
+#define FUCKING_BROKEN 1
 
 //-----------------------------------------------------------------------------
 
@@ -36,6 +36,7 @@
 #include "../dev-hybrid.hpp"
 #include "../dev-gamepad.hpp"
 #include "../dev-tracker.hpp"
+#include "../matrix.hpp"
 
 #include <cuda.h>
 #include <cudaGL.h>
@@ -273,10 +274,10 @@ void danpart::cuda_step()
 	// seen data
 	//printf ("showTime %f \n",showTime);
 
+/*
 	float sceneTime0 = 0;
 	float sceneTime1 = 10;
 	float sceneTime2 = 100000000;
-/*
 	if (showTime < sceneTime1)
 	{
 		if (lastShowTime < sceneTime0 && showTime >= sceneTime0){scene0Start =1;}
@@ -633,6 +634,9 @@ danpart::danpart(int w, int h) :
 {
     std::string input_mode = conf->get_s("input_mode");
 
+    tracker_head_sensor = ::conf->get_i("tracker_head_sensor");
+    tracker_hand_sensor = ::conf->get_i("tracker_hand_sensor");
+
     // Initialize the input handler.
 
     if      (input_mode == "hybrid")  input = new dev::hybrid();
@@ -726,15 +730,16 @@ bool danpart::process_point(app::event *E)
         P[0] += 0.1;
         P[1] -= 0.1;
  
-	if (trackDevID ==1)
+	if (trackDevID == tracker_head_sensor)
 		{
 			headPos[0]=P[0];headPos[1]=P[1];headPos[2]=P[2];
 			headVec[0]=V[0];headVec[1]=V[1];headVec[2]=V[2];
 		}
-	if (trackDevID ==0)
+	if (trackDevID == tracker_hand_sensor)
 		{
 			wandPos[0]=P[0];wandPos[1]=P[1];wandPos[2]=P[2];
 			wandVec[0]=V[0];wandVec[1]=V[1];wandVec[2]=V[2];
+			set_quaternion(wandM, q);
 		}
 
 //P position V vector p position tracker in cave quadens q quaterian in cavequardinants
@@ -807,10 +812,29 @@ void danpart::draw_triangles()
 
     glPushMatrix();
     {
+        double M[16];
+
+        glTranslated(wandPos[0], wandPos[1], wandPos[2]);
+        mult_mat_mat(M, ::user->get_M(), wandM);
+        M[12] = M[13] = M[14] = 0.0;
+        glMultMatrixd(M);
+        glColor3f(.2, .2, 1.0f);
+        glBegin(GL_TRIANGLES);
+        {
+            glVertex3d(0.0, 0.00,  0.0);
+            glVertex3d(0.0, 0.05, -0.5);
+            glVertex3d(0.0, 0.00, -0.5);
+        }
+        glEnd();
+    }
+    glPopMatrix();
+   
+    glPushMatrix();
+    {
         glBegin(GL_TRIANGLES);
         {
             GLfloat h;
-	       
+/*
              h = 1.74f;
     	    float x = wandPos[0];
     	    float y = wandPos[1];
@@ -824,7 +848,7 @@ void danpart::draw_triangles()
             glVertex3f(x, y, z);
             glVertex3f(x+dx,y+dy,z+dz);
             glVertex3f(x+dx,y+dy-.1,z+dz);
-   
+*/
             h = 1.74f;
     	
             glColor3f(1.0f, 1.0f, 0.0f);

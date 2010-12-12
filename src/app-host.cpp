@@ -24,6 +24,7 @@
 #include "dpy-display.hpp"
 #include "dpy-normal.hpp"
 #include "dpy-anaglyph.hpp"
+#include "dpy-interlace.hpp"
 #include "dpy-lenticular.hpp"
 #include "app-frustum.hpp"
 #include "app-event.hpp"
@@ -436,9 +437,9 @@ app::host::host(std::string filename, std::string tag) :
     bench(0),
     movie(0),
     count(0),
-    device(0),
     calibration_state(false),
     calibration_index(0),
+    device(0),
     overlay(0),
     file(filename.c_str())
 {
@@ -453,10 +454,34 @@ app::host::host(std::string filename, std::string tag) :
     buffer_size[0] = DEFAULT_PIXEL_WIDTH;
     buffer_size[1] = DEFAULT_PIXEL_HEIGHT;
 
+    load_idt(T);
+
     // Read host.xml and configure using tag match.
 
     if (app::node p = file.get_root().find("host"))
     {
+	// Extract the global tranform.
+
+        if (app::node c = p.find("transform"))
+        {
+            T[ 0] = c.get_f("m0", 1.0);
+            T[ 1] = c.get_f("m1", 0.0);
+            T[ 2] = c.get_f("m2", 0.0);
+            T[ 3] = c.get_f("m3", 0.0);
+            T[ 4] = c.get_f("m4", 0.0);
+            T[ 5] = c.get_f("m5", 1.0);
+            T[ 6] = c.get_f("m6", 0.0);
+            T[ 7] = c.get_f("m7", 0.0);
+            T[ 8] = c.get_f("m8", 0.0);
+            T[ 9] = c.get_f("m9", 0.0);
+            T[10] = c.get_f("ma", 1.0);
+            T[11] = c.get_f("mb", 0.0);
+            T[12] = c.get_f("mc", 0.0);
+            T[13] = c.get_f("md", 0.0);
+            T[14] = c.get_f("me", 0.0);
+            T[15] = c.get_f("mf", 1.0);
+        }
+
         // Locate the configuration for this node.
 
         if (app::node n = p.find("node", "name", tag.c_str()))
@@ -501,6 +526,8 @@ app::host::host(std::string filename, std::string tag) :
 
                 if      (t == "anaglyph")
                     displays.push_back(new dpy::anaglyph  (c));
+                else if (t == "interlace")
+                    displays.push_back(new dpy::interlace(c));
                 else if (t == "lenticular")
                     displays.push_back(new dpy::lenticular(c));
 //              else if (t == "dome")

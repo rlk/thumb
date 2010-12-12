@@ -53,7 +53,6 @@ bool dev::hybrid::process_click(app::event *E)
 {
     const int  b = E->data.click.b;
     const bool d = E->data.click.d;
-    const int dd = d ? +1 : -1;
 
     const double s = 0.05;
 

@@ -44,6 +44,10 @@ class danpart : public app::prog
     bool process_point(app::event *);
     bool process_timer(app::event *);
 
+    int tracker_head_sensor;
+    int tracker_hand_sensor;
+
+    double wandM[16];
     double headPos[3];
     double wandPos[3];
     double headVec[3];

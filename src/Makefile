@@ -54,6 +54,7 @@ OBJS=   util.o \
 	dpy-display.o \
 	dpy-normal.o \
 	dpy-anaglyph.o \
+	dpy-interlace.o \
 	dpy-lenticular.o \
 	app-event.o \
 	app-frustum.o \

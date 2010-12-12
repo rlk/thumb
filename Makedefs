@@ -42,5 +42,5 @@ endif
 
 #------------------------------------------------------------------------------
 
-INCDIR += -I$(HOME)/include -I/home/covise/rlk/include
-LIBDIR += -L$(HOME)/lib -L/home/covise/rlk/lib
+INCDIR += -I/home/covise/thumb/include
+LIBDIR += -L/home/covise/thumb/lib
