@@ -188,6 +188,12 @@ app::node app::user::cycle_prev(app::node n)
 
 //-----------------------------------------------------------------------------
 
+void app::user::set_t(double t)
+{
+    current_t = t;
+    set(0, 0, current_t);
+}
+
 void app::user::turn(double rx, double ry, double rz, const double *R)
 {
     // Turn in the given coordinate system.
@@ -273,7 +279,6 @@ void app::user::look(double dt, double dp)
 void app::user::pass(double dt)
 {
     current_t += dt;
-
     set(0, 0, current_t);
 }
 
@@ -281,6 +286,8 @@ void app::user::home()
 {
     load_idt(current_M);
     load_idt(current_I);
+
+    set(0, 0, 86400);
 
 #ifdef TELLURION
     double M[16];

@@ -81,7 +81,7 @@ __device__ void  injector2(unsigned int arrayLoc,unsigned int posLoc,int injNum,
 
 */
 	//if ((pdata[arrayLoc+4] +1) /2 <  injdata[injNum][1][1]){ return;}// reterns without injection ?????
-	pdata[arrayLoc] = 0;//set age to 0
+	
 
 	rnd1 = (distRnd1(pdata[arrayLoc+4] , (int)injdata[injNum][7][0])+1)/2;
 	rnd2 = (distRnd1(pdata[arrayLoc+5] , (int)injdata[injNum][7][1])+1)/2;
@@ -92,6 +92,8 @@ __device__ void  injector2(unsigned int arrayLoc,unsigned int posLoc,int injNum,
 	vx = injdata[injNum][3][0];vy = injdata[injNum][3][1];vz = injdata[injNum][3][2];//direction of spray	
 
 	dt = injdata[injNum][5][0];du = injdata[injNum][5][1];// dv = injdata[injecti +17] * 0;// z component not implimented jitterelitive to direction of spreay
+
+	
 
 	// vector vx,vy,vz X 0,1,0
 	dx = -vz;dy = 0;dz = vx;//  dt directon
@@ -123,22 +125,42 @@ __device__ void  injector2(unsigned int arrayLoc,unsigned int posLoc,int injNum,
 	
 	//indesices num injectors =0,position =6,velosity =9, size =12 tuv jiter = 15,speed = 18,centrality of randum  
 	//         3 +             speed component                          velocity          t jitter u jitter
-
-	pdata[arrayLoc+1] = ( rnd1 * injdata[injNum][6][0]) * (injdata[injNum][3][0] + dxt * rnd2 + dxu * rnd3) ;//x vloocity 
-    pdata[arrayLoc+2] = ( rnd1  * injdata[injNum][6][0]) * (injdata[injNum][3][1] + dyt * rnd2+ dyu * rnd3) ; // y velocity
-    pdata[arrayLoc+3] = ( rnd1  * injdata[injNum][6][0]) * (injdata[injNum][3][2] + dzt * rnd2+ dzu * rnd3);	//z volocity
-
+if (injdata[injNum][1][0] ==1)
+	{
+		pdata[arrayLoc+1] = ( rnd1 * injdata[injNum][6][0]) * (injdata[injNum][3][0] + dxt * rnd2 + dxu * rnd3) ;//x vloocity 
+    		pdata[arrayLoc+2] = ( rnd1  * injdata[injNum][6][0]) * (injdata[injNum][3][1] + dyt * rnd2+ dyu * rnd3) ; // y velocity
+    		pdata[arrayLoc+3] = ( rnd1  * injdata[injNum][6][0]) * (injdata[injNum][3][2] + dzt * rnd2+ dzu * rnd3);	//z volocity
+	}
+if (injdata[injNum][1][0] ==2)
+	{
+		pdata[arrayLoc+1] = ( rnd1 * injdata[injNum][6][1]+ injdata[injNum][6][0]) * (injdata[injNum][3][0] + dxt * rnd2 + dxu * rnd3) ;//x vloocity 
+    		pdata[arrayLoc+2] = ( rnd1  * injdata[injNum][6][1] + injdata[injNum][6][0]) * (injdata[injNum][3][1] + dyt * rnd2+ dyu * rnd3) ; // y velocity
+    		pdata[arrayLoc+3] = ( rnd1  * injdata[injNum][6][1] +injdata[injNum][6][0]) * (injdata[injNum][3][2] + dzt * rnd2+ dzu * rnd3);	//z volocity
+	}
 	// size computation  xform  to dt du dv
 
 	dt = injdata[injNum][4][0];du = injdata[injNum][4][1];//dv = injdata[injecti +14] * 0;//re use varables z component not implimented jitterelitive to direction of spreay
 	dxt = dx *dt;dyt = dy * dt;dzt = dz *dt;
 	dxu = dx2 *du;dyu = dy2 * du;dzu = dz2 *du;
 
-	pos[posLoc].x = injdata[injNum][2][0] +  dxt * rnd4 + dxu * rnd5;
-   
-	pos[posLoc].y = injdata[injNum][2][1] + dyt * rnd4 + dyu * rnd5 ;
- 
-    pos[posLoc].z = injdata[injNum][2][2]  + dzt * rnd4+ dzu * rnd5;
+if (injdata[injNum][1][0] ==1)
+	{
+		pos[posLoc].x = injdata[injNum][2][0] +  dxt * rnd4 + dxu * rnd5;   
+		pos[posLoc].y = injdata[injNum][2][1] + dyt * rnd4 + dyu * rnd5 ; 
+    		pos[posLoc].z = injdata[injNum][2][2]  + dzt * rnd4+ dzu * rnd5;
+	}
+
+
+if (injdata[injNum][1][0] ==2)
+	{
+		pos[posLoc].x = injdata[injNum][2][0] +  injdata[injNum][4][0] * distRnd1(pdata[arrayLoc+4] , 3);   
+		pos[posLoc].y = injdata[injNum][2][1] +  injdata[injNum][4][1] * distRnd1(pdata[arrayLoc+5] , 3); 
+    		pos[posLoc].z = injdata[injNum][2][2]  +  injdata[injNum][4][2] * distRnd1(pdata[arrayLoc+6] , 3);
+	}
+
+
+	
+
 if (DEBUG == 1)
 	{
 	
@@ -156,6 +178,7 @@ if (DEBUG == 1)
 	}
 			
 }
+///////////////////////////////////////////////////////////////////////
 	__device__ void  planeReflector1(float posX,float posY,float posZ,unsigned int arrayLoc,unsigned int posLoc,int reflNum,float time,float4* pos, float* pdata,float* debugData)
 {
 	float xn =1,yn =1,zn =0, rad =1,damping =.7,noTraping;
@@ -186,12 +209,19 @@ if (DEBUG == 1)
 
 	 	float xv = pdata[arrayLoc+1];float yv = pdata[arrayLoc+2];float zv = pdata[arrayLoc+3];
 
-	   	if ((fabs(distx) <= rad) && (fabs(disty)<= rad) && (fabs(distz) <= rad))
+//	   	if ((fabs(distx) <= rad) && (fabs(disty)<= rad) && (fabs(distz) <= rad))
+	   	if ((distx * distx + disty * disty + distz * distz) <= rad * rad)
+
 		{
 	
 	   		if ((distx * xn + disty * yn + distz * zn) <=0)
 
 			{
+				if ((REFL_HITS == 1) && (noTraping ==1))
+					{
+
+						if(reflNum < 128) debugData[reflNum] = debugData[reflNum] +1;		
+					}
 
 		  		float ndotv = xv * xn + yv * yn + zv * zn;
 				
@@ -210,15 +240,19 @@ if (DEBUG == 1)
 		     	pdata[arrayLoc+3] = newVZ*damping;
 				
 				//pdata[arrayLoc] = 0;// temp set age to 0
-				
+				if ((noTraping ==1)&& (refldata[reflNum][0][1]) == 1 )
+                         {
+                         pdata[arrayLoc] = pdata[arrayLoc]/2.0;
+                         }
 			}
 	   }
+
 
 }
 
 extern "C"
 __global__ void Point1(float4* pos, float * pdata,float * debugData ,unsigned int width,
-unsigned int height, int max_age,int disappear_age, float time, float gravity, float colorFreq, float r3)
+unsigned int height, int max_age,int disappear_age,float alphaControl, float time, float gravity, float colorFreq, float r3)
 {
 
 	// r1,r2,r3 curently not used
@@ -245,7 +279,7 @@ unsigned int height, int max_age,int disappear_age, float time, float gravity, f
 		
 		int injecNum = ((arrayLoc/PDATA_ROW_SIZE) % (int) injdata[0][0][0]) +1;// pdata row mod number of injectors 
 		if(( injdata[injecNum][1][1]) )  injector2(arrayLoc,posLoc,injecNum,time,pos,pdata,debugData);
-		
+		pdata[arrayLoc] = 0;//set age to 0
 
         }
 
@@ -279,6 +313,10 @@ unsigned int height, int max_age,int disappear_age, float time, float gravity, f
    	 		pos[width*height + posLoc].y = (cos(colorFreq * 2.0 * pdata[arrayLoc]/max_age))/2.0f + 0.5f ;//green
     		pos[width*height + posLoc].x = (cos(colorFreq * 1.0 * pdata[arrayLoc]/max_age))/2.0f + 0.5f ;//red
     		pos[width*height + posLoc].z = (cos(colorFreq * 4.0 * pdata[arrayLoc]/max_age))/2.0f + 0.5f ;//blue
+            float alpha =1; 
+           if ((alphaControl == 1) && (newY <=.1)) alpha =0; 
+            
+       		pos[width*height + posLoc].w = alpha;//alpha
     		// write output vertex
             if (pdata[arrayLoc] > disappear_age){pdata[arrayLoc+1] =10000;pdata[arrayLoc+2] =10000;pdata[arrayLoc+3] =10000;}
 

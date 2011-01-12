@@ -101,3 +101,14 @@ float ftToM(float ft)
 {
 return 0.3048 * ft;
 }
+
+
+float spiral(float time,float dist_per_turn,int axis)
+{
+if (axis == 0) return dist_per_turn *time/dist_per_turn *  sin(time/(2*PI));
+if (axis == 1) return dist_per_turn *time/dist_per_turn *   cos(time/(2*PI));
+printf (" in spiral axis is not 10 or 1 \n");
+return 0.0;
+
+}
+

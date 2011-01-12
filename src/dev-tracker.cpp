@@ -531,9 +531,10 @@ bool dev::tracker::process_timer(app::event *E)
     }
 
     // Handle the passage of time.
-
+/*
     if (fabs(joy_x) > 0.1)
         ::user->pass(joy_x * dt * 4.0 * 3600.0);
+*/
 
     return false;
 }

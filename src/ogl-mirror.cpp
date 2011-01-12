@@ -55,6 +55,7 @@ void ogl::mirror::draw(const app::frustum *frusp)
 
         binding->bind(true);
 
+        glEnable(GL_BLEND);
         glEnable(GL_POLYGON_OFFSET_FILL);
         {
             const double *v0 = frusp->get_points() + 0;
@@ -67,6 +68,8 @@ void ogl::mirror::draw(const app::frustum *frusp)
             // view position toward the screen corners for use in sky display.
 
             glPolygonOffset(0.0, -1.0);
+
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glBegin(GL_QUADS);
             {
@@ -82,6 +85,7 @@ void ogl::mirror::draw(const app::frustum *frusp)
             glEnd();
         }
         glDisable(GL_POLYGON_OFFSET_FILL);
+        glDisable(GL_BLEND);
     }
     frame->free_color(GL_TEXTURE3);
 }

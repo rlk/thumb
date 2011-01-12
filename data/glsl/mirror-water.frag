@@ -25,6 +25,7 @@ void main()
     vec2 t2 = 0.0050 * t0 + vec2(-0.010, -0.020) * time;
     vec2 t3 = 0.0220 * t0 + vec2( 0.014,  0.030) * time;
     vec2 t4 = 0.0510 * t0 + vec2( 0.040, -0.050) * time;
+    vec2 t5 = 0.0907 * t0 + vec2(-0.070,  0.060) * time;
 
     // The water normal is the sum of multiple normal map references.
 
@@ -34,7 +35,8 @@ void main()
     vec3 N = normalize((texture2D(norm, t1).xzy * ck + cd) +
                        (texture2D(norm, t2).xzy * ck + cd) +
                        (texture2D(norm, t3).xzy * ck + cd) +
-                       (texture2D(norm, t4).xzy * ck + cd));
+                       (texture2D(norm, t4).xzy * ck + cd) +
+                       (texture2D(norm, t5).xzy * ck + cd));
 
     // Fade the normal to vertical toward the horizon.
 

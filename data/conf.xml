@@ -34,7 +34,7 @@
     <!-- Tracker configuration -->
     <option name="tracker_key">4126</option>
     <option name="control_key">4127</option>
-    <option name="tracker_head_sensor">1</option>
+    <option name="tracker_head_sensor">2</option>
     <option name="tracker_hand_sensor">0</option>
     <option name="tracker_axis_A">0</option>
     <option name="tracker_axis_T">1</option>

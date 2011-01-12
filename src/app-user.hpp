@@ -98,6 +98,8 @@ namespace app
         void put_move_rate(double r) { move_rate = r; }
         void put_turn_rate(double r) { turn_rate = r; }
 
+        void set_t(double);
+
         // Interactive view controls.
 
         void turn(double, double, double, const double *);

@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+<material>
+  <program mode="depth" file="particle-tool-face.xml" />
+  <program mode="color" file="particle-tool-face.xml" />
+</material>

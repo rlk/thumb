@@ -18,7 +18,7 @@ void zerotmpbuffer();
 /*
 int audioWriteFileToServer(char* filename1);
 */
-void audioConectToServer( const char* hostName);
+int audioConectToServer( const char* hostName);
 
 
 
