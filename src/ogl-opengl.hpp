@@ -52,7 +52,7 @@
 
 // GL_ARB_multitexture
 
-extern PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
+extern PFNGLACTIVETEXTUREARBPROC            glActiveTexture_;
 
 // GL_ARB_shader_objects
 
@@ -116,6 +116,8 @@ extern PFNGLDELETEBUFFERSARBPROC            glDeleteBuffersARB;
 
 extern PFNGLDRAWRANGEELEMENTSEXTPROC        glDrawRangeElementsEXT;
 
+#else
+#define glActiveTexture_ glActiveTextureARB
 #endif
 
 //-----------------------------------------------------------------------------

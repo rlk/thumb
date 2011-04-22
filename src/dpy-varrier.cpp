@@ -194,7 +194,7 @@ void dpy::varrier::bind_transform(GLenum unit, const app::frustum *frust)
 
     // Compose the line screen transformation matrix.
 
-    glActiveTextureARB(unit);
+    glActiveTexture_(unit);
     glMatrixMode(GL_TEXTURE);
     {
         glPushMatrix();
@@ -204,18 +204,18 @@ void dpy::varrier::bind_transform(GLenum unit, const app::frustum *frust)
         glTranslated(dx - ss, dy, 0);
     }
     glMatrixMode(GL_MODELVIEW);
-    glActiveTextureARB(GL_TEXTURE0);
+    glActiveTexture_(GL_TEXTURE0);
 }
 
 void dpy::varrier::free_transform(GLenum unit)
 {
-    glActiveTextureARB(unit);
+    glActiveTexture_(unit);
     glMatrixMode(GL_TEXTURE);
     {
         glPopMatrix();
     }
     glMatrixMode(GL_MODELVIEW);
-    glActiveTextureARB(GL_TEXTURE0);
+    glActiveTexture_(GL_TEXTURE0);
 }
 
 //-----------------------------------------------------------------------------

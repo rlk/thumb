@@ -50,7 +50,7 @@ bool ogl::do_hdr_bloom;
 
 // GL_ARB_multitexture
 
-PFNGLACTIVETEXTUREARBPROC            glActiveTextureARB;
+PFNGLACTIVETEXTUREARBPROC            glActiveTexture_;
 
 // GL_ARB_shader_objects
 
@@ -243,7 +243,10 @@ static void init_ext()
 
     if (ogl::has_multitexture) try
     {
-        PROC(PFNGLACTIVETEXTUREARBPROC,          glActiveTextureARB);
+#ifndef __APPLE__
+        glActiveTexture_ = (PFNGLACTIVETEXTUREARBPROC)
+            glGetProcAddress("glActiveTextureARB")));
+#endif
     }
     catch (std::runtime_error& e) { ogl::has_multitexture = false; }
 
@@ -413,7 +416,7 @@ void ogl::curr_texture(GLenum unit)
         if (current_unit != unit)
         {
             current_unit  = unit;
-            glActiveTextureARB(unit);
+            glActiveTexture_(unit);
         }
     }
 }
@@ -437,9 +440,9 @@ void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
 /*
     if (unit) // HACK: the above optimization breaks font rendering.
     {
-        glActiveTextureARB(unit);
+        glActiveTexture_(unit);
         glBindTexture(target, object);
-        glActiveTextureARB(GL_TEXTURE0);
+        glActiveTexture_(GL_TEXTURE0);
     }
     else
         glBindTexture(target, object);
@@ -463,7 +466,7 @@ void ogl::free_texture()
 {
     for (int u = MAX_TEXTURE_UNITS - 1; u >= 0; --u)
     {
-        glActiveTextureARB(GL_TEXTURE0 + u);
+        glActiveTexture_(GL_TEXTURE0 + u);
 
         glBindTexture(GL_TEXTURE_1D,            0);
         glBindTexture(GL_TEXTURE_2D,            0);

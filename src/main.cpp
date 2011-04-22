@@ -232,7 +232,7 @@ static void init(std::string tag)
     glob = new app::glob();
     perf = new app::perf();
 
-#if 1
+#if 0
     prog = new danpart(::host->get_buffer_w(),
                        ::host->get_buffer_h());
 #else
