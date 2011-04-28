@@ -14,7 +14,7 @@
 
 #include <matrix.hpp>
 #include <app-glob.hpp>
-#include <app-prog.hpp>
+#include <app-host.hpp>
 #include <app-event.hpp>
 #include <app-frustum.hpp>
 #include <ogl-program.hpp>
@@ -87,12 +87,12 @@ void dpy::interlace::draw(int chanc, const dpy::channel * const *chanv, int frus
 
         chanv[0]->bind();
         {
-            ::prog->draw(frusi + 0, frustL);
+            ::host->draw(frusi + 0, frustL);
         }
         chanv[0]->free();
         chanv[1]->bind();
         {
-            ::prog->draw(frusi + 1, frustR);
+            ::host->draw(frusi + 1, frustR);
         }
         chanv[1]->free();
 

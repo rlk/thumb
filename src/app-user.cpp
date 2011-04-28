@@ -24,7 +24,6 @@
 #include <app-data.hpp>
 #include <app-glob.hpp>
 #include <app-conf.hpp>
-#include <app-prog.hpp>
 
 // TODO: The use of set() is haphazzard.  current_M/I are accessed directly.
 // Clarify this interface.

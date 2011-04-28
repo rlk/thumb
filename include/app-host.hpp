@@ -23,6 +23,7 @@
 
 namespace app
 {
+    class prog;
     class event;
     class frustum;
 }
@@ -104,6 +105,7 @@ namespace app
         std::vector<app::frustum *> frustums;
 
         app::frustum *overlay;
+        app::prog    *program;
 
         // Configuration serializer
 
@@ -111,7 +113,7 @@ namespace app
 
     public:
 
-        host(std::string, std::string);
+        host(app::prog *, std::string, std::string);
        ~host();
 
         bool root() const { return (server_sd == INVALID_SOCKET); }

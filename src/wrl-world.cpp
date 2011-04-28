@@ -20,7 +20,6 @@
 #include <ogl-uniform.hpp>
 #include <ogl-process.hpp>
 #include <ogl-terrain.hpp>
-#include <app-prog.hpp>
 #include <app-glob.hpp>
 #include <app-data.hpp>
 #include <app-conf.hpp>

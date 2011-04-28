@@ -144,7 +144,7 @@ app::prog::prog(const std::string& tag)
         host_conf = tag;
 
     ::lang = new app::lang(lang_conf);
-    ::host = new app::host(host_conf, tag);
+    ::host = new app::host(this, host_conf, tag);
 
     // Initialize the OpenGL context.
 
@@ -205,6 +205,11 @@ bool app::prog::process_event(app::event *E)
     }
 
     return false;
+}
+
+void app::prog::run()
+{
+    ::host->loop();
 }
 
 //-----------------------------------------------------------------------------

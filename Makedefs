@@ -1,7 +1,9 @@
+# -*- mode: makefile; -*-
+
 #------------------------------------------------------------------------------
 
-CFLAGS= -g -Wall -DCUDA_FORCE_API_VERSION=3010
-#CFLAGS= -g -Wall
+CFLAGS= -g -Wall
+#CFLAGS= -g -Wall -DCUDA_FORCE_API_VERSION=3010
 #CFLAGS= -O0 -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
 #CFLAGS= -pg -O3 -Wall -ansi -pedantic -DNDEBUG -fno-rtti -DTELLURION
@@ -15,6 +17,7 @@ INSTALLDIR= $(HOME)/bin
 #------------------------------------------------------------------------------
 
 CH= install_name_tool -change
+CC= g++
 
 #------------------------------------------------------------------------------
 
@@ -29,15 +32,38 @@ endif
 #------------------------------------------------------------------------------
 
 ifeq ($(shell uname), Darwin)
-	SDLCONF = /opt/local/bin/sdl-config
-	FT2CONF = /opt/local/bin/freetype-config
+	TARG    = libthumb.dylib
+	LD      = g++ -dynamiclib
+	SDLCONF =   /opt/local/bin/sdl-config
+	FT2CONF =   /opt/local/bin/freetype-config
 	INCDIR  = -I/opt/local/include
 	LIBDIR  = -L/opt/local/lib
 	OGLLIB  = -framework OpenGL -framework ApplicationServices
 else
+	TARG    = libthumb.so
+	LD      = g++ -shared
 	SDLCONF = sdl-config
 	FT2CONF = freetype-config
 	OGLLIB  = -lGL
 endif
+
+#------------------------------------------------------------------------------
+
+# Use user include and lib directories if they exist.
+
+ifneq ($(wildcard $(HOME)/include),)
+	INCDIR += -I$(HOME)/include
+endif
+ifneq ($(wildcard $(HOME)/lib),)
+	LIBDIR += -L$(HOME)/lib
+endif
+
+#------------------------------------------------------------------------------
+
+%.d : %.cpp
+	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $<
+
+%.o : %.cpp
+	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
 
 #------------------------------------------------------------------------------

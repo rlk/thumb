@@ -14,7 +14,7 @@
 
 #include <matrix.hpp>
 #include <app-glob.hpp>
-#include <app-prog.hpp>
+#include <app-host.hpp>
 #include <app-event.hpp>
 #include <app-frustum.hpp>
 #include <ogl-program.hpp>
@@ -79,7 +79,7 @@ void dpy::normal::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 
         chanv[chani]->bind();
         {
-            ::prog->draw(frusi, frust);
+            ::host->draw(frusi, frust);
         }
         chanv[chani]->free();
         chanv[chani]->proc();

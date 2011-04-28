@@ -16,31 +16,27 @@
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
-#include "ogl-opengl.hpp"
-#include "ogl-uniform.hpp"
+#include <ogl-opengl.hpp>
+#include <ogl-uniform.hpp>
+
+#include <app-event.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-host.hpp>
+#include <app-glob.hpp>
+
+#include <wrl-world.hpp>
+
+#include <dev-mouse.hpp>
+#include <dev-hybrid.hpp>
+#include <dev-gamepad.hpp>
+#include <dev-tracker.hpp>
+
+#include <mode-edit.hpp>
+#include <mode-play.hpp>
+#include <mode-info.hpp>
 
 #include "demo.hpp"
-
-#include "app-event.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-host.hpp"
-#include "app-glob.hpp"
-
-#include "wrl-world.hpp"
-#include "uni-universe.hpp"
-
-#include "dev-mouse.hpp"
-#include "dev-hybrid.hpp"
-#include "dev-gamepad.hpp"
-#include "dev-tracker.hpp"
-/*
-#include "dev-wiimote.hpp"
-*/
-
-#include "mode-edit.hpp"
-#include "mode-play.hpp"
-#include "mode-info.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -138,10 +134,7 @@ void demo::prep_uniforms() const
     uniform_light_theta    ->set(t);
     uniform_light_theta_cos->set(y);
 
-    if (get_option(5))
-        uniform_color_max->set(1.0, 1.0, 1.0, 0.0);
-    else
-        uniform_color_max->set(0.0, 0.0, 0.0, 0.0);
+    uniform_color_max->set(0.0, 0.0, 0.0, 0.0);
 
     // The current time
 
@@ -199,8 +192,8 @@ void demo::prep_uniforms() const
 
 //-----------------------------------------------------------------------------
 
-demo::demo(int w, int h) :
-    universe(0), world(0), edit(0), play(0), info(0), curr(0), input(0)
+demo::demo(const std::string& tag)
+    : app::prog(tag), world(0), edit(0), play(0), info(0), curr(0), input(0)
 {
     std::string input_mode = conf->get_s("input_mode");
 
@@ -229,10 +222,7 @@ demo::demo(int w, int h) :
     key_play  = conf->get_i("key_play");
     key_info  = conf->get_i("key_info");
 
-#ifdef TELLURION
-    universe = new uni::universe(w, h);
-#endif
-    world    = new wrl::world();
+    world = new wrl::world();
 
     edit = new mode::edit(world);
     play = new mode::play(world);
@@ -252,7 +242,6 @@ demo::~demo()
     if (edit) delete edit;
 
     if (world)    delete world;
-    if (universe) delete universe;
     if (input)    delete input;
 }
 
@@ -298,7 +287,6 @@ void demo::attr_step(double dt)
             if (attr_stop)
                 attr_off();
         }
-        set_options(opts);
     }
 }
 
@@ -326,7 +314,7 @@ void demo::attr_ins()
 {
     // Insert a new key here.
 
-    ::user->insert(get_options());
+    ::user->insert(0);
     attr_step(0.0);
 }
 
@@ -421,12 +409,7 @@ bool demo::process_timer(app::event *E)
 
 bool demo::process_input(app::event *E)
 {
-    // Assume all script inputs are meaningful.  Pass them to the universe.
-
-    if (universe)
-        E->set_dst(universe->script(E->data.input.src));
-
-    return true;
+    return false;
 }
 
 bool demo::process_event(app::event *E)
@@ -477,13 +460,6 @@ ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
     else
         r = ogl::range();
 
-    if (universe)
-    {
-        universe->prep(frusc, frusv);
-        ::user->put_move_rate(universe->get_move_rate());
-//      ::user->put_turn_rate(universe->get_turn_rate());
-    }
-
     return r;
 }
 
@@ -500,9 +476,6 @@ void demo::draw(int frusi, const app::frustum *frusp)
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
-
-    if (universe)
-        universe->draw(frusi);
 
     if (curr)
         curr->draw(frusi, frusp);

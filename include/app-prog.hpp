@@ -52,16 +52,13 @@ namespace app
         // Event handler
 
         virtual bool process_event(event *);
+        virtual void run();
 
         // Screenshot procedure
 
         void screenshot(std::string, int, int) const;
     };
 }
-
-//-----------------------------------------------------------------------------
-
-extern app::prog *prog;
 
 //-----------------------------------------------------------------------------
 

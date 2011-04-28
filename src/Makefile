@@ -2,8 +2,6 @@
 
 #------------------------------------------------------------------------------
 
-CC= g++
-TARG= thumb
 OBJS=   dir.o \
 	ode.o \
 	util.o \
@@ -70,31 +68,15 @@ OBJS=   dir.o \
 
 DEPS= $(OBJS:.o=.d)
 
+#------------------------------------------------------------------------------
+
 INCDIR += -I../include
 
-#------------------------------------------------------------------------------
-# Windows MinGW build
-
-ifeq "$(MAKE)" "mingw32-make"
-
-	INCDIR += -Ie:/rlk/include -Ie:/rlk/include/SDL
-	LIBDIR += -Le:/rlk/lib
-
-	LIBS=   -lfreetype -lmxml -lode -ljpeg -lpng -lz -lm \
-		-lmingw32 -lSDLmain -lSDL -mwindows -lopengl32 -lws2_32
-
-else #-------------------------------------------------------------------------
-# Linux/OSX build
-
-	INCDIR += -I$(HOME)/include -I/usr/local/cuda/include
-	LIBDIR += -L$(HOME)/lib     -L/usr/local/cuda/lib
-
-	CFLAGS += $(shell $(SDLCONF) --cflags) \
-		  $(shell $(FT2CONF) --cflags)
-	LIBS    = $(shell $(SDLCONF) --libs) \
-		  $(shell $(FT2CONF) --libs) \
-		-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
-endif
+CFLAGS += $(shell $(SDLCONF) --cflags) \
+	  $(shell $(FT2CONF) --cflags)
+LIBS    = $(shell $(SDLCONF) --libs) \
+	  $(shell $(FT2CONF) --libs) \
+	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 
 #------------------------------------------------------------------------------
 
@@ -110,36 +92,11 @@ endif
 
 #------------------------------------------------------------------------------
 
-%.d : %.cpp
-	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $<
-
-%.o : %.cpp
-	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
-
-#------------------------------------------------------------------------------
-
-../$(TARG) : $(OBJS)
-	$(CC) $(CFLAGS) -o ../$(TARG) $(OBJS) $(LIBDIR) $(LIBS)
+$(TARG) : $(OBJS)
+	$(LD) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :
-	$(RM) $(OBJS) $(DEPS) "../$(TARG)"
-
-test : ../$(TARG)
-	(cd ..; ./$(TARG) 960x540)
-
-#------------------------------------------------------------------------------
-# "make images" generates contour images of all source files.
-
-# SRCS= $(shell find . -name "*.cpp" -or -name "*.hpp")
-# IMGS= $(SRCS:%=%.png)
-
-# ESFLAGS= -Ecpp --no-header --color -MScroll
-# CVFLAGS= -flatten -resize 25% -trim -normalize -quality 100 -colors 16
-
-# %.png : %
-# 	enscript $(ESFLAGS) -p - $< | convert ps:- $(CVFLAGS) $@
-
-# images : $(IMGS)
+	$(RM) $(OBJS) $(DEPS) $(TARG)
 
 #------------------------------------------------------------------------------
 

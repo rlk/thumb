@@ -13,7 +13,6 @@
 #include <cassert>
 
 #include <app-conf.hpp>
-#include <app-prog.hpp>
 #include <app-user.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>

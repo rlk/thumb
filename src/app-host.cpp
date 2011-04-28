@@ -427,7 +427,7 @@ bool app::host::process_calib(event *E)
 
 //-----------------------------------------------------------------------------
 
-app::host::host(std::string filename, std::string tag) :
+app::host::host(app::prog *p, std::string filename, std::string tag) :
     clients(0),
     server_sd(INVALID_SOCKET),
     client_cd(INVALID_SOCKET),
@@ -441,6 +441,7 @@ app::host::host(std::string filename, std::string tag) :
     calibration_index(0),
     device(0),
     overlay(0),
+    program(p),
     file(filename.c_str())
 {
     // Set some reasonable defaults.
@@ -713,9 +714,9 @@ void app::host::root_loop()
 
                     sprintf(buf, "frame%05d.png", count / movie);
 
-                    ::prog->screenshot(std::string(buf),
-                                       get_window_w(),
-                                       get_window_h());
+                    program->screenshot(std::string(buf),
+                                        get_window_w(),
+                                        get_window_h());
                 }
             }
         }
@@ -765,7 +766,7 @@ void app::host::draw()
 
     // Determine visibility and view distance (moderately expensive).
 
-    ogl::range r = ::prog->prep(frusc, frusv);
+    ogl::range r = program->prep(frusc, frusv);
 
     // Cache the frustum projections (cheap).
 
@@ -774,7 +775,7 @@ void app::host::draw()
 
     // Perform the lighting prepass (possibly expensive).
 
-    ::prog->lite(frusc, frusv);
+    program->lite(frusc, frusv);
 
     // Update all modified uniforms.
 
@@ -801,7 +802,7 @@ void app::host::draw()
 
 void app::host::draw(int frusi, const app::frustum *frusp)
 {
-    ::prog->draw(frusi, frusp);
+    program->draw(frusi, frusp);
 }
 
 void app::host::swap() const
@@ -923,8 +924,8 @@ bool app::host::process_event(event *E)
 
     // Allow the application or the calibration to process the event.
 
-    if (::prog->process_event(E)
-        ||      process_calib(E))
+    if (program->process_event(E)
+        ||       process_calib(E))
         return true;
 
     // Handle the event locally, as needed.

@@ -16,19 +16,17 @@
 
 #include <SDL.h>
 
-#include "main.hpp"
-#include "util.hpp"
-#include "demo.hpp"
-#include "app-host.hpp"
-#include "app-data.hpp"
-#include "app-conf.hpp"
-#include "app-glob.hpp"
-#include "app-lang.hpp"
-#include "app-user.hpp"
-#include "app-perf.hpp"
-#include "ogl-opengl.hpp"
+#include <util.hpp>
+#include <app-host.hpp>
+#include <app-data.hpp>
+#include <app-conf.hpp>
+#include <app-glob.hpp>
+#include <app-lang.hpp>
+#include <app-user.hpp>
+#include <app-perf.hpp>
+#include <ogl-opengl.hpp>
 
-#include "dan/danpart.hpp"
+#include "demo.hpp"
 
 //-----------------------------------------------------------------------------
 // Keyboard state expression queryables.
@@ -102,84 +100,21 @@ void clr_trg()               { bits  = 0; }
 
 //-----------------------------------------------------------------------------
 
-static void init(std::string tag)
-{
-    // Initialize data access and configuration.
-
-    data = new app::data(DEFAULT_DATA_FILE);
-    conf = new app::conf(DEFAULT_CONF_FILE);
-
-    data->init();
-
-    // Initialize language and host configuration.
-
-    std::string lang_conf = conf->get_s("lang_file");
-    std::string host_conf = conf->get_s("host_file");
-
-    if (lang_conf.empty()) lang_conf = DEFAULT_LANG_FILE;
-    if (host_conf.empty()) host_conf = DEFAULT_HOST_FILE;
-
-    // If the given tag is an XML file name, use it as config file.
-
-    if (tag.size() > 4 && tag.rfind(".xml") == tag.size() - 4)
-        host_conf = tag;
-
-    lang = new app::lang(lang_conf);
-    host = new app::host(host_conf, tag);
-
-    // Initialize the OpenGL context.
-
-    video();
-
-    // Initialize the OpenGL state and application.
-
-    user = new app::user();
-    glob = new app::glob();
-    perf = new app::perf();
-
-#if 0
-    prog = new danpart(::host->get_buffer_w(),
-                       ::host->get_buffer_h());
-#else
-    prog = new demo(::host->get_buffer_w(),
-                    ::host->get_buffer_h());
-#endif
-
-    // Initialize the controllers.
-
-    if ((joy = SDL_JoystickOpen(conf->get_i("gamepad_device"))))
-        SDL_JoystickEventState(SDL_ENABLE);
-}
-
-static void fini()
-{
-    if (joy) SDL_JoystickClose(joy);
-
-    if (prog) delete prog;
-    if (perf) delete perf;
-    if (user) delete user;
-    if (host) delete host;
-    if (glob) delete glob;
-    if (lang) delete lang;
-    if (conf) delete conf;
-    if (data) delete data;
-}
-
-//-----------------------------------------------------------------------------
-
 int main(int argc, char *argv[])
 {
     try
     {
+        // TODO: move the SDL stuff
         if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) == 0)
         {
             SDL_EnableUNICODE(1);
 
-            init(std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
-            {
-                host->loop();
-            }
-            fini();
+            app::prog *P;
+
+            P = new demo(std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
+            P->run();
+
+            delete P;
 
             SDL_Quit();
         }

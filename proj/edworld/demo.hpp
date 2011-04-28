@@ -13,7 +13,7 @@
 #ifndef DEMO_HPP
 #define DEMO_HPP
 
-#include "app-prog.hpp"
+#include <app-prog.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -37,11 +37,6 @@ namespace ogl
     class uniform;
 }
 
-namespace uni
-{
-    class universe;
-}
-
 //-----------------------------------------------------------------------------
 
 class demo : public app::prog
@@ -57,8 +52,7 @@ class demo : public app::prog
 
     // Entity state.
 
-    uni::universe *universe;
-    wrl::world    *world;
+    wrl::world *world;
 
     // Editor mode.
 
@@ -117,7 +111,7 @@ class demo : public app::prog
 
 public:
 
-    demo(int, int);
+    demo(const std::string&);
    ~demo();
 
     bool process_event(app::event *);

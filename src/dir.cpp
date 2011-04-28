@@ -220,6 +220,14 @@ static bool is_data_dir(std::string dir)
 
 bool find_ro_data(std::string& path)
 {
+    // Check the environment variable.
+
+    if (char *data = getenv("THUMB_RO_DATA"))
+    {
+        path = data;
+        return true;
+    }
+
 #ifdef __APPLE__
     std::string test;
 
