@@ -12,7 +12,7 @@
 
 #include <stdexcept>
 
-#include "ogl-frame.hpp"
+#include <ogl-frame.hpp>
 
 // CAVEAT: This implementation only allows a stencil buffer to be used in
 // the presence of a depth buffer.  The OpenGL implementation must support

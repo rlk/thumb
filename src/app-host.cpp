@@ -15,24 +15,24 @@
 
 #include <string.h>
 
-#include "util.hpp"
-#include "matrix.hpp"
-#include "default.hpp"
-#include "ogl-range.hpp"
-#include "ogl-opengl.hpp"
-#include "dpy-channel.hpp"
-#include "dpy-display.hpp"
-#include "dpy-normal.hpp"
-#include "dpy-anaglyph.hpp"
-#include "dpy-interlace.hpp"
-#include "dpy-lenticular.hpp"
-#include "app-frustum.hpp"
-#include "app-event.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-prog.hpp"
-#include "app-glob.hpp"
-#include "app-host.hpp"
+#include <util.hpp>
+#include <matrix.hpp>
+#include <default.hpp>
+#include <ogl-range.hpp>
+#include <ogl-opengl.hpp>
+#include <dpy-channel.hpp>
+#include <dpy-display.hpp>
+#include <dpy-normal.hpp>
+#include <dpy-anaglyph.hpp>
+#include <dpy-interlace.hpp>
+#include <dpy-lenticular.hpp>
+#include <app-frustum.hpp>
+#include <app-event.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-prog.hpp>
+#include <app-glob.hpp>
+#include <app-host.hpp>
 
 #define JIFFY (1000 / 60)
 
@@ -797,6 +797,11 @@ void app::host::draw()
 
         frusi += (*i)->get_frusc();
     }
+}
+
+void app::host::draw(int frusi, const app::frustum *frusp)
+{
+    ::prog->draw(frusi, frusp);
 }
 
 void app::host::swap() const

@@ -15,10 +15,10 @@
 #include <memory>
 #include <cassert>
 
-#include "matrix.hpp"
-#include "ogl-opengl.hpp"
-#include "ogl-mesh.hpp"
-#include "app-glob.hpp"
+#include <matrix.hpp>
+#include <ogl-opengl.hpp>
+#include <ogl-mesh.hpp>
+#include <app-glob.hpp>
 
 //-----------------------------------------------------------------------------
 

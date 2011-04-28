@@ -1,3 +1,4 @@
+#if 0 // TODO: THIS MODULE IS OUT OF DATE
 //  Copyright (C) 2007 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
@@ -12,13 +13,13 @@
 
 #include <SDL_keyboard.h>
 
-#include "util.hpp"
-#include "matrix.hpp"
-#include "app-user.hpp"
-#include "app-glob.hpp"
-#include "app-prog.hpp"
-#include "ogl-opengl.hpp"
-#include "dpy-varrier.hpp"
+#include <util.hpp>
+#include <matrix.hpp>
+#include <app-user.hpp>
+#include <app-glob.hpp>
+#include <app-prog.hpp>
+#include <ogl-opengl.hpp>
+#include <dpy-varrier.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -320,3 +321,4 @@ void dpy::varrier::draw(app::view_v& views, int &i, bool calibrate, bool me)
 }
 
 //-----------------------------------------------------------------------------
+#endif

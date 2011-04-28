@@ -10,13 +10,13 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "ogl-opengl.hpp"
-#include "matrix.hpp"
-#include "ode.hpp"
+#include <ogl-opengl.hpp>
+#include <matrix.hpp>
+#include <ode.hpp>
 
-#include "wrl-atom.hpp"
-#include "ogl-pool.hpp"
-#include "app-glob.hpp"
+#include <wrl-atom.hpp>
+#include <ogl-pool.hpp>
+#include <app-glob.hpp>
 
 //-----------------------------------------------------------------------------
 

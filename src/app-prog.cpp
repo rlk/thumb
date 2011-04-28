@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -15,11 +15,197 @@
 
 #include <stdexcept>
 
-#include "ogl-opengl.hpp"
-#include "app-event.hpp"
-#include "app-prog.hpp"
-#include "app-conf.hpp"
-#include "app-host.hpp"
+#include <ogl-opengl.hpp>
+#include <app-event.hpp>
+
+#include <app-prog.hpp>
+#include <app-conf.hpp>
+#include <app-data.hpp>
+#include <app-glob.hpp>
+#include <app-user.hpp>
+#include <app-lang.hpp>
+#include <app-host.hpp>
+#include <app-perf.hpp>
+
+//-----------------------------------------------------------------------------
+// Global application state
+
+app::conf *conf = 0;
+app::data *data = 0;
+app::glob *glob = 0;
+app::user *user = 0;
+app::lang *lang = 0;
+app::host *host = 0;
+app::perf *perf = 0;
+
+//-----------------------------------------------------------------------------
+
+static void position(int x, int y)
+{
+    // SDL looks to the environment for window position.
+
+    char buf[256];
+
+    sprintf(buf, "SDL_VIDEO_WINDOW_POS=%d,%d", x, y);
+    SDL_putenv(buf);
+}
+
+static void video()
+{
+    // Look up the video mode parameters.
+
+    int m = ::host->get_window_m() | SDL_OPENGL;
+    int x = ::host->get_window_x();
+    int y = ::host->get_window_y();
+    int w = ::host->get_window_w();
+    int h = ::host->get_window_h();
+
+    // Unframed windows have no cursor and may be positioned.
+
+    if (m & SDL_NOFRAME)
+    {
+        SDL_ShowCursor(SDL_DISABLE);
+
+        if ((m & SDL_FULLSCREEN) == 0)
+            position(x, y);
+    }
+
+    // Look up the GL context parameters.
+
+    int mults = conf->get_i("multisample_samples");
+    int multb = conf->get_i("multisample_buffers");
+    int color =  8;
+    int depth = 24;
+
+    for (;;)
+    {
+        // Configure the GL context.
+
+        SDL_GL_SetAttribute(SDL_GL_RED_SIZE,           color);
+        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,         color);
+        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,          color);
+        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         depth);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, multb);
+        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, mults);
+        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,           1);
+
+        // Attempt to initialize the video mode.
+
+        if (SDL_SetVideoMode(w, h, 0, m))
+            break;
+        else
+        {
+            // If failed, try reducing the requirements.
+
+            if      (mults >  0) mults /=  2;
+            else if (multb >  0) multb  =  0;
+            else if (depth > 16) depth  = 16;
+            else if (color >  5) color  =  5;
+
+            // After all reductions, fail.
+
+            else throw std::runtime_error(SDL_GetError());
+        }
+    }
+
+    // Initialize the OpenGL state.
+
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multb);
+    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &mults);
+
+    ogl::init(multb > 0 && mults > 0);
+
+    SDL_WM_SetCaption("Thumb", "Thumb");
+}
+
+//-----------------------------------------------------------------------------
+
+app::prog::prog(const std::string& tag)
+{
+    // Initialize data access and configuration.
+
+    ::data = new app::data(DEFAULT_DATA_FILE);
+    ::conf = new app::conf(DEFAULT_CONF_FILE);
+
+    ::data->init();
+
+    // Initialize language and host configuration.
+
+    std::string lang_conf = ::conf->get_s("lang_file");
+    std::string host_conf = ::conf->get_s("host_file");
+
+    if (lang_conf.empty()) lang_conf = DEFAULT_LANG_FILE;
+    if (host_conf.empty()) host_conf = DEFAULT_HOST_FILE;
+
+    // If the given tag is an XML file name, use it as config file.
+    // TODO: this is ugly
+
+    if (tag.size() > 4 && tag.rfind(".xml") == tag.size() - 4)
+        host_conf = tag;
+
+    ::lang = new app::lang(lang_conf);
+    ::host = new app::host(host_conf, tag);
+
+    // Initialize the OpenGL context.
+
+    video();
+
+    // Initialize the OpenGL state.
+
+    ::user = new app::user();
+    ::glob = new app::glob();
+    ::perf = new app::perf();
+
+    // Configure some application-level key bindings.
+
+    key_snap = ::conf->get_i("key_snap");
+    key_exit = ::conf->get_i("key_exit");
+    key_init = ::conf->get_i("key_init");
+}
+
+app::prog::~prog()
+{
+    if (::perf) delete ::perf;
+    if (::user) delete ::user;
+    if (::host) delete ::host;
+    if (::glob) delete ::glob;
+    if (::lang) delete ::lang;
+    if (::conf) delete ::conf;
+    if (::data) delete ::data;
+}
+
+//-----------------------------------------------------------------------------
+
+bool app::prog::process_event(app::event *E)
+{
+    // Handle the global key bindings.
+
+    if (E->get_type() == E_KEYBD && E->data.keybd.d)
+    {
+        const int k = E->data.keybd.k;
+
+        SDL_Event user = { SDL_USEREVENT };
+        SDL_Event quit = { SDL_QUIT      };
+
+        // Take a screenshot.
+
+        if (k == key_snap)
+        {
+            screenshot(::conf->get_s("screenshot_file"),
+                       ::host->get_window_w(),
+                       ::host->get_window_h());
+
+            return true;
+        }
+
+        // Exit or reload.
+
+        else if (k == key_exit) { SDL_PushEvent(&quit); return true; }
+        else if (k == key_init) { SDL_PushEvent(&user); return true; }
+    }
+
+    return false;
+}
 
 //-----------------------------------------------------------------------------
 
@@ -87,88 +273,6 @@ void app::prog::screenshot(std::string filename, int w, int h) const
 
     png_destroy_write_struct(&writep, &infop);
     fclose(filep);
-}
-
-//-----------------------------------------------------------------------------
-
-app::prog::prog() : options(0)
-{
-    key_snap = ::conf->get_i("key_snap");
-    key_exit = ::conf->get_i("key_exit");
-    key_init = ::conf->get_i("key_init");
-}
-
-bool app::prog::process_event(app::event *E)
-{
-    // Handle the global key bindings.
-
-    if (E->get_type() == E_KEYBD && E->data.keybd.d)
-    {
-        const int k = E->data.keybd.k;
-        const int m = E->data.keybd.m;
-
-        SDL_Event user = { SDL_USEREVENT };
-        SDL_Event quit = { SDL_QUIT      };
-
-        // Take a screenshot.
-
-        if (k == key_snap)
-        {
-            screenshot(::conf->get_s("screenshot_file"),
-                       ::host->get_window_w(),
-                       ::host->get_window_h());
-
-            return true;
-        }
-
-        // Exit or reload.
-
-        else if (k == key_exit) { SDL_PushEvent(&quit); return true; }
-        else if (k == key_init) { SDL_PushEvent(&user); return true; }
-
-        // Toggle a debugging option.
-
-        else if ((SDLK_F1 <= k && k <= SDLK_F12) && (m & KMOD_SHIFT))
-        {
-            tgl_option(k - SDLK_F1);
-            ::host->post_draw();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-//-----------------------------------------------------------------------------
-
-int app::prog::get_options() const
-{
-    return options;
-}
-
-void app::prog::set_options(int B)
-{
-    options = B;
-}
-
-bool app::prog::get_option(int b) const
-{
-    return (options & (1 << b)) ? true : false;
-}
-
-void app::prog::set_option(int b)
-{
-    options |=  (1 << b);
-}
-
-void app::prog::clr_option(int b)
-{
-    options &= ~(1 << b);
-}
-
-void app::prog::tgl_option(int b)
-{
-    options ^= (1 << b);
 }
 
 //-----------------------------------------------------------------------------

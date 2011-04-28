@@ -16,24 +16,24 @@
 #include <cassert>
 #include <cstdio>
 
-#include "ogl-reflection-env.hpp"
-#include "ogl-irradiance-env.hpp"
-#include "ogl-sh-basis.hpp"
-#include "ogl-d-omega.hpp"
-#include "ogl-shadow.hpp"
+#include <ogl-reflection-env.hpp>
+#include <ogl-irradiance-env.hpp>
+#include <ogl-sh-basis.hpp>
+#include <ogl-d-omega.hpp>
+#include <ogl-shadow.hpp>
 
-#include "ogl-uniform.hpp"
-#include "ogl-program.hpp"
-#include "ogl-texture.hpp"
-#include "ogl-binding.hpp"
-#include "ogl-surface.hpp"
-#include "ogl-terrain.hpp"
+#include <ogl-uniform.hpp>
+#include <ogl-program.hpp>
+#include <ogl-texture.hpp>
+#include <ogl-binding.hpp>
+#include <ogl-surface.hpp>
+#include <ogl-terrain.hpp>
 
-#include "ogl-image.hpp"
-#include "ogl-frame.hpp"
-#include "ogl-pool.hpp"
+#include <ogl-image.hpp>
+#include <ogl-frame.hpp>
+#include <ogl-pool.hpp>
 
-#include "app-glob.hpp"
+#include <app-glob.hpp>
 
 // TODO: Template some of this repetition?
 

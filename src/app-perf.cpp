@@ -16,8 +16,8 @@
 #include <cmath>
 #include <SDL.h>
 
-#include "ogl-opengl.hpp"
-#include "app-perf.hpp"
+#include <ogl-opengl.hpp>
+#include <app-perf.hpp>
 
 #ifdef NVPM //=================================================================
 

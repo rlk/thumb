@@ -12,10 +12,10 @@
 
 #include <iostream>
 
-#include "ode.hpp"
-#include "ogl-pool.hpp"
-#include "ogl-opengl.hpp"
-#include "wrl-joint.hpp"
+#include <ode.hpp>
+#include <ogl-pool.hpp>
+#include <ogl-opengl.hpp>
+#include <wrl-joint.hpp>
 
 //-----------------------------------------------------------------------------
 

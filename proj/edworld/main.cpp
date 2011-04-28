@@ -31,18 +31,6 @@
 #include "dan/danpart.hpp"
 
 //-----------------------------------------------------------------------------
-// Global application state.
-
-app::conf *conf;
-app::data *data;
-app::prog *prog;
-app::glob *glob;
-app::user *user;
-app::lang *lang;
-app::host *host;
-app::perf *perf;
-
-//-----------------------------------------------------------------------------
 // Keyboard state expression queryables.
 
 double get_key(int i)
@@ -113,89 +101,6 @@ void set_trg(unsigned int b) { bits |= b; }
 void clr_trg()               { bits  = 0; }
 
 //-----------------------------------------------------------------------------
-
-static void position(int x, int y)
-{
-    char buf[32];
-
-    // SDL looks to the environment for window position.
-    // TODO: SDL_putenv?
-#ifdef _WIN32
-    sprintf(buf, "SDL_VIDEO_WINDOW_POS=%d,%d", x, y);
-//  putenv(buf);
-#else
-    sprintf(buf, "%d,%d", x, y);
-    setenv("SDL_VIDEO_WINDOW_POS", buf, 1);
-#endif
-}
-
-static void video()
-{
-    // Look up the video mode parameters.
-
-    int m = host->get_window_m() | SDL_OPENGL;
-    int x = host->get_window_x();
-    int y = host->get_window_y();
-    int w = host->get_window_w();
-    int h = host->get_window_h();
-
-    // Unframed windows have no cursor and may be positioned.
-
-    if (m & SDL_NOFRAME)
-    {
-        SDL_ShowCursor(SDL_DISABLE);
-
-        if ((m & SDL_FULLSCREEN) == 0)
-            position(x, y);
-    }
-
-    // Look up the GL context parameters.
-
-    int mults = conf->get_i("multisample_samples");
-    int multb = conf->get_i("multisample_buffers");
-    int color =  8;
-    int depth = 24;
-
-    for (;;)
-    {
-        // Configure the GL context.
-
-        SDL_GL_SetAttribute(SDL_GL_RED_SIZE,           color);
-        SDL_GL_SetAttribute(SDL_GL_GREEN_SIZE,         color);
-        SDL_GL_SetAttribute(SDL_GL_BLUE_SIZE,          color);
-        SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE,         depth);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, multb);
-        SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, mults);
-        SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER,           1);
-
-        // Attempt to initialize the video mode.
-
-        if (SDL_SetVideoMode(w, h, 0, m))
-            break;
-        else
-        {
-            // If failed, try reducing the requirements.
-
-            if      (mults >  0) mults /=  2;
-            else if (multb >  0) multb  =  0;
-            else if (depth > 16) depth  = 16;
-            else if (color >  5) color  =  5;
-
-            // After all reductions, fail.
-
-            else throw std::runtime_error(SDL_GetError());
-        }
-    }
-
-    // Initialize the OpenGL state.
-
-    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multb);
-    SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &mults);
-
-    ogl::init(multb > 0 && mults > 0);
-
-    SDL_WM_SetCaption("Thumb", "Thumb");
-}
 
 static void init(std::string tag)
 {

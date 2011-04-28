@@ -15,8 +15,7 @@
 #include <cstdio>
 #include <cctype>
 
-#include "wrl-param.hpp"
-#include "main.hpp"
+#include <wrl-param.hpp>
 
 //-----------------------------------------------------------------------------
 // Wave functions.  These have the same period and phase as sine.
@@ -49,31 +48,36 @@ static double sat(double x)
 
 //-----------------------------------------------------------------------------
 // System state functions.  These mark an expression as varying.
+// TODO: re-implement these.
 
 static bool cacheable;
 
 static double key(double x)
 {
-    cacheable = false;
-    return get_key(int(x));
+    // cacheable = false;
+    // return get_key(int(x));
+    return 0.0;
 }
 
 static double btn(double x)
 {
-    cacheable = false;
-    return get_btn(int(x));
+    // cacheable = false;
+    // return get_btn(int(x));
+    return 0.0;
 }
 
 static double trg(double x)
 {
-    cacheable = false;
-    return get_trg(int(x));
+    // cacheable = false;
+    // return get_trg(int(x));
+    return 0.0;
 }
 
 static double joy(double x)
 {
-    cacheable = false;
-    return get_joy(int(x));
+    // cacheable = false;
+    // return get_joy(int(x));
+    return 0.0;
 }
 
 //-----------------------------------------------------------------------------
@@ -159,11 +163,12 @@ static const char *exF(double& k, const char *p)
 
         // System time reference.
 
-        else if ((q = sym("t", p)))
-        {
-            cacheable = false;
-            k = get_time();
-        }
+        // TODO: reimplement time expression
+        // else if ((q = sym("t", p)))
+        // {
+        //     cacheable = false;
+        //     k = get_time();
+        // }
     }
     return q;
 }

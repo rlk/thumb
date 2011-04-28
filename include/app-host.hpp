@@ -116,6 +116,7 @@ namespace app
 
         bool root() const { return (server_sd == INVALID_SOCKET); }
         void loop();
+        void draw(int, const app::frustum *);
         void draw();
         void swap() const;
 

@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cstdlib>
 
-#include "app-event.hpp"
+#include <app-event.hpp>
 
 //-----------------------------------------------------------------------------
 

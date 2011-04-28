@@ -13,7 +13,7 @@
 #include <algorithm>
 #include <limits>
 
-#include "ogl-range.hpp"
+#include <ogl-range.hpp>
 
 //-----------------------------------------------------------------------------
 

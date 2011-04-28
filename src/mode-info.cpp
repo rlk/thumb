@@ -16,12 +16,12 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include "mode-info.hpp"
-#include "app-user.hpp"
-#include "app-host.hpp"
-#include "app-event.hpp"
-#include "app-frustum.hpp"
-#include "gui-control.hpp"
+#include <mode-info.hpp>
+#include <app-user.hpp>
+#include <app-host.hpp>
+#include <app-event.hpp>
+#include <app-frustum.hpp>
+#include <gui-control.hpp>
 
 //-----------------------------------------------------------------------------
 

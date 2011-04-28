@@ -15,12 +15,12 @@
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
-#include "gui-gui.hpp"
-#include "app-data.hpp"
-#include "app-conf.hpp"
-#include "app-lang.hpp"
-#include "app-host.hpp"
-#include "util.hpp"
+#include <gui-gui.hpp>
+#include <app-data.hpp>
+#include <app-conf.hpp>
+#include <app-lang.hpp>
+#include <app-host.hpp>
+#include <util.hpp>
 
 //-----------------------------------------------------------------------------
 // Basic widget.

@@ -17,14 +17,14 @@
 #include <iostream>
 #include <ode/ode.h>
 
-#include "default.hpp"
-#include "ogl-opengl.hpp"
-#include "matrix.hpp"
-#include "app-user.hpp"
-#include "app-data.hpp"
-#include "app-glob.hpp"
-#include "app-conf.hpp"
-#include "app-prog.hpp"
+#include <default.hpp>
+#include <ogl-opengl.hpp>
+#include <matrix.hpp>
+#include <app-user.hpp>
+#include <app-data.hpp>
+#include <app-glob.hpp>
+#include <app-conf.hpp>
+#include <app-prog.hpp>
 
 // TODO: The use of set() is haphazzard.  current_M/I are accessed directly.
 // Clarify this interface.
@@ -202,14 +202,13 @@ void app::user::turn(double rx, double ry, double rz, const double *R)
 
     load_xps(T, R);
 
-    if (::prog->get_option(6))
-    {
-        mult_mat_mat(current_M, current_M, R);
-        turn(rx, ry, rz);
-        mult_mat_mat(current_M, current_M, T);
-    }
-    else
-        turn(0, ry, 0);
+#if CONFIG_EASY_FLIGHT
+    turn(0, ry, 0);
+#else
+    mult_mat_mat(current_M, current_M, R);
+    turn(rx, ry, rz);
+    mult_mat_mat(current_M, current_M, T);
+#endif
 
     orthonormalize(current_M);
 

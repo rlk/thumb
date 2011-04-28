@@ -13,9 +13,9 @@
 #include <cassert>
 #include <sstream>
 
-#include "gui-control.hpp"
-#include "wrl-joint.hpp"
-#include "wrl-solid.hpp"
+#include <gui-control.hpp>
+#include <wrl-joint.hpp>
+#include <wrl-solid.hpp>
 
 //-----------------------------------------------------------------------------
 

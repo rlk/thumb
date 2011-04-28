@@ -14,11 +14,11 @@
 
 #include <SDL_joystick.h>
 
-#include "matrix.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-event.hpp"
-#include "dev-gamepad.hpp"
+#include <matrix.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-event.hpp>
+#include <dev-gamepad.hpp>
 
 //-----------------------------------------------------------------------------
 

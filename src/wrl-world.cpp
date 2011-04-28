@@ -13,24 +13,23 @@
 #include <iostream>
 #include <algorithm>
 
-#include "ode.hpp"
-#include "util.hpp"
-#include "main.hpp"
-#include "matrix.hpp"
-#include "ogl-pool.hpp"
-#include "ogl-uniform.hpp"
-#include "ogl-process.hpp"
-#include "ogl-terrain.hpp"
-#include "app-prog.hpp"
-#include "app-glob.hpp"
-#include "app-data.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-file.hpp"
-#include "app-frustum.hpp"
-#include "wrl-solid.hpp"
-#include "wrl-joint.hpp"
-#include "wrl-world.hpp"
+#include <ode.hpp>
+#include <util.hpp>
+#include <matrix.hpp>
+#include <ogl-pool.hpp>
+#include <ogl-uniform.hpp>
+#include <ogl-process.hpp>
+#include <ogl-terrain.hpp>
+#include <app-prog.hpp>
+#include <app-glob.hpp>
+#include <app-data.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-file.hpp>
+#include <app-frustum.hpp>
+#include <wrl-solid.hpp>
+#include <wrl-joint.hpp>
+#include <wrl-world.hpp>
 
 #define MAX_CONTACTS 4
 
@@ -203,8 +202,10 @@ void wrl::world::play_callback(dGeomID o1, dGeomID o2)
             
         if (int n = dCollide(o1, o2, MAX_CONTACTS, &contact[0].geom, sz))
         {
+            /* TODO: move get/set_trg somewhere
             set_trg(dGeomGetCategoryBits(o1));
             set_trg(dGeomGetCategoryBits(o2));
+            */
 
             atom *a1 = (atom *) dGeomGetData(o1);
             atom *a2 = (atom *) dGeomGetData(o2);
@@ -414,7 +415,8 @@ void wrl::world::play_step(double dt)
 
     // Perform collision detection.
 
-    clr_trg();
+    // TODO: move clr_trg somewhere
+    // clr_trg();
 
     dSpaceCollide2((dGeomID) play_actor, (dGeomID) play_scene,
                               this, (dNearCallback *) ::play_callback);
@@ -1113,14 +1115,6 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
-
-    // Render the sky.
-/*
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    draw_sky(frusp);
-*/
-    if (::prog->get_option(4)) draw_debug_wireframe(frusi);
 }
 
 void wrl::world::draw_line(int frusi, const app::frustum *frusp)

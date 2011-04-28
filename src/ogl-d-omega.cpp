@@ -12,9 +12,9 @@
 
 #include <cassert>
 
-#include "matrix.hpp"
-#include "app-conf.hpp"
-#include "ogl-d-omega.hpp"
+#include <matrix.hpp>
+#include <app-conf.hpp>
+#include <ogl-d-omega.hpp>
 
 //-----------------------------------------------------------------------------
 

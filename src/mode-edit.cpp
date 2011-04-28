@@ -16,15 +16,15 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include "matrix.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-event.hpp"
-#include "app-frustum.hpp"
-#include "wrl-world.hpp"
-#include "wrl-solid.hpp"
-#include "wrl-constraint.hpp"
-#include "mode-edit.hpp"
+#include <matrix.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-event.hpp>
+#include <app-frustum.hpp>
+#include <wrl-world.hpp>
+#include <wrl-solid.hpp>
+#include <wrl-constraint.hpp>
+#include <mode-edit.hpp>
 
 //-----------------------------------------------------------------------------
 

@@ -12,15 +12,15 @@
 
 #include <cassert>
 
-#include "util.hpp"
-#include "matrix.hpp"
-#include "default.hpp"
-#include "app-glob.hpp"
-#include "app-conf.hpp"
-#include "app-event.hpp"
-#include "ogl-frame.hpp"
-#include "ogl-program.hpp"
-#include "dpy-channel.hpp"
+#include <util.hpp>
+#include <matrix.hpp>
+#include <default.hpp>
+#include <app-glob.hpp>
+#include <app-conf.hpp>
+#include <app-event.hpp>
+#include <ogl-frame.hpp>
+#include <ogl-program.hpp>
+#include <dpy-channel.hpp>
 
 #define HALF(i) ((i + 1) / 2)
 

@@ -13,14 +13,14 @@
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
-#include "matrix.hpp"
-#include "app-glob.hpp"
-#include "app-prog.hpp"
-#include "app-event.hpp"
-#include "app-frustum.hpp"
-#include "ogl-program.hpp"
-#include "dpy-channel.hpp"
-#include "dpy-lenticular.hpp"
+#include <matrix.hpp>
+#include <app-glob.hpp>
+#include <app-host.hpp>
+#include <app-event.hpp>
+#include <app-frustum.hpp>
+#include <ogl-program.hpp>
+#include <dpy-channel.hpp>
+#include <dpy-lenticular.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -135,7 +135,9 @@ void dpy::lenticular::draw(int chanc, const dpy::channel *const *chanv, int frus
     for (i = 0; i < chanc && i < channels; ++i)
     {
         chanv[i]->bind(quality);
-        ::prog->draw(frusi + i, frust[i]);
+        {
+            ::host->draw(frusi + i, frust[i]);
+        }
         chanv[i]->free();
     }
 

@@ -12,9 +12,9 @@
 
 #include <cstdlib>
 
-#include "app-data.hpp"
-#include "app-conf.hpp"
-#include "app-lang.hpp"
+#include <app-data.hpp>
+#include <app-conf.hpp>
+#include <app-lang.hpp>
 
 //-----------------------------------------------------------------------------
 

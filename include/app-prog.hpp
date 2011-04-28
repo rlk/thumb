@@ -37,13 +37,11 @@ namespace app
         int key_exit;
         int key_init;
 
-        unsigned int options;
-
     public:
 
-        prog();
+        prog(const std::string&);
 
-        virtual ~prog() { }
+        virtual ~prog();
 
         // Rendering handlers
 
@@ -55,18 +53,7 @@ namespace app
 
         virtual bool process_event(event *);
 
-        // Debug toggles
-
-        int  get_options() const;
-        void set_options(int);
-
-        bool get_option(int) const;
-        void set_option(int);
-        void clr_option(int);
-        void tgl_option(int);
-
-        virtual void next() { }
-        virtual void prev() { }
+        // Screenshot procedure
 
         void screenshot(std::string, int, int) const;
     };

@@ -13,10 +13,10 @@
 #include <iostream>
 #include <cstring>
 
-#include "ogl-uniform.hpp"
-#include "ogl-program.hpp"
-#include "app-glob.hpp"
-#include "app-data.hpp"
+#include <ogl-uniform.hpp>
+#include <ogl-program.hpp>
+#include <app-glob.hpp>
+#include <app-data.hpp>
 
 //-----------------------------------------------------------------------------
 

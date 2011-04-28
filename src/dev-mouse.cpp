@@ -16,12 +16,12 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include "matrix.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-host.hpp"
-#include "app-event.hpp"
-#include "dev-mouse.hpp"
+#include <matrix.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-host.hpp>
+#include <app-event.hpp>
+#include <dev-mouse.hpp>
 
 //-----------------------------------------------------------------------------
 

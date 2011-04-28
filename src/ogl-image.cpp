@@ -13,8 +13,8 @@
 #include <cassert>
 #include <cstring>
 
-#include "ogl-opengl.hpp"
-#include "ogl-image.hpp"
+#include <ogl-opengl.hpp>
+#include <ogl-image.hpp>
 
 //-----------------------------------------------------------------------------
 

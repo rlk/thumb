@@ -12,10 +12,10 @@
 
 #include <cassert>
 
-#include "app-conf.hpp"
-#include "app-glob.hpp"
-#include "ogl-frame.hpp"
-#include "ogl-shadow.hpp"
+#include <app-conf.hpp>
+#include <app-glob.hpp>
+#include <ogl-frame.hpp>
+#include <ogl-shadow.hpp>
 
 //-----------------------------------------------------------------------------
 

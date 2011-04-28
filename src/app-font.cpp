@@ -13,10 +13,10 @@
 #include <stdexcept>
 #include <cassert>
 
-#include "app-font.hpp"
-#include "app-data.hpp"
-#include "app-glob.hpp"
-#include "util.hpp"
+#include <app-font.hpp>
+#include <app-data.hpp>
+#include <app-glob.hpp>
+#include <util.hpp>
 
 //-----------------------------------------------------------------------------
 

@@ -12,15 +12,15 @@
 
 #include <cassert>
 
-#include "util.hpp"
-#include "matrix.hpp"
-#include "default.hpp"
-#include "app-prog.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-host.hpp"
-#include "app-event.hpp"
-#include "dev-tracker.hpp"
+#include <util.hpp>
+#include <matrix.hpp>
+#include <default.hpp>
+#include <app-prog.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-host.hpp>
+#include <app-event.hpp>
+#include <dev-tracker.hpp>
 
 //=============================================================================
 // TRACKD shared memory protocol implementation

@@ -13,8 +13,8 @@
 #include <cassert>
 #include <cmath>
 
-#include "matrix.hpp"
-#include "ogl-cubelut.hpp"
+#include <matrix.hpp>
+#include <ogl-cubelut.hpp>
 
 //-----------------------------------------------------------------------------
 

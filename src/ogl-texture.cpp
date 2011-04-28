@@ -14,10 +14,10 @@
 
 #include <png.h>
 
-#include "ogl-texture.hpp"
-#include "app-file.hpp"
-#include "app-conf.hpp"
-#include "app-data.hpp"
+#include <ogl-texture.hpp>
+#include <app-file.hpp>
+#include <app-conf.hpp>
+#include <app-data.hpp>
 
 //-----------------------------------------------------------------------------
 

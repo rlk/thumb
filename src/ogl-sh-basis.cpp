@@ -13,9 +13,9 @@
 #include <cassert>
 #include <cmath>
 
-#include "matrix.hpp"
-#include "app-conf.hpp"
-#include "ogl-sh-basis.hpp"
+#include <matrix.hpp>
+#include <app-conf.hpp>
+#include <ogl-sh-basis.hpp>
 
 //-----------------------------------------------------------------------------
 

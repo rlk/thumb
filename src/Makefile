@@ -4,9 +4,9 @@
 
 CC= g++
 TARG= thumb
-OBJS=   util.o \
-	dir.o \
+OBJS=   dir.o \
 	ode.o \
+	util.o \
 	matrix.o \
 	ogl-obj.o \
 	ogl-lut.o \
@@ -67,26 +67,10 @@ OBJS=   util.o \
 	app-glob.o \
 	app-data.o \
 	app-prog.o \
-	demo.o \
-	main.o \
-	uni-geomap.o \
-	uni-geocsh.o \
-	uni-geogen.o \
-	uni-georen.o \
-	uni-spatch.o \
-	uni-sphere.o \
-	uni-galaxy.o \
-	uni-slides.o \
-	uni-overlay.o \
-	uni-universe.o \
-	dan/danpart.o
-
-
-#	dev-wiimote.o \
-#	dpy-dome.o \
-#	dpy-varrier.o \
 
 DEPS= $(OBJS:.o=.d)
+
+INCDIR += -I../include
 
 #------------------------------------------------------------------------------
 # Windows MinGW build
@@ -109,8 +93,7 @@ else #-------------------------------------------------------------------------
 		  $(shell $(FT2CONF) --cflags)
 	LIBS    = $(shell $(SDLCONF) --libs) \
 		  $(shell $(FT2CONF) --libs) \
-		-lcuda -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
-#	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
+		-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 endif
 
 #------------------------------------------------------------------------------
@@ -129,9 +112,7 @@ endif
 
 %.d : %.cpp
 	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $<
-#	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $< > /dev/null
 
-#%.o : %.cpp Makefile
 %.o : %.cpp
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
 
@@ -149,16 +130,16 @@ test : ../$(TARG)
 #------------------------------------------------------------------------------
 # "make images" generates contour images of all source files.
 
-SRCS= $(shell find . -name "*.cpp" -or -name "*.hpp")
-IMGS= $(SRCS:%=%.png)
+# SRCS= $(shell find . -name "*.cpp" -or -name "*.hpp")
+# IMGS= $(SRCS:%=%.png)
 
-ESFLAGS= -Ecpp --no-header --color -MScroll
-CVFLAGS= -flatten -resize 25% -trim -normalize -quality 100 -colors 16
+# ESFLAGS= -Ecpp --no-header --color -MScroll
+# CVFLAGS= -flatten -resize 25% -trim -normalize -quality 100 -colors 16
 
-%.png : %
-	enscript $(ESFLAGS) -p - $< | convert ps:- $(CVFLAGS) $@
+# %.png : %
+# 	enscript $(ESFLAGS) -p - $< | convert ps:- $(CVFLAGS) $@
 
-images : $(IMGS)
+# images : $(IMGS)
 
 #------------------------------------------------------------------------------
 

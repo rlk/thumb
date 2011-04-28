@@ -10,10 +10,10 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "matrix.hpp"
-#include "app-glob.hpp"
-#include "util.hpp"
-#include "ogl-pool.hpp"
+#include <matrix.hpp>
+#include <app-glob.hpp>
+#include <util.hpp>
+#include <ogl-pool.hpp>
 
 //=============================================================================
 

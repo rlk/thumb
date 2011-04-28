@@ -1,3 +1,4 @@
+#if 0 // TODO: THIS MODULE IS OUT OF DATE
 //  Copyright (C) 2007 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
@@ -10,11 +11,11 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "dpy-dome.hpp"
-#include "matrix.hpp"
-#include "app-glob.hpp"
-#include "app-user.hpp"
-#include "app-prog.hpp"
+#include <dpy-dome.hpp>
+#include <matrix.hpp>
+#include <app-glob.hpp>
+#include <app-user.hpp>
+#include <app-prog.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -210,3 +211,4 @@ void dpy::dome::draw(app::view_v& views, int &i, bool calibrate, bool me)
 }
 
 //-----------------------------------------------------------------------------
+#endif

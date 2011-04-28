@@ -12,15 +12,15 @@
 
 #include <cassert>
 
-#include "app-glob.hpp"
-#include "app-conf.hpp"
+#include <app-glob.hpp>
+#include <app-conf.hpp>
 
-#include "ogl-pool.hpp"
-#include "ogl-frame.hpp"
-#include "ogl-program.hpp"
-#include "ogl-process.hpp"
-#include "ogl-binding.hpp"
-#include "ogl-irradiance-env.hpp"
+#include <ogl-pool.hpp>
+#include <ogl-frame.hpp>
+#include <ogl-program.hpp>
+#include <ogl-process.hpp>
+#include <ogl-binding.hpp>
+#include <ogl-irradiance-env.hpp>
 
 //-----------------------------------------------------------------------------
 

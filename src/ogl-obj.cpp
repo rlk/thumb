@@ -15,13 +15,13 @@
 #include <cstdlib>
 #include <sys/time.h>
 
-#include "ogl-obj.hpp"
-#include "ogl-aabb.hpp"
-#include "app-data.hpp"
-#include "app-glob.hpp"
-#include "app-conf.hpp"
-#include "matrix.hpp"
-#include "util.hpp"
+#include <ogl-obj.hpp>
+#include <ogl-aabb.hpp>
+#include <app-data.hpp>
+#include <app-glob.hpp>
+#include <app-conf.hpp>
+#include <matrix.hpp>
+#include <util.hpp>
 
 //-----------------------------------------------------------------------------
 

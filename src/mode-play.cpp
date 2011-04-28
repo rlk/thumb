@@ -12,15 +12,14 @@
 
 #include <cassert>
 
-#include "main.hpp"
-#include "app-conf.hpp"
-#include "app-prog.hpp"
-#include "app-user.hpp"
-#include "app-host.hpp"
-#include "app-event.hpp"
-#include "app-frustum.hpp"
-#include "wrl-world.hpp"
-#include "mode-play.hpp"
+#include <app-conf.hpp>
+#include <app-prog.hpp>
+#include <app-user.hpp>
+#include <app-host.hpp>
+#include <app-event.hpp>
+#include <app-frustum.hpp>
+#include <wrl-world.hpp>
+#include <mode-play.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -40,7 +39,6 @@ bool mode::play::process_start(app::event *E)
     assert(world);
 
     world->play_init();
-    clr_time();
 
     return false;
 }

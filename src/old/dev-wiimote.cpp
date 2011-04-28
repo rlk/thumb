@@ -1,3 +1,4 @@
+#if 0 // TODO: THIS MODULE IS OUT OF DATE
 //  Copyright (C) 2007 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
@@ -12,12 +13,12 @@
 
 #include <cstring>
 
-#include "matrix.hpp"
-#include "app-conf.hpp"
-#include "app-user.hpp"
-#include "app-prog.hpp"
-#include "app-host.hpp"
-#include "dev-wiimote.hpp"
+#include <matrix.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-prog.hpp>
+#include <app-host.hpp>
+#include <dev-wiimote.hpp>
 
 #ifdef ENABLE_WIIMOTE
 extern "C" {
@@ -520,3 +521,4 @@ bool dev::wiimote::timer(int t)
 //-----------------------------------------------------------------------------
 
 #endif // ENABLE_WIIMOTE
+#endif

@@ -10,10 +10,10 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "app-conf.hpp"
-#include "app-glob.hpp"
-#include "ogl-binding.hpp"
-#include "ogl-sprite.hpp"
+#include <app-conf.hpp>
+#include <app-glob.hpp>
+#include <ogl-binding.hpp>
+#include <ogl-sprite.hpp>
 
 //-----------------------------------------------------------------------------
 

@@ -12,9 +12,9 @@
 
 #include <algorithm>
 
-#include "matrix.hpp"
-#include "ogl-opengl.hpp"
-#include "ogl-aabb.hpp"
+#include <matrix.hpp>
+#include <ogl-opengl.hpp>
+#include <ogl-aabb.hpp>
 
 //-----------------------------------------------------------------------------
 
