@@ -10,18 +10,12 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <iostream>
-#include <sstream>
 #include <cstdlib>
 #include <sys/time.h>
 
 #include <ogl-obj.hpp>
 #include <ogl-aabb.hpp>
 #include <app-data.hpp>
-#include <app-glob.hpp>
-#include <app-conf.hpp>
-#include <sys-matrix.hpp>
-#include <sys-util.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -239,7 +233,7 @@ const char *obj::obj::read_c(const char *p)
 
         p = scannl(scanword(scanword(p, key), val));
 
-        if (key == "unit") scale = unit_scale(val);
+        if (key == "unit") scale = scale_to_meters(val);
     }
     return p;
 }

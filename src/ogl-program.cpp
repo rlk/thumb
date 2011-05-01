@@ -10,7 +10,6 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <iostream>
 #include <cstring>
 
 #include <ogl-uniform.hpp>
@@ -33,8 +32,7 @@ bool ogl::program::log(GLhandleARB handle, const std::string& name)
     {
         glGetInfoLogARB(handle, len, NULL, log);
 
-        std::cerr << name << std::endl;
-        std::cerr << log  << std::endl;
+        fprintf(stderr, "%s\n%s", name.c_str(), log);
 
         delete [] log;
 

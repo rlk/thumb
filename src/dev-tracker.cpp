@@ -358,7 +358,7 @@ dev::tracker::tracker() : flying(false), joy_x(0), joy_y(0)
 
     const std::string unit = conf->get_s("tracker_unit");
 
-    scale = unit_scale(unit.empty() ? "ft" : unit);
+    scale = scale_to_meters(unit.empty() ? "ft" : unit);
 
     tracker_head_sensor = conf->get_i("tracker_head_sensor");
     tracker_hand_sensor = conf->get_i("tracker_hand_sensor");

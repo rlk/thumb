@@ -11,10 +11,8 @@
 //  General Public License for more details.
 
 #include <stdexcept>
-#include <iostream>
 #include <cassert>
 #include <sstream>
-#include <fstream>
 
 #include <ogl-opengl.hpp>
 #include <sys-util.hpp>
@@ -166,8 +164,6 @@ void ogl::check_err(const char *file, int line)
         }
 
         str << std::endl;
-
-        std::cerr << str;
 
         throw std::runtime_error(str.str().c_str());
     }

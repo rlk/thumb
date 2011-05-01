@@ -11,11 +11,8 @@
 //  General Public License for more details.
 
 #include <SDL.h>
-#include <iostream>
+#include <cstring>
 
-#include <string.h>
-
-#include <sys-util.hpp>
 #include <sys-matrix.hpp>
 #include <app-default.hpp>
 #include <ogl-range.hpp>
@@ -37,6 +34,15 @@
 #define JIFFY (1000 / 60)
 
 //-----------------------------------------------------------------------------
+
+static void nodelay(int sd)
+{
+    socklen_t len = sizeof (int);
+    int       val = 1;
+        
+    if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *) &val, len) < 0)
+        throw std::runtime_error(strerror(sock_errno));
+}
 
 static unsigned long lookup(const char *hostname)
 {
@@ -107,7 +113,7 @@ SOCKET app::host::init_socket(int port)
         while (bind(sd, (struct sockaddr *) &address, addresslen) < 0)
             if (sock_errno == EINVAL)
             {
-                std::cerr << "Waiting for port expiration" << std::endl;
+                fprintf(stderr, "Waiting for port expiration\n");
                 usleep(250000);
             }
             else throw std::runtime_error(strerror(sock_errno));
@@ -311,7 +317,7 @@ void app::host::init_server(app::node p)
         while (connect(server_sd, (struct sockaddr *) &address, addresslen) <0)
             if (sock_errno == ECONNREFUSED)
             {
-                std::cerr << "Waiting for " << addr << std::endl;
+                fprintf(stderr, "Waiting for %s\n", addr.c_str());
                 usleep(250000);
             }
             else throw app::sock_error(addr);

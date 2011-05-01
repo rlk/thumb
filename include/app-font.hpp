@@ -21,7 +21,7 @@
 
 #include <ogl-opengl.hpp>
 #include <ogl-image.hpp>
-#include <rect.hpp>
+#include <sys-rect.hpp>
 
 //-----------------------------------------------------------------------------
 

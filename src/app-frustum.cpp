@@ -174,7 +174,7 @@ void app::frustum::calc_calibrated()
             {
                 const std::string unit = n.get_s("unit");
 
-                double scale = unit_scale(unit.empty() ? "ft" : unit);
+                double scale = scale_to_meters(unit.empty() ? "ft" : unit);
 
                 // Extract the position.
 

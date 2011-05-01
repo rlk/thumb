@@ -11,8 +11,6 @@
 //  General Public License for more details.
 
 #include <stdexcept>
-#include <iostream>
-#include <fstream>
 #include <cstring>
 #include <cstdlib>
 
@@ -22,7 +20,6 @@
 
 #include <app-data.hpp>
 #include <app-conf.hpp>
-#include <sys-util.hpp>
 #include <sys-dir.hpp>
 
 //-----------------------------------------------------------------------------

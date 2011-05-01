@@ -19,6 +19,8 @@
 #include <ogl-opengl.hpp>
 #include <app-perf.hpp>
 
+// TODO: Convert this away from iostream.
+
 #ifdef NVPM //=================================================================
 
 std::map<UINT, char *> app::perf::_name;

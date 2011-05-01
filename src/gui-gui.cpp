@@ -10,8 +10,6 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <algorithm>
-#include <iostream>
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
@@ -19,7 +17,6 @@
 #include <app-data.hpp>
 #include <app-conf.hpp>
 #include <app-lang.hpp>
-#include <app-host.hpp>
 #include <sys-util.hpp>
 
 //-----------------------------------------------------------------------------
@@ -218,7 +215,7 @@ void gui::string::free_font()
 gui::string::string(std::string s, int f, int j, GLubyte r,
                                                  GLubyte g,
                                                  GLubyte b) :
-    text(0), just(j), str(lang->get(s))
+    text(0), just(j), str(::lang->get(s))
 {
     // Initialize the font.
 
@@ -291,7 +288,7 @@ void gui::string::just_text()
 
 void gui::string::value(std::string s)
 {
-    str = lang->get(s);
+    str = ::lang->get(s);
     init_text();
     just_text();
 }

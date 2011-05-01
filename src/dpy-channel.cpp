@@ -43,7 +43,7 @@ dpy::channel::channel(app::node n) : src(0), dst(0)
 {
     const std::string unit = n.get_s("unit");
 
-    double scale = unit_scale(unit.empty() ? "ft" : unit);
+    double scale = scale_to_meters(unit.empty() ? "ft" : unit);
 
     // Extract the configuration.
 

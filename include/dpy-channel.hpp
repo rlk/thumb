@@ -13,6 +13,8 @@
 #ifndef DPY_CHANNEL_HPP
 #define DPY_CHANNEL_HPP
 
+#include <vector>
+
 #include <app-file.hpp>
 
 //-----------------------------------------------------------------------------

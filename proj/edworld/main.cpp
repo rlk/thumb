@@ -10,21 +10,13 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <stdexcept>
-#include <iostream>
-#include <cstdlib>
-
 #include <SDL.h>
 
-#include <sys-util.hpp>
-#include <app-host.hpp>
-#include <app-data.hpp>
-#include <app-conf.hpp>
-#include <app-glob.hpp>
-#include <app-lang.hpp>
-#include <app-user.hpp>
-#include <app-perf.hpp>
-#include <ogl-opengl.hpp>
+#include <stdexcept>
+#include <iostream>
+
+#include <app-prog.hpp>
+#include <app-default.hpp>
 
 #include "demo.hpp"
 

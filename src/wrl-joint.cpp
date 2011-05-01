@@ -10,11 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <iostream>
-
 #include <sys-ode.hpp>
 #include <ogl-pool.hpp>
-#include <ogl-opengl.hpp>
 #include <wrl-joint.hpp>
 
 //-----------------------------------------------------------------------------

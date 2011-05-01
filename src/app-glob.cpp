@@ -11,7 +11,6 @@
 //  General Public License for more details.
 
 #include <stdexcept>
-#include <iostream>
 #include <sstream>
 #include <cassert>
 #include <cstdio>
@@ -199,7 +198,7 @@ const ogl::program *app::glob::load_program(const std::string& name)
         }
         catch (std::runtime_error& e)
         {
-            std::cerr << "Failed to load program: " << name << std::endl;
+            fprintf(stderr, "Failed to load program %s\n", name.c_str());
             return 0;
         }
     }

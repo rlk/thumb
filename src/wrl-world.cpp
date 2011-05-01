@@ -10,9 +10,6 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <iostream>
-#include <algorithm>
-
 #include <sys-ode.hpp>
 #include <sys-util.hpp>
 #include <sys-matrix.hpp>
@@ -21,7 +18,6 @@
 #include <ogl-process.hpp>
 #include <ogl-terrain.hpp>
 #include <app-glob.hpp>
-#include <app-data.hpp>
 #include <app-conf.hpp>
 #include <app-user.hpp>
 #include <app-file.hpp>

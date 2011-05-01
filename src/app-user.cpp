@@ -11,10 +11,6 @@
 //  General Public License for more details.
 
 #include <sys/time.h>
-
-#include <sstream>
-#include <iomanip>
-#include <iostream>
 #include <ode/ode.h>
 
 #include <app-default.hpp>
@@ -22,7 +18,6 @@
 #include <sys-matrix.hpp>
 #include <app-user.hpp>
 #include <app-data.hpp>
-#include <app-glob.hpp>
 #include <app-conf.hpp>
 
 // TODO: The use of set() is haphazzard.  current_M/I are accessed directly.

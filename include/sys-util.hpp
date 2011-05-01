@@ -48,24 +48,7 @@ typedef std::set   <std::string> str_set;
 
 //-----------------------------------------------------------------------------
 
-#define min4(a, b, c, d) std::min(std::min(a, b), \
-                                  std::min(c, d))
-#define max4(a, b, c, d) std::max(std::max(a, b), \
-                                  std::max(c, d))
-
-#define min8(a, b, c, d, e, f, g, h) std::min(min4(a, b, d, c), \
-                                              min4(e, f, g, h))
-#define max8(a, b, c, d, e, f, g, h) std::max(max4(a, b, d, c), \
-                                              max4(e, f, g, h))
-
-//-----------------------------------------------------------------------------
-
-double unit_scale(const std::string&);
-
-float ntohf(float);
-int   ntohi(int);
-
-void nodelay(int);
+double scale_to_meters(const std::string&);
 
 int next_power_of_2(int);
 
