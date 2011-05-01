@@ -540,9 +540,22 @@ double solid_angle(const double *a, const double *b, const double *c)
 
 //-----------------------------------------------------------------------------
 
+int next_pow2(int n)
+{
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n++;
+
+    return n;
+}
+
 // Round to the nearest integer.  Round 0.5 toward negative infinity.
 
-int nearestint(double d)
+int nearest_int(double d)
 {
     double f = floor(d);
     double c = ceil (d);

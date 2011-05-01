@@ -152,7 +152,8 @@ double solid_angle(const double *, const double *, const double *);
 
 //-----------------------------------------------------------------------------
 
-int nearestint(double);  // TODO: This doesn't belong here.
+int next_pow2(int);
+int nearest_int(double);
 
 void   midpoint(double *, const double *, const double *);
 double distance(          const double *, const double *);

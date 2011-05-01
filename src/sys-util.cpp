@@ -14,7 +14,6 @@
 #include <cstring>
 
 #include <sys-util.hpp>
-#include <sys-socket.hpp> // for ntohl()
 
 //-----------------------------------------------------------------------------
 
@@ -36,28 +35,5 @@ double scale_to_meters(const std::string& unit)
 
 //-----------------------------------------------------------------------------
 
-int next_power_of_2(int n)
-{
-    n--;
-    n |= n >> 1;
-    n |= n >> 2;
-    n |= n >> 4;
-    n |= n >> 8;
-    n |= n >> 16;
-    n++;
-
-    return n;
-}
-
-int nearest_int(double d)
-{
-    double f = floor(d);
-    double c =  ceil(d);
-
-    if (fabs(f - d) < fabs(c - d))
-        return int(f);
-    else
-        return int(c);
-}
 
 //-----------------------------------------------------------------------------

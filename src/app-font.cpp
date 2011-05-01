@@ -16,7 +16,7 @@
 #include <app-font.hpp>
 #include <app-data.hpp>
 #include <app-glob.hpp>
-#include <sys-util.hpp>
+#include <sys-matrix.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -63,8 +63,8 @@ app::text::text(int w, int h) :
     outer_w(0),
     outer_h(0)
 {
-    outer_w = next_power_of_2(inner_w);
-    outer_h = next_power_of_2(inner_h);
+    outer_w = next_pow2(inner_w);
+    outer_h = next_pow2(inner_h);
 
     if (outer_w && outer_h)
         data = ::glob->new_image(outer_w, outer_h);
