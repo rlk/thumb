@@ -48,38 +48,34 @@ static double sat(double x)
 
 //-----------------------------------------------------------------------------
 // System state functions.  These mark an expression as varying.
-// TODO: re-implement these.
+// TODO: Reimplement these.
 
 static bool cacheable;
-
+/*
 static double key(double x)
 {
-    // cacheable = false;
-    // return get_key(int(x));
-    return 0.0;
+    cacheable = false;
+    return get_key(int(x));
 }
 
 static double btn(double x)
 {
-    // cacheable = false;
-    // return get_btn(int(x));
-    return 0.0;
+    cacheable = false;
+    return get_btn(int(x));
 }
 
 static double trg(double x)
 {
-    // cacheable = false;
-    // return get_trg(int(x));
-    return 0.0;
+    cacheable = false;
+    return get_trg(int(x));
 }
 
 static double joy(double x)
 {
-    // cacheable = false;
-    // return get_joy(int(x));
-    return 0.0;
+    cacheable = false;
+    return get_joy(int(x));
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 static const char *num(double& k, const char *p)
@@ -156,14 +152,15 @@ static const char *exF(double& k, const char *p)
 
         // System state function call.
 
+        /* TODO: Reimplement these with cluster awareness
         else if ((q = sym(")", exE(k, sym("(", sym("key", p)))))) k = key(k);
         else if ((q = sym(")", exE(k, sym("(", sym("btn", p)))))) k = btn(k);
         else if ((q = sym(")", exE(k, sym("(", sym("joy", p)))))) k = joy(k);
         else if ((q = sym(")", exE(k, sym("(", sym("trg", p)))))) k = trg(k);
-
+        */
         // System time reference.
 
-        // TODO: reimplement time expression
+        // TODO: Reimplement time expression
         // else if ((q = sym("t", p)))
         // {
         //     cacheable = false;

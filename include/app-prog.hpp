@@ -15,7 +15,7 @@
 
 #include <string>
 
-#include "ogl-range.hpp"
+#include <ogl-range.hpp>
 
 //-----------------------------------------------------------------------------
 

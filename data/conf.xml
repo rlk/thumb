@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
   <conf>
     <!-- Host configuration -->
-<!--<option name="host_file">host/local-cluster.xml</option>-->
     <option name="host_file">host/common.xml</option>
     <option name="input_mode">mouse</option>
     <option name="wiimote">00:1B:7A:3E:45:7F</option>
@@ -16,9 +15,9 @@
     <option name="movie">0</option>
     <option name="mipmap">best</option>
     <option name="texel_cutoff">0.5</option>
-    <!-- Cluster executable location -->
-    <option name="exec_dir">/home/dan/thumb/</option>
-    <!-- geomap data location -->
+    <!-- Executable path (necessary for cluster config) -->
+    <option name="executable">/home/dan/thumb/thumb</option>
+    <!-- Unevirse data location -->
      <option name="data_dir">/home/dan/thumb/data/</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>

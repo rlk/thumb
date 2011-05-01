@@ -201,7 +201,7 @@ void wrl::world::play_callback(dGeomID o1, dGeomID o2)
             
         if (int n = dCollide(o1, o2, MAX_CONTACTS, &contact[0].geom, sz))
         {
-            /* TODO: move get/set_trg somewhere
+            /* TODO: Reimplement collision triggers with cluster awareness.
             set_trg(dGeomGetCategoryBits(o1));
             set_trg(dGeomGetCategoryBits(o2));
             */

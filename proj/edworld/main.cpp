@@ -29,96 +29,17 @@
 #include "demo.hpp"
 
 //-----------------------------------------------------------------------------
-// Keyboard state expression queryables.
-
-double get_key(int i)
-{
-    /*
-    int    n;
-    Uint8 *k = SDL_GetKeyState(&n);
-
-    if (0 <= i && i < n && k[i])
-        return 1.0;
-    else
-        return 0.0;
-    */
-    return 0.0;
-}
-
-//-----------------------------------------------------------------------------
-// System time expression queryables.
-
-static int tick = 0;
-static int tock = 0;
-
-double get_time()
-{
-    return (tock - tick) / 1000.0;
-}
-
-void clr_time()
-{
-    tick = tock;
-}
-
-//-----------------------------------------------------------------------------
-// Joystick input expression queryables.
-
-static SDL_Joystick *joy = NULL;
-
-double get_btn(int i)
-{
-    if (joy)
-        return SDL_JoystickGetButton(joy, i);
-    else
-        return 0.0;
-}
-
-double get_joy(int i)
-{
-    if (joy)
-        return SDL_JoystickGetAxis(joy, i) / 32768.0;
-    else
-        return 0.0;
-}
-
-//-----------------------------------------------------------------------------
-// Collision group expression queryables.
-
-static unsigned int bits = 0;
-
-double get_trg(unsigned int i)
-{
-    if (bits & (1 << i))
-        return 1.0;
-    else
-        return 0.0;
-}
-
-void set_trg(unsigned int b) { bits |= b; }
-void clr_trg()               { bits  = 0; }
-
-//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
     try
     {
-        // TODO: move the SDL stuff
-        if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK) == 0)
-        {
-            SDL_EnableUNICODE(1);
+        app::prog *P;
 
-            app::prog *P;
+        P = new demo(std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
+        P->run();
 
-            P = new demo(std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
-            P->run();
-
-            delete P;
-
-            SDL_Quit();
-        }
-        else throw std::runtime_error(SDL_GetError());
+        delete P;
     }
     catch (std::exception& e)
     {

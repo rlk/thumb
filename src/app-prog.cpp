@@ -122,6 +122,13 @@ static void video()
 
 app::prog::prog(const std::string& tag)
 {
+    // Start SDL
+
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK))
+        throw std::runtime_error(SDL_GetError());
+
+    SDL_EnableUNICODE(1);
+
     // Initialize data access and configuration.
 
     ::data = new app::data(DEFAULT_DATA_FILE);
@@ -161,10 +168,17 @@ app::prog::prog(const std::string& tag)
     key_snap = ::conf->get_i("key_snap");
     key_exit = ::conf->get_i("key_exit");
     key_init = ::conf->get_i("key_init");
+
+    // Configure the joystick system.
+
+    if (SDL_JoystickOpen(::conf->get_i("gamepad_device")))
+        SDL_JoystickEventState(SDL_ENABLE);
 }
 
 app::prog::~prog()
 {
+    // Release all resources
+
     if (::perf) delete ::perf;
     if (::user) delete ::user;
     if (::host) delete ::host;
@@ -172,6 +186,8 @@ app::prog::~prog()
     if (::lang) delete ::lang;
     if (::conf) delete ::conf;
     if (::data) delete ::data;
+
+    SDL_Quit();
 }
 
 //-----------------------------------------------------------------------------
