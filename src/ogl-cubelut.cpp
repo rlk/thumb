@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cmath>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <ogl-cubelut.hpp>
 
 //-----------------------------------------------------------------------------

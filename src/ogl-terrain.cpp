@@ -12,7 +12,7 @@
 
 #include <cstdlib>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-glob.hpp>
 #include <app-data.hpp>
 #include <app-file.hpp>

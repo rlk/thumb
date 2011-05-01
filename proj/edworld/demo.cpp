@@ -26,6 +26,7 @@
 #include <app-glob.hpp>
 
 #include <wrl-world.hpp>
+#include <sys-matrix.hpp>
 
 #include <dev-mouse.hpp>
 #include <dev-hybrid.hpp>

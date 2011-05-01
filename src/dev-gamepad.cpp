@@ -14,7 +14,7 @@
 
 #include <SDL_joystick.h>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-conf.hpp>
 #include <app-user.hpp>
 #include <app-event.hpp>

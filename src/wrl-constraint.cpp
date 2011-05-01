@@ -11,7 +11,7 @@
 //  General Public License for more details.
 
 #include <sys-util.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-pool.hpp>
 #include <app-user.hpp>

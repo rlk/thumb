@@ -16,7 +16,7 @@
 #include <string.h>
 
 #include <sys-util.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-default.hpp>
 #include <ogl-range.hpp>
 #include <ogl-opengl.hpp>

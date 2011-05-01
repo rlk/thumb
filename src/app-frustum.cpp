@@ -17,7 +17,7 @@
 #include <SDL_keyboard.h>
 
 #include <sys-util.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>
 #include <app-event.hpp>

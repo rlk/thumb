@@ -2,69 +2,69 @@
 
 #------------------------------------------------------------------------------
 
-OBJS=   sys-dir.o \
-	sys-ode.o \
-	sys-util.o \
-	matrix.o \
-	ogl-obj.o \
-	ogl-lut.o \
-	ogl-aabb.o \
-	ogl-range.o \
-	ogl-shadow.o \
-	ogl-reflection-env.o \
-	ogl-irradiance-env.o \
-	ogl-sh-basis.o \
-	ogl-d-omega.o \
-	ogl-cubelut.o \
-	ogl-process.o \
-	ogl-uniform.o \
-	ogl-program.o \
-	ogl-texture.o \
-	ogl-binding.o \
-	ogl-surface.o \
-	ogl-terrain.o \
-	ogl-sprite.o \
-	ogl-mirror.o \
-	ogl-buffer.o \
-	ogl-image.o \
-	ogl-frame.o \
-	ogl-mesh.o \
-	ogl-pool.o \
-	ogl-opengl.o \
+OBJS=	app-data.o \
+	app-event.o \
+	app-file.o \
+	app-font.o \
+	app-frustum.o \
+	app-glob.o \
+	app-host.o \
+	app-perf.o \
+	app-lang.o \
+	app-prog.o \
+	app-user.o \
+	dev-gamepad.o \
+	dev-hybrid.o \
+	dev-mouse.o \
+	dev-tracker.o \
+	dpy-anaglyph.o \
+	dpy-channel.o \
+	dpy-display.o \
+	dpy-interlace.o \
+	dpy-lenticular.o \
+	dpy-normal.o \
 	gui-control.o \
 	gui-gui.o \
 	mode-edit.o \
-	mode-play.o \
 	mode-info.o \
 	mode-mode.o \
+	mode-play.o \
+	ogl-aabb.o \
+	ogl-binding.o \
+	ogl-buffer.o \
+	ogl-cubelut.o \
+	ogl-d-omega.o \
+	ogl-frame.o \
+	ogl-image.o \
+	ogl-irradiance-env.o \
+	ogl-lut.o \
+	ogl-mesh.o \
+	ogl-mirror.o \
+	ogl-obj.o \
+	ogl-opengl.o \
+	ogl-pool.o \
+	ogl-process.o \
+	ogl-program.o \
+	ogl-range.o \
+	ogl-reflection-env.o \
+	ogl-sh-basis.o \
+	ogl-shadow.o \
+	ogl-sprite.o \
+	ogl-surface.o \
+	ogl-terrain.o \
+	ogl-texture.o \
+	ogl-uniform.o \
+	sys-dir.o \
+	sys-matrix.o \
+	sys-ode.o \
+	sys-util.o \
+	wrl-atom.o \
 	wrl-constraint.o \
+	wrl-joint.o \
 	wrl-operation.o \
 	wrl-param.o \
-	wrl-atom.o \
 	wrl-solid.o \
-	wrl-joint.o \
-	wrl-world.o \
-	dev-mouse.o \
-	dev-hybrid.o \
-	dev-gamepad.o \
-	dev-tracker.o \
-	dpy-channel.o \
-	dpy-display.o \
-	dpy-normal.o \
-	dpy-anaglyph.o \
-	dpy-interlace.o \
-	dpy-lenticular.o \
-	app-event.o \
-	app-frustum.o \
-	app-file.o \
-	app-font.o \
-	app-host.o \
-	app-user.o \
-	app-perf.o \
-	app-lang.o \
-	app-glob.o \
-	app-data.o \
-	app-prog.o \
+	wrl-world.o
 
 DEPS= $(OBJS:.o=.d)
 

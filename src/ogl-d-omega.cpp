@@ -12,7 +12,7 @@
 
 #include <cassert>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-conf.hpp>
 #include <ogl-d-omega.hpp>
 

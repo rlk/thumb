@@ -19,7 +19,7 @@
 
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-user.hpp>
 #include <app-data.hpp>
 #include <app-glob.hpp>

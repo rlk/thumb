@@ -15,7 +15,7 @@
 #include <memory>
 #include <cassert>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-mesh.hpp>
 #include <app-glob.hpp>

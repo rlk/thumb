@@ -12,7 +12,7 @@
 
 #include <algorithm>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-aabb.hpp>
 

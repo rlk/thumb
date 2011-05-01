@@ -16,7 +16,7 @@
 
 #include <SDL.h>
 
-#include <util.hpp>
+#include <sys-util.hpp>
 #include <app-host.hpp>
 #include <app-data.hpp>
 #include <app-conf.hpp>

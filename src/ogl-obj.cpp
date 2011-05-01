@@ -20,7 +20,7 @@
 #include <app-data.hpp>
 #include <app-glob.hpp>
 #include <app-conf.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <sys-util.hpp>
 
 //-----------------------------------------------------------------------------

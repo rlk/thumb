@@ -15,7 +15,7 @@
 
 #include <sys-ode.hpp>
 #include <sys-util.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <ogl-pool.hpp>
 #include <ogl-uniform.hpp>
 #include <ogl-process.hpp>

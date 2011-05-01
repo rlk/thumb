@@ -12,7 +12,7 @@
 
 #include <iostream>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <wrl-world.hpp>
 #include <wrl-operation.hpp>
 

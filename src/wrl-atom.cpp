@@ -11,7 +11,7 @@
 //  General Public License for more details.
 
 #include <ogl-opengl.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <sys-ode.hpp>
 
 #include <wrl-atom.hpp>

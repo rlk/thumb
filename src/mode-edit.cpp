@@ -16,7 +16,7 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-conf.hpp>
 #include <app-user.hpp>
 #include <app-event.hpp>

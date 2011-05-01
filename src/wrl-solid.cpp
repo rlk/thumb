@@ -14,7 +14,7 @@
 #include <ode/ode.h>
 
 #include <sys-ode.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <ogl-pool.hpp>
 #include <ogl-opengl.hpp>
 #include <wrl-solid.hpp>

@@ -12,7 +12,7 @@
 
 #include <cassert>
 
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>

@@ -13,7 +13,7 @@
 #include <cassert>
 
 #include <sys-util.hpp>
-#include <matrix.hpp>
+#include <sys-matrix.hpp>
 #include <app-default.hpp>
 #include <app-glob.hpp>
 #include <app-conf.hpp>
