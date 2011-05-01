@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <sys-util.hpp>
-#include <sys-matrix.hpp>
+#include <etc-util.hpp>
+#include <etc-math.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-pool.hpp>
 #include <app-user.hpp>
@@ -128,9 +128,11 @@ void wrl::constraint::set_grid(int g)
     };
 
     grid = g;
+    grid = std::max(grid, 0);
+    grid = std::min(grid, 9);
 
-    grid_a = a[CLAMP(g, 0, 9)];
-    grid_d = d[CLAMP(g, 0, 9)];
+    grid_a = a[grid];
+    grid_d = d[grid];
 
     set_mode(mode);
 }

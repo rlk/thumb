@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -15,7 +15,7 @@
 
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>
-#include <sys-matrix.hpp>
+#include <etc-math.hpp>
 #include <app-user.hpp>
 #include <app-data.hpp>
 #include <app-conf.hpp>
@@ -91,7 +91,7 @@ void app::user::set(const double *p, const double *q, double t)
     // Compute the current transform and inverse from the given values.
 
     if (q)
-        set_quaternion(current_M, q);
+        quat_to_mat(current_M, q);
 
     if (p)
     {
@@ -139,7 +139,7 @@ void app::user::get_point(double *P, const double *p,
 
     // Determine the point direction of the given quaternion.
 
-    set_quaternion(M, q);
+    quat_to_mat(M, q);
 
     v[0] = -M[ 8];
     v[1] = -M[ 9];
@@ -616,7 +616,7 @@ void app::user::insert(int opts)
 
         double q[4];
 
-        get_quaternion(q, current_M);
+        mat_to_quat(q, current_M);
 
         // Insert a new key after the current key.
 
@@ -762,7 +762,7 @@ void app::user::auto_step(double dt)
 	    q[2] = smoothstep(auto_q0[2], auto_q1[2], t);
 	    q[3] = smoothstep(auto_q0[3], auto_q1[3], t);
 
-	    set_quaternion(current_M, q);
+	    quat_to_mat(current_M, q);
 
 	    current_M[12] = n[0] * r;
 	    current_M[13] = n[1] * r;
@@ -814,8 +814,8 @@ void app::user::auto_init(const double *n)
 
     // Capture the source and destination orientation.
 
-    get_quaternion(auto_q0, current_M);
-    get_quaternion(auto_q1, M);
+    mat_to_quat(auto_q0, current_M);
+    mat_to_quat(auto_q1, M);
 
     // Initialize the timer.
 

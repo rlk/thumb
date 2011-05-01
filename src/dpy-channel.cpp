@@ -1,4 +1,4 @@
-//  Copyright (C) 2007 Robert Kooima
+//  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -12,8 +12,8 @@
 
 #include <cassert>
 
-#include <sys-util.hpp>
-#include <sys-matrix.hpp>
+#include <etc-util.hpp>
+#include <etc-math.hpp>
 #include <app-default.hpp>
 #include <app-glob.hpp>
 #include <app-conf.hpp>
@@ -79,7 +79,7 @@ void dpy::channel::set_head(const double *p,
 
     double M[16], w[3];
 
-    set_quaternion(M, q);
+    quat_to_mat(M, q);
 
     mult_mat_vec3(w, M, v);
 

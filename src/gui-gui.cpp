@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -17,7 +17,7 @@
 #include <app-data.hpp>
 #include <app-conf.hpp>
 #include <app-lang.hpp>
-#include <sys-util.hpp>
+#include <etc-util.hpp>
 
 //-----------------------------------------------------------------------------
 // Basic widget.

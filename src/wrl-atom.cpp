@@ -1,4 +1,4 @@
-//  Copyright (C) 2007 Robert Kooima
+//  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -11,8 +11,8 @@
 //  General Public License for more details.
 
 #include <ogl-opengl.hpp>
-#include <sys-matrix.hpp>
-#include <sys-ode.hpp>
+#include <etc-math.hpp>
+#include <etc-ode.hpp>
 
 #include <wrl-atom.hpp>
 #include <ogl-pool.hpp>
@@ -260,7 +260,7 @@ void wrl::atom::load(app::node node)
 
     // Compute and apply the transform.
 
-    set_quaternion(current_M, q);
+    quat_to_mat(current_M, q);
 
     current_M[12] = p[0];
     current_M[13] = p[1];
@@ -280,7 +280,7 @@ void wrl::atom::save(app::node node)
 
     // Add the entity transform to this element.
 
-    get_quaternion(q, default_M);
+    mat_to_quat(q, default_M);
 
     app::node n;
 

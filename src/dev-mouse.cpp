@@ -1,4 +1,4 @@
-//  Copyright (C) 2007 Robert Kooima
+//  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -16,7 +16,7 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include <sys-matrix.hpp>
+#include <etc-math.hpp>
 #include <app-conf.hpp>
 #include <app-user.hpp>
 #include <app-host.hpp>
@@ -56,7 +56,7 @@ bool dev::mouse::process_point(app::event *E)
 {
     load_mat(init_R, curr_R);    
 
-    set_quaternion(curr_R, E->data.point.q);
+    quat_to_mat(curr_R, E->data.point.q);
 
     if (dragging)
     {
@@ -84,7 +84,7 @@ bool dev::mouse::process_point(app::event *E)
 {
     load_mat(init_R, curr_R);
 
-    set_quaternion(curr_R, E->data.point.q);
+    quat_to_mat(curr_R, E->data.point.q);
     
     if (dragging)
     {

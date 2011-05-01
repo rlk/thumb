@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <sys-util.hpp>
-#include <sys-matrix.hpp>
+#include <etc-util.hpp>
+#include <etc-math.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -416,9 +416,34 @@ void mult_xps_vec4(double *v, const double *M, const double *u)
 }
 
 //-----------------------------------------------------------------------------
+
+void midpoint(double *m, const double *a, const double *b)
+{
+    double bx = cos(b[1]) * cos(b[0] - a[0]);
+    double by = cos(b[1]) * sin(b[0] - a[0]);
+
+    double dx = cos(a[1]) + bx;
+
+    m[0] = a[0] + atan2(by, dx);
+
+    m[1] = atan2(sin(a[1]) + sin(b[1]), sqrt(dx * dx + by * by));
+}
+
+double distance(const double *a, const double *b)
+{
+    double d[3];
+
+    d[0] = a[0] - b[0];
+    d[1] = a[1] - b[1];
+    d[2] = a[2] - b[2];
+
+    return sqrt(DOT3(d, d));
+}
+
+//-----------------------------------------------------------------------------
 // Quaternion / matrix conversions
 
-void get_quaternion(double *q, const double *M)
+void mat_to_quat(double *q, const double *M)
 {
     if (1.0 + M[0] + M[5] + M[10] > 0.001)
     {
@@ -458,7 +483,7 @@ void get_quaternion(double *q, const double *M)
     }
 }
 
-void set_quaternion(double *M, const double *q)
+void quat_to_mat(double *M, const double *q)
 {
     M[ 0] = 1 - 2 * (q[1] * q[1] + q[2] * q[2]);
     M[ 1] =     2 * (q[0] * q[1] + q[2] * q[3]);
@@ -540,54 +565,6 @@ double solid_angle(const double *a, const double *b, const double *c)
 
 //-----------------------------------------------------------------------------
 
-int next_pow2(int n)
-{
-    n--;
-    n |= n >> 1;
-    n |= n >> 2;
-    n |= n >> 4;
-    n |= n >> 8;
-    n |= n >> 16;
-    n++;
-
-    return n;
-}
-
-// Round to the nearest integer.  Round 0.5 toward negative infinity.
-
-int nearest_int(double d)
-{
-    double f = floor(d);
-    double c = ceil (d);
-
-    return int((c - d < d - f) ? c : f);
-}
-
-void midpoint(double *m, const double *a, const double *b)
-{
-    double bx = cos(b[1]) * cos(b[0] - a[0]);
-    double by = cos(b[1]) * sin(b[0] - a[0]);
-
-    double dx = cos(a[1]) + bx;
-
-    m[0] = a[0] + atan2(by, dx);
-
-    m[1] = atan2(sin(a[1]) + sin(b[1]), sqrt(dx * dx + by * by));
-}
-
-double distance(const double *a, const double *b)
-{
-    double d[3];
-
-    d[0] = a[0] - b[0];
-    d[1] = a[1] - b[1];
-    d[2] = a[2] - b[2];
-
-    return sqrt(DOT3(d, d));
-}
-
-//-----------------------------------------------------------------------------
-
 void sphere_to_vector(double *v, double t, double p, double r)
 {
     v[0] = r * sin(t) * cos(p);
@@ -651,6 +628,31 @@ void slerp(double *p, const double *a, const double *b, double t)
     p[0] *= pl;
     p[1] *= pl;
     p[2] *= pl;
+}
+
+//-----------------------------------------------------------------------------
+
+// Round to the nearest integer.  Round 0.5 toward negative infinity.
+
+int nearest_int(double d)
+{
+    double f = floor(d);
+    double c = ceil (d);
+
+    return int((c - d < d - f) ? c : f);
+}
+
+int next_pow2(int n)
+{
+    n--;
+    n |= n >> 1;
+    n |= n >> 2;
+    n |= n >> 4;
+    n |= n >> 8;
+    n |= n >> 16;
+    n++;
+
+    return n;
 }
 
 //-----------------------------------------------------------------------------

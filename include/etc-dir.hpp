@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,29 +10,21 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef RECT_HPP
-#define RECT_HPP
+#ifndef DIR_HPP
+#define DIR_HPP
+
+#include <string>
+#include <set>
 
 //-----------------------------------------------------------------------------
 
-struct rect
-{
-    int x;
-    int y;
-    int w;
-    int h;
+void dir(std::string, std::set<std::string>&,
+                      std::set<std::string>&);
 
-    rect(int a, int b, int c, int d) : x(a), y(b), w(c), h(d) { }
+bool mkpath(std::string, bool=true);
 
-    bool test(int X, int Y) const { return (x <= X && X <= x + w &&
-                                            y <= Y && Y <= y + h); }
-    int L() const { return x;     }
-    int R() const { return x + w; }
-    int B() const { return y;     }
-    int T() const { return y + h; }
-};
-
-typedef std::vector<rect> rect_v;
+bool find_ro_data(std::string&);
+bool find_rw_data(std::string&);
 
 //-----------------------------------------------------------------------------
 

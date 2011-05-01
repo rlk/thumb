@@ -1,4 +1,4 @@
-//  Copyright (C) 2007 Robert Kooima
+//  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,12 +10,19 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <sys-matrix.hpp>
+#include <etc-math.hpp>
 #include <app-glob.hpp>
-#include <sys-util.hpp>
 #include <ogl-pool.hpp>
 
 //=============================================================================
+
+#define get_bit(b, i) (((b) >> ((i)    )) & 1)
+#define get_oct(b, i) (((b) >> ((i) * 3)) & 7)
+
+#define set_bit(b, i, n) (((b) & (~(1 << ((i)    )))) | ((n) << ((i)    )))
+#define set_oct(b, i, n) (((b) & (~(7 << ((i) * 3)))) | ((n) << ((i) * 3)))
+
+//-----------------------------------------------------------------------------
 
 ogl::elem::elem(const binding *b,
                 const GLuint  *o, GLenum t, GLsizei n, GLuint a, GLuint z) :

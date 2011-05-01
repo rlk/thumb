@@ -23,6 +23,9 @@ OBJS=	app-data.o \
 	dpy-interlace.o \
 	dpy-lenticular.o \
 	dpy-normal.o \
+	etc-dir.o \
+	etc-math.o \
+	etc-ode.o \
 	gui-control.o \
 	gui-gui.o \
 	mode-edit.o \
@@ -54,10 +57,6 @@ OBJS=	app-data.o \
 	ogl-terrain.o \
 	ogl-texture.o \
 	ogl-uniform.o \
-	sys-dir.o \
-	sys-matrix.o \
-	sys-ode.o \
-	sys-util.o \
 	wrl-atom.o \
 	wrl-constraint.o \
 	wrl-joint.o \

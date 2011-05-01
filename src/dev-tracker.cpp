@@ -1,4 +1,4 @@
-//  Copyright (C) 2007 Robert Kooima
+//  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -12,8 +12,8 @@
 
 #include <cassert>
 
-#include <sys-util.hpp>
-#include <sys-matrix.hpp>
+#include <etc-util.hpp>
+#include <etc-math.hpp>
 #include <app-default.hpp>
 #include <app-conf.hpp>
 #include <app-user.hpp>
@@ -273,7 +273,7 @@ static bool tracker_sensor(int id, double p[3], double q[4])
                 Rmul_rot_mat(M, 1, 0, 0, t[1]);
                 Rmul_rot_mat(M, 0, 0, 1, t[2]);
 #endif
-                get_quaternion(q, M);
+                mat_to_quat(q, M);
 
                 return true;
             }
@@ -454,7 +454,7 @@ bool dev::tracker::process_point(app::event *E)
         curr_P[1] = p[1];
         curr_P[2] = p[2];
 
-        set_quaternion(curr_R, q);
+        quat_to_mat(curr_R, q);
     }
 
     return false;

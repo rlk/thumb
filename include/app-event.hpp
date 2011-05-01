@@ -1,4 +1,4 @@
-//  Copyright (C) 2008 Robert Kooima
+//  Copyright (C) 2008-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -18,7 +18,7 @@
 #include <errno.h>
 #include <stdexcept>
 
-#include <sys-socket.hpp>
+#include <etc-socket.hpp>
 
 // TODO: Allow response string.
 

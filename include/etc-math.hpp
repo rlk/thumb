@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -43,14 +43,6 @@
                     (v)[1] * (w)[1] + \
                     (v)[2] * (w)[2] + \
                     (v)[3] * (w)[3])
-
-/*---------------------------------------------------------------------------*/
-
-#define LERP(a, b, c, k) { \
-    (a)[0] = ((b)[0] * (1.0 - (k)) + (c)[0] * (k)); \
-    (a)[1] = ((b)[1] * (1.0 - (k)) + (c)[1] * (k)); \
-    (a)[2] = ((b)[2] * (1.0 - (k)) + (c)[2] * (k)); \
-}
 
 //-----------------------------------------------------------------------------
 
@@ -137,10 +129,14 @@ void mult_xps_vec4(double *, const double *, const double *);
     (u)[2] = (v)[0] * (w)[1] - (v)[1] * (w)[0]; \
 }
 
+void   midpoint(double *, const double *, const double *);
+double distance(          const double *, const double *);
+
 //-----------------------------------------------------------------------------
 
-void get_quaternion(double *, const double *);
-void set_quaternion(double *, const double *);
+void mat_to_quat(double *, const double *);
+void quat_to_mat(double *, const double *);
+
 void orthonormalize(double *);
 
 //-----------------------------------------------------------------------------
@@ -152,16 +148,15 @@ double solid_angle(const double *, const double *, const double *);
 
 //-----------------------------------------------------------------------------
 
-int next_pow2(int);
-int nearest_int(double);
-
-void   midpoint(double *, const double *, const double *);
-double distance(          const double *, const double *);
-
 void sphere_to_vector(double *, double, double, double);
 void vector_to_sphere(double *, double, double, double);
 
 void slerp(double *, const double *, const double *, double);
+
+//-----------------------------------------------------------------------------
+
+int nearest_int(double);
+int next_pow2(int);
 
 //-----------------------------------------------------------------------------
 

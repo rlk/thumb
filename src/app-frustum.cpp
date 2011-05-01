@@ -1,4 +1,4 @@
-//  Copyright (C) 2007 Robert Kooima
+//  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -16,8 +16,8 @@
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
-#include <sys-util.hpp>
-#include <sys-matrix.hpp>
+#include <etc-util.hpp>
+#include <etc-math.hpp>
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>
 #include <app-event.hpp>
@@ -932,7 +932,7 @@ bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
 
     // Determine the pointer vector from the quaternion.
 
-    set_quaternion(M, E->data.point.q);
+    quat_to_mat(M, E->data.point.q);
 
     V[0] = -M[ 8];
     V[1] = -M[ 9];
@@ -1017,7 +1017,7 @@ bool app::frustum::pointer_to_3D(event *E, int x, int y) const
 
     double q[3];
 
-    get_quaternion(q, B);
+    mat_to_quat(q, B);
 
     // Store the pointer origin and direction in the event.
 

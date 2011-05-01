@@ -1,4 +1,4 @@
-//  Copyright (C) 2009-2011 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,30 +10,16 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef OGL_D_OMEGA_HPP
-#define OGL_D_OMEGA_HPP
-
-#include <ogl-cubelut.hpp>
+#include <ode/ode.h>
 
 //-----------------------------------------------------------------------------
 
-namespace ogl
-{
-    class d_omega : public cubelut
-    {
-    protected:
+dGeomID ode_dupe_geom(dSpaceID, dGeomID);
 
-        void fill(float *, const double *,
-                           const double *,
-                           const double *,
-                           const double *) const;
-    public:
-
-        d_omega(const std::string&);
-       ~d_omega();
-    };
-}
+void ode_get_body_transform(dBodyID, double *);
+void ode_get_geom_offset   (dGeomID, double *);
+void ode_get_geom_transform(dGeomID, double *);
+void ode_set_geom_transform(dGeomID, double *);
+void ode_set_mass_transform(dMass *, double *);
 
 //-----------------------------------------------------------------------------
-
-#endif

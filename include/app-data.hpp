@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -20,10 +20,10 @@
 #include <map>
 #include <set>
 
-#include <string.h>
+#include <cstring>
 #include <errno.h>
 
-#include <sys-util.hpp>
+#include <etc-util.hpp>
 #include <app-file.hpp>
 
 //-----------------------------------------------------------------------------

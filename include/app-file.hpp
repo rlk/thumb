@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -101,6 +101,10 @@ namespace app
         node get_root() const { return root; }
     };
 }
+
+//-----------------------------------------------------------------------------
+
+double scale_to_meters(const std::string&);
 
 //-----------------------------------------------------------------------------
 

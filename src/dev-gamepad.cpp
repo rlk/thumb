@@ -1,4 +1,4 @@
-//  Copyright (C) 2007 Robert Kooima
+//  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -14,7 +14,7 @@
 
 #include <SDL_joystick.h>
 
-#include <sys-matrix.hpp>
+#include <etc-math.hpp>
 #include <app-conf.hpp>
 #include <app-user.hpp>
 #include <app-event.hpp>

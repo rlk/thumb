@@ -1,4 +1,4 @@
-//  Copyright (C) 2009 Robert Kooima
+//  Copyright (C) 2009-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -12,7 +12,7 @@
 
 #include <cassert>
 
-#include <sys-matrix.hpp>
+#include <etc-math.hpp>
 #include <app-conf.hpp>
 #include <ogl-d-omega.hpp>
 
