@@ -19,9 +19,9 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
-#include "ogl-opengl.hpp"
-#include "ogl-image.hpp"
-#include "rect.hpp"
+#include <ogl-opengl.hpp>
+#include <ogl-image.hpp>
+#include <rect.hpp>
 
 //-----------------------------------------------------------------------------
 

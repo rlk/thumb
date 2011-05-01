@@ -13,8 +13,8 @@
 #ifndef WRL_JOINT_HPP
 #define WRL_JOINT_HPP
 
-#include "wrl-param.hpp"
-#include "wrl-atom.hpp"
+#include <wrl-param.hpp>
+#include <wrl-atom.hpp>
 
 //-----------------------------------------------------------------------------
 

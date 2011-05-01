@@ -13,8 +13,8 @@
 #include <iostream>
 #include <algorithm>
 
-#include <ode.hpp>
-#include <util.hpp>
+#include <sys-ode.hpp>
+#include <sys-util.hpp>
 #include <matrix.hpp>
 #include <ogl-pool.hpp>
 #include <ogl-uniform.hpp>

@@ -13,8 +13,8 @@
 #ifndef DPY_INTERLACE_HPP
 #define DPY_INTERLACE_HPP
 
-#include "dpy-display.hpp"
-#include "app-file.hpp"
+#include <dpy-display.hpp>
+#include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
 

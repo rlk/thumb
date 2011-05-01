@@ -12,7 +12,7 @@
 
 #include <matrix.hpp>
 #include <app-glob.hpp>
-#include <util.hpp>
+#include <sys-util.hpp>
 #include <ogl-pool.hpp>
 
 //=============================================================================

@@ -15,8 +15,8 @@
 
 #include <vector>
 
-#include "app-font.hpp"
-#include "rect.hpp"
+#include <app-font.hpp>
+#include <rect.hpp>
 
 //-----------------------------------------------------------------------------
 

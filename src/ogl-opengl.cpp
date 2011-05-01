@@ -17,7 +17,7 @@
 #include <fstream>
 
 #include <ogl-opengl.hpp>
-#include <util.hpp>
+#include <sys-util.hpp>
 #include <app-conf.hpp>
 
 //-----------------------------------------------------------------------------

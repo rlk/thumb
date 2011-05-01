@@ -12,7 +12,7 @@
 
 #include <ogl-opengl.hpp>
 #include <matrix.hpp>
-#include <ode.hpp>
+#include <sys-ode.hpp>
 
 #include <wrl-atom.hpp>
 #include <ogl-pool.hpp>

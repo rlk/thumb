@@ -13,7 +13,7 @@
 #include <iostream>
 #include <ode/ode.h>
 
-#include <ode.hpp>
+#include <sys-ode.hpp>
 #include <matrix.hpp>
 #include <ogl-pool.hpp>
 #include <ogl-opengl.hpp>

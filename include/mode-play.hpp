@@ -13,7 +13,7 @@
 #ifndef MODE_PLAY_HPP
 #define MODE_PLAY_HPP
 
-#include "mode-mode.hpp"
+#include <mode-mode.hpp>
 
 //-----------------------------------------------------------------------------
 

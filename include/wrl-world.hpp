@@ -15,9 +15,9 @@
 
 #include <ode/ode.h>
 
-#include "ogl-range.hpp"
-#include "wrl-atom.hpp"
-#include "wrl-operation.hpp"
+#include <ogl-range.hpp>
+#include <wrl-atom.hpp>
+#include <wrl-operation.hpp>
 
 //-----------------------------------------------------------------------------
 

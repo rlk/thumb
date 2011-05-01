@@ -13,8 +13,8 @@
 #ifndef DPY_ANAGLYPH_HPP
 #define DPY_ANAGLYPH_HPP
 
-#include "dpy-display.hpp"
-#include "app-file.hpp"
+#include <dpy-display.hpp>
+#include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
 

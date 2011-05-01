@@ -17,9 +17,9 @@
 
 #ifdef __linux__
 /*
-#include "gl.h"
-#include "glx.h"
-#include "glext.h"
+#include <gl.h>
+#include <glx.h>
+#include <glext.h>
 */
 /*
 #include "/usr/share/doc/NVIDIA_GLX-1.0/include/GL/gl.h"

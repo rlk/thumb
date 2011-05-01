@@ -13,7 +13,7 @@
 #ifndef OGL_IMAGE_HPP
 #define OGL_IMAGE_HPP
 
-#include "ogl-opengl.hpp"
+#include <ogl-opengl.hpp>
 
 //-----------------------------------------------------------------------------
 

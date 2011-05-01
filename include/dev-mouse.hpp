@@ -13,7 +13,7 @@
 #ifndef DEV_MOUSE
 #define DEV_MOUSE
 
-#include "dev-input.hpp"
+#include <dev-input.hpp>
 
 //-----------------------------------------------------------------------------
 

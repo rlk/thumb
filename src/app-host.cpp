@@ -15,9 +15,9 @@
 
 #include <string.h>
 
-#include <util.hpp>
+#include <sys-util.hpp>
 #include <matrix.hpp>
-#include <default.hpp>
+#include <app-default.hpp>
 #include <ogl-range.hpp>
 #include <ogl-opengl.hpp>
 #include <dpy-channel.hpp>

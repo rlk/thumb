@@ -17,7 +17,7 @@
 #include <set>
 #include <string>
 
-#include "ogl-opengl.hpp"
+#include <ogl-opengl.hpp>
 
 //-----------------------------------------------------------------------------
 

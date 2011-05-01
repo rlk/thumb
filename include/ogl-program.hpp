@@ -16,8 +16,8 @@
 #include <string>
 #include <map>
 
-#include "app-file.hpp"
-#include "ogl-opengl.hpp"
+#include <app-file.hpp>
+#include <ogl-opengl.hpp>
 
 //-----------------------------------------------------------------------------
 

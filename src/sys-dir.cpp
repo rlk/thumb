@@ -15,8 +15,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <default.hpp>
-#include <dir.hpp>
+#include <app-default.hpp>
+#include <sys-dir.hpp>
 
 //-----------------------------------------------------------------------------
 

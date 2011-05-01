@@ -13,7 +13,7 @@
 #ifndef OGL_CUBELUT_HPP
 #define OGL_CUBELUT_HPP
 
-#include "ogl-process.hpp"
+#include <ogl-process.hpp>
 
 //-----------------------------------------------------------------------------
 

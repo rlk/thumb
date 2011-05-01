@@ -13,7 +13,7 @@
 #ifndef OGL_SHADOW_HPP
 #define OGL_SHADOW_HPP
 
-#include "ogl-process.hpp"
+#include <ogl-process.hpp>
 
 //-----------------------------------------------------------------------------
 

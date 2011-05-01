@@ -22,8 +22,8 @@
 
 #include <app-data.hpp>
 #include <app-conf.hpp>
-#include <util.hpp>
-#include <dir.hpp>
+#include <sys-util.hpp>
+#include <sys-dir.hpp>
 
 //-----------------------------------------------------------------------------
 

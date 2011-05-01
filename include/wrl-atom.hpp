@@ -18,9 +18,8 @@
 
 #include <ode/ode.h>
 
-#include "matrix.hpp"
-#include "app-file.hpp"
-#include "wrl-param.hpp"
+#include <app-file.hpp>
+#include <wrl-param.hpp>
 
 //-----------------------------------------------------------------------------
 

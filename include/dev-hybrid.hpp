@@ -13,7 +13,7 @@
 #ifndef DEV_HYBRID
 #define DEV_HYBRID
 
-#include "dev-input.hpp"
+#include <dev-input.hpp>
 
 //-----------------------------------------------------------------------------
 

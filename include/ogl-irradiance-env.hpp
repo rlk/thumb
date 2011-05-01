@@ -15,7 +15,7 @@
 
 #include <vector>
 
-#include "ogl-process.hpp"
+#include <ogl-process.hpp>
 
 //-----------------------------------------------------------------------------
 

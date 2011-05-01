@@ -21,7 +21,7 @@
 #include <app-glob.hpp>
 #include <app-conf.hpp>
 #include <matrix.hpp>
-#include <util.hpp>
+#include <sys-util.hpp>
 
 //-----------------------------------------------------------------------------
 

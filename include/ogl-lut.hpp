@@ -13,7 +13,7 @@
 #ifndef OGL_LUT_HPP
 #define OGL_LUT_HPP
 
-#include "ogl-opengl.hpp"
+#include <ogl-opengl.hpp>
 
 //-----------------------------------------------------------------------------
 

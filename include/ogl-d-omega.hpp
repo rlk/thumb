@@ -13,7 +13,7 @@
 #ifndef OGL_D_OMEGA_HPP
 #define OGL_D_OMEGA_HPP
 
-#include "ogl-cubelut.hpp"
+#include <ogl-cubelut.hpp>
 
 //-----------------------------------------------------------------------------
 

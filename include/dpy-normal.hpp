@@ -15,8 +15,8 @@
 
 #include <vector>
 
-#include "dpy-display.hpp"
-#include "app-file.hpp"
+#include <dpy-display.hpp>
+#include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
 

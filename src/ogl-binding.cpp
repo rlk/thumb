@@ -13,7 +13,7 @@
 #include <SDL.h>
 #include <cmath>
 
-#include <default.hpp>
+#include <app-default.hpp>
 #include <app-conf.hpp>
 #include <app-glob.hpp>
 #include <app-file.hpp>

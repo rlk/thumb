@@ -13,7 +13,7 @@
 #ifndef DPY_CHANNEL_HPP
 #define DPY_CHANNEL_HPP
 
-#include "app-file.hpp"
+#include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
 

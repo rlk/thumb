@@ -13,7 +13,7 @@
 #ifndef OGL_REFLECTION_ENV_HPP
 #define OGL_REFLECTION_ENV_HPP
 
-#include "ogl-process.hpp"
+#include <ogl-process.hpp>
 
 //-----------------------------------------------------------------------------
 

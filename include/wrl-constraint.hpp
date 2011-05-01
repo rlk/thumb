@@ -16,7 +16,7 @@
 #include <set>
 #include <cstring>
 
-#include "ogl-range.hpp"
+#include <ogl-range.hpp>
 
 //-----------------------------------------------------------------------------
 

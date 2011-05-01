@@ -16,9 +16,9 @@
 #include <vector>
 #include <deque>
 
-#include "ogl-opengl.hpp"
-#include "ogl-aabb.hpp"
-#include "ogl-binding.hpp"
+#include <ogl-opengl.hpp>
+#include <ogl-aabb.hpp>
+#include <ogl-binding.hpp>
 
 //-----------------------------------------------------------------------------
 

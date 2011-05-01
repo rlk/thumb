@@ -16,7 +16,7 @@
 #include <map>
 #include <vector>
 
-#include "ogl-mesh.hpp"
+#include <ogl-mesh.hpp>
 
 //-----------------------------------------------------------------------------
 

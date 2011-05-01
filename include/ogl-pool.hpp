@@ -18,8 +18,8 @@
 #include <set>
 #include <map>
 
-#include "ogl-surface.hpp"
-#include "ogl-mesh.hpp"
+#include <ogl-surface.hpp>
+#include <ogl-mesh.hpp>
 
 //-----------------------------------------------------------------------------
 

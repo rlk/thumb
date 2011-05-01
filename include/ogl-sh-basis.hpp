@@ -13,7 +13,7 @@
 #ifndef OGL_SH_BASIS_HPP
 #define OGL_SH_BASIS_HPP
 
-#include "ogl-cubelut.hpp"
+#include <ogl-cubelut.hpp>
 
 //-----------------------------------------------------------------------------
 

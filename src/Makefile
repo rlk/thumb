@@ -2,9 +2,9 @@
 
 #------------------------------------------------------------------------------
 
-OBJS=   dir.o \
-	ode.o \
-	util.o \
+OBJS=   sys-dir.o \
+	sys-ode.o \
+	sys-util.o \
 	matrix.o \
 	ogl-obj.o \
 	ogl-lut.o \

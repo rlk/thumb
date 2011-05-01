@@ -16,7 +16,7 @@
 #include <app-font.hpp>
 #include <app-data.hpp>
 #include <app-glob.hpp>
-#include <util.hpp>
+#include <sys-util.hpp>
 
 //-----------------------------------------------------------------------------
 

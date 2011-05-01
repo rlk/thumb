@@ -13,7 +13,7 @@
 #ifndef APP_CONF_HPP
 #define APP_CONF_HPP
 
-#include "app-file.hpp"
+#include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
 

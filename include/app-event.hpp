@@ -18,7 +18,7 @@
 #include <errno.h>
 #include <stdexcept>
 
-#include "socket.hpp"
+#include <sys-socket.hpp>
 
 // TODO: Allow response string.
 

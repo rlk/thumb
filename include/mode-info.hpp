@@ -13,7 +13,7 @@
 #ifndef MODE_INFO_HPP
 #define MODE_INFO_HPP
 
-#include "mode-mode.hpp"
+#include <mode-mode.hpp>
 
 //-----------------------------------------------------------------------------
 

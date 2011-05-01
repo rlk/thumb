@@ -23,8 +23,8 @@
 #include <string.h>
 #include <errno.h>
 
-#include "util.hpp"
-#include "app-file.hpp"
+#include <sys-util.hpp>
+#include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
 

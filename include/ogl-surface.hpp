@@ -16,7 +16,7 @@
 #include <string>
 #include <memory>
 
-#include "ogl-obj.hpp"
+#include <ogl-obj.hpp>
 
 //-----------------------------------------------------------------------------
 

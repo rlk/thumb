@@ -13,7 +13,7 @@
 #ifndef MODE_MODE_HPP
 #define MODE_MODE_HPP
 
-#include "ogl-range.hpp"
+#include <ogl-range.hpp>
 
 //-----------------------------------------------------------------------------
 

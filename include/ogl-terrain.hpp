@@ -15,9 +15,9 @@
 
 #include <string>
 
-#include "ogl-opengl.hpp"
-#include "ogl-range.hpp"
-#include "ogl-aabb.hpp"
+#include <ogl-opengl.hpp>
+#include <ogl-range.hpp>
+#include <ogl-aabb.hpp>
 
 //-----------------------------------------------------------------------------
 

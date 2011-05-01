@@ -15,9 +15,9 @@
 #include <iomanip>
 #include <stdexcept>
 
-#include <util.hpp>
+#include <sys-util.hpp>
 
-#include <socket.hpp> // for ntohl()
+#include <sys-socket.hpp> // for ntohl()
 
 //-----------------------------------------------------------------------------
 

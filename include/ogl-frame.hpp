@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "ogl-opengl.hpp"
+#include <ogl-opengl.hpp>
 
 //-----------------------------------------------------------------------------
 

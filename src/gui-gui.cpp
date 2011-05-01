@@ -20,7 +20,7 @@
 #include <app-conf.hpp>
 #include <app-lang.hpp>
 #include <app-host.hpp>
-#include <util.hpp>
+#include <sys-util.hpp>
 
 //-----------------------------------------------------------------------------
 // Basic widget.

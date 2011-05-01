@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <default.hpp>
+#include <app-default.hpp>
 #include <ogl-program.hpp>
 #include <dpy-display.hpp>
 

@@ -13,7 +13,7 @@
 #ifndef OGL_AABB_HPP
 #define OGL_AABB_HPP
 
-#include "ogl-range.hpp"
+#include <ogl-range.hpp>
 
 //-----------------------------------------------------------------------------
 

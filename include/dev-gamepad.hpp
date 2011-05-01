@@ -15,7 +15,7 @@
 
 #include <vector>
 
-#include "dev-input.hpp"
+#include <dev-input.hpp>
 
 //-----------------------------------------------------------------------------
 
