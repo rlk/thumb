@@ -31,6 +31,12 @@
 namespace app
 {
     //-------------------------------------------------------------------------
+    // Handy string containers.
+
+    typedef std::vector<std::string> str_vec;
+    typedef std::set   <std::string> str_set;
+
+    //-------------------------------------------------------------------------
     // Data exceptions.
 
     class find_error : public std::runtime_error

@@ -25,7 +25,8 @@
 typedef int socklen_t;
 
 #define ECONNREFUSED WSAECONNREFUSED
-#define sock_errno WSAGetLastError()
+#define sock_errno   WSAGetLastError()
+#define usleep(t)    Sleep(t)
 
 #else // not _WIN32 -----------------------------------------------------------
 
@@ -52,7 +53,6 @@ typedef struct sockaddr_in sockaddr_t;
 
 typedef std::list<SOCKET>           SOCKET_v;
 typedef std::list<SOCKET>::iterator SOCKET_i;
-
 
 //-----------------------------------------------------------------------------
 
