@@ -23,7 +23,6 @@
 #include <cstring>
 #include <errno.h>
 
-#include <etc-util.hpp>
 #include <app-file.hpp>
 
 //-----------------------------------------------------------------------------

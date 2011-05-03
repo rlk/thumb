@@ -417,18 +417,18 @@ table.memberdecls {
         font-weight: bold;
         text-shadow: 0px 1px 1px rgba(255, 255, 255, 0.9);
         /* opera specific markup */
-        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);
-        border-top-right-radius: 8px;
-        border-top-left-radius: 8px;
+/*      box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15); */
+        border-top-right-radius: 4px;
+        border-top-left-radius: 4px;
         /* firefox specific markup */
-        -moz-box-shadow: rgba(0, 0, 0, 0.15) 5px 5px 5px;
-        -moz-border-radius-topright: 8px;
-        -moz-border-radius-topleft: 8px;
+/*      -moz-box-shadow: rgba(0, 0, 0, 0.15) 5px 5px 5px; */
+        -moz-border-radius-topright: 4px;
+        -moz-border-radius-topleft: 4px;
         /* webkit specific markup */
-        -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);
-        -webkit-border-top-right-radius: 8px;
-        -webkit-border-top-left-radius: 8px;
-        background-image:url('nav_f.png');
+/*      -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);*/
+        -webkit-border-top-right-radius: 4px;
+        -webkit-border-top-left-radius: 4px;
+/*      background-image:url('nav_f.png'); */
         background-repeat:repeat-x;
         background-color: #E2E8F2;
 
@@ -438,23 +438,23 @@ table.memberdecls {
         border-bottom: 1px solid #A8B8D9;      
         border-left: 1px solid #A8B8D9;      
         border-right: 1px solid #A8B8D9; 
-        padding: 2px 5px;
+        padding: 2px 8px;
         background-color: #FBFCFD;
         border-top-width: 0;
         /* opera specific markup */
-        border-bottom-left-radius: 8px;
-        border-bottom-right-radius: 8px;
-        box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);
+        border-bottom-left-radius: 4px;
+        border-bottom-right-radius: 4px;
+/*      box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);*/
         /* firefox specific markup */
-        -moz-border-radius-bottomleft: 8px;
-        -moz-border-radius-bottomright: 8px;
-        -moz-box-shadow: rgba(0, 0, 0, 0.15) 5px 5px 5px;
-        background-image: -moz-linear-gradient(center top, #FFFFFF 0%, #FFFFFF 60%, #F7F8FB 95%, #EEF1F7);
+        -moz-border-radius-bottomleft: 4px;
+        -moz-border-radius-bottomright: 4px;
+/*      -moz-box-shadow: rgba(0, 0, 0, 0.15) 5px 5px 5px;*/
+/*      background-image: -moz-linear-gradient(center top, #FFFFFF 0%, #FFFFFF 60%, #F7F8FB 95%, #EEF1F7);*/
         /* webkit specific markup */
-        -webkit-border-bottom-left-radius: 8px;
-        -webkit-border-bottom-right-radius: 8px;
-        -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);
-        background-image: -webkit-gradient(linear,center top,center bottom,from(#FFFFFF), color-stop(0.6,#FFFFFF), color-stop(0.60,#FFFFFF), color-stop(0.95,#F7F8FB), to(#EEF1F7));
+        -webkit-border-bottom-left-radius: 4px;
+        -webkit-border-bottom-right-radius: 4px;
+/*      -webkit-box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.15);*/
+/*      background-image: -webkit-gradient(linear,center top,center bottom,from(#FFFFFF), color-stop(0.6,#FFFFFF), color-stop(0.60,#FFFFFF), color-stop(0.95,#F7F8FB), to(#EEF1F7));*/
 }
 
 .paramkey {

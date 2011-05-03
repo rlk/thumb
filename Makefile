@@ -13,6 +13,13 @@ FORCE :
 clean :
 	$(MAKE) -C src clean
 
+doc :
+	doxygen Doxyfile
+
+.PHONY : doc
+
+#------------------------------------------------------------------------------
+
 osxdist : $(TARG)
 
 	mkdir -p lib

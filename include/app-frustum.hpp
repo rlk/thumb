@@ -29,7 +29,6 @@ namespace app
 namespace app
 {
     //-------------------------------------------------------------------------
-
     /// 3D frustum
     ///
     /// A frustum object represents an off-axis 3D pyramid defined by five
@@ -47,12 +46,9 @@ namespace app
     /// change.
     ///
     /// Finally, the frustum provides mechanisms for display configuration. It
-    /// implements the process_event protocol to allow run-time calibration,
-    /// and serializes its state to the XML DOM provided at creation.
-
-    // USER denotes tracker coordinates. VIEW denotes world coordinates. DISP
-    // denotes display-space coordinates. Thus, VIEW_POINTS is a cache of the
-    // view-transformed USER_POINTS.
+    /// implements the app::host::process_event protocol to allow run-time
+    /// calibration, and serializes its state to the XML DOM provided at
+    /// construction.
 
     class frustum
     {
@@ -62,8 +58,8 @@ namespace app
 
         app::node node;
 
-        int pixel_w;
-        int pixel_h;
+        const int pixel_w;
+        const int pixel_h;
 
         // Current view point
 
@@ -88,37 +84,21 @@ namespace app
 
         double P[16];
 
-        // Utility functions
-
-        void get_calibration(double&, double&, double&, double&,
-                             double&, double&, double&, double&);
-        void set_calibration(double,  double,  double,  double,
-                             double,  double,  double,  double);
-        void mat_calibration(double *);
-
-        void calc_corner_4(double *,
-                           double *,
-                           double *,
-                           double *, double, double);
-        void calc_corner_1(double *, const double *,
-                                     const double *,
-                                     const double *);
-        void calc_calibrated();
-
     public:
 
-        frustum(app::node, int, int);
-        frustum(const frustum&);
+        frustum(app::node node, int w, int h);
+        frustum(const frustum& that);
 
         // View state mutators
 
-        void set_distances(double, double);
+        void set_distances(double n, double f);
         void set_viewpoint(const double *p);
         void set_transform(const double *M);
-        void set_horizon  (double);
+        void set_horizon  (double r);
 
-        void calc_union(int, const frustum *const *, double,   double,
-                             const double  *,        double *, double *);
+        void set_volume(int frusc, const frustum *const *frusv,
+                        double c0, double c1, const double *L,
+                        double *M, double *I);
 
         // Visibility testers
 
@@ -131,16 +111,16 @@ namespace app
 
         // Queries.
 
-        const double *get_user_pos() const { return user_pos; }
-        const double *get_view_pos() const { return view_pos; }
-        const double *get_disp_pos() const { return disp_pos; }
-        const double *get_P()        const { return P;        }
+        const double *get_user_pos() const;
+        const double *get_view_pos() const;
+        const double *get_disp_pos() const;
+        const double *get_P()        const;
 
-        double get_w()        const;
-        double get_h()        const;
-        int    get_pixel_w()  const { return pixel_w; }
-        int    get_pixel_h()  const { return pixel_h; }
-        double pixels(double) const;
+        double get_w()          const;
+        double get_h()          const;
+        int    get_pixel_w()    const;
+        int    get_pixel_h()    const;
+        double pixels(double a) const;
 
         const double *get_planes() const { return view_planes[0]; }
         const double *get_points() const { return view_points[0]; }
@@ -160,6 +140,26 @@ namespace app
         void draw() const;
 
         void overlay() const;
+
+    private:
+
+        // Utility functions
+
+        void get_calibration(double&, double&, double&, double&,
+                             double&, double&, double&, double&);
+        void set_calibration(double,  double,  double,  double,
+                             double,  double,  double,  double);
+        void mat_calibration(double *);
+
+        void calc_corner_4(double *,
+                           double *,
+                           double *,
+                           double *, double, double);
+        void calc_corner_1(double *, const double *,
+                                     const double *,
+                                     const double *);
+        void calc_calibrated();
+
     };
 
     typedef std::vector<frustum *>                 frustum_v;

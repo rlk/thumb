@@ -10,7 +10,6 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <etc-util.hpp>
 #include <etc-math.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-pool.hpp>

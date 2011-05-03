@@ -15,7 +15,6 @@
 #include <sstream>
 
 #include <ogl-opengl.hpp>
-#include <etc-util.hpp>
 #include <app-conf.hpp>
 
 //-----------------------------------------------------------------------------

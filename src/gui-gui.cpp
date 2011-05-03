@@ -17,7 +17,6 @@
 #include <app-data.hpp>
 #include <app-conf.hpp>
 #include <app-lang.hpp>
-#include <etc-util.hpp>
 
 //-----------------------------------------------------------------------------
 // Basic widget.

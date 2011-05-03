@@ -11,7 +11,6 @@
 //  General Public License for more details.
 
 #include <etc-ode.hpp>
-#include <etc-util.hpp>
 #include <etc-math.hpp>
 #include <ogl-pool.hpp>
 #include <ogl-uniform.hpp>
@@ -1010,14 +1009,14 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
         // Compute a lighting frustum encompasing all view frusta.
 
-        frust.calc_union(frusc, frusv, c[i], c[i+1], light, lite_M, lite_I);
+        frust.set_volume(frusc, frusv, c[i], c[i+1], light, lite_M, lite_I);
 
         // Cache the fill visibility for the light.
 
         ogl::range s = fill_pool->view(frusi, 5, frust.get_planes());
 
         // Use the visible range to determine the light projection.
-        // TODO: optimize usinge calc_union's discovered range.
+        // TODO: optimize usinge set_volume's discovered range.
 
         frust.set_distances(s.get_n(), s.get_f());
 

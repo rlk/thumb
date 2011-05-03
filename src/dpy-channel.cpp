@@ -12,7 +12,6 @@
 
 #include <cassert>
 
-#include <etc-util.hpp>
 #include <etc-math.hpp>
 #include <app-default.hpp>
 #include <app-glob.hpp>

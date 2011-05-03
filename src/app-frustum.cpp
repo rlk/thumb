@@ -16,7 +16,6 @@
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
-#include <etc-util.hpp>
 #include <etc-math.hpp>
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>
@@ -25,286 +24,91 @@
 
 //-----------------------------------------------------------------------------
 
-void app::frustum::get_calibration(double& P, double& T, double& R,
-                                   double& p, double& y, double& r,
-                                   double& H, double& V)
+/// Constructor
+///
+/// This is the general-use frustum constructor. It receives an XML DOM node
+/// for configuration serialization. The width and height parameters give the
+/// resolution of a render target, if any.
+///
+/// By default, the frustum apex is placed at the origin (0, 0, 0), the view
+/// transform is initialized to the identity, and the near and far distances
+/// are set to 0.5 and 100.
+///
+/// \param node XML DOM node
+/// \param w    Render target pixel width
+/// \param h    Render target pixel height
+///
+app::frustum::frustum(app::node node, int w, int h) :
+    node(node),
+    pixel_w(w),
+    pixel_h(h),
+    user_angle(0),
+    view_count(0)
 {
-    // Assign defaults for any undefined parameters.
+    user_pos[0] = 0.0;
+    user_pos[1] = 0.0;
+    user_pos[2] = 0.0;
 
-    P = 0.0;               // Position phi
-    T = 0.0;               // Position theta
-    R = 0.0;               // Position rho
-    p = 0.0;               // Rotation pitch
-    y = 0.0;               // Rotation yaw
-    r = 0.0;               // Rotation roll
-    H = DEFAULT_HORZ_FOV;  // Horizontal field of view
-    V = DEFAULT_VERT_FOV;  // Vertical   field of view
+    disp_pos[0] = 0.0;
+    disp_pos[1] = 0.0;
+    disp_pos[2] = 0.0;
 
-    // Extract the calibration from the serialization node.
+    // Load the configuration and perform a calibration.
 
-    if (node)
-    {
-        if (app::node n = node.find("position"))
-        {
-            P = n.get_f("p", P);
-            T = n.get_f("t", T);
-            R = n.get_f("r", R);
-        }
-        if (app::node n = node.find("rotation"))
-        {
-            p = n.get_f("p", p);
-            y = n.get_f("y", y);
-            r = n.get_f("r", r);
-        }
-        if (app::node n = node.find("perspective"))
-        {
-            H = n.get_f("hfov", H);
-            V = n.get_f("vfov", V);
-        }
-    }
-}
+    calc_calibrated();
 
-void app::frustum::set_calibration(double P, double T, double R,
-                                   double p, double y, double r,
-                                   double H, double V)
-{
-    // Update the calibration in the serialization node.
+    // Load sufficient defaults to allow immediate basic usage.
 
-    if (node)
-    {
-        if (app::node n = node.find("position"))
-        {
-            n.set_f("p", P);
-            n.set_f("t", T);
-            n.set_f("r", R);
-        }
-        if (app::node n = node.find("rotation"))
-        {
-            n.set_f("p", p);
-            n.set_f("y", y);
-            n.set_f("r", r);
-        }
-        if (app::node n = node.find("perspective"))
-        {
-            n.set_f("hfov", H);
-            n.set_f("vfov", V);
-        }
-    }
-}
-
-void app::frustum::mat_calibration(double *M)
-{
-    // Convert the current calibration to a transformation matrix.
-
-    double P, T, R, p, y, r, H, V;
-
-    get_calibration(P, T, R, p, y, r, H, V);
+    double M[16];
 
     load_idt(M);
 
-    Rmul_rot_mat(M, 0, 1, 0, T);
-    Rmul_rot_mat(M, 1, 0, 0, P);
-    Rmul_xlt_mat(M, 0, 0, R);
+    set_viewpoint(user_pos);
+    set_transform(M);
+    set_distances(0.5, 100.0);
+}
 
-    Rmul_rot_mat(M, 0, 1, 0, y);
-    Rmul_rot_mat(M, 1, 0, 0, p);
-    Rmul_rot_mat(M, 0, 0, 1, r);
+/// Copy constuctor
+///
+/// This constructor copies the state of the given frustum object, including
+/// any internally cached values, producing a functionally equivalent
+/// frustum. However it does NOT copy the given frustum's XML DOM node
+/// reference. This prevents a copy from overwriting the original's
+/// serialization, but precludes all serialization by frustum copies.
+///
+/// \param that Frustum to be copied
+///
+app::frustum::frustum(const frustum& that) :
+    node(0),
+    pixel_w(that.pixel_w),
+    pixel_h(that.pixel_h),
+    user_angle(that.user_angle),
+    view_count(0)
+{
+    memcpy(user_pos,    that.user_pos,        3 * sizeof (double));
+    memcpy(disp_pos,    that.disp_pos,        3 * sizeof (double));
+    memcpy(user_points, that.user_points, 4 * 3 * sizeof (double));
+    memcpy(view_points, that.view_points, 8 * 3 * sizeof (double));
+    memcpy(view_planes, that.view_planes, 6 * 4 * sizeof (double));
+    memcpy(user_basis,  that.user_basis,     16 * sizeof (double));
+    memcpy(P,           that.P,              16 * sizeof (double));
 }
 
 //-----------------------------------------------------------------------------
 
-void app::frustum::calc_corner_4(double *c0,
-                                 double *c1,
-                                 double *c2,
-                                 double *c3, double H, double V)
-{
-    // Compute screen corners given perspective fields-of-view.
-
-    const double x = tan(RAD(H * 0.5));
-    const double y = tan(RAD(V * 0.5));
-
-    c0[0] = -x; c0[1] = -y; c0[2] = -1;
-    c1[0] = +x; c1[1] = -y; c1[2] = -1;
-    c2[0] = -x; c2[1] = +y; c2[2] = -1;
-    c3[0] = +x; c3[1] = +y; c3[2] = -1;
-}
-
-void app::frustum::calc_corner_1(double *d, const double *a,
-                                            const double *b,
-                                            const double *c)
-{
-    // Compute a fourth screen corner given three.
-
-    d[0] = b[0] + c[0] - a[0];
-    d[1] = b[1] + c[1] - a[1];
-    d[2] = b[2] + c[2] - a[2];
-}
-
-void app::frustum::calc_calibrated()
-{
-    // Extract the frustum definition from the serialization node.
-
-    bool b[4] = { false, false, false, false };
-
-    double hfov = DEFAULT_HORZ_FOV;
-    double vfov = DEFAULT_VERT_FOV;
-
-    double T[16], c[4][3];
-
-    if (node)
-    {
-        // Extract the screen corners.
-
-        for (app::node n = node.find("corner"); n; n = node.next(n, "corner"))
-        {
-            const std::string name = n.get_s("name");
-            double *v = 0;
-
-            // Determine which corner is being specified.
-
-            if (!name.empty())
-            {
-                if      (name == "BL") { v = c[0]; b[0] = true; }
-                else if (name == "BR") { v = c[1]; b[1] = true; }
-                else if (name == "TL") { v = c[2]; b[2] = true; }
-                else if (name == "TR") { v = c[3]; b[3] = true; }
-            }
-
-            if (v)
-            {
-                const std::string unit = n.get_s("unit");
-
-                double scale = scale_to_meters(unit.empty() ? "ft" : unit);
-
-                // Extract the position.
-
-                v[0] = n.get_f("x") * scale;
-                v[1] = n.get_f("y") * scale;
-                v[2] = n.get_f("z") * scale;
-            }
-        }
-
-        // Extract fields-of-view.
-
-        if (app::node n = node.find("perspective"))
-        {
-            hfov = n.get_f("hfov");
-            vfov = n.get_f("vfov");
-        }
-
-        // Extract the calibration.
-
-        mat_calibration(T);
-    }
-    else load_idt(T);
-
-    // Compute any unspecified screen corner.
-
-    if (!b[0] &&  b[1] &&  b[2] &&  b[3]) calc_corner_1(c[0],c[3],c[2],c[1]);
-    if ( b[0] && !b[1] &&  b[2] &&  b[3]) calc_corner_1(c[1],c[2],c[0],c[3]);
-    if ( b[0] &&  b[1] && !b[2] &&  b[3]) calc_corner_1(c[2],c[1],c[3],c[0]);
-    if ( b[0] &&  b[1] &&  b[2] && !b[3]) calc_corner_1(c[3],c[0],c[1],c[2]);
-    if (!b[0] && !b[1] && !b[2] && !b[3]) calc_corner_4(c[0],c[1],c[2],c[3],
-                                                        hfov, vfov);
-
-    // Apply the calibration transform to the configured frustum corners.
-
-    mult_mat_vec3(user_points[0], T, c[0]);
-    mult_mat_vec3(user_points[1], T, c[1]);
-    mult_mat_vec3(user_points[2], T, c[2]);
-    mult_mat_vec3(user_points[3], T, c[3]);
-
-    // Cache the display basis.
-
-    load_idt(user_basis);
-
-    user_basis[0] = user_points[1][0] - user_points[0][0];
-    user_basis[1] = user_points[1][1] - user_points[0][1];
-    user_basis[2] = user_points[1][2] - user_points[0][2];
-
-    user_basis[4] = user_points[2][0] - user_points[0][0];
-    user_basis[5] = user_points[2][1] - user_points[0][1];
-    user_basis[6] = user_points[2][2] - user_points[0][2];
-
-    normalize(user_basis + 0);
-    normalize(user_basis + 4);
-    crossprod(user_basis + 8, user_basis + 0, user_basis + 4);
-    normalize(user_basis + 8);
-}
-
-//-----------------------------------------------------------------------------
-
-/// Set the position of the apex of the view frustum.
+/// Set the near and far clipping distances.
 ///
-/// \param p 3D position vector
+/// The five corners defining the off-axis pyramid of a view frustum define a
+/// volume that is effectively infinite. However, perspective projection
+/// requires a bounded volume, capped at the minimum and maximum visible
+/// distance. This function sets these distances, and must be called prior to
+/// the use of the frustum's perspective projection matrix. In practice, the
+/// near and far distances vary with the content of the scene, and are
+/// recomputed each frame by the app::host.
 ///
-void app::frustum::set_viewpoint(const double *p)
-{
-    // Cache the user position.
-
-    user_pos[0] = p[0];
-    user_pos[1] = p[1];
-    user_pos[2] = p[2];
-
-    // Compute the vector from the screen center to the viewer.
- 	
-    double v[3];
- 	
-    v[0] = user_pos[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
-    v[1] = user_pos[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
-    v[2] = user_pos[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
- 	
-    mult_xps_vec3(disp_pos, user_basis, v);
-
-    // Cache the solid angle of the frustum.
-
-    double u[4][3];
-
-    for (int i = 0; i < 4; ++i)
-    {
-        u[i][0] = user_points[i][0] - user_pos[0];
-        u[i][1] = user_points[i][1] - user_pos[1];
-        u[i][2] = user_points[i][2] - user_pos[2];
-
-        normalize(u[i]);
-    }
-
-    user_angle = (solid_angle(u[0], u[2], u[1]) +
-                  solid_angle(u[1], u[2], u[3]));
-}
-
-/// Set the 3D view transformation.
+/// \param n Near plane distance
+/// \param f  Far plane distance
 ///
-/// \param M 4x4 transformation matrix.
-///
-void app::frustum::set_transform(const double *M)
-{
-    // Cache the world-space view position.
-
-    mult_mat_vec3(view_pos, M, user_pos);
-
-    // Cache the world-space display corners.
-
-    mult_mat_vec3(view_points[0], M, user_points[0]);
-    mult_mat_vec3(view_points[1], M, user_points[1]);
-    mult_mat_vec3(view_points[2], M, user_points[2]);
-    mult_mat_vec3(view_points[3], M, user_points[3]);
-
-    // Cache the world-space view frustum bounding planes.
-
-    set_plane(view_planes[0], view_points[1], view_points[0], view_points[2]); // N
-    set_plane(view_planes[1], view_pos, view_points[0], view_points[2]); // L
-    set_plane(view_planes[2], view_pos, view_points[3], view_points[1]); // R
-    set_plane(view_planes[3], view_pos, view_points[1], view_points[0]); // B
-    set_plane(view_planes[4], view_pos, view_points[2], view_points[3]); // T
-
-    // Force the near clipping plane to pass through the view point.
-
-    view_planes[0][3] = -DOT3(view_pos, view_planes[0]);
-
-    view_count = 5;
-}
-
 void app::frustum::set_distances(double n, double f)
 {
     double u[4][3];
@@ -382,6 +186,84 @@ void app::frustum::set_distances(double n, double f)
                     user_pos[2]);
 }
 
+/// Set the position of the apex of the view frustum.
+///
+/// The view frustum apex remains fixed for most applications, but can vary in
+/// response to a user's movements within a user-tracked viewer-centric virtual
+/// reality environment. Visibility testing must respond properly, and this
+/// function makes that possible. The given position is usually the output of
+/// the head sensor of a 3D tracking system and is given in the same user-space
+/// coordinate system as the frustum corners.
+///
+/// \param p 3D position vector
+///
+void app::frustum::set_viewpoint(const double *p)
+{
+    // Cache the user position.
+
+    user_pos[0] = p[0];
+    user_pos[1] = p[1];
+    user_pos[2] = p[2];
+
+    // Compute the vector from the screen center to the viewer.
+ 	
+    double v[3];
+ 	
+    v[0] = user_pos[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
+    v[1] = user_pos[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
+    v[2] = user_pos[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
+ 	
+    mult_xps_vec3(disp_pos, user_basis, v);
+
+    // Cache the solid angle of the frustum.
+
+    double u[4][3];
+
+    for (int i = 0; i < 4; ++i)
+    {
+        u[i][0] = user_points[i][0] - user_pos[0];
+        u[i][1] = user_points[i][1] - user_pos[1];
+        u[i][2] = user_points[i][2] - user_pos[2];
+
+        normalize(u[i]);
+    }
+
+    user_angle = (solid_angle(u[0], u[2], u[1]) +
+                  solid_angle(u[1], u[2], u[3]));
+}
+
+/// Set the 3D view transformation.
+///
+/// \param M 4x4 transformation matrix.
+///
+void app::frustum::set_transform(const double *M)
+{
+    // Cache the world-space view position.
+
+    mult_mat_vec3(view_pos, M, user_pos);
+
+    // Cache the world-space display corners.
+
+    mult_mat_vec3(view_points[0], M, user_points[0]);
+    mult_mat_vec3(view_points[1], M, user_points[1]);
+    mult_mat_vec3(view_points[2], M, user_points[2]);
+    mult_mat_vec3(view_points[3], M, user_points[3]);
+
+    // Cache the world-space view frustum bounding planes.
+
+    set_plane(view_planes[0], view_points[1], view_points[0], view_points[2]); // N
+    set_plane(view_planes[1], view_pos, view_points[0], view_points[2]); // L
+    set_plane(view_planes[2], view_pos, view_points[3], view_points[1]); // R
+    set_plane(view_planes[3], view_pos, view_points[1], view_points[0]); // B
+    set_plane(view_planes[4], view_pos, view_points[2], view_points[3]); // T
+
+    // Force the near clipping plane to pass through the view point.
+
+    view_planes[0][3] = -DOT3(view_pos, view_planes[0]);
+
+    view_count = 5;
+}
+
 void app::frustum::set_horizon(double r)
 {
     // Use the view position and given radius to compute the horizon plane.
@@ -399,8 +281,31 @@ void app::frustum::set_horizon(double r)
 
 //-----------------------------------------------------------------------------
 
-
-void app::frustum::calc_union(int frusc, const app::frustum *const *frusv,
+/// Initialize this frustum to cover a given volume of the scene.
+///
+/// This function implements the core of the parallel-split shadow mapping
+/// algorithm. It computes all values needed to render a shadow map for the
+/// subset of the scene falling within a given volume.
+///
+/// The primary input is a vector of view frusta which are assumed to be
+/// spacially related, either as two elements of a stereo pair, or as adjacent
+/// views of a tiled display, or both. A pair of values give near and far
+/// planes selecting a subset of these view volumes. Finally a 3D vector gives
+/// the position of a light source.
+///
+/// The objective of the function is to compute a view frustum covering the
+/// selected union of given frusta, and to return matrices that transform to
+/// and from the coordinate system of the light source.
+///
+/// \param[in]  frusc Number of view frusta
+/// \param[in]  frusv Vector of view frusta
+/// \param[in]  c0    View frustum near coefficient
+/// \param[in]  c1    View frustum far  coefficient
+/// \param[in]  L     3D Light source position
+/// \param[out] M     4x4 Light source coordinate system transform
+/// \param[out] I     4x4 Light source coordinate system inverse
+///
+void app::frustum::set_volume(int frusc, const app::frustum *const *frusv,
                               double c0, double c1, const double *L,
                               double *M, double *I)
 {
@@ -447,14 +352,12 @@ void app::frustum::calc_union(int frusc, const app::frustum *const *frusv,
     normalize(M + 8);
 
     // The Y axis is "up".
-/*
+
     if (L[1] > sqrt(L[0] * L[0] + L[2] * L[2]))
     {
-*/
         M[4] =  0.0;
         M[5] =  1.0;
         M[6] =  0.0;
-/*
     }
     else
     {
@@ -462,7 +365,7 @@ void app::frustum::calc_union(int frusc, const app::frustum *const *frusv,
         M[5] =  0.0;
         M[6] = -1.0;
     }
-*/
+
     // The X axis is the cross product of these.
 
     crossprod(M + 0, M + 4, M + 8);
@@ -571,10 +474,43 @@ void app::frustum::calc_union(int frusc, const app::frustum *const *frusv,
 
 //-----------------------------------------------------------------------------
 
+/// Return the position of the apex of the view frustum in user coordinates.
+///
+const double *app::frustum::get_user_pos() const
+{
+    return user_pos;
+}
+
+/// Return the position of the apex of the view frustum in world coordinates.
+///
+const double *app::frustum::get_view_pos() const
+{
+    return view_pos;
+}
+
+/// Return the position of the apex of the view frustum in display coordinates.
+///
+const double *app::frustum::get_disp_pos() const
+{
+    return disp_pos;
+}
+
+/// Return the 4x4 perspective projection matrix in OpenGL form.
+/// \warning If app::frustum::set_viewpoint has been called then
+/// app::frustum::set_distances must also be called before the
+/// perspective projection may be retrieved.
+///
+const double *app::frustum::get_P() const
+{
+    return P;
+}
+
+//-----------------------------------------------------------------------------
+
+/// Return the user-space width of the base of the frustum in meters.
+///
 double app::frustum::get_w() const
 {
-    // Compute and return the physical width of the display.
-
     double d[3];
 
     d[0] = user_points[1][0] - user_points[0][0];
@@ -584,10 +520,10 @@ double app::frustum::get_w() const
     return sqrt(DOT3(d, d));
 }
 
+/// Return the user-space height of the base of the frustum in meters.
+///
 double app::frustum::get_h() const
 {
-    // Compute and return the physical height of the display.
-
     double d[3];
 
     d[0] = user_points[2][0] - user_points[0][0];
@@ -597,81 +533,61 @@ double app::frustum::get_h() const
     return sqrt(DOT3(d, d));
 }
 
-double app::frustum::pixels(double angle) const
+/// Return the width of the base of the frustum in pixels.
+///
+int app::frustum::get_pixel_w() const
+{
+    return pixel_w;
+}
+
+/// Return the height of the base of the frustum in pixels.
+///
+int app::frustum::get_pixel_h() const
+{
+    return pixel_h;
+}
+
+/// Estimate and return the number of pixels in the given solid angle.
+///
+/// Given a measurement of the solid angle subtended by an object (or its
+/// bounding volume) and the resolution of the destination render buffer we can
+/// closely estimate the total number of pixels generated while rendering this
+/// object. This value may be used to tune texture quality or levels of detail.
+///
+/// \param a Solid angle in steradians
+///
+double app::frustum::pixels(double a) const
 {
     // Estimate and return the number of pixels in the given solid angle.
 
-    return pixel_w * pixel_h * angle / user_angle;
+    return pixel_w * pixel_h * a / user_angle;
 }
 
 //-----------------------------------------------------------------------------
 
+/// Compute and return the parallel-split shadow map coefficient.
+/// \param k = i / n selects split i out of n
+///
 double app::frustum::get_split_coeff(double k) const
 {
     return (n_dist * pow(f_dist / n_dist,   k) +
             n_dist +    (f_dist - n_dist) * k) * 0.5;
 }
 
+/// Compute and return the linear fraction of a parallel-split coefficient.
+/// \param c app::frustum::get_split_coeff value
+///
 double app::frustum::get_split_fract(double c) const
 {
     return                (c - n_dist) / (f_dist - n_dist);
 }
 
+/// Compute and return the depth value of a parallel-split coefficient.
+/// \param c app::frustum::get_split_coeff value
+///
 double app::frustum::get_split_depth(double c) const
 {
     return (f_dist / c) * (c - n_dist) / (f_dist - n_dist);
-}
-
-//-----------------------------------------------------------------------------
-
-app::frustum::frustum(app::node node, int w, int h) :
-    node(node),
-    pixel_w(w),
-    pixel_h(h),
-    user_angle(0),
-    view_count(0)
-{
-    user_pos[0] = 0.0;
-    user_pos[1] = 0.0;
-    user_pos[2] = 0.0;
-
-    disp_pos[0] = 0.0;
-    disp_pos[1] = 0.0;
-    disp_pos[2] = 0.0;
-
-    // Load the configuration and perform a calibration.
-
-    calc_calibrated();
-
-    // Load sufficient defaults to allow immediate basic usage.
-
-    double M[16];
-
-    load_idt(M);
-
-    set_viewpoint(user_pos);
-    set_transform(M);
-    set_distances(0.5, 100.0);
-}
-
-app::frustum::frustum(const frustum& that) :
-    node(0),
-    pixel_w(that.pixel_w),
-    pixel_h(that.pixel_h),
-    user_angle(that.user_angle),
-    view_count(0)
-{
-    // Copy the user-space data.
-
-    memcpy(user_pos, that.user_pos, 3 * sizeof (double));
-    memcpy(disp_pos, that.disp_pos, 3 * sizeof (double));
-
-    memcpy(user_points, that.user_points, 4 * 3 * sizeof (double));
-    memcpy(view_points, that.view_points, 8 * 3 * sizeof (double));
-    memcpy(view_planes, that.view_planes, 6 * 4 * sizeof (double));
-    memcpy(user_basis,  that.user_basis,     16 * sizeof (double));
-
-    memcpy(P, that.P, 16 * sizeof (double));
 }
 
 //-----------------------------------------------------------------------------
@@ -843,6 +759,25 @@ static bool test_shell_point(const double *p,
     return false;
 }
 
+/// Test the visibility of a planetary surface shell.
+///
+/// This function tests the visibility of a bounding volume of a triangular
+/// patch of spherical terrain. Consider a triangle inscribed on a planet, with
+/// its three sides following geodesics on the sphere. This triangle is defined
+/// by three vectors normal to the surface of the sphere. Let r0 be the minimum
+/// terrain height within this triangle and r1 be the maximum. The volume
+/// bounded by these five values takes the form of a curved triangular shell
+/// which fully and tightly encloses all terrain within it.
+///
+/// \param n0 Normalized shell corner vector 0
+/// \param n1 Normalized shell corner vector 1
+/// \param n2 Normalized shell corner vector 2
+/// \param r0 Shell inner radius
+/// \param r1 Shell outer radius
+/// \return positive if fully visible,
+/// \return zero if partly visible,
+/// \return negative if not visible.
+///
 int app::frustum::test_shell(const double *n0,
                              const double *n1,
                              const double *n2, double r0, double r1) const
@@ -1113,6 +1048,215 @@ void app::frustum::overlay() const
         glScaled(get_w() / pixel_w,
                  get_h() / pixel_h, 1.0);
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void app::frustum::get_calibration(double& P, double& T, double& R,
+                                   double& p, double& y, double& r,
+                                   double& H, double& V)
+{
+    // Assign defaults for any undefined parameters.
+
+    P = 0.0;               // Position phi
+    T = 0.0;               // Position theta
+    R = 0.0;               // Position rho
+    p = 0.0;               // Rotation pitch
+    y = 0.0;               // Rotation yaw
+    r = 0.0;               // Rotation roll
+    H = DEFAULT_HORZ_FOV;  // Horizontal field of view
+    V = DEFAULT_VERT_FOV;  // Vertical   field of view
+
+    // Extract the calibration from the serialization node.
+
+    if (node)
+    {
+        if (app::node n = node.find("position"))
+        {
+            P = n.get_f("p", P);
+            T = n.get_f("t", T);
+            R = n.get_f("r", R);
+        }
+        if (app::node n = node.find("rotation"))
+        {
+            p = n.get_f("p", p);
+            y = n.get_f("y", y);
+            r = n.get_f("r", r);
+        }
+        if (app::node n = node.find("perspective"))
+        {
+            H = n.get_f("hfov", H);
+            V = n.get_f("vfov", V);
+        }
+    }
+}
+
+void app::frustum::set_calibration(double P, double T, double R,
+                                   double p, double y, double r,
+                                   double H, double V)
+{
+    // Update the calibration in the serialization node.
+
+    if (node)
+    {
+        if (app::node n = node.find("position"))
+        {
+            n.set_f("p", P);
+            n.set_f("t", T);
+            n.set_f("r", R);
+        }
+        if (app::node n = node.find("rotation"))
+        {
+            n.set_f("p", p);
+            n.set_f("y", y);
+            n.set_f("r", r);
+        }
+        if (app::node n = node.find("perspective"))
+        {
+            n.set_f("hfov", H);
+            n.set_f("vfov", V);
+        }
+    }
+}
+
+void app::frustum::mat_calibration(double *M)
+{
+    // Convert the current calibration to a transformation matrix.
+
+    double P, T, R, p, y, r, H, V;
+
+    get_calibration(P, T, R, p, y, r, H, V);
+
+    load_idt(M);
+
+    Rmul_rot_mat(M, 0, 1, 0, T);
+    Rmul_rot_mat(M, 1, 0, 0, P);
+    Rmul_xlt_mat(M, 0, 0, R);
+
+    Rmul_rot_mat(M, 0, 1, 0, y);
+    Rmul_rot_mat(M, 1, 0, 0, p);
+    Rmul_rot_mat(M, 0, 0, 1, r);
+}
+
+//-----------------------------------------------------------------------------
+
+void app::frustum::calc_corner_4(double *c0,
+                                 double *c1,
+                                 double *c2,
+                                 double *c3, double H, double V)
+{
+    // Compute screen corners given perspective fields-of-view.
+
+    const double x = tan(RAD(H * 0.5));
+    const double y = tan(RAD(V * 0.5));
+
+    c0[0] = -x; c0[1] = -y; c0[2] = -1;
+    c1[0] = +x; c1[1] = -y; c1[2] = -1;
+    c2[0] = -x; c2[1] = +y; c2[2] = -1;
+    c3[0] = +x; c3[1] = +y; c3[2] = -1;
+}
+
+void app::frustum::calc_corner_1(double *d, const double *a,
+                                            const double *b,
+                                            const double *c)
+{
+    // Compute a fourth screen corner given three.
+
+    d[0] = b[0] + c[0] - a[0];
+    d[1] = b[1] + c[1] - a[1];
+    d[2] = b[2] + c[2] - a[2];
+}
+
+void app::frustum::calc_calibrated()
+{
+    // Extract the frustum definition from the serialization node.
+
+    bool b[4] = { false, false, false, false };
+
+    double hfov = DEFAULT_HORZ_FOV;
+    double vfov = DEFAULT_VERT_FOV;
+
+    double T[16], c[4][3];
+
+    if (node)
+    {
+        // Extract the screen corners.
+
+        for (app::node n = node.find("corner"); n; n = node.next(n, "corner"))
+        {
+            const std::string name = n.get_s("name");
+            double *v = 0;
+
+            // Determine which corner is being specified.
+
+            if (!name.empty())
+            {
+                if      (name == "BL") { v = c[0]; b[0] = true; }
+                else if (name == "BR") { v = c[1]; b[1] = true; }
+                else if (name == "TL") { v = c[2]; b[2] = true; }
+                else if (name == "TR") { v = c[3]; b[3] = true; }
+            }
+
+            if (v)
+            {
+                const std::string unit = n.get_s("unit");
+
+                double scale = scale_to_meters(unit.empty() ? "ft" : unit);
+
+                // Extract the position.
+
+                v[0] = n.get_f("x") * scale;
+                v[1] = n.get_f("y") * scale;
+                v[2] = n.get_f("z") * scale;
+            }
+        }
+
+        // Extract fields-of-view.
+
+        if (app::node n = node.find("perspective"))
+        {
+            hfov = n.get_f("hfov");
+            vfov = n.get_f("vfov");
+        }
+
+        // Extract the calibration.
+
+        mat_calibration(T);
+    }
+    else load_idt(T);
+
+    // Compute any unspecified screen corner.
+
+    if (!b[0] &&  b[1] &&  b[2] &&  b[3]) calc_corner_1(c[0],c[3],c[2],c[1]);
+    if ( b[0] && !b[1] &&  b[2] &&  b[3]) calc_corner_1(c[1],c[2],c[0],c[3]);
+    if ( b[0] &&  b[1] && !b[2] &&  b[3]) calc_corner_1(c[2],c[1],c[3],c[0]);
+    if ( b[0] &&  b[1] &&  b[2] && !b[3]) calc_corner_1(c[3],c[0],c[1],c[2]);
+    if (!b[0] && !b[1] && !b[2] && !b[3]) calc_corner_4(c[0],c[1],c[2],c[3],
+                                                        hfov, vfov);
+
+    // Apply the calibration transform to the configured frustum corners.
+
+    mult_mat_vec3(user_points[0], T, c[0]);
+    mult_mat_vec3(user_points[1], T, c[1]);
+    mult_mat_vec3(user_points[2], T, c[2]);
+    mult_mat_vec3(user_points[3], T, c[3]);
+
+    // Cache the display basis.
+
+    load_idt(user_basis);
+
+    user_basis[0] = user_points[1][0] - user_points[0][0];
+    user_basis[1] = user_points[1][1] - user_points[0][1];
+    user_basis[2] = user_points[1][2] - user_points[0][2];
+
+    user_basis[4] = user_points[2][0] - user_points[0][0];
+    user_basis[5] = user_points[2][1] - user_points[0][1];
+    user_basis[6] = user_points[2][2] - user_points[0][2];
+
+    normalize(user_basis + 0);
+    normalize(user_basis + 4);
+    crossprod(user_basis + 8, user_basis + 0, user_basis + 4);
+    normalize(user_basis + 8);
 }
 
 //-----------------------------------------------------------------------------
