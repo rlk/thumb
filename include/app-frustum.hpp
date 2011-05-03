@@ -30,6 +30,26 @@ namespace app
 {
     //-------------------------------------------------------------------------
 
+    /// 3D frustum
+    ///
+    /// A frustum object represents an off-axis 3D pyramid defined by five
+    /// points in space, with four points giving the base of the pyramid and
+    /// one point giving its apex. This most often represents a user's field of
+    /// view, where the four corner positions of a display screen give the
+    /// base, and the position of the user's eye give the apex.
+    ///
+    /// The frustum object provides functions to test whether simple geometric
+    /// shapes intersect with the volume of the pyramid, and in so doing it
+    /// tests whether these shapes are visible to the user. To support view
+    /// determination during 3D navigation, the implementation caches its 3D
+    /// corner positions in both user space and world space, updating its
+    /// internal state as the user's position and viewing transformation
+    /// change.
+    ///
+    /// Finally, the frustum provides mechanisms for display configuration. It
+    /// implements the process_event protocol to allow run-time calibration,
+    /// and serializes its state to the XML DOM provided at creation.
+
     // USER denotes tracker coordinates. VIEW denotes world coordinates. DISP
     // denotes display-space coordinates. Thus, VIEW_POINTS is a cache of the
     // view-transformed USER_POINTS.
@@ -93,8 +113,8 @@ namespace app
         // View state mutators
 
         void set_distances(double, double);
-        void set_viewpoint(const double *);
-        void set_transform(const double *);
+        void set_viewpoint(const double *p);
+        void set_transform(const double *M);
         void set_horizon  (double);
 
         void calc_union(int, const frustum *const *, double,   double,

@@ -230,33 +230,14 @@ void app::frustum::calc_calibrated()
     normalize(user_basis + 4);
     crossprod(user_basis + 8, user_basis + 0, user_basis + 4);
     normalize(user_basis + 8);
-
-    // Print the screen plane.
-/*
-    if (1)
-    {
-        double p[3];
-        double n[3];
-
-        p[0] = (user_points[0][0] + user_points[1][0] +
-                user_points[2][0] + user_points[3][0]) / 4;
-        p[1] = (user_points[0][1] + user_points[1][1] +
-                user_points[2][1] + user_points[3][1]) / 4;
-        p[2] = (user_points[0][2] + user_points[1][2] +
-                user_points[2][2] + user_points[3][2]) / 4;
-
-        n[0] = user_basis[8];
-        n[1] = user_basis[9];
-        n[2] = user_basis[10];
-
-        printf("{{ %f, %f, %f, }, { %f, %f, %f }}, \n",
-                p[0], p[1], p[2], n[0], n[1], n[2]);
-    }
-*/
 }
 
 //-----------------------------------------------------------------------------
 
+/// Set the position of the apex of the view frustum.
+///
+/// \param p 3D position vector
+///
 void app::frustum::set_viewpoint(const double *p)
 {
     // Cache the user position.
@@ -292,6 +273,10 @@ void app::frustum::set_viewpoint(const double *p)
                   solid_angle(u[1], u[2], u[3]));
 }
 
+/// Set the 3D view transformation.
+///
+/// \param M 4x4 transformation matrix.
+///
 void app::frustum::set_transform(const double *M)
 {
     // Cache the world-space view position.
