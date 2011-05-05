@@ -29,8 +29,8 @@ dev::hybrid::hybrid()
 
     pos_axis_LR   = conf->get_i("hybrid_pos_axis_LR", 0);
     pos_axis_FB   = conf->get_i("hybrid_pos_axis_FB", 1);
-    rot_axis_LR   = conf->get_i("hybrid_rot_axis_LR", 2);
-    rot_axis_UD   = conf->get_i("hybrid_rot_axis_UD", 3);
+    rot_axis_LR   = conf->get_i("hybrid_rot_axis_LR", 3);
+    rot_axis_UD   = conf->get_i("hybrid_rot_axis_UD", 4);
 
     button_A      = conf->get_i("hybrid_button_A", 0);
     button_H      = conf->get_i("hybrid_button_H", 5);
@@ -76,10 +76,13 @@ bool dev::hybrid::process_value(app::event *E)
 
     if      (a == pos_axis_LR) { position[0] = +v; return true; }
     else if (a == pos_axis_FB) { position[2] = +v; return true; }
-    else if (a == 4)           { position[1] = -(v + 1.0) * 0.5; return true; }
-    else if (a == 5)           { position[1] = +(v + 1.0) * 0.5; return true; }
     else if (a == rot_axis_LR) { rotation[0] = -v; return true; }
     else if (a == rot_axis_UD) { rotation[1] = -v; return true; }
+
+    // HACK: The XBox controller handles the shoulder axes badly...
+
+    else if (a == 2)           { position[1] = -(v + 1.0) * 0.5; return true; }
+    else if (a == 5)           { position[1] = +(v + 1.0) * 0.5; return true; }
 
     return false;
 }

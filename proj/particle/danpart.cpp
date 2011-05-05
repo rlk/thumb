@@ -995,19 +995,20 @@ bool danpart::process_point(app::event *E)
 bool danpart::process_timer(app::event *E)
 {
     double dt = E->data.timer.dt;
-
+/*
     if (fabs(joy_x) > 0.1)
         ::user->pass(joy_x * dt * 10.0);
-
+*/
     return false;
 }
 
 bool danpart::process_value(app::event *E)
 {
+/*
     if (E->data.value.a == 0) joy_x = E->data.value.v;
     if (E->data.value.a == 1) joy_y = E->data.value.v;
-//printf ("joy %f \n",joy_x);
-
+    printf ("joy %f \n",joy_x);
+*/
     return false;
 }
 

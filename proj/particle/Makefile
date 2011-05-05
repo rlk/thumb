@@ -24,8 +24,8 @@ LIBS    = $(shell $(SDLCONF) --libs) \
 $(TARG) : $(OBJS) danpart.ptx
 	$(CC) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
-danpart.pxt : danpart.cu
-	nvcc --ptx danpart.cu
+danpart.ptx : danpart.cu
+	/usr/local/cuda/bin/nvcc --ptx danpart.cu
 
 clean :
 	$(RM) $(OBJS) $(DEPS) $(TARG)

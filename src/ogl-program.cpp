@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <cstring>
+#include <cstdio>
 
 #include <ogl-uniform.hpp>
 #include <ogl-program.hpp>

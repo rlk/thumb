@@ -240,7 +240,7 @@ static void init_ext()
     {
 #ifndef __APPLE__
         glActiveTexture_ = (PFNGLACTIVETEXTUREARBPROC)
-            glGetProcAddress("glActiveTextureARB")));
+            glGetProcAddress("glActiveTextureARB");
 #endif
     }
     catch (std::runtime_error& e) { ogl::has_multitexture = false; }

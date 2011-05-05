@@ -30,12 +30,10 @@ ogl::sprite::~sprite()
 
 void ogl::sprite::bind() const
 {
-    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+//    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_POINT_SPRITE_ARB);
     glEnable(GL_BLEND);
 
- //   glDepthMask(GL_FALSE);
-  //  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glDepthMask(GL_FALSE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
