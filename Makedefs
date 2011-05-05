@@ -38,13 +38,13 @@ ifeq ($(shell uname), Darwin)
 	FT2CONF =   /opt/local/bin/freetype-config
 	INCDIR  = -I/opt/local/include
 	LIBDIR  = -L/opt/local/lib
-	OGLLIB  = -framework OpenGL -framework ApplicationServices
+	OGLLIB  = -lglew -framework OpenGL -framework ApplicationServices
 else
 	TARG    = libthumb.so
 	LD      = g++ -shared
 	SDLCONF = sdl-config
 	FT2CONF = freetype-config
-	OGLLIB  = -lGL
+	OGLLIB  = -lglew -lGL
 endif
 
 #------------------------------------------------------------------------------

@@ -113,6 +113,8 @@ static void video()
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multb);
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &mults);
 
+    glewInit();
+
     ogl::init(multb > 0 && mults > 0);
 
     SDL_WM_SetCaption("Thumb", "Thumb");

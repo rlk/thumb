@@ -14,8 +14,9 @@
 #define OGL_OPENGL_HPP
 
 //-----------------------------------------------------------------------------
-
+/*
 #ifdef __linux__
+*/
 /*
 #include <gl.h>
 #include <glx.h>
@@ -26,10 +27,10 @@
 #include "/usr/share/doc/NVIDIA_GLX-1.0/include/GL/glx.h"
 #include "/usr/share/doc/NVIDIA_GLX-1.0/include/GL/glext.h"
 */
+/*
 #include <GL/gl.h>
 #include <GL/glx.h>
 #include <GL/glext.h>
-//#define glGetProcAddress(n) glXGetProcAddressARB((GLubyte *) n)
 #define glGetProcAddress(n) glXGetProcAddress((GLubyte *) n)
 #endif
 
@@ -45,9 +46,12 @@
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
 #endif
+*/
+
+#include <GL/glew.h>
 
 //-----------------------------------------------------------------------------
-
+/*
 #ifndef __APPLE__
 
 // GL_ARB_multitexture
@@ -119,7 +123,7 @@ extern PFNGLDRAWRANGEELEMENTSEXTPROC        glDrawRangeElementsEXT;
 #else
 #define glActiveTexture_ glActiveTextureARB
 #endif
-
+*/
 //-----------------------------------------------------------------------------
 
 #ifndef NDEBUG

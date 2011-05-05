@@ -38,7 +38,7 @@ bool ogl::do_hdr_tonemap;
 bool ogl::do_hdr_bloom;
 
 //-----------------------------------------------------------------------------
-
+/*
 #ifdef __APPLE__
 #define PROC(t, n) { }
 #else
@@ -112,9 +112,9 @@ PFNGLDELETEBUFFERSARBPROC            glDeleteBuffersARB;
 PFNGLDRAWRANGEELEMENTSEXTPROC        glDrawRangeElementsEXT;
 
 #endif
-
+*/
 //-----------------------------------------------------------------------------
-
+/*
 bool ogl::check_ext(const char *needle)
 {
     const GLubyte *haystack, *c;
@@ -140,7 +140,7 @@ bool ogl::check_ext(const char *needle)
 
     return false;
 }
-
+*/
 void ogl::check_err(const char *file, int line)
 {
     GLenum err;
@@ -217,7 +217,7 @@ static void sync(int interval)
 #endif
 
 //-----------------------------------------------------------------------------
-
+/*
 static void init_ext()
 {
     // Query GL capabilities.
@@ -327,7 +327,7 @@ static void init_ext()
     }
     catch (std::runtime_error&e) { ogl::has_dre = false; }
 }
-
+*/
 static void init_opt()
 {
     std::string option;
@@ -338,6 +338,20 @@ static void init_opt()
     ogl::do_texture_compression = false;
     ogl::do_hdr_tonemap         = false;
     ogl::do_hdr_bloom           = false;
+
+    // Query GL capabilities.
+
+    ogl::has_depth_stencil = glewIsSupported("GL_EXT_packed_depth_stencil");
+    ogl::has_multitexture  = glewIsSupported("GL_ARB_multitexture");
+    ogl::has_multisample   = glewIsSupported("GL_ARB_multisample");
+    ogl::has_anisotropic   = glewIsSupported("GL_EXT_texture_filter_anisotropic");
+    ogl::has_glsl          = glewIsSupported("GL_ARB_shader_objects");
+    ogl::has_glsl         &= glewIsSupported("GL_ARB_vertex_shader");
+    ogl::has_glsl         &= glewIsSupported("GL_ARB_fragment_shader");
+    ogl::has_s3tc          = glewIsSupported("GL_EXT_texture_compression_s3tc");
+    ogl::has_fbo           = glewIsSupported("GL_EXT_framebuffer_object");
+    ogl::has_vbo           = glewIsSupported("GL_ARB_vertex_buffer_object");
+    ogl::has_dre           = glewIsSupported("GL_EXT_draw_range_elements");
 
     // Configuration options
 
@@ -392,7 +406,7 @@ static void init_state(bool multisample)
 
 void ogl::init(bool multisample)
 {
-    init_ext();
+//  init_ext();
     init_opt();
     init_state(multisample);
 }
@@ -411,7 +425,7 @@ void ogl::curr_texture(GLenum unit)
         if (current_unit != unit)
         {
             current_unit  = unit;
-            glActiveTexture_(unit);
+            glActiveTexture(unit);
         }
     }
 }
@@ -461,7 +475,7 @@ void ogl::free_texture()
 {
     for (int u = MAX_TEXTURE_UNITS - 1; u >= 0; --u)
     {
-        glActiveTexture_(GL_TEXTURE0 + u);
+        glActiveTexture(GL_TEXTURE0 + u);
 
         glBindTexture(GL_TEXTURE_1D,            0);
         glBindTexture(GL_TEXTURE_2D,            0);
