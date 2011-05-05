@@ -16,74 +16,65 @@
 
 ogl::buffer::buffer(GLenum t, GLsizei s, GLenum p) : t(t), s(s), p(p)
 {
-    glGenBuffersARB(1, &o);
+    glGenBuffers(1, &o);
 
     bind();
     zero();
     free();
-
-    OGLCK();
 }
 
 ogl::buffer::~buffer()
 {
-    glDeleteBuffersARB(1, &o);
-    OGLCK();
+    glDeleteBuffers(1, &o);
 }
 
 //-----------------------------------------------------------------------------
 
 void ogl::buffer::bind() const
 {
-    glBindBufferARB(t, o);
-    OGLCK();
+    glBindBuffer(t, o);
 }
 
 void ogl::buffer::bind(GLenum target) const
 {
-    glBindBufferARB(target, o);
-    OGLCK();
+    glBindBuffer(target, o);
 }
 
 void ogl::buffer::free() const
 {
-    glBindBufferARB(t, 0);
-    OGLCK();
+    glBindBuffer(t, 0);
 }
 
 void ogl::buffer::free(GLenum target) const
 {
-    glBindBufferARB(target, 0);
-    OGLCK();
+    glBindBuffer(target, 0);
 }
 
 void ogl::buffer::zero() const
 {
-    glBufferDataARB(t, s, 0, p);
-    OGLCK();
+    glBufferData(t, s, 0, p);
 }
 
 //-----------------------------------------------------------------------------
 
 void *ogl::buffer::rmap() const
 {
-    return glMapBufferARB(t, GL_READ_ONLY_ARB);
+    return glMapBuffer(t, GL_READ_ONLY);
 }
 
 void *ogl::buffer::wmap() const
 {
-    return glMapBufferARB(t, GL_WRITE_ONLY_ARB);
+    return glMapBuffer(t, GL_WRITE_ONLY);
 }
 
 void *ogl::buffer::amap() const
 {
-    return glMapBufferARB(t, GL_READ_WRITE_ARB);
+    return glMapBuffer(t, GL_READ_WRITE);
 }
 
 void ogl::buffer::umap() const
 {
-    glUnmapBufferARB(t);
-    OGLCK();
+    glUnmapBuffer(t);
 }
 
 //-----------------------------------------------------------------------------

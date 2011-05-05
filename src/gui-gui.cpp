@@ -1247,7 +1247,7 @@ void gui::dialog::draw() const
 {
     if (root)
     {
-        glUseProgramObjectARB(0);
+        glUseProgram(0);
 
         glPushAttrib(GL_ENABLE_BIT);
         {
@@ -1257,7 +1257,7 @@ void gui::dialog::draw() const
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-            glActiveTextureARB(GL_TEXTURE0);
+            glActiveTexture(GL_TEXTURE0);
 
             glMatrixMode(GL_TEXTURE);
             glLoadIdentity();

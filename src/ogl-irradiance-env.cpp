@@ -38,12 +38,12 @@ ogl::irradiance_env::irradiance_env(const std::string& name, int i) :
     step(::glob->load_program("irr/irradiance-sum.xml")),
     calc(::glob->load_program("irr/irradiance-calc.xml")),
 
-    bufA(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE_ARB,
-                           GL_RGBA32F_ARB, true, false, false)),
-    bufB(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE_ARB,
-                           GL_RGBA32F_ARB, true, false, false)),
+    bufA(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE,
+                           GL_RGBA32F, true, false, false)),
+    bufB(::glob->new_frame(n * (b + 1), n * (b + 1), GL_TEXTURE_RECTANGLE,
+                           GL_RGBA32F, true, false, false)),
     cube(::glob->new_frame(m, m, GL_TEXTURE_CUBE_MAP,
-                           GL_RGBA16F_ARB, true, false, false))
+                           GL_RGBA16F, true, false, false))
 {
     // Load the procedural textures for all spherical harmonic bases.
 
@@ -53,15 +53,15 @@ ogl::irradiance_env::irradiance_env(const std::string& name, int i) :
     // Disable filtering on the integral working buffers.
 
     bufA->bind_color();
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+    glTexParameteri(GL_TEXTURE_RECTANGLE,
                     GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+    glTexParameteri(GL_TEXTURE_RECTANGLE,
                     GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
     bufB->bind_color();
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+    glTexParameteri(GL_TEXTURE_RECTANGLE,
                     GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,
+    glTexParameteri(GL_TEXTURE_RECTANGLE,
                     GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 

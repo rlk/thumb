@@ -103,8 +103,6 @@ void ogl::cubelut::init()
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, i, w, h, b, e, t, p);
 
     delete [] p;
-
-    OGLCK();
 }
 
 void ogl::cubelut::fini()
@@ -113,8 +111,6 @@ void ogl::cubelut::fini()
 
     glDeleteTextures(1, &object);
     object = 0;
-
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

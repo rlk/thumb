@@ -133,7 +133,7 @@ void ogl::texture::load_png(const void *buf, size_t len)
         if      ( POT(width - 2) &&  POT(height - 2))
             border = 1;
         else if (!POT(width    ) || !POT(height    ))
-            target = GL_TEXTURE_RECTANGLE_ARB;
+            target = GL_TEXTURE_RECTANGLE;
 
         // Allow subsampling only on 8-bit, non-bordered, power-of-two textures.
 
@@ -206,8 +206,6 @@ void ogl::texture::load_png(const void *buf, size_t len)
             glTexImage2D(target, 0, intform, w, h, border, extform, type, p);
 
             delete [] p;
-
-            OGLCK();
         }
 /*
         if ((bp = png_get_rows(rp, ip)))
@@ -228,7 +226,7 @@ void ogl::texture::load_png(const void *buf, size_t len)
             }
 
             if (ogl::has_anisotropic)
-                glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY,
                                               ogl::max_anisotropy);
 
             // Copy all rows to the new texture.
@@ -240,8 +238,6 @@ void ogl::texture::load_png(const void *buf, size_t len)
                          border, extform, type, p);
 
             delete [] p;
-
-            OGLCK();
         }
 */
     }
@@ -412,16 +408,12 @@ void ogl::texture::init()
     load_opt(path);
     load_img(path);
     load_prm(path);
-
-    OGLCK();
 }
 
 void ogl::texture::fini()
 {
     glDeleteTextures(1, &object);
     object = 0;
-
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

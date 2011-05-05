@@ -73,9 +73,7 @@ void ogl::elem::draw(bool color) const
     if (bnd)
         bnd->bind(color);
 
-    glDrawRangeElementsEXT(typ, min, max, num, GL_UNSIGNED_INT, off);
-
-    OGLCK();
+    glDrawRangeElements(typ, min, max, num, GL_UNSIGNED_INT, off);
 }
 
 //=============================================================================
@@ -587,8 +585,8 @@ void ogl::pool::sort()
 
     // Initialize vertex and element buffer sizes.
 
-    glBufferDataARB(GL_ARRAY_BUFFER_ARB,         vsz, 0, GL_STATIC_DRAW_ARB);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, esz, 0, GL_STATIC_DRAW_ARB);
+    glBufferData(GL_ARRAY_BUFFER,         vsz, 0, GL_STATIC_DRAW);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, esz, 0, GL_STATIC_DRAW);
 
     // Resort all nodes.
 
@@ -617,8 +615,8 @@ void ogl::pool::prep()
 
     if (resort || rebuff)
     {
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB,         vbo);
-        glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
+        glBindBuffer(GL_ARRAY_BUFFER,         vbo);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
     }
 
     // Update the VBO and EBO as necessary.
@@ -628,8 +626,8 @@ void ogl::pool::prep()
 
     // Unbind the VBO and EBO.
 
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+    glBindBuffer(GL_ARRAY_BUFFER,         0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 ogl::range ogl::pool::view(int id, int n, const double *V)
@@ -650,12 +648,12 @@ void ogl::pool::draw_init()
 {
     // Bind the VBO and EBO.
 
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         vbo);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, ebo);
+    glBindBuffer(GL_ARRAY_BUFFER,         vbo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 
     // Enable and attach the vertex arrays.
 
-    glEnableVertexAttribArrayARB(6);
+    glEnableVertexAttribArray(6);
     glEnableClientState(GL_TEXTURE_COORD_ARRAY);
     glEnableClientState(GL_NORMAL_ARRAY);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -666,11 +664,9 @@ void ogl::pool::draw_init()
     GLfloat *u = (GLfloat *) (vc * sizeof (GLfloat) * 9);
 
     glTexCoordPointer       (   2, GL_FLOAT,    sizeof (vec2), u);
-    glVertexAttribPointerARB(6, 3, GL_FLOAT, 0, sizeof (vec3), t);
+    glVertexAttribPointer(6, 3, GL_FLOAT, 0, sizeof (vec3), t);
     glNormalPointer         (      GL_FLOAT,    sizeof (vec3), n);
     glVertexPointer         (   3, GL_FLOAT,    sizeof (vec3), v);
-
-    OGLCK();
 }
 
 void ogl::pool::draw(int id, bool color, bool alpha)
@@ -679,8 +675,6 @@ void ogl::pool::draw(int id, bool color, bool alpha)
 
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
         (*i)->draw(id, color, alpha);
-
-    OGLCK();
 }
 
 void ogl::pool::draw_fini()
@@ -690,22 +684,20 @@ void ogl::pool::draw_fini()
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_NORMAL_ARRAY);
     glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-    glDisableVertexAttribArrayARB(6);
+    glDisableVertexAttribArray(6);
 
     // Unbind the VBO and EBO.
 
-    glBindBufferARB(GL_ARRAY_BUFFER_ARB,         0);
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-
-    OGLCK();
+    glBindBuffer(GL_ARRAY_BUFFER,         0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
 //-----------------------------------------------------------------------------
 
 void ogl::pool::init()
 {
-    glGenBuffersARB(1, &vbo);
-    glGenBuffersARB(1, &ebo);
+    glGenBuffers(1, &vbo);
+    glGenBuffers(1, &ebo);
 
     resort = true;
     rebuff = true;
@@ -713,8 +705,8 @@ void ogl::pool::init()
 
 void ogl::pool::fini()
 {
-    if (ebo) glDeleteBuffersARB(1, &ebo);
-    if (vbo) glDeleteBuffersARB(1, &vbo);
+    if (ebo) glDeleteBuffers(1, &ebo);
+    if (vbo) glDeleteBuffers(1, &vbo);
 
     ebo = 0;
     vbo = 0;

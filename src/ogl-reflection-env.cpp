@@ -26,7 +26,7 @@ ogl::reflection_env::reflection_env(const std::string& name, int i) :
     cube(::glob->new_frame(::conf->get_i("reflection_cubemap_size", 128),
                            ::conf->get_i("reflection_cubemap_size", 128),
                            GL_TEXTURE_CUBE_MAP,
-                           GL_RGBA16F_ARB, true, false, false))
+                           GL_RGBA16F, true, false, false))
 {
     init();
 }

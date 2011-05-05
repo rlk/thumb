@@ -28,14 +28,11 @@ ogl::lut::lut(GLsizei w, GLenum T, GLenum fi, GLenum fe, GLenum t) :
         glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
     }
     free();
-
-    OGLCK();
 }
 
 ogl::lut::~lut()
 {
     glDeleteTextures(1, &object);
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------
@@ -47,8 +44,6 @@ void ogl::lut::blit(const GLvoid *P, GLsizei X, GLsizei W) const
         glTexSubImage1D(target, 0, X, W, formext, type, P);
     }
     free();
-
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

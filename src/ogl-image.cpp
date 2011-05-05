@@ -48,8 +48,6 @@ void ogl::image::blit(const GLvoid *P, GLsizei X, GLsizei Y,
         glTexSubImage2D(target, 0, X, Y, W, H, formext, type, P);
     }
     free();
-
-    OGLCK();
 }
 
 void ogl::image::zero()
@@ -61,8 +59,6 @@ void ogl::image::zero()
         glTexSubImage2D(target, 0, 0, 0, w, h, GL_RGBA, GL_UNSIGNED_BYTE, p);
     }
     free();
-
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------
@@ -78,8 +74,8 @@ void ogl::image::free(GLenum unit) const
 
 void ogl::image::draw() const
 {
-    GLfloat s = (target == GL_TEXTURE_RECTANGLE_ARB) ? w : 1.0;
-    GLfloat t = (target == GL_TEXTURE_RECTANGLE_ARB) ? h : 1.0;
+    GLfloat s = (target == GL_TEXTURE_RECTANGLE) ? w : 1.0;
+    GLfloat t = (target == GL_TEXTURE_RECTANGLE) ? h : 1.0;
 
     glPushAttrib(GL_ENABLE_BIT);
     {
@@ -144,8 +140,6 @@ void ogl::image::init()
         glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
     free();
-
-    OGLCK();
 }
 
 void ogl::image::fini()
@@ -165,8 +159,6 @@ void ogl::image::fini()
 
     glDeleteTextures(1, &object);
     object = 0;
-
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------

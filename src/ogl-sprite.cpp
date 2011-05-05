@@ -31,13 +31,13 @@ ogl::sprite::~sprite()
 void ogl::sprite::bind() const
 {
 //    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
-    glEnable(GL_POINT_SPRITE_ARB);
+    glEnable(GL_POINT_SPRITE);
     glEnable(GL_BLEND);
 
     glDepthMask(GL_FALSE);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-    glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+    glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE);
 
     binding->bind(false);
 }
@@ -47,7 +47,7 @@ void ogl::sprite::free() const
     glDepthMask(GL_TRUE);
     
     glDisable(GL_BLEND);
-    glDisable(GL_POINT_SPRITE_ARB);
+    glDisable(GL_POINT_SPRITE);
     glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
 }
 

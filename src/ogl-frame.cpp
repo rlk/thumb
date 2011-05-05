@@ -93,7 +93,6 @@ void ogl::frame::free_depth(GLenum unit) const
 void ogl::frame::bind(double q) const
 {
     push(buffer, 0, 0, int(w * q), int(h * q));
-    OGLCK();
 }
 
 void ogl::frame::bind(bool b) const
@@ -113,8 +112,6 @@ void ogl::frame::bind(bool b) const
         glPushMatrix();
         glLoadIdentity();
     }
-
-    OGLCK();
 }
 
 void ogl::frame::bind(int target) const
@@ -124,22 +121,19 @@ void ogl::frame::bind(int target) const
     // TODO: there's probably a smarter way to handle cube face switching.
 
     if (target)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                  GL_COLOR_ATTACHMENT0_EXT,
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                  GL_COLOR_ATTACHMENT0,
                                   target, color, 0);
-    OGLCK();
 }
 
 void ogl::frame::bind() const
 {
     push(buffer, 0, 0, w, h);
-    OGLCK();
 }
 
 void ogl::frame::free() const
 {
     pop();
-    OGLCK();
 }
 
 void ogl::frame::free(bool b) const
@@ -153,7 +147,6 @@ void ogl::frame::free(bool b) const
     }
 
     pop();
-    OGLCK();
 }
 
 //-----------------------------------------------------------------------------
@@ -205,10 +198,10 @@ void ogl::frame::init_depth()
 
     ogl::bind_texture(target, 0, depth);
 
-#ifdef GL_DEPTH_STENCIL_EXT
+#ifdef GL_DEPTH_STENCIL
     if (has_stencil && ogl::has_depth_stencil)
-        glTexImage2D(target, 0, GL_DEPTH24_STENCIL8_EXT, w, h, 0,
-                     GL_DEPTH_STENCIL_EXT, GL_UNSIGNED_INT_24_8_EXT, NULL);
+        glTexImage2D(target, 0, GL_DEPTH24_STENCIL8, w, h, 0,
+                     GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
     else
 #endif
         glTexImage2D(target, 0, GL_DEPTH_COMPONENT24,    w, h, 0,
@@ -219,8 +212,8 @@ void ogl::frame::init_depth()
     glTexParameteri(target, GL_TEXTURE_WRAP_S,     GL_CLAMP_TO_EDGE);
     glTexParameteri(target, GL_TEXTURE_WRAP_T,     GL_CLAMP_TO_EDGE);
 
-    glTexParameteri(target, GL_TEXTURE_COMPARE_MODE_ARB,
-                            GL_COMPARE_R_TO_TEXTURE_ARB);
+    glTexParameteri(target, GL_TEXTURE_COMPARE_MODE,
+                            GL_COMPARE_R_TO_TEXTURE);
 }
 
 void ogl::frame::init_frame()
@@ -228,23 +221,23 @@ void ogl::frame::init_frame()
     // Initialize the frame buffer object.
 
     if (has_stencil)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                  GL_STENCIL_ATTACHMENT_EXT,
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                  GL_STENCIL_ATTACHMENT,
                                   target, depth, 0);
     if (has_depth)
-        glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                  GL_DEPTH_ATTACHMENT_EXT,
+        glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                  GL_DEPTH_ATTACHMENT,
                                   target, depth, 0);
     if (has_color)
     {
         if (target == GL_TEXTURE_CUBE_MAP)
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                      GL_COLOR_ATTACHMENT0_EXT,
+            glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                      GL_COLOR_ATTACHMENT0,
                                       GL_TEXTURE_CUBE_MAP_POSITIVE_X,
                                       color, 0);
         else
-            glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT,
-                                      GL_COLOR_ATTACHMENT0_EXT,
+            glFramebufferTexture2D(GL_FRAMEBUFFER,
+                                      GL_COLOR_ATTACHMENT0,
                                       target, color, 0);
     }
     else
@@ -253,27 +246,21 @@ void ogl::frame::init_frame()
         glReadBuffer(GL_NONE);
     }
 
-    OGLCK();
-
     // Confirm the frame buffer object status.
 
-    switch (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT))
+    switch (glCheckFramebufferStatus(GL_FRAMEBUFFER))
     {
-    case GL_FRAMEBUFFER_COMPLETE_EXT:
+    case GL_FRAMEBUFFER_COMPLETE:
         break; 
-    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
         throw std::runtime_error("Framebuffer incomplete attachment");
-    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
         throw std::runtime_error("Framebuffer missing attachment");
-    case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
-        throw std::runtime_error("Framebuffer dimensions");
-    case GL_FRAMEBUFFER_INCOMPLETE_FORMATS_EXT:
-        throw std::runtime_error("Framebuffer formats");
-    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_DRAW_BUFFER:
         throw std::runtime_error("Framebuffer draw buffer");
-    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
+    case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER:
         throw std::runtime_error("Framebuffer read buffer");
-    case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+    case GL_FRAMEBUFFER_UNSUPPORTED:
         throw std::runtime_error("Framebuffer unsupported");
     default:
         throw std::runtime_error("Framebuffer error");
@@ -297,20 +284,18 @@ void ogl::frame::init()
         init_depth();
     }
 
-    glGenFramebuffersEXT(1, &buffer);
+    glGenFramebuffers(1, &buffer);
 
     push(buffer, 0, 0, w, h);
     {
         init_frame();
     }
     pop();
-
-    OGLCK();
 }
 
 void ogl::frame::fini()
 {
-    if (buffer) glDeleteFramebuffersEXT(1, &buffer);
+    if (buffer) glDeleteFramebuffers(1, &buffer);
 
     if (color) glDeleteTextures(1, &color);
     if (depth) glDeleteTextures(1, &depth);

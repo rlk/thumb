@@ -185,10 +185,10 @@ GLsizei ogl::terrain::rand_index(GLuint o[4])
         for (int j =     0; j <  n; ++j)
             if (grass[i * n + j]) index.push_back(i * n + j);
 
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, o[0]);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o[0]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                      index.size() * sizeof (GLushort),
-                    &index.front(), GL_STATIC_DRAW_ARB);
+                    &index.front(), GL_STATIC_DRAW);
 
     // 1 Northwest.
 
@@ -198,10 +198,10 @@ GLsizei ogl::terrain::rand_index(GLuint o[4])
         for (int j = n - 1; j >= 0; --j)
             if (grass[i * n + j]) index.push_back(i * n + j);
 
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, o[1]);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o[1]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                      index.size() * sizeof (GLushort),
-                    &index.front(), GL_STATIC_DRAW_ARB);
+                    &index.front(), GL_STATIC_DRAW);
 
     // 2 Southeast.
 
@@ -211,10 +211,10 @@ GLsizei ogl::terrain::rand_index(GLuint o[4])
         for (int j =     0; j <  n; ++j)
             if (grass[i * n + j]) index.push_back(i * n + j);
 
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, o[2]);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o[2]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                      index.size() * sizeof (GLushort),
-                    &index.front(), GL_STATIC_DRAW_ARB);
+                    &index.front(), GL_STATIC_DRAW);
 
     // 3 Southwest.
 
@@ -224,14 +224,14 @@ GLsizei ogl::terrain::rand_index(GLuint o[4])
         for (int j = n - 1; j >= 0; --j)
             if (grass[i * n + j]) index.push_back(i * n + j);
 
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, o[3]);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o[3]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                      index.size() * sizeof (GLushort),
-                    &index.front(), GL_STATIC_DRAW_ARB);
+                    &index.front(), GL_STATIC_DRAW);
 
     //
 
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     return GLsizei(index.size());
 }
@@ -302,12 +302,12 @@ GLsizei ogl::terrain::calc_index(GLuint o, bool bn, bool bs,
 
     // Copy the indices to an element buffer object.
 
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, o);
-    glBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, o);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER,
                      index.size() * sizeof (GLushort),
-                    &index.front(), GL_STATIC_DRAW_ARB);
+                    &index.front(), GL_STATIC_DRAW);
 
-    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
     return GLsizei(index.size());
 }
@@ -468,7 +468,7 @@ void ogl::terrain::page_draw(int k, int kn, int ks, int ke, int kw,
 
             const int b = bn + bs + be + bw;
 
-            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, p_ibo[b]);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, p_ibo[b]);
 
             glVertexPointer(3, GL_SHORT,
                             vs, (GLvoid *) (vs * head->n * head->n * k));
@@ -592,14 +592,14 @@ void ogl::terrain::gras_draw(int k, int kn, int ks, int ke, int kw,
 
             if (V[0] > 0.0)
                 if (V[2] > 0.0)
-                    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, g_ibo[b][1]);
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo[b][1]);
                 else
-                    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, g_ibo[b][3]);
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo[b][3]);
             else
                 if (V[2] > 0.0)
-                    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, g_ibo[b][0]);
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo[b][0]);
                 else
-                    glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, g_ibo[b][2]);
+                    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, g_ibo[b][2]);
 
             glVertexPointer(3, GL_SHORT,
                             vs, (GLvoid *) (vs * head->n * head->n * k));
@@ -634,7 +634,7 @@ void ogl::terrain::draw(const double *p,
 
         glEnableClientState(GL_VERTEX_ARRAY);
         {
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
             //
 
@@ -653,11 +653,11 @@ void ogl::terrain::draw(const double *p,
             if (gras_bind)
                 gras_bind->bind(true);
 
-            glEnable(GL_POINT_SPRITE_ARB);
+            glEnable(GL_POINT_SPRITE);
             glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
 
             ogl::curr_texture(GL_TEXTURE0);
-            glTexEnvi(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE); 
+            glTexEnvi(GL_POINT_SPRITE, GL_COORD_REPLACE, GL_TRUE); 
 
             glEnable(GL_BLEND);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -673,10 +673,10 @@ void ogl::terrain::draw(const double *p,
             glDepthMask(GL_TRUE);
 
             glDisable(GL_VERTEX_PROGRAM_POINT_SIZE);
-            glDisable(GL_POINT_SPRITE_ARB);
+            glDisable(GL_POINT_SPRITE);
 
-            glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-            glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
         }
         glDisableClientState(GL_VERTEX_ARRAY);
     }
@@ -690,17 +690,17 @@ void ogl::terrain::init()
     {
         // Initialize the vertex buffer object.
 
-        glGenBuffersARB(1, &vbo);
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
-        glBufferDataARB(GL_ARRAY_BUFFER_ARB,
+        glGenBuffers(1, &vbo);
+        glBindBuffer(GL_ARRAY_BUFFER, vbo);
+        glBufferData(GL_ARRAY_BUFFER,
                         head->n * head->n * head->c * sizeof (vert_s), vert,
-                        GL_STATIC_DRAW_ARB);
+                        GL_STATIC_DRAW);
 
-        glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
         // Initialize the index buffer objects.
 
-        glGenBuffersARB(16, p_ibo);
+        glGenBuffers(16, p_ibo);
 
         p_ibc[ 0] = calc_index(p_ibo[ 0], false, false, false, false);
         p_ibc[ 1] = calc_index(p_ibo[ 1],  true, false, false, false);
@@ -721,7 +721,7 @@ void ogl::terrain::init()
 
         for (int i = 0; i < 8; ++i)
         {
-            glGenBuffersARB(4, g_ibo[i]);
+            glGenBuffers(4, g_ibo[i]);
             g_ibc[i] = rand_index(g_ibo[i]);
         }
     }
@@ -730,10 +730,10 @@ void ogl::terrain::init()
 void ogl::terrain::fini()
 {
     for (int i = 0; i < 8; ++i)
-        glDeleteBuffersARB(4, g_ibo[i]);
+        glDeleteBuffers(4, g_ibo[i]);
 
-    glDeleteBuffersARB(16, p_ibo);
-    glDeleteBuffersARB(1, &vbo);
+    glDeleteBuffers(16, p_ibo);
+    glDeleteBuffers(1, &vbo);
     vbo = 0;
 }
 

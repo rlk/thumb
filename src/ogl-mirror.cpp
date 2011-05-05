@@ -21,7 +21,7 @@
 
 ogl::mirror::mirror(std::string name, int w, int h) :
     binding(::glob->load_binding(name, name)),
-    frame(new ogl::frame(w, h, GL_TEXTURE_RECTANGLE_ARB, GL_RGBA, true, true, false))
+    frame(new ogl::frame(w, h, GL_TEXTURE_RECTANGLE, GL_RGBA, true, true, false))
 {
 }
 

@@ -300,23 +300,23 @@ void dpy::channel::process_start()
 
         // Initialize the off-screen render target.
 
-        src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
-                                GL_RGBA16F_ARB, true, true,  false);
+        src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE,
+                                GL_RGBA16F, true, true,  false);
 
-        dst = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
+        dst = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE,
                                 GL_RGBA8,       true, false, false);
 
         // Initialize the static ping-pong buffers, if necessary.
         
         if (blur == 0)
-            blur = ::glob->new_frame(w4, h4, GL_TEXTURE_RECTANGLE_ARB,
-                                     GL_RGBA16F_ARB, true, false, false);
+            blur = ::glob->new_frame(w4, h4, GL_TEXTURE_RECTANGLE,
+                                     GL_RGBA16F, true, false, false);
         if (ping == 0)
-            ping = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE_ARB,
-                                     GL_RGBA16F_ARB, true, false, false);
+            ping = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE,
+                                     GL_RGBA16F, true, false, false);
         if (pong == 0)
-            pong = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE_ARB,
-                                     GL_RGBA16F_ARB, true, false, false);
+            pong = ::glob->new_frame(w2, h2, GL_TEXTURE_RECTANGLE,
+                                     GL_RGBA16F, true, false, false);
 
         // Initialize the static programs, if necessary.
 
@@ -338,7 +338,7 @@ void dpy::channel::process_start()
     {
         // Initialize the off-screen render target.
 
-        src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE_ARB,
+        src = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE,
                                 GL_RGB8, true, true, false);
     }
 }

@@ -312,7 +312,7 @@ static void buffer(GLintptr off, GLsizeiptr siz, const GLvoid *dat)
     {
         GLsizeiptr len = std::min(siz, max);
 
-        glBufferSubDataARB(GL_ARRAY_BUFFER_ARB, off, len, buf);
+        glBufferSubData(GL_ARRAY_BUFFER, off, len, buf);
 
         off += len;
         buf += len;
@@ -329,12 +329,10 @@ void ogl::mesh::buffv(const GLfloat *v,
 
     if (dirty_verts)
     {
-        buffer(GLintptrARB(v), vv.size() * sizeof (vec3), &vv.front());
-        buffer(GLintptrARB(n), nv.size() * sizeof (vec3), &nv.front());
-        buffer(GLintptrARB(t), tv.size() * sizeof (vec3), &tv.front());
-        buffer(GLintptrARB(u), uv.size() * sizeof (vec2), &uv.front());
-
-        OGLCK();
+        buffer(GLintptr(v), vv.size() * sizeof (vec3), &vv.front());
+        buffer(GLintptr(n), nv.size() * sizeof (vec3), &nv.front());
+        buffer(GLintptr(t), tv.size() * sizeof (vec3), &tv.front());
+        buffer(GLintptr(u), uv.size() * sizeof (vec2), &uv.front());
     }
     dirty_verts = false;
 }
@@ -344,16 +342,14 @@ void ogl::mesh::buffe(const GLuint *e)
     // Copy all cached index data to the bound element array buffer object.
 
     if (dirty_faces && faces.size())
-        glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(e),
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, GLintptr(e),
                            faces.size() * sizeof (face), &faces.front());
 
     e += faces.size() * 3;
 
     if (dirty_lines && lines.size())
-        glBufferSubDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, GLintptrARB(e),
+        glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, GLintptr(e),
                            lines.size() * sizeof (line), &lines.front());
-
-    OGLCK();
 
     dirty_faces = false;
     dirty_lines = false;
