@@ -13,11 +13,11 @@
 #ifndef DANPART_HPP
 #define DANPART_HPP
 
-#include "../ogl-opengl.hpp"
-#include "../ogl-sprite.hpp"
-#include "../ogl-mirror.hpp"
-#include "../ogl-uniform.hpp"
-#include "../app-prog.hpp"
+#include <ogl-opengl.hpp>
+#include <ogl-sprite.hpp>
+#include <ogl-mirror.hpp>
+#include <ogl-uniform.hpp>
+#include <app-prog.hpp>
 
 #include <cuda.h>
 #include "danglobs.cpp"
@@ -196,7 +196,7 @@ class danpart : public app::prog
     
 public:
 
-    danpart(int, int);
+    danpart(const std::string&);
    ~danpart();
 
     bool process_event(app::event *);

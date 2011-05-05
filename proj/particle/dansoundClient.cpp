@@ -1,17 +1,18 @@
 
 //using namespace std;
-/*
-  #include <stdio.h>
 
-  #include <sys/types.h>
-  #include <sys/socket.h>
-  #include <netinet/in.h>
-  #include <netdb.h> 
-  #include <stdlib.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
-  #include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <netdb.h> 
 
-*/
+
+
 #include <signal.h>
 #include <setjmp.h>
 #include "dansoundClient.hpp"

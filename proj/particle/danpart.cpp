@@ -12,8 +12,9 @@
 
 //-----------------------------------------------------------------------------
 
-#define FUCKING_BROKEN 1
-//#define FUCKING_BROKEN 0
+//#define FUCKING_BROKEN 1
+#define FUCKING_BROKEN 0
+
 //-----------------------------------------------------------------------------
 
 #include <iostream>
@@ -22,22 +23,22 @@
 #include <SDL.h>
 #include <SDL/SDL_keyboard.h>
 
-#include "../ogl-opengl.hpp"
-#include "../ogl-uniform.hpp"
-#include "../ogl-pool.hpp"
+#include <ogl-opengl.hpp>
+#include <ogl-uniform.hpp>
+#include <ogl-pool.hpp>
 
-#include "../app-frustum.hpp"
-#include "../app-event.hpp"
-#include "../app-conf.hpp"
-#include "../app-user.hpp"
-#include "../app-host.hpp"
-#include "../app-glob.hpp"
+#include <app-frustum.hpp>
+#include <app-event.hpp>
+#include <app-conf.hpp>
+#include <app-user.hpp>
+#include <app-host.hpp>
+#include <app-glob.hpp>
 
-#include "../dev-mouse.hpp"
-#include "../dev-hybrid.hpp"
-#include "../dev-tracker.hpp"
-#include "../dev-gamepad.hpp"
-#include "../matrix.hpp"
+#include <dev-mouse.hpp>
+#include <dev-hybrid.hpp>
+#include <dev-tracker.hpp>
+#include <dev-gamepad.hpp>
+#include <etc-math.hpp>
 
 #include <cuda.h>
 #include <cudaGL.h>
@@ -72,19 +73,20 @@ GLuint vbo_init(int w, int h)
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
     glBufferDataARB(GL_ARRAY_BUFFER_ARB, size, 0, GL_DYNAMIC_DRAW);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-
+/*
     if (cuGLRegisterBufferObject(vbo) != CUDA_SUCCESS)
         warn("CUDA register VBO failed");
-
+*/
     return vbo;
 }
 
 void vbo_fini(GLuint vbo)
 {
     glDeleteBuffersARB(1, &vbo);
-
+/*
     if (cuGLUnregisterBufferObject(vbo) != CUDA_SUCCESS)
         warn("CUDA unregister VBO failed");
+*/
 }
 
 //-----------------------------------------------------------------------------
@@ -97,7 +99,7 @@ void danpart::cuda_init()
         {
             if (cuGLCtxCreate(&context, 0, device) == CUDA_SUCCESS)
             {
-                if (cuModuleLoad(&module, "src/dan/danpart.ptx") == CUDA_SUCCESS)
+                if (cuModuleLoad(&module, "danpart.ptx") == CUDA_SUCCESS)
                 {
                     if (cuModuleGetFunction(&funcHandPoint1, module, "Point1") == CUDA_SUCCESS)
                     {
@@ -132,7 +134,7 @@ void danpart::cuda_fini()
 void danpart::cuda_stepPointSquars()
 {
     CUdeviceptr d_vbo;
-    unsigned int size;
+    size_t size;
 
     float r1, r2, r3;// not curently used
 
@@ -254,7 +256,7 @@ void danpart::cuda_stepPointSquars()
 void danpart::cuda_step()
 {
     CUdeviceptr d_vbo;
-    unsigned int size;
+    size_t size;
 
     float r1, r2, r3;// not curently used
 
@@ -370,7 +372,7 @@ void danpart::cuda_step()
     //copy injdata data to device	
     {
 	CUdeviceptr devPtr;
-	unsigned int bytes;
+	size_t bytes;
 	cuModuleGetGlobal(&devPtr, &bytes, module, "injdata");
 	cuMemcpyHtoD(devPtr, h_injectorData, bytes);
     }
@@ -378,7 +380,7 @@ void danpart::cuda_step()
     //copy refldata data to device	
     {	
 	CUdeviceptr devPtr;
-	unsigned int bytes;
+	size_t bytes;
 	cuModuleGetGlobal(&devPtr, &bytes, module, "refldata");
 	cuMemcpyHtoD(devPtr, h_reflectorData, bytes);
     }
@@ -785,7 +787,8 @@ void danpart::data_init()
 
 //-----------------------------------------------------------------------------
 
-danpart::danpart(int w, int h) :
+danpart::danpart(const std::string& tag) :
+    app::prog(tag),
     input(0),
     anim(0),
     max_age(2000),disappear_age(2000),showFrameNo(0),lastShowFrameNo(-1),showStartTime(0),showTime(0),lastShowTime(-1),gravity(.0001),colorFreq(16),
@@ -793,7 +796,8 @@ danpart::danpart(int w, int h) :
     mesh_height(CUDA_MESH_HEIGHT),draw_water_sky(1),
     
     particle(new ogl::sprite()),
-    water(new ogl::mirror("mirror-water", w, h)),
+    water(new ogl::mirror("mirror-water", ::host->get_buffer_w(),
+                                          ::host->get_buffer_h())),
     
     uniform_time          (::glob->load_uniform("time",             1)),
     uniform_view_position (::glob->load_uniform("view_position",    3)),
@@ -812,9 +816,9 @@ danpart::danpart(int w, int h) :
     else if (input_mode == "gamepad") input = new dev::gamepad();
     else                              input = new dev::mouse  ();
 
-    cuda_init();
+//    cuda_init();
     vbo = vbo_init(mesh_width, mesh_height);
-    data_init();
+//    data_init();
 
     modulator[0] = 1.0;
     modulator[1] = 1.0;
@@ -845,7 +849,7 @@ danpart::~danpart()
 {
     vbo_fini(vbo);
 
-    cuda_fini();
+//    cuda_fini();
 
     ::glob->free_pool(wand_pool);
 
@@ -947,7 +951,7 @@ bool danpart::process_point(app::event *E)
     
         double t[3], o[3] = { 0.0, 0.150, 0.0 };
 
-        set_quaternion(B, q);
+        quat_to_mat(B, q);
         mult_mat_vec3(t, B, o);
         mult_mat_vec3(o, A, t);
 
@@ -1263,8 +1267,9 @@ ogl::range danpart::prep(int frusc, const app::frustum *const *frusv)
     uniform_light_position->set(::user->get_L());
 
     // Run the particle simulation.
-
+/*
     cuda_step();
+*/
     //cuda_stepPointSquars();
 
     wand_pool->prep();

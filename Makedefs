@@ -2,7 +2,7 @@
 
 #------------------------------------------------------------------------------
 
-CFLAGS= -g -Wall -ansi -pedantic
+CFLAGS= -g -Wall
 #CFLAGS= -g -Wall -DCUDA_FORCE_API_VERSION=3010
 #CFLAGS= -O0 -g -Wall -ansi -pedantic -fno-rtti
 #CFLAGS= -pg -Wall -ansi -pedantic -DNDEBUG
