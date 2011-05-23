@@ -15,6 +15,8 @@
 //#define FUCKING_BROKEN 1
 #define FUCKING_BROKEN 0
 
+// 0 ... Ubuntu Linux 2.6.32 x86-64 NVIDIA 260.91.21 CUDA 3.2 GeForce GTX 470
+
 //-----------------------------------------------------------------------------
 
 #include <iostream>
@@ -73,20 +75,19 @@ GLuint vbo_init(int w, int h)
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
     glBufferDataARB(GL_ARRAY_BUFFER_ARB, size, 0, GL_DYNAMIC_DRAW);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-/*
+
     if (cuGLRegisterBufferObject(vbo) != CUDA_SUCCESS)
         warn("CUDA register VBO failed");
-*/
+
     return vbo;
 }
 
 void vbo_fini(GLuint vbo)
 {
     glDeleteBuffersARB(1, &vbo);
-/*
+
     if (cuGLUnregisterBufferObject(vbo) != CUDA_SUCCESS)
         warn("CUDA unregister VBO failed");
-*/
 }
 
 //-----------------------------------------------------------------------------
@@ -816,9 +817,9 @@ danpart::danpart(const std::string& tag) :
     else if (input_mode == "gamepad") input = new dev::gamepad();
     else                              input = new dev::mouse  ();
 
-//    cuda_init();
+    cuda_init();
     vbo = vbo_init(mesh_width, mesh_height);
-//    data_init();
+    data_init();
 
     modulator[0] = 1.0;
     modulator[1] = 1.0;
@@ -994,8 +995,9 @@ bool danpart::process_point(app::event *E)
 
 bool danpart::process_timer(app::event *E)
 {
-    double dt = E->data.timer.dt;
 /*
+    double dt = E->data.timer.dt;
+
     if (fabs(joy_x) > 0.1)
         ::user->pass(joy_x * dt * 10.0);
 */
@@ -1268,9 +1270,9 @@ ogl::range danpart::prep(int frusc, const app::frustum *const *frusv)
     uniform_light_position->set(::user->get_L());
 
     // Run the particle simulation.
-/*
+
     cuda_step();
-*/
+
     //cuda_stepPointSquars();
 
     wand_pool->prep();

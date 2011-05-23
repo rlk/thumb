@@ -30,7 +30,7 @@ ogl::sprite::~sprite()
 
 void ogl::sprite::bind() const
 {
-//    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
+    glEnable(GL_VERTEX_PROGRAM_POINT_SIZE);
     glEnable(GL_POINT_SPRITE);
     glEnable(GL_BLEND);
 
