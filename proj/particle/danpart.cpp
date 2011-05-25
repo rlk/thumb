@@ -12,16 +12,6 @@
 
 //-----------------------------------------------------------------------------
 
-//#define FUCKING_BROKEN 1
-#define FUCKING_BROKEN 0
-
-// 1 ... Starcave? CUDA 3.1? Quadro 5600
-// 0 ... Ubuntu Linux 2.6.32 x86-64 NVIDIA 260.91.21 CUDA 3.2 GeForce GTX 470
-// 0 ... Mac OS 10.6.7                               CUDA 3.2 GeForce GT M330
-//       MUST have CUDA_FORCE_API_VERSION=3010
-
-//-----------------------------------------------------------------------------
-
 #include <iostream>
 #include <cstring>
 
@@ -48,6 +38,8 @@
 #include <cuda.h>
 #include <cudaGL.h>
 
+//-----------------------------------------------------------------------------
+
 //My helper funtions
 
 #include "danpart.hpp"
@@ -69,7 +61,7 @@ static void warn(const char *str)
 
 //-----------------------------------------------------------------------------
 
-GLuint vbo_init(int w, int h)
+static GLuint vbo_init(int w, int h)
 {
     GLsizei size = 8 * w * h * sizeof (float);
     GLuint vbo;
@@ -85,7 +77,7 @@ GLuint vbo_init(int w, int h)
     return vbo;
 }
 
-void vbo_fini(GLuint vbo)
+static void vbo_fini(GLuint vbo)
 {
     glDeleteBuffersARB(1, &vbo);
 
@@ -182,19 +174,6 @@ void danpart::cuda_stepPointSquars()
 
     int offset = 0;
     
-#if FUCKING_BROKEN
-    void *p;
-
-    p = (void *) (size_t) d_vbo;
-    ALIGN_UP(offset, __alignof(p));
-    cuParamSetv(funcHandPointSquars, offset, &p, sizeof (p));
-    offset += sizeof (p);
-
-    p = (void *) (size_t) d_particleData;
-    ALIGN_UP(offset, __alignof(p));
-    cuParamSetv(funcHandPointSquars, offset, &p, sizeof (p));
-    offset += sizeof (p);
-#else
     ALIGN_UP(offset, __alignof(d_vbo));
     cuParamSetv(funcHandPointSquars, offset, &d_vbo, sizeof (d_vbo));
     offset += sizeof (d_vbo);
@@ -202,7 +181,6 @@ void danpart::cuda_stepPointSquars()
     ALIGN_UP(offset, __alignof(d_particleData));
     cuParamSetv(funcHandPointSquars, offset, &d_particleData, sizeof (d_particleData));
     offset += sizeof (d_particleData);
-#endif
 
     ALIGN_UP(offset, __alignof(mesh_width));
     cuParamSeti(funcHandPointSquars, offset, mesh_width);
@@ -234,7 +212,6 @@ void danpart::cuda_stepPointSquars()
 
     // Execute the kernel.
 
-
     cuParamSetSize     (funcHandPointSquars, offset);
     cuFuncSetBlockShape(funcHandPointSquars, 8, 8, 1);
     cuLaunchGrid       (funcHandPointSquars, mesh_width / 8, mesh_height / 8);
@@ -242,17 +219,18 @@ void danpart::cuda_stepPointSquars()
     // Unmap buffer object.
 
     if (cuGLUnmapBufferObject(vbo) != CUDA_SUCCESS)
-	
         warn("CUDA GL unmap buffer failed");
 
     if ( (nowTime - startTime)== 0)
     {
+        float elapsedTime;
         cuEventRecord(stop, 0);
         cuEventSynchronize(stop);
-        float elapsedTime;
         cuEventElapsedTime(&elapsedTime, start, stop);
-        if (FR_RATE_PRINT >0) printf(" cudaProcTime %f \n \n", elapsedTime );
-        cuEventDestroy (start ); cuEventDestroy (stop );
+        if (FR_RATE_PRINT > 0)printf(" cudaProcTime %f \n \n", elapsedTime );
+
+        cuEventDestroy(start);
+        cuEventDestroy(stop);
     }
 	
 }
@@ -413,24 +391,7 @@ void danpart::cuda_step()
     }
     int offset = 0;
 //printf ("disappear_age %d\n",disappear_age);
-#if FUCKING_BROKEN
-    void *p;
 
-    p = (void *) (size_t) d_vbo;
-    ALIGN_UP(offset, __alignof(p));
-    cuParamSetv(funcHandPoint1, offset, &p, sizeof (p));
-    offset += sizeof (p);
-
-    p = (void *) (size_t) d_particleData;
-    ALIGN_UP(offset, __alignof(p));
-    cuParamSetv(funcHandPoint1, offset, &p, sizeof (p));
-    offset += sizeof (p);
-    
-    p = (void *) (size_t) d_debugData;
-    ALIGN_UP(offset, __alignof(p));
-    cuParamSetv(funcHandPoint1, offset, &p, sizeof (p));
-    offset += sizeof (p);
-#else
     ALIGN_UP(offset, __alignof(d_vbo));
     cuParamSetv(funcHandPoint1, offset, &d_vbo, sizeof (d_vbo));
     offset += sizeof (d_vbo);
@@ -442,7 +403,7 @@ void danpart::cuda_step()
     ALIGN_UP(offset, __alignof(d_debugData));
     cuParamSetv(funcHandPoint1, offset, &d_debugData, sizeof (d_debugData));
     offset += sizeof (d_debugData);
-#endif
+
     ALIGN_UP(offset, __alignof(mesh_width));
     cuParamSeti(funcHandPoint1, offset, mesh_width);
     offset += sizeof (mesh_width);
@@ -795,13 +756,21 @@ danpart::danpart(const std::string& tag) :
     app::prog(tag),
     input(0),
     anim(0),
-    max_age(2000),disappear_age(2000),showFrameNo(0),lastShowFrameNo(-1),showStartTime(0),showTime(0),lastShowTime(-1),gravity(.0001),colorFreq(16),
+    max_age(2000),
+    disappear_age(2000),
+    showFrameNo(0),
+    lastShowFrameNo(-1),
+    showStartTime(0),
+    showTime(0),
+    lastShowTime(-1),
+    gravity(.0001),
+    colorFreq(16),
     mesh_width (CUDA_MESH_WIDTH),
     mesh_height(CUDA_MESH_HEIGHT),draw_water_sky(1),
     
     particle(new ogl::sprite()),
     water(new ogl::mirror("mirror-water", ::host->get_buffer_w(),
-                                          ::host->get_buffer_h())),
+                          ::host->get_buffer_h())),
     
     uniform_time          (::glob->load_uniform("time",             1)),
     uniform_view_position (::glob->load_uniform("view_position",    3)),
@@ -833,8 +802,8 @@ danpart::danpart(const std::string& tag) :
 
     wand_pool = ::glob->new_pool();
 
-    node_inj_line  = new ogl::node;
-    node_inj_face  = new ogl::node;
+    node_inj_line = new ogl::node;
+    node_inj_face = new ogl::node;
     node_ref_line = new ogl::node;
     node_ref_face = new ogl::node;
 
@@ -975,16 +944,16 @@ bool danpart::process_point(app::event *E)
 
     //printf("  devid %d \n",devid );
 /*	
-  if (trackDevID ==0)
-  {
-  printf("ID wandpos    %i %f %f %f", trackDevID ,wandPos[0], wandPos[1], wandPos[2]);
-  printf("  ID wandvec    %i %f %f %f\n", trackDevID ,wandVec[0], wandVec[1], wandVec[2]);
-  }
-  if (trackDevID ==1)
-  {
-  printf("ID headpos    %i %f %f %f", trackDevID ,headPos[0], headPos[1], headPos[2]);
-  printf("  ID headvec    %i %f %f %f\n", trackDevID ,headVec[0], headVec[1], headVec[2]);
-  }
+        if (trackDevID ==0)
+        {
+        printf("ID wandpos    %i %f %f %f", trackDevID ,wandPos[0], wandPos[1], wandPos[2]);
+        printf("  ID wandvec    %i %f %f %f\n", trackDevID ,wandVec[0], wandVec[1], wandVec[2]);
+        }
+        if (trackDevID ==1)
+        {
+        printf("ID headpos    %i %f %f %f", trackDevID ,headPos[0], headPos[1], headPos[2]);
+        printf("  ID headvec    %i %f %f %f\n", trackDevID ,headVec[0], headVec[1], headVec[2]);
+        }
 
 */
     //printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
@@ -999,10 +968,10 @@ bool danpart::process_point(app::event *E)
 bool danpart::process_timer(app::event *E)
 {
 /*
-    double dt = E->data.timer.dt;
+  double dt = E->data.timer.dt;
 
-    if (fabs(joy_x) > 0.1)
-        ::user->pass(joy_x * dt * 10.0);
+  if (fabs(joy_x) > 0.1)
+  ::user->pass(joy_x * dt * 10.0);
 */
     return false;
 }
@@ -1010,9 +979,9 @@ bool danpart::process_timer(app::event *E)
 bool danpart::process_value(app::event *E)
 {
 /*
-    if (E->data.value.a == 0) joy_x = E->data.value.v;
-    if (E->data.value.a == 1) joy_y = E->data.value.v;
-    printf ("joy %f \n",joy_x);
+  if (E->data.value.a == 0) joy_x = E->data.value.v;
+  if (E->data.value.a == 1) joy_y = E->data.value.v;
+  printf ("joy %f \n",joy_x);
 */
     return false;
 }
@@ -2084,7 +2053,7 @@ void danpart::scene_data_3()
 
     if ((SOUND_SERV ==1)&& (::host->root() == 1))
     {
-       if (ENABLE_SOUND_POS_UPDATES) audioPos (texture_17_swirls3, 30* h_injectorData[injNum][3][0], 0, -30* h_injectorData[injNum][3][2]);
+        if (ENABLE_SOUND_POS_UPDATES) audioPos (texture_17_swirls3, 30* h_injectorData[injNum][3][0], 0, -30* h_injectorData[injNum][3][2]);
 			
     }
 
@@ -2114,8 +2083,8 @@ void danpart::scene_data_3()
         
         if (ENABLE_SOUND_POS_UPDATES)
         {  
-          audioPos (texture_12, 1* h_injectorData[injNum][2][0], 1* h_injectorData[injNum][1][0], -1* h_injectorData[injNum][2][2]);
-          audioPos (short_sound_01a, 1* h_injectorData[injNum][2][0], 1* h_injectorData[injNum][1][0], -1* h_injectorData[injNum][2][2]);
+            audioPos (texture_12, 1* h_injectorData[injNum][2][0], 1* h_injectorData[injNum][1][0], -1* h_injectorData[injNum][2][2]);
+            audioPos (short_sound_01a, 1* h_injectorData[injNum][2][0], 1* h_injectorData[injNum][1][0], -1* h_injectorData[injNum][2][2]);
         } 
 
     }
