@@ -18,6 +18,7 @@
 #include <sys/types.h>
 #include <fcntl.h>
 
+#include <app-default.hpp>
 #include <app-data.hpp>
 #include <app-conf.hpp>
 #include <etc-dir.hpp>
@@ -171,19 +172,84 @@ std::string app::data::translate(const std::string& filename) const
 
 //-----------------------------------------------------------------------------
 
+#define USR_SHARE "/usr/share/thumb/data"
+#define LOC_SHARE "/usr/local/share/thumb/data"
+
+// Identify a valid data directory as one containing the default data file.
+
+static bool is_data_dir(std::string dir)
+{
+    std::string file(dir + "/" + DEFAULT_DATA_FILE);
+
+    if (is_dir(dir) && is_reg(file))
+        return true;
+    else
+        return false;
+}
+
+// Locate all read-only data hierarchies.
+
+static void find_ro_data(app::archive_l& archives)
+{
+    // Check the environment variable.
+
+    if (char *data = getenv("THUMB_RO_PATH"))
+        archives.push_back(new app::file_archive(data, true));
+
+    // Check for a MacOS .app bundle hierarchy.
+
+#ifdef __APPLE__
+    std::string test;
+
+    if (get_app_res_path(test))
+    {
+        if (is_data_dir(test + "/data"))
+        {
+            archives.push_back(new app::file_archive(test + "/data", true));
+        }
+    }
+#endif
+
+    // Check the current working directory.
+
+    if (is_data_dir("data"))
+        archives.push_back(new app::file_archive("data", true));
+
+    // Check the system share directory.
+
+    if (is_data_dir(USR_SHARE))
+        archives.push_back(new app::file_archive(USR_SHARE, true));
+
+    // Check the system local share directory.
+
+    if (is_data_dir(LOC_SHARE))
+        archives.push_back(new app::file_archive(LOC_SHARE, true));
+}
+
+// Locate a writable data hierarchy.
+
+static void find_rw_data(app::archive_l& archives)
+{
+    // Check the environment variable.
+
+    if (char *data = getenv("THUMB_RW_PATH"))
+        archives.push_back(new app::file_archive(data, true));
+
+    // Check for a home directory.
+
+    else if (char *home = getenv("HOME"))
+    {
+        const std::string path = std::string(home) + "/.thumb";
+        archives.push_back(new app::file_archive(path, false));
+    }
+}
+
+//-----------------------------------------------------------------------------
+
 app::data::data(const std::string& filename) : filename(filename), file("")
 {
-    std::string path;
-
-    // Locate a read-write archive.
-
-    if (find_rw_data(path))
-        archives.push_back(new file_archive(path, true));
-
-    // Locate a read-only archive.
-
-    if (find_ro_data(path))
-        archives.push_back(new file_archive(path, false));
+    find_ro_data(archives);
+    find_rw_data(archives);
 }
 
 app::data::~data()

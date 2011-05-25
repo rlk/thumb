@@ -15,51 +15,7 @@
 #include <stdlib.h>
 #include <errno.h>
 
-#include <app-default.hpp>
 #include <etc-dir.hpp>
-
-//-----------------------------------------------------------------------------
-
-#ifdef __APPLE__
-#include <Carbon/Carbon.h>
-#include <sys/param.h>
-
-static bool get_app_res_path(std::string& path)
-{
-    CFURLRef    url;
-    CFStringRef str;
-
-    char sys_path[MAXPATHLEN];
-    char res_path[MAXPATHLEN];
-
-    // Get the path to application bundle.
-
-    url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
-    str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-
-    CFStringGetCString(str, sys_path, MAXPATHLEN, CFStringGetSystemEncoding());
-    CFRelease(str);
-    CFRelease(url);
-
-    // Get relative path to resources directory.
-
-    url = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
-    str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-
-    CFStringGetCString(str, res_path, MAXPATHLEN, CFStringGetSystemEncoding());
-    CFRelease(str);
-    CFRelease(url);
-
-    // Don't concatenate them if they are the same.
-
-    if (strcmp(sys_path, res_path) == 0)
-        path = std::string(sys_path);
-    else
-        path = std::string(sys_path) + "/" + std::string(res_path);
-
-    return true;
-}
-#endif // __APPLE__
 
 //-----------------------------------------------------------------------------
 #ifndef _WIN32
@@ -131,7 +87,7 @@ static bool dir_make(std::string& dir)
 #endif
 //-----------------------------------------------------------------------------
 
-static bool is_dir(std::string& name)
+bool is_dir(std::string& name)
 {
     struct stat info;
 
@@ -141,7 +97,7 @@ static bool is_dir(std::string& name)
         return false;
 }
 
-static bool is_reg(std::string& name)
+bool is_reg(std::string& name)
 {
     struct stat info;
 
@@ -204,85 +160,46 @@ bool mkpath(std::string path, bool reg)
 
 //-----------------------------------------------------------------------------
 
-// Identify a valid data directory as one containing the default data file.
-
-static bool is_data_dir(std::string dir)
-{
-    std::string file(dir + "/" + DEFAULT_DATA_FILE);
-
-    if (is_dir(dir) && is_reg(file))
-        return true;
-    else
-        return false;
-}
-
-// Locate a read-only data hierarchy.
-
-bool find_ro_data(std::string& path)
-{
-    // Check the environment variable.
-
-    if (char *data = getenv("THUMB_RO_DATA"))
-    {
-        path = data;
-        return true;
-    }
-
 #ifdef __APPLE__
-    std::string test;
+#include <Carbon/Carbon.h>
+#include <sys/param.h>
 
-    // Check for a MacOS .app bundle hierarchy.
-
-    if (get_app_res_path(test))
-    {
-        if (is_data_dir(test + "/data"))
-        {
-            path = test + "/data";
-            return true;
-        }
-    }
-#endif
-
-    // Check the current working directory.
-
-    if (is_data_dir("data"))
-    {
-        path = "data";
-        return true;
-    }
-
-    // Check the system share directory.
-
-    if (is_data_dir("/usr/share/thumb/data"))
-    {
-        path = "/usr/share/thumb/data";
-        return true;
-    }
-
-    // Check the system local share directory.
-
-    if (is_data_dir("/usr/local/share/thumb/data"))
-    {
-        path = "/usr/local/share/thumb/data";
-        return true;
-    }
-
-    return false;
-}
-
-// Locate a writable data hierarchy.
-
-bool find_rw_data(std::string& path)
+bool get_app_res_path(std::string& path)
 {
-    // Check for a home directory.
+    CFURLRef    url;
+    CFStringRef str;
 
-    if (char *home = getenv("HOME"))
-    {
-        path = std::string(home) + "/.thumb";
-        return true;
-    }
+    char sys_path[MAXPATHLEN];
+    char res_path[MAXPATHLEN];
 
-    return false;
+    // Get the path to application bundle.
+
+    url = CFBundleCopyBundleURL(CFBundleGetMainBundle());
+    str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+
+    CFStringGetCString(str, sys_path, MAXPATHLEN, CFStringGetSystemEncoding());
+    CFRelease(str);
+    CFRelease(url);
+
+    // Get relative path to resources directory.
+
+    url = CFBundleCopyResourcesDirectoryURL(CFBundleGetMainBundle());
+    str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
+
+    CFStringGetCString(str, res_path, MAXPATHLEN, CFStringGetSystemEncoding());
+    CFRelease(str);
+    CFRelease(url);
+
+    // Don't concatenate them if they are the same.
+
+    if (strcmp(sys_path, res_path) == 0)
+        path = std::string(sys_path);
+    else
+        path = std::string(sys_path) + "/" + std::string(res_path);
+
+    return true;
 }
+
+#endif // __APPLE__
 
 //-----------------------------------------------------------------------------

@@ -838,10 +838,10 @@ danpart::danpart(const std::string& tag) :
     node_ref_line = new ogl::node;
     node_ref_face = new ogl::node;
 
-    node_inj_line->add_unit(new ogl::unit("solid/particle-inj-line.obj", false));
-    node_inj_face->add_unit(new ogl::unit("solid/particle-inj-face.obj", false));
-    node_ref_line->add_unit(new ogl::unit("solid/particle-ref-line.obj", false));
-    node_ref_face->add_unit(new ogl::unit("solid/particle-ref-face.obj", false));
+    node_inj_line->add_unit(new ogl::unit("model/particle-inj-line.obj", false));
+    node_inj_face->add_unit(new ogl::unit("model/particle-inj-face.obj", false));
+    node_ref_line->add_unit(new ogl::unit("model/particle-ref-line.obj", false));
+    node_ref_face->add_unit(new ogl::unit("model/particle-ref-face.obj", false));
 
     wand_pool->add_node(node_inj_line);
     wand_pool->add_node(node_inj_face);
