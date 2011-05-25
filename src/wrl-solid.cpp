@@ -107,12 +107,10 @@ void wrl::box::get_mass(dMass *mass)
 void wrl::sphere::get_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
-    dReal r;
 
     // Compute and position the mass of this sphere.
 
-    r = dGeomSphereGetRadius(edit_geom);
-    dMassSetSphere(mass, d, r);
+    dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
 
     ode_set_mass_transform(mass, current_M);
 }

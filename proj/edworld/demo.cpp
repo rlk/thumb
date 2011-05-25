@@ -252,14 +252,12 @@ void demo::goto_mode(mode::mode *next)
 {
     // Synthesize CLOSE and START events for the mode transition.
 
-#ifndef TELLURION
     app::event E;
 
     if (curr) { E.mk_close(); curr->process_event(&E); }
     if (next) { E.mk_start(); next->process_event(&E); }
 
     curr = next;
-#endif
 }
 
 void demo::attr_on()

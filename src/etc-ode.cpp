@@ -23,11 +23,11 @@ static dGeomID ode_dupe_geom_sphere(dSpaceID space, dGeomID sphere)
 
 static dGeomID ode_dupe_geom_box(dSpaceID space, dGeomID box)
 {
+    // Duplicate the given box geom.
+
     dVector3 lengths;
 
     dGeomBoxGetLengths(box, lengths);
-
-    // Duplicate the given box geom.
 
     return dCreateBox(space, lengths[0],
                              lengths[1],
@@ -46,10 +46,6 @@ dGeomID ode_dupe_geom(dSpaceID space, dGeomID geom)
     case dSphereClass: next = ode_dupe_geom_sphere(space, geom); break;
     }
 
-    // Duplicate the geom's user data.
-
-    dGeomSetData(next, dGeomGetData(geom));
-
     // Duplicate the geom's transform.
 
     if (next)
@@ -62,6 +58,8 @@ dGeomID ode_dupe_geom(dSpaceID space, dGeomID geom)
         const dReal *pos = dGeomGetPosition(geom);
 
         dGeomSetPosition(next, pos[0], pos[1], pos[2]);
+
+        dGeomSetData(next, dGeomGetData(geom));
     }
 
     return next;
