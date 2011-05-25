@@ -13,7 +13,8 @@ DEPS= $(OBJS:.o=.d)
 INCDIR += -I../../include -I/usr/local/cuda/include
 LIBDIR += -L../../src     -L/usr/local/cuda/lib
 
-CFLAGS += $(shell $(SDLCONF) --cflags) \
+CFLAGS += -DCUDA_FORCE_API_VERSION=3010 \
+	  $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
 LIBS    = $(shell $(SDLCONF) --libs) \
 	  $(shell $(FT2CONF) --libs) \

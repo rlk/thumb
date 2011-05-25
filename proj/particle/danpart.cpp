@@ -15,7 +15,10 @@
 //#define FUCKING_BROKEN 1
 #define FUCKING_BROKEN 0
 
+// 1 ... Starcave? CUDA 3.1? Quadro 5600
 // 0 ... Ubuntu Linux 2.6.32 x86-64 NVIDIA 260.91.21 CUDA 3.2 GeForce GTX 470
+// 0 ... Mac OS 10.6.7                               CUDA 3.2 GeForce GT M330
+//       MUST have CUDA_FORCE_API_VERSION=3010
 
 //-----------------------------------------------------------------------------
 
@@ -135,7 +138,7 @@ void danpart::cuda_fini()
 void danpart::cuda_stepPointSquars()
 {
     CUdeviceptr d_vbo;
-    size_t size;
+    unsigned int size;
 
     float r1, r2, r3;// not curently used
 
@@ -257,7 +260,7 @@ void danpart::cuda_stepPointSquars()
 void danpart::cuda_step()
 {
     CUdeviceptr d_vbo;
-    size_t size;
+    unsigned int size;
 
     float r1, r2, r3;// not curently used
 
@@ -373,7 +376,7 @@ void danpart::cuda_step()
     //copy injdata data to device	
     {
 	CUdeviceptr devPtr;
-	size_t bytes;
+	unsigned int bytes;
 	cuModuleGetGlobal(&devPtr, &bytes, module, "injdata");
 	cuMemcpyHtoD(devPtr, h_injectorData, bytes);
     }
@@ -381,7 +384,7 @@ void danpart::cuda_step()
     //copy refldata data to device	
     {	
 	CUdeviceptr devPtr;
-	size_t bytes;
+	unsigned int bytes;
 	cuModuleGetGlobal(&devPtr, &bytes, module, "refldata");
 	cuMemcpyHtoD(devPtr, h_reflectorData, bytes);
     }
