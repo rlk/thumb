@@ -1,0 +1,24 @@
+#!/bin/sh
+#
+# This script executes the Thumb World Editor
+
+#------------------------------------------------------------------------------
+
+# If the environment variable THUMB_PATH is not set, then assume we are in the
+# bin directory of a Thumb source tree.
+
+if [ -z "${THUMB_PATH}" ]; then
+    THUMB_PATH=..
+fi
+
+#------------------------------------------------------------------------------
+
+# Give Thumb library and supporting data paths relative to the executable.
+
+export LD_LIBRARY_PATH="../../src/"
+export THUMB_RO_PATH="../../data/"
+
+# Change to the application directory and run.
+
+cd $THUMB_PATH/proj/edworld
+./edworld

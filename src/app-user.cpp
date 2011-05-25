@@ -109,7 +109,7 @@ void app::user::set(const double *p, const double *q, double t)
     // Compute the current lighting vector from the given time.
     // TODO: compute this from lat/lon/date/time.
 
-    if (t)
+    if (t >= 0.0)
     {
         current_t = t;
 

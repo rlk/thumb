@@ -11,8 +11,10 @@
 //  General Public License for more details.
 
 #include <stdexcept>
+#include <sstream>
 #include <cstring>
 #include <cstdlib>
+#include <cstdio>
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -191,10 +193,16 @@ static bool is_data_dir(std::string dir)
 
 static void find_ro_data(app::archive_l& archives)
 {
-    // Check the environment variable.
+    // Iterate the read-only path environment variable.
 
-    if (char *data = getenv("THUMB_RO_PATH"))
-        archives.push_back(new app::file_archive(data, true));
+    if (char *val = getenv("THUMB_RO_PATH"))
+    {
+        std::stringstream list(val);
+        std::string       path;
+
+        while (std::getline(list, path, ';'))
+            archives.push_back(new app::file_archive(path, true));
+    }
 
     // Check for a MacOS .app bundle hierarchy.
 

@@ -130,7 +130,7 @@ void danpart::cuda_fini()
 void danpart::cuda_stepPointSquars()
 {
     CUdeviceptr d_vbo;
-    unsigned int size;
+    size_t size;
 
     float r1, r2, r3;// not curently used
 
@@ -238,7 +238,7 @@ void danpart::cuda_stepPointSquars()
 void danpart::cuda_step()
 {
     CUdeviceptr d_vbo;
-    unsigned int size;
+    size_t size;
 
     float r1, r2, r3;// not curently used
 
@@ -354,7 +354,7 @@ void danpart::cuda_step()
     //copy injdata data to device	
     {
 	CUdeviceptr devPtr;
-	unsigned int bytes;
+	size_t bytes;
 	cuModuleGetGlobal(&devPtr, &bytes, module, "injdata");
 	cuMemcpyHtoD(devPtr, h_injectorData, bytes);
     }
@@ -362,7 +362,7 @@ void danpart::cuda_step()
     //copy refldata data to device	
     {	
 	CUdeviceptr devPtr;
-	unsigned int bytes;
+	size_t bytes;
 	cuModuleGetGlobal(&devPtr, &bytes, module, "refldata");
 	cuMemcpyHtoD(devPtr, h_reflectorData, bytes);
     }

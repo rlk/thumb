@@ -2,7 +2,7 @@
   <conf>
     <!-- Host configuration -->
     <option name="host_file">host/common.xml</option>
-    <option name="input_mode">mouse</option>
+    <option name="input_mode">hybrid</option>
     <option name="wiimote">00:1B:7A:3E:45:7F</option>
     <option name="loader_threads">2</option>
     <option name="loader_buffers">32</option>
