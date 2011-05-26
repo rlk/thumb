@@ -23,23 +23,130 @@
 
 //-----------------------------------------------------------------------------
 
-dev::hybrid::hybrid()
+dev::axis::axis(app::node node, int p, int n, int m) : pval(0), nval(0)
 {
-    // Defaults are arbitrarily chosen to conform to the XBox 360 controller
+    if (node)
+    {
+        paxis  = node.get_i("paxis", p);
+        naxis  = node.get_i("naxis", n);
+        mod    = node.get_i("mod",   m);
+    }
+    else
+    {
+        paxis = p;
+        naxis = n;
+        mod   = m;
+    }
+    active = (mod < 0);
+}
 
-    pos_axis_LR   = conf->get_i("hybrid_pos_axis_LR", 0);
-    pos_axis_FB   = conf->get_i("hybrid_pos_axis_FB", 1);
-    rot_axis_LR   = conf->get_i("hybrid_rot_axis_LR", 3);
-    rot_axis_UD   = conf->get_i("hybrid_rot_axis_UD", 4);
+void dev::axis::click(int b, bool d)
+{
+    if (mod >= 0 && mod == b)
+        active = d;
+}
 
-    button_A      = conf->get_i("hybrid_button_A", 0);
-    button_H      = conf->get_i("hybrid_button_H", 5);
+double dev::axis::value(int a, int d)
+{
+    if (active)
+    {
+        if (paxis >= 0 && paxis == a) pval = d;
+        if (naxis >= 0 && naxis == a) nval = d;
 
-    button_head_L = conf->get_i("hybrid_button_head_L", 13);
-    button_head_R = conf->get_i("hybrid_button_head_R", 12);
-    button_head_U = conf->get_i("hybrid_button_head_U", 14);
-    button_head_D = conf->get_i("hybrid_button_head_D", 11);
+        return (pval - nval) / 32767.0;
+    }
+    return 0.0;
+}
 
+//-----------------------------------------------------------------------------
+
+dev::button::button(app::node node, int i, int m)
+{
+    if (node)
+    {
+        index  = node.get_i("index", i);
+        mod    = node.get_i("mod",   m);
+    }
+    else
+    {
+        index = i;
+        mod   = m;
+    }
+    active = (mod < 0);
+}
+
+bool dev::button::click(int b, bool d)
+{
+    if (mod >= 0 && mod == b)
+        active = d;
+
+    return (active && index == b);
+}
+
+//-----------------------------------------------------------------------------
+
+// Default controls conform to the XBox 360 Wireless Receiver.
+/*
+dev::hybrid::hybrid(const std::string& filename)
+{
+    const char *name = SDL_JoystickName(0);
+
+    app::file file(filename);
+    app::node node = file.get_root().find("gamepad", "name", name);
+
+    move_LR   = axis  (node.find("axis",   "name", "move_LR"),    0, -1, -1);
+    move_FB   = axis  (node.find("axis",   "name", "move_FB"),    1, -1, -1);
+    move_UD   = axis  (node.find("axis",   "name", "move_UD"),    5,  2, -1);
+
+    look_LR   = axis  (node.find("axis",   "name", "look_LR"),    3, -1, -1);
+    look_UD   = axis  (node.find("axis",   "name", "look_UD"),    4, -1, -1);
+
+    hand_LR   = axis  (node.find("axis",   "name", "hand_LR"),    0, -1,  5);
+    hand_FB   = axis  (node.find("axis",   "name", "hand_FB"),    1, -1,  5);
+    hand_UD   = axis  (node.find("axis",   "name", "hand_UD"),    5,  2,  5);
+
+    use       = button(node.find("button", "name", "use"),        0,     -1);
+    move_home = button(node.find("button", "name", "move_home"), 14,     -1);
+    hand_home = button(node.find("button", "name", "hand_home"), 14,      5);
+    peek_U    = button(node.find("button", "name", "peek_U"),    10,      5);
+    peek_D    = button(node.find("button", "name", "peek_D"),    10,      5);
+    peek_L    = button(node.find("button", "name", "peek_L"),    10,      5);
+    peek_R    = button(node.find("button", "name", "peek_R"),    10,      5);
+
+    position[0] = 0;
+    position[1] = 0;
+    position[2] = 0;
+    rotation[0] = 0;
+    rotation[1] = 0;
+}
+*/
+
+dev::hybrid::hybrid(const std::string& filename) :
+
+    file(filename),
+
+    node(file.get_root().find("gamepad", "name",
+                              SDL_JoystickName(::conf->get_i("gamepad_device")))),
+
+    move_LR  (node.find("axis",   "name", "move_LR"),    0, -1, -1),
+    move_FB  (node.find("axis",   "name", "move_FB"),    1, -1, -1),
+    move_UD  (node.find("axis",   "name", "move_UD"),    5,  2, -1),
+
+    look_LR  (node.find("axis",   "name", "look_LR"),   -1,  3, -1),
+    look_UD  (node.find("axis",   "name", "look_UD"),   -1,  4, -1),
+
+    hand_LR  (node.find("axis",   "name", "hand_LR"),    0, -1,  5),
+    hand_FB  (node.find("axis",   "name", "hand_FB"),    1, -1,  5),
+    hand_UD  (node.find("axis",   "name", "hand_UD"),    5,  2,  5),
+
+    use      (node.find("button", "name", "use"),        0,     -1),
+    move_home(node.find("button", "name", "move_home"), 14,     -1),
+    hand_home(node.find("button", "name", "hand_home"), 14,      5),
+    peek_U   (node.find("button", "name", "peek_U"),    10,     -1),
+    peek_D   (node.find("button", "name", "peek_D"),    11,     -1),
+    peek_L   (node.find("button", "name", "peek_L"),    12,     -1),
+    peek_R   (node.find("button", "name", "peek_R"),    13,     -1)
+{
     position[0] = 0;
     position[1] = 0;
     position[2] = 0;
@@ -54,35 +161,48 @@ bool dev::hybrid::process_click(app::event *E)
     const int  b = E->data.click.b;
     const bool d = E->data.click.d;
 
-    const double s = 0.05;
+    const double U[3] = { 0, -.05, 0 };
+    const double D[3] = { 0, +.05, 0 };
+    const double L[3] = { -.05, 0, 0 };
+    const double R[3] = { +.05, 0, 0 };
+    const double C[3] = { 0, 0, 0    };
+    const double q[4] = { 0, 0, 0, 1 };
 
-    double p[3] = { 0, 0, 0    };
-    double q[4] = { 0, 0, 0, 1 };
+    bool r = false;
 
-    if (b == button_H) { ::user->home();  return true; }
+    // Filter this button press through all button observers.
 
-    else if (b == button_head_L) { p[0] = d ? -s : 0; ::host->set_head(p, q); }
-    else if (b == button_head_R) { p[0] = d ? +s : 0; ::host->set_head(p, q); }
-    else if (b == button_head_D) { p[1] = d ? -s : 0; ::host->set_head(p, q); }
-    else if (b == button_head_U) { p[1] = d ? +s : 0; ::host->set_head(p, q); }
+    if (move_home.click(b, d)) { ::user->home(); r = true; }
+
+    if (peek_U.click(b, d)) { ::host->set_head(d ? U : C, q); r = true; }
+    if (peek_D.click(b, d)) { ::host->set_head(d ? D : C, q); r = true; }
+    if (peek_L.click(b, d)) { ::host->set_head(d ? L : C, q); r = true; }
+    if (peek_R.click(b, d)) { ::host->set_head(d ? R : C, q); r = true; }
+
+    // Filter this button press through all value observers.
+
+    move_LR.click(b, d);
+    move_FB.click(b, d);
+    move_UD.click(b, d);
+    look_LR.click(b, d);
+    look_UD.click(b, d);
+    hand_LR.click(b, d);
+    hand_FB.click(b, d);
+    hand_UD.click(b, d);
     
     return false;
 }
 
 bool dev::hybrid::process_value(app::event *E)
 {
-    const int    a = E->data.value.a;
-    const double v = E->data.value.v / 32767.0;
+    const int a = E->data.value.a;
+    const int v = E->data.value.v;
 
-    if      (a == pos_axis_LR) { position[0] = +v; return true; }
-    else if (a == pos_axis_FB) { position[2] = +v; return true; }
-    else if (a == rot_axis_LR) { rotation[0] = -v; return true; }
-    else if (a == rot_axis_UD) { rotation[1] = -v; return true; }
-
-    // HACK: The XBox controller handles the shoulder axes badly...
-
-    else if (a == 2)           { position[1] = -(v + 1.0) * 0.5; return true; }
-    else if (a == 5)           { position[1] = +(v + 1.0) * 0.5; return true; }
+    position[0] = move_LR.value(a, v);
+    position[1] = move_UD.value(a, v);
+    position[2] = move_FB.value(a, v);
+    rotation[0] = look_LR.value(a, v);
+    rotation[1] = look_UD.value(a, v);
 
     return false;
 }

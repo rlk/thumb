@@ -14,26 +14,75 @@
 #define DEV_HYBRID
 
 #include <dev-input.hpp>
+#include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
 
 namespace dev
 {
+    //-------------------------------------------------------------------------
+
+    class axis
+    {
+        int  paxis;
+        int  naxis;
+        int  pval;
+        int  nval;
+        int  mod;
+        bool active;
+
+    public:
+
+        axis(app::node=0, int=-1, int=-1, int=-1);
+
+        void   click(int, bool);
+        double value(int, int);
+    };
+
+    //-------------------------------------------------------------------------
+
+    class button
+    {
+        int  index;
+        int  mod;
+        bool active;
+
+    public:
+
+        button(app::node=0, int=-1, int=-1);
+
+        bool click(int, bool);
+    };
+
+    //-------------------------------------------------------------------------
+
     class hybrid : public input
     {
+        // Configuration file
+
+        app::file file;
+        app::node node;
+
         // Configuration
 
-        int    pos_axis_LR;
-        int    pos_axis_FB;
-        int    rot_axis_LR;
-        int    rot_axis_UD;
+        axis move_LR;
+        axis move_FB;
+        axis move_UD;
 
-        int    button_A;
-        int    button_H;
-        int    button_head_L;
-        int    button_head_R;
-        int    button_head_U;
-        int    button_head_D;
+        axis look_LR;
+        axis look_UD;
+
+        axis hand_LR;
+        axis hand_FB;
+        axis hand_UD;
+
+        button use;
+        button move_home;
+        button hand_home;
+        button peek_U;
+        button peek_D;
+        button peek_L;
+        button peek_R;
 
         // Navigation state
 
@@ -49,7 +98,7 @@ namespace dev
 
     public:
 
-        hybrid();
+        hybrid(const std::string&);
 
         bool process_event(app::event *);
     };

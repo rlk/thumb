@@ -202,7 +202,7 @@ demo::demo(const std::string& tag)
 
     // Initialize the input handler.
 
-    if      (input_mode == "hybrid")  input = new dev::hybrid();
+    if      (input_mode == "hybrid")  input = new dev::hybrid("hybrid.xml");
     else if (input_mode == "gamepad") input = new dev::gamepad();
     else if (input_mode == "tracker") input = new dev::tracker();
 //  else if (input_mode == "wiimote") input = new dev::wiimote();

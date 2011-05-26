@@ -173,7 +173,9 @@ app::prog::prog(const std::string& tag)
 
     // Configure the joystick system.
 
-    if (SDL_JoystickOpen(::conf->get_i("gamepad_device")))
+    int j = ::conf->get_i("gamepad_device");
+
+    if (SDL_JoystickOpen(j))
         SDL_JoystickEventState(SDL_ENABLE);
 }
 

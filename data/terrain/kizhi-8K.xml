@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-  <terrain file="kizhi-height-8K.gmm"
-           land="kizhi-terrain"
-           grass="kizhi-grass"
-           size="6553.6.0"
-           height="42.0"
-           x="0.0"
-           y="0.0"
-           z="0.0"/>
