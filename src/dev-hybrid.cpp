@@ -86,40 +86,6 @@ bool dev::button::click(int b, bool d)
 //-----------------------------------------------------------------------------
 
 // Default controls conform to the XBox 360 Wireless Receiver.
-/*
-dev::hybrid::hybrid(const std::string& filename)
-{
-    const char *name = SDL_JoystickName(0);
-
-    app::file file(filename);
-    app::node node = file.get_root().find("gamepad", "name", name);
-
-    move_LR   = axis  (node.find("axis",   "name", "move_LR"),    0, -1, -1);
-    move_FB   = axis  (node.find("axis",   "name", "move_FB"),    1, -1, -1);
-    move_UD   = axis  (node.find("axis",   "name", "move_UD"),    5,  2, -1);
-
-    look_LR   = axis  (node.find("axis",   "name", "look_LR"),    3, -1, -1);
-    look_UD   = axis  (node.find("axis",   "name", "look_UD"),    4, -1, -1);
-
-    hand_LR   = axis  (node.find("axis",   "name", "hand_LR"),    0, -1,  5);
-    hand_FB   = axis  (node.find("axis",   "name", "hand_FB"),    1, -1,  5);
-    hand_UD   = axis  (node.find("axis",   "name", "hand_UD"),    5,  2,  5);
-
-    use       = button(node.find("button", "name", "use"),        0,     -1);
-    move_home = button(node.find("button", "name", "move_home"), 14,     -1);
-    hand_home = button(node.find("button", "name", "hand_home"), 14,      5);
-    peek_U    = button(node.find("button", "name", "peek_U"),    10,      5);
-    peek_D    = button(node.find("button", "name", "peek_D"),    10,      5);
-    peek_L    = button(node.find("button", "name", "peek_L"),    10,      5);
-    peek_R    = button(node.find("button", "name", "peek_R"),    10,      5);
-
-    position[0] = 0;
-    position[1] = 0;
-    position[2] = 0;
-    rotation[0] = 0;
-    rotation[1] = 0;
-}
-*/
 
 dev::hybrid::hybrid(const std::string& filename) :
 

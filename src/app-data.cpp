@@ -200,7 +200,7 @@ static void find_ro_data(app::archive_l& archives)
         std::stringstream list(val);
         std::string       path;
 
-        while (std::getline(list, path, ';'))
+        while (std::getline(list, path, ':'))
             archives.push_back(new app::file_archive(path, true));
     }
 
@@ -238,10 +238,16 @@ static void find_ro_data(app::archive_l& archives)
 
 static void find_rw_data(app::archive_l& archives)
 {
-    // Check the environment variable.
+    // Iterate the read-write path environment variable.
 
-    if (char *data = getenv("THUMB_RW_PATH"))
-        archives.push_back(new app::file_archive(data, true));
+    if (char *val = getenv("THUMB_RW_PATH"))
+    {
+        std::stringstream list(val);
+        std::string       path;
+
+        while (std::getline(list, path, ':'))
+            archives.push_back(new app::file_archive(path, true));
+    }
 
     // Check for a home directory.
 

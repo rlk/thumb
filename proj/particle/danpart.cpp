@@ -11,6 +11,11 @@
 //  General Public License for more details.
 
 //-----------------------------------------------------------------------------
+//cuda31 for starcave
+#define FUCKING_BROKEN 0
+// for mac
+//#define FUCKING_BROKEN 0
+//-----------------------------------------------------------------------------
 
 #include <iostream>
 #include <cstring>
@@ -38,8 +43,6 @@
 #include <cuda.h>
 #include <cudaGL.h>
 
-//-----------------------------------------------------------------------------
-
 //My helper funtions
 
 #include "danpart.hpp"
@@ -61,7 +64,7 @@ static void warn(const char *str)
 
 //-----------------------------------------------------------------------------
 
-static GLuint vbo_init(int w, int h)
+GLuint vbo_init(int w, int h)
 {
     GLsizei size = 8 * w * h * sizeof (float);
     GLuint vbo;
@@ -77,7 +80,7 @@ static GLuint vbo_init(int w, int h)
     return vbo;
 }
 
-static void vbo_fini(GLuint vbo)
+void vbo_fini(GLuint vbo)
 {
     glDeleteBuffersARB(1, &vbo);
 
@@ -174,6 +177,19 @@ void danpart::cuda_stepPointSquars()
 
     int offset = 0;
     
+#if FUCKING_BROKEN
+    void *p;
+
+    p = (void *) (size_t) d_vbo;
+    ALIGN_UP(offset, __alignof(p));
+    cuParamSetv(funcHandPointSquars, offset, &p, sizeof (p));
+    offset += sizeof (p);
+
+    p = (void *) (size_t) d_particleData;
+    ALIGN_UP(offset, __alignof(p));
+    cuParamSetv(funcHandPointSquars, offset, &p, sizeof (p));
+    offset += sizeof (p);
+#else
     ALIGN_UP(offset, __alignof(d_vbo));
     cuParamSetv(funcHandPointSquars, offset, &d_vbo, sizeof (d_vbo));
     offset += sizeof (d_vbo);
@@ -181,6 +197,7 @@ void danpart::cuda_stepPointSquars()
     ALIGN_UP(offset, __alignof(d_particleData));
     cuParamSetv(funcHandPointSquars, offset, &d_particleData, sizeof (d_particleData));
     offset += sizeof (d_particleData);
+#endif
 
     ALIGN_UP(offset, __alignof(mesh_width));
     cuParamSeti(funcHandPointSquars, offset, mesh_width);
@@ -212,6 +229,7 @@ void danpart::cuda_stepPointSquars()
 
     // Execute the kernel.
 
+
     cuParamSetSize     (funcHandPointSquars, offset);
     cuFuncSetBlockShape(funcHandPointSquars, 8, 8, 1);
     cuLaunchGrid       (funcHandPointSquars, mesh_width / 8, mesh_height / 8);
@@ -219,18 +237,17 @@ void danpart::cuda_stepPointSquars()
     // Unmap buffer object.
 
     if (cuGLUnmapBufferObject(vbo) != CUDA_SUCCESS)
+	
         warn("CUDA GL unmap buffer failed");
 
     if ( (nowTime - startTime)== 0)
     {
-        float elapsedTime;
         cuEventRecord(stop, 0);
         cuEventSynchronize(stop);
+        float elapsedTime;
         cuEventElapsedTime(&elapsedTime, start, stop);
-        if (FR_RATE_PRINT > 0)printf(" cudaProcTime %f \n \n", elapsedTime );
-
-        cuEventDestroy(start);
-        cuEventDestroy(stop);
+        if (FR_RATE_PRINT >0) printf(" cudaProcTime %f \n \n", elapsedTime );
+        cuEventDestroy (start ); cuEventDestroy (stop );
     }
 	
 }
@@ -391,7 +408,24 @@ void danpart::cuda_step()
     }
     int offset = 0;
 //printf ("disappear_age %d\n",disappear_age);
+#if FUCKING_BROKEN
+    void *p;
 
+    p = (void *) (size_t) d_vbo;
+    ALIGN_UP(offset, __alignof(p));
+    cuParamSetv(funcHandPoint1, offset, &p, sizeof (p));
+    offset += sizeof (p);
+
+    p = (void *) (size_t) d_particleData;
+    ALIGN_UP(offset, __alignof(p));
+    cuParamSetv(funcHandPoint1, offset, &p, sizeof (p));
+    offset += sizeof (p);
+    
+    p = (void *) (size_t) d_debugData;
+    ALIGN_UP(offset, __alignof(p));
+    cuParamSetv(funcHandPoint1, offset, &p, sizeof (p));
+    offset += sizeof (p);
+#else
     ALIGN_UP(offset, __alignof(d_vbo));
     cuParamSetv(funcHandPoint1, offset, &d_vbo, sizeof (d_vbo));
     offset += sizeof (d_vbo);
@@ -403,7 +437,7 @@ void danpart::cuda_step()
     ALIGN_UP(offset, __alignof(d_debugData));
     cuParamSetv(funcHandPoint1, offset, &d_debugData, sizeof (d_debugData));
     offset += sizeof (d_debugData);
-
+#endif
     ALIGN_UP(offset, __alignof(mesh_width));
     cuParamSeti(funcHandPoint1, offset, mesh_width);
     offset += sizeof (mesh_width);
@@ -681,19 +715,16 @@ void danpart::data_init()
 
         // conect to audio server
         printf (" audioConectToServer ");
-        SOUND_SERV = audioConectToServer( "137.110.118.239");
+        if (HOST == STARCAVE) SOUND_SERV = audioConectToServer( "137.110.118.239");
+        if (HOST == NEXCAVE) SOUND_SERV = audioConectToServer( "10.1.1.242");
         //audioConectToServer( "192.168.1.105");
 
         if (SOUND_SERV)
         {
             audioGlobalGain(.7);
-            chimes =audioGetHandKludge("chimes.wav");printf(" chimes %i \n",chimes);
-            //chimes =audioGetHandKludge("Laurie12_12_10/10120600_Rez.1.wav");printf(" chimes %i \n",chimes);
+            chimes =audioGetHandKludge("chimes.wav");printf(" chimes %i \n",chimes);      
+           //audioPlay(chimes,1.0);
  
- 
-            //	audioLoop(chimes,0);
-            audioPlay(chimes,1.0);
-
             // curently not used
             pinkNoise =audioGetHandKludge("cdtds.31.pinkNoise.wav");printf ("pinkNoise %i \n",pinkNoise);//audioLoop(pinkNoise,0);audioGain(pinkNoise,1);
             audioGain(pinkNoise,0);audioLoop(pinkNoise,1);audioPlay(pinkNoise,1.0);
@@ -711,7 +742,8 @@ void danpart::data_init()
  
             // curently attack sound for spray injector
             short_sound_01a =audioGetHandKludge("dan_short_sound_01a.wav");printf ("short_sound_01a %i \n",short_sound_01a);
- 
+            audioPlay(short_sound_01a,1);
+
             // curently sound with swerels in painting sky scene under position contro
             texture_17_swirls3 = audioGetHandKludge("dan_texture_17_swirls3.wav");printf ("texture_17_swirls3 %i \n",texture_17_swirls3);
             //audioLoop(texture_17_swirls3,1);audioPlay(texture_17_swirls3,1.0);
@@ -756,21 +788,13 @@ danpart::danpart(const std::string& tag) :
     app::prog(tag),
     input(0),
     anim(0),
-    max_age(2000),
-    disappear_age(2000),
-    showFrameNo(0),
-    lastShowFrameNo(-1),
-    showStartTime(0),
-    showTime(0),
-    lastShowTime(-1),
-    gravity(.0001),
-    colorFreq(16),
+    max_age(2000),disappear_age(2000),showFrameNo(0),lastShowFrameNo(-1),showStartTime(0),showTime(0),lastShowTime(-1),gravity(.0001),colorFreq(16),
     mesh_width (CUDA_MESH_WIDTH),
     mesh_height(CUDA_MESH_HEIGHT),draw_water_sky(1),
     
     particle(new ogl::sprite()),
     water(new ogl::mirror("mirror-water", ::host->get_buffer_w(),
-                          ::host->get_buffer_h())),
+                                          ::host->get_buffer_h())),
     
     uniform_time          (::glob->load_uniform("time",             1)),
     uniform_view_position (::glob->load_uniform("view_position",    3)),
@@ -785,7 +809,7 @@ danpart::danpart(const std::string& tag) :
 
 
     if      (input_mode == "tracker") input = new dev::tracker();
-    else if (input_mode == "hybrid")  input = new dev::hybrid();
+    else if (input_mode == "hybrid")  input = new dev::hybrid("hybrid.xml");
     else if (input_mode == "gamepad") input = new dev::gamepad();
     else                              input = new dev::mouse  ();
 
@@ -802,8 +826,8 @@ danpart::danpart(const std::string& tag) :
 
     wand_pool = ::glob->new_pool();
 
-    node_inj_line = new ogl::node;
-    node_inj_face = new ogl::node;
+    node_inj_line  = new ogl::node;
+    node_inj_face  = new ogl::node;
     node_ref_line = new ogl::node;
     node_ref_face = new ogl::node;
 
@@ -822,7 +846,7 @@ danpart::~danpart()
 {
     vbo_fini(vbo);
 
-//    cuda_fini();
+    cuda_fini();
 
     ::glob->free_pool(wand_pool);
 
@@ -876,9 +900,20 @@ bool danpart::process_click(app::event *E)
 
     if ((b ==4) & (d == 1)){but1old = but1;but1 = 1;}
     if ((b ==4) & (d == 0)){but1old = but1;but1 = 0;}
-
+	if ((HOST == STARCAVE) || (HOST == MAC_SIM)||(MAC_SIM_NEXCAVE))
+		{
     if ((b ==0) & (d == 1)){triggerold = trigger;trigger = 1;}
     if ((b ==0) & (d == 0)){triggerold = trigger;trigger = 0;}
+		}
+	if ((HOST == NEXCAVE) )
+		
+		{
+   			if ((b ==7) & (d == 1)){triggerold = trigger;trigger = 1;}
+    			if ((b ==7) & (d == 0)){triggerold = trigger;trigger = 0;}
+
+		}
+
+
     if ((b ==3) & (d == 1)){::user->home();}
    
 	
@@ -944,16 +979,16 @@ bool danpart::process_point(app::event *E)
 
     //printf("  devid %d \n",devid );
 /*	
-        if (trackDevID ==0)
-        {
-        printf("ID wandpos    %i %f %f %f", trackDevID ,wandPos[0], wandPos[1], wandPos[2]);
-        printf("  ID wandvec    %i %f %f %f\n", trackDevID ,wandVec[0], wandVec[1], wandVec[2]);
-        }
-        if (trackDevID ==1)
-        {
-        printf("ID headpos    %i %f %f %f", trackDevID ,headPos[0], headPos[1], headPos[2]);
-        printf("  ID headvec    %i %f %f %f\n", trackDevID ,headVec[0], headVec[1], headVec[2]);
-        }
+  if (trackDevID ==0)
+  {
+  printf("ID wandpos    %i %f %f %f", trackDevID ,wandPos[0], wandPos[1], wandPos[2]);
+  printf("  ID wandvec    %i %f %f %f\n", trackDevID ,wandVec[0], wandVec[1], wandVec[2]);
+  }
+  if (trackDevID ==1)
+  {
+  printf("ID headpos    %i %f %f %f", trackDevID ,headPos[0], headPos[1], headPos[2]);
+  printf("  ID headvec    %i %f %f %f\n", trackDevID ,headVec[0], headVec[1], headVec[2]);
+  }
 
 */
     //printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
@@ -967,22 +1002,31 @@ bool danpart::process_point(app::event *E)
 
 bool danpart::process_timer(app::event *E)
 {
-/*
-  double dt = E->data.timer.dt;
+    double dt = E->data.timer.dt;
 
-  if (fabs(joy_x) > 0.1)
-  ::user->pass(joy_x * dt * 10.0);
-*/
+    if (fabs(joy_x) > 0.1)
+        ::user->pass(joy_x * dt * 10.0);
+
     return false;
 }
 
 bool danpart::process_value(app::event *E)
 {
-/*
-  if (E->data.value.a == 0) joy_x = E->data.value.v;
-  if (E->data.value.a == 1) joy_y = E->data.value.v;
-  printf ("joy %f \n",joy_x);
-*/
+	if ((HOST == STARCAVE) || (HOST == MAC_SIM)||(MAC_SIM_NEXCAVE))
+		{
+    			if (E->data.value.a == 0) joy_x = E->data.value.v;
+    			if (E->data.value.a == 1) joy_y = E->data.value.v;
+		}
+	if (HOST == NEXCAVE)
+		{
+			if (E->data.value.i == 0)
+    				{
+        				if (E->data.value.a == 0) joy_x = E->data.value.v;
+        				if (E->data.value.a == 1) joy_y = E->data.value.v;
+    				}
+		}
+//printf ("joy %f \n",joy_x);
+
     return false;
 }
 
@@ -1244,7 +1288,6 @@ ogl::range danpart::prep(int frusc, const app::frustum *const *frusv)
     // Run the particle simulation.
 
     cuda_step();
-
     //cuda_stepPointSquars();
 
     wand_pool->prep();
@@ -1265,21 +1308,24 @@ void danpart::draw(int frusi, const app::frustum *frusp)
             GL_DEPTH_BUFFER_BIT);
 
     // Apply the projection and view transformations.
-
+ 
     frusp->draw();
     ::user->draw();
   
     // Draw the water and sky.
     if (draw_water_sky ==1){
-   
         water->bind();
         {
             draw_scene();
             //draw_triangles();
         }
         water->free();
-        water->draw(frusp);
+  
+        
+        	water->draw(frusp);
+        
     }
+   
     // Draw the scene.
 
     draw_scene();
@@ -1531,9 +1577,9 @@ void danpart::scene_data_0()
                     
         }
           
-            
         //printf("scene0Start \n");
     }
+      if (time_in_sean >90)nextSean=1;          
 
 //printf ("time_in_sean 0 %f\n",time_in_sean);
 
@@ -1631,7 +1677,7 @@ void danpart::scene_data_1()
         //printf( " time %f \n", ::user->get_t());
     }
 //printf ("time_in_sean 1 %f\n",time_in_sean);
-    if (time_in_sean >130)nextSean=1;
+    if (time_in_sean >110)nextSean=1;
     if (DEBUG_PRINT >0)printf( "in sean1 \n");
 //printf( "in sean1 \n"); 
 
@@ -1652,59 +1698,100 @@ void danpart::scene_data_1()
 //	 injector data 
     int injNum ;	
     // number of injectors ~ ~   ~ means dont care
-    //injector 1
-    injNum =1;
+        //injector 1
+   	 	injNum =1;
 	
-    h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(0.1);h_injectorData[injNum][2][2]=0;//x,y,z position
-    h_injectorData[injNum][3][0]=0.02 * (sin(time_in_sean*2*PI));h_injectorData[injNum][3][1]=0.5;h_injectorData[injNum][3][2]=0.02 * (cos(time_in_sean*2*PI));//x,y,z velocity
-    //h_injectorData[injNum][3][0]=0.02 *0.0;h_injectorData[injNum][3][1]=10;h_injectorData[injNum][3][2]=0.02 * -1;//x,y,z velocity
+ 	   	h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
+	 	 	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(0.1);h_injectorData[injNum][2][2]=0;//x,y,z position
+	    h_injectorData[injNum][3][0]=0.02 * (sin(time_in_sean*2*PI));h_injectorData[injNum][3][1]=0.5;h_injectorData[injNum][3][2]=0.02 * (cos(time_in_sean*2*PI));//x,y,z velocity
+ 	   //h_injectorData[injNum][3][0]=0.02 *0.0;h_injectorData[injNum][3][1]=10;h_injectorData[injNum][3][2]=0.02 * -1;//x,y,z velocity
 	
-    h_injectorData[injNum][4][0]=0.03;h_injectorData[injNum][4][1]=0.03;h_injectorData[injNum][4][2]=0.03;//x,y,z size
-    h_injectorData[injNum][5][0]=0.0000;h_injectorData[injNum][5][1]=0.00000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    //h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    h_injectorData[injNum][6][0]= .03;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
-    int reflect_on;
-    reflect_on =0;
-    float speed= 1.0/30; //one rotation every 
-    speed = 1.0/45;	
-    float stime =0 ;
-    float t,rs,as,mr=9.0;
+	 		h_injectorData[injNum][4][0]=0.03;h_injectorData[injNum][4][1]=0.03;h_injectorData[injNum][4][2]=0.03;//x,y,z size
+    	h_injectorData[injNum][5][0]=0.0000;h_injectorData[injNum][5][1]=0.00000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
+    	//h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
+    	h_injectorData[injNum][6][0]= .03;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+    	h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+    	int reflect_on;
+    	reflect_on =0;
+    	float speed= 1.0/30; //one rotation every 
+    	speed = 1.0/45;	
+    	float stime =0 ;
+    	float t,rs,as,mr=9.0;
 	
-    int numobj =5;
+   
+    if ((HOST == STARCAVE) || (HOST == MAC_SIM))
+    {
+    
+ int numobj =5;
     h_injectorData[0][0][0] =numobj;
 
 
-
-    for(int i=1;i<=numobj;i++)
-    {
-        if (time_in_sean > 1.0/speed)reflect_on =1;	
-        if (time_in_sean > 1.5/speed)
-        {
-            reflect_on =1;
+    
+    	for(int i=1;i<=numobj;i++)
+    	{
+      	  if (time_in_sean > 1.0/speed)reflect_on =1;	
+       	 if (time_in_sean > 1.5/speed)
+        	{
+        	    reflect_on =1;
 			
-            h_injectorData[injNum][3][0]= 0;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=0.0;//x,y,z velocity
-            if (time_in_sean > 2.0/speed)
-            {
-                h_injectorData[injNum][3][0]= -ftToM(rs*sin(as))/8 ;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=ftToM(rs*cos(as))/8;//x,y,z velocity
-                h_injectorData[injNum][6][0]= .026;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+          	  h_injectorData[injNum][3][0]= 0;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=0.0;//x,y,z velocity
+          	  if (time_in_sean > 2.0/speed)
+          	  {
+          	      h_injectorData[injNum][3][0]= -ftToM(rs*sin(as))/8 ;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=ftToM(rs*cos(as))/8;//x,y,z velocity
+            	    h_injectorData[injNum][6][0]= .026;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
                            
-            }
-        }	 	
-        copy_injector(1, i);
-        stime= i*(1/speed/numobj);
-        if (time_in_sean >stime)
-        {
-            injNum =i; t = time_in_sean - stime;rs =2*speed*(2*PI)*t;as =speed*(2*PI)*t;if (rs >mr)rs=mr;if (rs < 2)rs = 2;
+            	}
+       	 }
+    	 	
+    	    copy_injector(1, i);
+     	   stime= i*(1/speed/numobj);
+     	   if (time_in_sean >stime)
+      	  {
+       	     injNum =i; t = time_in_sean - stime;rs =2*speed*(2*PI)*t;as =speed*(2*PI)*t;if (rs >mr)rs=mr;if (rs < 2)rs = 2;
             //rs =mr;
-            h_injectorData[injNum][2][0]=ftToM(rs*sin(as));h_injectorData[injNum][2][2]=-ftToM(rs*cos(as))  ;
+       	     h_injectorData[injNum][2][0]=ftToM(rs*sin(as));h_injectorData[injNum][2][2]=-ftToM(rs*cos(as))  ;
 
 					
-        }		
-    }	
+        	}		
+    	}	
+		}
 	
 	
+   if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE))
+    {printf ("inNEXCAVE \n");
+    
+ 
+    int numobj =5;
+    h_injectorData[0][0][0] =numobj;
+
+    	for(int i=1;i<=numobj;i++)
+    	{
+      	  if (time_in_sean > 1.0/speed)reflect_on =1;	
+       	 if (time_in_sean > 1.5/speed)
+        	{
+        	    reflect_on =1;
+			
+          	  h_injectorData[injNum][3][0]= 0;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=0.0;//x,y,z velocity
+          	  if (time_in_sean > 2.0/speed)
+          	  {
+          	      h_injectorData[injNum][3][0]= -ftToM(rs*sin(as))/8 ;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=ftToM(rs*cos(as))/8;//x,y,z velocity
+            	    h_injectorData[injNum][6][0]= .026;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+                           
+            	}
+       	 }
+    	 	
+    	    copy_injector(1, i);
+     	   stime= i*(1/speed/numobj);
+     	   if (time_in_sean >stime)
+      	  {
+       	     injNum =i; t = time_in_sean - stime;rs =2*speed*(2*PI)*t;as =speed*(2*PI)*t;if (rs >mr)rs=mr;if (rs < 2)rs = 2;
+            //rs =mr;
+       	     h_injectorData[injNum][2][0]=ftToM(rs*sin(as));h_injectorData[injNum][2][2]=ftToM(rs*cos(as)) - ftToM(5);
+
+					
+        	}		
+    	}	
+		}
 	
 
     h_reflectorData[0][0][0] =2;// number of reflectors ~ ~   ~ means dont care
@@ -1716,7 +1803,7 @@ void danpart::scene_data_1()
     h_reflectorData[reflNum ][2][0]=0.0;  h_reflectorData[reflNum ][2][1]=1;    h_reflectorData[reflNum ][2][2]=0;//x,y,z normal
     h_reflectorData[reflNum ][3][0]=ftToM(10.00); h_reflectorData[reflNum ][3][1]=0.00; h_reflectorData[reflNum ][3][2]=0;//reflector radis ,~,~ 
     h_reflectorData[reflNum ][4][0]=0.000;h_reflectorData[reflNum ][4][1]=0.000;h_reflectorData[reflNum ][4][2]=0.000;//t,u,v jiter  not implimented = speed 
-    h_reflectorData[reflNum ][5][0]= 0.8; h_reflectorData[reflNum ][5][1]=0.0;  h_reflectorData[reflNum ][5][2]=0.0;//reflectiondamping , no_traping ~
+    h_reflectorData[reflNum ][5][0]= 0.4; h_reflectorData[reflNum ][5][1]=0.0;  h_reflectorData[reflNum ][5][2]=0.0;//reflectiondamping , no_traping ~
     h_reflectorData[reflNum ][6][0]=0;    h_reflectorData[reflNum ][6][1]=0;    h_reflectorData[reflNum ][6][2]=0;// not implemented yet centrality of rnd distribution speed dt tu ~
 	
     reflNum = 2;
@@ -1736,7 +1823,7 @@ void danpart::scene_data_1()
     h_reflectorData[reflNum ][0][0]=trigger;h_reflectorData[reflNum ][0][1]=1;// type, age ie colormod, ~  0 is off 1 is plane reflector  0 is off 1 is plane reflector
     h_reflectorData[reflNum ][1][0]=x;    h_reflectorData[reflNum ][1][1]= y;h_reflectorData[reflNum ][1][2]=z;//x,y,z position
     h_reflectorData[reflNum ][2][0]=dx;  h_reflectorData[reflNum ][2][1]=dy;    h_reflectorData[reflNum ][2][2]=dz;//x,y,z normal
-    h_reflectorData[reflNum ][3][0]=ftToM(1); h_reflectorData[reflNum ][3][1]=0.00; h_reflectorData[reflNum ][3][2]=0;//reflector radis ,~,~ 
+    h_reflectorData[reflNum ][3][0]=ftToM(0.5); h_reflectorData[reflNum ][3][1]=0.00; h_reflectorData[reflNum ][3][2]=0;//reflector radis ,~,~ 
     h_reflectorData[reflNum ][4][0]=0.000;h_reflectorData[reflNum ][4][1]=0.000;h_reflectorData[reflNum ][4][2]=0.000;//t,u,v jiter  not implimented = speed 
     h_reflectorData[reflNum ][5][0]= 1; h_reflectorData[reflNum ][5][1]= 1.00;  h_reflectorData[reflNum ][5][2]=0.0;//reflectiondamping , no_traping ~
     h_reflectorData[reflNum ][6][0]=0;    h_reflectorData[reflNum ][6][1]=0;    h_reflectorData[reflNum ][6][2]=0;// not implemented yet centrality of rnd distribution speed dt tu ~
@@ -1746,9 +1833,18 @@ void danpart::scene_data_1()
 
         if ((REFL_HITS ==1 ) && (trigger))
         {
-            audioGain(dan_10122606_sound_spray,h_debugData[reflNum]/500.0);
-            //printf ("spiral Fountens hits in scene 1 %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
-        }
+            float ag =h_debugData[reflNum]/100.0;
+         		if ((HOST == NEXCAVE) ||( HOST == MAC_SIM_NEXCAVE)) 
+         		{
+         			if (ag >.5) ag= .5;
+         		}
+         		else
+         		{
+              if (ag >.5) ag=.5;
+						}
+            audioGain(dan_10122606_sound_spray,ag);
+            //printf ("falling rain hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
+     }
         if ((triggerold ==1) && (trigger ==0)) audioGain(dan_10122606_sound_spray,0);
 
     }
@@ -1807,6 +1903,8 @@ void danpart::scene_data_2()
         //printf( " time %f \n", ::user->get_t());
     }
 
+
+    if (time_in_sean >90)nextSean=1;
 //printf ("time_in_sean 2 %f\n",time_in_sean);
     if (DEBUG_PRINT >0)printf( "in sean2 \n");
     //printf( "in sean2 \n");
@@ -1849,35 +1947,72 @@ void danpart::scene_data_2()
 			
   }
 */
-	
-    h_injectorData[0][0][0] =4;// number of injectors ~ ~   ~ means dont care
 
-    // injector 1
-    injNum =1;//front
-    h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(-2);//x,y,z position
-    h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.01;//x,y,z velocity drection
-    h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.0);//x,y,z size
-    h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    h_injectorData[injNum][6][0]=0.2000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+   if ((HOST == STARCAVE) || (HOST == MAC_SIM))
+    {
+ 	
+ 	   h_injectorData[0][0][0] =4;// number of injectors ~ ~   ~ means dont care
 
-    copy_injector(1, 2);
-    injNum =2;//back
-    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(2);//x,y,z position
-    h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=-0.01;//x,y,z velocity drection
+  	  // injector 1
+	    injNum =1;//front
+  	  h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
+	    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(-2);//x,y,z position
+  	  h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.01;//x,y,z velocity drection
+    	h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.0);//x,y,z size
+	    h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
+  	  h_injectorData[injNum][6][0]=0.2000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+  	  h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
 
-    copy_injector(1, 3);
-    injNum =3;//back
-    h_injectorData[injNum][2][0]=ftToM(2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
-    h_injectorData[injNum][3][0]=-0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-    h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
-    copy_injector(1, 4);
-    injNum =4;//back
-    h_injectorData[injNum][2][0]=ftToM(-2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
-    h_injectorData[injNum][3][0]=0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-    h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
- 
+	    copy_injector(1, 2);
+  	  injNum =2;//back
+    	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(2);//x,y,z position
+	    h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=-0.01;//x,y,z velocity drection
+
+  	  copy_injector(1, 3);
+    	injNum =3;//back
+	    h_injectorData[injNum][2][0]=ftToM(2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
+  	  h_injectorData[injNum][3][0]=-0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
+    	h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+	    copy_injector(1, 4);
+  	  injNum =4;//back
+    	h_injectorData[injNum][2][0]=ftToM(-2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
+	    h_injectorData[injNum][3][0]=0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
+  	  h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+ 		}
+
+   if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE))
+    {
+ 	
+ 	  	 h_injectorData[0][0][0] =3;// number of injectors ~ ~   ~ means dont care
+
+  	  // injector 1
+	    injNum =1;//front
+  	  h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
+	    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(7);h_injectorData[injNum][2][2]=ftToM(-5);//x,y,z position
+  	  h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.07;//x,y,z velocity drection
+    	h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.0);//x,y,z size
+	    h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
+  	  h_injectorData[injNum][6][0]=0.1000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+  	  h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+
+	    copy_injector(1, 2);
+  	  injNum =2;//back
+    	h_injectorData[injNum][2][0]=ftToM(-2.5);h_injectorData[injNum][2][1]=ftToM(7);h_injectorData[injNum][2][2]=ftToM(-4);//x,y,z position
+	    h_injectorData[injNum][3][0]=0.04;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.04;//x,y,z velocity drection
+
+  	  copy_injector(1, 3);
+    	injNum =3;//back
+	    h_injectorData[injNum][2][0]=ftToM(2.6);h_injectorData[injNum][2][1]=ftToM(7);h_injectorData[injNum][2][2]=ftToM(-4);//x,y,z position
+  	  h_injectorData[injNum][3][0]=-0.04;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.04;//x,y,z velocity drection
+    	h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+	    copy_injector(1, 4);
+  	  injNum =4;//back
+    	h_injectorData[injNum][2][0]=ftToM(-2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
+	    h_injectorData[injNum][3][0]=0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
+  	  h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+ 		}
+
+
 
 /*
 //injector 3
@@ -1943,9 +2078,18 @@ if (trigger){if (DEBUG_PRINT >0) {printf(" wandPos[0 ,1,2] wandVec[0,1,2] %f %f 
 
         if ((REFL_HITS ==1 ) && (trigger))
         {
-            audioGain(dan_10122606_sound_spray,h_debugData[reflNum]/500.0);
-            //printf ("4 waterFalls hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
-        }
+           float ag =h_debugData[reflNum]/100.0;
+         		if ((HOST == NEXCAVE) ||( HOST == MAC_SIM_NEXCAVE)) 
+         		{
+         			if (ag >.5) ag= 1.0;
+         		}
+         		else
+         		{
+              if (ag >.5) ag=.5;
+						}
+            audioGain(dan_10122606_sound_spray,ag);
+            //printf ("falling rain hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
+       }
         if ((triggerold ==1) && (trigger ==0)) audioGain(dan_10122606_sound_spray,0);
 
     }
@@ -1999,11 +2143,15 @@ void danpart::scene_data_3()
         cuMemcpyHtoD(d_particleData, h_particleData, size);
         if (DEBUG_PRINT >0)printf( "in start sean3 \n");
         time_in_sean =0 * TARGET_FR_RATE;
-        ::user->home();
+        ::user->home();::user->turn(0,90,0);
         rotRate = .05;
-        //::user->time(86400);// set to 00:00 monday  old
+        ::user->set_t(86400);// set to 00:00 monday  old
+       ::user->set_t(1);// set to 0 days 1 sec
+       ::user->set_t(63711);// set to 0 days 1 sec
+
         //::user->time(43200/2.0);// set to dawn  old
-        ::user->set_t(43200/2.0);
+        //::user->set_t(43200/2.0);
+
         //::user->pass(43200/2.0);
         //printf( " time %f \n", ::user->get_t());
 
@@ -2017,7 +2165,23 @@ void danpart::scene_data_3()
 //printf ("time_in_sean 3 %f\n",time_in_sean);
 
     if (DEBUG_PRINT >0)printf( "in sean3 \n");
-// printf ( "time %f\n",::user->get_t());
+// printf ( "seantime time %f %f\n",time_in_sean,::user->get_t());
+//lerp(in, beginIN, endIn, beginOut, endOut)
+
+	if((time_in_sean > 0)&& (time_in_sean <= 30)) user->set_t(lerp(time_in_sean, 0, 30, 63400, 74000));
+	if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE))
+	{
+		if((time_in_sean > 30)&& (time_in_sean <= 40)) user->set_t(lerp(time_in_sean, 30, 40, 74000, 90000));		
+		if((time_in_sean > 40)&& (time_in_sean <= 90)) user->set_t(lerp(time_in_sean, 30, 90, 90000, 63400));
+		if((time_in_sean > 40)) ::user->move(0,.005,0);	
+	}
+	else
+	{
+		if((time_in_sean > 30)&& (time_in_sean <= 90)) user->set_t(lerp(time_in_sean, 30, 90, 74000, 107000));
+	}
+//if((time_in_sean > 30)&& (time_in_sean <= 40)) user->set_t(lerp(time_in_sean, 30, 40, 74000, 110000));
+ //     ::user->set_t(107000);// set to 0 days 1 sec
+
 
     // anim += 0.001;// .0001
 
@@ -2053,7 +2217,7 @@ void danpart::scene_data_3()
 
     if ((SOUND_SERV ==1)&& (::host->root() == 1))
     {
-        if (ENABLE_SOUND_POS_UPDATES) audioPos (texture_17_swirls3, 30* h_injectorData[injNum][3][0], 0, -30* h_injectorData[injNum][3][2]);
+       if (ENABLE_SOUND_POS_UPDATES) audioPos (texture_17_swirls3, 30* h_injectorData[injNum][3][0], 0, -30* h_injectorData[injNum][3][2]);
 			
     }
 
@@ -2083,8 +2247,8 @@ void danpart::scene_data_3()
         
         if (ENABLE_SOUND_POS_UPDATES)
         {  
-            audioPos (texture_12, 1* h_injectorData[injNum][2][0], 1* h_injectorData[injNum][1][0], -1* h_injectorData[injNum][2][2]);
-            audioPos (short_sound_01a, 1* h_injectorData[injNum][2][0], 1* h_injectorData[injNum][1][0], -1* h_injectorData[injNum][2][2]);
+          audioPos (texture_12, 1* h_injectorData[injNum][2][0], 1* h_injectorData[injNum][1][0], -1* h_injectorData[injNum][2][2]);
+          audioPos (short_sound_01a, 1* h_injectorData[injNum][2][0], 1* h_injectorData[injNum][1][0], -1* h_injectorData[injNum][2][2]);
         } 
 
     }
@@ -2124,7 +2288,7 @@ void danpart::scene_data_4()
 
     draw_water_sky =0;
 // particalsysparamiteres--------------
-    gravity = .005;	
+    gravity = .001;	
     gravity = .00003;	
     max_age = 2000;
     disappear_age =2000;
@@ -2204,15 +2368,30 @@ void danpart::scene_data_4()
     h_injectorData[0][0][0] =1;// number of injectors ~ ~   ~ means dont care
 
     // injector 1
-    injNum =1;
-    h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(10);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
-    h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.005;h_injectorData[injNum][3][2]=0.00;//x,y,z velocity drection
-    h_injectorData[injNum][4][0]=ftToM(2);h_injectorData[injNum][4][1]=ftToM(2);h_injectorData[injNum][4][2]=ftToM(2);//x,y,z size
-    h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    h_injectorData[injNum][6][0]=0.2000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
-
+    if ((HOST == STARCAVE) || (HOST == MAC_SIM))
+    {
+	    injNum =1;
+	    h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
+	    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(10);h_injectorData[injNum][2][2]=ftToM(-2);//x,y,z position
+	    h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.001;h_injectorData[injNum][3][2]=0.00;//x,y,z velocity drection
+	    h_injectorData[injNum][4][0]=ftToM(1);h_injectorData[injNum][4][1]=ftToM(1);h_injectorData[injNum][4][2]=ftToM(1);//x,y,z size
+	    h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
+	    h_injectorData[injNum][6][0]=0.2000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+	    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+  	}
+  	
+     if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE))
+		{ 	  
+    	injNum =1;
+    	
+    	h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
+    	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(7);h_injectorData[injNum][2][2]=ftToM(-3);//x,y,z position
+    	h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]= -0.001;h_injectorData[injNum][3][2]=0.00;//x,y,z velocity drection
+    	h_injectorData[injNum][4][0]=ftToM(1);h_injectorData[injNum][4][1]=ftToM(.5);h_injectorData[injNum][4][2]=ftToM(1);//x,y,z size
+    	h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
+    	h_injectorData[injNum][6][0]=0.2000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+    	h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+		}
     copy_injector(1, 2);
     injNum =2;//back
     h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(2);//x,y,z position
@@ -2258,7 +2437,16 @@ void danpart::scene_data_4()
 
         if ((REFL_HITS ==1 ) && (trigger))
         {
-            audioGain(dan_10122606_sound_spray,h_debugData[reflNum]/500.0);
+            float ag =h_debugData[reflNum]/500.0;
+         		if ((HOST == NEXCAVE) ||( HOST == MAC_SIM_NEXCAVE)) 
+         		{
+         			if (ag >.5) ag= .5;
+         		}
+         		else
+         		{
+              if (ag >.5) ag=.5;
+						}
+            audioGain(dan_10122606_sound_spray,ag);
             //printf ("falling rain hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
         }
         if ((triggerold ==1) && (trigger ==0)) audioGain(dan_10122606_sound_spray,0);

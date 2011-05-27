@@ -112,3 +112,13 @@ return 0.0;
 
 }
 
+float lerp(float in,float beginIN,float endIn,float beginOut,float endOut)
+{
+float pers;
+float out;
+pers =   (in - beginIN)/( endIn - beginIN);
+out = beginOut + pers * (endOut-beginOut);
+return out;
+}
+
+
