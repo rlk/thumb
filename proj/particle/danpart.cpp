@@ -133,12 +133,12 @@ void danpart::cuda_step()
     CUdeviceptr d_vbo;
     size_t size;
 
-    float r1, r2, r3;// not curently used
+    float r1, r2, r3; // not curently used
 
-    static double startTime = 0,nowTime = 0,frNum =1;//timeing varables
-    double intigrate_time =1;
-//timeing
-    showTime=getTimeInSecs() - showStartTime;
+    static double startTime = 0,nowTime = 0,frNum = 1; // timeing varables
+    double intigrate_time = 1;
+// timeing
+    showTime = getTimeInSecs() - showStartTime;
     showFrameNo++;
     // cuda timeing
     CUevent start, stop;
@@ -146,12 +146,12 @@ void danpart::cuda_step()
 	
     nowTime = getTimeInSecs();
 	
-    //first print out meaningless
-    if ( (nowTime - startTime) > intigrate_time)
+    // first print out meaningless
+    if ((nowTime - startTime) > intigrate_time)
     {
 		
         if (FR_RATE_PRINT >0) printf("%f ms %f FR/sec  ",intigrate_time/frNum*1000,frNum/intigrate_time);
-        startTime = nowTime;  frNum =0;
+        startTime = nowTime;  frNum = 0;
     }
     frNum++; 
     // not curently used  
@@ -159,63 +159,63 @@ void danpart::cuda_step()
 
 
 // NOTE  need to into init which_scene and scene4Start to first seen
-    sceneChange =0;
+    sceneChange = 0;
     
-    if ((but4old ==0)&&(but4 == 1)&&(but1))
+    if ((but4old == 0)&&(but4 == 1)&&(but1))
     {
-        sceneOrder =( sceneOrder+1)%5;sceneChange=1;
+        sceneOrder = (sceneOrder+1)%5;sceneChange = 1;
     }
-    if (nextScene ==1) { sceneOrder =( sceneOrder+1)%5;sceneChange=1;nextScene =0;}
-    //reordering seenes
+    if (nextScene == 1) { sceneOrder = (sceneOrder+1)%5;sceneChange = 1;nextScene = 0;}
+    // reordering seenes
 
-    if (sceneOrder ==0)sceneNum =4;
-    if (sceneOrder ==1)sceneNum =1;
-    if (sceneOrder ==2)sceneNum =2;
-    if (sceneOrder ==3)sceneNum =0;
-    if (sceneOrder ==4)sceneNum =3;
+    if (sceneOrder == 0)sceneNum = 4;
+    if (sceneOrder == 1)sceneNum = 1;
+    if (sceneOrder == 2)sceneNum = 2;
+    if (sceneOrder == 3)sceneNum = 0;
+    if (sceneOrder == 4)sceneNum = 3;
 
-    if((sceneChange==1) && (which_scene ==3)){scene_data_3_kill_audio();}
-    if((sceneChange==1) && (which_scene ==0)){scene_data_0_kill_audio();}
-    if((sceneChange==1) && (which_scene ==1)){scene_data_1_kill_audio();}
-    if((sceneChange==1) && (which_scene ==2)){scene_data_2_kill_audio();}
-    if((sceneChange==1) && (which_scene ==4)){scene_data_4_kill_audio();}
+    if((sceneChange == 1) && (which_scene == 3)){scene_data_3_kill_audio();}
+    if((sceneChange == 1) && (which_scene == 0)){scene_data_0_kill_audio();}
+    if((sceneChange == 1) && (which_scene == 1)){scene_data_1_kill_audio();}
+    if((sceneChange == 1) && (which_scene == 2)){scene_data_2_kill_audio();}
+    if((sceneChange == 1) && (which_scene == 4)){scene_data_4_kill_audio();}
 
-    if (sceneNum ==0)
-    {//paint on walls
-        if (sceneChange ==1){scene0Start =1;sceneChange =0;which_scene =0;}
+    if (sceneNum == 0)
+    {// paint on walls
+        if (sceneChange == 1){scene0Start = 1;sceneChange = 0;which_scene = 0;}
         scene_data_0();
     }
-    if (sceneNum ==1)
-    {//sprial fountens
-        if (sceneChange ==1){scene1Start =1;sceneChange =0;which_scene =1;}
+    if (sceneNum == 1)
+    {// sprial fountens
+        if (sceneChange == 1){scene1Start = 1;sceneChange = 0;which_scene = 1;}
         scene_data_1();
     }
-    if (sceneNum ==2)
-    {//4 waterfalls
-        if (sceneChange ==1){scene2Start =1;sceneChange =0;which_scene =2;}
+    if (sceneNum == 2)
+    {// 4 waterfalls
+        if (sceneChange == 1){scene2Start = 1;sceneChange = 0;which_scene = 2;}
         scene_data_2();
     }
-    if (sceneNum ==3)
-    {//painting skys
-        if (sceneChange ==1){scene3Start =1;sceneChange =0;which_scene =3;}
+    if (sceneNum == 3)
+    {// painting skys
+        if (sceneChange == 1){scene3Start = 1;sceneChange = 0;which_scene = 3;}
         scene_data_3();
     }
 
-    if (sceneNum ==4)
-    {//rain
-        if (sceneChange ==1){scene4Start =1;sceneChange =0;which_scene =4;}
+    if (sceneNum == 4)
+    {// rain
+        if (sceneChange == 1){scene4Start = 1;sceneChange = 0;which_scene = 4;}
         scene_data_4();
     }
 
-    for ( int n =1;n < h_injectorData[0][0][0] +1;n++)
+    for (int n = 1;n < h_injectorData[0][0][0] +1;n++)
     {
         // kludge to handel gimbel lock for velociys straight up			
-        if (h_injectorData[n][3][0] ==0 && h_injectorData[n][3][2] ==0){ h_injectorData[n][3][0] += .0001;}
+        if (h_injectorData[n][3][0] == 0 && h_injectorData[n][3][2] == 0){ h_injectorData[n][3][0] += .0001;}
 			
     }
 
 
-    //copy injdata data to device	
+    // copy injdata data to device	
     {
 	CUdeviceptr devPtr;
 	size_t bytes;
@@ -223,15 +223,15 @@ void danpart::cuda_step()
 	cuMemcpyHtoD(devPtr, h_injectorData, bytes);
     }
 
-    //copy refldata data to device	
+    // copy refldata data to device	
     {	
 	CUdeviceptr devPtr;
 	size_t bytes;
 	cuModuleGetGlobal(&devPtr, &bytes, module, "refldata");
 	cuMemcpyHtoD(devPtr, h_reflectorData, bytes);
     }
-    //process audio fades
-    if ((SOUND_SERV ==1)&& (::host->root() == 1)){	audioProcess();}
+    // process audio fades
+    if ((SOUND_SERV == 1)&& (::host->root() == 1)){	audioProcess();}
 	
     // Map the buffer object.
 	
@@ -239,22 +239,22 @@ void danpart::cuda_step()
         warn("CUDA GL map buffer failed");
     // Set the kernel parameters.
 
-    if ( (nowTime - startTime)== 0)
+    if ((nowTime - startTime) == 0)
     {
         cuEventCreate(&start,CU_EVENT_DEFAULT); cuEventCreate(&stop,CU_EVENT_DEFAULT);
         cuEventRecord(start, 0);
     }
 
-    if (REFL_HITS ==1)
+    if (REFL_HITS == 1)
     {
         for (int i = 0; i < 128; ++i)
         {
-            h_debugData[i]=0;
+            h_debugData[i] = 0;
         }
         cuMemcpyHtoD(d_debugData, h_debugData, sizeDebug);
     }
     int offset = 0;
-//printf ("disappear_age %d\n",disappear_age);
+// printf ("disappear_age %d\n",disappear_age);
 
     ALIGN_UP(offset, __alignof(d_vbo));
     cuParamSetv(funcHandPoint1, offset, &d_vbo, sizeof (d_vbo));
@@ -317,7 +317,7 @@ void danpart::cuda_step()
 	
         warn("CUDA GL unmap buffer failed");
 	
-    if ( (nowTime - startTime)== 0)
+    if ((nowTime - startTime) == 0)
     {
         cuEventRecord(stop, 0);
         cuEventSynchronize(stop);
@@ -327,24 +327,24 @@ void danpart::cuda_step()
         cuEventDestroy (start ); cuEventDestroy (stop );
     }
 
-    if (DEBUG ==1)
+    if (DEBUG == 1)
     {// debug data from .cu
-        cuMemcpyDtoH  	( h_debugData, d_debugData, sizeDebug);
+        cuMemcpyDtoH  	(h_debugData, d_debugData, sizeDebug);
         printf (" cu debug first 18 location ingroups of 3 \n");
-        for (unsigned int i =0; i < 18;i = i + 3)
+        for (unsigned int i = 0; i < 18;i = i + 3)
         {
-            if (DEBUG_PRINT >0)printf( " %f %f %f \n",h_debugData[i],h_debugData[i+1],h_debugData[i+2]);
+            if (DEBUG_PRINT >0)printf(" %f %f %f \n",h_debugData[i],h_debugData[i+1],h_debugData[i+2]);
 		
         }
     }
 
-    if (REFL_HITS ==1)
+    if (REFL_HITS == 1)
     {// debug data from .cu
-        cuMemcpyDtoH  	( h_debugData, d_debugData, sizeDebug);
+        cuMemcpyDtoH  	(h_debugData, d_debugData, sizeDebug);
     }
 
     but4old = but4;
-    but3old =but3;
+    but3old = but3;
     but2old = but2;
     but1old = but1;
     triggerold = trigger;
@@ -383,11 +383,11 @@ void danpart::pdata_init_rand()
           
     for (int i = 0; i < CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT; ++i)
     {
-        // gen 3 random numbers for each partical
+        // gen 3 random numbers for each particle
         h_particleData[PDATA_ROW_SIZE * i +4] = 0.0002 * (rand()%10000) -1.0 ;
         h_particleData[PDATA_ROW_SIZE * i +5] = 0.0002 * (rand()%10000) -1.0 ;
         h_particleData[PDATA_ROW_SIZE * i +6] = 0.0002 * (rand()%10000) -1.0 ;
-        //printf ( "rnd num %f %f %f \n", h_particleData[PDATA_ROW_SIZE * i +4],h_particleData[PDATA_ROW_SIZE * i +5],h_particleData[PDATA_ROW_SIZE * i +6]);
+        // printf ("rnd num %f %f %f \n", h_particleData[PDATA_ROW_SIZE * i +4],h_particleData[PDATA_ROW_SIZE * i +5],h_particleData[PDATA_ROW_SIZE * i +6]);
 
     }
 
@@ -399,25 +399,25 @@ void danpart::data_init()
 {
 	
 // zeroout h_reflectorData
-    for (int reflNum =0;reflNum < REFL_DATA_MUNB;reflNum++)
+    for (int reflNum = 0;reflNum < REFL_DATA_MUNB;reflNum++)
     {
-        for (int rownum =0;rownum < REFL_DATA_ROWS;rownum++)
+        for (int rownum = 0;rownum < REFL_DATA_ROWS;rownum++)
         { 
-            h_reflectorData[reflNum][rownum][0]=0;
-            h_reflectorData[reflNum][rownum][1]=0;
-            h_reflectorData[reflNum][rownum][2]=0;
+            h_reflectorData[reflNum][rownum][0] = 0;
+            h_reflectorData[reflNum][rownum][1] = 0;
+            h_reflectorData[reflNum][rownum][2] = 0;
         }
 
 
     }
 
-    for (int injNum =0;injNum < INJT_DATA_MUNB;injNum++)
+    for (int injNum = 0;injNum < INJT_DATA_MUNB;injNum++)
     {
-        for (int rownum =0;rownum < INJT_DATA_ROWS;rownum++)
+        for (int rownum = 0;rownum < INJT_DATA_ROWS;rownum++)
         { 
-            h_injectorData[injNum][rownum][0]=0;
-            h_injectorData[injNum][rownum][1]=0;
-            h_injectorData[injNum][rownum][2]=0;
+            h_injectorData[injNum][rownum][0] = 0;
+            h_injectorData[injNum][rownum][1] = 0;
+            h_injectorData[injNum][rownum][2] = 0;
         }
 
 
@@ -448,7 +448,7 @@ void danpart::data_init()
         {
             for (int i = 0; i < 128; ++i)
             {
-                h_debugData[i]=0;
+                h_debugData[i] = 0;
                 old_refl_hits[i] = 0;
                 refl_hits[i] = 0;
             }
@@ -459,8 +459,8 @@ void danpart::data_init()
     else warn("h_debugData malloc failed");
 
 
-// partical data malloc
-    int rowsize =PDATA_ROW_SIZE;
+// particle data malloc
+    int rowsize = PDATA_ROW_SIZE;
     size_t size = rowsize * mesh_width * mesh_height * sizeof (float);
 
     srand(1);
@@ -471,7 +471,7 @@ void danpart::data_init()
         if (cuMemAlloc(&d_particleData, size) == CUDA_SUCCESS)
         {
 
-            pdata_init_age( max_age);
+            pdata_init_age(max_age);
             pdata_init_velocity(-10000, -10000, -10000);
             pdata_init_rand();
             cuMemcpyHtoD(d_particleData, h_particleData, size);
@@ -481,98 +481,98 @@ void danpart::data_init()
     else warn("Particle buffer malloc failed");
 
 // init buttons
-    trackDevID =0;
-    state =0;
-    trigger =0;
-    but4 =0;
-    but3 =0;
-    but2 =0;
-    but1 =0;
+    trackDevID = 0;
+    state = 0;
+    trigger = 0;
+    but4 = 0;
+    but3 = 0;
+    but2 = 0;
+    but1 = 0;
 // init seenes
-    scene0Start =0;
-    scene1Start =0;
-    scene2Start =0;
-    scene3Start =0;
-    scene4Start =1;//// must be set to starting
-    sceneNum =0;
+    scene0Start = 0;
+    scene1Start = 0;
+    scene2Start = 0;
+    scene3Start = 0;
+    scene4Start = 1; // // must be set to starting
+    sceneNum = 0;
     sceneOrder = 0;
-    nextScene =0;
-    which_scene =4;// must be set to starting
+    nextScene = 0;
+    which_scene = 4; // must be set to starting
     old_which_scene = -1;
-    sceneChange =0;
+    sceneChange = 0;
 // init timeres
     showStartTime = getTimeInSecs();
     if (DEBUG_PRINT >0) printf("showstartTime  %f \n",showStartTime);
-//init sound server
+// init sound server
 
     //***************************************
-//SOUND INIT
+// SOUND INIT
 
     if (ENABLE_SOUND_SERV && (::host->root() == 1))
     {
 
         // conect to audio server
         printf (" audioConectToServer ");
-        if (HOST == STARCAVE) SOUND_SERV = audioConectToServer( "137.110.118.239");
-        if (HOST == NEXCAVE) SOUND_SERV = audioConectToServer( "10.1.1.242");
-        //audioConectToServer( "192.168.1.105");
+        if (HOST == STARCAVE) SOUND_SERV = audioConectToServer("137.110.118.239");
+        if (HOST == NEXCAVE) SOUND_SERV = audioConectToServer("10.1.1.242");
+        // audioConectToServer("192.168.1.105");
 
         if (SOUND_SERV)
         {
             audioGlobalGain(.7);
-            chimes =audioGetHandKludge("chimes.wav");printf(" chimes %i \n",chimes);      
-            //audioPlay(chimes,1.0);
+            chimes = audioGetHandKludge("chimes.wav");printf(" chimes %i \n",chimes);      
+            // audioPlay(chimes,1.0);
  
             // curently not used
-            pinkNoise =audioGetHandKludge("cdtds.31.pinkNoise.wav");printf ("pinkNoise %i \n",pinkNoise);//audioLoop(pinkNoise,0);audioGain(pinkNoise,1);
+            pinkNoise = audioGetHandKludge("cdtds.31.pinkNoise.wav");printf ("pinkNoise %i \n",pinkNoise); // audioLoop(pinkNoise,0);audioGain(pinkNoise,1);
             audioGain(pinkNoise,0);audioLoop(pinkNoise,1);audioPlay(pinkNoise,1.0);
 
 
 
-            dan_texture_09 =audioGetHandKludge("dan_texture_09.wav");printf ("dan_texture_09 %i \n",dan_texture_09);//audioLoop(pinkNoise,0);audioGain(pinkNoise,1);
+            dan_texture_09 = audioGetHandKludge("dan_texture_09.wav");printf ("dan_texture_09 %i \n",dan_texture_09); // audioLoop(pinkNoise,0);audioGain(pinkNoise,1);
             audioGain(dan_texture_09,0);audioLoop(dan_texture_09,1);audioPlay(dan_texture_09,1.0);
  
 
 
-            //curently continuous sound with spray injector
-            texture_12 =audioGetHandKludge("dan_texture_12.wav");printf ("texture_12 %i \n",texture_12);//audioLoop(whiteNoise,0);audioGain(whiteNoise,1);
+            // curently continuous sound with spray injector
+            texture_12 = audioGetHandKludge("dan_texture_12.wav");printf ("texture_12 %i \n",texture_12); // audioLoop(whiteNoise,0);audioGain(whiteNoise,1);
             audioGain(texture_12,0);audioLoop(texture_12,1);audioPlay(texture_12,1.0);
  
             // curently attack sound for spray injector
-            short_sound_01a =audioGetHandKludge("dan_short_sound_01a.wav");printf ("short_sound_01a %i \n",short_sound_01a);
+            short_sound_01a = audioGetHandKludge("dan_short_sound_01a.wav");printf ("short_sound_01a %i \n",short_sound_01a);
             audioPlay(short_sound_01a,1);
 
             // curently sound with swerels in painting sky scene under position contro
             texture_17_swirls3 = audioGetHandKludge("dan_texture_17_swirls3.wav");printf ("texture_17_swirls3 %i \n",texture_17_swirls3);
-            //audioLoop(texture_17_swirls3,1);audioPlay(texture_17_swirls3,1.0);
+            // audioLoop(texture_17_swirls3,1);audioPlay(texture_17_swirls3,1.0);
 		
-            rain_at_sea =audioGetHandKludge("dan_texture_18_rain_at_sea.wav");printf("rain_at_sea %i\n",rain_at_sea);
-            //audioPlay(rain_at_sea,1.0);
+            rain_at_sea = audioGetHandKludge("dan_texture_18_rain_at_sea.wav");printf("rain_at_sea %i\n",rain_at_sea);
+            // audioPlay(rain_at_sea,1.0);
             dan_texture_13 = audioGetHandKludge("dan_texture_13.wav");printf("dan_texture_13 %i\n",dan_texture_13);
 		
-            dan_texture_05 =audioGetHandKludge("dan_texture_05.wav");printf("dan_texture_05 %i\n",dan_texture_05);
+            dan_texture_05 = audioGetHandKludge("dan_texture_05.wav");printf("dan_texture_05 %i\n",dan_texture_05);
 		
             dan_short_sound_04 = audioGetHandKludge("dan_short_sound_04.wav");printf("dan_short_sound_04 %i \n",dan_short_sound_04);
 		
             dan_ambiance_2 = audioGetHandKludge("dan_ambiance_2.wav");printf("dan_ambiance_2 %i \n",dan_ambiance_2);
-            //audioPlay(dan_ambiance_2,1.0);
+            // audioPlay(dan_ambiance_2,1.0);
             dan_ambiance_1 = audioGetHandKludge("dan_ambiance_1.wav");printf("dan_ambiance_1 %i \n",dan_ambiance_1);
-            //audioPlay(dan_ambiance_1,1.0);
+            // audioPlay(dan_ambiance_1,1.0);
 		
             dan_5min_ostinato = audioGetHandKludge("dan_10120607_5_min_ostinato.WAV");printf ("dan_5min_ostinato %i\n",dan_5min_ostinato);
 		
             dan_10120603_Rez1 = audioGetHandKludge("dan_10120603_Rez.1.wav");printf("dan_10120603_Rez1 %i\n",dan_10120603_Rez1);
 
-            dan_mel_amb_slower= audioGetHandKludge("dan_10122604_mel_amb_slower.wav");printf("dan_mel_amb_slower %i\n",dan_mel_amb_slower);
-            //audioPlay(dan_mel_amb_slower,1.0);
-            harmonicAlgorithm= audioGetHandKludge("harmonicAlgorithm.wav");printf("harmonicAlgorithm %i\n",harmonicAlgorithm);
-            dan_rain_at_sea_loop= audioGetHandKludge("dan_rain_at_sea_loop.wav");printf("dan_rain_at_sea_loop %i\n",dan_rain_at_sea_loop);
-            //reflectorCantadate        
-            dan_10122606_sound_spray= audioGetHandKludge("dan_10122606_sound_spray.wav");printf("dan_10122606_sound_spray %i\n",dan_10122606_sound_spray);
+            dan_mel_amb_slower = audioGetHandKludge("dan_10122604_mel_amb_slower.wav");printf("dan_mel_amb_slower %i\n",dan_mel_amb_slower);
+            // audioPlay(dan_mel_amb_slower,1.0);
+            harmonicAlgorithm = audioGetHandKludge("harmonicAlgorithm.wav");printf("harmonicAlgorithm %i\n",harmonicAlgorithm);
+            dan_rain_at_sea_loop = audioGetHandKludge("dan_rain_at_sea_loop.wav");printf("dan_rain_at_sea_loop %i\n",dan_rain_at_sea_loop);
+            // reflectorCantadate        
+            dan_10122606_sound_spray = audioGetHandKludge("dan_10122606_sound_spray.wav");printf("dan_10122606_sound_spray %i\n",dan_10122606_sound_spray);
             audioGain(dan_10122606_sound_spray,0);audioLoop(dan_10122606_sound_spray,1);audioPlay(dan_10122606_sound_spray,1.0);
         
-            dan_10122608_sound_spray_low= audioGetHandKludge("dan_10122608_sound_spray_low.wav");printf("dan_10122608_sound_spray_low %i\n",dan_10122608_sound_spray_low);
-            //dan_10120600_rezS.3_rez2.wav
+            dan_10122608_sound_spray_low = audioGetHandKludge("dan_10122608_sound_spray_low.wav");printf("dan_10122608_sound_spray_low %i\n",dan_10122608_sound_spray_low);
+            // dan_10120600_rezS.3_rez2.wav
             dan_10120600_rezS3_rez2= audioGetHandKludge("dan_10120600_RezS.3_Rez.2.wav");printf("dan_10120600_rezS3_rez2 %i\n",dan_10120600_rezS3_rez2);
         }
 
@@ -656,7 +656,7 @@ danpart::~danpart()
     delete particle;
     
     if (input) delete input;
-    if ((SOUND_SERV ==1) && (::host->root() == 1)){audioQuit();}
+    if ((SOUND_SERV == 1) && (::host->root() == 1)){audioQuit();}
 }
 
 //-----------------------------------------------------------------------------
@@ -671,13 +671,13 @@ bool danpart::process_key(app::event *E)
 
 // d: 1 is godown o go up
 // m : 1 is shift or controle
-//k is key code
+// k is key code
 
     if (k == SDLK_p)if (DEBUG_PRINT >0) printf("p \n");
 
-    if (k == SDLK_UP && d==1){if (DEBUG_PRINT >0) {printf("up down \n");}state = 1;}
-    if (k == SDLK_UP && d==0){if (DEBUG_PRINT >0) {printf("up up \n");}state = 0;}
-//printf ("state= %f \n", state);
+    if (k == SDLK_UP && d == 1){if (DEBUG_PRINT >0) {printf("up down \n");}state = 1;}
+    if (k == SDLK_UP && d == 0){if (DEBUG_PRINT >0) {printf("up up \n");}state = 0;}
+// printf ("state = %f \n", state);
     return false;
 }
 
@@ -687,32 +687,32 @@ bool danpart::process_click(app::event *E)
     const bool d = E->data.click.d;
     if (DEBUG_PRINT >0) printf(" b , d %d %d \n",b, d);
 	
-    if ((b ==1) & (d == 1)){but4old = but4;but4 = 1;}
-    if ((b ==1) & (d == 0)){but4old = but4;but4 = 0;}
+    if ((b == 1) & (d == 1)){but4old = but4;but4 = 1;}
+    if ((b == 1) & (d == 0)){but4old = but4;but4 = 0;}
 
-    if ((b ==2) & (d == 1)){but3old = but3;but3 = 1;}
-    if ((b ==2) & (d == 0)){but3old = but3;but3 = 0;}
+    if ((b == 2) & (d == 1)){but3old = but3;but3 = 1;}
+    if ((b == 2) & (d == 0)){but3old = but3;but3 = 0;}
 
-    if ((b ==3) & (d == 1)){but2old = but2;but2 = 1;}
-    if ((b ==3) & (d == 0)){but2old = but2;but2 = 0;}
+    if ((b == 3) & (d == 1)){but2old = but2;but2 = 1;}
+    if ((b == 3) & (d == 0)){but2old = but2;but2 = 0;}
 
-    if ((b ==4) & (d == 1)){but1old = but1;but1 = 1;}
-    if ((b ==4) & (d == 0)){but1old = but1;but1 = 0;}
+    if ((b == 4) & (d == 1)){but1old = but1;but1 = 1;}
+    if ((b == 4) & (d == 0)){but1old = but1;but1 = 0;}
     if ((HOST == STARCAVE) || (HOST == MAC_SIM)||(MAC_SIM_NEXCAVE))
     {
-        if ((b ==0) & (d == 1)){triggerold = trigger;trigger = 1;}
-        if ((b ==0) & (d == 0)){triggerold = trigger;trigger = 0;}
+        if ((b == 0) & (d == 1)){triggerold = trigger;trigger = 1;}
+        if ((b == 0) & (d == 0)){triggerold = trigger;trigger = 0;}
     }
     if ((HOST == NEXCAVE) )
 		
     {
-        if ((b ==7) & (d == 1)){triggerold = trigger;trigger = 1;}
-        if ((b ==7) & (d == 0)){triggerold = trigger;trigger = 0;}
+        if ((b == 7) & (d == 1)){triggerold = trigger;trigger = 1;}
+        if ((b == 7) & (d == 0)){triggerold = trigger;trigger = 0;}
 
     }
 
 
-    if ((b ==3) & (d == 1)){::user->home();}
+    if ((b == 3) & (d == 1)){::user->home();}
  
     return false;
 }
@@ -721,7 +721,7 @@ bool danpart::process_point(app::event *E)
 {
     double *p = E->data.point.p;
     double *q = E->data.point.q;
-    trackDevID =E->data.point.i;
+    trackDevID = E->data.point.i;
  
     const double *A = ::user->get_M();
     double B[16];  
@@ -732,8 +732,8 @@ bool danpart::process_point(app::event *E)
 
     if (trackDevID == tracker_head_sensor)
     {
-        headPos[0]=P[0];headPos[1]=P[1];headPos[2]=P[2];
-        headVec[0]=V[0];headVec[1]=V[1];headVec[2]=V[2];
+        headPos[0] = P[0];headPos[1] = P[1];headPos[2] = P[2];
+        headVec[0] = V[0];headVec[1] = V[1];headVec[2] = V[2];
     }
     if (trackDevID == tracker_hand_sensor)
     {
@@ -744,8 +744,8 @@ bool danpart::process_point(app::event *E)
         mult_mat_vec3(t, B, o);
         mult_mat_vec3(o, A, t);
 
-        wandPos[0]=P[0]+t[0];wandPos[1]=P[1]+t[1];wandPos[2]=P[2]+t[2];
-        wandVec[0]=V[0];     wandVec[1]=V[1];     wandVec[2]=V[2];
+        wandPos[0] = P[0]+t[0];wandPos[1] = P[1]+t[1];wandPos[2] = P[2]+t[2];
+        wandVec[0] = V[0];     wandVec[1] = V[1];     wandVec[2] = V[2];
 
         mult_mat_mat(wandMat, A, B);
         wandMat[12] = wandPos[0];
@@ -918,7 +918,7 @@ void danpart::draw_triangles()
                 glVertex3f(0.00f, h, 0.25f);
             }
             glEnd();
-         }
+        }
         glPopMatrix();
     }
 }
@@ -999,7 +999,7 @@ void danpart::draw(int frusi, const app::frustum *frusp)
     // Apply the projection and view transformations.
  
     frusp->draw();
-   ::user->draw();
+    ::user->draw();
   
     // Draw the water and sky.
 
@@ -1025,27 +1025,27 @@ void danpart::draw(int frusi, const app::frustum *frusp)
     if (which_scene == 4) draw_wand_refl_image(1);
 }
 
-void danpart::copy_injector( int source, int destination)
+void danpart::copy_injector(int source, int destination)
 {
     for (int row = 0;row < INJT_DATA_ROWS; row++)
     {
         for (int ele = 0; ele < 3; ele++)
         {
             h_injectorData[destination][row][ele] = h_injectorData[source][row][ele];
-            //printf ( " %f ", h_injectorData[ destination][row][ele]);
+            // printf (" %f ", h_injectorData[ destination][row][ele]);
         }
-        //printf("\n");
+        // printf("\n");
     }
-    //printf("\n");
+    // printf("\n");
 }
  
 
-void danpart::copy_reflector( int source, int destination)
+void danpart::copy_reflector(int source, int destination)
 {
 
-    for (int row =0;row < REFL_DATA_ROWS;row++)	
+    for (int row = 0;row < REFL_DATA_ROWS;row++)	
     {
-        for (int ele =0;ele <3;ele++)
+        for (int ele = 0;ele <3;ele++)
         {
             h_reflectorData[ destination][row][ele] = h_reflectorData[source][row][ele];
         }
@@ -1057,49 +1057,85 @@ int   danpart::load6wallcaveWalls(int firstRefNum)
 {
     float caverad = ftToM(5.0);
     int reflNum;
-    float damping =.5;
-    float no_traping =0;
+    float damping = .5;
+    float no_traping = 0;
     reflNum = firstRefNum;
-    h_reflectorData[reflNum][0][0]=1;h_reflectorData[reflNum][0][1]=0;// type, age ie colormod, ~  0 is off 1 is plane reflector
-    h_reflectorData[reflNum][1][0]=ftToM(5);    h_reflectorData[reflNum][1][1]= 0.0;h_reflectorData[reflNum][1][2]=0;//x,y,z position
-    h_reflectorData[reflNum][2][0]= -1.0;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=0;//x,y,z normal
-    h_reflectorData[reflNum][3][0]=caverad; h_reflectorData[reflNum][3][1]=0.00; h_reflectorData[reflNum][3][2]=0;//reflector radis ,~,~ 
-    h_reflectorData[reflNum][4][0]=0.000;h_reflectorData[reflNum][4][1]=0.000;h_reflectorData[reflNum][4][2]=0.000;//t,u,v jiter  not implimented = speed 
-    h_reflectorData[reflNum][5][0]= damping; h_reflectorData[reflNum][5][1]=no_traping;  h_reflectorData[reflNum][5][2]=0.0;//reflectiondamping , no_traping ~
-    h_reflectorData[reflNum][6][0]=0;    h_reflectorData[reflNum][6][1]=0;    h_reflectorData[reflNum][6][2]=0;// not implemented yet centrality of rnd distribution speed dt tu ~
+    h_reflectorData[reflNum][0][0] = 1;
+    h_reflectorData[reflNum][0][1] = 0; // type, age ie colormod, ~  0 is off 1 is plane reflector
+    h_reflectorData[reflNum][1][0] = ftToM(5);
+    h_reflectorData[reflNum][1][1] = 0.0;
+    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -1.0;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
+    h_reflectorData[reflNum][3][0] = caverad;
+    h_reflectorData[reflNum][3][1] = 0.00;
+    h_reflectorData[reflNum][3][2] = 0; // reflector radis ,~,~ 
+    h_reflectorData[reflNum][4][0] = 0.000;
+    h_reflectorData[reflNum][4][1] = 0.000;
+    h_reflectorData[reflNum][4][2] = 0.000; // t,u,v jitter  not implimented = speed 
+    h_reflectorData[reflNum][5][0] = damping;
+    h_reflectorData[reflNum][5][1] = no_traping;
+    h_reflectorData[reflNum][5][2] = 0.0; // reflectiondamping , no_traping ~
+    h_reflectorData[reflNum][6][0] = 0;
+    h_reflectorData[reflNum][6][1] = 0;
+    h_reflectorData[reflNum][6][2] = 0; // not implemented yet centrality of rnd distribution speed dt tu ~
 
 
     reflNum = firstRefNum;
-    //front
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= caverad;h_reflectorData[reflNum][1][2]= -caverad;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=1;//x,y,z normal
-//	h_reflectorData[reflNum][2][0]=1;  h_reflectorData[reflNum][2][1]=1;    h_reflectorData[reflNum][2][2]=1;//x,y,z normal
+    // front
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = caverad;
+    h_reflectorData[reflNum][1][2] = -caverad; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = 1; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//back
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= caverad;h_reflectorData[reflNum][1][2]=caverad;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=-1;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // back
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = caverad;
+    h_reflectorData[reflNum][1][2] = caverad; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = -1; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//right
-    h_reflectorData[reflNum][1][0]=caverad;    h_reflectorData[reflNum][1][1]= caverad;h_reflectorData[reflNum][1][2]=0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=-1;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=0;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // right
+    h_reflectorData[reflNum][1][0] = caverad;
+    h_reflectorData[reflNum][1][1] = caverad;
+    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -1;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
+    copy_reflector(reflNum, reflNum +1);
 
-    reflNum++;//left
-    h_reflectorData[reflNum][1][0]=-caverad;    h_reflectorData[reflNum][1][1]= caverad;h_reflectorData[reflNum][1][2]=0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=1;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=0;//x,y,z normal
+    reflNum++; // left
+    h_reflectorData[reflNum][1][0] = -caverad;
+    h_reflectorData[reflNum][1][1] = caverad;
+    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 1;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//top
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= 2*caverad;h_reflectorData[reflNum][1][2]=0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0;  h_reflectorData[reflNum][2][1]=-1;    h_reflectorData[reflNum][2][2]=0;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // top
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = 2*caverad;
+    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][2][1] = -1;
+    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//bottom
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= -0;h_reflectorData[reflNum][1][2]=0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0;  h_reflectorData[reflNum][2][1]=1;    h_reflectorData[reflNum][2][2]=0;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // bottom
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = -0;
+    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][2][1] = 1;
+    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
 
     
     return reflNum;
@@ -1110,103 +1146,180 @@ int  danpart::loadStarcaveWalls(int firstInjNum)
 {
     
     int reflNum;
-    float damping =.99;
-    float no_traping =0;
+    float damping = .99;
+    float no_traping = 0;
     reflNum = firstInjNum;
-    h_reflectorData[reflNum][0][0]=1;h_reflectorData[reflNum][0][1]=0;// type, age ie colormod,, ~  0 is off 1 is plane reflector
-    h_reflectorData[reflNum][1][0]=ftToM(5);    h_reflectorData[reflNum][1][1]= 0.0;h_reflectorData[reflNum][1][2]=0;//x,y,z position
-    h_reflectorData[reflNum][2][0]= -1.0;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=0;//x,y,z normal
-    h_reflectorData[reflNum][3][0]=ftToM(5.00); h_reflectorData[reflNum][3][1]=0.00; h_reflectorData[reflNum][3][2]=0;//reflector radis ,~,~ 
-    h_reflectorData[reflNum][4][0]=0.000;h_reflectorData[reflNum][4][1]=0.000;h_reflectorData[reflNum][4][2]=0.000;//t,u,v jiter  not implimented = speed 
-    h_reflectorData[reflNum][5][0]= damping; h_reflectorData[reflNum][5][1]=no_traping;  h_reflectorData[reflNum][5][2]=0.0;//reflectiondamping , no_traping ~
-    h_reflectorData[reflNum][6][0]=0;    h_reflectorData[reflNum][6][1]=0;    h_reflectorData[reflNum][6][2]=0;// not implemented yet centrality of rnd distribution speed dt tu ~
+    h_reflectorData[reflNum][0][0] = 1;
+    h_reflectorData[reflNum][0][1] = 0; // type, age ie colormod,, ~  0 is off 1 is plane reflector
+    h_reflectorData[reflNum][1][0] = ftToM(5);
+    h_reflectorData[reflNum][1][1] = 0.0;
+    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -1.0;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
+    h_reflectorData[reflNum][3][0] = ftToM(5.00);
+    h_reflectorData[reflNum][3][1] = 0.00;
+    h_reflectorData[reflNum][3][2] = 0; // reflector radis ,~,~ 
+    h_reflectorData[reflNum][4][0] = 0.000;
+    h_reflectorData[reflNum][4][1] = 0.000;
+    h_reflectorData[reflNum][4][2] = 0.000; // t,u,v jitter  not implimented = speed 
+    h_reflectorData[reflNum][5][0] = damping;
+    h_reflectorData[reflNum][5][1] = no_traping;
+    h_reflectorData[reflNum][5][2] = 0.0; // reflectiondamping , no_traping ~
+    h_reflectorData[reflNum][6][0] = 0;
+    h_reflectorData[reflNum][6][1] = 0;
+    h_reflectorData[reflNum][6][2] = 0; // not implemented yet centrality of rnd distribution speed dt tu ~
 
 
     reflNum = firstInjNum;
-    //bacrightbot{{1248.500, -1179.500, 406.0000}, {-0.9185730, 0.2585657, -0.2989439}},
-    h_reflectorData[reflNum][1][0]=1248.500/1000.0;    h_reflectorData[reflNum][1][1]= -1179.500/1000.0;h_reflectorData[reflNum][1][2]=406.0000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=-0.9185730;  h_reflectorData[reflNum][2][1]=0.2585657;    h_reflectorData[reflNum][2][2]=-0.2989439;//x,y,z normal
+    // bacrightbot{{1248.500, -1179.500, 406.0000}, {-0.9185730, 0.2585657, -0.2989439}},
+    h_reflectorData[reflNum][1][0] = 1248.500/1000.0;
+    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = 406.0000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -0.9185730;
+    h_reflectorData[reflNum][2][1] = 0.2585657;
+    h_reflectorData[reflNum][2][2] = -0.2989439; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//bacrightmid{{1396.000, 0, 454.0000}, {-0.9509099, 0, -0.3094677}},
-    h_reflectorData[reflNum][1][0]=1396.000/1000.0;    h_reflectorData[reflNum][1][1]= 0;h_reflectorData[reflNum][1][2]=454.0000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=-0.9509099;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=-0.3094677;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // bacrightmid{{1396.000, 0, 454.0000}, {-0.9509099, 0, -0.3094677}},
+    h_reflectorData[reflNum][1][0] = 1396.000/1000.0;
+    h_reflectorData[reflNum][1][1] = 0;
+    h_reflectorData[reflNum][1][2] = 454.0000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -0.9509099;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = -0.3094677; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//frontrighttop{{1248.500, 1179.500, 406.0000}, {-0.9185730, -0.2585657, -0.2989439}},
-    h_reflectorData[reflNum][1][0]=1248.500/1000.0;    h_reflectorData[reflNum][1][1]= 1179.500/1000.0;h_reflectorData[reflNum][1][2]=406.0000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=-0.9185730;  h_reflectorData[reflNum][2][1]=-0.2585657;    h_reflectorData[reflNum][2][2]=-0.2989439;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // frontrighttop{{1248.500, 1179.500, 406.0000}, {-0.9185730, -0.2585657, -0.2989439}},
+    h_reflectorData[reflNum][1][0] = 1248.500/1000.0;
+    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = 406.0000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -0.9185730;
+    h_reflectorData[reflNum][2][1] = -0.2585657;
+    h_reflectorData[reflNum][2][2] = -0.2989439; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
+    copy_reflector(reflNum, reflNum +1);
 
-    reflNum++;//frontRightbot{{771.7500, -1179.500, -1061.500}, {-0.5680314, 0.2584201, 0.7813830}},
-    h_reflectorData[reflNum][1][0]=771.7500/1000.0;    h_reflectorData[reflNum][1][1]= -1179.500/1000.0;h_reflectorData[reflNum][1][2]=-1061.500/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=-0.5680314;  h_reflectorData[reflNum][2][1]=0.2584201;    h_reflectorData[reflNum][2][2]=0.7813830;//x,y,z normal
+    reflNum++; // frontRightbot{{771.7500, -1179.500, -1061.500}, {-0.5680314, 0.2584201, 0.7813830}},
+    h_reflectorData[reflNum][1][0] = 771.7500/1000.0;
+    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = -1061.500/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -0.5680314;
+    h_reflectorData[reflNum][2][1] = 0.2584201;
+    h_reflectorData[reflNum][2][2] = 0.7813830; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//frontRightmid{{863.0000, 0, -1187.000}, {-0.5877814, 0, 0.8090198}},
-    h_reflectorData[reflNum][1][0]=863.0000/1000.0;    h_reflectorData[reflNum][1][1]= 0;h_reflectorData[reflNum][1][2]=-1187.000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=-0.5877814;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=0.8090198;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // frontRightmid{{863.0000, 0, -1187.000}, {-0.5877814, 0, 0.8090198}},
+    h_reflectorData[reflNum][1][0] = 863.0000/1000.0;
+    h_reflectorData[reflNum][1][1] = 0;
+    h_reflectorData[reflNum][1][2] = -1187.000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -0.5877814;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = 0.8090198; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//frontRighttop{{771.7500, 1179.500, -1061.500}, {-0.5678161, -0.2584201, 0.7815395}},
-    h_reflectorData[reflNum][1][0]=771.7500/1000.0;    h_reflectorData[reflNum][1][1]= 1179.500/1000.0;h_reflectorData[reflNum][1][2]=-1061.500/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=-0.5678161;  h_reflectorData[reflNum][2][1]=-0.2584201;    h_reflectorData[reflNum][2][2]=0.7815395;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // frontRighttop{{771.7500, 1179.500, -1061.500}, {-0.5678161, -0.2584201, 0.7815395}},
+    h_reflectorData[reflNum][1][0] = 771.7500/1000.0;
+    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = -1061.500/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = -0.5678161;
+    h_reflectorData[reflNum][2][1] = -0.2584201;
+    h_reflectorData[reflNum][2][2] = 0.7815395; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-
-
-    reflNum++;//frontLeftbot{{-771.7500, -1179.500, -1055.000}, {0.5598715, 0.2588610, 0.7871054}},
-    h_reflectorData[reflNum][1][0]=-771.7500/1000.0;    h_reflectorData[reflNum][1][1]= -1179.500/1000.0;h_reflectorData[reflNum][1][2]=-1055.000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0.5598715;  h_reflectorData[reflNum][2][1]=0.2588610;    h_reflectorData[reflNum][2][2]=0.7871054;//x,y,z normal
-
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//frontLeftmid{{-863.0000, 0, -1187.500}, {0.5880881, 0, 0.8087969}},
-    h_reflectorData[reflNum][1][0]=-863.0000/1000.0;    h_reflectorData[reflNum][1][1]= 0;h_reflectorData[reflNum][1][2]=-1187.500/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0.5880881;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=0.8087969;//x,y,z normal
-
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//frontLefttop{{-771.7500, 1179.500, -1061.750}, {0.5680403, -0.2588774, 0.7812251}},
-    h_reflectorData[reflNum][1][0]=-771.7500/1000.0;    h_reflectorData[reflNum][1][1]= 1179.500/1000.0;h_reflectorData[reflNum][1][2]=-1061.750/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0.5680403;  h_reflectorData[reflNum][2][1]=-0.2588774;    h_reflectorData[reflNum][2][2]=0.7812251;//x,y,z normal
-
-    copy_reflector( reflNum, reflNum +1);
-
-    reflNum++;//bacLeftBot{{-1248.500, -1179.500, 406.0000}, {0.9185730, 0.2585657, -0.2989439}},
-    h_reflectorData[reflNum][1][0]=-1248.500/1000.0;    h_reflectorData[reflNum][1][1]= -1179.500/1000.0;h_reflectorData[reflNum][1][2]=406.0000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0.9185730;  h_reflectorData[reflNum][2][1]=0.2585657;    h_reflectorData[reflNum][2][2]=-0.2989439;//x,y,z normal
-
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//backLeftmid{{-1396.000, 0, 454.0000}, {0.9509099, 0, -0.3094677}},
-    h_reflectorData[reflNum][1][0]=-1396.000/1000.0;    h_reflectorData[reflNum][1][1]= 0;h_reflectorData[reflNum][1][2]=454.0000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0.9509099;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=-0.3094677;//x,y,z normal
-
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//backLeftTop{{-1248.500, 1179.500, 406.0000}, {0.9185730, -0.2585657, -0.2989439}},
-    h_reflectorData[reflNum][1][0]=-1248.500/1000.0;    h_reflectorData[reflNum][1][1]= 1179.500/1000.0;h_reflectorData[reflNum][1][2]=406.0000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0.9185730;  h_reflectorData[reflNum][2][1]=-0.2585657;    h_reflectorData[reflNum][2][2]=-0.2989439;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
 
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//backwall bot{{0, -1179.500, 1313.000}, {0, 0.2583889, -0.9660410}},
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= -1179.500/1000.0;h_reflectorData[reflNum][1][2]=1313.000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0;  h_reflectorData[reflNum][2][1]=-0.2583889;    h_reflectorData[reflNum][2][2]=-0.9660410;//x,y,z normal
+    reflNum++; // frontLeftbot{{-771.7500, -1179.500, -1055.000}, {0.5598715, 0.2588610, 0.7871054}},
+    h_reflectorData[reflNum][1][0] = -771.7500/1000.0;
+    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = -1055.000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0.5598715;
+    h_reflectorData[reflNum][2][1] = 0.2588610;
+    h_reflectorData[reflNum][2][2] = 0.7871054; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//backwall mid{{0, 0, 1468.000}, {0, 0, -1.000000}},
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= 0;h_reflectorData[reflNum][1][2]=1468.000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=-1;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // frontLeftmid{{-863.0000, 0, -1187.500}, {0.5880881, 0, 0.8087969}},
+    h_reflectorData[reflNum][1][0] = -863.0000/1000.0;
+    h_reflectorData[reflNum][1][1] = 0;
+    h_reflectorData[reflNum][1][2] = -1187.500/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0.5880881;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = 0.8087969; // x,y,z normal
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//backwall top{{0, 1179.500, 1313.000}, {0, -0.2583889, -0.9660410}},
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= 1179.500/1000.0;h_reflectorData[reflNum][1][2]=1313.000/1000.0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0;  h_reflectorData[reflNum][2][1]=-0.2583889;    h_reflectorData[reflNum][2][2]=-0.9660410;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // frontLefttop{{-771.7500, 1179.500, -1061.750}, {0.5680403, -0.2588774, 0.7812251}},
+    h_reflectorData[reflNum][1][0] = -771.7500/1000.0;
+    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = -1061.750/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0.5680403;
+    h_reflectorData[reflNum][2][1] = -0.2588774;
+    h_reflectorData[reflNum][2][2] = 0.7812251; // x,y,z normal
+
+    copy_reflector(reflNum, reflNum +1);
+
+    reflNum++; // bacLeftBot{{-1248.500, -1179.500, 406.0000}, {0.9185730, 0.2585657, -0.2989439}},
+    h_reflectorData[reflNum][1][0] = -1248.500/1000.0;
+    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = 406.0000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0.9185730;
+    h_reflectorData[reflNum][2][1] = 0.2585657;
+    h_reflectorData[reflNum][2][2] = -0.2989439; // x,y,z normal
+
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // backLeftmid{{-1396.000, 0, 454.0000}, {0.9509099, 0, -0.3094677}},
+    h_reflectorData[reflNum][1][0] = -1396.000/1000.0;
+    h_reflectorData[reflNum][1][1] = 0;
+    h_reflectorData[reflNum][1][2] = 454.0000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0.9509099;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = -0.3094677; // x,y,z normal
+
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // backLeftTop{{-1248.500, 1179.500, 406.0000}, {0.9185730, -0.2585657, -0.2989439}},
+    h_reflectorData[reflNum][1][0] = -1248.500/1000.0;
+    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = 406.0000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0.9185730;
+    h_reflectorData[reflNum][2][1] = -0.2585657;
+    h_reflectorData[reflNum][2][2] = -0.2989439; // x,y,z normal
 
 
-    copy_reflector( reflNum, reflNum +1);
-    reflNum++;//floor
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= 0;h_reflectorData[reflNum][1][2]=0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0;  h_reflectorData[reflNum][2][1]=0;    h_reflectorData[reflNum][2][2]=1;//x,y,z normal
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // backwall bot{{0, -1179.500, 1313.000}, {0, 0.2583889, -0.9660410}},
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = 1313.000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][2][1] = -0.2583889;
+    h_reflectorData[reflNum][2][2] = -0.9660410; // x,y,z normal
+
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // backwall mid{{0, 0, 1468.000}, {0, 0, -1.000000}},
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = 0;
+    h_reflectorData[reflNum][1][2] = 1468.000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = -1; // x,y,z normal
+
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // backwall top{{0, 1179.500, 1313.000}, {0, -0.2583889, -0.9660410}},
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
+    h_reflectorData[reflNum][1][2] = 1313.000/1000.0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][2][1] = -0.2583889;
+    h_reflectorData[reflNum][2][2] = -0.9660410; // x,y,z normal
+
+
+    copy_reflector(reflNum, reflNum +1);
+    reflNum++; // floor
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = 0;
+    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][2][2] = 1; // x,y,z normal
     // printf("max reflet num %i \n",reflNum);
     return reflNum;
 
@@ -1217,15 +1330,15 @@ int  danpart::loadStarcaveWalls(int firstInjNum)
 
 }
 
-////////////////////////////////////////////////////////////////////////////////////////////////
+// ////////////////// ////////////////////////////////////////////////////////////////////////////
 
 
 void danpart::scene_data_0_kill_audio()
 {
-    h_reflectorData[0][0][0] =0;// turn off all reflectors
-    h_injectorData[0][0][0] =0;// turn off all injectors
+    h_reflectorData[0][0][0] = 0; // turn off all reflectors
+    h_injectorData[0][0][0] = 0; // turn off all injectors
 
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
         audioFadeOutStop(dan_ambiance_2, 150,-1);
         audioGain(dan_10122606_sound_spray,0);
@@ -1234,92 +1347,105 @@ void danpart::scene_data_0_kill_audio()
 
 void danpart::scene_data_0()
 {
-    //paint on walls
-// particalsysparamiteres--------------
+    // paint on walls
+// particlesysparamiteres--------------
     gravity = .1;
     gravity = 0.000001;
-    //gravity = 0.0001;
-    colorFreq =16;
+    // gravity = 0.0001;
+    colorFreq = 16;
     max_age = 2000;
-    disappear_age =2000;
-    alphaControl =0;
+    disappear_age = 2000;
+    alphaControl = 0;
     static float time_in_scene;
     time_in_scene = time_in_scene + 1.0/TARGET_FR_RATE;
 	
     if (scene0Start == 1)
     {
         size_t size = PDATA_ROW_SIZE * CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT * sizeof (float);
-        //pdata_init_age( max_age);
+        // pdata_init_age(max_age);
         pdata_init_velocity(0, -0.005, 0);
         pdata_init_rand();
         cuMemcpyHtoD(d_particleData, h_particleData, size);
-        time_in_scene =0 * TARGET_FR_RATE;
+        time_in_scene = 0 * TARGET_FR_RATE;
         ::user->home();
 
         if (DEBUG_PRINT >0)printf("scene0Start \n");
-        if ((SOUND_SERV ==1)&& (::host->root() == 1))
+        if ((SOUND_SERV == 1)&& (::host->root() == 1))
         {
             audioPlay(dan_ambiance_2,1.0);audioGain(dan_ambiance_2,1);
                     
         }
           
-        //printf("scene0Start \n");
+        // printf("scene0Start \n");
     }
-    if (time_in_scene >90)nextScene=1;          
+    if (time_in_scene >90)nextScene = 1;          
 
-//printf ("time_in_scene 0 %f\n",time_in_scene);
+// printf ("time_in_scene 0 %f\n",time_in_scene);
 
-//printf( "in scene1 \n");
+// printf("in scene1 \n");
 
-    // anim += 0.001;// .0001
+    // anim += 0.001; // .0001
     anim = showFrameNo * .001;
-    //anim += 3.14159/4;
-    //tracker data
-    //printf("  devid %d \n",devid );
+    // anim += 3.14159/4;
+    // tracker data
+    // printf("  devid %d \n",devid );
     // printf("pos  P %f %f %f\n", P[0], P[1], P[2]);
-    //printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
+    // printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
 
-    draw_water_sky =0;
+    draw_water_sky = 0;
 	
-//	 injector data 
+// 	 injector data 
 
-//	 injector data 
+// 	 injector data 
     int injNum ;	
-    h_injectorData[0][0][0] =1;// number of injectors ~ ~   ~ means dont care
-    //injector 1
-    injNum =1;
+    h_injectorData[0][0][0] = 1; // number of injectors ~ ~   ~ means dont care
+    // injector 1
+    injNum = 1;
 
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
-        //audioGain(texture_12,trigger);
+        // audioGain(texture_12,trigger);
 	
-        //if ((triggerold == 0) && (trigger ==1)){audioPlay(short_sound_01a,0.1);audioGain(texture_12,1);}
-        if ((triggerold == 0) && (trigger ==1)){audioFadeUp( texture_12, 1, 1, short_sound_01a);}
-        if ((triggerold == 1) && (trigger ==0)){audioFadeOut( texture_12, 10, -1);}
+        // if ((triggerold == 0) && (trigger == 1)){audioPlay(short_sound_01a,0.1);audioGain(texture_12,1);}
+        if ((triggerold == 0) && (trigger == 1)){audioFadeUp(texture_12, 1, 1, short_sound_01a);}
+        if ((triggerold == 1) && (trigger == 0)){audioFadeOut(texture_12, 10, -1);}
 
     }
-    injNum =1;
-    h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=trigger;// type, injection ratio ie streem volume, ~
-    h_injectorData[injNum][2][0]=wandPos[0];h_injectorData[injNum][2][1]=wandPos[1];h_injectorData[injNum][2][2]=wandPos[2];//x,y,z position
-    h_injectorData[injNum][3][0]=wandVec[0];h_injectorData[injNum][3][1]=wandVec[1];h_injectorData[injNum][3][2]=wandVec[2];//x,y,z velocity direction
-    h_injectorData[injNum][4][0]=0.00;h_injectorData[injNum][4][1]=0.00;h_injectorData[injNum][4][2]=.0;//x,y,z size
-    h_injectorData[injNum][5][0]=0.010;h_injectorData[injNum][5][1]=0.010;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    h_injectorData[injNum][6][0]=.1;h_injectorData[injNum][6][1]=0.1;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
-    //if (trigger){printf (" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}
+    injNum = 1;
+    h_injectorData[injNum][1][0] = 1;
+    h_injectorData[injNum][1][1] = trigger; // type, injection ratio ie streem volume, ~
+    h_injectorData[injNum][2][0] = wandPos[0];
+    h_injectorData[injNum][2][1] = wandPos[1];
+    h_injectorData[injNum][2][2] = wandPos[2]; // x,y,z position
+    h_injectorData[injNum][3][0] = wandVec[0];
+    h_injectorData[injNum][3][1] = wandVec[1];
+    h_injectorData[injNum][3][2] = wandVec[2]; // x,y,z velocity direction
+    h_injectorData[injNum][4][0] = 0.00;
+    h_injectorData[injNum][4][1] = 0.00;
+    h_injectorData[injNum][4][2] = .0; // x,y,z size
+    h_injectorData[injNum][5][0] = 0.010;
+    h_injectorData[injNum][5][1] = 0.010;
+    h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+    h_injectorData[injNum][6][0] = .1;
+    h_injectorData[injNum][6][1] = 0.1;
+    h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
+    h_injectorData[injNum][7][0] = 5;
+    h_injectorData[injNum][7][1] = 5;
+    h_injectorData[injNum][7][2] = 5; // centrality of rnd distribution speed dt tu ~
+    // if (trigger){printf (" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}
     // load starcave wall reflectors
-    //h_reflectorData[0][0][0] =loadStarcaveWalls(1);
-    if (time_in_scene >5)h_reflectorData[0][0][0] =load6wallcaveWalls(1);
+    // h_reflectorData[0][0][0] = loadStarcaveWalls(1);
+    if (time_in_scene >5)h_reflectorData[0][0][0] = load6wallcaveWalls(1);
 
-    scene0Start =0;
+    scene0Start = 0;
 }
 
 void danpart::scene_data_1_kill_audio()
 {
-    h_reflectorData[0][0][0] =0;// turn off all reflectors
-    h_injectorData[0][0][0] =0;// turn off all injectors
+    h_reflectorData[0][0][0] = 0; // turn off all reflectors
+    h_injectorData[0][0][0] = 0; // turn off all injectors
 
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
         audioFadeOutStop(dan_5min_ostinato, 150,-1);
         audioGain(dan_10122606_sound_spray,0);
@@ -1328,15 +1454,15 @@ void danpart::scene_data_1_kill_audio()
 
 void danpart::scene_data_1()
 {
-//spiral Fountens
+// spiral Fountens
 
-    draw_water_sky =0;
-// particalsysparamiteres--------------
+    draw_water_sky = 0;
+// particlesysparamiteres--------------
     gravity = .00005;	
     max_age = 2000;
-    disappear_age =2000;
-    colorFreq =64 *max_age/2000.0 ;
-    alphaControl =0;//turns alph to transparent beloy y=0
+    disappear_age = 2000;
+    colorFreq = 64 *max_age/2000.0 ;
+    alphaControl = 0; // turns alph to transparent beloy y = 0
 // reload  rnd < max_age in to pdata
     static float time_in_scene;
     time_in_scene = time_in_scene + 1.0/TARGET_FR_RATE;
@@ -1344,98 +1470,120 @@ void danpart::scene_data_1()
 
     if (scene1Start == 1)
     {
-        //size_t size = PDATA_ROW_SIZE * CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT * sizeof (float);
-        //pdata_init_age( max_age);
-        //pdata_init_velocity(-10000, -10000, -10000);
-        //pdata_init_rand();
-        //cuMemcpyHtoD(d_particleData, h_particleData, size);
-        time_in_scene =0 * TARGET_FR_RATE;
+        // size_t size = PDATA_ROW_SIZE * CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT * sizeof (float);
+        // pdata_init_age(max_age);
+        // pdata_init_velocity(-10000, -10000, -10000);
+        // pdata_init_rand();
+        // cuMemcpyHtoD(d_particleData, h_particleData, size);
+        time_in_scene = 0 * TARGET_FR_RATE;
         ::user->home();
-        //printf( "in start scene3 \n");
+        // printf("in start scene3 \n");
         if (DEBUG_PRINT >0)printf("scene0Start \n");
-        if ((SOUND_SERV ==1)&& (::host->root() == 1))
+        if ((SOUND_SERV == 1)&& (::host->root() == 1))
         {
             audioPlay(dan_5min_ostinato,1.0);audioGain(dan_5min_ostinato,0.5);
                     
         }
  
             
-        //printf( " time %f \n", ::user->get_t());
+        // printf(" time %f \n", ::user->get_t());
     }
-//printf ("time_in_scene 1 %f\n",time_in_scene);
-    if (time_in_scene >110)nextScene=1;
-    if (DEBUG_PRINT >0)printf( "in scene1 \n");
-//printf( "in scene1 \n"); 
+// printf ("time_in_scene 1 %f\n",time_in_scene);
+    if (time_in_scene >110)nextScene = 1;
+    if (DEBUG_PRINT >0)printf("in scene1 \n");
+// printf("in scene1 \n"); 
 
-    // anim += 0.001;// .0001
+    // anim += 0.001; // .0001
     static float rotRate = .05;
     anim = showFrameNo * rotRate;
     rotRate += .000001;
 
-    //anim += 3.14159/4;
-    //tracker data
-    //printf("  devid %d \n",devid );
+    // anim += 3.14159/4;
+    // tracker data
+    // printf("  devid %d \n",devid );
     // printf("pos  P %f %f %f\n", P[0], P[1], P[2]);
-    //printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
+    // printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
 
 
-//	 injector data 
+// 	 injector data 
 
-//	 injector data 
+// 	 injector data 
     int injNum ;	
     // number of injectors ~ ~   ~ means dont care
-    //injector 1
-    injNum =1;
+    // injector 1
+    injNum = 1;
 	
-    h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(0.1);h_injectorData[injNum][2][2]=0;//x,y,z position
-    h_injectorData[injNum][3][0]=0.02 * (sin(time_in_scene*2*PI));h_injectorData[injNum][3][1]=0.5;h_injectorData[injNum][3][2]=0.02 * (cos(time_in_scene*2*PI));//x,y,z velocity
-    //h_injectorData[injNum][3][0]=0.02 *0.0;h_injectorData[injNum][3][1]=10;h_injectorData[injNum][3][2]=0.02 * -1;//x,y,z velocity
+    h_injectorData[injNum][1][0] = 2;
+    h_injectorData[injNum][1][1] = 1.0; // type, injection ratio ie streem volume, ~
+    h_injectorData[injNum][2][0] = 0;
+    h_injectorData[injNum][2][1] = ftToM(0.1);
+    h_injectorData[injNum][2][2] = 0; // x,y,z position
+    h_injectorData[injNum][3][0] = 0.02 * (sin(time_in_scene*2*PI));
+    h_injectorData[injNum][3][1] = 0.5;
+    h_injectorData[injNum][3][2] = 0.02 * (cos(time_in_scene*2*PI)); // x,y,z velocity
+    // h_injectorData[injNum][3][0] = 0.02 *0.0;
+    h_injectorData[injNum][3][1] = 10;
+    h_injectorData[injNum][3][2] = 0.02 * -1; // x,y,z velocity
 	
-    h_injectorData[injNum][4][0]=0.03;h_injectorData[injNum][4][1]=0.03;h_injectorData[injNum][4][2]=0.03;//x,y,z size
-    h_injectorData[injNum][5][0]=0.0000;h_injectorData[injNum][5][1]=0.00000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    //h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    h_injectorData[injNum][6][0]= .03;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+    h_injectorData[injNum][4][0] = 0.03;
+    h_injectorData[injNum][4][1] = 0.03;
+    h_injectorData[injNum][4][2] = 0.03; // x,y,z size
+    h_injectorData[injNum][5][0] = 0.0000;
+    h_injectorData[injNum][5][1] = 0.00000;
+    h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+    // h_injectorData[injNum][5][0] = 0.000;h_injectorData[injNum][5][1] = 0.000;h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+    h_injectorData[injNum][6][0] = .03;
+    h_injectorData[injNum][6][1] = 0.0;
+    h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
+    h_injectorData[injNum][7][0] = 5;
+    h_injectorData[injNum][7][1] = 5;
+    h_injectorData[injNum][7][2] = 5; // centrality of rnd distribution speed dt tu ~
     int reflect_on;
-    reflect_on =0;
-    float speed= 1.0/30; //one rotation every 
+    reflect_on = 0;
+    float speed = 1.0/30; // one rotation every 
     speed = 1.0/45;	
-    float stime =0 ;
-    float t,rs,as,mr=9.0;
+    float stime = 0 ;
+    float t,rs,as,mr = 9.0;
 	
    
     if ((HOST == STARCAVE) || (HOST == MAC_SIM))
     {
     
-        int numobj =5;
-        h_injectorData[0][0][0] =numobj;
+        int numobj = 5;
+        h_injectorData[0][0][0] = numobj;
 
 
     
-    	for(int i=1;i<=numobj;i++)
+    	for(int i = 1;i<= numobj;i++)
     	{
-            if (time_in_scene > 1.0/speed)reflect_on =1;	
+            if (time_in_scene > 1.0/speed)reflect_on = 1;	
             if (time_in_scene > 1.5/speed)
             {
-                reflect_on =1;
+                reflect_on = 1;
 			
-                h_injectorData[injNum][3][0]= 0;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=0.0;//x,y,z velocity
+                h_injectorData[injNum][3][0] = 0;
+                h_injectorData[injNum][3][1] = .5;
+                h_injectorData[injNum][3][2] = 0.0; // x,y,z velocity
                 if (time_in_scene > 2.0/speed)
                 {
-                    h_injectorData[injNum][3][0]= -ftToM(rs*sin(as))/8 ;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=ftToM(rs*cos(as))/8;//x,y,z velocity
-            	    h_injectorData[injNum][6][0]= .026;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+                    h_injectorData[injNum][3][0] = -ftToM(rs*sin(as))/8 ;
+                    h_injectorData[injNum][3][1] = .5;
+                    h_injectorData[injNum][3][2] = ftToM(rs*cos(as))/8; // x,y,z velocity
+            	    h_injectorData[injNum][6][0] = .026;
+                    h_injectorData[injNum][6][1] = 0.0;
+                    h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
                            
             	}
             }
     	 	
     	    copy_injector(1, i);
-            stime= i*(1/speed/numobj);
+            stime = i*(1/speed/numobj);
             if (time_in_scene >stime)
             {
-                injNum =i; t = time_in_scene - stime;rs =2*speed*(2*PI)*t;as =speed*(2*PI)*t;if (rs >mr)rs=mr;if (rs < 2)rs = 2;
-                //rs =mr;
-                h_injectorData[injNum][2][0]=ftToM(rs*sin(as));h_injectorData[injNum][2][2]=-ftToM(rs*cos(as))  ;
+                injNum = i; t = time_in_scene - stime;rs = 2*speed*(2*PI)*t;as = speed*(2*PI)*t;if (rs >mr)rs = mr;if (rs < 2)rs = 2;
+                // rs = mr;
+                h_injectorData[injNum][2][0] = ftToM(rs*sin(as));
+                h_injectorData[injNum][2][2] = -ftToM(rs*cos(as))  ;
 
 					
             }		
@@ -1447,32 +1595,39 @@ void danpart::scene_data_1()
     {printf ("inNEXCAVE \n");
     
  
-        int numobj =5;
-        h_injectorData[0][0][0] =numobj;
+        int numobj = 5;
+        h_injectorData[0][0][0] = numobj;
 
-    	for(int i=1;i<=numobj;i++)
+    	for(int i = 1;i<= numobj;i++)
     	{
-            if (time_in_scene > 1.0/speed)reflect_on =1;	
+            if (time_in_scene > 1.0/speed)reflect_on = 1;	
             if (time_in_scene > 1.5/speed)
             {
-                reflect_on =1;
+                reflect_on = 1;
 			
-                h_injectorData[injNum][3][0]= 0;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=0.0;//x,y,z velocity
+                h_injectorData[injNum][3][0] = 0;
+                h_injectorData[injNum][3][1] = .5;
+                h_injectorData[injNum][3][2] = 0.0; // x,y,z velocity
                 if (time_in_scene > 2.0/speed)
                 {
-                    h_injectorData[injNum][3][0]= -ftToM(rs*sin(as))/8 ;h_injectorData[injNum][3][1]=.5;h_injectorData[injNum][3][2]=ftToM(rs*cos(as))/8;//x,y,z velocity
-            	    h_injectorData[injNum][6][0]= .026;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
+                    h_injectorData[injNum][3][0] = -ftToM(rs*sin(as))/8 ;
+                    h_injectorData[injNum][3][1] = .5;
+                    h_injectorData[injNum][3][2] = ftToM(rs*cos(as))/8; // x,y,z velocity
+            	    h_injectorData[injNum][6][0] = .026;
+                    h_injectorData[injNum][6][1] = 0.0;
+                    h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
                            
             	}
             }
     	 	
     	    copy_injector(1, i);
-            stime= i*(1/speed/numobj);
+            stime = i*(1/speed/numobj);
             if (time_in_scene >stime)
             {
-                injNum =i; t = time_in_scene - stime;rs =2*speed*(2*PI)*t;as =speed*(2*PI)*t;if (rs >mr)rs=mr;if (rs < 2)rs = 2;
-                //rs =mr;
-                h_injectorData[injNum][2][0]=ftToM(rs*sin(as));h_injectorData[injNum][2][2]=ftToM(rs*cos(as)) - ftToM(5);
+                injNum = i; t = time_in_scene - stime;rs = 2*speed*(2*PI)*t;as = speed*(2*PI)*t;if (rs >mr)rs = mr;if (rs < 2)rs = 2;
+                // rs = mr;
+                h_injectorData[injNum][2][0] = ftToM(rs*sin(as));
+                h_injectorData[injNum][2][2] = ftToM(rs*cos(as)) - ftToM(5);
 
 					
             }		
@@ -1480,20 +1635,33 @@ void danpart::scene_data_1()
     }
 	
 
-    h_reflectorData[0][0][0] =2;// number of reflectors ~ ~   ~ means dont care
+    h_reflectorData[0][0][0] = 2; // number of reflectors ~ ~   ~ means dont care
 	
 	
     int reflNum = 1;
-    h_reflectorData[reflNum][0][0]=reflect_on;h_reflectorData[reflNum][0][1]=0;// type, age ie colormod,, ~  0 is off 1 is plane reflector
-    h_reflectorData[reflNum][1][0]=0;    h_reflectorData[reflNum][1][1]= 0.0;h_reflectorData[reflNum][1][2]=0;//x,y,z position
-    h_reflectorData[reflNum][2][0]=0.0;  h_reflectorData[reflNum][2][1]=1;    h_reflectorData[reflNum][2][2]=0;//x,y,z normal
-    h_reflectorData[reflNum][3][0]=ftToM(10.00); h_reflectorData[reflNum][3][1]=0.00; h_reflectorData[reflNum][3][2]=0;//reflector radis ,~,~ 
-    h_reflectorData[reflNum][4][0]=0.000;h_reflectorData[reflNum][4][1]=0.000;h_reflectorData[reflNum][4][2]=0.000;//t,u,v jiter  not implimented = speed 
-    h_reflectorData[reflNum][5][0]= 0.4; h_reflectorData[reflNum][5][1]=0.0;  h_reflectorData[reflNum][5][2]=0.0;//reflectiondamping , no_traping ~
-    h_reflectorData[reflNum][6][0]=0;    h_reflectorData[reflNum][6][1]=0;    h_reflectorData[reflNum][6][2]=0;// not implemented yet centrality of rnd distribution speed dt tu ~
+    h_reflectorData[reflNum][0][0] = reflect_on;
+    h_reflectorData[reflNum][0][1] = 0; // type, age ie colormod,, ~  0 is off 1 is plane reflector
+    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][1] = 0.0;
+    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][2][0] = 0.0;
+    h_reflectorData[reflNum][2][1] = 1;
+    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
+    h_reflectorData[reflNum][3][0] = ftToM(10.00);
+    h_reflectorData[reflNum][3][1] = 0.00;
+    h_reflectorData[reflNum][3][2] = 0; // reflector radis ,~,~ 
+    h_reflectorData[reflNum][4][0] = 0.000;
+    h_reflectorData[reflNum][4][1] = 0.000;
+    h_reflectorData[reflNum][4][2] = 0.000; // t,u,v jitter  not implimented = speed 
+    h_reflectorData[reflNum][5][0] = 0.4;
+    h_reflectorData[reflNum][5][1] = 0.0;
+    h_reflectorData[reflNum][5][2] = 0.0; // reflectiondamping , no_traping ~
+    h_reflectorData[reflNum][6][0] = 0;
+    h_reflectorData[reflNum][6][1] = 0;
+    h_reflectorData[reflNum][6][2] = 0; // not implemented yet centrality of rnd distribution speed dt tu ~
 	
     reflNum = 2;
-//BOB XFORM THIS
+// BOB XFORM THIS
     float x = wandPos[0];
     float y = wandPos[1];
     float z = wandPos[2];
@@ -1505,46 +1673,58 @@ void danpart::scene_data_1()
     dy = wandMat[5];
     dz = wandMat[6];
 
-
-    h_reflectorData[reflNum][0][0]=trigger;h_reflectorData[reflNum][0][1]=1;// type, age ie colormod, ~  0 is off 1 is plane reflector  0 is off 1 is plane reflector
-    h_reflectorData[reflNum][1][0]=x;    h_reflectorData[reflNum][1][1]= y;h_reflectorData[reflNum][1][2]=z;//x,y,z position
-    h_reflectorData[reflNum][2][0]=dx;  h_reflectorData[reflNum][2][1]=dy;    h_reflectorData[reflNum][2][2]=dz;//x,y,z normal
-    h_reflectorData[reflNum][3][0]=ftToM(0.5); h_reflectorData[reflNum][3][1]=0.00; h_reflectorData[reflNum][3][2]=0;//reflector radis ,~,~ 
-    h_reflectorData[reflNum][4][0]=0.000;h_reflectorData[reflNum][4][1]=0.000;h_reflectorData[reflNum][4][2]=0.000;//t,u,v jiter  not implimented = speed 
-    h_reflectorData[reflNum][5][0]= 1; h_reflectorData[reflNum][5][1]= 1.00;  h_reflectorData[reflNum][5][2]=0.0;//reflectiondamping , no_traping ~
-    h_reflectorData[reflNum][6][0]=0;    h_reflectorData[reflNum][6][1]=0;    h_reflectorData[reflNum][6][2]=0;// not implemented yet centrality of rnd distribution speed dt tu ~
+    h_reflectorData[reflNum][0][0] = trigger;
+    h_reflectorData[reflNum][0][1] = 1; // type, age ie colormod, ~  0 is off 1 is plane reflector  0 is off 1 is plane reflector
+    h_reflectorData[reflNum][1][0] = x;
+    h_reflectorData[reflNum][1][1] = y;
+    h_reflectorData[reflNum][1][2] = z; // x,y,z position
+    h_reflectorData[reflNum][2][0] = dx;
+    h_reflectorData[reflNum][2][1] = dy;
+    h_reflectorData[reflNum][2][2] = dz; // x,y,z normal
+    h_reflectorData[reflNum][3][0] = ftToM(0.5);
+    h_reflectorData[reflNum][3][1] = 0.00;
+    h_reflectorData[reflNum][3][2] = 0; // reflector radis ,~,~ 
+    h_reflectorData[reflNum][4][0] = 0.000;
+    h_reflectorData[reflNum][4][1] = 0.000;
+    h_reflectorData[reflNum][4][2] = 0.000; // t,u,v jitter  not implimented = speed 
+    h_reflectorData[reflNum][5][0] = 1;
+    h_reflectorData[reflNum][5][1] = 1.00;
+    h_reflectorData[reflNum][5][2] = 0.0; // reflectiondamping , no_traping ~
+    h_reflectorData[reflNum][6][0] = 0;
+    h_reflectorData[reflNum][6][1] = 0;
+    h_reflectorData[reflNum][6][2] = 0; // not implemented yet centrality of rnd distribution speed dt tu ~
      
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
 
-        if ((REFL_HITS ==1 ) && (trigger))
+        if ((REFL_HITS == 1 ) && (trigger))
         {
-            float ag =h_debugData[reflNum]/100.0;
-            if ((HOST == NEXCAVE) ||( HOST == MAC_SIM_NEXCAVE)) 
+            float ag = h_debugData[reflNum]/100.0;
+            if ((HOST == NEXCAVE) ||(HOST == MAC_SIM_NEXCAVE)) 
             {
-                if (ag >.5) ag= .5;
+                if (ag >.5) ag = .5;
             }
             else
             {
-                if (ag >.5) ag=.5;
+                if (ag >.5) ag = .5;
             }
             audioGain(dan_10122606_sound_spray,ag);
-            //printf ("falling rain hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
+            // printf ("falling rain hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
         }
-        if ((triggerold ==1) && (trigger ==0)) audioGain(dan_10122606_sound_spray,0);
+        if ((triggerold == 1) && (trigger == 0)) audioGain(dan_10122606_sound_spray,0);
 
     }
 
-    scene1Start =0;
+    scene1Start = 0;
 
 }
 
 void danpart::scene_data_2_kill_audio()
 {
-    h_reflectorData[0][0][0] =0;// turn off all reflectors
-    h_injectorData[0][0][0] =0;// turn off all injectors
+    h_reflectorData[0][0][0] = 0; // turn off all reflectors
+    h_injectorData[0][0][0] = 0; // turn off all injectors
 
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
         audioFadeOutStop(harmonicAlgorithm, 150,-1);
         audioGain(dan_10122606_sound_spray,0);
@@ -1553,16 +1733,16 @@ void danpart::scene_data_2_kill_audio()
 
 void danpart::scene_data_2()
 {
-//4 waterFalls
+// 4 waterFalls
 
-    draw_water_sky =0;
-// particalsysparamiteres--------------
+    draw_water_sky = 0;
+// particlesysparamiteres--------------
     gravity = .005;	
     gravity = .0001;	
     max_age = 2000;
-    disappear_age =2000;
-    colorFreq =64 *max_age/2000.0 ;
-    alphaControl =0;//turns alph to transparent beloy y=0
+    disappear_age = 2000;
+    colorFreq = 64 *max_age/2000.0 ;
+    alphaControl = 0; // turns alph to transparent beloy y = 0
     static float time_in_scene;
     time_in_scene = time_in_scene + 1.0/TARGET_FR_RATE;
 
@@ -1570,102 +1750,160 @@ void danpart::scene_data_2()
 
     if (scene2Start == 1)
     {
-        if (DEBUG_PRINT >0)printf( "in start scene2 \n");
-        time_in_scene =0 * TARGET_FR_RATE;
+        if (DEBUG_PRINT >0)printf("in start scene2 \n");
+        time_in_scene = 0 * TARGET_FR_RATE;
         ::user->home();
         if (DEBUG_PRINT >0)printf("scene0Start \n");
-        if ((SOUND_SERV ==1)&& (::host->root() == 1))
+        if ((SOUND_SERV == 1)&& (::host->root() == 1))
         {
-            //audioFadeUp( harmonicAlgorithm, 15, 1, -1);
+            // audioFadeUp(harmonicAlgorithm, 15, 1, -1);
             audioPlay(harmonicAlgorithm,1.0);audioGain(harmonicAlgorithm,1);
                     
         }
  
-        //printf( " time %f \n", ::user->get_t());
+        // printf(" time %f \n", ::user->get_t());
     }
 
 
-    if (time_in_scene >90)nextScene=1;
+    if (time_in_scene >90)nextScene = 1;
 
-    if (DEBUG_PRINT >0)printf( "in scene2 \n");
+    if (DEBUG_PRINT >0)printf("in scene2 \n");
 
 
-    // anim += 0.001;// .0001
+    // anim += 0.001; // .0001
     static float rotRate = .05;
     anim = showFrameNo * rotRate;
     rotRate += .000001;
 
-//	 injector data 
+// 	 injector data 
     int injNum ;	
-    h_injectorData[0][0][0] =1;// number of injectors ~ ~   ~ means dont care
+    h_injectorData[0][0][0] = 1; // number of injectors ~ ~   ~ means dont care
 
     if ((HOST == STARCAVE) || (HOST == MAC_SIM))
     {
  	
-        h_injectorData[0][0][0] =4;// number of injectors ~ ~   ~ means dont care
+        h_injectorData[0][0][0] = 4; // number of injectors ~ ~   ~ means dont care
 
         // injector 1
-        injNum =1;//front
-        h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-        h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(-2);//x,y,z position
-        h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.01;//x,y,z velocity drection
-    	h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.0);//x,y,z size
-        h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-        h_injectorData[injNum][6][0]=0.2000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-        h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+        injNum = 1; // front
+        h_injectorData[injNum][1][0] = 2;
+        h_injectorData[injNum][1][1] = 1.0; // type, injection ratio ie streem volume, ~
+        h_injectorData[injNum][2][0] = 0;
+        h_injectorData[injNum][2][1] = ftToM(6);
+        h_injectorData[injNum][2][2] = ftToM(-2); // x,y,z position
+        h_injectorData[injNum][3][0] = 0.0;
+        h_injectorData[injNum][3][1] = 0.010;
+        h_injectorData[injNum][3][2] = 0.01; // x,y,z velocity drection
+    	h_injectorData[injNum][4][0] = ftToM(0.25);
+        h_injectorData[injNum][4][1] = ftToM(0.25);
+        h_injectorData[injNum][4][2] = ftToM(0.0); // x,y,z size
+        h_injectorData[injNum][5][0] = 0.000;
+        h_injectorData[injNum][5][1] = 0.000;
+        h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+        h_injectorData[injNum][6][0] = 0.2000;
+        h_injectorData[injNum][6][1] = 0.0;
+        h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
+        h_injectorData[injNum][7][0] = 5;
+        h_injectorData[injNum][7][1] = 5;
+        h_injectorData[injNum][7][2] = 5; // centrality of rnd distribution speed dt tu ~
 
         copy_injector(1, 2);
-        injNum =2;//back
-    	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(2);//x,y,z position
-        h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=-0.01;//x,y,z velocity drection
+        injNum = 2; // back
+    	h_injectorData[injNum][2][0] = 0;
+        h_injectorData[injNum][2][1] = ftToM(6);
+        h_injectorData[injNum][2][2] = ftToM(2); // x,y,z position
+        h_injectorData[injNum][3][0] = 0.0;
+        h_injectorData[injNum][3][1] = 0.010;
+        h_injectorData[injNum][3][2] = -0.01; // x,y,z velocity drection
 
         copy_injector(1, 3);
-    	injNum =3;//back
-        h_injectorData[injNum][2][0]=ftToM(2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
-        h_injectorData[injNum][3][0]=-0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-    	h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+    	injNum = 3; // back
+        h_injectorData[injNum][2][0] = ftToM(2);
+        h_injectorData[injNum][2][1] = ftToM(6);
+        h_injectorData[injNum][2][2] = ftToM(0); // x,y,z position
+        h_injectorData[injNum][3][0] = -0.010;
+        h_injectorData[injNum][3][1] = 0.010;
+        h_injectorData[injNum][3][2] = 0; // x,y,z velocity drection
+    	h_injectorData[injNum][4][0] = ftToM(0.25);
+        h_injectorData[injNum][4][1] = ftToM(0.25);
+        h_injectorData[injNum][4][2] = ftToM(0.25); // x,y,z size
         copy_injector(1, 4);
-        injNum =4;//back
-    	h_injectorData[injNum][2][0]=ftToM(-2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
-        h_injectorData[injNum][3][0]=0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-        h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+        injNum = 4; // back
+    	h_injectorData[injNum][2][0] = ftToM(-2);
+        h_injectorData[injNum][2][1] = ftToM(6);
+        h_injectorData[injNum][2][2] = ftToM(0); // x,y,z position
+        h_injectorData[injNum][3][0] = 0.010;
+        h_injectorData[injNum][3][1] = 0.010;
+        h_injectorData[injNum][3][2] = 0; // x,y,z velocity drection
+        h_injectorData[injNum][4][0] = ftToM(0.25);
+        h_injectorData[injNum][4][1] = ftToM(0.25);
+        h_injectorData[injNum][4][2] = ftToM(0.25); // x,y,z size
     }
 
     if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE))
     {
  	
-        h_injectorData[0][0][0] =3;// number of injectors ~ ~   ~ means dont care
+        h_injectorData[0][0][0] = 3; // number of injectors ~ ~   ~ means dont care
 
         // injector 1
-        injNum =1;//front
-        h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-        h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(7);h_injectorData[injNum][2][2]=ftToM(-5);//x,y,z position
-        h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.07;//x,y,z velocity drection
-    	h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.0);//x,y,z size
-        h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-        h_injectorData[injNum][6][0]=0.1000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-        h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+        injNum = 1; // front
+        h_injectorData[injNum][1][0] = 2;
+        h_injectorData[injNum][1][1] = 1.0; // type, injection ratio ie streem volume, ~
+        h_injectorData[injNum][2][0] = 0;
+        h_injectorData[injNum][2][1] = ftToM(7);
+        h_injectorData[injNum][2][2] = ftToM(-5); // x,y,z position
+        h_injectorData[injNum][3][0] = 0.0;
+        h_injectorData[injNum][3][1] = 0.010;
+        h_injectorData[injNum][3][2] = 0.07; // x,y,z velocity drection
+    	h_injectorData[injNum][4][0] = ftToM(0.25);
+        h_injectorData[injNum][4][1] = ftToM(0.25);
+        h_injectorData[injNum][4][2] = ftToM(0.0); // x,y,z size
+        h_injectorData[injNum][5][0] = 0.000;
+        h_injectorData[injNum][5][1] = 0.000;
+        h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+        h_injectorData[injNum][6][0] = 0.1000;
+        h_injectorData[injNum][6][1] = 0.0;
+        h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
+        h_injectorData[injNum][7][0] = 5;
+        h_injectorData[injNum][7][1] = 5;
+        h_injectorData[injNum][7][2] = 5; // centrality of rnd distribution speed dt tu ~
 
         copy_injector(1, 2);
-        injNum =2;//back
-    	h_injectorData[injNum][2][0]=ftToM(-2.5);h_injectorData[injNum][2][1]=ftToM(7);h_injectorData[injNum][2][2]=ftToM(-4);//x,y,z position
-        h_injectorData[injNum][3][0]=0.04;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.04;//x,y,z velocity drection
+        injNum = 2; // back
+    	h_injectorData[injNum][2][0] = ftToM(-2.5);
+        h_injectorData[injNum][2][1] = ftToM(7);
+        h_injectorData[injNum][2][2] = ftToM(-4); // x,y,z position
+        h_injectorData[injNum][3][0] = 0.04;
+        h_injectorData[injNum][3][1] = 0.010;
+        h_injectorData[injNum][3][2] = 0.04; // x,y,z velocity drection
 
         copy_injector(1, 3);
-    	injNum =3;//back
-        h_injectorData[injNum][2][0]=ftToM(2.6);h_injectorData[injNum][2][1]=ftToM(7);h_injectorData[injNum][2][2]=ftToM(-4);//x,y,z position
-        h_injectorData[injNum][3][0]=-0.04;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0.04;//x,y,z velocity drection
-    	h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+    	injNum = 3; // back
+        h_injectorData[injNum][2][0] = ftToM(2.6);
+        h_injectorData[injNum][2][1] = ftToM(7);
+        h_injectorData[injNum][2][2] = ftToM(-4); // x,y,z position
+        h_injectorData[injNum][3][0] = -0.04;
+        h_injectorData[injNum][3][1] = 0.010;
+        h_injectorData[injNum][3][2] = 0.04; // x,y,z velocity drection
+    	h_injectorData[injNum][4][0] = ftToM(0.25);
+        h_injectorData[injNum][4][1] = ftToM(0.25);
+        h_injectorData[injNum][4][2] = ftToM(0.25); // x,y,z size
         copy_injector(1, 4);
-        injNum =4;//back
-    	h_injectorData[injNum][2][0]=ftToM(-2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
-        h_injectorData[injNum][3][0]=0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-        h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+        injNum = 4; // back
+    	h_injectorData[injNum][2][0] = ftToM(-2);
+        h_injectorData[injNum][2][1] = ftToM(6);
+        h_injectorData[injNum][2][2] = ftToM(0); // x,y,z position
+        h_injectorData[injNum][3][0] = 0.010;
+        h_injectorData[injNum][3][1] = 0.010;
+        h_injectorData[injNum][3][2] = 0; // x,y,z velocity drection
+        h_injectorData[injNum][4][0] = ftToM(0.25);
+        h_injectorData[injNum][4][1] = ftToM(0.25);
+        h_injectorData[injNum][4][2] = ftToM(0.25); // x,y,z size
     }
 
 
 
-    h_reflectorData[0][0][0] =1;// number of reflectors ~ ~   ~ means dont care
+    h_reflectorData[0][0][0] = 1; // number of reflectors ~ ~   ~ means dont care
     int reflNum;
     reflNum = 1;
     float x = wandPos[0];
@@ -1680,68 +1918,81 @@ void danpart::scene_data_2()
     dz = wandMat[6];
 
 
-    h_reflectorData[reflNum][0][0]=trigger;h_reflectorData[reflNum][0][1]=1;// type, age ie colormod, ~  0 is off 1 is plane reflector  0 is off 1 is plane reflector
-    h_reflectorData[reflNum][1][0]=x;    h_reflectorData[reflNum][1][1]= y;h_reflectorData[reflNum][1][2]=z;//x,y,z position
-    h_reflectorData[reflNum][2][0]=dx;  h_reflectorData[reflNum][2][1]=dy;    h_reflectorData[reflNum][2][2]=dz;//x,y,z normal
-    h_reflectorData[reflNum][3][0]=ftToM(0.5); h_reflectorData[reflNum][3][1]=0.00; h_reflectorData[reflNum][3][2]=0;//reflector radis ,~,~ 
-    h_reflectorData[reflNum][4][0]=0.000;h_reflectorData[reflNum][4][1]=0.000;h_reflectorData[reflNum][4][2]=0.000;//t,u,v jiter  not implimented = speed 
-    h_reflectorData[reflNum][5][0]= 1; h_reflectorData[reflNum][5][1]= 1.00;  h_reflectorData[reflNum][5][2]=0.0;//reflectiondamping , no_traping ~
-    h_reflectorData[reflNum][6][0]=0;    h_reflectorData[reflNum][6][1]=0;    h_reflectorData[reflNum][6][2]=0;// not implemented yet centrality of rnd distribution speed dt tu ~
+    h_reflectorData[reflNum][0][0] = trigger;
+    h_reflectorData[reflNum][0][1] = 1; // type, age ie colormod, ~  0 is off 1 is plane reflector  0 is off 1 is plane reflector
+    h_reflectorData[reflNum][1][0] = x;
+    h_reflectorData[reflNum][1][1] = y;
+    h_reflectorData[reflNum][1][2] = z; // x,y,z position
+    h_reflectorData[reflNum][2][0] = dx;
+    h_reflectorData[reflNum][2][1] = dy;
+    h_reflectorData[reflNum][2][2] = dz; // x,y,z normal
+    h_reflectorData[reflNum][3][0] = ftToM(0.5);
+    h_reflectorData[reflNum][3][1] = 0.00;
+    h_reflectorData[reflNum][3][2] = 0; // reflector radis ,~,~ 
+    h_reflectorData[reflNum][4][0] = 0.000;
+    h_reflectorData[reflNum][4][1] = 0.000;
+    h_reflectorData[reflNum][4][2] = 0.000; // t,u,v jitter  not implimented = speed 
+    h_reflectorData[reflNum][5][0] = 1;
+    h_reflectorData[reflNum][5][1] = 1.00;
+    h_reflectorData[reflNum][5][2] = 0.0; // reflectiondamping , no_traping ~
+    h_reflectorData[reflNum][6][0] = 0;
+    h_reflectorData[reflNum][6][1] = 0;
+    h_reflectorData[reflNum][6][2] = 0; // not implemented yet centrality of rnd distribution speed dt tu ~
 	    
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
 
-        if ((REFL_HITS ==1 ) && (trigger))
+        if ((REFL_HITS == 1 ) && (trigger))
         {
-            float ag =h_debugData[reflNum]/100.0;
-            if ((HOST == NEXCAVE) ||( HOST == MAC_SIM_NEXCAVE)) 
+            float ag = h_debugData[reflNum]/100.0;
+            if ((HOST == NEXCAVE) ||(HOST == MAC_SIM_NEXCAVE)) 
             {
-                if (ag >.5) ag= 1.0;
+                if (ag >.5) ag = 1.0;
             }
             else
             {
-                if (ag >.5) ag=.5;
+                if (ag >.5) ag = .5;
             }
             audioGain(dan_10122606_sound_spray,ag);
-            //printf ("falling rain hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
+            // printf ("falling rain hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
         }
-        if ((triggerold ==1) && (trigger ==0)) audioGain(dan_10122606_sound_spray,0);
+        if ((triggerold == 1) && (trigger == 0)) audioGain(dan_10122606_sound_spray,0);
 
     }
 
 
 	
-    scene2Start =0;
+    scene2Start = 0;
 
 }
-/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /// /
 
 void danpart::scene_data_3_kill_audio()
 {
-    h_reflectorData[0][0][0] =0;// turn off all reflectors
-    h_injectorData[0][0][0] =0;// turn off all injectors
+    h_reflectorData[0][0][0] = 0; // turn off all reflectors
+    h_injectorData[0][0][0] = 0; // turn off all injectors
 
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
         audioFadeOutStop(rain_at_sea, 150,-1);
         audioFadeOutStop(texture_17_swirls3, 150,-1);
-        //audioFadeOut(rain_at_sea, 150,-1);
-        //audioFadeOut(texture_17_swirls3, 150,-1);
+        // audioFadeOut(rain_at_sea, 150,-1);
+        // audioFadeOut(texture_17_swirls3, 150,-1);
         audioGain(dan_10122606_sound_spray,0);
         audioGain(dan_10120600_rezS3_rez2,0);
     }
 }
 void danpart::scene_data_3()
 {
-//painting skys
+// painting skys
 
-    draw_water_sky =1;
-// particalsysparamiteres--------------
+    draw_water_sky = 1;
+// particlesysparamiteres--------------
     gravity = .000005;	
     max_age = 2000;
-    disappear_age =2000;
-    colorFreq =64 *max_age/2000.0 ;
-    alphaControl =1;//turns alph to transparent beloy y=0
+    disappear_age = 2000;
+    colorFreq = 64 *max_age/2000.0 ;
+    alphaControl = 1; // turns alph to transparent beloy y = 0
     static float time_in_scene;
     static float rotRate;
 
@@ -1752,36 +2003,36 @@ void danpart::scene_data_3()
     if (scene3Start == 1)
     {
         size_t size = PDATA_ROW_SIZE * CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT * sizeof (float);
-        pdata_init_age( max_age);
+        pdata_init_age(max_age);
         pdata_init_velocity(-10000, -10000, -10000);
         pdata_init_rand();
         cuMemcpyHtoD(d_particleData, h_particleData, size);
-        if (DEBUG_PRINT >0)printf( "in start scene3 \n");
-        time_in_scene =0 * TARGET_FR_RATE;
+        if (DEBUG_PRINT >0)printf("in start scene3 \n");
+        time_in_scene = 0 * TARGET_FR_RATE;
         ::user->home();::user->turn(0,90,0);
         rotRate = .05;
-        ::user->set_t(86400);// set to 00:00 monday  old
-        ::user->set_t(1);// set to 0 days 1 sec
-        ::user->set_t(63711);// set to 0 days 1 sec
+        ::user->set_t(86400); // set to 00:00 monday  old
+        ::user->set_t(1); // set to 0 days 1 sec
+        ::user->set_t(63711); // set to 0 days 1 sec
 
-        //::user->time(43200/2.0);// set to dawn  old
-        //::user->set_t(43200/2.0);
+        // ::user->time(43200/2.0); // set to dawn  old
+        // ::user->set_t(43200/2.0);
 
-        //::user->pass(43200/2.0);
-        //printf( " time %f \n", ::user->get_t());
+        // ::user->pass(43200/2.0);
+        // printf(" time %f \n", ::user->get_t());
 
-        if ((SOUND_SERV ==1)&& (::host->root() == 1))
+        if ((SOUND_SERV == 1)&& (::host->root() == 1))
         {
             audioLoop(rain_at_sea,1);audioPlay(rain_at_sea,1.0);audioGain(rain_at_sea,1);
             audioLoop(texture_17_swirls3,1);audioPlay(texture_17_swirls3,1.0);audioGain(texture_17_swirls3,1);
                     
         }
     }
-//printf ("time_in_scene 3 %f\n",time_in_scene);
+// printf ("time_in_scene 3 %f\n",time_in_scene);
 
-    if (DEBUG_PRINT >0)printf( "in scene3 \n");
-// printf ( "scenetime time %f %f\n",time_in_scene,::user->get_t());
-//lerp(in, beginIN, endIn, beginOut, endOut)
+    if (DEBUG_PRINT >0)printf("in scene3 \n");
+// printf ("scenetime time %f %f\n",time_in_scene,::user->get_t());
+// lerp(in, beginIN, endIn, beginOut, endOut)
 
     if((time_in_scene > 0)&& (time_in_scene <= 30)) user->set_t(lerp(time_in_scene, 0, 30, 63400, 74000));
     if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE))
@@ -1794,71 +2045,103 @@ void danpart::scene_data_3()
     {
         if((time_in_scene > 30)&& (time_in_scene <= 90)) user->set_t(lerp(time_in_scene, 30, 90, 74000, 107000));
     }
-//if((time_in_scene > 30)&& (time_in_scene <= 40)) user->set_t(lerp(time_in_scene, 30, 40, 74000, 110000));
-    //     ::user->set_t(107000);// set to 0 days 1 sec
+// if((time_in_scene > 30)&& (time_in_scene <= 40)) user->set_t(lerp(time_in_scene, 30, 40, 74000, 110000));
+    //     ::user->set_t(107000); // set to 0 days 1 sec
 
 
-    // anim += 0.001;// .0001
+    // anim += 0.001; // .0001
 
     anim = showFrameNo * rotRate;
     rotRate += .000001;
 
-    //anim += 3.14159/4;
-    //tracker data
-    //printf("  devid %d \n",devid );
+    // anim += 3.14159/4;
+    // tracker data
+    // printf("  devid %d \n",devid );
     // printf("pos  P %f %f %f\n", P[0], P[1], P[2]);
-    //printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
+    // printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
 
 
-//	 injector data 
+// 	 injector data 
 
-//	 injector data 
+// 	 injector data 
     int injNum ;	
-    h_injectorData[0][0][0] =3;// number of injectors ~ ~   ~ means dont care
-    //injector 1
-    injNum =1;
+    h_injectorData[0][0][0] = 3; // number of injectors ~ ~   ~ means dont care
+    // injector 1
+    injNum = 1;
 	
-    h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(8.00);h_injectorData[injNum][2][2]=0;//x,y,z position
-    h_injectorData[injNum][3][0]=1 * (sin(anim/5));h_injectorData[injNum][3][1]=0.000;h_injectorData[injNum][3][2]=1 * (cos(anim/5));//x,y,z velocity direction
-    h_injectorData[injNum][3][0]=0.02 * (sin(anim));h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * (cos(anim));//x,y,z velocity
-    //h_injectorData[injNum][3][0]=0.02 *0.0;h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * -1;//x,y,z velocity
+    h_injectorData[injNum][1][0] = 1;
+    h_injectorData[injNum][1][1] = 1.0; // type, injection ratio ie streem volume, ~
+    h_injectorData[injNum][2][0] = 0;
+    h_injectorData[injNum][2][1] = ftToM(8.00);
+    h_injectorData[injNum][2][2] = 0; // x,y,z position
+    h_injectorData[injNum][3][0] = 1 * (sin(anim/5));
+    h_injectorData[injNum][3][1] = 0.000;
+    h_injectorData[injNum][3][2] = 1 * (cos(anim/5)); // x,y,z velocity direction
+    h_injectorData[injNum][3][0] = 0.02 * (sin(anim));
+    h_injectorData[injNum][3][1] = 0;
+    h_injectorData[injNum][3][2] = 0.02 * (cos(anim)); // x,y,z velocity
+    // h_injectorData[injNum][3][0] = 0.02 *0.0;
+    h_injectorData[injNum][3][1] = 0;
+    h_injectorData[injNum][3][2] = 0.02 * -1; // x,y,z velocity
 	
-    h_injectorData[injNum][4][0]=0.00;h_injectorData[injNum][4][1]=0.00;h_injectorData[injNum][4][2]=.0;//x,y,z size
-    h_injectorData[injNum][5][0]=0.0010;h_injectorData[injNum][5][1]=0.0010;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    //h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    h_injectorData[injNum][6][0]= 1.1;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+    h_injectorData[injNum][4][0] = 0.00;
+    h_injectorData[injNum][4][1] = 0.00;
+    h_injectorData[injNum][4][2] = .0; // x,y,z size
+    h_injectorData[injNum][5][0] = 0.0010;
+    h_injectorData[injNum][5][1] = 0.0010;
+    h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+    // h_injectorData[injNum][5][0] = 0.000;
+    h_injectorData[injNum][5][1] = 0.000;
+    h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+    h_injectorData[injNum][6][0] = 1.1;
+    h_injectorData[injNum][6][1] = 0.0;
+    h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
+    h_injectorData[injNum][7][0] = 5;
+    h_injectorData[injNum][7][1] = 5;
+    h_injectorData[injNum][7][2] = 5; // centrality of rnd distribution speed dt tu ~
 
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
         if (ENABLE_SOUND_POS_UPDATES) audioPos (texture_17_swirls3, 30* h_injectorData[injNum][3][0], 0, -30* h_injectorData[injNum][3][2]);
 			
     }
 
-    //
+    // 
     // injector 2
-    injNum =2;
-    h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=0.0;// type, injection ratio ie streem volume, ~
-    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=2.5;h_injectorData[injNum][2][2]=0;//x,y,z position
-    h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=1.000;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-    h_injectorData[injNum][4][0]=0.25;h_injectorData[injNum][4][1]=0.25;h_injectorData[injNum][4][2]=0;//x,y,z size
-    h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    h_injectorData[injNum][6][0]=.00;h_injectorData[injNum][6][1]=0.5;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+    injNum = 2;
+    h_injectorData[injNum][1][0] = 1;
+    h_injectorData[injNum][1][1] = 0.0; // type, injection ratio ie streem volume, ~
+    h_injectorData[injNum][2][0] = 0;
+    h_injectorData[injNum][2][1] = 2.5;
+    h_injectorData[injNum][2][2] = 0; // x,y,z position
+    h_injectorData[injNum][3][0] = 0.0;
+    h_injectorData[injNum][3][1] = 1.000;
+    h_injectorData[injNum][3][2] = 0; // x,y,z velocity drection
+    h_injectorData[injNum][4][0] = 0.25;
+    h_injectorData[injNum][4][1] = 0.25;
+    h_injectorData[injNum][4][2] = 0; // x,y,z size
+    h_injectorData[injNum][5][0] = 0.000;
+    h_injectorData[injNum][5][1] = 0.000;
+    h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+    h_injectorData[injNum][6][0] = .00;
+    h_injectorData[injNum][6][1] = 0.5;
+    h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
+    h_injectorData[injNum][7][0] = 5;
+    h_injectorData[injNum][7][1] = 5;
+    h_injectorData[injNum][7][2] = 5; // centrality of rnd distribution speed dt tu ~
 
-    //injector 3
-    //sound for inj3
-    injNum =3;
+    // injector 3
+    // sound for inj3
+    injNum = 3;
 
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
-        //audioGain(texture_12,trigger);
+        // audioGain(texture_12,trigger);
 	
-        //if ((triggerold == 0) && (trigger ==1)){audioPlay(short_sound_01a,0.1);audioGain(texture_12,1);}
+        // if ((triggerold == 0) && (trigger == 1)){audioPlay(short_sound_01a,0.1);audioGain(texture_12,1);}
             
-        if ((triggerold == 0) && (trigger ==1)){audioGain(short_sound_01a,10.0);audioFadeUp( texture_12, 1, 1, short_sound_01a);}
-        if ((triggerold == 1) && (trigger ==0)){audioFadeOut( texture_12, 10, -1);}
+        if ((triggerold == 0) && (trigger == 1)){audioGain(short_sound_01a,10.0);audioFadeUp(texture_12, 1, 1, short_sound_01a);}
+        if ((triggerold == 1) && (trigger == 0)){audioFadeOut(texture_12, 10, -1);}
         
         if (ENABLE_SOUND_POS_UPDATES)
         {  
@@ -1867,30 +2150,43 @@ void danpart::scene_data_3()
         } 
 
     }
-    h_injectorData[injNum][1][0]=1;h_injectorData[injNum][1][1]=trigger*4.0;// type, injection ratio ie streem volume, ~
-    h_injectorData[injNum][2][0]=wandPos[0];h_injectorData[injNum][2][1]=wandPos[1];h_injectorData[injNum][2][2]=wandPos[2];//x,y,z position
-    h_injectorData[injNum][3][0]=wandVec[0];h_injectorData[injNum][3][1]=wandVec[1];h_injectorData[injNum][3][2]=wandVec[2];//x,y,z velocity direction
-    //h_injectorData[injNum][3][0]=0.02 * (sin(anim));h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * (cos(anim));//x,y,z velocity
-    //h_injectorData[injNum][3][0]=0.02 *0.0;h_injectorData[injNum][3][1]=0;h_injectorData[injNum][3][2]=0.02 * -1;//x,y,z velocity
-    h_injectorData[injNum][4][0]=0.00;h_injectorData[injNum][4][1]=0.00;h_injectorData[injNum][4][2]=.0;//x,y,z size
-    h_injectorData[injNum][5][0]=0.010;h_injectorData[injNum][5][1]=0.010;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    h_injectorData[injNum][6][0]=0.1;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
-    //
+    h_injectorData[injNum][1][0] = 1;
+    h_injectorData[injNum][1][1] = trigger*4.0; // type, injection ratio ie streem volume, ~
+    h_injectorData[injNum][2][0] = wandPos[0];
+    h_injectorData[injNum][2][1] = wandPos[1];
+    h_injectorData[injNum][2][2] = wandPos[2]; // x,y,z position
+    h_injectorData[injNum][3][0] = wandVec[0];
+    h_injectorData[injNum][3][1] = wandVec[1];
+    h_injectorData[injNum][3][2] = wandVec[2]; // x,y,z velocity direction
+    // h_injectorData[injNum][3][0] = 0.02 * (sin(anim));h_injectorData[injNum][3][1] = 0;h_injectorData[injNum][3][2] = 0.02 * (cos(anim)); // x,y,z velocity
+    // h_injectorData[injNum][3][0] = 0.02 *0.0;h_injectorData[injNum][3][1] = 0;h_injectorData[injNum][3][2] = 0.02 * -1; // x,y,z velocity
+    h_injectorData[injNum][4][0] = 0.00;
+    h_injectorData[injNum][4][1] = 0.00;
+    h_injectorData[injNum][4][2] = .0; // x,y,z size
+    h_injectorData[injNum][5][0] = 0.010;
+    h_injectorData[injNum][5][1] = 0.010;
+    h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+    h_injectorData[injNum][6][0] = 0.1;
+    h_injectorData[injNum][6][1] = 0.0;
+    h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
+    h_injectorData[injNum][7][0] = 5;
+    h_injectorData[injNum][7][1] = 5;
+    h_injectorData[injNum][7][2] = 5; // centrality of rnd distribution speed dt tu ~
+    // 
     if (trigger){if (DEBUG_PRINT >0) {printf(" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}}
    
-    scene3Start =0;
+    scene3Start = 0;
 
 }
+
 //-----------------------------------------------------------------------------
 
 void danpart::scene_data_4_kill_audio()
 {
+    h_reflectorData[0][0][0] = 0; // turn off all reflectors
+    h_injectorData[0][0][0] = 0; // turn off all injectors
 
-    h_reflectorData[0][0][0] =0;// turn off all reflectors
-    h_injectorData[0][0][0] =0;// turn off all injectors
-
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
     {
 
         audioFadeOutStop(dan_rain_at_sea_loop, 150,-1);
@@ -1899,98 +2195,137 @@ void danpart::scene_data_4_kill_audio()
 }
 void danpart::scene_data_4()
 {
-//falling rain
+    // falling rain
 
-    draw_water_sky =0;
-// particalsysparamiteres--------------
+    draw_water_sky = 0;
+
+    // particle system parameters
+
     gravity = .001;	
     gravity = .00003;	
     max_age = 2000;
-    disappear_age =2000;
-    colorFreq =64 *max_age/2000.0 ;
-    alphaControl =0;//turns alph to transparent beloy y=0
+    disappear_age = 2000;
+    colorFreq = 64 *max_age/2000.0 ;
+    alphaControl = 0; // turns alph to transparent beloy y = 0
     static float time_in_scene;
     time_in_scene = time_in_scene + 1.0/TARGET_FR_RATE;
 
-// reload  rnd < max_age in to pdata
+    // reload  rnd < max_age in to pdata
 
     if (scene4Start == 1)
     {
         ::user->home();
-        if (DEBUG_PRINT >0)printf( "in start scene4 \n");
-        time_in_scene =0 * TARGET_FR_RATE;
-        if ((SOUND_SERV ==1)&& (::host->root() == 1))
+
+        if (DEBUG_PRINT > 0) printf("in start scene4 \n");
+
+        time_in_scene = 0 * TARGET_FR_RATE;
+
+        if ((SOUND_SERV == 1) && (::host->root() == 1))
         {
-                 
-            audioLoop(dan_rain_at_sea_loop,1);
-            audioPlay(dan_rain_at_sea_loop,1.0);audioGain(dan_rain_at_sea_loop,1.0);
-
+            audioLoop(dan_rain_at_sea_loop, 1);
+            audioPlay(dan_rain_at_sea_loop, 1.0);
+            audioGain(dan_rain_at_sea_loop, 1.0);
         }
-
     }
 
-    if (DEBUG_PRINT >0)printf( "in scene4 \n");
-    //printf( "in scene4 \n");
+    if (DEBUG_PRINT >0) printf("in scene4 \n");
 
-    // anim += 0.001;// .0001
     static float rotRate = .05;
     anim = showFrameNo * rotRate;
     rotRate += .000001;
 
+    // injector data 
+    h_reflectorData[0][0][0] = 1; // turn off all reflectors
 
-//	 injector data 
-    h_reflectorData[0][0][0] =1;// turn off all reflectors
-
-//	 injector data 
+    // injector data 
     int injNum ;	
-    h_injectorData[0][0][0] =1;// number of injectors ~ ~   ~ means dont care
-	
-    h_injectorData[0][0][0] =1;// number of injectors ~ ~   ~ means dont care
+    h_injectorData[0][0][0] = 1; // number of injectors ~ ~   ~ means dont care
 
     // injector 1
     if ((HOST == STARCAVE) || (HOST == MAC_SIM))
     {
-        injNum =1;
-        h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-        h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(10);h_injectorData[injNum][2][2]=ftToM(-2);//x,y,z position
-        h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.001;h_injectorData[injNum][3][2]=0.00;//x,y,z velocity drection
-        h_injectorData[injNum][4][0]=ftToM(1);h_injectorData[injNum][4][1]=ftToM(1);h_injectorData[injNum][4][2]=ftToM(1);//x,y,z size
-        h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-        h_injectorData[injNum][6][0]=0.2000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-        h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+        injNum = 1;
+        h_injectorData[injNum][1][0] = 2.0;
+        h_injectorData[injNum][1][1] = 1.0;       // type, injection ratio ie streem volume, ~
+        h_injectorData[injNum][2][0] = ftToM( 0);
+        h_injectorData[injNum][2][1] = ftToM(10);
+        h_injectorData[injNum][2][2] = ftToM(-2); // x,y,z position
+        h_injectorData[injNum][3][0] = 0.0;
+        h_injectorData[injNum][3][1] = 0.001;
+        h_injectorData[injNum][3][2] = 0.0;       // x,y,z velocity drection
+        h_injectorData[injNum][4][0] = ftToM(1);
+        h_injectorData[injNum][4][1] = ftToM(1);
+        h_injectorData[injNum][4][2] = ftToM(1);  // x,y,z size
+        h_injectorData[injNum][5][0] = 0.000;
+        h_injectorData[injNum][5][1] = 0.000;
+        h_injectorData[injNum][5][2] = 0.000;     // t,u,v jitter v not implimented = speed 
+        h_injectorData[injNum][6][0] = 0.2000;
+        h_injectorData[injNum][6][1] = 0.0;
+        h_injectorData[injNum][6][2] = 0.0;       // speed jitter
+        h_injectorData[injNum][7][0] = 5.0;
+        h_injectorData[injNum][7][1] = 5.0;
+        h_injectorData[injNum][7][2] = 5.0;       // centrality of rnd distribution speed dt tu
     }
   	
     if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE))
     { 	  
-    	injNum =1;
-    	
-    	h_injectorData[injNum][1][0]=2;h_injectorData[injNum][1][1]=1.0;// type, injection ratio ie streem volume, ~
-    	h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(7);h_injectorData[injNum][2][2]=ftToM(-3);//x,y,z position
-    	h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]= -0.001;h_injectorData[injNum][3][2]=0.00;//x,y,z velocity drection
-    	h_injectorData[injNum][4][0]=ftToM(1);h_injectorData[injNum][4][1]=ftToM(.5);h_injectorData[injNum][4][2]=ftToM(1);//x,y,z size
-    	h_injectorData[injNum][5][0]=0.000;h_injectorData[injNum][5][1]=0.000;h_injectorData[injNum][5][2]=0.000;//t,u,v jiter v not implimented = speed 
-    	h_injectorData[injNum][6][0]=0.2000;h_injectorData[injNum][6][1]=0.0;h_injectorData[injNum][6][2]=0.0;//speed jiter ~ ~
-    	h_injectorData[injNum][7][0]=5;h_injectorData[injNum][7][1]=5;h_injectorData[injNum][7][2]=5;//centrality of rnd distribution speed dt tu ~
+    	injNum = 1;
+        h_injectorData[injNum][1][0] = 2;
+        h_injectorData[injNum][1][1] = 1.0; // type, injection ratio ie streem volume, ~
+    	h_injectorData[injNum][2][0] = 0;
+        h_injectorData[injNum][2][1] = ftToM( 7);
+        h_injectorData[injNum][2][2] = ftToM(-3); // x,y,z position
+    	h_injectorData[injNum][3][0] = 0.0;
+        h_injectorData[injNum][3][1] = -0.001;
+        h_injectorData[injNum][3][2] = 0.00; // x,y,z velocity drection
+    	h_injectorData[injNum][4][0] = ftToM(1.0);
+        h_injectorData[injNum][4][1] = ftToM(0.5);
+        h_injectorData[injNum][4][2] = ftToM(1.0); // x,y,z size
+    	h_injectorData[injNum][5][0] = 0.000;
+        h_injectorData[injNum][5][1] = 0.000;
+        h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
+    	h_injectorData[injNum][6][0] = 0.2000;
+        h_injectorData[injNum][6][1] = 0.0;
+        h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
+    	h_injectorData[injNum][7][0] = 5.0;
+        h_injectorData[injNum][7][1] = 5.0;
+        h_injectorData[injNum][7][2] = 5.0; // centrality of rnd distribution speed dt tu ~
     }
+
     copy_injector(1, 2);
-    injNum =2;//back
-    h_injectorData[injNum][2][0]=0;h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(2);//x,y,z position
-    h_injectorData[injNum][3][0]=0.0;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=-0.01;//x,y,z velocity drection
+    injNum = 2; // back
+    h_injectorData[injNum][2][0] = 0;
+    h_injectorData[injNum][2][1] = ftToM(6);
+    h_injectorData[injNum][2][2] = ftToM(2); // x,y,z position
+    h_injectorData[injNum][3][0] = 0.0;
+    h_injectorData[injNum][3][1] = 0.010;
+    h_injectorData[injNum][3][2] = -0.01; // x,y,z velocity drection
 
     copy_injector(1, 3);
-    injNum =3;//back
-    h_injectorData[injNum][2][0]=ftToM(2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
-    h_injectorData[injNum][3][0]=-0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-    h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
+    injNum = 3; // back
+    h_injectorData[injNum][2][0] = ftToM(2);
+    h_injectorData[injNum][2][1] = ftToM(6);
+    h_injectorData[injNum][2][2] = ftToM(0); // x,y,z position
+    h_injectorData[injNum][3][0] = -0.010;
+    h_injectorData[injNum][3][1] = 0.010;
+    h_injectorData[injNum][3][2] = 0; // x,y,z velocity drection
+    h_injectorData[injNum][4][0] = ftToM(0.25);
+    h_injectorData[injNum][4][1] = ftToM(0.25);
+    h_injectorData[injNum][4][2] = ftToM(0.25); // x,y,z size
+
     copy_injector(1, 4);
-    injNum =4;//back
-    h_injectorData[injNum][2][0]=ftToM(-2);h_injectorData[injNum][2][1]=ftToM(6);h_injectorData[injNum][2][2]=ftToM(0);//x,y,z position
-    h_injectorData[injNum][3][0]=0.010;h_injectorData[injNum][3][1]=0.010;h_injectorData[injNum][3][2]=0;//x,y,z velocity drection
-    h_injectorData[injNum][4][0]=ftToM(0.25);h_injectorData[injNum][4][1]=ftToM(0.25);h_injectorData[injNum][4][2]=ftToM(0.25);//x,y,z size
- 
+    injNum = 4; // back
+    h_injectorData[injNum][2][0] = ftToM(-2);
+    h_injectorData[injNum][2][1] = ftToM(6);
+    h_injectorData[injNum][2][2] = ftToM(0); // x,y,z position
+    h_injectorData[injNum][3][0] = 0.010;
+    h_injectorData[injNum][3][1] = 0.010;
+    h_injectorData[injNum][3][2] = 0; // x,y,z velocity drection
+    h_injectorData[injNum][4][0] = ftToM(0.25);
+    h_injectorData[injNum][4][1] = ftToM(0.25);
+    h_injectorData[injNum][4][2] = ftToM(0.25); // x,y,z size
 
-
-    h_reflectorData[0][0][0] =1;// number of reflectors ~ ~   ~ means dont care
+    h_reflectorData[0][0][0] = 1; // number of reflectors ~ ~   ~ means dont care
     int reflNum;
     reflNum = 1;
     float x = wandPos[0];
@@ -2004,36 +2339,48 @@ void danpart::scene_data_4()
     dy = wandMat[5];
     dz = wandMat[6];
 
-    h_reflectorData[reflNum][0][0]=trigger;h_reflectorData[reflNum][0][1] =1;// type, age ie colormod, ~  0 is off 1 is plane reflector  0 is off 1 is plane reflector
-    h_reflectorData[reflNum][1][0]=x;    h_reflectorData[reflNum][1][1]= y;h_reflectorData[reflNum][1][2]=z;//x,y,z position
-    h_reflectorData[reflNum][2][0]=dx;  h_reflectorData[reflNum][2][1]=dy;    h_reflectorData[reflNum][2][2]=dz;//x,y,z normal
-    h_reflectorData[reflNum][3][0]=ftToM(0.5); h_reflectorData[reflNum][3][1]=0.00; h_reflectorData[reflNum][3][2]=0;//reflector radis ,~,~ 
-    h_reflectorData[reflNum][4][0]=0.000;h_reflectorData[reflNum][4][1]=0.000;h_reflectorData[reflNum][4][2]=0.000;//t,u,v jiter  not implimented = speed 
-    h_reflectorData[reflNum][5][0]= 1; h_reflectorData[reflNum][5][1]= 1.00;  h_reflectorData[reflNum][5][2]=0.0;//reflectiondamping , no_traping ~
-    h_reflectorData[reflNum][6][0]=0;    h_reflectorData[reflNum][6][1]=0;    h_reflectorData[reflNum][6][2]=0;// not implemented yet centrality of rnd distribution speed dt tu ~
+    h_reflectorData[reflNum][0][0] = trigger;
+    h_reflectorData[reflNum][0][1] = 1; // type, age ie colormod, ~  0 is off 1 is plane reflector  0 is off 1 is plane reflector
+    h_reflectorData[reflNum][1][0] = x;
+    h_reflectorData[reflNum][1][1] = y;
+    h_reflectorData[reflNum][1][2] = z; // x,y,z position
+    h_reflectorData[reflNum][2][0] = dx;
+    h_reflectorData[reflNum][2][1] = dy;
+    h_reflectorData[reflNum][2][2] = dz; // x,y,z normal
+    h_reflectorData[reflNum][3][0] = ftToM(0.5);
+    h_reflectorData[reflNum][3][1] = 0.00;
+    h_reflectorData[reflNum][3][2] = 0; // reflector radis ,~,~ 
+    h_reflectorData[reflNum][4][0] = 0.000;
+    h_reflectorData[reflNum][4][1] = 0.000;
+    h_reflectorData[reflNum][4][2] = 0.000; // t,u,v jitter  not implimented = speed 
+    h_reflectorData[reflNum][5][0] = 1;
+    h_reflectorData[reflNum][5][1] = 1.00;
+    h_reflectorData[reflNum][5][2] = 0.0; // reflectiondamping , no_traping ~
+    h_reflectorData[reflNum][6][0] = 0;
+    h_reflectorData[reflNum][6][1] = 0;
+    h_reflectorData[reflNum][6][2] = 0; // not implemented yet centrality of rnd distribution speed dt tu ~
 	    
-    if ((SOUND_SERV ==1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1) && (::host->root() == 1))
     {
-
-        if ((REFL_HITS ==1 ) && (trigger))
+        if ((REFL_HITS == 1) && (trigger))
         {
-            float ag =h_debugData[reflNum]/500.0;
-            if ((HOST == NEXCAVE) ||( HOST == MAC_SIM_NEXCAVE)) 
+            float ag = h_debugData[reflNum] / 500.0;
+
+            if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE)) 
             {
-                if (ag >.5) ag= .5;
+                if (ag > .5) ag = .5;
             }
             else
             {
-                if (ag >.5) ag=.5;
+                if (ag > .5) ag = .5;
             }
-            audioGain(dan_10122606_sound_spray,ag);
-            //printf ("falling rain hits in scene %f  ln hits %f\n",h_debugData[reflNum],log((h_debugData[reflNum])));
+            audioGain(dan_10122606_sound_spray, ag);
         }
-        if ((triggerold ==1) && (trigger ==0)) audioGain(dan_10122606_sound_spray,0);
+        if ((triggerold == 1) && (trigger == 0))
+            audioGain(dan_10122606_sound_spray, 0);
     }
 
-
-	
-    scene4Start =0;
-
+    scene4Start = 0;
 }
+
+//-----------------------------------------------------------------------------
