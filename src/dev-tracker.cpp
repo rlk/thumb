@@ -401,10 +401,7 @@ void dev::tracker::translate() const
 
         for (int b = 0; b < tracker_count_buttons(); ++b)
             if (tracker_button(b, d))
-            {
-                E.mk_click(b, 0, d);
-                ::host->process_event(&E);
-            }
+                ::host->process_event(E.mk_click(b, 0, d));
 
         for (int a = 0; a < tracker_count_values (); ++a)
             if (tracker_value (a, v))

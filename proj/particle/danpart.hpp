@@ -45,11 +45,11 @@ class danpart : public app::prog
 
     // Event handlers
 
-    bool process_keybd(app::event *);
+    bool process_key  (app::event *);
     bool process_click(app::event *);
     bool process_point(app::event *);
-    bool process_value(app::event *);
-    bool process_timer(app::event *);
+    bool process_axis (app::event *);
+    bool process_tick (app::event *);
 
     int tracker_head_sensor;
     int tracker_hand_sensor;

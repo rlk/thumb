@@ -39,28 +39,27 @@
   <!--        13 = D-pad R                       -->
   <!--        14 = Back                          -->
   <gamepad name="Xbox 360 Wireless Receiver">
-    <axis   name="move_LR"           paxis="0"  /> <!-- Move L/R ... L Stick X            -->
-    <axis   name="move_FB"           paxis="1"  /> <!-- Move F/B  .. L Stick Y            -->
-    <axis   name="move_UD" naxis="2" paxis="5"  /> <!-- Move U ..... R Trigger            -->
-                                                   <!-- Move D ..... L Trigger            -->
+    <axis   name="look_LR"           naxis="3"        /> <!-- Look L/R ... R Stick X   -->
+    <axis   name="look_UD"           naxis="4"        /> <!-- Look D/U ... R Stick Y   -->
 
-    <axis   name="look_LR"           naxis="3"  /> <!-- Look L/R ... R Stick X            -->
-    <axis   name="look_UD"           naxis="4"  /> <!-- Look D/U ... R Stick Y            -->
+    <axis   name="move_LR" paxis="0"           up="5" /> <!-- Move L/R ... L Stick X   -->
+    <axis   name="move_FB" paxis="1"           up="5" /> <!-- Move F/B  .. L Stick Y   -->
+    <axis   name="move_UD" paxis="5" naxis="2" up="5" /> <!-- Move U/D ....L/R Trigger -->
 
-    <axis   name="hand_LR"   mod="5" paxis="0"  /> <!-- Hand L/R ... R Bumper + L Stick X -->
-    <axis   name="hand_FB"   mod="5" paxis="1"  /> <!-- Hand F/B ... R Bumper + L Stick Y -->
-    <axis   name="hand_UD"   mod="5" paxis="5" naxis="2" /> <!-- Hand U ..... R Bumper + R Trigger -->
-                                                            <!-- Hand D ..... R Bumper + L Trigger -->
-    <button name="button_0"          index="0"  /> <!-- Button 0 ... A                    -->
-    <button name="button_1"          index="1"  /> <!-- Button 1 ... B                    -->
-    <button name="button_2"          index="2"  /> <!-- Button 2 ... X                    -->
-    <button name="button_3"          index="3"  /> <!-- Button 3 ... Y                    -->
-    <button name="move_home"         index="14" /> <!-- Move Home .. Back                 -->
-    <button name="hand_home" mod="5" index="14" /> <!-- Hand Home .. R Bumper + Back      -->
-    <button name="peek_U"            index="10" /> <!-- Peek U ..... D-Pad U              -->
-    <button name="peek_D"            index="11" /> <!-- Peek D ..... D-Pad D              -->
-    <button name="peek_L"            index="12" /> <!-- Peek L ..... D-Pad L              -->
-    <button name="peek_R"            index="13" /> <!-- Peek R ..... D-Pad R              -->
+    <axis   name="hand_LR" paxis="0"           dn="5" /> <!-- Hand L/R ... R Bumper + L Stick X   -->
+    <axis   name="hand_FB" paxis="1"           dn="5" /> <!-- Hand F/B ... R Bumper + L Stick Y   -->
+    <axis   name="hand_UD" paxis="5" naxis="2" dn="5" /> <!-- Hand U/D ... R Bumper + L/R Trigger -->
+
+    <button name="button_0"  index="0"         />        <!-- Button 0 ... A               -->
+    <button name="button_1"  index="1"         />        <!-- Button 1 ... B               -->
+    <button name="button_2"  index="2"         />        <!-- Button 2 ... X               -->
+    <button name="button_3"  index="3"         />        <!-- Button 3 ... Y               -->
+    <button name="move_home" index="14" up="5" />        <!-- Move Home .. Back            -->
+    <button name="hand_home" index="14" dn="5" />        <!-- Hand Home .. R Bumper + Back -->
+    <button name="peek_U"    index="10"        />        <!-- Peek U ..... D-Pad U         -->
+    <button name="peek_D"    index="11"        />        <!-- Peek D ..... D-Pad D         -->
+    <button name="peek_L"    index="12"        />        <!-- Peek L ..... D-Pad L         -->
+    <button name="peek_R"    index="13"        />        <!-- Peek R ..... D-Pad R         -->
   </gamepad>
   <!-- "Xbox 360 Wireless Receiver" Linux 2.6.32 -->
   <!--     Index - Axis                          -->

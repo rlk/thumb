@@ -863,11 +863,11 @@ danpart::~danpart()
 
 //-----------------------------------------------------------------------------
 
-bool danpart::process_keybd(app::event *E)
+bool danpart::process_key(app::event *E)
 {
-    const bool d = E->data.keybd.d;
-    const int  k = E->data.keybd.k;
-    const int  m = E->data.keybd.m;
+    const bool d = E->data.key.d;
+    const int  k = E->data.key.k;
+    const int  m = E->data.key.m;
     if (DEBUG_PRINT >0)printf(" d,k, m %d %d %d \n" ,d,k,m);
 
 
@@ -1000,9 +1000,9 @@ bool danpart::process_point(app::event *E)
     return false;
 }
 
-bool danpart::process_timer(app::event *E)
+bool danpart::process_tick(app::event *E)
 {
-    double dt = E->data.timer.dt;
+    double dt = E->data.tick.dt;
 
     if (fabs(joy_x) > 0.1)
         ::user->pass(joy_x * dt * 10.0);
@@ -1010,19 +1010,19 @@ bool danpart::process_timer(app::event *E)
     return false;
 }
 
-bool danpart::process_value(app::event *E)
+bool danpart::process_axis(app::event *E)
 {
 	if ((HOST == STARCAVE) || (HOST == MAC_SIM)||(MAC_SIM_NEXCAVE))
 		{
-    			if (E->data.value.a == 0) joy_x = E->data.value.v;
-    			if (E->data.value.a == 1) joy_y = E->data.value.v;
+    			if (E->data.axis.a == 0) joy_x = E->data.axis.v;
+    			if (E->data.axis.a == 1) joy_y = E->data.axis.v;
 		}
 	if (HOST == NEXCAVE)
 		{
-			if (E->data.value.i == 0)
+			if (E->data.axis.i == 0)
     				{
-        				if (E->data.value.a == 0) joy_x = E->data.value.v;
-        				if (E->data.value.a == 1) joy_y = E->data.value.v;
+        				if (E->data.axis.a == 0) joy_x = E->data.axis.v;
+        				if (E->data.axis.a == 1) joy_y = E->data.axis.v;
     				}
 		}
 //printf ("joy %f \n",joy_x);
@@ -1038,11 +1038,11 @@ bool danpart::process_event(app::event *E)
 
     switch (E->get_type())
     {
-    case E_KEYBD: R = process_keybd(E); break;
+    case E_KEY:   R = process_key  (E); break;
     case E_CLICK: R = process_click(E); break;
     case E_POINT: R = process_point(E); break;
-    case E_TIMER: R = process_timer(E); break;
-    case E_VALUE: R = process_value(E); break;
+    case E_TICK:  R = process_tick (E); break;
+    case E_AXIS:  R = process_axis (E); break;
     }
 
     if (R) return true;

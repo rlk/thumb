@@ -28,12 +28,14 @@ namespace dev
         int  naxis;
         int  pval;
         int  nval;
-        int  mod;
-        bool active;
+        int  up;
+        int  dn;
+        bool upok;
+        bool dnok;
 
     public:
 
-        axis(app::node=0, int=-1, int=-1, int=-1);
+        axis(app::node=0, int=-1, int=-1, int=-1, int=-1);
 
         void   process_button(int, bool);
         double process_axis  (int, int);
@@ -44,12 +46,14 @@ namespace dev
     class button
     {
         int  index;
-        int  mod;
-        bool active;
+        int  up;
+        int  dn;
+        bool upok;
+        bool dnok;
 
     public:
 
-        button(app::node=0, int=-1, int=-1);
+        button(app::node=0, int=-1, int=-1, int=-1);
 
         bool process_button(int, bool);
     };
@@ -65,16 +69,16 @@ namespace dev
 
         // Configuration
 
-        axis move_LR;
-        axis move_FB;
-        axis move_UD;
+        axis   look_LR;
+        axis   look_UD;
 
-        axis look_LR;
-        axis look_UD;
+        axis   move_LR;
+        axis   move_FB;
+        axis   move_UD;
 
-        axis hand_LR;
-        axis hand_FB;
-        axis hand_UD;
+        axis   hand_LR;
+        axis   hand_FB;
+        axis   hand_UD;
 
         button button_0;
         button button_1;
@@ -92,8 +96,18 @@ namespace dev
         double position[3];
         double rotation[2];
 
+        double hand_q[4];
+        double hand_p[3];
+        double hand_v[3];
+
+        int depth;
+
+        void synthesize_point();
+        void recenter_hand();
+
         // Event handlers
 
+        bool process_point (app::event *);
         bool process_button(app::event *);
         bool process_axis  (app::event *);
         bool process_tick  (app::event *);
