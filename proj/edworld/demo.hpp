@@ -105,7 +105,7 @@ class demo : public app::prog
 
     // Event handlers
 
-    bool process_keybd(app::event *);
+    bool process_key  (app::event *);
     bool process_input(app::event *);
     bool process_timer(app::event *);
 

@@ -339,11 +339,11 @@ void demo::prev()
 
 //-----------------------------------------------------------------------------
 
-bool demo::process_keybd(app::event *E)
+bool demo::process_key(app::event *E)
 {
-    const bool d = E->data.keybd.d;
-    const int  k = E->data.keybd.k;
-    const int  m = E->data.keybd.m;
+    const bool d = E->data.key.d;
+    const int  k = E->data.key.k;
+    const int  m = E->data.key.m;
 
     // Handle application mode transitions.
 
@@ -419,7 +419,7 @@ bool demo::process_event(app::event *E)
 
     switch (E->get_type())
     {
-    case E_KEYBD: R = process_keybd(E); break;
+    case E_KEY:   R = process_key  (E); break;
     case E_INPUT: R = process_input(E); break;
     case E_TIMER: R = process_timer(E); break;
     }
