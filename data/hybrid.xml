@@ -51,7 +51,10 @@
     <axis   name="hand_FB"   mod="5" paxis="1"  /> <!-- Hand F/B ... R Bumper + L Stick Y -->
     <axis   name="hand_UD"   mod="5" paxis="5" naxis="2" /> <!-- Hand U ..... R Bumper + R Trigger -->
                                                             <!-- Hand D ..... R Bumper + L Trigger -->
-    <button name="use"               index="0"  /> <!-- Use ........ X                    -->
+    <button name="button_0"          index="0"  /> <!-- Button 0 ... A                    -->
+    <button name="button_1"          index="1"  /> <!-- Button 1 ... B                    -->
+    <button name="button_2"          index="2"  /> <!-- Button 2 ... X                    -->
+    <button name="button_3"          index="3"  /> <!-- Button 3 ... Y                    -->
     <button name="move_home"         index="14" /> <!-- Move Home .. Back                 -->
     <button name="hand_home" mod="5" index="14" /> <!-- Hand Home .. R Bumper + Back      -->
     <button name="peek_U"            index="10" /> <!-- Peek U ..... D-Pad U              -->

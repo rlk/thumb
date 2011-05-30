@@ -368,10 +368,6 @@ dev::tracker::tracker() : flying(false), joy_x(0), joy_y(0)
     tracker_axis_A      = conf->get_i("tracker_axis_A");
     tracker_axis_T      = conf->get_i("tracker_axis_T");
 
-    key_edit            = conf->get_i("key_edit");
-    key_play            = conf->get_i("key_play");
-    key_info            = conf->get_i("key_info");
-
     // Initialize the tracker interface.
 
     int tracker_key = conf->get_i("tracker_key");
@@ -398,33 +394,23 @@ void dev::tracker::translate() const
     {
         app::event E;
 
-        int    i;
-        bool   b;
+        bool   d;
         double v;
         double p[3];
         double q[3];
 
-        for (i = 0; i < tracker_count_buttons(); ++i)
-            if (tracker_button(i, b))
+        for (int b = 0; b < tracker_count_buttons(); ++b)
+            if (tracker_button(b, d))
             {
-		/*
-                switch (i)
-                {
-                case 2:  E.mk_key(0, key_play, 0, b); break;
-                case 3:  E.mk_key(0, key_edit, 0, b); break;
-                case 4:  E.mk_key(0, key_info, 0, b); break;
-                default: E.mk_click(0, i, 0, b);        break;
-                }
-		*/
-                E.mk_click(0, i, 0, b);
+                E.mk_click(b, 0, d);
                 ::host->process_event(&E);
             }
 
-        for (i = 0; i < tracker_count_values (); ++i)
-            if (tracker_value (i, v))
-                ::host->process_event(E.mk_axis(0, i, v));
+        for (int a = 0; a < tracker_count_values (); ++a)
+            if (tracker_value (a, v))
+                ::host->process_event(E.mk_axis(0, a, v));
 
-        for (i = 0; i < tracker_count_sensors(); ++i)
+        for (int i = 0; i < tracker_count_sensors(); ++i)
             if (tracker_sensor(i, p, q))
             {
                 p[0] *= scale;

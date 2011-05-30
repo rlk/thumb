@@ -40,13 +40,13 @@ dev::axis::axis(app::node node, int p, int n, int m) : pval(0), nval(0)
     active = (mod < 0);
 }
 
-void dev::axis::click(int b, bool d)
+void dev::axis::process_button(int b, bool d)
 {
     if (mod >= 0 && mod == b)
         active = d;
 }
 
-double dev::axis::value(int a, int d)
+double dev::axis::process_axis(int a, int d)
 {
     if (active)
     {
@@ -75,7 +75,7 @@ dev::button::button(app::node node, int i, int m)
     active = (mod < 0);
 }
 
-bool dev::button::click(int b, bool d)
+bool dev::button::process_button(int b, bool d)
 {
     if (mod >= 0 && mod == b)
         active = d;
@@ -105,7 +105,10 @@ dev::hybrid::hybrid(const std::string& filename) :
     hand_FB  (node.find("axis",   "name", "hand_FB"),    1, -1,  5),
     hand_UD  (node.find("axis",   "name", "hand_UD"),    5,  2,  5),
 
-    use      (node.find("button", "name", "use"),        0,     -1),
+    button_0 (node.find("button", "name", "button_0"),   0,     -1),
+    button_1 (node.find("button", "name", "button_1"),   1,     -1),
+    button_2 (node.find("button", "name", "button_2"),   2,     -1),
+    button_3 (node.find("button", "name", "button_3"),   3,     -1),
     move_home(node.find("button", "name", "move_home"), 14,     -1),
     hand_home(node.find("button", "name", "hand_home"), 14,      5),
     peek_U   (node.find("button", "name", "peek_U"),    10,     -1),
@@ -122,11 +125,8 @@ dev::hybrid::hybrid(const std::string& filename) :
 
 //-----------------------------------------------------------------------------
 
-bool dev::hybrid::process_click(app::event *E)
+bool dev::hybrid::process_button(app::event *E)
 {
-    const int  b = E->data.click.b;
-    const bool d = E->data.click.d;
-
     const double U[3] = { 0, -.05, 0 };
     const double D[3] = { 0, +.05, 0 };
     const double L[3] = { -.05, 0, 0 };
@@ -134,47 +134,87 @@ bool dev::hybrid::process_click(app::event *E)
     const double C[3] = { 0, 0, 0    };
     const double q[4] = { 0, 0, 0, 1 };
 
-    bool r = false;
+    const int  b = E->data.button.b;
+    const bool d = E->data.button.d;
 
-    // Filter this button press through all button observers.
+    app::event F;
 
-    if (move_home.click(b, d)) { ::user->home(); r = true; }
+    // Filter this button press (unclaimed) through all axis observers.
 
-    if (peek_U.click(b, d)) { ::host->set_head(d ? U : C, q); r = true; }
-    if (peek_D.click(b, d)) { ::host->set_head(d ? D : C, q); r = true; }
-    if (peek_L.click(b, d)) { ::host->set_head(d ? L : C, q); r = true; }
-    if (peek_R.click(b, d)) { ::host->set_head(d ? R : C, q); r = true; }
-
-    // Filter this button press through all value observers.
-
-    move_LR.click(b, d);
-    move_FB.click(b, d);
-    move_UD.click(b, d);
-    look_LR.click(b, d);
-    look_UD.click(b, d);
-    hand_LR.click(b, d);
-    hand_FB.click(b, d);
-    hand_UD.click(b, d);
+    move_LR.process_button(b, d);
+    move_FB.process_button(b, d);
+    move_UD.process_button(b, d);
+    look_LR.process_button(b, d);
+    look_UD.process_button(b, d);
+    hand_LR.process_button(b, d);
+    hand_FB.process_button(b, d);
+    hand_UD.process_button(b, d);
     
+    // Filter this button press through all click generators.
+
+    if (button_0.process_button(b, d))
+        return ::host->process_event(F.mk_click(0, 0, d));
+
+    if (button_1.process_button(b, d))
+        return ::host->process_event(F.mk_click(1, 0, d));
+
+    if (button_2.process_button(b, d))
+        return ::host->process_event(F.mk_click(2, 0, d));
+
+    if (button_3.process_button(b, d))
+        return ::host->process_event(F.mk_click(3, 0, d));
+
+    // Filter this button press through all user controls.
+
+    if (move_home.process_button(b, d))
+    {
+        ::user->home();
+        return true;
+    }
+    if (peek_U.process_button(b, d))
+    {
+        ::host->set_head(d ? U : C, q);
+        return true;
+    }
+    if (peek_D.process_button(b, d))
+    {
+        ::host->set_head(d ? D : C, q);
+        return true;
+    }
+    if (peek_L.process_button(b, d))
+    {
+        ::host->set_head(d ? L : C, q);
+        return true;
+    }
+    if (peek_R.process_button(b, d))
+    {
+        ::host->set_head(d ? R : C, q);
+        return true;
+    }
+
     return false;
 }
 
 bool dev::hybrid::process_axis(app::event *E)
 {
+    // Update all axis observers.
+
     const int a = E->data.axis.a;
     const int v = E->data.axis.v;
 
-    position[0] = move_LR.value(a, v);
-    position[1] = move_UD.value(a, v);
-    position[2] = move_FB.value(a, v);
-    rotation[0] = look_LR.value(a, v);
-    rotation[1] = look_UD.value(a, v);
+    position[0] = move_LR.process_axis(a, v);
+    position[1] = move_UD.process_axis(a, v);
+    position[2] = move_FB.process_axis(a, v);
+    rotation[0] = look_LR.process_axis(a, v);
+    rotation[1] = look_UD.process_axis(a, v);
 
     return false;
 }
 
 bool dev::hybrid::process_tick(app::event *E)
 {
+    // Apply the current position and rotation velocities to the user.
+
     const double dt = E->data.tick.dt * 0.001;
     const double dz = 0.25;
 
@@ -206,9 +246,9 @@ bool dev::hybrid::process_event(app::event *E)
 
     switch (E->get_type())
     {
-    case E_CLICK: R |= process_click(E); break;
-    case E_AXIS: R |= process_axis(E); break;
-    case E_TICK: R |= process_tick(E); break;
+    case E_BUTTON: R |= process_button(E); break;
+    case E_AXIS:   R |= process_axis(E);   break;
+    case E_TICK:   R |= process_tick(E);   break;
     }
 
     return R || dev::input::process_event(E);

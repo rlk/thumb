@@ -36,10 +36,6 @@ namespace dev
         int tracker_axis_A;
         int tracker_axis_T;
 
-        int key_edit;
-        int key_play;
-        int key_info;
-
         // Navigation state
 
         double init_P[3], init_R[16];

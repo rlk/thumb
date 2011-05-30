@@ -667,12 +667,12 @@ void app::host::root_loop()
 
             case SDL_JOYBUTTONDOWN:
                 process_event(E.mk_button(e.jbutton.which,
-                                          e.jbutton.button, 0, true));
+                                          e.jbutton.button, true));
                 break;
 
             case SDL_JOYBUTTONUP:
                 process_event(E.mk_button(e.jbutton.which,
-                                          e.jbutton.button, 0, false));
+                                          e.jbutton.button, false));
                 break;
 
             case SDL_USEREVENT:
@@ -702,7 +702,7 @@ void app::host::root_loop()
             // Call the render handler.
 
             process_event(E.mk_draw());
-            process_event(E.mk_frame());
+            process_event(E.mk_swap());
 
             draw_flag = false;
 

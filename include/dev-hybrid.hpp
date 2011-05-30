@@ -35,8 +35,8 @@ namespace dev
 
         axis(app::node=0, int=-1, int=-1, int=-1);
 
-        void   click(int, bool);
-        double value(int, int);
+        void   process_button(int, bool);
+        double process_axis  (int, int);
     };
 
     //-------------------------------------------------------------------------
@@ -51,7 +51,7 @@ namespace dev
 
         button(app::node=0, int=-1, int=-1);
 
-        bool click(int, bool);
+        bool process_button(int, bool);
     };
 
     //-------------------------------------------------------------------------
@@ -76,7 +76,10 @@ namespace dev
         axis hand_FB;
         axis hand_UD;
 
-        button use;
+        button button_0;
+        button button_1;
+        button button_2;
+        button button_3;
         button move_home;
         button hand_home;
         button peek_U;
@@ -91,10 +94,9 @@ namespace dev
 
         // Event handlers
 
-        bool process_point(app::event *);
-        bool process_click(app::event *);
-        bool process_axis(app::event *);
-        bool process_tick(app::event *);
+        bool process_button(app::event *);
+        bool process_axis  (app::event *);
+        bool process_tick  (app::event *);
 
     public:
 

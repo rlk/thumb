@@ -196,7 +196,7 @@ void app::event::payload_encode()
     case E_BUTTON:
     
         put_byte(data.button.i);
-        put_word(data.button.b);
+        put_byte(data.button.b);
         put_bool(data.button.d);
         break;
 
@@ -257,8 +257,8 @@ void app::event::payload_decode()
         
     case E_BUTTON:
 
+        data.button.i = get_byte();
         data.button.b = get_byte();
-        data.button.m = get_word();
         data.button.d = get_bool();
         break;
 
@@ -350,10 +350,10 @@ app::event *app::event::mk_axis(int i, int a, double v)
 
 app::event *app::event::mk_button(int i, int b, bool d)
 {
-    put_type(E_CLICK);
+    put_type(E_BUTTON);
     
+    data.button.i = i;
     data.button.b = b;
-    data.button.m = m;
     data.button.d = d;
     
     payload_cache = false;
