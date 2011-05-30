@@ -1142,194 +1142,6 @@ int   danpart::load6wallcaveWalls(int firstRefNum)
 
 }
 
-int  danpart::loadStarcaveWalls(int firstInjNum)
-{
-    
-    int reflNum;
-    float damping = .99;
-    float no_traping = 0;
-    reflNum = firstInjNum;
-    h_reflectorData[reflNum][0][0] = 1;
-    h_reflectorData[reflNum][0][1] = 0; // type, age ie colormod,, ~  0 is off 1 is plane reflector
-    h_reflectorData[reflNum][1][0] = ftToM(5);
-    h_reflectorData[reflNum][1][1] = 0.0;
-    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = -1.0;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
-    h_reflectorData[reflNum][3][0] = ftToM(5.00);
-    h_reflectorData[reflNum][3][1] = 0.00;
-    h_reflectorData[reflNum][3][2] = 0; // reflector radis ,~,~ 
-    h_reflectorData[reflNum][4][0] = 0.000;
-    h_reflectorData[reflNum][4][1] = 0.000;
-    h_reflectorData[reflNum][4][2] = 0.000; // t,u,v jitter  not implimented = speed 
-    h_reflectorData[reflNum][5][0] = damping;
-    h_reflectorData[reflNum][5][1] = no_traping;
-    h_reflectorData[reflNum][5][2] = 0.0; // reflectiondamping , no_traping ~
-    h_reflectorData[reflNum][6][0] = 0;
-    h_reflectorData[reflNum][6][1] = 0;
-    h_reflectorData[reflNum][6][2] = 0; // not implemented yet centrality of rnd distribution speed dt tu ~
-
-
-    reflNum = firstInjNum;
-    // bacrightbot{{1248.500, -1179.500, 406.0000}, {-0.9185730, 0.2585657, -0.2989439}},
-    h_reflectorData[reflNum][1][0] = 1248.500/1000.0;
-    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = 406.0000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = -0.9185730;
-    h_reflectorData[reflNum][2][1] = 0.2585657;
-    h_reflectorData[reflNum][2][2] = -0.2989439; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // bacrightmid{{1396.000, 0, 454.0000}, {-0.9509099, 0, -0.3094677}},
-    h_reflectorData[reflNum][1][0] = 1396.000/1000.0;
-    h_reflectorData[reflNum][1][1] = 0;
-    h_reflectorData[reflNum][1][2] = 454.0000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = -0.9509099;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = -0.3094677; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // frontrighttop{{1248.500, 1179.500, 406.0000}, {-0.9185730, -0.2585657, -0.2989439}},
-    h_reflectorData[reflNum][1][0] = 1248.500/1000.0;
-    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = 406.0000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = -0.9185730;
-    h_reflectorData[reflNum][2][1] = -0.2585657;
-    h_reflectorData[reflNum][2][2] = -0.2989439; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-
-    reflNum++; // frontRightbot{{771.7500, -1179.500, -1061.500}, {-0.5680314, 0.2584201, 0.7813830}},
-    h_reflectorData[reflNum][1][0] = 771.7500/1000.0;
-    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = -1061.500/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = -0.5680314;
-    h_reflectorData[reflNum][2][1] = 0.2584201;
-    h_reflectorData[reflNum][2][2] = 0.7813830; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // frontRightmid{{863.0000, 0, -1187.000}, {-0.5877814, 0, 0.8090198}},
-    h_reflectorData[reflNum][1][0] = 863.0000/1000.0;
-    h_reflectorData[reflNum][1][1] = 0;
-    h_reflectorData[reflNum][1][2] = -1187.000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = -0.5877814;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = 0.8090198; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // frontRighttop{{771.7500, 1179.500, -1061.500}, {-0.5678161, -0.2584201, 0.7815395}},
-    h_reflectorData[reflNum][1][0] = 771.7500/1000.0;
-    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = -1061.500/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = -0.5678161;
-    h_reflectorData[reflNum][2][1] = -0.2584201;
-    h_reflectorData[reflNum][2][2] = 0.7815395; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-
-
-    reflNum++; // frontLeftbot{{-771.7500, -1179.500, -1055.000}, {0.5598715, 0.2588610, 0.7871054}},
-    h_reflectorData[reflNum][1][0] = -771.7500/1000.0;
-    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = -1055.000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0.5598715;
-    h_reflectorData[reflNum][2][1] = 0.2588610;
-    h_reflectorData[reflNum][2][2] = 0.7871054; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // frontLeftmid{{-863.0000, 0, -1187.500}, {0.5880881, 0, 0.8087969}},
-    h_reflectorData[reflNum][1][0] = -863.0000/1000.0;
-    h_reflectorData[reflNum][1][1] = 0;
-    h_reflectorData[reflNum][1][2] = -1187.500/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0.5880881;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = 0.8087969; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // frontLefttop{{-771.7500, 1179.500, -1061.750}, {0.5680403, -0.2588774, 0.7812251}},
-    h_reflectorData[reflNum][1][0] = -771.7500/1000.0;
-    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = -1061.750/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0.5680403;
-    h_reflectorData[reflNum][2][1] = -0.2588774;
-    h_reflectorData[reflNum][2][2] = 0.7812251; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-
-    reflNum++; // bacLeftBot{{-1248.500, -1179.500, 406.0000}, {0.9185730, 0.2585657, -0.2989439}},
-    h_reflectorData[reflNum][1][0] = -1248.500/1000.0;
-    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = 406.0000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0.9185730;
-    h_reflectorData[reflNum][2][1] = 0.2585657;
-    h_reflectorData[reflNum][2][2] = -0.2989439; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // backLeftmid{{-1396.000, 0, 454.0000}, {0.9509099, 0, -0.3094677}},
-    h_reflectorData[reflNum][1][0] = -1396.000/1000.0;
-    h_reflectorData[reflNum][1][1] = 0;
-    h_reflectorData[reflNum][1][2] = 454.0000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0.9509099;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = -0.3094677; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // backLeftTop{{-1248.500, 1179.500, 406.0000}, {0.9185730, -0.2585657, -0.2989439}},
-    h_reflectorData[reflNum][1][0] = -1248.500/1000.0;
-    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = 406.0000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0.9185730;
-    h_reflectorData[reflNum][2][1] = -0.2585657;
-    h_reflectorData[reflNum][2][2] = -0.2989439; // x,y,z normal
-
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // backwall bot{{0, -1179.500, 1313.000}, {0, 0.2583889, -0.9660410}},
-    h_reflectorData[reflNum][1][0] = 0;
-    h_reflectorData[reflNum][1][1] = -1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = 1313.000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0;
-    h_reflectorData[reflNum][2][1] = -0.2583889;
-    h_reflectorData[reflNum][2][2] = -0.9660410; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // backwall mid{{0, 0, 1468.000}, {0, 0, -1.000000}},
-    h_reflectorData[reflNum][1][0] = 0;
-    h_reflectorData[reflNum][1][1] = 0;
-    h_reflectorData[reflNum][1][2] = 1468.000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = -1; // x,y,z normal
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // backwall top{{0, 1179.500, 1313.000}, {0, -0.2583889, -0.9660410}},
-    h_reflectorData[reflNum][1][0] = 0;
-    h_reflectorData[reflNum][1][1] = 1179.500/1000.0;
-    h_reflectorData[reflNum][1][2] = 1313.000/1000.0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0;
-    h_reflectorData[reflNum][2][1] = -0.2583889;
-    h_reflectorData[reflNum][2][2] = -0.9660410; // x,y,z normal
-
-
-    copy_reflector(reflNum, reflNum +1);
-    reflNum++; // floor
-    h_reflectorData[reflNum][1][0] = 0;
-    h_reflectorData[reflNum][1][1] = 0;
-    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = 1; // x,y,z normal
-    // printf("max reflet num %i \n",reflNum);
-    return reflNum;
-
-
-
-
-
-
-}
-
 // ////////////////// ////////////////////////////////////////////////////////////////////////////
 
 
@@ -1521,17 +1333,12 @@ void danpart::scene_data_1()
     h_injectorData[injNum][3][0] = 0.02 * (sin(time_in_scene*2*PI));
     h_injectorData[injNum][3][1] = 0.5;
     h_injectorData[injNum][3][2] = 0.02 * (cos(time_in_scene*2*PI)); // x,y,z velocity
-    // h_injectorData[injNum][3][0] = 0.02 *0.0;
-    h_injectorData[injNum][3][1] = 10;
-    h_injectorData[injNum][3][2] = 0.02 * -1; // x,y,z velocity
-	
     h_injectorData[injNum][4][0] = 0.03;
     h_injectorData[injNum][4][1] = 0.03;
     h_injectorData[injNum][4][2] = 0.03; // x,y,z size
     h_injectorData[injNum][5][0] = 0.0000;
     h_injectorData[injNum][5][1] = 0.00000;
     h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
-    // h_injectorData[injNum][5][0] = 0.000;h_injectorData[injNum][5][1] = 0.000;h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
     h_injectorData[injNum][6][0] = .03;
     h_injectorData[injNum][6][1] = 0.0;
     h_injectorData[injNum][6][2] = 0.0; // speed jitter ~ ~
@@ -1827,6 +1634,7 @@ void danpart::scene_data_2()
     	h_injectorData[injNum][4][0] = ftToM(0.25);
         h_injectorData[injNum][4][1] = ftToM(0.25);
         h_injectorData[injNum][4][2] = ftToM(0.25); // x,y,z size
+
         copy_injector(1, 4);
         injNum = 4; // back
     	h_injectorData[injNum][2][0] = ftToM(-2);
@@ -1976,8 +1784,6 @@ void danpart::scene_data_3_kill_audio()
     {
         audioFadeOutStop(rain_at_sea, 150,-1);
         audioFadeOutStop(texture_17_swirls3, 150,-1);
-        // audioFadeOut(rain_at_sea, 150,-1);
-        // audioFadeOut(texture_17_swirls3, 150,-1);
         audioGain(dan_10122606_sound_spray,0);
         audioGain(dan_10120600_rezS3_rez2,0);
     }
@@ -2080,18 +1886,12 @@ void danpart::scene_data_3()
     h_injectorData[injNum][3][0] = 0.02 * (sin(anim));
     h_injectorData[injNum][3][1] = 0;
     h_injectorData[injNum][3][2] = 0.02 * (cos(anim)); // x,y,z velocity
-    // h_injectorData[injNum][3][0] = 0.02 *0.0;
-    h_injectorData[injNum][3][1] = 0;
-    h_injectorData[injNum][3][2] = 0.02 * -1; // x,y,z velocity
 	
     h_injectorData[injNum][4][0] = 0.00;
     h_injectorData[injNum][4][1] = 0.00;
     h_injectorData[injNum][4][2] = .0; // x,y,z size
     h_injectorData[injNum][5][0] = 0.0010;
     h_injectorData[injNum][5][1] = 0.0010;
-    h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
-    // h_injectorData[injNum][5][0] = 0.000;
-    h_injectorData[injNum][5][1] = 0.000;
     h_injectorData[injNum][5][2] = 0.000; // t,u,v jitter v not implimented = speed 
     h_injectorData[injNum][6][0] = 1.1;
     h_injectorData[injNum][6][1] = 0.0;
@@ -2158,8 +1958,6 @@ void danpart::scene_data_3()
     h_injectorData[injNum][3][0] = wandVec[0];
     h_injectorData[injNum][3][1] = wandVec[1];
     h_injectorData[injNum][3][2] = wandVec[2]; // x,y,z velocity direction
-    // h_injectorData[injNum][3][0] = 0.02 * (sin(anim));h_injectorData[injNum][3][1] = 0;h_injectorData[injNum][3][2] = 0.02 * (cos(anim)); // x,y,z velocity
-    // h_injectorData[injNum][3][0] = 0.02 *0.0;h_injectorData[injNum][3][1] = 0;h_injectorData[injNum][3][2] = 0.02 * -1; // x,y,z velocity
     h_injectorData[injNum][4][0] = 0.00;
     h_injectorData[injNum][4][1] = 0.00;
     h_injectorData[injNum][4][2] = .0; // x,y,z size
@@ -2176,7 +1974,6 @@ void danpart::scene_data_3()
     if (trigger){if (DEBUG_PRINT >0) {printf(" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}}
    
     scene3Start = 0;
-
 }
 
 //-----------------------------------------------------------------------------
@@ -2193,6 +1990,7 @@ void danpart::scene_data_4_kill_audio()
         audioGain(dan_10122606_sound_spray,0);
     }
 }
+
 void danpart::scene_data_4()
 {
     // falling rain
