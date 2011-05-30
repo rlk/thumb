@@ -61,43 +61,44 @@ class danpart : public app::prog
     double wandPos[3];
     double headVec[3];
     double wandVec[3];
-	int trackDevID;
-	float state ;
-       int trigger,triggerold;
-       int but4,but4old;
-       int but3,but3old;
-       int but2,but2old;
-       int but1,but1old;
-        int sceneNum;
-        int sceneOrder;
-        int nextSean;
-       // audio files
+    int trackDevID;
+    float state;
+    int trigger,triggerold;
+    int but4,but4old;
+    int but3,but3old;
+    int but2,but2old;
+    int but1,but1old;
+    int sceneNum;
+    int sceneOrder;
+    int nextScene;
+
+    // audio files
  
-      int chimes ;
-       int pinkNoise ;
-       int whiteNoise ;
-       int harmonicAlgorithm ;
-       int texture_12 ;
-	int short_sound_01a;
-	int texture_17_swirls3;
-	int dan_texture_13;
-	int dan_texture_05;
-	int dan_short_sound_04;
-	int dan_ambiance_2;
-	int dan_ambiance_1;
-	int dan_5min_ostinato;
-	int dan_10120603_Rez1;
-	int dan_texture_18_rain_at_sea;
-	int rain_at_sea;
+    int chimes;
+    int pinkNoise;
+    int whiteNoise;
+    int harmonicAlgorithm;
+    int texture_12;
+    int short_sound_01a;
+    int texture_17_swirls3;
+    int dan_texture_13;
+    int dan_texture_05;
+    int dan_short_sound_04;
+    int dan_ambiance_2;
+    int dan_ambiance_1;
+    int dan_5min_ostinato;
+    int dan_10120603_Rez1;
+    int dan_texture_18_rain_at_sea;
+    int rain_at_sea;
     int dan_mel_amb_slower;
-     int dan_texture_09;
-     int dan_rain_at_sea_loop;
-     int dan_10122606_sound_spray;
-     int dan_10122608_sound_spray_low;
-     int dan_10120600_rezS3_rez2;
+    int dan_texture_09;
+    int dan_rain_at_sea_loop;
+    int dan_10122606_sound_spray;
+    int dan_10122608_sound_spray_low;
+    int dan_10120600_rezS3_rez2;
 
     // CUDA state.
-// multpul function
+
     CUdevice   device;
     CUcontext  context;
     CUmodule   module;
@@ -115,71 +116,68 @@ class danpart : public app::prog
 
     double modulator[4];
     float anim;
-	int   max_age;
+    int   max_age;
     int disappear_age;
     float alphaControl;
-	float showFrameNo;
+    float showFrameNo;
     float lastShowFrameNo;
-	double showStartTime;
-	double showTime;
-	double lastShowTime;
-	float gravity;
-	float colorFreq;
+    double showStartTime;
+    double showTime;
+    double lastShowTime;
+    float gravity;
+    float colorFreq;
 
     int   mesh_width;
     int   mesh_height;
-	int  draw_water_sky;
+    int  draw_water_sky;
 
 	
 
     CUdeviceptr d_particleData;
     float      *h_particleData;
-    //CUdeviceptr d_injectorData;
-    float      h_injectorData[INJT_DATA_MUNB][INJT_DATA_ROWS][INJT_DATA_ROW_ELEM];
-    //CUdeviceptr d_reflectorData;
-    float      h_reflectorData[REFL_DATA_MUNB][REFL_DATA_ROWS][REFL_DATA_ROW_ELEM];
+    float       h_injectorData[INJT_DATA_MUNB][INJT_DATA_ROWS][INJT_DATA_ROW_ELEM];
+    float       h_reflectorData[REFL_DATA_MUNB][REFL_DATA_ROWS][REFL_DATA_ROW_ELEM];
     CUdeviceptr d_debugData;
     float      *h_debugData;
-	float old_refl_hits[128];// needs to have same length as d_debugData
-	float refl_hits[128];
+    float old_refl_hits[128];// needs to have same length as d_debugData
+    float refl_hits[128];
 
-	size_t sizeDebug;
-	size_t sizei;
-	size_t sizeRefl;
+    size_t sizeDebug;
+    size_t sizei;
+    size_t sizeRefl;
     void data_init();
     void pdata_init_age(int max_age);
     void pdata_init_velocity(float vx,float vy,float vz);
-	void pdata_init_rand();
- 	void copy_reflector(int sorce,int destination);
-	void copy_injector(int, int);
+    void pdata_init_rand();
+    void copy_reflector(int sorce,int destination);
+    void copy_injector(int, int);
     int loadStarcaveWalls(int);
     int load6wallcaveWalls(int);
     void draw_scene();
     void draw_triangles();
     void draw_wand_inj_image(int i);
     void draw_wand_refl_image(int i);
-	int scene0Start;
-	void scene_data_0();
-	void scene_data_0_kill_audio();
+    int scene0Start;
+    void scene_data_0();
+    void scene_data_0_kill_audio();
 
-	int scene1Start;
-	void scene_data_1();
-	void scene_data_1_kill_audio();
-	int scene2Start;
-	void scene_data_2();
-	void scene_data_2_kill_audio();
+    int scene1Start;
+    void scene_data_1();
+    void scene_data_1_kill_audio();
+    int scene2Start;
+    void scene_data_2();
+    void scene_data_2_kill_audio();
 
-	int scene3Start;	
-  	void scene_data_3();
-	void scene_data_3_kill_audio();
+    int scene3Start;	
+    void scene_data_3();
+    void scene_data_3_kill_audio();
 
-	int scene4Start;	
-  	void scene_data_4();
-	void scene_data_4_kill_audio();
+    int scene4Start;	
+    void scene_data_4();
+    void scene_data_4_kill_audio();
 
-
-    int witch_scene;
-    int old_witch_scene;
+    int which_scene;
+    int old_which_scene;
     int sceneChange;
 
     ogl::sprite  *particle;
@@ -197,7 +195,7 @@ class danpart : public app::prog
 public:
 
     danpart(const std::string&);
-   ~danpart();
+    ~danpart();
 
     bool process_event(app::event *);
 

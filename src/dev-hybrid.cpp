@@ -44,8 +44,8 @@ dev::axis::axis(app::node node, int p, int n, int u, int d) : pval(0), nval(0)
         pval = -32767;
         nval = -32767;
     }
-    upok = (up < 0);
     dnok = (dn < 0);
+    upok = true;
 }
 
 void dev::axis::process_button(int b, bool d)
@@ -82,8 +82,8 @@ dev::button::button(app::node node, int i, int u, int d)
         up    = u;
         dn    = d;
     }
-    upok = (up < 0);
     dnok = (dn < 0);
+    upok = true;
 }
 
 bool dev::button::process_button(int b, bool d)
@@ -210,11 +210,13 @@ bool dev::hybrid::process_button(app::event *E)
     if (hand_home.process_button(b, d))
     {
         recenter_hand();
+        synthesize_point();
         return true;
     }
     if (move_home.process_button(b, d))
     {
         ::user->home();
+        synthesize_point();
         return true;
     }
     if (peek_U.process_button(b, d))

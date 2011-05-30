@@ -16,7 +16,7 @@ OBJS=	app-data.o \
 	dev-gamepad.o \
 	dev-hybrid.o \
 	dev-mouse.o \
-	dev-tracker.o \
+	dev-trackd.o \
 	dpy-anaglyph.o \
 	dpy-channel.o \
 	dpy-display.o \

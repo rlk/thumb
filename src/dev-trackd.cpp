@@ -18,7 +18,7 @@
 #include <app-user.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>
-#include <dev-tracker.hpp>
+#include <dev-trackd.hpp>
 
 //=============================================================================
 // TRACKD shared memory protocol implementation
@@ -342,7 +342,7 @@ static bool tracker_button(int id, bool& b)
 
 //=============================================================================
 
-dev::tracker::tracker() : flying(false), joy_x(0), joy_y(0)
+dev::trackd::trackd() : flying(false), joy_x(0), joy_y(0)
 {
     // Initialize the event state.
 
@@ -379,14 +379,14 @@ dev::tracker::tracker() : flying(false), joy_x(0), joy_y(0)
     tracker_init(tracker_key, control_key);
 }
 
-dev::tracker::~tracker()
+dev::trackd::~trackd()
 {
     tracker_fini();
 }
 
 //-----------------------------------------------------------------------------
 
-void dev::tracker::translate() const
+void dev::trackd::translate() const
 {
     // Translate tracker status changes into event messages.
 
@@ -394,10 +394,10 @@ void dev::tracker::translate() const
     {
         app::event E;
 
-        bool   d;
-        double v;
         double p[3];
         double q[3];
+        double v;
+        bool   d;
 
         for (int b = 0; b < tracker_count_buttons(); ++b)
             if (tracker_button(b, d))
@@ -421,7 +421,7 @@ void dev::tracker::translate() const
 
 //-----------------------------------------------------------------------------
 
-bool dev::tracker::process_point(app::event *E)
+bool dev::trackd::process_point(app::event *E)
 {
     const int     i = E->data.point.i;
     const double *p = E->data.point.p;
@@ -442,7 +442,7 @@ bool dev::tracker::process_point(app::event *E)
     return false;
 }
 
-bool dev::tracker::process_click(app::event *E)
+bool dev::trackd::process_click(app::event *E)
 {
     const int  b = E->data.click.b;
     const bool d = E->data.click.d;
@@ -462,7 +462,7 @@ bool dev::tracker::process_click(app::event *E)
     return false;
 }
 
-bool dev::tracker::process_axis(app::event *E)
+bool dev::trackd::process_axis(app::event *E)
 {
     if (E->data.axis.a == 0) joy_x = E->data.axis.v;
     if (E->data.axis.a == 1) joy_y = E->data.axis.v;
@@ -470,7 +470,7 @@ bool dev::tracker::process_axis(app::event *E)
     return false;
 }
 
-bool dev::tracker::process_tick(app::event *E)
+bool dev::trackd::process_tick(app::event *E)
 {
     const double dt = E->data.tick.dt * 0.001;
 
@@ -511,16 +511,10 @@ bool dev::tracker::process_tick(app::event *E)
         ::user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
     }
 
-    // Handle the passage of time.
-/*
-    if (fabs(joy_x) > 0.1)
-        ::user->pass(joy_x * dt * 4.0 * 3600.0);
-*/
-
     return false;
 }
 
-bool dev::tracker::process_event(app::event *E)
+bool dev::trackd::process_event(app::event *E)
 {
     assert(E);
 
@@ -530,8 +524,8 @@ bool dev::tracker::process_event(app::event *E)
     {
     case E_POINT: R |= process_point(E); break;
     case E_CLICK: R |= process_click(E); break;
-    case E_AXIS: R |= process_axis(E); break;
-    case E_TICK: R |= process_tick(E); break;
+    case E_AXIS:  R |= process_axis (E); break;
+    case E_TICK:  R |= process_tick (E); break;
     }
 
     return R || dev::input::process_event(E);

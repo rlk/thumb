@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DEV_TRACKER
-#define DEV_TRACKER
+#ifndef DEV_TRACKD
+#define DEV_TRACKD
 
 #include <vector>
 
@@ -21,7 +21,7 @@
 
 namespace dev
 {
-    class tracker : public input
+    class trackd : public input
     {
         // Configuration
 
@@ -56,8 +56,8 @@ namespace dev
 
     public:
 
-        tracker();
-       ~tracker();
+        trackd();
+       ~trackd();
 
         bool process_event(app::event *);
     };

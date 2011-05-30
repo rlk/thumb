@@ -31,7 +31,7 @@
 #include <dev-mouse.hpp>
 #include <dev-hybrid.hpp>
 #include <dev-gamepad.hpp>
-#include <dev-tracker.hpp>
+#include <dev-trackd.hpp>
 
 #include <mode-edit.hpp>
 #include <mode-play.hpp>
@@ -204,7 +204,7 @@ demo::demo(const std::string& tag)
 
     if      (input_mode == "hybrid")  input = new dev::hybrid("hybrid.xml");
     else if (input_mode == "gamepad") input = new dev::gamepad();
-    else if (input_mode == "tracker") input = new dev::tracker();
+    else if (input_mode == "trackd")  input = new dev::trackd();
 //  else if (input_mode == "wiimote") input = new dev::wiimote();
     else                              input = new dev::mouse  ();
 
