@@ -23,7 +23,7 @@ namespace mode
     {
         bool process_start(app::event *);
         bool process_close(app::event *);
-        bool process_timer(app::event *);
+        bool process_tick(app::event *);
 
     public:
 

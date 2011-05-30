@@ -51,12 +51,12 @@ bool mode::play::process_close(app::event *E)
     return false;
 }
 
-bool mode::play::process_timer(app::event *E)
+bool mode::play::process_tick(app::event *E)
 {
     assert(E);
     assert(world);
 
-    world->play_step(E->data.timer.dt * 0.001);
+    world->play_step(E->data.tick.dt * 0.001);
 
     return false;
 }
@@ -73,7 +73,7 @@ bool mode::play::process_event(app::event *E)
     {
     case E_START: R |= process_start(E); break;
     case E_CLOSE: R |= process_close(E); break;
-    case E_TIMER: R |= process_timer(E); break;
+    case E_TICK: R |= process_tick(E); break;
     }
 
     return R || mode::process_event(E);

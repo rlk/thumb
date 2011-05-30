@@ -638,25 +638,25 @@ void app::host::root_loop()
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                process_event(E.mk_click(0, e.button.button,
+                process_event(E.mk_click(e.button.button,
                                          SDL_GetModState(), true));
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                process_event(E.mk_click(0, e.button.button,
+                process_event(E.mk_click(e.button.button,
                                          SDL_GetModState(), false));
                 break;
 
             case SDL_KEYDOWN:
                 process_event(E.mk_key(e.key.keysym.unicode,
-                                         e.key.keysym.sym,
-                                         SDL_GetModState(), true));
+                                       e.key.keysym.sym,
+                                       SDL_GetModState(), true));
                 break;
 
             case SDL_KEYUP:
                 process_event(E.mk_key(e.key.keysym.unicode,
-                                         e.key.keysym.sym,
-                                         SDL_GetModState(), false));
+                                       e.key.keysym.sym,
+                                       SDL_GetModState(), false));
                 break;
 
             case SDL_JOYAXISMOTION:
@@ -666,13 +666,13 @@ void app::host::root_loop()
                 break;
 
             case SDL_JOYBUTTONDOWN:
-                process_event(E.mk_click(e.jbutton.which,
-                                         e.jbutton.button, 0, true));
+                process_event(E.mk_button(e.jbutton.which,
+                                          e.jbutton.button, 0, true));
                 break;
 
             case SDL_JOYBUTTONUP:
-                process_event(E.mk_click(e.jbutton.which,
-                                         e.jbutton.button, 0, false));
+                process_event(E.mk_button(e.jbutton.which,
+                                          e.jbutton.button, 0, false));
                 break;
 
             case SDL_USEREVENT:
@@ -697,11 +697,11 @@ void app::host::root_loop()
                  tick - tock >= JIFFY;
                  tock        += JIFFY)
 
-                process_event(E.mk_timer(JIFFY));
+                process_event(E.mk_tick(JIFFY));
 
             // Call the render handler.
 
-            process_event(E.mk_paint());
+            process_event(E.mk_draw());
             process_event(E.mk_frame());
 
             draw_flag = false;
@@ -936,8 +936,8 @@ bool app::host::process_event(event *E)
 
     switch (E->get_type())
     {
-    case E_PAINT: draw(); sync();           return true;
-    case E_FRAME: swap();                   return true;
+    case E_DRAW: draw(); sync();           return true;
+    case E_SWAP: swap();                   return true;
     case E_CLOSE: process_close(E); sync(); return true;
     case E_FLUSH: ::glob->fini();
                   ::glob->init(); return true;

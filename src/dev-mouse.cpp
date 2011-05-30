@@ -187,9 +187,9 @@ bool dev::mouse::process_key(app::event *E)
     return false;
 }
 
-bool dev::mouse::process_timer(app::event *E)
+bool dev::mouse::process_tick(app::event *E)
 {
-    double kp = E->data.timer.dt * ::user->get_move_rate() * 0.001;
+    double kp = E->data.tick.dt * ::user->get_move_rate() * 0.001;
 
     if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;
@@ -212,7 +212,7 @@ bool dev::mouse::process_event(app::event *E)
     case E_POINT: R |= process_point(E); break;
     case E_CLICK: R |= process_click(E); break;
     case E_KEY: R |= process_key(E); break;
-    case E_TIMER: R |= process_timer(E); break;
+    case E_TICK: R |= process_tick(E); break;
     }
 
     return R || dev::input::process_event(E);

@@ -107,7 +107,7 @@ class demo : public app::prog
 
     bool process_key  (app::event *);
     bool process_input(app::event *);
-    bool process_timer(app::event *);
+    bool process_tick(app::event *);
 
 public:
 

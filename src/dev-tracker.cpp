@@ -487,9 +487,9 @@ bool dev::tracker::process_axis(app::event *E)
     return false;
 }
 
-bool dev::tracker::process_timer(app::event *E)
+bool dev::tracker::process_tick(app::event *E)
 {
-    const double dt = E->data.timer.dt * 0.001;
+    const double dt = E->data.tick.dt * 0.001;
 
     const double kr = dt * ::user->get_turn_rate() * 45.0;
     const double kp = dt * ::user->get_move_rate();
@@ -548,7 +548,7 @@ bool dev::tracker::process_event(app::event *E)
     case E_POINT: R |= process_point(E); break;
     case E_CLICK: R |= process_click(E); break;
     case E_AXIS: R |= process_axis(E); break;
-    case E_TIMER: R |= process_timer(E); break;
+    case E_TICK: R |= process_tick(E); break;
     }
 
     return R || dev::input::process_event(E);

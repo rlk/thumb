@@ -54,7 +54,7 @@ namespace dev
         bool process_point(app::event *);
         bool process_click(app::event *);
         bool process_axis(app::event *);
-        bool process_timer(app::event *);
+        bool process_tick(app::event *);
 
         void translate() const;
 

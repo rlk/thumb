@@ -314,7 +314,7 @@ bool mode::edit::process_key(app::event *E)
     return false;
 }
 
-bool mode::edit::process_timer(app::event *E)
+bool mode::edit::process_tick(app::event *E)
 {
     assert(world);
 
@@ -383,7 +383,7 @@ bool mode::edit::process_event(app::event *E)
     case E_POINT: R |= process_point(E); break;
     case E_CLICK: R |= process_click(E); break;
     case E_KEY: R |= process_key(E); break;
-    case E_TIMER: R |= process_timer(E); break;
+    case E_TICK: R |= process_tick(E); break;
     }
 
     return R || mode::process_event(E);

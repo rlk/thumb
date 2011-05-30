@@ -173,9 +173,9 @@ bool dev::hybrid::process_axis(app::event *E)
     return false;
 }
 
-bool dev::hybrid::process_timer(app::event *E)
+bool dev::hybrid::process_tick(app::event *E)
 {
-    const double dt = E->data.timer.dt * 0.001;
+    const double dt = E->data.tick.dt * 0.001;
     const double dz = 0.25;
 
     const double kp = dt * ::user->get_move_rate();
@@ -208,7 +208,7 @@ bool dev::hybrid::process_event(app::event *E)
     {
     case E_CLICK: R |= process_click(E); break;
     case E_AXIS: R |= process_axis(E); break;
-    case E_TIMER: R |= process_timer(E); break;
+    case E_TICK: R |= process_tick(E); break;
     }
 
     return R || dev::input::process_event(E);

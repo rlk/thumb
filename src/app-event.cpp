@@ -160,7 +160,7 @@ void app::event::payload_encode()
     switch (get_type())
     {
     case E_POINT:
-
+    
         put_byte(data.point.i);
         put_real(data.point.p[0]);
         put_real(data.point.p[1]);
@@ -172,13 +172,14 @@ void app::event::payload_encode()
         break;
 
     case E_CLICK:
-        put_byte(data.click.i);
+    
         put_byte(data.click.b);
         put_word(data.click.m);
         put_bool(data.click.d);
         break;
 
     case E_KEY:
+    
         put_word(data.key.c);
         put_word(data.key.k);
         put_word(data.key.m);
@@ -186,17 +187,27 @@ void app::event::payload_encode()
         break;
 
     case E_AXIS:
+    
         put_byte(data.axis.i);
         put_byte(data.axis.a);
         put_real(data.axis.v);
         break;
 
+    case E_BUTTON:
+    
+        put_byte(data.button.i);
+        put_word(data.button.b);
+        put_bool(data.button.d);
+        break;
+
     case E_INPUT:
+    
         put_text(data.input.src);
         break;
 
-    case E_TIMER:
-        put_word(data.timer.dt);
+    case E_TICK:
+    
+        put_word(data.tick.dt);
         break;
     }
 }
@@ -224,7 +235,6 @@ void app::event::payload_decode()
 
     case E_CLICK:
 
-        data.click.i = get_byte();
         data.click.b = get_byte();
         data.click.m = get_word();
         data.click.d = get_bool();
@@ -244,15 +254,22 @@ void app::event::payload_decode()
         data.axis.a = get_byte();
         data.axis.v = get_real();
         break;
+        
+    case E_BUTTON:
+
+        data.button.b = get_byte();
+        data.button.m = get_word();
+        data.button.d = get_bool();
+        break;
 
     case E_INPUT:
 
         data.input.src = strdup(get_text());
         break;
 
-    case E_TIMER:
+    case E_TICK:
 
-        data.timer.dt = get_word();
+        data.tick.dt = get_word();
         break;
     }
 }
@@ -294,11 +311,10 @@ app::event *app::event::mk_point(int i, const double *p, const double *q)
     return this;
 }
 
-app::event *app::event::mk_click(int i, int b, int m, bool d)
+app::event *app::event::mk_click(int b, int m, bool d)
 {
     put_type(E_CLICK);
 
-    data.click.i = i;
     data.click.b = b;
     data.click.m = m;
     data.click.d = d;
@@ -332,39 +348,51 @@ app::event *app::event::mk_axis(int i, int a, double v)
     return this;
 }
 
+app::event *app::event::mk_button(int i, int b, bool d)
+{
+    put_type(E_CLICK);
+    
+    data.button.b = b;
+    data.button.m = m;
+    data.button.d = d;
+    
+    payload_cache = false;
+    return this;
+}
+
+app::event *app::event::mk_tick(int t)
+{
+    put_type(E_TICK);
+
+    data.tick.dt = t;
+
+    payload_cache = false;
+    return this;
+}
+
+app::event *app::event::mk_draw()
+{
+    put_type(E_DRAW);
+
+    payload_cache = false;
+    return this;
+}
+
+app::event *app::event::mk_swap()
+{
+    put_type(E_SWAP);
+
+    payload_cache = false;
+    return this;
+}
+
 app::event *app::event::mk_input(const char *s)
 {
     put_type(E_INPUT);
-
+    
     data.input.src = strdup(s);
     data.input.dst = 0;
-
-    payload_cache = false;
-    return this;
-}
-
-app::event *app::event::mk_timer(int t)
-{
-    put_type(E_TIMER);
-
-    data.timer.dt = t;
-
-    payload_cache = false;
-    return this;
-}
-
-app::event *app::event::mk_paint()
-{
-    put_type(E_PAINT);
-
-    payload_cache = false;
-    return this;
-}
-
-app::event *app::event::mk_frame()
-{
-    put_type(E_FRAME);
-
+    
     payload_cache = false;
     return this;
 }

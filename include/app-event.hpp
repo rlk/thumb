@@ -34,9 +34,9 @@
 #define E_KEY    3
 #define E_AXIS   4
 #define E_BUTTON 5
-#define E_TIMER  6 // TICK
-#define E_PAINT  7 // DRAW
-#define E_FRAME  8 // SWAP
+#define E_TICK   6
+#define E_DRAW   7
+#define E_SWAP   8
 #define E_INPUT  9
 #define E_START 10
 #define E_CLOSE 11
@@ -115,7 +115,6 @@ namespace app
         };
         struct click_data_t
         {
-            int    i;
             int    b;
             int    m;
             bool   d;
@@ -133,12 +132,18 @@ namespace app
             int    a;
             double v;
         };
+        struct button_data_t
+        {
+            int    i;
+            int    b;
+            bool   d;
+        };
         struct input_data_t
         {
             char *src;
             char *dst;
         };
-        struct timer_data_t
+        struct tick_data_t
         {
             int dt;
         };
@@ -146,12 +151,13 @@ namespace app
         // Data union
 
         union {
-            point_data_t point;
-            click_data_t click;
-            key_data_t key;
-            axis_data_t axis;
-            input_data_t input;
-            timer_data_t timer;
+             point_data_t point;
+             click_data_t click;
+               key_data_t key;
+              axis_data_t axis;
+            button_data_t button;
+             input_data_t input;
+              tick_data_t tick;
         } data;
 
         void          put_type(unsigned char);
@@ -159,17 +165,18 @@ namespace app
 
         // Event builders
 
-        event *mk_point(int, const double *, const double *);
-        event *mk_click(int, int, int, bool);
-        event *mk_key(int, int, int, bool);
-        event *mk_axis(int, int, double);
-        event *mk_input(const char *);
-        event *mk_timer(int);
-        event *mk_paint();
-        event *mk_frame();
-        event *mk_start();
-        event *mk_close();
-        event *mk_flush();
+        event *mk_point (int, const double *, const double *);
+        event *mk_click (int, int, bool);
+        event *mk_key   (int, int, int, bool);
+        event *mk_axis  (int, int, double);
+        event *mk_button(int, int, bool);
+        event *mk_tick  (int);
+        event *mk_draw  ();
+        event *mk_swap  ();
+        event *mk_input (const char *);
+        event *mk_start ();
+        event *mk_close ();
+        event *mk_flush ();
 
         // Network IO
 

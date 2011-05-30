@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXFileReference section */
-		581D31DA139143C600012024 /* demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = demo.cpp; path = ../../proj/edworld/demo.cpp; sourceTree = "<group>"; };
-		581D31DB139143C600012024 /* demo.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = demo.hpp; path = ../../proj/edworld/demo.hpp; sourceTree = "<group>"; };
+		581D31DA139143C600012024 /* demo.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = demo.cpp; path = ../../proj/edworld/demo.cpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
+		581D31DB139143C600012024 /* demo.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = demo.hpp; path = ../../proj/edworld/demo.hpp; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		581D31DC139143C600012024 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../proj/edworld/main.cpp; sourceTree = "<group>"; };
 		581D31DD139143C600012024 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../proj/edworld/main.hpp; sourceTree = "<group>"; };
 		581D31DE139143C600012024 /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../../proj/edworld/Makefile; sourceTree = "<group>"; };

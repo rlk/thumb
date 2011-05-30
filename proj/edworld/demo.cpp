@@ -378,9 +378,9 @@ bool demo::process_key(app::event *E)
     return false;
 }
 
-bool demo::process_timer(app::event *E)
+bool demo::process_tick(app::event *E)
 {
-    double dt = E->data.timer.dt * 0.001;
+    double dt = E->data.tick.dt * 0.001;
 
     // 
 
@@ -421,7 +421,7 @@ bool demo::process_event(app::event *E)
     {
     case E_KEY:   R = process_key  (E); break;
     case E_INPUT: R = process_input(E); break;
-    case E_TIMER: R = process_timer(E); break;
+    case E_TICK: R = process_tick(E); break;
     }
 
     if (R) return true;

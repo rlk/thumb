@@ -116,9 +116,9 @@ bool dev::gamepad::process_axis(app::event *E)
     return false;
 }
 
-bool dev::gamepad::process_timer(app::event *E)
+bool dev::gamepad::process_tick(app::event *E)
 {
-    const double dt = E->data.timer.dt * 0.001;
+    const double dt = E->data.tick.dt * 0.001;
 
     const double kp =        dt;
     const double kr = 45.0 * dt;
@@ -157,7 +157,7 @@ bool dev::gamepad::process_event(app::event *E)
     {
     case E_CLICK: R |= process_click(E); break;
     case E_AXIS: R |= process_axis(E); break;
-    case E_TIMER: R |= process_timer(E); break;
+    case E_TICK: R |= process_tick(E); break;
     }
 
     return R || dev::input::process_event(E);
