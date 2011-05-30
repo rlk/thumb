@@ -159,10 +159,10 @@ bool dev::hybrid::process_click(app::event *E)
     return false;
 }
 
-bool dev::hybrid::process_value(app::event *E)
+bool dev::hybrid::process_axis(app::event *E)
 {
-    const int a = E->data.value.a;
-    const int v = E->data.value.v;
+    const int a = E->data.axis.a;
+    const int v = E->data.axis.v;
 
     position[0] = move_LR.value(a, v);
     position[1] = move_UD.value(a, v);
@@ -207,7 +207,7 @@ bool dev::hybrid::process_event(app::event *E)
     switch (E->get_type())
     {
     case E_CLICK: R |= process_click(E); break;
-    case E_VALUE: R |= process_value(E); break;
+    case E_AXIS: R |= process_axis(E); break;
     case E_TIMER: R |= process_timer(E); break;
     }
 

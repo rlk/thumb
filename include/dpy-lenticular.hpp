@@ -67,7 +67,7 @@ namespace dpy
 
         app::node array;
 
-        virtual bool process_keybd(app::event *);
+        virtual bool process_key(app::event *);
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);
 

@@ -87,10 +87,10 @@ bool dev::gamepad::process_click(app::event *E)
     return false;
 }
 
-bool dev::gamepad::process_value(app::event *E)
+bool dev::gamepad::process_axis(app::event *E)
 {
-    const int    a = E->data.value.a;
-    const double v = E->data.value.v;
+    const int    a = E->data.axis.a;
+    const double v = E->data.axis.v;
 
     if      (a == gamepad_axis_X)
     {
@@ -156,7 +156,7 @@ bool dev::gamepad::process_event(app::event *E)
     switch (E->get_type())
     {
     case E_CLICK: R |= process_click(E); break;
-    case E_VALUE: R |= process_value(E); break;
+    case E_AXIS: R |= process_axis(E); break;
     case E_TIMER: R |= process_timer(E); break;
     }
 

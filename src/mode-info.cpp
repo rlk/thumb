@@ -114,12 +114,12 @@ bool mode::info::process_event(app::event *E)
         }
         return false;
 
-    case E_KEYBD:
+    case E_KEY:
 
-        if (E->data.keybd.d)
-            gui->keybd(E->data.keybd.c,
-                       E->data.keybd.k,
-                       E->data.keybd.m);
+        if (E->data.key.d)
+            gui->key(E->data.key.c,
+                       E->data.key.k,
+                       E->data.key.m);
         return true;
 
     case E_START:

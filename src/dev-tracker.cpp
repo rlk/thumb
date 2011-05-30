@@ -410,9 +410,9 @@ void dev::tracker::translate() const
 		/*
                 switch (i)
                 {
-                case 2:  E.mk_keybd(0, key_play, 0, b); break;
-                case 3:  E.mk_keybd(0, key_edit, 0, b); break;
-                case 4:  E.mk_keybd(0, key_info, 0, b); break;
+                case 2:  E.mk_key(0, key_play, 0, b); break;
+                case 3:  E.mk_key(0, key_edit, 0, b); break;
+                case 4:  E.mk_key(0, key_info, 0, b); break;
                 default: E.mk_click(0, i, 0, b);        break;
                 }
 		*/
@@ -422,7 +422,7 @@ void dev::tracker::translate() const
 
         for (i = 0; i < tracker_count_values (); ++i)
             if (tracker_value (i, v))
-                ::host->process_event(E.mk_value(0, i, v));
+                ::host->process_event(E.mk_axis(0, i, v));
 
         for (i = 0; i < tracker_count_sensors(); ++i)
             if (tracker_sensor(i, p, q))
@@ -479,10 +479,10 @@ bool dev::tracker::process_click(app::event *E)
     return false;
 }
 
-bool dev::tracker::process_value(app::event *E)
+bool dev::tracker::process_axis(app::event *E)
 {
-    if (E->data.value.a == 0) joy_x = E->data.value.v;
-    if (E->data.value.a == 1) joy_y = E->data.value.v;
+    if (E->data.axis.a == 0) joy_x = E->data.axis.v;
+    if (E->data.axis.a == 1) joy_y = E->data.axis.v;
 
     return false;
 }
@@ -547,7 +547,7 @@ bool dev::tracker::process_event(app::event *E)
     {
     case E_POINT: R |= process_point(E); break;
     case E_CLICK: R |= process_click(E); break;
-    case E_VALUE: R |= process_value(E); break;
+    case E_AXIS: R |= process_axis(E); break;
     case E_TIMER: R |= process_timer(E); break;
     }
 

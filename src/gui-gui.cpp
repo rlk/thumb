@@ -586,7 +586,7 @@ void gui::editor::point(int x, int y)
     else sc = int(str.length()) - si;
 }
 
-void gui::editor::keybd(int c, int k, int m)
+void gui::editor::key(int c, int k, int m)
 {
     int n = int(str.length());
     int s = (m & KMOD_SHIFT);
@@ -1224,10 +1224,10 @@ void gui::dialog::click(int m, bool d)
         focus = root->enter(last_x, last_y);
 }
 
-void gui::dialog::keybd(int c, int k, int m)
+void gui::dialog::key(int c, int k, int m)
 {
     if (input)
-        input->keybd(c, k, m);
+        input->key(c, k, m);
 }
 
 void gui::dialog::show()

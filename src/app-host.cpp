@@ -395,11 +395,11 @@ bool app::host::process_calib(event *E)
 {
     // Handle calibration state input.
 
-    if ((E->get_type() == E_KEYBD) &&
-        (E->data.keybd.d)          &&
-        (E->data.keybd.m & KMOD_CTRL))
+    if ((E->get_type() == E_KEY) &&
+        (E->data.key.d)          &&
+        (E->data.key.m & KMOD_CTRL))
 
-        switch (E->data.keybd.k)
+        switch (E->data.key.k)
         {
         case SDLK_TAB:
             calibration_state = !calibration_state;
@@ -648,21 +648,21 @@ void app::host::root_loop()
                 break;
 
             case SDL_KEYDOWN:
-                process_event(E.mk_keybd(e.key.keysym.unicode,
+                process_event(E.mk_key(e.key.keysym.unicode,
                                          e.key.keysym.sym,
                                          SDL_GetModState(), true));
                 break;
 
             case SDL_KEYUP:
-                process_event(E.mk_keybd(e.key.keysym.unicode,
+                process_event(E.mk_key(e.key.keysym.unicode,
                                          e.key.keysym.sym,
                                          SDL_GetModState(), false));
                 break;
 
             case SDL_JOYAXISMOTION:
-                process_event(E.mk_value(e.jaxis.which,
-                                         e.jaxis.axis,
-                                         e.jaxis.value));
+                process_event(E.mk_axis(e.jaxis.which,
+                                        e.jaxis.axis,
+                                        e.jaxis.value));
                 break;
 
             case SDL_JOYBUTTONDOWN:

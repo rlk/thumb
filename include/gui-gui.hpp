@@ -65,7 +65,7 @@ namespace gui
         virtual widget *click(int, int, int, bool);
         virtual widget *enter(int, int)      { return 0; }
         virtual void    point(int, int)      {           }
-        virtual void    keybd(int, int, int) {           }
+        virtual void    key(int, int, int) {           }
 
         bool pressed() const { return is_pressed; }
 
@@ -227,7 +227,7 @@ namespace gui
 
         virtual widget *click(int, int, int, bool);
         virtual void    point(int, int);
-        virtual void    keybd(int, int, int);
+        virtual void    key(int, int, int);
 
         virtual void draw(const widget *, const widget *) const;
     };
@@ -416,7 +416,7 @@ namespace gui
 
         void point(int, int);
         void click(int, bool);
-        void keybd(int, int, int);
+        void key(int, int, int);
     
         void show();
         void hide();

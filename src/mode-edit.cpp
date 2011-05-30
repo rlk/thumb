@@ -180,15 +180,15 @@ bool mode::edit::process_click(app::event *E)
     return false;
 }
 
-bool mode::edit::process_keybd(app::event *E)
+bool mode::edit::process_key(app::event *E)
 {
     assert(E);
     assert(world);
     assert(xform);
 
-    const bool d = E->data.keybd.d;
-    const int  k = E->data.keybd.k;
-    const int  m = E->data.keybd.m;
+    const bool d = E->data.key.d;
+    const int  k = E->data.key.k;
+    const int  m = E->data.key.m;
 
     if (d && !(m & KMOD_CTRL))
     {
@@ -382,7 +382,7 @@ bool mode::edit::process_event(app::event *E)
     {
     case E_POINT: R |= process_point(E); break;
     case E_CLICK: R |= process_click(E); break;
-    case E_KEYBD: R |= process_keybd(E); break;
+    case E_KEY: R |= process_key(E); break;
     case E_TIMER: R |= process_timer(E); break;
     }
 

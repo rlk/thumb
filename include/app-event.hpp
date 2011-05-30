@@ -28,16 +28,16 @@
 
 // Event types
 
-#define E_NULL  0
-#define E_REPLY 1
-#define E_POINT 2
-#define E_CLICK 3
-#define E_KEYBD 4
-#define E_VALUE 5
-#define E_INPUT 6
-#define E_TIMER 7
-#define E_PAINT 8
-#define E_FRAME 9
+#define E_NULL   0
+#define E_POINT  1
+#define E_CLICK  2
+#define E_KEY    3
+#define E_AXIS   4
+#define E_BUTTON 5
+#define E_TIMER  6 // TICK
+#define E_PAINT  7 // DRAW
+#define E_FRAME  8 // SWAP
+#define E_INPUT  9
 #define E_START 10
 #define E_CLOSE 11
 #define E_FLUSH 12
@@ -120,14 +120,14 @@ namespace app
             int    m;
             bool   d;
         };
-        struct keybd_data_t
+        struct key_data_t
         {
             int    c;
             int    k;
             int    m;
             bool   d;
         };
-        struct value_data_t
+        struct axis_data_t
         {
             int    i;
             int    a;
@@ -148,8 +148,8 @@ namespace app
         union {
             point_data_t point;
             click_data_t click;
-            keybd_data_t keybd;
-            value_data_t value;
+            key_data_t key;
+            axis_data_t axis;
             input_data_t input;
             timer_data_t timer;
         } data;
@@ -161,8 +161,8 @@ namespace app
 
         event *mk_point(int, const double *, const double *);
         event *mk_click(int, int, int, bool);
-        event *mk_keybd(int, int, int, bool);
-        event *mk_value(int, int, double);
+        event *mk_key(int, int, int, bool);
+        event *mk_axis(int, int, double);
         event *mk_input(const char *);
         event *mk_timer(int);
         event *mk_paint();

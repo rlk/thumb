@@ -241,11 +241,11 @@ bool dpy::lenticular::process_close(app::event *E)
     return false;
 }
 
-bool dpy::lenticular::process_keybd(app::event *E)
+bool dpy::lenticular::process_key(app::event *E)
 {
-    const bool d = E->data.keybd.d;
-    const int  k = E->data.keybd.k;
-    const int  m = E->data.keybd.m;
+    const bool d = E->data.key.d;
+    const int  k = E->data.key.k;
+    const int  m = E->data.key.m;
 
     bool b = false;
 
@@ -307,7 +307,7 @@ bool dpy::lenticular::process_event(app::event *E)
 
     switch (E->get_type())
     {
-    case E_KEYBD: R |= process_keybd(E); break;
+    case E_KEY: R |= process_key(E); break;
     case E_START: R |= process_start(E); break;
     case E_CLOSE: R |= process_close(E); break;
     }

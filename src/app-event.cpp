@@ -178,17 +178,17 @@ void app::event::payload_encode()
         put_bool(data.click.d);
         break;
 
-    case E_KEYBD:
-        put_word(data.keybd.c);
-        put_word(data.keybd.k);
-        put_word(data.keybd.m);
-        put_bool(data.keybd.d);
+    case E_KEY:
+        put_word(data.key.c);
+        put_word(data.key.k);
+        put_word(data.key.m);
+        put_bool(data.key.d);
         break;
 
-    case E_VALUE:
-        put_byte(data.value.i);
-        put_byte(data.value.a);
-        put_real(data.value.v);
+    case E_AXIS:
+        put_byte(data.axis.i);
+        put_byte(data.axis.a);
+        put_real(data.axis.v);
         break;
 
     case E_INPUT:
@@ -230,19 +230,19 @@ void app::event::payload_decode()
         data.click.d = get_bool();
         break;
 
-    case E_KEYBD:
+    case E_KEY:
 
-        data.keybd.c = get_word();
-        data.keybd.k = get_word();
-        data.keybd.m = get_word();
-        data.keybd.d = get_bool();
+        data.key.c = get_word();
+        data.key.k = get_word();
+        data.key.m = get_word();
+        data.key.d = get_bool();
         break;
 
-    case E_VALUE:
+    case E_AXIS:
 
-        data.value.i = get_byte();
-        data.value.a = get_byte();
-        data.value.v = get_real();
+        data.axis.i = get_byte();
+        data.axis.a = get_byte();
+        data.axis.v = get_real();
         break;
 
     case E_INPUT:
@@ -307,26 +307,26 @@ app::event *app::event::mk_click(int i, int b, int m, bool d)
     return this;
 }
 
-app::event *app::event::mk_keybd(int c, int k, int m, bool d)
+app::event *app::event::mk_key(int c, int k, int m, bool d)
 {
-    put_type(E_KEYBD);
+    put_type(E_KEY);
 
-    data.keybd.c = c;
-    data.keybd.k = k;
-    data.keybd.m = m;
-    data.keybd.d = d;
+    data.key.c = c;
+    data.key.k = k;
+    data.key.m = m;
+    data.key.d = d;
 
     payload_cache = false;
     return this;
 }
 
-app::event *app::event::mk_value(int i, int a, double v)
+app::event *app::event::mk_axis(int i, int a, double v)
 {
-    put_type(E_VALUE);
+    put_type(E_AXIS);
 
-    data.value.i = i;
-    data.value.a = a;
-    data.value.v = v;
+    data.axis.i = i;
+    data.axis.a = a;
+    data.axis.v = v;
 
     payload_cache = false;
     return this;

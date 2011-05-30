@@ -46,7 +46,7 @@ namespace dev
 
         bool process_point(app::event *);
         bool process_click(app::event *);
-        bool process_keybd(app::event *);
+        bool process_key(app::event *);
         bool process_timer(app::event *);
 
     public:

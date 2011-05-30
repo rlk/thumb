@@ -200,9 +200,9 @@ bool app::prog::process_event(app::event *E)
 {
     // Handle the global key bindings.
 
-    if (E->get_type() == E_KEYBD && E->data.keybd.d)
+    if (E->get_type() == E_KEY && E->data.key.d)
     {
-        const int k = E->data.keybd.k;
+        const int k = E->data.key.k;
 
         SDL_Event user = { SDL_USEREVENT };
         SDL_Event quit = { SDL_QUIT      };

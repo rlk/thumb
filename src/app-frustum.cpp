@@ -948,10 +948,10 @@ bool app::frustum::pointer_to_3D(event *E, int x, int y) const
 
 bool app::frustum::process_event(app::event *E)
 {
-    if (E->get_type() == E_KEYBD && E->data.keybd.d)
+    if (E->get_type() == E_KEY && E->data.key.d)
     {
-        const int k = E->data.keybd.k;
-        const int m = E->data.keybd.m;
+        const int k = E->data.key.k;
+        const int m = E->data.key.m;
 
         if (m & KMOD_CTRL)
         {
