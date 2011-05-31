@@ -18,7 +18,7 @@
 #define INJT_DATA_MUNB 20
 #define INJT_DATA_ROWS 8
 #define INJT_DATA_ROW_ELEM 3
-#define ENABLE_SOUND_SERV 1
+#define ENABLE_SOUND_SERV 0
 #define ENABLE_SOUND_POS_UPDATES 1
 #define TARGET_FR_RATE 30
 #define SHOW_MARKERS 0
@@ -33,7 +33,7 @@
 
 
 #define DEBUG_PRINT 0
-#define FR_RATE_PRINT 1
+#define FR_RATE_PRINT 0
 
 
 

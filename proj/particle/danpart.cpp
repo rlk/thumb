@@ -1,4 +1,4 @@
-//  Copyright (C) 2005 Robert Kooima
+//  DANPART Copyright (C) 2010-2010 Dan Sandin and Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -12,7 +12,7 @@
 
 //-----------------------------------------------------------------------------
 
-#include <iostream>
+#include <cstdio>
 #include <cstring>
 
 #include <SDL.h>
@@ -56,7 +56,7 @@ static int SOUND_SERV = 0;
 
 static void warn(const char *str)
 {
-    std::cerr << str << std::endl;
+    fprintf(stderr, "%s\n", str);
 }
 
 //-----------------------------------------------------------------------------
@@ -66,7 +66,7 @@ GLuint vbo_init(int w, int h)
     GLsizei size = 8 * w * h * sizeof (float);
     GLuint vbo;
 	
-    glGenBuffersARB(1, &vbo);
+    glGenBuffersARB(1,                  &vbo);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo);
     glBufferDataARB(GL_ARRAY_BUFFER_ARB, size, 0, GL_DYNAMIC_DRAW);
     glBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -102,12 +102,6 @@ void danpart::cuda_init()
                         // YAY!
                     }
                     else warn("CUDA get funcHandPoint1 failed");
-
-                    if (cuModuleGetFunction(&funcHandPointSquars, module, "PointSquars") == CUDA_SUCCESS)
-                    {
-                        // YAY!
-                    }
-                    else warn("CUDA get funcHandPointSquars failed");
                 }
                 else warn("CUDA module load failed");
             }
@@ -130,114 +124,155 @@ void danpart::cuda_fini()
 
 void danpart::cuda_step()
 {
+    CUdeviceptr devPtr;
     CUdeviceptr d_vbo;
     size_t size;
 
-    float r1, r2, r3; // not curently used
+    // not currently used
 
-    static double startTime = 0,nowTime = 0,frNum = 1; // timeing varables
-    double intigrate_time = 1;
-// timeing
+    float r1;
+    float r2;
+    float r3 = 0.0001 * (rand() % 10000);
+
+    // Timeng varables
+
+    static double startTime = 0, nowTime = 0, frNum = 1;
+    double integrate_time = 1;
+
+    // Timing
+
     showTime = getTimeInSecs() - showStartTime;
     showFrameNo++;
-    // cuda timeing
-    CUevent start, stop;
+
+    // CUDA timing
+
+    CUevent start;
+    CUevent stop;
  	
-	
     nowTime = getTimeInSecs();
 	
-    // first print out meaningless
-    if ((nowTime - startTime) > intigrate_time)
+    if ((nowTime - startTime) > integrate_time)
     {
-		
-        if (FR_RATE_PRINT >0) printf("%f ms %f FR/sec  ",intigrate_time/frNum*1000,frNum/intigrate_time);
-        startTime = nowTime;  frNum = 0;
+        if (FR_RATE_PRINT > 0)
+            printf("%f ms %f FR/sec",integrate_time/frNum*1000, frNum/integrate_time);
+        startTime = nowTime;
+        frNum = 0;
     }
-    frNum++; 
-    // not curently used  
-    r3 = 0.0001 * (rand()%10000);
+    frNum++;
 
+    // Handle scene change.
 
-// NOTE  need to into init which_scene and scene4Start to first seen
     sceneChange = 0;
     
-    if ((but4old == 0)&&(but4 == 1)&&(but1))
+    if ((but2old == 0) && (but2 == 1) && (but4))
     {
-        sceneOrder = (sceneOrder+1)%5;sceneChange = 1;
+        sceneOrder  = (sceneOrder + 1) % 5;
+        sceneChange = 1;
     }
-    if (nextScene == 1) { sceneOrder = (sceneOrder+1)%5;sceneChange = 1;nextScene = 0;}
-    // reordering seenes
 
-    if (sceneOrder == 0)sceneNum = 4;
-    if (sceneOrder == 1)sceneNum = 1;
-    if (sceneOrder == 2)sceneNum = 2;
-    if (sceneOrder == 3)sceneNum = 0;
-    if (sceneOrder == 4)sceneNum = 3;
+    if (nextScene == 1)
+    {
+        sceneOrder  = (sceneOrder + 1) % 5;
+        sceneChange = 1;
+        nextScene   = 0;
+    }
 
-    if((sceneChange == 1) && (which_scene == 3)){scene_data_3_kill_audio();}
-    if((sceneChange == 1) && (which_scene == 0)){scene_data_0_kill_audio();}
-    if((sceneChange == 1) && (which_scene == 1)){scene_data_1_kill_audio();}
-    if((sceneChange == 1) && (which_scene == 2)){scene_data_2_kill_audio();}
-    if((sceneChange == 1) && (which_scene == 4)){scene_data_4_kill_audio();}
+    // reordering scenes
 
-    if (sceneNum == 0)
-    {// paint on walls
-        if (sceneChange == 1){scene0Start = 1;sceneChange = 0;which_scene = 0;}
+    if (sceneOrder == 0) sceneNum = 4;
+    if (sceneOrder == 1) sceneNum = 1;
+    if (sceneOrder == 2) sceneNum = 2;
+    if (sceneOrder == 3) sceneNum = 0;
+    if (sceneOrder == 4) sceneNum = 3;
+
+    if ((sceneChange == 1) && (which_scene == 0)) { scene_data_0_kill_audio(); }
+    if ((sceneChange == 1) && (which_scene == 1)) { scene_data_1_kill_audio(); }
+    if ((sceneChange == 1) && (which_scene == 2)) { scene_data_2_kill_audio(); }
+    if ((sceneChange == 1) && (which_scene == 3)) { scene_data_3_kill_audio(); }
+    if ((sceneChange == 1) && (which_scene == 4)) { scene_data_4_kill_audio(); }
+
+    if (sceneNum == 0) // Paint on walls
+    {
+        if (sceneChange == 1)
+        {
+            scene0Start = 1;
+            sceneChange = 0;
+            which_scene = 0;
+        }
         scene_data_0();
     }
-    if (sceneNum == 1)
-    {// sprial fountens
-        if (sceneChange == 1){scene1Start = 1;sceneChange = 0;which_scene = 1;}
+    if (sceneNum == 1) // Spiral fountainns
+    {
+        if (sceneChange == 1)
+        {
+            scene1Start = 1;
+            sceneChange = 0;
+            which_scene = 1;
+        }
         scene_data_1();
     }
-    if (sceneNum == 2)
-    {// 4 waterfalls
-        if (sceneChange == 1){scene2Start = 1;sceneChange = 0;which_scene = 2;}
+    if (sceneNum == 2) // Four waterfalls
+    {
+        if (sceneChange == 1)
+        {
+            scene2Start = 1;
+            sceneChange = 0;
+            which_scene = 2;
+        }
         scene_data_2();
     }
-    if (sceneNum == 3)
-    {// painting skys
-        if (sceneChange == 1){scene3Start = 1;sceneChange = 0;which_scene = 3;}
+    if (sceneNum == 3) // Painting skys
+    {
+        if (sceneChange == 1)
+        {
+            scene3Start = 1;
+            sceneChange = 0;
+            which_scene = 3;
+        }
         scene_data_3();
     }
-
-    if (sceneNum == 4)
-    {// rain
-        if (sceneChange == 1){scene4Start = 1;sceneChange = 0;which_scene = 4;}
+    if (sceneNum == 4) // Rain
+    {
+        if (sceneChange == 1)
+        {
+            scene4Start = 1;
+            sceneChange = 0;
+            which_scene = 4;
+        }
         scene_data_4();
     }
 
+    // Kludge to handle gimble lock for velocities straight up.
+
     for (int n = 1;n < h_injectorData[0][0][0] +1;n++)
     {
-        // kludge to handel gimbel lock for velociys straight up			
-        if (h_injectorData[n][3][0] == 0 && h_injectorData[n][3][2] == 0){ h_injectorData[n][3][0] += .0001;}
-			
+        if (h_injectorData[n][3][0] == 0 && h_injectorData[n][3][2] == 0)
+        {
+            h_injectorData[n][3][0] += .0001;
+        }
     }
 
+    // Copy injector data to device.
 
-    // copy injdata data to device	
-    {
-	CUdeviceptr devPtr;
-	size_t bytes;
-	cuModuleGetGlobal(&devPtr, &bytes, module, "injdata");
-	cuMemcpyHtoD(devPtr, h_injectorData, bytes);
-    }
+    cuModuleGetGlobal(&devPtr, &size, module, "injdata");
+    cuMemcpyHtoD(devPtr, h_injectorData, size);
 
-    // copy refldata data to device	
-    {	
-	CUdeviceptr devPtr;
-	size_t bytes;
-	cuModuleGetGlobal(&devPtr, &bytes, module, "refldata");
-	cuMemcpyHtoD(devPtr, h_reflectorData, bytes);
-    }
-    // process audio fades
-    if ((SOUND_SERV == 1)&& (::host->root() == 1)){	audioProcess();}
+    // Copy reflector data to device.
+
+    cuModuleGetGlobal(&devPtr, &size, module, "refldata");
+    cuMemcpyHtoD(devPtr, h_reflectorData, size);
+
+    // Process audio fades.
+
+    if ((SOUND_SERV == 1)&& (::host->root() == 1))
+        audioProcess();
 	
     // Map the buffer object.
 	
     if (cuGLMapBufferObject(&d_vbo, &size, vbo) != CUDA_SUCCESS)
         warn("CUDA GL map buffer failed");
-    // Set the kernel parameters.
+
+    // Start the timer.
 
     if ((nowTime - startTime) == 0)
     {
@@ -253,8 +288,10 @@ void danpart::cuda_step()
         }
         cuMemcpyHtoD(d_debugData, h_debugData, sizeDebug);
     }
+
+    // Set the kernel parameters.
+
     int offset = 0;
-// printf ("disappear_age %d\n",disappear_age);
 
     ALIGN_UP(offset, __alignof(d_vbo));
     cuParamSetv(funcHandPoint1, offset, &d_vbo, sizeof (d_vbo));
@@ -308,39 +345,43 @@ void danpart::cuda_step()
 
     cuParamSetSize     (funcHandPoint1, offset);
     cuFuncSetBlockShape(funcHandPoint1, 8, 8, 1);
-//    cuFuncSetBlockShape(funcHandPoint1, 16,16 , 1);
     cuLaunchGrid       (funcHandPoint1, mesh_width / 8, mesh_height / 8);
  
     // Unmap buffer object.
 
     if (cuGLUnmapBufferObject(vbo) != CUDA_SUCCESS)
-	
         warn("CUDA GL unmap buffer failed");
 	
     if ((nowTime - startTime) == 0)
     {
+        float elapsedTime;
+
         cuEventRecord(stop, 0);
         cuEventSynchronize(stop);
-        float elapsedTime;
         cuEventElapsedTime(&elapsedTime, start, stop);
+
         if (FR_RATE_PRINT >0) printf(" cudaProcTime %f \n \n", elapsedTime );
-        cuEventDestroy (start ); cuEventDestroy (stop );
+
+        cuEventDestroy(start);
+        cuEventDestroy(stop);
     }
 
-    if (DEBUG == 1)
-    {// debug data from .cu
+    if (DEBUG == 1) // debug data from .cu
+    {
         cuMemcpyDtoH  	(h_debugData, d_debugData, sizeDebug);
         printf (" cu debug first 18 location ingroups of 3 \n");
+
         for (unsigned int i = 0; i < 18;i = i + 3)
-        {
-            if (DEBUG_PRINT >0)printf(" %f %f %f \n",h_debugData[i],h_debugData[i+1],h_debugData[i+2]);
-		
-        }
+            if (DEBUG_PRINT > 0)
+                printf(" %f %f %f\n",
+                       h_debugData[i],
+                       h_debugData[i + 1],
+                       h_debugData[i + 2]);
     }
 
-    if (REFL_HITS == 1)
-    {// debug data from .cu
-        cuMemcpyDtoH  	(h_debugData, d_debugData, sizeDebug);
+    if (REFL_HITS == 1) // debug data from .cu
+    {
+        cuMemcpyDtoH(h_debugData, d_debugData, sizeDebug);
     }
 
     but4old = but4;
@@ -352,21 +393,18 @@ void danpart::cuda_step()
     lastShowFrameNo = showFrameNo;
 }
 
-//---------------------------------------------------
-
 //-----------------------------------------------------------------------------
 
 void danpart::pdata_init_age(int max_age)
 {
+    // Set age to random ages < max age to permit a respawn of the particle
+
     for (int i = 0; i < CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT; ++i)
     {
-        // set age to random ages < max age to permit a respawn of the particle
-
-        h_particleData[PDATA_ROW_SIZE*i] = rand() % max_age; // age
- 
+        h_particleData[PDATA_ROW_SIZE*i] = rand() % max_age;
     }
-
 }
+
 void danpart::pdata_init_velocity(float vx,float vy,float vz)
 {
     for (int i = 0; i < CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT; ++i)
@@ -374,73 +412,58 @@ void danpart::pdata_init_velocity(float vx,float vy,float vz)
         h_particleData[PDATA_ROW_SIZE * i + 1] = vx;
         h_particleData[PDATA_ROW_SIZE * i + 2] = vy;
         h_particleData[PDATA_ROW_SIZE * i + 3] = vz;
- 
     }
-
 }
+
 void danpart::pdata_init_rand()
 {
+    // Generate 3 random numbers for each particle
           
     for (int i = 0; i < CUDA_MESH_WIDTH * CUDA_MESH_HEIGHT; ++i)
     {
-        // gen 3 random numbers for each particle
-        h_particleData[PDATA_ROW_SIZE * i +4] = 0.0002 * (rand()%10000) -1.0 ;
-        h_particleData[PDATA_ROW_SIZE * i +5] = 0.0002 * (rand()%10000) -1.0 ;
-        h_particleData[PDATA_ROW_SIZE * i +6] = 0.0002 * (rand()%10000) -1.0 ;
-        // printf ("rnd num %f %f %f \n", h_particleData[PDATA_ROW_SIZE * i +4],h_particleData[PDATA_ROW_SIZE * i +5],h_particleData[PDATA_ROW_SIZE * i +6]);
-
+        h_particleData[PDATA_ROW_SIZE * i + 4] = 0.0002 * (rand()%10000) - 1.0;
+        h_particleData[PDATA_ROW_SIZE * i + 5] = 0.0002 * (rand()%10000) - 1.0;
+        h_particleData[PDATA_ROW_SIZE * i + 6] = 0.0002 * (rand()%10000) - 1.0;
     }
-
 }
-
-
 
 void danpart::data_init()
 {
-	
-// zeroout h_reflectorData
-    for (int reflNum = 0;reflNum < REFL_DATA_MUNB;reflNum++)
+    // Zero out h_reflectorData
+
+    for (int reflNum = 0; reflNum < REFL_DATA_MUNB; reflNum++)
     {
-        for (int rownum = 0;rownum < REFL_DATA_ROWS;rownum++)
+        for (int rownum = 0; rownum < REFL_DATA_ROWS; rownum++)
         { 
             h_reflectorData[reflNum][rownum][0] = 0;
             h_reflectorData[reflNum][rownum][1] = 0;
             h_reflectorData[reflNum][rownum][2] = 0;
         }
-
-
     }
 
-    for (int injNum = 0;injNum < INJT_DATA_MUNB;injNum++)
+    for (int injNum = 0; injNum < INJT_DATA_MUNB; injNum++)
     {
-        for (int rownum = 0;rownum < INJT_DATA_ROWS;rownum++)
+        for (int rownum = 0; rownum < INJT_DATA_ROWS; rownum++)
         { 
             h_injectorData[injNum][rownum][0] = 0;
             h_injectorData[injNum][rownum][1] = 0;
             h_injectorData[injNum][rownum][2] = 0;
         }
-
-
     }
 
+    // data structure for reflectors
+    // 0) number of reflectors ,NU,NU
+    // 1) type ,NU,NU
+    // 2) x,y,z,position
+    // 3) x,y,z normal vector
+    // 4) x,y,z size
+    // 5) x,y,z jitter
+    // 6) reflection coef, NU, NU
+    // 7) x,y,z centrality of velocity gitter
 
-/*
-  data structure for reflectors
-  data structure of reflectors data
-  0) number of reflectors ,NU,NU
-  1) type ,NU,NU
-  2) x,y,z,position
-  3) x,y,z normal vector
-  4) x,y,z size
-  5) x,y,z jitter
-  6) reflection coef, NU, NU
-  7) x,y,z centrality of velocity gitter
-*/
-// debug data malloc
+    // debug data malloc
+
     sizeDebug = 128* sizeof (float);
-
- 
-
 
     if ((h_debugData = (float *) malloc(sizeDebug)))
     {
@@ -458,13 +481,12 @@ void danpart::data_init()
     }
     else warn("h_debugData malloc failed");
 
+    // particle data malloc
 
-// particle data malloc
     int rowsize = PDATA_ROW_SIZE;
     size_t size = rowsize * mesh_width * mesh_height * sizeof (float);
 
     srand(1);
-
 
     if ((h_particleData = (float *) malloc(size)))
     {
@@ -480,7 +502,8 @@ void danpart::data_init()
     }
     else warn("Particle buffer malloc failed");
 
-// init buttons
+    // init buttons
+
     trackDevID = 0;
     state = 0;
     trigger = 0;
@@ -488,96 +511,79 @@ void danpart::data_init()
     but3 = 0;
     but2 = 0;
     but1 = 0;
-// init seenes
+
+    // init seenes
+
     scene0Start = 0;
     scene1Start = 0;
     scene2Start = 0;
     scene3Start = 0;
-    scene4Start = 1; // // must be set to starting
-    sceneNum = 0;
-    sceneOrder = 0;
-    nextScene = 0;
+    scene4Start = 1; // must be set to starting
+    sceneNum    = 0;
+    sceneOrder  = 0;
+    sceneChange = 0;
+    nextScene   = 0;
     which_scene = 4; // must be set to starting
     old_which_scene = -1;
-    sceneChange = 0;
-// init timeres
+
+    // init timers
+
     showStartTime = getTimeInSecs();
-    if (DEBUG_PRINT >0) printf("showstartTime  %f \n",showStartTime);
-// init sound server
+    if (DEBUG_PRINT > 0) printf("showstartTime %f \n", showStartTime);
 
-    //***************************************
-// SOUND INIT
+    // Init sound server
 
-    if (ENABLE_SOUND_SERV && (::host->root() == 1))
+    if (ENABLE_SOUND_SERV && (::host->root()))
     {
+        printf ("audioConectToServer ");
 
-        // conect to audio server
-        printf (" audioConectToServer ");
         if (HOST == STARCAVE) SOUND_SERV = audioConectToServer("137.110.118.239");
-        if (HOST == NEXCAVE) SOUND_SERV = audioConectToServer("10.1.1.242");
-        // audioConectToServer("192.168.1.105");
+        if (HOST == NEXCAVE)  SOUND_SERV = audioConectToServer("10.1.1.242");
 
         if (SOUND_SERV)
         {
             audioGlobalGain(.7);
-            chimes = audioGetHandKludge("chimes.wav");printf(" chimes %i \n",chimes);      
-            // audioPlay(chimes,1.0);
  
-            // curently not used
-            pinkNoise = audioGetHandKludge("cdtds.31.pinkNoise.wav");printf ("pinkNoise %i \n",pinkNoise); // audioLoop(pinkNoise,0);audioGain(pinkNoise,1);
-            audioGain(pinkNoise,0);audioLoop(pinkNoise,1);audioPlay(pinkNoise,1.0);
+            pinkNoise                    = audioGetHandKludge("cdtds.31.pinkNoise.wav");
+            audioGain(pinkNoise, 0);
+            audioLoop(pinkNoise, 1);
+            audioPlay(pinkNoise, 1.0);
 
-
-
-            dan_texture_09 = audioGetHandKludge("dan_texture_09.wav");printf ("dan_texture_09 %i \n",dan_texture_09); // audioLoop(pinkNoise,0);audioGain(pinkNoise,1);
-            audioGain(dan_texture_09,0);audioLoop(dan_texture_09,1);audioPlay(dan_texture_09,1.0);
+            dan_texture_09               = audioGetHandKludge("dan_texture_09.wav");
+            audioGain(dan_texture_09, 0);
+            audioLoop(dan_texture_09, 1);
+            audioPlay(dan_texture_09, 1.0);
  
-
-
-            // curently continuous sound with spray injector
-            texture_12 = audioGetHandKludge("dan_texture_12.wav");printf ("texture_12 %i \n",texture_12); // audioLoop(whiteNoise,0);audioGain(whiteNoise,1);
-            audioGain(texture_12,0);audioLoop(texture_12,1);audioPlay(texture_12,1.0);
+            texture_12                   = audioGetHandKludge("dan_texture_12.wav");
+            audioGain(texture_12, 0);
+            audioLoop(texture_12, 1);
+            audioPlay(texture_12, 1.0);
  
-            // curently attack sound for spray injector
-            short_sound_01a = audioGetHandKludge("dan_short_sound_01a.wav");printf ("short_sound_01a %i \n",short_sound_01a);
-            audioPlay(short_sound_01a,1);
+            dan_10122606_sound_spray     = audioGetHandKludge("dan_10122606_sound_spray.wav");
+            audioGain(dan_10122606_sound_spray, 0);
+            audioLoop(dan_10122606_sound_spray, 1);
+            audioPlay(dan_10122606_sound_spray, 1.0);
+            
+            short_sound_01a              = audioGetHandKludge("dan_short_sound_01a.wav");
+            audioPlay(short_sound_01a, 1);
 
-            // curently sound with swerels in painting sky scene under position contro
-            texture_17_swirls3 = audioGetHandKludge("dan_texture_17_swirls3.wav");printf ("texture_17_swirls3 %i \n",texture_17_swirls3);
-            // audioLoop(texture_17_swirls3,1);audioPlay(texture_17_swirls3,1.0);
-		
-            rain_at_sea = audioGetHandKludge("dan_texture_18_rain_at_sea.wav");printf("rain_at_sea %i\n",rain_at_sea);
-            // audioPlay(rain_at_sea,1.0);
-            dan_texture_13 = audioGetHandKludge("dan_texture_13.wav");printf("dan_texture_13 %i\n",dan_texture_13);
-		
-            dan_texture_05 = audioGetHandKludge("dan_texture_05.wav");printf("dan_texture_05 %i\n",dan_texture_05);
-		
-            dan_short_sound_04 = audioGetHandKludge("dan_short_sound_04.wav");printf("dan_short_sound_04 %i \n",dan_short_sound_04);
-		
-            dan_ambiance_2 = audioGetHandKludge("dan_ambiance_2.wav");printf("dan_ambiance_2 %i \n",dan_ambiance_2);
-            // audioPlay(dan_ambiance_2,1.0);
-            dan_ambiance_1 = audioGetHandKludge("dan_ambiance_1.wav");printf("dan_ambiance_1 %i \n",dan_ambiance_1);
-            // audioPlay(dan_ambiance_1,1.0);
-		
-            dan_5min_ostinato = audioGetHandKludge("dan_10120607_5_min_ostinato.WAV");printf ("dan_5min_ostinato %i\n",dan_5min_ostinato);
-		
-            dan_10120603_Rez1 = audioGetHandKludge("dan_10120603_Rez.1.wav");printf("dan_10120603_Rez1 %i\n",dan_10120603_Rez1);
-
-            dan_mel_amb_slower = audioGetHandKludge("dan_10122604_mel_amb_slower.wav");printf("dan_mel_amb_slower %i\n",dan_mel_amb_slower);
-            // audioPlay(dan_mel_amb_slower,1.0);
-            harmonicAlgorithm = audioGetHandKludge("harmonicAlgorithm.wav");printf("harmonicAlgorithm %i\n",harmonicAlgorithm);
-            dan_rain_at_sea_loop = audioGetHandKludge("dan_rain_at_sea_loop.wav");printf("dan_rain_at_sea_loop %i\n",dan_rain_at_sea_loop);
-            // reflectorCantadate        
-            dan_10122606_sound_spray = audioGetHandKludge("dan_10122606_sound_spray.wav");printf("dan_10122606_sound_spray %i\n",dan_10122606_sound_spray);
-            audioGain(dan_10122606_sound_spray,0);audioLoop(dan_10122606_sound_spray,1);audioPlay(dan_10122606_sound_spray,1.0);
-        
-            dan_10122608_sound_spray_low = audioGetHandKludge("dan_10122608_sound_spray_low.wav");printf("dan_10122608_sound_spray_low %i\n",dan_10122608_sound_spray_low);
-            // dan_10120600_rezS.3_rez2.wav
-            dan_10120600_rezS3_rez2= audioGetHandKludge("dan_10120600_RezS.3_Rez.2.wav");printf("dan_10120600_rezS3_rez2 %i\n",dan_10120600_rezS3_rez2);
+            chimes                       = audioGetHandKludge("chimes.wav");
+            texture_17_swirls3           = audioGetHandKludge("dan_texture_17_swirls3.wav");
+            rain_at_sea                  = audioGetHandKludge("dan_texture_18_rain_at_sea.wav");
+            dan_texture_13               = audioGetHandKludge("dan_texture_13.wav");
+            dan_texture_05               = audioGetHandKludge("dan_texture_05.wav");
+            dan_short_sound_04           = audioGetHandKludge("dan_short_sound_04.wav");
+            dan_ambiance_2               = audioGetHandKludge("dan_ambiance_2.wav");
+            dan_ambiance_1               = audioGetHandKludge("dan_ambiance_1.wav");
+            dan_5min_ostinato            = audioGetHandKludge("dan_10120607_5_min_ostinato.WAV");
+            dan_10120603_Rez1            = audioGetHandKludge("dan_10120603_Rez.1.wav");
+            dan_mel_amb_slower           = audioGetHandKludge("dan_10122604_mel_amb_slower.wav");
+            harmonicAlgorithm            = audioGetHandKludge("harmonicAlgorithm.wav");
+            dan_rain_at_sea_loop         = audioGetHandKludge("dan_rain_at_sea_loop.wav");
+            dan_10122608_sound_spray_low = audioGetHandKludge("dan_10122608_sound_spray_low.wav");
+            dan_10120600_rezS3_rez2      = audioGetHandKludge("dan_10120600_RezS.3_Rez.2.wav");
         }
-
     }
-
 }
 
 //-----------------------------------------------------------------------------
@@ -586,9 +592,18 @@ danpart::danpart(const std::string& tag) :
     app::prog(tag),
     input(0),
     anim(0),
-    max_age(2000),disappear_age(2000),showFrameNo(0),lastShowFrameNo(-1),showStartTime(0),showTime(0),lastShowTime(-1),gravity(.0001),colorFreq(16),
+    max_age(2000),
+    disappear_age(2000),
+    showFrameNo(0),
+    lastShowFrameNo(-1),
+    showStartTime(0),
+    showTime(0),
+    lastShowTime(-1),
+    gravity(.0001),
+    colorFreq(16),
     mesh_width (CUDA_MESH_WIDTH),
-    mesh_height(CUDA_MESH_HEIGHT),draw_water_sky(1),
+    mesh_height(CUDA_MESH_HEIGHT),
+    draw_water_sky(1),
     
     particle(new ogl::sprite()),
     water(new ogl::mirror("mirror-water", ::host->get_buffer_w(),
@@ -602,9 +617,9 @@ danpart::danpart(const std::string& tag) :
     std::string input_mode = conf->get_s("input_mode");
 
     // Initialize the input handler.
+
     tracker_head_sensor = ::conf->get_i("tracker_head_sensor");
     tracker_hand_sensor = ::conf->get_i("tracker_hand_sensor");
-
 
     if      (input_mode == "trackd")  input = new dev::trackd();
     else if (input_mode == "hybrid")  input = new dev::hybrid("hybrid.xml");
@@ -624,8 +639,8 @@ danpart::danpart(const std::string& tag) :
 
     wand_pool = ::glob->new_pool();
 
-    node_inj_line  = new ogl::node;
-    node_inj_face  = new ogl::node;
+    node_inj_line = new ogl::node;
+    node_inj_face = new ogl::node;
     node_ref_line = new ogl::node;
     node_ref_face = new ogl::node;
 
@@ -656,7 +671,8 @@ danpart::~danpart()
     delete particle;
     
     if (input) delete input;
-    if ((SOUND_SERV == 1) && (::host->root() == 1)){audioQuit();}
+
+    if ((SOUND_SERV == 1) && (::host->root() == 1)) audioQuit();
 }
 
 //-----------------------------------------------------------------------------
@@ -685,35 +701,33 @@ bool danpart::process_click(app::event *E)
 {  
     const int  b = E->data.click.b;
     const bool d = E->data.click.d;
-    if (DEBUG_PRINT >0) printf(" b , d %d %d \n",b, d);
-	
-    if ((b == 1) & (d == 1)){but4old = but4;but4 = 1;}
-    if ((b == 1) & (d == 0)){but4old = but4;but4 = 0;}
 
-    if ((b == 2) & (d == 1)){but3old = but3;but3 = 1;}
-    if ((b == 2) & (d == 0)){but3old = but3;but3 = 0;}
+    if (DEBUG_PRINT > 0) printf("b=%d d=%d \n",b, d);
 
-    if ((b == 3) & (d == 1)){but2old = but2;but2 = 1;}
-    if ((b == 3) & (d == 0)){but2old = but2;but2 = 0;}
+    if ((b == 1) & (d == 1)) { but4old = but4; but4 = 1; }
+    if ((b == 1) & (d == 0)) { but4old = but4; but4 = 0; }
 
-    if ((b == 4) & (d == 1)){but1old = but1;but1 = 1;}
-    if ((b == 4) & (d == 0)){but1old = but1;but1 = 0;}
-    if ((HOST == STARCAVE) || (HOST == MAC_SIM)||(MAC_SIM_NEXCAVE))
+    if ((b == 2) & (d == 1)) { but3old = but3; but3 = 1; }
+    if ((b == 2) & (d == 0)) { but3old = but3; but3 = 0; }
+
+    if ((b == 3) & (d == 1)) { but2old = but2; but2 = 1; }
+    if ((b == 3) & (d == 0)) { but2old = but2; but2 = 0; }
+
+    if ((b == 4) & (d == 1)) { but1old = but1; but1 = 1; }
+    if ((b == 4) & (d == 0)) { but1old = but1; but1 = 0; }
+
+    if ((HOST == STARCAVE) || (HOST == MAC_SIM) || (MAC_SIM_NEXCAVE))
     {
-        if ((b == 0) & (d == 1)){triggerold = trigger;trigger = 1;}
-        if ((b == 0) & (d == 0)){triggerold = trigger;trigger = 0;}
+        if ((b == 0) & (d == 1)) { triggerold = trigger; trigger = 1; }
+        if ((b == 0) & (d == 0)) { triggerold = trigger; trigger = 0; }
     }
-    if ((HOST == NEXCAVE) )
-		
+    if ((HOST == NEXCAVE))
     {
-        if ((b == 7) & (d == 1)){triggerold = trigger;trigger = 1;}
-        if ((b == 7) & (d == 0)){triggerold = trigger;trigger = 0;}
+        if ((b == 7) & (d == 1)) { triggerold = trigger; trigger = 1; }
+        if ((b == 7) & (d == 0)) { triggerold = trigger; trigger = 0; }
 
     }
 
-
-    if ((b == 3) & (d == 1)){::user->home();}
- 
     return false;
 }
 
@@ -1032,17 +1046,12 @@ void danpart::copy_injector(int source, int destination)
         for (int ele = 0; ele < 3; ele++)
         {
             h_injectorData[destination][row][ele] = h_injectorData[source][row][ele];
-            // printf (" %f ", h_injectorData[ destination][row][ele]);
         }
-        // printf("\n");
     }
-    // printf("\n");
 }
- 
 
 void danpart::copy_reflector(int source, int destination)
 {
-
     for (int row = 0;row < REFL_DATA_ROWS;row++)	
     {
         for (int ele = 0;ele <3;ele++)
@@ -1050,96 +1059,85 @@ void danpart::copy_reflector(int source, int destination)
             h_reflectorData[ destination][row][ele] = h_reflectorData[source][row][ele];
         }
     }
-
 }
 
-int   danpart::load6wallcaveWalls(int firstRefNum)
+int danpart::load6wallcaveWalls(int firstRefNum)
 {
     float caverad = ftToM(5.0);
-    int reflNum;
     float damping = .5;
     float no_traping = 0;
-    reflNum = firstRefNum;
-    h_reflectorData[reflNum][0][0] = 1;
-    h_reflectorData[reflNum][0][1] = 0; // type, age ie colormod, ~  0 is off 1 is plane reflector
-    h_reflectorData[reflNum][1][0] = ftToM(5);
-    h_reflectorData[reflNum][1][1] = 0.0;
-    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = -1.0;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
-    h_reflectorData[reflNum][3][0] = caverad;
-    h_reflectorData[reflNum][3][1] = 0.00;
-    h_reflectorData[reflNum][3][2] = 0; // reflector radis ,~,~ 
-    h_reflectorData[reflNum][4][0] = 0.000;
-    h_reflectorData[reflNum][4][1] = 0.000;
-    h_reflectorData[reflNum][4][2] = 0.000; // t,u,v jitter  not implimented = speed 
-    h_reflectorData[reflNum][5][0] = damping;
-    h_reflectorData[reflNum][5][1] = no_traping;
-    h_reflectorData[reflNum][5][2] = 0.0; // reflectiondamping , no_traping ~
-    h_reflectorData[reflNum][6][0] = 0;
-    h_reflectorData[reflNum][6][1] = 0;
-    h_reflectorData[reflNum][6][2] = 0; // not implemented yet centrality of rnd distribution speed dt tu ~
-
+    int reflNum;
 
     reflNum = firstRefNum;
+    h_reflectorData[reflNum][0][0] =  1;
+    h_reflectorData[reflNum][0][1] =  0; // type, age ie colormod, ~  0 is off 1 is plane reflector
+    h_reflectorData[reflNum][3][0] =  caverad;
+    h_reflectorData[reflNum][3][1] =  0.00;
+    h_reflectorData[reflNum][3][2] =  0; // reflector radis ,~,~ 
+    h_reflectorData[reflNum][4][0] =  0.000;
+    h_reflectorData[reflNum][4][1] =  0.000;
+    h_reflectorData[reflNum][4][2] =  0.000; // t,u,v jitter  not implimented = speed 
+    h_reflectorData[reflNum][5][0] =  damping;
+    h_reflectorData[reflNum][5][1] =  no_traping;
+    h_reflectorData[reflNum][5][2] =  0.0; // reflectiondamping , no_traping ~
+    h_reflectorData[reflNum][6][0] =  0;
+    h_reflectorData[reflNum][6][1] =  0;
+    h_reflectorData[reflNum][6][2] =  0; // not implemented yet centrality of rnd distribution speed dt tu ~
+
     // front
-    h_reflectorData[reflNum][1][0] = 0;
-    h_reflectorData[reflNum][1][1] = caverad;
+    h_reflectorData[reflNum][1][0] =  0;
+    h_reflectorData[reflNum][1][1] =  caverad;
     h_reflectorData[reflNum][1][2] = -caverad; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = 1; // x,y,z normal
+    h_reflectorData[reflNum][2][0] =  0;
+    h_reflectorData[reflNum][2][1] =  0;
+    h_reflectorData[reflNum][2][2] =  1; // x,y,z normal
 
-    copy_reflector(reflNum, reflNum +1);
+    copy_reflector(reflNum, reflNum + 1);
     reflNum++; // back
-    h_reflectorData[reflNum][1][0] = 0;
-    h_reflectorData[reflNum][1][1] = caverad;
-    h_reflectorData[reflNum][1][2] = caverad; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0;
-    h_reflectorData[reflNum][2][1] = 0;
+    h_reflectorData[reflNum][1][0] =  0;
+    h_reflectorData[reflNum][1][1] =  caverad;
+    h_reflectorData[reflNum][1][2] =  caverad; // x,y,z position
+    h_reflectorData[reflNum][2][0] =  0;
+    h_reflectorData[reflNum][2][1] =  0;
     h_reflectorData[reflNum][2][2] = -1; // x,y,z normal
 
-    copy_reflector(reflNum, reflNum +1);
+    copy_reflector(reflNum, reflNum + 1);
     reflNum++; // right
-    h_reflectorData[reflNum][1][0] = caverad;
-    h_reflectorData[reflNum][1][1] = caverad;
-    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
+    h_reflectorData[reflNum][1][0] =  caverad;
+    h_reflectorData[reflNum][1][1] =  caverad;
+    h_reflectorData[reflNum][1][2] =  0; // x,y,z position
     h_reflectorData[reflNum][2][0] = -1;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
+    h_reflectorData[reflNum][2][1] =  0;
+    h_reflectorData[reflNum][2][2] =  0; // x,y,z normal
 
-    copy_reflector(reflNum, reflNum +1);
-
+    copy_reflector(reflNum, reflNum + 1);
     reflNum++; // left
     h_reflectorData[reflNum][1][0] = -caverad;
-    h_reflectorData[reflNum][1][1] = caverad;
-    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 1;
-    h_reflectorData[reflNum][2][1] = 0;
-    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
+    h_reflectorData[reflNum][1][1] =  caverad;
+    h_reflectorData[reflNum][1][2] =  0; // x,y,z position
+    h_reflectorData[reflNum][2][0] =  1;
+    h_reflectorData[reflNum][2][1] =  0;
+    h_reflectorData[reflNum][2][2] =  0; // x,y,z normal
 
-    copy_reflector(reflNum, reflNum +1);
+    copy_reflector(reflNum, reflNum + 1);
     reflNum++; // top
-    h_reflectorData[reflNum][1][0] = 0;
-    h_reflectorData[reflNum][1][1] = 2*caverad;
-    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0;
+    h_reflectorData[reflNum][1][0] =  0;
+    h_reflectorData[reflNum][1][1] =  2 * caverad;
+    h_reflectorData[reflNum][1][2] =  0; // x,y,z position
+    h_reflectorData[reflNum][2][0] =  0;
     h_reflectorData[reflNum][2][1] = -1;
-    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
+    h_reflectorData[reflNum][2][2] =  0; // x,y,z normal
 
-    copy_reflector(reflNum, reflNum +1);
+    copy_reflector(reflNum, reflNum + 1);
     reflNum++; // bottom
-    h_reflectorData[reflNum][1][0] = 0;
+    h_reflectorData[reflNum][1][0] =  0;
     h_reflectorData[reflNum][1][1] = -0;
-    h_reflectorData[reflNum][1][2] = 0; // x,y,z position
-    h_reflectorData[reflNum][2][0] = 0;
-    h_reflectorData[reflNum][2][1] = 1;
-    h_reflectorData[reflNum][2][2] = 0; // x,y,z normal
-
+    h_reflectorData[reflNum][1][2] =  0; // x,y,z position
+    h_reflectorData[reflNum][2][0] =  0;
+    h_reflectorData[reflNum][2][1] =  1;
+    h_reflectorData[reflNum][2][2] =  0; // x,y,z normal
     
     return reflNum;
-
 }
 
 // ////////////////// ////////////////////////////////////////////////////////////////////////////
@@ -1150,7 +1148,7 @@ void danpart::scene_data_0_kill_audio()
     h_reflectorData[0][0][0] = 0; // turn off all reflectors
     h_injectorData[0][0][0] = 0; // turn off all injectors
 
-    if ((SOUND_SERV == 1)&& (::host->root() == 1))
+    if ((SOUND_SERV == 1) && (::host->root() == 1))
     {
         audioFadeOutStop(dan_ambiance_2, 150,-1);
         audioGain(dan_10122606_sound_spray,0);
@@ -1244,7 +1242,7 @@ void danpart::scene_data_0()
     h_injectorData[injNum][7][0] = 5;
     h_injectorData[injNum][7][1] = 5;
     h_injectorData[injNum][7][2] = 5; // centrality of rnd distribution speed dt tu ~
-    // if (trigger){printf (" wandPos[0 ,1,2] wandVec[0,1,2] %f %f %f    %f %f %f \n", wandPos[0],wandPos[1],wandPos[2],wandVec[0],wandVec[1],wandVec[2]);}
+
     // load starcave wall reflectors
     // h_reflectorData[0][0][0] = loadStarcaveWalls(1);
     if (time_in_scene >5)h_reflectorData[0][0][0] = load6wallcaveWalls(1);
@@ -1309,15 +1307,6 @@ void danpart::scene_data_1()
     static float rotRate = .05;
     anim = showFrameNo * rotRate;
     rotRate += .000001;
-
-    // anim += 3.14159/4;
-    // tracker data
-    // printf("  devid %d \n",devid );
-    // printf("pos  P %f %f %f\n", P[0], P[1], P[2]);
-    // printf(" direc  V %f %f %f\n", V[0], V[1], V[2]);
-
-
-// 	 injector data 
 
 // 	 injector data 
     int injNum ;	
@@ -1399,9 +1388,7 @@ void danpart::scene_data_1()
 	
 	
     if ((HOST == NEXCAVE) || (HOST == MAC_SIM_NEXCAVE))
-    {printf ("inNEXCAVE \n");
-    
- 
+    {
         int numobj = 5;
         h_injectorData[0][0][0] = numobj;
 

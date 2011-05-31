@@ -63,11 +63,11 @@ class danpart : public app::prog
     double wandVec[3];
     int trackDevID;
     float state;
-    int trigger,triggerold;
-    int but4,but4old;
-    int but3,but3old;
-    int but2,but2old;
-    int but1,but1old;
+    int trigger, triggerold;
+    bool but1, but1old;
+    bool but2, but2old;
+    bool but3, but3old;
+    bool but4, but4old;
     int sceneNum;
     int sceneOrder;
     int nextScene;
