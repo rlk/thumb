@@ -20,7 +20,8 @@
 #include <app-prog.hpp>
 
 #include <cuda.h>
-#include "danglobs.cpp"
+
+#include "danglobs.hpp"
 
 //-----------------------------------------------------------------------------
 

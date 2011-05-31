@@ -4,6 +4,8 @@
 
 TARG= particle
 OBJS=   danpart.o \
+	danutils.o \
+	dansoundClient.o \
 	main.o
 
 DEPS= $(OBJS:.o=.d)

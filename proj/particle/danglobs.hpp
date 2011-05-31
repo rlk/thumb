@@ -1,3 +1,8 @@
+#ifndef DANGLOBS_HPP
+#define DANGLOBS_HPP
+
+//-----------------------------------------------------------------------------
+
 #define DEBUG 0
 #define REFL_HITS 1
 
@@ -28,13 +33,10 @@
 #define MAC_SIM_NEXCAVE 4
 #define HOST NEXCAVE
 //#define HOST STARCAVE
-//#define HOST NEXCAVE
-
-
 
 #define DEBUG_PRINT 0
 #define FR_RATE_PRINT 0
 
+//-----------------------------------------------------------------------------
 
-
-
+#endif

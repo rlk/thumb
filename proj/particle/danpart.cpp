@@ -43,9 +43,8 @@
 // Helper funtions
 
 #include "danpart.hpp"
-#include "danglobs.cpp"
-#include "danutils.cpp"
-#include "dansoundClient.cpp"
+#include "danutils.hpp"
+#include "dansoundClient.hpp"
 
 static int SOUND_SERV = 0;
 

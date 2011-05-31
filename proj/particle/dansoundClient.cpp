@@ -1,6 +1,3 @@
-
-//using namespace std;
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -11,11 +8,27 @@
 #include <netinet/in.h>
 #include <netdb.h> 
 
-
-
 #include <signal.h>
 #include <setjmp.h>
 #include "dansoundClient.hpp"
+
+//-----------------------------------------------------------------------------
+
+float audioState[256][10];// index is handel,row is play state, loop state,playing gain,x,y,zposition,
+int aPlayInd ;
+int aLoopInd ;
+int aGainInd ;
+int aMaxHandel;
+int aPosInd;
+int aFadeStateInd,aFadeIncrimentInd,aFadeTargetGainInd,aFadeStopOnOutInd;
+    
+float aGlobalGain =1;
+float aOldGlobalGain =0;
+
+void error(char *msg);
+void zerotmpbuffer();
+
+//-----------------------------------------------------------------------------
 
 int sockfd;
 char tmpbuffer[256];

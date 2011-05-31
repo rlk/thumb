@@ -1,26 +1,11 @@
-
-
-	float audioState[256][10];// index is handel,row is play state, loop state,playing gain,x,y,zposition,
-	int aPlayInd ;
-	int aLoopInd ;
-	int aGainInd ;
-	int aMaxHandel;
-	int aPosInd;
-	int aFadeStateInd,aFadeIncrimentInd,aFadeTargetGainInd,aFadeStopOnOutInd;
-    
-    float aGlobalGain =1;
-    float aOldGlobalGain =0;
-
-void error(char *msg);
-void zerotmpbuffer();
+#ifndef DANSOUNDCLIENT_HPP
+#define DANSOUNDCLIENT_HPP
 
 
 /*
 int audioWriteFileToServer(char* filename1);
 */
 int audioConectToServer( const char* hostName);
-
-
 
 int audioGetHand (const char* fileName);
 int audioGetHandKludge (const char* fileName);
@@ -54,9 +39,9 @@ void audioDirectionDegRelHead (int handel,float d);
 /*
 void audioDirectionDegRelHeadGain (int handel,float d,float g);
 */
- void audioReleasesHand (int handel);
+void audioReleasesHand (int handel);
 
- void audioQuit ();
+void audioQuit();
 
 void audioProcess();
 void audioFadeOut(int handel,float time,int releaseFileHandel);
@@ -64,7 +49,4 @@ void audioFadeOutStop(int handel,float time,int releaseFileHandel);
 void audioFadeUp(int handel,float time,float targetGain,int AttackFileHandel);
 void audioFadeUpPlay(int handel,float time,float targetGain,int AttackFileHandel);
 
-
-
-
-
+#endif
