@@ -31,19 +31,10 @@ namespace ogl
     class node;
 }
 
-namespace dev
-{
-    class input;
-}
-
 //-----------------------------------------------------------------------------
 
 class danpart : public app::prog
 {
-    // Demo state.
-
-    dev::input *input;
-
     // Event handlers
 
     bool process_key  (app::event *);

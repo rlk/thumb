@@ -28,11 +28,6 @@
 #include <wrl-world.hpp>
 #include <etc-math.hpp>
 
-#include <dev-mouse.hpp>
-#include <dev-hybrid.hpp>
-#include <dev-gamepad.hpp>
-#include <dev-trackd.hpp>
-
 #include <mode-edit.hpp>
 #include <mode-play.hpp>
 #include <mode-info.hpp>
@@ -194,19 +189,9 @@ void demo::prep_uniforms() const
 //-----------------------------------------------------------------------------
 
 demo::demo(const std::string& tag)
-    : app::prog(tag), world(0), edit(0), play(0), info(0), curr(0), input(0)
+    : app::prog(tag), world(0), edit(0), play(0), info(0), curr(0)
 {
-    std::string input_mode = conf->get_s("input_mode");
-
     init_uniforms();
-
-    // Initialize the input handler.
-
-    if      (input_mode == "hybrid")  input = new dev::hybrid("hybrid.xml");
-    else if (input_mode == "gamepad") input = new dev::gamepad();
-    else if (input_mode == "trackd")  input = new dev::trackd();
-//  else if (input_mode == "wiimote") input = new dev::wiimote();
-    else                              input = new dev::mouse  ();
 
     // Initialize attract mode.
 
@@ -243,7 +228,6 @@ demo::~demo()
     if (edit) delete edit;
 
     if (world)    delete world;
-    if (input)    delete input;
 }
 
 //-----------------------------------------------------------------------------
@@ -421,19 +405,18 @@ bool demo::process_event(app::event *E)
     {
     case E_KEY:   R = process_key  (E); break;
     case E_INPUT: R = process_input(E); break;
-    case E_TICK: R = process_tick(E); break;
+    case E_TICK:  R = process_tick(E); break;
     }
 
     if (R) return true;
 
-    // Allow the application mode, the device, or the base to handle the event.
+    // Allow the application base or current mode  to handle the event.
 
     if ((          prog::process_event(E)) ||
-        (curr  &&  curr->process_event(E)) ||
-        (input && input->process_event(E)))
-
-        // If the event was handled, disable the attract mode.
+        (curr  &&  curr->process_event(E)))
     {
+        // If the event was handled, disable the attract mode.
+
         ::host->set_bench_mode(0);
         ::host->set_movie_mode(0);
 

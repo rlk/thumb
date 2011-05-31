@@ -22,11 +22,6 @@ namespace mode
     class mode;
 }
 
-namespace dev
-{
-    class input;
-}
-
 namespace wrl
 {
     class world;
@@ -85,8 +80,6 @@ class demo : public app::prog
     void prep_uniforms() const;
     
     // Demo state.
-
-    dev::input *input;
 
     double attr_sign;
     double attr_curr;

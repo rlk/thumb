@@ -27,6 +27,11 @@
 #include <app-host.hpp>
 #include <app-perf.hpp>
 
+#include <dev-mouse.hpp>
+#include <dev-hybrid.hpp>
+#include <dev-trackd.hpp>
+#include <dev-gamepad.hpp>
+
 //-----------------------------------------------------------------------------
 // Global application state
 
@@ -122,7 +127,7 @@ static void video()
 
 //-----------------------------------------------------------------------------
 
-app::prog::prog(const std::string& tag)
+app::prog::prog(const std::string& tag) : input(0)
 {
     // Start SDL
 
@@ -177,11 +182,23 @@ app::prog::prog(const std::string& tag)
 
     if (SDL_JoystickOpen(j))
         SDL_JoystickEventState(SDL_ENABLE);
+
+    // Initialize the input handler.
+
+    std::string input_mode = ::conf->get_s("input_mode");
+
+    if      (input_mode == "hybrid")  input = new dev::hybrid("hybrid.xml");
+    else if (input_mode == "gamepad") input = new dev::gamepad();
+    else if (input_mode == "trackd")  input = new dev::trackd();
+//  else if (input_mode == "wiimote") input = new dev::wiimote();
+    else                              input = new dev::mouse  ();
 }
 
 app::prog::~prog()
 {
     // Release all resources
+
+    if (input)  delete input;
 
     if (::perf) delete ::perf;
     if (::user) delete ::user;
@@ -198,9 +215,14 @@ app::prog::~prog()
 
 bool app::prog::process_event(app::event *E)
 {
-    // Handle the global key bindings.
+    // Give the input device an opportunity to translate the event.
 
-    if (E->get_type() == E_KEY && E->data.key.d)
+    if (input && input->process_event(E))
+        return true;
+
+    // Otherwise, handle the global key bindings.
+
+    else if (E->get_type() == E_KEY && E->data.key.d)
     {
         const int k = E->data.key.k;
 
@@ -223,7 +245,6 @@ bool app::prog::process_event(app::event *E)
         else if (k == key_exit) { SDL_PushEvent(&quit); return true; }
         else if (k == key_init) { SDL_PushEvent(&user); return true; }
     }
-
     return false;
 }
 

@@ -25,6 +25,11 @@ namespace app
     class frustum;
 }
 
+namespace dev
+{
+    class input;
+}
+
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -36,6 +41,8 @@ namespace app
         int key_snap;
         int key_exit;
         int key_init;
+
+        dev::input *input;
 
     public:
 

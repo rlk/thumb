@@ -589,7 +589,6 @@ void danpart::data_init()
 
 danpart::danpart(const std::string& tag) :
     app::prog(tag),
-    input(0),
     anim(0),
     max_age(2000),
     disappear_age(2000),
@@ -613,17 +612,8 @@ danpart::danpart(const std::string& tag) :
     uniform_light_position(::glob->load_uniform("light_position",   3))
 
 {
-    std::string input_mode = conf->get_s("input_mode");
-
-    // Initialize the input handler.
-
     tracker_head_sensor = ::conf->get_i("tracker_head_sensor");
     tracker_hand_sensor = ::conf->get_i("tracker_hand_sensor");
-
-    if      (input_mode == "trackd")  input = new dev::trackd();
-    else if (input_mode == "hybrid")  input = new dev::hybrid("hybrid.xml");
-    else if (input_mode == "gamepad") input = new dev::gamepad();
-    else                              input = new dev::mouse  ();
 
     cuda_init();
     vbo = vbo_init(mesh_width, mesh_height);
@@ -669,8 +659,6 @@ danpart::~danpart()
     delete water;
     delete particle;
     
-    if (input) delete input;
-
     if ((SOUND_SERV == 1) && (::host->root() == 1)) audioQuit();
 }
 
@@ -815,17 +803,9 @@ bool danpart::process_event(app::event *E)
 
     if (R) return true;
 
-    // Allow the application mode, the device, or the base to handle the event.
+    // Allow the application base to handle the event.
 
-    if ((          prog::process_event(E)) ||
-        (input && input->process_event(E)))
-
-        // If the event was handled, disable the attract mode.
-    {
-        return true;
-    }
-
-    return false;
+    return prog::process_event(E);
 }
 
 //-----------------------------------------------------------------------------
