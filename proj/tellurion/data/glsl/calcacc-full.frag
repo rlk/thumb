@@ -7,8 +7,8 @@ uniform sampler2DRect tex;
 uniform vec2 cylk;
 uniform vec2 cyld;
 
-#include "glsl/uni/mipmap-common.frag"
-#include "glsl/uni/mipmap0.frag"
+#include "glsl/mipmap-common.frag"
+#include "glsl/mipmap0.frag"
 
 uniform float sea;
 uniform vec3  ori;

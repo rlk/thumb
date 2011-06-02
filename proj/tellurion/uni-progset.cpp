@@ -11,7 +11,7 @@
 //  General Public License for more details.
 
 #include "app-glob.hpp"
-#include "ogl-progset.hpp"
+#include "uni-progset.hpp"
 
 //-----------------------------------------------------------------------------
 

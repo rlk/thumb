@@ -3,27 +3,27 @@
 #------------------------------------------------------------------------------
 
 TARG= tellurion
-OBJS=	uni-atmo.o \
-	uni-galaxy.o \
+OBJS=	uni-galaxy.o \
 	uni-geocsh.o \
 	uni-geogen.o \
 	uni-geomap.o \
 	uni-georen.o \
+	uni-overlay.o \
 	uni-slides.o \
 	uni-spatch.o \
 	uni-sphere.o \
-	uni-overlay.o \
-	uni-progset.o \
 	uni-universe.o \
 	tellurion.o \
 	main.o
+#	uni-progset.o
+#	uni-atmo.o
 
 DEPS= $(OBJS:.o=.d)
 
 #------------------------------------------------------------------------------
 
-INCDIR += -I../../include -I/usr/local/cuda/include
-LIBDIR += -L../../src     -L/usr/local/cuda/lib
+INCDIR += -I../../include
+LIBDIR += -L../../src
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)

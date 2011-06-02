@@ -19,8 +19,7 @@
 #include "app-file.hpp"
 #include "app-glob.hpp"
 #include "app-conf.hpp"
-#include "matrix.hpp"
-#include "util.hpp"
+#include "etc-math.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -330,8 +329,8 @@ uni::geomap::geomap(geocsh *cache, std::string name, double r0, double r1) :
 
         // Compute the extents of the mipmap pyramid.
 
-        mip_w = 2 * next_power_of_2(std::max(w / s, 1));
-        mip_h = 2 * next_power_of_2(std::max(h / s, 1));
+        mip_w = 2 * next_pow2(std::max(w / s, 1));
+        mip_h = 2 * next_pow2(std::max(h / s, 1));
 
         int t = s;
 

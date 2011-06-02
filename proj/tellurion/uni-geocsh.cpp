@@ -276,7 +276,7 @@ uni::buffer *uni::buffer::load(std::string name, bool swab)
         fclose(fp);
     }
 
-//  std::cout << name << (ret ? " ok" : " FAIL") << std::endl;
+    std::cout << name << (ret ? " ok" : " FAIL") << std::endl;
 
     return this;
 }
@@ -719,7 +719,7 @@ void uni::geocsh::draw() const
     glPushAttrib(GL_ENABLE_BIT);
     {
         glEnable(GL_TEXTURE_2D);
-//      glEnable(GL_BLEND);
+        glEnable(GL_BLEND);
         glDisable(GL_LIGHTING);
         glDisable(GL_DEPTH_TEST);
 

@@ -13,7 +13,7 @@
 #ifndef UNI_SPHERE_HPP
 #define UNI_SPHERE_HPP
 
-#include "default.hpp"
+#include "app-default.hpp"
 #include "ogl-opengl.hpp"
 #include "uni-geogen.hpp"
 #include "uni-georen.hpp"

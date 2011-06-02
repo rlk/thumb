@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
-<program vert="glsl/uni/SkyFromSpace.vert"
-         frag="glsl/uni/SkyFromSpace.frag" >
+<program vert="glsl/SkyFromSpace.vert"
+         frag="glsl/SkyFromSpace.frag" >
 </program>

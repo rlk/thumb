@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
-<program vert="glsl/uni/drawcyl.vert"
-         frag="glsl/uni/drawcyl.frag" >
+<program vert="glsl/drawcyl.vert"
+         frag="glsl/drawcyl.frag" >
 </program>

@@ -114,7 +114,7 @@ bool dev::mouse::process_click(app::event *E)
 
     // Handle rotating the view.
 
-    if (b == SDL_BUTTON_RIGHT)
+    if (b == 2)
     {
         dragging = d;
         modifier = m;
@@ -125,12 +125,12 @@ bool dev::mouse::process_click(app::event *E)
 
     // TODO: convert this into a script event.
 
-    else if (d && b == SDL_BUTTON_WHEELUP)
+    else if (d && b == 3)
     {
         ::user->pass(+15.0 * 60.0);
         return true;
     }
-    else if (d && b == SDL_BUTTON_WHEELDOWN)
+    else if (d && b == 4)
     {
         ::user->pass(-15.0 * 60.0);
         return true;

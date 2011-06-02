@@ -16,7 +16,7 @@
 #include <string>
 
 #include "ogl-opengl.hpp"
-#include "default.hpp"
+#include "app-default.hpp"
 #include "ogl-buffer.hpp"
 #include "ogl-image.hpp"
 #include "ogl-frame.hpp"

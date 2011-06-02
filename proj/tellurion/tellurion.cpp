@@ -24,18 +24,9 @@
 #include <app-user.hpp>
 #include <app-host.hpp>
 #include <app-glob.hpp>
-
 #include <etc-math.hpp>
 
-#include <dev-mouse.hpp>
-#include <dev-hybrid.hpp>
-#include <dev-gamepad.hpp>
-#include <dev-tracker.hpp>
-
-#include <mode-edit.hpp>
-#include <mode-play.hpp>
-#include <mode-info.hpp>
-
+#include "uni-universe.hpp"
 #include "tellurion.hpp"
 
 //-----------------------------------------------------------------------------
@@ -192,20 +183,12 @@ void tellurion::prep_uniforms() const
 
 //-----------------------------------------------------------------------------
 
-tellurion::tellurion(const std::string& tag)
-    : app::prog(tag), input(0)
+tellurion::tellurion(const std::string& tag) : app::prog(tag), universe(0)
 {
-    std::string input_mode = conf->get_s("input_mode");
-
     init_uniforms();
 
-    // Initialize the input handler.
-
-    if      (input_mode == "hybrid")  input = new dev::hybrid();
-    else if (input_mode == "gamepad") input = new dev::gamepad();
-    else if (input_mode == "tracker") input = new dev::tracker();
-//  else if (input_mode == "wiimote") input = new dev::wiimote();
-    else                              input = new dev::mouse  ();
+    universe = new uni::universe(::host->get_buffer_w(),
+                                 ::host->get_buffer_h());
 
     // Initialize attract mode.
 
@@ -221,14 +204,9 @@ tellurion::tellurion(const std::string& tag)
 
 tellurion::~tellurion()
 {
+    if (universe) delete universe;
+
     free_uniforms();
-
-    if (info) delete info;
-    if (play) delete play;
-    if (edit) delete edit;
-
-    if (world)    delete world;
-    if (input)    delete input;
 }
 
 //-----------------------------------------------------------------------------
@@ -312,11 +290,11 @@ void tellurion::prev()
 
 //-----------------------------------------------------------------------------
 
-bool tellurion::process_keybd(app::event *E)
+bool tellurion::process_key(app::event *E)
 {
-    const bool d = E->data.keybd.d;
-    const int  k = E->data.keybd.k;
-    const int  m = E->data.keybd.m;
+    const bool d = E->data.key.d;
+    const int  k = E->data.key.k;
+    const int  m = E->data.key.m;
 
     // Handle attract mode controls.
 
@@ -342,9 +320,9 @@ bool tellurion::process_keybd(app::event *E)
     return false;
 }
 
-bool tellurion::process_timer(app::event *E)
+bool tellurion::process_tick(app::event *E)
 {
-    double dt = E->data.timer.dt * 0.001;
+    double dt = E->data.tick.dt * 0.001;
 
     // 
 
@@ -372,6 +350,11 @@ bool tellurion::process_timer(app::event *E)
 
 bool tellurion::process_input(app::event *E)
 {
+    // Assume all script inputs are meaningful.  Pass them to the universe.
+
+    if (universe)
+        E->set_dst(universe->script(E->data.input.src));
+
     return false;
 }
 
@@ -383,20 +366,16 @@ bool tellurion::process_event(app::event *E)
 
     switch (E->get_type())
     {
-    case E_KEYBD: R = process_keybd(E); break;
+    case E_KEY:   R = process_key  (E); break;
     case E_INPUT: R = process_input(E); break;
-    case E_TIMER: R = process_timer(E); break;
+    case E_TICK:  R = process_tick (E); break;
     }
 
     if (R) return true;
 
-    // Allow the application mode, the device, or the base to handle the event.
+    // Allow the application base to handle the event.
 
-    if ((          prog::process_event(E)) ||
-        (curr  &&  curr->process_event(E)) ||
-        (input && input->process_event(E)))
-
-        // If the event was handled, disable the attract mode.
+    if (prog::process_event(E))
     {
         ::host->set_bench_mode(0);
         ::host->set_movie_mode(0);
@@ -412,24 +391,21 @@ bool tellurion::process_event(app::event *E)
 
 ogl::range tellurion::prep(int frusc, const app::frustum *const *frusv)
 {
-    // Prep the current mode, giving the view range.
-
     prep_uniforms();
 
-    ogl::range r;
+    ogl::range r = ogl::range();
 
-    if (curr)
-        r = curr->prep(frusc, frusv);
-    else
-        r = ogl::range();
+    if (universe)
+    {
+        universe->prep(frusc, frusv);
 
+        ::user->put_move_rate(universe->get_move_rate());
+    }
     return r;
 }
 
 void tellurion::lite(int frusc, const app::frustum *const *frusv)
 {
-    if (curr)
-        curr->lite(frusc, frusv);
 }
 
 void tellurion::draw(int frusi, const app::frustum *frusp)
@@ -440,8 +416,8 @@ void tellurion::draw(int frusi, const app::frustum *frusp)
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
-    if (curr)
-        curr->draw(frusi, frusp);
+    if (universe)
+        universe->draw(frusi);
 }
 
 //-----------------------------------------------------------------------------

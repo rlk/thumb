@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "matrix.hpp"
+#include "etc-math.hpp"
 #include "ogl-program.hpp"
 #include "app-glob.hpp"
 #include "uni-georen.hpp"
@@ -96,7 +96,7 @@ void uni::renbuf::free() const
 uni::cylbuf::cylbuf(GLsizei w, GLsizei h) :
     uni::renbuf(w, h, GL_RGBA32F_ARB, true, false),
 //  uni::renbuf(w, h, GL_FLOAT_RGBA32_NV, true, false),
-    draw(::glob->load_program("uni/drawcyl.xml"))
+    draw(::glob->load_program("drawcyl.xml"))
 {
 }
 

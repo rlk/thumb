@@ -19,14 +19,13 @@
 #include "ogl-pool.hpp"
 #include "ogl-opengl.hpp"
 #include "ogl-program.hpp"
-#include "matrix.hpp"
+#include "etc-math.hpp"
 #include "uni-sphere.hpp"
 #include "app-glob.hpp"
 #include "app-host.hpp"
 #include "app-prog.hpp"
 #include "app-user.hpp"
-#include "default.hpp"
-#include "util.hpp"
+#include "app-default.hpp"
 
 //=============================================================================
 
@@ -68,17 +67,17 @@ uni::sphere::sphere(uni::geodat& dat,
     height(height),
     caches(caches),
 
-    draw_atmo_in (glob->load_program("uni/SkyFromAtmosphere.xml")),
-    draw_atmo_out(glob->load_program("uni/SkyFromSpace.xml")),
-    draw_land_in (glob->load_program("uni/GroundFromAtmosphere.xml")),
-    draw_land_out(glob->load_program("uni/GroundFromSpace.xml")),
+    draw_atmo_in (glob->load_program("SkyFromAtmosphere.xml")),
+    draw_atmo_out(glob->load_program("SkyFromSpace.xml")),
+    draw_land_in (glob->load_program("GroundFromAtmosphere.xml")),
+    draw_land_out(glob->load_program("GroundFromSpace.xml")),
 
-    draw_land(glob->load_program("uni/final-land.xml")),
-    draw_diff(glob->load_program("uni/final-diff.xml")),
-    draw_norm(glob->load_program("uni/final-norm.xml")),
-    draw_texc(glob->load_program("uni/final-texc.xml")),
-    draw_mono(glob->load_program("uni/final-mono.xml")),
-    draw_dtex(glob->load_program("uni/final-dtex.xml")),
+    draw_land(glob->load_program("final-land.xml")),
+    draw_diff(glob->load_program("final-diff.xml")),
+    draw_norm(glob->load_program("final-norm.xml")),
+    draw_texc(glob->load_program("final-texc.xml")),
+    draw_mono(glob->load_program("final-mono.xml")),
+    draw_dtex(glob->load_program("final-dtex.xml")),
 
     atmo_pool(0),
     atmo_node(0),
@@ -103,10 +102,10 @@ uni::sphere::sphere(uni::geodat& dat,
 
     atmo_pool = glob->new_pool();
     atmo_node = new ogl::node();
-//  atmo_unit = new ogl::unit("solid/inverted_sphere.obj");
+    atmo_unit = new ogl::unit("solid/inverted_sphere.obj");
 
     atmo_pool->add_node(atmo_node);
-//  atmo_node->add_unit(atmo_unit);
+    atmo_node->add_unit(atmo_unit);
 
     double M[16];
     double I[16];
@@ -114,7 +113,7 @@ uni::sphere::sphere(uni::geodat& dat,
     load_scl_mat(M, a1, a1, a1);
     load_scl_inv(I, a1, a1, a1);
 
-//  atmo_unit->transform(M, I);
+    atmo_unit->transform(M, I);
 
     // Initialize overlay rendering.
 
@@ -321,13 +320,12 @@ void uni::sphere::view(int frusc, const app::frustum *const *frusv)
         }
 
         // Prep the atmosphere model.
-/*
+
         if (atmosphere)
         {
             atmo_pool->prep();
             atmo_pool->view(1, 0, 0);
         }
-*/
         if (over) over->prep();
     }
 }
@@ -483,7 +481,7 @@ void uni::sphere::prep()
 
                 // Generate positions.
 
-//              pos.proc(count);
+                pos.proc(count);
             }
             nrm.free(GL_TEXTURE2);
         }
@@ -544,7 +542,7 @@ void uni::sphere::prep()
         nrm.free_frame();
 
         // Copy the generated positions to the vertex buffer.
-/*
+
         if (height.empty())
         {
             pos.bind_frame();
@@ -552,7 +550,6 @@ void uni::sphere::prep()
             pos.free_frame();
         }
         else
-*/
         {
             acc.bind_frame();
             vtx.read_v(count);
@@ -586,13 +583,14 @@ void uni::sphere::draw(int i)
 
     const ogl::program *atmo_prog = 0;
     const ogl::program *land_prog = 0;
-
+/*
     if      (::prog->get_option(0)) land_prog = draw_diff;
     else if (::prog->get_option(1)) land_prog = draw_norm;
     else if (::prog->get_option(2)) land_prog = draw_texc;
     else if (::prog->get_option(3)) land_prog = draw_mono;
     else if (::prog->get_option(4)) land_prog = draw_dtex;
-    else if (atmosphere)
+*/
+    if (atmosphere)
     {
         atmo_prog = in ? draw_atmo_in : draw_atmo_out;
         land_prog = in ? draw_land_in : draw_land_out;
@@ -681,7 +679,8 @@ void uni::sphere::draw(int i)
                 glDisable(GL_DEPTH_TEST);
 
                 ren.dif()->init(1.0f, 1.0f, 1.0f);
-                if (!::prog->get_option(2))
+
+//              if (!::prog->get_option(2))
                 {
                     ren.dif()->bind();
                     {
@@ -711,14 +710,14 @@ void uni::sphere::draw(int i)
                         vtx.bind();
                         {
                             pass();
-
-//                          if (!::prog->get_option(11))
-                            if (in)
+/*
+                            if (!::prog->get_option(11))
                             {
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
                                 pass();
                                 glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
                             }
+*/
                         }
                         vtx.free();
                         dat.idx()->free();
@@ -728,7 +727,7 @@ void uni::sphere::draw(int i)
                 }
 
                 // Draw patch bounds as requested.
-
+/*
                 if (::prog->get_option(10))
                 {
                     glPushMatrix();
@@ -750,9 +749,9 @@ void uni::sphere::draw(int i)
                     }
                     glPopMatrix();
                 }
-
+*/
                 // Draw wireframe as requested.
-
+/*
                 if (::prog->get_option(11))
                 {
                     ren.bind();
@@ -782,6 +781,7 @@ void uni::sphere::draw(int i)
                     dat.idx()->free();
                     ren.free();
                 }
+*/
             }
             glPopClientAttrib();
         }
@@ -817,12 +817,14 @@ void uni::sphere::draw(int i)
         // Test draw the color geomap.
 
         glUseProgramObjectARB(0);
-    
-        if (::prog->get_option(7)) (*(  caches.begin()))->draw();
-        if (::prog->get_option(6)) (*(++caches.begin()))->draw();
+
+//      if (::prog->get_option(7)) (*(  caches.begin()))->draw();
+//      if (::prog->get_option(6)) (*(++caches.begin()))->draw();
+
+        (*(caches.begin()))->draw();
 
         // Test draw the GPGPU buffers.
-
+/*
         glPushAttrib(GL_ENABLE_BIT);
         {
             int w = ::host->get_buffer_w();
@@ -837,6 +839,7 @@ void uni::sphere::draw(int i)
             if (::prog->get_option(9)) tex.draw(w, h);
         }
         glPopAttrib();
+*/
     }
     glPopAttrib();
 }

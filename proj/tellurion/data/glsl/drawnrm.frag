@@ -6,8 +6,8 @@ uniform sampler2DRect cyl;
 uniform vec2          cylk;
 uniform vec2          cyld;
 
-#include "glsl/uni/mipmap-common.frag"
-#include "glsl/uni/mipmapL.frag"
+#include "glsl/mipmap-common.frag"
+#include "glsl/mipmapL.frag"
 
 //-----------------------------------------------------------------------------
 

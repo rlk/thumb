@@ -22,8 +22,7 @@
 #include "app-user.hpp"
 #include "app-data.hpp"
 #include "app-host.hpp"
-#include "matrix.hpp"
-#include "util.hpp"
+#include "etc-math.hpp"
 
 #define MAXSTR 256
 
@@ -147,7 +146,7 @@ bool uni::overlay::screen_to_sphere(double& lat,
     P[1] = E.data.point.p[1];
     P[2] = E.data.point.p[1];
 
-    set_quaternion(R, E.data.point.q);
+    quat_to_mat(R, E.data.point.q);
 
     V[0] = -R[ 8];
     V[1] = -R[ 9];

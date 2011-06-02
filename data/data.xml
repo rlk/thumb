@@ -5,29 +5,4 @@
         object-lite-noshadow.frag
       </option>
     </file>
-    <file name="glsl/uni/drawdif.frag">
-      <option type="string" name="mipmap" value="linear">
-        glsl/uni/drawdif-best.frag
-      </option>
-      <option type="string" name="mipmap" value="nearest">
-        glsl/uni/drawdif-best.frag
-      </option>
-      <option type="string" name="mipmap" value="best">
-        glsl/uni/drawdif-best.frag
-      </option>
-      <option type="string" name="mipmap" value="test">
-        glsl/uni/drawdif-test.frag
-      </option>
-    </file>
-    <file name="glsl/uni/drawnrm.frag">
-      <option type="string" name="mipmap" value="linear">
-        glsl/uni/drawnrm.frag
-      </option>
-      <option type="string" name="mipmap" value="nearest">
-        glsl/uni/drawnrm-nearest.frag
-      </option>
-      <option type="string" name="mipmap" value="best">
-        glsl/uni/drawnrm-best.frag
-      </option>
-    </file>
   </data>

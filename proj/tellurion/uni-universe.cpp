@@ -16,7 +16,7 @@
 #include "uni-universe.hpp"
 #include "uni-geomap.hpp"
 #include "ogl-opengl.hpp"
-#include "matrix.hpp"
+#include "etc-math.hpp"
 #include "app-glob.hpp"
 #include "app-conf.hpp"
 #include "app-user.hpp"
@@ -58,7 +58,6 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
     // Create the maps.
 
     geomap *dif0 = new geomap(cache_s, "universe/world.200408.xml",      Er0, Er1);
-
     geomap *nrm0 = new geomap(cache_s, "universe/srtm_ramp2_normal.xml", Er0, Er1);
     geomap *hgt0 = new geomap(cache_h, "universe/srtm_ramp2.xml",        Er0, Er1);
 
@@ -66,18 +65,18 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
     Enormal.push_back(nrm0);
     Eheight.push_back(hgt0);
 
-/*
-    geomap *nrm1 = new geomap(cache_s, "NED_norm.xml",          Er0, Er1);
-    geomap *hgt1 = new geomap(cache_h, "NED.xml",               Er0, Er1);
+    geomap *nrm1 = new geomap(cache_s, "universe/NED_norm.xml",          Er0, Er1);
+    geomap *hgt1 = new geomap(cache_h, "universe/NED.xml",               Er0, Er1);
 
     Enormal.push_back(nrm1);
     Eheight.push_back(hgt1);
-*/
+
 /*
     geomap *dif2 = new geomap(cache_s, "universe/moon-750.xml",          Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "universe/moon-normal.xml",       Mr0, Mr1);
     geomap *hgt2 = new geomap(cache_h, "universe/moon-height.xml",       Mr0, Mr1);
 */
+/*
     geomap *dif2 = new geomap(cache_m, "universe/clem750v2.xml",         Mr0, Mr1);
     geomap *nrm2 = new geomap(cache_s, "universe/ulcn2005-normal.xml",   Mr0, Mr1);
     geomap *hgt2 = new geomap(cache_h, "universe/ulcn2005-height.xml",   Mr0, Mr1);
@@ -85,7 +84,7 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
     Mcolor.push_back(dif2);
     Mnormal.push_back(nrm2);
     Mheight.push_back(hgt2);
-
+*/
     // Configure the geometry generator and renderer.
 
     int patch_cache = ::conf->get_i("patch_cache");
@@ -106,22 +105,23 @@ uni::universe::universe(int w, int h) : G(0), Z(0), serial(0), time(0)
 
     S[0] = new sphere(*D, *R, Ecolor, Enormal, Eheight,
                       caches, Er0, Er1, patch_cache, true, false);
-    S[0]->move(-Mo, 0.0, 0.0);
+    S[0]->move(-Mo / 2, 0.0, 0.0);
 //  S[0]->move(-Mo, 0.0, -2.0 * Er0);
 //  S[0]->move(0.0, 0.0, -2.0 * Er0);
 
     N = 1;
 
     // Create the Moon.
-
+/*
     S[1] = M = new sphere(*D, *R, Mcolor, Mnormal, Mheight,
                           caches, Mr0, Mr1, patch_cache, false, true);
-    S[1]->move(0.0, 0.0, 0.0);
+    S[1]->move(+Mo / 2, 0.0, 0.0);
 //  S[1]->move(0.0, 0.0, -2.0 * Er0);
 //  S[1]->move(+Mo, 0.0, -2.0 * Er0);
 //  S[1]->turn(90.0, 0.0);
 
     N = 2;
+*/
 }
 
 uni::universe::~universe()
@@ -175,12 +175,13 @@ void uni::universe::prep(int frusc, const app::frustum *const *frusv)
     // Perform visibility processing.
 
     // HACK: if the GPGPU buffers are shown, step only one sphere.
-
+/*
     if (::prog->get_option(7) ||
         ::prog->get_option(8) ||
         ::prog->get_option(9))
         S[0]->step(serial);
     else
+*/
         for (s = 0; s < N; ++s)
             S[s]->step(serial);
 
@@ -212,12 +213,13 @@ void uni::universe::draw(int i)
     if (G) G->draw(i);
 
     // HACK: if the GPGPU buffers are shown, draw only one sphere.
-
+/*
     if (::prog->get_option(7) ||
         ::prog->get_option(8) ||
         ::prog->get_option(9))
         S[0]->draw(i);
     else
+*/
         for (s = N - 1; s >= 0; --s)
             S[s]->draw(i);
 

@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<program vert="glsl/uni/final-dark.vert"
-         frag="glsl/uni/final-diff.frag" >
+<program vert="glsl/final-dark.vert"
+         frag="glsl/final-diff.frag" >
   <sampler name="dif" unit="1" />
 </program>

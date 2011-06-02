@@ -10,7 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "matrix.hpp"
+#include "etc-math.hpp"
+#include "etc-socket.hpp"
 #include "uni-galaxy.hpp"
 #include "ogl-program.hpp"
 #include "app-frustum.hpp"
@@ -18,9 +19,33 @@
 #include "app-glob.hpp"
 #include "app-user.hpp"
 
-#include "util.hpp"
-
 //=============================================================================
+
+float ntohf(float src)
+{
+    float dst;
+
+    uint32_t *s = (uint32_t *) (&src);
+    uint32_t *d = (uint32_t *) (&dst);
+
+    *d = ntohl(*s);
+
+    return dst;
+}
+
+int ntohi(int src)
+{
+    int dst;
+
+    uint32_t *s = (uint32_t *) (&src);
+    uint32_t *d = (uint32_t *) (&dst);
+
+    *d = ntohl(*s);
+
+    return dst;
+}
+
+//-----------------------------------------------------------------------------
 
 #define TWEAK(b) (255 - (255 - b) / 2)
 
@@ -114,7 +139,7 @@ uni::galaxy::galaxy(const char *filename) : magnitude(150.0f)
 
     // Initialize the program.
 
-    starprog = ::glob->load_program("uni/star.xml");
+    starprog = ::glob->load_program("star.xml");
 }
 
 uni::galaxy::~galaxy()

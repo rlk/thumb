@@ -19,7 +19,7 @@
 #include "ogl-opengl.hpp"
 #include "ogl-program.hpp"
 #include "uni-geogen.hpp"
-#include "matrix.hpp"
+#include "etc-math.hpp"
 #include "app-glob.hpp"
 
 //-----------------------------------------------------------------------------
@@ -283,8 +283,6 @@ uni::geolut::geolut(GLsizei d, geocon& con) :
     // Copy the lookup table to the texture.
 
     blit(p, 0, 0, c, 1);
-
-    OGLCK();
 
     delete [] p;
 }
@@ -706,9 +704,9 @@ void uni::geogen::uniform(std::string name, const double *M, bool t)
 
 uni::geonrm::geonrm(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "uni/copybuf.xml",
-                      "uni/calcnrm.xml",
-                      "uni/shownrm.xml")
+    uni::geogen(d, h, "copybuf.xml",
+                      "calcnrm.xml",
+                      "shownrm.xml")
 {
 }
 
@@ -716,9 +714,9 @@ uni::geonrm::geonrm(GLsizei d, GLsizei h) :
 
 uni::geopos::geopos(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "uni/copybuf.xml",
-                      "uni/calcpos.xml",
-                      "uni/showpos.xml")
+    uni::geogen(d, h, "copybuf.xml",
+                      "calcpos.xml",
+                      "showpos.xml")
 {
 /*    
     calc->bind();
@@ -797,9 +795,9 @@ void uni::geopos::fini(GLsizei c)
 
 uni::geotex::geotex(GLsizei d, GLsizei h) :
 
-    uni::geogen(d, h, "uni/copybuf.xml",
-                      "uni/calctex.xml",
-                      "uni/showtex.xml")
+    uni::geogen(d, h, "copybuf.xml",
+                      "calctex.xml",
+                      "showtex.xml")
 {
 /*
     calc->bind();
@@ -814,9 +812,9 @@ uni::geotex::geotex(GLsizei d, GLsizei h) :
 
 uni::geoacc::geoacc(GLsizei d, GLsizei h) :
 
-    uni::geobuf(vtx_count(d), h, "uni/copyacc.xml",
-                                 "uni/calcacc.xml",
-                                 "uni/showpos.xml")
+    uni::geobuf(vtx_count(d), h, "copyacc.xml",
+                                 "calcacc.xml",
+                                 "showpos.xml")
 {
 /*
     copy->bind();
@@ -860,9 +858,9 @@ void uni::geoacc::init(GLsizei c, double sea, const double *ori)
 
 uni::geoext::geoext(GLsizei d, GLsizei h) :
 
-    uni::geobuf(vtx_count(d), h, "uni/copyext.xml",
-                                 "uni/calcext.xml",
-                                 "uni/showpos.xml"),
+    uni::geobuf(vtx_count(d), h, "copyext.xml",
+                                 "calcext.xml",
+                                 "showpos.xml"),
 
     buff(GL_PIXEL_PACK_BUFFER_ARB, 4 * sizeof (GLfloat))
 {

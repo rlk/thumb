@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "matrix.hpp"
+#include "etc-math.hpp"
 #include "app-glob.hpp"
 #include "app-user.hpp"
 #include "uni-slides.hpp"
@@ -34,7 +34,7 @@ uni::slide::slide(app::node n) :
     q[2] = n.get_f("v", 0);
     q[3] = n.get_f("w", 0);
 
-    set_quaternion(M, q);
+    quat_to_mat(M, q);
 
     M[12] = p[0];
     M[13] = p[1];

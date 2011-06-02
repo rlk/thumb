@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<program vert="glsl/uni/null.vert"
-         frag="glsl/uni/shownrm.frag" >
+<program vert="glsl/null.vert"
+         frag="glsl/shownrm.frag" >
   <sampler name="src" unit="0" />
 </program>

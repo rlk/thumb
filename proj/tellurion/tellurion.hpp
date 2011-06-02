@@ -27,13 +27,15 @@ namespace ogl
     class uniform;
 }
 
+namespace uni
+{
+    class universe;
+}
+
 //-----------------------------------------------------------------------------
 
 class tellurion : public app::prog
 {
-    int tracker_head_sensor;
-    int tracker_hand_sensor;
-
     // Renderer uniforms.
 
     ogl::uniform *uniform_light_position;
@@ -57,7 +59,7 @@ class tellurion : public app::prog
     
     // Application state.
 
-    dev::input *input;
+    uni::universe *universe;
 
     double attr_sign;
     double attr_curr;
@@ -76,9 +78,9 @@ class tellurion : public app::prog
 
     // Event handlers
 
-    bool process_keybd(app::event *);
+    bool process_key  (app::event *);
     bool process_input(app::event *);
-    bool process_timer(app::event *);
+    bool process_tick (app::event *);
 
 public:
 

@@ -604,7 +604,8 @@ danpart::danpart(const std::string& tag) :
     draw_water_sky(1),
     
     particle(new ogl::sprite()),
-    water(new ogl::mirror("mirror-water", ::host->get_buffer_w(),
+    water(new ogl::mirror("mirror-water",
+                          ::host->get_buffer_w(),
                           ::host->get_buffer_h())),
     
     uniform_time          (::glob->load_uniform("time",             1)),

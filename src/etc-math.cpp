@@ -641,6 +641,8 @@ int nearest_int(double d)
     return int((c - d < d - f) ? c : f);
 }
 
+// Return a power of two greater than or equal to n.
+
 int next_pow2(int n)
 {
     n--;
