@@ -17,6 +17,7 @@
 #include "app-frustum.hpp"
 #include "app-data.hpp"
 #include "app-glob.hpp"
+#include "app-conf.hpp"
 #include "app-user.hpp"
 
 //=============================================================================
@@ -47,7 +48,8 @@ int ntohi(int src)
 
 //-----------------------------------------------------------------------------
 
-#define TWEAK(b) (255 - (255 - b) / 2)
+//#define TWEAK(b) (255 - (255 - b) / 2)
+#define TWEAK(b) (b)
 
 const void *uni::star::read(const void *buf)
 {
@@ -96,10 +98,12 @@ void uni::node::draw() const
 
 //=============================================================================
 
-uni::galaxy::galaxy(const char *filename) : magnitude(150.0f)
+uni::galaxy::galaxy(const char *filename)
 {
     int N_num = 0;
     int S_num = 0;
+
+    magnitude = ::conf->get_f("stellar_magnitude", 100.0f);
 
     // Load the galaxy data file.
 

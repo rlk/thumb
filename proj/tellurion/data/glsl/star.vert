@@ -11,7 +11,8 @@ void main()
 
     float m = Magnitude + 5.0 * log(d / 10.0) / log(10.0);
 
-    float s = pow(10.0, -0.2 * m) * Multiplier;
+//  float s = pow(10.0, -0.2 * m) * Multiplier;
+    float s = pow(10.0, -0.15 * m) * Multiplier;
 
     color = gl_Color.rgb;
 

@@ -276,7 +276,7 @@ uni::buffer *uni::buffer::load(std::string name, bool swab)
         fclose(fp);
     }
 
-    std::cout << name << (ret ? " ok" : " FAIL") << std::endl;
+//  std::cout << name << (ret ? " ok" : " FAIL") << std::endl;
 
     return this;
 }
