@@ -4,6 +4,7 @@
 
 TARG= panoview
 OBJS=   panoview.o \
+        sph-model.o \
 	main.o
 
 DEPS= $(OBJS:.o=.d)

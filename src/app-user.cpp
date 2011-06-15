@@ -33,18 +33,17 @@ static double cubic(double t)
     return 3 * t * t - 2 * t * t * t;
 }
 
+/*
 static double smoothstep(double a, double z, double t)
 {
     return a + (z - a) * cubic(t);
 }
-
+*/
 //-----------------------------------------------------------------------------
 
 app::user::user() :
     move_rate(1.0),
     turn_rate(1.0),
-    move_rate_k(1.0),
-    turn_rate_k(1.0),
     file(DEFAULT_DEMO_FILE),
     root(0),
     prev(0),
@@ -62,13 +61,8 @@ app::user::user() :
     };
     load_mat(current_S, S);
 
-    auto_b = false;
-
-    move_rate_k = ::conf->get_f("view_move_rate");
-    turn_rate_k = ::conf->get_f("view_turn_rate");
-
-    fly_r_min = ::conf->get_f("fly_r_min", 6372797.0);
-    fly_r_max = ::conf->get_f("fly_r_max", 6381641.0);
+    move_rate = ::conf->get_f("view_move_rate");
+    turn_rate = ::conf->get_f("view_turn_rate");
 
     // Initialize the demo input.
 
@@ -119,14 +113,6 @@ void app::user::set(const double *p, const double *q, double t)
         Rmul_rot_mat(M, 0.0, 1.0, 0.0, 360.0 * t / (24.0 * 60.0 * 60.0));
 
         mult_mat_vec3(current_L, M, L);
-/*
-        double phi   = RAD(30.0);
-        double theta = RAD(60.0);
-
-        current_L[0] = (sin(phi) * sin(theta));
-        current_L[1] = (           cos(theta));
-        current_L[2] = (cos(phi) * sin(theta));
-*/
     }
 }
 
@@ -279,167 +265,6 @@ void app::user::home()
     load_idt(current_I);
 
     set(0, 0, 86400);
-
-#ifdef TELLURION
-    double M[16];
-
-    M[0] =  1; M[4] =  0; M[ 8] =  0;  M[12] =  0;
-    M[1] =  0; M[5] =  0; M[ 9] = -1;  M[13] =  0;
-    M[2] =  0; M[6] = -1; M[10] =  0;  M[14] =  2150000;
-    M[3] =  0; M[7] =  0; M[11] =  0;  M[15] =  1;
-
-    load_mat(current_M, M);
-    load_inv(current_I, M);
-#endif
-
-    current_M[13] =  1.759;
-    current_I[13] = -1.759;
-
-//  struct timeval tv;
-
-//  gettimeofday(&tv, 0);
-
-//  set(0, 0, tv.tv_sec + tv.tv_usec * 0.000001);
-//  set(0, 0, 40000.0);
-}
-
-/*
-void app::user::orbit(double a, const double *p)
-{
-    const double rx = current_M[0];
-    const double ry = current_M[1];
-    const double rz = current_M[2];
-
-    Lmul_xlt_inv(current_M, p[0], p[1], p[2]);
-    Lmul_rot_mat(current_M, rx, ry, rz, a);
-    Lmul_xlt_mat(current_M, p[0], p[1], p[2]);
-
-    orthonormalize(current_M);
-
-    load_inv(current_I, current_M);
-}
-*/
-
-void app::user::fly(double dp, double dy, double dz, double rr)
-{
-    // TODO: flyto here?
-
-    double X[3];
-    double Z[3];
-    double P[3];
-    double Q[3];
-    double N[3];
-
-    X[0] = current_M[ 0];
-    X[1] = current_M[ 1];
-    X[2] = current_M[ 2];
-
-    Z[0] = current_M[ 8];
-    Z[1] = current_M[ 9];
-    Z[2] = current_M[10];
-
-    P[0] = current_M[12];
-    P[1] = current_M[13];
-    P[2] = current_M[14];
-
-    N[0] = current_M[12];
-    N[1] = current_M[13];
-    N[2] = current_M[14];
-
-    normalize(N);
-
-    // Yaw about the "out" vector.
-
-    if (fabs(dy) > 0.25)
-        Lmul_rot_mat(current_M, N[0], N[1], N[2], dy * get_turn_rate());
-
-    // Pitch about the "right" vector.
-
-    if (fabs(dp) > 0.25)
-    {
-        Lmul_xlt_inv(current_M, P[0], P[1], P[2]);
-        Lmul_rot_mat(current_M, X[0], X[1], X[2], dp * get_turn_rate());
-        Lmul_xlt_mat(current_M, P[0], P[1], P[2]);
-    }
-
-    // Move about the "forward" vector.
-
-    Lmul_xlt_mat(current_M,
-                 Z[0] * dz * get_move_rate(),
-                 Z[1] * dz * get_move_rate(),
-                 Z[2] * dz * get_move_rate());
-
-    // Determine the current pitch and altitude.
-
-    X[0] = current_M[ 0];
-    X[1] = current_M[ 1];
-    X[2] = current_M[ 2];
-
-    Q[0] = current_M[12];
-    Q[1] = current_M[13];
-    Q[2] = current_M[14];
-
-    N[0] = current_M[12];
-    N[1] = current_M[13];
-    N[2] = current_M[14];
-
-    normalize(N);
-
-    double p = -DEG(asin(DOT3(N, current_M + 8)));
-    double r = sqrt(DOT3(Q, Q));
-
-    // Compute the pitch and altitude.
-
-    if (rr > 0.0)
-    {
-        double d[3];
-
-        d[0] = auto_n1[0] * auto_r1 - Q[0];
-        d[1] = auto_n1[1] * auto_r1 - Q[1];
-        d[2] = auto_n1[2] * auto_r1 - Q[2];
-
-        normalize(d);
-
-//      double pp = DEG(asin(DOT3(N, d)));
-
-//      printf("dr=%f pp=%f\n", rr-r, pp);
-        r = rr;
-//      p = pp;
-    }
-    else
-    {
-        const double rr0 = (fly_r_max - fly_r_min) / 100.0;
-        const double rr1 = (fly_r_max - fly_r_min) /  10.0;
-
-        double p0 = -30.0 * (1.0 - 1.0 / (1.0 + (+r - fly_r_min) / rr0));
-        double p1 =  30.0 * (1.0 - 1.0 / (1.0 + (-r + fly_r_max) / rr1));
-
-        r = std::max(r, fly_r_min);
-        r = std::min(r, fly_r_max);
-        p = std::max(p, p0);
-        p = std::min(p, p1);
-    }
-
-    // Compute the transform with the clamped pitch and altitude.
-
-    current_M[4] = N[0];
-    current_M[5] = N[1];
-    current_M[6] = N[2];
-    crossprod(current_M + 8, current_M + 0, current_M + 4);
-
-    Lmul_xlt_inv(current_M, Q[0], Q[1], Q[2]);
-    Lmul_rot_mat(current_M, X[0], X[1], X[2], p);
-    Lmul_xlt_mat(current_M, Q[0], Q[1], Q[2]);
-
-    current_M[12] = N[0] * r;
-    current_M[13] = N[1] * r;
-    current_M[14] = N[2] * r;
-
-    // 
-
-    orthonormalize(current_M);
-
-    load_inv(current_I, current_M);
 }
 
 void app::user::tumble(const double *A,
@@ -670,163 +495,6 @@ void app::user::remove()
             tt = 0.0;
         }
     }
-}
-
-//-----------------------------------------------------------------------------
-/*
-void app::user::auto_step(double dt)
-{
-    if (auto_b)
-    {
-        double n[3];
-        double v[3];
-        double u[3];
-
-        // Find the unit vector pointing out of the planet.
-
-        n[0] = current_M[12];
-        n[1] = current_M[13];
-        n[2] = current_M[14];
-
-        normalize(n);
-
-        // Find the vector to the destination.
-
-        v[0] = auto_n1[0] * fly_r_min - current_M[12];
-        v[1] = auto_n1[1] * fly_r_min - current_M[13];
-        v[2] = auto_n1[2] * fly_r_min - current_M[14];
-
-        // Find the yaw angle to the destination vector.
-
-        double k = DOT3(current_M + 4, v);
-
-        u[0] = v[0] - current_M[4] * k;
-        u[1] = v[1] - current_M[5] * k;
-        u[2] = v[2] - current_M[6] * k;
-
-        normalize(u);
-
-        double dy, y = -DEG(asin(DOT3(u, current_M)));
-
-        dy = y;
-        dy = std::min(dy,  90.0 * dt);
-        dy = std::max(dy, -90.0 * dt);
-
-        // Compute the forward velocity.
-
-        double dz = 1.0 - cubic(fabs(y) / 10.0);
-
-        // Find the starting and current angles.
-
-        double a  = DEG(acos(DOT3(auto_n1, n)));
-        double a0 = DEG(acos(DOT3(auto_n1, auto_n0)));
-
-        // Compute the desired altitude.
-
-        double t = 1.0 - pow(2.0 * a / a0 - 1.0, 2.0);
-        double r;
-
-        if (a > a0 * 0.5)
-            r = auto_r0 + t * (fly_r_max - auto_r0);  // Going up
-        else
-            r = auto_r1 + t * (fly_r_max - auto_r1);  // Going down
-
-        // Apply the yaw, velocity, and altitude.
-
-        fly(0.0, dy, (1.0 - 3.0 * dz) * dt, r);
-    }
-}
-*/
-void app::user::auto_step(double dt)
-{
-    if (auto_b)
-    {
-        auto_t += dt;
-
-        double t = auto_t / auto_T;
-
-	if (t < 1.0)
-	{
-	    double r = smoothstep(auto_r0, auto_r1, t);
-	    double n[3];
-	    double q[4];
-
-	    n[0] = smoothstep(auto_n0[0], auto_n1[0], t);
-	    n[1] = smoothstep(auto_n0[1], auto_n1[1], t);
-	    n[2] = smoothstep(auto_n0[2], auto_n1[2], t);
-
-	    normalize(n);
-
-	    q[0] = smoothstep(auto_q0[0], auto_q1[0], t);
-	    q[1] = smoothstep(auto_q0[1], auto_q1[1], t);
-	    q[2] = smoothstep(auto_q0[2], auto_q1[2], t);
-	    q[3] = smoothstep(auto_q0[3], auto_q1[3], t);
-
-	    quat_to_mat(current_M, q);
-
-	    current_M[12] = n[0] * r;
-	    current_M[13] = n[1] * r;
-	    current_M[14] = n[2] * r;
-	}
-	else auto_b = false;
-    }
-}
-
-void app::user::auto_init(const double *n)
-{
-    // Compute the source and destination positions.
-
-    auto_n0[0] = current_M[12];
-    auto_n0[1] = current_M[13];
-    auto_n0[2] = current_M[14];
-
-    auto_n1[0] = n[0];
-    auto_n1[1] = n[1];
-    auto_n1[2] = n[2];
-
-    normalize(auto_n0);
-    normalize(auto_n1);
-
-    // Compute the source and destination radii.
-
-    auto_r0 = sqrt(DOT3(current_M + 12, current_M + 12));
-    auto_r1 = fly_r_min;
-
-    // Compute the destination transform.
-
-    double M[16];
-    double d[3];
-
-    load_idt(M);
-
-    d[0] = auto_n0[0] - auto_n1[0];
-    d[1] = auto_n0[1] - auto_n1[1];
-    d[2] = auto_n0[2] - auto_n1[2];
-
-    M[4] = auto_n1[0];
-    M[5] = auto_n1[1];
-    M[6] = auto_n1[2];
-
-    crossprod(M + 0, M + 4, d);
-    normalize(M + 0);
-    crossprod(M + 8, M + 0, M + 4);
-    normalize(M + 8);
-
-    // Capture the source and destination orientation.
-
-    mat_to_quat(auto_q0, current_M);
-    mat_to_quat(auto_q1, M);
-
-    // Initialize the timer.
-
-    auto_b = true;
-    auto_t = 0;
-    auto_T = DEG(acos(DOT3(auto_n1, auto_n0))) / 15.0;
-}
-
-void app::user::auto_stop()
-{
-    auto_b = false;
 }
 
 //-----------------------------------------------------------------------------

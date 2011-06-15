@@ -15,25 +15,24 @@
 
 #include <app-prog.hpp>
 
+#include "sph-model.hpp"
+
 //-----------------------------------------------------------------------------
 
 class panoview : public app::prog
 {
-    // Event handlers
-
-    bool process_key (app::event *);
-    bool process_tick(app::event *);
-
 public:
 
     panoview(const std::string&);
    ~panoview();
 
-    bool process_event(app::event *);
-
     ogl::range prep(int, const app::frustum * const *);
     void       lite(int, const app::frustum * const *);
     void       draw(int, const app::frustum *);
+    
+private:
+
+    sph_model L;
 };
 
 //-----------------------------------------------------------------------------

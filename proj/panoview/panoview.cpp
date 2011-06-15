@@ -10,22 +10,19 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <cstring>
-
-#include <SDL.h>
-#include <SDL_keyboard.h>
-
 #include <ogl-opengl.hpp>
 
-#include <app-event.hpp>
-#include <app-conf.hpp>
-#include <app-user.hpp>
 #include <app-host.hpp>
-#include <app-glob.hpp>
+#include <app-user.hpp>
+#include <app-frustum.hpp>
 
 #include "panoview.hpp"
 
 //-----------------------------------------------------------------------------
+
+// sph-image
+// sph-cache
+// sph-model
 
 panoview::panoview(const std::string& tag) : app::prog(tag)
 {
@@ -37,49 +34,9 @@ panoview::~panoview()
 
 //-----------------------------------------------------------------------------
 
-bool panoview::process_key(app::event *E)
-{
-//    const bool d = E->data.key.d;
-//    const int  k = E->data.key.k;
-//    const int  m = E->data.key.m;
-
-    return false;
-}
-
-bool panoview::process_tick(app::event *E)
-{
-//    double dt = E->data.tick.dt * 0.001;
-
-    return false;
-}
-
-bool panoview::process_event(app::event *E)
-{
-    bool R = false;
-
-    // Attempt to process the given event.
-
-    switch (E->get_type())
-    {
-    case E_KEY:   R = process_key (E); break;
-    case E_TICK:  R = process_tick(E); break;
-    }
-
-    // Allow the application base to handle the event.
-
-    if (R)
-        return true;
-    else
-        return prog::process_event(E);
-}
-
-//-----------------------------------------------------------------------------
-
 ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
-    ogl::range r;
-
-    return r;
+    return ogl::range(1.0, 100.0);
 }
 
 void panoview::lite(int frusc, const app::frustum *const *frusv)
@@ -88,9 +45,16 @@ void panoview::lite(int frusc, const app::frustum *const *frusv)
 
 void panoview::draw(int frusi, const app::frustum *frusp)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0f, 0.1f, 0.2f, 0.0f);
+ 
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
+
+    frusp->draw();
+   ::user->draw();
+
+    L.draw(::host->get_buffer_w(),
+           ::host->get_buffer_h());
 }
 
 //-----------------------------------------------------------------------------

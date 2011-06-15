@@ -48,8 +48,6 @@ dev::gamepad::gamepad() : button(16, false)
     gamepad_axis_T_min = conf->get_f("gamepad_axis_T_min", -32768.0);
     gamepad_axis_T_max = conf->get_f("gamepad_axis_T_max",  32767.0);
 
-    gamepad_fly = (conf->get_s("gamepad_mode") == "fly");
-
     motion[0] = 0;
     motion[1] = 0;
     motion[2] = 0;
@@ -132,17 +130,9 @@ bool dev::gamepad::process_tick(app::event *E)
     const bool   bp = DOT3(motion, motion);
     const bool   br = bx || by || bz;
 
-    if (gamepad_fly)
-    {
-        ::user->fly(rotate[1] * kr,
-                    rotate[0] * kr, -kp);
-    }
-    else
-    {
-        if (bp) ::user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
-        if (br) ::user->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
-        if (bt) ::user->pass(rotate[3] * kt);
-    }
+    if (bp) ::user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
+    if (br) ::user->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
+    if (bt) ::user->pass(rotate[3] * kt);
 
     return false;
 }
@@ -156,8 +146,8 @@ bool dev::gamepad::process_event(app::event *E)
     switch (E->get_type())
     {
     case E_CLICK: R |= process_click(E); break;
-    case E_AXIS: R |= process_axis(E); break;
-    case E_TICK: R |= process_tick(E); break;
+    case E_AXIS:  R |= process_axis(E); break;
+    case E_TICK:  R |= process_tick(E); break;
     }
 
     return R || dev::input::process_event(E);

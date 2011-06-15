@@ -47,8 +47,6 @@ namespace dev
         double gamepad_axis_T_min;
         double gamepad_axis_T_max;
 
-        bool gamepad_fly;
-
         double calibrate(double, double, double);
 
         // Navigation state

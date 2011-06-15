@@ -41,21 +41,6 @@ namespace app
 
         void set(const double *, const double *, double);
 
-        // A bit of a hack: fly-to state.
-
-        double fly_r_min;
-        double fly_r_max;
-
-        bool   auto_b;
-        double auto_t;
-        double auto_T;
-        double auto_n0[3];
-        double auto_n1[3];
-        double auto_q0[4];
-        double auto_q1[4];
-        double auto_r0;
-        double auto_r1;
-
         // Automatic demo file.
 
         app::file file;
@@ -92,11 +77,11 @@ namespace app
         const double  *get_S() const { return current_S; }
         const double  *get_L() const { return current_L; }
         double         get_t() const { return current_t; }
-        double get_move_rate() const { return move_rate_k; }
-        double get_turn_rate() const { return turn_rate_k; }
+        double get_move_rate() const { return move_rate; }
+        double get_turn_rate() const { return turn_rate; }
 
-        void put_move_rate(double r) { move_rate_k = r; }
-        void put_turn_rate(double r) { turn_rate_k = r; }
+        void put_move_rate(double r) { move_rate = r; }
+        void put_turn_rate(double r) { turn_rate = r; }
 
         void set_t(double);
 
@@ -108,8 +93,6 @@ namespace app
         void look(double, double);
         void pass(double);
         void home();
-
-        void fly(double, double, double, double=0.0);
 
         void tumble(const double *,
                     const double *);

@@ -775,7 +775,7 @@ void app::host::draw()
     // Cache the frustum projections (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_distances(r.get_n() * 0.999, r.get_f());
+        (*i)->set_distances(r.get_n(), r.get_f());
 
     // Perform the lighting prepass (possibly expensive).
 
