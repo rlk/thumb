@@ -366,10 +366,6 @@ bool demo::process_tick(app::event *E)
 {
     double dt = E->data.tick.dt * 0.001;
 
-    // 
-
-    ::user->auto_step(dt);
-
     // Step attract mode, if enabled.
 
     if (attr_mode)

@@ -19,6 +19,7 @@ OBJS=	app-data.o \
 	dev-trackd.o \
 	dpy-anaglyph.o \
 	dpy-channel.o \
+    dpy-direct.o \
 	dpy-display.o \
 	dpy-interlace.o \
 	dpy-lenticular.o \

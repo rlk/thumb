@@ -18,6 +18,7 @@
 #include <ogl-range.hpp>
 #include <ogl-opengl.hpp>
 #include <dpy-channel.hpp>
+#include <dpy-direct.hpp>
 #include <dpy-display.hpp>
 #include <dpy-normal.hpp>
 #include <dpy-anaglyph.hpp>
@@ -535,10 +536,10 @@ app::host::host(app::prog *p, std::string filename, std::string tag) :
                     displays.push_back(new dpy::interlace(c));
                 else if (t == "lenticular")
                     displays.push_back(new dpy::lenticular(c));
-//              else if (t == "dome")
-//                  displays.push_back(new dpy::dome      (c));
-                else
+                else if (t == "normal")
                     displays.push_back(new dpy::normal    (c));
+                else
+                    displays.push_back(new dpy::direct    (c));
             }
 
             // Create a channel object for each configured channel.
@@ -577,7 +578,7 @@ app::host::host(app::prog *p, std::string filename, std::string tag) :
     // If no channels or displays were configured, instance defaults.
 
     if (channels.empty()) channels.push_back(new dpy::channel(0));
-    if (displays.empty()) displays.push_back(new dpy::normal (0));
+    if (displays.empty()) displays.push_back(new dpy::direct (0));
 
     // If no overlay has been defined, clone the first display frustum.
 

@@ -139,6 +139,8 @@
 		58A900B513A911BB009F4AEA /* dev-trackd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "dev-trackd.cpp"; path = "../../src/dev-trackd.cpp"; sourceTree = "<group>"; };
 		58A900B713A911F1009F4AEA /* dev-trackd.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dev-trackd.hpp"; path = "../../include/dev-trackd.hpp"; sourceTree = "<group>"; };
 		58A900B813A914F4009F4AEA /* Makedefs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makedefs; path = ../../Makedefs; sourceTree = "<group>"; };
+		58A900CD13A92EFD009F4AEA /* dpy-direct.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "dpy-direct.cpp"; path = "../../src/dpy-direct.cpp"; sourceTree = "<group>"; };
+		58A900CE13A92F18009F4AEA /* dpy-direct.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dpy-direct.hpp"; path = "../../include/dpy-direct.hpp"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -175,6 +177,7 @@
 				58A900B713A911F1009F4AEA /* dev-trackd.hpp */,
 				5807F31C137C3E50004149CA /* dpy-anaglyph.hpp */,
 				5807F31D137C3E50004149CA /* dpy-channel.hpp */,
+				58A900CE13A92F18009F4AEA /* dpy-direct.hpp */,
 				5807F31E137C3E50004149CA /* dpy-display.hpp */,
 				5807F31F137C3E50004149CA /* dpy-interlace.hpp */,
 				5807F320137C3E50004149CA /* dpy-lenticular.hpp */,
@@ -247,6 +250,7 @@
 				58A900B513A911BB009F4AEA /* dev-trackd.cpp */,
 				5807F2DA137C3E31004149CA /* dpy-anaglyph.cpp */,
 				5807F2DB137C3E31004149CA /* dpy-channel.cpp */,
+				58A900CD13A92EFD009F4AEA /* dpy-direct.cpp */,
 				5807F2DC137C3E31004149CA /* dpy-display.cpp */,
 				5807F2DD137C3E31004149CA /* dpy-interlace.cpp */,
 				5807F2DE137C3E31004149CA /* dpy-lenticular.cpp */,

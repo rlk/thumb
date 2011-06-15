@@ -1,0 +1,159 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXFileReference section */
+		58A900C613A917B4009F4AEA /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../proj/panoview/main.cpp; sourceTree = "<group>"; };
+		58A900C713A917B4009F4AEA /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../proj/panoview/main.hpp; sourceTree = "<group>"; };
+		58A900C813A917B4009F4AEA /* Makefile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.make; name = Makefile; path = ../../proj/panoview/Makefile; sourceTree = "<group>"; };
+		58A900C913A91854009F4AEA /* panoview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = panoview.cpp; path = ../../proj/panoview/panoview.cpp; sourceTree = "<group>"; };
+		58A900CA13A91854009F4AEA /* panoview.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = panoview.hpp; path = ../../proj/panoview/panoview.hpp; sourceTree = "<group>"; };
+		58A900CB13A923FD009F4AEA /* sph-model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "sph-model.cpp"; path = "../../proj/panoview/sph-model.cpp"; sourceTree = "<group>"; };
+		58A900CC13A923FD009F4AEA /* sph-model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-model.hpp"; path = "../../proj/panoview/sph-model.hpp"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		58A900B913A91791009F4AEA = {
+			isa = PBXGroup;
+			children = (
+				58A900C813A917B4009F4AEA /* Makefile */,
+				58A900CB13A923FD009F4AEA /* sph-model.cpp */,
+				58A900CC13A923FD009F4AEA /* sph-model.hpp */,
+				58A900C913A91854009F4AEA /* panoview.cpp */,
+				58A900CA13A91854009F4AEA /* panoview.hpp */,
+				58A900C613A917B4009F4AEA /* main.cpp */,
+				58A900C713A917B4009F4AEA /* main.hpp */,
+			);
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXLegacyTarget section */
+		58A900C013A91791009F4AEA /* Panoview */ = {
+			isa = PBXLegacyTarget;
+			buildArgumentsString = "$(ACTION)";
+			buildConfigurationList = 58A900C313A91791009F4AEA /* Build configuration list for PBXLegacyTarget "Panoview" */;
+			buildPhases = (
+			);
+			buildToolPath = /usr/bin/make;
+			buildWorkingDirectory = /Users/rlk/Projects/thumb/proj/panoview;
+			dependencies = (
+			);
+			name = Panoview;
+			passBuildSettingsInEnvironment = 1;
+			productName = Panoview;
+		};
+/* End PBXLegacyTarget section */
+
+/* Begin PBXProject section */
+		58A900BB13A91791009F4AEA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = "Louisiana State University";
+			};
+			buildConfigurationList = 58A900BE13A91791009F4AEA /* Build configuration list for PBXProject "Panoview" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 58A900B913A91791009F4AEA;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				58A900C013A91791009F4AEA /* Panoview */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin XCBuildConfiguration section */
+		58A900C113A91791009F4AEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		58A900C213A91791009F4AEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		58A900C413A91791009F4AEA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				DEBUGGING_SYMBOLS = YES;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		58A900C513A91791009F4AEA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		58A900BE13A91791009F4AEA /* Build configuration list for PBXProject "Panoview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58A900C113A91791009F4AEA /* Debug */,
+				58A900C213A91791009F4AEA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		58A900C313A91791009F4AEA /* Build configuration list for PBXLegacyTarget "Panoview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58A900C413A91791009F4AEA /* Debug */,
+				58A900C513A91791009F4AEA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 58A900BB13A91791009F4AEA /* Project object */;
+}
