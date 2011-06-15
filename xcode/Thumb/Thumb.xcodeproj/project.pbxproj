@@ -21,7 +21,6 @@
 		5807F2D6137C3E31004149CA /* dev-gamepad.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = "dev-gamepad.cpp"; path = "../../src/dev-gamepad.cpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		5807F2D7137C3E31004149CA /* dev-hybrid.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = "dev-hybrid.cpp"; path = "../../src/dev-hybrid.cpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		5807F2D8137C3E31004149CA /* dev-mouse.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = "dev-mouse.cpp"; path = "../../src/dev-mouse.cpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		5807F2D9137C3E31004149CA /* dev-tracker.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = "dev-tracker.cpp"; path = "../../src/dev-tracker.cpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		5807F2DA137C3E31004149CA /* dpy-anaglyph.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "dpy-anaglyph.cpp"; path = "../../src/dpy-anaglyph.cpp"; sourceTree = "<group>"; };
 		5807F2DB137C3E31004149CA /* dpy-channel.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; name = "dpy-channel.cpp"; path = "../../src/dpy-channel.cpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		5807F2DC137C3E31004149CA /* dpy-display.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "dpy-display.cpp"; path = "../../src/dpy-display.cpp"; sourceTree = "<group>"; };
@@ -87,7 +86,6 @@
 		5807F318137C3E50004149CA /* dev-hybrid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = "dev-hybrid.hpp"; path = "../../include/dev-hybrid.hpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		5807F319137C3E50004149CA /* dev-input.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dev-input.hpp"; path = "../../include/dev-input.hpp"; sourceTree = "<group>"; };
 		5807F31A137C3E50004149CA /* dev-mouse.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = "dev-mouse.hpp"; path = "../../include/dev-mouse.hpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
-		5807F31B137C3E50004149CA /* dev-tracker.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = "dev-tracker.hpp"; path = "../../include/dev-tracker.hpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		5807F31C137C3E50004149CA /* dpy-anaglyph.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dpy-anaglyph.hpp"; path = "../../include/dpy-anaglyph.hpp"; sourceTree = "<group>"; };
 		5807F31D137C3E50004149CA /* dpy-channel.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dpy-channel.hpp"; path = "../../include/dpy-channel.hpp"; sourceTree = "<group>"; };
 		5807F31E137C3E50004149CA /* dpy-display.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dpy-display.hpp"; path = "../../include/dpy-display.hpp"; sourceTree = "<group>"; };
@@ -138,12 +136,16 @@
 		5807F34B137C3E50004149CA /* wrl-param.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; lineEnding = 0; name = "wrl-param.hpp"; path = "../../include/wrl-param.hpp"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.cpp; };
 		5807F34C137C3E50004149CA /* wrl-solid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "wrl-solid.hpp"; path = "../../include/wrl-solid.hpp"; sourceTree = "<group>"; };
 		5807F34D137C3E50004149CA /* wrl-world.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "wrl-world.hpp"; path = "../../include/wrl-world.hpp"; sourceTree = "<group>"; };
+		58A900B513A911BB009F4AEA /* dev-trackd.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "dev-trackd.cpp"; path = "../../src/dev-trackd.cpp"; sourceTree = "<group>"; };
+		58A900B713A911F1009F4AEA /* dev-trackd.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dev-trackd.hpp"; path = "../../include/dev-trackd.hpp"; sourceTree = "<group>"; };
+		58A900B813A914F4009F4AEA /* Makedefs */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = Makedefs; path = ../../Makedefs; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
 		5807F2BE137C3DB5004149CA = {
 			isa = PBXGroup;
 			children = (
+				58A900B813A914F4009F4AEA /* Makedefs */,
 				5807F2E5137C3E31004149CA /* Makefile */,
 				5807F34E137C405A004149CA /* Header */,
 				5807F34F137C406B004149CA /* Source */,
@@ -170,7 +172,7 @@
 				5807F318137C3E50004149CA /* dev-hybrid.hpp */,
 				5807F319137C3E50004149CA /* dev-input.hpp */,
 				5807F31A137C3E50004149CA /* dev-mouse.hpp */,
-				5807F31B137C3E50004149CA /* dev-tracker.hpp */,
+				58A900B713A911F1009F4AEA /* dev-trackd.hpp */,
 				5807F31C137C3E50004149CA /* dpy-anaglyph.hpp */,
 				5807F31D137C3E50004149CA /* dpy-channel.hpp */,
 				5807F31E137C3E50004149CA /* dpy-display.hpp */,
@@ -242,7 +244,7 @@
 				5807F2D6137C3E31004149CA /* dev-gamepad.cpp */,
 				5807F2D7137C3E31004149CA /* dev-hybrid.cpp */,
 				5807F2D8137C3E31004149CA /* dev-mouse.cpp */,
-				5807F2D9137C3E31004149CA /* dev-tracker.cpp */,
+				58A900B513A911BB009F4AEA /* dev-trackd.cpp */,
 				5807F2DA137C3E31004149CA /* dpy-anaglyph.cpp */,
 				5807F2DB137C3E31004149CA /* dpy-channel.cpp */,
 				5807F2DC137C3E31004149CA /* dpy-display.cpp */,
