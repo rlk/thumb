@@ -69,7 +69,7 @@ static void video()
 
     if (m & SDL_NOFRAME)
     {
-        SDL_ShowCursor(SDL_DISABLE);
+//      SDL_ShowCursor(SDL_DISABLE);
 
         if ((m & SDL_FULLSCREEN) == 0)
             position(x, y);

@@ -9,7 +9,7 @@
 
 // note injt and refl: inj 0 is gloobel only used for nun of inj, row 0 is not used
 // therefore there is extivily 1 less row and 1 les injector refl that the number indicates.
-#define CUDA_MESH_WIDTH 512
+#define CUDA_MESH_WIDTH 1024
 #define CUDA_MESH_HEIGHT 1024
 
 

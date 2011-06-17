@@ -107,14 +107,19 @@ void dev::hybrid::recenter_hand()
     hand_p[2]   = -1.0;
 }
 
+const char *joystick()
+{
+    const char *s = SDL_JoystickName(::conf->get_i("gamepad_device"));
+    return s ? s : "default";
+}
+
 // Default controls conform to the XBox 360 Wireless Receiver.
 
 dev::hybrid::hybrid(const std::string& filename) :
 
     file(filename),
 
-    node(file.get_root().find("gamepad", "name",
-                              SDL_JoystickName(::conf->get_i("gamepad_device")))),
+    node(file.get_root().find("gamepad", "name", joystick())),
 
     look_LR  (node.find("axis",   "name", "look_LR"),   -1,  3),
     look_UD  (node.find("axis",   "name", "look_UD"),   -1,  4),
