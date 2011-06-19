@@ -38,10 +38,10 @@ void sph_model::draw(int buffer_w, int buffer_h)
 
     glBegin(GL_QUADS);
     {
-        glVertex3f(-10, -10, -10);
-        glVertex3f( 10, -10, -10);
-        glVertex3f( 10,  10, -10);
-        glVertex3f(-10,  10, -10);
+        glVertex3f(-1, -1, -1);
+        glVertex3f( 1, -1, -1);
+        glVertex3f( 1,  1, -1);
+        glVertex3f(-1,  1, -1);
     }
     glEnd();
 }

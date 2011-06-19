@@ -1,0 +1,265 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		58E2109A13AE6EC2004580E9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109413AE6EC2004580E9 /* main.cpp */; };
+		58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109613AE6EC2004580E9 /* panoview.cpp */; };
+		58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109813AE6EC2004580E9 /* sph-model.cpp */; };
+		58E2109E13AE6F40004580E9 /* thumb.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2109D13AE6F40004580E9 /* thumb.dylib */; };
+		58E210A013AE7297004580E9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2109F13AE7297004580E9 /* OpenGL.framework */; };
+		58E210A213AE72C1004580E9 /* libGLEW.1.5.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210A113AE72C1004580E9 /* libGLEW.1.5.8.dylib */; };
+		58E210A413AE72E6004580E9 /* libSDL-1.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */; };
+		58E210A713AE7380004580E9 /* libSDLmain.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210A613AE7380004580E9 /* libSDLmain.a */; };
+		58E210AB13AE73A9004580E9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210AA13AE73A9004580E9 /* Cocoa.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		58E2108613AE6EAF004580E9 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		58E2108813AE6EAF004580E9 /* panoview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = panoview; sourceTree = BUILT_PRODUCTS_DIR; };
+		58E2109413AE6EC2004580E9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../proj/panoview/main.cpp; sourceTree = "<group>"; };
+		58E2109513AE6EC2004580E9 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../../proj/panoview/main.hpp; sourceTree = "<group>"; };
+		58E2109613AE6EC2004580E9 /* panoview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = panoview.cpp; path = ../../../proj/panoview/panoview.cpp; sourceTree = "<group>"; };
+		58E2109713AE6EC2004580E9 /* panoview.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = panoview.hpp; path = ../../../proj/panoview/panoview.hpp; sourceTree = "<group>"; };
+		58E2109813AE6EC2004580E9 /* sph-model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "sph-model.cpp"; path = "../../../proj/panoview/sph-model.cpp"; sourceTree = "<group>"; };
+		58E2109913AE6EC2004580E9 /* sph-model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-model.hpp"; path = "../../../proj/panoview/sph-model.hpp"; sourceTree = "<group>"; };
+		58E2109D13AE6F40004580E9 /* thumb.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = thumb.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
+		58E2109F13AE7297004580E9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		58E210A113AE72C1004580E9 /* libGLEW.1.5.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.5.8.dylib; path = /opt/local/lib/libGLEW.1.5.8.dylib; sourceTree = "<absolute>"; };
+		58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL-1.2.0.dylib"; path = "/opt/local/lib/libSDL-1.2.0.dylib"; sourceTree = "<absolute>"; };
+		58E210A613AE7380004580E9 /* libSDLmain.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDLmain.a; path = /opt/local/lib/libSDLmain.a; sourceTree = "<absolute>"; };
+		58E210A813AE7393004580E9 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
+		58E210AA13AE73A9004580E9 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		58E2108513AE6EAF004580E9 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				58E2109E13AE6F40004580E9 /* thumb.dylib in Frameworks */,
+				58E210A713AE7380004580E9 /* libSDLmain.a in Frameworks */,
+				58E210A413AE72E6004580E9 /* libSDL-1.2.0.dylib in Frameworks */,
+				58E210A213AE72C1004580E9 /* libGLEW.1.5.8.dylib in Frameworks */,
+				58E210A013AE7297004580E9 /* OpenGL.framework in Frameworks */,
+				58E210AB13AE73A9004580E9 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		58E2107D13AE6EAF004580E9 = {
+			isa = PBXGroup;
+			children = (
+				58E210A513AE730A004580E9 /* Dependencies */,
+				58E2108B13AE6EAF004580E9 /* panoview */,
+				58E2108913AE6EAF004580E9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		58E2108913AE6EAF004580E9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				58E2108813AE6EAF004580E9 /* panoview */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		58E2108B13AE6EAF004580E9 /* panoview */ = {
+			isa = PBXGroup;
+			children = (
+				58E2109413AE6EC2004580E9 /* main.cpp */,
+				58E2109513AE6EC2004580E9 /* main.hpp */,
+				58E2109613AE6EC2004580E9 /* panoview.cpp */,
+				58E2109713AE6EC2004580E9 /* panoview.hpp */,
+				58E2109813AE6EC2004580E9 /* sph-model.cpp */,
+				58E2109913AE6EC2004580E9 /* sph-model.hpp */,
+			);
+			path = panoview;
+			sourceTree = "<group>";
+		};
+		58E210A513AE730A004580E9 /* Dependencies */ = {
+			isa = PBXGroup;
+			children = (
+				58E2109D13AE6F40004580E9 /* thumb.dylib */,
+				58E210A613AE7380004580E9 /* libSDLmain.a */,
+				58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */,
+				58E210A113AE72C1004580E9 /* libGLEW.1.5.8.dylib */,
+				58E2109F13AE7297004580E9 /* OpenGL.framework */,
+				58E210AA13AE73A9004580E9 /* Cocoa.framework */,
+				58E210A813AE7393004580E9 /* ApplicationServices.framework */,
+			);
+			name = Dependencies;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		58E2108713AE6EAF004580E9 /* panoview */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 58E2109113AE6EAF004580E9 /* Build configuration list for PBXNativeTarget "panoview" */;
+			buildPhases = (
+				58E2108413AE6EAF004580E9 /* Sources */,
+				58E2108513AE6EAF004580E9 /* Frameworks */,
+				58E2108613AE6EAF004580E9 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = panoview;
+			productName = panoview;
+			productReference = 58E2108813AE6EAF004580E9 /* panoview */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		58E2107F13AE6EAF004580E9 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				ORGANIZATIONNAME = "Louisiana State University";
+			};
+			buildConfigurationList = 58E2108213AE6EAF004580E9 /* Build configuration list for PBXProject "panoview" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 58E2107D13AE6EAF004580E9;
+			productRefGroup = 58E2108913AE6EAF004580E9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				58E2108713AE6EAF004580E9 /* panoview */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		58E2108413AE6EAF004580E9 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				58E2109A13AE6EC2004580E9 /* main.cpp in Sources */,
+				58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */,
+				58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		58E2108F13AE6EAF004580E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		58E2109013AE6EAF004580E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.6;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		58E2109213AE6EAF004580E9 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/opt/local/include/SDL,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/**";
+			};
+			name = Debug;
+		};
+		58E2109313AE6EAF004580E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				HEADER_SEARCH_PATHS = (
+					/opt/local/include,
+					/opt/local/include/SDL,
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					/opt/local/lib,
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/**";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		58E2108213AE6EAF004580E9 /* Build configuration list for PBXProject "panoview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58E2108F13AE6EAF004580E9 /* Debug */,
+				58E2109013AE6EAF004580E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		58E2109113AE6EAF004580E9 /* Build configuration list for PBXNativeTarget "panoview" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				58E2109213AE6EAF004580E9 /* Debug */,
+				58E2109313AE6EAF004580E9 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 58E2107F13AE6EAF004580E9 /* Project object */;
+}
