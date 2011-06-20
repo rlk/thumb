@@ -22,7 +22,7 @@ public:
     sph_model();
    ~sph_model();
    
-    void draw(int w, int h);
+    void draw(const double *, const double *, int w, int h);
     
 private:
 };

@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <GL/glew.h>
+#include <cstdio>
 #include <cmath>
 
 #include "math3d.h"
@@ -41,7 +42,8 @@ struct face
     
     void divide(face&, face&, face&, face&);
     
-    void draw(int);
+    bool test(const double *);
+    void draw(const double *, int, int, int);
 };
 
 void face::divide(face& A, face& B, face &C, face &D)
@@ -91,47 +93,126 @@ void face::divide(face& A, face& B, face &C, face &D)
     vcpy(D.d, d);
 }
 
-void face::draw(int l)
+bool face::test(const double *T)
 {
-    if (l == 0)
+    double m[3];
+    
+    m[0] = a[0] + b[0] + c[0] + d[0];
+    m[1] = a[1] + b[1] + c[1] + d[1];
+    m[2] = a[2] + b[2] + c[2] + d[2];
+    
+    double r1 = vlen(m) / vdot(a, m);
+    double r0 = 1;
+    
+    const double da = vdot(a, T + 12);
+    const double db = vdot(b, T + 12);
+    const double dc = vdot(c, T + 12);
+    const double dd = vdot(d, T + 12);
+    
+    double na, a0, a1;
+    double nb, b0, b1;
+    double nc, c0, c1;
+    double nd, d0, d1;
+
+    // X axis
+
+    na = vdot(a, T + 0);
+    nb = vdot(b, T + 0);
+    nc = vdot(c, T + 0);
+    nd = vdot(d, T + 0);
+
+    a0 = (na * r0 + T[3]) / (da * r0 + T[15]);
+    a1 = (na * r1 + T[3]) / (da * r1 + T[15]);
+    b0 = (nb * r0 + T[3]) / (db * r0 + T[15]);
+    b1 = (nb * r1 + T[3]) / (db * r1 + T[15]);
+    c0 = (nc * r0 + T[3]) / (dc * r0 + T[15]);
+    c1 = (nc * r1 + T[3]) / (dc * r1 + T[15]);
+    d0 = (nd * r0 + T[3]) / (dd * r0 + T[15]);
+    d1 = (nd * r1 + T[3]) / (dd * r1 + T[15]);
+    
+    if (a0 < -1 && b0 < -1 && c0 < -1 && d0 < -1 &&
+        a1 < -1 && b1 < -1 && c1 < -1 && d1 < -1) return false;
+    if (a0 >  1 && b0 >  1 && c0 >  1 && d0 >  1 &&
+        a1 >  1 && b1 >  1 && c1 >  1 && d1 >  1) return false;
+
+    // Y axis
+
+    na = vdot(a, T + 4);
+    nb = vdot(b, T + 4);
+    nc = vdot(c, T + 4);
+    nd = vdot(d, T + 4);
+
+    a0 = (na * r0 + T[7]) / (da * r0 + T[15]);
+    a1 = (na * r1 + T[7]) / (da * r1 + T[15]);
+    b0 = (nb * r0 + T[7]) / (db * r0 + T[15]);
+    b1 = (nb * r1 + T[7]) / (db * r1 + T[15]);
+    c0 = (nc * r0 + T[7]) / (dc * r0 + T[15]);
+    c1 = (nc * r1 + T[7]) / (dc * r1 + T[15]);
+    d0 = (nd * r0 + T[7]) / (dd * r0 + T[15]);
+    d1 = (nd * r1 + T[7]) / (dd * r1 + T[15]);
+    
+    if (a0 < -1 && b0 < -1 && c0 < -1 && d0 < -1 &&
+        a1 < -1 && b1 < -1 && c1 < -1 && d1 < -1) return false;
+    if (a0 >  1 && b0 >  1 && c0 >  1 && d0 >  1 &&
+        a1 >  1 && b1 >  1 && c1 >  1 && d1 >  1) return false;
+
+    return true;
+}
+
+void face::draw(const double *T, int w, int h, int l)
+{
+    if (test(T))
     {
-        glBegin(GL_QUADS);
+        if (l == 0)
         {
-            glNormal3dv(a);
-            glVertex3dv(a);           
-            glNormal3dv(b);
-            glVertex3dv(b);
-            glNormal3dv(d);
-            glVertex3dv(d);
-            glNormal3dv(c);
-            glVertex3dv(c);
+            glBegin(GL_QUADS);
+            {
+                glNormal3dv(a);
+                glVertex3dv(a);           
+                glNormal3dv(b);
+                glVertex3dv(b);
+                glNormal3dv(d);
+                glVertex3dv(d);
+                glNormal3dv(c);
+                glVertex3dv(c);
+            }
+            glEnd();
         }
-        glEnd();
-    }
-    else
-    {
-        face A;
-        face B;
-        face C;
-        face D;
-        
-        divide(A, B, C, D);
-        
-        A.draw(l - 1);
-        B.draw(l - 1);
-        C.draw(l - 1);
-        D.draw(l - 1);
+        else
+        {
+            face A;
+            face B;
+            face C;
+            face D;
+            
+            divide(A, B, C, D);
+            
+            A.draw(T, w, h, l - 1);
+            B.draw(T, w, h, l - 1);
+            C.draw(T, w, h, l - 1);
+            D.draw(T, w, h, l - 1);
+        }
     }
 }
 
 //------------------------------------------------------------------------------
 
-void sph_model::draw(int buffer_w, int buffer_h)
+void sph_model::draw(const double *P, const double *V, int w, int h)
 {
+    double M[16];
+    double T[16];
+    
+    mmultiply (M, P, V);
+    mtranspose(T, M);
+    
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(P);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixd(V);
+    
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
 
-//  glEnable(GL_CULL_FACE);
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_BLEND);
 
@@ -151,9 +232,9 @@ void sph_model::draw(int buffer_w, int buffer_h)
         vnormalize(F.d, cube_v[cube_i[i][3]]);
         
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        F.draw(4);
+        F.draw(T, w, h, 4);
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        F.draw(4);
+        F.draw(T, w, h, 4);
     }
 }
 

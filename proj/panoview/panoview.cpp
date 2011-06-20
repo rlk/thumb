@@ -10,12 +10,15 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cmath>
+
 #include <ogl-opengl.hpp>
 
 #include <app-host.hpp>
 #include <app-user.hpp>
 #include <app-frustum.hpp>
 
+#include "math3d.h"
 #include "panoview.hpp"
 
 //-----------------------------------------------------------------------------
@@ -45,16 +48,20 @@ void panoview::lite(int frusc, const app::frustum *const *frusv)
 
 void panoview::draw(int frusi, const app::frustum *frusp)
 {
+    const double *P =  frusp->get_P();
+    const double *M = ::user->get_M();
+    const int     w = ::host->get_buffer_w();
+    const int     h = ::host->get_buffer_h();
+
+    double V[16];
+
     glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
  
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
-    frusp->draw();
-   ::user->draw();
-
-    L.draw(::host->get_buffer_w(),
-           ::host->get_buffer_h());
+    minvert(V, M);
+    L.draw(P, V, w, h);
 }
 
 //-----------------------------------------------------------------------------
