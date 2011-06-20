@@ -53,8 +53,8 @@ GLuint ogl::program::compile(GLenum type, const std::string& name,
     {
         handle = glCreateShader(type);
 
-        const char *data = text.data();
-        GLint       size = text.size();
+        const char *data =       text.data();
+        GLint       size = GLint(text.size());
 
         glShaderSource (handle, 1, &data, &size);
         glCompileShader(handle);

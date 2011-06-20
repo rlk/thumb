@@ -76,8 +76,8 @@ namespace obj
 
         // Mesh accessors
 
-        GLsizei          max_mesh()          const { return meshes.size(); }
-        const ogl::mesh *get_mesh(GLsizei i) const { return meshes[i];     }
+        size_t           max_mesh()         const { return meshes.size(); }
+        const ogl::mesh *get_mesh(size_t i) const { return meshes[i];     }
     };
 }
 

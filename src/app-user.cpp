@@ -11,7 +11,6 @@
 //  General Public License for more details.
 
 #include <sys/time.h>
-#include <ode/ode.h>
 
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>

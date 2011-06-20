@@ -323,7 +323,7 @@ const char *obj::obj::read_f(const char *p)
 
         // Convert our N new vertex indices into N-2 new triangles.
 
-        int n = iv.size();
+        int n = int(iv.size());
 
         for (i = 0; i < n - 2; ++i)
             meshes.back()->add_face(iv[0], iv[i + 1], iv[i + 2]);
@@ -357,7 +357,7 @@ const char *obj::obj::read_l(const char *p)
 
         // Convert our N new vertex indices into N-1 new lines.
 
-        int n = iv.size();
+        int n = int(iv.size());
 
         for (i = 0; i < n - 1; ++i)
             meshes.back()->add_line(iv[i], iv[i + 1]);

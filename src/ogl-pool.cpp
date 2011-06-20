@@ -122,7 +122,7 @@ void ogl::unit::set_mesh()
 {
     // Create a cache for each mesh.  Count vertices and elements.
 
-    for (GLsizei i = 0; surf && i < surf->max_mesh(); ++i)
+    for (size_t i = 0; surf && i < surf->max_mesh(); ++i)
     {
         const mesh *m = surf->get_mesh(i);
 

@@ -230,7 +230,7 @@ static void mult_xps_GLvec3(GLfloat *v, const double *I, const GLfloat *u)
 void ogl::mesh::cache_verts(const ogl::mesh *that, const double *M,
                                                    const double *I)
 {
-    const GLsizei n = that->vv.size();
+    const size_t n = that->vv.size();
 
     // Cache that mesh's transformed vertices here.  Update bounding volume.
 
@@ -241,7 +241,7 @@ void ogl::mesh::cache_verts(const ogl::mesh *that, const double *M,
 
     bound = aabb();
 
-    for (GLsizei i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i)
     {
         mult_mat_GLvec3(vv[i].v, M, that->vv[i].v);
         mult_xps_GLvec3(nv[i].v, I, that->nv[i].v);
@@ -259,13 +259,13 @@ void ogl::mesh::cache_verts(const ogl::mesh *that, const double *M,
 
 void ogl::mesh::cache_faces(const ogl::mesh *that, GLuint d)
 {
-    const GLsizei n = that->faces.size();
+    const size_t n = that->faces.size();
 
     // Cache that mesh's offset face elements here.
 
     faces.resize(n);
 
-    for (GLsizei i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i)
         faces[i] = face(that->faces[i].i + d,
                         that->faces[i].j + d,
                         that->faces[i].k + d);
@@ -280,13 +280,13 @@ void ogl::mesh::cache_faces(const ogl::mesh *that, GLuint d)
 
 void ogl::mesh::cache_lines(const ogl::mesh *that, GLuint d)
 {
-    const GLsizei n = that->lines.size();
+    const size_t n = that->lines.size();
 
     // Cache that mesh's offset line elements here.
 
     lines.resize(n);
 
-    for (GLsizei i = 0; i < n; ++i)
+    for (size_t i = 0; i < n; ++i)
         lines[i] = line(that->lines[i].i + d,
                         that->lines[i].j + d);
 

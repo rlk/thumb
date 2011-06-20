@@ -176,7 +176,7 @@ void app::node::set_i(int i)
 int app::node::get_i(const std::string& name, int i) const
 {
     if (const char *c = get(name))
-        return strtol(c, 0, 0);
+        return int(strtol(c, 0, 0));
     else
         return i;
 }
@@ -184,7 +184,7 @@ int app::node::get_i(const std::string& name, int i) const
 int app::node::get_i(int i) const
 {
     if (const char *c = get())
-        return strtol(c, 0, 0);
+        return int(strtol(c, 0, 0));
     else
         return i;
 }

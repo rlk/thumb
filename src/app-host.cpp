@@ -45,7 +45,7 @@ static void nodelay(int sd)
         throw std::runtime_error(strerror(sock_errno));
 }
 
-static unsigned long lookup(const char *hostname)
+static in_addr_t lookup(const char *hostname)
 {
     struct hostent *H;
     struct in_addr  A;
@@ -755,8 +755,8 @@ void app::host::draw()
     const dpy::channel *const *chanv = &channels.front();
     const app::frustum *const *frusv = &frustums.front();
 
-    int chanc = channels.size();
-    int frusc = frustums.size();
+    int chanc = int(channels.size());
+    int frusc = int(frustums.size());
     int frusi = 0;
 
     // Prepare all displays for rendering (cheap).

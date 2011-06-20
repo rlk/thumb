@@ -7,12 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */; };
 		58E2109A13AE6EC2004580E9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109413AE6EC2004580E9 /* main.cpp */; };
 		58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109613AE6EC2004580E9 /* panoview.cpp */; };
 		58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109813AE6EC2004580E9 /* sph-model.cpp */; };
 		58E2109E13AE6F40004580E9 /* thumb.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2109D13AE6F40004580E9 /* thumb.dylib */; };
 		58E210A013AE7297004580E9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2109F13AE7297004580E9 /* OpenGL.framework */; };
-		58E210A213AE72C1004580E9 /* libGLEW.1.5.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210A113AE72C1004580E9 /* libGLEW.1.5.8.dylib */; };
 		58E210A413AE72E6004580E9 /* libSDL-1.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */; };
 		58E210A713AE7380004580E9 /* libSDLmain.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210A613AE7380004580E9 /* libSDLmain.a */; };
 		58E210AB13AE73A9004580E9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210AA13AE73A9004580E9 /* Cocoa.framework */; };
@@ -31,6 +31,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
 		58E2108813AE6EAF004580E9 /* panoview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = panoview; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E2109413AE6EC2004580E9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../proj/panoview/main.cpp; sourceTree = "<group>"; };
 		58E2109513AE6EC2004580E9 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../../proj/panoview/main.hpp; sourceTree = "<group>"; };
@@ -40,7 +41,6 @@
 		58E2109913AE6EC2004580E9 /* sph-model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-model.hpp"; path = "../../../proj/panoview/sph-model.hpp"; sourceTree = "<group>"; };
 		58E2109D13AE6F40004580E9 /* thumb.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = thumb.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E2109F13AE7297004580E9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		58E210A113AE72C1004580E9 /* libGLEW.1.5.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.5.8.dylib; path = /opt/local/lib/libGLEW.1.5.8.dylib; sourceTree = "<absolute>"; };
 		58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL-1.2.0.dylib"; path = "/opt/local/lib/libSDL-1.2.0.dylib"; sourceTree = "<absolute>"; };
 		58E210A613AE7380004580E9 /* libSDLmain.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDLmain.a; path = /opt/local/lib/libSDLmain.a; sourceTree = "<absolute>"; };
 		58E210A813AE7393004580E9 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
@@ -52,10 +52,10 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */,
 				58E2109E13AE6F40004580E9 /* thumb.dylib in Frameworks */,
 				58E210A713AE7380004580E9 /* libSDLmain.a in Frameworks */,
 				58E210A413AE72E6004580E9 /* libSDL-1.2.0.dylib in Frameworks */,
-				58E210A213AE72C1004580E9 /* libGLEW.1.5.8.dylib in Frameworks */,
 				58E210A013AE7297004580E9 /* OpenGL.framework in Frameworks */,
 				58E210AB13AE73A9004580E9 /* Cocoa.framework in Frameworks */,
 			);
@@ -100,7 +100,7 @@
 				58E2109D13AE6F40004580E9 /* thumb.dylib */,
 				58E210A613AE7380004580E9 /* libSDLmain.a */,
 				58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */,
-				58E210A113AE72C1004580E9 /* libGLEW.1.5.8.dylib */,
+				58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */,
 				58E2109F13AE7297004580E9 /* OpenGL.framework */,
 				58E210AA13AE73A9004580E9 /* Cocoa.framework */,
 				58E210A813AE7393004580E9 /* ApplicationServices.framework */,
@@ -215,7 +215,7 @@
 					/opt/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/**";
+				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include/**";
 			};
 			name = Debug;
 		};
@@ -235,7 +235,7 @@
 					/opt/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/**";
+				USER_HEADER_SEARCH_PATHS = "$(BUILT_PRODUCTS_DIR)/usr/local/include/**";
 			};
 			name = Release;
 		};
@@ -258,6 +258,7 @@
 				58E2109313AE6EAF004580E9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

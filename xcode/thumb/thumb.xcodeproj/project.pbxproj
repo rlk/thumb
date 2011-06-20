@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		58427C8213AF8C9000F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C8113AF8C9000F0A012 /* libGLEW.1.6.0.dylib */; };
 		58E2104213AE6901004580E9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104113AE6901004580E9 /* OpenGL.framework */; };
 		58E2104513AE6932004580E9 /* libSDL-1.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104413AE6932004580E9 /* libSDL-1.2.0.dylib */; };
 		58E2104713AE697E004580E9 /* libfreetype.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104613AE697E004580E9 /* libfreetype.6.dylib */; };
@@ -15,7 +16,6 @@
 		58E2104D13AE69E2004580E9 /* libz.1.2.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104C13AE69E2004580E9 /* libz.1.2.5.dylib */; };
 		58E2105013AE69F1004580E9 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104E13AE69F1004580E9 /* libmxml.a */; };
 		58E2105113AE69F1004580E9 /* libode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104F13AE69F1004580E9 /* libode.a */; };
-		58E2105313AE6A32004580E9 /* libGLEW.1.5.8.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2105213AE6A32004580E9 /* libGLEW.1.5.8.dylib */; };
 		58E2105513AE6A67004580E9 /* ApplicationServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2105413AE6A67004580E9 /* ApplicationServices.framework */; };
 		58E7742313AE64DA00E265AD /* app-data.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E773E413AE64D800E265AD /* app-data.cpp */; };
 		58E7742413AE64DA00E265AD /* app-event.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E773E513AE64D800E265AD /* app-event.cpp */; };
@@ -152,6 +152,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		58427C8113AF8C9000F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
 		58E2104113AE6901004580E9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		58E2104413AE6932004580E9 /* libSDL-1.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL-1.2.0.dylib"; path = "/opt/local/lib/libSDL-1.2.0.dylib"; sourceTree = "<absolute>"; };
 		58E2104613AE697E004580E9 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = /opt/local/lib/libfreetype.6.dylib; sourceTree = "<absolute>"; };
@@ -160,7 +161,6 @@
 		58E2104C13AE69E2004580E9 /* libz.1.2.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libz.1.2.5.dylib; path = /opt/local/lib/libz.1.2.5.dylib; sourceTree = "<absolute>"; };
 		58E2104E13AE69F1004580E9 /* libmxml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmxml.a; path = ../../../../lib/libmxml.a; sourceTree = "<group>"; };
 		58E2104F13AE69F1004580E9 /* libode.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libode.a; path = ../../../../lib/libode.a; sourceTree = "<group>"; };
-		58E2105213AE6A32004580E9 /* libGLEW.1.5.8.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.5.8.dylib; path = /opt/local/lib/libGLEW.1.5.8.dylib; sourceTree = "<absolute>"; };
 		58E2105413AE6A67004580E9 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		58E210AD13AE7565004580E9 /* conf.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = conf.xml; path = ../../data/conf.xml; sourceTree = "<group>"; };
 		58E773D313AE637A00E265AD /* thumb.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; includeInIndex = 0; path = thumb.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -312,7 +312,7 @@
 				58E2104D13AE69E2004580E9 /* libz.1.2.5.dylib in Frameworks */,
 				58E2104713AE697E004580E9 /* libfreetype.6.dylib in Frameworks */,
 				58E2104513AE6932004580E9 /* libSDL-1.2.0.dylib in Frameworks */,
-				58E2105313AE6A32004580E9 /* libGLEW.1.5.8.dylib in Frameworks */,
+				58427C8213AF8C9000F0A012 /* libGLEW.1.6.0.dylib in Frameworks */,
 				58E2104213AE6901004580E9 /* OpenGL.framework in Frameworks */,
 				58E2105513AE6A67004580E9 /* ApplicationServices.framework in Frameworks */,
 			);
@@ -325,7 +325,6 @@
 			isa = PBXGroup;
 			children = (
 				58E2105413AE6A67004580E9 /* ApplicationServices.framework */,
-				58E2105213AE6A32004580E9 /* libGLEW.1.5.8.dylib */,
 				58E2104E13AE69F1004580E9 /* libmxml.a */,
 				58E2104F13AE69F1004580E9 /* libode.a */,
 				58E2104C13AE69E2004580E9 /* libz.1.2.5.dylib */,
@@ -333,6 +332,7 @@
 				58E2104813AE69B2004580E9 /* libjpeg.8.dylib */,
 				58E2104613AE697E004580E9 /* libfreetype.6.dylib */,
 				58E2104413AE6932004580E9 /* libSDL-1.2.0.dylib */,
+				58427C8113AF8C9000F0A012 /* libGLEW.1.6.0.dylib */,
 				58E2104113AE6901004580E9 /* OpenGL.framework */,
 			);
 			name = Dependencies;
