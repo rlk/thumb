@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <ogl-opengl.hpp>
+#include <GL/glew.h>
 
 #include "sph-model.hpp"
 
@@ -26,24 +26,66 @@ sph_model::~sph_model()
 
 //------------------------------------------------------------------------------
 
+static const double cube_v[8][3] = {
+    {  1,  1,  1 },
+    { -1,  1,  1 },
+    {  1, -1,  1 },
+    { -1, -1,  1 },
+    {  1,  1, -1 },
+    { -1,  1, -1 },
+    {  1, -1, -1 },
+    { -1, -1, -1 },
+};
+
+static const int cube_i[6][4] = {
+    { 0, 4, 6, 2 },
+    { 5, 1, 3, 7 },
+    { 5, 4, 0, 1 },
+    { 3, 2, 6, 7 },
+    { 1, 0, 2, 3 },
+    { 4, 5, 7, 6 },
+};
+
 void sph_model::draw(int buffer_w, int buffer_h)
 {
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
+
     glEnable(GL_COLOR_MATERIAL);
-    
-    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_BLEND);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
     glUseProgram(0);
 
+    glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+    
     glBegin(GL_QUADS);
     {
-        glVertex3f(-1, -1, -1);
-        glVertex3f( 1, -1, -1);
-        glVertex3f( 1,  1, -1);
-        glVertex3f(-1,  1, -1);
+        for (int i = 0; i < 6; ++i)
+        {
+            glVertex3dv(cube_v[cube_i[i][0]]);
+            glVertex3dv(cube_v[cube_i[i][1]]);
+            glVertex3dv(cube_v[cube_i[i][2]]);
+            glVertex3dv(cube_v[cube_i[i][3]]);
+        }
     }
     glEnd();
+
+    glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+    
+    for (int i = 0; i < 6; ++i)
+    {
+        glBegin(GL_LINE_LOOP);
+        {
+            glVertex3dv(cube_v[cube_i[i][0]]);
+            glVertex3dv(cube_v[cube_i[i][1]]);
+            glVertex3dv(cube_v[cube_i[i][2]]);
+            glVertex3dv(cube_v[cube_i[i][3]]);
+        }
+        glEnd();
+    }
 }
 
 //------------------------------------------------------------------------------
