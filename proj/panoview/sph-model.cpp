@@ -15,6 +15,7 @@
 #include <cmath>
 
 #include "math3d.h"
+#include "glyph.h"
 #include "cube.hpp"
 
 #include "sph-model.hpp"
@@ -31,6 +32,42 @@ sph_model::~sph_model()
 
 //------------------------------------------------------------------------------
 
+static inline bool project(double *a, const double *M, const double *b)
+{
+    double d = (M[ 3] * b[0] + M[ 7] * b[1] + M[11] * b[2] + M[15]);
+    
+    if (fabs(d) > 0)
+    {
+        a[2] = (M[ 2] * b[0] + M[ 6] * b[1] + M[10] * b[2] + M[14]) / d;
+        a[1] = (M[ 1] * b[0] + M[ 5] * b[1] + M[ 9] * b[2] + M[13]) / d;
+        a[0] = (M[ 0] * b[0] + M[ 4] * b[1] + M[ 8] * b[2] + M[12]) / d;
+        return true;
+    }
+    else
+        return false;
+}
+
+static inline double length(const double *a, const double *b, int w, int h)
+{
+    if (finite(a[0]) && finite(a[1]) && finite(b[0]) && finite(b[1]))
+    {
+        double dx = (a[0] - b[0]) * w / 2;
+        double dy = (a[1] - b[1]) * h / 2;
+        
+        return sqrt(dx * dx + dy * dy);
+    }
+    else return 0;
+}
+
+static inline double max(double a, double b, double c, double d)
+{
+    double x = (a > b) ? a : b;
+    double y = (c > d) ? c : d;
+    return     (x > y) ? x : y;
+}
+
+//------------------------------------------------------------------------------
+
 struct face
 {
     // Invariant: Corner vectors are normalized.
@@ -42,7 +79,10 @@ struct face
     
     void divide(face&, face&, face&, face&);
     
-    bool test(const double *);
+    double evaluate(const double *, int, int);
+    
+    void label(const char *);
+    
     void draw(const double *, int, int, int);
 };
 
@@ -93,78 +133,117 @@ void face::divide(face& A, face& B, face &C, face &D)
     vcpy(D.d, d);
 }
 
-bool face::test(const double *T)
+double face::evaluate(const double *M, int w, int h)
 {
-    double m[3];
+    // Compute the maximum extent due to bulge.
+
+    double t[3];
     
-    m[0] = a[0] + b[0] + c[0] + d[0];
-    m[1] = a[1] + b[1] + c[1] + d[1];
-    m[2] = a[2] + b[2] + c[2] + d[2];
+    t[0] = a[0] + b[0] + c[0] + d[0];
+    t[1] = a[1] + b[1] + c[1] + d[1];
+    t[2] = a[2] + b[2] + c[2] + d[2];
     
-    double r1 = vlen(m) / vdot(a, m);
-    double r0 = 1;
+    double r = vlen(t) / vdot(a, t);
+
+    // Compute the outer corners of the bulge bound.
     
-    const double da = vdot(a, T + 12);
-    const double db = vdot(b, T + 12);
-    const double dc = vdot(c, T + 12);
-    const double dd = vdot(d, T + 12);
+    double A[3];
+    double B[3];
+    double C[3];
+    double D[3];
+
+    vmul(A, a, r);
+    vmul(B, b, r);
+    vmul(C, c, r);
+    vmul(D, d, r);
     
-    double na, a0, a1;
-    double nb, b0, b1;
-    double nc, c0, c1;
-    double nd, d0, d1;
-
-    // X axis
-
-    na = vdot(a, T + 0);
-    nb = vdot(b, T + 0);
-    nc = vdot(c, T + 0);
-    nd = vdot(d, T + 0);
-
-    a0 = (na * r0 + T[3]) / (da * r0 + T[15]);
-    a1 = (na * r1 + T[3]) / (da * r1 + T[15]);
-    b0 = (nb * r0 + T[3]) / (db * r0 + T[15]);
-    b1 = (nb * r1 + T[3]) / (db * r1 + T[15]);
-    c0 = (nc * r0 + T[3]) / (dc * r0 + T[15]);
-    c1 = (nc * r1 + T[3]) / (dc * r1 + T[15]);
-    d0 = (nd * r0 + T[3]) / (dd * r0 + T[15]);
-    d1 = (nd * r1 + T[3]) / (dd * r1 + T[15]);
+    // Compute normalized device coordinates for all eight corners.
     
-    if (a0 < -1 && b0 < -1 && c0 < -1 && d0 < -1 &&
-        a1 < -1 && b1 < -1 && c1 < -1 && d1 < -1) return false;
-    if (a0 >  1 && b0 >  1 && c0 >  1 && d0 >  1 &&
-        a1 >  1 && b1 >  1 && c1 >  1 && d1 >  1) return false;
-
-    // Y axis
-
-    na = vdot(a, T + 4);
-    nb = vdot(b, T + 4);
-    nc = vdot(c, T + 4);
-    nd = vdot(d, T + 4);
-
-    a0 = (na * r0 + T[7]) / (da * r0 + T[15]);
-    a1 = (na * r1 + T[7]) / (da * r1 + T[15]);
-    b0 = (nb * r0 + T[7]) / (db * r0 + T[15]);
-    b1 = (nb * r1 + T[7]) / (db * r1 + T[15]);
-    c0 = (nc * r0 + T[7]) / (dc * r0 + T[15]);
-    c1 = (nc * r1 + T[7]) / (dc * r1 + T[15]);
-    d0 = (nd * r0 + T[7]) / (dd * r0 + T[15]);
-    d1 = (nd * r1 + T[7]) / (dd * r1 + T[15]);
+    double na[3], nA[3];
+    double nb[3], nB[3];
+    double nc[3], nC[3];
+    double nd[3], nD[3];
     
-    if (a0 < -1 && b0 < -1 && c0 < -1 && d0 < -1 &&
-        a1 < -1 && b1 < -1 && c1 < -1 && d1 < -1) return false;
-    if (a0 >  1 && b0 >  1 && c0 >  1 && d0 >  1 &&
-        a1 >  1 && b1 >  1 && c1 >  1 && d1 >  1) return false;
+    if (!project(na, M, a)) return 0;
+    if (!project(nb, M, b)) return 0;
+    if (!project(nc, M, c)) return 0;
+    if (!project(nd, M, d)) return 0;
+    if (!project(nA, M, A)) return 0;
+    if (!project(nB, M, B)) return 0;
+    if (!project(nC, M, C)) return 0;
+    if (!project(nD, M, D)) return 0;
 
-    return true;
+    // Check that any part of the boundary is visible.
+
+    static const double k = 1;
+
+    if (na[0] >  k && nb[0] >  k && nc[0] >  k && nd[0] >  k &&
+        nA[0] >  k && nB[0] >  k && nC[0] >  k && nD[0] >  k) return 0;
+    if (na[0] < -k && nb[0] < -k && nc[0] < -k && nd[0] < -k &&
+        nA[0] < -k && nB[0] < -k && nC[0] < -k && nD[0] < -k) return 0;
+    if (na[1] >  k && nb[1] >  k && nc[1] >  k && nd[1] >  k &&
+        nA[1] >  k && nB[1] >  k && nC[1] >  k && nD[1] >  k) return 0;
+    if (na[1] < -k && nb[1] < -k && nc[1] < -k && nd[1] < -k &&
+        nA[1] < -k && nB[1] < -k && nC[1] < -k && nD[1] < -k) return 0;
+
+    // Return the screen-space length of the longest edge.
+
+    return max(length(na, nb, w, h),
+               length(nc, nd, w, h),
+               length(na, nc, w, h),
+               length(nb, nd, w, h));
 }
 
-void face::draw(const double *T, int w, int h, int l)
+void face::label(const char *str)
 {
-    if (test(T))
+    double s[3];
+    double t[3];
+    
+    s[0] = 0.5 / 100.0;
+    s[1] = 1.0 / 100.0;
+    s[2] = 1.0 / 100.0;
+    
+    t[0] = a[0] + b[0] + c[0] + d[0];
+    t[1] = a[1] + b[1] + c[1] + d[1];
+    t[2] = a[2] + b[2] + c[2] + d[2];
+    
+    vnormalize(t, t);
+    
+    glPushMatrix();
     {
-        if (l == 0)
+        glTranslated(t[0], t[1], t[2]);
+        glScaled    (s[0], s[1], s[2]);
+
+        for (const char *p = str; p && *p; p++)
+            draw_glyph(*p);
+    }
+    glPopMatrix();
+}
+
+void face::draw(const double *M, int w, int h, int m)
+{
+    double s = evaluate(M, w, h);
+    
+    if (s > 0)
+    {
+        if (m > 0 && s > 256)
         {
+            face A;
+            face B;
+            face C;
+            face D;
+            
+            divide(A, B, C, D);
+            
+            A.draw(M, w, h, m - 1);
+            B.draw(M, w, h, m - 1);
+            C.draw(M, w, h, m - 1);
+            D.draw(M, w, h, m - 1);
+        }
+        else
+        {
+            glColor4d(1.0, 1.0, 1.0, 0.2);
+
             glBegin(GL_QUADS);
             {
                 glNormal3dv(a);
@@ -177,20 +256,26 @@ void face::draw(const double *T, int w, int h, int l)
                 glVertex3dv(c);
             }
             glEnd();
-        }
-        else
-        {
-            face A;
-            face B;
-            face C;
-            face D;
             
-            divide(A, B, C, D);
+            glBegin(GL_LINE_LOOP);
+            {
+                glNormal3dv(a);
+                glVertex3dv(a);           
+                glNormal3dv(b);
+                glVertex3dv(b);
+                glNormal3dv(d);
+                glVertex3dv(d);
+                glNormal3dv(c);
+                glVertex3dv(c);
+            }
+            glEnd();
             
-            A.draw(T, w, h, l - 1);
-            B.draw(T, w, h, l - 1);
-            C.draw(T, w, h, l - 1);
-            D.draw(T, w, h, l - 1);
+            glColor4d(1.0, 1.0, 1.0, 0.5);
+
+            static char buf[256];
+            sprintf(buf, "%8.3f", s);
+            
+            label(buf);
         }
     }
 }
@@ -200,10 +285,8 @@ void face::draw(const double *T, int w, int h, int l)
 void sph_model::draw(const double *P, const double *V, int w, int h)
 {
     double M[16];
-    double T[16];
     
     mmultiply (M, P, V);
-    mtranspose(T, M);
     
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
@@ -220,8 +303,6 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
     
     glUseProgram(0);
 
-    glColor4d(1.0, 1.0, 1.0, 0.2);
-
     for (int i = 0; i < 6; ++i)
     {
         face F;
@@ -231,10 +312,7 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
         vnormalize(F.c, cube_v[cube_i[i][2]]);
         vnormalize(F.d, cube_v[cube_i[i][3]]);
         
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        F.draw(T, w, h, 4);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        F.draw(T, w, h, 4);
+        F.draw(M, w, h, 5);
     }
 }
 

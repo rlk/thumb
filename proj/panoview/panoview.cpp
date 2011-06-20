@@ -39,7 +39,7 @@ panoview::~panoview()
 
 ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
-    return ogl::range(0.25, 25.0);
+    return ogl::range(0.1, 10.0);
 }
 
 void panoview::lite(int frusc, const app::frustum *const *frusv)
