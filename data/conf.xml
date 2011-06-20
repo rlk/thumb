@@ -131,7 +131,7 @@
     <option type="int" name="texture_subsample">2</option>
     <option name="z_only">false</option>
     <!-- Navigation options. -->
-    <option name="view_move_rate">10.00000</option>
+    <option name="view_move_rate">5.00000</option>
     <option name="view_turn_rate">60.00000</option>
     <!-- Misc. options -->
     <option name="screenshot_file">snap.png</option>

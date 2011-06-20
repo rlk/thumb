@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		582D8D0313AFA2C50005A831 /* glsl.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8CFF13AFA2C50005A831 /* glsl.c */; };
+		582D8D0413AFA2C50005A831 /* math3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0113AFA2C50005A831 /* math3d.c */; };
+		582D8D0813AFAC730005A831 /* cube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0613AFAC730005A831 /* cube.cpp */; };
 		58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */; };
 		58E2109A13AE6EC2004580E9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109413AE6EC2004580E9 /* main.cpp */; };
 		58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109613AE6EC2004580E9 /* panoview.cpp */; };
@@ -31,6 +34,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		582D8CFF13AFA2C50005A831 /* glsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glsl.c; path = ../../../proj/panoview/glsl.c; sourceTree = "<group>"; };
+		582D8D0013AFA2C50005A831 /* glsl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glsl.h; path = ../../../proj/panoview/glsl.h; sourceTree = "<group>"; };
+		582D8D0113AFA2C50005A831 /* math3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = math3d.c; path = ../../../proj/panoview/math3d.c; sourceTree = "<group>"; };
+		582D8D0213AFA2C50005A831 /* math3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = math3d.h; path = ../../../proj/panoview/math3d.h; sourceTree = "<group>"; };
+		582D8D0613AFAC730005A831 /* cube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cube.cpp; path = ../../../proj/panoview/cube.cpp; sourceTree = "<group>"; };
+		582D8D0713AFAC730005A831 /* cube.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = cube.hpp; path = ../../../proj/panoview/cube.hpp; sourceTree = "<group>"; };
 		58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
 		58E2108813AE6EAF004580E9 /* panoview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = panoview; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E2109413AE6EC2004580E9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../proj/panoview/main.cpp; sourceTree = "<group>"; };
@@ -84,12 +93,18 @@
 		58E2108B13AE6EAF004580E9 /* panoview */ = {
 			isa = PBXGroup;
 			children = (
-				58E2109413AE6EC2004580E9 /* main.cpp */,
-				58E2109513AE6EC2004580E9 /* main.hpp */,
-				58E2109613AE6EC2004580E9 /* panoview.cpp */,
-				58E2109713AE6EC2004580E9 /* panoview.hpp */,
 				58E2109813AE6EC2004580E9 /* sph-model.cpp */,
 				58E2109913AE6EC2004580E9 /* sph-model.hpp */,
+				58E2109613AE6EC2004580E9 /* panoview.cpp */,
+				58E2109713AE6EC2004580E9 /* panoview.hpp */,
+				582D8D0613AFAC730005A831 /* cube.cpp */,
+				582D8D0713AFAC730005A831 /* cube.hpp */,
+				582D8D0113AFA2C50005A831 /* math3d.c */,
+				582D8D0213AFA2C50005A831 /* math3d.h */,
+				582D8CFF13AFA2C50005A831 /* glsl.c */,
+				582D8D0013AFA2C50005A831 /* glsl.h */,
+				58E2109413AE6EC2004580E9 /* main.cpp */,
+				58E2109513AE6EC2004580E9 /* main.hpp */,
 			);
 			path = panoview;
 			sourceTree = "<group>";
@@ -161,6 +176,9 @@
 				58E2109A13AE6EC2004580E9 /* main.cpp in Sources */,
 				58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */,
 				58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */,
+				582D8D0313AFA2C50005A831 /* glsl.c in Sources */,
+				582D8D0413AFA2C50005A831 /* math3d.c in Sources */,
+				582D8D0813AFAC730005A831 /* cube.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
