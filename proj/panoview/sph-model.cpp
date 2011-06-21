@@ -26,25 +26,14 @@
 
 sph_model::sph_model()
 {
-    char *vert_source = load_txt("sph-render.vert");
-    char *frag_source = load_txt("sph-render.frag");
-    
-    if (vert_source && frag_source)
-    {
-        vert_shader = glsl_init_shader(GL_VERTEX_SHADER,   vert_source);
-        frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_source);
-        program     = glsl_init_program(vert_shader, frag_shader);
-    }
-        
-    free(frag_source);
-    free(vert_source);
+    init_program();
+    init_arrays(16);
 }
 
 sph_model::~sph_model()
 {
-    glDeleteProgram(program);
-    glDeleteShader(frag_shader);
-    glDeleteShader(vert_shader);
+    free_arrays();
+    free_program();
 }
 
 //------------------------------------------------------------------------------
@@ -85,25 +74,7 @@ static inline double max(double a, double b, double c, double d)
 
 //------------------------------------------------------------------------------
 
-struct face
-{
-    // Invariant: Corner vectors are normalized.
-    
-    double a[3];
-    double b[3];
-    double c[3];
-    double d[3];
-    
-    void divide(face&, face&, face&, face&);
-    
-    double evaluate(const double *, int, int);
-    
-    void label(const char *, int);
-    
-    void draw(const double *, int, int, int);
-};
-
-void face::divide(face& A, face& B, face &C, face &D)
+void sph_model::face::divide(face& A, face& B, face &C, face &D)
 {
     double n[3];
     double s[3];
@@ -150,7 +121,7 @@ void face::divide(face& A, face& B, face &C, face &D)
     vcpy(D.d, d);
 }
 
-double face::evaluate(const double *M, int w, int h)
+double sph_model::face::measure(const double *M, int w, int h)
 {
     // Compute the maximum extent due to bulge.
 
@@ -207,8 +178,6 @@ double face::evaluate(const double *M, int w, int h)
     if (na[2] < -k && nb[2] < -k && nc[2] < -k && nd[2] < -k &&
         nA[2] < -k && nB[2] < -k && nC[2] < -k && nD[2] < -k) return 0;
 
-    // Would a Z test here make the projection less prone to singularity??
-
     // Return the screen-space length of the longest edge.
 
     return max(length(na, nb, w, h),
@@ -217,6 +186,7 @@ double face::evaluate(const double *M, int w, int h)
                length(nb, nd, w, h));
 }
 
+/*
 void face::label(const char *str, int n)
 {
     double s[3];
@@ -240,66 +210,7 @@ void face::label(const char *str, int n)
     }
     glPopMatrix();
 }
-
-void face::draw(const double *M, int w, int h, int m)
-{
-    double s = evaluate(M, w, h);
-    
-    if (s > 0)
-    {
-        if (m > 0 && s > 512)
-        {
-            face A;
-            face B;
-            face C;
-            face D;
-            
-            divide(A, B, C, D);
-            
-            A.draw(M, w, h, m - 1);
-            B.draw(M, w, h, m - 1);
-            C.draw(M, w, h, m - 1);
-            D.draw(M, w, h, m - 1);
-        }
-        else
-        {
-            glColor4d(1.0, 1.0, 1.0, 0.2);
-
-            glBegin(GL_QUADS);
-            {
-                glNormal3dv(a);
-                glVertex3dv(a);           
-                glNormal3dv(b);
-                glVertex3dv(b);
-                glNormal3dv(d);
-                glVertex3dv(d);
-                glNormal3dv(c);
-                glVertex3dv(c);
-            }
-            glEnd();
-            
-            glBegin(GL_LINE_LOOP);
-            {
-                glNormal3dv(a);
-                glVertex3dv(a);           
-                glNormal3dv(b);
-                glVertex3dv(b);
-                glNormal3dv(d);
-                glVertex3dv(d);
-                glNormal3dv(c);
-                glVertex3dv(c);
-            }
-            glEnd();
-            
-            glColor4d(1.0, 1.0, 1.0, 0.5);
-
-            static char buf[256];
-            sprintf(buf, "%d", int(s));
-            
-            label(buf, 1 << m);
-        }
-    }
-}
+*/
 
 //------------------------------------------------------------------------------
 
@@ -324,6 +235,14 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
     
     glUseProgram(program);
     {
+        glBindBuffer(GL_ARRAY_BUFFER,         vertices);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements);
+
+        glEnableClientState(GL_VERTEX_ARRAY);
+        glVertexPointer(2, GL_FLOAT, 0, 0);
+
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+
         for (int i = 0; i < 6; ++i)
         {
             face F;
@@ -333,10 +252,153 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
             vnormalize(F.c, cube_v[cube_i[i][2]]);
             vnormalize(F.d, cube_v[cube_i[i][3]]);
             
-            F.draw(M, w, h, 8);
+            draw_face(F, M, w, h, 8);
         }
+        
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
     glUseProgram(0);
+}
+
+void sph_model::draw_face(face& F, const double *M, int w, int h, int m)
+{
+    double s = F.measure(M, w, h);
+    
+    if (s > 0)
+    {
+        if (m > 0 && s > 512)
+        {
+            face A;
+            face B;
+            face C;
+            face D;
+            
+            F.divide(A, B, C, D);
+            
+            draw_face(A, M, w, h, m - 1);
+            draw_face(B, M, w, h, m - 1);
+            draw_face(C, M, w, h, m - 1);
+            draw_face(D, M, w, h, m - 1);
+        }
+        else
+        {
+            glUniform3f(corner_a, F.a[0], F.a[1], F.a[2]);
+            glUniform3f(corner_b, F.b[0], F.b[1], F.b[2]);
+            glUniform3f(corner_c, F.c[0], F.c[1], F.c[2]);
+            glUniform3f(corner_d, F.d[0], F.d[1], F.d[2]);
+            
+            glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+
+void sph_model::init_program()
+{    
+    char *vert_source = load_txt("sph-render.vert");
+    char *frag_source = load_txt("sph-render.frag");
+    
+    if (vert_source && frag_source)
+    {
+        vert_shader = glsl_init_shader(GL_VERTEX_SHADER,   vert_source);
+        frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_source);
+        program     = glsl_init_program(vert_shader, frag_shader);
+        
+        glUseProgram(program);      
+        
+        corner_a = glGetUniformLocation(program, "corner_a");
+        corner_b = glGetUniformLocation(program, "corner_b");
+        corner_c = glGetUniformLocation(program, "corner_c");
+        corner_d = glGetUniformLocation(program, "corner_d");
+    }
+        
+    free(frag_source);
+    free(vert_source);
+}
+
+void sph_model::free_program()
+{
+    glDeleteProgram(program);
+    glDeleteShader(frag_shader);
+    glDeleteShader(vert_shader);
+}
+
+//------------------------------------------------------------------------------
+
+static void init_vertices(int n)
+{
+    struct vertex
+    {
+        GLfloat x;
+        GLfloat y;
+    };
+    
+    const size_t s = (n + 1) * (n + 1) * sizeof (vertex);
+    
+    if (vertex *p = (vertex *) malloc(s))
+    {
+        vertex *v = p;
+        
+        for     (int r = 0; r <= n; ++r)
+            for (int c = 0; c <= n; ++c, ++v)
+            {
+                v->x = GLfloat(c) / GLfloat(n);
+                v->y = GLfloat(r) / GLfloat(n);
+            }
+        
+        glBufferData(GL_ARRAY_BUFFER, s, p, GL_STATIC_DRAW); 
+        free(p);
+    }
+}
+
+static void init_elements(int n)
+{
+    struct element
+    {
+        GLshort a;
+        GLshort b;
+        GLshort d;
+        GLshort c;
+    };
+    
+    const size_t s = n * n * sizeof (element);
+    
+    if (element *p = (element *) malloc(s))
+    {
+        element *e = p;
+        
+        for     (int r = 0; r < n; ++r)
+            for (int c = 0; c < n; ++c, ++e)
+            {
+                e->a = GLshort((n + 1) * (r    ) + (c    ));
+                e->b = GLshort((n + 1) * (r    ) + (c + 1));
+                e->c = GLshort((n + 1) * (r + 1) + (c    ));
+                e->d = GLshort((n + 1) * (r + 1) + (c + 1));
+            }
+        
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, s, p, GL_STATIC_DRAW);
+        free(p);
+    }
+}
+
+void sph_model::init_arrays(int n)
+{
+    glGenBuffers(1, &vertices);
+    glGenBuffers(1, &elements);
+    
+    glBindBuffer(GL_ARRAY_BUFFER,         vertices);
+    init_vertices(n);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements);
+    init_elements(n);
+    
+    count = 4 * n * n;
+}
+
+void sph_model::free_arrays()
+{
+    glDeleteBuffers(1, &elements);
+    glDeleteBuffers(1, &vertices);
 }
 
 //------------------------------------------------------------------------------
