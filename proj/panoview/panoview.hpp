@@ -32,6 +32,9 @@ public:
     
 private:
 
+    int n;
+    int m;
+
     sph_model L;
 };
 

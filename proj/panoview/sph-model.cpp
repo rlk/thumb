@@ -24,10 +24,11 @@
 
 //------------------------------------------------------------------------------
 
-sph_model::sph_model()
+sph_model::sph_model(int n, int m, int s) :
+    depth(m), size(s), status(cube_size(m), s_halt)
 {
     init_program();
-    init_arrays(16);
+    init_arrays(n);
 }
 
 sph_model::~sph_model()
@@ -186,39 +187,71 @@ double sph_model::face::measure(const double *M, int w, int h)
                length(nb, nd, w, h));
 }
 
-/*
-void face::label(const char *str, int n)
-{
-    double s[3];
-    double t[3];
-    
-    s[0] = n * 0.5 / 2048;
-    s[1] = n * 1.0 / 2048;
-    s[2] = n * 1.0 / 2048;
-    
-    t[0] = (a[0] + b[0] + c[0] + d[0]) / 4;
-    t[1] = (a[1] + b[1] + c[1] + d[1]) / 4;
-    t[2] = (a[2] + b[2] + c[2] + d[2]) / 4;
-    
-    glPushMatrix();
-    {
-        glTranslated(t[0], t[1], t[2]);
-        glScaled    (s[0], s[1], s[2]);
-
-        for (const char *p = str; p && *p; p++)
-            draw_glyph(*p);
-    }
-    glPopMatrix();
-}
-*/
-
 //------------------------------------------------------------------------------
 
-void sph_model::draw(const double *P, const double *V, int w, int h)
+void sph_model::prep(const double *P, const double *V, int w, int h)
 {
     double M[16];
     
-    mmultiply (M, P, V);
+    mmultiply(M, P, V);
+    
+    for (int i = 0; i < 6; ++i)
+    {
+        face F;
+        
+        vnormalize(F.a, cube_v[cube_i[i][0]]);
+        vnormalize(F.b, cube_v[cube_i[i][1]]);
+        vnormalize(F.c, cube_v[cube_i[i][2]]);
+        vnormalize(F.d, cube_v[cube_i[i][3]]);
+        
+        prep_face(F, M, i, w, h, depth);
+    }
+}
+
+void sph_model::prep_face(face& F, const double *M, int i, int w, int h, int m)
+{
+    double s = F.measure(M, w, h);
+    
+    if (s > 0)
+    {
+        if (m > 0 && s > size)
+        {
+            int i0 = face_child(i, 0);
+            int i1 = face_child(i, 1);
+            int i2 = face_child(i, 2);
+            int i3 = face_child(i, 3);
+            
+            face A;
+            face B;
+            face C;
+            face D;
+            
+            F.divide(A, B, C, D);
+            
+            prep_face(A, M, i0, w, h, m - 1);
+            prep_face(B, M, i1, w, h, m - 1);
+            prep_face(C, M, i2, w, h, m - 1);
+            prep_face(D, M, i3, w, h, m - 1);
+
+            if (status[i0] == s_halt && status[i1] == s_halt &&
+                status[i2] == s_halt && status[i3] == s_halt)
+
+                status[i] = s_halt;
+            else
+                status[i] = s_pass;
+        }
+        else status[i] = s_draw;
+    }
+    else status[i] = s_halt;
+}
+
+//------------------------------------------------------------------------------
+
+void sph_model::draw(const double *P, const double *V)
+{
+    double M[16];
+    
+    mmultiply(M, P, V);
     
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
@@ -230,6 +263,8 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
 
     glEnable(GL_COLOR_MATERIAL);
     glEnable(GL_BLEND);
+    
+    glFrontFace(GL_CW);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
@@ -250,48 +285,55 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
             vnormalize(F.d, cube_v[cube_i[i][3]]);
             
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            draw_face(F, M, w, h, 8);
+            draw_face(F, M, i);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            draw_face(F, M, w, h, 8);
+            draw_face(F, M, i);
         }
-        
     }
     glUseProgram(0);
 }
 
-void sph_model::draw_face(face& F, const double *M, int w, int h, int m)
+void sph_model::draw_face(face& F, const double *M, int i)
 {
-    double s = F.measure(M, w, h);
-    
-    if (s > 0)
+    if (status[i] == s_pass)
     {
-        if (m > 0 && s > 512)
-        {
-            face A;
-            face B;
-            face C;
-            face D;
-            
-            F.divide(A, B, C, D);
-            
-            draw_face(A, M, w, h, m - 1);
-            draw_face(B, M, w, h, m - 1);
-            draw_face(C, M, w, h, m - 1);
-            draw_face(D, M, w, h, m - 1);
-        }
-        else
-        {
-            int b = 10;
-            
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[b]);
+        face A;
+        face B;
+        face C;
+        face D;
+        
+        F.divide(A, B, C, D);
+        
+        draw_face(A, M, face_child(i, 0));
+        draw_face(B, M, face_child(i, 1));
+        draw_face(C, M, face_child(i, 2));
+        draw_face(D, M, face_child(i, 3));
+    }
 
-            glUniform3f(corner_a, F.a[0], F.a[1], F.a[2]);
-            glUniform3f(corner_b, F.b[0], F.b[1], F.b[2]);
-            glUniform3f(corner_c, F.c[0], F.c[1], F.c[2]);
-            glUniform3f(corner_d, F.d[0], F.d[1], F.d[2]);
-            
-            glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
-        }
+    if (status[i] == s_draw)
+    {
+        int b = 0;
+        int u;
+        int d;
+        int r;
+        int l;
+        
+        face_neighbors(i, u, d, r, l);
+        
+        if (i > 5)
+            b = (status[face_parent(u)] == s_draw ? 1 : 0)
+              | (status[face_parent(d)] == s_draw ? 2 : 0)
+              | (status[face_parent(r)] == s_draw ? 4 : 0)
+              | (status[face_parent(l)] == s_draw ? 8 : 0);
+        
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[b]);
+
+        glUniform3f(corner_a, F.a[0], F.a[1], F.a[2]);
+        glUniform3f(corner_b, F.b[0], F.b[1], F.b[2]);
+        glUniform3f(corner_c, F.c[0], F.c[1], F.c[2]);
+        glUniform3f(corner_d, F.d[0], F.d[1], F.d[2]);
+        
+        glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
     }
 }
 

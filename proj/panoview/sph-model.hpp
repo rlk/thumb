@@ -14,6 +14,7 @@
 #define SPH_MODEL_HPP
 
 #include <GL/glew.h>
+#include <vector>
 
 //------------------------------------------------------------------------------
 
@@ -21,12 +22,18 @@ class sph_model
 {
 public:
 
-    sph_model();
+    sph_model(int, int, int);
    ~sph_model();
    
-    void draw(const double *, const double *, int w, int h);
+    void prep(const double *, const double *, int, int);
+    void draw(const double *, const double *);
     
 private:
+
+    int depth;
+    int size;
+
+    // Data structures and algorithms for handling face adaptive subdivision.
 
     struct face
     {
@@ -39,26 +46,42 @@ private:
         double measure(const double *, int, int);
     };
 
-    void draw_face(face&, const double *, int, int, int);
+    enum
+    {
+        s_halt = 0,
+        s_pass = 1,
+        s_draw = 2,
+    };
+    
+    typedef unsigned char byte;
+
+    void prep_face(face&, const double *, int, int, int, int);
+    void draw_face(face&, const double *, int);
+
+    std::vector<byte> status;
+
+    // OpenGL programmable processing state
 
     void init_program();
     void free_program();
     
+    GLuint program;
+    GLuint vert_shader;
+    GLuint frag_shader;
+    
+    GLuint corner_a;
+    GLuint corner_b;
+    GLuint corner_c;
+    GLuint corner_d;
+    
+    // OpenGL geometry state.
+    
     void init_arrays(int);
     void free_arrays();
 
-    GLuint  program;
-    GLuint  vert_shader;
-    GLuint  frag_shader;
-    
-    GLuint  corner_a;
-    GLuint  corner_b;
-    GLuint  corner_c;
-    GLuint  corner_d;
-    
+    GLsizei count;
     GLuint  vertices;
     GLuint  elements[16];
-    GLsizei count;
 };
 
 //------------------------------------------------------------------------------

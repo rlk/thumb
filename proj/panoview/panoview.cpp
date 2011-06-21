@@ -27,7 +27,8 @@
 // sph-cache
 // sph-model
 
-panoview::panoview(const std::string& tag) : app::prog(tag)
+panoview::panoview(const std::string& tag) :
+    app::prog(tag), L(16, 8, 512)
 {
 }
 
@@ -39,7 +40,17 @@ panoview::~panoview()
 
 ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
-    return ogl::range(0.1, 10.0);
+    const double *P = frusv[0]->get_P();
+    const double *M = ::user->get_M();
+    const int     w = ::host->get_buffer_w();
+    const int     h = ::host->get_buffer_h();
+
+    double V[16];
+
+    minvert(V, M);
+    L.prep (P, V, w, h);
+
+    return ogl::range(0.01, 10.0);
 }
 
 void panoview::lite(int frusc, const app::frustum *const *frusv)
@@ -50,8 +61,6 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 {
     const double *P =  frusp->get_P();
     const double *M = ::user->get_M();
-    const int     w = ::host->get_buffer_w();
-    const int     h = ::host->get_buffer_h();
 
     double V[16];
 
@@ -61,7 +70,7 @@ void panoview::draw(int frusi, const app::frustum *frusp)
             GL_DEPTH_BUFFER_BIT);
 
     minvert(V, M);
-    L.draw(P, V, w, h);
+    L.draw (P, V);
 }
 
 //-----------------------------------------------------------------------------
