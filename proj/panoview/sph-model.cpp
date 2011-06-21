@@ -235,13 +235,10 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
     
     glUseProgram(program);
     {
-        glBindBuffer(GL_ARRAY_BUFFER,         vertices);
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements);
+        glBindBuffer(GL_ARRAY_BUFFER, vertices);
 
         glEnableClientState(GL_VERTEX_ARRAY);
         glVertexPointer(2, GL_FLOAT, 0, 0);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         for (int i = 0; i < 6; ++i)
         {
@@ -252,10 +249,12 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
             vnormalize(F.c, cube_v[cube_i[i][2]]);
             vnormalize(F.d, cube_v[cube_i[i][3]]);
             
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            draw_face(F, M, w, h, 8);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             draw_face(F, M, w, h, 8);
         }
         
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
     glUseProgram(0);
 }
@@ -282,6 +281,10 @@ void sph_model::draw_face(face& F, const double *M, int w, int h, int m)
         }
         else
         {
+            int b = 10;
+            
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[b]);
+
             glUniform3f(corner_a, F.a[0], F.a[1], F.a[2]);
             glUniform3f(corner_b, F.b[0], F.b[1], F.b[2]);
             glUniform3f(corner_c, F.c[0], F.c[1], F.c[2]);
@@ -326,6 +329,16 @@ void sph_model::free_program()
 
 //------------------------------------------------------------------------------
 
+static inline int up(int d)
+{
+    return (d % 2) ? d + 1 : d;
+}
+
+static inline int dn(int d)
+{
+    return (d % 2) ? d - 1 : d;
+}
+
 static void init_vertices(int n)
 {
     struct vertex
@@ -340,6 +353,8 @@ static void init_vertices(int n)
     {
         vertex *v = p;
         
+        // Compute the position of each vertex.
+        
         for     (int r = 0; r <= n; ++r)
             for (int c = 0; c <= n; ++c, ++v)
             {
@@ -347,12 +362,14 @@ static void init_vertices(int n)
                 v->y = GLfloat(r) / GLfloat(n);
             }
         
+        // Upload the vertices to the vertex buffer.
+        
         glBufferData(GL_ARRAY_BUFFER, s, p, GL_STATIC_DRAW); 
         free(p);
     }
 }
 
-static void init_elements(int n)
+static void init_elements(int n, int b)
 {
     struct element
     {
@@ -363,19 +380,39 @@ static void init_elements(int n)
     };
     
     const size_t s = n * n * sizeof (element);
+    const int    d = n + 1;
     
     if (element *p = (element *) malloc(s))
     {
         element *e = p;
         
+        // Compute the indices for each quad.
+        
         for     (int r = 0; r < n; ++r)
             for (int c = 0; c < n; ++c, ++e)
             {
-                e->a = GLshort((n + 1) * (r    ) + (c    ));
-                e->b = GLshort((n + 1) * (r    ) + (c + 1));
-                e->c = GLshort((n + 1) * (r + 1) + (c    ));
-                e->d = GLshort((n + 1) * (r + 1) + (c + 1));
+                e->a = GLshort(d * (r    ) + (c    ));
+                e->b = GLshort(d * (r    ) + (c + 1));
+                e->c = GLshort(d * (r + 1) + (c    ));
+                e->d = GLshort(d * (r + 1) + (c + 1));
             }
+
+        // Rewind the indices to reduce edge resolution as necessary.
+
+        element *N = p;
+        element *W = p + (n - 1);
+        element *E = p;
+        element *S = p + (n - 1) * n;
+
+        for (int i = 0; i < n; ++i, N += 1, S += 1, E += n, W += n)
+        {
+            if (b & 1) { if (i & 1) N->a -= 1; else N->b -= 1; }
+            if (b & 2) { if (i & 1) S->c += 1; else S->d += 1; }
+            if (b & 4) { if (i & 1) E->a -= d; else E->c -= d; }
+            if (b & 8) { if (i & 1) W->b += d; else W->d += d; }
+        }
+        
+        // Upload the indices to the element buffer.
         
         glBufferData(GL_ELEMENT_ARRAY_BUFFER, s, p, GL_STATIC_DRAW);
         free(p);
@@ -385,19 +422,23 @@ static void init_elements(int n)
 void sph_model::init_arrays(int n)
 {
     glGenBuffers(1, &vertices);
-    glGenBuffers(1, &elements);
+    glGenBuffers(16, elements);
     
-    glBindBuffer(GL_ARRAY_BUFFER,         vertices);
+    glBindBuffer(GL_ARRAY_BUFFER, vertices);
     init_vertices(n);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements);
-    init_elements(n);
+    
+    for (int b = 0; b < 16; ++b)
+    {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[b]);
+        init_elements(n, b);
+    }
     
     count = 4 * n * n;
 }
 
 void sph_model::free_arrays()
 {
-    glDeleteBuffers(1, &elements);
+    glDeleteBuffers(16, elements);
     glDeleteBuffers(1, &vertices);
 }
 

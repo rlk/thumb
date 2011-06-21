@@ -57,7 +57,7 @@ private:
     GLuint  corner_d;
     
     GLuint  vertices;
-    GLuint  elements;    
+    GLuint  elements[16];
     GLsizei count;
 };
 
