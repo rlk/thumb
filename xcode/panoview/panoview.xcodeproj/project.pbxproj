@@ -11,7 +11,7 @@
 		582D8D0413AFA2C50005A831 /* math3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0113AFA2C50005A831 /* math3d.c */; };
 		582D8D0813AFAC730005A831 /* cube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0613AFAC730005A831 /* cube.cpp */; };
 		582D8D1213AFECB00005A831 /* glyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D1013AFECB00005A831 /* glyph.c */; };
-		58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */; };
+		58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
 		58E2109A13AE6EC2004580E9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109413AE6EC2004580E9 /* main.cpp */; };
 		58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109613AE6EC2004580E9 /* panoview.cpp */; };
 		58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109813AE6EC2004580E9 /* sph-model.cpp */; };

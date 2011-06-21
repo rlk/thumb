@@ -81,7 +81,7 @@ struct face
     
     double evaluate(const double *, int, int);
     
-    void label(const char *);
+    void label(const char *, int);
     
     void draw(const double *, int, int, int);
 };
@@ -185,6 +185,10 @@ double face::evaluate(const double *M, int w, int h)
         nA[1] >  k && nB[1] >  k && nC[1] >  k && nD[1] >  k) return 0;
     if (na[1] < -k && nb[1] < -k && nc[1] < -k && nd[1] < -k &&
         nA[1] < -k && nB[1] < -k && nC[1] < -k && nD[1] < -k) return 0;
+    if (na[2] >  k && nb[2] >  k && nc[2] >  k && nd[2] >  k &&
+        nA[2] >  k && nB[2] >  k && nC[2] >  k && nD[2] >  k) return 0;
+    if (na[2] < -k && nb[2] < -k && nc[2] < -k && nd[2] < -k &&
+        nA[2] < -k && nB[2] < -k && nC[2] < -k && nD[2] < -k) return 0;
 
     // Return the screen-space length of the longest edge.
 
@@ -194,20 +198,18 @@ double face::evaluate(const double *M, int w, int h)
                length(nb, nd, w, h));
 }
 
-void face::label(const char *str)
+void face::label(const char *str, int n)
 {
     double s[3];
     double t[3];
     
-    s[0] = 0.5 / 100.0;
-    s[1] = 1.0 / 100.0;
-    s[2] = 1.0 / 100.0;
+    s[0] = n * 0.5 / 2048;
+    s[1] = n * 1.0 / 2048;
+    s[2] = n * 1.0 / 2048;
     
-    t[0] = a[0] + b[0] + c[0] + d[0];
-    t[1] = a[1] + b[1] + c[1] + d[1];
-    t[2] = a[2] + b[2] + c[2] + d[2];
-    
-    vnormalize(t, t);
+    t[0] = (a[0] + b[0] + c[0] + d[0]) / 4;
+    t[1] = (a[1] + b[1] + c[1] + d[1]) / 4;
+    t[2] = (a[2] + b[2] + c[2] + d[2]) / 4;
     
     glPushMatrix();
     {
@@ -226,7 +228,7 @@ void face::draw(const double *M, int w, int h, int m)
     
     if (s > 0)
     {
-        if (m > 0 && s > 256)
+        if (m > 0 && s > 512)
         {
             face A;
             face B;
@@ -273,9 +275,9 @@ void face::draw(const double *M, int w, int h, int m)
             glColor4d(1.0, 1.0, 1.0, 0.5);
 
             static char buf[256];
-            sprintf(buf, "%8.3f", s);
+            sprintf(buf, "%d", int(s));
             
-            label(buf);
+            label(buf, 1 << m);
         }
     }
 }
@@ -312,7 +314,7 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
         vnormalize(F.c, cube_v[cube_i[i][2]]);
         vnormalize(F.d, cube_v[cube_i[i][3]]);
         
-        F.draw(M, w, h, 5);
+        F.draw(M, w, h, 8);
     }
 }
 
