@@ -11,11 +11,13 @@
 //  General Public License for more details.
 
 #include <GL/glew.h>
-#include <cstdio>
 #include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 #include "math3d.h"
 #include "glyph.h"
+#include "glsl.h"
 #include "cube.hpp"
 
 #include "sph-model.hpp"
@@ -24,10 +26,25 @@
 
 sph_model::sph_model()
 {
+    char *vert_source = load_txt("sph-render.vert");
+    char *frag_source = load_txt("sph-render.frag");
+    
+    if (vert_source && frag_source)
+    {
+        vert_shader = glsl_init_shader(GL_VERTEX_SHADER,   vert_source);
+        frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_source);
+        program     = glsl_init_program(vert_shader, frag_shader);
+    }
+        
+    free(frag_source);
+    free(vert_source);
 }
 
 sph_model::~sph_model()
 {
+    glDeleteProgram(program);
+    glDeleteShader(frag_shader);
+    glDeleteShader(vert_shader);
 }
 
 //------------------------------------------------------------------------------
@@ -190,6 +207,8 @@ double face::evaluate(const double *M, int w, int h)
     if (na[2] < -k && nb[2] < -k && nc[2] < -k && nd[2] < -k &&
         nA[2] < -k && nB[2] < -k && nC[2] < -k && nD[2] < -k) return 0;
 
+    // Would a Z test here make the projection less prone to singularity??
+
     // Return the screen-space length of the longest edge.
 
     return max(length(na, nb, w, h),
@@ -303,19 +322,21 @@ void sph_model::draw(const double *P, const double *V, int w, int h)
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
-    glUseProgram(0);
-
-    for (int i = 0; i < 6; ++i)
+    glUseProgram(program);
     {
-        face F;
-        
-        vnormalize(F.a, cube_v[cube_i[i][0]]);
-        vnormalize(F.b, cube_v[cube_i[i][1]]);
-        vnormalize(F.c, cube_v[cube_i[i][2]]);
-        vnormalize(F.d, cube_v[cube_i[i][3]]);
-        
-        F.draw(M, w, h, 8);
+        for (int i = 0; i < 6; ++i)
+        {
+            face F;
+            
+            vnormalize(F.a, cube_v[cube_i[i][0]]);
+            vnormalize(F.b, cube_v[cube_i[i][1]]);
+            vnormalize(F.c, cube_v[cube_i[i][2]]);
+            vnormalize(F.d, cube_v[cube_i[i][3]]);
+            
+            F.draw(M, w, h, 8);
+        }
     }
+    glUseProgram(0);
 }
 
 //------------------------------------------------------------------------------

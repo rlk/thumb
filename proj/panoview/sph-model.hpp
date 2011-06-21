@@ -13,10 +13,16 @@
 #ifndef SPH_MODEL_HPP
 #define SPH_MODEL_HPP
 
+#include <GL/glew.h>
+
 //------------------------------------------------------------------------------
 
 class sph_model
 {
+    GLuint program;
+    GLuint vert_shader;
+    GLuint frag_shader;
+    
 public:
 
     sph_model();
