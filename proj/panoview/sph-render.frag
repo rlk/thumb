@@ -1,7 +1,8 @@
 
 uniform float size;
-uniform float depth;
 uniform float level;
+
+uniform sampler2D texture;
 
 float sat(float k)
 {
@@ -23,6 +24,7 @@ void main()
     float k = clamp(level - l, 0.0, level);
 
     vec3 c = color(l);
+    vec3 d = texture2D(texture, gl_TexCoord[0].xy).rgb;
 
-    gl_FragColor = vec4(c, 1.0);
+    gl_FragColor = vec4(d, 1.0);
 }

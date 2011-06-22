@@ -24,8 +24,8 @@
 
 //------------------------------------------------------------------------------
 
-sph_model::sph_model(int n, int m, int s) :
-    depth(m), size(s), status(cube_size(m), s_halt)
+sph_model::sph_model(sph_cache& cache, int n, int m, int s) :
+    cache(cache), depth(m), size(s), status(cube_size(m), s_halt)
 {
     init_program();
     init_arrays(n);
@@ -247,7 +247,7 @@ void sph_model::prep_face(face& F, const double *M, int i, int w, int h, int m)
 
 //------------------------------------------------------------------------------
 
-void sph_model::draw(const double *P, const double *V)
+void sph_model::draw(const double *P, const double *V, int f)
 {
     double M[16];
     
@@ -284,21 +284,14 @@ void sph_model::draw(const double *P, const double *V)
             vnormalize(F.c, cube_v[cube_i[i][2]]);
             vnormalize(F.d, cube_v[cube_i[i][3]]);
             
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//            draw_face(F, M, i, 0);
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            draw_face(F, M, i, 0);
+            draw_face(F, M, i, 0, f);
         }
     }
     glUseProgram(0);
 }
 
-void sph_model::draw_face(face& F, const double *M, int i, int l)
+void sph_model::draw_face(face& F, const double *M, int i, int l, int f)
 {
-    glUniform1f(glGetUniformLocation(program, "size"),  GLfloat(size));
-    glUniform1f(glGetUniformLocation(program, "depth"), GLfloat(depth));
-    glUniform1f(glGetUniformLocation(program, "level"), GLfloat(l));
-    
     if (status[i] == s_pass)
     {
         face A;
@@ -308,10 +301,10 @@ void sph_model::draw_face(face& F, const double *M, int i, int l)
         
         F.divide(A, B, C, D);
         
-        draw_face(A, M, face_child(i, 0), l + 1);
-        draw_face(B, M, face_child(i, 1), l + 1);
-        draw_face(C, M, face_child(i, 2), l + 1);
-        draw_face(D, M, face_child(i, 3), l + 1);
+        draw_face(A, M, face_child(i, 0), l + 1, f);
+        draw_face(B, M, face_child(i, 1), l + 1, f);
+        draw_face(C, M, face_child(i, 2), l + 1, f);
+        draw_face(D, M, face_child(i, 3), l + 1, f);
     }
 
     if (status[i] == s_draw)
@@ -331,11 +324,13 @@ void sph_model::draw_face(face& F, const double *M, int i, int l)
               | (status[face_parent(l)] == s_draw ? 8 : 0);
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[b]);
+        glBindTexture(GL_TEXTURE_2D, cache.get_page(f, i));
 
         glUniform3f(corner_a, F.a[0], F.a[1], F.a[2]);
         glUniform3f(corner_b, F.b[0], F.b[1], F.b[2]);
         glUniform3f(corner_c, F.c[0], F.c[1], F.c[2]);
         glUniform3f(corner_d, F.d[0], F.d[1], F.d[2]);
+        glUniform1f(level, GLfloat(l));
         
         glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
     }
@@ -360,6 +355,10 @@ void sph_model::init_program()
         corner_b = glGetUniformLocation(program, "corner_b");
         corner_c = glGetUniformLocation(program, "corner_c");
         corner_d = glGetUniformLocation(program, "corner_d");
+        level    = glGetUniformLocation(program, "level");
+        
+        glUniform1i(glGetUniformLocation(program, "texture"), 0);
+        glUniform1f(glGetUniformLocation(program, "size"), size);
     }
         
     free(frag_source);

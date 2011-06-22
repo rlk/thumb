@@ -23,13 +23,10 @@
 
 //-----------------------------------------------------------------------------
 
-// sph-image
-// sph-cache
-// sph-model
-
 panoview::panoview(const std::string& tag) :
-    app::prog(tag), L(16, 6, 512)
+    app::prog(tag), C(256), L(C, 16, 2, 512)
 {
+    panoL = C.add_file("Taliesin-Garden-13-Cube-L.tif");
 }
 
 panoview::~panoview()
@@ -70,7 +67,7 @@ void panoview::draw(int frusi, const app::frustum *frusp)
             GL_DEPTH_BUFFER_BIT);
 
     minvert(V, M);
-    L.draw (P, V);
+    L.draw (P, V, panoL);
 }
 
 //-----------------------------------------------------------------------------

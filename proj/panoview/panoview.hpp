@@ -15,6 +15,7 @@
 
 #include <app-prog.hpp>
 
+#include "sph-cache.hpp"
 #include "sph-model.hpp"
 
 //-----------------------------------------------------------------------------
@@ -32,10 +33,10 @@ public:
     
 private:
 
-    int n;
-    int m;
-
+    sph_cache C;
     sph_model L;
+    
+    int panoL;
 };
 
 //-----------------------------------------------------------------------------

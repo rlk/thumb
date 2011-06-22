@@ -14,11 +14,18 @@
 #define SPH_CACHE_HPP
 
 #include <GL/glew.h>
+#include <tiffio.h>
+
+#include <vector>
+#include <list>
+#include <map>
 
 //------------------------------------------------------------------------------
 
 class sph_cache
 {
+public:
+
     sph_cache(int);
    ~sph_cache();
 
@@ -27,7 +34,26 @@ class sph_cache
      
 private:
 
-    
+    struct page
+    {        
+        bool operator()(page& a, page& b) { return (a.c < b.c || a.p < b.p); }
+        int c;
+        int p;
+    };
+
+    typedef std::vector<TIFF *>       file_vec;
+    typedef std::map   <page, GLuint> page_map;
+    typedef std::list  <page>         page_list;
+
+    file_vec  files;
+    page_map  pages;
+    page_list used;
+    int       size;
+
+    GLuint texture;
+
+    int up(int, int);
+    int dn(int, int);
 };
 
 //------------------------------------------------------------------------------

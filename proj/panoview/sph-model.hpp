@@ -16,19 +16,23 @@
 #include <GL/glew.h>
 #include <vector>
 
+#include "sph-cache.hpp"
+
 //------------------------------------------------------------------------------
 
 class sph_model
 {
 public:
 
-    sph_model(int, int, int);
+    sph_model(sph_cache&, int, int, int);
    ~sph_model();
    
     void prep(const double *, const double *, int, int);
-    void draw(const double *, const double *);
+    void draw(const double *, const double *, int);
     
 private:
+
+    sph_cache& cache;
 
     int depth;
     int size;
@@ -56,7 +60,7 @@ private:
     typedef unsigned char byte;
 
     void prep_face(face&, const double *, int, int, int, int);
-    void draw_face(face&, const double *, int, int);
+    void draw_face(face&, const double *, int, int, int);
 
     std::vector<byte> status;
 
@@ -73,6 +77,7 @@ private:
     GLuint corner_b;
     GLuint corner_c;
     GLuint corner_d;
+    GLuint level;
     
     // OpenGL geometry state.
     
