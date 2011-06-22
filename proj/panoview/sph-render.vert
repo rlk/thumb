@@ -11,5 +11,6 @@ void main()
 
     vec3 v = normalize(mix(t, u, gl_Vertex.y));
     
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
+    gl_TexCoord[0] = gl_Vertex;
+    gl_Position    = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
 }

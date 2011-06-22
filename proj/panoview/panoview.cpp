@@ -28,7 +28,7 @@
 // sph-model
 
 panoview::panoview(const std::string& tag) :
-    app::prog(tag), L(16, 8, 512)
+    app::prog(tag), L(16, 6, 512)
 {
 }
 
@@ -50,7 +50,7 @@ ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
     minvert(V, M);
     L.prep (P, V, w, h);
 
-    return ogl::range(0.01, 10.0);
+    return ogl::range(0.001, 10.0);
 }
 
 void panoview::lite(int frusc, const app::frustum *const *frusv)

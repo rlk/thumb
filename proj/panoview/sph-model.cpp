@@ -261,7 +261,7 @@ void sph_model::draw(const double *P, const double *V)
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
 
-    glEnable(GL_COLOR_MATERIAL);
+    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     
     glFrontFace(GL_CW);
@@ -284,17 +284,21 @@ void sph_model::draw(const double *P, const double *V)
             vnormalize(F.c, cube_v[cube_i[i][2]]);
             vnormalize(F.d, cube_v[cube_i[i][3]]);
             
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            draw_face(F, M, i);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            draw_face(F, M, i);
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//            draw_face(F, M, i, 0);
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            draw_face(F, M, i, 0);
         }
     }
     glUseProgram(0);
 }
 
-void sph_model::draw_face(face& F, const double *M, int i)
+void sph_model::draw_face(face& F, const double *M, int i, int l)
 {
+    glUniform1f(glGetUniformLocation(program, "size"),  GLfloat(size));
+    glUniform1f(glGetUniformLocation(program, "depth"), GLfloat(depth));
+    glUniform1f(glGetUniformLocation(program, "level"), GLfloat(l));
+    
     if (status[i] == s_pass)
     {
         face A;
@@ -304,10 +308,10 @@ void sph_model::draw_face(face& F, const double *M, int i)
         
         F.divide(A, B, C, D);
         
-        draw_face(A, M, face_child(i, 0));
-        draw_face(B, M, face_child(i, 1));
-        draw_face(C, M, face_child(i, 2));
-        draw_face(D, M, face_child(i, 3));
+        draw_face(A, M, face_child(i, 0), l + 1);
+        draw_face(B, M, face_child(i, 1), l + 1);
+        draw_face(C, M, face_child(i, 2), l + 1);
+        draw_face(D, M, face_child(i, 3), l + 1);
     }
 
     if (status[i] == s_draw)
@@ -450,8 +454,8 @@ static void init_elements(int n, int b)
         {
             if (b & 1) { if (i & 1) N->a -= 1; else N->b -= 1; }
             if (b & 2) { if (i & 1) S->c += 1; else S->d += 1; }
-            if (b & 4) { if (i & 1) E->a -= d; else E->c -= d; }
-            if (b & 8) { if (i & 1) W->b += d; else W->d += d; }
+            if (b & 4) { if (i & 1) E->a += d; else E->c += d; }
+            if (b & 8) { if (i & 1) W->b -= d; else W->d -= d; }
         }
         
         // Upload the indices to the element buffer.

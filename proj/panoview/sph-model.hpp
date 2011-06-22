@@ -56,7 +56,7 @@ private:
     typedef unsigned char byte;
 
     void prep_face(face&, const double *, int, int, int, int);
-    void draw_face(face&, const double *, int);
+    void draw_face(face&, const double *, int, int);
 
     std::vector<byte> status;
 
