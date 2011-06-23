@@ -24,9 +24,11 @@
 //-----------------------------------------------------------------------------
 
 panoview::panoview(const std::string& tag) :
-    app::prog(tag), C(256), L(C, 16, 2, 512)
+//    app::prog(tag), C(256), L(C, 16, 4, 256)
+    app::prog(tag), C(256), L(C, 16, 3, 512)
 {
-    panoL = C.add_file("Taliesin-Garden-13-Cube-L.tif");
+  panoL = C.add_file("Taliesin-Garden-13-Cube-L.tif");
+//    panoL = C.add_file("test4.tif");
 }
 
 panoview::~panoview()

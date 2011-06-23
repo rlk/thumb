@@ -34,26 +34,36 @@ public:
      
 private:
 
-    struct page
-    {        
-        bool operator()(page& a, page& b) { return (a.c < b.c || a.p < b.p); }
-        int c;
-        int p;
+    GLuint new_page(TIFF *);
+    void   rem_page();
+    
+    int up(int, int);
+    int dn(int, int);
+
+    // Cache data structure.
+
+    struct id
+    {
+        id(int f, int i) : f(f), i(i) { }
+        int f;
+        int i;
+        bool operator<(const id& that) const { return (this->f < that.f
+                                                    || this->i < that.i); }
     };
 
-    typedef std::vector<TIFF *>       file_vec;
-    typedef std::map   <page, GLuint> page_map;
-    typedef std::list  <page>         page_list;
+    typedef std::vector<TIFF *>     file_vec;
+    typedef std::map   <id, GLuint> page_map;
+    typedef std::list  <id>         page_list;
 
     file_vec  files;
     page_map  pages;
     page_list used;
-    int       size;
+    const int size;
 
-    GLuint texture;
+    // I/O buffer.
 
-    int up(int, int);
-    int dn(int, int);
+    void  *bufptr;
+    size_t buflen;
 };
 
 //------------------------------------------------------------------------------
