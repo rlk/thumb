@@ -30,7 +30,7 @@ template<typename T> class tree
 {
 public:
 
-    tree();
+    tree() : root(0) { }
    ~tree();
    
     T    search(T);
@@ -38,6 +38,7 @@ public:
     void remove(T);
     
     T    eject();
+    void clear();
     void dump();
     
 private:
@@ -63,10 +64,6 @@ private:
 };
 
 //------------------------------------------------------------------------------
-
-template<typename T> tree<T>::tree() : root(0)
-{
-}
 
 template<typename T> tree<T>::~tree()
 {
@@ -195,6 +192,11 @@ template<typename T> void tree<T>::remove(T p)
 
         delete m;
     }
+}
+
+template<typename T> void tree<T>::clear()
+{
+    while (root) remove(root->p);
 }
 
 //------------------------------------------------------------------------------
