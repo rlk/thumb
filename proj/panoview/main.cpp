@@ -14,6 +14,7 @@
 
 #include <stdexcept>
 #include <cstdio>
+#include <cassert>
 
 #include <app-prog.hpp>
 #include <app-default.hpp>
@@ -22,8 +23,47 @@
 
 //-----------------------------------------------------------------------------
 
+void mix(int *v, int n)
+{
+    for (int i = 0; i < n; ++i)
+    {
+        int a = rand() % n;
+        int b = rand() % n;
+        
+        if (a != b)
+        {
+            int t = v[a];
+            v[a]  = v[b];
+            v[b]  = t;
+        }
+    }
+}
+
 int main(int argc, char *argv[])
 {
+    tree<int> P;
+    int i;
+    int n = 20;
+    
+    int v[n];
+    
+    for (i = 0; i < n; ++i)
+        v[i] = i;
+    
+    mix(v, n);
+    for (i = 0; i < n; ++i)
+    {
+        P.insert(v[i]);
+        P.dump();
+    }
+
+    for (i = 0; i < n; ++i)
+    {
+        printf("[%d]\n", P.eject());
+        P.dump();
+    }
+
+/*
     try
     {
         app::prog *P;
@@ -37,6 +77,7 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "Exception: %s\n", e.what());
     }
+*/
     return 0;
 }
 

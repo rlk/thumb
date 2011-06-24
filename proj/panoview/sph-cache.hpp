@@ -20,6 +20,8 @@
 #include <list>
 #include <map>
 
+#include "splay.hpp"
+
 //------------------------------------------------------------------------------
 
 class sph_cache
