@@ -178,10 +178,6 @@ GLuint sph_task::make_texture()
 
 void sph_task::load_texture(TIFF *T)
 {
-    uint32 w;
-    uint32 h;
-    uint16 b;
-    uint16 c;
     uint32 s = (uint32) TIFFScanlineSize(T);
     
     TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &w);
@@ -243,8 +239,6 @@ int loader(void *data)
 
         if (TIFF *T = TIFFOpen(cache->files[task.f].c_str(), "r"))
         {
-            printf("Load %s %d\n", cache->files[task.f].c_str(), task.i);
-            
             if (up(T, task.i))
             {
                 task.load_texture(T);

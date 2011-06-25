@@ -48,9 +48,9 @@ struct sph_task
 {
     sph_task(int f=-1, int i=-1, void *p=0) : f(f), i(i), p(p) { }
     
-    int f, i;
-    int w, h;
-    int c, b;
+    int    f, i;
+    uint32 w, h;
+    uint16 c, b;
     void  *p;
     
     GLuint make_texture();
