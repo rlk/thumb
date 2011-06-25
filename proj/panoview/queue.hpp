@@ -18,6 +18,11 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#include "tree.hpp"
+#ifndef QUEUE_HPP
+#define QUEUE_HPP
 
 //------------------------------------------------------------------------------
+
+//------------------------------------------------------------------------------
+
+#endif
