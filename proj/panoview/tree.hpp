@@ -29,7 +29,7 @@ template <typename T> class tree
 {
 public:
 
-    tree() : root(0) { }
+    tree() : root(0), count(0) { }
    ~tree();
    
     T    search(T);
@@ -39,6 +39,7 @@ public:
     T    eject();
     void clear();
     void dump();
+    int  size() const { return count; }
     
 private:
 
@@ -53,6 +54,7 @@ private:
     
     node *splay(node *t, T p);
     node *root;
+    int  count;
 
     // LRU ejection handlers.
 
@@ -138,7 +140,7 @@ template <typename T> T tree<T>::search(T p)
         root = splay(root, p);
         return root->p;
     }
-    return 0;
+    return T();
 }
 
 template <typename T> void tree<T>::insert(T p)
@@ -149,6 +151,7 @@ template <typename T> void tree<T>::insert(T p)
     {
         if (node *n = new node)
         {
+            count++;
             n->p = p;
             root = n;
 
@@ -190,6 +193,7 @@ template <typename T> void tree<T>::remove(T p)
             root    = m->r;
 
         delete m;
+        count--;
     }
 }
 
@@ -210,6 +214,8 @@ template <typename T> T tree<T>::eject()
 
     if (node *m = dig(root, d))
     {
+        count--;
+        
         if (m == root)
         {
             T p = m->p;
@@ -219,7 +225,7 @@ template <typename T> T tree<T>::eject()
         }
         else return cut(root, m);
     }
-    return 0;
+    return T();
 }
 
 template <typename T> typename tree<T>::node *tree<T>::dig(node *t, int& d)
@@ -270,7 +276,7 @@ template <typename T> T tree<T>::cut(node *t, node *c)
         else
             return cut(t->r, c);
     }
-    return 0;
+    return T();
 }
 
 //------------------------------------------------------------------------------

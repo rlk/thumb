@@ -35,8 +35,9 @@ public:
     queue(int);
    ~queue();
 
-    void enq(T);
-    T    deq( );
+    void insert(T);
+    T    remove( );
+    int  count ( );
     
 private:
 
@@ -74,7 +75,7 @@ template <typename T> queue<T>::~queue()
 
 //------------------------------------------------------------------------------
 
-template <typename T> void queue<T>::enq(T d)
+template <typename T> void queue<T>::insert(T d)
 {
     SDL_SemWait(free_slots);
     SDL_mutexP(data_mutex);
@@ -86,7 +87,7 @@ template <typename T> void queue<T>::enq(T d)
     SDL_SemPost(full_slots);
 }
 
-template <typename T> T queue<T>::deq()
+template <typename T> T queue<T>::remove()
 {
     T d;
     
@@ -100,6 +101,11 @@ template <typename T> T queue<T>::deq()
     SDL_SemPost(free_slots);
     
     return d;
+}
+
+template <typename T> int queue<T>::count()
+{
+    return SDL_SemValue(full_slots);
 }
 
 //------------------------------------------------------------------------------

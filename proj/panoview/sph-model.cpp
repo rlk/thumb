@@ -206,6 +206,8 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
         
         prep_face(F, M, i, w, h, depth);
     }
+    
+    cache.update();
 }
 
 void sph_model::prep_face(face& F, const double *M, int i, int w, int h, int m)

@@ -13,22 +13,18 @@
 #ifndef SPH_CACHE_HPP
 #define SPH_CACHE_HPP
 
+#include <vector>
+#include <string>
+
 #include <GL/glew.h>
 #include <tiffio.h>
+#include <SDL.h>
+#include <SDL_thread.h>
 
 #include "tree.hpp"
 #include "queue.hpp"
 
 //------------------------------------------------------------------------------
-
-struct sph_task
-{
-    sph_task(int f=-1, int i=-1, void *p=0) : f(f), i(i), p(p) { }
-    
-    int    f;
-    int    i;
-    void  *p;
-};
 
 struct sph_page
 {
@@ -48,6 +44,20 @@ struct sph_page
 
 //------------------------------------------------------------------------------
 
+struct sph_task
+{
+    sph_task(int f=-1, int i=-1, void *p=0) : f(f), i(i), p(p) { }
+    
+    int f, i;
+    int w, h;
+    int c, b;
+    void  *p;
+    
+    GLuint make_texture();
+    void   load_texture(TIFF *);
+};
+
+//------------------------------------------------------------------------------
 
 class sph_cache
 {
@@ -56,26 +66,24 @@ public:
     sph_cache(int);
    ~sph_cache();
 
-    int    add_file(const char *);
+    int    add_file(const std::string&);
     GLuint get_page(int, int);
+    
+    void update();
      
 private:
 
-    GLuint new_page(TIFF *);
-    void   rem_page();
+    std::vector<std::string> files;
     
-    int up(int, int);
-    int dn(int, int);
-
-    // Cache data structure.
-
-    tree<sph_page> pages;
-
-    queue<sph_task> req;
-    queue<sph_task> rep;
+    tree <sph_page> pages;
+    queue<sph_task> needs;
+    queue<sph_task> loads;
     
     const int size;
-
+    
+    SDL_Thread *thread[2];
+    
+    friend int loader(void *);
 };
 
 //------------------------------------------------------------------------------

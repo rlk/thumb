@@ -17,27 +17,77 @@
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) : req(16), rep(16), size(n)
+sph_cache::sph_cache(int n) : needs(n), loads(16), size(n)
 {
+    int loader(void *data);
+
+    thread[0] = SDL_CreateThread(loader, this);
+    thread[1] = SDL_CreateThread(loader, this);
 }
 
 sph_cache::~sph_cache()
 {
+    int s;
+    
+    needs.insert(sph_task());
+    needs.insert(sph_task());
+    
+    SDL_WaitThread(thread[0], &s);
+    SDL_WaitThread(thread[1], &s);
 }
 
 //------------------------------------------------------------------------------
 
-int sph_cache::add_file(const char *name)
+// Append a string to the file list and return its index.
+
+int sph_cache::add_file(const std::string& name)
 {
-//    if (TIFF *T = TIFFOpen(name, "r"))
-//    {
-//        int c = int(files.size());
-//
-//        files.push_back(T);
-//
-//        return c;
-//    }
-    return 0;
+    int f = int(files.size());
+
+    files.push_back(name);
+
+    return f;
+}
+
+// Return the texture object associated with the requested page. Request the
+// image if necessary. Eject the LRU page if needed.
+
+GLuint sph_cache::get_page(int f, int i)
+{
+    sph_page page = pages.search(sph_page(f, i, 0));
+    
+    if (page.f == f && page.i == i)
+        return page.o;
+    else
+    {
+        if (pages.size() == size)
+        {
+            page = pages.eject();
+            glDeleteTextures(1, &page.o);
+        }
+            
+        needs.insert(sph_task(f, i, 0));
+        pages.insert(sph_page(f, i, 0));
+        return 0;
+    }
+}
+
+// Handle any incoming textures on the loads queue.
+
+void sph_cache::update()
+{
+    while (loads.count() > 0)
+    {
+        sph_task task = loads.remove();
+        sph_page page = pages.search(sph_page(task.f, task.i, 0));
+        
+        if (page.f == task.f && page.i == task.i)
+        {
+            pages.remove(page);
+            page.o = task.make_texture();
+            pages.insert(page);
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -99,53 +149,35 @@ static GLenum external_type(uint16 b)
     return 0;
 }
 
-//------------------------------------------------------------------------------
+// Upload the pixel buffer to a newly-generated OpenGL texture object.
 
-// Remove the least recently-used page and release its OpenGL texture object.
-
-void sph_cache::rem_page()
+GLuint sph_task::make_texture()
 {
-//    if (!used.empty())
-//    {
-//        page_map::iterator it = pages.find(used.back());
-//
-//        glDeleteTextures(1, &it->second);
-//
-//        used.pop_back();
-//    }
-}
-
-// Return the texture object associated with the requested page. Load the
-// image if necessary. Eject the LRU page as needed.
-
-GLuint sph_cache::get_page(int f, int i)
-{
-//    page_map::iterator it = pages.find(id(f, i));
-//    
-//    if (it == pages.end())
-//    {
-//        if (up(f, i))
-//        {
-//            if (GLuint o = new_page(files[f]))
-//            {
-//                if (pages.size() >= size)
-//                    rem_page();
-//
-//                pages[id(f, i)] = o;
-//                
-//                return o;
-//            }
-//        }
-//        return 0;
-//    }
-//    else return it->second;
-    return 0;
-}
-
-GLuint sph_cache::new_page(TIFF *T)
-{
-    // Determine the parameters of the incoming image.
+    GLenum in = internal_form(c, b);
+    GLenum ex = external_form(c);
+    GLenum ty = external_type(b);
+        
+    GLuint texture;
     
+    glGenTextures(1, &texture);
+    glBindTexture(GL_TEXTURE_2D, texture);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    
+    glTexImage2D(GL_TEXTURE_2D, 0, in, w, h, 1, ex, ty, p);
+    
+    free(p);
+    
+    return texture;
+}
+
+// Load the current TIFF directory into a newly-allocated pixel buffer.
+
+void sph_task::load_texture(TIFF *T)
+{
     uint32 w;
     uint32 h;
     uint16 b;
@@ -157,60 +189,72 @@ GLuint sph_cache::new_page(TIFF *T)
     TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
     TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
 
-    GLenum in   = internal_form(c, b);
-    GLenum ex   = external_form(c);
-    GLenum type = external_type(b);
-        
-    // Load the pixel data and initialize an OpenGL texture object.
-
-    GLuint texture = 0;
-    uint8 *pixels  = 0;
-    
-    if ((pixels = (uint8 *) malloc(h * s)))
+    if ((p = malloc(h * s)))
     {
         for (uint32 r = 0; r < h; ++r)
-            TIFFReadScanline(T, (uint8 *) pixels + r * s, r, 0);
-            
-        glGenTextures(1, &texture);
-        glBindTexture(GL_TEXTURE_2D, texture);
-    
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-        
-        glTexImage2D(GL_TEXTURE_2D, 0, in, w, h, 1, ex, type, pixels);
+            TIFFReadScanline(T, (uint8 *) p + r * s, r, 0);
     }
-    return texture;
 }
+
+//------------------------------------------------------------------------------
 
 // Seek upward to the root of the page tree and choose the appropriate base
 // image. Navigate to the requested sub-image directory on the way back down.
-#if 0
-int sph_cache::up(int f, int i)
+
+static int up(TIFF *T, int i);
+static int dn(TIFF *T, int i);
+
+static int up(TIFF *T, int i)
 {
     if (i < 6)
-        return TIFFSetDirectory(files[f], i);
+        return TIFFSetDirectory(T, i);
     else
     {
-        if (up(f, face_parent(i)))
-            return dn(f, face_index(i));
+        if (up(T, face_parent(i)))
+            return dn(T, face_index(i));
         else
             return 0;
     }
 }
 
-int sph_cache::dn(int f, int i)
+static int dn(TIFF *T, int i)
 {
     uint32 *v;
     uint16  n;
     
-    if (TIFFGetField(files[f], TIFFTAG_SUBIFD, &n, &v))
+    if (TIFFGetField(T, TIFFTAG_SUBIFD, &n, &v))
     {
         if (n > 0 && v[i] > 0)
-            return TIFFSetSubDirectory(files[f], v[i]);
+            return TIFFSetSubDirectory(T, v[i]);
     }
     return 0;
 }
-#endif
+
+// Load textures. Remove a task from the cache's needed queue, open and read
+// the TIFF image file, and insert the task in the cache's loaded queue. Exit
+// when given a negative file index.
+
+int loader(void *data)
+{
+    sph_cache *cache = (sph_cache *) data;
+    sph_task   task;
+    
+    while ((task = cache->needs.remove()).f >= 0)
+
+        if (TIFF *T = TIFFOpen(cache->files[task.f].c_str(), "r"))
+        {
+            printf("Load %s %d\n", cache->files[task.f].c_str(), task.i);
+            
+            if (up(T, task.i))
+            {
+                task.load_texture(T);
+                cache->loads.insert(task);
+            }
+            TIFFClose(T);
+        }        
+    
+    return 0;
+}
+
 //------------------------------------------------------------------------------
+
