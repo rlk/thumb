@@ -18,11 +18,10 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#ifndef SPLAY_HPP
-#define SPLAY_HPP
+#ifndef TREE_HPP
+#define TREE_HPP
 
 #include <iostream>
-#include <cassert>
 
 //------------------------------------------------------------------------------
 

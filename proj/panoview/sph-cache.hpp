@@ -20,7 +20,7 @@
 #include <list>
 #include <map>
 
-#include "splay.hpp"
+#include "tree.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -44,28 +44,22 @@ private:
 
     // Cache data structure.
 
-    struct id
+    struct page
     {
-        id(int f, int i) : f(f), i(i) { }
-        int f;
-        int i;
-        bool operator<(const id& that) const { return (this->f < that.f
-                                                    || this->i < that.i); }
+        page(int f=-1, int i=-1, GLuint o=0) : f(f), i(i), o(o) { }
+        int f, i;
+        GLuint o;
+        
+        bool operator<(const page& that) const {
+            if (f == that.f)
+                return i < that.i;
+            else
+                return f < that.f;
+        }
     };
 
-    typedef std::vector<TIFF *>     file_vec;
-    typedef std::map   <id, GLuint> page_map;
-    typedef std::list  <id>         page_list;
-
-    file_vec  files;
-    page_map  pages;
-    page_list used;
+    tree<page> pages;
     const int size;
-
-    // I/O buffer.
-
-    void  *bufptr;
-    size_t buflen;
 };
 
 //------------------------------------------------------------------------------

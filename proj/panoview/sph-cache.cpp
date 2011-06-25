@@ -17,28 +17,26 @@
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) : size(n), bufptr(0), buflen(0)
+sph_cache::sph_cache(int n) : size(n)
 {
 }
 
 sph_cache::~sph_cache()
 {
-    for (file_vec::iterator f = files.begin(); f != files.end(); ++f)
-        TIFFClose(*f);
 }
 
 //------------------------------------------------------------------------------
 
 int sph_cache::add_file(const char *name)
 {
-    if (TIFF *T = TIFFOpen(name, "r"))
-    {
-        int c = int(files.size());
-
-        files.push_back(T);
-
-        return c;
-    }
+//    if (TIFF *T = TIFFOpen(name, "r"))
+//    {
+//        int c = int(files.size());
+//
+//        files.push_back(T);
+//
+//        return c;
+//    }
     return 0;
 }
 
@@ -107,14 +105,14 @@ static GLenum external_type(uint16 b)
 
 void sph_cache::rem_page()
 {
-    if (!used.empty())
-    {
-        page_map::iterator it = pages.find(used.back());
-
-        glDeleteTextures(1, &it->second);
-
-        used.pop_back();
-    }
+//    if (!used.empty())
+//    {
+//        page_map::iterator it = pages.find(used.back());
+//
+//        glDeleteTextures(1, &it->second);
+//
+//        used.pop_back();
+//    }
 }
 
 // Return the texture object associated with the requested page. Load the
@@ -122,25 +120,25 @@ void sph_cache::rem_page()
 
 GLuint sph_cache::get_page(int f, int i)
 {
-    page_map::iterator it = pages.find(id(f, i));
-    
-    if (it == pages.end())
-    {
-        if (up(f, i))
-        {
-            if (GLuint o = new_page(files[f]))
-            {
-                if (pages.size() >= size)
-                    rem_page();
-
-                pages[id(f, i)] = o;
-                
-                return o;
-            }
-        }
-        return 0;
-    }
-    else return it->second;
+//    page_map::iterator it = pages.find(id(f, i));
+//    
+//    if (it == pages.end())
+//    {
+//        if (up(f, i))
+//        {
+//            if (GLuint o = new_page(files[f]))
+//            {
+//                if (pages.size() >= size)
+//                    rem_page();
+//
+//                pages[id(f, i)] = o;
+//                
+//                return o;
+//            }
+//        }
+//        return 0;
+//    }
+//    else return it->second;
 }
 
 GLuint sph_cache::new_page(TIFF *T)
@@ -162,24 +160,15 @@ GLuint sph_cache::new_page(TIFF *T)
     GLenum ex   = external_form(c);
     GLenum type = external_type(b);
         
-    // Make sure the I/O buffer is large enough to accommodate the image.
-    
-    if (buflen < h * s)
-    {
-        free(bufptr);
-
-        if ((bufptr = malloc(h * s)))
-             buflen = h * s;
-    }
-
     // Load the pixel data and initialize an OpenGL texture object.
 
     GLuint texture = 0;
+    uint8 *pixels  = 0;
     
-    if (bufptr)
+    if ((pixels = (uint8 *) malloc(h * s)))
     {
         for (uint32 r = 0; r < h; ++r)
-            TIFFReadScanline(T, (uint8 *) bufptr + r * s, r, 0);
+            TIFFReadScanline(T, (uint8 *) pixels + r * s, r, 0);
             
         glGenTextures(1, &texture);
         glBindTexture(GL_TEXTURE_2D, texture);
@@ -189,14 +178,14 @@ GLuint sph_cache::new_page(TIFF *T)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
         
-        glTexImage2D(GL_TEXTURE_2D, 0, in, w, h, 1, ex, type, bufptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, in, w, h, 1, ex, type, pixels);
     }
     return texture;
 }
 
 // Seek upward to the root of the page tree and choose the appropriate base
 // image. Navigate to the requested sub-image directory on the way back down.
-
+#if 0
 int sph_cache::up(int f, int i)
 {
     if (i < 6)
@@ -222,5 +211,5 @@ int sph_cache::dn(int f, int i)
     }
     return 0;
 }
-
+#endif
 //------------------------------------------------------------------------------

@@ -23,35 +23,20 @@
 
 //-----------------------------------------------------------------------------
 
-struct trio
-{
-    trio(int i=0, int j=0, int k=0) : i(i), j(j), k(k) { }
-    int i;
-    int j;
-    int k;
-    
-    bool operator<(const trio& that) const {
-        if (i == that.i)
-            return j < that.j;
-        else
-            return i < that.i;
-    }
-};
-
 int main(int argc, char *argv[])
 {
-    tree<trio> P;
+//    tree<trio> P;
+//
+//    P.insert(trio(0, 1, 9));
+//    P.insert(trio(0, 2, 8));
+//    P.insert(trio(1, 1, 99));
+//    P.insert(trio(1, 2, 88));
+//
+//    printf("%d\n", P.search(trio(0, 2)).k);
+//
+//    printf("%d\n", P.eject().k);
+//    printf("%d\n", P.eject().k);
 
-    P.insert(trio(0, 1, 9));
-    P.insert(trio(0, 2, 8));
-    P.insert(trio(1, 1, 99));
-    P.insert(trio(1, 2, 88));
-
-    printf("%d\n", P.search(trio(0, 2)).k);
-    
-    printf("%d\n", P.eject().k);
-    printf("%d\n", P.eject().k);
-/*
     try
     {
         app::prog *P;
@@ -65,7 +50,6 @@ int main(int argc, char *argv[])
     {
         fprintf(stderr, "Exception: %s\n", e.what());
     }
-*/
     return 0;
 }
 
