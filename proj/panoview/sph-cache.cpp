@@ -17,7 +17,7 @@
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) : size(n)
+sph_cache::sph_cache(int n) : req(16), rep(16), size(n)
 {
 }
 
@@ -139,6 +139,7 @@ GLuint sph_cache::get_page(int f, int i)
 //        return 0;
 //    }
 //    else return it->second;
+    return 0;
 }
 
 GLuint sph_cache::new_page(TIFF *T)

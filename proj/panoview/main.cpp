@@ -14,6 +14,7 @@
 
 #include <stdexcept>
 #include <cstdio>
+#include <cstdlib>
 #include <cassert>
 
 #include <app-prog.hpp>
@@ -21,10 +22,38 @@
 
 #include "panoview.hpp"
 
+#include "queue.hpp"
+
 //-----------------------------------------------------------------------------
+
+//int consume(void *data)
+//{
+//    queue<int> *P = (queue<int> *) data;
+//    int d = 0;
+//    
+//    while (d >= 0)
+//    {
+//        d = P->deq();
+//        printf("consume %d\n", d);
+//        sleep(1);
+//    }
+//    return 0;
+//}
 
 int main(int argc, char *argv[])
 {
+//    queue<int> Q(4);
+//    
+//    SDL_Thread *T = SDL_CreateThread(consume, &Q);
+//    
+//    for (int i = 0; i < 10; ++i)
+//        Q.enq(i);
+//
+//    Q.enq(-1);
+//    
+//    int r;
+//    SDL_WaitThread(T, &r);
+    
 //    tree<trio> P;
 //
 //    P.insert(trio(0, 1, 9));

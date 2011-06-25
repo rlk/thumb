@@ -50,7 +50,7 @@
       displayScale = "1.00"
       launchStyle = "0"
       useCustomWorkingDirectory = "YES"
-      customWorkingDirectory = "/Users/rlk/Projects/thumb"
+      customWorkingDirectory = "/Users/rlk/Projects/thumb/proj/panoview"
       buildConfiguration = "Debug">
       <BuildableProductRunnable>
          <BuildableReference
@@ -61,6 +61,13 @@
             ReferencedContainer = "container:panoview.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
+      <EnvironmentVariables>
+         <EnvironmentVariable
+            key = "THUMB_RO_PATH"
+            value = "/Users/rlk/Projects/thumb/data"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+      </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>
    </LaunchAction>

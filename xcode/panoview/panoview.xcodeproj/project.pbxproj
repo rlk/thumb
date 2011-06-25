@@ -12,6 +12,10 @@
 		582D8D0813AFAC730005A831 /* cube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0613AFAC730005A831 /* cube.cpp */; };
 		582D8D1213AFECB00005A831 /* glyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D1013AFECB00005A831 /* glyph.c */; };
 		58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
+		5865801913B60E7900FBBF90 /* sph-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5865801313B60E7900FBBF90 /* sph-cache.cpp */; };
+		5865801A13B60E7900FBBF90 /* sph-render.frag in Sources */ = {isa = PBXBuildFile; fileRef = 5865801513B60E7900FBBF90 /* sph-render.frag */; };
+		5865801B13B60E7900FBBF90 /* sph-render.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5865801613B60E7900FBBF90 /* sph-render.vert */; };
+		5865801F13B60EBE00FBBF90 /* libtiff.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */; };
 		58E2109A13AE6EC2004580E9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109413AE6EC2004580E9 /* main.cpp */; };
 		58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109613AE6EC2004580E9 /* panoview.cpp */; };
 		58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109813AE6EC2004580E9 /* sph-model.cpp */; };
@@ -44,6 +48,13 @@
 		582D8D1013AFECB00005A831 /* glyph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glyph.c; path = ../../../proj/panoview/glyph.c; sourceTree = "<group>"; };
 		582D8D1113AFECB00005A831 /* glyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glyph.h; path = ../../../proj/panoview/glyph.h; sourceTree = "<group>"; };
 		58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
+		5865801313B60E7900FBBF90 /* sph-cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "sph-cache.cpp"; path = "../../../proj/panoview/sph-cache.cpp"; sourceTree = "<group>"; };
+		5865801413B60E7900FBBF90 /* sph-cache.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-cache.hpp"; path = "../../../proj/panoview/sph-cache.hpp"; sourceTree = "<group>"; };
+		5865801513B60E7900FBBF90 /* sph-render.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.frag"; path = "../../../proj/panoview/sph-render.frag"; sourceTree = "<group>"; };
+		5865801613B60E7900FBBF90 /* sph-render.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.vert"; path = "../../../proj/panoview/sph-render.vert"; sourceTree = "<group>"; };
+		5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.3.dylib; path = /opt/local/lib/libtiff.3.dylib; sourceTree = "<absolute>"; };
+		5865802A13B626B100FBBF90 /* tree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = tree.hpp; path = ../../../proj/panoview/tree.hpp; sourceTree = "<group>"; };
+		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
 		58E2108813AE6EAF004580E9 /* panoview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = panoview; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E2109413AE6EC2004580E9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../proj/panoview/main.cpp; sourceTree = "<group>"; };
 		58E2109513AE6EC2004580E9 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../../proj/panoview/main.hpp; sourceTree = "<group>"; };
@@ -64,6 +75,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5865801F13B60EBE00FBBF90 /* libtiff.3.dylib in Frameworks */,
 				58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */,
 				58E2109E13AE6F40004580E9 /* thumb.dylib in Frameworks */,
 				58E210A713AE7380004580E9 /* libSDLmain.a in Frameworks */,
@@ -96,8 +108,14 @@
 		58E2108B13AE6EAF004580E9 /* panoview */ = {
 			isa = PBXGroup;
 			children = (
+				5865801513B60E7900FBBF90 /* sph-render.frag */,
+				5865801613B60E7900FBBF90 /* sph-render.vert */,
+				5865802C13B628F100FBBF90 /* queue.hpp */,
+				5865802A13B626B100FBBF90 /* tree.hpp */,
 				582D8D1013AFECB00005A831 /* glyph.c */,
 				582D8D1113AFECB00005A831 /* glyph.h */,
+				5865801313B60E7900FBBF90 /* sph-cache.cpp */,
+				5865801413B60E7900FBBF90 /* sph-cache.hpp */,
 				58E2109813AE6EC2004580E9 /* sph-model.cpp */,
 				58E2109913AE6EC2004580E9 /* sph-model.hpp */,
 				58E2109613AE6EC2004580E9 /* panoview.cpp */,
@@ -117,6 +135,7 @@
 		58E210A513AE730A004580E9 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
+				5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */,
 				58E2109D13AE6F40004580E9 /* thumb.dylib */,
 				58E210A613AE7380004580E9 /* libSDLmain.a */,
 				58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */,
@@ -185,6 +204,9 @@
 				582D8D0413AFA2C50005A831 /* math3d.c in Sources */,
 				582D8D0813AFAC730005A831 /* cube.cpp in Sources */,
 				582D8D1213AFECB00005A831 /* glyph.c in Sources */,
+				5865801913B60E7900FBBF90 /* sph-cache.cpp in Sources */,
+				5865801A13B60E7900FBBF90 /* sph-render.frag in Sources */,
+				5865801B13B60E7900FBBF90 /* sph-render.vert in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

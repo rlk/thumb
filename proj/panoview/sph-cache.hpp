@@ -16,13 +16,38 @@
 #include <GL/glew.h>
 #include <tiffio.h>
 
-#include <vector>
-#include <list>
-#include <map>
-
 #include "tree.hpp"
+#include "queue.hpp"
 
 //------------------------------------------------------------------------------
+
+struct sph_task
+{
+    sph_task(int f=-1, int i=-1, void *p=0) : f(f), i(i), p(p) { }
+    
+    int    f;
+    int    i;
+    void  *p;
+};
+
+struct sph_page
+{
+    sph_page(int f=-1, int i=-1, GLuint o=0) : f(f), i(i), o(o) { }
+
+    int    f;
+    int    i;
+    GLuint o;
+    
+    bool operator<(const sph_page& that) const {
+        if (f == that.f)
+            return i < that.i;
+        else
+            return f < that.f;
+    }
+};
+
+//------------------------------------------------------------------------------
+
 
 class sph_cache
 {
@@ -44,22 +69,13 @@ private:
 
     // Cache data structure.
 
-    struct page
-    {
-        page(int f=-1, int i=-1, GLuint o=0) : f(f), i(i), o(o) { }
-        int f, i;
-        GLuint o;
-        
-        bool operator<(const page& that) const {
-            if (f == that.f)
-                return i < that.i;
-            else
-                return f < that.f;
-        }
-    };
+    tree<sph_page> pages;
 
-    tree<page> pages;
+    queue<sph_task> req;
+    queue<sph_task> rep;
+    
     const int size;
+
 };
 
 //------------------------------------------------------------------------------

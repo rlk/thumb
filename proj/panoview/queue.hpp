@@ -21,8 +21,98 @@
 #ifndef QUEUE_HPP
 #define QUEUE_HPP
 
-//------------------------------------------------------------------------------
+#include <SDL.h>
+#include <SDL_thread.h>
+
+#include <iostream>
 
 //------------------------------------------------------------------------------
+
+template <typename T> class queue
+{
+public:
+
+    queue(int);
+   ~queue();
+
+    void enq(T);
+    T    deq( );
+    
+private:
+
+    SDL_sem   *full_slots;
+    SDL_sem   *free_slots;
+    SDL_mutex *data_mutex;
+    
+    int first;
+    int last;
+    int size;
+    T  *data;
+    
+    void dump();
+};
+
+//------------------------------------------------------------------------------
+
+template <typename T> queue<T>::queue(int n) : first(0), last(0), size(n)
+{
+    full_slots = SDL_CreateSemaphore(0);
+    free_slots = SDL_CreateSemaphore(n);
+    data_mutex = SDL_CreateMutex();
+
+    data = new T[n];
+}
+
+template <typename T> queue<T>::~queue()
+{
+    delete [] data;
+    
+    SDL_DestroyMutex(data_mutex);
+    SDL_DestroySemaphore(free_slots);
+    SDL_DestroySemaphore(full_slots);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename T> void queue<T>::enq(T d)
+{
+    SDL_SemWait(free_slots);
+    SDL_mutexP(data_mutex);
+    {
+        data[last] = d;
+        last = (last + 1) % size;
+    }
+    SDL_mutexV(data_mutex);
+    SDL_SemPost(full_slots);
+}
+
+template <typename T> T queue<T>::deq()
+{
+    T d;
+    
+    SDL_SemWait(full_slots);
+    SDL_mutexP(data_mutex);
+    {
+        d = data[first];
+        first = (first + 1) % size;
+    }
+    SDL_mutexV(data_mutex);
+    SDL_SemPost(free_slots);
+    
+    return d;
+}
+
+//------------------------------------------------------------------------------
+
+template <typename T> void queue<T>::dump()
+{
+    for (int i = 0; i < size; ++i)
+    {
+        std::cout << (i == first ? 'F' : '.');
+        std::cout << (i == last  ? 'L' : '.');
+        std::cout << data[i] << std::endl;
+    }
+    std::cout << std::endl;
+}
 
 #endif

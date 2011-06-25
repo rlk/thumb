@@ -25,7 +25,7 @@
 
 //------------------------------------------------------------------------------
 
-template<typename T> class tree
+template <typename T> class tree
 {
 public:
 
@@ -64,11 +64,11 @@ private:
 
 //------------------------------------------------------------------------------
 
-template<typename T> tree<T>::~tree()
+template <typename T> tree<T>::~tree()
 {
 }
 
-template<typename T> typename tree<T>::node *tree<T>::splay(node *t, T p)
+template <typename T> typename tree<T>::node *tree<T>::splay(node *t, T p)
 {
     if (t)
     {
@@ -131,7 +131,7 @@ template<typename T> typename tree<T>::node *tree<T>::splay(node *t, T p)
 // search, insert, and remove. Each of these splays the requested node to the
 // root, thus optimizing access to related items.
 
-template<typename T> T tree<T>::search(T p)
+template <typename T> T tree<T>::search(T p)
 {
     if (root)
     {
@@ -141,7 +141,7 @@ template<typename T> T tree<T>::search(T p)
     return 0;
 }
 
-template<typename T> void tree<T>::insert(T p)
+template <typename T> void tree<T>::insert(T p)
 {
     node *m = root = splay(root, p);
 
@@ -173,7 +173,7 @@ template<typename T> void tree<T>::insert(T p)
     }
 }
 
-template<typename T> void tree<T>::remove(T p)
+template <typename T> void tree<T>::remove(T p)
 {
     node *m = root = splay(root, p);
 
@@ -193,7 +193,7 @@ template<typename T> void tree<T>::remove(T p)
     }
 }
 
-template<typename T> void tree<T>::clear()
+template <typename T> void tree<T>::clear()
 {
     while (root) remove(root->p);
 }
@@ -204,7 +204,7 @@ template<typename T> void tree<T>::clear()
 // function removes it. Both of these actions are performed without splaying the
 // tree, as to do so would optimize it toward items related to the LRU. 
 
-template<typename T> T tree<T>::eject()
+template <typename T> T tree<T>::eject()
 {
     int d = 0;
 
@@ -222,7 +222,7 @@ template<typename T> T tree<T>::eject()
     return 0;
 }
 
-template<typename T> typename tree<T>::node *tree<T>::dig(node *t, int& d)
+template <typename T> typename tree<T>::node *tree<T>::dig(node *t, int& d)
 {
     if (t)
     {
@@ -246,7 +246,7 @@ template<typename T> typename tree<T>::node *tree<T>::dig(node *t, int& d)
     return 0;
 }
 
-template<typename T> T tree<T>::cut(node *t, node *c)
+template <typename T> T tree<T>::cut(node *t, node *c)
 {
     if (t && c)
     {
@@ -275,7 +275,7 @@ template<typename T> T tree<T>::cut(node *t, node *c)
 
 //------------------------------------------------------------------------------
 
-template<typename T> void tree<T>::dump(node *t, int d)
+template <typename T> void tree<T>::dump(node *t, int d)
 {
     if (t)
     {
@@ -289,7 +289,7 @@ template<typename T> void tree<T>::dump(node *t, int d)
     }
 }
 
-template<typename T> void tree<T>::dump()
+template <typename T> void tree<T>::dump()
 {
     dump(root, 0);
 }
