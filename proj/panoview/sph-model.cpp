@@ -75,51 +75,46 @@ static inline double max(double a, double b, double c, double d)
 
 //------------------------------------------------------------------------------
 
+void sph_model::vert::set(const double *w, double x, double y)
+{
+    vnormalize(v, w);
+    t[0] = x;
+    t[1] = y;
+}
+
+void sph_model::vert::mid(const vert& a, const vert& b)
+{
+    v[0] =  a.v[0] + b.v[0];
+    v[1] =  a.v[1] + b.v[1];
+    v[2] =  a.v[2] + b.v[2];
+    t[0] = (a.t[0] + b.t[0]) * 0.5;
+    t[1] = (a.t[1] + b.t[1]) * 0.5;
+    
+    vnormalize(v, v);
+}
+
 void sph_model::face::divide(face& A, face& B, face &C, face &D)
 {
-    double n[3];
-    double s[3];
-    double e[3];
-    double w[3];
-    double m[3];
+    vert n;
+    vert s;
+    vert e;
+    vert w;
+    vert m;
 
     // Find the midpoints of the sides of this face.
 
-    vadd(n, a, b);
-    vadd(s, c, d);
-    vadd(e, a, c);
-    vadd(w, b, d);
-    vadd(m, n, s);
-
-    // Normalize these giving points on the unit sphere.
-
-    vnormalize(n, n);
-    vnormalize(s, s);
-    vnormalize(e, e);
-    vnormalize(w, w);
-    vnormalize(m, m);
+    n.mid(a, b);
+    s.mid(c, d);
+    e.mid(a, c);
+    w.mid(b, d);
+    m.mid(n, s);
 
     // Assign the corners of the four sub-faces.
     
-    vcpy(A.a, a);
-    vcpy(A.b, n);
-    vcpy(A.c, e);
-    vcpy(A.d, m);
-    
-    vcpy(B.a, n);
-    vcpy(B.b, b);
-    vcpy(B.c, m);
-    vcpy(B.d, w);
-    
-    vcpy(C.a, e);
-    vcpy(C.b, m);
-    vcpy(C.c, c);
-    vcpy(C.d, s);
-    
-    vcpy(D.a, m);
-    vcpy(D.b, w);
-    vcpy(D.c, s);
-    vcpy(D.d, d);
+    A.a = a; A.b = n; A.c = e; A.d = m;
+    B.a = n; B.b = b; B.c = m; B.d = w;
+    C.a = e; C.b = m; C.c = c; C.d = s;
+    D.a = m; D.b = w; D.c = s; D.d = d;
 }
 
 double sph_model::face::measure(const double *M, int w, int h)
@@ -128,11 +123,11 @@ double sph_model::face::measure(const double *M, int w, int h)
 
     double t[3];
     
-    t[0] = a[0] + b[0] + c[0] + d[0];
-    t[1] = a[1] + b[1] + c[1] + d[1];
-    t[2] = a[2] + b[2] + c[2] + d[2];
+    t[0] = a.v[0] + b.v[0] + c.v[0] + d.v[0];
+    t[1] = a.v[1] + b.v[1] + c.v[1] + d.v[1];
+    t[2] = a.v[2] + b.v[2] + c.v[2] + d.v[2];
     
-    double r = vlen(t) / vdot(a, t);
+    double r = vlen(t) / vdot(a.v, t);
 
     // Compute the outer corners of the bulge bound.
     
@@ -141,10 +136,10 @@ double sph_model::face::measure(const double *M, int w, int h)
     double C[3];
     double D[3];
 
-    vmul(A, a, r);
-    vmul(B, b, r);
-    vmul(C, c, r);
-    vmul(D, d, r);
+    vmul(A, a.v, r);
+    vmul(B, b.v, r);
+    vmul(C, c.v, r);
+    vmul(D, d.v, r);
     
     // Compute normalized device coordinates for all eight corners.
     
@@ -153,14 +148,14 @@ double sph_model::face::measure(const double *M, int w, int h)
     double nc[3], nC[3];
     double nd[3], nD[3];
     
-    if (!project(na, M, a)) return 0;
-    if (!project(nb, M, b)) return 0;
-    if (!project(nc, M, c)) return 0;
-    if (!project(nd, M, d)) return 0;
-    if (!project(nA, M, A)) return 0;
-    if (!project(nB, M, B)) return 0;
-    if (!project(nC, M, C)) return 0;
-    if (!project(nD, M, D)) return 0;
+    if (!project(na, M, a.v)) return 0;
+    if (!project(nb, M, b.v)) return 0;
+    if (!project(nc, M, c.v)) return 0;
+    if (!project(nd, M, d.v)) return 0;
+    if (!project(nA, M, A))   return 0;
+    if (!project(nB, M, B))   return 0;
+    if (!project(nC, M, C))   return 0;
+    if (!project(nD, M, D))   return 0;
 
     // Check that any part of the boundary is visible.
 
@@ -195,15 +190,17 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
     
     mmultiply(M, P, V);
     
+//    memset(&status.front(), 0, cube_size(depth));
+    
     for (int i = 0; i < 6; ++i)
     {
         face F;
         
-        vnormalize(F.a, cube_v[cube_i[i][0]]);
-        vnormalize(F.b, cube_v[cube_i[i][1]]);
-        vnormalize(F.c, cube_v[cube_i[i][2]]);
-        vnormalize(F.d, cube_v[cube_i[i][3]]);
-        
+        F.a.set(cube_v[cube_i[i][0]], 0, 0);
+        F.b.set(cube_v[cube_i[i][1]], 1, 0);
+        F.c.set(cube_v[cube_i[i][2]], 0, 1);
+        F.d.set(cube_v[cube_i[i][3]], 1, 1);
+
         prep_face(F, M, i, w, h, depth);
     }
     
@@ -264,29 +261,39 @@ void sph_model::draw(const double *P, const double *V, int f)
     glDisable(GL_TEXTURE_2D);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    
-    glFrontFace(GL_CW);
 
+    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
     
+    glBindBuffer(GL_ARRAY_BUFFER, vertices);
+
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, 0);
+
     glUseProgram(program);
     {
-        glBindBuffer(GL_ARRAY_BUFFER, vertices);
-
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glVertexPointer(2, GL_FLOAT, 0, 0);
-
+//        GLfloat fill[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+//        GLfloat line[4] = { 0.0f, 0.0f, 0.0f, 0.4f };
+        
         for (int i = 0; i < 6; ++i)
         {
             face F;
             
-            vnormalize(F.a, cube_v[cube_i[i][0]]);
-            vnormalize(F.b, cube_v[cube_i[i][1]]);
-            vnormalize(F.c, cube_v[cube_i[i][2]]);
-            vnormalize(F.d, cube_v[cube_i[i][3]]);
-            
+            F.a.set(cube_v[cube_i[i][0]], 0, 0);
+            F.b.set(cube_v[cube_i[i][1]], 1, 0);
+            F.c.set(cube_v[cube_i[i][2]], 0, 1);
+            F.d.set(cube_v[cube_i[i][3]], 1, 1);
+
             draw_face(F, M, i, 0, f);
+
+//            glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, fill);
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+//            draw_face(F, M, i, 0, f);
+//
+//            glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, line);
+//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//            draw_face(F, M, i, 0, f);
         }
     }
     glUseProgram(0);
@@ -294,6 +301,17 @@ void sph_model::draw(const double *P, const double *V, int f)
 
 void sph_model::draw_face(face& F, const double *M, int i, int l, int f)
 {
+    if (status[i] != s_halt)
+    {
+        glUniform2f(tex_a[l], F.a.t[0], F.a.t[1]);
+        glUniform2f(tex_b[l], F.b.t[0], F.b.t[1]);
+        glUniform2f(tex_c[l], F.c.t[0], F.c.t[1]);
+        glUniform2f(tex_d[l], F.d.t[0], F.d.t[1]);
+
+        glActiveTexture(GL_TEXTURE0 + l);
+        glBindTexture(GL_TEXTURE_2D, cache.get_page(f, i));
+    }
+
     if (status[i] == s_pass)
     {
         face A;
@@ -312,33 +330,41 @@ void sph_model::draw_face(face& F, const double *M, int i, int l, int f)
     if (status[i] == s_draw)
     {
         int b = 0;
-        int u;
-        int d;
-        int r;
-        int l;
+        int n;
+        int s;
+        int e;
+        int w;
         
-        face_neighbors(i, u, d, r, l);
+        face_neighbors(i, n, s, e, w);
         
         if (i > 5)
-            b = (status[face_parent(u)] == s_draw ? 1 : 0)
-              | (status[face_parent(d)] == s_draw ? 2 : 0)
-              | (status[face_parent(r)] == s_draw ? 4 : 0)
-              | (status[face_parent(l)] == s_draw ? 8 : 0);
-        
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[b]);
-        glBindTexture(GL_TEXTURE_2D, cache.get_page(f, i));
+            b = (status[face_parent(n)] == s_draw ? 1 : 0)
+              | (status[face_parent(s)] == s_draw ? 2 : 0)
+              | (status[face_parent(e)] == s_draw ? 4 : 0)
+              | (status[face_parent(w)] == s_draw ? 8 : 0);
 
-        glUniform3f(corner_a, F.a[0], F.a[1], F.a[2]);
-        glUniform3f(corner_b, F.b[0], F.b[1], F.b[2]);
-        glUniform3f(corner_c, F.c[0], F.c[1], F.c[2]);
-        glUniform3f(corner_d, F.d[0], F.d[1], F.d[2]);
-        glUniform1f(level, GLfloat(l));
+        glUniform1i(level, l);
         
+        glUniform3f(pos_a, F.a.v[0], F.a.v[1], F.a.v[2]);
+        glUniform3f(pos_b, F.b.v[0], F.b.v[1], F.b.v[2]);
+        glUniform3f(pos_c, F.c.v[0], F.c.v[1], F.c.v[2]);
+        glUniform3f(pos_d, F.d.v[0], F.d.v[1], F.d.v[2]);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[b]);
         glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
     }
 }
 
 //------------------------------------------------------------------------------
+
+static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
+{
+    char str[256];
+    
+    sprintf(str, fmt, d);
+    
+    return glGetUniformLocation(program, str);
+}
 
 void sph_model::init_program()
 {    
@@ -353,14 +379,23 @@ void sph_model::init_program()
         
         glUseProgram(program);      
         
-        corner_a = glGetUniformLocation(program, "corner_a");
-        corner_b = glGetUniformLocation(program, "corner_b");
-        corner_c = glGetUniformLocation(program, "corner_c");
-        corner_d = glGetUniformLocation(program, "corner_d");
-        level    = glGetUniformLocation(program, "level");
-        
-        glUniform1i(glGetUniformLocation(program, "texture"), 0);
+        pos_a = glGetUniformLocation(program, "pos_a");
+        pos_b = glGetUniformLocation(program, "pos_b");
+        pos_c = glGetUniformLocation(program, "pos_c");
+        pos_d = glGetUniformLocation(program, "pos_d");
+        level = glGetUniformLocation(program, "level");
+
         glUniform1f(glGetUniformLocation(program, "size"), size);
+        
+        for (int l = 0; l < 8; ++l)
+        {
+            tex_a[l] = glGetUniformLocationv(program, "tex_a[%d]", l);
+            tex_b[l] = glGetUniformLocationv(program, "tex_b[%d]", l);
+            tex_c[l] = glGetUniformLocationv(program, "tex_c[%d]", l);
+            tex_d[l] = glGetUniformLocationv(program, "tex_d[%d]", l);
+
+            glUniform1i(glGetUniformLocationv(program, "texture[%d]", l), l);
+        }
     }
         
     free(frag_source);

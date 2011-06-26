@@ -194,11 +194,11 @@ void sph_task::load_texture(TIFF *T)
 
 //------------------------------------------------------------------------------
 
-// Seek upward to the root of the page tree and choose the appropriate base
-// image. Navigate to the requested sub-image directory on the way back down.
-
 static int up(TIFF *T, int i);
 static int dn(TIFF *T, int i);
+
+// Seek upward to the root of the page tree and choose the appropriate base
+// image. Navigate to the requested sub-image directory on the way back down.
 
 static int up(TIFF *T, int i)
 {

@@ -30,8 +30,7 @@ struct sph_page
 {
     sph_page(int f=-1, int i=-1, GLuint o=0) : f(f), i(i), o(o) { }
 
-    int    f;
-    int    i;
+    int f, i;
     GLuint o;
     
     bool operator<(const sph_page& that) const {

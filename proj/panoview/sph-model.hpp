@@ -39,12 +39,21 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
+    struct vert
+    {
+        double v[3];
+        double t[2];
+        
+        void set(const double *, double, double);
+        void mid(const vert&, const vert&);
+    };
+
     struct face
     {
-        double a[3];
-        double b[3];
-        double c[3];
-        double d[3];
+        vert a;
+        vert b;
+        vert c;
+        vert d;
         
         void   divide(face&, face&, face&, face&);
         double measure(const double *, int, int);
@@ -73,10 +82,14 @@ private:
     GLuint vert_shader;
     GLuint frag_shader;
     
-    GLuint corner_a;
-    GLuint corner_b;
-    GLuint corner_c;
-    GLuint corner_d;
+    GLuint pos_a;
+    GLuint pos_b;
+    GLuint pos_c;
+    GLuint pos_d;
+    GLuint tex_a[8];
+    GLuint tex_b[8];
+    GLuint tex_c[8];
+    GLuint tex_d[8];
     GLuint level;
     
     // OpenGL geometry state.
