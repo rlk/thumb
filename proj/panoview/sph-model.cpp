@@ -290,7 +290,7 @@ void sph_model::draw(const double *P, const double *V, int f)
             F.c.set(cube_v[cube_i[i][2]], 0, 1);
             F.d.set(cube_v[cube_i[i][3]], 1, 1);
 
-#if 0
+#if 1
             draw_face(F, M, i, 0, f);
 #else
             GLfloat fill[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
@@ -311,6 +311,14 @@ void sph_model::draw(const double *P, const double *V, int f)
 
 void sph_model::draw_face(face& F, const double *M, int i, int l, int f)
 {
+    if (i < 6)
+    {
+        glUniform3f(pos_a, F.a.v[0], F.a.v[1], F.a.v[2]);
+        glUniform3f(pos_b, F.b.v[0], F.b.v[1], F.b.v[2]);
+        glUniform3f(pos_c, F.c.v[0], F.c.v[1], F.c.v[2]);
+        glUniform3f(pos_d, F.d.v[0], F.d.v[1], F.d.v[2]);
+    }
+    
     if (status[i] != s_halt)
     {
         // Only A and D are needed here.
@@ -357,10 +365,10 @@ void sph_model::draw_face(face& F, const double *M, int i, int l, int f)
 
         glUniform1i(level, l);
         
-        glUniform3f(pos_a, F.a.v[0], F.a.v[1], F.a.v[2]);
-        glUniform3f(pos_b, F.b.v[0], F.b.v[1], F.b.v[2]);
-        glUniform3f(pos_c, F.c.v[0], F.c.v[1], F.c.v[2]);
-        glUniform3f(pos_d, F.d.v[0], F.d.v[1], F.d.v[2]);
+//        glUniform3f(pos_a, F.a.v[0], F.a.v[1], F.a.v[2]);
+//        glUniform3f(pos_b, F.b.v[0], F.b.v[1], F.b.v[2]);
+//        glUniform3f(pos_c, F.c.v[0], F.c.v[1], F.c.v[2]);
+//        glUniform3f(pos_d, F.d.v[0], F.d.v[1], F.d.v[2]);
         
 //        glBegin(GL_TRIANGLES);
 //        glVertex2i(0, 0);

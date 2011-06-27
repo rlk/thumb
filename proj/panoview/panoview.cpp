@@ -23,17 +23,17 @@
 
 //-----------------------------------------------------------------------------
 
-//panoview::panoview(const std::string& tag) :
-//    app::prog(tag), C(512), L(C, 16, 4, 256)
-//{
-//    panoL = C.add_file("/Users/rlk/data/pan/test4.tif");
-//}
-
 panoview::panoview(const std::string& tag) :
-    app::prog(tag), C(256), L(C, 16, 3, 512)
+    app::prog(tag), C(512), L(C, 16, 4, 256)
 {
-    panoL = C.add_file("/Users/rlk/data/pan/Taliesin-Garden-13-L-Cube.tif");
+    panoL = C.add_file("/Users/rlk/data/pan/test4.tif");
 }
+
+//panoview::panoview(const std::string& tag) :
+//    app::prog(tag), C(256), L(C, 16, 3, 512)
+//{
+//    panoL = C.add_file("/Users/rlk/data/pan/Taliesin-Garden-13-L-Cube.tif");
+//}
 
 panoview::~panoview()
 {
