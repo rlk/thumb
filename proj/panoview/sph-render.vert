@@ -46,11 +46,12 @@ void main()
 
     // Compute the root texture coordinate from that of the current level.
 
+    gl_TexCoord[0].xy = mix4(tex_a[level], tex_b[level],
+                             tex_c[level], tex_d[level], k);
+/*
     vec2 t = mix4(tex_a[level], tex_b[level],
                   tex_c[level], tex_d[level], k);
-    
-    // Compute the texture coordinate of each level from that at the root.
-    
+
     gl_TexCoord[0].xy = tex(tex_a[0], tex_b[0], tex_c[0], tex_d[0], t);
     gl_TexCoord[1].xy = tex(tex_a[1], tex_b[1], tex_c[1], tex_d[1], t);
     gl_TexCoord[2].xy = tex(tex_a[2], tex_b[2], tex_c[2], tex_d[2], t);
@@ -59,7 +60,7 @@ void main()
     gl_TexCoord[5].xy = tex(tex_a[5], tex_b[5], tex_c[5], tex_d[5], t);
     gl_TexCoord[6].xy = tex(tex_a[6], tex_b[6], tex_c[6], tex_d[6], t);
     gl_TexCoord[7].xy = tex(tex_a[7], tex_b[7], tex_c[7], tex_d[7], t);
-    
+*/    
     // TODO: Benchmark these to see if cost is associated with count.
 
     gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);

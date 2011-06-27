@@ -80,6 +80,7 @@ private:
     
     GLuint program;
     GLuint vert_shader;
+    GLuint geom_shader;
     GLuint frag_shader;
     
     GLuint pos_a;

@@ -55,6 +55,7 @@
 		5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.3.dylib; path = /opt/local/lib/libtiff.3.dylib; sourceTree = "<absolute>"; };
 		5865802A13B626B100FBBF90 /* tree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = tree.hpp; path = ../../../proj/panoview/tree.hpp; sourceTree = "<group>"; };
 		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
+		587EF03A13B8F07B009C34F1 /* sph-render.geom */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = "sph-render.geom"; path = "../../../proj/panoview/sph-render.geom"; sourceTree = "<group>"; };
 		58E2108813AE6EAF004580E9 /* panoview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = panoview; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E2109413AE6EC2004580E9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../proj/panoview/main.cpp; sourceTree = "<group>"; };
 		58E2109513AE6EC2004580E9 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../../proj/panoview/main.hpp; sourceTree = "<group>"; };
@@ -109,6 +110,7 @@
 			isa = PBXGroup;
 			children = (
 				5865801513B60E7900FBBF90 /* sph-render.frag */,
+				587EF03A13B8F07B009C34F1 /* sph-render.geom */,
 				5865801613B60E7900FBBF90 /* sph-render.vert */,
 				5865802C13B628F100FBBF90 /* queue.hpp */,
 				5865802A13B626B100FBBF90 /* tree.hpp */,

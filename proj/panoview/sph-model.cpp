@@ -272,8 +272,10 @@ void sph_model::draw(const double *P, const double *V, int f)
     glEnable(GL_POLYGON_OFFSET_LINE);
     glPolygonOffset(-4.0f, -4.0f);
 
+//    glBindBuffer(GL_ARRAY_BUFFER,         0);
+//    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
-
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
 
@@ -359,6 +361,15 @@ void sph_model::draw_face(face& F, const double *M, int i, int l, int f)
         glUniform3f(pos_b, F.b.v[0], F.b.v[1], F.b.v[2]);
         glUniform3f(pos_c, F.c.v[0], F.c.v[1], F.c.v[2]);
         glUniform3f(pos_d, F.d.v[0], F.d.v[1], F.d.v[2]);
+        
+//        glBegin(GL_TRIANGLES);
+//        glVertex2i(0, 0);
+//        glVertex2i(1, 0);
+//        glVertex2i(0, 1);
+//        glVertex2i(1, 1);
+//        glVertex2i(0, 1);
+//        glVertex2i(1, 0);
+//        glEnd();
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[b]);
         glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
@@ -379,15 +390,28 @@ static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
 void sph_model::init_program()
 {    
     char *vert_source = load_txt("sph-render.vert");
+//    char *geom_source = load_txt("sph-render.geom");
     char *frag_source = load_txt("sph-render.frag");
-    
+
     if (vert_source && frag_source)
     {
         vert_shader = glsl_init_shader(GL_VERTEX_SHADER,   vert_source);
+//        geom_shader = glsl_init_shader(GL_GEOMETRY_SHADER, geom_source);
         frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_source);
-        program     = glsl_init_program(vert_shader, frag_shader);
+
+        program = glCreateProgram();
+
+        glAttachShader(program, vert_shader);
+//        glAttachShader(program, geom_shader);
+        glAttachShader(program, frag_shader);
+
+//        glProgramParameteriEXT(program, GL_GEOMETRY_INPUT_TYPE_EXT,  GL_TRIANGLES);
+//        glProgramParameteriEXT(program, GL_GEOMETRY_OUTPUT_TYPE_EXT, GL_TRIANGLE_STRIP);
+//        glProgramParameteriEXT(program, GL_GEOMETRY_VERTICES_OUT_EXT, 8);
         
-        glUseProgram(program);      
+        glLinkProgram(program);
+        check_program_log(program);
+        glUseProgram(program);
         
         pos_a = glGetUniformLocation(program, "pos_a");
         pos_b = glGetUniformLocation(program, "pos_b");
@@ -412,6 +436,7 @@ void sph_model::init_program()
     }
         
     free(frag_source);
+//    free(geom_source);
     free(vert_source);
 }
 
