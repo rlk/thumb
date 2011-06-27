@@ -84,9 +84,9 @@ void sph_model::vert::set(const double *w, double x, double y)
 
 void sph_model::vert::mid(const vert& a, const vert& b)
 {
-    v[0] =  a.v[0] + b.v[0];
-    v[1] =  a.v[1] + b.v[1];
-    v[2] =  a.v[2] + b.v[2];
+    v[0] = (a.v[0] + b.v[0]) * 0.5;
+    v[1] = (a.v[1] + b.v[1]) * 0.5;
+    v[2] = (a.v[2] + b.v[2]) * 0.5;
     t[0] = (a.t[0] + b.t[0]) * 0.5;
     t[1] = (a.t[1] + b.t[1]) * 0.5;
     
@@ -190,7 +190,7 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
     
     mmultiply(M, P, V);
     
-//    memset(&status.front(), 0, cube_size(depth));
+//  memset(&status.front(), 0, cube_size(depth));
     
     for (int i = 0; i < 6; ++i)
     {
@@ -260,12 +260,18 @@ void sph_model::draw(const double *P, const double *V, int f)
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
 
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    glEnable(GL_LINE_SMOOTH);
+    glLineWidth(1.0f);
     
+    glEnable(GL_POLYGON_OFFSET_LINE);
+    glPolygonOffset(-4.0f, -4.0f);
+
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
 
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -273,9 +279,6 @@ void sph_model::draw(const double *P, const double *V, int f)
 
     glUseProgram(program);
     {
-//        GLfloat fill[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-//        GLfloat line[4] = { 0.0f, 0.0f, 0.0f, 0.4f };
-        
         for (int i = 0; i < 6; ++i)
         {
             face F;
@@ -285,15 +288,20 @@ void sph_model::draw(const double *P, const double *V, int f)
             F.c.set(cube_v[cube_i[i][2]], 0, 1);
             F.d.set(cube_v[cube_i[i][3]], 1, 1);
 
+#if 0
+            draw_face(F, M, i, 0, f);
+#else
+            GLfloat fill[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+            GLfloat line[4] = { 0.0f, 0.0f, 0.0f, 0.4f };
+        
+            glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, fill);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
             draw_face(F, M, i, 0, f);
 
-//            glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, fill);
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-//            draw_face(F, M, i, 0, f);
-//
-//            glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, line);
-//            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//            draw_face(F, M, i, 0, f);
+            glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, line);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            draw_face(F, M, i, 0, f);
+#endif
         }
     }
     glUseProgram(0);
@@ -387,7 +395,10 @@ void sph_model::init_program()
         pos_d = glGetUniformLocation(program, "pos_d");
         level = glGetUniformLocation(program, "level");
 
-        glUniform1f(glGetUniformLocation(program, "size"), size);
+        // TODO: size and depth must be dynamic.
+
+        glUniform1f(glGetUniformLocation(program, "size"),  size);
+        glUniform1i(glGetUniformLocation(program, "depth"), depth);
         
         for (int l = 0; l < 8; ++l)
         {

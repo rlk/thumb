@@ -17,7 +17,7 @@
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) : needs(n), loads(16), size(n)
+sph_cache::sph_cache(int n) : needs(n), loads(n), size(n)
 {
     int loader(void *data);
 
@@ -27,11 +27,20 @@ sph_cache::sph_cache(int n) : needs(n), loads(16), size(n)
 
 sph_cache::~sph_cache()
 {
+    // Continue servicing the loads queue until the needs queue is emptied.
+    
+    while (needs.count())
+        update();
+    
+    // Enqueue an exit command for each loader thread.
+    
+    needs.insert(sph_task());
+    needs.insert(sph_task());
+    
+    // Await their exit. 
+    
     int s;
-    
-    needs.insert(sph_task());
-    needs.insert(sph_task());
-    
+
     SDL_WaitThread(thread[0], &s);
     SDL_WaitThread(thread[1], &s);
 }
