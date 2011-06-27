@@ -45,6 +45,8 @@ void main()
     
     vec3 v = normalize(mix4(pos_a, pos_b, pos_c, pos_d, k));
 
+    // Benchmark these to see if cost is associated with count.
+
     gl_TexCoord[0].xy = tex(tex_a[0], tex_b[0], tex_c[0], tex_d[0], t);
     gl_TexCoord[1].xy = tex(tex_a[1], tex_b[1], tex_c[1], tex_d[1], t);
     gl_TexCoord[2].xy = tex(tex_a[2], tex_b[2], tex_c[2], tex_d[2], t);

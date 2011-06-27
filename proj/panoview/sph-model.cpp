@@ -303,6 +303,8 @@ void sph_model::draw_face(face& F, const double *M, int i, int l, int f)
 {
     if (status[i] != s_halt)
     {
+        // Only A and D are needed here.
+        
         glUniform2f(tex_a[l], F.a.t[0], F.a.t[1]);
         glUniform2f(tex_b[l], F.b.t[0], F.b.t[1]);
         glUniform2f(tex_c[l], F.c.t[0], F.c.t[1]);

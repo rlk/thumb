@@ -22,16 +22,20 @@ vec3 color(float k)
 
 void main()
 {   
-    vec3 d[4];
+//    vec3 d[4];
+//    
+//    d[0] = texture2D(texture[0], gl_TexCoord[0].xy).rgb;
+//    d[1] = texture2D(texture[1], gl_TexCoord[1].xy).rgb;
+//    d[2] = texture2D(texture[2], gl_TexCoord[2].xy).rgb;
+//    d[3] = texture2D(texture[3], gl_TexCoord[3].xy).rgb;
+//    
+//    gl_FragColor = vec4(d[level], 1.0);
+//
     
-    d[0] = texture2D(texture[0], gl_TexCoord[0].xy).rgb;
-    d[1] = texture2D(texture[1], gl_TexCoord[1].xy).rgb;
-    d[2] = texture2D(texture[2], gl_TexCoord[2].xy).rgb;
-    d[3] = texture2D(texture[3], gl_TexCoord[3].xy).rgb;
-    
-    gl_FragColor = vec4(d[level], 1.0);// * gl_FrontMaterial.diffuse;
-
-//    gl_FragColor = vec4(0.0, 1.0, 0.0, 0.2);
+    if      (level == 3) gl_FragColor = texture2D(texture[3], gl_TexCoord[3].xy);
+    else if (level == 2) gl_FragColor = texture2D(texture[2], gl_TexCoord[2].xy);
+    else if (level == 1) gl_FragColor = texture2D(texture[1], gl_TexCoord[1].xy);
+    else                 gl_FragColor = texture2D(texture[0], gl_TexCoord[0].xy);
 }
 
 /*
