@@ -34,11 +34,33 @@ const int cube_i[6][4] = {
     { 4, 5, 6, 7 },
 };
 
+// Calculate the integer binary log of n ---------------------------------------
+
+int log2(int n)
+{
+    int r = 0;
+    
+    if (n >= (1 << 16)) { n >>= 16; r += 16; }
+    if (n >= (1 <<  8)) { n >>=  8; r +=  8; }
+    if (n >= (1 <<  4)) { n >>=  4; r +=  4; }
+    if (n >= (1 <<  2)) { n >>=  2; r +=  2; }
+    if (n >= (1 <<  1)) {           r +=  1; }
+
+    return r;
+}
+
 // Calculate the number of faces in a cube with depth n. -----------------------
 
 int cube_size(int n)
 {
     return (1 << (2 * n + 3)) - 2;
+}
+
+// Calculate the recursion level at which face i appears. ----------------------
+
+int face_level(int i)
+{
+    return (log2(i + 2) - 1) / 2;
 }
 
 // Calculate the parent index of face i. Assume i > 5. -------------------------

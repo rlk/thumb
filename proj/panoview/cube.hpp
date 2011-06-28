@@ -23,6 +23,7 @@ int  cube_size(int);
 int  face_locate(int, int, int, int);
 int  face_child (int, int);
 int  face_index (int);
+int  face_level (int);
 int  face_parent(int);
 
 void face_neighbors(int, int&, int&, int&, int&);

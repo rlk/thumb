@@ -68,8 +68,9 @@ private:
     
     typedef unsigned char byte;
 
-    void prep_face(face&, const double *, int, int, int, int);
-    void draw_face(face&, const double *, int, int, int);
+    void prep_face(int, int, int, double, double, double, double,
+                   const double *, int, int);
+    void draw_face(int, int, int, double, double, double, double);
 
     std::vector<byte> status;
 
@@ -80,7 +81,6 @@ private:
     
     GLuint program;
     GLuint vert_shader;
-    GLuint geom_shader;
     GLuint frag_shader;
     
     GLuint pos_a;
@@ -88,8 +88,6 @@ private:
     GLuint pos_c;
     GLuint pos_d;
     GLuint tex_a[8];
-    GLuint tex_b[8];
-    GLuint tex_c[8];
     GLuint tex_d[8];
     GLuint level;
     

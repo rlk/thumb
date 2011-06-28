@@ -173,8 +173,8 @@ GLuint sph_task::make_texture()
 
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
     
     glTexImage2D(GL_TEXTURE_2D, 0, in, w, h, 1, ex, ty, p);
     
@@ -198,6 +198,27 @@ void sph_task::load_texture(TIFF *T)
     {
         for (uint32 r = 0; r < h; ++r)
             TIFFReadScanline(T, (uint8 *) p + r * s, r, 0);
+
+#if 0
+        static const double color[6][3] = {
+            { 1.0, 0.0, 0.0 },
+            { 1.0, 1.0, 0.0 },
+            { 0.0, 1.0, 0.0 },
+            { 0.0, 1.0, 1.0 },
+            { 0.0, 0.0, 1.0 },
+            { 1.0, 0.0, 1.0 },
+        };
+
+        uint8 *q = (uint8 *) p;
+        int l = face_level(i);
+        
+        for (int i = 0; i < w * h; ++i, q += c)
+        {
+            q[0] *= color[l % 6][0];
+            q[1] *= color[l % 6][1];
+            q[2] *= color[l % 6][2];
+        }
+#endif
     }
 }
 
