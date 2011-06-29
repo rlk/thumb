@@ -694,9 +694,9 @@ void app::host::root_loop()
 
             // Advance to the current time, or by one JIFFY when benchmarking.
 
-            for (int tick = bench ? (tock + JIFFY) : SDL_GetTicks();
-                 tick - tock >= JIFFY;
-                 tock        += JIFFY)
+            // for (int tick = bench ? (tock + JIFFY) : SDL_GetTicks();
+            //      tick - tock >= JIFFY;
+            //      tock        += JIFFY)
 
                 process_event(E.mk_tick(JIFFY));
 

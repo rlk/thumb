@@ -39,39 +39,19 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
-    struct vert
-    {
-        double v[3];
-        double t[2];
-        
-        void set(const double *, double, double);
-        void mid(const vert&, const vert&);
-    };
+    void draw_face(int, int, int, double, double, double, double, int);
+    void prep_face(int, int, int, double, double, double, double,
+                   const double *, int, int);
 
-    struct face
-    {
-        vert a;
-        vert b;
-        vert c;
-        vert d;
-        
-        void   divide(face&, face&, face&, face&);
-        double measure(const double *, int, int);
-    };
+    typedef unsigned char byte;
 
     enum
     {
         s_halt = 0,
         s_pass = 1,
-        s_draw = 2,
+        s_draw = 2
     };
     
-    typedef unsigned char byte;
-
-    void prep_face(int, int, int, double, double, double, double,
-                   const double *, int, int);
-    void draw_face(int, int, int, double, double, double, double);
-
     std::vector<byte> status;
 
     // OpenGL programmable processing state
@@ -89,7 +69,9 @@ private:
     GLuint pos_d;
     GLuint tex_a[8];
     GLuint tex_d[8];
-    GLuint level;
+    GLuint this_level;
+    GLuint best_level;
+    GLuint page_size;
     
     // OpenGL geometry state.
     

@@ -40,6 +40,8 @@ public:
     void clear();
     void dump();
     int  size() const { return count; }
+
+    void map(void (*)(void *, void *), void *);
     
 private:
 
@@ -62,6 +64,7 @@ private:
     T     cut(node *, node *);
     
     void dump(node *, int);
+    void map(node *, void (*)(void *, void *), void *);
 };
 
 //------------------------------------------------------------------------------
@@ -298,6 +301,20 @@ template <typename T> void tree<T>::dump(node *t, int d)
 template <typename T> void tree<T>::dump()
 {
     dump(root, 0);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename T> void tree<T>::map(node *t, void (*f)(void *, void *), void *p)
+{
+    if (t->l) map(t->l, f, p);
+    f(&t->p, p);
+    if (t->r) map(t->r, f, p);
+}
+
+template <typename T> void tree<T>::map(void (*f)(void *, void *), void *p)
+{
+    if (root) map(root, f, p);
 }
 
 //------------------------------------------------------------------------------

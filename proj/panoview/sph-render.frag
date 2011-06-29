@@ -1,7 +1,7 @@
 
-uniform float size;
-uniform int   level;
-uniform int   depth;
+uniform float page_size;
+uniform int   this_level;
+uniform int   best_level;
 
 uniform vec2 tex_a[8];
 uniform vec2 tex_d[8];
@@ -36,25 +36,23 @@ vec4 sample(float k)
     int   i = int(floor(k));
     float t =     fract(k);
     
-    if      (i == 0) return mix(texture2D(texture[0], u),
-                                texture2D(texture[1], tex(tex_a[1], tex_d[1], u)), t);
-    else if (i == 1) return mix(texture2D(texture[1], tex(tex_a[1], tex_d[1], u)),
-                                texture2D(texture[2], tex(tex_a[2], tex_d[2], u)), t);
-    else if (i == 2) return mix(texture2D(texture[2], tex(tex_a[2], tex_d[2], u)),
-                                texture2D(texture[3], tex(tex_a[3], tex_d[3], u)), t);
-    else if (i == 3) return mix(texture2D(texture[3], tex(tex_a[3], tex_d[3], u)),
-                                texture2D(texture[4], tex(tex_a[4], tex_d[4], u)), t);
-    else             return     texture2D(texture[4], tex(tex_a[4], tex_d[4], u));
+    if (i == 0) return mix(texture2D(texture[0], u),
+                           texture2D(texture[1], tex(tex_a[1], tex_d[1], u)), t);
+    if (i == 1) return mix(texture2D(texture[1], tex(tex_a[1], tex_d[1], u)),
+                           texture2D(texture[2], tex(tex_a[2], tex_d[2], u)), t);
+    if (i == 2) return mix(texture2D(texture[2], tex(tex_a[2], tex_d[2], u)),
+                           texture2D(texture[3], tex(tex_a[3], tex_d[3], u)), t);
+    if (i == 3) return mix(texture2D(texture[3], tex(tex_a[3], tex_d[3], u)),
+                           texture2D(texture[4], tex(tex_a[4], tex_d[4], u)), t);
+                return     texture2D(texture[4], tex(tex_a[4], tex_d[4], u));
 }
 
 void main()
 {
-    vec2  w = fwidth(gl_TexCoord[0].xy * size);
+    vec2  w = fwidth(gl_TexCoord[0].xy * page_size);
     float r = max(w.x, w.y);
-    float k = clamp(-log2(r), 0.0, float(level));
+    float k = clamp(-log2(r), 0.0, float(best_level));
     
-    vec3 c = sample(k).rgb;
-
-    gl_FragColor = vec4(c, 1.0) * gl_FrontMaterial.diffuse;
+    gl_FragColor = sample(k) * gl_FrontMaterial.diffuse;
 }
 

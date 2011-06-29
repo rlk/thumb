@@ -241,6 +241,8 @@ void sph_model::draw(const double *P, const double *V, int f)
 
     glUseProgram(program);
     {
+        glUniform1f(page_size, size);
+
         for (int i = 0; i < 6; ++i)
         {
             double a[3], b[3], c[3], d[3];
@@ -255,35 +257,47 @@ void sph_model::draw(const double *P, const double *V, int f)
             glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
             glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
 
+            glUniform1i(best_level, 0);
+
 #if 1
-            draw_face(f, i, 0, 0, 1, 0, 1);
+            draw_face(f, i, 0, 0, 1, 0, 1, 0);
 #else
             GLfloat fill[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
             GLfloat line[4] = { 0.0f, 0.0f, 0.0f, 0.4f };
         
             glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, fill);
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            draw_face(f, i, 0, 0, 1, 0, 1);
+            draw_face(f, i, 0, 0, 1, 0, 1, 0);
 
             glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, line);
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            draw_face(f, i, 0, 0, 1, 0, 1);
+            draw_face(f, i, 0, 0, 1, 0, 1, 0);
 #endif
         }
     }
     glUseProgram(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER,         0);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    cache.draw();
 }
 
 void sph_model::draw_face(int f, int i, int d,
-                          double r, double l, double t, double b)
+                          double r, double l, double t, double b, int B)
 {
+    GLuint o = 0;
+
     if (status[i] != s_halt)
     {
         glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
         glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
 
+        if ((o = cache.get_page(f, i))) B = d;
+
         glActiveTexture(GL_TEXTURE0 + d);
-        glBindTexture(GL_TEXTURE_2D, cache.get_page(f, i));
+        glBindTexture(GL_TEXTURE_2D, o);
     }
 
     if (status[i] == s_pass)
@@ -291,19 +305,15 @@ void sph_model::draw_face(int f, int i, int d,
         const double x = (r + l) * 0.5;
         const double y = (t + b) * 0.5;
 
-        draw_face(f, face_child(i, 0), d + 1, r, x, t, y);
-        draw_face(f, face_child(i, 1), d + 1, x, l, t, y);
-        draw_face(f, face_child(i, 2), d + 1, r, x, y, b);
-        draw_face(f, face_child(i, 3), d + 1, x, l, y, b);
+        draw_face(f, face_child(i, 0), d + 1, r, x, t, y, B);
+        draw_face(f, face_child(i, 1), d + 1, x, l, t, y, B);
+        draw_face(f, face_child(i, 2), d + 1, r, x, y, b, B);
+        draw_face(f, face_child(i, 3), d + 1, x, l, y, b, B);
     }
 
     if (status[i] == s_draw)
     {
-        int j = 0;
-        int n;
-        int s;
-        int e;
-        int w;
+        int n, s, e, w, j = 0;
         
         face_neighbors(i, n, s, e, w);
         
@@ -312,7 +322,8 @@ void sph_model::draw_face(int f, int i, int d,
                      | (status[face_parent(e)] == s_draw ? 4 : 0)
                      | (status[face_parent(w)] == s_draw ? 8 : 0);
 
-        glUniform1i(level, d);
+        glUniform1i(best_level, B);
+        glUniform1i(this_level, d);
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
         glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
@@ -343,17 +354,14 @@ void sph_model::init_program()
 
         glUseProgram(program);
         
-        pos_a = glGetUniformLocation(program, "pos_a");
-        pos_b = glGetUniformLocation(program, "pos_b");
-        pos_c = glGetUniformLocation(program, "pos_c");
-        pos_d = glGetUniformLocation(program, "pos_d");
-        level = glGetUniformLocation(program, "level");
+        pos_a      = glGetUniformLocation(program, "pos_a");
+        pos_b      = glGetUniformLocation(program, "pos_b");
+        pos_c      = glGetUniformLocation(program, "pos_c");
+        pos_d      = glGetUniformLocation(program, "pos_d");
+        this_level = glGetUniformLocation(program, "this_level");
+        best_level = glGetUniformLocation(program, "best_level");
+        page_size  = glGetUniformLocation(program, "page_size");
 
-        // TODO: size and depth must be dynamic.
-
-        glUniform1f(glGetUniformLocation(program, "size"),  size);
-        glUniform1i(glGetUniformLocation(program, "depth"), depth);
-        
         for (int l = 0; l < 8; ++l)
         {
             tex_a[l] = glGetUniformLocationv(program, "tex_a[%d]", l);

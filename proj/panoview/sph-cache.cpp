@@ -17,7 +17,7 @@
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) : needs(32), loads(4), size(n)
+sph_cache::sph_cache(int n) : needs(32), loads(8), size(n)
 {
     int loader(void *data);
 
@@ -83,50 +83,53 @@ int sph_cache::add_file(const std::string& name)
 
 GLuint sph_cache::get_page(int f, int i)
 {
-    sph_page page = pages.search(sph_page(f, i, 0));
-    
-    if (page.f == f && page.i == i)
-        return page.o;
-    else
+    if (i < int(files[f].n))
     {
-        if (!pbos.empty() && !needs.full())
+        sph_page page = pages.search(sph_page(f, i));
+    
+        if (page.f == f && page.i == i)
+            return page.o;
+        else
         {
-            uint32 w = files[f].w;
-            uint32 h = files[f].h;
-            uint16 c = files[f].c;
-            uint16 b = files[f].b;
-
-            GLsizei s;
-
-            if (c == 3 && b == 8)
-                s = w * h * 4 * b / 8;
-            else
-                s = w * h * c * b / 8;
-
-            if (pages.size() == size)
+            if (!pbos.empty() && !needs.full())
             {
-                page = pages.eject();
-                glDeleteTextures(1, &page.o);
+                uint32 w = files[f].w;
+                uint32 h = files[f].h;
+                uint16 c = files[f].c;
+                uint16 b = files[f].b;
+
+                GLsizei s;
+
+                if (c == 3 && b == 8)
+                    s = w * h * 4 * b / 8;
+                else
+                    s = w * h * c * b / 8;
+
+                while (pages.size() >= size)
+                {
+                    page = pages.eject();
+                    glDeleteTextures(1, &page.o);
+                }
+
+                GLuint o = pbos.front();
+                pbos.pop_front();
+
+                needs.insert(sph_task(f, i, o, s));
+                pages.insert(sph_page(f, i));
             }
-
-            GLuint  o = pbos.front();
-            pbos.pop_front();
-
-            needs.insert(sph_task(f, i, o, s));
-            pages.insert(sph_page(f, i, 0));
         }
-        return 0;
     }
+    return 0;
 }
 
 // Handle incoming textures on the loads queue.
 
 void sph_cache::update()
 {
-    for (int c = 0; !loads.empty() && c < 2; ++c)
+    for (int c = 0; !loads.empty() && c < 4; ++c)
     {
         sph_task task = loads.remove();
-        sph_page page = pages.search(sph_page(task.f, task.i, 0));
+        sph_page page = pages.search(sph_page(task.f, task.i));
         
         if (page.f == task.f && page.i == task.i)
         {
@@ -136,12 +139,81 @@ void sph_cache::update()
             uint16 b = files[task.f].b;
             
             pages.remove(page);
-            page.o = task.make_texture(task.o, w, h, c, b);
+            page.o = task.make_texture(w, h, c, b);
             pages.insert(page);
-            
-            pbos.push_back(task.o);
         }
+        else task.cancel();
+
+        pbos.push_back(task.o);
     }
+}
+
+//------------------------------------------------------------------------------
+
+struct draw_state
+{
+    int r;
+    int c;
+    int i;
+    int j;
+};
+
+static void draw_page(void *node, void *data)
+{
+    sph_page *page = (sph_page   *) node;
+    draw_state *st = (draw_state *) data;
+
+    glBindTexture(GL_TEXTURE_2D, page->o);
+
+    glBegin(GL_QUADS);
+    {
+        glTexCoord2f(0.f, 0.f); glVertex2i(st->j,     st->i);
+        glTexCoord2f(1.f, 0.f); glVertex2i(st->j + 1, st->i);
+        glTexCoord2f(1.f, 1.f); glVertex2i(st->j + 1, st->i + 1);
+        glTexCoord2f(0.f, 1.f); glVertex2i(st->j,     st->i + 1);
+    }
+    glEnd();
+
+    if (++st->j >= st->c)
+    {
+        st->i += 1;
+        st->j  = 0;
+    }
+}
+
+void sph_cache::draw()
+{
+    int l = log2(size);
+
+    draw_state st;
+
+    st.r = (l & 1) ? (1 << ((l - 1) / 2)) : (1 << (l / 2));
+    st.c = (l & 1) ? (1 << ((l + 1) / 2)) : (1 << (l / 2));
+    st.i = 0;
+    st.j = 0;
+
+    glActiveTexture(GL_TEXTURE0);
+    glEnable(GL_TEXTURE_2D);
+
+    glPushAttrib(GL_VIEWPORT_BIT);
+    {
+        glViewport(0, 0, st.c * 32, st.r * 32);
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glOrtho(st.c, 0, st.r, 0, 0, 1);
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+        {
+            pages.map(draw_page, &st);
+        }
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+    }
+    glPopAttrib();
 }
 
 //------------------------------------------------------------------------------
@@ -225,7 +297,7 @@ sph_task::sph_task(int f, int i, GLuint o, GLsizei s) : f(f), i(i), o(o), p(0)
 
 // Upload the pixel buffer to a newly-generated OpenGL texture object.
 
-GLuint sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
+GLuint sph_task::make_texture(uint32 w, uint32 h, uint16 c, uint16 b)
 {
     GLuint t = 0;
 
@@ -250,6 +322,17 @@ GLuint sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
     
     return t;
+}
+
+// A texture was loaded but is no longer necessary. Discard the pixel buffer.
+
+void sph_task::cancel()
+{
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, o);
+    {
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+    }
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
 // Load the current TIFF directory into a newly-allocated pixel buffer.

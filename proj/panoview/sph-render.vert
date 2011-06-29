@@ -1,5 +1,6 @@
 
-uniform int  level;
+uniform int this_level;
+uniform int best_level;
 
 uniform vec3 pos_a;
 uniform vec3 pos_b;
@@ -32,7 +33,8 @@ vec3 bislerp(vec3 a, vec3 b, vec3 c, vec3 d, vec2 k)
 
 void main()
 {
-    vec2 t = tex_a[level] + (tex_d[level] - tex_a[level]) * gl_Vertex.xy;
+    vec2 t =  tex_a[this_level]
+           + (tex_d[this_level] - tex_a[this_level]) * gl_Vertex.xy;
 
     vec3 v = bislerp(pos_a, pos_b, pos_c, pos_d, t);
 

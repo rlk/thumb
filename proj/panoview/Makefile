@@ -5,6 +5,11 @@
 TARG= panoview
 OBJS=   panoview.o \
         sph-model.o \
+        sph-cache.o \
+	math3d.o \
+	glyph.o \
+	glsl.o \
+	cube.o \
 	main.o
 
 DEPS= $(OBJS:.o=.d)
@@ -18,7 +23,7 @@ CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
 LIBS    = $(shell $(SDLCONF) --libs) \
 	  $(shell $(FT2CONF) --libs) \
-	-lthumb -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
+	-lthumb -ltiff -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 
 #------------------------------------------------------------------------------
 

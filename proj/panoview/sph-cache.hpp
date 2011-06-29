@@ -65,8 +65,9 @@ struct sph_task
     GLuint o;
     void  *p;
     
-    GLuint make_texture(GLuint, uint32, uint32, uint16, uint16);
+    GLuint make_texture(        uint32, uint32, uint16, uint16);
     void   load_texture(TIFF *, uint32, uint32, uint16, uint16);
+    void   cancel();
 };
 
 //------------------------------------------------------------------------------
@@ -82,7 +83,8 @@ public:
     GLuint get_page(int, int);
     
     void update();
-     
+    void draw();
+
 private:
 
     std::vector<sph_file> files;

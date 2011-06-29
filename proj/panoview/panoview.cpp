@@ -25,16 +25,17 @@
 
 //------------------------------------------------------------------------------
 
-//panoview::panoview(const std::string& tag) :
-//    app::prog(tag), C(256), L(C, 16, 2, 256)
-//{
-//    panoL = C.add_file("/Users/rlk/data/pan/foo.tif");
-//}
+// panoview::panoview(const std::string& tag) :
+//    app::prog(tag), C(512), L(C, 16, 4, 256)
+// {
+//    panoL = C.add_file("/home/rlk/Data/pan/test4.tif");
+// }
 
 panoview::panoview(const std::string& tag) :
     app::prog(tag), C(256), L(C, 16, 3, 512)
 {
-    panoL = C.add_file("/Users/rlk/data/pan/Taliesin-Garden-13-L-Cube.tif");
+    panoL = C.add_file("/home/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
+//  panoL = C.add_file("/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
 }
 
 panoview::~panoview()
@@ -69,7 +70,8 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
     double V[16];
 
-    glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
+    // glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
+    glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
  
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
@@ -82,15 +84,15 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
 bool panoview::process_event(app::event *E)
 {
-    /*
+/*
     if (E->get_type() == E_TICK)
     {
-        ::user->turn(E->data.tick.dt / 70.0,
-                     E->data.tick.dt / 30.0, 0.0);
+        ::user->turn(E->data.tick.dt / 75.0,
+                     E->data.tick.dt / 70.0, 0.0);
         return false;
     }
     else
-    */
+*/
         return prog::process_event(E);
 }
 
