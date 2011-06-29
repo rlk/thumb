@@ -81,7 +81,8 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 //------------------------------------------------------------------------------
 
 bool panoview::process_event(app::event *E)
-{/*
+{
+    /*
     if (E->get_type() == E_TICK)
     {
         ::user->turn(E->data.tick.dt / 70.0,
@@ -89,7 +90,7 @@ bool panoview::process_event(app::event *E)
         return false;
     }
     else
-*/
+    */
         return prog::process_event(E);
 }
 

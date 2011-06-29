@@ -91,7 +91,17 @@ GLuint sph_cache::get_page(int f, int i)
     {
         if (!pbos.empty() && !needs.full())
         {
-            GLsizei s = files[f].w * files[f].h * files[f].c * files[f].b / 8;
+            uint32 w = files[f].w;
+            uint32 h = files[f].h;
+            uint16 c = files[f].c;
+            uint16 b = files[f].b;
+
+            GLsizei s;
+
+            if (c == 3 && b == 8)
+                s = w * h * 4 * b / 8;
+            else
+                s = w * h * c * b / 8;
 
             if (pages.size() == size)
             {
@@ -137,17 +147,17 @@ void sph_cache::update()
 //------------------------------------------------------------------------------
 
 // Select an OpenGL internal texture format for an image with c channels and
-// b bytes per channel.
+// b bits per channel.
 
 static GLenum internal_form(uint16 c, uint16 b)
 {
     if (b == 8)
         switch (c)
         {
-        case  1: return GL_LUMINANCE;
+        case  1: return GL_LUMINANCE8;
         case  2: return GL_LUMINANCE_ALPHA;
-        case  3: return GL_RGB;
-        default: return GL_RGBA;
+        case  3: return GL_RGBA8; // *
+        default: return GL_RGBA8;
         }
     if (b == 16)
         switch (c)
@@ -177,21 +187,26 @@ static GLenum external_form(uint16 c)
     {
     case  1: return GL_LUMINANCE;
     case  2: return GL_LUMINANCE_ALPHA;
-    case  3: return GL_RGB;
-    default: return GL_RGBA;
+    case  3: return GL_BGRA; // *
+    default: return GL_BGRA;
     }
 }
 
-// Select an OpenGL data type for an image with b bytes per channel.
+// Select an OpenGL data type for an image with c channels of b bits.
 
-static GLenum external_type(uint16 b)
+static GLenum external_type(uint16 c, uint16 b)
 {
+    if (b ==  8 && c == 3) return GL_UNSIGNED_INT_8_8_8_8_REV; // *
+    if (b ==  8 && c == 4) return GL_UNSIGNED_INT_8_8_8_8_REV;
+
     if (b ==  8) return GL_UNSIGNED_BYTE;
     if (b == 16) return GL_UNSIGNED_SHORT;
     if (b == 32) return GL_FLOAT;
 
     return 0;
 }
+
+// * 24-bit images are always padded to 32 bits.
 
 //------------------------------------------------------------------------------
 
@@ -220,7 +235,7 @@ GLuint sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
 
         GLenum in = internal_form(c, b);
         GLenum ex = external_form(c);
-        GLenum ty = external_type(b);
+        GLenum ty = external_type(c, b);
         
         glGenTextures(1, &t);
         glBindTexture(GL_TEXTURE_2D, t);
@@ -241,35 +256,39 @@ GLuint sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
 
 void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
 {
-    uint32 s = w * c * b / 8;
+    // Pad a 24-bit image to 32-bit BGRA.
     
-    if (p)
-        for (uint32 r = 0; r < h; ++r)
-            TIFFReadScanline(T, (uint8 *) p + r * s, r, 0);
-
-#if 0
-    if (p)
+    if (c == 3 && b == 8)
     {
-        static const double color[6][3] = {
-            { 1.0, 0.0, 0.0 },
-            { 1.0, 1.0, 0.0 },
-            { 0.0, 1.0, 0.0 },
-            { 0.0, 1.0, 1.0 },
-            { 0.0, 0.0, 1.0 },
-            { 1.0, 0.0, 1.0 },
-        };
-
-        uint8 *q = (uint8 *) p;
-        int l = face_level(i);
-        
-        for (int i = 0; i < w * h; ++i, q += c)
+        if (void *q = malloc(TIFFScanlineSize(T)))
         {
-            q[0] *= color[l % 6][0];
-            q[1] *= color[l % 6][1];
-            q[2] *= color[l % 6][2];
+            const uint32 S = w * 4 * b / 8;
+
+            for (uint32 r = 0; r < h; ++r)
+            {
+                TIFFReadScanline(T, q, r, 0);
+                
+                for (int j = w - 1; j >= 0; --j)
+                {
+                    uint8 *s = (uint8 *) q         + j * c * b / 8;
+                    uint8 *d = (uint8 *) p + r * S + j * 4 * b / 8;
+                    
+                    d[0] = s[2];
+                    d[1] = s[1];
+                    d[2] = s[0];
+                    d[3] = 0xFF;
+                }
+            }
+            free(q);
         }
     }
-#endif
+    else
+    {
+        const uint32 S = TIFFScanlineSize(T);
+
+        for (uint32 r = 0; r < h; ++r)
+            TIFFReadScanline(T, (uint8 *) p + r * S, r, 0);
+    }
 }
 
 //------------------------------------------------------------------------------
