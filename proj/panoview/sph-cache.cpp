@@ -17,23 +17,35 @@
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) : needs(n), loads(n), size(n)
+sph_cache::sph_cache(int n) : needs(32), loads(4), size(n)
 {
     int loader(void *data);
 
     thread[0] = SDL_CreateThread(loader, this);
     thread[1] = SDL_CreateThread(loader, this);
+    thread[2] = SDL_CreateThread(loader, this);
+    thread[3] = SDL_CreateThread(loader, this);
+ 
+    GLuint o;
+
+    for (int i = 0; i < 64; ++i)
+    {
+        glGenBuffers(1, &o);
+        pbos.push_back(o);
+    }
 }
 
 sph_cache::~sph_cache()
 {
     // Continue servicing the loads queue until the needs queue is emptied.
     
-    while (needs.count())
+    while (!needs.empty())
         update();
     
     // Enqueue an exit command for each loader thread.
     
+    needs.insert(sph_task());
+    needs.insert(sph_task());
     needs.insert(sph_task());
     needs.insert(sph_task());
     
@@ -43,6 +55,14 @@ sph_cache::~sph_cache()
 
     SDL_WaitThread(thread[0], &s);
     SDL_WaitThread(thread[1], &s);
+    SDL_WaitThread(thread[2], &s);
+    SDL_WaitThread(thread[3], &s);
+    
+    while (!pbos.empty())
+    {
+        glDeleteBuffers(1, &pbos.back());
+        pbos.pop_back();
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -53,7 +73,7 @@ int sph_cache::add_file(const std::string& name)
 {
     int f = int(files.size());
 
-    files.push_back(name);
+    files.push_back(sph_file(name));
 
     return f;
 }
@@ -69,32 +89,47 @@ GLuint sph_cache::get_page(int f, int i)
         return page.o;
     else
     {
-        if (pages.size() == size)
+        if (!pbos.empty() && !needs.full())
         {
-            page = pages.eject();
-            glDeleteTextures(1, &page.o);
+            GLsizei s = files[f].w * files[f].h * files[f].c * files[f].b / 8;
+
+            if (pages.size() == size)
+            {
+                page = pages.eject();
+                glDeleteTextures(1, &page.o);
+            }
+
+            GLuint  o = pbos.front();
+            pbos.pop_front();
+
+            needs.insert(sph_task(f, i, o, s));
+            pages.insert(sph_page(f, i, 0));
         }
-            
-        needs.insert(sph_task(f, i, 0));
-        pages.insert(sph_page(f, i, 0));
         return 0;
     }
 }
 
-// Handle any incoming textures on the loads queue.
+// Handle incoming textures on the loads queue.
 
 void sph_cache::update()
 {
-    while (loads.count() > 0)
+    for (int c = 0; !loads.empty() && c < 2; ++c)
     {
         sph_task task = loads.remove();
         sph_page page = pages.search(sph_page(task.f, task.i, 0));
         
         if (page.f == task.f && page.i == task.i)
         {
+            uint32 w = files[task.f].w;
+            uint32 h = files[task.f].h;
+            uint16 c = files[task.f].c;
+            uint16 b = files[task.f].b;
+            
             pages.remove(page);
-            page.o = task.make_texture();
+            page.o = task.make_texture(task.o, w, h, c, b);
             pages.insert(page);
+            
+            pbos.push_back(task.o);
         }
     }
 }
@@ -158,48 +193,63 @@ static GLenum external_type(uint16 b)
     return 0;
 }
 
+//------------------------------------------------------------------------------
+
+sph_task::sph_task(int f, int i, GLuint o, GLsizei s) : f(f), i(i), o(o), p(0)
+{
+    if (o)
+    {
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, o);
+        {
+            glBufferData(GL_PIXEL_UNPACK_BUFFER, s, 0, GL_STREAM_DRAW);
+            p = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+        }
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+    }
+}
+
 // Upload the pixel buffer to a newly-generated OpenGL texture object.
 
-GLuint sph_task::make_texture()
+GLuint sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
 {
-    GLenum in = internal_form(c, b);
-    GLenum ex = external_form(c);
-    GLenum ty = external_type(b);
-        
-    GLuint texture;
-    
-    glGenTextures(1, &texture);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    GLuint t = 0;
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, o);
+    {
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+
+        GLenum in = internal_form(c, b);
+        GLenum ex = external_form(c);
+        GLenum ty = external_type(b);
+        
+        glGenTextures(1, &t);
+        glBindTexture(GL_TEXTURE_2D, t);
+
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+        
+        glTexImage2D(GL_TEXTURE_2D, 0, in, w, h, 1, ex, ty, 0);
+    }
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
     
-    glTexImage2D(GL_TEXTURE_2D, 0, in, w, h, 1, ex, ty, p);
-    
-    free(p);
-    
-    return texture;
+    return t;
 }
 
 // Load the current TIFF directory into a newly-allocated pixel buffer.
 
-void sph_task::load_texture(TIFF *T)
+void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
 {
-    uint32 s = (uint32) TIFFScanlineSize(T);
+    uint32 s = w * c * b / 8;
     
-    TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &w);
-    TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &h);
-    TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
-    TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
-
-    if ((p = malloc(h * s)))
-    {
+    if (p)
         for (uint32 r = 0; r < h; ++r)
             TIFFReadScanline(T, (uint8 *) p + r * s, r, 0);
 
 #if 0
+    if (p)
+    {
         static const double color[6][3] = {
             { 1.0, 0.0, 0.0 },
             { 1.0, 1.0, 0.0 },
@@ -218,8 +268,8 @@ void sph_task::load_texture(TIFF *T)
             q[1] *= color[l % 6][1];
             q[2] *= color[l % 6][2];
         }
-#endif
     }
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -267,17 +317,60 @@ int loader(void *data)
     
     while ((task = cache->needs.remove()).f >= 0)
 
-        if (TIFF *T = TIFFOpen(cache->files[task.f].c_str(), "r"))
+        if (TIFF *T = TIFFOpen(cache->files[task.f].name.c_str(), "r"))
         {
             if (up(T, task.i))
             {
-                task.load_texture(T);
+                uint32 w = cache->files[task.f].w;
+                uint32 h = cache->files[task.f].h;
+                uint16 c = cache->files[task.f].c;
+                uint16 b = cache->files[task.f].b;
+            
+                task.load_texture(T, w, h, c, b);
                 cache->loads.insert(task);
             }
             TIFFClose(T);
         }        
     
     return 0;
+}
+
+//------------------------------------------------------------------------------
+
+sph_file::sph_file(const std::string& name) : name(name)
+{
+    // Load the TIFF briefly to determine its format.
+    
+    if (TIFF *T = TIFFOpen(name.c_str(), "r"))
+    {
+        TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &w);
+        TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &h);
+        TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
+        TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
+
+        n = 0;
+
+        // Count the pages and confirm that all have identical formats.
+
+        while (TIFFReadDirectory(T))
+        {
+            uint32 W, H;
+            uint16 B, C;
+            
+            TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &W);
+            TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &H);
+            TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &B);
+            TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &C);
+
+            if (w != W || h != H || b != B || c != C)
+                fprintf(stderr, "Warning: TIFF file %s "
+                        "page %d has format %dx%dx%d@%d "
+                        "while the root has %dx%dx%d@%d\n",
+                        name.c_str(), n, W, H, C, B, w, h, c, b);
+            n++;
+        }
+        TIFFClose(T);
+    }
 }
 
 //------------------------------------------------------------------------------

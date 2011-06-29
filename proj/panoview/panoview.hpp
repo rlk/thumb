@@ -31,6 +31,8 @@ public:
     void       lite(int, const app::frustum * const *);
     void       draw(int, const app::frustum *);
     
+    virtual bool process_event(app::event *);
+    
 private:
 
     sph_cache C;

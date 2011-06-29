@@ -37,7 +37,8 @@ public:
 
     void insert(T);
     T    remove( );
-    int  count ( );
+    bool empty ( );
+    bool full  ( );
     
 private:
 
@@ -103,9 +104,14 @@ template <typename T> T queue<T>::remove()
     return d;
 }
 
-template <typename T> int queue<T>::count()
+template <typename T> bool queue<T>::empty()
 {
-    return SDL_SemValue(full_slots);
+    return (SDL_SemValue(full_slots) == 0);
+}
+
+template <typename T> bool queue<T>::full()
+{
+    return (SDL_SemValue(free_slots) == 0);
 }
 
 //------------------------------------------------------------------------------

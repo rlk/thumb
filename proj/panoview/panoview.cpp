@@ -16,12 +16,14 @@
 
 #include <app-host.hpp>
 #include <app-user.hpp>
+#include <app-prog.hpp>
+#include <app-event.hpp>
 #include <app-frustum.hpp>
 
 #include "math3d.h"
 #include "panoview.hpp"
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 //panoview::panoview(const std::string& tag) :
 //    app::prog(tag), C(256), L(C, 16, 2, 256)
@@ -39,7 +41,7 @@ panoview::~panoview()
 {
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
@@ -76,4 +78,19 @@ void panoview::draw(int frusi, const app::frustum *frusp)
     L.draw (P, V, panoL);
 }
 
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
+
+bool panoview::process_event(app::event *E)
+{/*
+    if (E->get_type() == E_TICK)
+    {
+        ::user->turn(E->data.tick.dt / 70.0,
+                     E->data.tick.dt / 30.0, 0.0);
+        return false;
+    }
+    else
+*/
+        return prog::process_event(E);
+}
+
+//------------------------------------------------------------------------------

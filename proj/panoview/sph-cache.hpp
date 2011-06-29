@@ -15,6 +15,7 @@
 
 #include <vector>
 #include <string>
+#include <list>
 
 #include <GL/glew.h>
 #include <tiffio.h>
@@ -23,6 +24,18 @@
 
 #include "tree.hpp"
 #include "queue.hpp"
+
+//------------------------------------------------------------------------------
+
+struct sph_file
+{
+    sph_file(const std::string& name);
+    
+    std::string name;
+    uint32 w, h;
+    uint16 c, b;
+    uint32 n;
+};
 
 //------------------------------------------------------------------------------
 
@@ -45,15 +58,15 @@ struct sph_page
 
 struct sph_task
 {
-    sph_task(int f=-1, int i=-1, void *p=0) : f(f), i(i), p(p) { }
+    sph_task(int f=-1, int i=-1, GLuint o=0, GLsizei=0);
     
-    int    f, i;
-    uint32 w, h;
-    uint16 c, b;
+    int    f;
+    int    i;
+    GLuint o;
     void  *p;
     
-    GLuint make_texture();
-    void   load_texture(TIFF *);
+    GLuint make_texture(GLuint, uint32, uint32, uint16, uint16);
+    void   load_texture(TIFF *, uint32, uint32, uint16, uint16);
 };
 
 //------------------------------------------------------------------------------
@@ -72,15 +85,17 @@ public:
      
 private:
 
-    std::vector<std::string> files;
-    
+    std::vector<sph_file> files;
+
+    std::list<GLuint> pbos;
+        
     tree <sph_page> pages;
     queue<sph_task> needs;
     queue<sph_task> loads;
-    
+
     const int size;
     
-    SDL_Thread *thread[2];
+    SDL_Thread *thread[4];
     
     friend int loader(void *);
 };
