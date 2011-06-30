@@ -42,7 +42,7 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
-    void draw_face(int, int, int, double, double, double, double, int);
+    void draw_face(int, int, int, double, double, double, double);
     void prep_face(int, int, int, double, double, double, double,
                    const double *, int, int);
 

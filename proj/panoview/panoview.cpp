@@ -32,12 +32,14 @@
 // }
 
 panoview::panoview(const std::string& tag) :
-    app::prog(tag), C(256), L(C, 16, 3, 512)
+//    app::prog(tag), C(256), L(C, 16, 3, 512)
+    app::prog(tag), C(256), L(C, 16, 4, 512), spin(0)
 {
     int t;
     
 //    panoL = C.add_file("/home/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
-    panoL = C.add_file("/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
+//    panoL = C.add_file("/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
+    panoL = C.add_file("/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif");
 
     C.get_page(panoL, 0, 0, t);
     C.get_page(panoL, 1, 0, t);
@@ -93,14 +95,29 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
 bool panoview::process_event(app::event *E)
 {
-//    if (E->get_type() == E_TICK)
-//    {
-//        ::user->turn(E->data.tick.dt / 75.0,
-//                     E->data.tick.dt / 70.0, 0.0);
-//        return false;
-//    }
-//    else
-        return prog::process_event(E);
+    if (E->get_type() == E_KEY)
+    {
+        if (E->data.key.d)
+            switch (E->data.key.k)
+            {
+            case '0': spin = 0; break;
+            case '1': spin = 1; break;
+            case '2': spin = 2; break;
+            case '3': spin = 3; break;
+            case '4': spin = 4; break;
+            case '5': spin = 5; break;
+            case '6': spin = 6; break;
+            case '7': spin = 7; break;
+            case '8': spin = 8; break;
+            case '9': spin = 9; break;
+            }
+    }
+    if (E->get_type() == E_TICK)
+    {
+        if (spin)
+            ::user->look(spin * E->data.tick.dt / 100.0, 0.0);
+    }
+    return prog::process_event(E);
 }
 
 //------------------------------------------------------------------------------

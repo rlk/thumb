@@ -35,6 +35,8 @@ public:
     
 private:
 
+    int spin;
+
     sph_cache C;
     sph_model L;
     
