@@ -34,8 +34,8 @@
 panoview::panoview(const std::string& tag) :
     app::prog(tag), C(256), L(C, 16, 3, 512)
 {
-    panoL = C.add_file("/home/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
-//  panoL = C.add_file("/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
+//    panoL = C.add_file("/home/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
+    panoL = C.add_file("/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
 }
 
 panoview::~panoview()
@@ -84,15 +84,13 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
 bool panoview::process_event(app::event *E)
 {
-/*
-    if (E->get_type() == E_TICK)
-    {
-        ::user->turn(E->data.tick.dt / 75.0,
-                     E->data.tick.dt / 70.0, 0.0);
-        return false;
-    }
-    else
-*/
+//    if (E->get_type() == E_TICK)
+//    {
+//        ::user->turn(E->data.tick.dt / 75.0,
+//                     E->data.tick.dt / 70.0, 0.0);
+//        return false;
+//    }
+//    else
         return prog::process_event(E);
 }
 

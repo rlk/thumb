@@ -40,7 +40,7 @@ sph_cache::~sph_cache()
     // Continue servicing the loads queue until the needs queue is emptied.
     
     while (!needs.empty())
-        update();
+        update(0);
     
     // Enqueue an exit command for each loader thread.
     
@@ -81,67 +81,60 @@ int sph_cache::add_file(const std::string& name)
 // Return the texture object associated with the requested page. Request the
 // image if necessary. Eject the LRU page if needed.
 
-GLuint sph_cache::get_page(int f, int i)
+GLuint sph_cache::get_page(int t, int f, int i)
 {
-    if (i < int(files[f].n))
+    if (pages.size())
     {
-        sph_page page = pages.search(sph_page(f, i));
+        sph_page& page = pages.search(sph_page(f, i), t);
     
         if (page.f == f && page.i == i)
             return page.o;
-        else
-        {
-            if (!pbos.empty() && !needs.full())
-            {
-                uint32 w = files[f].w;
-                uint32 h = files[f].h;
-                uint16 c = files[f].c;
-                uint16 b = files[f].b;
-
-                GLsizei s;
-
-                if (c == 3 && b == 8)
-                    s = w * h * 4 * b / 8;
-                else
-                    s = w * h * c * b / 8;
-
-                while (pages.size() >= size)
-                {
-                    page = pages.eject();
-                    glDeleteTextures(1, &page.o);
-                }
-
-                GLuint o = pbos.front();
-                pbos.pop_front();
-
-                needs.insert(sph_task(f, i, o, s));
-                pages.insert(sph_page(f, i));
-            }
-        }
     }
+
+    if (!pbos.empty() && !needs.full())
+    {
+        uint32 w = files[f].w;
+        uint32 h = files[f].h;
+        uint16 c = files[f].c;
+        uint16 b = files[f].b;
+
+        GLsizei s;
+
+        if (c == 3 && b == 8)
+            s = w * h * 4 * b / 8;
+        else
+            s = w * h * c * b / 8;
+
+        while (pages.size() >= size)
+        {
+            sph_page page = pages.eject();
+            glDeleteTextures(1, &page.o);
+        }
+
+        GLuint o = pbos.front();
+        pbos.pop_front();
+
+        needs.insert(sph_task(f, i, o, s));
+        pages.insert(sph_page(f, i), t);
+    }
+
     return 0;
 }
 
 // Handle incoming textures on the loads queue.
 
-void sph_cache::update()
+void sph_cache::update(int t)
 {
     for (int c = 0; !loads.empty() && c < 4; ++c)
     {
-        sph_task task = loads.remove();
-        sph_page page = pages.search(sph_page(task.f, task.i));
+        sph_task  task = loads.remove();
+        sph_page& page = pages.search(sph_page(task.f, task.i), t);
         
         if (page.f == task.f && page.i == task.i)
-        {
-            uint32 w = files[task.f].w;
-            uint32 h = files[task.f].h;
-            uint16 c = files[task.f].c;
-            uint16 b = files[task.f].b;
-            
-            pages.remove(page);
-            page.o = task.make_texture(w, h, c, b);
-            pages.insert(page);
-        }
+
+            page.o = task.make_texture(files[task.f].w, files[task.f].h,
+                                       files[task.f].c, files[task.f].b);
+
         else task.cancel();
 
         pbos.push_back(task.o);
@@ -152,18 +145,15 @@ void sph_cache::update()
 
 struct draw_state
 {
-    int r;
-    int c;
-    int i;
-    int j;
+    int r, c;
+    int i, j;
 };
 
-static void draw_page(void *node, void *data)
+static void draw_page(sph_page& page, void *data)
 {
-    sph_page *page = (sph_page   *) node;
     draw_state *st = (draw_state *) data;
 
-    glBindTexture(GL_TEXTURE_2D, page->o);
+    glBindTexture(GL_TEXTURE_2D, page.o);
 
     glBegin(GL_QUADS);
     {
@@ -192,26 +182,19 @@ void sph_cache::draw()
     st.i = 0;
     st.j = 0;
 
-    glActiveTexture(GL_TEXTURE0);
     glEnable(GL_TEXTURE_2D);
 
     glPushAttrib(GL_VIEWPORT_BIT);
     {
         glViewport(0, 0, st.c * 32, st.r * 32);
+
         glMatrixMode(GL_PROJECTION);
-        glPushMatrix();
         glLoadIdentity();
         glOrtho(st.c, 0, st.r, 0, 0, 1);
         glMatrixMode(GL_MODELVIEW);
-        glPushMatrix();
         glLoadIdentity();
-        {
-            pages.map(draw_page, &st);
-        }
-        glMatrixMode(GL_PROJECTION);
-        glPopMatrix();
-        glMatrixMode(GL_MODELVIEW);
-        glPopMatrix();
+
+        pages.map(draw_page, &st);
     }
     glPopAttrib();
 }
@@ -339,38 +322,51 @@ void sph_task::cancel()
 
 void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
 {
-    // Pad a 24-bit image to 32-bit BGRA.
+    // Confirm the page format.
     
-    if (c == 3 && b == 8)
+    uint32 W, H;
+    uint16 C, B;
+    
+    TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &W);
+    TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &H);
+    TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &B);
+    TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &C);
+
+    if (W == w && H == h && B == b && C == c)
     {
-        if (void *q = malloc(TIFFScanlineSize(T)))
+        // Pad a 24-bit image to 32-bit BGRA.
+        
+        if (c == 3 && b == 8)
         {
-            const uint32 S = w * 4 * b / 8;
+            if (void *q = malloc(TIFFScanlineSize(T)))
+            {
+                const uint32 S = w * 4 * b / 8;
+
+                for (uint32 r = 0; r < h; ++r)
+                {
+                    TIFFReadScanline(T, q, r, 0);
+                    
+                    for (int j = w - 1; j >= 0; --j)
+                    {
+                        uint8 *s = (uint8 *) q         + j * c * b / 8;
+                        uint8 *d = (uint8 *) p + r * S + j * 4 * b / 8;
+                        
+                        d[0] = s[2];
+                        d[1] = s[1];
+                        d[2] = s[0];
+                        d[3] = 0xFF;
+                    }
+                }
+                free(q);
+            }
+        }
+        else
+        {
+            const uint32 S = TIFFScanlineSize(T);
 
             for (uint32 r = 0; r < h; ++r)
-            {
-                TIFFReadScanline(T, q, r, 0);
-                
-                for (int j = w - 1; j >= 0; --j)
-                {
-                    uint8 *s = (uint8 *) q         + j * c * b / 8;
-                    uint8 *d = (uint8 *) p + r * S + j * 4 * b / 8;
-                    
-                    d[0] = s[2];
-                    d[1] = s[1];
-                    d[2] = s[0];
-                    d[3] = 0xFF;
-                }
-            }
-            free(q);
+                TIFFReadScanline(T, (uint8 *) p + r * S, r, 0);
         }
-    }
-    else
-    {
-        const uint32 S = TIFFScanlineSize(T);
-
-        for (uint32 r = 0; r < h; ++r)
-            TIFFReadScanline(T, (uint8 *) p + r * S, r, 0);
     }
 }
 
@@ -450,27 +446,6 @@ sph_file::sph_file(const std::string& name) : name(name)
         TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
         TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
 
-        n = 0;
-
-        // Count the pages and confirm that all have identical formats.
-
-        while (TIFFReadDirectory(T))
-        {
-            uint32 W, H;
-            uint16 B, C;
-            
-            TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &W);
-            TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &H);
-            TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &B);
-            TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &C);
-
-            if (w != W || h != H || b != B || c != C)
-                fprintf(stderr, "Warning: TIFF file %s "
-                        "page %d has format %dx%dx%d@%d "
-                        "while the root has %dx%dx%d@%d\n",
-                        name.c_str(), n, W, H, C, B, w, h, c, b);
-            n++;
-        }
         TIFFClose(T);
     }
 }

@@ -21,7 +21,8 @@
 #ifndef TREE_HPP
 #define TREE_HPP
 
-#include <iostream>
+#include <cassert>
+#include <cstdio>
 
 //------------------------------------------------------------------------------
 
@@ -32,8 +33,8 @@ public:
     tree() : root(0), count(0) { }
    ~tree();
    
-    T    search(T);
-    void insert(T);
+    T&   search(T, int);
+    void insert(T, int);
     void remove(T);
     
     T    eject();
@@ -41,7 +42,7 @@ public:
     void dump();
     int  size() const { return count; }
 
-    void map(void (*)(void *, void *), void *);
+    void map(void (*)(T&, void *), void *);
     
 private:
 
@@ -51,6 +52,7 @@ private:
     {
         node *l;
         node *r;
+        int   t;
         T     p;
     };
     
@@ -60,11 +62,12 @@ private:
 
     // LRU ejection handlers.
 
-    node *dig(node *,  int &);
-    T     cut(node *, node *);
+    node *oldest(node *);
+    node *choose(node *);
+    void replace(node *, node *, node *);
+    void  unlink(node *, node *, node *);
     
-    void dump(node *, int);
-    void map(node *, void (*)(void *, void *), void *);
+    void map(node *, void (*)(T&, void *), void *);
 };
 
 //------------------------------------------------------------------------------
@@ -136,17 +139,15 @@ template <typename T> typename tree<T>::node *tree<T>::splay(node *t, T p)
 // search, insert, and remove. Each of these splays the requested node to the
 // root, thus optimizing access to related items.
 
-template <typename T> T tree<T>::search(T p)
+template <typename T> T& tree<T>::search(T p, int t)
 {
-    if (root)
-    {
-        root = splay(root, p);
-        return root->p;
-    }
-    return T();
+    assert(root);
+    root = splay(root, p);
+    root->t = t;
+    return root->p;
 }
 
-template <typename T> void tree<T>::insert(T p)
+template <typename T> void tree<T>::insert(T p, int t)
 {
     node *m = root = splay(root, p);
 
@@ -156,6 +157,7 @@ template <typename T> void tree<T>::insert(T p)
         {
             count++;
             n->p = p;
+            n->t = t;
             root = n;
 
             if (m == 0)
@@ -206,113 +208,113 @@ template <typename T> void tree<T>::clear()
 }
 
 //------------------------------------------------------------------------------
-// The following functions implement a non-standard splay tree operation, LRU
-// eject. The dig function searches for the deepest node in the tree and the cut
-// function removes it. Both of these actions are performed without splaying the
-// tree, as to do so would optimize it toward items related to the LRU. 
+
+// Delete the node with the lowest time value. Do so in the fashion of a binary
+// search tree, so as not to bias the splay.
 
 template <typename T> T tree<T>::eject()
 {
-    int d = 0;
-
-    if (node *m = dig(root, d))
+    T p;
+    
+    if (node *n = oldest(root))
     {
+        p = n->p;
+        unlink(root, 0, n);
+        delete(n);
         count--;
-        
-        if (m == root)
-        {
-            T p = m->p;
-            root = 0;
-            delete m;
-            return p;
-        }
-        else return cut(root, m);
     }
-    return T();
+    return p;
 }
 
-template <typename T> typename tree<T>::node *tree<T>::dig(node *t, int& d)
+// Seek the node with the lowest time value.
+
+template <typename T> typename tree<T>::node *tree<T>::oldest(node *t)
 {
     if (t)
     {
-        if (t->l == 0 && t->r == 0)
-        {
-            d = 0;
-            return t;
-        }
-        else
-        {
-            int dl = -1;
-            int dr = -1;
-            
-            node *l = t->l ? dig(t->l, dl) : 0;
-            node *r = t->r ? dig(t->r, dr) : 0;
-
-            if (dl > dr) { d = dl + 1; return l; }
-            else         { d = dr + 1; return r; }
-        }
+        node *l = oldest(t->l);
+        node *r = oldest(t->r);
+        
+        if (l && r) return (l->t < r->t) ? l : r;
+        if (l)      return l;
+        if (r)      return r;
     }
-    return 0;
+    return t;
 }
 
-template <typename T> T tree<T>::cut(node *t, node *c)
+// Replace node a with node b in the children of node n. Beware the root.
+
+template <typename T> void tree<T>::replace(node *n, node *a, node *b)
 {
-    if (t && c)
+    if (n)
     {
-        if (t->l == c)
-        {
-            T p = c->p;        
-            t->l = 0;
-            delete c;
-            return p;
-        }
-        if (t->r == c)
-        {
-            T p = c->p;        
-            t->r = 0;
-            delete c;
-            return p;
-        }
-        
-        if (c->p < t->p)
-            return cut(t->l, c);
+        if (n->l == a)
+            n->l = b;
         else
-            return cut(t->r, c);
+            n->r = b;
     }
-    return T();
+    else root = b;
+}
+
+// Seek either the successor or predecessor of the given node and unlink it.
+
+template <typename T> typename tree<T>::node *tree<T>::choose(node *n)
+{
+    node *p = n;
+    node *c;
+    
+    if (lrand48() & 1)
+    {
+        for (c = n->l; c->r; c = c->r)
+             p = c;
+
+        p->r = 0;
+        return c;
+    }
+    else
+    {
+        for (c = n->r; c->l; c = c->l)
+             p = c;
+
+        p->l = 0;
+        return c;
+    }
+}
+
+// Unlink node n from the tree rooted at node t. Node p tracks the parent.
+
+template <typename T> void tree<T>::unlink(node *t, node *p, node *n)
+{
+    if (t)
+    {
+        if      (n->p < t->p) unlink(t->l, t, n);
+        else if (t->p < n->p) unlink(t->r, t, n);
+        else
+        {
+            if      (n->l == 0 && n->r == 0) replace(p, n, 0);
+            else if (n->l == 0)              replace(p, n, n->r);
+            else if (n->r == 0)              replace(p, n, n->l);
+            else
+            {
+                node *c = choose(n);
+                c->l = n->l;
+                c->r = n->r;
+                replace(p, n, c);
+            }
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
 
-template <typename T> void tree<T>::dump(node *t, int d)
-{
-    if (t)
-    {
-        dump(t->l, d + 1);
-
-        for (int i = 0; i < d; ++i)
-            std::cout << "  ";            
-        std::cout << t->p << std::endl;
-        
-        dump(t->r, d + 1);
-    }
-}
-
-template <typename T> void tree<T>::dump()
-{
-    dump(root, 0);
-}
-
-//------------------------------------------------------------------------------
-
-template <typename T> void tree<T>::map(node *t, void (*f)(void *, void *), void *p)
+template <typename T> void tree<T>::map(node *t, void (*f)(T&, void *), void *p)
 {
     if (t->l) map(t->l, f, p);
-    f(&t->p, p);
+    f(t->p, p);
     if (t->r) map(t->r, f, p);
 }
 
-template <typename T> void tree<T>::map(void (*f)(void *, void *), void *p)
+template <typename T> void tree<T>::map(void (*f)(T&, void *), void *p)
 {
     if (root) map(root, f, p);
 }

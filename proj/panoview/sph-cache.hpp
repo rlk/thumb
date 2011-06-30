@@ -34,7 +34,6 @@ struct sph_file
     std::string name;
     uint32 w, h;
     uint16 c, b;
-    uint32 n;
 };
 
 //------------------------------------------------------------------------------
@@ -80,9 +79,9 @@ public:
    ~sph_cache();
 
     int    add_file(const std::string&);
-    GLuint get_page(int, int);
+    GLuint get_page(int, int, int);
     
-    void update();
+    void update(int);
     void draw();
 
 private:

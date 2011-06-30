@@ -36,6 +36,7 @@ private:
 
     int depth;
     int size;
+    int time;
 
     // Data structures and algorithms for handling face adaptive subdivision.
 

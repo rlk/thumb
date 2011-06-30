@@ -25,7 +25,7 @@
 //------------------------------------------------------------------------------
 
 sph_model::sph_model(sph_cache& cache, int n, int m, int s) :
-    cache(cache), depth(m), size(s), status(cube_size(m), s_halt)
+    cache(cache), depth(m), size(s), time(0), status(cube_size(m), s_halt)
 {
     init_program();
     init_arrays(n);
@@ -169,7 +169,7 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
     for (int i = 0; i < 6; ++i)
         prep_face(i, i, depth, 0, 1, 0, 1, M, w, h);
     
-    cache.update();
+    cache.update(time);
 }
 
 void sph_model::prep_face(int f, int i, int d,
@@ -281,7 +281,10 @@ void sph_model::draw(const double *P, const double *V, int f)
     glBindBuffer(GL_ARRAY_BUFFER,         0);
     glDisableClientState(GL_VERTEX_ARRAY);
 
+    glActiveTexture(GL_TEXTURE0);
+
     cache.draw();
+    time++;
 }
 
 void sph_model::draw_face(int f, int i, int d,
@@ -294,7 +297,7 @@ void sph_model::draw_face(int f, int i, int d,
         glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
         glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
 
-        if ((o = cache.get_page(f, i))) B = d;
+        if ((o = cache.get_page(time, f, i))) B = d;
 
         glActiveTexture(GL_TEXTURE0 + d);
         glBindTexture(GL_TEXTURE_2D, o);
