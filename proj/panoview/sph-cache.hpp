@@ -40,9 +40,12 @@ struct sph_file
 
 struct sph_page
 {
-    sph_page(int f=-1, int i=-1, GLuint o=0) : f(f), i(i), o(o) { }
+    sph_page(int f=-1, int i=-1, int t=0, GLuint o=0)
+        : f(f), i(i), t(t), o(o) { }
 
-    int f, i;
+    int    f;
+    int    i;
+    int    t;
     GLuint o;
     
     bool operator<(const sph_page& that) const {
@@ -79,7 +82,8 @@ public:
    ~sph_cache();
 
     int    add_file(const std::string&);
-    GLuint get_page(int, int, int);
+    GLuint get_page(int, int, int, int&);
+    GLuint get_fill() { return filler; }
     
     void update(int);
     void draw();
@@ -94,6 +98,7 @@ private:
     queue<sph_task> needs;
     queue<sph_task> loads;
 
+    GLuint filler;
     const int size;
     
     SDL_Thread *thread[4];

@@ -38,6 +38,8 @@ private:
     int size;
     int time;
 
+    GLfloat age(int);
+
     // Data structures and algorithms for handling face adaptive subdivision.
 
     void draw_face(int, int, int, double, double, double, double, int);
@@ -70,9 +72,8 @@ private:
     GLuint pos_d;
     GLuint tex_a[8];
     GLuint tex_d[8];
-    GLuint this_level;
-    GLuint best_level;
-    GLuint page_size;
+    GLuint tex_t[8];
+    GLuint level;
     
     // OpenGL geometry state.
     

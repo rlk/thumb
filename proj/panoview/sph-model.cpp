@@ -209,6 +209,12 @@ void sph_model::prep_face(int f, int i, int d,
 
 //------------------------------------------------------------------------------
 
+GLfloat sph_model::age(int then)
+{
+    GLfloat a = GLfloat(time - then) / 60.;
+    return (a > 1.f) ? 1.f : a;
+}
+
 void sph_model::draw(const double *P, const double *V, int f)
 {
     double M[16];
@@ -239,10 +245,14 @@ void sph_model::draw(const double *P, const double *V, int f)
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
 
+    for (int i = 7; i >= 0; --i)
+    {
+        glActiveTexture(GL_TEXTURE0 + i);
+        glBindTexture(GL_TEXTURE_2D, cache.get_fill());
+    }
+
     glUseProgram(program);
     {
-        glUniform1f(page_size, size);
-
         for (int i = 0; i < 6; ++i)
         {
             double a[3], b[3], c[3], d[3];
@@ -257,22 +267,7 @@ void sph_model::draw(const double *P, const double *V, int f)
             glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
             glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
 
-            glUniform1i(best_level, 0);
-
-#if 1
             draw_face(f, i, 0, 0, 1, 0, 1, 0);
-#else
-            GLfloat fill[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-            GLfloat line[4] = { 0.0f, 0.0f, 0.0f, 0.4f };
-        
-            glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, fill);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-            draw_face(f, i, 0, 0, 1, 0, 1, 0);
-
-            glMaterialfv (GL_FRONT_AND_BACK, GL_DIFFUSE, line);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            draw_face(f, i, 0, 0, 1, 0, 1, 0);
-#endif
         }
     }
     glUseProgram(0);
@@ -294,11 +289,14 @@ void sph_model::draw_face(int f, int i, int d,
 
     if (status[i] != s_halt)
     {
+        int then = time;
+        
+        if ((o = cache.get_page(f, i, time, then))) B = d;
+
         glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
         glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
-
-        if ((o = cache.get_page(time, f, i))) B = d;
-
+        glUniform1f(tex_t[d], age(then));
+        
         glActiveTexture(GL_TEXTURE0 + d);
         glBindTexture(GL_TEXTURE_2D, o);
     }
@@ -325,11 +323,16 @@ void sph_model::draw_face(int f, int i, int d,
                      | (status[face_parent(e)] == s_draw ? 4 : 0)
                      | (status[face_parent(w)] == s_draw ? 8 : 0);
 
-        glUniform1i(best_level, B);
-        glUniform1i(this_level, d);
+        glUniform1i(level, d);
         
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
         glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
+    }
+    
+    if (status[i] != s_halt)
+    {
+        glActiveTexture(GL_TEXTURE0 + d);
+        glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 }
 
@@ -353,24 +356,23 @@ void sph_model::init_program()
     {
         vert_shader = glsl_init_shader(GL_VERTEX_SHADER,   vert_source);
         frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_source);
-        program     = glsl_init_program(vert_shader, 0, frag_shader);
+        program     = glsl_init_program(vert_shader, frag_shader);
 
         glUseProgram(program);
         
-        pos_a      = glGetUniformLocation(program, "pos_a");
-        pos_b      = glGetUniformLocation(program, "pos_b");
-        pos_c      = glGetUniformLocation(program, "pos_c");
-        pos_d      = glGetUniformLocation(program, "pos_d");
-        this_level = glGetUniformLocation(program, "this_level");
-        best_level = glGetUniformLocation(program, "best_level");
-        page_size  = glGetUniformLocation(program, "page_size");
+        pos_a = glGetUniformLocation(program, "pos_a");
+        pos_b = glGetUniformLocation(program, "pos_b");
+        pos_c = glGetUniformLocation(program, "pos_c");
+        pos_d = glGetUniformLocation(program, "pos_d");
+        level = glGetUniformLocation(program, "level");
 
-        for (int l = 0; l < 8; ++l)
+        for (int d = 0; d < 8; ++d)
         {
-            tex_a[l] = glGetUniformLocationv(program, "tex_a[%d]", l);
-            tex_d[l] = glGetUniformLocationv(program, "tex_d[%d]", l);
+            tex_a[d] = glGetUniformLocationv(program, "tex_a[%d]", d);
+            tex_d[d] = glGetUniformLocationv(program, "tex_d[%d]", d);
+            tex_t[d] = glGetUniformLocationv(program, "tex_t[%d]", d);
 
-            glUniform1i(glGetUniformLocationv(program, "texture[%d]", l), l);
+            glUniform1i(glGetUniformLocationv(program, "texture[%d]", d), d);
         }
     }
         

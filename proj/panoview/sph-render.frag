@@ -1,58 +1,91 @@
 
-uniform float page_size;
-uniform int   this_level;
-uniform int   best_level;
-
-uniform vec2 tex_a[8];
-uniform vec2 tex_d[8];
+uniform vec2  tex_a[8];
+uniform vec2  tex_d[8];
+uniform float tex_t[8];
 
 uniform sampler2D texture[8];
 
 //------------------------------------------------------------------------------
 
-float sat(float k)
+// Some hardware disallows accessing a sampler array element using a computed
+// index. So, we need to unroll these.
+
+vec4 tex0(vec2 t)
 {
-    return clamp(k, 0.0, 1.0);
+    vec4 c = texture2D(texture[0], t);
+    return c;
 }
 
-vec3 color(float k)
+vec4 tex1(vec2 t)
 {
-    return vec3(sat(k - 4.0) + sat(2.0 - k),
-                sat(k      ) * sat(4.0 - k),
-                sat(k - 2.0) * sat(6.0 - k));
+    vec4 c = texture2D(texture[1], (t - tex_a[1]) / (tex_d[1] - tex_a[1]));
+    c.a *= tex_t[1];
+    return c;
+}
+
+vec4 tex2(vec2 t)
+{
+    vec4 c = texture2D(texture[2], (t - tex_a[2]) / (tex_d[2] - tex_a[2]));
+    c.a *= tex_t[2];
+    return c;
+}
+
+vec4 tex3(vec2 t)
+{
+    vec4 c = texture2D(texture[3], (t - tex_a[3]) / (tex_d[3] - tex_a[3]));
+    c.a *= tex_t[3];
+    return c;
+}
+
+vec4 tex4(vec2 t)
+{
+    vec4 c = texture2D(texture[4], (t - tex_a[4]) / (tex_d[4] - tex_a[4]));
+    c.a *= tex_t[4];
+    return c;
+}
+
+vec4 tex5(vec2 t)
+{
+    vec4 c = texture2D(texture[5], (t - tex_a[5]) / (tex_d[5] - tex_a[5]));
+    c.a *= tex_t[5];
+    return c;
+}
+
+vec4 tex6(vec2 t)
+{
+    vec4 c = texture2D(texture[6], (t - tex_a[6]) / (tex_d[6] - tex_a[6]));
+    c.a *= tex_t[6];
+    return c;
+}
+
+vec4 tex7(vec2 t)
+{
+    vec4 c = texture2D(texture[7], (t - tex_a[7]) / (tex_d[7] - tex_a[7]));
+    c.a *= tex_t[7];
+    return c;
 }
 
 //------------------------------------------------------------------------------
 
-vec2 tex(vec2 a, vec2 d, vec2 t)
+vec4 blend(vec4 a, vec4 b)
 {
-    return (t - a) / (d - a);
+    return vec4(mix(b.rgb, a.rgb, a.a), 1.0);
 }
 
-vec4 sample(float k)
+vec4 sample(vec2 t)
 {
-    vec2 u = gl_TexCoord[0].xy;
-
-    int   i = int(floor(k));
-    float t =     fract(k);
-    
-    if (i == 0) return mix(texture2D(texture[0], u),
-                           texture2D(texture[1], tex(tex_a[1], tex_d[1], u)), t);
-    if (i == 1) return mix(texture2D(texture[1], tex(tex_a[1], tex_d[1], u)),
-                           texture2D(texture[2], tex(tex_a[2], tex_d[2], u)), t);
-    if (i == 2) return mix(texture2D(texture[2], tex(tex_a[2], tex_d[2], u)),
-                           texture2D(texture[3], tex(tex_a[3], tex_d[3], u)), t);
-    if (i == 3) return mix(texture2D(texture[3], tex(tex_a[3], tex_d[3], u)),
-                           texture2D(texture[4], tex(tex_a[4], tex_d[4], u)), t);
-                return     texture2D(texture[4], tex(tex_a[4], tex_d[4], u));
+    return
+        blend(tex7(t),
+            blend(tex6(t),
+                blend(tex5(t),
+                    blend(tex4(t),
+                        blend(tex3(t),
+                            blend(tex2(t),
+                                blend(tex1(t), tex0(t))))))));
 }
 
 void main()
 {
-    vec2  w = fwidth(gl_TexCoord[0].xy * page_size);
-    float r = max(w.x, w.y);
-    float k = clamp(-log2(r), 0.0, float(best_level));
-    
-    gl_FragColor = sample(k) * gl_FrontMaterial.diffuse;
+    gl_FragColor = sample(gl_TexCoord[0].xy);
 }
 

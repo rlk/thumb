@@ -33,6 +33,14 @@ sph_cache::sph_cache(int n) : needs(32), loads(8), size(n)
         glGenBuffers(1, &o);
         pbos.push_back(o);
     }
+    
+    GLfloat p[4] = { 0, 0, 0, 0 };
+    
+    glGenTextures(1, &filler);
+    glBindTexture  (GL_TEXTURE_2D, filler);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
 }
 
 sph_cache::~sph_cache()
@@ -63,11 +71,13 @@ sph_cache::~sph_cache()
         glDeleteBuffers(1, &pbos.back());
         pbos.pop_back();
     }
+    
+    glDeleteTextures(1, &filler);
 }
 
 //------------------------------------------------------------------------------
 
-// Append a string to the file list and return its index.
+// Append a string to the file list and return its index. Queue the roots.
 
 int sph_cache::add_file(const std::string& name)
 {
@@ -81,14 +91,17 @@ int sph_cache::add_file(const std::string& name)
 // Return the texture object associated with the requested page. Request the
 // image if necessary. Eject the LRU page if needed.
 
-GLuint sph_cache::get_page(int t, int f, int i)
+GLuint sph_cache::get_page(int f, int i, int t, int& time)
 {
     if (pages.size())
     {
         sph_page& page = pages.search(sph_page(f, i), t);
     
         if (page.f == f && page.i == i)
+        {
+            time = page.t;
             return page.o;
+        }
     }
 
     if (!pbos.empty() && !needs.full())
@@ -115,10 +128,10 @@ GLuint sph_cache::get_page(int t, int f, int i)
         pbos.pop_front();
 
         needs.insert(sph_task(f, i, o, s));
-        pages.insert(sph_page(f, i), t);
+        pages.insert(sph_page(f, i, 0, filler), t);
     }
 
-    return 0;
+    return filler;
 }
 
 // Handle incoming textures on the loads queue.
@@ -131,10 +144,11 @@ void sph_cache::update(int t)
         sph_page& page = pages.search(sph_page(task.f, task.i), t);
         
         if (page.f == task.f && page.i == task.i)
-
+        {
+            page.t = t;
             page.o = task.make_texture(files[task.f].w, files[task.f].h,
                                        files[task.f].c, files[task.f].b);
-
+        }
         else task.cancel();
 
         pbos.push_back(task.o);
