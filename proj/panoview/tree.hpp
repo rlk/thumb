@@ -220,7 +220,7 @@ template <typename T> T tree<T>::eject()
     {
         p = n->p;
         unlink(root, 0, n);
-        delete(n);
+        delete n;
         count--;
     }
     return p;

@@ -33,7 +33,7 @@
 
 panoview::panoview(const std::string& tag) :
 //    app::prog(tag), C(256), L(C, 16, 3, 512)
-    app::prog(tag), C(256), L(C, 16, 4, 512), spin(0)
+    app::prog(tag), C(128), L(C, 16, 4, 512), spin(0)
 {
     int t;
     
@@ -81,7 +81,6 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
     double V[16];
 
-    // glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
     glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
  
     glClear(GL_COLOR_BUFFER_BIT |

@@ -278,7 +278,7 @@ void sph_model::draw(const double *P, const double *V, int f)
 
     glActiveTexture(GL_TEXTURE0);
 
-//    cache.draw();
+    cache.draw();
     time++;
 }
 

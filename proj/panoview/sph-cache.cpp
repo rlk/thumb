@@ -121,7 +121,8 @@ GLuint sph_cache::get_page(int f, int i, int t, int& time)
         while (pages.size() >= size)
         {
             sph_page page = pages.eject();
-            glDeleteTextures(1, &page.o);
+            if (page.o != filler)
+                glDeleteTextures(1, &page.o);
         }
 
         GLuint o = pbos.front();
@@ -130,7 +131,6 @@ GLuint sph_cache::get_page(int f, int i, int t, int& time)
         needs.insert(sph_task(f, i, o, s));
         pages.insert(sph_page(f, i, 0, filler), t);
     }
-
     return filler;
 }
 
