@@ -45,10 +45,6 @@ public:
 
     void map(void (*)(T&, void *), void *);
     
-private:
-
-    // Splay tree implementation.
-
     struct node
     {
         node *l;
@@ -57,6 +53,10 @@ private:
         T     p;
     };
     
+private:
+
+    // Splay tree implementation.
+
     node *splay(node *t, T p);
     node *root;
     int  count;
@@ -224,7 +224,6 @@ template <typename T> T tree<T>::first()
         unlink(root, 0, n);
         delete n;
         count--;
-        if (count == 0) printf("empty!\n");
     }
     return p;
 }

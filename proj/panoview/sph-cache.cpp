@@ -73,10 +73,10 @@ sph_cache::~sph_cache()
     
     // Enqueue an exit command for each loader thread.
     
-    needs.insert(sph_task());
-    needs.insert(sph_task());
-    needs.insert(sph_task());
-    needs.insert(sph_task());
+    needs.insert(sph_task(-1, 1));
+    needs.insert(sph_task(-1, 2));
+    needs.insert(sph_task(-1, 3));
+    needs.insert(sph_task(-1, 4));
     
     // Await their exit. 
     
@@ -120,10 +120,12 @@ int sph_cache::add_file(const std::string& name)
 }
 
 // Return the texture object associated with the requested page. Request the
-// image if necessary. Eject the LRU page if needed.
+// image if necessary.
 
 GLuint sph_cache::get_page(int f, int i, int t, int& time)
 {
+    // If this page is loaded, return it.
+    
     if (pages.size())
     {
         sph_page& page = pages.search(sph_page(f, i), t);
@@ -135,21 +137,22 @@ GLuint sph_cache::get_page(int f, int i, int t, int& time)
         }
     }
 
-    if (!pbos.empty() && !needs.full())
+    // Else if this page is waiting, return filler.
+
+    if (waits.size())
     {
-        while (pages.size() >= size)
-        {
-            sph_page page = pages.eject();
-            texs.enq(page.o);
-        }
+        sph_page& page = waits.search(sph_page(f, i), t);
+    
+        if (page.f == f && page.i == i)
+            return filler;
+    }
 
-        GLuint u = pbos.deq();
-        
-        assert(u);
+    // Else request the page and note it waiting.
 
-        needs.insert(sph_task(f, i, u, pagelen(f)));
-//        needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
-        pages.insert(sph_page(f, i, texs.deq()), t);
+    if (!needs.full() && !pbos.empty())
+    {
+        waits.insert(sph_page(f, i), t);
+        needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
     }
 
     return filler;
@@ -161,19 +164,26 @@ void sph_cache::update(int t)
 {
     for (int c = 0; !loads.empty() && c < 4; ++c)
     {
-        sph_task  task = loads.remove();
-        sph_page& page = pages.search(sph_page(task.f, task.i), t);
+        // Eject a loaded page to make room.
         
-        if (page.f == task.f && page.i == task.i)
+        while (pages.size() >= size)
         {
-            page.t = t;
-            task.make_texture(page.o, files[task.f].w, files[task.f].h,
-                                      files[task.f].c, files[task.f].b);
+            sph_page page = pages.eject();
+            texs.enq(page.o);
         }
-        else task.dump_texture();
+
+        // Use the next load task to create a working page.
+
+        sph_task task = loads.remove();
+
+        GLuint o = texs.deq();
+
+        pages.insert(sph_page(task.f, task.i, o, t), t);
+        waits.remove(sph_page(task.f, task.i));        
         
-        assert(task.u);
-        pbos.enq(task.u);
+        task.make_texture(o, files[task.f].w, files[task.f].h,
+                             files[task.f].c, files[task.f].b);
+        pbos.enq(task.u);        
     }
 }
 
@@ -329,17 +339,12 @@ sph_page::sph_page(int f, int i, GLuint o, int t) : f(f), i(i), o(o), t(t)
 
 sph_task::sph_task(int f, int i, GLuint u, GLsizei s) : f(f), i(i), u(u), p(0)
 {
-    if (i >= 0)
-    {
-        assert(u);
-    }
     if (u)
     {
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
         {
             glBufferData(GL_PIXEL_UNPACK_BUFFER, s, 0, GL_STREAM_DRAW);
             p = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
-            printf("map %4d %3d %p\n", i, u, p);
         }
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
     }
@@ -352,7 +357,6 @@ void sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-        printf("unmap %3d\n", u);
 
         glBindTexture(GL_TEXTURE_2D, o);
         glTexImage2D (GL_TEXTURE_2D, 0, internal_form(c, b), w, h, 1,
@@ -368,7 +372,6 @@ void sph_task::dump_texture()
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-        printf("unmap %3d\n", u);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }

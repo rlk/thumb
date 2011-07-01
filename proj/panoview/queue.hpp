@@ -37,6 +37,7 @@ public:
 
     void insert(T);
     T    remove( );
+//    bool search(T);
     bool empty ( );
     bool full  ( );
     
@@ -81,12 +82,7 @@ template <typename T> void queue<T>::insert(T d)
     SDL_SemWait(free_slots);
     SDL_mutexP(data_mutex);
     {
-        int a = S.size();
         S.insert(d, 0);
-        int b = S.size();
-        assert(b == a + 1);
-//        data[last] = d;
-//        last = (last + 1) % size;
     }
     SDL_mutexV(data_mutex);
     SDL_SemPost(full_slots);
@@ -99,19 +95,33 @@ template <typename T> T queue<T>::remove()
     SDL_SemWait(full_slots);
     SDL_mutexP(data_mutex);
     {
-        int a = S.size();
         d = S.first();
-        int b = S.size();
-        assert(b == a - 1);
-//        d = data[first];
-//        first = (first + 1) % size;
     }
     SDL_mutexV(data_mutex);
     SDL_SemPost(free_slots);
     
     return d;
 }
+/*
+template <typename T> bool queue<T>::search(T d)
+{
+    bool b = true;
+    
+    SDL_mutexP(data_mutex);
+    {
+        if (S.size())
+        {
+            T& e = S.search(d, 0);
+            if (d < e) b = false;
+            if (e < d) b = false;
+        }
+        else b = false;
+    }
+    SDL_mutexV(data_mutex);
 
+    return b;
+}
+*/
 template <typename T> bool queue<T>::empty()
 {
     return (SDL_SemValue(full_slots) == 0);

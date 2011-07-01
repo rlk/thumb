@@ -119,6 +119,7 @@ private:
     fifo<GLuint> texs;
         
     tree <sph_page> pages;
+    tree <sph_page> waits;
     queue<sph_task> needs;
     queue<sph_task> loads;
 
