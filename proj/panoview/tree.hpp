@@ -37,6 +37,7 @@ public:
     void insert(T, int);
     void remove(T);
     
+    T    first();
     T    eject();
     void clear();
     void dump();
@@ -62,6 +63,7 @@ private:
 
     // LRU ejection handlers.
 
+    node  *first(node *);
     node *oldest(node *);
     node *choose(node *);
     void replace(node *, node *, node *);
@@ -74,6 +76,7 @@ private:
 
 template <typename T> tree<T>::~tree()
 {
+    clear();
 }
 
 template <typename T> typename tree<T>::node *tree<T>::splay(node *t, T p)
@@ -209,6 +212,23 @@ template <typename T> void tree<T>::clear()
 
 //------------------------------------------------------------------------------
 
+template <typename T> T tree<T>::first()
+{
+    T p;
+    
+    assert(root);
+    
+    if (node *n = first(root))
+    {
+        p = n->p;
+        unlink(root, 0, n);
+        delete n;
+        count--;
+        if (count == 0) printf("empty!\n");
+    }
+    return p;
+}
+
 // Delete the node with the lowest time value. Do so in the fashion of a binary
 // search tree, so as not to bias the splay.
 
@@ -216,6 +236,8 @@ template <typename T> T tree<T>::eject()
 {
     T p;
     
+    assert(root);
+
     if (node *n = oldest(root))
     {
         p = n->p;
@@ -224,6 +246,18 @@ template <typename T> T tree<T>::eject()
         count--;
     }
     return p;
+}
+
+//------------------------------------------------------------------------------
+
+template <typename T> typename tree<T>::node *tree<T>::first(node *t)
+{
+    node *n = t;
+    
+    while (n && n->l)
+           n  = n->l;
+           
+    return n;
 }
 
 // Seek the node with the lowest time value.

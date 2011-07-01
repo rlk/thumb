@@ -25,7 +25,7 @@
 //------------------------------------------------------------------------------
 
 sph_model::sph_model(sph_cache& cache, int n, int m, int s) :
-    cache(cache), depth(m), size(s), time(0), status(cube_size(m), s_halt)
+    cache(cache), depth(m), size(s), time(1), status(cube_size(m), s_halt)
 {
     init_program();
     init_arrays(n);

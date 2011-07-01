@@ -27,6 +27,23 @@
 
 //------------------------------------------------------------------------------
 
+template <typename T> class fifo : public std::list <T>
+{
+public:
+
+    void enq(T& p) {
+        this->push_front(p);
+    }
+    
+    T deq() {
+        T p = this->front();
+        this->pop_front();
+        return p;
+    }
+};
+
+//------------------------------------------------------------------------------
+
 struct sph_file
 {
     sph_file(const std::string& name);
@@ -40,13 +57,12 @@ struct sph_file
 
 struct sph_page
 {
-    sph_page(int f=-1, int i=-1, int t=0, GLuint o=0)
-        : f(f), i(i), t(t), o(o) { }
+    sph_page(int=-1, int=-1, GLuint=0, int=0);
 
     int    f;
     int    i;
-    int    t;
     GLuint o;
+    int    t;
     
     bool operator<(const sph_page& that) const {
         if (f == that.f)
@@ -60,16 +76,23 @@ struct sph_page
 
 struct sph_task
 {
-    sph_task(int f=-1, int i=-1, GLuint o=0, GLsizei=0);
+    sph_task(int=-1, int=-1, GLuint=0, GLsizei=0);
     
     int    f;
     int    i;
-    GLuint o;
+    GLuint u;
     void  *p;
     
-    GLuint make_texture(        uint32, uint32, uint16, uint16);
-    void   load_texture(TIFF *, uint32, uint32, uint16, uint16);
-    void   cancel();
+    void make_texture(GLuint, uint32, uint32, uint16, uint16);
+    void load_texture(TIFF *, uint32, uint32, uint16, uint16);
+    void dump_texture();
+
+    bool operator<(const sph_task& that) const {
+        if (f == that.f)
+            return i < that.i;
+        else
+            return f < that.f;
+    }
 };
 
 //------------------------------------------------------------------------------
@@ -92,7 +115,8 @@ private:
 
     std::vector<sph_file> files;
 
-    std::list<GLuint> pbos;
+    fifo<GLuint> pbos;
+    fifo<GLuint> texs;
         
     tree <sph_page> pages;
     queue<sph_task> needs;
@@ -100,6 +124,8 @@ private:
 
     GLuint filler;
     const int size;
+
+    GLsizei pagelen(int f);
     
     SDL_Thread *thread[4];
     

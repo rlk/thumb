@@ -19,20 +19,41 @@
 
 sph_cache::sph_cache(int n) : needs(32), loads(8), size(n)
 {
+    GLuint b;
+    GLuint o;
+    int    i;
+    
+    // Launch the image loader threads.
+    
     int loader(void *data);
 
     thread[0] = SDL_CreateThread(loader, this);
     thread[1] = SDL_CreateThread(loader, this);
     thread[2] = SDL_CreateThread(loader, this);
     thread[3] = SDL_CreateThread(loader, this);
- 
-    GLuint o;
 
-    for (int i = 0; i < 64; ++i)
+    // Generate pixel buffer objects.
+ 
+    for (i = 0; i < 64; ++i)
     {
-        glGenBuffers(1, &o);
-        pbos.push_back(o);
+        glGenBuffers(1, &b);
+        pbos.push_back(b);
     }
+    
+    // Generate texture objects.
+    
+    for (i = 0; i < n; ++i)
+    {
+        glGenTextures(1, &o);
+        glBindTexture  (GL_TEXTURE_2D, o);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+        texs.push_back(o);
+    }
+    
+    // Initialize the default transparent texture.
     
     GLfloat p[4] = { 0, 0, 0, 0 };
     
@@ -65,11 +86,21 @@ sph_cache::~sph_cache()
     SDL_WaitThread(thread[1], &s);
     SDL_WaitThread(thread[2], &s);
     SDL_WaitThread(thread[3], &s);
+
+    // Release the pixel buffer objects.
     
     while (!pbos.empty())
     {
         glDeleteBuffers(1, &pbos.back());
         pbos.pop_back();
+    }
+    
+    // Release the texture objects.
+    
+    while (!texs.empty())
+    {
+        glDeleteBuffers(1, &texs.back());
+        texs.pop_back();
     }
     
     glDeleteTextures(1, &filler);
@@ -106,31 +137,21 @@ GLuint sph_cache::get_page(int f, int i, int t, int& time)
 
     if (!pbos.empty() && !needs.full())
     {
-        uint32 w = files[f].w;
-        uint32 h = files[f].h;
-        uint16 c = files[f].c;
-        uint16 b = files[f].b;
-
-        GLsizei s;
-
-        if (c == 3 && b == 8)
-            s = w * h * 4 * b / 8;
-        else
-            s = w * h * c * b / 8;
-
         while (pages.size() >= size)
         {
             sph_page page = pages.eject();
-            if (page.o != filler)
-                glDeleteTextures(1, &page.o);
+            texs.enq(page.o);
         }
 
-        GLuint o = pbos.front();
-        pbos.pop_front();
+        GLuint u = pbos.deq();
+        
+        assert(u);
 
-        needs.insert(sph_task(f, i, o, s));
-        pages.insert(sph_page(f, i, 0, filler), t);
+        needs.insert(sph_task(f, i, u, pagelen(f)));
+//        needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
+        pages.insert(sph_page(f, i, texs.deq()), t);
     }
+
     return filler;
 }
 
@@ -146,12 +167,13 @@ void sph_cache::update(int t)
         if (page.f == task.f && page.i == task.i)
         {
             page.t = t;
-            page.o = task.make_texture(files[task.f].w, files[task.f].h,
-                                       files[task.f].c, files[task.f].b);
+            task.make_texture(page.o, files[task.f].w, files[task.f].h,
+                                      files[task.f].c, files[task.f].b);
         }
-        else task.cancel();
-
-        pbos.push_back(task.o);
+        else task.dump_texture();
+        
+        assert(task.u);
+        pbos.enq(task.u);
     }
 }
 
@@ -214,6 +236,21 @@ void sph_cache::draw()
 }
 
 //------------------------------------------------------------------------------
+
+// Compute the length of a page buffer for file f.
+
+GLsizei sph_cache::pagelen(int f)
+{
+    uint32 w = files[f].w;
+    uint32 h = files[f].h;
+    uint16 c = files[f].c;
+    uint16 b = files[f].b;
+
+    if (c == 3 && b == 8)
+        return w * h * 4 * b / 8; // *
+    else
+        return w * h * c * b / 8;
+}
 
 // Select an OpenGL internal texture format for an image with c channels and
 // b bits per channel.
@@ -279,14 +316,30 @@ static GLenum external_type(uint16 c, uint16 b)
 
 //------------------------------------------------------------------------------
 
-sph_task::sph_task(int f, int i, GLuint o, GLsizei s) : f(f), i(i), o(o), p(0)
+sph_page::sph_page(int f, int i, GLuint o, int t) : f(f), i(i), o(o), t(t)
 {
+    static const GLfloat p[4] = { 0, 0, 0, 0 };
+        
     if (o)
     {
-        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, o);
+        glBindTexture(GL_TEXTURE_2D, o);
+        glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
+    }
+}
+
+sph_task::sph_task(int f, int i, GLuint u, GLsizei s) : f(f), i(i), u(u), p(0)
+{
+    if (i >= 0)
+    {
+        assert(u);
+    }
+    if (u)
+    {
+        glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
         {
             glBufferData(GL_PIXEL_UNPACK_BUFFER, s, 0, GL_STREAM_DRAW);
             p = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+            printf("map %4d %3d %p\n", i, u, p);
         }
         glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
     }
@@ -294,40 +347,28 @@ sph_task::sph_task(int f, int i, GLuint o, GLsizei s) : f(f), i(i), o(o), p(0)
 
 // Upload the pixel buffer to a newly-generated OpenGL texture object.
 
-GLuint sph_task::make_texture(uint32 w, uint32 h, uint16 c, uint16 b)
+void sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
 {
-    GLuint t = 0;
-
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, o);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+        printf("unmap %3d\n", u);
 
-        GLenum in = internal_form(c, b);
-        GLenum ex = external_form(c);
-        GLenum ty = external_type(c, b);
-        
-        glGenTextures(1, &t);
-        glBindTexture(GL_TEXTURE_2D, t);
-
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-        
-        glTexImage2D(GL_TEXTURE_2D, 0, in, w, h, 1, ex, ty, 0);
+        glBindTexture(GL_TEXTURE_2D, o);
+        glTexImage2D (GL_TEXTURE_2D, 0, internal_form(c, b), w, h, 1,
+                      external_form(c), external_type(c, b), 0);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-    
-    return t;
 }
 
 // A texture was loaded but is no longer necessary. Discard the pixel buffer.
 
-void sph_task::cancel()
+void sph_task::dump_texture()
 {
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, o);
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+        printf("unmap %3d\n", u);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
@@ -349,7 +390,7 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
     if (W == w && H == h && B == b && C == c)
     {
         // Pad a 24-bit image to 32-bit BGRA.
-        
+
         if (c == 3 && b == 8)
         {
             if (void *q = malloc(TIFFScanlineSize(T)))
@@ -428,7 +469,10 @@ int loader(void *data)
     sph_task   task;
     
     while ((task = cache->needs.remove()).f >= 0)
-
+    {
+        assert(task.u);
+        assert(task.p);
+        
         if (TIFF *T = TIFFOpen(cache->files[task.f].name.c_str(), "r"))
         {
             if (up(T, task.i))
@@ -443,7 +487,7 @@ int loader(void *data)
             }
             TIFFClose(T);
         }        
-    
+    }
     return 0;
 }
 

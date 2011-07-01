@@ -24,7 +24,7 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 
-#include <iostream>
+#include "tree.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -45,29 +45,29 @@ private:
     SDL_sem   *full_slots;
     SDL_sem   *free_slots;
     SDL_mutex *data_mutex;
+
+    tree<T> S;
     
     int first;
     int last;
     int size;
     T  *data;
-    
-    void dump();
 };
 
 //------------------------------------------------------------------------------
 
-template <typename T> queue<T>::queue(int n) : first(0), last(0), size(n)
+template <typename T> queue<T>::queue(int n)  : first(0), last(0), size(n)
 {
     full_slots = SDL_CreateSemaphore(0);
     free_slots = SDL_CreateSemaphore(n);
     data_mutex = SDL_CreateMutex();
 
-    data = new T[n];
+//    data = new T[n];
 }
 
 template <typename T> queue<T>::~queue()
 {
-    delete [] data;
+//    delete [] data;
     
     SDL_DestroyMutex(data_mutex);
     SDL_DestroySemaphore(free_slots);
@@ -81,8 +81,12 @@ template <typename T> void queue<T>::insert(T d)
     SDL_SemWait(free_slots);
     SDL_mutexP(data_mutex);
     {
-        data[last] = d;
-        last = (last + 1) % size;
+        int a = S.size();
+        S.insert(d, 0);
+        int b = S.size();
+        assert(b == a + 1);
+//        data[last] = d;
+//        last = (last + 1) % size;
     }
     SDL_mutexV(data_mutex);
     SDL_SemPost(full_slots);
@@ -95,8 +99,12 @@ template <typename T> T queue<T>::remove()
     SDL_SemWait(full_slots);
     SDL_mutexP(data_mutex);
     {
-        d = data[first];
-        first = (first + 1) % size;
+        int a = S.size();
+        d = S.first();
+        int b = S.size();
+        assert(b == a - 1);
+//        d = data[first];
+//        first = (first + 1) % size;
     }
     SDL_mutexV(data_mutex);
     SDL_SemPost(free_slots);
@@ -115,16 +123,5 @@ template <typename T> bool queue<T>::full()
 }
 
 //------------------------------------------------------------------------------
-
-template <typename T> void queue<T>::dump()
-{
-    for (int i = 0; i < size; ++i)
-    {
-        std::cout << (i == first ? 'F' : '.');
-        std::cout << (i == last  ? 'L' : '.');
-        std::cout << data[i] << std::endl;
-    }
-    std::cout << std::endl;
-}
 
 #endif
