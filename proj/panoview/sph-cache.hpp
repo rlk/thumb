@@ -16,7 +16,7 @@
 #include <vector>
 #include <string>
 #include <list>
-#include <set>
+#include <map>
 
 #include <GL/glew.h>
 #include <tiffio.h>
@@ -64,13 +64,12 @@ struct sph_item
 
 struct sph_page : public sph_item
 {
-    sph_page()             : sph_item(    ), o(0), new_t(0), use_t(0) { }
-    sph_page(int f, int i) : sph_item(f, i), o(0), new_t(0), use_t(0) { }
-    sph_page(int f, int i, GLuint o, int n, int u);
+    sph_page()             : sph_item(    ), o(0), t(0) { }
+    sph_page(int f, int i) : sph_item(f, i), o(0), t(0) { }
+    sph_page(int f, int i, GLuint o, int t);
 
     GLuint o;
-    int new_t;
-    int use_t;
+    int    t;
 };
 
 //------------------------------------------------------------------------------
@@ -108,18 +107,18 @@ public:
 
     sph_set(int size) : size(size) { }
 
-    bool full()  const { return (s.size() >= size); }
-    bool empty() const { return (s.empty()); }
+    bool full()  const { return (m.size() >= size); }
+    bool empty() const { return (m.empty()); }
 
-    void   insert(sph_page);
+    void   insert(sph_page, int);
     void   remove(sph_page);
-    GLuint search(sph_page, int&, int);
-    GLuint eject();
+    GLuint search(sph_page, int, int&);
+    GLuint eject(int);
     void   draw();
     
 private:
 
-    std::set<sph_page> s;
+    std::map<sph_page, int> m;
 
     int size;
 };
@@ -134,7 +133,7 @@ public:
    ~sph_cache();
 
     int    add_file(const std::string&);
-    GLuint get_page(int, int, int&, int);
+    GLuint get_page(int, int, int, int&);
     GLuint get_fill() { return filler; }
     
     void update(int);

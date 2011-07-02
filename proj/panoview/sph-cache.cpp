@@ -81,12 +81,19 @@ static GLenum external_type(uint16 c, uint16 b)
 
 //------------------------------------------------------------------------------
 
-// Construct a new page full-fledged page.
+// Construct a new page with associated texture object. If this is a REAL new
+// page (with a loading time), fill the texture with transparency to mask the
+// asynchronous PBO process.
 
-sph_page::sph_page(int f, int i, GLuint o, int n, int u) : sph_item(f, i), o(o)
+sph_page::sph_page(int f, int i, GLuint o, int t) : sph_item(f, i), o(o), t(t)
 {
-    new_t = n;
-    use_t = u;
+    static const GLfloat p[4] = { 0, 0, 0, 0 };
+        
+    if (t)
+    {
+        glBindTexture(GL_TEXTURE_2D, o);
+        glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
+    }
 }
 
 // Construct a load task. Map the PBO to provide a destination for the loader.
@@ -196,65 +203,58 @@ sph_file::sph_file(const std::string& name) : name(name)
 
 //------------------------------------------------------------------------------
 
-void sph_set::insert(sph_page page)
+void sph_set::insert(sph_page page, int t)
 {
-    s.insert(page);
+    m[page] = t;
 }
 
 void sph_set::remove(sph_page page)
 {
-    s.erase(page);
+    m.erase(page);
 }
 
-GLuint sph_set::search(sph_page page, int& n, int u)
+GLuint sph_set::search(sph_page page, int t, int &n)
 {
-    GLuint o = 0;
-    std::set<sph_page>::iterator i = s.find(page);
+    std::map<sph_page, int>::iterator i = m.find(page);
     
-    if (i != s.end())
+    GLuint o = 0;
+    
+    if (i != m.end())
     {
-        n = i->new_t;
-        o = i->o;
-        s.insert(sph_page(i->f, i->i, i->o, n, u));
+        n = i->first.t;
+        o = i->first.o;
+        m[page] = t;
     }
     return o;
 }
 
-GLuint sph_set::eject()
+GLuint sph_set::eject(int t)
 {
-    assert(!s.empty());
+    assert(!m.empty());
     
     // Determine the lowest priority and least- and most-recently used pages.
     
-    std::set<sph_page>::iterator a = s.begin();
-    std::set<sph_page>::iterator z = s.begin();
-    std::set<sph_page>::iterator l = s.begin();
-    std::set<sph_page>::iterator i;
+    std::map<sph_page, int>::iterator a = m.begin();
+    std::map<sph_page, int>::iterator z = m.begin();
+    std::map<sph_page, int>::iterator l = m.begin();
+    std::map<sph_page, int>::iterator i;
     
-    for (i = s.begin(); i != s.end(); l = i, ++i)
+    for (i = m.begin(); i != m.end(); l = i, ++i)
     {
-        if (i->use_t < a->use_t) a = i;
-        if (i->use_t > z->use_t) z = i;
+        if (i->second < a->second) a = i;
+        if (i->second > z->second) z = i;
     }
-    
-    // If the least recent page was used before the most recent, then eject the
-    // least recent. Otherwise, we're thrashing, so eject the lowest priority.
-    /*
-    if (a->use_t < z->use_t)
-    {
-        printf("eject LRU %d %d %d\n", a->i, a->use_t, z->use_t);
-        i = a;
-    }
-    else
-    {
-        printf("eject low %d\n", l->i);
-        i = l;
-    }
-    */
-    i = l;
 
-    GLuint o = i->o;
-    s.erase(i);
+    // HACKISH: If the LRU page is older than 10 frames, eject it. Otherwise,
+    // eject the lowest priority page.
+
+    if (a->second < t - 10)
+        i = a;
+    else
+        i = l;
+    
+    GLuint o = i->first.o;
+    m.erase(i);
     return (o);
 }
 
@@ -276,14 +276,14 @@ void sph_set::draw()
         glMatrixMode(GL_MODELVIEW);
         glLoadIdentity();
 
-        std::set<sph_page>::iterator i = s.begin();
+        std::map<sph_page, int>::iterator i = m.begin();
 
         for     (int y = 0; y < r; ++y)
             for (int x = 0; x < c; ++x)
 
-                if (i != s.end())
+                if (i != m.end())
                 {
-                    glBindTexture(GL_TEXTURE_2D, i->o);
+                    glBindTexture(GL_TEXTURE_2D, i->first.o);
                     glBegin(GL_QUADS);
                     {
                         glTexCoord2f(0.f, 0.f); glVertex2i(x,     y);
@@ -405,28 +405,29 @@ int sph_cache::add_file(const std::string& name)
 // Return the texture object associated with the requested page. Request the
 // image if necessary.
 
-GLuint sph_cache::get_page(int f, int i, int& n, int u)
+GLuint sph_cache::get_page(int f, int i, int t, int& n)
 {
     GLuint o;
     
     // If this page has loaded data, return it.
     
-    if ((o = pages.search(sph_page(f, i), n, u)))
+    if ((o = pages.search(sph_page(f, i), t, n)))
         return o;
 
     // Else if this page is waiting as filler, return it.
 
-    if ((o = waits.search(sph_page(f, i), n, u)))
+    if ((o = waits.search(sph_page(f, i), t, n)))
         return o;
 
     // Else request the data and let the page wait as filler.
 
     if (!needs.full() && !pbos.empty())
     {
-        waits.insert(sph_page(f, i, filler, 0, 0));
+        waits.insert(sph_page(f, i, filler, 0), t);
         needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
     }
 
+    n = t;
     return filler;
 }
 
@@ -439,7 +440,7 @@ void sph_cache::update(int t)
         // Eject a loaded page to make room.
         
         while (pages.full())
-            texs.enq(pages.eject());
+            texs.enq(pages.eject(t));
 
         // Use the next load task to create a working page.
 
@@ -447,7 +448,7 @@ void sph_cache::update(int t)
 
         GLuint o = texs.deq();
 
-        pages.insert(sph_page(task.f, task.i, o, t, t));
+        pages.insert(sph_page(task.f, task.i, o, t), t);
         waits.remove(sph_page(task.f, task.i));        
         
         task.make_texture(o, files[task.f].w, files[task.f].h,
