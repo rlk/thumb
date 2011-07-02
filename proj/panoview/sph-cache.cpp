@@ -92,7 +92,11 @@ sph_page::sph_page(int f, int i, GLuint o, int t) : sph_item(f, i), o(o), t(t)
     if (t)
     {
         glBindTexture(GL_TEXTURE_2D, o);
-        glTexImage2D (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
     }
 }
 
@@ -228,7 +232,7 @@ GLuint sph_set::search(sph_page page, int t, int &n)
     return o;
 }
 
-GLuint sph_set::eject(int t)
+GLuint sph_set::eject(int t, int i)
 {
     assert(!m.empty());
     
@@ -237,25 +241,31 @@ GLuint sph_set::eject(int t)
     std::map<sph_page, int>::iterator a = m.begin();
     std::map<sph_page, int>::iterator z = m.begin();
     std::map<sph_page, int>::iterator l = m.begin();
-    std::map<sph_page, int>::iterator i;
+    std::map<sph_page, int>::iterator e;
     
-    for (i = m.begin(); i != m.end(); l = i, ++i)
+    for (e = m.begin(); e != m.end(); l = e, ++e)
     {
-        if (i->second < a->second) a = i;
-        if (i->second > z->second) z = i;
+        if (e->second < a->second) a = e;
+        if (e->second > z->second) z = e;
     }
 
-    // HACKISH: If the LRU page is older than 10 frames, eject it. Otherwise,
-    // eject the lowest priority page.
+    // If the LRU page was not used in this frame or the last, eject it.
+    // Otherwise consider the lowest-priority loaded page and eject it has
+    // lower priority than the incoming page.
 
-    if (a->second < t - 10)
-        i = a;
-    else
-        i = l;
-    
-    GLuint o = i->first.o;
-    m.erase(i);
-    return (o);
+    if (a->second < t - 1)
+    {
+        GLuint o = a->first.o;
+        m.erase(a);
+        return o;
+    }
+    if (i < l->first.i)
+    {
+        GLuint o = l->first.o;
+        m.erase(l);
+        return o;
+    }
+    return 0;
 }
 
 void sph_set::draw()
@@ -303,7 +313,7 @@ void sph_set::draw()
 sph_cache::sph_cache(int n) : needs(32), loads(8), pages(n), waits(n)
 {
     GLuint b;
-    GLuint o;
+//    GLuint o;
     int    i;
     
     // Launch the image loader threads.
@@ -322,7 +332,7 @@ sph_cache::sph_cache(int n) : needs(32), loads(8), pages(n), waits(n)
         glGenBuffers(1, &b);
         pbos.push_back(b);
     }
-    
+    /*
     // Generate texture objects.
     
     for (i = 0; i < n; ++i)
@@ -335,7 +345,7 @@ sph_cache::sph_cache(int n) : needs(32), loads(8), pages(n), waits(n)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
         texs.push_back(o);
     }
-    
+    */
     // Initialize the default transparent texture.
     
     GLfloat p[4] = { 0, 0, 0, 0 };
@@ -379,13 +389,13 @@ sph_cache::~sph_cache()
     }
     
     // Release the texture objects.
-    
+/*    
     while (!texs.empty())
     {
         glDeleteBuffers(1, &texs.back());
         texs.pop_back();
     }
-    
+*/    
     glDeleteTextures(1, &filler);
 }
 
@@ -427,7 +437,7 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
         needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
     }
 
-    n = t;
+    n = 0;
     return filler;
 }
 
@@ -437,23 +447,28 @@ void sph_cache::update(int t)
 {
     for (int c = 0; !loads.empty() && c < 4; ++c)
     {
-        // Eject a loaded page to make room.
+        // Take the next load task and eject a loaded page to make room.
         
-        while (pages.full())
-            texs.enq(pages.eject(t));
-
-        // Use the next load task to create a working page.
-
         sph_task task = loads.remove();
-
-        GLuint o = texs.deq();
-
-        pages.insert(sph_page(task.f, task.i, o, t), t);
-        waits.remove(sph_page(task.f, task.i));        
+        GLuint o;
+    
+        waits.remove(sph_page(task.f, task.i));
         
-        task.make_texture(o, files[task.f].w, files[task.f].h,
-                             files[task.f].c, files[task.f].b);
-        pbos.enq(task.u);        
+        if (pages.full())
+            o = pages.eject(t, task.i);
+        else
+            glGenTextures(1, &o);
+            
+        if (o)
+        {
+            pages.insert(sph_page(task.f, task.i, o, t), t);
+            
+            task.make_texture(o, files[task.f].w, files[task.f].h,
+                                 files[task.f].c, files[task.f].b);
+        }
+        else task.dump_texture();
+
+        pbos.enq(task.u);
     }
 }
 

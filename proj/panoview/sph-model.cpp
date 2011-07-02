@@ -166,6 +166,8 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
     
     mmultiply(M, P, V);
     
+    memset(&status.front(), 0, status.size());
+    
     for (int i = 0; i < 6; ++i)
         prep_face(i, i, depth, 0, 1, 0, 1, M, w, h);
     

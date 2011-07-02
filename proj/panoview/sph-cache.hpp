@@ -113,7 +113,7 @@ public:
     void   insert(sph_page, int);
     void   remove(sph_page);
     GLuint search(sph_page, int, int&);
-    GLuint eject(int);
+    GLuint eject(int, int);
     void   draw();
     
 private:
