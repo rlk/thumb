@@ -37,7 +37,6 @@ public:
 
     void insert(T);
     T    remove( );
-//    bool search(T);
     bool empty ( );
     bool full  ( );
     
@@ -48,28 +47,19 @@ private:
     SDL_mutex *data_mutex;
 
     tree<T> S;
-    
-    int first;
-    int last;
-    int size;
-    T  *data;
 };
 
 //------------------------------------------------------------------------------
 
-template <typename T> queue<T>::queue(int n)  : first(0), last(0), size(n)
+template <typename T> queue<T>::queue(int n)
 {
     full_slots = SDL_CreateSemaphore(0);
     free_slots = SDL_CreateSemaphore(n);
     data_mutex = SDL_CreateMutex();
-
-//    data = new T[n];
 }
 
 template <typename T> queue<T>::~queue()
 {
-//    delete [] data;
-    
     SDL_DestroyMutex(data_mutex);
     SDL_DestroySemaphore(free_slots);
     SDL_DestroySemaphore(full_slots);
@@ -102,26 +92,7 @@ template <typename T> T queue<T>::remove()
     
     return d;
 }
-/*
-template <typename T> bool queue<T>::search(T d)
-{
-    bool b = true;
-    
-    SDL_mutexP(data_mutex);
-    {
-        if (S.size())
-        {
-            T& e = S.search(d, 0);
-            if (d < e) b = false;
-            if (e < d) b = false;
-        }
-        else b = false;
-    }
-    SDL_mutexV(data_mutex);
 
-    return b;
-}
-*/
 template <typename T> bool queue<T>::empty()
 {
     return (SDL_SemValue(full_slots) == 0);

@@ -33,20 +33,20 @@
 
 panoview::panoview(const std::string& tag) :
 //    app::prog(tag), C(256), L(C, 16, 3, 512)
-    app::prog(tag), C(128), L(C, 16, 4, 512), spin(0)
+    app::prog(tag), C(256), L(C, 16, 4, 512), spin(0)
 {
-    int t;
+    int n;
     
 //    panoL = C.add_file("/home/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
 //    panoL = C.add_file("/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
     panoL = C.add_file("/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif");
 
-    C.get_page(panoL, 0, 0, t);
-    C.get_page(panoL, 1, 0, t);
-    C.get_page(panoL, 2, 0, t);
-    C.get_page(panoL, 3, 0, t);
-    C.get_page(panoL, 4, 0, t);
-    C.get_page(panoL, 5, 0, t);
+    C.get_page(panoL, 0, n, 0);
+    C.get_page(panoL, 1, n, 0);
+    C.get_page(panoL, 2, n, 0);
+    C.get_page(panoL, 3, n, 0);
+    C.get_page(panoL, 4, n, 0);
+    C.get_page(panoL, 5, n, 0);
 }
 
 panoview::~panoview()

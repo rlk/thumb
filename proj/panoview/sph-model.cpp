@@ -291,7 +291,7 @@ void sph_model::draw_face(int f, int i, int d,
     {
         int then = time;
         
-        o = cache.get_page(f, i, time, then);
+        o = cache.get_page(f, i, then, time);
 
         glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
         glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
