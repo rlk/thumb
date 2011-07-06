@@ -213,7 +213,7 @@ void sph_model::prep_face(int f, int i, int d,
 
 GLfloat sph_model::age(int then)
 {
-    GLfloat a = GLfloat(time - then) / 60.;
+    GLfloat a = GLfloat(time - then) / 60.f;
     return (a > 1.f) ? 1.f : a;
 }
 

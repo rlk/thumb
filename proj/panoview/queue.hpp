@@ -24,7 +24,7 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 
-#include "tree.hpp"
+#include <set>
 
 //------------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ private:
     SDL_sem   *free_slots;
     SDL_mutex *data_mutex;
 
-    tree<T> S;
+    std::set<T> S;
 };
 
 //------------------------------------------------------------------------------
@@ -72,10 +72,7 @@ template <typename T> void queue<T>::insert(T d)
     SDL_SemWait(free_slots);
     SDL_mutexP(data_mutex);
     {
-        int a = S.size();
-        S.insert(d, 0);
-        int b = S.size();
-        assert(b == a + 1);
+        S.insert(d);
     }
     SDL_mutexV(data_mutex);
     SDL_SemPost(full_slots);
@@ -88,10 +85,8 @@ template <typename T> T queue<T>::remove()
     SDL_SemWait(full_slots);
     SDL_mutexP(data_mutex);
     {
-        int a = S.size();
-        d = S.first();
-        int b = S.size();
-        assert(b == a - 1);
+        d   = *(S.begin());
+        S.erase(S.begin());
     }
     SDL_mutexV(data_mutex);
     SDL_SemPost(free_slots);

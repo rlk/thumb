@@ -11,11 +11,24 @@
 //  General Public License for more details.
 
 #include <cstdlib>
+#include <cassert>
 
 #include "sph-cache.hpp"
 #include "cube.hpp"
 
 //------------------------------------------------------------------------------
+
+static void clear(GLuint t)
+{
+    static const GLfloat p[4] = { 0, 0, 0, 0 };
+        
+    glBindTexture  (GL_TEXTURE_2D, t);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+    glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
+}
 
 // Select an OpenGL internal texture format for an image with c channels and
 // b bits per channel.
@@ -80,25 +93,6 @@ static GLenum external_type(uint16 c, uint16 b)
 // * 24-bit images are always padded to 32 bits.
 
 //------------------------------------------------------------------------------
-
-// Construct a new page with associated texture object. If this is a REAL new
-// page (with a loading time), fill the texture with transparency to mask the
-// asynchronous PBO process.
-
-sph_page::sph_page(int f, int i, GLuint o, int t) : sph_item(f, i), o(o), t(t)
-{
-    static const GLfloat p[4] = { 0, 0, 0, 0 };
-        
-    if (t)
-    {
-        glBindTexture(GL_TEXTURE_2D, o);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
-    }
-}
 
 // Construct a load task. Map the PBO to provide a destination for the loader.
 
@@ -176,6 +170,7 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
                         d[2] = s[0];
                         d[3] = 0xFF;
                     }
+//                    usleep(10000);
                 }
                 free(q);
             }
@@ -217,23 +212,20 @@ void sph_set::remove(sph_page page)
     m.erase(page);
 }
 
-GLuint sph_set::search(sph_page page, int t, int &n)
+const sph_page& sph_set::search(sph_page page, int t, int &n)
 {
     std::map<sph_page, int>::iterator i = m.find(page);
     
-    GLuint o = 0;
-    
     if (i != m.end())
     {
+        i->second = t;
         n = i->first.t;
-        o = i->first.o;
-        m[page] = t;
-        assert(o);
+        return i->first;
     }
-    return o;
+    return sph_page();
 }
 
-GLuint sph_set::eject(int t, int i)
+sph_page sph_set::eject(int t, int i)
 {
     assert(!m.empty());
     
@@ -256,17 +248,17 @@ GLuint sph_set::eject(int t, int i)
 
     if (a->second < t - 1)
     {
-        GLuint o = a->first.o;
+        sph_page page = a->first;
         m.erase(a);
-        return o;
+        return page;
     }
     if (i < l->first.i)
     {
-        GLuint o = l->first.o;
+        sph_page page = l->first;
         m.erase(l);
-        return o;
+        return page;
     }
-    return 0;
+    return sph_page();
 }
 
 void sph_set::draw()
@@ -314,7 +306,6 @@ void sph_set::draw()
 sph_cache::sph_cache(int n) : needs(32), loads(8), pages(n), waits(n)
 {
     GLuint b;
-//    GLuint o;
     int    i;
     
     // Launch the image loader threads.
@@ -333,29 +324,11 @@ sph_cache::sph_cache(int n) : needs(32), loads(8), pages(n), waits(n)
         glGenBuffers(1, &b);
         pbos.push_back(b);
     }
-    /*
-    // Generate texture objects.
-    
-    for (i = 0; i < n; ++i)
-    {
-        glGenTextures(1, &o);
-        glBindTexture  (GL_TEXTURE_2D, o);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-        texs.push_back(o);
-    }
-    */
-    // Initialize the default transparent texture.
-    
-    GLfloat p[4] = { 0, 0, 0, 0 };
+
+    // Initialize the default filler texture.
     
     glGenTextures(1, &filler);
-    glBindTexture  (GL_TEXTURE_2D, filler);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
+    clear(filler);
 }
 
 sph_cache::~sph_cache()
@@ -389,14 +362,8 @@ sph_cache::~sph_cache()
         pbos.pop_back();
     }
     
-    // Release the texture objects.
-/*    
-    while (!texs.empty())
-    {
-        glDeleteBuffers(1, &texs.back());
-        texs.pop_back();
-    }
-*/    
+    // Release the default texture.
+
     glDeleteTextures(1, &filler);
 }
 
@@ -418,40 +385,35 @@ int sph_cache::add_file(const std::string& name)
 
 GLuint sph_cache::get_page(int f, int i, int t, int& n)
 {
-    GLuint o;
+    // If this page is loaded, return the texture.
     
-    // If this page has loaded data, return it.
+    const sph_page& page = pages.search(sph_page(f, i), t, n);
     
-    if ((o = pages.search(sph_page(f, i), t, n)))
-        return o;
+    if (page.valid()) return page.o;
 
-    // Else if this page is waiting as filler, return it.
+    // If this page is waiting, return the filler.
 
-//    if ((o = waits.search(sph_page(f, i), t, n)))
-//        return o;
+    const sph_page& wait = waits.search(sph_page(f, i), t, n);
+    
+    if (wait.valid()) return wait.o;
 
-    // Else request the data and let the page wait as filler.
+    // Otherwise request the page and add it to the waiting set.
 
     if (!needs.full() && !pbos.empty())
     {
-//        waits.insert(sph_page(f, i, filler, 0), t);
-//        needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
-
-        // This can eject a loading page from pages but not needs.
-        // This leads to a double-add in needs.  The pages check after load
-        // doesn't suffice to handle this case.
-        // Reintroduce the wait set, but not so tightly associated with the
-        // page set.
-    
+        GLuint o = 0;
+        
         if (pages.full())
-            o = pages.eject(t, i);
+            o = pages.eject(t, i).o;
         else
             glGenTextures(1, &o);
             
         if (o)
         {
-            pages.insert(sph_page(f, i, o, t), t);
             needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
+            waits.insert(sph_page(f, i, filler), t);
+            pages.insert(sph_page(f, i, o),      t);
+            clear(o);
         }
     }
 
@@ -468,31 +430,20 @@ void sph_cache::update(int t)
         // Take the next load task and eject a loaded page to make room.
         
         sph_task task = loads.remove();
-        GLuint o;
         int n;
         
-        waits.remove(sph_page(task.f, task.i));
+        const sph_page& page = pages.search(sph_page(task.f, task.i), t, n);
+                               waits.remove(sph_page(task.f, task.i));
 
-        if ((o = pages.search(sph_page(task.f, task.i), t, n)))
+        if (page.o)
+        {
+//            pages.insert(sph_page(page.f, page.i, page.o, t), t);
 
-            task.make_texture(o, files[task.f].w, files[task.f].h,
-                                 files[task.f].c, files[task.f].b);
+            task.make_texture(page.o, files[task.f].w, files[task.f].h,
+                                      files[task.f].c, files[task.f].b);
+        }
         else
             task.dump_texture();
-        
-//        if (pages.full())
-//            o = pages.eject(t, task.i);
-//        else
-//            glGenTextures(1, &o);
-//            
-//        if (o)
-//        {
-//            pages.insert(sph_page(task.f, task.i, o, t), t);
-            
-//            task.make_texture(o, files[task.f].w, files[task.f].h,
-//                                 files[task.f].c, files[task.f].b);
-//        }
-//        else task.dump_texture();
 
         pbos.enq(task.u);
     }

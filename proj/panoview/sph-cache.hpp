@@ -52,6 +52,8 @@ struct sph_item
     int f;
     int i;
     
+    bool valid() const { return (f >= 0 && i >= 0); }
+    
     bool operator<(const sph_item& that) const {
         if (i == that.i)
             return f < that.f;
@@ -64,9 +66,10 @@ struct sph_item
 
 struct sph_page : public sph_item
 {
-    sph_page()             : sph_item(    ), o(0), t(0) { }
-    sph_page(int f, int i) : sph_item(f, i), o(0), t(0) { }
-    sph_page(int f, int i, GLuint o, int t);
+    sph_page()                              : sph_item(    ), o(0), t(0) { }
+    sph_page(int f, int i)                  : sph_item(f, i), o(0), t(0) { }
+    sph_page(int f, int i, GLuint o)        : sph_item(f, i), o(o), t(0) { }
+    sph_page(int f, int i, GLuint o, int t) : sph_item(f, i), o(o), t(t) { }
 
     GLuint o;
     int    t;
@@ -110,11 +113,12 @@ public:
     bool full()  const { return (m.size() >= size); }
     bool empty() const { return (m.empty()); }
 
-    void   insert(sph_page, int);
-    void   remove(sph_page);
-    GLuint search(sph_page, int, int&);
-    GLuint eject(int, int);
-    void   draw();
+    const sph_page& search(sph_page, int, int&);
+    void            insert(sph_page, int);
+    void            remove(sph_page);
+
+    sph_page  eject(int, int);
+    void      draw();
     
 private:
 
