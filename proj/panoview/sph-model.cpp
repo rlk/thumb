@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <limits>
 
 #include "math3d.h"
 #include "glyph.h"
@@ -39,6 +40,40 @@ sph_model::~sph_model()
 
 //------------------------------------------------------------------------------
 
+static void bislerp(double *p, const double *a, const double *b,
+                               const double *c, const double *d,
+                               double x, double y)
+{
+    double t[3];
+    double u[3];
+    
+    vslerp(t, a, b, x);
+    vslerp(u, c, d, x);
+    vslerp(p, t, u, y);
+}
+
+static inline double max(double a, double b, double c, double d)
+{
+    double x = (a > b) ? a : b;
+    double y = (c > d) ? c : d;
+    return     (x > y) ? x : y;
+}
+
+//------------------------------------------------------------------------------
+
+#if 0
+static inline double length(const double *a, const double *b, int w, int h)
+{
+    if (finite(a[0]) && finite(a[1]) && finite(b[0]) && finite(b[1]))
+    {
+        double dx = (a[0] - b[0]) * w / 2;
+        double dy = (a[1] - b[1]) * h / 2;
+        
+        return sqrt(dx * dx + dy * dy);
+    }
+    else return 0;
+}
+
 static inline bool project(double *a, const double *M, const double *b)
 {
     double d = (M[ 3] * b[0] + M[ 7] * b[1] + M[11] * b[2] + M[15]);
@@ -54,38 +89,7 @@ static inline bool project(double *a, const double *M, const double *b)
         return false;
 }
 
-static inline double length(const double *a, const double *b, int w, int h)
-{
-    if (finite(a[0]) && finite(a[1]) && finite(b[0]) && finite(b[1]))
-    {
-        double dx = (a[0] - b[0]) * w / 2;
-        double dy = (a[1] - b[1]) * h / 2;
-        
-        return sqrt(dx * dx + dy * dy);
-    }
-    else return 0;
-}
-
-static inline double max(double a, double b, double c, double d)
-{
-    double x = (a > b) ? a : b;
-    double y = (c > d) ? c : d;
-    return     (x > y) ? x : y;
-}
-
 //------------------------------------------------------------------------------
-
-static void bislerp(double *p, const double *a, const double *b,
-                               const double *c, const double *d,
-                               double x, double y)
-{
-    double t[3];
-    double u[3];
-    
-    vslerp(t, a, b, x);
-    vslerp(u, c, d, x);
-    vslerp(p, t, u, y);
-}
 
 static double measure(int f, double r, double l, double t, double b,
                                 const double *M, int w, int h)
@@ -157,6 +161,124 @@ static double measure(int f, double r, double l, double t, double b,
                length(na, nc, w, h),
                length(nb, nd, w, h));
 }
+#endif
+
+
+static inline double length(const double *a, const double *b, int w, int h)
+{
+    if (a[3] <= 0 && b[3] <= 0) return 0;
+    if (a[3] <= 0)              return HUGE_VAL;
+    if (b[3] <= 0)              return HUGE_VAL;
+
+    double dx = (a[0] / a[3] - b[0] / b[3]) * w / 2;
+    double dy = (a[1] / a[3] - b[1] / b[3]) * h / 2;
+        
+    return sqrt(dx * dx + dy * dy);
+}
+
+static double measure(int i, double kr, double kl, double kt, double kb,
+                                const double *M, int vw, int vh)
+{
+    double ne[3], a[3], e[3], A[3], E[3];    // North-east corner
+    double nw[3], b[3], f[3], B[3], F[3];    // North-west corner
+    double se[3], c[3], g[3], C[3], G[3];    // South-east corner
+    double sw[3], d[3], h[3], D[3], H[3];    // South-west corner
+    
+    vnormalize(ne, cube_v[cube_i[i][0]]);
+    vnormalize(nw, cube_v[cube_i[i][1]]);
+    vnormalize(se, cube_v[cube_i[i][2]]);
+    vnormalize(sw, cube_v[cube_i[i][3]]);
+    
+    bislerp(a, ne, nw, se, sw, kr, kt);
+    bislerp(b, ne, nw, se, sw, kl, kt);
+    bislerp(c, ne, nw, se, sw, kr, kb);
+    bislerp(d, ne, nw, se, sw, kl, kb);
+    
+    // Compute the maximum extent due to bulge.
+
+    double v[3];
+    
+    v[0] = a[0] + b[0] + c[0] + d[0];
+    v[1] = a[1] + b[1] + c[1] + d[1];
+    v[2] = a[2] + b[2] + c[2] + d[2];
+    
+    double k = vlen(v) / vdot(a, v);
+
+    // Compute the outer corners of the bulge bound.
+    
+    vmul(e, a, k);
+    vmul(f, b, k);
+    vmul(g, c, k);
+    vmul(h, d, k);
+
+    // Project all eight corners, rejecting any volume outside the view.
+    
+    A[3] = M[ 3] * a[0] + M[ 7] * a[1] + M[11] * a[2] + M[15];
+    B[3] = M[ 3] * b[0] + M[ 7] * b[1] + M[11] * b[2] + M[15];
+    C[3] = M[ 3] * c[0] + M[ 7] * c[1] + M[11] * c[2] + M[15];
+    D[3] = M[ 3] * d[0] + M[ 7] * d[1] + M[11] * d[2] + M[15];
+    E[3] = M[ 3] * e[0] + M[ 7] * e[1] + M[11] * e[2] + M[15];
+    F[3] = M[ 3] * f[0] + M[ 7] * f[1] + M[11] * f[2] + M[15];
+    G[3] = M[ 3] * g[0] + M[ 7] * g[1] + M[11] * g[2] + M[15];
+    H[3] = M[ 3] * h[0] + M[ 7] * h[1] + M[11] * h[2] + M[15];
+
+    if (A[3] <= 0 && B[3] <= 0 && C[3] <= 0 && D[3] <= 0 &&
+        E[3] <= 0 && F[3] <= 0 && G[3] <= 0 && H[3] <= 0)
+        return 0;
+
+    A[2] = M[ 2] * a[0] + M[ 6] * a[1] + M[10] * a[2] + M[14];
+    B[2] = M[ 2] * b[0] + M[ 6] * b[1] + M[10] * b[2] + M[14];
+    C[2] = M[ 2] * c[0] + M[ 6] * c[1] + M[10] * c[2] + M[14];
+    D[2] = M[ 2] * d[0] + M[ 6] * d[1] + M[10] * d[2] + M[14];
+    E[2] = M[ 2] * e[0] + M[ 6] * e[1] + M[10] * e[2] + M[14];
+    F[2] = M[ 2] * f[0] + M[ 6] * f[1] + M[10] * f[2] + M[14];
+    G[2] = M[ 2] * g[0] + M[ 6] * g[1] + M[10] * g[2] + M[14];
+    H[2] = M[ 2] * h[0] + M[ 6] * h[1] + M[10] * h[2] + M[14];
+    
+    if (A[2] >  A[3] && B[2] >  B[3] && C[2] >  C[3] && D[2] >  D[3] &&
+        E[2] >  E[3] && F[2] >  F[3] && G[2] >  G[3] && H[2] >  H[3])
+        return 0;
+    if (A[2] < -A[3] && B[2] < -B[3] && C[2] < -C[3] && D[2] < -D[3] &&
+        E[2] < -E[3] && F[2] < -F[3] && G[2] < -G[3] && H[2] < -H[3])
+        return 0;
+
+    A[1] = M[ 1] * a[0] + M[ 5] * a[1] + M[ 9] * a[2] + M[13];
+    B[1] = M[ 1] * b[0] + M[ 5] * b[1] + M[ 9] * b[2] + M[13];
+    C[1] = M[ 1] * c[0] + M[ 5] * c[1] + M[ 9] * c[2] + M[13];
+    D[1] = M[ 1] * d[0] + M[ 5] * d[1] + M[ 9] * d[2] + M[13];
+    E[1] = M[ 1] * e[0] + M[ 5] * e[1] + M[ 9] * e[2] + M[13];
+    F[1] = M[ 1] * f[0] + M[ 5] * f[1] + M[ 9] * f[2] + M[13];
+    G[1] = M[ 1] * g[0] + M[ 5] * g[1] + M[ 9] * g[2] + M[13];
+    H[1] = M[ 1] * h[0] + M[ 5] * h[1] + M[ 9] * h[2] + M[13];
+    
+    if (A[1] >  A[3] && B[1] >  B[3] && C[1] >  C[3] && D[1] >  D[3] &&
+        E[1] >  E[3] && F[1] >  F[3] && G[1] >  G[3] && H[1] >  H[3])
+        return 0;
+    if (A[1] < -A[3] && B[1] < -B[3] && C[1] < -C[3] && D[1] < -D[3] &&
+        E[1] < -E[3] && F[1] < -F[3] && G[1] < -G[3] && H[1] < -H[3])
+        return 0;
+
+    A[0] = M[ 0] * a[0] + M[ 4] * a[1] + M[ 8] * a[2] + M[12];
+    B[0] = M[ 0] * b[0] + M[ 4] * b[1] + M[ 8] * b[2] + M[12];
+    C[0] = M[ 0] * c[0] + M[ 4] * c[1] + M[ 8] * c[2] + M[12];
+    D[0] = M[ 0] * d[0] + M[ 4] * d[1] + M[ 8] * d[2] + M[12];
+    E[0] = M[ 0] * e[0] + M[ 4] * e[1] + M[ 8] * e[2] + M[12];
+    F[0] = M[ 0] * f[0] + M[ 4] * f[1] + M[ 8] * f[2] + M[12];
+    G[0] = M[ 0] * g[0] + M[ 4] * g[1] + M[ 8] * g[2] + M[12];
+    H[0] = M[ 0] * h[0] + M[ 4] * h[1] + M[ 8] * h[2] + M[12];
+    
+    if (A[0] >  A[3] && B[0] >  B[3] && C[0] >  C[3] && D[0] >  D[3] &&
+        E[0] >  E[3] && F[0] >  F[3] && G[0] >  G[3] && H[0] >  H[3])
+        return 0;
+    if (A[0] < -A[3] && B[0] < -B[3] && C[0] < -C[3] && D[0] < -D[3] &&
+        E[0] < -E[3] && F[0] < -F[3] && G[0] < -G[3] && H[0] < -H[3])
+        return 0;
+
+    return max(length(A, B, vw, vh),
+               length(C, D, vw, vh),
+               length(A, C, vw, vh),
+               length(B, D, vw, vh));
+}
 
 //------------------------------------------------------------------------------
 
@@ -222,7 +344,8 @@ void sph_model::draw(const double *P, const double *V, int f)
     double M[16];
     
     mmultiply(M, P, V);
-    
+
+#if 1
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
@@ -230,6 +353,15 @@ void sph_model::draw(const double *P, const double *V, int f)
     
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
+#else
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glFrustum(-1.77, +1.77, -1.0, +1.0, 3.0, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    glTranslated(0.0, 0.0, -5.0);
+#endif
 
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
@@ -253,6 +385,7 @@ void sph_model::draw(const double *P, const double *V, int f)
         glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glUseProgram(program);
     {
         for (int i = 0; i < 6; ++i)

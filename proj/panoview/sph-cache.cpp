@@ -170,7 +170,6 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
                         d[2] = s[0];
                         d[3] = 0xFF;
                     }
-//                    usleep(1000);
                 }
                 free(q);
             }
@@ -228,30 +227,30 @@ sph_page sph_set::eject(int t, int i)
 {
     assert(!m.empty());
     
-    // Determine the lowest priority and least- and most-recently used pages.
+    // Determine the lowest priority and least-recently used pages.
     
-    std::map<sph_page, int>::iterator a = m.begin();
-    std::map<sph_page, int>::iterator z = m.begin();
-    std::map<sph_page, int>::iterator l = m.begin();
+    std::map<sph_page, int>::iterator a = m.end();
+    std::map<sph_page, int>::iterator l = m.end();
     std::map<sph_page, int>::iterator e;
     
-    for (e = m.begin(); e != m.end(); l = e, ++e)
-    {
-        if (e->second < a->second) a = e;
-        if (e->second > z->second) z = e;
-    }
+    for (e = m.begin(); e != m.end(); ++e)
+    //  if (e->first.i > 5)
+        {
+            if (a == m.end() || e->second < a->second) a = e;
+                                                       l = e;
+        }
 
     // If the LRU page was not used in this frame or the last, eject it.
     // Otherwise consider the lowest-priority loaded page and eject if it
     // has lower priority than the incoming page.
 
-    if (a->second < t - 1)
+    if (a != m.end() && a->second < t - 1)
     {
         sph_page page = a->first;
         m.erase(a);
         return page;
     }
-    if (i < l->first.i)
+    if (l != m.end() && i < l->first.i)
     {
         sph_page page = l->first;
         m.erase(l);
