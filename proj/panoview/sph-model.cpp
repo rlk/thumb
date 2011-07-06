@@ -30,12 +30,24 @@ sph_model::sph_model(sph_cache& cache, int n, int m, int s) :
 {
     init_program();
     init_arrays(n);
+    
+    zoomv[0] =  0;
+    zoomv[1] =  0;
+    zoomv[2] = -1;
+    zoomk    =  1.1;
 }
 
 sph_model::~sph_model()
 {
     free_arrays();
     free_program();
+}
+
+//------------------------------------------------------------------------------
+
+void sph_model::zoom(double *w, const double *v)
+{
+    vslerp(w, zoomv, v, zoomk);
 }
 
 //------------------------------------------------------------------------------
@@ -59,111 +71,6 @@ static inline double max(double a, double b, double c, double d)
     return     (x > y) ? x : y;
 }
 
-//------------------------------------------------------------------------------
-
-#if 0
-static inline double length(const double *a, const double *b, int w, int h)
-{
-    if (finite(a[0]) && finite(a[1]) && finite(b[0]) && finite(b[1]))
-    {
-        double dx = (a[0] - b[0]) * w / 2;
-        double dy = (a[1] - b[1]) * h / 2;
-        
-        return sqrt(dx * dx + dy * dy);
-    }
-    else return 0;
-}
-
-static inline bool project(double *a, const double *M, const double *b)
-{
-    double d = (M[ 3] * b[0] + M[ 7] * b[1] + M[11] * b[2] + M[15]);
-    
-    if (fabs(d) > 0)
-    {
-        a[2] = (M[ 2] * b[0] + M[ 6] * b[1] + M[10] * b[2] + M[14]) / d;
-        a[1] = (M[ 1] * b[0] + M[ 5] * b[1] + M[ 9] * b[2] + M[13]) / d;
-        a[0] = (M[ 0] * b[0] + M[ 4] * b[1] + M[ 8] * b[2] + M[12]) / d;
-        return true;
-    }
-    else
-        return false;
-}
-
-//------------------------------------------------------------------------------
-
-static double measure(int f, double r, double l, double t, double b,
-                                const double *M, int w, int h)
-{
-    double A[3], oa[3], oA[3], na[3], nA[3];
-    double B[3], ob[3], oB[3], nb[3], nB[3];
-    double C[3], oc[3], oC[3], nc[3], nC[3];
-    double D[3], od[3], oD[3], nd[3], nD[3];
-    
-    vnormalize(A, cube_v[cube_i[f][0]]);
-    vnormalize(B, cube_v[cube_i[f][1]]);
-    vnormalize(C, cube_v[cube_i[f][2]]);
-    vnormalize(D, cube_v[cube_i[f][3]]);
-    
-    bislerp(oa, A, B, C, D, r, t);
-    bislerp(ob, A, B, C, D, l, t);
-    bislerp(oc, A, B, C, D, r, b);
-    bislerp(od, A, B, C, D, l, b);
-    
-    // Compute the maximum extent due to bulge.
-
-    double v[3];
-    
-    v[0] = oa[0] + ob[0] + oc[0] + od[0];
-    v[1] = oa[1] + ob[1] + oc[1] + od[1];
-    v[2] = oa[2] + ob[2] + oc[2] + od[2];
-    
-    double k = vlen(v) / vdot(oa, v);
-
-    // Compute the outer corners of the bulge bound.
-    
-    vmul(oA, oa, k);
-    vmul(oB, ob, k);
-    vmul(oC, oc, k);
-    vmul(oD, od, k);
-    
-    // Compute normalized device coordinates for all eight corners.
-    
-    if (!project(na, M, oa)) return 0;
-    if (!project(nb, M, ob)) return 0;
-    if (!project(nc, M, oc)) return 0;
-    if (!project(nd, M, od)) return 0;
-    if (!project(nA, M, oA)) return 0;
-    if (!project(nB, M, oB)) return 0;
-    if (!project(nC, M, oC)) return 0;
-    if (!project(nD, M, oD)) return 0;
-
-    // Check that any part of the boundary is visible.
-
-    static const double d = 1;
-
-    if (na[0] >  d && nb[0] >  d && nc[0] >  d && nd[0] >  d &&
-        nA[0] >  d && nB[0] >  d && nC[0] >  d && nD[0] >  d) return 0;
-    if (na[0] < -d && nb[0] < -d && nc[0] < -d && nd[0] < -d &&
-        nA[0] < -d && nB[0] < -d && nC[0] < -d && nD[0] < -d) return 0;
-    if (na[1] >  d && nb[1] >  d && nc[1] >  d && nd[1] >  d &&
-        nA[1] >  d && nB[1] >  d && nC[1] >  d && nD[1] >  d) return 0;
-    if (na[1] < -d && nb[1] < -d && nc[1] < -d && nd[1] < -d &&
-        nA[1] < -d && nB[1] < -d && nC[1] < -d && nD[1] < -d) return 0;
-    if (na[2] >  d && nb[2] >  d && nc[2] >  d && nd[2] >  d &&
-        nA[2] >  d && nB[2] >  d && nC[2] >  d && nD[2] >  d) return 0;
-    if (na[2] < -d && nb[2] < -d && nc[2] < -d && nd[2] < -d &&
-        nA[2] < -d && nB[2] < -d && nC[2] < -d && nD[2] < -d) return 0;
-
-    // Return the screen-space length of the longest edge.
-
-    return max(length(na, nb, w, h),
-               length(nc, nd, w, h),
-               length(na, nc, w, h),
-               length(nb, nd, w, h));
-}
-#endif
-
-
 static inline double length(const double *a, const double *b, int w, int h)
 {
     if (a[3] <= 0 && b[3] <= 0) return 0;
@@ -176,8 +83,10 @@ static inline double length(const double *a, const double *b, int w, int h)
     return sqrt(dx * dx + dy * dy);
 }
 
-static double measure(int i, double kr, double kl, double kt, double kb,
-                                const double *M, int vw, int vh)
+//------------------------------------------------------------------------------
+
+double sph_model::view_face(int i, const double *M, int vw, int vh,
+                            double ee, double ww, double nn, double ss)
 {
     double ne[3], a[3], e[3], A[3], E[3];    // North-east corner
     double nw[3], b[3], f[3], B[3], F[3];    // North-west corner
@@ -189,10 +98,15 @@ static double measure(int i, double kr, double kl, double kt, double kb,
     vnormalize(se, cube_v[cube_i[i][2]]);
     vnormalize(sw, cube_v[cube_i[i][3]]);
     
-    bislerp(a, ne, nw, se, sw, kr, kt);
-    bislerp(b, ne, nw, se, sw, kl, kt);
-    bislerp(c, ne, nw, se, sw, kr, kb);
-    bislerp(d, ne, nw, se, sw, kl, kb);
+    bislerp(a, ne, nw, se, sw, ee, nn);
+    bislerp(b, ne, nw, se, sw, ww, nn);
+    bislerp(c, ne, nw, se, sw, ee, ss);
+    bislerp(d, ne, nw, se, sw, ww, ss);
+    
+//    zoom(a, a);
+//    zoom(b, b);
+//    zoom(c, c);
+//    zoom(d, d);
     
     // Compute the maximum extent due to bulge.
 
@@ -211,7 +125,7 @@ static double measure(int i, double kr, double kl, double kt, double kb,
     vmul(g, c, k);
     vmul(h, d, k);
 
-    // Project all eight corners, rejecting any volume outside the view.
+    // Compute W and reject any volume on the far side of the singularity.
     
     A[3] = M[ 3] * a[0] + M[ 7] * a[1] + M[11] * a[2] + M[15];
     B[3] = M[ 3] * b[0] + M[ 7] * b[1] + M[11] * b[2] + M[15];
@@ -225,6 +139,8 @@ static double measure(int i, double kr, double kl, double kt, double kb,
     if (A[3] <= 0 && B[3] <= 0 && C[3] <= 0 && D[3] <= 0 &&
         E[3] <= 0 && F[3] <= 0 && G[3] <= 0 && H[3] <= 0)
         return 0;
+
+    // Compute Z and apply the near and far clipping planes.
 
     A[2] = M[ 2] * a[0] + M[ 6] * a[1] + M[10] * a[2] + M[14];
     B[2] = M[ 2] * b[0] + M[ 6] * b[1] + M[10] * b[2] + M[14];
@@ -242,6 +158,8 @@ static double measure(int i, double kr, double kl, double kt, double kb,
         E[2] < -E[3] && F[2] < -F[3] && G[2] < -G[3] && H[2] < -H[3])
         return 0;
 
+    // Compute Y and apply the bottom and top clipping planes.
+
     A[1] = M[ 1] * a[0] + M[ 5] * a[1] + M[ 9] * a[2] + M[13];
     B[1] = M[ 1] * b[0] + M[ 5] * b[1] + M[ 9] * b[2] + M[13];
     C[1] = M[ 1] * c[0] + M[ 5] * c[1] + M[ 9] * c[2] + M[13];
@@ -258,6 +176,8 @@ static double measure(int i, double kr, double kl, double kt, double kb,
         E[1] < -E[3] && F[1] < -F[3] && G[1] < -G[3] && H[1] < -H[3])
         return 0;
 
+    // Compute X and apply the left and right clipping planes.
+
     A[0] = M[ 0] * a[0] + M[ 4] * a[1] + M[ 8] * a[2] + M[12];
     B[0] = M[ 0] * b[0] + M[ 4] * b[1] + M[ 8] * b[2] + M[12];
     C[0] = M[ 0] * c[0] + M[ 4] * c[1] + M[ 8] * c[2] + M[12];
@@ -273,6 +193,8 @@ static double measure(int i, double kr, double kl, double kt, double kb,
     if (A[0] < -A[3] && B[0] < -B[3] && C[0] < -C[3] && D[0] < -D[3] &&
         E[0] < -E[3] && F[0] < -F[3] && G[0] < -G[3] && H[0] < -H[3])
         return 0;
+
+    // Compute the length of the longest visible edge, in pixels.
 
     return max(length(A, B, vw, vh),
                length(C, D, vw, vh),
@@ -291,20 +213,20 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
     memset(&status.front(), 0, status.size());
     
     for (int i = 0; i < 6; ++i)
-        prep_face(i, i, depth, 0, 1, 0, 1, M, w, h);
+        prep_face(i, i, M, w, h, 0, 1, 0, 1, 0);
     
     cache.update(time);
 }
 
-void sph_model::prep_face(int f, int i, int d,
-                          double r, double l, double t, double b, 
-                          const double *M, int w, int h)
+void sph_model::prep_face(int f, int i, const double *M, int w, int h,
+                          double r, double l, double t, double b, int d)
+
 {
-    double s = measure(f, r, l, t, b, M, w, h);
+    double s = view_face(f, M, w, h, r, l, t, b);
     
     if (s > 0)
     {
-        if (d > 0 && s > size)
+        if ((d < depth && s > size))
         {
             int i0 = face_child(i, 0);
             int i1 = face_child(i, 1);
@@ -314,10 +236,10 @@ void sph_model::prep_face(int f, int i, int d,
             const double x = (r + l) * 0.5;
             const double y = (t + b) * 0.5;
 
-            prep_face(f, i0, d - 1, r, x, t, y, M, w, h);
-            prep_face(f, i1, d - 1, x, l, t, y, M, w, h);
-            prep_face(f, i2, d - 1, r, x, y, b, M, w, h);
-            prep_face(f, i3, d - 1, x, l, y, b, M, w, h);
+            prep_face(f, i0, M, w, h, r, x, t, y, d + 1);
+            prep_face(f, i1, M, w, h, x, l, t, y, d + 1);
+            prep_face(f, i2, M, w, h, r, x, y, b, d + 1);
+            prep_face(f, i3, M, w, h, x, l, y, b, d + 1);
 
             if (status[i0] == s_halt && status[i1] == s_halt &&
                 status[i2] == s_halt && status[i3] == s_halt)
@@ -354,7 +276,6 @@ void sph_model::draw(const double *P, const double *V, int f)
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
 #else
-
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     glFrustum(-1.77, +1.77, -1.0, +1.0, 3.0, 100.0);
@@ -388,6 +309,10 @@ void sph_model::draw(const double *P, const double *V, int f)
 //    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glUseProgram(program);
     {
+        glUniform1f(glGetUniformLocation(program, "zoomk"), zoomk);
+        glUniform3f(glGetUniformLocation(program, "zoomv"),
+                    zoomv[0], zoomv[1], zoomv[2]);
+
         for (int i = 0; i < 6; ++i)
         {
             double a[3], b[3], c[3], d[3];
@@ -402,7 +327,7 @@ void sph_model::draw(const double *P, const double *V, int f)
             glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
             glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
 
-            draw_face(f, i, 0, 0, 1, 0, 1);
+            draw_face(f, i, 0, 1, 0, 1, 0);
         }
     }
     glUseProgram(0);
@@ -417,8 +342,8 @@ void sph_model::draw(const double *P, const double *V, int f)
     time++;
 }
 
-void sph_model::draw_face(int f, int i, int d,
-                          double r, double l, double t, double b)
+void sph_model::draw_face(int f, int i,
+                          double r, double l, double t, double b, int d)
 {
     GLuint o = 0;
 
@@ -441,10 +366,10 @@ void sph_model::draw_face(int f, int i, int d,
         const double x = (r + l) * 0.5;
         const double y = (t + b) * 0.5;
 
-        draw_face(f, face_child(i, 0), d + 1, r, x, t, y);
-        draw_face(f, face_child(i, 1), d + 1, x, l, t, y);
-        draw_face(f, face_child(i, 2), d + 1, r, x, y, b);
-        draw_face(f, face_child(i, 3), d + 1, x, l, y, b);
+        draw_face(f, face_child(i, 0), r, x, t, y, d + 1);
+        draw_face(f, face_child(i, 1), x, l, t, y, d + 1);
+        draw_face(f, face_child(i, 2), r, x, y, b, d + 1);
+        draw_face(f, face_child(i, 3), x, l, y, b, d + 1);
     }
 
     if (status[i] == s_draw)
@@ -484,7 +409,8 @@ static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
 
 void sph_model::init_program()
 {    
-    char *vert_source = load_txt("sph-render.vert");
+//  char *vert_source = load_txt("sph-render.vert");
+    char *vert_source = load_txt("sph-zoomer.vert");
     char *frag_source = load_txt("sph-render.frag");
 
     if (vert_source && frag_source)

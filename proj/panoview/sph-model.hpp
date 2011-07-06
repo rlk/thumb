@@ -30,6 +30,8 @@ public:
     void prep(const double *, const double *, int, int);
     void draw(const double *, const double *, int);
     
+    void set_zoom(double k) { zoomk = k; }
+    
 private:
 
     sph_cache& cache;
@@ -38,13 +40,21 @@ private:
     int size;
     int time;
 
-    GLfloat age(int);
+    // Zooming state.
+
+    double zoomv[3];
+    double zoomk;
+    
+    void zoom(double *, const double *);
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
-    void draw_face(int, int, int, double, double, double, double);
-    void prep_face(int, int, int, double, double, double, double,
-                   const double *, int, int);
+    void   draw_face(int, int,
+                     double, double, double, double, int);
+    void   prep_face(int, int, const double *, int, int,
+                     double, double, double, double, int);
+    double view_face(     int, const double *, int, int,
+                     double, double, double, double);
 
     typedef unsigned char byte;
 
@@ -56,6 +66,8 @@ private:
     };
     
     std::vector<byte> status;
+
+    GLfloat age(int);
 
     // OpenGL programmable processing state
 

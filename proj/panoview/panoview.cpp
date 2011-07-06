@@ -33,7 +33,7 @@
 
 panoview::panoview(const std::string& tag) :
 //    app::prog(tag), C(256), L(C, 16, 3, 512)
-    app::prog(tag), C(128), L(C, 16, 4, 512), spin(0)
+    app::prog(tag), C(128), L(C, 16, 4, 512), spin(0), drag(false)
 {
 //    int n;
     
@@ -41,12 +41,7 @@ panoview::panoview(const std::string& tag) :
 //    panoL = C.add_file("/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
     panoL = C.add_file("/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif");
 
-//    C.get_page(panoL, 0, 0, n);
-//    C.get_page(panoL, 1, 0, n);
-//    C.get_page(panoL, 2, 0, n);
-//    C.get_page(panoL, 3, 0, n);
-//    C.get_page(panoL, 4, 0, n);
-//    C.get_page(panoL, 5, 0, n);
+    curr_zoom = 1.0;
 }
 
 panoview::~panoview()
@@ -81,7 +76,7 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
     double V[16];
 
-    glClearColor(1.0f, 0.0f, 1.0f, 0.0f);
+    glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
  
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
@@ -94,6 +89,34 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
 bool panoview::process_event(app::event *E)
 {
+    if (E->get_type() == E_CLICK)
+    {
+        if (1   == E->data.click.b)
+        {
+            drag = E->data.click.d;
+
+            drag_x    = curr_x;
+            drag_y    = curr_y;
+            drag_zoom = curr_zoom;
+        }
+    }
+    if (E->get_type() == E_POINT)
+    {
+        const app::frustum *overlay = ::host->get_overlay();
+        
+        if (overlay)
+            overlay->pointer_to_2D(E, curr_x, curr_y);
+            
+        if (drag)
+        {
+            curr_zoom = drag_zoom + (curr_y - drag_y) / 300.0f;
+            
+            if (curr_zoom < 0.5) curr_zoom = 0.5;
+            if (curr_zoom > 5.0) curr_zoom = 5.0;
+
+            L.set_zoom(curr_zoom);
+        }
+    }
     if (E->get_type() == E_KEY)
     {
         if (E->data.key.d)

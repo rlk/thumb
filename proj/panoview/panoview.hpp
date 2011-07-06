@@ -41,6 +41,14 @@ private:
     sph_model L;
     
     int panoL;
+    
+    bool   drag;
+    int    drag_x;
+    int    drag_y;
+    double drag_zoom;
+    int    curr_x;
+    int    curr_y;
+    double curr_zoom;
 };
 
 //-----------------------------------------------------------------------------
