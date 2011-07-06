@@ -228,6 +228,7 @@ GLuint sph_set::search(sph_page page, int t, int &n)
         n = i->first.t;
         o = i->first.o;
         m[page] = t;
+        assert(o);
     }
     return o;
 }
@@ -250,8 +251,8 @@ GLuint sph_set::eject(int t, int i)
     }
 
     // If the LRU page was not used in this frame or the last, eject it.
-    // Otherwise consider the lowest-priority loaded page and eject it has
-    // lower priority than the incoming page.
+    // Otherwise consider the lowest-priority loaded page and eject if it
+    // has lower priority than the incoming page.
 
     if (a->second < t - 1)
     {
@@ -426,15 +427,32 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
 
     // Else if this page is waiting as filler, return it.
 
-    if ((o = waits.search(sph_page(f, i), t, n)))
-        return o;
+//    if ((o = waits.search(sph_page(f, i), t, n)))
+//        return o;
 
     // Else request the data and let the page wait as filler.
 
     if (!needs.full() && !pbos.empty())
     {
-        waits.insert(sph_page(f, i, filler, 0), t);
-        needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
+//        waits.insert(sph_page(f, i, filler, 0), t);
+//        needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
+
+        // This can eject a loading page from pages but not needs.
+        // This leads to a double-add in needs.  The pages check after load
+        // doesn't suffice to handle this case.
+        // Reintroduce the wait set, but not so tightly associated with the
+        // page set.
+    
+        if (pages.full())
+            o = pages.eject(t, i);
+        else
+            glGenTextures(1, &o);
+            
+        if (o)
+        {
+            pages.insert(sph_page(f, i, o, t), t);
+            needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
+        }
     }
 
     n = 0;
@@ -451,22 +469,30 @@ void sph_cache::update(int t)
         
         sph_task task = loads.remove();
         GLuint o;
-    
-        waits.remove(sph_page(task.f, task.i));
+        int n;
         
-        if (pages.full())
-            o = pages.eject(t, task.i);
-        else
-            glGenTextures(1, &o);
-            
-        if (o)
-        {
-            pages.insert(sph_page(task.f, task.i, o, t), t);
-            
+        waits.remove(sph_page(task.f, task.i));
+
+        if ((o = pages.search(sph_page(task.f, task.i), t, n)))
+
             task.make_texture(o, files[task.f].w, files[task.f].h,
                                  files[task.f].c, files[task.f].b);
-        }
-        else task.dump_texture();
+        else
+            task.dump_texture();
+        
+//        if (pages.full())
+//            o = pages.eject(t, task.i);
+//        else
+//            glGenTextures(1, &o);
+//            
+//        if (o)
+//        {
+//            pages.insert(sph_page(task.f, task.i, o, t), t);
+            
+//            task.make_texture(o, files[task.f].w, files[task.f].h,
+//                                 files[task.f].c, files[task.f].b);
+//        }
+//        else task.dump_texture();
 
         pbos.enq(task.u);
     }
