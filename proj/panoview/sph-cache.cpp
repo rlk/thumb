@@ -170,7 +170,7 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
                         d[2] = s[0];
                         d[3] = 0xFF;
                     }
-//                    usleep(10000);
+//                    usleep(1000);
                 }
                 free(q);
             }
@@ -212,14 +212,13 @@ void sph_set::remove(sph_page page)
     m.erase(page);
 }
 
-const sph_page& sph_set::search(sph_page page, int t, int &n)
+sph_page sph_set::search(sph_page page, int t)
 {
     std::map<sph_page, int>::iterator i = m.find(page);
     
     if (i != m.end())
     {
         i->second = t;
-        n = i->first.t;
         return i->first;
     }
     return sph_page();
@@ -387,15 +386,23 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
 {
     // If this page is loaded, return the texture.
     
-    const sph_page& page = pages.search(sph_page(f, i), t, n);
+    sph_page page = pages.search(sph_page(f, i), t);
     
-    if (page.valid()) return page.o;
-
+    if (page.valid()) 
+    {
+        n    = page.t;
+        return page.o;
+    }
+    
     // If this page is waiting, return the filler.
 
-    const sph_page& wait = waits.search(sph_page(f, i), t, n);
+    sph_page wait = waits.search(sph_page(f, i), t);
     
-    if (wait.valid()) return wait.o;
+    if (wait.valid())
+    {
+        n    = wait.t;
+        return wait.o;
+    }
 
     // Otherwise request the page and add it to the waiting set.
 
@@ -427,17 +434,15 @@ void sph_cache::update(int t)
 {
     for (int c = 0; !loads.empty() && c < 4; ++c)
     {
-        // Take the next load task and eject a loaded page to make room.
-        
         sph_task task = loads.remove();
-        int n;
-        
-        const sph_page& page = pages.search(sph_page(task.f, task.i), t, n);
-                               waits.remove(sph_page(task.f, task.i));
+        sph_page page = pages.search(sph_page(task.f, task.i), t);
+                        waits.remove(sph_page(task.f, task.i));
 
-        if (page.o)
+        if (page.valid())
         {
-//            pages.insert(sph_page(page.f, page.i, page.o, t), t);
+            page.t = t;
+            pages.remove(page);
+            pages.insert(page, t);
 
             task.make_texture(page.o, files[task.f].w, files[task.f].h,
                                       files[task.f].c, files[task.f].b);

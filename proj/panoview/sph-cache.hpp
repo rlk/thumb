@@ -110,12 +110,13 @@ public:
 
     sph_set(int size) : size(size) { }
 
+    int  count()  const { return int(m.size()); }
     bool full()  const { return (m.size() >= size); }
     bool empty() const { return (m.empty()); }
 
-    const sph_page& search(sph_page, int, int&);
-    void            insert(sph_page, int);
-    void            remove(sph_page);
+    sph_page search(sph_page, int);
+    void     insert(sph_page, int);
+    void     remove(sph_page);
 
     sph_page  eject(int, int);
     void      draw();
