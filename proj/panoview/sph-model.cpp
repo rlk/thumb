@@ -47,7 +47,28 @@ sph_model::~sph_model()
 
 void sph_model::zoom(double *w, const double *v)
 {
-    vslerp(w, zoomv, v, zoomk);
+    double d = vdot(v, zoomv);
+    
+    if (-1 < d && d < 1)
+    {
+        double a = acos(d);
+        double b = a * zoomk;
+        
+        b = std::min(b, M_PI);
+        b = std::max(b,  0.0);
+        
+        double y[3];
+        double x[3];
+        
+        vcrs(y, v, zoomv);
+        vnormalize(y, y);
+        vcrs(x, zoomv, y);
+        vnormalize(x, x);
+        
+        vmul(w, zoomv, cos(b));
+        vmad(w, w,  x, sin(b));
+    }
+    else vcpy(w, v);
 }
 
 //------------------------------------------------------------------------------
@@ -62,6 +83,8 @@ static void bislerp(double *p, const double *a, const double *b,
     vslerp(t, a, b, x);
     vslerp(u, c, d, x);
     vslerp(p, t, u, y);
+
+    vnormalize(p, p);
 }
 
 static inline double max(double a, double b, double c, double d)
@@ -103,10 +126,10 @@ double sph_model::view_face(int i, const double *M, int vw, int vh,
     bislerp(c, ne, nw, se, sw, ee, ss);
     bislerp(d, ne, nw, se, sw, ww, ss);
     
-//    zoom(a, a);
-//    zoom(b, b);
-//    zoom(c, c);
-//    zoom(d, d);
+    zoom(a, a);
+    zoom(b, b);
+    zoom(c, c);
+    zoom(d, d);
     
     // Compute the maximum extent due to bulge.
 
@@ -196,10 +219,18 @@ double sph_model::view_face(int i, const double *M, int vw, int vh,
 
     // Compute the length of the longest visible edge, in pixels.
 
-    return max(length(A, B, vw, vh),
-               length(C, D, vw, vh),
-               length(A, C, vw, vh),
-               length(B, D, vw, vh));
+//    return max(length(A, B, vw, vh),
+//               length(C, D, vw, vh),
+//               length(A, C, vw, vh),
+//               length(B, D, vw, vh));
+    return std::max(max(length(A, B, vw, vh),
+                        length(C, D, vw, vh),
+                        length(A, C, vw, vh),
+                        length(B, D, vw, vh)),
+                    max(length(E, F, vw, vh),
+                        length(G, H, vw, vh),
+                        length(E, G, vw, vh),
+                        length(F, H, vw, vh)));
 }
 
 //------------------------------------------------------------------------------
@@ -222,35 +253,53 @@ void sph_model::prep_face(int f, int i, const double *M, int w, int h,
                           double r, double l, double t, double b, int d)
 
 {
-    double s = view_face(f, M, w, h, r, l, t, b);
-    
-    if (s > 0)
+    const int i0 = face_child(i, 0);
+    const int i1 = face_child(i, 1);
+    const int i2 = face_child(i, 2);
+    const int i3 = face_child(i, 3);
+
+    if (d < depth)
     {
-        if ((d < depth && s > size))
+        const double x = (r + l) * 0.5;
+        const double y = (t + b) * 0.5;
+
+        prep_face(f, i0, M, w, h, r, x, t, y, d + 1);
+        prep_face(f, i1, M, w, h, x, l, t, y, d + 1);
+        prep_face(f, i2, M, w, h, r, x, y, b, d + 1);
+        prep_face(f, i3, M, w, h, x, l, y, b, d + 1);
+    }
+
+    double s = view_face(f, M, w, h, r, l, t, b);
+
+    if (d < depth)
+    {
+        if (0 < s && s < size)
         {
-            int i0 = face_child(i, 0);
-            int i1 = face_child(i, 1);
-            int i2 = face_child(i, 2);
-            int i3 = face_child(i, 3);
-
-            const double x = (r + l) * 0.5;
-            const double y = (t + b) * 0.5;
-
-            prep_face(f, i0, M, w, h, r, x, t, y, d + 1);
-            prep_face(f, i1, M, w, h, x, l, t, y, d + 1);
-            prep_face(f, i2, M, w, h, r, x, y, b, d + 1);
-            prep_face(f, i3, M, w, h, x, l, y, b, d + 1);
-
-            if (status[i0] == s_halt && status[i1] == s_halt &&
-                status[i2] == s_halt && status[i3] == s_halt)
+            status[i]  = s_draw;
+            status[i0] = s_halt;
+            status[i1] = s_halt;
+            status[i2] = s_halt;
+            status[i3] = s_halt;
+        }
+        else
+        {
+            if (status[i0] == s_halt &&
+                status[i1] == s_halt &&
+                status[i2] == s_halt &&
+                status[i3] == s_halt)
 
                 status[i] = s_halt;
             else
                 status[i] = s_pass;
         }
-        else status[i] = s_draw;
     }
-    else status[i] = s_halt;
+    else
+    {
+        if (0 < s)
+            status[i] = s_draw;
+        else
+            status[i] = s_halt;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -306,7 +355,7 @@ void sph_model::draw(const double *P, const double *V, int f)
         glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glUseProgram(program);
     {
         glUniform1f(glGetUniformLocation(program, "zoomk"), zoomk);

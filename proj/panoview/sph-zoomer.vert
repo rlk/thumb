@@ -36,12 +36,14 @@ vec3 bislerp(vec3 a, vec3 b, vec3 c, vec3 d, vec2 k)
 
 vec3 zoom(vec3 v)
 {
+    const float pi = 3.14159;
+    
     float a = acos(dot(v, zoomv));
     
     if (a > 0.0)
     {
-        float b = clamp(a * zoomk, 0.0, 3.14159);
-        
+        float b = clamp(a * zoomk, 0.0, pi);
+
         vec3 y = normalize(cross(v, zoomv));
         vec3 x = normalize(cross(zoomv, y));
         

@@ -111,8 +111,8 @@ bool panoview::process_event(app::event *E)
         {
             curr_zoom = drag_zoom + (curr_y - drag_y) / 300.0f;
             
-            if (curr_zoom < 0.5) curr_zoom = 0.5;
-            if (curr_zoom > 5.0) curr_zoom = 5.0;
+            if (curr_zoom <   0.5) curr_zoom =   0.5;
+            if (curr_zoom >  10.0) curr_zoom =  10.0;
 
             L.set_zoom(curr_zoom);
         }
@@ -132,6 +132,8 @@ bool panoview::process_event(app::event *E)
             case '7': spin = 7; break;
             case '8': spin = 8; break;
             case '9': spin = 9; break;
+            
+            case 13 : L.set_zoom(curr_zoom = 1.0); break;
             }
     }
     if (E->get_type() == E_TICK)
