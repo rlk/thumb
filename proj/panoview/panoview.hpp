@@ -49,6 +49,10 @@ private:
     int    curr_x;
     int    curr_y;
     double curr_zoom;
+    
+    bool debug_zoom;
+    bool debug_cache;
+    bool debug_color;
 };
 
 //-----------------------------------------------------------------------------

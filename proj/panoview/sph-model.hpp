@@ -30,7 +30,13 @@ public:
     void prep(const double *, const double *, int, int);
     void draw(const double *, const double *, int);
     
-    void set_zoom(double k) { zoomk = k; }
+    void set_zoom(double x, double y, double z, double k)
+    {
+        zoomv[0] = x;
+        zoomv[1] = y;
+        zoomv[2] = z;
+        zoomk    = k;
+    }
     
 private:
 

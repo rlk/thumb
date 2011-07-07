@@ -355,7 +355,7 @@ void sph_model::draw(const double *P, const double *V, int f)
         glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glUseProgram(program);
     {
         glUniform1f(glGetUniformLocation(program, "zoomk"), zoomk);
@@ -380,6 +380,7 @@ void sph_model::draw(const double *P, const double *V, int f)
         }
     }
     glUseProgram(0);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER,         0);
@@ -387,7 +388,6 @@ void sph_model::draw(const double *P, const double *V, int f)
 
     glActiveTexture(GL_TEXTURE0);
 
-    cache.draw();
     time++;
 }
 

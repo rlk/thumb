@@ -142,8 +142,10 @@ public:
     GLuint get_fill() { return filler; }
     
     void update(int);
-
-    void draw() { pages.draw(); }
+    void flush();
+    void draw();
+    
+    void set_debug(bool b) { debug = b; }
 
 private:
 
@@ -160,6 +162,7 @@ private:
         
     GLsizei pagelen(int);
     GLuint  filler;
+    bool    debug;
     
     SDL_Thread *thread[4];
     

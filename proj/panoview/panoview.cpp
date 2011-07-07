@@ -42,6 +42,10 @@ panoview::panoview(const std::string& tag) :
     panoL = C.add_file("/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif");
 
     curr_zoom = 1.0;
+    
+    debug_zoom  = false;
+    debug_cache = false;
+    debug_color = false;
 }
 
 panoview::~panoview()
@@ -52,16 +56,6 @@ panoview::~panoview()
 
 ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
-    const double *P = frusv[0]->get_P();
-    const double *M = ::user->get_M();
-    const int     w = ::host->get_buffer_w();
-    const int     h = ::host->get_buffer_h();
-
-    double V[16];
-
-    minvert(V, M);
-    L.prep (P, V, w, h);
-
     return ogl::range(0.001, 10.0);
 }
 
@@ -73,6 +67,8 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 {
     const double *P =  frusp->get_P();
     const double *M = ::user->get_M();
+    const int     w = ::host->get_buffer_w();
+    const int     h = ::host->get_buffer_h();
 
     double V[16];
 
@@ -81,8 +77,19 @@ void panoview::draw(int frusi, const app::frustum *frusp)
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
+    if (debug_zoom)
+        L.set_zoom(  0.0,   0.0,   -1.0, curr_zoom);
+    else
+        L.set_zoom(-M[8], -M[9], -M[10], curr_zoom);
+
+    C.set_debug(debug_color);
+
     minvert(V, M);
+    L.prep (P, V, w, h);
     L.draw (P, V, panoL);
+    
+    if (debug_cache)
+        C.draw();
 }
 
 //------------------------------------------------------------------------------
@@ -111,10 +118,8 @@ bool panoview::process_event(app::event *E)
         {
             curr_zoom = drag_zoom + (curr_y - drag_y) / 300.0f;
             
-            if (curr_zoom <   0.5) curr_zoom =   0.5;
+            if (curr_zoom <   0.1) curr_zoom =   0.1;
             if (curr_zoom >  10.0) curr_zoom =  10.0;
-
-            L.set_zoom(curr_zoom);
         }
     }
     if (E->get_type() == E_KEY)
@@ -133,7 +138,12 @@ bool panoview::process_event(app::event *E)
             case '8': spin = 8; break;
             case '9': spin = 9; break;
             
-            case 13 : L.set_zoom(curr_zoom = 1.0); break;
+            case 283 : debug_zoom  = !debug_zoom;  break;
+            case 284 : debug_cache = !debug_cache; break;
+            case 285 : debug_color = !debug_color; break;
+            
+            case 13  : curr_zoom = 1.0; break;
+            case 8   : C.flush(); break;
             }
     }
     if (E->get_type() == E_TICK)

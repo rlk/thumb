@@ -367,6 +367,32 @@ sph_cache::~sph_cache()
 
 //------------------------------------------------------------------------------
 
+static void debug_on(int l)
+{
+    static const GLfloat color[][3] = {
+        { 1.0f, 0.0f, 0.0f },
+        { 1.0f, 1.0f, 0.0f },
+        { 0.0f, 1.0f, 0.0f },
+        { 0.0f, 1.0f, 1.0f },
+        { 0.0f, 0.0f, 1.0f },
+        { 1.0f, 0.0f, 1.0f },
+        { 1.0f, 1.0f, 1.0f },
+        { 1.0f, 1.0f, 1.0f },
+    };
+    glPixelTransferf(GL_RED_SCALE,   color[l][0]);
+    glPixelTransferf(GL_GREEN_SCALE, color[l][1]);
+    glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);                
+}
+
+static void debug_off()
+{
+    glPixelTransferf(GL_RED_SCALE,   1.0f);
+    glPixelTransferf(GL_GREEN_SCALE, 1.0f);
+    glPixelTransferf(GL_BLUE_SCALE,  1.0f);
+}
+
+//------------------------------------------------------------------------------
+
 // Append a string to the file list and return its index. Queue the roots.
 
 int sph_cache::add_file(const std::string& name)
@@ -383,16 +409,6 @@ int sph_cache::add_file(const std::string& name)
 
 GLuint sph_cache::get_page(int f, int i, int t, int& n)
 {
-    // If this page is loaded, return the texture.
-    
-    sph_page page = pages.search(sph_page(f, i), t);
-    
-    if (page.valid()) 
-    {
-        n    = page.t;
-        return page.o;
-    }
-    
     // If this page is waiting, return the filler.
 
     sph_page wait = waits.search(sph_page(f, i), t);
@@ -403,6 +419,16 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
         return wait.o;
     }
 
+    // If this page is loaded, return the texture.
+    
+    sph_page page = pages.search(sph_page(f, i), t);
+    
+    if (page.valid()) 
+    {
+        n    = page.t;
+        return page.o;
+    }
+    
     // Otherwise request the page and add it to the waiting set.
 
     if (!needs.full() && !pbos.empty())
@@ -443,6 +469,9 @@ void sph_cache::update(int t)
             pages.remove(page);
             pages.insert(page, t);
 
+            if (debug)
+                debug_on(face_level(task.i));
+
             task.make_texture(page.o, files[task.f].w, files[task.f].h,
                                       files[task.f].c, files[task.f].b);
         }
@@ -451,6 +480,20 @@ void sph_cache::update(int t)
 
         pbos.enq(task.u);
     }
+
+    if (debug)
+        debug_off();
+}
+
+void sph_cache::flush()
+{
+    while (!pages.empty())
+        pages.eject(0, -1);
+}
+
+void sph_cache::draw()
+{
+    pages.draw();
 }
 
 //------------------------------------------------------------------------------
