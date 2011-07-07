@@ -28,7 +28,7 @@ public:
    ~sph_model();
    
     void prep(const double *, const double *, int, int);
-    void draw(const double *, const double *, int);
+    void draw(const double *, const double *, const int *, int);
     
     void set_zoom(double x, double y, double z, double k)
     {
@@ -55,7 +55,7 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
-    void   draw_face(int, int,
+    void   draw_face(const int *, int, int,
                      double, double, double, double, int);
     void   prep_face(int, int, const double *, int, int,
                      double, double, double, double, int);
@@ -90,7 +90,7 @@ private:
     GLuint pos_d;
     GLuint tex_a[8];
     GLuint tex_d[8];
-    GLuint tex_t[8];
+    GLuint alpha[16];
     GLuint level;
     
     // OpenGL geometry state.

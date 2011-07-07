@@ -265,6 +265,7 @@ void sph_set::draw()
     int r = (l & 1) ? (1 << ((l - 1) / 2)) : (1 << (l / 2));
     int c = (l & 1) ? (1 << ((l + 1) / 2)) : (1 << (l / 2));
 
+    glDisable(GL_LIGHTING);
     glEnable(GL_TEXTURE_2D);
 
     glPushAttrib(GL_VIEWPORT_BIT);

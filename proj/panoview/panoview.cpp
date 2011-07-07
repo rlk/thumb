@@ -33,13 +33,15 @@
 
 panoview::panoview(const std::string& tag) :
 //    app::prog(tag), C(256), L(C, 16, 3, 512)
-    app::prog(tag), C(128), L(C, 16, 4, 512), spin(0), drag(false)
+    app::prog(tag), C(256), L(C, 16, 4, 512), spin(0), drag(false)
 {
 //    int n;
     
 //    panoL = C.add_file("/home/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
 //    panoL = C.add_file("/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif");
-    panoL = C.add_file("/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif");
+
+    pan.push_back(C.add_file("/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif"));
+    pan.push_back(C.add_file("/Users/rlk/Data/pan/Blue-Mounds-8-R-Cube.tif"));
 
     curr_zoom = 1.0;
     
@@ -86,7 +88,7 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
     minvert(V, M);
     L.prep (P, V, w, h);
-    L.draw (P, V, panoL);
+    L.draw (P, V, &pan.front(), int(pan.size()));
     
     if (debug_cache)
         C.draw();

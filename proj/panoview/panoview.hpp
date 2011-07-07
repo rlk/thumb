@@ -13,6 +13,8 @@
 #ifndef PANOVIEW_HPP
 #define PANOVIEW_HPP
 
+#include <vector>
+
 #include <app-prog.hpp>
 
 #include "sph-cache.hpp"
@@ -37,10 +39,10 @@ private:
 
     int spin;
 
+    std::vector<int> pan;
+    
     sph_cache C;
     sph_model L;
-    
-    int panoL;
     
     bool   drag;
     int    drag_x;

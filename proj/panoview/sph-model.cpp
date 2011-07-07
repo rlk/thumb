@@ -310,52 +310,32 @@ GLfloat sph_model::age(int then)
     return (a > 1.f) ? 1.f : a;
 }
 
-void sph_model::draw(const double *P, const double *V, int f)
+void sph_model::draw(const double *P, const double *V, const int *f, int n)
 {
     double M[16];
     
     mmultiply(M, P, V);
 
-#if 1
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
     
-    glDisable(GL_LIGHTING);
-    glDisable(GL_TEXTURE_2D);
-#else
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glFrustum(-1.77, +1.77, -1.0, +1.0, 3.0, 100.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glTranslated(0.0, 0.0, -5.0);
-#endif
-
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glEnable(GL_LINE_SMOOTH);
-    glLineWidth(1.0f);
-    
-    glEnable(GL_POLYGON_OFFSET_LINE);
-    glPolygonOffset(-4.0f, -4.0f);
 
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
 
-    for (int i = 7; i >= 0; --i)
+    for (int i = 15; i >= 0; --i)
     {
         glActiveTexture(GL_TEXTURE0 + i);
         glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glUseProgram(program);
     {
         glUniform1f(glGetUniformLocation(program, "zoomk"), zoomk);
@@ -376,11 +356,10 @@ void sph_model::draw(const double *P, const double *V, int f)
             glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
             glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
 
-            draw_face(f, i, 0, 1, 0, 1, 0);
+            draw_face(f, n, i, 0, 1, 0, 1, 0);
         }
     }
     glUseProgram(0);
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER,         0);
@@ -391,23 +370,26 @@ void sph_model::draw(const double *P, const double *V, int f)
     time++;
 }
 
-void sph_model::draw_face(int f, int i,
+void sph_model::draw_face(const int *f, int n, int i,
                           double r, double l, double t, double b, int d)
 {
     GLuint o = 0;
 
     if (status[i] != s_halt)
     {
-        int then = time;
-        
-        o = cache.get_page(f, i, time, then);
+        for (int j = 0; j < n; ++j)
+        {
+            int e = j * 8 + d;
+            int then = time;
+            
+            o = cache.get_page(f[j], i, time, then);
 
+            glUniform1f(alpha[e], age(then));
+            glActiveTexture(GL_TEXTURE0 + e);
+            glBindTexture(GL_TEXTURE_2D, o);
+        }
         glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
         glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
-        glUniform1f(tex_t[d], age(then));
-        
-        glActiveTexture(GL_TEXTURE0 + d);
-        glBindTexture(GL_TEXTURE_2D, o);
     }
 
     if (status[i] == s_pass)
@@ -415,10 +397,10 @@ void sph_model::draw_face(int f, int i,
         const double x = (r + l) * 0.5;
         const double y = (t + b) * 0.5;
 
-        draw_face(f, face_child(i, 0), r, x, t, y, d + 1);
-        draw_face(f, face_child(i, 1), x, l, t, y, d + 1);
-        draw_face(f, face_child(i, 2), r, x, y, b, d + 1);
-        draw_face(f, face_child(i, 3), x, l, y, b, d + 1);
+        draw_face(f, n, face_child(i, 0), r, x, t, y, d + 1);
+        draw_face(f, n, face_child(i, 1), x, l, t, y, d + 1);
+        draw_face(f, n, face_child(i, 2), r, x, y, b, d + 1);
+        draw_face(f, n, face_child(i, 3), x, l, y, b, d + 1);
     }
 
     if (status[i] == s_draw)
@@ -440,8 +422,11 @@ void sph_model::draw_face(int f, int i,
     
     if (status[i] != s_halt)
     {
-        glActiveTexture(GL_TEXTURE0 + d);
-        glBindTexture(GL_TEXTURE_2D, cache.get_fill());
+        for (int j = 0; j < n; ++j)
+        {
+            glActiveTexture(GL_TEXTURE0 + j * 8 + d);
+            glBindTexture(GL_TEXTURE_2D, cache.get_fill());
+        }
     }
 }
 
@@ -460,7 +445,8 @@ void sph_model::init_program()
 {    
 //  char *vert_source = load_txt("sph-render.vert");
     char *vert_source = load_txt("sph-zoomer.vert");
-    char *frag_source = load_txt("sph-render.frag");
+//    char *frag_source = load_txt("sph-render.frag");
+    char *frag_source = load_txt("sph-blend.frag");
 
     if (vert_source && frag_source)
     {
@@ -478,11 +464,14 @@ void sph_model::init_program()
 
         for (int d = 0; d < 8; ++d)
         {
-            tex_a[d] = glGetUniformLocationv(program, "tex_a[%d]", d);
-            tex_d[d] = glGetUniformLocationv(program, "tex_d[%d]", d);
-            tex_t[d] = glGetUniformLocationv(program, "tex_t[%d]", d);
+            tex_a[d]  = glGetUniformLocationv(program, "tex_a[%d]", d);
+            tex_d[d]  = glGetUniformLocationv(program, "tex_d[%d]", d);
+        }
 
-            glUniform1i(glGetUniformLocationv(program, "texture[%d]", d), d);
+        for (int d = 0; d < 16; ++d)
+        {
+            alpha[d]  = glGetUniformLocationv(program, "alpha[%d]", d);
+            glUniform1i(glGetUniformLocationv(program, "image[%d]", d), d);
         }
     }
         
