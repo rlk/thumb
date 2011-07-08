@@ -265,18 +265,24 @@ void sph_set::draw()
     int r = (l & 1) ? (1 << ((l - 1) / 2)) : (1 << (l / 2));
     int c = (l & 1) ? (1 << ((l + 1) / 2)) : (1 << (l / 2));
 
-    glDisable(GL_LIGHTING);
-    glEnable(GL_TEXTURE_2D);
+    glUseProgram(0);
 
-    glPushAttrib(GL_VIEWPORT_BIT);
+    glPushAttrib(GL_VIEWPORT_BIT | GL_ENABLE_BIT);
     {
+        glDisable(GL_LIGHTING);
+        glEnable(GL_TEXTURE_2D);
+
         glViewport(0, 0, c * 32, r * 32);
 
         glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
         glLoadIdentity();
         glOrtho(c, 0, r, 0, 0, 1);
         glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
         glLoadIdentity();
+
+        glColor4f(1.f, 1.f, 1.f, 1.f);
 
         std::map<sph_page, int>::iterator i = m.begin();
 
@@ -296,6 +302,11 @@ void sph_set::draw()
                     glEnd();
                     i++;
                 }
+                
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
     }
     glPopAttrib();
 }
@@ -385,12 +396,12 @@ static void debug_on(int l)
     glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);                
 }
 
-static void debug_off()
-{
-    glPixelTransferf(GL_RED_SCALE,   1.0f);
-    glPixelTransferf(GL_GREEN_SCALE, 1.0f);
-    glPixelTransferf(GL_BLUE_SCALE,  1.0f);
-}
+//static void debug_off()
+//{
+//    glPixelTransferf(GL_RED_SCALE,   1.0f);
+//    glPixelTransferf(GL_GREEN_SCALE, 1.0f);
+//    glPixelTransferf(GL_BLUE_SCALE,  1.0f);
+//}
 
 //------------------------------------------------------------------------------
 
@@ -458,32 +469,33 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
 
 void sph_cache::update(int t)
 {
-    for (int c = 0; !loads.empty() && c < 4; ++c)
+    glPushAttrib(GL_PIXEL_MODE_BIT);
     {
-        sph_task task = loads.remove();
-        sph_page page = pages.search(sph_page(task.f, task.i), t);
-                        waits.remove(sph_page(task.f, task.i));
-
-        if (page.valid())
+        for (int c = 0; !loads.empty() && c < 4; ++c)
         {
-            page.t = t;
-            pages.remove(page);
-            pages.insert(page, t);
+            sph_task task = loads.remove();
+            sph_page page = pages.search(sph_page(task.f, task.i), t);
+                            waits.remove(sph_page(task.f, task.i));
 
-            if (debug)
-                debug_on(face_level(task.i));
+            if (page.valid())
+            {
+                page.t = t;
+                pages.remove(page);
+                pages.insert(page, t);
 
-            task.make_texture(page.o, files[task.f].w, files[task.f].h,
-                                      files[task.f].c, files[task.f].b);
+                if (debug)
+                    debug_on(face_level(task.i));
+
+                task.make_texture(page.o, files[task.f].w, files[task.f].h,
+                                          files[task.f].c, files[task.f].b);
+            }
+            else
+                task.dump_texture();
+
+            pbos.enq(task.u);
         }
-        else
-            task.dump_texture();
-
-        pbos.enq(task.u);
     }
-
-    if (debug)
-        debug_off();
+    glPopAttrib();
 }
 
 void sph_cache::flush()

@@ -25,16 +25,18 @@
 
 //------------------------------------------------------------------------------
 
-sph_model::sph_model(sph_cache& cache, int n, int m, int s) :
-    cache(cache), depth(m), size(s), time(1), status(cube_size(m), s_halt)
+sph_model::sph_model(const std::string& vert,
+                     const std::string& frag,
+                     sph_cache& cache, int n, int d, int s) :
+    cache(cache), depth(d), size(s), time(1), status(cube_size(d), s_halt)
 {
-    init_program();
+    init_program(vert, frag);
     init_arrays(n);
     
     zoomv[0] =  0;
     zoomv[1] =  0;
     zoomv[2] = -1;
-    zoomk    =  1.1;
+    zoomk    =  1;
 }
 
 sph_model::~sph_model()
@@ -219,10 +221,10 @@ double sph_model::view_face(int i, const double *M, int vw, int vh,
 
     // Compute the length of the longest visible edge, in pixels.
 
-//    return max(length(A, B, vw, vh),
-//               length(C, D, vw, vh),
-//               length(A, C, vw, vh),
-//               length(B, D, vw, vh));
+//  return max(length(A, B, vw, vh),
+//             length(C, D, vw, vh),
+//             length(A, C, vw, vh),
+//             length(B, D, vw, vh));
     return std::max(max(length(A, B, vw, vh),
                         length(C, D, vw, vh),
                         length(A, C, vw, vh),
@@ -241,7 +243,7 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
     
     mmultiply(M, P, V);
     
-    memset(&status.front(), 0, status.size());
+//    memset(&status.front(), 0, status.size());
     
     for (int i = 0; i < 6; ++i)
         prep_face(i, i, M, w, h, 0, 1, 0, 1, 0);
@@ -441,12 +443,11 @@ static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
     return glGetUniformLocation(program, str);
 }
 
-void sph_model::init_program()
+void sph_model::init_program(const std::string& vert_name,
+                             const std::string& frag_name)
 {    
-//  char *vert_source = load_txt("sph-render.vert");
-    char *vert_source = load_txt("sph-zoomer.vert");
-//    char *frag_source = load_txt("sph-render.frag");
-    char *frag_source = load_txt("sph-blend.frag");
+    char *vert_source = load_txt(vert_name.c_str());
+    char *frag_source = load_txt(frag_name.c_str());
 
     if (vert_source && frag_source)
     {

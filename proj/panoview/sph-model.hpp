@@ -24,7 +24,7 @@ class sph_model
 {
 public:
 
-    sph_model(sph_cache&, int, int, int);
+    sph_model(const std::string&, const std::string&, sph_cache&, int, int, int);
    ~sph_model();
    
     void prep(const double *, const double *, int, int);
@@ -77,7 +77,7 @@ private:
 
     // OpenGL programmable processing state
 
-    void init_program();
+    void init_program(const std::string&, const std::string&);
     void free_program();
     
     GLuint program;

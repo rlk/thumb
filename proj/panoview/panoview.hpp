@@ -36,32 +36,49 @@ public:
     
     virtual bool process_event(app::event *);
     
+    void load(const std::string&);
+    void cancel();
+    
 private:
 
-    int spin;
+    // Rendering state
 
     std::vector<int> pan;
     
-    sph_cache C;
-    sph_model L;
+    sph_cache *C;
+    sph_model *L;
+    
+    bool debug_zoom;
+    bool debug_cache;
+    bool debug_color;
 
-    void gui_init();
-    void gui_free();
-    void gui_draw();
+    int spin;
+
+    // GUI State
 
     loader *gui;
     
-    bool   drag;
+    bool gui_state;
+    void gui_init();
+    void gui_free();
+    void gui_draw();
+    bool gui_point(app::event *);
+    bool gui_click(app::event *);
+    bool gui_key  (app::event *);
+
+    // Interaction state
+    
+    bool   drag_state;
     int    drag_x;
     int    drag_y;
     double drag_zoom;
     int    curr_x;
     int    curr_y;
     double curr_zoom;
-    
-    bool debug_zoom;
-    bool debug_cache;
-    bool debug_color;
+
+    bool pan_point(app::event *);
+    bool pan_click(app::event *);
+    bool pan_key  (app::event *);
 };
 
 //-----------------------------------------------------------------------------

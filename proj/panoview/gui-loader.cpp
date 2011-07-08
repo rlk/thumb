@@ -13,22 +13,78 @@
 #include <app-font.hpp>
 
 #include "gui-loader.hpp"
+#include "panoview.hpp"
 
 //------------------------------------------------------------------------------
 
-loader::loader(int w, int h)
+static gui::widget *label(const std::string& text)
+{
+    return new gui::string(text, 0, 0, 0xFF, 0xC0, 0x40);
+}
+
+static gui::widget *annot(const std::string& text)
+{
+    return new gui::string(text, 0, 0, 0x00, 0x00, 0x00);
+}
+
+//------------------------------------------------------------------------------
+
+class button_load : public gui::button
+{
+    panoview    *P;
+    gui::editor *E;
+    
+public:
+    button_load(panoview *P, gui::editor *E)
+        : gui::button("Load"), P(P), E(E) { }
+    
+    void apply()
+    {
+        if (!E->value().empty())
+            P->load(E->value());
+    }
+};
+
+class button_cancel : public gui::button
+{
+    panoview *P;
+    
+public:
+    button_cancel(panoview *P)
+        : gui::button("Cancel"), P(P) { }
+    
+    void apply()
+    {
+        P->cancel();
+    }
+};
+
+//------------------------------------------------------------------------------
+
+loader::loader(panoview *P, int w, int h)
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("pan", ".xml", E);
 
-    root = ((new gui::vgroup)->
+    root = ((new gui::frame)->
+            add((new gui::vgroup)->
+                add(label("PanoView \xE2\x80\x94 File Selection"))->
+
                 add((new gui::hgroup)->
-                    add(new gui::string("Panorama", 0, 0, 0xFF, 0xC0, 0x40))->
+                    add(label("File:"))->
                     add(E))->
-                add(F));
+                    
+                add(F)->
+                
+                add((new gui::hgroup)->
+                    add(annot("Copyright \xC2\xA9 2011 Robert Kooima"))->
+                    add(new gui::filler(true, false))->
+                    add((new gui::harray)->
+                        add(new button_load  (P, E))->
+                        add(new button_cancel(P))))));
 
     root->layup();
-    root->laydn(w / 4, h / 4, w / 2, h / 2);
+    root->laydn(w / 5, h / 5, 3 * w / 5, 3 * h / 5);
 }
 
 //------------------------------------------------------------------------------
