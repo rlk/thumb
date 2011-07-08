@@ -19,6 +19,7 @@
 
 #include "sph-cache.hpp"
 #include "sph-model.hpp"
+#include "gui-loader.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -43,6 +44,12 @@ private:
     
     sph_cache C;
     sph_model L;
+
+    void gui_init();
+    void gui_free();
+    void gui_draw();
+
+    loader *gui;
     
     bool   drag;
     int    drag_x;

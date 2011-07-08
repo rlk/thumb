@@ -118,8 +118,8 @@ bool mode::info::process_event(app::event *E)
 
         if (E->data.key.d)
             gui->key(E->data.key.c,
-                       E->data.key.k,
-                       E->data.key.m);
+                     E->data.key.k,
+                     E->data.key.m);
         return true;
 
     case E_START:

@@ -17,6 +17,8 @@
 		5865801A13B60E7900FBBF90 /* sph-render.frag in Sources */ = {isa = PBXBuildFile; fileRef = 5865801513B60E7900FBBF90 /* sph-render.frag */; };
 		5865801B13B60E7900FBBF90 /* sph-render.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5865801613B60E7900FBBF90 /* sph-render.vert */; };
 		5865801F13B60EBE00FBBF90 /* libtiff.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */; };
+		58DB38B213C7422600304D44 /* gui-loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58DB38B013C7422600304D44 /* gui-loader.cpp */; };
+		58DB38B413C7445000304D44 /* libfreetype.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58DB38B313C7445000304D44 /* libfreetype.6.dylib */; };
 		58E2109A13AE6EC2004580E9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109413AE6EC2004580E9 /* main.cpp */; };
 		58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109613AE6EC2004580E9 /* panoview.cpp */; };
 		58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109813AE6EC2004580E9 /* sph-model.cpp */; };
@@ -55,8 +57,10 @@
 		5865801513B60E7900FBBF90 /* sph-render.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.frag"; path = "../../../proj/panoview/sph-render.frag"; sourceTree = "<group>"; };
 		5865801613B60E7900FBBF90 /* sph-render.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.vert"; path = "../../../proj/panoview/sph-render.vert"; sourceTree = "<group>"; };
 		5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.3.dylib; path = /opt/local/lib/libtiff.3.dylib; sourceTree = "<absolute>"; };
-		5865802A13B626B100FBBF90 /* tree.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = tree.hpp; path = ../../../proj/panoview/tree.hpp; sourceTree = "<group>"; };
 		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
+		58DB38B013C7422600304D44 /* gui-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gui-loader.cpp"; path = "../../../proj/panoview/gui-loader.cpp"; sourceTree = "<group>"; };
+		58DB38B113C7422600304D44 /* gui-loader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "gui-loader.hpp"; path = "../../../proj/panoview/gui-loader.hpp"; sourceTree = "<group>"; };
+		58DB38B313C7445000304D44 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../../../../../opt/local/lib/libfreetype.6.dylib; sourceTree = "<group>"; };
 		58E2108813AE6EAF004580E9 /* panoview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = panoview; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E2109413AE6EC2004580E9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../proj/panoview/main.cpp; sourceTree = "<group>"; };
 		58E2109513AE6EC2004580E9 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../../proj/panoview/main.hpp; sourceTree = "<group>"; };
@@ -80,6 +84,7 @@
 				5865801F13B60EBE00FBBF90 /* libtiff.3.dylib in Frameworks */,
 				58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */,
 				58E2109E13AE6F40004580E9 /* thumb.dylib in Frameworks */,
+				58DB38B413C7445000304D44 /* libfreetype.6.dylib in Frameworks */,
 				58E210A713AE7380004580E9 /* libSDLmain.a in Frameworks */,
 				58E210A413AE72E6004580E9 /* libSDL-1.2.0.dylib in Frameworks */,
 				58E210A013AE7297004580E9 /* OpenGL.framework in Frameworks */,
@@ -93,6 +98,7 @@
 		58E2107D13AE6EAF004580E9 = {
 			isa = PBXGroup;
 			children = (
+				58DB38B313C7445000304D44 /* libfreetype.6.dylib */,
 				58E210A513AE730A004580E9 /* Dependencies */,
 				58E2108B13AE6EAF004580E9 /* panoview */,
 				58E2108913AE6EAF004580E9 /* Products */,
@@ -113,22 +119,23 @@
 				5865801513B60E7900FBBF90 /* sph-render.frag */,
 				580BA33E13C50C6400C77076 /* sph-zoomer.vert */,
 				5865801613B60E7900FBBF90 /* sph-render.vert */,
-				5865802C13B628F100FBBF90 /* queue.hpp */,
-				5865802A13B626B100FBBF90 /* tree.hpp */,
-				582D8D1013AFECB00005A831 /* glyph.c */,
-				582D8D1113AFECB00005A831 /* glyph.h */,
 				5865801313B60E7900FBBF90 /* sph-cache.cpp */,
 				5865801413B60E7900FBBF90 /* sph-cache.hpp */,
 				58E2109813AE6EC2004580E9 /* sph-model.cpp */,
 				58E2109913AE6EC2004580E9 /* sph-model.hpp */,
-				58E2109613AE6EC2004580E9 /* panoview.cpp */,
-				58E2109713AE6EC2004580E9 /* panoview.hpp */,
+				58DB38B013C7422600304D44 /* gui-loader.cpp */,
+				58DB38B113C7422600304D44 /* gui-loader.hpp */,
+				5865802C13B628F100FBBF90 /* queue.hpp */,
 				582D8D0613AFAC730005A831 /* cube.cpp */,
 				582D8D0713AFAC730005A831 /* cube.hpp */,
+				582D8D1013AFECB00005A831 /* glyph.c */,
+				582D8D1113AFECB00005A831 /* glyph.h */,
 				582D8D0113AFA2C50005A831 /* math3d.c */,
 				582D8D0213AFA2C50005A831 /* math3d.h */,
 				582D8CFF13AFA2C50005A831 /* glsl.c */,
 				582D8D0013AFA2C50005A831 /* glsl.h */,
+				58E2109613AE6EC2004580E9 /* panoview.cpp */,
+				58E2109713AE6EC2004580E9 /* panoview.hpp */,
 				58E2109413AE6EC2004580E9 /* main.cpp */,
 				58E2109513AE6EC2004580E9 /* main.hpp */,
 			);
@@ -211,6 +218,7 @@
 				5865801A13B60E7900FBBF90 /* sph-render.frag in Sources */,
 				5865801B13B60E7900FBBF90 /* sph-render.vert in Sources */,
 				580BA33F13C50C6400C77076 /* sph-zoomer.vert in Sources */,
+				58DB38B213C7422600304D44 /* gui-loader.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -258,6 +266,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				HEADER_SEARCH_PATHS = (
 					/opt/local/include,
+					/opt/local/include/freetype2,
 					/opt/local/include/SDL,
 				);
 				LIBRARY_SEARCH_PATHS = (
@@ -278,6 +287,7 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				HEADER_SEARCH_PATHS = (
 					/opt/local/include,
+					/opt/local/include/freetype2,
 					/opt/local/include/SDL,
 				);
 				LIBRARY_SEARCH_PATHS = (

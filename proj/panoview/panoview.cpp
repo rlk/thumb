@@ -25,12 +25,6 @@
 
 //------------------------------------------------------------------------------
 
-// panoview::panoview(const std::string& tag) :
-//    app::prog(tag), C(512), L(C, 16, 4, 256)
-// {
-//    panoL = C.add_file("/home/rlk/Data/pan/test4.tif");
-// }
-
 panoview::panoview(const std::string& tag) :
 //    app::prog(tag), C(256), L(C, 16, 3, 512)
     app::prog(tag), C(256), L(C, 16, 4, 512), spin(0), drag(false)
@@ -48,10 +42,41 @@ panoview::panoview(const std::string& tag) :
     debug_zoom  = false;
     debug_cache = false;
     debug_color = false;
+    
+    gui_init();
 }
 
 panoview::~panoview()
 {
+    gui_free();
+}
+
+//------------------------------------------------------------------------------
+
+void panoview::gui_init()
+{
+    const app::frustum *overlay = ::host->get_overlay();
+
+    int w = overlay ? overlay->get_pixel_w() : ::host->get_buffer_w();
+    int h = overlay ? overlay->get_pixel_h() : ::host->get_buffer_h();
+
+    gui = new loader(w, h);
+}
+
+void panoview::gui_free()
+{
+    delete gui;
+}
+
+void panoview::gui_draw()
+{
+    if (const app::frustum *overlay = ::host->get_overlay())
+    {
+        glEnable(GL_DEPTH_CLAMP_NV);
+        overlay->overlay();
+        gui->draw();
+        glDisable(GL_DEPTH_CLAMP_NV);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -92,6 +117,8 @@ void panoview::draw(int frusi, const app::frustum *frusp)
     
     if (debug_cache)
         C.draw();
+        
+    gui_draw();
 }
 
 //------------------------------------------------------------------------------
