@@ -66,11 +66,15 @@
             argument = "1920x1080"
             isEnabled = "NO">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "1920x1080-LR"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>
          <EnvironmentVariable
             key = "THUMB_RO_PATH"
-            value = "/Users/rlk/Projects/thumb/data"
+            value = "/Users/rlk/Projects/thumb/data:/Users/rlk/Projects/thumb/proj/panoview/data"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

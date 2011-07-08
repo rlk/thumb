@@ -4,6 +4,7 @@
     <option name="host_file">host/common.xml</option>
     <option name="input_mode">mouse</option>
     <option name="wiimote">00:1B:7A:3E:45:7F</option>
+    <option name="panoview_cache_size">256</option>
     <option name="loader_threads">2</option>
     <option name="loader_buffers">32</option>
     <option name="attract_delay">6000.0</option>
@@ -66,8 +67,8 @@
     <!-- GUI options -->
     <option name="sans_font">FreeSans.ttf</option>
     <option name="mono_font">FreeMono.ttf</option>
-    <option name="sans_size">12</option>
-    <option name="mono_size">12</option>
+    <option name="sans_size">16</option>
+    <option name="mono_size">16</option>
     <!-- Dvorak keyboard commands
     <option name="key_move_L">97</option>
     <option name="key_move_R">101</option>

@@ -43,6 +43,7 @@
 
 /* Begin PBXFileReference section */
 		580BA33E13C50C6400C77076 /* sph-zoomer.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-zoomer.vert"; path = "../../../proj/panoview/sph-zoomer.vert"; sourceTree = "<group>"; };
+		580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Blue-Mounds-8.xml"; path = "../../proj/panoview/data/pan/Blue-Mounds-8.xml"; sourceTree = "<group>"; };
 		582D8CFF13AFA2C50005A831 /* glsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glsl.c; path = ../../../proj/panoview/glsl.c; sourceTree = "<group>"; };
 		582D8D0013AFA2C50005A831 /* glsl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glsl.h; path = ../../../proj/panoview/glsl.h; sourceTree = "<group>"; };
 		582D8D0113AFA2C50005A831 /* math3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = math3d.c; path = ../../../proj/panoview/math3d.c; sourceTree = "<group>"; };
@@ -60,7 +61,7 @@
 		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
 		58DB38B013C7422600304D44 /* gui-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gui-loader.cpp"; path = "../../../proj/panoview/gui-loader.cpp"; sourceTree = "<group>"; };
 		58DB38B113C7422600304D44 /* gui-loader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "gui-loader.hpp"; path = "../../../proj/panoview/gui-loader.hpp"; sourceTree = "<group>"; };
-		58DB38B313C7445000304D44 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = ../../../../../../opt/local/lib/libfreetype.6.dylib; sourceTree = "<group>"; };
+		58DB38B313C7445000304D44 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = /opt/local/lib/libfreetype.6.dylib; sourceTree = "<absolute>"; };
 		58E2108813AE6EAF004580E9 /* panoview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = panoview; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E2109413AE6EC2004580E9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../proj/panoview/main.cpp; sourceTree = "<group>"; };
 		58E2109513AE6EC2004580E9 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../../proj/panoview/main.hpp; sourceTree = "<group>"; };
@@ -95,11 +96,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		580BA34B13C78CFB00C77076 /* Data */ = {
+			isa = PBXGroup;
+			children = (
+				580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */,
+			);
+			name = Data;
+			sourceTree = "<group>";
+		};
 		58E2107D13AE6EAF004580E9 = {
 			isa = PBXGroup;
 			children = (
-				58DB38B313C7445000304D44 /* libfreetype.6.dylib */,
 				58E210A513AE730A004580E9 /* Dependencies */,
+				580BA34B13C78CFB00C77076 /* Data */,
 				58E2108B13AE6EAF004580E9 /* panoview */,
 				58E2108913AE6EAF004580E9 /* Products */,
 			);
@@ -147,6 +156,7 @@
 			children = (
 				5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */,
 				58E2109D13AE6F40004580E9 /* thumb.dylib */,
+				58DB38B313C7445000304D44 /* libfreetype.6.dylib */,
 				58E210A613AE7380004580E9 /* libSDLmain.a */,
 				58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */,
 				58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */,

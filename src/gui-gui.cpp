@@ -1258,13 +1258,14 @@ void gui::dialog::draw() const
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
             glActiveTexture(GL_TEXTURE0);
-
+            glBindTexture(GL_TEXTURE_2D, 0);
+            
             glMatrixMode(GL_TEXTURE);
             glLoadIdentity();
             glMatrixMode(GL_MODELVIEW);
 
             root->draw(focus, input);
-
+#if 0
             glBegin(GL_LINES);
             {
                 int s = 10;
@@ -1277,7 +1278,7 @@ void gui::dialog::draw() const
                 glVertex2i(last_x + s, last_y - s);
             }
             glEnd();
-
+#endif
         }
         glPopAttrib();
     }

@@ -129,7 +129,8 @@ void panoview::draw(int frusi, const app::frustum *frusp)
         C->set_debug(debug_color);
 
         L->prep(P, V, w, h);
-        L->draw(P, V, &pan.front(), int(pan.size()));
+        L->draw(P, V, &pan[frusi], 1);
+//        L->draw(P, V, &pan.front(), int(pan.size()));
     }
     
     if (C && debug_cache)
@@ -152,7 +153,7 @@ bool panoview::process_event(app::event *E)
         return (gui_key(E)   || pan_key(E)   || prog::process_event(E));
 
     if (E->get_type() == E_TICK)
-        ::user->look(spin * E->data.tick.dt / 100.0, 0.0);
+        ::user->look(spin * E->data.tick.dt / 360.0, 0.0);
 
     return prog::process_event(E);
 }

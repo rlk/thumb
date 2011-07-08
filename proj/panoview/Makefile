@@ -4,6 +4,7 @@
 
 TARG= panoview
 OBJS=   panoview.o \
+	gui-loader.o \
         sph-model.o \
         sph-cache.o \
 	math3d.o \

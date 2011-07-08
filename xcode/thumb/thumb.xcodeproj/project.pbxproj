@@ -152,6 +152,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		580BA34E13C7A23000C77076 /* common.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = common.xml; path = ../../data/host/common.xml; sourceTree = "<group>"; };
 		58427C8113AF8C9000F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
 		58E2104113AE6901004580E9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		58E2104413AE6932004580E9 /* libSDL-1.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL-1.2.0.dylib"; path = "/opt/local/lib/libSDL-1.2.0.dylib"; sourceTree = "<absolute>"; };
@@ -341,6 +342,7 @@
 		58E210AC13AE7555004580E9 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				580BA34E13C7A23000C77076 /* common.xml */,
 				58E210AD13AE7565004580E9 /* conf.xml */,
 			);
 			name = Data;

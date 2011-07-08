@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
   <panorama depth="4" mesh="16" size="512" vert="sph-zoomer.vert"
-                                           frag="sph-blend.frag">
-    <image channel="0" file="/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif" />
-    <image channel="1" file="/Users/rlk/Data/pan/Blue-Mounds-8-R-Cube.tif" />
+                                           frag="sph-render.frag">
+    <image file="/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif" />
+    <image file="/Users/rlk/Data/pan/Blue-Mounds-8-R-Cube.tif" />
   </panorama>
