@@ -14,6 +14,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstdlib>
+#include <cassert>
 #include <limits>
 
 #include "math3d.h"
@@ -47,18 +48,22 @@ sph_model::~sph_model()
 
 //------------------------------------------------------------------------------
 
+static inline double scale(double k, double t)
+{
+    if (k < 1.0)
+        return std::min(t / k, 1.0 - (1.0 - t) * k);
+    else
+        return std::max(t / k, 1.0 - (1.0 - t) * k);
+}
+
 void sph_model::zoom(double *w, const double *v)
 {
     double d = vdot(v, zoomv);
     
     if (-1 < d && d < 1)
     {
-        double a = acos(d);
-        double b = a * zoomk;
-        
-        b = std::min(b, M_PI);
-        b = std::max(b,  0.0);
-        
+        double b = scale(zoomk, acos(d) / M_PI) * M_PI;
+                
         double y[3];
         double x[3];
         
@@ -242,9 +247,7 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
     double M[16];
     
     mmultiply(M, P, V);
-    
-//    memset(&status.front(), 0, status.size());
-    
+        
     for (int i = 0; i < 6; ++i)
         prep_face(i, i, M, w, h, 0, 1, 0, 1, 0);
     
@@ -338,6 +341,7 @@ void sph_model::draw(const double *P, const double *V, const int *f, int n)
         glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     glUseProgram(program);
     {
         glUniform1f(glGetUniformLocation(program, "zoomk"), zoomk);

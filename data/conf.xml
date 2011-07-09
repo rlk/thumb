@@ -67,8 +67,8 @@
     <!-- GUI options -->
     <option name="sans_font">FreeSans.ttf</option>
     <option name="mono_font">FreeMono.ttf</option>
-    <option name="sans_size">16</option>
-    <option name="mono_size">16</option>
+    <option name="sans_size">12</option>
+    <option name="mono_size">12</option>
     <!-- Dvorak keyboard commands
     <option name="key_move_L">97</option>
     <option name="key_move_R">101</option>

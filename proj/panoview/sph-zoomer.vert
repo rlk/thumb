@@ -34,15 +34,23 @@ vec3 bislerp(vec3 a, vec3 b, vec3 c, vec3 d, vec2 k)
     return slerp(t, u, k.y);
 }
 
+float scale(float k, float t)
+{
+    if (k < 1.0)
+        return min(t / k, 1.0 - (1.0 - t) * k);
+    else
+        return max(t / k, 1.0 - (1.0 - t) * k);
+}
+
 vec3 zoom(vec3 v)
 {
-    const float pi = 3.14159;
+    const float pi = 3.1415927;
     
     float a = acos(dot(v, zoomv));
     
     if (a > 0.0)
     {
-        float b = clamp(a * zoomk, 0.0, pi);
+        float b = scale(zoomk, a / pi) * pi;
 
         vec3 y = normalize(cross(v, zoomv));
         vec3 x = normalize(cross(zoomv, y));
@@ -51,6 +59,24 @@ vec3 zoom(vec3 v)
     }
     else return v;
 }
+
+//vec3 zoom(vec3 v)
+//{
+//    const float pi = 3.1415927;
+//    
+//    float a = acos(dot(v, zoomv));
+//    
+//    if (a > 0.0)
+//    {
+//        float b = clamp(a * zoomk, 0.0, pi);
+//
+//        vec3 y = normalize(cross(v, zoomv));
+//        vec3 x = normalize(cross(zoomv, y));
+//        
+//        return zoomv * cos(b) + x * sin(b);
+//    }
+//    else return v;
+//}
 
 //------------------------------------------------------------------------------
 

@@ -28,7 +28,7 @@
 
 panoview::panoview(const std::string& tag) : app::prog(tag), C(0), L(0), spin(0)
 {
-    curr_zoom   = 1.0;
+    curr_zoom   = 0.0;
     drag_state  = false;
     
     debug_zoom  = false;
@@ -67,8 +67,8 @@ void panoview::load(const std::string& name)
         const std::string& vert_name = root.get_s("vert");
         const std::string& frag_name = root.get_s("frag");
         
-        int n = root.get_i("mesh",  16);
         int d = root.get_i("depth",  8);
+        int n = root.get_i("mesh",  16);
         int s = root.get_i("size", 512);
         
         // Create the new cache and model.
@@ -122,15 +122,15 @@ void panoview::draw(int frusi, const app::frustum *frusp)
         minvert(V, M);
 
         if (debug_zoom)
-            L->set_zoom(  0.0,   0.0,   -1.0, pow(curr_zoom, 1.2));
+            L->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
         else
-            L->set_zoom(-M[8], -M[9], -M[10], pow(curr_zoom, 1.2));
+            L->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
 
         C->set_debug(debug_color);
 
         L->prep(P, V, w, h);
         L->draw(P, V, &pan[frusi], 1);
-//        L->draw(P, V, &pan.front(), int(pan.size()));
+//      L->draw(P, V, &pan.front(), int(pan.size()));
     }
     
     if (C && debug_cache)
@@ -167,10 +167,10 @@ bool panoview::pan_point(app::event *E)
             
     if (drag_state)
     {
-        curr_zoom = drag_zoom + (curr_y - drag_y) / 300.0f;
+        curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
         
-        if (curr_zoom <   0.5) curr_zoom =   0.5;
-        if (curr_zoom >  10.0) curr_zoom =  10.0;
+        if (curr_zoom < -0.5) curr_zoom = -0.5;
+        if (curr_zoom >  1.0) curr_zoom =  1.0;
 
         return true;
     }
@@ -213,8 +213,8 @@ bool panoview::pan_key(app::event *E)
         case 284 : debug_color = !debug_color; return true;
         case 285 : debug_zoom  = !debug_zoom;  return true;
         
-        case 13  : curr_zoom = 1.0; return true;
-        case 8   : C->flush();      return true;
+        case 13  : curr_zoom = 0; return prog::process_event(E);
+        case 8   : C->flush();    return true;
         }
     
     return false;
