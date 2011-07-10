@@ -84,7 +84,11 @@ loader::loader(panoview *P, int w, int h)
                         add(new button_cancel(P))))));
 
     root->layup();
-    root->laydn(w / 5, h / 5, 3 * w / 5, 3 * h / 5);
+    
+    int ww = std::max(root->get_w(), 3 * w / 5);
+    int hh = std::max(root->get_h(), 3 * h / 5);
+
+    root->laydn((w - ww) / 2, (h - hh) / 2, ww, hh);
 }
 
 //------------------------------------------------------------------------------

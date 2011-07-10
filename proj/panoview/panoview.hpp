@@ -23,6 +23,20 @@
 
 //-----------------------------------------------------------------------------
 
+class panochan
+{
+public:
+
+    void add(int f) { file.push_back(f);            }
+    int  get(int i) { return file[i % file.size()]; }
+    
+private:
+
+    std::vector<int> file;
+};
+
+//-----------------------------------------------------------------------------
+
 class panoview : public app::prog
 {
 public:
@@ -43,16 +57,18 @@ private:
 
     // Rendering state
 
-    std::vector<int> pan;
-    
-    sph_cache *C;
-    sph_model *L;
-    
+    panochan  *channel;
+    sph_cache *cache;
+    sph_model *model;
+
+    int     channels;
+    int     spin;
+    double  time;
+    double dtime;
+
     bool debug_zoom;
     bool debug_cache;
     bool debug_color;
-
-    int spin;
 
     // GUI State
 

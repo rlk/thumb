@@ -341,7 +341,10 @@ void sph_model::draw(const double *P, const double *V, const int *f, int n)
         glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 
-//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#if 0
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+#endif
+
     glUseProgram(program);
     {
         glUniform1f(glGetUniformLocation(program, "zoomk"), zoomk);

@@ -26,7 +26,14 @@
 
 //------------------------------------------------------------------------------
 
-panoview::panoview(const std::string& tag) : app::prog(tag), C(0), L(0), spin(0)
+panoview::panoview(const std::string& tag) : app::prog(tag),
+    channel (0),
+    cache   (0),
+    model   (0),
+    channels(0),
+    spin    (0),
+    time    (0),
+    dtime   (0)
 {
     curr_zoom   = 0.0;
     drag_state  = false;
@@ -42,8 +49,9 @@ panoview::~panoview()
 {
     gui_free();
     
-    if (L) delete L;
-    if (C) delete C;
+    if (channel) delete [] channel;
+    if (model)   delete    model;
+    if (cache)   delete    cache;
 }
 
 //------------------------------------------------------------------------------
@@ -58,30 +66,35 @@ void panoview::load(const std::string& name)
     {
         // Clear out the existing data.
         
-        if (L) delete L;
-        if (C) delete C;
-        pan.clear();
+        if (channel) delete [] channel;
+        if (model)   delete    model;
+        if (cache)   delete    cache;
 
         // Parse the panorama configuration
         
         const std::string& vert_name = root.get_s("vert");
         const std::string& frag_name = root.get_s("frag");
         
-        int d = root.get_i("depth",  8);
-        int n = root.get_i("mesh",  16);
-        int s = root.get_i("size", 512);
+        channels = root.get_i("channels", 1);
+        int    d = root.get_i("depth",    8);
+        int    n = root.get_i("mesh",    16);
+        int    s = root.get_i("size",   512);
         
         // Create the new cache and model.
         
-        C = new sph_cache(::conf->get_i("panoview_cache_size", 256));
-        L = new sph_model(vert_name, frag_name, *C, n, d, s);
+        cache   = new sph_cache(::conf->get_i("panoview_cache_size", 256));
+        model   = new sph_model(vert_name, frag_name, *cache, n, d, s);
+        channel = new panochan[channels];
 
-        // Load all images.
+        // Register all images with the cache.
 
         for (app::node n = root.find("image"); n; n = root.next(n, "image"))
         {
             const std::string& name = n.get_s("file");
-            pan.push_back(C->add_file(name));
+            int                   i = n.get_i("channel", 0);
+            
+            if (0 <= i && i < channels)
+                channel[i].add(cache->add_file(name));
         }
 
         gui_state = false;
@@ -115,26 +128,29 @@ void panoview::draw(int frusi, const app::frustum *frusp)
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
-    if (C && L)
+    if (cache && model)
     {
         double V[16];
-
+        int    C[8];
+        
         minvert(V, M);
 
+        for (int i = 0; i < channels && i < 8; ++i)
+            C[i] = channel[i].get(int(time));
+
         if (debug_zoom)
-            L->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
+            model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
         else
-            L->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
+            model->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
 
-        C->set_debug(debug_color);
+        cache->set_debug(debug_color);
 
-        L->prep(P, V, w, h);
-        L->draw(P, V, &pan[frusi], 1);
-//      L->draw(P, V, &pan.front(), int(pan.size()));
+        model->prep(P, V, w, h);
+        model->draw(P, V, C, channels);
     }
     
-    if (C && debug_cache)
-        C->draw();
+    if (cache && debug_cache)
+        cache->draw();
         
     gui_draw();
 }
@@ -153,7 +169,12 @@ bool panoview::process_event(app::event *E)
         return (gui_key(E)   || pan_key(E)   || prog::process_event(E));
 
     if (E->get_type() == E_TICK)
-        ::user->look(spin * E->data.tick.dt / 360.0, 0.0);
+    {
+        const double dt = E->data.tick.dt / 1000.0;
+
+        ::user->look(spin * dt, 0.0);
+        time +=     dtime * dt;
+    }
 
     return prog::process_event(E);
 }
@@ -169,8 +190,8 @@ bool panoview::pan_point(app::event *E)
     {
         curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
         
-        if (curr_zoom < -0.5) curr_zoom = -0.5;
-        if (curr_zoom >  1.0) curr_zoom =  1.0;
+        if (curr_zoom < -1.0) curr_zoom = -1.0;
+        if (curr_zoom >  0.5) curr_zoom =  0.5;
 
         return true;
     }
@@ -214,7 +235,7 @@ bool panoview::pan_key(app::event *E)
         case 285 : debug_zoom  = !debug_zoom;  return true;
         
         case 13  : curr_zoom = 0; return prog::process_event(E);
-        case 8   : C->flush();    return true;
+        case 8   : cache->flush();    return true;
         }
     
     return false;
