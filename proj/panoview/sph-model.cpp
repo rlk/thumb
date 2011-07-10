@@ -315,7 +315,8 @@ GLfloat sph_model::age(int then)
     return (a > 1.f) ? 1.f : a;
 }
 
-void sph_model::draw(const double *P, const double *V, const int *f, int n)
+void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
+                                                       const int *pv, int pc)
 {
     double M[16];
     
@@ -365,7 +366,7 @@ void sph_model::draw(const double *P, const double *V, const int *f, int n)
             glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
             glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
 
-            draw_face(f, n, i, 0, 1, 0, 1, 0);
+            draw_face(fv, fc, pv, pc, i, 0, 1, 0, 1, 0);
         }
     }
     glUseProgram(0);
@@ -379,19 +380,20 @@ void sph_model::draw(const double *P, const double *V, const int *f, int n)
     time++;
 }
 
-void sph_model::draw_face(const int *f, int n, int i,
+void sph_model::draw_face(const int *fv, int fc,
+                          const int *pv, int pc, int i,
                           double r, double l, double t, double b, int d)
 {
     GLuint o = 0;
+    int then = time;
 
     if (status[i] != s_halt)
     {
-        for (int j = 0; j < n; ++j)
+        for (int fi = 0; fi < fc; ++fi)
         {
-            int e = j * 8 + d;
-            int then = time;
+            int e = fi * 8 + d;
             
-            o = cache.get_page(f[j], i, time, then);
+            o = cache.get_page(fv[fi], i, time, then);
 
             glUniform1f(alpha[e], age(then));
             glActiveTexture(GL_TEXTURE0 + e);
@@ -403,13 +405,19 @@ void sph_model::draw_face(const int *f, int n, int i,
 
     if (status[i] == s_pass)
     {
+        for (int pi = 0; pi < pc; ++pi)
+            cache.get_page(pv[pi], i, time, then);
+    }
+    
+    if (status[i] == s_pass)
+    {
         const double x = (r + l) * 0.5;
         const double y = (t + b) * 0.5;
 
-        draw_face(f, n, face_child(i, 0), r, x, t, y, d + 1);
-        draw_face(f, n, face_child(i, 1), x, l, t, y, d + 1);
-        draw_face(f, n, face_child(i, 2), r, x, y, b, d + 1);
-        draw_face(f, n, face_child(i, 3), x, l, y, b, d + 1);
+        draw_face(fv, fc, pv, pc, face_child(i, 0), r, x, t, y, d + 1);
+        draw_face(fv, fc, pv, pc, face_child(i, 1), x, l, t, y, d + 1);
+        draw_face(fv, fc, pv, pc, face_child(i, 2), r, x, y, b, d + 1);
+        draw_face(fv, fc, pv, pc, face_child(i, 3), x, l, y, b, d + 1);
     }
 
     if (status[i] == s_draw)
@@ -431,9 +439,9 @@ void sph_model::draw_face(const int *f, int n, int i,
     
     if (status[i] != s_halt)
     {
-        for (int j = 0; j < n; ++j)
+        for (int fi = 0; fi < fc; ++fi)
         {
-            glActiveTexture(GL_TEXTURE0 + j * 8 + d);
+            glActiveTexture(GL_TEXTURE0 + fi * 8 + d);
             glBindTexture(GL_TEXTURE_2D, cache.get_fill());
         }
     }

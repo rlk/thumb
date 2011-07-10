@@ -28,7 +28,8 @@ public:
    ~sph_model();
    
     void prep(const double *, const double *, int, int);
-    void draw(const double *, const double *, const int *, int);
+    void draw(const double *, const double *, const int *, int,
+                                              const int *, int);
     
     void set_fade(double k);
     void set_zoom(double x, double y, double z, double k)
@@ -56,7 +57,8 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
-    void   draw_face(const int *, int, int,
+    void   draw_face(const int *, int,
+                     const int *, int, int,
                      double, double, double, double, int);
     void   prep_face(int, int, const double *, int, int,
                      double, double, double, double, int);

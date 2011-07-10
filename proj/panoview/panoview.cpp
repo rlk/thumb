@@ -140,7 +140,6 @@ void panoview::draw(int frusi, const app::frustum *frusp)
     if (cache && model)
     {
         double V[16];
-        int    C[8];
         
         minvert(V, M);
 
@@ -151,12 +150,20 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
         cache->set_debug(debug_color);
 
-        C[0] = channel[frusi % channels].get(int(floor(time)));
-        C[1] = channel[frusi % channels].get(int( ceil(time)));
+        int fv[2];
+        int pv[2];
+
+        fv[0] = channel[frusi % channels].get(int(floor(time)));
+        fv[1] = channel[frusi % channels].get(int( ceil(time)));
+        
+        if (dtime < 0)
+            pv[0] = channel[frusi % channels].get(int(floor(time)) - 1);
+        else
+            pv[0] = channel[frusi % channels].get(int( ceil(time)) + 1);
             
         model->set_fade(time - floor(time));
         model->prep(P, V, w, h);
-        model->draw(P, V, C, 2);
+        model->draw(P, V, fv, 2, pv, 1);
     }
     
     if (cache && debug_cache)
