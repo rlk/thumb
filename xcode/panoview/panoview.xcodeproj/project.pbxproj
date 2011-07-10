@@ -7,15 +7,16 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		580BA33F13C50C6400C77076 /* sph-zoomer.vert in Sources */ = {isa = PBXBuildFile; fileRef = 580BA33E13C50C6400C77076 /* sph-zoomer.vert */; };
+		5818B95913CA22C200076A22 /* sph-render.frag in Sources */ = {isa = PBXBuildFile; fileRef = 5818B95613CA22C200076A22 /* sph-render.frag */; };
+		5818B95A13CA22C200076A22 /* sph-render.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5818B95713CA22C200076A22 /* sph-render.vert */; };
+		5818B95B13CA22C200076A22 /* sph-zoomer.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5818B95813CA22C200076A22 /* sph-zoomer.vert */; };
+		5818B95D13CA312900076A22 /* sph-blend.frag in Sources */ = {isa = PBXBuildFile; fileRef = 5818B95C13CA312900076A22 /* sph-blend.frag */; };
 		582D8D0313AFA2C50005A831 /* glsl.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8CFF13AFA2C50005A831 /* glsl.c */; };
 		582D8D0413AFA2C50005A831 /* math3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0113AFA2C50005A831 /* math3d.c */; };
 		582D8D0813AFAC730005A831 /* cube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0613AFAC730005A831 /* cube.cpp */; };
 		582D8D1213AFECB00005A831 /* glyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D1013AFECB00005A831 /* glyph.c */; };
 		58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
 		5865801913B60E7900FBBF90 /* sph-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5865801313B60E7900FBBF90 /* sph-cache.cpp */; };
-		5865801A13B60E7900FBBF90 /* sph-render.frag in Sources */ = {isa = PBXBuildFile; fileRef = 5865801513B60E7900FBBF90 /* sph-render.frag */; };
-		5865801B13B60E7900FBBF90 /* sph-render.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5865801613B60E7900FBBF90 /* sph-render.vert */; };
 		5865801F13B60EBE00FBBF90 /* libtiff.3.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */; };
 		58DB38B213C7422600304D44 /* gui-loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58DB38B013C7422600304D44 /* gui-loader.cpp */; };
 		58DB38B413C7445000304D44 /* libfreetype.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58DB38B313C7445000304D44 /* libfreetype.6.dylib */; };
@@ -42,9 +43,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		580BA33E13C50C6400C77076 /* sph-zoomer.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-zoomer.vert"; path = "../../../proj/panoview/sph-zoomer.vert"; sourceTree = "<group>"; };
 		580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Blue-Mounds-8.xml"; path = "../../proj/panoview/data/pan/Blue-Mounds-8.xml"; sourceTree = "<group>"; };
 		5818B95413CA05C100076A22 /* Taliesin-Path.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path.xml"; sourceTree = "<group>"; };
+		5818B95613CA22C200076A22 /* sph-render.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.frag"; path = "../../proj/panoview/data/glsl/sph-render.frag"; sourceTree = "<group>"; };
+		5818B95713CA22C200076A22 /* sph-render.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.vert"; path = "../../proj/panoview/data/glsl/sph-render.vert"; sourceTree = "<group>"; };
+		5818B95813CA22C200076A22 /* sph-zoomer.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-zoomer.vert"; path = "../../proj/panoview/data/glsl/sph-zoomer.vert"; sourceTree = "<group>"; };
+		5818B95C13CA312900076A22 /* sph-blend.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-blend.frag"; path = "../../proj/panoview/data/glsl/sph-blend.frag"; sourceTree = "<group>"; };
 		582D8CFF13AFA2C50005A831 /* glsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glsl.c; path = ../../../proj/panoview/glsl.c; sourceTree = "<group>"; };
 		582D8D0013AFA2C50005A831 /* glsl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glsl.h; path = ../../../proj/panoview/glsl.h; sourceTree = "<group>"; };
 		582D8D0113AFA2C50005A831 /* math3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = math3d.c; path = ../../../proj/panoview/math3d.c; sourceTree = "<group>"; };
@@ -56,8 +60,6 @@
 		58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
 		5865801313B60E7900FBBF90 /* sph-cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "sph-cache.cpp"; path = "../../../proj/panoview/sph-cache.cpp"; sourceTree = "<group>"; };
 		5865801413B60E7900FBBF90 /* sph-cache.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-cache.hpp"; path = "../../../proj/panoview/sph-cache.hpp"; sourceTree = "<group>"; };
-		5865801513B60E7900FBBF90 /* sph-render.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.frag"; path = "../../../proj/panoview/sph-render.frag"; sourceTree = "<group>"; };
-		5865801613B60E7900FBBF90 /* sph-render.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.vert"; path = "../../../proj/panoview/sph-render.vert"; sourceTree = "<group>"; };
 		5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.3.dylib; path = /opt/local/lib/libtiff.3.dylib; sourceTree = "<absolute>"; };
 		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
 		58DB38B013C7422600304D44 /* gui-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gui-loader.cpp"; path = "../../../proj/panoview/gui-loader.cpp"; sourceTree = "<group>"; };
@@ -101,6 +103,10 @@
 		580BA34B13C78CFB00C77076 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				5818B95C13CA312900076A22 /* sph-blend.frag */,
+				5818B95613CA22C200076A22 /* sph-render.frag */,
+				5818B95713CA22C200076A22 /* sph-render.vert */,
+				5818B95813CA22C200076A22 /* sph-zoomer.vert */,
 				5818B95413CA05C100076A22 /* Taliesin-Path.xml */,
 				58DB38C313C8F5D300304D44 /* Taliesin-Garden-13.xml */,
 				580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */,
@@ -129,9 +135,6 @@
 		58E2108B13AE6EAF004580E9 /* panoview */ = {
 			isa = PBXGroup;
 			children = (
-				5865801513B60E7900FBBF90 /* sph-render.frag */,
-				580BA33E13C50C6400C77076 /* sph-zoomer.vert */,
-				5865801613B60E7900FBBF90 /* sph-render.vert */,
 				5865801313B60E7900FBBF90 /* sph-cache.cpp */,
 				5865801413B60E7900FBBF90 /* sph-cache.hpp */,
 				58E2109813AE6EC2004580E9 /* sph-model.cpp */,
@@ -229,10 +232,11 @@
 				582D8D0813AFAC730005A831 /* cube.cpp in Sources */,
 				582D8D1213AFECB00005A831 /* glyph.c in Sources */,
 				5865801913B60E7900FBBF90 /* sph-cache.cpp in Sources */,
-				5865801A13B60E7900FBBF90 /* sph-render.frag in Sources */,
-				5865801B13B60E7900FBBF90 /* sph-render.vert in Sources */,
-				580BA33F13C50C6400C77076 /* sph-zoomer.vert in Sources */,
 				58DB38B213C7422600304D44 /* gui-loader.cpp in Sources */,
+				5818B95913CA22C200076A22 /* sph-render.frag in Sources */,
+				5818B95A13CA22C200076A22 /* sph-render.vert in Sources */,
+				5818B95B13CA22C200076A22 /* sph-zoomer.vert in Sources */,
+				5818B95D13CA312900076A22 /* sph-blend.frag in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

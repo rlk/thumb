@@ -24,12 +24,13 @@ class sph_model
 {
 public:
 
-    sph_model(const std::string&, const std::string&, sph_cache&, int, int, int);
+    sph_model(sph_cache&, const char *, const char *, int, int, int);
    ~sph_model();
    
     void prep(const double *, const double *, int, int);
     void draw(const double *, const double *, const int *, int);
     
+    void set_fade(double k);
     void set_zoom(double x, double y, double z, double k)
     {
         zoomv[0] = x;
@@ -77,7 +78,7 @@ private:
 
     // OpenGL programmable processing state
 
-    void init_program(const std::string&, const std::string&);
+    void init_program(const char *, const char *);
     void free_program();
     
     GLuint program;
@@ -92,6 +93,7 @@ private:
     GLuint tex_d[8];
     GLuint alpha[16];
     GLuint level;
+    GLuint fader;
     
     // OpenGL geometry state.
     

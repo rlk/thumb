@@ -4,6 +4,7 @@ uniform vec2 tex_d[8];
 
 uniform sampler2D image[16];
 uniform float     alpha[16];
+uniform float     fader;
 
 //------------------------------------------------------------------------------
 
@@ -147,10 +148,6 @@ void main()
     vec4 A = sampleA(gl_TexCoord[0].xy);
     vec4 B = sampleB(gl_TexCoord[0].xy);
 
-    float L = luma(A);
-    float R = luma(B);
-
-    gl_FragColor = R * vec4(1.0, 0.0, 0.0, 1.0)
-                 + L * vec4(0.0, 1.0, 1.0, 1.0);
+    gl_FragColor = mix(A, B, fader);
 }
 

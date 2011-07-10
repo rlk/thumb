@@ -14,6 +14,7 @@
 
 #include <ogl-opengl.hpp>
 
+#include <app-data.hpp>
 #include <app-host.hpp>
 #include <app-user.hpp>
 #include <app-conf.hpp>
@@ -72,18 +73,23 @@ void panoview::load(const std::string& name)
 
         // Parse the panorama configuration
         
-        const std::string& vert_name = root.get_s("vert");
-        const std::string& frag_name = root.get_s("frag");
-        
         channels = root.get_i("channels", 1);
         int    d = root.get_i("depth",    8);
         int    n = root.get_i("mesh",    16);
         int    s = root.get_i("size",   512);
+
+        // Load the configured shaders.
+        
+        const std::string& vert_name = root.get_s("vert");
+        const std::string& frag_name = root.get_s("frag");
+        
+        const char *vert_src = (const char *) ::data->load(vert_name);
+        const char *frag_src = (const char *) ::data->load(frag_name);
         
         // Create the new cache and model.
         
         cache   = new sph_cache(::conf->get_i("panoview_cache_size", 256));
-        model   = new sph_model(vert_name, frag_name, *cache, n, d, s);
+        model   = new sph_model(*cache, vert_src, frag_src, n, d, s);
         channel = new panochan[channels];
 
         // Register all images with the cache.
@@ -96,6 +102,9 @@ void panoview::load(const std::string& name)
             if (0 <= i && i < channels)
                 channel[i].add(cache->add_file(name));
         }
+
+        ::data->free(vert_name);
+        ::data->free(frag_name);
 
         gui_state = false;
     }
@@ -135,9 +144,6 @@ void panoview::draw(int frusi, const app::frustum *frusp)
         
         minvert(V, M);
 
-        for (int i = 0; i < channels && i < 8; ++i)
-            C[i] = channel[i].get(int(time));
-
         if (debug_zoom)
             model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
         else
@@ -145,8 +151,12 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
         cache->set_debug(debug_color);
 
+        C[0] = channel[frusi % channels].get(int(floor(time)));
+        C[1] = channel[frusi % channels].get(int( ceil(time)));
+            
+        model->set_fade(time - floor(time));
         model->prep(P, V, w, h);
-        model->draw(P, V, C, channels);
+        model->draw(P, V, C, 2);
     }
     
     if (cache && debug_cache)
@@ -215,19 +225,26 @@ bool panoview::pan_click(app::event *E)
 
 bool panoview::pan_key(app::event *E)
 {
+    int sh = (E->data.key.m & 3);
+    
     if (E->data.key.d)
         switch (E->data.key.k)
         {
-        case '0': spin = 0; return true;
-        case '1': spin = 1; return true;
-        case '2': spin = 2; return true;
-        case '3': spin = 3; return true;
-        case '4': spin = 4; return true;
-        case '5': spin = 5; return true;
-        case '6': spin = 6; return true;
-        case '7': spin = 7; return true;
-        case '8': spin = 8; return true;
-        case '9': spin = 9; return true;
+        case '0': if (sh) spin = 0; else time = 0; return true;
+        case '1': if (sh) spin = 1; else time = 1; return true;
+        case '2': if (sh) spin = 2; else time = 2; return true;
+        case '3': if (sh) spin = 3; else time = 3; return true;
+        case '4': if (sh) spin = 4; else time = 4; return true;
+        case '5': if (sh) spin = 5; else time = 5; return true;
+        case '6': if (sh) spin = 6; else time = 6; return true;
+        case '7': if (sh) spin = 7; else time = 7; return true;
+        case '8': if (sh) spin = 8; else time = 8; return true;
+        case '9': if (sh) spin = 9; else time = 9; return true;
+        
+        case 273: dtime =  0.0; return true;
+        case 274: dtime =  0.0; return true;
+        case 275: dtime =  0.5; return true;
+        case 276: dtime = -0.5; return true;
         
         case 282 : gui_state   = !gui_state;   return true;
         case 283 : debug_cache = !debug_cache; return true;

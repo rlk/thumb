@@ -26,9 +26,9 @@
 
 //------------------------------------------------------------------------------
 
-sph_model::sph_model(const std::string& vert,
-                     const std::string& frag,
-                     sph_cache& cache, int n, int d, int s) :
+sph_model::sph_model(sph_cache& cache,
+                     const char *vert,
+                     const char *frag, int n, int d, int s) :
     cache(cache), depth(d), size(s), time(1), status(cube_size(d), s_halt)
 {
     init_program(vert, frag);
@@ -441,6 +441,12 @@ void sph_model::draw_face(const int *f, int n, int i,
 
 //------------------------------------------------------------------------------
 
+void sph_model::set_fade(double k)
+{
+    glUseProgram(program);
+    glUniform1f(fader, k);
+}
+
 static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
 {
     char str[256];
@@ -450,16 +456,13 @@ static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
     return glGetUniformLocation(program, str);
 }
 
-void sph_model::init_program(const std::string& vert_name,
-                             const std::string& frag_name)
+void sph_model::init_program(const char *vert_src,
+                             const char *frag_src)
 {    
-    char *vert_source = load_txt(vert_name.c_str());
-    char *frag_source = load_txt(frag_name.c_str());
-
-    if (vert_source && frag_source)
+    if (vert_src && frag_src)
     {
-        vert_shader = glsl_init_shader(GL_VERTEX_SHADER,   vert_source);
-        frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_source);
+        vert_shader = glsl_init_shader(GL_VERTEX_SHADER,   vert_src);
+        frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_src);
         program     = glsl_init_program(vert_shader, frag_shader);
 
         glUseProgram(program);
@@ -469,6 +472,7 @@ void sph_model::init_program(const std::string& vert_name,
         pos_c = glGetUniformLocation(program, "pos_c");
         pos_d = glGetUniformLocation(program, "pos_d");
         level = glGetUniformLocation(program, "level");
+        fader = glGetUniformLocation(program, "fader");
 
         for (int d = 0; d < 8; ++d)
         {
@@ -482,9 +486,6 @@ void sph_model::init_program(const std::string& vert_name,
             glUniform1i(glGetUniformLocationv(program, "image[%d]", d), d);
         }
     }
-        
-    free(frag_source);
-    free(vert_source);
 }
 
 void sph_model::free_program()
