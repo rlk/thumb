@@ -4,7 +4,7 @@
     <option name="host_file">host/common.xml</option>
     <option name="input_mode">mouse</option>
     <option name="wiimote">00:1B:7A:3E:45:7F</option>
-    <option name="panoview_cache_size">256</option>
+    <option name="panoview_cache_size">128</option>
     <option name="loader_threads">2</option>
     <option name="loader_buffers">32</option>
     <option name="attract_delay">6000.0</option>
@@ -18,7 +18,7 @@
     <option name="texel_cutoff">0.5</option>
     <!-- Executable path (necessary for cluster config) -->
     <option name="executable">/home/dan/thumb/thumb</option>
-    <!-- Unevirse data location -->
+    <!-- Universe data location -->
      <option name="data_dir">/home/dan/thumb/data/</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>

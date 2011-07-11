@@ -119,6 +119,9 @@ void panoview::cancel()
 
 ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
+    if (model)
+        model->tick();
+        
     return ogl::range(0.001, 10.0);
 }
 
@@ -150,20 +153,38 @@ void panoview::draw(int frusi, const app::frustum *frusp)
 
         cache->set_debug(debug_color);
 
-        int fv[2];
-        int pv[2];
+        if (time)
+        {
+            int fv[2];
+            int pv[2];
+            int pc = 0;
 
-        fv[0] = channel[frusi % channels].get(int(floor(time)));
-        fv[1] = channel[frusi % channels].get(int( ceil(time)));
-        
-        if (dtime < 0)
-            pv[0] = channel[frusi % channels].get(int(floor(time)) - 1);
-        else
-            pv[0] = channel[frusi % channels].get(int( ceil(time)) + 1);
+            fv[0] = channel[frusi % channels].get(int(floor(time)));
+            fv[1] = channel[frusi % channels].get(int( ceil(time)));
             
-        model->set_fade(time - floor(time));
-        model->prep(P, V, w, h);
-        model->draw(P, V, fv, 2, pv, 1);
+            if (dtime < 0)
+            {
+                pv[0] = channel[frusi % channels].get(int(floor(time)) - 1);
+                pc    = 1;
+            }
+            else
+            {
+                pv[0] = channel[frusi % channels].get(int( ceil(time)) + 1);
+                pc    = 1;
+            }
+                
+            model->set_fade(time - floor(time));
+            model->prep(P, V, w, h);
+            model->draw(P, V, fv, 2, pv, pc);
+        }
+        else
+        {
+            int f = channel[frusi % channels].get(0);
+
+            model->set_fade(0);
+            model->prep(P, V, w, h);
+            model->draw(P, V, &f, 1, 0, 0);
+        }
     }
     
     if (cache && debug_cache)

@@ -72,7 +72,15 @@
          </CommandLineArgument>
          <CommandLineArgument
             argument = "1024x512-LR"
+            isEnabled = "NO">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "1280x768-LR"
             isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "1280x768"
+            isEnabled = "NO">
          </CommandLineArgument>
       </CommandLineArguments>
       <EnvironmentVariables>

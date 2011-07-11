@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+  <panorama channels="1" depth="4" mesh="16" size="512" vert="glsl/sph-zoomer.vert"
+                                                        frag="glsl/sph-render.frag">
+    <image channel="0" file="/Users/rlk/Data/pan/Blue-Mounds-8-L-Cube.tif" />
+  </panorama>

@@ -377,8 +377,6 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
     glDisableClientState(GL_VERTEX_ARRAY);
 
     glActiveTexture(GL_TEXTURE0);
-
-    time++;
 }
 
 void sph_model::draw_face(const int *fv, int fc,

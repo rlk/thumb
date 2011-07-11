@@ -62,6 +62,7 @@
 		5865801413B60E7900FBBF90 /* sph-cache.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-cache.hpp"; path = "../../../proj/panoview/sph-cache.hpp"; sourceTree = "<group>"; };
 		5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.3.dylib; path = /opt/local/lib/libtiff.3.dylib; sourceTree = "<absolute>"; };
 		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
+		58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Blue-Mounds-8-Mono.xml"; path = "../../proj/panoview/data/pan/Blue-Mounds-8-Mono.xml"; sourceTree = "<group>"; };
 		58DB38B013C7422600304D44 /* gui-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gui-loader.cpp"; path = "../../../proj/panoview/gui-loader.cpp"; sourceTree = "<group>"; };
 		58DB38B113C7422600304D44 /* gui-loader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "gui-loader.hpp"; path = "../../../proj/panoview/gui-loader.hpp"; sourceTree = "<group>"; };
 		58DB38B313C7445000304D44 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = /opt/local/lib/libfreetype.6.dylib; sourceTree = "<absolute>"; };
@@ -103,6 +104,7 @@
 		580BA34B13C78CFB00C77076 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */,
 				5818B95C13CA312900076A22 /* sph-blend.frag */,
 				5818B95613CA22C200076A22 /* sph-render.frag */,
 				5818B95713CA22C200076A22 /* sph-render.vert */,

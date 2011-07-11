@@ -27,6 +27,7 @@ public:
     sph_model(sph_cache&, const char *, const char *, int, int, int);
    ~sph_model();
    
+    void tick() { time++; }
     void prep(const double *, const double *, int, int);
     void draw(const double *, const double *, const int *, int,
                                               const int *, int);

@@ -471,7 +471,7 @@ void sph_cache::update(int t)
 {
     glPushAttrib(GL_PIXEL_MODE_BIT);
     {
-        for (int c = 0; !loads.empty() && c < 4; ++c)
+        for (int c = 0; !loads.empty() && c < 2; ++c)
         {
             sph_task task = loads.remove();
             sph_page page = pages.search(sph_page(task.f, task.i), t);
