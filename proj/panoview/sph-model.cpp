@@ -118,10 +118,10 @@ static inline double length(const double *a, const double *b, int w, int h)
 double sph_model::view_face(const double *M, int vw, int vh,
                             double ee, double ww, double nn, double ss, int j)
 {
-    double ne[3], a[3], e[3], A[3], E[3];    // North-east corner
-    double nw[3], b[3], f[3], B[3], F[3];    // North-west corner
-    double se[3], c[3], g[3], C[3], G[3];    // South-east corner
-    double sw[3], d[3], h[3], D[3], H[3];    // South-west corner
+    double ne[3], a[3], e[3], A[4], E[4];    // North-east corner
+    double nw[3], b[3], f[3], B[4], F[4];    // North-west corner
+    double se[3], c[3], g[3], C[4], G[4];    // South-east corner
+    double sw[3], d[3], h[3], D[4], H[4];    // South-west corner
     
     vnormalize(ne, cube_v[cube_i[j][0]]);
     vnormalize(nw, cube_v[cube_i[j][1]]);

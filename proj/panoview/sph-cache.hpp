@@ -111,7 +111,7 @@ public:
     sph_set(int size) : size(size) { }
 
     int  count()  const { return int(m.size()); }
-    bool full()  const { return (m.size() >= size); }
+    bool full()  const { return (count() >= size); }
     bool empty() const { return (m.empty()); }
 
     sph_page search(sph_page, int);
