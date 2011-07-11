@@ -115,18 +115,18 @@ static inline double length(const double *a, const double *b, int w, int h)
 
 //------------------------------------------------------------------------------
 
-double sph_model::view_face(int i, const double *M, int vw, int vh,
-                            double ee, double ww, double nn, double ss)
+double sph_model::view_face(const double *M, int vw, int vh,
+                            double ee, double ww, double nn, double ss, int j)
 {
     double ne[3], a[3], e[3], A[3], E[3];    // North-east corner
     double nw[3], b[3], f[3], B[3], F[3];    // North-west corner
     double se[3], c[3], g[3], C[3], G[3];    // South-east corner
     double sw[3], d[3], h[3], D[3], H[3];    // South-west corner
     
-    vnormalize(ne, cube_v[cube_i[i][0]]);
-    vnormalize(nw, cube_v[cube_i[i][1]]);
-    vnormalize(se, cube_v[cube_i[i][2]]);
-    vnormalize(sw, cube_v[cube_i[i][3]]);
+    vnormalize(ne, cube_v[cube_i[j][0]]);
+    vnormalize(nw, cube_v[cube_i[j][1]]);
+    vnormalize(se, cube_v[cube_i[j][2]]);
+    vnormalize(sw, cube_v[cube_i[j][3]]);
     
     bislerp(a, ne, nw, se, sw, ee, nn);
     bislerp(b, ne, nw, se, sw, ww, nn);
@@ -249,13 +249,14 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
     mmultiply(M, P, V);
         
     for (int i = 0; i < 6; ++i)
-        prep_face(i, i, M, w, h, 0, 1, 0, 1, 0);
+        prep_face(M, w, h, 0, 1, 0, 1, i, 0, i);
     
     cache.update(time);
 }
 
-void sph_model::prep_face(int f, int i, const double *M, int w, int h,
-                          double r, double l, double t, double b, int d)
+void sph_model::prep_face(const double *M, int w, int h,
+                          double r, double l,
+                          double t, double b, int j, int d, int i)
 
 {
     const int i0 = face_child(i, 0);
@@ -268,13 +269,13 @@ void sph_model::prep_face(int f, int i, const double *M, int w, int h,
         const double x = (r + l) * 0.5;
         const double y = (t + b) * 0.5;
 
-        prep_face(f, i0, M, w, h, r, x, t, y, d + 1);
-        prep_face(f, i1, M, w, h, x, l, t, y, d + 1);
-        prep_face(f, i2, M, w, h, r, x, y, b, d + 1);
-        prep_face(f, i3, M, w, h, x, l, y, b, d + 1);
+        prep_face(M, w, h, r, x, t, y, j, d + 1, i0);
+        prep_face(M, w, h, x, l, t, y, j, d + 1, i1);
+        prep_face(M, w, h, r, x, y, b, j, d + 1, i2);
+        prep_face(M, w, h, x, l, y, b, j, d + 1, i3);
     }
 
-    double s = view_face(f, M, w, h, r, l, t, b);
+    double s = view_face(M, w, h, r, l, t, b, j);
 
     if (d < depth)
     {
@@ -366,7 +367,7 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
             glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
             glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
 
-            draw_face(fv, fc, pv, pc, i, 0, 1, 0, 1, 0);
+            draw_face(fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
         }
     }
     glUseProgram(0);
@@ -381,8 +382,8 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
 }
 
 void sph_model::draw_face(const int *fv, int fc,
-                          const int *pv, int pc, int i,
-                          double r, double l, double t, double b, int d)
+                          const int *pv, int pc,
+                          double r, double l, double t, double b, int d, int i)
 {
     GLuint o = 0;
     int then = time;
@@ -414,10 +415,10 @@ void sph_model::draw_face(const int *fv, int fc,
         const double x = (r + l) * 0.5;
         const double y = (t + b) * 0.5;
 
-        draw_face(fv, fc, pv, pc, face_child(i, 0), r, x, t, y, d + 1);
-        draw_face(fv, fc, pv, pc, face_child(i, 1), x, l, t, y, d + 1);
-        draw_face(fv, fc, pv, pc, face_child(i, 2), r, x, y, b, d + 1);
-        draw_face(fv, fc, pv, pc, face_child(i, 3), x, l, y, b, d + 1);
+        draw_face(fv, fc, pv, pc, r, x, t, y, d + 1, face_child(i, 0));
+        draw_face(fv, fc, pv, pc, x, l, t, y, d + 1, face_child(i, 1));
+        draw_face(fv, fc, pv, pc, r, x, y, b, d + 1, face_child(i, 2));
+        draw_face(fv, fc, pv, pc, x, l, y, b, d + 1, face_child(i, 3));
     }
 
     if (status[i] == s_draw)

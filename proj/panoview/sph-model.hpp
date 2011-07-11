@@ -58,12 +58,12 @@ private:
     // Data structures and algorithms for handling face adaptive subdivision.
 
     void   draw_face(const int *, int,
-                     const int *, int, int,
+                     const int *, int,
+                     double, double, double, double, int, int);
+    void   prep_face(const double *, int, int,
+                     double, double, double, double, int, int, int);
+    double view_face(const double *, int, int,
                      double, double, double, double, int);
-    void   prep_face(int, int, const double *, int, int,
-                     double, double, double, double, int);
-    double view_face(     int, const double *, int, int,
-                     double, double, double, double);
 
     typedef unsigned char byte;
 
