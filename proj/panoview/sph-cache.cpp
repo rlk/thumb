@@ -12,9 +12,25 @@
 
 #include <cstdlib>
 #include <cassert>
+#include <sstream>
 
 #include "sph-cache.hpp"
 #include "cube.hpp"
+
+//------------------------------------------------------------------------------
+
+#include <sys/types.h>
+#include <sys/stat.h>
+
+static bool exists(const std::string& name)
+{
+    struct stat info;
+
+    if (stat(name.c_str(), &info) == 0)
+        return ((info.st_mode & S_IFMT) == S_IFREG);
+    else
+        return false;
+}
 
 //------------------------------------------------------------------------------
 
@@ -187,16 +203,44 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
 
 // Construct a file table entry. Load the TIFF briefly to determine its format.
     
-sph_file::sph_file(const std::string& name) : name(name)
+sph_file::sph_file(const std::string& tiff)
 {
-    if (TIFF *T = TIFFOpen(name.c_str(), "r"))
-    {
-        TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &w);
-        TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &h);
-        TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
-        TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
+    // If the given file name is absolute, use it.
+    
+    if (exists(tiff))
+        name = tiff;
 
-        TIFFClose(T);
+    // Otherwise, search panorama path for the file.
+
+    else if (char *val = getenv("PANOPATH"))
+    {
+        std::stringstream list(val);
+        std::string       path;
+        std::string       temp;
+        
+        while (std::getline(list, path, ':'))
+        {
+            temp = path + "/" + tiff;
+
+            if (exists(temp))
+            {
+                name = temp;
+                break;
+            }
+        }
+    }
+
+    if (!name.empty())
+    {
+        if (TIFF *T = TIFFOpen(name.c_str(), "r"))
+        {
+            TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &w);
+            TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &h);
+            TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
+            TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
+
+            TIFFClose(T);
+        }
     }
 }
 
@@ -568,20 +612,23 @@ int loader(void *data)
     
     while ((task = cache->needs.remove()).f >= 0)
     {
-        if (TIFF *T = TIFFOpen(cache->files[task.f].name.c_str(), "r"))
+        if (!cache->files[task.f].name.empty())
         {
-            if (up(T, task.i))
+            if (TIFF *T = TIFFOpen(cache->files[task.f].name.c_str(), "r"))
             {
-                uint32 w = cache->files[task.f].w;
-                uint32 h = cache->files[task.f].h;
-                uint16 c = cache->files[task.f].c;
-                uint16 b = cache->files[task.f].b;
-            
-                task.load_texture(T, w, h, c, b);
-                cache->loads.insert(task);
+                if (up(T, task.i))
+                {
+                    uint32 w = cache->files[task.f].w;
+                    uint32 h = cache->files[task.f].h;
+                    uint16 c = cache->files[task.f].c;
+                    uint16 b = cache->files[task.f].b;
+                
+                    task.load_texture(T, w, h, c, b);
+                    cache->loads.insert(task);
+                }
+                TIFFClose(T);
             }
-            TIFFClose(T);
-        }        
+        }
     }
     return 0;
 }

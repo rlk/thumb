@@ -44,6 +44,8 @@ panoview::panoview(const std::string& tag) : app::prog(tag),
     debug_color = false;
     
     gui_init();
+
+    TIFFSetWarningHandler(0);
 }
 
 panoview::~panoview()

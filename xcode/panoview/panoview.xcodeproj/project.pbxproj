@@ -104,7 +104,6 @@
 		580BA34B13C78CFB00C77076 /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */,
 				5818B95C13CA312900076A22 /* sph-blend.frag */,
 				5818B95613CA22C200076A22 /* sph-render.frag */,
 				5818B95713CA22C200076A22 /* sph-render.vert */,
@@ -112,6 +111,7 @@
 				5818B95413CA05C100076A22 /* Taliesin-Path.xml */,
 				58DB38C313C8F5D300304D44 /* Taliesin-Garden-13.xml */,
 				580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */,
+				58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */,
 			);
 			name = Data;
 			sourceTree = "<group>";

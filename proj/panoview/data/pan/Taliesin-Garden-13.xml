@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
   <panorama depth="3" mesh="16" size="512" vert="glsl/sph-zoomer.vert"
                                            frag="glsl/sph-render.frag">
-    <image file="/Users/rlk/Data/pan/Taliesin-Garden-13-L-Cube.tif" />
+    <image file="pan/Taliesin-Garden-13-L-Cube.tif" />
   </panorama>

@@ -89,6 +89,11 @@
             value = "/Users/rlk/Projects/thumb/data:/Users/rlk/Projects/thumb/proj/panoview/data"
             isEnabled = "YES">
          </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "PANOPATH"
+            value = "/Users/rlk/Data/"
+            isEnabled = "YES">
+         </EnvironmentVariable>
       </EnvironmentVariables>
       <AdditionalOptions>
       </AdditionalOptions>
