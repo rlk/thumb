@@ -119,9 +119,31 @@ void panoview::cancel()
 
 ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
-    if (model)
-        model->tick();
+    // This will need to change on a multi-pipe system.
+    
+    if (cache && model)
+    {
+        int tick = model->tick();
+        int tock;
         
+        if (time == 0)
+        {
+            for (int i = 0; i < channels; ++i)
+            {
+                int f = channel[i].get(0);
+                GLuint o;
+                
+                o = cache->get_page(f, 0, tick, tock);
+                o = cache->get_page(f, 1, tick, tock);
+                o = cache->get_page(f, 2, tick, tock);
+                o = cache->get_page(f, 3, tick, tock);
+                o = cache->get_page(f, 4, tick, tock);
+                o = cache->get_page(f, 5, tick, tock);
+            }
+        }
+
+        cache->update(model->tick());
+    }
     return ogl::range(0.001, 10.0);
 }
 

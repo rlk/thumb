@@ -103,30 +103,30 @@
         </frustum>
       </display>
     </node>
-    <!-- 1280x768 left-right stereo ---------------------------------------- -->
-    <node name="1280x768-LR">
-      <window x="0" y="0" w="1280" h="768" frame="0"/>
+    <!-- 1280x720 left-right stereo ---------------------------------------- -->
+    <node name="1280x720-LR">
+      <window x="0" y="0" w="1280" h="720" frame="0"/>
       <channel w="640" h="768" x="-0.125"/>
       <channel w="640" h="768" x=" 0.125"/>
       <display type="normal" index="1" channel="0">
-        <viewport x="640" y="0" w="640" h="768"/>
+        <viewport x="640" y="0" w="640" h="720"/>
         <frustum>
           <perspective hfov="60.0" vfov="67.0"/>
         </frustum>
       </display>
       <display type="normal" index="1" channel="1">
-        <viewport x="0" y="0" w="640" h="768"/>
+        <viewport x="0" y="0" w="640" h="720"/>
         <frustum>
           <perspective hfov="60.0" vfov="67.0"/>
         </frustum>
       </display>
     </node>
-    <!-- 1024x768 --------------------------------------------------------- -->
-    <node name="1280x768">
-      <window x="0" y="0" w="1280" h="768" frame="0"/>
-      <channel w="1280" h="768"/>
+    <!-- 1280x720 --------------------------------------------------------- -->
+    <node name="1280x720">
+      <window x="0" y="0" w="1280" h="720" frame="0"/>
+      <channel w="1280" h="720"/>
       <display type="direct" index="1">
-        <viewport x="0" y="0" w="1280" h="768"/>
+        <viewport x="0" y="0" w="1280" h="720"/>
         <frustum>
           <perspective hfov="60.0" vfov="36.0"/>
         </frustum>

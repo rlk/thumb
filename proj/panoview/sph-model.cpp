@@ -250,8 +250,6 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
         
     for (int i = 0; i < 6; ++i)
         prep_face(M, w, h, 0, 1, 0, 1, i, 0, i);
-    
-    cache.update(time);
 }
 
 void sph_model::prep_face(const double *M, int w, int h,
@@ -392,15 +390,17 @@ void sph_model::draw_face(const int *fv, int fc,
         {
             int e = fi * 8 + d;
             
+            glActiveTexture(GL_TEXTURE0 + e);
+
             o = cache.get_page(fv[fi], i, time, then);
 
             glUniform1f(alpha[e], age(then));
-            glActiveTexture(GL_TEXTURE0 + e);
             glBindTexture(GL_TEXTURE_2D, o);
         }
-        glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
-        glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
     }
+
+    glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
+    glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
 
     if (status[i] == s_pass)
     {
@@ -487,7 +487,7 @@ void sph_model::init_program(const char *vert_src,
             tex_d[d]  = glGetUniformLocationv(program, "tex_d[%d]", d);
         }
 
-        for (int d = 0; d < 16; ++d)
+        for (int d = 0; d < 8; ++d) // HACK
         {
             alpha[d]  = glGetUniformLocationv(program, "alpha[%d]", d);
             glUniform1i(glGetUniformLocationv(program, "image[%d]", d), d);

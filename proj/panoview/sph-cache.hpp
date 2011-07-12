@@ -32,7 +32,7 @@ template <typename T> class fifo : public std::list <T>
 public:
 
     void enq(T p) {
-        this->push_front(p);
+        this->push_back(p);
     }
     
     T deq() {
@@ -158,7 +158,6 @@ private:
     queue<sph_task> loads;
 
     fifo<GLuint> pbos;
-    fifo<GLuint> texs;
         
     GLsizei pagelen(int);
     GLuint  filler;

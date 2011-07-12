@@ -20,13 +20,14 @@
 
 static void clear(GLuint t)
 {
-    static const GLfloat p[4] = { 0, 0, 0, 0 };
+    static const GLfloat p[] = { 0, 0, 0, 0 };
         
     glBindTexture  (GL_TEXTURE_2D, t);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, p);
     glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
 }
 
@@ -217,8 +218,11 @@ sph_page sph_set::search(sph_page page, int t)
     
     if (i != m.end())
     {
-        i->second = t;
-        return i->first;
+        sph_page p = i->first;
+
+        remove(p);
+        insert(p, t);
+        return(p);
     }
     return sph_page();
 }
@@ -234,7 +238,7 @@ sph_page sph_set::eject(int t, int i)
     std::map<sph_page, int>::iterator e;
     
     for (e = m.begin(); e != m.end(); ++e)
-    //  if (e->first.i > 5)
+//      if (e->first.i > 5) // HACK
         {
             if (a == m.end() || e->second < a->second) a = e;
                                                        l = e;
@@ -244,7 +248,7 @@ sph_page sph_set::eject(int t, int i)
     // Otherwise consider the lowest-priority loaded page and eject if it
     // has lower priority than the incoming page.
 
-    if (a != m.end() && a->second < t - 1)
+    if (a != m.end() && a->second < t - 2)
     {
         sph_page page = a->first;
         m.erase(a);
@@ -396,13 +400,6 @@ static void debug_on(int l)
     glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);                
 }
 
-//static void debug_off()
-//{
-//    glPixelTransferf(GL_RED_SCALE,   1.0f);
-//    glPixelTransferf(GL_GREEN_SCALE, 1.0f);
-//    glPixelTransferf(GL_BLUE_SCALE,  1.0f);
-//}
-
 //------------------------------------------------------------------------------
 
 // Append a string to the file list and return its index. Queue the roots.
@@ -456,7 +453,7 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
         {
             needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
             waits.insert(sph_page(f, i, filler), t);
-            pages.insert(sph_page(f, i, o),      t);
+            pages.insert(sph_page(f, i, o),      t);            
             clear(o);
         }
     }
@@ -471,7 +468,7 @@ void sph_cache::update(int t)
 {
     glPushAttrib(GL_PIXEL_MODE_BIT);
     {
-        for (int c = 0; !loads.empty() && c < 2; ++c)
+        for (int c = 0; !loads.empty() && c < 4; ++c)
         {
             sph_task task = loads.remove();
             sph_page page = pages.search(sph_page(task.f, task.i), t);
@@ -482,7 +479,7 @@ void sph_cache::update(int t)
                 page.t = t;
                 pages.remove(page);
                 pages.insert(page, t);
-
+                
                 if (debug)
                     debug_on(face_level(task.i));
 

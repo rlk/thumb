@@ -27,7 +27,7 @@ public:
     sph_model(sph_cache&, const char *, const char *, int, int, int);
    ~sph_model();
    
-    void tick() { time++; }
+    int  tick() { return time++; }
     void prep(const double *, const double *, int, int);
     void draw(const double *, const double *, const int *, int,
                                               const int *, int);
@@ -42,6 +42,8 @@ public:
     }
     
 private:
+
+    GLuint stack[8];
 
     sph_cache& cache;
 

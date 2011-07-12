@@ -114,11 +114,6 @@ vec4 blend(vec4 a, vec4 b)
     return vec4(mix(b.rgb, a.rgb, a.a), 1.0);
 }
 
-float luma(vec4 c)
-{
-    return 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
-}
-
 vec4 sampleA(vec2 t)
 {
     return

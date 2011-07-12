@@ -67,6 +67,22 @@ vec4 blend(vec4 a, vec4 b)
 
 vec4 sample(vec2 t)
 {
+    vec4 c = vec4(0.0);
+    
+    c = blend(img0(t), c);
+    c = blend(img1(t), c);
+    c = blend(img2(t), c);
+    c = blend(img3(t), c);
+    c = blend(img4(t), c);
+    c = blend(img5(t), c);
+    c = blend(img6(t), c);
+    c = blend(img7(t), c);
+
+    return c;
+}
+/*
+vec4 sample(vec2 t)
+{
     return
         blend(img7(t),
             blend(img6(t),
@@ -74,9 +90,11 @@ vec4 sample(vec2 t)
                     blend(img4(t),
                         blend(img3(t),
                             blend(img2(t),
-                                blend(img1(t), img0(t))))))));
+                                blend(img1(t),
+                                    blend(img0(t),
+                                          vec4(1.0, 0.0, 1.0, 1.0)))))))));
 }
-
+*/
 void main()
 {
     gl_FragColor = sample(gl_TexCoord[0].xy);
