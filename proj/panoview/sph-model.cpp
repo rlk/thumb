@@ -341,6 +341,30 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
         glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 
+    // This is a hack that ensures that the root pages of all files are touched.
+
+    GLuint o;
+    int tock;
+
+    for (int i = 0; i < fc; ++i)
+    {
+        o = cache.get_page(fv[i], 0, time, tock);
+        o = cache.get_page(fv[i], 1, time, tock);
+        o = cache.get_page(fv[i], 2, time, tock);
+        o = cache.get_page(fv[i], 3, time, tock);
+        o = cache.get_page(fv[i], 4, time, tock);
+        o = cache.get_page(fv[i], 5, time, tock);
+    }
+    for (int i = 0; i < pc; ++i)
+    {
+        o = cache.get_page(pv[i], 0, time, tock);
+        o = cache.get_page(pv[i], 1, time, tock);
+        o = cache.get_page(pv[i], 2, time, tock);
+        o = cache.get_page(pv[i], 3, time, tock);
+        o = cache.get_page(pv[i], 4, time, tock);
+        o = cache.get_page(pv[i], 5, time, tock);
+    }
+
 #if 0
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 #endif
@@ -397,10 +421,9 @@ void sph_model::draw_face(const int *fv, int fc,
             glUniform1f(alpha[e], age(then));
             glBindTexture(GL_TEXTURE_2D, o);
         }
+        glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
+        glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
     }
-
-    glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
-    glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
 
     if (status[i] == s_pass)
     {
@@ -487,7 +510,7 @@ void sph_model::init_program(const char *vert_src,
             tex_d[d]  = glGetUniformLocationv(program, "tex_d[%d]", d);
         }
 
-        for (int d = 0; d < 8; ++d) // HACK
+        for (int d = 0; d < 16; ++d)
         {
             alpha[d]  = glGetUniformLocationv(program, "alpha[%d]", d);
             glUniform1i(glGetUniformLocationv(program, "image[%d]", d), d);
