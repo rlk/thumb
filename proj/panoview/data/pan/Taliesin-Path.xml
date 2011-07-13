@@ -2,20 +2,20 @@
   <panorama channels="2" depth="3" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-blend.frag">
-    <image channel="0" file="pan/Taliesin-Path-A-L-Cube.tif" />
-    <image channel="1" file="pan/Taliesin-Path-A-R-Cube.tif" />
-    <image channel="0" file="pan/Taliesin-Path-B-L-Cube.tif" />
-    <image channel="1" file="pan/Taliesin-Path-B-R-Cube.tif" />
-    <image channel="0" file="pan/Taliesin-Path-C-L-Cube.tif" />
-    <image channel="1" file="pan/Taliesin-Path-C-R-Cube.tif" />
-    <image channel="0" file="pan/Taliesin-Path-D-L-Cube.tif" />
-    <image channel="1" file="pan/Taliesin-Path-D-R-Cube.tif" />
-    <image channel="0" file="pan/Taliesin-Path-E-L-Cube.tif" />
-    <image channel="1" file="pan/Taliesin-Path-E-R-Cube.tif" />
-    <image channel="0" file="pan/Taliesin-Path-F-L-Cube.tif" />
-    <image channel="1" file="pan/Taliesin-Path-F-R-Cube.tif" />
-    <image channel="0" file="pan/Taliesin-Path-G-L-Cube.tif" />
-    <image channel="1" file="pan/Taliesin-Path-G-R-Cube.tif" />
-    <image channel="0" file="pan/Taliesin-Path-H-L-Cube.tif" />
-    <image channel="1" file="pan/Taliesin-Path-H-R-Cube.tif" />
+    <image channel="0" file="QS/pan/Taliesin-Path-A-L-Cube.tif" />
+    <image channel="1" file="QS/pan/Taliesin-Path-A-R-Cube.tif" />
+    <image channel="0" file="QS/pan/Taliesin-Path-B-L-Cube.tif" />
+    <image channel="1" file="QS/pan/Taliesin-Path-B-R-Cube.tif" />
+    <image channel="0" file="QS/pan/Taliesin-Path-C-L-Cube.tif" />
+    <image channel="1" file="QS/pan/Taliesin-Path-C-R-Cube.tif" />
+    <image channel="0" file="QS/pan/Taliesin-Path-D-L-Cube.tif" />
+    <image channel="1" file="QS/pan/Taliesin-Path-D-R-Cube.tif" />
+    <image channel="0" file="QS/pan/Taliesin-Path-E-L-Cube.tif" />
+    <image channel="1" file="QS/pan/Taliesin-Path-E-R-Cube.tif" />
+    <image channel="0" file="QS/pan/Taliesin-Path-F-L-Cube.tif" />
+    <image channel="1" file="QS/pan/Taliesin-Path-F-R-Cube.tif" />
+    <image channel="0" file="QS/pan/Taliesin-Path-G-L-Cube.tif" />
+    <image channel="1" file="QS/pan/Taliesin-Path-G-R-Cube.tif" />
+    <image channel="0" file="QS/pan/Taliesin-Path-H-L-Cube.tif" />
+    <image channel="1" file="QS/pan/Taliesin-Path-H-R-Cube.tif" />
   </panorama>

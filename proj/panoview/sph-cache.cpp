@@ -246,6 +246,14 @@ sph_file::sph_file(const std::string& tiff)
 
 //------------------------------------------------------------------------------
 
+sph_set::~sph_set()
+{
+    std::map<sph_page, int>::iterator i;
+    
+    for (i = m.begin(); i != m.end(); ++i)
+        glDeleteTextures(1, &i->first.o);
+}
+
 void sph_set::insert(sph_page page, int t)
 {
     m[page] = t;

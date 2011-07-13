@@ -2,6 +2,6 @@
   <panorama channels="2" depth="4" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-render.frag">
-    <image channel="0" file="QS/Blue-Mounds-8-L-QS4.tif" />
-    <image channel="1" file="QS/Blue-Mounds-8-R-QS4.tif" />
+    <image channel="0" file="QS/Madison-State-Capitol-Dome-2-L-QS4.tif" />
+    <image channel="1" file="QS/Madison-State-Capitol-Dome-2-R-QS4.tif" />
   </panorama>

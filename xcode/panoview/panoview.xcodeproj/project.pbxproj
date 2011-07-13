@@ -63,6 +63,42 @@
 		5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.3.dylib; path = /opt/local/lib/libtiff.3.dylib; sourceTree = "<absolute>"; };
 		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
 		58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Blue-Mounds-8-Mono.xml"; path = "../../proj/panoview/data/pan/Blue-Mounds-8-Mono.xml"; sourceTree = "<group>"; };
+		58A1E07513CDF7CC00D0A598 /* Al-Diwan.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Al-Diwan.xml"; path = "../../proj/panoview/data/pan/Al-Diwan.xml"; sourceTree = "<group>"; };
+		58A1E07613CDF7CC00D0A598 /* Back-Yard.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Back-Yard.xml"; path = "../../proj/panoview/data/pan/Back-Yard.xml"; sourceTree = "<group>"; };
+		58A1E07713CDF7CC00D0A598 /* Bowl3-Panorama.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Bowl3-Panorama.xml"; path = "../../proj/panoview/data/pan/Bowl3-Panorama.xml"; sourceTree = "<group>"; };
+		58A1E07813CDF7CC00D0A598 /* Grand-Mosque-1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Grand-Mosque-1.xml"; path = "../../proj/panoview/data/pan/Grand-Mosque-1.xml"; sourceTree = "<group>"; };
+		58A1E07913CDF7CC00D0A598 /* Grand-Mosque-2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Grand-Mosque-2.xml"; path = "../../proj/panoview/data/pan/Grand-Mosque-2.xml"; sourceTree = "<group>"; };
+		58A1E07A13CDF7CC00D0A598 /* Madison-State-Capitol-Dome-2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Madison-State-Capitol-Dome-2.xml"; path = "../../proj/panoview/data/pan/Madison-State-Capitol-Dome-2.xml"; sourceTree = "<group>"; };
+		58A1E07B13CDF7CC00D0A598 /* Mill-Creek.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Mill-Creek.xml"; path = "../../proj/panoview/data/pan/Mill-Creek.xml"; sourceTree = "<group>"; };
+		58A1E07C13CDF7CD00D0A598 /* Overture-Hall.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Overture-Hall.xml"; path = "../../proj/panoview/data/pan/Overture-Hall.xml"; sourceTree = "<group>"; };
+		58A1E07D13CDF7CD00D0A598 /* Rock-Formation.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Rock-Formation.xml"; path = "../../proj/panoview/data/pan/Rock-Formation.xml"; sourceTree = "<group>"; };
+		58A1E07E13CDF7CD00D0A598 /* Rock-Island-Path-23.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Rock-Island-Path-23.xml"; path = "../../proj/panoview/data/pan/Rock-Island-Path-23.xml"; sourceTree = "<group>"; };
+		58A1E07F13CDF7CD00D0A598 /* Rock-Island-Tower-1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Rock-Island-Tower-1.xml"; path = "../../proj/panoview/data/pan/Rock-Island-Tower-1.xml"; sourceTree = "<group>"; };
+		58A1E08013CDF7CD00D0A598 /* Second-Tomb-Interior.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Second-Tomb-Interior.xml"; path = "../../proj/panoview/data/pan/Second-Tomb-Interior.xml"; sourceTree = "<group>"; };
+		58A1E08113CDF7CD00D0A598 /* SF-Ship-1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "SF-Ship-1.xml"; path = "../../proj/panoview/data/pan/SF-Ship-1.xml"; sourceTree = "<group>"; };
+		58A1E08213CDF7CD00D0A598 /* TAL-235.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-235.xml"; path = "../../proj/panoview/data/pan/TAL-235.xml"; sourceTree = "<group>"; };
+		58A1E08313CDF7CD00D0A598 /* TAL-238.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-238.xml"; path = "../../proj/panoview/data/pan/TAL-238.xml"; sourceTree = "<group>"; };
+		58A1E08413CDF7CD00D0A598 /* TAL-242.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-242.xml"; path = "../../proj/panoview/data/pan/TAL-242.xml"; sourceTree = "<group>"; };
+		58A1E08513CDF7CD00D0A598 /* TAL-243.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-243.xml"; path = "../../proj/panoview/data/pan/TAL-243.xml"; sourceTree = "<group>"; };
+		58A1E08613CDF7CE00D0A598 /* TAL-244.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-244.xml"; path = "../../proj/panoview/data/pan/TAL-244.xml"; sourceTree = "<group>"; };
+		58A1E08713CDF7CE00D0A598 /* TAL-245.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-245.xml"; path = "../../proj/panoview/data/pan/TAL-245.xml"; sourceTree = "<group>"; };
+		58A1E08813CDF7CE00D0A598 /* TAL-246.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-246.xml"; path = "../../proj/panoview/data/pan/TAL-246.xml"; sourceTree = "<group>"; };
+		58A1E08913CDF7CE00D0A598 /* TAL-247.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-247.xml"; path = "../../proj/panoview/data/pan/TAL-247.xml"; sourceTree = "<group>"; };
+		58A1E08A13CDF7CE00D0A598 /* Taliesin-Entrance-11.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Entrance-11.xml"; path = "../../proj/panoview/data/pan/Taliesin-Entrance-11.xml"; sourceTree = "<group>"; };
+		58A1E08B13CDF7CE00D0A598 /* Taliesin-Entrance-235.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Entrance-235.xml"; path = "../../proj/panoview/data/pan/Taliesin-Entrance-235.xml"; sourceTree = "<group>"; };
+		58A1E08C13CDF7CE00D0A598 /* Taliesin-Path-A.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-A.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-A.xml"; sourceTree = "<group>"; };
+		58A1E08D13CDF7CE00D0A598 /* Taliesin-Path-B.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-B.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-B.xml"; sourceTree = "<group>"; };
+		58A1E08E13CDF7CE00D0A598 /* Taliesin-Path-C.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-C.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-C.xml"; sourceTree = "<group>"; };
+		58A1E08F13CDF7CE00D0A598 /* Taliesin-Path-D.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-D.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-D.xml"; sourceTree = "<group>"; };
+		58A1E09013CDF7CE00D0A598 /* Taliesin-Path-E.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-E.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-E.xml"; sourceTree = "<group>"; };
+		58A1E09113CDF7CE00D0A598 /* Taliesin-Path-F.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-F.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-F.xml"; sourceTree = "<group>"; };
+		58A1E09213CDF7CE00D0A598 /* Taliesin-Path-G.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-G.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-G.xml"; sourceTree = "<group>"; };
+		58A1E09313CDF7CE00D0A598 /* Taliesin-Path-H.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-H.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-H.xml"; sourceTree = "<group>"; };
+		58A1E09413CDF7CE00D0A598 /* Tomb-Interior.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Tomb-Interior.xml"; path = "../../proj/panoview/data/pan/Tomb-Interior.xml"; sourceTree = "<group>"; };
+		58A1E09513CDF7CF00D0A598 /* West-Office.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "West-Office.xml"; path = "../../proj/panoview/data/pan/West-Office.xml"; sourceTree = "<group>"; };
+		58A1E09613CDF7CF00D0A598 /* WI-Capitol.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "WI-Capitol.xml"; path = "../../proj/panoview/data/pan/WI-Capitol.xml"; sourceTree = "<group>"; };
+		58A1E09713CDF7CF00D0A598 /* WID.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = WID.xml; path = ../../proj/panoview/data/pan/WID.xml; sourceTree = "<group>"; };
+		58A1E09813CDF7CF00D0A598 /* Wisconsin-Capitol-Dome-2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Wisconsin-Capitol-Dome-2.xml"; path = "../../proj/panoview/data/pan/Wisconsin-Capitol-Dome-2.xml"; sourceTree = "<group>"; };
 		58DB38B013C7422600304D44 /* gui-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gui-loader.cpp"; path = "../../../proj/panoview/gui-loader.cpp"; sourceTree = "<group>"; };
 		58DB38B113C7422600304D44 /* gui-loader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "gui-loader.hpp"; path = "../../../proj/panoview/gui-loader.hpp"; sourceTree = "<group>"; };
 		58DB38B313C7445000304D44 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = /opt/local/lib/libfreetype.6.dylib; sourceTree = "<absolute>"; };
@@ -104,16 +140,60 @@
 		580BA34B13C78CFB00C77076 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				58A1E09913CDF80F00D0A598 /* Panoramas */,
 				5818B95C13CA312900076A22 /* sph-blend.frag */,
 				5818B95613CA22C200076A22 /* sph-render.frag */,
 				5818B95713CA22C200076A22 /* sph-render.vert */,
 				5818B95813CA22C200076A22 /* sph-zoomer.vert */,
+			);
+			name = Data;
+			sourceTree = "<group>";
+		};
+		58A1E09913CDF80F00D0A598 /* Panoramas */ = {
+			isa = PBXGroup;
+			children = (
+				58A1E07513CDF7CC00D0A598 /* Al-Diwan.xml */,
+				58A1E07613CDF7CC00D0A598 /* Back-Yard.xml */,
+				58A1E07713CDF7CC00D0A598 /* Bowl3-Panorama.xml */,
+				58A1E07813CDF7CC00D0A598 /* Grand-Mosque-1.xml */,
+				58A1E07913CDF7CC00D0A598 /* Grand-Mosque-2.xml */,
+				58A1E07A13CDF7CC00D0A598 /* Madison-State-Capitol-Dome-2.xml */,
+				58A1E07B13CDF7CC00D0A598 /* Mill-Creek.xml */,
+				58A1E07C13CDF7CD00D0A598 /* Overture-Hall.xml */,
+				58A1E07D13CDF7CD00D0A598 /* Rock-Formation.xml */,
+				58A1E07E13CDF7CD00D0A598 /* Rock-Island-Path-23.xml */,
+				58A1E07F13CDF7CD00D0A598 /* Rock-Island-Tower-1.xml */,
+				58A1E08013CDF7CD00D0A598 /* Second-Tomb-Interior.xml */,
+				58A1E08113CDF7CD00D0A598 /* SF-Ship-1.xml */,
+				58A1E08213CDF7CD00D0A598 /* TAL-235.xml */,
+				58A1E08313CDF7CD00D0A598 /* TAL-238.xml */,
+				58A1E08413CDF7CD00D0A598 /* TAL-242.xml */,
+				58A1E08513CDF7CD00D0A598 /* TAL-243.xml */,
+				58A1E08613CDF7CE00D0A598 /* TAL-244.xml */,
+				58A1E08713CDF7CE00D0A598 /* TAL-245.xml */,
+				58A1E08813CDF7CE00D0A598 /* TAL-246.xml */,
+				58A1E08913CDF7CE00D0A598 /* TAL-247.xml */,
+				58A1E08A13CDF7CE00D0A598 /* Taliesin-Entrance-11.xml */,
+				58A1E08B13CDF7CE00D0A598 /* Taliesin-Entrance-235.xml */,
+				58A1E08C13CDF7CE00D0A598 /* Taliesin-Path-A.xml */,
+				58A1E08D13CDF7CE00D0A598 /* Taliesin-Path-B.xml */,
+				58A1E08E13CDF7CE00D0A598 /* Taliesin-Path-C.xml */,
+				58A1E08F13CDF7CE00D0A598 /* Taliesin-Path-D.xml */,
+				58A1E09013CDF7CE00D0A598 /* Taliesin-Path-E.xml */,
+				58A1E09113CDF7CE00D0A598 /* Taliesin-Path-F.xml */,
+				58A1E09213CDF7CE00D0A598 /* Taliesin-Path-G.xml */,
+				58A1E09313CDF7CE00D0A598 /* Taliesin-Path-H.xml */,
+				58A1E09413CDF7CE00D0A598 /* Tomb-Interior.xml */,
+				58A1E09513CDF7CF00D0A598 /* West-Office.xml */,
+				58A1E09613CDF7CF00D0A598 /* WI-Capitol.xml */,
+				58A1E09713CDF7CF00D0A598 /* WID.xml */,
+				58A1E09813CDF7CF00D0A598 /* Wisconsin-Capitol-Dome-2.xml */,
 				5818B95413CA05C100076A22 /* Taliesin-Path.xml */,
 				58DB38C313C8F5D300304D44 /* Taliesin-Garden-13.xml */,
 				580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */,
 				58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */,
 			);
-			name = Data;
+			name = Panoramas;
 			sourceTree = "<group>";
 		};
 		58E2107D13AE6EAF004580E9 = {

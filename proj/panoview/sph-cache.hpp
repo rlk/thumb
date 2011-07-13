@@ -109,7 +109,8 @@ class sph_set
 public:
 
     sph_set(int size) : size(size) { }
-
+   ~sph_set();
+   
     int  count()  const { return int(m.size()); }
     bool full()  const { return (count() >= size); }
     bool empty() const { return (m.empty()); }

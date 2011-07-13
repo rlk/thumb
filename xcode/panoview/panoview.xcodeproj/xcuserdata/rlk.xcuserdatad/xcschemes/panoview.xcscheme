@@ -91,7 +91,7 @@
          </EnvironmentVariable>
          <EnvironmentVariable
             key = "PANOPATH"
-            value = "/Users/rlk/Data/"
+            value = "/Users/rlk/Data/pan/"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>
