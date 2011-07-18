@@ -221,22 +221,22 @@ void ogl::frame::init_frame()
     // Initialize the frame buffer object.
 
     if (has_stencil)
-        glFramebufferTexture2D(GL_FRAMEBUFFER,
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER,
                                   GL_STENCIL_ATTACHMENT,
                                   target, depth, 0);
     if (has_depth)
-        glFramebufferTexture2D(GL_FRAMEBUFFER,
+        glFramebufferTexture2DEXT(GL_FRAMEBUFFER,
                                   GL_DEPTH_ATTACHMENT,
                                   target, depth, 0);
     if (has_color)
     {
         if (target == GL_TEXTURE_CUBE_MAP)
-            glFramebufferTexture2D(GL_FRAMEBUFFER,
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER,
                                       GL_COLOR_ATTACHMENT0,
                                       GL_TEXTURE_CUBE_MAP_POSITIVE_X,
                                       color, 0);
         else
-            glFramebufferTexture2D(GL_FRAMEBUFFER,
+            glFramebufferTexture2DEXT(GL_FRAMEBUFFER,
                                       GL_COLOR_ATTACHMENT0,
                                       target, color, 0);
     }
@@ -248,7 +248,7 @@ void ogl::frame::init_frame()
 
     // Confirm the frame buffer object status.
 
-    switch (glCheckFramebufferStatus(GL_FRAMEBUFFER))
+    switch (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER))
     {
     case GL_FRAMEBUFFER_COMPLETE:
         break; 
@@ -284,7 +284,7 @@ void ogl::frame::init()
         init_depth();
     }
 
-    glGenFramebuffers(1, &buffer);
+    glGenFramebuffersEXT(1, &buffer);
 
     push(buffer, 0, 0, w, h);
     {
@@ -295,7 +295,7 @@ void ogl::frame::init()
 
 void ogl::frame::fini()
 {
-    if (buffer) glDeleteFramebuffers(1, &buffer);
+    if (buffer) glDeleteFramebuffersEXT(1, &buffer);
 
     if (color) glDeleteTextures(1, &color);
     if (depth) glDeleteTextures(1, &depth);

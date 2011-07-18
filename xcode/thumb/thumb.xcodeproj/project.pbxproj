@@ -8,6 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		58427C8213AF8C9000F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C8113AF8C9000F0A012 /* libGLEW.1.6.0.dylib */; };
+		588E32A613D4C59100B9B6F7 /* libmxml.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 588E32A413D4C59100B9B6F7 /* libmxml.a */; };
+		588E32A713D4C59100B9B6F7 /* libode.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 588E32A513D4C59100B9B6F7 /* libode.a */; };
 		58E2104213AE6901004580E9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104113AE6901004580E9 /* OpenGL.framework */; };
 		58E2104513AE6932004580E9 /* libSDL-1.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104413AE6932004580E9 /* libSDL-1.2.0.dylib */; };
 		58E2104713AE697E004580E9 /* libfreetype.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2104613AE697E004580E9 /* libfreetype.6.dylib */; };
@@ -154,6 +156,8 @@
 /* Begin PBXFileReference section */
 		580BA34E13C7A23000C77076 /* common.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = common.xml; path = ../../data/host/common.xml; sourceTree = "<group>"; };
 		58427C8113AF8C9000F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
+		588E32A413D4C59100B9B6F7 /* libmxml.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libmxml.a; path = ../../../../../../usr/local/lib/libmxml.a; sourceTree = "<group>"; };
+		588E32A513D4C59100B9B6F7 /* libode.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libode.a; path = ../../../../../../usr/local/lib/libode.a; sourceTree = "<group>"; };
 		58E2104113AE6901004580E9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
 		58E2104413AE6932004580E9 /* libSDL-1.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL-1.2.0.dylib"; path = "/opt/local/lib/libSDL-1.2.0.dylib"; sourceTree = "<absolute>"; };
 		58E2104613AE697E004580E9 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = /opt/local/lib/libfreetype.6.dylib; sourceTree = "<absolute>"; };
@@ -306,6 +310,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				588E32A613D4C59100B9B6F7 /* libmxml.a in Frameworks */,
+				588E32A713D4C59100B9B6F7 /* libode.a in Frameworks */,
 				58E2105013AE69F1004580E9 /* libmxml.a in Frameworks */,
 				58E2105113AE69F1004580E9 /* libode.a in Frameworks */,
 				58E2104913AE69B2004580E9 /* libjpeg.8.dylib in Frameworks */,
@@ -351,6 +357,8 @@
 		58E773C813AE637A00E265AD = {
 			isa = PBXGroup;
 			children = (
+				588E32A413D4C59100B9B6F7 /* libmxml.a */,
+				588E32A513D4C59100B9B6F7 /* libode.a */,
 				58E210AC13AE7555004580E9 /* Data */,
 				58E2105613AE6A81004580E9 /* Dependencies */,
 				58E773D513AE637A00E265AD /* Sources */,
@@ -771,12 +779,14 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				HEADER_SEARCH_PATHS = (
 					/Users/rlk/include,
+					/usr/local/include,
 					/opt/local/include,
 					/opt/local/include/freetype2/,
 					/opt/local/include/SDL,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/rlk/lib,
+					/usr/local/lib,
 					/opt/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -792,12 +802,14 @@
 				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
 				HEADER_SEARCH_PATHS = (
 					/Users/rlk/include,
+					/usr/local/include,
 					/opt/local/include,
 					/opt/local/include/freetype2/,
 					/opt/local/include/SDL,
 				);
 				LIBRARY_SEARCH_PATHS = (
 					/Users/rlk/lib,
+					/usr/local/lib,
 					/opt/local/lib,
 				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
