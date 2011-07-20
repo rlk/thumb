@@ -82,15 +82,24 @@ static GLenum internal_form(uint16 c, uint16 b)
 
 // Select an OpenGL external texture format for an image with c channels.
 
-static GLenum external_form(uint16 c)
+static GLenum external_form(uint16 c, uint16 b)
 {
-    switch (c)
-    {
-    case  1: return GL_LUMINANCE;
-    case  2: return GL_LUMINANCE_ALPHA;
-    case  3: return GL_BGRA; // *
-    default: return GL_BGRA;
-    }
+    if (b == 8)
+        switch (c)
+        {
+        case  1: return GL_LUMINANCE;
+        case  2: return GL_LUMINANCE_ALPHA;
+        case  3: return GL_BGRA; // *
+        default: return GL_BGRA;
+        }
+    else
+        switch (c)
+        {
+        case  1: return GL_LUMINANCE;
+        case  2: return GL_LUMINANCE_ALPHA;
+        case  3: return GL_RGB;
+        default: return GL_RGBA;
+        }
 }
 
 // Select an OpenGL data type for an image with c channels of b bits.
@@ -133,7 +142,8 @@ void sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
 
         glBindTexture(GL_TEXTURE_2D, o);
         glTexImage2D (GL_TEXTURE_2D, 0, internal_form(c, b), w, h, 1,
-                      external_form(c), external_type(c, b), 0);
+                                        external_form(c, b),
+                                        external_type(c, b), 0);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
