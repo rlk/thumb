@@ -233,7 +233,7 @@ bool panoview::pan_point(app::event *E)
     {
         curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
         
-        if (curr_zoom < -1.0) curr_zoom = -1.0;
+        if (curr_zoom < -1.5) curr_zoom = -1.5;
         if (curr_zoom >  0.5) curr_zoom =  0.5;
 
         return true;
