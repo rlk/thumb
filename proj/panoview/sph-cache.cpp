@@ -203,7 +203,7 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
         }
         else
         {
-            const uint32 S = TIFFScanlineSize(T);
+            const uint32 S = (uint32) TIFFScanlineSize(T);
 
             for (uint32 r = 0; r < h; ++r)
                 TIFFReadScanline(T, (uint8 *) p + r * S, r, 0);
