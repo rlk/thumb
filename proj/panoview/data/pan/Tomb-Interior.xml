@@ -2,6 +2,6 @@
   <panorama channels="2" depth="3" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-render.frag">
-    <image channel="0" file="QS/Tomb-Interior-L-QS3.tif" />
-    <image channel="1" file="QS/Tomb-Interior-R-QS3.tif" />
+    <image channel="0" file="Tomb-Interior-L-512-3.tif" />
+    <image channel="1" file="Tomb-Interior-R-512-3.tif" />
   </panorama>

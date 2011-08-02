@@ -2,6 +2,6 @@
   <panorama channels="2" depth="3" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-render.frag">
-    <image channel="0" file="QS/Grand-Mosque-1-L-QS3.tif" />
-    <image channel="1" file="QS/Grand-Mosque-1-R-QS3.tif" />
+    <image channel="0" file="Grand-Mosque-1-L-512-3.tif" />
+    <image channel="1" file="Grand-Mosque-1-R-512-3.tif" />
   </panorama>

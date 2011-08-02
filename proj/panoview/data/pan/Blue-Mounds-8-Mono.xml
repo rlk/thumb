@@ -2,5 +2,5 @@
   <panorama channels="1" depth="4" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-render.frag">
-    <image channel="0" file="QS/Blue-Mounds-8-L-QS4.tif" />
+    <image channel="0" file="Blue-Mounds-8-L-512-4.tif" />
   </panorama>

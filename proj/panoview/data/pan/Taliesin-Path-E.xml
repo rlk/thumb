@@ -2,6 +2,6 @@
   <panorama channels="2" depth="3" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-render.frag">
-    <image channel="0" file="QS/Taliesin-Path-E-L-QS3.tif" />
-    <image channel="1" file="QS/Taliesin-Path-E-R-QS3.tif" />
+    <image channel="0" file="Taliesin-Path-E-L-512-3.tif" />
+    <image channel="1" file="Taliesin-Path-E-R-512-3.tif" />
   </panorama>

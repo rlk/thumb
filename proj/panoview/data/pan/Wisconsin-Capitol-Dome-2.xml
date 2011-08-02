@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-  <panorama channels="2" depth="3" mesh="16" size="512"
+  <panorama channels="2" depth="4" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-render.frag">
-    <image channel="0" file="QS/Wisconsin-Capitol-Dome-2-L-QS3.tif" />
-    <image channel="1" file="QS/Wisconsin-Capitol-Dome-2-R-QS3.tif" />
+    <image channel="0" file="Wisconsin-Capitol-Dome-2-L-512-4.tif" />
+    <image channel="1" file="Wisconsin-Capitol-Dome-2-R-512-4.tif" />
   </panorama>
