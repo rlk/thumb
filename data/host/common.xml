@@ -75,13 +75,13 @@
       <display type="normal" index="1" channel="0">
         <viewport x="0" y="0" w="960" h="1080"/>
         <frustum>
-          <perspective hfov="60.0" vfov="35.0"/>
+          <perspective hfov="30.0" vfov="35.0"/>
         </frustum>
       </display>
       <display type="normal" index="1" channel="1">
         <viewport x="960" y="0" w="960" h="1080"/>
         <frustum>
-          <perspective hfov="60.0" vfov="35.0"/>
+          <perspective hfov="30.0" vfov="35.0"/>
         </frustum>
       </display>
     </node>

@@ -43,6 +43,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		580ABF1D1416C6E9009F4D42 /* panorama.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = panorama.html; path = ../../proj/panoview/panorama.html; sourceTree = "<group>"; };
 		580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Blue-Mounds-8.xml"; path = "../../proj/panoview/data/pan/Blue-Mounds-8.xml"; sourceTree = "<group>"; };
 		5818B95413CA05C100076A22 /* Taliesin-Path.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path.xml"; sourceTree = "<group>"; };
 		5818B95613CA22C200076A22 /* sph-render.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.frag"; path = "../../proj/panoview/data/glsl/sph-render.frag"; sourceTree = "<group>"; };
@@ -60,9 +61,8 @@
 		58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
 		5865801313B60E7900FBBF90 /* sph-cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "sph-cache.cpp"; path = "../../../proj/panoview/sph-cache.cpp"; sourceTree = "<group>"; };
 		5865801413B60E7900FBBF90 /* sph-cache.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-cache.hpp"; path = "../../../proj/panoview/sph-cache.hpp"; sourceTree = "<group>"; };
-		5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.3.dylib; path = /opt/local/lib/libtiff.3.dylib; sourceTree = "<absolute>"; };
 		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
-		588E32A913D4C74400B9B6F7 /* libtiff.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.5.dylib; path = ../../../../../../usr/local/lib/libtiff.5.dylib; sourceTree = "<group>"; };
+		588E32A913D4C74400B9B6F7 /* libtiff.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.5.dylib; path = /usr/local/lib/libtiff.5.dylib; sourceTree = "<absolute>"; };
 		58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Blue-Mounds-8-Mono.xml"; path = "../../proj/panoview/data/pan/Blue-Mounds-8-Mono.xml"; sourceTree = "<group>"; };
 		58A1E07513CDF7CC00D0A598 /* Al-Diwan.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Al-Diwan.xml"; path = "../../proj/panoview/data/pan/Al-Diwan.xml"; sourceTree = "<group>"; };
 		58A1E07613CDF7CC00D0A598 /* Back-Yard.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Back-Yard.xml"; path = "../../proj/panoview/data/pan/Back-Yard.xml"; sourceTree = "<group>"; };
@@ -138,6 +138,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		580ABF1C1416C6C4009F4D42 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				580ABF1D1416C6E9009F4D42 /* panorama.html */,
+			);
+			name = Documentation;
+			sourceTree = "<group>";
+		};
 		580BA34B13C78CFB00C77076 /* Data */ = {
 			isa = PBXGroup;
 			children = (
@@ -200,7 +208,7 @@
 		58E2107D13AE6EAF004580E9 = {
 			isa = PBXGroup;
 			children = (
-				588E32A913D4C74400B9B6F7 /* libtiff.5.dylib */,
+				580ABF1C1416C6C4009F4D42 /* Documentation */,
 				58E210A513AE730A004580E9 /* Dependencies */,
 				580BA34B13C78CFB00C77076 /* Data */,
 				58E2108B13AE6EAF004580E9 /* panoview */,
@@ -245,7 +253,7 @@
 		58E210A513AE730A004580E9 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				5865801E13B60EBE00FBBF90 /* libtiff.3.dylib */,
+				588E32A913D4C74400B9B6F7 /* libtiff.5.dylib */,
 				58E2109D13AE6F40004580E9 /* thumb.dylib */,
 				58DB38B313C7445000304D44 /* libfreetype.6.dylib */,
 				58E210A613AE7380004580E9 /* libSDLmain.a */,
