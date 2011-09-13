@@ -19,7 +19,7 @@ OBJS=	app-data.o \
 	dev-trackd.o \
 	dpy-anaglyph.o \
 	dpy-channel.o \
-    dpy-direct.o \
+	dpy-direct.o \
 	dpy-display.o \
 	dpy-interlace.o \
 	dpy-lenticular.o \
@@ -83,7 +83,8 @@ CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
 LIBS    = $(shell $(SDLCONF) --libs) \
 	  $(shell $(FT2CONF) --libs) \
-	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
+	-ljpeg -lpng -lz -lm $(OGLLIB)
+#	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 
 #------------------------------------------------------------------------------
 

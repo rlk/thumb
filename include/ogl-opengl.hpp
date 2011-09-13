@@ -17,6 +17,10 @@
 
 #include <GL/glew.h>
 
+#ifndef GL_TEXTURE_RECTANGLE
+#define GL_TEXTURE_RECTANGLE GL_TEXTURE_RECTANGLE_ARB
+#endif
+
 namespace ogl
 {
     extern bool has_depth_stencil;
