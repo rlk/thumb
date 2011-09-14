@@ -36,6 +36,7 @@ panoview::panoview(const std::string& tag) : app::prog(tag),
     spin    (0),
     time    (0),
     dtime   (0),
+    etime   (0),
     height  (1.5),
     radius  (6.0)
 {
@@ -83,8 +84,8 @@ void panoview::load(const std::string& name)
         int    n = root.get_i("mesh",    16);
         int    s = root.get_i("size",   512);
 
-        height = root.get_i("height", 0.0);
-        radius = root.get_i("radius", 6.0);
+        height = root.get_f("height", 1.5);
+        radius = root.get_f("radius", 6.0);
 
         // Load the configured shaders.
         
@@ -151,13 +152,16 @@ void panoview::draw(int frusi, const app::frustum *frusp)
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 
+//   frusp->draw();
+//  ::user->draw();
+
     if (cache && model)
     {
         double V[16];
         
         minvert(V, M);
-        Rmul_xlt_mat(V,      0, height,      0);
-        Rmul_scl_mat(V, radius, radius, radius);
+        Rmul_xlt_mat(V,      0, -height,      0);
+        Rmul_scl_mat(V, radius,  radius, radius);
 
 //        if (debug_zoom)
 //            model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
@@ -228,9 +232,23 @@ bool panoview::process_event(app::event *E)
 
         ::user->look(spin * dt, 0.0);
         time +=     dtime * dt;
+
+        if (dtime > 0.0 && time > etime)
+        {
+            time  = etime;
+            dtime = 0.0;
+        }
+        if (dtime < 0.0 && time < etime)
+        {
+            time  = etime;
+            dtime = 0.0;
+        }
         
         if (fabs(joy_y) > 0.25)
-            curr_zoom += joy_y * dt;
+            curr_zoom += joy_y * dt * 0.25;
+
+        if (curr_zoom < -2.0) curr_zoom = -2.0;
+        if (curr_zoom >  0.5) curr_zoom =  0.5;
     }
 
     return prog::process_event(E);
@@ -240,17 +258,20 @@ bool panoview::process_event(app::event *E)
 
 bool panoview::pan_point(app::event *E)
 {
-    double p[3];
-    double v[3];
+    if (drag_state && E->data.point.i == 0)
+    {
+        double p[3];
+        double v[3];
     
-    ::user->get_point(p, E->data.point.p,
-                      v, E->data.point.q);
+        ::user->get_point(p, E->data.point.p,
+                          v, E->data.point.q);
 
-    model->set_zoom(v[0], v[1], v[2], pow(10.0, curr_zoom));
-
+        model->set_zoom(v[0], v[1], v[2], pow(10.0, curr_zoom));
+    }
+/*
     if (const app::frustum *overlay = ::host->get_overlay())
         overlay->pointer_to_2D(E, curr_x, curr_y);
-                
+
     if (drag_state)
     {
         curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
@@ -260,7 +281,7 @@ bool panoview::pan_point(app::event *E)
 
         return true;
     }
-        
+*/
     return false;
 }
 
@@ -278,7 +299,18 @@ bool panoview::pan_click(app::event *E)
     }
     if (E->data.click.b == 1)
     {
+        model->set_zoom(0.0, 0.0, 1.0, pow(10.0, curr_zoom));
         curr_zoom = 0;
+    }
+    if (E->data.click.b == 2)
+    {
+        etime = floor(time + 1.0);
+        dtime = 1.0;
+    }
+    if (E->data.click.b == 3)
+    {
+        etime = ceil(time - 1.0);
+        dtime = -1.0;
     }
     return false;
 }
@@ -313,10 +345,10 @@ bool panoview::pan_key(app::event *E)
         case '8': if (sh) spin = 8; else time = 8; return true;
         case '9': if (sh) spin = 9; else time = 9; return true;
         
-        case 273: dtime =  0.0; return true;
-        case 274: dtime =  0.0; return true;
-        case 275: dtime =  0.5; return true;
-        case 276: dtime = -0.5; return true;
+//      case 273: dtime =  0.0; return true;
+//      case 274: dtime =  0.0; return true;
+//      case 275: dtime =  0.5; return true;
+//      case 276: dtime = -0.5; return true;
         
         case 282 : gui_state   = !gui_state;   return true;
         case 283 : debug_cache = !debug_cache; return true;

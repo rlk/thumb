@@ -65,6 +65,7 @@ private:
     int     spin;
     double  time;
     double dtime;
+    double etime;
     double  height;
     double  radius;
 
