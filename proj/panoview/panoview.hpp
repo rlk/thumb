@@ -65,6 +65,8 @@ private:
     int     spin;
     double  time;
     double dtime;
+    double  height;
+    double  radius;
 
     bool debug_zoom;
     bool debug_cache;
@@ -80,6 +82,7 @@ private:
     void gui_draw();
     bool gui_point(app::event *);
     bool gui_click(app::event *);
+    bool gui_axis (app::event *);
     bool gui_key  (app::event *);
 
     // Interaction state
@@ -91,9 +94,12 @@ private:
     int    curr_x;
     int    curr_y;
     double curr_zoom;
+    double joy_x;
+    double joy_y;
 
     bool pan_point(app::event *);
     bool pan_click(app::event *);
+    bool pan_axis(app::event *);
     bool pan_key  (app::event *);
 };
 

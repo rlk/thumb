@@ -14,6 +14,7 @@
 
 #include <ogl-opengl.hpp>
 
+#include <etc-math.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
 #include <app-user.hpp>
@@ -34,7 +35,9 @@ panoview::panoview(const std::string& tag) : app::prog(tag),
     channels(0),
     spin    (0),
     time    (0),
-    dtime   (0)
+    dtime   (0),
+    height  (1.5),
+    radius  (6.0)
 {
     curr_zoom   = 0.0;
     drag_state  = false;
@@ -79,6 +82,9 @@ void panoview::load(const std::string& name)
         int    d = root.get_i("depth",    8);
         int    n = root.get_i("mesh",    16);
         int    s = root.get_i("size",   512);
+
+        height = root.get_i("height", 0.0);
+        radius = root.get_i("radius", 6.0);
 
         // Load the configured shaders.
         
@@ -127,7 +133,7 @@ ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
     {
         cache->update(model->tick());
     }
-    return ogl::range(0.001, 10.0);
+    return ogl::range(0.001, radius * 3.0);
 }
 
 void panoview::lite(int frusc, const app::frustum *const *frusv)
@@ -150,11 +156,13 @@ void panoview::draw(int frusi, const app::frustum *frusp)
         double V[16];
         
         minvert(V, M);
+        Rmul_xlt_mat(V,      0, height,      0);
+        Rmul_scl_mat(V, radius, radius, radius);
 
-        if (debug_zoom)
-            model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
-        else
-            model->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
+//        if (debug_zoom)
+//            model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
+//        else
+//            model->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
 
         cache->set_debug(debug_color);
 
@@ -211,12 +219,18 @@ bool panoview::process_event(app::event *E)
     if (E->get_type() == E_KEY)
         return (gui_key(E)   || pan_key(E)   || prog::process_event(E));
 
+    if (E->get_type() == E_AXIS)
+        return (gui_axis(E)  || pan_axis(E)  || prog::process_event(E));
+        
     if (E->get_type() == E_TICK)
     {
         const double dt = E->data.tick.dt / 1000.0;
 
         ::user->look(spin * dt, 0.0);
         time +=     dtime * dt;
+        
+        if (fabs(joy_y) > 0.25)
+            curr_zoom += joy_y * dt;
     }
 
     return prog::process_event(E);
@@ -226,9 +240,17 @@ bool panoview::process_event(app::event *E)
 
 bool panoview::pan_point(app::event *E)
 {
+    double p[3];
+    double v[3];
+    
+    ::user->get_point(p, E->data.point.p,
+                      v, E->data.point.q);
+
+    model->set_zoom(v[0], v[1], v[2], pow(10.0, curr_zoom));
+
     if (const app::frustum *overlay = ::host->get_overlay())
         overlay->pointer_to_2D(E, curr_x, curr_y);
-            
+                
     if (drag_state)
     {
         curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
@@ -238,12 +260,13 @@ bool panoview::pan_point(app::event *E)
 
         return true;
     }
+        
     return false;
 }
 
 bool panoview::pan_click(app::event *E)
 {
-    if (E->data.click.b == 1)
+    if (E->data.click.b == 0)
     {
         drag_state = E->data.click.d;
 
@@ -251,6 +274,22 @@ bool panoview::pan_click(app::event *E)
         drag_y     = curr_y;
         drag_zoom  = curr_zoom;
         
+        return true;
+    }
+    if (E->data.click.b == 1)
+    {
+        curr_zoom = 0;
+    }
+    return false;
+}
+
+bool panoview::pan_axis(app::event *E)
+{
+    if (E->data.axis.i == 0)
+    {
+        if (E->data.axis.a == 0) joy_x = E->data.axis.v;
+        if (E->data.axis.a == 1) joy_y = E->data.axis.v;
+
         return true;
     }
     return false;
@@ -284,8 +323,8 @@ bool panoview::pan_key(app::event *E)
         case 284 : debug_color = !debug_color; return true;
         case 285 : debug_zoom  = !debug_zoom;  return true;
         
-        case 13  : curr_zoom = 0; return prog::process_event(E);
-        case 8   : cache->flush();    return true;
+        case 13  : curr_zoom = 0;  return prog::process_event(E);
+        case 8   : cache->flush(); return true;
         }
     
     return false;
@@ -353,6 +392,14 @@ bool panoview::gui_click(app::event *E)
         return true;
     }
     return false;
+}
+
+bool panoview::gui_axis(app::event *E)
+{
+    if (gui_state)
+        return true;
+    else
+        return false;
 }
 
 bool panoview::gui_key(app::event *E)

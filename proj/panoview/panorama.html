@@ -266,7 +266,7 @@
 
         <pre>
         &lt;?xml version="1.0"?&gt;
-          &lt;panorama channels="2" depth="4" mesh="16" size="512"
+          &lt;panorama channels="2" depth="4" mesh="16" size="512" height="1.5" radius="6.0"
                        vert="glsl/sph-zoomer.vert"
                        frag="glsl/sph-render.frag"&gt;
             &lt;image channel="0" file="Blue-Mounds-8-L-512-4.tif" /&gt;
@@ -281,6 +281,8 @@
         <p>The <code>size</code> and <code>depth</code> attributes give the size of each page in the panorama image files and the depth of their page hierarchies. Note that the values coincide with the image parameters given by the file names. Other values are allowed, and may enable quality-speed tradeoffs.</p>
         
         <p>The <code>mesh</code> attribute determines the tesselation of the geometry mesh used to render each page of data. The example value, 16, indicates that each page of the sphere will be rendered using a 16 &times; 16 grid of polygons. There is little reason to change this.</p>
+
+        <p>The <code>radius</code> attribute determines the radius of the spherical proxy geometry used to render the panorama. The <code>height</code> attribute determines the placement of the proxy geometry in the scene, and should match the height of the camera at the time the panorama was captured. These values are given in meters, and are mostly significant in VR display environments. The default radius is 6 meters, and the default height is 1.5 meters.</p>
         
         <p>The <code>vert</code> and <code>frag</code> attributes give the vertex and fragment programs to be used by the renderer, named relative to the root of the Thumb data hierarchy. These will remain the same for most panorama definitions.The <em>zoomer</em>; vertex program must be specified for zoomable panoramas. The <em>render</em> fragment program is used for static panoramas such as this one.</p>
 
