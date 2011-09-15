@@ -186,14 +186,14 @@ class danpart : public app::prog
     
 public:
 
-    danpart(const std::string&);
+    danpart(const std::string&, const std::string&);
     ~danpart();
 
     bool process_event(app::event *);
 
     ogl::range prep(int, const app::frustum * const *);
     void       lite(int, const app::frustum * const *);
-    void       draw(int, const app::frustum *);
+    void       draw(int, const app::frustum *, int);
 };
 
 //-----------------------------------------------------------------------------

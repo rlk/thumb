@@ -41,12 +41,12 @@ class panoview : public app::prog
 {
 public:
 
-    panoview(const std::string&);
+    panoview(const std::string&, const std::string&);
    ~panoview();
 
     ogl::range prep(int, const app::frustum * const *);
     void       lite(int, const app::frustum * const *);
-    void       draw(int, const app::frustum *);
+    void       draw(int, const app::frustum *, int);
     
     virtual bool process_event(app::event *);
     

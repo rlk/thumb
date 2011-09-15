@@ -62,24 +62,31 @@ static in_addr_t lookup(const char *hostname)
 
 void app::host::fork_client(const char *name,
                             const char *addr,
-                            const char *disp)
+                            const char *disp,
+                            const char *exe)
 {
 #ifndef _WIN32 // W32 HACK
     const char *args[4];
-    char line[256];
+
+    char str[256];
+//  char cwd[256];
+
+//  getcwd(cwd, 256);
+
+    char *cwd = getenv("PWD");
 
     if ((fork() == 0))
     {
-        std::string exe = ::conf->get_s("executable");
+        sprintf(str, "/bin/sh -c 'cd %s; DISPLAY=%s %s %s'",
+                cwd, disp ? disp : ":0.0", exe, name);
 
-        sprintf(line, "/bin/sh -c 'DISPLAY=%s %s %s'",
-                disp ? disp : ":0.0", exe.c_str(), name);
+        printf("%s\n", str);
 
         // Allocate and build the client's ssh command line.
 
         args[0] = "ssh";
         args[1] = addr;
-        args[2] = line;
+        args[2] = str;
         args[3] = NULL;
 
         execvp("ssh", (char * const *) args);
@@ -337,7 +344,7 @@ void app::host::fini_server()
 
 //-----------------------------------------------------------------------------
 
-void app::host::init_client(app::node p)
+void app::host::init_client(app::node p, const std::string& exe)
 {
     // Launch all client processes.
 
@@ -345,7 +352,8 @@ void app::host::init_client(app::node p)
     {
         fork_client(n.get_s("name").c_str(),
                     n.get_s("addr").c_str(),
-                    n.get_s("disp").c_str());
+                    n.get_s("disp").c_str(),
+                                exe.c_str());
         clients++;
     }
 }
@@ -432,7 +440,9 @@ bool app::host::process_calib(event *E)
 
 //-----------------------------------------------------------------------------
 
-app::host::host(app::prog *p, std::string filename, std::string tag) :
+app::host::host(app::prog *p, std::string filename,
+                              std::string exe,
+                              std::string tag) :
     clients(0),
     server_sd(INVALID_SOCKET),
     client_cd(INVALID_SOCKET),
@@ -557,7 +567,7 @@ app::host::host(app::prog *p, std::string filename, std::string tag) :
             // Start the network syncronization.
 
             init_server(n);
-            init_client(n);
+            init_client(n, exe);
             init_listen(n);
         }
 
@@ -805,9 +815,9 @@ void app::host::draw()
     }
 }
 
-void app::host::draw(int frusi, const app::frustum *frusp)
+void app::host::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    program->draw(frusi, frusp);
+    program->draw(frusi, frusp, chani);
 }
 
 void app::host::swap() const

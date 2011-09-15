@@ -42,7 +42,8 @@ namespace app
     {
         // Network handling
 
-        void   fork_client(const char *, const char *, const char *);
+        void   fork_client(const char *, const char *,
+                           const char *, const char *);
         void   poll_listen(bool);
         void   poll_script();
         void   fini_script();
@@ -50,7 +51,7 @@ namespace app
         SOCKET init_socket(int);
         void   init_listen(app::node);
         void   init_server(app::node);
-        void   init_client(app::node);
+        void   init_client(app::node, const std::string&);
 
         void   fini_listen();
         void   fini_server();
@@ -113,12 +114,12 @@ namespace app
 
     public:
 
-        host(app::prog *, std::string, std::string);
+        host(app::prog *, std::string, std::string, std::string);
        ~host();
 
         bool root() const { return (server_sd == INVALID_SOCKET); }
         void loop();
-        void draw(int, const app::frustum *);
+        void draw(int, const app::frustum *, int);
         void draw();
         void swap() const;
 

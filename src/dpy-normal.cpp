@@ -79,7 +79,7 @@ void dpy::normal::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 
         chanv[chani]->bind();
         {
-            ::host->draw(frusi, frust);
+            ::host->draw(frusi, frust, chani);
         }
         chanv[chani]->free();
         chanv[chani]->proc();

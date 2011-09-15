@@ -87,12 +87,12 @@ void dpy::anaglyph::draw(int chanc, const dpy::channel * const *chanv, int frusi
 
         chanv[0]->bind();
         {
-            ::host->draw(frusi + 0, frustL);
+            ::host->draw(frusi + 0, frustL, 0);
         }
         chanv[0]->free();
         chanv[1]->bind();
         {
-            ::host->draw(frusi + 1, frustR);
+            ::host->draw(frusi + 1, frustR, 1);
         }
         chanv[1]->free();
 

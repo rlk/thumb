@@ -46,7 +46,7 @@ namespace app
 
     public:
 
-        prog(const std::string&);
+        prog(const std::string&, const std::string&);
 
         virtual ~prog();
 
@@ -54,7 +54,7 @@ namespace app
 
         virtual ogl::range prep(int, const app::frustum * const *) = 0;
         virtual void       lite(int, const app::frustum * const *) = 0;
-        virtual void       draw(int, const app::frustum *)         = 0;
+        virtual void       draw(int, const app::frustum *, int)    = 0;
 
         // Event handler
 

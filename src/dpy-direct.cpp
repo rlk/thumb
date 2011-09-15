@@ -64,7 +64,7 @@ void dpy::direct::prep(int chanc, const dpy::channel *const *chanv)
 
 void dpy::direct::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 {
-    ::host->draw(frusi, frust);
+    ::host->draw(frusi, frust, 0);
 }
 
 void dpy::direct::test(int chanc, const dpy::channel *const *chanv, int index)

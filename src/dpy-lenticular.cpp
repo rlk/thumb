@@ -136,7 +136,7 @@ void dpy::lenticular::draw(int chanc, const dpy::channel *const *chanv, int frus
     {
         chanv[i]->bind(quality);
         {
-            ::host->draw(frusi + i, frust[i]);
+            ::host->draw(frusi + i, frust[i], i);
         }
         chanv[i]->free();
     }

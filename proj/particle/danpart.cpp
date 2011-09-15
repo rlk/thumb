@@ -587,8 +587,9 @@ void danpart::data_init()
 
 //-----------------------------------------------------------------------------
 
-danpart::danpart(const std::string& tag) :
-    app::prog(tag),
+danpart::danpart(const std::string& exe, 
+                 const std::string& tag) :
+    app::prog(exe, tag),
     anim(0),
     max_age(2000),
     disappear_age(2000),
@@ -982,7 +983,7 @@ void danpart::lite(int frusc, const app::frustum *const *frusv)
 {
 }
 
-void danpart::draw(int frusi, const app::frustum *frusp)
+void danpart::draw(int frusi, const app::frustum *frusp, int chani)
 {
     // Clear the render target.
 	

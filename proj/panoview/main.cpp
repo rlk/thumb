@@ -70,7 +70,7 @@ int main(int argc, char *argv[])
     {
         app::prog *P;
 
-        P = new panoview(std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
+        P = new panoview(argv[0], std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
         P->run();
 
         delete P;

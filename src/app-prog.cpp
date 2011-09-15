@@ -127,7 +127,8 @@ static void video()
 
 //-----------------------------------------------------------------------------
 
-app::prog::prog(const std::string& tag) : input(0)
+app::prog::prog(const std::string& exe,
+                const std::string& tag) : input(0)
 {
     // Start SDL
 
@@ -158,7 +159,7 @@ app::prog::prog(const std::string& tag) : input(0)
         host_conf = tag;
 
     ::lang = new app::lang(lang_conf);
-    ::host = new app::host(this, host_conf, tag);
+    ::host = new app::host(this, host_conf, exe, tag);
 
     // Initialize the OpenGL context.
 

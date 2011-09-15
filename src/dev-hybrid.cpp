@@ -268,8 +268,8 @@ bool dev::hybrid::process_axis(app::event *E)
 {
     // Update all axis observers.
 
-    const int a = E->data.axis.a;
-    const int v = E->data.axis.v;
+    const int a = int(E->data.axis.a);
+    const int v = int(E->data.axis.v);
 
     position[0] = move_LR.process_axis(a, v);
     position[1] = move_UD.process_axis(a, v);

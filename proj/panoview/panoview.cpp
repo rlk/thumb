@@ -28,7 +28,8 @@
 
 //------------------------------------------------------------------------------
 
-panoview::panoview(const std::string& tag) : app::prog(tag),
+panoview::panoview(const std::string& exe,
+                   const std::string& tag) : app::prog(exe, tag),
     channel (0),
     cache   (0),
     model   (0),
@@ -141,7 +142,7 @@ void panoview::lite(int frusc, const app::frustum *const *frusv)
 {
 }
 
-void panoview::draw(int frusi, const app::frustum *frusp)
+void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 {
     const double *P =  frusp->get_P();
     const double *M = ::user->get_M();
@@ -176,17 +177,17 @@ void panoview::draw(int frusi, const app::frustum *frusp)
             int pv[2];
             int pc = 0;
 
-            fv[0] = channel[frusi % channels].get(int(floor(time)));
-            fv[1] = channel[frusi % channels].get(int( ceil(time)));
+            fv[0] = channel[chani % channels].get(int(floor(time)));
+            fv[1] = channel[chani % channels].get(int( ceil(time)));
             
             if (dtime < 0)
             {
-                pv[0] = channel[frusi % channels].get(int(floor(time)) - 1);
+                pv[0] = channel[chani % channels].get(int(floor(time)) - 1);
                 pc    = 1;
             }
             else
             {
-                pv[0] = channel[frusi % channels].get(int( ceil(time)) + 1);
+                pv[0] = channel[chani % channels].get(int( ceil(time)) + 1);
                 pc    = 1;
             }
                 
@@ -196,7 +197,7 @@ void panoview::draw(int frusi, const app::frustum *frusp)
         }
         else
         {
-            int f = channel[frusi % channels].get(0);
+            int f = channel[chani % channels].get(0);
 
             model->set_fade(0);
             model->prep(P, V, w, h);
