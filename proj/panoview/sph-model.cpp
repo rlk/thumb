@@ -473,8 +473,9 @@ void sph_model::draw_face(const int *fv, int fc,
 
 void sph_model::set_fade(double k)
 {
+    double t = k * k * (3.0 - 2.0 * k);
     glUseProgram(program);
-    glUniform1f(fader, k);
+    glUniform1f(fader, t);
 }
 
 static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)

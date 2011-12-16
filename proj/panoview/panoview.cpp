@@ -232,7 +232,7 @@ bool panoview::process_event(app::event *E)
         const double dt = E->data.tick.dt / 1000.0;
 
         ::user->look(spin * dt, 0.0);
-        time +=     dtime * dt;
+        time += 4 * dtime * dt;
 
         if (dtime > 0.0 && time > etime)
         {

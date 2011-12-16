@@ -64,7 +64,7 @@
       <CommandLineArguments>
          <CommandLineArgument
             argument = "1920x1080"
-            isEnabled = "NO">
+            isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
             argument = "1920x1080-LR"
@@ -92,6 +92,11 @@
          <EnvironmentVariable
             key = "PANOPATH"
             value = "/Users/rlk/Data/pan/"
+            isEnabled = "YES">
+         </EnvironmentVariable>
+         <EnvironmentVariable
+            key = "SDL_VIDEO_WINDOW_POS"
+            value = "0,0"
             isEnabled = "YES">
          </EnvironmentVariable>
       </EnvironmentVariables>

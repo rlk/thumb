@@ -37,7 +37,7 @@ static bool exists(const std::string& name)
 static void clear(GLuint t)
 {
     static const GLfloat p[] = { 0, 0, 0, 0 };
-        
+
     glBindTexture  (GL_TEXTURE_2D, t);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -71,12 +71,12 @@ static GLenum internal_form(uint16 c, uint16 b)
     if (b == 32)
         switch (c)
         {
-        case  1: return GL_R32F;
-        case  2: return GL_RG32F;
-        case  3: return GL_RGB32F;
-        default: return GL_RGBA32F;
+        case  1: return GL_LUMINANCE32F_ARB;
+        case  2: return GL_LUMINANCE_ALPHA32F_ARB;
+        case  3: return GL_RGB32F_ARB;
+        default: return GL_RGBA32F_ARB;
         }
-        
+
     return 0;
 }
 
@@ -164,15 +164,15 @@ void sph_task::dump_texture()
 void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
 {
     // Confirm the page format.
-    
+
     uint32 W, H;
     uint16 C, B;
-    
+
     TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &W);
     TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &H);
     TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &B);
     TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &C);
-    
+
     if (W == w && H == h && B == b && C == c)
     {
         // Pad a 24-bit image to 32-bit BGRA.
@@ -186,12 +186,12 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
                 for (uint32 r = 0; r < h; ++r)
                 {
                     TIFFReadScanline(T, q, r, 0);
-                    
+
                     for (int j = w - 1; j >= 0; --j)
                     {
                         uint8 *s = (uint8 *) q         + j * c * b / 8;
                         uint8 *d = (uint8 *) p + r * S + j * 4 * b / 8;
-                        
+
                         d[0] = s[2];
                         d[1] = s[1];
                         d[2] = s[0];
@@ -212,11 +212,11 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
 }
 
 // Construct a file table entry. Load the TIFF briefly to determine its format.
-    
+
 sph_file::sph_file(const std::string& tiff)
 {
     // If the given file name is absolute, use it.
-    
+
     if (exists(tiff))
         name = tiff;
 
@@ -227,7 +227,7 @@ sph_file::sph_file(const std::string& tiff)
         std::stringstream list(val);
         std::string       path;
         std::string       temp;
-        
+
         while (std::getline(list, path, ':'))
         {
             temp = path + "/" + tiff;
@@ -259,7 +259,7 @@ sph_file::sph_file(const std::string& tiff)
 sph_set::~sph_set()
 {
     std::map<sph_page, int>::iterator i;
-    
+
     for (i = m.begin(); i != m.end(); ++i)
         glDeleteTextures(1, &i->first.o);
 }
@@ -277,7 +277,7 @@ void sph_set::remove(sph_page page)
 sph_page sph_set::search(sph_page page, int t)
 {
     std::map<sph_page, int>::iterator i = m.find(page);
-    
+
     if (i != m.end())
     {
         sph_page p = i->first;
@@ -292,13 +292,13 @@ sph_page sph_set::search(sph_page page, int t)
 sph_page sph_set::eject(int t, int i)
 {
     assert(!m.empty());
-    
+
     // Determine the lowest priority and least-recently used pages.
-    
+
     std::map<sph_page, int>::iterator a = m.end();
     std::map<sph_page, int>::iterator l = m.end();
     std::map<sph_page, int>::iterator e;
-    
+
     for (e = m.begin(); e != m.end(); ++e)
 //      if (e->first.i > 5) // HACK
         {
@@ -368,7 +368,7 @@ void sph_set::draw()
                     glEnd();
                     i++;
                 }
-                
+
         glMatrixMode(GL_PROJECTION);
         glPopMatrix();
         glMatrixMode(GL_MODELVIEW);
@@ -383,9 +383,9 @@ sph_cache::sph_cache(int n) : pages(n), waits(n), needs(32), loads(8)
 {
     GLuint b;
     int    i;
-    
+
     // Launch the image loader threads.
-    
+
     int loader(void *data);
 
     thread[0] = SDL_CreateThread(loader, this);
@@ -394,7 +394,7 @@ sph_cache::sph_cache(int n) : pages(n), waits(n), needs(32), loads(8)
     thread[3] = SDL_CreateThread(loader, this);
 
     // Generate pixel buffer objects.
- 
+
     for (i = 0; i < 64; ++i)
     {
         glGenBuffers(1, &b);
@@ -402,7 +402,7 @@ sph_cache::sph_cache(int n) : pages(n), waits(n), needs(32), loads(8)
     }
 
     // Initialize the default filler texture.
-    
+
     glGenTextures(1, &filler);
     clear(filler);
 }
@@ -410,19 +410,19 @@ sph_cache::sph_cache(int n) : pages(n), waits(n), needs(32), loads(8)
 sph_cache::~sph_cache()
 {
     // Continue servicing the loads queue until the needs queue is emptied.
-    
+
     while (!needs.empty())
         update(0);
-    
+
     // Enqueue an exit command for each loader thread.
-    
+
     needs.insert(sph_task(-1, -1));
     needs.insert(sph_task(-2, -2));
     needs.insert(sph_task(-3, -3));
     needs.insert(sph_task(-4, -4));
-    
-    // Await their exit. 
-    
+
+    // Await their exit.
+
     int s;
 
     SDL_WaitThread(thread[0], &s);
@@ -431,13 +431,13 @@ sph_cache::~sph_cache()
     SDL_WaitThread(thread[3], &s);
 
     // Release the pixel buffer objects.
-    
+
     while (!pbos.empty())
     {
         glDeleteBuffers(1, &pbos.back());
         pbos.pop_back();
     }
-    
+
     // Release the default texture.
 
     glDeleteTextures(1, &filler);
@@ -459,7 +459,7 @@ static void debug_on(int l)
     };
     glPixelTransferf(GL_RED_SCALE,   color[l][0]);
     glPixelTransferf(GL_GREEN_SCALE, color[l][1]);
-    glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);                
+    glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);
 }
 
 //------------------------------------------------------------------------------
@@ -483,7 +483,7 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
     // If this page is waiting, return the filler.
 
     sph_page wait = waits.search(sph_page(f, i), t);
-    
+
     if (wait.valid())
     {
         n    = wait.t;
@@ -491,31 +491,31 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
     }
 
     // If this page is loaded, return the texture.
-    
+
     sph_page page = pages.search(sph_page(f, i), t);
-    
-    if (page.valid()) 
+
+    if (page.valid())
     {
         n    = page.t;
         return page.o;
     }
-    
+
     // Otherwise request the page and add it to the waiting set.
 
     if (!needs.full() && !pbos.empty())
     {
         GLuint o = 0;
-        
+
         if (pages.full())
             o = pages.eject(t, i).o;
         else
             glGenTextures(1, &o);
-            
+
         if (o)
         {
             needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
             waits.insert(sph_page(f, i, filler), t);
-            pages.insert(sph_page(f, i, o),      t);            
+            pages.insert(sph_page(f, i, o),      t);
             clear(o);
         }
     }
@@ -541,7 +541,7 @@ void sph_cache::update(int t)
                 page.t = t;
                 pages.remove(page);
                 pages.insert(page, t);
-                
+
                 if (debug)
                     debug_on(face_level(task.i));
 
@@ -610,7 +610,7 @@ static int dn(TIFF *T, int i)
 {
     uint64 *v;
     uint16  n;
-    
+
     if (TIFFGetField(T, TIFFTAG_SUBIFD, &n, &v))
     {
         if (n > 0 && v[i] > 0)
@@ -627,7 +627,7 @@ int loader(void *data)
 {
     sph_cache *cache = (sph_cache *) data;
     sph_task   task;
-    
+
     while ((task = cache->needs.remove()).f >= 0)
     {
         if (!cache->files[task.f].name.empty())
@@ -640,7 +640,7 @@ int loader(void *data)
                     uint32 h = cache->files[task.f].h;
                     uint16 c = cache->files[task.f].c;
                     uint16 b = cache->files[task.f].b;
-                
+
                     task.load_texture(T, w, h, c, b);
                     cache->loads.insert(task);
                 }

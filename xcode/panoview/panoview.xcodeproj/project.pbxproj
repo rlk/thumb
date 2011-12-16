@@ -100,6 +100,8 @@
 		58A1E09613CDF7CF00D0A598 /* WI-Capitol.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "WI-Capitol.xml"; path = "../../proj/panoview/data/pan/WI-Capitol.xml"; sourceTree = "<group>"; };
 		58A1E09713CDF7CF00D0A598 /* WID.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = WID.xml; path = ../../proj/panoview/data/pan/WID.xml; sourceTree = "<group>"; };
 		58A1E09813CDF7CF00D0A598 /* Wisconsin-Capitol-Dome-2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Wisconsin-Capitol-Dome-2.xml"; path = "../../proj/panoview/data/pan/Wisconsin-Capitol-Dome-2.xml"; sourceTree = "<group>"; };
+		58BF593313D0CF6300A92AFB /* BMNG.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = BMNG.xml; path = ../../proj/panoview/data/pan/BMNG.xml; sourceTree = "<group>"; };
+		58BF593413D0CF6300A92AFB /* Madison-State-Capitol-Dome-Mono.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Madison-State-Capitol-Dome-Mono.xml"; path = "../../proj/panoview/data/pan/Madison-State-Capitol-Dome-Mono.xml"; sourceTree = "<group>"; };
 		58DB38B013C7422600304D44 /* gui-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gui-loader.cpp"; path = "../../../proj/panoview/gui-loader.cpp"; sourceTree = "<group>"; };
 		58DB38B113C7422600304D44 /* gui-loader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "gui-loader.hpp"; path = "../../../proj/panoview/gui-loader.hpp"; sourceTree = "<group>"; };
 		58DB38B313C7445000304D44 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = /opt/local/lib/libfreetype.6.dylib; sourceTree = "<absolute>"; };
@@ -161,6 +163,8 @@
 		58A1E09913CDF80F00D0A598 /* Panoramas */ = {
 			isa = PBXGroup;
 			children = (
+				58BF593313D0CF6300A92AFB /* BMNG.xml */,
+				58BF593413D0CF6300A92AFB /* Madison-State-Capitol-Dome-Mono.xml */,
 				58A1E07513CDF7CC00D0A598 /* Al-Diwan.xml */,
 				58A1E07613CDF7CC00D0A598 /* Back-Yard.xml */,
 				58A1E07713CDF7CC00D0A598 /* Bowl3-Panorama.xml */,
