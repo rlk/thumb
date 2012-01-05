@@ -14,6 +14,7 @@
 #define OGL_TERRAIN_HPP
 
 #include <string>
+#include <cstdint>
 
 #include <ogl-opengl.hpp>
 #include <ogl-range.hpp>

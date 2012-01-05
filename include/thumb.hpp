@@ -14,6 +14,15 @@
 #define THUMB_HPP
 
 //-----------------------------------------------------------------------------
+/*
+#ifdef _WINDLL
+#define THUMB_DLL __declspec(dllexport)
+#else
+#define THUMB_DLL __declspec(dllimport)
+#endif
+*/
+
+//-----------------------------------------------------------------------------
 
 /// \mainpage Thumb
 ///

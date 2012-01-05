@@ -34,6 +34,14 @@
 #define RAD(d) (PI * (d) / 180.0)
 #endif
 
+#ifndef SQRT2
+#define SQRT2 1.41421356237309504880168872421
+#endif
+
+#ifdef WIN32
+#define drand48() (double(rand() / RAND_MAX))
+#endif
+
 /*---------------------------------------------------------------------------*/
 
 #define DOT3(v, w) ((v)[0] * (w)[0] + \

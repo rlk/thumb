@@ -74,8 +74,8 @@ void ogl::image::free(GLenum unit) const
 
 void ogl::image::draw() const
 {
-    GLfloat s = (target == GL_TEXTURE_RECTANGLE) ? w : 1.0;
-    GLfloat t = (target == GL_TEXTURE_RECTANGLE) ? h : 1.0;
+    GLfloat s = (target == GL_TEXTURE_RECTANGLE) ? w : 1.f;
+    GLfloat t = (target == GL_TEXTURE_RECTANGLE) ? h : 1.f;
 
     glPushAttrib(GL_ENABLE_BIT);
     {

@@ -51,9 +51,9 @@ void ogl::mesh::apply_offset(const double *d)
 {
     for (vec3_v::iterator i = vv.begin(); i != vv.end(); ++i)
     {
-        i->v[0] += d[0];
-        i->v[1] += d[1];
-        i->v[2] += d[2];
+        i->v[0] += GLfloat(d[0]);
+        i->v[1] += GLfloat(d[1]);
+        i->v[2] += GLfloat(d[2]);
     }
 }
 

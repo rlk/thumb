@@ -28,28 +28,28 @@ ogl::uniform::~uniform()
 
 void ogl::uniform::set(double a)
 {
-    val[0] = a;
+    val[0] = GLfloat(a);
 }
 
 void ogl::uniform::set(double a, double b)
 {
-    val[0] = a;
-    val[1] = b;
+    val[0] = GLfloat(a);
+    val[1] = GLfloat(b);
 }
 
 void ogl::uniform::set(double a, double b, double c)
 {
-    val[0] = a;
-    val[1] = b;
-    val[2] = c;
+    val[0] = GLfloat(a);
+    val[1] = GLfloat(b);
+    val[2] = GLfloat(c);
 }
 
 void ogl::uniform::set(double a, double b, double c, double d)
 {
-    val[0] = a;
-    val[1] = b;
-    val[2] = c;
-    val[3] = d;
+    val[0] = GLfloat(a);
+    val[1] = GLfloat(b);
+    val[2] = GLfloat(c);
+    val[3] = GLfloat(d);
 }
 
 void ogl::uniform::set(const double *p)

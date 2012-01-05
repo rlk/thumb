@@ -50,7 +50,7 @@ static void sync(int interval)
 
     if ((_wglSwapInvervalEXT = (PFNWGLSWAPINTERVALEXTPROC)
           wglGetProcAddress("wglSwapIntervalEXT")))
-         _wglSwapInverval(interval);
+         _wglSwapInvervalEXT(interval);
 }
 
 #endif
@@ -98,17 +98,17 @@ static void init_opt()
 
     // Query GL capabilities.
 
-    ogl::has_depth_stencil = glewIsSupported("GL_EXT_packed_depth_stencil");
-    ogl::has_multitexture  = glewIsSupported("GL_multitexture");
-    ogl::has_multisample   = glewIsSupported("GL_multisample");
-    ogl::has_anisotropic   = glewIsSupported("GL_EXT_texture_filter_anisotropic");
-    ogl::has_glsl          = glewIsSupported("GL_shader_objects");
-    ogl::has_glsl         &= glewIsSupported("GL_vertex_shader");
-    ogl::has_glsl         &= glewIsSupported("GL_fragment_shader");
-    ogl::has_s3tc          = glewIsSupported("GL_EXT_texture_compression_s3tc");
-    ogl::has_fbo           = glewIsSupported("GL_EXT_framebuffer_object");
-    ogl::has_vbo           = glewIsSupported("GL_vertex_buffer_object");
-    ogl::has_dre           = glewIsSupported("GL_EXT_draw_range_elements");
+    ogl::has_depth_stencil = (glewIsSupported("GL_EXT_packed_depth_stencil")       == GL_TRUE);
+    ogl::has_multitexture  = (glewIsSupported("GL_multitexture")                   == GL_TRUE);
+    ogl::has_multisample   = (glewIsSupported("GL_multisample")                    == GL_TRUE);
+    ogl::has_anisotropic   = (glewIsSupported("GL_EXT_texture_filter_anisotropic") == GL_TRUE);
+    ogl::has_glsl          = (glewIsSupported("GL_shader_objects")                 == GL_TRUE);
+    ogl::has_glsl         &= (glewIsSupported("GL_vertex_shader")                  == GL_TRUE);
+    ogl::has_glsl         &= (glewIsSupported("GL_fragment_shader")                == GL_TRUE);
+    ogl::has_s3tc          = (glewIsSupported("GL_EXT_texture_compression_s3tc")   == GL_TRUE);
+    ogl::has_fbo           = (glewIsSupported("GL_EXT_framebuffer_object")         == GL_TRUE);
+    ogl::has_vbo           = (glewIsSupported("GL_vertex_buffer_object")           == GL_TRUE);
+    ogl::has_dre           = (glewIsSupported("GL_EXT_draw_range_elements")        == GL_TRUE);
 
     // Configuration options
 
@@ -139,13 +139,13 @@ static void init_opt()
 
             // HDR
 
-            ogl::do_hdr_tonemap = ::conf->get_i("hdr_tonemap");
-            ogl::do_hdr_bloom   = ::conf->get_i("hdr_bloom");
+            ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap") != 0);
+            ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom")   != 0);
         }
 
         // Z-only pass
 
-        ogl::do_z_only = ::conf->get_i("z_only");
+        ogl::do_z_only = (::conf->get_i("z_only") != 0);
     }
 
     // Set vertical blanking synchronization state.

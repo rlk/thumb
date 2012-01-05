@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef GUI_LOADER_HPP
-#define GUI_LOADER_HPP
+#ifndef PANOVIEW_PANOLOAD_HPP
+#define PANOVIEW_PANOLOAD_HPP
 
 #include <gui-gui.hpp>
 
@@ -19,11 +19,11 @@
 
 class panoview;
 
-class loader : public gui::dialog
+class panoload : public gui::dialog
 {
 public:
 
-    loader(panoview *, int, int);
+    panoload(panoview *, int, int);
 };
 
 //------------------------------------------------------------------------------

@@ -127,7 +127,7 @@ bool dev::gamepad::process_tick(app::event *E)
     const bool   bz = (fabs(rotate[2]) > 0.25);
     const bool   bt = (fabs(rotate[3]) > 0.25);
 
-    const bool   bp = DOT3(motion, motion);
+    const bool   bp = (DOT3(motion, motion) != 0);
     const bool   br = bx || by || bz;
 
     if (bp) ::user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);

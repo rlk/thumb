@@ -12,7 +12,9 @@
 
 #include <SDL.h>
 #include <cstring>
+#include <algorithm>
 
+#include <etc-socket.hpp>
 #include <etc-math.hpp>
 #include <app-default.hpp>
 #include <ogl-range.hpp>
@@ -203,8 +205,8 @@ void app::host::poll_listen(bool wait)
 
 void app::host::fini_listen()
 {
-    if (client_cd != INVALID_SOCKET) ::close(client_cd);
-    if (script_cd != INVALID_SOCKET) ::close(script_cd);
+    if (client_cd != INVALID_SOCKET) _close(client_cd);
+    if (script_cd != INVALID_SOCKET) _close(script_cd);
 
     client_cd = INVALID_SOCKET;
     script_cd = INVALID_SOCKET;
@@ -224,7 +226,7 @@ void app::host::poll_script()
     for (SOCKET_i i = script_sd.begin(); i != script_sd.end(); ++i)
     {
         FD_SET(*i, &fds);
-        m = std::max(m, *i);
+        m = std::max<int>(m, *i);
     }
 
     // Check for activity on all sockets.
@@ -251,7 +253,7 @@ void app::host::poll_script()
                 {
                     char *obuf, ibuf[256];
 
-                    ssize_t size;
+                    int size;
 
                     memset(ibuf, 0, 256);
 
@@ -260,7 +262,7 @@ void app::host::poll_script()
                     if ((size = ::recv(*i, ibuf, 256, 0)) <= 0)
                     {
                         printf("script socket disconnected\n");
-                        ::close(*i);
+                        _close(*i);
                         script_sd.erase(i);
                     }
                     else
@@ -337,7 +339,7 @@ void app::host::init_server(app::node p)
 void app::host::fini_server()
 {
     if (server_sd != INVALID_SOCKET)
-        ::close(server_sd);
+        _close(server_sd);
 
     server_sd = INVALID_SOCKET;
 }
@@ -372,7 +374,7 @@ void app::host::fini_client()
 
         // Close the socket.
 
-        ::close(sd);
+        _close(sd);
 
         client_sd.pop_front();
     }
@@ -392,7 +394,7 @@ void app::host::fini_script()
 
         // Close the socket.
 
-        ::close(sd);
+        _close(sd);
 
         script_sd.pop_front();
     }
@@ -699,8 +701,10 @@ void app::host::root_loop()
         {
             // Check for script input events.
 
+#ifndef _WIN32 // HACK
             poll_script();
             poll_listen(false);
+#endif
 
             // Advance to the current time, or by one JIFFY when benchmarking.
 

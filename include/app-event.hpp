@@ -15,6 +15,7 @@
 
 #include <string>
 #include <cstring>
+#include <cstdint>
 #include <errno.h>
 #include <stdexcept>
 
@@ -51,7 +52,11 @@ namespace app
     class host_error : public std::runtime_error
     {
         std::string mesg(const std::string& s) {
+#ifdef WIN32
+			return s + ": " + "Host error";
+#else
             return s + ": " + hstrerror(h_errno);
+#endif
         }
 
     public:

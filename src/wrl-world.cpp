@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <algorithm>
+#include <iterator>
 
 #include <etc-ode.hpp>
 #include <etc-math.hpp>

@@ -935,7 +935,7 @@ bool app::frustum::pointer_to_3D(event *E, int x, int y) const
 
     // Convert the pointer space basis matrix to a quaternion.
 
-    double q[3];
+    double q[4];
 
     mat_to_quat(q, B);
 

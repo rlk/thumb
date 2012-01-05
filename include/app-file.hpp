@@ -37,7 +37,7 @@ namespace app
         node(const std::string&);
         node(struct mxml_node_s * = 0);
 
-        operator bool() const { return ptr; }
+        operator bool() const { return (ptr != NULL); }
 
         void dirty();
         void clean();

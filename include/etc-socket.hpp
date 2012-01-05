@@ -22,9 +22,9 @@
 #include <io.h>
 #include <winsock2.h>
 
-typedef int socklen_t;
+typedef int   socklen_t;
+typedef ULONG in_addr_t;
 
-#define ECONNREFUSED WSAECONNREFUSED
 #define sock_errno   WSAGetLastError()
 #define usleep(t)    Sleep(t)
 

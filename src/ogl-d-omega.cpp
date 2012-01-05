@@ -85,7 +85,7 @@ void ogl::d_omega::fill(float *p, const double *a,
             normalize(C);
             normalize(D);
 
-            p[k] = float(angle(D, C, B, A) / (4.0 * M_PI));
+            p[k] = float(angle(D, C, B, A) / (4.0 * PI));
         }
 }
 

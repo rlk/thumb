@@ -49,7 +49,7 @@ public:
 
 //------------------------------------------------------------------------------
 
-loader::loader(panoview *P, int w, int h)
+panoload::panoload(panoview *P, int w, int h)
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("pan", ".xml", E);

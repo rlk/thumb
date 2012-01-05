@@ -372,13 +372,13 @@ void panoview::gui_init()
     int w = overlay ? overlay->get_pixel_w() : ::host->get_buffer_w();
     int h = overlay ? overlay->get_pixel_h() : ::host->get_buffer_h();
 
-    gui = new loader(this, w, h);
+    ui = new panoload(this, w, h);
     gui_state = true;
 }
 
 void panoview::gui_free()
 {
-    delete gui;
+    delete ui;
 }
 
 void panoview::gui_draw()
@@ -391,7 +391,7 @@ void panoview::gui_draw()
             {
                 overlay->draw();
                 overlay->overlay();
-                gui->draw();
+                ui->draw();
             }
             glDisable(GL_DEPTH_CLAMP_NV);
         }
@@ -408,7 +408,7 @@ bool panoview::gui_point(app::event *E)
             int y;
             
             overlay->pointer_to_2D(E, x, y);
-            gui->point(x, y);
+            ui->point(x, y);
             
             return true;
         }
@@ -420,8 +420,8 @@ bool panoview::gui_click(app::event *E)
 {
     if (gui_state)
     {
-        gui->click(E->data.click.m,
-                   E->data.click.d);
+        ui->click(E->data.click.m,
+                  E->data.click.d);
         return true;
     }
     return false;
@@ -444,9 +444,9 @@ bool panoview::gui_key(app::event *E)
             if (E->data.key.k == 282)
                 gui_state = !gui_state;
             else
-                gui->key(E->data.key.c,
-                         E->data.key.k,
-                         E->data.key.m);
+                ui->key(E->data.key.c,
+                        E->data.key.k,
+                        E->data.key.m);
         }
         return true;
     }

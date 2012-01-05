@@ -141,10 +141,10 @@ namespace app
 
         void set_head(const double *, const double *);
 
-        bool get_movie_mode() const { return movie; }
-        void set_movie_mode(int i)  { movie = i;    }
-        bool get_bench_mode() const { return bench; }
-        void set_bench_mode(int i)  { bench = i;    }
+        bool get_movie_mode() const { return (movie != 0); }
+        void set_movie_mode(int i)  { movie = i; }
+        bool get_bench_mode() const { return (bench != 0); }
+        void set_bench_mode(int i)  { bench = i; }
 
         void post_draw() { draw_flag = true; }
         void post_exit() { exit_flag = true; }

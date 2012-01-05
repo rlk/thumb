@@ -52,6 +52,8 @@ static bool dir_make(std::string& dir)
 #else // _WIN32
 
 #include <windows.h>
+#include <tchar.h>
+#include <stdio.h>
 
 static HANDLE          H = INVALID_HANDLE_VALUE;
 static WIN32_FIND_DATA D;

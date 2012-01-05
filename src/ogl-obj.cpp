@@ -11,7 +11,6 @@
 //  General Public License for more details.
 
 #include <cstdlib>
-#include <sys/time.h>
 
 #include <ogl-obj.hpp>
 #include <ogl-aabb.hpp>
@@ -247,9 +246,9 @@ const char *obj::obj::read_v(const char *p)
 
     while (token_v(p))
     {
-        v.v[0] = scale * strtof(p + 1, &q); p = q;
-        v.v[1] = scale * strtof(p,     &q); p = q;
-        v.v[2] = scale * strtof(p,     &q); p = scannl(q);
+        v.v[0] = GLfloat(scale * strtod(p + 1, &q)); p = q;
+        v.v[1] = GLfloat(scale * strtod(p,     &q)); p = q;
+        v.v[2] = GLfloat(scale * strtod(p,     &q)); p = scannl(q);
 
         vv.push_back( v);
         ii.push_back(-1);
@@ -267,8 +266,8 @@ const char *obj::obj::read_vt(const char *p)
 
     while (token_vt(p))
     {
-        v.v[0] = strtof(p + 2, &q); p = q;
-        v.v[1] = strtof(p,     &q); p = scannl(q);
+        v.v[0] = GLfloat(strtod(p + 2, &q)); p = q;
+        v.v[1] = GLfloat(strtod(p,     &q)); p = scannl(q);
 
         sv.push_back(v);
     }
@@ -285,9 +284,9 @@ const char *obj::obj::read_vn(const char *p)
 
     while (token_vn(p))
     {
-        v.v[0] = strtof(p + 2, &q); p = q;
-        v.v[1] = strtof(p,     &q); p = q;
-        v.v[2] = strtof(p,     &q); p = scannl(q);
+        v.v[0] = GLfloat(strtod(p + 2, &q)); p = q;
+        v.v[1] = GLfloat(strtod(p,     &q)); p = q;
+        v.v[2] = GLfloat(strtod(p,     &q)); p = scannl(q);
 
         nv.push_back(v);
     }
@@ -369,9 +368,6 @@ const char *obj::obj::read_l(const char *p)
 
 obj::obj::obj(std::string name, bool c) : scale(1)
 {
-    struct timeval t0;
-    struct timeval t1;
-
     // Reserving the vector caches gives only about about 2% improvement.
 /*
     vv.reserve(1024 * 1024);
@@ -386,8 +382,6 @@ obj::obj::obj(std::string name, bool c) : scale(1)
     {
         // Process data until the end of the file is reached.
 
-        gettimeofday(&t0, 0);
-
         while (*p)
         {
             if      (token_c  (p)) p = read_c  (p);
@@ -399,14 +393,9 @@ obj::obj::obj(std::string name, bool c) : scale(1)
             else if (token_use(p)) p = read_use(p);
             else                   p = scannl(p);
         }
-
-        gettimeofday(&t1, 0);
     }
-/*
-    printf("%s %f\n", name.c_str(), (double(t1.tv_sec  - t0.tv_sec) + 
-                                     double(t1.tv_usec - t0.tv_usec) * 0.000001));
-*/
-    // Release the cached data.
+
+	// Release the cached data.
 
     vv.clear();
     sv.clear();

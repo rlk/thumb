@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include <thumb.hpp>
 #include <app-font.hpp>
 #include <etc-rect.hpp>
 

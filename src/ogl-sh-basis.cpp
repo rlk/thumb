@@ -22,7 +22,7 @@
 ogl::sh_basis::sh_basis(const std::string& name, int i) :
     cubelut(name, ::conf->get_i("reflection_cubemap_size", 128)),
 
-    l(int(sqrt(i))),
+    l(int(sqrt(double(i)))),
     m(i - l - l * l)
 {
     init();
@@ -79,8 +79,8 @@ static double factorial(int i)
 
 static double K(int l, int m)
 {
-    const double n = (2 * l + 1)  * factorial(l - m);
-    const double d = (4.0 * M_PI) * factorial(l + m);
+    const double n = (2 * l + 1) * factorial(l - m);
+    const double d =  (4.0 * PI) * factorial(l + m);
 
     return sqrt(n / d);
 }
@@ -140,8 +140,8 @@ static double Y(int l, int m, double x, double y, double z)
 
     const double phi = atan2(-z, -x);
 
-    if (m > 0.0f) return M_SQRT2 * K(l, +m) * cos(+m * phi) * P(l, +m, y);
-    if (m < 0.0f) return M_SQRT2 * K(l, -m) * sin(-m * phi) * P(l, -m, y);
+    if (m > 0.0f) return SQRT2 * K(l, +m) * cos(+m * phi) * P(l, +m, y);
+    if (m < 0.0f) return SQRT2 * K(l, -m) * sin(-m * phi) * P(l, -m, y);
 
     return K(l, 0) * P(l, 0, y);
 }

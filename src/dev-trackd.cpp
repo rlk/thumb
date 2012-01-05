@@ -23,6 +23,7 @@
 //=============================================================================
 // TRACKD shared memory protocol implementation
 
+#include <cstdint>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
@@ -34,9 +35,7 @@
 #endif
 
 #ifdef _WIN32
-#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-typedef unsigned int uint32_t;
 #endif
 
 #ifdef __APPLE__
@@ -330,7 +329,7 @@ static bool tracker_button(int id, bool& b)
 
                 // Return button ID.
 
-                b = bool(p[id]);
+                b = (p[id] != 0);
 
                 return true;
             }

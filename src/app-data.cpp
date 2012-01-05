@@ -19,6 +19,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <fcntl.h>
+#include <io.h>
 
 #include <app-default.hpp>
 #include <app-data.hpp>
@@ -58,7 +59,7 @@ app::file_buffer::file_buffer(std::string name)
     if ((fd = open(name.c_str(), O_RDONLY)) == -1)
         throw open_error(name);
 #else
-    if ((fd = open(name.c_str(), O_RDONLY | O_BINARY)) == -1)
+    if ((fd = _open(name.c_str(), O_RDONLY | O_BINARY)) == -1)
         throw open_error(name);
 #endif
 
@@ -72,14 +73,14 @@ app::file_buffer::file_buffer(std::string name)
 
     // Read all data.
 
-    if (read(fd, ptr, len) < (ssize_t) len)
+    if (_read(fd, ptr, len) < (int) len)
         throw read_error(name);
 
     // Null-terminate.  (This will be a problem if we mmap.)
 
     ptr[len] = 0;
 
-    close(fd);
+    _close(fd);
 }
 
 bool app::file_archive::find(std::string name) const
@@ -117,15 +118,15 @@ bool app::file_archive::save(std::string name,
 
         // Open the named file for writing.
 
-        if ((fd = open(curr.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666)) ==-1)
+        if ((fd = _open(curr.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666)) ==-1)
             throw open_error(name);
 
         // Write all data.
 
-        if (write(fd, ptr, count) < (ssize_t) count)
+        if (_write(fd, ptr, count) < (int) count)
             throw write_error(name);
 
-        close(fd);
+        _close(fd);
 
         return true;
     }

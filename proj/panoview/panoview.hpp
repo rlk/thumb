@@ -75,7 +75,7 @@ private:
 
     // GUI State
 
-    loader *gui;
+    panoload *ui;
     
     bool gui_state;
     void gui_init();

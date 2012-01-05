@@ -371,9 +371,10 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
 
     glUseProgram(program);
     {
-        glUniform1f(glGetUniformLocation(program, "zoomk"), zoomk);
-        glUniform3f(glGetUniformLocation(program, "zoomv"),
-                    zoomv[0], zoomv[1], zoomv[2]);
+        glUniform1f(glGetUniformLocation(program, "zoomk"), GLfloat(zoomk));
+        glUniform3f(glGetUniformLocation(program, "zoomv"), GLfloat(zoomv[0]),
+														    GLfloat(zoomv[1]),
+															GLfloat(zoomv[2]));
 
         for (int i = 0; i < 6; ++i)
         {
@@ -475,7 +476,7 @@ void sph_model::set_fade(double k)
 {
     double t = k * k * (3.0 - 2.0 * k);
     glUseProgram(program);
-    glUniform1f(fader, t);
+    glUniform1f(fader, GLfloat(t));
 }
 
 static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
