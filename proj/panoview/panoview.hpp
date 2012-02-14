@@ -29,7 +29,7 @@ public:
 
     void add(int f) { file.push_back(f);            }
     int  get(int i) { return file[i % file.size()]; }
-    
+
 private:
 
     std::vector<int> file;
@@ -47,12 +47,12 @@ public:
     ogl::range prep(int, const app::frustum * const *);
     void       lite(int, const app::frustum * const *);
     void       draw(int, const app::frustum *, int);
-    
+
     virtual bool process_event(app::event *);
-    
+
     void load(const std::string&);
     void cancel();
-    
+
 private:
 
     // Rendering state
@@ -68,6 +68,8 @@ private:
     double etime;
     double  height;
     double  radius;
+    double  min_zoom;
+    double  max_zoom;
 
     bool debug_zoom;
     bool debug_cache;
@@ -76,7 +78,7 @@ private:
     // GUI State
 
     panoload *ui;
-    
+
     bool gui_state;
     void gui_init();
     void gui_free();
@@ -87,7 +89,7 @@ private:
     bool gui_key  (app::event *);
 
     // Interaction state
-    
+
     bool   drag_state;
     int    drag_x;
     int    drag_y;
