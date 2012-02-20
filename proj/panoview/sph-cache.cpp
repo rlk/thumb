@@ -50,7 +50,7 @@ static void clear(GLuint t)
 // Select an OpenGL internal texture format for an image with c channels and
 // b bits per channel.
 
-static GLenum internal_form(uint16 c, uint16 b)
+static GLenum internal_form(uint16 c, uint16 b, uint16 g)
 {
     if (b == 8)
         switch (c)
@@ -82,7 +82,7 @@ static GLenum internal_form(uint16 c, uint16 b)
 
 // Select an OpenGL external texture format for an image with c channels.
 
-static GLenum external_form(uint16 c, uint16 b)
+static GLenum external_form(uint16 c, uint16 b, uint16 g)
 {
     if (b == 8)
         switch (c)
@@ -104,13 +104,13 @@ static GLenum external_form(uint16 c, uint16 b)
 
 // Select an OpenGL data type for an image with c channels of b bits.
 
-static GLenum external_type(uint16 c, uint16 b)
+static GLenum external_type(uint16 c, uint16 b, uint16 g)
 {
     if (b ==  8 && c == 3) return GL_UNSIGNED_INT_8_8_8_8_REV; // *
     if (b ==  8 && c == 4) return GL_UNSIGNED_INT_8_8_8_8_REV;
 
-    if (b ==  8) return GL_UNSIGNED_BYTE;
-    if (b == 16) return GL_UNSIGNED_SHORT;
+    if (b ==  8) return /*(g == 2) ? GL_BYTE  :*/ GL_UNSIGNED_BYTE;
+    if (b == 16) return /*(g == 2) ? GL_SHORT :*/ GL_UNSIGNED_SHORT;
     if (b == 32) return GL_FLOAT;
 
     return 0;
@@ -134,16 +134,17 @@ sph_task::sph_task(int f, int i, GLuint u, GLsizei s) : sph_item(f, i), u(u)
 
 // Upload the pixel buffer to a newly-generated OpenGL texture object.
 
-void sph_task::make_texture(GLuint o, uint32 w, uint32 h, uint16 c, uint16 b)
+void sph_task::make_texture(GLuint o, uint32 w, uint32 h,
+                                      uint16 c, uint16 b, uint16 g)
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 
         glBindTexture(GL_TEXTURE_2D, o);
-        glTexImage2D (GL_TEXTURE_2D, 0, internal_form(c, b), w, h, 1,
-                                        external_form(c, b),
-                                        external_type(c, b), 0);
+        glTexImage2D (GL_TEXTURE_2D, 0, internal_form(c, b, g), w, h, 1,
+                                        external_form(c, b, g),
+                                        external_type(c, b, g), 0);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
@@ -161,19 +162,21 @@ void sph_task::dump_texture()
 
 // Load the current TIFF directory into a newly-allocated pixel buffer.
 
-void sph_task::load_texture(TIFF *T, uint32 w, uint32 h, uint16 c, uint16 b)
+void sph_task::load_texture(TIFF *T, uint32 w, uint32 h,
+                                     uint16 c, uint16 b, uint16 g)
 {
     // Confirm the page format.
 
     uint32 W, H;
-    uint16 C, B;
+    uint16 C, B, G;
 
     TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &W);
     TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &H);
     TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &B);
     TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &C);
+    TIFFGetField(T, TIFFTAG_SAMPLEFORMAT,    &G);
 
-    if (W == w && H == h && B == b && C == c)
+    if (W == w && H == h && B == b && C == c && G == g)
     {
         // Pad a 24-bit image to 32-bit BGRA.
 
@@ -248,6 +251,7 @@ sph_file::sph_file(const std::string& tiff)
             TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &h);
             TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
             TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
+            TIFFGetField(T, TIFFTAG_SAMPLEFORMAT,    &g);
 
             TIFFClose(T);
         }
@@ -447,6 +451,7 @@ sph_cache::~sph_cache()
 
 static void debug_on(int l)
 {
+    /*
     static const GLfloat color[][3] = {
         { 1.0f, 0.0f, 0.0f },
         { 1.0f, 1.0f, 0.0f },
@@ -460,6 +465,13 @@ static void debug_on(int l)
     glPixelTransferf(GL_RED_SCALE,   color[l][0]);
     glPixelTransferf(GL_GREEN_SCALE, color[l][1]);
     glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);
+    */
+
+    static const GLfloat color[3] = { 2.0f, 2.0f, 2.0f };
+
+    glPixelTransferf(GL_RED_SCALE,   color[0]);
+    glPixelTransferf(GL_GREEN_SCALE, color[1]);
+    glPixelTransferf(GL_BLUE_SCALE,  color[2]);
 }
 
 //------------------------------------------------------------------------------
@@ -546,7 +558,8 @@ void sph_cache::update(int t)
                     debug_on(face_level(task.i));
 
                 task.make_texture(page.o, files[task.f].w, files[task.f].h,
-                                          files[task.f].c, files[task.f].b);
+                                          files[task.f].c, files[task.f].b,
+                                          files[task.f].g);
             }
             else
                 task.dump_texture();
@@ -640,8 +653,9 @@ int loader(void *data)
                     uint32 h = cache->files[task.f].h;
                     uint16 c = cache->files[task.f].c;
                     uint16 b = cache->files[task.f].b;
+                    uint16 g = cache->files[task.f].g;
 
-                    task.load_texture(T, w, h, c, b);
+                    task.load_texture(T, w, h, c, b, g);
                     cache->loads.insert(task);
                 }
                 TIFFClose(T);

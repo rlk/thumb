@@ -34,7 +34,7 @@ public:
     void enq(T p) {
         this->push_back(p);
     }
-    
+
     T deq() {
         T p = this->front();
         this->pop_front();
@@ -51,9 +51,9 @@ struct sph_item
 
     int f;
     int i;
-    
+
     bool valid() const { return (f >= 0 && i >= 0); }
-    
+
     bool operator<(const sph_item& that) const {
         if (i == that.i)
             return f < that.f;
@@ -82,12 +82,12 @@ struct sph_task : public sph_item
     sph_task()             : sph_item(    ), u(0), p(0) { }
     sph_task(int f, int i) : sph_item(i, f), u(0), p(0) { }
     sph_task(int f, int i, GLuint u, GLsizei s);
-    
+
     GLuint u;
     void  *p;
-    
-    void make_texture(GLuint, uint32, uint32, uint16, uint16);
-    void load_texture(TIFF *, uint32, uint32, uint16, uint16);
+
+    void make_texture(GLuint, uint32, uint32, uint16, uint16, uint16);
+    void load_texture(TIFF *, uint32, uint32, uint16, uint16, uint16);
     void dump_texture();
 };
 
@@ -96,10 +96,10 @@ struct sph_task : public sph_item
 struct sph_file
 {
     sph_file(const std::string& name);
-    
+
     std::string name;
     uint32 w, h;
-    uint16 c, b;
+    uint16 c, b, g;
 };
 
 //------------------------------------------------------------------------------
@@ -110,7 +110,7 @@ public:
 
     sph_set(int size) : size(size) { }
    ~sph_set();
-   
+
     int  count()  const { return int(m.size()); }
     bool full()  const { return (count() >= size); }
     bool empty() const { return (m.empty()); }
@@ -121,7 +121,7 @@ public:
 
     sph_page  eject(int, int);
     void      draw();
-    
+
 private:
 
     std::map<sph_page, int> m;
@@ -141,11 +141,11 @@ public:
     int    add_file(const std::string&);
     GLuint get_page(int, int, int, int&);
     GLuint get_fill() { return filler; }
-    
+
     void update(int);
     void flush();
     void draw();
-    
+
     void set_debug(bool b) { debug = b; }
 
 private:
@@ -154,18 +154,18 @@ private:
 
     sph_set pages;
     sph_set waits;
-    
+
     queue<sph_task> needs;
     queue<sph_task> loads;
 
     fifo<GLuint> pbos;
-        
+
     GLsizei pagelen(int);
     GLuint  filler;
     bool    debug;
-    
+
     SDL_Thread *thread[4];
-    
+
     friend int loader(void *);
 };
 
