@@ -14,7 +14,7 @@
 #define OGL_TERRAIN_HPP
 
 #include <string>
-#include <cstdint>
+#include <stdint.h>
 
 #include <ogl-opengl.hpp>
 #include <ogl-range.hpp>
@@ -71,35 +71,35 @@ namespace ogl
                            int16_t, int16_t, uint32_t);
 
         bool  page_test(int, const double *) const;
-        void  page_sub0(int, int, int, int, int, 
+        void  page_sub0(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  page_sub1(int, int, int, int, int, 
+        void  page_sub1(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  page_sub2(int, int, int, int, int, 
+        void  page_sub2(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  page_sub3(int, int, int, int, int, 
+        void  page_sub3(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  page_subn(int, int, int, int, int, 
+        void  page_subn(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  page_subs(int, int, int, int, int, 
+        void  page_subs(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  page_draw(int, int, int, int, int, 
+        void  page_draw(int, int, int, int, int,
                         const double *, const double *, int) const;
 
         bool  gras_test(int, const double *) const;
-        void  gras_sub0(int, int, int, int, int, 
+        void  gras_sub0(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  gras_sub1(int, int, int, int, int, 
+        void  gras_sub1(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  gras_sub2(int, int, int, int, int, 
+        void  gras_sub2(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  gras_sub3(int, int, int, int, int, 
+        void  gras_sub3(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  gras_subn(int, int, int, int, int, 
+        void  gras_subn(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  gras_subs(int, int, int, int, int, 
+        void  gras_subs(int, int, int, int, int,
                         const double *, const double *, int) const;
-        void  gras_draw(int, int, int, int, int, 
+        void  gras_draw(int, int, int, int, int,
                         const double *, const double *, int) const;
 
     public:

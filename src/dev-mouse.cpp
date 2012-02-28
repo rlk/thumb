@@ -54,7 +54,7 @@ dev::mouse::~mouse()
 
 bool dev::mouse::process_point(app::event *E)
 {
-    load_mat(init_R, curr_R);    
+    load_mat(init_R, curr_R);
 
     quat_to_mat(curr_R, E->data.point.q);
 
@@ -85,7 +85,7 @@ bool dev::mouse::process_point(app::event *E)
     load_mat(init_R, curr_R);
 
     quat_to_mat(curr_R, E->data.point.q);
-    
+
     if (dragging)
     {
         double p0 = DEG(atan2(init_R[9], init_R[10]));
@@ -94,7 +94,10 @@ bool dev::mouse::process_point(app::event *E)
         double t0 = DEG(atan2(init_R[8], init_R[10]));
         double t1 = DEG(atan2(curr_R[8], curr_R[10]));
 
-        ::user->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
+        if (modifier & KMOD_SHIFT)
+            ::user->look((t1 - t0) * 0.1, (p0 - p1) * 0.1);
+        else
+            ::user->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
 
         ::host->post_draw();
         return true;
@@ -171,7 +174,7 @@ bool dev::mouse::process_key(app::event *E)
     else if (k == SDLK_KP8) { p[1] = d ? +s : 0; ::host->set_head(p, q); }
     else if (k == SDLK_KP5) { p[2] = d ? -s : 0; ::host->set_head(p, q); }
     else if (k == SDLK_KP0) { p[2] = d ? +s : 0; ::host->set_head(p, q); }
-    
+
     // Teleport home.
 
     else if (d)

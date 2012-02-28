@@ -23,7 +23,6 @@
 //=============================================================================
 // TRACKD shared memory protocol implementation
 
-#include <cstdint>
 #include <cstring>
 #include <cstdlib>
 #include <cstdio>
@@ -36,6 +35,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include <cstdint>
 #endif
 
 #ifdef __APPLE__
@@ -493,7 +493,7 @@ bool dev::trackd::process_tick(app::event *E)
         dP[0] = curr_P[ 0] - init_P[ 0];
         dP[1] = curr_P[ 1] - init_P[ 1];
         dP[2] = curr_P[ 2] - init_P[ 2];
-        
+
         dy[0] = init_R[ 4] - curr_R[ 4];
         dy[1] = init_R[ 5] - curr_R[ 5];
         dy[2] = init_R[ 6] - curr_R[ 6];

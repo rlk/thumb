@@ -15,7 +15,7 @@
 
 #include <string>
 #include <cstring>
-#include <cstdint>
+#include <stdint.h>
 #include <errno.h>
 #include <stdexcept>
 

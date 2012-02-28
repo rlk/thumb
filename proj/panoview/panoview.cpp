@@ -305,6 +305,7 @@ bool panoview::pan_click(app::event *E)
         model->set_zoom(0.0, 0.0, 1.0, pow(10.0, curr_zoom));
         curr_zoom = 0;
     }
+#if 0
     if (E->data.click.b == 2)
     {
         etime = floor(time + 1.0);
@@ -315,6 +316,7 @@ bool panoview::pan_click(app::event *E)
         etime = ceil(time - 1.0);
         dtime = -1.0;
     }
+#endif
     return false;
 }
 
@@ -353,6 +355,14 @@ bool panoview::pan_key(app::event *E)
 //      case 275: dtime =  0.5; return true;
 //      case 276: dtime = -0.5; return true;
 
+        case 280 :
+            etime = floor(time + 1.0);
+            dtime = 1.0;
+            break;
+        case 281:
+            etime = ceil(time - 1.0);
+            dtime = -1.0;
+            break;
         case 282 : gui_state   = !gui_state;   return true;
         case 283 : debug_cache = !debug_cache; return true;
         case 284 : debug_color = !debug_color; return true;

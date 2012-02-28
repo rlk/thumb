@@ -2,5 +2,5 @@
   <panorama channels="1" depth="5" mesh="16" size="852"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-colormap.frag">
-    <image channel="0" file="/Volumes/SSD/LRO/LRO-DTM-5.tif" />
+    <image channel="0" file="/Volumes/Data/Data/LRO-DTM-852-5.tif" />
   </panorama>

@@ -33,6 +33,17 @@
         </frustum>
       </display>
     </node>
+    <!-- 2560x1600 -------------------------------------------------------- -->
+    <node name="2560x1600">
+      <window x="0" y="0" w="2560" h="1600" full="1"/>
+      <channel w="2560" h="1600"/>
+      <display type="direct" index="1">
+        <viewport x="0" y="0" w="2560" h="1600"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="35.0"/>
+        </frustum>
+      </display>
+    </node>
     <!-- 960x540 (quarter HD 16x9 aspect) --------------------------------- -->
     <node name="960x540">
       <window x="0" y="0" w="960" h="540"/>

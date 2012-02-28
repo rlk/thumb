@@ -38,11 +38,17 @@
 
 //-----------------------------------------------------------------------------
 
+#ifdef _WIN32
+#define close _close
+#endif
+
+//-----------------------------------------------------------------------------
+
 static void nodelay(int sd)
 {
     socklen_t len = sizeof (int);
     int       val = 1;
-        
+
     if (setsockopt(sd, IPPROTO_TCP, TCP_NODELAY, (const char *) &val, len) < 0)
         throw std::runtime_error(strerror(sock_errno));
 }
@@ -117,7 +123,7 @@ SOCKET app::host::init_socket(int port)
 
         if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
             throw std::runtime_error(strerror(sock_errno));
-        
+
         nodelay(sd);
 
         while (bind(sd, (struct sockaddr *) &address, addresslen) < 0)
@@ -144,7 +150,7 @@ void app::host::poll_listen(bool wait)
     struct timeval tv = { 0, 0 };
 
     fd_set fds;
-        
+
     FD_ZERO(&fds);
 
     if (client_cd != INVALID_SOCKET) FD_SET(client_cd, &fds);
@@ -205,8 +211,8 @@ void app::host::poll_listen(bool wait)
 
 void app::host::fini_listen()
 {
-    if (client_cd != INVALID_SOCKET) _close(client_cd);
-    if (script_cd != INVALID_SOCKET) _close(script_cd);
+    if (client_cd != INVALID_SOCKET) close(client_cd);
+    if (script_cd != INVALID_SOCKET) close(script_cd);
 
     client_cd = INVALID_SOCKET;
     script_cd = INVALID_SOCKET;
@@ -262,7 +268,7 @@ void app::host::poll_script()
                     if ((size = ::recv(*i, ibuf, 256, 0)) <= 0)
                     {
                         printf("script socket disconnected\n");
-                        _close(*i);
+                        close(*i);
                         script_sd.erase(i);
                     }
                     else
@@ -339,7 +345,7 @@ void app::host::init_server(app::node p)
 void app::host::fini_server()
 {
     if (server_sd != INVALID_SOCKET)
-        _close(server_sd);
+        close(server_sd);
 
     server_sd = INVALID_SOCKET;
 }
@@ -374,7 +380,7 @@ void app::host::fini_client()
 
         // Close the socket.
 
-        _close(sd);
+        close(sd);
 
         client_sd.pop_front();
     }
@@ -394,7 +400,7 @@ void app::host::fini_script()
 
         // Close the socket.
 
-        _close(sd);
+        close(sd);
 
         script_sd.pop_front();
     }
@@ -613,10 +619,10 @@ app::host::~host()
 
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         delete (*i);
-    
+
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         delete (*i);
-    
+
     fini_script();
     fini_client();
     fini_server();
@@ -722,7 +728,7 @@ void app::host::root_loop()
             draw_flag = false;
 
             // Count frames and record a movie, if requested.
-        
+
             if (movie)
             {
                 count++;
@@ -807,7 +813,7 @@ void app::host::draw()
             GL_DEPTH_BUFFER_BIT);
 
     // Render all displays (probably very expensive).
-    
+
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
     {
         if (calibration_state)
@@ -924,7 +930,7 @@ void app::host::process_close(event *E)
         (*i)->process_event(E);
 }
 
-// Handle the given user event. 
+// Handle the given user event.
 
 bool app::host::process_event(event *E)
 {

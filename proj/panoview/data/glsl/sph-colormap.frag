@@ -106,7 +106,7 @@ vec3 colormap(float k)
 
 void main()
 {
-    float k = (3.2768 * sample(gl_TexCoord[0].xy).r + 1.0) / 2.0;
+    float k = sample(gl_TexCoord[0].xy).r;
     gl_FragColor = vec4(colormap(k), 1.0);
 }
 

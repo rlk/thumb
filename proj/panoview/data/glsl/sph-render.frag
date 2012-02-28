@@ -68,7 +68,7 @@ vec4 blend(vec4 a, vec4 b)
 vec4 sample(vec2 t)
 {
     vec4 c = vec4(0.0);
-    
+
     c = blend(img0(t), c);
     c = blend(img1(t), c);
     c = blend(img2(t), c);
