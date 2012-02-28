@@ -55,10 +55,9 @@ void panoview::draw(int frusi, const app::frustum *frusp, int chani)
            model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
        else
            model->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
-
-        sph_viewer::draw(frusi, frusp, chani);
     }
 
+    sph_viewer::draw(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------

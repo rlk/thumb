@@ -40,7 +40,6 @@ sph_viewer::sph_viewer(const std::string& exe,
     radius (6)
 {
     gui_init();
-
     TIFFSetWarningHandler(0);
 }
 
@@ -185,28 +184,18 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
         Rmul_scl_mat(V, radius,  radius, radius);
 
         cache->set_debug(debug_color);
-
+#if 0
         if (timer)
         {
             fv[0] = frame[int(floor(timer)) % frame.size()]->get(chani);
             fv[1] = frame[int( ceil(timer)) % frame.size()]->get(chani);
-/*
-            if (timer_d < 0)
-            {
-                pv[0] = channel[chani % channels].get(int(floor(timer)) - 1);
-                pc    = 1;
-            }
-            else
-            {
-                pv[0] = channel[chani % channels].get(int( ceil(timer)) + 1);
-                pc    = 1;
-            }
-*/
+
             model->set_fade(timer - floor(timer));
             model->prep(P, V, w, h);
             model->draw(P, V, fv, 2, pv, pc);
         }
         else
+#endif
         {
             fv[0] = frame[0]->get(chani);
 
@@ -227,18 +216,6 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
 bool sph_viewer::process_event(app::event *E)
 {
-    // Pass the event to the GUI if visible.
-
-    if (gui_state)
-    {
-        switch (E->get_type())
-        {
-            case E_CLICK: return gui_click(E);
-            case E_POINT: return gui_point(E);
-            case E_KEY:   return gui_key  (E);
-        }
-    }
-
     // Toggle global options in response to function keys.
 
     if (E->get_type() == E_KEY)
@@ -252,6 +229,18 @@ bool sph_viewer::process_event(app::event *E)
                 case 284 : debug_color = !debug_color; return true;
                 case 8   : cache->flush();             return true;
             }
+        }
+    }
+
+    // Pass the event to the GUI if visible.
+
+    if (gui_state)
+    {
+        switch (E->get_type())
+        {
+            case E_CLICK: return gui_click(E);
+            case E_POINT: return gui_point(E);
+            case E_KEY:   return gui_key  (E);
         }
     }
 
@@ -272,7 +261,8 @@ bool sph_viewer::process_event(app::event *E)
             timer_d = 0;
         }
     }
-    return false;
+
+    return prog::process_event(E);
 }
 
 //------------------------------------------------------------------------------

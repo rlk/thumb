@@ -27,7 +27,7 @@ public:
 
     panoview(const std::string&, const std::string&);
 
-    void draw(int, const app::frustum *, int);
+    virtual void draw(int, const app::frustum *, int);
 
     virtual bool process_event(app::event *);
 

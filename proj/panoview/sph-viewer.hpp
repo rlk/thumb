@@ -46,9 +46,9 @@ public:
     sph_viewer(const std::string&, const std::string&);
    ~sph_viewer();
 
-    ogl::range prep(int, const app::frustum * const *);
-    void       lite(int, const app::frustum * const *);
-    void       draw(int, const app::frustum *, int);
+    virtual ogl::range prep(int, const app::frustum * const *);
+    virtual void       lite(int, const app::frustum * const *);
+    virtual void       draw(int, const app::frustum *, int);
 
     virtual bool process_event(app::event *);
 
