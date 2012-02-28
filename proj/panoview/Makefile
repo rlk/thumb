@@ -3,17 +3,26 @@
 #------------------------------------------------------------------------------
 
 TARG= panoview
-OBJS=   panoview.o \
-	gui-loader.o \
-        sph-model.o \
-        sph-cache.o \
+PANOBJS= \
 	math3d.o \
-	glyph.o \
 	glsl.o \
 	cube.o \
-	main.o
+	gui-loader.o \
+	sph-model.o \
+	sph-cache.o \
+	panoview.o
 
-DEPS= $(OBJS:.o=.d)
+ORBOBJS= \
+	math3d.o \
+	glsl.o \
+	cube.o \
+	gui-loader.o \
+	sph-model.o \
+	sph-cache.o \
+	orbiter.o
+
+PANDEPS= $(PANOBJS:.o=.d)
+ORBDEPS= $(ORBOBJS:.o=.d)
 
 #------------------------------------------------------------------------------
 
@@ -28,12 +37,18 @@ LIBS    = $(shell $(SDLCONF) --libs) \
 
 #------------------------------------------------------------------------------
 
-$(TARG) : $(OBJS)
-	$(CC) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
+all : panoview orbiter
+
+panoview : $(PANOBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
+
+orbiter : $(ORBOBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
 
 clean :
-	$(RM) $(OBJS) $(DEPS) $(TARG)
+	$(RM) $(PANOBJS) $(PANDEPS) panoview
+	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
 
 #------------------------------------------------------------------------------
 
--include $(DEPS)
+-include $(PANDEPS) $(ORBDEPS)

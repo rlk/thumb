@@ -18,7 +18,6 @@
 #include <limits>
 
 #include "math3d.h"
-#include "glyph.h"
 #include "glsl.h"
 #include "cube.hpp"
 
