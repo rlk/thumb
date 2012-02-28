@@ -17,78 +17,27 @@
 
 #include <app-prog.hpp>
 
-#include "sph-cache.hpp"
-#include "sph-model.hpp"
-#include "gui-loader.hpp"
+#include "sph-viewer.hpp"
 
 //-----------------------------------------------------------------------------
 
-class panochan
-{
-public:
-
-    void add(int f) { file.push_back(f);            }
-    int  get(int i) { return file[i % file.size()]; }
-
-private:
-
-    std::vector<int> file;
-};
-
-//-----------------------------------------------------------------------------
-
-class panoview : public app::prog
+class panoview : public sph_viewer
 {
 public:
 
     panoview(const std::string&, const std::string&);
-   ~panoview();
 
-    ogl::range prep(int, const app::frustum * const *);
-    void       lite(int, const app::frustum * const *);
-    void       draw(int, const app::frustum *, int);
+    void draw(int, const app::frustum *, int);
 
     virtual bool process_event(app::event *);
 
-    void load(const std::string&);
-    void cancel();
+    virtual ~panoview();
 
 private:
 
-    // Rendering state
-
-    panochan  *channel;
-    sph_cache *cache;
-    sph_model *model;
-
-    int     channels;
-    int     spin;
-    double  time;
-    double dtime;
-    double etime;
-    double  height;
-    double  radius;
-    double  min_zoom;
-    double  max_zoom;
-
+    double min_zoom;
+    double max_zoom;
     bool debug_zoom;
-    bool debug_cache;
-    bool debug_color;
-
-    // GUI State
-
-    panoload *ui;
-
-    bool gui_state;
-    void gui_init();
-    void gui_free();
-    void gui_draw();
-    bool gui_point(app::event *);
-    bool gui_click(app::event *);
-    bool gui_axis (app::event *);
-    bool gui_key  (app::event *);
-
-    // Interaction state
 
     bool   drag_state;
     int    drag_x;
@@ -97,12 +46,9 @@ private:
     int    curr_x;
     int    curr_y;
     double curr_zoom;
-    double joy_x;
-    double joy_y;
 
     bool pan_point(app::event *);
     bool pan_click(app::event *);
-    bool pan_axis(app::event *);
     bool pan_key  (app::event *);
 };
 
