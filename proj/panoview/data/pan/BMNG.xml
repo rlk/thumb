@@ -2,16 +2,40 @@
   <panorama channels="1" depth="5" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-blend.frag">
-    <image channel="0" file="bmng/world.200401-720-5.tif" />
-    <image channel="0" file="bmng/world.200402-720-5.tif" />
-    <image channel="0" file="bmng/world.200403-720-5.tif" />
-    <image channel="0" file="bmng/world.200404-720-5.tif" />
-    <image channel="0" file="bmng/world.200405-720-5.tif" />
-    <image channel="0" file="bmng/world.200406-720-5.tif" />
-    <image channel="0" file="bmng/world.200407-720-5.tif" />
-    <image channel="0" file="bmng/world.200408-720-5.tif" />
-    <image channel="0" file="bmng/world.200409-720-5.tif" />
-    <image channel="0" file="bmng/world.200410-720-5.tif" />
-    <image channel="0" file="bmng/world.200411-720-5.tif" />
-    <image channel="0" file="bmng/world.200412-720-5.tif" />
+    <frame>
+      <image file="world.200401-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200402-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200403-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200404-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200405-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200406-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200407-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200408-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200409-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200410-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200411-720-5.tif" />
+    </frame>
+    <frame>
+      <image file="world.200412-720-5.tif" />
+    </frame>
   </panorama>

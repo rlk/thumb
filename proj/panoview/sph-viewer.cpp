@@ -93,7 +93,7 @@ void sph_viewer::load(const std::string& name)
 
         // Create the new cache and model.
 
-        cache = new sph_cache(::conf->get_i("sph_viewer_cache_size", 256));
+        cache = new sph_cache(::conf->get_i("sph_viewer_cache_size", 128));
         model = new sph_model(*cache, vert_src, frag_src, n, d, s);
 
         // Register all frames with the cache.

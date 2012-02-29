@@ -30,12 +30,6 @@ static double cubic(double t)
     return 3 * t * t - 2 * t * t * t;
 }
 
-/*
-static double smoothstep(double a, double z, double t)
-{
-    return a + (z - a) * cubic(t);
-}
-*/
 //-----------------------------------------------------------------------------
 
 app::user::user() :
@@ -264,6 +258,12 @@ void app::user::home()
     set(0, 0, 86400);
 }
 
+void app::user::set_M(const double *M)
+{
+    load_mat(current_M, M);
+    load_inv(current_I, M);
+}
+
 void app::user::tumble(const double *A,
                        const double *B)
 {
@@ -394,7 +394,7 @@ bool app::user::dostep(double dt, int &opts)
     }
 
     // Otherwise just interpolate the two.
-    
+
     erp_state(curr, next, tt, opts);
 
     return false;

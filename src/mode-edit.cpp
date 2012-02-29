@@ -99,7 +99,7 @@ bool mode::edit::process_point(app::event *E)
             double M[16];
 
             // If the current drag has produced a previous transform, undo it.
-            
+
             if (move)
             {
                 world->undo();
@@ -330,7 +330,7 @@ ogl::range mode::edit::prep(int frusc, const app::frustum *const *frusv)
     assert(xform);
 
     // Prep the world and the constraint.  Combine the ranges.
-    
+
     ogl::range r;
 
     r.merge(world->prep_fill(frusc, frusv));
@@ -382,8 +382,8 @@ bool mode::edit::process_event(app::event *E)
     {
     case E_POINT: R |= process_point(E); break;
     case E_CLICK: R |= process_click(E); break;
-    case E_KEY: R |= process_key(E); break;
-    case E_TICK: R |= process_tick(E); break;
+    case E_KEY:   R |= process_key(E); break;
+    case E_TICK:  R |= process_tick(E); break;
     }
 
     return R || mode::process_event(E);
