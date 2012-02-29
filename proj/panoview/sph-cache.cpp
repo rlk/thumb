@@ -176,7 +176,7 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h,
     TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &C);
     TIFFGetField(T, TIFFTAG_SAMPLEFORMAT,    &G);
 
-    if (W == w && H == h && B == b && C == c && G == g)
+    if (W == w && H == h && B == b && C == c)
     {
         // Pad a 24-bit image to 32-bit BGRA.
 

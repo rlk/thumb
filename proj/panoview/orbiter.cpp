@@ -25,448 +25,213 @@
 #include <app-default.hpp>
 
 #include "math3d.h"
-#include "panoview.hpp"
+#include "orbiter.hpp"
 
 //------------------------------------------------------------------------------
 
-panoview::panoview(const std::string& exe,
-                   const std::string& tag) : app::prog(exe, tag),
-    channel (0),
-    cache   (0),
-    model   (0),
-    channels(0),
-    spin    (0),
-    time    (0),
-    dtime   (0),
-    etime   (0),
-    height  (0.0),
-    radius  (6.0),
-    min_zoom(-2.0),
-    max_zoom( 0.6)
+orbiter::orbiter(const std::string& exe,
+                 const std::string& tag) : sph_viewer(exe, tag)
 {
-    curr_zoom   = 0.0;
-    drag_state  = false;
+    orbit_plane[0] = 0.0;
+    orbit_plane[1] = 1.0;
+    orbit_plane[2] = 0.0;
+    orbit_speed    = 0.0;
 
-    debug_zoom  = false;
-    debug_cache = false;
-    debug_color = false;
+    position[0]    = 0.0;
+    position[1]    = 0.0;
+    position[2]    = 1.0;
+    altitude       = 2.0 * get_radius();
 
-    gui_init();
+    view_x[0]      = 1.0;
+    view_x[1]      = 0.0;
+    view_x[2]      = 0.0;
 
-    TIFFSetWarningHandler(0);
+    view_y[0]      = 0.0;
+    view_y[1]      = 1.0;
+    view_y[2]      = 0.0;
+
+    drag_move  = false;
+    drag_look  = false;
+    drag_dive  = false;
+    drag_light = false;
 }
 
-panoview::~panoview()
+orbiter::~orbiter()
 {
-    gui_free();
-
-    if (channel) delete [] channel;
-    if (model)   delete    model;
-    if (cache)   delete    cache;
 }
 
 //------------------------------------------------------------------------------
 
-void panoview::load(const std::string& name)
+void orbiter::tick_look(double dt)
 {
-    // If the named file exists and contains an XML panorama definition...
-
-    app::file file(name);
-
-    if (app::node root = file.get_root().find("panorama"))
-    {
-        // Clear out the existing data.
-
-        if (channel) delete [] channel;
-        if (model)   delete    model;
-        if (cache)   delete    cache;
-
-        // Parse the panorama configuration
-
-        channels = root.get_i("channels", 1);
-        int    d = root.get_i("depth",    8);
-        int    n = root.get_i("mesh",    16);
-        int    s = root.get_i("size",   512);
-
-        height = root.get_f("height", 0.0);
-        radius = root.get_f("radius", 6.0);
-
-        // Load the configured shaders.
-
-        const std::string& vert_name = root.get_s("vert");
-        const std::string& frag_name = root.get_s("frag");
-
-        const char *vert_src = (const char *) ::data->load(vert_name);
-        const char *frag_src = (const char *) ::data->load(frag_name);
-
-        // Create the new cache and model.
-
-        cache   = new sph_cache(::conf->get_i("panoview_cache_size", 256));
-        model   = new sph_model(*cache, vert_src, frag_src, n, d, s);
-        channel = new panochan[channels];
-
-        // Register all images with the cache.
-
-        for (app::node n = root.find("image"); n; n = root.next(n, "image"))
-        {
-            const std::string& name = n.get_s("file");
-            int                   i = n.get_i("channel", 0);
-
-            if (0 <= i && i < channels)
-                channel[i].add(cache->add_file(name));
-        }
-
-        ::data->free(vert_name);
-        ::data->free(frag_name);
-
-        gui_state = false;
-    }
-}
-
-void panoview::cancel()
-{
-    gui_state = false;
-}
-
-//------------------------------------------------------------------------------
-
-ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
-{
-    // This will need to change on a multi-pipe system.
-
-    if (cache && model)
-    {
-        cache->update(model->tick());
-    }
-    return ogl::range(0.001, radius * 3.0);
-}
-
-void panoview::lite(int frusc, const app::frustum *const *frusv)
-{
-}
-
-void panoview::draw(int frusi, const app::frustum *frusp, int chani)
-{
-    const double *P =  frusp->get_P();
     const double *M = ::user->get_M();
-    const int     w = ::host->get_buffer_w();
-    const int     h = ::host->get_buffer_h();
 
-    glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT |
-            GL_DEPTH_BUFFER_BIT);
+    double dx = point_v[0] - click_v[0];
+    double dy = point_v[1] - click_v[1];
 
-//   frusp->draw();
-//  ::user->draw();
+    double X[16];
+    double Y[16];
+    double R[16];
+    double t[3];
 
-    if (cache && model)
+    mrotate(X, M,         10.0 * dy * dt);
+    mrotate(Y, position, -10.0 * dx * dt);
+    mmultiply(R, X, Y);
+
+    vtransform(t, R, view_x);
+    vnormalize(view_x, t);
+
+    vtransform(t, R, view_y);
+    vnormalize(view_y, t);
+}
+
+void orbiter::tick_move(double dt)
+{
+    if (click_v[0] != point_v[0] ||
+        click_v[1] != point_v[1] ||
+        click_v[2] != point_v[2])
     {
-        double V[16];
+        double h = (altitude - get_radius()) / get_radius();
 
-        minvert(V, M);
-        Rmul_xlt_mat(V,      0, -height,      0);
-        Rmul_scl_mat(V, radius,  radius, radius);
+        double d = vdot(click_v, point_v);
+        double a = acos(d);
 
-       if (debug_zoom)
-           model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
-       else
-           model->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
-
-        cache->set_debug(debug_color);
-
-        if (time)
+        if (fabs(a) > 0.00)
         {
-            int fv[2];
-            int pv[2];
-            int pc = 0;
+            const double *M = ::user->get_M();
+            double t[3];
+            double u[3];
 
-            fv[0] = channel[chani % channels].get(int(floor(time)));
-            fv[1] = channel[chani % channels].get(int( ceil(time)));
+            vcrs(t, click_v, point_v);
 
-            if (dtime < 0)
-            {
-                pv[0] = channel[chani % channels].get(int(floor(time)) - 1);
-                pc    = 1;
-            }
-            else
-            {
-                pv[0] = channel[chani % channels].get(int( ceil(time)) + 1);
-                pc    = 1;
-            }
-
-            model->set_fade(time - floor(time));
-            model->prep(P, V, w, h);
-            model->draw(P, V, fv, 2, pv, pc);
+            vtransform(u, M, t);
+            vnormalize(orbit_plane, u);
         }
-        else
-        {
-            int f = channel[chani % channels].get(0);
-
-            model->set_fade(0);
-            model->prep(P, V, w, h);
-            model->draw(P, V, &f, 1, 0, 0);
-        }
+        orbit_speed = 10.0 * a * h;
     }
+    else
+    {
+        orbit_speed = 0.0;
+    }
+}
 
-    if (cache && debug_cache)
-        cache->draw();
-
-    gui_draw();
+void orbiter::tick_dive(double dt)
+{
+    altitude += 2.0 * get_radius() * (point_v[1] - click_v[1]) * dt;
 }
 
 //------------------------------------------------------------------------------
 
-bool panoview::process_event(app::event *E)
+void orbiter::tick(double dt)
 {
-    if (E->get_type() == E_CLICK)
-        return (gui_click(E) || pan_click(E) || prog::process_event(E));
+    double M[16];
+    double t[3];
 
-    if (E->get_type() == E_POINT)
-        return (gui_point(E) || pan_point(E) || prog::process_event(E));
+    if (drag_move) tick_move(dt);
+    if (drag_look) tick_look(dt);
+    if (drag_dive) tick_dive(dt);
 
-    if (E->get_type() == E_KEY)
-        return (gui_key(E)   || pan_key(E)   || prog::process_event(E));
+    // Move the position and view orientation along the current orbit.
 
-    if (E->get_type() == E_AXIS)
-        return (gui_axis(E)  || pan_axis(E)  || prog::process_event(E));
+    double R[16];
 
-    if (E->get_type() == E_TICK)
-    {
-        const double dt = E->data.tick.dt / 1000.0;
+    mrotate(R, orbit_plane, orbit_speed * dt);
 
-        ::user->look(spin * dt, 0.0);
-        time += 4 * dtime * dt;
+    vtransform(t, R, view_x);
+    vnormalize(view_x, t);
 
-        if (dtime > 0.0 && time > etime)
-        {
-            time  = etime;
-            dtime = 0.0;
-        }
-        if (dtime < 0.0 && time < etime)
-        {
-            time  = etime;
-            dtime = 0.0;
-        }
+    vtransform(t, R, view_y);
+    vnormalize(view_y, t);
 
-        if (fabs(joy_y) > 0.25)
-            curr_zoom += joy_y * dt * 0.25;
+    vtransform(t, R, position);
+    vnormalize(position, t);
 
-        if (curr_zoom < min_zoom) curr_zoom = min_zoom;
-        if (curr_zoom > max_zoom) curr_zoom = max_zoom;
-    }
+    // Orthonormalize the view orientation basis.
 
-    return prog::process_event(E);
+    double view_z[3];
+
+    vcrs(view_z, view_x, view_y);
+    vcrs(view_y, view_z, view_x);
+
+    mbasis(M, view_x, view_y, view_z);
+
+    // Update the user transform.
+
+    M[12] = position[0] * altitude;
+    M[13] = position[1] * altitude;
+    M[14] = position[2] * altitude;
+
+    ::user->set_M(M);
+}
+
+void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
+{
+    sph_viewer::draw(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------
 
-bool panoview::pan_point(app::event *E)
+bool orbiter::process_event(app::event *E)
 {
-/*
-    if (drag_state && E->data.point.i == 0)
+    if (!sph_viewer::process_event(E))
     {
-        double p[3];
-        double v[3];
-
-        ::user->get_point(p, E->data.point.p,
-                          v, E->data.point.q);
-
-        model->set_zoom(v[0], v[1], v[2], pow(10.0, curr_zoom));
-    }
-*/
-    if (const app::frustum *overlay = ::host->get_overlay())
-        overlay->pointer_to_2D(E, curr_x, curr_y);
-
-    if (drag_state)
-    {
-        curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
-
-        if (curr_zoom < min_zoom) curr_zoom = min_zoom;
-        if (curr_zoom > max_zoom) curr_zoom = max_zoom;
-
-        return true;
+        switch (E->get_type())
+        {
+            case E_CLICK: return pan_click(E);
+            case E_POINT: return pan_point(E);
+            case E_KEY:   return pan_key(E);
+            case E_TICK:  tick(E->data.tick.dt / 1000.0);
+        }
     }
     return false;
 }
 
-bool panoview::pan_click(app::event *E)
+//------------------------------------------------------------------------------
+
+bool orbiter::pan_point(app::event *E)
 {
-    if (E->data.click.b == 0)
-    {
-        drag_state = E->data.click.d;
+    double M[16];
 
-        drag_x     = curr_x;
-        drag_y     = curr_y;
-        drag_zoom  = curr_zoom;
+    // Determine the point direction of the given quaternion.
 
-        return true;
-    }
-    if (E->data.click.b == 1)
-    {
-        model->set_zoom(0.0, 0.0, 1.0, pow(10.0, curr_zoom));
-        curr_zoom = 0;
-    }
-#if 0
-    if (E->data.click.b == 2)
-    {
-        etime = floor(time + 1.0);
-        dtime = 1.0;
-    }
-    if (E->data.click.b == 3)
-    {
-        etime = ceil(time - 1.0);
-        dtime = -1.0;
-    }
-#endif
+    quat_to_mat(M, E->data.point.q);
+
+    point_v[0] = -M[ 8];
+    point_v[1] = -M[ 9];
+    point_v[2] = -M[10];
+
     return false;
 }
 
-bool panoview::pan_axis(app::event *E)
+bool orbiter::pan_click(app::event *E)
 {
-    if (E->data.axis.i == 0)
-    {
-        if (E->data.axis.a == 0) joy_x = E->data.axis.v;
-        if (E->data.axis.a == 1) joy_y = E->data.axis.v;
+    const int  b = E->data.click.b;
+    const int  m = E->data.click.m;
+    const bool d = E->data.click.d;
 
-        return true;
-    }
-    return false;
+    vcpy(click_v, point_v);
+
+    if (b == 0 && m == 0) drag_move  = d;
+    if (b == 2 && m == 0) drag_look  = d;
+    if (b == 0 && m & 1)  drag_dive  = d;
+    if (b == 2 && m & 1)  drag_light = d;
+
+    return true;
 }
 
-bool panoview::pan_key(app::event *E)
+bool orbiter::pan_key(app::event *E)
 {
-    int sh = (E->data.key.m & 3);
-
     if (E->data.key.d)
         switch (E->data.key.k)
         {
-        case '0': if (sh) spin = 0; else time = 0; return true;
-        case '1': if (sh) spin = 1; else time = 1; return true;
-        case '2': if (sh) spin = 2; else time = 2; return true;
-        case '3': if (sh) spin = 3; else time = 3; return true;
-        case '4': if (sh) spin = 4; else time = 4; return true;
-        case '5': if (sh) spin = 5; else time = 5; return true;
-        case '6': if (sh) spin = 6; else time = 6; return true;
-        case '7': if (sh) spin = 7; else time = 7; return true;
-        case '8': if (sh) spin = 8; else time = 8; return true;
-        case '9': if (sh) spin = 9; else time = 9; return true;
-
-//      case 273: dtime =  0.0; return true;
-//      case 274: dtime =  0.0; return true;
-//      case 275: dtime =  0.5; return true;
-//      case 276: dtime = -0.5; return true;
-
-        case 280 :
-            etime = floor(time + 1.0);
-            dtime = 1.0;
-            break;
-        case 281:
-            etime = ceil(time - 1.0);
-            dtime = -1.0;
-            break;
-        case 282 : gui_state   = !gui_state;   return true;
-        case 283 : debug_cache = !debug_cache; return true;
-        case 284 : debug_color = !debug_color; return true;
-        case 285 : debug_zoom  = !debug_zoom;  return true;
-
-        case 13  : curr_zoom = 0;  return prog::process_event(E);
-        case 8   : cache->flush(); return true;
+        case 280: goto_next(); return true;
+        case 281: goto_prev(); return true;
         }
 
     return false;
 }
 
 //------------------------------------------------------------------------------
-
-void panoview::gui_init()
-{
-    const app::frustum *overlay = ::host->get_overlay();
-
-    int w = overlay ? overlay->get_pixel_w() : ::host->get_buffer_w();
-    int h = overlay ? overlay->get_pixel_h() : ::host->get_buffer_h();
-
-    ui = new panoload(this, w, h);
-    gui_state = true;
-}
-
-void panoview::gui_free()
-{
-    delete ui;
-}
-
-void panoview::gui_draw()
-{
-    if (gui_state)
-    {
-        if (const app::frustum *overlay = ::host->get_overlay())
-        {
-            glEnable(GL_DEPTH_CLAMP_NV);
-            {
-                overlay->draw();
-                overlay->overlay();
-                ui->draw();
-            }
-            glDisable(GL_DEPTH_CLAMP_NV);
-        }
-    }
-}
-
-bool panoview::gui_point(app::event *E)
-{
-    if (gui_state)
-    {
-        if (const app::frustum *overlay = ::host->get_overlay())
-        {
-            int x;
-            int y;
-
-            overlay->pointer_to_2D(E, x, y);
-            ui->point(x, y);
-
-            return true;
-        }
-    }
-    return false;
-}
-
-bool panoview::gui_click(app::event *E)
-{
-    if (gui_state)
-    {
-        ui->click(E->data.click.m,
-                  E->data.click.d);
-        return true;
-    }
-    return false;
-}
-
-bool panoview::gui_axis(app::event *E)
-{
-    if (gui_state)
-        return true;
-    else
-        return false;
-}
-
-bool panoview::gui_key(app::event *E)
-{
-    if (gui_state)
-    {
-        if (E->data.key.d)
-        {
-            if (E->data.key.k == 282)
-                gui_state = !gui_state;
-            else
-                ui->key(E->data.key.c,
-                        E->data.key.k,
-                        E->data.key.m);
-        }
-        return true;
-    }
-    return false;
-}
-
-//-----------------------------------------------------------------------------
 
 int main(int argc, char *argv[])
 {
@@ -474,7 +239,7 @@ int main(int argc, char *argv[])
     {
         app::prog *P;
 
-        P = new panoview(argv[0], std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
+        P = new orbiter(argv[0], std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
         P->run();
 
         delete P;

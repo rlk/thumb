@@ -37,10 +37,12 @@ sph_viewer::sph_viewer(const std::string& exe,
     timer_d(0),
     timer_e(0),
     height (0),
-    radius (6)
+    radius (6),
+    debug_cache(false),
+    debug_color(false)
 {
-    gui_init();
     TIFFSetWarningHandler(0);
+    gui_init();
 }
 
 sph_viewer::~sph_viewer()
@@ -135,13 +137,13 @@ void sph_viewer::unload()
 void sph_viewer::goto_next()
 {
     timer_e = floor(timer + 1.0);
-    timer_d = +4.0;
+    timer_d = +2.0;
 }
 
 void sph_viewer::goto_prev()
 {
     timer_e = ceil(timer - 1.0);
-    timer_d = -4.0;
+    timer_d = -2.0;
 }
 
 //------------------------------------------------------------------------------
@@ -175,34 +177,31 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
     if (cache && model)
     {
         double V[16];
-        int fv[2];
-        int pv[2];
-        int pc = 0;
 
         minvert(V, M);
         Rmul_xlt_mat(V,      0, -height,      0);
         Rmul_scl_mat(V, radius,  radius, radius);
 
         cache->set_debug(debug_color);
-#if 0
+
+        int fv[2], fc = 0;
+        int pv[2], pc = 0;
+
         if (timer)
         {
             fv[0] = frame[int(floor(timer)) % frame.size()]->get(chani);
             fv[1] = frame[int( ceil(timer)) % frame.size()]->get(chani);
-
-            model->set_fade(timer - floor(timer));
-            model->prep(P, V, w, h);
-            model->draw(P, V, fv, 2, pv, pc);
+            fc = 2;
         }
         else
-#endif
         {
             fv[0] = frame[0]->get(chani);
-
-            model->set_fade(0);
-            model->prep(P, V, w, h);
-            model->draw(P, V, fv, 1, 0, 0);
+            fc = 1;
         }
+
+        model->set_fade(timer - floor(timer));
+        model->prep(P, V, w, h);
+        model->draw(P, V, fv, fc, pv, pc);
     }
 
     if (cache && debug_cache)
@@ -261,8 +260,8 @@ bool sph_viewer::process_event(app::event *E)
             timer_d = 0;
         }
     }
-
-    return prog::process_event(E);
+    return false;
+//  return prog::process_event(E);
 }
 
 //------------------------------------------------------------------------------
@@ -274,9 +273,9 @@ void sph_viewer::gui_init()
     int w = overlay ? overlay->get_pixel_w() : ::host->get_buffer_w();
     int h = overlay ? overlay->get_pixel_h() : ::host->get_buffer_h();
 
-    ui = new sph_loader(this, w, h);
-
     gui_state = true;
+
+    ui = new sph_loader(this, w, h);
 }
 
 void sph_viewer::gui_free()

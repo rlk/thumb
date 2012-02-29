@@ -59,6 +59,8 @@ public:
     void goto_next();
     void goto_prev();
 
+    float get_radius() const { return radius; }
+
 protected:
 
     sph_cache *cache;
@@ -70,11 +72,11 @@ private:
 
     std::vector<sph_frame *> frame;
 
-    float timer;
-    float timer_d;
-    float timer_e;
-    float height;
-    float radius;
+    double timer;
+    double timer_d;
+    double timer_e;
+    double height;
+    double radius;
 
     bool debug_cache;
     bool debug_color;

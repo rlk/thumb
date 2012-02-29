@@ -77,6 +77,9 @@ sph_loader::sph_loader(sph_viewer *V, int w, int h)
     int hh = std::max(root->get_h(), 3 * h / 5);
 
     root->laydn((w - ww) / 2, (h - hh) / 2, ww, hh);
+
+    if (char *name = getenv("PANOINIT"))
+        V->load(name);
 }
 
 //------------------------------------------------------------------------------

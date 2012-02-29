@@ -17,9 +17,10 @@ ORBOBJS= \
 	math3d.o \
 	glsl.o \
 	cube.o \
-	gui-loader.o \
 	sph-model.o \
 	sph-cache.o \
+	sph-viewer.o \
+	sph-loader.o \
 	orbiter.o
 
 PANDEPS= $(PANOBJS:.o=.d)
@@ -38,7 +39,7 @@ LIBS    = $(shell $(SDLCONF) --libs) \
 
 #------------------------------------------------------------------------------
 
-all : panoview
+all : panoview orbiter
 
 panoview : $(PANOBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
