@@ -14,6 +14,8 @@
 #define SPH_CRATER_HPP
 
 #include <string>
+#include <vector>
+#include <app-font.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -24,10 +26,23 @@ public:
     sph_crater(const std::string&);
    ~sph_crater();
 
-    void draw(const double *);
+    void draw(const double *, double, double);
 
 private:
 
+    struct crater
+    {
+        app::text *str;
+        double d, p, l;
+
+        crater(app::font& font, const std::string& name,
+                                double d, double p, double l)
+            : str(font.render(name)), d(d), p(p), l(l) { }
+
+       ~crater() { delete str; }
+    };
+
+    std::vector<crater *> craters;
 };
 
 //-----------------------------------------------------------------------------

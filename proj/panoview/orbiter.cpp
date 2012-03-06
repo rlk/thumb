@@ -169,15 +169,12 @@ void orbiter::tick(double dt)
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    double p[3];
+   sph_viewer::draw(frusi, frusp, chani);
 
-    sph_viewer::draw(frusi, frusp, chani);
+    frusp->draw();
+   ::user->draw();
 
-    p[0] = position[0] * altitude;
-    p[1] = position[1] * altitude;
-    p[2] = position[2] * altitude;
-
-    crater->draw(p);
+    crater->draw(position, get_radius(), altitude);
 }
 
 //------------------------------------------------------------------------------
