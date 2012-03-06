@@ -54,10 +54,13 @@ orbiter::orbiter(const std::string& exe,
     drag_look  = false;
     drag_dive  = false;
     drag_light = false;
+
+    crater = new sph_crater("moon.xml");
 }
 
 orbiter::~orbiter()
 {
+    delete crater;
 }
 
 //------------------------------------------------------------------------------
@@ -166,7 +169,15 @@ void orbiter::tick(double dt)
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
+    double p[3];
+
     sph_viewer::draw(frusi, frusp, chani);
+
+    p[0] = position[0] * altitude;
+    p[1] = position[1] * altitude;
+    p[2] = position[2] * altitude;
+
+    crater->draw(p);
 }
 
 //------------------------------------------------------------------------------

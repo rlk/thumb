@@ -21,6 +21,7 @@ ORBOBJS= \
 	sph-cache.o \
 	sph-viewer.o \
 	sph-loader.o \
+	sph-crater.o \
 	orbiter.o
 
 PANDEPS= $(PANOBJS:.o=.d)
