@@ -93,7 +93,7 @@ void sph_viewer::load(const std::string& name)
 
         // Create the new cache and model.
 
-        cache = new sph_cache(::conf->get_i("sph_viewer_cache_size", 128));
+        cache = new sph_cache(::conf->get_i("sph_viewer_cache_size", 64));
         model = new sph_model(*cache, vert_src, frag_src, n, d, s);
 
         // Register all frames with the cache.
@@ -260,8 +260,11 @@ bool sph_viewer::process_event(app::event *E)
             timer_d = 0;
         }
     }
-    return false;
-//  return prog::process_event(E);
+
+    if (E->get_type() == E_KEY)
+        return prog::process_event(E);
+    else
+        return false;
 }
 
 //------------------------------------------------------------------------------

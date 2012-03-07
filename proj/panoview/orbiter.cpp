@@ -56,6 +56,7 @@ orbiter::orbiter(const std::string& exe,
     drag_light = false;
 
     crater = new sph_crater("moon.xml");
+    // crater = 0;
 }
 
 orbiter::~orbiter()
@@ -174,7 +175,8 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     frusp->draw();
    ::user->draw();
 
-    crater->draw(position, get_radius(), altitude);
+    if (crater && model)
+        crater->draw(position, get_radius(), altitude);
 }
 
 //------------------------------------------------------------------------------
@@ -191,6 +193,7 @@ bool orbiter::process_event(app::event *E)
             case E_TICK:  tick(E->data.tick.dt / 1000.0);
         }
     }
+
     return false;
 }
 
@@ -216,13 +219,32 @@ bool orbiter::pan_click(app::event *E)
     const int  b = E->data.click.b;
     const int  m = E->data.click.m;
     const bool d = E->data.click.d;
+    const bool s = (m & 1);
 
     vcpy(click_v, point_v);
 
-    if (b == 0 && m == 0) drag_move  = d;
-    if (b == 2 && m == 0) drag_look  = d;
-    if (b == 0 && m & 1)  drag_dive  = d;
-    if (b == 2 && m & 1)  drag_light = d;
+    if (d)
+    {
+        if (b == 0)
+        {
+            if (s)
+                drag_look = true;
+            else
+                drag_move = true;
+        }
+        if (b == 2)
+        {
+            if (s)
+                drag_light = true;
+            else
+                drag_dive = true;
+        }
+    }
+    else
+    {
+        if (b == 0) drag_look  = drag_move = false;
+        if (b == 2) drag_light = drag_dive = false;
+    }
 
     return true;
 }

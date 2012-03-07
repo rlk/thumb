@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
   <planet radius="1737.4">
-    <crater name="South Pole-Aitken" diameter="2500" lat="-56" lon="180" />
+<!--<crater name="South Pole-Aitken" diameter="2500" lat="-56" lon="180" />-->
     <crater name="Imbrium" diameter="1160" lat="35" lon="-17" />
     <crater name="Orientale" diameter="930" lat="-19" lon="-95" />
     <crater name="Serenitatis" diameter="920" lat="26" lon="18" />

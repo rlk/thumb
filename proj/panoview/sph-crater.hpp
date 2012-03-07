@@ -40,6 +40,8 @@ private:
             : str(font.render(name)), d(d), p(p), l(l) { }
 
        ~crater() { delete str; }
+
+       double visible(const double *);
     };
 
     GLint ring;
