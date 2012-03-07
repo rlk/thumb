@@ -156,7 +156,7 @@ ogl::range sph_viewer::prep(int frusc, const app::frustum *const *frusv)
     {
         cache->update(model->tick());
     }
-    return ogl::range(0.001, radius * 3.0);
+    return ogl::range(0.001, radius * 10.0);
 }
 
 void sph_viewer::lite(int frusc, const app::frustum *const *frusv)

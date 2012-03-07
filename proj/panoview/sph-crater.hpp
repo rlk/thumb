@@ -42,6 +42,8 @@ private:
        ~crater() { delete str; }
     };
 
+    GLint ring;
+
     std::vector<crater *> craters;
 };
 

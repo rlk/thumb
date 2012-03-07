@@ -40,6 +40,20 @@ sph_crater::sph_crater(const std::string& dat)
             craters.push_back(new crater(sans, name, d, p, l));
         }
     }
+
+    glNewList((ring = glGenLists(1)), GL_COMPILE);
+    {
+        glBegin(GL_POLYGON);
+        {
+            int n = 64;
+
+            for (int i = 0; i < n; ++i)
+                glVertex2d(0.5 * cos(2.0 * M_PI * i / n),
+                           0.5 * sin(2.0 * M_PI * i / n));
+        }
+        glEnd();
+    }
+    glEndList();
 }
 
 sph_crater::~sph_crater()
@@ -48,6 +62,8 @@ sph_crater::~sph_crater()
 
     for (i = craters.begin(); i != craters.end(); ++i)
         delete (*i);
+
+    glDeleteLists(ring, 1);
 }
 
 void sph_crater::draw(const double *p, double r, double a)
@@ -58,7 +74,6 @@ void sph_crater::draw(const double *p, double r, double a)
     {
         glDisable(GL_LIGHTING);
         glDisable(GL_DEPTH_TEST);
-        glEnable(GL_TEXTURE_2D);
         glEnable(GL_CULL_FACE);
 
         glActiveTexture(GL_TEXTURE0);
@@ -69,24 +84,33 @@ void sph_crater::draw(const double *p, double r, double a)
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glColor3f(0.0f, 1.0f, 0.0f);
+        glColor3f(1.0f, 0.5f, 0.0f);
 
-        for (int i = 0; i < 100; ++i)
+        for (int i = 0; i < 256; ++i)
         {
             app::text *str = craters[i]->str;
-            double d = craters[i]->d / 50.0;
+            double d = craters[i]->d * r;
             double l = craters[i]->l;
             double p = craters[i]->p;
+            double k = 1.0 / 100.0;
 
             glPushMatrix();
             {
-                glRotated(l, 0, 1, 0);
-                glRotated(p, 1, 0, 0);
+                glRotated(l,  0, 1, 0);
+                glRotated(p, -1, 0, 0);
                 glTranslated(0, 0, r);
                 glScaled(d, d, d);
+
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+                glDisable(GL_TEXTURE_2D);
+                glCallList(ring);
+
+                glScaled(k, k, k);
                 glTranslated(-str->w() / 2.0,
                              -str->h() / 2.0, 0.0);
 
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+                glEnable(GL_TEXTURE_2D);
                 str->draw();
             }
             glPopMatrix();
