@@ -124,8 +124,6 @@ void orbiter::tick_dive(double dt)
     altitude += 2.0 * get_radius() * (point_v[1] - click_v[1]) * dt;
 }
 
-//------------------------------------------------------------------------------
-
 void orbiter::tick(double dt)
 {
     double M[16];
@@ -166,6 +164,21 @@ void orbiter::tick(double dt)
     M[14] = position[2] * altitude;
 
     ::user->set_M(M);
+}
+
+//------------------------------------------------------------------------------
+
+ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
+{
+    // This will need to change on a multi-pipe system.
+
+    if (cache && model)
+        cache->update(model->tick());
+
+    double n = 0.5 * (altitude - get_radius());
+    double f =        altitude;
+
+    return ogl::range(n, f);
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)

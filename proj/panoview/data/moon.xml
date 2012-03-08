@@ -1,5 +1,27 @@
 <?xml version="1.0"?>
   <planet radius="1737.4">
+    <marker name="Luna 2"  lat="29.1" lon="0.0" />
+    <marker name="Luna 9"  lat="7.08" lon="-64.37" />
+    <marker name="Luna 13" lat="18.87" lon="-62.05" />
+    <marker name="Luna 16" lat="-0.68" lon="56.30" />
+    <marker name="Luna 17" lat="32.28" lon="-35.00" />
+    <marker name="Luna 20" lat="3.57" lon="56.5" />
+    <marker name="Luna 21" lat="25.51" lon="30.38" />
+    <marker name="Luna 24" lat="12.25" lon="62.20" />
+    <marker name="Ranger 7" lat="-10.35" lon="-20.58" />
+    <marker name="Ranger 8" lat="2.67" lon="24.65" />
+    <marker name="Ranger 9" lat="-12.83" lon="-2.37" />
+    <marker name="Surveyor 1" lat="-2.45" lon="-43.21" />
+    <marker name="Surveyor 3" lat="-2.94" lon="-23.34" />
+    <marker name="Surveyor 5" lat="1.41" lon="23.18" />
+    <marker name="Surveyor 6" lat="0.46" lon="-1.37" />
+    <marker name="Surveyor 7" lat="-41.01" lon="-11.41" />
+    <marker name="Apollo 11" lat="0.67" lon="23.49" />
+    <marker name="Apollo 12" lat="-2.94" lon="-23.45" />
+    <marker name="Apollo 14" lat="-3.67" lon="17.46" />
+    <marker name="Apollo 15" lat="26.11" lon="3.66" />
+    <marker name="Apollo 16" lat="-8.60" lon="15.31" />
+    <marker name="Apollo 17" lat="20.17" lon="30.80" />
 <!--<crater name="South Pole-Aitken" diameter="2500" lat="-56" lon="180" />-->
     <crater name="Imbrium" diameter="1160" lat="35" lon="-17" />
     <crater name="Orientale" diameter="930" lat="-19" lon="-95" />

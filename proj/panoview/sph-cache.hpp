@@ -150,6 +150,8 @@ public:
 
 private:
 
+    static const int max_loads_per_update = 4;
+
     std::vector<sph_file> files;
 
     sph_set pages;

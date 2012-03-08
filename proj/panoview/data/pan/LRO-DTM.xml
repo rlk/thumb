@@ -1,6 +1,11 @@
 <?xml version="1.0"?>
   <panorama channels="1" depth="5" mesh="16" size="852"
             vert="glsl/sph-zoomer.vert"
-            frag="glsl/sph-colormap.frag">
-    <image channel="0" file="/Volumes/Data/Data/LRO-DTM-852-5.tif" />
+            frag="glsl/sph-blend.frag">
+    <frame>
+      <image file="/Volumes/Data/Data/LRO-DTM-852-5-N.tif" />
+    </frame>
+    <frame>
+      <image file="/Volumes/Data/Data/LRO-DTM-852-5.tif" />
+    </frame>
   </panorama>
