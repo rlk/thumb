@@ -19,9 +19,9 @@ ORBOBJS= \
 	cube.o \
 	sph-model.o \
 	sph-cache.o \
+	sph-label.o \
 	sph-viewer.o \
 	sph-loader.o \
-	sph-crater.o \
 	orbiter.o
 
 PANDEPS= $(PANOBJS:.o=.d)

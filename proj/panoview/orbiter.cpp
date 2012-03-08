@@ -55,7 +55,7 @@ orbiter::orbiter(const std::string& exe,
     drag_dive  = false;
     drag_light = false;
 
-    crater = new sph_crater("moon.xml");
+    crater = new sph_label("moon.xml");
     // crater = 0;
 }
 

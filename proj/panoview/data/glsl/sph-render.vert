@@ -13,12 +13,22 @@ uniform vec2 tex_d[8];
 
 vec3 slerp(vec3 a, vec3 b, float k)
 {
-    float l = 1.0 - k;
     float O = acos(dot(a, b));
-    
+    float l = 1.0 - k;
+
     return a * sin(l * O) / sin(O)
          + b * sin(k * O) / sin(O);
 }
+
+/*
+vec3 bislerp(vec3 a, vec3 b, vec3 c, vec3 d, vec2 k)
+{
+    vec3 t = slerp(a, c, k.y);
+    vec3 u = slerp(b, d, k.y);
+
+    return slerp(t, u, k.x);
+}
+*/
 
 vec3 bislerp(vec3 a, vec3 b, vec3 c, vec3 d, vec2 k)
 {

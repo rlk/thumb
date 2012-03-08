@@ -251,11 +251,25 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
         prep_face(M, w, h, 0, 1, 0, 1, i, 0, i);
 }
 
+// TODO: convert this away from slerp to use actual recursive divide.
+
 void sph_model::prep_face(const double *M, int w, int h,
                           double r, double l,
                           double t, double b, int j, int d, int i)
 
 {
+    const int i0 = face_child(i, 0);
+    const int i1 = face_child(i, 1);
+    const int i2 = face_child(i, 2);
+    const int i3 = face_child(i, 3);
+
+    status[i]  = s_draw;
+    status[i0] = s_halt;
+    status[i1] = s_halt;
+    status[i2] = s_halt;
+    status[i3] = s_halt;
+
+    /*
     if (d < depth)
     {
         double s = view_face(M, w, h, r, l, t, b, j);
@@ -307,6 +321,7 @@ void sph_model::prep_face(const double *M, int w, int h,
         else
             status[i] = s_halt;
     }
+    */
 }
 
 //------------------------------------------------------------------------------
@@ -391,7 +406,7 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
 
             draw_face(fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
 
-#if 0
+#if 1
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             draw_face(fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
