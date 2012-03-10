@@ -152,12 +152,15 @@ void sph_label::point::draw(const double *v, double r, double a)
 
         glDisable(GL_TEXTURE_2D);
         glCallList(o);
-
-        glScaled(k, k, k);
-        glTranslated(16.0, 0.0, 0.0);
-
         glEnable(GL_TEXTURE_2D);
-        str->draw();
+
+        if (str)
+        {
+            glScaled(k, k, k);
+            glTranslated(16.0, 0.0, 0.0);
+
+            str->draw();
+        }
     }
     glPopMatrix();
 }
@@ -180,16 +183,18 @@ void sph_label::circle::draw(const double *v, double r, double a)
             glScaled(s, s, s);
             glDisable(GL_TEXTURE_2D);
             glCallList(o);
+            glEnable(GL_TEXTURE_2D);
         }
         glPopMatrix();
 
-        glScaled(s, s, s);
-        glScaled(k, k, k);
-        glTranslated(-str->w() / 2.0,
-                     -str->h() / 2.0, 0.0);
-
-        glEnable(GL_TEXTURE_2D);
-        str->draw();
+        if (str)
+        {
+            glScaled(s, s, s);
+            glScaled(k, k, k);
+            glTranslated(-str->w() / 2.0,
+                         -str->h() / 2.0, 0.0);
+            str->draw();
+        }
     }
     glPopMatrix();
 }

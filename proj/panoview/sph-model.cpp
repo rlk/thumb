@@ -78,7 +78,7 @@ void sph_model::zoom(double *w, const double *v)
 }
 
 //------------------------------------------------------------------------------
-
+#if 0
 static void bislerp(double *p, const double *a, const double *b,
                                const double *c, const double *d,
                                double x, double y)
@@ -92,6 +92,7 @@ static void bislerp(double *p, const double *a, const double *b,
 
     vnormalize(p, p);
 }
+#endif
 
 static inline double max(double a, double b, double c, double d)
 {
@@ -114,6 +115,33 @@ static inline double length(const double *a, const double *b, int w, int h)
 
 //------------------------------------------------------------------------------
 
+// TODO: Move this to where it belongs.
+
+static void scube(int f, double x, double y, double *v)
+{
+    const double s = x * M_PI_2 - M_PI_4;
+    const double t = y * M_PI_2 - M_PI_4;
+
+    double u[3];
+    double w[3];
+
+    u[0] =  sin(s) * cos(t);
+    u[1] = -cos(s) * sin(t);
+    u[2] =  cos(s) * cos(t);
+
+    vnormalize(w, u);
+
+    switch (f)
+    {
+        case 0: v[0] =  w[2]; v[1] =  w[1]; v[2] = -w[0]; break;
+        case 1: v[0] = -w[2]; v[1] =  w[1]; v[2] =  w[0]; break;
+        case 2: v[0] =  w[0]; v[1] =  w[2]; v[2] = -w[1]; break;
+        case 3: v[0] =  w[0]; v[1] = -w[2]; v[2] =  w[1]; break;
+        case 4: v[0] =  w[0]; v[1] =  w[1]; v[2] =  w[2]; break;
+        case 5: v[0] = -w[0]; v[1] =  w[1]; v[2] = -w[2]; break;
+    }
+}
+
 double sph_model::view_face(const double *M, int vw, int vh,
                             double ee, double ww, double nn, double ss, int j)
 {
@@ -121,7 +149,7 @@ double sph_model::view_face(const double *M, int vw, int vh,
     double nw[3], b[3], f[3], B[4], F[4];    // North-west corner
     double se[3], c[3], g[3], C[4], G[4];    // South-east corner
     double sw[3], d[3], h[3], D[4], H[4];    // South-west corner
-
+/*
     vnormalize(ne, cube_v[cube_i[j][0]]);
     vnormalize(nw, cube_v[cube_i[j][1]]);
     vnormalize(se, cube_v[cube_i[j][2]]);
@@ -131,6 +159,11 @@ double sph_model::view_face(const double *M, int vw, int vh,
     bislerp(b, ne, nw, se, sw, ww, nn);
     bislerp(c, ne, nw, se, sw, ee, ss);
     bislerp(d, ne, nw, se, sw, ww, ss);
+*/
+    scube(j, ee, nn, a);
+    scube(j, ww, nn, b);
+    scube(j, ee, ss, c);
+    scube(j, ww, ss, d);
 
     zoom(a, a);
     zoom(b, b);
@@ -258,18 +291,6 @@ void sph_model::prep_face(const double *M, int w, int h,
                           double t, double b, int j, int d, int i)
 
 {
-    const int i0 = face_child(i, 0);
-    const int i1 = face_child(i, 1);
-    const int i2 = face_child(i, 2);
-    const int i3 = face_child(i, 3);
-
-    status[i]  = s_draw;
-    status[i0] = s_halt;
-    status[i1] = s_halt;
-    status[i2] = s_halt;
-    status[i3] = s_halt;
-
-    /*
     if (d < depth)
     {
         double s = view_face(M, w, h, r, l, t, b, j);
@@ -321,7 +342,6 @@ void sph_model::prep_face(const double *M, int w, int h,
         else
             status[i] = s_halt;
     }
-    */
 }
 
 //------------------------------------------------------------------------------
@@ -392,7 +412,18 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
 
         for (int i = 0; i < 6; ++i)
         {
+            GLfloat face_M[6][9] = {
+                {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
+                {  0.f,  0.f, -1.f,  0.f,  1.f,  0.f,  1.f,  0.f,  0.f },
+                {  1.f,  0.f,  0.f,  0.f,  0.f,  1.f,  0.f, -1.f,  0.f },
+                {  1.f,  0.f,  0.f,  0.f,  0.f, -1.f,  0.f,  1.f,  0.f },
+                {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
+                { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
+            };
             double a[3], b[3], c[3], d[3];
+
+            glUniformMatrix3fv(glGetUniformLocation(program, "face"),
+                               1, GL_TRUE, face_M[i]);
 
             vnormalize(a, cube_v[cube_i[i][0]]);
             vnormalize(b, cube_v[cube_i[i][1]]);
@@ -406,7 +437,7 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
 
             draw_face(fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
 
-#if 1
+#if 0
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             draw_face(fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
