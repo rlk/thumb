@@ -78,21 +78,6 @@ void sph_model::zoom(double *w, const double *v)
 }
 
 //------------------------------------------------------------------------------
-#if 0
-static void bislerp(double *p, const double *a, const double *b,
-                               const double *c, const double *d,
-                               double x, double y)
-{
-    double t[3];
-    double u[3];
-
-    vslerp(t, a, b, x);
-    vslerp(u, c, d, x);
-    vslerp(p, t, u, y);
-
-    vnormalize(p, p);
-}
-#endif
 
 static inline double max(double a, double b, double c, double d)
 {
@@ -145,21 +130,11 @@ static void scube(int f, double x, double y, double *v)
 double sph_model::view_face(const double *M, int vw, int vh,
                             double ee, double ww, double nn, double ss, int j)
 {
-    double ne[3], a[3], e[3], A[4], E[4];    // North-east corner
-    double nw[3], b[3], f[3], B[4], F[4];    // North-west corner
-    double se[3], c[3], g[3], C[4], G[4];    // South-east corner
-    double sw[3], d[3], h[3], D[4], H[4];    // South-west corner
-/*
-    vnormalize(ne, cube_v[cube_i[j][0]]);
-    vnormalize(nw, cube_v[cube_i[j][1]]);
-    vnormalize(se, cube_v[cube_i[j][2]]);
-    vnormalize(sw, cube_v[cube_i[j][3]]);
+    double a[3], e[3], A[4], E[4];    // North-east corner
+    double b[3], f[3], B[4], F[4];    // North-west corner
+    double c[3], g[3], C[4], G[4];    // South-east corner
+    double d[3], h[3], D[4], H[4];    // South-west corner
 
-    bislerp(a, ne, nw, se, sw, ee, nn);
-    bislerp(b, ne, nw, se, sw, ww, nn);
-    bislerp(c, ne, nw, se, sw, ee, ss);
-    bislerp(d, ne, nw, se, sw, ww, ss);
-*/
     scube(j, ee, nn, a);
     scube(j, ww, nn, b);
     scube(j, ee, ss, c);

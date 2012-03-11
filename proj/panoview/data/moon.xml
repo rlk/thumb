@@ -596,7 +596,7 @@
 <point label="90.00,168.75" lat="90.00" lon="168.75" />
 <point label="90.00,180.00" lat="90.00" lon="180.00" />
 -->
-
+<!--
     <circle label="" lon="-177.94964969500" lat="-48.60392190240" diameter="76.88849639890" />
     <circle label="" lon="-124.58452110800" lat="-66.95963850200" diameter="37.97230148320" />
     <circle label="" lon="-107.78768440800" lat="18.74622604810" diameter="63.85889816280" />
@@ -5782,7 +5782,7 @@
     <circle label="" lon="144.29115392900" lat="51.59262182950" diameter="21.60166831100" />
     <circle label="" lon="135.80935033400" lat="25.87348518510" diameter="26.23761761900" />
     <circle label="" lon="-67.70209001800" lat="31.84625425960" diameter="20.32529175390" />
-    <!--
+-->
     <circle label="South Pole-Aitken" diameter="2500" lat="-56" lon="180" />
     <circle label="Imbrium" diameter="1160" lat="35" lon="-17" />
     <circle label="Orientale" diameter="930" lat="-19" lon="-95" />
@@ -6908,6 +6908,7 @@
     <circle label="Szilard H" diameter="50" lat="32.50" lon="108.40" />
     <circle label="Vesalius D" diameter="50" lat="-2.20" lon="116.90" />
     <circle label="Yamamoto W" diameter="50.0" lat="62.60" lon="155.50" />
+    <!--
     <circle label="Almanon" diameter="49" lat="-16.80" lon="15.20" />
     <circle label="Schiller C" diameter="49" lat="-55.30" lon="-48.80" />
     <circle label="Anderson F" diameter="49" lat="16.30" lon="173.60" />

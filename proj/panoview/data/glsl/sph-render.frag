@@ -70,7 +70,6 @@ vec4 sample(vec2 t)
     vec4 c = vec4(0.0);
 
     c = blend(img0(t), c);
-    /*
     c = blend(img1(t), c);
     c = blend(img2(t), c);
     c = blend(img3(t), c);
@@ -78,7 +77,7 @@ vec4 sample(vec2 t)
     c = blend(img5(t), c);
     c = blend(img6(t), c);
     c = blend(img7(t), c);
-    */
+
     return c;
 }
 
