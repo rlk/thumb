@@ -1,3 +1,4 @@
+varying vec4 V;
 
 uniform int level;
 
@@ -23,12 +24,10 @@ vec3 scube(vec2 t)
 
 void main()
 {
-    vec2 t =  tex_a[level]
-           + (tex_d[level] - tex_a[level]) * gl_Vertex.xy;
+    gl_TexCoord[0].xy = tex_a[level]
+                     + (tex_d[level] - tex_a[level]) * gl_Vertex.xy;
 
-    vec3 v = scube(t);
+    V = gl_ModelViewMatrix * vec4(scube(gl_TexCoord[0].xy), 1.0);
 
-    gl_TexCoord[0].xy = t;
-
-    gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
+    gl_Position = gl_ProjectionMatrix * V;
 }

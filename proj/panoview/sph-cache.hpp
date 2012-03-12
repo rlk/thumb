@@ -150,7 +150,7 @@ public:
 
 private:
 
-    static const int max_loads_per_update = 4;
+    static const int max_loads_per_update = 2;
 
     std::vector<sph_file> files;
 

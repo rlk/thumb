@@ -165,50 +165,72 @@ void sph_viewer::lite(int frusc, const app::frustum *const *frusv)
 
 void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    const double *P =  frusp->get_P();
-    const double *M = ::user->get_M();
-    const int     w = ::host->get_buffer_w();
-    const int     h = ::host->get_buffer_h();
+    if (cache)
+        cache->set_debug(debug_color);
 
-    glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT |
-            GL_DEPTH_BUFFER_BIT);
-
-    if (cache && model)
+    if (model)
     {
+        const double *P =  frusp->get_P();
+        const double *M = ::user->get_M();
+        const int     w = ::host->get_buffer_w();
+        const int     h = ::host->get_buffer_h();
+
+        // Compute the model view matrix to be used for view determination.
+
         double V[16];
 
         minvert(V, M);
         Rmul_xlt_mat(V,      0, -height,      0);
         Rmul_scl_mat(V, radius,  radius, radius);
 
-        cache->set_debug(debug_color);
+        // Select the set of files to be drawn and pre-cached.
 
-        int fv[2], fc = 0;
-        int pv[2], pc = 0;
+        int i;
+
+        todraw.clear();
+        toprep.clear();
 
         if (timer)
         {
-            fv[0] = frame[int(floor(timer)) % frame.size()]->get(chani);
-            fv[1] = frame[int( ceil(timer)) % frame.size()]->get(chani);
-            fc = 2;
+            int a = int(floor(timer)) % frame.size();
+            int b =           (a + 1) % frame.size();
+            int c =           (b + 1) % frame.size();
+
+            for (i = 0; i < frame[a]->num(); ++i) apply(0, i, frame[a]->get(i));
+            for (i = 0; i < frame[b]->num(); ++i) apply(1, i, frame[b]->get(i));
+            for (i = 0; i < frame[c]->num(); ++i) apply(2, i, frame[c]->get(i));
         }
         else
-        {
-            fv[0] = frame[0]->get(chani);
-            fc = 1;
-        }
+            for (i = 0; i < frame[0]->num(); ++i) apply(0, i, frame[0]->get(i));
+
+        // Draw the sphere.
 
         model->set_fade(timer - floor(timer));
         model->prep(P, V, w, h);
-        model->draw(P, V, fv, fc, pv, pc);
+        model->draw(P, V, &todraw.front(), todraw.size(),
+                          &toprep.front(), toprep.size());
     }
+
+    // Draw the cache overlay.
 
     if (cache && debug_cache)
         cache->draw();
 
+    // Draw the GUI overlay.
+
     if (gui_state)
         gui_draw();
+}
+
+// Apply allows sub-classes to control how image file descriptors are copied
+// into the descriptor vectors sent to the sphere renderer. When animating,
+// frame gives 0, 1, or 2 to indicate that the current file is going, coming, or
+// to come. Layer gives the image number within the frame, which might map onto
+// a left/right channel selector or a diffuse/normal image type, as the case may
+// be. File gives the descriptor itself.
+
+void sph_viewer::apply(int frame, int layer, int file)
+{
 }
 
 //------------------------------------------------------------------------------

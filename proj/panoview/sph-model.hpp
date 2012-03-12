@@ -26,12 +26,12 @@ public:
 
     sph_model(sph_cache&, const char *, const char *, int, int, int);
    ~sph_model();
-   
+
     int  tick() { return time++; }
     void prep(const double *, const double *, int, int);
     void draw(const double *, const double *, const int *, int,
                                               const int *, int);
-    
+
     void set_fade(double k);
     void set_zoom(double x, double y, double z, double k)
     {
@@ -40,7 +40,7 @@ public:
         zoomv[2] = z;
         zoomk    = k;
     }
-    
+
 private:
 
     GLuint stack[8];
@@ -55,7 +55,7 @@ private:
 
     double zoomv[3];
     double zoomk;
-    
+
     void zoom(double *, const double *);
 
     // Data structures and algorithms for handling face adaptive subdivision.
@@ -76,7 +76,7 @@ private:
         s_pass = 1,
         s_draw = 2
     };
-    
+
     std::vector<byte> status;
 
     GLfloat age(int);
@@ -85,23 +85,23 @@ private:
 
     void init_program(const char *, const char *);
     void free_program();
-    
+
     GLuint program;
     GLuint vert_shader;
     GLuint frag_shader;
-    
-    GLuint pos_a;
-    GLuint pos_b;
-    GLuint pos_c;
-    GLuint pos_d;
+
+    // GLuint pos_a;
+    // GLuint pos_b;
+    // GLuint pos_c;
+    // GLuint pos_d;
     GLuint tex_a[8];
     GLuint tex_d[8];
     GLuint alpha[16];
     GLuint level;
     GLuint fader;
-    
+
     // OpenGL geometry state.
-    
+
     void init_arrays(int);
     void free_arrays();
 

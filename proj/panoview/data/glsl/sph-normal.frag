@@ -1,13 +1,12 @@
+varying vec4 V;
 
 uniform vec2 tex_a[8];
 uniform vec2 tex_d[8];
 
-uniform sampler2D image[16];
-uniform float     alpha[16];
-uniform float     fader;
-
-// Some hardware disallows accessing a sampler array element using a computed
-// index. So, we need to unroll the sampler accessors.
+//uniform sampler2D image[16];
+//uniform float     alpha[16];
+uniform sampler2D image[8];
+uniform float     alpha[8];
 
 //------------------------------------------------------------------------------
 
@@ -60,7 +59,7 @@ vec4 img7(vec2 t)
 }
 
 //------------------------------------------------------------------------------
-
+/*
 vec4 img8(vec2 t)
 {
     vec4 c = texture2D(image[8], t);
@@ -108,6 +107,23 @@ vec4 img15(vec2 t)
     vec4 c = texture2D(image[15], (t - tex_a[7]) / (tex_d[7] - tex_a[7]));
     return vec4(c.rgb, c.a * alpha[15]);
 }
+*/
+//------------------------------------------------------------------------------
+
+float peak(float k, float c)
+{
+    return max(0.0, 1.0 - abs(k - c) * 5.0);
+}
+
+vec4 colormap(float k)
+{
+    return peak(k, 0.0) * vec4(1.0, 0.0, 1.0, 1.0) +
+           peak(k, 0.2) * vec4(0.0, 0.0, 1.0, 1.0) +
+           peak(k, 0.4) * vec4(0.0, 1.0, 1.0, 1.0) +
+           peak(k, 0.6) * vec4(1.0, 1.0, 0.0, 1.0) +
+           peak(k, 0.8) * vec4(1.0, 0.0, 0.0, 1.0) +
+           peak(k, 1.0) * vec4(1.0, 1.0, 1.0, 1.0);
+}
 
 //------------------------------------------------------------------------------
 
@@ -127,7 +143,7 @@ vec4 sampleA(vec2 t)
                             blend(img2(t),
                                 blend(img1(t), img0(t))))))));
 }
-
+/*
 vec4 sampleB(vec2 t)
 {
     return
@@ -139,12 +155,17 @@ vec4 sampleB(vec2 t)
                             blend(img10(t),
                                 blend(img9(t), img8(t))))))));
 }
-
+*/
 void main()
 {
-    vec4 A = sampleA(gl_TexCoord[0].xy);
-    vec4 B = sampleB(gl_TexCoord[0].xy);
+    vec4 D =  colormap(2.0 * sampleA(gl_TexCoord[0].xy).r);
+//    vec4 D =   sampleA(gl_TexCoord[0].xy);
+//    vec4 D = vec4(0.8, 0.8, 0.8, 1.0);
+//    vec3 N = (sampleA(gl_TexCoord[0].xy).rgb * 2.0) - 1.0;
 
-    gl_FragColor = mix(A, B, fader);
+//    float kd = max(0.0, dot(N, gl_LightSource[0].position.xyz));
+    float kd = 1.0;
+
+    gl_FragColor = vec4(D.rgb * kd, D.a);
 }
 

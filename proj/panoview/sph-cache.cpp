@@ -466,12 +466,13 @@ static void debug_on(int l)
     glPixelTransferf(GL_GREEN_SCALE, color[l][1]);
     glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);
     */
-
+    /*
     static const GLfloat color[3] = { 2.0f, 2.0f, 2.0f };
 
     glPixelTransferf(GL_RED_SCALE,   color[0]);
     glPixelTransferf(GL_GREEN_SCALE, color[1]);
     glPixelTransferf(GL_BLUE_SCALE,  color[2]);
+    */
 }
 
 //------------------------------------------------------------------------------

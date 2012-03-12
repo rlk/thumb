@@ -45,17 +45,28 @@ panoview::~panoview()
 
 //------------------------------------------------------------------------------
 
+void panoview::apply(int frame, int layer, int file)
+{
+    if (frame == 0 && layer == channel) todraw.push_back(file);
+    if (frame == 1 && layer == channel) todraw.push_back(file);
+}
+
 void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    const double *M = ::user->get_M();
+    glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     if (model)
     {
+        const double *M = ::user->get_M();
+
        if (debug_zoom)
            model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
        else
            model->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
     }
+
+    channel = chani;
 
     sph_viewer::draw(frusi, frusp, chani);
 }

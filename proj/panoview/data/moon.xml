@@ -1,15 +1,5 @@
 <?xml version="1.0"?>
   <sphere radius="1737.4">
-<!--
-    <point label="A"  lat="35.2644.0" lon="45.0" />
-    <point label="B"  lat="35.2644" lon="-45.0" />
-    <point label="C"  lat="-35.2644" lon="45.0" />
-    <point label="D"  lat="-35.2644" lon="-45.0" />
-
-    <circle label="Shit Crater" lon="0" lat="0" diameter="250.0" />
--->
-
-    <!--
     <point label="Luna 2"  lat="29.1" lon="0.0" />
     <point label="Luna 9"  lat="7.08" lon="-64.37" />
     <point label="Luna 13" lat="18.87" lon="-62.05" />
@@ -32,7 +22,7 @@
     <point label="Apollo 15" lat="26.11" lon="3.66" />
     <point label="Apollo 16" lat="-8.60" lon="15.31" />
     <point label="Apollo 17" lat="20.17" lon="30.80" />
--->
+
 <!--
 <point label="-90.00,-180.00" lat="-90.00" lon="-180.00" />
 <point label="-90.00,-168.75" lat="-90.00" lon="-168.75" />

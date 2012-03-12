@@ -31,6 +31,7 @@ public:
     sph_frame(sph_cache *, app::node);
 
     int get(int i) { return file.empty() ? 0 : file[i % file.size()]; }
+    int num()      { return file.size(); }
 
 private:
 
@@ -65,6 +66,11 @@ protected:
 
     sph_cache *cache;
     sph_model *model;
+
+    std::vector<int> todraw;
+    std::vector<int> toprep;
+
+    virtual void apply(int, int, int);
 
 private:
 

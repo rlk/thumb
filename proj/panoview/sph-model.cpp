@@ -339,7 +339,7 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
 
-//  glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -395,23 +395,22 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
                 {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
                 { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
             };
-            double a[3], b[3], c[3], d[3];
+            // double a[3], b[3], c[3], d[3];
 
             glUniformMatrix3fv(glGetUniformLocation(program, "face"),
                                1, GL_TRUE, face_M[i]);
 
-            vnormalize(a, cube_v[cube_i[i][0]]);
-            vnormalize(b, cube_v[cube_i[i][1]]);
-            vnormalize(c, cube_v[cube_i[i][2]]);
-            vnormalize(d, cube_v[cube_i[i][3]]);
+            // vnormalize(a, cube_v[cube_i[i][0]]);
+            // vnormalize(b, cube_v[cube_i[i][1]]);
+            // vnormalize(c, cube_v[cube_i[i][2]]);
+            // vnormalize(d, cube_v[cube_i[i][3]]);
 
-            glUniform3f(pos_a, GLfloat(a[0]), GLfloat(a[1]), GLfloat(a[2]));
-            glUniform3f(pos_b, GLfloat(b[0]), GLfloat(b[1]), GLfloat(b[2]));
-            glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
-            glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
+            // glUniform3f(pos_a, GLfloat(a[0]), GLfloat(a[1]), GLfloat(a[2]));
+            // glUniform3f(pos_b, GLfloat(b[0]), GLfloat(b[1]), GLfloat(b[2]));
+            // glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
+            // glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
 
             draw_face(fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
-
 #if 0
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -527,10 +526,10 @@ void sph_model::init_program(const char *vert_src,
 
         glUseProgram(program);
 
-        pos_a = glGetUniformLocation(program, "pos_a");
-        pos_b = glGetUniformLocation(program, "pos_b");
-        pos_c = glGetUniformLocation(program, "pos_c");
-        pos_d = glGetUniformLocation(program, "pos_d");
+        // pos_a = glGetUniformLocation(program, "pos_a");
+        // pos_b = glGetUniformLocation(program, "pos_b");
+        // pos_c = glGetUniformLocation(program, "pos_c");
+        // pos_d = glGetUniformLocation(program, "pos_d");
         level = glGetUniformLocation(program, "level");
         fader = glGetUniformLocation(program, "fader");
 

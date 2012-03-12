@@ -1,13 +1,9 @@
 <?xml version="1.0"?>
-  <panorama channels="1" depth="1" mesh="16" size="512"
-            vert="glsl/sph-render.vert"
-            frag="glsl/sph-render.frag">
+  <panorama mesh="128" size="852" depth="5"
+            vert="glsl/sph-displace.vert"
+            frag="glsl/sph-normal.frag">
     <frame>
-      <image file="/Volumes/SSD/LRO/DTM/LRO-DTM-512-1-N.tif" />
-<!--      <image file="/Volumes/Data/Data/LRO-DTM-852-5-N.tif" />-->
-    </frame>
-    <frame>
-      <image file="/Volumes/SSD/LRO/DTM/LRO-DTM-512-1.tif" />
-<!--      <image file="/Volumes/Data/Data/LRO-DTM-852-5.tif" />-->
+      <image file="/Volumes/SSD/LRO-DTM-852-5.tif" />
+      <image file="/Volumes/SSD/LRO-DTM-852-5-N.tif" />
     </frame>
   </panorama>

@@ -55,8 +55,8 @@ orbiter::orbiter(const std::string& exe,
     drag_dive  = false;
     drag_light = false;
 
-    crater = new sph_label("moon.xml");
-    // crater = 0;
+    // crater = new sph_label("moon.xml");
+    crater = 0;
 }
 
 orbiter::~orbiter()
@@ -170,26 +170,35 @@ void orbiter::tick(double dt)
 
 ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
-    // This will need to change on a multi-pipe system.
-
     if (cache && model)
         cache->update(model->tick());
 
-    double n = 0.5 * (altitude - get_radius());
-    double f =        altitude;
+    double r = get_radius();
+    double n = 0.5 * (altitude - r);
+    double f =   sqrt(altitude * altitude - r * r) * 1.1;
 
     return ogl::range(n, f);
 }
 
+void orbiter::apply(int frame, int layer, int file)
+{
+    if (layer == 0) todraw.push_back(file);
+//  if (layer == 1) todraw.push_back(file);
+}
+
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
-   sph_viewer::draw(frusi, frusp, chani);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    frusp->draw();
-   ::user->draw();
+    sph_viewer::draw(frusi, frusp, chani);
 
     if (crater && model)
+    {
+         frusp->draw();
+        ::user->draw();
         crater->draw(position, get_radius(), altitude);
+    }
 }
 
 //------------------------------------------------------------------------------

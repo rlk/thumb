@@ -33,7 +33,13 @@ public:
 
     virtual ~panoview();
 
+protected:
+
+    virtual void apply(int, int, int);
+
 private:
+
+    int channel;
 
     double min_zoom;
     double max_zoom;
