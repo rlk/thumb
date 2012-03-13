@@ -110,7 +110,7 @@ void sph_viewer::load(const std::string& name)
         // Load the label.
 
         font_ptr = ::data->load(::conf->get_s("sans_font"), &font_len);
-        data_ptr = ::data->load("moon.xml");
+        data_ptr = ::data->load("IAUMOON.csv");
 
         label = new sph_label(data_ptr, data_len, font_ptr, font_len);
 
@@ -233,7 +233,13 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
         frusp->draw();
        ::user->draw();
-        label->draw(position, radius, altitude);
+
+        glPushMatrix();
+        {
+            glScaled(radius, radius, radius);
+            label->draw(position, radius, altitude);
+        }
+        glPopMatrix();
     }
 
     // Draw the cache overlay.

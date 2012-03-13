@@ -16,6 +16,8 @@
 #include <string>
 #include <vector>
 
+#include "type.h"
+
 //-----------------------------------------------------------------------------
 
 class sph_label
@@ -30,58 +32,25 @@ public:
 
 private:
 
-    //-------------------------------------------------------------------------
+    static const int strmax = 64;
 
-    class label
+    struct label
     {
-    public:
-
-        label(GLuint o, double p, double l)
-            : o(o), p(p), l(l) { }
-
-        virtual void   draw(const double *, double, double) = 0;
-        virtual double view(const double *, double, double);
-
-    protected:
-
-        GLuint o;
-        double p, l;
+        char  str[strmax];
+        float lat;
+        float lon;
+        float dia;
     };
 
-    //-------------------------------------------------------------------------
-
-    class point : public label
-    {
-    public:
-
-        point(GLuint o, double p, double l)
-            : label(o, p, l) { }
-
-        virtual void draw(const double *, double, double);
-    };
-
-    //-------------------------------------------------------------------------
-
-    class circle : public label
-    {
-    public:
-
-        circle(GLuint o, double p, double l, double d)
-            : label(o, p, l), d(d) { }
-
-        virtual void draw(const double *, double, double);
-
-    protected:
-
-        double d;
-    };
-
-    //-------------------------------------------------------------------------
+    void parse(const void *, size_t);
 
     GLint ring;
     GLint mark;
 
-    std::vector<label *> items;
+    font *label_font;
+    line *label_line;
+
+    std::vector<label> labels;
 };
 
 //-----------------------------------------------------------------------------

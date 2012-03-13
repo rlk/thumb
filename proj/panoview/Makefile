@@ -7,6 +7,7 @@ PANOBJS= \
 	math3d.o \
 	glsl.o \
 	cube.o \
+	type.o \
 	sph-model.o \
 	sph-cache.o \
 	sph-label.o \
