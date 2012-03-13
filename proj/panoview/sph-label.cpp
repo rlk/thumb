@@ -24,46 +24,18 @@
 
 //------------------------------------------------------------------------------
 
-static GLuint make_ring(int n)
+static double clamp(double k, double a, double b)
 {
-    GLuint o = glGenLists(1);
-
-    glNewList(o, GL_COMPILE);
-    {
-        glBegin(GL_LINE_LOOP);
-        {
-            for (int i = 0; i < n; ++i)
-                glVertex2d(0.5 * cos(2.0 * M_PI * i / n),
-                           0.5 * sin(2.0 * M_PI * i / n));
-        }
-        glEnd();
-    }
-    glEndList();
-
-    return o;
+    if      (k < a) return a;
+    else if (k > b) return b;
+    else            return k;
 }
 
-static GLuint make_mark()
+struct point
 {
-    GLuint o = glGenLists(1);
-
-    glNewList(o, GL_COMPILE);
-    {
-        glBegin(GL_LINES);
-        {
-            glVertex2d(-0.05, 0.0);
-            glVertex2d(+0.05, 0.0);
-            glVertex2d(0.0, -0.05);
-            glVertex2d(0.0, +0.05);
-        }
-        glEnd();
-    }
-    glEndList();
-
-    return o;
-}
-
-//------------------------------------------------------------------------------
+    float v[3];
+    float t[2];
+};
 
 struct matrix
 {
@@ -73,6 +45,7 @@ struct matrix
     {
         midentity(M);
     }
+
     void rotatey(double a)
     {
         double A[16], B[16];
@@ -80,6 +53,7 @@ struct matrix
         mmultiply(B, M, A);
         mcpy(M, B);
     }
+
     void rotatex(double a)
     {
         double A[16], B[16];
@@ -87,6 +61,7 @@ struct matrix
         mmultiply(B, M, A);
         mcpy(M, B);
     }
+
     void rotatez(double a)
     {
         double A[16], B[16];
@@ -94,6 +69,7 @@ struct matrix
         mmultiply(B, M, A);
         mcpy(M, B);
     }
+
     void translate(double x, double y, double z)
     {
         double A[16], B[16], v[3] = { x, y, z };
@@ -101,6 +77,7 @@ struct matrix
         mmultiply(B, M, A);
         mcpy(M, B);
     }
+
     void scale(double k)
     {
         double A[16], B[16], v[3] = { k, k, k };
@@ -110,143 +87,198 @@ struct matrix
     }
 };
 
-#if 0
-static void set_matrix(double *M, double lon, double lat, double rad, int len)
+struct circle
 {
-    double t[3] = { 0.f, 0.f, 1.f };
-    double s[3] = { 0.001f, 0.001f, 0.001f };
-    double L[16];
-    double P[16];
-    double T[16];
-    double S[16];
+    point p[4];
 
-    mrotatey(L,  radians(lon));
-    mrotatex(P, -radians(lat));
-    mtranslate(T, t);
-    mscale    (S, s);
-
-    mmultiply(M, L, P);
-    mmultiply(L, M, T);
-    mmultiply(M, L, S);
-}
-#endif
-
-//------------------------------------------------------------------------------
-
-sph_label::sph_label(const void *data_ptr, size_t data_len,
-                     const void *font_ptr, size_t font_len) :
-    ring(make_ring(64)),
-    mark(make_mark())
-{
-    const double r = 1737400.0;
-    std::vector<char *> strv;
-    std::vector<matrix> matv;
-
-    parse(data_ptr, data_len);
-
-    label_font = font_create(font_ptr, font_len, 64, 1.0);
-
-    for (int i = 0; i < int(labels.size()); ++i)
+    circle(matrix& M)
     {
-        int len = line_length(labels[i].str, label_font);
+        const double s = 0.5;
 
-        double k = labels[i].dia / r;
-        matrix M;
+        p[0].v[0] = M.M[0] * (-s) + M.M[4] * (-s) + M.M[12];
+        p[0].v[1] = M.M[1] * (-s) + M.M[5] * (-s) + M.M[13];
+        p[0].v[2] = M.M[2] * (-s) + M.M[6] * (-s) + M.M[14];
+        p[0].t[0] = 0;
+        p[0].t[1] = 0;
 
-        k = std::min(k, 0.0005);
-        k = std::max(k, 0.00001);
+        p[1].v[0] = M.M[0] * ( s) + M.M[4] * (-s) + M.M[12];
+        p[1].v[1] = M.M[1] * ( s) + M.M[5] * (-s) + M.M[13];
+        p[1].v[2] = M.M[2] * ( s) + M.M[6] * (-s) + M.M[14];
+        p[1].t[0] = 0;
+        p[1].t[1] = 1;
 
-        M.rotatey  ( radians(labels[i].lon));
-        M.rotatex  (-radians(labels[i].lat));
-        M.translate(0.0, 0.0, 1.0);
-        M.scale    (k);
-        M.translate(-len / 2.0, 0.0, 0.0);
+        p[2].v[0] = M.M[0] * ( s) + M.M[4] * ( s) + M.M[12];
+        p[2].v[1] = M.M[1] * ( s) + M.M[5] * ( s) + M.M[13];
+        p[2].v[2] = M.M[2] * ( s) + M.M[6] * ( s) + M.M[14];
+        p[2].t[0] = 1;
+        p[2].t[1] = 1;
 
-        strv.push_back(labels[i].str);
-        matv.push_back(M);
+        p[3].v[0] = M.M[0] * (-s) + M.M[4] * ( s) + M.M[12];
+        p[3].v[1] = M.M[1] * (-s) + M.M[5] * ( s) + M.M[13];
+        p[3].v[2] = M.M[2] * (-s) + M.M[6] * ( s) + M.M[14];
+        p[3].t[0] = 1;
+        p[3].t[1] = 0;
     }
-
-    label_line = line_layout(strv.size(), &strv.front(), NULL,
-                                           matv.front().M, label_font);
-}
-
-sph_label::~sph_label()
-{
-    line_delete(label_line);
-    font_delete(label_font);
-
-    // std::vector<label *>::iterator i;
-
-    // for (i = items.begin(); i != items.end(); ++i)
-    //     delete (*i);
-
-    glDeleteLists(mark, 1);
-    glDeleteLists(ring, 1);
-}
+};
 
 //------------------------------------------------------------------------------
 
-#define PATTERN "\"([^\"]*)\",([^,]*),([^,]*),([^,]*)\n"
+// Parse the label definition fil.
 
 void sph_label::parse(const void *data_ptr, size_t data_len)
 {
+    const char *pattern = "\"([^\"]*)\",([^,]*),([^,]*),([^,]*)\n";
+
     regmatch_t match[5];
     regex_t    regex;
     int err;
 
-    const char *dat = (const char *) data_ptr;
+    // Compile a regular expression and loop over the file seeking matches.
 
-    if ((err = regcomp(&regex, PATTERN, REG_EXTENDED)) == 0)
+    if ((err = regcomp(&regex, pattern, REG_EXTENDED)) == 0)
     {
+        const char *dat = (const char *) data_ptr;
+
         while ((err = regexec(&regex, dat, 5, match, 0)) == 0)
         {
+            // Add a label to the label array for each match.
+
             label L;
 
             memset (L.str, 0, strmax);
             strncpy(L.str, dat + match[1].rm_so, match[1].rm_eo-match[1].rm_so);
             L.lat = strtod(dat + match[2].rm_so, NULL);
             L.lon = strtod(dat + match[3].rm_so, NULL);
-            L.dia = strtod(dat + match[4].rm_so, NULL);
+            L.dia = strtod(dat + match[4].rm_so, NULL) / 1737.4;
 
             labels.push_back(L);
+
+            // Step the data pointer forward to the end of the match.
 
             dat = (const char *) dat + match[0].rm_eo;
         }
     }
 }
 
+//------------------------------------------------------------------------------
+
+const char *vert_txt =                        \
+    "void main() { "                          \
+        "gl_TexCoord[0] = gl_MultiTexCoord0;" \
+        "gl_Position    = ftransform();"      \
+    "}";
+
+const char *frag_txt =                        \
+    "void main() { "                          \
+        "float d = distance(gl_TexCoord[0].xy, vec2(0.5)); " \
+        "vec2  f = fwidth(gl_TexCoord[0].xy); "\
+        "float l = min(f.x, f.y); "\
+        "float k = 1.0 - smoothstep(0.0, l, abs(0.5 - l - d));"\
+        "gl_FragColor = vec4(0.0, 0.0, 0.0, k);"      \
+    "}";
+
+
+sph_label::sph_label(const void *data_ptr, size_t data_len,
+                     const void *font_ptr, size_t font_len)
+{
+    // Initialize the font.
+
+    label_font = font_create(font_ptr, font_len, 64, 1.0);
+
+    // Initialize the GLSL.
+
+    vert = glsl_init_shader(GL_VERTEX_SHADER,   vert_txt);
+    frag = glsl_init_shader(GL_FRAGMENT_SHADER, frag_txt);
+    prog = glsl_init_program(vert, frag);
+
+    // Parse the data file into labels, creating strings, matrices and circles.
+
+    std::vector<char *> strv;
+    std::vector<matrix> matv;
+    std::vector<circle> cirv;
+
+    parse(data_ptr, data_len);
+
+    for (int i = 0; i < int(labels.size()); ++i)
+    {
+        int len = line_length(labels[i].str, label_font);
+
+        double d = labels[i].dia;
+        matrix M;
+
+        M.rotatey  ( radians(labels[i].lon));
+        M.rotatex  (-radians(labels[i].lat));
+        M.translate(0.0, 0.0, sqrt(1.0 - d * d / 4.0));
+        M.scale    (d);
+        circle C(M);
+
+        M.scale(0.001 * clamp(d, 0.005, 0.5) / d);
+        M.translate(-len / 2.0, 0.0, 0.0);
+
+        strv.push_back(labels[i].str);
+        cirv.push_back(C);
+        matv.push_back(M);
+    }
+
+    // Typeset the labels.
+
+    label_line = line_layout(strv.size(), &strv.front(), NULL,
+                                           matv.front().M, label_font);
+
+    // Create a VBO for the circles.
+
+    size_t sz = sizeof (point);
+
+    glGenBuffers(1, &vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sz * cirv.size(),
+                                          &cirv.front(), GL_STATIC_DRAW);
+}
+
+sph_label::~sph_label()
+{
+    glDeleteBuffers(1, &vbo);
+
+    line_delete(label_line);
+    font_delete(label_font);
+
+    glDeleteProgram(prog);
+    glDeleteShader(frag);
+    glDeleteShader(vert);
+}
+
+//------------------------------------------------------------------------------
+
 void sph_label::draw(const double *p, double r, double a)
 {
-    glUseProgram(0);
+    size_t sz = sizeof (point);
 
     glPushAttrib(GL_ENABLE_BIT);
     {
-        // std::vector<label *>::iterator i;
-
-        // double k;
-
         glDisable(GL_LIGHTING);
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_CULL_FACE);
-
-        glActiveTexture(GL_TEXTURE0);
-        glMatrixMode(GL_TEXTURE);
-        glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW);
-
+        glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        // for (i = items.begin(); i != items.end(); ++i)
-        // {
-        //     if ((k = (*i)->view(p, r, a)) > 0.0)
-        //     {
-        //         glColor4f(0.0f, 0.0f, 0.0f, k);
-        //         (*i)->draw(p, r, a);
-        //     }
-        // }
+        glUseProgram(prog);
 
-        glEnable(GL_TEXTURE_2D);
+        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+        {
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glVertexPointer  (3, GL_FLOAT, sz, (GLvoid *) 0);
+            glTexCoordPointer(2, GL_FLOAT, sz, (GLvoid *) 12);
+
+            glDrawArrays(GL_QUADS, 0, labels.size() * 4);
+        }
+        glPopClientAttrib();
+
+        glUseProgram(0);
+
         glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
         line_render(label_line);
     }
@@ -319,21 +351,4 @@ void sph_label::circle::draw(const double *v, double r, double a)
     glPopMatrix();
 }
 
-double sph_label::label::view(const double *v, double r, double a)
-{
-    return 1.0;
-
-    double u[3];
-
-    u[0] = sin(radians(l)) * cos(radians(p));
-    u[1] =                   sin(radians(p));
-    u[2] = cos(radians(l)) * cos(radians(p));
-
-    double k = vdot(u, v) * 2.0 - 1.0;
-
-    if (k > 0.0)
-        return 3.0 * k * k - 2.0 * k * k * k;
-    else
-        return 0.0;
-}
 #endif

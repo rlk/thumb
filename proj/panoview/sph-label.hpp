@@ -16,7 +16,10 @@
 #include <string>
 #include <vector>
 
+#include <GL/glew.h>
+
 #include "type.h"
+#include "glsl.h"
 
 //-----------------------------------------------------------------------------
 
@@ -43,12 +46,16 @@ private:
     };
 
     void parse(const void *, size_t);
-
-    GLint ring;
-    GLint mark;
+    void apply(label *);
 
     font *label_font;
     line *label_line;
+    glsl *label_glsl;
+
+    GLuint vbo;
+    GLuint vert;
+    GLuint frag;
+    GLuint prog;
 
     std::vector<label> labels;
 };
