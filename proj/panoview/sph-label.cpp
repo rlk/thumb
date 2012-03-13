@@ -12,21 +12,20 @@
 
 #include <cmath>
 
-#include <etc-math.hpp>
-#include <app-conf.hpp>
-#include <app-file.hpp>
-#include <app-user.hpp>
-#include <ogl-opengl.hpp>
+#include <GL/glew.h>
 
 #include "sph-label.hpp"
+#include "math3d.h"
+#include "type.h"
+#include "glsl.h"
 
 //------------------------------------------------------------------------------
 
 static GLuint make_ring(int n)
 {
-    GLuint o;
+    GLuint o = glGenLists(1);
 
-    glNewList((o = glGenLists(1)), GL_COMPILE);
+    glNewList(o, GL_COMPILE);
     {
         glBegin(GL_LINE_LOOP);
         {
@@ -43,9 +42,9 @@ static GLuint make_ring(int n)
 
 static GLuint make_mark()
 {
-    GLuint o;
+    GLuint o = glGenLists(1);
 
-    glNewList((o = glGenLists(1)), GL_COMPILE);
+    glNewList(o, GL_COMPILE);
     {
         glBegin(GL_LINES);
         {
@@ -63,34 +62,14 @@ static GLuint make_mark()
 
 //------------------------------------------------------------------------------
 
-sph_label::sph_label(const std::string& dat) :
+sph_label::sph_label(const void *data_ptr, size_t data_len,
+                     const void *font_ptr, size_t font_len) :
     ring(make_ring(64)),
     mark(make_mark())
 {
-    app::file file(dat);
-    app::font sans(::conf->get_s("sans_font"), 64);
-
-    if (app::node p = file.get_root().find("sphere"))
-    {
-        double r = p.get_f("radius");
-
-        for (app::node c = p.find("point"); c; c = p.next(c, "point"))
-        {
-            const std::string& name = c.get_s("label");
-            double             p    = c.get_f("lat");
-            double             l    = c.get_f("lon");
-            items.push_back(new point(sans, name, mark, p, l));
-        }
-
-        for (app::node c = p.find("circle"); c; c = p.next(c, "circle"))
-        {
-            const std::string& name = c.get_s("label");
-            double             p    = c.get_f("lat");
-            double             l    = c.get_f("lon");
-            double             d    = c.get_f("diameter");
-            items.push_back(new circle(sans, name, ring, p, l, d / r));
-        }
-    }
+    items.push_back(new point(mark, 1, 1));
+    items.push_back(new point(ring, 2, 2));
+    items.push_back(new circle(ring, 0, 0, 500 / 1737.4));
 }
 
 sph_label::~sph_label()
@@ -100,6 +79,7 @@ sph_label::~sph_label()
     for (i = items.begin(); i != items.end(); ++i)
         delete (*i);
 
+    glDeleteLists(mark, 1);
     glDeleteLists(ring, 1);
 }
 
@@ -154,6 +134,7 @@ void sph_label::point::draw(const double *v, double r, double a)
         glCallList(o);
         glEnable(GL_TEXTURE_2D);
 
+#if 0
         if (str)
         {
             glScaled(k, k, k);
@@ -161,6 +142,7 @@ void sph_label::point::draw(const double *v, double r, double a)
 
             str->draw();
         }
+#endif
     }
     glPopMatrix();
 }
@@ -186,7 +168,7 @@ void sph_label::circle::draw(const double *v, double r, double a)
             glEnable(GL_TEXTURE_2D);
         }
         glPopMatrix();
-
+#if 0
         if (str)
         {
             glScaled(s, s, s);
@@ -195,19 +177,22 @@ void sph_label::circle::draw(const double *v, double r, double a)
                          -str->h() / 2.0, 0.0);
             str->draw();
         }
+#endif
     }
     glPopMatrix();
 }
 
 double sph_label::label::view(const double *v, double r, double a)
 {
+    return 1.0;
+
     double u[3];
 
-    u[0] = sin(RAD(l)) * cos(RAD(p));
-    u[1] =               sin(RAD(p));
-    u[2] = cos(RAD(l)) * cos(RAD(p));
+    u[0] = sin(radians(l)) * cos(radians(p));
+    u[1] =                   sin(radians(p));
+    u[2] = cos(radians(l)) * cos(radians(p));
 
-    double k = DOT3(u, v) * 2.0 - 1.0;
+    double k = vdot(u, v) * 2.0 - 1.0;
 
     if (k > 0.0)
         return 3.0 * k * k - 2.0 * k * k * k;

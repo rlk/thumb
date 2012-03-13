@@ -20,6 +20,7 @@
 
 #include "sph-cache.hpp"
 #include "sph-model.hpp"
+#include "sph-label.hpp"
 #include "sph-loader.hpp"
 
 //-----------------------------------------------------------------------------
@@ -66,6 +67,7 @@ protected:
 
     sph_cache *cache;
     sph_model *model;
+    sph_label *label;
 
     std::vector<int> todraw;
     std::vector<int> toprep;
@@ -86,6 +88,13 @@ private:
 
     bool debug_cache;
     bool debug_color;
+
+    // Label data
+
+    size_t      data_len;
+    size_t      font_len;
+    const void *data_ptr;
+    const void *font_ptr;
 
     // Sphere GUI State
 

@@ -15,7 +15,6 @@
 
 #include <string>
 #include <vector>
-#include <app-font.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -23,7 +22,8 @@ class sph_label
 {
 public:
 
-    sph_label(const std::string&);
+    sph_label(const void *, size_t,
+              const void *, size_t);
    ~sph_label();
 
     void draw(const double *, double, double);
@@ -36,18 +36,14 @@ private:
     {
     public:
 
-        label(app::font& font, const std::string& text, GLuint o, double p,
-                                                                  double l)
-            : str(font.render(text)), o(o), p(p), l(l) { }
-
-        virtual ~label() { delete str; }
+        label(GLuint o, double p, double l)
+            : o(o), p(p), l(l) { }
 
         virtual void   draw(const double *, double, double) = 0;
         virtual double view(const double *, double, double);
 
     protected:
 
-        app::text *str;
         GLuint o;
         double p, l;
     };
@@ -58,9 +54,8 @@ private:
     {
     public:
 
-        point(app::font& font, const std::string& text, GLuint o, double p,
-                                                                  double l)
-            : label(font, text, o, p, l) { }
+        point(GLuint o, double p, double l)
+            : label(o, p, l) { }
 
         virtual void draw(const double *, double, double);
     };
@@ -71,10 +66,8 @@ private:
     {
     public:
 
-        circle(app::font& font, const std::string& text, GLuint o, double p,
-                                                                   double l,
-                                                                   double d)
-            : label(font, text, o, p, l), d(d) { }
+        circle(GLuint o, double p, double l, double d)
+            : label(o, p, l), d(d) { }
 
         virtual void draw(const double *, double, double);
 

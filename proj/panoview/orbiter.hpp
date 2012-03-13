@@ -18,7 +18,6 @@
 #include <app-prog.hpp>
 
 #include "sph-viewer.hpp"
-#include "sph-label.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -45,8 +44,6 @@ private:
     void tick_look(double);
     void tick_dive(double);
     void tick(double);
-
-    sph_label *crater;
 
     double orbit_plane[3];
     double orbit_speed;

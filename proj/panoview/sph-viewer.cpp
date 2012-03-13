@@ -33,6 +33,7 @@ sph_viewer::sph_viewer(const std::string& exe,
                        const std::string& tag) : app::prog(exe, tag),
     cache  (0),
     model  (0),
+    label  (0),
     timer  (0),
     timer_d(0),
     timer_e(0),
@@ -106,6 +107,13 @@ void sph_viewer::load(const std::string& name)
         if (frame.empty())
             frame.push_back(new sph_frame(cache, root));
 
+        // Load the label.
+
+        font_ptr = ::data->load(::conf->get_s("sans_font"), &font_len);
+        data_ptr = ::data->load("moon.xml");
+
+        label = new sph_label(data_ptr, data_len, font_ptr, font_len);
+
         ::data->free(vert_name);
         ::data->free(frag_name);
 
@@ -127,6 +135,7 @@ void sph_viewer::unload()
 
     frame.clear();
 
+    if (label) delete label;
     if (model) delete model;
     if (cache) delete cache;
 
@@ -165,16 +174,16 @@ void sph_viewer::lite(int frusc, const app::frustum *const *frusv)
 
 void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 {
+    const double *P =  frusp->get_P();
+    const double *M = ::user->get_M();
+    const int     w = ::host->get_buffer_w();
+    const int     h = ::host->get_buffer_h();
+
     if (cache)
         cache->set_debug(debug_color);
 
     if (model)
     {
-        const double *P =  frusp->get_P();
-        const double *M = ::user->get_M();
-        const int     w = ::host->get_buffer_w();
-        const int     h = ::host->get_buffer_h();
-
         // Compute the model view matrix to be used for view determination.
 
         double V[16];
@@ -209,6 +218,22 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
         model->prep(P, V, w, h);
         model->draw(P, V, &todraw.front(), todraw.size(),
                           &toprep.front(), toprep.size());
+    }
+
+    // Draw the label overlay.
+
+    if (label)
+    {
+        double altitude = sqrt(DOT3(M + 12, M + 12));
+        double position[3];
+
+        position[0] = M[12] / altitude;
+        position[1] = M[13] / altitude;
+        position[2] = M[14] / altitude;
+
+        frusp->draw();
+       ::user->draw();
+        label->draw(position, radius, altitude);
     }
 
     // Draw the cache overlay.

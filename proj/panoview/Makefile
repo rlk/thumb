@@ -9,6 +9,7 @@ PANOBJS= \
 	cube.o \
 	sph-model.o \
 	sph-cache.o \
+	sph-label.o \
 	sph-viewer.o \
 	sph-loader.o \
 	panoview.o
@@ -17,6 +18,7 @@ ORBOBJS= \
 	math3d.o \
 	glsl.o \
 	cube.o \
+	type.o \
 	sph-model.o \
 	sph-cache.o \
 	sph-label.o \
