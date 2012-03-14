@@ -27,16 +27,51 @@
 
 class sph_frame
 {
+    struct image
+    {
+        int file;
+        int shader;
+        int channel;
+    };
+
 public:
 
     sph_frame(sph_cache *, app::node);
 
-    int get(int i) { return file.empty() ? 0 : file[i % file.size()]; }
-    int num()      { return file.size(); }
+    int file(int i)
+    {
+        return images.empty() ? 0 : images[i % images.size()].file;
+    }
+    int shader(int i)
+    {
+        return images.empty() ? 0 : images[i % images.size()].shader;
+    }
+    int channel(int i)
+    {
+        return images.empty() ? 0 : images[i % images.size()].channel;
+    }
+    int size()
+    {
+        return images.size();
+    }
+    void apply(int c, std::vector<int>& tovert,
+                      std::vector<int>& tofrag)
+    {
+        std::vector<image>::iterator i;
+
+        for (i = images.begin(); i != images.end(); ++i)
+            if (c == i->channel)
+            {
+                if (i->shader)
+                    tofrag.push_back(i->file);
+                else
+                    tovert.push_back(i->file);
+            }
+    }
 
 private:
 
-    std::vector<int> file;
+    std::vector<image> images;
 };
 
 //-----------------------------------------------------------------------------
@@ -69,16 +104,14 @@ protected:
     sph_model *model;
     sph_label *label;
 
-    std::vector<int> todraw;
-    std::vector<int> toprep;
-
-    virtual void apply(int, int, int);
-
 private:
 
     // Sphere rendering state
 
     std::vector<sph_frame *> frame;
+    std::vector<int> tovert;
+    std::vector<int> tofrag;
+    std::vector<int> toprep;
 
     double timer;
     double timer_d;

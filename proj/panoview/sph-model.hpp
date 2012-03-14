@@ -30,6 +30,7 @@ public:
     int  tick() { return time++; }
     void prep(const double *, const double *, int, int);
     void draw(const double *, const double *, const int *, int,
+                                              const int *, int,
                                               const int *, int);
 
     void set_fade(double k);
@@ -62,6 +63,7 @@ private:
 
     void   draw_face(const int *, int,
                      const int *, int,
+                     const int *, int,
                      double, double, double, double, int, int);
     void   prep_face(const double *, int, int,
                      double, double, double, double, int, int, int);
@@ -90,15 +92,15 @@ private:
     GLuint vert_shader;
     GLuint frag_shader;
 
-    // GLuint pos_a;
-    // GLuint pos_b;
-    // GLuint pos_c;
-    // GLuint pos_d;
-    GLuint tex_a[8];
-    GLuint tex_d[8];
-    GLuint alpha[16];
-    GLuint level;
-    GLuint fader;
+    GLuint u_v_age[8];
+    GLuint u_f_age[8];
+    GLuint u_tex_a[8];
+    GLuint u_tex_d[8];
+    GLuint u_level;
+    GLuint u_fader;
+    GLuint u_zoomk;
+    GLuint u_zoomv;
+    GLuint u_faceM;
 
     // OpenGL geometry state.
 

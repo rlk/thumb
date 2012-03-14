@@ -45,12 +45,6 @@ panoview::~panoview()
 
 //------------------------------------------------------------------------------
 
-void panoview::apply(int frame, int layer, int file)
-{
-    if (frame == 0 && layer == channel) todraw.push_back(file);
-    if (frame == 1 && layer == channel) todraw.push_back(file);
-}
-
 void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 {
     glClearColor(0.4f, 0.4f, 0.4f, 0.0f);

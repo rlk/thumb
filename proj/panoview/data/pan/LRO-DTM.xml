@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
   <panorama mesh="128" size="852" depth="5"
-            vert="glsl/sph-displace.vert"
+            vert="glsl/sph-height.vert"
             frag="glsl/sph-normal.frag">
     <frame>
-      <image file="/Volumes/SSD/LRO-DTM-852-5.tif" />
-      <image file="/Volumes/SSD/LRO-DTM-852-5-N.tif" />
+      <image shader="vert" file="/Volumes/SSD/LRO-DTM-852-5.tif" />
+      <image shader="frag" file="/Volumes/SSD/LRO-DTM-852-5-N.tif" />
     </frame>
   </panorama>

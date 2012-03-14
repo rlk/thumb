@@ -34,10 +34,6 @@ public:
 
     virtual ~orbiter();
 
-protected:
-
-    virtual void apply(int, int, int);
-
 private:
 
     void tick_move(double);

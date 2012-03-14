@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+  <panorama mesh="128" size="720" depth="7"
+            vert="glsl/sph-height.vert"
+            frag="glsl/sph-normal.frag">
+    <frame>
+      <image shader="vert" file="/Volumes/SSD/LDEM-720-7.tif" />
+      <image shader="frag" file="/Volumes/SSD/LDEM-720-7-N.tif" />
+    </frame>
+  </panorama>

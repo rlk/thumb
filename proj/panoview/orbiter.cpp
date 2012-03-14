@@ -176,15 +176,9 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
     return ogl::range(n, f);
 }
 
-void orbiter::apply(int frame, int layer, int file)
-{
-    if (layer == 0) todraw.push_back(file);
-//  if (layer == 1) todraw.push_back(file);
-}
-
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     sph_viewer::draw(frusi, frusp, chani);

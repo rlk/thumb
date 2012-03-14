@@ -259,12 +259,9 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
         prep_face(M, w, h, 0, 1, 0, 1, i, 0, i);
 }
 
-// TODO: convert this away from slerp to use actual recursive divide.
-
 void sph_model::prep_face(const double *M, int w, int h,
                           double r, double l,
                           double t, double b, int j, int d, int i)
-
 {
     if (d < depth)
     {
@@ -327,7 +324,8 @@ GLfloat sph_model::age(int then)
     return (a > 1.f) ? 1.f : a;
 }
 
-void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
+void sph_model::draw(const double *P, const double *V, const int *vv, int vc,
+                                                       const int *fv, int fc,
                                                        const int *pv, int pc)
 {
     double M[16];
@@ -339,7 +337,8 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
 
-    // glEnable(GL_CULL_FACE);
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -359,35 +358,28 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
     GLuint o;
     int tock;
 
+    for (int i = 0; i < vc; ++i)
+        for (int j = 0; j < 6; ++j)
+            o = cache.get_page(vv[i], j, time, tock);
+
     for (int i = 0; i < fc; ++i)
-    {
-        o = cache.get_page(fv[i], 0, time, tock);
-        o = cache.get_page(fv[i], 1, time, tock);
-        o = cache.get_page(fv[i], 2, time, tock);
-        o = cache.get_page(fv[i], 3, time, tock);
-        o = cache.get_page(fv[i], 4, time, tock);
-        o = cache.get_page(fv[i], 5, time, tock);
-    }
+        for (int j = 0; j < 6; ++j)
+            o = cache.get_page(fv[i], j, time, tock);
+
     for (int i = 0; i < pc; ++i)
-    {
-        o = cache.get_page(pv[i], 0, time, tock);
-        o = cache.get_page(pv[i], 1, time, tock);
-        o = cache.get_page(pv[i], 2, time, tock);
-        o = cache.get_page(pv[i], 3, time, tock);
-        o = cache.get_page(pv[i], 4, time, tock);
-        o = cache.get_page(pv[i], 5, time, tock);
-    }
+        for (int j = 0; j < 6; ++j)
+            o = cache.get_page(pv[i], j, time, tock);
 
     glUseProgram(program);
     {
-        glUniform1f(glGetUniformLocation(program, "zoomk"), GLfloat(zoomk));
-        glUniform3f(glGetUniformLocation(program, "zoomv"), GLfloat(zoomv[0]),
-														    GLfloat(zoomv[1]),
-															GLfloat(zoomv[2]));
+        glUniform1f(u_zoomk, GLfloat(zoomk));
+        glUniform3f(u_zoomv, GLfloat(zoomv[0]),
+							 GLfloat(zoomv[1]),
+							 GLfloat(zoomv[2]));
 
         for (int i = 0; i < 6; ++i)
         {
-            GLfloat face_M[6][9] = {
+            static const GLfloat faceM[6][9] = {
                 {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
                 {  0.f,  0.f, -1.f,  0.f,  1.f,  0.f,  1.f,  0.f,  0.f },
                 {  1.f,  0.f,  0.f,  0.f,  0.f,  1.f,  0.f, -1.f,  0.f },
@@ -395,22 +387,10 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
                 {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
                 { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
             };
-            // double a[3], b[3], c[3], d[3];
 
-            glUniformMatrix3fv(glGetUniformLocation(program, "face"),
-                               1, GL_TRUE, face_M[i]);
+            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[i]);
 
-            // vnormalize(a, cube_v[cube_i[i][0]]);
-            // vnormalize(b, cube_v[cube_i[i][1]]);
-            // vnormalize(c, cube_v[cube_i[i][2]]);
-            // vnormalize(d, cube_v[cube_i[i][3]]);
-
-            // glUniform3f(pos_a, GLfloat(a[0]), GLfloat(a[1]), GLfloat(a[2]));
-            // glUniform3f(pos_b, GLfloat(b[0]), GLfloat(b[1]), GLfloat(b[2]));
-            // glUniform3f(pos_c, GLfloat(c[0]), GLfloat(c[1]), GLfloat(c[2]));
-            // glUniform3f(pos_d, GLfloat(d[0]), GLfloat(d[1]), GLfloat(d[2]));
-
-            draw_face(fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
+            draw_face(vv, vc, fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
 #if 0
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
@@ -427,31 +407,49 @@ void sph_model::draw(const double *P, const double *V, const int *fv, int fc,
     glDisableClientState(GL_VERTEX_ARRAY);
 
     glActiveTexture(GL_TEXTURE0);
+    glFrontFace(GL_CCW);
 }
 
-void sph_model::draw_face(const int *fv, int fc,
+void sph_model::draw_face(const int *vv, int vc,
+                          const int *fv, int fc,
                           const int *pv, int pc,
                           double r, double l, double t, double b, int d, int i)
 {
-    GLuint o = 0;
     int then = time;
+
+    // If this page does NOT have the HALT state then we're either drawing it
+    // or drawing one of its descendents. Either way, bind the vert and frag
+    // images and set their ages.
 
     if (status[i] != s_halt)
     {
-        for (int fi = 0; fi < fc; ++fi)
+        // Vertex shader images and ages.
+
+//      for (int vi = 0; vi < vc; ++vi)
         {
-            int e = fi * 8 + d;
-
-            glActiveTexture(GL_TEXTURE0 + e);
-
-            o = cache.get_page(fv[fi], i, time, then);
-
-            glUniform1f(alpha[e], age(then));
-            glBindTexture(GL_TEXTURE_2D, o);
+            glActiveTexture(GL_TEXTURE0 + d);
+            glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[0], i, time, then));
+            glUniform1f(u_v_age[d], age(then));
         }
-        glUniform2f(tex_a[d], GLfloat(r), GLfloat(t));
-        glUniform2f(tex_d[d], GLfloat(l), GLfloat(b));
+
+        // Fragment shader images and ages.
+
+//      for (int fi = 0; fi < fc; ++fi)
+        {
+            glActiveTexture(GL_TEXTURE0 + d + 8);
+            glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[0], i, time, then));
+            glUniform1f(u_f_age[d], age(then));
+        }
+
+        // Page coordinates.
+
+        glUniform2f(u_tex_a[d], GLfloat(r), GLfloat(t));
+        glUniform2f(u_tex_d[d], GLfloat(l), GLfloat(b));
     }
+
+    // If this page has the PASS state then we know it represents an initial
+    // subset of the active page set. It's a good candidate for precaching
+    // in any data sets we think we might need soon.
 
     if (status[i] == s_pass)
     {
@@ -459,16 +457,22 @@ void sph_model::draw_face(const int *fv, int fc,
             cache.get_page(pv[pi], i, time, then);
     }
 
+    // If this page has the PASS state then draw the descendents.
+
     if (status[i] == s_pass)
     {
         const double x = (r + l) * 0.5;
         const double y = (t + b) * 0.5;
 
-        draw_face(fv, fc, pv, pc, r, x, t, y, d + 1, face_child(i, 0));
-        draw_face(fv, fc, pv, pc, x, l, t, y, d + 1, face_child(i, 1));
-        draw_face(fv, fc, pv, pc, r, x, y, b, d + 1, face_child(i, 2));
-        draw_face(fv, fc, pv, pc, x, l, y, b, d + 1, face_child(i, 3));
+        draw_face(vv, vc, fv, fc, pv, pc, r, x, t, y, d + 1, face_child(i, 0));
+        draw_face(vv, vc, fv, fc, pv, pc, x, l, t, y, d + 1, face_child(i, 1));
+        draw_face(vv, vc, fv, fc, pv, pc, r, x, y, b, d + 1, face_child(i, 2));
+        draw_face(vv, vc, fv, fc, pv, pc, x, l, y, b, d + 1, face_child(i, 3));
     }
+
+    // If this page has the DRAW state then do draw it. Begin by determining
+    // whether any of its neighbors will be also be drawn and select an element
+    // winding accordingly.
 
     if (status[i] == s_draw)
     {
@@ -481,17 +485,25 @@ void sph_model::draw_face(const int *fv, int fc,
                      | (status[face_parent(e)] == s_draw ? 4 : 0)
                      | (status[face_parent(w)] == s_draw ? 8 : 0);
 
-        glUniform1i(level, d);
+        glUniform1i(u_level, d);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
         glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
     }
 
+    // If this page does NOT have the HALT state then we must have set some
+    // texture bindings above. Undo them.
+
     if (status[i] != s_halt)
     {
-        for (int fi = 0; fi < fc; ++fi)
+        // for (int vi = 0; vi < vc; ++vi)
         {
-            glActiveTexture(GL_TEXTURE0 + fi * 8 + d);
+            glActiveTexture(GL_TEXTURE0 + d);
+            glBindTexture(GL_TEXTURE_2D, cache.get_fill());
+        }
+        // for (int fi = 0; fi < fc; ++fi)
+        {
+            glActiveTexture(GL_TEXTURE0 + d + 8);
             glBindTexture(GL_TEXTURE_2D, cache.get_fill());
         }
     }
@@ -503,15 +515,13 @@ void sph_model::set_fade(double k)
 {
     double t = k * k * (3.0 - 2.0 * k);
     glUseProgram(program);
-    glUniform1f(fader, GLfloat(t));
+    glUniform1f(u_fader, GLfloat(t));
 }
 
 static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
 {
     char str[256];
-
     sprintf(str, fmt, d);
-
     return glGetUniformLocation(program, str);
 }
 
@@ -526,23 +536,20 @@ void sph_model::init_program(const char *vert_src,
 
         glUseProgram(program);
 
-        // pos_a = glGetUniformLocation(program, "pos_a");
-        // pos_b = glGetUniformLocation(program, "pos_b");
-        // pos_c = glGetUniformLocation(program, "pos_c");
-        // pos_d = glGetUniformLocation(program, "pos_d");
-        level = glGetUniformLocation(program, "level");
-        fader = glGetUniformLocation(program, "fader");
+        u_level = glGetUniformLocation(program, "level");
+        u_fader = glGetUniformLocation(program, "fader");
+        u_zoomk = glGetUniformLocation(program, "zoomk");
+        u_zoomv = glGetUniformLocation(program, "zoomv");
+        u_faceM = glGetUniformLocation(program, "faceM");
 
         for (int d = 0; d < 8; ++d)
         {
-            tex_a[d]  = glGetUniformLocationv(program, "tex_a[%d]", d);
-            tex_d[d]  = glGetUniformLocationv(program, "tex_d[%d]", d);
-        }
-
-        for (int d = 0; d < 16; ++d)
-        {
-            alpha[d]  = glGetUniformLocationv(program, "alpha[%d]", d);
-            glUniform1i(glGetUniformLocationv(program, "image[%d]", d), d);
+            u_tex_a[d] = glGetUniformLocationv(program, "tex_a[%d]", d);
+            u_tex_d[d] = glGetUniformLocationv(program, "tex_d[%d]", d);
+            u_v_age[d] = glGetUniformLocationv(program, "v_age[%d]", d);
+            u_f_age[d] = glGetUniformLocationv(program, "f_age[%d]", d);
+            glUniform1i (glGetUniformLocationv(program, "v_img[%d]", d), d);
+            glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d), d + 8);
         }
     }
 }

@@ -58,8 +58,13 @@ sph_frame::sph_frame(sph_cache *cache, app::node node)
 {
     for (app::node n = node.find("image"); n; n = node.next(n, "image"))
     {
-        const std::string& name = n.get_s("file");
-        file.push_back(cache->add_file(name));
+        image I;
+
+        I.file    = cache->add_file(n.get_s("file"));
+        I.shader  = (n.get_s("shader") == "vert") ? 0 : 1;
+        I.channel = (n.get_i("channel"));
+
+        images.push_back(I);
     }
 }
 
@@ -194,9 +199,8 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
         // Select the set of files to be drawn and pre-cached.
 
-        int i;
-
-        todraw.clear();
+        tovert.clear();
+        tofrag.clear();
         toprep.clear();
 
         if (timer)
@@ -205,18 +209,19 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
             int b =           (a + 1) % frame.size();
             int c =           (b + 1) % frame.size();
 
-            for (i = 0; i < frame[a]->num(); ++i) apply(0, i, frame[a]->get(i));
-            for (i = 0; i < frame[b]->num(); ++i) apply(1, i, frame[b]->get(i));
-            for (i = 0; i < frame[c]->num(); ++i) apply(2, i, frame[c]->get(i));
+            frame[a]->apply(chani, tovert, tofrag);
+            frame[b]->apply(chani, tovert, tofrag);
+            frame[c]->apply(chani, toprep, toprep);
         }
         else
-            for (i = 0; i < frame[0]->num(); ++i) apply(0, i, frame[0]->get(i));
+            frame[0]->apply(chani, tovert, tofrag);
 
         // Draw the sphere.
 
         model->set_fade(timer - floor(timer));
         model->prep(P, V, w, h);
-        model->draw(P, V, &todraw.front(), todraw.size(),
+        model->draw(P, V, &tovert.front(), tovert.size(),
+                          &tofrag.front(), tofrag.size(),
                           &toprep.front(), toprep.size());
     }
 
@@ -251,17 +256,6 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
     if (gui_state)
         gui_draw();
-}
-
-// Apply allows sub-classes to control how image file descriptors are copied
-// into the descriptor vectors sent to the sphere renderer. When animating,
-// frame gives 0, 1, or 2 to indicate that the current file is going, coming, or
-// to come. Layer gives the image number within the frame, which might map onto
-// a left/right channel selector or a diffuse/normal image type, as the case may
-// be. File gives the descriptor itself.
-
-void sph_viewer::apply(int frame, int layer, int file)
-{
 }
 
 //------------------------------------------------------------------------------
