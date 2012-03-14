@@ -40,7 +40,9 @@ sph_viewer::sph_viewer(const std::string& exe,
     height (0),
     radius (6),
     debug_cache(false),
-    debug_color(false)
+    debug_color(false),
+    debug_label(false),
+    debug_wire (false)
 {
     TIFFSetWarningHandler(0);
     gui_init();
@@ -82,9 +84,11 @@ void sph_viewer::load(const std::string& name)
 
         // Parse the panorama configuration
 
-        int d = root.get_i("depth",  8);
-        int n = root.get_i("mesh",  16);
-        int s = root.get_i("size", 512);
+        int    d  = root.get_i("depth",  8);
+        int    n  = root.get_i("mesh",  16);
+        int    s  = root.get_i("size", 512);
+        double r0 = root.get_f("r0",   1.0);
+        double r1 = root.get_f("r1",   1.0);
 
         height = root.get_f("height", 0.0);
         radius = root.get_f("radius", 6.0);
@@ -100,7 +104,7 @@ void sph_viewer::load(const std::string& name)
         // Create the new cache and model.
 
         cache = new sph_cache(::conf->get_i("sph_viewer_cache_size", 128));
-        model = new sph_model(*cache, vert_src, frag_src, n, d, s);
+        model = new sph_model(*cache, vert_src, frag_src, n, s, d, r0, r1);
 
         // Register all frames with the cache.
 
@@ -218,16 +222,28 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
         // Draw the sphere.
 
+        if (debug_wire)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        }
+
         model->set_fade(timer - floor(timer));
         model->prep(P, V, w, h);
         model->draw(P, V, &tovert.front(), tovert.size(),
                           &tofrag.front(), tofrag.size(),
                           &toprep.front(), toprep.size());
+
+        if (debug_wire)
+        {
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        }
     }
 
     // Draw the label overlay.
 
-    if (label)
+    if (label && debug_label)
     {
         double altitude = sqrt(DOT3(M + 12, M + 12));
         double position[3];
@@ -272,7 +288,8 @@ bool sph_viewer::process_event(app::event *E)
             {
                 case 282 : gui_state   = !gui_state;   return true;
                 case 283 : debug_cache = !debug_cache; return true;
-                case 284 : debug_color = !debug_color; return true;
+                case 284 : debug_label = !debug_label; return true;
+                case 285 : debug_wire  = !debug_wire;  return true;
                 case 8   : cache->flush();             return true;
             }
         }

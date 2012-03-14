@@ -119,8 +119,8 @@ public:
     void     insert(sph_page, int);
     void     remove(sph_page);
 
-    sph_page  eject(int, int);
-    void      draw();
+    sph_page eject(int, int);
+    void     draw();
 
 private:
 

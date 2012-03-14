@@ -11,7 +11,7 @@ uniform float     v_age[8];
 vec4 tex0(vec2 t)
 {
     vec4 c = texture2D(v_img[0], t);
-    return c;
+    return vec4(c.rgb, c.a * v_age[0]);
 }
 
 vec4 tex1(vec2 t)

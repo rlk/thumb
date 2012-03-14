@@ -91,7 +91,7 @@ void orbiter::tick_move(double dt)
         click_v[1] != point_v[1] ||
         click_v[2] != point_v[2])
     {
-        double h = (altitude - get_radius()) / get_radius();
+        double h = std::max((altitude - get_radius()) / get_radius(), 0.01);
 
         double d = vdot(click_v, point_v);
         double a = acos(d);
@@ -117,7 +117,11 @@ void orbiter::tick_move(double dt)
 
 void orbiter::tick_dive(double dt)
 {
-    altitude += 2.0 * get_radius() * (point_v[1] - click_v[1]) * dt;
+    if (model)
+    {
+        double a = altitude - get_radius() * model->get_r0();
+        altitude += 10.0 * a * (point_v[1] - click_v[1]) * dt;
+    }
 }
 
 void orbiter::tick(double dt)
@@ -167,13 +171,16 @@ void orbiter::tick(double dt)
 ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
     if (cache && model)
+    {
         cache->update(model->tick());
 
-    double r = get_radius();
-    double n = 0.5 * (altitude - r);
-    double f =   sqrt(altitude * altitude - r * r) * 1.1;
+        double r = get_radius() * model->get_r0();
+        double n = 0.1 * (altitude - r);
+        double f =   sqrt(altitude * altitude - r * r);
 
-    return ogl::range(n, f);
+        return ogl::range(n, f);
+    }
+    return ogl::range(0.1, 10.0);
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)

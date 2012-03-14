@@ -27,8 +27,15 @@
 
 sph_model::sph_model(sph_cache& cache,
                      const char *vert,
-                     const char *frag, int n, int d, int s) :
-    cache(cache), depth(d), size(s), time(1), status(cube_size(d), s_halt)
+                     const char *frag,
+                     int n, int s, int d, double r0, double r1) :
+    cache(cache),
+    time(1),
+    size(s),
+    depth(d),
+    r0(r0),
+    r1(r1),
+    status(cube_size(d), s_halt)
 {
     init_program(vert, frag);
     init_arrays(n);
@@ -140,10 +147,13 @@ double sph_model::view_face(const double *M, int vw, int vh,
     scube(j, ee, ss, c);
     scube(j, ww, ss, d);
 
-    zoom(a, a);
-    zoom(b, b);
-    zoom(c, c);
-    zoom(d, d);
+    if (zoomk != 1)
+    {
+        zoom(a, a);
+        zoom(b, b);
+        zoom(c, c);
+        zoom(d, d);
+    }
 
     // Compute the maximum extent due to bulge.
 
@@ -161,6 +171,17 @@ double sph_model::view_face(const double *M, int vw, int vh,
     vmul(f, b, k);
     vmul(g, c, k);
     vmul(h, d, k);
+
+    // Apply the inner and outer radia to the bounding volume.
+
+    a[0] *= r0; a[1] *= r0; a[2] *= r0;
+    b[0] *= r0; b[1] *= r0; b[2] *= r0;
+    c[0] *= r0; c[1] *= r0; c[2] *= r0;
+    d[0] *= r0; d[1] *= r0; d[2] *= r0;
+    e[0] *= r1; e[1] *= r1; e[2] *= r1;
+    f[0] *= r1; f[1] *= r1; f[2] *= r1;
+    g[0] *= r1; g[1] *= r1; g[2] *= r1;
+    h[0] *= r1; h[1] *= r1; h[2] *= r1;
 
     // Compute W and reject any volume on the far side of the singularity.
 
@@ -233,10 +254,6 @@ double sph_model::view_face(const double *M, int vw, int vh,
 
     // Compute the length of the longest visible edge, in pixels.
 
-//  return max(length(A, B, vw, vh),
-//             length(C, D, vw, vh),
-//             length(A, C, vw, vh),
-//             length(B, D, vw, vh));
     return std::max(max(length(A, B, vw, vh),
                         length(C, D, vw, vh),
                         length(A, C, vw, vh),
@@ -391,13 +408,6 @@ void sph_model::draw(const double *P, const double *V, const int *vv, int vc,
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[i]);
 
             draw_face(vv, vc, fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
-#if 0
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            draw_face(fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-#endif
         }
     }
     glUseProgram(0);
@@ -429,7 +439,7 @@ void sph_model::draw_face(const int *vv, int vc,
         {
             glActiveTexture(GL_TEXTURE0 + d);
             glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[0], i, time, then));
-            glUniform1f(u_v_age[d], age(then));
+            glUniform1f(u_v_age[d], 1.0);
         }
 
         // Fragment shader images and ages.

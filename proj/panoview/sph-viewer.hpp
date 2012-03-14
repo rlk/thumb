@@ -121,6 +121,8 @@ private:
 
     bool debug_cache;
     bool debug_color;
+    bool debug_label;
+    bool debug_wire;
 
     // Label data
 

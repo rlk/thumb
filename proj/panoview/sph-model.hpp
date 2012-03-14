@@ -24,7 +24,8 @@ class sph_model
 {
 public:
 
-    sph_model(sph_cache&, const char *, const char *, int, int, int);
+    sph_model(sph_cache&, const char *, const char *,
+                          int, int, int, double, double);
    ~sph_model();
 
     int  tick() { return time++; }
@@ -42,15 +43,20 @@ public:
         zoomk    = k;
     }
 
+    double get_r0() const { return r0; }
+    double get_r1() const { return r1; }
+
 private:
 
     GLuint stack[8];
 
     sph_cache& cache;
 
-    int depth;
-    int size;
-    int time;
+    int    time;
+    int    size;
+    int    depth;
+    double r0;
+    double r1;
 
     // Zooming state.
 
