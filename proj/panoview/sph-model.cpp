@@ -25,6 +25,16 @@
 
 //------------------------------------------------------------------------------
 
+#if 0
+typedef GLushort         GLindex;
+#define GL_ELEMENT_INDEX GL_UNSIGNED_SHORT
+#else
+typedef GLuint           GLindex;
+#define GL_ELEMENT_INDEX GL_UNSIGNED_INT
+#endif
+
+//------------------------------------------------------------------------------
+
 sph_model::sph_model(sph_cache& cache,
                      const char *vert,
                      const char *frag,
@@ -439,7 +449,7 @@ void sph_model::draw_face(const int *vv, int vc,
         {
             glActiveTexture(GL_TEXTURE0 + d);
             glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[0], i, time, then));
-            glUniform1f(u_v_age[d], 1.0);
+            glUniform1f(u_v_age[d], age(then));
         }
 
         // Fragment shader images and ages.
@@ -498,7 +508,7 @@ void sph_model::draw_face(const int *vv, int vc,
         glUniform1i(u_level, d);
 
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
-        glDrawElements(GL_QUADS, count, GL_UNSIGNED_SHORT, 0);
+        glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
     }
 
     // If this page does NOT have the HALT state then we must have set some
@@ -617,10 +627,10 @@ static void init_elements(int n, int b)
 {
     struct element
     {
-        GLshort a;
-        GLshort b;
-        GLshort d;
-        GLshort c;
+        GLindex a;
+        GLindex b;
+        GLindex d;
+        GLindex c;
     };
 
     const size_t s = n * n * sizeof (element);
@@ -635,10 +645,10 @@ static void init_elements(int n, int b)
         for     (int r = 0; r < n; ++r)
             for (int c = 0; c < n; ++c, ++e)
             {
-                e->a = GLshort(d * (r    ) + (c    ));
-                e->b = GLshort(d * (r    ) + (c + 1));
-                e->c = GLshort(d * (r + 1) + (c    ));
-                e->d = GLshort(d * (r + 1) + (c + 1));
+                e->a = GLindex(d * (r    ) + (c    ));
+                e->b = GLindex(d * (r    ) + (c + 1));
+                e->c = GLindex(d * (r + 1) + (c    ));
+                e->d = GLindex(d * (r + 1) + (c + 1));
             }
 
         // Rewind the indices to reduce edge resolution as necessary.
