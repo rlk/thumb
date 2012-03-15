@@ -541,10 +541,13 @@ void sph_cache::update(int t)
             sph_task task = loads.remove();
             sph_page page(task.f, task.i);
 
+            // Leaving missing pages in the wait set may be advantageous.
             waits.remove(page);
 
             if (task.d)
             {
+                // waits.remove(page);
+
                 if (pages.full())
                 {
                     sph_page victim = pages.eject(t, page.i);
