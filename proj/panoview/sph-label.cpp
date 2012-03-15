@@ -165,6 +165,7 @@ void sph_label::parse(const void *data_ptr, size_t data_len)
 const char *vert_txt =                        \
     "void main() { "                          \
         "gl_TexCoord[0] = gl_MultiTexCoord0;" \
+        "gl_FrontColor  = gl_Color;"          \
         "gl_Position    = ftransform();"      \
     "}";
 
@@ -174,7 +175,7 @@ const char *frag_txt =                        \
         "vec2  f = fwidth(gl_TexCoord[0].xy); "\
         "float l = min(f.x, f.y); "\
         "float k = 1.0 - smoothstep(0.0, l, abs(0.5 - l - d));"\
-        "gl_FragColor = vec4(0.0, 0.0, 0.0, k);"      \
+        "gl_FragColor = vec4(gl_Color.rgb, gl_Color.a * k);"      \
     "}";
 
 
@@ -262,6 +263,8 @@ void sph_label::draw(const double *p, double r, double a)
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+        glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+
         glUseProgram(prog);
 
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
@@ -279,7 +282,6 @@ void sph_label::draw(const double *p, double r, double a)
 
         glUseProgram(0);
 
-        glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
         line_render(label_line);
     }
     glPopAttrib();

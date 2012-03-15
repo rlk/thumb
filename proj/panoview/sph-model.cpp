@@ -445,20 +445,20 @@ void sph_model::draw_face(const int *vv, int vc,
     {
         // Vertex shader images and ages.
 
-//      for (int vi = 0; vi < vc; ++vi)
+        for (int vi = 0; vi < vc; ++vi)
         {
-            glActiveTexture(GL_TEXTURE0 + d);
-            glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[0], i, time, then));
-            glUniform1f(u_v_age[d], age(then));
+            glActiveTexture(GL_TEXTURE0 + 8 * vi + d);
+            glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
+            glUniform1f(u_v_age[8 * vi + d], age(then));
         }
 
         // Fragment shader images and ages.
 
-//      for (int fi = 0; fi < fc; ++fi)
+        for (int fi = 0; fi < fc; ++fi)
         {
-            glActiveTexture(GL_TEXTURE0 + d + 8);
-            glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[0], i, time, then));
-            glUniform1f(u_f_age[d], age(then));
+            glActiveTexture(GL_TEXTURE0 + 8 * fi + d + 8);
+            glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
+            glUniform1f(u_f_age[8 * fi + d], age(then));
         }
 
         // Page coordinates.
@@ -516,14 +516,14 @@ void sph_model::draw_face(const int *vv, int vc,
 
     if (status[i] != s_halt)
     {
-        // for (int vi = 0; vi < vc; ++vi)
+        for (int vi = 0; vi < vc; ++vi)
         {
-            glActiveTexture(GL_TEXTURE0 + d);
+            glActiveTexture(GL_TEXTURE0 + 8 * vi + d);
             glBindTexture(GL_TEXTURE_2D, cache.get_fill());
         }
-        // for (int fi = 0; fi < fc; ++fi)
+        for (int fi = 0; fi < fc; ++fi)
         {
-            glActiveTexture(GL_TEXTURE0 + d + 8);
+            glActiveTexture(GL_TEXTURE0 + 8 * fi + d + 8);
             glBindTexture(GL_TEXTURE_2D, cache.get_fill());
         }
     }
@@ -570,6 +570,7 @@ void sph_model::init_program(const char *vert_src,
             u_f_age[d] = glGetUniformLocationv(program, "f_age[%d]", d);
             glUniform1i (glGetUniformLocationv(program, "v_img[%d]", d), d);
             glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d), d + 8);
+            glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d+8), d + 16);
         }
     }
 }

@@ -6,6 +6,9 @@ uniform vec2      tex_d[8];
 uniform sampler2D v_img[8];
 uniform float     v_age[8];
 
+varying vec3 var_V;
+varying vec3 var_L;
+
 //------------------------------------------------------------------------------
 
 vec4 tex0(vec2 t)
@@ -119,6 +122,9 @@ void main()
     float k = 2.0 * sample(t).r;
     float h = (k * (r1 - r0) + r0) / rm;
     vec3  v = scube(t) * h;
+
+    var_V = v;
+    var_L =  (gl_LightSource[0].position.xyz);
 
     gl_TexCoord[0].xy = t;
     gl_FrontColor = colormap(k);

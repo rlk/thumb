@@ -176,6 +176,9 @@ void orbiter::tick(double dt)
     vtransform(t, R, view_y);
     vnormalize(view_y, t);
 
+    vtransform(t, R, light);
+    vnormalize(light, t);
+
     vtransform(t, R, position);
     vnormalize(position, t);
 
@@ -216,7 +219,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GLfloat L[4];
