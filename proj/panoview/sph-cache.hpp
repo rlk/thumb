@@ -166,6 +166,7 @@ private:
     GLsizei pagelen(int);
     GLuint  filler;
     bool    debug;
+    int     size;
 
     SDL_Thread *thread[4];
 

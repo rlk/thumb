@@ -397,7 +397,7 @@ void sph_set::draw()
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) : pages(n), waits(n), needs(32), loads(8)
+sph_cache::sph_cache(int n) : pages(n), waits(n), needs(32), loads(8), size(0)
 {
     GLuint b;
     int    i;
@@ -546,7 +546,11 @@ void sph_cache::update(int t)
             if (task.d)
             {
                 if (pages.full())
-                    page.o = pages.eject(t, page.i).o;
+                {
+                    sph_page victim = pages.eject(t, page.i);
+                    size  -= pagelen(victim.f);
+                    page.o =         victim.o;
+                }
                 else
                     glGenTextures(1, &page.o);
 
@@ -560,6 +564,7 @@ void sph_cache::update(int t)
                                               files[task.f].c,
                                               files[task.f].b,
                                               files[task.f].g);
+                    size += pagelen(page.f);
                 }
                 else task.dump_texture();
             }
