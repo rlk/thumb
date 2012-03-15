@@ -1,4 +1,3 @@
-varying vec4 V;
 
 uniform vec2      tex_a[8];
 uniform vec2      tex_d[8];

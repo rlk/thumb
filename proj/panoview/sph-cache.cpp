@@ -34,17 +34,19 @@ static bool exists(const std::string& name)
 
 //------------------------------------------------------------------------------
 
+// Zero the given texture object by uploading a single black pixel.
+
 static void clear(GLuint t)
 {
     static const GLfloat p[] = { 0, 0, 0, 0 };
 
-    glBindTexture  (GL_TEXTURE_2D, t);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+    glBindTexture   (GL_TEXTURE_2D, t);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, p);
-    glTexImage2D   (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
+    glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
 }
 
 // Select an OpenGL internal texture format for an image with c channels and
@@ -132,7 +134,7 @@ sph_task::sph_task(int f, int i, GLuint u, GLsizei s) : sph_item(f, i), u(u)
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
-// Upload the pixel buffer to a newly-generated OpenGL texture object.
+// Upload the pixel buffer to the OpenGL texture object.
 
 void sph_task::make_texture(GLuint o, uint32 w, uint32 h,
                                       uint16 c, uint16 b, uint16 g)
@@ -160,7 +162,7 @@ void sph_task::dump_texture()
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
 
-// Load the current TIFF directory into a newly-allocated pixel buffer.
+// Load the current TIFF directory image data into the mapped pixel buffer.
 
 void sph_task::load_texture(TIFF *T, uint32 w, uint32 h,
                                      uint16 c, uint16 b, uint16 g)
@@ -214,7 +216,7 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h,
     }
 }
 
-// Construct a file table entry. Load the TIFF briefly to determine its format.
+// Construct a file table entry. Open the TIFF briefly to determine its format.
 
 sph_file::sph_file(const std::string& tiff)
 {
@@ -278,6 +280,9 @@ void sph_set::remove(sph_page page)
     m.erase(page);
 }
 
+// Search for the given page in this page set. If found, update the page entry
+// with the current time t to indicate recent use.
+
 sph_page sph_set::search(sph_page page, int t)
 {
     std::map<sph_page, int>::iterator i = m.find(page);
@@ -293,6 +298,11 @@ sph_page sph_set::search(sph_page page, int t)
     return sph_page();
 }
 
+// Eject a page from this set to accommodate the addition of a new page.
+// t is the current cache time and i is the index of the incoming page.
+// The general polity is LRU, but with considerations for time and priority
+// that help mitigate thrashing.
+
 sph_page sph_set::eject(int t, int i)
 {
     assert(!m.empty());
@@ -304,11 +314,10 @@ sph_page sph_set::eject(int t, int i)
     std::map<sph_page, int>::iterator e;
 
     for (e = m.begin(); e != m.end(); ++e)
-//      if (e->first.i > 5) // HACK
-        {
-            if (a == m.end() || e->second < a->second) a = e;
-                                                       l = e;
-        }
+    {
+        if (a == m.end() || e->second < a->second) a = e;
+                                                   l = e;
+    }
 
     // If the LRU page was not used in this frame or the last, eject it.
     // Otherwise consider the lowest-priority loaded page and eject if it
@@ -451,7 +460,6 @@ sph_cache::~sph_cache()
 
 static void debug_on(int l)
 {
-    /*
     static const GLfloat color[][3] = {
         { 1.0f, 0.0f, 0.0f },
         { 1.0f, 1.0f, 0.0f },
@@ -465,14 +473,6 @@ static void debug_on(int l)
     glPixelTransferf(GL_RED_SCALE,   color[l][0]);
     glPixelTransferf(GL_GREEN_SCALE, color[l][1]);
     glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);
-    */
-    /*
-    static const GLfloat color[3] = { 2.0f, 2.0f, 2.0f };
-
-    glPixelTransferf(GL_RED_SCALE,   color[0]);
-    glPixelTransferf(GL_GREEN_SCALE, color[1]);
-    glPixelTransferf(GL_BLUE_SCALE,  color[2]);
-    */
 }
 
 //------------------------------------------------------------------------------

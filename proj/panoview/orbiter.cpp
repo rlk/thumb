@@ -50,6 +50,10 @@ orbiter::orbiter(const std::string& exe,
     view_y[1]      = 1.0;
     view_y[2]      = 0.0;
 
+    light[0]       = 0.0;
+    light[1]       = 0.0;
+    light[2]       = 1.0;
+
     drag_move  = false;
     drag_look  = false;
     drag_dive  = false;
@@ -61,6 +65,8 @@ orbiter::~orbiter()
 }
 
 //------------------------------------------------------------------------------
+
+// Apply the view panning interaction.
 
 void orbiter::tick_look(double dt)
 {
@@ -84,6 +90,8 @@ void orbiter::tick_look(double dt)
     vtransform(t, R, view_y);
     vnormalize(view_y, t);
 }
+
+// Apply the orbital motion interaction.
 
 void orbiter::tick_move(double dt)
 {
@@ -115,6 +123,8 @@ void orbiter::tick_move(double dt)
     }
 }
 
+// Apply the altitude change interaction.
+
 void orbiter::tick_dive(double dt)
 {
     if (model)
@@ -124,14 +134,35 @@ void orbiter::tick_dive(double dt)
     }
 }
 
+// Apply the light position interaction.
+
+void orbiter::tick_light(double dt)
+{
+    double dx = point_v[0] - click_v[0];
+    double dy = point_v[1] - click_v[1];
+
+    double X[16];
+    double Y[16];
+    double R[16];
+    double t[3];
+
+    mrotate(X, view_x, -10.0 * dy * dt);
+    mrotate(Y, view_y,  10.0 * dx * dt);
+    mmultiply(R, X, Y);
+
+    vtransform(t, R, light);
+    vnormalize(light, t);
+}
+
 void orbiter::tick(double dt)
 {
     double M[16];
     double t[3];
 
-    if (drag_move) tick_move(dt);
-    if (drag_look) tick_look(dt);
-    if (drag_dive) tick_dive(dt);
+    if (drag_move)  tick_move (dt);
+    if (drag_look)  tick_look (dt);
+    if (drag_dive)  tick_dive (dt);
+    if (drag_light) tick_light(dt);
 
     // Move the position and view orientation along the current orbit.
 
@@ -187,6 +218,16 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
     glClearColor(0.1f, 0.1f, 0.1f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    GLfloat L[4];
+
+    L[0] = GLfloat(light[0]);
+    L[1] = GLfloat(light[1]);
+    L[2] = GLfloat(light[2]);
+    L[3] = 0.0f;
+
+    glLoadIdentity();
+    glLightfv(GL_LIGHT0, GL_POSITION, L);
 
     sph_viewer::draw(frusi, frusp, chani);
 }

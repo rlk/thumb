@@ -36,9 +36,10 @@ public:
 
 private:
 
-    void tick_move(double);
-    void tick_look(double);
-    void tick_dive(double);
+    void tick_move (double);
+    void tick_look (double);
+    void tick_dive (double);
+    void tick_light(double);
     void tick(double);
 
     double orbit_plane[3];
@@ -47,6 +48,7 @@ private:
     double altitude;
     double view_x[3];
     double view_y[3];
+    double light[3];
 
     double point_v[3];
     double click_v[3];
