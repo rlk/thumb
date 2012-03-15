@@ -124,7 +124,8 @@ static GLenum external_type(uint16 c, uint16 b, uint16 g)
 
 // Construct a load task. Map the PBO to provide a destination for the loader.
 
-sph_task::sph_task(int f, int i, GLuint u, GLsizei s) : sph_item(f, i), u(u)
+sph_task::sph_task(int f, int i, GLuint u, GLsizei s)
+    : sph_item(f, i), u(u), d(false)
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
@@ -143,10 +144,14 @@ void sph_task::make_texture(GLuint o, uint32 w, uint32 h,
     {
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 
-        glBindTexture(GL_TEXTURE_2D, o);
-        glTexImage2D (GL_TEXTURE_2D, 0, internal_form(c, b, g), w, h, 1,
-                                        external_form(c, b, g),
-                                        external_type(c, b, g), 0);
+        glBindTexture  (GL_TEXTURE_2D, o);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+        glTexImage2D   (GL_TEXTURE_2D, 0, internal_form(c, b, g), w, h, 1,
+                                          external_form(c, b, g),
+                                          external_type(c, b, g), 0);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
@@ -457,7 +462,7 @@ sph_cache::~sph_cache()
 }
 
 //------------------------------------------------------------------------------
-
+#if 0
 static void debug_on(int l)
 {
     static const GLfloat color[][3] = {
@@ -474,7 +479,7 @@ static void debug_on(int l)
     glPixelTransferf(GL_GREEN_SCALE, color[l][1]);
     glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);
 }
-
+#endif
 //------------------------------------------------------------------------------
 
 // Append a string to the file list and return its index. Queue the roots.
@@ -517,20 +522,8 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
 
     if (!needs.full() && !pbos.empty())
     {
-        GLuint o = 0;
-
-        if (pages.full())
-            o = pages.eject(t, i).o;
-        else
-            glGenTextures(1, &o);
-
-        if (o)
-        {
-            needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
-            waits.insert(sph_page(f, i, filler), t);
-            pages.insert(sph_page(f, i, o),      t);
-            clear(o);
-        }
+        needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
+        waits.insert(sph_page(f, i, filler), t);
     }
 
     n = 0;
@@ -546,24 +539,31 @@ void sph_cache::update(int t)
         for (int c = 0; !loads.empty() && c < max_loads_per_update; ++c)
         {
             sph_task task = loads.remove();
-            sph_page page = pages.search(sph_page(task.f, task.i), t);
-                            waits.remove(sph_page(task.f, task.i));
+            sph_page page(task.f, task.i);
 
-            if (page.valid())
+            waits.remove(page);
+
+            if (task.d)
             {
-                page.t = t;
-                pages.remove(page);
-                pages.insert(page, t);
+                if (pages.full())
+                    page.o = pages.eject(t, page.i).o;
+                else
+                    glGenTextures(1, &page.o);
 
-                if (debug)
-                    debug_on(face_level(task.i));
+                if (page.o)
+                {
+                    page.t = t;
+                    pages.insert(page, t);
 
-                task.make_texture(page.o, files[task.f].w, files[task.f].h,
-                                          files[task.f].c, files[task.f].b,
-                                          files[task.f].g);
+                    task.make_texture(page.o, files[task.f].w,
+                                              files[task.f].h,
+                                              files[task.f].c,
+                                              files[task.f].b,
+                                              files[task.f].g);
+                }
+                else task.dump_texture();
             }
-            else
-                task.dump_texture();
+            else task.dump_texture();
 
             pbos.enq(task.u);
         }
@@ -657,11 +657,13 @@ int loader(void *data)
                     uint16 g = cache->files[task.f].g;
 
                     task.load_texture(T, w, h, c, b, g);
-                    cache->loads.insert(task);
+                    task.d = true;
+                    // cache->loads.insert(task);
                 }
                 TIFFClose(T);
             }
         }
+        cache->loads.insert(task);
     }
     return 0;
 }

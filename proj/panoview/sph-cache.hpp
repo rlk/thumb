@@ -79,11 +79,12 @@ struct sph_page : public sph_item
 
 struct sph_task : public sph_item
 {
-    sph_task()             : sph_item(    ), u(0), p(0) { }
-    sph_task(int f, int i) : sph_item(i, f), u(0), p(0) { }
+    sph_task()             : sph_item(    ), u(0), d(false), p(0) { }
+    sph_task(int f, int i) : sph_item(i, f), u(0), d(false), p(0) { }
     sph_task(int f, int i, GLuint u, GLsizei s);
 
     GLuint u;
+    bool   d;
     void  *p;
 
     void make_texture(GLuint, uint32, uint32, uint16, uint16, uint16);
