@@ -32,6 +32,8 @@ public:
 
     virtual bool process_event(app::event *);
 
+    virtual void load(const std::string&);
+
     virtual ~orbiter();
 
 private:

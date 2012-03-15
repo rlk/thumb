@@ -347,7 +347,7 @@ void sph_set::draw()
 {
     int l = log2(size);
     int r = (l & 1) ? (1 << ((l - 1) / 2)) : (1 << (l / 2));
-    int c = (l & 1) ? (1 << ((l + 1) / 2)) : (1 << (l / 2));
+    int c = size / r;
 
     glUseProgram(0);
 

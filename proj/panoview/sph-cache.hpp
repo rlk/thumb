@@ -142,6 +142,7 @@ public:
     int    add_file(const std::string&);
     GLuint get_page(int, int, int, int&);
     GLuint get_fill() { return filler; }
+    int    get_size() { return size;   }
 
     void update(int);
     void flush();

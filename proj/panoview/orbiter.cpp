@@ -250,6 +250,13 @@ bool orbiter::process_event(app::event *E)
     return false;
 }
 
+void orbiter::load(const std::string& name)
+{
+    sph_viewer::load(name);
+
+    altitude = 2.0 * get_radius();
+}
+
 //------------------------------------------------------------------------------
 
 bool orbiter::pan_point(app::event *E)

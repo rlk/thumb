@@ -89,7 +89,7 @@ public:
 
     virtual bool process_event(app::event *);
 
-    void load(const std::string&);
+    virtual void load(const std::string&);
     void unload();
     void cancel();
 

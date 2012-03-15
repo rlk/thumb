@@ -39,7 +39,8 @@ CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
 LIBS    = $(shell $(SDLCONF) --libs) \
 	  $(shell $(FT2CONF) --libs) \
-	-lthumb -ltiff -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
+	  /usr/local/lib/libtiff.a \
+	-lthumb -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 
 #------------------------------------------------------------------------------
 

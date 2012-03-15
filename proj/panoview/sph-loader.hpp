@@ -21,9 +21,13 @@ class sph_viewer;
 
 class sph_loader : public gui::dialog
 {
+	gui::string *status;
+
 public:
 
     sph_loader(sph_viewer *, int, int);
+
+    void set_status(int c);
 };
 
 //------------------------------------------------------------------------------

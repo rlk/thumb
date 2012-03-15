@@ -49,10 +49,14 @@ public:
 
 //------------------------------------------------------------------------------
 
+#define SP "                                                                   "
+
 sph_loader::sph_loader(sph_viewer *V, int w, int h)
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("pan", ".xml", E);
+
+    status = new gui::string(SP, 0, 0, 0xFF, 0xC0, 0x40);
 
     root = ((new gui::frame)->
             add((new gui::vgroup)->
@@ -67,6 +71,8 @@ sph_loader::sph_loader(sph_viewer *V, int w, int h)
                 add((new gui::hgroup)->
                     add(annot("Copyright \xC2\xA9 2011 Robert Kooima"))->
                     add(new gui::filler(true, false))->
+                    add(status)->
+                    add(new gui::filler(true, false))->
                     add((new gui::harray)->
                         add(new button_load  (V, E))->
                         add(new button_cancel(V))))));
@@ -80,6 +86,14 @@ sph_loader::sph_loader(sph_viewer *V, int w, int h)
 
     if (char *name = getenv("PANOINIT"))
         V->load(name);
+}
+
+void sph_loader::set_status(int c)
+{
+    char buf[256];
+
+    sprintf(buf, "Cache size: %d KB", c / 1024);
+    status->value(buf);
 }
 
 //------------------------------------------------------------------------------
