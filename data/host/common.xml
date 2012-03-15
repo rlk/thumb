@@ -96,6 +96,24 @@
         </frustum>
       </display>
     </node>
+    <!-- 1920x1080 A-B comparison ----------------------------------------- -->
+    <node name="1920x1080-AB">
+      <window x="0" y="0" w="1920" h="1080" />
+      <channel w="960" h="1080" x="0.0"/>
+      <channel w="960" h="1080" x="0.0"/>
+      <display type="normal" index="1" channel="0">
+        <viewport x="0" y="0" w="960" h="1080"/>
+        <frustum>
+          <perspective hfov="30.0" vfov="35.0"/>
+        </frustum>
+      </display>
+      <display type="normal" index="1" channel="1">
+        <viewport x="960" y="0" w="960" h="1080"/>
+        <frustum>
+          <perspective hfov="30.0" vfov="35.0"/>
+        </frustum>
+      </display>
+    </node>
     <!-- 1024x512 left-right stereo ---------------------------------------- -->
     <node name="1024x512-LR">
       <window x="0" y="0" w="1024" h="512" />
