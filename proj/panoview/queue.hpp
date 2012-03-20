@@ -32,7 +32,7 @@ template <typename T> class queue
 {
 public:
 
-    queue(int);
+    queue(const char *, int);
    ~queue();
 
     void insert(T);
@@ -41,6 +41,8 @@ public:
     bool full  ( );
     
 private:
+
+    const char *name;
 
     SDL_sem   *full_slots;
     SDL_sem   *free_slots;
@@ -51,7 +53,7 @@ private:
 
 //------------------------------------------------------------------------------
 
-template <typename T> queue<T>::queue(int n)
+template <typename T> queue<T>::queue(const char *s, int n) : name(s)
 {
     full_slots = SDL_CreateSemaphore(0);
     free_slots = SDL_CreateSemaphore(n);
@@ -73,6 +75,7 @@ template <typename T> void queue<T>::insert(T d)
     SDL_mutexP(data_mutex);
     {
         S.insert(d);
+        // printf("%s insert: %d\n", name, int(S.size()));
     }
     SDL_mutexV(data_mutex);
     SDL_SemPost(full_slots);
@@ -87,6 +90,7 @@ template <typename T> T queue<T>::remove()
     {
         d   = *(S.begin());
         S.erase(S.begin());
+        // printf("%s remove: %d\n", name, int(S.size()));
     }
     SDL_mutexV(data_mutex);
     SDL_SemPost(free_slots);

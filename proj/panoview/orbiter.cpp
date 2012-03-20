@@ -40,7 +40,7 @@ orbiter::orbiter(const std::string& exe,
     position[0]    = 0.0;
     position[1]    = 0.0;
     position[2]    = 1.0;
-    altitude       = 2.0 * get_radius();
+    altitude       = 3.0;
 
     view_x[0]      = 1.0;
     view_x[1]      = 0.0;
@@ -50,9 +50,9 @@ orbiter::orbiter(const std::string& exe,
     view_y[1]      = 1.0;
     view_y[2]      = 0.0;
 
-    light[0]       = 0.0;
-    light[1]       = 0.0;
-    light[2]       = 1.0;
+    light[0]       = sqrt(3.0);
+    light[1]       = sqrt(3.0);
+    light[2]       = sqrt(3.0);
 
     drag_move  = false;
     drag_look  = false;
@@ -257,7 +257,8 @@ void orbiter::load(const std::string& name)
 {
     sph_viewer::load(name);
 
-    altitude = 2.0 * get_radius();
+    if (altitude < get_radius())
+        altitude = get_radius() * 3.0;
 }
 
 //------------------------------------------------------------------------------

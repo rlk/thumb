@@ -152,7 +152,9 @@ public:
 
 private:
 
-    static const int max_loads_per_update = 2;
+    static const int need_queue_size      = 32;   // 32
+    static const int load_queue_size      =  8;   // 8
+    static const int max_loads_per_update =  2;   // 2
 
     std::vector<sph_file> files;
 

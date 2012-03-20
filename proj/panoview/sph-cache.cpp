@@ -397,7 +397,12 @@ void sph_set::draw()
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) : pages(n), waits(n), needs(32), loads(8), size(0)
+sph_cache::sph_cache(int n) :
+    pages(n),
+    waits(n),
+    needs("need", need_queue_size),
+    loads("load", load_queue_size),
+    size(0)
 {
     GLuint b;
     int    i;
@@ -542,11 +547,11 @@ void sph_cache::update(int t)
             sph_page page(task.f, task.i);
 
             // Leaving missing pages in the wait set may be advantageous.
-            waits.remove(page);
+//          waits.remove(page);
 
             if (task.d)
             {
-                // waits.remove(page);
+                waits.remove(page);
 
                 if (pages.full())
                 {
