@@ -22,17 +22,6 @@
         </frustum>
       </display>
     </node>
-    <!-- 1920x1080 (HD standard 16x9 aspect) ------------------------------ -->
-    <node name="1920x1080">
-      <window x="0" y="0" w="1920" h="1080"/>
-      <channel w="1920" h="1080"/>
-      <display type="direct" index="1">
-        <viewport x="0" y="0" w="1920" h="1080"/>
-        <frustum>
-          <perspective hfov="60.0" vfov="35.0"/>
-        </frustum>
-      </display>
-    </node>
     <!-- 2560x1600 -------------------------------------------------------- -->
     <node name="2560x1600">
       <window x="0" y="0" w="2560" h="1600" full="1"/>
@@ -78,25 +67,47 @@
         </frustum>
       </display>
     </node>
+    <!-- 1920x1080 (HD standard 16x9 aspect) ------------------------------ -->
+    <node name="1920x1080">
+      <window x="0" y="0" w="1920" h="1080"/>
+      <channel w="1920" h="1080"/>
+      <display type="direct" index="1">
+        <viewport x="0" y="0" w="1920" h="1080"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="35.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 1920x1080 (HD standard 16x9 aspect) ------------------------------ -->
+    <node name="1920x1080-W">
+      <window x="0" y="0" w="1920" h="1080"/>
+      <channel w="1920" h="1080"/>
+      <display type="direct" index="1">
+        <viewport x="0" y="0" w="1920" h="1080"/>
+        <frustum>
+          <perspective hfov="80.0" vfov="50.0"/>
+        </frustum>
+      </display>
+    </node>
     <!-- 1920x1080 left-right stereo -------------------------------------- -->
     <node name="1920x1080-LR">
-      <window x="0" y="0" w="1920" h="1080" />
+      <window x="0" y="0" w="1920" h="1080" frame="0"/>
       <channel w="960" h="1080" x="-0.125"/>
       <channel w="960" h="1080" x=" 0.125"/>
       <display type="normal" index="1" channel="0">
         <viewport x="0" y="0" w="960" h="1080"/>
         <frustum>
-          <perspective hfov="30.0" vfov="35.0"/>
+          <perspective hfov="60.0" vfov="35.0"/>
         </frustum>
       </display>
       <display type="normal" index="1" channel="1">
         <viewport x="960" y="0" w="960" h="1080"/>
         <frustum>
-          <perspective hfov="30.0" vfov="35.0"/>
+          <perspective hfov="60.0" vfov="35.0"/>
         </frustum>
       </display>
     </node>
-    <!-- 1920x1080 A-B comparison ----------------------------------------- -->
+   <!-- 1920x1080 A-B comparison ----------------------------------------- -->
     <node name="1920x1080-AB">
       <window x="0" y="0" w="1920" h="1080" />
       <channel w="960" h="1080" x="0.0"/>

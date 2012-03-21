@@ -83,8 +83,8 @@ CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
 LIBS    = $(shell $(SDLCONF) --libs) \
 	  $(shell $(FT2CONF) --libs) \
-	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
-#	-ljpeg -lpng -lz -lm $(OGLLIB)
+	-ljpeg -lpng -lz -lm $(OGLLIB)
+#	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
 
 #------------------------------------------------------------------------------
 

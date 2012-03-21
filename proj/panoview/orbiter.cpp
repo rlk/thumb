@@ -212,7 +212,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
         double n = 0.1 * (altitude - r);
         double f =   sqrt(altitude * altitude - r * r);
 
-        return ogl::range(n, f);
+        return ogl::range(n, f * 1.1);
     }
     return ogl::range(0.1, 10.0);
 }
