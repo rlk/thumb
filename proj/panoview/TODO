@@ -1,0 +1,14 @@
+
+Todo:
+
+	WAC GLOBAL starts to look a little low res
+		Cubic interpolation?
+		Have a detail texture fade in
+
+	Normalized height values need an unsigned override option.
+
+	The GLD seam at +/- 60 is still subtly visible. Mix in some LDEM.
+
+	Add the overlay XML to the pan definition.
+
+	Adaptive map scale
