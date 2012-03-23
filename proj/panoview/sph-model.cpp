@@ -286,6 +286,8 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
         prep_face(M, w, h, 0, 1, 0, 1, i, 0, i);
 }
 
+#if 1
+
 void sph_model::prep_face(const double *M, int w, int h,
                           double r, double l,
                           double t, double b, int j, int d, int i)
@@ -343,6 +345,63 @@ void sph_model::prep_face(const double *M, int w, int h,
     }
 }
 
+#else
+
+void sph_model::prep_face(const double *M, int w, int h,
+                          double r, double l,
+                          double t, double b, int j, int d, int i)
+
+{
+    const int i0 = face_child(i, 0);
+    const int i1 = face_child(i, 1);
+    const int i2 = face_child(i, 2);
+    const int i3 = face_child(i, 3);
+
+    if (d < depth)
+    {
+        const double x = (r + l) * 0.5;
+        const double y = (t + b) * 0.5;
+
+        prep_face(M, w, h, r, x, t, y, j, d + 1, i0);
+        prep_face(M, w, h, x, l, t, y, j, d + 1, i1);
+        prep_face(M, w, h, r, x, y, b, j, d + 1, i2);
+        prep_face(M, w, h, x, l, y, b, j, d + 1, i3);
+    }
+
+    double s = view_face(M, w, h, r, l, t, b, j);
+
+    if (d < depth)
+    {
+        if (0 < s && s < size)
+        {
+            status[i]  = s_draw;
+            status[i0] = s_halt;
+            status[i1] = s_halt;
+            status[i2] = s_halt;
+            status[i3] = s_halt;
+        }
+        else
+        {
+            if (status[i0] == s_halt &&
+                status[i1] == s_halt &&
+                status[i2] == s_halt &&
+                status[i3] == s_halt)
+
+                status[i] = s_halt;
+            else
+                status[i] = s_pass;
+        }
+    }
+    else
+    {
+        if (0 < s)
+            status[i] = s_draw;
+        else
+            status[i] = s_halt;
+    }
+}
+
+#endif
 //------------------------------------------------------------------------------
 
 GLfloat sph_model::age(int then)
@@ -364,9 +423,6 @@ void sph_model::draw(const double *P, const double *V, const int *vv, int vc,
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
 
-    glFrontFace(GL_CW);
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -427,7 +483,6 @@ void sph_model::draw(const double *P, const double *V, const int *vv, int vc,
     glDisableClientState(GL_VERTEX_ARRAY);
 
     glActiveTexture(GL_TEXTURE0);
-    glFrontFace(GL_CCW);
 }
 
 void sph_model::draw_face(const int *vv, int vc,

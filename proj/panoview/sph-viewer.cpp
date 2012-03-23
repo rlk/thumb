@@ -174,7 +174,7 @@ ogl::range sph_viewer::prep(int frusc, const app::frustum *const *frusv)
     {
         cache->update(model->tick());
     }
-    return ogl::range(0.001, radius * 10.0);
+    return ogl::range(0.1, radius * 10.0);
 }
 
 void sph_viewer::lite(int frusc, const app::frustum *const *frusv)
@@ -240,6 +240,11 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
             glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
         }
     }
+}
+
+void sph_viewer::over(int frusi, const app::frustum *frusp, int chani)
+{
+    const double *M = ::user->get_M();
 
     // Draw the label overlay.
 

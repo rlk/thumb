@@ -4,8 +4,8 @@
             vert="glsl/sph-height.vert"
             frag="glsl/sph-normal-diffuse.frag">
     <frame>
-      <image shader="vert" file="/home/rlk/Data/LDEM-720-7.tif" />
-      <image shader="frag" file="/home/rlk/Data/LDEM-720-7-N.tif" />
-      <image shader="frag" file="/home/rlk/Data/clementine-512-3.tif" />
+      <image shader="vert" file="LDEM-720-7.tif" />
+      <image shader="frag" file="LDEM-720-7-N.tif" />
+      <image shader="frag" file="clementine-512-3.tif" />
     </frame>
   </panorama>

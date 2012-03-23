@@ -42,7 +42,6 @@ private:
     void tick_look (double);
     void tick_dive (double);
     void tick_light(double);
-    void tick(double);
 
     double orbit_plane[3];
     double orbit_speed;
@@ -61,6 +60,7 @@ private:
 
     bool pan_point(app::event *);
     bool pan_click(app::event *);
+    bool pan_tick (app::event *);
     bool pan_key  (app::event *);
 };
 

@@ -1,7 +1,9 @@
 <?xml version="1.0"?>
-  <panorama channels="2" depth="4" mesh="16" size="512"
+  <panorama depth="4" mesh="16" size="512"
             vert="glsl/sph-zoomer.vert"
             frag="glsl/sph-render.frag">
-    <image channel="0" file="Madison-State-Capitol-Dome-2-L-512-4.tif" />
-    <image channel="1" file="Madison-State-Capitol-Dome-2-R-512-4.tif" />
+    <frame>
+      <image channel="0" file="Madison-State-Capitol-Dome-2-L-512-4.tif" />
+      <image channel="1" file="Madison-State-Capitol-Dome-2-R-512-4.tif" />
+    </frame>
   </panorama>

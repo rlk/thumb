@@ -35,8 +35,9 @@ panoview::panoview(const std::string& exe,
     max_zoom( 0.6),
     debug_zoom(false)
 {
-    curr_zoom   = 0.0;
-    drag_state  = false;
+    curr_zoom    = 0.0;
+    drag_zooming = false;
+    drag_looking = false;
 }
 
 panoview::~panoview()
@@ -63,6 +64,7 @@ void panoview::draw(int frusi, const app::frustum *frusp, int chani)
     channel = chani;
 
     sph_viewer::draw(frusi, frusp, chani);
+    sph_viewer::over(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------
@@ -75,6 +77,7 @@ bool panoview::process_event(app::event *E)
         {
             case E_CLICK: return pan_click(E);
             case E_POINT: return pan_point(E);
+            case E_TICK:  return pan_tick(E);
             case E_KEY:   return pan_key(E);
         }
     }
@@ -88,29 +91,40 @@ bool panoview::pan_point(app::event *E)
     if (const app::frustum *overlay = ::host->get_overlay())
         overlay->pointer_to_2D(E, curr_x, curr_y);
 
-    if (drag_state)
-    {
-        curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
-
-        if (curr_zoom < min_zoom) curr_zoom = min_zoom;
-        if (curr_zoom > max_zoom) curr_zoom = max_zoom;
-
-        return true;
-    }
     return false;
 }
 
 bool panoview::pan_click(app::event *E)
 {
     if (E->data.click.b == 0)
+        drag_looking = E->data.click.d;
+    if (E->data.click.b == 2)
+        drag_zooming = E->data.click.d;
+
+    drag_x    = curr_x;
+    drag_y    = curr_y;
+    drag_zoom = curr_zoom;
+
+    return true;
+}
+
+bool panoview::pan_tick(app::event *E)
+{
+    float dt = E->data.tick.dt / 1000.0;
+
+    if (drag_zooming)
     {
-        drag_state = E->data.click.d;
+        curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
 
-        drag_x     = curr_x;
-        drag_y     = curr_y;
-        drag_zoom  = curr_zoom;
+        if (curr_zoom < min_zoom) curr_zoom = min_zoom;
+        if (curr_zoom > max_zoom) curr_zoom = max_zoom;
+    }
+    if (drag_looking)
+    {
+        int dx = curr_x - drag_x;
+        int dy = curr_y - drag_y;
 
-        return true;
+        ::user->look(-dx * dt, dy * dt);
     }
     return false;
 }

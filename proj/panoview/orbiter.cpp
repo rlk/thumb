@@ -154,52 +154,6 @@ void orbiter::tick_light(double dt)
     vnormalize(light, t);
 }
 
-void orbiter::tick(double dt)
-{
-    double M[16];
-    double t[3];
-
-    if (drag_move)  tick_move (dt);
-    if (drag_look)  tick_look (dt);
-    if (drag_dive)  tick_dive (dt);
-    if (drag_light) tick_light(dt);
-
-    // Move the position and view orientation along the current orbit.
-
-    double R[16];
-
-    mrotate(R, orbit_plane, orbit_speed * dt);
-
-    vtransform(t, R, view_x);
-    vnormalize(view_x, t);
-
-    vtransform(t, R, view_y);
-    vnormalize(view_y, t);
-
-    vtransform(t, R, light);
-    vnormalize(light, t);
-
-    vtransform(t, R, position);
-    vnormalize(position, t);
-
-    // Orthonormalize the view orientation basis.
-
-    double view_z[3];
-
-    vcrs(view_z, view_x, view_y);
-    vcrs(view_y, view_z, view_x);
-
-    mbasis(M, view_x, view_y, view_z);
-
-    // Update the user transform.
-
-    M[12] = position[0] * altitude;
-    M[13] = position[1] * altitude;
-    M[14] = position[2] * altitude;
-
-    ::user->set_M(M);
-}
-
 //------------------------------------------------------------------------------
 
 ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
@@ -232,7 +186,14 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     glLoadIdentity();
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+    glFrontFace(GL_CW);
     sph_viewer::draw(frusi, frusp, chani);
+
+    glFrontFace(GL_CCW);
+    sph_viewer::over(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------
@@ -245,8 +206,8 @@ bool orbiter::process_event(app::event *E)
         {
             case E_CLICK: return pan_click(E);
             case E_POINT: return pan_point(E);
+            case E_TICK:  return pan_tick(E);
             case E_KEY:   return pan_key(E);
-            case E_TICK:  tick(E->data.tick.dt / 1000.0);
         }
     }
 
@@ -311,6 +272,60 @@ bool orbiter::pan_click(app::event *E)
     }
 
     return true;
+}
+
+bool orbiter::pan_tick(app::event *E)
+{
+    float dt = E->data.tick.dt / 1000.0;
+
+    double M[16];
+    double t[3];
+
+    if (drag_move)  tick_move (dt);
+    if (drag_look)  tick_look (dt);
+    if (drag_dive)  tick_dive (dt);
+    if (drag_light) tick_light(dt);
+
+    // Move the position and view orientation along the current orbit.
+
+    double Y[3] = { 0.0, 1.0, 0.0 };
+    double R[16];
+    double T[16];
+
+    mrotate(M, orbit_plane, orbit_speed * dt);
+    mrotate(T, Y, 0.001 * dt);
+    mmultiply(R, M, T);
+
+    vtransform(t, R, view_x);
+    vnormalize(view_x, t);
+
+    vtransform(t, R, view_y);
+    vnormalize(view_y, t);
+
+    vtransform(t, R, light);
+    vnormalize(light, t);
+
+    vtransform(t, R, position);
+    vnormalize(position, t);
+
+    // Orthonormalize the view orientation basis.
+
+    double view_z[3];
+
+    vcrs(view_z, view_x, view_y);
+    vcrs(view_y, view_z, view_x);
+
+    mbasis(M, view_x, view_y, view_z);
+
+    // Update the user transform.
+
+    M[12] = position[0] * altitude;
+    M[13] = position[1] * altitude;
+    M[14] = position[2] * altitude;
+
+    ::user->set_M(M);
+
+    return false;
 }
 
 bool orbiter::pan_key(app::event *E)

@@ -41,7 +41,8 @@ private:
     double max_zoom;
     bool debug_zoom;
 
-    bool   drag_state;
+    bool   drag_looking;
+    bool   drag_zooming;
     int    drag_x;
     int    drag_y;
     double drag_zoom;
@@ -51,6 +52,7 @@ private:
 
     bool pan_point(app::event *);
     bool pan_click(app::event *);
+    bool pan_tick (app::event *);
     bool pan_key  (app::event *);
 };
 
