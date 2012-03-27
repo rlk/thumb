@@ -104,6 +104,8 @@ struct sph_file
     uint16 c, b, g;
 
     std::map<uint64, uint64> offset;
+
+    uint64 search(uint64) const;
 };
 
 //------------------------------------------------------------------------------

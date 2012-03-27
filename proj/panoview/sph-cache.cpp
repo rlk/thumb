@@ -221,6 +221,8 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h,
     }
 }
 
+//------------------------------------------------------------------------------
+
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
 sph_file::sph_file(const std::string& tiff)
@@ -274,6 +276,16 @@ sph_file::sph_file(const std::string& tiff)
             TIFFClose(T);
         }
     }
+}
+
+uint64 sph_file::search(uint64 i) const
+{
+    std::map<uint64, uint64>::const_iterator p = offset.find(i);
+
+    if (p == offset.end())
+        return 0;
+    else
+        return p->second;
 }
 
 //------------------------------------------------------------------------------
@@ -543,16 +555,16 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
 
     // If this page does not exist, return the filler.
 
-    const std::map<uint64, uint64>::iterator p = files[f]->offset.find(i);
+    uint64 o = files[f]->search(i);
 
-    if (p == files[f]->offset.end())
+    if (o == 0)
         return filler;
 
     // Otherwise request the page and add it to the waiting set.
 
     if (!needs.full() && !pbos.empty())
     {
-        needs.insert(sph_task(f, i, p->second, pbos.deq(), pagelen(f)));
+        needs.insert(sph_task(f, i, o, pbos.deq(), pagelen(f)));
         waits.insert(sph_page(f, i, filler), t);
     }
 
@@ -571,13 +583,10 @@ void sph_cache::update(int t)
             sph_task task = loads.remove();
             sph_page page(task.f, task.i);
 
-            // Leaving missing pages in the wait set may be advantageous.
-//          waits.remove(page);
+            waits.remove(page);
 
             if (task.d)
             {
-                waits.remove(page);
-
                 if (pages.full())
                 {
                     sph_page victim = pages.eject(t, page.i);
