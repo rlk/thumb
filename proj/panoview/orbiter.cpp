@@ -293,7 +293,7 @@ bool orbiter::pan_tick(app::event *E)
     double T[16];
 
     mrotate(M, orbit_plane, orbit_speed * dt);
-    mrotate(T, Y, 0.001 * dt);
+    mrotate(T, Y, 0.0); //0.001 * dt);
     mmultiply(R, M, T);
 
     vtransform(t, R, view_x);

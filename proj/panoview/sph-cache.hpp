@@ -81,8 +81,9 @@ struct sph_task : public sph_item
 {
     sph_task()             : sph_item(    ), u(0), d(false), p(0) { }
     sph_task(int f, int i) : sph_item(i, f), u(0), d(false), p(0) { }
-    sph_task(int f, int i, GLuint u, GLsizei s);
+    sph_task(int f, int i, uint64 o, GLuint u, GLsizei s);
 
+    uint64 o;
     GLuint u;
     bool   d;
     void  *p;
@@ -101,6 +102,8 @@ struct sph_file
     std::string name;
     uint32 w, h;
     uint16 c, b, g;
+
+    std::map<uint64, uint64> offset;
 };
 
 //------------------------------------------------------------------------------
@@ -153,10 +156,10 @@ public:
 private:
 
     static const int need_queue_size      = 32;   // 32
-    static const int load_queue_size      =  8;   // 8
-    static const int max_loads_per_update =  2;   // 2
+    static const int load_queue_size      =  8;   //  8
+    static const int max_loads_per_update =  2;   //  2
 
-    std::vector<sph_file> files;
+    std::vector<sph_file *> files;
 
     sph_set pages;
     sph_set waits;

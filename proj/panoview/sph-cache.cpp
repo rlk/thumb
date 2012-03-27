@@ -124,8 +124,8 @@ static GLenum external_type(uint16 c, uint16 b, uint16 g)
 
 // Construct a load task. Map the PBO to provide a destination for the loader.
 
-sph_task::sph_task(int f, int i, GLuint u, GLsizei s)
-    : sph_item(f, i), u(u), d(false)
+sph_task::sph_task(int f, int i, uint64 o, GLuint u, GLsizei s)
+    : sph_item(f, i), o(o), u(u), d(false)
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
@@ -259,6 +259,17 @@ sph_file::sph_file(const std::string& tiff)
             TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
             TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
             TIFFGetField(T, TIFFTAG_SAMPLEFORMAT,    &g);
+
+            do
+            {
+                uint32  n;
+                uint64 *p;
+
+                TIFFGetField(T, 0xFFB1, &n, &p);
+
+                offset[*p] = TIFFCurrentDirOffset(T);
+            }
+            while (TIFFReadDirectory(T));
 
             TIFFClose(T);
         }
@@ -461,6 +472,13 @@ sph_cache::~sph_cache()
         pbos.pop_back();
     }
 
+    // Release the file index / offset maps.
+
+    std::vector<sph_file *>::iterator i;
+
+    for (i = files.begin(); i != files.end(); ++i)
+        delete (*i);
+
     // Release the default texture.
 
     glDeleteTextures(1, &filler);
@@ -493,7 +511,7 @@ int sph_cache::add_file(const std::string& name)
 {
     int f = int(files.size());
 
-    files.push_back(sph_file(name));
+    files.push_back(new sph_file(name));
 
     return f;
 }
@@ -523,11 +541,18 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
         return page.o;
     }
 
+    // If this page does not exist, return the filler.
+
+    const std::map<uint64, uint64>::iterator p = files[f]->offset.find(i);
+
+    if (p == files[f]->offset.end())
+        return filler;
+
     // Otherwise request the page and add it to the waiting set.
 
     if (!needs.full() && !pbos.empty())
     {
-        needs.insert(sph_task(f, i, pbos.deq(), pagelen(f)));
+        needs.insert(sph_task(f, i, p->second, pbos.deq(), pagelen(f)));
         waits.insert(sph_page(f, i, filler), t);
     }
 
@@ -567,11 +592,11 @@ void sph_cache::update(int t)
                     page.t = t;
                     pages.insert(page, t);
 
-                    task.make_texture(page.o, files[task.f].w,
-                                              files[task.f].h,
-                                              files[task.f].c,
-                                              files[task.f].b,
-                                              files[task.f].g);
+                    task.make_texture(page.o, files[task.f]->w,
+                                              files[task.f]->h,
+                                              files[task.f]->c,
+                                              files[task.f]->b,
+                                              files[task.f]->g);
                     size += pagelen(page.f);
                 }
                 else task.dump_texture();
@@ -601,10 +626,10 @@ void sph_cache::draw()
 
 GLsizei sph_cache::pagelen(int f)
 {
-    uint32 w = files[f].w;
-    uint32 h = files[f].h;
-    uint16 c = files[f].c;
-    uint16 b = files[f].b;
+    uint32 w = files[f]->w;
+    uint32 h = files[f]->h;
+    uint16 c = files[f]->c;
+    uint16 b = files[f]->b;
 
     if (c == 3 && b == 8)
         return w * h * 4 * b / 8; // *
@@ -657,6 +682,37 @@ int loader(void *data)
 
     while ((task = cache->needs.remove()).f >= 0)
     {
+        if (!cache->files[task.f]->name.empty())
+        {
+            if (TIFF *T = TIFFOpen(cache->files[task.f]->name.c_str(), "r"))
+            {
+                if (TIFFSetSubDirectory(T, task.o))
+                {
+                    uint32 w = cache->files[task.f]->w;
+                    uint32 h = cache->files[task.f]->h;
+                    uint16 c = cache->files[task.f]->c;
+                    uint16 b = cache->files[task.f]->b;
+                    uint16 g = cache->files[task.f]->g;
+
+                    task.load_texture(T, w, h, c, b, g);
+                    task.d = true;
+                }
+                TIFFClose(T);
+            }
+        }
+        cache->loads.insert(task);
+    }
+    return 0;
+}
+
+#if 0
+int loader(void *data)
+{
+    sph_cache *cache = (sph_cache *) data;
+    sph_task   task;
+
+    while ((task = cache->needs.remove()).f >= 0)
+    {
         if (!cache->files[task.f].name.empty())
         {
             if (TIFF *T = TIFFOpen(cache->files[task.f].name.c_str(), "r"))
@@ -680,6 +736,6 @@ int loader(void *data)
     }
     return 0;
 }
-
+#endif
 //------------------------------------------------------------------------------
 
