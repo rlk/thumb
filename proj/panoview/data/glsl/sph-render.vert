@@ -1,11 +1,10 @@
 varying vec4 V;
 
-uniform int level;
-
+uniform int  level;
+uniform mat3 faceM;
 uniform vec2 tex_a[8];
 uniform vec2 tex_d[8];
 
-uniform mat3 face;
 
 //------------------------------------------------------------------------------
 
@@ -17,7 +16,7 @@ vec3 scube(vec2 t)
     float y = -cos(s.x) * sin(s.y);
     float z =  cos(s.x) * cos(s.y);
 
-    return face * normalize(vec3(x, y, z));
+    return faceM * normalize(vec3(x, y, z));
 }
 
 //------------------------------------------------------------------------------

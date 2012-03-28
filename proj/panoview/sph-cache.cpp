@@ -223,9 +223,19 @@ void sph_task::load_texture(TIFF *T, uint32 w, uint32 h,
 
 //------------------------------------------------------------------------------
 
+static int catcmp(const void *p, const void *q)
+{
+    const uint64 *a = (const uint64 *) p;
+    const uint64 *b = (const uint64 *) q;
+
+    if      (a[0] < b[0]) return -1;
+    else if (a[0] > b[0]) return +1;
+    else                  return  0;
+}
+
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
-sph_file::sph_file(const std::string& tiff)
+sph_file::sph_file(const std::string& tiff) : catc(0), catv(0)
 {
     // If the given file name is absolute, use it.
 
@@ -256,36 +266,41 @@ sph_file::sph_file(const std::string& tiff)
     {
         if (TIFF *T = TIFFOpen(name.c_str(), "r"))
         {
+            uint64  n = 0;
+            uint64 *p = 0;
+
             TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &w);
             TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &h);
             TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
             TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
             TIFFGetField(T, TIFFTAG_SAMPLEFORMAT,    &g);
 
-            do
+            TIFFGetField(T, 0xFFB1, &n, &p);
+
+            if ((catv = (uint64 *) malloc(n * sizeof (uint64))))
             {
-                uint32  n;
-                uint64 *p;
-
-                TIFFGetField(T, 0xFFB1, &n, &p);
-
-                offset[*p] = TIFFCurrentDirOffset(T);
+                memcpy(catv, p, n * sizeof (uint64));
+                catc = n / 2;
             }
-            while (TIFFReadDirectory(T));
 
             TIFFClose(T);
         }
     }
 }
 
+sph_file::~sph_file()
+{
+    free(catv);
+}
+
 uint64 sph_file::search(uint64 i) const
 {
-    std::map<uint64, uint64>::const_iterator p = offset.find(i);
+    void *p;
 
-    if (p == offset.end())
-        return 0;
+    if (catc && (p = bsearch(&i, catv, catc, 2 * sizeof (uint64), catcmp)))
+        return ((uint64 *) p)[1];
     else
-        return p->second;
+        return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -714,37 +729,5 @@ int loader(void *data)
     return 0;
 }
 
-#if 0
-int loader(void *data)
-{
-    sph_cache *cache = (sph_cache *) data;
-    sph_task   task;
-
-    while ((task = cache->needs.remove()).f >= 0)
-    {
-        if (!cache->files[task.f].name.empty())
-        {
-            if (TIFF *T = TIFFOpen(cache->files[task.f].name.c_str(), "r"))
-            {
-                if (up(T, task.i))
-                {
-                    uint32 w = cache->files[task.f].w;
-                    uint32 h = cache->files[task.f].h;
-                    uint16 c = cache->files[task.f].c;
-                    uint16 b = cache->files[task.f].b;
-                    uint16 g = cache->files[task.f].g;
-
-                    task.load_texture(T, w, h, c, b, g);
-                    task.d = true;
-                    // cache->loads.insert(task);
-                }
-                TIFFClose(T);
-            }
-        }
-        cache->loads.insert(task);
-    }
-    return 0;
-}
-#endif
 //------------------------------------------------------------------------------
 

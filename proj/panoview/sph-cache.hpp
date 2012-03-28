@@ -98,12 +98,14 @@ struct sph_task : public sph_item
 struct sph_file
 {
     sph_file(const std::string& name);
+   ~sph_file();
 
     std::string name;
-    uint32 w, h;
-    uint16 c, b, g;
+    uint32  w, h;
+    uint16  c, b, g;
 
-    std::map<uint64, uint64> offset;
+    uint64  catc;
+    uint64 *catv;
 
     uint64 search(uint64) const;
 };
