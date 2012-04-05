@@ -242,9 +242,9 @@ sph_file::sph_file(const std::string& tiff) : catc(0), catv(0)
     if (exists(tiff))
         name = tiff;
 
-    // Otherwise, search panorama path for the file.
+    // Otherwise, search the SCM path for the file.
 
-    else if (char *val = getenv("PANOPATH"))
+    else if (char *val = getenv("SCMPATH"))
     {
         std::stringstream list(val);
         std::string       path;

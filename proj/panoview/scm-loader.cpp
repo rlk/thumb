@@ -84,7 +84,7 @@ sph_loader::sph_loader(sph_viewer *V, int w, int h)
 
     root->laydn((w - ww) / 2, (h - hh) / 2, ww, hh);
 
-    if (char *name = getenv("PANOINIT"))
+    if (char *name = getenv("SCMINIT"))
         V->load(name);
 }
 
