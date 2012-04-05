@@ -17,11 +17,11 @@
 
 #include <app-prog.hpp>
 
-#include "sph-viewer.hpp"
+#include "scm-viewer.hpp"
 
 //-----------------------------------------------------------------------------
 
-class orbiter : public sph_viewer
+class orbiter : public scm_viewer
 {
 public:
 

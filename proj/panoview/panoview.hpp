@@ -17,11 +17,11 @@
 
 #include <app-prog.hpp>
 
-#include "sph-viewer.hpp"
+#include "scm-viewer.hpp"
 
 //-----------------------------------------------------------------------------
 
-class panoview : public sph_viewer
+class panoview : public scm_viewer
 {
 public:
 

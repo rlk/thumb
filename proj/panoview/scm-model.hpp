@@ -10,23 +10,23 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SPH_MODEL_HPP
-#define SPH_MODEL_HPP
+#ifndef SCM_MODEL_HPP
+#define SCM_MODEL_HPP
 
 #include <GL/glew.h>
 #include <vector>
 
-#include "sph-cache.hpp"
+#include "scm-cache.hpp"
 
 //------------------------------------------------------------------------------
 
-class sph_model
+class scm_model
 {
 public:
 
-    sph_model(sph_cache&, const char *, const char *,
+    scm_model(scm_cache&, const char *, const char *,
                           int, int, int, double, double);
-   ~sph_model();
+   ~scm_model();
 
     int  tick() { return time++; }
     void prep(const double *, const double *, int, int);
@@ -50,7 +50,7 @@ private:
 
     GLuint stack[8];
 
-    sph_cache& cache;
+    scm_cache& cache;
 
     int    time;
     int    size;

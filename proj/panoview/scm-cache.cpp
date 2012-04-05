@@ -14,7 +14,7 @@
 #include <cassert>
 #include <sstream>
 
-#include "sph-cache.hpp"
+#include "scm-cache.hpp"
 #include "cube.hpp"
 
 //------------------------------------------------------------------------------
@@ -124,8 +124,8 @@ static GLenum external_type(uint16 c, uint16 b, uint16 g)
 
 // Construct a load task. Map the PBO to provide a destination for the loader.
 
-sph_task::sph_task(int f, int i, uint64 o, GLuint u, GLsizei s)
-    : sph_item(f, i), o(o), u(u), d(false)
+scm_task::scm_task(int f, int i, uint64 o, GLuint u, GLsizei s)
+    : scm_item(f, i), o(o), u(u), d(false)
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
@@ -137,7 +137,7 @@ sph_task::sph_task(int f, int i, uint64 o, GLuint u, GLsizei s)
 
 // Upload the pixel buffer to the OpenGL texture object.
 
-void sph_task::make_texture(GLuint o, uint32 w, uint32 h,
+void scm_task::make_texture(GLuint o, uint32 w, uint32 h,
                                       uint16 c, uint16 b, uint16 g)
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
@@ -158,7 +158,7 @@ void sph_task::make_texture(GLuint o, uint32 w, uint32 h,
 
 // A texture was loaded but is no longer necessary. Discard the pixel buffer.
 
-void sph_task::dump_texture()
+void scm_task::dump_texture()
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
     {
@@ -169,7 +169,7 @@ void sph_task::dump_texture()
 
 // Load the current TIFF directory image data into the mapped pixel buffer.
 
-void sph_task::load_texture(TIFF *T, uint32 w, uint32 h,
+void scm_task::load_texture(TIFF *T, uint32 w, uint32 h,
                                      uint16 c, uint16 b, uint16 g)
 {
     // Confirm the page format.
@@ -235,7 +235,7 @@ static int catcmp(const void *p, const void *q)
 
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
-sph_file::sph_file(const std::string& tiff) : catc(0), catv(0)
+scm_file::scm_file(const std::string& tiff) : catc(0), catv(0)
 {
     // If the given file name is absolute, use it.
 
@@ -288,12 +288,12 @@ sph_file::sph_file(const std::string& tiff) : catc(0), catv(0)
     }
 }
 
-sph_file::~sph_file()
+scm_file::~scm_file()
 {
     free(catv);
 }
 
-uint64 sph_file::search(uint64 i) const
+uint64 scm_file::search(uint64 i) const
 {
     void *p;
 
@@ -305,20 +305,20 @@ uint64 sph_file::search(uint64 i) const
 
 //------------------------------------------------------------------------------
 
-sph_set::~sph_set()
+scm_set::~scm_set()
 {
-    std::map<sph_page, int>::iterator i;
+    std::map<scm_page, int>::iterator i;
 
     for (i = m.begin(); i != m.end(); ++i)
         glDeleteTextures(1, &i->first.o);
 }
 
-void sph_set::insert(sph_page page, int t)
+void scm_set::insert(scm_page page, int t)
 {
     m[page] = t;
 }
 
-void sph_set::remove(sph_page page)
+void scm_set::remove(scm_page page)
 {
     m.erase(page);
 }
@@ -326,19 +326,19 @@ void sph_set::remove(sph_page page)
 // Search for the given page in this page set. If found, update the page entry
 // with the current time t to indicate recent use.
 
-sph_page sph_set::search(sph_page page, int t)
+scm_page scm_set::search(scm_page page, int t)
 {
-    std::map<sph_page, int>::iterator i = m.find(page);
+    std::map<scm_page, int>::iterator i = m.find(page);
 
     if (i != m.end())
     {
-        sph_page p = i->first;
+        scm_page p = i->first;
 
         remove(p);
         insert(p, t);
         return(p);
     }
-    return sph_page();
+    return scm_page();
 }
 
 // Eject a page from this set to accommodate the addition of a new page.
@@ -346,15 +346,15 @@ sph_page sph_set::search(sph_page page, int t)
 // The general polity is LRU, but with considerations for time and priority
 // that help mitigate thrashing.
 
-sph_page sph_set::eject(int t, int i)
+scm_page scm_set::eject(int t, int i)
 {
     assert(!m.empty());
 
     // Determine the lowest priority and least-recently used pages.
 
-    std::map<sph_page, int>::iterator a = m.end();
-    std::map<sph_page, int>::iterator l = m.end();
-    std::map<sph_page, int>::iterator e;
+    std::map<scm_page, int>::iterator a = m.end();
+    std::map<scm_page, int>::iterator l = m.end();
+    std::map<scm_page, int>::iterator e;
 
     for (e = m.begin(); e != m.end(); ++e)
     {
@@ -368,20 +368,20 @@ sph_page sph_set::eject(int t, int i)
 
     if (a != m.end() && a->second < t - 2)
     {
-        sph_page page = a->first;
+        scm_page page = a->first;
         m.erase(a);
         return page;
     }
     if (l != m.end() && i < l->first.i)
     {
-        sph_page page = l->first;
+        scm_page page = l->first;
         m.erase(l);
         return page;
     }
-    return sph_page();
+    return scm_page();
 }
 
-void sph_set::draw()
+void scm_set::draw()
 {
     int l = log2(size);
     int r = (l & 1) ? (1 << ((l - 1) / 2)) : (1 << (l / 2));
@@ -406,7 +406,7 @@ void sph_set::draw()
 
         glColor4f(1.f, 1.f, 1.f, 1.f);
 
-        std::map<sph_page, int>::iterator i = m.begin();
+        std::map<scm_page, int>::iterator i = m.begin();
 
         for     (int y = 0; y < r; ++y)
             for (int x = 0; x < c; ++x)
@@ -435,7 +435,7 @@ void sph_set::draw()
 
 //------------------------------------------------------------------------------
 
-sph_cache::sph_cache(int n) :
+scm_cache::scm_cache(int n) :
     pages(n),
     waits(n),
     needs("need", need_queue_size),
@@ -468,7 +468,7 @@ sph_cache::sph_cache(int n) :
     clear(filler);
 }
 
-sph_cache::~sph_cache()
+scm_cache::~scm_cache()
 {
     // Continue servicing the loads queue until the needs queue is emptied.
 
@@ -477,10 +477,10 @@ sph_cache::~sph_cache()
 
     // Enqueue an exit command for each loader thread.
 
-    needs.insert(sph_task(-1, -1));
-    needs.insert(sph_task(-2, -2));
-    needs.insert(sph_task(-3, -3));
-    needs.insert(sph_task(-4, -4));
+    needs.insert(scm_task(-1, -1));
+    needs.insert(scm_task(-2, -2));
+    needs.insert(scm_task(-3, -3));
+    needs.insert(scm_task(-4, -4));
 
     // Await their exit.
 
@@ -501,7 +501,7 @@ sph_cache::~sph_cache()
 
     // Release the file index / offset maps.
 
-    std::vector<sph_file *>::iterator i;
+    std::vector<scm_file *>::iterator i;
 
     for (i = files.begin(); i != files.end(); ++i)
         delete (*i);
@@ -534,11 +534,11 @@ static void debug_on(int l)
 
 // Append a string to the file list and return its index. Queue the roots.
 
-int sph_cache::add_file(const std::string& name)
+int scm_cache::add_file(const std::string& name)
 {
     int f = int(files.size());
 
-    files.push_back(new sph_file(name));
+    files.push_back(new scm_file(name));
 
     return f;
 }
@@ -546,11 +546,11 @@ int sph_cache::add_file(const std::string& name)
 // Return the texture object associated with the requested page. Request the
 // image if necessary.
 
-GLuint sph_cache::get_page(int f, int i, int t, int& n)
+GLuint scm_cache::get_page(int f, int i, int t, int& n)
 {
     // If this page is waiting, return the filler.
 
-    sph_page wait = waits.search(sph_page(f, i), t);
+    scm_page wait = waits.search(scm_page(f, i), t);
 
     if (wait.valid())
     {
@@ -560,7 +560,7 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
 
     // If this page is loaded, return the texture.
 
-    sph_page page = pages.search(sph_page(f, i), t);
+    scm_page page = pages.search(scm_page(f, i), t);
 
     if (page.valid())
     {
@@ -579,8 +579,8 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
 
     if (!needs.full() && !pbos.empty())
     {
-        needs.insert(sph_task(f, i, o, pbos.deq(), pagelen(f)));
-        waits.insert(sph_page(f, i, filler), t);
+        needs.insert(scm_task(f, i, o, pbos.deq(), pagelen(f)));
+        waits.insert(scm_page(f, i, filler), t);
     }
 
     n = 0;
@@ -589,14 +589,14 @@ GLuint sph_cache::get_page(int f, int i, int t, int& n)
 
 // Handle incoming textures on the loads queue.
 
-void sph_cache::update(int t)
+void scm_cache::update(int t)
 {
     glPushAttrib(GL_PIXEL_MODE_BIT);
     {
         for (int c = 0; !loads.empty() && c < max_loads_per_update; ++c)
         {
-            sph_task task = loads.remove();
-            sph_page page(task.f, task.i);
+            scm_task task = loads.remove();
+            scm_page page(task.f, task.i);
 
             waits.remove(page);
 
@@ -604,7 +604,7 @@ void sph_cache::update(int t)
             {
                 if (pages.full())
                 {
-                    sph_page victim = pages.eject(t, page.i);
+                    scm_page victim = pages.eject(t, page.i);
                     size  -= pagelen(victim.f);
                     page.o =         victim.o;
                 }
@@ -633,13 +633,13 @@ void sph_cache::update(int t)
     glPopAttrib();
 }
 
-void sph_cache::flush()
+void scm_cache::flush()
 {
     while (!pages.empty())
         pages.eject(0, -1);
 }
 
-void sph_cache::draw()
+void scm_cache::draw()
 {
     pages.draw();
 }
@@ -648,7 +648,7 @@ void sph_cache::draw()
 
 // Compute the length of a page buffer for file f.
 
-GLsizei sph_cache::pagelen(int f)
+GLsizei scm_cache::pagelen(int f)
 {
     uint32 w = files[f]->w;
     uint32 h = files[f]->h;
@@ -701,8 +701,8 @@ static int dn(TIFF *T, int i)
 
 int loader(void *data)
 {
-    sph_cache *cache = (sph_cache *) data;
-    sph_task   task;
+    scm_cache *cache = (scm_cache *) data;
+    scm_task   task;
 
     while ((task = cache->needs.remove()).f >= 0)
     {

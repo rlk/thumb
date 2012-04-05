@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
   <panorama channels="2" depth="5" mesh="16" size="512"
-            vert="glsl/sph-zoomer.vert"
-            frag="glsl/sph-render.frag">
+            vert="glsl/scm-zoomer.vert"
+            frag="glsl/scm-render.frag">
     <image channel="0" file="UW-Madison-2-L-512-5.tif" />
     <image channel="1" file="UW-Madison-2-R-512-5.tif" />
   </panorama>

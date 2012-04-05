@@ -17,7 +17,7 @@
 
 #include <GL/glew.h>
 
-#include "sph-label.hpp"
+#include "scm-label.hpp"
 #include "math3d.h"
 #include "type.h"
 #include "glsl.h"
@@ -125,7 +125,7 @@ struct circle
 
 // Parse the label definition fil.
 
-void sph_label::parse(const void *data_ptr, size_t data_len)
+void scm_label::parse(const void *data_ptr, size_t data_len)
 {
     const char *pattern = "\"([^\"]*)\",([^,]*),([^,]*),([^,]*)\n";
 
@@ -179,7 +179,7 @@ const char *frag_txt =                        \
     "}";
 
 
-sph_label::sph_label(const void *data_ptr, size_t data_len,
+scm_label::scm_label(const void *data_ptr, size_t data_len,
                      const void *font_ptr, size_t font_len)
 {
     // Initialize the font.
@@ -236,7 +236,7 @@ sph_label::sph_label(const void *data_ptr, size_t data_len,
                                           &cirv.front(), GL_STATIC_DRAW);
 }
 
-sph_label::~sph_label()
+scm_label::~scm_label()
 {
     glDeleteBuffers(1, &vbo);
 
@@ -250,7 +250,7 @@ sph_label::~sph_label()
 
 //------------------------------------------------------------------------------
 
-void sph_label::draw(const double *p, double r, double a)
+void scm_label::draw(const double *p, double r, double a)
 {
     size_t sz = sizeof (point);
 
@@ -289,7 +289,7 @@ void sph_label::draw(const double *p, double r, double a)
 
 //------------------------------------------------------------------------------
 #if 0
-void sph_label::point::draw(const double *v, double r, double a)
+void scm_label::point::draw(const double *v, double r, double a)
 {
     double k = 1.0 / 1000.0;
     double s = 0.2 * r;
@@ -318,7 +318,7 @@ void sph_label::point::draw(const double *v, double r, double a)
     glPopMatrix();
 }
 
-void sph_label::circle::draw(const double *v, double r, double a)
+void scm_label::circle::draw(const double *v, double r, double a)
 {
     double k = 1.0 / 1000.0;
     double s = d * r;

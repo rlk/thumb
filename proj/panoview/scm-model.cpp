@@ -21,7 +21,7 @@
 #include "glsl.h"
 #include "cube.hpp"
 
-#include "sph-model.hpp"
+#include "scm-model.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -35,7 +35,7 @@ typedef GLuint           GLindex;
 
 //------------------------------------------------------------------------------
 
-sph_model::sph_model(sph_cache& cache,
+scm_model::scm_model(scm_cache& cache,
                      const char *vert,
                      const char *frag,
                      int n, int s, int d, double r0, double r1) :
@@ -56,7 +56,7 @@ sph_model::sph_model(sph_cache& cache,
     zoomk    =  1;
 }
 
-sph_model::~sph_model()
+scm_model::~scm_model()
 {
     free_arrays();
     free_program();
@@ -72,7 +72,7 @@ static inline double scale(double k, double t)
         return std::max(t / k, 1.0 - (1.0 - t) * k);
 }
 
-void sph_model::zoom(double *w, const double *v)
+void scm_model::zoom(double *w, const double *v)
 {
     double d = vdot(v, zoomv);
 
@@ -144,7 +144,7 @@ static void scube(int f, double x, double y, double *v)
     }
 }
 
-double sph_model::view_face(const double *M, int vw, int vh,
+double scm_model::view_face(const double *M, int vw, int vh,
                             double ee, double ww, double nn, double ss, int j)
 {
     double a[3], e[3], A[4], E[4];    // North-east corner
@@ -276,7 +276,7 @@ double sph_model::view_face(const double *M, int vw, int vh,
 
 //------------------------------------------------------------------------------
 
-void sph_model::prep(const double *P, const double *V, int w, int h)
+void scm_model::prep(const double *P, const double *V, int w, int h)
 {
     double M[16];
 
@@ -288,7 +288,7 @@ void sph_model::prep(const double *P, const double *V, int w, int h)
 
 #if 1
 
-void sph_model::prep_face(const double *M, int w, int h,
+void scm_model::prep_face(const double *M, int w, int h,
                           double r, double l,
                           double t, double b, int j, int d, int i)
 {
@@ -347,7 +347,7 @@ void sph_model::prep_face(const double *M, int w, int h,
 
 #else
 
-void sph_model::prep_face(const double *M, int w, int h,
+void scm_model::prep_face(const double *M, int w, int h,
                           double r, double l,
                           double t, double b, int j, int d, int i)
 
@@ -404,13 +404,13 @@ void sph_model::prep_face(const double *M, int w, int h,
 #endif
 //------------------------------------------------------------------------------
 
-GLfloat sph_model::age(int then)
+GLfloat scm_model::age(int then)
 {
     GLfloat a = GLfloat(time - then) / 60.f;
     return (a > 1.f) ? 1.f : a;
 }
 
-void sph_model::draw(const double *P, const double *V, const int *vv, int vc,
+void scm_model::draw(const double *P, const double *V, const int *vv, int vc,
                                                        const int *fv, int fc,
                                                        const int *pv, int pc)
 {
@@ -485,7 +485,7 @@ void sph_model::draw(const double *P, const double *V, const int *vv, int vc,
     glActiveTexture(GL_TEXTURE0);
 }
 
-void sph_model::draw_face(const int *vv, int vc,
+void scm_model::draw_face(const int *vv, int vc,
                           const int *fv, int fc,
                           const int *pv, int pc,
                           double r, double l, double t, double b, int d, int i)
@@ -586,7 +586,7 @@ void sph_model::draw_face(const int *vv, int vc,
 
 //------------------------------------------------------------------------------
 
-void sph_model::set_fade(double k)
+void scm_model::set_fade(double k)
 {
     double t = k * k * (3.0 - 2.0 * k);
     glUseProgram(program);
@@ -600,7 +600,7 @@ static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
     return glGetUniformLocation(program, str);
 }
 
-void sph_model::init_program(const char *vert_src,
+void scm_model::init_program(const char *vert_src,
                              const char *frag_src)
 {
     if (vert_src && frag_src)
@@ -630,7 +630,7 @@ void sph_model::init_program(const char *vert_src,
     }
 }
 
-void sph_model::free_program()
+void scm_model::free_program()
 {
     glDeleteProgram(program);
     glDeleteShader(frag_shader);
@@ -729,7 +729,7 @@ static void init_elements(int n, int b)
     }
 }
 
-void sph_model::init_arrays(int n)
+void scm_model::init_arrays(int n)
 {
     glGenBuffers(1, &vertices);
     glGenBuffers(16, elements);
@@ -746,7 +746,7 @@ void sph_model::init_arrays(int n)
     count = 4 * n * n;
 }
 
-void sph_model::free_arrays()
+void scm_model::free_arrays()
 {
     glDeleteBuffers(16, elements);
     glDeleteBuffers(1, &vertices);

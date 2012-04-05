@@ -30,7 +30,7 @@
 //------------------------------------------------------------------------------
 
 panoview::panoview(const std::string& exe,
-                   const std::string& tag) : sph_viewer(exe, tag),
+                   const std::string& tag) : scm_viewer(exe, tag),
     min_zoom(-2.0),
     max_zoom( 0.6),
     debug_zoom(false)
@@ -63,15 +63,15 @@ void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 
     channel = chani;
 
-    sph_viewer::draw(frusi, frusp, chani);
-    sph_viewer::over(frusi, frusp, chani);
+    scm_viewer::draw(frusi, frusp, chani);
+    scm_viewer::over(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------
 
 bool panoview::process_event(app::event *E)
 {
-    if (!sph_viewer::process_event(E))
+    if (!scm_viewer::process_event(E))
     {
         switch (E->get_type())
         {

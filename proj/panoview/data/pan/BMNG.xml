@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
   <panorama channels="1" depth="5" mesh="16" size="512"
-            vert="glsl/sph-zoomer.vert"
-            frag="glsl/sph-blend.frag">
+            vert="glsl/scm-zoomer.vert"
+            frag="glsl/scm-blend.frag">
     <frame>
       <image file="world.200401-720-5.tif" />
     </frame>

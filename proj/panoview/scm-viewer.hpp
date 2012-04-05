@@ -10,22 +10,22 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SPH_VIEWER_HPP
-#define SPH_VIEWER_HPP
+#ifndef SCM_VIEWER_HPP
+#define SCM_VIEWER_HPP
 
 #include <vector>
 
 #include <app-prog.hpp>
 #include <app-file.hpp>
 
-#include "sph-cache.hpp"
-#include "sph-model.hpp"
-#include "sph-label.hpp"
-#include "sph-loader.hpp"
+#include "scm-cache.hpp"
+#include "scm-model.hpp"
+#include "scm-label.hpp"
+#include "scm-loader.hpp"
 
 //-----------------------------------------------------------------------------
 
-class sph_frame
+class scm_frame
 {
     struct image
     {
@@ -36,7 +36,7 @@ class sph_frame
 
 public:
 
-    sph_frame(sph_cache *, app::node);
+    scm_frame(scm_cache *, app::node);
 
     int file(int i)
     {
@@ -76,12 +76,12 @@ private:
 
 //-----------------------------------------------------------------------------
 
-class sph_viewer : public app::prog
+class scm_viewer : public app::prog
 {
 public:
 
-    sph_viewer(const std::string&, const std::string&);
-   ~sph_viewer();
+    scm_viewer(const std::string&, const std::string&);
+   ~scm_viewer();
 
     virtual ogl::range prep(int, const app::frustum * const *);
     virtual void       lite(int, const app::frustum * const *);
@@ -101,15 +101,15 @@ public:
 
 protected:
 
-    sph_cache *cache;
-    sph_model *model;
-    sph_label *label;
+    scm_cache *cache;
+    scm_model *model;
+    scm_label *label;
 
 private:
 
     // Sphere rendering state
 
-    std::vector<sph_frame *> frame;
+    std::vector<scm_frame *> frame;
     std::vector<int> tovert;
     std::vector<int> tofrag;
     std::vector<int> toprep;
@@ -134,7 +134,7 @@ private:
 
     // Sphere GUI State
 
-    sph_loader *ui;
+    scm_loader *ui;
 
     bool gui_state;
     void gui_init();

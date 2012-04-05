@@ -25,11 +25,11 @@
 #include <app-default.hpp>
 
 #include "math3d.h"
-#include "sph-viewer.hpp"
+#include "scm-viewer.hpp"
 
 //------------------------------------------------------------------------------
 
-sph_viewer::sph_viewer(const std::string& exe,
+scm_viewer::scm_viewer(const std::string& exe,
                        const std::string& tag) : app::prog(exe, tag),
     cache  (0),
     model  (0),
@@ -48,7 +48,7 @@ sph_viewer::sph_viewer(const std::string& exe,
     gui_init();
 }
 
-sph_viewer::~sph_viewer()
+scm_viewer::~scm_viewer()
 {
     gui_free();
     unload();
@@ -56,7 +56,7 @@ sph_viewer::~sph_viewer()
 
 //------------------------------------------------------------------------------
 
-sph_frame::sph_frame(sph_cache *cache, app::node node)
+scm_frame::scm_frame(scm_cache *cache, app::node node)
 {
     for (app::node n = node.find("image"); n; n = node.next(n, "image"))
     {
@@ -70,7 +70,7 @@ sph_frame::sph_frame(sph_cache *cache, app::node node)
     }
 }
 
-void sph_viewer::load(const std::string& name)
+void scm_viewer::load(const std::string& name)
 {
     // If the named file exists and contains an XML panorama definition...
 
@@ -103,25 +103,25 @@ void sph_viewer::load(const std::string& name)
 
         // Create the new cache and model.
 
-        cache = new sph_cache(::conf->get_i("sph_viewer_cache_size", 128));
-        model = new sph_model(*cache, vert_src, frag_src, n, s, d, r0, r1);
+        cache = new scm_cache(::conf->get_i("scm_viewer_cache_size", 128));
+        model = new scm_model(*cache, vert_src, frag_src, n, s, d, r0, r1);
 
         // Register all frames with the cache.
 
         for (app::node n = root.find("frame"); n; n = root.next(n, "frame"))
-            frame.push_back(new sph_frame(cache, n));
+            frame.push_back(new scm_frame(cache, n));
 
         // If there were no frames, register a flat image set.
 
         if (frame.empty())
-            frame.push_back(new sph_frame(cache, root));
+            frame.push_back(new scm_frame(cache, root));
 
         // Load the label.
 
         font_ptr = ::data->load(::conf->get_s("sans_font"), &font_len);
         data_ptr = ::data->load("IAUMOON.csv");
 
-        label = new sph_label(data_ptr, data_len, font_ptr, font_len);
+        label = new scm_label(data_ptr, data_len, font_ptr, font_len);
 
         ::data->free(vert_name);
         ::data->free(frag_name);
@@ -130,14 +130,14 @@ void sph_viewer::load(const std::string& name)
     }
 }
 
-void sph_viewer::cancel()
+void scm_viewer::cancel()
 {
     gui_state = false;
 }
 
-void sph_viewer::unload()
+void scm_viewer::unload()
 {
-    std::vector<sph_frame *>::iterator i;
+    std::vector<scm_frame *>::iterator i;
 
     for (i = frame.begin(); i != frame.end(); ++i)
         delete (*i);
@@ -152,13 +152,13 @@ void sph_viewer::unload()
     cache = 0;
 }
 
-void sph_viewer::goto_next()
+void scm_viewer::goto_next()
 {
     timer_e = floor(timer + 1.0);
     timer_d = +2.0;
 }
 
-void sph_viewer::goto_prev()
+void scm_viewer::goto_prev()
 {
     timer_e = ceil(timer - 1.0);
     timer_d = -2.0;
@@ -166,7 +166,7 @@ void sph_viewer::goto_prev()
 
 //------------------------------------------------------------------------------
 
-ogl::range sph_viewer::prep(int frusc, const app::frustum *const *frusv)
+ogl::range scm_viewer::prep(int frusc, const app::frustum *const *frusv)
 {
     // This will need to change on a multi-pipe system.
 
@@ -177,11 +177,11 @@ ogl::range sph_viewer::prep(int frusc, const app::frustum *const *frusv)
     return ogl::range(0.1, radius * 10.0);
 }
 
-void sph_viewer::lite(int frusc, const app::frustum *const *frusv)
+void scm_viewer::lite(int frusc, const app::frustum *const *frusv)
 {
 }
 
-void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
+void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 {
     const double *P =  frusp->get_P();
     const double *M = ::user->get_M();
@@ -242,7 +242,7 @@ void sph_viewer::draw(int frusi, const app::frustum *frusp, int chani)
     }
 }
 
-void sph_viewer::over(int frusi, const app::frustum *frusp, int chani)
+void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
 {
     const double *M = ::user->get_M();
 
@@ -281,7 +281,7 @@ void sph_viewer::over(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
-bool sph_viewer::process_event(app::event *E)
+bool scm_viewer::process_event(app::event *E)
 {
     // Toggle global options in response to function keys.
 
@@ -338,7 +338,7 @@ bool sph_viewer::process_event(app::event *E)
 
 //------------------------------------------------------------------------------
 
-void sph_viewer::gui_init()
+void scm_viewer::gui_init()
 {
     const app::frustum *overlay = ::host->get_overlay();
 
@@ -347,15 +347,15 @@ void sph_viewer::gui_init()
 
     gui_state = true;
 
-    ui = new sph_loader(this, w, h);
+    ui = new scm_loader(this, w, h);
 }
 
-void sph_viewer::gui_free()
+void scm_viewer::gui_free()
 {
     delete ui;
 }
 
-void sph_viewer::gui_draw()
+void scm_viewer::gui_draw()
 {
     if (const app::frustum *overlay = ::host->get_overlay())
     {
@@ -372,7 +372,7 @@ void sph_viewer::gui_draw()
     }
 }
 
-bool sph_viewer::gui_point(app::event *E)
+bool scm_viewer::gui_point(app::event *E)
 {
     if (const app::frustum *overlay = ::host->get_overlay())
     {
@@ -387,14 +387,14 @@ bool sph_viewer::gui_point(app::event *E)
     return false;
 }
 
-bool sph_viewer::gui_click(app::event *E)
+bool scm_viewer::gui_click(app::event *E)
 {
     ui->click(E->data.click.m,
               E->data.click.d);
     return true;
 }
 
-bool sph_viewer::gui_key(app::event *E)
+bool scm_viewer::gui_key(app::event *E)
 {
     if (E->data.key.d)
     {

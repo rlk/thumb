@@ -8,11 +8,11 @@ PANOBJS= \
 	glsl.o \
 	cube.o \
 	type.o \
-	sph-model.o \
-	sph-cache.o \
-	sph-label.o \
-	sph-viewer.o \
-	sph-loader.o \
+	scm-model.o \
+	scm-cache.o \
+	scm-label.o \
+	scm-viewer.o \
+	scm-loader.o \
 	panoview.o
 
 ORBOBJS= \
@@ -20,11 +20,11 @@ ORBOBJS= \
 	glsl.o \
 	cube.o \
 	type.o \
-	sph-model.o \
-	sph-cache.o \
-	sph-label.o \
-	sph-viewer.o \
-	sph-loader.o \
+	scm-model.o \
+	scm-cache.o \
+	scm-label.o \
+	scm-viewer.o \
+	scm-loader.o \
 	orbiter.o
 
 PANDEPS= $(PANOBJS:.o=.d)

@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
   <panorama channels="2" depth="3" mesh="16" size="512"
-            vert="glsl/sph-zoomer.vert"
-            frag="glsl/sph-render.frag">
+            vert="glsl/scm-zoomer.vert"
+            frag="glsl/scm-render.frag">
     <image channel="0" file="Taliesin-Path-A-L-512-3.tif" />
     <image channel="1" file="Taliesin-Path-A-R-512-3.tif" />
   </panorama>

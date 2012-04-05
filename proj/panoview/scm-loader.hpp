@@ -10,22 +10,22 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef PANOVIEW_SPH_LOADER_HPP
-#define PANOVIEW_SPH_LOADER_HPP
+#ifndef PANOVIEW_SCM_LOADER_HPP
+#define PANOVIEW_SCM_LOADER_HPP
 
 #include <gui-gui.hpp>
 
 //------------------------------------------------------------------------------
 
-class sph_viewer;
+class scm_viewer;
 
-class sph_loader : public gui::dialog
+class scm_loader : public gui::dialog
 {
 	gui::string *status;
 
 public:
 
-    sph_loader(sph_viewer *, int, int);
+    scm_loader(scm_viewer *, int, int);
 
     void set_status(int c);
 };

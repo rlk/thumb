@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SPH_CACHE_HPP
-#define SPH_CACHE_HPP
+#ifndef SCM_CACHE_HPP
+#define SCM_CACHE_HPP
 
 #include <vector>
 #include <string>
@@ -44,17 +44,17 @@ public:
 
 //------------------------------------------------------------------------------
 
-struct sph_item
+struct scm_item
 {
-    sph_item()             : f(-1), i(-1) { }
-    sph_item(int f, int i) : f( f), i( i) { }
+    scm_item()             : f(-1), i(-1) { }
+    scm_item(int f, int i) : f( f), i( i) { }
 
     int f;
     int i;
 
     bool valid() const { return (f >= 0 && i >= 0); }
 
-    bool operator<(const sph_item& that) const {
+    bool operator<(const scm_item& that) const {
         if (i == that.i)
             return f < that.f;
         else
@@ -64,12 +64,12 @@ struct sph_item
 
 //------------------------------------------------------------------------------
 
-struct sph_page : public sph_item
+struct scm_page : public scm_item
 {
-    sph_page()                              : sph_item(    ), o(0), t(0) { }
-    sph_page(int f, int i)                  : sph_item(f, i), o(0), t(0) { }
-    sph_page(int f, int i, GLuint o)        : sph_item(f, i), o(o), t(0) { }
-    sph_page(int f, int i, GLuint o, int t) : sph_item(f, i), o(o), t(t) { }
+    scm_page()                              : scm_item(    ), o(0), t(0) { }
+    scm_page(int f, int i)                  : scm_item(f, i), o(0), t(0) { }
+    scm_page(int f, int i, GLuint o)        : scm_item(f, i), o(o), t(0) { }
+    scm_page(int f, int i, GLuint o, int t) : scm_item(f, i), o(o), t(t) { }
 
     GLuint o;
     int    t;
@@ -77,11 +77,11 @@ struct sph_page : public sph_item
 
 //------------------------------------------------------------------------------
 
-struct sph_task : public sph_item
+struct scm_task : public scm_item
 {
-    sph_task()             : sph_item(    ), u(0), d(false), p(0) { }
-    sph_task(int f, int i) : sph_item(i, f), u(0), d(false), p(0) { }
-    sph_task(int f, int i, uint64 o, GLuint u, GLsizei s);
+    scm_task()             : scm_item(    ), u(0), d(false), p(0) { }
+    scm_task(int f, int i) : scm_item(i, f), u(0), d(false), p(0) { }
+    scm_task(int f, int i, uint64 o, GLuint u, GLsizei s);
 
     uint64 o;
     GLuint u;
@@ -95,10 +95,10 @@ struct sph_task : public sph_item
 
 //------------------------------------------------------------------------------
 
-struct sph_file
+struct scm_file
 {
-    sph_file(const std::string& name);
-   ~sph_file();
+    scm_file(const std::string& name);
+   ~scm_file();
 
     std::string name;
     uint32  w, h;
@@ -112,39 +112,39 @@ struct sph_file
 
 //------------------------------------------------------------------------------
 
-class sph_set
+class scm_set
 {
 public:
 
-    sph_set(int size) : size(size) { }
-   ~sph_set();
+    scm_set(int size) : size(size) { }
+   ~scm_set();
 
     int  count() const { return int(m.size()); }
     bool full()  const { return (count() >= size); }
     bool empty() const { return (m.empty()); }
 
-    sph_page search(sph_page, int);
-    void     insert(sph_page, int);
-    void     remove(sph_page);
+    scm_page search(scm_page, int);
+    void     insert(scm_page, int);
+    void     remove(scm_page);
 
-    sph_page eject(int, int);
+    scm_page eject(int, int);
     void     draw();
 
 private:
 
-    std::map<sph_page, int> m;
+    std::map<scm_page, int> m;
 
     int size;
 };
 
 //------------------------------------------------------------------------------
 
-class sph_cache
+class scm_cache
 {
 public:
 
-    sph_cache(int);
-   ~sph_cache();
+    scm_cache(int);
+   ~scm_cache();
 
     int    add_file(const std::string&);
     GLuint get_page(int, int, int, int&);
@@ -163,13 +163,13 @@ private:
     static const int load_queue_size      =  8;   //  8
     static const int max_loads_per_update =  2;   //  2
 
-    std::vector<sph_file *> files;
+    std::vector<scm_file *> files;
 
-    sph_set pages;
-    sph_set waits;
+    scm_set pages;
+    scm_set waits;
 
-    queue<sph_task> needs;
-    queue<sph_task> loads;
+    queue<scm_task> needs;
+    queue<scm_task> loads;
 
     fifo<GLuint> pbos;
 

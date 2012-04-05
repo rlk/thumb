@@ -1,7 +1,7 @@
 #include <app-font.hpp>
 
-#include "sph-loader.hpp"
-#include "sph-viewer.hpp"
+#include "scm-loader.hpp"
+#include "scm-viewer.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -19,11 +19,11 @@ static gui::widget *annot(const std::string& text)
 
 class button_load : public gui::button
 {
-    sph_viewer  *V;
+    scm_viewer  *V;
     gui::editor *E;
 
 public:
-    button_load(sph_viewer *V, gui::editor *E)
+    button_load(scm_viewer *V, gui::editor *E)
         : gui::button("Load"), V(V), E(E) { }
 
     void apply()
@@ -35,10 +35,10 @@ public:
 
 class button_cancel : public gui::button
 {
-    sph_viewer *V;
+    scm_viewer *V;
 
 public:
-    button_cancel(sph_viewer *V)
+    button_cancel(scm_viewer *V)
         : gui::button("Cancel"), V(V) { }
 
     void apply()
@@ -51,7 +51,7 @@ public:
 
 #define SP "                                                                   "
 
-sph_loader::sph_loader(sph_viewer *V, int w, int h)
+scm_loader::scm_loader(scm_viewer *V, int w, int h)
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("pan", ".xml", E);
@@ -88,7 +88,7 @@ sph_loader::sph_loader(sph_viewer *V, int w, int h)
         V->load(name);
 }
 
-void sph_loader::set_status(int c)
+void scm_loader::set_status(int c)
 {
     char buf[256];
 

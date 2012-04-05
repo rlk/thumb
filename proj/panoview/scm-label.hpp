@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SPH_LABEL_HPP
-#define SPH_LABEL_HPP
+#ifndef SCM_LABEL_HPP
+#define SCM_LABEL_HPP
 
 #include <string>
 #include <vector>
@@ -23,13 +23,13 @@
 
 //-----------------------------------------------------------------------------
 
-class sph_label
+class scm_label
 {
 public:
 
-    sph_label(const void *, size_t,
+    scm_label(const void *, size_t,
               const void *, size_t);
-   ~sph_label();
+   ~scm_label();
 
     void draw(const double *, double, double);
 

@@ -30,7 +30,7 @@
 //------------------------------------------------------------------------------
 
 orbiter::orbiter(const std::string& exe,
-                 const std::string& tag) : sph_viewer(exe, tag)
+                 const std::string& tag) : scm_viewer(exe, tag)
 {
     orbit_plane[0] = 0.0;
     orbit_plane[1] = 1.0;
@@ -190,17 +190,17 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     glEnable(GL_CULL_FACE);
 
     glFrontFace(GL_CW);
-    sph_viewer::draw(frusi, frusp, chani);
+    scm_viewer::draw(frusi, frusp, chani);
 
     glFrontFace(GL_CCW);
-    sph_viewer::over(frusi, frusp, chani);
+    scm_viewer::over(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------
 
 bool orbiter::process_event(app::event *E)
 {
-    if (!sph_viewer::process_event(E))
+    if (!scm_viewer::process_event(E))
     {
         switch (E->get_type())
         {
@@ -216,7 +216,7 @@ bool orbiter::process_event(app::event *E)
 
 void orbiter::load(const std::string& name)
 {
-    sph_viewer::load(name);
+    scm_viewer::load(name);
 
     if (altitude < get_radius())
         altitude = get_radius() * 3.0;
