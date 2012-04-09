@@ -15,22 +15,22 @@
 
 //-----------------------------------------------------------------------------
 
-int log2(int n);
+long long log2(long long n);
 
 //-----------------------------------------------------------------------------
 
 extern const double cube_v[8][3];
 extern const int    cube_i[6][4];
 
-int  cube_size(int);
+long long  cube_size(long long);
 
-int  face_locate(int, int, int, int);
-int  face_child (int, int);
-int  face_index (int);
-int  face_level (int);
-int  face_parent(int);
+long long  face_locate(long long, long long, long long, long long);
+long long  face_child (long long, long long);
+long long  face_index (long long);
+long long  face_level (long long);
+long long  face_parent(long long);
 
-void face_neighbors(int, int&, int&, int&, int&);
+void face_neighbors(long long, long long&, long long&, long long&, long long&);
 
 //-----------------------------------------------------------------------------
 

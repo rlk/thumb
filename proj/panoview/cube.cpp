@@ -36,67 +36,69 @@ const int cube_i[6][4] = {
 
 // Calculate the integer binary log of n ---------------------------------------
 
-int log2(int n)
+long long log2(long long n)
 {
-    int r = 0;
-    
-    if (n >= (1 << 16)) { n >>= 16; r += 16; }
-    if (n >= (1 <<  8)) { n >>=  8; r +=  8; }
-    if (n >= (1 <<  4)) { n >>=  4; r +=  4; }
-    if (n >= (1 <<  2)) { n >>=  2; r +=  2; }
-    if (n >= (1 <<  1)) {           r +=  1; }
+    unsigned long long v = (unsigned long long) n;
+    unsigned long long r;
+    unsigned long long s;
 
-    return r;
+    r = (v > 0xFFFFFFFFULL) << 5; v >>= r;
+    s = (v > 0xFFFFULL    ) << 4; v >>= s; r |= s;
+    s = (v > 0xFFULL      ) << 3; v >>= s; r |= s;
+    s = (v > 0xFULL       ) << 2; v >>= s; r |= s;
+    s = (v > 0x3ULL       ) << 1; v >>= s; r |= s;
+
+    return r | (v >> 1);
 }
 
 // Calculate the number of faces in a cube with depth n. -----------------------
 
-int cube_size(int n)
+long long cube_size(long long n)
 {
     return (1 << (2 * n + 3)) - 2;
 }
 
 // Calculate the recursion level at which face i appears. ----------------------
 
-int face_level(int i)
+long long face_level(long long i)
 {
     return (log2(i + 2) - 1) / 2;
 }
 
 // Calculate the parent index of face i. Assume i > 5. -------------------------
 
-int face_parent(int i)
+long long face_parent(long long i)
 {
     return (i - 6) / 4;
 }
 
 // Calculate child i of face p. ------------------------------------------------
 
-int face_child(int p, int i)
+long long face_child(long long p, long long i)
 {
     return 6 + 4 * p + i;
 }
 
 // Calculate the child index of face i. Assume i > 5. --------------------------
 
-int face_index(int i)
+long long face_index(long long i)
 {
     return (i - 6) - ((i - 6) / 4) * 4;
 }
 
 // Find the index of face (i, j) of (s, s) in the tree rooted at face p. -------
 
-int face_locate(int p, int i, int j, int s)
+long long face_locate(long long p, long long i, long long j, long long s)
 {
     if (s > 1)
     {
-        int c = 0;
-        
+        long long c = 0;
+
         s >>= 1;
-        
+
         if (i >= s) c |= 2;
         if (j >= s) c |= 1;
-        
+
         return face_locate(face_child(p, c), i % s, j % s, s);
     }
     else return p;
@@ -104,7 +106,7 @@ int face_locate(int p, int i, int j, int s)
 
 // Find the indices of the four neighbors of face p. ---------------------------
 
-void face_neighbors(int p, int& u, int& d, int& r, int& l)
+void face_neighbors(long long p, long long& u, long long& d, long long& r, long long& l)
 {
     struct turn
     {
@@ -133,11 +135,11 @@ void face_neighbors(int p, int& u, int& d, int& r, int& l)
         { 0, 3, 1 }, { 0, 1, 0 }, { 1, 1, 0 },
     };
 
-    int o[6];
-    int i = 0;
-    int j = 0;
-    int s;
-    
+    long long o[6];
+    long long i = 0;
+    long long j = 0;
+    long long s;
+
     for (s = 1; p > 5; s <<= 1, p = face_parent(p))
     {
         if (face_index(p) & 1) j += s;

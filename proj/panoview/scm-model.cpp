@@ -564,7 +564,7 @@ void scm_model::draw_face(const int *vv, int vc,
 
     if (status[i] == s_draw)
     {
-        int n, s, e, w, j = 0;
+        long long n, s, e, w, j = 0;
 
         face_neighbors(i, n, s, e, w);
 
