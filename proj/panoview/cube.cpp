@@ -58,6 +58,13 @@ long long cube_size(long long n)
     return (1 << (2 * n + 3)) - 2;
 }
 
+// Calculate the parent index of face i. Assume i > 5. -------------------------
+
+long long face_parent(long long i)
+{
+    return (i - 6) / 4;
+}
+
 // Calculate the recursion level at which face i appears. ----------------------
 
 long long face_level(long long i)
@@ -65,11 +72,12 @@ long long face_level(long long i)
     return (log2(i + 2) - 1) / 2;
 }
 
-// Calculate the parent index of face i. Assume i > 5. -------------------------
+// Calculate the root index of face i. -----------------------------------------
 
-long long face_parent(long long i)
+long long face_root(long long i)
 {
-    return (i - 6) / 4;
+    const long long n = 1LL << (2 * face_level(i));
+    return (i - 2 * (n - 1)) / n;
 }
 
 // Calculate child i of face p. ------------------------------------------------

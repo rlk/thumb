@@ -35,6 +35,234 @@ typedef GLuint           GLindex;
 
 //------------------------------------------------------------------------------
 
+struct scm_model::page
+{
+    long long f;
+    long long i;
+    long long n;
+    long long s;
+    long long e;
+    long long w;
+    double    l;
+    double    r;
+    double    b;
+    double    t;
+
+    void set(long long i, long long n, long long s, long long e, long long w,
+                          double    l, double    r, double    b, double    t)
+    {
+        assert(n >= 0);
+        assert(s >= 0);
+        assert(w >= 0);
+        assert(e >= 0);
+
+        this->f = 1;
+        this->i = i;
+        this->n = n;
+        this->s = s;
+        this->e = e;
+        this->w = w;
+        this->l = l;
+        this->r = r;
+        this->b = b;
+        this->t = t;
+    }
+};
+
+#define X -1
+
+static const int wrap[6][6][4] = {
+    { // 0
+        { X, X, X, X }, // 0
+        { X, X, X, X }, // 1
+        { X, X, 0, 2 }, // 2
+        { 2, 0, X, X }, // 3
+        { 0, X, 2, X }, // 4
+        { X, 1, X, 3 }, // 5
+    },
+    { // 1
+        { X, X, X, X }, // 0
+        { X, X, X, X }, // 1
+        { X, X, 3, 1 }, // 2
+        { 1, 3, X, X }, // 3
+        { X, 1, X, 3 }, // 4
+        { 0, X, 2, X }, // 5
+    },
+    { // 2
+        { X, 0, X, 1 }, // 0
+        { 1, X, 0, X }, // 1
+        { X, X, X, X }, // 2
+        { X, X, X, X }, // 3
+        { 0, 1, X, X }, // 4
+        { X, X, 1, 0 }, // 5
+    },
+    { // 3
+        { X, 3, X, 2 }, // 0
+        { 2, X, 3, X }, // 1
+        { X, X, X, X }, // 2
+        { X, X, X, X }, // 3
+        { X, X, 2, 3 }, // 4
+        { 3, 2, X, X }, // 5
+    },
+    { // 4
+        { X, 1, X, 3 }, // 0
+        { 0, X, 2, X }, // 1
+        { X, X, 2, 3 }, // 2
+        { 0, 1, X, X }, // 3
+        { X, X, X, X }, // 4
+        { X, X, X, X }, // 5
+    },
+    { // 5
+        { 0, X, 2, X }, // 0
+        { X, 1, X, 3 }, // 1
+        { X, X, 1, 0 }, // 2
+        { 3, 2, X, X }, // 3
+        { X, X, X, X }, // 4
+        { X, X, X, X }, // 5
+    },
+};
+
+#undef X
+
+void scm_model::pwep_face(const double *M, int ww, int wh, int qi)
+{
+    const long long i = qv[qi].i;
+    const long long n = qv[qi].n;
+    const long long s = qv[qi].s;
+    const long long e = qv[qi].e;
+    const long long w = qv[qi].w;
+    const double    l = qv[qi].l;
+    const double    r = qv[qi].r;
+    const double    b = qv[qi].b;
+    const double    t = qv[qi].t;
+
+    double k = view_face(M, ww, wh, r, l, t, b, face_root(i));
+
+    if (k > size && qn + 4 < qm)
+    {
+        const double x = (r + l) / 2;
+        const double y = (t + b) / 2;
+
+        const long long I = face_root(i);
+        const long long N = face_root(n);
+        const long long S = face_root(s);
+        const long long E = face_root(e);
+        const long long W = face_root(w);
+
+        qv[qn++].set(face_child(i, 0),
+                     face_child(n, wrap[I][N][2]),
+                     face_child(i, 2),
+                     face_child(e, wrap[I][E][1]),
+                     face_child(i, 1),             x, r, y, t);
+        qv[qn++].set(face_child(i, 1),
+                     face_child(n, wrap[I][N][3]),
+                     face_child(i, 3),
+                     face_child(i, 0),
+                     face_child(w, wrap[I][W][0]), l, x, y, t);
+        qv[qn++].set(face_child(i, 2),
+                     face_child(i, 0),
+                     face_child(s, wrap[I][S][0]),
+                     face_child(e, wrap[I][E][3]),
+                     face_child(i, 3),             x, r, b, y);
+        qv[qn++].set(face_child(i, 3),
+                     face_child(i, 1),
+                     face_child(s, wrap[I][S][1]),
+                     face_child(i, 2),
+                     face_child(w, wrap[I][W][2]), l, x, b, y);
+        qv[qi].f = 0;
+    }
+}
+
+void scm_model::pwep(const double *P, const double *V, int w, int h)
+{
+    double M[16];
+
+    mmultiply(M, P, V);
+
+    qv[0].set(0, 2, 3, 5, 4, 1, 0, 1, 0);
+    qv[1].set(1, 2, 3, 4, 5, 1, 0, 1, 0);
+    qv[2].set(2, 5, 4, 0, 1, 1, 0, 1, 0);
+    qv[3].set(3, 4, 5, 1, 0, 1, 0, 1, 0);
+    qv[4].set(4, 2, 3, 0, 1, 1, 0, 1, 0);
+    qv[5].set(5, 2, 3, 1, 0, 1, 0, 1, 0);
+
+    qn = 6;
+
+    for (int qi = 0; qi < qn; ++qi)
+        pwep_face(M, w, h, qi);
+
+    printf("%d\n", qn);
+}
+
+void scm_model::dwaw(const double *P, const double *V, int w, int h,
+                                                      const int *vv, int vc,
+                                                      const int *fv, int fc,
+                                                      const int *pv, int pc)
+{
+    long long m = 0;
+    pwep(P, V, w, h);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(P);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixd(V);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertices);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, 0);
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    glUseProgram(program);
+    {
+        glUniform1f(u_zoomk, GLfloat(zoomk));
+        glUniform3f(u_zoomv, GLfloat(zoomv[0]),
+                             GLfloat(zoomv[1]),
+                             GLfloat(zoomv[2]));
+
+        for (int qi = 0; qi < qn; ++qi)
+        {
+            const long long l = face_level(qv[qi].i);
+            const long long f = face_root (qv[qi].i);
+
+            m = std::max(m, l);
+
+            glUniform2f(u_tex_a[l], GLfloat(qv[qi].r), GLfloat(qv[qi].t));
+            glUniform2f(u_tex_d[l], GLfloat(qv[qi].l), GLfloat(qv[qi].b));
+
+            if (qv[qi].f)
+            {
+                static const GLfloat faceM[6][9] = {
+                    {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
+                    {  0.f,  0.f, -1.f,  0.f,  1.f,  0.f,  1.f,  0.f,  0.f },
+                    {  1.f,  0.f,  0.f,  0.f,  0.f,  1.f,  0.f, -1.f,  0.f },
+                    {  1.f,  0.f,  0.f,  0.f,  0.f, -1.f,  0.f,  1.f,  0.f },
+                    {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
+                    { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
+                };
+
+                glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[f]);
+
+                glUniform1i(u_level, l);
+
+                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[0]);
+                glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
+            }
+        }
+    }
+    glUseProgram(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER,         0);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    printf("%lld\n", m);
+}
+
+//------------------------------------------------------------------------------
+
 scm_model::scm_model(scm_cache& cache,
                      const char *vert,
                      const char *frag,
@@ -54,10 +282,16 @@ scm_model::scm_model(scm_cache& cache,
     zoomv[1] =  0;
     zoomv[2] = -1;
     zoomk    =  1;
+
+    qm = 1024;
+    qn =    0;
+    qv = (page *) calloc(qm, sizeof (page));
 }
 
 scm_model::~scm_model()
 {
+    free(qv);
+
     free_arrays();
     free_program();
 }
@@ -143,6 +377,8 @@ static void scube(int f, double x, double y, double *v)
         case 5: v[0] = -w[0]; v[1] =  w[1]; v[2] = -w[2]; break;
     }
 }
+
+// TODO: reorder the arguments to match LRTB.
 
 double scm_model::view_face(const double *M, int vw, int vh,
                             double ee, double ww, double nn, double ss, int j)
@@ -282,10 +518,6 @@ double scm_model::view_face(const double *M, int vw, int vh,
                              std::max(length(E, G, vw, vh),
                                       length(F, H, vw, vh))));
 }
-
-//------------------------------------------------------------------------------
-
-
 
 //------------------------------------------------------------------------------
 
@@ -630,15 +862,15 @@ void scm_model::init_program(const char *vert_src,
         u_zoomv = glGetUniformLocation(program, "zoomv");
         u_faceM = glGetUniformLocation(program, "faceM");
 
-        for (int d = 0; d < 8; ++d)
+        for (int d = 0; d < 16; ++d)
         {
             u_tex_a[d] = glGetUniformLocationv(program, "tex_a[%d]", d);
             u_tex_d[d] = glGetUniformLocationv(program, "tex_d[%d]", d);
             u_v_age[d] = glGetUniformLocationv(program, "v_age[%d]", d);
             u_f_age[d] = glGetUniformLocationv(program, "f_age[%d]", d);
-            glUniform1i (glGetUniformLocationv(program, "v_img[%d]", d), d);
-            glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d), d + 8);
-            glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d+8), d + 16);
+            // glUniform1i (glGetUniformLocationv(program, "v_img[%d]", d), d);
+            // glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d), d + 8);
+            // glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d+8), d + 16);
         }
     }
 }

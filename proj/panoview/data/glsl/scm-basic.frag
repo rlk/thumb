@@ -76,5 +76,6 @@ vec4 sample(vec2 t)
 
 void main()
 {
-    gl_FragColor = sample(gl_TexCoord[0].xy);
+  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+//    gl_FragColor = sample(gl_TexCoord[0].xy);
 }

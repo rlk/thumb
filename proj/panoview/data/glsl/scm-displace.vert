@@ -1,10 +1,10 @@
 
 uniform int       level;
 uniform mat3      faceM;
-uniform vec2      tex_a[8];
-uniform vec2      tex_d[8];
-uniform sampler2D v_img[8];
-uniform float     v_age[8];
+uniform vec2      tex_a[16];
+uniform vec2      tex_d[16];
+uniform sampler2D v_img[16];
+uniform float     v_age[16];
 
 varying vec3 var_V;
 varying vec3 var_L;
@@ -119,14 +119,15 @@ void main()
     vec2 t =  tex_a[level]
            + (tex_d[level] - tex_a[level]) * gl_Vertex.xy;
 
-    float k = sample(t).r;
-    float h = (k * (r1 - r0) + r0) / rm;
-    vec3  v = scube(t) * h;
+//    float k = sample(t).r;
+//    float h = (k * (r1 - r0) + r0) / rm;
+//    vec3  v = scube(t) * h;
+    vec3  v = scube(t);
 
     var_V = v;
     var_L =  (gl_LightSource[0].position.xyz);
 
     gl_TexCoord[0].xy = t;
-    gl_FrontColor = colormap(k);
+//    gl_FrontColor = colormap(k);
     gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
 }

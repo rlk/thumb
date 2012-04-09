@@ -34,6 +34,12 @@ public:
                                               const int *, int,
                                               const int *, int);
 
+    void pwep_face(const double *, int, int, int);
+    void pwep(const double *, const double *, int, int);
+    void dwaw(const double *, const double *, int, int, const int *, int,
+                                                        const int *, int,
+                                                        const int *, int);
+
     void set_fade(double k);
     void set_zoom(double x, double y, double z, double k)
     {
@@ -67,21 +73,11 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
-    struct page
-    {
-        long long i;
-        long long n;
-        long long s;
-        long long e;
-        long long w;
-        double    t;
-        double    b;
-        double    l;
-        double    r;
-    };
+    struct page;
+
     page *qv;
-    int   qc;
-    int   qi;
+    int   qn;
+    int   qm;
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
@@ -116,10 +112,10 @@ private:
     GLuint vert_shader;
     GLuint frag_shader;
 
-    GLuint u_v_age[8];
-    GLuint u_f_age[8];
-    GLuint u_tex_a[8];
-    GLuint u_tex_d[8];
+    GLuint u_v_age[16];
+    GLuint u_f_age[16];
+    GLuint u_tex_a[16];
+    GLuint u_tex_d[16];
     GLuint u_level;
     GLuint u_fader;
     GLuint u_zoomk;

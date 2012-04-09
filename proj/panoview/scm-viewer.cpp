@@ -230,10 +230,16 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
         }
 
         model->set_fade(timer - floor(timer));
+#if 0
         model->prep(P, V, w, h);
         model->draw(P, V, &tovert.front(), tovert.size(),
                           &tofrag.front(), tofrag.size(),
                           &toprep.front(), toprep.size());
+#else
+        model->dwaw(P, V, w, h, &tovert.front(), tovert.size(),
+                                &tofrag.front(), tofrag.size(),
+                                &toprep.front(), toprep.size());
+#endif
 
         if (debug_wire)
         {
