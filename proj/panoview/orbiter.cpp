@@ -163,8 +163,8 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
         cache->update(model->tick());
 
         double r = get_radius() * model->get_r0();
-        double n = 0.1 * (altitude - r);
-        double f =   sqrt(altitude * altitude - r * r);
+        double n = 0.01 * (altitude - r);
+        double f =    sqrt(altitude * altitude - r * r);
 
         return ogl::range(n, f * 1.1);
     }

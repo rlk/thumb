@@ -124,7 +124,7 @@ static const int wrap[6][6][4] = {
 
 #undef X
 
-void scm_model::pwep_face(const double *M, int ww, int wh, int qi)
+void scm_model::pwep_face(const double *M, double R, int ww, int wh, int qi)
 {
     const long long i = qv[qi].i;
     const long long n = qv[qi].n;
@@ -136,9 +136,9 @@ void scm_model::pwep_face(const double *M, int ww, int wh, int qi)
     const double    b = qv[qi].b;
     const double    t = qv[qi].t;
 
-    double k = view_face(M, ww, wh, r, l, t, b, face_root(i));
+    double k = view_face(M, R, ww, wh, r, l, t, b, face_root(i));
 
-    if (k > size && qn + 4 < qm)
+    if (k > size && qn + 4 < qm && face_level(i) < 15)
     {
         const double x = (r + l) / 2;
         const double y = (t + b) / 2;
@@ -173,11 +173,23 @@ void scm_model::pwep_face(const double *M, int ww, int wh, int qi)
     }
 }
 
-void scm_model::pwep(const double *P, const double *V, int w, int h)
+void scm_model::pwep(const double *P, const double *V, double r, int w, int h)
 {
     double M[16];
+    double I[16];
+    double u[4] = { 0.0, 0.0, -1.0, 1.0 };
+    double v[4];
 
     mmultiply(M, P, V);
+
+    minvert(I, M);
+    wtransform(v, I, u);
+
+    v[0] /= v[3];
+    v[1] /= v[3];
+    v[2] /= v[3];
+
+    r = vlen(v);
 
     qv[0].set(0, 2, 3, 5, 4, 1, 0, 1, 0);
     qv[1].set(1, 2, 3, 4, 5, 1, 0, 1, 0);
@@ -189,33 +201,32 @@ void scm_model::pwep(const double *P, const double *V, int w, int h)
     qn = 6;
 
     for (int qi = 0; qi < qn; ++qi)
-        pwep_face(M, w, h, qi);
-
-    printf("%d\n", qn);
+        pwep_face(M, r, w, h, qi);
 }
 
-void scm_model::dwaw(const double *P, const double *V, int w, int h,
+void scm_model::dwaw(const double *P, const double *V, double r, int w, int h,
                                                       const int *vv, int vc,
                                                       const int *fv, int fc,
                                                       const int *pv, int pc)
 {
     long long m = 0;
-    pwep(P, V, w, h);
+    pwep(P, V, r, w, h);
 
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vertices);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL_FLOAT, 0, 0);
-
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
+    glBindBuffer(GL_ARRAY_BUFFER, vertices);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, 0);
+
     glUseProgram(program);
+#if 1
     {
         glUniform1f(u_zoomk, GLfloat(zoomk));
         glUniform3f(u_zoomv, GLfloat(zoomv[0]),
@@ -252,6 +263,7 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
             }
         }
     }
+#endif
     glUseProgram(0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
@@ -259,6 +271,14 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
     glDisableClientState(GL_VERTEX_ARRAY);
 
     printf("%lld\n", m);
+
+#if 0
+    glBegin(GL_LINES);
+    for (int qi = qn-1; qi < qn; ++qi)
+        if (qv[qi].f)
+            dump_face(M, w, h, qv[qi].r, qv[qi].l, qv[qi].t, qv[qi].b, face_root(qv[qi].i));
+    glEnd();
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -330,13 +350,6 @@ void scm_model::zoom(double *w, const double *v)
 
 //------------------------------------------------------------------------------
 
-static inline double max(double a, double b, double c, double d)
-{
-    double x = (a > b) ? a : b;
-    double y = (c > d) ? c : d;
-    return     (x > y) ? x : y;
-}
-
 static inline double length(const double *a, const double *b, int w, int h)
 {
     if (a[3] <= 0 && b[3] <= 0) return 0;
@@ -353,7 +366,7 @@ static inline double length(const double *a, const double *b, int w, int h)
 
 // TODO: Move this to where it belongs.
 
-static void scube(int f, double x, double y, double *v)
+static void scube(long long f, double x, double y, double *v)
 {
     const double s = x * M_PI_2 - M_PI_4;
     const double t = y * M_PI_2 - M_PI_4;
@@ -378,9 +391,9 @@ static void scube(int f, double x, double y, double *v)
     }
 }
 
-// TODO: reorder the arguments to match LRTB.
+// TODO: reorder the arguments LRTB.
 
-double scm_model::view_face(const double *M, int vw, int vh,
+double scm_model::view_face(const double *M, double rr, int vw, int vh,
                             double ee, double ww, double nn, double ss, int j)
 {
     double a[3], e[3], A[4], E[4];    // North-east corner
@@ -418,16 +431,19 @@ double scm_model::view_face(const double *M, int vw, int vh,
     vmul(g, c, k);
     vmul(h, d, k);
 
-    // Apply the inner and outer radia to the bounding volume.
+    // Apply the inner and outer radii to the bounding volume.
 
-    a[0] *= r0; a[1] *= r0; a[2] *= r0;
-    b[0] *= r0; b[1] *= r0; b[2] *= r0;
-    c[0] *= r0; c[1] *= r0; c[2] *= r0;
-    d[0] *= r0; d[1] *= r0; d[2] *= r0;
-    e[0] *= r1; e[1] *= r1; e[2] *= r1;
-    f[0] *= r1; f[1] *= r1; f[2] *= r1;
-    g[0] *= r1; g[1] *= r1; g[2] *= r1;
-    h[0] *= r1; h[1] *= r1; h[2] *= r1;
+    double rmin = std::min(r0, rr);
+    double rmax = std::min(rr, r1);
+
+    a[0] *= rmin; a[1] *= rmin; a[2] *= rmin;
+    b[0] *= rmin; b[1] *= rmin; b[2] *= rmin;
+    c[0] *= rmin; c[1] *= rmin; c[2] *= rmin;
+    d[0] *= rmin; d[1] *= rmin; d[2] *= rmin;
+    e[0] *= rmax; e[1] *= rmax; e[2] *= rmax;
+    f[0] *= rmax; f[1] *= rmax; f[2] *= rmax;
+    g[0] *= rmax; g[1] *= rmax; g[2] *= rmax;
+    h[0] *= rmax; h[1] *= rmax; h[2] *= rmax;
 
     // Compute W and reject any volume on the far side of the singularity.
 
@@ -500,15 +516,6 @@ double scm_model::view_face(const double *M, int vw, int vh,
 
     // Compute the length of the longest visible edge, in pixels.
 
-    // return std::max(max(length(A, B, vw, vh),
-    //                     length(C, D, vw, vh),
-    //                     length(A, C, vw, vh),
-    //                     length(B, D, vw, vh)),
-    //                 max(length(E, F, vw, vh),
-    //                     length(G, H, vw, vh),
-    //                     length(E, G, vw, vh),
-    //                     length(F, H, vw, vh)));
-
     return std::max(std::max(std::max(length(A, B, vw, vh),
                                       length(C, D, vw, vh)),
                              std::max(length(A, C, vw, vh),
@@ -539,7 +546,7 @@ void scm_model::prep_face(const double *M, int w, int h,
 {
     if (d < depth)
     {
-        double s = view_face(M, w, h, r, l, t, b, j);
+        double s = view_face(M, 0, w, h, r, l, t, b, j);
 
         if (s > 0)
         {
@@ -581,7 +588,7 @@ void scm_model::prep_face(const double *M, int w, int h,
     }
     else
     {
-        double s = view_face(M, w, h, r, l, t, b, j);
+        double s = view_face(M, 0, w, h, r, l, t, b, j);
 
         if (s > 0)
             status[i] = s_draw;
