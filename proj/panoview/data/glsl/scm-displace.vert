@@ -119,7 +119,7 @@ void main()
     vec2 t =  tex_a[level]
            + (tex_d[level] - tex_a[level]) * gl_Vertex.xy;
 
-    float k = 2.0 * sample(t).r;
+    float k = sample(t).r;
     float h = (k * (r1 - r0) + r0) / rm;
     vec3  v = scube(t) * h;
 

@@ -58,7 +58,7 @@ scm_viewer::~scm_viewer()
 
 scm_frame::scm_frame(scm_cache *cache, app::node node)
 {
-    for (app::node n = node.find("image"); n; n = node.next(n, "image"))
+    for (app::node n = node.find("scm"); n; n = node.next(n, "scm"))
     {
         image I;
 
@@ -76,7 +76,7 @@ void scm_viewer::load(const std::string& name)
 
     app::file file(name);
 
-    if (app::node root = file.get_root().find("panorama"))
+    if (app::node root = file.get_root().find("sphere"))
     {
         // Clear out the existing data.
 
@@ -148,6 +148,7 @@ void scm_viewer::unload()
     if (model) delete model;
     if (cache) delete cache;
 
+    label = 0;
     model = 0;
     cache = 0;
 }

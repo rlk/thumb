@@ -67,6 +67,24 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
+    struct page
+    {
+        long long i;
+        long long n;
+        long long s;
+        long long e;
+        long long w;
+        double    t;
+        double    b;
+        double    l;
+        double    r;
+    };
+    page *qv;
+    int   qc;
+    int   qi;
+
+    // Data structures and algorithms for handling face adaptive subdivision.
+
     void   draw_face(const int *, int,
                      const int *, int,
                      const int *, int,

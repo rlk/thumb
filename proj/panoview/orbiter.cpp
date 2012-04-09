@@ -40,7 +40,7 @@ orbiter::orbiter(const std::string& exe,
     position[0]    = 0.0;
     position[1]    = 0.0;
     position[2]    = 1.0;
-    altitude       = 3.0;
+    altitude       = 3.0 * get_radius();
 
     view_x[0]      = 1.0;
     view_x[1]      = 0.0;

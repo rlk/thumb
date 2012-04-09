@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-  <panorama mesh="128" r0="0.994728" r1="1.0062" radius="20.0"
-            size="852" depth="5"
-            vert="glsl/scm-displace.vert"
-            frag="glsl/scm-basic.frag">
+  <sphere mesh="128" r0="0.994728" r1="1.0062" radius="20.0"
+          size="426" depth="2"
+          vert="glsl/scm-displace.vert"
+          frag="glsl/scm-basic.frag">
     <frame>
-      <image shader="vert" file="LRO-DTM-852-5.tif" />
-      <image shader="frag" file="WAC_GLOBAL-852-5.tif" />
+      <scm shader="vert" file="DTM-426-2.tif" />
+      <scm shader="frag" file="WAC-426-2.tif" />
     </frame>
-  </panorama>
+  </sphere>

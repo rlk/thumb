@@ -54,7 +54,7 @@ public:
 scm_loader::scm_loader(scm_viewer *V, int w, int h)
 {
     gui::editor *E = new gui::editor("");
-    gui::finder *F = new gui::finder("pan", ".xml", E);
+    gui::finder *F = new gui::finder("scm", ".xml", E);
 
     status = new gui::string(SP, 0, 0, 0xFF, 0xC0, 0x40);
 

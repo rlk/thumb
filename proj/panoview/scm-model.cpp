@@ -264,15 +264,28 @@ double scm_model::view_face(const double *M, int vw, int vh,
 
     // Compute the length of the longest visible edge, in pixels.
 
-    return std::max(max(length(A, B, vw, vh),
-                        length(C, D, vw, vh),
-                        length(A, C, vw, vh),
-                        length(B, D, vw, vh)),
-                    max(length(E, F, vw, vh),
-                        length(G, H, vw, vh),
-                        length(E, G, vw, vh),
-                        length(F, H, vw, vh)));
+    // return std::max(max(length(A, B, vw, vh),
+    //                     length(C, D, vw, vh),
+    //                     length(A, C, vw, vh),
+    //                     length(B, D, vw, vh)),
+    //                 max(length(E, F, vw, vh),
+    //                     length(G, H, vw, vh),
+    //                     length(E, G, vw, vh),
+    //                     length(F, H, vw, vh)));
+
+    return std::max(std::max(std::max(length(A, B, vw, vh),
+                                      length(C, D, vw, vh)),
+                             std::max(length(A, C, vw, vh),
+                                      length(B, D, vw, vh))),
+                    std::max(std::max(length(E, F, vw, vh),
+                                      length(G, H, vw, vh)),
+                             std::max(length(E, G, vw, vh),
+                                      length(F, H, vw, vh))));
 }
+
+//------------------------------------------------------------------------------
+
+
 
 //------------------------------------------------------------------------------
 
