@@ -35,6 +35,274 @@ typedef GLuint           GLindex;
 
 //------------------------------------------------------------------------------
 
+static inline double scale(double k, double t)
+{
+    if (k < 1.0)
+        return std::min(t / k, 1.0 - (1.0 - t) * k);
+    else
+        return std::max(t / k, 1.0 - (1.0 - t) * k);
+}
+
+void scm_model::zoom(double *w, const double *v)
+{
+    double d = vdot(v, zoomv);
+
+    if (-1 < d && d < 1)
+    {
+        double b = scale(zoomk, acos(d) / M_PI) * M_PI;
+
+        double y[3];
+        double x[3];
+
+        vcrs(y, v, zoomv);
+        vnormalize(y, y);
+        vcrs(x, zoomv, y);
+        vnormalize(x, x);
+
+        vmul(w, zoomv, cos(b));
+        vmad(w, w,  x, sin(b));
+    }
+    else vcpy(w, v);
+}
+
+//------------------------------------------------------------------------------
+
+static inline double length(const double *a, const double *b, int w, int h)
+{
+    if (a[3] <= 0 && b[3] <= 0) return 0;
+    if (a[3] <= 0)              return HUGE_VAL;
+    if (b[3] <= 0)              return HUGE_VAL;
+
+    double dx = (a[0] / a[3] - b[0] / b[3]) * w / 2;
+    double dy = (a[1] / a[3] - b[1] / b[3]) * h / 2;
+
+    return sqrt(dx * dx + dy * dy);
+}
+
+// TODO: Move this to where it belongs.
+
+static void scube(long long f, double x, double y, double *v)
+{
+    const double s = x * M_PI_2 - M_PI_4;
+    const double t = y * M_PI_2 - M_PI_4;
+
+    double u[3];
+    double w[3];
+
+    u[0] =  sin(s) * cos(t);
+    u[1] = -cos(s) * sin(t);
+    u[2] =  cos(s) * cos(t);
+
+    vnormalize(w, u);
+
+    switch (f)
+    {
+        case 0: v[0] =  w[2]; v[1] =  w[1]; v[2] = -w[0]; break;
+        case 1: v[0] = -w[2]; v[1] =  w[1]; v[2] =  w[0]; break;
+        case 2: v[0] =  w[0]; v[1] =  w[2]; v[2] = -w[1]; break;
+        case 3: v[0] =  w[0]; v[1] = -w[2]; v[2] =  w[1]; break;
+        case 4: v[0] =  w[0]; v[1] =  w[1]; v[2] =  w[2]; break;
+        case 5: v[0] = -w[0]; v[1] =  w[1]; v[2] = -w[2]; break;
+    }
+}
+
+//------------------------------------------------------------------------------
+
+void norm4(double *v)
+{
+    double k = vlen(v);
+
+    v[0] /= k;
+    v[1] /= k;
+    v[2] /= k;
+    v[3] /= k;
+}
+
+double scm_model::wiew_face(const double *P,
+                            const double *O,
+                            const double *M, double rr, int vw, int vh,
+                            double ee, double ww, double nn, double ss, int j)
+{
+    double ne[3], a[4], e[4], A[4], E[4];    // North-east corner
+    double nw[3], b[4], f[4], B[4], F[4];    // North-west corner
+    double se[3], c[4], g[4], C[4], G[4];    // South-east corner
+    double sw[3], d[4], h[4], D[4], H[4];    // South-west corner
+
+    scube(j, ee, nn, ne);
+    scube(j, ww, nn, nw);
+    scube(j, ee, ss, se);
+    scube(j, ww, ss, sw);
+
+    if (zoomk != 1)
+    {
+        zoom(ne, ne);
+        zoom(nw, nw);
+        zoom(se, se);
+        zoom(sw, sw);
+    }
+
+    double ne0 = HUGE_VAL, ne1 = -HUGE_VAL;
+    double nw0 = HUGE_VAL, nw1 = -HUGE_VAL;
+    double se0 = HUGE_VAL, se1 = -HUGE_VAL;
+    double sw0 = HUGE_VAL, sw1 = -HUGE_VAL;
+
+    for (int i = 0; i < 24; i += 4)
+    {
+        double num = -P[i + 3];
+
+        double dne = vdot(ne, P + i);
+        double dnw = vdot(nw, P + i);
+        double dse = vdot(se, P + i);
+        double dsw = vdot(sw, P + i);
+
+        if (dne < 0) ne0 = std::min(ne0, num / dne);
+        if (dne > 0) ne1 = std::max(ne1, num / dne);
+
+        if (dnw < 0) nw0 = std::min(nw0, num / dnw);
+        if (dnw > 0) nw1 = std::max(nw1, num / dnw);
+
+        if (dse < 0) se0 = std::min(se0, num / dse);
+        if (dse > 0) se1 = std::max(se1, num / dse);
+
+        if (dsw < 0) sw0 = std::min(sw0, num / dsw);
+        if (dsw > 0) sw1 = std::max(sw1, num / dsw);
+    }
+
+    double rmin = std::min(std::min(ne0, nw0),
+                           std::min(se0, sw0));
+    double rmax = std::max(std::max(ne1, nw1),
+                           std::max(se1, sw1));
+
+    // Compute the maximum extent due to bulge.
+
+    double v[3];
+
+    v[0] = ne[0] + nw[0] + se[0] + sw[0];
+    v[1] = ne[1] + nw[1] + se[1] + sw[1];
+    v[2] = ne[2] + nw[2] + se[2] + sw[2];
+
+    double r2 = r1 * vlen(v) / vdot(ne, v);
+
+    rmin = std::min(rmin, r2);
+    rmin = std::max(rmin, r0);
+
+    rmax = std::min(rmax, r2);
+    rmax = std::max(rmax, r0);
+
+    // if (O) printf("%f %f\n", rmin, rmax);
+
+    // Apply the inner and outer radii to the bounding volume.
+
+    vmul(a, ne, r0);
+    vmul(b, nw, r0);
+    vmul(c, se, r0);
+    vmul(d, sw, r0);
+
+    vmul(e, ne, r2);
+    vmul(f, nw, r2);
+    vmul(g, se, r2);
+    vmul(h, sw, r2);
+
+    // Compute W and reject any volume on the far side of the singularity.
+
+    A[3] = M[ 3] * a[0] + M[ 7] * a[1] + M[11] * a[2] + M[15];
+    B[3] = M[ 3] * b[0] + M[ 7] * b[1] + M[11] * b[2] + M[15];
+    C[3] = M[ 3] * c[0] + M[ 7] * c[1] + M[11] * c[2] + M[15];
+    D[3] = M[ 3] * d[0] + M[ 7] * d[1] + M[11] * d[2] + M[15];
+    E[3] = M[ 3] * e[0] + M[ 7] * e[1] + M[11] * e[2] + M[15];
+    F[3] = M[ 3] * f[0] + M[ 7] * f[1] + M[11] * f[2] + M[15];
+    G[3] = M[ 3] * g[0] + M[ 7] * g[1] + M[11] * g[2] + M[15];
+    H[3] = M[ 3] * h[0] + M[ 7] * h[1] + M[11] * h[2] + M[15];
+
+    if (A[3] <= 0 && B[3] <= 0 && C[3] <= 0 && D[3] <= 0 &&
+        E[3] <= 0 && F[3] <= 0 && G[3] <= 0 && H[3] <= 0)
+        return 0;
+
+    // Compute Z and apply the near and far clipping planes.
+
+    A[2] = M[ 2] * a[0] + M[ 6] * a[1] + M[10] * a[2] + M[14];
+    B[2] = M[ 2] * b[0] + M[ 6] * b[1] + M[10] * b[2] + M[14];
+    C[2] = M[ 2] * c[0] + M[ 6] * c[1] + M[10] * c[2] + M[14];
+    D[2] = M[ 2] * d[0] + M[ 6] * d[1] + M[10] * d[2] + M[14];
+    E[2] = M[ 2] * e[0] + M[ 6] * e[1] + M[10] * e[2] + M[14];
+    F[2] = M[ 2] * f[0] + M[ 6] * f[1] + M[10] * f[2] + M[14];
+    G[2] = M[ 2] * g[0] + M[ 6] * g[1] + M[10] * g[2] + M[14];
+    H[2] = M[ 2] * h[0] + M[ 6] * h[1] + M[10] * h[2] + M[14];
+
+    if (A[2] >  A[3] && B[2] >  B[3] && C[2] >  C[3] && D[2] >  D[3] &&
+        E[2] >  E[3] && F[2] >  F[3] && G[2] >  G[3] && H[2] >  H[3])
+        return 0;
+    if (A[2] < -A[3] && B[2] < -B[3] && C[2] < -C[3] && D[2] < -D[3] &&
+        E[2] < -E[3] && F[2] < -F[3] && G[2] < -G[3] && H[2] < -H[3])
+        return 0;
+
+    // Compute Y and apply the bottom and top clipping planes.
+
+    A[1] = M[ 1] * a[0] + M[ 5] * a[1] + M[ 9] * a[2] + M[13];
+    B[1] = M[ 1] * b[0] + M[ 5] * b[1] + M[ 9] * b[2] + M[13];
+    C[1] = M[ 1] * c[0] + M[ 5] * c[1] + M[ 9] * c[2] + M[13];
+    D[1] = M[ 1] * d[0] + M[ 5] * d[1] + M[ 9] * d[2] + M[13];
+    E[1] = M[ 1] * e[0] + M[ 5] * e[1] + M[ 9] * e[2] + M[13];
+    F[1] = M[ 1] * f[0] + M[ 5] * f[1] + M[ 9] * f[2] + M[13];
+    G[1] = M[ 1] * g[0] + M[ 5] * g[1] + M[ 9] * g[2] + M[13];
+    H[1] = M[ 1] * h[0] + M[ 5] * h[1] + M[ 9] * h[2] + M[13];
+
+    if (A[1] >  A[3] && B[1] >  B[3] && C[1] >  C[3] && D[1] >  D[3] &&
+        E[1] >  E[3] && F[1] >  F[3] && G[1] >  G[3] && H[1] >  H[3])
+        return 0;
+    if (A[1] < -A[3] && B[1] < -B[3] && C[1] < -C[3] && D[1] < -D[3] &&
+        E[1] < -E[3] && F[1] < -F[3] && G[1] < -G[3] && H[1] < -H[3])
+        return 0;
+
+    // Compute X and apply the left and right clipping planes.
+
+    A[0] = M[ 0] * a[0] + M[ 4] * a[1] + M[ 8] * a[2] + M[12];
+    B[0] = M[ 0] * b[0] + M[ 4] * b[1] + M[ 8] * b[2] + M[12];
+    C[0] = M[ 0] * c[0] + M[ 4] * c[1] + M[ 8] * c[2] + M[12];
+    D[0] = M[ 0] * d[0] + M[ 4] * d[1] + M[ 8] * d[2] + M[12];
+    E[0] = M[ 0] * e[0] + M[ 4] * e[1] + M[ 8] * e[2] + M[12];
+    F[0] = M[ 0] * f[0] + M[ 4] * f[1] + M[ 8] * f[2] + M[12];
+    G[0] = M[ 0] * g[0] + M[ 4] * g[1] + M[ 8] * g[2] + M[12];
+    H[0] = M[ 0] * h[0] + M[ 4] * h[1] + M[ 8] * h[2] + M[12];
+
+    if (A[0] >  A[3] && B[0] >  B[3] && C[0] >  C[3] && D[0] >  D[3] &&
+        E[0] >  E[3] && F[0] >  F[3] && G[0] >  G[3] && H[0] >  H[3])
+        return 0;
+    if (A[0] < -A[3] && B[0] < -B[3] && C[0] < -C[3] && D[0] < -D[3] &&
+        E[0] < -E[3] && F[0] < -F[3] && G[0] < -G[3] && H[0] < -H[3])
+        return 0;
+
+    // Compute the length of the longest visible edge, in pixels.
+
+    a[0] = ne[0] * rmin; a[1] = ne[1] * rmin; a[2] = ne[2] * rmin; a[3] = 1.0;
+    b[0] = nw[0] * rmin; b[1] = nw[1] * rmin; b[2] = nw[2] * rmin; b[3] = 1.0;
+    c[0] = se[0] * rmin; c[1] = se[1] * rmin; c[2] = se[2] * rmin; c[3] = 1.0;
+    d[0] = sw[0] * rmin; d[1] = sw[1] * rmin; d[2] = sw[2] * rmin; d[3] = 1.0;
+
+    e[0] = ne[0] * rmax; e[1] = ne[1] * rmax; e[2] = ne[2] * rmax; e[3] = 1.0;
+    f[0] = nw[0] * rmax; f[1] = nw[1] * rmax; f[2] = nw[2] * rmax; f[3] = 1.0;
+    g[0] = se[0] * rmax; g[1] = se[1] * rmax; g[2] = se[2] * rmax; g[3] = 1.0;
+    h[0] = sw[0] * rmax; h[1] = sw[1] * rmax; h[2] = sw[2] * rmax; h[3] = 1.0;
+
+    wtransform(A, M, a);
+    wtransform(B, M, b);
+    wtransform(C, M, c);
+    wtransform(D, M, d);
+    wtransform(E, M, e);
+    wtransform(F, M, f);
+    wtransform(G, M, g);
+    wtransform(H, M, h);
+
+    return std::max(std::max(std::max(length(A, B, vw, vh),
+                                      length(C, D, vw, vh)),
+                             std::max(length(A, C, vw, vh),
+                                      length(B, D, vw, vh))),
+                    std::max(std::max(length(E, F, vw, vh),
+                                      length(G, H, vw, vh)),
+                             std::max(length(E, G, vw, vh),
+                                      length(F, H, vw, vh))));
+}
+
 struct scm_model::page
 {
     long long f;
@@ -124,7 +392,8 @@ static const int wrap[6][6][4] = {
 
 #undef X
 
-void scm_model::pwep_face(const double *M, double R, int ww, int wh, int qi)
+void scm_model::pwep_face(const double *F,
+                          const double *M, double R, int ww, int wh, int qi)
 {
     const long long i = qv[qi].i;
     const long long n = qv[qi].n;
@@ -136,7 +405,7 @@ void scm_model::pwep_face(const double *M, double R, int ww, int wh, int qi)
     const double    b = qv[qi].b;
     const double    t = qv[qi].t;
 
-    double k = view_face(M, R, ww, wh, r, l, t, b, face_root(i));
+    double k = wiew_face(F, 0, M, R, ww, wh, r, l, t, b, face_root(i));
 
     if (k > size && qn + 4 < qm && face_level(i) < 15)
     {
@@ -154,6 +423,7 @@ void scm_model::pwep_face(const double *M, double R, int ww, int wh, int qi)
                      face_child(i, 2),
                      face_child(e, wrap[I][E][1]),
                      face_child(i, 1),             x, r, y, t);
+#if 1
         qv[qn++].set(face_child(i, 1),
                      face_child(n, wrap[I][N][3]),
                      face_child(i, 3),
@@ -169,64 +439,117 @@ void scm_model::pwep_face(const double *M, double R, int ww, int wh, int qi)
                      face_child(s, wrap[I][S][1]),
                      face_child(i, 2),
                      face_child(w, wrap[I][W][2]), l, x, b, y);
+#endif
         qv[qi].f = 0;
     }
+    // else wiew_face(F, (const double *) 1, M, R, ww, wh, r, l, t, b, face_root(i));
 }
 
-void scm_model::pwep(const double *P, const double *V, double r, int w, int h)
+void scm_model::pwep(const double *PP, const double *VV, int w, int h)
 {
     double M[16];
+    double T[16];
     double I[16];
-    double u[4] = { 0.0, 0.0, -1.0, 1.0 };
+    double u[4] = { 0.0,  0.0, -1.0,  1.0 };
     double v[4];
+    double o[4] = { 0.0,  0.0,  0.0,  1.0 };
+    double O[4];
+    double F[24];
+    static const double E[24] = { +1.0,  0.0,  0.0, -1.0,
+                                  -1.0,  0.0,  0.0, -1.0,
+                                   0.0, +1.0,  0.0, -1.0,
+                                   0.0, -1.0,  0.0, -1.0,
+                                   0.0,  0.0, +1.0, -1.0,
+                                   0.0,  0.0, -1.0, -1.0  };
+
+    double P[16];
+    double V[16];
+
+    glGetDoublev(GL_PROJECTION_MATRIX, P);
+    glGetDoublev(GL_MODELVIEW_MATRIX, V);
 
     mmultiply(M, P, V);
-
     minvert(I, M);
-    wtransform(v, I, u);
+    mtranspose(T, M);
 
+    // TODO: Eliminate multiplications with 0 and 1.
+
+    wtransform(F +  0, T, E +  0);
+    wtransform(F +  4, T, E +  4);
+    wtransform(F +  8, T, E +  8);
+    wtransform(F + 12, T, E + 12);
+    wtransform(F + 16, T, E + 16);
+    wtransform(F + 20, T, E + 20);
+
+    norm4(F +  0);
+    norm4(F +  4);
+    norm4(F +  8);
+    norm4(F + 12);
+    norm4(F + 16);
+    norm4(F + 20);
+
+    wtransform(O, I, o);
+    O[0] /= O[3];
+    O[1] /= O[3];
+    O[2] /= O[3];
+    O[3] /= O[3];
+
+    wtransform(v, I, u);
     v[0] /= v[3];
     v[1] /= v[3];
     v[2] /= v[3];
+    v[3] /= v[3];
+    double r = vlen(v);
 
-    r = vlen(v);
+    qn = 0;
 
-    qv[0].set(0, 2, 3, 5, 4, 1, 0, 1, 0);
-    qv[1].set(1, 2, 3, 4, 5, 1, 0, 1, 0);
-    qv[2].set(2, 5, 4, 0, 1, 1, 0, 1, 0);
-    qv[3].set(3, 4, 5, 1, 0, 1, 0, 1, 0);
-    qv[4].set(4, 2, 3, 0, 1, 1, 0, 1, 0);
-    qv[5].set(5, 2, 3, 1, 0, 1, 0, 1, 0);
-
-    qn = 6;
+    qv[qn++].set(0, 2, 3, 5, 4, 1, 0, 1, 0);
+#if 0
+    qv[qn++].set(1, 2, 3, 4, 5, 1, 0, 1, 0);
+    qv[qn++].set(2, 5, 4, 0, 1, 1, 0, 1, 0);
+    qv[qn++].set(3, 4, 5, 1, 0, 1, 0, 1, 0);
+    qv[qn++].set(4, 2, 3, 0, 1, 1, 0, 1, 0);
+    qv[qn++].set(5, 2, 3, 1, 0, 1, 0, 1, 0);
+#endif
 
     for (int qi = 0; qi < qn; ++qi)
-        pwep_face(M, r, w, h, qi);
+        pwep_face(F, M, r, w, h, qi);
+
+    glUseProgram(0);
+    glBegin(GL_LINES);
+    for (int qi = 0; qi < qn; ++qi)
+        if (qv[qi].f)
+            dump_face(M, r, w, h, qv[qi].r, qv[qi].l, qv[qi].t, qv[qi].b, face_root(qv[qi].i));
+    glEnd();
+
+    double rr = r;
+    rr = std::max(rr, r0);
+    rr = std::min(rr, r1);
+
+    printf("%f %f %f %f %d\n", r0, r1, rr, r, qn);
 }
 
-void scm_model::dwaw(const double *P, const double *V, double r, int w, int h,
+void scm_model::dwaw(const double *P, const double *V, int w, int h,
                                                       const int *vv, int vc,
                                                       const int *fv, int fc,
                                                       const int *pv, int pc)
 {
-    long long m = 0;
-    pwep(P, V, r, w, h);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixd(P);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixd(V);
+    // glMatrixMode(GL_PROJECTION);
+    // glLoadMatrixd(P);
+    // glMatrixMode(GL_MODELVIEW);
+    // glLoadMatrixd(V);
 
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
     glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+    pwep(P, V, w, h);
 
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
 
     glUseProgram(program);
-#if 1
     {
         glUniform1f(u_zoomk, GLfloat(zoomk));
         glUniform3f(u_zoomv, GLfloat(zoomv[0]),
@@ -237,8 +560,6 @@ void scm_model::dwaw(const double *P, const double *V, double r, int w, int h,
         {
             const long long l = face_level(qv[qi].i);
             const long long f = face_root (qv[qi].i);
-
-            m = std::max(m, l);
 
             glUniform2f(u_tex_a[l], GLfloat(qv[qi].r), GLfloat(qv[qi].t));
             glUniform2f(u_tex_d[l], GLfloat(qv[qi].l), GLfloat(qv[qi].b));
@@ -263,22 +584,13 @@ void scm_model::dwaw(const double *P, const double *V, double r, int w, int h,
             }
         }
     }
-#endif
     glUseProgram(0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER,         0);
     glDisableClientState(GL_VERTEX_ARRAY);
 
-    printf("%lld\n", m);
-
-#if 0
-    glBegin(GL_LINES);
-    for (int qi = qn-1; qi < qn; ++qi)
-        if (qv[qi].f)
-            dump_face(M, w, h, qv[qi].r, qv[qi].l, qv[qi].t, qv[qi].b, face_root(qv[qi].i));
-    glEnd();
-#endif
+    fflush(stdout);
 }
 
 //------------------------------------------------------------------------------
@@ -303,7 +615,7 @@ scm_model::scm_model(scm_cache& cache,
     zoomv[2] = -1;
     zoomk    =  1;
 
-    qm = 1024;
+    qm = 8192;
     qn =    0;
     qv = (page *) calloc(qm, sizeof (page));
 }
@@ -318,132 +630,50 @@ scm_model::~scm_model()
 
 //------------------------------------------------------------------------------
 
-static inline double scale(double k, double t)
-{
-    if (k < 1.0)
-        return std::min(t / k, 1.0 - (1.0 - t) * k);
-    else
-        return std::max(t / k, 1.0 - (1.0 - t) * k);
-}
-
-void scm_model::zoom(double *w, const double *v)
-{
-    double d = vdot(v, zoomv);
-
-    if (-1 < d && d < 1)
-    {
-        double b = scale(zoomk, acos(d) / M_PI) * M_PI;
-
-        double y[3];
-        double x[3];
-
-        vcrs(y, v, zoomv);
-        vnormalize(y, y);
-        vcrs(x, zoomv, y);
-        vnormalize(x, x);
-
-        vmul(w, zoomv, cos(b));
-        vmad(w, w,  x, sin(b));
-    }
-    else vcpy(w, v);
-}
-
-//------------------------------------------------------------------------------
-
-static inline double length(const double *a, const double *b, int w, int h)
-{
-    if (a[3] <= 0 && b[3] <= 0) return 0;
-    if (a[3] <= 0)              return HUGE_VAL;
-    if (b[3] <= 0)              return HUGE_VAL;
-
-    double dx = (a[0] / a[3] - b[0] / b[3]) * w / 2;
-    double dy = (a[1] / a[3] - b[1] / b[3]) * h / 2;
-
-    return sqrt(dx * dx + dy * dy);
-}
-
-//------------------------------------------------------------------------------
-
-// TODO: Move this to where it belongs.
-
-static void scube(long long f, double x, double y, double *v)
-{
-    const double s = x * M_PI_2 - M_PI_4;
-    const double t = y * M_PI_2 - M_PI_4;
-
-    double u[3];
-    double w[3];
-
-    u[0] =  sin(s) * cos(t);
-    u[1] = -cos(s) * sin(t);
-    u[2] =  cos(s) * cos(t);
-
-    vnormalize(w, u);
-
-    switch (f)
-    {
-        case 0: v[0] =  w[2]; v[1] =  w[1]; v[2] = -w[0]; break;
-        case 1: v[0] = -w[2]; v[1] =  w[1]; v[2] =  w[0]; break;
-        case 2: v[0] =  w[0]; v[1] =  w[2]; v[2] = -w[1]; break;
-        case 3: v[0] =  w[0]; v[1] = -w[2]; v[2] =  w[1]; break;
-        case 4: v[0] =  w[0]; v[1] =  w[1]; v[2] =  w[2]; break;
-        case 5: v[0] = -w[0]; v[1] =  w[1]; v[2] = -w[2]; break;
-    }
-}
-
 // TODO: reorder the arguments LRTB.
 
 double scm_model::view_face(const double *M, double rr, int vw, int vh,
                             double ee, double ww, double nn, double ss, int j)
 {
-    double a[3], e[3], A[4], E[4];    // North-east corner
-    double b[3], f[3], B[4], F[4];    // North-west corner
-    double c[3], g[3], C[4], G[4];    // South-east corner
-    double d[3], h[3], D[4], H[4];    // South-west corner
+    double ne[3], a[3], e[3], A[4], E[4];    // North-east corner
+    double nw[3], b[3], f[3], B[4], F[4];    // North-west corner
+    double se[3], c[3], g[3], C[4], G[4];    // South-east corner
+    double sw[3], d[3], h[3], D[4], H[4];    // South-west corner
 
-    scube(j, ee, nn, a);
-    scube(j, ww, nn, b);
-    scube(j, ee, ss, c);
-    scube(j, ww, ss, d);
+    scube(j, ee, nn, ne);
+    scube(j, ww, nn, nw);
+    scube(j, ee, ss, se);
+    scube(j, ww, ss, sw);
 
     if (zoomk != 1)
     {
-        zoom(a, a);
-        zoom(b, b);
-        zoom(c, c);
-        zoom(d, d);
+        zoom(ne, ne);
+        zoom(nw, nw);
+        zoom(se, se);
+        zoom(sw, sw);
     }
 
     // Compute the maximum extent due to bulge.
 
     double v[3];
 
-    v[0] = a[0] + b[0] + c[0] + d[0];
-    v[1] = a[1] + b[1] + c[1] + d[1];
-    v[2] = a[2] + b[2] + c[2] + d[2];
+    v[0] = ne[0] + nw[0] + se[0] + sw[0];
+    v[1] = ne[1] + nw[1] + se[1] + sw[1];
+    v[2] = ne[2] + nw[2] + se[2] + sw[2];
 
-    double k = vlen(v) / vdot(a, v);
-
-    // Compute the outer corners of the bulge bound.
-
-    vmul(e, a, k);
-    vmul(f, b, k);
-    vmul(g, c, k);
-    vmul(h, d, k);
+    double k = vlen(v) / vdot(ne, v);
 
     // Apply the inner and outer radii to the bounding volume.
 
-    double rmin = std::min(r0, rr);
-    double rmax = std::min(rr, r1);
+    vmul(a, ne, r0);
+    vmul(b, nw, r0);
+    vmul(c, se, r0);
+    vmul(d, sw, r0);
 
-    a[0] *= rmin; a[1] *= rmin; a[2] *= rmin;
-    b[0] *= rmin; b[1] *= rmin; b[2] *= rmin;
-    c[0] *= rmin; c[1] *= rmin; c[2] *= rmin;
-    d[0] *= rmin; d[1] *= rmin; d[2] *= rmin;
-    e[0] *= rmax; e[1] *= rmax; e[2] *= rmax;
-    f[0] *= rmax; f[1] *= rmax; f[2] *= rmax;
-    g[0] *= rmax; g[1] *= rmax; g[2] *= rmax;
-    h[0] *= rmax; h[1] *= rmax; h[2] *= rmax;
+    vmul(e, ne, r1 * k);
+    vmul(f, nw, r1 * k);
+    vmul(g, se, r1 * k);
+    vmul(h, sw, r1 * k);
 
     // Compute W and reject any volume on the far side of the singularity.
 
@@ -516,14 +746,83 @@ double scm_model::view_face(const double *M, double rr, int vw, int vh,
 
     // Compute the length of the longest visible edge, in pixels.
 
-    return std::max(std::max(std::max(length(A, B, vw, vh),
-                                      length(C, D, vw, vh)),
-                             std::max(length(A, C, vw, vh),
-                                      length(B, D, vw, vh))),
-                    std::max(std::max(length(E, F, vw, vh),
-                                      length(G, H, vw, vh)),
-                             std::max(length(E, G, vw, vh),
-                                      length(F, H, vw, vh))));
+
+    rr = std::max(rr, r0);
+    rr = std::min(rr, r1);
+
+    A[0] = ne[0] * rr; A[1] = ne[1] * rr; A[2] = ne[2] * rr; A[3] = 1.0;
+    B[0] = nw[0] * rr; B[1] = nw[1] * rr; B[2] = nw[2] * rr; B[3] = 1.0;
+    C[0] = se[0] * rr; C[1] = se[1] * rr; C[2] = se[2] * rr; C[3] = 1.0;
+    D[0] = sw[0] * rr; D[1] = sw[1] * rr; D[2] = sw[2] * rr; D[3] = 1.0;
+
+    wtransform(E, M, A);
+    wtransform(F, M, B);
+    wtransform(G, M, C);
+    wtransform(H, M, D);
+
+    return std::max(std::max(length(E, F, vw, vh),
+                             length(G, H, vw, vh)),
+                    std::max(length(E, G, vw, vh),
+                             length(F, H, vw, vh)));
+}
+
+void scm_model::dump_face(const double *M, double rr, int vw, int vh,
+                            double ee, double ww, double nn, double ss, int j)
+{
+    double ne[3], A[4];    // North-east corner
+    double nw[3], B[4];    // North-west corner
+    double se[3], C[4];    // South-east corner
+    double sw[3], D[4];    // South-west corner
+
+    scube(j, ee, nn, ne);
+    scube(j, ww, nn, nw);
+    scube(j, ee, ss, se);
+    scube(j, ww, ss, sw);
+
+    if (zoomk != 1)
+    {
+        zoom(ne, ne);
+        zoom(nw, nw);
+        zoom(se, se);
+        zoom(sw, sw);
+    }
+
+    rr = std::max(rr, r0);
+    rr = std::min(rr, r1);
+
+    A[0] = ne[0] * rr; A[1] = ne[1] * rr; A[2] = ne[2] * rr; A[3] = 1.0;
+    B[0] = nw[0] * rr; B[1] = nw[1] * rr; B[2] = nw[2] * rr; B[3] = 1.0;
+    C[0] = se[0] * rr; C[1] = se[1] * rr; C[2] = se[2] * rr; C[3] = 1.0;
+    D[0] = sw[0] * rr; D[1] = sw[1] * rr; D[2] = sw[2] * rr; D[3] = 1.0;
+
+    glVertex4dv(A); glVertex4dv(B);
+    glVertex4dv(A); glVertex4dv(C);
+    glVertex4dv(B); glVertex4dv(D);
+    glVertex4dv(C); glVertex4dv(D);
+
+    rr = 1.0;
+
+    A[0] = ne[0] * rr; A[1] = ne[1] * rr; A[2] = ne[2] * rr; A[3] = 1.0;
+    B[0] = nw[0] * rr; B[1] = nw[1] * rr; B[2] = nw[2] * rr; B[3] = 1.0;
+    C[0] = se[0] * rr; C[1] = se[1] * rr; C[2] = se[2] * rr; C[3] = 1.0;
+    D[0] = sw[0] * rr; D[1] = sw[1] * rr; D[2] = sw[2] * rr; D[3] = 1.0;
+
+    glVertex4dv(A); glVertex4dv(B);
+    glVertex4dv(A); glVertex4dv(C);
+    glVertex4dv(B); glVertex4dv(D);
+    glVertex4dv(C); glVertex4dv(D);
+
+    rr = r0;
+
+    A[0] = ne[0] * rr; A[1] = ne[1] * rr; A[2] = ne[2] * rr; A[3] = 1.0;
+    B[0] = nw[0] * rr; B[1] = nw[1] * rr; B[2] = nw[2] * rr; B[3] = 1.0;
+    C[0] = se[0] * rr; C[1] = se[1] * rr; C[2] = se[2] * rr; C[3] = 1.0;
+    D[0] = sw[0] * rr; D[1] = sw[1] * rr; D[2] = sw[2] * rr; D[3] = 1.0;
+
+    glVertex4dv(A); glVertex4dv(B);
+    glVertex4dv(A); glVertex4dv(C);
+    glVertex4dv(B); glVertex4dv(D);
+    glVertex4dv(C); glVertex4dv(D);
 }
 
 //------------------------------------------------------------------------------

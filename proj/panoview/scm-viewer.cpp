@@ -189,8 +189,6 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
     const int     w = ::host->get_buffer_w();
     const int     h = ::host->get_buffer_h();
 
-    double r = vlen(M + 12) / radius;
-
     if (cache)
         cache->set_debug(debug_color);
 
@@ -238,9 +236,11 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
                           &tofrag.front(), tofrag.size(),
                           &toprep.front(), toprep.size());
 #else
-        model->dwaw(P, V, r, w, h, &tovert.front(), tovert.size(),
-                                   &tofrag.front(), tofrag.size(),
-                                   &toprep.front(), toprep.size());
+        frusp->draw();
+       ::user->draw();
+        model->dwaw(P, V, w, h, &tovert.front(), tovert.size(),
+                                &tofrag.front(), tofrag.size(),
+                                &toprep.front(), toprep.size());
 #endif
 
         if (debug_wire)
