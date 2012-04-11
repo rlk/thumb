@@ -113,14 +113,6 @@ static inline double length(const double *a, const double *b, int w, int h)
     return sqrt(dx * dx + dy * dy);
 }
 
-static inline void cdiv(double *a)
-{
-    a[0] /= a[3];
-    a[1] /= a[3];
-    a[2] /= a[3];
-}
-#if 1
-
 static inline void cmix(double *a, double *b, double k)
 {
     a[0] = (1 - k) * a[0] + k * b[0];
@@ -156,59 +148,6 @@ static inline void clip(double *a, double *b)
         else break;
     }
 }
-
-#else
-static inline void clip(double *a, double *b)
-{
-    const double xmin = -1.0;
-    const double xmax = +1.0;
-    const double ymin = -1.0;
-    const double ymax = +1.0;
-    const double zmin = -1.0;
-    const double zmax = +1.0;
-
-    while (1)
-    {
-        if      (a[2] < zmin && b[2] >= zmin)
-        {
-            a[0] = a[0] + (b[0] - a[0]) * (zmin - a[2]) / (b[2] - a[2]);
-            a[1] = a[1] + (b[1] - a[1]) * (zmin - a[2]) / (b[2] - a[2]);
-            a[2] = zmin;
-        }
-        else if (a[2] > zmax && b[2] <= zmax)
-        {
-            a[0] = a[0] + (b[0] - a[0]) * (zmax - a[2]) / (b[2] - a[2]);
-            a[1] = a[1] + (b[1] - a[1]) * (zmax - a[2]) / (b[2] - a[2]);
-            a[2] = zmax;
-        }
-        else if (a[1] < ymin && b[1] >= ymin)
-        {
-            a[0] = a[0] + (b[0] - a[0]) * (ymin - a[1]) / (b[1] - a[1]);
-            a[2] = a[2] + (b[2] - a[2]) * (ymin - a[1]) / (b[1] - a[1]);
-            a[1] = ymin;
-        }
-        else if (a[1] > ymax && b[1] <= ymax)
-        {
-            a[0] = a[0] + (b[0] - a[0]) * (ymax - a[1]) / (b[1] - a[1]);
-            a[2] = a[2] + (b[2] - a[2]) * (ymax - a[1]) / (b[1] - a[1]);
-            a[1] = ymax;
-        }
-        else if (a[0] < xmin && b[0] >= xmin)
-        {
-            a[1] = a[1] + (b[1] - a[1]) * (xmin - a[0]) / (b[0] - a[0]);
-            a[2] = a[2] + (b[2] - a[2]) * (xmin - a[0]) / (b[0] - a[0]);
-            a[0] = xmin;
-        }
-        else if (a[0] > xmax && b[0] <= xmax)
-        {
-            a[1] = a[1] + (b[1] - a[1]) * (xmax - a[0]) / (b[0] - a[0]);
-            a[2] = a[2] + (b[2] - a[2]) * (xmax - a[0]) / (b[0] - a[0]);
-            a[0] = xmax;
-        }
-        else break;
-    }
-}
-#endif
 
 static inline double clen(const double *a, const double *b, int w, int h)
 {
@@ -250,17 +189,6 @@ static void scube(long long f, double x, double y, double *v)
 }
 
 //------------------------------------------------------------------------------
-#if 0
-void norm4(double *v)
-{
-    double k = vlen(v);
-
-    v[0] /= k;
-    v[1] /= k;
-    v[2] /= k;
-    v[3] /= k;
-}
-#endif
 
 double scm_model::wiew_face(const double *M, double rr, int vw, int vh,
                             double ee, double ww, double nn, double ss, int qi, int j)
@@ -381,6 +309,7 @@ double scm_model::wiew_face(const double *M, double rr, int vw, int vh,
     clip(C, G); clip(G, C);
     clip(D, H); clip(H, D);
 
+#if 0
     if (A[3] <= 0 || E[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex4dv(A); glVertex4dv(E);
 
@@ -392,6 +321,7 @@ double scm_model::wiew_face(const double *M, double rr, int vw, int vh,
 
     if (D[3] <= 0 || H[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex4dv(D); glVertex4dv(H);
+#endif
 
     return std::max(std::max(std::max(clen(A, B, vw, vh),
                                       clen(C, D, vw, vh)),
@@ -488,7 +418,6 @@ void scm_model::pwep_face(const double *M, double R, int ww, int wh, int qi)
                      face_child(i, 2),
                      face_child(e, wrap[I][E][1]),
                      face_child(i, 1),             x, r, y, t);
-#if 1
         qv[qn++].set(face_child(i, 1),
                      face_child(n, wrap[I][N][3]),
                      face_child(i, 3),
@@ -504,23 +433,16 @@ void scm_model::pwep_face(const double *M, double R, int ww, int wh, int qi)
                      face_child(s, wrap[I][S][1]),
                      face_child(i, 2),
                      face_child(w, wrap[I][W][2]), l, x, b, y);
-#endif
         qv[qi].f = 0;
     }
 }
 
-void scm_model::pwep(const double *PP, const double *VV, int w, int h)
+void scm_model::pwep(const double *P, const double *V, int w, int h)
 {
     double M[16];
     double I[16];
     double u[4] = { 0.0,  0.0, -1.0,  1.0 };
     double v[4];
-
-    double P[16];
-    double V[16];
-
-    glGetDoublev(GL_PROJECTION_MATRIX, P);
-    glGetDoublev(GL_MODELVIEW_MATRIX, V);
 
     mmultiply(M, P, V);
     minvert(I, M);
@@ -534,32 +456,30 @@ void scm_model::pwep(const double *PP, const double *VV, int w, int h)
     qn = 0;
 
     qv[qn++].set(0, 2, 3, 5, 4, 1, 0, 1, 0);
-#if 0
     qv[qn++].set(1, 2, 3, 4, 5, 1, 0, 1, 0);
     qv[qn++].set(2, 5, 4, 0, 1, 1, 0, 1, 0);
     qv[qn++].set(3, 4, 5, 1, 0, 1, 0, 1, 0);
     qv[qn++].set(4, 2, 3, 0, 1, 1, 0, 1, 0);
     qv[qn++].set(5, 2, 3, 1, 0, 1, 0, 1, 0);
-#endif
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
+    // glMatrixMode(GL_PROJECTION);
+    // glLoadIdentity();
+    // glMatrixMode(GL_MODELVIEW);
+    // glLoadIdentity();
 
-    glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-    glUseProgram(0);
-    glBegin(GL_LINES);
+    // glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+    // glUseProgram(0);
+    // glBegin(GL_LINES);
 
     for (int qi = 0; qi < qn; ++qi)
         pwep_face(M, r, w, h, qi);
 
-    glEnd();
+    // glEnd();
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixd(P);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixd(V);
+    // glMatrixMode(GL_PROJECTION);
+    // glLoadMatrixd(P);
+    // glMatrixMode(GL_MODELVIEW);
+    // glLoadMatrixd(V);
 }
 
 void scm_model::dwaw(const double *P, const double *V, int w, int h,
@@ -567,10 +487,10 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
                                                       const int *fv, int fc,
                                                       const int *pv, int pc)
 {
-    // glMatrixMode(GL_PROJECTION);
-    // glLoadMatrixd(P);
-    // glMatrixMode(GL_MODELVIEW);
-    // glLoadMatrixd(V);
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(P);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixd(V);
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -580,7 +500,6 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
 
     pwep(P, V, w, h);
 
-#if 0
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
@@ -625,7 +544,6 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER,         0);
     glDisableClientState(GL_VERTEX_ARRAY);
-#endif
 }
 
 //------------------------------------------------------------------------------
