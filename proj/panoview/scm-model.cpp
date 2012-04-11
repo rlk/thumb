@@ -131,25 +131,27 @@ static inline void cmix(double *a, double *b, double k)
 
 static inline void clip(double *a, double *b)
 {
+    const double e = 0.00001;  // Delicious fudge.
+
     while (1)
     {
         if      (a[0] < -a[3] && b[0] > -b[3])
-            cmix(a, b, (a[3] + a[0]) / (a[3] + a[0] - b[3] - b[0]));
+            cmix(a, b, e + (a[3] + a[0]) / (a[3] + a[0] - b[3] - b[0]));
 
         else if (a[0] > +a[3] && b[0] < +b[3])
-            cmix(a, b, (a[3] - a[0]) / (a[3] - a[0] - b[3] + b[0]));
+            cmix(a, b, e + (a[3] - a[0]) / (a[3] - a[0] - b[3] + b[0]));
 
         else if (a[1] < -a[3] && b[1] > -b[3])
-            cmix(a, b, (a[3] + a[1]) / (a[3] + a[1] - b[3] - b[1]));
+            cmix(a, b, e + (a[3] + a[1]) / (a[3] + a[1] - b[3] - b[1]));
 
         else if (a[1] > +a[3] && b[1] < +b[3])
-            cmix(a, b, (a[3] - a[1]) / (a[3] - a[1] - b[3] + b[1]));
+            cmix(a, b, e + (a[3] - a[1]) / (a[3] - a[1] - b[3] + b[1]));
 
-        else if (a[2] < -a[3] && b[2] > -b[3])
-            cmix(a, b, (a[3] + a[2]) / (a[3] + a[2] - b[3] - b[2]));
+        // else if (a[2] < -a[3] && b[2] > -b[3])
+        //     cmix(a, b, e + (a[3] + a[2]) / (a[3] + a[2] - b[3] - b[2]));
 
-        else if (a[2] > +a[3] && b[2] < +b[3])
-            cmix(a, b, (a[3] - a[2]) / (a[3] - a[2] - b[3] + b[2]));
+        // else if (a[2] > +a[3] && b[2] < +b[3])
+        //     cmix(a, b, e + (a[3] - a[2]) / (a[3] - a[2] - b[3] + b[2]));
 
         else break;
     }
@@ -210,9 +212,9 @@ static inline void clip(double *a, double *b)
 
 static inline double clen(const double *a, const double *b, int w, int h)
 {
-    // if (a[3] <= 0 && b[3] <= 0) return 0;
-    // if (a[3] <= 0)              return HUGE_VAL;
-    // if (b[3] <= 0)              return HUGE_VAL;
+    if (a[3] <= 0 && b[3] <= 0) return 0;
+    if (a[3] <= 0)              return HUGE_VAL;
+    if (b[3] <= 0)              return HUGE_VAL;
 
     double dx = (a[0] / a[3] - b[0] / b[3]) * w / 2;
     double dy = (a[1] / a[3] - b[1] / b[3]) * h / 2;
@@ -372,9 +374,6 @@ double scm_model::wiew_face(const double *M, double rr, int vw, int vh,
         E[0] < -E[3] && F[0] < -F[3] && G[0] < -G[3] && H[0] < -H[3])
         return 0;
 
-
-//    dump_face(M, rr, vw, vh, qv[qi].r, qv[qi].l, qv[qi].t, qv[qi].b, face_root(qv[qi].i));
-
     // Compute the length of the longest visible edge, in pixels.
 
     clip(A, E); clip(E, A);
@@ -382,9 +381,16 @@ double scm_model::wiew_face(const double *M, double rr, int vw, int vh,
     clip(C, G); clip(G, C);
     clip(D, H); clip(H, D);
 
+    if (A[3] <= 0 || E[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex4dv(A); glVertex4dv(E);
+
+    if (B[3] <= 0 || F[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex4dv(B); glVertex4dv(F);
+
+    if (C[3] <= 0 || G[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex4dv(C); glVertex4dv(G);
+
+    if (D[3] <= 0 || H[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
     glVertex4dv(D); glVertex4dv(H);
 
     return std::max(std::max(std::max(clen(A, B, vw, vh),
