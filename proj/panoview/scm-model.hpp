@@ -29,21 +29,8 @@ public:
    ~scm_model();
 
     int  tick() { return time++; }
-    void prep(const double *, const double *, int, int);
-    void draw(const double *, const double *, const int *, int,
-                                              const int *, int,
-                                              const int *, int);
 
-    double wiew_face(const double *, double, double, int, int,
-                     double, double, double, double, int, int);
-    void pwep_face(const double *, int, int, const int *, int,
-                                             const int *, int, int);
-    void pwep(const double *, const double *, int, int, const int *, int,
-                                                        const int *, int);
-    void dwaw_face(int, int, int, const int *, int,
-                                  const int *, int,
-                                  const int *, int);
-    void dwaw(const double *, const double *, int, int, const int *, int,
+    void draw(const double *, const double *, int, int, const int *, int,
                                                         const int *, int,
                                                         const int *, int);
 
@@ -56,9 +43,6 @@ public:
         zoomk    = k;
     }
 
-    // double get_r0() const { return r0; }
-    // double get_r1() const { return r1; }
-
 private:
 
     GLuint stack[8];
@@ -67,9 +51,6 @@ private:
 
     int    time;
     int    size;
-    int    depth;
-    // double r0;
-    // double r1;
 
     // Zooming state.
 
@@ -86,29 +67,18 @@ private:
     int   qn;
     int   qm;
 
-    // Data structures and algorithms for handling face adaptive subdivision.
-
-    void   draw_face(const int *, int,
-                     const int *, int,
-                     const int *, int,
-                     double, double, double, double, int, int);
-    void   prep_face(const double *, int, int,
-                     double, double, double, double, int, int, int);
-    double view_face(const double *, double, int, int,
-                     double, double, double, double, int);
     void   dump_face(const double *, double, double,
                      double, double, double, double, int);
+    double view_face(const double *, double, double, int, int,
+                     double, double, double, double, int, int);
+    void   prep_face(const double *, int, int, const int *, int,
+                                               const int *, int, int);
+    void   draw_face(int, int, int, const int *, int,
+                                  const int *, int,
+                                  const int *, int);
+    void   prep    (const double *, const double *, int, int, const int *, int,
+                                                        const int *, int);
 
-    typedef unsigned char byte;
-
-    enum
-    {
-        s_halt = 0,
-        s_pass = 1,
-        s_draw = 2
-    };
-
-    std::vector<byte> status;
 
     GLfloat age(int);
 

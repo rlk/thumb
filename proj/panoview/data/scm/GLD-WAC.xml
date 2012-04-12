@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-  <sphere mesh="128" radius="1.0"
-          size="426" depth="2"
+  <sphere mesh="64" radius="1.0"
+          size="426" depth="6"
           vert="glsl/scm-displace.vert"
           frag="glsl/scm-basic.frag">
     <frame>
 <!--  <scm shader="vert" r0="1737400" r1="1748170" file="DTM-426-2.tif" />-->
-      <scm shader="vert" r0="0.994728" r1="1.0062" file="DTM-426-2.tif" />
+      <scm shader="vert" r0="0.994728" r1="1.0062" file="DTM-426-6.tif" />
       <scm shader="frag"                           file="WAC-426-2.tif" />
     </frame>
   </sphere>

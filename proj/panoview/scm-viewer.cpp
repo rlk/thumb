@@ -239,7 +239,7 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
                           &tofrag.front(), tofrag.size(),
                           &toprep.front(), toprep.size());
 #else
-        model->dwaw(P, V, w, h, &tovert.front(), tovert.size(),
+        model->draw(P, V, w, h, &tovert.front(), tovert.size(),
                                 &tofrag.front(), tofrag.size(),
                                 &toprep.front(), toprep.size());
 #endif

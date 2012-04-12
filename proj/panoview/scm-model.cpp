@@ -199,7 +199,7 @@ static void scube(long long f, double x, double y, double *v)
 
 //------------------------------------------------------------------------------
 
-double scm_model::wiew_face(const double *M, double r0, double r1, int vw, int vh,
+double scm_model::view_face(const double *M, double r0, double r1, int vw, int vh,
                             double ee, double ww, double nn, double ss, int qi, int j)
 {
     double ne[3], a[4], e[4], A[4], E[4];    // North-east corner
@@ -313,11 +313,6 @@ double scm_model::wiew_face(const double *M, double r0, double r1, int vw, int v
 
     // Compute the length of the longest visible edge, in pixels.
 
-    // clip(A, E); clip(E, A);
-    // clip(B, F); clip(F, B);
-    // clip(C, G); clip(G, C);
-    // clip(D, H); clip(H, D);
-
     return std::max(std::max(std::max(clen(A, B, vw, vh),
                                       clen(C, D, vw, vh)),
                              std::max(clen(A, C, vw, vh),
@@ -383,7 +378,7 @@ static const int wrap[6][6][4] = {
 
 #undef X
 
-void scm_model::pwep_face(const double *M, int ww, int wh,
+void scm_model::prep_face(const double *M, int ww, int wh,
                                      const int *vv, int vc,
                                      const int *fv, int fc, int qi)
 {
@@ -408,9 +403,9 @@ void scm_model::pwep_face(const double *M, int ww, int wh,
 
         cache.page_bounds(i, vv, vc, r0, r1);
 
-        double k = wiew_face(M, r0, r1, ww, wh, r, l, t, b, qi, face_root(i));
+        double k = view_face(M, r0, r1, ww, wh, r, l, t, b, qi, face_root(i));
 
-        if (k > size && qn + 4 < qm && face_level(i) < depth)
+        if (k > size && qn + 4 < qm)
         {
             const double x = (r + l) / 2;
             const double y = (t + b) / 2;
@@ -453,11 +448,18 @@ void scm_model::pwep_face(const double *M, int ww, int wh,
             qv[qi].i2 = i2;
             qv[qi].i3 = i3;
         }
-        else dump_face(M, r0, r1, r, l, t, b, face_root(i));
     }
 }
 
-void scm_model::pwep(const double *P, const double *V, int w, int h,
+//------------------------------------------------------------------------------
+
+GLfloat scm_model::age(int then)
+{
+    GLfloat a = GLfloat(time - then) / 60.f;
+    return (a > 1.f) ? 1.f : a;
+}
+
+void scm_model::prep(const double *P, const double *V, int w, int h,
                         const int *vv, int vc,
                         const int *fv, int fc)
 {
@@ -474,18 +476,12 @@ void scm_model::pwep(const double *P, const double *V, int w, int h,
     qv[qn++].set(4, 2, 3, 0, 1, 1, 0, 1, 0);
     qv[qn++].set(5, 2, 3, 1, 0, 1, 0, 1, 0);
 
-    glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
-    glUseProgram(0);
-    glBegin(GL_LINES);
-
     for (int qi = 0; qi < qn; ++qi)
-        pwep_face(M, w, h, vv, vc, fv, fc, qi);
-
-    glEnd();
+        prep_face(M, w, h, vv, vc, fv, fc, qi);
 }
 
 
-void scm_model::dwaw_face(int qi, int d, int f, const int *vv, int vc,
+void scm_model::draw_face(int qi, int d, int f, const int *vv, int vc,
                                                 const int *fv, int fc,
                                                 const int *pv, int pc)
 {
@@ -540,10 +536,10 @@ void scm_model::dwaw_face(int qi, int d, int f, const int *vv, int vc,
         glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
     }
 
-    if (qv[qi].i0) dwaw_face(qv[qi].i0, d + 1, f, vv, vc, fv, fc, pv, pc);
-    if (qv[qi].i1) dwaw_face(qv[qi].i1, d + 1, f, vv, vc, fv, fc, pv, pc);
-    if (qv[qi].i2) dwaw_face(qv[qi].i2, d + 1, f, vv, vc, fv, fc, pv, pc);
-    if (qv[qi].i3) dwaw_face(qv[qi].i3, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i0) draw_face(qv[qi].i0, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i1) draw_face(qv[qi].i1, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i2) draw_face(qv[qi].i2, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i3) draw_face(qv[qi].i3, d + 1, f, vv, vc, fv, fc, pv, pc);
 
     for (int t = 0; t < T; ++t)
     {
@@ -552,7 +548,7 @@ void scm_model::dwaw_face(int qi, int d, int f, const int *vv, int vc,
     }
 }
 
-void scm_model::dwaw(const double *P, const double *V, int w, int h,
+void scm_model::draw(const double *P, const double *V, int w, int h,
                                                       const int *vv, int vc,
                                                       const int *fv, int fc,
                                                       const int *pv, int pc)
@@ -568,7 +564,7 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
 
-    pwep(P, V, w, h, vv, vc, fv, fc);
+    prep(P, V, w, h, vv, vc, fv, fc);
 
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -581,12 +577,12 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
                              GLfloat(zoomv[1]),
                              GLfloat(zoomv[2]));
 
-        dwaw_face(0, 0, 0, vv, vc, fv, fc, pv, pc);
-        dwaw_face(1, 0, 1, vv, vc, fv, fc, pv, pc);
-        dwaw_face(2, 0, 2, vv, vc, fv, fc, pv, pc);
-        dwaw_face(3, 0, 3, vv, vc, fv, fc, pv, pc);
-        dwaw_face(4, 0, 4, vv, vc, fv, fc, pv, pc);
-        dwaw_face(5, 0, 5, vv, vc, fv, fc, pv, pc);
+        draw_face(0, 0, 0, vv, vc, fv, fc, pv, pc);
+        draw_face(1, 0, 1, vv, vc, fv, fc, pv, pc);
+        draw_face(2, 0, 2, vv, vc, fv, fc, pv, pc);
+        draw_face(3, 0, 3, vv, vc, fv, fc, pv, pc);
+        draw_face(4, 0, 4, vv, vc, fv, fc, pv, pc);
+        draw_face(5, 0, 5, vv, vc, fv, fc, pv, pc);
     }
     glUseProgram(0);
 
@@ -605,11 +601,7 @@ scm_model::scm_model(scm_cache& cache,
                      int n, int s, int d) : //, double r0, double r1) :
     cache(cache),
     time(1),
-    size(s),
-    depth(d),
-    // r0(r0),
-    // r1(r1),
-    status(cube_size(d), s_halt)
+    size(s)
 {
     init_program(vert, frag);
     init_arrays(n);
@@ -633,143 +625,6 @@ scm_model::~scm_model()
 }
 
 //------------------------------------------------------------------------------
-
-// TODO: reorder the arguments LRTB.
-#if 0
-double scm_model::view_face(const double *M, double rr, int vw, int vh,
-                            double ee, double ww, double nn, double ss, int j)
-{
-    double ne[3], a[3], e[3], A[4], E[4];    // North-east corner
-    double nw[3], b[3], f[3], B[4], F[4];    // North-west corner
-    double se[3], c[3], g[3], C[4], G[4];    // South-east corner
-    double sw[3], d[3], h[3], D[4], H[4];    // South-west corner
-
-    scube(j, ee, nn, ne);
-    scube(j, ww, nn, nw);
-    scube(j, ee, ss, se);
-    scube(j, ww, ss, sw);
-
-    if (zoomk != 1)
-    {
-        zoom(ne, ne);
-        zoom(nw, nw);
-        zoom(se, se);
-        zoom(sw, sw);
-    }
-
-    // Compute the maximum extent due to bulge.
-
-    double v[3];
-
-    v[0] = ne[0] + nw[0] + se[0] + sw[0];
-    v[1] = ne[1] + nw[1] + se[1] + sw[1];
-    v[2] = ne[2] + nw[2] + se[2] + sw[2];
-
-    double k = vlen(v) / vdot(ne, v);
-
-    // Apply the inner and outer radii to the bounding volume.
-
-    vmul(a, ne, r0);
-    vmul(b, nw, r0);
-    vmul(c, se, r0);
-    vmul(d, sw, r0);
-
-    vmul(e, ne, r1 * k);
-    vmul(f, nw, r1 * k);
-    vmul(g, se, r1 * k);
-    vmul(h, sw, r1 * k);
-
-    // Compute W and reject any volume on the far side of the singularity.
-
-    A[3] = M[ 3] * a[0] + M[ 7] * a[1] + M[11] * a[2] + M[15];
-    B[3] = M[ 3] * b[0] + M[ 7] * b[1] + M[11] * b[2] + M[15];
-    C[3] = M[ 3] * c[0] + M[ 7] * c[1] + M[11] * c[2] + M[15];
-    D[3] = M[ 3] * d[0] + M[ 7] * d[1] + M[11] * d[2] + M[15];
-    E[3] = M[ 3] * e[0] + M[ 7] * e[1] + M[11] * e[2] + M[15];
-    F[3] = M[ 3] * f[0] + M[ 7] * f[1] + M[11] * f[2] + M[15];
-    G[3] = M[ 3] * g[0] + M[ 7] * g[1] + M[11] * g[2] + M[15];
-    H[3] = M[ 3] * h[0] + M[ 7] * h[1] + M[11] * h[2] + M[15];
-
-    if (A[3] <= 0 && B[3] <= 0 && C[3] <= 0 && D[3] <= 0 &&
-        E[3] <= 0 && F[3] <= 0 && G[3] <= 0 && H[3] <= 0)
-        return 0;
-
-    // Compute Z and apply the near and far clipping planes.
-
-    A[2] = M[ 2] * a[0] + M[ 6] * a[1] + M[10] * a[2] + M[14];
-    B[2] = M[ 2] * b[0] + M[ 6] * b[1] + M[10] * b[2] + M[14];
-    C[2] = M[ 2] * c[0] + M[ 6] * c[1] + M[10] * c[2] + M[14];
-    D[2] = M[ 2] * d[0] + M[ 6] * d[1] + M[10] * d[2] + M[14];
-    E[2] = M[ 2] * e[0] + M[ 6] * e[1] + M[10] * e[2] + M[14];
-    F[2] = M[ 2] * f[0] + M[ 6] * f[1] + M[10] * f[2] + M[14];
-    G[2] = M[ 2] * g[0] + M[ 6] * g[1] + M[10] * g[2] + M[14];
-    H[2] = M[ 2] * h[0] + M[ 6] * h[1] + M[10] * h[2] + M[14];
-
-    if (A[2] >  A[3] && B[2] >  B[3] && C[2] >  C[3] && D[2] >  D[3] &&
-        E[2] >  E[3] && F[2] >  F[3] && G[2] >  G[3] && H[2] >  H[3])
-        return 0;
-    if (A[2] < -A[3] && B[2] < -B[3] && C[2] < -C[3] && D[2] < -D[3] &&
-        E[2] < -E[3] && F[2] < -F[3] && G[2] < -G[3] && H[2] < -H[3])
-        return 0;
-
-    // Compute Y and apply the bottom and top clipping planes.
-
-    A[1] = M[ 1] * a[0] + M[ 5] * a[1] + M[ 9] * a[2] + M[13];
-    B[1] = M[ 1] * b[0] + M[ 5] * b[1] + M[ 9] * b[2] + M[13];
-    C[1] = M[ 1] * c[0] + M[ 5] * c[1] + M[ 9] * c[2] + M[13];
-    D[1] = M[ 1] * d[0] + M[ 5] * d[1] + M[ 9] * d[2] + M[13];
-    E[1] = M[ 1] * e[0] + M[ 5] * e[1] + M[ 9] * e[2] + M[13];
-    F[1] = M[ 1] * f[0] + M[ 5] * f[1] + M[ 9] * f[2] + M[13];
-    G[1] = M[ 1] * g[0] + M[ 5] * g[1] + M[ 9] * g[2] + M[13];
-    H[1] = M[ 1] * h[0] + M[ 5] * h[1] + M[ 9] * h[2] + M[13];
-
-    if (A[1] >  A[3] && B[1] >  B[3] && C[1] >  C[3] && D[1] >  D[3] &&
-        E[1] >  E[3] && F[1] >  F[3] && G[1] >  G[3] && H[1] >  H[3])
-        return 0;
-    if (A[1] < -A[3] && B[1] < -B[3] && C[1] < -C[3] && D[1] < -D[3] &&
-        E[1] < -E[3] && F[1] < -F[3] && G[1] < -G[3] && H[1] < -H[3])
-        return 0;
-
-    // Compute X and apply the left and right clipping planes.
-
-    A[0] = M[ 0] * a[0] + M[ 4] * a[1] + M[ 8] * a[2] + M[12];
-    B[0] = M[ 0] * b[0] + M[ 4] * b[1] + M[ 8] * b[2] + M[12];
-    C[0] = M[ 0] * c[0] + M[ 4] * c[1] + M[ 8] * c[2] + M[12];
-    D[0] = M[ 0] * d[0] + M[ 4] * d[1] + M[ 8] * d[2] + M[12];
-    E[0] = M[ 0] * e[0] + M[ 4] * e[1] + M[ 8] * e[2] + M[12];
-    F[0] = M[ 0] * f[0] + M[ 4] * f[1] + M[ 8] * f[2] + M[12];
-    G[0] = M[ 0] * g[0] + M[ 4] * g[1] + M[ 8] * g[2] + M[12];
-    H[0] = M[ 0] * h[0] + M[ 4] * h[1] + M[ 8] * h[2] + M[12];
-
-    if (A[0] >  A[3] && B[0] >  B[3] && C[0] >  C[3] && D[0] >  D[3] &&
-        E[0] >  E[3] && F[0] >  F[3] && G[0] >  G[3] && H[0] >  H[3])
-        return 0;
-    if (A[0] < -A[3] && B[0] < -B[3] && C[0] < -C[3] && D[0] < -D[3] &&
-        E[0] < -E[3] && F[0] < -F[3] && G[0] < -G[3] && H[0] < -H[3])
-        return 0;
-
-    // Compute the length of the longest visible edge, in pixels.
-
-
-    rr = std::max(rr, r0);
-    rr = std::min(rr, r1);
-
-    A[0] = ne[0] * rr; A[1] = ne[1] * rr; A[2] = ne[2] * rr; A[3] = 1.0;
-    B[0] = nw[0] * rr; B[1] = nw[1] * rr; B[2] = nw[2] * rr; B[3] = 1.0;
-    C[0] = se[0] * rr; C[1] = se[1] * rr; C[2] = se[2] * rr; C[3] = 1.0;
-    D[0] = sw[0] * rr; D[1] = sw[1] * rr; D[2] = sw[2] * rr; D[3] = 1.0;
-
-    wtransform(E, M, A);
-    wtransform(F, M, B);
-    wtransform(G, M, C);
-    wtransform(H, M, D);
-
-    return std::max(std::max(length(E, F, vw, vh),
-                             length(G, H, vw, vh)),
-                    std::max(length(E, G, vw, vh),
-                             length(F, H, vw, vh)));
-}
-#endif
 
 void scm_model::dump_face(const double *M, double r0, double r1,
                           double ee, double ww, double nn, double ss, int j)
@@ -834,317 +689,6 @@ void scm_model::dump_face(const double *M, double r0, double r1,
     glVertex3dv(b); glVertex3dv(f);
     glVertex3dv(c); glVertex3dv(g);
     glVertex3dv(d); glVertex3dv(h);
-}
-
-//------------------------------------------------------------------------------
-
-void scm_model::prep(const double *P, const double *V, int w, int h)
-{
-    // double M[16];
-
-    // mmultiply(M, P, V);
-
-    // for (int i = 0; i < 6; ++i)
-    //     prep_face(M, w, h, 0, 1, 0, 1, i, 0, i);
-}
-
-#if 0
-
-void scm_model::prep_face(const double *M, int w, int h,
-                          double r, double l,
-                          double t, double b, int j, int d, int i)
-{
-    if (d < depth)
-    {
-        double s = view_face(M, 0, w, h, r, l, t, b, j);
-
-        if (s > 0)
-        {
-            const int i0 = face_child(i, 0);
-            const int i1 = face_child(i, 1);
-            const int i2 = face_child(i, 2);
-            const int i3 = face_child(i, 3);
-
-            if (s < size)
-            {
-                status[i]  = s_draw;
-                status[i0] = s_halt;
-                status[i1] = s_halt;
-                status[i2] = s_halt;
-                status[i3] = s_halt;
-            }
-            else
-            {
-                const double x = (r + l) * 0.5;
-                const double y = (t + b) * 0.5;
-
-                prep_face(M, w, h, r, x, t, y, j, d + 1, i0);
-                prep_face(M, w, h, x, l, t, y, j, d + 1, i1);
-                prep_face(M, w, h, r, x, y, b, j, d + 1, i2);
-                prep_face(M, w, h, x, l, y, b, j, d + 1, i3);
-
-                if (status[i0] == s_halt &&
-                    status[i1] == s_halt &&
-                    status[i2] == s_halt &&
-                    status[i3] == s_halt)
-
-                    status[i] = s_halt;
-                else
-                    status[i] = s_pass;
-            }
-        }
-        else
-            status[i] = s_halt;
-    }
-    else
-    {
-        double s = view_face(M, 0, w, h, r, l, t, b, j);
-
-        if (s > 0)
-            status[i] = s_draw;
-        else
-            status[i] = s_halt;
-    }
-}
-#endif
-
-#if 0
-
-void scm_model::prep_face(const double *M, int w, int h,
-                          double r, double l,
-                          double t, double b, int j, int d, int i)
-
-{
-    const int i0 = face_child(i, 0);
-    const int i1 = face_child(i, 1);
-    const int i2 = face_child(i, 2);
-    const int i3 = face_child(i, 3);
-
-    if (d < depth)
-    {
-        const double x = (r + l) * 0.5;
-        const double y = (t + b) * 0.5;
-
-        prep_face(M, w, h, r, x, t, y, j, d + 1, i0);
-        prep_face(M, w, h, x, l, t, y, j, d + 1, i1);
-        prep_face(M, w, h, r, x, y, b, j, d + 1, i2);
-        prep_face(M, w, h, x, l, y, b, j, d + 1, i3);
-    }
-
-    double s = view_face(M, w, h, r, l, t, b, j);
-
-    if (d < depth)
-    {
-        if (0 < s && s < size)
-        {
-            status[i]  = s_draw;
-            status[i0] = s_halt;
-            status[i1] = s_halt;
-            status[i2] = s_halt;
-            status[i3] = s_halt;
-        }
-        else
-        {
-            if (status[i0] == s_halt &&
-                status[i1] == s_halt &&
-                status[i2] == s_halt &&
-                status[i3] == s_halt)
-
-                status[i] = s_halt;
-            else
-                status[i] = s_pass;
-        }
-    }
-    else
-    {
-        if (0 < s)
-            status[i] = s_draw;
-        else
-            status[i] = s_halt;
-    }
-}
-
-#endif
-//------------------------------------------------------------------------------
-
-GLfloat scm_model::age(int then)
-{
-    GLfloat a = GLfloat(time - then) / 60.f;
-    return (a > 1.f) ? 1.f : a;
-}
-
-void scm_model::draw(const double *P, const double *V, const int *vv, int vc,
-                                                       const int *fv, int fc,
-                                                       const int *pv, int pc)
-{
-    double M[16];
-
-    mmultiply(M, P, V);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixd(P);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixd(V);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    glBindBuffer(GL_ARRAY_BUFFER, vertices);
-    glEnableClientState(GL_VERTEX_ARRAY);
-    glVertexPointer(2, GL_FLOAT, 0, 0);
-
-    for (int i = 15; i >= 0; --i)
-    {
-        glActiveTexture(GL_TEXTURE0 + i);
-        glBindTexture(GL_TEXTURE_2D, cache.get_fill());
-    }
-
-    // This is a hack that ensures that the root pages of all files are touched.
-
-    GLuint o;
-    int tock;
-
-    for (int i = 0; i < vc; ++i)
-        for (int j = 0; j < 6; ++j)
-            o = cache.get_page(vv[i], j, time, tock);
-
-    for (int i = 0; i < fc; ++i)
-        for (int j = 0; j < 6; ++j)
-            o = cache.get_page(fv[i], j, time, tock);
-
-    for (int i = 0; i < pc; ++i)
-        for (int j = 0; j < 6; ++j)
-            o = cache.get_page(pv[i], j, time, tock);
-
-    glUseProgram(program);
-    {
-        glUniform1f(u_zoomk, GLfloat(zoomk));
-        glUniform3f(u_zoomv, GLfloat(zoomv[0]),
-							 GLfloat(zoomv[1]),
-							 GLfloat(zoomv[2]));
-
-        for (int i = 0; i < 6; ++i)
-        {
-            static const GLfloat faceM[6][9] = {
-                {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
-                {  0.f,  0.f, -1.f,  0.f,  1.f,  0.f,  1.f,  0.f,  0.f },
-                {  1.f,  0.f,  0.f,  0.f,  0.f,  1.f,  0.f, -1.f,  0.f },
-                {  1.f,  0.f,  0.f,  0.f,  0.f, -1.f,  0.f,  1.f,  0.f },
-                {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
-                { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
-            };
-
-            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[i]);
-
-            draw_face(vv, vc, fv, fc, pv, pc, 0, 1, 0, 1, 0, i);
-        }
-    }
-    glUseProgram(0);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
-    glBindBuffer(GL_ARRAY_BUFFER,         0);
-    glDisableClientState(GL_VERTEX_ARRAY);
-
-    glActiveTexture(GL_TEXTURE0);
-}
-
-void scm_model::draw_face(const int *vv, int vc,
-                          const int *fv, int fc,
-                          const int *pv, int pc,
-                          double r, double l, double t, double b, int d, int i)
-{
-    int then = time;
-
-    // If this page does NOT have the HALT state then we're either drawing it
-    // or drawing one of its descendents. Either way, bind the vert and frag
-    // images and set their ages.
-
-    if (status[i] != s_halt)
-    {
-        // Vertex shader images and ages.
-
-        for (int vi = 0; vi < vc; ++vi)
-        {
-            glActiveTexture(GL_TEXTURE0 + 8 * vi + d);
-            glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
-            glUniform1f(u_v_age[8 * vi + d], age(then));
-        }
-
-        // Fragment shader images and ages.
-
-        for (int fi = 0; fi < fc; ++fi)
-        {
-            glActiveTexture(GL_TEXTURE0 + 8 * fi + d + 8);
-            glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
-            glUniform1f(u_f_age[8 * fi + d], age(then));
-        }
-
-        // Page coordinates.
-
-        glUniform2f(u_tex_a[d], GLfloat(r), GLfloat(t));
-        glUniform2f(u_tex_d[d], GLfloat(l), GLfloat(b));
-    }
-
-    // If this page has the PASS state then we know it represents an initial
-    // subset of the active page set. It's a good candidate for precaching
-    // in any data sets we think we might need soon.
-
-    if (status[i] == s_pass)
-    {
-        for (int pi = 0; pi < pc; ++pi)
-            cache.get_page(pv[pi], i, time, then);
-    }
-
-    // If this page has the PASS state then draw the descendents.
-
-    if (status[i] == s_pass)
-    {
-        const double x = (r + l) * 0.5;
-        const double y = (t + b) * 0.5;
-
-        draw_face(vv, vc, fv, fc, pv, pc, r, x, t, y, d + 1, face_child(i, 0));
-        draw_face(vv, vc, fv, fc, pv, pc, x, l, t, y, d + 1, face_child(i, 1));
-        draw_face(vv, vc, fv, fc, pv, pc, r, x, y, b, d + 1, face_child(i, 2));
-        draw_face(vv, vc, fv, fc, pv, pc, x, l, y, b, d + 1, face_child(i, 3));
-    }
-
-    // If this page has the DRAW state then do draw it. Begin by determining
-    // whether any of its neighbors will be also be drawn and select an element
-    // winding accordingly.
-
-    if (status[i] == s_draw)
-    {
-        long long n, s, e, w, j = 0;
-
-        face_neighbors(i, n, s, e, w);
-
-        if (i > 5) j = (status[face_parent(n)] == s_draw ? 1 : 0)
-                     | (status[face_parent(s)] == s_draw ? 2 : 0)
-                     | (status[face_parent(e)] == s_draw ? 4 : 0)
-                     | (status[face_parent(w)] == s_draw ? 8 : 0);
-
-        glUniform1i(u_level, d);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
-        glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
-    }
-
-    // If this page does NOT have the HALT state then we must have set some
-    // texture bindings above. Undo them.
-
-    if (status[i] != s_halt)
-    {
-        for (int vi = 0; vi < vc; ++vi)
-        {
-            glActiveTexture(GL_TEXTURE0 + 8 * vi + d);
-            glBindTexture(GL_TEXTURE_2D, cache.get_fill());
-        }
-        for (int fi = 0; fi < fc; ++fi)
-        {
-            glActiveTexture(GL_TEXTURE0 + 8 * fi + d + 8);
-            glBindTexture(GL_TEXTURE_2D, cache.get_fill());
-        }
-    }
 }
 
 //------------------------------------------------------------------------------
