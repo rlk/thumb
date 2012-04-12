@@ -119,15 +119,14 @@ void main()
     vec2 t =  tex_a[level]
            + (tex_d[level] - tex_a[level]) * gl_Vertex.xy;
 
-//    float k = sample(t).r;
-//    float h = (k * (r1 - r0) + r0) / rm;
-//    vec3  v = scube(t) * h;
-    vec3  v = scube(t);
+    float k = sample(t).r;
+    float h = (k * (r1 - r0) + r0) / rm;
+    vec3  v = scube(t) * h;
 
     var_V = v;
     var_L =  (gl_LightSource[0].position.xyz);
 
     gl_TexCoord[0].xy = t;
-//    gl_FrontColor = colormap(k);
+    gl_FrontColor = colormap(k);
     gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
 }

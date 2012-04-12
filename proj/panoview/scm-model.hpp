@@ -42,6 +42,9 @@ public:
                                              const int *, int, int);
     void pwep(const double *, const double *, int, int, const int *, int,
                                                         const int *, int);
+    void dwaw_face(int, int, int, const int *, int,
+                                  const int *, int,
+                                  const int *, int);
     void dwaw(const double *, const double *, int, int, const int *, int,
                                                         const int *, int,
                                                         const int *, int);

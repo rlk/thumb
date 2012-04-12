@@ -45,6 +45,10 @@ struct scm_model::page
     double    r;
     double    b;
     double    t;
+    int      i0;
+    int      i1;
+    int      i2;
+    int      i3;
 
     void set(long long i, long long n, long long s, long long e, long long w,
                           double    l, double    r, double    b, double    t)
@@ -64,6 +68,11 @@ struct scm_model::page
         this->r = r;
         this->b = b;
         this->t = t;
+
+        i0 = 0;
+        i1 = 0;
+        i2 = 0;
+        i3 = 0;
     }
 };
 
@@ -417,27 +426,37 @@ void scm_model::pwep_face(const double *M, int ww, int wh,
             const long long E = face_root(e);
             const long long W = face_root(w);
 
-            qv[qn++].set(face_child(i, 0),
-                         face_child(n, wrap[I][N][2]),
-                         face_child(i, 2),
-                         face_child(e, wrap[I][E][1]),
-                         face_child(i, 1),             x, r, y, t);
-            qv[qn++].set(face_child(i, 1),
-                         face_child(n, wrap[I][N][3]),
-                         face_child(i, 3),
-                         face_child(i, 0),
-                         face_child(w, wrap[I][W][0]), l, x, y, t);
-            qv[qn++].set(face_child(i, 2),
-                         face_child(i, 0),
-                         face_child(s, wrap[I][S][0]),
-                         face_child(e, wrap[I][E][3]),
-                         face_child(i, 3),             x, r, b, y);
-            qv[qn++].set(face_child(i, 3),
-                         face_child(i, 1),
-                         face_child(s, wrap[I][S][1]),
-                         face_child(i, 2),
-                         face_child(w, wrap[I][W][2]), l, x, b, y);
-            qv[qi].f = 0;
+            int i0 = qn++;
+            int i1 = qn++;
+            int i2 = qn++;
+            int i3 = qn++;
+
+            qv[i0].set(face_child(i, 0),
+                       face_child(n, wrap[I][N][2]),
+                       face_child(i, 2),
+                       face_child(e, wrap[I][E][1]),
+                       face_child(i, 1),             x, r, y, t);
+            qv[i1].set(face_child(i, 1),
+                       face_child(n, wrap[I][N][3]),
+                       face_child(i, 3),
+                       face_child(i, 0),
+                       face_child(w, wrap[I][W][0]), l, x, y, t);
+            qv[i2].set(face_child(i, 2),
+                       face_child(i, 0),
+                       face_child(s, wrap[I][S][0]),
+                       face_child(e, wrap[I][E][3]),
+                       face_child(i, 3),             x, r, b, y);
+            qv[i3].set(face_child(i, 3),
+                       face_child(i, 1),
+                       face_child(s, wrap[I][S][1]),
+                       face_child(i, 2),
+                       face_child(w, wrap[I][W][2]), l, x, b, y);
+
+            qv[qi].f  = 0;
+            qv[qi].i0 = i0;
+            qv[qi].i1 = i1;
+            qv[qi].i2 = i2;
+            qv[qi].i3 = i3;
         }
     }
 }
@@ -479,6 +498,74 @@ void scm_model::pwep(const double *P, const double *V, int w, int h,
     // glLoadMatrixd(V);
 }
 
+
+void scm_model::dwaw_face(int qi, int d, int f, const int *vv, int vc,
+                                                const int *fv, int fc,
+                                                const int *pv, int pc)
+{
+    int then = time;
+    int T = vc + fc;
+
+    const long long i = qv[qi].i;
+
+    int t = 0;
+
+    // Bind and set vertex shader textures and uniforms.
+
+    for (int vi = 0; vi < vc; ++vi, ++t)
+    {
+        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
+        glUniform1f(u_v_age[d], age(then));
+        glUniform1i(u_v_img[d], d * T + t);
+    }
+
+    // Bind and set fragment shader textures and uniforms.
+
+    for (int fi = 0; fi < fc; ++fi, ++t)
+    {
+        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
+        glUniform1f(u_f_age[d], age(then));
+        glUniform1i(u_f_img[d], d * T + t);
+    }
+
+    // Set the texture coordinate uniforms.
+
+    glUniform2f(u_tex_a[d], GLfloat(qv[qi].r), GLfloat(qv[qi].t));
+    glUniform2f(u_tex_d[d], GLfloat(qv[qi].l), GLfloat(qv[qi].b));
+
+    if (qv[qi].f)
+    {
+        static const GLfloat faceM[6][9] = {
+            {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
+            {  0.f,  0.f, -1.f,  0.f,  1.f,  0.f,  1.f,  0.f,  0.f },
+            {  1.f,  0.f,  0.f,  0.f,  0.f,  1.f,  0.f, -1.f,  0.f },
+            {  1.f,  0.f,  0.f,  0.f,  0.f, -1.f,  0.f,  1.f,  0.f },
+            {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
+            { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
+        };
+
+        glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[f]);
+
+        glUniform1i(u_level, d);
+
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[0]);
+        glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
+    }
+
+    if (qv[qi].i0) dwaw_face(qv[qi].i0, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i1) dwaw_face(qv[qi].i1, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i2) dwaw_face(qv[qi].i2, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i3) dwaw_face(qv[qi].i3, d + 1, f, vv, vc, fv, fc, pv, pc);
+
+    for (int t = 0; t < T; ++t)
+    {
+        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glBindTexture(GL_TEXTURE_2D, cache.get_fill());
+    }
+}
+
 void scm_model::dwaw(const double *P, const double *V, int w, int h,
                                                       const int *vv, int vc,
                                                       const int *fv, int fc,
@@ -489,11 +576,11 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
 
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // glEnable(GL_BLEND);
+    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    glDisable(GL_LIGHTING);
-    glDisable(GL_TEXTURE_2D);
+    // glDisable(GL_LIGHTING);
+    // glDisable(GL_TEXTURE_2D);
 
     pwep(P, V, w, h, vv, vc, fv, fc);
 
@@ -503,74 +590,25 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
 
     glUseProgram(program);
     {
-        int then = time;
-        int T = vc + fc;
-
         glUniform1f(u_zoomk, GLfloat(zoomk));
         glUniform3f(u_zoomv, GLfloat(zoomv[0]),
                              GLfloat(zoomv[1]),
                              GLfloat(zoomv[2]));
 
-        for (int qi = 0; qi < qn; ++qi)
-        {
-            const long long i = qv[qi].i;
-            const long long l = face_level(i);
-            const long long f = face_root (i);
-
-            int t = 0;
-
-            // Bind and set vertex shader textures and uniforms.
-
-            for (int vi = 0; vi < vc; ++vi, ++t)
-            {
-                glActiveTexture(GL_TEXTURE0 + l * T + t);
-                glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
-                glUniform1f(u_v_age[l], age(then));
-                glUniform1i(u_v_img[l], l * T + t);
-            }
-
-            // Bind and set fragment shader textures and uniforms.
-
-            for (int fi = 0; fi < fc; ++fi, ++t)
-            {
-                glActiveTexture(GL_TEXTURE0 + l * T + t);
-                glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
-                glUniform1f(u_f_age[l], age(then));
-                glUniform1i(u_f_img[l], l * T + t);
-            }
-
-            glActiveTexture(GL_TEXTURE0);
-
-            // Set the texture coordinate uniforms.
-
-            glUniform2f(u_tex_a[l], GLfloat(qv[qi].r), GLfloat(qv[qi].t));
-            glUniform2f(u_tex_d[l], GLfloat(qv[qi].l), GLfloat(qv[qi].b));
-
-            if (qv[qi].f)
-            {
-                static const GLfloat faceM[6][9] = {
-                    {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
-                    {  0.f,  0.f, -1.f,  0.f,  1.f,  0.f,  1.f,  0.f,  0.f },
-                    {  1.f,  0.f,  0.f,  0.f,  0.f,  1.f,  0.f, -1.f,  0.f },
-                    {  1.f,  0.f,  0.f,  0.f,  0.f, -1.f,  0.f,  1.f,  0.f },
-                    {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
-                    { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
-                };
-
-                glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[f]);
-
-                glUniform1i(u_level, l);
-
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[0]);
-                glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
-            }
-        }
+        dwaw_face(0, 0, 0, vv, vc, fv, fc, pv, pc);
+        dwaw_face(1, 0, 1, vv, vc, fv, fc, pv, pc);
+        dwaw_face(2, 0, 2, vv, vc, fv, fc, pv, pc);
+        dwaw_face(3, 0, 3, vv, vc, fv, fc, pv, pc);
+        dwaw_face(4, 0, 4, vv, vc, fv, fc, pv, pc);
+        dwaw_face(5, 0, 5, vv, vc, fv, fc, pv, pc);
     }
     glUseProgram(0);
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER,         0);
     glDisableClientState(GL_VERTEX_ARRAY);
+
+    glActiveTexture(GL_TEXTURE0);
 }
 
 //------------------------------------------------------------------------------
