@@ -34,8 +34,6 @@ public:
                                               const int *, int,
                                               const int *, int);
 
-    void dump_face(const double *, int, int,
-                     double, double, double, double, int);
     double wiew_face(const double *, double, double, int, int,
                      double, double, double, double, int, int);
     void pwep_face(const double *, int, int, const int *, int,
@@ -98,7 +96,7 @@ private:
                      double, double, double, double, int, int, int);
     double view_face(const double *, double, int, int,
                      double, double, double, double, int);
-    void   dump_face(const double *, double, int, int,
+    void   dump_face(const double *, double, double,
                      double, double, double, double, int);
 
     typedef unsigned char byte;

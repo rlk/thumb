@@ -318,11 +318,6 @@ double scm_model::wiew_face(const double *M, double r0, double r1, int vw, int v
     // clip(C, G); clip(G, C);
     // clip(D, H); clip(H, D);
 
-    // glVertex4dv(A); glVertex4dv(E);
-    // glVertex4dv(B); glVertex4dv(F);
-    // glVertex4dv(C); glVertex4dv(G);
-    // glVertex4dv(D); glVertex4dv(H);
-
     return std::max(std::max(std::max(clen(A, B, vw, vh),
                                       clen(C, D, vw, vh)),
                              std::max(clen(A, C, vw, vh),
@@ -458,6 +453,7 @@ void scm_model::pwep_face(const double *M, int ww, int wh,
             qv[qi].i2 = i2;
             qv[qi].i3 = i3;
         }
+        else dump_face(M, r0, r1, r, l, t, b, face_root(i));
     }
 }
 
@@ -478,24 +474,14 @@ void scm_model::pwep(const double *P, const double *V, int w, int h,
     qv[qn++].set(4, 2, 3, 0, 1, 1, 0, 1, 0);
     qv[qn++].set(5, 2, 3, 1, 0, 1, 0, 1, 0);
 
-    // glMatrixMode(GL_PROJECTION);
-    // glLoadIdentity();
-    // glMatrixMode(GL_MODELVIEW);
-    // glLoadIdentity();
-
-    // glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-    // glUseProgram(0);
-    // glBegin(GL_LINES);
+    glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
+    glUseProgram(0);
+    glBegin(GL_LINES);
 
     for (int qi = 0; qi < qn; ++qi)
         pwep_face(M, w, h, vv, vc, fv, fc, qi);
 
-    // glEnd();
-
-    // glMatrixMode(GL_PROJECTION);
-    // glLoadMatrixd(P);
-    // glMatrixMode(GL_MODELVIEW);
-    // glLoadMatrixd(V);
+    glEnd();
 }
 
 
@@ -576,11 +562,11 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
 
-    // glEnable(GL_BLEND);
-    // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // glDisable(GL_LIGHTING);
-    // glDisable(GL_TEXTURE_2D);
+    glDisable(GL_LIGHTING);
+    glDisable(GL_TEXTURE_2D);
 
     pwep(P, V, w, h, vv, vc, fv, fc);
 
@@ -783,14 +769,15 @@ double scm_model::view_face(const double *M, double rr, int vw, int vh,
                     std::max(length(E, G, vw, vh),
                              length(F, H, vw, vh)));
 }
+#endif
 
-void scm_model::dump_face(const double *M, double rr, int vw, int vh,
-                            double ee, double ww, double nn, double ss, int j)
+void scm_model::dump_face(const double *M, double r0, double r1,
+                          double ee, double ww, double nn, double ss, int j)
 {
-    double ne[3], A[4], E[4];    // North-east corner
-    double nw[3], B[4], F[4];    // North-west corner
-    double se[3], C[4], G[4];    // South-east corner
-    double sw[3], D[4], H[4];    // South-west corner
+    double ne[3], a[3], e[3];    // North-east corner
+    double nw[3], b[3], f[3];    // North-west corner
+    double se[3], c[3], g[3];    // South-east corner
+    double sw[3], d[3], h[3];    // South-west corner
 
     scube(j, ee, nn, ne);
     scube(j, ww, nn, nw);
@@ -805,36 +792,50 @@ void scm_model::dump_face(const double *M, double rr, int vw, int vh,
         zoom(sw, sw);
     }
 
-    rr = 1.0;
+    // Compute the maximum extent due to bulge.
 
-    A[0] = ne[0] * rr; A[1] = ne[1] * rr; A[2] = ne[2] * rr; A[3] = 1.0;
-    B[0] = nw[0] * rr; B[1] = nw[1] * rr; B[2] = nw[2] * rr; B[3] = 1.0;
-    C[0] = se[0] * rr; C[1] = se[1] * rr; C[2] = se[2] * rr; C[3] = 1.0;
-    D[0] = sw[0] * rr; D[1] = sw[1] * rr; D[2] = sw[2] * rr; D[3] = 1.0;
+    double v[3];
 
-    glVertex4dv(A); glVertex4dv(B);
-    glVertex4dv(A); glVertex4dv(C);
-    glVertex4dv(B); glVertex4dv(D);
-    glVertex4dv(C); glVertex4dv(D);
+    v[0] = ne[0] + nw[0] + se[0] + sw[0];
+    v[1] = ne[1] + nw[1] + se[1] + sw[1];
+    v[2] = ne[2] + nw[2] + se[2] + sw[2];
 
-    // if (ee > 0 || ww > 0) return;
+    double r2 = r1 * vlen(v) / vdot(ne, v);
 
-    A[0] = ne[0] * r0; A[1] = ne[1] * r0; A[2] = ne[2] * r0; A[3] = 1.0;
-    B[0] = nw[0] * r0; B[1] = nw[1] * r0; B[2] = nw[2] * r0; B[3] = 1.0;
-    C[0] = se[0] * r0; C[1] = se[1] * r0; C[2] = se[2] * r0; C[3] = 1.0;
-    D[0] = sw[0] * r0; D[1] = sw[1] * r0; D[2] = sw[2] * r0; D[3] = 1.0;
+    // Apply the inner and outer radii to the bounding volume.
 
-    E[0] = ne[0] * r1; E[1] = ne[1] * r1; E[2] = ne[2] * r1; E[3] = 1.0;
-    F[0] = nw[0] * r1; F[1] = nw[1] * r1; F[2] = nw[2] * r1; F[3] = 1.0;
-    G[0] = se[0] * r1; G[1] = se[1] * r1; G[2] = se[2] * r1; G[3] = 1.0;
-    H[0] = sw[0] * r1; H[1] = sw[1] * r1; H[2] = sw[2] * r1; H[3] = 1.0;
+    vmul(a, ne, r0);
+    vmul(b, nw, r0);
+    vmul(c, se, r0);
+    vmul(d, sw, r0);
 
-    glVertex4dv(A); glVertex4dv(E);
-    glVertex4dv(B); glVertex4dv(F);
-    glVertex4dv(C); glVertex4dv(G);
-    glVertex4dv(D); glVertex4dv(H);
+    vmul(e, ne, r2);
+    vmul(f, nw, r2);
+    vmul(g, se, r2);
+    vmul(h, sw, r2);
+
+    // Top
+
+    glVertex3dv(a); glVertex3dv(b);
+    glVertex3dv(a); glVertex3dv(c);
+    glVertex3dv(d); glVertex3dv(b);
+    glVertex3dv(d); glVertex3dv(c);
+
+    // Bottom
+
+    glVertex3dv(e); glVertex3dv(f);
+    glVertex3dv(e); glVertex3dv(g);
+    glVertex3dv(h); glVertex3dv(f);
+    glVertex3dv(h); glVertex3dv(g);
+
+    // Poles
+
+    glVertex3dv(a); glVertex3dv(e);
+    glVertex3dv(b); glVertex3dv(f);
+    glVertex3dv(c); glVertex3dv(g);
+    glVertex3dv(d); glVertex3dv(h);
 }
-#endif
+
 //------------------------------------------------------------------------------
 
 void scm_model::prep(const double *P, const double *V, int w, int h)

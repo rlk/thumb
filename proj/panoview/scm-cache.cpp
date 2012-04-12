@@ -508,8 +508,12 @@ void scm_cache::update(int t)
                 if (pages.full())
                 {
                     scm_page victim = pages.eject(t, page.i);
-                    size  -= pagelen(victim.f);
-                    page.o =         victim.o;
+
+                    if (victim.valid())
+                    {
+                        size  -= pagelen(victim.f);
+                        page.o =         victim.o;
+                    }
                 }
                 else
                     glGenTextures(1, &page.o);
@@ -635,6 +639,8 @@ int loader(void *data)
 
     while ((task = cache->needs.remove()).f >= 0)
     {
+        assert(task.valid());
+
         if (TIFF *T = TIFFOpen(cache->files[task.f]->get_name(), "r"))
         {
             if (TIFFSetSubDirectory(T, task.o))

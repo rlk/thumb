@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-  <sphere mesh="64" radius="1.0"
+  <sphere mesh="128" radius="1.0"
           size="426" depth="2"
           vert="glsl/scm-displace.vert"
           frag="glsl/scm-basic.frag">
