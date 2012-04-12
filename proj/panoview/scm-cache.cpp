@@ -12,25 +12,10 @@
 
 #include <cstdlib>
 #include <cassert>
-#include <sstream>
+#include <limits>
 
 #include "scm-cache.hpp"
 #include "cube.hpp"
-
-//------------------------------------------------------------------------------
-
-#include <sys/types.h>
-#include <sys/stat.h>
-
-static bool exists(const std::string& name)
-{
-    struct stat info;
-
-    if (stat(name.c_str(), &info) == 0)
-        return ((info.st_mode & S_IFMT) == S_IFREG);
-    else
-        return false;
-}
 
 //------------------------------------------------------------------------------
 
@@ -219,88 +204,6 @@ void scm_task::load_texture(TIFF *T, uint32 w, uint32 h,
                 TIFFReadScanline(T, (uint8 *) p + r * S, r, 0);
         }
     }
-}
-
-//------------------------------------------------------------------------------
-
-static int catcmp(const void *p, const void *q)
-{
-    const uint64 *a = (const uint64 *) p;
-    const uint64 *b = (const uint64 *) q;
-
-    if      (a[0] < b[0]) return -1;
-    else if (a[0] > b[0]) return +1;
-    else                  return  0;
-}
-
-// Construct a file table entry. Open the TIFF briefly to determine its format.
-
-scm_file::scm_file(const std::string& tiff) : catc(0), catv(0)
-{
-    // If the given file name is absolute, use it.
-
-    if (exists(tiff))
-        name = tiff;
-
-    // Otherwise, search the SCM path for the file.
-
-    else if (char *val = getenv("SCMPATH"))
-    {
-        std::stringstream list(val);
-        std::string       path;
-        std::string       temp;
-
-        while (std::getline(list, path, ':'))
-        {
-            temp = path + "/" + tiff;
-
-            if (exists(temp))
-            {
-                name = temp;
-                break;
-            }
-        }
-    }
-
-    if (!name.empty())
-    {
-        if (TIFF *T = TIFFOpen(name.c_str(), "r"))
-        {
-            uint64  n = 0;
-            uint64 *p = 0;
-
-            TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &w);
-            TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &h);
-            TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
-            TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &c);
-            TIFFGetField(T, TIFFTAG_SAMPLEFORMAT,    &g);
-
-            TIFFGetField(T, 0xFFB1, &n, &p);
-
-            if ((catv = (uint64 *) malloc(n * sizeof (uint64))))
-            {
-                memcpy(catv, p, n * sizeof (uint64));
-                catc = n / 2;
-            }
-
-            TIFFClose(T);
-        }
-    }
-}
-
-scm_file::~scm_file()
-{
-    free(catv);
-}
-
-uint64 scm_file::search(uint64 i) const
-{
-    void *p;
-
-    if (catc && (p = bsearch(&i, catv, catc, 2 * sizeof (uint64), catcmp)))
-        return ((uint64 *) p)[1];
-    else
-        return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -534,11 +437,11 @@ static void debug_on(int l)
 
 // Append a string to the file list and return its index. Queue the roots.
 
-int scm_cache::add_file(const std::string& name)
+int scm_cache::add_file(const std::string& name, float r0, float r1)
 {
     int f = int(files.size());
 
-    files.push_back(new scm_file(name));
+    files.push_back(new scm_file(name, r0, r1));
 
     return f;
 }
@@ -570,7 +473,7 @@ GLuint scm_cache::get_page(int f, int i, int t, int& n)
 
     // If this page does not exist, return the filler.
 
-    uint64 o = files[f]->search(i);
+    uint64 o = files[f]->offset(i);
 
     if (o == 0)
         return filler;
@@ -616,11 +519,11 @@ void scm_cache::update(int t)
                     page.t = t;
                     pages.insert(page, t);
 
-                    task.make_texture(page.o, files[task.f]->w,
-                                              files[task.f]->h,
-                                              files[task.f]->c,
-                                              files[task.f]->b,
-                                              files[task.f]->g);
+                    task.make_texture(page.o, files[task.f]->get_w(),
+                                              files[task.f]->get_h(),
+                                              files[task.f]->get_c(),
+                                              files[task.f]->get_b(),
+                                              files[task.f]->get_g());
                     size += pagelen(page.f);
                 }
                 else task.dump_texture();
@@ -646,19 +549,45 @@ void scm_cache::draw()
 
 //------------------------------------------------------------------------------
 
+void scm_cache::page_bounds(int i, const int *vv, int vc, float& r0, float& r1)
+{
+    r0 =  std::numeric_limits<float>::max();
+    r1 = -std::numeric_limits<float>::max();
+
+    for (int vi = 0; vi < vc; ++vi)
+    {
+        float t0;
+        float t1;
+
+        files[vv[vi]]->bounds(i, t0, t1);
+
+        r0 = std::min(r0, t0);
+        r1 = std::max(r1, t1);
+    }
+}
+
+bool scm_cache::page_status(int i, const int *vv, int vc,
+                                   const int *fv, int fc)
+{
+    for (int vi = 0; vi < vc; ++vi)
+        if (files[vv[vi]]->status(i))
+            return true;
+
+    for (int fi = 0; fi < fc; ++fi)
+        if (files[fv[fi]]->status(i))
+            return true;
+
+    return false;
+}
+
+//------------------------------------------------------------------------------
+
 // Compute the length of a page buffer for file f.
+// TODO: eliminate
 
 GLsizei scm_cache::pagelen(int f)
 {
-    uint32 w = files[f]->w;
-    uint32 h = files[f]->h;
-    uint16 c = files[f]->c;
-    uint16 b = files[f]->b;
-
-    if (c == 3 && b == 8)
-        return w * h * 4 * b / 8; // *
-    else
-        return w * h * c * b / 8;
+    return files[f]->length();
 }
 
 //------------------------------------------------------------------------------
@@ -706,23 +635,20 @@ int loader(void *data)
 
     while ((task = cache->needs.remove()).f >= 0)
     {
-        if (!cache->files[task.f]->name.empty())
+        if (TIFF *T = TIFFOpen(cache->files[task.f]->get_name(), "r"))
         {
-            if (TIFF *T = TIFFOpen(cache->files[task.f]->name.c_str(), "r"))
+            if (TIFFSetSubDirectory(T, task.o))
             {
-                if (TIFFSetSubDirectory(T, task.o))
-                {
-                    uint32 w = cache->files[task.f]->w;
-                    uint32 h = cache->files[task.f]->h;
-                    uint16 c = cache->files[task.f]->c;
-                    uint16 b = cache->files[task.f]->b;
-                    uint16 g = cache->files[task.f]->g;
+                uint32 w = cache->files[task.f]->get_w();
+                uint32 h = cache->files[task.f]->get_h();
+                uint16 c = cache->files[task.f]->get_c();
+                uint16 b = cache->files[task.f]->get_b();
+                uint16 g = cache->files[task.f]->get_g();
 
-                    task.load_texture(T, w, h, c, b, g);
-                    task.d = true;
-                }
-                TIFFClose(T);
+                task.load_texture(T, w, h, c, b, g);
+                task.d = true;
             }
+            TIFFClose(T);
         }
         cache->loads.insert(task);
     }

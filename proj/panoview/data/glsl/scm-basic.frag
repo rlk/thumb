@@ -1,8 +1,8 @@
 
-uniform vec2      tex_a[8];
-uniform vec2      tex_d[8];
-uniform sampler2D f_img[8];
-uniform float     f_age[8];
+uniform vec2      tex_a[64];
+uniform vec2      tex_d[64];
+uniform sampler2D f_img[64];
+uniform float     f_age[64];
 
 //------------------------------------------------------------------------------
 
@@ -76,6 +76,6 @@ vec4 sample(vec2 t)
 
 void main()
 {
-  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
-//    gl_FragColor = sample(gl_TexCoord[0].xy);
+//  gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+    gl_FragColor = sample(gl_TexCoord[0].xy);
 }

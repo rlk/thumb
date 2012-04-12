@@ -129,7 +129,7 @@ void orbiter::tick_dive(double dt)
 {
     if (model)
     {
-        double a = altitude - get_radius() * model->get_r0();
+        double a = altitude - get_radius();// * model->get_r0();
         altitude += 10.0 * a * (point_v[1] - click_v[1]) * dt;
     }
 }
@@ -162,7 +162,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
     {
         cache->update(model->tick());
 
-        double r = get_radius() * model->get_r0();
+        double r = get_radius();// * model->get_r0();
         double n = 0.01 * (altitude - r);
         double f =    sqrt(altitude * altitude - r * r);
 

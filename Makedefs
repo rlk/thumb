@@ -2,8 +2,8 @@
 
 #------------------------------------------------------------------------------
 
-#CFLAGS= -g -Wall
-CFLAGS= -O3 -ffast-math -fno-rtti -Wall -ansi -pedantic -DNDEBUG
+CFLAGS= -g -Wall
+#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
 
 INSTALLDIR= $(HOME)/bin
 

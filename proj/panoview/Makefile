@@ -8,6 +8,7 @@ PANOBJS= \
 	glsl.o \
 	cube.o \
 	type.o \
+	scm-file.o \
 	scm-model.o \
 	scm-cache.o \
 	scm-label.o \
@@ -20,6 +21,7 @@ ORBOBJS= \
 	glsl.o \
 	cube.o \
 	type.o \
+	scm-file.o \
 	scm-model.o \
 	scm-cache.o \
 	scm-label.o \

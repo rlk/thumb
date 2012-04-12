@@ -1,10 +1,10 @@
 
 uniform int       level;
 uniform mat3      faceM;
-uniform vec2      tex_a[16];
-uniform vec2      tex_d[16];
-uniform sampler2D v_img[16];
-uniform float     v_age[16];
+uniform vec2      tex_a[64];
+uniform vec2      tex_d[64];
+uniform sampler2D v_img[64];
+uniform float     v_age[64];
 
 varying vec3 var_V;
 varying vec3 var_L;
@@ -112,7 +112,7 @@ vec3 scube(vec2 t)
 
 void main()
 {
-    const float r0 = 1728240.0;
+    const float r0 = 1728240.0;  // TODO: uniform these
     const float rm = 1737400.0;
     const float r1 = 1748170.0;
 

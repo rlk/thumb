@@ -62,7 +62,10 @@ scm_frame::scm_frame(scm_cache *cache, app::node node)
     {
         image I;
 
-        I.file    = cache->add_file(n.get_s("file"));
+        I.file = cache->add_file(n.get_s("file"),
+                                 n.get_f("r0", 0.0),
+                                 n.get_f("r1", 1.0));
+
         I.shader  = (n.get_s("shader") == "vert") ? 0 : 1;
         I.channel = (n.get_i("channel"));
 
@@ -87,8 +90,8 @@ void scm_viewer::load(const std::string& name)
         int    d  = root.get_i("depth",  8);
         int    n  = root.get_i("mesh",  16);
         int    s  = root.get_i("size", 512);
-        double r0 = root.get_f("r0",   1.0);
-        double r1 = root.get_f("r1",   1.0);
+        // double r0 = root.get_f("r0",   1.0);
+        // double r1 = root.get_f("r1",   1.0);
 
         height = root.get_f("height", 0.0);
         radius = root.get_f("radius", 6.0);
@@ -104,7 +107,7 @@ void scm_viewer::load(const std::string& name)
         // Create the new cache and model.
 
         cache = new scm_cache(::conf->get_i("scm_viewer_cache_size", 128));
-        model = new scm_model(*cache, vert_src, frag_src, n, s, d, r0, r1);
+        model = new scm_model(*cache, vert_src, frag_src, n, s, d);//, r0, r1);
 
         // Register all frames with the cache.
 

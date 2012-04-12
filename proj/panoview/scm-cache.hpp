@@ -25,6 +25,8 @@
 
 #include "queue.hpp"
 
+#include "scm-file.hpp"
+
 //------------------------------------------------------------------------------
 
 template <typename T> class fifo : public std::list <T>
@@ -95,23 +97,6 @@ struct scm_task : public scm_item
 
 //------------------------------------------------------------------------------
 
-struct scm_file
-{
-    scm_file(const std::string& name);
-   ~scm_file();
-
-    std::string name;
-    uint32  w, h;
-    uint16  c, b, g;
-
-    uint64  catc;
-    uint64 *catv;
-
-    uint64 search(uint64) const;
-};
-
-//------------------------------------------------------------------------------
-
 class scm_set
 {
 public:
@@ -146,10 +131,16 @@ public:
     scm_cache(int);
    ~scm_cache();
 
-    int    add_file(const std::string&);
+    int    add_file(const std::string&, float, float);
     GLuint get_page(int, int, int, int&);
     GLuint get_fill() { return filler; }
     int    get_size() { return size;   }
+
+    // TODO: Use friend to encapsulate this.
+
+    void page_bounds(int, const int *, int, float&, float&);
+    bool page_status(int, const int *, int,
+                          const int *, int);
 
     void update(int);
     void flush();

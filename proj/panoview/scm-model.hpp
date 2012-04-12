@@ -25,7 +25,7 @@ class scm_model
 public:
 
     scm_model(scm_cache&, const char *, const char *,
-                          int, int, int, double, double);
+                          int, int, int);//, double, double);
    ~scm_model();
 
     int  tick() { return time++; }
@@ -36,10 +36,12 @@ public:
 
     void dump_face(const double *, int, int,
                      double, double, double, double, int);
-    double wiew_face(const double *, double, int, int,
+    double wiew_face(const double *, double, double, int, int,
                      double, double, double, double, int, int);
-    void pwep_face(const double *, double, int, int, int);
-    void pwep(const double *, const double *, int, int);
+    void pwep_face(const double *, int, int, const int *, int,
+                                             const int *, int, int);
+    void pwep(const double *, const double *, int, int, const int *, int,
+                                                        const int *, int);
     void dwaw(const double *, const double *, int, int, const int *, int,
                                                         const int *, int,
                                                         const int *, int);
@@ -53,8 +55,8 @@ public:
         zoomk    = k;
     }
 
-    double get_r0() const { return r0; }
-    double get_r1() const { return r1; }
+    // double get_r0() const { return r0; }
+    // double get_r1() const { return r1; }
 
 private:
 
@@ -65,8 +67,8 @@ private:
     int    time;
     int    size;
     int    depth;
-    double r0;
-    double r1;
+    // double r0;
+    // double r1;
 
     // Zooming state.
 
@@ -111,6 +113,8 @@ private:
 
     // OpenGL programmable processing state
 
+    static const int max_texture_image_units = 64;
+
     void init_program(const char *, const char *);
     void free_program();
 
@@ -118,10 +122,13 @@ private:
     GLuint vert_shader;
     GLuint frag_shader;
 
-    GLuint u_v_age[16];
-    GLuint u_f_age[16];
-    GLuint u_tex_a[16];
-    GLuint u_tex_d[16];
+    std::vector<GLuint> u_tex_a;
+    std::vector<GLuint> u_tex_d;
+    std::vector<GLuint> u_v_age;
+    std::vector<GLuint> u_f_age;
+    std::vector<GLuint> u_v_img;
+    std::vector<GLuint> u_f_img;
+
     GLuint u_level;
     GLuint u_fader;
     GLuint u_zoomk;

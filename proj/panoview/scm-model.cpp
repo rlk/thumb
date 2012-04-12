@@ -190,7 +190,7 @@ static void scube(long long f, double x, double y, double *v)
 
 //------------------------------------------------------------------------------
 
-double scm_model::wiew_face(const double *M, double rr, int vw, int vh,
+double scm_model::wiew_face(const double *M, double r0, double r1, int vw, int vh,
                             double ee, double ww, double nn, double ss, int qi, int j)
 {
     double ne[3], a[4], e[4], A[4], E[4];    // North-east corner
@@ -304,24 +304,15 @@ double scm_model::wiew_face(const double *M, double rr, int vw, int vh,
 
     // Compute the length of the longest visible edge, in pixels.
 
-    clip(A, E); clip(E, A);
-    clip(B, F); clip(F, B);
-    clip(C, G); clip(G, C);
-    clip(D, H); clip(H, D);
+    // clip(A, E); clip(E, A);
+    // clip(B, F); clip(F, B);
+    // clip(C, G); clip(G, C);
+    // clip(D, H); clip(H, D);
 
-#if 0
-    if (A[3] <= 0 || E[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-    glVertex4dv(A); glVertex4dv(E);
-
-    if (B[3] <= 0 || F[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-    glVertex4dv(B); glVertex4dv(F);
-
-    if (C[3] <= 0 || G[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-    glVertex4dv(C); glVertex4dv(G);
-
-    if (D[3] <= 0 || H[3] <= 0) glColor4f(1.0f, 0.0f, 0.0f, 0.5f); else glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
-    glVertex4dv(D); glVertex4dv(H);
-#endif
+    // glVertex4dv(A); glVertex4dv(E);
+    // glVertex4dv(B); glVertex4dv(F);
+    // glVertex4dv(C); glVertex4dv(G);
+    // glVertex4dv(D); glVertex4dv(H);
 
     return std::max(std::max(std::max(clen(A, B, vw, vh),
                                       clen(C, D, vw, vh)),
@@ -388,70 +379,76 @@ static const int wrap[6][6][4] = {
 
 #undef X
 
-void scm_model::pwep_face(const double *M, double R, int ww, int wh, int qi)
+void scm_model::pwep_face(const double *M, int ww, int wh,
+                                     const int *vv, int vc,
+                                     const int *fv, int fc, int qi)
 {
-    const long long i = qv[qi].i;
-    const long long n = qv[qi].n;
-    const long long s = qv[qi].s;
-    const long long e = qv[qi].e;
-    const long long w = qv[qi].w;
-    const double    l = qv[qi].l;
-    const double    r = qv[qi].r;
-    const double    b = qv[qi].b;
-    const double    t = qv[qi].t;
+    // If this page is missing from all data sets, skip it.
 
-    double k = wiew_face(M, R, ww, wh, r, l, t, b, qi, face_root(i));
-
-    if (k > size && qn + 4 < qm && face_level(i) < 15)
+    if (cache.page_status(qv[qi].i, vv, vc, fv, fc))
     {
-        const double x = (r + l) / 2;
-        const double y = (t + b) / 2;
+        const long long i = qv[qi].i;
+        const long long n = qv[qi].n;
+        const long long s = qv[qi].s;
+        const long long e = qv[qi].e;
+        const long long w = qv[qi].w;
+        const double    l = qv[qi].l;
+        const double    r = qv[qi].r;
+        const double    b = qv[qi].b;
+        const double    t = qv[qi].t;
 
-        const long long I = face_root(i);
-        const long long N = face_root(n);
-        const long long S = face_root(s);
-        const long long E = face_root(e);
-        const long long W = face_root(w);
+        // Merge the extrema of the first ancestor in each vertex data set.
 
-        qv[qn++].set(face_child(i, 0),
-                     face_child(n, wrap[I][N][2]),
-                     face_child(i, 2),
-                     face_child(e, wrap[I][E][1]),
-                     face_child(i, 1),             x, r, y, t);
-        qv[qn++].set(face_child(i, 1),
-                     face_child(n, wrap[I][N][3]),
-                     face_child(i, 3),
-                     face_child(i, 0),
-                     face_child(w, wrap[I][W][0]), l, x, y, t);
-        qv[qn++].set(face_child(i, 2),
-                     face_child(i, 0),
-                     face_child(s, wrap[I][S][0]),
-                     face_child(e, wrap[I][E][3]),
-                     face_child(i, 3),             x, r, b, y);
-        qv[qn++].set(face_child(i, 3),
-                     face_child(i, 1),
-                     face_child(s, wrap[I][S][1]),
-                     face_child(i, 2),
-                     face_child(w, wrap[I][W][2]), l, x, b, y);
-        qv[qi].f = 0;
+        float r0;
+        float r1;
+
+        cache.page_bounds(i, vv, vc, r0, r1);
+
+        double k = wiew_face(M, r0, r1, ww, wh, r, l, t, b, qi, face_root(i));
+
+        if (k > size && qn + 4 < qm && face_level(i) < depth)
+        {
+            const double x = (r + l) / 2;
+            const double y = (t + b) / 2;
+
+            const long long I = face_root(i);
+            const long long N = face_root(n);
+            const long long S = face_root(s);
+            const long long E = face_root(e);
+            const long long W = face_root(w);
+
+            qv[qn++].set(face_child(i, 0),
+                         face_child(n, wrap[I][N][2]),
+                         face_child(i, 2),
+                         face_child(e, wrap[I][E][1]),
+                         face_child(i, 1),             x, r, y, t);
+            qv[qn++].set(face_child(i, 1),
+                         face_child(n, wrap[I][N][3]),
+                         face_child(i, 3),
+                         face_child(i, 0),
+                         face_child(w, wrap[I][W][0]), l, x, y, t);
+            qv[qn++].set(face_child(i, 2),
+                         face_child(i, 0),
+                         face_child(s, wrap[I][S][0]),
+                         face_child(e, wrap[I][E][3]),
+                         face_child(i, 3),             x, r, b, y);
+            qv[qn++].set(face_child(i, 3),
+                         face_child(i, 1),
+                         face_child(s, wrap[I][S][1]),
+                         face_child(i, 2),
+                         face_child(w, wrap[I][W][2]), l, x, b, y);
+            qv[qi].f = 0;
+        }
     }
 }
 
-void scm_model::pwep(const double *P, const double *V, int w, int h)
+void scm_model::pwep(const double *P, const double *V, int w, int h,
+                        const int *vv, int vc,
+                        const int *fv, int fc)
 {
     double M[16];
-    double I[16];
-    double u[4] = { 0.0,  0.0, -1.0,  1.0 };
-    double v[4];
 
     mmultiply(M, P, V);
-    minvert(I, M);
-    wtransform(v, I, u);
-    v[0] /= v[3];
-    v[1] /= v[3];
-    v[2] /= v[3];
-    v[3] /= v[3];
-    double r = vlen(v);
 
     qn = 0;
 
@@ -472,7 +469,7 @@ void scm_model::pwep(const double *P, const double *V, int w, int h)
     // glBegin(GL_LINES);
 
     for (int qi = 0; qi < qn; ++qi)
-        pwep_face(M, r, w, h, qi);
+        pwep_face(M, w, h, vv, vc, fv, fc, qi);
 
     // glEnd();
 
@@ -498,7 +495,7 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
     glDisable(GL_LIGHTING);
     glDisable(GL_TEXTURE_2D);
 
-    pwep(P, V, w, h);
+    pwep(P, V, w, h, vv, vc, fv, fc);
 
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -506,6 +503,9 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
 
     glUseProgram(program);
     {
+        int then = time;
+        int T = vc + fc;
+
         glUniform1f(u_zoomk, GLfloat(zoomk));
         glUniform3f(u_zoomv, GLfloat(zoomv[0]),
                              GLfloat(zoomv[1]),
@@ -513,8 +513,35 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
 
         for (int qi = 0; qi < qn; ++qi)
         {
-            const long long l = face_level(qv[qi].i);
-            const long long f = face_root (qv[qi].i);
+            const long long i = qv[qi].i;
+            const long long l = face_level(i);
+            const long long f = face_root (i);
+
+            int t = 0;
+
+            // Bind and set vertex shader textures and uniforms.
+
+            for (int vi = 0; vi < vc; ++vi, ++t)
+            {
+                glActiveTexture(GL_TEXTURE0 + l * T + t);
+                glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
+                glUniform1f(u_v_age[l], age(then));
+                glUniform1i(u_v_img[l], l * T + t);
+            }
+
+            // Bind and set fragment shader textures and uniforms.
+
+            for (int fi = 0; fi < fc; ++fi, ++t)
+            {
+                glActiveTexture(GL_TEXTURE0 + l * T + t);
+                glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
+                glUniform1f(u_f_age[l], age(then));
+                glUniform1i(u_f_img[l], l * T + t);
+            }
+
+            glActiveTexture(GL_TEXTURE0);
+
+            // Set the texture coordinate uniforms.
 
             glUniform2f(u_tex_a[l], GLfloat(qv[qi].r), GLfloat(qv[qi].t));
             glUniform2f(u_tex_d[l], GLfloat(qv[qi].l), GLfloat(qv[qi].b));
@@ -551,13 +578,13 @@ void scm_model::dwaw(const double *P, const double *V, int w, int h,
 scm_model::scm_model(scm_cache& cache,
                      const char *vert,
                      const char *frag,
-                     int n, int s, int d, double r0, double r1) :
+                     int n, int s, int d) : //, double r0, double r1) :
     cache(cache),
     time(1),
     size(s),
     depth(d),
-    r0(r0),
-    r1(r1),
+    // r0(r0),
+    // r1(r1),
     status(cube_size(d), s_halt)
 {
     init_program(vert, frag);
@@ -584,7 +611,7 @@ scm_model::~scm_model()
 //------------------------------------------------------------------------------
 
 // TODO: reorder the arguments LRTB.
-
+#if 0
 double scm_model::view_face(const double *M, double rr, int vw, int vh,
                             double ee, double ww, double nn, double ss, int j)
 {
@@ -769,20 +796,20 @@ void scm_model::dump_face(const double *M, double rr, int vw, int vh,
     glVertex4dv(C); glVertex4dv(G);
     glVertex4dv(D); glVertex4dv(H);
 }
-
+#endif
 //------------------------------------------------------------------------------
 
 void scm_model::prep(const double *P, const double *V, int w, int h)
 {
-    double M[16];
+    // double M[16];
 
-    mmultiply(M, P, V);
+    // mmultiply(M, P, V);
 
-    for (int i = 0; i < 6; ++i)
-        prep_face(M, w, h, 0, 1, 0, 1, i, 0, i);
+    // for (int i = 0; i < 6; ++i)
+    //     prep_face(M, w, h, 0, 1, 0, 1, i, 0, i);
 }
 
-#if 1
+#if 0
 
 void scm_model::prep_face(const double *M, int w, int h,
                           double r, double l,
@@ -840,8 +867,9 @@ void scm_model::prep_face(const double *M, int w, int h,
             status[i] = s_halt;
     }
 }
+#endif
 
-#else
+#if 0
 
 void scm_model::prep_face(const double *M, int w, int h,
                           double r, double l,
@@ -1113,15 +1141,14 @@ void scm_model::init_program(const char *vert_src,
         u_zoomv = glGetUniformLocation(program, "zoomv");
         u_faceM = glGetUniformLocation(program, "faceM");
 
-        for (int d = 0; d < 16; ++d)
+        for (int d = 0; d < max_texture_image_units; ++d)
         {
-            u_tex_a[d] = glGetUniformLocationv(program, "tex_a[%d]", d);
-            u_tex_d[d] = glGetUniformLocationv(program, "tex_d[%d]", d);
-            u_v_age[d] = glGetUniformLocationv(program, "v_age[%d]", d);
-            u_f_age[d] = glGetUniformLocationv(program, "f_age[%d]", d);
-            // glUniform1i (glGetUniformLocationv(program, "v_img[%d]", d), d);
-            // glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d), d + 8);
-            // glUniform1i (glGetUniformLocationv(program, "f_img[%d]", d+8), d + 16);
+            u_tex_a.push_back(glGetUniformLocationv(program, "tex_a[%d]", d));
+            u_tex_d.push_back(glGetUniformLocationv(program, "tex_d[%d]", d));
+            u_v_age.push_back(glGetUniformLocationv(program, "v_age[%d]", d));
+            u_f_age.push_back(glGetUniformLocationv(program, "f_age[%d]", d));
+            u_v_img.push_back(glGetUniformLocationv(program, "v_img[%d]", d));
+            u_f_img.push_back(glGetUniformLocationv(program, "f_img[%d]", d));
         }
     }
 }
