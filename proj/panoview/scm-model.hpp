@@ -25,11 +25,13 @@ class scm_model
 public:
 
     scm_model(scm_cache&, const char *, const char *,
-                          int, int, int);//, double, double);
+                          int, int, int);
    ~scm_model();
 
     int  tick() { return time++; }
 
+    void prep(const double *, const double *, int, int, const int *, int,
+                                                        const int *, int);
     void draw(const double *, const double *, int, int, const int *, int,
                                                         const int *, int,
                                                         const int *, int);
@@ -45,12 +47,12 @@ public:
 
 private:
 
-    GLuint stack[8];
-
     scm_cache& cache;
 
-    int    time;
-    int    size;
+    int time;
+    int size;
+
+    GLfloat age(int);
 
     // Zooming state.
 
@@ -67,20 +69,16 @@ private:
     int   qn;
     int   qm;
 
-    void   dump_face(const double *, double, double,
+    void   dump_page(const double *, double, double,
                      double, double, double, double, int);
-    double view_face(const double *, double, double, int, int,
+    double view_page(const double *, double, double, int, int,
                      double, double, double, double, int, int);
-    void   prep_face(const double *, int, int, const int *, int,
+
+    void   prep_page(const double *, int, int, const int *, int,
                                                const int *, int, int);
-    void   draw_face(int, int, int, const int *, int,
-                                  const int *, int,
-                                  const int *, int);
-    void   prep    (const double *, const double *, int, int, const int *, int,
-                                                        const int *, int);
-
-
-    GLfloat age(int);
+    void   draw_page(           int, int, int, const int *, int,
+                                               const int *, int,
+                                               const int *, int);
 
     // OpenGL programmable processing state
 

@@ -110,55 +110,38 @@ void scm_model::zoom(double *w, const double *v)
 
 //------------------------------------------------------------------------------
 
+scm_model::scm_model(scm_cache& cache,
+                     const char *vert,
+                     const char *frag,
+                     int n, int s, int d) : //, double r0, double r1) :
+    cache(cache),
+    time(1),
+    size(s)
+{
+    init_program(vert, frag);
+    init_arrays(n);
+
+    zoomv[0] =  0;
+    zoomv[1] =  0;
+    zoomv[2] = -1;
+    zoomk    =  1;
+
+    qm = 8192;
+    qn =    0;
+    qv = (page *) calloc(qm, sizeof (page));
+}
+
+scm_model::~scm_model()
+{
+    free(qv);
+
+    free_arrays();
+    free_program();
+}
+
+//------------------------------------------------------------------------------
+
 static inline double length(const double *a, const double *b, int w, int h)
-{
-    if (a[3] <= 0 && b[3] <= 0) return 0;
-    if (a[3] <= 0)              return HUGE_VAL;
-    if (b[3] <= 0)              return HUGE_VAL;
-
-    double dx = (a[0] / a[3] - b[0] / b[3]) * w / 2;
-    double dy = (a[1] / a[3] - b[1] / b[3]) * h / 2;
-
-    return sqrt(dx * dx + dy * dy);
-}
-
-static inline void cmix(double *a, double *b, double k)
-{
-    a[0] = (1 - k) * a[0] + k * b[0];
-    a[1] = (1 - k) * a[1] + k * b[1];
-    a[2] = (1 - k) * a[2] + k * b[2];
-    a[3] = (1 - k) * a[3] + k * b[3];
-}
-
-static inline void clip(double *a, double *b)
-{
-    const double e = 0.00001;  // Delicious fudge.
-
-    while (1)
-    {
-        if      (a[0] < -a[3] && b[0] > -b[3])
-            cmix(a, b, e + (a[3] + a[0]) / (a[3] + a[0] - b[3] - b[0]));
-
-        else if (a[0] > +a[3] && b[0] < +b[3])
-            cmix(a, b, e + (a[3] - a[0]) / (a[3] - a[0] - b[3] + b[0]));
-
-        else if (a[1] < -a[3] && b[1] > -b[3])
-            cmix(a, b, e + (a[3] + a[1]) / (a[3] + a[1] - b[3] - b[1]));
-
-        else if (a[1] > +a[3] && b[1] < +b[3])
-            cmix(a, b, e + (a[3] - a[1]) / (a[3] - a[1] - b[3] + b[1]));
-
-        // else if (a[2] < -a[3] && b[2] > -b[3])
-        //     cmix(a, b, e + (a[3] + a[2]) / (a[3] + a[2] - b[3] - b[2]));
-
-        // else if (a[2] > +a[3] && b[2] < +b[3])
-        //     cmix(a, b, e + (a[3] - a[2]) / (a[3] - a[2] - b[3] + b[2]));
-
-        else break;
-    }
-}
-
-static inline double clen(const double *a, const double *b, int w, int h)
 {
     if (a[3] <= 0 && b[3] <= 0) return 0;
     if (a[3] <= 0)              return HUGE_VAL;
@@ -199,7 +182,7 @@ static void scube(long long f, double x, double y, double *v)
 
 //------------------------------------------------------------------------------
 
-double scm_model::view_face(const double *M, double r0, double r1, int vw, int vh,
+double scm_model::view_page(const double *M, double r0, double r1, int vw, int vh,
                             double ee, double ww, double nn, double ss, int qi, int j)
 {
     double ne[3], a[4], e[4], A[4], E[4];    // North-east corner
@@ -313,14 +296,14 @@ double scm_model::view_face(const double *M, double r0, double r1, int vw, int v
 
     // Compute the length of the longest visible edge, in pixels.
 
-    return std::max(std::max(std::max(clen(A, B, vw, vh),
-                                      clen(C, D, vw, vh)),
-                             std::max(clen(A, C, vw, vh),
-                                      clen(B, D, vw, vh))),
-                    std::max(std::max(clen(E, F, vw, vh),
-                                      clen(G, H, vw, vh)),
-                             std::max(clen(E, G, vw, vh),
-                                      clen(F, H, vw, vh))));
+    return std::max(std::max(std::max(length(A, B, vw, vh),
+                                      length(C, D, vw, vh)),
+                             std::max(length(A, C, vw, vh),
+                                      length(B, D, vw, vh))),
+                    std::max(std::max(length(E, F, vw, vh),
+                                      length(G, H, vw, vh)),
+                             std::max(length(E, G, vw, vh),
+                                      length(F, H, vw, vh))));
 }
 
 #define X -1
@@ -378,7 +361,7 @@ static const int wrap[6][6][4] = {
 
 #undef X
 
-void scm_model::prep_face(const double *M, int ww, int wh,
+void scm_model::prep_page(const double *M, int ww, int wh,
                                      const int *vv, int vc,
                                      const int *fv, int fc, int qi)
 {
@@ -403,7 +386,7 @@ void scm_model::prep_face(const double *M, int ww, int wh,
 
         cache.page_bounds(i, vv, vc, r0, r1);
 
-        double k = view_face(M, r0, r1, ww, wh, r, l, t, b, qi, face_root(i));
+        double k = view_page(M, r0, r1, ww, wh, r, l, t, b, qi, face_root(i));
 
         if (k > size && qn + 4 < qm)
         {
@@ -451,8 +434,6 @@ void scm_model::prep_face(const double *M, int ww, int wh,
     }
 }
 
-//------------------------------------------------------------------------------
-
 GLfloat scm_model::age(int then)
 {
     GLfloat a = GLfloat(time - then) / 60.f;
@@ -477,11 +458,13 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
     qv[qn++].set(5, 2, 3, 1, 0, 1, 0, 1, 0);
 
     for (int qi = 0; qi < qn; ++qi)
-        prep_face(M, w, h, vv, vc, fv, fc, qi);
+        prep_page(M, w, h, vv, vc, fv, fc, qi);
 }
 
 
-void scm_model::draw_face(int qi, int d, int f, const int *vv, int vc,
+//------------------------------------------------------------------------------
+
+void scm_model::draw_page(int qi, int d, int f, const int *vv, int vc,
                                                 const int *fv, int fc,
                                                 const int *pv, int pc)
 {
@@ -536,10 +519,10 @@ void scm_model::draw_face(int qi, int d, int f, const int *vv, int vc,
         glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
     }
 
-    if (qv[qi].i0) draw_face(qv[qi].i0, d + 1, f, vv, vc, fv, fc, pv, pc);
-    if (qv[qi].i1) draw_face(qv[qi].i1, d + 1, f, vv, vc, fv, fc, pv, pc);
-    if (qv[qi].i2) draw_face(qv[qi].i2, d + 1, f, vv, vc, fv, fc, pv, pc);
-    if (qv[qi].i3) draw_face(qv[qi].i3, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i0) draw_page(qv[qi].i0, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i1) draw_page(qv[qi].i1, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i2) draw_page(qv[qi].i2, d + 1, f, vv, vc, fv, fc, pv, pc);
+    if (qv[qi].i3) draw_page(qv[qi].i3, d + 1, f, vv, vc, fv, fc, pv, pc);
 
     for (int t = 0; t < T; ++t)
     {
@@ -577,12 +560,12 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
                              GLfloat(zoomv[1]),
                              GLfloat(zoomv[2]));
 
-        draw_face(0, 0, 0, vv, vc, fv, fc, pv, pc);
-        draw_face(1, 0, 1, vv, vc, fv, fc, pv, pc);
-        draw_face(2, 0, 2, vv, vc, fv, fc, pv, pc);
-        draw_face(3, 0, 3, vv, vc, fv, fc, pv, pc);
-        draw_face(4, 0, 4, vv, vc, fv, fc, pv, pc);
-        draw_face(5, 0, 5, vv, vc, fv, fc, pv, pc);
+        draw_page(0, 0, 0, vv, vc, fv, fc, pv, pc);
+        draw_page(1, 0, 1, vv, vc, fv, fc, pv, pc);
+        draw_page(2, 0, 2, vv, vc, fv, fc, pv, pc);
+        draw_page(3, 0, 3, vv, vc, fv, fc, pv, pc);
+        draw_page(4, 0, 4, vv, vc, fv, fc, pv, pc);
+        draw_page(5, 0, 5, vv, vc, fv, fc, pv, pc);
     }
     glUseProgram(0);
 
@@ -595,38 +578,7 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
 
 //------------------------------------------------------------------------------
 
-scm_model::scm_model(scm_cache& cache,
-                     const char *vert,
-                     const char *frag,
-                     int n, int s, int d) : //, double r0, double r1) :
-    cache(cache),
-    time(1),
-    size(s)
-{
-    init_program(vert, frag);
-    init_arrays(n);
-
-    zoomv[0] =  0;
-    zoomv[1] =  0;
-    zoomv[2] = -1;
-    zoomk    =  1;
-
-    qm = 8192;
-    qn =    0;
-    qv = (page *) calloc(qm, sizeof (page));
-}
-
-scm_model::~scm_model()
-{
-    free(qv);
-
-    free_arrays();
-    free_program();
-}
-
-//------------------------------------------------------------------------------
-
-void scm_model::dump_face(const double *M, double r0, double r1,
+void scm_model::dump_page(const double *M, double r0, double r1,
                           double ee, double ww, double nn, double ss, int j)
 {
     double ne[3], a[3], e[3];    // North-east corner
