@@ -343,7 +343,9 @@ scm_cache::scm_cache(int n) :
     waits(n),
     needs("need", need_queue_size),
     loads("load", load_queue_size),
-    size(0)
+    size(0),
+    r0(+std::numeric_limits<float>::max()),
+    r1(-std::numeric_limits<float>::max())
 {
     GLuint b;
     int    i;
@@ -435,13 +437,16 @@ static void debug_on(int l)
 #endif
 //------------------------------------------------------------------------------
 
-// Append a string to the file list and return its index. Queue the roots.
+// Append a string to the file list and return its index. Cache the bounds.
 
-int scm_cache::add_file(const std::string& name, float r0, float r1, int dd)
+int scm_cache::add_file(const std::string& name, float n0, float n1, int dd)
 {
     int f = int(files.size());
 
-    files.push_back(new scm_file(name, r0, r1, dd));
+    files.push_back(new scm_file(name, n0, n1, dd));
+
+    r0 = std::min(r0, n0);
+    r1 = std::max(r1, n1);
 
     return f;
 }
@@ -553,10 +558,10 @@ void scm_cache::draw()
 
 //------------------------------------------------------------------------------
 
-void scm_cache::page_bounds(long long i, const int *vv, int vc, float& r0, float& r1)
+void scm_cache::page_bounds(long long i, const int *vv, int vc, float& s0, float& s1)
 {
-    r0 =  std::numeric_limits<float>::max();
-    r1 = -std::numeric_limits<float>::max();
+    s0 =  std::numeric_limits<float>::max();
+    s1 = -std::numeric_limits<float>::max();
 
     for (int vi = 0; vi < vc; ++vi)
     {
@@ -565,8 +570,8 @@ void scm_cache::page_bounds(long long i, const int *vv, int vc, float& r0, float
 
         files[vv[vi]]->bounds(uint64(i), t0, t1);
 
-        r0 = std::min(r0, t0);
-        r1 = std::max(r1, t1);
+        s0 = std::min(s0, t0);
+        s1 = std::max(s1, t1);
     }
 }
 

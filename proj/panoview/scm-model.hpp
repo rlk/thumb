@@ -25,8 +25,7 @@ class scm_model
 {
 public:
 
-    scm_model(scm_cache&, const char *, const char *,
-                          int, int, int);
+    scm_model(scm_cache&, const char *, const char *, int, int);
    ~scm_model();
 
     int  tick() { return time++; }

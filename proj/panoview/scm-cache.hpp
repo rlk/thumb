@@ -134,7 +134,10 @@ public:
     int    add_file(const std::string&, float, float, int);
     GLuint get_page(int, long long, int, int&);
     GLuint get_fill() { return filler; }
-    int    get_size() { return size;   }
+
+    int    get_size() const { return size; }
+    float  get_r0()   const { return r0;   }
+    float  get_r1()   const { return r1;   }
 
     // TODO: Use friend to encapsulate this.
 
@@ -168,6 +171,8 @@ private:
     GLuint  filler;
     bool    debug;
     int     size;
+    float   r0;
+    float   r1;
 
     SDL_Thread *thread[4];
 

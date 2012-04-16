@@ -46,16 +46,13 @@ LIBS    = $(shell $(SDLCONF) --libs) \
 
 #------------------------------------------------------------------------------
 
-all : panoview orbiter test
+all : panoview orbiter
 
 panoview: $(PANOBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
 
 orbiter: $(ORBOBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
-
-test: test.o
-	$(CC) $(CFLAGS) -o $@ $^
 
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview

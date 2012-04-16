@@ -42,7 +42,7 @@ scm_viewer::scm_viewer(const std::string& exe,
     debug_cache(false),
     debug_color(false),
     debug_label(false),
-    debug_wire (true)
+    debug_wire (false)
 {
     TIFFSetWarningHandler(0);
     gui_init();
@@ -63,7 +63,7 @@ scm_frame::scm_frame(scm_cache *cache, app::node node)
         image I;
 
         I.file = cache->add_file(n.get_s("file"),
-                                 n.get_f("r0", 0.0),
+                                 n.get_f("r0", 1.0),
                                  n.get_f("r1", 1.0),
                                  n.get_i("overdraw", 0));
 
@@ -88,11 +88,8 @@ void scm_viewer::load(const std::string& name)
 
         // Parse the panorama configuration
 
-        int    d  = root.get_i("depth",  8);
-        int    n  = root.get_i("mesh",  16);
-        int    s  = root.get_i("size", 512);
-        // double r0 = root.get_f("r0",   1.0);
-        // double r1 = root.get_f("r1",   1.0);
+        int n  = root.get_i("mesh",  16);
+        int s  = root.get_i("size", 512);
 
         height = root.get_f("height", 0.0);
         radius = root.get_f("radius", 6.0);
@@ -108,7 +105,7 @@ void scm_viewer::load(const std::string& name)
         // Create the new cache and model.
 
         cache = new scm_cache(::conf->get_i("scm_viewer_cache_size", 128));
-        model = new scm_model(*cache, vert_src, frag_src, n, s, d);//, r0, r1);
+        model = new scm_model(*cache, vert_src, frag_src, n, s);
 
         // Register all frames with the cache.
 
