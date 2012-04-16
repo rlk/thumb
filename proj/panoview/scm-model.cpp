@@ -19,9 +19,9 @@
 
 #include "math3d.h"
 #include "glsl.h"
-#include "cube.hpp"
 
 #include "scm-model.hpp"
+#include "scm-index.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -33,6 +33,7 @@ typedef GLuint           GLindex;
 #define GL_ELEMENT_INDEX GL_UNSIGNED_INT
 #endif
 
+#if 0
 struct scm_model::page
 {
     long long f;
@@ -75,7 +76,7 @@ struct scm_model::page
         i3 = 0;
     }
 };
-
+#endif
 //------------------------------------------------------------------------------
 
 static inline double scale(double k, double t)
@@ -126,17 +127,23 @@ scm_model::scm_model(scm_cache& cache,
     zoomv[2] = -1;
     zoomk    =  1;
 
-    qm = 8192;
-    qn =    0;
-    qv = (page *) calloc(qm, sizeof (page));
+    // qm = 8192;
+    // qn =    0;
+    // qv = (page *) calloc(qm, sizeof (page));
 }
 
 scm_model::~scm_model()
 {
-    free(qv);
+    // free(qv);
 
     free_arrays();
     free_program();
+}
+
+GLfloat scm_model::age(int then)
+{
+    GLfloat a = GLfloat(time - then) / 60.f;
+    return (a > 1.f) ? 1.f : a;
 }
 
 //------------------------------------------------------------------------------
@@ -153,77 +160,51 @@ static inline double length(const double *a, const double *b, int w, int h)
     return sqrt(dx * dx + dy * dy);
 }
 
-// TODO: Move this to where it belongs.
-
-static void scube(long long f, double x, double y, double *v)
+double scm_model::view_page(const double *M, int vw, int vh,
+                            double r0, double r1, long long i)
 {
-    const double s = x * M_PI_2 - M_PI_4;
-    const double t = y * M_PI_2 - M_PI_4;
+    // Compute the corner vectors of the zoomed page.
 
-    double u[3];
-    double w[3];
+    double v[12];
 
-    u[0] =  sin(s) * cos(t);
-    u[1] = -cos(s) * sin(t);
-    u[2] =  cos(s) * cos(t);
+    scm_page_corners(i, v);
 
-    vnormalize(w, u);
-
-    switch (f)
-    {
-        case 0: v[0] =  w[2]; v[1] =  w[1]; v[2] = -w[0]; break;
-        case 1: v[0] = -w[2]; v[1] =  w[1]; v[2] =  w[0]; break;
-        case 2: v[0] =  w[0]; v[1] =  w[2]; v[2] = -w[1]; break;
-        case 3: v[0] =  w[0]; v[1] = -w[2]; v[2] =  w[1]; break;
-        case 4: v[0] =  w[0]; v[1] =  w[1]; v[2] =  w[2]; break;
-        case 5: v[0] = -w[0]; v[1] =  w[1]; v[2] = -w[2]; break;
-    }
-}
-
-//------------------------------------------------------------------------------
-
-double scm_model::view_page(const double *M, double r0, double r1, int vw, int vh,
-                            double ee, double ww, double nn, double ss, int qi, int j)
-{
-    double ne[3], a[4], e[4], A[4], E[4];    // North-east corner
-    double nw[3], b[4], f[4], B[4], F[4];    // North-west corner
-    double se[3], c[4], g[4], C[4], G[4];    // South-east corner
-    double sw[3], d[4], h[4], D[4], H[4];    // South-west corner
-
-    scube(j, ee, nn, ne);
-    scube(j, ww, nn, nw);
-    scube(j, ee, ss, se);
-    scube(j, ww, ss, sw);
-
+#if 0
     if (zoomk != 1)
     {
-        zoom(ne, ne);
-        zoom(nw, nw);
-        zoom(se, se);
-        zoom(sw, sw);
+        zoom(v + 0, v + 0);
+        zoom(v + 3, v + 3);
+        zoom(v + 6, v + 6);
+        zoom(v + 9, v + 9);
     }
+#endif
 
     // Compute the maximum extent due to bulge.
 
-    double v[3];
+    double u[3];
 
-    v[0] = ne[0] + nw[0] + se[0] + sw[0];
-    v[1] = ne[1] + nw[1] + se[1] + sw[1];
-    v[2] = ne[2] + nw[2] + se[2] + sw[2];
+    u[0] = v[0] + v[3] + v[6] + v[ 9];
+    u[1] = v[1] + v[4] + v[7] + v[10];
+    u[2] = v[2] + v[5] + v[8] + v[11];
 
-    double r2 = r1 * vlen(v) / vdot(ne, v);
+    double r2 = r1 * vlen(u) / vdot(v, u);
 
     // Apply the inner and outer radii to the bounding volume.
 
-    vmul(a, ne, r0);
-    vmul(b, nw, r0);
-    vmul(c, se, r0);
-    vmul(d, sw, r0);
+    double a[3], e[3], A[4], E[4];
+    double b[3], f[3], B[4], F[4];
+    double c[3], g[3], C[4], G[4];
+    double d[3], h[3], D[4], H[4];
 
-    vmul(e, ne, r2);
-    vmul(f, nw, r2);
-    vmul(g, se, r2);
-    vmul(h, sw, r2);
+    vmul(a, v + 0, r0);
+    vmul(b, v + 3, r0);
+    vmul(c, v + 6, r0);
+    vmul(d, v + 9, r0);
+
+    vmul(e, v + 0, r2);
+    vmul(f, v + 3, r2);
+    vmul(g, v + 6, r2);
+    vmul(h, v + 9, r2);
 
     // Compute W and reject any volume on the far side of the singularity.
 
@@ -294,73 +275,313 @@ double scm_model::view_page(const double *M, double r0, double r1, int vw, int v
         E[0] < -E[3] && F[0] < -F[3] && G[0] < -G[3] && H[0] < -H[3])
         return 0;
 
+    // glVertex3dv(e); glVertex3dv(f);
+    // glVertex3dv(g); glVertex3dv(h);
+    // glVertex3dv(e); glVertex3dv(g);
+    // glVertex3dv(f); glVertex3dv(h);
+
     // Compute the length of the longest visible edge, in pixels.
 
-    return std::max(std::max(std::max(length(A, B, vw, vh),
-                                      length(C, D, vw, vh)),
-                             std::max(length(A, C, vw, vh),
-                                      length(B, D, vw, vh))),
-                    std::max(std::max(length(E, F, vw, vh),
-                                      length(G, H, vw, vh)),
-                             std::max(length(E, G, vw, vh),
-                                      length(F, H, vw, vh))));
+    // return std::max(std::max(std::max(length(A, B, vw, vh),
+    //                                   length(C, D, vw, vh)),
+    //                          std::max(length(A, C, vw, vh),
+    //                                   length(B, D, vw, vh))),
+    //                 std::max(std::max(length(E, F, vw, vh),
+    //                                   length(G, H, vw, vh)),
+    //                          std::max(length(E, G, vw, vh),
+    //                                   length(F, H, vw, vh))));
+
+    return std::max(std::max(length(A, B, vw, vh),
+                             length(C, D, vw, vh)),
+                    std::max(length(A, C, vw, vh),
+                             length(B, D, vw, vh)));
 }
 
-#define X -1
+double scm_model::test_page(const double *M,  int w, int h,
+                               const int *vv, int vc, long long i)
+{
+    // Merge the bounds of this page in each vertex data set.
 
-static const int wrap[6][6][4] = {
-    { // 0
-        { X, X, X, X }, // 0
-        { X, X, X, X }, // 1
-        { X, X, 0, 2 }, // 2
-        { 2, 0, X, X }, // 3
-        { 0, X, 2, X }, // 4
-        { X, 1, X, 3 }, // 5
-    },
-    { // 1
-        { X, X, X, X }, // 0
-        { X, X, X, X }, // 1
-        { X, X, 3, 1 }, // 2
-        { 1, 3, X, X }, // 3
-        { X, 1, X, 3 }, // 4
-        { 0, X, 2, X }, // 5
-    },
-    { // 2
-        { X, 0, X, 1 }, // 0
-        { 1, X, 0, X }, // 1
-        { X, X, X, X }, // 2
-        { X, X, X, X }, // 3
-        { 0, 1, X, X }, // 4
-        { X, X, 1, 0 }, // 5
-    },
-    { // 3
-        { X, 3, X, 2 }, // 0
-        { 2, X, 3, X }, // 1
-        { X, X, X, X }, // 2
-        { X, X, X, X }, // 3
-        { X, X, 2, 3 }, // 4
-        { 3, 2, X, X }, // 5
-    },
-    { // 4
-        { X, 1, X, 3 }, // 0
-        { 0, X, 2, X }, // 1
-        { X, X, 2, 3 }, // 2
-        { 0, 1, X, X }, // 3
-        { X, X, X, X }, // 4
-        { X, X, X, X }, // 5
-    },
-    { // 5
-        { 0, X, 2, X }, // 0
-        { X, 1, X, 3 }, // 1
-        { X, X, 1, 0 }, // 2
-        { 3, 2, X, X }, // 3
-        { X, X, X, X }, // 4
-        { X, X, X, X }, // 5
-    },
-};
+    float r0 = 1.0;
+    float r1 = 1.0;
 
-#undef X
+    cache.page_bounds(i, vv, vc, r0, r1);
 
+    // Compute and test the on-screen pixel size of this bounds.
+
+    return view_page(M, w, h, double(r0), double(r1), i);
+}
+
+//------------------------------------------------------------------------------
+
+void scm_model::add_page(const double *M,  int w,  int h,
+                            const int *vv, int vc, long long i)
+{
+    if (!istodraw(i))
+    {
+        double k = test_page(M, w, h, vv, vc, i);
+
+        if (k > 0)
+        {
+            todraw.insert(i);
+
+            if (i > 5)
+            {
+                long long p = scm_page_parent(i);
+
+                add_page(M, w, h, vv, vc, p);
+
+                switch (scm_page_order(i))
+                {
+                    case 0:
+                        add_page(M, w, h, vv, vc, scm_page_north(p));
+                        add_page(M, w, h, vv, vc, scm_page_south(i));
+                        add_page(M, w, h, vv, vc, scm_page_east (i));
+                        add_page(M, w, h, vv, vc, scm_page_west (p));
+                        break;
+                    case 1:
+                        add_page(M, w, h, vv, vc, scm_page_north(p));
+                        add_page(M, w, h, vv, vc, scm_page_south(i));
+                        add_page(M, w, h, vv, vc, scm_page_east (p));
+                        add_page(M, w, h, vv, vc, scm_page_west (i));
+                        break;
+                    case 2:
+                        add_page(M, w, h, vv, vc, scm_page_north(i));
+                        add_page(M, w, h, vv, vc, scm_page_south(p));
+                        add_page(M, w, h, vv, vc, scm_page_east (i));
+                        add_page(M, w, h, vv, vc, scm_page_west (p));
+                        break;
+                    case 3:
+                        add_page(M, w, h, vv, vc, scm_page_north(i));
+                        add_page(M, w, h, vv, vc, scm_page_south(p));
+                        add_page(M, w, h, vv, vc, scm_page_east (p));
+                        add_page(M, w, h, vv, vc, scm_page_west (i));
+                        break;
+                }
+            }
+        }
+    }
+}
+
+bool scm_model::prep_page(const double *M,  int w,  int h,
+                             const int *vv, int vc,
+                             const int *fv, int fc, long long i)
+{
+    // If this page is missing from all data sets, skip it.
+
+    if (cache.page_status(i, vv, vc, fv, fc))
+    {
+        // Compute the on-screen pixel size of this page.
+
+        double k = test_page(M, w, h, vv, vc, i);
+
+        // Subdivide if too large, otherwise mark for drawing.
+
+        if (k > 0)
+        {
+            if (k > size)
+            {
+                long long i0 = scm_page_child(i, 0);
+                long long i1 = scm_page_child(i, 1);
+                long long i2 = scm_page_child(i, 2);
+                long long i3 = scm_page_child(i, 3);
+
+                bool b0 = prep_page(M, w, h, vv, vc, fv, fc, i0);
+                bool b1 = prep_page(M, w, h, vv, vc, fv, fc, i1);
+                bool b2 = prep_page(M, w, h, vv, vc, fv, fc, i2);
+                bool b3 = prep_page(M, w, h, vv, vc, fv, fc, i3);
+
+                if (b0 || b1 || b2 || b3)
+                    return true;
+            }
+            add_page(M, w, h, vv, vc, i);
+            return true;
+        }
+    }
+    return false;
+}
+
+void scm_model::draw_page(const int *vv, int vc,
+                          const int *fv, int fc,
+                          const int *pv, int pc, int d, int f, long long i)
+{
+    int then = time;
+    int T = vc + fc;
+    int t = 0;
+
+    // Bind and set vertex shader textures and uniforms.
+
+    for (int vi = 0; vi < vc; ++vi, ++t)
+    {
+        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
+        glUniform1f(u_v_age[d], age(then));
+        glUniform1i(u_v_img[d], d * T + t);
+    }
+
+    // Bind and set fragment shader textures and uniforms.
+
+    for (int fi = 0; fi < fc; ++fi, ++t)
+    {
+        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
+        glUniform1f(u_f_age[d], age(then));
+        glUniform1i(u_f_img[d], d * T + t);
+    }
+
+    // Set the texture coordinate uniforms.
+
+    long long r = scm_page_row(i);
+    long long c = scm_page_col(i);
+    long long n = 1LL << d;
+
+    glUniform2f(u_tex_a[d], GLfloat(c    ) / n, GLfloat(r    ) / n);
+    glUniform2f(u_tex_d[d], GLfloat(c + 1) / n, GLfloat(r + 1) / n);
+
+    // Won't someone please think of the children?
+
+    long long i0 = scm_page_child(i, 0);
+    long long i1 = scm_page_child(i, 1);
+    long long i2 = scm_page_child(i, 2);
+    long long i3 = scm_page_child(i, 3);
+
+    bool b0 = istodraw(i0);
+    bool b1 = istodraw(i1);
+    bool b2 = istodraw(i2);
+    bool b3 = istodraw(i3);
+
+    if (b0 || b1 || b2 || b3)
+    {
+        // Draw any children marked for drawing.
+
+        if (b0) draw_page(vv, vc, fv, fc, pv, pc, d + 1, f, i0);
+        if (b1) draw_page(vv, vc, fv, fc, pv, pc, d + 1, f, i1);
+        if (b2) draw_page(vv, vc, fv, fc, pv, pc, d + 1, f, i2);
+        if (b3) draw_page(vv, vc, fv, fc, pv, pc, d + 1, f, i3);
+    }
+    else
+    {
+        // Draw this page. Select a mesh that matches up with the neighbors.
+
+        int j = (i < 6) ? 0 : (istodraw(scm_page_north(i)) ? 0 : 1)
+                            | (istodraw(scm_page_south(i)) ? 0 : 2)
+                            | (istodraw(scm_page_west (i)) ? 0 : 4)
+                            | (istodraw(scm_page_east (i)) ? 0 : 8);
+
+        glUniform1i(u_level, d);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
+        glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
+    }
+
+    // Undo any texture bindings.
+
+    for (int t = 0; t < T; ++t)
+    {
+        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glBindTexture(GL_TEXTURE_2D, cache.get_fill());
+    }
+}
+
+//------------------------------------------------------------------------------
+
+void scm_model::prep(const double *P, const double *V, int w, int h,
+                                               const int *vv, int vc,
+                                               const int *fv, int fc)
+{
+    double M[16];
+
+    mmultiply(M, P, V);
+
+    todraw.clear();
+
+    // glUseProgram(0);
+    // glBegin(GL_LINES);
+
+    prep_page(M, w, h, vv, vc, fv, fc, 0);
+    prep_page(M, w, h, vv, vc, fv, fc, 1);
+    prep_page(M, w, h, vv, vc, fv, fc, 2);
+    prep_page(M, w, h, vv, vc, fv, fc, 3);
+    prep_page(M, w, h, vv, vc, fv, fc, 4);
+    prep_page(M, w, h, vv, vc, fv, fc, 5);
+
+    // glEnd();
+}
+
+void scm_model::draw(const double *P, const double *V, int w, int h,
+                                               const int *vv, int vc,
+                                               const int *fv, int fc,
+                                               const int *pv, int pc)
+{
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(P);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixd(V);
+
+    glEnable(GL_COLOR_MATERIAL);
+
+    prep(P, V, w, h, vv, vc, fv, fc);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vertices);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glVertexPointer(2, GL_FLOAT, 0, 0);
+
+    glUseProgram(program);
+    {
+        static const GLfloat faceM[6][9] = {
+            {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
+            {  0.f,  0.f, -1.f,  0.f,  1.f,  0.f,  1.f,  0.f,  0.f },
+            {  1.f,  0.f,  0.f,  0.f,  0.f,  1.f,  0.f, -1.f,  0.f },
+            {  1.f,  0.f,  0.f,  0.f,  0.f, -1.f,  0.f,  1.f,  0.f },
+            {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
+            { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
+        };
+
+        glUniform1f(u_zoomk, GLfloat(zoomk));
+        glUniform3f(u_zoomv, GLfloat(zoomv[0]),
+                             GLfloat(zoomv[1]),
+                             GLfloat(zoomv[2]));
+
+        if (istodraw(0))
+        {
+            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[0]);
+            draw_page(vv, vc, fv, fc, pv, pc, 0, 0, 0);
+        }
+        if (istodraw(1))
+        {
+            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[1]);
+            draw_page(vv, vc, fv, fc, pv, pc, 0, 1, 1);
+        }
+        if (istodraw(2))
+        {
+            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[2]);
+            draw_page(vv, vc, fv, fc, pv, pc, 0, 2, 2);
+        }
+        if (istodraw(3))
+        {
+            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[3]);
+            draw_page(vv, vc, fv, fc, pv, pc, 0, 3, 3);
+        }
+        if (istodraw(4))
+        {
+            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[4]);
+            draw_page(vv, vc, fv, fc, pv, pc, 0, 4, 4);
+        }
+        if (istodraw(5))
+        {
+            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[5]);
+            draw_page(vv, vc, fv, fc, pv, pc, 0, 5, 5);
+        }
+    }
+    glUseProgram(0);
+
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+    glBindBuffer(GL_ARRAY_BUFFER,         0);
+    glDisableClientState(GL_VERTEX_ARRAY);
+
+    glActiveTexture(GL_TEXTURE0);
+}
+
+#if 0
 void scm_model::prep_page(const double *M, int ww, int wh,
                                      const int *vv, int vc,
                                      const int *fv, int fc, int qi)
@@ -434,12 +655,6 @@ void scm_model::prep_page(const double *M, int ww, int wh,
     }
 }
 
-GLfloat scm_model::age(int then)
-{
-    GLfloat a = GLfloat(time - then) / 60.f;
-    return (a > 1.f) ? 1.f : a;
-}
-
 void scm_model::prep(const double *P, const double *V, int w, int h,
                         const int *vv, int vc,
                         const int *fv, int fc)
@@ -460,10 +675,11 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
     for (int qi = 0; qi < qn; ++qi)
         prep_page(M, w, h, vv, vc, fv, fc, qi);
 }
-
+#endif
 
 //------------------------------------------------------------------------------
 
+#if 0
 void scm_model::draw_page(int qi, int d, int f, const int *vv, int vc,
                                                 const int *fv, int fc,
                                                 const int *pv, int pc)
@@ -575,9 +791,10 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
 
     glActiveTexture(GL_TEXTURE0);
 }
+#endif
 
 //------------------------------------------------------------------------------
-
+#if 0
 void scm_model::dump_page(const double *M, double r0, double r1,
                           double ee, double ww, double nn, double ss, int j)
 {
@@ -586,10 +803,10 @@ void scm_model::dump_page(const double *M, double r0, double r1,
     double se[3], c[3], g[3];    // South-east corner
     double sw[3], d[3], h[3];    // South-west corner
 
-    scube(j, ee, nn, ne);
-    scube(j, ww, nn, nw);
-    scube(j, ee, ss, se);
-    scube(j, ww, ss, sw);
+    scm_vector(j, nn, ee, ne);
+    scm_vector(j, nn, ww, nw);
+    scm_vector(j, ss, ee, se);
+    scm_vector(j, ss, ww, sw);
 
     if (zoomk != 1)
     {
@@ -642,7 +859,7 @@ void scm_model::dump_page(const double *M, double r0, double r1,
     glVertex3dv(c); glVertex3dv(g);
     glVertex3dv(d); glVertex3dv(h);
 }
-
+#endif
 //------------------------------------------------------------------------------
 
 void scm_model::set_fade(double k)

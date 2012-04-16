@@ -15,6 +15,7 @@
 
 #include <GL/glew.h>
 #include <vector>
+#include <set>
 
 #include "scm-cache.hpp"
 
@@ -63,22 +64,26 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
-    struct page;
+    std::set<long long> totest;
+    std::set<long long> todraw;
 
-    page *qv;
-    int   qn;
-    int   qm;
+    bool istotest(long long i) const { return (totest.find(i) != totest.end()); }
+    bool istodraw(long long i) const { return (todraw.find(i) != todraw.end()); }
+    void set_page(long long i);
 
-    void   dump_page(const double *, double, double,
-                     double, double, double, double, int);
-    double view_page(const double *, double, double, int, int,
-                     double, double, double, double, int, int);
+    double view_page(const double *, int, int, double, double, long long);
+    void   dump_page(const double *,           double, double, long long);
 
-    void   prep_page(const double *, int, int, const int *, int,
-                                               const int *, int, int);
-    void   draw_page(           int, int, int, const int *, int,
-                                               const int *, int,
-                                               const int *, int);
+    double test_page(const double *, int, int, const int *, int, long long);
+
+    void    add_page(const double *, int, int,
+                        const int *, int, long long);
+    bool   prep_page(const double *, int, int,
+                        const int *, int,
+                        const int *, int, long long);
+    void   draw_page(   const int *, int,
+                        const int *, int,
+                        const int *, int, int, int, long long);
 
     // OpenGL programmable processing state
 

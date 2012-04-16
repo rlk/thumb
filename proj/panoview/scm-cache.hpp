@@ -48,11 +48,11 @@ public:
 
 struct scm_item
 {
-    scm_item()             : f(-1), i(-1) { }
-    scm_item(int f, int i) : f( f), i( i) { }
+    scm_item()                   : f(-1), i(-1) { }
+    scm_item(int f, long long i) : f( f), i( i) { }
 
-    int f;
-    int i;
+    int       f;
+    long long i;
 
     bool valid() const { return (f >= 0 && i >= 0); }
 
@@ -68,10 +68,10 @@ struct scm_item
 
 struct scm_page : public scm_item
 {
-    scm_page()                              : scm_item(    ), o(0), t(0) { }
-    scm_page(int f, int i)                  : scm_item(f, i), o(0), t(0) { }
-    scm_page(int f, int i, GLuint o)        : scm_item(f, i), o(o), t(0) { }
-    scm_page(int f, int i, GLuint o, int t) : scm_item(f, i), o(o), t(t) { }
+    scm_page()                                    : scm_item(    ), o(0), t(0) { }
+    scm_page(int f, long long i)                  : scm_item(f, i), o(0), t(0) { }
+    scm_page(int f, long long i, GLuint o)        : scm_item(f, i), o(o), t(0) { }
+    scm_page(int f, long long i, GLuint o, int t) : scm_item(f, i), o(o), t(t) { }
 
     GLuint o;
     int    t;
@@ -81,9 +81,9 @@ struct scm_page : public scm_item
 
 struct scm_task : public scm_item
 {
-    scm_task()             : scm_item(    ), u(0), d(false), p(0) { }
-    scm_task(int f, int i) : scm_item(i, f), u(0), d(false), p(0) { }
-    scm_task(int f, int i, uint64 o, GLuint u, GLsizei s);
+    scm_task()                   : scm_item(    ), u(0), d(false), p(0) { }
+    scm_task(int f, long long i) : scm_item(i, f), u(0), d(false), p(0) { }
+    scm_task(int f, long long i, uint64 o, GLuint u, GLsizei s);
 
     uint64 o;
     GLuint u;
@@ -112,7 +112,7 @@ public:
     void     insert(scm_page, int);
     void     remove(scm_page);
 
-    scm_page eject(int, int);
+    scm_page eject(int, long long);
     void     draw();
 
 private:
@@ -131,16 +131,16 @@ public:
     scm_cache(int);
    ~scm_cache();
 
-    int    add_file(const std::string&, float, float);
-    GLuint get_page(int, int, int, int&);
+    int    add_file(const std::string&, float, float, int);
+    GLuint get_page(int, long long, int, int&);
     GLuint get_fill() { return filler; }
     int    get_size() { return size;   }
 
     // TODO: Use friend to encapsulate this.
 
-    void page_bounds(int, const int *, int, float&, float&);
-    bool page_status(int, const int *, int,
-                          const int *, int);
+    void page_bounds(long long, const int *, int, float&, float&);
+    bool page_status(long long, const int *, int,
+                                const int *, int);
 
     void update(int);
     void flush();

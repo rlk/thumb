@@ -15,7 +15,7 @@
 #include <limits>
 
 #include "scm-cache.hpp"
-#include "cube.hpp"
+#include "scm-index.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -109,7 +109,7 @@ static GLenum external_type(uint16 c, uint16 b, uint16 g)
 
 // Construct a load task. Map the PBO to provide a destination for the loader.
 
-scm_task::scm_task(int f, int i, uint64 o, GLuint u, GLsizei s)
+scm_task::scm_task(int f, long long i, uint64 o, GLuint u, GLsizei s)
     : scm_item(f, i), o(o), u(u), d(false)
 {
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
@@ -249,7 +249,7 @@ scm_page scm_set::search(scm_page page, int t)
 // The general polity is LRU, but with considerations for time and priority
 // that help mitigate thrashing.
 
-scm_page scm_set::eject(int t, int i)
+scm_page scm_set::eject(int t, long long i)
 {
     assert(!m.empty());
 
@@ -437,11 +437,11 @@ static void debug_on(int l)
 
 // Append a string to the file list and return its index. Queue the roots.
 
-int scm_cache::add_file(const std::string& name, float r0, float r1)
+int scm_cache::add_file(const std::string& name, float r0, float r1, int dd)
 {
     int f = int(files.size());
 
-    files.push_back(new scm_file(name, r0, r1));
+    files.push_back(new scm_file(name, r0, r1, dd));
 
     return f;
 }
@@ -449,7 +449,7 @@ int scm_cache::add_file(const std::string& name, float r0, float r1)
 // Return the texture object associated with the requested page. Request the
 // image if necessary.
 
-GLuint scm_cache::get_page(int f, int i, int t, int& n)
+GLuint scm_cache::get_page(int f, long long i, int t, int& n)
 {
     // If this page is waiting, return the filler.
 
@@ -553,7 +553,7 @@ void scm_cache::draw()
 
 //------------------------------------------------------------------------------
 
-void scm_cache::page_bounds(int i, const int *vv, int vc, float& r0, float& r1)
+void scm_cache::page_bounds(long long i, const int *vv, int vc, float& r0, float& r1)
 {
     r0 =  std::numeric_limits<float>::max();
     r1 = -std::numeric_limits<float>::max();
@@ -563,22 +563,22 @@ void scm_cache::page_bounds(int i, const int *vv, int vc, float& r0, float& r1)
         float t0;
         float t1;
 
-        files[vv[vi]]->bounds(i, t0, t1);
+        files[vv[vi]]->bounds(uint64(i), t0, t1);
 
         r0 = std::min(r0, t0);
         r1 = std::max(r1, t1);
     }
 }
 
-bool scm_cache::page_status(int i, const int *vv, int vc,
-                                   const int *fv, int fc)
+bool scm_cache::page_status(long long i, const int *vv, int vc,
+                                         const int *fv, int fc)
 {
     for (int vi = 0; vi < vc; ++vi)
-        if (files[vv[vi]]->status(i))
+        if (files[vv[vi]]->status(uint64(i)))
             return true;
 
     for (int fi = 0; fi < fc; ++fi)
-        if (files[fv[fi]]->status(i))
+        if (files[fv[fi]]->status(uint64(i)))
             return true;
 
     return false;
@@ -595,38 +595,6 @@ GLsizei scm_cache::pagelen(int f)
 }
 
 //------------------------------------------------------------------------------
-
-static int up(TIFF *T, int i);
-static int dn(TIFF *T, int i);
-
-// Seek upward to the root of the page tree and choose the appropriate base
-// image. Navigate to the requested sub-image directory on the way back down.
-
-static int up(TIFF *T, int i)
-{
-    if (i < 6)
-        return TIFFSetDirectory(T, i);
-    else
-    {
-        if (up(T, face_parent(i)))
-            return dn(T, face_index(i));
-        else
-            return 0;
-    }
-}
-
-static int dn(TIFF *T, int i)
-{
-    uint64 *v;
-    uint16  n;
-
-    if (TIFFGetField(T, TIFFTAG_SUBIFD, &n, &v))
-    {
-        if (n > 0 && v[i] > 0)
-            return TIFFSetSubDirectory(T, v[i]);
-    }
-    return 0;
-}
 
 // Load textures. Remove a task from the cache's needed queue, open and read
 // the TIFF image file, and insert the task in the cache's loaded queue. Exit

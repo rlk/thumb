@@ -6,9 +6,9 @@ TARG= panoview
 PANOBJS= \
 	math3d.o \
 	glsl.o \
-	cube.o \
 	type.o \
 	scm-file.o \
+	scm-index.o \
 	scm-model.o \
 	scm-cache.o \
 	scm-label.o \
@@ -19,9 +19,9 @@ PANOBJS= \
 ORBOBJS= \
 	math3d.o \
 	glsl.o \
-	cube.o \
 	type.o \
 	scm-file.o \
+	scm-index.o \
 	scm-model.o \
 	scm-cache.o \
 	scm-label.o \
@@ -46,15 +46,18 @@ LIBS    = $(shell $(SDLCONF) --libs) \
 
 #------------------------------------------------------------------------------
 
-all : panoview orbiter
+all : panoview orbiter test
 
-panoview : $(PANOBJS)
+panoview: $(PANOBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
 
-orbiter : $(ORBOBJS)
+orbiter: $(ORBOBJS)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
 
-clean :
+test: test.o
+	$(CC) $(CFLAGS) -o $@ $^
+
+clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview
 	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
 

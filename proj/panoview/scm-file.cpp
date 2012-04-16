@@ -13,8 +13,8 @@
 #include <cstdlib>
 #include <sstream>
 
+#include "scm-index.hpp"
 #include "scm-file.hpp"
-#include "cube.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -45,8 +45,8 @@ static int catcmp(const void *p, const void *q)
 
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
-scm_file::scm_file(const std::string& tiff, float n0, float n1)
-	: n0(n0), n1(n1), catc(0), catv(0), minv(0), maxv(0)
+scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
+	: n0(n0), n1(n1), dd(dd), catc(0), catv(0), minv(0), maxv(0)
 {
     // If the given file name is absolute, use it.
 
@@ -120,13 +120,20 @@ scm_file::~scm_file()
 
 //------------------------------------------------------------------------------
 
-// Determine whether page i is given by this file.
+// Determine whether page i is given by this file. Push the page reference up
+// the tree as dictated by the overdraw parameter. This allows a shallow but
+// high-res vertex data set to be applied to a deep but low-res mesh.
 
 bool scm_file::status(uint64 i) const
 {
     void *p;
 
-    if (catc && (p = bsearch(&i, catv, catc, 2 * sizeof (uint64), catcmp)))
+    long long j = i;
+
+    for (int o = 0; o < dd; ++o)
+    	if (j > 5) j = scm_page_parent(j);
+
+    if (catc && (p = bsearch(&j, catv, catc, 2 * sizeof (uint64), catcmp)))
         return true;
     else
         return false;
@@ -195,7 +202,7 @@ void scm_file::bounds(uint64 i, float& r0, float& r1) const
 
                 break;
             }
-            else i = face_parent(i);
+            else i = scm_page_parent(i);
 
     r0 = n0 + r0 * (n1 - n0);
     r1 = n0 + r1 * (n1 - n0);

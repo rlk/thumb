@@ -22,7 +22,7 @@ struct scm_file
 {
 public:
 
-    scm_file(const std::string& name, float, float);
+    scm_file(const std::string& name, float, float, int);
    ~scm_file();
 
     bool   status(uint64)                 const;
@@ -45,6 +45,7 @@ private:
 
     float n0;
     float n1;
+    int   dd;
 
     uint32 w;
     uint32 h;

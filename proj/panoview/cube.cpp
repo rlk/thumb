@@ -11,7 +11,7 @@
 //  General Public License for more details.
 
 #include "cube.hpp"
-
+#if 0
 //-----------------------------------------------------------------------------
 
 const double cube_v[8][3] = {
@@ -175,3 +175,4 @@ void face_neighbors(long long p, long long& u, long long& d, long long& r, long 
 }
 
 //------------------------------------------------------------------------------
+#endif

@@ -15,10 +15,10 @@
 
 //-----------------------------------------------------------------------------
 
-long long log2(long long n);
+// long long log2(long long n);
 
 //-----------------------------------------------------------------------------
-
+#if 0
 extern const double cube_v[8][3];
 extern const int    cube_i[6][4];
 
@@ -32,7 +32,7 @@ long long face_level (long long);
 long long face_root  (long long);
 
 void face_neighbors(long long, long long&, long long&, long long&, long long&);
-
+#endif
 //-----------------------------------------------------------------------------
 
 #endif
