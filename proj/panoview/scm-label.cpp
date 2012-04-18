@@ -213,7 +213,7 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
         M.scale    (d);
         circle C(M);
 
-        M.scale(0.001 * clamp(d, 0.005, 0.5) / d);
+        M.scale(0.001 * clamp(d, 0.0005, 0.5) / d);
         M.translate(-len / 2.0, 0.0, 0.0);
 
         strv.push_back(labels[i].str);

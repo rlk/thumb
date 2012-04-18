@@ -560,18 +560,26 @@ void scm_cache::draw()
 
 void scm_cache::page_bounds(long long i, const int *vv, int vc, float& s0, float& s1)
 {
-    s0 =  std::numeric_limits<float>::max();
-    s1 = -std::numeric_limits<float>::max();
-
-    for (int vi = 0; vi < vc; ++vi)
+    if (vc > 0)
     {
-        float t0;
-        float t1;
+        s0 =  std::numeric_limits<float>::max();
+        s1 = -std::numeric_limits<float>::max();
 
-        files[vv[vi]]->bounds(uint64(i), t0, t1);
+        for (int vi = 0; vi < vc; ++vi)
+        {
+            float t0;
+            float t1;
 
-        s0 = std::min(s0, t0);
-        s1 = std::max(s1, t1);
+            files[vv[vi]]->bounds(uint64(i), t0, t1);
+
+            s0 = std::min(s0, t0);
+            s1 = std::max(s1, t1);
+        }
+    }
+    else
+    {
+        s0 = 1.0;
+        s1 = 1.0;
     }
 }
 

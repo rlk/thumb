@@ -3,13 +3,14 @@ Todo:
 
 	Pages fade in, but do they pop away?
 
+	Should model::tick call cache::update?
+
 	NAC overlay
 
 	WAC GLOBAL starts to look a little low res
 		Cubic interpolation?
+			Store derivatives or other higher-order data along side grayscale?
 		Have a detail texture fade in
-
-	Normalized height values need an unsigned override option.
 
 	The GLD seam at +/- 60 is still subtly visible. Mix in some LDEM.
 

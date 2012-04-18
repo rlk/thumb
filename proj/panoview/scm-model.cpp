@@ -85,8 +85,6 @@ scm_model::scm_model(scm_cache& cache,
 
 scm_model::~scm_model()
 {
-    // free(qv);
-
     free_arrays();
     free_program();
 }
@@ -366,7 +364,7 @@ void scm_model::draw_page(const int *vv, int vc,
     {
         glActiveTexture(GL_TEXTURE0 + d * T + t);
         glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
-        glUniform1f(u_v_age[d], age(then));
+        glUniform1f(u_v_age[d], 1.0f); // age(then)); // HACK
         glUniform1i(u_v_img[d], d * T + t);
     }
 
@@ -471,6 +469,17 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
     glEnable(GL_COLOR_MATERIAL);
 
     prep(P, V, w, h, vv, vc, fv, fc);
+
+    GLuint o;
+    int then;
+
+    for (long long f = 0; f < 6; ++f)
+    {
+        for (int vi = 0; vi < vc; ++vi)
+            o = cache.get_page(vv[vi], f, time, then);
+        for (int fi = 0; fi < fc; ++fi)
+            o = cache.get_page(fv[fi], f, time, then);
+    }
 
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
     glEnableClientState(GL_VERTEX_ARRAY);

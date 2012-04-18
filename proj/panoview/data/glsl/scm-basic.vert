@@ -2,8 +2,8 @@ varying vec4 V;
 
 uniform int  level;
 uniform mat3 faceM;
-uniform vec2 tex_a[8];
-uniform vec2 tex_d[8];
+uniform vec2 tex_a[64];
+uniform vec2 tex_d[64];
 
 
 //------------------------------------------------------------------------------

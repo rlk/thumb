@@ -5,5 +5,8 @@
     <frame>
       <scm shader="vert" r0="0.994728" r1="1.0062" overdraw="3" file="DTM-426-6.tif" />
       <scm shader="frag"                                        file="WAC-426-6.tif" />
+<!--
+      <scm shader="frag"                                        file="DTM-426-6-N.tif" />
+-->
     </frame>
   </sphere>

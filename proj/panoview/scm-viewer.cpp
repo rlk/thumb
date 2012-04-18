@@ -104,7 +104,7 @@ void scm_viewer::load(const std::string& name)
 
         // Create the new cache and model.
 
-        cache = new scm_cache(::conf->get_i("scm_viewer_cache_size", 128));
+        cache = new scm_cache(::conf->get_i("scm_viewer_cache_size", 256));
         model = new scm_model(*cache, vert_src, frag_src, n, s);
 
         // Register all frames with the cache.
