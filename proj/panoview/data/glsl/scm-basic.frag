@@ -1,6 +1,6 @@
 
-uniform vec2      tex_a[64];
-uniform vec2      tex_d[64];
+uniform vec2      tex_m[64];
+uniform vec2      tex_b[64];
 uniform sampler2D f_img[64];
 uniform float     f_age[64];
 
@@ -8,49 +8,49 @@ uniform float     f_age[64];
 
 vec4 img0(vec2 t)
 {
-    vec4 c = texture2D(f_img[0], t);
-    return c;
+    vec4 c = texture2D(f_img[0], tex_m[0] * t + tex_b[0]);
+    return vec4(c.rgb, c.a * f_age[0]);
 }
 
 vec4 img1(vec2 t)
 {
-    vec4 c = texture2D(f_img[1], (t - tex_a[1]) / (tex_d[1] - tex_a[1]));
+    vec4 c = texture2D(f_img[1], tex_m[1] * t + tex_b[1]);
     return vec4(c.rgb, c.a * f_age[1]);
 }
 
 vec4 img2(vec2 t)
 {
-    vec4 c = texture2D(f_img[2], (t - tex_a[2]) / (tex_d[2] - tex_a[2]));
+    vec4 c = texture2D(f_img[2], tex_m[2] * t + tex_b[2]);
     return vec4(c.rgb, c.a * f_age[2]);
 }
 
 vec4 img3(vec2 t)
 {
-    vec4 c = texture2D(f_img[3], (t - tex_a[3]) / (tex_d[3] - tex_a[3]));
+    vec4 c = texture2D(f_img[3], tex_m[3] * t + tex_b[3]);
     return vec4(c.rgb, c.a * f_age[3]);
 }
 
 vec4 img4(vec2 t)
 {
-    vec4 c = texture2D(f_img[4], (t - tex_a[4]) / (tex_d[4] - tex_a[4]));
+    vec4 c = texture2D(f_img[4], tex_m[4] * t + tex_b[4]);
     return vec4(c.rgb, c.a * f_age[4]);
 }
 
 vec4 img5(vec2 t)
 {
-    vec4 c = texture2D(f_img[5], (t - tex_a[5]) / (tex_d[5] - tex_a[5]));
+    vec4 c = texture2D(f_img[5], tex_m[5] * t + tex_b[5]);
     return vec4(c.rgb, c.a * f_age[5]);
 }
 
 vec4 img6(vec2 t)
 {
-    vec4 c = texture2D(f_img[6], (t - tex_a[6]) / (tex_d[6] - tex_a[6]));
+    vec4 c = texture2D(f_img[6], tex_m[6] * t + tex_b[6]);
     return vec4(c.rgb, c.a * f_age[6]);
 }
 
 vec4 img7(vec2 t)
 {
-    vec4 c = texture2D(f_img[7], (t - tex_a[7]) / (tex_d[7] - tex_a[7]));
+    vec4 c = texture2D(f_img[7], tex_m[7] * t + tex_b[7]);
     return vec4(c.rgb, c.a * f_age[7]);
 }
 

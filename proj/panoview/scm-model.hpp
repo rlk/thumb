@@ -95,14 +95,15 @@ private:
     GLuint vert_shader;
     GLuint frag_shader;
 
-    std::vector<GLuint> u_tex_a;
-    std::vector<GLuint> u_tex_d;
+    std::vector<GLuint> u_tex_m;
+    std::vector<GLuint> u_tex_b;
     std::vector<GLuint> u_v_age;
     std::vector<GLuint> u_f_age;
     std::vector<GLuint> u_v_img;
     std::vector<GLuint> u_f_img;
 
-    GLuint u_level;
+    GLuint u_rm;
+    GLuint u_rb;
     GLuint u_fader;
     GLuint u_zoomk;
     GLuint u_zoomv;

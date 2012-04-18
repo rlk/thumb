@@ -382,15 +382,6 @@ void scm_model::draw_page(const int *vv, int vc,
         glUniform1i(u_f_img[d], d * T + t);
     }
 
-    // Set the texture coordinate uniforms.
-
-    long long r = scm_page_row(i);
-    long long c = scm_page_col(i);
-    long long n = 1LL << d;
-
-    glUniform2f(u_tex_a[d], GLfloat(c    ) / n, GLfloat(r    ) / n);
-    glUniform2f(u_tex_d[d], GLfloat(c + 1) / n, GLfloat(r + 1) / n);
-
     // Won't someone please think of the children?
 
     long long i0 = scm_page_child(i, 0);
@@ -414,6 +405,26 @@ void scm_model::draw_page(const int *vv, int vc,
     }
     else
     {
+        // Set the texture coordinate uniforms.
+
+        long long r = scm_page_row(i);
+        long long c = scm_page_col(i);
+        long long R = r;
+        long long C = c;
+
+        for (int l = d; l >= 0; --l)
+        {
+            GLfloat m = 1.0f / (1 << (d - l));
+            GLfloat x = m * c - C;
+            GLfloat y = m * r - R;
+
+            glUniform2f(u_tex_m[l], m, m);
+            glUniform2f(u_tex_b[l], x, y);
+
+            C /= 2;
+            R /= 2;
+        }
+
         // Draw this page. Select a mesh that matches up with the neighbors.
 
         int j = (i < 6) ? 0 : (is_set(scm_page_north(i)) ? 0 : 1)
@@ -421,7 +432,6 @@ void scm_model::draw_page(const int *vv, int vc,
                             | (is_set(scm_page_west (i)) ? 0 : 4)
                             | (is_set(scm_page_east (i)) ? 0 : 8);
 
-        glUniform1i(u_level, d);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
         glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
     }
@@ -447,6 +457,8 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
 
     pages.clear();
 
+    // Determine the set of visible pages.
+
     if (debug)
     {
         glUseProgram(0);
@@ -464,6 +476,8 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
     {
         glEnd();
     }
+
+    // Pre-cache all visible pages in breadth-first order.
 
     std::set<long long>::iterator i;
 
@@ -507,6 +521,9 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
             {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
             { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
         };
+
+        glUniform1f(u_rm, GLfloat(cache.get_r1() - cache.get_r0()));
+        glUniform1f(u_rb, GLfloat(                 cache.get_r0()));
 
         glUniform1f(u_zoomk, GLfloat(zoomk));
         glUniform3f(u_zoomv, GLfloat(zoomv[0]),
@@ -580,7 +597,8 @@ void scm_model::init_program(const char *vert_src,
 
         glUseProgram(program);
 
-        u_level = glGetUniformLocation(program, "level");
+        u_rm    = glGetUniformLocation(program, "rm");
+        u_rb    = glGetUniformLocation(program, "rb");
         u_fader = glGetUniformLocation(program, "fader");
         u_zoomk = glGetUniformLocation(program, "zoomk");
         u_zoomv = glGetUniformLocation(program, "zoomv");
@@ -588,8 +606,8 @@ void scm_model::init_program(const char *vert_src,
 
         for (int d = 0; d < max_texture_image_units; ++d)
         {
-            u_tex_a.push_back(glGetUniformLocationv(program, "tex_a[%d]", d));
-            u_tex_d.push_back(glGetUniformLocationv(program, "tex_d[%d]", d));
+            u_tex_m.push_back(glGetUniformLocationv(program, "tex_m[%d]", d));
+            u_tex_b.push_back(glGetUniformLocationv(program, "tex_b[%d]", d));
             u_v_age.push_back(glGetUniformLocationv(program, "v_age[%d]", d));
             u_f_age.push_back(glGetUniformLocationv(program, "f_age[%d]", d));
             u_v_img.push_back(glGetUniformLocationv(program, "v_img[%d]", d));

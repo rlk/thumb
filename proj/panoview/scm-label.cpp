@@ -263,7 +263,7 @@ void scm_label::draw(const double *p, double r, double a)
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
+        glColor4f(1.0f, 1.0f, 0.0f, 0.5f);
 
         glUseProgram(prog);
 

@@ -3,7 +3,7 @@
           vert="glsl/scm-displace.vert"
           frag="glsl/scm-basic16.frag">
     <frame>
-      <scm shader="vert" r0="0.994728" r1="1.0062" overdraw="4" file="DTM-426-6.tif"/>
+      <scm shader="vert" r0="0.994728" r1="1.0062" overdraw="3" file="DTM-426-6.tif"/>
       <scm shader="frag"                                        file="NAC_ROI_TychoCtrLoA-300-14.tif" />
     </frame>
   </sphere>
