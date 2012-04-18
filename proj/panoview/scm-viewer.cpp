@@ -42,7 +42,8 @@ scm_viewer::scm_viewer(const std::string& exe,
     debug_cache(false),
     debug_color(false),
     debug_label(false),
-    debug_wire (false)
+    debug_wire (false),
+    debug_bound(false)
 {
     TIFFSetWarningHandler(0);
     gui_init();
@@ -195,6 +196,8 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
     if (model)
     {
+        model->set_debug(debug_bound);
+
         // Compute the model view matrix to be used for view determination.
 
         double V[16];
@@ -303,6 +306,7 @@ bool scm_viewer::process_event(app::event *E)
                 case 283 : debug_cache = !debug_cache; return true;
                 case 284 : debug_label = !debug_label; return true;
                 case 285 : debug_wire  = !debug_wire;  return true;
+                case 286 : debug_bound = !debug_bound; return true;
                 case 8   : cache->flush();             return true;
             }
         }

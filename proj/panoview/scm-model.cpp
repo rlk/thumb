@@ -72,7 +72,8 @@ scm_model::scm_model(scm_cache& cache,
                      const char *frag, int n, int s) :
     cache(cache),
     time(1),
-    size(s)
+    size(s),
+    debug(false)
 {
     init_program(vert, frag);
     init_arrays(n);
@@ -224,10 +225,13 @@ double scm_model::view_page(const double *M, int vw, int vh,
         E[0] < -E[3] && F[0] < -F[3] && G[0] < -G[3] && H[0] < -H[3])
         return 0;
 
-    // glVertex3dv(e); glVertex3dv(f);
-    // glVertex3dv(g); glVertex3dv(h);
-    // glVertex3dv(e); glVertex3dv(g);
-    // glVertex3dv(f); glVertex3dv(h);
+    if (debug)
+    {
+        glVertex3dv(e); glVertex3dv(f);
+        glVertex3dv(g); glVertex3dv(h);
+        glVertex3dv(e); glVertex3dv(g);
+        glVertex3dv(f); glVertex3dv(h);
+    }
 
     // Compute the length of the longest visible edge, in pixels.
 
@@ -266,13 +270,13 @@ double scm_model::test_page(const double *M,  int w, int h,
 void scm_model::add_page(const double *M,  int w,  int h,
                             const int *vv, int vc, long long i)
 {
-    if (!istodraw(i))
+    if (!is_set(i))
     {
         double k = test_page(M, w, h, vv, vc, i);
 
         if (k > 0)
         {
-            todraw.insert(i);
+            pages.insert(i);
 
             if (i > 5)
             {
@@ -394,10 +398,10 @@ void scm_model::draw_page(const int *vv, int vc,
     long long i2 = scm_page_child(i, 2);
     long long i3 = scm_page_child(i, 3);
 
-    bool b0 = istodraw(i0);
-    bool b1 = istodraw(i1);
-    bool b2 = istodraw(i2);
-    bool b3 = istodraw(i3);
+    bool b0 = is_set(i0);
+    bool b1 = is_set(i1);
+    bool b2 = is_set(i2);
+    bool b3 = is_set(i3);
 
     if (b0 || b1 || b2 || b3)
     {
@@ -412,10 +416,10 @@ void scm_model::draw_page(const int *vv, int vc,
     {
         // Draw this page. Select a mesh that matches up with the neighbors.
 
-        int j = (i < 6) ? 0 : (istodraw(scm_page_north(i)) ? 0 : 1)
-                            | (istodraw(scm_page_south(i)) ? 0 : 2)
-                            | (istodraw(scm_page_west (i)) ? 0 : 4)
-                            | (istodraw(scm_page_east (i)) ? 0 : 8);
+        int j = (i < 6) ? 0 : (is_set(scm_page_north(i)) ? 0 : 1)
+                            | (is_set(scm_page_south(i)) ? 0 : 2)
+                            | (is_set(scm_page_west (i)) ? 0 : 4)
+                            | (is_set(scm_page_east (i)) ? 0 : 8);
 
         glUniform1i(u_level, d);
         glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
@@ -441,10 +445,13 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
 
     mmultiply(M, P, V);
 
-    todraw.clear();
+    pages.clear();
 
-    // glUseProgram(0);
-    // glBegin(GL_LINES);
+    if (debug)
+    {
+        glUseProgram(0);
+        glBegin(GL_LINES);
+    }
 
     prep_page(M, w, h, vv, vc, fv, fc, 0);
     prep_page(M, w, h, vv, vc, fv, fc, 1);
@@ -453,7 +460,23 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
     prep_page(M, w, h, vv, vc, fv, fc, 4);
     prep_page(M, w, h, vv, vc, fv, fc, 5);
 
-    // glEnd();
+    if (debug)
+    {
+        glEnd();
+    }
+
+    std::set<long long>::iterator i;
+
+    GLuint o;
+    int then;
+
+    for (i = pages.begin(); i != pages.end(); ++i)
+    {
+        for (int vi = 0; vi < vc; ++vi)
+            o = cache.get_page(vv[vi], *i, time, then);
+        for (int fi = 0; fi < fc; ++fi)
+            o = cache.get_page(fv[fi], *i, time, then);
+    }
 }
 
 void scm_model::draw(const double *P, const double *V, int w, int h,
@@ -469,17 +492,6 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
     glEnable(GL_COLOR_MATERIAL);
 
     prep(P, V, w, h, vv, vc, fv, fc);
-
-    GLuint o;
-    int then;
-
-    for (long long f = 0; f < 6; ++f)
-    {
-        for (int vi = 0; vi < vc; ++vi)
-            o = cache.get_page(vv[vi], f, time, then);
-        for (int fi = 0; fi < fc; ++fi)
-            o = cache.get_page(fv[fi], f, time, then);
-    }
 
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -501,32 +513,32 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
                              GLfloat(zoomv[1]),
                              GLfloat(zoomv[2]));
 
-        if (istodraw(0))
+        if (is_set(0))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[0]);
             draw_page(vv, vc, fv, fc, pv, pc, 0, 0, 0);
         }
-        if (istodraw(1))
+        if (is_set(1))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[1]);
             draw_page(vv, vc, fv, fc, pv, pc, 0, 1, 1);
         }
-        if (istodraw(2))
+        if (is_set(2))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[2]);
             draw_page(vv, vc, fv, fc, pv, pc, 0, 2, 2);
         }
-        if (istodraw(3))
+        if (is_set(3))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[3]);
             draw_page(vv, vc, fv, fc, pv, pc, 0, 3, 3);
         }
-        if (istodraw(4))
+        if (is_set(4))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[4]);
             draw_page(vv, vc, fv, fc, pv, pc, 0, 4, 4);
         }
-        if (istodraw(5))
+        if (is_set(5))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[5]);
             draw_page(vv, vc, fv, fc, pv, pc, 0, 5, 5);

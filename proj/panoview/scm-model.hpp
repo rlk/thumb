@@ -36,6 +36,7 @@ public:
                                                         const int *, int,
                                                         const int *, int);
 
+    void set_debug(bool b) { debug = b; }
     void set_fade(double k);
     void set_zoom(double x, double y, double z, double k)
     {
@@ -49,8 +50,9 @@ private:
 
     scm_cache& cache;
 
-    int time;
-    int size;
+    int  time;
+    int  size;
+    bool debug;
 
     GLfloat age(int);
 
@@ -63,11 +65,9 @@ private:
 
     // Data structures and algorithms for handling face adaptive subdivision.
 
-    std::set<long long> totest;
-    std::set<long long> todraw;
+    std::set<long long> pages;
 
-    bool istotest(long long i) const { return (totest.find(i) != totest.end()); }
-    bool istodraw(long long i) const { return (todraw.find(i) != todraw.end()); }
+    bool is_set(long long i) const { return (pages.find(i) != pages.end()); }
     void set_page(long long i);
 
     double view_page(const double *, int, int, double, double, long long);

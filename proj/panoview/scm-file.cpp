@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <cstdlib>
+#include <cstring>
 #include <sstream>
 
 #include "scm-index.hpp"

@@ -124,6 +124,7 @@ private:
     bool debug_color;
     bool debug_label;
     bool debug_wire;
+    bool debug_bound;
 
     // Label data
 
