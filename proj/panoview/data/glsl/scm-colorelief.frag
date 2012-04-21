@@ -1,3 +1,5 @@
+varying vec3 var_V;
+varying vec3 var_L;
 
 uniform vec2      f_mul[64];
 uniform vec2      f_add[64];
@@ -72,26 +74,18 @@ vec4 sample(vec2 t)
                                    blend(img1(t), img0(t))))))));
 }
 
-
 //------------------------------------------------------------------------------
-
-float peak(float k, float c)
-{
-    return max(0.0, 1.0 - abs(k - c) * 5.0);
-}
-
-vec4 colormap(float k)
-{
-    return peak(k, 0.0) * vec4(1.0, 0.0, 1.0, 1.0) +
-           peak(k, 0.2) * vec4(0.0, 0.0, 1.0, 1.0) +
-           peak(k, 0.4) * vec4(0.0, 1.0, 1.0, 1.0) +
-           peak(k, 0.6) * vec4(1.0, 1.0, 0.0, 1.0) +
-           peak(k, 0.8) * vec4(1.0, 0.0, 0.0, 1.0) +
-           peak(k, 1.0) * vec4(1.0, 1.0, 1.0, 1.0);
-}
 
 void main()
 {
-    float k = sample(gl_TexCoord[0].xy).r;
-    gl_FragColor = colormap(k);
+    vec3 V = normalize(var_V);
+    vec3 L = normalize(var_L);
+
+    vec3 N = normalize(sample(gl_TexCoord[0].xy).rgb * 2.0 - 1.0);
+
+    float nl = max(0.0, dot(N, L));
+    float nv = max(0.0, dot(N, V));
+    float kd = 2.0 * nl / (nl + nv);
+
+    gl_FragColor = vec4(gl_Color.rgb * kd, 1.0);
 }

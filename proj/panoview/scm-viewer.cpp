@@ -298,17 +298,35 @@ bool scm_viewer::process_event(app::event *E)
 
     if (E->get_type() == E_KEY)
     {
-        if (E->data.key.d)
+        const int d = E->data.key.d;
+        const int k = E->data.key.k;
+        const int c = E->data.key.m & KMOD_CTRL;
+        const int s = E->data.key.m & KMOD_SHIFT;
+
+        if (d)
         {
-            switch (E->data.key.k)
-            {
-                case 282 : gui_state   = !gui_state;   return true;
-                case 283 : debug_cache = !debug_cache; return true;
-                case 284 : debug_label = !debug_label; return true;
-                case 285 : debug_wire  = !debug_wire;  return true;
-                case 286 : debug_bound = !debug_bound; return true;
-                case 8   : cache->flush();             return true;
-            }
+            if (!c && !s)
+                switch (k)
+                {
+                    case 282 : gui_state   = !gui_state;   return true;
+                    case 283 : debug_cache = !debug_cache; return true;
+                    case 284 : debug_label = !debug_label; return true;
+                    case 285 : debug_wire  = !debug_wire;  return true;
+                    case 286 : debug_bound = !debug_bound; return true;
+                    case 8   : cache->flush();             return true;
+                }
+
+            if (!s)
+                switch (k)
+                {
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    if (c)
+                        model->set_n1(double(k - '0') / 9);
+                    else
+                        model->set_n0(double(k - '0') / 9);
+                    return true;
+                }
         }
     }
 

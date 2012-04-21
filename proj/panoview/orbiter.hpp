@@ -43,20 +43,41 @@ private:
     void tick_dive (double);
     void tick_light(double);
 
-    double orbit_plane[3];
-    double orbit_speed;
-    double position[3];
-    double altitude;
-    double view_x[3];
-    double view_y[3];
-    double light[3];
+    struct state
+    {
+        double orbit_plane[3];
+        double orbit_speed;
+        double position[3];
+        double altitude;
+        double view_x[3];
+        double view_y[3];
+        double light[3];
 
-    double point_v[3];
-    double click_v[3];
+        state();
+
+        double scale(double);
+
+        void move(const double *, const double *, double, double);
+        void look(const double *, const double *, double, double);
+        void dive(const double *, const double *, double, double);
+        void lite(const double *, const double *, double, double);
+
+        void update(double, double *);
+    };
+
+    void loadstate();
+    void savestate();
+
+    state  current;
+    state  saved[11];
+
+    double point[3];
+    double click[3];
+    bool   control;
     bool   drag_move;
     bool   drag_look;
     bool   drag_dive;
-    bool   drag_light;
+    bool   drag_lite;
 
     bool pan_point(app::event *);
     bool pan_click(app::event *);

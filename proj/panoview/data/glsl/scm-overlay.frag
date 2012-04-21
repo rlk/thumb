@@ -104,6 +104,102 @@ vec4 img15(vec2 t)
     return vec4(c.rgb, c.a * f_age[15]);
 }
 
+vec4 img16(vec2 t)
+{
+    vec4 c = texture2D(f_img[16], f_mul[16] * t + f_add[16]);
+    return vec4(c.rgb, c.a * f_age[16]);
+}
+
+vec4 img17(vec2 t)
+{
+    vec4 c = texture2D(f_img[17], f_mul[17] * t + f_add[17]);
+    return vec4(c.rgb, c.a * f_age[17]);
+}
+
+vec4 img18(vec2 t)
+{
+    vec4 c = texture2D(f_img[18], f_mul[18] * t + f_add[18]);
+    return vec4(c.rgb, c.a * f_age[18]);
+}
+
+vec4 img19(vec2 t)
+{
+    vec4 c = texture2D(f_img[19], f_mul[19] * t + f_add[19]);
+    return vec4(c.rgb, c.a * f_age[19]);
+}
+
+vec4 img20(vec2 t)
+{
+    vec4 c = texture2D(f_img[20], f_mul[20] * t + f_add[20]);
+    return vec4(c.rgb, c.a * f_age[20]);
+}
+
+vec4 img21(vec2 t)
+{
+    vec4 c = texture2D(f_img[21], f_mul[21] * t + f_add[21]);
+    return vec4(c.rgb, c.a * f_age[21]);
+}
+
+vec4 img22(vec2 t)
+{
+    vec4 c = texture2D(f_img[22], f_mul[22] * t + f_add[22]);
+    return vec4(c.rgb, c.a * f_age[22]);
+}
+
+vec4 img23(vec2 t)
+{
+    vec4 c = texture2D(f_img[23], f_mul[23] * t + f_add[23]);
+    return vec4(c.rgb, c.a * f_age[23]);
+}
+
+vec4 img24(vec2 t)
+{
+    vec4 c = texture2D(f_img[24], f_mul[24] * t + f_add[24]);
+    return vec4(c.rgb, c.a * f_age[24]);
+}
+
+vec4 img25(vec2 t)
+{
+    vec4 c = texture2D(f_img[25], f_mul[25] * t + f_add[25]);
+    return vec4(c.rgb, c.a * f_age[25]);
+}
+
+vec4 img26(vec2 t)
+{
+    vec4 c = texture2D(f_img[26], f_mul[26] * t + f_add[26]);
+    return vec4(c.rgb, c.a * f_age[26]);
+}
+
+vec4 img27(vec2 t)
+{
+    vec4 c = texture2D(f_img[27], f_mul[27] * t + f_add[27]);
+    return vec4(c.rgb, c.a * f_age[27]);
+}
+
+vec4 img28(vec2 t)
+{
+    vec4 c = texture2D(f_img[28], f_mul[28] * t + f_add[28]);
+    return vec4(c.rgb, c.a * f_age[28]);
+}
+
+vec4 img29(vec2 t)
+{
+    vec4 c = texture2D(f_img[29], f_mul[29] * t + f_add[29]);
+    return vec4(c.rgb, c.a * f_age[29]);
+}
+
+vec4 img30(vec2 t)
+{
+    vec4 c = texture2D(f_img[30], f_mul[30] * t + f_add[30]);
+    return vec4(c.rgb, c.a * f_age[30]);
+}
+
+vec4 img31(vec2 t)
+{
+    vec4 c = texture2D(f_img[31], f_mul[31] * t + f_add[31]);
+    return vec4(c.rgb, c.a * f_age[31]);
+}
+
 //------------------------------------------------------------------------------
 
 vec4 blend(vec4 a, vec4 b)
@@ -111,24 +207,45 @@ vec4 blend(vec4 a, vec4 b)
     return vec4(mix(b.rgb, a.rgb, a.a), 1.0);
 }
 
-vec4 sample(vec2 t)
+vec4 sampleE(vec2 t)
 {
     vec4 c =  img0 (t);
-    c = blend(img1 (t), c);
     c = blend(img2 (t), c);
-    c = blend(img3 (t), c);
     c = blend(img4 (t), c);
-    c = blend(img5 (t), c);
     c = blend(img6 (t), c);
-    c = blend(img7 (t), c);
     c = blend(img8 (t), c);
-    c = blend(img9 (t), c);
     c = blend(img10(t), c);
-    c = blend(img11(t), c);
     c = blend(img12(t), c);
-    c = blend(img13(t), c);
     c = blend(img14(t), c);
+    c = blend(img16(t), c);
+    c = blend(img18(t), c);
+    c = blend(img20(t), c);
+    c = blend(img22(t), c);
+    c = blend(img24(t), c);
+    c = blend(img26(t), c);
+    c = blend(img28(t), c);
+    c = blend(img30(t), c);
+    return c;
+}
+
+vec4 sampleO(vec2 t)
+{
+    vec4 c =  img1 (t);
+    c = blend(img3 (t), c);
+    c = blend(img5 (t), c);
+    c = blend(img7 (t), c);
+    c = blend(img9 (t), c);
+    c = blend(img11(t), c);
+    c = blend(img13(t), c);
     c = blend(img15(t), c);
+    c = blend(img17(t), c);
+    c = blend(img19(t), c);
+    c = blend(img21(t), c);
+    c = blend(img23(t), c);
+    c = blend(img25(t), c);
+    c = blend(img27(t), c);
+    c = blend(img29(t), c);
+    c = blend(img31(t), c);
     return c;
 }
 
@@ -152,6 +269,14 @@ vec4 colormap(float k)
 
 void main()
 {
-    vec3 c = sample(gl_TexCoord[0].xy).rgb;
-    gl_FragColor = vec4((c - vec3(n0)) / (n1 - n0), 1.0);
+    vec3 a = sampleE(gl_TexCoord[0].xy).rgb;
+    vec3 b = sampleO(gl_TexCoord[0].xy).rgb;
+    vec3 c;
+
+    if (b.r > 0.0)
+        c = b;
+    else
+        c = a;
+
+    gl_FragColor = vec4((c - n0) / (n1 - n0), 1.0);
 }

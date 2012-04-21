@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+  <sphere mesh="32" radius="1.0" size="426"
+          vert="glsl/scm-displace.vert"
+          frag="glsl/scm-basic.frag">
+    <frame>
+      <scm file="DTM-426-6.tif" channel="0" shader="vert" r0="0.994728" r1="1.0062" overdraw="3" />
+      <scm file="LDEM-360-8.tif" channel="1" shader="vert" r0="0.994728" r1="1.0062" overdraw="3" />
+      <scm file="DTM-426-6-N.tif" channel="0" shader="frag"/>
+      <scm file="LDEM-360-8-N.tif" channel="1" shader="frag"/>
+    </frame>
+  </sphere>

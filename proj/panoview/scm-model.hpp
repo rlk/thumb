@@ -36,6 +36,9 @@ public:
                                                         const int *, int,
                                                         const int *, int);
 
+    void set_n0(double k) { n0 = k; }
+    void set_n1(double k) { n1 = k; }
+
     void set_debug(bool b) { debug = b; }
     void set_fade(double k);
     void set_zoom(double x, double y, double z, double k)
@@ -50,9 +53,11 @@ private:
 
     scm_cache& cache;
 
-    int  time;
-    int  size;
-    bool debug;
+    int    time;
+    int    size;
+    bool   debug;
+    double n0;
+    double n1;
 
     GLfloat age(int);
 
@@ -95,8 +100,10 @@ private:
     GLuint vert_shader;
     GLuint frag_shader;
 
-    std::vector<GLuint> u_tex_m;
-    std::vector<GLuint> u_tex_b;
+    std::vector<GLuint> u_v_mul;
+    std::vector<GLuint> u_f_mul;
+    std::vector<GLuint> u_v_add;
+    std::vector<GLuint> u_f_add;
     std::vector<GLuint> u_v_age;
     std::vector<GLuint> u_f_age;
     std::vector<GLuint> u_v_img;
@@ -104,6 +111,8 @@ private:
 
     GLuint u_rm;
     GLuint u_rb;
+    GLuint u_n0;
+    GLuint u_n1;
     GLuint u_fader;
     GLuint u_zoomk;
     GLuint u_zoomv;

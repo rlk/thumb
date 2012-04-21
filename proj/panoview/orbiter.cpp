@@ -32,6 +32,20 @@
 orbiter::orbiter(const std::string& exe,
                  const std::string& tag) : scm_viewer(exe, tag)
 {
+    drag_move = false;
+    drag_look = false;
+    drag_dive = false;
+    drag_lite = false;
+}
+
+orbiter::~orbiter()
+{
+}
+
+//------------------------------------------------------------------------------
+
+orbiter::state::state()
+{
     orbit_plane[0] = 0.0;
     orbit_plane[1] = 1.0;
     orbit_plane[2] = 0.0;
@@ -40,7 +54,7 @@ orbiter::orbiter(const std::string& exe,
     position[0]    = 0.0;
     position[1]    = 0.0;
     position[2]    = 1.0;
-    altitude       = 3.0 * get_radius();
+    altitude       = 3.0;
 
     view_x[0]      = 1.0;
     view_x[1]      = 0.0;
@@ -53,27 +67,22 @@ orbiter::orbiter(const std::string& exe,
     light[0]       = sqrt(3.0);
     light[1]       = sqrt(3.0);
     light[2]       = sqrt(3.0);
-
-    drag_move  = false;
-    drag_look  = false;
-    drag_dive  = false;
-    drag_light = false;
 }
 
-orbiter::~orbiter()
+double orbiter::state::scale(double radius)
 {
+    return std::max((altitude - radius) / radius, 0.001);
 }
-
-//------------------------------------------------------------------------------
 
 // Apply the view panning interaction.
 
-void orbiter::tick_look(double dt)
+void orbiter::state::look(const double *point,
+                          const double *click, double dt, double scale)
 {
     const double *M = ::user->get_M();
 
-    double dx = point_v[0] - click_v[0];
-    double dy = point_v[1] - click_v[1];
+    double dx = point[0] - click[0];
+    double dy = point[1] - click[1];
 
     double X[16];
     double Y[16];
@@ -93,29 +102,28 @@ void orbiter::tick_look(double dt)
 
 // Apply the orbital motion interaction.
 
-void orbiter::tick_move(double dt)
+void orbiter::state::move(const double *point,
+                          const double *click, double dt, double scale)
 {
-    if (click_v[0] != point_v[0] ||
-        click_v[1] != point_v[1] ||
-        click_v[2] != point_v[2])
+    if (click[0] != point[0] ||
+        click[1] != point[1] ||
+        click[2] != point[2])
     {
-        double h = std::max((altitude - get_radius()) / get_radius(), 0.01);
-
-        double d = vdot(click_v, point_v);
+        double d = vdot(click, point);
         double a = acos(d);
 
-        if (fabs(a) > 0.00)
+        if (fabs(a) > 0.0)
         {
             const double *M = ::user->get_M();
             double t[3];
             double u[3];
 
-            vcrs(t, click_v, point_v);
+            vcrs(t, click, point);
 
             vtransform(u, M, t);
             vnormalize(orbit_plane, u);
         }
-        orbit_speed = 10.0 * a * h;
+        orbit_speed = 10.0 * a * scale;
     }
     else
     {
@@ -125,21 +133,19 @@ void orbiter::tick_move(double dt)
 
 // Apply the altitude change interaction.
 
-void orbiter::tick_dive(double dt)
+void orbiter::state::dive(const double *point,
+                          const double *click, double dt, double scale)
 {
-    if (model)
-    {
-        double a = altitude - get_radius() * cache->get_r0();
-        altitude += 10.0 * a * (point_v[1] - click_v[1]) * dt;
-    }
+    altitude += 5.0 * scale * (point[1] - click[1]) * dt;
 }
 
 // Apply the light position interaction.
 
-void orbiter::tick_light(double dt)
+void orbiter::state::lite(const double *point,
+                          const double *click, double dt, double scale)
 {
-    double dx = point_v[0] - click_v[0];
-    double dy = point_v[1] - click_v[1];
+    double dx = point[0] - click[0];
+    double dy = point[1] - click[1];
 
     double X[16];
     double Y[16];
@@ -154,6 +160,74 @@ void orbiter::tick_light(double dt)
     vnormalize(light, t);
 }
 
+void orbiter::state::update(double dt, double *M)
+{
+    // Move the position and view orientation along the current orbit.
+
+    double Y[3] = { 0.0, 1.0, 0.0 };
+    double t[3];
+
+    double R[16];
+    double T[16];
+
+    mrotate(M, orbit_plane, orbit_speed * dt);
+    mrotate(T, Y, 0.0); // Turn the planet.
+    mmultiply(R, M, T);
+
+    vtransform(t, R, view_x);
+    vnormalize(view_x, t);
+
+    vtransform(t, R, view_y);
+    vnormalize(view_y, t);
+
+    vtransform(t, R, light);
+    vnormalize(light, t);
+
+    vtransform(t, R, position);
+    vnormalize(position, t);
+
+    // Orthonormalize the view orientation basis.
+
+    double view_z[3];
+
+    vcrs(view_z, view_x, view_y);
+    vcrs(view_y, view_z, view_x);
+
+    mbasis(M, view_x, view_y, view_z);
+
+    // Update the user transform.
+
+    M[12] = position[0] * altitude;
+    M[13] = position[1] * altitude;
+    M[14] = position[2] * altitude;
+}
+
+//------------------------------------------------------------------------------
+
+#define FILENAME "orbiter.dat"
+
+void orbiter::loadstate()
+{
+    FILE *stream;
+
+    if ((stream = fopen(FILENAME, "r")))
+    {
+        fread(saved, sizeof (saved), 1, stream);
+        fclose(stream);
+    }
+}
+
+void orbiter::savestate()
+{
+    FILE *stream;
+
+    if ((stream = fopen(FILENAME, "wb")))
+    {
+        fwrite(saved, sizeof (saved), 1, stream);
+        fclose(stream);
+    }
+}
+
 //------------------------------------------------------------------------------
 
 ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
@@ -163,8 +237,8 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
         cache->update(model->tick());
 
         double r = get_radius() * cache->get_r0();
-        double n = 0.01 * (altitude - r);
-        double f =    sqrt(altitude * altitude - r * r);
+        double n = 0.001 * (current.altitude - r);
+        double f =     sqrt(current.altitude * current.altitude - r * r);
 
         return ogl::range(n, f * 1.1);
     }
@@ -178,9 +252,9 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 
     GLfloat L[4];
 
-    L[0] = GLfloat(light[0]);
-    L[1] = GLfloat(light[1]);
-    L[2] = GLfloat(light[2]);
+    L[0] = GLfloat(current.light[0]);
+    L[1] = GLfloat(current.light[1]);
+    L[2] = GLfloat(current.light[2]);
     L[3] = 0.0f;
 
     glLoadIdentity();
@@ -217,9 +291,6 @@ bool orbiter::process_event(app::event *E)
 void orbiter::load(const std::string& name)
 {
     scm_viewer::load(name);
-
-    if (altitude < get_radius())
-        altitude = get_radius() * 3.0;
 }
 
 //------------------------------------------------------------------------------
@@ -232,9 +303,9 @@ bool orbiter::pan_point(app::event *E)
 
     quat_to_mat(M, E->data.point.q);
 
-    point_v[0] = -M[ 8];
-    point_v[1] = -M[ 9];
-    point_v[2] = -M[10];
+    point[0] = -M[ 8];
+    point[1] = -M[ 9];
+    point[2] = -M[10];
 
     return false;
 }
@@ -244,9 +315,11 @@ bool orbiter::pan_click(app::event *E)
     const int  b = E->data.click.b;
     const int  m = E->data.click.m;
     const bool d = E->data.click.d;
-    const bool s = (m & 1);
+    const bool s = (m & KMOD_SHIFT);
 
-    vcpy(click_v, point_v);
+    control = (m & KMOD_CTRL);
+
+    vcpy(click, point);
 
     if (d)
     {
@@ -260,15 +333,15 @@ bool orbiter::pan_click(app::event *E)
         if (b == 2)
         {
             if (s)
-                drag_light = true;
+                drag_lite = true;
             else
                 drag_dive = true;
         }
     }
     else
     {
-        if (b == 0) drag_look  = drag_move = false;
-        if (b == 2) drag_light = drag_dive = false;
+        if (b == 0) drag_look = drag_move = false;
+        if (b == 2) drag_lite = drag_dive = false;
     }
 
     return true;
@@ -276,52 +349,19 @@ bool orbiter::pan_click(app::event *E)
 
 bool orbiter::pan_tick(app::event *E)
 {
-    float dt = E->data.tick.dt / 1000.0;
+    double dt = E->data.tick.dt / 1000.0;
+    double sc  = current.scale(get_radius() * cache->get_r1());
 
     double M[16];
-    double t[3];
 
-    if (drag_move)  tick_move (dt);
-    if (drag_look)  tick_look (dt);
-    if (drag_dive)  tick_dive (dt);
-    if (drag_light) tick_light(dt);
+    if (control) sc *= 0.1;
 
-    // Move the position and view orientation along the current orbit.
+    if (drag_move) current.move(point, click, dt, sc);
+    if (drag_look) current.look(point, click, dt, sc);
+    if (drag_dive) current.dive(point, click, dt, sc);
+    if (drag_lite) current.lite(point, click, dt, sc);
 
-    double Y[3] = { 0.0, 1.0, 0.0 };
-    double R[16];
-    double T[16];
-
-    mrotate(M, orbit_plane, orbit_speed * dt);
-    mrotate(T, Y, 0.0); //0.001 * dt);
-    mmultiply(R, M, T);
-
-    vtransform(t, R, view_x);
-    vnormalize(view_x, t);
-
-    vtransform(t, R, view_y);
-    vnormalize(view_y, t);
-
-    vtransform(t, R, light);
-    vnormalize(light, t);
-
-    vtransform(t, R, position);
-    vnormalize(position, t);
-
-    // Orthonormalize the view orientation basis.
-
-    double view_z[3];
-
-    vcrs(view_z, view_x, view_y);
-    vcrs(view_y, view_z, view_x);
-
-    mbasis(M, view_x, view_y, view_z);
-
-    // Update the user transform.
-
-    M[12] = position[0] * altitude;
-    M[13] = position[1] * altitude;
-    M[14] = position[2] * altitude;
+    current.update(dt, M);
 
     ::user->set_M(M);
 
@@ -330,13 +370,51 @@ bool orbiter::pan_tick(app::event *E)
 
 bool orbiter::pan_key(app::event *E)
 {
-    if (E->data.key.d)
-        switch (E->data.key.k)
+    const int d = E->data.key.d;
+    const int k = E->data.key.k;
+    const int c = E->data.key.m & KMOD_CTRL;
+    const int s = E->data.key.m & KMOD_SHIFT;
+
+    if (d)
+    {
+        if (c)
+            switch (k)
+            {
+                case 282: loadstate(); current = saved[ 0]; return true;
+                case 283: loadstate(); current = saved[ 1]; return true;
+                case 284: loadstate(); current = saved[ 2]; return true;
+                case 285: loadstate(); current = saved[ 3]; return true;
+                case 286: loadstate(); current = saved[ 4]; return true;
+                case 287: loadstate(); current = saved[ 5]; return true;
+                case 288: loadstate(); current = saved[ 6]; return true;
+                case 289: loadstate(); current = saved[ 7]; return true;
+                case 290: loadstate(); current = saved[ 8]; return true;
+                case 291: loadstate(); current = saved[ 9]; return true;
+                case 292: loadstate(); current = saved[10]; return true;
+                case 293: loadstate(); current = saved[11]; return true;
+            }
+        if (s)
+            switch (k)
+            {
+                case 282: saved[ 0] = current; savestate(); return true;
+                case 283: saved[ 1] = current; savestate(); return true;
+                case 284: saved[ 2] = current; savestate(); return true;
+                case 285: saved[ 3] = current; savestate(); return true;
+                case 286: saved[ 4] = current; savestate(); return true;
+                case 287: saved[ 5] = current; savestate(); return true;
+                case 288: saved[ 6] = current; savestate(); return true;
+                case 289: saved[ 7] = current; savestate(); return true;
+                case 290: saved[ 8] = current; savestate(); return true;
+                case 291: saved[ 9] = current; savestate(); return true;
+                case 292: saved[10] = current; savestate(); return true;
+                case 293: saved[11] = current; savestate(); return true;
+            }
+        switch (k)
         {
         case 280: goto_next(); return true;
         case 281: goto_prev(); return true;
         }
-
+    }
     return false;
 }
 

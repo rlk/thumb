@@ -73,7 +73,9 @@ scm_model::scm_model(scm_cache& cache,
     cache(cache),
     time(1),
     size(s),
-    debug(false)
+    debug(false),
+    n0(0.0),
+    n1(1.0)
 {
     init_program(vert, frag);
     init_arrays(n);
@@ -359,27 +361,27 @@ void scm_model::draw_page(const int *vv, int vc,
                           const int *pv, int pc, int d, int f, long long i)
 {
     int then = time;
-    int T = vc + fc;
-    int t = 0;
+    int tc = vc + fc;
+    int ti = 0;
 
     // Bind and set vertex shader textures and uniforms.
 
-    for (int vi = 0; vi < vc; ++vi, ++t)
+    for (int vi = 0; vi < vc; ++vi, ++ti)
     {
-        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glActiveTexture(GL_TEXTURE0 + d * tc + ti);
         glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
-        glUniform1f(u_v_age[d], 1.0f); // age(then)); // HACK
-        glUniform1i(u_v_img[d], d * T + t);
+        glUniform1f(u_v_age[d * vc + vi], 1.0f); // age(then)); // HACK
+        glUniform1i(u_v_img[d * vc + vi], d * tc + ti);
     }
 
     // Bind and set fragment shader textures and uniforms.
 
-    for (int fi = 0; fi < fc; ++fi, ++t)
+    for (int fi = 0; fi < fc; ++fi, ++ti)
     {
-        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glActiveTexture(GL_TEXTURE0 + d * tc + ti);
         glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
-        glUniform1f(u_f_age[d], age(then));
-        glUniform1i(u_f_img[d], d * T + t);
+        glUniform1f(u_f_age[d * fc + fi], age(then));
+        glUniform1i(u_f_img[d * fc + fi], d * tc + ti);
     }
 
     // Won't someone please think of the children?
@@ -418,9 +420,16 @@ void scm_model::draw_page(const int *vv, int vc,
             GLfloat x = m * c - C;
             GLfloat y = m * r - R;
 
-            glUniform2f(u_tex_m[l], m, m);
-            glUniform2f(u_tex_b[l], x, y);
-
+            for (int vi = 0; vi < vc; ++vi)
+            {
+                glUniform2f(u_v_mul[l * vc + vi], m, m);
+                glUniform2f(u_v_add[l * vc + vi], x, y);
+            }
+            for (int fi = 0; fi < fc; ++fi)
+            {
+                glUniform2f(u_f_mul[l * fc + fi], m, m);
+                glUniform2f(u_f_add[l * fc + fi], x, y);
+            }
             C /= 2;
             R /= 2;
         }
@@ -438,9 +447,9 @@ void scm_model::draw_page(const int *vv, int vc,
 
     // Undo any texture bindings.
 
-    for (int t = 0; t < T; ++t)
+    for (int ti = 0; ti < tc; ++ti)
     {
-        glActiveTexture(GL_TEXTURE0 + d * T + t);
+        glActiveTexture(GL_TEXTURE0 + d * tc + ti);
         glBindTexture(GL_TEXTURE_2D, cache.get_fill());
     }
 }
@@ -525,6 +534,9 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
         glUniform1f(u_rm, GLfloat(cache.get_r1() - cache.get_r0()));
         glUniform1f(u_rb, GLfloat(                 cache.get_r0()));
 
+        glUniform1f(u_n0, GLfloat(n0));
+        glUniform1f(u_n1, GLfloat(n1));
+
         glUniform1f(u_zoomk, GLfloat(zoomk));
         glUniform3f(u_zoomv, GLfloat(zoomv[0]),
                              GLfloat(zoomv[1]),
@@ -597,17 +609,21 @@ void scm_model::init_program(const char *vert_src,
 
         glUseProgram(program);
 
-        u_rm    = glGetUniformLocation(program, "rm");
-        u_rb    = glGetUniformLocation(program, "rb");
-        u_fader = glGetUniformLocation(program, "fader");
-        u_zoomk = glGetUniformLocation(program, "zoomk");
-        u_zoomv = glGetUniformLocation(program, "zoomv");
-        u_faceM = glGetUniformLocation(program, "faceM");
+        u_rm       = glGetUniformLocation(program, "rm");
+        u_rb       = glGetUniformLocation(program, "rb");
+        u_n0       = glGetUniformLocation(program, "n0");
+        u_n1       = glGetUniformLocation(program, "n1");
+        u_fader    = glGetUniformLocation(program, "fader");
+        u_zoomk    = glGetUniformLocation(program, "zoomk");
+        u_zoomv    = glGetUniformLocation(program, "zoomv");
+        u_faceM    = glGetUniformLocation(program, "faceM");
 
         for (int d = 0; d < max_texture_image_units; ++d)
         {
-            u_tex_m.push_back(glGetUniformLocationv(program, "tex_m[%d]", d));
-            u_tex_b.push_back(glGetUniformLocationv(program, "tex_b[%d]", d));
+            u_v_mul.push_back(glGetUniformLocationv(program, "v_mul[%d]", d));
+            u_f_mul.push_back(glGetUniformLocationv(program, "f_mul[%d]", d));
+            u_v_add.push_back(glGetUniformLocationv(program, "v_add[%d]", d));
+            u_f_add.push_back(glGetUniformLocationv(program, "f_add[%d]", d));
             u_v_age.push_back(glGetUniformLocationv(program, "v_age[%d]", d));
             u_f_age.push_back(glGetUniformLocationv(program, "f_age[%d]", d));
             u_v_img.push_back(glGetUniformLocationv(program, "v_img[%d]", d));

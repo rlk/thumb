@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+  <sphere mesh="32" radius="1.0" size="300"
+          vert="glsl/scm-displace.vert"
+          frag="glsl/scm-basic16.frag">
+    <frame>
+      <scm file="LDEM-360-8.tif"
+         shader="vert" r0="0.994728" r1="1.0062" overdraw="3" />
+      <scm file="NAC_ROI_APOLLO16HIA-336-14.tif"
+         shader="frag" />
+    </frame>
+  </sphere>

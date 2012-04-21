@@ -47,7 +47,7 @@ static int catcmp(const void *p, const void *q)
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
 scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
-	: n0(n0), n1(n1), dd(dd), catc(0), catv(0), minv(0), maxv(0)
+    : n0(n0), n1(n1), dd(dd), catc(0), catv(0), minv(0), maxv(0)
 {
     // If the given file name is absolute, use it.
 
@@ -132,7 +132,7 @@ bool scm_file::status(uint64 i) const
     long long j = i;
 
     for (int o = 0; o < dd; ++o)
-    	if (j > 5) j = scm_page_parent(j);
+        if (j > 5) j = scm_page_parent(j);
 
     if (catc && (p = bsearch(&j, catv, catc, 2 * sizeof (uint64), catcmp)))
         return true;
