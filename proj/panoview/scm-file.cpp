@@ -32,22 +32,16 @@ static bool exists(const std::string& name)
         return false;
 }
 
-static int catcmp(const void *p, const void *q)
-{
-    const uint64 *a = (const uint64 *) p;
-    const uint64 *b = (const uint64 *) q;
-
-    if      (a[0] < b[0]) return -1;
-    else if (a[0] > b[0]) return +1;
-    else                  return  0;
-}
-
 //------------------------------------------------------------------------------
 
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
 scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
-    : n0(n0), n1(n1), dd(dd), catc(0), catv(0), minv(0), maxv(0)
+    : n0(n0), n1(n1), dd(dd),
+      xv(0), xc(0),
+      ov(0), oc(0),
+      av(0), ac(0),
+      zv(0), zc(0)
 {
     // If the given file name is absolute, use it.
 
@@ -81,8 +75,6 @@ scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
             uint64 n = 0;
             void  *p = 0;
 
-            catc = 0;
-
             TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &w);
             TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &h);
             TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &b);
@@ -91,22 +83,38 @@ scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
 
             if (TIFFGetField(T, 0xFFB1, &n, &p))
             {
-                if ((catv = (uint64 *) malloc(n * sizeof (uint64))))
-                    memcpy(catv, p, n * sizeof (uint64));
-
-                catc = n / 2;
+                if ((xv = (uint64 *) malloc(n * sizeof (uint64))))
+                {
+                    memcpy(xv, p, n * sizeof (uint64));
+                    xc = n;
+                }
             }
             if (TIFFGetField(T, 0xFFB2, &n, &p))
             {
-                if ((minv =  malloc(catc * c * b / 8)))
-                    memcpy(minv, p, catc * c * b / 8);
+                if ((ov = (uint64 *) malloc(n * sizeof (uint64))))
+                {
+                    memcpy(ov, p, n * sizeof (uint64));
+                    oc = n;
+                }
             }
+            /*
             if (TIFFGetField(T, 0xFFB3, &n, &p))
             {
-                if ((maxv =  malloc(catc * c * b / 8)))
-                    memcpy(maxv, p, catc * c * b / 8);
+                if ((av = malloc(n * c * b / 8)))
+                {
+                    memcpy(av, p, n * c * b / 8);
+                    ac = n;
+                }
             }
-
+            if (TIFFGetField(T, 0xFFB4, &n, &p))
+            {
+                if ((zv = malloc(n * c * b / 8)))
+                {
+                    memcpy(zv, p, n * c * b / 8);
+                    zc = n;
+                }
+            }
+            */
             TIFFClose(T);
         }
     }
@@ -114,27 +122,43 @@ scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
 
 scm_file::~scm_file()
 {
-    free(maxv);
-    free(minv);
-    free(catv);
+    free(zv);
+    free(av);
+    free(ov);
+    free(xv);
 }
 
 //------------------------------------------------------------------------------
 
-// Determine whether page i is given by this file. Push the page reference up
-// the tree as dictated by the overdraw parameter. This allows a shallow but
-// high-res vertex data set to be applied to a deep but low-res mesh.
+static int xcmp(const void *p, const void *q)
+{
+    const uint64 *a = (const uint64 *) p;
+    const uint64 *b = (const uint64 *) q;
 
-bool scm_file::status(uint64 i) const
+    if      (a[0] < b[0]) return -1;
+    else if (a[0] > b[0]) return +1;
+    else                  return  0;
+}
+
+uint64 scm_file::index(uint64 i) const
 {
     void *p;
 
-    long long j = i;
+    if (xc)
+    {
+        if ((p = bsearch(&i, xv, xc, sizeof (uint64), xcmp)))
+        {
+            return (uint64) ((uint64 *) p - xv);
+        }
+    }
+    return (uint64) (-1);
+}
 
-    for (int o = 0; o < dd; ++o)
-        if (j > 5) j = scm_page_parent(j);
+// Determine whether page i is given by this file.
 
-    if (catc && (p = bsearch(&j, catv, catc, 2 * sizeof (uint64), catcmp)))
+bool scm_file::status(uint64 i) const
+{
+    if (index(i) < xc)
         return true;
     else
         return false;
@@ -144,12 +168,13 @@ bool scm_file::status(uint64 i) const
 
 uint64 scm_file::offset(uint64 i) const
 {
-    void *p;
+    uint64 oi;
 
-    if (catc && (p = bsearch(&i, catv, catc, 2 * sizeof (uint64), catcmp)))
-        return ((uint64 *) p)[1];
-    else
-        return 0;
+    if ((oi = index(i)) < oc)
+    {
+        return ov[oi];
+    }
+    return 0;
 }
 
 // Determine the min and max values of page i. Seek it in the page catalog and
@@ -158,52 +183,54 @@ uint64 scm_file::offset(uint64 i) const
 
 void scm_file::bounds(uint64 i, float& r0, float& r1) const
 {
-    void *p;
+    uint64 ai = (uint64) (-1);
+    uint64 zi = (uint64) (-1);
 
     r0 = 1.0;
     r1 = 1.0;
 
-    if (catc && catv && minv && maxv)
-        while (i >= 0)
-            if ((p = bsearch(&i, catv, catc, 2 * sizeof (uint64), catcmp)))
-            {
-                uint64 j = ((uint64 *) p - catv) / 2;
+    while (ai >= ac || zi >= zc)
+    {
+        if (ai >= ac) ai = index(i);
+        if (zi >= zc) zi = index(i);
 
-                if (b == 8)
-                {
-                    if (g == 2)
-                    {
-                        r0 = ((char *) minv)[j * c] / 127.f;
-                        r1 = ((char *) maxv)[j * c] / 127.f;
-                    }
-                    else
-                    {
-                        r0 = ((unsigned char *) minv)[j * c] / 255.f;
-                        r1 = ((unsigned char *) maxv)[j * c] / 255.f;
-                    }
-                }
-                else if (b == 16)
-                {
-                    if (g == 2)
-                    {
-                        r0 = ((short *) minv)[j * c] / 32767.f;
-                        r1 = ((short *) maxv)[j * c] / 32767.f;
-                    }
-                    else
-                    {
-                        r0 = ((unsigned short *) minv)[j * c] / 65535.f;
-                        r1 = ((unsigned short *) maxv)[j * c] / 65535.f;
-                    }
-                }
-                else if (b == 32)
-                {
-                    r0 = ((float *) minv)[j * c];
-                    r1 = ((float *) minv)[j * c];
-                }
+        if (i < 6)
+            break;
+        else
+            i = scm_page_parent(i);
+    }
 
-                break;
-            }
-            else i = scm_page_parent(i);
+    if (b == 8)
+    {
+        if (g == 2)
+        {
+            if (ai < ac) r0 = ((char *) av)[ai * c] / 127.f;
+            if (zi < zc) r1 = ((char *) zv)[zi * c] / 127.f;
+        }
+        else
+        {
+            if (ai < ac) r0 = ((unsigned char *) av)[ai * c] / 255.f;
+            if (zi < zc) r1 = ((unsigned char *) zv)[zi * c] / 255.f;
+        }
+    }
+    else if (b == 16)
+    {
+        if (g == 2)
+        {
+            if (ai < ac) r0 = ((short *) av)[ai * c] / 32767.f;
+            if (zi < zc) r1 = ((short *) zv)[zi * c] / 32767.f;
+        }
+        else
+        {
+            if (ai < ac) r0 = ((unsigned short *) av)[ai * c] / 65535.f;
+            if (zi < zc) r1 = ((unsigned short *) zv)[zi * c] / 65535.f;
+        }
+    }
+    else if (b == 32)
+    {
+        if (ai < ac) r0 = ((float *) av)[ai * c];
+        if (zi < zc) r1 = ((float *) zv)[zi * c];
+    }
 
     r0 = n0 + r0 * (n1 - n0);
     r1 = n0 + r1 * (n1 - n0);

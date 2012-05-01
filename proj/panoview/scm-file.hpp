@@ -53,10 +53,19 @@ private:
     uint16 b;
     uint16 g;
 
-    uint64  catc;
-    uint64 *catv;
-    void   *minv;
-    void   *maxv;
+    uint64 index(uint64) const;
+
+    uint64 *xv;
+    uint64  xc;
+
+    uint64 *ov;
+    uint64  oc;
+
+    void   *av;
+    uint64  ac;
+
+    void   *zv;
+    uint64  zc;
 };
 
 //------------------------------------------------------------------------------
