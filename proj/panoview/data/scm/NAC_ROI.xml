@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-  <sphere mesh="32" radius="1.0" size="300"
+  <sphere mesh="32" radius="1.0" size="426"
           vert="glsl/scm-displace.vert"
           frag="glsl/scm-overlay.frag">
     <frame>

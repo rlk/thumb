@@ -59,6 +59,7 @@ private:
 
         void move(const double *, const double *, double, double);
         void look(const double *, const double *, double, double);
+        void turn(const double *, const double *, double, double);
         void dive(const double *, const double *, double, double);
         void lite(const double *, const double *, double, double);
 
@@ -69,13 +70,14 @@ private:
     void savestate();
 
     state  current;
-    state  saved[11];
+    state  saved[12];
 
     double point[3];
     double click[3];
     bool   control;
     bool   drag_move;
     bool   drag_look;
+    bool   drag_turn;
     bool   drag_dive;
     bool   drag_lite;
 

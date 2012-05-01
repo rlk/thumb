@@ -217,6 +217,7 @@ vec4 sampleE(vec2 t)
     c = blend(img10(t), c);
     c = blend(img12(t), c);
     c = blend(img14(t), c);
+    /*
     c = blend(img16(t), c);
     c = blend(img18(t), c);
     c = blend(img20(t), c);
@@ -225,6 +226,7 @@ vec4 sampleE(vec2 t)
     c = blend(img26(t), c);
     c = blend(img28(t), c);
     c = blend(img30(t), c);
+    */
     return c;
 }
 

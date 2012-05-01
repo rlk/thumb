@@ -71,7 +71,7 @@ orbiter::state::state()
 
 double orbiter::state::scale(double radius)
 {
-    return std::max((altitude - radius) / radius, 0.001);
+    return std::max((altitude - radius) / radius, 0.005);
 }
 
 // Apply the view panning interaction.
@@ -98,6 +98,33 @@ void orbiter::state::look(const double *point,
 
     vtransform(t, R, view_y);
     vnormalize(view_y, t);
+}
+
+void orbiter::state::turn(const double *point,
+                          const double *click, double dt, double scale)
+{
+    const double *M = ::user->get_M();
+
+    double dx = point[0] - click[0];
+    double dy = point[1] - click[1];
+
+    double X[16];
+    double Y[16];
+    double R[16];
+    double t[3];
+
+    mrotate(X, M,         10.0 * dy * dt);
+    mrotate(Y, position, -10.0 * dx * dt);
+    mmultiply(R, X, Y);
+
+    vtransform(t, R, view_x);
+    vnormalize(view_x, t);
+
+    vtransform(t, R, view_y);
+    vnormalize(view_y, t);
+
+    vtransform(t, Y, orbit_plane);
+    vnormalize(orbit_plane, t);
 }
 
 // Apply the orbital motion interaction.
@@ -316,8 +343,9 @@ bool orbiter::pan_click(app::event *E)
     const int  m = E->data.click.m;
     const bool d = E->data.click.d;
     const bool s = (m & KMOD_SHIFT);
+    const bool c = (m & KMOD_CTRL);
 
-    control = (m & KMOD_CTRL);
+    control = c;
 
     vcpy(click, point);
 
@@ -325,7 +353,9 @@ bool orbiter::pan_click(app::event *E)
     {
         if (b == 0)
         {
-            if (s)
+            if      (c)
+                drag_turn = true;
+            else if (s)
                 drag_look = true;
             else
                 drag_move = true;
@@ -340,8 +370,8 @@ bool orbiter::pan_click(app::event *E)
     }
     else
     {
-        if (b == 0) drag_look = drag_move = false;
-        if (b == 2) drag_lite = drag_dive = false;
+        if (b == 0) drag_look = drag_turn = drag_move = false;
+        if (b == 2) drag_lite = drag_dive             = false;
     }
 
     return true;
@@ -350,7 +380,9 @@ bool orbiter::pan_click(app::event *E)
 bool orbiter::pan_tick(app::event *E)
 {
     double dt = E->data.tick.dt / 1000.0;
-    double sc  = current.scale(get_radius() * cache->get_r1());
+    double sc = 1.0;
+
+    if (model) sc = current.scale(get_radius() * cache->get_r1());
 
     double M[16];
 
@@ -358,6 +390,7 @@ bool orbiter::pan_tick(app::event *E)
 
     if (drag_move) current.move(point, click, dt, sc);
     if (drag_look) current.look(point, click, dt, sc);
+    if (drag_turn) current.turn(point, click, dt, sc);
     if (drag_dive) current.dive(point, click, dt, sc);
     if (drag_lite) current.lite(point, click, dt, sc);
 
