@@ -97,7 +97,6 @@ scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
                     oc = n;
                 }
             }
-            /*
             if (TIFFGetField(T, 0xFFB3, &n, &p))
             {
                 if ((av = malloc(n * c * b / 8)))
@@ -114,7 +113,6 @@ scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
                     zc = n;
                 }
             }
-            */
             TIFFClose(T);
         }
     }
@@ -168,11 +166,11 @@ bool scm_file::status(uint64 i) const
 
 uint64 scm_file::offset(uint64 i) const
 {
-    uint64 oi;
+    uint64 oj;
 
-    if ((oi = index(i)) < oc)
+    if ((oj = index(i)) < oc)
     {
-        return ov[oi];
+        return ov[oj];
     }
     return 0;
 }
@@ -183,16 +181,18 @@ uint64 scm_file::offset(uint64 i) const
 
 void scm_file::bounds(uint64 i, float& r0, float& r1) const
 {
-    uint64 ai = (uint64) (-1);
-    uint64 zi = (uint64) (-1);
+    uint64 aj = (uint64) (-1);
+    uint64 zj = (uint64) (-1);
 
     r0 = 1.0;
     r1 = 1.0;
 
-    while (ai >= ac || zi >= zc)
+    while (aj >= ac || zj >= zc)
     {
-        if (ai >= ac) ai = index(i);
-        if (zi >= zc) zi = index(i);
+        uint64 j = index(i);
+
+        if (aj >= ac) aj = j;
+        if (zj >= zc) zj = j;
 
         if (i < 6)
             break;
@@ -204,32 +204,32 @@ void scm_file::bounds(uint64 i, float& r0, float& r1) const
     {
         if (g == 2)
         {
-            if (ai < ac) r0 = ((char *) av)[ai * c] / 127.f;
-            if (zi < zc) r1 = ((char *) zv)[zi * c] / 127.f;
+            if (aj < ac) r0 = ((char *) av)[aj * c] / 127.f;
+            if (zj < zc) r1 = ((char *) zv)[zj * c] / 127.f;
         }
         else
         {
-            if (ai < ac) r0 = ((unsigned char *) av)[ai * c] / 255.f;
-            if (zi < zc) r1 = ((unsigned char *) zv)[zi * c] / 255.f;
+            if (aj < ac) r0 = ((unsigned char *) av)[aj * c] / 255.f;
+            if (zj < zc) r1 = ((unsigned char *) zv)[zj * c] / 255.f;
         }
     }
     else if (b == 16)
     {
         if (g == 2)
         {
-            if (ai < ac) r0 = ((short *) av)[ai * c] / 32767.f;
-            if (zi < zc) r1 = ((short *) zv)[zi * c] / 32767.f;
+            if (aj < ac) r0 = ((short *) av)[aj * c] / 32767.f;
+            if (zj < zc) r1 = ((short *) zv)[zj * c] / 32767.f;
         }
         else
         {
-            if (ai < ac) r0 = ((unsigned short *) av)[ai * c] / 65535.f;
-            if (zi < zc) r1 = ((unsigned short *) zv)[zi * c] / 65535.f;
+            if (aj < ac) r0 = ((unsigned short *) av)[aj * c] / 65535.f;
+            if (zj < zc) r1 = ((unsigned short *) zv)[zj * c] / 65535.f;
         }
     }
     else if (b == 32)
     {
-        if (ai < ac) r0 = ((float *) av)[ai * c];
-        if (zi < zc) r1 = ((float *) zv)[zi * c];
+        if (aj < ac) r0 = ((float *) av)[aj * c];
+        if (zj < zc) r1 = ((float *) zv)[zj * c];
     }
 
     r0 = n0 + r0 * (n1 - n0);

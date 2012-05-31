@@ -34,14 +34,13 @@ static void clear(GLuint t)
     glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
 }
 
-
 //------------------------------------------------------------------------------
 
 scm_cache::scm_cache(int n) :
     pages(n),
     waits(n),
-    needs("need", need_queue_size),
-    loads("load", load_queue_size),
+    needs(need_queue_size),
+    loads(load_queue_size),
     size(0),
     r0(+std::numeric_limits<float>::max()),
     r1(-std::numeric_limits<float>::max())
