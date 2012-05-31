@@ -16,7 +16,6 @@
 #include <vector>
 #include <string>
 #include <list>
-#include <map>
 
 #include <GL/glew.h>
 #include <tiffio.h>
@@ -26,6 +25,8 @@
 #include "queue.hpp"
 
 #include "scm-file.hpp"
+#include "scm-task.hpp"
+#include "scm-set.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -46,83 +47,6 @@ public:
 
 //------------------------------------------------------------------------------
 
-struct scm_item
-{
-    scm_item()                   : f(-1), i(-1) { }
-    scm_item(int f, long long i) : f( f), i( i) { }
-
-    int       f;
-    long long i;
-
-    bool valid() const { return (f >= 0 && i >= 0); }
-
-    bool operator<(const scm_item& that) const {
-        if (i == that.i)
-            return f < that.f;
-        else
-            return i < that.i;
-    }
-};
-
-//------------------------------------------------------------------------------
-
-struct scm_page : public scm_item
-{
-    scm_page()                                    : scm_item(    ), o(0), t(0) { }
-    scm_page(int f, long long i)                  : scm_item(f, i), o(0), t(0) { }
-    scm_page(int f, long long i, GLuint o)        : scm_item(f, i), o(o), t(0) { }
-    scm_page(int f, long long i, GLuint o, int t) : scm_item(f, i), o(o), t(t) { }
-
-    GLuint o;
-    int    t;
-};
-
-//------------------------------------------------------------------------------
-
-struct scm_task : public scm_item
-{
-    scm_task()                   : scm_item(    ), u(0), d(false), p(0) { }
-    scm_task(int f, long long i) : scm_item(i, f), u(0), d(false), p(0) { }
-    scm_task(int f, long long i, uint64 o, GLuint u, GLsizei s);
-
-    uint64 o;
-    GLuint u;
-    bool   d;
-    void  *p;
-
-    void make_texture(GLuint, uint32, uint32, uint16, uint16, uint16);
-    void load_texture(TIFF *, uint32, uint32, uint16, uint16, uint16);
-    void dump_texture();
-};
-
-//------------------------------------------------------------------------------
-
-class scm_set
-{
-public:
-
-    scm_set(int size) : size(size) { }
-   ~scm_set();
-
-    int  count() const { return int(m.size()); }
-    bool full()  const { return (count() >= size); }
-    bool empty() const { return (m.empty()); }
-
-    scm_page search(scm_page, int);
-    void     insert(scm_page, int);
-    void     remove(scm_page);
-
-    scm_page eject(int, long long);
-    void     draw();
-
-private:
-
-    std::map<scm_page, int> m;
-
-    int size;
-};
-
-//------------------------------------------------------------------------------
 
 class scm_cache
 {

@@ -7,6 +7,8 @@ PANOBJS= \
 	math3d.o \
 	glsl.o \
 	type.o \
+	scm-set.o \
+	scm-task.o \
 	scm-file.o \
 	scm-index.o \
 	scm-model.o \
@@ -20,6 +22,8 @@ ORBOBJS= \
 	math3d.o \
 	glsl.o \
 	type.o \
+	scm-set.o \
+	scm-task.o \
 	scm-file.o \
 	scm-index.o \
 	scm-model.o \
