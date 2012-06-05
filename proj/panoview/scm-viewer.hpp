@@ -97,7 +97,8 @@ public:
     void goto_next();
     void goto_prev();
 
-    float get_radius() const { return radius; }
+    double get_radius() const   { return radius; }
+    void   set_radius(double r) { radius = r;    }
 
 protected:
 

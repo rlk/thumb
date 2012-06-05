@@ -45,17 +45,16 @@ private:
 
     struct state
     {
+        double distance;
+        double scale;
         double orbit_plane[3];
         double orbit_speed;
         double position[3];
-        double altitude;
         double view_x[3];
         double view_y[3];
         double light[3];
 
         state();
-
-        double scale(double);
 
         void move(const double *, const double *, double, double);
         void look(const double *, const double *, double, double);
@@ -63,7 +62,7 @@ private:
         void dive(const double *, const double *, double, double);
         void lite(const double *, const double *, double, double);
 
-        void update(double, double *);
+        void update(double, double *, double);
     };
 
     void loadstate();

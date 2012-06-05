@@ -46,6 +46,9 @@ orbiter::~orbiter()
 
 orbiter::state::state()
 {
+    distance       = 2.0;
+    scale          = 1.0 / 1737400.0;
+
     orbit_plane[0] = 0.0;
     orbit_plane[1] = 1.0;
     orbit_plane[2] = 0.0;
@@ -54,7 +57,6 @@ orbiter::state::state()
     position[0]    = 0.0;
     position[1]    = 0.0;
     position[2]    = 1.0;
-    altitude       = 3.0;
 
     view_x[0]      = 1.0;
     view_x[1]      = 0.0;
@@ -69,15 +71,10 @@ orbiter::state::state()
     light[2]       = sqrt(3.0);
 }
 
-double orbiter::state::scale(double radius)
-{
-    return std::max((altitude - radius) / radius, 0.005);
-}
-
 // Apply the view panning interaction.
 
 void orbiter::state::look(const double *point,
-                          const double *click, double dt, double scale)
+                          const double *click, double dt, double k)
 {
     const double *M = ::user->get_M();
 
@@ -101,7 +98,7 @@ void orbiter::state::look(const double *point,
 }
 
 void orbiter::state::turn(const double *point,
-                          const double *click, double dt, double scale)
+                          const double *click, double dt, double k)
 {
     const double *M = ::user->get_M();
 
@@ -130,7 +127,7 @@ void orbiter::state::turn(const double *point,
 // Apply the orbital motion interaction.
 
 void orbiter::state::move(const double *point,
-                          const double *click, double dt, double scale)
+                          const double *click, double dt, double k)
 {
     if (click[0] != point[0] ||
         click[1] != point[1] ||
@@ -150,7 +147,7 @@ void orbiter::state::move(const double *point,
             vtransform(u, M, t);
             vnormalize(orbit_plane, u);
         }
-        orbit_speed = 10.0 * a * scale;
+        orbit_speed = 10.0 * a * k;
     }
     else
     {
@@ -158,18 +155,20 @@ void orbiter::state::move(const double *point,
     }
 }
 
-// Apply the altitude change interaction.
+// Apply the proximity change interaction.
 
 void orbiter::state::dive(const double *point,
-                          const double *click, double dt, double scale)
+                          const double *click, double dt, double k)
 {
-    altitude += 5.0 * scale * (point[1] - click[1]) * dt;
+    double d = k * (point[1] - click[1]) * dt;
+
+    scale = exp(log(scale) - d);
 }
 
 // Apply the light position interaction.
 
 void orbiter::state::lite(const double *point,
-                          const double *click, double dt, double scale)
+                          const double *click, double dt, double k)
 {
     double dx = point[0] - click[0];
     double dy = point[1] - click[1];
@@ -187,7 +186,7 @@ void orbiter::state::lite(const double *point,
     vnormalize(light, t);
 }
 
-void orbiter::state::update(double dt, double *M)
+void orbiter::state::update(double dt, double *M, double r)
 {
     // Move the position and view orientation along the current orbit.
 
@@ -224,9 +223,9 @@ void orbiter::state::update(double dt, double *M)
 
     // Update the user transform.
 
-    M[12] = position[0] * altitude;
-    M[13] = position[1] * altitude;
-    M[14] = position[2] * altitude;
+    M[14] = position[2] * (r * scale + distance);
+    M[12] = position[0] * (r * scale + distance);
+    M[13] = position[1] * (r * scale + distance);
 }
 
 //------------------------------------------------------------------------------
@@ -263,18 +262,20 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
     {
         cache->update(model->tick());
 
-        double r = get_radius() * cache->get_r0();
-        double n = 0.001 * (current.altitude - r);
-        double f =     sqrt(current.altitude * current.altitude - r * r);
+        double r = current.scale * get_radius() * cache->get_r0();
+        double a = current.scale * get_radius() + current.distance;
 
-        return ogl::range(n, f * 1.1);
+        double n = 0.001 *     (a     - r    );
+        double f = 1.1   * sqrt(a * a - r * r);
+
+        return ogl::range(n, f);
     }
     return ogl::range(0.1, 10.0);
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.0f, 0.05f, 0.1f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GLfloat L[4];
@@ -290,11 +291,17 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    glFrontFace(GL_CW);
-    scm_viewer::draw(frusi, frusp, chani);
+    const double r = get_radius();
 
-    glFrontFace(GL_CCW);
-    scm_viewer::over(frusi, frusp, chani);
+    set_radius(r * current.scale);
+    {
+        glFrontFace(GL_CW);
+        scm_viewer::draw(frusi, frusp, chani);
+
+        glFrontFace(GL_CCW);
+        scm_viewer::over(frusi, frusp, chani);
+    }
+    set_radius(r);
 }
 
 //------------------------------------------------------------------------------
@@ -380,9 +387,7 @@ bool orbiter::pan_click(app::event *E)
 bool orbiter::pan_tick(app::event *E)
 {
     double dt = E->data.tick.dt / 1000.0;
-    double sc = 1.0;
-
-    if (model) sc = current.scale(get_radius() * cache->get_r1());
+    double sc = 1e-6 / current.scale;
 
     double M[16];
 
@@ -391,10 +396,10 @@ bool orbiter::pan_tick(app::event *E)
     if (drag_move) current.move(point, click, dt, sc);
     if (drag_look) current.look(point, click, dt, sc);
     if (drag_turn) current.turn(point, click, dt, sc);
-    if (drag_dive) current.dive(point, click, dt, sc);
+    if (drag_dive) current.dive(point, click, dt, 1.0);
     if (drag_lite) current.lite(point, click, dt, sc);
 
-    current.update(dt, M);
+    current.update(dt, M, get_radius());
 
     ::user->set_M(M);
 
