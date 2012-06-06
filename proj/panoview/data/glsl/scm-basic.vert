@@ -1,10 +1,10 @@
-varying vec4 V;
 
-uniform int  level;
 uniform mat3 faceM;
-uniform vec2 tex_a[64];
-uniform vec2 tex_d[64];
+uniform vec2 v_mul[64];
+uniform vec2 v_add[64];
 
+varying vec3 var_V;
+varying vec3 var_L;
 
 //------------------------------------------------------------------------------
 
@@ -23,10 +23,11 @@ vec3 scube(vec2 t)
 
 void main()
 {
-    gl_TexCoord[0].xy = tex_a[level]
-                     + (tex_d[level] - tex_a[level]) * gl_Vertex.xy;
+    vec3 v = scube(v_mul[0] * gl_Vertex.xy + v_add[0]);
 
-    V = gl_ModelViewMatrix * vec4(scube(gl_TexCoord[0].xy), 1.0);
+    var_V = v;
+    var_L = gl_LightSource[0].position.xyz;
 
-    gl_Position = gl_ProjectionMatrix * V;
+    gl_TexCoord[0].xy = gl_Vertex.xy;
+    gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
 }

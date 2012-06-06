@@ -466,12 +466,12 @@ void scm_model::draw_page(const int *vv, int vc,
             GLfloat x = m * c - C;
             GLfloat y = m * r - R;
 
-            for (int vi = 0; vi < vc; ++vi)
+            for (int vi = 0; vi < vc || vi == 0; ++vi)
             {
                 glUniform2f(u_v_mul[l * vc + vi], m, m);
                 glUniform2f(u_v_add[l * vc + vi], x, y);
             }
-            for (int fi = 0; fi < fc; ++fi)
+            for (int fi = 0; fi < fc || fi == 0; ++fi)
             {
                 glUniform2f(u_f_mul[l * fc + fi], m, m);
                 glUniform2f(u_f_add[l * fc + fi], x, y);

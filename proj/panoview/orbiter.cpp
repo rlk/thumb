@@ -47,7 +47,7 @@ orbiter::~orbiter()
 orbiter::state::state()
 {
     distance       = 2.0;
-    scale          = 1.0 / 1737400.0;
+    scale          = 1.0;
 
     orbit_plane[0] = 0.0;
     orbit_plane[1] = 1.0;
@@ -325,6 +325,7 @@ bool orbiter::process_event(app::event *E)
 void orbiter::load(const std::string& name)
 {
     scm_viewer::load(name);
+    current.scale = 1.0 / get_radius();
 }
 
 //------------------------------------------------------------------------------
