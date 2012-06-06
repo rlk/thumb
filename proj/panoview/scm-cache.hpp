@@ -55,7 +55,7 @@ public:
     scm_cache(int);
    ~scm_cache();
 
-    int    add_file(const std::string&, float, float, int);
+    int    add_file(const std::string&, float, float);
     GLuint get_page(int, long long, int, int&);
     GLuint get_fill() { return filler; }
 

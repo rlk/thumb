@@ -36,8 +36,8 @@ static bool exists(const std::string& name)
 
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
-scm_file::scm_file(const std::string& tiff, float n0, float n1, int dd)
-    : n0(n0), n1(n1), dd(dd),
+scm_file::scm_file(const std::string& tiff, float n0, float n1)
+    : n0(n0), n1(n1),
       xv(0), xc(0),
       ov(0), oc(0),
       av(0), ac(0),

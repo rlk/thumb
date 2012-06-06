@@ -227,14 +227,6 @@ double scm_model::view_page(const double *M, int vw, int vh,
         E[0] < -E[3] && F[0] < -F[3] && G[0] < -G[3] && H[0] < -H[3])
         return 0;
 
-    if (debug)
-    {
-        glVertex3dv(e); glVertex3dv(f);
-        glVertex3dv(g); glVertex3dv(h);
-        glVertex3dv(e); glVertex3dv(g);
-        glVertex3dv(f); glVertex3dv(h);
-    }
-
     // Compute the length of the longest visible edge, in pixels.
 
     // return std::max(std::max(std::max(length(A, B, vw, vh),
@@ -265,6 +257,54 @@ double scm_model::test_page(const double *M,  int w, int h,
     // Compute and test the on-screen pixel size of this bounds.
 
     return view_page(M, w, h, double(r0), double(r1), i);
+}
+
+void scm_model::debug_page(const double *M,const int *vv, int vc, long long i)
+{
+    // Compute the corner vectors of the zoomed page.
+
+    double v[12];
+
+    scm_page_corners(i, v);
+
+    // Merge the bounds of this page in each vertex data set.
+
+    float r0 = 1.0;
+    float r1 = 1.0;
+
+    cache.page_bounds(i, vv, vc, r0, r1);
+
+    // Compute the maximum extent due to bulge.
+
+    double u[3];
+
+    u[0] = v[0] + v[3] + v[6] + v[ 9];
+    u[1] = v[1] + v[4] + v[7] + v[10];
+    u[2] = v[2] + v[5] + v[8] + v[11];
+
+    double r2 = r1 * vlen(u) / vdot(v, u);
+
+    // Apply the inner and outer radii to the bounding volume.
+
+    double a[3], e[3], b[3], f[3];
+    double c[3], g[3], d[3], h[3];
+
+    vmul(a, v + 0, r0);
+    vmul(b, v + 3, r0);
+    vmul(c, v + 6, r0);
+    vmul(d, v + 9, r0);
+
+    vmul(e, v + 0, r2);
+    vmul(f, v + 3, r2);
+    vmul(g, v + 6, r2);
+    vmul(h, v + 9, r2);
+
+    // Draw the boundary.
+
+    glVertex3dv(e); glVertex3dv(f);
+    glVertex3dv(g); glVertex3dv(h);
+    glVertex3dv(e); glVertex3dv(g);
+    glVertex3dv(f); glVertex3dv(h);
 }
 
 //------------------------------------------------------------------------------
@@ -350,6 +390,10 @@ bool scm_model::prep_page(const double *M,  int w,  int h,
                     return true;
             }
             add_page(M, w, h, vv, vc, i);
+
+            if (debug)
+                debug_page(M, vv, vc, i);
+
             return true;
         }
     }

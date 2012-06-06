@@ -137,11 +137,11 @@ static void debug_on(int l)
 
 // Append a string to the file list and return its index. Cache the bounds.
 
-int scm_cache::add_file(const std::string& name, float n0, float n1, int dd)
+int scm_cache::add_file(const std::string& name, float n0, float n1)
 {
     int f = int(files.size());
 
-    files.push_back(new scm_file(name, n0, n1, dd));
+    files.push_back(new scm_file(name, n0, n1));
 
     r0 = std::min(r0, n0);
     r1 = std::max(r1, n1);

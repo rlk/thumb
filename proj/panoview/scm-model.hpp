@@ -79,6 +79,7 @@ private:
     void   dump_page(const double *,           double, double, long long);
 
     double test_page(const double *, int, int, const int *, int, long long);
+    void  debug_page(const double *,           const int *, int, long long);
 
     void    add_page(const double *, int, int,
                         const int *, int, long long);

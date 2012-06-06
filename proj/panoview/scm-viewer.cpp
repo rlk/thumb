@@ -65,8 +65,7 @@ scm_frame::scm_frame(scm_cache *cache, app::node node)
 
         I.file = cache->add_file(n.get_s("file"),
                                  n.get_f("r0", 1.0),
-                                 n.get_f("r1", 1.0),
-                                 n.get_i("overdraw", 0));
+                                 n.get_f("r1", 1.0));
 
         I.shader  = (n.get_s("shader") == "vert") ? 0 : 1;
         I.channel = (n.get_i("channel"));
