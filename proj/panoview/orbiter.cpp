@@ -388,7 +388,7 @@ bool orbiter::pan_click(app::event *E)
 bool orbiter::pan_tick(app::event *E)
 {
     double dt = E->data.tick.dt / 1000.0;
-    double sc = 1e-6 / current.scale;
+    double sc = 1.0 / (get_radius() * current.scale);
 
     double M[16];
 
