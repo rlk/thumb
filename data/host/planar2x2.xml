@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<host>
+  <channel w="2732" h="1536" x=" 35.0" y="0.0" z="0.0" r="0" g="1" b="0" unit="mm"/>
+  <channel w="2732" h="1536" x="-35.0" y="0.0" z="0.0" r="1" g="0" b="1" unit="mm"/>
+<!--
+  <overlay w="2732" h="1536">
+    <frustum>
+      <corner name="BL" x="-3.333" y="-1.9" z="-5.0"/>
+      <corner name="BR" x=" 3.333" y="-1.9" z="-5.0"/>
+      <corner name="TL" x="-3.333" y=" 1.9" z="-5.0"/>
+    </frustum>
+  </overlay>
+-->
+  <node name="planar2x2">
+    <window x="0" y="0" w="2732" h="1536" frame="0"/>
+    <display type="interlace">
+      <viewport x="0" y="0" w="2732" h="1536"/>
+      <frustum>
+        <corner name="BL" x="-3.333" y="-1.9" z="-6.0"/>
+        <corner name="BR" x=" 3.333" y="-1.9" z="-6.0"/>
+        <corner name="TL" x="-3.333" y=" 1.9" z="-6.0"/>
+      </frustum>
+    </display>
+  </node>
+</host>

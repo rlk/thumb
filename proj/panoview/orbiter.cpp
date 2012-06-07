@@ -160,7 +160,7 @@ void orbiter::state::move(const double *point,
 void orbiter::state::dive(const double *point,
                           const double *click, double dt, double k)
 {
-    double d = k * (point[1] - click[1]) * dt;
+    double d = (point[1] - click[1]) * dt;
 
     scale = exp(log(scale) - d);
 }
@@ -263,7 +263,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
         cache->update(model->tick());
 
         double r = current.scale * get_radius() * cache->get_r0();
-        double a = current.scale * get_radius() + current.distance;
+        double a = current.scale * get_radius() * cache->get_r0() + current.distance;
 
         double n = 0.001 *     (a     - r    );
         double f = 1.1   * sqrt(a * a - r * r);
@@ -275,7 +275,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    glClearColor(0.0f, 0.05f, 0.1f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     GLfloat L[4];
@@ -397,10 +397,10 @@ bool orbiter::pan_tick(app::event *E)
     if (drag_move) current.move(point, click, dt, sc);
     if (drag_look) current.look(point, click, dt, sc);
     if (drag_turn) current.turn(point, click, dt, sc);
-    if (drag_dive) current.dive(point, click, dt, 1.0);
+    if (drag_dive) current.dive(point, click, dt, sc);
     if (drag_lite) current.lite(point, click, dt, sc);
 
-    current.update(dt, M, get_radius());
+    current.update(dt, M, get_radius() * cache->get_r0());
 
     ::user->set_M(M);
 

@@ -57,7 +57,7 @@ scm_viewer::~scm_viewer()
 
 //------------------------------------------------------------------------------
 
-scm_frame::scm_frame(scm_cache *cache, app::node node)
+scm_frame::scm_frame(scm_cache *cache, app::node node) : mono(true)
 {
     for (app::node n = node.find("scm"); n; n = node.next(n, "scm"))
     {
@@ -69,6 +69,8 @@ scm_frame::scm_frame(scm_cache *cache, app::node node)
 
         I.shader  = (n.get_s("shader") == "vert") ? 0 : 1;
         I.channel = (n.get_i("channel"));
+
+        if (I.channel) mono = false;
 
         images.push_back(I);
     }

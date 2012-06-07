@@ -27,6 +27,8 @@
 
 class scm_frame
 {
+    bool mono;
+
     struct image
     {
         int file;
@@ -60,7 +62,7 @@ public:
         std::vector<image>::iterator i;
 
         for (i = images.begin(); i != images.end(); ++i)
-            if (c == i->channel)
+            if (mono || c == i->channel)
             {
                 if (i->shader)
                     tofrag.push_back(i->file);
