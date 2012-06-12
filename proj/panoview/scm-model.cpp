@@ -35,6 +35,18 @@ typedef GLuint           GLindex;
 
 //------------------------------------------------------------------------------
 
+static inline void mid4(double *v, const double *a,
+                                   const double *b,
+                                   const double *c,
+                                   const double *d)
+{
+    v[0] = a[0] + b[0] + c[0] + d[0];
+    v[1] = a[1] + b[1] + c[1] + d[1];
+    v[2] = a[2] + b[2] + c[2] + d[2];
+
+    vnormalize(v, v);
+}
+
 static inline double scale(double k, double t)
 {
     if (k < 1.0)
@@ -121,7 +133,6 @@ double scm_model::view_page(const double *M, int vw, int vh,
 
     scm_page_corners(i, v);
 
-#if 0
     if (zoomk != 1)
     {
         zoom(v + 0, v + 0);
@@ -129,7 +140,6 @@ double scm_model::view_page(const double *M, int vw, int vh,
         zoom(v + 6, v + 6);
         zoom(v + 9, v + 9);
     }
-#endif
 
     // Compute the maximum extent due to bulge.
 

@@ -106,12 +106,6 @@ vec4 img15(vec2 t)
     return vec4(c.rgb, c.a * f_age[15]);
 }
 
-vec4 img16(vec2 t)
-{
-    vec4 c = texture2D(f_img[16], f_mul[16] * t + f_add[16]);
-    return vec4(c.rgb, c.a * f_age[16]);
-}
-
 //------------------------------------------------------------------------------
 
 vec4 blend(vec4 a, vec4 b)
