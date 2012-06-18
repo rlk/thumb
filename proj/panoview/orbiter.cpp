@@ -47,7 +47,7 @@ orbiter::~orbiter()
 orbiter::state::state()
 {
     distance       = 2.0;
-    scale          = 1.0;
+    scale          = 1.0 / 1737400.0;
 
     orbit_plane[0] = 0.0;
     orbit_plane[1] = 1.0;
@@ -71,7 +71,8 @@ orbiter::state::state()
     light[2]       = sqrt(3.0);
 }
 
-// Apply the view panning interaction.
+// Apply the view panning interaction, rotating left-right about the position
+// vector and up-down about the current right vector.
 
 void orbiter::state::look(const double *point,
                           const double *click, double dt, double k)
@@ -96,6 +97,8 @@ void orbiter::state::look(const double *point,
     vtransform(t, R, view_y);
     vnormalize(view_y, t);
 }
+
+// Apply the
 
 void orbiter::state::turn(const double *point,
                           const double *click, double dt, double k)
@@ -124,7 +127,9 @@ void orbiter::state::turn(const double *point,
     vnormalize(orbit_plane, t);
 }
 
-// Apply the orbital motion interaction.
+// Apply the orbital motion interaction, using the direction of the mouse
+// pointer motion to set the orbital plane and the magnitude of the mouse
+// motion to set the orbital speed.
 
 void orbiter::state::move(const double *point,
                           const double *click, double dt, double k)
@@ -155,7 +160,10 @@ void orbiter::state::move(const double *point,
     }
 }
 
-// Apply the proximity change interaction.
+// Apply the scale interaction, using the change in the mouse pointer position
+// to affect an exponential difference in the scale of (and therefore apparent
+// proximity to) the sphere. This causes the stereoscopic disparity to change
+// in harmony with the altitude of the view.
 
 void orbiter::state::dive(const double *point,
                           const double *click, double dt, double k)
@@ -165,7 +173,9 @@ void orbiter::state::dive(const double *point,
     scale = exp(log(scale) - 4.0 * d);
 }
 
-// Apply the light position interaction.
+// Apply the light position interaction, using the change in the mouse pointer
+// to move the light source position vector. Light source position is relative
+// to the camera, not to the sphere.
 
 void orbiter::state::lite(const double *point,
                           const double *click, double dt, double k)
@@ -186,19 +196,16 @@ void orbiter::state::lite(const double *point,
     vnormalize(light, t);
 }
 
+// Animate all attributes of the view state over time dt, giving matrix M.
+
 void orbiter::state::update(double dt, double *M, double r)
 {
     // Move the position and view orientation along the current orbit.
 
-    double Y[3] = { 0.0, 1.0, 0.0 };
     double t[3];
-
     double R[16];
-    double T[16];
 
-    mrotate(M, orbit_plane, orbit_speed * dt);
-    mrotate(T, Y, 0.0); // Turn the planet.
-    mmultiply(R, M, T);
+    mrotate(R, orbit_plane, orbit_speed * dt);
 
     vtransform(t, R, view_x);
     vnormalize(view_x, t);
@@ -325,7 +332,6 @@ bool orbiter::process_event(app::event *E)
 void orbiter::load(const std::string& name)
 {
     scm_viewer::load(name);
-    current.scale = 1.0 / get_radius();
 }
 
 //------------------------------------------------------------------------------
