@@ -162,7 +162,7 @@ void orbiter::state::dive(const double *point,
 {
     double d = (point[1] - click[1]) * dt;
 
-    scale = exp(log(scale) - d);
+    scale = exp(log(scale) - 4.0 * d);
 }
 
 // Apply the light position interaction.
@@ -389,6 +389,7 @@ bool orbiter::pan_tick(app::event *E)
 {
     double dt = E->data.tick.dt / 1000.0;
     double sc = 1.0 / (get_radius() * current.scale);
+    double r0 = cache ? cache->get_r0() : 1.0;
 
     double M[16];
 
@@ -400,7 +401,7 @@ bool orbiter::pan_tick(app::event *E)
     if (drag_dive) current.dive(point, click, dt, sc);
     if (drag_lite) current.lite(point, click, dt, sc);
 
-    current.update(dt, M, get_radius() * cache->get_r0());
+    current.update(dt, M, get_radius() * r0);
 
     ::user->set_M(M);
 
