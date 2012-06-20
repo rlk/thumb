@@ -10,6 +10,7 @@ PANOBJS= \
 	scm-set.o \
 	scm-task.o \
 	scm-file.o \
+	scm-state.o \
 	scm-index.o \
 	scm-model.o \
 	scm-cache.o \
@@ -25,6 +26,7 @@ ORBOBJS= \
 	scm-set.o \
 	scm-task.o \
 	scm-file.o \
+	scm-state.o \
 	scm-index.o \
 	scm-model.o \
 	scm-cache.o \
@@ -43,7 +45,7 @@ LIBDIR += -L../../src
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
-LIBS    = $(shell $(SDLCONF) --libs) \
+LIBS   += $(shell $(SDLCONF) --libs) \
 	  $(shell $(FT2CONF) --libs) \
 	  /usr/local/lib/libtiff.a \
 	-lthumb -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)

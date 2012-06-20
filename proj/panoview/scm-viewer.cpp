@@ -25,6 +25,7 @@
 #include <app-default.hpp>
 
 #include "math3d.h"
+#include "scm-state.hpp"
 #include "scm-viewer.hpp"
 
 //------------------------------------------------------------------------------
@@ -47,6 +48,9 @@ scm_viewer::scm_viewer(const std::string& exe,
 {
     TIFFSetWarningHandler(0);
     gui_init();
+
+    scm_state s;
+
 }
 
 scm_viewer::~scm_viewer()
