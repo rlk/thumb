@@ -60,8 +60,6 @@ void panoview::draw(int frusi, const app::frustum *frusp, int chani)
         model->set_zoom(v[0], v[1], v[2], current.get_zoom());
     }
 
-    channel = chani;
-
     scm_viewer::draw(frusi, frusp, chani);
     scm_viewer::over(frusi, frusp, chani);
 }

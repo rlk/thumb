@@ -304,6 +304,14 @@ bool scm_viewer::process_key(app::event *E)
 
                 case 8: cache->flush();               return true;
             }
+
+        if (c && !s)
+            switch (k)
+            {
+                case 'h': path_home(); return true;
+                case 'b': path_back(); return true;
+                case 'f': path_fore(); return true;
+            }
     }
 
     return prog::process_event(E);
@@ -413,6 +421,23 @@ bool scm_viewer::gui_key(app::event *E)
                 E->data.key.m);
     }
     return true;
+}
+
+//------------------------------------------------------------------------------
+
+void scm_viewer::path_home()
+{
+    printf("home");
+}
+
+void scm_viewer::path_fore()
+{
+    printf("fore");
+}
+
+void scm_viewer::path_back()
+{
+    printf("back");
 }
 
 //------------------------------------------------------------------------------

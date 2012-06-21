@@ -35,8 +35,6 @@ public:
 
 private:
 
-    int channel;
-
     double min_zoom;
     double max_zoom;
     bool  drag_zooming;

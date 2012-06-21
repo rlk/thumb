@@ -1,6 +1,8 @@
 
 Todo:
 
+	Fix panoview zoom.
+
 	There are MANY passes over most Apollo sites
 		Convert them all and make animations
 		http://apollo.mem-tek.com/LRO_NAC_Apollo_Images.html
@@ -39,25 +41,3 @@ Todo:
 	Add the overlay XML to the pan definition.
 
 	Adaptive map scale
-
-
-Moon Script
-
-	Begin with LOLA + WAC + NAC Apollo 16 + NAC Tycho full moon
-	Introduce WAC
-	Zoom in to show the 3D terrain
-	Introduce LOLA
-	Note the size of a NAC strip
-	Zoom in to show Apollo 16
-	Landing site, Tracks West, House Rock
-	Move to Tycho
-	Circle the mountain
-	Zoom in on the boulder
-	Switch to real-time lighting
-	Describe the data layering
-	Show the south pole
-	Switch to false-color height
-	Show the highest point
-	Switch to side-by-side configuration
-	Show LOLA and GLD false color
-	Show LOLA and GLD normal

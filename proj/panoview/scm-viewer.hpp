@@ -134,6 +134,15 @@ private:
     bool process_key (app::event *);
     bool process_tick(app::event *);
 
+    // Camera scripting state
+
+    std::vector<scm_state>           state;
+    std::vector<scm_state>::iterator point;
+
+    void path_home();
+    void path_back();
+    void path_fore();
+
     // Label data
 
     size_t      data_len;
