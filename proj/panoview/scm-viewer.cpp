@@ -48,9 +48,6 @@ scm_viewer::scm_viewer(const std::string& exe,
 {
     TIFFSetWarningHandler(0);
     gui_init();
-
-    scm_state s;
-
 }
 
 scm_viewer::~scm_viewer()
@@ -182,7 +179,7 @@ ogl::range scm_viewer::prep(int frusc, const app::frustum *const *frusv)
     {
         cache->update(model->tick());
     }
-    return ogl::range(0.1, radius * 10.0);
+    return ogl::range(0.1, radius * current.get_scale() * 10.0);
 }
 
 void scm_viewer::lite(int frusc, const app::frustum *const *frusv)
@@ -206,10 +203,11 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
         // Compute the model view matrix to be used for view determination.
 
         double V[16];
+        double r = radius * current.get_scale();
 
         minvert(V, M);
-        Rmul_xlt_mat(V,      0, -height,      0);
-        Rmul_scl_mat(V, radius,  radius, radius);
+        Rmul_xlt_mat(V, 0, -height, 0);
+        Rmul_scl_mat(V, r, r, r);
 
         // Select the set of files to be drawn and pre-cached.
 
@@ -254,26 +252,18 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
 void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
 {
-    const double *M = ::user->get_M();
-
     // Draw the label overlay.
 
     if (label && debug_label)
     {
-        double altitude = sqrt(DOT3(M + 12, M + 12));
-        double position[3];
-
-        position[0] = M[12] / altitude;
-        position[1] = M[13] / altitude;
-        position[2] = M[14] / altitude;
-
         frusp->draw();
        ::user->draw();
 
         glPushMatrix();
         {
-            glScaled(radius, radius, radius);
-            label->draw(position, radius, altitude);
+            double r = radius * current.get_scale();
+            glScaled(r, r, r);
+            label->draw();
         }
         glPopMatrix();
     }

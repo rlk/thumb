@@ -34,6 +34,10 @@ public:
     void transform_position   (const double *);
     void transform_light      (const double *);
 
+    void set_radius(double r) { radius = r; }
+    void set_scale (double s) { scale  = s; }
+    void set_zoom  (double z) { zoom   = z; }
+
     void   get_matrix  (double *) const;
     void   get_position(double *) const;
     void   get_up      (double *) const;

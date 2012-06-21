@@ -38,15 +38,15 @@ scm_state::scm_state()
     orientation[2] = 0.0;
     orientation[3] = 1.0;
 
-    position[0]    = 0.0;
+    position[0]    = 1.0;
     position[1]    = 0.0;
     position[2]    = 0.0;
-    position[3]    = 1.0;
+    position[3]    = 0.0;
 
-    light[0]       = 0.0;
+    light[0]       = 1.0;
     light[1]       = 0.0;
     light[2]       = 0.0;
-    light[3]       = 1.0;
+    light[3]       = 0.0;
 
     radius         = 0.0;
     scale          = 1.0;

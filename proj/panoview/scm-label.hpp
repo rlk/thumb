@@ -31,7 +31,7 @@ public:
               const void *, size_t);
    ~scm_label();
 
-    void draw(const double *, double, double);
+    void draw();
 
 private:
 

@@ -36,6 +36,9 @@ orbiter::orbiter(const std::string& exe,
     drag_look = false;
     drag_dive = false;
     drag_lite = false;
+
+    current.set_radius(2000000.0);
+    current.set_scale (1.0 / 1737400.0);
 }
 
 orbiter::~orbiter()
@@ -44,95 +47,37 @@ orbiter::~orbiter()
 
 //------------------------------------------------------------------------------
 
-orbiter::state::state()
-{
-    distance       = 2.0;
-    scale          = 1.0 / 1737400.0;
-
-    orbit_plane[0] = 0.0;
-    orbit_plane[1] = 1.0;
-    orbit_plane[2] = 0.0;
-    orbit_speed    = 0.0;
-
-    position[0]    = 0.0;
-    position[1]    = 0.0;
-    position[2]    = 1.0;
-
-    view_x[0]      = 1.0;
-    view_x[1]      = 0.0;
-    view_x[2]      = 0.0;
-
-    view_y[0]      = 0.0;
-    view_y[1]      = 1.0;
-    view_y[2]      = 0.0;
-
-    light[0]       = sqrt(3.0);
-    light[1]       = sqrt(3.0);
-    light[2]       = sqrt(3.0);
-}
-
 // Apply the view panning interaction, rotating left-right about the position
 // vector and up-down about the current right vector.
 
-void orbiter::state::look(const double *point,
-                          const double *click, double dt, double k)
+void orbiter::look(const double *point,
+                   const double *click, double dt, double k)
 {
-    const double *M = ::user->get_M();
+    double r[3];
+    double p[3];
+
+    current.get_right(r);
+    current.get_position(p);
 
     double dx = point[0] - click[0];
     double dy = point[1] - click[1];
-
     double X[16];
     double Y[16];
-    double R[16];
-    double t[3];
+    double M[16];
 
-    mrotate(X, M,         10.0 * dy * dt);
-    mrotate(Y, position, -10.0 * dx * dt);
-    mmultiply(R, X, Y);
+    mrotate(X, r,  10.0 * dy * dt);
+    mrotate(Y, p, -10.0 * dx * dt);
+    mmultiply(M, X, Y);
 
-    vtransform(t, R, view_x);
-    vnormalize(view_x, t);
-
-    vtransform(t, R, view_y);
-    vnormalize(view_y, t);
-}
-
-// Apply the
-
-void orbiter::state::turn(const double *point,
-                          const double *click, double dt, double k)
-{
-    const double *M = ::user->get_M();
-
-    double dx = point[0] - click[0];
-    double dy = point[1] - click[1];
-
-    double X[16];
-    double Y[16];
-    double R[16];
-    double t[3];
-
-    mrotate(X, M,         10.0 * dy * dt);
-    mrotate(Y, position, -10.0 * dx * dt);
-    mmultiply(R, X, Y);
-
-    vtransform(t, R, view_x);
-    vnormalize(view_x, t);
-
-    vtransform(t, R, view_y);
-    vnormalize(view_y, t);
-
-    vtransform(t, Y, orbit_plane);
-    vnormalize(orbit_plane, t);
+    current.transform_orientation(M);
 }
 
 // Apply the orbital motion interaction, using the direction of the mouse
 // pointer motion to set the orbital plane and the magnitude of the mouse
 // motion to set the orbital speed.
 
-void orbiter::state::move(const double *point,
-                          const double *click, double dt, double k)
+void orbiter::move(const double *point,
+                   const double *click, double dt, double k)
 {
     if (click[0] != point[0] ||
         click[1] != point[1] ||
@@ -165,112 +110,59 @@ void orbiter::state::move(const double *point,
 // proximity to) the sphere. This causes the stereoscopic disparity to change
 // in harmony with the altitude of the view.
 
-void orbiter::state::dive(const double *point,
-                          const double *click, double dt, double k)
+void orbiter::dive(const double *point,
+                   const double *click, double dt, double k)
 {
     double d = (point[1] - click[1]) * dt;
+    double r = current.get_radius();
+    double m = get_radius() * (cache ? cache->get_r0() : 1.0);
 
-    scale = exp(log(scale) - 4.0 * d);
+    r = m + exp(log(r - m) + (4 * d));
+
+    current.set_radius(r);
+    current.set_scale(1.0 / (r - m));
 }
 
 // Apply the light position interaction, using the change in the mouse pointer
 // to move the light source position vector. Light source position is relative
 // to the camera, not to the sphere.
 
-void orbiter::state::lite(const double *point,
-                          const double *click, double dt, double k)
+void orbiter::lite(const double *point,
+                   const double *click, double dt, double k)
 {
+    double r[3];
+    double u[3];
+
+    current.get_right(r);
+    current.get_up(u);
+
     double dx = point[0] - click[0];
     double dy = point[1] - click[1];
-
     double X[16];
     double Y[16];
-    double R[16];
-    double t[3];
+    double M[16];
 
-    mrotate(X, view_x, -10.0 * dy * dt);
-    mrotate(Y, view_y,  10.0 * dx * dt);
-    mmultiply(R, X, Y);
+    mrotate(X, r,  10.0 * dy * dt);
+    mrotate(Y, u, -10.0 * dx * dt);
+    mmultiply(M, X, Y);
 
-    vtransform(t, R, light);
-    vnormalize(light, t);
-}
-
-// Animate all attributes of the view state over time dt, giving matrix M.
-
-void orbiter::state::update(double dt, double *M, double r)
-{
-    // Move the position and view orientation along the current orbit.
-
-    double t[3];
-    double R[16];
-
-    mrotate(R, orbit_plane, orbit_speed * dt);
-
-    vtransform(t, R, view_x);
-    vnormalize(view_x, t);
-
-    vtransform(t, R, view_y);
-    vnormalize(view_y, t);
-
-    vtransform(t, R, light);
-    vnormalize(light, t);
-
-    vtransform(t, R, position);
-    vnormalize(position, t);
-
-    // Orthonormalize the view orientation basis.
-
-    double view_z[3];
-
-    vcrs(view_z, view_x, view_y);
-    vcrs(view_y, view_z, view_x);
-
-    mbasis(M, view_x, view_y, view_z);
-
-    // Update the user transform.
-
-    M[14] = position[2] * (r * scale + distance);
-    M[12] = position[0] * (r * scale + distance);
-    M[13] = position[1] * (r * scale + distance);
-}
-
-//------------------------------------------------------------------------------
-
-#define FILENAME "orbiter.dat"
-
-void orbiter::loadstate()
-{
-    FILE *stream;
-
-    if ((stream = fopen(FILENAME, "r")))
-    {
-        fread(saved, sizeof (saved), 1, stream);
-        fclose(stream);
-    }
-}
-
-void orbiter::savestate()
-{
-    FILE *stream;
-
-    if ((stream = fopen(FILENAME, "wb")))
-    {
-        fwrite(saved, sizeof (saved), 1, stream);
-        fclose(stream);
-    }
+    current.transform_light(M);
 }
 
 //------------------------------------------------------------------------------
 
 ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
-    if (cache && model)
+    if (cache)
     {
+        // Cycle the cache.
+
         cache->update(model->tick());
 
-        double r = current.scale * get_radius() * cache->get_r0();
-        double a = current.scale * get_radius() * cache->get_r0() + current.distance;
+        // Compute a horizon line based upon altitude and  minimum data radius.
+
+        double r = current.get_scale() *         get_radius() * cache->get_r0();
+        double a = current.get_scale() * current.get_radius() + r;
 
         double n = 0.001 *     (a     - r    );
         double f = 1.1   * sqrt(a * a - r * r);
@@ -285,11 +177,14 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    double  l[3];
     GLfloat L[4];
 
-    L[0] = GLfloat(current.light[0]);
-    L[1] = GLfloat(current.light[1]);
-    L[2] = GLfloat(current.light[2]);
+    current.get_light(l);
+
+    L[0] = GLfloat(l[0]);
+    L[1] = GLfloat(l[1]);
+    L[2] = GLfloat(l[2]);
     L[3] = 0.0f;
 
     glLoadIdentity();
@@ -298,17 +193,11 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    const double r = get_radius();
+    glFrontFace(GL_CW);
+    scm_viewer::draw(frusi, frusp, chani);
 
-    set_radius(r * current.scale);
-    {
-        glFrontFace(GL_CW);
-        scm_viewer::draw(frusi, frusp, chani);
-
-        glFrontFace(GL_CCW);
-        scm_viewer::over(frusi, frusp, chani);
-    }
-    set_radius(r);
+    glFrontFace(GL_CCW);
+    scm_viewer::over(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------
@@ -394,21 +283,31 @@ bool orbiter::pan_click(app::event *E)
 bool orbiter::pan_tick(app::event *E)
 {
     double dt = E->data.tick.dt / 1000.0;
-    double sc = 1.0 / (get_radius() * current.scale);
-    double r0 = cache ? cache->get_r0() : 1.0;
+    double sc = 1.0 / (get_radius() * current.get_scale());
 
     double M[16];
 
     if (control) sc *= 0.1;
 
-    if (drag_move) current.move(point, click, dt, sc);
-    if (drag_look) current.look(point, click, dt, sc);
-    if (drag_turn) current.turn(point, click, dt, sc);
-    if (drag_dive) current.dive(point, click, dt, sc);
-    if (drag_lite) current.lite(point, click, dt, sc);
+    if (drag_move) move(point, click, dt, sc);
+    if (drag_look) look(point, click, dt, sc);
+    if (drag_dive) dive(point, click, dt, sc);
+    if (drag_lite) lite(point, click, dt, sc);
 
-    current.update(dt, M, get_radius() * r0);
+    // Move the position and view orientation along the current orbit.
 
+    if (orbit_speed > 0.0)
+    {
+        double R[16];
+
+        mrotate(R, orbit_plane, orbit_speed * dt);
+
+        current.transform_orientation(R);
+        current.transform_position(R);
+        current.transform_light(R);
+    }
+
+    current.get_matrix(M);
     ::user->set_M(M);
 
     return false;
@@ -418,43 +317,11 @@ bool orbiter::pan_key(app::event *E)
 {
     const int d = E->data.key.d;
     const int k = E->data.key.k;
-    const int c = E->data.key.m & KMOD_CTRL;
-    const int s = E->data.key.m & KMOD_SHIFT;
+//  const int c = E->data.key.m & KMOD_CTRL;
+//  const int s = E->data.key.m & KMOD_SHIFT;
 
     if (d)
     {
-        if (c)
-            switch (k)
-            {
-                case 282: loadstate(); current = saved[ 0]; return true;
-                case 283: loadstate(); current = saved[ 1]; return true;
-                case 284: loadstate(); current = saved[ 2]; return true;
-                case 285: loadstate(); current = saved[ 3]; return true;
-                case 286: loadstate(); current = saved[ 4]; return true;
-                case 287: loadstate(); current = saved[ 5]; return true;
-                case 288: loadstate(); current = saved[ 6]; return true;
-                case 289: loadstate(); current = saved[ 7]; return true;
-                case 290: loadstate(); current = saved[ 8]; return true;
-                case 291: loadstate(); current = saved[ 9]; return true;
-                case 292: loadstate(); current = saved[10]; return true;
-                case 293: loadstate(); current = saved[11]; return true;
-            }
-        if (s)
-            switch (k)
-            {
-                case 282: saved[ 0] = current; savestate(); return true;
-                case 283: saved[ 1] = current; savestate(); return true;
-                case 284: saved[ 2] = current; savestate(); return true;
-                case 285: saved[ 3] = current; savestate(); return true;
-                case 286: saved[ 4] = current; savestate(); return true;
-                case 287: saved[ 5] = current; savestate(); return true;
-                case 288: saved[ 6] = current; savestate(); return true;
-                case 289: saved[ 7] = current; savestate(); return true;
-                case 290: saved[ 8] = current; savestate(); return true;
-                case 291: saved[ 9] = current; savestate(); return true;
-                case 292: saved[10] = current; savestate(); return true;
-                case 293: saved[11] = current; savestate(); return true;
-            }
         switch (k)
         {
         case 280: goto_next(); return true;

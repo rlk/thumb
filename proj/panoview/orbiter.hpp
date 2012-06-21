@@ -38,38 +38,13 @@ public:
 
 private:
 
-    void tick_move (double);
-    void tick_look (double);
-    void tick_dive (double);
-    void tick_light(double);
+    void look(const double *, const double *, double, double);
+    void move(const double *, const double *, double, double);
+    void dive(const double *, const double *, double, double);
+    void lite(const double *, const double *, double, double);
 
-    struct state
-    {
-        double distance;
-        double scale;
-        double orbit_plane[3];
-        double orbit_speed;
-        double position[3];
-        double view_x[3];
-        double view_y[3];
-        double light[3];
-
-        state();
-
-        void move(const double *, const double *, double, double);
-        void look(const double *, const double *, double, double);
-        void turn(const double *, const double *, double, double);
-        void dive(const double *, const double *, double, double);
-        void lite(const double *, const double *, double, double);
-
-        void update(double, double *, double);
-    };
-
-    void loadstate();
-    void savestate();
-
-    state  current;
-    state  saved[12];
+    double orbit_plane[3];
+    double orbit_speed;
 
     double point[3];
     double click[3];

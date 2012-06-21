@@ -250,7 +250,7 @@ scm_label::~scm_label()
 
 //------------------------------------------------------------------------------
 
-void scm_label::draw(const double *p, double r, double a)
+void scm_label::draw()
 {
     size_t sz = sizeof (point);
 

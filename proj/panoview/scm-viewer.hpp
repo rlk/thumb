@@ -18,6 +18,7 @@
 #include <app-prog.hpp>
 #include <app-file.hpp>
 
+#include "scm-state.hpp"
 #include "scm-cache.hpp"
 #include "scm-model.hpp"
 #include "scm-label.hpp"
@@ -107,6 +108,7 @@ protected:
     scm_cache *cache;
     scm_model *model;
     scm_label *label;
+    scm_state current;
 
 private:
 
