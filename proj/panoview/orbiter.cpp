@@ -37,8 +37,8 @@ orbiter::orbiter(const std::string& exe,
     drag_dive = false;
     drag_lite = false;
 
-    current.set_radius(2000000.0);
-    current.set_scale (1.0 / 1737400.0);
+    if (char *name = getenv("SCMINIT"))
+         load(name);
 }
 
 orbiter::~orbiter()
@@ -211,7 +211,6 @@ bool orbiter::process_event(app::event *E)
             case E_CLICK: return pan_click(E);
             case E_POINT: return pan_point(E);
             case E_TICK:  return pan_tick(E);
-            case E_KEY:   return pan_key(E);
         }
     }
 
@@ -221,6 +220,8 @@ bool orbiter::process_event(app::event *E)
 void orbiter::load(const std::string& name)
 {
     scm_viewer::load(name);
+
+    current.set_radius(2.0 * get_radius());
 }
 
 //------------------------------------------------------------------------------
@@ -309,18 +310,6 @@ bool orbiter::pan_tick(app::event *E)
 
     current.get_matrix(M);
     ::user->set_M(M);
-
-    return false;
-}
-
-bool orbiter::pan_key(app::event *E)
-{
-    if (E->data.key.d)
-        switch (E->data.key.k)
-        {
-        case 280: goto_next(); return true;
-        case 281: goto_prev(); return true;
-        }
 
     return false;
 }

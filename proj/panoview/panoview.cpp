@@ -36,6 +36,8 @@ panoview::panoview(const std::string& exe,
     drag_zooming(false),
     drag_looking(false)
 {
+    if (char *name = getenv("SCMINIT"))
+         load(name);
 }
 
 panoview::~panoview()
@@ -75,7 +77,6 @@ bool panoview::process_event(app::event *E)
             case E_CLICK: return pan_click(E);
             case E_POINT: return pan_point(E);
             case E_TICK:  return pan_tick(E);
-            case E_KEY:   return pan_key(E);
         }
     }
     return false;
@@ -141,18 +142,6 @@ bool panoview::pan_tick(app::event *E)
 
     current.get_matrix(M);
     ::user->set_M(M);
-
-    return false;
-}
-
-bool panoview::pan_key(app::event *E)
-{
-    if (E->data.key.d)
-        switch (E->data.key.k)
-        {
-        case 280: goto_next(); return true;
-        case 281: goto_prev(); return true;
-        }
 
     return false;
 }

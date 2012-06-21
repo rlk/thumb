@@ -131,6 +131,9 @@ private:
     bool debug_wire;
     bool debug_bound;
 
+    bool process_key (app::event *);
+    bool process_tick(app::event *);
+
     // Label data
 
     size_t      data_len;

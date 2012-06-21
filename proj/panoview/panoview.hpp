@@ -49,7 +49,6 @@ private:
     bool pan_point(app::event *);
     bool pan_click(app::event *);
     bool pan_tick (app::event *);
-    bool pan_key  (app::event *);
 };
 
 //-----------------------------------------------------------------------------

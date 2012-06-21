@@ -281,47 +281,59 @@ void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
+bool scm_viewer::process_key(app::event *E)
+{
+    const int d = E->data.key.d;
+    const int k = E->data.key.k;
+    const int c = E->data.key.m & KMOD_CTRL;
+    const int s = E->data.key.m & KMOD_SHIFT;
+
+    if (d)
+    {
+        if (!c && !s)
+            switch (k)
+            {
+                case 280: goto_next();                return true;
+                case 281: goto_prev();                return true;
+
+                case 282: gui_state   = !gui_state;   return true;
+                case 283: debug_cache = !debug_cache; return true;
+                case 284: debug_label = !debug_label; return true;
+                case 285: debug_wire  = !debug_wire;  return true;
+                case 286: debug_bound = !debug_bound; return true;
+
+                case 8: cache->flush();               return true;
+            }
+    }
+
+    return prog::process_event(E);
+}
+
+bool scm_viewer::process_tick(app::event *E)
+{
+    timer += timer_d * E->data.tick.dt / 1000.0;
+
+    if (timer_d > 0.0 && timer > timer_e)
+    {
+        timer   = timer_e;
+        timer_d = 0;
+    }
+    if (timer_d < 0.0 && timer < timer_e)
+    {
+        timer   = timer_e;
+        timer_d = 0;
+    }
+    return false;
+}
+
 bool scm_viewer::process_event(app::event *E)
 {
-    // Toggle global options in response to function keys.
-
-    if (E->get_type() == E_KEY)
-    {
-        const int d = E->data.key.d;
-        const int k = E->data.key.k;
-        const int c = E->data.key.m & KMOD_CTRL;
-        const int s = E->data.key.m & KMOD_SHIFT;
-
-        if (d)
-        {
-            if (!c && !s)
-                switch (k)
-                {
-                    case 282 : gui_state   = !gui_state;   return true;
-                    case 283 : debug_cache = !debug_cache; return true;
-                    case 284 : debug_label = !debug_label; return true;
-                    case 285 : debug_wire  = !debug_wire;  return true;
-                    case 286 : debug_bound = !debug_bound; return true;
-                    case 8   : cache->flush();             return true;
-                }
-
-            if (!s)
-                switch (k)
-                {
-                case '0': case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8': case '9':
-                    if (c)
-                        model->set_n1(double(k - '0') / 9);
-                    else
-                        model->set_n0(double(k - '0') / 9);
-                    return true;
-                }
-        }
-    }
+    if      (E->get_type() == E_KEY)  return process_key(E);
+    else if (E->get_type() == E_TICK) return process_tick(E);
 
     // Pass the event to the GUI if visible.
 
-    if (gui_state)
+    else if (gui_state)
     {
         switch (E->get_type())
         {
@@ -331,28 +343,7 @@ bool scm_viewer::process_event(app::event *E)
         }
     }
 
-    // Apply the passage of time to animation playback.
-
-    if (E->get_type() == E_TICK)
-    {
-        timer += timer_d * E->data.tick.dt / 1000.0;
-
-        if (timer_d > 0.0 && timer > timer_e)
-        {
-            timer   = timer_e;
-            timer_d = 0;
-        }
-        if (timer_d < 0.0 && timer < timer_e)
-        {
-            timer   = timer_e;
-            timer_d = 0;
-        }
-    }
-
-    if (E->get_type() == E_KEY)
-        return prog::process_event(E);
-    else
-        return false;
+    return false;
 }
 
 //------------------------------------------------------------------------------
