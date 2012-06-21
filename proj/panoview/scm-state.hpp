@@ -27,8 +27,8 @@ public:
               const scm_state *,
               const scm_state *, double);
 
-    void read (FILE *);
-    void write(FILE *);
+    bool read (FILE *);
+    bool write(FILE *);
 
     void transform_orientation(const double *);
     void transform_position   (const double *);
@@ -39,8 +39,9 @@ public:
     void   get_up      (double *) const;
     void   get_right   (double *) const;
     void   get_light   (double *) const;
-    double get_scale()            const;
-    double get_zoom()             const;
+    double get_radius()           const { return radius; }
+    double get_scale()            const { return scale;  }
+    double get_zoom()             const { return zoom;   }
 
 private:
 

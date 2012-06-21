@@ -1,6 +1,9 @@
 
 Todo:
 
+	There are MANY passes over most Apollo sites
+		Convert them all and make animations
+		http://apollo.mem-tek.com/LRO_NAC_Apollo_Images.html
 	Complex interpolated camera motion
 		Implemented in scm-viewer
 			so both panorama and orbiter benefit
@@ -8,6 +11,8 @@ Todo:
 			high quality render-out
 		Dynamic zoomy presentation mode
 			this will require path integration with scmtiff
+
+	Make some movies of Apollo sites with horizon pans.
 
 	Unified dataset
 		Use the channels of the image

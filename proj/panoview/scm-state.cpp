@@ -63,45 +63,113 @@ scm_state::scm_state(const scm_state *a,
     qsquad(orientation, a->orientation,
                         b->orientation,
                         c->orientation,
-                        d->orientation);
+                        d->orientation, t);
     qsquad(position,    a->position,
                         b->position,
                         c->position,
-                        d->position);
+                        d->position, t);
 
-    radius = mix(a->radius, b->radius, c->radius, d->radius);
-    scale  = mix(a->scale,  b->scale,  c->scale,  d->scale);
-    zoom   = mix(a->zoom,   b->zoom,   c->zoom,   d->zoom);
+    qnormalize(orientation, orientation);
+    qnormalize(position,    position);
+
+    radius = mix(a->radius, b->radius, c->radius, d->radius, t);
+    scale  = mix(a->scale,  b->scale,  c->scale,  d->scale,  t);
+    zoom   = mix(a->zoom,   b->zoom,   c->zoom,   d->zoom,   t);
 }
 
 //------------------------------------------------------------------------------
 
-void scm_state::read(FILE *stream)
+bool scm_state::read(FILE *stream)
 {
+    return (fread(this, sizeof (scm_state), 1, stream) == 1);
 }
 
-void scm_state::write(FILE *stream)
+bool scm_state::write(FILE *stream)
 {
-}
-
-//------------------------------------------------------------------------------
-
-void scm_state::transform_orientation(const double *)
-{
-}
-
-void scm_state::transform_position(const double *)
-{
-}
-
-void scm_state::transform_light(const double *)
-{
+    return (fwrite(this, sizeof (scm_state), 1, stream) == 1);
 }
 
 //------------------------------------------------------------------------------
 
-void scm_state::get_matrix(double *) const
+static inline void transform_quaternion(const double *M, double *q)
 {
+    double A[16];
+    double B[16];
+
+    mquaternion(A, q);
+    mmultiply(B, M, A);
+    qmatrix(q, B);
+    qnormalize(q, q);
+}
+
+void scm_state::transform_orientation(const double *M)
+{
+    transform_quaternion(M, orientation);
+}
+
+void scm_state::transform_position(const double *M)
+{
+    transform_quaternion(M, position);
+}
+
+void scm_state::transform_light(const double *M)
+{
+    transform_quaternion(M, light);
+}
+
+//------------------------------------------------------------------------------
+
+// Return the view transformation matrix.
+
+void scm_state::get_matrix(double *M) const
+{
+    vquaternionx(M +  0, orientation);
+    vquaterniony(M +  4, orientation);
+    vquaternionz(M +  8, orientation);
+    vquaternionz(M + 12, position);
+
+    M[12] *= -radius * scale;
+    M[13] *= -radius * scale;
+    M[14] *= -radius * scale;
+
+    M[ 3] = 0.0;
+    M[ 7] = 0.0;
+    M[11] = 0.0;
+    M[15] = 1.0;
+}
+
+// Return the negated Z axis of the matrix form of the position quaternion,
+// thus giving the position vector.
+
+void scm_state::get_position(double *v) const
+{
+    vquaternionz(v, position);
+    vneg(v, v);
+}
+
+// Return the Y axis of the matrix form of the orientation quaternion, thus
+// giving the view up vector.
+
+void scm_state::get_up(double *v) const
+{
+    vquaterniony(v, orientation);
+}
+
+// Return the X axis of the matrix form of the orientation quaternion, thus
+// giving the view right vector.
+
+void scm_state::get_right(double *v) const
+{
+    vquaternionx(v, orientation);
+}
+
+// Return the negated Z axis of the matrix form of the light source quaternion,
+// thus giving the light direction vector.
+
+void scm_state::get_light(double *v) const
+{
+    vquaternionz(v, light);
+    vneg(v, v);
 }
 
 //------------------------------------------------------------------------------
