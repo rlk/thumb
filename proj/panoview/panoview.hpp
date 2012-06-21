@@ -39,16 +39,12 @@ private:
 
     double min_zoom;
     double max_zoom;
-    bool debug_zoom;
-
-    bool   drag_looking;
-    bool   drag_zooming;
-    int    drag_x;
-    int    drag_y;
-    double drag_zoom;
-    int    curr_x;
-    int    curr_y;
-    double curr_zoom;
+    bool  drag_zooming;
+    bool  drag_looking;
+    int   drag_x;
+    int   drag_y;
+    int   curr_x;
+    int   curr_y;
 
     bool pan_point(app::event *);
     bool pan_click(app::event *);

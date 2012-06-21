@@ -163,6 +163,15 @@ void scm_state::get_right(double *v) const
     vquaternionx(v, orientation);
 }
 
+// Return the negated Z axis of the matrix form of the orientation quaternion,
+// thus giving the view forward vector.
+
+void scm_state::get_forward(double *v) const
+{
+    vquaternionz(v, orientation);
+    vneg(v, v);
+}
+
 // Return the negated Z axis of the matrix form of the light source quaternion,
 // thus giving the light direction vector.
 

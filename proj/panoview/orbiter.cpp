@@ -315,19 +315,13 @@ bool orbiter::pan_tick(app::event *E)
 
 bool orbiter::pan_key(app::event *E)
 {
-    const int d = E->data.key.d;
-    const int k = E->data.key.k;
-//  const int c = E->data.key.m & KMOD_CTRL;
-//  const int s = E->data.key.m & KMOD_SHIFT;
-
-    if (d)
-    {
-        switch (k)
+    if (E->data.key.d)
+        switch (E->data.key.k)
         {
         case 280: goto_next(); return true;
         case 281: goto_prev(); return true;
         }
-    }
+
     return false;
 }
 

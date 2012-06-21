@@ -31,13 +31,11 @@
 
 panoview::panoview(const std::string& exe,
                    const std::string& tag) : scm_viewer(exe, tag),
-    min_zoom(-2.0),
-    max_zoom( 0.6),
-    debug_zoom(false)
+    min_zoom(0.5),
+    max_zoom(4.0),
+    drag_zooming(false),
+    drag_looking(false)
 {
-    curr_zoom    = 0.0;
-    drag_zooming = false;
-    drag_looking = false;
 }
 
 panoview::~panoview()
@@ -53,12 +51,11 @@ void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 
     if (model)
     {
-        const double *M = ::user->get_M();
+        double v[3];
 
-        if (debug_zoom)
-            model->set_zoom(  0.0,   0.0,   -1.0, pow(10.0, curr_zoom));
-        else
-            model->set_zoom(-M[8], -M[9], -M[10], pow(10.0, curr_zoom));
+        current.get_forward(v);
+
+        model->set_zoom(v[0], v[1], v[2], current.get_zoom());
     }
 
     channel = chani;
@@ -101,31 +98,50 @@ bool panoview::pan_click(app::event *E)
     if (E->data.click.b == 2)
         drag_zooming = E->data.click.d;
 
-    drag_x    = curr_x;
-    drag_y    = curr_y;
-    drag_zoom = curr_zoom;
+    drag_x = curr_x;
+    drag_y = curr_y;
 
     return true;
 }
 
 bool panoview::pan_tick(app::event *E)
 {
+    double M[16];
+
     float dt = E->data.tick.dt / 1000.0;
 
     if (drag_zooming)
     {
-        curr_zoom = drag_zoom + (curr_y - drag_y) / 500.0f;
+        double z = current.get_zoom() + (curr_y - drag_y) / 500.0f;
 
-        if (curr_zoom < min_zoom) curr_zoom = min_zoom;
-        if (curr_zoom > max_zoom) curr_zoom = max_zoom;
+        if (z < min_zoom) z = min_zoom;
+        if (z > max_zoom) z = max_zoom;
+
+        current.set_zoom(z);
     }
     if (drag_looking)
     {
-        int dx = curr_x - drag_x;
-        int dy = curr_y - drag_y;
+        double y[3] = { 0.0, 1.0, 0.0 };
+        double r[3];
 
-        ::user->look(-dx * dt, dy * dt);
+        current.get_right(r);
+
+        double dx = (double) (curr_x - drag_x) / 500.0;
+        double dy = (double) (curr_y - drag_y) / 500.0;
+
+        double X[16];
+        double Y[16];
+
+        mrotate(X, r,  10.0 * dy * dt);
+        mrotate(Y, y, -10.0 * dx * dt);
+        mmultiply(M, X, Y);
+
+        current.transform_orientation(M);
     }
+
+    current.get_matrix(M);
+    ::user->set_M(M);
+
     return false;
 }
 
@@ -136,7 +152,6 @@ bool panoview::pan_key(app::event *E)
         {
         case 280: goto_next(); return true;
         case 281: goto_prev(); return true;
-        case 285: debug_zoom  = !debug_zoom;  return true;
         }
 
     return false;

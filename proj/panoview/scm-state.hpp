@@ -42,6 +42,7 @@ public:
     void   get_position(double *) const;
     void   get_up      (double *) const;
     void   get_right   (double *) const;
+    void   get_forward (double *) const;
     void   get_light   (double *) const;
     double get_radius()           const { return radius; }
     double get_scale()            const { return scale;  }
