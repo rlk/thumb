@@ -89,7 +89,15 @@ void scm_path::get(scm_step& s)
     }
 }
 
-void scm_path::put(scm_step& s)
+void scm_path::set(scm_step& s)
+{
+    if (!step.empty())
+    {
+        step[curr] = s;
+    }
+}
+
+void scm_path::ins(scm_step& s)
 {
     if (step.empty())
     {
@@ -180,9 +188,9 @@ void scm_path::draw()
         glBegin(GL_LINE_LOOP);
         {
             for (int i = 0; i < int(step.size()); ++i)
-                for (int j = 0; j < 16; ++j)
+                for (int j = 0; j < 32; ++j)
                 {
-                    t = (double) j / 16;
+                    t = (double) j / 32;
 
                     glColor4f(0.0f, 1.0f, 0.0f, 0.8f * t + 0.2f);
 

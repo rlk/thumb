@@ -324,7 +324,8 @@ bool scm_viewer::process_key(app::event *E)
                 case 's': path.save();     return true; // ^S
                 case 'l': path.load();     return true; // ^L
                 case 'd': path.del();      return true; // ^D
-                case 'i': path.put(here);  return true; // ^I
+                case 'i': path.ins(here);  return true; // ^I
+                case 'o': path.set(here);  return true; // ^O
                 case 'j': path.jump();
                           path.get(here);  return true; // ^J
             }

@@ -35,7 +35,8 @@ public:
     void jump();
 
     void get(scm_step&);
-    void put(scm_step&);
+    void set(scm_step&);
+    void ins(scm_step&);
     void del();
 
     void save();
