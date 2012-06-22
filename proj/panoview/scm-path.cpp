@@ -12,6 +12,8 @@
 
 #include <cmath>
 
+#include <ogl-opengl.hpp>
+
 #include "scm-path.hpp"
 
 //------------------------------------------------------------------------------
@@ -90,9 +92,15 @@ void scm_path::get(scm_step& s)
 void scm_path::put(scm_step& s)
 {
     if (step.empty())
+    {
         step.push_back(s);
+        curr = 0;
+    }
     else
-        step.insert(step.begin() + curr, s);
+    {
+        step.insert(step.begin() + curr + 1, s);
+        curr++;
+    }
 }
 
 void scm_path::del()
@@ -100,7 +108,7 @@ void scm_path::del()
     if (!step.empty())
     {
         step.erase(step.begin() + curr);
-        curr = mmod(curr, step.size());
+        curr = mmod(curr - 1, step.size());
     }
 }
 
@@ -123,6 +131,71 @@ void scm_path::time(double dt)
 
 void scm_path::draw()
 {
+    double t;
+    int    i;
+
+    glPushAttrib(GL_ENABLE_BIT);
+    {
+        glDisable(GL_LIGHTING);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        glPointSize(8.0);
+        glBegin(GL_POINTS);
+        {
+            for (i = 0; i < int(step.size()); ++i)
+            {
+                if (i == curr)
+                    glColor4f(1.0f, 1.0f, 0.0f, 0.8f);
+                else
+                    glColor4f(1.0f, 0.5f, 0.0f, 0.6f);
+
+                step[i].draw();
+            }
+        }
+        glEnd();
+
+        glPointSize(4.0);
+        glBegin(GL_POINTS);
+        {
+            if (step.size())
+            {
+                i = floor(head_t);
+                t = head_t - i;
+
+                glColor4f(0.0f, 1.0f, 0.0, 1.0f);
+
+                scm_step s = scm_step(step[mmod(i - 1, step.size())],
+                                      step[mmod(i,     step.size())],
+                                      step[mmod(i + 1, step.size())],
+                                      step[mmod(i + 2, step.size())], t);
+                s.draw();
+            }
+        }
+        glEnd();
+
+        glBegin(GL_LINE_LOOP);
+        {
+            for (int i = 0; i < int(step.size()); ++i)
+                for (int j = 0; j < 16; ++j)
+                {
+                    t = (double) j / 16;
+
+                    glColor4f(0.0f, 1.0f, 0.0f, 0.8f * t + 0.2f);
+
+                    scm_step s = scm_step(step[mmod(i - 1, step.size())],
+                                          step[mmod(i,     step.size())],
+                                          step[mmod(i + 1, step.size())],
+                                          step[mmod(i + 2, step.size())], t);
+                    s.draw();
+                }
+        }
+        glEnd();
+    }
+    glPopAttrib();
 }
 
 //------------------------------------------------------------------------------

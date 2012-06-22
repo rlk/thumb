@@ -27,6 +27,8 @@ public:
              const scm_step&,
              const scm_step&, double);
 
+    void draw();
+
     bool read (FILE *);
     bool write(FILE *);
 

@@ -253,14 +253,23 @@ void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
 
     if (label && debug_label)
     {
+        double s = here.get_scale();
+        double r = radius;
+
         frusp->draw();
        ::user->draw();
 
         glPushMatrix();
         {
-            double r = radius * here.get_scale();
-            glScaled(r, r, r);
-            label->draw();
+            glScaled(s, s, s);
+            glPushMatrix();
+            {
+                glScaled(r, r, r);
+                label->draw();
+            }
+            glPopMatrix();
+
+            path.draw();
         }
         glPopMatrix();
     }

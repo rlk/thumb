@@ -12,6 +12,8 @@
 
 #include <cmath>
 
+#include <ogl-opengl.hpp>
+
 #include "math3d.h"
 #include "scm-step.hpp"
 
@@ -78,6 +80,19 @@ scm_step::scm_step(const scm_step& a,
     radius = mix(a.radius, b.radius, c.radius, d.radius, t);
     scale  = mix(a.scale,  b.scale,  c.scale,  d.scale,  t);
     zoom   = mix(a.zoom,   b.zoom,   c.zoom,   d.zoom,   t);
+}
+
+void scm_step::draw()
+{
+    double v[3];
+
+    get_position(v);
+
+    v[0] *= radius;
+    v[1] *= radius;
+    v[2] *= radius;
+
+    glVertex3dv(v);
 }
 
 //------------------------------------------------------------------------------
