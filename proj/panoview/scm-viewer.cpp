@@ -293,25 +293,35 @@ bool scm_viewer::process_key(app::event *E)
         if (!c && !s)
             switch (k)
             {
-                case 280: goto_next();                return true;
-                case 281: goto_prev();                return true;
+                case 280: goto_next();                return true; // Page Up
+                case 281: goto_prev();                return true; // Page Down
 
-                case 282: gui_state   = !gui_state;   return true;
-                case 283: debug_cache = !debug_cache; return true;
-                case 284: debug_label = !debug_label; return true;
-                case 285: debug_wire  = !debug_wire;  return true;
-                case 286: debug_bound = !debug_bound; return true;
+                case 282: gui_state   = !gui_state;   return true; // F1
+                case 283: debug_cache = !debug_cache; return true; // F2
+                case 284: debug_label = !debug_label; return true; // F3
+                case 285: debug_wire  = !debug_wire;  return true; // F4
+                case 286: debug_bound = !debug_bound; return true; // F5
 
-                case 8: cache->flush();               return true;
+                case 8: cache->flush();               return true; // Backspace
             }
 
         if (c && !s)
+        {
             switch (k)
             {
-                case 'h': path_home(); return true;
-                case 'b': path_back(); return true;
-                case 'f': path_fore(); return true;
+                case 'h': path_home();   return true; // ^H
+                case 'b': path_back();   return true; // ^B
+                case 'f': path_fore();   return true; // ^F
+                case 'p': path_prev();   return true; // ^P
+                case 'n': path_next();   return true; // ^N
+                case 'j': path_jump();   return true; // ^J
+                case 's': path_save();   return true; // ^S
+                case 'l': path_load();   return true; // ^L
+                case 'r': path_remove(); return true; // ^R
+                case 'i': path_insert(); return true; // ^I
+                case 'c': path_clear();  return true; // ^C
             }
+        }
     }
 
     return prog::process_event(E);
@@ -427,17 +437,46 @@ bool scm_viewer::gui_key(app::event *E)
 
 void scm_viewer::path_home()
 {
-    printf("home");
 }
 
 void scm_viewer::path_fore()
 {
-    printf("fore");
 }
 
 void scm_viewer::path_back()
 {
-    printf("back");
+}
+
+void scm_viewer::path_prev()
+{
+}
+
+void scm_viewer::path_next()
+{
+}
+
+void scm_viewer::path_jump()
+{
+}
+
+void scm_viewer::path_save()
+{
+}
+
+void scm_viewer::path_load()
+{
+}
+
+void scm_viewer::path_remove()
+{
+}
+
+void scm_viewer::path_insert()
+{
+}
+
+void scm_viewer::path_clear()
+{
 }
 
 //------------------------------------------------------------------------------
