@@ -18,7 +18,8 @@
 #include <app-prog.hpp>
 #include <app-file.hpp>
 
-#include "scm-state.hpp"
+#include "scm-step.hpp"
+#include "scm-path.hpp"
 #include "scm-cache.hpp"
 #include "scm-model.hpp"
 #include "scm-label.hpp"
@@ -108,7 +109,9 @@ protected:
     scm_cache *cache;
     scm_model *model;
     scm_label *label;
-    scm_state current;
+
+    scm_step here;
+    scm_path path;
 
 private:
 
@@ -133,15 +136,6 @@ private:
 
     bool process_key (app::event *);
     bool process_tick(app::event *);
-
-    // Camera scripting state
-
-    std::vector<scm_state>           state;
-    std::vector<scm_state>::iterator point;
-
-    void path_home();
-    void path_back();
-    void path_fore();
 
     // Label data
 

@@ -13,4 +13,48 @@
 #ifndef SCM_PATH_HPP
 #define SCM_PATH_HPP
 
+#include <vector>
+
+#include "scm-step.hpp"
+
+//------------------------------------------------------------------------------
+
+class scm_path
+{
+public:
+
+    scm_path();
+
+    void clear();
+
+    void fore(bool);
+    void back(bool);
+    void next();
+    void prev();
+    void home();
+    void jump();
+
+    void get(scm_step&);
+    void put(scm_step&);
+    void del();
+
+    void save();
+    void load();
+
+    void time(double);
+    void draw();
+
+    bool playing() const { return (head_d != 0.0); }
+
+private:
+
+    double head_t;
+    double head_d;
+    int    curr;
+
+    std::vector<scm_step> step;
+};
+
+//------------------------------------------------------------------------------
+
 #endif

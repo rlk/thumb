@@ -10,22 +10,22 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SCM_STATE_HPP
-#define SCM_STATE_HPP
+#ifndef scm_step_HPP
+#define scm_step_HPP
 
 #include <cstdio>
 
 //------------------------------------------------------------------------------
 
-class scm_state
+class scm_step
 {
 public:
 
-    scm_state();
-    scm_state(const scm_state *,
-              const scm_state *,
-              const scm_state *,
-              const scm_state *, double);
+    scm_step();
+    scm_step(const scm_step&,
+             const scm_step&,
+             const scm_step&,
+             const scm_step&, double);
 
     bool read (FILE *);
     bool write(FILE *);

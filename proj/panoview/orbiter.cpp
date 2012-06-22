@@ -56,8 +56,8 @@ void orbiter::look(const double *point,
     double r[3];
     double p[3];
 
-    current.get_right(r);
-    current.get_position(p);
+    here.get_right(r);
+    here.get_position(p);
 
     double dx = point[0] - click[0];
     double dy = point[1] - click[1];
@@ -69,7 +69,7 @@ void orbiter::look(const double *point,
     mrotate(Y, p, -10.0 * dx * dt);
     mmultiply(M, X, Y);
 
-    current.transform_orientation(M);
+    here.transform_orientation(M);
 }
 
 // Apply the orbital motion interaction, using the direction of the mouse
@@ -114,13 +114,13 @@ void orbiter::dive(const double *point,
                    const double *click, double dt, double k)
 {
     double d = (point[1] - click[1]) * dt;
-    double r = current.get_radius();
+    double r = here.get_radius();
     double m = get_radius() * (cache ? cache->get_r0() : 1.0);
 
     r = m + exp(log(r - m) + (4 * d));
 
-    current.set_radius(r);
-    current.set_scale(1.0 / (r - m));
+    here.set_radius(r);
+    here.set_scale(1.0 / (r - m));
 }
 
 // Apply the light position interaction, using the change in the mouse pointer
@@ -133,8 +133,8 @@ void orbiter::lite(const double *point,
     double r[3];
     double u[3];
 
-    current.get_right(r);
-    current.get_up(u);
+    here.get_right(r);
+    here.get_up(u);
 
     double dx = point[0] - click[0];
     double dy = point[1] - click[1];
@@ -146,7 +146,7 @@ void orbiter::lite(const double *point,
     mrotate(Y, u, -10.0 * dx * dt);
     mmultiply(M, X, Y);
 
-    current.transform_light(M);
+    here.transform_light(M);
 }
 
 //------------------------------------------------------------------------------
@@ -161,11 +161,11 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
         // Compute a horizon line based upon altitude and  minimum data radius.
 
-        double r = current.get_scale() *         get_radius() * cache->get_r0();
-        double a = current.get_scale() * current.get_radius() + r;
+        double r = here.get_scale() *      get_radius() * cache->get_r0();
+        double a = here.get_scale() * here.get_radius() + r;
 
-        double n = 0.001 *     (a     - r    );
-        double f = 1.1   * sqrt(a * a - r * r);
+        double n = 0.0001 *     (a     - r    );
+        double f = 1.1    * sqrt(a * a - r * r);
 
         return ogl::range(n, f);
     }
@@ -180,7 +180,7 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     double  l[3];
     GLfloat L[4];
 
-    current.get_light(l);
+    here.get_light(l);
 
     L[0] = GLfloat(l[0]);
     L[1] = GLfloat(l[1]);
@@ -221,7 +221,8 @@ void orbiter::load(const std::string& name)
 {
     scm_viewer::load(name);
 
-    current.set_radius(2.0 * get_radius());
+    here.set_radius(2.0 * get_radius());
+    here.set_scale (1.0 / get_radius());
 }
 
 //------------------------------------------------------------------------------
@@ -284,7 +285,7 @@ bool orbiter::pan_click(app::event *E)
 bool orbiter::pan_tick(app::event *E)
 {
     double dt = E->data.tick.dt / 1000.0;
-    double sc = 1.0 / (get_radius() * current.get_scale());
+    double sc = 1.0 / (get_radius() * here.get_scale());
 
     double M[16];
 
@@ -303,12 +304,12 @@ bool orbiter::pan_tick(app::event *E)
 
         mrotate(R, orbit_plane, orbit_speed * dt);
 
-        current.transform_orientation(R);
-        current.transform_position(R);
-        current.transform_light(R);
+        here.transform_orientation(R);
+        here.transform_position(R);
+        here.transform_light(R);
     }
 
-    current.get_matrix(M);
+    here.get_matrix(M);
     ::user->set_M(M);
 
     return false;

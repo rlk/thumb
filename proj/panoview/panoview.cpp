@@ -55,9 +55,9 @@ void panoview::draw(int frusi, const app::frustum *frusp, int chani)
     {
         double v[3];
 
-        current.get_forward(v);
+        here.get_forward(v);
 
-        model->set_zoom(v[0], v[1], v[2], current.get_zoom());
+        model->set_zoom(v[0], v[1], v[2], here.get_zoom());
     }
 
     scm_viewer::draw(frusi, frusp, chani);
@@ -111,19 +111,19 @@ bool panoview::pan_tick(app::event *E)
 
     if (drag_zooming)
     {
-        double z = current.get_zoom() + (curr_y - drag_y) / 500.0f;
+        double z = here.get_zoom() + (curr_y - drag_y) / 500.0f;
 
         if (z < min_zoom) z = min_zoom;
         if (z > max_zoom) z = max_zoom;
 
-        current.set_zoom(z);
+        here.set_zoom(z);
     }
     if (drag_looking)
     {
         double y[3] = { 0.0, 1.0, 0.0 };
         double r[3];
 
-        current.get_right(r);
+        here.get_right(r);
 
         double dx = (double) (curr_x - drag_x) / 500.0;
         double dy = (double) (curr_y - drag_y) / 500.0;
@@ -135,10 +135,10 @@ bool panoview::pan_tick(app::event *E)
         mrotate(Y, y, -10.0 * dx * dt);
         mmultiply(M, X, Y);
 
-        current.transform_orientation(M);
+        here.transform_orientation(M);
     }
 
-    current.get_matrix(M);
+    here.get_matrix(M);
     ::user->set_M(M);
 
     return false;

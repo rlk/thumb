@@ -25,7 +25,6 @@
 #include <app-default.hpp>
 
 #include "math3d.h"
-#include "scm-state.hpp"
 #include "scm-viewer.hpp"
 
 //------------------------------------------------------------------------------
@@ -173,13 +172,11 @@ void scm_viewer::goto_prev()
 
 ogl::range scm_viewer::prep(int frusc, const app::frustum *const *frusv)
 {
-    // This will need to change on a multi-pipe system.
-
     if (cache && model)
     {
         cache->update(model->tick());
     }
-    return ogl::range(0.1, radius * current.get_scale() * 10.0);
+    return ogl::range(0.1, radius * here.get_scale() * 10.0);
 }
 
 void scm_viewer::lite(int frusc, const app::frustum *const *frusv)
@@ -203,7 +200,7 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
         // Compute the model view matrix to be used for view determination.
 
         double V[16];
-        double r = radius * current.get_scale();
+        double r = radius * here.get_scale();
 
         minvert(V, M);
         Rmul_xlt_mat(V, 0, -height, 0);
@@ -261,7 +258,7 @@ void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
 
         glPushMatrix();
         {
-            double r = radius * current.get_scale();
+            double r = radius * here.get_scale();
             glScaled(r, r, r);
             label->draw();
         }
@@ -305,21 +302,22 @@ bool scm_viewer::process_key(app::event *E)
                 case 8: cache->flush();               return true; // Backspace
             }
 
-        if (c && !s)
+        if (c)
         {
             switch (k)
             {
-                case 'h': path_home();   return true; // ^H
-                case 'b': path_back();   return true; // ^B
-                case 'f': path_fore();   return true; // ^F
-                case 'p': path_prev();   return true; // ^P
-                case 'n': path_next();   return true; // ^N
-                case 'j': path_jump();   return true; // ^J
-                case 's': path_save();   return true; // ^S
-                case 'l': path_load();   return true; // ^L
-                case 'r': path_remove(); return true; // ^R
-                case 'i': path_insert(); return true; // ^I
-                case 'c': path_clear();  return true; // ^C
+                case 'c': path.clear();    return true; // ^C
+                case 'b': path.back(s);    return true; // ^B
+                case 'f': path.fore(s);    return true; // ^F
+                case 'p': path.prev();     return true; // ^P
+                case 'n': path.next();     return true; // ^N
+                case 'h': path.home();     return true; // ^H
+                case 's': path.save();     return true; // ^S
+                case 'l': path.load();     return true; // ^L
+                case 'd': path.del();      return true; // ^D
+                case 'i': path.put(here);  return true; // ^I
+                case 'j': path.jump();
+                          path.get(here);  return true; // ^J
             }
         }
     }
@@ -329,6 +327,12 @@ bool scm_viewer::process_key(app::event *E)
 
 bool scm_viewer::process_tick(app::event *E)
 {
+    if (path.playing())
+    {
+        path.time(E->data.tick.dt / 1000.0);
+        path.get(here);
+    }
+
     timer += timer_d * E->data.tick.dt / 1000.0;
 
     if (timer_d > 0.0 && timer > timer_e)
@@ -341,6 +345,7 @@ bool scm_viewer::process_tick(app::event *E)
         timer   = timer_e;
         timer_d = 0;
     }
+
     return false;
 }
 
@@ -435,48 +440,3 @@ bool scm_viewer::gui_key(app::event *E)
 
 //------------------------------------------------------------------------------
 
-void scm_viewer::path_home()
-{
-}
-
-void scm_viewer::path_fore()
-{
-}
-
-void scm_viewer::path_back()
-{
-}
-
-void scm_viewer::path_prev()
-{
-}
-
-void scm_viewer::path_next()
-{
-}
-
-void scm_viewer::path_jump()
-{
-}
-
-void scm_viewer::path_save()
-{
-}
-
-void scm_viewer::path_load()
-{
-}
-
-void scm_viewer::path_remove()
-{
-}
-
-void scm_viewer::path_insert()
-{
-}
-
-void scm_viewer::path_clear()
-{
-}
-
-//------------------------------------------------------------------------------

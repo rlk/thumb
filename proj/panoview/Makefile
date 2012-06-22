@@ -10,7 +10,8 @@ PANOBJS= \
 	scm-set.o \
 	scm-task.o \
 	scm-file.o \
-	scm-state.o \
+	scm-step.o \
+	scm-path.o \
 	scm-index.o \
 	scm-model.o \
 	scm-cache.o \
@@ -26,7 +27,8 @@ ORBOBJS= \
 	scm-set.o \
 	scm-task.o \
 	scm-file.o \
-	scm-state.o \
+	scm-step.o \
+	scm-path.o \
 	scm-index.o \
 	scm-model.o \
 	scm-cache.o \
