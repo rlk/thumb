@@ -22,10 +22,10 @@ class scm_step
 public:
 
     scm_step();
-    scm_step(const scm_step&,
-             const scm_step&,
-             const scm_step&,
-             const scm_step&, double);
+    scm_step(const scm_step *,
+             const scm_step *,
+             const scm_step *,
+             const scm_step *, double);
 
     void draw();
 
@@ -37,17 +37,15 @@ public:
     void transform_light      (const double *);
 
     void set_radius(double r) { radius = r; }
-    void set_scale (double s) { scale  = s; }
     void set_zoom  (double z) { zoom   = z; }
 
-    void   get_matrix  (double *) const;
+    void   get_matrix  (double *, double) const;
     void   get_position(double *) const;
     void   get_up      (double *) const;
     void   get_right   (double *) const;
     void   get_forward (double *) const;
     void   get_light   (double *) const;
     double get_radius()           const { return radius; }
-    double get_scale()            const { return scale;  }
     double get_zoom()             const { return zoom;   }
 
 private:
@@ -56,8 +54,7 @@ private:
     double position[4];    // Viewer direction   (quaternion)
     double light[4];       // Light  direction   (quaternion)
     double radius;         // Viewer radius
-    double scale;          // Sphere scale factor
-    double zoom;           // Sphere zoom factor
+    double zoom;           // Zoom factor
 };
 
 //------------------------------------------------------------------------------

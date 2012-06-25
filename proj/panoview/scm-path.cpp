@@ -36,6 +36,14 @@ static int mmod(int n, int m)
     return (d < 0) ? d + m : d;
 }
 
+static int clamp(int n, int m)
+{
+    if      (n <     0) return     0;
+    else if (n > m - 1) return m - 1;
+    else                return n;
+}
+
+//------------------------------------------------------------------------------
 void scm_path::fore(bool stop)
 {
     if (head_d <= 0 && !step.empty())
@@ -78,15 +86,8 @@ void scm_path::jump()
 void scm_path::get(scm_step& s)
 {
     if (!step.empty())
-    {
-        int    i = floor(head_t);
-        double t = head_t - i;
-
-        s = scm_step(step[mmod(i - 1, step.size())],
-                     step[mmod(i,     step.size())],
-                     step[mmod(i + 1, step.size())],
-                     step[mmod(i + 2, step.size())], t);
-    }
+        s = interpolate(int(floor(head_t)), head_t - floor(head_t));
+    s.write(stdout);
 }
 
 void scm_path::set(scm_step& s)
@@ -155,16 +156,37 @@ void scm_path::load()
 
 //------------------------------------------------------------------------------
 
+scm_step scm_path::interpolate(size_t i, double t)
+{
+    if (t == 0.0 and i     < step.size()) return step[i    ];
+    if (t == 1.0 and i + 1 < step.size()) return step[i + 1];
+
+    scm_step *a = (0 <= (i - 1) && (i - 1) < step.size()) ? &step[i - 1] : NULL;
+    scm_step *b = (0 <= (i    ) && (i    ) < step.size()) ? &step[i    ] : NULL;
+    scm_step *c = (0 <= (i + 1) && (i + 1) < step.size()) ? &step[i + 1] : NULL;
+    scm_step *d = (0 <= (i + 2) && (i + 2) < step.size()) ? &step[i + 2] : NULL;
+
+    return scm_step(a, b, c, d, t);
+}
+
 void scm_path::time(double dt)
 {
     head_t += head_d * dt;
+
+    if (head_t > step.size() - 1)
+    {
+        head_t = step.size() - 1;
+        head_d = 0;
+    }
+    if (head_t < 0)
+    {
+        head_t = 0;
+        head_d = 0;
+    }
 }
 
 void scm_path::draw()
 {
-    double t;
-    int    i;
-
     glPushAttrib(GL_ENABLE_BIT);
     {
         glDisable(GL_LIGHTING);
@@ -177,7 +199,7 @@ void scm_path::draw()
         glPointSize(8.0);
         glBegin(GL_POINTS);
         {
-            for (i = 0; i < int(step.size()); ++i)
+            for (int i = 0; i < int(step.size()); ++i)
             {
                 if (i == curr)
                     glColor4f(1.0f, 1.0f, 0.0f, 0.8f);
@@ -190,38 +212,24 @@ void scm_path::draw()
         glEnd();
 
         glPointSize(4.0);
+        glColor4f(0.0f, 1.0f, 0.0, 1.0f);
         glBegin(GL_POINTS);
         {
             if (step.size())
-            {
-                i = floor(head_t);
-                t = head_t - i;
-
-                glColor4f(0.0f, 1.0f, 0.0, 1.0f);
-
-                scm_step s = scm_step(step[mmod(i - 1, step.size())],
-                                      step[mmod(i,     step.size())],
-                                      step[mmod(i + 1, step.size())],
-                                      step[mmod(i + 2, step.size())], t);
-                s.draw();
-            }
+                interpolate(int(floor(head_t)), head_t - floor(head_t)).draw();
         }
         glEnd();
 
-        glBegin(GL_LINE_LOOP);
+        glBegin(GL_LINE_STRIP);
         {
             for (int i = 0; i < int(step.size()); ++i)
                 for (int j = 0; j < 32; ++j)
                 {
-                    t = (double) j / 32;
+                    double t = double(j) / 32;
 
                     glColor4f(0.0f, 1.0f, 0.0f, 0.8f * t + 0.2f);
 
-                    scm_step s = scm_step(step[mmod(i - 1, step.size())],
-                                          step[mmod(i,     step.size())],
-                                          step[mmod(i + 1, step.size())],
-                                          step[mmod(i + 2, step.size())], t);
-                    s.draw();
+                    interpolate(i, t).draw();
                 }
         }
         glEnd();

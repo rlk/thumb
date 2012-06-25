@@ -22,14 +22,60 @@
 // http://paulbourke.net/miscellaneous/interpolation/
 // Consider a Catmull-Rom spline here.
 
-static double mix(double a, double b, double c, double d, double t)
+static double mix(const double *a,
+                  const double *b,
+                  const double *c,
+                  const double *d, double t)
 {
-    const double w = d - c - a + b;
-    const double x = a - b - w;
-    const double y = c - a;
-    const double z = b;
+    if (b && c && b != c)
+    {
+        double aa = a ? *a : lerp(*b, *c, -1.0);
+        double bb =     *b;
+        double cc =     *c;
+        double dd = d ? *d : lerp(*b, *c, +2.0);
 
-    return (w * t * t * t) + (x * t * t) + (y * t) + (z);
+        const double w = dd - cc - aa + bb;
+        const double x = aa - bb - w;
+        const double y = cc - aa;
+        const double z = bb;
+
+        return (w * t * t * t) + (x * t * t) + (y * t) + (z);
+    }
+    else if (b) return *b;
+    else if (c) return *c;
+
+    return 0;
+}
+
+static void qerp(double *q, const double *a,
+                            const double *b,
+                            const double *c,
+                            const double *d, double t)
+{
+    double A[4];
+    double D[4];
+
+    if (b && c && (b[0] != c[0] ||
+                   b[1] != c[1] ||
+                   b[2] != c[2] ||
+                   b[3] != c[3]))
+    {
+        if (a)
+            qcpy(A, a);
+        else
+            qslerp(A, b, c, -1.0);
+
+        if (d)
+            qcpy(D, d);
+        else
+            qslerp(D, b, c, +2.0);
+
+        qsquad(q, A, b, c, D, t);
+    }
+    else if (b)
+        qcpy(q, b);
+    else if (c)
+        qcpy(q, c);
 }
 
 //------------------------------------------------------------------------------
@@ -54,32 +100,32 @@ scm_step::scm_step()
     light[3]       = 0.0;
 
     radius         = 0.0;
-    scale          = 1.0;
     zoom           = 1.0;
 }
 
 // Initialize a new SCM viewer state using cubic interpolation of given states.
 
-scm_step::scm_step(const scm_step& a,
-                   const scm_step& b,
-                   const scm_step& c,
-                   const scm_step& d, double t)
+scm_step::scm_step(const scm_step *a,
+                   const scm_step *b,
+                   const scm_step *c,
+                   const scm_step *d, double t)
 {
-    qsquad(orientation, a.orientation,
-                        b.orientation,
-                        c.orientation,
-                        d.orientation, t);
-    qsquad(position,    a.position,
-                        b.position,
-                        c.position,
-                        d.position, t);
-
-    qnormalize(orientation, orientation);
-    qnormalize(position,    position);
-
-    radius = mix(a.radius, b.radius, c.radius, d.radius, t);
-    scale  = mix(a.scale,  b.scale,  c.scale,  d.scale,  t);
-    zoom   = mix(a.zoom,   b.zoom,   c.zoom,   d.zoom,   t);
+    qerp(orientation, a ?  a->orientation : NULL,
+                      b ?  b->orientation : NULL,
+                      c ?  c->orientation : NULL,
+                      d ?  d->orientation : NULL, t);
+    qerp(position,    a ?  a->position    : NULL,
+                      b ?  b->position    : NULL,
+                      c ?  c->position    : NULL,
+                      d ?  d->position    : NULL, t);
+    radius = mix(     a ? &a->radius      : NULL,
+                      b ? &b->radius      : NULL,
+                      c ? &c->radius      : NULL,
+                      d ? &d->radius      : NULL, t);
+    zoom   = mix(     a ? &a->zoom        : NULL,
+                      b ? &b->zoom        : NULL,
+                      c ? &c->zoom        : NULL,
+                      d ? &d->zoom        : NULL, t);
 }
 
 void scm_step::draw()
@@ -101,7 +147,7 @@ bool scm_step::write(FILE *stream)
 {
     fprintf(stream, "%+12.8f %+12.8f %+12.8f %+12.8f "
                     "%+12.8f %+12.8f %+12.8f %+12.8f "
-                    "%+12.8f %+12.8f %+12.8f\n",
+                    "%+12.8f %+12.8f\n",
                     orientation[0],
                     orientation[1],
                     orientation[2],
@@ -111,7 +157,6 @@ bool scm_step::write(FILE *stream)
                     position[2],
                     position[3],
                     radius,
-                    scale,
                     zoom);
     return true;
 }
@@ -120,7 +165,7 @@ bool scm_step::read(FILE *stream)
 {
     return (fscanf(stream, "%lf %lf %lf %lf "
                            "%lf %lf %lf %lf "
-                           "%lf %lf %lf\n",
+                           "%lf %lf\n",
                            orientation + 0,
                            orientation + 1,
                            orientation + 2,
@@ -130,8 +175,7 @@ bool scm_step::read(FILE *stream)
                            position + 2,
                            position + 3,
                           &radius,
-                          &scale,
-                          &zoom) == 11);
+                          &zoom) == 10);
 }
 
 //------------------------------------------------------------------------------
@@ -166,7 +210,7 @@ void scm_step::transform_light(const double *M)
 
 // Return the view transformation matrix.
 
-void scm_step::get_matrix(double *M) const
+void scm_step::get_matrix(double *M, double scale) const
 {
     vquaternionx(M +  0, orientation);
     vquaterniony(M +  4, orientation);

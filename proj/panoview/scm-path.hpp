@@ -50,6 +50,8 @@ public:
 
 private:
 
+    scm_step interpolate(size_t, double);
+
     double head_t;
     double head_d;
     int    curr;

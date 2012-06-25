@@ -104,6 +104,8 @@ public:
     double get_radius() const   { return radius; }
     void   set_radius(double r) { radius = r;    }
 
+    virtual double get_scale(double) const { return 1.0; }
+
 protected:
 
     scm_cache *cache;

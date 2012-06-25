@@ -34,6 +34,8 @@ public:
 
     virtual void load(const std::string&);
 
+    virtual double get_scale(double) const;
+
     virtual ~orbiter();
 
 private:

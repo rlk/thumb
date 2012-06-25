@@ -105,22 +105,20 @@ void orbiter::move(const double *point,
     }
 }
 
-// Apply the scale interaction, using the change in the mouse pointer position
-// to affect an exponential difference in the scale of (and therefore apparent
-// proximity to) the sphere. This causes the stereoscopic disparity to change
-// in harmony with the altitude of the view.
+// Apply the altitude interaction using the change in the mouse pointer position
+// to affect an exponential difference in the radius of the view point.
 
 void orbiter::dive(const double *point,
                    const double *click, double dt, double k)
 {
-    double d = (point[1] - click[1]) * dt;
-    double r = here.get_radius();
-    double m = get_radius() * (cache ? cache->get_r0() : 1.0);
+    double r0 = cache ? cache->get_r0() : 1.0;
+    double d  = (point[1] - click[1]) * dt;
+    double r  = here.get_radius();
+    double m  = r0 * get_radius();
 
     r = m + exp(log(r - m) + (4 * d));
 
     here.set_radius(r);
-    here.set_scale(1.0 / (r - m));
 }
 
 // Apply the light position interaction, using the change in the mouse pointer
@@ -161,11 +159,12 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
         // Compute a horizon line based upon altitude and  minimum data radius.
 
-        double r = here.get_scale() *      get_radius() * cache->get_r0();
-        double a = here.get_scale() * here.get_radius() + r;
+        double a = here.get_radius();
+        double r =     get_scale(a) * get_radius() * cache->get_r0();
+        double d = r + get_scale(a) * a;
 
-        double n = 0.0001 *     (a     - r    );
-        double f = 1.1    * sqrt(a * a - r * r);
+        double n = 0.0001 *     (d     - r    );
+        double f = 1.1    * sqrt(d * d - r * r);
 
         return ogl::range(n, f);
     }
@@ -222,7 +221,16 @@ void orbiter::load(const std::string& name)
     scm_viewer::load(name);
 
     here.set_radius(2.0 * get_radius());
-    here.set_scale (1.0 / get_radius());
+}
+
+// Return an appropriate planet scale coefficient for a given view radius.
+// That allows good stereoscopic 3D to be achieved at both near and far views.
+
+double orbiter::get_scale(double r) const
+{
+    double m = get_radius() * (cache ? cache->get_r0() : 1.0);
+
+    return 1.0 / (r - m);
 }
 
 //------------------------------------------------------------------------------
@@ -285,7 +293,7 @@ bool orbiter::pan_click(app::event *E)
 bool orbiter::pan_tick(app::event *E)
 {
     double dt = E->data.tick.dt / 1000.0;
-    double sc = 1.0 / (get_radius() * here.get_scale());
+    double sc = 1.0 / (get_radius() * get_scale(here.get_radius()));
 
     double M[16];
 
@@ -309,7 +317,7 @@ bool orbiter::pan_tick(app::event *E)
         here.transform_light(R);
     }
 
-    here.get_matrix(M);
+    here.get_matrix(M, get_scale(here.get_radius()));
     ::user->set_M(M);
 
     return false;

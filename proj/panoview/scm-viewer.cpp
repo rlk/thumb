@@ -172,11 +172,13 @@ void scm_viewer::goto_prev()
 
 ogl::range scm_viewer::prep(int frusc, const app::frustum *const *frusv)
 {
+    double r = radius * get_scale(here.get_radius());
+
     if (cache && model)
     {
         cache->update(model->tick());
     }
-    return ogl::range(0.1, radius * here.get_scale() * 10.0);
+    return ogl::range(0.1, r * 10.0);
 }
 
 void scm_viewer::lite(int frusc, const app::frustum *const *frusv)
@@ -196,8 +198,8 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
         // Compute the model view matrix to be used for view determination.
 
+        double r = radius * get_scale(here.get_radius());
         double V[16];
-        double r = radius * here.get_scale();
 
         minvert(V, M);
         Rmul_xlt_mat(V, 0, -height, 0);
@@ -246,7 +248,7 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
 void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
 {
-    double s = here.get_scale();
+    double s = get_scale(here.get_radius());
     double r = radius;
 
     frusp->draw();
