@@ -18,7 +18,7 @@
 
 //------------------------------------------------------------------------------
 
-scm_path::scm_path() : curr(0)
+scm_path::scm_path() : curr(0), filename("path.dat")
 {
 }
 
@@ -124,10 +124,33 @@ void scm_path::del()
 
 void scm_path::save()
 {
+    FILE *stream;
+
+    if ((stream = fopen(filename.c_str(), "w")))
+    {
+        for (int i = 0; i < int(step.size()); ++i)
+            step[i].write(stream);
+
+        fclose(stream);
+    }
 }
 
 void scm_path::load()
 {
+    FILE *stream;
+
+    if ((stream = fopen(filename.c_str(), "r")))
+    {
+        scm_step s;
+
+        step.clear();
+
+        while (s.read(stream))
+            step.push_back(s);
+
+        curr = mmod(curr, step.size());
+        fclose(stream);
+    }
 }
 
 //------------------------------------------------------------------------------

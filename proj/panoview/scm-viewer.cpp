@@ -40,8 +40,8 @@ scm_viewer::scm_viewer(const std::string& exe,
     height (0),
     radius (6),
     debug_cache(false),
-    debug_color(false),
     debug_label(false),
+    debug_path (false),
     debug_wire (false),
     debug_bound(false)
 {
@@ -190,9 +190,6 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
     const int     w = ::host->get_buffer_w();
     const int     h = ::host->get_buffer_h();
 
-    if (cache)
-        cache->set_debug(debug_color);
-
     if (model)
     {
         model->set_debug(debug_bound);
@@ -249,26 +246,32 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
 
 void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
 {
+    double s = here.get_scale();
+    double r = radius;
+
+    frusp->draw();
+   ::user->draw();
+
     // Draw the label overlay.
 
     if (label && debug_label)
     {
-        double s = here.get_scale();
-        double r = radius;
-
-        frusp->draw();
-       ::user->draw();
-
         glPushMatrix();
         {
             glScaled(s, s, s);
-            glPushMatrix();
-            {
-                glScaled(r, r, r);
-                label->draw();
-            }
-            glPopMatrix();
+            glScaled(r, r, r);
+            label->draw();
+        }
+        glPopMatrix();
+    }
 
+    // Draw the path overlay.
+
+    if (debug_path)
+    {
+        glPushMatrix();
+        {
+            glScaled(s, s, s);
             path.draw();
         }
         glPopMatrix();
@@ -305,8 +308,9 @@ bool scm_viewer::process_key(app::event *E)
                 case 282: gui_state   = !gui_state;   return true; // F1
                 case 283: debug_cache = !debug_cache; return true; // F2
                 case 284: debug_label = !debug_label; return true; // F3
-                case 285: debug_wire  = !debug_wire;  return true; // F4
-                case 286: debug_bound = !debug_bound; return true; // F5
+                case 285: debug_path  = !debug_path;  return true; // F4
+                case 286: debug_wire  = !debug_wire;  return true; // F5
+                case 287: debug_bound = !debug_bound; return true; // F6
 
                 case 8: cache->flush();               return true; // Backspace
             }

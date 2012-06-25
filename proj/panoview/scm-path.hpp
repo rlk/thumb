@@ -14,6 +14,7 @@
 #define SCM_PATH_HPP
 
 #include <vector>
+#include <string>
 
 #include "scm-step.hpp"
 
@@ -52,6 +53,8 @@ private:
     double head_t;
     double head_d;
     int    curr;
+
+    std::string filename;
 
     std::vector<scm_step> step;
 };

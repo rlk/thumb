@@ -97,14 +97,41 @@ void scm_step::draw()
 
 //------------------------------------------------------------------------------
 
-bool scm_step::read(FILE *stream)
-{
-    return (fread(this, sizeof (scm_step), 1, stream) == 1);
-}
-
 bool scm_step::write(FILE *stream)
 {
-    return (fwrite(this, sizeof (scm_step), 1, stream) == 1);
+    fprintf(stream, "%+12.8f %+12.8f %+12.8f %+12.8f "
+                    "%+12.8f %+12.8f %+12.8f %+12.8f "
+                    "%+12.8f %+12.8f %+12.8f\n",
+                    orientation[0],
+                    orientation[1],
+                    orientation[2],
+                    orientation[3],
+                    position[0],
+                    position[1],
+                    position[2],
+                    position[3],
+                    radius,
+                    scale,
+                    zoom);
+    return true;
+}
+
+bool scm_step::read(FILE *stream)
+{
+    return (fscanf(stream, "%lf %lf %lf %lf "
+                           "%lf %lf %lf %lf "
+                           "%lf %lf %lf\n",
+                           orientation + 0,
+                           orientation + 1,
+                           orientation + 2,
+                           orientation + 3,
+                           position + 0,
+                           position + 1,
+                           position + 2,
+                           position + 3,
+                          &radius,
+                          &scale,
+                          &zoom) == 11);
 }
 
 //------------------------------------------------------------------------------
