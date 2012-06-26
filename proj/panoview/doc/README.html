@@ -1,6 +1,6 @@
 <html>
   <head>
-    <title>Panorama Processing and Display</title>
+    <title>Orbiter</title>
     <style>
       body {
         font-family: Optima, sans-serif;
@@ -18,11 +18,19 @@
       table, thead, tbody, tr, td, th {
         font-size: inherit;
         font-family: inherit;
+        line-height: 150%;
       }
-      table {
-        border-collapse: collapse;
+      img {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
       }
-      td {
+      #spreadsheet {
+        border-collapse:collapse;
+        margin-left:auto;
+        margin-right:auto;
+      }
+      #spreadsheet td {
         border: 1px solid black;
         width: 4em;
         text-align: center;
@@ -30,7 +38,7 @@
     </style>
   </head>
   <body>
-    <h1>Panorama Processing and Display</h1>
+    <h1>Orbiter</h1>
 
     <p>&copy; 2012 Robert Kooima &mdash; <i>kooima&#64;csc&#46;lsu&#46;edu</i></p>
 
@@ -40,8 +48,16 @@
       <li><a href="#scm">SCM TIFF</a></li>
       <li><a href="#orbiter">Orbiter</a></li>
       <ul>
-        <li><a href="#configuration">Configuration</a></li>
         <li><a href="#usage">Usage</a></li>
+        <ul>
+          <li><a href="#viewing">Viewing Controls</a></li>
+          <li><a href="#metadata">Metadata Controls</a></li>
+          <li><a href="#editing">Camera Path Editing</a></li>
+        </ul>
+        <li><a href="#configuration">Configuration</a></li>
+        <ul>
+          <li><a href="#definition">Definition XML</a></li>
+        </ul>
       </ul>
     </ul>
 
@@ -55,7 +71,7 @@
 
     <p>The resolution of a spherical cube map image is determined by two values, the <em>size</em> of each square page in pixels, and the <em>depth</em> of the quad-tree subdivision. A spherical cube map image of depth <i>d</i> will contain 2<sup>2<i>d</i> + 3</sup> - 2 separate pages. The current renderer has a maximum depth of 7. The number of pages for several values of <i>d</i> is shown here. Note the obvious fact that a cube map with zero subdivisions has six pages.</p>
 
-    <table style="margin-left:auto; margin-right:auto">
+    <table id="spreadsheet">
       <tr>
         <td><i>d</i></td>
         <td>0</td>
@@ -82,7 +98,7 @@
 
     <p>A spherical cube map's page size impacts out-of-core data access performance, and values around 512 are usually best. Given a spherical cube map with page size <i>s</i> and depth <i>d</i>, the effective resolution of the equivalent equirectangular projection is 4&middot;<i>s</i>&middot;2<sup><i>d</i></sup> &times; 2&middot;<i>s</i>&middot;2<sup><i>d</i></sup>. Given a base page size of 512, the effective resolution of a spherical cube map for each depth <i>d</i> is</p>
 
-    <table style="margin-left:auto; margin-right:auto">
+    <table id="spreadsheet">
       <tr>
         <td><i>d</i></td>
         <td>0</td>
@@ -132,21 +148,218 @@
 
     <a name="orbiter"><h2>Orbiter</h2></a>
 
-    <p>The <code>Orbiter</code> application may be run from the command line or double-clicked in the Finder or Explorer. It presents a
+    <a name="usage"><h3>Usage</h3></a>
 
-    <a name="renderer"><h3>Panorama Renderer Library</h3></a>
+    <p>The <code>Orbiter</code> application may be run from the command line or double-clicked in the Finder or Explorer. It presents a menu of prepared visualizations to be browsed, selected, and loaded.</p>
 
-    <p>The out-of-core panorama renderer is implemented as a small C++ library that may be embedded within any O<small>PEN</small>GL host application. This library has just one system-level configuration parameter:</p>
+    <img src="img/select.png">
 
-    <p><code>PANOPATH</code> is a shell environment variable akin to the <code>bash</code> executable path. It lists directories where spherical cube map TIFF files may be found. If the application requests that the renderer load a file, but the renderer cannot find that file, then it will search this list of directories. Set this variable in the shell resource file, as need be, separated by colons. For example,</p>
+    <p>Note, this is <em>not</em> a list of available SCM files. A planetary visualization is usually a composition of several distinct data sets in SCM form, and the <code>Orbiter</code> file selection dialog lists the XML files that define these visualizations. The XML files are found in the <tt>data/pan</tt> directory in the <code>Thumb</code> distribution, and are <a href="#definition">described below</a>.</p>
+
+    <p>Loading a visualization closes the selection dialog and displays the planet. Here, we've selected <tt>GLD-WAC.xml</tt> and zoomed in a bit, as described next.</p>
+
+    <img src="img/view.png">
+
+    <a name="viewing"><h4>Viewing Controls</h4></a>
+
+    <p>The default mechanism for interaction with <code>Orbiter</code> uses the keyboard and a two-button mouse.
+
+    <table style="margin:auto;width:80%">
+      <tr>
+        <th style="width:25%">Key</th>
+        <th style="width:5%"></th>
+        <th style="width:70%">Function</th>
+      </tr>
+      <tr>
+        <td>Left Mouse</td>
+        <td>&hellip;</td>
+        <td>Click and drag to change view position.</td>
+      </tr>
+      <tr>
+        <td>Right Mouse</td>
+        <td>&hellip;</td>
+        <td>Click and drag to change view altitude</td>
+      </tr>
+      <tr>
+        <td>Shift Left Mouse</td>
+        <td>&hellip;</td>
+        <td>Click and drag to change view direction.</td>
+      </tr>
+      <tr>
+        <td>Shift Right Mouse</td>
+        <td>&hellip;</td>
+        <td>Click and drag to change lighting direction.</td>
+      </tr>
+    </table>
+
+    <a name="metadata"><h4>Metadata Controls</h4></a>
+
+    <p>Informational overlays and debug views may be toggled using function keys. The File Selection toggle allows the visualization to be changed. The camera path display enables camera script editing. The label toggle displays information for over 8000 craters on the moon. The remaining displays are mostly for debugging the 3D renderer, but they do also look cool.</p>
+
+    <table style="margin:auto;width:80%">
+      <tr>
+        <th style="width:15%">Key</th>
+        <th style="width:5%"></th>
+        <th style="width:80%">Function</th>
+      </tr>
+      <tr>
+        <td>F1</td>
+        <td>&hellip;</td>
+        <td>Toggle the <a href="#usage">File Selection</a> dialog.</td>
+      </tr>
+      <tr>
+        <td>F2</td>
+        <td>&hellip;</td>
+        <td>Toggle cache overlay.</td>
+      </tr>
+      <tr>
+        <td>F3</td>
+        <td>&hellip;</td>
+        <td>Toggle the label display.</td>
+      </tr>
+      <tr>
+        <td>F4</td>
+        <td>&hellip;</td>
+        <td>Toggle the <a href="#editing">camera path</a> display.</td>
+      </tr>
+      <tr>
+        <td>F5</td>
+        <td>&hellip;</td>
+        <td>Toggle wireframe display.</td>
+      </tr>
+      <tr>
+        <td>F6</td>
+        <td>&hellip;</td>
+        <td>Toggle the bounding volume display.</td>
+      </tr>
+    </table>
+
+    <a name="editing"><h4>Camera Path Editing</h4></a>
+
+    <p><code>Orbiter</code> allows the position and orientation of the camera to follow a pre-determined path, determined by a series of key frames. These key frames are specified interactively and keyboard commands insert or append the current camera configuration to a storable list of camera configurations. These key frames are animated using cubic interpolation in both real-time and for the rendering of high-quality image sequences. The camera path visualization is toggled using the F4 key. It is shown here:</p>
+
+    <img src="img/path.png">
+
+    <p>The orange squares denote key frames and the line shows their interpolation. The line from one keyframe to the next fades from black to green to indicate the forward direction. The yellow square indicates the &ldquo;current&rdquo; key frame selected for editing, and the small green square indicates the current play back head.</p>
+
+    <p>
+
+    <table style="margin:auto;width:80%">
+      <tr>
+        <th style="width:15%">Key</th>
+        <th style="width:5%"></th>
+        <th style="width:80%">Function</th>
+      </tr>
+      <tr>
+        <td>Control-<u>A</u></td>
+        <td>&hellip;</td>
+        <td><u>A</u>dd the current camera position into the path <em>after</em> the current key.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>I</u></td>
+        <td>&hellip;</td>
+        <td><u>I</u>nsert the current camera position into the path <em>before</em> the current key.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>O</u></td>
+        <td>&hellip;</td>
+        <td><u>O</u>verwrite the current camera position at the current key.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>D</u></td>
+        <td>&hellip;</td>
+        <td><u>D</u>elete the current key from the path.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>N</u></td>
+        <td>&hellip;</td>
+        <td>Select the <u>N</u>ext path key in the list.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>P</u></td>
+        <td>&hellip;</td>
+        <td>Select the <u>P</u>revious path key in the list.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>R</u></td>
+        <td>&hellip;</td>
+        <td><u>R</u>ewind the current position and the play-back head to the beginning.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>F</u></td>
+        <td>&hellip;</td>
+        <td>Play the path <u>F</u>orward from the current position, or stop play-back.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>B</u></td>
+        <td>&hellip;</td>
+        <td>Play the path <u>B</u>ackward from the current position, or stop play-back.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>J</u></td>
+        <td>&hellip;</td>
+        <td><u>J</u>ump the view to the current key position.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>S</u></td>
+        <td>&hellip;</td>
+        <td><u>S</u>ave the current path to a file.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>L</u></td>
+        <td>&hellip;</td>
+        <td><u>L</u>oad the current path from a file.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>C</u></td>
+        <td>&hellip;</td>
+        <td><u>C</u>lear the path, removing all keys.</td>
+      </tr>
+    </table>
+
+    <p>To prepare a camera path, simply manipulate the view normally and press Control-A at each point of interest. This will append each point to the list, moving the current selection forward with each addition.</p>
+
+    <p>Press Control-R to rewind to the beginning and press Control-F to animate the path forward.</p>
+
+    <p>Gain some altitude or distance to see the path as a whole.</p>
+
+    <p>If a particular key frame is bad or wrong, select it using Control-P and Control-N, press Control-J to jump to that view point, and adjust the camera interactively. When the view point is improved, press Control-O to overwrite the current position onto the bad key frame.</p>
+
+    <p>Press Control-S to save the current path, or Control-L to reload it. Note! There is currently no file name selection dialog for path storage. The file is <em>always</em> named <tt>path.dat</tt>. If you wish to store multiple path files, please use the Finder or Explorer to rename them by hand after saving, or before loading.</p>
+
+    <a name="recording"><h4>Camera Path Recording</h4></a>
+
+    <p>Once a suitable path has been determined, it may be rendered to an image sequence.</p>
+
+    <table style="margin:auto;width:80%">
+      <tr>
+        <th style="width:20%">Key</th>
+        <th style="width:5%"></th>
+        <th style="width:70%">Function</th>
+      </tr>
+      <tr>
+        <td>Shift-Control-<u>F</u></td>
+        <td>&hellip;</td>
+        <td>Record the path <u>F</u>orward from the current position.</td>
+      </tr>
+      <tr>
+        <td>Shift-Control-<u>B</u></td>
+        <td>&hellip;</td>
+        <td>Record the path <u>B</u>ackward from the current position.</td>
+      </tr>
+    </table>
+
+    <p>This will produces a series of PNG files in the current working directory named <tt>frame00000.png</tt>, <tt>frame00001.png</tt>, etc, representing a 30-frame per second animation of the path. This may take some time. Unlike during interactive rendering, <code>Orbiter</code> takes the time to ensure optimal image quality. It waits for each necessary page of SCM data to be fully loaded from disk into VRAM before rendering and storing each frame.</p>
+
+    <a name="renderer"><h3>Configuration</h3></a>
+
+    <p><code>SCMPATH</code> is a shell environment variable akin to the <code>bash</code> executable path. It lists directories where spherical cube map TIFF files may be found. If the application requests that the renderer load a file, but the renderer cannot find that file, then it will search this list of directories. Set this variable in the shell resource file, as need be, separated by colons. For example,</p>
 
     <pre>
       export SCMPATH=/share/scm:$HOME/Data/scm:.
     </pre>
 
-    <p>For cluster-driven display systems, try to replicate all panorama image files to local directories on all rendering nodes. This will perform better than data files stored on network shares.</p>
-
-    <a name="definition"><h3>Panorama Definition File</h3></a>
+    <a name="definition"><h4>Planet Definition XML</h4></a>
 
     <p>An example panorama viewer, <code>panoview</code>, is implemented using the Thumb framework.  While the previous sections on panorama handling apply to any embedding of the panorama renderer, the following sections describe the configuration and usage specifically of <code>panoview</code>.</p>
 

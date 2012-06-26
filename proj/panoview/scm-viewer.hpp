@@ -115,6 +115,8 @@ protected:
     scm_step here;
     scm_path path;
 
+    bool gui_state;
+
 private:
 
     // Sphere rendering state
@@ -150,7 +152,6 @@ private:
 
     scm_loader *ui;
 
-    bool gui_state;
     void gui_init();
     void gui_free();
     void gui_draw();

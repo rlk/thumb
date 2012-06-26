@@ -88,6 +88,8 @@ void scm_path::prev()
 
 void scm_path::home()
 {
+    curr   = 0;
+    head_t = 0;
 }
 
 void scm_path::jump()
@@ -247,6 +249,7 @@ void scm_path::draw()
         }
         glEnd();
 
+        glLineWidth(2.0);
         glBegin(GL_LINE_STRIP);
         {
             for (int i = 0; i < int(step.size()); ++i)

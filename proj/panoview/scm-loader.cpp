@@ -60,7 +60,7 @@ scm_loader::scm_loader(scm_viewer *V, int w, int h)
 
     root = ((new gui::frame)->
             add((new gui::vgroup)->
-                add(label("PanoView \xE2\x80\x94 File Selection"))->
+                add(label("SCM Viewer \xE2\x80\x94 File Selection"))->
 
                 add((new gui::hgroup)->
                     add(label("File:"))->
