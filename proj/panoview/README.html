@@ -39,6 +39,10 @@
     <ul>
       <li><a href="#scm">SCM TIFF</a></li>
       <li><a href="#orbiter">Orbiter</a></li>
+      <ul>
+        <li><a href="#configuration">Configuration</a></li>
+        <li><a href="#usage">Usage</a></li>
+      </ul>
     </ul>
 
     <a name="scm"><h3>SCM TIFF</h3></a>
@@ -49,7 +53,7 @@
 
     <p>Because the resulting spherical image is represented by a number of sub-images, a multi-page image file format is required, and TIFF is chosen. Spherical cube map pages are enumerated in the TIFF file in breadth-first order, which gathers low-resolution base imagery to the front of the file and provides increasing resolution with increasing file length.</p>
 
-    <p>The resolution of a spherical cube map image is determined by two values, the <em>size</em> of each square page in pixels, and the <em>depth</em> of the quad-tree subdivision. A spherical cube map image of depth <i>d</i> will contain 2<sup>2<i>d</i> + 3</sup> - 2 separate pages. The current renderer has a maximum depth of 7. The number of pages for each possble value of <i>d</i> is shown here. Note the obvious fact that a cube map with zero subdivisions has six pages.</p>
+    <p>The resolution of a spherical cube map image is determined by two values, the <em>size</em> of each square page in pixels, and the <em>depth</em> of the quad-tree subdivision. A spherical cube map image of depth <i>d</i> will contain 2<sup>2<i>d</i> + 3</sup> - 2 separate pages. The current renderer has a maximum depth of 7. The number of pages for several values of <i>d</i> is shown here. Note the obvious fact that a cube map with zero subdivisions has six pages.</p>
 
     <table style="margin-left:auto; margin-right:auto">
       <tr>
@@ -126,7 +130,9 @@
 
     <p>With a depth of 14, <tt>NAC_ROI_APOLLO16HIA-336-14.tif</tt> would appear to provide a <em>huge</em> image, however it covers only the Narrow Angle Camera Region of Interest surrounding the landing site of Apollo 16. It does give data with an SCM depth of 14, which works out to 0.5 meters per pixels, however it does so over a very small area.</p>
 
-    <a name="display"><h2>Panorama Display</h2></a>
+    <a name="orbiter"><h2>Orbiter</h2></a>
+
+    <p>The <code>Orbiter</code> application may be run from the command line or double-clicked in the Finder or Explorer. It presents a
 
     <a name="renderer"><h3>Panorama Renderer Library</h3></a>
 
@@ -135,7 +141,7 @@
     <p><code>PANOPATH</code> is a shell environment variable akin to the <code>bash</code> executable path. It lists directories where spherical cube map TIFF files may be found. If the application requests that the renderer load a file, but the renderer cannot find that file, then it will search this list of directories. Set this variable in the shell resource file, as need be, separated by colons. For example,</p>
 
     <pre>
-      export PANOPATH=/share/pan:$HOME/Data/pan:.
+      export SCMPATH=/share/scm:$HOME/Data/scm:.
     </pre>
 
     <p>For cluster-driven display systems, try to replicate all panorama image files to local directories on all rendering nodes. This will perform better than data files stored on network shares.</p>
