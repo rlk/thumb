@@ -53,6 +53,7 @@
           <li><a href="#viewing">Viewing Controls</a></li>
           <li><a href="#metadata">Metadata Controls</a></li>
           <li><a href="#editing">Camera Path Editing</a></li>
+          <li><a href="#recording">Camera Path Recording</a></li>
         </ul>
         <li><a href="#configuration">Configuration</a></li>
         <ul>
@@ -194,7 +195,7 @@
 
     <a name="metadata"><h4>Metadata Controls</h4></a>
 
-    <p>Informational overlays and debug views may be toggled using function keys. The File Selection toggle allows the visualization to be changed. The camera path display enables camera script editing. The label toggle displays information for over 8000 craters on the moon. The remaining displays are mostly for debugging the 3D renderer, but they do also look cool.</p>
+    <p>Informational overlays and debug views may be toggled using function keys. The File Selection toggle allows the visualization to be changed at any time. The camera path display enables camera script editing. The label toggle displays information for over 8000 craters on the moon. The remaining displays are mostly for debugging the 3D renderer, but they do also look cool.</p>
 
     <table style="margin:auto;width:80%">
       <tr>
@@ -240,7 +241,7 @@
 
     <img src="img/path.png">
 
-    <p>The orange squares denote key frames and the line shows their interpolation. The line from one keyframe to the next fades from black to green to indicate the forward direction. The yellow square indicates the &ldquo;current&rdquo; key frame selected for editing, and the small green square indicates the current play back head.</p>
+    <p>The orange squares denote key frames and the green line shows their interpolation. The line from one key frame to the next increases in brightness to indicate the forward direction. The yellow square indicates the current key frame selected for editing, and the small green square indicates the current play-back position.</p>
 
     <p>
 
@@ -263,7 +264,7 @@
       <tr>
         <td>Control-<u>O</u></td>
         <td>&hellip;</td>
-        <td><u>O</u>verwrite the current camera position at the current key.</td>
+        <td><u>O</u>verwrite the current camera position onto the current key.</td>
       </tr>
       <tr>
         <td>Control-<u>D</u></td>
@@ -271,44 +272,58 @@
         <td><u>D</u>elete the current key from the path.</td>
       </tr>
       <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
         <td>Control-<u>N</u></td>
         <td>&hellip;</td>
-        <td>Select the <u>N</u>ext path key in the list.</td>
+        <td>Select the <u>N</u>ext path key.</td>
       </tr>
       <tr>
         <td>Control-<u>P</u></td>
         <td>&hellip;</td>
-        <td>Select the <u>P</u>revious path key in the list.</td>
+        <td>Select the <u>P</u>revious path key.</td>
       </tr>
       <tr>
         <td>Control-<u>R</u></td>
         <td>&hellip;</td>
-        <td><u>R</u>ewind the current position and the play-back head to the beginning.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>F</u></td>
-        <td>&hellip;</td>
-        <td>Play the path <u>F</u>orward from the current position, or stop play-back.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>B</u></td>
-        <td>&hellip;</td>
-        <td>Play the path <u>B</u>ackward from the current position, or stop play-back.</td>
+        <td><u>R</u>ewind the current key and the play-back position to the beginning.</td>
       </tr>
       <tr>
         <td>Control-<u>J</u></td>
         <td>&hellip;</td>
-        <td><u>J</u>ump the view to the current key position.</td>
+        <td><u>J</u>ump the camera to the current key position.</td>
+      </tr>
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>Control-<u>F</u></td>
+        <td>&hellip;</td>
+        <td>Play the path <u>F</u>orward from the current play-back position.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>B</u></td>
+        <td>&hellip;</td>
+        <td>Play the path <u>B</u>ackward from the current play-back position.</td>
+      </tr>
+      <tr>
+        <td>Spacebar</td>
+        <td>&hellip;</td>
+        <td>Stop play-back.</td>
+      </tr>
+      <tr>
+        <td>&nbsp;</td>
       </tr>
       <tr>
         <td>Control-<u>S</u></td>
         <td>&hellip;</td>
-        <td><u>S</u>ave the current path to a file.</td>
+        <td><u>S</u>ave the path to a file.</td>
       </tr>
       <tr>
         <td>Control-<u>L</u></td>
         <td>&hellip;</td>
-        <td><u>L</u>oad the current path from a file.</td>
+        <td><u>L</u>oad the path from a file.</td>
       </tr>
       <tr>
         <td>Control-<u>C</u></td>
@@ -317,19 +332,29 @@
       </tr>
     </table>
 
-    <p>To prepare a camera path, simply manipulate the view normally and press Control-A at each point of interest. This will append each point to the list, moving the current selection forward with each addition.</p>
+    <p>Some tips:</p>
 
-    <p>Press Control-R to rewind to the beginning and press Control-F to animate the path forward.</p>
+    <ul>
+      <li><p>To prepare a camera path, navigate normally and press Control-A at each point of interest. This will append each point to the list, moving the current selection forward with each addition.</p></li>
 
-    <p>Gain some altitude or distance to see the path as a whole.</p>
+      <li><p>Press Control-R to rewind to the beginning and press Control-F to animate the path forward.</p></li>
 
-    <p>If a particular key frame is bad or wrong, select it using Control-P and Control-N, press Control-J to jump to that view point, and adjust the camera interactively. When the view point is improved, press Control-O to overwrite the current position onto the bad key frame.</p>
+      <li><p>Gain some altitude or distance to see an overview of the path.</p></li>
 
-    <p>Press Control-S to save the current path, or Control-L to reload it. Note! There is currently no file name selection dialog for path storage. The file is <em>always</em> named <tt>path.dat</tt>. If you wish to store multiple path files, please use the Finder or Explorer to rename them by hand after saving, or before loading.</p>
+      <li><p>If a particular key frame is bad or wrong, select it using Control-P and Control-N, press Control-J to jump to that view point, and adjust the camera interactively. When the view point is improved, press Control-O to overwrite the current position onto the bad key frame.</p></li>
+
+      <li><p>This gets easier with practice. Always try to be aware of which key is current. The path visualizion is updated as it is edited, so keep an eye on subtle changes down the line caused by local modifications. It often helps to work backwards.</p></li>
+
+      <li><p>Key frames are interpolated at a constant rate, thus the speed of the animation is determined by the density of key frames. Closely-spaced key frames give slow motion, and widely-separated key frames give fast motion.</p></li>
+
+      <li><p>Cubic interpolation can give unexpected results, particularly before and after wide gaps between keys. Plan ahead.</p></li>
+
+      <li><p>Press Control-S to save the current path to disk, or Control-L to load it from disk. <b>Note:</b> There is currently no file name selection dialog for path storage. The file is <em>always</em> named <tt>path.dat</tt>. If you wish to store multiple path files, please use the Finder or Explorer to rename <tt>path.dat</tt> by hand after saving, or before loading.</p></li>
+    </ul>
 
     <a name="recording"><h4>Camera Path Recording</h4></a>
 
-    <p>Once a suitable path has been determined, it may be rendered to an image sequence.</p>
+    <p>Once a suitable path has been defined, it may be rendered to an image sequence.</p>
 
     <table style="margin:auto;width:80%">
       <tr>
@@ -340,16 +365,18 @@
       <tr>
         <td>Shift-Control-<u>F</u></td>
         <td>&hellip;</td>
-        <td>Record the path <u>F</u>orward from the current position.</td>
+        <td>Record the path <u>F</u>orward from the current play-back position.</td>
       </tr>
       <tr>
         <td>Shift-Control-<u>B</u></td>
         <td>&hellip;</td>
-        <td>Record the path <u>B</u>ackward from the current position.</td>
+        <td>Record the path <u>B</u>ackward from the current play-back position.</td>
       </tr>
     </table>
 
     <p>This will produces a series of PNG files in the current working directory named <tt>frame00000.png</tt>, <tt>frame00001.png</tt>, etc, representing a 30-frame per second animation of the path. This may take some time. Unlike during interactive rendering, <code>Orbiter</code> takes the time to ensure optimal image quality. It waits for each necessary page of SCM data to be fully loaded from disk into VRAM before rendering and storing each frame.</p>
+
+    <p>If the path play-back is stopped for any reason, the recording stops as well.</p>
 
     <a name="renderer"><h3>Configuration</h3></a>
 
@@ -422,18 +449,6 @@
     </pre>
 
     <p>Note that the <code>frag</code> attribute of the <code>panorama</code> element specifies the <em>blend</em> fragment program. This program performs the interpolation. Non-interpolating panoramas should <em>not</em> use the <em>blend</em> program, as it doubles the texture access load of the renderer.</p>
-
-  <a name="panoview"><h3>PanoView Usage</h3>
-
-  <p>Panoview is configured and run like any other Thumb application. The following keyboard commands are defined.</p>
-
-  <p><code>F1</code> &hellip; Toggle the <code>panoview</code> file selection dialog. This dialog allows the user to navigate the Thumb data hierarchy and select a panorama definition for viewing.</p>
-
-  <p><code>F2</code> &hellip; Toggle the cache visualization overlay. This allows the set of all resident pages to be viewed in thumbnail.</p>
-
-  <p><code>F3</code> &hellip; Toggle the page coloration debug view. This feature recolors each incoming page to indicate its depth in the page tree.</p>
-
-  <p><code>F4</code> &hellip; Toggle automatic zoom centering. This option controls whether the center of the zoom is static or dynamic.</p>
 
   <p>In addition, there is one option in the Thumb configuration file <code>conf.xml</code> that impacts the behavior and performance of the panorama renderer.</p>
 

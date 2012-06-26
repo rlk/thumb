@@ -340,6 +340,7 @@ bool scm_viewer::process_key(app::event *E)
                           path.get(here);  return true; // ^J
             }
         }
+        if (k == 32) path.stop();
     }
 
     return prog::process_event(E);
