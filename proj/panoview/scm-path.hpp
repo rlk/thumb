@@ -30,6 +30,7 @@ public:
 
     void fore(bool);
     void back(bool);
+    void stop();
     void next();
     void prev();
     void home();
@@ -38,6 +39,7 @@ public:
     void get(scm_step&);
     void set(scm_step&);
     void ins(scm_step&);
+    void add(scm_step&);
     void del();
 
     void save();

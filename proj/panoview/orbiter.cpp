@@ -151,12 +151,10 @@ void orbiter::lite(const double *point,
 
 ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
-    if (cache)
+    scm_viewer::prep(frusc, frusv);
+
+    if (cache && model)
     {
-        // Cycle the cache.
-
-        cache->update(model->tick());
-
         // Compute a horizon line based upon altitude and  minimum data radius.
 
         double a = here.get_radius();

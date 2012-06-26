@@ -13,6 +13,7 @@
 #include <cmath>
 
 #include <ogl-opengl.hpp>
+#include <app-host.hpp>
 
 #include "scm-path.hpp"
 
@@ -36,28 +37,41 @@ static int mmod(int n, int m)
     return (d < 0) ? d + m : d;
 }
 
-static int clamp(int n, int m)
-{
-    if      (n <     0) return     0;
-    else if (n > m - 1) return m - 1;
-    else                return n;
-}
-
 //------------------------------------------------------------------------------
-void scm_path::fore(bool stop)
+
+void scm_path::fore(bool movie)
 {
     if (head_d <= 0 && !step.empty())
+    {
+        if (movie)
+        {
+            ::host->set_movie_mode(2);
+            ::host->set_bench_mode(1);
+        }
         head_d = +1;
-    else
-        head_d =  0;
+    }
+    else stop();
 }
 
-void scm_path::back(bool stop)
+void scm_path::back(bool movie)
 {
     if (head_d >= 0 && !step.empty())
+    {
+        if (movie)
+        {
+            ::host->set_movie_mode(2);
+            ::host->set_bench_mode(1);
+        }
         head_d = -1;
-    else
-        head_d =  0;
+    }
+    else stop();
+}
+
+void scm_path::stop()
+{
+    ::host->set_bench_mode(0);
+    ::host->set_movie_mode(0);
+    head_d = 0;
 }
 
 void scm_path::next()
@@ -87,7 +101,6 @@ void scm_path::get(scm_step& s)
 {
     if (!step.empty())
         s = interpolate(int(floor(head_t)), head_t - floor(head_t));
-    s.write(stdout);
 }
 
 void scm_path::set(scm_step& s)
@@ -99,6 +112,20 @@ void scm_path::set(scm_step& s)
 }
 
 void scm_path::ins(scm_step& s)
+{
+    if (step.empty())
+    {
+        step.push_back(s);
+        curr = 0;
+    }
+    else
+    {
+        step.insert(step.begin() + curr, s);
+        curr++;
+    }
+}
+
+void scm_path::add(scm_step& s)
 {
     if (step.empty())
     {
@@ -176,12 +203,12 @@ void scm_path::time(double dt)
     if (head_t > step.size() - 1)
     {
         head_t = step.size() - 1;
-        head_d = 0;
+        stop();
     }
     if (head_t < 0)
     {
         head_t = 0;
-        head_d = 0;
+        stop();
     }
 }
 

@@ -72,6 +72,7 @@ public:
     void update(int);
     void flush();
     void draw();
+    void sync(int);
 
     void set_debug(bool b) { debug = b; }
 

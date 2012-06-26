@@ -75,8 +75,7 @@ scm_cache::~scm_cache()
 {
     // Continue servicing the loads queue until the needs queue is emptied.
 
-    while (!needs.empty())
-        update(0);
+    sync(0);
 
     // Enqueue an exit command for each loader thread.
 
@@ -252,6 +251,12 @@ void scm_cache::flush()
 void scm_cache::draw()
 {
     pages.draw();
+}
+
+void scm_cache::sync(int t)
+{
+    while (!needs.empty())
+        update(t);
 }
 
 //------------------------------------------------------------------------------
