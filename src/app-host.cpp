@@ -637,7 +637,6 @@ void app::host::root_loop()
 
     // Kick things off with a START event.
 
-//  process_event(E.mk_start());
     process_start(E.mk_start());  // HACK
 
     // Process incoming events until an exit is posted.
@@ -714,9 +713,9 @@ void app::host::root_loop()
 
             // Advance to the current time, or by one JIFFY when benchmarking.
 
-            // for (int tick = bench ? (tock + JIFFY) : SDL_GetTicks();
-            //      tick - tock >= JIFFY;
-            //      tock        += JIFFY)
+            for (int tick = bench ? (tock + JIFFY) : SDL_GetTicks();
+                 tick - tock >= JIFFY;
+                 tock        += JIFFY)
 
                 process_event(E.mk_tick(JIFFY));
 

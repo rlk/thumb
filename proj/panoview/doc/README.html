@@ -42,10 +42,9 @@
 
     <p>&copy; 2012 Robert Kooima &mdash; <i>kooima&#64;csc&#46;lsu&#46;edu</i></p>
 
-    <p>This document describes the use of the <code>Orbiter</code> real-time planetary visualization package. <code>Orbiter</code> is implemented using the <code>Thumb</code> framework, and pertinent aspects of <code>Thumb</code> are also described here.</p>
+    <p>This document describes the use of the <code>Orbiter</code> real-time planetary visualization package and a few of the details of the spherical cube map (SCM) data file format that supports it. <code>Orbiter</code> is implemented using the <code>Thumb</code> framework, and pertinent aspects of <code>Thumb</code> are also documented here.</p>
 
     <ul>
-      <li><a href="#scm">SCM TIFF</a></li>
       <li><a href="#orbiter">Orbiter</a></li>
       <ul>
         <li><a href="#usage">Usage</a></li>
@@ -55,107 +54,35 @@
           <li><a href="#editing">Camera Path Editing</a></li>
           <li><a href="#recording">Camera Path Recording</a></li>
         </ul>
-        <li><a href="#configuration">Configuration</a></li>
-        <ul>
-          <li><a href="#definition">Definition XML</a></li>
-        </ul>
+        <li><a href="#scmconf">SCM Configuration</a></li>
+        <li><a href="#definition">Planet Definition XML</a></li>
+        <li><a href="#thumbconf">Thumb Configuration</a></li>
+        <li><a href="#troubleshooting">Troubleshooting</a></li>
       </ul>
+      <li><a href="#scm">SCM TIFF</a></li>
     </ul>
-
-    <a name="scm"><h3>SCM TIFF</h3></a>
-
-    <p>A planetary data set is usually made available as a large equirectangular image file. For real-time display, such an image is pre-processed into an optimized intermediate format that maximizes sampling uniformity across the entire sphere. This format is called a <em>spherical cube map</em> or SCM. The basic layout of an SCM resembles the cube map texture commonly used in real-time 3D graphics: it is represented by six square images, one for each face of a cube. However, while the common cube map texture maps sphere positions onto image pixels using a straightforward linear mapping, the spherical cube map uses a spherical mapping that helps equalize the solid angle subtended by each image pixel.</p>
-
-    <p>To enable the zooming of high resolution imagery at interactive rates, each face of the spherical cube map is subdivided into a quad-tree hierarchy. To enable seamless linear magnification filtering across this discontinuous image representation, each page is stored with a 1-pixel border. Special care is taken to ensure that this border wraps correctly around the edges of the base cube.</p>
-
-    <p>Because the resulting spherical image is represented by a number of sub-images, a multi-page image file format is required, and TIFF is chosen. Spherical cube map pages are enumerated in the TIFF file in breadth-first order, which gathers low-resolution base imagery to the front of the file and provides increasing resolution with increasing file length.</p>
-
-    <p>The resolution of a spherical cube map image is determined by two values, the <em>size</em> of each square page in pixels, and the <em>depth</em> of the quad-tree subdivision. A spherical cube map image of depth <i>d</i> will contain 2<sup>2<i>d</i> + 3</sup> - 2 separate pages. The current renderer has a maximum depth of 7. The number of pages for several values of <i>d</i> is shown here. Note the obvious fact that a cube map with zero subdivisions has six pages.</p>
-
-    <table id="spreadsheet">
-      <tr>
-        <td><i>d</i></td>
-        <td>0</td>
-        <td>1</td>
-        <td>2</td>
-        <td>3</td>
-        <td>4</td>
-        <td>5</td>
-        <td>6</td>
-        <td>7</td>
-      </tr>
-      <tr>
-        <td><i>n</i></td>
-        <td>6</td>
-        <td>30</td>
-        <td>126</td>
-        <td>510</td>
-        <td>2046</td>
-        <td>8190</td>
-        <td>32766</td>
-        <td>131070</td>
-      </tr>
-    </table>
-
-    <p>A spherical cube map's page size impacts out-of-core data access performance, and values around 512 are usually best. Given a spherical cube map with page size <i>s</i> and depth <i>d</i>, the effective resolution of the equivalent equirectangular projection is 4&middot;<i>s</i>&middot;2<sup><i>d</i></sup> &times; 2&middot;<i>s</i>&middot;2<sup><i>d</i></sup>. Given a base page size of 512, the effective resolution of a spherical cube map for each depth <i>d</i> is</p>
-
-    <table id="spreadsheet">
-      <tr>
-        <td><i>d</i></td>
-        <td>0</td>
-        <td>1</td>
-        <td>2</td>
-        <td>3</td>
-        <td>4</td>
-        <td>5</td>
-        <td>6</td>
-        <td>7</td>
-      </tr>
-      <tr>
-        <td><i>width</i></td>
-        <td>2048</td>
-        <td>4096</td>
-        <td>8192</td>
-        <td>16384</td>
-        <td>32768</td>
-        <td>65536</td>
-        <td>131072</td>
-        <td>262144</td>
-      </tr>
-      <tr>
-        <td><i>height</i></td>
-        <td>1024</td>
-        <td>2048</td>
-        <td>4096</td>
-        <td>8192</td>
-        <td>16384</td>
-        <td>32768</td>
-        <td>65536</td>
-        <td>131072</td>
-      </tr>
-    </table>
-
-    <p>A simple file naming convention that includes the SCM data parameters has been of great help in keeping SCM data organized. Here are a few examples:</p>
-
-    <pre>
-      WAC-426-6.tif
-      LDEM-360-8.tif
-      NAC_ROI_APOLLO16HIA-336-14.tif
-    </pre>
-
-    <p>The SCM TIFF image <tt>WAC-426-6.tif</tt> was generated from Lunar Reconnaissance Orbiter Wide Angle Camera imagery with a global resolution of 100 meters per pixel. Given a lunar radius of 1737400 meters, that's 108969 pixels around the equator. With size 426 and depth 6, <tt>WAC-426-6.tif</tt> has an effective resolution of 109056 &times; 54528 pixels, which is just enough to represent the source data completely. Likewise, <tt>LDEM-360-8.tif</tt> gives Lunar Digital Elevation Model data derived from the Lunar Orbiter Laser Altimeter resampled to a global resolution of 368640 &times; 184320.</p>
-
-    <p>With a depth of 14, <tt>NAC_ROI_APOLLO16HIA-336-14.tif</tt> would appear to provide a <em>huge</em> image, however it covers only the Narrow Angle Camera Region of Interest surrounding the landing site of Apollo 16. It does give data with an SCM depth of 14, which works out to 0.5 meters per pixels, however it does so over a very small area.</p>
 
     <a name="orbiter"><h2>Orbiter</h2></a>
 
     <a name="usage"><h3>Usage</h3></a>
 
-    <p>The <code>Orbiter</code> application may be run from the command line or double-clicked in the Finder or Explorer. It presents a menu of prepared visualizations to be browsed, selected, and loaded.</p>
+    <p>The <code>Orbiter</code> application may be run from the command line or double-clicked in the Finder or Explorer. Under many circumstances, launching <code>Orbiter</code> from the command line is best.</p>
+
+    <blockquote><pre>./orbiter</pre></blockquote>
+
+    <p>There are a number of display modes configured in the default host definition file <tt>data/host/common.xml</tt>. One of these configurations may be selected on the command line. For example, HD resolution:</p>
+
+    <blockquote><pre>./orbiter 1920x1080</pre></blockquote>
+
+    <p>&hellip; or left-right stereoscopic display on a 3D HD television:</p>
+
+    <blockquote><pre>./orbiter 1920x1080-LR</pre></blockquote>
+
+    On launch, <code>Orbiter</code> presents a menu of prepared visualizations to be browsed, selected, and loaded.</p>
 
     <img src="img/select.png">
 
-    <p>Note, this is <em>not</em> a list of available SCM files. A planetary visualization is usually a composition of several distinct data sets in SCM form, and the <code>Orbiter</code> file selection dialog lists the XML files that define these visualizations. The XML files are found in the <tt>data/pan</tt> directory in the <code>Thumb</code> distribution, and are <a href="#definition">described below</a>.</p>
+    <p>Note, this is <em>not</em> a list of available data files. A planetary visualization is usually a composition of several distinct data sets in <a href="#scm">SCM TIFF</a> format, and the <code>Orbiter</code> file selection dialog lists the XML files that define these visualizations. The XML files are found in the <tt>data/scm</tt> directory in the <code>Thumb</code> distribution, and are <a href="#definition">described below</a>.</p>
 
     <p>Loading a visualization closes the selection dialog and displays the planet. Here, we've selected <tt>GLD-WAC.xml</tt> and zoomed in a bit, as described next.</p>
 
@@ -167,14 +94,14 @@
 
     <table style="margin:auto;width:80%">
       <tr>
-        <th style="width:25%">Key</th>
+        <th style="width:25%">Button</th>
         <th style="width:5%"></th>
         <th style="width:70%">Function</th>
       </tr>
       <tr>
         <td>Left Mouse</td>
         <td>&hellip;</td>
-        <td>Click and drag to change view position.</td>
+        <td>Click and drag to change view position (rotate the planet).</td>
       </tr>
       <tr>
         <td>Right Mouse</td>
@@ -184,7 +111,7 @@
       <tr>
         <td>Shift Left Mouse</td>
         <td>&hellip;</td>
-        <td>Click and drag to change view direction.</td>
+        <td>Click and drag to change view direction (rotate the camera).</td>
       </tr>
       <tr>
         <td>Shift Right Mouse</td>
@@ -192,6 +119,8 @@
         <td>Click and drag to change lighting direction.</td>
       </tr>
     </table>
+
+    <p>Not all visualizations support dynamic lighting, so the effects of shift-right-click might not always be apparent.</p>
 
     <a name="metadata"><h4>Metadata Controls</h4></a>
 
@@ -237,7 +166,7 @@
 
     <a name="editing"><h4>Camera Path Editing</h4></a>
 
-    <p><code>Orbiter</code> allows the position and orientation of the camera to follow a pre-determined path, determined by a series of key frames. These key frames are specified interactively and keyboard commands insert or append the current camera configuration to a storable list of camera configurations. These key frames are animated using cubic interpolation in both real-time and for the rendering of high-quality image sequences. The camera path visualization is toggled using the F4 key. It is shown here:</p>
+    <p><code>Orbiter</code> allows the position and orientation of the camera to follow a pre-determined path, determined by a series of key frames. These key frames are specified interactively and keyboard commands insert or append the current camera configuration to a storable list of camera configurations. These key frames are animated using cubic interpolation. The camera path visualization is toggled using the F4 key. Here is an example:</p>
 
     <img src="img/path.png">
 
@@ -378,100 +307,147 @@
 
     <p>If the path play-back is stopped for any reason, the recording stops as well.</p>
 
-    <a name="renderer"><h3>Configuration</h3></a>
+    <a name="scmconf"><h3>SCM Configuration</h3></a>
 
-    <p><code>SCMPATH</code> is a shell environment variable akin to the <code>bash</code> executable path. It lists directories where spherical cube map TIFF files may be found. If the application requests that the renderer load a file, but the renderer cannot find that file, then it will search this list of directories. Set this variable in the shell resource file, as need be, separated by colons. For example,</p>
+    <p>The shell environment variable <tt>SCMPATH</tt> lists directories where SCM TIFF files may be found. Set this variable in the shell resource file just as one might set the shell path, separated by colons. For example,</p>
+
+    <blockquote><pre>export SCMPATH=/share/scm:$HOME/Data/scm:.</pre></blockquote>
+
+    <p>The environment variable <tt>SCMINIT</tt> optionally gives the name of a visualization definition file to be loaded immediately upon launch. If specified, <code>Orbiter</code> will not present the file selection dialog and will instead proceed directly to displaying the named file. For example,</p>
+
+    <blockquote><pre>export SCMINIT=scm/GLD-WAC.xml</pre></blockquote>
+
+    <a name="definition"><h3>Planet Definition XML</h3></a>
+
+    <p>The planet visualization definition file lists the SCM files that comprise each visualization, as well as the parameters of the planet and the mechanisms of its rendering. An understanding of these files is not necessary for basic use of <code>Orbiter</code>, but if customized visualizations are to be created then the file's contents must be understood. For a complete accounting of this file format, see the full SCM TIFF documentation.</p>
+
+    <p>Planet definition XML files appear in an abstract file system used by the <code>Thumb</code> framework. To be visible to <code>Orbiter</code>, they must be placed in the <tt>data</tt> directory within the application directory, or in one of the directories listed in the <tt>THUMB_RO_PATH</tt> environment variable. These files need <em>not</em> be stored along side the SCM TIFF files that they reference.</p>
+
+    <p>Here is an example of a basic planet definition, <tt>GLD-WAC.xml</tt>.</p>
+
+<blockquote><pre>
+&lt;?xml version="1.0"?&gt;
+  &lt;sphere mesh="32" radius="1737400.0" size="426"
+          vert="glsl/scm-displace.vert"
+          frag="glsl/scm-basic.frag"&gt;
+    &lt;scm shader="vert" r0="0.994728" r1="1.0062" file="DTM-426-6.tif" /&gt;
+    &lt;scm shader="frag"                           file="WAC-426-6.tif" /&gt;
+  &lt;/sphere&gt;</pre></blockquote>
+
+    <p>The file begins with an XML header and contains a single root <code>sphere</code> element with several attributes and one <code>scm</code> sub-element for each SCM TIFF image.</p>
+
+    <p>The <code>mesh</code> attribute determines the tessellation of the geometry mesh used to render each page of data. The example value, 32, indicates that each page of the sphere will be rendered using a 32 &times; 32 grid of squares.</p>
+
+    <p>The <code>radius</code> attribute determines the base radius of the sphere, in meters. In this example, the moon has a radius of 1737000 meters.</p>
+
+    <p>The <code>size</code> attribute gives the size of each page in the referenced SCM TIFFs. Note that the value coincides with the image parameters given by the SCM file names. Other values are allowed, and may enable quality-speed tradeoffs.</p>
+
+    <p>The <code>vert</code> and <code>frag</code> attributes give the vertex and fragment programs to be used by the renderer, named relative to the root of the Thumb data hierarchy. In this case, the &ldquo;displacement&rdquo; vertex shader is used to render displacement-mapped terrain, and the &ldquo;basic&rdquo; fragment shader is used to apply a simple image to the resulting surface. These attributes will remain the same for most planet definitions, though different lighting models, overlay modes, and data visualizations may be introduced using alternate shaders.</p>
+
+    <p>The <code>scm</code> elements name the actual SCM data files. In this example, <tt>DTM-426-6.tif</tt> gives a Digital Terrain Model, which acts as a height map. Because it serves to modify the geometry of the spherical mesh, it is fed to the vertex shader and its normalized minimum and maximum radii are provided as attributes. <tt>WAC-426-6.tif</tt> is a simple image file fed to the fragment shader.</p>
+
+    <a name="thumbconf"><h3><code>Thumb</code> Configuration</h3></a>
+
+    <p><code>Thumb</code> configuration options reside in the file <tt>data/conf.xml</tt>. Very few of these options ever need to be changed, with the possible exception of the cache size. This parameter limits the total number of SCM pages that may be loaded simultaneously. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. In general, set this value to equal the size of VRAM, in megabytes.</p>
+
+    <blockquote><pre>&lt;option name="scm_viewer_cache_size"&gt;512&lt;/option&gt;</pre></blockquote>
+
+    <a name="troubleshooting"><h3>Troubleshooting</h3></a>
+
+    <p>This is a list of issues to be aware of, should unexpected behavior arise.</p>
+
+    <ul>
+      <li><p>If the definition files are not visible in the <code>Orbiter</code> file selector, then be sure they are located within the Thumb data hierarchy, or add their location to the Thumb data hierarchy by including the path in the <code>THUMB_RO_PATH</code> environment variable.</p></li>
+
+      <li><p>If the definition file loads but does not display an image, be sure the path to the SCM TIFF files appears in the <code>SCMPATH</code> environment variable.</p></li>
+
+      <li><p>If performance is bad, be sure that SCM TIFF files are <em>not</em> being accessed from a network share. Also check that <tt>scm_viewer_cache_size</tt> is not too large.</p></li>
+    </ul>
+
+    <a name="scm"><h2>SCM TIFF</h2></a>
+
+    <p>Planetary data sets are usually made available as a large equirectangular image files, but for real-time display, these images must be pre-processed into an optimized intermediate format that maximizes sampling uniformity across the entire sphere. This format is called a <em>spherical cube map</em> or SCM. The basic layout of an SCM resembles the cube map texture commonly used in real-time 3D graphics: it is represented by six square images, one for each face of a cube. However, while the common cube map texture maps sphere positions onto image pixels using a straightforward linear mapping, the spherical cube map uses a spherical mapping that helps equalize the solid angle subtended by each image pixel.</p>
+
+    <p>To enable the zooming of high resolution imagery at interactive rates, each face of the spherical cube map is subdivided into a quad-tree hierarchy. To enable seamless linear magnification filtering across this discontinuous image representation, each page is stored with a 1-pixel border. Special care is taken to ensure that this border wraps correctly around the edges of the base cube.</p>
+
+    <p>Because the resulting spherical image is represented by a number of sub-images, a multi-page image file format is required, and TIFF is chosen. Spherical cube map pages are enumerated in the TIFF file in breadth-first order, which gathers low-resolution base imagery to the front of the file and provides increasing resolution with increasing file length.</p>
+
+    <p>The resolution of a spherical cube map image is determined by two values, the <em>size</em> of each square page in pixels, and the <em>depth</em> of the quad-tree subdivision. A spherical cube map image of depth <i>d</i> will contain 2<sup>2<i>d</i> + 3</sup> - 2 separate pages. The current renderer has a maximum depth of 7. The number of pages for several values of <i>d</i> is shown here. Note the obvious fact that a cube map with zero subdivisions has six pages.</p>
+
+    <table id="spreadsheet">
+      <tr>
+        <td><i>d</i></td>
+        <td>0</td>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+        <td>5</td>
+        <td>6</td>
+        <td>7</td>
+      </tr>
+      <tr>
+        <td><i>n</i></td>
+        <td>6</td>
+        <td>30</td>
+        <td>126</td>
+        <td>510</td>
+        <td>2046</td>
+        <td>8190</td>
+        <td>32766</td>
+        <td>131070</td>
+      </tr>
+    </table>
+
+    <p>A spherical cube map's page size impacts out-of-core data access performance, and values around 512 are usually best. Given a spherical cube map with page size <i>s</i> and depth <i>d</i>, the effective resolution of the equivalent equirectangular projection is 4&middot;<i>s</i>&middot;2<sup><i>d</i></sup> &times; 2&middot;<i>s</i>&middot;2<sup><i>d</i></sup>. Given a base page size of 512, the effective resolution of a spherical cube map for each depth <i>d</i> is</p>
+
+    <table id="spreadsheet">
+      <tr>
+        <td><i>d</i></td>
+        <td>0</td>
+        <td>1</td>
+        <td>2</td>
+        <td>3</td>
+        <td>4</td>
+        <td>5</td>
+        <td>6</td>
+        <td>7</td>
+      </tr>
+      <tr>
+        <td><i>width</i></td>
+        <td>2048</td>
+        <td>4096</td>
+        <td>8192</td>
+        <td>16384</td>
+        <td>32768</td>
+        <td>65536</td>
+        <td>131072</td>
+        <td>262144</td>
+      </tr>
+      <tr>
+        <td><i>height</i></td>
+        <td>1024</td>
+        <td>2048</td>
+        <td>4096</td>
+        <td>8192</td>
+        <td>16384</td>
+        <td>32768</td>
+        <td>65536</td>
+        <td>131072</td>
+      </tr>
+    </table>
+
+    <p>A simple file naming convention that includes the SCM data parameters has been of great help in keeping SCM data organized. Here are a few examples:</p>
 
     <pre>
-      export SCMPATH=/share/scm:$HOME/Data/scm:.
+      WAC-426-6.tif
+      LDEM-360-8.tif
+      NAC_ROI_APOLLO16HIA-336-14.tif
     </pre>
 
-    <a name="definition"><h4>Planet Definition XML</h4></a>
+    <p>The SCM TIFF image <tt>WAC-426-6.tif</tt> was generated from Lunar Reconnaissance Orbiter Wide Angle Camera imagery with a global resolution of 100 meters per pixel. Given a lunar radius of 1737400 meters, that's 108969 pixels around the equator. With size 426 and depth 6, <tt>WAC-426-6.tif</tt> has an effective resolution of 109056 &times; 54528 pixels, which is just enough to represent the source data completely. Likewise, <tt>LDEM-360-8.tif</tt> gives Lunar Digital Elevation Model data derived from the Lunar Orbiter Laser Altimeter resampled to a global resolution of 368640 &times; 184320.</p>
 
-    <p>An example panorama viewer, <code>panoview</code>, is implemented using the Thumb framework.  While the previous sections on panorama handling apply to any embedding of the panorama renderer, the following sections describe the configuration and usage specifically of <code>panoview</code>.</p>
+    <p>With a depth of 14, <tt>NAC_ROI_APOLLO16HIA-336-14.tif</tt> would appear to provide a <em>huge</em> image, however it covers only the Narrow Angle Camera Region of Interest surrounding the landing site of Apollo 16. It does give data with an SCM depth of 14, which works out to 0.5 meters per pixels, however it does so over a very small area.</p>
 
-    <p>For correct display, <code>panoview</code> must understand the parameters of each panoramic image. The panorama definition is an XML file that provides this information.
-
-    <p>Like any data file, Thumb must be able to find these panorama definitions. They are appear in the Thumb data hierarchy like any other configuration file. This means they may be placed in a <code>data</code> directory rooted at the current directory, or in the <code>~/.thumb</code> hierarchy, or in a data hierarchy given by the <code>THUMB_RO_DATA</code> environment variable. Panorama definition files need <em>not</em> be stored along side the TIFF files that the reference. It is the <code>PANOPATH</code> environment variable that defines the location of these.</p>
-
-    <a name="example1"><h4>Basic Stereo Panorama</h4></a>
-
-    <p>Here is an example of a basic stereo panorama definition, named <code>Blue-Mounds-8.xml</code>.</p>
-
-    <pre>
-    &lt;?xml version="1.0"?&gt;
-      &lt;panorama channels="2" depth="4" mesh="16" size="512" height="1.5" radius="6.0"
-             vert="glsl/scm-zoomer.vert"
-             frag="glsl/scm-render.frag"&gt;
-      &lt;image channel="0" file="Blue-Mounds-8-L-512-4.tif" /&gt;
-      &lt;image channel="1" file="Blue-Mounds-8-R-512-4.tif" /&gt;
-      &lt;/panorama&gt;
-    </pre>
-
-    <p>The file begins with an XML header and contains a single root <code>panorama</code> element with several attributes and one <code>image</code> sub-element for each panorama image.</p>
-
-    <p>The <code>channels</code> attribute gives the number view positions. This adapts a panorama definition to a specific display configuration. A desktop display will have one channel, a CAVE will have two, and a multi-view lenticular may have many more.</p>
-
-    <p>The <code>size</code> and <code>depth</code> attributes give the size of each page in the panorama image files and the depth of their page hierarchies. Note that the values coincide with the image parameters given by the file names. Other values are allowed, and may enable quality-speed tradeoffs.</p>
-
-    <p>The <code>mesh</code> attribute determines the tesselation of the geometry mesh used to render each page of data. The example value, 16, indicates that each page of the sphere will be rendered using a 16 &times; 16 grid of polygons. There is little reason to change this.</p>
-
-    <p>The <code>radius</code> attribute determines the radius of the spherical proxy geometry used to render the panorama. The <code>height</code> attribute determines the placement of the proxy geometry in the scene, and should match the height of the camera at the time the panorama was captured. These values are given in meters, and are mostly significant in VR display environments. The default radius is 6 meters, and the default height is 1.5 meters.</p>
-
-    <p>The <code>vert</code> and <code>frag</code> attributes give the vertex and fragment programs to be used by the renderer, named relative to the root of the Thumb data hierarchy. These will remain the same for most panorama definitions.The <em>zoomer</em>; vertex program must be specified for zoomable panoramas. The <em>render</em> fragment program is used for static panoramas such as this one.</p>
-
-    <a name="example2"><h4>Multi-image Panorama</h4></a>
-
-    <p>The following example, <code>Taliesin-Path</code>, is more complex. It defines several images for each channel. This will behave as a <em>circular</em> list of images, and the renderer will interpolate between them in order, following an internal &ldquo;playback head.&rdquo;</p>
-
-    <pre>
-    &lt;?xml version="1.0"?&gt;
-      &lt;panorama channels="2" depth="3" mesh="16" size="512"
-          vert="glsl/scm-zoomer.vert"
-          frag="glsl/scm-blend.frag"&gt;
-      &lt;image channel="0" file="Taliesin-Path-A-L-512-3.tif" /&gt;
-      &lt;image channel="1" file="Taliesin-Path-A-R-512-3.tif" /&gt;
-      &lt;image channel="0" file="Taliesin-Path-B-L-512-3.tif" /&gt;
-      &lt;image channel="1" file="Taliesin-Path-B-R-512-3.tif" /&gt;
-      &lt;image channel="0" file="Taliesin-Path-C-L-512-3.tif" /&gt;
-      &lt;image channel="1" file="Taliesin-Path-C-R-512-3.tif" /&gt;
-      &lt;image channel="0" file="Taliesin-Path-D-L-512-3.tif" /&gt;
-      &lt;image channel="1" file="Taliesin-Path-D-R-512-3.tif" /&gt;
-      &lt;image channel="0" file="Taliesin-Path-E-L-512-3.tif" /&gt;
-      &lt;image channel="1" file="Taliesin-Path-E-R-512-3.tif" /&gt;
-      &lt;image channel="0" file="Taliesin-Path-F-L-512-3.tif" /&gt;
-      &lt;image channel="1" file="Taliesin-Path-F-R-512-3.tif" /&gt;
-      &lt;image channel="0" file="Taliesin-Path-G-L-512-3.tif" /&gt;
-      &lt;image channel="1" file="Taliesin-Path-G-R-512-3.tif" /&gt;
-      &lt;image channel="0" file="Taliesin-Path-H-L-512-3.tif" /&gt;
-      &lt;image channel="1" file="Taliesin-Path-H-R-512-3.tif" /&gt;
-      &lt;/panorama&gt;
-    </pre>
-
-    <p>Note that the <code>frag</code> attribute of the <code>panorama</code> element specifies the <em>blend</em> fragment program. This program performs the interpolation. Non-interpolating panoramas should <em>not</em> use the <em>blend</em> program, as it doubles the texture access load of the renderer.</p>
-
-  <p>In addition, there is one option in the Thumb configuration file <code>conf.xml</code> that impacts the behavior and performance of the panorama renderer.</p>
-
-  <pre>
-    &lt;option name="panoview_cache_size"&gt;128&lt;/option&gt;
-  </pre>
-
-  <p>This option selects the maximum number of pages that may be loaded at any given moment. A 512 &times; 512 page of RGB data consumes 1MB of VRAM, and this cache size option should be set accordingly. A larger value gives better performance, but too large a value will result in catastrophically bad performance.</p>
-
-  <a name="checklist"><h2>Checklist</h2></a>
-
-  <p>This is a list of issues to be aware of, should trouble arise.</p>
-
-  <ul>
-    <li>If the panorama definition XML files are not visible in the <code>panoview</code> file loader, then be sure they are located within the Thumb data hierarchy, or add their location to the Thumb data hierarchy by including the path in the <code>THUMB_RO_PATH</code> environment variable.</li>
-
-    <li>If the panorama definition loads but does not display an image, be sure the path to the spherical cube map TIFF files appears in the <code>PANOPATH</code> environment variable.</li>
-
-    <li>If a multi-image panorama jumps from one panorama to the next instead of fading, be sure the <em>blend</em> fragment program is referenced by the definition.</li>
-
-    <li>In general, be sure that the <code>depth</code> and <code>size</code> attributes of the panorama definition match the input files.</li>
-
-    <li>If performance is bad, be sure that panorama image files are <em>not</em> being accessed from a network share.</li>
-  </ul>
   </body>
 </html>
