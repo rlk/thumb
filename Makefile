@@ -34,6 +34,8 @@ osxdist : $(TARG)
 	mkdir -p $(DSTDIR)
 	mkdir -p $(LIBDIR)
 	mkdir -p $(DATDIR)
+	mkdir -p $(DOCDIR)
+	mkdir -p $(DOCDIR)/img
 	mkdir -p $(DATDIR)/host
 	mkdir -p $(DATDIR)/glsl
 	mkdir -p $(DATDIR)/scm
@@ -94,7 +96,10 @@ osxdist : $(TARG)
 
 	# Copy the documentation
 
-	$(CP) -r proj/panoview/doc $(DSTDIR)
+	$(CP) proj/panoview/doc/README.html    $(DOCDIR)
+	$(CP) proj/panoview/doc/img/select.png $(DOCDIR)/img
+	$(CP) proj/panoview/doc/img/view.png   $(DOCDIR)/img
+	$(CP) proj/panoview/doc/img/path.png   $(DOCDIR)/img
 
 #------------------------------------------------------------------------------
 
