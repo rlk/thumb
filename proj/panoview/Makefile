@@ -47,10 +47,7 @@ LIBDIR += -L../../src
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
-LIBS   += $(shell $(SDLCONF) --libs) \
-	  $(shell $(FT2CONF) --libs) \
-	  /usr/local/lib/libtiff.a \
-	-lthumb -lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
+LIBS    = -lthumb $(LIBFT) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBSDL) $(LIBGLEW) $(LIBBZ2) $(LIBZ) -lm $(LIBEXT)
 
 #------------------------------------------------------------------------------
 

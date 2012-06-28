@@ -142,7 +142,7 @@ SOCKET app::host::init_socket(int port)
 void app::host::init_listen(app::node p)
 {
     if (clients) client_cd = init_socket(p.get_i("port"));
-    if (root())  script_cd = init_socket(DEFAULT_SCRIPT_PORT);
+//  if (root())  script_cd = init_socket(DEFAULT_SCRIPT_PORT);
 }
 
 void app::host::poll_listen(bool wait)

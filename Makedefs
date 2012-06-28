@@ -24,20 +24,31 @@ endif
 
 #------------------------------------------------------------------------------
 
+LIBSDL  = /usr/local/lib/libSDLmain.a /usr/local/lib/libSDL.a
+LIBFT   = /usr/local/lib/libfreetype.a
+LIBTIF  = /usr/local/lib/libtiff.a
+LIBGLEW = /usr/local/lib/libGLEW.a
+LIBMXML = /usr/local/lib/libmxml.a
+LIBODE  = /usr/local/lib/libode.a
+LIBJPG  = /usr/local/lib/libjpeg.a
+LIBPNG  = /usr/local/lib/libpng15.a
+LIBZ    = /usr/local/lib/libz.a
+LIBBZ2  = -lbz2
+
+#------------------------------------------------------------------------------
+
 ifeq ($(shell uname), Darwin)
 	TARG    = libthumb.dylib
 	LD      = g++ -dynamiclib
-	SDLCONF =   /opt/local/bin/sdl-config
-	FT2CONF =   /opt/local/bin/freetype-config
-	INCDIR  = -I/opt/local/include
-	LIBDIR  = -L/opt/local/lib
-	OGLLIB  = -lGLEW -framework OpenGL -framework ApplicationServices
+	SDLCONF = sdl-config
+	FT2CONF = freetype-config
+	LIBEXT  = -framework OpenGL -framework Cocoa -framework ApplicationServices -framework Carbon -framework AudioToolbox -framework AudioUnit -framework IOKit
 else
 	TARG    = libthumb.so
 	LD      = g++ -shared
 	SDLCONF = sdl-config
 	FT2CONF = freetype-config
-	OGLLIB  = -lGLEW -lGL
+	LIBEXT  = -lGL
 endif
 
 #------------------------------------------------------------------------------

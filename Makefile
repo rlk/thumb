@@ -40,40 +40,12 @@ osxdist : $(TARG)
 	mkdir -p $(DATDIR)/glsl
 	mkdir -p $(DATDIR)/scm
 
-	# Copy all dependant libraries to the distribution library directory.
+	# Copy Thumb and Orbiter into the distribution and relink the library.
 
-	$(CP) /opt/local/lib/libSDL-1.2.0.dylib  $(LIBDIR)
-	$(CP) /opt/local/lib/libGLEW.1.7.0.dylib $(LIBDIR)
-	$(CP) /opt/local/lib/libfreetype.6.dylib $(LIBDIR)
-	$(CP) /opt/local/lib/libbz2.1.0.dylib    $(LIBDIR)
-	$(CP) /opt/local/lib/libjpeg.8.dylib     $(LIBDIR)
-	$(CP) /opt/local/lib/libpng14.14.dylib   $(LIBDIR)
-	$(CP) /opt/local/lib/libz.1.dylib        $(LIBDIR)
-
-	# Copy Thumb into the distribution and relink its libraries.
-
-	$(CP) src/libthumb.dylib                 $(LIBDIR)
-
-	$(CH) /opt/local/lib/libSDL-1.2.0.dylib  @executable_path/lib/libSDL-1.2.0.dylib  $(LIBDIR)/libthumb.dylib
-	$(CH) /opt/local/lib/libGLEW.1.7.0.dylib @executable_path/lib/libGLEW.1.7.0.dylib $(LIBDIR)/libthumb.dylib
-	$(CH) /opt/local/lib/libfreetype.6.dylib @executable_path/lib/libfreetype.6.dylib $(LIBDIR)/libthumb.dylib
-	$(CH) /opt/local/lib/libbz2.1.0.dylib    @executable_path/lib/libbz2.1.0.dylib    $(LIBDIR)/libthumb.dylib
-	$(CH) /opt/local/lib/libjpeg.8.dylib     @executable_path/lib/libjpeg.8.dylib     $(LIBDIR)/libthumb.dylib
-	$(CH) /opt/local/lib/libpng14.14.dylib   @executable_path/lib/libpng14.14.dylib   $(LIBDIR)/libthumb.dylib
-	$(CH) /opt/local/lib/libz.1.dylib        @executable_path/lib/libz.1.dylib        $(LIBDIR)/libthumb.dylib
-
-	# Copy Orbiter into the distribution and relink its libraries.
-
+	$(CP) src/libthumb.dylib    $(LIBDIR)
 	$(CP) proj/panoview/orbiter $(DSTDIR)
 
-	$(CH) /opt/local/lib/libSDL-1.2.0.dylib  @executable_path/lib/libSDL-1.2.0.dylib  $(DSTDIR)/orbiter
-	$(CH) /opt/local/lib/libGLEW.1.7.0.dylib @executable_path/lib/libGLEW.1.7.0.dylib $(DSTDIR)/orbiter
-	$(CH) /opt/local/lib/libfreetype.6.dylib @executable_path/lib/libfreetype.6.dylib $(DSTDIR)/orbiter
-	$(CH) /opt/local/lib/libbz2.1.0.dylib    @executable_path/lib/libbz2.1.0.dylib    $(DSTDIR)/orbiter
-	$(CH) /opt/local/lib/libjpeg.8.dylib     @executable_path/lib/libjpeg.8.dylib     $(DSTDIR)/orbiter
-	$(CH) /opt/local/lib/libpng14.14.dylib   @executable_path/lib/libpng14.14.dylib   $(DSTDIR)/orbiter
-	$(CH) /opt/local/lib/libz.1.dylib        @executable_path/lib/libz.1.dylib        $(DSTDIR)/orbiter
-	$(CH) libthumb.dylib                     @executable_path/lib/libthumb.dylib      $(DSTDIR)/orbiter
+	$(CH) libthumb.dylib @executable_path/lib/libthumb.dylib $(DSTDIR)/orbiter
 
 	# Copy global data
 

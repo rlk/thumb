@@ -81,10 +81,7 @@ INCDIR += -I../include
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
-LIBS    = $(shell $(SDLCONF) --libs) \
-	  $(shell $(FT2CONF) --libs) \
-	-lmxml -lode -ljpeg -lpng -lz -lm $(OGLLIB)
-#	-ljpeg -lpng -lz -lm $(OGLLIB)
+LIBS    = $(LIBFT) $(LIBMXML) $(LIBODE) $(LIBJPG) $(LIBPNG) $(LIBSDL) $(LIBGLEW) $(LIBBZ2) $(LIBZ) -lm $(LIBEXT)
 
 #------------------------------------------------------------------------------
 
