@@ -98,7 +98,8 @@ endif
 #------------------------------------------------------------------------------
 
 $(TARG) : $(OBJS)
-	$(LD) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
+	ar -r $(TARG) $(OBJS)
+#	$(LD) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :
 	$(RM) $(OBJS) $(DEPS) $(TARG)

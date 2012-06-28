@@ -23,7 +23,6 @@ doc :
 #------------------------------------------------------------------------------
 
 DSTDIR=orbiter
-LIBDIR=$(DSTDIR)/lib
 DOCDIR=$(DSTDIR)/doc
 DATDIR=$(DSTDIR)/data
 
@@ -32,7 +31,6 @@ osxdist : $(TARG)
 	# Create the distribution directory structure.
 
 	mkdir -p $(DSTDIR)
-	mkdir -p $(LIBDIR)
 	mkdir -p $(DATDIR)
 	mkdir -p $(DOCDIR)
 	mkdir -p $(DOCDIR)/img
@@ -40,14 +38,11 @@ osxdist : $(TARG)
 	mkdir -p $(DATDIR)/glsl
 	mkdir -p $(DATDIR)/scm
 
-	# Copy Thumb and Orbiter into the distribution and relink the library.
+	# Copy the executable.
 
-	$(CP) src/libthumb.dylib    $(LIBDIR)
 	$(CP) proj/panoview/orbiter $(DSTDIR)
 
-	$(CH) libthumb.dylib @executable_path/lib/libthumb.dylib $(DSTDIR)/orbiter
-
-	# Copy global data
+	# Copy global data.
 
 	$(CP) data/conf.xml                             $(DATDIR)
 	$(CP) data/data.xml                             $(DATDIR)

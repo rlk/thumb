@@ -38,8 +38,9 @@ LIBBZ2  = -lbz2
 #------------------------------------------------------------------------------
 
 ifeq ($(shell uname), Darwin)
-	TARG    = libthumb.dylib
-	LD      = g++ -dynamiclib
+#	TARG    = libthumb.dylib
+#	LD      = g++ -dynamiclib
+	TARG    = libthumb.a
 	SDLCONF = sdl-config
 	FT2CONF = freetype-config
 	LIBEXT  = -framework OpenGL -framework Cocoa -framework ApplicationServices -framework Carbon -framework AudioToolbox -framework AudioUnit -framework IOKit
