@@ -123,7 +123,7 @@ struct circle
 
 //------------------------------------------------------------------------------
 
-// Parse the label definition fil.
+// Parse the label definition file.
 
 void scm_label::parse(const void *data_ptr, size_t data_len)
 {

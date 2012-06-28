@@ -5,7 +5,7 @@
     <option name="input_mode">mouse</option>
     <option name="sync">1</option>
     <!-- SCM viewer configuration -->
-    <option name="scm_viewer_cache_size">128</option>
+    <option name="scm_viewer_cache_size">256</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>
     <option name="multisample_buffers">0</option>
