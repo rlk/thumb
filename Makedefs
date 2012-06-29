@@ -28,32 +28,48 @@ endif
 
 LIBFT2  = $(firstword $(wildcard /usr/local/lib/libfreetype*.a \
                                  /opt/local/lib/libfreetype*.a \
+                                    $(HOME)/lib/libfreetype*.a \
                                        /usr/lib/libfreetype*.a) -lfreetype)
 LIBTIF  = $(firstword $(wildcard /usr/local/lib/libtiff*.a \
                                  /opt/local/lib/libtiff*.a \
+                                    $(HOME)/lib/libtiff*.a \
                                        /usr/lib/libtiff*.a) -ltiff)
 LIBGLEW = $(firstword $(wildcard /usr/local/lib/libGLEW*.a \
                                  /opt/local/lib/libGLEW*.a \
+                                    $(HOME)/lib/libGLEW*.a \
                                        /usr/lib/libGLEW*.a) -lglew)
 LIBMXML = $(firstword $(wildcard /usr/local/lib/libmxml*.a \
                                  /opt/local/lib/libmxml*.a \
+                                    $(HOME)/lib/libmxml*.a \
                                        /usr/lib/libmxml*.a) -lmxml)
 LIBJPG  = $(firstword $(wildcard /usr/local/lib/libjpeg*.a \
                                  /opt/local/lib/libjpeg*.a \
+                                    $(HOME)/lib/libjpeg*.a \
                                        /usr/lib/libjpeg*.a) -ljpeg)
 LIBODE  = $(firstword $(wildcard /usr/local/lib/libode*.a \
                                  /opt/local/lib/libode*.a \
-                                       /usr/lib/libode*.a) -lmxml)
+                                    $(HOME)/lib/libode*.a \
+                                       /usr/lib/libode*.a) -lode)
 LIBPNG  = $(firstword $(wildcard /usr/local/lib/libpng*.a \
                                  /opt/local/lib/libpng*.a \
+                                    $(HOME)/lib/libpng*.a \
                                        /usr/lib/libpng*.a) -lpng)
-#LIBBZ2  = $(firstword $(wildcard /usr/local/lib/libbz2*.a \
-#                                 /opt/local/lib/libbz2*.a \
-#                                       /usr/lib/libbz2*.a) -lbz2)
+LIBBZ2  = $(firstword $(wildcard /usr/local/lib/libbz2*.a \
+                                 /opt/local/lib/libbz2*.a \
+                                    $(HOME)/lib/libbz2*.a \
+                                       /usr/lib/libbz2*.a) -lbz2)
 LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
                                  /opt/local/lib/libz*.a \
+                                    $(HOME)/lib/libz*.a \
                                        /usr/lib/libz*.a) -lz)
-LIBSDL  = $(shell sdl-config --libs)
+LIBSDL  = $(firstword $(wildcard /usr/local/lib/libSDL*.a \
+                                 /opt/local/lib/libSDL*.a \
+                                    $(HOME)/lib/libSDL*.a \
+                                       /usr/lib/libSDL*.a) -lSDL)
+LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDLmain*.a \
+                                 /opt/local/lib/libSDLmain*.a \
+                                    $(HOME)/lib/libSDLmain*.a \
+                                       /usr/lib/libSDLmain*.a) -lSDLmain)
 
 #------------------------------------------------------------------------------
 

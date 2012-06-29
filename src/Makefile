@@ -82,8 +82,6 @@ INCDIR += -I../include
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
 
-#LIBS    = $(shell $(SDLCONF) --static-libs) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBJPG) $(LIBPNG) $(LIBGLEW) $(LIBBZ2) $(LIBZ) $(LIBEXT) -lm
-
 #------------------------------------------------------------------------------
 
 ifdef NVPM
@@ -100,7 +98,6 @@ endif
 
 libthumb.a : $(OBJS)
 	ar -r libthumb.a $(OBJS)
-#	$(LD) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :
 	$(RM) $(OBJS) $(DEPS) $(TARG)
