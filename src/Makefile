@@ -81,7 +81,8 @@ INCDIR += -I../include
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
-LIBS    = $(LIBFT) $(LIBMXML) $(LIBODE) $(LIBJPG) $(LIBPNG) $(LIBSDL) $(LIBGLEW) $(LIBBZ2) $(LIBZ) -lm $(LIBEXT)
+
+#LIBS    = $(shell $(SDLCONF) --static-libs) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBJPG) $(LIBPNG) $(LIBGLEW) $(LIBBZ2) $(LIBZ) $(LIBEXT) -lm
 
 #------------------------------------------------------------------------------
 
@@ -97,8 +98,8 @@ endif
 
 #------------------------------------------------------------------------------
 
-$(TARG) : $(OBJS)
-	ar -r $(TARG) $(OBJS)
+libthumb.a : $(OBJS)
+	ar -r libthumb.a $(OBJS)
 #	$(LD) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :

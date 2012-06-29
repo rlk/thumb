@@ -26,7 +26,7 @@ DSTDIR=orbiter
 DOCDIR=$(DSTDIR)/doc
 DATDIR=$(DSTDIR)/data
 
-osxdist : $(TARG)
+dist : $(TARG)
 
 	# Create the distribution directory structure.
 

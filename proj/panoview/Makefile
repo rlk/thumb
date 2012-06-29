@@ -43,21 +43,22 @@ ORBDEPS= $(ORBOBJS:.o=.d)
 #------------------------------------------------------------------------------
 
 INCDIR += -I../../include
-LIBDIR += -L../../src
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
-LIBS    = -lthumb $(LIBFT) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBSDL) $(LIBGLEW) $(LIBBZ2) $(LIBZ) -lm $(LIBEXT)
+SDLLIB  = $(shell $(SDLCONF) --libs)
+
+LIBS    = ../../src/libthumb.a $(SDLLIB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBGLEW) $(LIBBZ2) $(LIBZ) $(LIBEXT) -lm
 
 #------------------------------------------------------------------------------
 
 all : panoview orbiter
 
 panoview: $(PANOBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 orbiter: $(ORBOBJS)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBDIR) $(LIBS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview

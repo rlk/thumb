@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
-  <sphere mesh="32" radius="1.0" size="360"
+  <sphere mesh="32" radius="1737400.0" size="360"
           vert="glsl/scm-displace.vert"
           frag="glsl/scm-lomsee.frag">
     <frame>
-      <scm shader="vert" r0="0.994728" r1="1.0062" overdraw="3" file="LDEM-360-8.tif" />
-      <scm shader="frag"                                        file="LDEM-360-8-N.tif" />
-      <scm shader="frag"                                        file="clementine-256-4.tif" />
+      <scm shader="vert" r0="0.994728" r1="1.0062" file="LDEM-360-8.tif" />
+      <scm shader="frag"                           file="LDEM-360-8-N.tif" />
+      <scm shader="frag"                           file="clementine-256-4.tif" />
     </frame>
   </sphere>

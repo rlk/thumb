@@ -24,31 +24,45 @@ endif
 
 #------------------------------------------------------------------------------
 
-LIBSDL  = /usr/local/lib/libSDLmain.a /usr/local/lib/libSDL.a
-LIBFT   = /usr/local/lib/libfreetype.a
-LIBTIF  = /usr/local/lib/libtiff.a
-LIBGLEW = /usr/local/lib/libGLEW.a
-LIBMXML = /usr/local/lib/libmxml.a
-LIBODE  = /usr/local/lib/libode.a
-LIBJPG  = /usr/local/lib/libjpeg.a
-LIBPNG  = /usr/local/lib/libpng15.a
-LIBZ    = /usr/local/lib/libz.a
-LIBBZ2  = -lbz2
+# Search for static libraries or fall back on dynamic linking.
+
+LIBFT2  = $(firstword $(wildcard /usr/local/lib/libfreetype*.a \
+                                 /opt/local/lib/libfreetype*.a \
+                                       /usr/lib/libfreetype*.a) -lfreetype)
+LIBTIF  = $(firstword $(wildcard /usr/local/lib/libtiff*.a \
+                                 /opt/local/lib/libtiff*.a \
+                                       /usr/lib/libtiff*.a) -ltiff)
+LIBGLEW = $(firstword $(wildcard /usr/local/lib/libGLEW*.a \
+                                 /opt/local/lib/libGLEW*.a \
+                                       /usr/lib/libGLEW*.a) -lglew)
+LIBMXML = $(firstword $(wildcard /usr/local/lib/libmxml*.a \
+                                 /opt/local/lib/libmxml*.a \
+                                       /usr/lib/libmxml*.a) -lmxml)
+LIBJPG  = $(firstword $(wildcard /usr/local/lib/libjpeg*.a \
+                                 /opt/local/lib/libjpeg*.a \
+                                       /usr/lib/libjpeg*.a) -ljpeg)
+LIBODE  = $(firstword $(wildcard /usr/local/lib/libode*.a \
+                                 /opt/local/lib/libode*.a \
+                                       /usr/lib/libode*.a) -lmxml)
+LIBPNG  = $(firstword $(wildcard /usr/local/lib/libpng*.a \
+                                 /opt/local/lib/libpng*.a \
+                                       /usr/lib/libpng*.a) -lpng)
+#LIBBZ2  = $(firstword $(wildcard /usr/local/lib/libbz2*.a \
+#                                 /opt/local/lib/libbz2*.a \
+#                                       /usr/lib/libbz2*.a) -lbz2)
+LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
+                                 /opt/local/lib/libz*.a \
+                                       /usr/lib/libz*.a) -lz)
+LIBSDL  = $(shell sdl-config --libs)
 
 #------------------------------------------------------------------------------
 
+SDLCONF = sdl-config
+FT2CONF = freetype-config
+
 ifeq ($(shell uname), Darwin)
-#	TARG    = libthumb.dylib
-#	LD      = g++ -dynamiclib
-	TARG    = libthumb.a
-	SDLCONF = sdl-config
-	FT2CONF = freetype-config
 	LIBEXT  = -framework OpenGL -framework Cocoa -framework ApplicationServices -framework Carbon -framework AudioToolbox -framework AudioUnit -framework IOKit
 else
-	TARG    = libthumb.so
-	LD      = g++ -shared
-	SDLCONF = sdl-config
-	FT2CONF = freetype-config
 	LIBEXT  = -lGL
 endif
 
