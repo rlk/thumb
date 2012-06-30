@@ -108,7 +108,7 @@ void app::host::fork_client(const char *name,
 
 SOCKET app::host::init_socket(int port)
 {
-    int sd = INVALID_SOCKET;
+    SOCKET sd = INVALID_SOCKET;
 
     if (port)
     {

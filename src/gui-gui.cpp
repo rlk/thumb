@@ -801,10 +801,10 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
     glPushAttrib(GL_ENABLE_BIT);
     glPushMatrix();
     {
-        GLdouble L[4] = { +1,  0, 0, -area.L() };
-        GLdouble R[4] = { -1,  0, 0, +area.R() };
-        GLdouble B[4] = {  0, +1, 0, -area.B() };
-        GLdouble T[4] = {  0, -1, 0, +area.T() };
+        GLdouble L[4] = { +1,  0, 0, GLdouble(-area.L()) };
+        GLdouble R[4] = { -1,  0, 0, GLdouble(+area.R()) };
+        GLdouble B[4] = {  0, +1, 0, GLdouble(-area.B()) };
+        GLdouble T[4] = {  0, -1, 0, GLdouble(+area.T()) };
 
         glEnable(GL_CLIP_PLANE0);
         glEnable(GL_CLIP_PLANE1);

@@ -49,9 +49,9 @@ void app::glob::dump()
     // Print the number of cached objects, with names, if possible. This
     // helps track down resource leaks.
 
-    if (size_t qc =  pool_set.size()) printf("%3lu pools\n",  qc);
-    if (size_t ic = image_set.size()) printf("%3lu images\n", ic);
-    if (size_t fc = frame_set.size()) printf("%3lu frames\n", fc);
+    if (size_t qc =  pool_set.size()) printf("%3u pools\n",  qc);
+    if (size_t ic = image_set.size()) printf("%3u images\n", ic);
+    if (size_t fc = frame_set.size()) printf("%3u frames\n", fc);
 
     std::map<std::string, terrain>::iterator gi;
     std::map<std::string, surface>::iterator si;
@@ -62,42 +62,42 @@ void app::glob::dump()
 
     if (size_t gc = terrain_map.size())
     {
-        printf("%3lu terrains\n", gc);
+        printf("%3u terrains\n", gc);
         for (gi = terrain_map.begin(); gi != terrain_map.end(); ++gi)
             printf("    %s\n", gi->second.ptr->get_name().c_str());
     }
 
     if (size_t sc = surface_map.size())
     {
-        printf("%3lu surfaces\n", sc);
+        printf("%3u surfaces\n", sc);
         for (si = surface_map.begin(); si != surface_map.end(); ++si)
             printf("    %s\n", si->second.ptr->get_name().c_str());
     }
 
     if (size_t bc = binding_map.size())
     {
-        printf("%3lu bindings\n", bc);
+        printf("%3u bindings\n", bc);
         for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
             printf("    %s\n", bi->second.ptr->get_name().c_str());
     }
 
     if (size_t tc = texture_map.size())
     {
-        printf("%3lu textures\n", tc);
+        printf("%3u textures\n", tc);
         for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
             printf("    %s\n", ti->second.ptr->get_name().c_str());
     }
 
     if (size_t pc = program_map.size())
     {
-        printf("%3lu programs\n", pc);
+        printf("%3u programs\n", pc);
         for (pi = program_map.begin(); pi != program_map.end(); ++pi)
             printf("    %s\n", pi->second.ptr->get_name().c_str());
     }
 
     if (size_t uc = uniform_map.size())
     {
-        printf("%3lu uniforms\n", uc);
+        printf("%3u uniforms\n", uc);
         for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
             printf("    %s\n", ui->second.ptr->get_name().c_str());
     }

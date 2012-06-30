@@ -62,7 +62,7 @@ static std::string dir_list(std::string& dir)
 {
     if (H == INVALID_HANDLE_VALUE)
     {
-        std::string pattern = dir + "*";
+        std::string pattern = dir + "/*";
 
         if ((H = FindFirstFile(pattern.c_str(), &D)) != INVALID_HANDLE_VALUE)
             return D.cFileName;

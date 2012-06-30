@@ -34,6 +34,12 @@ static bool exists(const std::string& name)
 
 //------------------------------------------------------------------------------
 
+#ifdef _WIN32
+#define PATH_LIST_SEP ';'
+#else
+#define PATH_LIST_SEP ':'
+#endif
+
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
 scm_file::scm_file(const std::string& tiff, float n0, float n1)
@@ -56,7 +62,7 @@ scm_file::scm_file(const std::string& tiff, float n0, float n1)
         std::string       path;
         std::string       temp;
 
-        while (std::getline(list, path, ':'))
+        while (std::getline(list, path, PATH_LIST_SEP))
         {
             temp = path + "/" + tiff;
 

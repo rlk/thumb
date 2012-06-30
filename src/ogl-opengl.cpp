@@ -42,7 +42,7 @@ bool ogl::do_hdr_bloom;
 
 #ifdef _WIN32
 
-#include <GL/wglext.h>
+#include <GL/wglew.h>
 
 static void sync(int interval)
 {

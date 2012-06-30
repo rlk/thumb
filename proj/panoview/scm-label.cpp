@@ -13,7 +13,10 @@
 #include <cmath>
 #include <cstdlib>
 #include <cstring>
+
+#ifndef WIN32
 #include <regex.h>
+#endif
 
 #include <GL/glew.h>
 
@@ -127,6 +130,7 @@ struct circle
 
 void scm_label::parse(const void *data_ptr, size_t data_len)
 {
+#ifndef WIN32
     const char *pattern = "\"([^\"]*)\",([^,]*),([^,]*),([^,]*)\n";
 
     regmatch_t match[5];
@@ -158,6 +162,7 @@ void scm_label::parse(const void *data_ptr, size_t data_len)
             dat = (const char *) dat + match[0].rm_eo;
         }
     }
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -180,7 +185,7 @@ const char *frag_txt =                        \
 
 
 scm_label::scm_label(const void *data_ptr, size_t data_len,
-                     const void *font_ptr, size_t font_len)
+                     const void *font_ptr, size_t font_len) : label_line(0)
 {
     // Initialize the font.
 
@@ -223,8 +228,9 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
 
     // Typeset the labels.
 
-    label_line = line_layout(strv.size(), &strv.front(), NULL,
-                                           matv.front().M, label_font);
+    if (strv.size())
+        label_line = line_layout(strv.size(), &strv.front(), NULL,
+                                               matv.front().M, label_font);
 
     // Create a VBO for the circles.
 

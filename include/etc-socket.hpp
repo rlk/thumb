@@ -22,10 +22,13 @@
 #include <io.h>
 #include <winsock2.h>
 
+#undef E_DRAW
+
 typedef int   socklen_t;
 typedef ULONG in_addr_t;
 
 #define sock_errno   WSAGetLastError()
+#define ECONNREFUSED WSAECONNREFUSED
 #define usleep(t)    Sleep(t)
 
 #else // not _WIN32 -----------------------------------------------------------

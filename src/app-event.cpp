@@ -68,8 +68,10 @@ void app::event::put_real(double d)
 
     s.d = d;
 
-    ((uint32_t *) (payload.data + payload.size))[0] = htonl(s.l[0]);
-    ((uint32_t *) (payload.data + payload.size))[1] = htonl(s.l[1]);
+    s.l[0] = htonl(s.l[0]);
+    s.l[1] = htonl(s.l[1]);
+
+    memcpy(payload.data + payload.size, s.l, 2 * sizeof (uint32_t));
 
     payload.size += 2 * sizeof (uint32_t);
 }
@@ -80,8 +82,10 @@ double app::event::get_real()
 
     union swap s;
 
-    s.l[0] = ntohl(((uint32_t *) (payload.data + payload_index))[0]);
-    s.l[1] = ntohl(((uint32_t *) (payload.data + payload_index))[1]);
+    memcpy(s.l, payload.data + payload_index, 2 * sizeof (uint32_t));
+
+    s.l[0] = ntohl(s.l[0]);
+    s.l[1] = ntohl(s.l[1]);
 
     payload_index += 2 * sizeof (uint32_t);
 
@@ -128,9 +132,10 @@ void app::event::put_word(int i)
 
     union swap s;
 
-    s.i = i;
+    s.i    = i;
+    s.l[0] = htonl(s.l[0]);
 
-    ((uint32_t *) (payload.data + payload.size))[0] = htonl(s.l[0]);
+    memcpy(payload.data + payload.size, s.l, sizeof (uint32_t));
 
     payload.size += sizeof (uint32_t);
 }
@@ -141,7 +146,9 @@ int app::event::get_word()
 
     union swap s;
 
-    s.l[0] = ntohl(((uint32_t *) (payload.data + payload_index))[0]);
+    memcpy(s.l, payload.data + payload_index, sizeof (uint32_t));
+
+    s.l[0] = ntohl(s.l[0]);
 
     payload_index += sizeof (uint32_t);
 

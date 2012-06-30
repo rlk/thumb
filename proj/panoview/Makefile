@@ -47,7 +47,7 @@ INCDIR += -I../../include
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
 
-LIBS    = ../../src/libthumb.a $(LIBSDL) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBGLEW) $(LIBBZ2) $(LIBZ) $(LIBEXT) -lm
+LIBS    = ../../src/libthumb.a $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBGLEW) $(LIBBZ2) $(LIBZ) $(LIBSDL) $(LIBEXT) -lm
 
 #------------------------------------------------------------------------------
 

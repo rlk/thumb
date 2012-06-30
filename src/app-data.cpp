@@ -184,6 +184,12 @@ std::string app::data::translate(const std::string& filename) const
 
 //-----------------------------------------------------------------------------
 
+#ifdef _WIN32
+#define PATH_LIST_SEP ';'
+#else
+#define PATH_LIST_SEP ':'
+#endif
+
 #define USR_SHARE "/usr/share/thumb/data"
 #define LOC_SHARE "/usr/local/share/thumb/data"
 
@@ -210,7 +216,7 @@ static void find_ro_data(app::archive_l& archives)
         std::stringstream list(val);
         std::string       path;
 
-        while (std::getline(list, path, ':'))
+        while (std::getline(list, path, PATH_LIST_SEP))
             archives.push_back(new app::file_archive(path, true));
     }
 

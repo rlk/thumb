@@ -35,7 +35,7 @@
 
 #ifdef _WIN32
 #include <windows.h>
-#include <cstdint>
+#include <stdint.h>
 #endif
 
 #ifdef __APPLE__
