@@ -68,6 +68,8 @@ OBJS=	app-data.o \
 
 DEPS= $(OBJS:.o=.d)
 
+TARG= libthumb.a
+
 #------------------------------------------------------------------------------
 
 # ifeq ($(shell uname), Darwin)
@@ -96,8 +98,8 @@ endif
 
 #------------------------------------------------------------------------------
 
-libthumb.a : $(OBJS)
-	ar -r libthumb.a $(OBJS)
+$(TARG) : $(OBJS)
+	ar -r $(TARG) $(OBJS)
 
 clean :
 	$(RM) $(OBJS) $(DEPS) $(TARG)

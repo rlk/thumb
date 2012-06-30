@@ -11,12 +11,9 @@
 //  General Public License for more details.
 
 #include <cmath>
+#include <cstdio>
 #include <cstdlib>
 #include <cstring>
-
-#ifndef WIN32
-#include <regex.h>
-#endif
 
 #include <GL/glew.h>
 
@@ -130,39 +127,19 @@ struct circle
 
 void scm_label::parse(const void *data_ptr, size_t data_len)
 {
-#ifndef WIN32
-    const char *pattern = "\"([^\"]*)\",([^,]*),([^,]*),([^,]*)\n";
+    const char *dat = (const char *) data_ptr;
+    label L;
+    int   n;
 
-    regmatch_t match[5];
-    regex_t    regex;
-    int err;
-
-    // Compile a regular expression and loop over the file seeking matches.
-
-    if ((err = regcomp(&regex, pattern, REG_EXTENDED)) == 0)
+    while (sscanf(dat, "\"%63[^\"]\",%f,%f,%f\n%n",
+                       L.str, &L.lat, &L.lon, &L.dia, &n) > 3)
     {
-        const char *dat = (const char *) data_ptr;
+        L.dia /= 1737.4;
 
-        while ((err = regexec(&regex, dat, 5, match, 0)) == 0)
-        {
-            // Add a label to the label array for each match.
+        labels.push_back(L);
 
-            label L;
-
-            memset (L.str, 0, strmax);
-            strncpy(L.str, dat + match[1].rm_so, match[1].rm_eo-match[1].rm_so);
-            L.lat = strtod(dat + match[2].rm_so, NULL);
-            L.lon = strtod(dat + match[3].rm_so, NULL);
-            L.dia = strtod(dat + match[4].rm_so, NULL) / 1737.4;
-
-            labels.push_back(L);
-
-            // Step the data pointer forward to the end of the match.
-
-            dat = (const char *) dat + match[0].rm_eo;
-        }
+        dat += n;
     }
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -228,7 +205,7 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
 
     // Typeset the labels.
 
-    if (strv.size())
+    if (!strv.empty())
         label_line = line_layout(strv.size(), &strv.front(), NULL,
                                                matv.front().M, label_font);
 
@@ -294,69 +271,3 @@ void scm_label::draw()
 }
 
 //------------------------------------------------------------------------------
-#if 0
-void scm_label::point::draw(const double *v, double r, double a)
-{
-    double k = 1.0 / 1000.0;
-    double s = 0.2 * r;
-
-    glPushMatrix();
-    {
-        glRotated(l,  0, 1, 0);
-        glRotated(p, -1, 0, 0);
-        glTranslated(0, 0, r);
-        glScaled(s, s, s);
-
-        glDisable(GL_TEXTURE_2D);
-        glCallList(o);
-        glEnable(GL_TEXTURE_2D);
-
-#if 0
-        if (str)
-        {
-            glScaled(k, k, k);
-            glTranslated(16.0, 0.0, 0.0);
-
-            str->draw();
-        }
-#endif
-    }
-    glPopMatrix();
-}
-
-void scm_label::circle::draw(const double *v, double r, double a)
-{
-    double k = 1.0 / 1000.0;
-    double s = d * r;
-    double z = r - r * sqrt(4.0 - d * d) / 2.0;
-
-    glPushMatrix();
-    {
-        glRotated(l,  0, 1, 0);
-        glRotated(p, -1, 0, 0);
-        glTranslated(0, 0, r);
-
-        glPushMatrix();
-        {
-            glTranslated(0.0, 0.0, -z);
-            glScaled(s, s, s);
-            glDisable(GL_TEXTURE_2D);
-            glCallList(o);
-            glEnable(GL_TEXTURE_2D);
-        }
-        glPopMatrix();
-#if 0
-        if (str)
-        {
-            glScaled(s, s, s);
-            glScaled(k, k, k);
-            glTranslated(-str->w() / 2.0,
-                         -str->h() / 2.0, 0.0);
-            str->draw();
-        }
-#endif
-    }
-    glPopMatrix();
-}
-
-#endif
