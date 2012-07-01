@@ -2,43 +2,33 @@
 
 #------------------------------------------------------------------------------
 
-#CFLAGS= -g -Wall -DGLEW_STATIC -static-libgcc -static-libstdc++
-CFLAGS= -g -Wall -static -DGLEW_STATIC
-#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
-
-INSTALLDIR= $(HOME)/bin
-
-#------------------------------------------------------------------------------
-
-CH= install_name_tool -change
 CC= g++
 
-#------------------------------------------------------------------------------
-
-ifeq "$(MAKE)" "mingw32-make"
-	RM= del
-        CP= copy
-else
-	RM= rm -f
-        CP= cp
-endif
+CFLAGS= -g -Wall
+#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
 
 #------------------------------------------------------------------------------
-
-SDLCONF = sdl-config
-FT2CONF = freetype-config
 
 ifeq ($(shell uname), Darwin)
-	LIBEXT = -framework OpenGL -framework Cocoa -framework ApplicationServices -framework Carbon -framework AudioToolbox -framework AudioUnit -framework IOKit
+	LIBEXT  = -framework OpenGL -framework Cocoa -framework ApplicationServices -framework Carbon -framework AudioToolbox -framework AudioUnit -framework IOKit
+	RM      = rm -f
+        CP      = cp
 endif
 
 ifeq ($(shell uname), MINGW32_NT-6.1)
-	LIBEXT = -lopengl32 -mwindows -lws2_32 -luser32 -lgdi32 -lwinmm
-	LIBSDL = -lmingw32
+	LIBEXT  = -lopengl32 -mwindows -lws2_32 -luser32 -lgdi32 -lwinmm
+	LIBSDL  = -lmingw32
+	CC     += -static
+	CFLAGS += -DGLEW_STATIC
+	RM      = del
+        CP      = copy
 endif
 
 # if linux
 # LIBEXT  = -lGL
+
+SDLCONF = sdl-config
+FT2CONF = freetype-config
 
 #------------------------------------------------------------------------------
 
@@ -79,11 +69,6 @@ LIBPNG  = $(firstword $(wildcard /usr/local/lib/libpng*.a \
                                     $(HOME)/lib/libpng*.a \
                                        /usr/lib/libpng*.a \
                                    C:/MinGW/lib/libpng*.a) -lpng)
-# LIBBZ2  = $(firstword $(wildcard /usr/local/lib/libbz2*.a \
-#                                  /opt/local/lib/libbz2*.a \
-#                                     $(HOME)/lib/libbz2*.a \
-#                                        /usr/lib/libbz2*.a \
-#                                    C:/MinGW/lib/libbz2*.a) -lbz2)
 LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
                                  /opt/local/lib/libz*.a \
                                     $(HOME)/lib/libz*.a \
@@ -99,17 +84,6 @@ LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL*.a \
                                     $(HOME)/lib/libSDL*.a \
                                        /usr/lib/libSDL*.a \
                                    C:/MinGW/lib/libSDL*.a) -lSDL)
-
-#------------------------------------------------------------------------------
-
-# Use user include and lib directories if they exist.
-
-ifneq ($(wildcard $(HOME)/include),)
-	INCDIR += -I$(HOME)/include
-endif
-ifneq ($(wildcard $(HOME)/lib),)
-	LIBDIR += -L$(HOME)/lib
-endif
 
 #------------------------------------------------------------------------------
 
