@@ -21,6 +21,7 @@ OBJS=	app-data.o \
 	dpy-channel.o \
 	dpy-direct.o \
 	dpy-display.o \
+	dpy-fulldome.o \
 	dpy-interlace.o \
 	dpy-lenticular.o \
 	dpy-normal.o \

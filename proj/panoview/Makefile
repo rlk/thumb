@@ -42,22 +42,24 @@ ORBDEPS= $(ORBOBJS:.o=.d)
 
 #------------------------------------------------------------------------------
 
+THUMB = ../../src/libthumb.a
+
 INCDIR += -I../../include
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
 
-LIBS = ../../src/libthumb.a $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBBZ2) $(LIBZ) $(LIBSDL) $(LIBGLEW) $(LIBEXT) -lm
+LIBS = $(THUMB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBBZ2) $(LIBZ) $(LIBSDL) $(LIBGLEW) $(LIBEXT) -lm
 
 #------------------------------------------------------------------------------
 
 all : panoview orbiter
 
-panoview: $(PANOBJS)
+panoview: $(PANOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 	$(STRIP) $@
 
-orbiter: $(ORBOBJS)
+orbiter: $(ORBOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 	$(STRIP) $@
 

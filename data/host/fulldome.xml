@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <host>
+    <node name="fulldome">
+      <window x="0" y="0" w="1024" h="1024"/>
+
+      <channel w="512" h="512"/>
+      <channel w="512" h="512"/>
+      <channel w="512" h="512"/>
+      <channel w="512" h="512"/>
+
+      <display type="fulldome" >
+        <viewport x="0" y="0" w="1024" h="1024"/>
+        <frustum>
+          <perspective hfov="90.0" vfov="90.0" p="45.0" y="0.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="90.0" vfov="90.0" p="45.0" y="90.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="90.0" vfov="90.0" p="45.0" y="180.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="90.0" vfov="90.0" p="45.0" y="270.0"/>
+        </frustum>
+      </display>
+    </node>
+</host>

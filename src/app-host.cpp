@@ -24,6 +24,7 @@
 #include <dpy-display.hpp>
 #include <dpy-normal.hpp>
 #include <dpy-anaglyph.hpp>
+#include <dpy-fulldome.hpp>
 #include <dpy-interlace.hpp>
 #include <dpy-lenticular.hpp>
 #include <app-frustum.hpp>
@@ -550,8 +551,10 @@ app::host::host(app::prog *p, std::string filename,
 
                 if      (t == "anaglyph")
                     displays.push_back(new dpy::anaglyph  (c));
+                else if (t == "fulldome")
+                    displays.push_back(new dpy::fulldome  (c));
                 else if (t == "interlace")
-                    displays.push_back(new dpy::interlace(c));
+                    displays.push_back(new dpy::interlace (c));
                 else if (t == "lenticular")
                     displays.push_back(new dpy::lenticular(c));
                 else if (t == "normal")
