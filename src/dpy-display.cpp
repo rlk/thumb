@@ -71,6 +71,7 @@ void dpy::display::fill(double screen_w, double screen_h,
         glPushMatrix();
         glLoadIdentity();
     }
+    glActiveTexture(GL_TEXTURE0);
 
     // Load uniforms to map from fragment coordinates to buffer coordinates.
 
@@ -84,10 +85,10 @@ void dpy::display::fill(double screen_w, double screen_h,
 
     glBegin(GL_QUADS);
     {
-        glVertex2d(-sw, -sh);
-        glVertex2d(+sw, -sh);
-        glVertex2d(+sw, +sh);
-        glVertex2d(-sw, +sh);
+        glTexCoord2d(-1.0, -1.0); glVertex2d(-sw, -sh);
+        glTexCoord2d(+1.0, -1.0); glVertex2d(+sw, -sh);
+        glTexCoord2d(+1.0, +1.0); glVertex2d(+sw, +sh);
+        glTexCoord2d(-1.0, +1.0); glVertex2d(-sw, +sh);
     }
     glEnd();
 

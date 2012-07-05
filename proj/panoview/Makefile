@@ -57,11 +57,11 @@ all : panoview orbiter
 
 panoview: $(PANOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
-	$(STRIP) $@
+	# $(STRIP) $@
 
 orbiter: $(ORBOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
-	$(STRIP) $@
+	# $(STRIP) $@
 
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview

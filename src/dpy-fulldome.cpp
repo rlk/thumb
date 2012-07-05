@@ -15,6 +15,7 @@
 #include <etc-math.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
+#include <app-user.hpp>
 #include <app-event.hpp>
 #include <app-frustum.hpp>
 #include <ogl-program.hpp>
@@ -25,12 +26,13 @@
 
 dpy::fulldome::fulldome(app::node p) : display(p), P(0)
 {
+    int w = viewport[2] / 2;
+    int h = viewport[3] / 3;
+
     app::node f;
 
     for (f = p.find("frustum"); f; f = p.next(f, "frustum"))
-    {
-        frusta.push_back(new app::frustum(f, viewport[2] / 2, viewport[3] / 2));
-    }
+        frusta.push_back(new app::frustum(f, w, h));
 }
 
 dpy::fulldome::~fulldome()
@@ -84,23 +86,40 @@ void dpy::fulldome::draw(int chanc, const dpy::channel * const *chanv, int frusi
 
     // Draw the off-screen buffer to the screen.
 
-    for (i = 0; i < chanc && i < get_frusc(); ++i)
-        chanv[i]->bind_color(GL_TEXTURE0 + i);
-
-    if (chanc)
+    P->bind();
     {
-        P->bind();
+        if (chanc > 0)
         {
-            fill(viewport[2],
-                 viewport[3],
-                 chanv[0]->get_w(),
-                 chanv[0]->get_h());
+            chanv[0]->bind_color(GL_TEXTURE0);
+            P->uniform("size[0]",  chanv[0]->get_w(), chanv[0]->get_h());
+            P->uniform("P[0]", frusta[0]->get_P(), false);
         }
-        P->free();
-    }
+        if (chanc > 1)
+        {
+            chanv[1]->bind_color(GL_TEXTURE1);
+            P->uniform("size[1]",  chanv[1]->get_w(), chanv[1]->get_h());
+            P->uniform("P[1]", frusta[1]->get_P(), false);
+        }
+        if (chanc > 2)
+        {
+            chanv[2]->bind_color(GL_TEXTURE2);
+            P->uniform("size[2]",  chanv[2]->get_w(), chanv[2]->get_h());
+            P->uniform("P[2]", frusta[2]->get_P(), false);
+        }
+        if (chanc > 3)
+        {
+            chanv[3]->bind_color(GL_TEXTURE3);
+            P->uniform("size[3]",  chanv[3]->get_w(), chanv[3]->get_h());
+            P->uniform("P[3]", frusta[3]->get_P(), false);
+        }
 
-    for (i = 0; i < chanc && i < get_frusc(); ++i)
-        chanv[i]->free_color(GL_TEXTURE0 + i);
+        fill(viewport[2],
+             viewport[3], 0, 0);
+
+        for (i = 0; i < chanc; ++i)
+            chanv[i]->free_color(GL_TEXTURE0 + i);
+    }
+    P->free();
 }
 
 void dpy::fulldome::test(int chanc, const dpy::channel *const *chanv, int index)
@@ -124,9 +143,7 @@ void dpy::fulldome::test(int chanc, const dpy::channel *const *chanv, int index)
         P->bind();
         {
             fill(viewport[2],
-                 viewport[3],
-                 chanv[0]->get_w(),
-                 chanv[0]->get_h());
+                 viewport[3], 0, 0);
         }
         P->free();
     }
@@ -143,13 +160,41 @@ bool dpy::fulldome::pointer_to_3D(app::event *E, int x, int y)
 
     if (viewport[0] <= x && x < viewport[0] + viewport[2] &&
         viewport[1] <= y && y < viewport[1] + viewport[3])
+    {
+        double dw = viewport[2] / 2.0;
+        double dh = viewport[3] / 2.0;
 
-        // Let the frustum project the pointer into space.
+        double dx =  (x - viewport[0] - dw) / dw;
+        double dy = -(y - viewport[1] - dh) / dh;
 
-        return frusta[0]->pointer_to_3D(E, x - viewport[0],
-                             viewport[3] - y + viewport[1]);
-    else
-        return false;
+        double r =  sqrt(dx * dx + dy * dy);
+        double a = atan2(dy, dx);
+
+        if (r < 1.0)
+        {
+            double q[4];
+            double B[16];
+
+            load_idt(B);
+
+            B[ 8] = -cos(a) * sin(r * M_PI / 2.0);
+            B[ 9] = -         cos(r * M_PI / 2.0);
+            B[10] = -sin(a) * sin(r * M_PI / 2.0);
+
+            normalize(B + 8);
+            crossprod(B + 0, B + 4, B + 8);
+            normalize(B + 0);
+            crossprod(B + 4, B + 8, B + 0);
+            normalize(B + 4);
+
+            mat_to_quat(q, B);
+
+            E->mk_point(0, ::user->get_M() + 12, q);
+
+            return true;
+        }
+    }
+    return false;
 }
 
 bool dpy::fulldome::process_start(app::event *E)

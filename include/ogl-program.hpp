@@ -46,7 +46,8 @@ namespace ogl
 
         bool bindable;
 
-        bool log(GLhandleARB, const std::string&);
+        bool program_log(GLhandleARB, const std::string&);
+        bool  shader_log(GLhandleARB, const std::string&);
 
         GLhandleARB compile(GLenum, const std::string&,
                                     const std::string&);

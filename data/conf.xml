@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
   <conf>
     <!-- Host configuration -->
-    <option name="host_file">host/common.xml</option>
+    <option name="host_file">host/fulldome.xml</option>
     <option name="input_mode">mouse</option>
     <option name="sync">1</option>
     <!-- SCM viewer configuration -->

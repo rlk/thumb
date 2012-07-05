@@ -47,7 +47,7 @@ namespace dpy
         virtual int  get_frusc()                const;
         virtual void get_frusv(app::frustum **) const;
 
-        virtual app::frustum *get_overlay() const { return 0; }
+        virtual app::frustum *get_overlay() const { return frusta[0]; }
 
         // Rendering handlers
 
