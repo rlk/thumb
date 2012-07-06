@@ -6,40 +6,66 @@ uniform mat4           P[4];
 
 void main()
 {
-    const float pi = 3.1415927;
+    // This value gives the desired field-of-view of the dome projector.
+    // The default fulldome host configuration is optimized for a 180 degree
+    // FOV. Anything more will be clipped and anything less will show image
+    // quality degradation. But it works in a pinch.
+
+    const float FOV = 180.0;
+
+    // Compute the spherical coordinate of this pixel.
 
     float r = length(gl_TexCoord[0].xy);
     float a =   atan(gl_TexCoord[0].y,
                      gl_TexCoord[0].x);
 
-    vec4 v = vec4(cos(a) * sin(r * pi / 2.0),
-                           cos(r * pi / 2.0),
-                  sin(a) * sin(r * pi / 2.0),
-                                        1.0);
+    // Compute the eye-space vector of this pixel.
 
-    vec4 t0 = P[0] * v;
-    vec4 t1 = P[1] * v;
-    vec4 t2 = P[2] * v;
-    vec4 t3 = P[3] * v;
+    const float pi = 3.1415927;
 
-    vec4 xx = vec4(t0.x, t1.x, t2.x, t3.x);
-    vec4 yy = vec4(t0.y, t1.y, t2.y, t3.y);
-    vec4 zz = vec4(t0.z, t1.z, t2.z, t3.z);
-    vec4 ww = vec4(t0.w, t1.w, t2.w, t3.w);
+    vec4 v = vec4(cos(a) * sin(r * FOV * pi / 360.0),
+                           cos(r * FOV * pi / 360.0),
+                  sin(a) * sin(r * FOV * pi / 360.0),
+                                                1.0);
 
-    float rr = step(r, 1.0);
+    // Project the vector onto each all off-screen framebuffer.
+
+    vec4 v0 = P[0] * v;
+    vec4 v1 = P[1] * v;
+    vec4 v2 = P[2] * v;
+    vec4 v3 = P[3] * v;
+
+    // Clip the these vectors onto all off-screen frusta.
+
+    vec4 xx = vec4(v0.x, v1.x, v2.x, v3.x);
+    vec4 yy = vec4(v0.y, v1.y, v2.y, v3.y);
+    vec4 zz = vec4(v0.z, v1.z, v2.z, v3.z);
+    vec4 ww = vec4(v0.w, v1.w, v2.w, v3.w);
 
     vec4 b = step(xx, ww) * step(-ww, xx)
            * step(yy, ww) * step(-ww, xx)
            * step(zz, ww) * step(-ww, xx);
 
-    vec3 c0 = b.x * texture2DRect(image[0], size[0] * (t0.xy / t0.w + 1.0) / 2.0).rgb;
-    vec3 c1 = b.y * texture2DRect(image[1], size[1] * (t1.xy / t1.w + 1.0) / 2.0).rgb;
-    vec3 c2 = b.z * texture2DRect(image[2], size[2] * (t2.xy / t2.w + 1.0) / 2.0).rgb;
-    vec3 c3 = b.w * texture2DRect(image[3], size[3] * (t3.xy / t3.w + 1.0) / 2.0).rgb;
+    // Compute texture coordinates for each off-screen framebuffer.
 
-    vec3 cc = max(max(c0, c1), max(c2, c3));
-    vec3 bb = vec3(b.x, b.y, b.z);
+    vec2 t0 = size[0] * (v0.xy / v0.w + 1.0) / 2.0;
+    vec2 t1 = size[1] * (v1.xy / v1.w + 1.0) / 2.0;
+    vec2 t2 = size[2] * (v2.xy / v2.w + 1.0) / 2.0;
+    vec2 t3 = size[3] * (v3.xy / v3.w + 1.0) / 2.0;
 
-    gl_FragColor = vec4(cc * rr, 1.0);
+    // Sample and mix all framebuffers.
+
+    vec4 c0 = b.x * texture2DRect(image[0], t0);
+    vec4 c1 = b.y * texture2DRect(image[1], t1);
+    vec4 c2 = b.z * texture2DRect(image[2], t2);
+    vec4 c3 = b.w * texture2DRect(image[3], t3);
+
+    vec3 cc = (c0.rgb * c0.a +
+               c1.rgb * c1.a +
+               c2.rgb * c2.a +
+               c3.rgb * c3.a) / (c0.a + c1.a + c2.a + c3.a);
+
+    // Draw, clipped to the hemisphere.
+
+    gl_FragColor = vec4(cc * step(r, 1.0), 1.0);
 }

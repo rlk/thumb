@@ -8,6 +8,13 @@
       <channel w="1024" h="512"/>
       <channel w="1024" h="512"/>
 
+      <overlay>
+        <frustum>
+          <perspective hfov="110.0" vfov="90.0" />
+          <rotation p="45.0" y="0.0"/>
+        </frustum>
+      </overlay>
+
       <display type="fulldome" >
         <viewport x="0" y="0" w="1024" h="1024"/>
         <frustum>
