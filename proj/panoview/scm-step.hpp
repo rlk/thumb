@@ -27,7 +27,7 @@ public:
              const scm_step *,
              const scm_step *, double);
 
-    void draw();
+    void draw() const;
 
     bool read (FILE *);
     bool write(FILE *);
@@ -37,6 +37,7 @@ public:
     void transform_light      (const double *);
 
     void set_radius(double r) { radius = r; }
+    void set_speed (double s) { speed  = s; }
     void set_zoom  (double z) { zoom   = z; }
 
     void   get_matrix  (double *, double) const;
@@ -46,6 +47,7 @@ public:
     void   get_forward (double *) const;
     void   get_light   (double *) const;
     double get_radius()           const { return radius; }
+    double get_speed()            const { return speed;  }
     double get_zoom()             const { return zoom;   }
 
 private:
@@ -54,6 +56,7 @@ private:
     double position[4];    // Viewer direction   (quaternion)
     double light[4];       // Light  direction   (quaternion)
     double radius;         // Viewer radius
+    double speed;          // Camera speed
     double zoom;           // Zoom factor
 };
 

@@ -41,18 +41,25 @@ public:
     void ins(scm_step&);
     void add(scm_step&);
     void del();
+    void half();
+
+    void faster();
+    void slower();
 
     void save();
     void load();
 
     void time(double);
-    void draw();
+    void draw() const;
 
     bool playing() const { return (head_d != 0.0); }
 
 private:
 
-    scm_step interpolate(size_t, double);
+    scm_step erp(size_t, double) const;
+    scm_step now()               const;
+
+    void drawall() const;
 
     double head_t;
     double head_d;

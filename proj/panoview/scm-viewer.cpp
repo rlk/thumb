@@ -327,6 +327,8 @@ bool scm_viewer::process_key(app::event *E)
         {
             switch (k)
             {
+                case 273: path.faster();   return true; // Up
+                case 274: path.slower();   return true; // Down
                 case 'c': path.clear();    return true; // ^C
                 case 'b': path.back(s);    return true; // ^B
                 case 'f': path.fore(s);    return true; // ^F
@@ -335,6 +337,7 @@ bool scm_viewer::process_key(app::event *E)
                 case 's': path.save();     return true; // ^S
                 case 'l': path.load();     return true; // ^L
                 case 'd': path.del();      return true; // ^D
+                case 'h': path.half();     return true; // ^H
                 case 'i': path.ins(here);  return true; // ^I
                 case 'a': path.add(here);  return true; // ^A
                 case 'o': path.set(here);  return true; // ^O

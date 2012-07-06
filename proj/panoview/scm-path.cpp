@@ -102,7 +102,7 @@ void scm_path::jump()
 void scm_path::get(scm_step& s)
 {
     if (!step.empty())
-        s = interpolate(int(floor(head_t)), head_t - floor(head_t));
+        s = now();
 }
 
 void scm_path::set(scm_step& s)
@@ -150,6 +150,29 @@ void scm_path::del()
     }
 }
 
+void scm_path::half()
+{
+    if (step.size() > 1)
+    {
+        scm_step s = erp(curr, 0.5);
+        add(s);
+    }
+}
+
+//------------------------------------------------------------------------------
+
+void scm_path::faster()
+{
+    if (!step.empty())
+        step[curr].set_speed(step[curr].get_speed() * 1.1);
+}
+
+void scm_path::slower()
+{
+    if (!step.empty())
+        step[curr].set_speed(step[curr].get_speed() / 1.1);
+}
+
 //------------------------------------------------------------------------------
 
 void scm_path::save()
@@ -178,43 +201,75 @@ void scm_path::load()
         while (s.read(stream))
             step.push_back(s);
 
-        curr = mmod(curr, step.size());
+        if (step.size())
+            curr = mmod(curr, step.size());
+
         fclose(stream);
     }
 }
 
 //------------------------------------------------------------------------------
 
-scm_step scm_path::interpolate(size_t i, double t)
+scm_step scm_path::erp(size_t i, double t) const
 {
     if (t == 0.0 and i     < step.size()) return step[i    ];
     if (t == 1.0 and i + 1 < step.size()) return step[i + 1];
 
-    scm_step *a = (0 <= (i - 1) && (i - 1) < step.size()) ? &step[i - 1] : NULL;
-    scm_step *b = (0 <= (i    ) && (i    ) < step.size()) ? &step[i    ] : NULL;
-    scm_step *c = (0 <= (i + 1) && (i + 1) < step.size()) ? &step[i + 1] : NULL;
-    scm_step *d = (0 <= (i + 2) && (i + 2) < step.size()) ? &step[i + 2] : NULL;
+    const scm_step *a = (0 <= (i - 1) && (i - 1) < step.size()) ? &step[i - 1] : NULL;
+    const scm_step *b = (0 <= (i    ) && (i    ) < step.size()) ? &step[i    ] : NULL;
+    const scm_step *c = (0 <= (i + 1) && (i + 1) < step.size()) ? &step[i + 1] : NULL;
+    const scm_step *d = (0 <= (i + 2) && (i + 2) < step.size()) ? &step[i + 2] : NULL;
 
     return scm_step(a, b, c, d, t);
 }
 
+scm_step scm_path::now() const
+{
+    return erp(int(floor(head_t)), head_t - floor(head_t));
+}
+
 void scm_path::time(double dt)
 {
-    head_t += head_d * dt;
+    if (step.size())
+    {
+        head_t += head_d * dt * now().get_speed();
 
-    if (head_t > step.size() - 1)
-    {
-        head_t = step.size() - 1;
-        stop();
+        if (head_t > step.size() - 1)
+        {
+            head_t = step.size() - 1;
+            stop();
+        }
+        if (head_t < 0)
+        {
+            head_t = 0;
+            stop();
+        }
     }
-    if (head_t < 0)
+    else stop();
+}
+
+void scm_path::drawall() const
+{
+    double t = 0.0;
+    int    i = 0;
+
+    while (i < int(step.size()))
     {
-        head_t = 0;
-        stop();
+        scm_step s = erp(i, t);
+
+        s.draw();
+
+        t += 0.25 * s.get_speed();
+
+        if (t >= 1.0)
+        {
+            t -= 1.0;
+            i += 1;
+        }
     }
 }
 
-void scm_path::draw()
+void scm_path::draw() const
 {
     glPushAttrib(GL_ENABLE_BIT);
     {
@@ -240,28 +295,16 @@ void scm_path::draw()
         }
         glEnd();
 
-        glPointSize(4.0);
+        glPointSize(3.0);
         glColor4f(0.0f, 1.0f, 0.0, 1.0f);
         glBegin(GL_POINTS);
-        {
-            if (step.size())
-                interpolate(int(floor(head_t)), head_t - floor(head_t)).draw();
-        }
+        drawall();
         glEnd();
 
-        glLineWidth(2.0);
+        glLineWidth(1.0);
+        glColor4f(0.0f, 1.0f, 0.0, 0.5f);
         glBegin(GL_LINE_STRIP);
-        {
-            for (int i = 0; i < int(step.size()); ++i)
-                for (int j = 0; j < 32; ++j)
-                {
-                    double t = double(j) / 32;
-
-                    glColor4f(0.0f, 1.0f, 0.0f, 0.8f * t + 0.2f);
-
-                    interpolate(i, t).draw();
-                }
-        }
+        drawall();
         glEnd();
     }
     glPopAttrib();

@@ -104,6 +104,7 @@ scm_step::scm_step()
     light[3]       = 0.0;
 
     radius         = 0.0;
+    speed          = 1.0;
     zoom           = 1.0;
 }
 
@@ -130,9 +131,14 @@ scm_step::scm_step(const scm_step *a,
                       b ? &b->zoom        : NULL,
                       c ? &c->zoom        : NULL,
                       d ? &d->zoom        : NULL, t);
+
+    if (b && c) speed = lerp(b->speed, c->speed, t);
+    else if (b) speed =      b->speed;
+    else if (c) speed =                c->speed;
+    else        speed = 1.0;
 }
 
-void scm_step::draw()
+void scm_step::draw() const
 {
     double v[3];
 
@@ -151,7 +157,7 @@ bool scm_step::write(FILE *stream)
 {
     fprintf(stream, "%+12.8f %+12.8f %+12.8f %+12.8f "
                     "%+12.8f %+12.8f %+12.8f %+12.8f "
-                    "%+12.8f %+12.8f\n",
+                    "%+12.8f %+12.8f %+12.8f\n",
                     orientation[0],
                     orientation[1],
                     orientation[2],
@@ -161,6 +167,7 @@ bool scm_step::write(FILE *stream)
                     position[2],
                     position[3],
                     radius,
+                    speed,
                     zoom);
     return true;
 }
@@ -169,7 +176,7 @@ bool scm_step::read(FILE *stream)
 {
     return (fscanf(stream, "%lf %lf %lf %lf "
                            "%lf %lf %lf %lf "
-                           "%lf %lf\n",
+                           "%lf %lf %lf\n",
                            orientation + 0,
                            orientation + 1,
                            orientation + 2,
@@ -179,7 +186,8 @@ bool scm_step::read(FILE *stream)
                            position + 2,
                            position + 3,
                           &radius,
-                          &zoom) == 10);
+                          &speed,
+                          &zoom) == 11);
 }
 
 //------------------------------------------------------------------------------
