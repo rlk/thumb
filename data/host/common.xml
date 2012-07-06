@@ -195,5 +195,38 @@
         </frustum>
       </display>
     </node>
+    <!-- 1024x769 Fulldome projection ------------------------------------- -->
+    <node name="fulldome-1024x768">
+      <window x="0" y="0" w="1024" h="768"/>
+      <channel w="1024" h="512"/>
+      <channel w="1024" h="512"/>
+      <channel w="1024" h="512"/>
+      <channel w="1024" h="512"/>
+      <overlay>
+        <frustum>
+          <perspective hfov="110.0" vfov="90.0" />
+          <rotation p="45.0" y="0.0"/>
+        </frustum>
+      </overlay>
+      <display type="fulldome">
+        <viewport x="128" y="0" w="768" h="768"/>
+        <frustum>
+          <perspective hfov="110.0" vfov="90.0" />
+          <rotation p="45.0" y="0.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="110.0" vfov="90.0" />
+          <rotation p="45.0" y="90.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="110.0" vfov="90.0" />
+          <rotation p="45.0" y="180.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="110.0" vfov="90.0" />
+          <rotation p="45.0" y="270.0"/>
+        </frustum>
+      </display>
+    </node>
     <!-- ------------------------------------------------------------------ -->
   </host>

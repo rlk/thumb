@@ -563,6 +563,19 @@ app::host::host(app::prog *p, std::string filename,
                     displays.push_back(new dpy::direct    (c));
             }
 
+            // Determine the overlay area.
+
+            if (app::node o = n.find("overlay"))
+            {
+                int w = o.get_i("w", DEFAULT_PIXEL_WIDTH);
+                int h = o.get_i("h", DEFAULT_PIXEL_HEIGHT);
+
+                if (app::node c = o.find("frustum"))
+                    overlay = new app::frustum(c, w, h);
+                else
+                    overlay = new app::frustum(0, w, h);
+            }
+
             // Create a channel object for each configured channel.
 
             if (channels.empty())
@@ -580,19 +593,6 @@ app::host::host(app::prog *p, std::string filename,
             init_server(n);
             init_client(n, exe);
             init_listen(n);
-        }
-
-        // Determine the overlay area.
-
-        if (app::node n = p.find("overlay"))
-        {
-            int w = n.get_i("w", DEFAULT_PIXEL_WIDTH);
-            int h = n.get_i("h", DEFAULT_PIXEL_HEIGHT);
-
-            if (app::node c = n.find("frustum"))
-                overlay = new app::frustum(c, w, h);
-            else
-                overlay = new app::frustum(0, w, h);
         }
     }
 
@@ -716,11 +716,13 @@ void app::host::root_loop()
 
             // Advance to the current time, or by one JIFFY when benchmarking.
 
-            // for (int tick = bench ? (tock + JIFFY) : SDL_GetTicks();
-            //      tick - tock >= JIFFY;
-            //      tock        += JIFFY)
-
+            if (bench || movie)
                 process_event(E.mk_tick(JIFFY));
+            else
+                for (int tick = SDL_GetTicks();
+                         tick - tock >= JIFFY;
+                         tock        += JIFFY)
+                    process_event(E.mk_tick(JIFFY));
 
             // Call the render handler.
 
