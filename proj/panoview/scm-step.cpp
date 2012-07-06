@@ -11,6 +11,7 @@
 //  more details.
 
 #include <cmath>
+#include <cstdlib>
 
 #include <ogl-opengl.hpp>
 
@@ -27,7 +28,7 @@ static double mix(const double *a,
                   const double *c,
                   const double *d, double t)
 {
-    if (b && c && b != c)
+    if (b && c)
     {
         double aa = a ? *a : lerp(*b, *c, -1.0);
         double bb =     *b;
@@ -55,27 +56,30 @@ static void qerp(double *q, const double *a,
     double A[4];
     double D[4];
 
-    if (b && c && (b[0] != c[0] ||
-                   b[1] != c[1] ||
-                   b[2] != c[2] ||
-                   b[3] != c[3]))
+    if (b && c)
     {
-        if (a)
-            qcpy(A, a);
-        else
-            qslerp(A, b, c, -1.0);
+        if (b[0] != c[0] ||
+            b[1] != c[1] ||
+            b[2] != c[2] ||
+            b[3] != c[3])
+        {
+            if (a) qcpy(A, a); else qslerp(A, b, c, -1.0);
+            if (d) qcpy(D, d); else qslerp(D, b, c, +2.0);
 
-        if (d)
-            qcpy(D, d);
-        else
-            qslerp(D, b, c, +2.0);
-
-        qsquad(q, A, b, c, D, t);
+            qsquad(q, A, b, c, D, t);
+            qnormalize(q, q);
+        }
+        else qcpy(q, b);
     }
-    else if (b)
-        qcpy(q, b);
-    else if (c)
-        qcpy(q, c);
+    else if (b) qcpy(q, b);
+    else if (c) qcpy(q, c);
+    else
+    {
+        q[0] = 0.0;
+        q[1] = 0.0;
+        q[2] = 0.0;
+        q[3] = 1.0;
+    }
 }
 
 //------------------------------------------------------------------------------
