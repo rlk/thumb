@@ -159,7 +159,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
         double a = here.get_radius();
         double r =     get_scale(a) * get_radius() * cache->get_r0();
-        double d = r + get_scale(a) * a;
+        double d =     get_scale(a) * a;
 
         double n = 0.0001 *     (d     - r    );
         double f = 1.1    * sqrt(d * d - r * r);

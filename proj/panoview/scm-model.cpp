@@ -436,8 +436,8 @@ void scm_model::draw_page(const int *vv, int vc,
         glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
         glUniform1f(u_f_age[d * fc + fi], age(then));
         glUniform1i(u_f_img[d * fc + fi], d * tc + ti);
-        // glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        // glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+     // glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+     // glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
     // Won't someone please think of the children?

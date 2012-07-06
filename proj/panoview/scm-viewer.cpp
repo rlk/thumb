@@ -234,6 +234,8 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
             glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
             glBlendFunc(GL_SRC_ALPHA, GL_ONE);
             glLineWidth(1.0);
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
         }
 
         model->set_fade(timer - floor(timer));
