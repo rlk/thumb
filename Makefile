@@ -34,7 +34,9 @@ dist : $(TARG)
 	mkdir -p $(DOCDIR)
 	mkdir -p $(DOCDIR)/img
 	mkdir -p $(DATDIR)/host
+	mkdir -p $(DATDIR)/program
 	mkdir -p $(DATDIR)/glsl
+	mkdir -p $(DATDIR)/glsl/dpy
 	mkdir -p $(DATDIR)/scm
 
 	# Copy the executable.
@@ -50,15 +52,22 @@ dist : $(TARG)
 	$(CP) data/FreeMono.ttf                         $(DATDIR)
 	$(CP) data/FreeSans.ttf                         $(DATDIR)
 	$(CP) data/host/common.xml                      $(DATDIR)/host
+	$(CP) data/program/fulldome.xml                 $(DATDIR)/program
+	$(CP) data/glsl/dpy/fulldome.vert               $(DATDIR)/glsl/dpy
+	$(CP) data/glsl/dpy/fulldome.frag               $(DATDIR)/glsl/dpy
 
 	# Copy panoview / orbiter data
 
+	$(CP) proj/panoview/path.dat                    $(DSTDIR)
 	$(CP) proj/panoview/data/IAUMOON.csv            $(DATDIR)
 	$(CP) proj/panoview/data/glsl/scm-basic.frag    $(DATDIR)/glsl
 	$(CP) proj/panoview/data/glsl/scm-basic.vert    $(DATDIR)/glsl
 	$(CP) proj/panoview/data/glsl/scm-displace.vert $(DATDIR)/glsl
+	$(CP) proj/panoview/data/glsl/scm-overlay.frag  $(DATDIR)/glsl
 	$(CP) proj/panoview/data/glsl/scm-zoom.vert     $(DATDIR)/glsl
-	$(CP) proj/panoview/data/scm/GLD-WAC.xml        $(DATDIR)/scm
+
+	$(CP) proj/panoview/data/scm/GLD-WAC.xml              $(DATDIR)/scm
+	$(CP) proj/panoview/data/scm/NAC_ROI_TychoCtrLoA.xml  $(DATDIR)/scm
 
 	# Copy the documentation
 

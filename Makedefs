@@ -2,17 +2,17 @@
 
 #------------------------------------------------------------------------------
 
-CC= g++
-STRIP= strip
+CC    = g++
+STRIP = strip
 CFLAGS= -g -Wall
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
+RM    = rm -f
+CP    = cp
 
 #------------------------------------------------------------------------------
 
 ifeq ($(shell uname), Darwin)
 	LIBEXT  = -framework OpenGL -framework Cocoa -framework ApplicationServices -framework Carbon -framework AudioToolbox -framework AudioUnit -framework IOKit
-	RM      = rm -f
-        CP      = cp
 endif
 
 ifeq ($(shell uname), MINGW32_NT-6.1)
@@ -20,8 +20,6 @@ ifeq ($(shell uname), MINGW32_NT-6.1)
 	LIBSDL  = -lmingw32
 	CC     += -static
 	CFLAGS += -DGLEW_STATIC
-	RM      = del
-        CP      = copy
 endif
 
 ifeq ($(shell uname), Linux)
@@ -33,66 +31,66 @@ endif
 # Search for package configurators or rely upon the path.
 
 SDLCONF = $(firstword $(wildcard /usr/local/bin/sdl-config \
-                                 /opt/local/bin/sdl-config \
-                                       /usr/bin/sdl-config) sdl-config)
+				 /opt/local/bin/sdl-config \
+				       /usr/bin/sdl-config) sdl-config)
 FT2CONF = $(firstword $(wildcard /usr/local/bin/freetype-config \
-                                 /opt/local/bin/freetype-config \
-                                       /usr/bin/freetype-config) freetype-config)
+				 /opt/local/bin/freetype-config \
+				       /usr/bin/freetype-config) freetype-config)
 
 #------------------------------------------------------------------------------
 
 # Search for static libraries or fall back on dynamic linking.
 
 LIBFT2  = $(firstword $(wildcard /usr/local/lib/libfreetype*.a \
-                                 /opt/local/lib/libfreetype*.a \
-                                    $(HOME)/lib/libfreetype*.a \
-                                       /usr/lib/libfreetype*.a \
-                                   C:/MinGW/lib/libfreetype*.a) -lfreetype)
+				 /opt/local/lib/libfreetype*.a \
+				    $(HOME)/lib/libfreetype*.a \
+				       /usr/lib/libfreetype*.a \
+				   C:/MinGW/lib/libfreetype*.a) -lfreetype)
 LIBTIF  = $(firstword $(wildcard /usr/local/lib/libtiff*.a \
-                                 /opt/local/lib/libtiff*.a \
-                                   C:/MinGW/lib/libtiff*.a \
-                                    $(HOME)/lib/libtiff*.a \
-                                       /usr/lib/libtiff*.a \
-                                   C:/MinGW/lib/libtiff*.a) -ltiff)
+				 /opt/local/lib/libtiff*.a \
+				   C:/MinGW/lib/libtiff*.a \
+				    $(HOME)/lib/libtiff*.a \
+				       /usr/lib/libtiff*.a \
+				   C:/MinGW/lib/libtiff*.a) -ltiff)
 LIBGLEW = $(firstword $(wildcard /usr/local/lib/libGLEW*.a \
-                                 /opt/local/lib/libGLEW*.a \
-                                    $(HOME)/lib/libGLEW*.a \
-                                       /usr/lib/libGLEW*.a) -lglew32)
+				 /opt/local/lib/libGLEW*.a \
+				    $(HOME)/lib/libGLEW*.a \
+				       /usr/lib/libGLEW*.a) -lglew32)
 LIBMXML = $(firstword $(wildcard /usr/local/lib/libmxml*.a \
-                                 /opt/local/lib/libmxml*.a \
-                                    $(HOME)/lib/libmxml*.a \
-                                       /usr/lib/libmxml*.a \
-                                   C:/MinGW/lib/libmxml*.a) -lmxml)
+				 /opt/local/lib/libmxml*.a \
+				    $(HOME)/lib/libmxml*.a \
+				       /usr/lib/libmxml*.a \
+				   C:/MinGW/lib/libmxml*.a) -lmxml)
 LIBJPG  = $(firstword $(wildcard /usr/local/lib/libjpeg*.a \
-                                 /opt/local/lib/libjpeg*.a \
-                                    $(HOME)/lib/libjpeg*.a \
-                                       /usr/lib/libjpeg*.a \
-                                   C:/MinGW/lib/libjpeg*.a) -ljpeg)
+				 /opt/local/lib/libjpeg*.a \
+				    $(HOME)/lib/libjpeg*.a \
+				       /usr/lib/libjpeg*.a \
+				   C:/MinGW/lib/libjpeg*.a) -ljpeg)
 LIBODE  = $(firstword $(wildcard /usr/local/lib/libode*.a \
-                                 /opt/local/lib/libode*.a \
-                                    $(HOME)/lib/libode*.a \
-                                       /usr/lib/libode*.a \
-                                   C:/MinGW/lib/libode*.a) -lode)
+				 /opt/local/lib/libode*.a \
+				    $(HOME)/lib/libode*.a \
+				       /usr/lib/libode*.a \
+				   C:/MinGW/lib/libode*.a) -lode)
 LIBPNG  = $(firstword $(wildcard /usr/local/lib/libpng*.a \
-                                 /opt/local/lib/libpng*.a \
-                                    $(HOME)/lib/libpng*.a \
-                                       /usr/lib/libpng*.a \
-                                   C:/MinGW/lib/libpng*.a) -lpng)
+				 /opt/local/lib/libpng*.a \
+				    $(HOME)/lib/libpng*.a \
+				       /usr/lib/libpng*.a \
+				   C:/MinGW/lib/libpng*.a) -lpng)
 LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
-                                 /opt/local/lib/libz*.a \
-                                    $(HOME)/lib/libz*.a \
-                                       /usr/lib/libz*.a \
-                                   C:/MinGW/lib/libz*.a) -lz)
+				 /opt/local/lib/libz*.a \
+				    $(HOME)/lib/libz*.a \
+				       /usr/lib/libz*.a \
+				   C:/MinGW/lib/libz*.a) -lz)
 LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDLmain*.a \
-                                 /opt/local/lib/libSDLmain*.a \
-                                    $(HOME)/lib/libSDLmain*.a \
-                                       /usr/lib/libSDLmain*.a \
-                                   C:/MinGW/lib/libSDLmain*.a) -lSDLmain)
+				 /opt/local/lib/libSDLmain*.a \
+				    $(HOME)/lib/libSDLmain*.a \
+				       /usr/lib/libSDLmain*.a \
+				   C:/MinGW/lib/libSDLmain*.a) -lSDLmain)
 LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL*.a \
-                                 /opt/local/lib/libSDL*.a \
-                                    $(HOME)/lib/libSDL*.a \
-                                       /usr/lib/libSDL*.a \
-                                   C:/MinGW/lib/libSDL*.a) -lSDL)
+				 /opt/local/lib/libSDL*.a \
+				    $(HOME)/lib/libSDL*.a \
+				       /usr/lib/libSDL*.a \
+				   C:/MinGW/lib/libSDL*.a) -lSDL)
 
 #------------------------------------------------------------------------------
 
