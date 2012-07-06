@@ -169,19 +169,19 @@
 
     <a name="editing"><h4>Camera Path Editing</h4></a>
 
-    <p><code>Orbiter</code> allows the position and orientation of the camera to follow a pre-determined path, determined by a series of key frames. These key frames are specified interactively and keyboard commands insert or append the current camera configuration to a storable list of camera configurations. These key frames are animated using cubic interpolation. The camera path visualization is toggled using the F4 key. Here is an example:</p>
+    <p><code>Orbiter</code> allows the position and orientation of the camera to follow a pre-determined path, determined by a series of key frames. These key frames are specified interactively and keyboard commands insert or append the current camera configuration to a storable list of camera configurations. These key frames are animated using Hermite interpolation. The camera path visualization is toggled using the F4 key. Here is an example:</p>
 
     <img src="img/path.png">
 
-    <p>The orange squares denote key frames and the green line shows their interpolation. The line from one key frame to the next increases in brightness to indicate the forward direction. The yellow square indicates the current key frame selected for editing, and the small green square indicates the current play-back position.</p>
+    <p>The orange squares denote key frames and the green line shows their interpolation. The green key square is the first and the red key square is the last. The yellow key square indicates the current key frame selected for editing. The small green dots indicate the speed of the path, with each dot representing one quarter of a second.</p>
 
     <p>
 
     <table style="margin:auto;width:80%">
       <tr>
-        <th style="width:15%">Key</th>
+        <th style="width:20%">Key</th>
         <th style="width:5%"></th>
-        <th style="width:80%">Function</th>
+        <th style="width:75%">Function</th>
       </tr>
       <tr>
         <td>Control-<u>A</u></td>
@@ -262,6 +262,39 @@
         <td>&hellip;</td>
         <td><u>C</u>lear the path, removing all keys.</td>
       </tr>
+      <tr>
+        <td>&nbsp;</td>
+      </tr>
+      <tr>
+        <td>Up</td>
+        <td>&hellip;</td>
+        <td>Increase the camera speed at the current key.</td>
+      </tr>
+      <tr>
+        <td>Down</td>
+        <td>&hellip;</td>
+        <td>Decrease the camera speed at the current key.</td>
+      </tr>
+      <tr>
+        <td>Control Up</td>
+        <td>&hellip;</td>
+        <td>Increase the tension of the camera path following the current key.</td>
+      </tr>
+      <tr>
+        <td>Control Down</td>
+        <td>&hellip;</td>
+        <td>Decrease the tension of the camera path following the current key.</td>
+      </tr>
+      <tr>
+        <td>Shift Up</td>
+        <td>&hellip;</td>
+        <td>Shift the bias of the camera path toward the next key.</td>
+      </tr>
+      <tr>
+        <td>Shift Down</td>
+        <td>&hellip;</td>
+        <td>Shift the bias of the camera path toward the current key.</td>
+      </tr>
     </table>
 
     <p>Some tips:</p>
@@ -277,9 +310,7 @@
 
       <li><p>This gets easier with practice. Always try to be aware of which key is current. The path visualizion is updated as it is edited, so keep an eye on subtle changes down the line caused by local modifications. It often helps to work backwards.</p></li>
 
-      <li><p>Key frames are interpolated at a constant rate, thus the speed of the animation is determined by the density of key frames. Closely-spaced key frames give slow motion, and widely-separated key frames give fast motion.</p></li>
-
-      <li><p>Cubic interpolation can give unexpected results, particularly before and after wide gaps between keys. Plan ahead.</p></li>
+      <li><p>Cubic interpolation can give unexpected results, particularly before and after wide gaps between keys. Path tension adjustments can help, but do plan ahead.</p></li>
 
       <li><p>Press Control-S to save the current path to disk, or Control-L to load it from disk. <b>Note:</b> There is currently no file name selection dialog for path storage. The file is <em>always</em> named <tt>path.dat</tt>. If you wish to store multiple path files, please use the Finder or Explorer to rename <tt>path.dat</tt> by hand after saving, or before loading.</p></li>
     </ul>

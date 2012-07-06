@@ -327,8 +327,6 @@ bool scm_viewer::process_key(app::event *E)
         {
             switch (k)
             {
-                case 273: path.faster();   return true; // Up
-                case 274: path.slower();   return true; // Down
                 case 'c': path.clear();    return true; // ^C
                 case 'b': path.back(s);    return true; // ^B
                 case 'f': path.fore(s);    return true; // ^F
@@ -337,7 +335,6 @@ bool scm_viewer::process_key(app::event *E)
                 case 's': path.save();     return true; // ^S
                 case 'l': path.load();     return true; // ^L
                 case 'd': path.del();      return true; // ^D
-                case 'h': path.half();     return true; // ^H
                 case 'i': path.ins(here);  return true; // ^I
                 case 'a': path.add(here);  return true; // ^A
                 case 'o': path.set(here);  return true; // ^O
@@ -346,7 +343,24 @@ bool scm_viewer::process_key(app::event *E)
                           path.get(here);  return true; // ^J
             }
         }
-        if (k == 32) path.stop();
+
+        if (k == 32) // Space
+        {
+            path.stop();
+            return true;
+        }
+        if (k == 273) // Up
+        {
+            if      (c) { path.inc_tens(); return true; }
+            else if (s) { path.dec_bias(); return true; }
+            else        { path.faster();   return true; }
+        }
+        if (k == 274) // Down
+        {
+            if      (c) { path.dec_tens(); return true; }
+            else if (s) { path.inc_bias(); return true; }
+            else        { path.slower();   return true; }
+        }
     }
 
     return prog::process_event(E);

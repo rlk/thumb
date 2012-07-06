@@ -11,6 +11,7 @@
 //  more details.
 
 #include <cmath>
+#include <cassert>
 #include <cstdlib>
 
 #include <ogl-opengl.hpp>
@@ -21,65 +22,27 @@
 //------------------------------------------------------------------------------
 
 // http://paulbourke.net/miscellaneous/interpolation/
-// Consider a Catmull-Rom spline here.
 
-static double mix(const double *a,
-                  const double *b,
-                  const double *c,
-                  const double *d, double t)
+double hint(double y0, double y1,
+            double y2, double y3,
+            double t,
+            double tension,
+            double bias)
 {
-    if (b && c)
-    {
-        double aa = a ? *a : lerp(*b, *c, -1.0);
-        double bb =     *b;
-        double cc =     *c;
-        double dd = d ? *d : lerp(*b, *c, +2.0);
+    double m0 = (y1 - y0) * (1.0 + bias) * (1.0 - tension) / 2.0
+              + (y2 - y1) * (1.0 - bias) * (1.0 - tension) / 2.0;
+    double m1 = (y2 - y1) * (1.0 + bias) * (1.0 - tension) / 2.0
+              + (y3 - y2) * (1.0 - bias) * (1.0 - tension) / 2.0;
 
-        const double w = dd - cc - aa + bb;
-        const double x = aa - bb - w;
-        const double y = cc - aa;
-        const double z = bb;
+    double t2 = t * t;
+    double t3 = t * t2;
 
-        return (w * t * t * t) + (x * t * t) + (y * t) + (z);
-    }
-    else if (b) return *b;
-    else if (c) return *c;
+    double a0 =  2.0 * t3 - 3.0 * t2 + 1.0;
+    double a1 =        t3 - 2.0 * t2 + t;
+    double a2 =        t3 -       t2;
+    double a3 = -2.0 * t3 + 3.0 * t2;
 
-    return 0;
-}
-
-static void qerp(double *q, const double *a,
-                            const double *b,
-                            const double *c,
-                            const double *d, double t)
-{
-    double A[4];
-    double D[4];
-
-    if (b && c)
-    {
-        if (b[0] != c[0] ||
-            b[1] != c[1] ||
-            b[2] != c[2] ||
-            b[3] != c[3])
-        {
-            if (a) qcpy(A, a); else qslerp(A, b, c, -1.0);
-            if (d) qcpy(D, d); else qslerp(D, b, c, +2.0);
-
-            qsquad(q, A, b, c, D, t);
-            qnormalize(q, q);
-        }
-        else qcpy(q, b);
-    }
-    else if (b) qcpy(q, b);
-    else if (c) qcpy(q, c);
-    else
-    {
-        q[0] = 0.0;
-        q[1] = 0.0;
-        q[2] = 0.0;
-        q[3] = 1.0;
-    }
+    return a0 * y1 + a1 * m0 + a2 * m1 + a3 * y2;
 }
 
 //------------------------------------------------------------------------------
@@ -93,49 +56,120 @@ scm_step::scm_step()
     orientation[2] = 0.0;
     orientation[3] = 1.0;
 
-    position[0]    = 1.0;
+    position[0]    = 0.0;
     position[1]    = 0.0;
-    position[2]    = 0.0;
-    position[3]    = 0.0;
+    position[2]    = 1.0;
 
     light[0]       = 1.0;
     light[1]       = 0.0;
     light[2]       = 0.0;
-    light[3]       = 0.0;
 
-    radius         = 0.0;
     speed          = 1.0;
-    zoom           = 1.0;
+    radius         = 0.0;
+    tension        = 0.0;
+    bias           = 0.0;
 }
 
-// Initialize a new SCM viewer state using cubic interpolation of given states.
+// Initialize a new SCM viewer step using linear interpolation of given steps.
+
+scm_step::scm_step(const scm_step *a,
+                   const scm_step *b, double t)
+{
+    assert(a);
+    assert(b);
+
+    orientation[0] = lerp(a->orientation[0], b->orientation[0], t);
+    orientation[1] = lerp(a->orientation[1], b->orientation[1], t);
+    orientation[2] = lerp(a->orientation[2], b->orientation[2], t);
+    orientation[3] = lerp(a->orientation[3], b->orientation[3], t);
+
+    position[0]    = lerp(a->position[0],    b->position[0],    t);
+    position[1]    = lerp(a->position[1],    b->position[1],    t);
+    position[2]    = lerp(a->position[2],    b->position[2],    t);
+
+    light[0]       = lerp(a->light[0],       b->light[0],       t);
+    light[1]       = lerp(a->light[1],       b->light[1],       t);
+    light[2]       = lerp(a->light[2],       b->light[2],       t);
+
+    speed          = lerp(a->speed,          b->speed,          t);
+    radius         = lerp(a->radius,         b->radius,         t);
+    tension        = lerp(a->tension,        b->tension,        t);
+    bias           = lerp(a->bias,           b->bias,           t);
+
+    qnormalize(orientation, orientation);
+    vnormalize(position,    position);
+    vnormalize(light,       light);
+}
+
+// Initialize a new SCM viewer step using cubic interpolation of given steps.
 
 scm_step::scm_step(const scm_step *a,
                    const scm_step *b,
                    const scm_step *c,
                    const scm_step *d, double t)
 {
-    qerp(orientation, a ?  a->orientation : NULL,
-                      b ?  b->orientation : NULL,
-                      c ?  c->orientation : NULL,
-                      d ?  d->orientation : NULL, t);
-    qerp(position,    a ?  a->position    : NULL,
-                      b ?  b->position    : NULL,
-                      c ?  c->position    : NULL,
-                      d ?  d->position    : NULL, t);
-    radius = mix(     a ? &a->radius      : NULL,
-                      b ? &b->radius      : NULL,
-                      c ? &c->radius      : NULL,
-                      d ? &d->radius      : NULL, t);
-    zoom   = mix(     a ? &a->zoom        : NULL,
-                      b ? &b->zoom        : NULL,
-                      c ? &c->zoom        : NULL,
-                      d ? &d->zoom        : NULL, t);
+    assert(a);
+    assert(b);
+    assert(c);
+    assert(d);
 
-    if (b && c) speed = lerp(b->speed, c->speed, t);
-    else if (b) speed =      b->speed;
-    else if (c) speed =                c->speed;
-    else        speed = 1.0;
+    orientation[0] = hint(a->orientation[0],
+                          b->orientation[0],
+                          c->orientation[0],
+                          d->orientation[0], t, b->tension, b->bias);
+    orientation[1] = hint(a->orientation[1],
+                          b->orientation[1],
+                          c->orientation[1],
+                          d->orientation[1], t, b->tension, b->bias);
+    orientation[2] = hint(a->orientation[2],
+                          b->orientation[2],
+                          c->orientation[2],
+                          d->orientation[2], t, b->tension, b->bias);
+    orientation[3] = hint(a->orientation[3],
+                          b->orientation[3],
+                          c->orientation[3],
+                          d->orientation[3], t, b->tension, b->bias);
+
+    position[0] = hint(a->position[0],
+                       b->position[0],
+                       c->position[0],
+                       d->position[0], t, b->tension, b->bias);
+    position[1] = hint(a->position[1],
+                       b->position[1],
+                       c->position[1],
+                       d->position[1], t, b->tension, b->bias);
+    position[2] = hint(a->position[2],
+                       b->position[2],
+                       c->position[2],
+                       d->position[2], t, b->tension, b->bias);
+
+    light[0] = hint(a->light[0],
+                    b->light[0],
+                    c->light[0],
+                    d->light[0], t, b->tension, b->bias);
+    light[1] = hint(a->light[1],
+                    b->light[1],
+                    c->light[1],
+                    d->light[1], t, b->tension, b->bias);
+    light[2] = hint(a->light[2],
+                    b->light[2],
+                    c->light[2],
+                    d->light[2], t, b->tension, b->bias);
+
+    radius  = hint(a->radius,
+                   b->radius,
+                   c->radius,
+                   d->radius,  t, b->tension, b->bias);
+    speed   = lerp(b->speed,
+                   c->speed,   t);
+    tension = lerp(b->tension,
+                   c->tension, t);
+    bias    = lerp(b->bias,
+                   c->bias,    t);
+
+    qnormalize(orientation, orientation);
+    vnormalize(position,    position);
+    vnormalize(light,       light);
 }
 
 void scm_step::draw() const
@@ -156,8 +190,9 @@ void scm_step::draw() const
 bool scm_step::write(FILE *stream)
 {
     fprintf(stream, "%+12.8f %+12.8f %+12.8f %+12.8f "
-                    "%+12.8f %+12.8f %+12.8f %+12.8f "
-                    "%+12.8f %+12.8f %+12.8f\n",
+                    "%+12.8f %+12.8f %+12.8f "
+                    "%+12.8f %+12.8f %+12.8f "
+                    "%+12.8f %+12.8f %+12.8f %+12.8f\n",
                     orientation[0],
                     orientation[1],
                     orientation[2],
@@ -165,18 +200,22 @@ bool scm_step::write(FILE *stream)
                     position[0],
                     position[1],
                     position[2],
-                    position[3],
-                    radius,
+                    light[0],
+                    light[1],
+                    light[2],
                     speed,
-                    zoom);
+                    radius,
+                    tension,
+                    bias);
     return true;
 }
 
 bool scm_step::read(FILE *stream)
 {
     return (fscanf(stream, "%lf %lf %lf %lf "
-                           "%lf %lf %lf %lf "
-                           "%lf %lf %lf\n",
+                           "%lf %lf %lf "
+                           "%lf %lf %lf "
+                           "%lf %lf %lf %lf\n",
                            orientation + 0,
                            orientation + 1,
                            orientation + 2,
@@ -184,38 +223,42 @@ bool scm_step::read(FILE *stream)
                            position + 0,
                            position + 1,
                            position + 2,
-                           position + 3,
-                          &radius,
+                           light + 0,
+                           light + 1,
+                           light + 2,
                           &speed,
-                          &zoom) == 11);
+                          &radius,
+                          &tension,
+                          &bias) == 14);
 }
 
 //------------------------------------------------------------------------------
 
-static inline void transform_quaternion(const double *M, double *q)
+void scm_step::transform_orientation(const double *M)
 {
     double A[16];
     double B[16];
 
-    mquaternion(A, q);
+    mquaternion(A, orientation);
     mmultiply(B, M, A);
-    qmatrix(q, B);
-    qnormalize(q, q);
-}
-
-void scm_step::transform_orientation(const double *M)
-{
-    transform_quaternion(M, orientation);
+    qmatrix(orientation, B);
+    qnormalize(orientation, orientation);
 }
 
 void scm_step::transform_position(const double *M)
 {
-    transform_quaternion(M, position);
+    double v[3];
+
+    vtransform(v, M, position);
+    vnormalize(position, v);
 }
 
 void scm_step::transform_light(const double *M)
 {
-    transform_quaternion(M, light);
+    double v[3];
+
+    vtransform(v, M, light);
+    vnormalize(light, v);
 }
 
 //------------------------------------------------------------------------------
@@ -227,11 +270,12 @@ void scm_step::get_matrix(double *M, double scale) const
     vquaternionx(M +  0, orientation);
     vquaterniony(M +  4, orientation);
     vquaternionz(M +  8, orientation);
-    vquaternionz(M + 12, position);
 
-    M[12] *= -radius * scale;
-    M[13] *= -radius * scale;
-    M[14] *= -radius * scale;
+    vcpy(M + 12, position);
+
+    M[12] *= radius * scale;
+    M[13] *= radius * scale;
+    M[14] *= radius * scale;
 
     M[ 3] = 0.0;
     M[ 7] = 0.0;
@@ -239,13 +283,11 @@ void scm_step::get_matrix(double *M, double scale) const
     M[15] = 1.0;
 }
 
-// Return the negated Z axis of the matrix form of the position quaternion,
-// thus giving the position vector.
+// Return the position vector.
 
 void scm_step::get_position(double *v) const
 {
-    vquaternionz(v, position);
-    vneg(v, v);
+    vcpy(v, position);
 }
 
 // Return the Y axis of the matrix form of the orientation quaternion, thus
@@ -273,13 +315,11 @@ void scm_step::get_forward(double *v) const
     vneg(v, v);
 }
 
-// Return the negated Z axis of the matrix form of the light source quaternion,
-// thus giving the light direction vector.
+// Return the light direction vector.
 
 void scm_step::get_light(double *v) const
 {
-    vquaternionz(v, light);
-    vneg(v, v);
+    vcpy(v, light);
 }
 
 //------------------------------------------------------------------------------

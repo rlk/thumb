@@ -41,10 +41,13 @@ public:
     void ins(scm_step&);
     void add(scm_step&);
     void del();
-    void half();
 
     void faster();
     void slower();
+    void inc_tens();
+    void dec_tens();
+    void inc_bias();
+    void dec_bias();
 
     void save();
     void load();
@@ -56,10 +59,8 @@ public:
 
 private:
 
-    scm_step erp(size_t, double) const;
-    scm_step now()               const;
-
-    void drawall() const;
+    scm_step erp(double) const;
+    scm_step now()       const { return erp(head_t); }
 
     double head_t;
     double head_d;

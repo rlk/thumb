@@ -150,15 +150,6 @@ void scm_path::del()
     }
 }
 
-void scm_path::half()
-{
-    if (step.size() > 1)
-    {
-        scm_step s = erp(curr, 0.5);
-        add(s);
-    }
-}
-
 //------------------------------------------------------------------------------
 
 void scm_path::faster()
@@ -171,6 +162,30 @@ void scm_path::slower()
 {
     if (!step.empty())
         step[curr].set_speed(step[curr].get_speed() / 1.1);
+}
+
+void scm_path::inc_tens()
+{
+    if (!step.empty())
+        step[curr].set_tension(step[curr].get_tension() + 0.1);
+}
+
+void scm_path::dec_tens()
+{
+    if (!step.empty())
+        step[curr].set_tension(step[curr].get_tension() - 0.1);
+}
+
+void scm_path::inc_bias()
+{
+    if (!step.empty())
+        step[curr].set_bias(step[curr].get_bias() + 0.1);
+}
+
+void scm_path::dec_bias()
+{
+    if (!step.empty())
+        step[curr].set_bias(step[curr].get_bias() - 0.1);
 }
 
 //------------------------------------------------------------------------------
@@ -201,7 +216,7 @@ void scm_path::load()
         while (s.read(stream))
             step.push_back(s);
 
-        if (step.size())
+        if (!step.empty())
             curr = mmod(curr, step.size());
 
         fclose(stream);
@@ -210,22 +225,25 @@ void scm_path::load()
 
 //------------------------------------------------------------------------------
 
-scm_step scm_path::erp(size_t i, double t) const
+scm_step scm_path::erp(double t) const
 {
-    if (t == 0.0 and i     < step.size()) return step[i    ];
-    if (t == 1.0 and i + 1 < step.size()) return step[i + 1];
+    int    i = int(floor(t));
+    double k = t - floor(t);
 
-    const scm_step *a = (0 <= (i - 1) && (i - 1) < step.size()) ? &step[i - 1] : NULL;
-    const scm_step *b = (0 <= (i    ) && (i    ) < step.size()) ? &step[i    ] : NULL;
-    const scm_step *c = (0 <= (i + 1) && (i + 1) < step.size()) ? &step[i + 1] : NULL;
-    const scm_step *d = (0 <= (i + 2) && (i + 2) < step.size()) ? &step[i + 2] : NULL;
+    if (step.size() == 0) return scm_step();
+    if (step.size() == 1) return step[0];
+    if (t           == 0) return step[0];
+    if (k           == 0) return step[i];
 
-    return scm_step(a, b, c, d, t);
-}
+    int n = step.size() - 2;
+    int m = step.size() - 1;
 
-scm_step scm_path::now() const
-{
-    return erp(int(floor(head_t)), head_t - floor(head_t));
+    scm_step a = (i > 0) ? step[i - 1] : scm_step(&step[0], &step[1], -1.0);
+    scm_step b =           step[i    ];
+    scm_step c =           step[i + 1];
+    scm_step d = (i < n) ? step[i + 2] : scm_step(&step[n], &step[m], +2.0);
+
+    return scm_step(&a, &b, &c, &d, k);
 }
 
 void scm_path::time(double dt)
@@ -248,66 +266,66 @@ void scm_path::time(double dt)
     else stop();
 }
 
-void scm_path::drawall() const
-{
-    double t = 0.0;
-    int    i = 0;
-
-    while (i < int(step.size()))
-    {
-        scm_step s = erp(i, t);
-
-        s.draw();
-
-        t += 0.25 * s.get_speed();
-
-        if (t >= 1.0)
-        {
-            t -= 1.0;
-            i += 1;
-        }
-    }
-}
-
 void scm_path::draw() const
 {
-    glPushAttrib(GL_ENABLE_BIT);
+    if (!step.empty())
     {
-        glDisable(GL_LIGHTING);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_TEXTURE_2D);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        scm_step s;
+        double   t;
 
-        glPointSize(8.0);
-        glBegin(GL_POINTS);
+        glPushAttrib(GL_ENABLE_BIT);
         {
-            for (int i = 0; i < int(step.size()); ++i)
+            glDisable(GL_LIGHTING);
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+            glDisable(GL_TEXTURE_2D);
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+            glPointSize(8.0);
+            glBegin(GL_POINTS);
             {
-                if (i == curr)
-                    glColor4f(1.0f, 1.0f, 0.0f, 0.8f);
-                else
-                    glColor4f(1.0f, 0.5f, 0.0f, 0.6f);
+                int last = int(step.size()) - 1;
 
-                step[i].draw();
+                for (int i = 0; i < int(step.size()); ++i)
+                {
+                    if      (i == curr) glColor4f(1.0f, 1.0f, 0.0f, 0.8f);
+                    else if (i ==    0) glColor4f(0.0f, 1.0f, 0.0f, 0.8f);
+                    else if (i == last) glColor4f(1.0f, 0.0f, 0.0f, 0.8f);
+                    else                glColor4f(1.0f, 0.5f, 0.0f, 0.6f);
+
+                    step[i].draw();
+                }
             }
+            glEnd();
+
+            glPointSize(4.0);
+            glColor4f(0.0f, 1.0f, 0.0, 1.0f);
+            glBegin(GL_POINTS);
+            {
+                for (t = 0.0; t < step.size() - 1; t += 0.25 * s.get_speed())
+                {
+                    s = erp(t);
+                    s.draw();
+                }
+            }
+            glEnd();
+
+            glLineWidth(2.0);
+            glColor4f(0.0f, 1.0f, 0.0, 0.5f);
+            glBegin(GL_LINE_STRIP);
+            {
+                for (t = 0.0; t < step.size() - 1; t += 0.25 * s.get_speed())
+                {
+                    s = erp(t);
+                    s.draw();
+                }
+                step.back().draw();
+            }
+            glEnd();
         }
-        glEnd();
-
-        glPointSize(3.0);
-        glColor4f(0.0f, 1.0f, 0.0, 1.0f);
-        glBegin(GL_POINTS);
-        drawall();
-        glEnd();
-
-        glLineWidth(1.0);
-        glColor4f(0.0f, 1.0f, 0.0, 0.5f);
-        glBegin(GL_LINE_STRIP);
-        drawall();
-        glEnd();
+        glPopAttrib();
     }
-    glPopAttrib();
 }
 
 //------------------------------------------------------------------------------
