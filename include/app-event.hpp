@@ -23,7 +23,7 @@
 
 //-----------------------------------------------------------------------------
 
-#define DATAMAX 256
+#define DATAMAX 128
 
 // Event types
 
@@ -89,16 +89,12 @@ namespace app
 
         // Data marshalling functions
 
-        union swap { double d; int i; uint32_t l[2]; };
-
-        const char *get_text();
         double      get_real();
         bool        get_bool();
         int         get_byte();
         int         get_word();
         long long   get_long();
 
-        void        put_text(const char *);
         void        put_real(double);
         void        put_bool(bool);
         void        put_byte(int);
@@ -186,8 +182,6 @@ namespace app
 
         event *send(SOCKET);
         event *recv(SOCKET);
-
-        void set_dst(const char *); // TODO: eliminate
     };
 }
 

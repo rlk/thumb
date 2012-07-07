@@ -29,119 +29,94 @@ unsigned char app::event::get_type() const
 
 //-----------------------------------------------------------------------------
 
-void app::event::put_text(const char *text)
-{
-    // Set the payload to the given string.
-
-    size_t n = std::min(size_t(DATAMAX - 1), strlen(text));
-
-    memset(payload.data, 0, DATAMAX);
-    strncpy(payload.data, text, n);
-    payload.size = (unsigned char) n;
-}
-
-const char *app::event::get_text()
-{
-    // Return the payload as a string.
-
-    return payload.data;
-}
-
-//-----------------------------------------------------------------------------
+// Append a double to the payload data.
 
 void app::event::put_real(double d)
 {
-    // Append a double to the payload data.
-
-    union swap s;
-
-    s.d = d;
-
-    s.l[0] = htonl(s.l[0]);
-    s.l[1] = htonl(s.l[1]);
-
-    memcpy(payload.data + payload.size, s.l, 2 * sizeof (uint32_t));
-
-    payload.size += 2 * sizeof (uint32_t);
+    memcpy(payload.data + payload.size, &d, sizeof (double));
+    payload.size += sizeof (double);
 }
+
+// Return the next double in the payload data.
 
 double app::event::get_real()
 {
-    // Return the next double in the payload data.
-
-    union swap s;
-
-    memcpy(s.l, payload.data + payload_index, 2 * sizeof (uint32_t));
-
-    s.l[0] = ntohl(s.l[0]);
-    s.l[1] = ntohl(s.l[1]);
-
-    payload_index += 2 * sizeof (uint32_t);
-
-    return s.d;
+    double d;
+    memcpy(&d, payload.data + payload_index, 2 * sizeof (double));
+    payload_index += sizeof (double);
+    return d;
 }
 
 //-----------------------------------------------------------------------------
+
+// Append a bool to the payload data.
 
 void app::event::put_bool(bool b)
 {
-    // Append a bool to the payload data.
-
     payload.data[payload.size++] = (b ? 1 : 0);
 }
 
+// Return the next bool in the payload data.
+
 bool app::event::get_bool()
 {
-    // Return the next bool in the payload data.
-
-    return payload.data[payload_index++] ? true : false;
+    return (payload.data[payload_index++] == 0) ? false : true;
 }
 
 //-----------------------------------------------------------------------------
 
+// Append a byte to the payload data.
+
 void app::event::put_byte(int b)
 {
-    // Append a byte to the payload data.
-
     payload.data[payload.size++] = char(b);
 }
 
+// Return the next byte in the payload data.
+
 int app::event::get_byte()
 {
-    // Return the next byte in the payload data.
-
     return int(payload.data[payload_index++]);
 }
 
 //-----------------------------------------------------------------------------
 
+// Append an int to the payload data.
+
 void app::event::put_word(int i)
 {
-    // Append an int to the payload data.
-
-    union swap s;
-
-    s.i    = i;
-    s.l[0] = htonl(s.l[0]);
-
-    memcpy(payload.data + payload.size, s.l, sizeof (uint32_t));
-
-    payload.size += sizeof (uint32_t);
+    memcpy(payload.data + payload.size, &i, sizeof (int));
+    payload.size += sizeof (int);
 }
+
+// Return the next int in the payload data.
 
 int app::event::get_word()
 {
-    // Return the next int in the payload data.
+    int i;
+    memcpy(&i, payload.data + payload_index, sizeof (int));
+    payload_index += sizeof (int);
+    return i;
+}
 
-    union swap s;
+//-----------------------------------------------------------------------------
 
-    memcpy(s.l, payload.data + payload_index, sizeof (uint32_t));
+// Append a long long to the payload data.
 
-    s.l[0] = ntohl(s.l[0]);
+void app::event::put_long(long long l)
+{
+    memcpy(payload.data + payload.size, &l, sizeof (long long));
+    payload.size += sizeof (long long);
+}
 
-    payload_index += sizeof (uint32_t);
+// Return the next long long in the payload data.
 
-    return s.i;
+long long app::event::get_long()
+{
+    long long l;
+    memcpy(&l, payload.data + payload_index, sizeof (long long));
+    payload_index += sizeof (long long);
+    return l;
 }
 
 //-----------------------------------------------------------------------------
