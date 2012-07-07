@@ -19,17 +19,6 @@
 
 void app::event::put_type(unsigned char t)
 {
-    // Ensure that any existing string buffers are freed.
-
-    if (payload.type == E_INPUT)
-    {
-        if (data.input.src) free(data.input.src);
-        if (data.input.dst) free(data.input.dst);
-    }
-
-    data.input.src = 0;
-    data.input.dst = 0;
-
     payload.type = t;
 }
 
@@ -167,7 +156,7 @@ void app::event::payload_encode()
     switch (get_type())
     {
     case E_POINT:
-    
+
         put_byte(data.point.i);
         put_real(data.point.p[0]);
         put_real(data.point.p[1]);
@@ -179,14 +168,14 @@ void app::event::payload_encode()
         break;
 
     case E_CLICK:
-    
+
         put_byte(data.click.b);
         put_word(data.click.m);
         put_bool(data.click.d);
         break;
 
     case E_KEY:
-    
+
         put_word(data.key.c);
         put_word(data.key.k);
         put_word(data.key.m);
@@ -194,26 +183,26 @@ void app::event::payload_encode()
         break;
 
     case E_AXIS:
-    
+
         put_byte(data.axis.i);
         put_byte(data.axis.a);
         put_real(data.axis.v);
         break;
 
     case E_BUTTON:
-    
+
         put_byte(data.button.i);
         put_byte(data.button.b);
         put_bool(data.button.d);
         break;
 
-    case E_INPUT:
-    
-        put_text(data.input.src);
+    case E_USER:
+
+        put_long(data.user.d);
         break;
 
     case E_TICK:
-    
+
         put_word(data.tick.dt);
         break;
     }
@@ -261,7 +250,7 @@ void app::event::payload_decode()
         data.axis.a = get_byte();
         data.axis.v = get_real();
         break;
-        
+
     case E_BUTTON:
 
         data.button.i = get_byte();
@@ -269,9 +258,9 @@ void app::event::payload_decode()
         data.button.d = get_bool();
         break;
 
-    case E_INPUT:
+    case E_USER:
 
-        data.input.src = strdup(get_text());
+        data.user.d = get_long();
         break;
 
     case E_TICK:
@@ -358,11 +347,11 @@ app::event *app::event::mk_axis(int i, int a, double v)
 app::event *app::event::mk_button(int i, int b, bool d)
 {
     put_type(E_BUTTON);
-    
+
     data.button.i = i;
     data.button.b = b;
     data.button.d = d;
-    
+
     payload_cache = false;
     return this;
 }
@@ -393,13 +382,12 @@ app::event *app::event::mk_swap()
     return this;
 }
 
-app::event *app::event::mk_input(const char *s)
+app::event *app::event::mk_user(long long d)
 {
-    put_type(E_INPUT);
-    
-    data.input.src = strdup(s);
-    data.input.dst = 0;
-    
+    put_type(E_USER);
+
+    data.user.d = d;
+
     payload_cache = false;
     return this;
 }
@@ -472,16 +460,3 @@ app::event *app::event::send(SOCKET s)
 }
 
 //-----------------------------------------------------------------------------
-
-void app::event::set_dst(const char *str)
-{
-    assert(payload.type == E_INPUT);
-
-    if (data.input.dst)
-        free(data.input.dst);
-
-    if (str)
-        data.input.dst = strdup(str);
-    else
-        data.input.dst = 0;
-}

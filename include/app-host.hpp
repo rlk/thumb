@@ -42,28 +42,25 @@ namespace app
     {
         // Network handling
 
+        SOCKET init_socket(int);
+
+        void   init_listen(app::node);
+        void   poll_listen(bool);
+        void   fini_listen();
+
+        void   init_server(app::node);
+        void   fini_server();
+
+        void   init_client(app::node, const std::string&);
+        void   fini_client();
         void   fork_client(const char *, const char *,
                            const char *, const char *);
-        void   poll_listen(bool);
-        void   poll_script();
-        void   fini_script();
-
-        SOCKET init_socket(int);
-        void   init_listen(app::node);
-        void   init_server(app::node);
-        void   init_client(app::node, const std::string&);
-
-        void   fini_listen();
-        void   fini_server();
-        void   fini_client();
 
         int      clients;
 
         SOCKET   server_sd;
         SOCKET   client_cd;
         SOCKET_v client_sd;
-        SOCKET   script_cd;
-        SOCKET_v script_sd;
 
         void send(event *);
         void sync();

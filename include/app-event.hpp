@@ -21,8 +21,6 @@
 
 #include <etc-socket.hpp>
 
-// TODO: Allow response string.
-
 //-----------------------------------------------------------------------------
 
 #define DATAMAX 256
@@ -38,7 +36,7 @@
 #define E_TICK   6
 #define E_DRAW   7
 #define E_SWAP   8
-#define E_INPUT  9
+#define E_USER   9
 #define E_START 10
 #define E_CLOSE 11
 #define E_FLUSH 12
@@ -98,12 +96,14 @@ namespace app
         bool        get_bool();
         int         get_byte();
         int         get_word();
+        long long   get_long();
 
         void        put_text(const char *);
         void        put_real(double);
         void        put_bool(bool);
         void        put_byte(int);
         void        put_word(int);
+        void        put_long(long long);
 
     public:
 
@@ -143,10 +143,9 @@ namespace app
             int    b;
             bool   d;
         };
-        struct input_data_t
+        struct user_data_t
         {
-            char *src;
-            char *dst;
+            long long d;
         };
         struct tick_data_t
         {
@@ -161,7 +160,7 @@ namespace app
                key_data_t key;
               axis_data_t axis;
             button_data_t button;
-             input_data_t input;
+              user_data_t user;
               tick_data_t tick;
         } data;
 
@@ -178,7 +177,7 @@ namespace app
         event *mk_tick  (int);
         event *mk_draw  ();
         event *mk_swap  ();
-        event *mk_input (const char *);
+        event *mk_user  (long long);
         event *mk_start ();
         event *mk_close ();
         event *mk_flush ();

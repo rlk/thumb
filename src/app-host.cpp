@@ -69,44 +69,6 @@ static in_addr_t lookup(const char *hostname)
 
 //-----------------------------------------------------------------------------
 
-void app::host::fork_client(const char *name,
-                            const char *addr,
-                            const char *disp,
-                            const char *exe)
-{
-#ifndef _WIN32 // W32 HACK
-    const char *args[4];
-
-    char str[256];
-//  char cwd[256];
-
-//  getcwd(cwd, 256);
-
-    char *cwd = getenv("PWD");
-
-    if ((fork() == 0))
-    {
-        sprintf(str, "/bin/sh -c 'cd %s; DISPLAY=%s %s %s'",
-                cwd, disp ? disp : ":0.0", exe, name);
-
-        printf("%s\n", str);
-
-        // Allocate and build the client's ssh command line.
-
-        args[0] = "ssh";
-        args[1] = addr;
-        args[2] = str;
-        args[3] = NULL;
-
-        execvp("ssh", (char * const *) args);
-
-        exit(0);
-    }
-#endif
-}
-
-//-----------------------------------------------------------------------------
-
 SOCKET app::host::init_socket(int port)
 {
     SOCKET sd = INVALID_SOCKET;
@@ -143,7 +105,6 @@ SOCKET app::host::init_socket(int port)
 void app::host::init_listen(app::node p)
 {
     if (clients) client_cd = init_socket(p.get_i("port"));
-//  if (root())  script_cd = init_socket(DEFAULT_SCRIPT_PORT);
 }
 
 void app::host::poll_listen(bool wait)
@@ -155,55 +116,32 @@ void app::host::poll_listen(bool wait)
     FD_ZERO(&fds);
 
     if (client_cd != INVALID_SOCKET) FD_SET(client_cd, &fds);
-    if (script_cd != INVALID_SOCKET) FD_SET(script_cd, &fds);
-
-    int m = std::max(client_cd, script_cd);
 
     // Check for an incomming client connection.
 
-    if (int n = select(m + 1, &fds, NULL, NULL, wait ? 0 : &tv))
+    if (int n = select(client_cd + 1, &fds, NULL, NULL, wait ? 0 : &tv))
     {
         if (n < 0)
         {
             if (sock_errno != EINTR)
                 throw app::sock_error("select");
         }
-        else
+        else if (client_cd != INVALID_SOCKET && FD_ISSET(client_cd, &fds))
         {
             // Accept any client connection.
 
-            if (client_cd != INVALID_SOCKET && FD_ISSET(client_cd, &fds))
+            if (int sd = accept(client_cd, 0, 0))
             {
-                if (int sd = accept(client_cd, 0, 0))
+                if (sd < 0)
+                    throw app::sock_error("accept");
+                else
                 {
-                    if (sd < 0)
-                        throw app::sock_error("accept");
-                    else
-                    {
-                        // HACK to generate a start event
-                        event E;
-                        E.mk_start();
-                        nodelay(sd);
-                        E.send(sd);
-                        client_sd.push_back(sd);
-                    }
-                }
-            }
-
-            // Accept any script connection.
-
-            if (script_cd != INVALID_SOCKET && FD_ISSET(script_cd, &fds))
-            {
-                if (int sd = accept(script_cd, 0, 0))
-                {
-                    if (sd < 0)
-                        throw app::sock_error("accept");
-                    else
-                    {
-                        nodelay(sd);
-                        script_sd.push_back(sd);
-                        printf("script socket connected\n");
-                    }
+                    // Generate a start event
+                    event E;
+                    E.mk_start();
+                    nodelay(sd);
+                    E.send(sd);
+                    client_sd.push_back(sd);
                 }
             }
         }
@@ -212,95 +150,8 @@ void app::host::poll_listen(bool wait)
 
 void app::host::fini_listen()
 {
-    if (client_cd != INVALID_SOCKET) close(client_cd);
-    if (script_cd != INVALID_SOCKET) close(script_cd);
-
+    close(client_cd);
     client_cd = INVALID_SOCKET;
-    script_cd = INVALID_SOCKET;
-}
-
-void app::host::poll_script()
-{
-    struct timeval tv = { 0, 0 };
-
-    fd_set fds;
-    int m = 0;
-
-    // Initialize the socket descriptor set with all connected sockets.
-
-    FD_ZERO(&fds);
-
-    for (SOCKET_i i = script_sd.begin(); i != script_sd.end(); ++i)
-    {
-        FD_SET(*i, &fds);
-        m = std::max<int>(m, *i);
-    }
-
-    // Check for activity on all sockets.
-
-    if (int n = select(m + 1, &fds, NULL, NULL, &tv))
-    {
-        if (n < 0)
-        {
-            if (sock_errno != EINTR)
-                throw std::runtime_error(strerror(sock_errno));
-        }
-        else
-        {
-            for (SOCKET_i t, i = script_sd.begin(); i != script_sd.end(); i = t)
-            {
-                // Step lightly in case *i is removed from the vector.
-
-                t = i;
-                t++;
-
-                // Check for and handle script input.
-
-                if (FD_ISSET(*i, &fds))
-                {
-                    char *obuf, ibuf[256];
-
-                    int size;
-
-                    memset(ibuf, 0, 256);
-
-                    // Read until newline.
-
-                    if ((size = ::recv(*i, ibuf, 256, 0)) <= 0)
-                    {
-                        printf("script socket disconnected\n");
-                        close(*i);
-                        script_sd.erase(i);
-                    }
-                    else
-                    {
-                        char *buf = ibuf;
-                        char *end;
-
-                        while ((end = strchr(buf, '\n')))
-                        {
-                           *end = '\0';
-
-                            printf("script socket received [%s]\n", buf);
-
-                            // Process the command and return any result.
-
-                            event E;
-
-                            E.mk_input(buf);
-                            process_event(&E);
-
-                            if ((obuf =        E.data.input.dst) &&
-                                (size = strlen(E.data.input.dst)))
-                                ::send(*i, obuf, size, 0);
-
-                            buf = end + 1;
-                        }
-                    }
-                }
-            }
-        }
-    }
 }
 
 //-----------------------------------------------------------------------------
@@ -387,24 +238,36 @@ void app::host::fini_client()
     }
 }
 
-void app::host::fini_script()
+void app::host::fork_client(const char *name,
+                            const char *addr,
+                            const char *disp,
+                            const char *exe)
 {
-    while (!script_sd.empty())
+#ifndef _WIN32 // W32 HACK
+    const char *args[4];
+
+    char *cwd = getenv("PWD");
+    char str[256];
+
+    if ((fork() == 0))
     {
-        int sd = script_sd.front();
-        char c;
+        sprintf(str, "/bin/sh -c 'cd %s; DISPLAY=%s %s %s'",
+                cwd, disp ? disp : ":0.0", exe, name);
 
-        // Wait for EOF (orderly shutdown by the remote).
+        printf("%s\n", str);
 
-        while (::recv(sd, &c, 1, 0) > 0)
-            ;
+        // Allocate and build the client's ssh command line.
 
-        // Close the socket.
+        args[0] = "ssh";
+        args[1] = addr;
+        args[2] = str;
+        args[3] = NULL;
 
-        close(sd);
+        execvp("ssh", (char * const *) args);
 
-        script_sd.pop_front();
+        exit(0);
     }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -455,7 +318,6 @@ app::host::host(app::prog *p, std::string filename,
     clients(0),
     server_sd(INVALID_SOCKET),
     client_cd(INVALID_SOCKET),
-    script_cd(INVALID_SOCKET),
     draw_flag(false),
     exit_flag(false),
     bench(::conf->get_i("bench")),
@@ -626,7 +488,6 @@ app::host::~host()
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         delete (*i);
 
-    fini_script();
     fini_client();
     fini_server();
     fini_listen();
@@ -707,12 +568,7 @@ void app::host::root_loop()
 
         if (exit_flag == false)
         {
-            // Check for script input events.
-
-#ifndef _WIN32 // HACK
-            poll_script();
             poll_listen(false);
-#endif
 
             // Advance to the current time, or by one JIFFY when benchmarking.
 
