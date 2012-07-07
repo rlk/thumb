@@ -67,9 +67,31 @@ static in_addr_t lookup(const char *hostname)
     return A.s_addr;
 }
 
+static bool selectone(int sd, struct timeval *tv)
+{
+    fd_set fds;
+
+    FD_ZERO(&fds);
+    FD_SET(sd, &fds);
+
+    int n = select(sd + 1, &fds, NULL, NULL, tv);
+
+    if (n > 0)
+    {
+        if (FD_ISSET(sd, &fds))
+            return true;
+    }
+    if (n < 0)
+    {
+        if (sock_errno != EINTR)
+            throw app::sock_error("select");
+    }
+    return false;
+}
+
 //-----------------------------------------------------------------------------
 
-SOCKET app::host::init_socket(int port)
+SOCKET app::host::init_socket(int type, int port)
 {
     SOCKET sd = INVALID_SOCKET;
 
@@ -82,12 +104,12 @@ SOCKET app::host::init_socket(int port)
         address.sin_port        = htons(port);
         address.sin_addr.s_addr = INADDR_ANY;
 
-        // Create a socket, set no-delay, bind the port, and listen.
+        // Create a socket.
 
-        if ((sd = socket(AF_INET, SOCK_STREAM, 0)) == INVALID_SOCKET)
+        if ((sd = socket(AF_INET, type, 0)) == INVALID_SOCKET)
             throw std::runtime_error(strerror(sock_errno));
 
-        nodelay(sd);
+        // Bind the port.
 
         while (bind(sd, (struct sockaddr *) &address, addresslen) < 0)
             if (sock_errno == EINVAL)
@@ -97,40 +119,35 @@ SOCKET app::host::init_socket(int port)
             }
             else throw std::runtime_error(strerror(sock_errno));
 
-        listen(sd, 16);
+        // If this is a TCP socket, set nodelay and listen.
+
+        if (type == SOCK_STREAM)
+        {
+            nodelay(sd);
+            listen(sd, 16);
+        }
     }
     return sd;
 }
 
+//-----------------------------------------------------------------------------
+
 void app::host::init_listen(app::node p)
 {
-    if (clients) client_cd = init_socket(p.get_i("port"));
+    if (clients) listen_sd = init_socket(SOCK_STREAM, p.get_i("port"));
 }
 
 void app::host::poll_listen(bool wait)
 {
     struct timeval tv = { 0, 0 };
 
-    fd_set fds;
-
-    FD_ZERO(&fds);
-
-    if (client_cd != INVALID_SOCKET) FD_SET(client_cd, &fds);
-
-    // Check for an incomming client connection.
-
-    if (int n = select(client_cd + 1, &fds, NULL, NULL, wait ? 0 : &tv))
+    if (listen_sd != INVALID_SOCKET)
     {
-        if (n < 0)
+        if (selectone(listen_sd, wait ? 0 : &tv))
         {
-            if (sock_errno != EINTR)
-                throw app::sock_error("select");
-        }
-        else if (client_cd != INVALID_SOCKET && FD_ISSET(client_cd, &fds))
-        {
-            // Accept any client connection.
+            // Accept any incoming client connection.
 
-            if (int sd = accept(client_cd, 0, 0))
+            if (int sd = accept(listen_sd, 0, 0))
             {
                 if (sd < 0)
                     throw app::sock_error("accept");
@@ -150,8 +167,42 @@ void app::host::poll_listen(bool wait)
 
 void app::host::fini_listen()
 {
-    close(client_cd);
-    client_cd = INVALID_SOCKET;
+    close(listen_sd);
+    listen_sd = INVALID_SOCKET;
+}
+
+//-----------------------------------------------------------------------------
+
+void app::host::init_script(app::node p)
+{
+    if (root()) script_sd = init_socket(SOCK_DGRAM, DEFAULT_SCRIPT_PORT);
+}
+
+void app::host::poll_script()
+{
+    struct timeval tv = { 0, 0 };
+
+    if (script_sd != INVALID_SOCKET)
+    {
+        if (selectone(script_sd, &tv))
+        {
+            char    buf[256];
+            ssize_t len;
+
+            memset(buf, 0, sizeof (buf));
+
+            if ((len = ::recv(script_sd, buf, sizeof (buf), 0)) > 0)
+            {
+                printf("recv \"%s\" on port %d\n", buf, DEFAULT_SCRIPT_PORT);
+            }
+        }
+    }
+}
+
+void app::host::fini_script()
+{
+    close(script_sd);
+    script_sd = INVALID_SOCKET;
 }
 
 //-----------------------------------------------------------------------------
@@ -315,9 +366,10 @@ bool app::host::process_calib(event *E)
 app::host::host(app::prog *p, std::string filename,
                               std::string exe,
                               std::string tag) :
-    clients(0),
+    listen_sd(INVALID_SOCKET),
+    script_sd(INVALID_SOCKET),
     server_sd(INVALID_SOCKET),
-    client_cd(INVALID_SOCKET),
+    clients(0),
     draw_flag(false),
     exit_flag(false),
     bench(::conf->get_i("bench")),
@@ -455,6 +507,7 @@ app::host::host(app::prog *p, std::string filename,
             init_server(n);
             init_client(n, exe);
             init_listen(n);
+            init_script(n);
         }
     }
 
@@ -468,13 +521,10 @@ app::host::host(app::prog *p, std::string filename,
     if (overlay == 0)
         overlay = new app::frustum(*(displays.front()->get_overlay()));
 
-    // HACK: wait until all clients have connected.
+    // Wait until all clients have connected.
 
     while (int(client_sd.size()) < clients)
-    {
         poll_listen(true);
-        printf("%2d clients connected\n", int(client_sd.size()));
-    }
 }
 
 app::host::~host()
@@ -569,6 +619,7 @@ void app::host::root_loop()
         if (exit_flag == false)
         {
             poll_listen(false);
+            poll_script();
 
             // Advance to the current time, or by one JIFFY when benchmarking.
 

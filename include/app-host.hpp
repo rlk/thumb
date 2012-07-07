@@ -42,11 +42,15 @@ namespace app
     {
         // Network handling
 
-        SOCKET init_socket(int);
+        SOCKET init_socket(int, int);
 
         void   init_listen(app::node);
-        void   poll_listen(bool);
         void   fini_listen();
+        void   poll_listen(bool);
+
+        void   init_script(app::node);
+        void   fini_script();
+        void   poll_script();
 
         void   init_server(app::node);
         void   fini_server();
@@ -56,11 +60,12 @@ namespace app
         void   fork_client(const char *, const char *,
                            const char *, const char *);
 
-        int      clients;
-
+        SOCKET   listen_sd;
+        SOCKET   script_sd;
         SOCKET   server_sd;
-        SOCKET   client_cd;
         SOCKET_v client_sd;
+
+        int      clients;
 
         void send(event *);
         void sync();
