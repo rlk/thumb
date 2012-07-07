@@ -33,6 +33,7 @@ public:
 
     bool read (FILE *);
     bool write(FILE *);
+    bool send (int);
 
     void transform_orientation(const double *);
     void transform_position   (const double *);

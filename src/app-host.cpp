@@ -188,12 +188,17 @@ void app::host::poll_script()
         {
             char    buf[256];
             ssize_t len;
+            long long l;
 
             memset(buf, 0, sizeof (buf));
 
             if ((len = ::recv(script_sd, buf, sizeof (buf), 0)) > 0)
             {
                 printf("recv \"%s\" on port %d\n", buf, DEFAULT_SCRIPT_PORT);
+
+                event E;
+                memcpy(&l, buf, sizeof (l));
+                process_event(E.mk_user(l));
             }
         }
     }

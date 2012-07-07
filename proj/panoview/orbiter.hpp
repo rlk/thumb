@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <app-prog.hpp>
+#include <etc-socket.hpp>
 
 #include "scm-viewer.hpp"
 
@@ -56,6 +57,10 @@ private:
     bool   drag_turn;
     bool   drag_dive;
     bool   drag_lite;
+
+    sockaddr_in report_addr;
+    int         report_sock;
+    void        report();
 
     bool pan_point(app::event *);
     bool pan_click(app::event *);

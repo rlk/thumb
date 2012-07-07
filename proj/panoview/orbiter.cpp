@@ -30,12 +30,20 @@
 //------------------------------------------------------------------------------
 
 orbiter::orbiter(const std::string& exe,
-                 const std::string& tag) : scm_viewer(exe, tag)
+                 const std::string& tag)
+    : scm_viewer(exe, tag), report_sock(INVALID_SOCKET)
 {
     drag_move = false;
     drag_look = false;
     drag_dive = false;
     drag_lite = false;
+
+    report_addr.sin_family      = AF_INET;
+    report_addr.sin_port        =     htons(::conf->get_i("report_port"));
+    report_addr.sin_addr.s_addr = inet_addr(::conf->get_s("report_host").c_str());
+
+    if (report_addr.sin_addr.s_addr != INADDR_NONE)
+        report_sock = socket(AF_INET, SOCK_DGRAM, 0);
 
     if (char *name = getenv("SCMINIT"))
          load(name);
@@ -43,6 +51,40 @@ orbiter::orbiter(const std::string& exe,
 
 orbiter::~orbiter()
 {
+    close(report_sock);
+}
+
+//------------------------------------------------------------------------------
+
+void orbiter::report()
+{
+    // If a report destination has been configured...
+
+    if (model)
+    {
+        if (report_addr.sin_addr.s_addr != INADDR_NONE &&
+            report_sock                 != INVALID_SOCKET)
+        {
+            // Compute the current longitude, latitude, and altitude.
+
+            double p[3], alt = here.get_radius();
+
+            here.get_position(p);
+
+            double lon = atan2(p[0], p[2]) * 180.0 / M_PI;
+            double lat =  asin(p[1])       * 180.0 / M_PI;
+
+            // Encode these to an ASCII string.
+
+            char buf[128];
+            sprintf(buf, "%+13.8f %+12.8f %17.8f\n", lon, lat, alt);
+
+            // And send the string to the configured host.
+
+            sendto(report_sock, buf, strlen(buf) + 1, 0,
+                   (const sockaddr *) &report_addr, sizeof (sockaddr_in));
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -151,6 +193,8 @@ void orbiter::lite(const double *point,
 
 ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
+    report();
+
     scm_viewer::prep(frusc, frusv);
 
     if (cache && model)
@@ -158,8 +202,8 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
         // Compute a horizon line based upon altitude and  minimum data radius.
 
         double a = here.get_radius();
-        double r =     get_scale(a) * get_radius() * cache->get_r0();
-        double d =     get_scale(a) * a;
+        double r =      get_scale(a) * get_radius() * cache->get_r0();
+        double d =      get_scale(a) * a;
 
         double n = 0.0001 *     (d     - r    );
         double f = 1.1    * sqrt(d * d - r * r);
