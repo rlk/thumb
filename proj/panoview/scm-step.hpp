@@ -14,6 +14,7 @@
 #define scm_step_HPP
 
 #include <cstdio>
+#include <string>
 
 #include <app-file.hpp>
 
@@ -58,6 +59,8 @@ public:
     double get_bias()             const { return bias;    }
 
 private:
+
+    std::string name;      // Step label
 
     double orientation[4]; // View orientation
     double position[3];    // View point location

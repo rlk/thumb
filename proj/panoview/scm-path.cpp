@@ -19,7 +19,7 @@
 
 //------------------------------------------------------------------------------
 
-scm_path::scm_path() : curr(0), filename("path.xml")
+scm_path::scm_path() : head_t(0), head_d(0), curr(0), filename("path.xml")
 {
 }
 

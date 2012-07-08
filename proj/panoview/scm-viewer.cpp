@@ -109,6 +109,9 @@ void scm_viewer::load(const std::string& name)
         cache = new scm_cache(::conf->get_i("scm_viewer_cache_size", 256));
         model = new scm_model(*cache, vert_src, frag_src, n, s);
 
+        ::data->free(vert_name);
+        ::data->free(frag_name);
+
         // Register all frames with the cache.
 
         for (app::node n = root.find("frame"); n; n = root.next(n, "frame"))
@@ -119,17 +122,12 @@ void scm_viewer::load(const std::string& name)
         if (frame.empty())
             frame.push_back(new scm_frame(cache, root));
 
-        // Load the label.
+        // Cache the label font file.
 
-        font_ptr = ::data->load(::conf->get_s("sans_font"), &font_len);
-        data_ptr = ::data->load("IAUMOON.csv");
-
-        label = new scm_label(data_ptr, data_len, font_ptr, font_len);
-
-        ::data->free(vert_name);
-        ::data->free(frag_name);
-
+        font_ptr  = ::data->load(::conf->get_s("sans_font"), &font_len);
         gui_state = false;
+
+        load_label("csv/Tycho.csv");
     }
 }
 
@@ -408,6 +406,30 @@ bool scm_viewer::process_event(app::event *E)
     }
 
     return false;
+}
+
+//------------------------------------------------------------------------------
+
+void scm_viewer::load_label(const std::string& name)
+{
+    // Load the CSV file.
+
+    const void *data_ptr;
+    size_t      data_len;
+
+    data_ptr = ::data->load(name, &data_len);
+
+    // Release the previous label, if any.
+
+    if (label) delete label;
+
+    // Create the new label.
+
+    label = new scm_label(data_ptr, data_len, font_ptr, font_len);
+
+    // Release the CSV file.
+
+    ::data->free(name);
 }
 
 //------------------------------------------------------------------------------

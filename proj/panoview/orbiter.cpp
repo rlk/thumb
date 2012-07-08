@@ -31,12 +31,22 @@
 
 orbiter::orbiter(const std::string& exe,
                  const std::string& tag)
-    : scm_viewer(exe, tag), report_sock(INVALID_SOCKET)
+    : scm_viewer(exe, tag)
 {
+    // Initialize all interaction state.
+
+    orbit_plane[0] = 0.0;
+    orbit_plane[1] = 0.0;
+    orbit_plane[2] = 1.0;
+    orbit_speed    = 0.0;
+
+    control   = false;
     drag_move = false;
     drag_look = false;
     drag_dive = false;
     drag_lite = false;
+
+    // Initialize the reportage socket.
 
     report_addr.sin_family      = AF_INET;
     report_addr.sin_port        =     htons(::conf->get_i("report_port"));
@@ -44,6 +54,10 @@ orbiter::orbiter(const std::string& exe,
 
     if (report_addr.sin_addr.s_addr != INADDR_NONE)
         report_sock = socket(AF_INET, SOCK_DGRAM, 0);
+    else
+        report_sock = INVALID_SOCKET;
+
+    // Preload data as requested.
 
     if (char *name = getenv("SCMINIT"))
          load(name);

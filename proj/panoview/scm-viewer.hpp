@@ -115,6 +115,8 @@ protected:
     scm_step here;
     scm_path path;
 
+    std::vector<scm_step> mark;
+
     bool gui_state;
 
 private:
@@ -143,10 +145,10 @@ private:
 
     // Label data
 
-    size_t      data_len;
-    size_t      font_len;
-    const void *data_ptr;
     const void *font_ptr;
+    size_t      font_len;
+
+    void load_label(const std::string&);
 
     // Sphere GUI State
 
