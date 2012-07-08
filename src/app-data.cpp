@@ -217,7 +217,7 @@ static void find_ro_data(app::archive_l& archives)
         std::string       path;
 
         while (std::getline(list, path, PATH_LIST_SEP))
-            archives.push_back(new app::file_archive(path, true));
+            archives.push_back(new app::file_archive(path, false));
     }
 
     // Check for a MacOS .app bundle hierarchy.
@@ -229,7 +229,7 @@ static void find_ro_data(app::archive_l& archives)
     {
         if (is_data_dir(test + "/data"))
         {
-            archives.push_back(new app::file_archive(test + "/data", true));
+            archives.push_back(new app::file_archive(test + "/data", false));
         }
     }
 #endif
@@ -237,17 +237,17 @@ static void find_ro_data(app::archive_l& archives)
     // Check the current working directory.
 
     if (is_data_dir("data"))
-        archives.push_back(new app::file_archive("data", true));
+        archives.push_back(new app::file_archive("data", false));
 
     // Check the system share directory.
 
     if (is_data_dir(USR_SHARE))
-        archives.push_back(new app::file_archive(USR_SHARE, true));
+        archives.push_back(new app::file_archive(USR_SHARE, false));
 
     // Check the system local share directory.
 
     if (is_data_dir(LOC_SHARE))
-        archives.push_back(new app::file_archive(LOC_SHARE, true));
+        archives.push_back(new app::file_archive(LOC_SHARE, false));
 }
 
 // Locate a writable data hierarchy.
@@ -270,7 +270,14 @@ static void find_rw_data(app::archive_l& archives)
     else if (char *home = getenv("HOME"))
     {
         const std::string path = std::string(home) + "/.thumb";
-        archives.push_back(new app::file_archive(path, false));
+        archives.push_back(new app::file_archive(path, true));
+    }
+
+    // As a last resort, use the current working directory.
+
+    else
+    {
+        archives.push_back(new app::file_archive(".", true));
     }
 }
 

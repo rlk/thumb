@@ -15,6 +15,8 @@
 
 #include <cstdio>
 
+#include <app-file.hpp>
+
 //------------------------------------------------------------------------------
 
 class scm_step
@@ -22,6 +24,7 @@ class scm_step
 public:
 
     scm_step();
+    scm_step(app::node);
     scm_step(const scm_step *,
              const scm_step *, double);
     scm_step(const scm_step *,
@@ -31,9 +34,7 @@ public:
 
     void draw() const;
 
-    bool read (FILE *);
-    bool write(FILE *);
-    bool send (int);
+    app::node serialize() const;
 
     void transform_orientation(const double *);
     void transform_position   (const double *);

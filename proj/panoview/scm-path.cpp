@@ -19,7 +19,7 @@
 
 //------------------------------------------------------------------------------
 
-scm_path::scm_path() : curr(0), filename("path.dat")
+scm_path::scm_path() : curr(0), filename("path.xml")
 {
 }
 
@@ -192,35 +192,34 @@ void scm_path::dec_bias()
 
 void scm_path::save()
 {
-    FILE *stream;
+    app::node head("?xml");
+    app::node body("path");
 
-    if ((stream = fopen(filename.c_str(), "w")))
-    {
-        for (int i = 0; i < int(step.size()); ++i)
-            step[i].write(stream);
+    head.set_s("version", "1.0");
+    head.set_s("?", "");
 
-        fclose(stream);
-    }
+    body.insert(head);
+
+    for (int i = 0; i < int(step.size()); i++)
+        step[i].serialize().insert(body);
+
+    head.write(filename);
 }
 
 void scm_path::load()
 {
-    FILE *stream;
+    app::file file(filename);
 
-    if ((stream = fopen(filename.c_str(), "r")))
-    {
-        scm_step s;
+    app::node p = file.get_root().find("path");
+    app::node n;
 
-        step.clear();
+    step.clear();
 
-        while (s.read(stream))
-            step.push_back(s);
+    for (n = p.find("step"); n; n = p.next(n, "step"))
+        step.push_back(scm_step(n));
 
-        if (!step.empty())
-            curr = mmod(curr, step.size());
-
-        fclose(stream);
-    }
+    if (!step.empty())
+        curr = mmod(curr, step.size());
 }
 
 //------------------------------------------------------------------------------

@@ -70,6 +70,29 @@ scm_step::scm_step()
     bias           = 0.0;
 }
 
+// Initialize a new SCM viewer state using the given XML node.
+
+scm_step::scm_step(app::node n)
+{
+    orientation[0] = n.get_f("q0", 0.0);
+    orientation[1] = n.get_f("q1", 0.0);
+    orientation[2] = n.get_f("q2", 0.0);
+    orientation[3] = n.get_f("q3", 1.0);
+
+    position[0]    = n.get_f("p0", 0.0);
+    position[1]    = n.get_f("p1", 0.0);
+    position[2]    = n.get_f("p2", 0.0);
+
+    light[0]       = n.get_f("l0", 1.0);
+    light[1]       = n.get_f("l1", 0.0);
+    light[2]       = n.get_f("l2", 0.0);
+
+    speed          = n.get_f("s",  1.0);
+    radius         = n.get_f("r",  0.0);
+    tension        = n.get_f("t",  0.0);
+    bias           = n.get_f("b",  0.0);
+}
+
 // Initialize a new SCM viewer step using linear interpolation of given steps.
 
 scm_step::scm_step(const scm_step *a,
@@ -172,6 +195,8 @@ scm_step::scm_step(const scm_step *a,
     vnormalize(light,       light);
 }
 
+//------------------------------------------------------------------------------
+
 void scm_step::draw() const
 {
     double v[3];
@@ -185,8 +210,37 @@ void scm_step::draw() const
     glVertex3dv(v);
 }
 
+// Serialize this step to a new XML step element. Add attributes for only those
+// properties with non-default values.
+
+app::node scm_step::serialize() const
+{
+    app::node n("step");
+
+    if (orientation[0] != 0.0) n.set_f("q0", orientation[0]);
+    if (orientation[1] != 0.0) n.set_f("q1", orientation[1]);
+    if (orientation[2] != 0.0) n.set_f("q2", orientation[2]);
+    if (orientation[3] != 0.0) n.set_f("q3", orientation[3]);
+
+    if (position[0]    != 0.0) n.set_f("p0", position[0]);
+    if (position[1]    != 0.0) n.set_f("p1", position[1]);
+    if (position[2]    != 0.0) n.set_f("p2", position[2]);
+
+    if (light[0]       != 0.0) n.set_f("l0", light[0]);
+    if (light[1]       != 0.0) n.set_f("l1", light[1]);
+    if (light[2]       != 0.0) n.set_f("l2", light[2]);
+
+    if (speed          != 1.0) n.set_f("s",  speed);
+    if (radius         != 0.0) n.set_f("r",  radius);
+    if (tension        != 0.0) n.set_f("t",  tension);
+    if (bias           != 0.0) n.set_f("b",  bias);
+
+    return n;
+}
+
 //------------------------------------------------------------------------------
 
+#if 0
 bool scm_step::write(FILE *stream)
 {
     fprintf(stream, "%+12.8f %+12.8f %+12.8f %+12.8f "
@@ -210,7 +264,7 @@ bool scm_step::write(FILE *stream)
     return true;
 }
 
-bool scm_step::read(FILE *stream)
+static bool scm_step::read(FILE *stream)
 {
     return (fscanf(stream, "%lf %lf %lf %lf "
                            "%lf %lf %lf "
@@ -231,7 +285,7 @@ bool scm_step::read(FILE *stream)
                           &tension,
                           &bias) == 14);
 }
-
+#endif
 //------------------------------------------------------------------------------
 
 void scm_step::transform_orientation(const double *M)

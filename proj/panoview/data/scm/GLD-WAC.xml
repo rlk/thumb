@@ -1,9 +1,21 @@
 <?xml version="1.0"?>
-  <sphere mesh="32" radius="1737400.0" size="426"
-          vert="glsl/scm-displace.vert"
-          frag="glsl/scm-basic.frag">
+  <sphere radius="1737400.0"
+            mesh="32"
+            size="426"
+            vert="glsl/scm-displace.vert"
+            frag="glsl/scm-basic.frag">
     <frame>
       <scm shader="vert" r0="0.994728" r1="1.0062" file="DTM-426-6.tif" />
       <scm shader="frag"                           file="WAC-426-6.tif" />
     </frame>
+    <step name="Tycho"
+         label="Tycho.csv"
+            q0="+0.71103520"
+            q1="-0.08388167"
+            q2="-0.30882445"
+            q3="+0.62611522"
+            p0="-0.14427220"
+            p1="-0.68751439"
+            p2="+0.71169480"
+             r="1738106"/>
   </sphere>
