@@ -103,10 +103,14 @@ scm_step::scm_step(const scm_step *a,
     assert(a);
     assert(b);
 
-    orientation[0] = lerp(a->orientation[0], b->orientation[0], t);
-    orientation[1] = lerp(a->orientation[1], b->orientation[1], t);
-    orientation[2] = lerp(a->orientation[2], b->orientation[2], t);
-    orientation[3] = lerp(a->orientation[3], b->orientation[3], t);
+    double B[4];
+
+    qsign(B, a->orientation, b->orientation);
+
+    orientation[0] = lerp(a->orientation[0], B[0], t);
+    orientation[1] = lerp(a->orientation[1], B[1], t);
+    orientation[2] = lerp(a->orientation[2], B[2], t);
+    orientation[3] = lerp(a->orientation[3], B[3], t);
 
     position[0]    = lerp(a->position[0],    b->position[0],    t);
     position[1]    = lerp(a->position[1],    b->position[1],    t);
@@ -138,59 +142,57 @@ scm_step::scm_step(const scm_step *a,
     assert(c);
     assert(d);
 
-    orientation[0] = hint(a->orientation[0],
-                          b->orientation[0],
-                          c->orientation[0],
-                          d->orientation[0], t, b->tension, b->bias);
-    orientation[1] = hint(a->orientation[1],
-                          b->orientation[1],
-                          c->orientation[1],
-                          d->orientation[1], t, b->tension, b->bias);
-    orientation[2] = hint(a->orientation[2],
-                          b->orientation[2],
-                          c->orientation[2],
-                          d->orientation[2], t, b->tension, b->bias);
-    orientation[3] = hint(a->orientation[3],
-                          b->orientation[3],
-                          c->orientation[3],
-                          d->orientation[3], t, b->tension, b->bias);
+    double B[4];
+    double C[4];
+    double D[4];
 
-    position[0] = hint(a->position[0],
-                       b->position[0],
-                       c->position[0],
-                       d->position[0], t, b->tension, b->bias);
-    position[1] = hint(a->position[1],
-                       b->position[1],
-                       c->position[1],
-                       d->position[1], t, b->tension, b->bias);
-    position[2] = hint(a->position[2],
-                       b->position[2],
-                       c->position[2],
-                       d->position[2], t, b->tension, b->bias);
+    qsign(B, a->orientation, b->orientation);
+    qsign(C, b->orientation, c->orientation);
+    qsign(D, c->orientation, d->orientation);
 
-    light[0] = hint(a->light[0],
-                    b->light[0],
-                    c->light[0],
-                    d->light[0], t, b->tension, b->bias);
-    light[1] = hint(a->light[1],
-                    b->light[1],
-                    c->light[1],
-                    d->light[1], t, b->tension, b->bias);
-    light[2] = hint(a->light[2],
-                    b->light[2],
-                    c->light[2],
-                    d->light[2], t, b->tension, b->bias);
+    orientation[0] = hint(a->orientation[0], B[0], C[0], D[0], t,
+                          b->tension, b->bias);
+    orientation[1] = hint(a->orientation[1], B[1], C[1], D[1], t,
+                          b->tension, b->bias);
+    orientation[2] = hint(a->orientation[2], B[2], C[2], D[2], t,
+                          b->tension, b->bias);
+    orientation[3] = hint(a->orientation[3], B[3], C[3], D[3], t,
+                          b->tension, b->bias);
 
-    radius  = hint(a->radius,
-                   b->radius,
-                   c->radius,
-                   d->radius,  t, b->tension, b->bias);
-    speed   = lerp(b->speed,
-                   c->speed,   t);
-    tension = lerp(b->tension,
-                   c->tension, t);
-    bias    = lerp(b->bias,
-                   c->bias,    t);
+    position[0]    = hint(a->position[0],
+                          b->position[0],
+                          c->position[0],
+                          d->position[0], t, b->tension, b->bias);
+    position[1]    = hint(a->position[1],
+                          b->position[1],
+                          c->position[1],
+                          d->position[1], t, b->tension, b->bias);
+    position[2]    = hint(a->position[2],
+                          b->position[2],
+                          c->position[2],
+                          d->position[2], t, b->tension, b->bias);
+
+    light[0]       = hint(a->light[0],
+                          b->light[0],
+                          c->light[0],
+                          d->light[0], t, b->tension, b->bias);
+    light[1]       = hint(a->light[1],
+                          b->light[1],
+                          c->light[1],
+                          d->light[1], t, b->tension, b->bias);
+    light[2]       = hint(a->light[2],
+                          b->light[2],
+                          c->light[2],
+                          d->light[2], t, b->tension, b->bias);
+
+    radius         = hint(a->radius,
+                          b->radius,
+                          c->radius,
+                          d->radius,  t, b->tension, b->bias);
+
+    speed          = lerp(b->speed,   c->speed,   t);
+    tension        = lerp(b->tension, c->tension, t);
+    bias           = lerp(b->bias,    c->bias,    t);
 
     qnormalize(orientation, orientation);
     vnormalize(position,    position);

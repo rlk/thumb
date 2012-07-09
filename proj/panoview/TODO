@@ -33,6 +33,8 @@ Todo:
 
 	Pages fade in, but do they pop away?
 
+	Modify page priority to account for "image center".
+
 	WAC GLOBAL starts to look a little low res
 		Cubic interpolation?
 			Store derivatives or other higher-order data along side grayscale?
