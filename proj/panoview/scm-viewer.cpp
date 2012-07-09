@@ -122,6 +122,11 @@ void scm_viewer::load(const std::string& name)
         if (frame.empty())
             frame.push_back(new scm_frame(cache, root));
 
+        // Load all land marks.
+
+        for (app::node n = root.find("step"); n; n = root.next(n, "step"))
+            mark.push_back(scm_step(n));
+
         // Cache the label font file.
 
         font_ptr  = ::data->load(::conf->get_s("sans_font"), &font_len);

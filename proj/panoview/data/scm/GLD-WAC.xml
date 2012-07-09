@@ -8,7 +8,6 @@
       <scm shader="vert" r0="0.994728" r1="1.0062" file="DTM-426-6.tif" />
       <scm shader="frag"                           file="WAC-426-6.tif" />
     </frame>
-    <step />
     <step name="Tycho"
          label="csv/Tycho.csv"
             q0="0.762239"
