@@ -58,9 +58,13 @@ public:
     double get_tension()          const { return tension; }
     double get_bias()             const { return bias;    }
 
+    const std::string& get_name()  const { return name;  }
+    const std::string& get_label() const { return label; }
+
 private:
 
-    std::string name;      // Step label
+    std::string name;
+    std::string label;
 
     double orientation[4]; // View orientation
     double position[3];    // View point location

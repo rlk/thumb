@@ -93,6 +93,7 @@ scm_step::scm_step(app::node n)
     bias           = n.get_f("b",  0.0);
 
     name           = n.get_s("name");
+    label          = n.get_s("label");
 }
 
 // Initialize a new SCM viewer step using linear interpolation of given steps.
@@ -239,7 +240,8 @@ app::node scm_step::serialize() const
     if (tension        != 0.0) n.set_f("t",  tension);
     if (bias           != 0.0) n.set_f("b",  bias);
 
-    if (!name.empty()) n.set_s("name", name);
+    if (!name.empty())  n.set_s("name",  name);
+    if (!label.empty()) n.set_s("label", label);
 
     return n;
 }

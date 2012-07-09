@@ -48,7 +48,7 @@ namespace app
         void   fini_listen();
         void   poll_listen(bool);
 
-        void   init_script(app::node);
+        void   init_script();
         void   fini_script();
         void   poll_script();
 

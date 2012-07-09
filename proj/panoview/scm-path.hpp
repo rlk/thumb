@@ -55,7 +55,8 @@ public:
     void time(double);
     void draw() const;
 
-    bool playing() const { return (head_d != 0.0); }
+    bool      playing() const { return (head_d != 0.0); }
+    scm_step& current()       { return step[curr];      }
 
 private:
 

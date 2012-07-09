@@ -141,6 +141,7 @@ private:
     bool debug_bound;
 
     bool process_key (app::event *);
+    bool process_user(app::event *);
     bool process_tick(app::event *);
 
     // Label data

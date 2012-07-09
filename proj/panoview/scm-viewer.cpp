@@ -47,10 +47,16 @@ scm_viewer::scm_viewer(const std::string& exe,
 {
     TIFFSetWarningHandler(0);
     gui_init();
+
+    // Cache the label font file.
+
+    font_ptr  = ::data->load(::conf->get_s("sans_font"), &font_len);
 }
 
 scm_viewer::~scm_viewer()
 {
+    ::data->free(::conf->get_s("sans_font"));
+
     gui_free();
     unload();
 }
@@ -127,12 +133,9 @@ void scm_viewer::load(const std::string& name)
         for (app::node n = root.find("step"); n; n = root.next(n, "step"))
             mark.push_back(scm_step(n));
 
-        // Cache the label font file.
+        // Dismiss the GUI.
 
-        font_ptr  = ::data->load(::conf->get_s("sans_font"), &font_len);
         gui_state = false;
-
-        load_label("csv/Tycho.csv");
     }
 }
 
@@ -369,6 +372,50 @@ bool scm_viewer::process_key(app::event *E)
     return prog::process_event(E);
 }
 
+bool scm_viewer::process_user(app::event *E)
+{
+    // Extract the landmark name from the user event structure.
+
+    char name[sizeof (long long) + 1];
+
+    memset(name, 0, sizeof (name));
+    memcpy(name, &E->data.user.d, sizeof (long long));
+
+    // Scan the landmark vector for a matching name.
+
+    for (int i = 0; i < int(mark.size()); i++)
+        if (mark[i].get_name().compare(name) == 0)
+        {
+            // Construct a path from here to there.
+
+            scm_step src = here;
+            scm_step dst = mark[i];
+            scm_step mid(&src, &dst, 0.5);
+
+            if (!path.playing())
+                src.set_speed(0.05);
+
+            mid.set_speed(1.00);
+            dst.set_speed(0.05);
+
+            path.stop();
+            path.clear();
+            path.add(src);
+            path.add(mid);
+            path.add(dst);
+            path.home();
+            path.fore(false);
+
+            // Switch the labels.
+
+            load_label(mark[i].get_label());
+
+            return true;
+        }
+
+    return false;
+}
+
 bool scm_viewer::process_tick(app::event *E)
 {
     if (path.playing())
@@ -396,6 +443,7 @@ bool scm_viewer::process_tick(app::event *E)
 bool scm_viewer::process_event(app::event *E)
 {
     if      (E->get_type() == E_KEY)  return process_key(E);
+    else if (E->get_type() == E_USER) return process_user(E);
     else if (E->get_type() == E_TICK) return process_tick(E);
 
     // Pass the event to the GUI if visible.

@@ -173,7 +173,7 @@ void app::host::fini_listen()
 
 //-----------------------------------------------------------------------------
 
-void app::host::init_script(app::node p)
+void app::host::init_script()
 {
     if (root()) script_sd = init_socket(SOCK_DGRAM, DEFAULT_SCRIPT_PORT);
 }
@@ -404,7 +404,7 @@ app::host::host(app::prog *p, std::string filename,
 
     if (app::node p = file.get_root().find("host"))
     {
-	// Extract the global tranform.
+    	// Extract the global tranform.
 
         if (app::node c = p.find("transform"))
         {
@@ -512,9 +512,9 @@ app::host::host(app::prog *p, std::string filename,
             init_server(n);
             init_client(n, exe);
             init_listen(n);
-            init_script(n);
         }
     }
+    init_script();
 
     // If no channels or displays were configured, instance defaults.
 
