@@ -130,6 +130,13 @@ static void video()
 app::prog::prog(const std::string& exe,
                 const std::string& tag) : input(0)
 {
+    // Start Winsock
+
+#ifdef _WIN32
+    WSADATA wsadata;
+    WSAStartup(0x202, &wsadata);
+#endif
+
     // Start SDL
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK))
@@ -210,6 +217,10 @@ app::prog::~prog()
     if (::data) delete ::data;
 
     SDL_Quit();
+
+#ifdef _WIN32
+    WSACleanup();
+#endif
 }
 
 //-----------------------------------------------------------------------------
