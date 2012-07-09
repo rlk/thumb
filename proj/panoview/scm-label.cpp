@@ -131,8 +131,8 @@ void scm_label::parse(const void *data_ptr, size_t data_len)
     label L;
     int   n;
 
-    while (sscanf(dat, "\"%63[^\"]\",%f,%f,%f\n%n",
-                       L.str, &L.lat, &L.lon, &L.dia, &n) > 3)
+    while (sscanf(dat, "\"%63[^\"]\",%f,%f,%f,%f,%c\n%n",
+                       L.str, &L.lat, &L.lon, &L.dia, &L.rad, &L.typ, &n) > 5)
     {
         L.dia /= 1737.4;
 
@@ -246,7 +246,7 @@ void scm_label::draw()
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+        glColor4f(1.0f, 0.5f, 0.0f, 0.5f);
 
         glUseProgram(prog);
 

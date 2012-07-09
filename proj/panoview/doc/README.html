@@ -5,6 +5,9 @@
       body {
         margin: 10% 15% 10% 15%;
       }
+      h1, h2, h3 {
+        margin-left: -5%;
+      }
       p {
         text-align: justify;
         line-height: 140%;
@@ -44,9 +47,9 @@
     <p>This document describes the use of the <code>Orbiter</code> real-time planetary visualization package and a few of the details of the spherical cube map (SCM) data file format that supports it. <code>Orbiter</code> is implemented using the <code>Thumb</code> framework, and pertinent aspects of <code>Thumb</code> are also documented here.</p>
 
     <ul>
-      <li><a href="#orbiter">Orbiter</a></li>
+      <li><a href="#usage">Usage</a></li>
       <ul>
-        <li><a href="#usage">Usage</a></li>
+        <li><a href="#interaction">Interaction</a></li>
         <ul>
           <li><a href="#viewing">Viewing Controls</a></li>
           <li><a href="#metadata">Metadata Controls</a></li>
@@ -55,15 +58,15 @@
         </ul>
         <li><a href="#scmconf">SCM Configuration</a></li>
         <li><a href="#definition">Planet Definition XML</a></li>
+        <li><a href="#goto">Go-To</a></li>
+        <li><a href="#labels">Planet Feature Labeling</a></li>
         <li><a href="#thumbconf">Thumb Configuration</a></li>
         <li><a href="#troubleshooting">Troubleshooting</a></li>
       </ul>
       <li><a href="#scm">SCM TIFF</a></li>
     </ul>
 
-    <a name="orbiter"><h2>Orbiter</h2></a>
-
-    <a name="usage"><h3>Usage</h3></a>
+    <a name="usage"><h2>Usage</h2></a>
 
     <p>The <code>Orbiter</code> application may be run from the command line or double-clicked in the Finder or Explorer. Under many circumstances, launching <code>Orbiter</code> from the command line is best.</p>
 
@@ -80,6 +83,8 @@
     <p>&hellip; or fulldome using a 1024 &times; 768 projector::</p>
 
     <blockquote><pre>./orbiter fulldome-1024x768</pre></blockquote>
+
+    <a name="interaction"><h3>Interaction</h3></a>
 
     On launch, <code>Orbiter</code> presents a menu of prepared visualizations to be browsed, selected, and loaded.</p>
 
@@ -174,8 +179,6 @@
     <img src="img/path.png">
 
     <p>The orange squares denote key frames and the green line shows their interpolation. The green key square is the first and the red key square is the last. The yellow key square indicates the current key frame selected for editing. The small green dots indicate the speed of the path, with each dot representing one quarter of a second.</p>
-
-    <p>
 
     <table style="margin:auto;width:80%">
       <tr>
@@ -312,7 +315,7 @@
 
       <li><p>Cubic interpolation can give unexpected results, particularly before and after wide gaps between keys. Path tension adjustments can help, but do plan ahead.</p></li>
 
-      <li><p>Press Control-S to save the current path to disk, or Control-L to load it from disk. <b>Note:</b> There is currently no file name selection dialog for path storage. The file is <em>always</em> named <tt>path.dat</tt>. If you wish to store multiple path files, please use the Finder or Explorer to rename <tt>path.dat</tt> by hand after saving, or before loading.</p></li>
+      <li><p>Press Control-S to save the current path to disk, or Control-L to load it from disk. <b>Note:</b> There is currently no file name selection dialog for path storage. The file is <em>always</em> named <tt>path.xml</tt>. It is found in the <code>Thumb</code> user filesystem, usually in <tt>~/.thumb/</tt>, but failing that in the current working directory. If you wish to store multiple path files, please use the Finder or Explorer to rename <tt>path.xml</tt> by hand after saving, or before loading.</p></li>
     </ul>
 
     <a name="recording"><h4>Camera Path Recording</h4></a>
@@ -361,41 +364,115 @@
 
 <blockquote><pre>
 &lt;?xml version="1.0"?&gt;
-  &lt;sphere mesh="32" radius="1737400.0" size="426"
-          vert="glsl/scm-displace.vert"
-          frag="glsl/scm-basic.frag"&gt;
-    &lt;scm shader="vert" r0="0.994728" r1="1.0062" file="DTM-426-6.tif" /&gt;
-    &lt;scm shader="frag"                           file="WAC-426-6.tif" /&gt;
-  &lt;/sphere&gt;</pre></blockquote>
+  &lt;sphere radius="1737400.0"
+            mesh="32"
+            size="426"
+            vert="glsl/scm-displace.vert"
+            frag="glsl/scm-basic.frag"&gt;
 
-    <p>The file begins with an XML header and contains a single root <code>sphere</code> element with several attributes and one <code>scm</code> sub-element for each SCM TIFF image.</p>
+    &lt;frame&gt;
+      &lt;scm shader="vert" file="DTM-426-6.tif" r0="0.994728" r1="1.0062" /&gt;
+      &lt;scm shader="frag" file="WAC-426-6.tif" /&gt;
+    &lt;/frame&gt;
 
-    <p>The <code>mesh</code> attribute determines the tessellation of the geometry mesh used to render each page of data. The example value, 32, indicates that each page of the sphere will be rendered using a 32 &times; 32 grid of squares.</p>
+    &lt;step name="Tycho" label="csv/Tycho.csv"
+            q0=" 0.762239" q1="-0.085507" q2="-0.161517" q3="0.620961"
+            p0="-0.159228" p1="-0.719553" p2=" 0.675936" r="1794686" /&gt;
 
-    <p>The <code>radius</code> attribute determines the base radius of the sphere, in meters. In this example, the moon has a radius of 1737000 meters.</p>
+    &lt;step name="Copernic" label="csv/Copernic.csv"
+            q0=" 0.089011" q1="-0.228597" q2="-0.496265" q3="0.832792"
+            p0="-0.357236" p1=" 0.156369" p2=" 0.920832" r="1991161" /&gt;
+  &lt;/sphere&gt;
+</pre></blockquote>
 
-    <p>The <code>size</code> attribute gives the size of each page in the referenced SCM TIFFs. Note that the value coincides with the image parameters given by the SCM file names. Other values are allowed, and may enable quality-speed tradeoffs.</p>
+    <p>The file begins with an XML header and contains a single root <tt>sphere</tt> element with several attributes and one <tt>scm</tt> sub-element for each SCM TIFF image.</p>
 
-    <p>The <code>vert</code> and <code>frag</code> attributes give the vertex and fragment programs to be used by the renderer, named relative to the root of the Thumb data hierarchy. In this case, the &ldquo;displacement&rdquo; vertex shader is used to render displacement-mapped terrain, and the &ldquo;basic&rdquo; fragment shader is used to apply a simple image to the resulting surface. These attributes will remain the same for most planet definitions, though different lighting models, overlay modes, and data visualizations may be introduced using alternate shaders.</p>
+    <ul>
+      <li><p>The <tt>mesh</tt> attribute determines the tessellation of the geometry mesh used to render each page of data. The example value, 32, indicates that each page of the sphere will be rendered using a 32 &times; 32 grid of squares.</p></li>
 
-    <p>The <code>scm</code> elements name the actual SCM data files. In this example, <tt>DTM-426-6.tif</tt> gives a Digital Terrain Model, which acts as a height map. Because it serves to modify the geometry of the spherical mesh, it is fed to the vertex shader and its normalized minimum and maximum radii are provided as attributes. <tt>WAC-426-6.tif</tt> is a simple image file fed to the fragment shader.</p>
+      <li><p>The <tt>radius</tt> attribute determines the base radius of the sphere, in meters. In this example, the moon has a radius of 1737000 meters.</p></li>
+
+      <li><p>The <tt>size</tt> attribute gives the size of each page in the referenced SCM TIFFs. Note that the value coincides with the image parameters given by the SCM file names. Other values are allowed, and may enable quality-speed tradeoffs.</p></li>
+
+      <li><p>The <tt>vert</tt> and <tt>frag</tt> attributes give the vertex and fragment programs to be used by the renderer, named relative to the root of the Thumb data hierarchy. In this case, the &ldquo;displacement&rdquo; vertex shader is used to render displacement-mapped terrain, and the &ldquo;basic&rdquo; fragment shader is used to apply a simple image to the resulting surface. These attributes will remain the same for most planet definitions, though different lighting models, overlay modes, and data visualizations may be introduced using alternate shaders.</p></li>
+
+      <li><p>The <tt>scm</tt> elements name the actual SCM data files. In this example, <tt>DTM-426-6.tif</tt> gives a Digital Terrain Model, which acts as a height map. Because it serves to modify the geometry of the spherical mesh, it is fed to the vertex shader and its normalized minimum and maximum radii are provided as attributes. <tt>WAC-426-6.tif</tt> is a simple image file fed to the fragment shader.</p></li>
+
+      <li><p>The <tt>step</tt> elements define the view parameters for regions of interest for use by the <a href="#goto">go-to mechanism</a>. These are the exact same data structure as found in the <tt>path.xml</tt> file used by the <a href="#editing">camera path</a> storage mechanism, and points of interest may be defined simply by copy-pasting <tt>step</tt> elements from that file into this one. The <tt>q</tt> attributes give the view orientation in the form of a quaternion, the <tt>p</tt> attributes give the view position as a normalized direction vector, and the <tt>r</tt> attribute gives the view radius, or distance from the center of the sphere.</p></li>
+    </ul>
+
+    <a name="goto"><h3>Go-To</h3></a>
+
+    <p><code>Orbiter</code> supports a &ldquo;go-to&rdquo; mechanism that allows an external application to programmatically direct the view point to one of the regions of interested given in the planed definition XML file.</p>
+
+    <p>Go-to messages are received via UDP on port 2829. Each message consists of a single UDP datagram containing a name string which is matched against the <tt>name</tt> attribute of the <tt>step</tt> element. Only the <em>first eight characters</em> of this string are used.</p>
+
+    <p>For example, a message meeting these requirements can be generated using the command line tool <tt>ncat</tt> as follows:</p>
+
+    <blockquote><pre>echo -n "Copernic" | ncat -u --send-only 127.0.0.1 2829</pre></blockquote>
+
+    <p>Upon message receipt, the renderer moves the viewpoint to the selected position via smooth interpolation using the same internal mechanism as the camera path definition, described above. That is to say, the receipt of a go-to message will replace any currently-loaded camera path definition. Likewise, after a go-to has executed, its path may be reviewed, modified, and stored using the camera path editing interface.</p>
+
+    <a name="labels"><h3>Planet Feature Labeling</h3></a>
+
+    <p>Surface features may be labeled and outlined.</p>
+
+    <img src="img/label.png">
+
+    <p>These labellings are defined using Comma-Separated Value (CSV) files, which may be edited with most any spreadsheet program. The image above shows 8990 sites acknowledged by the IAU. The first few lines of this file are as follows:</p>
+
+    <blockquote><pre>
+"Abbot",5.5157114264,54.7073670159,10.4043000000,1737400.0,C
+"Abel",-34.4365372844,85.4191847678,119.4370000000,1737400.0,C
+"Tiling",-52.9059642528,226.8524033223,38.2300000000,1737400.0,C
+"Abenezra",-21.0078405096,11.8763800960,43.1887000000,1737400.0,C</pre></blockquote>
+
+    <p>Each line defines one feature with six attributes: the name in double quotes, the center latitude in degrees, the center longitude in degrees, the diameter of the feature in kilometers, distance from the center of the planet in meters, and one character giving the type of the annotation:</p>
+
+    <table style="margin:auto;width:40%">
+      <tr>
+        <td>C</td><td>&hellip;</td><td>Circle</td>
+      </tr>
+      <tr>
+        <td>F</td><td>&hellip;</td><td>Flag</td>
+      </tr>
+      <tr>
+        <td>M</td><td>&hellip;</td><td>Mountain</td>
+      </tr>
+      <tr>
+        <td>L</td><td>&hellip;</td><td>Label Only</td>
+      </tr>
+    </table>
+
+    <p>The diameter attribute determines the size of the label text. The radius attribute determines the altitude of the annotation, which is necessary for good alignment of small features.</p>
+
+    <p>Upon receipt of a <a href="#goto">go-to message</a>, the renderer replaces the current label set using the CSV file given by the <tt>label</tt> attribute of the <tt>step</tt> element. This may be used to mark points of interest within the defined region, such that they are automatically updated as destinations are selected.</p>
 
     <a name="thumbconf"><h3><code>Thumb</code> Configuration</h3></a>
 
-    <p><code>Thumb</code> configuration options reside in the file <tt>data/conf.xml</tt>. Very few of these options ever need to be changed, with the possible exception of the cache size. This parameter limits the total number of SCM pages that may be loaded simultaneously. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. In general, set this value to equal the size of VRAM, in megabytes.</p>
+    <p><code>Thumb</code> configuration options reside in the file <tt>data/conf.xml</tt>. Most of these options ever need to be changed, but a few are interesting.</p>
+
+    <p>The cache size parameter limits the total number of SCM pages that may be loaded simultaneously. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. In general, set this value to equal the size of VRAM, in megabytes.</p>
 
     <blockquote><pre>&lt;option name="scm_viewer_cache_size"&gt;512&lt;/option&gt;</pre></blockquote>
+
+    <p>The report host parameter gives the IP address (which <em>must</em> be given as a dotted quad) and port number of a host waiting to receive a streaming report of the renderer's current view position. This port will receive a single UDP packet per frame containing an ASCII string giving the longitude and latitude of the view position in degrees and the radius of the viewpoint in meters. This string is terminated by a newline and a null byte.</p>
+
+    <blockquote><pre>&lt;option name="report_host"&gt;127.0.0.1&lt;/option&gt;
+&lt;option name="report_port"&gt;8111&lt;/option&gt;</pre></blockquote>
 
     <a name="troubleshooting"><h3>Troubleshooting</h3></a>
 
     <p>This is a list of issues to be aware of, should unexpected behavior arise.</p>
 
     <ul>
-      <li><p>If the definition files are not visible in the <code>Orbiter</code> file selector, then be sure they are located within the Thumb data hierarchy, or add their location to the Thumb data hierarchy by including the path in the <code>THUMB_RO_PATH</code> environment variable.</p></li>
+      <li><p>If the definition files are not visible in the <code>Orbiter</code> file selector, then be sure they are located within the Thumb data hierarchy, or add their location to the Thumb data hierarchy by including the path in the <tt>THUMB_RO_PATH</tt> environment variable.</p></li>
 
-      <li><p>If the definition file loads but does not display an image, be sure the path to the SCM TIFF files appears in the <code>SCMPATH</code> environment variable.</p></li>
+      <li><p>If the definition file loads but does not display an image, be sure the path to the SCM TIFF files appears in the <tt>SCMPATH</tt> environment variable.</p></li>
 
       <li><p>If performance is bad, be sure that SCM TIFF files are <em>not</em> being accessed from a network share. Also check that <tt>scm_viewer_cache_size</tt> is not too large.</p></li>
+
+      <li><p>If the application exits unexpectedly, it will most likely have printed an error message to the standard error stream. Under Windows, this information will be redirected to the file <tt>stderr.txt</tt>. This may prove informative.</p></li>
     </ul>
 
     <a name="scm"><h2>SCM TIFF</h2></a>

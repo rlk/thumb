@@ -45,20 +45,20 @@ scm_viewer::scm_viewer(const std::string& exe,
     debug_wire (false),
     debug_bound(false)
 {
-    TIFFSetWarningHandler(0);
-    gui_init();
-
     // Cache the label font file.
 
-    font_ptr  = ::data->load(::conf->get_s("sans_font"), &font_len);
+    font_ptr = ::data->load(::conf->get_s("sans_font"), &font_len);
+
+    TIFFSetWarningHandler(0);
+    gui_init();
 }
 
 scm_viewer::~scm_viewer()
 {
-    ::data->free(::conf->get_s("sans_font"));
-
     gui_free();
     unload();
+
+    ::data->free(::conf->get_s("sans_font"));
 }
 
 //------------------------------------------------------------------------------
@@ -132,6 +132,8 @@ void scm_viewer::load(const std::string& name)
 
         for (app::node n = root.find("step"); n; n = root.next(n, "step"))
             mark.push_back(scm_step(n));
+
+        load_label("csv/IAUMOON.csv");
 
         // Dismiss the GUI.
 

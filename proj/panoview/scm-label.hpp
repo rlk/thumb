@@ -43,6 +43,8 @@ private:
         float lat;
         float lon;
         float dia;
+        float rad;
+        char  typ;
     };
 
     void parse(const void *, size_t);

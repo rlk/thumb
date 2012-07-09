@@ -9,7 +9,7 @@
       <scm shader="frag"                           file="WAC-426-6.tif" />
     </frame>
     <step name="Tycho"
-         label="csv/Tycho.csv"
+         label="csv/IAUMOON.csv"
             q0="0.762239"
             q1="-0.085507"
             q2="-0.161517"
