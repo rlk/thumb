@@ -60,6 +60,8 @@ dist : $(TARG)
 	# Copy panoview / orbiter data
 
 	$(CP) proj/panoview/data/csv/IAUMOON.csv        $(DATDIR)/csv
+	$(CP) proj/panoview/data/csv/Tycho.csv          $(DATDIR)/csv
+	$(CP) proj/panoview/data/csv/Copernic.csv       $(DATDIR)/csv
 	$(CP) proj/panoview/data/glsl/scm-basic.frag    $(DATDIR)/glsl
 	$(CP) proj/panoview/data/glsl/scm-basic.vert    $(DATDIR)/glsl
 	$(CP) proj/panoview/data/glsl/scm-displace.vert $(DATDIR)/glsl
@@ -75,5 +77,6 @@ dist : $(TARG)
 	$(CP) proj/panoview/doc/img/select.png $(DOCDIR)/img
 	$(CP) proj/panoview/doc/img/view.png   $(DOCDIR)/img
 	$(CP) proj/panoview/doc/img/path.png   $(DOCDIR)/img
+	$(CP) proj/panoview/doc/img/label.png  $(DOCDIR)/img
 
 #------------------------------------------------------------------------------
