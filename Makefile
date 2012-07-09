@@ -38,6 +38,7 @@ dist : $(TARG)
 	mkdir -p $(DATDIR)/glsl
 	mkdir -p $(DATDIR)/glsl/dpy
 	mkdir -p $(DATDIR)/scm
+	mkdir -p $(DATDIR)/csv
 
 	# Copy the executable.
 
@@ -58,8 +59,7 @@ dist : $(TARG)
 
 	# Copy panoview / orbiter data
 
-	$(CP) proj/panoview/path.dat                    $(DSTDIR)
-	$(CP) proj/panoview/data/IAUMOON.csv            $(DATDIR)
+	$(CP) proj/panoview/data/csv/IAUMOON.csv        $(DATDIR)/csv
 	$(CP) proj/panoview/data/glsl/scm-basic.frag    $(DATDIR)/glsl
 	$(CP) proj/panoview/data/glsl/scm-basic.vert    $(DATDIR)/glsl
 	$(CP) proj/panoview/data/glsl/scm-displace.vert $(DATDIR)/glsl
