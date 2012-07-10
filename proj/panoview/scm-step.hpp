@@ -41,6 +41,7 @@ public:
     void transform_position   (const double *);
     void transform_light      (const double *);
 
+    void set_pitch  (double p);
     void set_speed  (double s) { speed   = s; }
     void set_radius (double r) { radius  = r; }
     void set_tension(double t) { tension = t; }

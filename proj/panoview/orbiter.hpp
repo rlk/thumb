@@ -41,15 +41,19 @@ public:
 
 private:
 
+    double get_bottom() const;
+
     // View motion state
 
-    void look(const double *, const double *, double, double);
-    void move(const double *, const double *, double, double);
-    void dive(const double *, const double *, double, double);
-    void lite(const double *, const double *, double, double);
+    void look(double, double);
+    void lite(double, double);
+    void move(double, double);
+    void dive(double, double);
+    void fly (double);
 
     double orbit_plane[3];
     double orbit_speed;
+    double stick_timer;
 
     // Interaction state
 

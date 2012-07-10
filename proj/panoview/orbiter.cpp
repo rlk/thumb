@@ -35,10 +35,11 @@ orbiter::orbiter(const std::string& exe,
 {
     // Initialize all interaction state.
 
-    orbit_plane[0] = 0.0;
+    orbit_plane[0] = 1.0;
     orbit_plane[1] = 0.0;
-    orbit_plane[2] = 1.0;
+    orbit_plane[2] = 0.0;
     orbit_speed    = 0.0;
+    stick_timer    = 0.0;
 
     control   = false;
     drag_move = false;
@@ -118,8 +119,7 @@ void orbiter::report()
 // Apply the view panning interaction, rotating left-right about the position
 // vector and up-down about the current right vector.
 
-void orbiter::look(const double *point,
-                   const double *click, double dt, double k)
+void orbiter::look(double dt, double k)
 {
     double r[3];
     double p[3];
@@ -144,8 +144,7 @@ void orbiter::look(const double *point,
 // pointer motion to set the orbital plane and the magnitude of the mouse
 // motion to set the orbital speed.
 
-void orbiter::move(const double *point,
-                   const double *click, double dt, double k)
+void orbiter::move(double dt, double k)
 {
     if (click[0] != point[0] ||
         click[1] != point[1] ||
@@ -176,13 +175,11 @@ void orbiter::move(const double *point,
 // Apply the altitude interaction using the change in the mouse pointer position
 // to affect an exponential difference in the radius of the view point.
 
-void orbiter::dive(const double *point,
-                   const double *click, double dt, double k)
+void orbiter::dive(double dt, double k)
 {
-    double r0 = cache ? cache->get_r0() : 1.0;
-    double d  = (point[1] - click[1]) * dt;
-    double r  = here.get_radius();
-    double m  = r0 * get_radius();
+    double d = (point[1] - click[1]) * dt;
+    double r = here.get_radius();
+    double m =      get_bottom();
 
     r = m + exp(log(r - m) + (4 * d));
 
@@ -193,8 +190,7 @@ void orbiter::dive(const double *point,
 // to move the light source position vector. Light source position is relative
 // to the camera, not to the sphere.
 
-void orbiter::lite(const double *point,
-                   const double *click, double dt, double k)
+void orbiter::lite(double dt, double k)
 {
     double r[3];
     double u[3];
@@ -213,6 +209,42 @@ void orbiter::lite(const double *point,
     mmultiply(M, X, Y);
 
     here.transform_light(M);
+}
+
+void orbiter::fly(double dt)
+{
+    const double dx = (stick[0] > 0) ? -(stick[0] * stick[0])
+                                     : +(stick[0] * stick[0]);
+    const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
+                                     : -(stick[1] * stick[1]);
+
+    double a = (here.get_radius() - get_bottom()) / get_bottom();
+
+    double k = lerp(std::min(1.0, cbrt(a)), 1.0, a);
+
+    here.set_pitch(-M_PI_2 * k);
+
+    // The X axis affects the orientation and orbital plane.
+
+    double R[16];
+    double p[3];
+
+    here.get_position(p);
+    mrotate(R, p, dx * dt);
+    here.transform_orientation(R);
+    here.get_right(orbit_plane);
+
+    // The Y axis affects the orbital speed.
+
+    orbit_speed = dy * std::min(a, 2.0);
+
+    // The Z axis affects the orbital radius.
+
+    double r = here.get_radius();
+    double m =      get_bottom();
+    double e =      get_radius();
+
+    here.set_radius(std::min(4.0 * e, m + exp(log(r - m) + (stick[2] * dt))));
 }
 
 //------------------------------------------------------------------------------
@@ -297,14 +329,23 @@ void orbiter::load(const std::string& name)
     here.set_radius(2.0 * get_radius());
 }
 
+// Return the effective altitude of the given radius: the height above the
+// lowest point on the planet.
+
+double orbiter::get_bottom() const
+{
+    if (cache)
+        return get_radius() * cache->get_r0();
+    else
+        return get_radius();
+}
+
 // Return an appropriate planet scale coefficient for a given view radius.
 // That allows good stereoscopic 3D to be achieved at both near and far views.
 
 double orbiter::get_scale(double r) const
 {
-    double m = get_radius() * (cache ? cache->get_r0() : 1.0);
-
-    return 1.0 / (r - m);
+    return 1.0 / (r - get_bottom());
 }
 
 //------------------------------------------------------------------------------
@@ -399,22 +440,30 @@ bool orbiter::pan_click(app::event *E)
 bool orbiter::pan_tick(app::event *E)
 {
     double dt = E->data.tick.dt / 1000.0;
-    double sc = 1.0 / (get_radius() * get_scale(here.get_radius()));
+    double ll = vlen(stick);
 
-    double M[16];
+    if (ll > 0.1 || stick_timer > 0.0)
+    {
+        if (ll > 0.1)
+            stick_timer = 0.1;
+        else
+            stick_timer -= dt;
 
-    if (control) sc *= 0.1;
+        fly(dt);
+    }
+    else
+    {
+        double sc = 1.0 / (get_radius() * get_scale(here.get_radius()));
 
-    if (drag_move) move(point, click, dt, sc);
-    if (drag_look) look(point, click, dt, sc);
-    if (drag_dive) dive(point, click, dt, sc);
-    if (drag_lite) lite(point, click, dt, sc);
-
-    printf("%f %f %f\n", stick[0], stick[1], stick[2]);
+        if (drag_move) move(dt, sc);
+        if (drag_look) look(dt, sc);
+        if (drag_dive) dive(dt, sc);
+        if (drag_lite) lite(dt, sc);
+    }
 
     // Move the position and view orientation along the current orbit.
 
-    if (orbit_speed > 0.0)
+    if (orbit_speed)
     {
         double R[16];
 
@@ -424,6 +473,10 @@ bool orbiter::pan_tick(app::event *E)
         here.transform_position(R);
         here.transform_light(R);
     }
+
+    // Apply the current transformation to the camera.
+
+    double M[16];
 
     here.get_matrix(M, get_scale(here.get_radius()));
     ::user->set_M(M);

@@ -273,6 +273,40 @@ void scm_step::transform_light(const double *M)
     vnormalize(light, v);
 }
 
+void scm_step::set_pitch(double a)
+{
+    double r[3];
+    double p[3];
+    double u[3];
+    double b[3];
+    double R[16];
+
+    // Get the position and right vectors.
+
+    vnormalize  (p, position);
+    vquaternionx(r, orientation);
+
+    // Make certain the right vector is perpendicular.
+
+    vcrs(b, r, p);
+    vnormalize(b, b);
+    vcrs(r, p, b);
+
+    // Pitch around the right vector and build a basis.
+
+    mrotate   (R, r, a);
+    vtransform(u, R, p);
+    vnormalize(u, u);
+    vcrs      (b, r, u);
+    vnormalize(b, b);
+    mbasis (R, r, u, b);
+
+    // Convert the matrix to a new quaternion.
+
+    qmatrix   (orientation, R);
+    qnormalize(orientation, orientation);
+}
+
 //------------------------------------------------------------------------------
 
 // Return the view transformation matrix.
