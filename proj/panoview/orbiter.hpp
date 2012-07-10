@@ -41,6 +41,8 @@ public:
 
 private:
 
+    // View motion state
+
     void look(const double *, const double *, double, double);
     void move(const double *, const double *, double, double);
     void dive(const double *, const double *, double, double);
@@ -49,8 +51,11 @@ private:
     double orbit_plane[3];
     double orbit_speed;
 
+    // Interaction state
+
     double point[3];
     double click[3];
+    double stick[3];
     bool   control;
     bool   drag_move;
     bool   drag_look;
@@ -58,13 +63,27 @@ private:
     bool   drag_dive;
     bool   drag_lite;
 
+    // Joystick configuration
+
+    int device;
+    int axis_X;
+    int axis_Y;
+    int button_U;
+    int button_D;
+
+    // Report stream configuration
+
     sockaddr_in report_addr;
     int         report_sock;
     void        report();
 
-    bool pan_point(app::event *);
-    bool pan_click(app::event *);
-    bool pan_tick (app::event *);
+    // Event handlers
+
+    bool pan_axis  (app::event *);
+    bool pan_button(app::event *);
+    bool pan_point (app::event *);
+    bool pan_click (app::event *);
+    bool pan_tick  (app::event *);
 };
 
 //-----------------------------------------------------------------------------

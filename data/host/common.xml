@@ -40,7 +40,7 @@
       <display type="direct" index="1">
         <viewport x="0" y="0" w="2560" h="1600"/>
         <frustum>
-          <perspective hfov="60.0" vfov="35.0"/>
+          <perspective hfov="60.0" vfov="40.0"/>
         </frustum>
       </display>
     </node>

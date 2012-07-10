@@ -56,11 +56,11 @@
           <li><a href="#editing">Camera Path Editing</a></li>
           <li><a href="#recording">Camera Path Recording</a></li>
         </ul>
-        <li><a href="#scmconf">SCM Configuration</a></li>
+        <li><a href="#appconf">Application Configuration</a></li>
+        <li><a href="#datconf">Data Configuration</a></li>
         <li><a href="#definition">Planet Definition XML</a></li>
         <li><a href="#goto">Go-To</a></li>
         <li><a href="#labels">Planet Feature Labeling</a></li>
-        <li><a href="#thumbconf">Thumb Configuration</a></li>
         <li><a href="#troubleshooting">Troubleshooting</a></li>
       </ul>
       <li><a href="#scm">SCM TIFF</a></li>
@@ -344,9 +344,32 @@
 
     <p>If the path play-back is stopped for any reason, the recording stops as well.</p>
 
-    <a name="scmconf"><h3>SCM Configuration</h3></a>
+    <a name="appconf"><h3>Application Configuration</h3></a>
 
-    <p>The shell environment variable <tt>SCMPATH</tt> lists directories where SCM TIFF files may be found. Set this variable in the shell resource file just as one might set the shell path, separated by colons. For example,</p>
+    <p><code>Thumb</code> configuration options reside in the file <tt>data/conf.xml</tt>.</p>
+
+    <ul>
+      <li><p>The cache size option limits the total number of SCM pages that may be loaded simultaneously. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. In general, set this value to equal the size of VRAM, in megabytes.</p></li>
+
+      <blockquote><pre>&lt;option name="scm_viewer_cache_size"&gt;512&lt;/option&gt;</pre></blockquote>
+
+      <li><p>The report host option gives the IP address (which <em>must</em> be given as a dotted quad) and port number of a host waiting to receive a streaming report of the renderer's current view position. This port will receive a single UDP packet per frame containing an ASCII string giving the longitude and latitude of the view position in degrees and the radius of the viewpoint in meters. This string is terminated by a newline and a null byte.</p></li>
+
+      <blockquote><pre>&lt;option name="orbiter_report_host"&gt;127.0.0.1&lt;/option&gt;
+&lt;option name="orbiter_report_port"&gt;8111&lt;/option&gt;</pre></blockquote>
+
+      <p><li>The joystick options select the joystick device number, axis indices for the X and Y axes, and button numbers for motion up and down.</li></p>
+
+      <blockquote><pre>&lt;option name="orbiter_joystick_device"&gt;0&lt;/option&gt;
+&lt;option name="orbiter_joystick_axis_X"&gt;0&lt;/option&gt;
+&lt;option name="orbiter_joystick_axis_Y"&gt;1&lt;/option&gt;
+&lt;option name="orbiter_joystick_button_U"&gt;0&lt;/option&gt;
+&lt;option name="orbiter_joystick_button_D"&gt;1&lt;/option&gt;</pre></blockquote>
+    </ul>
+
+    <a name="datconf"><h3>Data Configuration</h3></a>
+
+    <p>The shell environment variable <tt>SCMPATH</tt> lists directories where SCM TIFF files may be found. Set this variable in the shell resource file just as one might set the shell path, separated by colons. (Or semi-colons under Windows, as C: is a valid part of a Windows path.) For example,</p>
 
     <blockquote><pre>export SCMPATH=/share/scm:$HOME/Data/scm:.</pre></blockquote>
 
@@ -449,19 +472,6 @@
     <p>The diameter attribute determines the size of the label text. The radius attribute determines the altitude of the annotation, which is necessary for good alignment of small features. Do be advised that longitude and latitude values must be specified with at least five digits behind the decimal point to be correctly positioned to within one meter (on the scale of the moon). Many data sources provide less.</p>
 
     <p>Upon receipt of a <a href="#goto">go-to message</a>, the renderer replaces the current label set using the CSV file given by the <tt>label</tt> attribute of the <tt>step</tt> element. This may be used to mark points of interest within the defined region, such that they are automatically updated as destinations are selected.</p>
-
-    <a name="thumbconf"><h3><code>Thumb</code> Configuration</h3></a>
-
-    <p><code>Thumb</code> configuration options reside in the file <tt>data/conf.xml</tt>. Most of these options ever need to be changed, but a few are interesting.</p>
-
-    <p>The cache size parameter limits the total number of SCM pages that may be loaded simultaneously. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. In general, set this value to equal the size of VRAM, in megabytes.</p>
-
-    <blockquote><pre>&lt;option name="scm_viewer_cache_size"&gt;512&lt;/option&gt;</pre></blockquote>
-
-    <p>The report host parameter gives the IP address (which <em>must</em> be given as a dotted quad) and port number of a host waiting to receive a streaming report of the renderer's current view position. This port will receive a single UDP packet per frame containing an ASCII string giving the longitude and latitude of the view position in degrees and the radius of the viewpoint in meters. This string is terminated by a newline and a null byte.</p>
-
-    <blockquote><pre>&lt;option name="report_host"&gt;127.0.0.1&lt;/option&gt;
-&lt;option name="report_port"&gt;8111&lt;/option&gt;</pre></blockquote>
 
     <a name="troubleshooting"><h3>Troubleshooting</h3></a>
 

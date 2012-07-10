@@ -46,16 +46,28 @@ orbiter::orbiter(const std::string& exe,
     drag_dive = false;
     drag_lite = false;
 
+    point[0] = point[1] = point[2] = 0.0;
+    click[0] = click[1] = click[2] = 0.0;
+    stick[0] = stick[1] = stick[2] = 0.0;
+
     // Initialize the reportage socket.
 
     report_addr.sin_family      = AF_INET;
-    report_addr.sin_port        =     htons(::conf->get_i("report_port"));
-    report_addr.sin_addr.s_addr = inet_addr(::conf->get_s("report_host").c_str());
+    report_addr.sin_port        =     htons(::conf->get_i("orbiter_report_port"));
+    report_addr.sin_addr.s_addr = inet_addr(::conf->get_s("orbiter_report_host").c_str());
 
     if (report_addr.sin_addr.s_addr != INADDR_NONE)
         report_sock = socket(AF_INET, SOCK_DGRAM, 0);
     else
         report_sock = INVALID_SOCKET;
+
+    // Initialize the joystick configuration.
+
+    device   = ::conf->get_i("orbiter_joystick_device", 0);
+    axis_X   = ::conf->get_i("orbiter_joystick_axis_X", 0);
+    axis_Y   = ::conf->get_i("orbiter_joystick_axis_Y", 1);
+    button_U = ::conf->get_i("orbiter_joystick_button_U", 0);
+    button_D = ::conf->get_i("orbiter_joystick_button_D", 1);
 
     // Preload data as requested.
 
@@ -267,9 +279,11 @@ bool orbiter::process_event(app::event *E)
     {
         switch (E->get_type())
         {
-            case E_CLICK: return pan_click(E);
-            case E_POINT: return pan_point(E);
-            case E_TICK:  return pan_tick(E);
+            case E_AXIS:   return pan_axis(E);
+            case E_BUTTON: return pan_button(E);
+            case E_CLICK:  return pan_click(E);
+            case E_POINT:  return pan_point(E);
+            case E_TICK:   return pan_tick(E);
         }
     }
 
@@ -294,6 +308,38 @@ double orbiter::get_scale(double r) const
 }
 
 //------------------------------------------------------------------------------
+
+bool orbiter::pan_axis(app::event *E)
+{
+    const int    i = E->data.axis.i;
+    const int    a = E->data.axis.a;
+    const double v = E->data.axis.v;
+
+    if (i == device)
+    {
+        if      (a == axis_X) stick[0] = v / 32768.0;
+        else if (a == axis_Y) stick[1] = v / 32768.0;
+
+        return true;
+    }
+    return false;
+}
+
+bool orbiter::pan_button(app::event *E)
+{
+    const int  i = E->data.button.i;
+    const int  b = E->data.button.b;
+    const bool d = E->data.button.d;
+
+    if (i == device)
+    {
+        if      (b == button_D) stick[2] += (d ? -1 : +1);
+        else if (b == button_U) stick[2] += (d ? +1 : -1);
+
+        return true;
+    }
+    return false;
+}
 
 bool orbiter::pan_point(app::event *E)
 {
@@ -363,6 +409,8 @@ bool orbiter::pan_tick(app::event *E)
     if (drag_look) look(point, click, dt, sc);
     if (drag_dive) dive(point, click, dt, sc);
     if (drag_lite) lite(point, click, dt, sc);
+
+    printf("%f %f %f\n", stick[0], stick[1], stick[2]);
 
     // Move the position and view orientation along the current orbit.
 
