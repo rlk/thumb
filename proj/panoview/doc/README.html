@@ -426,9 +426,9 @@
 
     <a name="goto"><h3>Go-To</h3></a>
 
-    <p><code>Orbiter</code> supports a &ldquo;go-to&rdquo; mechanism that allows an external application to programmatically direct the view point to one of the regions of interested given in the planed definition XML file.</p>
+    <p><code>Orbiter</code> supports a &ldquo;go-to&rdquo; mechanism that allows an external application to programmatically direct the view point to one of the regions of interested given in the planet definition XML file.</p>
 
-    <p>Go-to messages are received on port 2829. Each message consists of a single UDP datagram containing a name string which is matched against the <tt>name</tt> attribute of the <tt>step</tt> element. Only the <em>first eight characters</em> of this string are used.</p>
+    <p>Go-to messages are received on port 2829. Each message consists of a single UDP datagram containing an ASCII name string which is matched against the <tt>name</tt> attribute of the <tt>step</tt> element. Only the <em>first eight characters</em> of this string are used.</p>
 
     <p>For example, a message meeting these requirements can be generated using the command line tool <tt>ncat</tt> as follows:</p>
 

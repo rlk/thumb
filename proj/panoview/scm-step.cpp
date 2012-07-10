@@ -143,22 +143,20 @@ scm_step::scm_step(const scm_step *a,
     assert(c);
     assert(d);
 
+    double A[4];
     double B[4];
     double C[4];
     double D[4];
 
-    qsign(B, a->orientation, b->orientation);
-    qsign(C, b->orientation, c->orientation);
-    qsign(D, c->orientation, d->orientation);
+    qcpy (A,    a->orientation);
+    qsign(B, A, b->orientation);
+    qsign(C, B, c->orientation);
+    qsign(D, C, d->orientation);
 
-    orientation[0] = hint(a->orientation[0], B[0], C[0], D[0], t,
-                          b->tension, b->bias);
-    orientation[1] = hint(a->orientation[1], B[1], C[1], D[1], t,
-                          b->tension, b->bias);
-    orientation[2] = hint(a->orientation[2], B[2], C[2], D[2], t,
-                          b->tension, b->bias);
-    orientation[3] = hint(a->orientation[3], B[3], C[3], D[3], t,
-                          b->tension, b->bias);
+    orientation[0] = hint(A[0], B[0], C[0], D[0], t, b->tension, b->bias);
+    orientation[1] = hint(A[1], B[1], C[1], D[1], t, b->tension, b->bias);
+    orientation[2] = hint(A[2], B[2], C[2], D[2], t, b->tension, b->bias);
+    orientation[3] = hint(A[3], B[3], C[3], D[3], t, b->tension, b->bias);
 
     position[0]    = hint(a->position[0],
                           b->position[0],
@@ -246,54 +244,6 @@ app::node scm_step::serialize() const
     return n;
 }
 
-//------------------------------------------------------------------------------
-
-#if 0
-bool scm_step::write(FILE *stream)
-{
-    fprintf(stream, "%+12.8f %+12.8f %+12.8f %+12.8f "
-                    "%+12.8f %+12.8f %+12.8f "
-                    "%+12.8f %+12.8f %+12.8f "
-                    "%+12.8f %+12.8f %+12.8f %+12.8f\n",
-                    orientation[0],
-                    orientation[1],
-                    orientation[2],
-                    orientation[3],
-                    position[0],
-                    position[1],
-                    position[2],
-                    light[0],
-                    light[1],
-                    light[2],
-                    speed,
-                    radius,
-                    tension,
-                    bias);
-    return true;
-}
-
-static bool scm_step::read(FILE *stream)
-{
-    return (fscanf(stream, "%lf %lf %lf %lf "
-                           "%lf %lf %lf "
-                           "%lf %lf %lf "
-                           "%lf %lf %lf %lf\n",
-                           orientation + 0,
-                           orientation + 1,
-                           orientation + 2,
-                           orientation + 3,
-                           position + 0,
-                           position + 1,
-                           position + 2,
-                           light + 0,
-                           light + 1,
-                           light + 2,
-                          &speed,
-                          &radius,
-                          &tension,
-                          &bias) == 14);
-}
-#endif
 //------------------------------------------------------------------------------
 
 void scm_step::transform_orientation(const double *M)
