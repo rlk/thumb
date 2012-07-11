@@ -95,7 +95,7 @@ LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL*.a \
 #------------------------------------------------------------------------------
 
 %.d : %.cpp
-	$(CC) $(CFLAGS) $(INCDIR) -MM -MF $@ -MT $*.o $<
+	$(CC) $(CFLAGS) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
 
 %.o : %.cpp
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@

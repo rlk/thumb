@@ -91,7 +91,7 @@ struct circle
 {
     point p[4];
 
-    circle(matrix& M)
+    circle(matrix& M, const char *c)
     {
         const double s = 0.5;
 
@@ -121,6 +121,20 @@ struct circle
     }
 };
 
+struct sprite
+{
+    point p;
+
+    sprite(matrix& M, const char *c)
+    {
+        p.v[0] = M.M[12];
+        p.v[1] = M.M[13];
+        p.v[2] = M.M[14];
+        p.t[0] = 0;
+        p.t[1] = 0;
+    }
+};
+
 //------------------------------------------------------------------------------
 
 // Parse the label definition file.
@@ -131,8 +145,9 @@ void scm_label::parse(const void *data_ptr, size_t data_len)
     label L;
     int   n;
 
-    while (sscanf(dat, "\"%63[^\"]\",%f,%f,%f,%f,%c\n%n",
-                       L.str, &L.lat, &L.lon, &L.dia, &L.rad, &L.typ, &n) > 5)
+    while (sscanf(dat, "\"%63[^\"]\",%f,%f,%f,%f,%c%c\n%n",
+                       L.str, &L.lat, &L.lon,
+                              &L.dia, &L.rad, &L.typ[0], &L.typ[1], &n) > 5)
     {
         L.dia /= 1737.4;
 
@@ -144,91 +159,121 @@ void scm_label::parse(const void *data_ptr, size_t data_len)
 
 //------------------------------------------------------------------------------
 
-const char *vert_txt =                        \
-    "void main() { "                          \
-        "gl_TexCoord[0] = gl_MultiTexCoord0;" \
-        "gl_FrontColor  = gl_Color;"          \
-        "gl_Position    = ftransform();"      \
-    "}";
-
-const char *frag_txt =                        \
-    "void main() { "                          \
-        "float d = distance(gl_TexCoord[0].xy, vec2(0.5)); " \
-        "vec2  f = fwidth(gl_TexCoord[0].xy); "\
-        "float l = min(f.x, f.y); "\
-        "float k = 1.0 - smoothstep(0.0, l, abs(0.5 - l - d));"\
-        "gl_FragColor = vec4(gl_Color.rgb, gl_Color.a * k);"      \
-    "}";
-
+#include "scm-label-circle-vert.h"
+#include "scm-label-circle-frag.h"
+#include "scm-label-sprite-vert.h"
+#include "scm-label-sprite-frag.h"
 
 scm_label::scm_label(const void *data_ptr, size_t data_len,
-                     const void *font_ptr, size_t font_len) : label_line(0)
+                     const void *font_ptr, size_t font_len) :
+    label_line(0),
+    num_circles(0),
+    num_sprites(0)
 {
     // Initialize the font.
 
-    label_font = font_create(font_ptr, font_len, 64, 1.0);
+    label_font  = font_create(font_ptr, font_len, 64, 1.0);
 
-    // Initialize the GLSL.
+    // Initialize the shaders.
 
-    vert = glsl_init_shader(GL_VERTEX_SHADER,   vert_txt);
-    frag = glsl_init_shader(GL_FRAGMENT_SHADER, frag_txt);
-    prog = glsl_init_program(vert, frag);
+    memset(&circle_glsl, 0, sizeof (glsl));
+    memset(&sprite_glsl, 0, sizeof (glsl));
 
-    // Parse the data file into labels, creating strings, matrices and circles.
+    glsl_source(&circle_glsl, (const char *) scm_label_circle_vert,
+                              (const char *) scm_label_circle_frag);
+    glsl_source(&sprite_glsl, (const char *) scm_label_sprite_vert,
+                              (const char *) scm_label_sprite_frag);
 
-    std::vector<char *> strv;
-    std::vector<matrix> matv;
-    std::vector<circle> cirv;
+    // Parse the data file into labels.
 
     parse(data_ptr, data_len);
+
+    // Generate an annotation for each label.
+
+    std::vector<char *> string_v;
+    std::vector<matrix> matrix_v;
+    std::vector<circle> circle_v;
+    std::vector<sprite> sprite_v;
 
     for (int i = 0; i < int(labels.size()); ++i)
     {
         int len = line_length(labels[i].str, label_font);
 
-        double d = labels[i].dia;
+        double d =                                 labels[i].dia;
+        double e = 0.001 * clamp(d, 0.0005, 0.5) / labels[i].dia;
+
         matrix M;
 
-        M.rotatey  ( radians(labels[i].lon));
-        M.rotatex  (-radians(labels[i].lat));
-        M.translate(0.0, 0.0, sqrt(1.0 - d * d / 4.0));
-        M.scale    (d);
-        circle C(M);
+        // Transform it into position
 
-        M.scale(0.001 * clamp(d, 0.0005, 0.5) / d);
-        M.translate(-len / 2.0, 0.0, 0.0);
+        M.rotatey( radians(labels[i].lon));
+        M.rotatex(-radians(labels[i].lat));
+        M.translate(0, 0, sqrt(1.0 - d * d / 4.0));
 
-        strv.push_back(labels[i].str);
-        cirv.push_back(C);
-        matv.push_back(M);
+        // Create a sprite.
+
+        if (labels[i].sprite())
+        {
+            M.scale(d);
+            sprite S(M, labels[i].typ);
+            M.scale(e);
+            M.translate(0.0, 0.0, 0.0);
+            sprite_v.push_back(S);
+        }
+
+        // Create a circle.
+
+        if (labels[i].circle())
+        {
+            M.scale(d);
+            circle C(M,labels[i].typ);
+            M.scale(e);
+            M.translate(-len / 2.0, 0.0, 0.0);
+            circle_v.push_back(C);
+        }
+
+        // Add the string and matrix to the list.
+
+        string_v.push_back(labels[i].str);
+        matrix_v.push_back(M);
     }
 
-    // Typeset the labels.
-
-    if (!strv.empty())
-        label_line = line_layout(strv.size(), &strv.front(), NULL,
-                                               matv.front().M, label_font);
-
-    // Create a VBO for the circles.
+    num_circles = circle_v.size();
+    num_sprites = sprite_v.size();
 
     size_t sz = sizeof (point);
 
-    glGenBuffers(1, &vbo);
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, 4 * sz * cirv.size(),
-                                          &cirv.front(), GL_STATIC_DRAW);
+    // Typeset the labels.
+
+    if (!string_v.empty())
+        label_line = line_layout(string_v.size(), &string_v.front(), NULL,
+                                                   matrix_v.front().M, label_font);
+
+    // Create a VBO for the circles.
+
+    glGenBuffers(1, &circle_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, circle_vbo);
+    glBufferData(GL_ARRAY_BUFFER, 4 * sz * circle_v.size(),
+                                          &circle_v.front(), GL_STATIC_DRAW);
+
+    // Create a VBO for the sprites.
+
+    glGenBuffers(1, &sprite_vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, sprite_vbo);
+    glBufferData(GL_ARRAY_BUFFER, 1 * sz * sprite_v.size(),
+                                          &sprite_v.front(), GL_STATIC_DRAW);
 }
 
 scm_label::~scm_label()
 {
-    glDeleteBuffers(1, &vbo);
+    glDeleteBuffers(1, &sprite_vbo);
+    glDeleteBuffers(1, &circle_vbo);
 
     line_delete(label_line);
     font_delete(label_font);
 
-    glDeleteProgram(prog);
-    glDeleteShader(frag);
-    glDeleteShader(vert);
+    glsl_delete(&sprite_glsl);
+    glsl_delete(&circle_glsl);
 }
 
 //------------------------------------------------------------------------------
@@ -248,20 +293,41 @@ void scm_label::draw()
 
         glColor4f(1.0f, 0.5f, 0.0f, 0.5f);
 
-        glUseProgram(prog);
+        // Draw the circles.
+
+        glUseProgram(circle_glsl.program);
 
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
         {
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-            glBindBuffer(GL_ARRAY_BUFFER, vbo);
+            glBindBuffer(GL_ARRAY_BUFFER, circle_vbo);
             glVertexPointer  (3, GL_FLOAT, sz, (GLvoid *) 0);
             glTexCoordPointer(2, GL_FLOAT, sz, (GLvoid *) 12);
 
-            glDrawArrays(GL_QUADS, 0, labels.size() * 4);
+            glDrawArrays(GL_QUADS, 0, num_circles * 4);
         }
         glPopClientAttrib();
+
+        // Draw the sprites.
+
+        glUseProgram(sprite_glsl.program);
+
+        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
+        {
+            glEnableClientState(GL_VERTEX_ARRAY);
+            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+            glBindBuffer(GL_ARRAY_BUFFER, sprite_vbo);
+            glVertexPointer  (3, GL_FLOAT, sz, (GLvoid *) 0);
+            glTexCoordPointer(2, GL_FLOAT, sz, (GLvoid *) 12);
+
+            glDrawArrays(GL_QUADS, 0, num_sprites * 4);
+        }
+        glPopClientAttrib();
+
+        // Draw the labels.
 
         glUseProgram(0);
 

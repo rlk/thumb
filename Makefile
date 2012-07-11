@@ -4,6 +4,8 @@ TARG= thumb
 
 #------------------------------------------------------------------------------
 
+all : dist
+
 $(TARG) : FORCE
 	$(MAKE) -C src
 	$(MAKE) -C proj/panoview

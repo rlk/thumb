@@ -23,6 +23,61 @@
 
 //-----------------------------------------------------------------------------
 
+// IAU Type codes:
+//
+//     AL ... Albedo Feature
+//     AR ... Arcus
+//     CA ... Catena
+//     CB ... Cavus
+//     CH ... Chaos
+//     CM ... Chasma
+//     CO ... Collis
+//     CR ... Corona
+//     AA ... Crater
+//     DO ... Dorsum
+//     ER ... Eruptive center
+//     FA ... Facula
+//     FR ... Farrum
+//     FE ... Flexus
+//     FL ... Fluctus
+//     FM ... Flumen
+//     FO ... Fossa
+//     IN ... Insula
+//     LA ... Labes
+//     LB ... Labyrinthus
+//     LC ... Lacus
+//     LF ... Landing site name
+//     LG ... Large ringed feature
+//     LI ... Linea
+//     LN ... Lingula
+//     MA ... Macula
+//     ME ... Mare
+//     MN ... Mensa
+//     MO ... Mons
+//     OC ... Oceanus
+//     PA ... Palus
+//     PE ... Patera
+//     PL ... Planitia
+//     PM ... Planum
+//     PU ... Plume
+//     PR ... Promontorium
+//     RE ... Regio
+//     RI ... Rima
+//     RU ... Rupes
+//     SF ... Satellite Feature
+//     SC ... Scopulus
+//     SI ... Sinus
+//     SU ... Sulcus
+//     TA ... Terra
+//     TE ... Tessera
+//     TH ... Tholus
+//     UN ... Unda
+//     VA ... Vallis
+//     VS ... Vastitas
+//     VI ... Virga
+
+//-----------------------------------------------------------------------------
+
 class scm_label
 {
 public:
@@ -44,7 +99,15 @@ private:
         float lon;
         float dia;
         float rad;
-        char  typ;
+        char  typ[2];
+
+        bool circle() const {
+            return ((typ[0] == 'A' && typ[1] == 'A'));
+        }
+        bool sprite() const {
+            return ((typ[0] == 'L' && typ[1] == 'F')
+                 || (typ[0] == 'M' && typ[1] == 'F'));
+        }
     };
 
     void parse(const void *, size_t);
@@ -52,12 +115,15 @@ private:
 
     font *label_font;
     line *label_line;
-    glsl *label_glsl;
 
-    GLuint vbo;
-    GLuint vert;
-    GLuint frag;
-    GLuint prog;
+    int    num_circles;
+    int    num_sprites;
+
+    glsl   circle_glsl;
+    glsl   sprite_glsl;
+
+    GLuint circle_vbo;
+    GLuint sprite_vbo;
 
     std::vector<label> labels;
 };

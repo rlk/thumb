@@ -69,4 +69,17 @@ clean:
 
 #------------------------------------------------------------------------------
 
+%-vert.h : %.vert
+	xxd -i $^ > $@
+%-frag.h : %.frag
+	xxd -i $^ > $@
+
+scm-label.o : \
+	scm-label-circle-vert.h \
+	scm-label-circle-frag.h \
+	scm-label-sprite-vert.h \
+	scm-label-sprite-frag.h
+
+#------------------------------------------------------------------------------
+
 -include $(PANDEPS) $(ORBDEPS)
