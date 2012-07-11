@@ -22,6 +22,11 @@
 #include "type.h"
 #include "glsl.h"
 
+#define LABEL_R 0xFF
+#define LABEL_G 0x80
+#define LABEL_B 0x00
+#define LABEL_A 0x80
+
 //------------------------------------------------------------------------------
 
 static double clamp(double k, double a, double b)
@@ -33,8 +38,9 @@ static double clamp(double k, double a, double b)
 
 struct point
 {
-    float v[3];
-    float t[2];
+    float         v[3];
+    float         t[2];
+    unsigned char c[4];
 };
 
 struct matrix
@@ -100,24 +106,40 @@ struct circle
         p[0].v[2] = M.M[2] * (-s) + M.M[6] * (-s) + M.M[14];
         p[0].t[0] = 0;
         p[0].t[1] = 0;
+        p[0].c[0] = LABEL_R;
+        p[0].c[1] = LABEL_G;
+        p[0].c[2] = LABEL_B;
+        p[0].c[3] = LABEL_A;
 
         p[1].v[0] = M.M[0] * ( s) + M.M[4] * (-s) + M.M[12];
         p[1].v[1] = M.M[1] * ( s) + M.M[5] * (-s) + M.M[13];
         p[1].v[2] = M.M[2] * ( s) + M.M[6] * (-s) + M.M[14];
         p[1].t[0] = 0;
         p[1].t[1] = 1;
+        p[1].c[0] = LABEL_R;
+        p[1].c[1] = LABEL_G;
+        p[1].c[2] = LABEL_B;
+        p[1].c[3] = LABEL_A;
 
         p[2].v[0] = M.M[0] * ( s) + M.M[4] * ( s) + M.M[12];
         p[2].v[1] = M.M[1] * ( s) + M.M[5] * ( s) + M.M[13];
         p[2].v[2] = M.M[2] * ( s) + M.M[6] * ( s) + M.M[14];
         p[2].t[0] = 1;
         p[2].t[1] = 1;
+        p[2].c[0] = LABEL_R;
+        p[2].c[1] = LABEL_G;
+        p[2].c[2] = LABEL_B;
+        p[2].c[3] = LABEL_A;
 
         p[3].v[0] = M.M[0] * (-s) + M.M[4] * ( s) + M.M[12];
         p[3].v[1] = M.M[1] * (-s) + M.M[5] * ( s) + M.M[13];
         p[3].v[2] = M.M[2] * (-s) + M.M[6] * ( s) + M.M[14];
         p[3].t[0] = 1;
         p[3].t[1] = 0;
+        p[3].c[0] = LABEL_R;
+        p[3].c[1] = LABEL_G;
+        p[3].c[2] = LABEL_B;
+        p[3].c[3] = LABEL_A;
     }
 };
 
@@ -132,6 +154,13 @@ struct sprite
         p.v[2] = M.M[14];
         p.t[0] = 0;
         p.t[1] = 0;
+        p.c[0] = LABEL_R;
+        p.c[1] = LABEL_G;
+        p.c[2] = LABEL_B;
+        p.c[3] = LABEL_A;
+
+        if (c[0] == 'L') p.t[0] = 1.0;
+        if (c[1] == 'M') p.t[0] = 2.0;
     }
 };
 
@@ -199,25 +228,23 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
     {
         int len = line_length(labels[i].str, label_font);
 
-        double d =                                 labels[i].dia;
-        double e = 0.001 * clamp(d, 0.0005, 0.5) / labels[i].dia;
-
         matrix M;
+        double x = -len / 2.0;
+        double y = 0.0;
+        double z = 0.0;
 
         // Transform it into position
 
         M.rotatey( radians(labels[i].lon));
         M.rotatex(-radians(labels[i].lat));
-        M.translate(0, 0, sqrt(1.0 - d * d / 4.0));
+        M.translate(0, 0, sqrt(1.0 - labels[i].dia * labels[i].dia / 4.0));
+        M.scale(labels[i].dia);
 
         // Create a sprite.
 
         if (labels[i].sprite())
         {
-            M.scale(d);
             sprite S(M, labels[i].typ);
-            M.scale(e);
-            M.translate(0.0, 0.0, 0.0);
             sprite_v.push_back(S);
         }
 
@@ -225,14 +252,16 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
 
         if (labels[i].circle())
         {
-            M.scale(d);
-            circle C(M,labels[i].typ);
-            M.scale(e);
-            M.translate(-len / 2.0, 0.0, 0.0);
+            circle C(M, labels[i].typ);
             circle_v.push_back(C);
         }
 
         // Add the string and matrix to the list.
+
+        double e = 0.001 * clamp(labels[i].dia, 0.0005, 0.5) / labels[i].dia;
+
+        M.scale(e);
+        M.translate(x, y, z);
 
         string_v.push_back(labels[i].str);
         matrix_v.push_back(M);
@@ -291,39 +320,36 @@ void scm_label::draw()
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-        glColor4f(1.0f, 0.5f, 0.0f, 0.5f);
-
-        // Draw the circles.
-
-        glUseProgram(circle_glsl.program);
+        glColor4ub(LABEL_R, LABEL_G, LABEL_B, LABEL_A);
 
         glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
         {
             glEnableClientState(GL_VERTEX_ARRAY);
             glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glEnableClientState(GL_COLOR_ARRAY);
+
+            // Draw the circles.
 
             glBindBuffer(GL_ARRAY_BUFFER, circle_vbo);
-            glVertexPointer  (3, GL_FLOAT, sz, (GLvoid *) 0);
-            glTexCoordPointer(2, GL_FLOAT, sz, (GLvoid *) 12);
+            glVertexPointer  (3, GL_FLOAT,         sz, (GLvoid *)  0);
+            glTexCoordPointer(2, GL_FLOAT,         sz, (GLvoid *) 12);
+            glColorPointer   (4, GL_UNSIGNED_BYTE, sz, (GLvoid *) 20);
 
-            glDrawArrays(GL_QUADS, 0, num_circles * 4);
-        }
-        glPopClientAttrib();
+            glUseProgram(circle_glsl.program);
+            glDrawArrays(GL_QUADS, 0, 4 * num_circles);
 
-        // Draw the sprites.
-
-        glUseProgram(sprite_glsl.program);
-
-        glPushClientAttrib(GL_CLIENT_VERTEX_ARRAY_BIT);
-        {
-            glEnableClientState(GL_VERTEX_ARRAY);
-            glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            // Draw the sprites.
 
             glBindBuffer(GL_ARRAY_BUFFER, sprite_vbo);
-            glVertexPointer  (3, GL_FLOAT, sz, (GLvoid *) 0);
-            glTexCoordPointer(2, GL_FLOAT, sz, (GLvoid *) 12);
+            glVertexPointer  (3, GL_FLOAT,         sz, (GLvoid *)  0);
+            glTexCoordPointer(2, GL_FLOAT,         sz, (GLvoid *) 12);
+            glColorPointer   (4, GL_UNSIGNED_BYTE, sz, (GLvoid *) 20);
 
-            glDrawArrays(GL_QUADS, 0, num_sprites * 4);
+            glPointSize(8.0);
+            glEnable(GL_POINT_SPRITE);
+            glUseProgram(sprite_glsl.program);
+            glDrawArrays(GL_POINTS, 0, 1 * num_sprites);
+            glDisable(GL_POINT_SPRITE);
         }
         glPopClientAttrib();
 

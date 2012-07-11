@@ -102,7 +102,8 @@ private:
         char  typ[2];
 
         bool circle() const {
-            return ((typ[0] == 'A' && typ[1] == 'A'));
+            return ((typ[0] == 'A' && typ[1] == 'A')
+                 || (typ[0] == 'S' && typ[1] == 'F'));
         }
         bool sprite() const {
             return ((typ[0] == 'L' && typ[1] == 'F')
