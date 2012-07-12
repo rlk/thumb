@@ -8,9 +8,10 @@
     <!-- SCM viewer configuration -->
     <option name="scm_viewer_cache_size">256</option>
 <!--
-    <option name="report_host">127.0.0.1</option>
-    <option name="report_port">8111</option>
+    <option name="orbiter_report_host">127.0.0.1</option>
+    <option name="orbiter_report_port">8111</option>
 -->
+    <option name="orbiter_icon_size">16</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>
     <option name="multisample_buffers">0</option>

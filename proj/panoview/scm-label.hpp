@@ -83,7 +83,7 @@ class scm_label
 public:
 
     scm_label(const void *, size_t,
-              const void *, size_t);
+              const void *, size_t, double, int);
    ~scm_label();
 
     void draw();
@@ -111,7 +111,7 @@ private:
         }
     };
 
-    void parse(const void *, size_t);
+    void parse(const void *, size_t, double);
     void apply(label *);
 
     font *label_font;
@@ -119,6 +119,7 @@ private:
 
     int    num_circles;
     int    num_sprites;
+    int    sprite_size;
 
     glsl   circle_glsl;
     glsl   sprite_glsl;

@@ -101,45 +101,53 @@ struct circle
     {
         const double s = 0.5;
 
+        GLfloat R = LABEL_R;
+        GLfloat G = LABEL_G;
+        GLfloat B = LABEL_B;
+        GLfloat A = LABEL_A;
+
+        if (c[0] == 'A' && c[1] == 'A') A *= 1.0;
+        if (c[0] == 'S' && c[1] == 'F') A *= 0.5;
+
         p[0].v[0] = M.M[0] * (-s) + M.M[4] * (-s) + M.M[12];
         p[0].v[1] = M.M[1] * (-s) + M.M[5] * (-s) + M.M[13];
         p[0].v[2] = M.M[2] * (-s) + M.M[6] * (-s) + M.M[14];
         p[0].t[0] = 0;
         p[0].t[1] = 0;
-        p[0].c[0] = LABEL_R;
-        p[0].c[1] = LABEL_G;
-        p[0].c[2] = LABEL_B;
-        p[0].c[3] = LABEL_A;
+        p[0].c[0] = R;
+        p[0].c[1] = G;
+        p[0].c[2] = B;
+        p[0].c[3] = A;
 
         p[1].v[0] = M.M[0] * ( s) + M.M[4] * (-s) + M.M[12];
         p[1].v[1] = M.M[1] * ( s) + M.M[5] * (-s) + M.M[13];
         p[1].v[2] = M.M[2] * ( s) + M.M[6] * (-s) + M.M[14];
         p[1].t[0] = 0;
         p[1].t[1] = 1;
-        p[1].c[0] = LABEL_R;
-        p[1].c[1] = LABEL_G;
-        p[1].c[2] = LABEL_B;
-        p[1].c[3] = LABEL_A;
+        p[1].c[0] = R;
+        p[1].c[1] = G;
+        p[1].c[2] = B;
+        p[1].c[3] = A;
 
         p[2].v[0] = M.M[0] * ( s) + M.M[4] * ( s) + M.M[12];
         p[2].v[1] = M.M[1] * ( s) + M.M[5] * ( s) + M.M[13];
         p[2].v[2] = M.M[2] * ( s) + M.M[6] * ( s) + M.M[14];
         p[2].t[0] = 1;
         p[2].t[1] = 1;
-        p[2].c[0] = LABEL_R;
-        p[2].c[1] = LABEL_G;
-        p[2].c[2] = LABEL_B;
-        p[2].c[3] = LABEL_A;
+        p[2].c[0] = R;
+        p[2].c[1] = G;
+        p[2].c[2] = B;
+        p[2].c[3] = A;
 
         p[3].v[0] = M.M[0] * (-s) + M.M[4] * ( s) + M.M[12];
         p[3].v[1] = M.M[1] * (-s) + M.M[5] * ( s) + M.M[13];
         p[3].v[2] = M.M[2] * (-s) + M.M[6] * ( s) + M.M[14];
         p[3].t[0] = 1;
         p[3].t[1] = 0;
-        p[3].c[0] = LABEL_R;
-        p[3].c[1] = LABEL_G;
-        p[3].c[2] = LABEL_B;
-        p[3].c[3] = LABEL_A;
+        p[3].c[0] = R;
+        p[3].c[1] = G;
+        p[3].c[2] = B;
+        p[3].c[3] = A;
     }
 };
 
@@ -149,18 +157,21 @@ struct sprite
 
     sprite(matrix& M, const char *c)
     {
+        GLfloat x = 0.0;
+        GLfloat y = 0.0;
+
+        if (c[0] == 'M' && c[1] == '0') x = 0.0;
+        if (c[0] == 'L' && c[1] == 'F') x = 1.0;
+
         p.v[0] = M.M[12];
         p.v[1] = M.M[13];
         p.v[2] = M.M[14];
-        p.t[0] = 0;
-        p.t[1] = 0;
+        p.t[0] = x;
+        p.t[1] = y;
         p.c[0] = LABEL_R;
         p.c[1] = LABEL_G;
         p.c[2] = LABEL_B;
         p.c[3] = LABEL_A;
-
-        if (c[0] == 'M' && c[1] == '0') p.t[0] = 0.0;
-        if (c[0] == 'L' && c[1] == 'F') p.t[0] = 1.0;
     }
 };
 
@@ -168,7 +179,7 @@ struct sprite
 
 // Parse the label definition file.
 
-void scm_label::parse(const void *data_ptr, size_t data_len)
+void scm_label::parse(const void *data_ptr, size_t data_len, double radius)
 {
     const char *dat = (const char *) data_ptr;
     label L;
@@ -178,7 +189,7 @@ void scm_label::parse(const void *data_ptr, size_t data_len)
                        L.str, &L.lat, &L.lon,
                               &L.dia, &L.rad, &L.typ[0], &L.typ[1], &n) > 5)
     {
-        L.dia /= 1737.4;
+        L.dia /= radius;
 
         labels.push_back(L);
 
@@ -196,10 +207,12 @@ void scm_label::parse(const void *data_ptr, size_t data_len)
 #include "scm-label-sprite-frag.h"
 
 scm_label::scm_label(const void *data_ptr, size_t data_len,
-                     const void *font_ptr, size_t font_len) :
+                     const void *font_ptr, size_t font_len,
+                     double radius, int size) :
     label_line(0),
     num_circles(0),
-    num_sprites(0)
+    num_sprites(0),
+    sprite_size(size)
 {
     // Initialize the font.
 
@@ -220,7 +233,7 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
 
     // Parse the data file into labels.
 
-    parse(data_ptr, data_len);
+    parse(data_ptr, data_len, radius);
 
     // Generate an annotation for each label.
 
@@ -231,18 +244,22 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
 
     for (int i = 0; i < int(labels.size()); ++i)
     {
-        int len = line_length(labels[i].str, label_font);
+        int w = line_length(labels[i].str, label_font);
+        int h = font_height(               label_font);
 
         matrix M;
-        double x = -len / 2.0;
+        double x = -w / 2.0;
         double y = 0.0;
         double z = 0.0;
+
+        double r = sqrt(labels[i].rad / radius -
+                        labels[i].dia * labels[i].dia / 4.0);
 
         // Transform it into position
 
         M.rotatey( radians(labels[i].lon));
         M.rotatex(-radians(labels[i].lat));
-        M.translate(0, 0, sqrt(1.0 - labels[i].dia * labels[i].dia / 4.0));
+        M.translate(0, 0, r);
         M.scale(labels[i].dia);
 
         // Create a sprite.
@@ -251,6 +268,7 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
         {
             sprite S(M, labels[i].typ);
             sprite_v.push_back(S);
+            x = +h / 4.0;
         }
 
         // Create a circle.
@@ -259,6 +277,7 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
         {
             circle C(M, labels[i].typ);
             circle_v.push_back(C);
+            x = -w / 2.0;
         }
 
         // Add the string and matrix to the list.
@@ -360,7 +379,7 @@ void scm_label::draw()
             glTexCoordPointer(2, GL_FLOAT,         sz, (GLvoid *) 12);
             glColorPointer   (4, GL_UNSIGNED_BYTE, sz, (GLvoid *) 20);
 
-            glPointSize(32.0);
+            glPointSize(sprite_size);
             glEnable(GL_POINT_SPRITE);
             glBindTexture(GL_TEXTURE_2D, sprite_tex);
 
