@@ -159,8 +159,8 @@ struct sprite
         p.c[2] = LABEL_B;
         p.c[3] = LABEL_A;
 
-        if (c[0] == 'L') p.t[0] = 1.0;
-        if (c[1] == 'M') p.t[0] = 2.0;
+        if (c[0] == 'M' && c[1] == '0') p.t[0] = 0.0;
+        if (c[0] == 'L' && c[1] == 'F') p.t[0] = 1.0;
     }
 };
 
@@ -188,6 +188,8 @@ void scm_label::parse(const void *data_ptr, size_t data_len)
 
 //------------------------------------------------------------------------------
 
+#include "scm-label-icons.h"
+
 #include "scm-label-circle-vert.h"
 #include "scm-label-circle-frag.h"
 #include "scm-label-sprite-vert.h"
@@ -212,6 +214,9 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
                               (const char *) scm_label_circle_frag);
     glsl_source(&sprite_glsl, (const char *) scm_label_sprite_vert,
                               (const char *) scm_label_sprite_frag);
+
+    glUseProgram(sprite_glsl.program);
+    glUniform1i(glGetUniformLocation(sprite_glsl.program, "icons"), 0);
 
     // Parse the data file into labels.
 
@@ -280,17 +285,27 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
 
     // Create a VBO for the circles.
 
-    glGenBuffers(1, &circle_vbo);
+    glGenBuffers(1,              &circle_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, circle_vbo);
     glBufferData(GL_ARRAY_BUFFER, 4 * sz * circle_v.size(),
                                           &circle_v.front(), GL_STATIC_DRAW);
 
     // Create a VBO for the sprites.
 
-    glGenBuffers(1, &sprite_vbo);
+    glGenBuffers(1,              &sprite_vbo);
     glBindBuffer(GL_ARRAY_BUFFER, sprite_vbo);
     glBufferData(GL_ARRAY_BUFFER, 1 * sz * sprite_v.size(),
                                           &sprite_v.front(), GL_STATIC_DRAW);
+
+    // Create a texture for the sprites.
+
+    glGenTextures(1,             &sprite_tex);
+    glBindTexture(GL_TEXTURE_2D, sprite_tex);
+    glTexImage2D (GL_TEXTURE_2D, 0, GL_LUMINANCE, 128, 32, 0,
+                  GL_LUMINANCE, GL_UNSIGNED_BYTE, scm_label_icons);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 }
 
 scm_label::~scm_label()
@@ -345,10 +360,13 @@ void scm_label::draw()
             glTexCoordPointer(2, GL_FLOAT,         sz, (GLvoid *) 12);
             glColorPointer   (4, GL_UNSIGNED_BYTE, sz, (GLvoid *) 20);
 
-            glPointSize(8.0);
+            glPointSize(32.0);
             glEnable(GL_POINT_SPRITE);
+            glBindTexture(GL_TEXTURE_2D, sprite_tex);
+
             glUseProgram(sprite_glsl.program);
             glDrawArrays(GL_POINTS, 0, 1 * num_sprites);
+
             glDisable(GL_POINT_SPRITE);
         }
         glPopClientAttrib();

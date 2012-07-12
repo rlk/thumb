@@ -107,7 +107,7 @@ private:
         }
         bool sprite() const {
             return ((typ[0] == 'L' && typ[1] == 'F')
-                 || (typ[0] == 'M' && typ[1] == 'F'));
+                 || (typ[0] == 'M' && typ[1] == 'O'));
         }
     };
 
@@ -125,6 +125,7 @@ private:
 
     GLuint circle_vbo;
     GLuint sprite_vbo;
+    GLuint sprite_tex;
 
     std::vector<label> labels;
 };
