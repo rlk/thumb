@@ -110,8 +110,8 @@ private:
     std::vector<GLuint> u_v_img;
     std::vector<GLuint> u_f_img;
 
-    GLuint u_rm;
-    GLuint u_rb;
+    GLuint u_r0;
+    GLuint u_r1;
     GLuint u_n0;
     GLuint u_n1;
     GLuint u_fader;

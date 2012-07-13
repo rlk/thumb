@@ -587,8 +587,8 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
             { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
         };
 
-        glUniform1f(u_rm, GLfloat(cache.get_r1() - cache.get_r0()));
-        glUniform1f(u_rb, GLfloat(                 cache.get_r0()));
+        glUniform1f(u_r0, GLfloat(cache.get_r0()));
+        glUniform1f(u_r1, GLfloat(cache.get_r1()));
 
         glUniform1f(u_n0, GLfloat(n0));
         glUniform1f(u_n1, GLfloat(n1));
@@ -665,8 +665,8 @@ void scm_model::init_program(const char *vert_src,
 
         glUseProgram(program);
 
-        u_rm       = glGetUniformLocation(program, "rm");
-        u_rb       = glGetUniformLocation(program, "rb");
+        u_r0       = glGetUniformLocation(program, "r0");
+        u_r1       = glGetUniformLocation(program, "r1");
         u_n0       = glGetUniformLocation(program, "n0");
         u_n1       = glGetUniformLocation(program, "n1");
         u_fader    = glGetUniformLocation(program, "fader");

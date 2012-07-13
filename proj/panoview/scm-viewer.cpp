@@ -481,7 +481,7 @@ void scm_viewer::load_label(const std::string& name)
     // Create the new label.
 
     label = new scm_label(data_ptr, data_len, font_ptr, font_len,
-                    radius / 1000.0, ::conf->get_i("orbiter_icon_size", 16));
+                    radius, ::conf->get_i("orbiter_icon_size", 16));
 
     // Release the CSV file.
 

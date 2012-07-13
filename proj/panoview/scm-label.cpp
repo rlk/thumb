@@ -189,8 +189,6 @@ void scm_label::parse(const void *data_ptr, size_t data_len, double radius)
                        L.str, &L.lat, &L.lon,
                               &L.dia, &L.rad, &L.typ[0], &L.typ[1], &n) > 5)
     {
-        L.dia /= radius;
-
         labels.push_back(L);
 
         dat += n;
@@ -252,15 +250,18 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
         double y = 0.0;
         double z = 0.0;
 
-        double r = sqrt(labels[i].rad / radius -
-                        labels[i].dia * labels[i].dia / 4.0);
+        // double r = sqrt(labels[i].rad / radius -
+        //                 labels[i].dia * labels[i].dia / 4.0);
+
+        double d = labels[i].dia / radius;
+        double r = labels[i].rad / radius;
 
         // Transform it into position
 
         M.rotatey( radians(labels[i].lon));
         M.rotatex(-radians(labels[i].lat));
         M.translate(0, 0, r);
-        M.scale(labels[i].dia);
+        M.scale(d);
 
         // Create a sprite.
 
@@ -282,7 +283,7 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
 
         // Add the string and matrix to the list.
 
-        double e = 0.001 * clamp(labels[i].dia, 0.0005, 0.5) / labels[i].dia;
+        double e = 0.001 * clamp(d, 0.0005, 0.5) / d;
 
         M.scale(e);
         M.translate(x, y, z);

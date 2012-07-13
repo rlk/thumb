@@ -1,6 +1,6 @@
 
-uniform float     rm;
-uniform float     rb;
+uniform float     r0;
+uniform float     r1;
 uniform mat3      faceM;
 uniform vec2      v_mul[64];
 uniform vec2      v_add[64];
@@ -113,7 +113,7 @@ vec3 scube(vec2 t)
 void main()
 {
     float k = sample(gl_Vertex.xy).r;
-    float h = k * rm + rb;
+    float h = mix(r0, r1, k);
     vec3  v = h * scube(v_mul[0] * gl_Vertex.xy + v_add[0]);
 
     var_V = v;
