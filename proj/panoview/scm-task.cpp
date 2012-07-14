@@ -18,10 +18,114 @@
 
 //------------------------------------------------------------------------------
 
+// Construct a load task. Map the PBO to provide a destination for the loader.
+
+scm_task::scm_task(int f, long long i, uint64 o, GLuint u, GLsizei s)
+    : scm_item(f, i), o(o), u(u), d(false)
+{
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
+    {
+        glBufferData(GL_PIXEL_UNPACK_BUFFER, s, 0, GL_STREAM_DRAW);
+        p = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+    }
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+}
+
+// Upload the pixel buffer to the OpenGL texture object.
+
+void scm_task::make_page(GLuint o, uint32 w, uint32 h,
+                                   uint16 c, uint16 b, uint16 g)
+{
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
+    {
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+
+        glBindTexture  (GL_TEXTURE_2D, o);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+        glTexImage2D   (GL_TEXTURE_2D, 0, scm_internal_form(c, b, g), w, h, 1,
+                                          scm_external_form(c, b, g),
+                                          scm_external_type(c, b, g), 0);
+    }
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+}
+
+// A page was loaded but is no longer necessary. Discard the pixel buffer.
+
+void scm_task::dump_page()
+{
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
+    {
+        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+    }
+    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
+}
+
+// Load the current TIFF directory image data into the mapped pixel buffer.
+
+void scm_task::load_page(TIFF *T, uint32 w, uint32 h,
+                                  uint16 c, uint16 b, uint16 g)
+{
+    // Confirm the page format.
+
+    uint32 W, H;
+    uint16 C, B, G;
+
+    TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &W);
+    TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &H);
+    TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &B);
+    TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &C);
+    TIFFGetField(T, TIFFTAG_SAMPLEFORMAT,    &G);
+
+    if (W == w && H == h && B == b && C == c)
+    {
+        // Pad a 24-bit image to 32-bit BGRA. TODO: eliminate this malloc.
+
+        if (c == 3 && b == 8)
+        {
+            if (void *q = malloc(TIFFScanlineSize(T)))
+            {
+                const uint32 S = w * 4 * b / 8;
+
+                for (uint32 r = 0; r < h; ++r)
+                {
+                    TIFFReadScanline(T, q, r, 0);
+
+                    for (int j = w - 1; j >= 0; --j)
+                    {
+                        uint8 *s = (uint8 *) q         + j * c * b / 8;
+                        uint8 *d = (uint8 *) p + r * S + j * 4 * b / 8;
+
+                        d[0] = s[2];
+                        d[1] = s[1];
+                        d[2] = s[0];
+                        d[3] = 0xFF;
+                    }
+                }
+                free(q);
+            }
+        }
+
+        // Load a non-24-bit image normally.
+
+        else
+        {
+            const uint32 S = (uint32) TIFFScanlineSize(T);
+
+            for (uint32 r = 0; r < h; ++r)
+                TIFFReadScanline(T, (uint8 *) p + r * S, r, 0);
+        }
+    }
+}
+
+//------------------------------------------------------------------------------
+
 // Select an OpenGL internal texture format for an image with c channels and
 // b bits per channel.
 
-static GLenum internal_form(uint16 c, uint16 b, uint16 g)
+GLenum scm_internal_form(uint16 c, uint16 b, uint16 g)
 {
     if (b == 8)
         switch (c)
@@ -53,7 +157,7 @@ static GLenum internal_form(uint16 c, uint16 b, uint16 g)
 
 // Select an OpenGL external texture format for an image with c channels.
 
-static GLenum external_form(uint16 c, uint16 b, uint16 g)
+GLenum scm_external_form(uint16 c, uint16 b, uint16 g)
 {
     if (b == 8)
         switch (c)
@@ -75,119 +179,21 @@ static GLenum external_form(uint16 c, uint16 b, uint16 g)
 
 // Select an OpenGL data type for an image with c channels of b bits.
 
-static GLenum external_type(uint16 c, uint16 b, uint16 g)
+GLenum scm_external_type(uint16 c, uint16 b, uint16 g)
 {
     if (b ==  8 && c == 3) return GL_UNSIGNED_INT_8_8_8_8_REV; // *
     if (b ==  8 && c == 4) return GL_UNSIGNED_INT_8_8_8_8_REV;
-
-    if (b ==  8) return /*(g == 2) ? GL_BYTE  :*/ GL_UNSIGNED_BYTE;
-    if (b == 16) return /*(g == 2) ? GL_SHORT :*/ GL_UNSIGNED_SHORT;
+#if 0
+    if (b ==  8) return (g == 2) ? GL_BYTE  : GL_UNSIGNED_BYTE;
+    if (b == 16) return (g == 2) ? GL_SHORT : GL_UNSIGNED_SHORT;
+#endif
+    if (b ==  8) return GL_UNSIGNED_BYTE;
+    if (b == 16) return GL_UNSIGNED_SHORT;
     if (b == 32) return GL_FLOAT;
 
     return 0;
 }
 
 // * 24-bit images are always padded to 32 bits.
-
-//------------------------------------------------------------------------------
-
-// Construct a load task. Map the PBO to provide a destination for the loader.
-
-scm_task::scm_task(int f, long long i, uint64 o, GLuint u, GLsizei s)
-    : scm_item(f, i), o(o), u(u), d(false)
-{
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
-    {
-        glBufferData(GL_PIXEL_UNPACK_BUFFER, s, 0, GL_STREAM_DRAW);
-        p = glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
-    }
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-}
-
-// Upload the pixel buffer to the OpenGL texture object.
-
-void scm_task::make_texture(GLuint o, uint32 w, uint32 h,
-                                      uint16 c, uint16 b, uint16 g)
-{
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
-    {
-        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-
-        glBindTexture  (GL_TEXTURE_2D, o);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-        glTexImage2D   (GL_TEXTURE_2D, 0, internal_form(c, b, g), w, h, 1,
-                                          external_form(c, b, g),
-                                          external_type(c, b, g), 0);
-    }
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-}
-
-// A texture was loaded but is no longer necessary. Discard the pixel buffer.
-
-void scm_task::dump_texture()
-{
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, u);
-    {
-        glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
-    }
-    glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
-}
-
-// Load the current TIFF directory image data into the mapped pixel buffer.
-
-void scm_task::load_texture(TIFF *T, uint32 w, uint32 h,
-                                     uint16 c, uint16 b, uint16 g)
-{
-    // Confirm the page format.
-
-    uint32 W, H;
-    uint16 C, B, G;
-
-    TIFFGetField(T, TIFFTAG_IMAGEWIDTH,      &W);
-    TIFFGetField(T, TIFFTAG_IMAGELENGTH,     &H);
-    TIFFGetField(T, TIFFTAG_BITSPERSAMPLE,   &B);
-    TIFFGetField(T, TIFFTAG_SAMPLESPERPIXEL, &C);
-    TIFFGetField(T, TIFFTAG_SAMPLEFORMAT,    &G);
-
-    if (W == w && H == h && B == b && C == c)
-    {
-        // Pad a 24-bit image to 32-bit BGRA.
-
-        if (c == 3 && b == 8)
-        {
-            if (void *q = malloc(TIFFScanlineSize(T)))
-            {
-                const uint32 S = w * 4 * b / 8;
-
-                for (uint32 r = 0; r < h; ++r)
-                {
-                    TIFFReadScanline(T, q, r, 0);
-
-                    for (int j = w - 1; j >= 0; --j)
-                    {
-                        uint8 *s = (uint8 *) q         + j * c * b / 8;
-                        uint8 *d = (uint8 *) p + r * S + j * 4 * b / 8;
-
-                        d[0] = s[2];
-                        d[1] = s[1];
-                        d[2] = s[0];
-                        d[3] = 0xFF;
-                    }
-                }
-                free(q);
-            }
-        }
-        else
-        {
-            const uint32 S = (uint32) TIFFScanlineSize(T);
-
-            for (uint32 r = 0; r < h; ++r)
-                TIFFReadScanline(T, (uint8 *) p + r * S, r, 0);
-        }
-    }
-}
 
 //------------------------------------------------------------------------------

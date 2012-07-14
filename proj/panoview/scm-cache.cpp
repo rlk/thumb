@@ -19,35 +19,16 @@
 
 //------------------------------------------------------------------------------
 
-// Zero the given texture object by uploading a single black pixel.
-
-static void clear(GLuint t)
-{
-    static const GLfloat p[] = { 0, 0, 0, 0 };
-
-    glBindTexture   (GL_TEXTURE_2D, t);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-    glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-    glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, p);
-    glTexImage2D    (GL_TEXTURE_2D, 0, GL_RGBA, 1, 1, 0, GL_RGBA, GL_FLOAT, p);
-}
-
-//------------------------------------------------------------------------------
-
-scm_cache::scm_cache(int n) :
-    pages(n),
-    waits(n),
+scm_cache::scm_cache(float r0, float r1, int n) :
+    pages(),
+    waits(),
     needs(need_queue_size),
     loads(load_queue_size),
-    size(0),
-    r0(+std::numeric_limits<float>::max()),
-    r1(-std::numeric_limits<float>::max())
+    texture(0),
+    next(1),
+    r0(r0),
+    r1(r1)
 {
-    GLuint b;
-    int    i;
-
     // Launch the image loader threads.
 
     int loader(void *data);
@@ -59,16 +40,20 @@ scm_cache::scm_cache(int n) :
 
     // Generate pixel buffer objects.
 
-    for (i = 0; i < 64; ++i)
+    for (int i = 0; i < 64; ++i)
     {
+        GLuint b;
         glGenBuffers(1, &b);
         pbos.push_back(b);
     }
 
-    // Initialize the default filler texture.
+    // Limit the cache size to the maximum array texture depth.
 
-    glGenTextures(1, &filler);
-    clear(filler);
+    GLint max;
+
+    glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max);
+
+    size = std::min(max, n);
 }
 
 scm_cache::~scm_cache()
@@ -101,57 +86,55 @@ scm_cache::~scm_cache()
         pbos.pop_back();
     }
 
-    // Release the file index / offset maps.
+    // Release the texture.
 
-    std::vector<scm_file *>::iterator i;
-
-    for (i = files.begin(); i != files.end(); ++i)
-        delete (*i);
-
-    // Release the default texture.
-
-    glDeleteTextures(1, &filler);
+    glDeleteTextures(1, &texture);
 }
 
 //------------------------------------------------------------------------------
-#if 0
-static void debug_on(int l)
+
+int scm_cache::add_file(const std::string& name)
 {
-    static const GLfloat color[][3] = {
-        { 1.0f, 0.0f, 0.0f },
-        { 1.0f, 1.0f, 0.0f },
-        { 0.0f, 1.0f, 0.0f },
-        { 0.0f, 1.0f, 1.0f },
-        { 0.0f, 0.0f, 1.0f },
-        { 1.0f, 0.0f, 1.0f },
-        { 1.0f, 1.0f, 1.0f },
-        { 1.0f, 1.0f, 1.0f },
-    };
-    glPixelTransferf(GL_RED_SCALE,   color[l][0]);
-    glPixelTransferf(GL_GREEN_SCALE, color[l][1]);
-    glPixelTransferf(GL_BLUE_SCALE,  color[l][2]);
-}
-#endif
-//------------------------------------------------------------------------------
+    int f = -1;
 
-// Append a string to the file list and return its index. Cache the bounds.
+    // Try to load the named file.
 
-int scm_cache::add_file(const std::string& name, float n0, float n1)
-{
-    int f = int(files.size());
+    if (scm_file *n = new scm_file(name))
+    {
+        // If succesful, add it to the collection.
 
-    files.push_back(new scm_file(name, n0, n1));
+        f = int(files.size());
 
-    r0 = std::min(r0, n0);
-    r1 = std::max(r1, n1);
+        files.push_back(n);
 
+        // If necessary, generate the array texture.
+
+        if (texture == 0)
+        {
+            GLenum  T = GL_TEXTURE_2D_ARRAY;
+
+            GLsizei w = GLsizei(n->get_w());
+            GLsizei h = GLsizei(n->get_h());
+
+            GLenum  i = scm_internal_form(n->get_c(), n->get_b(), n->get_g());
+            GLenum  e = scm_external_form(n->get_c(), n->get_b(), n->get_g());
+            GLenum  t = scm_external_type(n->get_c(), n->get_b(), n->get_g());
+
+            glGenTextures  (1, &texture);
+            glBindTexture  (T,  texture);
+            glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+            glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+            glTexParameteri(T, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+            glTexParameteri(T, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+            glTexImage3D   (T, 0, i, w, h, size, 1, e, t, 0);
+        }
+    }
     return f;
 }
 
-// Return the texture object associated with the requested page. Request the
-// image if necessary.
+// Return the layer for the requested page. Request the page if necessary.
 
-GLuint scm_cache::get_page(int f, long long i, int t, int& n)
+int scm_cache::get_page(int f, long long i, int t, int& n)
 {
     // If this page is waiting, return the filler.
 
@@ -160,17 +143,17 @@ GLuint scm_cache::get_page(int f, long long i, int t, int& n)
     if (wait.valid())
     {
         n    = wait.t;
-        return wait.o;
+        return wait.l;
     }
 
-    // If this page is loaded, return the texture.
+    // If this page is loaded, return the layer.
 
     scm_page page = pages.search(scm_page(f, i), t);
 
     if (page.valid())
     {
         n    = page.t;
-        return page.o;
+        return page.l;
     }
 
     // If this page does not exist, return the filler.
@@ -178,24 +161,25 @@ GLuint scm_cache::get_page(int f, long long i, int t, int& n)
     uint64 o = files[f]->offset(i);
 
     if (o == 0)
-        return filler;
+        return 0;
 
     // Otherwise request the page and add it to the waiting set.
 
     if (!needs.full() && !pbos.empty())
     {
-        needs.insert(scm_task(f, i, o, pbos.deq(), pagelen(f)));
-        waits.insert(scm_page(f, i, filler), t);
+        needs.insert(scm_task(f, i, o, pbos.deq(), files[f]->length()));
+        waits.insert(scm_page(f, i, 0), t);
     }
 
     n = 0;
-    return filler;
+    return 0;
 }
 
 // Handle incoming textures on the loads queue.
 
 void scm_cache::update(int t)
 {
+    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
     glPushAttrib(GL_PIXEL_MODE_BIT);
     {
         for (int c = 0; !loads.empty() && c < max_loads_per_update; ++c)
@@ -207,34 +191,30 @@ void scm_cache::update(int t)
 
             if (task.d)
             {
-                if (pages.full())
+                if (next < size)
+                    page.l = next;
+                else
                 {
                     scm_page victim = pages.eject(t, page.i);
 
                     if (victim.valid())
-                    {
-                        size  -= pagelen(victim.f);
-                        page.o =         victim.o;
-                    }
+                        page.l = victim.l;
                 }
-                else
-                    glGenTextures(1, &page.o);
 
-                if (page.o)
+                if (page.l >= 0)
                 {
                     page.t = t;
                     pages.insert(page, t);
 
-                    task.make_texture(page.o, files[task.f]->get_w(),
-                                              files[task.f]->get_h(),
-                                              files[task.f]->get_c(),
-                                              files[task.f]->get_b(),
-                                              files[task.f]->get_g());
-                    size += pagelen(page.f);
+                    task.make_page(page.l, files[task.f]->get_w(),
+                                           files[task.f]->get_h(),
+                                           files[task.f]->get_c(),
+                                           files[task.f]->get_b(),
+                                           files[task.f]->get_g());
                 }
-                else task.dump_texture();
+                else task.dump_page();
             }
-            else task.dump_texture();
+            else task.dump_page();
 
             pbos.enq(task.u);
         }
@@ -275,6 +255,9 @@ void scm_cache::page_bounds(long long i, const int *vv, int vc, float& s0, float
 
             files[vv[vi]]->bounds(uint64(i), t0, t1);
 
+            t0 = t0 * (r1 - r0) + r0;
+            t1 = t1 * (r1 - r0) + r0;
+
             s0 = std::min(s0, t0);
             s1 = std::max(s1, t1);
         }
@@ -302,16 +285,6 @@ bool scm_cache::page_status(long long i, const int *vv, int vc,
 
 //------------------------------------------------------------------------------
 
-// Compute the length of a page buffer for file f.
-// TODO: eliminate
-
-GLsizei scm_cache::pagelen(int f)
-{
-    return files[f]->length();
-}
-
-//------------------------------------------------------------------------------
-
 // Load textures. Remove a task from the cache's needed queue, open and read
 // the TIFF image file, and insert the task in the cache's loaded queue. Exit
 // when given a negative file index.
@@ -335,7 +308,7 @@ int loader(void *data)
                 uint16 b = cache->files[task.f]->get_b();
                 uint16 g = cache->files[task.f]->get_g();
 
-                task.load_texture(T, w, h, c, b, g);
+                task.load_page(T, w, h, c, b, g);
                 task.d = true;
             }
             TIFFClose(T);

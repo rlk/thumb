@@ -18,14 +18,6 @@
 
 //------------------------------------------------------------------------------
 
-scm_set::~scm_set()
-{
-    std::map<scm_page, int>::iterator i;
-
-    for (i = m.begin(); i != m.end(); ++i)
-        glDeleteTextures(1, &i->first.o);
-}
-
 void scm_set::insert(scm_page page, int t)
 {
     m[page] = t;
@@ -96,9 +88,11 @@ scm_page scm_set::eject(int t, long long i)
 
 void scm_set::draw()
 {
-    int l = log2(size);
+#if 0
+    int s = int(m.size());
+    int l = log2(s);
     int r = (l & 1) ? (1 << ((l - 1) / 2)) : (1 << (l / 2));
-    int c = size / r;
+    int c = s / r;
 
     glUseProgram(0);
 
@@ -144,6 +138,7 @@ void scm_set::draw()
         glPopMatrix();
     }
     glPopAttrib();
+#endif
 }
 
 //------------------------------------------------------------------------------

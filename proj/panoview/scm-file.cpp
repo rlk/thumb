@@ -42,12 +42,11 @@ static bool exists(const std::string& name)
 
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
-scm_file::scm_file(const std::string& tiff, float n0, float n1)
-    : n0(n0), n1(n1),
-      xv(0), xc(0),
-      ov(0), oc(0),
-      av(0), ac(0),
-      zv(0), zc(0)
+scm_file::scm_file(const std::string& tiff) :
+    xv(0), xc(0),
+    ov(0), oc(0),
+    av(0), ac(0),
+    zv(0), zc(0)
 {
     // If the given file name is absolute, use it.
 
@@ -237,9 +236,6 @@ void scm_file::bounds(uint64 i, float& r0, float& r1) const
         if (aj < ac) r0 = ((float *) av)[aj * c];
         if (zj < zc) r1 = ((float *) zv)[zj * c];
     }
-
-    r0 = n0 + r0 * (n1 - n0);
-    r1 = n0 + r1 * (n1 - n0);
 }
 
 // Return the buffer length for a page of this file.  24-bit is padded to 32.

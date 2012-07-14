@@ -511,9 +511,6 @@ void scm_viewer::gui_draw()
 {
     if (const app::frustum *overlay = ::host->get_overlay())
     {
-        if (cache)
-            ui->set_status(cache->get_size());
-
         glEnable(GL_DEPTH_CLAMP_NV);
         {
             overlay->draw();

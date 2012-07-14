@@ -21,13 +21,13 @@
 
 struct scm_page : public scm_item
 {
-    scm_page()                                    : scm_item(    ), o(0), t(0) { }
-    scm_page(int f, long long i)                  : scm_item(f, i), o(0), t(0) { }
-    scm_page(int f, long long i, GLuint o)        : scm_item(f, i), o(o), t(0) { }
-    scm_page(int f, long long i, GLuint o, int t) : scm_item(f, i), o(o), t(t) { }
+    scm_page()                                 : scm_item(    ), l(-1), t(0) { }
+    scm_page(int f, long long i)               : scm_item(f, i), l(-1), t(0) { }
+    scm_page(int f, long long i, int l)        : scm_item(f, i), l( l), t(0) { }
+    scm_page(int f, long long i, int l, int t) : scm_item(f, i), l( l), t(t) { }
 
-    GLuint o;
-    int    t;
+    int l;
+    int t;
 };
 
 //------------------------------------------------------------------------------
@@ -36,12 +36,9 @@ class scm_set
 {
 public:
 
-    scm_set(int size) : size(size) { }
-   ~scm_set();
-
-    int  count() const { return int(m.size()); }
-    bool full()  const { return (count() >= size); }
-    bool empty() const { return (m.empty()); }
+    // int  count() const { return int(m.size()); }
+    // bool full()  const { return (count() >= size); }
+    bool empty() const { return m.empty(); }
 
     scm_page search(scm_page, int);
     void     insert(scm_page, int);
@@ -53,8 +50,6 @@ public:
 private:
 
     std::map<scm_page, int> m;
-
-    int size;
 };
 
 //------------------------------------------------------------------------------
