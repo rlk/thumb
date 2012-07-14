@@ -25,7 +25,7 @@
 #define LABEL_R 0xFF
 #define LABEL_G 0x80
 #define LABEL_B 0x00
-#define LABEL_A 0x80
+#define LABEL_A 0xFF
 
 //------------------------------------------------------------------------------
 
@@ -269,7 +269,7 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
         {
             sprite S(M, labels[i].typ);
             sprite_v.push_back(S);
-            x = +h / 4.0;
+            y = +h / 3.0;
         }
 
         // Create a circle.
@@ -278,7 +278,6 @@ scm_label::scm_label(const void *data_ptr, size_t data_len,
         {
             circle C(M, labels[i].typ);
             circle_v.push_back(C);
-            x = -w / 2.0;
         }
 
         // Add the string and matrix to the list.

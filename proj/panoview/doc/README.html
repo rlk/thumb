@@ -365,6 +365,11 @@
 &lt;option name="orbiter_joystick_axis_Y"&gt;1&lt;/option&gt;
 &lt;option name="orbiter_joystick_button_U"&gt;0&lt;/option&gt;
 &lt;option name="orbiter_joystick_button_D"&gt;1&lt;/option&gt;</pre></blockquote>
+
+      <p><li>The icon size option selects the size of the icons used in <a href="#labels">feature labeling</a>, in pixels. Increasing this value will make these icons more visible on large, high-resolution displays. For best quality, use a power of two.</li></p>
+
+      <blockquote><pre>&lt;option name="orbiter_icon_size"&gt;16&lt;/option&gt;</pre></blockquote>
+
     </ul>
 
     <a name="datconf"><h3>Data Configuration</h3></a>
@@ -444,28 +449,33 @@
 
     <img src="img/label.png">
 
-    <p>These labellings are defined using Comma-Separated Value (CSV) files, which may be edited with most any spreadsheet program. Text is encoded using UTF8, which enables the use of accents and foreign characters. The image above shows 8990 sites acknowledged by the IAU. The first few lines of this file are as follows:</p>
+    <p>These labellings are defined using Comma-Separated Value (CSV) files, which may be edited with most any spreadsheet program or text editor. Text is encoded using UTF8, which enables the use of accents and foreign characters. The image above shows 8990 sites acknowledged by the IAU. The first few lines of this file are as follows:</p>
 
     <blockquote><pre>
-"Abbot",5.5157114264,54.7073670159,10.4043000000,1737400.0,C
-"Abel",-34.4365372844,85.4191847678,119.4370000000,1737400.0,C
-"Tiling",-52.9059642528,226.8524033223,38.2300000000,1737400.0,C
-"Abenezra",-21.0078405096,11.8763800960,43.1887000000,1737400.0,C</pre></blockquote>
+"Abbot",5.5157114264,54.7073670159,10404.3,1736106.29688,AA
+"Abel",-34.4365372844,85.4191847678,119437.0,1734978.15625,AA
+"Tiling",-52.9059642528,226.8524033223,38230.0,1733504.9375,AA
+"Abenezra",-21.0078405096,11.8763800960,43188.7,1737983.65625,AA
+"Perepelkin P",-12.4460507308,127.2385632171,23478.0,1740759.25,SF
+</pre></blockquote>
 
-    <p>Each line defines one feature with six attributes: the name in double quotes, the center latitude in degrees, the center longitude in degrees, the diameter of the feature in kilometers, distance from the center of the planet in meters, and one character giving the type of the annotation:</p>
+    <p>Each line defines one feature with six attributes: the name in double quotes, the center latitude in degrees, the center longitude in degrees, the diameter of the feature in meters, distance from the center of the planet in meters, and a pair of characters giving the IAU type of the annotation, which determines how the annotation is drawn.</p>
 
-    <table style="margin:auto;width:40%">
+    <table style="margin:auto;width:80%">
       <tr>
-        <td>C</td><td>&hellip;</td><td>Circle</td>
+        <td>AA</td><td>&hellip;</td><td>Crater, drawn as a circle of the given diameter.</td>
       </tr>
       <tr>
-        <td>F</td><td>&hellip;</td><td>Flag</td>
+        <td>SF</td><td>&hellip;</td><td>Satellite feature, drawn as a dim circle of the given diameter.</td>
       </tr>
       <tr>
-        <td>M</td><td>&hellip;</td><td>Mountain</td>
+        <td>MO</td><td>&hellip;</td><td>Mountain or range, drawn as a triangle icon</td>
       </tr>
       <tr>
-        <td>L</td><td>&hellip;</td><td>Label Only</td>
+        <td>LF</td><td>&hellip;</td><td>Landing site feature, drawn as a flag icon</td>
+      </tr>
+      <tr>
+        <td><i>all others</i></td><td>&hellip;</td><td>Drawn with label only</td>
       </tr>
     </table>
 
@@ -485,6 +495,8 @@
       <li><p>If performance is bad, be sure that SCM TIFF files are <em>not</em> being accessed from a network share. Also check that <tt>scm_viewer_cache_size</tt> is not too large.</p></li>
 
       <li><p>If the application exits unexpectedly, it will most likely have printed an error message to the standard error stream. Under Windows, this information will be redirected to the file <tt>stderr.txt</tt>. This may prove informative.</p></li>
+
+      <li><p>If the renderer emits error messages about &ldquo;implementation limits&rdquo; on &ldquo;active samplers&rdquo; then you're probably running OS X, which places artificial limits on the usable number of texture image units. High resolution visualizations will not run. Windows and Linux do not impose these artificial limits, even on the same hardware.</p>
     </ul>
 
     <a name="scm"><h2>SCM TIFF</h2></a>
