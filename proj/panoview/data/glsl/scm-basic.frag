@@ -1,8 +1,22 @@
 
-uniform vec2      f_mul[64];
-uniform vec2      f_add[64];
-uniform sampler2D f_img[64];
-uniform float     f_age[64];
+struct scm
+{
+    sampler2DArray img;
+    int            idx[16];
+    vec2           mul[16];
+    vec2           add[16];
+    float          age[16];
+};
+
+uniform struct scm scm_frag[1];
+
+//------------------------------------------------------------------------------
+
+vec4 img0(const struct scm s, vec2 t)
+{
+    vec4 c = texture2DArray(s.img, t * s.mul[0] + s.add[0]);
+    return vec4(c.rgb, c.a * s.age[0]);
+}
 
 //------------------------------------------------------------------------------
 

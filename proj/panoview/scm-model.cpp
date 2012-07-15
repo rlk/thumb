@@ -85,9 +85,7 @@ scm_model::scm_model(scm_cache& cache,
     cache(cache),
     time(1),
     size(s),
-    debug(false),
-    n0(0.0),
-    n1(1.0)
+    debug(false)
 {
     init_program(vert, frag);
     init_arrays(n);
@@ -436,8 +434,6 @@ void scm_model::draw_page(const int *vv, int vc,
         glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
         glUniform1f(u_f_age[d * fc + fi], age(then));
         glUniform1i(u_f_img[d * fc + fi], d * tc + ti);
-     // glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-     // glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     }
 
     // Won't someone please think of the children?
@@ -546,8 +542,8 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
 
     std::set<long long>::iterator i;
 
-    GLuint o;
     int then;
+    int o;
 
     for (i = pages.begin(); i != pages.end(); ++i)
     {
@@ -589,9 +585,6 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
 
         glUniform1f(u_r0, GLfloat(cache.get_r0()));
         glUniform1f(u_r1, GLfloat(cache.get_r1()));
-
-        glUniform1f(u_n0, GLfloat(n0));
-        glUniform1f(u_n1, GLfloat(n1));
 
         glUniform1f(u_zoomk, GLfloat(zoomk));
         glUniform3f(u_zoomv, GLfloat(zoomv[0]),
@@ -667,8 +660,6 @@ void scm_model::init_program(const char *vert_src,
 
         u_r0       = glGetUniformLocation(program, "r0");
         u_r1       = glGetUniformLocation(program, "r1");
-        u_n0       = glGetUniformLocation(program, "n0");
-        u_n1       = glGetUniformLocation(program, "n1");
         u_fader    = glGetUniformLocation(program, "fader");
         u_zoomk    = glGetUniformLocation(program, "zoomk");
         u_zoomv    = glGetUniformLocation(program, "zoomv");

@@ -56,8 +56,6 @@ private:
     int    time;
     int    size;
     bool   debug;
-    double n0;
-    double n1;
 
     GLfloat age(int);
 
@@ -112,8 +110,6 @@ private:
 
     GLuint u_r0;
     GLuint u_r1;
-    GLuint u_n0;
-    GLuint u_n1;
     GLuint u_fader;
     GLuint u_zoomk;
     GLuint u_zoomv;
