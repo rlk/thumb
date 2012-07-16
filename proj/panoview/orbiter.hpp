@@ -22,7 +22,7 @@
 
 //-----------------------------------------------------------------------------
 
-class orbiter : public scm_viewer
+class orbiter : public view_app
 {
 public:
 

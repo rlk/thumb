@@ -17,7 +17,7 @@
 
 //------------------------------------------------------------------------------
 
-class scm_viewer;
+class view_app;
 
 class scm_loader : public gui::dialog
 {
@@ -25,7 +25,7 @@ class scm_loader : public gui::dialog
 
 public:
 
-    scm_loader(scm_viewer *, int, int);
+    scm_loader(view_app *, int, int);
 
     void set_status(int c);
 };

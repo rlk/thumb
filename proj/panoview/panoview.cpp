@@ -30,7 +30,7 @@
 //------------------------------------------------------------------------------
 
 panoview::panoview(const std::string& exe,
-                   const std::string& tag) : scm_viewer(exe, tag),
+                   const std::string& tag) : view_app(exe, tag),
     min_zoom(0.5),
     max_zoom(4.0),
     drag_zooming(false),
@@ -60,15 +60,15 @@ void panoview::draw(int frusi, const app::frustum *frusp, int chani)
         // model->set_zoom(v[0], v[1], v[2], here.get_zoom());
     }
 
-    scm_viewer::draw(frusi, frusp, chani);
-    scm_viewer::over(frusi, frusp, chani);
+    view_app::draw(frusi, frusp, chani);
+    view_app::over(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------
 
 bool panoview::process_event(app::event *E)
 {
-    if (!scm_viewer::process_event(E))
+    if (!view_app::process_event(E))
     {
         switch (E->get_type())
         {

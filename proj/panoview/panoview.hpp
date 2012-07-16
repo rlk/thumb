@@ -21,7 +21,7 @@
 
 //-----------------------------------------------------------------------------
 
-class panoview : public scm_viewer
+class panoview : public view_app
 {
 public:
 

@@ -10,16 +10,21 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SCM_MODEL_HPP
-#define SCM_MODEL_HPP
-
-#include <GL/glew.h>
-#include <vector>
-#include <set>
-
-#include "scm-cache.hpp"
+#ifndef SCM_IMAGE_HPP
+#define SCM_IMAGE_HPP
 
 //------------------------------------------------------------------------------
+
+class scm_image
+{
+public:
+
+	scm_image();
+
+private:
+
+};
+
 //------------------------------------------------------------------------------
 
 #endif

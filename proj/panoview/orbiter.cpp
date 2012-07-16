@@ -31,7 +31,7 @@
 
 orbiter::orbiter(const std::string& exe,
                  const std::string& tag)
-    : scm_viewer(exe, tag)
+    : view_app(exe, tag)
 {
     // Initialize all interaction state.
 
@@ -253,7 +253,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
     report();
 
-    scm_viewer::prep(frusc, frusv);
+    view_app::prep(frusc, frusv);
 
     if (cache && model)
     {
@@ -297,17 +297,17 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     glEnable(GL_CULL_FACE);
 
     glFrontFace(GL_CW);
-    scm_viewer::draw(frusi, frusp, chani);
+    view_app::draw(frusi, frusp, chani);
 
     glFrontFace(GL_CCW);
-    scm_viewer::over(frusi, frusp, chani);
+    view_app::over(frusi, frusp, chani);
 }
 
 //------------------------------------------------------------------------------
 
 bool orbiter::process_event(app::event *E)
 {
-    if (!scm_viewer::process_event(E))
+    if (!view_app::process_event(E))
     {
         switch (E->get_type())
         {
@@ -324,7 +324,7 @@ bool orbiter::process_event(app::event *E)
 
 void orbiter::load(const std::string& name)
 {
-    scm_viewer::load(name);
+    view_app::load(name);
 
     here.set_radius(2.0 * get_radius());
 }

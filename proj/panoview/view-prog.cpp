@@ -29,7 +29,7 @@
 
 //------------------------------------------------------------------------------
 
-scm_viewer::scm_viewer(const std::string& exe,
+view_app::view_app(const std::string& exe,
                        const std::string& tag) : app::prog(exe, tag),
     cache  (0),
     model  (0),
@@ -53,7 +53,7 @@ scm_viewer::scm_viewer(const std::string& exe,
     gui_init();
 }
 
-scm_viewer::~scm_viewer()
+view_app::~view_app()
 {
     gui_free();
     unload();
@@ -63,26 +63,7 @@ scm_viewer::~scm_viewer()
 
 //------------------------------------------------------------------------------
 
-scm_frame::scm_frame(scm_cache *cache, app::node node) : mono(true)
-{
-    for (app::node n = node.find("scm"); n; n = node.next(n, "scm"))
-    {
-        image I;
-
-        I.file = cache->add_file(n.get_s("file"),
-                                 n.get_f("r0", 1.0),
-                                 n.get_f("r1", 1.0));
-
-        I.shader  = (n.get_s("shader") == "vert") ? 0 : 1;
-        I.channel = (n.get_i("channel"));
-
-        if (I.channel) mono = false;
-
-        images.push_back(I);
-    }
-}
-
-void scm_viewer::load(const std::string& name)
+void view_app::load(const std::string& name)
 {
     // If the named file exists and contains an XML panorama definition...
 
@@ -112,7 +93,7 @@ void scm_viewer::load(const std::string& name)
 
         // Create the new cache and model.
 
-        cache = new scm_cache(::conf->get_i("scm_viewer_cache_size", 256));
+        cache = new scm_cache(::conf->get_i("view_app_cache_size", 256));
         model = new scm_model(*cache, vert_src, frag_src, n, s);
 
         ::data->free(vert_name);
@@ -141,12 +122,12 @@ void scm_viewer::load(const std::string& name)
     }
 }
 
-void scm_viewer::cancel()
+void view_app::cancel()
 {
     gui_state = false;
 }
 
-void scm_viewer::unload()
+void view_app::unload()
 {
     std::vector<scm_frame *>::iterator i;
 
@@ -164,13 +145,13 @@ void scm_viewer::unload()
     cache = 0;
 }
 
-void scm_viewer::goto_next()
+void view_app::goto_next()
 {
     timer_e = floor(timer + 1.0);
     timer_d = +2.0;
 }
 
-void scm_viewer::goto_prev()
+void view_app::goto_prev()
 {
     timer_e = ceil(timer - 1.0);
     timer_d = -2.0;
@@ -178,7 +159,7 @@ void scm_viewer::goto_prev()
 
 //------------------------------------------------------------------------------
 
-ogl::range scm_viewer::prep(int frusc, const app::frustum *const *frusv)
+ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
     double r = radius * get_scale(here.get_radius());
 
@@ -192,11 +173,11 @@ ogl::range scm_viewer::prep(int frusc, const app::frustum *const *frusv)
     return ogl::range(0.1, r * 10.0);
 }
 
-void scm_viewer::lite(int frusc, const app::frustum *const *frusv)
+void view_app::lite(int frusc, const app::frustum *const *frusv)
 {
 }
 
-void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
+void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
     const double *P =  frusp->get_P();
     const double *M = ::user->get_M();
@@ -260,7 +241,7 @@ void scm_viewer::draw(int frusi, const app::frustum *frusp, int chani)
     }
 }
 
-void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
+void view_app::over(int frusi, const app::frustum *frusp, int chani)
 {
     double s = get_scale(here.get_radius());
     double r = radius;
@@ -306,7 +287,7 @@ void scm_viewer::over(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
-bool scm_viewer::process_key(app::event *E)
+bool view_app::process_key(app::event *E)
 {
     const int d = E->data.key.d;
     const int k = E->data.key.k;
@@ -374,7 +355,7 @@ bool scm_viewer::process_key(app::event *E)
     return prog::process_event(E);
 }
 
-bool scm_viewer::process_user(app::event *E)
+bool view_app::process_user(app::event *E)
 {
     // Extract the landmark name from the user event structure.
 
@@ -418,7 +399,7 @@ bool scm_viewer::process_user(app::event *E)
     return false;
 }
 
-bool scm_viewer::process_tick(app::event *E)
+bool view_app::process_tick(app::event *E)
 {
     if (path.playing())
     {
@@ -442,7 +423,7 @@ bool scm_viewer::process_tick(app::event *E)
     return false;
 }
 
-bool scm_viewer::process_event(app::event *E)
+bool view_app::process_event(app::event *E)
 {
     if      (E->get_type() == E_KEY)  return process_key(E);
     else if (E->get_type() == E_USER) return process_user(E);
@@ -465,7 +446,7 @@ bool scm_viewer::process_event(app::event *E)
 
 //------------------------------------------------------------------------------
 
-void scm_viewer::load_label(const std::string& name)
+void view_app::load_label(const std::string& name)
 {
     // Load the CSV file.
 
@@ -490,7 +471,7 @@ void scm_viewer::load_label(const std::string& name)
 
 //------------------------------------------------------------------------------
 
-void scm_viewer::gui_init()
+void view_app::gui_init()
 {
     const app::frustum *overlay = ::host->get_overlay();
 
@@ -502,12 +483,12 @@ void scm_viewer::gui_init()
     ui = new scm_loader(this, w, h);
 }
 
-void scm_viewer::gui_free()
+void view_app::gui_free()
 {
     delete ui;
 }
 
-void scm_viewer::gui_draw()
+void view_app::gui_draw()
 {
     if (const app::frustum *overlay = ::host->get_overlay())
     {
@@ -521,7 +502,7 @@ void scm_viewer::gui_draw()
     }
 }
 
-bool scm_viewer::gui_point(app::event *E)
+bool view_app::gui_point(app::event *E)
 {
     if (const app::frustum *overlay = ::host->get_overlay())
     {
@@ -536,14 +517,14 @@ bool scm_viewer::gui_point(app::event *E)
     return false;
 }
 
-bool scm_viewer::gui_click(app::event *E)
+bool view_app::gui_click(app::event *E)
 {
     ui->click(E->data.click.m,
               E->data.click.d);
     return true;
 }
 
-bool scm_viewer::gui_key(app::event *E)
+bool view_app::gui_key(app::event *E)
 {
     if (E->data.key.d)
     {

@@ -1,4 +1,4 @@
-//  Copyright (C) 2005-2011 Robert Kooima
+//  Copyright (C) 2005-2012 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -11,5 +11,7 @@
 //  General Public License for more details.
 
 #include "scm-image.hpp"
+
+//------------------------------------------------------------------------------
 
 //------------------------------------------------------------------------------

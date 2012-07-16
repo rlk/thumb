@@ -19,11 +19,11 @@ static gui::widget *annot(const std::string& text)
 
 class button_load : public gui::button
 {
-    scm_viewer  *V;
+    view_app  *V;
     gui::editor *E;
 
 public:
-    button_load(scm_viewer *V, gui::editor *E)
+    button_load(view_app *V, gui::editor *E)
         : gui::button("Load"), V(V), E(E) { }
 
     void apply()
@@ -35,10 +35,10 @@ public:
 
 class button_cancel : public gui::button
 {
-    scm_viewer *V;
+    view_app *V;
 
 public:
-    button_cancel(scm_viewer *V)
+    button_cancel(view_app *V)
         : gui::button("Cancel"), V(V) { }
 
     void apply()
@@ -51,7 +51,7 @@ public:
 
 #define SP "                                                                   "
 
-scm_loader::scm_loader(scm_viewer *V, int w, int h)
+scm_loader::scm_loader(view_app *V, int w, int h)
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("scm", ".xml", E);
