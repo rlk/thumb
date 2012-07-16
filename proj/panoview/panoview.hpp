@@ -13,11 +13,8 @@
 #ifndef PANOVIEW_HPP
 #define PANOVIEW_HPP
 
-#include <vector>
-
 #include <app-prog.hpp>
-
-#include "scm-viewer.hpp"
+#include "view-app.hpp"
 
 //-----------------------------------------------------------------------------
 

@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef PANOVIEW_SCM_LOADER_HPP
-#define PANOVIEW_SCM_LOADER_HPP
+#ifndef VIEW_LOAD_HPP
+#define VIEW_LOAD_HPP
 
 #include <gui-gui.hpp>
 

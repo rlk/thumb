@@ -19,11 +19,11 @@
 
 //------------------------------------------------------------------------------
 
-scm_path::scm_path() : head_t(0), head_d(0), curr(0), filename("path.xml")
+view_path::view_path() : head_t(0), head_d(0), curr(0), filename("path.xml")
 {
 }
 
-void scm_path::clear()
+void view_path::clear()
 {
     step.clear();
     curr = 0;
@@ -39,7 +39,7 @@ static int mmod(int n, int m)
 
 //------------------------------------------------------------------------------
 
-void scm_path::fore(bool movie)
+void view_path::fore(bool movie)
 {
     if (head_d <= 0 && !step.empty())
     {
@@ -53,7 +53,7 @@ void scm_path::fore(bool movie)
     else stop();
 }
 
-void scm_path::back(bool movie)
+void view_path::back(bool movie)
 {
     if (head_d >= 0 && !step.empty())
     {
@@ -67,45 +67,45 @@ void scm_path::back(bool movie)
     else stop();
 }
 
-void scm_path::stop()
+void view_path::stop()
 {
     ::host->set_bench_mode(0);
     ::host->set_movie_mode(0);
     head_d = 0;
 }
 
-void scm_path::next()
+void view_path::next()
 {
     if (!step.empty())
         curr = mmod((curr + 1), step.size());
 }
 
-void scm_path::prev()
+void view_path::prev()
 {
     if (!step.empty())
         curr = mmod((curr - 1), step.size());
 }
 
-void scm_path::home()
+void view_path::home()
 {
     curr   = 0;
     head_t = 0;
 }
 
-void scm_path::jump()
+void view_path::jump()
 {
     head_t = curr;
 }
 
 //------------------------------------------------------------------------------
 
-void scm_path::get(scm_step& s)
+void view_path::get(view_step& s)
 {
     if (!step.empty())
         s = now();
 }
 
-void scm_path::set(scm_step& s)
+void view_path::set(view_step& s)
 {
     if (!step.empty())
     {
@@ -113,7 +113,7 @@ void scm_path::set(scm_step& s)
     }
 }
 
-void scm_path::ins(scm_step& s)
+void view_path::ins(view_step& s)
 {
     if (step.empty())
     {
@@ -127,7 +127,7 @@ void scm_path::ins(scm_step& s)
     }
 }
 
-void scm_path::add(scm_step& s)
+void view_path::add(view_step& s)
 {
     if (step.empty())
     {
@@ -141,7 +141,7 @@ void scm_path::add(scm_step& s)
     }
 }
 
-void scm_path::del()
+void view_path::del()
 {
     if (!step.empty())
     {
@@ -152,37 +152,37 @@ void scm_path::del()
 
 //------------------------------------------------------------------------------
 
-void scm_path::faster()
+void view_path::faster()
 {
     if (!step.empty())
         step[curr].set_speed(step[curr].get_speed() * 1.1);
 }
 
-void scm_path::slower()
+void view_path::slower()
 {
     if (!step.empty())
         step[curr].set_speed(step[curr].get_speed() / 1.1);
 }
 
-void scm_path::inc_tens()
+void view_path::inc_tens()
 {
     if (!step.empty())
         step[curr].set_tension(step[curr].get_tension() + 0.1);
 }
 
-void scm_path::dec_tens()
+void view_path::dec_tens()
 {
     if (!step.empty())
         step[curr].set_tension(step[curr].get_tension() - 0.1);
 }
 
-void scm_path::inc_bias()
+void view_path::inc_bias()
 {
     if (!step.empty())
         step[curr].set_bias(step[curr].get_bias() + 0.1);
 }
 
-void scm_path::dec_bias()
+void view_path::dec_bias()
 {
     if (!step.empty())
         step[curr].set_bias(step[curr].get_bias() - 0.1);
@@ -190,7 +190,7 @@ void scm_path::dec_bias()
 
 //------------------------------------------------------------------------------
 
-void scm_path::save()
+void view_path::save()
 {
     app::node head("?xml");
     app::node body("path");
@@ -206,7 +206,7 @@ void scm_path::save()
     head.write(filename);
 }
 
-void scm_path::load()
+void view_path::load()
 {
     app::file file(filename);
 
@@ -216,7 +216,7 @@ void scm_path::load()
     step.clear();
 
     for (n = p.find("step"); n; n = p.next(n, "step"))
-        step.push_back(scm_step(n));
+        step.push_back(view_step(n));
 
     if (!step.empty())
         curr = mmod(curr, step.size());
@@ -224,12 +224,12 @@ void scm_path::load()
 
 //------------------------------------------------------------------------------
 
-scm_step scm_path::erp(double t) const
+view_step view_path::erp(double t) const
 {
     int    i = int(floor(t));
     double k = t - floor(t);
 
-    if (step.size() == 0) return scm_step();
+    if (step.size() == 0) return view_step();
     if (step.size() == 1) return step[0];
     if (t           == 0) return step[0];
     if (k           == 0) return step[i];
@@ -237,15 +237,15 @@ scm_step scm_path::erp(double t) const
     int n = step.size() - 2;
     int m = step.size() - 1;
 
-    scm_step a = (i > 0) ? step[i - 1] : scm_step(&step[0], &step[1], -1.0);
-    scm_step b =           step[i    ];
-    scm_step c =           step[i + 1];
-    scm_step d = (i < n) ? step[i + 2] : scm_step(&step[n], &step[m], +2.0);
+    view_step a = (i > 0) ? step[i - 1] : view_step(&step[0], &step[1], -1.0);
+    view_step b =           step[i    ];
+    view_step c =           step[i + 1];
+    view_step d = (i < n) ? step[i + 2] : view_step(&step[n], &step[m], +2.0);
 
-    return scm_step(&a, &b, &c, &d, k);
+    return view_step(&a, &b, &c, &d, k);
 }
 
-void scm_path::time(double dt)
+void view_path::time(double dt)
 {
     if (step.size())
     {
@@ -265,11 +265,11 @@ void scm_path::time(double dt)
     else stop();
 }
 
-void scm_path::draw() const
+void view_path::draw() const
 {
     if (!step.empty())
     {
-        scm_step s;
+        view_step s;
         double   t;
 
         glPushAttrib(GL_ENABLE_BIT);

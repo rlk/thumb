@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SCM_VIEWER_HPP
-#define SCM_VIEWER_HPP
+#ifndef VIEW_APP_HPP
+#define VIEW_APP_HPP
 
 #include <vector>
 
@@ -59,10 +59,10 @@ protected:
     scm_model *model;
     scm_label *label;
 
-    scm_step here;
-    scm_path path;
+    view_step here;
+    view_path path;
 
-    std::vector<scm_step> mark;
+    std::vector<view_step> mark;
 
     bool gui_state;
 

@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef SCM_PATH_HPP
-#define SCM_PATH_HPP
+#ifndef VIEW_PATH_HPP
+#define VIEW_PATH_HPP
 
 #include <vector>
 #include <string>
@@ -20,11 +20,11 @@
 
 //------------------------------------------------------------------------------
 
-class scm_path
+class view_path
 {
 public:
 
-    scm_path();
+    view_path();
 
     void clear();
 
@@ -36,10 +36,10 @@ public:
     void home();
     void jump();
 
-    void get(scm_step&);
-    void set(scm_step&);
-    void ins(scm_step&);
-    void add(scm_step&);
+    void get(view_step&);
+    void set(view_step&);
+    void ins(view_step&);
+    void add(view_step&);
     void del();
 
     void faster();
@@ -56,12 +56,12 @@ public:
     void draw() const;
 
     bool      playing() const { return (head_d != 0.0); }
-    scm_step& current()       { return step[curr];      }
+    view_step& current()       { return step[curr];      }
 
 private:
 
-    scm_step erp(double) const;
-    scm_step now()       const { return erp(head_t); }
+    view_step erp(double) const;
+    view_step now()       const { return erp(head_t); }
 
     double head_t;
     double head_d;
@@ -69,7 +69,7 @@ private:
 
     std::string filename;
 
-    std::vector<scm_step> step;
+    std::vector<view_step> step;
 };
 
 //------------------------------------------------------------------------------

@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef scm_step_HPP
-#define scm_step_HPP
+#ifndef VIEW_STEP_HPP
+#define VIEW_STEP_HPP
 
 #include <cstdio>
 #include <string>
@@ -20,18 +20,18 @@
 
 //------------------------------------------------------------------------------
 
-class scm_step
+class view_step
 {
 public:
 
-    scm_step();
-    scm_step(app::node);
-    scm_step(const scm_step *,
-             const scm_step *, double);
-    scm_step(const scm_step *,
-             const scm_step *,
-             const scm_step *,
-             const scm_step *, double);
+    view_step();
+    view_step(app::node);
+    view_step(const view_step *,
+             const view_step *, double);
+    view_step(const view_step *,
+             const view_step *,
+             const view_step *,
+             const view_step *, double);
 
     void draw() const;
 

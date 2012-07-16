@@ -49,7 +49,7 @@ double hint(double y0, double y1,
 
 // Initialize a new SCM viewer state using default values.
 
-scm_step::scm_step()
+view_step::view_step()
 {
     orientation[0] = 0.0;
     orientation[1] = 0.0;
@@ -72,7 +72,7 @@ scm_step::scm_step()
 
 // Initialize a new SCM viewer state using the given XML node.
 
-scm_step::scm_step(app::node n)
+view_step::view_step(app::node n)
 {
     orientation[0] = n.get_f("q0", 0.0);
     orientation[1] = n.get_f("q1", 0.0);
@@ -98,8 +98,8 @@ scm_step::scm_step(app::node n)
 
 // Initialize a new SCM viewer step using linear interpolation of given steps.
 
-scm_step::scm_step(const scm_step *a,
-                   const scm_step *b, double t)
+view_step::view_step(const view_step *a,
+                   const view_step *b, double t)
 {
     assert(a);
     assert(b);
@@ -133,10 +133,10 @@ scm_step::scm_step(const scm_step *a,
 
 // Initialize a new SCM viewer step using cubic interpolation of given steps.
 
-scm_step::scm_step(const scm_step *a,
-                   const scm_step *b,
-                   const scm_step *c,
-                   const scm_step *d, double t)
+view_step::view_step(const view_step *a,
+                   const view_step *b,
+                   const view_step *c,
+                   const view_step *d, double t)
 {
     assert(a);
     assert(b);
@@ -200,7 +200,7 @@ scm_step::scm_step(const scm_step *a,
 
 //------------------------------------------------------------------------------
 
-void scm_step::draw() const
+void view_step::draw() const
 {
     double v[3];
 
@@ -216,7 +216,7 @@ void scm_step::draw() const
 // Serialize this step to a new XML step element. Add attributes for only those
 // properties with non-default values.
 
-app::node scm_step::serialize() const
+app::node view_step::serialize() const
 {
     app::node n("step");
 
@@ -246,7 +246,7 @@ app::node scm_step::serialize() const
 
 //------------------------------------------------------------------------------
 
-void scm_step::transform_orientation(const double *M)
+void view_step::transform_orientation(const double *M)
 {
     double A[16];
     double B[16];
@@ -257,7 +257,7 @@ void scm_step::transform_orientation(const double *M)
     qnormalize(orientation, orientation);
 }
 
-void scm_step::transform_position(const double *M)
+void view_step::transform_position(const double *M)
 {
     double v[3];
 
@@ -265,7 +265,7 @@ void scm_step::transform_position(const double *M)
     vnormalize(position, v);
 }
 
-void scm_step::transform_light(const double *M)
+void view_step::transform_light(const double *M)
 {
     double v[3];
 
@@ -273,7 +273,7 @@ void scm_step::transform_light(const double *M)
     vnormalize(light, v);
 }
 
-void scm_step::set_pitch(double a)
+void view_step::set_pitch(double a)
 {
     double r[3];
     double p[3];
@@ -311,7 +311,7 @@ void scm_step::set_pitch(double a)
 
 // Return the view transformation matrix.
 
-void scm_step::get_matrix(double *M, double scale) const
+void view_step::get_matrix(double *M, double scale) const
 {
     vquaternionx(M +  0, orientation);
     vquaterniony(M +  4, orientation);
@@ -331,7 +331,7 @@ void scm_step::get_matrix(double *M, double scale) const
 
 // Return the position vector.
 
-void scm_step::get_position(double *v) const
+void view_step::get_position(double *v) const
 {
     vcpy(v, position);
 }
@@ -339,7 +339,7 @@ void scm_step::get_position(double *v) const
 // Return the Y axis of the matrix form of the orientation quaternion, thus
 // giving the view up vector.
 
-void scm_step::get_up(double *v) const
+void view_step::get_up(double *v) const
 {
     vquaterniony(v, orientation);
 }
@@ -347,7 +347,7 @@ void scm_step::get_up(double *v) const
 // Return the X axis of the matrix form of the orientation quaternion, thus
 // giving the view right vector.
 
-void scm_step::get_right(double *v) const
+void view_step::get_right(double *v) const
 {
     vquaternionx(v, orientation);
 }
@@ -355,7 +355,7 @@ void scm_step::get_right(double *v) const
 // Return the negated Z axis of the matrix form of the orientation quaternion,
 // thus giving the view forward vector.
 
-void scm_step::get_forward(double *v) const
+void view_step::get_forward(double *v) const
 {
     vquaternionz(v, orientation);
     vneg(v, v);
@@ -363,7 +363,7 @@ void scm_step::get_forward(double *v) const
 
 // Return the light direction vector.
 
-void scm_step::get_light(double *v) const
+void view_step::get_light(double *v) const
 {
     vcpy(v, light);
 }

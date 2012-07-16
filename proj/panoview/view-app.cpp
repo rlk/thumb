@@ -112,7 +112,7 @@ void view_app::load(const std::string& name)
         // Load all land marks.
 
         for (app::node n = root.find("step"); n; n = root.next(n, "step"))
-            mark.push_back(scm_step(n));
+            mark.push_back(view_step(n));
 
         load_label("csv/IAUMOON.csv");
 
@@ -371,9 +371,9 @@ bool view_app::process_user(app::event *E)
         {
             // Construct a path from here to there.
 
-            scm_step src = here;
-            scm_step dst = mark[i];
-            scm_step mid(&src, &dst, 0.5);
+            view_step src = here;
+            view_step dst = mark[i];
+            view_step mid(&src, &dst, 0.5);
 
             if (!path.playing())
                 src.set_speed(0.05);
