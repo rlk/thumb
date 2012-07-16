@@ -15,7 +15,7 @@
 #include <ogl-opengl.hpp>
 #include <app-host.hpp>
 
-#include "scm-path.hpp"
+#include "view-path.hpp"
 
 //------------------------------------------------------------------------------
 

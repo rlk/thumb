@@ -7,7 +7,7 @@ Todo:
 		Convert them all and make animations
 		http://apollo.mem-tek.com/LRO_NAC_Apollo_Images.html
 	Complex interpolated camera motion
-		Implemented in scm-viewer
+		Implemented in view-app
 			so both panorama and orbiter benefit
 		Orbiter path planning
 			high quality render-out

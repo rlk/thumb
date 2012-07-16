@@ -18,7 +18,7 @@
 #include <app-prog.hpp>
 #include <etc-socket.hpp>
 
-#include "scm-viewer.hpp"
+#include "view-app.hpp"
 
 //-----------------------------------------------------------------------------
 

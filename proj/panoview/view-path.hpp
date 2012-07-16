@@ -16,7 +16,7 @@
 #include <vector>
 #include <string>
 
-#include "scm-step.hpp"
+#include "view-step.hpp"
 
 //------------------------------------------------------------------------------
 

@@ -13,16 +13,24 @@
 #ifndef SCM_IMAGE_HPP
 #define SCM_IMAGE_HPP
 
+#include <string>
+
+#include "scm-cache.hpp"
+
 //------------------------------------------------------------------------------
 
 class scm_image
 {
 public:
 
-	scm_image();
+	scm_image(const std::string&, scm_cache&, int);
 
 private:
 
+	std::string name;
+	scm_cache& cache;
+	int         file;
+	int         chan;
 };
 
 //------------------------------------------------------------------------------

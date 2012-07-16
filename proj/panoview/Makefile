@@ -2,40 +2,26 @@
 
 #------------------------------------------------------------------------------
 
-TARG= panoview
-PANOBJS= \
-	math3d.o \
+VIEWOBJS= \
 	glsl.o \
+	math3d.o \
 	type.o \
+	scm-index.o \
+	scm-image.o \
+	scm-frame.o \
 	scm-set.o \
 	scm-task.o \
 	scm-file.o \
-	scm-step.o \
-	scm-path.o \
-	scm-index.o \
-	scm-model.o \
 	scm-cache.o \
 	scm-label.o \
-	scm-viewer.o \
+	view-step.o \
+	view-path.o \
 	view-load.o \
-	panoview.o
+	view-app.o \
+	scm-model.o \
 
-ORBOBJS= \
-	math3d.o \
-	glsl.o \
-	type.o \
-	scm-set.o \
-	scm-task.o \
-	scm-file.o \
-	scm-step.o \
-	scm-path.o \
-	scm-index.o \
-	scm-model.o \
-	scm-cache.o \
-	scm-label.o \
-	scm-viewer.o \
-	view-load.o \
-	orbiter.o
+ORBOBJS= $(VIEWOBJS) orbiter.o
+PANOBJS= $(VIEWOBJS) panoview.o
 
 PANDEPS= $(PANOBJS:.o=.d)
 ORBDEPS= $(ORBOBJS:.o=.d)

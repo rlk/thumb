@@ -25,13 +25,12 @@
 #include <app-default.hpp>
 
 #include "math3d.h"
-#include "scm-viewer.hpp"
+#include "view-app.hpp"
 
 //------------------------------------------------------------------------------
 
 view_app::view_app(const std::string& exe,
                        const std::string& tag) : app::prog(exe, tag),
-    cache  (0),
     model  (0),
     label  (0),
     timer  (0),
@@ -471,6 +470,8 @@ void view_app::load_label(const std::string& name)
 
 //------------------------------------------------------------------------------
 
+// Initialize the file selection GUI.
+
 void view_app::gui_init()
 {
     const app::frustum *overlay = ::host->get_overlay();
@@ -483,10 +484,14 @@ void view_app::gui_init()
     ui = new view_load(this, w, h);
 }
 
+// Release the file selection GUI.
+
 void view_app::gui_free()
 {
     delete ui;
 }
+
+// Draw the file selection GUI in the overlay.
 
 void view_app::gui_draw()
 {
@@ -501,6 +506,8 @@ void view_app::gui_draw()
         glDisable(GL_DEPTH_CLAMP_NV);
     }
 }
+
+// Handle a mouse point event while the GUI is visible.
 
 bool view_app::gui_point(app::event *E)
 {
@@ -517,12 +524,16 @@ bool view_app::gui_point(app::event *E)
     return false;
 }
 
+// Handle a mouse click event while the GUI is visible.
+
 bool view_app::gui_click(app::event *E)
 {
     ui->click(E->data.click.m,
               E->data.click.d);
     return true;
 }
+
+// Handle a keyboard event while the GUI is visible.
 
 bool view_app::gui_key(app::event *E)
 {

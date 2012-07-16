@@ -13,57 +13,25 @@
 #ifndef SCM_FRAME_HPP
 #define SCM_FRAME_HPP
 
+#include <vector>
+
+#include "scm-image.hpp"
+
 //------------------------------------------------------------------------------
 
 class scm_frame
 {
-    bool mono;
-
-    struct image
-    {
-        int file;
-        int shader;
-        int channel;
-    };
-
 public:
 
-    scm_frame(scm_cache *, app::node);
+    scm_frame();
 
-    int file(int i)
-    {
-        return images.empty() ? 0 : images[i % images.size()].file;
-    }
-    int shader(int i)
-    {
-        return images.empty() ? 0 : images[i % images.size()].shader;
-    }
-    int channel(int i)
-    {
-        return images.empty() ? 0 : images[i % images.size()].channel;
-    }
-    int size()
-    {
-        return images.size();
-    }
-    void apply(int c, std::vector<int>& tovert,
-                      std::vector<int>& tofrag)
-    {
-        std::vector<image>::iterator i;
-
-        for (i = images.begin(); i != images.end(); ++i)
-            if (mono || c == i->channel)
-            {
-                if (i->shader)
-                    tofrag.push_back(i->file);
-                else
-                    tovert.push_back(i->file);
-            }
-    }
+    void add_image(scm_image *p) { images.push_back(p); }
 
 private:
 
-    std::vector<image> images;
+    bool mono;
+
+    std::vector<scm_image *> images;
 };
 
 //------------------------------------------------------------------------------

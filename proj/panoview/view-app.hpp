@@ -18,11 +18,12 @@
 #include <app-prog.hpp>
 #include <app-file.hpp>
 
-#include "scm-step.hpp"
-#include "scm-path.hpp"
 #include "scm-cache.hpp"
+#include "scm-frame.hpp"
 #include "scm-model.hpp"
 #include "scm-label.hpp"
+#include "view-step.hpp"
+#include "view-path.hpp"
 #include "view-load.hpp"
 
 //-----------------------------------------------------------------------------
@@ -42,6 +43,7 @@ public:
     virtual bool process_event(app::event *);
 
     virtual void load(const std::string&);
+
     void unload();
     void cancel();
 
@@ -55,25 +57,22 @@ public:
 
 protected:
 
-    scm_cache *cache;
+    std::vector<scm_cache *> caches;
+    std::vector<scm_frame *> frames;
+
     scm_model *model;
     scm_label *label;
 
     view_step here;
     view_path path;
 
-    std::vector<view_step> mark;
+    std::vector<view_step> steps;
 
     bool gui_state;
 
 private:
 
     // Sphere rendering state
-
-    std::vector<scm_frame *> frame;
-    std::vector<int> tovert;
-    std::vector<int> tofrag;
-    std::vector<int> toprep;
 
     double timer;
     double timer_d;

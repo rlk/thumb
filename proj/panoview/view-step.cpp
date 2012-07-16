@@ -17,7 +17,7 @@
 #include <ogl-opengl.hpp>
 
 #include "math3d.h"
-#include "scm-step.hpp"
+#include "view-step.hpp"
 
 //------------------------------------------------------------------------------
 

@@ -1,7 +1,7 @@
 #include <app-font.hpp>
 
 #include "view-load.hpp"
-#include "scm-viewer.hpp"
+#include "view-app.hpp"
 
 //------------------------------------------------------------------------------
 
