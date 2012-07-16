@@ -255,12 +255,12 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
     view_app::prep(frusc, frusv);
 
-    if (cache && model)
+    if (model)
     {
         // Compute a horizon line based upon altitude and  minimum data radius.
 
         double a = here.get_radius();
-        double r =      get_scale(a) * get_radius() * cache->get_r0();
+        double r =      get_scale(a) * get_radius() * frames[0]->get_r0();
         double d =      get_scale(a) * a;
 
         double n = 0.0001 *     (d     - r    );
@@ -334,8 +334,8 @@ void orbiter::load(const std::string& name)
 
 double orbiter::get_bottom() const
 {
-    if (cache)
-        return get_radius() * cache->get_r0();
+    if (!frames.empty())
+        return get_radius() * frames[0]->get_r0();
     else
         return get_radius();
 }

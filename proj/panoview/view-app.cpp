@@ -113,8 +113,8 @@ void view_app::load_images(app::node p, scm_frame *f)
     {
         const std::string& name = i.get_s("name");
         const std::string& scm  = i.get_s("scm");
-        int                cc   = i.get_i("cache",   0);
-        int                ch   = i.get_i("channel", 0);
+        int                cc   = i.get_i("cache",    0);
+        int                ch   = i.get_i("channel", -1);
 
         if (0 <= cc && cc < int(caches.size()))
             f->add_image(new scm_image(name, scm, caches[cc], ch));
@@ -258,7 +258,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
             glDisable(GL_CULL_FACE);
         }
 
-        model->draw(frames[0], P, V, w, h);
+        model->draw(frames[0], P, V, w, h, chani);
 
         if (debug_wire)
         {

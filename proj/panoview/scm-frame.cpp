@@ -14,7 +14,33 @@
 
 //------------------------------------------------------------------------------
 
-scm_frame::scm_frame() : mono(true)
+scm_frame::scm_frame()
+{
+}
+
+//------------------------------------------------------------------------------
+
+void scm_frame::bind(GLuint program, int channel) const
+{
+    glUseProgram(program);
+}
+
+void scm_frame::free() const
+{
+    glUseProgram(0);
+
+    // glUniform1f(u_r0, GLfloat(cache.get_r0()));
+    // glUniform1f(u_r1, GLfloat(cache.get_r1()));
+
+}
+
+//------------------------------------------------------------------------------
+
+void scm_frame::set(GLuint program, int d, int t, long long i) const
+{
+}
+
+void scm_frame::clr(GLuint program, int d) const
 {
 }
 
@@ -29,10 +55,20 @@ bool scm_frame::page_status(long long i) const
 
 double scm_frame::page_r0(long long i) const
 {
-    return 0.0;
+    return 1.0;
 }
 
 double scm_frame::page_r1(long long i) const
+{
+    return 1.0;
+}
+
+double scm_frame::get_r0() const
+{
+    return 1.0;
+}
+
+double scm_frame::get_r1() const
 {
     return 1.0;
 }

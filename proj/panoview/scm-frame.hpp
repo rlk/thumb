@@ -27,13 +27,20 @@ public:
 
     void add_image(scm_image *p) { images.push_back(p); }
 
+    void bind(GLuint, int) const;
+    void free()            const;
+
+    void set(GLuint, int, int, long long) const;
+    void clr(GLuint, int)                 const;
+
     bool   page_status(long long) const;
     double page_r0    (long long) const;
     double page_r1    (long long) const;
 
-private:
+    double get_r0() const;
+    double get_r1() const;
 
-    bool mono;
+private:
 
     std::vector<scm_image *> images;
 };

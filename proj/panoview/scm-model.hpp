@@ -31,7 +31,7 @@ public:
     int  tick() { return time++; }
 
     void prep(scm_frame *, const double *, const double *, int, int);
-    void draw(scm_frame *, const double *, const double *, int, int);
+    void draw(scm_frame *, const double *, const double *, int, int, int);
 
     void set_debug(bool b) { debug = b; }
     void set_fade(double k);
@@ -81,17 +81,6 @@ private:
     GLuint vert_shader;
     GLuint frag_shader;
 
-    std::vector<GLuint> u_v_mul;
-    std::vector<GLuint> u_f_mul;
-    std::vector<GLuint> u_v_add;
-    std::vector<GLuint> u_f_add;
-    std::vector<GLuint> u_v_age;
-    std::vector<GLuint> u_f_age;
-    std::vector<GLuint> u_v_img;
-    std::vector<GLuint> u_f_img;
-
-    GLuint u_r0;
-    GLuint u_r1;
     GLuint u_fader;
     GLuint u_zoomk;
     GLuint u_zoomv;

@@ -392,98 +392,41 @@ bool scm_model::prep_page(scm_frame *frame,
 
 void scm_model::draw_page(scm_frame *frame, int d, long long i)
 {
-    int then = time;
-    int tc = vc + fc;
-    int ti = 0;
-
-    // Bind and set vertex shader textures and uniforms.
-
-    for (int vi = 0; vi < vc; ++vi, ++ti)
+    frame->set(program, d, time, i);
     {
-        glActiveTexture(GL_TEXTURE0 + d * tc + ti);
-        glBindTexture(GL_TEXTURE_2D, cache.get_page(vv[vi], i, time, then));
-        glUniform1f(u_v_age[d * vc + vi], 1.0f); // age(then)); // HACK
-        glUniform1i(u_v_img[d * vc + vi], d * tc + ti);
-    }
+        long long i0 = scm_page_child(i, 0);
+        long long i1 = scm_page_child(i, 1);
+        long long i2 = scm_page_child(i, 2);
+        long long i3 = scm_page_child(i, 3);
 
-    // Bind and set fragment shader textures and uniforms.
+        bool b0 = is_set(i0);
+        bool b1 = is_set(i1);
+        bool b2 = is_set(i2);
+        bool b3 = is_set(i3);
 
-    for (int fi = 0; fi < fc; ++fi, ++ti)
-    {
-        glActiveTexture(GL_TEXTURE0 + d * tc + ti);
-        glBindTexture(GL_TEXTURE_2D, cache.get_page(fv[fi], i, time, then));
-        glUniform1f(u_f_age[d * fc + fi], age(then));
-        glUniform1i(u_f_img[d * fc + fi], d * tc + ti);
-    }
-
-    // Won't someone please think of the children?
-
-    long long i0 = scm_page_child(i, 0);
-    long long i1 = scm_page_child(i, 1);
-    long long i2 = scm_page_child(i, 2);
-    long long i3 = scm_page_child(i, 3);
-
-    bool b0 = is_set(i0);
-    bool b1 = is_set(i1);
-    bool b2 = is_set(i2);
-    bool b3 = is_set(i3);
-
-    if (b0 || b1 || b2 || b3)
-    {
-        // Draw any children marked for drawing.
-
-        if (b0) draw_page(frame, d + 1, i0);
-        if (b1) draw_page(frame, d + 1, i1);
-        if (b2) draw_page(frame, d + 1, i2);
-        if (b3) draw_page(frame, d + 1, i3);
-    }
-    else
-    {
-        // Set the texture coordinate uniforms.
-
-        long long r = scm_page_row(i);
-        long long c = scm_page_col(i);
-        long long R = r;
-        long long C = c;
-
-        for (int l = d; l >= 0; --l)
+        if (b0 || b1 || b2 || b3)
         {
-            GLfloat m = 1.0f / (1 << (d - l));
-            GLfloat x = m * c - C;
-            GLfloat y = m * r - R;
+            // Draw any children marked for drawing.
 
-            for (int vi = 0; vi < vc || vi == 0; ++vi)
-            {
-                glUniform2f(u_v_mul[l * vc + vi], m, m);
-                glUniform2f(u_v_add[l * vc + vi], x, y);
-            }
-            for (int fi = 0; fi < fc || fi == 0; ++fi)
-            {
-                glUniform2f(u_f_mul[l * fc + fi], m, m);
-                glUniform2f(u_f_add[l * fc + fi], x, y);
-            }
-            C /= 2;
-            R /= 2;
+            if (b0) draw_page(frame, d + 1, i0);
+            if (b1) draw_page(frame, d + 1, i1);
+            if (b2) draw_page(frame, d + 1, i2);
+            if (b3) draw_page(frame, d + 1, i3);
         }
+        else
+        {
+            // Draw this page. Select a mesh that matches up with the neighbors.
 
-        // Draw this page. Select a mesh that matches up with the neighbors.
+            int j = (i < 6) ? 0 : (is_set(scm_page_north(i)) ? 0 : 1)
+                                | (is_set(scm_page_south(i)) ? 0 : 2)
+                                | (is_set(scm_page_west (i)) ? 0 : 4)
+                                | (is_set(scm_page_east (i)) ? 0 : 8);
 
-        int j = (i < 6) ? 0 : (is_set(scm_page_north(i)) ? 0 : 1)
-                            | (is_set(scm_page_south(i)) ? 0 : 2)
-                            | (is_set(scm_page_west (i)) ? 0 : 4)
-                            | (is_set(scm_page_east (i)) ? 0 : 8);
-
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
-        glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
+            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elements[j]);
+            glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
+        }
     }
-
-    // Undo any texture bindings.
-
-    for (int ti = 0; ti < tc; ++ti)
-    {
-        glActiveTexture(GL_TEXTURE0 + d * tc + ti);
-        glBindTexture(GL_TEXTURE_2D, cache.get_fill());
-    }
+    frame->clr(program, d);
 }
 
 //------------------------------------------------------------------------------
@@ -517,7 +460,7 @@ void scm_model::prep(scm_frame *frame, const double *P,
 }
 
 void scm_model::draw(scm_frame *frame, const double *P,
-                                       const double *V, int w, int h)
+                                       const double *V, int w, int h, int k)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
@@ -554,7 +497,7 @@ void scm_model::draw(scm_frame *frame, const double *P,
 
     // Configure the shaders and draw the six root pages.
 
-    glUseProgram(program);
+    frame->bind(program, k);
     {
         static const GLfloat faceM[6][9] = {
             {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
@@ -564,9 +507,6 @@ void scm_model::draw(scm_frame *frame, const double *P,
             {  1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f,  1.f },
             { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
         };
-
-        glUniform1f(u_r0, GLfloat(cache.get_r0()));
-        glUniform1f(u_r1, GLfloat(cache.get_r1()));
 
         glUniform1f(u_zoomk, GLfloat(zoomk));
         glUniform3f(u_zoomv, GLfloat(zoomv[0]),
@@ -604,7 +544,7 @@ void scm_model::draw(scm_frame *frame, const double *P,
             draw_page(frame, 0, 5);
         }
     }
-    glUseProgram(0);
+    frame->free();
 
     // Revert the local GL state.
 
@@ -642,24 +582,10 @@ void scm_model::init_program(const char *vert_src,
 
         glUseProgram(program);
 
-        u_r0       = glGetUniformLocation(program, "r0");
-        u_r1       = glGetUniformLocation(program, "r1");
-        u_fader    = glGetUniformLocation(program, "fader");
-        u_zoomk    = glGetUniformLocation(program, "zoomk");
-        u_zoomv    = glGetUniformLocation(program, "zoomv");
-        u_faceM    = glGetUniformLocation(program, "faceM");
-
-        for (int d = 0; d < max_texture_image_units; ++d)
-        {
-            u_v_mul.push_back(glGetUniformLocationv(program, "v_mul[%d]", d));
-            u_f_mul.push_back(glGetUniformLocationv(program, "f_mul[%d]", d));
-            u_v_add.push_back(glGetUniformLocationv(program, "v_add[%d]", d));
-            u_f_add.push_back(glGetUniformLocationv(program, "f_add[%d]", d));
-            u_v_age.push_back(glGetUniformLocationv(program, "v_age[%d]", d));
-            u_f_age.push_back(glGetUniformLocationv(program, "f_age[%d]", d));
-            u_v_img.push_back(glGetUniformLocationv(program, "v_img[%d]", d));
-            u_f_img.push_back(glGetUniformLocationv(program, "f_img[%d]", d));
-        }
+        u_fader = glGetUniformLocation(program, "fader");
+        u_zoomk = glGetUniformLocation(program, "zoomk");
+        u_zoomv = glGetUniformLocation(program, "zoomv");
+        u_faceM = glGetUniformLocation(program, "faceM");
     }
 }
 

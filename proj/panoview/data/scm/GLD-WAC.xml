@@ -9,9 +9,8 @@
     <cache n="426" c="1" b="1"/>
 
     <frame>
-      <image name="height" scm="DTM-426-6.tif" cache="0" channel="0"/>
-      <image name="color"  scm="WAC-426-6.tif" cache="1" channel="0"/>
-
+      <image name="height" scm="DTM-426-6.tif" cache="0" />
+      <image name="color"  scm="WAC-426-6.tif" cache="1" />
     </frame>
 
     <step name="Tycho"
