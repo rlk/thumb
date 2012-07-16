@@ -57,8 +57,8 @@ public:
 
 protected:
 
-    std::vector<scm_cache *> caches;
-    std::vector<scm_frame *> frames;
+    scm_cache_v caches;
+    scm_frame_v frames;
 
     scm_model *model;
     scm_label *label;
@@ -71,6 +71,12 @@ protected:
     bool gui_state;
 
 private:
+
+    void load_model (app::node);
+    void load_caches(app::node);
+    void load_images(app::node, scm_frame *);
+    void load_frames(app::node);
+    void load_steps (app::node);
 
     // Sphere rendering state
 

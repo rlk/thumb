@@ -14,12 +14,13 @@
 
 //------------------------------------------------------------------------------
 
-scm_image::scm_image(const std::string& name, scm_cache& cache, int c) :
+scm_image::scm_image(const std::string& name,
+					 const std::string& scm, scm_cache *cache, int chan) :
 	name(name),
 	cache(cache),
 	chan(chan)
 {
-	file = cache.add_file(name);
+	file = cache->add_file(scm);
 }
 
 //------------------------------------------------------------------------------

@@ -19,3 +19,22 @@ scm_frame::scm_frame() : mono(true)
 }
 
 //------------------------------------------------------------------------------
+
+// Return true if any one of the images has page i in cache.
+
+bool scm_frame::page_status(long long i) const
+{
+    return false;
+}
+
+double scm_frame::page_r0(long long i) const
+{
+    return 0.0;
+}
+
+double scm_frame::page_r1(long long i) const
+{
+    return 1.0;
+}
+
+//------------------------------------------------------------------------------

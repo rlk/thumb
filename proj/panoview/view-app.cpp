@@ -62,6 +62,86 @@ view_app::~view_app()
 
 //------------------------------------------------------------------------------
 
+void view_app::load_model(app::node p)
+{
+    // Load the configured shaders.
+
+    const std::string& vert_name = p.get_s("vert");
+    const std::string& frag_name = p.get_s("frag");
+
+    const char *vert_src = (const char *) ::data->load(vert_name);
+    const char *frag_src = (const char *) ::data->load(frag_name);
+
+    // Parse the sphere configuration
+
+    int mesh = p.get_i("mesh",  16);
+    int size = p.get_i("size", 512);
+
+    // Create the model.
+
+    model = new scm_model(vert_src, frag_src, mesh, size);
+
+    // Release the shader source.
+
+    ::data->free(vert_name);
+    ::data->free(frag_name);
+}
+
+void view_app::load_caches(app::node p)
+{
+    int size = ::conf->get_i("scm_cache_size", 256);
+
+    // Create a new cache object for each node.
+
+    for (app::node i = p.find("cache"); i; i = p.next(i, "cache"))
+    {
+        int    n  = i.get_i("n",  256);
+        int    c  = i.get_i("c",  3);
+        int    b  = i.get_i("b",  1);
+        double r0 = i.get_f("r0", 0.0);
+        double r1 = i.get_f("r1", 1.0);
+
+        caches.push_back(new scm_cache(size, n, c, b, r0, r1));
+    }
+}
+
+void view_app::load_images(app::node p, scm_frame *f)
+{
+    // Create a new image object for each node.
+
+    for (app::node i = p.find("image"); i; i = p.next(i, "image"))
+    {
+        const std::string& name = i.get_s("name");
+        const std::string& scm  = i.get_s("scm");
+        int                cc   = i.get_i("cache",   0);
+        int                ch   = i.get_i("channel", 0);
+
+        if (0 <= cc && cc < int(caches.size()))
+            f->add_image(new scm_image(name, scm, caches[cc], ch));
+    }
+}
+
+void view_app::load_frames(app::node p)
+{
+    // Create a new frame object for each node.
+
+    for (app::node i = p.find("frame"); i; i = p.next(i, "frame"))
+    {
+        scm_frame *f = new scm_frame();
+
+        load_images(i, f);
+        frames.push_back(f);
+    }
+}
+
+void view_app::load_steps(app::node p)
+{
+    // Create a new step object for each node.
+
+    for (app::node i = p.find("step"); i; i = p.next(i, "step"))
+        steps.push_back(view_step(i));
+}
+
 void view_app::load(const std::string& name)
 {
     // If the named file exists and contains an XML panorama definition...
@@ -74,46 +154,18 @@ void view_app::load(const std::string& name)
 
         unload();
 
-        // Parse the panorama configuration
-
-        int n  = root.get_i("mesh",  16);
-        int s  = root.get_i("size", 512);
+        // Configure the viewer.
 
         height = root.get_f("height", 0.0);
         radius = root.get_f("radius", 6.0);
 
-        // Load the configured shaders.
+        // Load all data.
 
-        const std::string& vert_name = root.get_s("vert");
-        const std::string& frag_name = root.get_s("frag");
-
-        const char *vert_src = (const char *) ::data->load(vert_name);
-        const char *frag_src = (const char *) ::data->load(frag_name);
-
-        // Create the new cache and model.
-
-        cache = new scm_cache(::conf->get_i("view_app_cache_size", 256));
-        model = new scm_model(*cache, vert_src, frag_src, n, s);
-
-        ::data->free(vert_name);
-        ::data->free(frag_name);
-
-        // Register all frames with the cache.
-
-        for (app::node n = root.find("frame"); n; n = root.next(n, "frame"))
-            frame.push_back(new scm_frame(cache, n));
-
-        // If there were no frames, register a flat image set.
-
-        if (frame.empty())
-            frame.push_back(new scm_frame(cache, root));
-
-        // Load all land marks.
-
-        for (app::node n = root.find("step"); n; n = root.next(n, "step"))
-            mark.push_back(view_step(n));
-
-        load_label("csv/IAUMOON.csv");
+        load_model (root);
+        load_caches(root);
+        load_frames(root);
+        load_steps (root);
+        load_label ("csv/IAUMOON.csv");
 
         // Dismiss the GUI.
 
@@ -128,20 +180,17 @@ void view_app::cancel()
 
 void view_app::unload()
 {
-    std::vector<scm_frame *>::iterator i;
+    for (scm_cache_i i = caches.begin(); i != caches.end(); ++i) delete (*i);
+    for (scm_frame_i j = frames.begin(); j != frames.end(); ++j) delete (*j);
 
-    for (i = frame.begin(); i != frame.end(); ++i)
-        delete (*i);
-
-    frame.clear();
+    caches.clear();
+    frames.clear();
 
     if (label) delete label;
     if (model) delete model;
-    if (cache) delete cache;
 
     label = 0;
     model = 0;
-    cache = 0;
 }
 
 void view_app::goto_next()
@@ -162,12 +211,14 @@ ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
     double r = radius * get_scale(here.get_radius());
 
-    if (cache && model)
+    if (model)
     {
         if (::host->get_movie_mode())
-            cache->sync(model->tick());
+            for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
+                (*i)->sync  (model->tick());
         else
-            cache->update(model->tick());
+            for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
+                (*i)->update(model->tick());
     }
     return ogl::range(0.1, r * 10.0);
 }
@@ -196,25 +247,6 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
         Rmul_xlt_mat(V, 0, -height, 0);
         Rmul_scl_mat(V, r, r, r);
 
-        // Select the set of files to be drawn and pre-cached.
-
-        tovert.clear();
-        tofrag.clear();
-        toprep.clear();
-
-        if (timer)
-        {
-            int a = int(floor(timer)) % frame.size();
-            int b =           (a + 1) % frame.size();
-            int c =           (b + 1) % frame.size();
-
-            frame[a]->apply(chani, tovert, tofrag);
-            frame[b]->apply(chani, tovert, tofrag);
-            frame[c]->apply(chani, toprep, toprep);
-        }
-        else
-            frame[0]->apply(chani, tovert, tofrag);
-
         // Draw the sphere.
 
         if (debug_wire)
@@ -226,11 +258,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
             glDisable(GL_CULL_FACE);
         }
 
-        model->set_fade(timer - floor(timer));
-
-        model->draw(P, V, w, h, &tovert.front(), tovert.size(),
-                                &tofrag.front(), tofrag.size(),
-                                &toprep.front(), toprep.size());
+        model->draw(frames[0], P, V, w, h);
 
         if (debug_wire)
         {
@@ -275,8 +303,8 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 
     // Draw the cache overlay.
 
-    if (cache && debug_cache)
-        cache->draw();
+    if (caches[0] && debug_cache)
+        caches[0]->draw();
 
     // Draw the GUI overlay.
 
@@ -308,7 +336,7 @@ bool view_app::process_key(app::event *E)
                 case 286: debug_wire  = !debug_wire;  return true; // F5
                 case 287: debug_bound = !debug_bound; return true; // F6
 
-                case 8: cache->flush();               return true; // Backspace
+                // case 8: cache->flush();               return true; // Backspace
             }
 
         if (c)
@@ -365,13 +393,13 @@ bool view_app::process_user(app::event *E)
 
     // Scan the landmark vector for a matching name.
 
-    for (int i = 0; i < int(mark.size()); i++)
-        if (mark[i].get_name().compare(name) == 0)
+    for (int i = 0; i < int(steps.size()); i++)
+        if (steps[i].get_name().compare(name) == 0)
         {
             // Construct a path from here to there.
 
             view_step src = here;
-            view_step dst = mark[i];
+            view_step dst = steps[i];
             view_step mid(&src, &dst, 0.5);
 
             if (!path.playing())
@@ -390,7 +418,7 @@ bool view_app::process_user(app::event *E)
 
             // Switch the labels.
 
-            load_label(mark[i].get_label());
+            load_label(steps[i].get_label());
 
             return true;
         }

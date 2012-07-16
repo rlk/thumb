@@ -19,13 +19,16 @@
 
 //------------------------------------------------------------------------------
 
-scm_cache::scm_cache(float r0, float r1, int n) :
+scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
     pages(),
     waits(),
     needs(need_queue_size),
     loads(load_queue_size),
     texture(0),
     next(1),
+    n(n),
+    c(c),
+    b(b),
     r0(r0),
     r1(r1)
 {
@@ -50,10 +53,23 @@ scm_cache::scm_cache(float r0, float r1, int n) :
     // Limit the cache size to the maximum array texture depth.
 
     GLint max;
-
     glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max);
 
-    size = std::min(max, n);
+    size = std::min(max, s);
+
+    // Generate the array texture object.
+
+    GLenum i = scm_internal_form(c, b, 0);
+    GLenum e = scm_external_form(c, b, 0);
+    GLenum t = scm_external_type(c, b, 0);
+
+    glGenTextures  (1, &texture);
+    glBindTexture  (GL_TEXTURE_2D_ARRAY,  texture);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+    glTexImage3D   (GL_TEXTURE_2D_ARRAY, 0, i, n, n, size, 1, e, t, 0);
 }
 
 scm_cache::~scm_cache()
@@ -104,30 +120,7 @@ int scm_cache::add_file(const std::string& name)
         // If succesful, add it to the collection.
 
         f = int(files.size());
-
         files.push_back(n);
-
-        // If necessary, generate the array texture.
-
-        if (texture == 0)
-        {
-            GLenum  T = GL_TEXTURE_2D_ARRAY;
-
-            GLsizei w = GLsizei(n->get_w());
-            GLsizei h = GLsizei(n->get_h());
-
-            GLenum  i = scm_internal_form(n->get_c(), n->get_b(), n->get_g());
-            GLenum  e = scm_external_form(n->get_c(), n->get_b(), n->get_g());
-            GLenum  t = scm_external_type(n->get_c(), n->get_b(), n->get_g());
-
-            glGenTextures  (1, &texture);
-            glBindTexture  (T,  texture);
-            glTexParameteri(T, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-            glTexParameteri(T, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-            glTexParameteri(T, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-            glTexParameteri(T, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-            glTexImage3D   (T, 0, i, w, h, size, 1, e, t, 0);
-        }
     }
     return f;
 }

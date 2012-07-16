@@ -17,7 +17,7 @@
 #include <vector>
 #include <set>
 
-#include "scm-cache.hpp"
+#include "scm-frame.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -25,16 +25,13 @@ class scm_model
 {
 public:
 
-    scm_model(scm_cache&, const char *, const char *, int, int);
+    scm_model(const char *, const char *, int, int);
    ~scm_model();
 
     int  tick() { return time++; }
 
-    void prep(const double *, const double *, int, int, const int *, int,
-                                                        const int *, int);
-    void draw(const double *, const double *, int, int, const int *, int,
-                                                        const int *, int,
-                                                        const int *, int);
+    void prep(scm_frame *, const double *, const double *, int, int);
+    void draw(scm_frame *, const double *, const double *, int, int);
 
     void set_debug(bool b) { debug = b; }
     void set_fade(double k);
@@ -47,8 +44,6 @@ public:
     }
 
 private:
-
-    scm_cache& cache;
 
     int    time;
     int    size;
@@ -67,27 +62,17 @@ private:
 
     std::set<long long> pages;
 
-    bool is_set(long long i) const { return (pages.find(i) != pages.end()); }
+    bool  is_set (long long i) const { return (pages.find(i) != pages.end()); }
     void set_page(long long i);
 
+    void    add_page(const double *, int, int, double, double, long long);
     double view_page(const double *, int, int, double, double, long long);
-    void   dump_page(const double *,           double, double, long long);
+    void  debug_page(const double *,           double, double, long long);
 
-    double test_page(const double *, int, int, const int *, int, long long);
-    void  debug_page(const double *,           const int *, int, long long);
-
-    void    add_page(const double *, int, int,
-                        const int *, int, long long);
-    bool   prep_page(const double *, int, int,
-                        const int *, int,
-                        const int *, int, long long);
-    void   draw_page(   const int *, int,
-                        const int *, int,
-                        const int *, int, int, int, long long);
+    bool prep_page(scm_frame *, const double *, int, int, long long);
+    void draw_page(scm_frame *,                      int, long long);
 
     // OpenGL programmable processing state
-
-    static const int max_texture_image_units = 64;
 
     void init_program(const char *, const char *);
     void free_program();

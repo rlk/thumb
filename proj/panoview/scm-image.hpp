@@ -23,15 +23,19 @@ class scm_image
 {
 public:
 
-	scm_image(const std::string&, scm_cache&, int);
+	scm_image(const std::string&,
+			  const std::string&, scm_cache *, int);
 
 private:
 
 	std::string name;
-	scm_cache& cache;
+	scm_cache *cache;
 	int         file;
 	int         chan;
 };
+
+typedef std::vector<scm_image *>           scm_image_v;
+typedef std::vector<scm_image *>::iterator scm_image_i;
 
 //------------------------------------------------------------------------------
 

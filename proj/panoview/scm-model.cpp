@@ -79,10 +79,8 @@ void scm_model::zoom(double *w, const double *v)
 
 //------------------------------------------------------------------------------
 
-scm_model::scm_model(scm_cache& cache,
-                     const char *vert,
+scm_model::scm_model(const char *vert,
                      const char *frag, int n, int s) :
-    cache(cache),
     time(1),
     size(s),
     debug(false)
@@ -252,35 +250,13 @@ double scm_model::view_page(const double *M, int vw, int vh,
                              length(B, D, vw, vh)));
 }
 
-double scm_model::test_page(const double *M,  int w, int h,
-                               const int *vv, int vc, long long i)
-{
-    // Merge the bounds of this page in each vertex data set.
-
-    float r0 = 1.0;
-    float r1 = 1.0;
-
-    cache.page_bounds(i, vv, vc, r0, r1);
-
-    // Compute and test the on-screen pixel size of this bounds.
-
-    return view_page(M, w, h, double(r0), double(r1), i);
-}
-
-void scm_model::debug_page(const double *M,const int *vv, int vc, long long i)
+void scm_model::debug_page(const double *M, double r0, double r1, long long i)
 {
     // Compute the corner vectors of the zoomed page.
 
     double v[12];
 
     scm_page_corners(i, v);
-
-    // Merge the bounds of this page in each vertex data set.
-
-    float r0 = 1.0;
-    float r1 = 1.0;
-
-    cache.page_bounds(i, vv, vc, r0, r1);
 
     // Compute the maximum extent due to bulge.
 
@@ -317,12 +293,16 @@ void scm_model::debug_page(const double *M,const int *vv, int vc, long long i)
 
 //------------------------------------------------------------------------------
 
-void scm_model::add_page(const double *M,  int w,  int h,
-                            const int *vv, int vc, long long i)
+// Add page i to the set of pages needed for this frame. Recursively traverse
+// the neighborhood of this branch, adding pages to ensure that no two visibly
+// adjacent pages differ by more than one level of detail.
+
+void scm_model::add_page(const double *M, int w, int h,
+                         double r0, double r1, long long i)
 {
     if (!is_set(i))
     {
-        double k = test_page(M, w, h, vv, vc, i);
+        double k = view_page(M, w, h, r0, r1, i);
 
         if (k > 0)
         {
@@ -332,33 +312,33 @@ void scm_model::add_page(const double *M,  int w,  int h,
             {
                 long long p = scm_page_parent(i);
 
-                add_page(M, w, h, vv, vc, p);
+                add_page(M, w, h, r0, r1, p);
 
                 switch (scm_page_order(i))
                 {
                     case 0:
-                        add_page(M, w, h, vv, vc, scm_page_north(p));
-                        add_page(M, w, h, vv, vc, scm_page_south(i));
-                        add_page(M, w, h, vv, vc, scm_page_east (i));
-                        add_page(M, w, h, vv, vc, scm_page_west (p));
+                        add_page(M, w, h, r0, r1, scm_page_north(p));
+                        add_page(M, w, h, r0, r1, scm_page_south(i));
+                        add_page(M, w, h, r0, r1, scm_page_east (i));
+                        add_page(M, w, h, r0, r1, scm_page_west (p));
                         break;
                     case 1:
-                        add_page(M, w, h, vv, vc, scm_page_north(p));
-                        add_page(M, w, h, vv, vc, scm_page_south(i));
-                        add_page(M, w, h, vv, vc, scm_page_east (p));
-                        add_page(M, w, h, vv, vc, scm_page_west (i));
+                        add_page(M, w, h, r0, r1, scm_page_north(p));
+                        add_page(M, w, h, r0, r1, scm_page_south(i));
+                        add_page(M, w, h, r0, r1, scm_page_east (p));
+                        add_page(M, w, h, r0, r1, scm_page_west (i));
                         break;
                     case 2:
-                        add_page(M, w, h, vv, vc, scm_page_north(i));
-                        add_page(M, w, h, vv, vc, scm_page_south(p));
-                        add_page(M, w, h, vv, vc, scm_page_east (i));
-                        add_page(M, w, h, vv, vc, scm_page_west (p));
+                        add_page(M, w, h, r0, r1, scm_page_north(i));
+                        add_page(M, w, h, r0, r1, scm_page_south(p));
+                        add_page(M, w, h, r0, r1, scm_page_east (i));
+                        add_page(M, w, h, r0, r1, scm_page_west (p));
                         break;
                     case 3:
-                        add_page(M, w, h, vv, vc, scm_page_north(i));
-                        add_page(M, w, h, vv, vc, scm_page_south(p));
-                        add_page(M, w, h, vv, vc, scm_page_east (p));
-                        add_page(M, w, h, vv, vc, scm_page_west (i));
+                        add_page(M, w, h, r0, r1, scm_page_north(i));
+                        add_page(M, w, h, r0, r1, scm_page_south(p));
+                        add_page(M, w, h, r0, r1, scm_page_east (p));
+                        add_page(M, w, h, r0, r1, scm_page_west (i));
                         break;
                 }
             }
@@ -366,17 +346,19 @@ void scm_model::add_page(const double *M,  int w,  int h,
     }
 }
 
-bool scm_model::prep_page(const double *M,  int w,  int h,
-                             const int *vv, int vc,
-                             const int *fv, int fc, long long i)
+bool scm_model::prep_page(scm_frame *frame,
+                       const double *M, int w, int h, long long i)
 {
     // If this page is missing from all data sets, skip it.
 
-    if (cache.page_status(i, vv, vc, fv, fc))
+    if (frame->page_status(i))
     {
         // Compute the on-screen pixel size of this page.
 
-        double k = test_page(M, w, h, vv, vc, i);
+        double r0 = frame->page_r0(i);
+        double r1 = frame->page_r1(i);
+
+        double k = view_page(M, w, h, r0, r1, i);
 
         // Subdivide if too large, otherwise mark for drawing.
 
@@ -389,18 +371,18 @@ bool scm_model::prep_page(const double *M,  int w,  int h,
                 long long i2 = scm_page_child(i, 2);
                 long long i3 = scm_page_child(i, 3);
 
-                bool b0 = prep_page(M, w, h, vv, vc, fv, fc, i0);
-                bool b1 = prep_page(M, w, h, vv, vc, fv, fc, i1);
-                bool b2 = prep_page(M, w, h, vv, vc, fv, fc, i2);
-                bool b3 = prep_page(M, w, h, vv, vc, fv, fc, i3);
+                bool b0 = prep_page(frame, M, w, h, i0);
+                bool b1 = prep_page(frame, M, w, h, i1);
+                bool b2 = prep_page(frame, M, w, h, i2);
+                bool b3 = prep_page(frame, M, w, h, i3);
 
                 if (b0 || b1 || b2 || b3)
                     return true;
             }
-            add_page(M, w, h, vv, vc, i);
+            add_page(M, w, h, r0, r1, i);
 
             if (debug)
-                debug_page(M, vv, vc, i);
+                debug_page(M, r0, r1, i);
 
             return true;
         }
@@ -408,9 +390,7 @@ bool scm_model::prep_page(const double *M,  int w,  int h,
     return false;
 }
 
-void scm_model::draw_page(const int *vv, int vc,
-                          const int *fv, int fc,
-                          const int *pv, int pc, int d, int f, long long i)
+void scm_model::draw_page(scm_frame *frame, int d, long long i)
 {
     int then = time;
     int tc = vc + fc;
@@ -452,10 +432,10 @@ void scm_model::draw_page(const int *vv, int vc,
     {
         // Draw any children marked for drawing.
 
-        if (b0) draw_page(vv, vc, fv, fc, pv, pc, d + 1, f, i0);
-        if (b1) draw_page(vv, vc, fv, fc, pv, pc, d + 1, f, i1);
-        if (b2) draw_page(vv, vc, fv, fc, pv, pc, d + 1, f, i2);
-        if (b3) draw_page(vv, vc, fv, fc, pv, pc, d + 1, f, i3);
+        if (b0) draw_page(frame, d + 1, i0);
+        if (b1) draw_page(frame, d + 1, i1);
+        if (b2) draw_page(frame, d + 1, i2);
+        if (b3) draw_page(frame, d + 1, i3);
     }
     else
     {
@@ -508,17 +488,12 @@ void scm_model::draw_page(const int *vv, int vc,
 
 //------------------------------------------------------------------------------
 
-void scm_model::prep(const double *P, const double *V, int w, int h,
-                                               const int *vv, int vc,
-                                               const int *fv, int fc)
+void scm_model::prep(scm_frame *frame, const double *P,
+                                       const double *V, int w, int h)
 {
     double M[16];
 
     mmultiply(M, P, V);
-
-    pages.clear();
-
-    // Determine the set of visible pages.
 
     if (debug)
     {
@@ -526,20 +501,37 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
         glBegin(GL_LINES);
     }
 
-    prep_page(M, w, h, vv, vc, fv, fc, 0);
-    prep_page(M, w, h, vv, vc, fv, fc, 1);
-    prep_page(M, w, h, vv, vc, fv, fc, 2);
-    prep_page(M, w, h, vv, vc, fv, fc, 3);
-    prep_page(M, w, h, vv, vc, fv, fc, 4);
-    prep_page(M, w, h, vv, vc, fv, fc, 5);
+    pages.clear();
+
+    prep_page(frame, M, w, h, 0);
+    prep_page(frame, M, w, h, 1);
+    prep_page(frame, M, w, h, 2);
+    prep_page(frame, M, w, h, 3);
+    prep_page(frame, M, w, h, 4);
+    prep_page(frame, M, w, h, 5);
 
     if (debug)
     {
         glEnd();
     }
+}
+
+void scm_model::draw(scm_frame *frame, const double *P,
+                                       const double *V, int w, int h)
+{
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(P);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixd(V);
+    glEnable(GL_COLOR_MATERIAL);
+
+    // Perform the visibility pre-pass.
+
+    prep(frame, P, V, w, h);
 
     // Pre-cache all visible pages in breadth-first order.
 
+#if 0
     std::set<long long>::iterator i;
 
     int then;
@@ -552,25 +544,15 @@ void scm_model::prep(const double *P, const double *V, int w, int h,
         for (int fi = 0; fi < fc; ++fi)
             o = cache.get_page(fv[fi], *i, time, then);
     }
-}
+#endif
 
-void scm_model::draw(const double *P, const double *V, int w, int h,
-                                               const int *vv, int vc,
-                                               const int *fv, int fc,
-                                               const int *pv, int pc)
-{
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixd(P);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixd(V);
-
-    glEnable(GL_COLOR_MATERIAL);
-
-    prep(P, V, w, h, vv, vc, fv, fc);
+    // Bind the vertex buffer.
 
     glBindBuffer(GL_ARRAY_BUFFER, vertices);
     glEnableClientState(GL_VERTEX_ARRAY);
     glVertexPointer(2, GL_FLOAT, 0, 0);
+
+    // Configure the shaders and draw the six root pages.
 
     glUseProgram(program);
     {
@@ -594,35 +576,37 @@ void scm_model::draw(const double *P, const double *V, int w, int h,
         if (is_set(0))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[0]);
-            draw_page(vv, vc, fv, fc, pv, pc, 0, 0, 0);
+            draw_page(frame, 0, 0);
         }
         if (is_set(1))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[1]);
-            draw_page(vv, vc, fv, fc, pv, pc, 0, 1, 1);
+            draw_page(frame, 0, 1);
         }
         if (is_set(2))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[2]);
-            draw_page(vv, vc, fv, fc, pv, pc, 0, 2, 2);
+            draw_page(frame, 0, 2);
         }
         if (is_set(3))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[3]);
-            draw_page(vv, vc, fv, fc, pv, pc, 0, 3, 3);
+            draw_page(frame, 0, 3);
         }
         if (is_set(4))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[4]);
-            draw_page(vv, vc, fv, fc, pv, pc, 0, 4, 4);
+            draw_page(frame, 0, 4);
         }
         if (is_set(5))
         {
             glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[5]);
-            draw_page(vv, vc, fv, fc, pv, pc, 0, 5, 5);
+            draw_page(frame, 0, 5);
         }
     }
     glUseProgram(0);
+
+    // Revert the local GL state.
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER,         0);

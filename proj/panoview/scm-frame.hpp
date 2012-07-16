@@ -27,12 +27,19 @@ public:
 
     void add_image(scm_image *p) { images.push_back(p); }
 
+    bool   page_status(long long) const;
+    double page_r0    (long long) const;
+    double page_r1    (long long) const;
+
 private:
 
     bool mono;
 
     std::vector<scm_image *> images;
 };
+
+typedef std::vector<scm_frame *>           scm_frame_v;
+typedef std::vector<scm_frame *>::iterator scm_frame_i;
 
 //------------------------------------------------------------------------------
 

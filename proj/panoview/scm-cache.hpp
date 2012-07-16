@@ -51,7 +51,7 @@ class scm_cache
 {
 public:
 
-    scm_cache(float, float, int);
+    scm_cache(int, int, int, int, float, float);
    ~scm_cache();
 
     int    add_file(const std::string&);
@@ -78,8 +78,8 @@ private:
     static const int max_loads_per_update =  4;   //  2
 
     std::vector<scm_file *> files; // SCM TIFF data files
-    scm_set  pages;                // Page set currently in cache
-    scm_set  waits;                // Page set currently being loaded
+    scm_set pages;                 // Page set currently in cache
+    scm_set waits;                 // Page set currently being loaded
 
     queue<scm_task> needs;         // Page loader thread input  queue
     queue<scm_task> loads;         // Page loader thread output queue
@@ -89,12 +89,18 @@ private:
     GLuint  texture;
     int     next;
     int     size;
+    int     n;
+    int     c;
+    int     b;
     float   r0;
     float   r1;
 
     SDL_Thread *thread[4];         // Page loader threads
     friend int  loader(void *);    // Page loader function
 };
+
+typedef std::vector<scm_cache *>           scm_cache_v;
+typedef std::vector<scm_cache *>::iterator scm_cache_i;
 
 //------------------------------------------------------------------------------
 
