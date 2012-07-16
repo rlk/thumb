@@ -480,7 +480,7 @@ void view_app::gui_init()
 
     gui_state = true;
 
-    ui = new scm_loader(this, w, h);
+    ui = new view_load(this, w, h);
 }
 
 void view_app::gui_free()

@@ -23,7 +23,7 @@
 #include "scm-cache.hpp"
 #include "scm-model.hpp"
 #include "scm-label.hpp"
-#include "scm-loader.hpp"
+#include "view-load.hpp"
 
 //-----------------------------------------------------------------------------
 
@@ -100,7 +100,7 @@ private:
 
     // Sphere GUI State
 
-    scm_loader *ui;
+    view_load *ui;
 
     void gui_init();
     void gui_free();

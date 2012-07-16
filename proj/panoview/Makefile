@@ -17,7 +17,7 @@ PANOBJS= \
 	scm-cache.o \
 	scm-label.o \
 	scm-viewer.o \
-	scm-loader.o \
+	view-load.o \
 	panoview.o
 
 ORBOBJS= \
@@ -34,7 +34,7 @@ ORBOBJS= \
 	scm-cache.o \
 	scm-label.o \
 	scm-viewer.o \
-	scm-loader.o \
+	view-load.o \
 	orbiter.o
 
 PANDEPS= $(PANOBJS:.o=.d)

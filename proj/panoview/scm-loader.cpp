@@ -1,6 +1,6 @@
 #include <app-font.hpp>
 
-#include "scm-loader.hpp"
+#include "view-load.hpp"
 #include "scm-viewer.hpp"
 
 //------------------------------------------------------------------------------
@@ -51,7 +51,7 @@ public:
 
 #define SP "                                                                   "
 
-scm_loader::scm_loader(view_app *V, int w, int h)
+view_load::view_load(view_app *V, int w, int h)
 {
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("scm", ".xml", E);
@@ -85,7 +85,7 @@ scm_loader::scm_loader(view_app *V, int w, int h)
     root->laydn((w - ww) / 2, (h - hh) / 2, ww, hh);
 }
 
-void scm_loader::set_status(int c)
+void view_load::set_status(int c)
 {
     char buf[256];
 
