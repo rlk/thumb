@@ -18,11 +18,20 @@ scm_frame::scm_frame()
 {
 }
 
+static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
+{
+    char str[256];
+    sprintf(str, fmt, d);
+    return glGetUniformLocation(program, str);
+}
+
 //------------------------------------------------------------------------------
 
 void scm_frame::bind(GLuint program, int channel) const
 {
     glUseProgram(program);
+
+
 }
 
 void scm_frame::free() const
@@ -62,6 +71,12 @@ double scm_frame::page_r1(long long i) const
 {
     return 1.0;
 }
+
+void scm_frame::page_touch(long long i) const
+{
+}
+
+//------------------------------------------------------------------------------
 
 double scm_frame::get_r0() const
 {

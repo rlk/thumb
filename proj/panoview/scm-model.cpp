@@ -474,6 +474,11 @@ void scm_model::draw(scm_frame *frame, const double *P,
 
     // Pre-cache all visible pages in breadth-first order.
 
+    std::set<long long>::iterator i;
+
+    for (i = pages.begin(); i != pages.end(); ++i)
+        frame->page_touch(*i, time);
+
 #if 0
     std::set<long long>::iterator i;
 
@@ -562,13 +567,6 @@ void scm_model::set_fade(double k)
     double t = k * k * (3.0 - 2.0 * k);
     glUseProgram(program);
     glUniform1f(u_fader, GLfloat(t));
-}
-
-static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
-{
-    char str[256];
-    sprintf(str, fmt, d);
-    return glGetUniformLocation(program, str);
 }
 
 void scm_model::init_program(const char *vert_src,

@@ -8,7 +8,7 @@ struct scm
     float          age[16];
 };
 
-uniform struct scm scm_frag[1];
+uniform struct scm color;
 
 //------------------------------------------------------------------------------
 
