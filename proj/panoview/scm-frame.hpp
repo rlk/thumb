@@ -27,8 +27,8 @@ public:
 
     void add_image(scm_image *p) { images.push_back(p); }
 
-    void bind(GLuint, int) const;
-    void free()            const;
+    void bind(int, GLuint) const;
+    void free(int)         const;
 
     void set(GLuint, int, int, long long) const;
     void clr(GLuint, int)                 const;
@@ -36,7 +36,7 @@ public:
     bool   page_status(long long) const;
     double page_r0    (long long) const;
     double page_r1    (long long) const;
-    void   page_touch (long long);
+    void   page_touch (long long, int);
 
     double get_r0() const;
     double get_r1() const;

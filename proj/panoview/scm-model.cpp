@@ -502,7 +502,7 @@ void scm_model::draw(scm_frame *frame, const double *P,
 
     // Configure the shaders and draw the six root pages.
 
-    frame->bind(program, k);
+    frame->bind(k, program);
     {
         static const GLfloat faceM[6][9] = {
             {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
@@ -549,15 +549,13 @@ void scm_model::draw(scm_frame *frame, const double *P,
             draw_page(frame, 0, 5);
         }
     }
-    frame->free();
+    frame->free(k);
 
     // Revert the local GL state.
 
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     glBindBuffer(GL_ARRAY_BUFFER,         0);
     glDisableClientState(GL_VERTEX_ARRAY);
-
-    glActiveTexture(GL_TEXTURE0);
 }
 
 //------------------------------------------------------------------------------

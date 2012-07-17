@@ -148,12 +148,6 @@ static void init_opt()
         ogl::do_z_only = (::conf->get_i("z_only") != 0);
     }
 
-    {
-        int max;
-        glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max);
-        printf("GL_MAX_ARRAY_TEXTURE_LAYERS = %d\n", max);
-    }
-
     // Set vertical blanking synchronization state.
 
     sync(::conf->get_i("sync"));

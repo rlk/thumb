@@ -18,29 +18,35 @@ scm_frame::scm_frame()
 {
 }
 
-static GLuint glGetUniformLocationv(GLuint program, const char *fmt, int d)
-{
-    char str[256];
-    sprintf(str, fmt, d);
-    return glGetUniformLocation(program, str);
-}
-
 //------------------------------------------------------------------------------
 
-void scm_frame::bind(GLuint program, int channel) const
+void scm_frame::bind(int channel, GLuint program) const
 {
+    GLenum unit = 0;
+
     glUseProgram(program);
 
+    for (scm_image_c i = images.begin(); i != images.end(); ++i)
+        if ((*i)->is_channel(channel))
+            (*i)->bind(program, unit++);
 
-}
-
-void scm_frame::free() const
-{
-    glUseProgram(0);
+    glActiveTexture(GL_TEXTURE0);
 
     // glUniform1f(u_r0, GLfloat(cache.get_r0()));
     // glUniform1f(u_r1, GLfloat(cache.get_r1()));
+}
 
+void scm_frame::free(int channel) const
+{
+    GLenum unit = 0;
+
+    glUseProgram(0);
+
+    for (scm_image_c i = images.begin(); i != images.end(); ++i)
+        if ((*i)->is_channel(channel))
+            (*i)->free(unit++);
+
+    glActiveTexture(GL_TEXTURE0);
 }
 
 //------------------------------------------------------------------------------
@@ -72,7 +78,7 @@ double scm_frame::page_r1(long long i) const
     return 1.0;
 }
 
-void scm_frame::page_touch(long long i) const
+void scm_frame::page_touch(long long i, int time)
 {
 }
 

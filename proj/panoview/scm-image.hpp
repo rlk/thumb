@@ -23,19 +23,25 @@ class scm_image
 {
 public:
 
-	scm_image(const std::string&,
-			  const std::string&, scm_cache *, int);
+    scm_image(const std::string&,
+              const std::string&, scm_cache *, int);
+
+    void bind(GLint, GLuint) const;
+    void free(GLint)         const;
+
+    bool is_channel(int c) const { return (chan == -1 || chan == c); }
 
 private:
 
-	std::string name;
-	scm_cache *cache;
-	int         file;
-	int         chan;
+    std::string name;
+    scm_cache *cache;
+    int         file;
+    int         chan;
 };
 
-typedef std::vector<scm_image *>           scm_image_v;
-typedef std::vector<scm_image *>::iterator scm_image_i;
+typedef std::vector<scm_image *>                 scm_image_v;
+typedef std::vector<scm_image *>::iterator       scm_image_i;
+typedef std::vector<scm_image *>::const_iterator scm_image_c;
 
 //------------------------------------------------------------------------------
 

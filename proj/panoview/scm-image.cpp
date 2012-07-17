@@ -14,6 +14,24 @@
 
 //------------------------------------------------------------------------------
 
+static GLuint glGetUniformLocationf(GLuint program, const char *fmt, ...)
+{
+    GLuint loc = 0;
+    va_list ap;
+
+    va_start(ap, fmt);
+    {
+        char str[256];
+        vsprintf(str, fmt, ap);
+        loc = glGetUniformLocation(program, str);
+    }
+    va_end(ap);
+
+    return loc;
+}
+
+//------------------------------------------------------------------------------
+
 scm_image::scm_image(const std::string& name,
 					 const std::string& scm, scm_cache *cache, int chan) :
 	name(name),
@@ -21,6 +39,21 @@ scm_image::scm_image(const std::string& name,
 	chan(chan)
 {
 	file = cache->add_file(scm);
+}
+
+//------------------------------------------------------------------------------
+
+void scm_image::bind(GLint unit, GLuint program) const
+{
+    glUniform1i(glGetUniformLocationf(program, "%s.img", name.c_str()), unit);
+    glActiveTexture(GL_TEXTURE0 + unit);
+    cache->bind();
+}
+
+void scm_image::free(GLint unit) const
+{
+    glActiveTexture(GL_TEXTURE0 + unit);
+    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
 }
 
 //------------------------------------------------------------------------------
