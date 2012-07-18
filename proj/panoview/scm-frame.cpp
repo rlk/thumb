@@ -14,13 +14,20 @@
 
 //------------------------------------------------------------------------------
 
-scm_frame::scm_frame() : channel(0)
+scm_frame::scm_frame() : height(0), channel(0)
 {
+}
+
+void scm_frame::add_image(scm_image *p)
+{
+    images.push_back(p);
+    if (p->is_height())
+        height = p;
 }
 
 #define FOR_ALL_OF_CHANNEL(c) \
      for (scm_image_c c = images.begin(); c != images.end(); ++c) \
-        if ((*c)->is_channel(channel)) \
+        if ((*c)->is_channel(channel))
 
 //------------------------------------------------------------------------------
 
@@ -71,31 +78,37 @@ void scm_frame::clr_texture(GLuint program, int d) const
 
 bool scm_frame::page_status(long long i) const
 {
-    return true;
+    FOR_ALL_OF_CHANNEL(c)
+        if ((*c)->status(i))
+            return true;
+
+    return false;
 }
 
-double scm_frame::page_r0(long long i) const
+// Return the range of any height image in this frame.
+
+void scm_frame::page_bounds(long long i, float& r0, float &r1) const
 {
-    return 1.0;
+    if (height)
+        height->bounds(i, r0, r1);
 }
 
-double scm_frame::page_r1(long long i) const
-{
-    return 1.0;
-}
+// Touch the given page at the given time, "using" it in the LRU sense.
 
 void scm_frame::page_touch(long long i, int time)
 {
+    FOR_ALL_OF_CHANNEL(c)
+        (*c)->touch(i, time);
 }
 
 //------------------------------------------------------------------------------
 
-double scm_frame::get_r0() const
+float scm_frame::get_r0() const
 {
     return 1.0;
 }
 
-double scm_frame::get_r1() const
+float scm_frame::get_r1() const
 {
     return 1.0;
 }

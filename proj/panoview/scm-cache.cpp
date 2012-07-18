@@ -72,9 +72,10 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S,     GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T,     GL_CLAMP);
 
-    const int m = n + 2;
+    // Initialize it with a buffer of zeros.
 
-    GLubyte *p;
+    const int m = n + 2;
+    GLubyte  *p;
 
     if ((p = (GLubyte *) malloc(size * m * m * c * b)))
     {
@@ -195,7 +196,7 @@ int scm_cache::get_page(int f, long long i, int t, int& n)
         waits.insert(scm_page(f, i, 0), t);
     }
 
-    n = 0;
+    n = t;
     return 0;
 }
 
@@ -247,6 +248,8 @@ void scm_cache::flush()
 {
     while (!pages.empty())
         pages.eject(0, -1);
+
+    next = 1;
 }
 
 void scm_cache::draw()
@@ -262,46 +265,17 @@ void scm_cache::sync(int t)
 
 //------------------------------------------------------------------------------
 
-void scm_cache::page_bounds(long long i, const int *vv, int vc, float& s0, float& s1)
+void scm_cache::get_page_bounds(int f, long long i, float& t0, float& t1)
 {
-    if (vc > 0)
-    {
-        s0 =  std::numeric_limits<float>::max();
-        s1 = -std::numeric_limits<float>::max();
+    files[f]->bounds(uint64(i), t0, t1);
 
-        for (int vi = 0; vi < vc; ++vi)
-        {
-            float t0;
-            float t1;
-
-            files[vv[vi]]->bounds(uint64(i), t0, t1);
-
-            t0 = t0 * (r1 - r0) + r0;
-            t1 = t1 * (r1 - r0) + r0;
-
-            s0 = std::min(s0, t0);
-            s1 = std::max(s1, t1);
-        }
-    }
-    else
-    {
-        s0 = 1.0;
-        s1 = 1.0;
-    }
+    t0 = t0 * (r1 - r0) + r0;
+    t1 = t1 * (r1 - r0) + r0;
 }
 
-bool scm_cache::page_status(long long i, const int *vv, int vc,
-                                         const int *fv, int fc)
+bool scm_cache::get_page_status(int f, long long i)
 {
-    for (int vi = 0; vi < vc; ++vi)
-        if (files[vv[vi]]->status(uint64(i)))
-            return true;
-
-    for (int fi = 0; fi < fc; ++fi)
-        if (files[fv[fi]]->status(uint64(i)))
-            return true;
-
-    return false;
+    return files[f]->status(uint64(i));
 }
 
 //------------------------------------------------------------------------------

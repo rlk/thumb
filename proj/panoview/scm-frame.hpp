@@ -25,7 +25,7 @@ public:
 
     scm_frame();
 
-    void add_image(scm_image *p) { images.push_back(p); }
+    void add_image(scm_image *);
 
     void bind(GLuint) const;
     void free()       const;
@@ -33,19 +33,19 @@ public:
     void set_texture(GLuint, int, int, long long) const;
     void clr_texture(GLuint, int)                 const;
 
-    bool   page_status(long long) const;
-    double page_r0    (long long) const;
-    double page_r1    (long long) const;
+    void   page_bounds(long long, float&, float &) const;
+    bool   page_status(long long)                  const;
     void   page_touch (long long, int);
 
-    double get_r0() const;
-    double get_r1() const;
+    float get_r0() const;
+    float get_r1() const;
 
     void set_channel(int c) { channel = c; }
 
 private:
 
-    std::vector<scm_image *> images;
+    scm_image_v images;
+    scm_image  *height;
 
     int channel;
 };

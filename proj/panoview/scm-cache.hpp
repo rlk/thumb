@@ -60,11 +60,8 @@ public:
     float  get_r0()   const { return r0;   }
     float  get_r1()   const { return r1;   }
 
-    // TODO: Use friend to encapsulate this.
-
-    void page_bounds(long long, const int *, int, float&, float&);
-    bool page_status(long long, const int *, int,
-                                const int *, int);
+    void get_page_bounds(int, long long, float&, float&);
+    bool get_page_status(int, long long);
 
     void update(int);  // Cycle the cache once
     void sync  (int);  // Cycle the cache until all needs are served

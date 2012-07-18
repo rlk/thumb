@@ -18,10 +18,11 @@
 //------------------------------------------------------------------------------
 
 scm_image::scm_image(const std::string& name,
-					 const std::string& scm, scm_cache *cache, int chan) :
+					 const std::string& scm, scm_cache *cache, int c, bool h) :
 	name(name),
 	cache(cache),
-	chan(chan)
+	chan(c),
+    height(h)
 {
 	file = cache->add_file(scm);
 }
@@ -30,7 +31,19 @@ scm_image::scm_image(const std::string& name,
 
 void scm_image::bind(GLint unit, GLuint program) const
 {
-    glUniform1i(glsl_uniform(program, "%s.img", name.c_str()), unit);
+    if (height)
+    {
+        GLuint r0 = glsl_uniform(program, "r0");
+        GLuint r1 = glsl_uniform(program, "r1");
+
+        glUniform1f(r0, cache->get_r0());
+        glUniform1f(r1, cache->get_r1());
+    }
+
+    GLuint img = glsl_uniform(program, "%s.img", name.c_str());
+
+    glUniform1i(img, unit);
+
     glActiveTexture(GL_TEXTURE0 + unit);
     cache->bind();
 }
@@ -43,6 +56,24 @@ void scm_image::free(GLint unit) const
 
 //------------------------------------------------------------------------------
 
+void scm_image::bounds(long long i, float& r0, float& r1) const
+{
+    return cache->get_page_bounds(file, i, r0, r1);
+}
+
+bool scm_image::status(long long i) const
+{
+    return cache->get_page_status(file, i);
+}
+
+void scm_image::touch(long long i, int t) const
+{
+    int u;
+    cache->get_page(file, i, t, u);
+}
+
+//------------------------------------------------------------------------------
+
 void scm_image::set_texture(GLuint program, int d, int t, long long i) const
 {
     GLint idx = glsl_uniform(program, "%s.idx[%d]", name.c_str(), d);
@@ -50,9 +81,14 @@ void scm_image::set_texture(GLuint program, int d, int t, long long i) const
 
     int u, n = cache->get_page(file, i, t, u);
 
-    glUniform1f(idx,  GLfloat(n));
-//    glUniform1f(idx,  GLfloat(n) / GLfloat(cache->get_size()));
-    glUniform1f(age, std::min(1.f, GLfloat(t - u) / 60.f));
+    double a = (t - u) / 60.0;
+
+    if      (n ==  0) a = 0.0;
+    else if (a > 1.0) a = 1.0;
+    else if (a < 0.0) a = 0.0;
+
+    glUniform1f(idx, GLfloat(n));
+    glUniform1f(age, GLfloat(a));
 }
 
 void scm_image::clr_texture(GLuint program, int d) const

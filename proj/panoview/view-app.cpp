@@ -31,6 +31,7 @@
 
 view_app::view_app(const std::string& exe,
                        const std::string& tag) : app::prog(exe, tag),
+    bound  (0),
     model  (0),
     label  (0),
     timer  (0),
@@ -115,9 +116,20 @@ void view_app::load_images(app::node p, scm_frame *f)
         const std::string& scm  = i.get_s("scm");
         int                cc   = i.get_i("cache",    0);
         int                ch   = i.get_i("channel", -1);
+        int                ht   = i.get_i("height",   0);
 
         if (0 <= cc && cc < int(caches.size()))
-            f->add_image(new scm_image(name, scm, caches[cc], ch));
+        {
+            if (ht)
+            {
+                f->add_image(new scm_image(name, scm, caches[cc], ch, true));
+                bound = caches[cc];
+            }
+            else
+            {
+                f->add_image(new scm_image(name, scm, caches[cc], ch, false));
+            }
+        }
     }
 }
 
@@ -342,7 +354,10 @@ bool view_app::process_key(app::event *E)
                 case 286: debug_wire  = !debug_wire;  return true; // F5
                 case 287: debug_bound = !debug_bound; return true; // F6
 
-                // case 8: cache->flush();               return true; // Backspace
+                case 8:
+                    for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
+                        (*i)->flush();
+                    return true; // Backspace
             }
 
         if (c)

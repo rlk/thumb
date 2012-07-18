@@ -349,16 +349,20 @@ void scm_model::add_page(const double *M, int w, int h,
 bool scm_model::prep_page(scm_frame *frame,
                        const double *M, int w, int h, long long i)
 {
+    float t0;
+    float t1;
+
     // If this page is missing from all data sets, skip it.
 
     if (frame->page_status(i))
     {
+        frame->page_bounds(i, t0, t1);
+
         // Compute the on-screen pixel size of this page.
 
-        double r0 = frame->page_r0(i);
-        double r1 = frame->page_r1(i);
-
-        double k = view_page(M, w, h, r0, r1, i);
+        double r0 = double(t0);
+        double r1 = double(t1);
+        double k  = view_page(M, w, h, r0, r1, i);
 
         // Subdivide if too large, otherwise mark for drawing.
 
@@ -500,22 +504,7 @@ void scm_model::draw(scm_frame *frame, const double *P,
     std::set<long long>::iterator i;
 
     for (i = pages.begin(); i != pages.end(); ++i)
-        frame->page_touch(*i, time);
-
-#if 0
-    std::set<long long>::iterator i;
-
-    int then;
-    int o;
-
-    for (i = pages.begin(); i != pages.end(); ++i)
-    {
-        for (int vi = 0; vi < vc; ++vi)
-            o = cache.get_page(vv[vi], *i, time, then);
-        for (int fi = 0; fi < fc; ++fi)
-            o = cache.get_page(fv[fi], *i, time, then);
-    }
-#endif
+        frame->page_touch((*i), time);
 
     // Bind the vertex buffer.
 

@@ -1,66 +1,79 @@
+#version 120
+#extension GL_EXT_texture_array : enable
 
-uniform float     r0;
-uniform float     r1;
-uniform mat3      faceM;
-uniform vec2      v_mul[64];
-uniform vec2      v_add[64];
-uniform sampler2D v_img[64];
-uniform float     v_age[64];
+struct scm
+{
+    sampler2DArray img;
+    float          idx[16];
+    float          age[16];
+};
+
+uniform scm height;
+
+uniform mat3 face_M;
+uniform vec2 page_a[16];
+uniform vec2 page_b[16];
+
+uniform float r0;
+uniform float r1;
 
 varying vec3 var_V;
 varying vec3 var_L;
 
 //------------------------------------------------------------------------------
 
-vec4 tex0(vec2 t)
+vec4 age(vec4 c, float k)
 {
-    vec4 c = texture2D(v_img[0], v_mul[0] * t + v_add[0]);
-    return vec4(c.rgb, c.a * v_age[0]);
+    return vec4(c.rgb, c.a * k);
 }
 
-vec4 tex1(vec2 t)
+vec4 img0(vec2 t)
 {
-    vec4 c = texture2D(v_img[1], v_mul[1] * t + v_add[1]);
-    return vec4(c.rgb, c.a * v_age[1]);
+    vec3 c = vec3(page_a[0] * t + page_b[0], height.idx[0]);
+    return age(texture2DArray(height.img, c), height.age[0]);
 }
 
-vec4 tex2(vec2 t)
+vec4 img1(vec2 t)
 {
-    vec4 c = texture2D(v_img[2], v_mul[2] * t + v_add[2]);
-    return vec4(c.rgb, c.a * v_age[2]);
+    vec3 c = vec3(page_a[1] * t + page_b[1], height.idx[1]);
+    return age(texture2DArray(height.img, c), height.age[1]);
 }
 
-vec4 tex3(vec2 t)
+vec4 img2(vec2 t)
 {
-    vec4 c = texture2D(v_img[3], v_mul[3] * t + v_add[3]);
-    return vec4(c.rgb, c.a * v_age[3]);
+    vec3 c = vec3(page_a[2] * t + page_b[2], height.idx[2]);
+    return age(texture2DArray(height.img, c), height.age[2]);
 }
 
-vec4 tex4(vec2 t)
+vec4 img3(vec2 t)
 {
-    vec4 c = texture2D(v_img[4], v_mul[4] * t + v_add[4]);
-    return vec4(c.rgb, c.a * v_age[4]);
+    vec3 c = vec3(page_a[3] * t + page_b[3], height.idx[3]);
+    return age(texture2DArray(height.img, c), height.age[3]);
 }
 
-vec4 tex5(vec2 t)
+vec4 img4(vec2 t)
 {
-    vec4 c = texture2D(v_img[5], v_mul[5] * t + v_add[5]);
-    return vec4(c.rgb, c.a * v_age[5]);
+    vec3 c = vec3(page_a[4] * t + page_b[4], height.idx[4]);
+    return age(texture2DArray(height.img, c), height.age[4]);
 }
 
-vec4 tex6(vec2 t)
+vec4 img5(vec2 t)
 {
-    vec4 c = texture2D(v_img[6], v_mul[6] * t + v_add[6]);
-    return vec4(c.rgb, c.a * v_age[6]);
+    vec3 c = vec3(page_a[5] * t + page_b[5], height.idx[5]);
+    return age(texture2DArray(height.img, c), height.age[5]);
 }
 
-vec4 tex7(vec2 t)
+vec4 img6(vec2 t)
 {
-    vec4 c = texture2D(v_img[7], v_mul[7] * t + v_add[7]);
-    return vec4(c.rgb, c.a * v_age[7]);
+    vec3 c = vec3(page_a[6] * t + page_b[6], height.idx[6]);
+    return age(texture2DArray(height.img, c), height.age[6]);
 }
 
-//------------------------------------------------------------------------------
+vec4 img7(vec2 t)
+{
+    vec3 c = vec3(page_a[7] * t + page_b[7], height.idx[7]);
+    return age(texture2DArray(height.img, c), height.age[7]);
+}
 
 vec4 blend(vec4 a, vec4 b)
 {
@@ -69,30 +82,13 @@ vec4 blend(vec4 a, vec4 b)
 
 vec4 sample(vec2 t)
 {
-    return blend(tex7(t),
-               blend(tex6(t),
-                   blend(tex5(t),
-                       blend(tex4(t),
-                           blend(tex3(t),
-                               blend(tex2(t),
-                                   blend(tex1(t), tex0(t))))))));
-}
-
-//------------------------------------------------------------------------------
-
-float peak(float k, float c)
-{
-    return max(0.0, 1.0 - abs(k - c) * 5.0);
-}
-
-vec4 colormap(float k)
-{
-    return peak(k, 0.0) * vec4(1.0, 0.0, 1.0, 1.0) +
-           peak(k, 0.2) * vec4(0.0, 0.0, 1.0, 1.0) +
-           peak(k, 0.4) * vec4(0.0, 1.0, 1.0, 1.0) +
-           peak(k, 0.6) * vec4(1.0, 1.0, 0.0, 1.0) +
-           peak(k, 0.8) * vec4(1.0, 0.0, 0.0, 1.0) +
-           peak(k, 1.0) * vec4(1.0, 1.0, 1.0, 1.0);
+    return blend(img7(t),
+               blend(img6(t),
+                   blend(img5(t),
+                       blend(img4(t),
+                           blend(img3(t),
+                               blend(img2(t),
+                                   blend(img1(t), img0(t))))))));
 }
 
 //------------------------------------------------------------------------------
@@ -105,7 +101,7 @@ vec3 scube(vec2 t)
     float y = -cos(s.x) * sin(s.y);
     float z =  cos(s.x) * cos(s.y);
 
-    return faceM * normalize(vec3(x, y, z));
+    return face_M * normalize(vec3(x, y, z));
 }
 
 //------------------------------------------------------------------------------
@@ -114,12 +110,11 @@ void main()
 {
     float k = sample(gl_Vertex.xy).r;
     float h = mix(r0, r1, k);
-    vec3  v = h * scube(v_mul[0] * gl_Vertex.xy + v_add[0]);
+    vec3  v = h * scube(page_a[0] * gl_Vertex.xy + page_b[0]);
 
     var_V = v;
     var_L = gl_LightSource[0].position.xyz;
 
     gl_TexCoord[0].xy = gl_Vertex.xy;
-    gl_FrontColor = colormap(k);
     gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
 }

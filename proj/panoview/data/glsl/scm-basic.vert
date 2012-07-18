@@ -1,5 +1,4 @@
 uniform mat3 face_M;
-
 uniform vec2 page_a[16];
 uniform vec2 page_b[16];
 

@@ -60,6 +60,7 @@ protected:
     scm_cache_v caches;
     scm_frame_v frames;
 
+    scm_cache *bound;
     scm_model *model;
     scm_label *label;
 
