@@ -279,13 +279,15 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 
     // Draw the label overlay.
 
-    if (label && debug_label)
+    if (debug_label)
     {
         glPushMatrix();
         {
             glScaled(s, s, s);
             glScaled(r, r, r);
-            label->draw();
+
+            if (label)
+                label->draw();
         }
         glPopMatrix();
     }
@@ -304,8 +306,11 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 
     // Draw the cache overlay.
 
-    if (caches[0] && debug_cache)
-        caches[0]->draw();
+    if (debug_cache)
+    {
+        if (!caches.empty())
+            caches[0]->draw();
+    }
 
     // Draw the GUI overlay.
 

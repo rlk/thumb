@@ -415,9 +415,30 @@ void scm_model::draw_page(scm_frame *frame, int d, long long i)
         }
         else
         {
-            // Draw this page. Select a mesh that matches up with the neighbors.
+            // Compute the texture coordate transform for this page.
 
-            frame->set_uniform(program, d, i);
+            long long r = scm_page_row(i);
+            long long c = scm_page_col(i);
+            long long R = r;
+            long long C = c;
+
+            for (int l = d; l >= 0; --l)
+            {
+                GLfloat m = 1.0f / (1 << (d - l));
+                GLfloat x = m * c - C;
+                GLfloat y = m * r - R;
+
+                GLint a = glsl_uniform(program, "page_a[%d]", l);
+                GLint b = glsl_uniform(program, "page_b[%d]", l);
+
+                glUniform2f(a, m, m);
+                glUniform2f(b, x, y);
+
+                C /= 2;
+                R /= 2;
+            }
+
+            // Select a mesh that matches up with the neighbors. Draw it.
 
             int j = (i < 6) ? 0 : (is_set(scm_page_north(i)) ? 0 : 1)
                                 | (is_set(scm_page_south(i)) ? 0 : 2)
@@ -506,7 +527,7 @@ void scm_model::draw(scm_frame *frame, const double *P,
 
     frame->bind(program);
     {
-        static const GLfloat faceM[6][9] = {
+        static const GLfloat M[6][9] = {
             {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
             {  0.f,  0.f, -1.f,  0.f,  1.f,  0.f,  1.f,  0.f,  0.f },
             {  1.f,  0.f,  0.f,  0.f,  0.f,  1.f,  0.f, -1.f,  0.f },
@@ -515,39 +536,41 @@ void scm_model::draw(scm_frame *frame, const double *P,
             { -1.f,  0.f,  0.f,  0.f,  1.f,  0.f,  0.f,  0.f, -1.f },
         };
 
-        glUniform1f(u_zoomk, GLfloat(zoomk));
-        glUniform3f(u_zoomv, GLfloat(zoomv[0]),
-                             GLfloat(zoomv[1]),
-                             GLfloat(zoomv[2]));
+        GLint face_M = glsl_uniform(program, "face_M");
+
+        // glUniform1f(u_zoomk, GLfloat(zoomk));
+        // glUniform3f(u_zoomv, GLfloat(zoomv[0]),
+        //                      GLfloat(zoomv[1]),
+        //                      GLfloat(zoomv[2]));
 
         if (is_set(0))
         {
-            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[0]);
+            glUniformMatrix3fv(face_M, 1, GL_TRUE, M[0]);
             draw_page(frame, 0, 0);
         }
         if (is_set(1))
         {
-            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[1]);
+            glUniformMatrix3fv(face_M, 1, GL_TRUE, M[1]);
             draw_page(frame, 0, 1);
         }
         if (is_set(2))
         {
-            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[2]);
+            glUniformMatrix3fv(face_M, 1, GL_TRUE, M[2]);
             draw_page(frame, 0, 2);
         }
         if (is_set(3))
         {
-            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[3]);
+            glUniformMatrix3fv(face_M, 1, GL_TRUE, M[3]);
             draw_page(frame, 0, 3);
         }
         if (is_set(4))
         {
-            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[4]);
+            glUniformMatrix3fv(face_M, 1, GL_TRUE, M[4]);
             draw_page(frame, 0, 4);
         }
         if (is_set(5))
         {
-            glUniformMatrix3fv(u_faceM, 1, GL_TRUE, faceM[5]);
+            glUniformMatrix3fv(face_M, 1, GL_TRUE, M[5]);
             draw_page(frame, 0, 5);
         }
     }
@@ -564,9 +587,9 @@ void scm_model::draw(scm_frame *frame, const double *P,
 
 void scm_model::set_fade(double k)
 {
-    double t = k * k * (3.0 - 2.0 * k);
-    glUseProgram(program);
-    glUniform1f(u_fader, GLfloat(t));
+    // double t = k * k * (3.0 - 2.0 * k);
+    // glUseProgram(program);
+    // glUniform1f(u_fader, GLfloat(t));
 }
 
 void scm_model::init_program(const char *vert_src,
@@ -578,12 +601,11 @@ void scm_model::init_program(const char *vert_src,
         frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_src);
         program     = glsl_init_program(vert_shader, frag_shader);
 
-        glUseProgram(program);
+        // glUseProgram(program);
 
-        u_fader = glGetUniformLocation(program, "fader");
-        u_zoomk = glGetUniformLocation(program, "zoomk");
-        u_zoomv = glGetUniformLocation(program, "zoomv");
-        u_faceM = glGetUniformLocation(program, "faceM");
+        // u_fader = glGetUniformLocation(program, "fader");
+        // u_zoomk = glGetUniformLocation(program, "zoomk");
+        // u_zoomv = glGetUniformLocation(program, "zoomv");
     }
 }
 

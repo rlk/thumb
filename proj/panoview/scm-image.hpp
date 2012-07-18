@@ -31,7 +31,6 @@ public:
 
     void set_texture(GLuint, int, int, long long) const;
     void clr_texture(GLuint, int)                 const;
-    void set_uniform(GLuint, int,      long long) const;
 
     bool is_channel(int c) const { return (chan == -1 || chan == c); }
 

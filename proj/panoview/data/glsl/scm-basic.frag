@@ -5,20 +5,21 @@ struct scm
 {
     sampler2DArray img;
     int            idx[16];
-    vec2           mul[16];
-    vec2           add[16];
     float          age[16];
 };
 
 uniform scm color;
 
+uniform vec2 page_a[16];
+uniform vec2 page_b[16];
+
 //------------------------------------------------------------------------------
 
-vec4 img0(const scm s, vec2 t)
+vec4 img0(vec2 t)
 {
-//  vec3 c = vec3(t * s.mul[0] + s.add[0], s.idx[0]);
-    vec3 c = vec3(t, 0.0);
-    vec4 p = texture2DArray(s.img, c);
+    vec3 c = vec3(page_a[0] * t + page_b[0], 0.0); //s.idx[0]);
+    vec4 p = texture2DArray(color.img, c);
+//    vec4 p = vec4(0.0, 1.0, 0.0, 0.5);
     return p;
 //  return vec4(p.rgb, p.a * s.age[0]);
 }
@@ -96,5 +97,5 @@ vec4 img0(const scm s, vec2 t)
 void main()
 {
 //    gl_FragColor = sample(gl_TexCoord[0].xy);
-    gl_FragColor = img0(color, gl_TexCoord[0].xy);
+    gl_FragColor = img0(gl_TexCoord[0].xy);
 }

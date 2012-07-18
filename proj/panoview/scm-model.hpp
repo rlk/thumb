@@ -81,11 +81,6 @@ private:
     GLuint vert_shader;
     GLuint frag_shader;
 
-    GLuint u_fader;
-    GLuint u_zoomk;
-    GLuint u_zoomv;
-    GLuint u_faceM;
-
     // OpenGL geometry state.
 
     void init_arrays(int);

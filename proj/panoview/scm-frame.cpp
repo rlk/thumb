@@ -31,7 +31,7 @@ void scm_frame::bind(GLuint program) const
     glUseProgram(program);
 
     FOR_ALL_OF_CHANNEL(c)
-        (*c)->bind(program, unit++);
+        (*c)->bind(unit++, program);
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -63,12 +63,6 @@ void scm_frame::clr_texture(GLuint program, int d) const
 {
     FOR_ALL_OF_CHANNEL(c)
         (*c)->clr_texture(program, d);
-}
-
-void scm_frame::set_uniform(GLuint program, int d, long long i) const
-{
-    FOR_ALL_OF_CHANNEL(c)
-        (*c)->set_uniform(program, d, i);
 }
 
 //------------------------------------------------------------------------------

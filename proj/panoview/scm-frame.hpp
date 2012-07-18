@@ -32,7 +32,6 @@ public:
 
     void set_texture(GLuint, int, int, long long) const;
     void clr_texture(GLuint, int)                 const;
-    void set_uniform(GLuint, int,      long long) const;
 
     bool   page_status(long long) const;
     double page_r0    (long long) const;
