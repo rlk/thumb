@@ -2,18 +2,18 @@
   <sphere radius="1737400.0"
             mesh="32"
             size="426"
-            vert="glsl/scm-basic.vert"
+            vert="glsl/scm-displace.vert"
             frag="glsl/scm-basic.frag">
-            <!-- vert="glsl/scm-displace.vert" -->
+            <!-- vert="glsl/scm-basic.vert" -->
 
-    <!-- <cache n="426" c="1" b="8"/> -->
-    <cache n="426" c="3" b="8"/>
-    <!-- <cache n="426" c="1" b="16" r0="0.994728" r1="1.0062" /> -->
+    <cache n="426" c="1" b="8"/>
+    <!-- <cache n="426" c="3" b="8"/> -->
+    <cache n="426" c="1" b="16" r0="0.994728" r1="1.0062" />
 
     <frame>
-      <!-- <image name="height" scm="DTM-426-6.tif" cache="1" height="1"/> -->
-      <!-- <image name="color"  scm="WAC-426-6.tif" cache="0" /> -->
-      <image name="color"  scm="DTM-426-6-N.tif" cache="0" />
+      <image name="height" scm="DTM-426-6.tif" cache="1" height="1"/>
+      <image name="color"  scm="WAC-426-6.tif" cache="0" />
+      <!-- <image name="color"  scm="DTM-426-6.tif" cache="0" /> -->
     </frame>
 
     <step name="Tycho"

@@ -468,6 +468,7 @@ void scm_model::prep(scm_frame *frame, const double *P,
     if (debug)
     {
         glUseProgram(0);
+        glColor4f(1.0, 1.0, 0.0, 0.5);
         glBegin(GL_LINES);
     }
 

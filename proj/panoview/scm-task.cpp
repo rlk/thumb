@@ -62,6 +62,7 @@ void scm_task::dump_page()
 }
 
 // Load the current TIFF directory image data into the mapped pixel buffer.
+// This executes in a loader thread.
 
 void scm_task::load_page(TIFF *T, uint32 w, uint32 h,
                                   uint16 c, uint16 b, uint16 g)
@@ -80,7 +81,7 @@ void scm_task::load_page(TIFF *T, uint32 w, uint32 h,
     if (W == w && H == h && B == b && C == c)
     {
         // Pad a 24-bit image to 32-bit BGRA. TODO: eliminate this malloc.
-#if 0
+
         if (c == 3 && b == 8)
         {
             if (void *q = malloc(TIFFScanlineSize(T)))
@@ -109,7 +110,6 @@ void scm_task::load_page(TIFF *T, uint32 w, uint32 h,
         // Load a non-24-bit image normally.
 
         else
-#endif
         {
             const uint32 S = (uint32) TIFFScanlineSize(T);
 
@@ -147,11 +147,7 @@ GLenum scm_internal_form(uint16 c, uint16 b, uint16 g)
         {
         case  1: return GL_LUMINANCE8;
         case  2: return GL_LUMINANCE_ALPHA;
-#if 0
         case  3: return GL_RGBA8; // *
-#else
-        case  3: return GL_RGB8; // *
-#endif
         default: return GL_RGBA8;
         }
 }
@@ -165,13 +161,8 @@ GLenum scm_external_form(uint16 c, uint16 b, uint16 g)
         {
         case  1: return GL_LUMINANCE;
         case  2: return GL_LUMINANCE_ALPHA;
-#if 0
         case  3: return GL_BGRA; // *
-        default: return GL_BGRA;
-#else
-        case  3: return GL_RGB; // *
-        default: return GL_RGBA;
-#endif
+        default: return GL_BGRA; // *
         }
     else
         switch (c)
@@ -198,6 +189,6 @@ GLenum scm_external_type(uint16 c, uint16 b, uint16 g)
     else              return GL_UNSIGNED_BYTE;
 }
 
-// * 24-bit images are always padded to 32 bits.
+// * 24-bit images are always padded to 32 bits.  BGRA order.
 
 //------------------------------------------------------------------------------

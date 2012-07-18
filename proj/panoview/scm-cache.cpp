@@ -67,10 +67,10 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
 
     glGenTextures  (1, &texture);
     glBindTexture  (GL_TEXTURE_2D_ARRAY,  texture);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S,     GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T,     GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R,     GL_CLAMP);
@@ -83,7 +83,7 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
     if ((p = (GLubyte *) malloc(size * m * m * c * b)))
     {
         memset(p, 0, size * m * m * c * b);
-//      glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, i, n, n, size, 1, e, t, p);
+        // glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, i, n, n, size, 1, e, t, p);
         glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, i, m, m, size, 0, e, t, p);
         free(p);
     }
