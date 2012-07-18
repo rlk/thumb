@@ -50,7 +50,8 @@ void scm_image::set_texture(GLuint program, int d, int t, long long i) const
 
     int u, n = cache->get_page(file, i, t, u);
 
-    glUniform1f(idx,  GLfloat(n) / GLfloat(cache->get_size()));
+    glUniform1f(idx,  GLfloat(n));
+//    glUniform1f(idx,  GLfloat(n) / GLfloat(cache->get_size()));
     glUniform1f(age, std::min(1.f, GLfloat(t - u) / 60.f));
 }
 
