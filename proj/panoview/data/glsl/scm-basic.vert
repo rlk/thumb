@@ -1,7 +1,3 @@
-#version 120
-#extension GL_EXT_texture_array : enable
-
-
 uniform mat3 face_M;
 
 uniform vec2 page_a[16];

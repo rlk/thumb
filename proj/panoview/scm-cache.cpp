@@ -71,7 +71,17 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S,     GL_CLAMP);
     glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-    glTexImage3D   (GL_TEXTURE_2D_ARRAY, 0, i, n, n, size, 1, e, t, 0);
+
+    const int m = n + 2;
+
+    GLubyte *p;
+
+    if ((p = (GLubyte *) malloc(size * m * m * c * b)))
+    {
+        memset(p, 0, size * m * m * c * b);
+        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, i, n, n, size, 1, e, t, p);
+        free(p);
+    }
 }
 
 scm_cache::~scm_cache()
@@ -107,6 +117,25 @@ scm_cache::~scm_cache()
     // Release the texture.
 
     glDeleteTextures(1, &texture);
+}
+
+void scm_cache::clear(int l)
+{
+    const int m = n + 2;
+
+    GLubyte *p;
+
+    if ((p = (GLubyte *) malloc(m * m * c * b)))
+    {
+        memset(p, 0, m * m * c * b);
+
+        GLenum e = scm_external_form(c, b, 0);
+        GLenum t = scm_external_type(c, b, 0);
+
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, -1, -1, l, m, m, 1, e, t, p);
+
+        free(p);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -175,46 +204,43 @@ int scm_cache::get_page(int f, long long i, int t, int& n)
 void scm_cache::update(int t)
 {
     glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
-    glPushAttrib(GL_PIXEL_MODE_BIT);
+
+    for (int c = 0; !loads.empty() && c < max_loads_per_update; ++c)
     {
-        for (int c = 0; !loads.empty() && c < max_loads_per_update; ++c)
+        scm_task task = loads.remove();
+        scm_page page(task.f, task.i);
+
+        waits.remove(page);
+
+        if (task.d)
         {
-            scm_task task = loads.remove();
-            scm_page page(task.f, task.i);
-
-            waits.remove(page);
-
-            if (task.d)
+            if (next < size)
+                page.l = next++;
+            else
             {
-                if (next < size)
-                    page.l = next;
-                else
-                {
-                    scm_page victim = pages.eject(t, page.i);
+                scm_page victim = pages.eject(t, page.i);
 
-                    if (victim.valid())
-                        page.l = victim.l;
-                }
+                if (victim.valid())
+                    page.l = victim.l;
+            }
 
-                if (page.l >= 0)
-                {
-                    page.t = t;
-                    pages.insert(page, t);
+            if (page.l >= 0)
+            {
+                page.t = t;
+                pages.insert(page, t);
 
-                    task.make_page(page.l, files[task.f]->get_w(),
-                                           files[task.f]->get_h(),
-                                           files[task.f]->get_c(),
-                                           files[task.f]->get_b(),
-                                           files[task.f]->get_g());
-                }
-                else task.dump_page();
+                task.make_page(page.l, files[task.f]->get_w(),
+                                       files[task.f]->get_h(),
+                                       files[task.f]->get_c(),
+                                       files[task.f]->get_b(),
+                                       files[task.f]->get_g());
             }
             else task.dump_page();
-
-            pbos.enq(task.u);
         }
+        else task.dump_page();
+
+        pbos.enq(task.u);
     }
-    glPopAttrib();
 }
 
 void scm_cache::flush()

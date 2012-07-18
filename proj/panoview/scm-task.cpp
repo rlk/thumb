@@ -41,8 +41,8 @@ void scm_task::make_page(GLint l, uint32 w, uint32 h,
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 
         glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, w, h, 1,
-                                      scm_external_form(c, b, g),
-                                      scm_external_type(c, b, g), 0);
+                                       scm_external_form(c, b, g),
+                                       scm_external_type(c, b, g), 0);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
@@ -122,23 +122,7 @@ void scm_task::load_page(TIFF *T, uint32 w, uint32 h,
 
 GLenum scm_internal_form(uint16 c, uint16 b, uint16 g)
 {
-    if (b == 8)
-        switch (c)
-        {
-        case  1: return GL_LUMINANCE8;
-        case  2: return GL_LUMINANCE_ALPHA;
-        case  3: return GL_RGBA8; // *
-        default: return GL_RGBA8;
-        }
-    if (b == 16)
-        switch (c)
-        {
-        case  1: return GL_LUMINANCE16;
-        case  2: return GL_LUMINANCE16_ALPHA16;
-        case  3: return GL_RGB16;
-        default: return GL_RGBA16;
-        }
-    if (b == 32)
+    if      (b == 32)
         switch (c)
         {
         case  1: return GL_LUMINANCE32F_ARB;
@@ -146,8 +130,22 @@ GLenum scm_internal_form(uint16 c, uint16 b, uint16 g)
         case  3: return GL_RGB32F_ARB;
         default: return GL_RGBA32F_ARB;
         }
-
-    return 0;
+    else if (b == 16)
+        switch (c)
+        {
+        case  1: return GL_LUMINANCE16;
+        case  2: return GL_LUMINANCE16_ALPHA16;
+        case  3: return GL_RGB16;
+        default: return GL_RGBA16;
+        }
+    else // (b == 8)
+        switch (c)
+        {
+        case  1: return GL_LUMINANCE8;
+        case  2: return GL_LUMINANCE_ALPHA;
+        case  3: return GL_RGBA8; // *
+        default: return GL_RGBA8;
+        }
 }
 
 // Select an OpenGL external texture format for an image with c channels.
@@ -176,17 +174,15 @@ GLenum scm_external_form(uint16 c, uint16 b, uint16 g)
 
 GLenum scm_external_type(uint16 c, uint16 b, uint16 g)
 {
-    if (b ==  8 && c == 3) return GL_UNSIGNED_INT_8_8_8_8_REV; // *
-    if (b ==  8 && c == 4) return GL_UNSIGNED_INT_8_8_8_8_REV;
+    if      (b ==  8 && c == 3) return GL_UNSIGNED_INT_8_8_8_8_REV; // *
+    else if (b ==  8 && c == 4) return GL_UNSIGNED_INT_8_8_8_8_REV;
 #if 0
-    if (b ==  8) return (g == 2) ? GL_BYTE  : GL_UNSIGNED_BYTE;
-    if (b == 16) return (g == 2) ? GL_SHORT : GL_UNSIGNED_SHORT;
+    else if (b ==  8) return (g == 2) ? GL_BYTE  : GL_UNSIGNED_BYTE;
+    else if (b == 16) return (g == 2) ? GL_SHORT : GL_UNSIGNED_SHORT;
 #endif
-    if (b ==  8) return GL_UNSIGNED_BYTE;
-    if (b == 16) return GL_UNSIGNED_SHORT;
-    if (b == 32) return GL_FLOAT;
-
-    return 0;
+    else if (b == 32) return GL_FLOAT;
+    else if (b == 16) return GL_UNSIGNED_SHORT;
+    else              return GL_UNSIGNED_BYTE;
 }
 
 // * 24-bit images are always padded to 32 bits.

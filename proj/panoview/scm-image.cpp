@@ -45,22 +45,22 @@ void scm_image::free(GLint unit) const
 
 void scm_image::set_texture(GLuint program, int d, int t, long long i) const
 {
-    // GLint idx = glsl_uniform(program, "%s.idx[%d]", name.c_str(), d);
-    // GLint age = glsl_uniform(program, "%s.age[%d]", name.c_str(), d);
+    GLint idx = glsl_uniform(program, "%s.idx[%d]", name.c_str(), d);
+    GLint age = glsl_uniform(program, "%s.age[%d]", name.c_str(), d);
 
-    // int u, n = cache->get_page(file, i, t, u);
+    int u, n = cache->get_page(file, i, t, u);
 
-    // glUniform1f(idx,  GLfloat(n) / GLfloat(cache->get_size()));
-    // glUniform1f(age, std::min(1.f, GLfloat(t - u) / 60.f));
+    glUniform1f(idx,  GLfloat(n) / GLfloat(cache->get_size()));
+    glUniform1f(age, std::min(1.f, GLfloat(t - u) / 60.f));
 }
 
 void scm_image::clr_texture(GLuint program, int d) const
 {
-    // GLint idx = glsl_uniform(program, "%s.idx[%d]", name.c_str(), d);
-    // GLint age = glsl_uniform(program, "%s.age[%d]", name.c_str(), d);
+    GLint idx = glsl_uniform(program, "%s.idx[%d]", name.c_str(), d);
+    GLint age = glsl_uniform(program, "%s.age[%d]", name.c_str(), d);
 
-    // glUniform1f(idx, 0.0);
-    // glUniform1f(age, 0.0);
+    glUniform1f(idx, 0.0);
+    glUniform1f(age, 0.0);
 }
 
 //------------------------------------------------------------------------------

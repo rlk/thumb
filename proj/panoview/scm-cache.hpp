@@ -69,6 +69,7 @@ public:
     void update(int);  // Cycle the cache once
     void sync  (int);  // Cycle the cache until all needs are served
 
+    void clear(int);
     void flush();
     void draw();
     void bind() const { glBindTexture(GL_TEXTURE_2D_ARRAY, texture); }
