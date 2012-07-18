@@ -91,6 +91,11 @@ void scm_frame::page_bounds(long long i, float& r0, float &r1) const
 {
     if (height)
         height->bounds(i, r0, r1);
+    else
+    {
+        r0 = 1.0;
+        r1 = 1.0;
+    }
 }
 
 // Touch the given page at the given time, "using" it in the LRU sense.

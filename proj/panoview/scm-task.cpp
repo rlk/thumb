@@ -40,9 +40,12 @@ void scm_task::make_page(GLint l, uint32 w, uint32 h,
     {
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, -1, -1, l, w, h, 1,
-                                        scm_external_form(c, b, g),
-                                        scm_external_type(c, b, g), 0);
+        // glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, -1, -1, l, w, h, 1,
+        //                                 scm_external_form(c, b, g),
+        //                                 scm_external_type(c, b, g), 0);
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, w, h, 1,
+                                       scm_external_form(c, b, g),
+                                       scm_external_type(c, b, g), 0);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }
@@ -77,7 +80,7 @@ void scm_task::load_page(TIFF *T, uint32 w, uint32 h,
     if (W == w && H == h && B == b && C == c)
     {
         // Pad a 24-bit image to 32-bit BGRA. TODO: eliminate this malloc.
-
+#if 0
         if (c == 3 && b == 8)
         {
             if (void *q = malloc(TIFFScanlineSize(T)))
@@ -106,6 +109,7 @@ void scm_task::load_page(TIFF *T, uint32 w, uint32 h,
         // Load a non-24-bit image normally.
 
         else
+#endif
         {
             const uint32 S = (uint32) TIFFScanlineSize(T);
 
@@ -143,7 +147,11 @@ GLenum scm_internal_form(uint16 c, uint16 b, uint16 g)
         {
         case  1: return GL_LUMINANCE8;
         case  2: return GL_LUMINANCE_ALPHA;
+#if 0
         case  3: return GL_RGBA8; // *
+#else
+        case  3: return GL_RGB8; // *
+#endif
         default: return GL_RGBA8;
         }
 }
@@ -157,8 +165,13 @@ GLenum scm_external_form(uint16 c, uint16 b, uint16 g)
         {
         case  1: return GL_LUMINANCE;
         case  2: return GL_LUMINANCE_ALPHA;
+#if 0
         case  3: return GL_BGRA; // *
         default: return GL_BGRA;
+#else
+        case  3: return GL_RGB; // *
+        default: return GL_RGBA;
+#endif
         }
     else
         switch (c)
