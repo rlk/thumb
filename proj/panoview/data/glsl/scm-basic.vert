@@ -1,10 +1,20 @@
+#version 120
+#extension GL_EXT_texture_array : enable
 
+struct scm
+{
+    sampler2DArray img;
+    int            idx[16];
+    vec2           mul[16];
+    vec2           add[16];
+    float          age[16];
+};
+
+uniform scm  color;
 uniform mat3 faceM;
-uniform vec2 v_mul[64];
-uniform vec2 v_add[64];
-
 varying vec3 var_V;
 varying vec3 var_L;
+
 
 //------------------------------------------------------------------------------
 
@@ -23,7 +33,7 @@ vec3 scube(vec2 t)
 
 void main()
 {
-    vec3 v = scube(v_mul[0] * gl_Vertex.xy + v_add[0]);
+    vec3 v = scube(color.mul[0] * gl_Vertex.xy + color.add[0]);
 
     var_V = v;
     var_L = gl_LightSource[0].position.xyz;

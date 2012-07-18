@@ -14,21 +14,24 @@
 
 //------------------------------------------------------------------------------
 
-scm_frame::scm_frame()
+scm_frame::scm_frame() : channel(0)
 {
 }
 
+#define FOR_ALL_OF_CHANNEL(c) \
+     for (scm_image_c c = images.begin(); c != images.end(); ++c) \
+        if ((*c)->is_channel(channel)) \
+
 //------------------------------------------------------------------------------
 
-void scm_frame::bind(int channel, GLuint program) const
+void scm_frame::bind(GLuint program) const
 {
     GLenum unit = 0;
 
     glUseProgram(program);
 
-    for (scm_image_c i = images.begin(); i != images.end(); ++i)
-        if ((*i)->is_channel(channel))
-            (*i)->bind(program, unit++);
+    FOR_ALL_OF_CHANNEL(c)
+        (*c)->bind(program, unit++);
 
     glActiveTexture(GL_TEXTURE0);
 
@@ -36,27 +39,36 @@ void scm_frame::bind(int channel, GLuint program) const
     // glUniform1f(u_r1, GLfloat(cache.get_r1()));
 }
 
-void scm_frame::free(int channel) const
+void scm_frame::free() const
 {
     GLenum unit = 0;
 
     glUseProgram(0);
 
-    for (scm_image_c i = images.begin(); i != images.end(); ++i)
-        if ((*i)->is_channel(channel))
-            (*i)->free(unit++);
+    FOR_ALL_OF_CHANNEL(c)
+        (*c)->free(unit++);
 
     glActiveTexture(GL_TEXTURE0);
 }
 
 //------------------------------------------------------------------------------
 
-void scm_frame::set(GLuint program, int d, int t, long long i) const
+void scm_frame::set_texture(GLuint program, int d, int t, long long i) const
 {
+    FOR_ALL_OF_CHANNEL(c)
+        (*c)->set_texture(program, d, t, i);
 }
 
-void scm_frame::clr(GLuint program, int d) const
+void scm_frame::clr_texture(GLuint program, int d) const
 {
+    FOR_ALL_OF_CHANNEL(c)
+        (*c)->clr_texture(program, d);
+}
+
+void scm_frame::set_uniform(GLuint program, int d, long long i) const
+{
+    FOR_ALL_OF_CHANNEL(c)
+        (*c)->set_uniform(program, d, i);
 }
 
 //------------------------------------------------------------------------------
@@ -65,7 +77,7 @@ void scm_frame::clr(GLuint program, int d) const
 
 bool scm_frame::page_status(long long i) const
 {
-    return false;
+    return true;
 }
 
 double scm_frame::page_r0(long long i) const

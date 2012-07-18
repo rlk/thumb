@@ -31,7 +31,7 @@ public:
     int  tick() { return time++; }
 
     void prep(scm_frame *, const double *, const double *, int, int);
-    void draw(scm_frame *, const double *, const double *, int, int, int);
+    void draw(scm_frame *, const double *, const double *, int, int);
 
     void set_debug(bool b) { debug = b; }
     void set_fade(double k);

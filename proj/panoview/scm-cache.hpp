@@ -56,8 +56,9 @@ public:
 
     int    add_file(const std::string&);
     int    get_page(int, long long, int, int&);
-    float  get_r0() const { return r0; }
-    float  get_r1() const { return r1; }
+    int    get_size() const { return size; }
+    float  get_r0()   const { return r0;   }
+    float  get_r1()   const { return r1;   }
 
     // TODO: Use friend to encapsulate this.
 

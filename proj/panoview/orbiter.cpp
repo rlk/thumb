@@ -273,10 +273,10 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    if (gui_state)
+    // if (gui_state)
         glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
-    else
-        glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    // else
+    //     glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

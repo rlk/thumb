@@ -27,11 +27,12 @@ public:
 
     void add_image(scm_image *p) { images.push_back(p); }
 
-    void bind(int, GLuint) const;
-    void free(int)         const;
+    void bind(GLuint) const;
+    void free()       const;
 
-    void set(GLuint, int, int, long long) const;
-    void clr(GLuint, int)                 const;
+    void set_texture(GLuint, int, int, long long) const;
+    void clr_texture(GLuint, int)                 const;
+    void set_uniform(GLuint, int,      long long) const;
 
     bool   page_status(long long) const;
     double page_r0    (long long) const;
@@ -41,9 +42,13 @@ public:
     double get_r0() const;
     double get_r1() const;
 
+    void set_channel(int c) { channel = c; }
+
 private:
 
     std::vector<scm_image *> images;
+
+    int channel;
 };
 
 typedef std::vector<scm_frame *>           scm_frame_v;

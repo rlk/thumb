@@ -40,14 +40,10 @@ void scm_task::make_page(GLuint o, uint32 w, uint32 h,
     {
         glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
 
-        glBindTexture  (GL_TEXTURE_2D, o);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-        glTexImage2D   (GL_TEXTURE_2D, 0, scm_internal_form(c, b, g), w, h, 1,
-                                          scm_external_form(c, b, g),
-                                          scm_external_type(c, b, g), 0);
+        glBindTexture(GL_TEXTURE_2D_ARRAY, o);
+        glTexImage2D (GL_TEXTURE_2D_ARRAY, 0, scm_internal_form(c, b, g),
+                                     w, h, 1, scm_external_form(c, b, g),
+                                              scm_external_type(c, b, g), 0);
     }
     glBindBuffer(GL_PIXEL_UNPACK_BUFFER, 0);
 }

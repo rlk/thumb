@@ -392,7 +392,7 @@ bool scm_model::prep_page(scm_frame *frame,
 
 void scm_model::draw_page(scm_frame *frame, int d, long long i)
 {
-    frame->set(program, d, time, i);
+    frame->set_texture(program, d, time, i);
     {
         long long i0 = scm_page_child(i, 0);
         long long i1 = scm_page_child(i, 1);
@@ -417,6 +417,8 @@ void scm_model::draw_page(scm_frame *frame, int d, long long i)
         {
             // Draw this page. Select a mesh that matches up with the neighbors.
 
+            frame->set_uniform(program, d, i);
+
             int j = (i < 6) ? 0 : (is_set(scm_page_north(i)) ? 0 : 1)
                                 | (is_set(scm_page_south(i)) ? 0 : 2)
                                 | (is_set(scm_page_west (i)) ? 0 : 4)
@@ -426,7 +428,7 @@ void scm_model::draw_page(scm_frame *frame, int d, long long i)
             glDrawElements(GL_QUADS, count, GL_ELEMENT_INDEX, 0);
         }
     }
-    frame->clr(program, d);
+    frame->clr_texture(program, d);
 }
 
 //------------------------------------------------------------------------------
@@ -460,7 +462,7 @@ void scm_model::prep(scm_frame *frame, const double *P,
 }
 
 void scm_model::draw(scm_frame *frame, const double *P,
-                                       const double *V, int w, int h, int k)
+                                       const double *V, int w, int h)
 {
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
@@ -502,7 +504,7 @@ void scm_model::draw(scm_frame *frame, const double *P,
 
     // Configure the shaders and draw the six root pages.
 
-    frame->bind(k, program);
+    frame->bind(program);
     {
         static const GLfloat faceM[6][9] = {
             {  0.f,  0.f,  1.f,  0.f,  1.f,  0.f, -1.f,  0.f,  0.f },
@@ -549,7 +551,7 @@ void scm_model::draw(scm_frame *frame, const double *P,
             draw_page(frame, 0, 5);
         }
     }
-    frame->free(k);
+    frame->free();
 
     // Revert the local GL state.
 

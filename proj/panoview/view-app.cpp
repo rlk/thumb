@@ -258,7 +258,8 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
             glDisable(GL_CULL_FACE);
         }
 
-        model->draw(frames[0], P, V, w, h, chani);
+        frames[0]->set_channel(chani);
+        model->draw(frames[0], P, V, w, h);
 
         if (debug_wire)
         {
