@@ -51,7 +51,7 @@ class scm_cache
 {
 public:
 
-    scm_cache(int, int, int, int, float, float);
+    scm_cache(int, int, int, int, int, float, float);
    ~scm_cache();
 
     int    add_file(const std::string&);
@@ -75,7 +75,7 @@ private:
 
     static const int need_queue_size      = 32;   // 32
     static const int load_queue_size      =  8;   //  8
-    static const int max_loads_per_update =  4;   //  2
+    static const int max_loads_per_update =  2;   //  2
 
     std::vector<scm_file *> files; // SCM TIFF data files
     scm_set pages;                 // Page set currently in cache
@@ -95,8 +95,8 @@ private:
     float   r0;
     float   r1;
 
-    SDL_Thread *thread[4];         // Page loader threads
-    friend int  loader(void *);    // Page loader function
+    std::vector<SDL_Thread *> threads;
+    friend int loader(void *);
 };
 
 typedef std::vector<scm_cache *>           scm_cache_v;

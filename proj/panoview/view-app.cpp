@@ -96,13 +96,14 @@ void view_app::load_caches(app::node p)
 
     for (app::node i = p.find("cache"); i; i = p.next(i, "cache"))
     {
-        int    n  = i.get_i("n",  256);
-        int    c  = i.get_i("c",  3);
-        int    b  = i.get_i("b",  1);
-        double r0 = i.get_f("r0", 0.0);
-        double r1 = i.get_f("r1", 1.0);
+        int    n  = i.get_i("n",     256);
+        int    c  = i.get_i("c",       3);
+        int    b  = i.get_i("b",       1);
+        int    t  = i.get_i("threads", 2);
+        double r0 = i.get_f("r0",    0.0);
+        double r1 = i.get_f("r1",    1.0);
 
-        caches.push_back(new scm_cache(size, n, c, b, r0, r1));
+        caches.push_back(new scm_cache(size, n, c, b, t, r0, r1));
     }
 }
 

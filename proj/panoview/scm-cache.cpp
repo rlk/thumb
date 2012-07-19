@@ -21,7 +21,7 @@
 
 //------------------------------------------------------------------------------
 
-scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
+scm_cache::scm_cache(int s, int n, int c, int b, int t, float r0, float r1) :
     pages(),
     waits(),
     needs(need_queue_size),
@@ -38,10 +38,8 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
 
     int loader(void *data);
 
-    thread[0] = SDL_CreateThread(loader, this);
-    thread[1] = SDL_CreateThread(loader, this);
-    thread[2] = SDL_CreateThread(loader, this);
-    thread[3] = SDL_CreateThread(loader, this);
+    for (int i = 0; i < t; ++i)
+        threads.push_back(SDL_CreateThread(loader, this));
 
     // Generate pixel buffer objects.
 
@@ -63,7 +61,7 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
 
     GLenum i = scm_internal_form(c, b, 0);
     GLenum e = scm_external_form(c, b, 0);
-    GLenum t = scm_external_type(c, b, 0);
+    GLenum y = scm_external_type(c, b, 0);
 
     glGenTextures  (1, &texture);
     glBindTexture  (GL_TEXTURE_TARGET,  texture);
@@ -83,33 +81,31 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
     if ((p = (GLubyte *) malloc(size * m * m * c * b)))
     {
         memset(p, 0, size * m * m * c * b);
-        // glTexImage3D(GL_TEXTURE_TARGET, 0, i, n, n, size, 1, e, t, p);
-        glTexImage3D(GL_TEXTURE_TARGET, 0, i, m, m, size, 0, e, t, p);
+        // glTexImage3D(GL_TEXTURE_TARGET, 0, i, n, n, size, 1, e, y, p);
+        glTexImage3D(GL_TEXTURE_TARGET, 0, i, m, m, size, 0, e, y, p);
         free(p);
     }
 }
 
 scm_cache::~scm_cache()
 {
+    std::vector<SDL_Thread *>::iterator t;
+    int c = 1;
+    int s = 0;
+
     // Continue servicing the loads queue until the needs queue is emptied.
 
     sync(0);
 
     // Enqueue an exit command for each loader thread.
 
-    needs.insert(scm_task(-1, -1));
-    needs.insert(scm_task(-2, -2));
-    needs.insert(scm_task(-3, -3));
-    needs.insert(scm_task(-4, -4));
+    for (t = threads.begin(); t != threads.end(); ++t, ++c)
+        needs.insert(scm_task(-c, -c));
 
     // Await their exit.
 
-    int s;
-
-    SDL_WaitThread(thread[0], &s);
-    SDL_WaitThread(thread[1], &s);
-    SDL_WaitThread(thread[2], &s);
-    SDL_WaitThread(thread[3], &s);
+    for (t = threads.begin(); t != threads.end(); ++t)
+        SDL_WaitThread(*t, &s);
 
     // Release the pixel buffer objects.
 
