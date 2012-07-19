@@ -1,4 +1,4 @@
--include ../../Makedefs
+include ../../Makedefs
 
 #------------------------------------------------------------------------------
 
@@ -69,4 +69,7 @@ scm-label.o : \
 
 #------------------------------------------------------------------------------
 
--include $(PANDEPS) $(ORBDEPS)
+ifneq ($(MAKECMDGOALS),clean)
+	include $(PANDEPS) $(ORBDEPS)
+ endif
+
