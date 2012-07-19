@@ -18,8 +18,8 @@
 
 #include <GL/glew.h>
 
-#include "type.h"
-#include "glsl.h"
+#include "util3d/type.h"
+#include "util3d/glsl.h"
 
 //-----------------------------------------------------------------------------
 

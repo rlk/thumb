@@ -16,7 +16,8 @@
 
 #include <ogl-opengl.hpp>
 
-#include "math3d.h"
+#include "util3d/math3d.h"
+
 #include "view-step.hpp"
 
 //------------------------------------------------------------------------------

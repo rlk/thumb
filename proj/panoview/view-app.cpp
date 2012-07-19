@@ -24,7 +24,8 @@
 #include <app-frustum.hpp>
 #include <app-default.hpp>
 
-#include "math3d.h"
+#include "util3d/math3d.h"
+
 #include "view-app.hpp"
 
 //------------------------------------------------------------------------------

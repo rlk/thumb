@@ -3,9 +3,9 @@ include ../../Makedefs
 #------------------------------------------------------------------------------
 
 VIEWOBJS= \
-	glsl.o \
-	math3d.o \
-	type.o \
+	util3d/glsl.o \
+	util3d/math3d.o \
+	util3d/type.o \
 	scm-index.o \
 	scm-image.o \
 	scm-frame.o \
@@ -18,7 +18,7 @@ VIEWOBJS= \
 	view-path.o \
 	view-load.o \
 	view-app.o \
-	scm-model.o \
+	scm-model.o
 
 ORBOBJS= $(VIEWOBJS) orbiter.o
 PANOBJS= $(VIEWOBJS) panoview.o
@@ -53,6 +53,10 @@ orbiter: $(ORBOBJS) $(THUMB)
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview
 	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
+	$(RM) scm-label-circle-vert.h
+	$(RM) scm-label-circle-frag.h
+	$(RM) scm-label-sprite-vert.h
+	$(RM) scm-label-sprite-frag.h
 
 #------------------------------------------------------------------------------
 
@@ -61,15 +65,9 @@ clean:
 %-frag.h : %.frag
 	xxd -i $^ > $@
 
-scm-label.o : \
-	scm-label-circle-vert.h \
-	scm-label-circle-frag.h \
-	scm-label-sprite-vert.h \
-	scm-label-sprite-frag.h
-
 #------------------------------------------------------------------------------
 
 ifneq ($(MAKECMDGOALS),clean)
-	include $(PANDEPS) $(ORBDEPS)
- endif
+-include $(PANDEPS) $(ORBDEPS)
+endif
 

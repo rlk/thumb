@@ -10,7 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include "glsl.h"
+#include "util3d/glsl.h"
 
 #include "scm-image.hpp"
 #include "scm-index.hpp"

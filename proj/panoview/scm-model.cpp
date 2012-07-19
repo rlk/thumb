@@ -17,8 +17,8 @@
 #include <cassert>
 #include <limits>
 
-#include "math3d.h"
-#include "glsl.h"
+#include "util3d/math3d.h"
+#include "util3d/glsl.h"
 
 #include "scm-model.hpp"
 #include "scm-index.hpp"

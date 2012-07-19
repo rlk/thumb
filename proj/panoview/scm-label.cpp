@@ -17,10 +17,11 @@
 
 #include <GL/glew.h>
 
+#include "util3d/math3d.h"
+#include "util3d/type.h"
+#include "util3d/glsl.h"
+
 #include "scm-label.hpp"
-#include "math3d.h"
-#include "type.h"
-#include "glsl.h"
 
 #define LABEL_R 0xFF
 #define LABEL_G 0x80
