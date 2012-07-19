@@ -33,7 +33,8 @@ THUMB = ../../src/libthumb.a
 INCDIR += -I../../include
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
-	  $(shell $(FT2CONF) --cflags)
+	  $(shell $(FT2CONF) --cflags) \
+	  -DGL_TEXTURE_TARGET=GL_TEXTURE_3D
 
 LIBS = $(THUMB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBBZ2) $(LIBZ) $(LIBSDL) $(LIBGLEW) $(LIBEXT) -lm
 

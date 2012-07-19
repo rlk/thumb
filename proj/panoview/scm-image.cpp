@@ -51,7 +51,7 @@ void scm_image::bind(GLint unit, GLuint program) const
 void scm_image::free(GLint unit) const
 {
     glActiveTexture(GL_TEXTURE0 + unit);
-    glBindTexture(GL_TEXTURE_2D_ARRAY, 0);
+    glBindTexture(GL_TEXTURE_TARGET, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -87,7 +87,8 @@ void scm_image::set_texture(GLuint program, int d, int t, long long i) const
     else if (a > 1.0) a = 1.0;
     else if (a < 0.0) a = 0.0;
 
-    glUniform1f(idx, GLfloat(n));
+    glUniform1f(idx, GLfloat(n) / cache->get_size());
+//  glUniform1f(idx, GLfloat(n));
     glUniform1f(age, GLfloat(a));
 }
 

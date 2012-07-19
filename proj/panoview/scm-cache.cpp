@@ -45,7 +45,7 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
 
     // Generate pixel buffer objects.
 
-    for (int i = 0; i < 64; ++i)
+    for (int i = 0; i < 32; ++i)
     {
         GLuint b;
         glGenBuffers(1, &b);
@@ -66,14 +66,14 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
     GLenum t = scm_external_type(c, b, 0);
 
     glGenTextures  (1, &texture);
-    glBindTexture  (GL_TEXTURE_2D_ARRAY,  texture);
-    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    // glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_S,     GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_T,     GL_CLAMP);
-    glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_WRAP_R,     GL_CLAMP);
+    glBindTexture  (GL_TEXTURE_TARGET,  texture);
+    glTexParameteri(GL_TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    // glTexParameteri(GL_TEXTURE_TARGET, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    // glTexParameteri(GL_TEXTURE_TARGET, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_TARGET, GL_TEXTURE_WRAP_S,     GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_TARGET, GL_TEXTURE_WRAP_T,     GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_TARGET, GL_TEXTURE_WRAP_R,     GL_CLAMP);
 
     // Initialize it with a buffer of zeros.
 
@@ -83,8 +83,8 @@ scm_cache::scm_cache(int s, int n, int c, int b, float r0, float r1) :
     if ((p = (GLubyte *) malloc(size * m * m * c * b)))
     {
         memset(p, 0, size * m * m * c * b);
-        // glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, i, n, n, size, 1, e, t, p);
-        glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, i, m, m, size, 0, e, t, p);
+        // glTexImage3D(GL_TEXTURE_TARGET, 0, i, n, n, size, 1, e, t, p);
+        glTexImage3D(GL_TEXTURE_TARGET, 0, i, m, m, size, 0, e, t, p);
         free(p);
     }
 }
@@ -122,25 +122,6 @@ scm_cache::~scm_cache()
     // Release the texture.
 
     glDeleteTextures(1, &texture);
-}
-
-void scm_cache::clear(int l)
-{
-    const int m = n + 2;
-
-    GLubyte *p;
-
-    if ((p = (GLubyte *) malloc(m * m * c * b)))
-    {
-        memset(p, 0, m * m * c * b);
-
-        GLenum e = scm_external_form(c, b, 0);
-        GLenum t = scm_external_type(c, b, 0);
-
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, -1, -1, l, m, m, 1, e, t, p);
-
-        free(p);
-    }
 }
 
 //------------------------------------------------------------------------------
@@ -208,7 +189,7 @@ int scm_cache::get_page(int f, long long i, int t, int& n)
 
 void scm_cache::update(int t)
 {
-    glBindTexture(GL_TEXTURE_2D_ARRAY, texture);
+    glBindTexture(GL_TEXTURE_TARGET, texture);
 
     for (int c = 0; !loads.empty() && c < max_loads_per_update; ++c)
     {

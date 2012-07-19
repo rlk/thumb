@@ -69,7 +69,7 @@ public:
     void clear(int);
     void flush();
     void draw();
-    void bind() const { glBindTexture(GL_TEXTURE_2D_ARRAY, texture); }
+    void bind() const { glBindTexture(GL_TEXTURE_TARGET, texture); }
 
 private:
 

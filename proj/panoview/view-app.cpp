@@ -90,7 +90,7 @@ void view_app::load_model(app::node p)
 
 void view_app::load_caches(app::node p)
 {
-    int size = ::conf->get_i("scm_cache_size", 128);
+    int size = ::conf->get_i("scm_cache_size", 64);
 
     // Create a new cache object for each node.
 
