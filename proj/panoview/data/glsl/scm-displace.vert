@@ -27,51 +27,57 @@ vec4 age(vec4 c, float k)
     return vec4(c.rgb, c.a * k);
 }
 
+vec3 coord(vec2 t, vec2 a, vec2 b, float z)
+{
+    vec2 u = a * t + b;
+    return vec3((u * vec2(426.0) + vec2(1.0)) / vec2(428.0), z);
+}
+
 vec4 img0(vec2 t)
 {
-    vec3 c = vec3(page_a[0] * t + page_b[0], height.idx[0]);
+    vec3 c = coord(t, page_a[0], page_b[0], height.idx[0]);
     return age(texture3D(height.img, c), height.age[0]);
 }
 
 vec4 img1(vec2 t)
 {
-    vec3 c = vec3(page_a[1] * t + page_b[1], height.idx[1]);
+    vec3 c = coord(t, page_a[1], page_b[1], height.idx[1]);
     return age(texture3D(height.img, c), height.age[1]);
 }
 
 vec4 img2(vec2 t)
 {
-    vec3 c = vec3(page_a[2] * t + page_b[2], height.idx[2]);
+    vec3 c = coord(t, page_a[2], page_b[2], height.idx[2]);
     return age(texture3D(height.img, c), height.age[2]);
 }
 
 vec4 img3(vec2 t)
 {
-    vec3 c = vec3(page_a[3] * t + page_b[3], height.idx[3]);
+    vec3 c = coord(t, page_a[3], page_b[3], height.idx[3]);
     return age(texture3D(height.img, c), height.age[3]);
 }
 
 vec4 img4(vec2 t)
 {
-    vec3 c = vec3(page_a[4] * t + page_b[4], height.idx[4]);
+    vec3 c = coord(t, page_a[4], page_b[4], height.idx[4]);
     return age(texture3D(height.img, c), height.age[4]);
 }
 
 vec4 img5(vec2 t)
 {
-    vec3 c = vec3(page_a[5] * t + page_b[5], height.idx[5]);
+    vec3 c = coord(t, page_a[5], page_b[5], height.idx[5]);
     return age(texture3D(height.img, c), height.age[5]);
 }
 
 vec4 img6(vec2 t)
 {
-    vec3 c = vec3(page_a[6] * t + page_b[6], height.idx[6]);
+    vec3 c = coord(t, page_a[6], page_b[6], height.idx[6]);
     return age(texture3D(height.img, c), height.age[6]);
 }
 
 vec4 img7(vec2 t)
 {
-    vec3 c = vec3(page_a[7] * t + page_b[7], height.idx[7]);
+    vec3 c = coord(t, page_a[7], page_b[7], height.idx[7]);
     return age(texture3D(height.img, c), height.age[7]);
 }
 
