@@ -41,8 +41,11 @@ void scm_image::bind(GLint unit, GLuint program) const
     }
 
     GLuint img = glsl_uniform(program, "%s.img", name.c_str());
+    GLuint siz = glsl_uniform(program, "%s.siz", name.c_str());
 
     glUniform1i(img, unit);
+    glUniform2f(siz, GLfloat(cache->get_n()),
+                     GLfloat(cache->get_n()));
 
     glActiveTexture(GL_TEXTURE0 + unit);
     cache->bind();

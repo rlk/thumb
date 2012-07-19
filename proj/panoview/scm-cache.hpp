@@ -59,6 +59,7 @@ public:
     int    get_size() const { return size; }
     float  get_r0()   const { return r0;   }
     float  get_r1()   const { return r1;   }
+    int    get_n()    const { return n;    }
 
     void get_page_bounds(int, long long, float&, float&);
     bool get_page_status(int, long long);

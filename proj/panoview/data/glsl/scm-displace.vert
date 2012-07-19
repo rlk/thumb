@@ -4,8 +4,9 @@
 struct scm
 {
     sampler3D img;
-    float          idx[16];
-    float          age[16];
+    vec2      siz;
+    float     idx[16];
+    float     age[16];
 };
 
 uniform scm height;
@@ -27,58 +28,50 @@ vec4 age(vec4 c, float k)
     return vec4(c.rgb, c.a * k);
 }
 
-vec3 coord(vec2 t, vec2 a, vec2 b, float z)
+vec4 tex(vec2 c, float k)
 {
-    vec2 u = a * t + b;
-    return vec3((u * vec2(426.0) + vec2(1.0)) / vec2(428.0), z);
+    return texture3D(height.img, vec3((c * height.siz + vec2(1.0)) /
+                                          (height.siz + vec2(2.0)), k));
 }
 
 vec4 img0(vec2 t)
 {
-    vec3 c = coord(t, page_a[0], page_b[0], height.idx[0]);
-    return age(texture3D(height.img, c), height.age[0]);
+    return age(tex(page_a[0] * t + page_b[0], height.idx[0]), height.age[0]);
 }
 
 vec4 img1(vec2 t)
 {
-    vec3 c = coord(t, page_a[1], page_b[1], height.idx[1]);
-    return age(texture3D(height.img, c), height.age[1]);
+    return age(tex(page_a[1] * t + page_b[1], height.idx[1]), height.age[1]);
 }
 
 vec4 img2(vec2 t)
 {
-    vec3 c = coord(t, page_a[2], page_b[2], height.idx[2]);
-    return age(texture3D(height.img, c), height.age[2]);
+    return age(tex(page_a[2] * t + page_b[2], height.idx[2]), height.age[2]);
 }
 
 vec4 img3(vec2 t)
 {
-    vec3 c = coord(t, page_a[3], page_b[3], height.idx[3]);
-    return age(texture3D(height.img, c), height.age[3]);
+    return age(tex(page_a[3] * t + page_b[3], height.idx[3]), height.age[3]);
 }
 
 vec4 img4(vec2 t)
 {
-    vec3 c = coord(t, page_a[4], page_b[4], height.idx[4]);
-    return age(texture3D(height.img, c), height.age[4]);
+    return age(tex(page_a[4] * t + page_b[4], height.idx[4]), height.age[4]);
 }
 
 vec4 img5(vec2 t)
 {
-    vec3 c = coord(t, page_a[5], page_b[5], height.idx[5]);
-    return age(texture3D(height.img, c), height.age[5]);
+    return age(tex(page_a[5] * t + page_b[5], height.idx[5]), height.age[5]);
 }
 
 vec4 img6(vec2 t)
 {
-    vec3 c = coord(t, page_a[6], page_b[6], height.idx[6]);
-    return age(texture3D(height.img, c), height.age[6]);
+    return age(tex(page_a[6] * t + page_b[6], height.idx[6]), height.age[6]);
 }
 
 vec4 img7(vec2 t)
 {
-    vec3 c = coord(t, page_a[7], page_b[7], height.idx[7]);
-    return age(texture3D(height.img, c), height.age[7]);
+    return age(tex(page_a[7] * t + page_b[7], height.idx[7]), height.age[7]);
 }
 
 vec4 blend(vec4 a, vec4 b)
@@ -118,8 +111,8 @@ void main()
     float h = mix(r0, r1, k);
     vec3  v = h * scube(page_a[0] * gl_Vertex.xy + page_b[0]);
 
-    var_V = v;
     var_L = gl_LightSource[0].position.xyz;
+    var_V = v;
 
     gl_TexCoord[0].xy = gl_Vertex.xy;
     gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);

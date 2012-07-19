@@ -24,8 +24,8 @@ void main()
 {
     vec3 v = scube(page_a[0] * gl_Vertex.xy + page_b[0]);
 
-    var_V = v;
     var_L = gl_LightSource[0].position.xyz;
+    var_V = v;
 
     gl_TexCoord[0].xy = gl_Vertex.xy;
     gl_Position = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
