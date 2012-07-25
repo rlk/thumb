@@ -107,10 +107,13 @@ private:
         }
         bool sprite() const {
             return ((typ[0] == 'L' && typ[1] == 'F')
-                 || (typ[0] == 'M' && typ[1] == 'O'));
+                 || (typ[0] == 'M' && typ[1] == 'O')
+                 || (typ[0] == '@' && typ[1] == '*')
+                 || (typ[0] == '@' && typ[1] == 'C'));
         }
     };
 
+    int  scan (const char *, label&);
     void parse(const void *, size_t, double);
     void apply(label *);
 

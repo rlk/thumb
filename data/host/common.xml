@@ -66,6 +66,17 @@
         </frustum>
       </display>
     </node>
+    <!-- 1024x768 --------------------------------------------------------- -->
+    <node name="1024x768-F">
+      <window x="0" y="0" w="1024" h="768" full="1"/>
+      <channel w="1024" h="768"/>
+      <display type="direct" index="1">
+        <viewport x="0" y="0" w="1024" h="768"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="45.0"/>
+        </frustum>
+      </display>
+    </node>
     <!-- 1024x768 anaglphic stereo ---------------------------------------- -->
     <node name="1024x768-anaglyph">
       <window x="0" y="0" w="1024" h="768"/>

@@ -163,6 +163,8 @@ struct sprite
 
         if (c[0] == 'M' && c[1] == '0') x = 0.0;
         if (c[0] == 'L' && c[1] == 'F') x = 1.0;
+        if (c[0] == '@' && c[1] == '*') { x = 2.0; printf("star\n"); }
+        if (c[0] == '@' && c[1] == 'C') { x = 3.0; printf("circle\n"); }
 
         p.v[0] = M.M[12];
         p.v[1] = M.M[13];
@@ -178,6 +180,21 @@ struct sprite
 
 //------------------------------------------------------------------------------
 
+int scm_label::scan(const char *dat, label& L)
+{
+    int n;
+
+    if (sscanf(dat, "\"%63[^\"]\",%f,%f,%f,%f,%c%c\n%n",
+        L.str, &L.lat, &L.lon, &L.dia, &L.rad, &L.typ[0], &L.typ[1], &n) > 5)
+        return n;
+
+    if (sscanf(dat,      "%63[^,],%f,%f,%f,%f,%c%c\n%n",
+        L.str, &L.lat, &L.lon, &L.dia, &L.rad, &L.typ[0], &L.typ[1], &n) > 5)
+        return n;
+
+    return 0;
+}
+
 // Parse the label definition file.
 
 void scm_label::parse(const void *data_ptr, size_t data_len, double radius)
@@ -186,12 +203,9 @@ void scm_label::parse(const void *data_ptr, size_t data_len, double radius)
     label L;
     int   n;
 
-    while (sscanf(dat, "\"%63[^\"]\",%f,%f,%f,%f,%c%c\n%n",
-                       L.str, &L.lat, &L.lon,
-                              &L.dia, &L.rad, &L.typ[0], &L.typ[1], &n) > 5)
+    while ((n = scan(dat, L)))
     {
         labels.push_back(L);
-
         dat += n;
     }
 }

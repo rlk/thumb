@@ -105,7 +105,7 @@ void orbiter::report()
             // Encode these to an ASCII string.
 
             char buf[128];
-            sprintf(buf, "%+13.8f %+12.8f %17.8f\n", lon, lat, alt);
+            sprintf(buf, "%+12.8f %+13.8f %17.8f\n", lat, lon, alt);
 
             // And send the string to the configured host.
 
@@ -414,9 +414,9 @@ bool orbiter::pan_click(app::event *E)
     {
         if (b == 0)
         {
-            if      (c)
-                drag_turn = true;
-            else if (s)
+            // if      (c)
+            //     drag_turn = true;
+            if (s)
                 drag_look = true;
             else
                 drag_move = true;
@@ -455,6 +455,8 @@ bool orbiter::pan_tick(app::event *E)
     else
     {
         double sc = 1.0 / (get_radius() * get_scale(here.get_radius()));
+
+        if (control) sc *= 0.1;
 
         if (drag_move) move(dt, sc);
         if (drag_look) look(dt, sc);

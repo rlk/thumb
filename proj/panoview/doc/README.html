@@ -479,6 +479,17 @@
       </tr>
     </table>
 
+    <p>In addition, the following additional type designations are provided, which are not recognized by the IAU. They begin with an &ldquo;at&rdquo; symbol to ensure that they don't conflict.</p>
+
+    <table style="margin:auto;width:80%">
+      <tr>
+        <td>@*</td><td>&hellip;</td><td>Star icon.</td>
+      </tr>
+      <tr>
+        <td>@C</td><td>&hellip;</td><td>Circle icon.</td>
+      </tr>
+    </table>
+
     <p>The diameter attribute determines the size of the label text. The radius attribute determines the altitude of the annotation, which is necessary for good alignment of small features. Do be advised that longitude and latitude values must be specified with at least five digits behind the decimal point to be correctly positioned to within one meter (on the scale of the moon). Many data sources provide less.</p>
 
     <p>Upon receipt of a <a href="#goto">go-to message</a>, the renderer replaces the current label set using the CSV file given by the <tt>label</tt> attribute of the <tt>step</tt> element. This may be used to mark points of interest within the defined region, such that they are automatically updated as destinations are selected.</p>
