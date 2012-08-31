@@ -43,7 +43,7 @@ scm_cache::scm_cache(int s, int n, int c, int b, int t, float r0, float r1) :
 
     // Generate pixel buffer objects.
 
-    for (int i = 0; i < 32; ++i)
+    for (int i = 0; i < 2 * need_queue_size; ++i)
     {
         GLuint b;
         glGenBuffers(1, &b);
@@ -142,6 +142,13 @@ int scm_cache::add_file(const std::string& name)
 
 int scm_cache::get_page(int f, long long i, int t, int& n)
 {
+    // If this page does not exist, return the filler.
+
+    uint64 o = files[f]->offset(i);
+
+    if (o == 0)
+        return 0;
+
     // If this page is waiting, return the filler.
 
     scm_page wait = waits.search(scm_page(f, i), t);
@@ -162,20 +169,27 @@ int scm_cache::get_page(int f, long long i, int t, int& n)
         return page.l;
     }
 
-    // If this page does not exist, return the filler.
-
-    uint64 o = files[f]->offset(i);
-
-    if (o == 0)
-        return 0;
-
     // Otherwise request the page and add it to the waiting set.
 
-    if (!needs.full() && !pbos.empty())
+    if (!pbos.empty())
     {
-        needs.insert(scm_task(f, i, o, pbos.deq(), files[f]->length()));
-        waits.insert(scm_page(f, i, 0), t);
+        scm_task task(f, i, o, pbos.deq(), files[f]->length());
+        scm_page page(f, i, 0);
+
+        if (needs.try_insert(task))
+            waits.insert(page, t);
+        else
+        {
+            task.dump_page();
+            pbos.enq(task.u);
+        }
     }
+
+    // if (!needs.full() && !pbos.empty())
+    // {
+    //     needs.insert(scm_task(f, i, o, pbos.deq(), files[f]->length()));
+    //     waits.insert(scm_page(f, i, 0), t);
+    // }
 
     n = t;
     return 0;
@@ -185,11 +199,12 @@ int scm_cache::get_page(int f, long long i, int t, int& n)
 
 void scm_cache::update(int t)
 {
+    scm_task task;
+
     glBindTexture(GL_TEXTURE_TARGET, texture);
 
-    for (int c = 0; !loads.empty() && c < max_loads_per_update; ++c)
+    for (int c = 0; c < max_loads_per_update && loads.try_remove(task); ++c)
     {
-        scm_task task = loads.remove();
         scm_page page(task.f, task.i);
 
         waits.remove(page);
@@ -240,8 +255,8 @@ void scm_cache::draw()
 
 void scm_cache::sync(int t)
 {
-    while (!needs.empty())
-        update(t);
+    // while (!needs.empty())
+    //     update(t);
 }
 
 //------------------------------------------------------------------------------

@@ -35,10 +35,14 @@ public:
     queue(int);
    ~queue();
 
+    bool try_insert(T&);
+    bool try_remove(T&);
+
     void insert(T);
     T    remove( );
-    bool empty ( );
-    bool full  ( );
+
+//  bool empty ( );
+//  bool full  ( );
 
 private:
 
@@ -63,6 +67,39 @@ template <typename T> queue<T>::~queue()
     SDL_DestroyMutex(data_mutex);
     SDL_DestroySemaphore(free_slots);
     SDL_DestroySemaphore(full_slots);
+}
+
+//------------------------------------------------------------------------------
+
+template <typename T> bool queue<T>::try_insert(T& d)
+{
+    if (SDL_SemTryWait(free_slots) == 0)
+    {
+        SDL_mutexP(data_mutex);
+        {
+            S.insert(d);
+        }
+        SDL_mutexV(data_mutex);
+        SDL_SemPost(full_slots);
+        return true;
+    }
+    return false;
+}
+
+template <typename T> bool queue<T>::try_remove(T& d)
+{
+    if (SDL_SemTryWait(full_slots) == 0)
+    {
+        SDL_mutexP(data_mutex);
+        {
+            d   = *(S.begin());
+            S.erase(S.begin());
+        }
+        SDL_mutexV(data_mutex);
+        SDL_SemPost(free_slots);
+        return true;
+    }
+    return false;
 }
 
 //------------------------------------------------------------------------------
@@ -94,6 +131,7 @@ template <typename T> T queue<T>::remove()
     return d;
 }
 
+#if 0
 template <typename T> bool queue<T>::empty()
 {
     return (SDL_SemValue(full_slots) == 0);
@@ -103,6 +141,7 @@ template <typename T> bool queue<T>::full()
 {
     return (SDL_SemValue(free_slots) == 0);
 }
+#endif
 
 //------------------------------------------------------------------------------
 

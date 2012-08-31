@@ -295,7 +295,7 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
+    // glEnable(GL_CULL_FACE);
 
     glFrontFace(GL_CW);
     view_app::draw(frusi, frusp, chani);
