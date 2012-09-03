@@ -100,7 +100,7 @@ view_step::view_step(app::node n)
 // Initialize a new SCM viewer step using linear interpolation of given steps.
 
 view_step::view_step(const view_step *a,
-                   const view_step *b, double t)
+                     const view_step *b, double t)
 {
     assert(a);
     assert(b);

@@ -37,10 +37,12 @@ public:
     uint16 get_b() const { return b; }
     uint16 get_g() const { return g; }
 
+    const char *get_path() const { return path.c_str(); }
     const char *get_name() const { return name.c_str(); }
 
 private:
 
+    std::string path;
     std::string name;
 
     uint32 w;

@@ -124,9 +124,15 @@ scm_cache::~scm_cache()
 
 int scm_cache::add_file(const std::string& name)
 {
-    int f = -1;
+    int f;
 
-    // Try to load the named file.
+    // Scan to determine whether the named file is already loaded.
+
+    for (f = 0; f < int(files.size()); ++f)
+        if (name.compare(files[f]->get_name()) == 0)
+            return f;
+
+    // Otherwise try to load it.
 
     if (scm_file *n = new scm_file(name))
     {
@@ -134,8 +140,10 @@ int scm_cache::add_file(const std::string& name)
 
         f = int(files.size());
         files.push_back(n);
+
+        return f;
     }
-    return f;
+    return -1;
 }
 
 // Return the layer for the requested page. Request the page if necessary.
@@ -289,7 +297,7 @@ int loader(void *data)
     {
         assert(task.valid());
 
-        if (TIFF *T = TIFFOpen(cache->files[task.f]->get_name(), "r"))
+        if (TIFF *T = TIFFOpen(cache->files[task.f]->get_path(), "r"))
         {
             if (TIFFSetSubDirectory(T, task.o))
             {

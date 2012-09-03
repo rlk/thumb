@@ -22,11 +22,11 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
-static bool exists(const std::string& name)
+static bool exists(const std::string& path)
 {
     struct stat info;
 
-    if (stat(name.c_str(), &info) == 0)
+    if (stat(path.c_str(), &info) == 0)
         return ((info.st_mode & S_IFMT) == S_IFREG);
     else
         return false;
@@ -43,6 +43,7 @@ static bool exists(const std::string& name)
 // Construct a file table entry. Open the TIFF briefly to determine its format.
 
 scm_file::scm_file(const std::string& tiff) :
+    name(tiff),
     xv(0), xc(0),
     ov(0), oc(0),
     av(0), ac(0),
@@ -51,31 +52,31 @@ scm_file::scm_file(const std::string& tiff) :
     // If the given file name is absolute, use it.
 
     if (exists(tiff))
-        name = tiff;
+        path = tiff;
 
     // Otherwise, search the SCM path for the file.
 
     else if (char *val = getenv("SCMPATH"))
     {
         std::stringstream list(val);
-        std::string       path;
+        std::string       dir;
         std::string       temp;
 
-        while (std::getline(list, path, PATH_LIST_SEP))
+        while (std::getline(list, dir, PATH_LIST_SEP))
         {
-            temp = path + "/" + tiff;
+            temp = dir + "/" + tiff;
 
             if (exists(temp))
             {
-                name = temp;
+                path = temp;
                 break;
             }
         }
     }
 
-    if (!name.empty())
+    if (!path.empty())
     {
-        if (TIFF *T = TIFFOpen(name.c_str(), "r"))
+        if (TIFF *T = TIFFOpen(path.c_str(), "r"))
         {
             uint64 n = 0;
             void  *p = 0;

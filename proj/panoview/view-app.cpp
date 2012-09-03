@@ -436,29 +436,13 @@ bool view_app::process_user(app::event *E)
     for (int i = 0; i < int(steps.size()); i++)
         if (steps[i].get_name().compare(name) == 0)
         {
-            // Construct a path from here to there.
-
-            view_step src = here;
-            view_step dst = steps[i];
-            view_step mid(&src, &dst, 0.5);
-
-            if (!path.playing())
-                src.set_speed(0.05);
-
-            mid.set_speed(1.00);
-            dst.set_speed(0.05);
+            load_label(steps[i].get_label());
 
             path.stop();
             path.clear();
-            path.add(src);
-            path.add(mid);
-            path.add(dst);
+            make_path(i);
             path.home();
             path.fore(false);
-
-            // Switch the labels.
-
-            load_label(steps[i].get_label());
 
             return true;
         }
@@ -534,6 +518,25 @@ void view_app::load_label(const std::string& name)
     // Release the CSV file.
 
     ::data->free(name);
+}
+
+void view_app::make_path(int i)
+{
+    // Construct a path from here to there.
+
+    view_step src = here;
+    view_step dst = steps[i];
+    view_step mid(&src, &dst, 0.5);
+
+    if (!path.playing())
+        src.set_speed(0.05);
+
+    mid.set_speed(1.00);
+    dst.set_speed(0.05);
+
+    path.add(src);
+    path.add(mid);
+    path.add(dst);
 }
 
 //------------------------------------------------------------------------------
