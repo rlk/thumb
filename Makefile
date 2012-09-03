@@ -72,6 +72,7 @@ dist : $(TARG)
 
 	$(CP) proj/panoview/data/path.xml                     $(DATDIR)
 	$(CP) proj/panoview/data/scm/GLD-WAC.xml              $(DATDIR)/scm
+	$(CP) proj/panoview/data/scm/NAC_ROI.xml              $(DATDIR)/scm
 	$(CP) proj/panoview/data/scm/NAC_ROI_Apollo16HiA.xml  $(DATDIR)/scm
 	$(CP) proj/panoview/data/scm/NAC_ROI_TychoCtrLoA.xml  $(DATDIR)/scm
 

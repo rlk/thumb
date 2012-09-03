@@ -26,7 +26,9 @@ view_path::view_path() : head_t(0), head_d(0), curr(0), filename("path.xml")
 void view_path::clear()
 {
     step.clear();
-    curr = 0;
+    head_t = 0;
+    head_d = 0;
+    curr   = 0;
 }
 
 //------------------------------------------------------------------------------

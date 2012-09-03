@@ -1,16 +1,28 @@
 
 Todo:
 
+	Configurable joystic dead zone
+	option
+		Trip time depends upon distance
+		OR
+		Move really high during the rip
+			Configurable?
+	Multi-image frame selection in goto
+	Other data
+		http://lro.gsfc.nasa.gov/mini-rf.html
+
+-	Prepare scmtiff and query for Adler
+
 	Fix panoview zoom.
 
 	There are MANY passes over most Apollo sites
 		Convert them all and make animations
 		http://apollo.mem-tek.com/LRO_NAC_Apollo_Images.html
-	Complex interpolated camera motion
-		Implemented in view-app
-			so both panorama and orbiter benefit
-		Orbiter path planning
-			high quality render-out
+-	Complex interpolated camera motion
+-		Implemented in view-app
+-			so both panorama and orbiter benefit
+-		Orbiter path planning
+-			high quality render-out
 		Dynamic zoomy presentation mode
 			this will require path integration with scmtiff
 
@@ -40,6 +52,6 @@ Todo:
 			Store derivatives or other higher-order data along side grayscale?
 		Have a detail texture fade in
 
-	Add the overlay XML to the pan definition.
+-	Add the overlay XML to the pan definition.
 
 	Adaptive map scale

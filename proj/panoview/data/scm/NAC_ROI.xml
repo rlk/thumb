@@ -1,10 +1,45 @@
 <?xml version="1.0"?>
-  <sphere mesh="32" radius="1737400.0" size="336"
-          vert="glsl/scm-displace.vert"
-          frag="glsl/scm-overlay.frag">
+  <sphere radius="1737400.0"
+            mesh="32"
+            size="336"
+            vert="glsl/scm-displace.vert"
+            frag="glsl/scm-overlay.frag">
+
+    <cache n="426" c="1" b="8"  threads="2"/>
+    <cache n="336" c="1" b="8"  threads="2"/>
+    <cache n="426" c="1" b="16" threads="2" r0="0.994728" r1="1.0062" />
+
     <frame>
-      <scm file="DTM-426-6.tif"      shader="vert" r0="0.994728" r1="1.0062" />
-      <scm file="WAC-426-6.tif"      shader="frag" />
-      <scm file="NAC_ROI-336-14.tif" shader="frag" />
+      <image name="height" scm="DTM-426-6.tif"       height="1" cache="2" />
+      <image name="base"   scm="WAC-426-6.tif"                  cache="0" />
+      <image name="over"   scm="NAC_ROI_TychoCtrLoA-336-14.tif" cache="1" />
     </frame>
-  </sphere>
+    <frame>
+      <image name="height" scm="DTM-426-6.tif"       height="1" cache="2" />
+      <image name="base"   scm="WAC-426-6.tif"                  cache="0" />
+      <image name="over"   scm="NAC_ROI_Apollo16HiA-336-14.tif" cache="1" />
+    </frame>
+  
+    <step name="Tycho"
+         frame="0"
+         label="csv/Tycho.csv"
+            q0=" 0.762239"
+            q1="-0.085507"
+            q2="-0.161517"
+            q3=" 0.620961"
+            p0="-0.159228"
+            p1="-0.719553"
+            p2=" 0.675936"
+             r="1794686.446486" />
+    <step name="Apollo16"
+         frame="1"
+         label="csv/IAUMOON.csv"
+            q0=" 0.762239"
+            q1="-0.085507"
+            q2="-0.161517"
+            q3=" 0.620961"
+            p0="-0.159228"
+            p1="-0.719553"
+            p2=" 0.675936"
+             r="3000000.0" />
+</sphere>

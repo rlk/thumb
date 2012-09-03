@@ -31,7 +31,7 @@
 //------------------------------------------------------------------------------
 
 view_app::view_app(const std::string& exe,
-                       const std::string& tag) : app::prog(exe, tag),
+                   const std::string& tag) : app::prog(exe, tag),
     bound  (0),
     model  (0),
     label  (0),
@@ -209,14 +209,22 @@ void view_app::unload()
 
 void view_app::goto_next()
 {
+#if 0
     timer_e = floor(timer + 1.0);
     timer_d = +2.0;
+#else
+    timer++;
+#endif
 }
 
 void view_app::goto_prev()
 {
+#if 0
     timer_e = ceil(timer - 1.0);
     timer_d = -2.0;
+#else
+    timer--;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -252,6 +260,15 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     {
         model->set_debug(debug_bound);
 
+        int s = int(frames.size());
+        int f = int(timer);
+
+        if (s)
+        {
+            while (f <  0) f += s;
+            while (f >= s) f -= s;
+        }
+
         // Compute the model view matrix to be used for view determination.
 
         double r = radius * get_scale(here.get_radius());
@@ -272,8 +289,8 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
             glDisable(GL_CULL_FACE);
         }
 
-        frames[0]->set_channel(chani);
-        model->draw(frames[0], P, V, w, h);
+        frames[f]->set_channel(chani);
+        model->draw(frames[f], P, V, w, h);
 
         if (debug_wire)
         {
