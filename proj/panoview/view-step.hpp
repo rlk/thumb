@@ -54,10 +54,11 @@ public:
     void   get_forward (double *) const;
     void   get_light   (double *) const;
 
-    double get_speed()            const { return speed;   }
-    double get_radius()           const { return radius;  }
-    double get_tension()          const { return tension; }
-    double get_bias()             const { return bias;    }
+    double get_speed()             const { return speed;   }
+    double get_radius()            const { return radius;  }
+    double get_tension()           const { return tension; }
+    double get_bias()              const { return bias;    }
+    int    get_frame()             const { return frame;   }
 
     const std::string& get_name()  const { return name;  }
     const std::string& get_label() const { return label; }
@@ -66,6 +67,7 @@ private:
 
     std::string name;
     std::string label;
+    int         frame;
 
     double orientation[4]; // View orientation
     double position[3];    // View point location

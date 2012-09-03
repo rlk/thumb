@@ -46,6 +46,14 @@ double hint(double y0, double y1,
     return a0 * y1 + a1 * m0 + a2 * m1 + a3 * y2;
 }
 
+int roundint(double k)
+{
+    double f = floor(k);
+    double c =  ceil(k);
+
+    return (k - f < c - k) ? f : c;
+}
+
 //------------------------------------------------------------------------------
 
 // Initialize a new SCM viewer state using default values.
@@ -69,6 +77,7 @@ view_step::view_step()
     radius         = 0.0;
     tension        = 0.0;
     bias           = 0.0;
+    frame          =  -1;
 }
 
 // Initialize a new SCM viewer state using the given XML node.
@@ -95,6 +104,7 @@ view_step::view_step(app::node n)
 
     name           = n.get_s("name");
     label          = n.get_s("label");
+    frame          = n.get_i("frame", -1);
 }
 
 // Initialize a new SCM viewer step using linear interpolation of given steps.
@@ -130,14 +140,16 @@ view_step::view_step(const view_step *a,
     qnormalize(orientation, orientation);
     vnormalize(position,    position);
     vnormalize(light,       light);
+
+    frame = -1;    
 }
 
 // Initialize a new SCM viewer step using cubic interpolation of given steps.
 
 view_step::view_step(const view_step *a,
-                   const view_step *b,
-                   const view_step *c,
-                   const view_step *d, double t)
+                     const view_step *b,
+                     const view_step *c,
+                     const view_step *d, double t)
 {
     assert(a);
     assert(b);
@@ -193,6 +205,7 @@ view_step::view_step(const view_step *a,
     speed          = lerp(b->speed,   c->speed,   t);
     tension        = lerp(b->tension, c->tension, t);
     bias           = lerp(b->bias,    c->bias,    t);
+    frame = roundint(lerp(b->frame,   c->frame,   t));
 
     qnormalize(orientation, orientation);
     vnormalize(position,    position);

@@ -436,6 +436,11 @@ bool view_app::process_user(app::event *E)
     for (int i = 0; i < int(steps.size()); i++)
         if (steps[i].get_name().compare(name) == 0)
         {
+            int f = steps[i].get_frame();
+
+            if (0 <= f && f < int(frames.size()))
+                timer = f;
+
             load_label(steps[i].get_label());
 
             path.stop();
