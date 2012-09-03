@@ -364,7 +364,7 @@ void orbiter::make_path(int i)
 
     if (goto_radius)
         mid.set_radius(goto_radius);
-    
+
     mid.set_speed(1.00);
     dst.set_speed(0.05);
 
@@ -467,9 +467,9 @@ bool orbiter::pan_tick(app::event *E)
     double dt = E->data.tick.dt / 1000.0;
     double ll = vlen(stick);
 
-    if (ll > 0.1 || stick_timer > 0.0)
+    if (ll > deadzone || stick_timer > 0.0)
     {
-        if (ll > 0.1)
+        if (ll > deadzone)
             stick_timer = 0.1;
         else
             stick_timer -= dt;

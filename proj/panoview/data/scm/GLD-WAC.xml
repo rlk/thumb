@@ -4,7 +4,6 @@
             size="426"
             vert="glsl/scm-displace.vert"
             frag="glsl/scm-basic.frag">
-            <!-- vert="glsl/scm-basic.vert" -->
 
     <cache n="426" c="1" b="8"  threads="2"/>
     <cache n="426" c="1" b="16" threads="2" r0="0.994728" r1="1.0062" />

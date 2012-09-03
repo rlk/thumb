@@ -358,7 +358,7 @@
       <blockquote><pre>&lt;option name="orbiter_report_host"&gt;127.0.0.1&lt;/option&gt;
 &lt;option name="orbiter_report_port"&gt;8111&lt;/option&gt;</pre></blockquote>
 
-      <p><li>The joystick options select the joystick device number, axis indices for the X and Y axes, button numbers for motion up and down, and a deadzone size (0.0 to 1.0) for analog gamepads with unreliable centering.</li></p>
+      <li><p>The joystick options select the joystick device number, axis indices for the X and Y axes, button numbers for motion up and down, and a deadzone size (0.0 to 1.0) for analog gamepads with unreliable centering.</p></li>
 
       <blockquote><pre>&lt;option name="orbiter_joystick_device"&gt;0&lt;/option&gt;
 &lt;option name="orbiter_joystick_axis_X"&gt;0&lt;/option&gt;
@@ -367,9 +367,13 @@
 &lt;option name="orbiter_joystick_button_D"&gt;1&lt;/option&gt;
 &lt;option name="orbiter_joystick_deadzone"&gt;0.25&lt;/option&gt;</pre></blockquote>
 
-      <p><li>The icon size option selects the size of the icons used in <a href="#labels">feature labeling</a>, in pixels. Increasing this value will make these icons more visible on large, high-resolution displays. For best quality, use a power of two.</li></p>
+      <li><p>The icon size option selects the size of the icons used in <a href="#labels">feature labeling</a>, in pixels. Increasing this value will make these icons more visible on large, high-resolution displays. For best quality, use a power of two.</p></li>
 
       <blockquote><pre>&lt;option name="orbiter_icon_size"&gt;16&lt;/option&gt;</pre></blockquote>
+
+      <li><p>The goto radius option selects distance from the planet to which the camera moves during a <a href="#goto">goto</a> operation. If set to zero, then the midpoint of the starting and ending positions is used.</p></li>
+
+      <blockquote><pre>&lt;option name="orbiter_goto_radius"&gt;2000000.0&lt;/option&gt;</pre></blockquote>
 
     </ul>
 
@@ -399,22 +403,27 @@
             vert="glsl/scm-displace.vert"
             frag="glsl/scm-basic.frag"&gt;
 
+    &lt;cache n="426" c="1" b="8"  threads="2"/&gt;
+    &lt;cache n="426" c="1" b="16" threads="2" r0="0.994728" r1="1.0062" /&gt;
+
     &lt;frame&gt;
-      &lt;scm shader="vert" file="DTM-426-6.tif" r0="0.994728" r1="1.0062" /&gt;
-      &lt;scm shader="frag" file="WAC-426-6.tif" /&gt;
+      &lt;image name="height" scm="DTM-426-6.tif" cache="1" height="1"/&gt;
+      &lt;image name="color"  scm="WAC-426-6.tif" cache="0" /&gt;
     &lt;/frame&gt;
 
-    &lt;step name="Tycho" label="csv/Tycho.csv"
-            q0=" 0.762239" q1="-0.085507" q2="-0.161517" q3="0.620961"
-            p0="-0.159228" p1="-0.719553" p2=" 0.675936" r="1794686" /&gt;
-
-    &lt;step name="Copernic" label="csv/Copernic.csv"
-            q0=" 0.089011" q1="-0.228597" q2="-0.496265" q3="0.832792"
-            p0="-0.357236" p1=" 0.156369" p2=" 0.920832" r="1991161" /&gt;
+    &lt;step name="Tycho"
+         label="csv/Tycho.csv"
+            q0=" 0.762239" q1="-0.085507" q2="-0.161517" q3=" 0.620961"
+            p0="-0.159228" p1="-0.719553" p2=" 0.675936"  r="1794686.446486" /&gt;
+    &lt;step name="Copernic"
+         label="csv/Copernic.csv"
+            q0=" 0.089011" q1="-0.228597" q2="-0.496265" q3=" 0.832792"
+            p0="-0.357236" p1=" 0.156369" p2=" 0.920832"  r="1991161.296438" /&gt;
   &lt;/sphere&gt;
 </pre></blockquote>
 
-    <p>The file begins with an XML header and contains a single root <tt>sphere</tt> element with several attributes and one <tt>scm</tt> sub-element for each SCM TIFF image.</p>
+
+    <p>The file begins with an XML header and contains a single root <tt>sphere</tt> element with several attributes and one <tt>image</tt> sub-element for each SCM TIFF image.</p>
 
     <ul>
       <li><p>The <tt>mesh</tt> attribute determines the tessellation of the geometry mesh used to render each page of data. The example value, 32, indicates that each page of the sphere will be rendered using a 32 &times; 32 grid of squares.</p></li>
@@ -425,10 +434,52 @@
 
       <li><p>The <tt>vert</tt> and <tt>frag</tt> attributes give the vertex and fragment programs to be used by the renderer, named relative to the root of the Thumb data hierarchy. In this case, the &ldquo;displacement&rdquo; vertex shader is used to render displacement-mapped terrain, and the &ldquo;basic&rdquo; fragment shader is used to apply a simple image to the resulting surface. These attributes will remain the same for most planet definitions, though different lighting models, overlay modes, and data visualizations may be introduced using alternate shaders.</p></li>
 
-      <li><p>The <tt>scm</tt> elements name the actual SCM data files. In this example, <tt>DTM-426-6.tif</tt> gives a Digital Terrain Model, which acts as a height map. Because it serves to modify the geometry of the spherical mesh, it is fed to the vertex shader and its normalized minimum and maximum radii are provided as attributes. <tt>WAC-426-6.tif</tt> is a simple image file fed to the fragment shader.</p></li>
+      <li><p>The <tt>cache</tt> elements define data storage for image data to be stored. Each cache is defined by the size and type of data that it can store, and includes optional configuration for loader thread configuration and height map normalization.</p></li>
+
+      <li><p>The <tt>frame</tt> elements group images into separate visualizations which can be individually selected within the application.</p></li>
+
+      <li><p>The <tt>image</tt> elements name the actual SCM data files. In this example, <tt>DTM-426-6.tif</tt> gives a Digital Terrain Model, which acts as a height map. Because it serves to modify the geometry of the spherical mesh, it is fed to the vertex shader and its normalized minimum and maximum radii are provided as attributes. <tt>WAC-426-6.tif</tt> is a simple image file fed to the fragment shader. Each image has a name that identifies it the rendering shader, and each includes the index of a cache capable of storing it.</p></li>
 
       <li><p>The <tt>step</tt> elements define the view parameters for regions of interest for use by the <a href="#goto">go-to mechanism</a>. These are the exact same data structure as found in the <tt>path.xml</tt> file used by the <a href="#editing">camera path</a> storage mechanism.</p></li>
     </ul>
+
+    <p>Here's another example, <tt>NAC_ROI.xml</tt>, that includes two high-resolution overlays configured as separate <tt>frame</tt> elements. Note in this case that the <tt>path</tt> elements include frame indices, which cause the visualization to be automatically selected when a <a href="#goto">go-to</a> is activated</p>
+
+<blockquote><pre>
+&lt;?xml version="1.0"?&gt;
+  &lt;sphere radius="1737400.0"
+            mesh="32"
+            size="336"
+            vert="glsl/scm-displace.vert"
+            frag="glsl/scm-overlay.frag"&gt;
+
+    &lt;cache n="426" c="1" b="8"  threads="2"/&gt;
+    &lt;cache n="336" c="1" b="8"  threads="2"/&gt;
+    &lt;cache n="426" c="1" b="16" threads="2" r0="0.994728" r1="1.0062" /&gt;
+
+    &lt;frame&gt;
+      &lt;image name="height" scm="DTM-426-6.tif"       height="1" cache="2" /&gt;
+      &lt;image name="base"   scm="WAC-426-6.tif"                  cache="0" /&gt;
+      &lt;image name="over"   scm="NAC_ROI_TychoCtrLoA-336-14.tif" cache="1" /&gt;
+    &lt;/frame&gt;
+    &lt;frame&gt;
+      &lt;image name="height" scm="DTM-426-6.tif"       height="1" cache="2" /&gt;
+      &lt;image name="base"   scm="WAC-426-6.tif"                  cache="0" /&gt;
+      &lt;image name="over"   scm="NAC_ROI_Apollo16HiA-336-14.tif" cache="1" /&gt;
+    &lt;/frame&gt;
+  
+    &lt;step name="Tycho"
+         frame="0"
+         label="csv/Tycho.csv"
+            q0=" 0.762239" q1="-0.085507" q2="-0.161517" q3="0.620961"
+            p0="-0.159228" p1="-0.719553" p2=" 0.675936"  r="1794686.446486" /&gt;
+    &lt;step name="Apollo16"
+         frame="1"
+         label="csv/IAUMOON.csv"
+            q0=" 0.106962" q1=" 0.140275" q2="-0.017893" q3="0.984155"
+            p0=" 0.263982" p1="-0.156004" p2=" 0.951828"  r="1737876.083148" /&gt;
+  &lt;/sphere&gt;
+</pre></blockquote>
 
     <a name="goto"><h3>Go-To</h3></a>
 
