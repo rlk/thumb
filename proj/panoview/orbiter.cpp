@@ -41,6 +41,7 @@ orbiter::orbiter(const std::string& exe,
     orbit_plane[2] = 0.0;
     orbit_speed    = 0.0;
     stick_timer    = 0.0;
+    goto_radius    = ::conf->get_f("orbiter_goto_radius", 0.0);
 
     control   = false;
     drag_move = false;
@@ -70,6 +71,7 @@ orbiter::orbiter(const std::string& exe,
     axis_Y   = ::conf->get_i("orbiter_joystick_axis_Y", 1);
     button_U = ::conf->get_i("orbiter_joystick_button_U", 0);
     button_D = ::conf->get_i("orbiter_joystick_button_D", 1);
+    deadzone = ::conf->get_f("orbiter_joystick_deadzone", 0.1);
 
     // Preload data as requested.
 
@@ -347,6 +349,28 @@ double orbiter::get_bottom() const
 double orbiter::get_scale(double r) const
 {
     return 1.0 / (r - get_bottom());
+}
+
+// Construct a path from here to there with a configurable middle radius.
+
+void orbiter::make_path(int i)
+{
+    view_step src = here;
+    view_step dst = steps[i];
+    view_step mid(&src, &dst, 0.5);
+
+    if (!path.playing())
+        src.set_speed(0.05);
+
+    if (goto_radius)
+        mid.set_radius(goto_radius);
+    
+    mid.set_speed(1.00);
+    dst.set_speed(0.05);
+
+    path.add(src);
+    path.add(mid);
+    path.add(dst);
 }
 
 //------------------------------------------------------------------------------

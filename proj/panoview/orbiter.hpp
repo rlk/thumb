@@ -36,6 +36,7 @@ public:
     virtual void load(const std::string&);
 
     virtual double get_scale(double) const;
+    virtual void   make_path(int);
 
     virtual ~orbiter();
 
@@ -54,7 +55,8 @@ private:
     double orbit_plane[3];
     double orbit_speed;
     double stick_timer;
-
+    double goto_radius;
+    
     // Interaction state
 
     double point[3];
@@ -69,11 +71,12 @@ private:
 
     // Joystick configuration
 
-    int device;
-    int axis_X;
-    int axis_Y;
-    int button_U;
-    int button_D;
+    int    device;
+    int    axis_X;
+    int    axis_Y;
+    int    button_U;
+    int    button_D;
+    double deadzone;
 
     // Report stream configuration
 
