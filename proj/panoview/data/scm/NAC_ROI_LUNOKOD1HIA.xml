@@ -12,6 +12,6 @@
     <frame>
       <image name="height" scm="DTM-426-6.tif"       height="1" cache="2" />
       <image name="base"   scm="WAC-426-6.tif"                  cache="0" />
-      <image name="over"   scm="NAC_ROI_APOLLO16HIA-336-14.tif" cache="1" />
+      <image name="over"   scm="NAC_ROI_LUNOKOD1HIA-336-14.tif" cache="1" />
     </frame>
   </sphere>

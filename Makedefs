@@ -92,6 +92,8 @@ LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL*.a \
 				       /usr/lib/libSDL*.a \
 				   C:/MinGW/lib/libSDL*.a) -lSDL)
 
+LIBSDL = -lSDLmain -lSDL
+
 #------------------------------------------------------------------------------
 
 %.d : %.cpp

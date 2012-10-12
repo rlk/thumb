@@ -90,6 +90,8 @@ scm_cache::scm_cache(int s, int n, int c, int b, int t, float r0, float r1) :
 scm_cache::~scm_cache()
 {
     std::vector<SDL_Thread *>::iterator t;
+
+#if 0
     int c = 1;
     int s = 0;
 
@@ -106,6 +108,10 @@ scm_cache::~scm_cache()
 
     for (t = threads.begin(); t != threads.end(); ++t)
         SDL_WaitThread(*t, &s);
+#else
+    for (t = threads.begin(); t != threads.end(); ++t)
+        SDL_KillThread(*t);
+#endif
 
     // Release the pixel buffer objects.
 

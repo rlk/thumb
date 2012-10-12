@@ -74,6 +74,8 @@ dist : $(TARG)
 	$(CP) proj/panoview/data/scm/NAC_ROI.xml              $(DATDIR)/scm
 	$(CP) proj/panoview/data/scm/NAC_ROI_Apollo16HiA.xml  $(DATDIR)/scm
 	$(CP) proj/panoview/data/scm/NAC_ROI_TychoCtrLoA.xml  $(DATDIR)/scm
+	$(CP) proj/panoview/data/scm/NAC_ROI_PlatoEjcLoA.xml  $(DATDIR)/scm
+	$(CP) proj/panoview/data/scm/NAC_ROI_LUNOKOD1HIA.xml  $(DATDIR)/scm
 
 	# Copy the documentation
 

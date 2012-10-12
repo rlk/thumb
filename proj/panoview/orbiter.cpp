@@ -329,7 +329,8 @@ void orbiter::load(const std::string& name)
 {
     view_app::load(name);
 
-    here.set_radius(2.0 * get_radius());
+    if (here.get_radius() == 0.0)
+        here.set_radius(2.0 * get_radius());
 }
 
 // Return the effective altitude of the given radius: the height above the
