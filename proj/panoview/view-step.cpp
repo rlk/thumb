@@ -77,6 +77,7 @@ view_step::view_step()
     radius         = 0.0;
     tension        = 0.0;
     bias           = 0.0;
+    zoom           = 1.0;
     frame          =  -1;
 }
 
@@ -101,6 +102,7 @@ view_step::view_step(app::node n)
     radius         = n.get_f("r",  0.0);
     tension        = n.get_f("t",  0.0);
     bias           = n.get_f("b",  0.0);
+    zoom           = n.get_f("z",  1.0);
 
     name           = n.get_s("name");
     label          = n.get_s("label");
@@ -136,12 +138,13 @@ view_step::view_step(const view_step *a,
     radius         = lerp(a->radius,         b->radius,         t);
     tension        = lerp(a->tension,        b->tension,        t);
     bias           = lerp(a->bias,           b->bias,           t);
+    zoom           = lerp(a->zoom,           b->zoom,           t);
 
     qnormalize(orientation, orientation);
     vnormalize(position,    position);
     vnormalize(light,       light);
 
-    frame = -1;    
+    frame = -1;
 }
 
 // Initialize a new SCM viewer step using cubic interpolation of given steps.
@@ -205,6 +208,7 @@ view_step::view_step(const view_step *a,
     speed          = lerp(b->speed,   c->speed,   t);
     tension        = lerp(b->tension, c->tension, t);
     bias           = lerp(b->bias,    c->bias,    t);
+    zoom           = lerp(b->zoom,    c->zoom,    t);
     frame = roundint(lerp(b->frame,   c->frame,   t));
 
     qnormalize(orientation, orientation);
@@ -251,6 +255,7 @@ app::node view_step::serialize() const
     if (radius         != 0.0) n.set_f("r",  radius);
     if (tension        != 0.0) n.set_f("t",  tension);
     if (bias           != 0.0) n.set_f("b",  bias);
+    if (zoom           != 1.0) n.set_f("z",  zoom);
 
     if (!name.empty())  n.set_s("name",  name);
     if (!label.empty()) n.set_s("label", label);

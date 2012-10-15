@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+  <sphere radius="6.0"
+            mesh="16"
+            size="256"
+            vert="glsl/scm-zoom.vert"
+            frag="glsl/scm-basic.frag">
+
+    <cache n="256" c="3" b="8" threads="4"/>
+    <cache n="256" c="3" b="8" threads="4"/>
+
+    <frame>
+      <image name="color" scm="Bluebonnet-0-R-256-5.tif" channel="0" cache="0" />
+      <image name="color" scm="Bluebonnet-0-L-256-5.tif" channel="1" cache="1" />
+    </frame>
+    <frame>
+      <image name="color" scm="Bluebonnet-3-L-256-5.tif" channel="1" cache="1" />
+      <image name="color" scm="Bluebonnet-3-R-256-5.tif" channel="0" cache="0" />
+    </frame>
+    <frame>
+      <image name="color" scm="Bluebonnet-4-R-256-5.tif" channel="0" cache="0" />
+      <image name="color" scm="Bluebonnet-4-L-256-5.tif" channel="1" cache="1" />
+    </frame>
+  </sphere>

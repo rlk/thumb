@@ -528,10 +528,10 @@ void scm_model::draw(scm_frame *frame, const double *P,
 
         GLint face_M = glsl_uniform(program, "face_M");
 
-        // glUniform1f(u_zoomk, GLfloat(zoomk));
-        // glUniform3f(u_zoomv, GLfloat(zoomv[0]),
-        //                      GLfloat(zoomv[1]),
-        //                      GLfloat(zoomv[2]));
+        glUniform1f(u_zoomk, GLfloat(zoomk));
+        glUniform3f(u_zoomv, GLfloat(zoomv[0]),
+                             GLfloat(zoomv[1]),
+                             GLfloat(zoomv[2]));
 
         if (is_set(0))
         {
@@ -591,11 +591,11 @@ void scm_model::init_program(const char *vert_src,
         frag_shader = glsl_init_shader(GL_FRAGMENT_SHADER, frag_src);
         program     = glsl_init_program(vert_shader, frag_shader);
 
-        // glUseProgram(program);
+        glUseProgram(program);
 
-        // u_fader = glGetUniformLocation(program, "fader");
-        // u_zoomk = glGetUniformLocation(program, "zoomk");
-        // u_zoomv = glGetUniformLocation(program, "zoomv");
+        u_fader = glGetUniformLocation(program, "fader");
+        u_zoomk = glGetUniformLocation(program, "zoomk");
+        u_zoomv = glGetUniformLocation(program, "zoomv");
     }
 }
 

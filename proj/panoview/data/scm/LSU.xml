@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+  <sphere radius="6.0"
+            mesh="16"
+            size="256"
+            vert="glsl/scm-zoom.vert"
+            frag="glsl/scm-basic.frag">
+
+    <cache n="256" c="3" b="8" threads="4"/>
+    <cache n="256" c="3" b="8" threads="4"/>
+
+    <frame>
+      <image name="color" scm="LSU1-R-256-5.tif" channel="0" cache="0" />
+      <image name="color" scm="LSU1-L-256-5.tif" channel="1" cache="1" />
+    </frame>
+    <frame>
+      <image name="color" scm="LSU2-R-256-5.tif" channel="0" cache="0" />
+      <image name="color" scm="LSU2-L-256-5.tif" channel="1" cache="1" />
+    </frame>
+    <frame>
+      <image name="color" scm="Tiger-Stadium-1-R-256-5.tif" channel="0" cache="0" />
+      <image name="color" scm="Tiger-Stadium-1-L-256-5.tif" channel="1" cache="1" />
+    </frame>
+    <frame>
+      <image name="color" scm="Tiger-Stadium-2-R-256-5.tif" channel="0" cache="0" />
+      <image name="color" scm="Tiger-Stadium-2-L-256-5.tif" channel="1" cache="1" />
+    </frame>
+  </sphere>

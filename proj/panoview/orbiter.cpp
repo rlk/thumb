@@ -71,7 +71,7 @@ orbiter::orbiter(const std::string& exe,
     axis_Y   = ::conf->get_i("orbiter_joystick_axis_Y", 1);
     button_U = ::conf->get_i("orbiter_joystick_button_U", 0);
     button_D = ::conf->get_i("orbiter_joystick_button_D", 1);
-    deadzone = ::conf->get_f("orbiter_joystick_deadzone", 0.1);
+    deadzone = ::conf->get_f("orbiter_joystick_deadzone", 0.2);
 
     // Preload data as requested.
 

@@ -27,11 +27,11 @@ public:
     view_step();
     view_step(app::node);
     view_step(const view_step *,
-             const view_step *, double);
+              const view_step *, double);
     view_step(const view_step *,
-             const view_step *,
-             const view_step *,
-             const view_step *, double);
+              const view_step *,
+              const view_step *,
+              const view_step *, double);
 
     void draw() const;
 
@@ -46,6 +46,7 @@ public:
     void set_radius (double r) { radius  = r; }
     void set_tension(double t) { tension = t; }
     void set_bias   (double b) { bias    = b; }
+    void set_zoom   (double z) { zoom    = z; }
 
     void   get_matrix  (double *, double) const;
     void   get_position(double *) const;
@@ -58,6 +59,7 @@ public:
     double get_radius()            const { return radius;  }
     double get_tension()           const { return tension; }
     double get_bias()              const { return bias;    }
+    double get_zoom()              const { return zoom;    }
     int    get_frame()             const { return frame;   }
 
     const std::string& get_name()  const { return name;  }
@@ -76,6 +78,7 @@ private:
     double radius;         // View point radius
     double tension;        // Hermite interpolation tension
     double bias;           // Hermite interpolation bias
+    double zoom;           // Magnification
 };
 
 //------------------------------------------------------------------------------
