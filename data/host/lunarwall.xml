@@ -1,0 +1,119 @@
+<?xml version="1.0"?>
+  <host>
+    <!-- lunarwall1 ----------------------------------------------------- -->
+    <node name="lunarwall1" port="2827">
+      <client name="lunarwall2" addr="lunarwall2"/>
+      <client name="lunarwall3" addr="lunarwall3"/>
+      <window x="0" y="0" w="5464" h="768" full="1" frame="0"/>
+      <buffer w="1366" h="768" />
+      <display type="direct"> <!-- Row 0 Col 0 -->
+        <frustum>
+          <viewport x="0" y="0" w="1366" h="768"/>
+          <corner name="BL" x="-6.724" y="-2.826" z="-7.471" />
+          <corner name="BR" x="-3.378" y="-2.826" z="-7.471" />
+          <corner name="TL" x="-6.724" y="-0.956" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 0 Col 1 -->
+        <frustum>
+          <viewport x="1366" y="0" w="1366" h="768"/>
+          <corner name="BL" x="-3.357" y="-2.826" z="-7.471" />
+          <corner name="BR" x="-0.010" y="-2.826" z="-7.471" />
+          <corner name="TL" x="-3.357" y="-0.956" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 0 Col 2 -->
+        <frustum>
+          <viewport x="2732" y="0" w="1366" h="768"/>
+          <corner name="BL" x="+0.010" y="-2.826" z="-7.471" />
+          <corner name="BR" x="+3.357" y="-2.826" z="-7.471" />
+          <corner name="TL" x="+0.010" y="-0.956" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 0 Col 3 -->
+        <frustum>
+          <viewport x="4098" y="0" w="1366" h="768"/>
+          <corner name="BL" x="+3.378" y="-2.826" z="-7.471" />
+          <corner name="BR" x="+6.724" y="-2.826" z="-7.471" />
+          <corner name="TL" x="+3.378" y="-0.956" z="-7.471" />
+        </frustum>
+      </display>
+    </node>
+    <!-- lunarwall2 ----------------------------------------------------- -->
+    <node name="lunarwall2">
+      <server addr="lunarwall1" port="2827"/>
+      <window x="0" y="0" w="5464" h="768" full="1" frame="0"/>
+      <buffer w="1366" h="768" />
+      <display type="direct"> <!-- Row 1 Col 0 -->
+        <frustum>
+          <viewport x="0" y="0" w="1366" h="768"/>
+          <corner name="BL" x="-6.724" y="-0.935" z="-7.471" />
+          <corner name="BR" x="-3.378" y="-0.935" z="-7.471" />
+          <corner name="TL" x="-6.724" y="+0.935" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 1 Col 1 -->
+        <frustum>
+          <viewport x="1366" y="0" w="1366" h="768"/>
+          <corner name="BL" x="-3.357" y="-0.935" z="-7.471" />
+          <corner name="BR" x="-0.010" y="-0.935" z="-7.471" />
+          <corner name="TL" x="-3.357" y="+0.935" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 1 Col 2 -->
+        <frustum>
+          <viewport x="2732" y="0" w="1366" h="768"/>
+          <corner name="BL" x="+0.010" y="-0.935" z="-7.471" />
+          <corner name="BR" x="+3.357" y="-0.935" z="-7.471" />
+          <corner name="TL" x="+0.010" y="+0.935" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 1 Col 3 -->
+        <frustum>
+          <viewport x="4098" y="0" w="1366" h="768"/>
+          <corner name="BL" x="+3.378" y="-0.935" z="-7.471" />
+          <corner name="BR" x="+6.724" y="-0.935" z="-7.471" />
+          <corner name="TL" x="+3.378" y="+0.935" z="-7.471" />
+        </frustum>
+      </display>
+    </node>
+    <!-- lunarwall3 ----------------------------------------------------- -->
+    <node name="lunarwall3">
+      <server addr="lunarwall1" port="2827"/>
+      <window x="0" y="0" w="5464" h="768" full="1" frame="0"/>
+      <buffer w="1366" h="768" />
+      <display type="direct"> <!-- Row 2 Col 0 -->
+        <frustum>
+          <viewport x="0" y="0" w="1366" h="768"/>
+          <corner name="BL" x="-6.724" y="+0.956" z="-7.471" />
+          <corner name="BR" x="-3.378" y="+0.956" z="-7.471" />
+          <corner name="TL" x="-6.724" y="+2.826" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 2 Col 1 -->
+        <frustum>
+          <viewport x="1366" y="0" w="1366" h="768"/>
+          <corner name="BL" x="-3.357" y="+0.956" z="-7.471" />
+          <corner name="BR" x="-0.010" y="+0.956" z="-7.471" />
+          <corner name="TL" x="-3.357" y="+2.826" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 2 Col 2 -->
+        <frustum>
+          <viewport x="2732" y="0" w="1366" h="768"/>
+          <corner name="BL" x="+0.010" y="+0.956" z="-7.471" />
+          <corner name="BR" x="+3.357" y="+0.956" z="-7.471" />
+          <corner name="TL" x="+0.010" y="+2.826" z="-7.471" />
+        </frustum>
+      </display>
+      <display type="direct"> <!-- Row 2 Col 3 -->
+        <frustum>
+          <viewport x="4098" y="0" w="1366" h="768"/>
+          <corner name="BL" x="+3.378" y="+0.956" z="-7.471" />
+          <corner name="BR" x="+6.724" y="+0.956" z="-7.471" />
+          <corner name="TL" x="+3.378" y="+2.826" z="-7.471" />
+        </frustum>
+      </display>
+    </node>
+    <!-- ---------------------------------------------------------------- -->
+  </host>
