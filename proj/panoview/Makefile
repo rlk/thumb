@@ -6,14 +6,14 @@ VIEWOBJS= \
 	util3d/glsl.o \
 	util3d/math3d.o \
 	util3d/type.o \
-	scm-index.o \
-	scm-image.o \
-	scm-frame.o \
-	scm-set.o \
-	scm-task.o \
-	scm-file.o \
-	scm-cache.o \
-	scm-label.o \
+	scm/scm-index.o \
+	scm/scm-image.o \
+	scm/scm-frame.o \
+	scm/scm-set.o \
+	scm/scm-task.o \
+	scm/scm-file.o \
+	scm/scm-cache.o \
+	scm/scm-label.o \
 	view-step.o \
 	view-path.o \
 	view-load.o \

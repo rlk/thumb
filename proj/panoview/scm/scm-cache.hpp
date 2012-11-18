@@ -22,8 +22,7 @@
 #include <SDL.h>
 #include <SDL_thread.h>
 
-#include "queue.hpp"
-
+#include "scm-queue.hpp"
 #include "scm-file.hpp"
 #include "scm-task.hpp"
 #include "scm-set.hpp"
