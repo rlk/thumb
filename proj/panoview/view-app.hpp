@@ -18,10 +18,11 @@
 #include <app-prog.hpp>
 #include <app-file.hpp>
 
-#include "scm-cache.hpp"
-#include "scm-frame.hpp"
-#include "scm-model.hpp"
-#include "scm-label.hpp"
+#include "scm/scm-cache.hpp"
+#include "scm/scm-frame.hpp"
+#include "scm/scm-model.hpp"
+#include "scm/scm-label.hpp"
+
 #include "view-step.hpp"
 #include "view-path.hpp"
 #include "view-load.hpp"

@@ -3,9 +3,9 @@ include ../../Makedefs
 #------------------------------------------------------------------------------
 
 VIEWOBJS= \
-	util3d/glsl.o \
-	util3d/math3d.o \
-	util3d/type.o \
+	scm/util3d/glsl.o \
+	scm/util3d/math3d.o \
+	scm/util3d/type.o \
 	scm/scm-index.o \
 	scm/scm-image.o \
 	scm/scm-frame.o \
@@ -13,12 +13,12 @@ VIEWOBJS= \
 	scm/scm-task.o \
 	scm/scm-file.o \
 	scm/scm-cache.o \
+	scm/scm-model.o \
 	scm/scm-label.o \
 	view-step.o \
 	view-path.o \
 	view-load.o \
 	view-app.o \
-	scm-model.o
 
 ORBOBJS= $(VIEWOBJS) orbiter.o
 PANOBJS= $(VIEWOBJS) panoview.o
@@ -53,17 +53,17 @@ orbiter: $(ORBOBJS) $(THUMB)
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview
 	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
-	$(RM) scm-label-circle-vert.h
-	$(RM) scm-label-circle-frag.h
-	$(RM) scm-label-sprite-vert.h
-	$(RM) scm-label-sprite-frag.h
+	# $(RM) scm-label-circle-vert.h
+	# $(RM) scm-label-circle-frag.h
+	# $(RM) scm-label-sprite-vert.h
+	# $(RM) scm-label-sprite-frag.h
 
 #------------------------------------------------------------------------------
 
-%-vert.h : %.vert
-	xxd -i $^ > $@
-%-frag.h : %.frag
-	xxd -i $^ > $@
+# %-vert.h : %.vert
+# 	xxd -i $^ > $@
+# %-frag.h : %.frag
+# 	xxd -i $^ > $@
 
 #------------------------------------------------------------------------------
 

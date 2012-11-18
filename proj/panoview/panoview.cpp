@@ -24,7 +24,7 @@
 #include <app-frustum.hpp>
 #include <app-default.hpp>
 
-#include "util3d/math3d.h"
+#include "scm/util3d/math3d.h"
 
 #include "panoview.hpp"
 
