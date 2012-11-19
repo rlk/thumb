@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+  <sphere radius="1737400.0"
+            mesh="32"
+            size="426"
+            vert="glsl/scm-basic.vert"
+            frag="glsl/scm-basic.frag">
+
+    <cache n="426" c="1" b="8" threads="2"/>
+    <frame>
+      <image name="color" scm="WAC-426-6.tif" cache="0" />
+    </frame>
+  </sphere>

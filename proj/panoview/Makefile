@@ -33,8 +33,7 @@ THUMB = ../../src/libthumb.a
 INCDIR += -I../../include
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
-	  $(shell $(FT2CONF) --cflags) \
-	  -DGL_TEXTURE_TARGET=GL_TEXTURE_3D
+	  $(shell $(FT2CONF) --cflags)
 
 LIBS = $(THUMB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBBZ2) $(LIBZ) $(LIBSDL) $(LIBGLEW) $(LIBEXT) -lm
 
@@ -53,17 +52,6 @@ orbiter: $(ORBOBJS) $(THUMB)
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview
 	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
-	# $(RM) scm-label-circle-vert.h
-	# $(RM) scm-label-circle-frag.h
-	# $(RM) scm-label-sprite-vert.h
-	# $(RM) scm-label-sprite-frag.h
-
-#------------------------------------------------------------------------------
-
-# %-vert.h : %.vert
-# 	xxd -i $^ > $@
-# %-frag.h : %.frag
-# 	xxd -i $^ > $@
 
 #------------------------------------------------------------------------------
 

@@ -2,10 +2,10 @@
 
 struct scm
 {
-    sampler3D img;
-    vec2      siz;
-    float     idx[16];
-    float     age[16];
+    sampler2DRect img;
+    vec2          siz;
+    vec2          pos[16];
+    float         age[16];
 };
 
 uniform scm color;
@@ -20,50 +20,50 @@ vec4 age(vec4 c, float k)
     return vec4(c.rgb, c.a * k);
 }
 
-vec4 tex(vec2 c, float k)
+vec4 tex(vec2 c, vec2 p)
 {
-    return texture3D(color.img, vec3((c * color.siz + vec2(1.0)) /
-                                         (color.siz + vec2(2.0)), k));
+    return texture2DRect(color.img, p + c * color.siz + 1.0);
+
 }
 
 vec4 img0(vec2 t)
 {
-    return age(tex(page_a[0] * t + page_b[0], color.idx[0]), color.age[0]);
+    return age(tex(page_a[0] * t + page_b[0], color.pos[0]), color.age[0]);
 }
 
 vec4 img1(vec2 t)
 {
-    return age(tex(page_a[1] * t + page_b[1], color.idx[1]), color.age[1]);
+    return age(tex(page_a[1] * t + page_b[1], color.pos[1]), color.age[1]);
 }
 
 vec4 img2(vec2 t)
 {
-    return age(tex(page_a[2] * t + page_b[2], color.idx[2]), color.age[2]);
+    return age(tex(page_a[2] * t + page_b[2], color.pos[2]), color.age[2]);
 }
 
 vec4 img3(vec2 t)
 {
-    return age(tex(page_a[3] * t + page_b[3], color.idx[3]), color.age[3]);
+    return age(tex(page_a[3] * t + page_b[3], color.pos[3]), color.age[3]);
 }
 
 vec4 img4(vec2 t)
 {
-    return age(tex(page_a[4] * t + page_b[4], color.idx[4]), color.age[4]);
+    return age(tex(page_a[4] * t + page_b[4], color.pos[4]), color.age[4]);
 }
 
 vec4 img5(vec2 t)
 {
-    return age(tex(page_a[5] * t + page_b[5], color.idx[5]), color.age[5]);
+    return age(tex(page_a[5] * t + page_b[5], color.pos[5]), color.age[5]);
 }
 
 vec4 img6(vec2 t)
 {
-    return age(tex(page_a[6] * t + page_b[6], color.idx[6]), color.age[6]);
+    return age(tex(page_a[6] * t + page_b[6], color.pos[6]), color.age[6]);
 }
 
 vec4 img7(vec2 t)
 {
-    return age(tex(page_a[7] * t + page_b[7], color.idx[7]), color.age[7]);
+    return age(tex(page_a[7] * t + page_b[7], color.pos[7]), color.age[7]);
 }
 
 
