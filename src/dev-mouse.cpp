@@ -192,7 +192,7 @@ bool dev::mouse::process_key(app::event *E)
 
 bool dev::mouse::process_tick(app::event *E)
 {
-    double kp = E->data.tick.dt * ::user->get_move_rate() * 0.001;
+    double kp = E->data.tick.dt * ::user->get_move_rate();
 
     if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;

@@ -465,7 +465,7 @@ bool orbiter::pan_click(app::event *E)
 
 bool orbiter::pan_tick(app::event *E)
 {
-    double dt = E->data.tick.dt / 1000.0;
+    double dt = E->data.tick.dt;
     double ll = vlen(stick);
 
     if (ll > deadzone || stick_timer > 0.0)

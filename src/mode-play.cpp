@@ -56,7 +56,7 @@ bool mode::play::process_tick(app::event *E)
     assert(E);
     assert(world);
 
-    world->play_step(E->data.tick.dt * 0.001);
+    world->play_step(E->data.tick.dt);
 
     return false;
 }

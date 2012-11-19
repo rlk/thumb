@@ -78,11 +78,11 @@ namespace app
         void root_loop();
         void node_loop();
 
-        int  tock;
-        int  mode;
-        int  bench;
-        int  movie;
-        int  count;
+        double tock;
+        int    mode;
+        int    bench;
+        int    movie;
+        int    count;
 
         // Event/Calibration handlers
 

@@ -471,7 +471,7 @@ bool dev::trackd::process_axis(app::event *E)
 
 bool dev::trackd::process_tick(app::event *E)
 {
-    const double dt = E->data.tick.dt * 0.001;
+    const double dt = E->data.tick.dt;
 
     const double kr = dt * ::user->get_turn_rate() * 45.0;
     const double kp = dt * ::user->get_move_rate();

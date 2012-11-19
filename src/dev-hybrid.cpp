@@ -179,7 +179,7 @@ bool dev::hybrid::process_point(app::event *E)
     hand_q[1] = q[1];
     hand_q[2] = q[2];
     hand_q[3] = q[3];
- 
+
     synthesize_point();
 
     return false;
@@ -209,7 +209,7 @@ bool dev::hybrid::process_button(app::event *E)
     hand_LR.process_button(b, d);
     hand_FB.process_button(b, d);
     hand_UD.process_button(b, d);
-    
+
     // Check this button press against all user controls.
 
     if (hand_home.process_button(b, d))
@@ -287,7 +287,7 @@ bool dev::hybrid::process_tick(app::event *E)
 {
     // Apply the current position and rotation velocities to the user.
 
-    const double dt = E->data.tick.dt * 0.001;
+    const double dt = E->data.tick.dt;
     const double dz = 0.25;
 
     const double kp = dt * ::user->get_move_rate();

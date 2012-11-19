@@ -35,7 +35,7 @@
 #include <app-glob.hpp>
 #include <app-host.hpp>
 
-#define JIFFY (1000 / 60)
+#define JIFFY (1.0 / 60.0)
 
 //-----------------------------------------------------------------------------
 
@@ -631,9 +631,9 @@ void app::host::root_loop()
             if (bench || movie)
                 process_event(E.mk_tick(JIFFY));
             else
-                for (int tick = SDL_GetTicks();
-                         tick - tock >= JIFFY;
-                         tock        += JIFFY)
+                for (double tick = SDL_GetTicks() / 1000.0;
+                            tick - tock >= JIFFY;
+                            tock        += JIFFY)
                     process_event(E.mk_tick(JIFFY));
 
             // Call the render handler.
@@ -827,7 +827,7 @@ void app::host::process_start(event *E)
 
     // Start the timer.
 
-    tock = SDL_GetTicks();
+    tock = SDL_GetTicks() / 1000.0;
 }
 
 void app::host::process_close(event *E)

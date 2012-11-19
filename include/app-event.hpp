@@ -145,7 +145,7 @@ namespace app
         };
         struct tick_data_t
         {
-            int dt;
+            double dt;
         };
 
         // Data union
@@ -170,7 +170,7 @@ namespace app
         event *mk_key   (int, int, int, bool);
         event *mk_axis  (int, int, double);
         event *mk_button(int, int, bool);
-        event *mk_tick  (int);
+        event *mk_tick  (double);
         event *mk_draw  ();
         event *mk_swap  ();
         event *mk_user  (long long);

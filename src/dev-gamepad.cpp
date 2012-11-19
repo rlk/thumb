@@ -116,7 +116,7 @@ bool dev::gamepad::process_axis(app::event *E)
 
 bool dev::gamepad::process_tick(app::event *E)
 {
-    const double dt = E->data.tick.dt * 0.001;
+    const double dt = E->data.tick.dt;
 
     const double kp =        dt;
     const double kr = 45.0 * dt;

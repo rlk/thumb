@@ -178,7 +178,7 @@ void app::event::payload_encode()
 
     case E_TICK:
 
-        put_word(data.tick.dt);
+        put_real(data.tick.dt);
         break;
     }
 }
@@ -240,7 +240,7 @@ void app::event::payload_decode()
 
     case E_TICK:
 
-        data.tick.dt = get_word();
+        data.tick.dt = get_real();
         break;
     }
 }
@@ -331,11 +331,11 @@ app::event *app::event::mk_button(int i, int b, bool d)
     return this;
 }
 
-app::event *app::event::mk_tick(int t)
+app::event *app::event::mk_tick(double dt)
 {
     put_type(E_TICK);
 
-    data.tick.dt = t;
+    data.tick.dt = dt;
 
     payload_cache = false;
     return this;

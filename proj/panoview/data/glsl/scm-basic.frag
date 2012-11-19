@@ -23,7 +23,6 @@ vec4 age(vec4 c, float k)
 vec4 tex(vec2 c, vec2 p)
 {
     return texture2DRect(color.img, p + c * color.siz + 1.0);
-
 }
 
 vec4 img0(vec2 t)

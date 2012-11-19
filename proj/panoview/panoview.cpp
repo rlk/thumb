@@ -108,7 +108,7 @@ bool panoview::pan_tick(app::event *E)
 {
     double M[16];
 
-    float dt = E->data.tick.dt / 1000.0;
+    float dt = E->data.tick.dt;
 
     if (drag_zooming)
     {
