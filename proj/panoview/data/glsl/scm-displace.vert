@@ -2,10 +2,10 @@
 
 struct scm
 {
-    sampler3D img;
-    vec2      siz;
-    float     idx[16];
-    float     age[16];
+    sampler2DRect img;
+    vec2          siz;
+    vec2          pos[16];
+    float         age[16];
 };
 
 uniform scm height;
@@ -27,51 +27,51 @@ vec4 age(vec4 c, float k)
     return vec4(c.rgb, c.a * k);
 }
 
-vec4 tex(vec2 c, float k)
+vec4 tex(vec2 c, vec2 p)
 {
-    return texture3D(height.img, vec3((c * height.siz + vec2(1.0)) /
-                                          (height.siz + vec2(2.0)), k));
+    return texture2DRect(height.img, p + c * height.siz + 1.0);
 }
 
 vec4 img0(vec2 t)
 {
-    return age(tex(page_a[0] * t + page_b[0], height.idx[0]), height.age[0]);
+    return age(tex(page_a[0] * t + page_b[0], height.pos[0]), height.age[0]);
 }
 
 vec4 img1(vec2 t)
 {
-    return age(tex(page_a[1] * t + page_b[1], height.idx[1]), height.age[1]);
+    return age(tex(page_a[1] * t + page_b[1], height.pos[1]), height.age[1]);
 }
 
 vec4 img2(vec2 t)
 {
-    return age(tex(page_a[2] * t + page_b[2], height.idx[2]), height.age[2]);
+    return age(tex(page_a[2] * t + page_b[2], height.pos[2]), height.age[2]);
 }
 
 vec4 img3(vec2 t)
 {
-    return age(tex(page_a[3] * t + page_b[3], height.idx[3]), height.age[3]);
+    return age(tex(page_a[3] * t + page_b[3], height.pos[3]), height.age[3]);
 }
 
 vec4 img4(vec2 t)
 {
-    return age(tex(page_a[4] * t + page_b[4], height.idx[4]), height.age[4]);
+    return age(tex(page_a[4] * t + page_b[4], height.pos[4]), height.age[4]);
 }
 
 vec4 img5(vec2 t)
 {
-    return age(tex(page_a[5] * t + page_b[5], height.idx[5]), height.age[5]);
+    return age(tex(page_a[5] * t + page_b[5], height.pos[5]), height.age[5]);
 }
 
 vec4 img6(vec2 t)
 {
-    return age(tex(page_a[6] * t + page_b[6], height.idx[6]), height.age[6]);
+    return age(tex(page_a[6] * t + page_b[6], height.pos[6]), height.age[6]);
 }
 
 vec4 img7(vec2 t)
 {
-    return age(tex(page_a[7] * t + page_b[7], height.idx[7]), height.age[7]);
+    return age(tex(page_a[7] * t + page_b[7], height.pos[7]), height.age[7]);
 }
+
 
 vec4 blend(vec4 a, vec4 b)
 {
@@ -80,13 +80,15 @@ vec4 blend(vec4 a, vec4 b)
 
 vec4 sample(vec2 t)
 {
-    return blend(img7(t),
-               blend(img6(t),
-                   blend(img5(t),
-                       blend(img4(t),
-                           blend(img3(t),
-                               blend(img2(t),
-                                   blend(img1(t), img0(t))))))));
+    vec4 c =  img0(t);
+    c = blend(img1(t), c);
+    c = blend(img2(t), c);
+    c = blend(img3(t), c);
+    c = blend(img4(t), c);
+    c = blend(img5(t), c);
+    c = blend(img6(t), c);
+    c = blend(img7(t), c);
+    return c;
 }
 
 //------------------------------------------------------------------------------
