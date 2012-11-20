@@ -3,16 +3,16 @@
 struct scm
 {
     sampler2DRect img;
-    vec2          siz;
-    vec2          pos[16];
-    float         age[16];
+    vec2          A;
+    vec2          B[16];
+    vec4          K[16];
 };
 
 uniform scm height;
 
-uniform mat3 face_M;
-uniform vec2 page_a[16];
-uniform vec2 page_b[16];
+uniform mat3 M;
+uniform vec2 A[16];
+uniform vec2 B[16];
 
 uniform float r0;
 uniform float r1;
@@ -22,73 +22,29 @@ varying vec3 var_L;
 
 //------------------------------------------------------------------------------
 
-vec4 age(vec4 c, float k)
+vec4 add(vec4 a, vec4 b)
 {
-    return vec4(c.rgb, c.a * k);
+    return mix(a, b, b.a);
 }
 
-vec4 tex(vec2 c, vec2 p)
+vec4 sample_height(vec2 t)
 {
-    return texture2DRect(height.img, p + c * height.siz + 1.0);
-}
-
-vec4 img0(vec2 t)
-{
-    return age(tex(page_a[0] * t + page_b[0], height.pos[0]), height.age[0]);
-}
-
-vec4 img1(vec2 t)
-{
-    return age(tex(page_a[1] * t + page_b[1], height.pos[1]), height.age[1]);
-}
-
-vec4 img2(vec2 t)
-{
-    return age(tex(page_a[2] * t + page_b[2], height.pos[2]), height.age[2]);
-}
-
-vec4 img3(vec2 t)
-{
-    return age(tex(page_a[3] * t + page_b[3], height.pos[3]), height.age[3]);
-}
-
-vec4 img4(vec2 t)
-{
-    return age(tex(page_a[4] * t + page_b[4], height.pos[4]), height.age[4]);
-}
-
-vec4 img5(vec2 t)
-{
-    return age(tex(page_a[5] * t + page_b[5], height.pos[5]), height.age[5]);
-}
-
-vec4 img6(vec2 t)
-{
-    return age(tex(page_a[6] * t + page_b[6], height.pos[6]), height.age[6]);
-}
-
-vec4 img7(vec2 t)
-{
-    return age(tex(page_a[7] * t + page_b[7], height.pos[7]), height.age[7]);
-}
-
-
-vec4 blend(vec4 a, vec4 b)
-{
-    return vec4(mix(b.rgb, a.rgb, a.a), 1.0);
-}
-
-vec4 sample(vec2 t)
-{
-    vec4 c =  img0(t);
-    c = blend(img1(t), c);
-    c = blend(img2(t), c);
-    c = blend(img3(t), c);
-    c = blend(img4(t), c);
-    c = blend(img5(t), c);
-    c = blend(img6(t), c);
-    c = blend(img7(t), c);
-    return c;
+    return add(add(add(add(texture2DRect(height.img, (t * A[ 0] + B[ 0]) * height.A + height.B[ 0] + 1.0) * height.K[ 0],
+                           texture2DRect(height.img, (t * A[ 1] + B[ 1]) * height.A + height.B[ 1] + 1.0) * height.K[ 1]),
+                       add(texture2DRect(height.img, (t * A[ 2] + B[ 2]) * height.A + height.B[ 2] + 1.0) * height.K[ 2],
+                           texture2DRect(height.img, (t * A[ 3] + B[ 3]) * height.A + height.B[ 3] + 1.0) * height.K[ 3])),
+                   add(add(texture2DRect(height.img, (t * A[ 4] + B[ 4]) * height.A + height.B[ 4] + 1.0) * height.K[ 4],
+                           texture2DRect(height.img, (t * A[ 5] + B[ 5]) * height.A + height.B[ 5] + 1.0) * height.K[ 5]),
+                       add(texture2DRect(height.img, (t * A[ 6] + B[ 6]) * height.A + height.B[ 6] + 1.0) * height.K[ 6],
+                           texture2DRect(height.img, (t * A[ 7] + B[ 7]) * height.A + height.B[ 7] + 1.0) * height.K[ 7]))),
+               add(add(add(texture2DRect(height.img, (t * A[ 8] + B[ 8]) * height.A + height.B[ 8] + 1.0) * height.K[ 8],
+                           texture2DRect(height.img, (t * A[ 9] + B[ 9]) * height.A + height.B[ 9] + 1.0) * height.K[ 9]),
+                       add(texture2DRect(height.img, (t * A[10] + B[10]) * height.A + height.B[10] + 1.0) * height.K[10],
+                           texture2DRect(height.img, (t * A[11] + B[11]) * height.A + height.B[11] + 1.0) * height.K[11])),
+                   add(add(texture2DRect(height.img, (t * A[12] + B[12]) * height.A + height.B[12] + 1.0) * height.K[12],
+                           texture2DRect(height.img, (t * A[13] + B[13]) * height.A + height.B[13] + 1.0) * height.K[13]),
+                       add(texture2DRect(height.img, (t * A[14] + B[14]) * height.A + height.B[14] + 1.0) * height.K[14],
+                           texture2DRect(height.img, (t * A[15] + B[15]) * height.A + height.B[15] + 1.0) * height.K[15]))));
 }
 
 //------------------------------------------------------------------------------
@@ -118,16 +74,16 @@ vec3 scube(vec2 t)
     float y = -cos(s.x) * sin(s.y);
     float z =  cos(s.x) * cos(s.y);
 
-    return face_M * normalize(vec3(x, y, z));
+    return M * normalize(vec3(x, y, z));
 }
 
 //------------------------------------------------------------------------------
 
 void main()
 {
-    float k = sample(gl_Vertex.xy).r;
+    float k = sample_height(gl_Vertex.xy).r;
     float h = mix(r0, r1, k);
-    vec3  v = h * scube(page_a[0] * gl_Vertex.xy + page_b[0]);
+    vec3  v = h * scube(A[0] * gl_Vertex.xy + B[0]);
 
     var_L = gl_LightSource[0].position.xyz;
     var_V = v;
