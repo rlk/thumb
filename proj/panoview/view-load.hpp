@@ -21,13 +21,9 @@ class view_app;
 
 class view_load : public gui::dialog
 {
-	gui::string *status;
-
 public:
 
     view_load(view_app *, int, int);
-
-    void set_status(int c);
 };
 
 //------------------------------------------------------------------------------

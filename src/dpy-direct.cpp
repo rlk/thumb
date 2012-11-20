@@ -64,7 +64,18 @@ void dpy::direct::prep(int chanc, const dpy::channel *const *chanv)
 
 void dpy::direct::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 {
-    ::host->draw(frusi, frust, 0);
+    glPushAttrib(GL_VIEWPORT_BIT | GL_SCISSOR_BIT);
+    {
+        glScissor (viewport[0], viewport[1], viewport[2], viewport[3]);
+        glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+        glEnable(GL_SCISSOR_TEST);
+        {
+            ::host->draw(frusi, frust, 0);
+        }
+        glDisable(GL_SCISSOR_TEST);
+    }
+    glPopAttrib();
 }
 
 void dpy::direct::test(int chanc, const dpy::channel *const *chanv, int index)

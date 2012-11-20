@@ -49,9 +49,6 @@ panoview::~panoview()
 
 void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    glClearColor(0.4f, 0.4f, 0.4f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     if (model)
     {
         double v[3];

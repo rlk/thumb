@@ -193,7 +193,7 @@ void dpy::channel::proc() const
         h_gaussian->bind();
         {
             apply(blur, ping, w4, h4, w4, h4);
-        }   
+        }
         h_gaussian->free();
 
         // Apply the vertical Gaussion from ping back to blur.
@@ -201,7 +201,7 @@ void dpy::channel::proc() const
         v_gaussian->bind();
         {
             apply(ping, blur, w4, h4, w4, h4);
-        }   
+        }
         v_gaussian->free();
     }
 
@@ -274,7 +274,7 @@ void dpy::channel::proc() const
     else if (ogl::do_hdr_bloom)
     {
         // Sum the original image with the blurred bloom buffer.
-            
+
         bloom->bind();
         {
             blur->bind_color(GL_TEXTURE1);
@@ -307,7 +307,7 @@ void dpy::channel::process_start()
                                 GL_RGBA8,       true, false, false);
 
         // Initialize the static ping-pong buffers, if necessary.
-        
+
         if (blur == 0)
             blur = ::glob->new_frame(w4, h4, GL_TEXTURE_RECTANGLE,
                                      GL_RGBA16F, true, false, false);

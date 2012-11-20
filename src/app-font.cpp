@@ -129,9 +129,9 @@ void app::text::draw() const
     {
         const float s = float(inner_w) / float(outer_w);
         const float t = float(inner_h) / float(outer_h);
-    
+
         // Draw the entire textured string at once.
-    
+
         data->bind();
         {
             glBegin(GL_QUADS);

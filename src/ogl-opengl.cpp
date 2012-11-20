@@ -232,10 +232,10 @@ void ogl::free_texture()
     {
         glActiveTexture(GL_TEXTURE0 + u);
 
-        glBindTexture(GL_TEXTURE_1D,            0);
-        glBindTexture(GL_TEXTURE_2D,            0);
-        glBindTexture(GL_TEXTURE_3D,            0);
-        glBindTexture(GL_TEXTURE_CUBE_MAP,      0);
+        glBindTexture(GL_TEXTURE_1D,        0);
+        glBindTexture(GL_TEXTURE_2D,        0);
+        glBindTexture(GL_TEXTURE_3D,        0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP,  0);
         glBindTexture(GL_TEXTURE_RECTANGLE, 0);
 
         current_object[u] = 0;
