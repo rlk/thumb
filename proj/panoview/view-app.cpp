@@ -339,8 +339,9 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 
     if (debug_cache)
     {
-        if (!caches.empty())
-            caches[0]->draw();
+        int n = int(caches.size());
+        for (int i = 0; i < n; ++i)
+            caches[i]->draw(i, n);
     }
 
     // Draw the GUI overlay.
