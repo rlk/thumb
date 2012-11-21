@@ -14,6 +14,7 @@
 
 #include <ogl-opengl.hpp>
 
+#include <etc-socket.hpp>
 #include <etc-math.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
@@ -27,6 +28,21 @@
 #include "scm/util3d/math3d.h"
 
 #include "orbiter.hpp"
+
+//------------------------------------------------------------------------------
+
+static in_addr_t lookup(const char *hostname)
+{
+    struct hostent *H;
+    struct in_addr  A;
+
+    if ((H = gethostbyname(hostname)))
+    {
+        memcpy(&A.s_addr, H->h_addr_list[0], H->h_length);
+        return  A.s_addr;
+    }
+    return INADDR_NONE;
+}
 
 //------------------------------------------------------------------------------
 
@@ -56,8 +72,8 @@ orbiter::orbiter(const std::string& exe,
     // Initialize the reportage socket.
 
     report_addr.sin_family      = AF_INET;
-    report_addr.sin_port        =     htons(::conf->get_i("orbiter_report_port"));
-    report_addr.sin_addr.s_addr = inet_addr(::conf->get_s("orbiter_report_host").c_str());
+    report_addr.sin_port        =  htons(::conf->get_i("orbiter_report_port"));
+    report_addr.sin_addr.s_addr = lookup(::conf->get_s("orbiter_report_host").c_str());
 
     if (report_addr.sin_addr.s_addr != INADDR_NONE)
         report_sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -239,7 +255,7 @@ void orbiter::fly(double dt)
 
     // The Y axis affects the orbital speed.
 
-    orbit_speed = dy * std::min(a, 2.0);
+    orbit_speed = dy * std::min(a, 0.5);
 
     // The Z axis affects the orbital radius.
 
@@ -290,7 +306,7 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
     glEnable(GL_DEPTH_TEST);
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
 
     glFrontFace(GL_CW);
     view_app::draw(frusi, frusp, chani);

@@ -349,11 +349,11 @@
     <p><code>Thumb</code> configuration options reside in the file <tt>data/conf.xml</tt>.</p>
 
     <ul>
-      <li><p>The cache size option limits the total number of SCM pages that may be loaded simultaneously. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. In general, set this value to equal the size of VRAM, in megabytes.</p></li>
+      <li><p>The cache size option limits the total number of SCM pages that may be loaded simultaneously. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. As the cache is two-dimensional, the exact page count is the square of the cache size. Thus, the default, 16, allows 256 pages per cache.</p></li>
 
-      <blockquote><pre>&lt;option name="scm_cache_size"&gt;512&lt;/option&gt;</pre></blockquote>
+      <blockquote><pre>&lt;option name="scm_cache_size"&gt;16&lt;/option&gt;</pre></blockquote>
 
-      <li><p>The report host option gives the IP address (which <em>must</em> be given as a dotted quad) and port number of a host waiting to receive a streaming report of the renderer's current view position. This port will receive a single UDP packet per frame containing an ASCII string giving the longitude and latitude of the view position in degrees and the radius of the viewpoint in meters. This string is terminated by a newline and a null byte.</p></li>
+      <li><p>The report host option gives the host name (or dotted quad) and port number of a host waiting to receive a streaming report of the renderer's current view position. This port will receive a single UDP packet per frame containing an ASCII string giving the longitude and latitude of the view position in degrees and the radius of the viewpoint in meters. This string is terminated by a newline and a null byte.</p></li>
 
       <blockquote><pre>&lt;option name="orbiter_report_host"&gt;127.0.0.1&lt;/option&gt;
 &lt;option name="orbiter_report_port"&gt;8111&lt;/option&gt;</pre></blockquote>
@@ -467,7 +467,7 @@
       &lt;image name="base"   scm="WAC-426-6.tif"                  cache="0" /&gt;
       &lt;image name="over"   scm="NAC_ROI_Apollo16HiA-336-14.tif" cache="1" /&gt;
     &lt;/frame&gt;
-  
+
     &lt;step name="Tycho"
          frame="0"
          label="csv/Tycho.csv"

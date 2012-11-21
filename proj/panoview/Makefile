@@ -18,7 +18,7 @@ VIEWOBJS= \
 	view-step.o \
 	view-path.o \
 	view-load.o \
-	view-app.o \
+	view-app.o
 
 ORBOBJS= $(VIEWOBJS) orbiter.o
 PANOBJS= $(VIEWOBJS) panoview.o

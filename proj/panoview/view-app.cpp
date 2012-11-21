@@ -242,7 +242,7 @@ ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
             for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
                 (*i)->update(model->tick());
     }
-    return ogl::range(0.1, r * 10.0);
+    return ogl::range(0.1, 2.0 * r);
 }
 
 void view_app::lite(int frusc, const app::frustum *const *frusv)

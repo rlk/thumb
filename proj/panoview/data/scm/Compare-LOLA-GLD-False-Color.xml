@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
   <sphere radius="1737400.0"
             mesh="32"
-            size="360"
+            size="426"
             vert="glsl/scm-displace.vert"
             frag="glsl/scm-colorelief.frag">
 

@@ -24,6 +24,18 @@
     </display>
   </node>
 
+  <node name="planar2x2-mono">
+    <window x="0" y="0" w="2732" h="1536" frame="0"/>
+    <display type="normal">
+      <viewport x="0" y="0" w="2732" h="1536"/>
+      <frustum>
+        <corner name="BL" x="-3.333" y="-1.9" z="-6.0"/>
+        <corner name="BR" x=" 3.333" y="-1.9" z="-6.0"/>
+        <corner name="TL" x="-3.333" y=" 1.9" z="-6.0"/>
+      </frustum>
+    </display>
+  </node>
+
   <node name="planar2x2-AB">
     <window x="0" y="0" w="2732" h="1536" frame="0"/>
     <channel w="1366" h="1536" x="0.0"/>
