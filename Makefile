@@ -42,6 +42,8 @@ dist : $(TARG)
 	mkdir -p $(DATDIR)/scm
 	mkdir -p $(DATDIR)/csv
 
+	svnversion > $(DSTDIR)/VERSION
+
 	# Copy the executable.
 
 	$(CP) proj/panoview/orbiter $(DSTDIR)

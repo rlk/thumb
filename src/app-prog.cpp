@@ -45,6 +45,13 @@ app::perf *perf = 0;
 
 //-----------------------------------------------------------------------------
 
+#define XTR(S) #S
+#define STR(S) XTR(S)
+
+static const char *version = "Thumb Version " STR(VERSION);
+
+//-----------------------------------------------------------------------------
+
 static void position(int x, int y)
 {
     // SDL looks to the environment for window position.
@@ -122,7 +129,7 @@ static void video()
 
     ogl::init(multb > 0 && mults > 0);
 
-    SDL_WM_SetCaption("Thumb", "Thumb");
+    SDL_WM_SetCaption(version, version);
 }
 
 //-----------------------------------------------------------------------------

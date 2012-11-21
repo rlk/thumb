@@ -9,6 +9,8 @@ CFLAGS= -g -Wall
 RM    = rm -f
 CP    = cp
 
+CFLAGS += -DVERSION=$(shell svnversion)
+
 #------------------------------------------------------------------------------
 
 ifeq ($(shell uname), Darwin)

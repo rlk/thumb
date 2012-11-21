@@ -67,7 +67,7 @@ view_load::view_load(view_app *V, int w, int h)
                 add(F)->
 
                 add((new gui::hgroup)->
-                    add(annot("Copyright \xC2\xA9 2011 Robert Kooima"))->
+                    add(annot("Copyright \xC2\xA9 2011-12 Robert Kooima"))->
                     add(new gui::filler(true, false))->
                     add((new gui::harray)->
                         add(new button_load  (V, E))->
