@@ -2,10 +2,10 @@
 
 struct scm
 {
-    sampler2DRect img;
-    vec2          A;
-    vec2          B[16];
-    vec4          K[16];
+    sampler2D S;
+    vec2      r;
+    vec2      b[16];
+    float     a[16];
 };
 
 uniform scm height;
@@ -29,22 +29,22 @@ vec4 add(vec4 a, vec4 b)
 
 vec4 sample_height(vec2 t)
 {
-    return add(add(add(add(texture2DRect(height.img, (t * A[ 0] + B[ 0]) * height.A + height.B[ 0] + 1.0) * height.K[ 0],
-                           texture2DRect(height.img, (t * A[ 1] + B[ 1]) * height.A + height.B[ 1] + 1.0) * height.K[ 1]),
-                       add(texture2DRect(height.img, (t * A[ 2] + B[ 2]) * height.A + height.B[ 2] + 1.0) * height.K[ 2],
-                           texture2DRect(height.img, (t * A[ 3] + B[ 3]) * height.A + height.B[ 3] + 1.0) * height.K[ 3])),
-                   add(add(texture2DRect(height.img, (t * A[ 4] + B[ 4]) * height.A + height.B[ 4] + 1.0) * height.K[ 4],
-                           texture2DRect(height.img, (t * A[ 5] + B[ 5]) * height.A + height.B[ 5] + 1.0) * height.K[ 5]),
-                       add(texture2DRect(height.img, (t * A[ 6] + B[ 6]) * height.A + height.B[ 6] + 1.0) * height.K[ 6],
-                           texture2DRect(height.img, (t * A[ 7] + B[ 7]) * height.A + height.B[ 7] + 1.0) * height.K[ 7]))),
-               add(add(add(texture2DRect(height.img, (t * A[ 8] + B[ 8]) * height.A + height.B[ 8] + 1.0) * height.K[ 8],
-                           texture2DRect(height.img, (t * A[ 9] + B[ 9]) * height.A + height.B[ 9] + 1.0) * height.K[ 9]),
-                       add(texture2DRect(height.img, (t * A[10] + B[10]) * height.A + height.B[10] + 1.0) * height.K[10],
-                           texture2DRect(height.img, (t * A[11] + B[11]) * height.A + height.B[11] + 1.0) * height.K[11])),
-                   add(add(texture2DRect(height.img, (t * A[12] + B[12]) * height.A + height.B[12] + 1.0) * height.K[12],
-                           texture2DRect(height.img, (t * A[13] + B[13]) * height.A + height.B[13] + 1.0) * height.K[13]),
-                       add(texture2DRect(height.img, (t * A[14] + B[14]) * height.A + height.B[14] + 1.0) * height.K[14],
-                           texture2DRect(height.img, (t * A[15] + B[15]) * height.A + height.B[15] + 1.0) * height.K[15]))));
+    return add(add(add(add(texture2D(height.S, (t * A[ 0] + B[ 0]) * height.r + height.b[ 0] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 0]),
+                           texture2D(height.S, (t * A[ 1] + B[ 1]) * height.r + height.b[ 1] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 1])),
+                       add(texture2D(height.S, (t * A[ 2] + B[ 2]) * height.r + height.b[ 2] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 2]),
+                           texture2D(height.S, (t * A[ 3] + B[ 3]) * height.r + height.b[ 3] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 3]))),
+                   add(add(texture2D(height.S, (t * A[ 4] + B[ 4]) * height.r + height.b[ 4] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 4]),
+                           texture2D(height.S, (t * A[ 5] + B[ 5]) * height.r + height.b[ 5] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 5])),
+                       add(texture2D(height.S, (t * A[ 6] + B[ 6]) * height.r + height.b[ 6] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 6]),
+                           texture2D(height.S, (t * A[ 7] + B[ 7]) * height.r + height.b[ 7] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 7])))),
+               add(add(add(texture2D(height.S, (t * A[ 8] + B[ 8]) * height.r + height.b[ 8] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 8]),
+                           texture2D(height.S, (t * A[ 9] + B[ 9]) * height.r + height.b[ 9] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 9])),
+                       add(texture2D(height.S, (t * A[10] + B[10]) * height.r + height.b[10] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[10]),
+                           texture2D(height.S, (t * A[11] + B[11]) * height.r + height.b[11] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[11]))),
+                   add(add(texture2D(height.S, (t * A[12] + B[12]) * height.r + height.b[12] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[12]),
+                           texture2D(height.S, (t * A[13] + B[13]) * height.r + height.b[13] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[13])),
+                       add(texture2D(height.S, (t * A[14] + B[14]) * height.r + height.b[14] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[14]),
+                           texture2D(height.S, (t * A[15] + B[15]) * height.r + height.b[15] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[15])))));
 }
 
 //------------------------------------------------------------------------------
