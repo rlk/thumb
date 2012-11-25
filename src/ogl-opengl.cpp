@@ -260,7 +260,7 @@ void ogl::line_state_init()
 
 void ogl::line_state_fini()
 {
-    glDepthMask(GL_TRUE);
+//  glDepthMask(GL_TRUE);
 
     glDisable(GL_POLYGON_OFFSET_LINE);
     glDisable(GL_LINE_SMOOTH);

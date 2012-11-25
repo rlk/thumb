@@ -4,9 +4,9 @@
     <option name="host_file">host/common.xml</option>
     <option name="input_mode">mouse</option>
     <option name="sync">1</option>
-    <option name="bench">0</option>
+    <option name="bench">1</option>
     <!-- Orbiter configuration -->
-    <option name="scm_cache_size">16</option>
+    <option name="scm_cache_size">8</option>
 <!--
     <option name="orbiter_report_host">localhost</option>
     <option name="orbiter_report_port">8111</option>

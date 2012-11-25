@@ -4,8 +4,8 @@
 
 CC    = g++
 STRIP = strip
-#CFLAGS= -g -Wall
-CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
+CFLAGS= -g -Wall
+#CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
 RM    = rm -f
 CP    = cp
 
@@ -15,6 +15,7 @@ CFLAGS += -DVERSION=$(shell svnversion)
 
 ifeq ($(shell uname), Darwin)
 	LIBEXT  = -framework OpenGL -framework Cocoa -framework ApplicationServices -framework Carbon -framework AudioToolbox -framework AudioUnit -framework IOKit
+	CFLAGS += -mmacosx-version-min=10.6
 endif
 
 ifeq ($(shell uname), MINGW32_NT-6.1)
@@ -93,8 +94,6 @@ LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL*.a \
 				    $(HOME)/lib/libSDL*.a \
 				       /usr/lib/libSDL*.a \
 				   C:/MinGW/lib/libSDL*.a) -lSDL)
-
-LIBSDL = -lSDLmain -lSDL
 
 #------------------------------------------------------------------------------
 
