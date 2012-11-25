@@ -57,6 +57,9 @@ private:
     double stick_timer;
     double goto_radius;
     
+    double dist_near;
+    double dist_far;
+    
     // Interaction state
 
     double point[3];

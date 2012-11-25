@@ -60,6 +60,9 @@ orbiter::orbiter(const std::string& exe,
     stick_timer    = 0.0;
     goto_radius    = ::conf->get_f("orbiter_goto_radius", 0.0);
 
+    dist_near =  0.1;
+    dist_far  = 10.0;
+
     control   = false;
     drag_move = false;
     drag_look = false;
@@ -203,8 +206,6 @@ void orbiter::dive(double dt, double k)
 
     r = m + exp(log(r - m) + (4 * d));
 
-    r = std::max(r, get_radius() * get_height());
-
     here.set_distance(r);
 }
 
@@ -284,10 +285,10 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
         double r = get_scale() * get_radius() * min_height();
         double d = get_scale() * here.get_distance();
 
-        double n = 0.0001 *     (d     - r    );
-        double f = 1.1    * sqrt(d * d - r * r);
+        dist_near = 0.0001 *     (d     - r    );
+        dist_far  = 1.1    * sqrt(d * d - r * r);
 
-        return ogl::range(n, f);
+        return ogl::range(dist_near, dist_far);
     }
     return ogl::range(0.1, 10.0);
 }
@@ -512,6 +513,11 @@ bool orbiter::pan_tick(app::event *E)
         here.transform_position(R);
         here.transform_light(R);
     }
+
+    double r = get_radius();
+    double h = get_height();
+    here.set_distance(std::max(here.get_distance(), r * h + 500.0));
+//    here.set_distance(r * h);
 
     // Apply the current transformation to the camera.
 
