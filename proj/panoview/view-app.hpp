@@ -51,10 +51,12 @@ public:
     void goto_next();
     void goto_prev();
 
+    double get_height() const;
+    double min_height() const;
     double get_radius() const   { return radius; }
     void   set_radius(double r) { radius = r;    }
 
-    virtual double get_scale(double) const { return 1.0; }
+    virtual double get_scale() const { return 1.0; }
     virtual void   make_path(int);
 
 protected:
@@ -62,7 +64,6 @@ protected:
     scm_cache_v caches;
     scm_frame_v frames;
 
-    scm_cache *bound;
     scm_model *model;
     scm_label *label;
 

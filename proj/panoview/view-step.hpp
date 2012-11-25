@@ -41,12 +41,12 @@ public:
     void transform_position   (const double *);
     void transform_light      (const double *);
 
-    void set_pitch  (double p);
-    void set_speed  (double s) { speed   = s; }
-    void set_radius (double r) { radius  = r; }
-    void set_tension(double t) { tension = t; }
-    void set_bias   (double b) { bias    = b; }
-    void set_zoom   (double z) { zoom    = z; }
+    void set_pitch   (double p);
+    void set_speed   (double s) { speed    = s; }
+    void set_distance(double r) { distance = r; }
+    void set_tension (double t) { tension  = t; }
+    void set_bias    (double b) { bias     = b; }
+    void set_zoom    (double z) { zoom     = z; }
 
     void   get_matrix  (double *, double) const;
     void   get_position(double *) const;
@@ -55,12 +55,12 @@ public:
     void   get_forward (double *) const;
     void   get_light   (double *) const;
 
-    double get_speed()             const { return speed;   }
-    double get_radius()            const { return radius;  }
-    double get_tension()           const { return tension; }
-    double get_bias()              const { return bias;    }
-    double get_zoom()              const { return zoom;    }
-    int    get_frame()             const { return frame;   }
+    double get_speed()             const { return speed;    }
+    double get_distance()          const { return distance; }
+    double get_tension()           const { return tension;  }
+    double get_bias()              const { return bias;     }
+    double get_zoom()              const { return zoom;     }
+    int    get_frame()             const { return frame;    }
 
     const std::string& get_name()  const { return name;  }
     const std::string& get_label() const { return label; }
@@ -75,7 +75,7 @@ private:
     double position[3];    // View point location
     double light[3];       // Light location
     double speed;          // Camera speed
-    double radius;         // View point radius
+    double distance;         // View point distance
     double tension;        // Hermite interpolation tension
     double bias;           // Hermite interpolation bias
     double zoom;           // Magnification

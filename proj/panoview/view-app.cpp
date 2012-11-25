@@ -32,7 +32,6 @@
 
 view_app::view_app(const std::string& exe,
                    const std::string& tag) : app::prog(exe, tag),
-    bound  (0),
     model  (0),
     label  (0),
     timer  (0),
@@ -52,6 +51,13 @@ view_app::view_app(const std::string& exe,
 
     TIFFSetWarningHandler(0);
     gui_init();
+
+#if 0
+    printf("%s\n", glGetString(GL_VENDOR));
+    printf("%s\n", glGetString(GL_RENDERER));
+    printf("%s\n", glGetString(GL_VERSION));
+    printf("%s\n", glGetString(GL_EXTENSIONS));
+#endif
 }
 
 view_app::~view_app()
@@ -123,14 +129,9 @@ void view_app::load_images(app::node p, scm_frame *f)
         if (0 <= cc && cc < int(caches.size()))
         {
             if (ht)
-            {
                 f->add_image(new scm_image(name, scm, caches[cc], ch, true));
-                bound = caches[cc];
-            }
             else
-            {
                 f->add_image(new scm_image(name, scm, caches[cc], ch, false));
-            }
         }
     }
 }
@@ -227,11 +228,25 @@ void view_app::goto_prev()
 #endif
 }
 
+double view_app::min_height() const
+{
+    return frames[0]->min_height(); // TODO: use current frame
+}
+
+double view_app::get_height() const
+{
+    double v[3];
+
+    here.get_position(v);
+
+    return frames[0]->get_height(v); // TODO: use current frame
+}
+
 //------------------------------------------------------------------------------
 
 ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
-    double r = radius * get_scale(here.get_radius());
+    double r = radius * get_scale();
 
     if (model)
     {
@@ -271,7 +286,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
         // Compute the model view matrix to be used for view determination.
 
-        double r = radius * get_scale(here.get_radius());
+        double r = radius * get_scale();
         double V[16];
 
         minvert(V, M);
@@ -302,7 +317,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)
 {
-    double s = get_scale(here.get_radius());
+    double s = get_scale();
     double r = radius;
 
     frusp->draw();

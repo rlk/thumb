@@ -74,7 +74,7 @@ view_step::view_step()
     light[2]       = 0.0;
 
     speed          = 1.0;
-    radius         = 0.0;
+    distance       = 0.0;
     tension        = 0.0;
     bias           = 0.0;
     zoom           = 1.0;
@@ -99,7 +99,7 @@ view_step::view_step(app::node n)
     light[2]       = n.get_f("l2", 0.0);
 
     speed          = n.get_f("s",  1.0);
-    radius         = n.get_f("r",  0.0);
+    distance       = n.get_f("r",  0.0);
     tension        = n.get_f("t",  0.0);
     bias           = n.get_f("b",  0.0);
     zoom           = n.get_f("z",  1.0);
@@ -135,7 +135,7 @@ view_step::view_step(const view_step *a,
     light[2]       = lerp(a->light[2],       b->light[2],       t);
 
     speed          = lerp(a->speed,          b->speed,          t);
-    radius         = lerp(a->radius,         b->radius,         t);
+    distance       = lerp(a->distance,       b->distance,       t);
     tension        = lerp(a->tension,        b->tension,        t);
     bias           = lerp(a->bias,           b->bias,           t);
     zoom           = lerp(a->zoom,           b->zoom,           t);
@@ -200,10 +200,10 @@ view_step::view_step(const view_step *a,
                           c->light[2],
                           d->light[2], t, b->tension, b->bias);
 
-    radius         = hint(a->radius,
-                          b->radius,
-                          c->radius,
-                          d->radius,  t, b->tension, b->bias);
+    distance       = hint(a->distance,
+                          b->distance,
+                          c->distance,
+                          d->distance,  t, b->tension, b->bias);
 
     speed          = lerp(b->speed,   c->speed,   t);
     tension        = lerp(b->tension, c->tension, t);
@@ -224,9 +224,9 @@ void view_step::draw() const
 
     get_position(v);
 
-    v[0] *= radius;
-    v[1] *= radius;
-    v[2] *= radius;
+    v[0] *= distance;
+    v[1] *= distance;
+    v[2] *= distance;
 
     glVertex3dv(v);
 }
@@ -252,7 +252,7 @@ app::node view_step::serialize() const
     if (light[2]       != 0.0) n.set_f("l2", light[2]);
 
     if (speed          != 1.0) n.set_f("s",  speed);
-    if (radius         != 0.0) n.set_f("r",  radius);
+    if (distance       != 0.0) n.set_f("r",  distance);
     if (tension        != 0.0) n.set_f("t",  tension);
     if (bias           != 0.0) n.set_f("b",  bias);
     if (zoom           != 1.0) n.set_f("z",  zoom);
@@ -338,9 +338,9 @@ void view_step::get_matrix(double *M, double scale) const
 
     vcpy(M + 12, position);
 
-    M[12] *= radius * scale;
-    M[13] *= radius * scale;
-    M[14] *= radius * scale;
+    M[12] *= distance * scale;
+    M[13] *= distance * scale;
+    M[14] *= distance * scale;
 
     M[ 3] = 0.0;
     M[ 7] = 0.0;

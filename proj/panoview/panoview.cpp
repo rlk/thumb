@@ -136,7 +136,7 @@ bool panoview::pan_tick(app::event *E)
         here.transform_orientation(M);
     }
 
-    here.get_matrix(M, get_scale(here.get_radius()));
+    here.get_matrix(M, get_scale());
     ::user->set_M(M);
 
     return false;
