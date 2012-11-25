@@ -67,7 +67,7 @@ static in_addr_t lookup(const char *hostname)
     return A.s_addr;
 }
 
-static bool selectone(int sd, struct timeval *tv)
+static bool selectone(SOCKET sd, struct timeval *tv)
 {
     fd_set fds;
 

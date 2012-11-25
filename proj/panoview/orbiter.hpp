@@ -84,7 +84,7 @@ private:
     // Report stream configuration
 
     sockaddr_in report_addr;
-    int         report_sock;
+    SOCKET      report_sock;
     void        report();
 
     // Event handlers
