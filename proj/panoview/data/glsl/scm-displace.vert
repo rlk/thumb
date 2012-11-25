@@ -29,6 +29,9 @@ vec4 add(vec4 a, vec4 b)
 
 vec4 sample_height(vec2 t)
 {
+    /*
+    return texture2D(height.S, (t * A[ 0] + B[ 0]) * height.r + height.b[ 0] + 1.0);
+    */
     return add(add(add(add(texture2D(height.S, (t * A[ 0] + B[ 0]) * height.r + height.b[ 0] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 0]),
                            texture2D(height.S, (t * A[ 1] + B[ 1]) * height.r + height.b[ 1] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 1])),
                        add(texture2D(height.S, (t * A[ 2] + B[ 2]) * height.r + height.b[ 2] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 2]),

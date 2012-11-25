@@ -516,7 +516,7 @@ bool orbiter::pan_tick(app::event *E)
 
     double r = get_radius();
     double h = get_height();
-    here.set_distance(std::max(here.get_distance(), r * h + 500.0));
+    here.set_distance(std::max(here.get_distance(), r * h + 100.0));
 //    here.set_distance(r * h);
 
     // Apply the current transformation to the camera.
