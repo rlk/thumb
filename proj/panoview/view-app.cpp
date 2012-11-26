@@ -298,12 +298,16 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
         // Compute the model view matrix to be used for view determination.
 
-        double r = radius * get_scale();
+        double s = get_scale();
+        double r = radius;
+
         double V[16];
 
-        minvert(V, M);
-        Rmul_xlt_mat(V, 0, -height, 0);
+        load_inv(V, M);
+        Rmul_scl_mat(V, s, s, s);
         Rmul_scl_mat(V, r, r, r);
+
+//      Rmul_xlt_mat(V, 0, -height, 0);
 
         // Draw the sphere.
 

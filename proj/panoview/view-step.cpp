@@ -338,9 +338,9 @@ void view_step::get_matrix(double *M, double scale) const
 
     vcpy(M + 12, position);
 
-    M[12] *= distance * scale;
     M[13] *= distance * scale;
     M[14] *= distance * scale;
+    M[12] *= distance * scale;
 
     M[ 3] = 0.0;
     M[ 7] = 0.0;
