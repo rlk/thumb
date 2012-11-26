@@ -95,6 +95,10 @@ LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL*.a \
 				       /usr/lib/libSDL*.a \
 				   C:/MinGW/lib/libSDL*.a) -lSDL)
 
+ifeq ($(shell uname), Linux)
+	LIBSDL = $(shell $(SDLCONF) --libs)
+endif
+
 #------------------------------------------------------------------------------
 
 %.d : %.cpp
