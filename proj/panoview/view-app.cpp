@@ -230,7 +230,10 @@ void view_app::goto_prev()
 
 double view_app::min_height() const
 {
-    return frames[0]->min_height(); // TODO: use current frame
+    if (scm_frame *frame = get_current_frame())
+        return frame->min_height();
+    else
+        return 1.0;
 }
 
 double view_app::get_height() const
@@ -239,7 +242,25 @@ double view_app::get_height() const
 
     here.get_position(v);
 
-    return frames[0]->get_height(v); // TODO: use current frame
+    if (scm_frame *frame = get_current_frame())
+        return frame->get_height(v);
+    else
+        return 1.0;
+}
+
+scm_frame *view_app::get_current_frame() const
+{
+    int s = int(frames.size());
+    int f = int(timer);
+
+    if (s)
+    {
+        while (f <  0) f += s;
+        while (f >= s) f -= s;
+
+        return frames[f];
+    }
+    return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -304,8 +325,11 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
             glDisable(GL_CULL_FACE);
         }
 
-        frames[f]->set_channel(chani);
-        model->draw(frames[f], P, V, w, h);
+        if (scm_frame *frame = get_current_frame())
+        {
+            frame->set_channel(chani);
+            model->draw(frame, P, V, w, h);
+        }
 
         if (debug_wire)
         {

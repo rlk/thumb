@@ -61,6 +61,8 @@ public:
 
 protected:
 
+    scm_frame *get_current_frame() const;
+
     scm_cache_v caches;
     scm_frame_v frames;
 

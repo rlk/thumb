@@ -514,10 +514,13 @@ bool orbiter::pan_tick(app::event *E)
         here.transform_light(R);
     }
 
+    // Constrain the distance using the terrain height.
+
     double r = get_radius();
     double h = get_height();
-    here.set_distance(std::max(here.get_distance(), r * h + 100.0));
-//    here.set_distance(r * h);
+
+    if (here.get_distance())
+        here.set_distance(std::max(here.get_distance(), r * h + 100.0));
 
     // Apply the current transformation to the camera.
 
