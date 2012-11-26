@@ -87,11 +87,13 @@ void dpy::anaglyph::draw(int chanc, const dpy::channel * const *chanv, int frusi
 
         chanv[0]->bind();
         {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             ::host->draw(frusi + 0, frustL, 0);
         }
         chanv[0]->free();
         chanv[1]->bind();
         {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             ::host->draw(frusi + 1, frustR, 1);
         }
         chanv[1]->free();

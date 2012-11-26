@@ -33,17 +33,6 @@
         </frustum>
       </display>
     </node>
-    <!-- 2560x1600 -------------------------------------------------------- -->
-    <node name="2560x1600">
-      <window x="0" y="0" w="2560" h="1600" full="1"/>
-      <channel w="2560" h="1600"/>
-      <display type="direct" index="1">
-        <viewport x="0" y="0" w="2560" h="1600"/>
-        <frustum>
-          <perspective hfov="60.0" vfov="40.0"/>
-        </frustum>
-      </display>
-    </node>
     <!-- 960x540 (quarter HD 16x9 aspect) --------------------------------- -->
     <node name="960x540">
       <window x="0" y="0" w="960" h="540"/>
@@ -66,30 +55,18 @@
         </frustum>
       </display>
     </node>
-    <!-- 1024x768 --------------------------------------------------------- -->
-    <node name="1024x768-F">
-      <window x="0" y="0" w="1024" h="768" full="1"/>
-      <channel w="1024" h="768"/>
+    <!-- 1280x720 --------------------------------------------------------- -->
+    <node name="1280x720">
+      <window x="0" y="0" w="1280" h="720" frame="0"/>
+      <channel w="1280" h="720"/>
       <display type="direct" index="1">
-        <viewport x="0" y="0" w="1024" h="768"/>
+        <viewport x="0" y="0" w="1280" h="720"/>
         <frustum>
-          <perspective hfov="60.0" vfov="45.0"/>
+          <perspective hfov="60.0" vfov="36.0"/>
         </frustum>
       </display>
     </node>
-    <!-- 1024x768 anaglphic stereo ---------------------------------------- -->
-    <node name="1024x768-anaglyph">
-      <window x="0" y="0" w="1024" h="768"/>
-      <channel w="1024" h="768" x="-0.0125"/>
-      <channel w="1024" h="768" x=" 0.0125"/>
-      <display type="anaglyph" index="1">
-        <viewport x="0" y="0" w="1024" h="768"/>
-        <frustum>
-          <perspective hfov="60.0" vfov="45.0"/>
-        </frustum>
-      </display>
-    </node>
-    <!-- 1024x768 --------------------------------------------------------- -->
+    <!-- 1280x1024 -------------------------------------------------------- -->
     <node name="1280x1024">
       <window x="0" y="0" w="1280" h="1024"/>
       <channel w="1280" h="1024"/>
@@ -111,14 +88,38 @@
         </frustum>
       </display>
     </node>
-    <!-- 1920x1080 (HD standard 16x9 aspect) ------------------------------ -->
-    <node name="1920x1080-W">
-      <window x="0" y="0" w="1920" h="1080"/>
-      <channel w="1920" h="1080"/>
+    <!-- 2560x1600 -------------------------------------------------------- -->
+    <node name="2560x1600">
+      <window x="0" y="0" w="2560" h="1600" full="1"/>
+      <channel w="2560" h="1600"/>
       <display type="direct" index="1">
-        <viewport x="0" y="0" w="1920" h="1080"/>
+        <viewport x="0" y="0" w="2560" h="1600"/>
         <frustum>
-          <perspective hfov="80.0" vfov="50.0"/>
+          <perspective hfov="60.0" vfov="40.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 1024x768 anaglphic stereo ---------------------------------------- -->
+    <node name="1024x768-anaglyph">
+      <window x="0" y="0" w="1024" h="768"/>
+      <channel w="1024" h="768" x="-0.125"/>
+      <channel w="1024" h="768" x=" 0.125"/>
+      <display type="anaglyph" index="1">
+        <viewport x="0" y="0" w="1024" h="768"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="45.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 1024x768 interlaced stereo --------------------------------------- -->
+    <node name="1024x768-interlace">
+      <window x="0" y="0" w="1024" h="768"/>
+      <channel w="1024" h="768" x="-0.125"/>
+      <channel w="1024" h="768" x=" 0.125"/>
+      <display type="interlace" index="1">
+        <viewport x="0" y="0" w="1024" h="768"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="45.0"/>
         </frustum>
       </display>
     </node>
@@ -137,24 +138,6 @@
         <viewport x="960" y="0" w="960" h="1080"/>
         <frustum>
           <perspective hfov="60.0" vfov="35.0"/>
-        </frustum>
-      </display>
-    </node>
-   <!-- 1920x1080 A-B comparison ----------------------------------------- -->
-    <node name="1920x1080-AB">
-      <window x="0" y="0" w="1920" h="1080" />
-      <channel w="960" h="1080" x="0.0"/>
-      <channel w="960" h="1080" x="0.0"/>
-      <display type="normal" index="1" channel="0">
-        <viewport x="0" y="0" w="960" h="1080"/>
-        <frustum>
-          <perspective hfov="30.0" vfov="35.0"/>
-        </frustum>
-      </display>
-      <display type="normal" index="1" channel="1">
-        <viewport x="960" y="0" w="960" h="1080"/>
-        <frustum>
-          <perspective hfov="30.0" vfov="35.0"/>
         </frustum>
       </display>
     </node>
@@ -194,26 +177,21 @@
         </frustum>
       </display>
     </node>
-    <!-- 1280x720 --------------------------------------------------------- -->
-    <node name="1280x720">
-      <window x="0" y="0" w="1280" h="720" frame="0"/>
-      <channel w="1280" h="720"/>
-      <display type="direct" index="1">
-        <viewport x="0" y="0" w="1280" h="720"/>
+   <!-- 1920x1080 A-B comparison ----------------------------------------- -->
+    <node name="1920x1080-AB">
+      <window x="0" y="0" w="1920" h="1080" />
+      <channel w="960" h="1080" x="0.0"/>
+      <channel w="960" h="1080" x="0.0"/>
+      <display type="normal" index="1" channel="0">
+        <viewport x="0" y="0" w="960" h="1080"/>
         <frustum>
-          <perspective hfov="60.0" vfov="36.0"/>
+          <perspective hfov="30.0" vfov="35.0"/>
         </frustum>
       </display>
-    </node>
-    <!-- 960x540 (quarter HD 16x9 aspect, looking downward) --------------- -->
-    <node name="960x540down">
-      <window x="0" y="0" w="960" h="540"/>
-      <channel w="960" h="540"/>
-      <display type="direct" index="1">
-        <viewport x="0" y="0" w="960" h="540"/>
+      <display type="normal" index="1" channel="1">
+        <viewport x="960" y="0" w="960" h="1080"/>
         <frustum>
-          <perspective hfov="60.0" vfov="35.0"/>
-          <rotation p="-45.0"/>
+          <perspective hfov="30.0" vfov="35.0"/>
         </frustum>
       </display>
     </node>
