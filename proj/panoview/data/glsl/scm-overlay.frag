@@ -2,208 +2,71 @@
 
 struct scm
 {
-    sampler3D img;
-    vec2      siz;
-    float     idx[16];
-    float     age[16];
+    sampler2D S;
+    vec2      r;
+    vec2      b[16];
+    float     a[16];
 };
 
 uniform scm base;
 uniform scm over;
 
-uniform vec2 page_a[16];
-uniform vec2 page_b[16];
+uniform vec2 A[16];
+uniform vec2 B[16];
 
 //------------------------------------------------------------------------------
 
-vec4 age(vec4 c, float k)
+vec4 add(vec4 a, vec4 b)
 {
-    return vec4(c.rgb, c.a * k);
+    return mix(a, b, b.a);
 }
 
-vec4 btex(vec2 c, float k)
+vec4 sample_base(vec2 t)
 {
-    return texture3D(base.img, vec3((c * base.siz + vec2(1.0)) /
-                                        (base.siz + vec2(2.0)), k));
+    return add(add(add(add(texture2D(base.S, (t * A[ 0] + B[ 0]) * base.r + base.b[ 0]) * vec4(1.0, 1.0, 1.0, base.a[ 0]),
+                           texture2D(base.S, (t * A[ 1] + B[ 1]) * base.r + base.b[ 1]) * vec4(1.0, 1.0, 1.0, base.a[ 1])),
+                       add(texture2D(base.S, (t * A[ 2] + B[ 2]) * base.r + base.b[ 2]) * vec4(1.0, 1.0, 1.0, base.a[ 2]),
+                           texture2D(base.S, (t * A[ 3] + B[ 3]) * base.r + base.b[ 3]) * vec4(1.0, 1.0, 1.0, base.a[ 3]))),
+                   add(add(texture2D(base.S, (t * A[ 4] + B[ 4]) * base.r + base.b[ 4]) * vec4(1.0, 1.0, 1.0, base.a[ 4]),
+                           texture2D(base.S, (t * A[ 5] + B[ 5]) * base.r + base.b[ 5]) * vec4(1.0, 1.0, 1.0, base.a[ 5])),
+                       add(texture2D(base.S, (t * A[ 6] + B[ 6]) * base.r + base.b[ 6]) * vec4(1.0, 1.0, 1.0, base.a[ 6]),
+                           texture2D(base.S, (t * A[ 7] + B[ 7]) * base.r + base.b[ 7]) * vec4(1.0, 1.0, 1.0, base.a[ 7])))),
+               add(add(add(texture2D(base.S, (t * A[ 8] + B[ 8]) * base.r + base.b[ 8]) * vec4(1.0, 1.0, 1.0, base.a[ 8]),
+                           texture2D(base.S, (t * A[ 9] + B[ 9]) * base.r + base.b[ 9]) * vec4(1.0, 1.0, 1.0, base.a[ 9])),
+                       add(texture2D(base.S, (t * A[10] + B[10]) * base.r + base.b[10]) * vec4(1.0, 1.0, 1.0, base.a[10]),
+                           texture2D(base.S, (t * A[11] + B[11]) * base.r + base.b[11]) * vec4(1.0, 1.0, 1.0, base.a[11]))),
+                   add(add(texture2D(base.S, (t * A[12] + B[12]) * base.r + base.b[12]) * vec4(1.0, 1.0, 1.0, base.a[12]),
+                           texture2D(base.S, (t * A[13] + B[13]) * base.r + base.b[13]) * vec4(1.0, 1.0, 1.0, base.a[13])),
+                       add(texture2D(base.S, (t * A[14] + B[14]) * base.r + base.b[14]) * vec4(1.0, 1.0, 1.0, base.a[14]),
+                           texture2D(base.S, (t * A[15] + B[15]) * base.r + base.b[15]) * vec4(1.0, 1.0, 1.0, base.a[15])))));
 }
 
-vec4 otex(vec2 c, float k)
+vec4 sample_over(vec2 t)
 {
-    return texture3D(over.img, vec3((c * over.siz + vec2(1.0)) /
-                                        (over.siz + vec2(2.0)), k));
-}
-
-//------------------------------------------------------------------------------
-
-vec4 bimg0(vec2 t)
-{
-    return age(btex(page_a[0] * t + page_b[0], base.idx[0]), base.age[0]);
-}
-
-vec4 bimg1(vec2 t)
-{
-    return age(btex(page_a[1] * t + page_b[1], base.idx[1]), base.age[1]);
-}
-
-vec4 bimg2(vec2 t)
-{
-    return age(btex(page_a[2] * t + page_b[2], base.idx[2]), base.age[2]);
-}
-
-vec4 bimg3(vec2 t)
-{
-    return age(btex(page_a[3] * t + page_b[3], base.idx[3]), base.age[3]);
-}
-
-vec4 bimg4(vec2 t)
-{
-    return age(btex(page_a[4] * t + page_b[4], base.idx[4]), base.age[4]);
-}
-
-vec4 bimg5(vec2 t)
-{
-    return age(btex(page_a[5] * t + page_b[5], base.idx[5]), base.age[5]);
-}
-
-vec4 bimg6(vec2 t)
-{
-    return age(btex(page_a[6] * t + page_b[6], base.idx[6]), base.age[6]);
-}
-
-vec4 bimg7(vec2 t)
-{
-    return age(btex(page_a[7] * t + page_b[7], base.idx[7]), base.age[7]);
-}
-
-//------------------------------------------------------------------------------
-
-vec4 oimg0(vec2 t)
-{
-    return age(otex(page_a[0] * t + page_b[0], over.idx[0]), over.age[0]);
-}
-
-vec4 oimg1(vec2 t)
-{
-    return age(otex(page_a[1] * t + page_b[1], over.idx[1]), over.age[1]);
-}
-
-vec4 oimg2(vec2 t)
-{
-    return age(otex(page_a[2] * t + page_b[2], over.idx[2]), over.age[2]);
-}
-
-vec4 oimg3(vec2 t)
-{
-    return age(otex(page_a[3] * t + page_b[3], over.idx[3]), over.age[3]);
-}
-
-vec4 oimg4(vec2 t)
-{
-    return age(otex(page_a[4] * t + page_b[4], over.idx[4]), over.age[4]);
-}
-
-vec4 oimg5(vec2 t)
-{
-    return age(otex(page_a[5] * t + page_b[5], over.idx[5]), over.age[5]);
-}
-
-vec4 oimg6(vec2 t)
-{
-    return age(otex(page_a[6] * t + page_b[6], over.idx[6]), over.age[6]);
-}
-
-vec4 oimg7(vec2 t)
-{
-    return age(otex(page_a[7] * t + page_b[7], over.idx[7]), over.age[7]);
-}
-
-vec4 oimg8(vec2 t)
-{
-    return age(otex(page_a[8] * t + page_b[8], over.idx[8]), over.age[8]);
-}
-
-vec4 oimg9(vec2 t)
-{
-    return age(otex(page_a[9] * t + page_b[9], over.idx[9]), over.age[9]);
-}
-
-vec4 oimg10(vec2 t)
-{
-    return age(otex(page_a[10] * t + page_b[10], over.idx[10]), over.age[10]);
-}
-
-vec4 oimg11(vec2 t)
-{
-    return age(otex(page_a[11] * t + page_b[11], over.idx[11]), over.age[11]);
-}
-
-vec4 oimg12(vec2 t)
-{
-    return age(otex(page_a[12] * t + page_b[12], over.idx[12]), over.age[12]);
-}
-
-vec4 oimg13(vec2 t)
-{
-    return age(otex(page_a[13] * t + page_b[13], over.idx[13]), over.age[13]);
-}
-
-vec4 oimg14(vec2 t)
-{
-    return age(otex(page_a[14] * t + page_b[14], over.idx[14]), over.age[14]);
-}
-
-vec4 oimg15(vec2 t)
-{
-    return age(otex(page_a[15] * t + page_b[15], over.idx[15]), over.age[15]);
-}
-
-//------------------------------------------------------------------------------
-
-vec4 blend(vec4 a, vec4 b)
-{
-    return vec4(mix(b.rgb, a.rgb, a.a), 1.0);
-}
-
-vec4 bsample(vec2 t)
-{
-    vec4 c =  bimg0(t);
-    c = blend(bimg1(t), c);
-    c = blend(bimg2(t), c);
-    c = blend(bimg3(t), c);
-    c = blend(bimg4(t), c);
-    c = blend(bimg5(t), c);
-    c = blend(bimg6(t), c);
-    c = blend(bimg7(t), c);
-    return c;
-}
-
-vec4 osample(vec2 t)
-{
-    vec4 c =  oimg0(t);
-    c = blend(oimg1(t), c);
-    c = blend(oimg2(t), c);
-    c = blend(oimg3(t), c);
-    c = blend(oimg4(t), c);
-    c = blend(oimg5(t), c);
-    c = blend(oimg6(t), c);
-    c = blend(oimg7(t), c);
-    c = blend(oimg8(t), c);
-    c = blend(oimg9(t), c);
-    c = blend(oimg10(t), c);
-    c = blend(oimg11(t), c);
-    c = blend(oimg12(t), c);
-    c = blend(oimg13(t), c);
-    c = blend(oimg14(t), c);
-    c = blend(oimg15(t), c);
-    return c;
+    return add(add(add(add(texture2D(over.S, (t * A[ 0] + B[ 0]) * over.r + over.b[ 0]) * vec4(1.0, 1.0, 1.0, over.a[ 0]),
+                           texture2D(over.S, (t * A[ 1] + B[ 1]) * over.r + over.b[ 1]) * vec4(1.0, 1.0, 1.0, over.a[ 1])),
+                       add(texture2D(over.S, (t * A[ 2] + B[ 2]) * over.r + over.b[ 2]) * vec4(1.0, 1.0, 1.0, over.a[ 2]),
+                           texture2D(over.S, (t * A[ 3] + B[ 3]) * over.r + over.b[ 3]) * vec4(1.0, 1.0, 1.0, over.a[ 3]))),
+                   add(add(texture2D(over.S, (t * A[ 4] + B[ 4]) * over.r + over.b[ 4]) * vec4(1.0, 1.0, 1.0, over.a[ 4]),
+                           texture2D(over.S, (t * A[ 5] + B[ 5]) * over.r + over.b[ 5]) * vec4(1.0, 1.0, 1.0, over.a[ 5])),
+                       add(texture2D(over.S, (t * A[ 6] + B[ 6]) * over.r + over.b[ 6]) * vec4(1.0, 1.0, 1.0, over.a[ 6]),
+                           texture2D(over.S, (t * A[ 7] + B[ 7]) * over.r + over.b[ 7]) * vec4(1.0, 1.0, 1.0, over.a[ 7])))),
+               add(add(add(texture2D(over.S, (t * A[ 8] + B[ 8]) * over.r + over.b[ 8]) * vec4(1.0, 1.0, 1.0, over.a[ 8]),
+                           texture2D(over.S, (t * A[ 9] + B[ 9]) * over.r + over.b[ 9]) * vec4(1.0, 1.0, 1.0, over.a[ 9])),
+                       add(texture2D(over.S, (t * A[10] + B[10]) * over.r + over.b[10]) * vec4(1.0, 1.0, 1.0, over.a[10]),
+                           texture2D(over.S, (t * A[11] + B[11]) * over.r + over.b[11]) * vec4(1.0, 1.0, 1.0, over.a[11]))),
+                   add(add(texture2D(over.S, (t * A[12] + B[12]) * over.r + over.b[12]) * vec4(1.0, 1.0, 1.0, over.a[12]),
+                           texture2D(over.S, (t * A[13] + B[13]) * over.r + over.b[13]) * vec4(1.0, 1.0, 1.0, over.a[13])),
+                       add(texture2D(over.S, (t * A[14] + B[14]) * over.r + over.b[14]) * vec4(1.0, 1.0, 1.0, over.a[14]),
+                           texture2D(over.S, (t * A[15] + B[15]) * over.r + over.b[15]) * vec4(1.0, 1.0, 1.0, over.a[15])))));
 }
 
 //------------------------------------------------------------------------------
 
 void main()
 {
-    vec3 a = bsample(gl_TexCoord[0].xy).rgb;
-    vec3 b = osample(gl_TexCoord[0].xy).rgb;
+    vec3 a = sample_base(gl_TexCoord[0].xy).rgb;
+    vec3 b = sample_over(gl_TexCoord[0].xy).rgb;
     vec3 c;
 
     if (b.r > 0.0)

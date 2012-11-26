@@ -42,7 +42,8 @@ public:
 
 private:
 
-    double get_bottom() const;
+    double get_bottom()   const;
+    double get_altitude() const;
 
     // View motion state
 
@@ -54,12 +55,11 @@ private:
 
     double orbit_plane[3];
     double orbit_speed;
+    double orbit_speed_min;
+    double orbit_speed_max;
     double stick_timer;
     double goto_radius;
-    
-    double dist_near;
-    double dist_far;
-    
+
     // Interaction state
 
     double point[3];

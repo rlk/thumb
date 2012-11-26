@@ -60,9 +60,6 @@ orbiter::orbiter(const std::string& exe,
     stick_timer    = 0.0;
     goto_radius    = ::conf->get_f("orbiter_goto_radius", 0.0);
 
-    dist_near =  0.1;
-    dist_far  = 10.0;
-
     control   = false;
     drag_move = false;
     drag_look = false;
@@ -92,6 +89,9 @@ orbiter::orbiter(const std::string& exe,
     button_U = ::conf->get_i("orbiter_joystick_button_U", 0);
     button_D = ::conf->get_i("orbiter_joystick_button_D", 1);
     deadzone = ::conf->get_f("orbiter_joystick_deadzone", 0.2);
+
+    orbit_speed_min = ::conf->get_f("orbiter_speed_min", 0.005);
+    orbit_speed_max = ::conf->get_f("orbiter_speed_max", 0.5);
 
     // Preload data as requested.
 
@@ -241,8 +241,7 @@ void orbiter::fly(double dt)
     const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
                                      : -(stick[1] * stick[1]);
 
-    double a = (here.get_distance() - get_bottom()) / get_bottom();
-
+    double a = get_altitude() / (get_radius() * get_height());
     double k = lerp(std::min(1.0, cbrt(a)), 1.0, a);
 
     here.set_pitch(-M_PI_2 * k);
@@ -259,7 +258,7 @@ void orbiter::fly(double dt)
 
     // The Y axis affects the orbital speed.
 
-    orbit_speed = dy * std::min(a, 0.5);
+    orbit_speed = dy * std::max(std::min(a, orbit_speed_max), orbit_speed_min);
 
     // The Z axis affects the orbital radius.
 
@@ -285,10 +284,10 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
         double r = get_scale() * get_radius() * min_height();
         double d = get_scale() * here.get_distance();
 
-        dist_near = 0.0001 *     (d     - r    );
-        dist_far  = 1.1    * sqrt(d * d - r * r);
+        double n = 0.0001 *     (d     - r    );
+        double f = 1.1    * sqrt(d * d - r * r);
 
-        return ogl::range(dist_near, dist_far);
+        return ogl::range(n, f);
     }
     return ogl::range(0.1, 10.0);
 }
@@ -345,15 +344,18 @@ void orbiter::load(const std::string& name)
         here.set_distance(2.0 * get_radius());
 }
 
-// Return the minimum allowed radius at the current position.
+// Return the bottom-most radius of this planet.
 
 double orbiter::get_bottom() const
 {
-    return get_radius() * min_height(); //* get_height();
-    // if (bound)
-    //     return get_radius() * bound->get_r0();
-    // else
-    //     return get_radius();
+    return get_radius() * min_height();
+}
+
+// Return the height above land at the current position.
+
+double orbiter::get_altitude() const
+{
+    return here.get_distance() - get_radius() * get_height();
 }
 
 // Return an appropriate planet scale coefficient for the current view distance.
@@ -361,7 +363,7 @@ double orbiter::get_bottom() const
 
 double orbiter::get_scale() const
 {
-    return 1.0 / (here.get_distance() - get_bottom());
+    return 1.0 / get_altitude();
 }
 
 // Construct a path from here to there with a configurable middle radius.

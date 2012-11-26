@@ -296,15 +296,6 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     {
         model->set_debug(debug_bound);
 
-        int s = int(frames.size());
-        int f = int(timer);
-
-        if (s)
-        {
-            while (f <  0) f += s;
-            while (f >= s) f -= s;
-        }
-
         // Compute the model view matrix to be used for view determination.
 
         double r = radius * get_scale();
