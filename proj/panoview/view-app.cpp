@@ -459,34 +459,38 @@ bool view_app::process_key(app::event *E)
 
 bool view_app::process_user(app::event *E)
 {
-    // Extract the landmark name from the user event structure.
+    if (!path.playing())
+    {
+        // Extract the landmark name from the user event structure.
 
-    char name[sizeof (long long) + 1];
+        char name[sizeof (long long) + 1];
 
-    memset(name, 0, sizeof (name));
-    memcpy(name, &E->data.user.d, sizeof (long long));
+        memset(name, 0, sizeof (name));
+        memcpy(name, &E->data.user.d, sizeof (long long));
 
-    // Scan the landmark vector for a matching name.
+        // Scan the landmark vector for a matching name.
 
-    for (int i = 0; i < int(steps.size()); i++)
-        if (steps[i].get_name().compare(name) == 0)
+        for (int i = 0; i < int(steps.size()); i++)
         {
-            int f = steps[i].get_frame();
+            if (steps[i].get_name().compare(name) == 0)
+            {
+                int f = steps[i].get_frame();
 
-            if (0 <= f && f < int(frames.size()))
-                timer = f;
+                if (0 <= f && f < int(frames.size()))
+                    timer = f;
 
-            load_label(steps[i].get_label());
+                load_label(steps[i].get_label());
 
-            path.stop();
-            path.clear();
-            make_path(i);
-            path.home();
-            path.fore(false);
+                path.stop();
+                path.clear();
+                make_path(i);
+                path.home();
+                path.fore(false);
 
-            return true;
+                return true;
+            }
         }
-
+    }
     return false;
 }
 
@@ -494,11 +498,11 @@ bool view_app::process_tick(app::event *E)
 {
     if (path.playing())
     {
-        path.time(E->data.tick.dt / 1000.0);
+        path.time(E->data.tick.dt);
         path.get(here);
     }
 
-    timer += timer_d * E->data.tick.dt / 1000.0;
+    timer += timer_d * E->data.tick.dt;
 
     if (timer_d > 0.0 && timer > timer_e)
     {

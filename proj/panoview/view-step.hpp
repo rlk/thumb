@@ -75,10 +75,11 @@ private:
     double position[3];    // View point location
     double light[3];       // Light location
     double speed;          // Camera speed
-    double distance;         // View point distance
+    double distance;       // View point distance
     double tension;        // Hermite interpolation tension
     double bias;           // Hermite interpolation bias
     double zoom;           // Magnification
+    double pitch;          // Pitch interpolation
 };
 
 //------------------------------------------------------------------------------
