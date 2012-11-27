@@ -11,7 +11,7 @@
     <option name="orbiter_report_host">localhost</option>
     <option name="orbiter_report_port">8111</option>
 -->
-    <option name="orbiter_goto_radius">2500000.0</option>
+    <option name="orbiter_goto_radius">0.0</option>
     <option name="orbiter_icon_size">16</option>
     <option name="orbiter_joystick_deadzone">0.2</option>
     <!-- OpenGL context configuration -->
