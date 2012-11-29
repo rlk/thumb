@@ -10,10 +10,10 @@
     <cache n="426" c="3" b="8"  threads="2"/>
     <cache n="360" c="3" b="8"  threads="2"/>
 
-    <frame>
+    <scene>
       <image name="height" scm="DTM-426-6.tif"    channel="0" cache="0" height="1"/>
       <image name="height" scm="LDEM-360-8.tif"   channel="1" cache="1" height="1"/>
       <image name="color"  scm="DTM-426-6-N.tif"  channel="0" cache="2" />
       <image name="color"  scm="LDEM-360-8-N.tif" channel="1" cache="3" />
-    </frame>
+    </scene>
   </sphere>

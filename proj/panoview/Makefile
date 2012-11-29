@@ -8,7 +8,7 @@ VIEWOBJS= \
 	scm/util3d/type.o \
 	scm/scm-index.o \
 	scm/scm-image.o \
-	scm/scm-frame.o \
+	scm/scm-scene.o \
 	scm/scm-set.o \
 	scm/scm-task.o \
 	scm/scm-file.o \
@@ -43,11 +43,11 @@ all : panoview orbiter
 
 panoview: $(PANOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
-	$(STRIP) $@
+	# $(STRIP) $@
 
 orbiter: $(ORBOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
-	$(STRIP) $@
+	# $(STRIP) $@
 
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview

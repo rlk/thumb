@@ -8,20 +8,20 @@
     <cache n="256" c="3" b="8" threads="4"/>
     <cache n="256" c="3" b="8" threads="4"/>
 
-    <frame>
+    <scene>
       <image name="color" scm="LSU1-R-256-5.tif" channel="0" cache="0" />
       <image name="color" scm="LSU1-L-256-5.tif" channel="1" cache="1" />
-    </frame>
-    <frame>
+    </scene>
+    <scene>
       <image name="color" scm="LSU2-R-256-5.tif" channel="0" cache="0" />
       <image name="color" scm="LSU2-L-256-5.tif" channel="1" cache="1" />
-    </frame>
-    <frame>
+    </scene>
+    <scene>
       <image name="color" scm="Tiger-Stadium-1-R-256-5.tif" channel="0" cache="0" />
       <image name="color" scm="Tiger-Stadium-1-L-256-5.tif" channel="1" cache="1" />
-    </frame>
-    <frame>
+    </scene>
+    <scene>
       <image name="color" scm="Tiger-Stadium-2-R-256-5.tif" channel="0" cache="0" />
       <image name="color" scm="Tiger-Stadium-2-L-256-5.tif" channel="1" cache="1" />
-    </frame>
+    </scene>
   </sphere>

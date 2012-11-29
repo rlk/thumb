@@ -9,9 +9,9 @@
     <cache n="426" c="3" b="8"  threads="2"/>
     <cache n="256" c="3" b="8"  threads="2"/>
 
-    <frame>
+    <scene>
       <image name="height" scm="DTM-426-6.tif" cache="0" height="1"/>
       <image name="normal" scm="DTM-426-6-N.tif" cache="1" />
 <!--  <image name="color"  scm="clementine-256-4.tif" cache="2" /> -->
-    </frame>
+    </scene>
   </sphere>

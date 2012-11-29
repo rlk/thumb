@@ -6,7 +6,7 @@
             frag="glsl/scm-basic.frag">
 
     <cache n="426" c="1" b="8" threads="2"/>
-    <frame>
+    <scene>
       <image name="color" scm="WAC-426-6.tif" cache="0" />
-    </frame>
+    </scene>
   </sphere>

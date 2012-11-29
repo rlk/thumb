@@ -60,7 +60,7 @@ public:
     double get_tension()           const { return tension;  }
     double get_bias()              const { return bias;     }
     double get_zoom()              const { return zoom;     }
-    int    get_frame()             const { return frame;    }
+    int    get_scene()             const { return scene;    }
 
     const std::string& get_name()  const { return name;  }
     const std::string& get_label() const { return label; }
@@ -69,7 +69,7 @@ private:
 
     std::string name;
     std::string label;
-    int         frame;
+    int         scene;
 
     double orientation[4]; // View orientation
     double position[3];    // View point location

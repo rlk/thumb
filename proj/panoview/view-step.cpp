@@ -78,7 +78,7 @@ view_step::view_step()
     tension        = 0.0;
     bias           = 0.0;
     zoom           = 1.0;
-    frame          =  -1;
+    scene          =  -1;
 }
 
 // Initialize a new SCM viewer state using the given XML node.
@@ -106,7 +106,7 @@ view_step::view_step(app::node n)
 
     name           = n.get_s("name");
     label          = n.get_s("label");
-    frame          = n.get_i("frame", -1);
+    scene          = n.get_i("scene", -1);
 }
 
 // Initialize a new SCM viewer step using linear interpolation of given steps.
@@ -144,7 +144,7 @@ view_step::view_step(const view_step *a,
     vnormalize(position,    position);
     vnormalize(light,       light);
 
-    frame = -1;
+    scene = -1;
 }
 
 // Initialize a new SCM viewer step using cubic interpolation of given steps.
@@ -209,7 +209,7 @@ view_step::view_step(const view_step *a,
     tension        = lerp(b->tension, c->tension, t);
     bias           = lerp(b->bias,    c->bias,    t);
     zoom           = lerp(b->zoom,    c->zoom,    t);
-    frame = roundint(lerp(b->frame,   c->frame,   t));
+    scene = roundint(lerp(b->scene,   c->scene,   t));
 
     qnormalize(orientation, orientation);
     vnormalize(position,    position);

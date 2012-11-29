@@ -8,10 +8,10 @@
     <cache n="426" c="1" b="8"  threads="2"/>
     <cache n="426" c="1" b="16" threads="2" r0="0.994728" r1="1.0062" />
 
-    <frame>
+    <scene>
       <image name="height" scm="DTM-426-6.tif" cache="1" height="1"/>
       <image name="color"  scm="WAC-426-6.tif" cache="0" />
-    </frame>
+    </scene>
 
     <step name="Tycho"
          label="csv/Tycho.csv"

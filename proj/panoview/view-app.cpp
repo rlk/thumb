@@ -114,7 +114,7 @@ void view_app::load_caches(app::node p)
     }
 }
 
-void view_app::load_images(app::node p, scm_frame *f)
+void view_app::load_images(app::node p, scm_scene *f)
 {
     // Create a new image object for each node.
 
@@ -136,16 +136,16 @@ void view_app::load_images(app::node p, scm_frame *f)
     }
 }
 
-void view_app::load_frames(app::node p)
+void view_app::load_scenes(app::node p)
 {
-    // Create a new frame object for each node.
+    // Create a new scene object for each node.
 
-    for (app::node i = p.find("frame"); i; i = p.next(i, "frame"))
+    for (app::node i = p.find("scene"); i; i = p.next(i, "scene"))
     {
-        scm_frame *f = new scm_frame();
+        scm_scene *f = new scm_scene();
 
         load_images(i, f);
-        frames.push_back(f);
+        scenes.push_back(f);
     }
 }
 
@@ -178,7 +178,7 @@ void view_app::load(const std::string& name)
 
         load_model (root);
         load_caches(root);
-        load_frames(root);
+        load_scenes(root);
         load_steps (root);
         load_label ("csv/IAUMOON.csv");
 
@@ -196,10 +196,10 @@ void view_app::cancel()
 void view_app::unload()
 {
     for (scm_cache_i i = caches.begin(); i != caches.end(); ++i) delete (*i);
-    for (scm_frame_i j = frames.begin(); j != frames.end(); ++j) delete (*j);
+    for (scm_scene_i j = scenes.begin(); j != scenes.end(); ++j) delete (*j);
 
     caches.clear();
-    frames.clear();
+    scenes.clear();
 
     if (label) delete label;
     if (model) delete model;
@@ -230,8 +230,8 @@ void view_app::goto_prev()
 
 double view_app::min_height() const
 {
-    if (scm_frame *frame = get_current_frame())
-        return frame->min_height();
+    if (scm_scene *scene = get_current_scene())
+        return scene->min_height();
     else
         return 1.0;
 }
@@ -242,15 +242,15 @@ double view_app::get_height() const
 
     here.get_position(v);
 
-    if (scm_frame *frame = get_current_frame())
-        return frame->get_height(v);
+    if (scm_scene *scene = get_current_scene())
+        return scene->get_height(v);
     else
         return 1.0;
 }
 
-scm_frame *view_app::get_current_frame() const
+scm_scene *view_app::get_current_scene() const
 {
-    int s = int(frames.size());
+    int s = int(scenes.size());
     int f = int(timer);
 
     if (s)
@@ -258,7 +258,7 @@ scm_frame *view_app::get_current_frame() const
         while (f <  0) f += s;
         while (f >= s) f -= s;
 
-        return frames[f];
+        return scenes[f];
     }
     return 0;
 }
@@ -294,8 +294,6 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
     if (model)
     {
-        model->set_debug(debug_bound);
-
         // Compute the model view matrix to be used for view determination.
 
         double s = get_scale();
@@ -320,11 +318,8 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
             glDisable(GL_CULL_FACE);
         }
 
-        if (scm_frame *frame = get_current_frame())
-        {
-            frame->set_channel(chani);
-            model->draw(frame, P, V, w, h);
-        }
+        if (scm_scene *scene = get_current_scene())
+            model->draw(scene, P, V, w, h, chani);
 
         if (debug_wire)
         {
@@ -474,9 +469,9 @@ bool view_app::process_user(app::event *E)
         {
             if (steps[i].get_name().compare(name) == 0)
             {
-                int f = steps[i].get_frame();
+                int f = steps[i].get_scene();
 
-                if (0 <= f && f < int(frames.size()))
+                if (0 <= f && f < int(scenes.size()))
                     timer = f;
 
                 load_label(steps[i].get_label());

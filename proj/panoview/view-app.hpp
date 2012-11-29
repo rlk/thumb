@@ -19,7 +19,7 @@
 #include <app-file.hpp>
 
 #include "scm/scm-cache.hpp"
-#include "scm/scm-frame.hpp"
+#include "scm/scm-scene.hpp"
 #include "scm/scm-model.hpp"
 #include "scm/scm-label.hpp"
 
@@ -61,10 +61,10 @@ public:
 
 protected:
 
-    scm_frame *get_current_frame() const;
+    scm_scene *get_current_scene() const;
 
     scm_cache_v caches;
-    scm_frame_v frames;
+    scm_scene_v scenes;
 
     scm_model *model;
     scm_label *label;
@@ -80,8 +80,8 @@ private:
 
     void load_model (app::node);
     void load_caches(app::node);
-    void load_images(app::node, scm_frame *);
-    void load_frames(app::node);
+    void load_images(app::node, scm_scene *);
+    void load_scenes(app::node);
     void load_steps (app::node);
 
     // Sphere rendering state
