@@ -231,7 +231,7 @@ void view_app::goto_prev()
 double view_app::min_height() const
 {
     if (scm_scene *scene = get_current_scene())
-        return scene->min_height();
+        return scene->get_height_bottom();
     else
         return 1.0;
 }
@@ -243,7 +243,7 @@ double view_app::get_height() const
     here.get_position(v);
 
     if (scm_scene *scene = get_current_scene())
-        return scene->get_height(v);
+        return scene->get_height_sample(v);
     else
         return 1.0;
 }
@@ -271,12 +271,10 @@ ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 
     if (model)
     {
-        if (::host->get_movie_mode())
-            for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
-                (*i)->sync  (model->tick());
-        else
-            for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
-                (*i)->update(model->tick());
+        bool s = ::host->get_movie_mode();
+
+        for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
+            (*i)->update(model->tick(), s);
     }
     return ogl::range(0.1, 2.0 * r);
 }
@@ -300,12 +298,12 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
         double r = radius;
 
         double V[16];
+        double A[16];
 
-        load_inv(V, M);
+        load_inv    (V, M);
         Rmul_scl_mat(V, s, s, s);
         Rmul_scl_mat(V, r, r, r);
-
-//      Rmul_xlt_mat(V, 0, -height, 0);
+        mult_mat_mat(A, P, V);
 
         // Draw the sphere.
 
@@ -319,8 +317,14 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
         }
 
         if (scm_scene *scene = get_current_scene())
-            model->draw(scene, P, V, w, h, chani);
+        {
+            glMatrixMode(GL_PROJECTION);
+            glLoadMatrixd(P);
+            glMatrixMode(GL_MODELVIEW);
+            glLoadMatrixd(V);
 
+            model->draw(scene, A, w, h, chani);
+        }
         if (debug_wire)
         {
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

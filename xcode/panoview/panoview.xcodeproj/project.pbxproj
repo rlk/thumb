@@ -7,26 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5818B95913CA22C200076A22 /* sph-render.frag in Sources */ = {isa = PBXBuildFile; fileRef = 5818B95613CA22C200076A22 /* sph-render.frag */; };
-		5818B95A13CA22C200076A22 /* sph-render.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5818B95713CA22C200076A22 /* sph-render.vert */; };
-		5818B95B13CA22C200076A22 /* sph-zoomer.vert in Sources */ = {isa = PBXBuildFile; fileRef = 5818B95813CA22C200076A22 /* sph-zoomer.vert */; };
-		5818B95D13CA312900076A22 /* sph-blend.frag in Sources */ = {isa = PBXBuildFile; fileRef = 5818B95C13CA312900076A22 /* sph-blend.frag */; };
-		582D8D0313AFA2C50005A831 /* glsl.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8CFF13AFA2C50005A831 /* glsl.c */; };
-		582D8D0413AFA2C50005A831 /* math3d.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0113AFA2C50005A831 /* math3d.c */; };
-		582D8D0813AFAC730005A831 /* cube.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D0613AFAC730005A831 /* cube.cpp */; };
-		582D8D1213AFECB00005A831 /* glyph.c in Sources */ = {isa = PBXBuildFile; fileRef = 582D8D1013AFECB00005A831 /* glyph.c */; };
-		58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */; settings = {ATTRIBUTES = (Required, ); }; };
-		5865801913B60E7900FBBF90 /* sph-cache.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 5865801313B60E7900FBBF90 /* sph-cache.cpp */; };
-		588E32AA13D4C74400B9B6F7 /* libtiff.5.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 588E32A913D4C74400B9B6F7 /* libtiff.5.dylib */; };
-		58DB38B213C7422600304D44 /* gui-loader.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58DB38B013C7422600304D44 /* gui-loader.cpp */; };
-		58DB38B413C7445000304D44 /* libfreetype.6.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58DB38B313C7445000304D44 /* libfreetype.6.dylib */; };
-		58E2109A13AE6EC2004580E9 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109413AE6EC2004580E9 /* main.cpp */; };
 		58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109613AE6EC2004580E9 /* panoview.cpp */; };
-		58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 58E2109813AE6EC2004580E9 /* sph-model.cpp */; };
-		58E2109E13AE6F40004580E9 /* thumb.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2109D13AE6F40004580E9 /* thumb.dylib */; };
 		58E210A013AE7297004580E9 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E2109F13AE7297004580E9 /* OpenGL.framework */; };
-		58E210A413AE72E6004580E9 /* libSDL-1.2.0.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */; };
-		58E210A713AE7380004580E9 /* libSDLmain.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210A613AE7380004580E9 /* libSDLmain.a */; };
 		58E210AB13AE73A9004580E9 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 58E210AA13AE73A9004580E9 /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -43,80 +25,11 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		580ABF1D1416C6E9009F4D42 /* panorama.html */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.html; name = panorama.html; path = ../../proj/panoview/panorama.html; sourceTree = "<group>"; };
-		580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Blue-Mounds-8.xml"; path = "../../proj/panoview/data/pan/Blue-Mounds-8.xml"; sourceTree = "<group>"; };
-		5818B95413CA05C100076A22 /* Taliesin-Path.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path.xml"; sourceTree = "<group>"; };
-		5818B95613CA22C200076A22 /* sph-render.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.frag"; path = "../../proj/panoview/data/glsl/sph-render.frag"; sourceTree = "<group>"; };
-		5818B95713CA22C200076A22 /* sph-render.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-render.vert"; path = "../../proj/panoview/data/glsl/sph-render.vert"; sourceTree = "<group>"; };
-		5818B95813CA22C200076A22 /* sph-zoomer.vert */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-zoomer.vert"; path = "../../proj/panoview/data/glsl/sph-zoomer.vert"; sourceTree = "<group>"; };
-		5818B95C13CA312900076A22 /* sph-blend.frag */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.glsl; name = "sph-blend.frag"; path = "../../proj/panoview/data/glsl/sph-blend.frag"; sourceTree = "<group>"; };
-		582D8CFF13AFA2C50005A831 /* glsl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glsl.c; path = ../../../proj/panoview/glsl.c; sourceTree = "<group>"; };
-		582D8D0013AFA2C50005A831 /* glsl.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glsl.h; path = ../../../proj/panoview/glsl.h; sourceTree = "<group>"; };
-		582D8D0113AFA2C50005A831 /* math3d.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = math3d.c; path = ../../../proj/panoview/math3d.c; sourceTree = "<group>"; };
-		582D8D0213AFA2C50005A831 /* math3d.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = math3d.h; path = ../../../proj/panoview/math3d.h; sourceTree = "<group>"; };
-		582D8D0613AFAC730005A831 /* cube.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = cube.cpp; path = ../../../proj/panoview/cube.cpp; sourceTree = "<group>"; };
-		582D8D0713AFAC730005A831 /* cube.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = cube.hpp; path = ../../../proj/panoview/cube.hpp; sourceTree = "<group>"; };
-		582D8D1013AFECB00005A831 /* glyph.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = glyph.c; path = ../../../proj/panoview/glyph.c; sourceTree = "<group>"; };
-		582D8D1113AFECB00005A831 /* glyph.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glyph.h; path = ../../../proj/panoview/glyph.h; sourceTree = "<group>"; };
-		58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libGLEW.1.6.0.dylib; path = /opt/local/lib/libGLEW.1.6.0.dylib; sourceTree = "<absolute>"; };
-		5865801313B60E7900FBBF90 /* sph-cache.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "sph-cache.cpp"; path = "../../../proj/panoview/sph-cache.cpp"; sourceTree = "<group>"; };
-		5865801413B60E7900FBBF90 /* sph-cache.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-cache.hpp"; path = "../../../proj/panoview/sph-cache.hpp"; sourceTree = "<group>"; };
 		5865802C13B628F100FBBF90 /* queue.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = queue.hpp; path = ../../../proj/panoview/queue.hpp; sourceTree = "<group>"; };
-		588E32A913D4C74400B9B6F7 /* libtiff.5.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libtiff.5.dylib; path = /usr/local/lib/libtiff.5.dylib; sourceTree = "<absolute>"; };
-		58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Blue-Mounds-8-Mono.xml"; path = "../../proj/panoview/data/pan/Blue-Mounds-8-Mono.xml"; sourceTree = "<group>"; };
-		58A1E07513CDF7CC00D0A598 /* Al-Diwan.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Al-Diwan.xml"; path = "../../proj/panoview/data/pan/Al-Diwan.xml"; sourceTree = "<group>"; };
-		58A1E07613CDF7CC00D0A598 /* Back-Yard.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Back-Yard.xml"; path = "../../proj/panoview/data/pan/Back-Yard.xml"; sourceTree = "<group>"; };
-		58A1E07713CDF7CC00D0A598 /* Bowl3-Panorama.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Bowl3-Panorama.xml"; path = "../../proj/panoview/data/pan/Bowl3-Panorama.xml"; sourceTree = "<group>"; };
-		58A1E07813CDF7CC00D0A598 /* Grand-Mosque-1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Grand-Mosque-1.xml"; path = "../../proj/panoview/data/pan/Grand-Mosque-1.xml"; sourceTree = "<group>"; };
-		58A1E07913CDF7CC00D0A598 /* Grand-Mosque-2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Grand-Mosque-2.xml"; path = "../../proj/panoview/data/pan/Grand-Mosque-2.xml"; sourceTree = "<group>"; };
-		58A1E07A13CDF7CC00D0A598 /* Madison-State-Capitol-Dome-2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Madison-State-Capitol-Dome-2.xml"; path = "../../proj/panoview/data/pan/Madison-State-Capitol-Dome-2.xml"; sourceTree = "<group>"; };
-		58A1E07B13CDF7CC00D0A598 /* Mill-Creek.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Mill-Creek.xml"; path = "../../proj/panoview/data/pan/Mill-Creek.xml"; sourceTree = "<group>"; };
-		58A1E07C13CDF7CD00D0A598 /* Overture-Hall.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Overture-Hall.xml"; path = "../../proj/panoview/data/pan/Overture-Hall.xml"; sourceTree = "<group>"; };
-		58A1E07D13CDF7CD00D0A598 /* Rock-Formation.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Rock-Formation.xml"; path = "../../proj/panoview/data/pan/Rock-Formation.xml"; sourceTree = "<group>"; };
-		58A1E07E13CDF7CD00D0A598 /* Rock-Island-Path-23.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Rock-Island-Path-23.xml"; path = "../../proj/panoview/data/pan/Rock-Island-Path-23.xml"; sourceTree = "<group>"; };
-		58A1E07F13CDF7CD00D0A598 /* Rock-Island-Tower-1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Rock-Island-Tower-1.xml"; path = "../../proj/panoview/data/pan/Rock-Island-Tower-1.xml"; sourceTree = "<group>"; };
-		58A1E08013CDF7CD00D0A598 /* Second-Tomb-Interior.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Second-Tomb-Interior.xml"; path = "../../proj/panoview/data/pan/Second-Tomb-Interior.xml"; sourceTree = "<group>"; };
-		58A1E08113CDF7CD00D0A598 /* SF-Ship-1.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "SF-Ship-1.xml"; path = "../../proj/panoview/data/pan/SF-Ship-1.xml"; sourceTree = "<group>"; };
-		58A1E08213CDF7CD00D0A598 /* TAL-235.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-235.xml"; path = "../../proj/panoview/data/pan/TAL-235.xml"; sourceTree = "<group>"; };
-		58A1E08313CDF7CD00D0A598 /* TAL-238.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-238.xml"; path = "../../proj/panoview/data/pan/TAL-238.xml"; sourceTree = "<group>"; };
-		58A1E08413CDF7CD00D0A598 /* TAL-242.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-242.xml"; path = "../../proj/panoview/data/pan/TAL-242.xml"; sourceTree = "<group>"; };
-		58A1E08513CDF7CD00D0A598 /* TAL-243.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-243.xml"; path = "../../proj/panoview/data/pan/TAL-243.xml"; sourceTree = "<group>"; };
-		58A1E08613CDF7CE00D0A598 /* TAL-244.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-244.xml"; path = "../../proj/panoview/data/pan/TAL-244.xml"; sourceTree = "<group>"; };
-		58A1E08713CDF7CE00D0A598 /* TAL-245.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-245.xml"; path = "../../proj/panoview/data/pan/TAL-245.xml"; sourceTree = "<group>"; };
-		58A1E08813CDF7CE00D0A598 /* TAL-246.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-246.xml"; path = "../../proj/panoview/data/pan/TAL-246.xml"; sourceTree = "<group>"; };
-		58A1E08913CDF7CE00D0A598 /* TAL-247.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "TAL-247.xml"; path = "../../proj/panoview/data/pan/TAL-247.xml"; sourceTree = "<group>"; };
-		58A1E08A13CDF7CE00D0A598 /* Taliesin-Entrance-11.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Entrance-11.xml"; path = "../../proj/panoview/data/pan/Taliesin-Entrance-11.xml"; sourceTree = "<group>"; };
-		58A1E08B13CDF7CE00D0A598 /* Taliesin-Entrance-235.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Entrance-235.xml"; path = "../../proj/panoview/data/pan/Taliesin-Entrance-235.xml"; sourceTree = "<group>"; };
-		58A1E08C13CDF7CE00D0A598 /* Taliesin-Path-A.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-A.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-A.xml"; sourceTree = "<group>"; };
-		58A1E08D13CDF7CE00D0A598 /* Taliesin-Path-B.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-B.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-B.xml"; sourceTree = "<group>"; };
-		58A1E08E13CDF7CE00D0A598 /* Taliesin-Path-C.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-C.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-C.xml"; sourceTree = "<group>"; };
-		58A1E08F13CDF7CE00D0A598 /* Taliesin-Path-D.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-D.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-D.xml"; sourceTree = "<group>"; };
-		58A1E09013CDF7CE00D0A598 /* Taliesin-Path-E.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-E.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-E.xml"; sourceTree = "<group>"; };
-		58A1E09113CDF7CE00D0A598 /* Taliesin-Path-F.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-F.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-F.xml"; sourceTree = "<group>"; };
-		58A1E09213CDF7CE00D0A598 /* Taliesin-Path-G.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-G.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-G.xml"; sourceTree = "<group>"; };
-		58A1E09313CDF7CE00D0A598 /* Taliesin-Path-H.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Path-H.xml"; path = "../../proj/panoview/data/pan/Taliesin-Path-H.xml"; sourceTree = "<group>"; };
-		58A1E09413CDF7CE00D0A598 /* Tomb-Interior.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Tomb-Interior.xml"; path = "../../proj/panoview/data/pan/Tomb-Interior.xml"; sourceTree = "<group>"; };
-		58A1E09513CDF7CF00D0A598 /* West-Office.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "West-Office.xml"; path = "../../proj/panoview/data/pan/West-Office.xml"; sourceTree = "<group>"; };
-		58A1E09613CDF7CF00D0A598 /* WI-Capitol.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "WI-Capitol.xml"; path = "../../proj/panoview/data/pan/WI-Capitol.xml"; sourceTree = "<group>"; };
-		58A1E09713CDF7CF00D0A598 /* WID.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = WID.xml; path = ../../proj/panoview/data/pan/WID.xml; sourceTree = "<group>"; };
-		58A1E09813CDF7CF00D0A598 /* Wisconsin-Capitol-Dome-2.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Wisconsin-Capitol-Dome-2.xml"; path = "../../proj/panoview/data/pan/Wisconsin-Capitol-Dome-2.xml"; sourceTree = "<group>"; };
-		58BF593313D0CF6300A92AFB /* BMNG.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = BMNG.xml; path = ../../proj/panoview/data/pan/BMNG.xml; sourceTree = "<group>"; };
-		58BF593413D0CF6300A92AFB /* Madison-State-Capitol-Dome-Mono.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Madison-State-Capitol-Dome-Mono.xml"; path = "../../proj/panoview/data/pan/Madison-State-Capitol-Dome-Mono.xml"; sourceTree = "<group>"; };
-		58DB38B013C7422600304D44 /* gui-loader.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "gui-loader.cpp"; path = "../../../proj/panoview/gui-loader.cpp"; sourceTree = "<group>"; };
-		58DB38B113C7422600304D44 /* gui-loader.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "gui-loader.hpp"; path = "../../../proj/panoview/gui-loader.hpp"; sourceTree = "<group>"; };
-		58DB38B313C7445000304D44 /* libfreetype.6.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libfreetype.6.dylib; path = /opt/local/lib/libfreetype.6.dylib; sourceTree = "<absolute>"; };
-		58DB38C313C8F5D300304D44 /* Taliesin-Garden-13.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = "Taliesin-Garden-13.xml"; path = "../../proj/panoview/data/pan/Taliesin-Garden-13.xml"; sourceTree = "<group>"; };
 		58E2108813AE6EAF004580E9 /* panoview */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = panoview; sourceTree = BUILT_PRODUCTS_DIR; };
-		58E2109413AE6EC2004580E9 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../proj/panoview/main.cpp; sourceTree = "<group>"; };
-		58E2109513AE6EC2004580E9 /* main.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = main.hpp; path = ../../../proj/panoview/main.hpp; sourceTree = "<group>"; };
 		58E2109613AE6EC2004580E9 /* panoview.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = panoview.cpp; path = ../../../proj/panoview/panoview.cpp; sourceTree = "<group>"; };
 		58E2109713AE6EC2004580E9 /* panoview.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = panoview.hpp; path = ../../../proj/panoview/panoview.hpp; sourceTree = "<group>"; };
-		58E2109813AE6EC2004580E9 /* sph-model.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = "sph-model.cpp"; path = "../../../proj/panoview/sph-model.cpp"; sourceTree = "<group>"; };
-		58E2109913AE6EC2004580E9 /* sph-model.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "sph-model.hpp"; path = "../../../proj/panoview/sph-model.hpp"; sourceTree = "<group>"; };
-		58E2109D13AE6F40004580E9 /* thumb.dylib */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.dylib"; path = thumb.dylib; sourceTree = BUILT_PRODUCTS_DIR; };
 		58E2109F13AE7297004580E9 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
-		58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = "libSDL-1.2.0.dylib"; path = "/opt/local/lib/libSDL-1.2.0.dylib"; sourceTree = "<absolute>"; };
-		58E210A613AE7380004580E9 /* libSDLmain.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libSDLmain.a; path = /opt/local/lib/libSDLmain.a; sourceTree = "<absolute>"; };
 		58E210A813AE7393004580E9 /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = System/Library/Frameworks/ApplicationServices.framework; sourceTree = SDKROOT; };
 		58E210AA13AE73A9004580E9 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
@@ -126,12 +39,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				588E32AA13D4C74400B9B6F7 /* libtiff.5.dylib in Frameworks */,
-				58427C7E13AF8C5600F0A012 /* libGLEW.1.6.0.dylib in Frameworks */,
-				58E2109E13AE6F40004580E9 /* thumb.dylib in Frameworks */,
-				58DB38B413C7445000304D44 /* libfreetype.6.dylib in Frameworks */,
-				58E210A713AE7380004580E9 /* libSDLmain.a in Frameworks */,
-				58E210A413AE72E6004580E9 /* libSDL-1.2.0.dylib in Frameworks */,
 				58E210A013AE7297004580E9 /* OpenGL.framework in Frameworks */,
 				58E210AB13AE73A9004580E9 /* Cocoa.framework in Frameworks */,
 			);
@@ -143,7 +50,6 @@
 		580ABF1C1416C6C4009F4D42 /* Documentation */ = {
 			isa = PBXGroup;
 			children = (
-				580ABF1D1416C6E9009F4D42 /* panorama.html */,
 			);
 			name = Documentation;
 			sourceTree = "<group>";
@@ -151,62 +57,8 @@
 		580BA34B13C78CFB00C77076 /* Data */ = {
 			isa = PBXGroup;
 			children = (
-				58A1E09913CDF80F00D0A598 /* Panoramas */,
-				5818B95C13CA312900076A22 /* sph-blend.frag */,
-				5818B95613CA22C200076A22 /* sph-render.frag */,
-				5818B95713CA22C200076A22 /* sph-render.vert */,
-				5818B95813CA22C200076A22 /* sph-zoomer.vert */,
 			);
 			name = Data;
-			sourceTree = "<group>";
-		};
-		58A1E09913CDF80F00D0A598 /* Panoramas */ = {
-			isa = PBXGroup;
-			children = (
-				58BF593313D0CF6300A92AFB /* BMNG.xml */,
-				58BF593413D0CF6300A92AFB /* Madison-State-Capitol-Dome-Mono.xml */,
-				58A1E07513CDF7CC00D0A598 /* Al-Diwan.xml */,
-				58A1E07613CDF7CC00D0A598 /* Back-Yard.xml */,
-				58A1E07713CDF7CC00D0A598 /* Bowl3-Panorama.xml */,
-				58A1E07813CDF7CC00D0A598 /* Grand-Mosque-1.xml */,
-				58A1E07913CDF7CC00D0A598 /* Grand-Mosque-2.xml */,
-				58A1E07A13CDF7CC00D0A598 /* Madison-State-Capitol-Dome-2.xml */,
-				58A1E07B13CDF7CC00D0A598 /* Mill-Creek.xml */,
-				58A1E07C13CDF7CD00D0A598 /* Overture-Hall.xml */,
-				58A1E07D13CDF7CD00D0A598 /* Rock-Formation.xml */,
-				58A1E07E13CDF7CD00D0A598 /* Rock-Island-Path-23.xml */,
-				58A1E07F13CDF7CD00D0A598 /* Rock-Island-Tower-1.xml */,
-				58A1E08013CDF7CD00D0A598 /* Second-Tomb-Interior.xml */,
-				58A1E08113CDF7CD00D0A598 /* SF-Ship-1.xml */,
-				58A1E08213CDF7CD00D0A598 /* TAL-235.xml */,
-				58A1E08313CDF7CD00D0A598 /* TAL-238.xml */,
-				58A1E08413CDF7CD00D0A598 /* TAL-242.xml */,
-				58A1E08513CDF7CD00D0A598 /* TAL-243.xml */,
-				58A1E08613CDF7CE00D0A598 /* TAL-244.xml */,
-				58A1E08713CDF7CE00D0A598 /* TAL-245.xml */,
-				58A1E08813CDF7CE00D0A598 /* TAL-246.xml */,
-				58A1E08913CDF7CE00D0A598 /* TAL-247.xml */,
-				58A1E08A13CDF7CE00D0A598 /* Taliesin-Entrance-11.xml */,
-				58A1E08B13CDF7CE00D0A598 /* Taliesin-Entrance-235.xml */,
-				58A1E08C13CDF7CE00D0A598 /* Taliesin-Path-A.xml */,
-				58A1E08D13CDF7CE00D0A598 /* Taliesin-Path-B.xml */,
-				58A1E08E13CDF7CE00D0A598 /* Taliesin-Path-C.xml */,
-				58A1E08F13CDF7CE00D0A598 /* Taliesin-Path-D.xml */,
-				58A1E09013CDF7CE00D0A598 /* Taliesin-Path-E.xml */,
-				58A1E09113CDF7CE00D0A598 /* Taliesin-Path-F.xml */,
-				58A1E09213CDF7CE00D0A598 /* Taliesin-Path-G.xml */,
-				58A1E09313CDF7CE00D0A598 /* Taliesin-Path-H.xml */,
-				58A1E09413CDF7CE00D0A598 /* Tomb-Interior.xml */,
-				58A1E09513CDF7CF00D0A598 /* West-Office.xml */,
-				58A1E09613CDF7CF00D0A598 /* WI-Capitol.xml */,
-				58A1E09713CDF7CF00D0A598 /* WID.xml */,
-				58A1E09813CDF7CF00D0A598 /* Wisconsin-Capitol-Dome-2.xml */,
-				5818B95413CA05C100076A22 /* Taliesin-Path.xml */,
-				58DB38C313C8F5D300304D44 /* Taliesin-Garden-13.xml */,
-				580BA34D13C7943500C77076 /* Blue-Mounds-8.xml */,
-				58A1E06B13CB8A4800D0A598 /* Blue-Mounds-8-Mono.xml */,
-			);
-			name = Panoramas;
 			sourceTree = "<group>";
 		};
 		58E2107D13AE6EAF004580E9 = {
@@ -231,25 +83,9 @@
 		58E2108B13AE6EAF004580E9 /* panoview */ = {
 			isa = PBXGroup;
 			children = (
-				5865801313B60E7900FBBF90 /* sph-cache.cpp */,
-				5865801413B60E7900FBBF90 /* sph-cache.hpp */,
-				58E2109813AE6EC2004580E9 /* sph-model.cpp */,
-				58E2109913AE6EC2004580E9 /* sph-model.hpp */,
-				58DB38B013C7422600304D44 /* gui-loader.cpp */,
-				58DB38B113C7422600304D44 /* gui-loader.hpp */,
 				5865802C13B628F100FBBF90 /* queue.hpp */,
-				582D8D0613AFAC730005A831 /* cube.cpp */,
-				582D8D0713AFAC730005A831 /* cube.hpp */,
-				582D8D1013AFECB00005A831 /* glyph.c */,
-				582D8D1113AFECB00005A831 /* glyph.h */,
-				582D8D0113AFA2C50005A831 /* math3d.c */,
-				582D8D0213AFA2C50005A831 /* math3d.h */,
-				582D8CFF13AFA2C50005A831 /* glsl.c */,
-				582D8D0013AFA2C50005A831 /* glsl.h */,
 				58E2109613AE6EC2004580E9 /* panoview.cpp */,
 				58E2109713AE6EC2004580E9 /* panoview.hpp */,
-				58E2109413AE6EC2004580E9 /* main.cpp */,
-				58E2109513AE6EC2004580E9 /* main.hpp */,
 			);
 			path = panoview;
 			sourceTree = "<group>";
@@ -257,12 +93,6 @@
 		58E210A513AE730A004580E9 /* Dependencies */ = {
 			isa = PBXGroup;
 			children = (
-				588E32A913D4C74400B9B6F7 /* libtiff.5.dylib */,
-				58E2109D13AE6F40004580E9 /* thumb.dylib */,
-				58DB38B313C7445000304D44 /* libfreetype.6.dylib */,
-				58E210A613AE7380004580E9 /* libSDLmain.a */,
-				58E210A313AE72E6004580E9 /* libSDL-1.2.0.dylib */,
-				58427C7D13AF8C5600F0A012 /* libGLEW.1.6.0.dylib */,
 				58E2109F13AE7297004580E9 /* OpenGL.framework */,
 				58E210AA13AE73A9004580E9 /* Cocoa.framework */,
 				58E210A813AE7393004580E9 /* ApplicationServices.framework */,
@@ -320,19 +150,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				58E2109A13AE6EC2004580E9 /* main.cpp in Sources */,
 				58E2109B13AE6EC2004580E9 /* panoview.cpp in Sources */,
-				58E2109C13AE6EC2004580E9 /* sph-model.cpp in Sources */,
-				582D8D0313AFA2C50005A831 /* glsl.c in Sources */,
-				582D8D0413AFA2C50005A831 /* math3d.c in Sources */,
-				582D8D0813AFAC730005A831 /* cube.cpp in Sources */,
-				582D8D1213AFECB00005A831 /* glyph.c in Sources */,
-				5865801913B60E7900FBBF90 /* sph-cache.cpp in Sources */,
-				58DB38B213C7422600304D44 /* gui-loader.cpp in Sources */,
-				5818B95913CA22C200076A22 /* sph-render.frag in Sources */,
-				5818B95A13CA22C200076A22 /* sph-render.vert in Sources */,
-				5818B95B13CA22C200076A22 /* sph-zoomer.vert in Sources */,
-				5818B95D13CA312900076A22 /* sph-blend.frag in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
