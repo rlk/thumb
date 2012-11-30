@@ -2,20 +2,21 @@
 
 _Scene Editor______________________________________________________________________________
 
+Radius: 1737400.0      Vertex Shader: displace
+  Mesh: 32           Fragment Shader: overlay
+  Size: 336
+
 |_Scene Name___|    |_Scene Images_____________________Sampler_Height_Channel_Min___Max___|
 | Tycho        |    | DTM-426-6.tif                    height  X      0       0.994 1.006 |
 | Apollo 16    |    | WAC-426-6.tif                    base    O      0       0.0   1.0   |
 |              |    | NAC_ROI_TychoCtrLoA-336-14.tif   over    O      0       0.0   1.0   |
 [+]                 [+]
 
-Radius: 1737400.0      Vertex Shader: displace
-  Mesh: 32           Fragment Shader: overlay
-  Size: 336
 
 
 
 
-_View Editor___________________________________________________________________
+_View Editor___________________________________________________
 
 |_Name___Scene__Label______|    Lat      180.0   Sun Lat 180.0
 | Tycho  Tycho  Tycho.csv  |    Lon        0.0   Sun Lon   0.0
