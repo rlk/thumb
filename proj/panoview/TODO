@@ -1,0 +1,62 @@
+
+
+_Scene Editor______________________________________________________________________________
+
+|_Scene Name___|    |_Scene Images_____________________Sampler_Height_Channel_Min___Max___|
+| Tycho        |    | DTM-426-6.tif                    height  X      0       0.994 1.006 |
+| Apollo 16    |    | WAC-426-6.tif                    base    O      0       0.0   1.0   |
+|              |    | NAC_ROI_TychoCtrLoA-336-14.tif   over    O      0       0.0   1.0   |
+[+]                 [+]
+
+Radius: 1737400.0      Vertex Shader: displace
+  Mesh: 32           Fragment Shader: overlay
+  Size: 336
+
+
+
+
+_View Editor___________________________________________________________________
+
+|_Name___Scene__Label______|    Lat      180.0   Sun Lat 180.0
+| Tycho  Tycho  Tycho.csv  |    Lon        0.0   Sun Lon   0.0
+|                          |    Dist 1000000.0   FOV      90.0
+|                          |    Pitch      0.0   Speed     1.0
+|                          |    Yaw        0.0   Tension   1.0
+|                          |    Roll       0.0   Bias      1.0
+[+]  <<  |<  >  >|  >>
+
+
+
+_Render Configuration_______
+
+     Display: Interleaved
+       Width: 1920
+      Height: 1080
+ Motion Blur: X
+Blur Samples: 8
+ Synchronous: X
+       Cache: X
+   Wireframe: X
+ Interocular: 65
+
+__3D View: NAC ROI_____________________________________________________________
+
+
+
+
+File:
+New
+Open
+Save
+Save As...
+Export Frames...
+
+Edit:
+Copy
+Cut
+Paste
+
+Window:
+Scene Editor
+View Editor
+3D View

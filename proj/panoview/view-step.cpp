@@ -22,8 +22,6 @@
 
 //------------------------------------------------------------------------------
 
-// http://paulbourke.net/miscellaneous/interpolation/
-
 double hint(double y0, double y1,
             double y2, double y3,
             double t,
@@ -291,6 +289,8 @@ void view_step::transform_light(const double *M)
     vtransform(v, M, light);
     vnormalize(light, v);
 }
+
+//------------------------------------------------------------------------------
 
 void view_step::set_pitch(double a)
 {

@@ -37,16 +37,16 @@ public:
 
     app::node serialize() const;
 
-    void transform_orientation(const double *);
-    void transform_position   (const double *);
-    void transform_light      (const double *);
+    void   transform_orientation(const double *);
+    void   transform_position   (const double *);
+    void   transform_light      (const double *);
 
-    void set_pitch   (double p);
-    void set_speed   (double s) { speed    = s; }
-    void set_distance(double r) { distance = r; }
-    void set_tension (double t) { tension  = t; }
-    void set_bias    (double b) { bias     = b; }
-    void set_zoom    (double z) { zoom     = z; }
+    void   set_pitch   (double p);
+    void   set_speed   (double s) { speed    = s; }
+    void   set_distance(double r) { distance = r; }
+    void   set_tension (double t) { tension  = t; }
+    void   set_bias    (double b) { bias     = b; }
+    void   set_zoom    (double z) { zoom     = z; }
 
     void   get_matrix  (double *, double) const;
     void   get_position(double *) const;
@@ -79,7 +79,6 @@ private:
     double tension;        // Hermite interpolation tension
     double bias;           // Hermite interpolation bias
     double zoom;           // Magnification
-    double pitch;          // Pitch interpolation
 };
 
 //------------------------------------------------------------------------------
