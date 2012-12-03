@@ -5,12 +5,12 @@
             vert="glsl/scm-displace.vert"
             frag="glsl/scm-lomsee.frag">
 
-    <cache n="360" c="1" b="16" threads="2" r0="0.994728" r1="1.0062"/>
+    <cache n="360" c="1" b="16" threads="2"/>
     <cache n="360" c="3" b="8"  threads="2"/>
     <cache n="256" c="3" b="8"  threads="2"/>
 
     <scene>
-      <image name="height" scm="LDEM-360-8.tif"       cache="0" height="1"/>
+      <image name="height" scm="LDEM-360-8.tif"       cache="0" height="1" k0="0.994728" k1="1.0062"/>
       <image name="normal" scm="LDEM-360-8-N.tif"     cache="1" />
 <!--  <image name="color"  scm="clementine-256-4.tif" cache="2" /> -->
     </scene>
