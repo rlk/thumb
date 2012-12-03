@@ -107,10 +107,8 @@ void view_app::load_caches(app::node p)
         int    c  = i.get_i("c",       3);
         int    b  = i.get_i("b",       1);
         int    t  = i.get_i("threads", 2);
-        double r0 = i.get_f("r0",    0.0);
-        double r1 = i.get_f("r1",    1.0);
 
-        caches.push_back(new scm_cache(size, n, c, b, t, r0, r1));
+        caches.push_back(new scm_cache(size, n, c, b, t));
     }
 }
 
@@ -125,13 +123,17 @@ void view_app::load_images(app::node p, scm_scene *f)
         int                cc   = i.get_i("cache",    0);
         int                ch   = i.get_i("channel", -1);
         int                ht   = i.get_i("height",   0);
+        double             k0   = i.get_f("k0",    0.0);
+        double             k1   = i.get_f("k1",    1.0);
 
         if (0 <= cc && cc < int(caches.size()))
         {
-            if (ht)
-                f->add_image(new scm_image(name, scm, caches[cc], ch, true));
-            else
-                f->add_image(new scm_image(name, scm, caches[cc], ch, false));
+            if (scm_image *p = new scm_image(name, scm, caches[cc], ch, ht))
+            {
+                p->set_normal_min(float(k0));
+                p->set_normal_max(float(k1));
+                f->add_image(p);
+            }
         }
     }
 }

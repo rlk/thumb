@@ -6,6 +6,8 @@ struct scm
     vec2      r;
     vec2      b[16];
     float     a[16];
+    float     k0;
+    float     k1;
 };
 
 uniform scm color;
@@ -44,5 +46,6 @@ vec4 sample_color(vec2 t)
 
 void main()
 {
-    gl_FragColor = sample_color(gl_TexCoord[0].xy);
+    vec4 k = sample_color(gl_TexCoord[0].xy);
+    gl_FragColor = vec4(mix(vec3(color.k0), vec3(color.k1), vec3(k)), k.a);
 }

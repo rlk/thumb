@@ -6,6 +6,8 @@ struct scm
     vec2      r;
     vec2      b[16];
     float     a[16];
+    float     k0;
+    float     k1;
 };
 
 uniform scm height;
@@ -13,9 +15,6 @@ uniform scm height;
 uniform mat3 M;
 uniform vec2 A[16];
 uniform vec2 B[16];
-
-uniform float r0;
-uniform float r1;
 
 varying vec3 var_V;
 varying vec3 var_L;
@@ -29,9 +28,6 @@ vec4 add(vec4 a, vec4 b)
 
 vec4 sample_height(vec2 t)
 {
-    /*
-    return texture2D(height.S, (t * A[ 0] + B[ 0]) * height.r + height.b[ 0] + 1.0);
-    */
     return add(add(add(add(texture2D(height.S, (t * A[ 0] + B[ 0]) * height.r + height.b[ 0] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 0]),
                            texture2D(height.S, (t * A[ 1] + B[ 1]) * height.r + height.b[ 1] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 1])),
                        add(texture2D(height.S, (t * A[ 2] + B[ 2]) * height.r + height.b[ 2] + 1.0) * vec4(1.0, 1.0, 1.0, height.a[ 2]),
@@ -85,7 +81,7 @@ vec3 scube(vec2 t)
 void main()
 {
     float k = sample_height(gl_Vertex.xy).r;
-    float h = mix(r0, r1, k);
+    float h = mix(height.k0, height.k1, k);
     vec3  v = h * scube(A[0] * gl_Vertex.xy + B[0]);
 
     var_L = gl_LightSource[0].position.xyz;
