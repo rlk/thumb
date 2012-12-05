@@ -32,12 +32,12 @@
 
 view_app::view_app(const std::string& exe,
                    const std::string& tag) : app::prog(exe, tag),
-    model  (0),
-    label  (0),
-    timer  (0),
-    timer_d(0),
-    timer_e(0),
-    height (0),
+    // model  (0),
+    // label  (0),
+    // timer  (0),
+    // timer_d(0),
+    // timer_e(0),
+    // height (0),
     radius (6),
     debug_cache(false),
     debug_label(false),
@@ -52,16 +52,13 @@ view_app::view_app(const std::string& exe,
     TIFFSetWarningHandler(0);
     gui_init();
 
-#if 0
-    printf("%s\n", glGetString(GL_VENDOR));
-    printf("%s\n", glGetString(GL_RENDERER));
-    printf("%s\n", glGetString(GL_VERSION));
-    printf("%s\n", glGetString(GL_EXTENSIONS));
-#endif
+    sys = new scm_system();
 }
 
 view_app::~view_app()
 {
+    delete sys;
+
     gui_free();
     unload();
 
@@ -69,7 +66,7 @@ view_app::~view_app()
 }
 
 //------------------------------------------------------------------------------
-
+#if 0
 void view_app::load_model(app::node p)
 {
     // Load the configured shaders.
@@ -94,46 +91,20 @@ void view_app::load_model(app::node p)
     ::data->free(vert_name);
     ::data->free(frag_name);
 }
-
-void view_app::load_caches(app::node p)
-{
-    int size = ::conf->get_i("scm_cache_size", 8);
-
-    // Create a new cache object for each node.
-
-    for (app::node i = p.find("cache"); i; i = p.next(i, "cache"))
-    {
-        int    n  = i.get_i("n",     256);
-        int    c  = i.get_i("c",       3);
-        int    b  = i.get_i("b",       1);
-        int    t  = i.get_i("threads", 2);
-
-        caches.push_back(new scm_cache(size, n, c, b, t));
-    }
-}
-
+#endif
 void view_app::load_images(app::node p, scm_scene *f)
 {
     // Create a new image object for each node.
 
     for (app::node i = p.find("image"); i; i = p.next(i, "image"))
     {
-        const std::string& name = i.get_s("name");
-        const std::string& scm  = i.get_s("scm");
-        int                cc   = i.get_i("cache",    0);
-        int                ch   = i.get_i("channel", -1);
-        int                ht   = i.get_i("height",   0);
-        double             k0   = i.get_f("k0",    0.0);
-        double             k1   = i.get_f("k1",    1.0);
-
-        if (0 <= cc && cc < int(caches.size()))
+        if (scm_image *p = f->get_image(f->add_image(f->get_image_count())))
         {
-            if (scm_image *p = new scm_image(name, scm, caches[cc], ch, ht))
-            {
-                p->set_normal_min(float(k0));
-                p->set_normal_max(float(k1));
-                f->add_image(p);
-            }
+            p->set_scm(i.get_s("scm"));
+            p->set_name(i.get_s("name"));
+            p->set_height(i.get_i("height"));
+            p->set_normal_min(float(i.get_f("k0")));
+            p->set_normal_max(float(i.get_f("k1")));
         }
     }
 }
@@ -144,10 +115,18 @@ void view_app::load_scenes(app::node p)
 
     for (app::node i = p.find("scene"); i; i = p.next(i, "scene"))
     {
-        scm_scene *f = new scm_scene();
+        if (scm_scene *f = sys->get_scene(sys->add_scene(sys->get_scene_count())))
+        {
+            const std::string& vert_name = i.get_s("vert");
+            const std::string& frag_name = i.get_s("frag");
 
-        load_images(i, f);
-        scenes.push_back(f);
+            if (!vert_name.empty())
+                f->set_vert((const char *) ::data->load(vert_name));
+            if (!vert_name.empty())
+                f->set_frag((const char *) ::data->load(frag_name));
+
+            load_images(i, f);
+        }
     }
 }
 
@@ -173,16 +152,16 @@ void view_app::load(const std::string& name)
 
         // Configure the viewer.
 
-        height = root.get_f("height", 0.0);
-        radius = root.get_f("radius", 6.0);
+        // height = root.get_f("height", 0.0);
+        // radius = root.get_f("radius", 6.0);
 
         // Load all data.
 
-        load_model (root);
-        load_caches(root);
+        // load_model (root);
+        // load_caches(root);
         load_scenes(root);
-        load_steps (root);
-        load_label ("csv/IAUMOON.csv");
+        // load_steps (root);
+        // load_label ("csv/IAUMOON.csv");
 
         // Dismiss the GUI.
 
@@ -197,6 +176,7 @@ void view_app::cancel()
 
 void view_app::unload()
 {
+#if 0
     for (scm_cache_i i = caches.begin(); i != caches.end(); ++i) delete (*i);
     for (scm_scene_i j = scenes.begin(); j != scenes.end(); ++j) delete (*j);
 
@@ -208,8 +188,10 @@ void view_app::unload()
 
     label = 0;
     model = 0;
+#endif
 }
 
+#if 0
 void view_app::goto_next()
 {
 #if 0
@@ -229,48 +211,15 @@ void view_app::goto_prev()
     timer--;
 #endif
 }
-
-double view_app::min_height() const
-{
-    if (scm_scene *scene = get_current_scene())
-        return scene->get_height_bottom();
-    else
-        return 1.0;
-}
-
-double view_app::get_height() const
-{
-    double v[3];
-
-    here.get_position(v);
-
-    if (scm_scene *scene = get_current_scene())
-        return scene->get_height_sample(v);
-    else
-        return 1.0;
-}
-
-scm_scene *view_app::get_current_scene() const
-{
-    int s = int(scenes.size());
-    int f = int(timer);
-
-    if (s)
-    {
-        while (f <  0) f += s;
-        while (f >= s) f -= s;
-
-        return scenes[f];
-    }
-    return 0;
-}
+#endif
 
 //------------------------------------------------------------------------------
 
 ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
     double r = radius * get_scale();
-
+    sys->update(::host->get_movie_mode());
+#if 0
     if (model)
     {
         bool s = ::host->get_movie_mode();
@@ -278,6 +227,7 @@ ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
         for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
             (*i)->update(model->tick(), s);
     }
+#endif
     return ogl::range(0.1, 2.0 * r);
 }
 
@@ -292,59 +242,54 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     const int     w = ::host->get_buffer_w();
     const int     h = ::host->get_buffer_h();
 
-    if (model)
+    // Compute the model view matrix to be used for view determination.
+
+    double s = get_scale();
+    double r = radius;
+
+    double V[16];
+    double A[16];
+
+    load_inv    (V, M);
+    Rmul_scl_mat(V, s, s, s);
+    Rmul_scl_mat(V, r, r, r);
+    mult_mat_mat(A, P, V);
+
+    // Draw the sphere.
+
+    if (debug_wire)
     {
-        // Compute the model view matrix to be used for view determination.
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+        glLineWidth(1.0);
+        glDisable(GL_DEPTH_TEST);
+        glDisable(GL_CULL_FACE);
+    }
 
-        double s = get_scale();
-        double r = radius;
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(P);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixd(V);
 
-        double V[16];
-        double A[16];
+    sys->render(A, w, h, chani);
 
-        load_inv    (V, M);
-        Rmul_scl_mat(V, s, s, s);
-        Rmul_scl_mat(V, r, r, r);
-        mult_mat_mat(A, P, V);
-
-        // Draw the sphere.
-
-        if (debug_wire)
-        {
-            glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-            glLineWidth(1.0);
-            glDisable(GL_DEPTH_TEST);
-            glDisable(GL_CULL_FACE);
-        }
-
-        if (scm_scene *scene = get_current_scene())
-        {
-            glMatrixMode(GL_PROJECTION);
-            glLoadMatrixd(P);
-            glMatrixMode(GL_MODELVIEW);
-            glLoadMatrixd(V);
-
-            model->draw(scene, A, w, h, chani);
-        }
-        if (debug_wire)
-        {
-            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-        }
+    if (debug_wire)
+    {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
 }
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)
 {
     double s = get_scale();
-    double r = radius;
+    // double r = radius;
 
     frusp->draw();
    ::user->draw();
 
     // Draw the label overlay.
-
+#if 0
     if (debug_label)
     {
         glPushMatrix();
@@ -357,7 +302,7 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
         }
         glPopMatrix();
     }
-
+#endif
     // Draw the path overlay.
 
     if (debug_path)
@@ -371,14 +316,14 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     }
 
     // Draw the cache overlay.
-
+#if 0
     if (debug_cache)
     {
         int n = int(caches.size());
         for (int i = 0; i < n; ++i)
             caches[i]->draw(i, n);
     }
-
+#endif
     // Draw the GUI overlay.
 
     if (gui_state)
@@ -399,8 +344,8 @@ bool view_app::process_key(app::event *E)
         if (!c && !s)
             switch (k)
             {
-                case 280: goto_next();                return true; // Page Up
-                case 281: goto_prev();                return true; // Page Down
+                // case 280: goto_next();                return true; // Page Up
+                // case 281: goto_prev();                return true; // Page Down
 
                 case 282: gui_state   = !gui_state;   return true; // F1
                 case 283: debug_cache = !debug_cache; return true; // F2
@@ -409,10 +354,10 @@ bool view_app::process_key(app::event *E)
                 case 286: debug_wire  = !debug_wire;  return true; // F5
                 case 287: debug_bound = !debug_bound; return true; // F6
 
-                case 8:
-                    for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
-                        (*i)->flush();
-                    return true; // Backspace
+                // case 8:
+                //     for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
+                //         (*i)->flush();
+                //     return true; // Backspace
             }
 
         if (c)
@@ -475,12 +420,12 @@ bool view_app::process_user(app::event *E)
         {
             if (steps[i].get_name().compare(name) == 0)
             {
-                int f = steps[i].get_scene();
+                // int f = steps[i].get_scene();
 
-                if (0 <= f && f < int(scenes.size()))
-                    timer = f;
+                // if (0 <= f && f < int(scenes.size()))
+                //     timer = f;
 
-                load_label(steps[i].get_label());
+                // load_label(steps[i].get_label());
 
                 path.stop();
                 path.clear();
@@ -502,7 +447,7 @@ bool view_app::process_tick(app::event *E)
         path.time(E->data.tick.dt);
         path.get(here);
     }
-
+#if 0
     timer += timer_d * E->data.tick.dt;
 
     if (timer_d > 0.0 && timer > timer_e)
@@ -515,7 +460,7 @@ bool view_app::process_tick(app::event *E)
         timer   = timer_e;
         timer_d = 0;
     }
-
+#endif
     return false;
 }
 
@@ -541,7 +486,7 @@ bool view_app::process_event(app::event *E)
 }
 
 //------------------------------------------------------------------------------
-
+#if 0
 void view_app::load_label(const std::string& name)
 {
     // Load the CSV file.
@@ -564,7 +509,7 @@ void view_app::load_label(const std::string& name)
 
     ::data->free(name);
 }
-
+#endif
 void view_app::make_path(int i)
 {
     // Construct a path from here to there.

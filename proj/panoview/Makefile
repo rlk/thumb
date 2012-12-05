@@ -6,6 +6,7 @@ VIEWOBJS= \
 	scm/util3d/glsl.o \
 	scm/util3d/math3d.o \
 	scm/util3d/type.o \
+	scm/scm-system.o \
 	scm/scm-index.o \
 	scm/scm-image.o \
 	scm/scm-scene.o \
@@ -15,6 +16,7 @@ VIEWOBJS= \
 	scm/scm-cache.o \
 	scm/scm-model.o \
 	scm/scm-label.o \
+	scm/scm-log.o \
 	view-step.o \
 	view-path.o \
 	view-load.o \

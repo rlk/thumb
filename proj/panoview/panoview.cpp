@@ -49,6 +49,7 @@ panoview::~panoview()
 
 void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 {
+#if 0
     if (model)
     {
         double v[3];
@@ -57,7 +58,7 @@ void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 
         model->set_zoom(v[0], v[1], v[2], here.get_zoom());
     }
-
+#endif
     view_app::draw(frusi, frusp, chani);
     view_app::over(frusi, frusp, chani);
 }

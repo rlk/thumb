@@ -18,9 +18,7 @@
 #include <app-prog.hpp>
 #include <app-file.hpp>
 
-#include "scm/scm-cache.hpp"
-#include "scm/scm-scene.hpp"
-#include "scm/scm-model.hpp"
+#include "scm/scm-system.hpp"
 #include "scm/scm-label.hpp"
 
 #include "view-step.hpp"
@@ -61,13 +59,15 @@ public:
 
 protected:
 
-    scm_scene *get_current_scene() const;
+    scm_system *sys;
 
-    scm_cache_v caches;
-    scm_scene_v scenes;
+    // scm_scene *get_current_scene() const;
 
-    scm_model *model;
-    scm_label *label;
+    // scm_cache_v caches;
+    // scm_scene_v scenes;
+
+    // scm_model *model;
+    // scm_label *label;
 
     view_step here;
     view_path path;
@@ -79,17 +79,17 @@ protected:
 private:
 
     void load_model (app::node);
-    void load_caches(app::node);
+    // void load_caches(app::node);
     void load_images(app::node, scm_scene *);
     void load_scenes(app::node);
     void load_steps (app::node);
 
     // Sphere rendering state
 
-    double timer;
-    double timer_d;
-    double timer_e;
-    double height;
+    // double timer;
+    // double timer_d;
+    // double timer_e;
+    // double height;
     double radius;
 
     bool debug_cache;

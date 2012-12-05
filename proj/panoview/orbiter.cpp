@@ -110,30 +110,27 @@ void orbiter::report()
 {
     // If a report destination has been configured...
 
-    if (model)
+    if (report_addr.sin_addr.s_addr != INADDR_NONE &&
+        report_sock                 != INVALID_SOCKET)
     {
-        if (report_addr.sin_addr.s_addr != INADDR_NONE &&
-            report_sock                 != INVALID_SOCKET)
-        {
-            // Compute the current longitude, latitude, and altitude.
+        // Compute the current longitude, latitude, and altitude.
 
-            double p[3], alt = here.get_distance();
+        double p[3], alt = here.get_distance();
 
-            here.get_position(p);
+        here.get_position(p);
 
-            double lon = atan2(p[0], p[2]) * 180.0 / M_PI;
-            double lat =  asin(p[1])       * 180.0 / M_PI;
+        double lon = atan2(p[0], p[2]) * 180.0 / M_PI;
+        double lat =  asin(p[1])       * 180.0 / M_PI;
 
-            // Encode these to an ASCII string.
+        // Encode these to an ASCII string.
 
-            char buf[128];
-            sprintf(buf, "%+12.8f %+13.8f %17.8f\n", lat, lon, alt);
+        char buf[128];
+        sprintf(buf, "%+12.8f %+13.8f %17.8f\n", lat, lon, alt);
 
-            // And send the string to the configured host.
+        // And send the string to the configured host.
 
-            sendto(report_sock, buf, strlen(buf) + 1, 0,
-                   (const sockaddr *) &report_addr, sizeof (sockaddr_in));
-        }
+        sendto(report_sock, buf, strlen(buf) + 1, 0,
+               (const sockaddr *) &report_addr, sizeof (sockaddr_in));
     }
 }
 
@@ -241,7 +238,7 @@ void orbiter::fly(double dt)
     const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
                                      : -(stick[1] * stick[1]);
 
-    double a = get_altitude() / (get_radius() * get_height());
+    double a = get_altitude() / (get_radius() * sys->get_current_height());
     double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
 
     here.set_pitch(k);
@@ -277,19 +274,15 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
     view_app::prep(frusc, frusv);
 
-    if (model)
-    {
-        // Compute a horizon line based upon altitude and minimum data radius.
+    // Compute a horizon line based upon altitude and minimum data radius.
 
-        double r = get_scale() * get_radius() * min_height();
-        double d = get_scale() * here.get_distance();
+    double r = get_scale() * get_radius() * sys->get_current_bottom();
+    double d = get_scale() * here.get_distance();
 
-        double n = 0.0001 *     (d     - r    );
-        double f = 1.1    * sqrt(d * d - r * r);
+    double n = 0.0001 *     (d     - r    );
+    double f = 1.1    * sqrt(d * d - r * r);
 
-        return ogl::range(n, f);
-    }
-    return ogl::range(0.1, 10.0);
+    return ogl::range(n, f);
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
@@ -348,14 +341,14 @@ void orbiter::load(const std::string& name)
 
 double orbiter::get_bottom() const
 {
-    return get_radius() * min_height();
+    return get_radius() * sys->get_current_bottom();
 }
 
 // Return the height above land at the current position.
 
 double orbiter::get_altitude() const
 {
-    return here.get_distance() - get_radius() * get_height();
+    return here.get_distance() - get_radius() * sys->get_current_height();
 }
 
 // Return an appropriate planet scale coefficient for the current view distance.
@@ -521,7 +514,7 @@ bool orbiter::pan_tick(app::event *E)
         // Constrain the distance using the terrain height.
 
         double r = get_radius();
-        double h = get_height();
+        double h = sys->get_current_height();
 
         if (here.get_distance())
             here.set_distance(std::max(here.get_distance(), r * h + 100.0));
