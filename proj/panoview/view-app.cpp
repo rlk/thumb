@@ -101,9 +101,9 @@ void view_app::load_images(app::node p, scm_scene *f)
     {
         if (scm_image *p = f->get_image(f->add_image(f->get_image_count())))
         {
-            p->set_scm(i.get_s("scm"));
-            p->set_name(i.get_s("name"));
-            p->set_height(i.get_i("height"));
+            p->set_scm             (i.get_s("scm"));
+            p->set_name            (i.get_s("name"));
+            p->set_height          (i.get_i("height"));
             p->set_normal_min(float(i.get_f("k0", 0.0)));
             p->set_normal_max(float(i.get_f("k1", 1.0)));
         }
@@ -216,20 +216,35 @@ void view_app::goto_prev()
 
 //------------------------------------------------------------------------------
 
+double view_app::get_current_height() const
+{
+    double v[3];
+    here.get_position(v);
+    return radius * sys->get_current_height(v);
+}
+
+double view_app::get_minimum_height() const
+{
+    return radius * sys->get_minimum_height();
+}
+
+double view_app::get_radius() const
+{
+    return radius;
+}
+
+void view_app::set_radius(double r)
+{
+    radius = r;
+}
+
+//------------------------------------------------------------------------------
+
 ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
-    double r = radius * get_scale();
     sys->update(::host->get_movie_mode());
-#if 0
-    if (model)
-    {
-        bool s = ::host->get_movie_mode();
 
-        for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
-            (*i)->update(model->tick(), s);
-    }
-#endif
-    return ogl::range(0.1, 2.0 * r);
+    return ogl::range(0.1, 2.0 * radius * get_scale());
 }
 
 void view_app::lite(int frusc, const app::frustum *const *frusv)
@@ -271,8 +286,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
-
-    sys->render(A, w, h, chani);
+    sys->render_model(A, w, h, chani);
 
     if (debug_wire)
     {
@@ -317,14 +331,10 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     }
 
     // Draw the cache overlay.
-#if 0
+
     if (debug_cache)
-    {
-        int n = int(caches.size());
-        for (int i = 0; i < n; ++i)
-            caches[i]->draw(i, n);
-    }
-#endif
+        sys->render_cache();
+
     // Draw the GUI overlay.
 
     if (gui_state)

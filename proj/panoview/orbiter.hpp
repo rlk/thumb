@@ -42,7 +42,7 @@ public:
 
 private:
 
-    double get_bottom()   const;
+    // double get_bottom()   const;
     double get_altitude() const;
 
     // View motion state

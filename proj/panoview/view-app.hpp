@@ -46,13 +46,14 @@ public:
     void unload();
     void cancel();
 
-    void goto_next();
-    void goto_prev();
+    // void goto_next();
+    // void goto_prev();
 
-    double get_height() const;
-    double min_height() const;
-    double get_radius() const   { return radius; }
-    void   set_radius(double r) { radius = r;    }
+    double get_current_height() const;
+    double get_minimum_height() const;
+
+    double get_radius() const;
+    void   set_radius(double r);
 
     virtual double get_scale() const { return 1.0; }
     virtual void   make_path(int);

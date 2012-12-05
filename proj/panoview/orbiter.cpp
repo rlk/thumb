@@ -199,7 +199,7 @@ void orbiter::dive(double dt, double k)
 {
     double d = (point[1] - click[1]) * dt;
     double r = here.get_distance();
-    double m =      get_bottom();
+    double m =      get_minimum_height();
 
     r = m + exp(log(r - m) + (4 * d));
 
@@ -238,7 +238,7 @@ void orbiter::fly(double dt)
     const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
                                      : -(stick[1] * stick[1]);
 
-    double a = get_altitude() / (get_radius() * sys->get_current_height());
+    double a = get_altitude() / get_current_height();
     double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
 
     here.set_pitch(k);
@@ -260,8 +260,8 @@ void orbiter::fly(double dt)
     // The Z axis affects the orbital radius.
 
     double r = here.get_distance();
-    double m =      get_bottom();
     double e =      get_radius();
+    double m =      get_minimum_height();
 
     here.set_distance(std::min(4 * e, m + exp(log(r - m) + (stick[2] * dt))));
 }
@@ -276,7 +276,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
     // Compute a horizon line based upon altitude and minimum data radius.
 
-    double r = get_scale() * get_radius() * sys->get_current_bottom();
+    double r = get_scale() *      get_minimum_height();
     double d = get_scale() * here.get_distance();
 
     double n = 0.0001 *     (d     - r    );
@@ -337,18 +337,11 @@ void orbiter::load(const std::string& name)
         here.set_distance(2.0 * get_radius());
 }
 
-// Return the bottom-most radius of this planet.
-
-double orbiter::get_bottom() const
-{
-    return get_radius() * sys->get_current_bottom();
-}
-
 // Return the height above land at the current position.
 
 double orbiter::get_altitude() const
 {
-    return here.get_distance() - get_radius() * sys->get_current_height();
+    return here.get_distance() - get_current_height();
 }
 
 // Return an appropriate planet scale coefficient for the current view distance.
@@ -513,11 +506,9 @@ bool orbiter::pan_tick(app::event *E)
 
         // Constrain the distance using the terrain height.
 
-        double r = get_radius();
-        double h = sys->get_current_height();
-
         if (here.get_distance())
-            here.set_distance(std::max(here.get_distance(), r * h + 100.0));
+            here.set_distance(std::max(here.get_distance(),
+                                            get_current_height() + 100.0));
     }
 
     // Apply the current transformation to the camera.
