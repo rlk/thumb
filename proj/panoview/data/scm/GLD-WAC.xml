@@ -3,12 +3,9 @@
             mesh="32"
             size="426">
 
-    <cache n="426" c="1" b="8"  threads="2"/>
-    <cache n="426" c="1" b="16" threads="2"/>
-
     <scene vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
-      <image name="height" scm="DTM-426-6.tif" cache="1" height="1" k0="0.994728" k1="1.0062" />
-      <image name="color"  scm="WAC-426-6.tif" cache="0" />
+      <image name="height" scm="DTM-426-6.tif" height="1" k0="0.994728" k1="1.0062" />
+      <image name="color"  scm="WAC-426-6.tif" />
     </scene>
 
     <step name="Tycho"

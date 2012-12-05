@@ -38,7 +38,8 @@ view_app::view_app(const std::string& exe,
     // timer_d(0),
     // timer_e(0),
     // height (0),
-    radius (6),
+    // radius (6),
+    radius (1737400.0),
     debug_cache(false),
     debug_label(false),
     debug_path (false),
@@ -103,8 +104,8 @@ void view_app::load_images(app::node p, scm_scene *f)
             p->set_scm(i.get_s("scm"));
             p->set_name(i.get_s("name"));
             p->set_height(i.get_i("height"));
-            p->set_normal_min(float(i.get_f("k0")));
-            p->set_normal_max(float(i.get_f("k1")));
+            p->set_normal_min(float(i.get_f("k0", 0.0)));
+            p->set_normal_max(float(i.get_f("k1", 1.0)));
         }
     }
 }
