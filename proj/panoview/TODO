@@ -3,8 +3,8 @@
 _Scene Editor______________________________________________________________________________
 
 Radius: 1737400.0      Vertex Shader: displace
-  Mesh: 32           Fragment Shader: overlay
-  Size: 336
+Detail: 32           Fragment Shader: overlay
+ Limit: 336
 
 |_Scene Name___|    |_Scene Images_____________________Sampler_Height_Channel_Min___Max___|
 | Tycho        |    | DTM-426-6.tif                    height  X      0       0.994 1.006 |

@@ -242,7 +242,7 @@ void view_app::set_radius(double r)
 
 ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
-    sys->update(::host->get_movie_mode());
+    sys->update_cache(::host->get_movie_mode());
 
     return ogl::range(0.1, 2.0 * radius * get_scale());
 }
@@ -364,6 +364,19 @@ bool view_app::process_key(app::event *E)
                 case 285: debug_path  = !debug_path;  return true; // F4
                 case 286: debug_wire  = !debug_wire;  return true; // F5
                 case 287: debug_bound = !debug_bound; return true; // F6
+
+                case 290:
+                    sys->set_sphere_detail(sys->get_sphere_detail() + 2);
+                    return true;
+                case 291:
+                    sys->set_sphere_detail(sys->get_sphere_detail() - 2);
+                    return true;
+                case 292:
+                    sys->set_sphere_limit(sys->get_sphere_limit() + 10);
+                    return true;
+                case 293:
+                    sys->set_sphere_limit(sys->get_sphere_limit() - 10);
+                    return true;
 
                 // case 8:
                 //     for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
