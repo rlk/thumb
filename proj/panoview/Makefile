@@ -14,7 +14,7 @@ VIEWOBJS= \
 	scm/scm-task.o \
 	scm/scm-file.o \
 	scm/scm-cache.o \
-	scm/scm-model.o \
+	scm/scm-sphere.o \
 	scm/scm-label.o \
 	scm/scm-log.o \
 	view-step.o \

@@ -39,6 +39,9 @@ Blur Samples: 8
        Cache: X
    Wireframe: X
  Interocular: 65
+        FSAA:
+      Mipmap:
+       Aniso:
 
 __3D View: NAC ROI_____________________________________________________________
 

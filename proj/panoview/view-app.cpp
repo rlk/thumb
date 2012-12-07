@@ -286,7 +286,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
-    sys->render_model(A, w, h, chani);
+    sys->render_sphere(A, w, h, chani);
 
     if (debug_wire)
     {
