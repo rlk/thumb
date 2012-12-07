@@ -52,10 +52,6 @@ public:
     double get_current_height() const;
     double get_minimum_height() const;
 
-    double get_radius() const;
-    void   set_radius(double r);
-
-    virtual double get_scale() const { return 1.0; }
     virtual void   make_path(int);
 
 protected:
@@ -86,12 +82,6 @@ private:
     void load_steps (app::node);
 
     // Sphere rendering state
-
-    // double timer;
-    // double timer_d;
-    // double timer_e;
-    // double height;
-    double radius;
 
     bool debug_cache;
     bool debug_label;

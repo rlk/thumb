@@ -35,14 +35,12 @@ public:
 
     virtual void load(const std::string&);
 
-    virtual double get_scale() const;
     virtual void   make_path(int);
 
     virtual ~orbiter();
 
 private:
 
-    // double get_bottom()   const;
     double get_altitude() const;
 
     // View motion state

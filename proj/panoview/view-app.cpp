@@ -39,7 +39,6 @@ view_app::view_app(const std::string& exe,
     // timer_e(0),
     // height (0),
     // radius (6),
-    radius (1737400.0),
     debug_cache(false),
     debug_label(false),
     debug_path (false),
@@ -220,31 +219,31 @@ double view_app::get_current_height() const
 {
     double v[3];
     here.get_position(v);
-    return radius * sys->get_current_height(v);
+    return sys->get_current_height(v);
 }
 
 double view_app::get_minimum_height() const
 {
-    return radius * sys->get_minimum_height();
+    return sys->get_minimum_height();
 }
-
+#if 0
 double view_app::get_radius() const
 {
-    return radius;
+    return sys->get_sphere_radius();
 }
 
 void view_app::set_radius(double r)
 {
-    radius = r;
+    sys->set_sphere_radius(r);
 }
-
+#endif
 //------------------------------------------------------------------------------
 
 ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
     sys->update_cache(::host->get_movie_mode());
 
-    return ogl::range(0.1, 2.0 * radius * get_scale());
+    return ogl::range(0.1, 2.0 * get_minimum_height());
 }
 
 void view_app::lite(int frusc, const app::frustum *const *frusv)
@@ -260,15 +259,15 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
     // Compute the model view matrix to be used for view determination.
 
-    double s = get_scale();
-    double r = radius;
-
-    double V[16];
     double A[16];
+    double V[16];
 
-    load_inv    (V, M);
-    Rmul_scl_mat(V, s, s, s);
+    load_inv(V, M);
+#if 1
+    double r = 1737400.0;
+
     Rmul_scl_mat(V, r, r, r);
+#endif
     mult_mat_mat(A, P, V);
 
     // Draw the sphere.
@@ -297,9 +296,6 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)
 {
-    double s = get_scale();
-    // double r = radius;
-
     frusp->draw();
    ::user->draw();
 
@@ -321,14 +317,7 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     // Draw the path overlay.
 
     if (debug_path)
-    {
-        glPushMatrix();
-        {
-            glScaled(s, s, s);
-            path.draw();
-        }
-        glPopMatrix();
-    }
+        path.draw();
 
     // Draw the cache overlay.
 

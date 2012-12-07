@@ -26,7 +26,6 @@
 #include <app-default.hpp>
 
 #include "scm/util3d/math3d.h"
-#include "scm/scm-index.hpp" // TODO: DELETE
 
 #include "orbiter.hpp"
 
@@ -259,11 +258,10 @@ void orbiter::fly(double dt)
 
     // The Z axis affects the orbital radius.
 
-    double r = here.get_distance();
-    double e =      get_radius();
+    double d = here.get_distance();
     double m =      get_minimum_height();
 
-    here.set_distance(std::min(4 * e, m + exp(log(r - m) + (stick[2] * dt))));
+    here.set_distance(std::min(4 * m, m + exp(log(d - m) + (stick[2] * dt))));
 }
 
 //------------------------------------------------------------------------------
@@ -274,10 +272,10 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
     view_app::prep(frusc, frusv);
 
-    // Compute a horizon line based upon altitude and minimum data radius.
+    // Compute a horizon line based upon altitude and minimum terrain height.
 
-    double r = get_scale() *      get_minimum_height();
-    double d = get_scale() * here.get_distance();
+    double r =      get_minimum_height();
+    double d = here.get_distance();
 
     double n = 0.0001 *     (d     - r    );
     double f = 1.1    * sqrt(d * d - r * r);
@@ -334,7 +332,7 @@ void orbiter::load(const std::string& name)
     view_app::load(name);
 
     if (here.get_distance() == 0.0)
-        here.set_distance(2.0 * get_radius());
+        here.set_distance(2.0 * get_minimum_height());
 }
 
 // Return the height above land at the current position.
@@ -342,14 +340,6 @@ void orbiter::load(const std::string& name)
 double orbiter::get_altitude() const
 {
     return here.get_distance() - get_current_height();
-}
-
-// Return an appropriate planet scale coefficient for the current view distance.
-// That allows good stereoscopic 3D to be achieved at both near and far views.
-
-double orbiter::get_scale() const
-{
-    return 1.0 / get_altitude();
 }
 
 // Construct a path from here to there with a configurable middle radius.
@@ -481,7 +471,7 @@ bool orbiter::pan_tick(app::event *E)
         }
         else
         {
-            double sc = 1.0 / (get_radius() * get_scale());
+            double sc = get_altitude() / get_current_height();
 
             if (control) sc *= 0.1;
 
@@ -515,7 +505,7 @@ bool orbiter::pan_tick(app::event *E)
 
     double M[16];
 
-    here.get_matrix(M, get_scale());
+    here.get_matrix(M, 1.0);
     ::user->set_M(M);
 
     return false;
