@@ -323,8 +323,8 @@ bool view_app::process_key(app::event *E)
         if (!c && !s)
             switch (k)
             {
-                // case 280: goto_next();                return true; // Page Up
-                // case 281: goto_prev();                return true; // Page Down
+                case 280: sys->set_current_scene(sys->get_current_scene() + 1); return true;
+                case 281: sys->set_current_scene(sys->get_current_scene() - 1); return true;
 
                 case 282: gui_state   = !gui_state;   return true; // F1
                 case 283: debug_cache = !debug_cache; return true; // F2

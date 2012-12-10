@@ -2,15 +2,14 @@
 
 _Scene Editor______________________________________________________________________________
 
-Radius: 1737400.0      Vertex Shader: displace
-Detail: 32           Fragment Shader: overlay
- Limit: 336
+Detail:  32        Vertex Shader: displace
+ Limit: 336        Fragment Shader: overlay
 
-|_Scene Name___|    |_Scene Images_____________________Sampler_Height_Channel_Min___Max___|
-| Tycho        |    | DTM-426-6.tif                    height  X      0       0.994 1.006 |
-| Apollo 16    |    | WAC-426-6.tif                    base    O      0       0.0   1.0   |
-|              |    | NAC_ROI_TychoCtrLoA-336-14.tif   over    O      0       0.0   1.0   |
-[+]                 [+]
+|_Scene Name___|  |_Scene Images_____________________Sampler_Min_____Max_____Height_Chan_|
+| Tycho        |  | DTM-426-6.tif                    height  1728240 1748170 X      0    |
+| Apollo 16    |  | WAC-426-6.tif                    base          0       1 O      0    |
+|              |  | NAC_ROI_TychoCtrLoA-336-14.tif   over          0       1 O      0    |
+[+]               [+]
 
 
 
@@ -18,13 +17,13 @@ Detail: 32           Fragment Shader: overlay
 
 _View Editor___________________________________________________
 
-|_Name___Scene__Label______|    Lat      180.0   Sun Lat 180.0
-| Tycho  Tycho  Tycho.csv  |    Lon        0.0   Sun Lon   0.0
-|                          |    Dist 1000000.0   FOV      90.0
-|                          |    Pitch      0.0   Speed     1.0
-|                          |    Yaw        0.0   Tension   1.0
-|                          |    Roll       0.0   Bias      1.0
-[+]  <<  |<  >  >|  >>
+|_Name___Scene__Label______|    Lat:     180.0   Sun Lat: 180.0
+| Tycho  Tycho  Tycho.csv  |    Lon:       0.0   Sun Lon:   0.0
+|                          |   Dist: 1000000.0       FOV:  90.0
+|                          |  Pitch:       0.0     Speed:   1.0
+|                          |    Yaw:       0.0   Tension:   1.0
+|                          |   Roll:       0.0      Bias:   1.0
+[+]  |<  >  >|  [X] Show path
 
 
 
