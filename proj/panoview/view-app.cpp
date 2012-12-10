@@ -101,6 +101,7 @@ void view_app::load_images(app::node p, scm_scene *f)
             p->set_scm             (i.get_s("scm"));
             p->set_name            (i.get_s("name"));
             p->set_height          (i.get_i("height"));
+            p->set_channel         (i.get_i("channel"));
             p->set_normal_min(float(i.get_f("k0", 0.0)));
             p->set_normal_max(float(i.get_f("k1", 1.0)));
         }
@@ -144,20 +145,13 @@ void view_app::load(const std::string& name)
 
     if (app::node root = file.get_root().find("sphere"))
     {
-        // Clear out the existing data.
+        int c = sys->get_scene_count();
 
-        unload();
-
-        // Configure the viewer.
-
-        // height = root.get_f("height", 0.0);
-        // radius = root.get_f("radius", 6.0);
-
-        // Load all data.
-
-        // load_model (root);
-        // load_caches(root);
         load_scenes(root);
+
+        for (int i = 0; i < c; ++i)
+            sys->del_scene(0);
+
         // load_steps (root);
         // load_label ("csv/IAUMOON.csv");
 

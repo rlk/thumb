@@ -69,12 +69,7 @@ void main()
 {
     vec3 a = mix(vec3(base.k0), vec3(base.k1), sample_base(gl_TexCoord[0].xy).rgb);
     vec3 b = mix(vec3(over.k0), vec3(over.k1), sample_over(gl_TexCoord[0].xy).rgb);
-    vec3 c;
+    vec3 c = step(1.0 / 255.0, b);
 
-    if (b.r > 0.0)
-        c = b;
-    else
-        c = a;
-
-    gl_FragColor = vec4(c, 1.0);
+    gl_FragColor = vec4(mix(a, b, c), 1.0);
 }
