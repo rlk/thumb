@@ -37,8 +37,6 @@ view_app::view_app(const std::string& exe,
     // timer  (0),
     // timer_d(0),
     // timer_e(0),
-    // height (0),
-    // radius (6),
     debug_cache(false),
     debug_label(false),
     debug_path (false),
@@ -226,17 +224,7 @@ double view_app::get_minimum_height() const
 {
     return sys->get_minimum_height();
 }
-#if 0
-double view_app::get_radius() const
-{
-    return sys->get_sphere_radius();
-}
 
-void view_app::set_radius(double r)
-{
-    sys->set_sphere_radius(r);
-}
-#endif
 //------------------------------------------------------------------------------
 
 ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
@@ -257,18 +245,13 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     const int     w = ::host->get_buffer_w();
     const int     h = ::host->get_buffer_h();
 
-    // Compute the model view matrix to be used for view determination.
+    // Compute the model-view-projection matrix to be used for view culling.
 
-    double A[16];
+    double T[16];
     double V[16];
 
     load_inv(V, M);
-#if 1
-    double r = 1737400.0;
-
-    Rmul_scl_mat(V, r, r, r);
-#endif
-    mult_mat_mat(A, P, V);
+    mult_mat_mat(T, P, V);
 
     // Draw the sphere.
 
@@ -285,7 +268,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
-    sys->render_sphere(A, w, h, chani);
+    sys->render_sphere(T, w, h, chani);
 
     if (debug_wire)
     {

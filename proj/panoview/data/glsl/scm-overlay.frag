@@ -6,6 +6,8 @@ struct scm
     vec2      r;
     vec2      b[16];
     float     a[16];
+    float     k0;
+    float     k1;
 };
 
 uniform scm base;
@@ -65,8 +67,8 @@ vec4 sample_over(vec2 t)
 
 void main()
 {
-    vec3 a = sample_base(gl_TexCoord[0].xy).rgb;
-    vec3 b = sample_over(gl_TexCoord[0].xy).rgb;
+    vec3 a = mix(vec3(base.k0), vec3(base.k1), sample_base(gl_TexCoord[0].xy).rgb);
+    vec3 b = mix(vec3(over.k0), vec3(over.k1), sample_over(gl_TexCoord[0].xy).rgb);
     vec3 c;
 
     if (b.r > 0.0)

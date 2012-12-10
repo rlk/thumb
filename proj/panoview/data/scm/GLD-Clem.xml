@@ -1,17 +1,8 @@
 <?xml version="1.0"?>
-  <sphere radius="1737400.0"
-            mesh="32"
-            size="426"
-            vert="glsl/scm-displace.vert"
-            frag="glsl/scm-lomsee.frag">
-
-    <cache n="426" c="1" b="16" threads="2"/>
-    <cache n="426" c="3" b="8"  threads="2"/>
-    <cache n="256" c="3" b="8"  threads="2"/>
-
-    <scene>
-      <image name="height" scm="DTM-426-6.tif" cache="0" height="1" k0="0.994728" k1="1.0062"/>
-      <image name="normal" scm="DTM-426-6-N.tif" cache="1" />
-<!--  <image name="color"  scm="clementine-256-4.tif" cache="2" /> -->
+  <sphere mesh="32" size="426">
+    <scene vert="glsl/scm-displace.vert" frag="glsl/scm-lomsee.frag">
+      <image name="height" scm="DTM-426-6.tif"  height="1" k0="1728240" k1="1748170"/>
+      <image name="normal" scm="DTM-426-6-N.tif" />
+<!--  <image name="color"  scm="clementine-256-4.tif" /> -->
     </scene>
   </sphere>
