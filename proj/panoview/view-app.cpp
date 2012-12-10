@@ -316,6 +316,8 @@ bool view_app::process_key(app::event *E)
     const int c = E->data.key.m & KMOD_CTRL;
     const int s = E->data.key.m & KMOD_SHIFT;
 
+    scm_sphere *sph = sys->get_sphere();
+
     if (d)
     {
         if (!c && !s)
@@ -331,18 +333,10 @@ bool view_app::process_key(app::event *E)
                 case 286: debug_wire  = !debug_wire;  return true; // F5
                 case 287: debug_bound = !debug_bound; return true; // F6
 
-                case 290:
-                    sys->set_sphere_detail(sys->get_sphere_detail() + 2);
-                    return true;
-                case 291:
-                    sys->set_sphere_detail(sys->get_sphere_detail() - 2);
-                    return true;
-                case 292:
-                    sys->set_sphere_limit(sys->get_sphere_limit() + 10);
-                    return true;
-                case 293:
-                    sys->set_sphere_limit(sys->get_sphere_limit() - 10);
-                    return true;
+                case 290: sph->set_detail(sph->get_detail() +  2); return true;
+                case 291: sph->set_detail(sph->get_detail() -  2); return true;
+                case 292: sph->set_limit (sph->get_limit () + 10); return true;
+                case 293: sph->set_limit (sph->get_limit () - 10); return true;
 
                 // case 8:
                 //     for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
