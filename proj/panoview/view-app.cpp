@@ -116,6 +116,8 @@ void view_app::load_scenes(app::node p)
     {
         if (scm_scene *f = sys->get_scene(sys->add_scene(sys->get_scene_count())))
         {
+            load_images(i, f);
+
             const std::string& vert_name = i.get_s("vert");
             const std::string& frag_name = i.get_s("frag");
 
@@ -123,8 +125,6 @@ void view_app::load_scenes(app::node p)
                 f->set_vert((const char *) ::data->load(vert_name));
             if (!vert_name.empty())
                 f->set_frag((const char *) ::data->load(frag_name));
-
-            load_images(i, f);
         }
     }
 }
