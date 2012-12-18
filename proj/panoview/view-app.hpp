@@ -19,6 +19,8 @@
 #include <app-file.hpp>
 
 #include "scm/scm-system.hpp"
+#include "scm/scm-sphere.hpp"
+#include "scm/scm-image.hpp"
 #include "scm/scm-label.hpp"
 
 #include "view-step.hpp"
@@ -58,14 +60,6 @@ protected:
 
     scm_system *sys;
 
-    // scm_scene *get_current_scene() const;
-
-    // scm_cache_v caches;
-    // scm_scene_v scenes;
-
-    // scm_model *model;
-    // scm_label *label;
-
     view_step here;
     view_path path;
 
@@ -76,7 +70,6 @@ protected:
 private:
 
     void load_model (app::node);
-    // void load_caches(app::node);
     void load_images(app::node, scm_scene *);
     void load_scenes(app::node);
     void load_steps (app::node);

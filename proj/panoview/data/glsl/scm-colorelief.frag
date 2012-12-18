@@ -5,87 +5,44 @@ varying vec3 var_L;
 
 struct scm
 {
-    sampler3D img;
-    vec2      siz;
-    float     idx[16];
-    float     age[16];
+    sampler2D S;
+    vec2      r;
+    vec2      b[16];
+    float     a[16];
+    float     k0;
+    float     k1;
 };
 
 uniform scm normal;
 
-uniform vec2 page_a[16];
-uniform vec2 page_b[16];
+uniform vec2 A[16];
+uniform vec2 B[16];
 
 //------------------------------------------------------------------------------
 
-vec4 age(vec4 c, float k)
+vec4 add(vec4 a, vec4 b)
 {
-    return vec4(c.rgb, c.a * k);
+    return mix(a, b, b.a);
 }
 
-vec4 tex(vec2 c, float k)
+vec4 sample_normal(vec2 t)
 {
-    return texture3D(normal.img, vec3((c * normal.siz + vec2(1.0)) /
-                                          (normal.siz + vec2(2.0)), k));
-}
-
-vec4 img0(vec2 t)
-{
-    return age(tex(page_a[0] * t + page_b[0], normal.idx[0]), normal.age[0]);
-}
-
-vec4 img1(vec2 t)
-{
-    return age(tex(page_a[1] * t + page_b[1], normal.idx[1]), normal.age[1]);
-}
-
-vec4 img2(vec2 t)
-{
-    return age(tex(page_a[2] * t + page_b[2], normal.idx[2]), normal.age[2]);
-}
-
-vec4 img3(vec2 t)
-{
-    return age(tex(page_a[3] * t + page_b[3], normal.idx[3]), normal.age[3]);
-}
-
-vec4 img4(vec2 t)
-{
-    return age(tex(page_a[4] * t + page_b[4], normal.idx[4]), normal.age[4]);
-}
-
-vec4 img5(vec2 t)
-{
-    return age(tex(page_a[5] * t + page_b[5], normal.idx[5]), normal.age[5]);
-}
-
-vec4 img6(vec2 t)
-{
-    return age(tex(page_a[6] * t + page_b[6], normal.idx[6]), normal.age[6]);
-}
-
-vec4 img7(vec2 t)
-{
-    return age(tex(page_a[7] * t + page_b[7], normal.idx[7]), normal.age[7]);
-}
-
-
-vec4 blend(vec4 a, vec4 b)
-{
-    return vec4(mix(b.rgb, a.rgb, a.a), 1.0);
-}
-
-vec4 sample(vec2 t)
-{
-    vec4 c =  img0(t);
-    c = blend(img1(t), c);
-    c = blend(img2(t), c);
-    c = blend(img3(t), c);
-    c = blend(img4(t), c);
-    c = blend(img5(t), c);
-    c = blend(img6(t), c);
-    c = blend(img7(t), c);
-    return c;
+    return add(add(add(add(texture2D(normal.S, (t * A[ 0] + B[ 0]) * normal.r + normal.b[ 0]) * vec4(1.0, 1.0, 1.0, normal.a[ 0]),
+                           texture2D(normal.S, (t * A[ 1] + B[ 1]) * normal.r + normal.b[ 1]) * vec4(1.0, 1.0, 1.0, normal.a[ 1])),
+                       add(texture2D(normal.S, (t * A[ 2] + B[ 2]) * normal.r + normal.b[ 2]) * vec4(1.0, 1.0, 1.0, normal.a[ 2]),
+                           texture2D(normal.S, (t * A[ 3] + B[ 3]) * normal.r + normal.b[ 3]) * vec4(1.0, 1.0, 1.0, normal.a[ 3]))),
+                   add(add(texture2D(normal.S, (t * A[ 4] + B[ 4]) * normal.r + normal.b[ 4]) * vec4(1.0, 1.0, 1.0, normal.a[ 4]),
+                           texture2D(normal.S, (t * A[ 5] + B[ 5]) * normal.r + normal.b[ 5]) * vec4(1.0, 1.0, 1.0, normal.a[ 5])),
+                       add(texture2D(normal.S, (t * A[ 6] + B[ 6]) * normal.r + normal.b[ 6]) * vec4(1.0, 1.0, 1.0, normal.a[ 6]),
+                           texture2D(normal.S, (t * A[ 7] + B[ 7]) * normal.r + normal.b[ 7]) * vec4(1.0, 1.0, 1.0, normal.a[ 7])))),
+               add(add(add(texture2D(normal.S, (t * A[ 8] + B[ 8]) * normal.r + normal.b[ 8]) * vec4(1.0, 1.0, 1.0, normal.a[ 8]),
+                           texture2D(normal.S, (t * A[ 9] + B[ 9]) * normal.r + normal.b[ 9]) * vec4(1.0, 1.0, 1.0, normal.a[ 9])),
+                       add(texture2D(normal.S, (t * A[10] + B[10]) * normal.r + normal.b[10]) * vec4(1.0, 1.0, 1.0, normal.a[10]),
+                           texture2D(normal.S, (t * A[11] + B[11]) * normal.r + normal.b[11]) * vec4(1.0, 1.0, 1.0, normal.a[11]))),
+                   add(add(texture2D(normal.S, (t * A[12] + B[12]) * normal.r + normal.b[12]) * vec4(1.0, 1.0, 1.0, normal.a[12]),
+                           texture2D(normal.S, (t * A[13] + B[13]) * normal.r + normal.b[13]) * vec4(1.0, 1.0, 1.0, normal.a[13])),
+                       add(texture2D(normal.S, (t * A[14] + B[14]) * normal.r + normal.b[14]) * vec4(1.0, 1.0, 1.0, normal.a[14]),
+                           texture2D(normal.S, (t * A[15] + B[15]) * normal.r + normal.b[15]) * vec4(1.0, 1.0, 1.0, normal.a[15])))));
 }
 
 //------------------------------------------------------------------------------
@@ -95,7 +52,7 @@ void main()
     vec3 V = normalize(var_V);
     vec3 L = normalize(var_L);
 
-    vec3 N = normalize(sample(gl_TexCoord[0].xy).rgb * 2.0 - 1.0);
+    vec3 N = normalize(sample_normal(gl_TexCoord[0].xy).rgb * 2.0 - 1.0);
 
     float nl = max(0.0, dot(N, L));
     float nv = max(0.0, dot(N, V));

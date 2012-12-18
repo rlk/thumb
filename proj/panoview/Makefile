@@ -6,18 +6,19 @@ VIEWOBJS= \
 	scm/util3d/glsl.o \
 	scm/util3d/math3d.o \
 	scm/util3d/type.o \
-	scm/scm-system.o \
-	scm/scm-index.o \
+	scm/scm-cache.o \
+	scm/scm-file.o \
 	scm/scm-image.o \
+	scm/scm-index.o \
+	scm/scm-label.o \
+	scm/scm-log.o \
+	scm/scm-render.o \
 	scm/scm-scene.o \
 	scm/scm-set.o \
-	scm/scm-task.o \
-	scm/scm-file.o \
-	scm/scm-cache.o \
 	scm/scm-sphere.o \
-	scm/scm-label.o \
 	scm/scm-step.o \
-	scm/scm-log.o \
+	scm/scm-system.o \
+	scm/scm-task.o \
 	view-step.o \
 	view-path.o \
 	view-load.o \

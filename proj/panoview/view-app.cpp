@@ -43,14 +43,20 @@ view_app::view_app(const std::string& exe,
     debug_wire (false),
     debug_bound(false)
 {
+    gui_init();
+
     // Cache the label font file.
 
     font_ptr = ::data->load(::conf->get_s("sans_font"), &font_len);
 
-    TIFFSetWarningHandler(0);
-    gui_init();
+    // Create the SCM rendering system.
 
-    sys = new scm_system();
+    TIFFSetWarningHandler(0);
+
+    const int w = ::host->get_buffer_w();
+    const int h = ::host->get_buffer_h();
+
+    sys = new scm_system(w, h, 32, 512);
 }
 
 view_app::~view_app()
@@ -236,8 +242,6 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
     const double *P =  frusp->get_P();
     const double *M = ::user->get_M();
-    const int     w = ::host->get_buffer_w();
-    const int     h = ::host->get_buffer_h();
 
     // Compute the model-view-projection matrix to be used for view culling.
 
@@ -262,7 +266,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
-    sys->render_sphere(T, w, h, chani);
+    sys->render_sphere(T, chani);
 
     if (debug_wire)
     {
@@ -323,8 +327,8 @@ bool view_app::process_key(app::event *E)
         if (!c && !s)
             switch (k)
             {
-                case 280: sys->set_current_scene(sys->get_current_scene() + 1); return true;
-                case 281: sys->set_current_scene(sys->get_current_scene() - 1); return true;
+                case 280: sys->set_current_scene(sys->get_current_scene() + 0.25); return true;
+                case 281: sys->set_current_scene(sys->get_current_scene() - 0.25); return true;
 
                 case 282: gui_state   = !gui_state;   return true; // F1
                 case 283: debug_cache = !debug_cache; return true; // F2

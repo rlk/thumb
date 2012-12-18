@@ -67,9 +67,9 @@ view_step::view_step()
     position[1]    = 0.0;
     position[2]    = 1.0;
 
-    light[0]       = 1.0;
-    light[1]       = 0.0;
-    light[2]       = 0.0;
+    light[0]       = 0.57735;
+    light[1]       = 0.57735;
+    light[2]       = 0.57735;
 
     speed          = 1.0;
     distance       = 0.0;

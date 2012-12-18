@@ -4,6 +4,10 @@
       <image name="height" scm="DTM-426-6.tif" height="1" k0="1728240" k1="1748170" />
       <image name="color"  scm="WAC-426-6.tif" />
     </scene>
+    <scene vert="glsl/scm-displace.vert" frag="glsl/scm-colorelief.frag">
+      <image name="height" scm="DTM-426-6.tif" height="1" k0="1728240" k1="1748170"/>
+      <image name="normal" scm="DTM-426-6-N.tif" />
+    </scene>
     <step name="Tycho"
          label="csv/Tycho.csv"
             q0=" 0.762239"
