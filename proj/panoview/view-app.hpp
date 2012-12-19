@@ -20,6 +20,7 @@
 
 #include "scm/scm-system.hpp"
 #include "scm/scm-sphere.hpp"
+#include "scm/scm-render.hpp"
 #include "scm/scm-image.hpp"
 #include "scm/scm-label.hpp"
 

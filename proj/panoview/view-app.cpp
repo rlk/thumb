@@ -337,6 +337,9 @@ bool view_app::process_key(app::event *E)
                 case 286: debug_wire  = !debug_wire;  return true; // F5
                 case 287: debug_bound = !debug_bound; return true; // F6
 
+                case 288: sys->get_render()->set_blur( 0); return true; // F7
+                case 289: sys->get_render()->set_blur(16); return true; // F8
+
                 case 290: sph->set_detail(sph->get_detail() +  2); return true;
                 case 291: sph->set_detail(sph->get_detail() -  2); return true;
                 case 292: sph->set_limit (sph->get_limit () + 10); return true;
