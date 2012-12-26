@@ -41,7 +41,7 @@ public:
 
 private:
 
-    double get_altitude() const;
+    double get_scale() const;
 
     // View motion state
 

@@ -237,7 +237,7 @@ void orbiter::fly(double dt)
     const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
                                      : -(stick[1] * stick[1]);
 
-    double a = get_altitude() / get_current_height();
+    double a = get_scale();
     double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
 
     here.set_pitch(k);
@@ -274,11 +274,12 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
     // Compute a horizon line based upon altitude and minimum terrain height.
 
-    double r =      get_current_height();
-    double d = here.get_distance();
+    const double r =      get_current_height();
+    const double m =      get_minimum_height();
+    const double d = here.get_distance();
 
     double n = 0.5 *     (d     - r    );
-    double f = 1.1 * sqrt(d * d - r * r);
+    double f = 1.1 * sqrt(d * d - m * m);
 
     return ogl::range(n, f);
 }
@@ -335,11 +336,14 @@ void orbiter::load(const std::string& name)
         here.set_distance(2.0 * get_minimum_height());
 }
 
-// Return the height above land at the current position.
+// Return an altitude scalar.
 
-double orbiter::get_altitude() const
+double orbiter::get_scale() const
 {
-    return here.get_distance() - get_current_height();
+    const double d = here.get_distance();
+    const double h =      get_current_height();
+
+    return (d - h) / h;
 }
 
 // Construct a path from here to there with a configurable middle radius.
@@ -471,7 +475,7 @@ bool orbiter::pan_tick(app::event *E)
         }
         else
         {
-            double sc = get_altitude() / get_current_height();
+            double sc = get_scale();
 
             if (control) sc *= 0.1;
 
