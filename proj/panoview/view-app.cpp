@@ -40,7 +40,6 @@ view_app::view_app(const std::string& exe,
     debug_cache(false),
     debug_label(false),
     debug_path (false),
-    debug_wire (false),
     debug_bound(false)
 {
     gui_init();
@@ -253,26 +252,12 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
     // Draw the sphere.
 
-    if (debug_wire)
-    {
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        glLineWidth(1.0);
-        glDisable(GL_DEPTH_TEST);
-        glDisable(GL_CULL_FACE);
-    }
-
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
+    
     sys->render_sphere(T, chani);
-
-    if (debug_wire)
-    {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
-    }
 }
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)
@@ -321,6 +306,7 @@ bool view_app::process_key(app::event *E)
     const int s = E->data.key.m & KMOD_SHIFT;
 
     scm_sphere *sph = sys->get_sphere();
+    scm_render *ren = sys->get_render();
 
     if (d)
     {
@@ -334,7 +320,7 @@ bool view_app::process_key(app::event *E)
                 case 283: debug_cache = !debug_cache; return true; // F2
                 case 284: debug_label = !debug_label; return true; // F3
                 case 285: debug_path  = !debug_path;  return true; // F4
-                case 286: debug_wire  = !debug_wire;  return true; // F5
+                case 286: ren->set_wire(!ren->get_wire()); return true; // F5
                 case 287: debug_bound = !debug_bound; return true; // F6
 
                 case 288: sys->get_render()->set_blur( 0); return true; // F7

@@ -34,9 +34,9 @@ _Render Configuration_______
       Height: 1080
  Motion Blur: X
 Blur Samples: 8
+   Wireframe: X
  Synchronous: X
        Cache: X
-   Wireframe: X
  Interocular: 65
         FSAA:
       Mipmap:
