@@ -198,7 +198,7 @@ void orbiter::dive(double dt, double k)
 {
     double d = (point[1] - click[1]) * dt;
     double r = here.get_distance();
-    double m =      get_minimum_height();
+    double m =      get_minimum_ground();
 
     r = m + exp(log(r - m) + (4 * d));
 
@@ -259,7 +259,7 @@ void orbiter::fly(double dt)
     // The Z axis affects the orbital radius.
 
     double d = here.get_distance();
-    double m =      get_minimum_height();
+    double m =      get_minimum_ground();
 
     here.set_distance(std::min(4 * m, m + exp(log(d - m) + (stick[2] * dt))));
 }
@@ -274,8 +274,8 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
     // Compute a horizon line based upon altitude and minimum terrain height.
 
-    const double r =      get_current_height();
-    const double m =      get_minimum_height();
+    const double r =      get_current_ground();
+    const double m =      get_minimum_ground();
     const double d = here.get_distance();
 
     double n = 0.5 *     (d     - r    );
@@ -333,7 +333,7 @@ void orbiter::load(const std::string& name)
     view_app::load(name);
 
     if (here.get_distance() == 0.0)
-        here.set_distance(2.0 * get_minimum_height());
+        here.set_distance(2.0 * get_minimum_ground());
 }
 
 // Return an altitude scalar.
@@ -341,7 +341,7 @@ void orbiter::load(const std::string& name)
 double orbiter::get_scale() const
 {
     const double d = here.get_distance();
-    const double h =      get_current_height();
+    const double h =      get_current_ground();
 
     return (d - h) / h;
 }
@@ -502,7 +502,7 @@ bool orbiter::pan_tick(app::event *E)
 
         if (here.get_distance())
             here.set_distance(std::max(here.get_distance(),
-                                            get_current_height() + 100.0));
+                                            get_current_ground() + 100.0));
     }
 
     // Apply the current transformation to the camera.

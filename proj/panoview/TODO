@@ -5,10 +5,11 @@ _Scene Editor___________________________________________________________________
 Detail:  32        Vertex Shader: displace
  Limit: 336        Fragment Shader: overlay
 
-|_Scene Name___|  |_Scene Images_____________________Sampler_Min_____Max_____Height_Chan_|
-| Tycho        |  | DTM-426-6.tif                    height  1728240 1748170 X      0    |
-| Apollo 16    |  | WAC-426-6.tif                    base          0       1 O      0    |
-|              |  | NAC_ROI_TychoCtrLoA-336-14.tif   over          0       1 O      0    |
+|_Scene Name___|  |_Scene Images_____________________Sampler_Min_____Max_____Chan_|
+| Clavius      |  | DTM-max-128-2.tif                        1728240 1748170 -1   |
+| Tycho        |  | DTM-426-6.tif                    height  1728240 1748170  0   |
+| Apollo 16    |  | WAC-426-6.tif                    base          0       1  0   |
+|              |  | NAC_ROI_TychoCtrLoA-336-14.tif   over          0       1  0   |
 [+]               [+]
 
 

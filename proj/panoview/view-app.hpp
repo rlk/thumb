@@ -52,8 +52,8 @@ public:
     // void goto_next();
     // void goto_prev();
 
-    double get_current_height() const;
-    double get_minimum_height() const;
+    double get_current_ground() const;
+    double get_minimum_ground() const;
 
     virtual void   make_path(int);
 

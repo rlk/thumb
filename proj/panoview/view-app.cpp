@@ -105,7 +105,7 @@ void view_app::load_images(app::node p, scm_scene *f)
         {
             p->set_scm             (i.get_s("scm"));
             p->set_name            (i.get_s("name"));
-            p->set_height          (i.get_i("height"));
+//          p->set_ground          (i.get_i("ground"));
             p->set_channel         (i.get_i("channel"));
             p->set_normal_min(float(i.get_f("k0", 0.0)));
             p->set_normal_max(float(i.get_f("k1", 1.0)));
@@ -212,16 +212,16 @@ void view_app::goto_prev()
 
 //------------------------------------------------------------------------------
 
-double view_app::get_current_height() const
+double view_app::get_current_ground() const
 {
     double v[3];
     here.get_position(v);
-    return sys->get_current_height(v);
+    return sys->get_current_ground(v);
 }
 
-double view_app::get_minimum_height() const
+double view_app::get_minimum_ground() const
 {
-    return sys->get_minimum_height();
+    return sys->get_minimum_ground();
 }
 
 //------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
     sys->update_cache(::host->get_movie_mode());
 
-    return ogl::range(0.1, 2.0 * get_minimum_height());
+    return ogl::range(0.1, 2.0 * get_minimum_ground());
 }
 
 void view_app::lite(int frusc, const app::frustum *const *frusv)
@@ -256,7 +256,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
-    
+
     sys->render_sphere(T, chani);
 }
 
