@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
   <sphere mesh="32" size="336">
     <scene vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
-      <image name="height" scm="DTM-426-6.tif"       height="1" k0="1728240" k1="1748170"/>
+      <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="base"   scm="WAC-426-6.tif"                  />
       <image name="over"   scm="NAC_ROI_APOLLO16HIA-336-14.tif" />
     </scene>

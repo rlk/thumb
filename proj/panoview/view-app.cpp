@@ -331,10 +331,7 @@ bool view_app::process_key(app::event *E)
                 case 292: sph->set_limit (sph->get_limit () + 10); return true;
                 case 293: sph->set_limit (sph->get_limit () - 10); return true;
 
-                // case 8:
-                //     for (scm_cache_i i = caches.begin(); i != caches.end(); ++i)
-                //         (*i)->flush();
-                //     return true; // Backspace
+                case 8: sys->flush_cache(); return true; // Backspace
             }
 
         if (c)
