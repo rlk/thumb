@@ -24,7 +24,7 @@ varying vec3 var_L;
 vec4 sample_height(vec2 t)
 {
     vec4   c = vec4(1.0);
-    c = mix(c, texture2D(height.S, (t * A[ 0] + B[ 0]) * height.r + height.b[ 0]), height.a[ 0]);
+    c = mix(c, texture2D(height.S, (t * A[ 0] + B[ 0]) * height.r + height.b[ 0]), 1.0);
     c = mix(c, texture2D(height.S, (t * A[ 1] + B[ 1]) * height.r + height.b[ 1]), height.a[ 1]);
     c = mix(c, texture2D(height.S, (t * A[ 2] + B[ 2]) * height.r + height.b[ 2]), height.a[ 2]);
     c = mix(c, texture2D(height.S, (t * A[ 3] + B[ 3]) * height.r + height.b[ 3]), height.a[ 3]);

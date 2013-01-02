@@ -35,7 +35,13 @@ GLSL= \
 	scm/data/scm-label-circle-frag.h \
 	scm/data/scm-label-circle-vert.h \
 	scm/data/scm-label-sprite-frag.h \
-	scm/data/scm-label-sprite-vert.h
+	scm/data/scm-label-sprite-vert.h \
+	scm/data/scm-render-blur-frag.h \
+	scm/data/scm-render-blur-vert.h \
+	scm/data/scm-render-both-frag.h \
+	scm/data/scm-render-both-vert.h \
+	scm/data/scm-render-fade-frag.h \
+	scm/data/scm-render-fade-vert.h
 
 #------------------------------------------------------------------------------
 
