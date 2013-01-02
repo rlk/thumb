@@ -31,11 +31,17 @@ PANOBJS= $(VIEWOBJS) panoview.o
 PANDEPS= $(PANOBJS:.o=.d)
 ORBDEPS= $(ORBOBJS:.o=.d)
 
+GLSL= \
+	scm/data/scm-label-circle-frag.h \
+	scm/data/scm-label-circle-vert.h \
+	scm/data/scm-label-sprite-frag.h \
+	scm/data/scm-label-sprite-vert.h
+
 #------------------------------------------------------------------------------
 
 THUMB = ../../src/libthumb.a
 
-INCDIR += -I../../include
+INCDIR += -I../../include -Iscm/data
 
 CFLAGS += $(shell $(SDLCONF) --cflags) \
 	  $(shell $(FT2CONF) --cflags)
@@ -46,17 +52,26 @@ LIBS = $(THUMB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(L
 
 all : panoview orbiter
 
-panoview: $(PANOBJS) $(THUMB)
+panoview: $(GLSL) $(PANOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 	# $(STRIP) $@
 
-orbiter: $(ORBOBJS) $(THUMB)
+orbiter: $(GLSL) $(ORBOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 	# $(STRIP) $@
 
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview
 	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
+	$(RM) $(GLSL)
+
+#------------------------------------------------------------------------------
+
+scm/data/%-vert.h : scm/data/%.vert
+	$(MAKE) -C scm/data $(notdir $@)
+
+scm/data/%-frag.h : scm/data/%.frag
+	$(MAKE) -C scm/data $(notdir $@)
 
 #------------------------------------------------------------------------------
 

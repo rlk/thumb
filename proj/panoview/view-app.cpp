@@ -105,7 +105,6 @@ void view_app::load_images(app::node p, scm_scene *f)
         {
             p->set_scm             (i.get_s("scm"));
             p->set_name            (i.get_s("name"));
-//          p->set_ground          (i.get_i("ground"));
             p->set_channel         (i.get_i("channel"));
             p->set_normal_min(float(i.get_f("k0", 0.0)));
             p->set_normal_max(float(i.get_f("k1", 1.0)));
