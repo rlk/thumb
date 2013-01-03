@@ -12,7 +12,7 @@
     <scene vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
       <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="lower"  scm="WAC-426-6.tif" />
-      <image name="upper"  scm="NAC_ROI_APOLLO11LOA-336-14.tif" />
+      <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="2.0"/>
     </scene>
 <!--
     <scene vert="glsl/scm-displace.vert" frag="glsl/scm-colorelief.frag">
