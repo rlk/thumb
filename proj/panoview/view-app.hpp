@@ -23,9 +23,8 @@
 #include "scm/scm-render.hpp"
 #include "scm/scm-image.hpp"
 #include "scm/scm-label.hpp"
+#include "scm/scm-step.hpp"
 
-#include "view-step.hpp"
-#include "view-path.hpp"
 #include "view-load.hpp"
 
 //-----------------------------------------------------------------------------
@@ -60,11 +59,7 @@ public:
 protected:
 
     scm_system *sys;
-
-    view_step here;
-    view_path path;
-
-    std::vector<view_step> steps;
+    scm_step   here;
 
     bool gui_state;
 

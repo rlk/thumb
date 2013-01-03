@@ -138,7 +138,39 @@ void view_app::load_steps(app::node p)
     // Create a new step object for each node.
 
     for (app::node i = p.find("step"); i; i = p.next(i, "step"))
-        steps.push_back(view_step(i));
+    {
+        if (scm_step *s = sys->get_step(sys->add_step(sys->get_step_count())))
+        {
+            double q[4];
+            double p[3];
+            double l[3];
+
+            q[0] = i.get_f("q0", 0.0);
+            q[1] = i.get_f("q1", 0.0);
+            q[2] = i.get_f("q2", 0.0);
+            q[3] = i.get_f("q3", 1.0);
+
+            p[0] = i.get_f("p0", 0.0);
+            p[1] = i.get_f("p1", 0.0);
+            p[2] = i.get_f("p2", 0.0);
+
+            l[0] = i.get_f("l0", 0.0);
+            l[1] = i.get_f("l1", 0.0);
+            l[2] = i.get_f("l2", 0.0);
+
+            s->set_name       (i.get_s("name"));
+            s->set_label      (i.get_s("label"));
+            s->set_scene      (i.get_s("scene"));
+            s->set_orientation(q);
+            s->set_position   (p);
+            s->set_light      (l);
+            s->set_speed      (i.get_f("s", 1.0));
+            s->set_distance   (i.get_f("r", 1.0));
+            s->set_tension    (i.get_f("t", 1.0));
+            s->set_bias       (i.get_f("b", 1.0));
+            s->set_zoom       (i.get_f("z", 1.0));
+        }
+    }
 }
 
 void view_app::load(const std::string& name)
@@ -282,7 +314,7 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     // Draw the path overlay.
 
     if (debug_path)
-        path.draw();
+        sys->render_path();
 
     // Draw the cache overlay.
 
@@ -332,7 +364,7 @@ bool view_app::process_key(app::event *E)
 
                 case 8: sys->flush_cache(); return true; // Backspace
             }
-
+/*
         if (c)
         {
             switch (k)
@@ -371,6 +403,7 @@ bool view_app::process_key(app::event *E)
             else if (s) { path.inc_bias(); return true; }
             else        { path.slower();   return true; }
         }
+*/
     }
 
     return prog::process_event(E);
@@ -378,6 +411,7 @@ bool view_app::process_key(app::event *E)
 
 bool view_app::process_user(app::event *E)
 {
+#if 0
     if (!path.playing())
     {
         // Extract the landmark name from the user event structure.
@@ -410,16 +444,19 @@ bool view_app::process_user(app::event *E)
             }
         }
     }
+#endif
     return false;
 }
 
 bool view_app::process_tick(app::event *E)
 {
+#if 0
     if (path.playing())
     {
         path.time(E->data.tick.dt);
         path.get(here);
     }
+#endif
 #if 0
     timer += timer_d * E->data.tick.dt;
 
@@ -486,7 +523,7 @@ void view_app::load_label(const std::string& name)
 void view_app::make_path(int i)
 {
     // Construct a path from here to there.
-
+#if 0
     view_step src = here;
     view_step dst = steps[i];
     view_step mid(&src, &dst, 0.5);
@@ -500,6 +537,7 @@ void view_app::make_path(int i)
     path.add(src);
     path.add(mid);
     path.add(dst);
+#endif
 }
 
 //------------------------------------------------------------------------------

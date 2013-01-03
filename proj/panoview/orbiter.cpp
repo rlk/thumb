@@ -350,6 +350,7 @@ double orbiter::get_scale() const
 
 void orbiter::make_path(int i)
 {
+#if 0
     view_step src = here;
     view_step dst = steps[i];
     view_step mid(&src, &dst, 0.5);
@@ -366,6 +367,7 @@ void orbiter::make_path(int i)
     path.add(src);
     path.add(mid);
     path.add(dst);
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -459,57 +461,54 @@ bool orbiter::pan_click(app::event *E)
 
 bool orbiter::pan_tick(app::event *E)
 {
-    if (!path.playing())
+    double dt = E->data.tick.dt;
+    double ll = vlen(stick);
+
+    if (ll > deadzone || stick_timer > 0.0)
     {
-        double dt = E->data.tick.dt;
-        double ll = vlen(stick);
-
-        if (ll > deadzone || stick_timer > 0.0)
-        {
-            if (ll > deadzone)
-                stick_timer = 0.1;
-            else
-                stick_timer -= dt;
-
-            fly(dt);
-        }
+        if (ll > deadzone)
+            stick_timer = 0.1;
         else
-        {
-            double sc = get_scale();
+            stick_timer -= dt;
 
-            if (control) sc *= 0.1;
-
-            if (drag_move) move(dt, sc);
-            if (drag_look) look(dt, sc);
-            if (drag_dive) dive(dt, sc);
-            if (drag_lite) lite(dt, sc);
-        }
-
-        // Move the position and view orientation along the current orbit.
-
-        if (orbit_speed)
-        {
-            double R[16];
-
-            mrotate(R, orbit_plane, orbit_speed * dt);
-
-            here.transform_orientation(R);
-            here.transform_position(R);
-            here.transform_light(R);
-        }
-
-        // Constrain the distance using the terrain height.
-
-        if (here.get_distance())
-            here.set_distance(std::max(here.get_distance(),
-                                            get_current_ground() + 100.0));
+        fly(dt);
     }
+    else
+    {
+        double sc = get_scale();
+
+        if (control) sc *= 0.1;
+
+        if (drag_move) move(dt, sc);
+        if (drag_look) look(dt, sc);
+        if (drag_dive) dive(dt, sc);
+        if (drag_lite) lite(dt, sc);
+    }
+
+    // Move the position and view orientation along the current orbit.
+
+    if (orbit_speed)
+    {
+        double R[16];
+
+        mrotate(R, orbit_plane, orbit_speed * dt);
+
+        here.transform_orientation(R);
+        here.transform_position(R);
+        here.transform_light(R);
+    }
+
+    // Constrain the distance using the terrain height.
+
+    if (here.get_distance())
+        here.set_distance(std::max(here.get_distance(),
+                                        get_current_ground() + 100.0));
 
     // Apply the current transformation to the camera.
 
     double M[16];
 
-    here.get_matrix(M, 1.0);
+    here.get_matrix(M);
     ::user->set_M(M);
 
     return false;
