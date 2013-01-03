@@ -122,6 +122,9 @@ void view_app::load_scenes(app::node p)
         {
             load_images(i, f);
 
+            f->set_name (i.get_s("name"));
+            f->set_label(i.get_s("label"));
+
             const std::string& vert_name = i.get_s("vert");
             const std::string& frag_name = i.get_s("frag");
 
@@ -159,7 +162,6 @@ void view_app::load_steps(app::node p)
             l[2] = i.get_f("l2", 0.0);
 
             s->set_name       (i.get_s("name"));
-            s->set_label      (i.get_s("label"));
             s->set_scene      (i.get_s("scene"));
             s->set_orientation(q);
             s->set_position   (p);
@@ -181,15 +183,20 @@ void view_app::load(const std::string& name)
 
     if (app::node root = file.get_root().find("sphere"))
     {
-        int c = sys->get_scene_count();
+        // Load the new data.
+
+        int scenes = sys->get_scene_count();
+        int steps  = sys->get_step_count();
 
         load_scenes(root);
+        load_steps (root);
 
-        for (int i = 0; i < c; ++i)
-            sys->del_scene(0);
+        // Delete the old data.
 
-        // load_steps (root);
-        // load_label ("csv/IAUMOON.csv");
+        for (int i = 0; i < scenes; ++i) sys->del_scene(0);
+        for (int i = 0; i < steps;  ++i) sys->del_step (0);
+
+        sys->set_current_step(0);
 
         // Dismiss the GUI.
 
@@ -344,8 +351,10 @@ bool view_app::process_key(app::event *E)
         if (!c && !s)
             switch (k)
             {
-                case 280: sys->set_current_scene(sys->get_current_scene() + 0.25); return true;
-                case 281: sys->set_current_scene(sys->get_current_scene() - 0.25); return true;
+                case 278: sys->set_current_scene(sys->get_current_scene() + 1); return true;
+                case 279: sys->set_current_scene(sys->get_current_scene() - 1); return true;
+                case 280: sys->set_current_step(sys->get_current_step() + 0.25); return true;
+                case 281: sys->set_current_step(sys->get_current_step() - 0.25); return true;
 
                 case 282: gui_state   = !gui_state;   return true; // F1
                 case 283: debug_cache = !debug_cache; return true; // F2

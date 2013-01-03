@@ -2,8 +2,9 @@
 
 _Scene Editor______________________________________________________________________________
 
-Detail:  32        Vertex Shader: displace
+Detail:  32          Vertex Shader: displace
  Limit: 336        Fragment Shader: overlay
+                             Label: Tycho.CSV
 
 |_Scene Name___|  |_Scene Images_____________________Sampler_Min_____Max_____Chan_|
 | Clavius      |  | DTM-max-128-2.tif                        1728240 1748170 -1   |
@@ -16,14 +17,14 @@ Detail:  32        Vertex Shader: displace
 
 
 
-_View Editor___________________________________________________
+_View Editor__________________________________________
 
-|_Name___Scene__Label______|    Lat:     180.0   Sun Lat: 180.0
-| Tycho  Tycho  Tycho.csv  |    Lon:       0.0   Sun Lon:   0.0
-|                          |   Dist: 1000000.0       FOV:  90.0
-|                          |  Pitch:       0.0     Speed:   1.0
-|                          |    Yaw:       0.0   Tension:   1.0
-|                          |   Roll:       0.0      Bias:   1.0
+|_Name___Scene____|    Lat:     180.0   Sun Lat: 180.0
+| Tycho  Tycho    |    Lon:       0.0   Sun Lon:   0.0
+|                 |   Dist: 1000000.0       FOV:  90.0
+|                 |  Pitch:       0.0     Speed:   1.0
+|                 |    Yaw:       0.0   Tension:   1.0
+|                 |   Roll:       0.0      Bias:   1.0
 [+]  |<  >  >|  [X] Show path
 
 
