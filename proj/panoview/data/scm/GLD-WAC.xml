@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
   <sphere mesh="32" size="426">
-    <scene name="global" label="/Users/rlk/Projects/thumb/proj/panoview/data/csv/IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
+    <scene name="global" label="IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
       <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="color"  scm="WAC-426-6.tif" />
     </scene>
-    <scene name="11hi" label="/Users/rlk/Projects/thumb/proj/panoview/data/csv/Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
+    <scene name="11hi" label="Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
       <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="lower"  scm="WAC-426-6.tif" />
       <image name="upper"  scm="NAC_ROI_APOLLO11HIA-254-15.tif" k0="0.1" k1="0.8"/>
     </scene>
-    <scene name="11lo" label="/Users/rlk/Projects/thumb/proj/panoview/data/csv/Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
+    <scene name="11lo" label="Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
       <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="lower"  scm="WAC-426-6.tif" />
       <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="2.0"/>
@@ -21,7 +21,7 @@
     </scene>
 -->
     <step name="Tycho"
-         scene="11hi"
+         scene="global"
             q0=" 0.762239"
             q1="-0.085507"
             q2="-0.161517"

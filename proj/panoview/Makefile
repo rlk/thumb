@@ -12,6 +12,7 @@ VIEWOBJS= \
 	scm/scm-index.o \
 	scm/scm-label.o \
 	scm/scm-log.o \
+	scm/scm-path.o \
 	scm/scm-render.o \
 	scm/scm-sample.o \
 	scm/scm-scene.o \
