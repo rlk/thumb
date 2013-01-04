@@ -47,6 +47,7 @@ public:
 
     void unload();
     void cancel();
+    void flag();
 
     // void goto_next();
     // void goto_prev();
@@ -54,7 +55,7 @@ public:
     double get_current_ground() const;
     double get_minimum_ground() const;
 
-    virtual void   make_path(int);
+    virtual void make_path(int);
 
 protected:
 

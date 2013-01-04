@@ -248,6 +248,18 @@ void view_app::goto_prev()
 }
 #endif
 
+void view_app::flag()
+{
+    double pos[3], rad = get_current_ground();
+
+    here.get_position(pos);
+
+    double lon = atan2(pos[0], pos[2]) * 180.0 / M_PI;
+    double lat =  asin(pos[1])         * 180.0 / M_PI;
+
+    printf("%.12f\t%.12f\t%.1f\n", lat, lon, rad);
+}
+
 //------------------------------------------------------------------------------
 
 double view_app::get_current_ground() const
@@ -372,6 +384,12 @@ bool view_app::process_key(app::event *E)
                 case 293: sph->set_limit (sph->get_limit () - 10); return true;
 
                 case 8: sys->flush_cache(); return true; // Backspace
+            }
+
+        if (s)
+            switch (k)
+            {
+                case '1': flag(); return true;
             }
 /*
         if (c)

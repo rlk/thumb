@@ -502,7 +502,7 @@ bool orbiter::pan_tick(app::event *E)
 
     if (here.get_distance())
         here.set_distance(std::max(here.get_distance(),
-                                        get_current_ground() + 100.0));
+                                        get_current_ground() + 10.0));
 
     // Apply the current transformation to the camera.
 
