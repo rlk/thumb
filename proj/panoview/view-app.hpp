@@ -49,9 +49,6 @@ public:
     void cancel();
     void flag();
 
-    // void goto_next();
-    // void goto_prev();
-
     double get_current_ground() const;
     double get_minimum_ground() const;
 
@@ -61,6 +58,11 @@ protected:
 
     scm_system *sys;
     scm_step   here;
+    scm_step   path_src;
+    scm_step   path_mid;
+    scm_step   path_dst;
+
+    double dtime;
 
     bool gui_state;
 

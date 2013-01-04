@@ -350,24 +350,28 @@ double orbiter::get_scale() const
 
 void orbiter::make_path(int i)
 {
-#if 0
-    view_step src = here;
-    view_step dst = steps[i];
-    view_step mid(&src, &dst, 0.5);
+    // Construct a path from here to there.
 
-    if (!path.playing())
-        src.set_speed(0.05);
+    if (0 <= i && i < sys->get_step_count())
+    {
+        path_src = here;
+        path_dst = *sys->get_step(i);
+        path_mid = scm_step(&path_src, &path_dst, 0.5);
 
-    if (goto_radius)
-        mid.set_distance(goto_radius);
+        if (goto_radius)
+            path_mid.set_distance(std::max(path_mid.get_distance(), goto_radius));
 
-    mid.set_speed(1.00);
-    dst.set_speed(0.05);
+        path_mid.set_speed(1.00);
+        path_dst.set_speed(0.05);
 
-    path.add(src);
-    path.add(mid);
-    path.add(dst);
-#endif
+        sys->flush_queue();
+        sys->append_queue(&path_src);
+        sys->append_queue(&path_mid);
+        sys->append_queue(&path_dst);
+        sys->set_current_time(0);
+
+        dtime = 1;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -507,6 +511,8 @@ bool orbiter::pan_tick(app::event *E)
     // Apply the current transformation to the camera.
 
     double M[16];
+
+    if (dtime) here = sys->get_current_step();
 
     here.get_matrix(M);
     ::user->set_M(M);

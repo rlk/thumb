@@ -32,11 +32,7 @@
 
 view_app::view_app(const std::string& exe,
                    const std::string& tag) : app::prog(exe, tag),
-    // model  (0),
-    // label  (0),
-    // timer  (0),
-    // timer_d(0),
-    // timer_e(0),
+    dtime(0),
     debug_cache(false),
     debug_label(false),
     debug_path (false),
@@ -69,32 +65,7 @@ view_app::~view_app()
 }
 
 //------------------------------------------------------------------------------
-#if 0
-void view_app::load_model(app::node p)
-{
-    // Load the configured shaders.
 
-    const std::string& vert_name = p.get_s("vert");
-    const std::string& frag_name = p.get_s("frag");
-
-    const char *vert_src = (const char *) ::data->load(vert_name);
-    const char *frag_src = (const char *) ::data->load(frag_name);
-
-    // Parse the sphere configuration
-
-    int mesh = p.get_i("mesh",  16);
-    int size = p.get_i("size", 512);
-
-    // Create the model.
-
-    model = new scm_model(vert_src, frag_src, mesh, size);
-
-    // Release the shader source.
-
-    ::data->free(vert_name);
-    ::data->free(frag_name);
-}
-#endif
 void view_app::load_images(app::node p, scm_scene *f)
 {
     // Create a new image object for each node.
@@ -171,6 +142,8 @@ void view_app::load_steps(app::node p)
             s->set_tension    (i.get_f("t", 1.0));
             s->set_bias       (i.get_f("b", 1.0));
             s->set_zoom       (i.get_f("z", 1.0));
+
+            sys->append_queue(s);
         }
     }
 }
@@ -196,7 +169,8 @@ void view_app::load(const std::string& name)
         for (int i = 0; i < scenes; ++i) sys->del_scene(0);
         for (int i = 0; i < steps;  ++i) sys->del_step (0);
 
-        sys->set_current_step(0);
+        sys->set_current_time (0);
+        sys->set_current_scene(0);
 
         // Dismiss the GUI.
 
@@ -225,28 +199,6 @@ void view_app::unload()
     model = 0;
 #endif
 }
-
-#if 0
-void view_app::goto_next()
-{
-#if 0
-    timer_e = floor(timer + 1.0);
-    timer_d = +2.0;
-#else
-    timer++;
-#endif
-}
-
-void view_app::goto_prev()
-{
-#if 0
-    timer_e = ceil(timer - 1.0);
-    timer_d = -2.0;
-#else
-    timer--;
-#endif
-}
-#endif
 
 void view_app::flag()
 {
@@ -315,35 +267,9 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     frusp->draw();
    ::user->draw();
 
-    // Draw the label overlay.
-#if 0
-    if (debug_label)
-    {
-        glPushMatrix();
-        {
-            glScaled(s, s, s);
-            glScaled(r, r, r);
-
-            if (label)
-                label->draw();
-        }
-        glPopMatrix();
-    }
-#endif
-    // Draw the path overlay.
-
-    if (debug_path)
-        sys->render_path();
-
-    // Draw the cache overlay.
-
-    if (debug_cache)
-        sys->render_cache();
-
-    // Draw the GUI overlay.
-
-    if (gui_state)
-        gui_draw();
+    if (debug_path)  sys->render_queue();
+    if (debug_cache) sys->render_cache();
+    if (gui_state)   gui_draw();
 }
 
 //------------------------------------------------------------------------------
@@ -363,10 +289,19 @@ bool view_app::process_key(app::event *E)
         if (!c && !s)
             switch (k)
             {
-                case 278: sys->set_current_scene(sys->get_current_scene() + 1); return true;
-                case 279: sys->set_current_scene(sys->get_current_scene() - 1); return true;
-                case 280: sys->set_current_step(sys->get_current_step() + 0.25); return true;
-                case 281: sys->set_current_step(sys->get_current_step() - 0.25); return true;
+                case 280: sys->set_current_time(sys->get_current_time() + 0.25); return true;
+                case 281: sys->set_current_time(sys->get_current_time() - 0.25); return true;
+
+                case '0': sys->set_current_scene(0); return true;
+                case '1': sys->set_current_scene(1); return true;
+                case '2': sys->set_current_scene(2); return true;
+                case '3': sys->set_current_scene(3); return true;
+                case '4': sys->set_current_scene(4); return true;
+                case '5': sys->set_current_scene(5); return true;
+                case '6': sys->set_current_scene(6); return true;
+                case '7': sys->set_current_scene(7); return true;
+                case '8': sys->set_current_scene(8); return true;
+                case '9': sys->set_current_scene(9); return true;
 
                 case 282: gui_state   = !gui_state;   return true; // F1
                 case 283: debug_cache = !debug_cache; return true; // F2
@@ -386,11 +321,32 @@ bool view_app::process_key(app::event *E)
                 case 8: sys->flush_cache(); return true; // Backspace
             }
 
+        if (c)
+            switch (k)
+            {
+                case '0': make_path(0); return true;
+                case '1': make_path(1); return true;
+                case '2': make_path(2); return true;
+                case '3': make_path(3); return true;
+                case '4': make_path(4); return true;
+                case '5': make_path(5); return true;
+                case '6': make_path(6); return true;
+                case '7': make_path(7); return true;
+                case '8': make_path(8); return true;
+                case '9': make_path(9); return true;
+            }
+
         if (s)
             switch (k)
             {
                 case '1': flag(); return true;
             }
+
+        if (k == 32) // Space
+        {
+            dtime = 0;
+            return true;
+        }
 /*
         if (c)
         {
@@ -413,11 +369,6 @@ bool view_app::process_key(app::event *E)
             }
         }
 
-        if (k == 32) // Space
-        {
-            path.stop();
-            return true;
-        }
         if (k == 273) // Up
         {
             if      (c) { path.inc_tens(); return true; }
@@ -477,6 +428,18 @@ bool view_app::process_user(app::event *E)
 
 bool view_app::process_tick(app::event *E)
 {
+    double dt = E->data.tick.dt;
+
+    if (dtime)
+    {
+        double ptime = sys->get_current_time();
+        double ntime = ptime + dtime * dt;
+
+        sys->set_current_time(ntime);
+
+        if (ptime == sys->get_current_time())
+            dtime = 0;
+    }
 #if 0
     if (path.playing())
     {
@@ -523,48 +486,9 @@ bool view_app::process_event(app::event *E)
 }
 
 //------------------------------------------------------------------------------
-#if 0
-void view_app::load_label(const std::string& name)
-{
-    // Load the CSV file.
 
-    const void *data_ptr;
-    size_t      data_len;
-
-    data_ptr = ::data->load(name, &data_len);
-
-    // Release the previous label, if any.
-
-    if (label) delete label;
-
-    // Create the new label.
-
-    label = new scm_label(data_ptr, data_len, font_ptr, font_len,
-                    radius, ::conf->get_i("orbiter_icon_size", 16));
-
-    // Release the CSV file.
-
-    ::data->free(name);
-}
-#endif
 void view_app::make_path(int i)
 {
-    // Construct a path from here to there.
-#if 0
-    view_step src = here;
-    view_step dst = steps[i];
-    view_step mid(&src, &dst, 0.5);
-
-    if (!path.playing())
-        src.set_speed(0.05);
-
-    mid.set_speed(1.00);
-    dst.set_speed(0.05);
-
-    path.add(src);
-    path.add(mid);
-    path.add(dst);
-#endif
 }
 
 //------------------------------------------------------------------------------
