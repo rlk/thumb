@@ -354,15 +354,24 @@ void orbiter::make_path(int i)
 
     if (0 <= i && i < sys->get_step_count())
     {
+        // Copy the current location and destination. Compute the middle.
+
         path_src = here;
         path_dst = *sys->get_step(i);
         path_mid = scm_step(&path_src, &path_dst, 0.5);
 
+        // True speeds and distances. (Which is why we make copies.)
+
         if (goto_radius)
             path_mid.set_distance(std::max(path_mid.get_distance(), goto_radius));
 
+        path_mid.set_pitch(-M_PI_2);
+
+        path_src.set_speed(0.05);
         path_mid.set_speed(1.00);
         path_dst.set_speed(0.05);
+
+        // Queue these new steps and trigger playback.
 
         sys->flush_queue();
         sys->append_queue(&path_src);

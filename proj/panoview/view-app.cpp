@@ -138,9 +138,9 @@ void view_app::load_steps(app::node p)
             s->set_position   (p);
             s->set_light      (l);
             s->set_speed      (i.get_f("s", 1.0));
-            s->set_distance   (i.get_f("r", 1.0));
-            s->set_tension    (i.get_f("t", 1.0));
-            s->set_bias       (i.get_f("b", 1.0));
+            s->set_distance   (i.get_f("r", 0.0));
+            s->set_tension    (i.get_f("t", 0.0));
+            s->set_bias       (i.get_f("b", 0.0));
             s->set_zoom       (i.get_f("z", 1.0));
 
             sys->append_queue(s);
@@ -289,8 +289,8 @@ bool view_app::process_key(app::event *E)
         if (!c && !s)
             switch (k)
             {
-                case 280: sys->set_current_time(sys->get_current_time() + 0.25); return true;
-                case 281: sys->set_current_time(sys->get_current_time() - 0.25); return true;
+//              case 280: sys->set_current_scene(sys->get_current_scene() + 1); return true;
+//              case 281: sys->set_current_scene(sys->get_current_scene() - 1); return true;
 
                 case '0': sys->set_current_scene(0); return true;
                 case '1': sys->set_current_scene(1); return true;
@@ -344,7 +344,11 @@ bool view_app::process_key(app::event *E)
 
         if (k == 32) // Space
         {
-            dtime = 0;
+            sys->set_current_time(0);
+            if (dtime)
+                dtime = 0;
+            else
+                dtime = 1;
             return true;
         }
 /*
@@ -433,34 +437,13 @@ bool view_app::process_tick(app::event *E)
     if (dtime)
     {
         double ptime = sys->get_current_time();
-        double ntime = ptime + dtime * dt;
+        double ntime = ptime + dtime * here.get_speed() * dt;
 
         sys->set_current_time(ntime);
 
         if (ptime == sys->get_current_time())
             dtime = 0;
     }
-#if 0
-    if (path.playing())
-    {
-        path.time(E->data.tick.dt);
-        path.get(here);
-    }
-#endif
-#if 0
-    timer += timer_d * E->data.tick.dt;
-
-    if (timer_d > 0.0 && timer > timer_e)
-    {
-        timer   = timer_e;
-        timer_d = 0;
-    }
-    if (timer_d < 0.0 && timer < timer_e)
-    {
-        timer   = timer_e;
-        timer_d = 0;
-    }
-#endif
     return false;
 }
 
