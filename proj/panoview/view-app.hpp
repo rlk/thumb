@@ -78,7 +78,6 @@ private:
     bool debug_cache;
     bool debug_label;
     bool debug_path;
-    bool debug_bound;
 
     bool process_key (app::event *);
     bool process_user(app::event *);

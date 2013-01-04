@@ -35,8 +35,7 @@ view_app::view_app(const std::string& exe,
     dtime(0),
     debug_cache(false),
     debug_label(false),
-    debug_path (false),
-    debug_bound(false)
+    debug_path (false)
 {
     gui_init();
 
@@ -289,9 +288,6 @@ bool view_app::process_key(app::event *E)
         if (!c && !s)
             switch (k)
             {
-//              case 280: sys->set_current_scene(sys->get_current_scene() + 1); return true;
-//              case 281: sys->set_current_scene(sys->get_current_scene() - 1); return true;
-
                 case '0': sys->set_current_scene(0); return true;
                 case '1': sys->set_current_scene(1); return true;
                 case '2': sys->set_current_scene(2); return true;
@@ -303,13 +299,12 @@ bool view_app::process_key(app::event *E)
                 case '8': sys->set_current_scene(8); return true;
                 case '9': sys->set_current_scene(9); return true;
 
-                case 282: gui_state   = !gui_state;   return true; // F1
-                case 283: debug_cache = !debug_cache; return true; // F2
-                case 284: debug_label = !debug_label; return true; // F3
-                case 285: debug_path  = !debug_path;  return true; // F4
+                case 282: gui_state   = !gui_state;        return true; // F1
+                case 283: debug_cache = !debug_cache;      return true; // F2
+                case 284: debug_label = !debug_label;      return true; // F3
+                case 285: debug_path  = !debug_path;       return true; // F4
                 case 286: ren->set_wire(!ren->get_wire()); return true; // F5
-                case 287: debug_bound = !debug_bound; return true; // F6
-
+                case 287:                                  return true; // F6
                 case 288: sys->get_render()->set_blur( 0); return true; // F7
                 case 289: sys->get_render()->set_blur(16); return true; // F8
 
@@ -342,7 +337,7 @@ bool view_app::process_key(app::event *E)
                 case '1': flag(); return true;
             }
 
-        if (k == 32) // Space
+        if (k == 32)
         {
             sys->set_current_time(0);
             if (dtime)
@@ -351,41 +346,6 @@ bool view_app::process_key(app::event *E)
                 dtime = 1;
             return true;
         }
-/*
-        if (c)
-        {
-            switch (k)
-            {
-                case 'c': path.clear();    return true; // ^C
-                case 'b': path.back(s);    return true; // ^B
-                case 'f': path.fore(s);    return true; // ^F
-                case 'p': path.prev();     return true; // ^P
-                case 'n': path.next();     return true; // ^N
-                case 's': path.save();     return true; // ^S
-                case 'l': path.load();     return true; // ^L
-                case 'd': path.del();      return true; // ^D
-                case 'i': path.ins(here);  return true; // ^I
-                case 'a': path.add(here);  return true; // ^A
-                case 'o': path.set(here);  return true; // ^O
-                case 'r': path.home();     return true; // ^R
-                case 'j': path.jump();
-                          path.get(here);  return true; // ^J
-            }
-        }
-
-        if (k == 273) // Up
-        {
-            if      (c) { path.inc_tens(); return true; }
-            else if (s) { path.dec_bias(); return true; }
-            else        { path.faster();   return true; }
-        }
-        if (k == 274) // Down
-        {
-            if      (c) { path.dec_tens(); return true; }
-            else if (s) { path.inc_bias(); return true; }
-            else        { path.slower();   return true; }
-        }
-*/
     }
 
     return prog::process_event(E);
@@ -393,40 +353,23 @@ bool view_app::process_key(app::event *E)
 
 bool view_app::process_user(app::event *E)
 {
-#if 0
-    if (!path.playing())
+    // Extract the landmark name from the user event structure.
+
+    char name[sizeof (long long) + 1];
+
+    memset(name, 0, sizeof (name));
+    memcpy(name, &E->data.user.d, sizeof (long long));
+
+    // Scan the steps for a matching name.
+
+    for (int i = 0; i < sys->get_step_count(); i++)
     {
-        // Extract the landmark name from the user event structure.
-
-        char name[sizeof (long long) + 1];
-
-        memset(name, 0, sizeof (name));
-        memcpy(name, &E->data.user.d, sizeof (long long));
-
-        // Scan the landmark vector for a matching name.
-
-        for (int i = 0; i < int(steps.size()); i++)
+        if (sys->get_step(i)->get_name().compare(name) == 0)
         {
-            if (steps[i].get_name().compare(name) == 0)
-            {
-                // int f = steps[i].get_scene();
-
-                // if (0 <= f && f < int(scenes.size()))
-                //     timer = f;
-
-                // load_label(steps[i].get_label());
-
-                path.stop();
-                path.clear();
-                make_path(i);
-                path.home();
-                path.fore(false);
-
-                return true;
-            }
+            make_path(i);
+            return true;
         }
     }
-#endif
     return false;
 }
 

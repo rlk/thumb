@@ -366,10 +366,11 @@ void orbiter::make_path(int i)
             path_mid.set_distance(std::max(path_mid.get_distance(), goto_radius));
 
         path_mid.set_pitch(-M_PI_2);
+        path_mid.set_scene(path_dst.get_scene());
 
-        path_src.set_speed(0.05);
+        path_src.set_speed(0.050);
         path_mid.set_speed(1.00);
-        path_dst.set_speed(0.05);
+        path_dst.set_speed(0.005);
 
         // Queue these new steps and trigger playback.
 
@@ -379,7 +380,8 @@ void orbiter::make_path(int i)
         sys->append_queue(&path_dst);
         sys->set_current_time(0);
 
-        dtime = 1;
+        orbit_speed = 0;
+        dtime       = 1;
     }
 }
 

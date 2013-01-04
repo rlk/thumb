@@ -20,8 +20,17 @@
       <image name="normal" scm="DTM-426-6-N.tif" />
     </scene>
 -->
-    <step name="Tycho"
+    <step name="Default"
          scene="global"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+             r="5000000.0"/>
+    <step name="Tycho"
             q0=" 0.762239"
             q1="-0.085507"
             q2="-0.161517"
@@ -31,7 +40,6 @@
             p2=" 0.675936"
              r="1794686.446486"/>
     <step name="Copernic"
-         scene="11lo"
             q0=" 0.089011"
             q1="-0.228597"
             q2="-0.496265"
