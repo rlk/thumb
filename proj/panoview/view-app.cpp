@@ -58,7 +58,6 @@ view_app::~view_app()
     delete sys;
 
     gui_free();
-    unload();
 
     ::data->free(::conf->get_s("sans_font"));
 }
@@ -180,23 +179,6 @@ void view_app::load(const std::string& name)
 void view_app::cancel()
 {
     gui_state = false;
-}
-
-void view_app::unload()
-{
-#if 0
-    for (scm_cache_i i = caches.begin(); i != caches.end(); ++i) delete (*i);
-    for (scm_scene_i j = scenes.begin(); j != scenes.end(); ++j) delete (*j);
-
-    caches.clear();
-    scenes.clear();
-
-    if (label) delete label;
-    if (model) delete model;
-
-    label = 0;
-    model = 0;
-#endif
 }
 
 void view_app::flag()

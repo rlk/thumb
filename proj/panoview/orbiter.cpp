@@ -59,7 +59,6 @@ orbiter::orbiter(const std::string& exe,
     stick_timer    = 0.0;
     goto_radius    = ::conf->get_f("orbiter_goto_radius", 0.0);
 
-    control   = false;
     drag_move = false;
     drag_look = false;
     drag_dive = false;
@@ -157,6 +156,31 @@ void orbiter::look(double dt, double k)
     mmultiply(M, X, Y);
 
     here.transform_orientation(M);
+}
+
+void orbiter::turn(double dt, double k)
+{
+    double r[3];
+    double p[3];
+    double t[3];
+
+    here.get_right(r);
+    here.get_position(p);
+
+    double dx = point[0] - click[0];
+    double dy = point[1] - click[1];
+    double X[16];
+    double Y[16];
+    double M[16];
+
+    mrotate(X, r,  10.0 * dy * dt);
+    mrotate(Y, p, -10.0 * dx * dt);
+    mmultiply(M, X, Y);
+
+    here.transform_orientation(M);
+
+    vtransform(t, Y, orbit_plane);
+    vnormalize(orbit_plane, t);
 }
 
 // Apply the orbital motion interaction, using the direction of the mouse
@@ -442,18 +466,14 @@ bool orbiter::pan_click(app::event *E)
     const bool s = (m & KMOD_SHIFT);
     const bool c = (m & KMOD_CTRL);
 
-    control = c;
-
     vcpy(click, point);
 
     if (d)
     {
         if (b == 0)
         {
-            // if      (c)
-            //     drag_turn = true;
             if (s)
-                drag_look = true;
+                drag_dive = true;
             else
                 drag_move = true;
         }
@@ -461,14 +481,16 @@ bool orbiter::pan_click(app::event *E)
         {
             if (s)
                 drag_lite = true;
+            else if (c)
+                drag_turn = true;
             else
-                drag_dive = true;
+                drag_look = true;
         }
     }
     else
     {
-        if (b == 0) drag_look = drag_turn = drag_move = false;
-        if (b == 2) drag_lite = drag_dive             = false;
+        if (b == 0) drag_dive = drag_turn = drag_move = false;
+        if (b == 2) drag_lite = drag_look             = false;
     }
 
     return true;
@@ -492,10 +514,9 @@ bool orbiter::pan_tick(app::event *E)
     {
         double sc = get_scale();
 
-        if (control) sc *= 0.1;
-
         if (drag_move) move(dt, sc);
         if (drag_look) look(dt, sc);
+        if (drag_turn) turn(dt, sc);
         if (drag_dive) dive(dt, sc);
         if (drag_lite) lite(dt, sc);
     }

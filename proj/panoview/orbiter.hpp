@@ -46,6 +46,7 @@ private:
     // View motion state
 
     void look(double, double);
+    void turn(double, double);
     void lite(double, double);
     void move(double, double);
     void dive(double, double);
@@ -63,7 +64,6 @@ private:
     double point[3];
     double click[3];
     double stick[3];
-    bool   control;
     bool   drag_move;
     bool   drag_look;
     bool   drag_turn;

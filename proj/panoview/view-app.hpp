@@ -45,7 +45,6 @@ public:
 
     virtual void load(const std::string&);
 
-    void unload();
     void cancel();
     void flag();
 
