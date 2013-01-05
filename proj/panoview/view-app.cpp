@@ -34,7 +34,8 @@ view_app::view_app(const std::string& exe,
                    const std::string& tag) : app::prog(exe, tag),
     dtime(0),
     draw_cache(false),
-    draw_path (false)
+    draw_path (false),
+    step(0)
 {
     gui_init();
 
@@ -243,9 +244,138 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     frusp->draw();
    ::user->draw();
 
+    if (draw_path)
+    {
+        if (scm_step *s = sys->get_step(step))
+        {
+            glPushAttrib(GL_ENABLE_BIT);
+            glEnable(GL_DEPTH_CLAMP);
+            glDisable(GL_LIGHTING);
+            glDisable(GL_TEXTURE_2D);
+            glPointSize(12.0);
+            glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
+            glBegin(GL_POINTS);
+            s->draw();
+            glEnd();
+            glPopAttrib();
+        }
+    }
+
     if (draw_path)  sys->render_queue();
     if (draw_cache) sys->render_cache();
+
     if (draw_gui)   gui_draw();
+}
+
+//------------------------------------------------------------------------------
+
+void view_app::set_step(int s)
+{
+    step = s;
+    step = std::max(step, 0);
+    step = std::min(step, sys->get_step_count() - 1);
+}
+
+void view_app::path_queue()
+{
+    sys->flush_queue();
+
+    for (int i = 0; i < sys->get_step_count(); i++)
+        sys->append_queue(sys->get_step(i));
+}
+
+void view_app::path_clear()
+{
+    step  = 0;
+    dtime = 0;
+    while (sys->get_step_count())
+        sys->del_step(0);
+    path_queue();
+}
+
+void view_app::path_play()
+{
+    if (dtime > 0)
+        dtime = 0;
+    else
+        dtime = 1;
+    path_queue();
+}
+
+void view_app::path_prev()
+{
+    set_step(step - 1);
+    path_queue();
+}
+
+void view_app::path_next()
+{
+    set_step(step + 1);
+    path_queue();
+}
+
+void view_app::path_save()
+{
+}
+
+void view_app::path_load()
+{
+}
+
+void view_app::path_del()
+{
+    sys->del_step(step);
+    set_step(step - 1);
+    path_queue();
+}
+
+void view_app::path_ins()
+{
+    if (scm_step *s = sys->get_step(sys->add_step(step)))
+    {
+        *s = here;
+        path_queue();
+    }
+}
+
+void view_app::path_add()
+{
+    if (scm_step *s = sys->get_step(sys->add_step(step + 1)))
+    {
+        *s = here;
+        set_step(step + 1);
+        path_queue();
+    }
+}
+
+void view_app::path_set()
+{
+    if (scm_step *s = sys->get_step(step))
+    {
+        *s = here;
+        path_queue();
+    }
+}
+
+void view_app::path_jump()
+{
+    if (scm_step *s = sys->get_step(step))
+    {
+        here = *s;
+        sys->set_current_time(step);
+    }
+}
+
+void view_app::path_beg()
+{
+    set_step(0);
+    path_queue();
+}
+
+void view_app::path_end()
+{
+    set_step(sys->get_step_count());
+    path_queue();
 }
 
 //------------------------------------------------------------------------------
@@ -313,17 +443,56 @@ bool view_app::process_key(app::event *E)
         if ('0' <= k && k <= '9') return numkey(k - '0', c, s);
         if (282 <= k && k <= 293) return funkey(k - 281, c, s);
 
-        if (k == 8)
+        if (c)
         {
-            sys->flush_cache();
-            return true;
+#if 1
+            switch (k)
+            {
+                case 'c': path_clear(); return true; // ^C
+                case 'p': path_prev();  return true; // ^P
+                case 'n': path_next();  return true; // ^N
+                case 's': path_save();  return true; // ^S
+                case 'l': path_load();  return true; // ^L
+                case 'd': path_del();   return true; // ^D
+                case 'i': path_ins();   return true; // ^I
+                case 'a': path_add();   return true; // ^A
+                case 'o': path_set();   return true; // ^O
+                case 'b': path_beg();   return true; // ^B
+                case 'e': path_end();   return true; // ^E
+                case 'j': path_jump();  return true; // ^J
+            }
+#else
+            switch (k)
+            {
+                case 'c': path.clear();    return true; // ^C
+                case 'b': path.back(s);    return true; // ^B
+                case 'f': path.fore(s);    return true; // ^F
+                case 'p': path.prev();     return true; // ^P
+                case 'n': path.next();     return true; // ^N
+                case 's': path.save();     return true; // ^S
+                case 'l': path.load();     return true; // ^L
+                case 'd': path.del();      return true; // ^D
+                case 'i': path.ins(here);  return true; // ^I
+                case 'a': path.add(here);  return true; // ^A
+                case 'o': path.set(here);  return true; // ^O
+                case 'r': path.home();     return true; // ^R
+                case 'j': path.jump();
+                          path.get(here);  return true; // ^J
+            }
+#endif
         }
-
-        if (k == 32)
+        else
         {
-            dtime = dtime ? 0 : 1;
-            sys->set_current_time(0);
-            return true;
+            if (k == 8)
+            {
+                sys->flush_cache();
+                return true;
+            }
+            if (k == 32)
+            {
+                path_play();
+                return true;
+            }
         }
     }
     return prog::process_event(E);
@@ -420,13 +589,13 @@ void view_app::gui_draw()
 {
     if (const app::frustum *overlay = ::host->get_overlay())
     {
-        glEnable(GL_DEPTH_CLAMP_NV);
+        glEnable(GL_DEPTH_CLAMP);
         {
             overlay->draw();
             overlay->overlay();
             ui->draw();
         }
-        glDisable(GL_DEPTH_CLAMP_NV);
+        glDisable(GL_DEPTH_CLAMP);
     }
 }
 

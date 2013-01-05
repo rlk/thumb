@@ -81,6 +81,26 @@ private:
     bool process_user(app::event *);
     bool process_tick(app::event *);
 
+    // Path editing handlers
+
+    void set_step(int);
+    int  step;
+
+    void path_queue();
+    void path_clear();
+    void path_play();
+    void path_prev();
+    void path_next();
+    void path_save();
+    void path_load();
+    void path_del();
+    void path_ins();
+    void path_add();
+    void path_set();
+    void path_beg();
+    void path_end();
+    void path_jump();
+
     // Sphere GUI State
 
     view_load *ui;

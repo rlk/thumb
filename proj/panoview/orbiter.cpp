@@ -499,8 +499,8 @@ bool orbiter::process_click(app::event *E)
     }
     else
     {
-        if (b == 0) drag_dive = drag_turn = drag_move = false;
-        if (b == 2) drag_lite = drag_look             = false;
+        if (b == 0) drag_dive = drag_move             = false;
+        if (b == 2) drag_lite = drag_turn = drag_look = false;
     }
 
     return true;

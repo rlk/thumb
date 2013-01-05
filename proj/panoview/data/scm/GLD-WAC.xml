@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-  <sphere mesh="32" size="426">
+  <sphere mesh="32" size="254">
     <scene name="global" label="IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
-      <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
-      <image name="color"  scm="WAC-426-6.tif" />
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
+      <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
     </scene>
     <scene name="11hi" label="Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
-      <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
-      <image name="lower"  scm="WAC-426-6.tif" />
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
+      <image name="lower"  scm="WAC-254-7.tif" />
       <image name="upper"  scm="NAC_ROI_APOLLO11HIA-254-15.tif" k0="0.1" k1="0.8"/>
     </scene>
     <scene name="11lo" label="Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
-      <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
-      <image name="lower"  scm="WAC-426-6.tif" />
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
+      <image name="lower"  scm="WAC-254-7.tif" />
       <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="2.0"/>
     </scene>
 <!--
@@ -31,6 +31,7 @@
             p2="1.0"
              r="5000000.0"/>
     <step name="Tycho"
+         scene="global"
             q0=" 0.762239"
             q1="-0.085507"
             q2="-0.161517"
@@ -40,6 +41,7 @@
             p2=" 0.675936"
              r="1794686.446486"/>
     <step name="Copernic"
+         scene="global"
             q0=" 0.089011"
             q1="-0.228597"
             q2="-0.496265"
@@ -49,8 +51,8 @@
             p2=" 0.920832"
              r="1991161.296438"/>
     <step name="Apollo17"
+         scene="global"
              r="1774464.752163"
-             s=" 0.050000"
             p2=" 0.812069"
             p1=" 0.325701"
             p0=" 0.484213"
@@ -61,7 +63,6 @@
     <step name="Apollo11"
          scene="11lo"
              r="1779618.139413"
-             s=" 0.050000"
             p2=" 0.917253"
             p1="-0.010662"
             p0=" 0.398162"
@@ -70,6 +71,7 @@
             q1=" 0.190115"
             q0=" 0.341805"/>
     <step name="Apollo15"
+         scene="global"
              r="1769173.839214"
             p2=" 0.904493"
             p1=" 0.422612"
@@ -79,6 +81,7 @@
             q1=" 0.027574"
             q0=" 0.182846"/>
     <step name="Shacklet"
+         scene="global"
              r="1784302.639577"
             p2=" 0.012243"
             p1="-0.999820"
