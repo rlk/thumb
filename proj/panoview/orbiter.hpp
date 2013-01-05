@@ -35,7 +35,8 @@ public:
 
     virtual void load(const std::string&);
 
-    virtual void   make_path(int);
+    virtual void move_to(int);
+    virtual void fade_to(int);
 
     virtual ~orbiter();
 
@@ -87,11 +88,11 @@ private:
 
     // Event handlers
 
-    bool pan_axis  (app::event *);
-    bool pan_button(app::event *);
-    bool pan_point (app::event *);
-    bool pan_click (app::event *);
-    bool pan_tick  (app::event *);
+    bool process_axis  (app::event *);
+    bool process_button(app::event *);
+    bool process_point (app::event *);
+    bool process_click (app::event *);
+    bool process_tick  (app::event *);
 };
 
 //-----------------------------------------------------------------------------

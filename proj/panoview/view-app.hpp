@@ -51,7 +51,8 @@ public:
     double get_current_ground() const;
     double get_minimum_ground() const;
 
-    virtual void make_path(int);
+    virtual void move_to(int) { }
+    virtual void fade_to(int) { }
 
 protected:
 
@@ -63,31 +64,22 @@ protected:
 
     double dtime;
 
-    bool gui_state;
-
 private:
 
-    void load_model (app::node);
     void load_images(app::node, scm_scene *);
     void load_scenes(app::node);
     void load_steps (app::node);
 
-    // Sphere rendering state
+    bool draw_cache;
+    bool draw_path;
+    bool draw_gui;
 
-    bool debug_cache;
-    bool debug_label;
-    bool debug_path;
+    bool numkey(int, int, int);
+    bool funkey(int, int, int);
 
     bool process_key (app::event *);
     bool process_user(app::event *);
     bool process_tick(app::event *);
-
-    // Label data
-
-    const void *font_ptr;
-    size_t      font_len;
-
-    void load_label(const std::string&);
 
     // Sphere GUI State
 

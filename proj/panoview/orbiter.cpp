@@ -335,23 +335,6 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
-bool orbiter::process_event(app::event *E)
-{
-    if (!view_app::process_event(E))
-    {
-        switch (E->get_type())
-        {
-            case E_AXIS:   return pan_axis(E);
-            case E_BUTTON: return pan_button(E);
-            case E_CLICK:  return pan_click(E);
-            case E_POINT:  return pan_point(E);
-            case E_TICK:   return pan_tick(E);
-        }
-    }
-
-    return false;
-}
-
 void orbiter::load(const std::string& name)
 {
     view_app::load(name);
@@ -372,7 +355,7 @@ double orbiter::get_scale() const
 
 // Construct a path from here to there with a configurable middle radius.
 
-void orbiter::make_path(int i)
+void orbiter::move_to(int i)
 {
     // Construct a path from here to there.
 
@@ -384,7 +367,7 @@ void orbiter::make_path(int i)
         path_dst = *sys->get_step(i);
         path_mid = scm_step(&path_src, &path_dst, 0.5);
 
-        // True speeds and distances. (Which is why we make copies.)
+        // Tune speeds and distances. (Which is why we make copies.)
 
         if (goto_radius)
             path_mid.set_distance(std::max(path_mid.get_distance(), goto_radius));
@@ -409,9 +392,38 @@ void orbiter::make_path(int i)
     }
 }
 
+void orbiter::fade_to(int i)
+{
+    // Construct a path from here to there.
+
+    if (0 <= i && i < sys->get_step_count())
+    {
+        // Source and destination both remain fixed.
+
+        path_src = here;
+        path_dst = here;
+
+        // Change the scene to that of the requested step.
+
+        path_src.set_speed(1.0);
+        path_dst.set_speed(1.0);
+        path_dst.set_scene(sys->get_step(i)->get_scene());
+
+        // Queue these new steps and trigger playback.
+
+        sys->flush_queue();
+        sys->append_queue(&path_src);
+        sys->append_queue(&path_dst);
+        sys->set_current_time(0);
+
+        orbit_speed = 0;
+        dtime       = 1;
+    }
+}
+
 //------------------------------------------------------------------------------
 
-bool orbiter::pan_axis(app::event *E)
+bool orbiter::process_axis(app::event *E)
 {
     const int    i = E->data.axis.i;
     const int    a = E->data.axis.a;
@@ -427,7 +439,7 @@ bool orbiter::pan_axis(app::event *E)
     return false;
 }
 
-bool orbiter::pan_button(app::event *E)
+bool orbiter::process_button(app::event *E)
 {
     const int  i = E->data.button.i;
     const int  b = E->data.button.b;
@@ -443,11 +455,9 @@ bool orbiter::pan_button(app::event *E)
     return false;
 }
 
-bool orbiter::pan_point(app::event *E)
+bool orbiter::process_point(app::event *E)
 {
     double M[16];
-
-    // Determine the point direction of the given quaternion.
 
     quat_to_mat(M, E->data.point.q);
 
@@ -458,7 +468,7 @@ bool orbiter::pan_point(app::event *E)
     return false;
 }
 
-bool orbiter::pan_click(app::event *E)
+bool orbiter::process_click(app::event *E)
 {
     const int  b = E->data.click.b;
     const int  m = E->data.click.m;
@@ -496,7 +506,7 @@ bool orbiter::pan_click(app::event *E)
     return true;
 }
 
-bool orbiter::pan_tick(app::event *E)
+bool orbiter::process_tick(app::event *E)
 {
     double dt = E->data.tick.dt;
     double ll = vlen(stick);
@@ -548,6 +558,23 @@ bool orbiter::pan_tick(app::event *E)
 
     here.get_matrix(M);
     ::user->set_M(M);
+
+    return false;
+}
+
+bool orbiter::process_event(app::event *E)
+{
+    if (!view_app::process_event(E))
+    {
+        switch (E->get_type())
+        {
+            case E_AXIS:   return process_axis(E);
+            case E_BUTTON: return process_button(E);
+            case E_CLICK:  return process_click(E);
+            case E_POINT:  return process_point(E);
+            case E_TICK:   return process_tick(E);
+        }
+    }
 
     return false;
 }

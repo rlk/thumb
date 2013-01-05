@@ -33,15 +33,10 @@
 view_app::view_app(const std::string& exe,
                    const std::string& tag) : app::prog(exe, tag),
     dtime(0),
-    debug_cache(false),
-    debug_label(false),
-    debug_path (false)
+    draw_cache(false),
+    draw_path (false)
 {
     gui_init();
-
-    // Cache the label font file.
-
-    font_ptr = ::data->load(::conf->get_s("sans_font"), &font_len);
 
     // Create the SCM rendering system.
 
@@ -172,13 +167,13 @@ void view_app::load(const std::string& name)
 
         // Dismiss the GUI.
 
-        gui_state = false;
+        draw_gui = false;
     }
 }
 
 void view_app::cancel()
 {
-    gui_state = false;
+    draw_gui = false;
 }
 
 void view_app::flag()
@@ -248,12 +243,63 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     frusp->draw();
    ::user->draw();
 
-    if (debug_path)  sys->render_queue();
-    if (debug_cache) sys->render_cache();
-    if (gui_state)   gui_draw();
+    if (draw_path)  sys->render_queue();
+    if (draw_cache) sys->render_cache();
+    if (draw_gui)   gui_draw();
 }
 
 //------------------------------------------------------------------------------
+
+bool view_app::numkey(int n, int c, int s)
+{
+    if (s == 0)
+    {
+        if (c == 0)
+            move_to(n);
+        else
+            fade_to(n);
+    }
+    else
+    {
+        switch (n)
+        {
+            case 1: flag(); break;
+        }
+    }
+    return true;
+}
+
+bool view_app::funkey(int n, int c, int s)
+{
+    if (s == 0)
+    {
+        if (c == 0)
+        {
+            scm_sphere *sph = sys->get_sphere();
+            scm_render *ren = sys->get_render();
+
+            switch (n)
+            {
+                case  1: draw_gui   = !draw_gui;                  break;
+                case  2: draw_cache = !draw_cache;                break;
+                case  3: draw_path  = !draw_path;                 break;
+                case  4:                                          break;
+
+                case  5: ren->set_wire(!ren->get_wire());         break;
+                case  6:                                          break;
+                case  7: ren->set_blur( 0);                       break;
+                case  8: ren->set_blur(16);                       break;
+
+                case  9: sph->set_detail(sph->get_detail() +  2); break;
+                case 10: sph->set_detail(sph->get_detail() -  2); break;
+                case 11: sph->set_limit (sph->get_limit () + 10); break;
+                case 12: sph->set_limit (sph->get_limit () - 10); break;
+            }
+        }
+    }
+
+    return true;
+}
 
 bool view_app::process_key(app::event *E)
 {
@@ -262,74 +308,24 @@ bool view_app::process_key(app::event *E)
     const int c = E->data.key.m & KMOD_CTRL;
     const int s = E->data.key.m & KMOD_SHIFT;
 
-    scm_sphere *sph = sys->get_sphere();
-    scm_render *ren = sys->get_render();
-
     if (d)
     {
-        if (!c && !s)
-            switch (k)
-            {
-                case '0': sys->set_current_scene(0); return true;
-                case '1': sys->set_current_scene(1); return true;
-                case '2': sys->set_current_scene(2); return true;
-                case '3': sys->set_current_scene(3); return true;
-                case '4': sys->set_current_scene(4); return true;
-                case '5': sys->set_current_scene(5); return true;
-                case '6': sys->set_current_scene(6); return true;
-                case '7': sys->set_current_scene(7); return true;
-                case '8': sys->set_current_scene(8); return true;
-                case '9': sys->set_current_scene(9); return true;
+        if ('0' <= k && k <= '9') return numkey(k - '0', c, s);
+        if (282 <= k && k <= 293) return funkey(k - 281, c, s);
 
-                case 282: gui_state   = !gui_state;        return true; // F1
-                case 283: debug_cache = !debug_cache;      return true; // F2
-                case 284: debug_label = !debug_label;      return true; // F3
-                case 285: debug_path  = !debug_path;       return true; // F4
-                case 286: ren->set_wire(!ren->get_wire()); return true; // F5
-                case 287:                                  return true; // F6
-                case 288: sys->get_render()->set_blur( 0); return true; // F7
-                case 289: sys->get_render()->set_blur(16); return true; // F8
-
-                case 290: sph->set_detail(sph->get_detail() +  2); return true;
-                case 291: sph->set_detail(sph->get_detail() -  2); return true;
-                case 292: sph->set_limit (sph->get_limit () + 10); return true;
-                case 293: sph->set_limit (sph->get_limit () - 10); return true;
-
-                case 8: sys->flush_cache(); return true; // Backspace
-            }
-
-        if (c)
-            switch (k)
-            {
-                case '0': make_path(0); return true;
-                case '1': make_path(1); return true;
-                case '2': make_path(2); return true;
-                case '3': make_path(3); return true;
-                case '4': make_path(4); return true;
-                case '5': make_path(5); return true;
-                case '6': make_path(6); return true;
-                case '7': make_path(7); return true;
-                case '8': make_path(8); return true;
-                case '9': make_path(9); return true;
-            }
-
-        if (s)
-            switch (k)
-            {
-                case '1': flag(); return true;
-            }
+        if (k == 8)
+        {
+            sys->flush_cache();
+            return true;
+        }
 
         if (k == 32)
         {
+            dtime = dtime ? 0 : 1;
             sys->set_current_time(0);
-            if (dtime)
-                dtime = 0;
-            else
-                dtime = 1;
             return true;
         }
     }
-
     return prog::process_event(E);
 }
 
@@ -348,7 +344,7 @@ bool view_app::process_user(app::event *E)
     {
         if (sys->get_step(i)->get_name().compare(name) == 0)
         {
-            make_path(i);
+            move_to(i);
             return true;
         }
     }
@@ -374,13 +370,15 @@ bool view_app::process_tick(app::event *E)
 
 bool view_app::process_event(app::event *E)
 {
+    // Delegate keypresses, user commands, and the passage of time.
+
     if      (E->get_type() == E_KEY)  return process_key(E);
     else if (E->get_type() == E_USER) return process_user(E);
     else if (E->get_type() == E_TICK) return process_tick(E);
 
     // Pass the event to the GUI if visible.
 
-    else if (gui_state)
+    else if (draw_gui)
     {
         switch (E->get_type())
         {
@@ -395,12 +393,6 @@ bool view_app::process_event(app::event *E)
 
 //------------------------------------------------------------------------------
 
-void view_app::make_path(int i)
-{
-}
-
-//------------------------------------------------------------------------------
-
 // Initialize the file selection GUI.
 
 void view_app::gui_init()
@@ -410,7 +402,7 @@ void view_app::gui_init()
     int w = overlay ? overlay->get_pixel_w() : ::host->get_buffer_w();
     int h = overlay ? overlay->get_pixel_h() : ::host->get_buffer_h();
 
-    gui_state = true;
+    draw_gui = true;
 
     ui = new view_load(this, w, h);
 }
@@ -478,4 +470,3 @@ bool view_app::gui_key(app::event *E)
 }
 
 //------------------------------------------------------------------------------
-
