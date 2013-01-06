@@ -4,6 +4,22 @@
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
     </scene>
+    <scene name="height" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="DTM-254-7.tif" k0="0.0" k1="1.0"/>
+    </scene>
+    <scene name="ldrm" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="LDRM-254-3.tif" k0="0.0" k1="2.0"/>
+    </scene>
+    <scene name="ldsm" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="LDSM-254-3.tif" k0="0.0" k1="2.0"/>
+    </scene>
+<!--
     <scene name="11hi" label="Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="lower"  scm="WAC-254-7.tif" />
@@ -14,6 +30,7 @@
       <image name="lower"  scm="WAC-254-7.tif" />
       <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="2.0"/>
     </scene>
+-->
 <!--
     <scene vert="glsl/scm-displace.vert" frag="glsl/scm-colorelief.frag">
       <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
@@ -22,6 +39,36 @@
 -->
     <step name="Default"
          scene="global"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+             r="5000000.0"/>
+    <step name="Default"
+         scene="height"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+             r="5000000.0"/>
+    <step name="LDRM"
+         scene="ldrm"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+             r="5000000.0"/>
+    <step name="LDSM"
+         scene="ldsm"
             q0="0.0"
             q1="0.0"
             q2="0.0"

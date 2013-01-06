@@ -45,23 +45,6 @@ vec4 sample_height(vec2 t)
 
 //------------------------------------------------------------------------------
 
-float peak(float k, float c)
-{
-    return max(0.0, 1.0 - abs(k - c) * 5.0);
-}
-
-vec4 colormap(float k)
-{
-    return peak(k, 0.0) * vec4(1.0, 0.0, 1.0, 1.0) +
-           peak(k, 0.2) * vec4(0.0, 0.0, 1.0, 1.0) +
-           peak(k, 0.4) * vec4(0.0, 1.0, 1.0, 1.0) +
-           peak(k, 0.6) * vec4(1.0, 1.0, 0.0, 1.0) +
-           peak(k, 0.8) * vec4(1.0, 0.0, 0.0, 1.0) +
-           peak(k, 1.0) * vec4(1.0, 1.0, 1.0, 1.0);
-}
-
-//------------------------------------------------------------------------------
-
 vec3 scube(vec2 t)
 {
     vec2  s = radians(t * 90.0 - 45.0);
@@ -85,6 +68,5 @@ void main()
     var_V = v;
 
     gl_TexCoord[0].xy = gl_Vertex.xy;
-    gl_FrontColor     = colormap(k);
     gl_Position       = gl_ModelViewProjectionMatrix * vec4(v, 1.0);
 }

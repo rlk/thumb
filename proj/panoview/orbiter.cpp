@@ -416,8 +416,7 @@ void orbiter::fade_to(int i)
         sys->append_queue(&path_dst);
         sys->set_current_time(0);
 
-        orbit_speed = 0;
-        dtime       = 1;
+        dtime = 1;
     }
 }
 
