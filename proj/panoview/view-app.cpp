@@ -35,6 +35,7 @@ view_app::view_app(const std::string& exe,
     dtime(0),
     draw_cache(false),
     draw_path (false),
+    path_xml("path.xml"),
     step(0)
 {
     gui_init();
@@ -60,19 +61,110 @@ view_app::~view_app()
 
 //------------------------------------------------------------------------------
 
+static void step_from_xml(scm_step *s, app::node n)
+{
+    double q[4];
+    double p[3];
+    double l[3];
+
+    q[0] = n.get_f("q0", 0.0);
+    q[1] = n.get_f("q1", 0.0);
+    q[2] = n.get_f("q2", 0.0);
+    q[3] = n.get_f("q3", 1.0);
+
+    p[0] = n.get_f("p0", 0.0);
+    p[1] = n.get_f("p1", 0.0);
+    p[2] = n.get_f("p2", 0.0);
+
+    l[0] = n.get_f("l0", 0.0);
+    l[1] = n.get_f("l1", 0.0);
+    l[2] = n.get_f("l2", 0.0);
+
+    s->set_name       (n.get_s("name"));
+    s->set_scene      (n.get_s("scene"));
+    s->set_orientation(q);
+    s->set_position   (p);
+    s->set_light      (l);
+    s->set_speed      (n.get_f("s", 1.0));
+    s->set_distance   (n.get_f("r", 0.0));
+    s->set_tension    (n.get_f("t", 0.0));
+    s->set_bias       (n.get_f("b", 0.0));
+    s->set_zoom       (n.get_f("z", 1.0));
+}
+
+static void xml_from_step(scm_step *s, app::node n)
+{
+    double q[4];
+    double p[3];
+    double l[3];
+
+    s->get_orientation(q);
+    s->get_position   (p);
+    s->get_light      (l);
+
+    if (q[0] != 0.0) n.set_f("q0", q[0]);
+    if (q[1] != 0.0) n.set_f("q1", q[1]);
+    if (q[2] != 0.0) n.set_f("q2", q[2]);
+    if (q[3] != 1.0) n.set_f("q3", q[3]);
+
+    if (p[0] != 0.0) n.set_f("p0", p[0]);
+    if (p[1] != 0.0) n.set_f("p1", p[1]);
+    if (p[2] != 0.0) n.set_f("p2", p[2]);
+
+    if (l[0] != 0.0) n.set_f("l0", l[0]);
+    if (l[1] != 0.0) n.set_f("l1", l[1]);
+    if (l[2] != 0.0) n.set_f("l2", l[2]);
+
+    if (!s->get_name().empty())   n.set_s("name",  s->get_name());
+    if (!s->get_scene().empty())  n.set_s("scene", s->get_scene());
+    if (s->get_speed()    != 1.0) n.set_f("s",     s->get_speed());
+    if (s->get_distance() != 0.0) n.set_f("r",     s->get_distance());
+    if (s->get_tension()  != 0.0) n.set_f("t",     s->get_tension());
+    if (s->get_bias()     != 0.0) n.set_f("b",     s->get_bias());
+    if (s->get_zoom()     != 1.0) n.set_f("z",     s->get_zoom());
+}
+
+//------------------------------------------------------------------------------
+
+void view_app::save_steps(app::node p)
+{
+    // Create a new XML node for each step.
+
+    for (int i = 0; i < int(sys->get_step_count()); i++)
+    {
+        app::node n("step");
+        xml_from_step(sys->get_step(i), n);
+        n.insert(p);
+    }
+}
+
+void view_app::load_steps(app::node p)
+{
+    // Create a new step object for each node.
+
+    for (app::node n = p.find("step"); n; n = p.next(n, "step"))
+    {
+        if (scm_step *s = sys->get_step(sys->add_step(sys->get_step_count())))
+        {
+            step_from_xml(s, n);
+            sys->append_queue(s);
+        }
+    }
+}
+
 void view_app::load_images(app::node p, scm_scene *f)
 {
     // Create a new image object for each node.
 
-    for (app::node i = p.find("image"); i; i = p.next(i, "image"))
+    for (app::node n = p.find("image"); n; n = p.next(n, "image"))
     {
         if (scm_image *p = f->get_image(f->add_image(f->get_image_count())))
         {
-            p->set_scm             (i.get_s("scm"));
-            p->set_name            (i.get_s("name"));
-            p->set_channel         (i.get_i("channel"));
-            p->set_normal_min(float(i.get_f("k0", 0.0)));
-            p->set_normal_max(float(i.get_f("k1", 1.0)));
+            p->set_scm             (n.get_s("scm"));
+            p->set_name            (n.get_s("name"));
+            p->set_channel         (n.get_i("channel"));
+            p->set_normal_min(float(n.get_f("k0", 0.0)));
+            p->set_normal_max(float(n.get_f("k1", 1.0)));
         }
     }
 }
@@ -81,63 +173,22 @@ void view_app::load_scenes(app::node p)
 {
     // Create a new scene object for each node.
 
-    for (app::node i = p.find("scene"); i; i = p.next(i, "scene"))
+    for (app::node n = p.find("scene"); n; n = p.next(n, "scene"))
     {
         if (scm_scene *f = sys->get_scene(sys->add_scene(sys->get_scene_count())))
         {
-            load_images(i, f);
+            load_images(n, f);
 
-            f->set_name (i.get_s("name"));
-            f->set_label(i.get_s("label"));
+            f->set_name (n.get_s("name"));
+            f->set_label(n.get_s("label"));
 
-            const std::string& vert_name = i.get_s("vert");
-            const std::string& frag_name = i.get_s("frag");
+            const std::string& vert_name = n.get_s("vert");
+            const std::string& frag_name = n.get_s("frag");
 
             if (!vert_name.empty())
                 f->set_vert((const char *) ::data->load(vert_name));
             if (!vert_name.empty())
                 f->set_frag((const char *) ::data->load(frag_name));
-        }
-    }
-}
-
-void view_app::load_steps(app::node p)
-{
-    // Create a new step object for each node.
-
-    for (app::node i = p.find("step"); i; i = p.next(i, "step"))
-    {
-        if (scm_step *s = sys->get_step(sys->add_step(sys->get_step_count())))
-        {
-            double q[4];
-            double p[3];
-            double l[3];
-
-            q[0] = i.get_f("q0", 0.0);
-            q[1] = i.get_f("q1", 0.0);
-            q[2] = i.get_f("q2", 0.0);
-            q[3] = i.get_f("q3", 1.0);
-
-            p[0] = i.get_f("p0", 0.0);
-            p[1] = i.get_f("p1", 0.0);
-            p[2] = i.get_f("p2", 0.0);
-
-            l[0] = i.get_f("l0", 0.0);
-            l[1] = i.get_f("l1", 0.0);
-            l[2] = i.get_f("l2", 0.0);
-
-            s->set_name       (i.get_s("name"));
-            s->set_scene      (i.get_s("scene"));
-            s->set_orientation(q);
-            s->set_position   (p);
-            s->set_light      (l);
-            s->set_speed      (i.get_f("s", 1.0));
-            s->set_distance   (i.get_f("r", 0.0));
-            s->set_tension    (i.get_f("t", 0.0));
-            s->set_bias       (i.get_f("b", 0.0));
-            s->set_zoom       (i.get_f("z", 1.0));
-
-            sys->append_queue(s);
         }
     }
 }
@@ -276,6 +327,40 @@ void view_app::set_step(int s)
     step = std::min(step, sys->get_step_count() - 1);
 }
 
+void view_app::path_save()
+{
+    try
+    {
+        app::node head("?xml");
+        app::node body("path");
+
+        head.set_s("version", "1.0");
+        head.set_s("?", "");
+
+        body.insert(head);
+        save_steps(body);
+        head.write(path_xml);
+    }
+    catch (std::runtime_error& e)
+    {
+    }
+}
+
+void view_app::path_load()
+{
+    try
+    {
+        app::file file(path_xml);
+        app::node p = file.get_root().find("path");
+
+        path_clear();
+        load_steps(p);
+    }
+    catch (std::runtime_error& e)
+    {
+    }
+}
+
 void view_app::path_queue()
 {
     sys->flush_queue();
@@ -312,14 +397,6 @@ void view_app::path_next()
 {
     set_step(step + 1);
     path_queue();
-}
-
-void view_app::path_save()
-{
-}
-
-void view_app::path_load()
-{
 }
 
 void view_app::path_del()
@@ -445,14 +522,13 @@ bool view_app::process_key(app::event *E)
 
         if (c)
         {
-#if 1
             switch (k)
             {
+                case 's': path_save();  return true; // ^S
+                case 'l': path_load();  return true; // ^L
                 case 'c': path_clear(); return true; // ^C
                 case 'p': path_prev();  return true; // ^P
                 case 'n': path_next();  return true; // ^N
-                case 's': path_save();  return true; // ^S
-                case 'l': path_load();  return true; // ^L
                 case 'd': path_del();   return true; // ^D
                 case 'i': path_ins();   return true; // ^I
                 case 'a': path_add();   return true; // ^A
@@ -461,25 +537,6 @@ bool view_app::process_key(app::event *E)
                 case 'e': path_end();   return true; // ^E
                 case 'j': path_jump();  return true; // ^J
             }
-#else
-            switch (k)
-            {
-                case 'c': path.clear();    return true; // ^C
-                case 'b': path.back(s);    return true; // ^B
-                case 'f': path.fore(s);    return true; // ^F
-                case 'p': path.prev();     return true; // ^P
-                case 'n': path.next();     return true; // ^N
-                case 's': path.save();     return true; // ^S
-                case 'l': path.load();     return true; // ^L
-                case 'd': path.del();      return true; // ^D
-                case 'i': path.ins(here);  return true; // ^I
-                case 'a': path.add(here);  return true; // ^A
-                case 'o': path.set(here);  return true; // ^O
-                case 'r': path.home();     return true; // ^R
-                case 'j': path.jump();
-                          path.get(here);  return true; // ^J
-            }
-#endif
         }
         else
         {

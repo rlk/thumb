@@ -66,9 +66,10 @@ protected:
 
 private:
 
+    void save_steps (app::node);
+    void load_steps (app::node);
     void load_images(app::node, scm_scene *);
     void load_scenes(app::node);
-    void load_steps (app::node);
 
     bool draw_cache;
     bool draw_path;
@@ -83,16 +84,18 @@ private:
 
     // Path editing handlers
 
+    const std::string path_xml;
+
     void set_step(int);
     int  step;
 
+    void path_save();
+    void path_load();
     void path_queue();
     void path_clear();
     void path_play();
     void path_prev();
     void path_next();
-    void path_save();
-    void path_load();
     void path_del();
     void path_ins();
     void path_add();
