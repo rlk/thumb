@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-  <sphere mesh="32" size="254">
+  <sphere detail="32" limit="512">
     <scene name="global" label="IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
@@ -17,31 +17,33 @@
     <scene name="ldrm" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="normal" scm="DTM-254-7-N.tif" />
-      <image name="scalar" scm="LDRM-254-3.tif" k0="0.0" k1="2.0"/>
+      <image name="scalar" scm="LDRM-254-4.tif" k0="0.0" k1="2.0"/>
     </scene>
     <scene name="ldsm" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="normal" scm="DTM-254-7-N.tif" />
-      <image name="scalar" scm="LDSM-254-3.tif" k0="0.0" k1="2.0"/>
+      <image name="scalar" scm="LDSM-254-4.tif" k0="0.0" k1="2.0"/>
     </scene>
-<!--
+    <scene name="minirf-cp" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="Mini-RF-CP-254-7.tif" k0="0.0" k1="1.0"/>
+    </scene>
+    <scene name="minirf-s1" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="Mini-RF-S1-254-7.tif" k0="0.0" k1="10.0"/>
+    </scene>
     <scene name="11hi" label="Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
-      <image name="lower"  scm="WAC-254-7.tif" />
+      <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
       <image name="upper"  scm="NAC_ROI_APOLLO11HIA-254-15.tif" k0="0.1" k1="0.8"/>
     </scene>
-    <scene name="11lo" label="Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
+    <scene name="11lo" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
-      <image name="lower"  scm="WAC-254-7.tif" />
-      <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="2.0"/>
+      <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+      <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="1.5"/>
     </scene>
--->
-<!--
-    <scene vert="glsl/scm-displace.vert" frag="glsl/scm-colorelief.frag">
-      <image name="height" scm="DTM-426-6.tif" k0="1728240" k1="1748170" channel="-1"/>
-      <image name="normal" scm="DTM-426-6-N.tif" />
-    </scene>
--->
     <step name="Default"
          scene="global"
             q0="0.0"
@@ -81,6 +83,8 @@
             p0="0.0"
             p1="0.0"
             p2="1.0"
+            l1="0.894427"
+            l2="0.447214"
              r="5000000.0"/>
     <step name="LDSM"
          scene="ldsm"
@@ -91,7 +95,54 @@
             p0="0.0"
             p1="0.0"
             p2="1.0"
+            l1="0.894427"
+            l2="0.447214"
              r="5000000.0"/>
+    <step name="Mini-RF CP"
+         scene="minirf-cp"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+            l1="0.894427"
+            l2="0.447214"
+             r="5000000.0"/>
+    <step name="Mini-RF S1"
+         scene="minirf-s1"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+            l1="0.894427"
+            l2="0.447214"
+             r="5000000.0"/>
+    <step name="Apollo11"
+         scene="11hi"
+             r="1779618.139413"
+            p2=" 0.917253"
+            p1="-0.010662"
+            p0=" 0.398162"
+            q3=" 0.917527"
+            q2="-0.071895"
+            q1=" 0.190115"
+            q0=" 0.341805"/>
+    <step name="Apollo11"
+         scene="11lo"
+             r="1779618.139413"
+            p2=" 0.917253"
+            p1="-0.010662"
+            p0=" 0.398162"
+            q3=" 0.917527"
+            q2="-0.071895"
+            q1=" 0.190115"
+            q0=" 0.341805"/>
+<!--
     <step name="Tycho"
          scene="global"
             q0=" 0.762239"
@@ -152,4 +203,5 @@
             q2="-0.839981"
             q1=" 0.363589"
             q0=" 0.371764"/>
+-->
   </sphere>

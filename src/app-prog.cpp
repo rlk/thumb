@@ -135,7 +135,8 @@ static void video()
 //-----------------------------------------------------------------------------
 
 app::prog::prog(const std::string& exe,
-                const std::string& tag) : input(0)
+                const std::string& tag)
+    : input(0), snap_p(0), snap_w(0), snap_h(0)
 {
     // Start Winsock
 
@@ -213,6 +214,8 @@ app::prog::~prog()
 {
     // Release all resources
 
+    delete snap_p;
+
     if (input)  delete input;
 
     if (::perf) delete ::perf;
@@ -274,7 +277,58 @@ void app::prog::run()
 
 //-----------------------------------------------------------------------------
 
-void app::prog::screenshot(std::string filename, int w, int h) const
+#include <unistd.h>
+#include <fcntl.h>
+
+#pragma pack(push, 1)
+struct tga
+{
+    unsigned char  image_id_length;
+    unsigned char  color_map_type;
+    unsigned char  image_type;
+    unsigned short color_map_first_index;
+    unsigned short color_map_length;
+    unsigned char  color_map_entry_size;
+    unsigned short image_x_origin;
+    unsigned short image_y_origin;
+    unsigned short image_width;
+    unsigned short image_height;
+    unsigned char  image_depth;
+    unsigned char  image_descriptor;
+};
+#pragma pack(pop)
+
+static void snaptga(const char *filename, unsigned char *p, int w, int h)
+{
+    size_t s = sizeof (tga);
+    tga   *t = (tga *) p;
+    int    d;
+
+    t->image_id_length       =  0;
+    t->color_map_type        =  0;
+    t->image_type            =  2;
+    t->color_map_first_index =  0;
+    t->color_map_length      =  0;
+    t->color_map_entry_size  =  0;
+    t->image_x_origin        =  0;
+    t->image_y_origin        =  0;
+    t->image_width           =  w;
+    t->image_height          =  h;
+    t->image_depth           = 24;
+    t->image_descriptor      =  0;
+
+    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, p + s);
+
+    if ((d = open(filename, O_WRONLY | O_CREAT, 0666)) != -1)
+    {
+        write(d, p, s + w * h * 3);
+        close(d);
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+static void snappng(const char *filename, unsigned char *p, int w, int h)
 {
     FILE       *filep  = NULL;
     png_structp writep = NULL;
@@ -283,7 +337,7 @@ void app::prog::screenshot(std::string filename, int w, int h) const
 
     // Initialize all PNG export data structures.
 
-    if (!(filep = fopen(filename.c_str(), "wb")))
+    if (!(filep = fopen(filename, "wb")))
         throw std::runtime_error("Failure opening PNG file for writing");
 
     if (!(writep = png_create_write_struct(PNG_LIBPNG_VER_STRING, 0, 0, 0)))
@@ -307,37 +361,71 @@ void app::prog::screenshot(std::string filename, int w, int h) const
                                              PNG_COMPRESSION_TYPE_DEFAULT,
                                              PNG_FILTER_TYPE_DEFAULT);
 
-        // Allocate the pixel buffer and copy pixels there.
+        // Copy the frame buffer to the snap buffer.
 
-        if ((p = new unsigned char[w * h * 3]))
+        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, p);
+
+        // Allocate and initialize the row pointers.
+
+        if ((bytep = (png_bytep *)png_malloc(writep, h*sizeof(png_bytep))))
         {
-            glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, p);
+            for (int i = 0; i < h; ++i)
+                bytep[h - i - 1] = (png_bytep) (p + i * w * 3);
 
-            // Allocate and initialize the row pointers.
+            // Write the PNG image file.
 
-            if ((bytep = (png_bytep *)png_malloc(writep, h*sizeof(png_bytep))))
-            {
-                for (int i = 0; i < h; ++i)
-                    bytep[h - i - 1] = (png_bytep) (p + i * w * 3);
+            png_set_rows  (writep, infop, bytep);
+            png_write_info(writep, infop);
+            png_write_png (writep, infop, 0, NULL);
 
-                // Write the PNG image file.
-
-                png_set_rows  (writep, infop, bytep);
-                png_write_info(writep, infop);
-                png_write_png (writep, infop, 0, NULL);
-
-                free(bytep);
-            }
-            else throw std::runtime_error("Failure allocating PNG row array");
-
-            delete [] p;
+            free(bytep);
         }
+        else throw std::runtime_error("Failure allocating PNG row array");
     }
 
     // Release all resources.
 
     png_destroy_write_struct(&writep, &infop);
     fclose(filep);
+}
+
+//-----------------------------------------------------------------------------
+
+static void snapraw(const char *filename, unsigned char *p, int w, int h)
+{
+    int d;
+
+    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, p);
+
+    if ((d = open(filename, O_WRONLY | O_CREAT, 0666)) != -1)
+    {
+        write(d, p, w * h * 3);
+        close(d);
+    }
+}
+
+void app::prog::screenshot(std::string filename, int w, int h)
+{
+    if (snap_p == 0 || snap_w != w || snap_h != h)
+    {
+        delete [] snap_p;
+
+        snap_p = new unsigned char[w * h * 3 + sizeof (tga)];
+        snap_w = w;
+        snap_h = h;
+    }
+
+    if (snap_p)
+    {
+        if      (filename.compare(filename.length() - 4, 4, ".png") == 0)
+            snappng(filename.c_str(), snap_p, snap_w, snap_h);
+        else if (filename.compare(filename.length() - 4, 4, ".tga") == 0)
+            snaptga(filename.c_str(), snap_p, snap_w, snap_h);
+        else
+            snapraw(filename.c_str(), snap_p, snap_w, snap_h);
+
+        printf("%s\n", filename.c_str());
+    }
 }
 
 //-----------------------------------------------------------------------------

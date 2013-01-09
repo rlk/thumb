@@ -135,7 +135,7 @@ void dpy::anaglyph::test(int chanc, const dpy::channel *const *chanv, int index)
 
         chanv[1]->bind();
         {
-            chanv[0]->test();
+            chanv[1]->test();
         }
         chanv[1]->free();
 

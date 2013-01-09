@@ -21,8 +21,6 @@ VIEWOBJS= \
 	scm/scm-step.o \
 	scm/scm-system.o \
 	scm/scm-task.o \
-	view-step.o \
-	view-path.o \
 	view-load.o \
 	view-app.o
 

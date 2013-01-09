@@ -5,27 +5,24 @@
     <option name="input_mode">mouse</option>
     <option name="sync">1</option>
     <option name="bench">1</option>
+    <option name="movie">0</option>
     <!-- Orbiter configuration -->
     <option name="scm_cache_size">12</option>
-<!--
-    <option name="orbiter_report_host">localhost</option>
-    <option name="orbiter_report_port">8111</option>
--->
-    <option name="orbiter_goto_radius">0.0</option>
+    <option name="orbiter_goto_radius">2600000.0</option>
     <option name="orbiter_icon_size">16</option>
     <option name="orbiter_joystick_deadzone">0.2</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>
     <option name="multisample_buffers">0</option>
-    <option name="max_anisotropy">4</option>
+    <option name="max_anisotropy">0</option>
     <!-- GUI options -->
     <option name="sans_font">FreeSans.ttf</option>
     <option name="mono_font">FreeMono.ttf</option>
     <option name="sans_size">12</option>
     <option name="mono_size">12</option>
     <!-- Miscellaneous options -->
-    <option name="screenshot_file">snap.png</option>
+    <option name="screenshot_file">snap.tga</option>
     <!-- Common keyboard commands -->
     <option name="key_exit">27</option>
-    <option name="key_snap">290</option>
+    <option name="key_snap">294</option>
   </conf>

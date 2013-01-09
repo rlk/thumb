@@ -79,6 +79,7 @@ void dpy::fulldome::draw(int chanc, const dpy::channel * const *chanv, int frusi
     {
         chanv[i]->bind();
         {
+            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
             ::host->draw(frusi + i, frusta[i], i);
         }
         chanv[i]->free();
@@ -91,24 +92,28 @@ void dpy::fulldome::draw(int chanc, const dpy::channel * const *chanv, int frusi
         if (chanc > 0)
         {
             chanv[0]->bind_color(GL_TEXTURE0);
+            P->uniform("image[0]", 0);
             P->uniform("size[0]",  chanv[0]->get_w(), chanv[0]->get_h());
             P->uniform("P[0]", frusta[0]->get_P(), false);
         }
         if (chanc > 1)
         {
             chanv[1]->bind_color(GL_TEXTURE1);
+            P->uniform("image[1]", 1);
             P->uniform("size[1]",  chanv[1]->get_w(), chanv[1]->get_h());
             P->uniform("P[1]", frusta[1]->get_P(), false);
         }
         if (chanc > 2)
         {
             chanv[2]->bind_color(GL_TEXTURE2);
+            P->uniform("image[2]", 2);
             P->uniform("size[2]",  chanv[2]->get_w(), chanv[2]->get_h());
             P->uniform("P[2]", frusta[2]->get_P(), false);
         }
         if (chanc > 3)
         {
             chanv[3]->bind_color(GL_TEXTURE3);
+            P->uniform("image[3]", 3);
             P->uniform("size[3]",  chanv[3]->get_w(), chanv[3]->get_h());
             P->uniform("P[3]", frusta[3]->get_P(), false);
         }

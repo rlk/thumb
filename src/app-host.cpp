@@ -378,7 +378,7 @@ app::host::host(app::prog *p, std::string filename,
     draw_flag(false),
     exit_flag(false),
     bench(::conf->get_i("bench")),
-    movie(0),
+    movie(::conf->get_i("movie")),
     count(0),
     calibration_state(false),
     calibration_index(0),
@@ -653,7 +653,7 @@ void app::host::root_loop()
                 {
                     char buf[256];
 
-                    sprintf(buf, "frame%05d.png", count / movie);
+                    sprintf(buf, "frame%05d.tga", count / movie);
 
                     program->screenshot(std::string(buf),
                                         get_window_w(),

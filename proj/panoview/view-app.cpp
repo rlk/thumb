@@ -47,7 +47,7 @@ view_app::view_app(const std::string& exe,
     const int w = ::host->get_buffer_w();
     const int h = ::host->get_buffer_h();
 
-    sys = new scm_system(w, h, 32, 512);
+    sys = new scm_system(w, h, 32, 256);
 }
 
 view_app::~view_app()
@@ -77,8 +77,8 @@ static void step_from_xml(scm_step *s, app::node n)
     p[2] = n.get_f("p2", 0.0);
 
     l[0] = n.get_f("l0", 0.0);
-    l[1] = n.get_f("l1", 0.0);
-    l[2] = n.get_f("l2", 0.0);
+    l[1] = n.get_f("l1", 2.0);
+    l[2] = n.get_f("l2", 1.0);
 
     s->set_name       (n.get_s("name"));
     s->set_scene      (n.get_s("scene"));
@@ -112,8 +112,8 @@ static void xml_from_step(scm_step *s, app::node n)
     if (p[2] != 0.0) n.set_f("p2", p[2]);
 
     if (l[0] != 0.0) n.set_f("l0", l[0]);
-    if (l[1] != 0.0) n.set_f("l1", l[1]);
-    if (l[2] != 0.0) n.set_f("l2", l[2]);
+    if (l[1] != 1.0) n.set_f("l1", l[1]);
+    if (l[2] != 2.0) n.set_f("l2", l[2]);
 
     if (!s->get_name().empty())   n.set_s("name",  s->get_name());
     if (!s->get_scene().empty())  n.set_s("scene", s->get_scene());
@@ -162,7 +162,7 @@ void view_app::load_images(app::node p, scm_scene *f)
         {
             p->set_scm             (n.get_s("scm"));
             p->set_name            (n.get_s("name"));
-            p->set_channel         (n.get_i("channel"));
+            p->set_channel         (n.get_i("channel", -1));
             p->set_normal_min(float(n.get_f("k0", 0.0)));
             p->set_normal_max(float(n.get_f("k1", 1.0)));
         }
@@ -201,6 +201,9 @@ void view_app::load(const std::string& name)
 
     if (app::node root = file.get_root().find("sphere"))
     {
+        sys->get_sphere()->set_detail(root.get_i("detail", 32));
+        sys->get_sphere()->set_limit (root.get_i("limit", 256));
+
         // Load the new data.
 
         int scenes = sys->get_scene_count();
@@ -213,6 +216,8 @@ void view_app::load(const std::string& name)
 
         for (int i = 0; i < scenes; ++i) sys->del_scene(0);
         for (int i = 0; i < steps;  ++i) sys->del_step (0);
+
+        path_queue();
 
         sys->set_current_time (0);
         sys->set_current_scene(0);

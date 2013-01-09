@@ -247,8 +247,8 @@ void orbiter::lite(double dt, double k)
     double Y[16];
     double M[16];
 
-    mrotate(X, r,  10.0 * dy * dt);
-    mrotate(Y, u, -10.0 * dx * dt);
+    mrotate(X, r, -10.0 * dy * dt);
+    mrotate(Y, u,  10.0 * dx * dt);
     mmultiply(M, X, Y);
 
     here.transform_light(M);
@@ -375,9 +375,9 @@ void orbiter::move_to(int i)
         path_mid.set_pitch(-M_PI_2);
         path_mid.set_scene(path_dst.get_scene());
 
-        path_src.set_speed(0.050);
+        path_src.set_speed(0.05);
         path_mid.set_speed(1.00);
-        path_dst.set_speed(0.005);
+        path_dst.set_speed(0.05);
 
         // Queue these new steps and trigger playback.
 
@@ -547,7 +547,7 @@ bool orbiter::process_tick(app::event *E)
 
     if (here.get_distance())
         here.set_distance(std::max(here.get_distance(),
-                                        get_current_ground() + 10.0));
+                                        get_current_ground() + 100.0));
 
     // Apply the current transformation to the camera.
 

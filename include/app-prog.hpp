@@ -44,6 +44,10 @@ namespace app
 
         dev::input *input;
 
+        unsigned char *snap_p;
+        int            snap_w;
+        int            snap_h;
+
     public:
 
         prog(const std::string&, const std::string&);
@@ -63,7 +67,7 @@ namespace app
 
         // Screenshot procedure
 
-        void screenshot(std::string, int, int) const;
+        void screenshot(std::string, int, int);
     };
 }
 
