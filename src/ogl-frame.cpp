@@ -107,7 +107,7 @@ void ogl::frame::bind(bool b) const
         glPushMatrix();
         glLoadIdentity();
         glOrtho(0, w, 0, h, 0, 1);
-	
+
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
         glLoadIdentity();
@@ -251,7 +251,7 @@ void ogl::frame::init_frame()
     switch (glCheckFramebufferStatusEXT(GL_FRAMEBUFFER))
     {
     case GL_FRAMEBUFFER_COMPLETE:
-        break; 
+        break;
     case GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
         throw std::runtime_error("Framebuffer incomplete attachment");
     case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
