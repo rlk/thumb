@@ -38,14 +38,14 @@ view_app::view_app(const std::string& exe,
     path_xml("path.xml"),
     step(0)
 {
+    TIFFSetWarningHandler(0);
+
     gui_init();
 
     // Create the SCM rendering system.
 
-    TIFFSetWarningHandler(0);
-
-    const int w = ::host->get_buffer_w();
-    const int h = ::host->get_buffer_h();
+    int w = ::host->get_buffer_w();
+    int h = ::host->get_buffer_h();
 
     sys = new scm_system(w, h, 32, 256);
 }

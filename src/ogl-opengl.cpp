@@ -190,7 +190,7 @@ void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
 {
     // Bind a texture OBJECT to TARGET of texture UNIT with as little state
     // change as possible.  If UNIT is zero, then use whatever is current.
-
+/*
     int u = unit ? int(unit         - GL_TEXTURE0)
                  : int(current_unit - GL_TEXTURE0);
 
@@ -201,17 +201,16 @@ void ogl::bind_texture(GLenum target, GLenum unit, GLuint object)
 
         glBindTexture(target, object);
     }
-
-/*
-    if (unit) // HACK: the above optimization breaks font rendering.
-    {
-        glActiveTexture_(unit);
-        glBindTexture(target, object);
-        glActiveTexture_(GL_TEXTURE0);
-    }
-    else
-        glBindTexture(target, object);
 */
+
+    if (unit == GL_TEXTURE0) // HACK: the above optimization breaks user code.
+        glBindTexture(target, object);
+    else
+    {
+        glActiveTexture(unit);
+        glBindTexture(target, object);
+        glActiveTexture(GL_TEXTURE0);
+    }
 }
 
 void ogl::xfrm_texture(GLenum unit, const GLdouble *M)

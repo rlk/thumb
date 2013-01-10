@@ -220,6 +220,7 @@
     <!-- 1024x769 Fulldome projection ------------------------------------- -->
     <node name="fulldome-1024x768">
       <window x="0" y="0" w="1024" h="768"/>
+      <buffer  w="1024" h="512"/>
       <channel w="1024" h="512"/>
       <channel w="1024" h="512"/>
       <channel w="1024" h="512"/>

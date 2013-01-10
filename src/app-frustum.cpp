@@ -127,7 +127,7 @@ void app::frustum::set_distances(double n, double f)
     crossprod(v[3], view_planes[4], view_planes[2]);
 
     // For each view frustum corner...
-        
+
     for (int i = 0; i < 4; ++i)
     {
         normalize(v[i]);
@@ -206,13 +206,13 @@ void app::frustum::set_viewpoint(const double *p)
     user_pos[2] = p[2];
 
     // Compute the vector from the screen center to the viewer.
- 	
+
     double v[3];
- 	
+
     v[0] = user_pos[0] - (user_points[0][0] + user_points[3][0]) * 0.5;
     v[1] = user_pos[1] - (user_points[0][1] + user_points[3][1]) * 0.5;
     v[2] = user_pos[2] - (user_points[0][2] + user_points[3][2]) * 0.5;
- 	
+
     mult_xps_vec3(disp_pos, user_basis, v);
 
     // Cache the solid angle of the frustum.
@@ -547,6 +547,7 @@ int app::frustum::get_pixel_h() const
     return pixel_h;
 }
 
+#if 0
 /// Estimate and return the number of pixels in the given solid angle.
 ///
 /// Given a measurement of the solid angle subtended by an object (or its
@@ -562,7 +563,7 @@ double app::frustum::pixels(double a) const
 
     return pixel_w * pixel_h * a / user_angle;
 }
-
+#endif
 //-----------------------------------------------------------------------------
 
 /// Compute and return the parallel-split shadow map coefficient.
@@ -750,8 +751,8 @@ static bool test_shell_point(const double *p,
     {
         double n[3];
 
-        crossprod(n, n0, n1); if (DOT3(n, p) < 0.0) return false; 
-        crossprod(n, n1, n2); if (DOT3(n, p) < 0.0) return false; 
+        crossprod(n, n0, n1); if (DOT3(n, p) < 0.0) return false;
+        crossprod(n, n1, n2); if (DOT3(n, p) < 0.0) return false;
         crossprod(n, n2, n0); if (DOT3(n, p) < 0.0) return false;
 
         return true;
