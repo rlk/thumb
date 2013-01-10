@@ -383,12 +383,18 @@ void view_app::path_clear()
     path_queue();
 }
 
-void view_app::path_play()
+void view_app::path_play(bool movie)
 {
     if (dtime > 0)
+    {
+        ::host->set_movie_mode(false);
         dtime = 0;
+    }
     else
+    {
+        ::host->set_movie_mode(movie);
         dtime = 1;
+    }
     path_queue();
 }
 
@@ -543,18 +549,31 @@ bool view_app::process_key(app::event *E)
                 case 'j': path_jump();  return true; // ^J
             }
         }
-        else
+
+        if (k == 8)
         {
-            if (k == 8)
-            {
-                sys->flush_cache();
-                return true;
-            }
-            if (k == 32)
-            {
-                path_play();
-                return true;
-            }
+            sys->flush_cache();
+            return true;
+        }
+        if (k == 32)
+        {
+            path_play(s);
+            return true;
+        }
+
+        scm_step *p = sys->get_step(step);
+
+        if (p && k == 273) // Up
+        {
+            if      (c) { p->set_tension(p->get_tension() + 0.1); }
+            else if (s) { p->set_bias   (p->get_bias()    + 0.1); }
+            else if (s) { p->set_speed  (p->get_speed()   * 1.1); }
+        }
+        if (p && k == 274) // Down
+        {
+            if      (c) { p->set_tension(p->get_tension() - 0.1); }
+            else if (s) { p->set_bias   (p->get_bias()    - 0.1); }
+            else if (s) { p->set_speed  (p->get_speed()   / 1.1); }
         }
     }
     return prog::process_event(E);
@@ -594,7 +613,10 @@ bool view_app::process_tick(app::event *E)
         sys->set_current_time(ntime);
 
         if (ptime == sys->get_current_time())
+        {
             dtime = 0;
+            ::host->set_movie_mode(false);
+        }
     }
     return false;
 }

@@ -34,6 +34,11 @@ namespace dpy
     class display;
 }
 
+namespace ogl
+{
+    class frame;
+}
+
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -97,11 +102,12 @@ namespace app
 
         int window_full;
         int window_frame;
-        int window_size[4];
+        int window_rect[4];
         int buffer_size[2];
+        int render_size[2];
         int device;
 
-	double T[16];
+    	double T[16];
 
         std::vector<dpy::display *> displays;
         std::vector<dpy::channel *> channels;
@@ -109,6 +115,7 @@ namespace app
 
         app::frustum *overlay;
         app::prog    *program;
+        ogl::frame   *render;
 
         // Configuration serializer
 
@@ -131,10 +138,10 @@ namespace app
         // Configuration queries.
 
         int get_window_m() const;
-        int get_window_x() const { return window_size[0]; }
-        int get_window_y() const { return window_size[1]; }
-        int get_window_w() const { return window_size[2]; }
-        int get_window_h() const { return window_size[3]; }
+        int get_window_x() const { return window_rect[0]; }
+        int get_window_y() const { return window_rect[1]; }
+        int get_window_w() const { return window_rect[2]; }
+        int get_window_h() const { return window_rect[3]; }
         int get_buffer_w() const { return buffer_size[0]; }
         int get_buffer_h() const { return buffer_size[1]; }
         int get_device()   const { return device; }

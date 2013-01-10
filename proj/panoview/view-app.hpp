@@ -93,7 +93,7 @@ private:
     void path_load();
     void path_queue();
     void path_clear();
-    void path_play();
+    void path_play(bool);
     void path_prev();
     void path_next();
     void path_del();

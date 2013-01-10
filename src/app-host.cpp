@@ -18,6 +18,7 @@
 #include <etc-math.hpp>
 #include <app-default.hpp>
 #include <ogl-range.hpp>
+#include <ogl-frame.hpp>
 #include <ogl-opengl.hpp>
 #include <dpy-channel.hpp>
 #include <dpy-direct.hpp>
@@ -385,18 +386,21 @@ app::host::host(app::prog *p, std::string filename,
     device(0),
     overlay(0),
     program(p),
+    render(0),
     file(filename.c_str())
 {
     // Set some reasonable defaults.
 
     window_full    = 0;
     window_frame   = 1;
-    window_size[0] = 0;
-    window_size[1] = 0;
-    window_size[2] = DEFAULT_PIXEL_WIDTH;
-    window_size[3] = DEFAULT_PIXEL_HEIGHT;
+    window_rect[0] = 0;
+    window_rect[1] = 0;
+    window_rect[2] = DEFAULT_PIXEL_WIDTH;
+    window_rect[3] = DEFAULT_PIXEL_HEIGHT;
     buffer_size[0] = DEFAULT_PIXEL_WIDTH;
     buffer_size[1] = DEFAULT_PIXEL_HEIGHT;
+    render_size[0] = 0;
+    render_size[1] = 0;
 
     load_idt(T);
 
@@ -436,23 +440,31 @@ app::host::host(app::prog *p, std::string filename,
             {
                 window_full    = c.get_i("full",  0);
                 window_frame   = c.get_i("frame", 1);
-                window_size[0] = c.get_i("x", 0);
-                window_size[1] = c.get_i("y", 0);
-                window_size[2] = c.get_i("w", DEFAULT_PIXEL_WIDTH);
-                window_size[3] = c.get_i("h", DEFAULT_PIXEL_HEIGHT);
+                window_rect[0] = c.get_i("x", 0);
+                window_rect[1] = c.get_i("y", 0);
+                window_rect[2] = c.get_i("w", DEFAULT_PIXEL_WIDTH);
+                window_rect[3] = c.get_i("h", DEFAULT_PIXEL_HEIGHT);
             }
 
-            // Extract the off-screen buffer size, or use the window size.
+            // Extract the off-screen render size, if any.
+
+            if (app::node c = n.find("render"))
+            {
+                render_size[0] = c.get_i("w", 0);
+                render_size[1] = c.get_i("h", 0);
+            }
+
+            // Extract the working buffer size, or use the window size.
 
             if (app::node c = n.find("buffer"))
             {
-                buffer_size[0] = c.get_i("w", window_size[2]);
-                buffer_size[1] = c.get_i("h", window_size[3]);
+                buffer_size[0] = c.get_i("w", window_rect[2]);
+                buffer_size[1] = c.get_i("h", window_rect[3]);
             }
             else
             {
-                buffer_size[0] = window_size[2];
-                buffer_size[1] = window_size[3];
+                buffer_size[0] = window_rect[2];
+                buffer_size[1] = window_rect[3];
             }
 
             // Extract the preferred CUDA device configuration.
@@ -542,6 +554,9 @@ app::host::~host()
 
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         delete (*i);
+
+    if (render)
+        delete render;
 
     fini_client();
     fini_server();
@@ -655,9 +670,19 @@ void app::host::root_loop()
 
                     sprintf(buf, "frame%05d.tga", count / movie);
 
-                    program->screenshot(std::string(buf),
-                                        get_window_w(),
-                                        get_window_h());
+                    if (render)
+                    {
+                        render->bind();
+                        program->screenshot(std::string(buf),
+                                            render->get_w(),
+                                            render->get_h());
+                        render->free();
+                    }
+                    else
+                        program->screenshot(std::string(buf),
+                                            get_window_w(),
+                                            get_window_h());
+
                 }
             }
         }
@@ -686,6 +711,13 @@ void app::host::loop()
 
 void app::host::draw()
 {
+    // Instance the off-screen render buffer, if needed.
+
+    if (render == 0 && render_size[0] && render_size[1])
+        render = new ogl::frame(render_size[0], render_size[1],
+                                GL_TEXTURE_RECTANGLE_ARB,
+                                GL_RGBA, true, true, false);
+
     // Channel and frustum vectors are passed C-style.
 
     const dpy::channel *const *chanv = &channels.front();
@@ -722,6 +754,11 @@ void app::host::draw()
 
     ::glob->prep();
 
+    // Switch to off-screen if necessary.
+
+    if (render)
+        render->bind();
+
     // Clear the entire window.
 
     glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -738,6 +775,14 @@ void app::host::draw()
             (*i)->draw(chanc, chanv, frusi);
 
         frusi += (*i)->get_frusc();
+    }
+
+    // Switch to on-screen if necessary.
+
+    if (render)
+    {
+        render->free();
+        render->draw();
     }
 }
 
@@ -791,6 +836,13 @@ void app::host::sync()
 
 bool app::host::pointer_to_3D(event *E, int x, int y)
 {
+    if (render_size[0] != window_rect[2] ||
+        render_size[1] != window_rect[3])
+    {
+        x = x * render_size[0] / window_rect[2];
+        y = y * render_size[1] / window_rect[3];
+    }
+
     for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
         if ((*i)->pointer_to_3D(E, x, y))
             return true;

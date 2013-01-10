@@ -4,9 +4,9 @@
 
 CC    = g++
 STRIP = strip
-CFLAGS= -g -Wall
+#CFLAGS= -g -Wall
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
-#CFLAGS= -g -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
+CFLAGS= -g -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
 RM    = rm -f
 CP    = cp
 

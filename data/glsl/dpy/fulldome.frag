@@ -4,10 +4,10 @@ uniform sampler2DRect image[4];
 uniform vec2           size[4];
 uniform mat4           P[4];
 
-float clip(vec2 t, vec2 s)
+float blend(vec2 t, vec2 s)
 {
-    const vec2 e0 = vec2(  0.0);
-    const vec2 e1 = vec2(128.0);
+    vec2 e0 =     vec2(0.0, 0.0);
+    vec2 e1 = s / vec2(8.0, 4.0);
 
     vec2 k = (1.0 - smoothstep(s - e1, s, t)) * smoothstep(e0, e1, t);
 
@@ -65,15 +65,19 @@ void main()
 
     // Sample and mix all framebuffers.
 
-    vec4 c0 = vec4(texture2DRect(image[0], t0).rgb, b.x * clip(t0, size[0]));
-    vec4 c1 = vec4(texture2DRect(image[1], t1).rgb, b.y * clip(t1, size[1]));
-    vec4 c2 = vec4(texture2DRect(image[2], t2).rgb, b.z * clip(t2, size[2]));
-    vec4 c3 = vec4(texture2DRect(image[3], t3).rgb, b.w * clip(t3, size[3]));
+    vec4 c0 = vec4(texture2DRect(image[0], t0).rgb, b.x * blend(t0, size[0]));
+    vec4 c1 = vec4(texture2DRect(image[1], t1).rgb, b.y * blend(t1, size[1]));
+    vec4 c2 = vec4(texture2DRect(image[2], t2).rgb, b.z * blend(t2, size[2]));
+    vec4 c3 = vec4(texture2DRect(image[3], t3).rgb, b.w * blend(t3, size[3]));
 
     vec3 cc = (c0.rgb * c0.a +
                c1.rgb * c1.a +
                c2.rgb * c2.a +
                c3.rgb * c3.a) / (c0.a + c1.a + c2.a + c3.a);
+
+    // This debug line demonstrates the overlap and blending.
+
+    //cc = vec3(c0.a + c1.a + c2.a + c3.a) / 4.0;
 
     // Draw, clipped to the hemisphere.
 

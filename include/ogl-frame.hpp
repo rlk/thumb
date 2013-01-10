@@ -76,6 +76,7 @@ namespace ogl
 
         virtual void init();
         virtual void fini();
+        virtual void draw();
 
         GLsizei get_w() const { return w; }
         GLsizei get_h() const { return h; }

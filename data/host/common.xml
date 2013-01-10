@@ -218,8 +218,8 @@
       </display>
     </node>
     <!-- 1024x769 Fulldome projection ------------------------------------- -->
-    <node name="fulldome-1024x768">
-      <window x="0" y="0" w="1024" h="768"/>
+    <node name="1024x768-fulldome">
+      <window  w="1024" h="768" x="0" y="0" />
       <buffer  w="1024" h="512"/>
       <channel w="1024" h="512"/>
       <channel w="1024" h="512"/>
@@ -227,12 +227,117 @@
       <channel w="1024" h="512"/>
       <overlay>
         <frustum>
-          <perspective hfov="110.0" vfov="90.0" />
-          <rotation p="45.0" y="0.0"/>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="0.0"/>
         </frustum>
       </overlay>
       <display type="fulldome">
         <viewport x="128" y="0" w="768" h="768"/>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="0.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="90.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="180.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="270.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 2K Fulldome projection ------------------------------------------- -->
+    <node name="2K-fulldome">
+      <window  w="1024" h="1024" x="0" y="0"/>
+      <render  w="2048" h="2048"/>
+      <buffer  w="2048" h="1024"/>
+      <channel w="2048" h="1024"/>
+      <channel w="2048" h="1024"/>
+      <channel w="2048" h="1024"/>
+      <channel w="2048" h="1024"/>
+      <overlay>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="0.0"/>
+        </frustum>
+      </overlay>
+      <display type="fulldome">
+        <viewport x="0" y="0" w="2048" h="2048"/>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="0.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="90.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="180.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="270.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 4K Fulldome projection ------------------------------------------- -->
+    <node name="4K-fulldome">
+      <window  w="1024" h="1024" x="0" y="0"/>
+      <render  w="4096" h="4096"/>
+      <buffer  w="4096" h="2048"/>
+      <channel w="4096" h="2048"/>
+      <channel w="4096" h="2048"/>
+      <channel w="4096" h="2048"/>
+      <channel w="4096" h="2048"/>
+      <overlay>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="0.0"/>
+        </frustum>
+      </overlay>
+      <display type="fulldome">
+        <viewport x="0" y="0" w="4096" h="4096"/>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="0.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="90.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="180.0"/>
+        </frustum>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="270.0"/>
+        </frustum>
+      </display>
+    </node>
+    <!-- 8K Fulldome projection ------------------------------------------- -->
+    <node name="8K-fulldome">
+      <window  w="1024" h="1024" x="0" y="0"/>
+      <render  w="8192" h="8192"/>
+      <buffer  w="8192" h="4096"/>
+      <channel w="8192" h="4096"/>
+      <channel w="8192" h="4096"/>
+      <channel w="8192" h="4096"/>
+      <channel w="8192" h="4096"/>
+      <overlay>
+        <frustum>
+          <perspective hfov="115.0" vfov="100.0" />
+          <rotation p="50.0" y="0.0"/>
+        </frustum>
+      </overlay>
+      <display type="fulldome">
+        <viewport x="0" y="0" w="8192" h="8192"/>
         <frustum>
           <perspective hfov="115.0" vfov="100.0" />
           <rotation p="50.0" y="0.0"/>

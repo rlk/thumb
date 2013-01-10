@@ -301,5 +301,46 @@ void ogl::frame::fini()
     if (depth) glDeleteTextures(1, &depth);
 }
 
+void ogl::frame::draw()
+{
+    glPushAttrib(GL_POLYGON_BIT | GL_ENABLE_BIT | GL_DEPTH_BUFFER_BIT);
+    {
+        glUseProgram(0);
+
+        glDisable(GL_LIGHTING);
+        glDisable(GL_BLEND);
+        glDisable(GL_DEPTH_TEST);
+        glEnable(GL_TEXTURE_RECTANGLE);
+
+        glFrontFace(GL_CCW);
+
+        glMatrixMode(GL_PROJECTION);
+        glPushMatrix();
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
+
+        glColor4f(1.f, 1.f, 1.f, 1.f);
+
+        bind_color(GL_TEXTURE0);
+        glBegin(GL_QUADS);
+        {
+            glTexCoord2f(0, 0); glVertex2f(-1.0f, -1.0f);
+            glTexCoord2f(w, 0); glVertex2f(+1.0f, -1.0f);
+            glTexCoord2f(w, h); glVertex2f(+1.0f, +1.0f);
+            glTexCoord2f(0, h); glVertex2f(-1.0f, +1.0f);
+        }
+        glEnd();
+        free_color(GL_TEXTURE0);
+
+        glMatrixMode(GL_PROJECTION);
+        glPopMatrix();
+        glMatrixMode(GL_MODELVIEW);
+        glPopMatrix();
+    }
+    glPopAttrib();
+}
+
 //-----------------------------------------------------------------------------
 
