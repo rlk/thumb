@@ -57,7 +57,8 @@ orbiter::orbiter(const std::string& exe,
     orbit_plane[2] = 0.0;
     orbit_speed    = 0.0;
     stick_timer    = 0.0;
-    goto_radius    = ::conf->get_f("orbiter_goto_radius", 0.0);
+    goto_radius    = ::conf->get_f("orbiter_goto_radius",   0.0);
+    minimum_agl    = ::conf->get_f("orbiter_minimum_agl", 100.0);
 
     drag_move = false;
     drag_look = false;
@@ -547,7 +548,7 @@ bool orbiter::process_tick(app::event *E)
 
     if (here.get_distance())
         here.set_distance(std::max(here.get_distance(),
-                                        get_current_ground() + 100.0));
+                                        get_current_ground() + minimum_agl));
 
     // Apply the current transformation to the camera.
 

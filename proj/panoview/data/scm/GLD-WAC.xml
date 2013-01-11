@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
   <sphere detail="32" limit="512">
-    <scene name="global" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
+    <scene name="global" label="IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
     </scene>
-    <scene name="height" label="IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
+    <scene name="height" label="IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag" r="0" g="0" b="0" a="255">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" channel="-1"/>
       <image name="normal" scm="DTM-254-7-N.tif" />
       <image name="scalar" scm="DTM-254-7.tif" k0="0.0" k1="1.0"/>

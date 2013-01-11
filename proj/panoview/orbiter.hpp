@@ -59,6 +59,7 @@ private:
     double orbit_speed_max;
     double stick_timer;
     double goto_radius;
+    double minimum_agl;
 
     // Interaction state
 

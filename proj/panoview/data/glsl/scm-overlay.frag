@@ -72,5 +72,5 @@ void main()
     vec4 a = norm(sample_lower(gl_TexCoord[0].xy), lower.k0, lower.k1);
     vec4 b = norm(sample_upper(gl_TexCoord[0].xy), upper.k0, upper.k1);
 
-    gl_FragColor = mix(a, b, b.a);
+    gl_FragColor = vec4(mix(a, b, b.a).rgb, 1.0);
 }

@@ -25,6 +25,7 @@
 #include <app-default.hpp>
 
 #include "scm/util3d/math3d.h"
+#include "scm/scm-cache.hpp"
 
 #include "view-app.hpp"
 
@@ -41,6 +42,19 @@ view_app::view_app(const std::string& exe,
     TIFFSetWarningHandler(0);
 
     gui_init();
+
+    // Configure the SCM caches.
+
+    scm_cache::cache_size      = ::conf->get_i("scm_cache_size",
+                                         scm_cache::cache_size);
+    scm_cache::cache_threads   = ::conf->get_i("scm_cache_threads",
+                                         scm_cache::cache_threads);
+    scm_cache::need_queue_size = ::conf->get_i("scm_need_queue_size",
+                                         scm_cache::need_queue_size);
+    scm_cache::load_queue_size = ::conf->get_i("scm_load_queue_size",
+                                         scm_cache::load_queue_size);
+    scm_cache::loads_per_cycle = ::conf->get_i("scm_loads_per_cycle",
+                                         scm_cache::loads_per_cycle);
 
     // Create the SCM rendering system.
 
@@ -179,6 +193,12 @@ void view_app::load_scenes(app::node p)
         {
             load_images(n, f);
 
+            GLubyte r = n.get_i("r", 0xFF);
+            GLubyte g = n.get_i("g", 0xBF);
+            GLubyte b = n.get_i("b", 0x00);
+            GLubyte a = n.get_i("a", 0xFF);
+
+            f->set_color(r << 24 | g << 16 | b << 8 | a);
             f->set_name (n.get_s("name"));
             f->set_label(n.get_s("label"));
 

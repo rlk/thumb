@@ -8,6 +8,7 @@
     <!-- Orbiter configuration -->
     <option name="scm_cache_size">16</option>
     <option name="orbiter_goto_radius">2600000.0</option>
+    <option name="orbiter_minimum_agl">50.0</option>
     <option name="orbiter_icon_size">24</option>
     <option name="orbiter_joystick_deadzone">0.2</option>
     <!-- OpenGL context configuration -->
