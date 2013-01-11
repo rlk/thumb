@@ -206,9 +206,15 @@ void view_app::load_scenes(app::node p)
             const std::string& frag_name = n.get_s("frag");
 
             if (!vert_name.empty())
+            {
                 f->set_vert((const char *) ::data->load(vert_name));
+                ::data->free(vert_name);
+            }
             if (!vert_name.empty())
+            {
                 f->set_frag((const char *) ::data->load(frag_name));
+                ::data->free(frag_name);
+            }
         }
     }
 }
@@ -239,13 +245,38 @@ void view_app::load(const std::string& name)
 
         path_queue();
 
-        sys->set_current_time (0);
-        sys->set_current_scene(0);
+        sys->set_current_time(0);
+
+        here = sys->get_current_step();
 
         // Dismiss the GUI.
 
         draw_gui = false;
     }
+}
+
+void view_app::unload()
+{
+    for (int i = 0; i < sys->get_scene_count(); ++i) sys->del_scene(0);
+    for (int i = 0; i < sys->get_step_count();  ++i) sys->del_step (0);
+
+    path_queue();
+}
+
+void view_app::reload()
+{
+    scm_step temp = here;
+
+    std::string s0(sys->get_scene0());
+    std::string s1(sys->get_scene1());
+
+    unload();
+    ui->reload();
+
+    sys->set_scene0(s0);
+    sys->set_scene1(s1);
+
+    here = temp;
 }
 
 void view_app::cancel()
@@ -523,10 +554,10 @@ bool view_app::funkey(int n, int c, int s)
                 case  1: draw_gui   = !draw_gui;                  break;
                 case  2: draw_cache = !draw_cache;                break;
                 case  3: draw_path  = !draw_path;                 break;
-                case  4:                                          break;
+                case  4: ren->set_wire(!ren->get_wire());         break;
 
-                case  5: ren->set_wire(!ren->get_wire());         break;
-                case  6:                                          break;
+                case  5: sys->flush_cache();                      break;
+                case  6: reload();                                break;
                 case  7: ren->set_blur( 0);                       break;
                 case  8: ren->set_blur(16);                       break;
 
@@ -570,12 +601,6 @@ bool view_app::process_key(app::event *E)
                 case 'e': path_end();   return true; // ^E
                 case 'j': path_jump();  return true; // ^J
             }
-        }
-
-        if (k == 8)
-        {
-            sys->flush_cache();
-            return true;
         }
         if (k == 32)
         {

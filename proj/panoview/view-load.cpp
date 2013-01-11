@@ -56,6 +56,10 @@ view_load::view_load(view_app *V, int w, int h)
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("scm", ".xml", E);
 
+    if (char *name = getenv("SCMINIT"))
+        E->value(name);
+
+    load = new button_load(V, E);
     root = ((new gui::frame)->
             add((new gui::vgroup)->
                 add(label("SCM Viewer \xE2\x80\x94 File Selection"))->
@@ -70,7 +74,7 @@ view_load::view_load(view_app *V, int w, int h)
                     add(annot("Copyright \xC2\xA9 2011-12 Robert Kooima"))->
                     add(new gui::filler(true, false))->
                     add((new gui::harray)->
-                        add(new button_load  (V, E))->
+                        add(load)->
                         add(new button_cancel(V))))));
 
     root->layup();
@@ -79,6 +83,11 @@ view_load::view_load(view_app *V, int w, int h)
     int hh = std::max(root->get_h(), 3 * h / 5);
 
     root->laydn((w - ww) / 2, (h - hh) / 2, ww, hh);
+}
+
+void view_load::reload()
+{
+    load->apply();
 }
 
 //------------------------------------------------------------------------------

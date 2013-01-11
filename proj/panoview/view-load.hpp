@@ -21,9 +21,13 @@ class view_app;
 
 class view_load : public gui::dialog
 {
+	gui::button *load;
+
 public:
 
     view_load(view_app *, int, int);
+
+    void reload();
 };
 
 //------------------------------------------------------------------------------
