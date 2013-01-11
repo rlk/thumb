@@ -82,7 +82,7 @@
 
     <p>&hellip; or fulldome using a 1024 &times; 768 projector::</p>
 
-    <blockquote><pre>./orbiter fulldome-1024x768</pre></blockquote>
+    <blockquote><pre>./orbiter 1024x768-fulldome</pre></blockquote>
 
     <a name="interaction"><h3>Interaction</h3></a>
 
@@ -90,7 +90,7 @@
 
     <img src="img/select.png">
 
-    <p>Note, this is <em>not</em> a list of available data files. A planetary visualization is usually a composition of several distinct data sets in <a href="#scm">SCM TIFF</a> format, and the <code>Orbiter</code> file selection dialog lists the XML files that define these visualizations. The XML files are found in the <tt>data/scm</tt> directory in the <code>Thumb</code> distribution, and are <a href="#definition">described below</a>.</p>
+    <p>Note, this is <em>not</em> a list of available data files. A planetary visualization is usually a composition of several distinct data sets in <a href="#scm">SCM TIFF</a> format, and the <code>Orbiter</code> file selection dialog lists the XML files that define these visualizations. The XML files are found in the <tt>data/scm</tt> directory and are <a href="#definition">described below</a>.</p>
 
     <p>Loading a visualization closes the selection dialog and displays the planet. Here, we've selected <tt>GLD-WAC.xml</tt> and zoomed in a bit, as described next.</p>
 
@@ -114,12 +114,12 @@
       <tr>
         <td>Right Mouse</td>
         <td>&hellip;</td>
-        <td>Click and drag to change view altitude</td>
+        <td>Click and drag to change view direction (rotate the camera).</td>
       </tr>
       <tr>
         <td>Shift Left Mouse</td>
         <td>&hellip;</td>
-        <td>Click and drag to change view direction (rotate the camera).</td>
+        <td>Click and drag to change view altitude</td>
       </tr>
       <tr>
         <td>Shift Right Mouse</td>
@@ -130,9 +130,29 @@
 
     <p>Not all visualizations support dynamic lighting, so the effects of shift-right-click might not always be apparent.</p>
 
+    <p>The <a href="#definition">XML definition</a> file allows the specification of several <a href="#editing">path</a> steps, each of which may be linked to a different visualization. The number keys allow these steps to be directly selected.</p>
+
+    <table style="margin:auto;width:80%">
+      <tr>
+        <th style="width:25%">Key</th>
+        <th style="width:5%"></th>
+        <th style="width:70%">Function</th>
+      </tr>
+      <tr>
+        <td>0 <i>through</i> 9</td>
+        <td>&hellip;</td>
+        <td>Move the camera the selected step and scene. Effectively a <a href="#goto">go-to</a>.</td>
+      </tr>
+      <tr>
+        <td>Shift-0 <i>through</i> Shift-9</td>
+        <td>&hellip;</td>
+        <td>Fade the view to the selected scene without moving the camera.</td>
+      </tr>
+    </table>
+
     <a name="metadata"><h4>Metadata Controls</h4></a>
 
-    <p>Informational overlays and debug views may be toggled using function keys. The File Selection toggle allows the visualization to be changed at any time. The camera path display enables camera script editing. The label toggle displays information for over 8000 craters on the moon. The remaining displays are mostly for debugging the 3D renderer, but they do also look cool.</p>
+    <p>Informational overlays and debug views may be toggled using function keys. The File Selection toggle allows the visualization to be changed at any time. The camera path display enables camera script editing. The remaining displays are mostly for debugging the 3D renderer, but they do also look cool.</p>
 
     <table style="margin:auto;width:80%">
       <tr>
@@ -153,11 +173,6 @@
       <tr>
         <td>F3</td>
         <td>&hellip;</td>
-        <td>Toggle the label display.</td>
-      </tr>
-      <tr>
-        <td>F4</td>
-        <td>&hellip;</td>
         <td>Toggle the <a href="#editing">camera path</a> display.</td>
       </tr>
       <tr>
@@ -166,9 +181,34 @@
         <td>Toggle wireframe display.</td>
       </tr>
       <tr>
-        <td>F6</td>
+        <td>F7</td>
         <td>&hellip;</td>
-        <td>Toggle the bounding volume display.</td>
+        <td>Set the blur stop count to 0, effectively disabling motion blur</td>
+      </tr>
+      <tr>
+        <td>F8</td>
+        <td>&hellip;</td>
+        <td>Set the blur stop count to 16, effectively enabling motion blur</td>
+      </tr>
+      <tr>
+        <td>F9</td>
+        <td>&hellip;</td>
+        <td>Increase the per-page geometry detail.</td>
+      </tr>
+      <tr>
+        <td>F10</td>
+        <td>&hellip;</td>
+        <td>Decrease the per-page geometry detail.</td>
+      </tr>
+      <tr>
+        <td>F11</td>
+        <td>&hellip;</td>
+        <td>Increase the page subdivision limit.</td>
+      </tr>
+      <tr>
+        <td>F12</td>
+        <td>&hellip;</td>
+        <td>Decrease the page subdivision limit.</td>
       </tr>
     </table>
 
@@ -220,9 +260,14 @@
         <td>Select the <u>P</u>revious path key.</td>
       </tr>
       <tr>
-        <td>Control-<u>R</u></td>
+        <td>Control-<u>B</u></td>
         <td>&hellip;</td>
-        <td><u>R</u>ewind the current key and the play-back position to the beginning.</td>
+        <td>Rewind the current key and the play-back position to the <u>B</u>eginning.</td>
+      </tr>
+      <tr>
+        <td>Control-<u>E</u></td>
+        <td>&hellip;</td>
+        <td>Forward the current key and the play-back position to the <u>E</u>nd.</td>
       </tr>
       <tr>
         <td>Control-<u>J</u></td>
@@ -233,19 +278,9 @@
         <td>&nbsp;</td>
       </tr>
       <tr>
-        <td>Control-<u>F</u></td>
-        <td>&hellip;</td>
-        <td>Play the path <u>F</u>orward from the current play-back position.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>B</u></td>
-        <td>&hellip;</td>
-        <td>Play the path <u>B</u>ackward from the current play-back position.</td>
-      </tr>
-      <tr>
         <td>Spacebar</td>
         <td>&hellip;</td>
-        <td>Stop play-back.</td>
+        <td>Toggle play-back.</td>
       </tr>
       <tr>
         <td>&nbsp;</td>
@@ -305,7 +340,7 @@
     <ul>
       <li><p>To prepare a camera path, navigate normally and press Control-A at each point of interest. This will append each point to the list, moving the current selection forward with each addition.</p></li>
 
-      <li><p>Press Control-R to rewind to the beginning and press Control-F to animate the path forward.</p></li>
+      <li><p>Press Control-B to rewind to the beginning and press Spacebar to animate the path.</p></li>
 
       <li><p>Gain some altitude or distance to see an overview of the path.</p></li>
 
@@ -329,18 +364,13 @@
         <th style="width:70%">Function</th>
       </tr>
       <tr>
-        <td>Shift-Control-<u>F</u></td>
+        <td>Shift-Spacebar</td>
         <td>&hellip;</td>
-        <td>Record the path <u>F</u>orward from the current play-back position.</td>
-      </tr>
-      <tr>
-        <td>Shift-Control-<u>B</u></td>
-        <td>&hellip;</td>
-        <td>Record the path <u>B</u>ackward from the current play-back position.</td>
+        <td>Record the path from the current play-back position.</td>
       </tr>
     </table>
 
-    <p>This will produces a series of PNG files in the current working directory named <tt>frame00000.png</tt>, <tt>frame00001.png</tt>, etc, representing a 30-frame per second animation of the path. This may take some time. Unlike during interactive rendering, <code>Orbiter</code> takes the time to ensure optimal image quality. It waits for each necessary page of SCM data to be fully loaded from disk into VRAM before rendering and storing each frame.</p>
+    <p>This will produces a series of TGA files in the current working directory named <tt>frame00000.tga</tt>, <tt>frame00001.tga</tt>, etc, representing a 60-frame per second animation of the path. This may take some time. Unlike during interactive rendering, <code>Orbiter</code> takes the time to ensure optimal image quality. It waits for each necessary page of SCM data to be fully loaded from disk into VRAM before rendering and storing each frame.</p>
 
     <p>If the path play-back is stopped for any reason, the recording stops as well.</p>
 
@@ -349,11 +379,7 @@
     <p><code>Thumb</code> configuration options reside in the file <tt>data/conf.xml</tt>.</p>
 
     <ul>
-      <li><p>The cache size option limits the total number of SCM pages that may be loaded simultaneously. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. As the cache is two-dimensional, the exact page count is the square of the cache size. Thus, the default, 16, allows 256 pages per cache.</p></li>
-
-      <blockquote><pre>&lt;option name="scm_cache_size"&gt;16&lt;/option&gt;</pre></blockquote>
-
-      <li><p>The report host option gives the host name (or dotted quad) and port number of a host waiting to receive a streaming report of the renderer's current view position. This port will receive a single UDP packet per frame containing an ASCII string giving the longitude and latitude of the view position in degrees and the radius of the viewpoint in meters. This string is terminated by a newline and a null byte.</p></li>
+      <li><p>The report host option gives the host name (or dotted quad) and port number of a host waiting to receive a streaming report of the renderer's current view position. This port will receive a single UDP packet per frame containing an ASCII string giving the longitude and latitude of the view position in degrees, the radius of the viewpoint in meters, and the X, Y, and Z inputs of the user controller in the range -1 to +1. This string is terminated by a newline and a null byte.</p></li>
 
       <blockquote><pre>&lt;option name="orbiter_report_host"&gt;127.0.0.1&lt;/option&gt;
 &lt;option name="orbiter_report_port"&gt;8111&lt;/option&gt;</pre></blockquote>
@@ -372,14 +398,32 @@
       <blockquote><pre>&lt;option name="orbiter_speed_min"&gt;0.005&lt;/option&gt;
 &lt;option name="orbiter_speed_max"&gt;0.5&lt;/option&gt;</pre></blockquote>
 
+<!--
       <li><p>The icon size option selects the size of the icons used in <a href="#labels">feature labeling</a>, in pixels. Increasing this value will make these icons more visible on large, high-resolution displays. For best quality, use a power of two.</p></li>
 
       <blockquote><pre>&lt;option name="orbiter_icon_size"&gt;16&lt;/option&gt;</pre></blockquote>
-
-      <li><p>The goto radius option selects distance from the planet to which the camera moves during a <a href="#goto">goto</a> operation. If set to zero, then the midpoint of the starting and ending positions is used.</p></li>
+-->
+      <li><p>The goto radius option selects the distance from the planet to which the camera moves during a <a href="#goto">goto</a> operation. If set to zero, then the midpoint of the starting and ending positions is used.</p></li>
 
       <blockquote><pre>&lt;option name="orbiter_goto_radius"&gt;2000000.0&lt;/option&gt;</pre></blockquote>
 
+      <li><p>The minimum AGL option sets the minimum altitude above ground-level that the viewer is allowed to reach. If this value is set too small, less than 10 meters or so, then near-plane clipping artifacts may become visible.</p></li>
+
+      <blockquote><pre>&lt;option name="orbiter_minumum_agl"&gt;100.0&lt;/option&gt;</pre></blockquote>
+
+      <li><p>The cache size option limits the total number of SCM pages that may be held by each cache. It allows the renderer to be tuned to make maximal use of available GPU resources and thus impacts the behavior and performance of the renderer. As the cache is two-dimensional, the exact page count is the square of the cache size. Thus, the default, 16, allows 256 pages per cache.</p></li>
+
+      <blockquote><pre>&lt;option name="scm_cache_size"&gt;16&lt;/option&gt;</pre></blockquote>
+
+      <p>The cache's size multiplied by the cache's page size must not exceed the maximum texture size of the current OpenGL implementation. The sum of all cache textures must not exceed the size of the current hardware VRAM.</p></li>
+
+      <li><p>A number of other cache configuration parameters impact performance and data access latency. of these, <tt>scm_cache_threads</tt> is perhaps most useful, as it determines the number of threads dedicated to serving requests for each cache, allowing the renderer to make optimal use of multi-core systems. The other options are less intuitive, and may retain their default values.</p></li>
+
+      <blockquote><pre>
+&lt;option name="scm_cache_threads"&gt;2&lt;/option&gt;
+&lt;option name="scm_need_queue_size"&gt;32&lt;/option&gt;
+&lt;option name="scm_load_queue_size"&gt;8&lt;/option&gt;
+&lt;option name="scm_loads_per_cycle"&gt;2&lt;/option&gt;</pre></blockquote>
     </ul>
 
     <a name="datconf"><h3>Data Configuration</h3></a>
@@ -402,87 +446,80 @@
 
 <blockquote><pre>
 &lt;?xml version="1.0"?&gt;
-  &lt;sphere radius="1737400.0"
-            mesh="32"
-            size="426"
-            vert="glsl/scm-displace.vert"
-            frag="glsl/scm-basic.frag"&gt;
+  &lt;sphere detail="32" limit="254"&gt;
 
-    &lt;cache n="426" c="1" b="8"  threads="2"/&gt;
-    &lt;cache n="426" c="1" b="16" threads="2" r0="0.994728" r1="1.0062" /&gt;
+    &lt;scene name="global"
+          label="IAUMOON.csv"
+           vert="glsl/scm-displace.vert"
+           frag="glsl/scm-basic.frag"&gt;
 
-    &lt;frame&gt;
-      &lt;image name="height" scm="DTM-426-6.tif" cache="1" height="1"/&gt;
-      &lt;image name="color"  scm="WAC-426-6.tif" cache="0" /&gt;
-    &lt;/frame&gt;
+      &lt;image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170"/&gt;
+      &lt;image name="color"  scm="WAC-254-7.tif" k0="0.0"     k1="3.0"/&gt;
 
-    &lt;step name="Tycho"
-         label="csv/Tycho.csv"
+    &lt;/scene&gt;
+
+    &lt;step name="Tycho" scene="global"
             q0=" 0.762239" q1="-0.085507" q2="-0.161517" q3=" 0.620961"
             p0="-0.159228" p1="-0.719553" p2=" 0.675936"  r="1794686.446486" /&gt;
-    &lt;step name="Copernic"
-         label="csv/Copernic.csv"
+
+    &lt;step name="Copernic" scene="global"
             q0=" 0.089011" q1="-0.228597" q2="-0.496265" q3=" 0.832792"
             p0="-0.357236" p1=" 0.156369" p2=" 0.920832"  r="1991161.296438" /&gt;
   &lt;/sphere&gt;
 </pre></blockquote>
 
 
-    <p>The file begins with an XML header and contains a single root <tt>sphere</tt> element with several attributes and one <tt>image</tt> sub-element for each SCM TIFF image.</p>
+    <p>The file begins with an XML header and contains a single root <tt>sphere</tt> element containing a list of <tt>scene</tt> elements. Each of these contains an <tt>image</tt> element for each SCM TIFF image.</p>
 
     <ul>
-      <li><p>The <tt>mesh</tt> attribute determines the tessellation of the geometry mesh used to render each page of data. The example value, 32, indicates that each page of the sphere will be rendered using a 32 &times; 32 grid of squares.</p></li>
+      <li><p>The sphere <tt>detail</tt> attribute determines the tessellation of the geometry mesh used to render each page of data. The example value, 32, indicates that each page of the sphere will be rendered using a 32 &times; 32 grid of squares.</p></li>
 
-      <li><p>The <tt>radius</tt> attribute determines the base radius of the sphere, in meters. In this example, the moon has a radius of 1737000 meters.</p></li>
+      <li><p>The sphere <tt>limit</tt> attribute determines the size at which an on-screen page of SCM data is subdivided. This usually matches the size of a page in the referenced SCM TIFFs, as given by their file names. Other values are allowed, and may enable quality-speed tradeoffs.</p></li>
 
-      <li><p>The <tt>size</tt> attribute gives the size of each page in the referenced SCM TIFFs. Note that the value coincides with the image parameters given by the SCM file names. Other values are allowed, and may enable quality-speed tradeoffs.</p></li>
+      <li><p>The <tt>scene</tt> elements divide images into separate visualizations which can be individually selected within the application. Each has a name and an optional label file specification.</p></li>
 
-      <li><p>The <tt>vert</tt> and <tt>frag</tt> attributes give the vertex and fragment programs to be used by the renderer, named relative to the root of the Thumb data hierarchy. In this case, the &ldquo;displacement&rdquo; vertex shader is used to render displacement-mapped terrain, and the &ldquo;basic&rdquo; fragment shader is used to apply a simple image to the resulting surface. These attributes will remain the same for most planet definitions, though different lighting models, overlay modes, and data visualizations may be introduced using alternate shaders.</p></li>
+      <li><p>The scene <tt>vert</tt> and <tt>frag</tt> attributes give the vertex and fragment programs to be used by the renderer, named relative to the <tt>THUMB_RO_PATH</tt>. In this case, the &ldquo;displacement&rdquo; vertex shader is used to render displacement-mapped terrain, and the &ldquo;basic&rdquo; fragment shader is used to apply a simple image to the resulting surface. These attributes will remain the same for most planet definitions, though different lighting models, overlay modes, and data visualizations may be introduced using alternate shaders.</p></li>
 
-      <li><p>The <tt>cache</tt> elements define data storage for image data to be stored. Each cache is defined by the size and type of data that it can store, and includes optional configuration for loader thread configuration and height map normalization.</p></li>
+      <li><p>The <tt>image</tt> elements name the actual SCM data files. In this example, <tt>DTM-254-7.tif</tt> gives a Digital Terrain Model, which acts as a height map, displacing the geometry of the spherical mesh. Its minimum and maximum normalization attributes determine the radius of that sphere. <tt>WAC-254-7.tif</tt> is a simple image file fed to the fragment shader, with normalization attributes set to brighten it by a factor of 3. Each image has a name that identifies it the rendering shader and determines the type of input that it provides to the visualization.</p></li>
 
-      <li><p>The <tt>frame</tt> elements group images into separate visualizations which can be individually selected within the application.</p></li>
-
-      <li><p>The <tt>image</tt> elements name the actual SCM data files. In this example, <tt>DTM-426-6.tif</tt> gives a Digital Terrain Model, which acts as a height map. Because it serves to modify the geometry of the spherical mesh, it is fed to the vertex shader and its normalized minimum and maximum radii are provided as attributes. <tt>WAC-426-6.tif</tt> is a simple image file fed to the fragment shader. Each image has a name that identifies it the rendering shader, and each includes the index of a cache capable of storing it.</p></li>
-
-      <li><p>The <tt>step</tt> elements define the view parameters for regions of interest for use by the <a href="#goto">go-to mechanism</a>. These are the exact same data structure as found in the <tt>path.xml</tt> file used by the <a href="#editing">camera path</a> storage mechanism.</p></li>
+      <li><p>The <tt>step</tt> elements define the view parameters for regions of interest for use by the <a href="#goto">go-to mechanism</a>. These are the exact same data structure as found in the <tt>path.xml</tt> file used by the <a href="#editing">camera path</a> storage mechanism, and in fact the list of <tt>step</tt> elements defines the default path when an XML file is initially loaded. Each step may select a different scene by name from the list of <tt>scene</tt> elements.</p></li>
     </ul>
 
-    <p>Here's another example, <tt>NAC_ROI.xml</tt>, that includes two high-resolution overlays configured as separate <tt>frame</tt> elements. Note in this case that the <tt>path</tt> elements include frame indices, which cause the visualization to be automatically selected when a <a href="#goto">go-to</a> is activated</p>
+    <p>Here's another example, <tt>NAC_ROI.xml</tt>, that includes two high-resolution overlays configured as separate <tt>scene</tt> elements. The <tt>step</tt> elements give scene names, which cause the visualization to be automatically transitioned when a <a href="#goto">go-to</a> is activated</p>
 
 <blockquote><pre>
 &lt;?xml version="1.0"?&gt;
-  &lt;sphere radius="1737400.0"
-            mesh="32"
-            size="336"
-            vert="glsl/scm-displace.vert"
-            frag="glsl/scm-overlay.frag"&gt;
+  &lt;sphere detail="32" limit="254"&gt;
 
-    &lt;cache n="426" c="1" b="8"  threads="2"/&gt;
-    &lt;cache n="336" c="1" b="8"  threads="2"/&gt;
-    &lt;cache n="426" c="1" b="16" threads="2" r0="0.994728" r1="1.0062" /&gt;
+    &lt;scene name="NAC-Tycho"
+          label="csv/Tycho.csv"
+           vert="glsl/scm-displace.vert"
+           frag="glsl/scm-overlay.frag"&gt;
 
-    &lt;frame&gt;
-      &lt;image name="height" scm="DTM-426-6.tif"       height="1" cache="2" /&gt;
-      &lt;image name="base"   scm="WAC-426-6.tif"                  cache="0" /&gt;
-      &lt;image name="over"   scm="NAC_ROI_TychoCtrLoA-336-14.tif" cache="1" /&gt;
-    &lt;/frame&gt;
-    &lt;frame&gt;
-      &lt;image name="height" scm="DTM-426-6.tif"       height="1" cache="2" /&gt;
-      &lt;image name="base"   scm="WAC-426-6.tif"                  cache="0" /&gt;
-      &lt;image name="over"   scm="NAC_ROI_Apollo16HiA-336-14.tif" cache="1" /&gt;
-    &lt;/frame&gt;
+      &lt;image name="height" scm="DTM-254-7.tif"       height="1"/&gt;
+      &lt;image name="lower"  scm="WAC-254-7.tif"                 /&gt;
+      &lt;image name="upper"  scm="NAC_ROI_TychoCtrLoA-254-15.tif"/&gt;
 
-    &lt;step name="Tycho"
-         frame="0"
-         label="csv/Tycho.csv"
+    &lt;/scene&gt;
+
+    &lt;scene name="NAC-Apollo16"
+          label="csv/IAUMOON.csv"
+           vert="glsl/scm-displace.vert"
+           frag="glsl/scm-overlay.frag"&gt;
+
+      &lt;image name="height" scm="DTM-254-7.tif"       height="1"/&gt;
+      &lt;image name="lower"  scm="WAC-254-7.tif"                 /&gt;
+      &lt;image name="upper"  scm="NAC_ROI_Apollo16HiA-254-15.tif"/&gt;
+
+    &lt;/scene&gt;
+
+    &lt;step name="Tycho" scene="NAC-Tycho"
             q0=" 0.762239" q1="-0.085507" q2="-0.161517" q3="0.620961"
-            p0="-0.159228" p1="-0.719553" p2=" 0.675936"  r="1794686.446486" /&gt;
-    &lt;step name="Apollo16"
-         frame="1"
-         label="csv/IAUMOON.csv"
+            p0="-0.159228" p1="-0.719553" p2=" 0.675936"  r="1794686.446486"/&gt;
+
+    &lt;step name="Apollo16" scene="NAC-Apollo16"
             q0=" 0.106962" q1=" 0.140275" q2="-0.017893" q3="0.984155"
-            p0=" 0.263982" p1="-0.156004" p2=" 0.951828"  r="1737876.083148" /&gt;
+            p0=" 0.263982" p1="-0.156004" p2=" 0.951828"  r="1737876.083148"/&gt;
   &lt;/sphere&gt;
 </pre></blockquote>
 
@@ -506,7 +543,7 @@
 
     <img src="img/label.png">
 
-    <p>These labellings are defined using Comma-Separated Value (CSV) files, which may be edited with most any spreadsheet program or text editor. Text is encoded using UTF8, which enables the use of accents and foreign characters. The image above shows 8990 sites acknowledged by the IAU. The first few lines of this file are as follows:</p>
+    <p>These labellings are defined using Comma-Separated Value (CSV) files, which may be edited with most any spreadsheet program or text editor. They should be placed in one of the directories given by the <tt>SCMPATH</tt>, along with the SCM data files. CSV text is encoded using UTF8, which enables the use of accents and foreign characters. The image above shows 8990 sites acknowledged by the IAU. The first few lines of this file are as follows:</p>
 
     <blockquote><pre>
 "Abbot",5.5157114264,54.7073670159,10404.3,1736106.29688,AA
@@ -549,7 +586,7 @@
 
     <p>The diameter attribute determines the size of the label text. The radius attribute determines the altitude of the annotation, which is necessary for good alignment of small features. Do be advised that longitude and latitude values must be specified with at least five digits behind the decimal point to be correctly positioned to within one meter (on the scale of the moon). Many data sources provide less.</p>
 
-    <p>Upon receipt of a <a href="#goto">go-to message</a>, the renderer replaces the current label set using the CSV file given by the <tt>label</tt> attribute of the <tt>step</tt> element. This may be used to mark points of interest within the defined region, such that they are automatically updated as destinations are selected.</p>
+    <p>The label file specification is part of a scene. This may be used to mark points of interest within the region of a scene, such that they are automatically updated as destinations are selected and paths are traversed. There is <i>no</i> mechanism for disabling the label attached to a scene, so if a visualization calls for its labels to be toggled then it should define two separate scenes, one with labels and one without.</p>
 
     <a name="troubleshooting"><h3>Troubleshooting</h3></a>
 
@@ -563,8 +600,6 @@
       <li><p>If performance is bad, be sure that SCM TIFF files are <em>not</em> being accessed from a network share. Also check that <tt>scm_cache_size</tt> is not too large.</p></li>
 
       <li><p>If the application exits unexpectedly, it will most likely have printed an error message to the standard error stream. Under Windows, this information will be redirected to the file <tt>stderr.txt</tt>. This may prove informative.</p></li>
-
-      <li><p>If the renderer emits error messages about &ldquo;implementation limits&rdquo; on &ldquo;active samplers&rdquo; then you're probably running OS X, which places artificial limits on the usable number of texture image units. High resolution visualizations will not run. Windows and Linux do not impose these artificial limits, even on the same hardware.</p>
     </ul>
 
     <a name="scm"><h2>SCM TIFF</h2></a>
@@ -643,12 +678,12 @@
     <p>A simple file naming convention that includes the SCM data parameters has been of great help in keeping SCM data organized. Here are a few examples:</p>
 
     <pre>
-      WAC-426-6.tif
+      WAC-254-7.tif
       LDEM-360-8.tif
       NAC_ROI_APOLLO16HIA-336-14.tif
     </pre>
 
-    <p>The SCM TIFF image <tt>WAC-426-6.tif</tt> was generated from Lunar Reconnaissance Orbiter Wide Angle Camera imagery with a global resolution of 100 meters per pixel. Given a lunar radius of 1737400 meters, that's 108969 pixels around the equator. With size 426 and depth 6, <tt>WAC-426-6.tif</tt> has an effective resolution of 109056 &times; 54528 pixels, which is just enough to represent the source data completely. Likewise, <tt>LDEM-360-8.tif</tt> gives Lunar Digital Elevation Model data derived from the Lunar Orbiter Laser Altimeter resampled to a global resolution of 368640 &times; 184320.</p>
+    <p>The SCM TIFF image <tt>WAC-254-7.tif</tt> was generated from Lunar Reconnaissance Orbiter Wide Angle Camera imagery with a global resolution of 100 meters per pixel. Given a lunar radius of 1737400 meters, that's 108969 pixels around the equator. With size 426 and depth 6, <tt>WAC-254-7.tif</tt> has an effective resolution of 109056 &times; 54528 pixels, which is just enough to represent the source data completely. Likewise, <tt>LDEM-360-8.tif</tt> gives Lunar Digital Elevation Model data derived from the Lunar Orbiter Laser Altimeter resampled to a global resolution of 368640 &times; 184320.</p>
 
     <p>With a depth of 14, <tt>NAC_ROI_APOLLO16HIA-336-14.tif</tt> would appear to provide a <em>huge</em> image, however it covers only the Narrow Angle Camera Region of Interest surrounding the landing site of Apollo 16. It does give data with an SCM depth of 14, which works out to 0.5 meters per pixels, however it does so over a very small area.</p>
 
