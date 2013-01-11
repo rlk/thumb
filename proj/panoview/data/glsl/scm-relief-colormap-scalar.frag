@@ -73,14 +73,21 @@ float peak(float k, float c)
     return max(0.0, 1.0 - abs(k - c) * 5.0);
 }
 
+vec3 bound(vec3 c, float k)
+{
+    c = mix(c, vec3(1.0), step(1.0, k));
+    c = mix(c, vec3(0.0), step(k, 0.0));
+    return c;
+}
+
 vec3 colormap(float k)
 {
-    return mix(peak(k, 0.0) * vec3(1.0, 0.0, 1.0) +
-               peak(k, 0.2) * vec3(0.0, 0.0, 1.0) +
-               peak(k, 0.4) * vec3(0.0, 1.0, 1.0) +
-               peak(k, 0.6) * vec3(1.0, 1.0, 0.0) +
-               peak(k, 0.8) * vec3(1.0, 0.0, 0.0) +
-               peak(k, 1.0) * vec3(1.0, 1.0, 1.0), vec3(1.0), step(1.0, k));
+    return bound(peak(k, 0.0) * vec3(1.0, 0.0, 1.0) +
+                 peak(k, 0.2) * vec3(0.0, 0.0, 1.0) +
+                 peak(k, 0.4) * vec3(0.0, 1.0, 1.0) +
+                 peak(k, 0.6) * vec3(1.0, 1.0, 0.0) +
+                 peak(k, 0.8) * vec3(1.0, 0.0, 0.0) +
+                 peak(k, 1.0) * vec3(1.0, 1.0, 1.0), k);
 }
 
 //------------------------------------------------------------------------------

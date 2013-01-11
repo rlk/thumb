@@ -397,27 +397,30 @@ void orbiter::fade_to(int i)
 {
     // Construct a path from here to there.
 
-    if (0 <= i && i < sys->get_step_count())
+    if (dtime == 0)
     {
-        // Source and destination both remain fixed.
+        if (0 <= i && i < sys->get_step_count())
+        {
+            // Source and destination both remain fixed.
 
-        path_src = here;
-        path_dst = here;
+            path_src = here;
+            path_dst = here;
 
-        // Change the scene to that of the requested step.
+            // Change the scene to that of the requested step.
 
-        path_src.set_speed(1.0);
-        path_dst.set_speed(1.0);
-        path_dst.set_scene(sys->get_step(i)->get_scene());
+            path_src.set_speed(1.0);
+            path_dst.set_speed(1.0);
+            path_dst.set_scene(sys->get_step(i)->get_scene());
 
-        // Queue these new steps and trigger playback.
+            // Queue these new steps and trigger playback.
 
-        sys->flush_queue();
-        sys->append_queue(&path_src);
-        sys->append_queue(&path_dst);
-        sys->set_current_time(0);
+            sys->flush_queue();
+            sys->append_queue(&path_src);
+            sys->append_queue(&path_dst);
+            sys->set_current_time(0);
 
-        dtime = 1;
+            dtime = 1;
+        }
     }
 }
 
@@ -554,7 +557,14 @@ bool orbiter::process_tick(app::event *E)
 
     double M[16];
 
-    if (dtime) here = sys->get_current_step();
+    if (dtime)
+    {
+        if (orbit_speed)
+        {
+            here.set_scene(sys->get_current_step().get_scene());
+        }
+        else here = sys->get_current_step();
+    }
 
     here.get_matrix(M);
     ::user->set_M(M);

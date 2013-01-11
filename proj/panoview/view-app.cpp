@@ -636,9 +636,9 @@ bool view_app::process_tick(app::event *E)
 
         if (ptime == sys->get_current_time())
         {
-            dtime = 0;
           ::host->set_movie_mode(false);
             sys->set_synchronous(false);
+            dtime = 0;
         }
     }
     return false;
