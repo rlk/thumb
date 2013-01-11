@@ -836,8 +836,7 @@ void app::host::sync()
 
 bool app::host::pointer_to_3D(event *E, int x, int y)
 {
-    if (render_size[0] != window_rect[2] ||
-        render_size[1] != window_rect[3])
+    if (render_size[0] || render_size[1])
     {
         x = x * render_size[0] / window_rect[2];
         y = y * render_size[1] / window_rect[3];

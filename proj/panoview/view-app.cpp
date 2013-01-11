@@ -263,7 +263,7 @@ double view_app::get_minimum_ground() const
 
 ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
-    sys->update_cache(::host->get_movie_mode());
+    sys->update_cache();
 
     return ogl::range(0.1, 2.0 * get_minimum_ground());
 }
@@ -387,12 +387,14 @@ void view_app::path_play(bool movie)
 {
     if (dtime > 0)
     {
-        ::host->set_movie_mode(false);
+      ::host->set_movie_mode(false);
+        sys->set_synchronous(false);
         dtime = 0;
     }
     else
     {
-        ::host->set_movie_mode(movie);
+      ::host->set_movie_mode(movie);
+        sys->set_synchronous(movie);
         dtime = 1;
     }
     path_queue();
@@ -615,7 +617,8 @@ bool view_app::process_tick(app::event *E)
         if (ptime == sys->get_current_time())
         {
             dtime = 0;
-            ::host->set_movie_mode(false);
+          ::host->set_movie_mode(false);
+            sys->set_synchronous(false);
         }
     }
     return false;
