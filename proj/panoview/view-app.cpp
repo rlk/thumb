@@ -316,45 +316,28 @@ void view_app::lite(int frusc, const app::frustum *const *frusv)
 
 void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    const double n = 0.5;
-    const double f = 1.5;
+    double M[16], P[16];
 
-    double M[16], V[16], P[16];
+    load_mat(P,  frusp->get_P());
+    load_inv(M, ::user->get_M());
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    // Draw the background.
-
-    load_mat(P,  frusp->get_P());
-    load_mat(M, ::user->get_M());
-
+#if 0
     M[12] = 0.0;
     M[13] = 0.0;
     M[14] = 0.0;
     P[10] = -(    f + n) / (f - n);
     P[14] = -(2 * f * n) / (f - n);
-
-    load_inv(V, M);
-    mult_mat_mat(M, P, V);
+#endif
 
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixd(V);
-    sys->render_back(M, chani);
+    glLoadMatrixd(M);
 
-    // Draw the foreground.
-
-    load_mat(P,  frusp->get_P());
-    load_inv(V, ::user->get_M());
-    mult_mat_mat(M, P, V);
-
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixd(P);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixd(V);
-    sys->render_fore(M, chani);
+    sys->render_sphere(P, M, chani);
 }
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)

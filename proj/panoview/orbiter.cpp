@@ -297,7 +297,6 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
     view_app::prep(frusc, frusv);
 
-#if 0
     // Compute a horizon line based upon altitude and minimum terrain height.
 
     const double r =      get_current_ground();
@@ -308,9 +307,6 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
     double f = 1.1 * sqrt(d * d - m * m);
 
     return ogl::range(n, f);
-#endif
-
-    return ogl::range(0.5, 10000000.0);
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)

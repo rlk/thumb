@@ -8,6 +8,7 @@ VIEWOBJS= \
 	scm/util3d/type.o \
 	scm/scm-cache.o \
 	scm/scm-file.o \
+	scm/scm-frame.o \
 	scm/scm-image.o \
 	scm/scm-index.o \
 	scm/scm-label.o \
