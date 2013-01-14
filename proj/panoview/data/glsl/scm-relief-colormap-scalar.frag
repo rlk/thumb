@@ -76,7 +76,7 @@ float peak(float k, float c)
 vec3 bound(vec3 c, float k)
 {
     c = mix(c, vec3(1.0), step(1.0, k));
-    c = mix(c, vec3(0.5), step(k, 0.0));
+    c = mix(c, vec3(0.2), step(k, 0.0));
     return c;
 }
 

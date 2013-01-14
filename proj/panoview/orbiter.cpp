@@ -297,6 +297,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
     view_app::prep(frusc, frusv);
 
+#if 0
     // Compute a horizon line based upon altitude and minimum terrain height.
 
     const double r =      get_current_ground();
@@ -307,6 +308,9 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
     double f = 1.1 * sqrt(d * d - m * m);
 
     return ogl::range(n, f);
+#endif
+
+    return ogl::range(0.5, 10000000.0);
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
@@ -322,15 +326,10 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
     L[3] = 0.0f;
 
     glLoadIdentity();
+
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_CULL_FACE);
-
-    glFrontFace(GL_CW);
     view_app::draw(frusi, frusp, chani);
-
-    glFrontFace(GL_CCW);
     view_app::over(frusi, frusp, chani);
 }
 
@@ -374,7 +373,8 @@ void orbiter::move_to(int i)
             path_mid.set_distance(std::max(path_mid.get_distance(), goto_radius));
 
         path_mid.set_pitch(-M_PI_2);
-        path_mid.set_scene(path_dst.get_scene());
+        path_mid.set_foreground(path_dst.get_foreground());
+        path_mid.set_background(path_dst.get_background());
 
         path_src.set_speed(0.05);
         path_mid.set_speed(1.00);
@@ -386,9 +386,9 @@ void orbiter::move_to(int i)
         sys->append_queue(&path_src);
         sys->append_queue(&path_mid);
         sys->append_queue(&path_dst);
-        sys->set_current_time(0);
 
         orbit_speed = 0;
+        now         = 0;
         dtime       = 1;
     }
 }
@@ -410,15 +410,16 @@ void orbiter::fade_to(int i)
 
             path_src.set_speed(1.0);
             path_dst.set_speed(1.0);
-            path_dst.set_scene(sys->get_step(i)->get_scene());
+            path_dst.set_foreground(sys->get_step(i)->get_foreground());
+            path_dst.set_background(sys->get_step(i)->get_background());
 
             // Queue these new steps and trigger playback.
 
             sys->flush_queue();
             sys->append_queue(&path_src);
             sys->append_queue(&path_dst);
-            sys->set_current_time(0);
 
+            now   = 0;
             dtime = 1;
         }
     }
@@ -556,15 +557,6 @@ bool orbiter::process_tick(app::event *E)
     // Apply the current transformation to the camera.
 
     double M[16];
-
-    if (dtime)
-    {
-        if (orbit_speed)
-        {
-            here.set_scene(sys->get_current_step().get_scene());
-        }
-        else here = sys->get_current_step();
-    }
 
     here.get_matrix(M);
     ::user->set_M(M);

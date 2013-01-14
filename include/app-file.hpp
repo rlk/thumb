@@ -98,7 +98,8 @@ namespace app
         file(const std::string&);
        ~file();
 
-        node get_root() const { return root; }
+        const std::string& get_name() const { return name; }
+        node               get_root() const { return root; }
     };
 }
 

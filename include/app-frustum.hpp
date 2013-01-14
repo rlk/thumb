@@ -104,8 +104,8 @@ namespace app
 
         int test_bound(const double *,
                        const double *);
-        int test_shell(const double *, 
-                       const double *, 
+        int test_shell(const double *,
+                       const double *,
                        const double *, double, double) const;
         int test_cap  (const double *, double, double, double) const;
 
@@ -124,6 +124,9 @@ namespace app
 
         const double *get_planes() const { return view_planes[0]; }
         const double *get_points() const { return view_points[0]; }
+
+        double get_n_dist() const { return n_dist; }
+        double get_f_dist() const { return f_dist; }
 
         double get_split_coeff(double) const;
         double get_split_fract(double) const;

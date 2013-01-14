@@ -59,12 +59,12 @@ public:
 protected:
 
     scm_system *sys;
-    scm_step   here;
     scm_step   path_src;
     scm_step   path_mid;
     scm_step   path_dst;
-
-    double dtime;
+    scm_step   here;
+    double     now;
+    double     dtime;
 
 private:
 

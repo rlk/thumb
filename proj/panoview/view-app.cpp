@@ -33,6 +33,7 @@
 
 view_app::view_app(const std::string& exe,
                    const std::string& tag) : app::prog(exe, tag),
+    now(0),
     dtime(0),
     draw_cache(false),
     draw_path (false),
@@ -95,7 +96,8 @@ static void step_from_xml(scm_step *s, app::node n)
     l[2] = n.get_f("l2", 1.0);
 
     s->set_name       (n.get_s("name"));
-    s->set_scene      (n.get_s("scene"));
+    s->set_foreground (n.get_s("foreground"));
+    s->set_background (n.get_s("background"));
     s->set_orientation(q);
     s->set_position   (p);
     s->set_light      (l);
@@ -129,13 +131,14 @@ static void xml_from_step(scm_step *s, app::node n)
     if (l[1] != 1.0) n.set_f("l1", l[1]);
     if (l[2] != 2.0) n.set_f("l2", l[2]);
 
-    if (!s->get_name().empty())   n.set_s("name",  s->get_name());
-    if (!s->get_scene().empty())  n.set_s("scene", s->get_scene());
-    if (s->get_speed()    != 1.0) n.set_f("s",     s->get_speed());
-    if (s->get_distance() != 0.0) n.set_f("r",     s->get_distance());
-    if (s->get_tension()  != 0.0) n.set_f("t",     s->get_tension());
-    if (s->get_bias()     != 0.0) n.set_f("b",     s->get_bias());
-    if (s->get_zoom()     != 1.0) n.set_f("z",     s->get_zoom());
+    if (!s->get_name().empty())       n.set_s("name",       s->get_name());
+    if (!s->get_foreground().empty()) n.set_s("foreground", s->get_foreground());
+    if (!s->get_background().empty()) n.set_s("background", s->get_background());
+    if (s->get_speed()    != 1.0)     n.set_f("s",          s->get_speed());
+    if (s->get_distance() != 0.0)     n.set_f("r",          s->get_distance());
+    if (s->get_tension()  != 0.0)     n.set_f("t",          s->get_tension());
+    if (s->get_bias()     != 0.0)     n.set_f("b",          s->get_bias());
+    if (s->get_zoom()     != 1.0)     n.set_f("z",          s->get_zoom());
 }
 
 //------------------------------------------------------------------------------
@@ -245,9 +248,7 @@ void view_app::load(const std::string& name)
 
         path_queue();
 
-        sys->set_current_time(0);
-
-        here = sys->get_current_step();
+        sys->set_scene_blend(0);
 
         // Dismiss the GUI.
 
@@ -265,18 +266,8 @@ void view_app::unload()
 
 void view_app::reload()
 {
-    scm_step temp = here;
-
-    std::string s0(sys->get_scene0());
-    std::string s1(sys->get_scene1());
-
     unload();
     ui->reload();
-
-    sys->set_scene0(s0);
-    sys->set_scene1(s1);
-
-    here = temp;
 }
 
 void view_app::cancel()
@@ -325,25 +316,45 @@ void view_app::lite(int frusc, const app::frustum *const *frusv)
 
 void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    const double *P =  frusp->get_P();
-    const double *M = ::user->get_M();
+    const double n = 0.5;
+    const double f = 1.5;
 
-    // Compute the model-view-projection matrix to be used for view culling.
+    double M[16], V[16], P[16];
 
-    double T[16];
-    double V[16];
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_CULL_FACE);
+
+    // Draw the background.
+
+    load_mat(P,  frusp->get_P());
+    load_mat(M, ::user->get_M());
+
+    M[12] = 0.0;
+    M[13] = 0.0;
+    M[14] = 0.0;
+    P[10] = -(    f + n) / (f - n);
+    P[14] = -(2 * f * n) / (f - n);
 
     load_inv(V, M);
-    mult_mat_mat(T, P, V);
-
-    // Draw the sphere.
+    mult_mat_mat(M, P, V);
 
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixd(P);
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(V);
+    sys->render_back(M, chani);
 
-    sys->render_sphere(T, chani);
+    // Draw the foreground.
+
+    load_mat(P,  frusp->get_P());
+    load_inv(V, ::user->get_M());
+    mult_mat_mat(M, P, V);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixd(P);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadMatrixd(V);
+    sys->render_fore(M, chani);
 }
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)
@@ -503,7 +514,7 @@ void view_app::path_jump()
     if (scm_step *s = sys->get_step(step))
     {
         here = *s;
-        sys->set_current_time(step);
+        now = step;
     }
 }
 
@@ -654,12 +665,13 @@ bool view_app::process_tick(app::event *E)
 
     if (dtime)
     {
-        double ptime = sys->get_current_time();
-        double ntime = ptime + dtime * here.get_speed() * dt;
+        double prev = now;
+        double next = now + dtime * here.get_speed() * dt;
 
-        sys->set_current_time(ntime);
+        here = sys->get_step_blend(next);
+        now = sys->set_scene_blend(next);
 
-        if (ptime == sys->get_current_time())
+        if (now == prev)
         {
           ::host->set_movie_mode(false);
             sys->set_synchronous(false);
