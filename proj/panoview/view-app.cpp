@@ -332,11 +332,6 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     P[14] = -(2 * f * n) / (f - n);
 #endif
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadMatrixd(P);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadMatrixd(M);
-
     sys->render_sphere(P, M, chani);
 }
 
