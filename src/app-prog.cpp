@@ -335,6 +335,10 @@ static void snappng(const char *filename, unsigned char *p, int w, int h)
     png_infop   infop  = NULL;
     png_bytep  *bytep  = NULL;
 
+    // Copy the frame buffer to the snap buffer.
+
+    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, p);
+
     // Initialize all PNG export data structures.
 
     if (!(filep = fopen(filename, "wb")))
@@ -350,8 +354,6 @@ static void snappng(const char *filename, unsigned char *p, int w, int h)
 
     if (setjmp(png_jmpbuf(writep)) == 0)
     {
-        unsigned char *p = NULL;
-
         // Initialize the PNG header.
 
         png_init_io (writep, filep);
@@ -361,13 +363,9 @@ static void snappng(const char *filename, unsigned char *p, int w, int h)
                                              PNG_COMPRESSION_TYPE_DEFAULT,
                                              PNG_FILTER_TYPE_DEFAULT);
 
-        // Copy the frame buffer to the snap buffer.
-
-        glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, p);
-
         // Allocate and initialize the row pointers.
 
-        if ((bytep = (png_bytep *)png_malloc(writep, h*sizeof(png_bytep))))
+        if ((bytep = (png_bytep *) png_malloc(writep, h * sizeof(png_bytep))))
         {
             for (int i = 0; i < h; ++i)
                 bytep[h - i - 1] = (png_bytep) (p + i * w * 3);
@@ -378,7 +376,7 @@ static void snappng(const char *filename, unsigned char *p, int w, int h)
             png_write_info(writep, infop);
             png_write_png (writep, infop, 0, NULL);
 
-            free(bytep);
+            png_free(writep, bytep);
         }
         else throw std::runtime_error("Failure allocating PNG row array");
     }

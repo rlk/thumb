@@ -64,7 +64,7 @@ protected:
     scm_step   path_dst;
     scm_step   here;
     double     now;
-    double     dtime;
+    double     delta;
 
 private:
 

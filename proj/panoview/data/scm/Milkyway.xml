@@ -1,0 +1,6 @@
+<?xml version="1.0"?>
+  <sphere mesh="16" size="254">
+    <scene vert="glsl/scm-zoom.vert" frag="glsl/scm-basic.frag">
+      <image name="color" scm="mwpan2-254-5.tif" />
+    </scene>
+  </sphere>

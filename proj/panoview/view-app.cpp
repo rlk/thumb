@@ -34,7 +34,7 @@
 view_app::view_app(const std::string& exe,
                    const std::string& tag) : app::prog(exe, tag),
     now(0),
-    dtime(0),
+    delta(0),
     draw_cache(false),
     draw_path (false),
     path_xml("path.xml"),
@@ -248,6 +248,9 @@ void view_app::load(const std::string& name)
 
         path_queue();
 
+        if (sys->get_step_count())
+            here = *sys->get_step(0);
+
         sys->set_scene_blend(0);
 
         // Dismiss the GUI.
@@ -323,14 +326,6 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
-
-#if 0
-    M[12] = 0.0;
-    M[13] = 0.0;
-    M[14] = 0.0;
-    P[10] = -(    f + n) / (f - n);
-    P[14] = -(2 * f * n) / (f - n);
-#endif
 
     sys->render_sphere(P, M, chani);
 }
@@ -417,7 +412,7 @@ void view_app::path_queue()
 void view_app::path_clear()
 {
     step  = 0;
-    dtime = 0;
+    delta = 0;
     while (sys->get_step_count())
         sys->del_step(0);
     path_queue();
@@ -425,17 +420,17 @@ void view_app::path_clear()
 
 void view_app::path_play(bool movie)
 {
-    if (dtime > 0)
+    if (delta > 0)
     {
       ::host->set_movie_mode(false);
         sys->set_synchronous(false);
-        dtime = 0;
+        delta = 0;
     }
     else
     {
       ::host->set_movie_mode(movie);
         sys->set_synchronous(movie);
-        dtime = 1;
+        delta = 1;
     }
     path_queue();
 }
@@ -641,10 +636,10 @@ bool view_app::process_tick(app::event *E)
 {
     double dt = E->data.tick.dt;
 
-    if (dtime)
+    if (delta)
     {
         double prev = now;
-        double next = now + dtime * here.get_speed() * dt;
+        double next = now + delta * here.get_speed() * dt;
 
         here = sys->get_step_blend(next);
         now = sys->set_scene_blend(next);
@@ -653,7 +648,7 @@ bool view_app::process_tick(app::event *E)
         {
           ::host->set_movie_mode(false);
             sys->set_synchronous(false);
-            dtime = 0;
+            delta = 0;
         }
     }
     return false;
