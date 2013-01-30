@@ -245,9 +245,9 @@ void view_app::load(const std::string& name)
 
         for (int i = 0; i < scenes; ++i) sys->del_scene(0);
         for (int i = 0; i < steps;  ++i) sys->del_step (0);
-
+#if 0
         path_queue();
-
+#endif
         if (sys->get_step_count())
             here = *sys->get_step(0);
 
@@ -263,8 +263,9 @@ void view_app::unload()
 {
     for (int i = 0; i < sys->get_scene_count(); ++i) sys->del_scene(0);
     for (int i = 0; i < sys->get_step_count();  ++i) sys->del_step (0);
-
+#if 0
     path_queue();
+#endif
 }
 
 void view_app::reload()
@@ -335,6 +336,7 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     frusp->draw();
    ::user->draw();
 
+#if 0
     if (draw_path)
     {
         if (scm_step *s = sys->get_step(step))
@@ -351,7 +353,7 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
             glPopAttrib();
         }
     }
-
+#endif
     if (draw_path)  sys->render_queue();
     if (draw_cache) sys->render_cache();
 
@@ -360,6 +362,24 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
+void view_app::path_play(bool movie)
+{
+    if (delta > 0)
+    {
+      ::host->set_movie_mode(false);
+        sys->set_synchronous(false);
+        delta = 0;
+    }
+    else
+    {
+      ::host->set_movie_mode(movie);
+        sys->set_synchronous(movie);
+        delta = 1;
+        now   = 0;
+    }
+}
+
+#if 0
 void view_app::set_step(int s)
 {
     step = s;
@@ -502,7 +522,7 @@ void view_app::path_end()
     set_step(sys->get_step_count());
     path_queue();
 }
-
+#endif
 //------------------------------------------------------------------------------
 
 bool view_app::numkey(int n, int c, int s)
@@ -572,6 +592,7 @@ bool view_app::process_key(app::event *E)
         {
             switch (k)
             {
+#if 0
                 case 's': path_save();  return true; // ^S
                 case 'l': path_load();  return true; // ^L
                 case 'c': path_clear(); return true; // ^C
@@ -584,6 +605,8 @@ bool view_app::process_key(app::event *E)
                 case 'b': path_beg();   return true; // ^B
                 case 'e': path_end();   return true; // ^E
                 case 'j': path_jump();  return true; // ^J
+#endif
+                case 'm': sys->import_queue("test.mov"); return true;
             }
         }
         if (k == 32)
@@ -639,8 +662,11 @@ bool view_app::process_tick(app::event *E)
     if (delta)
     {
         double prev = now;
+#if 0
         double next = now + delta * here.get_speed() * dt;
-
+#else
+        double next = now + delta;
+#endif
         here = sys->get_step_blend(next);
         now = sys->set_scene_blend(next);
 
