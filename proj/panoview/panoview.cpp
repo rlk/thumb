@@ -38,7 +38,7 @@ panoview::panoview(const std::string& exe,
     drag_looking(false)
 {
     if (char *name = getenv("SCMINIT"))
-         load(name);
+         load_file(name);
 }
 
 panoview::~panoview()

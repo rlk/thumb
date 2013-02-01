@@ -12,24 +12,40 @@ static gui::widget *label(const std::string& text)
 
 static gui::widget *annot(const std::string& text)
 {
-    return new gui::string(text, 0, 0, 0x00, 0x00, 0x00);
+    return new gui::string(text, 0, 0, 0x20, 0x10, 0x00);
 }
 
 //------------------------------------------------------------------------------
 
-class button_load : public gui::button
+class button_load_data : public gui::button
 {
-    view_app  *V;
+    view_app    *V;
     gui::editor *E;
 
 public:
-    button_load(view_app *V, gui::editor *E)
-        : gui::button("Load"), V(V), E(E) { }
+    button_load_data(view_app *V, gui::editor *E)
+        : gui::button("Load Data"), V(V), E(E) { }
 
     void apply()
     {
         if (!E->value().empty())
-            V->load(E->value());
+            V->load_file(E->value());
+    }
+};
+
+class button_load_path : public gui::button
+{
+    view_app    *V;
+    gui::editor *E;
+
+public:
+    button_load_path(view_app *V, gui::editor *E)
+        : gui::button("Load Path"), V(V), E(E) { }
+
+    void apply()
+    {
+        if (!E->value().empty())
+            V->load_path(E->value());
     }
 };
 
@@ -59,7 +75,9 @@ view_load::view_load(view_app *V, int w, int h)
     if (char *name = getenv("SCMINIT"))
         E->value(name);
 
-    load = new button_load(V, E);
+    load_data = new button_load_data(V, E);
+    load_path = new button_load_path(V, E);
+
     root = ((new gui::frame)->
             add((new gui::vgroup)->
                 add(label("SCM Viewer \xE2\x80\x94 File Selection"))->
@@ -71,10 +89,11 @@ view_load::view_load(view_app *V, int w, int h)
                 add(F)->
 
                 add((new gui::hgroup)->
-                    add(annot("Copyright \xC2\xA9 2011-12 Robert Kooima"))->
+                    add(annot("Copyright \xC2\xA9 2011-13 Robert Kooima"))->
                     add(new gui::filler(true, false))->
                     add((new gui::harray)->
-                        add(load)->
+                        add(load_path)->
+                        add(load_data)->
                         add(new button_cancel(V))))));
 
     root->layup();
@@ -87,7 +106,7 @@ view_load::view_load(view_app *V, int w, int h)
 
 void view_load::reload()
 {
-    load->apply();
+    load_data->apply();
 }
 
 //------------------------------------------------------------------------------

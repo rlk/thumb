@@ -222,7 +222,7 @@ void view_app::load_scenes(app::node p)
     }
 }
 
-void view_app::load(const std::string& name)
+void view_app::load_file(const std::string& name)
 {
     // If the named file exists and contains an XML panorama definition...
 
@@ -245,13 +245,25 @@ void view_app::load(const std::string& name)
 
         for (int i = 0; i < scenes; ++i) sys->del_scene(0);
         for (int i = 0; i < steps;  ++i) sys->del_step (0);
-#if 0
-        path_queue();
-#endif
-        if (sys->get_step_count())
-            here = *sys->get_step(0);
 
-        sys->set_scene_blend(0);
+        // Dismiss the GUI.
+
+        draw_gui = false;
+    }
+}
+
+void view_app::load_path(const std::string& name)
+{
+    // Load the contents of the named file to a string.
+
+    const char *path;
+
+    if ((path = (const char *) ::data->load(name)))
+    {
+        // Import a camera path from the loaded string.
+
+        sys->import_queue(path);
+        ::data->free(name);
 
         // Dismiss the GUI.
 
@@ -263,9 +275,6 @@ void view_app::unload()
 {
     for (int i = 0; i < sys->get_scene_count(); ++i) sys->del_scene(0);
     for (int i = 0; i < sys->get_step_count();  ++i) sys->del_step (0);
-#if 0
-    path_queue();
-#endif
 }
 
 void view_app::reload()
@@ -606,7 +615,6 @@ bool view_app::process_key(app::event *E)
                 case 'e': path_end();   return true; // ^E
                 case 'j': path_jump();  return true; // ^J
 #endif
-                case 'm': sys->import_queue("test.mov"); return true;
             }
         }
         if (k == 32)
@@ -657,7 +665,7 @@ bool view_app::process_user(app::event *E)
 
 bool view_app::process_tick(app::event *E)
 {
-    double dt = E->data.tick.dt;
+    // double dt = E->data.tick.dt;
 
     if (delta)
     {

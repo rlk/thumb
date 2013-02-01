@@ -33,7 +33,7 @@ public:
 
     virtual bool process_event(app::event *);
 
-    virtual void load(const std::string&);
+    virtual void load_file(const std::string&);
 
     virtual void move_to(int);
     virtual void fade_to(int);

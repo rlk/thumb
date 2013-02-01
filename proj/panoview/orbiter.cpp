@@ -95,7 +95,7 @@ orbiter::orbiter(const std::string& exe,
     // Preload data as requested.
 
     if (char *name = getenv("SCMINIT"))
-         load(name);
+         load_file(name);
 }
 
 orbiter::~orbiter()
@@ -331,9 +331,9 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
-void orbiter::load(const std::string& name)
+void orbiter::load_file(const std::string& name)
 {
-    view_app::load(name);
+    view_app::load_file(name);
 
     if (here.get_distance() == 0.0)
         here.set_distance(2.0 * get_minimum_ground());

@@ -21,7 +21,8 @@ class view_app;
 
 class view_load : public gui::dialog
 {
-	gui::button *load;
+    gui::button *load_data;
+    gui::button *load_path;
 
 public:
 
