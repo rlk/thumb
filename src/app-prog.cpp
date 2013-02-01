@@ -317,7 +317,7 @@ static void snaptga(const char *filename, unsigned char *p, int w, int h)
     t->image_depth           = 24;
     t->image_descriptor      =  0;
 
-    glReadPixels(0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, p + s);
+    glReadPixels(0, 0, w, h, GL_BGR, GL_UNSIGNED_BYTE, p + s);
 
     if ((d = open(filename, O_WRONLY | O_CREAT, 0666)) != -1)
     {
