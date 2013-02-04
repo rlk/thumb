@@ -246,6 +246,8 @@ void view_app::load_file(const std::string& name)
         for (int i = 0; i < scenes; ++i) sys->del_scene(0);
         for (int i = 0; i < steps;  ++i) sys->del_step (0);
 
+        sys->set_scene_blend(0);
+
         // Dismiss the GUI.
 
         draw_gui = false;
