@@ -148,8 +148,8 @@
     <!-- 1920x1080 left-right stereo -------------------------------------- -->
     <node name="1920x1080-LR">
       <window x="0" y="0" w="1920" h="1080" frame="0"/>
-      <channel w="960" h="1080" x="-0.125"/>
-      <channel w="960" h="1080" x=" 0.125"/>
+      <channel w="960" h="1080" x=" 0.0125"/>
+      <channel w="960" h="1080" x="-0.0125"/>
       <display type="normal" index="1" channel="0">
         <viewport x="0" y="0" w="960" h="1080"/>
         <frustum>

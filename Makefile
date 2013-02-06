@@ -63,14 +63,18 @@ dist : $(TARG)
 
 	# Copy panoview / orbiter data
 
-	$(CP) proj/panoview/data/csv/IAUMOON.csv        $(DATDIR)/csv
-	$(CP) proj/panoview/data/csv/Tycho.csv          $(DATDIR)/csv
-	$(CP) proj/panoview/data/csv/Copernic.csv       $(DATDIR)/csv
-	$(CP) proj/panoview/data/glsl/scm-basic.frag    $(DATDIR)/glsl
-	$(CP) proj/panoview/data/glsl/scm-basic.vert    $(DATDIR)/glsl
-	$(CP) proj/panoview/data/glsl/scm-displace.vert $(DATDIR)/glsl
-	$(CP) proj/panoview/data/glsl/scm-overlay.frag  $(DATDIR)/glsl
-	$(CP) proj/panoview/data/glsl/scm-zoom.vert     $(DATDIR)/glsl
+	$(CP) proj/panoview/data/csv/IAUMOON.csv  $(DATDIR)/csv
+	$(CP) proj/panoview/data/csv/Tycho.csv    $(DATDIR)/csv
+	$(CP) proj/panoview/data/csv/Copernic.csv $(DATDIR)/csv
+
+	$(CP) proj/panoview/data/glsl/scm-basic.frag                  $(DATDIR)/glsl
+	$(CP) proj/panoview/data/glsl/scm-basic.vert                  $(DATDIR)/glsl
+	$(CP) proj/panoview/data/glsl/scm-displace.vert               $(DATDIR)/glsl
+	$(CP) proj/panoview/data/glsl/scm-overlay.frag                $(DATDIR)/glsl
+	$(CP) proj/panoview/data/glsl/scm-zoom.vert                   $(DATDIR)/glsl
+	$(CP) proj/panoview/data/glsl/scm-lomsee.frag                 $(DATDIR)/glsl
+	$(CP) proj/panoview/data/glsl/scm-relief-colormap-scalar.frag $(DATDIR)/glsl
+
 
 	$(CP) proj/panoview/data/scm/GLD-WAC.xml              $(DATDIR)/scm
 	$(CP) proj/panoview/data/scm/NAC_ROI.xml              $(DATDIR)/scm
