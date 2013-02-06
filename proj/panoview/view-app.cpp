@@ -347,27 +347,8 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
     frusp->draw();
    ::user->draw();
 
-#if 0
-    if (draw_path)
-    {
-        if (scm_step *s = sys->get_step(step))
-        {
-            glPushAttrib(GL_ENABLE_BIT);
-            glEnable(GL_DEPTH_CLAMP);
-            glDisable(GL_LIGHTING);
-            glDisable(GL_TEXTURE_2D);
-            glPointSize(12.0);
-            glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
-            glBegin(GL_POINTS);
-            s->draw();
-            glEnd();
-            glPopAttrib();
-        }
-    }
-#endif
     if (draw_path)  sys->render_queue();
     if (draw_cache) sys->render_cache();
-
     if (draw_gui)   gui_draw();
 }
 
@@ -744,7 +725,7 @@ void view_app::gui_draw()
     {
         glEnable(GL_DEPTH_CLAMP);
         {
-            overlay->draw();
+            // overlay->draw();
             overlay->overlay();
             ui->draw();
         }
