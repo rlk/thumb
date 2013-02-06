@@ -71,13 +71,15 @@ void dpy::fulldome::prep(int chanc, const dpy::channel *const *chanv)
 
 void dpy::fulldome::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 {
+    const int frusc = get_frusc();
+
     assert(P);
 
     int i;
 
     // Draw the scene to the off-screen buffer.
 
-    for (i = 0; i < chanc && i < get_frusc(); ++i)
+    for (i = 0; i < chanc && i < frusc; ++i)
     {
         chanv[i]->bind();
         {
@@ -91,28 +93,28 @@ void dpy::fulldome::draw(int chanc, const dpy::channel * const *chanv, int frusi
 
     P->bind();
     {
-        if (chanc > 0)
+        if (chanc > 0 && frusc > 0)
         {
             chanv[0]->bind_color(GL_TEXTURE0);
             P->uniform("P[0]",   frusta[0]->get_P(), false);
             P->uniform("size[0]", chanv[0]->get_w(),
                                   chanv[0]->get_h());
         }
-        if (chanc > 1)
+        if (chanc > 1 && frusc > 1)
         {
             chanv[1]->bind_color(GL_TEXTURE1);
             P->uniform("P[1]",   frusta[1]->get_P(), false);
             P->uniform("size[1]", chanv[1]->get_w(),
                                   chanv[1]->get_h());
         }
-        if (chanc > 2)
+        if (chanc > 2 && frusc > 2)
         {
             chanv[2]->bind_color(GL_TEXTURE2);
             P->uniform("P[2]",   frusta[2]->get_P(), false);
             P->uniform("size[2]", chanv[2]->get_w(),
                                   chanv[2]->get_h());
         }
-        if (chanc > 3)
+        if (chanc > 3 && frusc > 3)
         {
             chanv[3]->bind_color(GL_TEXTURE3);
             P->uniform("P[3]",   frusta[3]->get_P(), false);
@@ -131,18 +133,20 @@ void dpy::fulldome::draw(int chanc, const dpy::channel * const *chanv, int frusi
 
 void dpy::fulldome::test(int chanc, const dpy::channel *const *chanv, int index)
 {
+    const int frusc = get_frusc();
+
     assert(P);
 
     int i;
 
     // Draw the scene to the off-screen buffer.
 
-    for (i = 0; i < chanc && i < get_frusc(); ++i)
+    for (i = 0; i < chanc && i < frusc; ++i)
         chanv[i]->test();
 
     // Draw the off-screen buffer to the screen.
 
-    for (i = 0; i < chanc && i < get_frusc(); ++i)
+    for (i = 0; i < chanc && i < frusc; ++i)
         chanv[i]->bind_color(GL_TEXTURE0 + i);
 
     if (chanc)
@@ -155,7 +159,7 @@ void dpy::fulldome::test(int chanc, const dpy::channel *const *chanv, int index)
         P->free();
     }
 
-    for (i = 0; i < chanc && i < get_frusc(); ++i)
+    for (i = 0; i < chanc && i < frusc; ++i)
         chanv[i]->free_color(GL_TEXTURE0 + i);
 }
 

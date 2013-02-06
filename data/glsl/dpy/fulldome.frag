@@ -77,10 +77,9 @@ void main()
 
     // This debug line demonstrates the overlap and blending.
 
-    //cc = vec3(c0.a + c1.a + c2.a + c3.a) / 4.0;
+    // cc = vec3(c0.a + c1.a + c2.a + c3.a) / 4.0;
 
     // Draw, clipped to the hemisphere.
 
     gl_FragColor = vec4(cc * step(r, 1.0), 1.0);
-
 }

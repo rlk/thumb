@@ -12,7 +12,7 @@ static gui::widget *label(const std::string& text)
 
 static gui::widget *annot(const std::string& text)
 {
-    return new gui::string(text, 0, 0, 0x20, 0x10, 0x00);
+    return new gui::string(text, 0, 0, 0x40, 0x40, 0x40);
 }
 
 //------------------------------------------------------------------------------
@@ -89,7 +89,9 @@ view_load::view_load(view_app *V, int w, int h)
                 add(F)->
 
                 add((new gui::hgroup)->
-                    add(annot("Copyright \xC2\xA9 2011-13 Robert Kooima"))->
+                    add(annot("Copyright \xC2\xA9 2011"
+                              "\xE2\x80\x93"
+                              "13 Robert Kooima"))->
                     add(new gui::filler(true, false))->
                     add((new gui::harray)->
                         add(load_path)->

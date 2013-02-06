@@ -849,55 +849,26 @@ int app::frustum::test_cap(const double *n, double a,
 
 bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
 {
-    double M[16], V[3], plane[4], point[3];
+    double M[16], v[4], V[4];
 
     // Determine the pointer vector from the quaternion.
 
     quat_to_mat(M, E->data.point.q);
 
-    V[0] = -M[ 8];
-    V[1] = -M[ 9];
-    V[2] = -M[10];
+    v[0] = -M[ 8];
+    v[1] = -M[ 9];
+    v[2] = -M[10];
+    v[3] = 0.0;
 
-    // Find the plane of the display.
+    // Transform the pointer into screen space.
 
-    set_plane(plane, user_points[0],
-                     user_points[1],
-                     user_points[2]);
+    mult_mat_vec4(V, P, v);
 
-    // Compute the point of intersection with the display plane.
-
-    double t = -(plane[3] + DOT3(E->data.point.p, plane)) / DOT3(V, plane);
-
-    point[0] = E->data.point.p[0] + V[0] * t - user_points[0][0];
-    point[1] = E->data.point.p[1] + V[1] * t - user_points[0][1];
-    point[2] = E->data.point.p[2] + V[2] * t - user_points[0][2];
-
-    // Project this point into screen space.
-
-    double R[3];
-    double U[3];
-
-    R[0] = user_points[1][0] - user_points[0][0];
-    R[1] = user_points[1][1] - user_points[0][1];
-    R[2] = user_points[1][2] - user_points[0][2];
-
-    U[0] = user_points[2][0] - user_points[0][0];
-    U[1] = user_points[2][1] - user_points[0][1];
-    U[2] = user_points[2][2] - user_points[0][2];
-
-    normalize(R);
-    normalize(U);
-
-    double u = DOT3(point, R) / get_w();
-    double v = DOT3(point, U) / get_h();
-
-    // Confirm that the point falls within the frustum.
-
-    if (0 < u && u < 1 && 0 < v && v < 1)
+    if (V[3] > 0 && V[1] < V[3] && V[1] > -V[3]
+                 && V[0] < V[3] && V[0] > -V[3])
     {
-        x = nearest_int(u * double(pixel_w));
-        y = nearest_int(v * double(pixel_h));
+        x = nearest_int(pixel_w * (V[0] / V[3] + 1.0) / 2.0);
+        y = nearest_int(pixel_h * (V[1] / V[3] + 1.0) / 2.0);
         return true;
     }
     return false;

@@ -6,7 +6,7 @@
     <option name="sync">1</option>
     <option name="bench">1</option>
     <!-- Orbiter configuration -->
-    <option name="scm_cache_size">8</option>
+    <option name="scm_cache_size">12</option>
     <option name="orbiter_goto_radius">2600000.0</option>
     <option name="orbiter_minimum_agl">50.0</option>
     <option name="orbiter_icon_size">24</option>
