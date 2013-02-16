@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
   <host>
-    <channel w="640" h="480"/>
-    <overlay w="1280" h="960">
+    <overlay w="640" h="480">
       <frustum>
         <corner name="BL" x="-1.333" y="-0.5" z="-2.0"/>
         <corner name="BR" x=" 0.000" y="-0.5" z="-2.0"/>
@@ -10,10 +9,11 @@
     </overlay>
     <!-- Server ----------------------------------------------------------- -->
     <node name="host/local-cluster.xml" port="2827">
-      <client name="client" addr="localhost"/>
+      <client name="client" addr="localhost" disp=":0.0"/>
       <window x="0" y="0" w="640" h="480"/>
-      <buffer w="640" h="480"/>
-      <display type="normal">
+      <channel w="640" h="480"/>
+      <buffer  w="640" h="480"/>
+      <display type="direct">
         <viewport x="0" y="0" w="640" h="480"/>
         <frustum>
           <corner name="BL" x="-1.333" y="-0.5" z="-2.0"/>
@@ -26,8 +26,9 @@
     <node name="client">
       <server addr="localhost" port="2827"/>
       <window x="640" y="0" w="640" h="480"/>
-      <buffer w="640" h="480"/>
-      <display type="normal">
+      <channel w="640" h="480"/>
+      <buffer  w="640" h="480"/>
+      <display type="direct">
         <viewport x="0" y="0" w="640" h="480"/>
         <frustum>
           <corner name="BL" x=" 0.000" y="-0.5" z="-2.0"/>

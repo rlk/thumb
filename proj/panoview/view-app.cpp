@@ -737,16 +737,24 @@ void view_app::gui_draw()
 
 bool view_app::gui_point(app::event *E)
 {
-    int x;
-    int y;
+    int x = 0;
+    int y = 0;
 
     if (const app::frustum *overlay = ::host->get_overlay())
     {
+        bool b = overlay->pointer_to_2D(E, x, y);
+        fprintf(stderr, "%d %d %d %d\n", getpid(), b, x, y);
+        {
+            ui->point(x, y);
+            return true;
+        }
+/*
         if (overlay->pointer_to_2D(E, x, y))
         {
             ui->point(x, y);
             return true;
         }
+        */
     }
     return false;
 }

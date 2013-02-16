@@ -42,7 +42,7 @@ void app::event::put_real(double d)
 double app::event::get_real()
 {
     double d;
-    memcpy(&d, payload.data + payload_index, 2 * sizeof (double));
+    memcpy(&d, payload.data + payload_index, sizeof (double));
     payload_index += sizeof (double);
     return d;
 }

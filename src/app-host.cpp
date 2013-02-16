@@ -494,19 +494,6 @@ app::host::host(app::prog *p, std::string filename,
                     displays.push_back(new dpy::direct    (c));
             }
 
-            // Determine the overlay area.
-
-            if (app::node o = n.find("overlay"))
-            {
-                int w = o.get_i("w", DEFAULT_PIXEL_WIDTH);
-                int h = o.get_i("h", DEFAULT_PIXEL_HEIGHT);
-
-                if (app::node c = o.find("frustum"))
-                    overlay = new app::frustum(c, w, h);
-                else
-                    overlay = new app::frustum(0, w, h);
-            }
-
             // Create a channel object for each configured channel.
 
             if (channels.empty())
@@ -518,6 +505,19 @@ app::host::host(app::prog *p, std::string filename,
             if (channels.empty())
                 for (c = p.find("channel"); c; c = p.next(c, "channel"))
                     channels.push_back(new dpy::channel(c));
+
+            // Determine the globally-defined overlay area.
+
+            if (app::node o = p.find("overlay"))
+            {
+                int w = o.get_i("w", DEFAULT_PIXEL_WIDTH);
+                int h = o.get_i("h", DEFAULT_PIXEL_HEIGHT);
+
+                if (app::node c = o.find("frustum"))
+                    overlay = new app::frustum(c, w, h);
+                else
+                    overlay = new app::frustum(0, w, h);
+            }
 
             // Start the network syncronization.
 
