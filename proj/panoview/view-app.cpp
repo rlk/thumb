@@ -371,150 +371,6 @@ void view_app::path_play(bool movie)
     }
 }
 
-#if 0
-void view_app::set_step(int s)
-{
-    step = s;
-    step = std::max(step, 0);
-    step = std::min(step, sys->get_step_count() - 1);
-}
-
-void view_app::path_save()
-{
-    try
-    {
-        app::node head("?xml");
-        app::node body("path");
-
-        head.set_s("version", "1.0");
-        head.set_s("?", "");
-
-        body.insert(head);
-        save_steps(body);
-        head.write(path_xml);
-    }
-    catch (std::runtime_error& e)
-    {
-    }
-}
-
-void view_app::path_load()
-{
-    try
-    {
-        app::file file(path_xml);
-        app::node p = file.get_root().find("path");
-
-        path_clear();
-        load_steps(p);
-    }
-    catch (std::runtime_error& e)
-    {
-    }
-}
-
-void view_app::path_queue()
-{
-    sys->flush_queue();
-
-    for (int i = 0; i < sys->get_step_count(); i++)
-        sys->append_queue(sys->get_step(i));
-}
-
-void view_app::path_clear()
-{
-    step  = 0;
-    delta = 0;
-    while (sys->get_step_count())
-        sys->del_step(0);
-    path_queue();
-}
-
-void view_app::path_play(bool movie)
-{
-    if (delta > 0)
-    {
-      ::host->set_movie_mode(false);
-        sys->set_synchronous(false);
-        delta = 0;
-    }
-    else
-    {
-      ::host->set_movie_mode(movie);
-        sys->set_synchronous(movie);
-        delta = 1;
-    }
-    path_queue();
-}
-
-void view_app::path_prev()
-{
-    set_step(step - 1);
-    path_queue();
-}
-
-void view_app::path_next()
-{
-    set_step(step + 1);
-    path_queue();
-}
-
-void view_app::path_del()
-{
-    sys->del_step(step);
-    set_step(step - 1);
-    path_queue();
-}
-
-void view_app::path_ins()
-{
-    if (scm_step *s = sys->get_step(sys->add_step(step)))
-    {
-        *s = here;
-        path_queue();
-    }
-}
-
-void view_app::path_add()
-{
-    if (scm_step *s = sys->get_step(sys->add_step(step + 1)))
-    {
-        *s = here;
-        set_step(step + 1);
-        path_queue();
-    }
-}
-
-void view_app::path_set()
-{
-    if (scm_step *s = sys->get_step(step))
-    {
-        *s = here;
-        path_queue();
-    }
-}
-
-void view_app::path_jump()
-{
-    if (scm_step *s = sys->get_step(step))
-    {
-        here = *s;
-        now = step;
-    }
-}
-
-void view_app::path_beg()
-{
-    set_step(0);
-    path_queue();
-}
-
-void view_app::path_end()
-{
-    set_step(sys->get_step_count());
-    path_queue();
-}
-#endif
 //------------------------------------------------------------------------------
 
 bool view_app::numkey(int n, int c, int s)
@@ -580,45 +436,10 @@ bool view_app::process_key(app::event *E)
         if ('0' <= k && k <= '9') return numkey(k - '0', c, s);
         if (282 <= k && k <= 293) return funkey(k - 281, c, s);
 
-        if (c)
-        {
-            switch (k)
-            {
-#if 0
-                case 's': path_save();  return true; // ^S
-                case 'l': path_load();  return true; // ^L
-                case 'c': path_clear(); return true; // ^C
-                case 'p': path_prev();  return true; // ^P
-                case 'n': path_next();  return true; // ^N
-                case 'd': path_del();   return true; // ^D
-                case 'i': path_ins();   return true; // ^I
-                case 'a': path_add();   return true; // ^A
-                case 'o': path_set();   return true; // ^O
-                case 'b': path_beg();   return true; // ^B
-                case 'e': path_end();   return true; // ^E
-                case 'j': path_jump();  return true; // ^J
-#endif
-            }
-        }
         if (k == 32)
         {
             path_play(s);
             return true;
-        }
-
-        scm_step *p = sys->get_step(step);
-
-        if (p && k == 273) // Up
-        {
-            if      (c) { p->set_tension(p->get_tension() + 0.1); }
-            else if (s) { p->set_bias   (p->get_bias()    + 0.1); }
-            else if (s) { p->set_speed  (p->get_speed()   * 1.1); }
-        }
-        if (p && k == 274) // Down
-        {
-            if      (c) { p->set_tension(p->get_tension() - 0.1); }
-            else if (s) { p->set_bias   (p->get_bias()    - 0.1); }
-            else if (s) { p->set_speed  (p->get_speed()   / 1.1); }
         }
     }
     return prog::process_event(E);
@@ -742,19 +563,11 @@ bool view_app::gui_point(app::event *E)
 
     if (const app::frustum *overlay = ::host->get_overlay())
     {
-        bool b = overlay->pointer_to_2D(E, x, y);
-        fprintf(stderr, "%d %d %d %d\n", getpid(), b, x, y);
-        {
-            ui->point(x, y);
-            return true;
-        }
-/*
         if (overlay->pointer_to_2D(E, x, y))
         {
             ui->point(x, y);
             return true;
         }
-        */
     }
     return false;
 }

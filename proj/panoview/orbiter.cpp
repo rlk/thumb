@@ -349,46 +349,6 @@ double orbiter::get_scale() const
     return (d - h) / h;
 }
 
-// Construct a path from here to there with a configurable middle radius.
-#if 0
-void orbiter::move_to(int i)
-{
-    // Construct a path from here to there.
-
-    if (0 <= i && i < sys->get_step_count())
-    {
-        // Copy the current location and destination. Compute the middle.
-
-        path_src = here;
-        path_dst = *sys->get_step(i);
-        path_mid = scm_step(&path_src, &path_dst, 0.5);
-
-        // Tune speeds and distances. (The reason why we make copies.)
-
-        if (goto_radius)
-            path_mid.set_distance(std::max(path_mid.get_distance(), goto_radius));
-
-        path_mid.set_pitch(-M_PI_2);
-        path_mid.set_foreground(path_dst.get_foreground());
-        path_mid.set_background(path_dst.get_background());
-
-        path_src.set_speed(0.05);
-        path_mid.set_speed(2.00);
-        path_dst.set_speed(0.05);
-
-        // Queue these new steps and trigger playback.
-
-        sys->flush_queue();
-        sys->append_queue(&path_src);
-        sys->append_queue(&path_mid);
-        sys->append_queue(&path_dst);
-
-        orbit_speed = 0;
-        now         = 0;
-        delta       = 1;
-    }
-}
-#else
 void orbiter::move_to(int i)
 {
     // Construct a path from here to there.
@@ -417,7 +377,7 @@ void orbiter::move_to(int i)
         }
     }
 }
-#endif
+
 void orbiter::fade_to(int i)
 {
     // Construct a path from here to there.
