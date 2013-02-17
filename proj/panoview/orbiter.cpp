@@ -349,6 +349,33 @@ double orbiter::get_scale() const
     return (d - h) / h;
 }
 
+// Compute the length of the Archimedean spiral with polar equation r = a theta.
+
+double arclen(double a, double theta)
+{
+    double d = sqrt(1 + theta * theta);
+    return a * (theta * d + log(theta + d)) / 2.0;
+}
+
+// Calculate the length of the arc of length theta along an Archimedean spiral
+// that begins at radius r0 and ends at radius r1.
+
+double spiral(double r0, double r1, double theta)
+{
+    double dr = fabs(r1 - r0);
+
+    if (theta > 0.0)
+    {
+        if (dr > 0.0)
+        {
+            double a = dr / theta;
+            return fabs(arclen(a, r1 / a) - arclen(a, r0 / a));
+        }
+        return theta * r0;
+    }
+    return dr;
+}
+
 void orbiter::move_to(int i)
 {
     // Construct a path from here to there.
@@ -357,17 +384,64 @@ void orbiter::move_to(int i)
     {
         if (0 <= i && i < sys->get_step_count())
         {
+            double p0[3];
+            double p1[3];
+
             // Set the location and destination.
 
             scm_step *src = &here;
             scm_step *dst = sys->get_step(i);
 
-            // Queue these new steps and trigger playback.
+            // Determine the beginning and ending positions and altitudes.
+
+            src->get_position(p0);
+            dst->get_position(p1);
+
+            double g0 = sys->get_current_ground(p0);
+            double g1 = sys->get_current_ground(p1);
+
+            double d0 = src->get_distance();
+            double d1 = dst->get_distance();
+
+            double gm = (g0 + g1) / 2;
+            double dm = (d0 + d1) / 2;
+
+            double a = acos(vdot(p0, p1));
+
+            // Compute the ground trace length.
+
+            double lg = spiral(g0, g1, a);
+
+            // Determine a "hump" relative to the "scale" of the path.
+
+            double dd = (lg * gm) / (dm * 2);
+
+            // Compute the total path length.
+
+            double ld = spiral(d0, dm + dd, a / 2.0)
+                      + spiral(d1, dm + dd, a / 2.0);
+
+            // Determine a reasonable frame count for the computed distance.
+
+            int n = int(30 * ld / (dm - gm));
+
+            printf("%f %f %d\n", ld, dm - gm, n);
+
+            scm_step md = scm_step(src, dst, 0.5);
+
+            md.set_distance(dm + dd);
+            md.set_pitch   (-M_PI_2);
+
+            // Queue these new steps.
 
             sys->flush_queue();
 
-            for (int i = 0; i <= 30; ++i)
-                sys->append_queue(new scm_step(src, dst, i / 30.0));
+            for (int i = 0; i <= n; ++i)
+                sys->append_queue(new scm_step(src, src, &md, dst, double(i) / n));
+            for (int i = 1; i <= n; ++i)
+                sys->append_queue(new scm_step(src, &md, dst, dst, double(i) / n));
+
+            // Trigger playback.
 
             orbit_speed = 0;
             now         = 0;

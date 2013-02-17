@@ -34,7 +34,7 @@
             p0="0.0"
             p1="0.0"
             p2="1.0"
-             r="5000000.0"/>
+             r="1800000.0"/>
     <step name="two" foreground="11lo" background="milkyway"
             q0="0.0"
             q1="0.0"
