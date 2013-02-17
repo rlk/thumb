@@ -50,6 +50,7 @@ public:
 
     void cancel();
     void flag();
+    void step();
 
     double get_current_ground() const;
     double get_minimum_ground() const;
@@ -60,9 +61,6 @@ public:
 protected:
 
     scm_system *sys;
-    scm_step   path_src;
-    scm_step   path_mid;
-    scm_step   path_dst;
     scm_step   here;
     double     now;
     double     delta;
@@ -78,34 +76,14 @@ private:
     bool draw_path;
     bool draw_gui;
 
+    void play(bool);
+
     bool numkey(int, int, int);
     bool funkey(int, int, int);
 
     bool process_key (app::event *);
     bool process_user(app::event *);
     bool process_tick(app::event *);
-
-    // Path editing handlers
-
-    const std::string path_xml;
-
-    void set_step(int);
-    int  step;
-
-    void path_save();
-    void path_load();
-    void path_queue();
-    void path_clear();
-    void path_play(bool);
-    void path_prev();
-    void path_next();
-    void path_del();
-    void path_ins();
-    void path_add();
-    void path_set();
-    void path_beg();
-    void path_end();
-    void path_jump();
 
     // Sphere GUI State
 

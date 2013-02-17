@@ -36,9 +36,7 @@ view_app::view_app(const std::string& exe,
     now(0),
     delta(0),
     draw_cache(false),
-    draw_path (false),
-    path_xml("path.xml"),
-    step(0)
+    draw_path (false)
 {
     TIFFSetWarningHandler(0);
 
@@ -107,7 +105,7 @@ static void step_from_xml(scm_step *s, app::node n)
     s->set_bias       (n.get_f("b", 0.0));
     s->set_zoom       (n.get_f("z", 1.0));
 }
-
+#if 0
 static void xml_from_step(scm_step *s, app::node n)
 {
     double q[4];
@@ -140,9 +138,10 @@ static void xml_from_step(scm_step *s, app::node n)
     if (s->get_bias()     != 0.0)     n.set_f("b",          s->get_bias());
     if (s->get_zoom()     != 1.0)     n.set_f("z",          s->get_zoom());
 }
+#endif
 
 //------------------------------------------------------------------------------
-
+#if 0
 void view_app::save_steps(app::node p)
 {
     // Create a new XML node for each step.
@@ -154,6 +153,7 @@ void view_app::save_steps(app::node p)
         n.insert(p);
     }
 }
+#endif
 
 void view_app::load_steps(app::node p)
 {
@@ -164,7 +164,6 @@ void view_app::load_steps(app::node p)
         if (scm_step *s = sys->get_step(sys->add_step(sys->get_step_count())))
         {
             step_from_xml(s, n);
-            sys->append_queue(s);
         }
     }
 }
@@ -302,6 +301,24 @@ void view_app::flag()
     printf("%.12f\t%.12f\t%.1f\n", lat, lon, rad);
 }
 
+void view_app::step()
+{
+    double q[4];
+    double p[3];
+    double l[3];
+
+    here.get_orientation(q);
+    here.get_position   (p);
+    here.get_light      (l);
+
+    printf("<step q0=\"%+.12f\" q1=\"%+.12f\" q2=\"%+.12f\" q3=\"%+.12f\" "
+                 "p0=\"%+.12f\" p1=\"%+.12f\" p2=\"%+.12f\" "
+                 "l0=\"%+.12f\" l1=\"%+.12f\" l2=\"%+.12f\" r=\"%f\"/>\n",
+                q[0], q[1], q[2], q[3],
+                p[0], p[1], p[2],
+                l[0], l[1], l[2], here.get_distance());
+}
+
 //------------------------------------------------------------------------------
 
 double view_app::get_current_ground() const
@@ -354,7 +371,7 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
-void view_app::path_play(bool movie)
+void view_app::play(bool movie)
 {
     if (delta > 0)
     {
@@ -387,6 +404,7 @@ bool view_app::numkey(int n, int c, int s)
         switch (n)
         {
             case 1: flag(); break;
+            case 2: step(); break;
         }
     }
     return true;
@@ -438,7 +456,7 @@ bool view_app::process_key(app::event *E)
 
         if (k == 32)
         {
-            path_play(s);
+            play(s);
             return true;
         }
     }

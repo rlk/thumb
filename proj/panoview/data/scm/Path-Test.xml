@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+  <sphere detail="32" limit="256">
+    <scene name="global" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+    </scene>
+    <scene name="height" label="IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag" r="0" g="0" b="0" a="255">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="DTM-254-7.tif" k0="0.0" k1="1.0"/>
+    </scene>
+    <scene name="11lo" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+      <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="1.5"/>
+    </scene>
+    <scene name="milkyway" vert="glsl/scm-basic.vert" frag="glsl/scm-basic.frag">
+      <image name="color"  scm="mwpan2-24-254-5.tif" k0="0.0" k1="1.0"/>
+    </scene>
+    <step name="zero" foreground="global" background="milkyway"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+             r="5000000.0"/>
+    <step name="one" foreground="height" background="milkyway"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+             r="5000000.0"/>
+    <step name="two" foreground="11lo" background="milkyway"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+             r="5000000.0"/>
+  </sphere>

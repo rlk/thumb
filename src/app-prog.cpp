@@ -72,15 +72,8 @@ static void video()
     int w = ::host->get_window_w();
     int h = ::host->get_window_h();
 
-    // Unframed windows have no cursor and may be positioned.
-
-    if (m & SDL_NOFRAME)
-    {
-//      SDL_ShowCursor(SDL_DISABLE);
-
-        if ((m & SDL_FULLSCREEN) == 0)
-            position(x, y);
-    }
+    if ((m & SDL_FULLSCREEN) == 0)
+        position(x, y);
 
     // Look up the GL context parameters.
 

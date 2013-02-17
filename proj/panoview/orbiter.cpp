@@ -359,17 +359,15 @@ void orbiter::move_to(int i)
         {
             // Set the location and destination.
 
-            path_src = here;
-            path_dst = *sys->get_step(i);
-
-            path_src.set_speed(1.0);
-            path_dst.set_speed(1.0);
+            scm_step *src = &here;
+            scm_step *dst = sys->get_step(i);
 
             // Queue these new steps and trigger playback.
 
             sys->flush_queue();
-            sys->append_queue(&path_src);
-            sys->append_queue(&path_dst);
+
+            for (int i = 0; i <= 30; ++i)
+                sys->append_queue(new scm_step(src, dst, i / 30.0));
 
             orbit_speed = 0;
             now         = 0;
@@ -381,7 +379,7 @@ void orbiter::move_to(int i)
 void orbiter::fade_to(int i)
 {
     // Construct a path from here to there.
-
+#if 0
     if (delta == 0)
     {
         if (0 <= i && i < sys->get_step_count())
@@ -408,6 +406,7 @@ void orbiter::fade_to(int i)
             delta = 1;
         }
     }
+#endif
 }
 
 //------------------------------------------------------------------------------
