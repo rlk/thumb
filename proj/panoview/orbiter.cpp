@@ -388,15 +388,15 @@ void orbiter::move_to(int i)
     {
         if (0 <= i && i < sys->get_step_count())
         {
-            double p0[3];
-            double p1[3];
-
             // Set the location and destination.
 
             scm_step *src = &here;
             scm_step *dst = sys->get_step(i);
 
             // Determine the beginning and ending positions and altitudes.
+
+            double p0[3];
+            double p1[3];
 
             src->get_position(p0);
             dst->get_position(p1);
@@ -407,20 +407,18 @@ void orbiter::move_to(int i)
             double d0 = src->get_distance();
             double d1 = dst->get_distance();
 
-            double gm = (g0 + g1) / 2;
-            double dm = (d0 + d1) / 2;
-
             // Compute the ground trace length and orbit length.
 
             double a = acos(vdot(p0, p1));
             double lg = spiral(g0, g1, a);
             double lo = spiral(d0, d1, a);
 
-            // Add a "hump" to a low orbit path.
+            // Calculate a "hump" for a low orbit path.
 
             double aa = std::min(d0 - g0, d1 - g1);
-
             double dd = lg ? log10(lg / aa) * lg / 10 : 0;
+
+            // Enqueue the path.
 
             sys->flush_queue();
 
@@ -431,13 +429,6 @@ void orbiter::move_to(int i)
                     double dt = 0.01;
                     double q = 4 * t - 4 * t * t;
 
-                    // Queue this step.
-
-                    scm_step *mid = new scm_step(src, dst, t);
-
-                    mid->set_distance(mid->get_distance() + dd * q);
-                    sys->append_queue(mid);
-
                     // Estimate the current velocity.
 
                     scm_step t0(src, dst, t);
@@ -446,13 +437,17 @@ void orbiter::move_to(int i)
                     t0.set_distance(t0.get_distance() + dd * q);
                     t1.set_distance(t1.get_distance() + dd * q);
 
+                    // Queue this step.
+
+                    sys->append_queue(new scm_step(t0));
+
                     // Move forward at a velocity appropriate for the altitude.
 
-                    mid->get_position(p);
+                    t0.get_position(p);
 
                     double g = sys->get_current_ground(p);
 
-                    t += 2 * (mid->get_distance() - g) * dt * dt / (t1 - t0);
+                    t += 2 * (t0.get_distance() - g) * dt * dt / (t1 - t0);
                 }
 
             sys->append_queue(new scm_step(dst));
