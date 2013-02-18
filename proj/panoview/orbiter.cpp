@@ -287,6 +287,10 @@ void orbiter::fly(double dt)
     double m =      get_minimum_ground();
 
     here.set_distance(std::min(4 * m, m + exp(log(d - m) + (stick[2] * dt))));
+
+    // Joystick interaction cancels a goto.
+
+    delta = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -406,40 +410,52 @@ void orbiter::move_to(int i)
             double gm = (g0 + g1) / 2;
             double dm = (d0 + d1) / 2;
 
+            // Compute the ground trace length and orbit length.
+
             double a = acos(vdot(p0, p1));
-
-            // Compute the ground trace length.
-
             double lg = spiral(g0, g1, a);
+            double lo = spiral(d0, d1, a);
 
-            // Determine a "hump" relative to the "scale" of the path.
+            // Add a "hump" to a low orbit path.
 
-            double dd = (lg * gm) / (dm * 2);
+            double aa = std::min(d0 - g0, d1 - g1);
 
-            // Compute the total path length.
-
-            double ld = spiral(d0, dm + dd, a / 2.0)
-                      + spiral(d1, dm + dd, a / 2.0);
-
-            // Determine a reasonable frame count for the computed distance.
-
-            int n = int(30 * ld / (dm - gm));
-
-            printf("%f %f %d\n", ld, dm - gm, n);
-
-            scm_step md = scm_step(src, dst, 0.5);
-
-            md.set_distance(dm + dd);
-            md.set_pitch   (-M_PI_2);
-
-            // Queue these new steps.
+            double dd = lg ? log10(lg / aa) * lg / 10 : 0;
 
             sys->flush_queue();
 
-            for (int i = 0; i <= n; ++i)
-                sys->append_queue(new scm_step(src, src, &md, dst, double(i) / n));
-            for (int i = 1; i <= n; ++i)
-                sys->append_queue(new scm_step(src, &md, dst, dst, double(i) / n));
+            if (lo > 0)
+                for (double t = 0.0; t < 1.0; )
+                {
+                    double p[3];
+                    double dt = 0.01;
+                    double q = 4 * t - 4 * t * t;
+
+                    // Queue this step.
+
+                    scm_step *mid = new scm_step(src, dst, t);
+
+                    mid->set_distance(mid->get_distance() + dd * q);
+                    sys->append_queue(mid);
+
+                    // Estimate the current velocity.
+
+                    scm_step t0(src, dst, t);
+                    scm_step t1(src, dst, t + dt);
+
+                    t0.set_distance(t0.get_distance() + dd * q);
+                    t1.set_distance(t1.get_distance() + dd * q);
+
+                    // Move forward at a velocity appropriate for the altitude.
+
+                    mid->get_position(p);
+
+                    double g = sys->get_current_ground(p);
+
+                    t += 2 * (mid->get_distance() - g) * dt * dt / (t1 - t0);
+                }
+
+            sys->append_queue(new scm_step(dst));
 
             // Trigger playback.
 

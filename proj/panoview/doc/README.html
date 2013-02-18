@@ -543,6 +543,10 @@
 
     <blockquote><pre>echo -n "Copernic" | ncat -u --send-only 127.0.0.1 2829</pre></blockquote>
 
+    <p>Or, using classic <tt>netcat</tt>:</p>
+
+    <blockquote><pre>echo -n "Copernic" | nc -u -w0 127.0.0.1 2829</pre></blockquote>
+
     <p>Upon message receipt, the renderer interpolates the viewpoint to the selected position using the same internal mechanism as the <a href="#editing">camera path definition</a>. Note, therefore, that the receipt of a go-to message will replace any currently-loaded camera path definition. Likewise, after a go-to has executed, its path remains and may be reviewed, modified, and stored using the camera path editing interface.</p>
 
     <p>This commonality may be exploited, and points of interest may be defined simply by copy-pasting <tt>step</tt> elements from <tt>path.xml</tt> into the planet definition XML. The <tt>q</tt> attributes give the view orientation in the form of a quaternion, the <tt>p</tt> attributes give the view position as a normalized direction vector, and the <tt>r</tt> attribute gives the view radius, or distance from the center of the sphere. A path file <tt>step</tt> element also includes light source direction and path tension and bias, which do retain their meaning when used by the go-to mechanism. This can be desirable or not, and in most cases these extra attributes should simply be omitted when pasted.</p>
