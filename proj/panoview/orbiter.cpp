@@ -439,6 +439,16 @@ void orbiter::move_to(int i)
 
                     // Queue this step.
 
+                    if (t < 0.5)
+                    {
+                        t0.set_foreground(src->get_foreground());
+                        t0.set_background(src->get_background());
+                    }
+                    else
+                    {
+                        t0.set_foreground(dst->get_foreground());
+                        t0.set_background(dst->get_background());
+                    }
                     sys->append_queue(new scm_step(t0));
 
                     // Move forward at a velocity appropriate for the altitude.
