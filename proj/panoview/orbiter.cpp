@@ -64,6 +64,7 @@ orbiter::orbiter(const std::string& exe,
     drag_move = false;
     drag_look = false;
     drag_dive = false;
+    drag_turn = false;
     drag_lite = false;
 
     fly_up = false;
