@@ -8,7 +8,7 @@
       </frustum>
     </overlay>
     <!-- Server ----------------------------------------------------------- -->
-    <node name="host/local-cluster.xml" port="2827">
+    <node name="host/clustertest.xml" port="2827">
       <client name="client" addr="localhost" disp=":0.0"/>
       <window x="0" y="0" w="640" h="480"/>
       <channel w="640" h="480"/>
