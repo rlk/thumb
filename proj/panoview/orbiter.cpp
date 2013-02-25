@@ -26,6 +26,7 @@
 #include <app-default.hpp>
 
 #include "scm/util3d/math3d.h"
+#include "scm/scm-log.hpp"
 
 #include "orbiter.hpp"
 
@@ -65,9 +66,12 @@ orbiter::orbiter(const std::string& exe,
     drag_dive = false;
     drag_lite = false;
 
+    fly_up = false;
+    fly_dn = false;
+
     point[0] = point[1] = point[2] = 0.0;
     click[0] = click[1] = click[2] = 0.0;
-    stick[0] = stick[1] = stick[2] = 0.0;
+    stick[0] = stick[1]            = 0.0;
 
     // Initialize the reportage socket.
 
@@ -261,6 +265,8 @@ void orbiter::fly(double dt)
                                      : +(stick[0] * stick[0]);
     const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
                                      : -(stick[1] * stick[1]);
+    const double dz = fly_up ? (fly_dn ?  0 : +1)
+                             : (fly_dn ? -1 :  0);
 
     double a = get_scale();
     double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
@@ -286,7 +292,7 @@ void orbiter::fly(double dt)
     double d = here.get_distance();
     double m =      get_minimum_ground();
 
-    here.set_distance(std::min(4 * m, m + exp(log(d - m) + (stick[2] * dt))));
+    here.set_distance(std::min(4 * m, m + exp(log(d - m) + (dz * dt))));
 
     // Joystick interaction cancels a goto.
 
@@ -530,8 +536,10 @@ bool orbiter::process_button(app::event *E)
 
     if (i == device)
     {
-        if      (b == button_D) stick[2] += (d ? -1 : +1);
-        else if (b == button_U) stick[2] += (d ? +1 : -1);
+        if      (b == button_D) fly_dn = d;
+        else if (b == button_U) fly_up = d;
+
+        scm_log("orbiter process_button %d %d %d", i, b, d);
 
         return true;
     }
@@ -592,11 +600,12 @@ bool orbiter::process_click(app::event *E)
 bool orbiter::process_tick(app::event *E)
 {
     double dt = E->data.tick.dt;
-    double ll = vlen(stick);
+    double ll = sqrt(stick[0] * stick[0] + stick[1] * stick[1]);
+    bool   uu = fly_up || fly_dn || (ll > deadzone);
 
-    if (ll > deadzone || stick_timer > 0.0)
+    if (uu || stick_timer > 0.0)
     {
-        if (ll > deadzone)
+        if (uu)
             stick_timer = 0.1;
         else
             stick_timer -= dt;

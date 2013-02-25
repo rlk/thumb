@@ -65,12 +65,14 @@ private:
 
     double point[3];
     double click[3];
-    double stick[3];
+    double stick[2];
     bool   drag_move;
     bool   drag_look;
     bool   drag_turn;
     bool   drag_dive;
     bool   drag_lite;
+    bool   fly_dn;
+    bool   fly_up;
 
     // Joystick configuration
 
