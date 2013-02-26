@@ -398,6 +398,7 @@ app::host::host(app::prog *p, std::string filename,
 
     window_full    = 0;
     window_frame   = 1;
+    window_cursor  = 1;
     window_rect[0] = 0;
     window_rect[1] = 0;
     window_rect[2] = DEFAULT_PIXEL_WIDTH;
@@ -443,8 +444,9 @@ app::host::host(app::prog *p, std::string filename,
 
             if (app::node c = n.find("window"))
             {
-                window_full    = c.get_i("full",  0);
-                window_frame   = c.get_i("frame", 1);
+                window_full    = c.get_i("full",   0);
+                window_frame   = c.get_i("frame",  1);
+                window_cursor  = c.get_i("cursor", 1);
                 window_rect[0] = c.get_i("x", 0);
                 window_rect[1] = c.get_i("y", 0);
                 window_rect[2] = c.get_i("w", DEFAULT_PIXEL_WIDTH);
@@ -511,18 +513,33 @@ app::host::host(app::prog *p, std::string filename,
                 for (c = p.find("channel"); c; c = p.next(c, "channel"))
                     channels.push_back(new dpy::channel(c));
 
+            // Determine the locally-defined overlay area.
+
+            if (overlay == 0)
+                if (app::node o = n.find("overlay"))
+                {
+                    int w = o.get_i("w", DEFAULT_PIXEL_WIDTH);
+                    int h = o.get_i("h", DEFAULT_PIXEL_HEIGHT);
+
+                    if (app::node c = o.find("frustum"))
+                        overlay = new app::frustum(c, w, h);
+                    else
+                        overlay = new app::frustum(0, w, h);
+                }
+
             // Determine the globally-defined overlay area.
 
-            if (app::node o = p.find("overlay"))
-            {
-                int w = o.get_i("w", DEFAULT_PIXEL_WIDTH);
-                int h = o.get_i("h", DEFAULT_PIXEL_HEIGHT);
+            if (overlay == 0)
+                if (app::node o = p.find("overlay"))
+                {
+                    int w = o.get_i("w", DEFAULT_PIXEL_WIDTH);
+                    int h = o.get_i("h", DEFAULT_PIXEL_HEIGHT);
 
-                if (app::node c = o.find("frustum"))
-                    overlay = new app::frustum(c, w, h);
-                else
-                    overlay = new app::frustum(0, w, h);
-            }
+                    if (app::node c = o.find("frustum"))
+                        overlay = new app::frustum(c, w, h);
+                    else
+                        overlay = new app::frustum(0, w, h);
+                }
 
             // Start the network syncronization.
 
@@ -766,7 +783,6 @@ void app::host::draw()
 
     // Clear the entire window.
 
-    glClearColor(0.0, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT |
             GL_DEPTH_BUFFER_BIT);
 

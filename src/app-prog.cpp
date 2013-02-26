@@ -75,6 +75,8 @@ static void video()
     if ((m & SDL_FULLSCREEN) == 0)
         position(x, y);
 
+    SDL_ShowCursor(::host->get_window_c() ? SDL_ENABLE : SDL_DISABLE);
+
     // Look up the GL context parameters.
 
     int mults = conf->get_i("multisample_samples");

@@ -21,7 +21,7 @@
     <option name="sans_size">12</option>
     <option name="mono_size">12</option>
     <!-- Miscellaneous options -->
-    <option name="screenshot_file">snap.tga</option>
+    <option name="screenshot_file">snap.png</option>
     <!-- Common keyboard commands -->
     <option name="key_exit">27</option>
     <option name="key_snap">294</option>

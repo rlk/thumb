@@ -53,7 +53,6 @@
         <ul>
           <li><a href="#viewing">Viewing Controls</a></li>
           <li><a href="#metadata">Metadata Controls</a></li>
-          <li><a href="#editing">Camera Path Editing</a></li>
           <li><a href="#recording">Camera Path Recording</a></li>
         </ul>
         <li><a href="#appconf">Application Configuration</a></li>
@@ -92,7 +91,7 @@
 
     <p>Note, this is <em>not</em> a list of available data files. A planetary visualization is usually a composition of several distinct data sets in <a href="#scm">SCM TIFF</a> format, and the <code>Orbiter</code> file selection dialog lists the XML files that define these visualizations. The XML files are found in the <tt>data/scm</tt> directory and are <a href="#definition">described below</a>.</p>
 
-    <p>Loading a visualization closes the selection dialog and displays the planet. Here, we've selected <tt>GLD-WAC.xml</tt> and zoomed in a bit, as described next.</p>
+    <p>Loading a visualization closes the selection dialog and displays the planet. Here, we've selected <tt>GLD-WAC.xml</tt>, clicked &ldquo;Load Data&rdquo; and zoomed in a bit, as described next.</p>
 
     <img src="img/view.png">
 
@@ -130,7 +129,7 @@
 
     <p>Not all visualizations support dynamic lighting, so the effects of shift-right-click might not always be apparent.</p>
 
-    <p>The <a href="#definition">XML definition</a> file allows the specification of several <a href="#editing">path</a> steps, each of which may be linked to a different visualization. The number keys allow these steps to be directly selected.</p>
+    <p>The <a href="#definition">XML definition</a> file allows the specification of several camera steps, each of which may be linked to a different visualization. The number keys allow these steps to be directly selected.</p>
 
     <table style="margin:auto;width:80%">
       <tr>
@@ -143,11 +142,13 @@
         <td>&hellip;</td>
         <td>Move the camera the selected step and scene. Effectively a <a href="#goto">go-to</a>.</td>
       </tr>
+      <!--
       <tr>
         <td>Shift-0 <i>through</i> Shift-9</td>
         <td>&hellip;</td>
         <td>Fade the view to the selected scene without moving the camera.</td>
       </tr>
+      -->
     </table>
 
     <a name="metadata"><h4>Metadata Controls</h4></a>
@@ -173,7 +174,7 @@
       <tr>
         <td>F3</td>
         <td>&hellip;</td>
-        <td>Toggle the <a href="#editing">camera path</a> display.</td>
+        <td>Toggle the camera path display.</td>
       </tr>
       <tr>
         <td>F4</td>
@@ -222,150 +223,26 @@
       </tr>
     </table>
 
-    <a name="editing"><h4>Camera Path Editing</h4></a>
+    <a name="recording"><h4>Camera Path</h4></a>
 
-    <p><code>Orbiter</code> allows the position and orientation of the camera to follow a pre-determined path, determined by a series of key frames. These key frames are specified interactively and keyboard commands insert or append the current camera configuration to a storable list of camera configurations. These key frames are animated using Hermite interpolation. The camera path visualization is toggled using the F3 key. Here is an example:</p>
+    <p><code>Orbiter</code> supports the loading a playback of camera paths defined and exported using Maya. To export a camera path, bake the camera's keys and Export All. Set &ldquo;Files of Type:&rdquo; to <tt>move</tt>. This will display a &ldquo;File Type Specific Options&rdquo; list where the translation and rotation attributes of the camera should be added. If the camera is named &ldquo;camera1&rdquo; then this list should appear as follows:</p>
 
-    <img src="img/path.png">
+<blockquote><pre>
+camera1.tx
+camera1.ty
+camera1.tz
+camera1.rx
+camera1.ry
+camera1.rz
+</pre></blockquote>
 
-    <p>The orange squares denote key frames and the green line shows their interpolation. The green key square is the first and the red key square is the last. The yellow key square indicates the current key frame selected for editing. The small green dots indicate the speed of the path, with each dot representing one quarter of a second.</p>
+    <p>Once set, this list will be retained for future exports.</p>
 
-    <table style="margin:auto;width:80%">
-      <tr>
-        <th style="width:20%">Key</th>
-        <th style="width:5%"></th>
-        <th style="width:75%">Function</th>
-      </tr>
-      <tr>
-        <td>Control-<u>A</u></td>
-        <td>&hellip;</td>
-        <td><u>A</u>dd the current camera position into the path <em>after</em> the current key.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>I</u></td>
-        <td>&hellip;</td>
-        <td><u>I</u>nsert the current camera position into the path <em>before</em> the current key.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>O</u></td>
-        <td>&hellip;</td>
-        <td><u>O</u>verwrite the current camera position onto the current key.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>D</u></td>
-        <td>&hellip;</td>
-        <td><u>D</u>elete the current key from the path.</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td>Control-<u>N</u></td>
-        <td>&hellip;</td>
-        <td>Select the <u>N</u>ext path key.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>P</u></td>
-        <td>&hellip;</td>
-        <td>Select the <u>P</u>revious path key.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>B</u></td>
-        <td>&hellip;</td>
-        <td>Rewind the current key and the play-back position to the <u>B</u>eginning.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>E</u></td>
-        <td>&hellip;</td>
-        <td>Forward the current key and the play-back position to the <u>E</u>nd.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>J</u></td>
-        <td>&hellip;</td>
-        <td><u>J</u>ump the camera to the current key position.</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td>Spacebar</td>
-        <td>&hellip;</td>
-        <td>Toggle play-back.</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td>Control-<u>S</u></td>
-        <td>&hellip;</td>
-        <td><u>S</u>ave the path to a file.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>L</u></td>
-        <td>&hellip;</td>
-        <td><u>L</u>oad the path from a file.</td>
-      </tr>
-      <tr>
-        <td>Control-<u>C</u></td>
-        <td>&hellip;</td>
-        <td><u>C</u>lear the path, removing all keys.</td>
-      </tr>
-      <tr>
-        <td>&nbsp;</td>
-      </tr>
-      <tr>
-        <td>Up</td>
-        <td>&hellip;</td>
-        <td>Increase the camera speed at the current key.</td>
-      </tr>
-      <tr>
-        <td>Down</td>
-        <td>&hellip;</td>
-        <td>Decrease the camera speed at the current key.</td>
-      </tr>
-      <tr>
-        <td>Control Up</td>
-        <td>&hellip;</td>
-        <td>Increase the tension of the camera path following the current key.</td>
-      </tr>
-      <tr>
-        <td>Control Down</td>
-        <td>&hellip;</td>
-        <td>Decrease the tension of the camera path following the current key.</td>
-      </tr>
-      <tr>
-        <td>Shift Up</td>
-        <td>&hellip;</td>
-        <td>Shift the bias of the camera path toward the next key.</td>
-      </tr>
-      <tr>
-        <td>Shift Down</td>
-        <td>&hellip;</td>
-        <td>Shift the bias of the camera path toward the current key.</td>
-      </tr>
-    </table>
+    <p>This path may be loaded using the selection dialog, toggled with F1. Locate and select the desired <tt>move</tt> file and click &ldquo;Load Path&rdquo;</p>
 
-    <p>Some tips:</p>
+    <img src="img/select.png">
 
-    <ul>
-      <li><p>To prepare a camera path, navigate normally and press Control-A at each point of interest. This will append each point to the list, moving the current selection forward with each addition.</p></li>
-
-      <li><p>Press Control-B to rewind to the beginning and press Spacebar to animate the path.</p></li>
-
-      <li><p>Gain some altitude or distance to see an overview of the path.</p></li>
-
-      <li><p>If a particular key frame is bad or wrong, select it using Control-P and Control-N, press Control-J to jump to that view point, and adjust the camera interactively. When the view point is improved, press Control-O to overwrite the current position onto the bad key frame.</p></li>
-
-      <li><p>This gets easier with practice. Always try to be aware of which key is current. The path visualizion is updated as it is edited, so keep an eye on subtle changes down the line caused by local modifications. It often helps to work backwards.</p></li>
-
-      <li><p>Cubic interpolation can give unexpected results, particularly before and after wide gaps between keys. Path tension adjustments can help, but do plan ahead.</p></li>
-
-      <li><p>Press Control-S to save the current path to disk, or Control-L to load it from disk. <b>Note:</b> There is currently no file name selection dialog for path storage. The file is <em>always</em> named <tt>path.xml</tt>. It is found in the <code>Thumb</code> user filesystem, usually in <tt>~/.thumb/</tt>, but failing that in the current working directory. If you wish to store multiple path files, please use the Finder or Explorer to rename <tt>path.xml</tt> by hand after saving, or before loading.</p></li>
-    </ul>
-
-    <a name="recording"><h4>Camera Path Recording</h4></a>
-
-    <p>Once a suitable path has been defined, it may be rendered to an image sequence.</p>
+    <p>Once loaded, the path's visibility may be toggled with F3.</p>
 
     <table style="margin:auto;width:80%">
       <tr>
@@ -374,9 +251,14 @@
         <th style="width:70%">Function</th>
       </tr>
       <tr>
+        <td>Spacebar</td>
+        <td>&hellip;</td>
+        <td>Preview the currently-loaded path.</td>
+      </tr>
+      <tr>
         <td>Shift-Spacebar</td>
         <td>&hellip;</td>
-        <td>Record the path from the current play-back position.</td>
+        <td>Record the currently-loaded path to an image sequence.</td>
       </tr>
     </table>
 
@@ -492,7 +374,7 @@
 
       <li><p>The <tt>image</tt> elements name the actual SCM data files. In this example, <tt>DTM-254-7.tif</tt> gives a Digital Terrain Model, which acts as a height map, displacing the geometry of the spherical mesh. Its minimum and maximum normalization attributes determine the radius of that sphere. <tt>WAC-254-7.tif</tt> is a simple image file fed to the fragment shader, with normalization attributes set to brighten it by a factor of 3. Each image has a name that identifies it the rendering shader and determines the type of input that it provides to the visualization.</p></li>
 
-      <li><p>The <tt>step</tt> elements define the view parameters for regions of interest for use by the <a href="#goto">go-to mechanism</a>. These are the exact same data structure as found in the <tt>path.xml</tt> file used by the <a href="#editing">camera path</a> storage mechanism, and in fact the list of <tt>step</tt> elements defines the default path when an XML file is initially loaded. Each step may select a different scene by name from the list of <tt>scene</tt> elements.</p></li>
+      <li><p>The <tt>step</tt> elements define the view parameters for regions of interest for use by the <a href="#goto">go-to mechanism</a>. Each step may select a different scene by name from the list of <tt>scene</tt> elements.</p></li>
     </ul>
 
     <p>Here's another example, <tt>NAC_ROI.xml</tt>, that includes two high-resolution overlays configured as separate <tt>scene</tt> elements. The <tt>step</tt> elements give scene names, which cause the visualization to be automatically transitioned when a <a href="#goto">go-to</a> is activated</p>
@@ -547,7 +429,7 @@
 
     <blockquote><pre>echo -n "Copernic" | nc -u -w0 127.0.0.1 2829</pre></blockquote>
 
-    <p>Upon message receipt, the renderer interpolates the viewpoint to the selected position using the same internal mechanism as the <a href="#editing">camera path definition</a>. Note, therefore, that the receipt of a go-to message will replace any currently-loaded camera path definition. Likewise, after a go-to has executed, its path remains and may be reviewed, modified, and stored using the camera path editing interface.</p>
+    <p>Upon message receipt, the renderer interpolates the viewpoint to the selected position using the same internal mechanism as the camera path definition. Note, therefore, that the receipt of a go-to message will replace any currently-loaded camera path definition. Likewise, after a go-to has executed, its path remains and may be reviewed, modified, and stored using the camera path editing interface.</p>
 
     <p>This commonality may be exploited, and points of interest may be defined simply by copy-pasting <tt>step</tt> elements from <tt>path.xml</tt> into the planet definition XML. The <tt>q</tt> attributes give the view orientation in the form of a quaternion, the <tt>p</tt> attributes give the view position as a normalized direction vector, and the <tt>r</tt> attribute gives the view radius, or distance from the center of the sphere. A path file <tt>step</tt> element also includes light source direction and path tension and bias, which do retain their meaning when used by the go-to mechanism. This can be desirable or not, and in most cases these extra attributes should simply be omitted when pasted.</p>
 

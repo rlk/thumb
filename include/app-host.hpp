@@ -102,6 +102,7 @@ namespace app
 
         int window_full;
         int window_frame;
+        int window_cursor;
         int window_rect[4];
         int buffer_size[2];
         int render_size[2];
@@ -138,6 +139,7 @@ namespace app
         // Configuration queries.
 
         int get_window_m() const;
+        int get_window_c() const { return window_cursor;  }
         int get_window_x() const { return window_rect[0]; }
         int get_window_y() const { return window_rect[1]; }
         int get_window_w() const { return window_rect[2]; }

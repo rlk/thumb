@@ -125,11 +125,13 @@ void orbiter::report()
 
         double lon = atan2(p[0], p[2]) * 180.0 / M_PI;
         double lat =  asin(p[1])       * 180.0 / M_PI;
+        double fly = (fly_up ? 1.0 : 0.0) - (fly_dn ? 1.0 : 0.0);
 
         // Encode these to an ASCII string.
 
         char buf[128];
-        sprintf(buf, "%+12.8f %+13.8f %17.8f\n", lat, lon, alt);
+        sprintf(buf, "%+12.8f %+13.8f %17.8f %+5.3f %+5.3f %+5.3f\n",
+            lat, lon, alt, stick[0], stick[1], fly);
 
         // And send the string to the configured host.
 
