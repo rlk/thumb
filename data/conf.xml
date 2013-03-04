@@ -11,6 +11,7 @@
     <option name="orbiter_minimum_agl">50.0</option>
     <option name="orbiter_icon_size">24</option>
     <option name="orbiter_joystick_deadzone">0.2</option>
+    <option name="orbiter_joystick_interrupt">0</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>
     <option name="multisample_buffers">0</option>

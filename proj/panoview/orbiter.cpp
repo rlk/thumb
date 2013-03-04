@@ -99,7 +99,12 @@ orbiter::orbiter(const std::string& exe,
     // Preload data as requested.
 
     if (char *name = getenv("SCMINIT"))
-         load_file(name);
+    {
+        load_file(name);
+
+        if (sys && sys->get_step_count())
+            move_to(0);
+    }
 }
 
 orbiter::~orbiter()
@@ -263,42 +268,48 @@ void orbiter::lite(double dt, double k)
 
 void orbiter::fly(double dt)
 {
-    const double dx = (stick[0] > 0) ? -(stick[0] * stick[0])
-                                     : +(stick[0] * stick[0]);
-    const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
-                                     : -(stick[1] * stick[1]);
-    const double dz = fly_up ? (fly_dn ?  0 : +1)
-                             : (fly_dn ? -1 :  0);
+    if (delta)
+    {
+        // Joystick interaction optionally interrupt a goto.
 
-    double a = get_scale();
-    double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
+        if (interrupt)
+            delta = 0;
+    }
+    else
+    {
+        const double dx = (stick[0] > 0) ? -(stick[0] * stick[0])
+                                         : +(stick[0] * stick[0]);
+        const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
+                                         : -(stick[1] * stick[1]);
+        const double dz = fly_up ? (fly_dn ?  0 : +1)
+                                 : (fly_dn ? -1 :  0);
 
-    here.set_pitch(k);
+        double a = get_scale();
+        double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
 
-    // The X axis affects the orientation and orbital plane.
+        here.set_pitch(k);
 
-    double R[16];
-    double p[3];
+        // The X axis affects the orientation and orbital plane.
 
-    here.get_position(p);
-    mrotate(R, p, dx * dt);
-    here.transform_orientation(R);
-    here.get_right(orbit_plane);
+        double R[16];
+        double p[3];
 
-    // The Y axis affects the orbital speed.
+        here.get_position(p);
+        mrotate(R, p, dx * dt);
+        here.transform_orientation(R);
+        here.get_right(orbit_plane);
 
-    orbit_speed = dy * std::max(std::min(a, orbit_speed_max), orbit_speed_min);
+        // The Y axis affects the orbital speed.
 
-    // The Z axis affects the orbital radius.
+        orbit_speed = dy * std::max(std::min(a, orbit_speed_max), orbit_speed_min);
 
-    double d = here.get_distance();
-    double m =      get_minimum_ground();
+        // The Z axis affects the orbital radius.
 
-    here.set_distance(std::min(4 * m, m + exp(log(d - m) + (dz * dt))));
+        double d = here.get_distance();
+        double m =      get_minimum_ground();
 
-    // Joystick interaction optionally interrupt a goto.
-
-    if (interrupt) delta = 0;
+        here.set_distance(std::min(4 * m, m + exp(log(d - m) + (dz * dt))));
+    }
 }
 
 //------------------------------------------------------------------------------

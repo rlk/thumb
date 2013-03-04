@@ -40,8 +40,6 @@ view_app::view_app(const std::string& exe,
 {
     TIFFSetWarningHandler(0);
 
-    gui_init();
-
     // Configure the SCM caches.
 
     scm_cache::cache_size      = ::conf->get_i("scm_cache_size",
@@ -61,6 +59,8 @@ view_app::view_app(const std::string& exe,
     int h = ::host->get_buffer_h();
 
     sys = new scm_system(w, h, 32, 256);
+
+    gui_init();
 }
 
 view_app::~view_app()
@@ -195,8 +195,6 @@ void view_app::load_file(const std::string& name)
 
         for (int i = 0; i < scenes; ++i) sys->del_scene(0);
         for (int i = 0; i < steps;  ++i) sys->del_step (0);
-
-        move_to(0);
 
         // Dismiss the GUI.
 
