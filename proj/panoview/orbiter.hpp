@@ -58,7 +58,6 @@ private:
     double orbit_speed_min;
     double orbit_speed_max;
     double stick_timer;
-    double goto_radius;
     double minimum_agl;
 
     // Interaction state
@@ -82,6 +81,7 @@ private:
     int    button_U;
     int    button_D;
     double deadzone;
+    bool   interrupt;
 
     // Report stream configuration
 

@@ -53,13 +53,14 @@ orbiter::orbiter(const std::string& exe,
 {
     // Initialize all interaction state.
 
-    orbit_plane[0] = 1.0;
-    orbit_plane[1] = 0.0;
-    orbit_plane[2] = 0.0;
-    orbit_speed    = 0.0;
-    stick_timer    = 0.0;
-    goto_radius    = ::conf->get_f("orbiter_goto_radius",   0.0);
-    minimum_agl    = ::conf->get_f("orbiter_minimum_agl", 100.0);
+    orbit_plane[0]  = 1.0;
+    orbit_plane[1]  = 0.0;
+    orbit_plane[2]  = 0.0;
+    orbit_speed     = 0.0;
+    orbit_speed_min = ::conf->get_f("orbiter_speed_min",   0.005);
+    orbit_speed_max = ::conf->get_f("orbiter_speed_max",   0.5);
+    minimum_agl     = ::conf->get_f("orbiter_minimum_agl", 100.0);
+    stick_timer     = 0.0;
 
     drag_move = false;
     drag_look = false;
@@ -87,15 +88,13 @@ orbiter::orbiter(const std::string& exe,
 
     // Initialize the joystick configuration.
 
-    device   = ::conf->get_i("orbiter_joystick_device", 0);
-    axis_X   = ::conf->get_i("orbiter_joystick_axis_X", 0);
-    axis_Y   = ::conf->get_i("orbiter_joystick_axis_Y", 1);
-    button_U = ::conf->get_i("orbiter_joystick_button_U", 0);
-    button_D = ::conf->get_i("orbiter_joystick_button_D", 1);
-    deadzone = ::conf->get_f("orbiter_joystick_deadzone", 0.2);
-
-    orbit_speed_min = ::conf->get_f("orbiter_speed_min", 0.005);
-    orbit_speed_max = ::conf->get_f("orbiter_speed_max", 0.5);
+    device    = ::conf->get_i("orbiter_joystick_device",    0);
+    axis_X    = ::conf->get_i("orbiter_joystick_axis_X",    0);
+    axis_Y    = ::conf->get_i("orbiter_joystick_axis_Y",    1);
+    button_U  = ::conf->get_i("orbiter_joystick_button_U",  0);
+    button_D  = ::conf->get_i("orbiter_joystick_button_D",  1);
+    deadzone  = ::conf->get_f("orbiter_joystick_deadzone",  0.2);
+    interrupt = ::conf->get_i("orbiter_joystick_interrupt", 0);
 
     // Preload data as requested.
 
@@ -297,9 +296,9 @@ void orbiter::fly(double dt)
 
     here.set_distance(std::min(4 * m, m + exp(log(d - m) + (dz * dt))));
 
-    // Joystick interaction cancels a goto.
+    // Joystick interaction optionally interrupt a goto.
 
-    delta = 0;
+    if (interrupt) delta = 0;
 }
 
 //------------------------------------------------------------------------------

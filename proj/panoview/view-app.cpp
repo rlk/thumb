@@ -105,55 +105,6 @@ static void step_from_xml(scm_step *s, app::node n)
     s->set_bias       (n.get_f("b", 0.0));
     s->set_zoom       (n.get_f("z", 1.0));
 }
-#if 0
-static void xml_from_step(scm_step *s, app::node n)
-{
-    double q[4];
-    double p[3];
-    double l[3];
-
-    s->get_orientation(q);
-    s->get_position   (p);
-    s->get_light      (l);
-
-    if (q[0] != 0.0) n.set_f("q0", q[0]);
-    if (q[1] != 0.0) n.set_f("q1", q[1]);
-    if (q[2] != 0.0) n.set_f("q2", q[2]);
-    if (q[3] != 1.0) n.set_f("q3", q[3]);
-
-    if (p[0] != 0.0) n.set_f("p0", p[0]);
-    if (p[1] != 0.0) n.set_f("p1", p[1]);
-    if (p[2] != 0.0) n.set_f("p2", p[2]);
-
-    if (l[0] != 0.0) n.set_f("l0", l[0]);
-    if (l[1] != 1.0) n.set_f("l1", l[1]);
-    if (l[2] != 2.0) n.set_f("l2", l[2]);
-
-    if (!s->get_name().empty())       n.set_s("name",       s->get_name());
-    if (!s->get_foreground().empty()) n.set_s("foreground", s->get_foreground());
-    if (!s->get_background().empty()) n.set_s("background", s->get_background());
-    if (s->get_speed()    != 1.0)     n.set_f("s",          s->get_speed());
-    if (s->get_distance() != 0.0)     n.set_f("r",          s->get_distance());
-    if (s->get_tension()  != 0.0)     n.set_f("t",          s->get_tension());
-    if (s->get_bias()     != 0.0)     n.set_f("b",          s->get_bias());
-    if (s->get_zoom()     != 1.0)     n.set_f("z",          s->get_zoom());
-}
-#endif
-
-//------------------------------------------------------------------------------
-#if 0
-void view_app::save_steps(app::node p)
-{
-    // Create a new XML node for each step.
-
-    for (int i = 0; i < int(sys->get_step_count()); i++)
-    {
-        app::node n("step");
-        xml_from_step(sys->get_step(i), n);
-        n.insert(p);
-    }
-}
-#endif
 
 void view_app::load_steps(app::node p)
 {
@@ -245,7 +196,7 @@ void view_app::load_file(const std::string& name)
         for (int i = 0; i < scenes; ++i) sys->del_scene(0);
         for (int i = 0; i < steps;  ++i) sys->del_step (0);
 
-        sys->set_scene_blend(0);
+        move_to(0);
 
         // Dismiss the GUI.
 
