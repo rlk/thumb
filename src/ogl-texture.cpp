@@ -33,7 +33,7 @@ ogl::texture::texture(std::string name) :
     intform(GL_RGBA),
     extform(GL_RGBA),
     type   (GL_UNSIGNED_BYTE),
-    subsample(::conf->get_i("texture_subsample"))
+    subsample(::conf->get_i("texture_subsample", 1))
 {
     init();
 }
@@ -321,7 +321,7 @@ void ogl::texture::load_opt(std::string name)
             for (app::node n = p.find("option"); n; n = p.next(n, "option"))
             {
                 if ("subsample" == n.get_s("name"))
-                     subsample   = n.get_i("value");
+                     subsample   = n.get_i("value", 1);
             }
         }
     }

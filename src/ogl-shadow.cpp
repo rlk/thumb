@@ -23,7 +23,7 @@ ogl::shadow::shadow(const std::string& name, int i) :
     process(name),
     index(i),
 
-    size(::conf->get_i("shadow_map_resolution")),
+    size(::conf->get_i("shadow_map_resolution", 1024)),
     buff(::glob->new_frame(size, size, GL_TEXTURE_2D,
                            GL_RGBA8, false, true, false))
 {

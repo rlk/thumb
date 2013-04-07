@@ -4,64 +4,18 @@
     <option name="host_file">host/common.xml</option>
     <option name="input_mode">mouse</option>
     <option name="wiimote">00:1B:7A:3E:45:7F</option>
-    <option name="panoview_cache_size">128</option>
     <option name="attract_delay">6000.0</option>
     <option name="attract_speed">0.25</option>
-    <option name="atmo">1</option>
     <option name="sync">1</option>
     <option name="debug">0</option>
     <option name="bench">0</option>
     <option name="movie">0</option>
     <option name="mipmap">best</option>
     <option name="texel_cutoff">0.5</option>
-    <!-- Executable path (necessary for cluster config) -->
-    <option name="executable">/home/dan/thumb/thumb</option>
-    <!-- Universe data location -->
-     <option name="data_dir">/home/dan/thumb/data/</option>
     <!-- OpenGL context configuration -->
     <option name="multisample_samples">0</option>
     <option name="multisample_buffers">0</option>
     <option name="max_anisotropy">4</option>
-    <!-- Terrain renderer configuration -->
-    <option name="patch_cache">256</option>
-    <option name="patch_depth">4</option>
-    <option name="image_cache_w">16</option>
-    <option name="image_cache_h">8</option>
-    <option name="height_cache_w">16</option>
-    <option name="height_cache_h">8</option>
-    <!-- Tracker configuration -->
-    <option name="tracker_key">4126</option>
-    <option name="control_key">4127</option>
-    <option name="tracker_head_sensor">2</option>
-    <option name="tracker_hand_sensor">0</option>
-    <option name="tracker_axis_A">0</option>
-    <option name="tracker_axis_T">1</option>
-    <option name="tracker_butn_fly">0</option>
-    <option name="tracker_butn_home">2</option>
-    <!-- Gamepad input configuration -->
-    <option name="gamepad_device">0</option>
-    <option name="gamepad_axis_X">0</option>
-    <option name="gamepad_axis_Y">1</option>
-    <option name="gamepad_axis_Z">2</option>
-    <option name="gamepad_axis_T">3</option>
-    <option name="gamepad_butn_L">13</option>
-    <option name="gamepad_butn_R">12</option>
-    <option name="gamepad_butn_D">8</option>
-    <option name="gamepad_butn_U">9</option>
-    <option name="gamepad_butn_F">14</option>
-    <option name="gamepad_butn_B">11</option>
-    <option name="gamepad_butn_H">4</option>
-    <!-- Gamepad fly mode configuration -->
-<!--
-    <option name="gamepad_mode">fly</option>
--->
-    <option name="fly_r_min">1800000</option>
-    <option name="fly_r_max">2500000</option>
-    <!-- Gamepad calibration -->
-    <option name="gamepad_axis_X_min">-32768</option>
-    <option name="gamepad_axis_X_max"> 32767</option>
-    <option name="gamepad_axis_Y_min">-32768</option>
-    <option name="gamepad_axis_Y_max"> 32767</option>
     <!-- GUI options -->
     <option name="sans_font">FreeSans.ttf</option>
     <option name="mono_font">FreeMono.ttf</option>
@@ -87,7 +41,7 @@
     <option name="key_selection_delete">8</option>
     <option name="key_selection_invert">99</option>
     <option name="key_selection_extend">105</option>
-    <option name="key_selection_clone">106</option>-->
+    <option name="key_selection_clone">106</option> -->
     <!-- Qwerty keyboard command -->
     <option name="key_move_L">97</option>
     <option name="key_move_R">100</option>

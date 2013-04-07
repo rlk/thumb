@@ -188,8 +188,9 @@ void demo::prep_uniforms() const
 
 //-----------------------------------------------------------------------------
 
-demo::demo(const std::string& tag)
-    : app::prog(tag), world(0), edit(0), play(0), info(0), curr(0)
+demo::demo(const std::string& exe,
+           const std::string& tag)
+    : app::prog(exe, tag), world(0), edit(0), play(0), info(0), curr(0)
 {
     init_uniforms();
 
@@ -386,11 +387,6 @@ bool demo::process_tick(app::event *E)
     return false;
 }
 
-bool demo::process_input(app::event *E)
-{
-    return false;
-}
-
 bool demo::process_event(app::event *E)
 {
     bool R = false;
@@ -399,8 +395,7 @@ bool demo::process_event(app::event *E)
 
     switch (E->get_type())
     {
-    case E_KEY:   R = process_key  (E); break;
-    case E_INPUT: R = process_input(E); break;
+    case E_KEY:   R = process_key (E); break;
     case E_TICK:  R = process_tick(E); break;
     }
 
@@ -447,7 +442,7 @@ void demo::lite(int frusc, const app::frustum *const *frusv)
         curr->lite(frusc, frusv);
 }
 
-void demo::draw(int frusi, const app::frustum *frusp)
+void demo::draw(int frusi, const app::frustum *frusp, int chani)
 {
     // Clear the render target.
 

@@ -104,14 +104,14 @@ class demo : public app::prog
 
 public:
 
-    demo(const std::string&);
+    demo(const std::string&, const std::string&);
    ~demo();
 
     bool process_event(app::event *);
 
     ogl::range prep(int, const app::frustum * const *);
     void       lite(int, const app::frustum * const *);
-    void       draw(int, const app::frustum *);
+    void       draw(int, const app::frustum *, int);
 
     void next();
     void prev();

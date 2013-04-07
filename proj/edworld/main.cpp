@@ -28,7 +28,7 @@ int main(int argc, char *argv[])
     {
         app::prog *P;
 
-        P = new demo(std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
+        P = new demo(argv[0], std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
         P->run();
 
         delete P;

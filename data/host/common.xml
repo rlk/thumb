@@ -47,6 +47,11 @@
     <node name="960x540">
       <window x="0" y="0" w="960" h="540"/>
       <channel w="960" h="540"/>
+      <overlay w="960" h="540">
+        <frustum>
+          <perspective hfov="60.0" vfov="35.0" />
+        </frustum>
+      </overlay>
       <display type="direct" index="1">
         <viewport x="0" y="0" w="960" h="540"/>
         <frustum>

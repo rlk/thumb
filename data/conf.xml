@@ -3,7 +3,7 @@
     <!-- Host configuration -->
     <option name="host_file">host/common.xml</option>
     <option name="input_mode">mouse</option>
-    <option name="sync">1</option>
+    <option name="sync">0</option>
     <option name="bench">1</option>
     <!-- Orbiter configuration -->
     <option name="scm_cache_size">12</option>
