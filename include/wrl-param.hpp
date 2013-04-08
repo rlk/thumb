@@ -16,8 +16,7 @@
 #include <string>
 #include <map>
 
-#include <ode/ode.h>
-
+#include <etc-ode.hpp>
 #include <app-file.hpp>
 
 //-----------------------------------------------------------------------------

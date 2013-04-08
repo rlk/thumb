@@ -13,8 +13,7 @@
 #ifndef WRL_WORLD_HPP
 #define WRL_WORLD_HPP
 
-#include <ode/ode.h>
-
+#include <etc-ode.hpp>
 #include <ogl-range.hpp>
 #include <wrl-atom.hpp>
 #include <wrl-operation.hpp>
@@ -44,7 +43,7 @@ namespace wrl
     typedef std::map<int, dBodyID>     body_map;
     typedef std::map<int, dMass>       mass_map;
     typedef std::map<int, ogl::node *> node_map;
-    
+
     class world
     {
         // ODE edit state
