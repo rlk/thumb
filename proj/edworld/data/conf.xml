@@ -21,7 +21,7 @@
     <option name="mono_font">FreeMono.ttf</option>
     <option name="sans_size">12</option>
     <option name="mono_size">12</option>
-    <!-- Dvorak keyboard commands
+    <!-- Dvorak keyboard commands -->
     <option name="key_move_L">97</option>
     <option name="key_move_R">101</option>
     <option name="key_move_D">39</option>
@@ -41,8 +41,8 @@
     <option name="key_selection_delete">8</option>
     <option name="key_selection_invert">99</option>
     <option name="key_selection_extend">105</option>
-    <option name="key_selection_clone">106</option> -->
-    <!-- Qwerty keyboard command -->
+    <option name="key_selection_clone">106</option> 
+    <!-- Qwerty keyboard command 
     <option name="key_move_L">97</option>
     <option name="key_move_R">100</option>
     <option name="key_move_D">113</option>
@@ -61,7 +61,7 @@
     <option name="key_make_joint">106</option>
     <option name="key_selection_invert">105</option>
     <option name="key_selection_extend">103</option>
-    <option name="key_selection_clone">99</option>
+    <option name="key_selection_clone">99</option>-->
     <!-- Common keyboard commands -->
     <option name="key_home">13</option>
     <option name="key_selection_delete">8</option>

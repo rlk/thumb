@@ -196,8 +196,8 @@ demo::demo(const std::string& exe,
 
     // Initialize attract mode.
 
-    attr_time = conf->get_f("attract_delay");
-    attr_rate = conf->get_f("attract_speed");
+    attr_time = conf->get_f("attract_delay", std::numeric_limits<double>::infinity());
+    attr_rate = conf->get_f("attract_speed", 1.0);
     attr_curr = 0.0;
     attr_sign = 1.0;
     attr_mode = false;
@@ -224,11 +224,11 @@ demo::~demo()
 {
     free_uniforms();
 
-    if (info) delete info;
-    if (play) delete play;
-    if (edit) delete edit;
+    if (info)  delete info;
+    if (play)  delete play;
+    if (edit)  delete edit;
 
-    if (world)    delete world;
+    if (world) delete world;
 }
 
 //-----------------------------------------------------------------------------
