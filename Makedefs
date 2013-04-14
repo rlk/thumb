@@ -59,7 +59,7 @@ LIBTIF  = $(firstword $(wildcard /usr/local/lib/libtiff*.a \
 LIBGLEW = $(firstword $(wildcard /usr/local/lib/libGLEW*.a \
 				 /opt/local/lib/libGLEW*.a \
 				    $(HOME)/lib/libGLEW*.a \
-				       /usr/lib/libGLEW*.a) -lglew32)
+				       /usr/lib/libGLEW*.a) -lGLEW)
 LIBMXML = $(firstword $(wildcard /usr/local/lib/libmxml*.a \
 				 /opt/local/lib/libmxml*.a \
 				    $(HOME)/lib/libmxml*.a \
