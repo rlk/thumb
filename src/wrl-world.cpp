@@ -33,7 +33,7 @@
 //-----------------------------------------------------------------------------
 
 wrl::world::world() :
-    shadow_res(::conf->get_i("shadow_map_resolution")),
+    shadow_res(::conf->get_i("shadow_map_resolution", 1024)),
 
     split_static(false),
     land(0),

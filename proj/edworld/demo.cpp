@@ -205,9 +205,9 @@ demo::demo(const std::string& exe,
 
     // Initialize the application state.
 
-    key_edit  = conf->get_i("key_edit");
-    key_play  = conf->get_i("key_play");
-    key_info  = conf->get_i("key_info");
+    key_info  = conf->get_i("key_info", SDLK_F1);
+    key_edit  = conf->get_i("key_edit", SDLK_F2);
+    key_play  = conf->get_i("key_play", SDLK_F3);
 
     world = new wrl::world();
 

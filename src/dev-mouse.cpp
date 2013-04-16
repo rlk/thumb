@@ -29,12 +29,12 @@ dev::mouse::mouse() :
     dragging(false),
     modifier(0)
 {
-    key_move_L = conf->get_i("key_move_L");
-    key_move_R = conf->get_i("key_move_R");
-    key_move_D = conf->get_i("key_move_D");
-    key_move_U = conf->get_i("key_move_U");
-    key_move_F = conf->get_i("key_move_F");
-    key_move_B = conf->get_i("key_move_B");
+    key_move_F = conf->get_i("key_move_F", SDLK_w);
+    key_move_L = conf->get_i("key_move_L", SDLK_a);
+    key_move_R = conf->get_i("key_move_R", SDLK_d);
+    key_move_B = conf->get_i("key_move_B", SDLK_s);
+    key_move_U = conf->get_i("key_move_U", SDLK_e);
+    key_move_D = conf->get_i("key_move_D", SDLK_q);
 
     motion[0] = 0;
     motion[1] = 0;

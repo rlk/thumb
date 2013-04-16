@@ -52,8 +52,8 @@ app::user::user() :
     };
     load_mat(current_S, S);
 
-    move_rate = ::conf->get_f("view_move_rate");
-    turn_rate = ::conf->get_f("view_turn_rate");
+    move_rate = ::conf->get_f("view_move_rate",  5);
+    turn_rate = ::conf->get_f("view_turn_rate", 60);
 
     // Initialize the demo input.
 

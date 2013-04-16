@@ -183,9 +183,9 @@ app::prog::prog(const std::string& exe,
 
     // Configure some application-level key bindings.
 
-    key_snap = ::conf->get_i("key_snap");
-    key_exit = ::conf->get_i("key_exit");
-    key_init = ::conf->get_i("key_init");
+    key_exit = ::conf->get_i("key_exit", SDLK_ESCAPE);
+    key_init = ::conf->get_i("key_init", SDLK_F10);
+    key_snap = ::conf->get_i("key_snap", SDLK_F13);
 
     // Configure the joystick system.
 
