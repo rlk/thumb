@@ -518,8 +518,8 @@ app::host::host(app::prog *p, std::string filename,
             if (overlay == 0)
                 if (app::node o = n.find("overlay"))
                 {
-                    int w = o.get_i("w", DEFAULT_PIXEL_WIDTH);
-                    int h = o.get_i("h", DEFAULT_PIXEL_HEIGHT);
+                    int w = o.get_i("w", window_rect[2]);
+                    int h = o.get_i("h", window_rect[3]);
 
                     if (app::node c = o.find("frustum"))
                         overlay = new app::frustum(c, w, h);
@@ -532,8 +532,8 @@ app::host::host(app::prog *p, std::string filename,
             if (overlay == 0)
                 if (app::node o = p.find("overlay"))
                 {
-                    int w = o.get_i("w", DEFAULT_PIXEL_WIDTH);
-                    int h = o.get_i("h", DEFAULT_PIXEL_HEIGHT);
+                    int w = o.get_i("w", window_rect[2]);
+                    int h = o.get_i("h", window_rect[3]);
 
                     if (app::node c = o.find("frustum"))
                         overlay = new app::frustum(c, w, h);

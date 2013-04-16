@@ -13,10 +13,10 @@
     <option name="multisample_buffers">0</option>
     <option name="max_anisotropy">0</option>
     <!-- GUI -->
-    <option name="sans_font">FreeSans.ttf</option>
-    <option name="mono_font">FreeMono.ttf</option>
-    <option name="sans_size">12</option>
-    <option name="mono_size">12</option>
+    <option name="sans_font">VeraBd.ttf</option>
+    <option name="mono_font">VeraMoBd.ttf</option>
+    <option name="sans_size">24</option>
+    <option name="mono_size">24</option>
     <!-- Common keyboard commands -->
     <option name="key_exit">27</option>
     <option name="key_snap">294</option>

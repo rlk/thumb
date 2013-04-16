@@ -1,3 +1,4 @@
+
 //  Copyright (C) 2007-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
@@ -81,7 +82,20 @@ void dpy::direct::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 void dpy::direct::test(int chanc, const dpy::channel *const *chanv, int index)
 {
     if (chani < chanc)
-        chanv[chani]->test();
+    {
+        glPushAttrib(GL_VIEWPORT_BIT | GL_SCISSOR_BIT);
+        {
+            glScissor (viewport[0], viewport[1], viewport[2], viewport[3]);
+            glViewport(viewport[0], viewport[1], viewport[2], viewport[3]);
+
+            glEnable(GL_SCISSOR_TEST);
+            {
+                chanv[chani]->test();
+            }
+            glDisable(GL_SCISSOR_TEST);
+        }
+        glPopAttrib();
+    }
 }
 
 //-----------------------------------------------------------------------------
