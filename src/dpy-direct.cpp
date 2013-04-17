@@ -12,6 +12,7 @@
 //  General Public License for more details.
 
 #include <cassert>
+#include <cstdio>
 
 #include <etc-math.hpp>
 #include <app-glob.hpp>
@@ -112,7 +113,7 @@ bool dpy::direct::pointer_to_3D(app::event *E, int x, int y)
         // Let the frustum project the pointer into space.
 
         return frust->pointer_to_3D(E, x - viewport[0],
-                         viewport[3] - y + viewport[1]);
+                                       y - viewport[1]);
     else
         return false;
 }

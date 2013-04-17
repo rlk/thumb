@@ -849,7 +849,7 @@ int app::frustum::test_cap(const double *n, double a,
 
 bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
 {
-    double M[16], v[4], V[4];
+    double M[16], p[3], v[3], n[4];
 
     // Determine the pointer vector from the quaternion.
 
@@ -858,8 +858,62 @@ bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
     v[0] = -M[ 8];
     v[1] = -M[ 9];
     v[2] = -M[10];
-    v[3] = 0.0;
 
+    normalize(v);
+
+    p[0] = E->data.point.p[0];
+    p[1] = E->data.point.p[1];
+    p[2] = E->data.point.p[2];
+
+    set_plane(n, user_points[0], user_points[1], user_points[2]);
+
+    // The origin of the skeletal tracker is the center of the TV,
+    // not 4 feet in front of it. Set the screen plane to zero,
+    // and failsafe the tracker position to -4 or something.
+
+    printf("n %f %f %f %f\n", n[0], n[1], n[2], n[3]);
+    printf("p %f %f %f\n", p[0], p[1], p[2]);
+    printf("v %f %f %f\n", v[0], v[1], v[2]);
+
+    double t = -(DOT3(p, n) + n[3]) / DOT3(v, n);
+
+    double P[3];
+    double X[3];
+    double Y[3];
+
+    printf("o %f %f %f %f\n",
+        p[0] + t * v[0],
+        p[1] + t * v[1],
+        p[2] + t * v[2],
+        t);
+
+    P[0] =   p[0] + t * v[0] - user_points[0][0];
+    P[1] =   p[1] + t * v[1] - user_points[0][1];
+    P[2] =   p[2] + t * v[2] - user_points[0][2];
+    X[0] = user_points[1][0] - user_points[0][0];
+    X[1] = user_points[1][1] - user_points[0][1];
+    X[2] = user_points[1][2] - user_points[0][2];
+    Y[0] = user_points[2][0] - user_points[0][0];
+    Y[1] = user_points[2][1] - user_points[0][1];
+    Y[2] = user_points[2][2] - user_points[0][2];
+
+    double XX = DOT3(X, X);
+    double YY = DOT3(Y, Y);
+
+    double xx = DOT3(P, X) / XX;
+    double yy = DOT3(P, Y) / YY;
+
+    printf("%f %f\n", xx, yy);
+
+    if (0.0 <= xx && xx <= 1.0 && 0.0 <= yy && yy <= 1.0)
+    {
+        x = nearest_int(pixel_w * xx);
+        y = nearest_int(pixel_h * yy);
+        return true;
+    }
+    return false;
+
+/*
     // Transform the pointer into screen space.
 
     mult_mat_vec4(V, P, v);
@@ -872,6 +926,7 @@ bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
         return true;
     }
     return false;
+*/
 }
 
 bool app::frustum::pointer_to_3D(event *E, int x, int y) const
@@ -897,6 +952,17 @@ bool app::frustum::pointer_to_3D(event *E, int x, int y) const
                            user_points[1][2] * X +
                            user_points[2][2] * Y);
 
+    printf("i %f %f %f\n",
+        user_points[0][0] * k +
+        user_points[1][0] * X +
+        user_points[2][0] * Y,
+        user_points[0][1] * k +
+        user_points[1][1] * X +
+        user_points[2][1] * Y,
+        user_points[0][2] * k +
+        user_points[1][2] * X +
+        user_points[2][2] * Y);
+
     // Complete an orthonormal basis of the pointer space.
 
     normalize(B + 8);
@@ -912,6 +978,8 @@ bool app::frustum::pointer_to_3D(event *E, int x, int y) const
     mat_to_quat(q, B);
 
     // Store the pointer origin and direction in the event.
+
+    printf("%p %f %f\n", this, X, Y);
 
     E->mk_point(0, user_pos, q);
 

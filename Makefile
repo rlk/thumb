@@ -8,15 +8,15 @@ TARG= thumb
 
 $(TARG) : FORCE
 	$(MAKE) -C src
-	$(MAKE) -C proj/panoview
 	$(MAKE) -C proj/edworld
+	$(MAKE) -C proj/panoview
 
 FORCE :
 
 clean :
 	$(MAKE) -C src clean
-	$(MAKE) -C proj/panoview clean
 	$(MAKE) -C proj/edworld clean
+	$(MAKE) -C proj/panoview clean
 
 doc :
 	doxygen Doxyfile

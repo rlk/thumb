@@ -607,7 +607,7 @@ void app::host::root_loop()
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
-                if (pointer_to_3D(&E, e.motion.x, e.motion.y))
+                if (pointer_to_3D(&E, e.motion.x, window_rect[3] - e.motion.y))
                     process_event(&E);
                 break;
 

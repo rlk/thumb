@@ -242,7 +242,7 @@ static bool tracker_sensor(int id, double p[3], double q[4])
 
                 // Return the position of sensor ID.
 
-		double t[3];
+                double t[3];
 
                 t[0] = double(S->p[0]);
                 t[1] = double(S->p[1]);
@@ -260,7 +260,7 @@ static bool tracker_sensor(int id, double p[3], double q[4])
 #if NEXCAVE
                 /* NexCAVE-style tracking */
 
-		load_idt(M);
+                load_idt(M);
                 Rmul_rot_mat(M, 0, 0, 1, -t[0]);
                 Rmul_rot_mat(M, 1, 0, 0,  t[1]);
                 Rmul_rot_mat(M, 0, 1, 0,  t[2]);
