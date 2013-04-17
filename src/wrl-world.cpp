@@ -1057,7 +1057,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
         double M[16];
 
-        load_mat    (M,    ::user->get_S()); // TODO: eliminate the use of ::user here.
+        load_mat    (M,    ::user->get_S()); // TODO: eliminate ::user here.
         mult_mat_mat(M, M, frust.get_P());
         mult_mat_mat(M, M, lite_I);
         mult_mat_mat(M, M, ::user->get_M());

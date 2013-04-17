@@ -27,9 +27,11 @@ VIEWOBJS= \
 
 ORBOBJS= $(VIEWOBJS) orbiter.o
 PANOBJS= $(VIEWOBJS) panoview.o
+OPTOBJS= $(VIEWOBJS) panoptic.o
 
 PANDEPS= $(PANOBJS:.o=.d)
 ORBDEPS= $(ORBOBJS:.o=.d)
+OPTDEPS= $(OPTOBJS:.o=.d)
 
 GLSL= \
 	scm/data/scm-label-circle-frag.h \
@@ -56,7 +58,7 @@ LIBS = $(THUMB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(L
 
 #------------------------------------------------------------------------------
 
-all : panoview orbiter
+all : panoview orbiter panoptic
 
 panoview: $(GLSL) $(PANOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
@@ -66,9 +68,14 @@ orbiter: $(GLSL) $(ORBOBJS) $(THUMB)
 	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
 	#$(STRIP) $@
 
+panoptic: $(GLSL) $(OPTOBJS) $(THUMB)
+	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+	#$(STRIP) $@
+
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview
 	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
+	$(RM) $(OPTOBJS) $(OPTDEPS) panoptic
 	$(RM) $(GLSL)
 
 #------------------------------------------------------------------------------
