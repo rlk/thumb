@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+  <program vert="glsl/white.vert"
+           frag="glsl/white.frag"/>

@@ -1,4 +1,5 @@
 <?xml version="1.0"?>
 <material>
   <program mode="color" file="green.xml" />
+  <program mode="depth" file="green.xml" />
 </material>

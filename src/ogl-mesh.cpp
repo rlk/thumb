@@ -21,7 +21,7 @@
 //-----------------------------------------------------------------------------
 
 ogl::mesh::mesh(std::string& name) :
-    material(glob->load_binding(name, "default.xml")),
+    material(glob->load_binding(name, "default")),
     min(std::numeric_limits<GLuint>::max()),
     max(std::numeric_limits<GLuint>::min()),
     dirty_verts(false),
@@ -95,23 +95,21 @@ void ogl::mesh::calc_tangent()
 
         // Compute the tangent vector.
 
-        GLfloat r, t[3];
+        GLfloat t[3];
 
         t[0] = ds1[1] * dv0[0] - ds0[1] * dv1[0];
         t[1] = ds1[1] * dv0[1] - ds0[1] * dv1[1];
         t[2] = ds1[1] * dv0[2] - ds0[1] * dv1[2];
 
-        if ((r = GLfloat(sqrt(DOT3(t, t)))) > 0.0f)
+        // Accumulate the vertex tangent vectors.
+
+        if (DOT3(t, t) > 0.0f)
         {
-            t[0] /= r;
-            t[1] /= r;
-            t[2] /= r;
-
-            // Accumulate the vertex tangent vectors.
-
             GLfloat *ti = tv[fi->i].v;
             GLfloat *tj = tv[fi->j].v;
             GLfloat *tk = tv[fi->k].v;
+
+            normalize(t);
 
             ti[0] += t[0];
             ti[1] += t[1];

@@ -3,11 +3,11 @@
 	  <program mode="depth" file="object-depth.xml" />
 	  <program mode="color" file="object-color.xml">
 	    <texture sampler="spec_map" name="default-specular.png" />
-	    <texture sampler="diff_map" name="wood-diffuse.png" />
+	    <texture sampler="diff_map" name="aquarium-one.png" />
 	    <texture sampler="norm_map" name="default-normal.png" />
 
-      <process sampler="shadow[0]" name="shadow" index="0" />
-      <process sampler="shadow[1]" name="shadow" index="1" />
-      <process sampler="shadow[2]" name="shadow" index="2" />
+	    <process sampler="shadow[0]" name="shadow" index="0" />
+	    <process sampler="shadow[1]" name="shadow" index="1" />
+	    <process sampler="shadow[2]" name="shadow" index="2" />
 	  </program>
 	</material>

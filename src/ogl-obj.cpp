@@ -213,8 +213,8 @@ const char *obj::obj::read_use(const char *p)
 
     // Disallow vertex optimization across mesh boundaries?
 
-//  for (obj::indx_v::iterator i = ii.begin(); i != ii.end(); ++i)
-//      *ii = -1;
+    for (indx_v::iterator i = ii.begin(); i != ii.end(); ++i)
+        *i = -1;
 
     return scannl(p);
 }
