@@ -61,6 +61,9 @@ void dev::skeleton::step()
     struct timeval zero = { 0, 0 };
     float data[6];
     
+    double p[3] = { 0.0, 0.0, 1.5 };
+    double q[4] = { 0.0, 0.0, 0.0, 1.0 };
+
     if (sock != INVALID_SOCKET)
     {
         fd_set readfds;
@@ -78,12 +81,14 @@ void dev::skeleton::step()
                     double x[3];
                     double y[3] = { 0.0, 1.0, 0.0 };
                     double z[3];
-                    double p[3];
-                    double q[4];
+
+                    // Compute the eyes midpoint in meters.
 
                     p[0] = double(data[3] + data[0]) * 0.0254;
                     p[1] = double(data[4] + data[1]) * 0.0254;
-                    p[2] = double(data[5] + data[2]) * 0.0254 - 1.2192; // HACK
+                    p[2] = double(data[5] + data[2]) * 0.0254;
+
+                    // Compute the head orientation quaternion.
 
                     x[0] = double(data[3] - data[0]);
                     x[1] = double(data[4] - data[1]);
@@ -95,22 +100,15 @@ void dev::skeleton::step()
                     crossprod(y, z, x);
                     normalize(y);
                     set_basis(M, x, y, z);
-#if 0
-                    load_idt(M);
-                    p[0] = 0.0;
-                    p[1] = 0.0;
-                    p[2] = 0.0;
-#endif
+
                     mat_to_quat(q, M);
 
                     ::host->set_head(p, q);
-
-                    // printf("%+6.2f %+6.2f %+6.2f %+6.2f %+6.2f %+6.2f\n",
-                    //     data[0], data[1], data[2], data[3], data[4], data[5]);
                 }
             }
         }
     }
+    else ::host->set_head(p, q);
 }
 
 //-----------------------------------------------------------------------------

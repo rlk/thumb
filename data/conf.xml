@@ -22,6 +22,7 @@
     <option name="key_snap">294</option>
     <!-- Miscellaneous options -->
     <option name="screenshot_file">snap.png</option>
+    <option name="skeleton_port">4953</option>
 
     <!-- Panoview Configuration --------------------------------------------->
 
