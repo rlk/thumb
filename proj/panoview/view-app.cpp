@@ -470,7 +470,7 @@ bool view_app::process_event(app::event *E)
 
     if      (E->get_type() == E_KEY)  return process_key(E);
     else if (E->get_type() == E_USER) return process_user(E);
-    else if (E->get_type() == E_TICK) return process_tick(E);
+    else if (E->get_type() == E_TICK)        process_tick(E);
 
     // Pass the event to the GUI if visible.
 
@@ -484,7 +484,7 @@ bool view_app::process_event(app::event *E)
         }
     }
 
-    return false;
+    return prog::process_event(E);
 }
 
 //------------------------------------------------------------------------------

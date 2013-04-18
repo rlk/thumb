@@ -73,7 +73,7 @@ void dpy::direct::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 
         glEnable(GL_SCISSOR_TEST);
         {
-            ::host->draw(frusi, frust, 0);
+            ::host->draw(frusi, frust, chani);
         }
         glDisable(GL_SCISSOR_TEST);
     }

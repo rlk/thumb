@@ -19,6 +19,7 @@
 #include <ogl-opengl.hpp>
 #include <ogl-uniform.hpp>
 
+#include <app-frustum.hpp>
 #include <app-event.hpp>
 #include <app-conf.hpp>
 #include <app-user.hpp>

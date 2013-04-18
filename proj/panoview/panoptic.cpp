@@ -360,10 +360,9 @@ bool panoptic::process_event(app::event *E)
         {
             case E_AXIS:   return process_axis(E);
             case E_BUTTON: return process_button(E);
-            case E_TICK:   return process_tick(E);
+            case E_TICK:          process_tick(E);
         }
     }
-
     return false;
 }
 
