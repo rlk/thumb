@@ -304,8 +304,14 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
     double M[16], P[16];
 
+    printf("%f\n", get_scale());
+
     load_mat(P,  frusp->get_P());
     load_inv(M, ::user->get_M());
+
+    Lmul_scl_mat(M, get_scale(),
+                    get_scale(),
+                    get_scale());
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
@@ -317,6 +323,10 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 {
     frusp->draw();
    ::user->draw();
+
+    glScaled(get_scale(),
+             get_scale(),
+             get_scale());
 
     if (draw_path)  sys->render_queue();
     if (draw_cache) sys->render_cache();

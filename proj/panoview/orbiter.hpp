@@ -42,7 +42,7 @@ public:
 
 private:
 
-    double get_scale() const;
+    double get_speed() const;
 
     // View motion state
 

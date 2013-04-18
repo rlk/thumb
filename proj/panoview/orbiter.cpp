@@ -284,7 +284,7 @@ void orbiter::fly(double dt)
         const double dz = fly_up ? (fly_dn ?  0 : +1)
                                  : (fly_dn ? -1 :  0);
 
-        double a = get_scale();
+        double a = get_speed();
         double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
 
         here.set_pitch(k);
@@ -364,7 +364,7 @@ void orbiter::load_file(const std::string& name)
 
 // Return an altitude scalar.
 
-double orbiter::get_scale() const
+double orbiter::get_speed() const
 {
     const double d = here.get_distance();
     const double h =      get_current_ground();
@@ -627,7 +627,7 @@ bool orbiter::process_tick(app::event *E)
     }
     else
     {
-        double sc = get_scale();
+        double sc = get_speed();
 
         if (drag_move) move(dt, sc);
         if (drag_look) look(dt, sc);

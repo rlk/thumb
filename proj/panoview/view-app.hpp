@@ -85,6 +85,9 @@ private:
     bool process_user(app::event *);
     bool process_tick(app::event *);
 
+    virtual double get_speed() const { return 1.0; }
+    virtual double get_scale() const { return 1.0; }
+
     // Sphere GUI State
 
     view_load *ui;

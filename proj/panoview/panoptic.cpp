@@ -145,7 +145,7 @@ void panoptic::fly(double dt)
     const double dz = fly_up ? (fly_dn ?  0 : +1)
                              : (fly_dn ? -1 :  0);
 
-    double a = get_scale();
+    double a = get_speed();
     double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
 
     here.set_pitch(k);
@@ -182,9 +182,9 @@ ogl::range panoptic::prep(int frusc, const app::frustum *const *frusv)
 
     // Compute a horizon line based upon altitude and minimum terrain height.
 
-    const double r =      get_current_ground();
-    const double m =      get_minimum_ground();
-    const double d = here.get_distance();
+    const double r =      get_current_ground() * get_scale();
+    const double m =      get_minimum_ground() * get_scale();
+    const double d = here.get_distance()       * get_scale();
 
     double n = 0.5 *     (d     - r    );
     double f = 1.1 * sqrt(d * d - m * m);
@@ -222,14 +222,20 @@ void panoptic::load_file(const std::string& name)
         here.set_distance(2.0 * get_minimum_ground());
 }
 
-// Return an altitude scalar.
+double panoptic::get_speed() const
+{
+    const double d = here.get_distance();
+    const double h =      get_current_ground();
+
+    return (d - h) / h;
+}
 
 double panoptic::get_scale() const
 {
     const double d = here.get_distance();
     const double h =      get_current_ground();
 
-    return (d - h) / h;
+    return 1.0 / (d - h);
 }
 
 //------------------------------------------------------------------------------
