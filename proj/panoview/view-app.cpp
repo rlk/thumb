@@ -349,9 +349,9 @@ bool view_app::numkey(int n, int c, int s)
     if (s == 0)
     {
         if (c == 0)
-            move_to(n);
-        else
             fade_to(n);
+        else
+            move_to(n);
     }
     else
     {

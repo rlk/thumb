@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef ORBITER_HPP
-#define ORBITER_HPP
+#ifndef PANOPTIC_HPP
+#define PANOPTIC_HPP
 
 #include <vector>
 
@@ -22,11 +22,11 @@
 
 //-----------------------------------------------------------------------------
 
-class orbiter : public view_app
+class panoptic : public view_app
 {
 public:
 
-    orbiter(const std::string&, const std::string&);
+    panoptic(const std::string&, const std::string&);
 
     virtual ogl::range prep(int, const app::frustum * const *);
     virtual void       draw(int, const app::frustum *, int);
@@ -35,10 +35,9 @@ public:
 
     virtual void load_file(const std::string&);
 
-    virtual void move_to(int);
     virtual void fade_to(int);
 
-    virtual ~orbiter();
+    virtual ~panoptic();
 
 private:
 
@@ -46,30 +45,20 @@ private:
 
     // View motion state
 
-    void look(double, double);
-    void turn(double, double);
-    void lite(double, double);
-    void move(double, double);
-    void dive(double, double);
     void fly (double);
 
     double orbit_plane[3];
     double orbit_speed;
     double orbit_speed_min;
     double orbit_speed_max;
-    double stick_timer;
     double minimum_agl;
+
+    double now;
+    double delta;
 
     // Interaction state
 
-    double point[3];
-    double click[3];
     double stick[2];
-    bool   drag_move;
-    bool   drag_look;
-    bool   drag_turn;
-    bool   drag_dive;
-    bool   drag_lite;
     bool   fly_dn;
     bool   fly_up;
 
@@ -81,7 +70,6 @@ private:
     int    button_U;
     int    button_D;
     double deadzone;
-    bool   interrupt;
 
     // Report stream configuration
 

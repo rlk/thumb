@@ -90,10 +90,10 @@
       </display>
     </node>
     <!-- 55-inch 1920x1080 top-bottom stereo ------------------------------- -->
-    <node name="55-1920x1080-TB">
+    <node name="55-inch">
       <window x="0" y="0" w="1920" h="1080" frame="0"/>
-      <channel w="1920" h="540" x="-0.1" r="0" g="1" b="0"/>
-      <channel w="1920" h="540" x=" 0.1" r="1" g="0" b="1"/>
+      <channel w="1920" h="540" x="-0.114" r="0" g="1" b="0"/>
+      <channel w="1920" h="540" x=" 0.114" r="1" g="0" b="1"/>
       <overlay w="1920" h="1080">
         <frustum>
           <corner name="BL" x="-2.0" y="-1.125" z="0.0" />

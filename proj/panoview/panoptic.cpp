@@ -28,7 +28,7 @@
 #include "scm/util3d/math3d.h"
 #include "scm/scm-log.hpp"
 
-#include "orbiter.hpp"
+#include "panoptic.hpp"
 
 //------------------------------------------------------------------------------
 
@@ -47,9 +47,9 @@ static in_addr_t lookup(const char *hostname)
 
 //------------------------------------------------------------------------------
 
-orbiter::orbiter(const std::string& exe,
-                 const std::string& tag)
-    : view_app(exe, tag)
+panoptic::panoptic(const std::string& exe,
+                   const std::string& tag)
+    : view_app(exe, tag), now(0), delta(0)
 {
     // Initialize all interaction state.
 
@@ -60,20 +60,11 @@ orbiter::orbiter(const std::string& exe,
     orbit_speed_min = ::conf->get_f("orbiter_speed_min",   0.005);
     orbit_speed_max = ::conf->get_f("orbiter_speed_max",   0.5);
     minimum_agl     = ::conf->get_f("orbiter_minimum_agl", 100.0);
-    stick_timer     = 0.0;
-
-    drag_move = false;
-    drag_look = false;
-    drag_dive = false;
-    drag_turn = false;
-    drag_lite = false;
 
     fly_up = false;
     fly_dn = false;
 
-    point[0] = point[1] = point[2] = 0.0;
-    click[0] = click[1] = click[2] = 0.0;
-    stick[0] = stick[1]            = 0.0;
+    stick[0] = stick[1] = 0.0;
 
     // Initialize the reportage socket.
 
@@ -94,7 +85,6 @@ orbiter::orbiter(const std::string& exe,
     button_U  = ::conf->get_i("orbiter_joystick_button_U",  0);
     button_D  = ::conf->get_i("orbiter_joystick_button_D",  1);
     deadzone  = ::conf->get_f("orbiter_joystick_deadzone",  0.2);
-    interrupt = ::conf->get_i("orbiter_joystick_interrupt", 0);
 
     // Preload data as requested.
 
@@ -103,18 +93,18 @@ orbiter::orbiter(const std::string& exe,
         load_file(name);
 
         if (sys && sys->get_step_count())
-            move_to(0);
+            fade_to(0);
     }
 }
 
-orbiter::~orbiter()
+panoptic::~panoptic()
 {
     close(report_sock);
 }
 
 //------------------------------------------------------------------------------
 
-void orbiter::report()
+void panoptic::report()
 {
     // If a report destination has been configured...
 
@@ -146,175 +136,45 @@ void orbiter::report()
 
 //------------------------------------------------------------------------------
 
-// Apply the view panning interaction, rotating left-right about the position
-// vector and up-down about the current right vector.
-
-void orbiter::look(double dt, double k)
+void panoptic::fly(double dt)
 {
-    double r[3];
+    const double dx = (stick[0] > 0) ? -(stick[0] * stick[0])
+                                     : +(stick[0] * stick[0]);
+    const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
+                                     : -(stick[1] * stick[1]);
+    const double dz = fly_up ? (fly_dn ?  0 : +1)
+                             : (fly_dn ? -1 :  0);
+
+    double a = get_scale();
+    double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
+
+    here.set_pitch(k);
+
+    // The X axis affects the orientation and orbital plane.
+
+    double R[16];
     double p[3];
 
-    here.get_right(r);
     here.get_position(p);
+    mrotate(R, p, dx * dt);
+    here.transform_orientation(R);
+    here.get_right(orbit_plane);
 
-    double dx = point[0] - click[0];
-    double dy = point[1] - click[1];
-    double X[16];
-    double Y[16];
-    double M[16];
+    // The Y axis affects the orbital speed.
 
-    mrotate(X, r,  10.0 * dy * dt);
-    mrotate(Y, p, -10.0 * dx * dt);
-    mmultiply(M, X, Y);
+    orbit_speed = dy * std::max(std::min(a, orbit_speed_max), orbit_speed_min);
 
-    here.transform_orientation(M);
-}
+    // The Z axis affects the orbital radius.
 
-void orbiter::turn(double dt, double k)
-{
-    double r[3];
-    double p[3];
-    double t[3];
-
-    here.get_right(r);
-    here.get_position(p);
-
-    double dx = point[0] - click[0];
-    double dy = point[1] - click[1];
-    double X[16];
-    double Y[16];
-    double M[16];
-
-    mrotate(X, r,  10.0 * dy * dt);
-    mrotate(Y, p, -10.0 * dx * dt);
-    mmultiply(M, X, Y);
-
-    here.transform_orientation(M);
-
-    vtransform(t, Y, orbit_plane);
-    vnormalize(orbit_plane, t);
-}
-
-// Apply the orbital motion interaction, using the direction of the mouse
-// pointer motion to set the orbital plane and the magnitude of the mouse
-// motion to set the orbital speed.
-
-void orbiter::move(double dt, double k)
-{
-    if (click[0] != point[0] ||
-        click[1] != point[1] ||
-        click[2] != point[2])
-    {
-        double d = vdot(click, point);
-        double a = acos(d);
-
-        if (fabs(a) > 0.0)
-        {
-            const double *M = ::user->get_M();
-            double t[3];
-            double u[3];
-
-            vcrs(t, click, point);
-
-            vtransform(u, M, t);
-            vnormalize(orbit_plane, u);
-        }
-        orbit_speed = 10.0 * a * k;
-    }
-    else
-    {
-        orbit_speed = 0.0;
-    }
-}
-
-// Apply the altitude interaction using the change in the mouse pointer position
-// to affect an exponential difference in the radius of the view point.
-
-void orbiter::dive(double dt, double k)
-{
-    double d = (point[1] - click[1]) * dt;
-    double r = here.get_distance();
+    double d = here.get_distance();
     double m =      get_minimum_ground();
 
-    r = m + exp(log(r - m) + (4 * d));
-
-    here.set_distance(r);
-}
-
-// Apply the light position interaction, using the change in the mouse pointer
-// to move the light source position vector. Light source position is relative
-// to the camera, not to the sphere.
-
-void orbiter::lite(double dt, double k)
-{
-    double r[3];
-    double u[3];
-
-    here.get_right(r);
-    here.get_up(u);
-
-    double dx = point[0] - click[0];
-    double dy = point[1] - click[1];
-    double X[16];
-    double Y[16];
-    double M[16];
-
-    mrotate(X, r, -10.0 * dy * dt);
-    mrotate(Y, u,  10.0 * dx * dt);
-    mmultiply(M, X, Y);
-
-    here.transform_light(M);
-}
-
-void orbiter::fly(double dt)
-{
-    if (delta)
-    {
-        // Joystick interaction optionally interrupt a goto.
-
-        if (interrupt)
-            delta = 0;
-    }
-    else
-    {
-        const double dx = (stick[0] > 0) ? -(stick[0] * stick[0])
-                                         : +(stick[0] * stick[0]);
-        const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
-                                         : -(stick[1] * stick[1]);
-        const double dz = fly_up ? (fly_dn ?  0 : +1)
-                                 : (fly_dn ? -1 :  0);
-
-        double a = get_scale();
-        double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
-
-        here.set_pitch(k);
-
-        // The X axis affects the orientation and orbital plane.
-
-        double R[16];
-        double p[3];
-
-        here.get_position(p);
-        mrotate(R, p, dx * dt);
-        here.transform_orientation(R);
-        here.get_right(orbit_plane);
-
-        // The Y axis affects the orbital speed.
-
-        orbit_speed = dy * std::max(std::min(a, orbit_speed_max), orbit_speed_min);
-
-        // The Z axis affects the orbital radius.
-
-        double d = here.get_distance();
-        double m =      get_minimum_ground();
-
-        here.set_distance(std::min(4 * m, m + exp(log(d - m) + (dz * dt))));
-    }
+    here.set_distance(std::min(4 * m, m + exp(log(d - m) + (dz * dt))));
 }
 
 //------------------------------------------------------------------------------
 
-ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
+ogl::range panoptic::prep(int frusc, const app::frustum *const *frusv)
 {
     report();
 
@@ -332,7 +192,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
     return ogl::range(n, f);
 }
 
-void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
+void panoptic::draw(int frusi, const app::frustum *frusp, int chani)
 {
     double  l[3];
     GLfloat L[4];
@@ -354,7 +214,7 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
-void orbiter::load_file(const std::string& name)
+void panoptic::load_file(const std::string& name)
 {
     view_app::load_file(name);
 
@@ -364,7 +224,7 @@ void orbiter::load_file(const std::string& name)
 
 // Return an altitude scalar.
 
-double orbiter::get_scale() const
+double panoptic::get_scale() const
 {
     const double d = here.get_distance();
     const double h =      get_current_ground();
@@ -372,176 +232,57 @@ double orbiter::get_scale() const
     return (d - h) / h;
 }
 
-// Compute the length of the Archimedean spiral with polar equation r = a theta.
+//------------------------------------------------------------------------------
 
-double arclen(double a, double theta)
-{
-    double d = sqrt(1 + theta * theta);
-    return a * (theta * d + log(theta + d)) / 2.0;
-}
-
-// Calculate the length of the arc of length theta along an Archimedean spiral
-// that begins at radius r0 and ends at radius r1.
-
-double spiral(double r0, double r1, double theta)
-{
-    double dr = fabs(r1 - r0);
-
-    if (theta > 0.0)
-    {
-        if (dr > 0.0)
-        {
-            double a = dr / theta;
-            return fabs(arclen(a, r1 / a) - arclen(a, r0 / a));
-        }
-        return theta * r0;
-    }
-    return dr;
-}
-
-void orbiter::move_to(int i)
+void panoptic::fade_to(int i)
 {
     // Construct a path from here to there.
 
-    if (delta == 0)
-    {
-        if (0 <= i && i < sys->get_step_count())
-        {
-            // Set the location and destination.
-
-            scm_step *src = &here;
-            scm_step *dst = sys->get_step(i);
-
-            // Determine the beginning and ending positions and altitudes.
-
-            double p0[3];
-            double p1[3];
-
-            src->get_position(p0);
-            dst->get_position(p1);
-
-            double g0 = sys->get_current_ground(p0);
-            double g1 = sys->get_current_ground(p1);
-
-            double d0 = src->get_distance();
-            double d1 = dst->get_distance();
-
-            // Compute the ground trace length and orbit length.
-
-            double a = acos(vdot(p0, p1));
-            double lg = spiral(g0, g1, a);
-            double lo = spiral(d0, d1, a);
-
-            // Calculate a "hump" for a low orbit path.
-
-            double aa = std::min(d0 - g0, d1 - g1);
-            double dd = lg ? log10(lg / aa) * lg / 10 : 0;
-
-            // Enqueue the path.
-
-            sys->flush_queue();
-
-            if (lo > 0)
-                for (double t = 0.0; t < 1.0; )
-                {
-                    double p[3];
-                    double dt = 0.01;
-                    double q = 4 * t - 4 * t * t;
-
-                    // Estimate the current velocity.
-
-                    scm_step t0(src, dst, t);
-                    scm_step t1(src, dst, t + dt);
-
-                    t0.set_distance(t0.get_distance() + dd * q);
-                    t1.set_distance(t1.get_distance() + dd * q);
-
-                    // Queue this step.
-
-                    if (t < 0.5)
-                    {
-                        t0.set_foreground(src->get_foreground());
-                        t0.set_background(src->get_background());
-                    }
-                    else
-                    {
-                        t0.set_foreground(dst->get_foreground());
-                        t0.set_background(dst->get_background());
-                    }
-                    sys->append_queue(new scm_step(t0));
-
-                    // Move forward at a velocity appropriate for the altitude.
-
-                    t0.get_position(p);
-
-                    double g = sys->get_current_ground(p);
-
-                    t += 2 * (t0.get_distance() - g) * dt * dt / (t1 - t0);
-                }
-
-            sys->append_queue(new scm_step(dst));
-
-            // Trigger playback.
-
-            orbit_speed = 0;
-            now         = 0;
-            delta       = 1;
-        }
-    }
-}
-
-void orbiter::fade_to(int i)
-{
-    // Construct a path from here to there.
-#if 0
     if (delta == 0)
     {
         if (0 <= i && i < sys->get_step_count())
         {
             // Source and destination both remain fixed.
 
-            path_src = here;
-            path_dst = here;
+            scm_step *src = new scm_step(here);
+            scm_step *dst = new scm_step(here);
 
             // Change the scene to that of the requested step.
 
-            path_src.set_speed(1.0);
-            path_dst.set_speed(1.0);
-            path_dst.set_foreground(sys->get_step(i)->get_foreground());
-            path_dst.set_background(sys->get_step(i)->get_background());
+            dst->set_foreground(sys->get_step(i)->get_foreground());
+            dst->set_background(sys->get_step(i)->get_background());
 
             // Queue these new steps and trigger playback.
 
             sys->flush_queue();
-            sys->append_queue(&path_src);
-            sys->append_queue(&path_dst);
+            sys->append_queue(src);
+            sys->append_queue(dst);
 
             now   = 0;
-            delta = 1;
+            delta = 1.0 / 60.0;
         }
     }
-#endif
 }
 
 //------------------------------------------------------------------------------
 
-bool orbiter::process_axis(app::event *E)
+bool panoptic::process_axis(app::event *E)
 {
     const int    i = E->data.axis.i;
     const int    a = E->data.axis.a;
-    const double v = E->data.axis.v;
+    const double v = E->data.axis.v / 32768;
 
     if (i == device)
     {
-        if      (a == axis_X) stick[0] = v / 32768.0;
-        else if (a == axis_Y) stick[1] = v / 32768.0;
+        if      (a == axis_X) stick[0] = fabs(v) < deadzone ? 0.0 : v;
+        else if (a == axis_Y) stick[1] = fabs(v) < deadzone ? 0.0 : v;
 
         return true;
     }
     return false;
 }
 
-bool orbiter::process_button(app::event *E)
+bool panoptic::process_button(app::event *E)
 {
     const int  i = E->data.button.i;
     const int  b = E->data.button.b;
@@ -559,82 +300,13 @@ bool orbiter::process_button(app::event *E)
     return false;
 }
 
-bool orbiter::process_point(app::event *E)
-{
-    double M[16];
-
-    quat_to_mat(M, E->data.point.q);
-
-    point[0] = -M[ 8];
-    point[1] = -M[ 9];
-    point[2] = -M[10];
-
-    return false;
-}
-
-bool orbiter::process_click(app::event *E)
-{
-    const int  b = E->data.click.b;
-    const int  m = E->data.click.m;
-    const bool d = E->data.click.d;
-    const bool s = (m & KMOD_SHIFT);
-    const bool c = (m & KMOD_CTRL);
-
-    vcpy(click, point);
-
-    if (d)
-    {
-        if (b == 0)
-        {
-            if (s)
-                drag_dive = true;
-            else
-                drag_move = true;
-        }
-        if (b == 2)
-        {
-            if (s)
-                drag_lite = true;
-            else if (c)
-                drag_turn = true;
-            else
-                drag_look = true;
-        }
-    }
-    else
-    {
-        if (b == 0) drag_dive = drag_move             = false;
-        if (b == 2) drag_lite = drag_turn = drag_look = false;
-    }
-
-    return true;
-}
-
-bool orbiter::process_tick(app::event *E)
+bool panoptic::process_tick(app::event *E)
 {
     double dt = E->data.tick.dt;
-    double ll = sqrt(stick[0] * stick[0] + stick[1] * stick[1]);
-    bool   uu = fly_up || fly_dn || (ll > deadzone);
 
-    if (uu || stick_timer > 0.0)
-    {
-        if (uu)
-            stick_timer = 0.1;
-        else
-            stick_timer -= dt;
+    // Handle joystick input.
 
-        fly(dt);
-    }
-    else
-    {
-        double sc = get_scale();
-
-        if (drag_move) move(dt, sc);
-        if (drag_look) look(dt, sc);
-        if (drag_turn) turn(dt, sc);
-        if (drag_dive) dive(dt, sc);
-        if (drag_lite) lite(dt, sc);
-    }
+    fly(dt);
 
     // Move the position and view orientation along the current orbit.
 
@@ -662,10 +334,19 @@ bool orbiter::process_tick(app::event *E)
     here.get_matrix(M);
     ::user->set_M(M);
 
+    // Handle any scene transition.
+
+    if (delta)
+    {
+        double then = now;
+
+        if ((now = sys->set_scene_blend(now + delta)) == then)
+            delta = 0;
+    }
     return false;
 }
 
-bool orbiter::process_event(app::event *E)
+bool panoptic::process_event(app::event *E)
 {
     if (!view_app::process_event(E))
     {
@@ -673,8 +354,6 @@ bool orbiter::process_event(app::event *E)
         {
             case E_AXIS:   return process_axis(E);
             case E_BUTTON: return process_button(E);
-            case E_CLICK:  return process_click(E);
-            case E_POINT:  return process_point(E);
             case E_TICK:   return process_tick(E);
         }
     }
@@ -690,7 +369,7 @@ int main(int argc, char *argv[])
     {
         app::prog *P;
 
-        P = new orbiter(argv[0], std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
+        P = new panoptic(argv[0], std::string(argc > 1 ? argv[1] : DEFAULT_TAG));
         P->run();
 
         delete P;
