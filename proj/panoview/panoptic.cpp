@@ -244,10 +244,16 @@ void panoptic::fade_to(int i)
         {
             // Source and destination both remain fixed.
 
-            scm_step *src = new scm_step(here);
-            scm_step *dst = new scm_step(here);
+            scm_step *src = new scm_step();
+            scm_step *dst = new scm_step();
 
             // Change the scene to that of the requested step.
+
+            if (sys->get_fore())
+                src->set_foreground(sys->get_fore()->get_name());
+
+            if (sys->get_back())
+                src->set_background(sys->get_back()->get_name());
 
             dst->set_foreground(sys->get_step(i)->get_foreground());
             dst->set_background(sys->get_step(i)->get_background());

@@ -61,7 +61,7 @@ void dev::skeleton::step()
     struct timeval zero = { 0, 0 };
     float data[6];
     
-    double p[3] = { 0.0, 0.0, 1.5 };
+    double p[3] = { 0.0, 0.0, 0.0 };
     double q[4] = { 0.0, 0.0, 0.0, 1.0 };
 
     if (sock != INVALID_SOCKET)
@@ -86,7 +86,7 @@ void dev::skeleton::step()
 
                     p[0] = double(data[3] + data[0]) * 0.0254;
                     p[1] = double(data[4] + data[1]) * 0.0254;
-                    p[2] = double(data[5] + data[2]) * 0.0254;
+                    p[2] = double(data[5] + data[2]) * 0.0254 - 1.5;
 
                     // Compute the head orientation quaternion.
 

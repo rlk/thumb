@@ -911,6 +911,10 @@ gui::finder_elt::finder_elt(std::string s, gui::finder *w) :
 
     area.w = text->w() + font->size() * 2;
     area.h = text->h() + font->size() / 2;
+
+    color[0] *= 1.00;
+    color[1] *= 1.00;
+    color[2] *= 0.25;
 }
 
 //-----------------------------------------------------------------------------

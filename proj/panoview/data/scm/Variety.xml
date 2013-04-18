@@ -1,0 +1,52 @@
+<?xml version="1.0"?>
+  <sphere detail="32" limit="256">
+    <scene name="global" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+    </scene>
+    <scene name="milkyway" vert="glsl/scm-basic.vert" frag="glsl/scm-basic.frag">
+      <image name="color"  scm="mwpan2-24-254-5.tif" k0="0.0" k1="1.5"/>
+    </scene>
+    <scene name="bluebonnet" vert="glsl/scm-basic.vert" frag="glsl/scm-basic.frag">
+      <image name="color"  scm="Bluebonnet-0-L-256-5.tif" k0="0.0" k1="1.0"/>
+    </scene>
+    <scene name="height" label="IAUMOON.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag" r="0" g="0" b="0" a="255">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="DTM-254-7.tif" k0="0.0" k1="1.0"/>
+    </scene>
+    <scene name="ldrm" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="LDRM-254-4.tif" k0="0.0" k1="2.0"/>
+    </scene>
+    <scene name="ldsm" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="scalar" scm="LDSM-254-4.tif" k0="0.0" k1="2.0"/>
+    </scene>
+    <scene name="LSU1" vert="glsl/scm-zoom.vert" frag="glsl/scm-basic.frag">
+      <image name="color" scm="LSU1-R-256-5.tif"            channel="0"/>
+      <image name="color" scm="LSU1-L-256-5.tif"            channel="1"/>
+    </scene>
+    <scene name="LSU2" vert="glsl/scm-zoom.vert" frag="glsl/scm-basic.frag">
+      <image name="color" scm="LSU2-R-256-5.tif"            channel="0"/>
+      <image name="color" scm="LSU2-L-256-5.tif"            channel="1"/>
+    </scene>
+    <scene name="Tiger1" vert="glsl/scm-zoom.vert" frag="glsl/scm-basic.frag">
+      <image name="color" scm="Tiger-Stadium-1-R-256-5.tif" channel="0"/>
+      <image name="color" scm="Tiger-Stadium-1-L-256-5.tif" channel="1"/>
+    </scene>
+    <scene name="Tiger2" vert="glsl/scm-zoom.vert" frag="glsl/scm-basic.frag">
+      <image name="color" scm="Tiger-Stadium-2-R-256-5.tif" channel="0"/>
+      <image name="color" scm="Tiger-Stadium-2-L-256-5.tif" channel="1"/>
+    </scene>
+    <step name="Default" foreground="global" background="milkyway" />
+    <step name="Height"  foreground="height" background="milkyway" />
+    <step name="LDSM"    foreground="ldsm"   background="milkyway" />
+    <step name="LDRM"    foreground="ldrm"   background="milkyway" />
+    <step name="LSU1"                        background="LSU1" />
+    <step name="LSU2"                        background="LSU2" />
+    <step name="Tiger1"                      background="Tiger1" />
+    <step name="Tiger2"                      background="Tiger2" />
+  </sphere>

@@ -96,25 +96,25 @@
       <channel w="1920" h="540" x=" 0.114" r="1" g="0" b="1"/>
       <overlay w="1920" h="1080">
         <frustum>
-          <corner name="BL" x="-2.0" y="-1.125" z="0.0" />
-          <corner name="BR" x=" 2.0" y="-1.125" z="0.0" />
-          <corner name="TL" x="-2.0" y=" 1.125" z="0.0" />
+          <corner name="BL" x="-2.0" y="-1.125" z="-4.92" />
+          <corner name="BR" x=" 2.0" y="-1.125" z="-4.92" />
+          <corner name="TL" x="-2.0" y=" 1.125" z="-4.92" />
         </frustum>
       </overlay>
       <display type="direct" channel="0">
         <viewport x="0" y="540" w="1920" h="540"/>
         <frustum>
-          <corner name="BL" x="-2.0" y="-1.125" z="0.0" />
-          <corner name="BR" x=" 2.0" y="-1.125" z="0.0" />
-          <corner name="TL" x="-2.0" y=" 1.125" z="0.0" />
+          <corner name="BL" x="-2.0" y="-1.125" z="-4.92" />
+          <corner name="BR" x=" 2.0" y="-1.125" z="-4.92" />
+          <corner name="TL" x="-2.0" y=" 1.125" z="-4.92" />
         </frustum>
       </display>
       <display type="direct" channel="1">
         <viewport x="0" y="0" w="1920" h="540"/>
         <frustum>
-          <corner name="BL" x="-2.0" y="-1.125" z="0.0" />
-          <corner name="BR" x=" 2.0" y="-1.125" z="0.0" />
-          <corner name="TL" x="-2.0" y=" 1.125" z="0.0" />
+          <corner name="BL" x="-2.0" y="-1.125" z="-4.92" />
+          <corner name="BR" x=" 2.0" y="-1.125" z="-4.92" />
+          <corner name="TL" x="-2.0" y=" 1.125" z="-4.92" />
         </frustum>
       </display>
     </node>
