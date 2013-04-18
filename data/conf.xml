@@ -7,7 +7,7 @@
     <option name="host_file">host/common.xml</option>
     <option name="input_mode">skeleton</option>
     <option name="sync">1</option>
-    <option name="bench">0</option>
+    <option name="bench">1</option>
     <!-- OpenGL Context -->
     <option name="multisample_samples">0</option>
     <option name="multisample_buffers">0</option>
@@ -30,7 +30,8 @@
 
     <!-- Orbiter Configuration ---------------------------------------------->
 
-    <option name="orbiter_goto_radius">2600000.0</option>
+    <option name="orbiter_speed_min">0.0005</option>
+    <option name="orbiter_speed_max">0.5</option>
     <option name="orbiter_minimum_agl">50.0</option>
     <option name="orbiter_icon_size">24</option>
     <option name="orbiter_joystick_deadzone">0.2</option>

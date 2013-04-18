@@ -304,8 +304,6 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
     double M[16], P[16];
 
-    printf("%f\n", get_scale());
-
     load_mat(P,  frusp->get_P());
     load_inv(M, ::user->get_M());
 

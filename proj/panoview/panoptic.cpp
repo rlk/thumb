@@ -57,7 +57,7 @@ panoptic::panoptic(const std::string& exe,
     orbit_plane[1]  = 0.0;
     orbit_plane[2]  = 0.0;
     orbit_speed     = 0.0;
-    orbit_speed_min = ::conf->get_f("orbiter_speed_min",   0.005);
+    orbit_speed_min = ::conf->get_f("orbiter_speed_min",   0.0005);
     orbit_speed_max = ::conf->get_f("orbiter_speed_max",   0.5);
     minimum_agl     = ::conf->get_f("orbiter_minimum_agl", 100.0);
 
@@ -142,8 +142,8 @@ void panoptic::fly(double dt)
                                      : +(stick[0] * stick[0]);
     const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
                                      : -(stick[1] * stick[1]);
-    const double dz = fly_up ? (fly_dn ?  0 : +1)
-                             : (fly_dn ? -1 :  0);
+    double dz = fly_up ? (fly_dn ?  0 : +1)
+                       : (fly_dn ? -1 :  0);
 
     double a = get_speed();
     double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
@@ -167,9 +167,9 @@ void panoptic::fly(double dt)
     // The Z axis affects the orbital radius.
 
     double d = here.get_distance();
-    double m =      get_minimum_ground();
+    double m =      get_current_ground();
 
-    here.set_distance(std::min(4 * m, m + exp(log(d - m) + (dz * dt))));
+    here.set_distance(std::min(8 * m, m + exp(log(d - m) + (dz * dt))));
 }
 
 //------------------------------------------------------------------------------
@@ -186,7 +186,7 @@ ogl::range panoptic::prep(int frusc, const app::frustum *const *frusv)
     const double m =      get_minimum_ground() * get_scale();
     const double d = here.get_distance()       * get_scale();
 
-    double n = 0.5 *     (d     - r    );
+    double n = 0.1 *     (d     - r    );
     double f = 1.1 * sqrt(d * d - m * m);
 
     return ogl::range(n, f);
@@ -271,7 +271,7 @@ void panoptic::fade_to(int i)
             sys->append_queue(dst);
 
             now   = 0;
-            delta = 1.0 / 60.0;
+            delta = 1.0 / 30.0;
         }
     }
 }

@@ -86,7 +86,7 @@ void dev::skeleton::step()
 
                     p[0] = double(data[3] + data[0]) * 0.0254;
                     p[1] = double(data[4] + data[1]) * 0.0254;
-                    p[2] = double(data[5] + data[2]) * 0.0254 - 1.5;
+                    p[2] = double(data[5] + data[2]) * 0.0254;
 
                     // Compute the head orientation quaternion.
 
