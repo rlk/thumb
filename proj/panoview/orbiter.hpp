@@ -35,8 +35,8 @@ public:
 
     virtual void load_file(const std::string&);
 
-    virtual void move_to(int);
-    virtual void fade_to(int);
+    virtual int move_to(int);
+    virtual int fade_to(int);
 
     virtual ~orbiter();
 

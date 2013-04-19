@@ -85,10 +85,13 @@ panoptic::panoptic(const std::string& exe,
 
     panoview_axis_vertical   = ::conf->get_i("panoview_axis_vertical",    4);
     panoview_axis_horizontal = ::conf->get_i("panoview_axis_horizontal",  3);
-    panoview_button_in       = ::conf->get_i("panoview_button_in",        2);
-    panoview_button_out      = ::conf->get_i("panoview_button_out",       3);
-    panoview_zoom_min        = ::conf->get_f("panoview_zoom_min",       0.1);
+    panoview_button_in       = ::conf->get_i("panoview_button_in",        4);
+    panoview_button_out      = ::conf->get_i("panoview_button_out",       5);
+    panoview_zoom_min        = ::conf->get_f("panoview_zoom_min",       0.2);
     panoview_zoom_max        = ::conf->get_f("panoview_zoom_max",       4.0);
+
+    scene_button_next        = ::conf->get_f("scene_button_next",         2);
+    scene_button_prev        = ::conf->get_f("scene_button_prev",         3);
 
     // Preload data as requested.
 
@@ -324,40 +327,45 @@ double panoptic::get_scale() const
 
 //------------------------------------------------------------------------------
 
-void panoptic::fade_to(int i)
+int panoptic::fade_to(int i)
 {
-    // Construct a path from here to there.
-
-    if (delta == 0)
+    if (sys->get_step_count())
     {
-        if (0 <= i && i < sys->get_step_count())
-        {
-            // Source and destination both remain fixed.
+        int m = sys->get_step_count() - 1;
 
-            scm_step *src = new scm_step();
-            scm_step *dst = new scm_step();
+        if (i > m) i = 0;
+        if (i < 0) i = m;
 
-            // Change the scene to that of the requested step.
+        // Source and destination both remain fixed.
 
-            if (sys->get_fore())
-                src->set_foreground(sys->get_fore()->get_name());
+        scm_step *src = new scm_step();
+        scm_step *dst = new scm_step();
 
-            if (sys->get_back())
-                src->set_background(sys->get_back()->get_name());
+        // Change the scene to that of the requested step.
 
-            dst->set_foreground(sys->get_step(i)->get_foreground());
-            dst->set_background(sys->get_step(i)->get_background());
+        if (sys->get_fore())
+            src->set_foreground(sys->get_fore()->get_name());
 
-            // Queue these new steps and trigger playback.
+        if (sys->get_back())
+            src->set_background(sys->get_back()->get_name());
 
-            sys->flush_queue();
-            sys->append_queue(src);
-            sys->append_queue(dst);
+        dst->set_foreground(sys->get_step(i)->get_foreground());
+        dst->set_background(sys->get_step(i)->get_background());
 
-            now   = 0;
-            delta = 1.0 / 30.0;
-        }
+        // Queue these new steps and trigger playback.
+
+        sys->flush_queue();
+        sys->append_queue(src);
+        sys->append_queue(dst);
+
+        if (delta == 0)
+            now    = 0;
+
+        delta = 1.0 / 16.0;
+
+        return i;
     }
+    return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -390,6 +398,10 @@ bool panoptic::process_button(app::event *E)
         if (0 <= b && b < 16)
         {
             button[b] = d;
+
+            if (d && b == scene_button_next) index = fade_to(index + 1);
+            if (d && b == scene_button_prev) index = fade_to(index - 1);
+
             return true;
         }
     }

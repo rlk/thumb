@@ -55,8 +55,8 @@ public:
     double get_current_ground() const;
     double get_minimum_ground() const;
 
-    virtual void move_to(int) { }
-    virtual void fade_to(int) { }
+    virtual int move_to(int) { return 0; }
+    virtual int fade_to(int) { return 0; }
 
 protected:
 

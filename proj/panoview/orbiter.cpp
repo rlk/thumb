@@ -399,7 +399,7 @@ double spiral(double r0, double r1, double theta)
     return dr;
 }
 
-void orbiter::move_to(int i)
+int orbiter::move_to(int i)
 {
     // Construct a path from here to there.
 
@@ -488,9 +488,10 @@ void orbiter::move_to(int i)
             delta       = 1;
         }
     }
+    return i;
 }
 
-void orbiter::fade_to(int i)
+int orbiter::fade_to(int i)
 {
     // Construct a path from here to there.
 #if 0
@@ -521,6 +522,7 @@ void orbiter::fade_to(int i)
         }
     }
 #endif
+    return i;
 }
 
 //------------------------------------------------------------------------------

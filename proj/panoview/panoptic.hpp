@@ -35,7 +35,7 @@ public:
 
     virtual void load_file(const std::string&);
 
-    virtual void fade_to(int);
+    virtual int fade_to(int);
 
     virtual ~panoptic();
 
@@ -55,6 +55,7 @@ private:
 
     double now;
     double delta;
+    int    index;
 
     // Joystick state
 
@@ -80,6 +81,9 @@ private:
     int    panoview_axis_horizontal;
     int    panoview_button_in;
     int    panoview_button_out;
+
+    int    scene_button_next;
+    int    scene_button_prev;
 
     // Report stream configuration
 
