@@ -18,7 +18,7 @@
     <scene name="nac" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
       <image name="height" scm="LDEM-360-8.tif" k0="1728240" k1="1748170" />
       <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
-      <image name="upper"  scm="NAC_ROI_2013_03-254-15.tif" k0="0.0" k1="1.0"/>
+      <image name="upper"  scm="NAC_ROI_2013_03-254-15.tif" k0="0.0" k1="1.5"/>
     </scene>
     <scene name="ldrm" vert="glsl/scm-displace.vert" frag="glsl/scm-relief-colormap-scalar.frag">
       <image name="height" scm="LDEM-360-8.tif" k0="1728240" k1="1748170" />
@@ -63,7 +63,8 @@
     <step name="Height"  foreground="height" background="milkyway" />
     <step name="LDSM"    foreground="ldsm"   background="milkyway" />
     <step name="LDRM"    foreground="ldrm"   background="milkyway" />
-    <step name="LSU1"                        background="LSU1" />
-    <step name="Tiger2"                      background="Tiger2" />
+    <step name="LSU2"                        background="LSU2" />
+    <step name="Tiger1"                      background="Tiger1" />
     <step name="Bluebonnet0"                 background="Bluebonnet0" />
+    <step name="Bluebonnet3"                 background="Bluebonnet3" />
   </sphere>

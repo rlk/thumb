@@ -88,7 +88,7 @@ panoptic::panoptic(const std::string& exe,
     panoview_button_in       = ::conf->get_i("panoview_button_in",        4);
     panoview_button_out      = ::conf->get_i("panoview_button_out",       5);
     panoview_zoom_min        = ::conf->get_f("panoview_zoom_min",       0.5);
-    panoview_zoom_max        = ::conf->get_f("panoview_zoom_max",       4.0);
+    panoview_zoom_max        = ::conf->get_f("panoview_zoom_max",       3.0);
 
     scene_button_next        = ::conf->get_f("scene_button_next",         2);
     scene_button_prev        = ::conf->get_f("scene_button_prev",         3);
