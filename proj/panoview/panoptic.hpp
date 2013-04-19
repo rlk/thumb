@@ -29,6 +29,7 @@ public:
     panoptic(const std::string&, const std::string&);
 
     virtual ogl::range prep(int, const app::frustum * const *);
+    virtual void       lite(int, const app::frustum * const *);
     virtual void       draw(int, const app::frustum *, int);
 
     virtual bool process_event(app::event *);

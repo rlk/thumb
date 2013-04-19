@@ -49,7 +49,7 @@ static in_addr_t lookup(const char *hostname)
 
 panoptic::panoptic(const std::string& exe,
                    const std::string& tag)
-    : view_app(exe, tag), now(0), delta(0)
+    : view_app(exe, tag), now(0), delta(0), index(0)
 {
     // Initialize all interaction state.
 
@@ -87,7 +87,7 @@ panoptic::panoptic(const std::string& exe,
     panoview_axis_horizontal = ::conf->get_i("panoview_axis_horizontal",  3);
     panoview_button_in       = ::conf->get_i("panoview_button_in",        4);
     panoview_button_out      = ::conf->get_i("panoview_button_out",       5);
-    panoview_zoom_min        = ::conf->get_f("panoview_zoom_min",       0.2);
+    panoview_zoom_min        = ::conf->get_f("panoview_zoom_min",       0.5);
     panoview_zoom_max        = ::conf->get_f("panoview_zoom_max",       4.0);
 
     scene_button_next        = ::conf->get_f("scene_button_next",         2);
@@ -99,7 +99,7 @@ panoptic::panoptic(const std::string& exe,
     {
         load_file(name);
 
-        if (sys && sys->get_step_count())
+        if (sys->get_scene_count())
             fade_to(0);
     }
 }
@@ -263,9 +263,14 @@ void panoptic::joystick(double dt)
 
 ogl::range panoptic::prep(int frusc, const app::frustum *const *frusv)
 {
+    double M[16];
+
     report();
 
     view_app::prep(frusc, frusv);
+
+    here.get_matrix(M);
+    ::user->set_M(M);
 
     // Compute a horizon line based upon altitude and minimum terrain height.
 
@@ -277,6 +282,10 @@ ogl::range panoptic::prep(int frusc, const app::frustum *const *frusv)
     double f = 1.1 * sqrt(d * d - m * m);
 
     return ogl::range(n, f);
+}
+
+void panoptic::lite(int frusc, const app::frustum *const *frusv)
+{
 }
 
 void panoptic::draw(int frusi, const app::frustum *frusp, int chani)
@@ -292,7 +301,6 @@ void panoptic::draw(int frusi, const app::frustum *frusp, int chani)
     L[3] = 0.0f;
 
     glLoadIdentity();
-
     glLightfv(GL_LIGHT0, GL_POSITION, L);
 
     view_app::draw(frusi, frusp, chani);
@@ -338,8 +346,8 @@ int panoptic::fade_to(int i)
 
         // Source and destination both remain fixed.
 
-        scm_step *src = new scm_step();
-        scm_step *dst = new scm_step();
+        scm_step *src = new scm_step(here);
+        scm_step *dst = new scm_step(here);
 
         // Change the scene to that of the requested step.
 
@@ -421,13 +429,6 @@ bool panoptic::process_tick(app::event *E)
     if (here.get_distance())
         here.set_distance(std::max(here.get_distance(),
                   orbiter_minimum_agl + get_current_ground()));
-
-    // Apply the current transformation to the camera.
-
-    double M[16];
-
-    here.get_matrix(M);
-    ::user->set_M(M);
 
     // Handle any scene transition.
 

@@ -11,7 +11,12 @@
 //  General Public License for more details.
 
 #define dDOUBLE
+
+// ODE defines int8 as "char" while TIFF conflicts with "signed char".
+
+#define int8 signed int8
 #include <ode/ode.h>
+#undef int8
 
 //-----------------------------------------------------------------------------
 

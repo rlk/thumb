@@ -198,11 +198,11 @@ void load_persp(double *P, double l, double r,
     P[7] =  0;
     P[8] =  (r + l) / (r - l);
     P[9] =  (t + b) / (t - b);
-    P[A] = -(f + n) / (f - n);
+    P[A] = -1; // -(f + n) / (f - n);
     P[B] = -1;
     P[C] =  0;
     P[D] =  0;
-    P[E] = -2 * f * n / (f - n);
+    P[E] = -2 * n; //-2 * f * n / (f - n);
     P[F] =  0;
 }
 
