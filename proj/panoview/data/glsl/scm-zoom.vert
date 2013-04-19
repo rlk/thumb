@@ -51,8 +51,7 @@ vec3 scube(vec2 t)
 
 void main()
 {
-//  vec3 v = zoom(scube(A[0] * gl_Vertex.xy + B[0]));
-    vec3 v = scube(A[0] * gl_Vertex.xy + B[0]);
+    vec3 v = zoom(scube(A[0] * gl_Vertex.xy + B[0]));
 
     var_L = gl_LightSource[0].position.xyz;
     var_V = v;

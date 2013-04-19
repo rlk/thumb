@@ -87,7 +87,7 @@ panoptic::panoptic(const std::string& exe,
     panoview_axis_horizontal = ::conf->get_i("panoview_axis_horizontal",  3);
     panoview_button_in       = ::conf->get_i("panoview_button_in",        2);
     panoview_button_out      = ::conf->get_i("panoview_button_out",       3);
-    panoview_zoom_min        = ::conf->get_f("panoview_zoom_min",       0.5);
+    panoview_zoom_min        = ::conf->get_f("panoview_zoom_min",       0.1);
     panoview_zoom_max        = ::conf->get_f("panoview_zoom_max",       4.0);
 
     // Preload data as requested.
@@ -252,6 +252,7 @@ void panoptic::joystick(double dt)
     if (fabs(dm) > 0 || fabs(dh) > 0 || fabs(dv) > 0)
     {
         here.get_forward(v);
+        sys->get_sphere()->set_zoom(v[0], v[1], v[2], here.get_zoom());
     }
 }
 
