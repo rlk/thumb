@@ -44,33 +44,42 @@ private:
     double get_speed() const;
     double get_scale() const;
 
-    // View motion state
+    // Configuration
 
-    void fly (double);
+    double orbiter_speed_min;
+    double orbiter_speed_max;
+    double orbiter_minimum_agl;
 
-    double orbit_plane[3];
-    double orbit_speed;
-    double orbit_speed_min;
-    double orbit_speed_max;
-    double minimum_agl;
+    double panoview_zoom_min;
+    double panoview_zoom_max;
 
     double now;
     double delta;
 
-    // Interaction state
+    // Joystick state
 
-    double stick[2];
-    bool   fly_dn;
-    bool   fly_up;
+    double axis  [8];
+    bool   button[16];
+
+    double deaden(double) const;
+    void joystick(double);
 
     // Joystick configuration
 
     int    device;
-    int    axis_X;
-    int    axis_Y;
-    int    button_U;
-    int    button_D;
     double deadzone;
+
+    int    orbiter_axis_rotate;
+    int    orbiter_axis_forward;
+    int    orbiter_axis_left;
+    int    orbiter_axis_right;
+    int    orbiter_button_up;
+    int    orbiter_button_down;
+
+    int    panoview_axis_vertical;
+    int    panoview_axis_horizontal;
+    int    panoview_button_in;
+    int    panoview_button_out;
 
     // Report stream configuration
 

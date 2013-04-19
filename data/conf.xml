@@ -22,7 +22,7 @@
     <option name="key_snap">294</option>
     <!-- Miscellaneous options -->
     <option name="screenshot_file">snap.png</option>
-    <option name="skeleton_port">4953</option> <!-- 4953 -->
+    <option name="skeleton_port">0</option> <!-- 4953 -->
 
     <!-- Panoview Configuration --------------------------------------------->
 
@@ -32,10 +32,8 @@
 
     <option name="orbiter_speed_min">0.0005</option>
     <option name="orbiter_speed_max">0.5</option>
-    <option name="orbiter_minimum_agl">50.0</option>
     <option name="orbiter_icon_size">24</option>
-    <option name="orbiter_joystick_deadzone">0.2</option>
-    <option name="orbiter_joystick_interrupt">0</option>
+    <option name="orbiter_minimum_agl">50.0</option>
 
     <!-- EdWorld Configuration ---------------------------------------------->
 

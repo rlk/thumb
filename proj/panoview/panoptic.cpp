@@ -53,18 +53,12 @@ panoptic::panoptic(const std::string& exe,
 {
     // Initialize all interaction state.
 
-    orbit_plane[0]  = 1.0;
-    orbit_plane[1]  = 0.0;
-    orbit_plane[2]  = 0.0;
-    orbit_speed     = 0.0;
-    orbit_speed_min = ::conf->get_f("orbiter_speed_min",   0.0005);
-    orbit_speed_max = ::conf->get_f("orbiter_speed_max",   0.5);
-    minimum_agl     = ::conf->get_f("orbiter_minimum_agl", 100.0);
+    orbiter_speed_min   = ::conf->get_f("orbiter_speed_min", 0.0005);
+    orbiter_speed_max   = ::conf->get_f("orbiter_speed_max", 0.5);
+    orbiter_minimum_agl = ::conf->get_f("orbiter_minimum_agl", 100.0);
 
-    fly_up = false;
-    fly_dn = false;
-
-    stick[0] = stick[1] = 0.0;
+    memset(axis,   0, sizeof (axis));
+    memset(button, 0, sizeof (button));
 
     // Initialize the reportage socket.
 
@@ -79,12 +73,22 @@ panoptic::panoptic(const std::string& exe,
 
     // Initialize the joystick configuration.
 
-    device    = ::conf->get_i("orbiter_joystick_device",    0);
-    axis_X    = ::conf->get_i("orbiter_joystick_axis_X",    0);
-    axis_Y    = ::conf->get_i("orbiter_joystick_axis_Y",    1);
-    button_U  = ::conf->get_i("orbiter_joystick_button_U",  0);
-    button_D  = ::conf->get_i("orbiter_joystick_button_D",  1);
-    deadzone  = ::conf->get_f("orbiter_joystick_deadzone",  0.2);
+    device                   = ::conf->get_i("joystick_device",    0);
+    deadzone                 = ::conf->get_f("joystick_deadzone",  0.2);
+
+    orbiter_axis_rotate      = ::conf->get_i("orbiter_axis_rotate",       0);
+    orbiter_axis_forward     = ::conf->get_i("orbiter_axis_forward",      1);
+    orbiter_axis_left        = ::conf->get_i("orbiter_axis_left",         2);
+    orbiter_axis_right       = ::conf->get_i("orbiter_axis_right",        5);
+    orbiter_button_up        = ::conf->get_i("orbiter_joystick_button_U", 0);
+    orbiter_button_down      = ::conf->get_i("orbiter_joystick_button_D", 1);
+
+    panoview_axis_vertical   = ::conf->get_i("panoview_axis_vertical",    4);
+    panoview_axis_horizontal = ::conf->get_i("panoview_axis_horizontal",  3);
+    panoview_button_in       = ::conf->get_i("panoview_button_in",        2);
+    panoview_button_out      = ::conf->get_i("panoview_button_out",       3);
+    panoview_zoom_min        = ::conf->get_f("panoview_zoom_min",       0.5);
+    panoview_zoom_max        = ::conf->get_f("panoview_zoom_max",       4.0);
 
     // Preload data as requested.
 
@@ -119,13 +123,15 @@ void panoptic::report()
 
         double lon = atan2(p[0], p[2]) * 180.0 / M_PI;
         double lat =  asin(p[1])       * 180.0 / M_PI;
-        double fly = (fly_up ? 1.0 : 0.0) - (fly_dn ? 1.0 : 0.0);
+        double fly = (button[orbiter_button_up]   ? 1.0 : 0.0)
+                   - (button[orbiter_button_down] ? 1.0 : 0.0);
 
         // Encode these to an ASCII string.
 
         char buf[128];
         sprintf(buf, "%+12.8f %+13.8f %17.8f %+5.3f %+5.3f %+5.3f\n",
-            lat, lon, alt, stick[0], stick[1], fly);
+            lat, lon, alt, axis[orbiter_axis_rotate],
+                           axis[orbiter_axis_forward], fly);
 
         // And send the string to the configured host.
 
@@ -136,40 +142,117 @@ void panoptic::report()
 
 //------------------------------------------------------------------------------
 
-void panoptic::fly(double dt)
+double panoptic::deaden(double k) const
 {
-    const double dx = (stick[0] > 0) ? -(stick[0] * stick[0])
-                                     : +(stick[0] * stick[0]);
-    const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
-                                     : -(stick[1] * stick[1]);
-    double dz = fly_up ? (fly_dn ?  0 : +1)
-                       : (fly_dn ? -1 :  0);
+    if (fabs(k) < deadzone)
+        return 0;
+    else
+        return (k < 0) ? -k * k : +k * k;
+}
 
-    double a = get_speed();
-    double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
+void panoptic::joystick(double dt)
+{
+    const double y[3] = { 0.0, 1.0, 0.0 };
 
-    here.set_pitch(k);
+    const double dh = deaden(axis[panoview_axis_horizontal]);
+    const double dv = deaden(axis[panoview_axis_vertical]);
+    const double dz = deaden(axis[orbiter_axis_forward]);
+    const double dr = deaden(axis[orbiter_axis_rotate]);
+    const double dx = deaden(axis[orbiter_axis_right] -
+                             axis[orbiter_axis_left]);
 
-    // The X axis affects the orientation and orbital plane.
+    double dy  = button[orbiter_button_up]
+              ? (button[orbiter_button_down] ?  0 : +1)
+              : (button[orbiter_button_down] ? -1 :  0);
+    double dm  = button[panoview_button_in]
+              ? (button[panoview_button_out] ?  0 : +1)
+              : (button[panoview_button_out] ? -1 :  0);
 
-    double R[16];
-    double p[3];
+    double s  = get_speed();
+    double ds = std::max(std::min(s, orbiter_speed_max), orbiter_speed_min);
 
-    here.get_position(p);
-    mrotate(R, p, dx * dt);
-    here.transform_orientation(R);
-    here.get_right(orbit_plane);
+    double M[16];
+    double v[3];
 
-    // The Y axis affects the orbital speed.
+    // Orbiter turning rotation
 
-    orbit_speed = dy * std::max(std::min(a, orbit_speed_max), orbit_speed_min);
+    if (fabs(dr) > 0)
+    {
+        here.get_position(v);
+        mrotate(M, v, -dr * dt);
+        here.transform_orientation(M);
+        here.transform_light(M);
+    }
 
-    // The Z axis affects the orbital radius.
+    // Orbiter motion forward and back
 
-    double d = here.get_distance();
-    double m =      get_current_ground();
+    if (fabs(dz) > 0)
+    {
+        here.get_right(v);
+        mrotate(M, v, dz * ds * dt);
+        here.transform_orientation(M);
+        here.transform_position(M);
+        here.transform_light(M);
+    }
 
-    here.set_distance(std::min(8 * m, m + exp(log(d - m) + (dz * dt))));
+    // Orbiter motion left and right
+
+    if (fabs(dx) > 0)
+    {
+        here.get_forward(v);
+        mrotate(M, v, dx * ds * dt);
+        here.transform_orientation(M);
+        here.transform_position(M);
+        here.transform_light(M);
+    }
+
+    // Orbiter motion up and down
+
+    if (fabs(dy) > 0)
+    {
+        double k = -M_PI_2 * lerp(std::min(1.0, cbrt(s)), 1.0, s);
+        double d = here.get_distance();
+        double m =      get_current_ground();
+
+        here.set_distance(std::min(8 * m, m + exp(log(d - m) + (dy * dt))));
+        here.set_pitch(k);
+    }
+
+    // Panoview pan left and right
+
+    if (fabs(dh) > 0)
+    {
+        mrotate(M, y, -dh * dt);
+        here.transform_orientation(M);
+        here.transform_position(M);
+        here.transform_light(M);        
+    }
+
+    // Panoview tilt up and down
+
+    if (fabs(dv) > 0)
+    {
+        here.get_right(v);
+        mrotate(M, v, -dv * dt);
+        here.transform_orientation(M);
+        here.transform_position(M);
+        here.transform_light(M);        
+    }
+
+    // Panoview zoom in and out
+
+    if (fabs(dm) > 0)
+    {
+        double z = here.get_zoom() + dm * dt;
+        z = std::min(z, panoview_zoom_max);
+        z = std::max(z, panoview_zoom_min);
+        here.set_zoom(z);
+    }
+
+    if (fabs(dm) > 0 || fabs(dh) > 0 || fabs(dv) > 0)
+    {
+        here.get_forward(v);
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -282,14 +365,15 @@ bool panoptic::process_axis(app::event *E)
 {
     const int    i = E->data.axis.i;
     const int    a = E->data.axis.a;
-    const double v = E->data.axis.v / 32768;
+    const double v = E->data.axis.v / 32768.0;
 
     if (i == device)
     {
-        if      (a == axis_X) stick[0] = fabs(v) < deadzone ? 0.0 : v;
-        else if (a == axis_Y) stick[1] = fabs(v) < deadzone ? 0.0 : v;
-
-        return true;
+        if (0 <= a && a < 8)
+        {
+            axis[a] = v;
+            return true;
+        }
     }
     return false;
 }
@@ -302,12 +386,11 @@ bool panoptic::process_button(app::event *E)
 
     if (i == device)
     {
-        if      (b == button_D) fly_dn = d;
-        else if (b == button_U) fly_up = d;
-
-        scm_log("orbiter process_button %d %d %d", i, b, d);
-
-        return true;
+        if (0 <= b && b < 16)
+        {
+            button[b] = d;
+            return true;
+        }
     }
     return false;
 }
@@ -318,26 +401,13 @@ bool panoptic::process_tick(app::event *E)
 
     // Handle joystick input.
 
-    fly(dt);
-
-    // Move the position and view orientation along the current orbit.
-
-    if (orbit_speed)
-    {
-        double R[16];
-
-        mrotate(R, orbit_plane, orbit_speed * dt);
-
-        here.transform_orientation(R);
-        here.transform_position(R);
-        here.transform_light(R);
-    }
+    joystick(dt);
 
     // Constrain the distance using the terrain height.
 
     if (here.get_distance())
         here.set_distance(std::max(here.get_distance(),
-                                        get_current_ground() + minimum_agl));
+                  orbiter_minimum_agl + get_current_ground()));
 
     // Apply the current transformation to the camera.
 
