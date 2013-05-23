@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
   <sphere detail="32" limit="256">
-    <scene name="global" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
+    <scene name="global" label="graticule.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
       <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
     </scene>

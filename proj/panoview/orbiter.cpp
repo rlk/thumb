@@ -327,7 +327,7 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
     const double d = here.get_distance();
 
     double n = 0.5 *     (d     - r    );
-    double f = 1.1 * sqrt(d * d - m * m);
+    double f = 1.0 * sqrt(d * d - m * m);
 
     return ogl::range(n, f);
 }
