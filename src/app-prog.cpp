@@ -190,10 +190,7 @@ app::prog::prog(const std::string& exe,
 
     // Configure the joystick system.
 
-    int j = ::conf->get_i("gamepad_device");
-
-    if (SDL_JoystickOpen(j))
-        SDL_JoystickEventState(SDL_ENABLE);
+    axis_setup();
 
     // Initialize the input handler.
 
@@ -203,8 +200,8 @@ app::prog::prog(const std::string& exe,
     else if (input_mode == "skeleton") input = new dev::skeleton();
     else if (input_mode == "gamepad")  input = new dev::gamepad();
     else if (input_mode == "trackd")   input = new dev::trackd();
-//  else if (input_mode == "wiimote") input = new dev::wiimote();
-    else                              input = new dev::mouse  ();
+//  else if (input_mode == "wiimote")  input = new dev::wiimote();
+    else                               input = new dev::mouse  ();
 }
 
 app::prog::~prog()
@@ -264,6 +261,9 @@ bool app::prog::process_event(app::event *E)
         else if (k == key_exit) { SDL_PushEvent(&quit); return true; }
         else if (k == key_init) { SDL_PushEvent(&user); return true; }
     }
+    else if (E->get_type() == E_TICK)
+        axis_state();
+
     return false;
 }
 
@@ -354,7 +354,7 @@ static void snappng(const char *filename, unsigned char *p, int w, int h)
         // Initialize the PNG header.
 
         png_init_io (writep, filep);
-//      png_set_compression_level(writep, 9);
+        png_set_compression_level(writep, 9);
         png_set_IHDR(writep, infop, w, h, 8, PNG_COLOR_TYPE_RGB,
                                              PNG_INTERLACE_NONE,
                                              PNG_COMPRESSION_TYPE_DEFAULT,
@@ -420,6 +420,66 @@ void app::prog::screenshot(std::string filename, int w, int h)
             snapraw(filename.c_str(), snap_p, snap_w, snap_h);
 
         printf("%s\n", filename.c_str());
+    }
+}
+
+//-----------------------------------------------------------------------------
+
+// Apply the configured remapping of the open joystick device.
+
+app::event *app::prog::axis_remap(app::event *E)
+{
+    const int a = E->data.axis.a;
+
+    if (axis_max[a] != axis_min[a])
+
+        E->data.axis.v = 65535.0 * (E->data.axis.v - axis_min[a])
+                                 / (axis_max[a]    - axis_min[a]) - 32768.0;
+
+    return E;
+}
+
+// Initialize the requested joystick device and its configuration.
+
+void app::prog::axis_setup()
+{
+    if ((joystick = SDL_JoystickOpen(::conf->get_i("joystick_device"))))
+    {
+        const int n = SDL_JoystickNumAxes(joystick);
+
+        axis_min.reserve(n);
+        axis_max.reserve(n);
+
+        char min[32];
+        char max[32];
+
+        for (int a = 0; a < n; ++a)
+        {
+            sprintf(min, "joystick_axis_min_%d", a);
+            sprintf(max, "joystick_axis_max_%d", a);
+
+            axis_min[a] = ::conf->get_i(min, -32768);
+            axis_max[a] = ::conf->get_i(max,  32767);
+        }
+
+        SDL_JoystickEventState(SDL_ENABLE);
+    }
+    axis_verbose = bool(::conf->get_i("joystick_verbose", 0));
+}
+
+// Report the current state of the open joystick device.
+
+void app::prog::axis_state()
+{
+    if (axis_verbose)
+    {
+        for (int i = 0; i < SDL_JoystickNumAxes   (joystick); ++i)
+            printf("%+7d",  SDL_JoystickGetAxis   (joystick, i));
+
+        for (int i = 0; i < SDL_JoystickNumButtons(joystick); ++i)
+            printf("%2d",   SDL_JoystickGetButton (joystick, i));
+
+        printf("\n");
     }
 }
 

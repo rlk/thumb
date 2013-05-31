@@ -14,6 +14,9 @@
 #define APP_PROG_HPP
 
 #include <string>
+#include <vector>
+
+#include <SDL_joystick.h>
 
 #include <ogl-range.hpp>
 
@@ -38,16 +41,6 @@ namespace app
 
     class prog
     {
-        int key_snap;
-        int key_exit;
-        int key_init;
-
-        dev::input *input;
-
-        unsigned char *snap_p;
-        int            snap_w;
-        int            snap_h;
-
     public:
 
         prog(const std::string&, const std::string&);
@@ -65,9 +58,32 @@ namespace app
         virtual bool process_event(event *);
         virtual void run();
 
+        event *axis_remap(event *);
+
         // Screenshot procedure
 
         void screenshot(std::string, int, int);
+
+    private:
+
+        int key_snap;
+        int key_exit;
+        int key_init;
+
+        SDL_Joystick *joystick;
+
+        std::vector<short> axis_min;
+        std::vector<short> axis_max;
+        bool               axis_verbose;
+
+        void axis_setup();
+        void axis_state();
+
+        dev::input *input;
+
+        unsigned char *snap_p;
+        int            snap_w;
+        int            snap_h;
     };
 }
 

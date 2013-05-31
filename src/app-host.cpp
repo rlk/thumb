@@ -634,9 +634,9 @@ void app::host::root_loop()
                 break;
 
             case SDL_JOYAXISMOTION:
-                process_event(E.mk_axis(e.jaxis.which,
-                                        e.jaxis.axis,
-                                        e.jaxis.value));
+                process_event(program->axis_remap(E.mk_axis(e.jaxis.which,
+                                                            e.jaxis.axis,
+                                                            e.jaxis.value)));
                 break;
 
             case SDL_JOYBUTTONDOWN:
