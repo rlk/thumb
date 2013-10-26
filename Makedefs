@@ -10,12 +10,21 @@ CFLAGS= -g -Wall
 RM    = rm -f
 CP    = cp
 
-CFLAGS += -DVERSION=$(shell svnversion)
+#CFLAGS += -DVERSION=$(shell svnversion)
+CFLAGS += -DVERSION=0.9
+
+INCDIR = -I/usr/include
 
 #------------------------------------------------------------------------------
 
 ifeq ($(shell uname), Darwin)
-	LIBEXT  = -framework OpenGL -framework Cocoa -framework ApplicationServices -framework Carbon -framework AudioToolbox -framework AudioUnit -framework IOKit
+	LIBEXT  = -framework OpenGL \
+		  -framework Cocoa  \
+		  -framework ApplicationServices \
+		  -framework Carbon \
+		  -framework AudioToolbox \
+		  -framework AudioUnit \
+		  -framework IOKit
 	CFLAGS += -mmacosx-version-min=10.6
 endif
 

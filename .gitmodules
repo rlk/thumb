@@ -1,0 +1,3 @@
+[submodule "proj/panoview/scm"]
+	path = proj/panoview/scm
+	url = https://github.com/rlk/scm.git
