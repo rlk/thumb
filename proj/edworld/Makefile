@@ -23,7 +23,7 @@ LIBS = $(THUMB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(L
 #------------------------------------------------------------------------------
 
 $(TARG) : $(OBJS) $(THUMB)
-	$(CC) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
+	$(CXX) $(CFLAGS) -o $(TARG) $(OBJS) $(LIBDIR) $(LIBS)
 
 clean :
 	$(RM) $(OBJS) $(DEPS) $(TARG)

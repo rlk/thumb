@@ -2,7 +2,8 @@
 
 #------------------------------------------------------------------------------
 
-CC    = g++
+CC    = cc
+CXX   = c++
 STRIP = strip
 CFLAGS= -g -Wall
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
@@ -112,13 +113,13 @@ endif
 #------------------------------------------------------------------------------
 
 %.d : %.cpp
-	$(CC) $(CFLAGS) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
+	$(CXX) $(CFLAGS) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
 
 %.d : %.c
 	$(CC) $(CFLAGS) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
 
 %.o : %.cpp
-	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
+	$(CXX) $(CFLAGS) $(INCDIR) -c $< -o $@
 
 %.o : %.c
 	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@

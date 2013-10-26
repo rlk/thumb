@@ -66,7 +66,7 @@ orbiter::orbiter(const std::string& exe,
     drag_look = false;
     drag_dive = false;
     drag_turn = false;
-    drag_lite = false;
+    drag_lamp = false;
 
     fly_up = false;
     fly_dn = false;
@@ -245,7 +245,7 @@ void orbiter::dive(double dt, double k)
 // to move the light source position vector. Light source position is relative
 // to the camera, not to the sphere.
 
-void orbiter::lite(double dt, double k)
+void orbiter::lamp(double dt, double k)
 {
     double r[3];
     double u[3];
@@ -596,7 +596,7 @@ bool orbiter::process_click(app::event *E)
         if (b == 2)
         {
             if (s)
-                drag_lite = true;
+                drag_lamp = true;
             else if (c)
                 drag_turn = true;
             else
@@ -606,7 +606,7 @@ bool orbiter::process_click(app::event *E)
     else
     {
         if (b == 0) drag_dive = drag_move             = false;
-        if (b == 2) drag_lite = drag_turn = drag_look = false;
+        if (b == 2) drag_lamp = drag_turn = drag_look = false;
     }
 
     return true;
@@ -635,7 +635,7 @@ bool orbiter::process_tick(app::event *E)
         if (drag_look) look(dt, sc);
         if (drag_turn) turn(dt, sc);
         if (drag_dive) dive(dt, sc);
-        if (drag_lite) lite(dt, sc);
+        if (drag_lamp) lamp(dt, sc);
     }
 
     // Move the position and view orientation along the current orbit.

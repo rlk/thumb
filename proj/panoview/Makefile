@@ -61,15 +61,15 @@ LIBS = $(THUMB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(L
 all : panoview orbiter panoptic
 
 panoview: $(GLSL) $(PANOBJS) $(THUMB)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+	$(CXX) $(CFLAGS) -o $@ $(PANOBJS) $(LIBS)
 	#$(STRIP) $@
 
 orbiter: $(GLSL) $(ORBOBJS) $(THUMB)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+	$(CXX) $(CFLAGS) -o $@ $(ORBOBJS) $(LIBS)
 	#$(STRIP) $@
 
 panoptic: $(GLSL) $(OPTOBJS) $(THUMB)
-	$(CC) $(CFLAGS) -o $@ $^ $(LIBS)
+	$(CXX) $(CFLAGS) -o $@ $(OPTOBJS) $(LIBS)
 	#$(STRIP) $@
 
 clean:

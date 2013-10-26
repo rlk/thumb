@@ -48,7 +48,7 @@ private:
 
     void look(double, double);
     void turn(double, double);
-    void lite(double, double);
+    void lamp(double, double);
     void move(double, double);
     void dive(double, double);
     void fly (double);
@@ -69,7 +69,7 @@ private:
     bool   drag_look;
     bool   drag_turn;
     bool   drag_dive;
-    bool   drag_lite;
+    bool   drag_lamp;
     bool   fly_dn;
     bool   fly_up;
 
