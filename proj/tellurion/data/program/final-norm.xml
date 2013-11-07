@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<program vert="glsl/final-dark.vert"
-         frag="glsl/final-norm.frag" >
-  <sampler name="nrm" unit="2" />
-</program>

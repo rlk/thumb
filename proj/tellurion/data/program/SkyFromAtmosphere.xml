@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<program vert="glsl/SkyFromAtmosphere.vert"
-         frag="glsl/SkyFromAtmosphere.frag" >
-</program>

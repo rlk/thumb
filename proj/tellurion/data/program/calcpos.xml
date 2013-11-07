@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<program vert="glsl/trivial.vert"
-         frag="glsl/calcpos.frag" >
-  <sampler name="src" unit="0" />
-  <sampler name="lut" unit="1" />
-  <sampler name="nrm" unit="2" />
-  <sampler name="rad" unit="3" />
-</program>

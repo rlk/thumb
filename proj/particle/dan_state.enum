@@ -1,8 +1,0 @@
-int drawType,points ,lines;
-points = 0;
-lines = 1;
-drawType = lines;
-drawType = points;
-
-
-

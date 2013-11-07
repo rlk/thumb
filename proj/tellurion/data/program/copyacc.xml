@@ -1,6 +1,0 @@
-<?xml version="1.0"?>
-<program vert="glsl/trivial.vert"
-         frag="glsl/copyacc.frag" >
-  <sampler name="src" unit="0" />
-  <sampler name="pos" unit="2" />
-</program>

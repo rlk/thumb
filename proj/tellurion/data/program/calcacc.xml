@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-<program vert="glsl/trivial.vert"
-         frag="glsl/calcacc.frag" >
-  <sampler name="src" unit="3" />
-  <sampler name="pos" unit="4" />
-  <sampler name="nrm" unit="5" />
-  <sampler name="tex" unit="6" />
-</program>

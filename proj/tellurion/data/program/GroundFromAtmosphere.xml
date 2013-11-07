@@ -1,7 +1,0 @@
-<?xml version="1.0"?>
-<program vert="glsl/GroundFromAtmosphere.vert"
-         frag="glsl/GroundFromAtmosphere.frag" >
-  <sampler name="cyl" unit="0" />
-  <sampler name="dif" unit="1" />
-  <sampler name="nrm" unit="2" />
-</program>
