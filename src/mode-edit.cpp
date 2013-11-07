@@ -130,7 +130,7 @@ bool mode::edit::process_click(app::event *E)
     const int  m = E->data.click.m;
     const bool d = E->data.click.d;
 
-    if (b == 0)
+    if (b == SDL_BUTTON_LEFT)
     {
         drag = false;
 

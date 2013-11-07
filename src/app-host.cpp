@@ -607,12 +607,12 @@ void app::host::root_loop()
                 break;
 
             case SDL_MOUSEBUTTONDOWN:
-                process_event(E.mk_click(e.button.button - 1,
+                process_event(E.mk_click(e.button.button,
                                          SDL_GetModState(), true));
                 break;
 
             case SDL_MOUSEBUTTONUP:
-                process_event(E.mk_click(e.button.button - 1,
+                process_event(E.mk_click(e.button.button,
                                          SDL_GetModState(), false));
                 break;
 

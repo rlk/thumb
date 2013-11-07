@@ -104,7 +104,7 @@ bool mode::info::process_event(app::event *E)
 
     case E_CLICK:
  
-        if (E->data.click.b == 0)
+        if (E->data.click.b == SDL_BUTTON_LEFT)
         {
             gui->click(E->data.click.m,
                        E->data.click.d);
