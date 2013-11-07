@@ -1005,10 +1005,8 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
         // Render the fill geometry to the shadow buffer.
 
-//      glEnable(GL_POLYGON_OFFSET_FILL);
         process_shadow[i]->bind_frame();
         {
-//          glPolygonOffset(1.1f, 4.0f);
             frust.draw();
 
             // View from the light's perspective.
@@ -1031,7 +1029,6 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
             fill_pool->draw_fini();
         }
         process_shadow[i]->free_frame();
-//      glDisable(GL_POLYGON_OFFSET_FILL);
 
         // Compute the light transform.
 
