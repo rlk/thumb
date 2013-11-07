@@ -295,7 +295,6 @@ bool dev::hybrid::process_tick(app::event *E)
 
     const double kp = dt * move_rate;
     const double kr = dt * turn_rate;
-    const double kt = 3.0 * 60.0 * 60.0 * dt;
 
     if (fabs(position[0]) > dz ||
         fabs(position[1]) > dz ||
@@ -324,9 +323,6 @@ bool dev::hybrid::process_tick(app::event *E)
         hand_p[2] += hand_v[2] * dt;
         synthesize_point();
     }
-
-    if (0)
-        ::user->pass(kt);
 
     return false;
 }

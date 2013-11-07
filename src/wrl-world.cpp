@@ -64,6 +64,10 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
+    light[0] =    0.0;
+    light[1] = 1000.0;
+    light[2] =    0.0;
+
     uniform_light_position = ::glob->load_uniform("light_position",    3);
     uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",        4);
     uniform_shadow[0]      = ::glob->load_uniform("shadow_matrix[0]", 16);
@@ -898,14 +902,6 @@ void wrl::world::save(std::string filename, bool save_all)
 
 ogl::range wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
 {
-    // Position the light source.
-
-    const double *L = ::user->get_L();
-
-    light[0] = L[0];
-    light[1] = L[1];
-    light[2] = L[2];
-
     // Prep the fill geometry pool.
 
     fill_pool->prep();
@@ -984,7 +980,8 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
         d[i] = split_depth(i, m, frusv[0]);
     }
 
-    uniform_pssm_depth->set(d);
+    uniform_light_position->set(light);
+    uniform_pssm_depth    ->set(d);
 
     // Render each of the shadow maps.
 

@@ -120,19 +120,16 @@ bool dev::gamepad::process_tick(app::event *E)
 
     const double kp =        dt;
     const double kr = 45.0 * dt;
-    const double kt = 3.0 * 60.0 * 60.0 * dt;
 
     const bool   bx = (fabs(rotate[0]) > 0.25);
     const bool   by = (fabs(rotate[1]) > 0.25);
     const bool   bz = (fabs(rotate[2]) > 0.25);
-    const bool   bt = (fabs(rotate[3]) > 0.25);
 
     const bool   bp = (DOT3(motion, motion) != 0);
     const bool   br = bx || by || bz;
 
     if (bp) ::user->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
     if (br) ::user->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
-    if (bt) ::user->pass(rotate[3] * kt);
 
     return false;
 }

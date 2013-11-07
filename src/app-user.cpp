@@ -17,9 +17,6 @@
 #include <app-data.hpp>
 #include <app-conf.hpp>
 
-// TODO: The use of set() is haphazzard.  current_M/I are accessed directly.
-// Clarify this interface.
-
 //-----------------------------------------------------------------------------
 
 app::user::user()
@@ -34,14 +31,10 @@ app::user::user()
     load_idt(current_M);
     load_idt(current_I);
     load_mat(current_S, S);
-
-    current_L[0] = 0.0;
-    current_L[1] = 1.0;
-    current_L[2] = 0.0;
-    current_t    = 0.0;
 }
 
-void app::user::set(const double *p, const double *q, double t)
+#if 0
+void app::user::set(const double *p, const double *q)
 {
     // Compute the current transform and inverse from the given values.
 
@@ -60,22 +53,8 @@ void app::user::set(const double *p, const double *q, double t)
         orthonormalize(current_M);
         load_inv(current_I, current_M);
     }
-
-    // Compute the current lighting vector from the given time.
-    // TODO: compute this from lat/lon/date/time.
-
-    if (t >= 0.0)
-    {
-        current_t = t;
-
-        double M[16], L[3] = { 0.0, 0.0, 8192.0 }; // HACK
-
-        load_rot_mat(M, 1.0, 0.0, 0.0, 120.0);
-        Rmul_rot_mat(M, 0.0, 1.0, 0.0, 360.0 * t / (24.0 * 60.0 * 60.0));
-
-        mult_mat_vec3(current_L, M, L);
-    }
 }
+#endif
 
 //-----------------------------------------------------------------------------
 
@@ -99,12 +78,6 @@ void app::user::get_point(double *P, const double *p,
 }
 
 //-----------------------------------------------------------------------------
-
-void app::user::set_t(double t)
-{
-    current_t = t;
-    set(0, 0, current_t);
-}
 
 void app::user::turn(double rx, double ry, double rz, const double *R)
 {
@@ -185,18 +158,10 @@ void app::user::look(double dt, double dp)
     load_inv(current_I, current_M);
 }
 
-void app::user::pass(double dt)
-{
-    current_t += dt;
-    set(0, 0, current_t);
-}
-
 void app::user::home()
 {
     load_idt(current_M);
     load_idt(current_I);
-
-    set(0, 0, 86400);
 }
 
 void app::user::set_M(const double *M)

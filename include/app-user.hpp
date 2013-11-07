@@ -26,10 +26,6 @@ namespace app
         double current_M[16];
         double current_I[16];
         double current_S[16];
-        double current_L[3];
-        double current_t;
-
-        void set(const double *, const double *, double);
 
     public:
 
@@ -41,10 +37,6 @@ namespace app
         const double  *get_M() const { return current_M; }
         const double  *get_I() const { return current_I; }
         const double  *get_S() const { return current_S; }
-        const double  *get_L() const { return current_L; }
-        double         get_t() const { return current_t; }
-
-        void set_t(double);
 
         // Interactive view controls.
 
@@ -52,7 +44,6 @@ namespace app
         void turn(double, double, double);
         void move(double, double, double);
         void look(double, double);
-        void pass(double);
         void home();
 
         void set_M(const double *);

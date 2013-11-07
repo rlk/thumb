@@ -295,21 +295,6 @@ bool mode::edit::process_key(app::event *E)
             }
             return true;
         }
-
-        // Handle time (lighting) keys.
-
-        else if (k == SDLK_LEFT)
-        {
-            if (m & KMOD_SHIFT) ::user->pass(-3600.0);
-            else                ::user->pass( -600.0);
-            return true;
-        }
-        else if (k == SDLK_RIGHT)
-        {
-            if (m & KMOD_SHIFT) ::user->pass(+3600.0);
-            else                ::user->pass( +600.0);
-            return true;
-        }
     }
     return false;
 }

@@ -111,8 +111,6 @@ bool dev::mouse::process_click(app::event *E)
     const int  b = E->data.click.b;
     const int  m = E->data.click.m;
 
-//  double now = universe.get_time();
-
     // Handle rotating the view.
 
     if (b == 2)
@@ -121,22 +119,6 @@ bool dev::mouse::process_click(app::event *E)
         modifier = m;
         return true;
     }
-
-    // Handle rotating the universe.
-
-    // TODO: convert this into a script event.
-
-    else if (d && b == 3)
-    {
-        ::user->pass(+15.0 * 60.0);
-        return true;
-    }
-    else if (d && b == 4)
-    {
-        ::user->pass(-15.0 * 60.0);
-        return true;
-    }
-
     return false;
 }
 
