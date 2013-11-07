@@ -64,9 +64,9 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    light[0] =    0.0;
-    light[1] = 1000.0;
-    light[2] =    0.0;
+    light_theta =   -20.0;
+    light_phi   =    70.0;
+    light_rho   = 10000.0;
 
     uniform_light_position = ::glob->load_uniform("light_position",    3);
     uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",        4);
@@ -962,8 +962,11 @@ double wrl::world::split_depth(int i, int m, const app::frustum *frusp)
 
 void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
-    double lite_M[16];
-    double lite_I[16];
+    double light_M[16];
+    double light_I[16];
+    double light_p[3];
+
+    sphere_to_vector(light_p, light_theta, light_phi, light_rho);
 
     // Compute the shadow map split depths.
 
@@ -980,7 +983,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
         d[i] = split_depth(i, m, frusv[0]);
     }
 
-    uniform_light_position->set(light);
+    uniform_light_position->set(light_p);
     uniform_pssm_depth    ->set(d);
 
     // Render each of the shadow maps.
@@ -992,7 +995,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
         // Compute a lighting frustum encompasing all view frusta.
 
-        frust.set_volume(frusc, frusv, c[i], c[i+1], light, lite_M, lite_I);
+        frust.set_volume(frusc, frusv, c[i], c[i+1], light_p, light_M, light_I);
 
         // Cache the fill visibility for the light.
 
@@ -1011,13 +1014,13 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             // View from the light's perspective.
 
-            glLoadMatrixd(lite_I);
+            glLoadMatrixd(light_I);
 
             glClear(GL_COLOR_BUFFER_BIT |
                     GL_DEPTH_BUFFER_BIT);
 
-            // NOTE: Uniforms have NOT been refreshed at this point.  The
-            // previous frame's uniforms are current.
+            // NOTE: Uniforms have NOT been refreshed at this point.
+            // The previous frame's uniforms are current.
 
             fill_pool->draw_init();
             {
@@ -1041,7 +1044,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
         double M[16];
 
         mult_mat_mat(M, S, frust.get_P());
-        mult_mat_mat(M, M, lite_I);
+        mult_mat_mat(M, M, light_I);
         mult_mat_mat(M, M, ::user->get_M());
 
         uniform_shadow[i]->set(M);
@@ -1062,18 +1065,6 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
 {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-
-    // Compute the light source position.
-
-    GLfloat L[4];
-
-    L[0] = GLfloat(light[0]);
-    L[1] = GLfloat(light[1]);
-    L[2] = GLfloat(light[2]);
-    L[3] = 1.0f;
-
-    glLightfv(GL_LIGHT0, GL_POSITION, L);
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

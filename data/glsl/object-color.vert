@@ -17,7 +17,7 @@ void main()
     T[0] = normalize(gl_NormalMatrix * Tangent);
     T[1] = normalize(cross(T[2], T[0]));
 
-    L_v = (gl_LightSource[0].position.xyz - eye.xyz) * T;
+    L_v = (light_position - eye.xyz) * T;
     V_v = eye.xyz * T;
 
     // Diffuse and shadow map texture coordinates.

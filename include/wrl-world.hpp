@@ -70,7 +70,10 @@ namespace wrl
         bool split_static;
 
         double split[4];
-        double light[3];
+
+        double light_theta;
+        double light_phi;
+        double light_rho;
 
         // Batcher state
 
