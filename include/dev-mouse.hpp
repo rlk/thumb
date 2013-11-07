@@ -30,8 +30,7 @@ namespace dev
         int key_move_F;
         int key_move_B;
 
-        double view_move_rate;
-        double view_turn_rate;
+        double speed;
 
         // Navigation state
 

@@ -26,6 +26,8 @@ namespace dev
         // Configuration
 
         double scale;
+        double move_rate;
+        double turn_rate;
 
         int tracker_head_sensor;
         int tracker_hand_sensor;

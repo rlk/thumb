@@ -26,6 +26,7 @@
 //-----------------------------------------------------------------------------
 
 dev::mouse::mouse() :
+    speed(5.0),
     dragging(false),
     modifier(0)
 {
@@ -188,7 +189,7 @@ bool dev::mouse::process_key(app::event *E)
 
 bool dev::mouse::process_tick(app::event *E)
 {
-    double kp = E->data.tick.dt * ::user->get_move_rate();
+    double kp = E->data.tick.dt * speed;
 
     if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;

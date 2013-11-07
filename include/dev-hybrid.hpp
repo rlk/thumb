@@ -91,6 +91,9 @@ namespace dev
         button peek_L;
         button peek_R;
 
+        double move_rate;
+        double turn_rate;
+
         // Navigation state
 
         double position[3];

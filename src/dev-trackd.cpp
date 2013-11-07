@@ -341,7 +341,13 @@ static bool tracker_button(int id, bool& b)
 
 //=============================================================================
 
-dev::trackd::trackd() : flying(false), joy_x(0), joy_y(0)
+dev::trackd::trackd() :
+    scale(1.0),
+    move_rate( 5.0),
+    turn_rate(60.0),
+    flying(false),
+    joy_x(0),
+    joy_y(0)
 {
     // Initialize the event state.
 
@@ -473,8 +479,8 @@ bool dev::trackd::process_tick(app::event *E)
 {
     const double dt = E->data.tick.dt;
 
-    const double kr = dt * ::user->get_turn_rate() * 45.0;
-    const double kp = dt * ::user->get_move_rate();
+    const double kr = dt * turn_rate;
+    const double kp = dt * move_rate;
 
     // Translate state changes to host events.
 

@@ -33,8 +33,6 @@ static double cubic(double t)
 //-----------------------------------------------------------------------------
 
 app::user::user() :
-    move_rate(1.0),
-    turn_rate(1.0),
     file(DEFAULT_DEMO_FILE),
     root(0),
     prev(0),
@@ -51,9 +49,6 @@ app::user::user() :
         0.5, 0.5, 0.5, 1.0,
     };
     load_mat(current_S, S);
-
-    move_rate = ::conf->get_f("view_move_rate",  5);
-    turn_rate = ::conf->get_f("view_turn_rate", 60);
 
     // Initialize the demo input.
 

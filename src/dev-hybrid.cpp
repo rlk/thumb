@@ -143,6 +143,9 @@ dev::hybrid::hybrid(const std::string& filename) :
     peek_L   (node.find("button", "name", "peek_L"),    12),
     peek_R   (node.find("button", "name", "peek_R"),    13),
 
+    move_rate( 5.0),
+    turn_rate(60.0),
+    
     depth(0)
 {
     position[0] =  0.0;
@@ -290,8 +293,8 @@ bool dev::hybrid::process_tick(app::event *E)
     const double dt = E->data.tick.dt;
     const double dz = 0.25;
 
-    const double kp = dt * ::user->get_move_rate();
-    const double kr = dt * ::user->get_turn_rate();
+    const double kp = dt * move_rate;
+    const double kr = dt * turn_rate;
     const double kt = 3.0 * 60.0 * 60.0 * dt;
 
     if (fabs(position[0]) > dz ||
