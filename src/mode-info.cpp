@@ -86,8 +86,6 @@ bool mode::info::process_event(app::event *E)
     assert(E);
     assert(gui);
 
-    ::host->post_draw();
-
     // Translate event data into GUI method calls.
 
     switch (E->get_type())
@@ -124,7 +122,6 @@ bool mode::info::process_event(app::event *E)
 
     case E_START:
 
-        host->post_draw();
         gui->show();
         SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
                             SDL_DEFAULT_REPEAT_INTERVAL);
@@ -134,7 +131,6 @@ bool mode::info::process_event(app::event *E)
 
         SDL_EnableKeyRepeat(0, 0);
         gui->hide();
-        host->post_draw();
         return false;
     }
 

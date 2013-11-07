@@ -71,8 +71,6 @@ bool dev::mouse::process_point(app::event *E)
         {
             ::user->tumble(init_R, curr_R);
         }
-
-        ::host->post_draw();
         return true;
     }
     return false;
@@ -99,7 +97,6 @@ bool dev::mouse::process_point(app::event *E)
         else
             ::user->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
 
-        ::host->post_draw();
         return true;
     }
     return false;
@@ -182,7 +179,6 @@ bool dev::mouse::process_key(app::event *E)
         if (k == SDLK_RETURN)
         {
             ::user->home();
-            ::host->post_draw();
             return true;
         }
     }

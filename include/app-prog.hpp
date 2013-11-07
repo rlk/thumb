@@ -47,6 +47,8 @@ namespace app
 
         virtual ~prog();
 
+        bool is_running() const { return running; }
+
         // Rendering handlers
 
         virtual ogl::range prep(int, const app::frustum * const *) = 0;
@@ -57,7 +59,8 @@ namespace app
 
         virtual bool process_event(event *);
         virtual void run();
-
+        virtual void stop();
+        
         event *axis_remap(event *);
 
         // Screenshot procedure
@@ -65,6 +68,8 @@ namespace app
         void screenshot(std::string, int, int);
 
     private:
+
+        bool running;
 
         int key_snap;
         int key_exit;

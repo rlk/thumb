@@ -346,19 +346,16 @@ bool app::host::process_calib(event *E)
         {
         case SDLK_TAB:
             calibration_state = !calibration_state;
-            post_draw();
             return true;
 
         case SDLK_SPACE:
             calibration_index++;
             printf("calibrating index %d\n", calibration_index);
-            post_draw();
             return true;
 
         case SDLK_BACKSPACE:
             calibration_index--;
             printf("calibrating index %d\n", calibration_index);
-            post_draw();
             return true;
         }
 
@@ -381,8 +378,6 @@ app::host::host(app::prog *p, std::string filename,
     script_sd(INVALID_SOCKET),
     server_sd(INVALID_SOCKET),
     clients(0),
-    draw_flag(false),
-    exit_flag(false),
     bench(::conf->get_i("bench")),
     movie(::conf->get_i("movie")),
     count(0),
@@ -597,7 +592,7 @@ void app::host::root_loop()
 
     // Process incoming events until an exit is posted.
 
-    while (exit_flag == false)
+    while (program->is_running())
     {
         // Translate and dispatch SDL events.
 
@@ -658,7 +653,7 @@ void app::host::root_loop()
                 break;
             }
 
-        if (exit_flag == false)
+        if (program->is_running())
         {
             poll_listen(false);
             poll_script();
@@ -677,8 +672,6 @@ void app::host::root_loop()
 
             process_event(E.mk_draw());
             process_event(E.mk_swap());
-
-            draw_flag = false;
 
             // Count frames and record a movie, if requested.
 
@@ -715,7 +708,7 @@ void app::host::node_loop()
 {
     event E;
 
-    while (exit_flag == false)
+    while (program->is_running())
         process_event(E.recv(server_sd));
 }
 
@@ -904,7 +897,7 @@ void app::host::process_start(event *E)
 
 void app::host::process_close(event *E)
 {
-    post_exit();
+    program->stop();
 
     // Free the list of display frustums.
 

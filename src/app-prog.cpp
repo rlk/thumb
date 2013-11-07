@@ -132,7 +132,7 @@ static void video()
 
 app::prog::prog(const std::string& exe,
                 const std::string& tag)
-    : input(0), snap_p(0), snap_w(0), snap_h(0)
+    : running(true), input(0), snap_p(0), snap_w(0), snap_h(0)
 {
     // Start Winsock
 
@@ -200,7 +200,6 @@ app::prog::prog(const std::string& exe,
     else if (input_mode == "skeleton") input = new dev::skeleton();
     else if (input_mode == "gamepad")  input = new dev::gamepad();
     else if (input_mode == "trackd")   input = new dev::trackd();
-//  else if (input_mode == "wiimote")  input = new dev::wiimote();
     else                               input = new dev::mouse  ();
 }
 
@@ -270,6 +269,11 @@ bool app::prog::process_event(app::event *E)
 void app::prog::run()
 {
     ::host->loop();
+}
+
+void app::prog::stop()
+{
+    running = false;
 }
 
 //-----------------------------------------------------------------------------

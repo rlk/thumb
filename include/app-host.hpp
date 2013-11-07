@@ -77,9 +77,6 @@ namespace app
 
         // Event loops
 
-        bool draw_flag;
-        bool exit_flag;
-
         void root_loop();
         void node_loop();
 
@@ -155,9 +152,6 @@ namespace app
         void set_movie_mode(int i)  { movie = i; }
         bool get_bench_mode() const { return (bench != 0); }
         void set_bench_mode(int i)  { bench = i; }
-
-        void post_draw() { draw_flag = true; }
-        void post_exit() { exit_flag = true; }
     };
 }
 
