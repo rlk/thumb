@@ -50,8 +50,6 @@
     <option name="shadow_method">map</option>
     <option name="shadow_map_splits">3</option>
     <option name="shadow_map_resolution">1024</option>
-    <option name="view_move_rate">5.00000</option>
-    <option name="view_turn_rate">60.00000</option>
     <!-- EdWorld Dvorak Commands -->
     <!-- -->
     <option name="key_move_L">97</option>

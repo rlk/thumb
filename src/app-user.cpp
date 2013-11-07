@@ -22,25 +22,7 @@
 
 //-----------------------------------------------------------------------------
 
-static double cubic(double t)
-{
-    if (t < 0.0) return 0.0;
-    if (t > 1.0) return 1.0;
-
-    return 3 * t * t - 2 * t * t * t;
-}
-
-//-----------------------------------------------------------------------------
-
-app::user::user() :
-    file(DEFAULT_DEMO_FILE),
-    root(0),
-    prev(0),
-    curr(0),
-    next(0),
-    pred(0),
-    tt(0),
-    stopped(true)
+app::user::user()
 {
     const double S[16] = {
         0.5, 0.0, 0.0, 0.0,
@@ -48,22 +30,15 @@ app::user::user() :
         0.0, 0.0, 0.5, 0.0,
         0.5, 0.5, 0.5, 1.0,
     };
+
+    load_idt(current_M);
+    load_idt(current_I);
     load_mat(current_S, S);
 
-    // Initialize the demo input.
-
-    root = file.get_root().find("demo");
-    curr = root.find("key");
-
-    prev = cycle_prev(curr);
-    next = cycle_next(curr);
-    pred = cycle_next(next);
-
-    // Initialize the transformation using the initial state.
-
-    int opts;
-
-    set_state(curr, opts);
+    current_L[0] = 0.0;
+    current_L[1] = 1.0;
+    current_L[2] = 0.0;
+    current_t    = 0.0;
 }
 
 void app::user::set(const double *p, const double *q, double t)
@@ -121,35 +96,6 @@ void app::user::get_point(double *P, const double *p,
 
     mult_mat_vec3(P, current_M, p);
     mult_xps_vec3(V, current_I, v);
-}
-
-//-----------------------------------------------------------------------------
-
-app::node app::user::cycle_next(app::node n)
-{
-    // Return the next key, or the first key if there is no next.  O(1).
-
-    app::node c = root.next(n, "key");
-    if (!c)   c = root.find(   "key");
-
-    return c;
-}
-
-app::node app::user::cycle_prev(app::node n)
-{
-    // Return the previous key, or the last key if there is no previous.  O(n).
-
-    app::node l(0);
-    app::node c(0);
-
-    for (c = root.find("key"); c; c = root.next(c, "key"))
-
-        if (cycle_next(c) == n)
-            return c;
-        else
-            l = c;
-
-    return l;
 }
 
 //-----------------------------------------------------------------------------
@@ -276,224 +222,9 @@ void app::user::tumble(const double *A,
 
 //-----------------------------------------------------------------------------
 
-double app::user::interpolate(app::node A,
-                              app::node B, const char *name, double t)
-{
-    // Cubic interpolator.
-
-    const double y1 = A.get_f(name, 0);
-    const double y2 = B.get_f(name, 0);
-
-    double k = cubic(cubic(t));
-
-    return y1 * (1.0 - k) + y2 * k;
-}
-
-void app::user::erp_state(app::node A,
-                          app::node B, double tt, int &opts)
-{
-    // Apply the interpolation of the given state nodes.
-
-    double p[3];
-    double q[4];
-    double time;
-
-    p[0] = interpolate(A, B, "x", tt);
-    p[1] = interpolate(A, B, "y", tt);
-    p[2] = interpolate(A, B, "z", tt);
-
-    q[0] = interpolate(A, B, "t", tt);
-    q[1] = interpolate(A, B, "u", tt);
-    q[2] = interpolate(A, B, "v", tt);
-    q[3] = interpolate(A, B, "w", tt);
-
-    time = interpolate(A, B, "time", tt);
-
-    if (tt < 0.5)
-        opts = A.get_i("opts", 0);
-    else
-        opts = B.get_i("opts", 0);
-
-    set(p, q, time);
-}
-
-void app::user::set_state(app::node A, int &opts)
-{
-    // Apply the given state node.
-
-    double p[3];
-    double q[4];
-    double time;
-
-    p[0] = A.get_f("x", 0);
-    p[1] = A.get_f("y", 0);
-    p[2] = A.get_f("z", 0);
-
-    q[0] = A.get_f("t", 0);
-    q[1] = A.get_f("u", 0);
-    q[2] = A.get_f("v", 0);
-    q[3] = A.get_f("w", 0);
-
-    time = A.get_i("time", 0);
-    opts = A.get_i("opts", 0);
-
-    set(p, q, time);
-}
-
-bool app::user::dostep(double dt, int &opts)
-{
-    // If we're starting backward, advance to the previous state.
-
-    if (stopped && dt < 0.0)
-    {
-        if (tt == 0.0)
-        {
-            stopped = false;
-            goprev();
-            tt = 1.0;
-        }
-    }
-
-    // If we're starting foreward, advance to the next state.
-
-    if (stopped && dt > 0.0)
-    {
-        if (tt == 1.0)
-        {
-            stopped = false;
-            gonext();
-            tt = 0.0;
-        }
-    }
-
-    tt += dt;
-
-    // If we're going backward, stop at the current state.
-
-    if (dt < 0.0 && tt < 0.0)
-    {
-        stopped = true;
-        set_state(curr, opts);
-        tt = 0.0;
-        return true;
-    }
-
-    // If we're going forward, stop at the next state.
-
-    if (dt > 0.0 && tt > 1.0)
-    {
-        stopped = true;
-        set_state(next, opts);
-        tt = 1.0;
-        return true;
-    }
-
-    // Otherwise just interpolate the two.
-
-    erp_state(curr, next, tt, opts);
-
-    return false;
-}
-
-void app::user::gohalf()
-{
-    // Teleport half way to the next key.
-
-    tt += (1.0 - tt) / 2.0;
-}
-
-void app::user::gonext()
-{
-    // Teleport to the next key.
-
-    curr = cycle_next(curr);
-    prev = cycle_prev(curr);
-    next = cycle_next(curr);
-    pred = cycle_next(next);
-}
-
-void app::user::goprev()
-{
-    // Teleport to the previous key.
-
-    curr = cycle_prev(curr);
-    prev = cycle_prev(curr);
-    next = cycle_next(curr);
-    pred = cycle_next(next);
-}
-
-void app::user::insert(int opts)
-{
-    if (stopped)
-    {
-        // If we're waiting at the end of a step, advance.
-
-        if (tt == 1.0)
-            gonext();
-
-        double q[4];
-
-        mat_to_quat(q, current_M);
-
-        // Insert a new key after the current key.
-
-        app::node c("key");
-
-        c.set_f("x", current_M[12]);
-        c.set_f("y", current_M[13]);
-        c.set_f("z", current_M[14]);
-
-        c.set_f("t", q[0]);
-        c.set_f("u", q[1]);
-        c.set_f("v", q[2]);
-        c.set_f("w", q[3]);
-
-        c.set_f("time", current_t);
-        c.set_i("opts", opts);
-
-        c.insert(root, curr);
-
-        curr = c;
-        prev = cycle_prev(curr);
-        next = cycle_next(curr);
-        pred = cycle_next(next);
-
-        tt = 0.0;
-    }
-}
-
-void app::user::remove()
-{
-    if (stopped)
-    {
-        // If we're waiting at the end of a step, advance.
-
-        if (tt == 1.0)
-            gonext();
-
-        // Remove the current key (if it's not the only one left).
-
-        app::node node = cycle_next(curr);
-
-        if (node != curr)
-        {
-            curr.remove();
-
-            curr = node;
-            prev = cycle_prev(curr);
-            next = cycle_next(curr);
-            pred = cycle_next(next);
-
-            tt = 0.0;
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
-
 void app::user::draw() const
 {
-    // This is a view matrix rather than a model matrix.  It must be inverse.
+    // This is a view matrix rather than a model matrix. It must be inverse.
 
     glLoadMatrixd(current_I);
 }

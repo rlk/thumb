@@ -79,23 +79,6 @@ class demo : public app::prog
     void free_uniforms();
     void prep_uniforms() const;
     
-    // Demo state.
-
-    double attr_sign;
-    double attr_curr;
-    double attr_rate;
-    double attr_time;
-    bool   attr_mode;
-    bool   attr_stop;
-
-    void attr_on();
-    void attr_off();
-    void attr_step(double);
-    void attr_next();
-    void attr_prev();
-    void attr_ins();
-    void attr_del();
-
     // Event handlers
 
     bool process_key  (app::event *);
@@ -112,9 +95,6 @@ public:
     ogl::range prep(int, const app::frustum * const *);
     void       lite(int, const app::frustum * const *);
     void       draw(int, const app::frustum *, int);
-
-    void next();
-    void prev();
 };
 
 //-----------------------------------------------------------------------------

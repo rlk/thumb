@@ -23,11 +23,6 @@ namespace app
     {
     private:
 
-        // View matrix and inverse cache
-
-        double cache_M[16];
-        double cache_I[16];
-
         double current_M[16];
         double current_I[16];
         double current_S[16];
@@ -35,30 +30,6 @@ namespace app
         double current_t;
 
         void set(const double *, const double *, double);
-
-        // Automatic demo file.
-
-        app::file file;
-
-        app::node root;
-        app::node prev;
-        app::node curr;
-        app::node next;
-        app::node pred;
-
-        app::node cycle_next(app::node);
-        app::node cycle_prev(app::node);
-
-        void correct();
-
-        double interpolate(app::node, app::node, const char *, double);
-
-        void erp_state(app::node, app::node, double, int&);
-        void set_state(app::node,                    int&);
-
-        double tt;
-
-        bool stopped;
 
     public:
 
@@ -87,21 +58,6 @@ namespace app
         void set_M(const double *);
         void tumble(const double *,
                     const double *);
-
-        // Autopilot
-
-        void auto_init(const double *);
-        void auto_step(double);
-        void auto_stop();
-
-        // Automatic view controls.
-
-        bool dostep(double, int&);
-        void gonext();
-        void goprev();
-        void gohalf();
-        void insert(int);
-        void remove();
 
         // Transform application.
 

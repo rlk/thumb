@@ -195,15 +195,6 @@ demo::demo(const std::string& exe,
 {
     init_uniforms();
 
-    // Initialize attract mode.
-
-    attr_time = conf->get_f("attract_delay", std::numeric_limits<double>::infinity());
-    attr_rate = conf->get_f("attract_speed", 1.0);
-    attr_curr = 0.0;
-    attr_sign = 1.0;
-    attr_mode = false;
-    attr_stop = false;
-
     // Initialize the application state.
 
     key_info  = conf->get_i("key_info", SDLK_F1);
@@ -217,8 +208,6 @@ demo::demo(const std::string& exe,
     info = new mode::info(world);
 
     goto_mode(edit);
-
-    attr_step(0.0);
 }
 
 demo::~demo()
@@ -246,83 +235,6 @@ void demo::goto_mode(mode::mode *next)
     curr = next;
 }
 
-void demo::attr_on()
-{
-    attr_curr = 0.0;
-    attr_mode = true;
-    attr_stop = false;
-}
-
-void demo::attr_off()
-{
-    attr_curr = 0.0;
-    attr_mode = false;
-}
-
-void demo::attr_step(double dt)
-{
-    // Move the camera forward.
-
-    if (attr_mode)
-    {
-        int opts = 0;
-
-        if (user->dostep(attr_rate * attr_sign * dt, opts))
-        {
-            if (attr_stop)
-                attr_off();
-        }
-    }
-}
-
-void demo::attr_next()
-{
-    // Play forward to the next key.
-
-    attr_sign =  1.0;
-    attr_curr =  0.0;
-    attr_stop = true;
-    attr_mode = true;
-}
-
-void demo::attr_prev()
-{
-    // Play backward to the previous key.
-
-    attr_sign = -1.0;
-    attr_curr =  0.0;
-    attr_stop = true;
-    attr_mode = true;
-}
-
-void demo::attr_ins()
-{
-    // Insert a new key here.
-
-    ::user->insert(0);
-    attr_step(0.0);
-}
-
-void demo::attr_del()
-{
-    // Remove the current key.
-
-    ::user->remove();
-    attr_step(0.0);
-}
-
-//-----------------------------------------------------------------------------
-
-void demo::next()
-{
-    attr_next();
-}
-
-void demo::prev()
-{
-    attr_prev();
-}
-
 //-----------------------------------------------------------------------------
 
 bool demo::process_key(app::event *E)
@@ -339,50 +251,11 @@ bool demo::process_key(app::event *E)
         if (k == key_play && curr != play) { goto_mode(play); return true; }
         if (k == key_info && curr != info) { goto_mode(info); return true; }
     }
-
-    // Handle attract mode controls.
-
-    if (d &&  (m & KMOD_SHIFT))
-    {
-        if      (k == SDLK_PAGEUP)   { attr_next(); return true; }
-        else if (k == SDLK_PAGEDOWN) { attr_prev(); return true; }
-        else if (k == SDLK_END)      { attr_ins();  return true; }
-        else if (k == SDLK_HOME)     { attr_del();  return true; }
-
-        else if (k == SDLK_SPACE)
-        {
-            if (m & KMOD_CTRL)
-            {
-                ::host->set_bench_mode(1);
-                ::host->set_movie_mode(2);
-            }
-            attr_on();
-            return true;
-        }
-    }
-
     return false;
 }
 
 bool demo::process_tick(app::event *E)
 {
-    double dt = E->data.tick.dt * 0.001;
-
-    // Step attract mode, if enabled.
-
-    if (attr_mode)
-        attr_step(dt);
-
-    // Otherwise, if the attract delay has expired, enable attract mode.
-
-    else
-    {
-        attr_curr += dt;
-
-        if (attr_curr > attr_time)
-            attr_on();
-    }
-
     // Always return IGNORED to allow other objects to process time.
 
     return false;
@@ -407,12 +280,6 @@ bool demo::process_event(app::event *E)
     if ((          prog::process_event(E)) ||
         (curr  &&  curr->process_event(E)))
     {
-        // If the event was handled, disable the attract mode.
-
-        ::host->set_bench_mode(0);
-        ::host->set_movie_mode(0);
-
-        attr_off();
         return true;
     }
 
