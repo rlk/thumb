@@ -15,7 +15,7 @@
 //-----------------------------------------------------------------------------
 
 ogl::lut::lut(GLsizei w, GLenum T, GLenum fi, GLenum fe, GLenum t) :
-    target(T), object(0), formint(fi), formext(fe), type(t), w(w)
+    target(T), object(0), form(fe), type(t)
 {
     glGenTextures(1, &object);
 
@@ -41,7 +41,7 @@ void ogl::lut::blit(const GLvoid *P, GLsizei X, GLsizei W) const
 {
     bind();
     {
-        glTexSubImage1D(target, 0, X, W, formext, type, P);
+        glTexSubImage1D(target, 0, X, W, form, type, P);
     }
     free();
 }

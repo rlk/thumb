@@ -47,9 +47,6 @@ namespace wrl
     {
         // ODE edit state
 
-        double        focus_dist;
-        double        frust_dist;
-
         dSpaceID      edit_space;
         dGeomID       edit_point;
         dGeomID       edit_focus;

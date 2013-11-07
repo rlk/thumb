@@ -23,11 +23,8 @@ namespace ogl
     {
         GLenum target;
         GLuint object;
-        GLenum formint;
-        GLenum formext;
+        GLenum form;
         GLenum type;
-
-        GLsizei w;
 
     public:
 

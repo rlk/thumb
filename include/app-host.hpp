@@ -84,7 +84,6 @@ namespace app
         void node_loop();
 
         double tock;
-        int    mode;
         int    bench;
         int    movie;
         int    count;

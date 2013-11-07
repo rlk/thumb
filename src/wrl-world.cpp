@@ -161,6 +161,8 @@ void wrl::world::edit_callback(dGeomID o1, dGeomID o2)
 
     // Note the nearest picking ray collision with a placeable geom.
 
+    double focus_dist = 100;
+
     if (dGeomGetClass(O2) != dPlaneClass)
     {
         if (int n = dCollide(O1, O2, MAX_CONTACTS, &contact[0].geom, sz))
@@ -389,11 +391,9 @@ void wrl::world::edit_pick(const double *p, const double *v)
 
 void wrl::world::edit_step(double dt)
 {
-    focus_dist = 100;
-    edit_focus =   0;
-
     // Perform collision detection.
 
+    edit_focus = 0;
     dSpaceCollide(edit_space, this, (dNearCallback *) ::edit_callback);
 }
 
