@@ -33,7 +33,6 @@ namespace ogl
     class binding;
     class uniform;
     class process;
-    class terrain;
 }
 
 //-----------------------------------------------------------------------------
@@ -85,7 +84,6 @@ namespace wrl
         ogl::node *stat_node;
         ogl::node *dyna_node;
 
-        const ogl::terrain *land;
         const ogl::binding *sky;
         const ogl::binding *sky_light;
         const ogl::binding *sky_shade;
@@ -107,7 +105,6 @@ namespace wrl
         double split_fract(int, int, const app::frustum *);
         double split_depth(int, int, const app::frustum *);
 
-        ogl::uniform *uniform_terrain_size;
         ogl::uniform *uniform_light_position;
         ogl::uniform *uniform_pssm_depth;
         ogl::uniform *uniform_shadow[3];

@@ -14,8 +14,6 @@ CP    = cp
 #CFLAGS += -DVERSION=$(shell svnversion)
 CFLAGS += -DVERSION=0.9
 
-INCDIR = -I/usr/include
-
 #------------------------------------------------------------------------------
 
 ifeq ($(shell uname), Darwin)

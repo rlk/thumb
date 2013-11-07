@@ -57,7 +57,6 @@ OBJS=	app-data.o \
 	ogl-shadow.o \
 	ogl-sprite.o \
 	ogl-surface.o \
-	ogl-terrain.o \
 	ogl-texture.o \
 	ogl-uniform.o \
 	wrl-atom.o \
@@ -101,6 +100,6 @@ clean :
 
 #------------------------------------------------------------------------------
 
-ifneq ($(MAKECMDGOALS),clean)
--include $(DEPS)
-endif
+#ifneq ($(MAKECMDGOALS),clean)
+#-include $(DEPS)
+#endif

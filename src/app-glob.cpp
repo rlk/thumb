@@ -26,7 +26,6 @@
 #include <ogl-texture.hpp>
 #include <ogl-binding.hpp>
 #include <ogl-surface.hpp>
-#include <ogl-terrain.hpp>
 
 #include <ogl-image.hpp>
 #include <ogl-frame.hpp>
@@ -53,19 +52,11 @@ void app::glob::dump()
     if (size_t ic = image_set.size()) printf("%3zu images\n", ic);
     if (size_t fc = frame_set.size()) printf("%3zu frames\n", fc);
 
-    std::map<std::string, terrain>::iterator gi;
     std::map<std::string, surface>::iterator si;
     std::map<std::string, binding>::iterator bi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, program>::iterator pi;
     std::map<std::string, uniform>::iterator ui;
-
-    if (size_t gc = terrain_map.size())
-    {
-        printf("%3zu terrains\n", gc);
-        for (gi = terrain_map.begin(); gi != terrain_map.end(); ++gi)
-            printf("    %s\n", gi->second.ptr->get_name().c_str());
-    }
 
     if (size_t sc = surface_map.size())
     {
@@ -116,7 +107,6 @@ app::glob::~glob()
     assert(image_set.empty());
     assert(frame_set.empty());
 
-    assert(terrain_map.empty());
     assert(surface_map.empty());
     assert(binding_map.empty());
     assert(texture_map.empty());
@@ -488,57 +478,6 @@ void app::glob::free_surface(const ogl::surface *p)
 
 //-----------------------------------------------------------------------------
 
-const ogl::terrain *app::glob::load_terrain(const std::string& name)
-{
-    if (terrain_map.find(name) == terrain_map.end())
-    {
-        if (ogl::terrain *p = new ogl::terrain(name))
-        {
-            terrain_map[name].ptr = p;
-            terrain_map[name].ref = 1;
-        }
-    }
-    else   terrain_map[name].ref++;
-
-    return terrain_map[name].ptr;
-}
-
-const ogl::terrain *app::glob::dupe_terrain(const ogl::terrain *p)
-{
-    if (p)
-    {
-        const std::string& name = p->get_name();
-
-        if (terrain_map.find(name) != terrain_map.end())
-        {
-            terrain_map[name].ref++;
-            return terrain_map[name].ptr;
-        }
-    }
-    return 0;
-}
-
-void app::glob::free_terrain(const std::string& name)
-{
-    std::map<std::string, terrain>::iterator i;
-
-    if ((i = terrain_map.find(name)) != terrain_map.end())
-    {
-        if (--i->second.ref == 0)
-        {
-            delete i->second.ptr;
-            terrain_map.erase(i);
-        }
-    }
-}
-
-void app::glob::free_terrain(const ogl::terrain *p)
-{
-    if (p) free_terrain(p->get_name());
-}
-
-//-----------------------------------------------------------------------------
-
 ogl::pool *app::glob::new_pool()
 {
     ogl::pool *p = new ogl::pool();
@@ -639,7 +578,6 @@ void app::glob::init()
     std::map<std::string, program>::iterator pi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, process>::iterator Pi;
-    std::map<std::string, terrain>::iterator gi;
 
     for (pi = program_map.begin(); pi != program_map.end(); ++pi)
         if (pi->second.ptr)
@@ -652,10 +590,6 @@ void app::glob::init()
     for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
         if (Pi->second.ptr)
             Pi->second.ptr->init();
-
-    for (gi = terrain_map.begin(); gi != terrain_map.end(); ++gi)
-        if (gi->second.ptr)
-            gi->second.ptr->init();
 }
 
 void app::glob::fini()
@@ -666,14 +600,9 @@ void app::glob::fini()
 
     // Release all OpenGL state.
 
-    std::map<std::string, terrain>::iterator gi;
     std::map<std::string, process>::iterator Pi;
     std::map<std::string, texture>::iterator ti;
     std::map<std::string, program>::iterator pi;
-
-    for (gi = terrain_map.begin(); gi != terrain_map.end(); ++gi)
-        if (gi->second.ptr)
-            gi->second.ptr->fini();
 
     for (Pi = process_map.begin(); Pi != process_map.end(); ++Pi)
         if (Pi->second.ptr)
