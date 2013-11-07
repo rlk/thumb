@@ -174,7 +174,6 @@ bool mode::edit::process_click(app::event *E)
         }
 
         move = false;
-
         return true;
     }
     return false;
@@ -321,8 +320,6 @@ ogl::range mode::edit::prep(int frusc, const app::frustum *const *frusv)
     r.merge(world->prep_fill(frusc, frusv));
     r.merge(world->prep_line(frusc, frusv));
     r.merge(xform->prep     (frusc, frusv));
-
-//  world->prep_lite(frusc, frusv, r);
 
     return r;
 }

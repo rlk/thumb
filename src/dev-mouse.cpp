@@ -92,10 +92,7 @@ bool dev::mouse::process_point(app::event *E)
         double t0 = DEG(atan2(init_R[8], init_R[10]));
         double t1 = DEG(atan2(curr_R[8], curr_R[10]));
 
-        if (modifier & KMOD_SHIFT)
-            ::user->look((t1 - t0) * 0.1, (p0 - p1) * 0.1);
-        else
-            ::user->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
+        ::user->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
 
         return true;
     }
@@ -112,10 +109,9 @@ bool dev::mouse::process_click(app::event *E)
 
     // Handle rotating the view.
 
-    if (b == SDL_BUTTON_RIGHT)
+    if (b == SDL_BUTTON_RIGHT && m == 0)
     {
         dragging = d;
-        modifier = m;
         return true;
     }
     return false;
