@@ -21,40 +21,9 @@
 
 app::user::user()
 {
-    const double S[16] = {
-        0.5, 0.0, 0.0, 0.0,
-        0.0, 0.5, 0.0, 0.0,
-        0.0, 0.0, 0.5, 0.0,
-        0.5, 0.5, 0.5, 1.0,
-    };
-
     load_idt(current_M);
     load_idt(current_I);
-    load_mat(current_S, S);
 }
-
-#if 0
-void app::user::set(const double *p, const double *q)
-{
-    // Compute the current transform and inverse from the given values.
-
-    if (q)
-        quat_to_mat(current_M, q);
-
-    if (p)
-    {
-        current_M[12] = p[0];
-        current_M[13] = p[1];
-        current_M[14] = p[2];
-    }
-
-    if (p || q)
-    {
-        orthonormalize(current_M);
-        load_inv(current_I, current_M);
-    }
-}
-#endif
 
 //-----------------------------------------------------------------------------
 

@@ -1035,10 +1035,15 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
         // Compute the light transform.
 
+        const double S[16] = {
+            0.5, 0.0, 0.0, 0.0,
+            0.0, 0.5, 0.0, 0.0,
+            0.0, 0.0, 0.5, 0.0,
+            0.5, 0.5, 0.5, 1.0,
+        };
         double M[16];
 
-        load_mat    (M,    ::user->get_S()); // TODO: eliminate ::user here.
-        mult_mat_mat(M, M, frust.get_P());
+        mult_mat_mat(M, S, frust.get_P());
         mult_mat_mat(M, M, lite_I);
         mult_mat_mat(M, M, ::user->get_M());
 
