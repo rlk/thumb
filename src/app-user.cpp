@@ -139,21 +139,6 @@ void app::user::set_M(const double *M)
     load_inv(current_I, M);
 }
 
-void app::user::tumble(const double *A,
-                       const double *B)
-{
-    double T[16];
-
-    load_xps(T, B);
-
-    mult_mat_mat(current_M, current_M, A);
-    mult_mat_mat(current_M, current_M, T);
-
-    orthonormalize(current_M);
-
-    load_inv(current_I, current_M);
-}
-
 //-----------------------------------------------------------------------------
 
 void app::user::draw() const

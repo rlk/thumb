@@ -47,8 +47,6 @@ namespace app
         void home();
 
         void set_M(const double *);
-        void tumble(const double *,
-                    const double *);
 
         // Transform application.
 

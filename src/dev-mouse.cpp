@@ -50,34 +50,6 @@ dev::mouse::~mouse()
 
 //-----------------------------------------------------------------------------
 
-#ifdef CONFIG_UNCONSTRAINED_TUMBLE
-
-bool dev::mouse::process_point(app::event *E)
-{
-    load_mat(init_R, curr_R);
-
-    quat_to_mat(curr_R, E->data.point.q);
-
-    if (dragging)
-    {
-        if (modifier & KMOD_SHIFT)
-        {
-            double a0 = DEG(atan2(init_R[9], init_R[8]));
-            double a1 = DEG(atan2(curr_R[9], curr_R[8]));
-
-            ::user->turn(0.0, 0.0, a0 - a1);
-        }
-        else
-        {
-            ::user->tumble(init_R, curr_R);
-        }
-        return true;
-    }
-    return false;
-}
-
-#else
-
 bool dev::mouse::process_point(app::event *E)
 {
     load_mat(init_R, curr_R);
@@ -98,8 +70,6 @@ bool dev::mouse::process_point(app::event *E)
     }
     return false;
 }
-
-#endif
 
 bool dev::mouse::process_click(app::event *E)
 {
