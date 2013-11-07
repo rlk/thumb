@@ -19,7 +19,6 @@
 #include <etc-math.hpp>
 #include <app-conf.hpp>
 #include <app-user.hpp>
-#include <app-host.hpp>
 #include <app-event.hpp>
 #include <dev-mouse.hpp>
 
@@ -113,7 +112,7 @@ bool dev::mouse::process_click(app::event *E)
 
     // Handle rotating the view.
 
-    if (b == 2)
+    if (b == SDL_BUTTON_RIGHT)
     {
         dragging = d;
         modifier = m;
@@ -128,11 +127,6 @@ bool dev::mouse::process_key(app::event *E)
     const int  k = E->data.key.k;
     const int  m = E->data.key.m;
 
-    double p[3] = { 0, 0, 0    };
-    double q[4] = { 0, 0, 0, 0 };
-
-    double s = 0.25;
-
     int dd = d ? +1 : -1;
 
     modifier = m;
@@ -145,15 +139,6 @@ bool dev::mouse::process_key(app::event *E)
     else if (k == key_move_U) { motion[1] += dd; return true; }
     else if (k == key_move_F) { motion[2] -= dd; return true; }
     else if (k == key_move_B) { motion[2] += dd; return true; }
-
-    // Handle head motion debug keys.
-
-    else if (k == SDLK_KP4) { p[0] = d ? -s : 0; ::host->set_head(p, q); }
-    else if (k == SDLK_KP6) { p[0] = d ? +s : 0; ::host->set_head(p, q); }
-    else if (k == SDLK_KP2) { p[1] = d ? -s : 0; ::host->set_head(p, q); }
-    else if (k == SDLK_KP8) { p[1] = d ? +s : 0; ::host->set_head(p, q); }
-    else if (k == SDLK_KP5) { p[2] = d ? -s : 0; ::host->set_head(p, q); }
-    else if (k == SDLK_KP0) { p[2] = d ? +s : 0; ::host->set_head(p, q); }
 
     // Teleport home.
 
