@@ -148,6 +148,12 @@ app::prog::prog(const std::string& exe,
 
     SDL_EnableUNICODE(1);
 
+    // If the given tag is an XML file name, use it as the host config file.
+    // This feature allows client hosts to serialize calibration data.
+
+    if (tag.size() > 4 && tag.rfind(".xml") == tag.size() - 4)
+        host_conf = tag;
+
     // Initialize data access and configuration.
 
     ::data = new app::data(DEFAULT_DATA_FILE);
@@ -162,12 +168,6 @@ app::prog::prog(const std::string& exe,
 
     if (lang_conf.empty()) lang_conf = DEFAULT_LANG_FILE;
     if (host_conf.empty()) host_conf = DEFAULT_HOST_FILE;
-
-    // If the given tag is an XML file name, use it as config file.
-    // TODO: this is ugly
-
-    if (tag.size() > 4 && tag.rfind(".xml") == tag.size() - 4)
-        host_conf = tag;
 
     ::lang = new app::lang(lang_conf);
     ::host = new app::host(this, host_conf, exe, tag);
@@ -200,7 +200,7 @@ app::prog::prog(const std::string& exe,
     else if (input_mode == "skeleton") input = new dev::skeleton();
     else if (input_mode == "gamepad")  input = new dev::gamepad();
     else if (input_mode == "trackd")   input = new dev::trackd();
-    else                               input = new dev::mouse  ();
+    else                               input = new dev::mouse();
 }
 
 app::prog::~prog()

@@ -28,7 +28,7 @@
 #define DEFAULT_DEPTH_PROGRAM "object-depth.xml"
 #define DEFAULT_COLOR_PROGRAM "object-color.xml"
 
-#define DEFAULT_TAG       "default"
+#define DEFAULT_TAG       "master"
 #define DEFAULT_HOST      "localhost"
 #define DEFAULT_PORT         2827
 #define DEFAULT_SCRIPT_PORT  2829

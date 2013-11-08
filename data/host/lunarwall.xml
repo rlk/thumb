@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
   <host>
     <!-- lunarwall1 ----------------------------------------------------- -->
-    <node name="lunarwall1" port="2827">
+    <node name="master" port="2827">
       <client name="lunarwall2" addr="lunarwall2" disp=":0.0"/>
       <client name="lunarwall3" addr="lunarwall3" disp=":0.0"/>
       <window  x="0" y="0" w="5440" h="768" full="1"/>

@@ -10,7 +10,7 @@
     </frustum>
   </overlay>
 
-  <node name="host/alioscopy-24-2x2.xml" port="2827">
+  <node name="master" port="2827">
 
     <client name="host/alioscopy-24-2x2-1.xml" addr="kaust2d1-10" disp=":0.0"/>
     <client name="host/alioscopy-24-2x2-2.xml" addr="kaust2d2-10" disp=":0.0"/>
