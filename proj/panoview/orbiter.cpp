@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <SDL_mouse.h>
+
 #include <cmath>
 
 #include <ogl-opengl.hpp>
@@ -586,14 +588,14 @@ bool orbiter::process_click(app::event *E)
 
     if (d)
     {
-        if (b == 0)
+        if (b == SDL_BUTTON_LEFT)
         {
             if (s)
                 drag_dive = true;
             else
                 drag_move = true;
         }
-        if (b == 2)
+        if (b == SDL_BUTTON_RIGHT)
         {
             if (s)
                 drag_lamp = true;
@@ -605,8 +607,8 @@ bool orbiter::process_click(app::event *E)
     }
     else
     {
-        if (b == 0) drag_dive = drag_move             = false;
-        if (b == 2) drag_lamp = drag_turn = drag_look = false;
+        if (b == SDL_BUTTON_LEFT)  drag_dive = drag_move             = false;
+        if (b == SDL_BUTTON_RIGHT) drag_lamp = drag_turn = drag_look = false;
     }
 
     return true;
@@ -669,19 +671,15 @@ bool orbiter::process_tick(app::event *E)
 
 bool orbiter::process_event(app::event *E)
 {
-    if (!view_app::process_event(E))
+    switch (E->get_type())
     {
-        switch (E->get_type())
-        {
-            case E_AXIS:   return process_axis(E);
-            case E_BUTTON: return process_button(E);
-            case E_CLICK:  return process_click(E);
-            case E_POINT:  return process_point(E);
-            case E_TICK:   return process_tick(E);
-        }
+        case E_AXIS:   if (process_axis(E))   return true; else break;
+        case E_BUTTON: if (process_button(E)) return true; else break;
+        case E_CLICK:  if (process_click(E))  return true; else break;
+        case E_POINT:  if (process_point(E))  return true; else break;
+        case E_TICK:   if (process_tick(E))   return true; else break;
     }
-
-    return false;
+    return view_app::process_event(E);
 }
 
 //------------------------------------------------------------------------------
