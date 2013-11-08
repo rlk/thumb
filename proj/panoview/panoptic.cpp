@@ -18,7 +18,7 @@
 #include <etc-math.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-conf.hpp>
 #include <app-prog.hpp>
 #include <app-event.hpp>
@@ -270,7 +270,7 @@ ogl::range panoptic::prep(int frusc, const app::frustum *const *frusv)
     view_app::prep(frusc, frusv);
 
     here.get_matrix(M);
-    ::user->set_M(M);
+    ::view->set_M(M);
 
     // Compute a horizon line based upon altitude and minimum terrain height.
 

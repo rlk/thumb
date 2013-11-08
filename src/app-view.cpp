@@ -13,13 +13,13 @@
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>
 #include <etc-math.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-data.hpp>
 #include <app-conf.hpp>
 
 //-----------------------------------------------------------------------------
 
-app::user::user()
+app::view::view()
 {
     load_idt(current_M);
     load_idt(current_I);
@@ -27,7 +27,7 @@ app::user::user()
 
 //-----------------------------------------------------------------------------
 
-void app::user::get_point(double *P, const double *p,
+void app::view::get_point(double *P, const double *p,
                           double *V, const double *q) const
 {
     double M[16], v[3];
@@ -48,7 +48,7 @@ void app::user::get_point(double *P, const double *p,
 
 //-----------------------------------------------------------------------------
 
-void app::user::turn(double rx, double ry, double rz, const double *R)
+void app::view::turn(double rx, double ry, double rz, const double *R)
 {
     // Turn in the given coordinate system.
 
@@ -69,7 +69,7 @@ void app::user::turn(double rx, double ry, double rz, const double *R)
     load_inv(current_I, current_M);
 }
 
-void app::user::turn(double rx, double ry, double rz)
+void app::view::turn(double rx, double ry, double rz)
 {
     // Grab basis vectors (which change during transform).
 
@@ -102,14 +102,14 @@ void app::user::turn(double rx, double ry, double rz)
     load_inv(current_I, current_M);
 }
 
-void app::user::move(double dx, double dy, double dz)
+void app::view::move(double dx, double dy, double dz)
 {
     Rmul_xlt_mat(current_M, dx, dy, dz);
 
     load_inv(current_I, current_M);
 }
 
-void app::user::look(double dt, double dp)
+void app::view::look(double dt, double dp)
 {
     const double x = current_M[12];
     const double y = current_M[13];
@@ -127,13 +127,13 @@ void app::user::look(double dt, double dp)
     load_inv(current_I, current_M);
 }
 
-void app::user::home()
+void app::view::home()
 {
     load_idt(current_M);
     load_idt(current_I);
 }
 
-void app::user::set_M(const double *M)
+void app::view::set_M(const double *M)
 {
     load_mat(current_M, M);
     load_inv(current_I, M);
@@ -141,7 +141,7 @@ void app::user::set_M(const double *M)
 
 //-----------------------------------------------------------------------------
 
-void app::user::draw() const
+void app::view::draw() const
 {
     // This is a view matrix rather than a model matrix. It must be inverse.
 

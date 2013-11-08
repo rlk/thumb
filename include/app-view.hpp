@@ -13,13 +13,11 @@
 #ifndef USER_HPP
 #define USER_HPP
 
-#include <app-file.hpp>
-
 //-----------------------------------------------------------------------------
 
 namespace app
 {
-    class user
+    class view
     {
     private:
 
@@ -29,14 +27,14 @@ namespace app
 
     public:
 
-        user();
+        view();
 
         void get_point(double *, const double *,
                        double *, const double *) const;
 
-        const double  *get_M() const { return current_M; }
-        const double  *get_I() const { return current_I; }
-        const double  *get_S() const { return current_S; }
+        const double *get_M() const { return current_M; }
+        const double *get_I() const { return current_I; }
+        const double *get_S() const { return current_S; }
 
         // Interactive view controls.
 
@@ -56,7 +54,7 @@ namespace app
 
 //-----------------------------------------------------------------------------
 
-extern app::user *user;
+extern app::view *view;
 
 //-----------------------------------------------------------------------------
 

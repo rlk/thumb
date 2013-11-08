@@ -18,7 +18,7 @@
 
 #include <etc-math.hpp>
 #include <app-conf.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-event.hpp>
 #include <dev-mouse.hpp>
 
@@ -64,7 +64,7 @@ bool dev::mouse::process_point(app::event *E)
         double t0 = DEG(atan2(init_R[8], init_R[10]));
         double t1 = DEG(atan2(curr_R[8], curr_R[10]));
 
-        ::user->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
+        ::view->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
 
         return true;
     }
@@ -112,7 +112,7 @@ bool dev::mouse::process_key(app::event *E)
     {
         if (k == SDLK_RETURN)
         {
-            ::user->home();
+            ::view->home();
             return true;
         }
     }
@@ -127,9 +127,9 @@ bool dev::mouse::process_tick(app::event *E)
     if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;
 
-    user->move(motion[0] * kp,
-               motion[1] * kp,
-               motion[2] * kp);
+    ::view->move(motion[0] * kp,
+                 motion[1] * kp,
+                 motion[2] * kp);
 
     return false;
 }

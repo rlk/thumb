@@ -20,7 +20,7 @@
 #include <ogl-process.hpp>
 #include <app-glob.hpp>
 #include <app-conf.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-file.hpp>
 #include <app-frustum.hpp>
 #include <wrl-solid.hpp>
@@ -1045,7 +1045,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
         mult_mat_mat(M, S, frust.get_P());
         mult_mat_mat(M, M, light_I);
-        mult_mat_mat(M, M, ::user->get_M());
+        mult_mat_mat(M, M, ::view->get_M());
 
         uniform_shadow[i]->set(M);
     }

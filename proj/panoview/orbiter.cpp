@@ -18,7 +18,7 @@
 #include <etc-math.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-conf.hpp>
 #include <app-prog.hpp>
 #include <app-event.hpp>
@@ -210,7 +210,7 @@ void orbiter::move(double dt, double k)
 
         if (fabs(a) > 0.0)
         {
-            const double *M = ::user->get_M();
+            const double *M = ::view->get_M();
             double t[3];
             double u[3];
 
@@ -662,7 +662,7 @@ bool orbiter::process_tick(app::event *E)
     double M[16];
 
     here.get_matrix(M);
-    ::user->set_M(M);
+    ::view->set_M(M);
 
     return false;
 }

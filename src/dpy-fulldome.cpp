@@ -15,7 +15,7 @@
 #include <etc-math.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-event.hpp>
 #include <app-frustum.hpp>
 #include <ogl-program.hpp>
@@ -200,7 +200,7 @@ bool dpy::fulldome::pointer_to_3D(app::event *E, int x, int y)
 
             mat_to_quat(q, B);
 
-            E->mk_point(0, ::user->get_M() + 12, q);
+            E->mk_point(0, ::view->get_M() + 12, q);
 
             return true;
         }

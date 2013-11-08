@@ -15,7 +15,7 @@
 #include <etc-math.hpp>
 #include <app-default.hpp>
 #include <app-conf.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>
 #include <dev-trackd.hpp>
@@ -512,8 +512,8 @@ bool dev::trackd::process_tick(app::event *E)
         dR[1] = -DOT3(dz, init_R + 0);
         dR[2] =  DOT3(dy, init_R + 0);
 
-        ::user->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
-        ::user->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+        ::view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
+        ::view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
     }
 
     return false;

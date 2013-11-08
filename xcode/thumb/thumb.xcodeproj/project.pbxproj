@@ -86,7 +86,7 @@
 		58E774B113AE650500E265AD /* app-lang.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 58E7746C13AE650300E265AD /* app-lang.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		58E774B213AE650500E265AD /* app-perf.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 58E7746D13AE650400E265AD /* app-perf.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		58E774B313AE650500E265AD /* app-prog.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 58E7746E13AE650400E265AD /* app-prog.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
-		58E774B413AE650500E265AD /* app-user.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 58E7746F13AE650400E265AD /* app-user.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
+		58E774B413AE650500E265AD /* app-view.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 58E7746F13AE650400E265AD /* app-view.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		58E774B513AE650500E265AD /* dev-gamepad.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 58E7747013AE650400E265AD /* dev-gamepad.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		58E774B613AE650500E265AD /* dev-hybrid.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 58E7747113AE650400E265AD /* dev-hybrid.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
 		58E774B713AE650500E265AD /* dev-input.hpp in Headers */ = {isa = PBXBuildFile; fileRef = 58E7747213AE650400E265AD /* dev-input.hpp */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -230,7 +230,7 @@
 		58E7746C13AE650300E265AD /* app-lang.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "app-lang.hpp"; path = "../../../include/app-lang.hpp"; sourceTree = "<group>"; };
 		58E7746D13AE650400E265AD /* app-perf.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "app-perf.hpp"; path = "../../../include/app-perf.hpp"; sourceTree = "<group>"; };
 		58E7746E13AE650400E265AD /* app-prog.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "app-prog.hpp"; path = "../../../include/app-prog.hpp"; sourceTree = "<group>"; };
-		58E7746F13AE650400E265AD /* app-user.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "app-user.hpp"; path = "../../../include/app-user.hpp"; sourceTree = "<group>"; };
+		58E7746F13AE650400E265AD /* app-view.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "app-view.hpp"; path = "../../../include/app-view.hpp"; sourceTree = "<group>"; };
 		58E7747013AE650400E265AD /* dev-gamepad.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dev-gamepad.hpp"; path = "../../../include/dev-gamepad.hpp"; sourceTree = "<group>"; };
 		58E7747113AE650400E265AD /* dev-hybrid.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dev-hybrid.hpp"; path = "../../../include/dev-hybrid.hpp"; sourceTree = "<group>"; };
 		58E7747213AE650400E265AD /* dev-input.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = "dev-input.hpp"; path = "../../../include/dev-input.hpp"; sourceTree = "<group>"; };
@@ -438,7 +438,7 @@
 				58E7746C13AE650300E265AD /* app-lang.hpp */,
 				58E7746D13AE650400E265AD /* app-perf.hpp */,
 				58E7746E13AE650400E265AD /* app-prog.hpp */,
-				58E7746F13AE650400E265AD /* app-user.hpp */,
+				58E7746F13AE650400E265AD /* app-view.hpp */,
 				58E7747013AE650400E265AD /* dev-gamepad.hpp */,
 				58E7747113AE650400E265AD /* dev-hybrid.hpp */,
 				58E7747213AE650400E265AD /* dev-input.hpp */,
@@ -527,7 +527,7 @@
 				58E774B113AE650500E265AD /* app-lang.hpp in Headers */,
 				58E774B213AE650500E265AD /* app-perf.hpp in Headers */,
 				58E774B313AE650500E265AD /* app-prog.hpp in Headers */,
-				58E774B413AE650500E265AD /* app-user.hpp in Headers */,
+				58E774B413AE650500E265AD /* app-view.hpp in Headers */,
 				58E774B513AE650500E265AD /* dev-gamepad.hpp in Headers */,
 				58E774B613AE650500E265AD /* dev-hybrid.hpp in Headers */,
 				58E774B713AE650500E265AD /* dev-input.hpp in Headers */,

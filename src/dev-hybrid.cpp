@@ -16,7 +16,7 @@
 
 #include <etc-math.hpp>
 #include <app-conf.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>
 #include <dev-hybrid.hpp>
@@ -223,7 +223,7 @@ bool dev::hybrid::process_button(app::event *E)
     }
     if (move_home.process_button(b, d))
     {
-        ::user->home();
+        ::view->home();
         synthesize_point();
         return true;
     }
@@ -300,7 +300,7 @@ bool dev::hybrid::process_tick(app::event *E)
         fabs(position[1]) > dz ||
         fabs(position[2]) > dz)
     {
-        ::user->move(position[0] * kp,
+        ::view->move(position[0] * kp,
                      position[1] * kp,
                      position[2] * kp);
         synthesize_point();
@@ -309,7 +309,7 @@ bool dev::hybrid::process_tick(app::event *E)
     if (fabs(rotation[0]) > dz ||
         fabs(rotation[1]) > dz)
     {
-        ::user->look(rotation[0] * kr,
+        ::view->look(rotation[0] * kr,
                      rotation[1] * kr);
         synthesize_point();
     }

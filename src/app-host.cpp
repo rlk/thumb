@@ -31,7 +31,7 @@
 #include <app-frustum.hpp>
 #include <app-event.hpp>
 #include <app-conf.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-prog.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
@@ -707,7 +707,7 @@ void app::host::draw()
     // Cache the transformed frustum planes (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_transform(::user->get_M());
+        (*i)->set_transform(::view->get_M());
 
     // Determine visibility and view distance (moderately expensive).
 

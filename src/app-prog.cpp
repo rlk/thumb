@@ -22,7 +22,7 @@
 #include <app-conf.hpp>
 #include <app-data.hpp>
 #include <app-glob.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-lang.hpp>
 #include <app-host.hpp>
 #include <app-perf.hpp>
@@ -39,7 +39,7 @@
 app::conf *conf = 0;
 app::data *data = 0;
 app::glob *glob = 0;
-app::user *user = 0;
+app::view *view = 0;
 app::lang *lang = 0;
 app::host *host = 0;
 app::perf *perf = 0;
@@ -148,12 +148,6 @@ app::prog::prog(const std::string& exe,
 
     SDL_EnableUNICODE(1);
 
-    // If the given tag is an XML file name, use it as the host config file.
-    // This feature allows client hosts to serialize calibration data.
-
-    if (tag.size() > 4 && tag.rfind(".xml") == tag.size() - 4)
-        host_conf = tag;
-
     // Initialize data access and configuration.
 
     ::data = new app::data(DEFAULT_DATA_FILE);
@@ -165,6 +159,12 @@ app::prog::prog(const std::string& exe,
 
     std::string lang_conf = ::conf->get_s("lang_file");
     std::string host_conf = ::conf->get_s("host_file");
+
+    // If the given tag is an XML file name, use it as the host config file.
+    // This feature allows client hosts to serialize calibration data.
+
+    if (tag.size() > 4 && tag.rfind(".xml") == tag.size() - 4)
+        host_conf = tag;
 
     if (lang_conf.empty()) lang_conf = DEFAULT_LANG_FILE;
     if (host_conf.empty()) host_conf = DEFAULT_HOST_FILE;
@@ -178,7 +178,7 @@ app::prog::prog(const std::string& exe,
 
     // Initialize the OpenGL state.
 
-    ::user = new app::user();
+    ::view = new app::view();
     ::glob = new app::glob();
     ::perf = new app::perf();
 
@@ -212,7 +212,7 @@ app::prog::~prog()
     if (input)  delete input;
 
     if (::perf) delete ::perf;
-    if (::user) delete ::user;
+    if (::view) delete ::view;
     if (::host) delete ::host;
     if (::glob) delete ::glob;
     if (::lang) delete ::lang;

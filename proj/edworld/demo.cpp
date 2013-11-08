@@ -22,7 +22,7 @@
 #include <app-frustum.hpp>
 #include <app-event.hpp>
 #include <app-conf.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-host.hpp>
 #include <app-glob.hpp>
 
@@ -85,8 +85,8 @@ void demo::free_uniforms()
 
 void demo::prep_uniforms() const
 {
-    const double *M = ::user->get_M();
-    const double *I = ::user->get_I();
+    const double *M = ::view->get_M();
+    const double *I = ::view->get_I();
 
     // Set the viewing uniforms
 

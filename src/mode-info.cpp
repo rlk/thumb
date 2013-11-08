@@ -17,7 +17,7 @@
 #include <SDL_mouse.h>
 
 #include <mode-info.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>
 #include <app-frustum.hpp>
@@ -61,7 +61,7 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
     assert(gui);
 
      frusp->draw();
-    ::user->draw();
+    ::view->draw();
 
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);

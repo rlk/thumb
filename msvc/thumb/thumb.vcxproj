@@ -23,7 +23,7 @@
     <ClInclude Include="..\..\include\app-lang.hpp" />
     <ClInclude Include="..\..\include\app-perf.hpp" />
     <ClInclude Include="..\..\include\app-prog.hpp" />
-    <ClInclude Include="..\..\include\app-user.hpp" />
+    <ClInclude Include="..\..\include\app-view.hpp" />
     <ClInclude Include="..\..\include\dev-gamepad.hpp" />
     <ClInclude Include="..\..\include\dev-hybrid.hpp" />
     <ClInclude Include="..\..\include\dev-input.hpp" />

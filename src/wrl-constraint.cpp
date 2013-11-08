@@ -13,7 +13,7 @@
 #include <etc-math.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-pool.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-glob.hpp>
 #include <app-frustum.hpp>
 #include <wrl-constraint.hpp>

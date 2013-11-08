@@ -16,7 +16,7 @@
 #include <etc-socket.hpp>
 #include <etc-math.hpp>
 #include <app-conf.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>
 #include <dev-skeleton.hpp>

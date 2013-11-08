@@ -13,7 +13,7 @@
 #include <cassert>
 
 #include <wrl-world.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <ogl-opengl.hpp>
 #include <app-frustum.hpp>
 #include <mode-mode.hpp>
@@ -41,7 +41,7 @@ void mode::mode::draw(int frusi, const app::frustum *frusp)
     // Draw the world.
 
      frusp->draw();
-    ::user->draw();
+    ::view->draw();
 
     world->draw_fill(frusi, frusp);
 

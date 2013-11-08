@@ -12,7 +12,7 @@ OBJS=	app-data.o \
 	app-perf.o \
 	app-lang.o \
 	app-prog.o \
-	app-user.o \
+	app-view.o \
 	dev-gamepad.o \
 	dev-hybrid.o \
 	dev-mouse.o \

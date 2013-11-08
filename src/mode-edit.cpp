@@ -18,7 +18,7 @@
 
 #include <etc-math.hpp>
 #include <app-conf.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-event.hpp>
 #include <app-frustum.hpp>
 #include <wrl-world.hpp>
@@ -87,7 +87,7 @@ bool mode::edit::process_point(app::event *E)
 
         // Transform the point event into world space.
 
-        ::user->get_point(point_p, E->data.point.p,
+        ::view->get_point(point_p, E->data.point.p,
                           point_v, E->data.point.q);
 
         world->edit_pick(point_p, point_v);
@@ -285,7 +285,7 @@ bool mode::edit::process_key(app::event *E)
         else if (k == key_home)
         {
             if (m & KMOD_SHIFT)
-                ::user->home();
+                ::view->home();
             else
             {
                 double M[16];
@@ -332,7 +332,7 @@ void mode::edit::draw(int frusi, const app::frustum *frusp)
     // Draw the world and the constraint.
 
      frusp->draw();
-    ::user->draw();
+    ::view->draw();
 
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);

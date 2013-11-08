@@ -17,7 +17,7 @@
 #include <etc-math.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-conf.hpp>
 #include <app-prog.hpp>
 #include <app-event.hpp>
@@ -305,7 +305,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     double M[16], P[16];
 
     load_mat(P,  frusp->get_P());
-    load_inv(M, ::user->get_M());
+    load_inv(M, ::view->get_M());
 
     Lmul_scl_mat(M, get_scale(),
                     get_scale(),
@@ -320,7 +320,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 void view_app::over(int frusi, const app::frustum *frusp, int chani)
 {
     frusp->draw();
-   ::user->draw();
+   ::view->draw();
 
     glScaled(get_scale(),
              get_scale(),

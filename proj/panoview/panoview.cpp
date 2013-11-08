@@ -17,7 +17,7 @@
 #include <etc-math.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
-#include <app-user.hpp>
+#include <app-view.hpp>
 #include <app-conf.hpp>
 #include <app-prog.hpp>
 #include <app-event.hpp>
@@ -138,7 +138,7 @@ bool panoview::pan_tick(app::event *E)
     }
 
     here.get_matrix(M);
-    ::user->set_M(M);
+    ::view->set_M(M);
 
     return false;
 }
