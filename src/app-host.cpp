@@ -46,6 +46,217 @@
 
 //-----------------------------------------------------------------------------
 
+app::host::host(app::prog *p, std::string filename,
+                              std::string exe,
+                              std::string tag) :
+    listen_sd(INVALID_SOCKET),
+    script_sd(INVALID_SOCKET),
+    server_sd(INVALID_SOCKET),
+    clients(0),
+    bench(::conf->get_i("bench")),
+    movie(::conf->get_i("movie")),
+    count(0),
+    calibration_state(false),
+    calibration_index(0),
+    device(0),
+    overlay(0),
+    program(p),
+    render(0),
+    file(filename.c_str())
+{
+    // Set some reasonable defaults.
+
+    window_full    = 0;
+    window_frame   = 1;
+    window_cursor  = 1;
+    window_rect[0] = 0;
+    window_rect[1] = 0;
+    window_rect[2] = DEFAULT_PIXEL_WIDTH;
+    window_rect[3] = DEFAULT_PIXEL_HEIGHT;
+    buffer_size[0] = DEFAULT_PIXEL_WIDTH;
+    buffer_size[1] = DEFAULT_PIXEL_HEIGHT;
+    render_size[0] = 0;
+    render_size[1] = 0;
+
+    load_idt(T);
+
+    // Read host.xml and configure using tag match.
+
+    if (app::node p = file.get_root().find("host"))
+    {
+        // Extract the global tranform.
+
+        if (app::node c = p.find("transform"))
+        {
+            T[ 0] = c.get_f("m0", 1.0);
+            T[ 1] = c.get_f("m1", 0.0);
+            T[ 2] = c.get_f("m2", 0.0);
+            T[ 3] = c.get_f("m3", 0.0);
+            T[ 4] = c.get_f("m4", 0.0);
+            T[ 5] = c.get_f("m5", 1.0);
+            T[ 6] = c.get_f("m6", 0.0);
+            T[ 7] = c.get_f("m7", 0.0);
+            T[ 8] = c.get_f("m8", 0.0);
+            T[ 9] = c.get_f("m9", 0.0);
+            T[10] = c.get_f("ma", 1.0);
+            T[11] = c.get_f("mb", 0.0);
+            T[12] = c.get_f("mc", 0.0);
+            T[13] = c.get_f("md", 0.0);
+            T[14] = c.get_f("me", 0.0);
+            T[15] = c.get_f("mf", 1.0);
+        }
+
+        // Locate the configuration for this node.
+
+        if (app::node n = p.find("node", "name", tag.c_str()))
+        {
+            // Extract the on-screen window configuration.
+
+            if (app::node c = n.find("window"))
+            {
+                window_full    = c.get_i("full",   0);
+                window_frame   = c.get_i("frame",  1);
+                window_cursor  = c.get_i("cursor", 1);
+                window_rect[0] = c.get_i("x", 0);
+                window_rect[1] = c.get_i("y", 0);
+                window_rect[2] = c.get_i("w", DEFAULT_PIXEL_WIDTH);
+                window_rect[3] = c.get_i("h", DEFAULT_PIXEL_HEIGHT);
+            }
+
+            // Extract the off-screen render size, if any.
+
+            if (app::node c = n.find("render"))
+            {
+                render_size[0] = c.get_i("w", 0);
+                render_size[1] = c.get_i("h", 0);
+            }
+
+            // Extract the working buffer size, or use the window size.
+
+            if (app::node c = n.find("buffer"))
+            {
+                buffer_size[0] = c.get_i("w", window_rect[2]);
+                buffer_size[1] = c.get_i("h", window_rect[3]);
+            }
+            else
+            {
+                buffer_size[0] = window_rect[2];
+                buffer_size[1] = window_rect[3];
+            }
+
+            // Extract the preferred CUDA device configuration.
+
+            if (app::node c = n.find("device"))
+                device = c.get_i("index");
+
+            // Create a display object for each configured display.
+
+            app::node c;
+
+            for (c = n.find("display"); c; c = n.next(c, "display"))
+            {
+                const std::string t = c.get_s("type");
+
+                if      (t == "anaglyph")
+                    displays.push_back(new dpy::anaglyph  (c));
+                else if (t == "fulldome")
+                    displays.push_back(new dpy::fulldome  (c));
+                else if (t == "interlace")
+                    displays.push_back(new dpy::interlace (c));
+                else if (t == "lenticular")
+                    displays.push_back(new dpy::lenticular(c));
+                else if (t == "normal")
+                    displays.push_back(new dpy::normal    (c));
+                else
+                    displays.push_back(new dpy::direct    (c));
+            }
+
+            // Create a channel object for each configured channel.
+
+            if (channels.empty())
+                for (c = n.find("channel"); c; c = n.next(c, "channel"))
+                    channels.push_back(new dpy::channel(c));
+
+            // If there are no locally-defined channels, check the root.
+
+            if (channels.empty())
+                for (c = p.find("channel"); c; c = p.next(c, "channel"))
+                    channels.push_back(new dpy::channel(c));
+
+            // Determine the locally-defined overlay area.
+
+            if (overlay == 0)
+                if (app::node o = n.find("overlay"))
+                {
+                    int w = o.get_i("w", window_rect[2]);
+                    int h = o.get_i("h", window_rect[3]);
+
+                    if (app::node c = o.find("frustum"))
+                        overlay = new app::frustum(c, w, h);
+                    else
+                        overlay = new app::frustum(0, w, h);
+                }
+
+            // Determine the globally-defined overlay area.
+
+            if (overlay == 0)
+                if (app::node o = p.find("overlay"))
+                {
+                    int w = o.get_i("w", window_rect[2]);
+                    int h = o.get_i("h", window_rect[3]);
+
+                    if (app::node c = o.find("frustum"))
+                        overlay = new app::frustum(c, w, h);
+                    else
+                        overlay = new app::frustum(0, w, h);
+                }
+
+            // Start the network syncronization.
+
+            init_server(n);
+            init_client(n, exe);
+            init_listen(n);
+        }
+    }
+    init_script();
+
+    // If no channels or displays were configured, instance defaults.
+
+    if (channels.empty()) channels.push_back(new dpy::channel(0));
+    if (displays.empty()) displays.push_back(new dpy::direct (0));
+
+    // If no overlay has been defined, clone the first display frustum.
+
+    if (overlay == 0)
+        overlay = new app::frustum(*(displays.front()->get_overlay()));
+
+    // Wait until all clients have connected.
+
+    while (int(client_sd.size()) < clients)
+        poll_listen(true);
+}
+
+app::host::~host()
+{
+    if (overlay)
+        delete overlay;
+
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+        delete (*i);
+
+    for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
+        delete (*i);
+
+    if (render)
+        delete render;
+
+    fini_client();
+    fini_server();
+    fini_listen();
+}
+
+//-----------------------------------------------------------------------------
+
 static void nodelay(int sd)
 {
     socklen_t len = sizeof (int);
@@ -154,11 +365,7 @@ void app::host::poll_listen(bool wait)
                     throw app::sock_error("accept");
                 else
                 {
-                    // Generate a start event
-                    event E;
-                    E.mk_start();
                     nodelay(sd);
-                    E.send(sd);
                     client_sd.push_back(sd);
                 }
             }
@@ -334,261 +541,13 @@ void app::host::fork_client(const char *name,
 
 //-----------------------------------------------------------------------------
 
-bool app::host::process_calib(event *E)
-{
-    // Handle calibration state input.
-
-    if ((E->get_type() == E_KEY) &&
-        (E->data.key.d)          &&
-        (E->data.key.m & KMOD_CTRL))
-
-        switch (E->data.key.k)
-        {
-        case SDLK_TAB:
-            calibration_state = !calibration_state;
-            return true;
-
-        case SDLK_SPACE:
-            calibration_index++;
-            printf("calibrating index %d\n", calibration_index);
-            return true;
-
-        case SDLK_BACKSPACE:
-            calibration_index--;
-            printf("calibrating index %d\n", calibration_index);
-            return true;
-        }
-
-    // Dispatch a calibration event to the current display.
-
-    if (calibration_state)
-        for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
-            if ((*i)->is_index(calibration_index))
-                return (*i)->process_event(E);
-
-    return false;
-}
-
-//-----------------------------------------------------------------------------
-
-app::host::host(app::prog *p, std::string filename,
-                              std::string exe,
-                              std::string tag) :
-    listen_sd(INVALID_SOCKET),
-    script_sd(INVALID_SOCKET),
-    server_sd(INVALID_SOCKET),
-    clients(0),
-    bench(::conf->get_i("bench")),
-    movie(::conf->get_i("movie")),
-    count(0),
-    calibration_state(false),
-    calibration_index(0),
-    device(0),
-    overlay(0),
-    program(p),
-    render(0),
-    file(filename.c_str())
-{
-    // Set some reasonable defaults.
-
-    window_full    = 0;
-    window_frame   = 1;
-    window_cursor  = 1;
-    window_rect[0] = 0;
-    window_rect[1] = 0;
-    window_rect[2] = DEFAULT_PIXEL_WIDTH;
-    window_rect[3] = DEFAULT_PIXEL_HEIGHT;
-    buffer_size[0] = DEFAULT_PIXEL_WIDTH;
-    buffer_size[1] = DEFAULT_PIXEL_HEIGHT;
-    render_size[0] = 0;
-    render_size[1] = 0;
-
-    load_idt(T);
-
-    // Read host.xml and configure using tag match.
-
-    if (app::node p = file.get_root().find("host"))
-    {
-    	// Extract the global tranform.
-
-        if (app::node c = p.find("transform"))
-        {
-            T[ 0] = c.get_f("m0", 1.0);
-            T[ 1] = c.get_f("m1", 0.0);
-            T[ 2] = c.get_f("m2", 0.0);
-            T[ 3] = c.get_f("m3", 0.0);
-            T[ 4] = c.get_f("m4", 0.0);
-            T[ 5] = c.get_f("m5", 1.0);
-            T[ 6] = c.get_f("m6", 0.0);
-            T[ 7] = c.get_f("m7", 0.0);
-            T[ 8] = c.get_f("m8", 0.0);
-            T[ 9] = c.get_f("m9", 0.0);
-            T[10] = c.get_f("ma", 1.0);
-            T[11] = c.get_f("mb", 0.0);
-            T[12] = c.get_f("mc", 0.0);
-            T[13] = c.get_f("md", 0.0);
-            T[14] = c.get_f("me", 0.0);
-            T[15] = c.get_f("mf", 1.0);
-        }
-
-        // Locate the configuration for this node.
-
-        if (app::node n = p.find("node", "name", tag.c_str()))
-        {
-            // Extract the on-screen window configuration.
-
-            if (app::node c = n.find("window"))
-            {
-                window_full    = c.get_i("full",   0);
-                window_frame   = c.get_i("frame",  1);
-                window_cursor  = c.get_i("cursor", 1);
-                window_rect[0] = c.get_i("x", 0);
-                window_rect[1] = c.get_i("y", 0);
-                window_rect[2] = c.get_i("w", DEFAULT_PIXEL_WIDTH);
-                window_rect[3] = c.get_i("h", DEFAULT_PIXEL_HEIGHT);
-            }
-
-            // Extract the off-screen render size, if any.
-
-            if (app::node c = n.find("render"))
-            {
-                render_size[0] = c.get_i("w", 0);
-                render_size[1] = c.get_i("h", 0);
-            }
-
-            // Extract the working buffer size, or use the window size.
-
-            if (app::node c = n.find("buffer"))
-            {
-                buffer_size[0] = c.get_i("w", window_rect[2]);
-                buffer_size[1] = c.get_i("h", window_rect[3]);
-            }
-            else
-            {
-                buffer_size[0] = window_rect[2];
-                buffer_size[1] = window_rect[3];
-            }
-
-            // Extract the preferred CUDA device configuration.
-
-            if (app::node c = n.find("device"))
-                device = c.get_i("index");
-
-            // Create a display object for each configured display.
-
-            app::node c;
-
-            for (c = n.find("display"); c; c = n.next(c, "display"))
-            {
-                const std::string t = c.get_s("type");
-
-                if      (t == "anaglyph")
-                    displays.push_back(new dpy::anaglyph  (c));
-                else if (t == "fulldome")
-                    displays.push_back(new dpy::fulldome  (c));
-                else if (t == "interlace")
-                    displays.push_back(new dpy::interlace (c));
-                else if (t == "lenticular")
-                    displays.push_back(new dpy::lenticular(c));
-                else if (t == "normal")
-                    displays.push_back(new dpy::normal    (c));
-                else
-                    displays.push_back(new dpy::direct    (c));
-            }
-
-            // Create a channel object for each configured channel.
-
-            if (channels.empty())
-                for (c = n.find("channel"); c; c = n.next(c, "channel"))
-                    channels.push_back(new dpy::channel(c));
-
-            // If there are no locally-defined channels, check the root.
-
-            if (channels.empty())
-                for (c = p.find("channel"); c; c = p.next(c, "channel"))
-                    channels.push_back(new dpy::channel(c));
-
-            // Determine the locally-defined overlay area.
-
-            if (overlay == 0)
-                if (app::node o = n.find("overlay"))
-                {
-                    int w = o.get_i("w", window_rect[2]);
-                    int h = o.get_i("h", window_rect[3]);
-
-                    if (app::node c = o.find("frustum"))
-                        overlay = new app::frustum(c, w, h);
-                    else
-                        overlay = new app::frustum(0, w, h);
-                }
-
-            // Determine the globally-defined overlay area.
-
-            if (overlay == 0)
-                if (app::node o = p.find("overlay"))
-                {
-                    int w = o.get_i("w", window_rect[2]);
-                    int h = o.get_i("h", window_rect[3]);
-
-                    if (app::node c = o.find("frustum"))
-                        overlay = new app::frustum(c, w, h);
-                    else
-                        overlay = new app::frustum(0, w, h);
-                }
-
-            // Start the network syncronization.
-
-            init_server(n);
-            init_client(n, exe);
-            init_listen(n);
-        }
-    }
-    init_script();
-
-    // If no channels or displays were configured, instance defaults.
-
-    if (channels.empty()) channels.push_back(new dpy::channel(0));
-    if (displays.empty()) displays.push_back(new dpy::direct (0));
-
-    // If no overlay has been defined, clone the first display frustum.
-
-    if (overlay == 0)
-        overlay = new app::frustum(*(displays.front()->get_overlay()));
-
-    // Wait until all clients have connected.
-
-    while (int(client_sd.size()) < clients)
-        poll_listen(true);
-}
-
-app::host::~host()
-{
-    if (overlay)
-        delete overlay;
-
-    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
-        delete (*i);
-
-    for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
-        delete (*i);
-
-    if (render)
-        delete render;
-
-    fini_client();
-    fini_server();
-    fini_listen();
-}
-
-//-----------------------------------------------------------------------------
-
 void app::host::root_loop()
 {
     event E;
 
-    // Kick things off with a START event.
+    // Kick off with a START event.
 
-    process_start(E.mk_start());  // HACK
+    process_event(E.mk_start());
 
     // Process incoming events until an exit is posted.
 
@@ -598,7 +557,7 @@ void app::host::root_loop()
 
         SDL_Event e;
 
-        while (SDL_PollEvent(&e))
+        while (program->is_running() && SDL_PollEvent(&e))
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
@@ -714,8 +673,6 @@ void app::host::node_loop()
 
 void app::host::loop()
 {
-    // Handle all events.
-
     if (root())
         root_loop();
     else
@@ -846,19 +803,37 @@ void app::host::sync()
 
 //-----------------------------------------------------------------------------
 
-// Ask each display to project the event into the virtual space.
-
-bool app::host::pointer_to_3D(event *E, int x, int y)
+bool app::host::process_calib(event *E)
 {
-    if (render_size[0] || render_size[1])
-    {
-        x = x * render_size[0] / window_rect[2];
-        y = y * render_size[1] / window_rect[3];
-    }
+    // Handle calibration state input.
 
-    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
-        if ((*i)->pointer_to_3D(E, x, y))
+    if ((E->get_type() == E_KEY) &&
+        (E->data.key.d)          &&
+        (E->data.key.m & KMOD_CTRL))
+
+        switch (E->data.key.k)
+        {
+        case SDLK_TAB:
+            calibration_state = !calibration_state;
             return true;
+
+        case SDLK_SPACE:
+            calibration_index++;
+            printf("calibrating index %d\n", calibration_index);
+            return true;
+
+        case SDLK_BACKSPACE:
+            calibration_index--;
+            printf("calibrating index %d\n", calibration_index);
+            return true;
+        }
+
+    // Dispatch a calibration event to the current display.
+
+    if (calibration_state)
+        for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+            if ((*i)->is_index(calibration_index))
+                return (*i)->process_event(E);
 
     return false;
 }
@@ -919,15 +894,6 @@ bool app::host::process_event(event *E)
 
     send(E);
 
-    // Ensure START events are processed by the host before anyone else.
-
-    if (E->get_type() == E_START)
-    {
-        process_start(E);
-        sync();
-        return true;
-    }
-
     // Allow the application or the calibration to process the event.
 
     if (program->process_event(E)
@@ -938,8 +904,9 @@ bool app::host::process_event(event *E)
 
     switch (E->get_type())
     {
-    case E_DRAW: draw(); sync();           return true;
-    case E_SWAP: swap();                   return true;
+    case E_DRAW:  draw();                   return true;
+    case E_SWAP:  sync(); swap();           return true;
+    case E_START: sync(); process_start(E); return true;
     case E_CLOSE: process_close(E); sync(); return true;
     case E_FLUSH: ::glob->fini();
                   ::glob->init(); return true;
@@ -949,6 +916,23 @@ bool app::host::process_event(event *E)
 }
 
 //-----------------------------------------------------------------------------
+
+// Ask each display to project the event into the virtual space.
+
+bool app::host::pointer_to_3D(event *E, int x, int y)
+{
+    if (render_size[0] || render_size[1])
+    {
+        x = x * render_size[0] / window_rect[2];
+        y = y * render_size[1] / window_rect[3];
+    }
+
+    for (dpy::display_i i = displays.begin(); i != displays.end(); ++i)
+        if ((*i)->pointer_to_3D(E, x, y))
+            return true;
+
+    return false;
+}
 
 int app::host::get_window_m() const
 {

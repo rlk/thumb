@@ -434,4 +434,25 @@ app::event *app::event::send(SOCKET s)
     return this;
 }
 
+std::string app::event::name()
+{
+    switch (payload.type)
+    {
+        case E_NULL:   return "NULL";
+        case E_POINT:  return "POINT";
+        case E_CLICK:  return "CLICK";
+        case E_KEY:    return "KEY";
+        case E_AXIS:   return "AXIS";
+        case E_BUTTON: return "BUTTON";
+        case E_TICK:   return "TICK";
+        case E_DRAW:   return "DRAW";
+        case E_SWAP:   return "SWAP";
+        case E_USER:   return "USER";
+        case E_START:  return "START";
+        case E_CLOSE:  return "CLOSE";
+        case E_FLUSH:  return "FLUSH";
+        default:       return "UNKNOWN";
+    }
+}
+
 //-----------------------------------------------------------------------------

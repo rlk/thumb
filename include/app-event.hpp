@@ -182,6 +182,8 @@ namespace app
 
         event *send(SOCKET);
         event *recv(SOCKET);
+
+        std::string name();
     };
 }
 
