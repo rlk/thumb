@@ -2,9 +2,9 @@
   <material>
     <program mode="depth" file="object-depth.xml" />
     <program mode="color" file="irradiance-env.xml">
-      <texture sampler="diff_map" name="metal_box_diffuse.png" />
-      <texture sampler="spec_map" name="metal_box_specular.png" />
-      <texture sampler="norm_map" name="metal_box_normal.png" />
+      <texture sampler="diff_map" name="metal-box-diffuse.png" />
+      <texture sampler="spec_map" name="metal-box-specular.png" />
+      <texture sampler="norm_map" name="metal-box-normal.png" />
 
       <process sampler="reflection_env[0]" name="reflection_env" index="0" />
       <process sampler="reflection_env[1]" name="reflection_env" index="1" />

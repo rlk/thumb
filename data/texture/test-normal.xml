@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<texture>
-  <filter type="min" value="linear-mipmap-linear" />
-  <filter type="mag" value="linear" />
-</texture>
