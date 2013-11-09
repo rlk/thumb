@@ -45,6 +45,44 @@ namespace app
 {
     class host
     {
+    public:
+
+        host(app::prog *, std::string, std::string, std::string);
+       ~host();
+
+        bool root() const { return (server_sd == INVALID_SOCKET); }
+        void loop();
+        void draw(int, const app::frustum *, int);
+        void draw();
+        void swap() const;
+
+        bool pointer_to_3D(event *, int, int);
+        bool process_event(event *);
+
+        // Configuration queries.
+
+        int get_window_m() const;
+        int get_window_c() const { return window_cursor;  }
+        int get_window_x() const { return window_rect[0]; }
+        int get_window_y() const { return window_rect[1]; }
+        int get_window_w() const { return window_rect[2]; }
+        int get_window_h() const { return window_rect[3]; }
+        int get_buffer_w() const { return buffer_size[0]; }
+        int get_buffer_h() const { return buffer_size[1]; }
+        int get_device()   const { return device; }
+
+        const app::frustum *get_overlay() const { return overlay; }
+
+        void set_head(const double *, const double *);
+        void navigate(const double *);
+
+        bool get_movie_mode() const { return (movie != 0); }
+        void set_movie_mode(int i)  { movie = i; }
+        bool get_bench_mode() const { return (bench != 0); }
+        void set_bench_mode(int i)  { bench = i; }
+
+    private:
+
         // Network handling
 
         SOCKET init_socket(int, int);
@@ -117,41 +155,6 @@ namespace app
         // Configuration serializer
 
         app::file file;
-
-    public:
-
-        host(app::prog *, std::string, std::string, std::string);
-       ~host();
-
-        bool root() const { return (server_sd == INVALID_SOCKET); }
-        void loop();
-        void draw(int, const app::frustum *, int);
-        void draw();
-        void swap() const;
-
-        bool pointer_to_3D(event *, int, int);
-        bool process_event(event *);
-
-        // Configuration queries.
-
-        int get_window_m() const;
-        int get_window_c() const { return window_cursor;  }
-        int get_window_x() const { return window_rect[0]; }
-        int get_window_y() const { return window_rect[1]; }
-        int get_window_w() const { return window_rect[2]; }
-        int get_window_h() const { return window_rect[3]; }
-        int get_buffer_w() const { return buffer_size[0]; }
-        int get_buffer_h() const { return buffer_size[1]; }
-        int get_device()   const { return device; }
-
-        const app::frustum *get_overlay() const { return overlay; }
-
-        void set_head(const double *, const double *);
-
-        bool get_movie_mode() const { return (movie != 0); }
-        void set_movie_mode(int i)  { movie = i; }
-        bool get_bench_mode() const { return (bench != 0); }
-        void set_bench_mode(int i)  { bench = i; }
     };
 }
 

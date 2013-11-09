@@ -36,8 +36,8 @@ namespace dev
         bool status;
         bool flying;
 
-        double init_P[3], init_R[16];
-        double curr_P[3], curr_R[16];
+        double init_p[3], init_q[4];
+        double curr_p[3], curr_q[4];
 
         sixenseAllControllerData prev;
 

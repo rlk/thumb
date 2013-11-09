@@ -145,6 +145,10 @@ double distance(          const double *, const double *);
 void mat_to_quat(double *, const double *);
 void quat_to_mat(double *, const double *);
 
+void quat_slerp(double *, const double *, const double *, double);
+void quat_mult (double *, const double *, const double *);
+void quat_inv  (double *, const double *);
+
 void orthonormalize(double *);
 
 //-----------------------------------------------------------------------------

@@ -950,4 +950,9 @@ void app::host::set_head(const double *p,
         (*i)->set_head(p, q);
 }
 
+void app::host::navigate(const double *M)
+{
+    program->navigate(M);
+}
+
 //-----------------------------------------------------------------------------

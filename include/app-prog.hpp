@@ -60,6 +60,7 @@ namespace app
         virtual bool process_event(event *);
         virtual void run();
         virtual void stop();
+        virtual void navigate(const double *);
         
         event *axis_remap(event *);
 

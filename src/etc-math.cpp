@@ -505,6 +505,67 @@ void quat_to_mat(double *M, const double *q)
     M[15] = 1;
 }
 
+void quat_slerp(double *q, const double *a, const double *b, double t)
+{
+    const double d = a[0] * b[0] + a[1] * b[1] + a[2] * b[2] + a[3] * b[3];
+    const double k = acos(fabs(d));
+
+    const double u = sin(k - t * k) / sin(k);
+    const double v = sin(    t * k) / sin(k);
+
+    if (fabs(d) < 1.0)
+    {
+        if (d > 0.0)
+        {
+            q[0] = a[0] * u + b[0] * v;
+            q[1] = a[1] * u + b[1] * v;
+            q[2] = a[2] * u + b[2] * v;
+            q[3] = a[3] * u + b[3] * v;
+        }
+        else
+        {
+            q[0] = a[0] * u - b[0] * v;
+            q[1] = a[1] * u - b[1] * v;
+            q[2] = a[2] * u - b[2] * v;
+            q[3] = a[3] * u - b[3] * v;
+        }
+    }
+    else
+    {
+        q[0] = a[0];
+        q[1] = a[1];
+        q[2] = a[2];
+        q[3] = a[3];
+    }
+}
+
+void quat_mult(double *a, const double *b, const double *c)
+{
+    double t[4];
+
+    t[0] = b[0] * c[3] + b[3] * c[0] + b[1] * c[2] - b[2] * c[1];
+    t[1] = b[1] * c[3] + b[3] * c[1] + b[2] * c[0] - b[0] * c[2];
+    t[2] = b[2] * c[3] + b[3] * c[2] + b[0] * c[1] - b[1] * c[0];
+    t[3] = b[3] * c[3] - b[0] * c[0] - b[1] * c[1] - b[2] * c[2];
+
+    const double d = sqrt(t[0] * t[0] + t[1] * t[1] + t[2] * t[2] + t[3] * t[3]);
+
+    a[0] = t[0] / d;
+    a[1] = t[1] / d;
+    a[2] = t[2] / d;
+    a[3] = t[3] / d;
+}
+
+void quat_inv(double *a, const double *b)
+{
+    const double d = b[0] * b[0] + b[1] * b[1] + b[2] * b[2] + b[3] * b[3];
+
+    a[0] = -b[0] / d;
+    a[1] = -b[1] / d;
+    a[2] = -b[2] / d;
+    a[3] =  b[3] / d;
+}
+
 void orthonormalize(double *M)
 {
     normalize(M + 8);

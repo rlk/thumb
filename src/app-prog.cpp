@@ -17,6 +17,7 @@
 
 #include <ogl-opengl.hpp>
 #include <app-event.hpp>
+#include <etc-math.hpp>
 
 #include <app-prog.hpp>
 #include <app-conf.hpp>
@@ -276,6 +277,14 @@ void app::prog::run()
 void app::prog::stop()
 {
     running = false;
+}
+
+void app::prog::navigate(const double *M)
+{
+    double T[16];
+
+    mult_mat_mat(T, ::view->get_M(), M);
+    ::view->set_M(T);
 }
 
 //-----------------------------------------------------------------------------

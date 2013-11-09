@@ -28,7 +28,7 @@
     <option name="joystick_axis_min_1">-32768</option>
     <option name="joystick_axis_max_1"> 32767</option>
     <!-- Sixense configuration -->
-    <option name="sixense_hand_controller">0</option>
+    <option name="sixense_hand_controller">1</option>
     <!-- Miscellaneous options -->
     <option name="screenshot_file">snap.png</option>
     <option name="skeleton_port">4953</option>

@@ -15,7 +15,6 @@
 #include <etc-math.hpp>
 #include <app-default.hpp>
 #include <app-conf.hpp>
-#include <app-view.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>
 #include <dev-sixense.hpp>
@@ -35,7 +34,7 @@ dev::sixense::sixense() :
         float fr = ::conf->get_f("sixense_filter_far_range", 1600.00);
         float fv = ::conf->get_f("sixense_filter_far_value",    0.99);
 
-        sixenseSetFilterParams(nr, 0.95, fr, 0.99);
+        sixenseSetFilterParams(nr, nv, fr, fv);
         sixenseSetFilterEnabled(1);
     }
 
@@ -131,13 +130,16 @@ bool dev::sixense::process_point(app::event *E)
     const double *p = E->data.point.p;
     const double *q = E->data.point.q;
 
-    if (i == hand_controller)
+    if (i == 0)
     {
-        curr_P[0] = p[0];
-        curr_P[1] = p[1];
-        curr_P[2] = p[2];
+        curr_p[0] = p[0];
+        curr_p[1] = p[1];
+        curr_p[2] = p[2];
 
-        quat_to_mat(curr_R, q);
+        curr_q[0] = q[0];
+        curr_q[1] = q[1];
+        curr_q[2] = q[2];
+        curr_q[3] = q[3];
     }
     return false;
 }
@@ -159,11 +161,14 @@ bool dev::sixense::process_button(app::event *E)
     {
         flying = d;
 
-        init_P[0] = curr_P[0];
-        init_P[1] = curr_P[1];
-        init_P[2] = curr_P[2];
+        init_p[0] = curr_p[0];
+        init_p[1] = curr_p[1];
+        init_p[2] = curr_p[2];
 
-        load_mat(init_R, curr_R);
+        init_q[0] = curr_q[0];
+        init_q[1] = curr_q[1];
+        init_q[2] = curr_q[2];
+        init_q[3] = curr_q[3];
 
         return true;
     }
@@ -173,37 +178,27 @@ bool dev::sixense::process_button(app::event *E)
 bool dev::sixense::process_tick(app::event *E)
 {
     const double dt = E->data.tick.dt;
-    const double kr = dt * turn_rate;
-    const double kp = dt * move_rate;
 
     if (::host->root())
         translate();
 
     if (flying)
     {
-        double dP[3];
-        double dR[3];
-        double dz[3];
-        double dy[3];
+        const double r[4] = { 0.0, 0.0, 0.0, 1.0 };
 
-        dP[0] = curr_P[ 0] - init_P[ 0];
-        dP[1] = curr_P[ 1] - init_P[ 1];
-        dP[2] = curr_P[ 2] - init_P[ 2];
+        double q[4];
+        double T[16];
 
-        dy[0] = init_R[ 4] - curr_R[ 4];
-        dy[1] = init_R[ 5] - curr_R[ 5];
-        dy[2] = init_R[ 6] - curr_R[ 6];
+        quat_inv   (q, init_q);
+        quat_mult  (q, q, curr_q);
+        quat_slerp (q, r, q, 1.0 / 30.0);
+        quat_to_mat(T, q);
 
-        dz[0] = init_R[ 8] - curr_R[ 8];
-        dz[1] = init_R[ 9] - curr_R[ 9];
-        dz[2] = init_R[10] - curr_R[10];
+        Rmul_xlt_mat(T, (curr_p[0] - init_p[0]) * dt * move_rate,
+                        (curr_p[1] - init_p[1]) * dt * move_rate,
+                        (curr_p[2] - init_p[2]) * dt * move_rate);
 
-        dR[0] =  DOT3(dz, init_R + 4);
-        dR[1] = -DOT3(dz, init_R + 0);
-        dR[2] =  DOT3(dy, init_R + 0);
-
-        ::view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
-        ::view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+        ::host->navigate(T);
     }
 
     return false;
