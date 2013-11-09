@@ -29,10 +29,15 @@ namespace dev
         double turn_rate;
 
         int hand_controller;
+        int fly_button;
 
         // Navigation state
 
         bool status;
+        bool flying;
+
+        double init_P[3], init_R[16];
+        double curr_P[3], curr_R[16];
 
         sixenseAllControllerData prev;
 
