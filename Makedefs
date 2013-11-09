@@ -17,7 +17,8 @@ CFLAGS += -DVERSION=0.9
 #------------------------------------------------------------------------------
 
 ifeq ($(shell uname), Darwin)
-	LIBEXT  = -framework OpenGL \
+	LIBEXT  = -L/usr/local/lib -lsixense_x64 \
+		  -framework OpenGL \
 		  -framework Cocoa  \
 		  -framework ApplicationServices \
 		  -framework Carbon \

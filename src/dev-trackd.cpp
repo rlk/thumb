@@ -360,23 +360,23 @@ dev::trackd::trackd() :
 
     // Configure the buttons and axes.
 
-    const std::string unit = conf->get_s("tracker_unit");
+    const std::string unit = ::conf->get_s("tracker_unit");
 
     scale = scale_to_meters(unit.empty() ? "ft" : unit);
 
-    tracker_head_sensor = conf->get_i("tracker_head_sensor");
-    tracker_hand_sensor = conf->get_i("tracker_hand_sensor");
+    tracker_head_sensor = ::conf->get_i("tracker_head_sensor");
+    tracker_hand_sensor = ::conf->get_i("tracker_hand_sensor");
 
-    tracker_butn_fly    = conf->get_i("tracker_butn_fly");
-    tracker_butn_home   = conf->get_i("tracker_butn_home");
+    tracker_butn_fly    = ::conf->get_i("tracker_butn_fly");
+    tracker_butn_home   = ::conf->get_i("tracker_butn_home");
 
-    tracker_axis_A      = conf->get_i("tracker_axis_A");
-    tracker_axis_T      = conf->get_i("tracker_axis_T");
+    tracker_axis_A      = ::conf->get_i("tracker_axis_A");
+    tracker_axis_T      = ::conf->get_i("tracker_axis_T");
 
     // Initialize the tracker interface.
 
-    int tracker_key = conf->get_i("tracker_key");
-    int control_key = conf->get_i("control_key");
+    int tracker_key = ::conf->get_i("tracker_key");
+    int control_key = ::conf->get_i("control_key");
 
     if (tracker_key == 0) tracker_key = DEFAULT_TRACKER_KEY;
     if (control_key == 0) control_key = DEFAULT_CONTROL_KEY;
@@ -400,7 +400,7 @@ void dev::trackd::translate() const
         app::event E;
 
         double p[3];
-        double q[3];
+        double q[4];
         double v;
         bool   d;
 

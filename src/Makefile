@@ -16,6 +16,7 @@ OBJS=	app-data.o \
 	dev-gamepad.o \
 	dev-hybrid.o \
 	dev-mouse.o \
+	dev-sixense.o \
 	dev-skeleton.o \
 	dev-trackd.o \
 	dpy-anaglyph.o \
@@ -100,6 +101,6 @@ clean :
 
 #------------------------------------------------------------------------------
 
-#ifneq ($(MAKECMDGOALS),clean)
-#-include $(DEPS)
-#endif
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)
+endif

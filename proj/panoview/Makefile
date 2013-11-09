@@ -88,7 +88,7 @@ scm/data/%-frag.h : scm/data/%.frag
 
 #------------------------------------------------------------------------------
 
-#ifneq ($(MAKECMDGOALS),clean)
-#-include $(PANDEPS) $(ORBDEPS)
-#endif
+ifneq ($(MAKECMDGOALS),clean)
+-include $(PANDEPS) $(ORBDEPS)
+endif
 

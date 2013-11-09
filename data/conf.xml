@@ -5,7 +5,7 @@
 
     <!-- Host -->
     <option name="host_file">host/common.xml</option>
-    <option name="input_mode">mouse</option>
+    <option name="input_mode">sixense</option>
     <option name="sync">1</option>
     <option name="bench">1</option>
     <!-- OpenGL Context -->
@@ -27,6 +27,8 @@
     <option name="joystick_axis_max_0"> 32767</option>
     <option name="joystick_axis_min_1">-32768</option>
     <option name="joystick_axis_max_1"> 32767</option>
+    <!-- Sixense configuration -->
+    <option name="sixense_hand_controller">0</option>
     <!-- Miscellaneous options -->
     <option name="screenshot_file">snap.png</option>
     <option name="skeleton_port">4953</option>

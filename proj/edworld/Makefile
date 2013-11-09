@@ -30,4 +30,6 @@ clean :
 
 #------------------------------------------------------------------------------
 
-#-include $(DEPS)
+ifneq ($(MAKECMDGOALS),clean)
+-include $(DEPS)
+endif
