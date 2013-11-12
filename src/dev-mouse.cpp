@@ -19,6 +19,7 @@
 #include <etc-math.hpp>
 #include <app-conf.hpp>
 #include <app-view.hpp>
+#include <app-host.hpp>
 #include <app-event.hpp>
 #include <dev-mouse.hpp>
 
@@ -64,7 +65,17 @@ bool dev::mouse::process_point(app::event *E)
         double t0 = DEG(atan2(init_R[8], init_R[10]));
         double t1 = DEG(atan2(curr_R[8], curr_R[10]));
 
-        ::view->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
+        // ::view->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
+
+        double M[16];
+        double u[3];
+
+        ::host->get_world_up_vector(u);
+
+        load_rot_mat(M, u[0], u[1], u[2], (t1 - t0) * 2.0);
+        Rmul_rot_mat(M, 1,    0,    0,    (p0 - p1) * 2.0);
+
+        ::host->navigate(M);
 
         return true;
     }
@@ -127,9 +138,13 @@ bool dev::mouse::process_tick(app::event *E)
     if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;
 
-    ::view->move(motion[0] * kp,
-                 motion[1] * kp,
-                 motion[2] * kp);
+    double M[16];
+
+    load_xlt_mat(M, motion[0] * kp,
+                    motion[1] * kp,
+                    motion[2] * kp);
+
+    ::host->navigate(M);
 
     return false;
 }

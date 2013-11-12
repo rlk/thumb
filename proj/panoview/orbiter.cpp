@@ -32,14 +32,16 @@
 
 #include "orbiter.hpp"
 
+#define OLDINPUT 0
+
 //------------------------------------------------------------------------------
 
-static in_addr_t lookup(const char *hostname)
+static in_addr_t lookup(const std::string& hostname)
 {
     struct hostent *H;
     struct in_addr  A;
 
-    if ((H = gethostbyname(hostname)))
+    if ((H = gethostbyname(hostname.c_str())))
     {
         memcpy(&A.s_addr, H->h_addr_list[0], H->h_length);
         return  A.s_addr;
@@ -81,7 +83,7 @@ orbiter::orbiter(const std::string& exe,
 
     report_addr.sin_family      = AF_INET;
     report_addr.sin_port        =  htons(::conf->get_i("orbiter_report_port"));
-    report_addr.sin_addr.s_addr = lookup(::conf->get_s("orbiter_report_host").c_str());
+    report_addr.sin_addr.s_addr = lookup(::conf->get_s("orbiter_report_host"));
 
     if (report_addr.sin_addr.s_addr != INADDR_NONE)
         report_sock = socket(AF_INET, SOCK_DGRAM, 0);
@@ -107,6 +109,10 @@ orbiter::orbiter(const std::string& exe,
         if (sys && sys->get_step_count())
             move_to(0);
     }
+
+    double M[16];
+    load_xlt_mat(M, 0.0, 0.0, 4000000.0);
+    ::view->set_M(M);
 }
 
 orbiter::~orbiter()
@@ -143,174 +149,6 @@ void orbiter::report()
 
         sendto(report_sock, buf, strlen(buf) + 1, 0,
                (const sockaddr *) &report_addr, sizeof (sockaddr_in));
-    }
-}
-
-//------------------------------------------------------------------------------
-
-// Apply the view panning interaction, rotating left-right about the position
-// vector and up-down about the current right vector.
-
-void orbiter::look(double dt, double k)
-{
-    double r[3];
-    double p[3];
-
-    here.get_right(r);
-    here.get_position(p);
-
-    double dx = point[0] - click[0];
-    double dy = point[1] - click[1];
-    double X[16];
-    double Y[16];
-    double M[16];
-
-    mrotate(X, r,  10.0 * dy * dt);
-    mrotate(Y, p, -10.0 * dx * dt);
-    mmultiply(M, X, Y);
-
-    here.transform_orientation(M);
-}
-
-void orbiter::turn(double dt, double k)
-{
-    double r[3];
-    double p[3];
-    double t[3];
-
-    here.get_right(r);
-    here.get_position(p);
-
-    double dx = point[0] - click[0];
-    double dy = point[1] - click[1];
-    double X[16];
-    double Y[16];
-    double M[16];
-
-    mrotate(X, r,  10.0 * dy * dt);
-    mrotate(Y, p, -10.0 * dx * dt);
-    mmultiply(M, X, Y);
-
-    here.transform_orientation(M);
-
-    vtransform(t, Y, orbit_plane);
-    vnormalize(orbit_plane, t);
-}
-
-// Apply the orbital motion interaction, using the direction of the mouse
-// pointer motion to set the orbital plane and the magnitude of the mouse
-// motion to set the orbital speed.
-
-void orbiter::move(double dt, double k)
-{
-    if (click[0] != point[0] ||
-        click[1] != point[1] ||
-        click[2] != point[2])
-    {
-        double d = vdot(click, point);
-        double a = acos(d);
-
-        if (fabs(a) > 0.0)
-        {
-            const double *M = ::view->get_M();
-            double t[3];
-            double u[3];
-
-            vcrs(t, click, point);
-
-            vtransform(u, M, t);
-            vnormalize(orbit_plane, u);
-        }
-        orbit_speed = 10.0 * a * k;
-    }
-    else
-    {
-        orbit_speed = 0.0;
-    }
-}
-
-// Apply the altitude interaction using the change in the mouse pointer position
-// to affect an exponential difference in the radius of the view point.
-
-void orbiter::dive(double dt, double k)
-{
-    double d = (point[1] - click[1]) * dt;
-    double r = here.get_distance();
-    double m =      get_minimum_ground();
-
-    r = m + exp(log(r - m) + (4 * d));
-
-    here.set_distance(r);
-}
-
-// Apply the light position interaction, using the change in the mouse pointer
-// to move the light source position vector. Light source position is relative
-// to the camera, not to the sphere.
-
-void orbiter::lamp(double dt, double k)
-{
-    double r[3];
-    double u[3];
-
-    here.get_right(r);
-    here.get_up(u);
-
-    double dx = point[0] - click[0];
-    double dy = point[1] - click[1];
-    double X[16];
-    double Y[16];
-    double M[16];
-
-    mrotate(X, r, -10.0 * dy * dt);
-    mrotate(Y, u,  10.0 * dx * dt);
-    mmultiply(M, X, Y);
-
-    here.transform_light(M);
-}
-
-void orbiter::fly(double dt)
-{
-    if (delta)
-    {
-        // Joystick interaction optionally interrupt a goto.
-
-        if (interrupt)
-            delta = 0;
-    }
-    else
-    {
-        const double dx = (stick[0] > 0) ? -(stick[0] * stick[0])
-                                         : +(stick[0] * stick[0]);
-        const double dy = (stick[1] > 0) ? +(stick[1] * stick[1])
-                                         : -(stick[1] * stick[1]);
-        const double dz = fly_up ? (fly_dn ?  0 : +1)
-                                 : (fly_dn ? -1 :  0);
-
-        double a = get_speed();
-        double k = -M_PI_2 * lerp(std::min(1.0, cbrt(a)), 1.0, a);
-
-        here.set_pitch(k);
-
-        // The X axis affects the orientation and orbital plane.
-
-        double R[16];
-        double p[3];
-
-        here.get_position(p);
-        mrotate(R, p, dx * dt);
-        here.transform_orientation(R);
-        here.get_right(orbit_plane);
-
-        // The Y axis affects the orbital speed.
-
-        orbit_speed = dy * std::max(std::min(a, orbit_speed_max), orbit_speed_min);
-
-        // The Z axis affects the orbital radius.
-
-        double d = here.get_distance();
-        double m =      get_minimum_ground();
-
-        here.set_distance(std::min(4 * m, m + exp(log(d - m) + (dz * dt))));
     }
 }
 
@@ -527,145 +365,16 @@ int orbiter::fade_to(int i)
     return i;
 }
 
+#if 0
+void get_world_up_vector(double *v)
+{
+}
+#endif
+
 //------------------------------------------------------------------------------
-
-bool orbiter::process_axis(app::event *E)
-{
-    const int    i = E->data.axis.i;
-    const int    a = E->data.axis.a;
-    const double v = E->data.axis.v;
-
-    if (i == device)
-    {
-        if      (a == axis_X) stick[0] = v / 32768.0;
-        else if (a == axis_Y) stick[1] = v / 32768.0;
-
-        return true;
-    }
-    return false;
-}
-
-bool orbiter::process_button(app::event *E)
-{
-    const int  i = E->data.button.i;
-    const int  b = E->data.button.b;
-    const bool d = E->data.button.d;
-
-    if (i == device)
-    {
-        if      (b == button_D) fly_dn = d;
-        else if (b == button_U) fly_up = d;
-
-        scm_log("orbiter process_button %d %d %d", i, b, d);
-
-        return true;
-    }
-    return false;
-}
-
-bool orbiter::process_point(app::event *E)
-{
-    double M[16];
-
-    quat_to_mat(M, E->data.point.q);
-
-    point[0] = -M[ 8];
-    point[1] = -M[ 9];
-    point[2] = -M[10];
-
-    return false;
-}
-
-bool orbiter::process_click(app::event *E)
-{
-    const int  b = E->data.click.b;
-    const int  m = E->data.click.m;
-    const bool d = E->data.click.d;
-    const bool s = (m & KMOD_SHIFT);
-    const bool c = (m & KMOD_CTRL);
-
-    vcpy(click, point);
-
-    if (d)
-    {
-        if (b == SDL_BUTTON_LEFT)
-        {
-            if (s)
-                drag_dive = true;
-            else
-                drag_move = true;
-        }
-        if (b == SDL_BUTTON_RIGHT)
-        {
-            if (s)
-                drag_lamp = true;
-            else if (c)
-                drag_turn = true;
-            else
-                drag_look = true;
-        }
-    }
-    else
-    {
-        if (b == SDL_BUTTON_LEFT)  drag_dive = drag_move             = false;
-        if (b == SDL_BUTTON_RIGHT) drag_lamp = drag_turn = drag_look = false;
-    }
-
-    return true;
-}
 
 bool orbiter::process_tick(app::event *E)
 {
-    double dt = E->data.tick.dt;
-    double ll = sqrt(stick[0] * stick[0] + stick[1] * stick[1]);
-    bool   uu = fly_up || fly_dn || (ll > deadzone);
-
-    if (uu || stick_timer > 0.0)
-    {
-        if (uu)
-            stick_timer = 0.1;
-        else
-            stick_timer -= dt;
-
-        fly(dt);
-    }
-    else
-    {
-        double sc = get_speed();
-
-        if (drag_move) move(dt, sc);
-        if (drag_look) look(dt, sc);
-        if (drag_turn) turn(dt, sc);
-        if (drag_dive) dive(dt, sc);
-        if (drag_lamp) lamp(dt, sc);
-    }
-
-    // Move the position and view orientation along the current orbit.
-
-    if (orbit_speed)
-    {
-        double R[16];
-
-        mrotate(R, orbit_plane, orbit_speed * dt);
-
-        here.transform_orientation(R);
-        here.transform_position(R);
-        here.transform_light(R);
-    }
-
-    // Constrain the distance using the terrain height.
-
-    if (here.get_distance())
-        here.set_distance(std::max(here.get_distance(),
-                                        get_current_ground() + minimum_agl));
-
-    // Apply the current transformation to the camera.
-
-    double M[16];
-
-    here.get_matrix(M);
-    ::view->set_M(M);
-
     return false;
 }
 
@@ -673,10 +382,6 @@ bool orbiter::process_event(app::event *E)
 {
     switch (E->get_type())
     {
-        case E_AXIS:   if (process_axis(E))   return true; else break;
-        case E_BUTTON: if (process_button(E)) return true; else break;
-        case E_CLICK:  if (process_click(E))  return true; else break;
-        case E_POINT:  if (process_point(E))  return true; else break;
         case E_TICK:   if (process_tick(E))   return true; else break;
     }
     return view_app::process_event(E);

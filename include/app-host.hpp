@@ -76,6 +76,8 @@ namespace app
         void set_head(const double *, const double *);
         void navigate(const double *);
 
+        void get_world_up_vector(double *);
+
         bool get_movie_mode() const { return (movie != 0); }
         void set_movie_mode(int i)  { movie = i; }
         bool get_bench_mode() const { return (bench != 0); }

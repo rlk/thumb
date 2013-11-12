@@ -61,7 +61,9 @@ namespace app
         virtual void run();
         virtual void stop();
         virtual void navigate(const double *);
-        
+
+        virtual void get_world_up_vector(double *);
+
         event *axis_remap(event *);
 
         // Screenshot procedure

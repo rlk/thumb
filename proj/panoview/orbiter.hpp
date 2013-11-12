@@ -38,6 +38,8 @@ public:
     virtual int move_to(int);
     virtual int fade_to(int);
 
+    // virtual void get_world_up_vector(double *);
+
     virtual ~orbiter();
 
 private:
