@@ -281,17 +281,11 @@ void app::prog::stop()
 
 void app::prog::navigate(const double *M)
 {
-#if 1
     double T[16];
-    mult_mat_mat(T, ::view->get_M(), M);
-    orthonormalize(T);
-    ::view->set_M(T);
-#else
-    double T[16];
-    double C[16];
 
-    load_idt(C);
-#endif
+    mult_mat_mat  (T, ::view->get_M(), M);
+    orthonormalize(T);
+    ::view->set_M (T);
 }
 
 void app::prog::get_world_up_vector(double *v)

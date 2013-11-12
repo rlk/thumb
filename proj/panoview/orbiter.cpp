@@ -158,6 +158,8 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
     report();
 
+    here.set_matrix(::view->get_M());
+
     view_app::prep(frusc, frusv);
 
     // Compute a horizon line based upon altitude and minimum terrain height.
