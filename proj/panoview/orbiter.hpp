@@ -38,52 +38,21 @@ public:
     virtual int move_to(int);
     virtual int fade_to(int);
 
-    // virtual void get_world_up_vector(double *);
+    virtual void navigate(const double *);
+    virtual void get_world_up_vector(double *);
 
     virtual ~orbiter();
 
 private:
 
-    double get_speed() const;
-
     // View motion state
 
-    void look(double, double);
-    void turn(double, double);
-    void lamp(double, double);
-    void move(double, double);
-    void dive(double, double);
-    void fly (double);
+    double get_speed() const;
 
-    double orbit_plane[3];
-    double orbit_speed;
-    double orbit_speed_min;
-    double orbit_speed_max;
+    double speed_min;
+    double speed_max;
     double stick_timer;
     double minimum_agl;
-
-    // Interaction state
-
-    double point[3];
-    double click[3];
-    double stick[2];
-    bool   drag_move;
-    bool   drag_look;
-    bool   drag_turn;
-    bool   drag_dive;
-    bool   drag_lamp;
-    bool   fly_dn;
-    bool   fly_up;
-
-    // Joystick configuration
-
-    int    device;
-    int    axis_X;
-    int    axis_Y;
-    int    button_U;
-    int    button_D;
-    double deadzone;
-    bool   interrupt;
 
     // Report stream configuration
 
@@ -93,10 +62,6 @@ private:
 
     // Event handlers
 
-    bool process_axis  (app::event *);
-    bool process_button(app::event *);
-    bool process_point (app::event *);
-    bool process_click (app::event *);
     bool process_tick  (app::event *);
 };
 

@@ -57,27 +57,10 @@ orbiter::orbiter(const std::string& exe,
 {
     // Initialize all interaction state.
 
-    orbit_plane[0]  = 1.0;
-    orbit_plane[1]  = 0.0;
-    orbit_plane[2]  = 0.0;
-    orbit_speed     = 0.0;
-    orbit_speed_min = ::conf->get_f("orbiter_speed_min",   0.005);
-    orbit_speed_max = ::conf->get_f("orbiter_speed_max",   0.5);
-    minimum_agl     = ::conf->get_f("orbiter_minimum_agl", 100.0);
-    stick_timer     = 0.0;
-
-    drag_move = false;
-    drag_look = false;
-    drag_dive = false;
-    drag_turn = false;
-    drag_lamp = false;
-
-    fly_up = false;
-    fly_dn = false;
-
-    point[0] = point[1] = point[2] = 0.0;
-    click[0] = click[1] = click[2] = 0.0;
-    stick[0] = stick[1]            = 0.0;
+    speed_min   = ::conf->get_f("orbiter_speed_min",   0.005);
+    speed_max   = ::conf->get_f("orbiter_speed_max",   0.5);
+    minimum_agl = ::conf->get_f("orbiter_minimum_agl", 100.0);
+    stick_timer = 0.0;
 
     // Initialize the reportage socket.
 
@@ -89,16 +72,6 @@ orbiter::orbiter(const std::string& exe,
         report_sock = socket(AF_INET, SOCK_DGRAM, 0);
     else
         report_sock = INVALID_SOCKET;
-
-    // Initialize the joystick configuration.
-
-    device    = ::conf->get_i("orbiter_joystick_device",    0);
-    axis_X    = ::conf->get_i("orbiter_joystick_axis_X",    0);
-    axis_Y    = ::conf->get_i("orbiter_joystick_axis_Y",    1);
-    button_U  = ::conf->get_i("orbiter_joystick_button_U",  0);
-    button_D  = ::conf->get_i("orbiter_joystick_button_D",  1);
-    deadzone  = ::conf->get_f("orbiter_joystick_deadzone",  0.2);
-    interrupt = ::conf->get_i("orbiter_joystick_interrupt", 0);
 
     // Preload data as requested.
 
@@ -137,13 +110,11 @@ void orbiter::report()
 
         double lon = atan2(p[0], p[2]) * 180.0 / M_PI;
         double lat =  asin(p[1])       * 180.0 / M_PI;
-        double fly = (fly_up ? 1.0 : 0.0) - (fly_dn ? 1.0 : 0.0);
 
         // Encode these to an ASCII string.
 
         char buf[128];
-        sprintf(buf, "%+12.8f %+13.8f %17.8f %+5.3f %+5.3f %+5.3f\n",
-            lat, lon, alt, stick[0], stick[1], fly);
+        sprintf(buf, "%+12.8f %+13.8f %17.8f\n", lat, lon, alt);
 
         // And send the string to the configured host.
 
@@ -367,11 +338,24 @@ int orbiter::fade_to(int i)
     return i;
 }
 
-#if 0
-void get_world_up_vector(double *v)
+//------------------------------------------------------------------------------
+
+void orbiter::navigate(const double *M)
 {
+    double T[16];
+
+    mult_mat_mat  (T, ::view->get_M(), M);
+    orthonormalize(T);
+    ::view->set_M (T);
 }
-#endif
+
+void orbiter::get_world_up_vector(double *v)
+{
+    const double *I = ::view->get_I();
+    v[0] = I[4];
+    v[1] = I[5];
+    v[2] = I[6];
+}
 
 //------------------------------------------------------------------------------
 
