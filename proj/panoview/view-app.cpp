@@ -356,10 +356,19 @@ bool view_app::numkey(int n, int c, int s)
 {
     if (s == 0)
     {
+        if (n < sys->get_step_count())
+        {
+            sys->flush_queue();
+            sys->append_queue(new scm_step(sys->get_step(n)));
+            sys->set_scene_blend(1.0);
+        }
+
+#if 0
         if (c == 0)
             fade_to(n);
         else
             move_to(n);
+#endif
     }
     else
     {

@@ -288,12 +288,19 @@ void app::prog::navigate(const double *M)
     ::view->set_M (T);
 }
 
-void app::prog::get_world_up_vector(double *v)
+void app::prog::get_world_up(double *v)
 {
     const double *I = ::view->get_I();
     v[0] = I[4];
     v[1] = I[5];
     v[2] = I[6];
+}
+
+void app::prog::get_world_right(double *v)
+{
+    v[0] = 1.0;
+    v[1] = 0.0;
+    v[2] = 0.0;
 }
 
 //-----------------------------------------------------------------------------

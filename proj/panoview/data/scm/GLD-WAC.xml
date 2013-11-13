@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
   <sphere detail="32" limit="256">
-    <scene name="global" label="graticule.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
+    <scene name="graticule" label="graticule.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+    </scene>
+    <scene name="global" vert="glsl/scm-displace.vert" frag="glsl/scm-basic.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
       <image name="color"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
     </scene>
@@ -55,30 +59,16 @@
       <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
       <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="1.5"/>
     </scene>
-    <scene name="eqtest" label="graticule.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
-      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
-      <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
-      <image name="upper"  scm="x-254-3.tif" k0="0.0" k1="1.0"/>
-    </scene>
+    <step name="Default" foreground="graticule" background="milkyway"
+            q0="0.0"
+            q1="0.0"
+            q2="0.0"
+            q3="1.0"
+            p0="0.0"
+            p1="0.0"
+            p2="1.0"
+             r="5000000.0"/>
     <step name="Default" foreground="global" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-             r="5000000.0"/>
-    <step name="Default" foreground="eqtest" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-             r="5000000.0"/>
-    <step name="Default" foreground="nac" background="milkyway"
             q0="0.0"
             q1="0.0"
             q2="0.0"

@@ -65,12 +65,10 @@ bool dev::mouse::process_point(app::event *E)
         double t0 = DEG(atan2(init_R[8], init_R[10]));
         double t1 = DEG(atan2(curr_R[8], curr_R[10]));
 
-        // ::view->look((t1 - t0) * 2.0, (p0 - p1) * 2.0);
-
         double M[16];
         double u[3];
 
-        ::host->get_world_up_vector(u);
+        ::host->get_world_up(u);
 
         load_rot_mat(M, u[0], u[1], u[2], (t1 - t0) * 2.0);
         Rmul_rot_mat(M, 1,    0,    0,    (p0 - p1) * 2.0);
@@ -90,9 +88,9 @@ bool dev::mouse::process_click(app::event *E)
 
     // Handle rotating the view.
 
-    if (b == SDL_BUTTON_RIGHT && m == 0)
+    if (b == SDL_BUTTON_RIGHT)
     {
-        dragging = d;
+        dragging = d && (m == 0);
         return true;
     }
     return false;
@@ -135,8 +133,7 @@ bool dev::mouse::process_tick(app::event *E)
 {
     double kp = E->data.tick.dt * speed;
 
-//  if (modifier & KMOD_SHIFT) kp *= 10.0;
-    if (modifier & KMOD_SHIFT) kp *= 100000.0;
+    if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;
 
     double M[16];

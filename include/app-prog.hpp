@@ -62,7 +62,8 @@ namespace app
         virtual void stop();
         virtual void navigate(const double *);
 
-        virtual void get_world_up_vector(double *);
+        virtual void get_world_up   (double *);
+        virtual void get_world_right(double *);
 
         event *axis_remap(event *);
 

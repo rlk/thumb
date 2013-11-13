@@ -83,8 +83,11 @@ orbiter::orbiter(const std::string& exe,
             move_to(0);
     }
 
+    // HACK: Position the view near the moon.
+
     double M[16];
-    load_xlt_mat(M, 0.0, 0.0, 4000000.0);
+    load_xlt_mat(M, 0.0, 0.0, 1800000.0);
+    Rmul_rot_mat(M, 1.0, 0.0, 0.0, 90.0);
     ::view->set_M(M);
 }
 
@@ -128,8 +131,6 @@ void orbiter::report()
 ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
     report();
-
-    here.set_matrix(::view->get_M());
 
     view_app::prep(frusc, frusv);
 
@@ -296,9 +297,8 @@ int orbiter::move_to(int i)
 
             // Trigger playback.
 
-            orbit_speed = 0;
-            now         = 0;
-            delta       = 1;
+            now   = 0;
+            delta = 1;
         }
     }
     return i;
@@ -340,21 +340,116 @@ int orbiter::fade_to(int i)
 
 //------------------------------------------------------------------------------
 
-void orbiter::navigate(const double *M)
-{
-    double T[16];
+// Compute the basis B of the default orientation for the given view V.
 
-    mult_mat_mat  (T, ::view->get_M(), M);
-    orthonormalize(T);
-    ::view->set_M (T);
+static void orbiting_basis(double *B, const double *V)
+{
+    load_idt(B);
+
+    B[4] = V[12];
+    B[5] = V[13];
+    B[6] = V[14];
+
+    normalize(B + 4);
+    crossprod(B + 8, V + 0, B + 4);
+    normalize(B + 8);
+    crossprod(B + 0, B + 4, B + 8);
+    normalize(B + 0);
 }
 
-void orbiter::get_world_up_vector(double *v)
+// The navigate function modifies the current view matrix. In the case of a
+// view_app, this entails updating the "here" step. In the case of an orbiter,
+// this also entails re-orienting the navigation relative to the location on
+// the planet, scaling the motion relative to the altitude, and enforcing
+// the ground contact constraint.
+
+void orbiter::navigate(const double *M)
+{    
+    const double *V = ::view->get_M();
+    const double  k = 500000.0 * get_speed();
+    const double  d = sqrt(DOT3(V + 12, V + 12));
+
+    double X[16];
+    double Z[16];
+    double N[16];
+    double R[16];
+    double T[16];
+    double B[16];
+    double C[16];
+    double O[16];
+    double n[3];
+    double m[3];
+
+    load_mat(R, M);
+    R[ 3] = 0.0;
+    R[ 7] = 0.0;
+    R[11] = 0.0;
+    R[12] = 0.0;
+    R[13] = 0.0;
+    R[14] = 0.0;
+    R[15] = 1.0;
+
+    load_mat(O, V);
+    O[ 3] = 0.0;
+    O[ 7] = 0.0;
+    O[11] = 0.0;
+    O[12] = 0.0;
+    O[13] = 0.0;
+    O[14] = 0.0;
+    O[15] = 1.0;
+
+    orbiting_basis(B, V);
+    load_inv      (C, B);
+
+    // Calculate the motion vector in default space, via world space.
+
+    mult_mat_vec3(n, O, M + 12);
+    mult_mat_vec3(m, C, n);
+
+    m[0] *= k;
+    m[1] *= k;
+    m[2] *= k;
+
+    double za = DEG(atan2(-m[0], d));
+    double xa = DEG(atan2( m[2], d));
+
+    load_rot_mat(X, B[ 0], B[ 1], B[ 2], xa);
+    load_rot_mat(Z, B[ 8], B[ 9], B[10], za);
+
+    scm_step S;
+
+    S.set_matrix(::view->get_M());
+    S.transform_orientation(X);
+    S.transform_position(X);
+    S.transform_light(X);
+    S.transform_orientation(Z);
+    S.transform_position(Z);
+    S.transform_light(Z);
+    S.set_distance(S.get_distance() + m[1]);
+    S.get_matrix(T);
+
+    mult_mat_mat  (N, T, R);
+    orthonormalize(N);
+    ::view->set_M (N);
+    here.set_matrix(N);
+}
+
+void orbiter::get_world_right(double *v)
 {
     const double *I = ::view->get_I();
-    v[0] = I[4];
-    v[1] = I[5];
-    v[2] = I[6];
+    v[0] = -I[0];
+    v[1] = -I[1];
+    v[2] = -I[2];
+    normalize(v);
+}
+
+void orbiter::get_world_up(double *v)
+{
+    const double *I = ::view->get_I();
+    v[0] = -I[12];
+    v[1] = -I[13];
+    v[2] = -I[14];
+    // normalize(v);
 }
 
 //------------------------------------------------------------------------------

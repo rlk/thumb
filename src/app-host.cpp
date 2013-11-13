@@ -955,9 +955,14 @@ void app::host::navigate(const double *M)
     program->navigate(M);
 }
 
-void app::host::get_world_up_vector(double *v)
+void app::host::get_world_right(double *v)
 {
-    program->get_world_up_vector(v);
+    program->get_world_right(v);
+}
+
+void app::host::get_world_up(double *v)
+{
+    program->get_world_up(v);
 }
 
 //-----------------------------------------------------------------------------
