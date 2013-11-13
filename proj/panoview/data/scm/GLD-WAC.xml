@@ -59,7 +59,7 @@
       <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
       <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="1.5"/>
     </scene>
-    <step name="Default" foreground="graticule" background="milkyway"
+    <step name="Default" foreground="global" background="milkyway"
             q0="0.0"
             q1="0.0"
             q2="0.0"
@@ -68,7 +68,7 @@
             p1="0.0"
             p2="1.0"
              r="5000000.0"/>
-    <step name="Default" foreground="global" background="milkyway"
+    <step name="Default" foreground="graticule" background="milkyway"
             q0="0.0"
             q1="0.0"
             q2="0.0"
@@ -86,7 +86,7 @@
             p1="0.0"
             p2="1.0"
              r="5000000.0"/>
-    <step name="LDRM" foreground="ldrm"
+    <step name="LDRM" foreground="ldrm" background="milkyway"
             q0="0.0"
             q1="0.0"
             q2="0.0"
@@ -97,7 +97,7 @@
             l1="0.894427"
             l2="0.447214"
              r="5000000.0"/>
-    <step name="LDSM" foreground="ldsm"
+    <step name="LDSM" foreground="ldsm" background="milkyway"
             q0="0.0"
             q1="0.0"
             q2="0.0"
@@ -108,7 +108,7 @@
             l1="0.894427"
             l2="0.447214"
              r="5000000.0"/>
-    <step name="Mini-RF CP" foreground="minirf-cp"
+    <step name="Mini-RF CP" foreground="minirf-cp" background="milkyway"
             q0="0.0"
             q1="0.0"
             q2="0.0"
@@ -119,7 +119,7 @@
             l1="0.894427"
             l2="0.447214"
              r="5000000.0"/>
-    <step name="Mini-RF S1" foreground="minirf-s1"
+    <step name="Mini-RF S1" foreground="minirf-s1" background="milkyway"
             q0="0.0"
             q1="0.0"
             q2="0.0"
@@ -130,7 +130,7 @@
             l1="0.894427"
             l2="0.447214"
              r="5000000.0"/>
-    <step name="Apollo11" foreground="11hi"
+    <step name="Apollo11" foreground="11hi" background="milkyway"
              r="1779618.139413"
             p2=" 0.917253"
             p1="-0.010662"
@@ -139,7 +139,7 @@
             q2="-0.071895"
             q1=" 0.190115"
             q0=" 0.341805"/>
-    <step name="Apollo11" foreground="11lo"
+    <step name="Apollo11" foreground="11lo" background="milkyway"
              r="1779618.139413"
             p2=" 0.917253"
             p1="-0.010662"

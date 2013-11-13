@@ -57,7 +57,7 @@ orbiter::orbiter(const std::string& exe,
 {
     // Initialize all interaction state.
 
-    speed_min   = ::conf->get_f("orbiter_speed_min",   0.005);
+    speed_min   = ::conf->get_f("orbiter_speed_min",   0.0);
     speed_max   = ::conf->get_f("orbiter_speed_max",   0.5);
     minimum_agl = ::conf->get_f("orbiter_minimum_agl", 100.0);
     stick_timer = 0.0;
@@ -182,8 +182,12 @@ double orbiter::get_speed() const
 {
     const double d = here.get_distance();
     const double h =      get_current_ground();
+    const double k = (d - h) / h;
 
-    return (d - h) / h;
+    if (k > speed_max) return speed_max;
+    if (k < speed_min) return speed_min;
+
+    return k;
 }
 
 // Compute the length of the Archimedean spiral with polar equation r = a theta.
@@ -406,15 +410,21 @@ void orbiter::navigate(const double *M)
     mult_mat_vec3(n, O, M + 12);
     mult_mat_vec3(m, C, n);
 
+    // Scale the motion vector to the current maximum speed.
+
     m[0] *= k;
     m[1] *= k;
     m[2] *= k;
+
+    // Generate rotations to represent the motion.
 
     double za = DEG(atan2(-m[0], d));
     double xa = DEG(atan2( m[2], d));
 
     load_rot_mat(X, B[ 0], B[ 1], B[ 2], xa);
     load_rot_mat(Z, B[ 8], B[ 9], B[10], za);
+
+    // Exploit a step object to apply these rotations correctly.
 
     scm_step S;
 
@@ -425,13 +435,22 @@ void orbiter::navigate(const double *M)
     S.transform_orientation(Z);
     S.transform_position(Z);
     S.transform_light(Z);
-    S.set_distance(S.get_distance() + m[1]);
+
+    // Apply the change in altitude, constrained to the terrain height.
+
+    double p[3];
+
+    S.get_position(p);
+    S.set_distance(std::max(S.get_distance() + m[1],
+                         sys->get_current_ground(p) + minimum_agl));
+
+    // Finally apply the look transformation and store the result.
+
     S.get_matrix(T);
 
-    mult_mat_mat  (N, T, R);
-    orthonormalize(N);
-    ::view->set_M (N);
+    mult_mat_mat   (N, T, R);
     here.set_matrix(N);
+    ::view->set_M  (N);
 }
 
 void orbiter::get_world_right(double *v)
