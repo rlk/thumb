@@ -353,7 +353,7 @@ void view_app::play(bool movie)
     }
     else
     {
-      ::host->set_movie_mode(movie);
+      ::host->set_movie_mode(movie ? 2 : 0);
         sys->set_synchronous(movie);
         delta = 1;
         now   = 0;
