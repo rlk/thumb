@@ -45,6 +45,7 @@ public:
 
     virtual void   load_file(const std::string&);
     virtual void   load_path(const std::string&);
+    virtual void   save_path(const std::string&);
     virtual void unload();
     virtual void reload();
 
@@ -64,6 +65,7 @@ protected:
     scm_step   here;
     double     now;
     double     delta;
+    bool       record;
 
 private:
 

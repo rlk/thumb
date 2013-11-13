@@ -24,7 +24,8 @@
 //-----------------------------------------------------------------------------
 
 dev::sixense::sixense() :
-    status(false)
+    status(false),
+    flying(false)
 {
     if ((status = (sixenseInit()           == SIXENSE_SUCCESS &&
                    sixenseSetActiveBase(0) == SIXENSE_SUCCESS)))
@@ -198,6 +199,12 @@ bool dev::sixense::process_tick(app::event *E)
                         (curr_p[1] - init_p[1]) * dt * move_rate,
                         (curr_p[2] - init_p[2]) * dt * move_rate);
 
+        ::host->navigate(T);
+    }
+    else
+    {
+        double T[16];
+        load_idt(T);
         ::host->navigate(T);
     }
 

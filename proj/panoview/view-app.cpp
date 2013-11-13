@@ -35,6 +35,7 @@ view_app::view_app(const std::string& exe,
                    const std::string& tag) : app::prog(exe, tag),
     now(0),
     delta(0),
+    record(false),
     draw_cache(false),
     draw_path (false)
 {
@@ -219,6 +220,15 @@ void view_app::load_path(const std::string& name)
 
         draw_gui = false;
     }
+}
+
+void view_app::save_path(const std::string& name)
+{
+    std::string path;
+
+    sys->export_queue(path);
+
+    ::data->save(name, path.c_str(), 0);
 }
 
 void view_app::unload()
@@ -406,6 +416,15 @@ bool view_app::funkey(int n, int c, int s)
                 case 10: sph->set_detail(sph->get_detail() -  2); break;
                 case 11: sph->set_limit (sph->get_limit () + 10); break;
                 case 12: sph->set_limit (sph->get_limit () - 10); break;
+
+                case 14:
+                    sys->flush_queue();
+                    record = true;
+                    break;
+                case 15:
+                    record = false;
+                    save_path("scm/path.dat");
+                    break;
             }
         }
     }
@@ -423,7 +442,7 @@ bool view_app::process_key(app::event *E)
     if (d)
     {
         if ('0' <= k && k <= '9') return numkey(k - '0', c, s);
-        if (282 <= k && k <= 293) return funkey(k - 281, c, s);
+        if (282 <= k && k <= 296) return funkey(k - 281, c, s);
 
         if (k == 32)
         {
@@ -462,6 +481,8 @@ bool view_app::process_tick(app::event *E)
 
     if (delta)
     {
+        double M[16];
+
         double prev = now;
 #if 0
         double next = now + delta * here.get_speed() * dt;
@@ -471,6 +492,9 @@ bool view_app::process_tick(app::event *E)
         here = sys->get_step_blend(next);
         now = sys->set_scene_blend(next);
 
+        here.get_matrix(M);
+        ::view->set_M(M);
+
         if (now == prev)
         {
           ::host->set_movie_mode(false);
@@ -478,6 +502,9 @@ bool view_app::process_tick(app::event *E)
             delta = 0;
         }
     }
+    if (record)
+        sys->append_queue(new scm_step(here));
+
     return false;
 }
 

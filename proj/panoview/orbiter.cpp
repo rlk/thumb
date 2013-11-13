@@ -87,7 +87,7 @@ orbiter::orbiter(const std::string& exe,
 
     double M[16];
     load_xlt_mat(M, 0.0, 0.0, 1800000.0);
-    Rmul_rot_mat(M, 1.0, 0.0, 0.0, 90.0);
+    Rmul_rot_mat(M, 1.0, 0.0, 0.0, 60.0);
     ::view->set_M(M);
 }
 
