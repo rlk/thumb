@@ -338,6 +338,20 @@ const void *app::data::load(const std::string& name, size_t *len)
     }
 }
 
+bool app::data::find(const std::string& name)
+{
+    // Search the list of archives for with the named buffer.
+
+    for (archive_c i = archives.begin(); i != archives.end(); ++i)
+    {
+        const std::string rename = translate(name);
+
+        if ((*i)->find(rename))
+            return true;
+    }
+    return false;
+}
+
 bool app::data::save(const std::string& name, const void *ptr, size_t *len)
 {
     // Search the list of archives for the first one that can save this buffer.

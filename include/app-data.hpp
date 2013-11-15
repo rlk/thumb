@@ -208,6 +208,7 @@ namespace app
 
         const void *load(const std::string&,               size_t * = 0);
         bool        save(const std::string&, const void *, size_t * = 0);
+        bool        find(const std::string&);
         void        free(const std::string&);
         void        list(const std::string&, str_set&, str_set&) const;
     };

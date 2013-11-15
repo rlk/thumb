@@ -11,6 +11,8 @@
 //  General Public License for more details.
 
 #include <cmath>
+#include <iomanip>
+#include <sstream>
 
 #include <ogl-opengl.hpp>
 
@@ -214,6 +216,7 @@ void view_app::load_path(const std::string& name)
         // Import a camera path from the loaded string.
 
         sys->import_queue(path);
+
         ::data->free(name);
 
         // Dismiss the GUI.
@@ -222,13 +225,26 @@ void view_app::load_path(const std::string& name)
     }
 }
 
-void view_app::save_path(const std::string& name)
+void view_app::save_path(const std::string& stem)
 {
-    std::string path;
+    // Export the path to a string.
 
+    std::string path;
     sys->export_queue(path);
 
-    ::data->save(name, path.c_str(), 0);
+    // Find an usused file name and write the string to it.
+
+    for (int i = 1; true; i++)
+    {
+        std::stringstream name;
+        name << stem << std::setw(3) << std::setfill('0') << i << ".mov";
+
+        if (::data->find(name.str()) == false)
+        {
+            ::data->save(name.str(), path.c_str(), 0);
+            break;
+        }
+    }
 }
 
 void view_app::unload()
@@ -370,9 +386,9 @@ bool view_app::numkey(int n, int c, int s)
         {
             sys->flush_queue();
             sys->append_queue(new scm_step(sys->get_step(n)));
+            here = sys->get_step_blend(1.0);
             sys->set_scene_blend(1.0);
         }
-
 #if 0
         if (c == 0)
             fade_to(n);
@@ -423,7 +439,7 @@ bool view_app::funkey(int n, int c, int s)
                     break;
                 case 15:
                     record = false;
-                    save_path("scm/path.dat");
+                    save_path("scm/path");
                     break;
             }
         }

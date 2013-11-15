@@ -426,15 +426,15 @@ void orbiter::navigate(const double *M)
 
     // Exploit a step object to apply these rotations correctly.
 
-    scm_step S;
+    scm_step S = here;
 
     S.set_matrix(::view->get_M());
     S.transform_orientation(X);
     S.transform_position(X);
-    S.transform_light(X);
+    // S.transform_light(X);
     S.transform_orientation(Z);
     S.transform_position(Z);
-    S.transform_light(Z);
+    // S.transform_light(Z);
 
     // Apply the change in altitude, constrained to the terrain height.
 
@@ -447,10 +447,11 @@ void orbiter::navigate(const double *M)
     // Finally apply the look transformation and store the result.
 
     S.get_matrix(T);
+    mult_mat_mat(N, T, R);
+    S.set_matrix(N);
 
-    mult_mat_mat   (N, T, R);
-    here.set_matrix(N);
-    ::view->set_M  (N);
+    ::view->set_M(N);
+    here = S;
 }
 
 void orbiter::get_world_right(double *v)

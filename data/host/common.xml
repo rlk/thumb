@@ -16,6 +16,17 @@
         </frustum>
       </display>
     </node>
+    <!-- 1024x540 ---------------------------------------------------------- -->
+    <node name="1024x540">
+      <window x="0" y="0" w="1024" h="540"/>
+      <channel w="1024" h="540"/>
+      <display type="direct">
+        <viewport x="0" y="0" w="1024" h="540"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="33.8"/>
+        </frustum>
+      </display>
+    </node>
     <!-- 1280x720 --------------------------------------------------------- -->
     <node name="1280x720">
       <window x="0" y="0" w="1280" h="720" />

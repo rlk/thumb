@@ -54,91 +54,63 @@
       <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
       <image name="upper"  scm="NAC_ROI_APOLLO11HIA-254-15.tif" k0="0.1" k1="0.8"/>
     </scene>
-    <scene name="11lo" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
+    <scene name="11lo" label="Apollo11.csv" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
       <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
       <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
-      <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="1.5"/>
+      <image name="upper"  scm="NAC_ROI_APOLLO11LOA-254-15.tif" k0="0.0" k1="1.65"/>
+    </scene>
+    <scene name="12lo" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+      <image name="upper"  scm="NAC_ROI_APOLLO12LOA-254-15.tif" k0="0.0" k1="1.5"/>
+    </scene>
+    <scene name="14lo" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+      <image name="upper"  scm="NAC_ROI_APOLLO14LOA-254-15.tif" k0="0.0" k1="1.5"/>
+    </scene>
+    <scene name="demo1" vert="glsl/scm-displace.vert" frag="glsl/scm-shaded-overlay.frag">
+      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+      <image name="upper"  scm="NAC_ROI_APOLLO16HIA-254-15.tif" k0="0.0" k1="1.6"/>
+    </scene>
+    <scene name="demo2" vert="glsl/scm-displace.vert" frag="glsl/scm-shaded-overlay.frag">
+      <image name="height" scm="LDEM-360-8.tif" k0="1728240" k1="1748170" />
+      <image name="normal" scm="DTM-254-7-N.tif" />
+      <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
+      <image name="upper"  scm="NAC_ROI_APOLLO16HIA-254-15.tif" k0="0.0" k1="1.6"/>
     </scene>
     <step name="Default" foreground="global" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-             r="7000000.0"/>
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
     <step name="Default" foreground="graticule" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-             r="5000000.0"/>
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
     <step name="Default" foreground="height" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-             r="5000000.0"/>
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
     <step name="LDRM" foreground="ldrm" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-            l1="0.894427"
-            l2="0.447214"
-             r="5000000.0"/>
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
     <step name="LDSM" foreground="ldsm" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-            l1="0.894427"
-            l2="0.447214"
-             r="5000000.0"/>
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
+<!--
     <step name="Mini-RF CP" foreground="minirf-cp" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-            l1="0.894427"
-            l2="0.447214"
-             r="5000000.0"/>
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
     <step name="Mini-RF S1" foreground="minirf-s1" background="milkyway"
-            q0="0.0"
-            q1="0.0"
-            q2="0.0"
-            q3="1.0"
-            p0="0.0"
-            p1="0.0"
-            p2="1.0"
-            l1="0.894427"
-            l2="0.447214"
-             r="5000000.0"/>
-    <step name="Apollo11" foreground="11hi" background="milkyway"
-             r="1779618.139413"
-            p2=" 0.917253"
-            p1="-0.010662"
-            p0=" 0.398162"
-            q3=" 0.917527"
-            q2="-0.071895"
-            q1=" 0.190115"
-            q0=" 0.341805"/>
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
+-->
     <step name="Apollo11" foreground="11lo" background="milkyway"
              r="1779618.139413"
             p2=" 0.917253"
@@ -148,60 +120,16 @@
             q2="-0.071895"
             q1=" 0.190115"
             q0=" 0.341805"/>
-<!--
-    <step name="Tycho" foreground="global"
-            q0=" 0.762239"
-            q1="-0.085507"
-            q2="-0.161517"
-            q3=" 0.620961"
-            p0="-0.159228"
-            p1="-0.719553"
-            p2=" 0.675936"
-             r="1794686.446486"/>
-    <step name="Copernic" foreground="global"
-            q0=" 0.089011"
-            q1="-0.228597"
-            q2="-0.496265"
-            q3=" 0.832792"
-            p0="-0.357236"
-            p1=" 0.156369"
-            p2=" 0.920832"
-             r="1991161.296438"/>
-    <step name="Apollo17" foreground="global"
-             r="1774464.752163"
-            p2=" 0.812069"
-            p1=" 0.325701"
-            p0=" 0.484213"
-            q3=" 0.946451"
-            q2="-0.052052"
-            q1=" 0.262495"
-            q0=" 0.180604"/>
-    <step name="Apollo11" foreground="11lo"
-             r="1779618.139413"
-            p2=" 0.917253"
-            p1="-0.010662"
-            p0=" 0.398162"
-            q3=" 0.917527"
-            q2="-0.071895"
-            q1=" 0.190115"
-            q0=" 0.341805"/>
-    <step name="Apollo15" foreground="global"
-             r="1769173.839214"
-            p2=" 0.904493"
-            p1=" 0.422612"
-            p0=" 0.057361"
-            q3=" 0.982710"
-            q2="-0.009343"
-            q1=" 0.027574"
-            q0=" 0.182846"/>
-    <step name="Shacklet" foreground="global"
-             r="1784302.639577"
-            p2=" 0.012243"
-            p1="-0.999820"
-            p0="-0.014464"
-            q3=" 0.155005"
-            q2="-0.839981"
-            q1=" 0.363589"
-            q0=" 0.371764"/>
--->
+    <step name="Apollo12" foreground="12lo" background="milkyway"
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
+    <step name="Apollo14" foreground="14lo" background="milkyway"
+            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
+            p0="0.0"p1="0.0"p2="1.0"
+            l1="0.894427"l2="0.447214"r="5000000.0"/>
+    <step name="Demo" foreground="demo1" background="milkyway"
+            q0="+0.168478035976" q1="+0.053393360025" q2="+0.031580127196" q3="+0.983751491010" p0="+0.263832461546" p1="-0.156187744192" p2="+0.951839178012" l0="+0.000000000000" l1="+0.000000000000" l2="+1.000000000000" r="1739243.355748"/>
+    <step name="Demo" foreground="demo2" background="milkyway"
+            q0="+0.168478035976" q1="+0.053393360025" q2="+0.031580127196" q3="+0.983751491010" p0="+0.263832461546" p1="-0.156187744192" p2="+0.951839178012" l0="+0.000000000000" l1="+0.000000000000" l2="+1.000000000000" r="1739243.355748"/>
   </sphere>
