@@ -80,30 +80,30 @@ void dev::sixense::translate()
             q[2] = a->rot_quat[2];
             q[3] = a->rot_quat[3];
 
-            ::host->process_event(E.mk_point(0, p, q));
+            ::host->process_event(E.mk_point(1, p, q));
         }
 
         // Generate joystick events.
 
         if (a->joystick_x != b->joystick_x)
-            ::host->process_event(E.mk_axis(0, 0, a->joystick_x));
+            ::host->process_event(E.mk_axis(1, 0, a->joystick_x));
 
         if (a->joystick_y != b->joystick_y)
-            ::host->process_event(E.mk_axis(0, 1, a->joystick_y));
+            ::host->process_event(E.mk_axis(1, 1, a->joystick_y));
 
         if (a->trigger != b->trigger)
-            ::host->process_event(E.mk_axis(0, 2, a->trigger));
+            ::host->process_event(E.mk_axis(1, 2, a->trigger));
 
         // Generate button events.
 
         if ((a->buttons ^ b->buttons) & SIXENSE_BUTTON_START)
-            ::host->process_event(E.mk_button(0, 0, a->buttons & SIXENSE_BUTTON_START));
+            ::host->process_event(E.mk_button(1, 0, a->buttons & SIXENSE_BUTTON_START));
 
         if ((a->buttons ^ b->buttons) & SIXENSE_BUTTON_BUMPER)
-            ::host->process_event(E.mk_button(0, 1, a->buttons & SIXENSE_BUTTON_BUMPER));
+            ::host->process_event(E.mk_button(1, 1, a->buttons & SIXENSE_BUTTON_BUMPER));
 
         if ((a->buttons ^ b->buttons) & SIXENSE_BUTTON_JOYSTICK)
-            ::host->process_event(E.mk_button(0, 2, a->buttons & SIXENSE_BUTTON_JOYSTICK));
+            ::host->process_event(E.mk_button(1, 2, a->buttons & SIXENSE_BUTTON_JOYSTICK));
 
         // Generate click events.
 
@@ -131,7 +131,7 @@ bool dev::sixense::process_point(app::event *E)
     const double *p = E->data.point.p;
     const double *q = E->data.point.q;
 
-    if (i == 0)
+    if (i == 1)
     {
         curr_p[0] = p[0];
         curr_p[1] = p[1];
@@ -155,10 +155,11 @@ bool dev::sixense::process_axis(app::event *E)
 
 bool dev::sixense::process_button(app::event *E)
 {
+    const int  i = E->data.button.i;
     const int  b = E->data.button.b;
     const bool d = E->data.button.d;
 
-    if (b == fly_button)
+    if (i == 1 && b == fly_button)
     {
         flying = d;
 

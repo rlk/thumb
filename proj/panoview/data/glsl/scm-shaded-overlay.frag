@@ -2,6 +2,7 @@
 
 varying vec3 var_V;
 varying vec3 var_L;
+varying vec3 var_N;
 
 struct scm
 {
@@ -107,5 +108,7 @@ void main()
     float nv = max(0.0, dot(N, V));
     float kd = 2.0 * nl / (nl + nv);
 
-    gl_FragColor = vec4(kd * mix(a, b, b.a).rgb, 1.0);
+    float ks = smoothstep(-0.1, 0.1, dot(normalize(var_N), L));
+
+    gl_FragColor = vec4(ks * kd * mix(a, b, b.a).rgb, 1.0);
 }

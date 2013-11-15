@@ -38,7 +38,7 @@
 
     <!-- Panoview Configuration ------------------------------------------ -->
 
-    <option name="scm_cache_size">16</option>
+    <option name="scm_cache_size">24</option>
 
     <!-- Orbiter Configuration ------------------------------------------- -->
 

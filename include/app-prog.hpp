@@ -89,6 +89,7 @@ namespace app
         void axis_state();
 
         dev::input *input;
+        dev::input *mouse;
 
         unsigned char *snap_p;
         int            snap_w;

@@ -18,6 +18,7 @@ uniform vec2 B[16];
 
 varying vec3 var_V;
 varying vec3 var_L;
+varying vec3 var_N;
 
 //------------------------------------------------------------------------------
 
@@ -62,10 +63,12 @@ void main()
 {
     float k = sample_height(gl_Vertex.xy).r;
     float h = mix(height.k0, height.k1, k);
-    vec3  v = h * scube(A[0] * gl_Vertex.xy + B[0]);
+    vec3  n = scube(A[0] * gl_Vertex.xy + B[0]);
+    vec3  v = h * n;
 
     var_L = gl_LightSource[0].position.xyz;
     var_V = v;
+    var_N = n;
 
     gl_TexCoord[0].xy = gl_Vertex.xy;
     gl_Position       = gl_ModelViewProjectionMatrix * vec4(v, 1.0);

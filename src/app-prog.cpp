@@ -194,7 +194,7 @@ app::prog::prog(const std::string& exe,
 
     axis_setup();
 
-    // Initialize the input handler.
+    // Initialize the input handlers.
 
     std::string input_mode = ::conf->get_s("input_mode");
 
@@ -203,7 +203,8 @@ app::prog::prog(const std::string& exe,
     else if (input_mode == "gamepad")  input = new dev::gamepad();
     else if (input_mode == "sixense")  input = new dev::sixense();
     else if (input_mode == "trackd")   input = new dev::trackd();
-    else                               input = new dev::mouse();
+ 
+    mouse = new dev::mouse();
 }
 
 app::prog::~prog()
@@ -212,6 +213,7 @@ app::prog::~prog()
 
     delete snap_p;
 
+    if (mouse)  delete mouse;
     if (input)  delete input;
 
     if (::perf) delete ::perf;
@@ -235,8 +237,8 @@ bool app::prog::process_event(app::event *E)
 {
     // Give the input device an opportunity to translate the event.
 
-    if (input && input->process_event(E))
-        return true;
+    if (input && input->process_event(E)) return true;
+    if (mouse && mouse->process_event(E)) return true;
 
     // Otherwise, handle the global key bindings.
 

@@ -369,7 +369,7 @@ void view_app::play(bool movie)
     }
     else
     {
-      ::host->set_movie_mode(movie ? 2 : 0);
+      ::host->set_movie_mode(movie ? 1 : 0);
         sys->set_synchronous(movie);
         delta = 1;
         now   = 0;
@@ -593,12 +593,15 @@ bool view_app::gui_point(app::event *E)
     int x = 0;
     int y = 0;
 
-    if (const app::frustum *overlay = ::host->get_overlay())
+    if (E->data.point.i == 0)
     {
-        if (overlay->pointer_to_2D(E, x, y))
+        if (const app::frustum *overlay = ::host->get_overlay())
         {
-            ui->point(x, y);
-            return true;
+            if (overlay->pointer_to_2D(E, x, y))
+            {
+                ui->point(x, y);
+                return true;
+            }
         }
     }
     return false;
