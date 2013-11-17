@@ -13,6 +13,8 @@
 #ifndef DPY_OCULUS_HPP
 #define DPY_OCULUS_HPP
 
+#include <OVR.h>
+
 #include <dpy-display.hpp>
 #include <app-file.hpp>
 
@@ -29,14 +31,6 @@ namespace dpy
 {
     class oculus : public display
     {
-        app::frustum *frustL;
-        app::frustum *frustR;
-
-        const ogl::program *P;
-
-        virtual bool process_start(app::event *);
-        virtual bool process_close(app::event *);
-
     public:
 
         oculus(app::node);
@@ -48,7 +42,7 @@ namespace dpy
         virtual int  get_frusc()                const;
         virtual void get_frusv(app::frustum **) const;
 
-        virtual app::frustum *get_overlay() const { return frustL; }
+        virtual app::frustum *get_overlay() const { return frust; }
 
         // Rendering handlers
 
@@ -60,6 +54,25 @@ namespace dpy
 
         virtual bool pointer_to_3D(app::event *, int, int);
         virtual bool process_event(app::event *);
+
+    private:
+
+        static OVR::Ptr<OVR::DeviceManager> pManager;
+        static OVR::Ptr<OVR::HMDDevice>     pHMD;
+        static OVR::Ptr<OVR::SensorDevice>  pSensor;
+
+        static OVR::HMDInfo      Info;
+        static OVR::SensorFusion Fusion;
+
+        static OVR::Util::Render::StereoConfig Stereo;
+
+        app::frustum *frust;
+        int           chani;
+
+        const ogl::program *P;
+
+        virtual bool process_start(app::event *);
+        virtual bool process_close(app::event *);
     };
 }
 

@@ -8,9 +8,13 @@
     <!-- Oculus Rift Developer's Kit -------------------------------------- -->
     <node name="rift-devkit">
       <window x="0" y="0" w="1280" h="800"/>
-      <channel w="1280" h="800"/>
-      <display type="oculus">
-        <viewport x="0" y="0" w="1280" h="800"/>
+      <channel w="640" h="800"/>
+      <channel w="640" h="800"/>
+      <display type="oculus" channel="0">
+        <viewport x="0"   y="0" w="640" h="800"/>
+      </display>
+      <display type="oculus" channel="1">
+        <viewport x="640" y="0" w="640" h="800"/>
       </display>
     </node>
     <!-- 960x540 ---------------------------------------------------------- -->

@@ -50,8 +50,11 @@ void dpy::display::fill(double screen_w, double screen_h,
     const double sw = 0.5 * screen_w;
     const double sh = 0.5 * screen_h;
 
-    const double kx = double(buffer_w) / double(viewport[2]);
-    const double ky = double(buffer_h) / double(viewport[3]);
+    const double bw = double(buffer_w);
+    const double bh = double(buffer_h);
+
+    const double kx = bw / double(viewport[2]);
+    const double ky = bh / double(viewport[3]);
 
     glViewport(viewport[0],
                viewport[1],
@@ -85,10 +88,10 @@ void dpy::display::fill(double screen_w, double screen_h,
 
     glBegin(GL_QUADS);
     {
-        glTexCoord2d(-1.0, -1.0); glVertex2d(-sw, -sh);
-        glTexCoord2d(+1.0, -1.0); glVertex2d(+sw, -sh);
-        glTexCoord2d(+1.0, +1.0); glVertex2d(+sw, +sh);
-        glTexCoord2d(-1.0, +1.0); glVertex2d(-sw, +sh);
+        glTexCoord2d(-1, -1); glVertex2d(-sw, -sh);
+        glTexCoord2d(+1, -1); glVertex2d(+sw, -sh);
+        glTexCoord2d(+1, +1); glVertex2d(+sw, +sh);
+        glTexCoord2d(-1, +1); glVertex2d(-sw, +sh);
     }
     glEnd();
 

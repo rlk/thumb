@@ -23,82 +23,201 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::oculus::oculus(app::node p) :
-    display(p), P(0)
+static void getMatrix4f(const OVR::Matrix4f& src, double *dst)
 {
+    dst[ 0] = double(src.M[0][0]);
+    dst[ 1] = double(src.M[1][0]);
+    dst[ 2] = double(src.M[2][0]);
+    dst[ 3] = double(src.M[3][0]);
+    dst[ 4] = double(src.M[0][1]);
+    dst[ 5] = double(src.M[1][1]);
+    dst[ 6] = double(src.M[2][1]);
+    dst[ 7] = double(src.M[3][1]);
+    dst[ 8] = double(src.M[0][2]);
+    dst[ 9] = double(src.M[1][2]);
+    dst[10] = double(src.M[2][2]);
+    dst[11] = double(src.M[3][2]);
+    dst[12] = double(src.M[0][3]);
+    dst[13] = double(src.M[1][3]);
+    dst[14] = double(src.M[2][3]);
+    dst[15] = double(src.M[3][3]);
+}
+
+OVR::Ptr<OVR::DeviceManager>    dpy::oculus::pManager;
+OVR::Ptr<OVR::HMDDevice>        dpy::oculus::pHMD;
+OVR::Ptr<OVR::SensorDevice>     dpy::oculus::pSensor;
+
+OVR::HMDInfo                    dpy::oculus::Info;
+OVR::SensorFusion               dpy::oculus::Fusion;
+OVR::Util::Render::StereoConfig dpy::oculus::Stereo;
+
+//-----------------------------------------------------------------------------
+
+dpy::oculus::oculus(app::node p) :
+    display(p), frust(0), chani(0), P(0)
+{
+    using namespace OVR::Util::Render;
+
+    // Instantiate a view frustum object for later use in view culling.
+
+    frust = new app::frustum(0, viewport[2], viewport[3]);
+    chani = p.get_i("channel");
+
+    // Initialize LibOVR if not already done.
+
+    if (!OVR::System::IsInitialized())
+    {
+        // Set default HMD info for a 7" OVR DK1 in case OVR fails for any reason.
+
+        Info.DesktopX               = 0;
+        Info.DesktopY               = 0;
+        Info.HResolution            = viewport[2];
+        Info.VResolution            = viewport[3];
+
+        Info.HScreenSize            =  0.14976f;
+        Info.VScreenSize            =  0.09350f;
+        Info.InterpupillaryDistance =  0.0640f;
+        Info.LensSeparationDistance =  0.0635f;
+        Info.EyeToScreenDistance    =  0.0410f;
+        Info.VScreenCenter          =  Info.VScreenSize * 0.5f;
+
+        Info.DistortionK[0]         =  1.00f;
+        Info.DistortionK[1]         =  0.22f;
+        Info.DistortionK[2]         =  0.24f;
+        Info.DistortionK[3]         =  0.00f;
+
+        Info.ChromaAbCorrection[0]  =  0.996f;
+        Info.ChromaAbCorrection[1]  = -0.004f;
+        Info.ChromaAbCorrection[2]  =  1.014f;
+        Info.ChromaAbCorrection[3]  =  0.000f;
+
+        // Initialize OVR, the device, the sensor, and the sensor fusion.
+
+        OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
+
+        if ((pManager = *OVR::DeviceManager::Create()))
+        {
+            if ((pHMD = *pManager->EnumerateDevices<OVR::HMDDevice>().CreateDevice()))
+            {
+                if ((pSensor = *pHMD->GetSensor()))
+                {
+                    Fusion.AttachToSensor(pSensor);
+                    pHMD->GetDeviceInfo(&Info);
+
+                    Stereo.SetHMDInfo(Info);
+                    Stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
+                    Stereo.SetStereoMode(Stereo_LeftRight_Multipass);
+                    Stereo.SetFullViewport(Viewport(0, 0, Info.HResolution,
+                                                          Info.VResolution));
+                }
+            }
+        }
+    }
+
+    // Apply the Oculus projections to the frustums.
+
+    if (OVR::System::IsInitialized())
+    {
+        double P[16];
+
+        if (chani)
+            getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).Projection, P);
+        else
+            getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).Projection,  P);
+
+        frust->set_projection(P);
+    }
 }
 
 dpy::oculus::~oculus()
 {
+    if (OVR::System::IsInitialized())
+    {
+        pSensor  = 0;
+        pHMD     = 0;
+        pManager = 0;
+
+        OVR::System::Destroy();
+    }
+
+    delete frust;
 }
 
 //-----------------------------------------------------------------------------
 
 int dpy::oculus::get_frusc() const
 {
-    return 0;
-    return 2;
+    return 1;
 }
 
 void dpy::oculus::get_frusv(app::frustum **frusv) const
 {
-    /*
-    OVR::Util::Render::StereoEyeParams L;
-    OVR::Util::Render::StereoEyeParams R;
-
-    L = Stereo.GetEyeRenderParams(OVR::Util::Render::StereoEye_Left);
-    R = Stereo.GetEyeRenderParams(OVR::Util::Render::StereoEye_Right);
-    */
+    frusv[0] = frust;
 }
 
 //-----------------------------------------------------------------------------
 
 void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 {
+    if (chani < chanc)
+        frust->set_viewpoint(chanv[chani]->get_p());
 }
 
 void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 {
-#if 0
-    if (chanc > 1)
+    double center = 1.0 - (2.0 * Info.LensSeparationDistance) / Info.HScreenSize;
+    double scale  = Stereo.GetDistortionScale();
+    double aspect = double(Info.HResolution)
+                  / double(Info.VResolution);
+
+    if (chani < chanc)
     {
-        assert(chanv[0]);
-        assert(chanv[1]);
+        assert(chanv[chani]);
         assert(P);
 
         // Draw the scene to the off-screen buffer.
 
-        chanv[0]->bind();
+        chanv[chani]->bind();
         {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            ::host->draw(frusi + 0, frustL, 0);
+            ::host->draw(frusi, frust, chani);
         }
-        chanv[0]->free();
-        chanv[1]->bind();
-        {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            ::host->draw(frusi + 1, frustR, 1);
-        }
-        chanv[1]->free();
+        chanv[chani]->free();
 
         // Draw the off-screen buffer to the screen.
 
-        chanv[0]->bind_color(GL_TEXTURE0);
-        chanv[1]->bind_color(GL_TEXTURE1);
+        chanv[chani]->bind_color(GL_TEXTURE0);
         {
             P->bind();
             {
-                fill(frustL->get_w(),
-                     frustL->get_h(),
-                     chanv[0]->get_w(),
-                     chanv[0]->get_h());
+                int w = chanv[chani]->get_w();
+                int h = chanv[chani]->get_h();
+
+                P->uniform("DistortionK",        Info.DistortionK[0],
+                                                 Info.DistortionK[1],
+                                                 Info.DistortionK[2],
+                                                 Info.DistortionK[3]);
+                P->uniform("ChromaAbCorrection", Info.ChromaAbCorrection[0],
+                                                 Info.ChromaAbCorrection[1],
+                                                 Info.ChromaAbCorrection[2],
+                                                 Info.ChromaAbCorrection[3]);
+
+                P->uniform("ScaleOut", 0.5 / scale, 0.5 * aspect / scale);
+                P->uniform("ScaleIn",  2.0,         2.0 / aspect);
+                P->uniform("ImageSize", double(w), double(h));
+
+                if (chani)
+                    P->uniform("LensCenter", 0.5 - 0.5 * center, 0.5);
+                else
+                    P->uniform("LensCenter", 0.5 + 0.5 * center, 0.5);
+
+                fill(frust->get_w(),
+                     frust->get_h(), w, h);
             }
             P->free();
         }
-        chanv[1]->free_color(GL_TEXTURE1);
-        chanv[0]->free_color(GL_TEXTURE0);
+        chanv[chani]->free_color(GL_TEXTURE0);
     }
-#endif
 }
 
 void dpy::oculus::test(int chanc, const dpy::channel *const *chanv, int index)
@@ -109,8 +228,7 @@ void dpy::oculus::test(int chanc, const dpy::channel *const *chanv, int index)
 
 bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 {
-#if 0
-    assert(frustL);
+    assert(frust);
 
     // Determine whether the pointer falls within the viewport.
 
@@ -119,19 +237,17 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 
         // Let the frustum project the pointer into space.
 
-        return frustL->pointer_to_3D(E, x - viewport[0],
-                          viewport[3] - y + viewport[1]);
+        return frust->pointer_to_3D(E, x - viewport[0],
+                         viewport[3] - y + viewport[1]);
     else
         return false;
-#endif
-    return false;
 }
 
 bool dpy::oculus::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((P = ::glob->load_program("oculus.xml")))
+    if ((P = ::glob->load_program("dpy/oculus.xml")))
     {
     }
     return false;
