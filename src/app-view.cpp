@@ -128,8 +128,8 @@ void app::view::look(double dt, double dp)
 
 void app::view::home()
 {
-    load_xlt_mat(current_M, 16.0, 1.8, 0.0);
-    load_xlt_inv(current_I, 16.0, 1.8, 0.0);
+    load_xlt_mat(current_M, 0.0, 1.8, 0.0);
+    load_xlt_inv(current_I, 0.0, 1.8, 0.0);
 }
 
 void app::view::set_M(const double *M)
