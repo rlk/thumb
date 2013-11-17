@@ -194,7 +194,7 @@ void wrl::world::play_callback(dGeomID o1, dGeomID o2)
         int sz = sizeof (dContact);
 
         // Check for collisions between these two geoms.
-            
+
         if (int n = dCollide(o1, o2, MAX_CONTACTS, &contact[0].geom, sz))
         {
             /* TODO: Reimplement collision triggers with cluster awareness.
@@ -307,7 +307,7 @@ void wrl::world::play_init()
             dGeomSetBody(geom, body);
 
             // Accumulate the body mass.
-            
+
             if (body)
             {
                 (*i)->get_mass(&mass);
@@ -881,7 +881,7 @@ void wrl::world::save(std::string filename, bool save_all)
 
     head.set_s("version", "1.0");
     head.set_s("?", "");
-    
+
     body.insert(head);
 
     // Add some or all atoms to the DOM, as requested.
@@ -944,7 +944,7 @@ double wrl::world::split_fract(int i, int m, const app::frustum *frusp)
         c = split[i];
     else
         c = frusp->get_split_coeff(double(i) / double(m));
-    
+
     return frusp->get_split_fract(c);
 }
 
@@ -956,7 +956,7 @@ double wrl::world::split_depth(int i, int m, const app::frustum *frusp)
         c = split[i];
     else
         c = frusp->get_split_coeff(double(i) / double(m));
-    
+
     return frusp->get_split_depth(c);
 }
 
@@ -968,86 +968,87 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     sphere_to_vector(light_p, light_theta, light_phi, light_rho);
 
-    // Compute the shadow map split depths.
-
-    int m = 3; // TODO: generalize split count
-
-    double c[4];
-    double d[4];
-
-    // TODO: is the first always sufficient?  Maybe MAX, MIN, or AVG?
-
-    for (int i = 0; i <= m; ++i)
-    {
-        c[i] = split_fract(i, m, frusv[0]);
-        d[i] = split_depth(i, m, frusv[0]);
-    }
-
     uniform_light_position->set(light_p);
-    uniform_pssm_depth    ->set(d);
 
-    // Render each of the shadow maps.
-
-    for (int i = 0; i < m; ++i)
+    if (frusc > 0)
     {
-        app::frustum frust(0, shadow_res, shadow_res);
-        int          frusi = frusc + i + 1;
+        int m = 3; // TODO: generalize split count
 
-        // Compute a lighting frustum encompasing all view frusta.
+        double c[4];
+        double d[4];
 
-        frust.set_volume(frusc, frusv, c[i], c[i+1], light_p, light_M, light_I);
+        // Locate the shadow map splits using the first frustum as guide.
 
-        // Cache the fill visibility for the light.
-
-        ogl::range s = fill_pool->view(frusi, 5, frust.get_planes());
-
-        // Use the visible range to determine the light projection.
-        // TODO: optimize usinge set_volume's discovered range.
-
-        frust.set_distances(s.get_n(), s.get_f());
-
-        // Render the fill geometry to the shadow buffer.
-
-        process_shadow[i]->bind_frame();
+        for (int i = 0; i <= m; ++i)
         {
-            frust.draw();
-
-            // View from the light's perspective.
-
-            glLoadMatrixd(light_I);
-
-            glClear(GL_COLOR_BUFFER_BIT |
-                    GL_DEPTH_BUFFER_BIT);
-
-            // NOTE: Uniforms have NOT been refreshed at this point.
-            // The previous frame's uniforms are current.
-
-            fill_pool->draw_init();
-            {
-                glCullFace(GL_FRONT);
-                fill_pool->draw(frusi, false, false);
-                fill_pool->draw(frusi, false, true);
-                glCullFace(GL_BACK);
-            }
-            fill_pool->draw_fini();
+            c[i] = split_fract(i, m, frusv[0]);
+            d[i] = split_depth(i, m, frusv[0]);
         }
-        process_shadow[i]->free_frame();
+        uniform_pssm_depth->set(d);
 
-        // Compute the light transform.
+        // Render each of the shadow maps.
 
-        const double S[16] = {
-            0.5, 0.0, 0.0, 0.0,
-            0.0, 0.5, 0.0, 0.0,
-            0.0, 0.0, 0.5, 0.0,
-            0.5, 0.5, 0.5, 1.0,
-        };
-        double M[16];
+        for (int i = 0; i < m; ++i)
+        {
+            app::frustum frust(0, shadow_res, shadow_res);
+            int          frusi = frusc + i + 1;
 
-        mult_mat_mat(M, S, frust.get_P());
-        mult_mat_mat(M, M, light_I);
-        mult_mat_mat(M, M, ::view->get_M());
+            // Compute a lighting frustum encompasing all view frusta.
 
-        uniform_shadow[i]->set(M);
+            frust.set_volume(frusc, frusv, c[i], c[i+1], light_p,
+                                                         light_M,
+                                                         light_I);
+
+            // Cache the fill visibility for the light.
+
+            ogl::range s = fill_pool->view(frusi, 5, frust.get_planes());
+
+            // Use the visible range to determine the light projection.
+
+            frust.set_distances(s.get_n(), s.get_f());
+
+            // Render the fill geometry to the shadow buffer.
+
+            process_shadow[i]->bind_frame();
+            {
+                frust.draw();
+
+                // View from the light's perspective.
+
+                glLoadMatrixd(light_I);
+
+                glClear(GL_COLOR_BUFFER_BIT |
+                        GL_DEPTH_BUFFER_BIT);
+
+                // NOTE: Uniforms have NOT been refreshed at this point.
+
+                fill_pool->draw_init();
+                {
+                    glCullFace(GL_FRONT);
+                    fill_pool->draw(frusi, false, false);
+                    fill_pool->draw(frusi, false, true);
+                    glCullFace(GL_BACK);
+                }
+                fill_pool->draw_fini();
+            }
+            process_shadow[i]->free_frame();
+
+            // Compute the light transform.
+
+            const double S[16] = {
+                0.5, 0.0, 0.0, 0.0,
+                0.0, 0.5, 0.0, 0.0,
+                0.0, 0.0, 0.5, 0.0,
+                0.5, 0.5, 0.5, 1.0,
+            };
+            double M[16];
+
+            mult_mat_mat(M, S, frust.get_P());
+            mult_mat_mat(M, M, light_I);
+            mult_mat_mat(M, M, ::view->get_M());
+
+            uniform_shadow[i]->set(M);
+        }
     }
 
     // Ask the binding system to compute the irradiance environment using
