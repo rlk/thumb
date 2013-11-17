@@ -16,18 +16,22 @@
 
 #include <etc-socket.hpp>
 #include <etc-math.hpp>
-#include <app-default.hpp>
+
 #include <ogl-range.hpp>
 #include <ogl-frame.hpp>
 #include <ogl-opengl.hpp>
+
+#include <dpy-anaglyph.hpp>
 #include <dpy-channel.hpp>
 #include <dpy-direct.hpp>
 #include <dpy-display.hpp>
-#include <dpy-normal.hpp>
-#include <dpy-anaglyph.hpp>
 #include <dpy-fulldome.hpp>
 #include <dpy-interlace.hpp>
 #include <dpy-lenticular.hpp>
+#include <dpy-normal.hpp>
+#include <dpy-oculus.hpp>
+
+#include <app-default.hpp>
 #include <app-frustum.hpp>
 #include <app-event.hpp>
 #include <app-conf.hpp>
@@ -167,6 +171,8 @@ app::host::host(app::prog *p, std::string filename,
                     displays.push_back(new dpy::lenticular(c));
                 else if (t == "normal")
                     displays.push_back(new dpy::normal    (c));
+                else if (t == "oculus")
+                    displays.push_back(new dpy::oculus    (c));
                 else
                     displays.push_back(new dpy::direct    (c));
             }

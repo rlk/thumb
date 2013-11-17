@@ -27,6 +27,7 @@ OBJS=	app-data.o \
 	dpy-interlace.o \
 	dpy-lenticular.o \
 	dpy-normal.o \
+	dpy-oculus.o \
 	etc-dir.o \
 	etc-math.o \
 	etc-ode.o \
