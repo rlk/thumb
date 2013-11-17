@@ -334,7 +334,7 @@ void ogl::program::uniform(std::string name, double a,
 
         if ((loc = glGetUniformLocation(prog, name.c_str())) >= 0)
             glUniform2f(loc, GLfloat(a),
-                                GLfloat(b));
+                             GLfloat(b));
     }
 }
 
@@ -348,8 +348,8 @@ void ogl::program::uniform(std::string name, double a,
 
         if ((loc = glGetUniformLocation(prog, name.c_str())) >= 0)
             glUniform3f(loc, GLfloat(a),
-                                GLfloat(b),
-                                GLfloat(c));
+                             GLfloat(b),
+                             GLfloat(c));
     }
 }
 
@@ -364,9 +364,9 @@ void ogl::program::uniform(std::string name, double a,
 
         if ((loc = glGetUniformLocation(prog, name.c_str())) >= 0)
             glUniform4f(loc, GLfloat(a),
-                                GLfloat(b),
-                                GLfloat(c),
-                                GLfloat(d));
+                             GLfloat(b),
+                             GLfloat(c),
+                             GLfloat(d));
     }
 }
 
