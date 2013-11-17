@@ -96,6 +96,25 @@ app::frustum::frustum(const frustum& that) :
 
 //-----------------------------------------------------------------------------
 
+void app::frustum::set_projection(const double *M)
+{
+    const double u0[3] = { -1.0, -1.0, -1.0 };
+    const double u1[3] = {  1.0, -1.0, -1.0 };
+    const double u2[3] = { -1.0,  1.0, -1.0 };
+    const double u3[3] = {  1.0,  1.0, -1.0 };
+
+    double I[16];
+
+    load_inv(I, M);
+
+    mult_mat_vec3(user_points[0], I, u0);
+    mult_mat_vec3(user_points[1], I, u1);
+    mult_mat_vec3(user_points[2], I, u2);
+    mult_mat_vec3(user_points[3], I, u3);
+
+    calc_basis();
+}
+
 /// Set the near and far clipping distances.
 ///
 /// The five corners defining the off-axis pyramid of a view frustum define a
@@ -592,7 +611,7 @@ double app::frustum::get_split_depth(double c) const
 }
 
 //-----------------------------------------------------------------------------
-
+#if 0
 static double closest_point(const double *a, double ar,
                             const double *b, double br)
 {
@@ -802,9 +821,9 @@ int app::frustum::test_shell(const double *n0,
 
     return (c == view_count) ? 1 : 0;
 }
-
+#endif
 //-----------------------------------------------------------------------------
-
+#if 0
 static int test_cap_plane(const double *n, double a,
                           const double *P, double r0, double r1)
 {
@@ -844,7 +863,7 @@ int app::frustum::test_cap(const double *n, double a,
 
     return (c == view_count) ? 1 : 0;
 }
-
+#endif
 //-----------------------------------------------------------------------------
 
 bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
@@ -1158,6 +1177,26 @@ void app::frustum::calc_corner_1(double *d, const double *a,
     d[2] = b[2] + c[2] - a[2];
 }
 
+void app::frustum::calc_basis()
+{
+    // Cache the display basis.
+
+    load_idt(user_basis);
+
+    user_basis[0] = user_points[1][0] - user_points[0][0];
+    user_basis[1] = user_points[1][1] - user_points[0][1];
+    user_basis[2] = user_points[1][2] - user_points[0][2];
+
+    user_basis[4] = user_points[2][0] - user_points[0][0];
+    user_basis[5] = user_points[2][1] - user_points[0][1];
+    user_basis[6] = user_points[2][2] - user_points[0][2];
+
+    normalize(user_basis + 0);
+    normalize(user_basis + 4);
+    crossprod(user_basis + 8, user_basis + 0, user_basis + 4);
+    normalize(user_basis + 8);
+}
+
 void app::frustum::calc_calibrated()
 {
     // Extract the frustum definition from the serialization node.
@@ -1232,22 +1271,7 @@ void app::frustum::calc_calibrated()
     mult_mat_vec3(user_points[2], T, c[2]);
     mult_mat_vec3(user_points[3], T, c[3]);
 
-    // Cache the display basis.
-
-    load_idt(user_basis);
-
-    user_basis[0] = user_points[1][0] - user_points[0][0];
-    user_basis[1] = user_points[1][1] - user_points[0][1];
-    user_basis[2] = user_points[1][2] - user_points[0][2];
-
-    user_basis[4] = user_points[2][0] - user_points[0][0];
-    user_basis[5] = user_points[2][1] - user_points[0][1];
-    user_basis[6] = user_points[2][2] - user_points[0][2];
-
-    normalize(user_basis + 0);
-    normalize(user_basis + 4);
-    crossprod(user_basis + 8, user_basis + 0, user_basis + 4);
-    normalize(user_basis + 8);
+    calc_basis();
 }
 
 //-----------------------------------------------------------------------------

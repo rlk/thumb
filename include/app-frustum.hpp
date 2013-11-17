@@ -91,23 +91,26 @@ namespace app
 
         // View state mutators
 
-        void set_distances(double n, double f);
-        void set_viewpoint(const double *p);
-        void set_transform(const double *M);
-        void set_horizon  (double r);
+        void set_distances (double n, double f);
+        void set_projection(const double *M);
+        void set_viewpoint (const double *p);
+        void set_transform (const double *M);
+        void set_horizon   (double r);
 
         void set_volume(int frusc, const frustum *const *frusv,
-                        double c0, double c1, const double *L,
-                        double *M, double *I);
+                        double c0, double c1, const double *L, double *M,
+                                                               double *I);
 
         // Visibility testers
 
         int test_bound(const double *,
                        const double *);
+        /*
         int test_shell(const double *,
                        const double *,
                        const double *, double, double) const;
         int test_cap  (const double *, double, double, double) const;
+        */
 
         // Queries.
 
@@ -162,6 +165,7 @@ namespace app
                                      const double *,
                                      const double *);
         void calc_calibrated();
+        void calc_basis();
 
     };
 
