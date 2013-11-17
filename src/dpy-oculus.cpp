@@ -67,12 +67,12 @@ dpy::oculus::oculus(app::node p) :
 
     if (!OVR::System::IsInitialized())
     {
-        // Set default HMD info for a 7" OVR DK1 in case OVR fails for any reason.
+        // Set default HMD info for a 7" OVR DK1 in case OVR fails.
 
-        Info.DesktopX               = 0;
-        Info.DesktopY               = 0;
-        Info.HResolution            = viewport[2];
-        Info.VResolution            = viewport[3];
+        Info.DesktopX               =  0;
+        Info.DesktopY               =  0;
+        Info.HResolution            =  viewport[2];
+        Info.VResolution            =  viewport[3];
 
         Info.HScreenSize            =  0.14976f;
         Info.VScreenSize            =  0.09350f;
@@ -165,11 +165,8 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 
 void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 {
-    double center = 1.0 - (2.0 * Info.LensSeparationDistance) / Info.HScreenSize;
-    double scale  = Stereo.GetDistortionScale();
-    double aspect = double(Info.HResolution)
-                  / double(Info.VResolution);
-
+    double center = 1.0 - (2.0 * Info.LensSeparationDistance)
+                               / Info.HScreenSize;
     if (chani < chanc)
     {
         assert(chanv[chani]);
@@ -193,17 +190,6 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
                 int w = chanv[chani]->get_w();
                 int h = chanv[chani]->get_h();
 
-                P->uniform("DistortionK",        Info.DistortionK[0],
-                                                 Info.DistortionK[1],
-                                                 Info.DistortionK[2],
-                                                 Info.DistortionK[3]);
-                P->uniform("ChromaAbCorrection", Info.ChromaAbCorrection[0],
-                                                 Info.ChromaAbCorrection[1],
-                                                 Info.ChromaAbCorrection[2],
-                                                 Info.ChromaAbCorrection[3]);
-
-                P->uniform("ScaleOut", 0.5 / scale, 0.5 * aspect / scale);
-                P->uniform("ScaleIn",  2.0,         2.0 / aspect);
                 P->uniform("ImageSize", double(w), double(h));
 
                 if (chani)
@@ -249,6 +235,21 @@ bool dpy::oculus::process_start(app::event *E)
 
     if ((P = ::glob->load_program("dpy/oculus.xml")))
     {
+        double scale  = Stereo.GetDistortionScale();
+        double aspect = double(Info.HResolution)
+                      / double(Info.VResolution);
+
+        P->uniform("DistortionK",        Info.DistortionK[0],
+                                         Info.DistortionK[1],
+                                         Info.DistortionK[2],
+                                         Info.DistortionK[3]);
+        P->uniform("ChromaAbCorrection", Info.ChromaAbCorrection[0],
+                                         Info.ChromaAbCorrection[1],
+                                         Info.ChromaAbCorrection[2],
+                                         Info.ChromaAbCorrection[3]);
+
+        P->uniform("ScaleOut", 0.5 / scale, 0.5 * aspect / scale);
+        P->uniform("ScaleIn",  2.0,         2.0 / aspect);
     }
     return false;
 }
