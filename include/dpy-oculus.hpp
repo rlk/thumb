@@ -69,7 +69,7 @@ namespace dpy
         app::frustum *frust;
         int           chani;
 
-        const ogl::program *P;
+        const ogl::program *program;
 
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);

@@ -114,10 +114,10 @@ namespace app
 
         // Queries.
 
-        const double *get_user_pos() const;
-        const double *get_view_pos() const;
-        const double *get_disp_pos() const;
-        const double *get_P()        const;
+        const double *get_user_pos()    const;
+        const double *get_view_pos()    const;
+        const double *get_disp_pos()    const;
+        const double *get_proj_matrix() const;
 
         double get_w()          const;
         double get_h()          const;
@@ -143,7 +143,7 @@ namespace app
 
         // Perspective projection application
 
-        void draw() const;
+        void load_transform() const;
 
         void overlay() const;
 

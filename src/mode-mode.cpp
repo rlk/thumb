@@ -40,8 +40,8 @@ void mode::mode::draw(int frusi, const app::frustum *frusp)
 
     // Draw the world.
 
-     frusp->draw();
-    ::view->draw();
+     frusp->load_transform();
+    ::view->load_transform();
 
     world->draw_fill(frusi, frusp);
 

@@ -1011,7 +1011,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             process_shadow[i]->bind_frame();
             {
-                frust.draw();
+                frust.load_transform();
 
                 // View from the light's perspective.
 
@@ -1043,9 +1043,9 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
             };
             double M[16];
 
-            mult_mat_mat(M, S, frust.get_P());
+            mult_mat_mat(M, S,   frust.get_proj_matrix());
             mult_mat_mat(M, M, light_I);
-            mult_mat_mat(M, M, ::view->get_M());
+            mult_mat_mat(M, M, ::view->get_view_matrix());
 
             uniform_shadow[i]->set(M);
         }

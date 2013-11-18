@@ -85,8 +85,8 @@ void demo::free_uniforms()
 
 void demo::prep_uniforms() const
 {
-    const double *M = ::view->get_M();
-    const double *I = ::view->get_I();
+    const double *M = ::view->get_view_matrix();
+    const double *I = ::view->get_view_inverse();
 
     // Set the viewing uniforms
 

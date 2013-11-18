@@ -519,7 +519,7 @@ const double *app::frustum::get_disp_pos() const
 /// app::frustum::set_distances must also be called before the
 /// perspective projection may be retrieved.
 ///
-const double *app::frustum::get_P() const
+const double *app::frustum::get_proj_matrix() const
 {
     return P;
 }
@@ -1030,7 +1030,7 @@ bool app::frustum::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-void app::frustum::draw() const
+void app::frustum::load_transform() const
 {
     // Load the projection to the OpenGL projection matrix.
 

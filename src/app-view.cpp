@@ -21,7 +21,19 @@
 
 app::view::view()
 {
-    home();
+    go_home();
+}
+
+void app::view::go_home()
+{
+    load_idt(look_M);
+    load_idt(look_I);
+
+    load_xlt_mat(move_M, 0.0, 1.8, 0.0);
+    load_xlt_inv(move_I, 0.0, 1.8, 0.0);
+
+    mult_mat_mat(transform_M, move_M, look_M);
+    mult_mat_mat(transform_I, look_I, move_I);
 }
 
 //-----------------------------------------------------------------------------
@@ -41,12 +53,41 @@ void app::view::get_point(double *P, const double *p,
 
     // Transform the point position and direction to world space.
 
-    mult_mat_vec3(P, current_M, p);
-    mult_xps_vec3(V, current_I, v);
+    mult_mat_vec3(P, transform_M, p);
+    mult_xps_vec3(V, transform_I, v);
 }
 
 //-----------------------------------------------------------------------------
 
+void app::view::set_move_matrix(const double *M)
+{
+    load_mat(move_M, M);
+    load_inv(move_I, M);
+
+    mult_mat_mat(transform_M, move_M, look_M);
+    mult_mat_mat(transform_I, look_I, move_I);
+}
+
+void app::view::set_look_matrix(const double *M)
+{
+    load_mat(look_M, M);
+    load_inv(look_I, M);
+
+    mult_mat_mat(transform_M, move_M, look_M);
+    mult_mat_mat(transform_I, look_I, move_I);
+}
+
+// Load the current transformation onto the OpenGL matrix stack. This is a view
+// matrix rather than a model matrix, so use the inverse.
+
+void app::view::load_transform() const
+{
+    glLoadMatrixd(transform_I);
+}
+
+//-----------------------------------------------------------------------------
+
+#if 0
 void app::view::turn(double rx, double ry, double rz, const double *R)
 {
     // Turn in the given coordinate system.
@@ -125,26 +166,4 @@ void app::view::look(double dt, double dp)
 
     load_inv(current_I, current_M);
 }
-
-void app::view::home()
-{
-    load_xlt_mat(current_M, 0.0, 1.8, 0.0);
-    load_xlt_inv(current_I, 0.0, 1.8, 0.0);
-}
-
-void app::view::set_M(const double *M)
-{
-    load_mat(current_M, M);
-    load_inv(current_I, M);
-}
-
-//-----------------------------------------------------------------------------
-
-void app::view::draw() const
-{
-    // This is a view matrix rather than a model matrix. It must be inverse.
-
-    glLoadMatrixd(current_I);
-}
-
-//-----------------------------------------------------------------------------
+#endif

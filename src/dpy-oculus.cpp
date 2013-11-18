@@ -54,7 +54,7 @@ OVR::Util::Render::StereoConfig dpy::oculus::Stereo;
 //-----------------------------------------------------------------------------
 
 dpy::oculus::oculus(app::node p) :
-    display(p), frust(0), chani(0), P(0)
+    display(p), frust(0), chani(0), program(0)
 {
     using namespace OVR::Util::Render;
 
@@ -170,7 +170,7 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
     if (chani < chanc)
     {
         assert(chanv[chani]);
-        assert(P);
+        assert(program);
 
         // Draw the scene to the off-screen buffer.
 
@@ -185,22 +185,22 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 
         chanv[chani]->bind_color(GL_TEXTURE0);
         {
-            P->bind();
+            program->bind();
             {
                 int w = chanv[chani]->get_w();
                 int h = chanv[chani]->get_h();
 
-                P->uniform("ImageSize", double(w), double(h));
+                program->uniform("ImageSize", double(w), double(h));
 
                 if (chani)
-                    P->uniform("LensCenter", 0.5 - 0.5 * center, 0.5);
+                    program->uniform("LensCenter", 0.5 - 0.5 * center, 0.5);
                 else
-                    P->uniform("LensCenter", 0.5 + 0.5 * center, 0.5);
+                    program->uniform("LensCenter", 0.5 + 0.5 * center, 0.5);
 
                 fill(frust->get_w(),
                      frust->get_h(), w, h);
             }
-            P->free();
+            program->free();
         }
         chanv[chani]->free_color(GL_TEXTURE0);
     }
@@ -233,23 +233,23 @@ bool dpy::oculus::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((P = ::glob->load_program("dpy/oculus.xml")))
+    if ((program = ::glob->load_program("dpy/oculus.xml")))
     {
         double scale  = Stereo.GetDistortionScale();
         double aspect = double(Info.HResolution)
                       / double(Info.VResolution) / 2;
 
-        P->uniform("DistortionK",        Info.DistortionK[0],
-                                         Info.DistortionK[1],
-                                         Info.DistortionK[2],
-                                         Info.DistortionK[3]);
-        P->uniform("ChromaAbCorrection", Info.ChromaAbCorrection[0],
-                                         Info.ChromaAbCorrection[1],
-                                         Info.ChromaAbCorrection[2],
-                                         Info.ChromaAbCorrection[3]);
+        program->uniform("DistortionK",        Info.DistortionK[0],
+                                               Info.DistortionK[1],
+                                               Info.DistortionK[2],
+                                               Info.DistortionK[3]);
+        program->uniform("ChromaAbCorrection", Info.ChromaAbCorrection[0],
+                                               Info.ChromaAbCorrection[1],
+                                               Info.ChromaAbCorrection[2],
+                                               Info.ChromaAbCorrection[3]);
 
-        P->uniform("ScaleOut", 0.5 / scale, 0.5 * aspect / scale);
-        P->uniform("ScaleIn",  2.0,         2.0 / aspect);
+        program->uniform("ScaleOut", 0.5 / scale, 0.5 * aspect / scale);
+        program->uniform("ScaleIn",  2.0,         2.0 / aspect);
     }
     return false;
 }
@@ -258,10 +258,9 @@ bool dpy::oculus::process_close(app::event *E)
 {
     // Finalize the shader.
 
-    ::glob->free_program(P);
+    ::glob->free_program(program);
 
-    P = 0;
-
+    program = 0;
     return false;
 }
 

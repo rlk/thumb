@@ -285,14 +285,14 @@ void app::prog::navigate(const double *M)
 {
     double T[16];
 
-    mult_mat_mat  (T, ::view->get_M(), M);
+    mult_mat_mat  (T, ::view->get_move_matrix(), M);
     orthonormalize(T);
-    ::view->set_M (T);
+    ::view->set_move_matrix (T);
 }
 
 void app::prog::get_world_up(double *v)
 {
-    const double *I = ::view->get_I();
+    const double *I = ::view->get_view_inverse();
     v[0] = I[4];
     v[1] = I[5];
     v[2] = I[6];

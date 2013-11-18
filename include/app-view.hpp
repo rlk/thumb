@@ -21,32 +21,52 @@ namespace app
     {
     private:
 
-        double current_M[16];
-        double current_I[16];
+        double      move_M[16];
+        double      look_M[16];
+        double transform_M[16];
+
+        double      move_I[16];
+        double      look_I[16];
+        double transform_I[16];
 
     public:
 
         view();
 
+        void go_home();
+
         void get_point(double *, const double *,
                        double *, const double *) const;
 
-        const double *get_M() const { return current_M; }
-        const double *get_I() const { return current_I; }
+        const double *get_move_matrix()  const { return      move_M; }
+        const double *get_look_matrix()  const { return      look_M; }
+        const double *get_view_matrix()  const { return transform_M; }
+
+        const double *get_move_inverse() const { return      move_I; }
+        const double *get_look_inverse() const { return      look_I; }
+        const double *get_view_inverse() const { return transform_I; }
+
+        void set_move_matrix(const double *M);
+        void set_look_matrix(const double *M);
+
+        void load_transform() const;
+
+//      const double *get_M() const { return current_M; }
+//      const double *get_I() const { return current_I; }
 
         // Interactive view controls.
-
+/*
         void turn(double, double, double, const double *);
         void turn(double, double, double);
         void move(double, double, double);
         void look(double, double);
-        void home();
+*/
 
-        void set_M(const double *);
+        // void set_M(const double *);
 
         // Transform application.
 
-        void draw() const;
+        // void draw() const;
     };
 }
 

@@ -330,8 +330,8 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
     double M[16], P[16];
 
-    load_mat(P,  frusp->get_P());
-    load_inv(M, ::view->get_M());
+    load_mat(P,  frusp->get_proj_matrix());
+    load_inv(M, ::view->get_view_matrix());
 
     Lmul_scl_mat(M, get_scale(),
                     get_scale(),
@@ -345,8 +345,8 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)
 {
-    frusp->draw();
-   ::view->draw();
+    frusp->load_transform();
+   ::view->load_transform();
 
     glScaled(get_scale(),
              get_scale(),
@@ -509,7 +509,7 @@ bool view_app::process_tick(app::event *E)
         now = sys->set_scene_blend(next);
 
         here.get_matrix(M);
-        ::view->set_M(M);
+        ::view->set_move_matrix(M);
 
         if (now == prev)
         {

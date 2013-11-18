@@ -80,7 +80,7 @@ bool dev::gamepad::process_click(app::event *E)
     else if (b == gamepad_butn_U) { motion[1] += dd; return true; }
     else if (b == gamepad_butn_F) { motion[2] -= dd; return true; }
     else if (b == gamepad_butn_B) { motion[2] += dd; return true; }
-    else if (b == gamepad_butn_H) { ::view->home();  return true; }
+    else if (b == gamepad_butn_H) { ::view->go_home();  return true; }
 
     return false;
 }
@@ -128,8 +128,10 @@ bool dev::gamepad::process_tick(app::event *E)
     const bool   bp = (DOT3(motion, motion) != 0);
     const bool   br = bx || by || bz;
 
+#if 0
     if (bp) ::view->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
     if (br) ::view->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
+#endif
 
     return false;
 }

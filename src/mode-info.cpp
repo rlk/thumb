@@ -60,8 +60,8 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
     assert(world);
     assert(gui);
 
-     frusp->draw();
-    ::view->draw();
+     frusp->load_transform();
+    ::view->load_transform();
 
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);

@@ -223,7 +223,7 @@ bool dev::hybrid::process_button(app::event *E)
     }
     if (move_home.process_button(b, d))
     {
-        ::view->home();
+        ::view->go_home();
         synthesize_point();
         return true;
     }
@@ -289,7 +289,7 @@ bool dev::hybrid::process_axis(app::event *E)
 bool dev::hybrid::process_tick(app::event *E)
 {
     // Apply the current position and rotation velocities to the user.
-
+#if 0
     const double dt = E->data.tick.dt;
     const double dz = 0.25;
 
@@ -323,7 +323,7 @@ bool dev::hybrid::process_tick(app::event *E)
         hand_p[2] += hand_v[2] * dt;
         synthesize_point();
     }
-
+#endif
     return false;
 }
 

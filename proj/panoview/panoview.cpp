@@ -138,7 +138,7 @@ bool panoview::pan_tick(app::event *E)
     }
 
     here.get_matrix(M);
-    ::view->set_M(M);
+    ::view->set_move_matrix(M);
 
     return false;
 }

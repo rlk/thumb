@@ -285,7 +285,7 @@ bool mode::edit::process_key(app::event *E)
         else if (k == key_home)
         {
             if (m & KMOD_SHIFT)
-                ::view->home();
+                ::view->go_home();
             else
             {
                 double M[16];
@@ -331,8 +331,8 @@ void mode::edit::draw(int frusi, const app::frustum *frusp)
 
     // Draw the world and the constraint.
 
-     frusp->draw();
-    ::view->draw();
+     frusp->load_transform();
+    ::view->load_transform();
 
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);

@@ -270,7 +270,7 @@ ogl::range panoptic::prep(int frusc, const app::frustum *const *frusv)
     view_app::prep(frusc, frusv);
 
     here.get_matrix(M);
-    ::view->set_M(M);
+    ::view->set_move_matrix(M);
 
     // Compute a horizon line based upon altitude and minimum terrain height.
 

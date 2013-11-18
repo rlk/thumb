@@ -511,9 +511,10 @@ bool dev::trackd::process_tick(app::event *E)
         dR[0] =  DOT3(dz, init_R + 4);
         dR[1] = -DOT3(dz, init_R + 0);
         dR[2] =  DOT3(dy, init_R + 0);
-
+/*
         ::view->turn(dR[0] * kr, dR[1] * kr, dR[2] * kr, curr_R);
         ::view->move(dP[0] * kp, dP[1] * kp, dP[2] * kp);
+*/
     }
 
     return false;

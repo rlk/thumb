@@ -121,7 +121,7 @@ bool dev::mouse::process_key(app::event *E)
     {
         if (k == SDLK_RETURN)
         {
-            ::view->home();
+            ::view->go_home();
             return true;
         }
     }

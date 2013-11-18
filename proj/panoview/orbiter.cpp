@@ -88,7 +88,7 @@ orbiter::orbiter(const std::string& exe,
     double M[16];
     load_xlt_mat(M, 0.0, 0.0, 1800000.0);
     Rmul_rot_mat(M, 1.0, 0.0, 0.0, 60.0);
-    ::view->set_M(M);
+    ::view->set_move_matrix(M);
 }
 
 orbiter::~orbiter()
@@ -368,8 +368,8 @@ static void orbiting_basis(double *B, const double *V)
 // the ground contact constraint.
 
 void orbiter::navigate(const double *M)
-{
-    const double *V = ::view->get_M();
+{    
+    const double *V = ::view->get_move_matrix();
     const double  k = 500000.0 * get_speed();
     const double  d = sqrt(DOT3(V + 12, V + 12));
 
@@ -428,11 +428,13 @@ void orbiter::navigate(const double *M)
 
     scm_step S = here;
 
-    S.set_matrix(::view->get_M());
+    S.set_matrix(::view->get_move_matrix());
     S.transform_orientation(X);
     S.transform_position(X);
+    // S.transform_light(X);
     S.transform_orientation(Z);
     S.transform_position(Z);
+    // S.transform_light(Z);
 
     // Apply the change in altitude, constrained to the terrain height.
 
@@ -448,13 +450,13 @@ void orbiter::navigate(const double *M)
     mult_mat_mat(N, T, R);
     S.set_matrix(N);
 
-    ::view->set_M(N);
+    ::view->set_move_matrix(N);
     here = S;
 }
 
 void orbiter::get_world_right(double *v)
 {
-    const double *I = ::view->get_I();
+    const double *I = ::view->get_view_inverse();
     v[0] = -I[0];
     v[1] = -I[1];
     v[2] = -I[2];
@@ -463,11 +465,11 @@ void orbiter::get_world_right(double *v)
 
 void orbiter::get_world_up(double *v)
 {
-    const double *I = ::view->get_I();
+    const double *I = ::view->get_view_inverse();
     v[0] = -I[12];
     v[1] = -I[13];
     v[2] = -I[14];
-    // normalize(v);
+    normalize(v);
 }
 
 //------------------------------------------------------------------------------
