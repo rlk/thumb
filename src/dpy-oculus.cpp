@@ -71,12 +71,12 @@ dpy::oculus::oculus(app::node p) :
 
         Info.DesktopX               =  0;
         Info.DesktopY               =  0;
-        Info.HResolution            =  viewport[2];
-        Info.VResolution            =  viewport[3];
+        Info.HResolution            =  1280;
+        Info.VResolution            =  800;
 
         Info.HScreenSize            =  0.14976f;
         Info.VScreenSize            =  0.09350f;
-        Info.InterpupillaryDistance =  0.0640f;
+        Info.InterpupillaryDistance =  0.0604f;
         Info.LensSeparationDistance =  0.0635f;
         Info.EyeToScreenDistance    =  0.0410f;
         Info.VScreenCenter          =  Info.VScreenSize * 0.5f;
@@ -237,7 +237,7 @@ bool dpy::oculus::process_start(app::event *E)
     {
         double scale  = Stereo.GetDistortionScale();
         double aspect = double(Info.HResolution)
-                      / double(Info.VResolution);
+                      / double(Info.VResolution) / 2;
 
         P->uniform("DistortionK",        Info.DistortionK[0],
                                          Info.DistortionK[1],

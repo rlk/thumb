@@ -6,7 +6,7 @@
       </frustum>
     </overlay>
     <!-- Oculus Rift Developer's Kit -------------------------------------- -->
-    <node name="rift-devkit">
+    <node name="oculus-dk">
       <window x="0" y="0" w="1280" h="800"/>
       <channel w="640" h="800"/>
       <channel w="640" h="800"/>
