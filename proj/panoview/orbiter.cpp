@@ -465,22 +465,6 @@ void orbiter::get_up_vector(double *v)
 
 //------------------------------------------------------------------------------
 
-bool orbiter::process_tick(app::event *E)
-{
-    return false;
-}
-
-bool orbiter::process_event(app::event *E)
-{
-    switch (E->get_type())
-    {
-        case E_TICK:   if (process_tick(E))   return true; else break;
-    }
-    return view_app::process_event(E);
-}
-
-//------------------------------------------------------------------------------
-
 int main(int argc, char *argv[])
 {
     try

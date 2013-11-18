@@ -69,11 +69,10 @@
       <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
       <image name="upper"  scm="NAC_ROI_APOLLO14LOA-254-15.tif" k0="0.0" k1="1.5"/>
     </scene>
-    <scene name="demo1" vert="glsl/scm-displace.vert" frag="glsl/scm-shaded-overlay.frag">
-      <image name="height" scm="DTM-254-7.tif" k0="1728240" k1="1748170" />
-      <image name="normal" scm="DTM-254-7-N.tif" />
+    <scene name="NAC" vert="glsl/scm-displace.vert" frag="glsl/scm-overlay.frag">
+      <image name="height" scm="LDEM-360-8.tif" k0="1728240" k1="1748170" />
       <image name="lower"  scm="WAC-254-7.tif" k0="0.0" k1="3.0"/>
-      <image name="upper"  scm="NAC_ROI_APOLLO16HIA-254-15.tif" k0="0.0" k1="1.6"/>
+      <image name="upper"  scm="NAC_ROI_2013_03-254-15.tif" k0="0.0" k1="1.6"/>
     </scene>
     <scene name="demo2" vert="glsl/scm-displace.vert" frag="glsl/scm-shaded-overlay.frag">
       <image name="height" scm="LDEM-360-8.tif" k0="1728240" k1="1748170" />
@@ -124,11 +123,7 @@
             q0="0.0"q1="0.0"q2="0.0"q3="1.0"
             p0="0.0"p1="0.0"p2="1.0"
             l1="0.894427"l2="0.447214"r="5000000.0"/>
-    <step name="Apollo14" foreground="14lo" background="milkyway"
-            q0="0.0"q1="0.0"q2="0.0"q3="1.0"
-            p0="0.0"p1="0.0"p2="1.0"
-            l1="0.894427"l2="0.447214"r="5000000.0"/>
-    <step name="Demo" foreground="demo1" background="milkyway"
+    <step name="Demo" foreground="NAC" background="milkyway"
             q0="+0.168478035976" q1="+0.053393360025" q2="+0.031580127196" q3="+0.983751491010" p0="+0.263832461546" p1="-0.156187744192" p2="+0.951839178012" l0="+0.000000000000" l1="+0.000000000000" l2="+1.000000000000" r="1739243.355748"/>
     <step name="Demo" foreground="demo2" background="milkyway"
             q0="+0.168478035976" q1="+0.053393360025" q2="+0.031580127196" q3="+0.983751491010" p0="+0.263832461546" p1="-0.156187744192" p2="+0.951839178012" l0="+0.000000000000" l1="+0.000000000000" l2="+1.000000000000" r="1739243.355748"/>

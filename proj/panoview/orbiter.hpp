@@ -31,8 +31,6 @@ public:
     virtual ogl::range prep(int, const app::frustum * const *);
     virtual void       draw(int, const app::frustum *, int);
 
-    virtual bool process_event(app::event *);
-
     virtual void load_file(const std::string&);
 
     virtual int move_to(int);
@@ -59,10 +57,6 @@ private:
     sockaddr_in report_addr;
     SOCKET      report_sock;
     void        report();
-
-    // Event handlers
-
-    bool process_tick  (app::event *);
 };
 
 //-----------------------------------------------------------------------------

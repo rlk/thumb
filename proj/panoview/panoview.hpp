@@ -26,24 +26,8 @@ public:
 
     virtual void draw(int, const app::frustum *, int);
 
-    virtual bool process_event(app::event *);
-
     virtual ~panoview();
 
-private:
-
-    double min_zoom;
-    double max_zoom;
-    bool  drag_zooming;
-    bool  drag_looking;
-    int   drag_x;
-    int   drag_y;
-    int   curr_x;
-    int   curr_y;
-
-    bool pan_point(app::event *);
-    bool pan_click(app::event *);
-    bool pan_tick (app::event *);
 };
 
 //-----------------------------------------------------------------------------

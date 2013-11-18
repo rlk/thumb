@@ -157,6 +157,18 @@ app::prog::prog(const std::string& exe,
 
     ::data->init();
 
+    // Initialize the input handlers.
+
+    std::string input_mode = ::conf->get_s("input_mode");
+
+    if      (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
+    else if (input_mode == "skeleton") input = new dev::skeleton();
+    else if (input_mode == "gamepad")  input = new dev::gamepad();
+    else if (input_mode == "sixense")  input = new dev::sixense();
+    else if (input_mode == "trackd")   input = new dev::trackd();
+
+    mouse = new dev::mouse();
+
     // Initialize language and host configuration.
 
     std::string lang_conf = ::conf->get_s("lang_file");
@@ -193,18 +205,6 @@ app::prog::prog(const std::string& exe,
     // Configure the joystick system.
 
     axis_setup();
-
-    // Initialize the input handlers.
-
-    std::string input_mode = ::conf->get_s("input_mode");
-
-    if      (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
-    else if (input_mode == "skeleton") input = new dev::skeleton();
-    else if (input_mode == "gamepad")  input = new dev::gamepad();
-    else if (input_mode == "sixense")  input = new dev::sixense();
-    else if (input_mode == "trackd")   input = new dev::trackd();
- 
-    mouse = new dev::mouse();
 }
 
 app::prog::~prog()

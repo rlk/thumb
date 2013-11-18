@@ -90,10 +90,10 @@ static void step_from_xml(scm_step *s, app::node n)
 
     p[0] = n.get_f("p0", 0.0);
     p[1] = n.get_f("p1", 0.0);
-    p[2] = n.get_f("p2", 0.0);
+    p[2] = n.get_f("p2", 1.0);
 
     l[0] = n.get_f("l0", 0.0);
-    l[1] = n.get_f("l1", 2.0);
+    l[1] = n.get_f("l1", 0.0);
     l[2] = n.get_f("l2", 1.0);
 
     s->set_name       (n.get_s("name"));
@@ -103,7 +103,7 @@ static void step_from_xml(scm_step *s, app::node n)
     s->set_position   (p);
     s->set_light      (l);
     s->set_speed      (n.get_f("s", 1.0));
-    s->set_distance   (n.get_f("r", 0.0));
+    s->set_distance   (n.get_f("r", 2000000.0));
     s->set_tension    (n.get_f("t", 0.0));
     s->set_bias       (n.get_f("b", 0.0));
     s->set_zoom       (n.get_f("z", 1.0));
@@ -237,6 +237,7 @@ void view_app::save_path(const std::string& stem)
     for (int i = 1; true; i++)
     {
         std::stringstream name;
+
         name << stem << std::setw(3) << std::setfill('0') << i << ".mov";
 
         if (::data->find(name.str()) == false)

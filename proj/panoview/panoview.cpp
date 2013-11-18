@@ -31,14 +31,15 @@
 //------------------------------------------------------------------------------
 
 panoview::panoview(const std::string& exe,
-                   const std::string& tag) : view_app(exe, tag),
-    min_zoom(0.5),
-    max_zoom(4.0),
-    drag_zooming(false),
-    drag_looking(false)
+                   const std::string& tag) : view_app(exe, tag)
 {
     if (char *name = getenv("SCMINIT"))
-         load_file(name);
+    {
+        load_file(name);
+
+        if (sys && sys->get_step_count())
+            move_to(0);
+    }
 }
 
 panoview::~panoview()
@@ -49,98 +50,8 @@ panoview::~panoview()
 
 void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 {
-#if 0
-    if (model)
-    {
-        double v[3];
-
-        here.get_forward(v);
-
-        model->set_zoom(v[0], v[1], v[2], here.get_zoom());
-    }
-#endif
     view_app::draw(frusi, frusp, chani);
     view_app::over(frusi, frusp, chani);
-}
-
-//------------------------------------------------------------------------------
-
-bool panoview::process_event(app::event *E)
-{
-    if (!view_app::process_event(E))
-    {
-        switch (E->get_type())
-        {
-            case E_CLICK: return pan_click(E);
-            case E_POINT: return pan_point(E);
-            case E_TICK:  return pan_tick(E);
-        }
-    }
-    return false;
-}
-
-//------------------------------------------------------------------------------
-
-bool panoview::pan_point(app::event *E)
-{
-    if (const app::frustum *overlay = ::host->get_overlay())
-        overlay->pointer_to_2D(E, curr_x, curr_y);
-
-    return false;
-}
-
-bool panoview::pan_click(app::event *E)
-{
-    if (E->data.click.b == 0)
-        drag_looking = E->data.click.d;
-    if (E->data.click.b == 2)
-        drag_zooming = E->data.click.d;
-
-    drag_x = curr_x;
-    drag_y = curr_y;
-
-    return true;
-}
-
-bool panoview::pan_tick(app::event *E)
-{
-    double M[16];
-
-    float dt = E->data.tick.dt;
-
-    if (drag_zooming)
-    {
-        double z = here.get_zoom() + (curr_y - drag_y) / 500.0f;
-
-        if (z < min_zoom) z = min_zoom;
-        if (z > max_zoom) z = max_zoom;
-
-        here.set_zoom(z);
-    }
-    if (drag_looking)
-    {
-        double y[3] = { 0.0, 1.0, 0.0 };
-        double r[3];
-
-        here.get_right(r);
-
-        double dx = (double) (curr_x - drag_x) / 500.0;
-        double dy = (double) (curr_y - drag_y) / 500.0;
-
-        double X[16];
-        double Y[16];
-
-        mrotate(X, r,  10.0 * dy * dt);
-        mrotate(Y, y, -10.0 * dx * dt);
-        mmultiply(M, X, Y);
-
-        here.transform_orientation(M);
-    }
-
-    here.get_matrix(M);
-    ::view->set_move_matrix(M);
-
-    return false;
 }
 
 //------------------------------------------------------------------------------
