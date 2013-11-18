@@ -368,7 +368,7 @@ static void orbiting_basis(double *B, const double *V)
 // the ground contact constraint.
 
 void orbiter::navigate(const double *M)
-{    
+{
     const double *V = ::view->get_M();
     const double  k = 500000.0 * get_speed();
     const double  d = sqrt(DOT3(V + 12, V + 12));
@@ -431,10 +431,8 @@ void orbiter::navigate(const double *M)
     S.set_matrix(::view->get_M());
     S.transform_orientation(X);
     S.transform_position(X);
-    // S.transform_light(X);
     S.transform_orientation(Z);
     S.transform_position(Z);
-    // S.transform_light(Z);
 
     // Apply the change in altitude, constrained to the terrain height.
 

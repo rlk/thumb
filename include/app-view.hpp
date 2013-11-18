@@ -23,7 +23,6 @@ namespace app
 
         double current_M[16];
         double current_I[16];
-        double current_S[16];
 
     public:
 
@@ -34,7 +33,6 @@ namespace app
 
         const double *get_M() const { return current_M; }
         const double *get_I() const { return current_I; }
-        const double *get_S() const { return current_S; }
 
         // Interactive view controls.
 
