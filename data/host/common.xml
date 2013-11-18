@@ -7,9 +7,10 @@
     </overlay>
     <!-- Oculus Rift Developer's Kit -------------------------------------- -->
     <node name="oculus-dk">
-      <window x="0" y="0" w="1280" h="800"/>
+      <window x="0" y="0" w="1280" h="800" full="0"/>
       <channel w="640" h="800"/>
       <channel w="640" h="800"/>
+      <buffer  w="640" h="800"/>
       <display type="oculus" channel="0">
         <viewport x="0"   y="0" w="640" h="800"/>
       </display>

@@ -454,18 +454,9 @@ void orbiter::navigate(const double *M)
     here = S;
 }
 
-void orbiter::get_world_right(double *v)
+void orbiter::get_up_vector(double *v)
 {
-    const double *I = ::view->get_view_inverse();
-    v[0] = -I[0];
-    v[1] = -I[1];
-    v[2] = -I[2];
-    normalize(v);
-}
-
-void orbiter::get_world_up(double *v)
-{
-    const double *I = ::view->get_view_inverse();
+    const double *I = ::view->get_move_inverse();
     v[0] = -I[12];
     v[1] = -I[13];
     v[2] = -I[14];

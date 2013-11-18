@@ -68,7 +68,7 @@ bool dev::mouse::process_point(app::event *E)
         double M[16];
         double u[3];
 
-        ::host->get_world_up(u);
+        ::host->get_up_vector(u);
 
         load_rot_mat(M, u[0], u[1], u[2], (t1 - t0) * 2.0);
         Rmul_rot_mat(M, 1,    0,    0,    (p0 - p1) * 2.0);

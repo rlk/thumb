@@ -39,8 +39,7 @@ public:
     virtual int fade_to(int);
 
     virtual void navigate(const double *);
-    virtual void get_world_up   (double *);
-    virtual void get_world_right(double *);
+    virtual void get_up_vector(double *);
 
     virtual ~orbiter();
 

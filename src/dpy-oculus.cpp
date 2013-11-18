@@ -15,6 +15,7 @@
 #include <etc-math.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
+#include <app-view.hpp>
 #include <app-event.hpp>
 #include <app-frustum.hpp>
 #include <ogl-program.hpp>
@@ -159,6 +160,34 @@ void dpy::oculus::get_frusv(app::frustum **frusv) const
 
 void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 {
+    using namespace OVR::Util::Render;
+
+    // Include the Oculus eye offset in the look matrix.
+
+    double M[16];
+
+    if (chani)
+        getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).ViewAdjust, M);
+    else
+        getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).ViewAdjust,  M);
+
+    // Include the Oculus orientation in the look matrix.
+
+    if (pSensor)
+    {
+        OVR::Vector3f v;
+        float         a;
+
+        Fusion.GetOrientation().GetAxisAngle(&v, &a);
+        Rmul_xlt_mat(M, 0.0, -0.1, 0.0);
+        Rmul_rot_mat(M, v.x, v.y, v.z, OVR::RadToDegree(a));
+        Rmul_xlt_mat(M, 0.0, +0.1, 0.0);
+    }
+
+    ::view->set_look_matrix(M);
+
+    // Set the view point for this channel (probably unnecessary for Oculus).
+
     if (chani < chanc)
         frust->set_viewpoint(chanv[chani]->get_p());
 }
@@ -224,7 +253,7 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
         // Let the frustum project the pointer into space.
 
         return frust->pointer_to_3D(E, x - viewport[0],
-                         viewport[3] - y + viewport[1]);
+                                       y - viewport[1]);
     else
         return false;
 }
