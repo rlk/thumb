@@ -31,7 +31,11 @@
 //------------------------------------------------------------------------------
 
 panoview::panoview(const std::string& exe,
-                   const std::string& tag) : view_app(exe, tag)
+                   const std::string& tag) :
+    view_app(exe, tag),
+    zoom(1.0),
+    zoom_min(0.001),
+    zoom_max(3.000)
 {
     if (char *name = getenv("SCMINIT"))
     {
@@ -48,12 +52,38 @@ panoview::~panoview()
 
 //------------------------------------------------------------------------------
 
+ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
+{
+    double p[3] = { 0.0, 0.0, 0.0      };
+    double q[4] = { 0.0, 0.0, 0.0, 1.0 };
+    double v[3];
+
+    ::view->get_point(0, p, v, q);
+
+    sys->get_sphere()->set_zoom(v[0], v[1], v[2], zoom);
+
+    return view_app::prep(frusc, frusv);
+}
+
 void panoview::draw(int frusi, const app::frustum *frusp, int chani)
 {
     view_app::draw(frusi, frusp, chani);
     view_app::over(frusi, frusp, chani);
 }
 
+//------------------------------------------------------------------------------
+
+bool panoview::process_event(app::event *E)
+{
+    if (E->get_type() == E_CLICK)
+    {
+         if (E->data.click.b == 4)
+            zoom = std::max(zoom * 0.95, zoom_min);
+         if (E->data.click.b == 5)
+            zoom = std::min(zoom * 1.05, zoom_max);
+    }
+    return view_app::process_event(E);
+}
 //------------------------------------------------------------------------------
 
 int main(int argc, char *argv[])

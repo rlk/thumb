@@ -82,13 +82,6 @@ orbiter::orbiter(const std::string& exe,
         if (sys && sys->get_step_count())
             move_to(0);
     }
-
-    // HACK: Position the view near the moon.
-
-    double M[16];
-    load_xlt_mat(M, 0.0, 0.0, 1800000.0);
-    Rmul_rot_mat(M, 1.0, 0.0, 0.0, 60.0);
-    ::view->set_move_matrix(M);
 }
 
 orbiter::~orbiter()

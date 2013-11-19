@@ -50,23 +50,6 @@ namespace app
         void set_look_matrix(const double *M);
 
         void load_transform() const;
-
-//      const double *get_M() const { return current_M; }
-//      const double *get_I() const { return current_I; }
-
-        // Interactive view controls.
-/*
-        void turn(double, double, double, const double *);
-        void turn(double, double, double);
-        void move(double, double, double);
-        void look(double, double);
-*/
-
-        // void set_M(const double *);
-
-        // Transform application.
-
-        // void draw() const;
     };
 }
 

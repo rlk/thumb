@@ -53,8 +53,8 @@ void app::view::get_point(double *P, const double *p,
 
     // Transform the point position and direction to world space.
 
-    mult_mat_vec3(P, transform_M, p);
-    mult_xps_vec3(V, transform_I, v);
+    if (P) mult_mat_vec3(P, transform_M, p);
+    if (V) mult_xps_vec3(V, transform_I, v);
 }
 
 //-----------------------------------------------------------------------------
@@ -86,84 +86,3 @@ void app::view::load_transform() const
 }
 
 //-----------------------------------------------------------------------------
-
-#if 0
-void app::view::turn(double rx, double ry, double rz, const double *R)
-{
-    // Turn in the given coordinate system.
-
-    double T[16];
-
-    load_xps(T, R);
-
-#if CONFIG_EASY_FLIGHT
-    turn(0, ry, 0);
-#else
-    mult_mat_mat(current_M, current_M, R);
-    turn(rx, ry, rz);
-    mult_mat_mat(current_M, current_M, T);
-#endif
-
-    orthonormalize(current_M);
-
-    load_inv(current_I, current_M);
-}
-
-void app::view::turn(double rx, double ry, double rz)
-{
-    // Grab basis vectors (which change during transform).
-
-    const double xx = current_M[ 0];
-    const double xy = current_M[ 1];
-    const double xz = current_M[ 2];
-
-    const double yx = current_M[ 4];
-    const double yy = current_M[ 5];
-    const double yz = current_M[ 6];
-
-    const double zx = current_M[ 8];
-    const double zy = current_M[ 9];
-    const double zz = current_M[10];
-
-    const double px = current_M[12];
-    const double py = current_M[13];
-    const double pz = current_M[14];
-
-    // Apply a local rotation transform.
-
-    Lmul_xlt_inv(current_M, px, py, pz);
-    Lmul_rot_mat(current_M, xx, xy, xz, rx);
-    Lmul_rot_mat(current_M, yx, yy, yz, ry);
-    Lmul_rot_mat(current_M, zx, zy, zz, rz);
-    Lmul_xlt_mat(current_M, px, py, pz);
-
-    orthonormalize(current_M);
-
-    load_inv(current_I, current_M);
-}
-
-void app::view::move(double dx, double dy, double dz)
-{
-    Rmul_xlt_mat(current_M, dx, dy, dz);
-
-    load_inv(current_I, current_M);
-}
-
-void app::view::look(double dt, double dp)
-{
-    const double x = current_M[12];
-    const double y = current_M[13];
-    const double z = current_M[14];
-
-    // Apply a mouselook-style local rotation transform.
-
-    Lmul_xlt_inv(current_M, x, y, z);
-    Lmul_rot_mat(current_M, 0, 1, 0, dt);
-    Lmul_xlt_mat(current_M, x, y, z);
-    Rmul_rot_mat(current_M, 1, 0, 0, dp);
-
-    orthonormalize(current_M);
-
-    load_inv(current_I, current_M);
-}
-#endif
