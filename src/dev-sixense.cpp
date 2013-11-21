@@ -12,7 +12,7 @@
 
 #include <cassert>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-default.hpp>
 #include <app-conf.hpp>
 #include <app-host.hpp>
@@ -133,14 +133,8 @@ bool dev::sixense::process_point(app::event *E)
 
     if (i == 1)
     {
-        curr_p[0] = p[0];
-        curr_p[1] = p[1];
-        curr_p[2] = p[2];
-
-        curr_q[0] = q[0];
-        curr_q[1] = q[1];
-        curr_q[2] = q[2];
-        curr_q[3] = q[3];
+        curr_p = vec3(p[0], p[1], p[2]);
+        curr_q = quat(q[0], q[1], q[2], q[3]);
     }
     return false;
 }
@@ -162,15 +156,8 @@ bool dev::sixense::process_button(app::event *E)
     if (i == 1 && b == fly_button)
     {
         flying = d;
-
-        init_p[0] = curr_p[0];
-        init_p[1] = curr_p[1];
-        init_p[2] = curr_p[2];
-
-        init_q[0] = curr_q[0];
-        init_q[1] = curr_q[1];
-        init_q[2] = curr_q[2];
-        init_q[3] = curr_q[3];
+        init_p = curr_p;
+        init_q = curr_q;
 
         return true;
     }
@@ -186,28 +173,14 @@ bool dev::sixense::process_tick(app::event *E)
 
     if (flying)
     {
-        const double r[4] = { 0.0, 0.0, 0.0, 1.0 };
+        quat q = normalize(inverse(init_q) * curr_q);
+        mat4 R = mat4(mat3(slerp(quat(), q, 1.0 / 30.0)));
+        mat4 T = translation((curr_p - init_p) * dt * move_rate);
 
-        double q[4];
-        double T[16];
-
-        quat_inv   (q, init_q);
-        quat_mult  (q, q, curr_q);
-        quat_slerp (q, r, q, 1.0 / 30.0);
-        quat_to_mat(T, q);
-
-        Rmul_xlt_mat(T, (curr_p[0] - init_p[0]) * dt * move_rate,
-                        (curr_p[1] - init_p[1]) * dt * move_rate,
-                        (curr_p[2] - init_p[2]) * dt * move_rate);
-
-        ::host->navigate(T);
+        ::host->navigate(transpose(T * R));
     }
     else
-    {
-        double T[16];
-        load_idt(T);
-        ::host->navigate(T);
-    }
+        ::host->navigate(mat4());
 
     return false;
 }

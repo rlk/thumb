@@ -14,6 +14,7 @@
 #define DEV_SIXENSE
 
 #include <dev-input.hpp>
+#include <etc-vector.hpp>
 
 #include <sixense.h>
 
@@ -36,8 +37,10 @@ namespace dev
         bool status;
         bool flying;
 
-        double init_p[3], init_q[4];
-        double curr_p[3], curr_q[4];
+        vec3 init_p;
+        vec3 curr_p;
+        quat init_q;
+        quat curr_q;
 
         sixenseAllControllerData prev;
 
