@@ -462,14 +462,14 @@ inline double length(const vec3 &v)
 
 /// Compute the normalization of vector v.
 
-inline vec3 normalize(const vec3& v)
+inline vec3 normal(const vec3& v)
 {
     return v / length(v);
 }
 
 /// Compute the normalization of quaternion q;
 
-inline quat normalize(const quat& q)
+inline quat normal(const quat& q)
 {
     return q / sqrt(q[0] * q[0] +
                     q[1] * q[1] +
@@ -513,7 +513,7 @@ inline mat4 zrotation(double a)
 
 inline mat4 rotation(const vec3& v, double a)
 {
-    const vec3 u = normalize(v);
+    const vec3 u = normal(v);
 
     const double s = sin(a);
     const double c = cos(a);
@@ -523,8 +523,8 @@ inline mat4 rotation(const vec3& v, double a)
                 u[0] * u[2] + (0 - u[0] * u[2]) * c + u[1] * s,
                 0,
                 u[1] * u[0] + (0 - u[1] * u[0]) * c + u[2] * s,
-                u[1] * u[1] + (0 - u[1] * u[1]) * c,
-                u[1] * u[2] + (1 - u[1] * u[2]) * c - u[0] * s,
+                u[1] * u[1] + (1 - u[1] * u[1]) * c,
+                u[1] * u[2] + (0 - u[1] * u[2]) * c - u[0] * s,
                 0,
                 u[2] * u[0] + (0 - u[2] * u[0]) * c - u[1] * s,
                 u[2] * u[1] + (0 - u[2] * u[1]) * c + u[0] * s,
