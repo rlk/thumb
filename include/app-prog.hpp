@@ -19,6 +19,7 @@
 #include <SDL_joystick.h>
 
 #include <ogl-range.hpp>
+#include <etc-vector.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -60,9 +61,9 @@ namespace app
         virtual bool process_event(event *);
         virtual void run();
         virtual void stop();
-        virtual void navigate(const double *);
+        virtual void navigate(const mat4&);
 
-        virtual void get_up_vector(double *);
+        virtual vec3 get_up_vector() const;
 
         event *axis_remap(event *);
 

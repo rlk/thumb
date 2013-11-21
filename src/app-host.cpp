@@ -956,14 +956,14 @@ void app::host::set_head(const double *p,
         (*i)->set_head(p, q);
 }
 
-void app::host::navigate(const double *M)
+void app::host::navigate(const mat4& M)
 {
     program->navigate(M);
 }
 
-void app::host::get_up_vector(double *v)
+vec3 app::host::get_up_vector() const
 {
-    program->get_up_vector(v);
+    return program->get_up_vector();
 }
 
 //-----------------------------------------------------------------------------

@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <app-prog.hpp>
+#include <etc-vector.hpp>
 #include <etc-socket.hpp>
 
 #include "view-app.hpp"
@@ -36,8 +37,8 @@ public:
     virtual int move_to(int);
     virtual int fade_to(int);
 
-    virtual void navigate(const double *);
-    virtual void get_up_vector(double *);
+    virtual void navigate(const mat4&);
+    virtual vec3 get_up_vector() const;
 
     virtual ~orbiter();
 
