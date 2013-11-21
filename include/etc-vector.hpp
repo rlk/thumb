@@ -18,6 +18,14 @@
 
 //------------------------------------------------------------------------------
 
+struct vec3;
+struct vec4;
+struct quat;
+struct mat3;
+struct mat4;
+
+//------------------------------------------------------------------------------
+
 /// 3-component double precision floating point vector.
 
 struct vec3
@@ -97,6 +105,7 @@ struct quat
         q[2] = z;
         q[3] = w;
     }
+    quat(const mat3&);
 
     const double& operator[](int i) const { return q[i]; }
           double& operator[](int i)       { return q[i]; }
@@ -124,6 +133,7 @@ struct mat3
         M[1] = vec3(m10, m11, m12);
         M[2] = vec3(m20, m21, m22);
     }
+    mat3(const quat&);
 
     const vec3& operator[](int i) const { return M[i]; }
           vec3& operator[](int i)       { return M[i]; }
@@ -358,18 +368,24 @@ inline mat4 transpose(const mat4& A)
 
 //------------------------------------------------------------------------------
 
-/// Return the inverse of a quaternion q.
+/// Return the conjugate of quaternion q.
+
+inline quat conjugate(const quat& q)
+{
+    return quat(-q[0], -q[1], -q[2], +q[3]);
+}
+
+/// Return the inverse of quaternion q.
 
 inline quat inverse(const quat& q)
 {
-    const double d = q[0] * q[0] + q[1] * q[1] + q[2] * q[2] + q[3] * q[3];
-    return quat(-q[0] / d,
-                -q[1] / d,
-                -q[2] / d,
-                 q[3] / d);
+    return conjugate(q) / (q[0] * q[0] +
+                           q[1] * q[1] +
+                           q[2] * q[2] +
+                           q[3] * q[3]);
 }
 
-/// Return the inverse of a 4x4 matrix A.
+/// Return the inverse of 4x4 matrix A.
 
 inline mat4 inverse(const mat4& A)
 {
@@ -579,59 +595,6 @@ inline mat4 orthogonal(double l, double r,
 
 //------------------------------------------------------------------------------
 
-/// Return a matrix for the quaternion rotation q.
-
-inline mat3 mat3_from_quat(const quat& q)
-{
-    return mat3(1 - 2 * (q[1] * q[1] + q[2] * q[2]),
-                    2 * (q[0] * q[1] - q[2] * q[3]),
-                    2 * (q[0] * q[2] + q[1] * q[3]),
-                    2 * (q[0] * q[1] + q[2] * q[3]),
-                1 - 2 * (q[0] * q[0] + q[2] * q[2]),
-                    2 * (q[1] * q[2] - q[0] * q[3]),
-                    2 * (q[0] * q[2] - q[1] * q[3]),
-                    2 * (q[1] * q[2] + q[0] * q[3]),
-                1 - 2 * (q[0] * q[0] + q[1] * q[1]));
-}
-
-/// Return a quaternion for the matrix rotation M.
-
-inline quat quat_from_mat3(const mat3& M)
-{
-    if (1.0 + M[0][0] + M[1][1] + M[2][2] > 0.001)
-    {
-        const double s = 0.5 / sqrt(1 + M[0][0] + M[1][1] + M[2][2]);
-        return quat((M[2][1] - M[1][2]) * s,
-                    (M[0][2] - M[2][0]) * s,
-                    (M[1][0] - M[0][1]) * s,
-                                  0.25  / s);
-    }
-    else if (M[0][0] > M[1][1] && M[0][0] > M[2][2])
-    {
-        const double s = 2.0 * sqrt(1 + M[0][0] - M[1][1] - M[2][2]);
-        return quat(              0.25  * s,
-                    (M[1][0] + M[0][1]) / s,
-                    (M[0][2] + M[2][0]) / s,
-                    (M[2][1] - M[1][2]) / s);
-    }
-    else if (M[1][1] > M[2][2])
-    {
-        const double s = 2.0 * sqrt(1 + M[1][1] - M[0][0] - M[2][2]);
-        return quat((M[1][0] + M[0][1]) / s,
-                                  0.25  * s,
-                    (M[2][1] + M[1][2]) / s,
-                    (M[0][2] - M[2][0]) / s);
-    }
-    else
-    {
-        const double s = 2.0 * sqrt(1 + M[2][2] - M[0][0] - M[1][1]);
-        return quat((M[0][2] + M[2][0]) / s,
-                    (M[2][1] + M[1][2]) / s,
-                                  0.25  * s,
-                    (M[1][0] - M[0][1]) / s);
-    }
-}
-
 /// Return the spherical linear interpolation of quaternions q and p at t.
 
 inline quat slerp(const quat& q, const quat& p, double t)
@@ -650,6 +613,61 @@ inline quat slerp(const quat& q, const quat& p, double t)
             return q * u - p * v;
     }
     else return q;
+}
+
+//------------------------------------------------------------------------------
+
+/// Return a quaternion for the matrix rotation M.
+
+inline quat::quat(const mat3& M)
+{
+    if (1.0 + M[0][0] + M[1][1] + M[2][2] > 0.0)
+    {
+        const double s = 0.5 / sqrt(1.0 + M[0][0] + M[1][1] + M[2][2]);
+        q[1] = (M[0][2] - M[2][0]) * s;
+        q[2] = (M[1][0] - M[0][1]) * s;
+        q[0] = (M[2][1] - M[1][2]) * s;
+        q[3] =               0.25  / s;
+    }
+    else if (M[0][0] > M[1][1] && M[0][0] > M[2][2])
+    {
+        const double s = 2.0 * sqrt(1.0 + M[0][0] - M[1][1] - M[2][2]);
+        q[2] = (M[0][2] + M[2][0]) / s;
+        q[1] = (M[1][0] + M[0][1]) / s;
+        q[3] = (M[2][1] - M[1][2]) / s;
+        q[0] =               0.25  * s;
+    }
+    else if (M[1][1] > M[2][2])
+    {
+        const double s = 2.0 * sqrt(1.0 + M[1][1] - M[0][0] - M[2][2]);
+        q[3] = (M[0][2] - M[2][0]) / s;
+        q[0] = (M[1][0] + M[0][1]) / s;
+        q[2] = (M[2][1] + M[1][2]) / s;
+        q[1] =               0.25  * s;
+    }
+    else
+    {
+        const double s = 2.0 * sqrt(1.0 + M[2][2] - M[0][0] - M[1][1]);
+        q[0] = (M[0][2] + M[2][0]) / s;
+        q[3] = (M[1][0] - M[0][1]) / s;
+        q[1] = (M[2][1] + M[1][2]) / s;
+        q[2] =               0.25  * s;
+    }
+}
+
+/// Return a matrix for the quaternion rotation q.
+
+inline mat3::mat3(const quat& q)
+{
+    M[0] = vec3(1 - 2 * (q[1] * q[1] + q[2] * q[2]),
+                    2 * (q[0] * q[1] - q[2] * q[3]),
+                    2 * (q[0] * q[2] + q[1] * q[3]));
+    M[1] = vec3(    2 * (q[0] * q[1] + q[2] * q[3]),
+                1 - 2 * (q[0] * q[0] + q[2] * q[2]),
+                    2 * (q[1] * q[2] - q[0] * q[3]));
+    M[2] = vec3(    2 * (q[0] * q[2] - q[1] * q[3]),
+                    2 * (q[1] * q[2] + q[0] * q[3]),
+                1 - 2 * (q[0] * q[0] + q[1] * q[1]));
 }
 
 //------------------------------------------------------------------------------
