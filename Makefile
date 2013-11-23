@@ -46,9 +46,10 @@ dist : $(TARG)
 
 	svnversion > $(DSTDIR)/VERSION
 
-	# Copy the executable.
+	# Copy and strip the executable.
 
 	$(CP) proj/panoview/orbiter $(DSTDIR)
+	$(STRIP)  $(DSTDIR)/orbiter
 
 	# Copy global data.
 

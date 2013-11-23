@@ -7,11 +7,9 @@ CXX   = c++
 STRIP = strip
 CFLAGS= -g -Wall -fno-rtti
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
-#CFLAGS= -g -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
 RM    = rm -f
 CP    = cp
 
-#CFLAGS += -DVERSION=$(shell svnversion)
 CFLAGS += -DVERSION=0.9
 
 #------------------------------------------------------------------------------
@@ -43,16 +41,9 @@ ifeq ($(shell uname), Linux)
 	LIBEXT  = -lGL -lpthread
 endif
 
-#------------------------------------------------------------------------------
+# Pass the compiler flags along to any sub-make.
 
-# Search for package configurators or rely upon the path.
-
-SDLCONF = $(firstword $(wildcard /usr/local/bin/sdl2-config \
-				 /opt/local/bin/sdl2-config \
-				       /usr/bin/sdl2-config) sdl2-config)
-FT2CONF = $(firstword $(wildcard /usr/local/bin/freetype-config \
-				 /opt/local/bin/freetype-config \
-				       /usr/bin/freetype-config) freetype-config)
+export CFLAGS
 
 #------------------------------------------------------------------------------
 
@@ -98,12 +89,7 @@ LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
 				    $(HOME)/lib/libz*.a \
 				       /usr/lib/libz*.a \
 				   C:/MinGW/lib/libz*.a) -lz)
-#LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDLmain*.a \
-#				 /opt/local/lib/libSDLmain*.a \
-#				    $(HOME)/lib/libSDLmain*.a \
-#				       /usr/lib/libSDLmain*.a \
-#				   C:/MinGW/lib/libSDLmain*.a) -lSDLmain)
-LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL2*.a \
+LIBSDL  = $(firstword $(wildcard /usr/local/lib/libSDL2*.a \
 				 /opt/local/lib/libSDL2*.a \
 				    $(HOME)/lib/libSDL2*.a \
 				       /usr/lib/libSDL2*.a \
@@ -115,16 +101,32 @@ endif
 
 #------------------------------------------------------------------------------
 
+# Search for package configurators or rely upon the path.
+
+SDLCONF = $(firstword $(wildcard /usr/local/bin/sdl2-config  \
+	                         /opt/local/bin/sdl2-config  \
+	                               /usr/bin/sdl2-config) \
+	                                        sdl2-config)
+FT2CONF = $(firstword $(wildcard /usr/local/bin/freetype-config  \
+	                         /opt/local/bin/freetype-config  \
+	                               /usr/bin/freetype-config) \
+	                                        freetype-config)
+
+CONF =	$(shell $(SDLCONF) --cflags) \
+	$(shell $(FT2CONF) --cflags)
+
+#------------------------------------------------------------------------------
+
 %.d : %.cpp
-	$(CXX) $(CFLAGS) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
+	$(CXX) $(CFLAGS) $(CONF) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
 
 %.d : %.c
-	$(CC) $(CFLAGS) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
+	$(CC) $(CFLAGS) $(CONF) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
 
 %.o : %.cpp
-	$(CXX) $(CFLAGS) $(INCDIR) -c $< -o $@
+	$(CXX) $(CFLAGS) $(CONF) $(INCDIR) -c $< -o $@
 
 %.o : %.c
-	$(CC) $(CFLAGS) $(INCDIR) -c $< -o $@
+	$(CC) $(CFLAGS) $(CONF) $(INCDIR) -c $< -o $@
 
 #------------------------------------------------------------------------------

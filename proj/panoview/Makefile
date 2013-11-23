@@ -2,28 +2,7 @@ include ../../Makedefs
 
 #------------------------------------------------------------------------------
 
-VIEWOBJS= \
-	scm/util3d/glsl.o \
-	scm/util3d/math3d.o \
-	scm/util3d/type.o \
-	scm/scm-cache.o \
-	scm/scm-file.o \
-	scm/scm-frame.o \
-	scm/scm-image.o \
-	scm/scm-index.o \
-	scm/scm-label.o \
-	scm/scm-log.o \
-	scm/scm-path.o \
-	scm/scm-render.o \
-	scm/scm-sample.o \
-	scm/scm-scene.o \
-	scm/scm-set.o \
-	scm/scm-sphere.o \
-	scm/scm-step.o \
-	scm/scm-system.o \
-	scm/scm-task.o \
-	view-load.o \
-	view-app.o
+VIEWOBJS= view-load.o view-app.o
 
 ORBOBJS= $(VIEWOBJS) orbiter.o
 PANOBJS= $(VIEWOBJS) panoview.o
@@ -33,58 +12,39 @@ PANDEPS= $(PANOBJS:.o=.d)
 ORBDEPS= $(ORBOBJS:.o=.d)
 OPTDEPS= $(OPTOBJS:.o=.d)
 
-GLSL= \
-	scm/data/scm-label-circle-frag.h \
-	scm/data/scm-label-circle-vert.h \
-	scm/data/scm-label-sprite-frag.h \
-	scm/data/scm-label-sprite-vert.h \
-	scm/data/scm-render-blur-frag.h \
-	scm/data/scm-render-blur-vert.h \
-	scm/data/scm-render-both-frag.h \
-	scm/data/scm-render-both-vert.h \
-	scm/data/scm-render-fade-frag.h \
-	scm/data/scm-render-fade-vert.h
-
 #------------------------------------------------------------------------------
 
 THUMB = ../../src/libthumb.a
+INCDIR += -I../../include -Iscm
 
-INCDIR += -I../../include -Iscm/data
+SCM = scm/libscm.a
 
-CFLAGS += $(shell $(SDLCONF) --cflags) \
-	  $(shell $(FT2CONF) --cflags)
-
-LIBS = $(THUMB) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBBZ2) $(LIBZ) $(LIBSDL) $(LIBGLEW) $(LIBEXT) -lm
+LIBS = $(THUMB) $(SCM) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBPNG) $(LIBBZ2) $(LIBZ) $(LIBSDL) $(LIBGLEW) $(LIBEXT) -lm
 
 #------------------------------------------------------------------------------
 
 all : panoview orbiter panoptic
 
-panoview: $(GLSL) $(PANOBJS) $(THUMB)
-	$(CXX) $(CFLAGS) -o $@ $(PANOBJS) $(LIBS)
-	#$(STRIP) $@
+panoview: $(SCM) $(PANOBJS) $(THUMB)
+	$(CXX) $(CFLAGS) $(CONF) -o $@ $(PANOBJS) $(LIBS)
 
-orbiter: $(GLSL) $(ORBOBJS) $(THUMB)
-	$(CXX) $(CFLAGS) -o $@ $(ORBOBJS) $(LIBS)
-	#$(STRIP) $@
+orbiter: $(SCM) $(ORBOBJS) $(THUMB)
+	$(CXX) $(CFLAGS) $(CONF) -o $@ $(ORBOBJS) $(LIBS)
 
-panoptic: $(GLSL) $(OPTOBJS) $(THUMB)
-	$(CXX) $(CFLAGS) -o $@ $(OPTOBJS) $(LIBS)
-	#$(STRIP) $@
+panoptic: $(SCM) $(OPTOBJS) $(THUMB)
+	$(CXX) $(CFLAGS) $(CONF) -o $@ $(OPTOBJS) $(LIBS)
 
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview
 	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
 	$(RM) $(OPTOBJS) $(OPTDEPS) panoptic
-	$(RM) $(GLSL)
 
 #------------------------------------------------------------------------------
 
-scm/data/%-vert.h : scm/data/%.vert
-	$(MAKE) -C scm/data $(notdir $@)
+$(SCM) : .FORCE
+	$(MAKE) -C scm
 
-scm/data/%-frag.h : scm/data/%.frag
-	$(MAKE) -C scm/data $(notdir $@)
+.FORCE :
 
 #------------------------------------------------------------------------------
 
