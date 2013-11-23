@@ -451,20 +451,43 @@ bool view_app::funkey(int n, int c, int s)
 
 bool view_app::process_key(app::event *E)
 {
-    const int d = E->data.key.d;
-    const int k = E->data.key.k;
     const int c = E->data.key.m & KMOD_CTRL;
     const int s = E->data.key.m & KMOD_SHIFT;
 
-    if (d)
+    if (E->data.key.d)
     {
-        if ('0' <= k && k <= '9') return numkey(k - '0', c, s);
-        if (282 <= k && k <= 296) return funkey(k - 281, c, s);
-
-        if (k == 32)
+        switch (E->data.key.k)
         {
-            play(s);
-            return true;
+            case SDL_SCANCODE_0:   return numkey(0,  c, s);
+            case SDL_SCANCODE_1:   return numkey(1,  c, s);
+            case SDL_SCANCODE_2:   return numkey(2,  c, s);
+            case SDL_SCANCODE_3:   return numkey(3,  c, s);
+            case SDL_SCANCODE_4:   return numkey(4,  c, s);
+            case SDL_SCANCODE_5:   return numkey(5,  c, s);
+            case SDL_SCANCODE_6:   return numkey(6,  c, s);
+            case SDL_SCANCODE_7:   return numkey(7,  c, s);
+            case SDL_SCANCODE_8:   return numkey(8,  c, s);
+            case SDL_SCANCODE_9:   return numkey(9,  c, s);
+
+            case SDL_SCANCODE_F1:  return funkey(1,  c, s);
+            case SDL_SCANCODE_F2:  return funkey(2,  c, s);
+            case SDL_SCANCODE_F3:  return funkey(3,  c, s);
+            case SDL_SCANCODE_F4:  return funkey(4,  c, s);
+            case SDL_SCANCODE_F5:  return funkey(5,  c, s);
+            case SDL_SCANCODE_F6:  return funkey(6,  c, s);
+            case SDL_SCANCODE_F7:  return funkey(7,  c, s);
+            case SDL_SCANCODE_F8:  return funkey(8,  c, s);
+            case SDL_SCANCODE_F9:  return funkey(9,  c, s);
+            case SDL_SCANCODE_F10: return funkey(10, c, s);
+            case SDL_SCANCODE_F11: return funkey(11, c, s);
+            case SDL_SCANCODE_F12: return funkey(12, c, s);
+            case SDL_SCANCODE_F13: return funkey(13, c, s);
+            case SDL_SCANCODE_F14: return funkey(14, c, s);
+            case SDL_SCANCODE_F15: return funkey(15, c, s);
+
+            case SDL_SCANCODE_SPACE:
+                play(s);
+                return true;
         }
     }
     return prog::process_event(E);
@@ -527,24 +550,25 @@ bool view_app::process_tick(app::event *E)
 
 bool view_app::process_event(app::event *E)
 {
-    // Delegate keypresses, user commands, and the passage of time.
-
-    if      (E->get_type() == E_KEY)  return process_key(E);
-    else if (E->get_type() == E_USER) return process_user(E);
-    else if (E->get_type() == E_TICK)        process_tick(E);
-
-    // Pass the event to the GUI if visible.
-
-    else if (draw_gui)
+    if (draw_gui)
     {
         switch (E->get_type())
         {
-            case E_CLICK: return gui_click(E);
-            case E_POINT: return gui_point(E);
-            case E_KEY:   return gui_key  (E);
+            case E_CLICK: if (gui_click(E)) return true; else break;
+            case E_POINT: if (gui_point(E)) return true; else break;
+            case E_TEXT:  if (gui_text (E)) return true; else break;
+            case E_KEY:   if (gui_key  (E)) return true; else break;
         }
     }
-
+    else
+    {
+        switch (E->get_type())
+        {
+            case E_KEY:   if (process_key (E)) return true; else break;
+            case E_USER:  if (process_user(E)) return true; else break;
+            case E_TICK:  if (process_tick(E)) return true; else break;
+        }
+    }
     return prog::process_event(E);
 }
 
@@ -579,7 +603,6 @@ void view_app::gui_draw()
     {
         glEnable(GL_DEPTH_CLAMP);
         {
-            // overlay->draw();
             overlay->overlay();
             ui->draw();
         }
@@ -617,14 +640,21 @@ bool view_app::gui_click(app::event *E)
     return true;
 }
 
+// Handle a text input event while the GUI is visible.
+
+bool view_app::gui_text(app::event *E)
+{
+    ui->glyph(E->data.text.c);
+    return true;
+}
+
 // Handle a keyboard event while the GUI is visible.
 
 bool view_app::gui_key(app::event *E)
 {
     if (E->data.key.d)
     {
-        ui->key(0, //E->data.key.c,
-                E->data.key.k,
+        ui->key(E->data.key.k,
                 E->data.key.m);
     }
     return true;

@@ -66,7 +66,8 @@ namespace gui
         virtual widget *click(int, int, int, bool);
         virtual widget *enter(int, int)      { return 0; }
         virtual void    point(int, int)      {           }
-        virtual void    key(int, int, int) {           }
+        virtual void    key  (int, int)      {           }
+        virtual void    glyph(int)           {           }
 
         bool pressed() const { return is_pressed; }
 
@@ -228,7 +229,8 @@ namespace gui
 
         virtual widget *click(int, int, int, bool);
         virtual void    point(int, int);
-        virtual void    key(int, int, int);
+        virtual void    key  (int, int);
+        virtual void    glyph(int);
 
         virtual void draw(const widget *, const widget *) const;
     };
@@ -366,7 +368,7 @@ namespace gui
 
     public:
         option() : index(0) { }
-        
+
         void select(int i) { index = i; }
 
         virtual void    layup();
@@ -385,7 +387,7 @@ namespace gui
 
     public:
         frame() : border(2) { }
-        
+
         virtual void layup();
         virtual void laydn(int, int, int, int);
 
@@ -417,8 +419,9 @@ namespace gui
 
         void point(int, int);
         void click(int, bool);
-        void key(int, int, int);
-    
+        void key  (int, int);
+        void glyph(int);
+
         void show();
         void hide();
         void draw() const;

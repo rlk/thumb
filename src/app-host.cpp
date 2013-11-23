@@ -593,6 +593,10 @@ void app::host::root_loop()
                                            SDL_GetModState(), false));
                 break;
 
+            case SDL_TEXTINPUT:
+                process_event(E.mk_text(e.text.text[0]));
+                break;
+
             case SDL_JOYAXISMOTION:
                 process_event(program->axis_remap(E.mk_axis(e.jaxis.which,
                                                             e.jaxis.axis,

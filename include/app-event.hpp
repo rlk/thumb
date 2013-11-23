@@ -34,12 +34,13 @@
 #define E_AXIS   4
 #define E_BUTTON 5
 #define E_TICK   6
-#define E_DRAW   7
-#define E_SWAP   8
-#define E_USER   9
-#define E_START 10
-#define E_CLOSE 11
-#define E_FLUSH 12
+#define E_TEXT   7
+#define E_DRAW   8
+#define E_SWAP   9
+#define E_USER  10
+#define E_START 11
+#define E_CLOSE 12
+#define E_FLUSH 13
 
 //-----------------------------------------------------------------------------
 
@@ -146,6 +147,10 @@ namespace app
         {
             double dt;
         };
+        struct text_data_t
+        {
+            int c;
+        };
 
         // Data union
 
@@ -157,6 +162,7 @@ namespace app
             button_data_t button;
               user_data_t user;
               tick_data_t tick;
+              text_data_t text;
         } data;
 
         void          put_type(unsigned char);
@@ -170,6 +176,7 @@ namespace app
         event *mk_axis  (int, int, double);
         event *mk_button(int, int, bool);
         event *mk_tick  (double);
+        event *mk_text  (int);
         event *mk_draw  ();
         event *mk_swap  ();
         event *mk_user  (long long);

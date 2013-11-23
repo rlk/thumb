@@ -157,7 +157,7 @@ bool demo::process_key(app::event *E)
 
     // Handle application mode transitions.
 
-    if (d && !(m & KMOD_SHIFT))
+    if (d && m == 0)
     {
         if (k == key_edit && curr != edit) { goto_mode(edit); return true; }
         if (k == key_play && curr != play) { goto_mode(play); return true; }
@@ -166,34 +166,19 @@ bool demo::process_key(app::event *E)
     return false;
 }
 
-bool demo::process_tick(app::event *E)
-{
-    // Always return IGNORED to allow other objects to process time.
-
-    return false;
-}
-
 bool demo::process_event(app::event *E)
 {
-    bool R = false;
-
     // Attempt to process the given event.
 
     switch (E->get_type())
     {
-    case E_KEY:   R = process_key (E); break;
-    case E_TICK:  R = process_tick(E); break;
+        case E_KEY: if (process_key (E)) return true; else break;
     }
-
-    if (R) return true;
 
     // Allow the application base or current mode  to handle the event.
 
-    if ((          prog::process_event(E)) ||
-        (curr  &&  curr->process_event(E)))
-    {
-        return true;
-    }
+    if (          prog::process_event(E)) return true;
+    if (curr  &&  curr->process_event(E)) return true;
 
     return false;
 }

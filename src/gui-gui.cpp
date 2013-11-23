@@ -586,7 +586,7 @@ void gui::editor::point(int x, int y)
     else sc = int(str.length()) - si;
 }
 
-void gui::editor::key(int c, int k, int m)
+void gui::editor::key(int k, int m)
 {
     int n = int(str.length());
     int s = (m & KMOD_SHIFT);
@@ -630,15 +630,15 @@ void gui::editor::key(int c, int k, int m)
         is_changed = true;
         return;
     }
-
+#if 0
     // Handle text copy.
 
-    if (c == 3 && sc > 0)
+    if (k == SDL_SCANCODE_C && sc > 0)
         clip = str.substr(si, sc);
 
     // Handle text paste.
 
-    if (c == 22 && clip.length() > 0)
+    if (k == SDL_SCANCODE_V && clip.length() > 0)
     {
         str.replace(si, sc, clip);
         si = si + int(clip.length());
@@ -646,7 +646,11 @@ void gui::editor::key(int c, int k, int m)
         update();
         is_changed = true;
     }
+#endif
+}
 
+void gui::editor::glyph(int c)
+{
     // Handle text insertion.
 
     if (32 <= c && c < 127)
@@ -1228,10 +1232,16 @@ void gui::dialog::click(int m, bool d)
         focus = root->enter(last_x, last_y);
 }
 
-void gui::dialog::key(int c, int k, int m)
+void gui::dialog::key(int k, int m)
 {
     if (input)
-        input->key(c, k, m);
+        input->key(k, m);
+}
+
+void gui::dialog::glyph(int c)
+{
+    if (input)
+        input->glyph(c);
 }
 
 void gui::dialog::show()

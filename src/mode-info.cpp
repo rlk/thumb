@@ -115,21 +115,24 @@ bool mode::info::process_event(app::event *E)
     case E_KEY:
 
         if (E->data.key.d)
-            gui->key(0, // E->data.key.c,
-                     E->data.key.k,
+            gui->key(E->data.key.k,
                      E->data.key.m);
+        return true;
+
+    case E_TEXT:
+
+        gui->glyph(E->data.text.c);
         return true;
 
     case E_START:
 
         gui->show();
-//      SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-//                          SDL_DEFAULT_REPEAT_INTERVAL);
+        SDL_StartTextInput();
         return false;
 
     case E_CLOSE:
 
-//      SDL_EnableKeyRepeat(0, 0);
+        SDL_StopTextInput();
         gui->hide();
         return false;
     }

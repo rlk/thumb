@@ -187,6 +187,8 @@ app::prog::prog(const std::string& exe,
     key_init = ::conf->get_i("key_init", SDL_SCANCODE_F10);
     key_snap = ::conf->get_i("key_snap", SDL_SCANCODE_F13);
 
+    SDL_StopTextInput();
+
     // Configure the joystick system.
 
     axis_setup();

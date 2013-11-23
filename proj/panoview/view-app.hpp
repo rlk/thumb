@@ -99,6 +99,7 @@ private:
     void gui_draw();
     bool gui_point(app::event *);
     bool gui_click(app::event *);
+    bool gui_text (app::event *);
     bool gui_key  (app::event *);
 };
 

@@ -151,17 +151,15 @@ bool dev::mouse::process_event(app::event *E)
 {
     assert(E);
 
-    bool R = false;
-
     switch (E->get_type())
     {
-    case E_POINT: R |= process_point(E); break;
-    case E_CLICK: R |= process_click(E); break;
-    case E_TICK:  R |= process_tick(E);  break;
-    case E_KEY:   R |= process_key(E);   break;
+    case E_POINT: if (process_point(E)) return true; else break;
+    case E_CLICK: if (process_click(E)) return true; else break;
+    case E_TICK:  if (process_tick(E))  return true; else break;
+    case E_KEY:   if (process_key(E))   return true; else break;
     }
 
-    return R || dev::input::process_event(E);
+    return dev::input::process_event(E);
 }
 
 //-----------------------------------------------------------------------------

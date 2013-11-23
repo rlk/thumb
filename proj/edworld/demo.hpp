@@ -74,12 +74,10 @@ class demo : public app::prog
     void init_uniforms();
     void free_uniforms();
     void prep_uniforms() const;
-    
+
     // Event handlers
 
-    bool process_key  (app::event *);
-    bool process_input(app::event *);
-    bool process_tick (app::event *);
+    bool process_key(app::event *);
 
 public:
 

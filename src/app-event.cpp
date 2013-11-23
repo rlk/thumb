@@ -179,6 +179,11 @@ void app::event::payload_encode()
 
         put_real(data.tick.dt);
         break;
+
+    case E_TEXT:
+
+        put_word(data.text.c);
+        break;
     }
 }
 
@@ -239,6 +244,11 @@ void app::event::payload_decode()
     case E_TICK:
 
         data.tick.dt = get_real();
+        break;
+
+    case E_TEXT:
+
+        data.text.c = get_word();
         break;
     }
 }
@@ -333,6 +343,16 @@ app::event *app::event::mk_tick(double dt)
     put_type(E_TICK);
 
     data.tick.dt = dt;
+
+    payload_cache = false;
+    return this;
+}
+
+app::event *app::event::mk_text(int c)
+{
+    put_type(E_TEXT);
+
+    data.text.c = c;
 
     payload_cache = false;
     return this;
@@ -442,6 +462,7 @@ std::string app::event::name()
         case E_AXIS:   return "AXIS";
         case E_BUTTON: return "BUTTON";
         case E_TICK:   return "TICK";
+        case E_TEXT:   return "TEXT";
         case E_DRAW:   return "DRAW";
         case E_SWAP:   return "SWAP";
         case E_USER:   return "USER";
