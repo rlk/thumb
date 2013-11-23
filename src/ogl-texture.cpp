@@ -115,8 +115,9 @@ void ogl::texture::load_png(const void *buf, size_t len)
         // Read the PNG header.
 
         png_read_png(rp, ip, PNG_TRANSFORM_PACKING |
+                             PNG_TRANSFORM_EXPAND  |
                              PNG_TRANSFORM_SWAP_ENDIAN, 0);
-        
+
         // Extract image properties.
 
         width     = GLsizei(png_get_image_width (rp, ip));
