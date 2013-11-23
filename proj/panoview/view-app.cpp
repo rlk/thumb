@@ -485,9 +485,7 @@ bool view_app::process_key(app::event *E)
             case SDL_SCANCODE_F14: return funkey(14, c, s);
             case SDL_SCANCODE_F15: return funkey(15, c, s);
 
-            case SDL_SCANCODE_SPACE:
-                play(s);
-                return true;
+            case SDL_SCANCODE_SPACE: play(s); return true;
         }
     }
     return prog::process_event(E);
@@ -550,6 +548,12 @@ bool view_app::process_tick(app::event *E)
 
 bool view_app::process_event(app::event *E)
 {
+    switch (E->get_type())
+    {
+        case E_KEY:   if (process_key (E)) return true; else break;
+        case E_USER:  if (process_user(E)) return true; else break;
+        case E_TICK:  if (process_tick(E)) return true; else break;
+    }
     if (draw_gui)
     {
         switch (E->get_type())
@@ -558,15 +562,6 @@ bool view_app::process_event(app::event *E)
             case E_POINT: if (gui_point(E)) return true; else break;
             case E_TEXT:  if (gui_text (E)) return true; else break;
             case E_KEY:   if (gui_key  (E)) return true; else break;
-        }
-    }
-    else
-    {
-        switch (E->get_type())
-        {
-            case E_KEY:   if (process_key (E)) return true; else break;
-            case E_USER:  if (process_user(E)) return true; else break;
-            case E_TICK:  if (process_tick(E)) return true; else break;
         }
     }
     return prog::process_event(E);

@@ -90,7 +90,7 @@ bool dev::mouse::process_click(app::event *E)
 
     if (b == SDL_BUTTON_RIGHT)
     {
-        dragging = d && (m == 0);
+        dragging = d;
         return true;
     }
     return false;
