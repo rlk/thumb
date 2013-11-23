@@ -16,6 +16,7 @@
 #include <vector>
 #include <string>
 
+#include <etc-vector.hpp>
 #include <etc-socket.hpp>
 #include <app-file.hpp>
 
@@ -74,9 +75,9 @@ namespace app
         const app::frustum *get_overlay() const { return overlay; }
 
         void set_head(const double *, const double *);
-        void navigate(const double *);
+        void navigate(const mat4&);
 
-        void get_up_vector(double *);
+        vec3 get_up_vector() const;
 
         bool get_movie_mode() const { return (movie != 0); }
         void set_movie_mode(int i)  { movie = i; }

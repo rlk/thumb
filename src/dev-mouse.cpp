@@ -36,13 +36,6 @@ dev::mouse::mouse() :
     key_move_B = conf->get_i("key_move_B", SDL_SCANCODE_S);
     key_move_U = conf->get_i("key_move_U", SDL_SCANCODE_E);
     key_move_D = conf->get_i("key_move_D", SDL_SCANCODE_Q);
-
-    motion[0] = 0;
-    motion[1] = 0;
-    motion[2] = 0;
-
-    load_idt(init_R);
-    load_idt(curr_R);
 }
 
 dev::mouse::~mouse()
@@ -53,27 +46,25 @@ dev::mouse::~mouse()
 
 bool dev::mouse::process_point(app::event *E)
 {
-    load_mat(init_R, curr_R);
-
-    quat_to_mat(curr_R, E->data.point.q);
+    init_R = curr_R;
+    curr_R = mat3(quat(E->data.point.q[0],
+                       E->data.point.q[1],
+                       E->data.point.q[2],
+                       E->data.point.q[3]));
 
     if (dragging)
     {
-        double p0 = DEG(atan2(init_R[9], init_R[10]));
-        double p1 = DEG(atan2(curr_R[9], curr_R[10]));
+        double t0 = atan2(init_R[0][2], init_R[2][2]);
+        double t1 = atan2(curr_R[0][2], curr_R[2][2]);
 
-        double t0 = DEG(atan2(init_R[8], init_R[10]));
-        double t1 = DEG(atan2(curr_R[8], curr_R[10]));
+        double p0 = atan2(init_R[1][2], init_R[2][2]);
+        double p1 = atan2(curr_R[1][2], curr_R[2][2]);
 
-        double M[16];
-        double u[3];
+        vec3 u = ::host->get_up_vector();
+        vec3 x = vec3(1, 0, 0);
 
-        ::host->get_up_vector(u);
-
-        load_rot_mat(M, u[0], u[1], u[2], (t1 - t0) * 2.0);
-        Rmul_rot_mat(M, 1,    0,    0,    (p0 - p1) * 2.0);
-
-        ::host->navigate(M);
+        ::host->navigate(rotation(u, 2 * (t1 - t0))
+                       * rotation(x, 2 * (p0 - p1)));
 
         return true;
     }
@@ -136,13 +127,7 @@ bool dev::mouse::process_tick(app::event *E)
     if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;
 
-    double M[16];
-
-    load_xlt_mat(M, motion[0] * kp,
-                    motion[1] * kp,
-                    motion[2] * kp);
-
-    ::host->navigate(M);
+    ::host->navigate(translation(motion * kp));
 
     return false;
 }

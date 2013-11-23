@@ -360,8 +360,10 @@ static void orbiting_basis(double *B, const double *V)
 // the planet, scaling the motion relative to the altitude, and enforcing
 // the ground contact constraint.
 
-void orbiter::navigate(const double *M)
-{    
+void orbiter::navigate(const mat4& _M)
+{
+    const double *M = transpose(_M);
+
     const double *V = ::view->get_move_matrix();
     const double  k = 500000.0 * get_speed();
     const double  d = sqrt(DOT3(V + 12, V + 12));
@@ -447,13 +449,10 @@ void orbiter::navigate(const double *M)
     here = S;
 }
 
-void orbiter::get_up_vector(double *v)
+vec3 orbiter::get_up_vector() const
 {
     const double *I = ::view->get_move_inverse();
-    v[0] = -I[12];
-    v[1] = -I[13];
-    v[2] = -I[14];
-    normalize(v);
+    return normal(vec3(-I[12], -I[13], -I[14]));
 }
 
 //------------------------------------------------------------------------------

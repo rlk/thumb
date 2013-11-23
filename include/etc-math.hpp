@@ -16,6 +16,8 @@
 #include <cmath>
 #include <limits>
 
+#include "etc-vector.hpp"
+
 /*---------------------------------------------------------------------------*/
 
 #ifndef PI

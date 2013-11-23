@@ -288,8 +288,9 @@ bool dev::hybrid::process_axis(app::event *E)
 
 bool dev::hybrid::process_tick(app::event *E)
 {
-    // Apply the current position and rotation velocities to the user.
 #if 0
+    // Apply the current position and rotation velocities to the user.
+
     const double dt = E->data.tick.dt;
     const double dz = 0.25;
 

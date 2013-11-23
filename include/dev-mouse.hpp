@@ -37,9 +37,9 @@ namespace dev
         bool dragging;
         int  modifier;
 
-        double init_R[16];
-        double curr_R[16];
-        int    motion[3];
+        mat3 init_R;
+        mat3 curr_R;
+        vec3 motion;
 
         // Event handlers
 

@@ -116,6 +116,7 @@ bool dev::gamepad::process_axis(app::event *E)
 
 bool dev::gamepad::process_tick(app::event *E)
 {
+#if 0
     const double dt = E->data.tick.dt;
 
     const double kp =        dt;
@@ -128,7 +129,6 @@ bool dev::gamepad::process_tick(app::event *E)
     const bool   bp = (DOT3(motion, motion) != 0);
     const bool   br = bx || by || bz;
 
-#if 0
     if (bp) ::view->move(motion[0] * kp, motion[1] * kp, motion[2] * kp);
     if (br) ::view->turn(rotate[1] * kr, rotate[0] * kr, rotate[2] * kr);
 #endif
