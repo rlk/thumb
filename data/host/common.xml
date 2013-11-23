@@ -5,6 +5,17 @@
         <perspective hfov="60.0" vfov="35.0" />
       </frustum>
     </overlay>
+    <!-- 480x270 ---------------------------------------------------------- -->
+    <node name="480x270">
+      <window x="0" y="0" w="480" h="270"/>
+      <channel w="480" h="270"/>
+      <display type="direct">
+        <viewport x="0" y="0" w="480" h="270"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="35.0"/>
+        </frustum>
+      </display>
+    </node>
     <!-- Oculus Rift Developer's Kit -------------------------------------- -->
     <node name="oculus-dk">
       <window x="0" y="0" w="1280" h="800" full="1"/>

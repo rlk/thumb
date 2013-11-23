@@ -623,7 +623,7 @@ bool view_app::gui_key(app::event *E)
 {
     if (E->data.key.d)
     {
-        ui->key(E->data.key.c,
+        ui->key(0, //E->data.key.c,
                 E->data.key.k,
                 E->data.key.m);
     }

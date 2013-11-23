@@ -109,7 +109,7 @@ void dev::hybrid::recenter_hand()
 
 const char *joystick()
 {
-    const char *s = SDL_JoystickName(::conf->get_i("gamepad_device"));
+    const char *s = SDL_JoystickNameForIndex(::conf->get_i("gamepad_device"));
     return s ? s : "default";
 }
 
@@ -145,7 +145,7 @@ dev::hybrid::hybrid(const std::string& filename) :
 
     move_rate( 5.0),
     turn_rate(60.0),
-    
+
     depth(0)
 {
     position[0] =  0.0;

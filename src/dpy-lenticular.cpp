@@ -253,29 +253,29 @@ bool dpy::lenticular::process_key(app::event *E)
     {
         if (m & KMOD_SHIFT)
         {
-            if      (k == SDLK_LEFT)  { angle -= 0.00500; b = true; }
-            else if (k == SDLK_RIGHT) { angle += 0.00500; b = true; }
-            else if (k == SDLK_DOWN)  { pitch -= 0.01000; b = true; }
-            else if (k == SDLK_UP)    { pitch += 0.01000; b = true; }
+            if      (k == SDL_SCANCODE_LEFT)  { angle -= 0.00500; b = true; }
+            else if (k == SDL_SCANCODE_RIGHT) { angle += 0.00500; b = true; }
+            else if (k == SDL_SCANCODE_DOWN)  { pitch -= 0.01000; b = true; }
+            else if (k == SDL_SCANCODE_UP)    { pitch += 0.01000; b = true; }
         }
         else
         {
             if (m & KMOD_CAPS)
             {
-                if      (k == SDLK_LEFT)  { shift -= 0.00010; b = true; }
-                else if (k == SDLK_RIGHT) { shift += 0.00010; b = true; }
-                else if (k == SDLK_DOWN)  { thick += 0.00100; b = true; }
-                else if (k == SDLK_UP)    { thick -= 0.00100; b = true; }
+                if      (k == SDL_SCANCODE_LEFT)  { shift -= 0.00010; b = true; }
+                else if (k == SDL_SCANCODE_RIGHT) { shift += 0.00010; b = true; }
+                else if (k == SDL_SCANCODE_DOWN)  { thick += 0.00100; b = true; }
+                else if (k == SDL_SCANCODE_UP)    { thick -= 0.00100; b = true; }
             }
             else
             {
-                if      (k == SDLK_LEFT)  { shift -= 0.00001; b = true; }
-                else if (k == SDLK_RIGHT) { shift += 0.00001; b = true; }
-                else if (k == SDLK_DOWN)  { thick += 0.00010; b = true; }
-                else if (k == SDLK_UP)    { thick -= 0.00010; b = true; }
+                if      (k == SDL_SCANCODE_LEFT)  { shift -= 0.00001; b = true; }
+                else if (k == SDL_SCANCODE_RIGHT) { shift += 0.00001; b = true; }
+                else if (k == SDL_SCANCODE_DOWN)  { thick += 0.00010; b = true; }
+                else if (k == SDL_SCANCODE_UP)    { thick -= 0.00010; b = true; }
 
-                else if (k == SDLK_PAGEUP)   { debug = 50.0; b = true; }
-                else if (k == SDLK_PAGEDOWN) { debug =  1.0; b = true; }
+                else if (k == SDL_SCANCODE_PAGEUP)   { debug = 50.0; b = true; }
+                else if (k == SDL_SCANCODE_PAGEDOWN) { debug =  1.0; b = true; }
             }
         }
     }

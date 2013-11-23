@@ -122,7 +122,6 @@ namespace app
         };
         struct key_data_t
         {
-            int    c;
             int    k;
             int    m;
             bool   d;
@@ -167,7 +166,7 @@ namespace app
 
         event *mk_point (int, const double *, const double *);
         event *mk_click (int, int, bool);
-        event *mk_key   (int, int, int, bool);
+        event *mk_key   (int, int, bool);
         event *mk_axis  (int, int, double);
         event *mk_button(int, int, bool);
         event *mk_tick  (double);

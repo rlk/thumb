@@ -103,7 +103,7 @@ bool mode::info::process_event(app::event *E)
         return false;
 
     case E_CLICK:
- 
+
         if (E->data.click.b == 1)
         {
             gui->click(E->data.click.m,
@@ -115,7 +115,7 @@ bool mode::info::process_event(app::event *E)
     case E_KEY:
 
         if (E->data.key.d)
-            gui->key(E->data.key.c,
+            gui->key(0, // E->data.key.c,
                      E->data.key.k,
                      E->data.key.m);
         return true;
@@ -123,13 +123,13 @@ bool mode::info::process_event(app::event *E)
     case E_START:
 
         gui->show();
-        SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
-                            SDL_DEFAULT_REPEAT_INTERVAL);
+//      SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY,
+//                          SDL_DEFAULT_REPEAT_INTERVAL);
         return false;
 
     case E_CLOSE:
 
-        SDL_EnableKeyRepeat(0, 0);
+//      SDL_EnableKeyRepeat(0, 0);
         gui->hide();
         return false;
     }

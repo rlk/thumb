@@ -595,18 +595,18 @@ void gui::editor::key(int c, int k, int m)
     {
     // Handle cursor and selection keys.
 
-    case SDLK_LEFT:  if (s) grow_select(-1); else move_select(-1); return;
-    case SDLK_RIGHT: if (s) grow_select(+1); else move_select(+1); return;
-    case SDLK_HOME:  if (s) grow_select(-n); else move_select(-n); return;
-    case SDLK_END:   if (s) grow_select(+n); else move_select(+n); return;
+    case SDL_SCANCODE_LEFT:  if (s) grow_select(-1); else move_select(-1); return;
+    case SDL_SCANCODE_RIGHT: if (s) grow_select(+1); else move_select(+1); return;
+    case SDL_SCANCODE_HOME:  if (s) grow_select(-n); else move_select(-n); return;
+    case SDL_SCANCODE_END:   if (s) grow_select(+n); else move_select(+n); return;
 
-    case SDLK_RETURN:
+    case SDL_SCANCODE_RETURN:
         update();
         return;
 
    // Handle deletion to the left.
 
-    case SDLK_BACKSPACE:
+    case SDL_SCANCODE_BACKSPACE:
         if (sc)
             str.erase(si, sc);
         else if (si > 0)
@@ -619,7 +619,7 @@ void gui::editor::key(int c, int k, int m)
 
     // Handle deletion to the right.
 
-    case SDLK_DELETE:
+    case SDL_SCANCODE_DELETE:
         if (sc)
             str.erase(si, sc);
         else

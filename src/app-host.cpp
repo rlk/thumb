@@ -582,15 +582,15 @@ void app::host::root_loop()
                 break;
 
             case SDL_KEYDOWN:
-                process_event(E.mk_key(e.key.keysym.unicode,
-                                       e.key.keysym.sym,
-                                       SDL_GetModState(), true));
+                if (e.key.repeat == 0)
+                    process_event(E.mk_key(e.key.keysym.scancode,
+                                           SDL_GetModState(), true));
                 break;
 
             case SDL_KEYUP:
-                process_event(E.mk_key(e.key.keysym.unicode,
-                                       e.key.keysym.sym,
-                                       SDL_GetModState(), false));
+                if (e.key.repeat == 0)
+                    process_event(E.mk_key(e.key.keysym.scancode,
+                                           SDL_GetModState(), false));
                 break;
 
             case SDL_JOYAXISMOTION:
@@ -648,7 +648,7 @@ void app::host::root_loop()
                 {
                     char buf[256];
 
-                    sprintf(buf, "frame%05d.tga", count / movie);
+                    sprintf(buf, "frame%06d.tga", count / movie);
 
                     if (render)
                     {
@@ -775,7 +775,7 @@ void app::host::swap() const
     if (server_sd != INVALID_SOCKET || !client_sd.empty())
         glFinish();
 
-    SDL_GL_SwapBuffers();
+    program->swap();
 }
 
 //-----------------------------------------------------------------------------
@@ -819,16 +819,16 @@ bool app::host::process_calib(event *E)
 
         switch (E->data.key.k)
         {
-        case SDLK_TAB:
+        case SDL_SCANCODE_TAB:
             calibration_state = !calibration_state;
             return true;
 
-        case SDLK_SPACE:
+        case SDL_SCANCODE_SPACE:
             calibration_index++;
             printf("calibrating index %d\n", calibration_index);
             return true;
 
-        case SDLK_BACKSPACE:
+        case SDL_SCANCODE_BACKSPACE:
             calibration_index--;
             printf("calibrating index %d\n", calibration_index);
             return true;
@@ -942,8 +942,8 @@ bool app::host::pointer_to_3D(event *E, int x, int y)
 
 int app::host::get_window_m() const
 {
-    return ((window_full  ? SDL_FULLSCREEN : 0) |
-            (window_frame ? 0 : SDL_NOFRAME));
+    return ((window_full  ? SDL_WINDOW_FULLSCREEN : 0) |
+            (window_frame ? 0 : SDL_WINDOW_BORDERLESS));
 }
 
 // Forward the given position and orientation to all channel objects.  This is

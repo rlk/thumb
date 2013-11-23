@@ -23,8 +23,10 @@ ifeq ($(shell uname), Darwin)
 		  -framework Cocoa  \
 		  -framework ApplicationServices \
 		  -framework Carbon \
+		  -framework CoreAudio \
 		  -framework AudioToolbox \
 		  -framework AudioUnit \
+		  -framework ForceFeedback \
 		  -framework IOKit
 	CFLAGS += -mmacosx-version-min=10.6
 	INCDIR += -I/usr/local/OculusSDK/LibOVR/Include
@@ -45,9 +47,9 @@ endif
 
 # Search for package configurators or rely upon the path.
 
-SDLCONF = $(firstword $(wildcard /usr/local/bin/sdl-config \
-				 /opt/local/bin/sdl-config \
-				       /usr/bin/sdl-config) sdl-config)
+SDLCONF = $(firstword $(wildcard /usr/local/bin/sdl2-config \
+				 /opt/local/bin/sdl2-config \
+				       /usr/bin/sdl2-config) sdl2-config)
 FT2CONF = $(firstword $(wildcard /usr/local/bin/freetype-config \
 				 /opt/local/bin/freetype-config \
 				       /usr/bin/freetype-config) freetype-config)
@@ -96,16 +98,16 @@ LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
 				    $(HOME)/lib/libz*.a \
 				       /usr/lib/libz*.a \
 				   C:/MinGW/lib/libz*.a) -lz)
-LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDLmain*.a \
-				 /opt/local/lib/libSDLmain*.a \
-				    $(HOME)/lib/libSDLmain*.a \
-				       /usr/lib/libSDLmain*.a \
-				   C:/MinGW/lib/libSDLmain*.a) -lSDLmain)
-LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL*.a \
-				 /opt/local/lib/libSDL*.a \
-				    $(HOME)/lib/libSDL*.a \
-				       /usr/lib/libSDL*.a \
-				   C:/MinGW/lib/libSDL*.a) -lSDL)
+#LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDLmain*.a \
+#				 /opt/local/lib/libSDLmain*.a \
+#				    $(HOME)/lib/libSDLmain*.a \
+#				       /usr/lib/libSDLmain*.a \
+#				   C:/MinGW/lib/libSDLmain*.a) -lSDLmain)
+LIBSDL += $(firstword $(wildcard /usr/local/lib/libSDL2*.a \
+				 /opt/local/lib/libSDL2*.a \
+				    $(HOME)/lib/libSDL2*.a \
+				       /usr/lib/libSDL2*.a \
+				   C:/MinGW/lib/libSDL2*.a) -lSDL2)
 
 ifeq ($(shell uname), Linux)
 	LIBSDL = $(shell $(SDLCONF) --libs)

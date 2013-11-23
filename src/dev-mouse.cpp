@@ -30,12 +30,12 @@ dev::mouse::mouse() :
     dragging(false),
     modifier(0)
 {
-    key_move_F = conf->get_i("key_move_F", SDLK_w);
-    key_move_L = conf->get_i("key_move_L", SDLK_a);
-    key_move_R = conf->get_i("key_move_R", SDLK_d);
-    key_move_B = conf->get_i("key_move_B", SDLK_s);
-    key_move_U = conf->get_i("key_move_U", SDLK_e);
-    key_move_D = conf->get_i("key_move_D", SDLK_q);
+    key_move_F = conf->get_i("key_move_F", SDL_SCANCODE_W);
+    key_move_L = conf->get_i("key_move_L", SDL_SCANCODE_A);
+    key_move_R = conf->get_i("key_move_R", SDL_SCANCODE_D);
+    key_move_B = conf->get_i("key_move_B", SDL_SCANCODE_S);
+    key_move_U = conf->get_i("key_move_U", SDL_SCANCODE_E);
+    key_move_D = conf->get_i("key_move_D", SDL_SCANCODE_Q);
 
     motion[0] = 0;
     motion[1] = 0;
@@ -119,7 +119,7 @@ bool dev::mouse::process_key(app::event *E)
 
     else if (d)
     {
-        if (k == SDLK_RETURN)
+        if (k == SDL_SCANCODE_RETURN)
         {
             ::view->go_home();
             return true;

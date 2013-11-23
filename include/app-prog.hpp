@@ -16,7 +16,7 @@
 #include <string>
 #include <vector>
 
-#include <SDL_joystick.h>
+#include <SDL.h>
 
 #include <ogl-range.hpp>
 
@@ -60,6 +60,7 @@ namespace app
         virtual bool process_event(event *);
         virtual void run();
         virtual void stop();
+        virtual void swap();
         virtual void navigate(const double *);
 
         virtual void get_up_vector(double *);
@@ -78,12 +79,15 @@ namespace app
         int key_exit;
         int key_init;
 
+        SDL_Window   *window;
+        SDL_GLContext context;
         SDL_Joystick *joystick;
 
         std::vector<short> axis_min;
         std::vector<short> axis_max;
         bool               axis_verbose;
 
+        void video();
         void axis_setup();
         void axis_state();
 

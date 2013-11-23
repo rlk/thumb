@@ -178,8 +178,8 @@ void app::perf::dump(bool log)
     str << std::fixed << std::setprecision(3) << std::setw(6) << ms  << "ms "
                                               << std::setw(4) << fps << "fps";
 
-    SDL_WM_SetCaption(str.str().c_str(),
-                      str.str().c_str());
+//  SDL_WM_SetCaption(str.str().c_str(),
+//                    str.str().c_str());
 
     if (log) std::cout << total << " " << fault << " " << ms << std::endl;
 

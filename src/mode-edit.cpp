@@ -32,26 +32,26 @@ mode::edit::edit(wrl::world *w) : mode(w)
 {
     // Initialize edit mode configuration.
 
-    key_undo             = conf->get_i("key_undo",             SDLK_u);
-    key_redo             = conf->get_i("key_redo",             SDLK_v);
+    key_undo             = conf->get_i("key_undo",             SDL_SCANCODE_U);
+    key_redo             = conf->get_i("key_redo",             SDL_SCANCODE_V);
 
-    key_axis_X           = conf->get_i("key_axis_X",           SDLK_x);
-    key_axis_Y           = conf->get_i("key_axis_Y",           SDLK_y);
-    key_axis_Z           = conf->get_i("key_axis_Z",           SDLK_z);
-    key_home             = conf->get_i("key_home",             SDLK_RETURN);
+    key_axis_X           = conf->get_i("key_axis_X",           SDL_SCANCODE_X);
+    key_axis_Y           = conf->get_i("key_axis_Y",           SDL_SCANCODE_Y);
+    key_axis_Z           = conf->get_i("key_axis_Z",           SDL_SCANCODE_Z);
+    key_home             = conf->get_i("key_home",             SDL_SCANCODE_RETURN);
 
-    key_position_mode    = conf->get_i("key_position_mode",    SDLK_t);
-    key_rotation_mode    = conf->get_i("key_rotation_mode",    SDLK_r);
+    key_position_mode    = conf->get_i("key_position_mode",    SDL_SCANCODE_T);
+    key_rotation_mode    = conf->get_i("key_rotation_mode",    SDL_SCANCODE_R);
 
-    key_make_body        = conf->get_i("key_make_body",        SDLK_b);
-    key_make_nonbody     = conf->get_i("key_make_nonbody",     SDLK_n);
-    key_make_joint       = conf->get_i("key_make_joint",       SDLK_j);
+    key_make_body        = conf->get_i("key_make_body",        SDL_SCANCODE_B);
+    key_make_nonbody     = conf->get_i("key_make_nonbody",     SDL_SCANCODE_N);
+    key_make_joint       = conf->get_i("key_make_joint",       SDL_SCANCODE_J);
 
-    key_selection_delete = conf->get_i("key_selection_delete", SDLK_BACKSPACE);
-    key_selection_invert = conf->get_i("key_selection_invert", SDLK_i);
-    key_selection_extend = conf->get_i("key_selection_extend", SDLK_g);
-    key_selection_clear  = conf->get_i("key_selection_clear",  SDLK_SPACE);
-    key_selection_clone  = conf->get_i("key_selection_clone",  SDLK_c);
+    key_selection_delete = conf->get_i("key_selection_delete", SDL_SCANCODE_BACKSPACE);
+    key_selection_invert = conf->get_i("key_selection_invert", SDL_SCANCODE_I);
+    key_selection_extend = conf->get_i("key_selection_extend", SDL_SCANCODE_G);
+    key_selection_clear  = conf->get_i("key_selection_clear",  SDL_SCANCODE_SPACE);
+    key_selection_clone  = conf->get_i("key_selection_clone",  SDL_SCANCODE_C);
 
     // Initialize edit mode state.
 

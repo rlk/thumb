@@ -982,25 +982,25 @@ bool app::frustum::process_event(app::event *E)
 
             if (m & KMOD_SHIFT)
             {
-                if      (k == SDLK_LEFT)     { dT =  d; b = true; }
-                else if (k == SDLK_RIGHT)    { dT = -d; b = true; }
-                else if (k == SDLK_UP)       { dP =  d; b = true; }
-                else if (k == SDLK_DOWN)     { dP = -d; b = true; }
-                else if (k == SDLK_PAGEUP)   { dR =  d; b = true; }
-                else if (k == SDLK_PAGEDOWN) { dR = -d; b = true; }
+                if      (k == SDL_SCANCODE_LEFT)     { dT =  d; b = true; }
+                else if (k == SDL_SCANCODE_RIGHT)    { dT = -d; b = true; }
+                else if (k == SDL_SCANCODE_UP)       { dP =  d; b = true; }
+                else if (k == SDL_SCANCODE_DOWN)     { dP = -d; b = true; }
+                else if (k == SDL_SCANCODE_PAGEUP)   { dR =  d; b = true; }
+                else if (k == SDL_SCANCODE_PAGEDOWN) { dR = -d; b = true; }
             }
             else
             {
-                if      (k == SDLK_LEFT)     { dy = -d; b = true; }
-                else if (k == SDLK_RIGHT)    { dy =  d; b = true; }
-                else if (k == SDLK_UP)       { dp = -d; b = true; }
-                else if (k == SDLK_DOWN)     { dp =  d; b = true; }
-                else if (k == SDLK_PAGEUP)   { dr =  d; b = true; }
-                else if (k == SDLK_PAGEDOWN) { dr = -d; b = true; }
-                else if (k == SDLK_INSERT)   { dH =  d; b = true; }
-                else if (k == SDLK_DELETE)   { dH = -d; b = true; }
-                else if (k == SDLK_HOME)     { dV =  d; b = true; }
-                else if (k == SDLK_END)      { dV = -d; b = true; }
+                if      (k == SDL_SCANCODE_LEFT)     { dy = -d; b = true; }
+                else if (k == SDL_SCANCODE_RIGHT)    { dy =  d; b = true; }
+                else if (k == SDL_SCANCODE_UP)       { dp = -d; b = true; }
+                else if (k == SDL_SCANCODE_DOWN)     { dp =  d; b = true; }
+                else if (k == SDL_SCANCODE_PAGEUP)   { dr =  d; b = true; }
+                else if (k == SDL_SCANCODE_PAGEDOWN) { dr = -d; b = true; }
+                else if (k == SDL_SCANCODE_INSERT)   { dH =  d; b = true; }
+                else if (k == SDL_SCANCODE_DELETE)   { dH = -d; b = true; }
+                else if (k == SDL_SCANCODE_HOME)     { dV =  d; b = true; }
+                else if (k == SDL_SCANCODE_END)      { dV = -d; b = true; }
             }
 
             // If changes occurred, apply them to the calibration.

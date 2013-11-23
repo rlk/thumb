@@ -17,9 +17,6 @@
     <option name="mono_font">VeraMoBd.ttf</option>
     <option name="sans_size">24</option>
     <option name="mono_size">24</option>
-    <!-- Common keyboard commands -->
-    <option name="key_exit">27</option>
-    <option name="key_snap">294</option>
     <!-- Joystick configuration -->
     <option name="joystick_device">0</option>
     <option name="joystick_verbose">0</option>
@@ -55,28 +52,5 @@
     <option name="shadow_method">map</option>
     <option name="shadow_map_splits">3</option>
     <option name="shadow_map_resolution">1024</option>
-    <!-- EdWorld Dvorak Commands -->
-    <!-- -->
-    <option name="key_move_L">97</option>
-    <option name="key_move_R">101</option>
-    <option name="key_move_D">39</option>
-    <option name="key_move_U">46</option>
-    <option name="key_move_F">44</option>
-    <option name="key_move_B">111</option>
-    <option name="key_axis_X">113</option>
-    <option name="key_axis_Y">102</option>
-    <option name="key_axis_Z">59</option>
-    <option name="key_position_mode">121</option>
-    <option name="key_rotation_mode">112</option>
-    <option name="key_undo">103</option>
-    <option name="key_redo">107</option>
-    <option name="key_make_body">120</option>
-    <option name="key_make_nonbody">98</option>
-    <option name="key_make_joint">104</option>
-    <option name="key_selection_delete">8</option>
-    <option name="key_selection_invert">99</option>
-    <option name="key_selection_extend">105</option>
-    <option name="key_selection_clone">106</option>
-    <!-- -->
 
   </conf>

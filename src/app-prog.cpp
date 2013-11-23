@@ -55,35 +55,22 @@ static const char *version = "Thumb Version " STR(VERSION);
 
 //-----------------------------------------------------------------------------
 
-static void position(int x, int y)
-{
-    // SDL looks to the environment for window position.
-
-    char buf[256];
-
-    sprintf(buf, "SDL_VIDEO_WINDOW_POS=%d,%d", x, y);
-    SDL_putenv(buf);
-}
-
-static void video()
+void app::prog::video()
 {
     // Look up the video mode parameters.
 
-    int m = ::host->get_window_m() | SDL_OPENGL;
+    int m = ::host->get_window_m() | SDL_WINDOW_OPENGL;
     int x = ::host->get_window_x();
     int y = ::host->get_window_y();
     int w = ::host->get_window_w();
     int h = ::host->get_window_h();
 
-    if ((m & SDL_FULLSCREEN) == 0)
-        position(x, y);
-
     SDL_ShowCursor(::host->get_window_c() ? SDL_ENABLE : SDL_DISABLE);
 
     // Look up the GL context parameters.
 
-    int mults = conf->get_i("multisample_samples");
-    int multb = conf->get_i("multisample_buffers");
+    int mults = ::conf->get_i("multisample_samples");
+    int multb = ::conf->get_i("multisample_buffers");
     int color =  8;
     int depth = 24;
 
@@ -101,7 +88,7 @@ static void video()
 
         // Attempt to initialize the video mode.
 
-        if (SDL_SetVideoMode(w, h, 0, m))
+        if ((window = SDL_CreateWindow(version, x, y, w, h, m)))
             break;
         else
         {
@@ -120,14 +107,14 @@ static void video()
 
     // Initialize the OpenGL state.
 
+    context = SDL_GL_CreateContext(window);
+
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multb);
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &mults);
 
     glewInit();
 
     ogl::init(multb > 0 && mults > 0);
-
-    SDL_WM_SetCaption(version, version);
 }
 
 //-----------------------------------------------------------------------------
@@ -147,8 +134,6 @@ app::prog::prog(const std::string& exe,
 
     if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_JOYSTICK))
         throw std::runtime_error(SDL_GetError());
-
-    SDL_EnableUNICODE(1);
 
     // Initialize data access and configuration.
 
@@ -198,9 +183,9 @@ app::prog::prog(const std::string& exe,
 
     // Configure some application-level key bindings.
 
-    key_exit = ::conf->get_i("key_exit", SDLK_ESCAPE);
-    key_init = ::conf->get_i("key_init", SDLK_F10);
-    key_snap = ::conf->get_i("key_snap", SDLK_F13);
+    key_exit = ::conf->get_i("key_exit", SDL_SCANCODE_ESCAPE);
+    key_init = ::conf->get_i("key_init", SDL_SCANCODE_F10);
+    key_snap = ::conf->get_i("key_snap", SDL_SCANCODE_F13);
 
     // Configure the joystick system.
 
@@ -224,6 +209,8 @@ app::prog::~prog()
     if (::conf) delete ::conf;
     if (::data) delete ::data;
 
+    SDL_GL_DeleteContext(context);
+    SDL_DestroyWindow(window);
     SDL_Quit();
 
 #ifdef _WIN32
@@ -279,6 +266,11 @@ void app::prog::run()
 void app::prog::stop()
 {
     running = false;
+}
+
+void app::prog::swap()
+{
+    SDL_GL_SwapWindow(window);
 }
 
 void app::prog::navigate(const double *M)
