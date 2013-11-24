@@ -13,6 +13,7 @@
 #ifndef MODE_EDIT_HPP
 #define MODE_EDIT_HPP
 
+#include <etc-vector.hpp>
 #include <mode-mode.hpp>
 
 //-----------------------------------------------------------------------------
@@ -58,8 +59,8 @@ namespace mode
         bool drag;
         bool move;
 
-        double point_p[3];
-        double point_v[3];
+        vec3 point_p;
+        vec3 point_v;
 
         // Event handlers.
 

@@ -32,9 +32,10 @@ namespace app
         view();
 
         void go_home();
-#ifdef FIXME
-        void get_point(vec3&, vec3&, const vec3&, const quat&);
-#endif
+
+        vec3 get_point_pos(const vec3&) const;
+        vec3 get_point_vec(const quat&) const;
+
         void set_tracking   (const mat4& M) { tracking    = M; }
         void set_orientation(const quat& q) { orientation = q; }
         void set_position   (const vec3& p) { position    = p; }

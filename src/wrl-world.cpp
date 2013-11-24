@@ -384,7 +384,7 @@ void wrl::world::play_fini()
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::edit_pick(const double *p, const double *v)
+void wrl::world::edit_pick(const vec3& p, const vec3& v)
 {
     // Apply the pointer position and vector to the picking ray.
 

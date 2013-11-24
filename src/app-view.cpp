@@ -10,7 +10,6 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <cstdio> // FIXME
 #include <ogl-opengl.hpp>
 #include <app-view.hpp>
 
@@ -30,32 +29,18 @@ void app::view::go_home()
 
 //-----------------------------------------------------------------------------
 
-#ifdef FIXME
-void app::view::get_point(vec3& P, vec3& V, const vec3& p, const quat& q) const
+vec3 app::view::get_point_pos(const vec3& p) const
 {
-#if 0
-    double M[16], v[3];
-
-    // Determine the point direction of the given quaternion.
-
-    quat_to_mat(M, q);
-
-    v[0] = -M[ 8];
-    v[1] = -M[ 9];
-    v[2] = -M[10];
-
-    // Transform the point position and direction to world space.
-
-    if (P) mult_mat_vec3(P, transform_M, p);
-    if (V) mult_xps_vec3(V, transform_I, v);
-#endif
-
-    vec4 v(-transpose(mat3(q))[2]);
-
-    P = get_transform() * p;
-    V = get_inverse()   * v;
+    const mat4 M = get_transform();
+    return vec3(M * vec4(p, 1));
 }
-#endif
+
+vec3 app::view::get_point_vec(const quat& q) const
+{
+    const mat4 M = transpose(get_inverse());
+    const vec3 v = -zvector(mat3(q));
+    return vec3(M * vec4(v, 0));
+}
 
 //-----------------------------------------------------------------------------
 

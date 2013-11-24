@@ -58,13 +58,8 @@ mode::edit::edit(wrl::world *w) : mode(w)
     drag   = false;
     move   = false;
 
-    point_p[0] =  0;
-    point_p[1] =  0;
-    point_p[2] =  0;
-
-    point_v[0] =  0;
-    point_v[1] =  0;
-    point_v[2] = -1;
+    point_p = vec3(0,  0,  0);
+    point_v = vec3(0,  0, -1);
 
     xform = new wrl::constraint;
 }
@@ -87,10 +82,14 @@ bool mode::edit::process_point(app::event *E)
 
         // Transform the point event into world space.
 
-#ifdef FIXME
-        ::view->get_point(point_p, E->data.point.p,
-                          point_v, E->data.point.q);
-#endif
+        point_p = ::view->get_point_pos(vec3(E->data.point.p[0],
+                                             E->data.point.p[1],
+                                             E->data.point.p[2]));
+        point_v = ::view->get_point_vec(quat(E->data.point.q[0],
+                                             E->data.point.q[1],
+                                             E->data.point.q[2],
+                                             E->data.point.q[3]));
+
         world->edit_pick(point_p, point_v);
 
         // If there is a drag in progress...
@@ -109,7 +108,7 @@ bool mode::edit::process_point(app::event *E)
 
             // Apply the transform of the current drag.
 
-            if (xform->point(M, point_p, point_v))
+            if (xform->point(M, point_p.GIMME(), point_v.GIMME()))
             {
                 world->do_modify(M);
                 move = true;
@@ -141,7 +140,7 @@ bool mode::edit::process_click(app::event *E)
 
             if (world->check_selection())
             {
-                xform->click(point_p, point_v);
+                xform->click(point_p.GIMME(), point_v.GIMME());
                 drag = true;
             }
         }

@@ -13,6 +13,7 @@
 #ifndef WRL_WORLD_HPP
 #define WRL_WORLD_HPP
 
+#include <etc-vector.hpp>
 #include <etc-ode.hpp>
 #include <ogl-range.hpp>
 #include <wrl-atom.hpp>
@@ -131,7 +132,7 @@ namespace wrl
         void play_init();
         void play_fini();
 
-        void edit_pick(const double *, const double *);
+        void edit_pick(const vec3&, const vec3&);
         void edit_step(double);
         void play_step(double);
 

@@ -47,6 +47,7 @@ struct vec3
         v[1] = y;
         v[2] = z;
     }
+    vec3(const vec4&);
 
     const double *GIMME() const
     {
@@ -325,14 +326,14 @@ inline double operator*(const vec4& v, const vec4& w)
 
 //------------------------------------------------------------------------------
 
-/// Calculate the 3-component transform of vector v by matrix A.
+/// Calculate the 3-component transform of vector v by 3-matrix A.
 
 inline vec3 operator*(const mat3& A, const vec3& v)
 {
     return vec3(A[0] * v, A[1] * v, A[2] * v);
 }
 
-/// Calculate the 4-component transform of vector v by matrix A.
+/// Calculate the 4-component transform of vector v by 3-matrix A.
 
 inline vec4 operator*(const mat4& A, const vec4& v)
 {
@@ -648,6 +649,15 @@ inline quat slerp(const quat& q, const quat& p, double t)
 }
 
 //------------------------------------------------------------------------------
+
+/// Drop the fourth component of a vec4. (This conforms to GLSL.)
+
+inline vec3::vec3(const vec4& w)
+{
+    v[0] = w[0];
+    v[1] = w[1];
+    v[2] = w[2];
+}
 
 /// Construct a quaternion from rotation matrix M.
 

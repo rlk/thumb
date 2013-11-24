@@ -124,7 +124,6 @@ bool dev::mouse::process_tick(app::event *E)
     double kp = E->data.tick.dt * speed;
 
     if (modifier & KMOD_SHIFT) kp *= 10.0;
-    if (modifier & KMOD_CTRL)  kp *=  0.1;
 
     ::host->navigate(mat3(::view->get_orientation()) * motion * kp, quat());
 
