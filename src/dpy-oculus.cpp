@@ -24,24 +24,24 @@
 
 //-----------------------------------------------------------------------------
 
-static void getMatrix4f(const OVR::Matrix4f& src, double *dst)
+static mat4 getMatrix4f(const OVR::Matrix4f& src)
 {
-    dst[ 0] = double(src.M[0][0]);
-    dst[ 1] = double(src.M[1][0]);
-    dst[ 2] = double(src.M[2][0]);
-    dst[ 3] = double(src.M[3][0]);
-    dst[ 4] = double(src.M[0][1]);
-    dst[ 5] = double(src.M[1][1]);
-    dst[ 6] = double(src.M[2][1]);
-    dst[ 7] = double(src.M[3][1]);
-    dst[ 8] = double(src.M[0][2]);
-    dst[ 9] = double(src.M[1][2]);
-    dst[10] = double(src.M[2][2]);
-    dst[11] = double(src.M[3][2]);
-    dst[12] = double(src.M[0][3]);
-    dst[13] = double(src.M[1][3]);
-    dst[14] = double(src.M[2][3]);
-    dst[15] = double(src.M[3][3]);
+    return mat4(double(src.M[0][0]),
+                double(src.M[0][1]),
+                double(src.M[0][2]),
+                double(src.M[0][3]),
+                double(src.M[1][0]),
+                double(src.M[1][1]),
+                double(src.M[1][2]),
+                double(src.M[1][3]),
+                double(src.M[2][0]),
+                double(src.M[2][1]),
+                double(src.M[2][2]),
+                double(src.M[3][0]),
+                double(src.M[2][3]),
+                double(src.M[3][1]),
+                double(src.M[3][2]),
+                double(src.M[3][3]));
 }
 
 OVR::Ptr<OVR::DeviceManager>    dpy::oculus::pManager;
@@ -119,14 +119,14 @@ dpy::oculus::oculus(app::node p) :
 
     if (OVR::System::IsInitialized())
     {
-        double P[16];
+        mat4 P;
 
         if (chani)
-            getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).Projection, P);
+            P = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).Projection);
         else
-            getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).Projection,  P);
+            P = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).Projection);
 
-        frust->set_projection(P);
+        frust->set_projection(transpose(P).GIMME());
     }
 }
 
@@ -162,16 +162,16 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 {
     using namespace OVR::Util::Render;
 
-    // Include the Oculus eye offset in the look matrix.
+    mat4 T;
 
-    double M[16];
+    // Include the Oculus eye offset in the tracking matrix.
 
     if (chani)
-        getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).ViewAdjust, M);
+        T = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Right).ViewAdjust);
     else
-        getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).ViewAdjust,  M);
+        T = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).ViewAdjust);
 
-    // Include the Oculus orientation in the look matrix.
+    // Include the Oculus orientation in the tracking matrix.
 
     if (pSensor)
     {
@@ -179,12 +179,16 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
         float         a;
 
         Fusion.GetOrientation().GetAxisAngle(&v, &a);
-        Rmul_xlt_mat(M, 0.0, -0.1, 0.0);
-        Rmul_rot_mat(M, v.x, v.y, v.z, OVR::RadToDegree(a));
-        Rmul_xlt_mat(M, 0.0, +0.1, 0.0);
+        T = T * translation(vec3(0, -0.1, 0))
+              * mat4(mat3(vec3(double(v.x),
+                               double(v.y),
+                               double(v.z)), double(a)))
+              * translation(vec3(0, +0.1, 0));
     }
 
-    ::view->set_look_matrix(M);
+    // Set the tracking matrix.
+
+    ::view->set_tracking(T);
 
     // Set the view point for this channel (probably unnecessary for Oculus).
 

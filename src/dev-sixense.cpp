@@ -174,13 +174,11 @@ bool dev::sixense::process_tick(app::event *E)
     if (flying)
     {
         quat q = normal(inverse(init_q) * curr_q);
-        mat4 R = mat4(mat3(slerp(quat(), q, 1.0 / 30.0)));
-        mat4 T = translation((curr_p - init_p) * dt * move_rate);
+        quat r = normal(slerp(quat(), q, 1.0 / 30.0));
+        vec3 d = (curr_p - init_p) * dt * move_rate;
 
-        ::host->navigate(T * R);
+        ::host->navigate(d, r);
     }
-    else
-        ::host->navigate(mat4());
 
     return false;
 }

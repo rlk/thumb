@@ -275,19 +275,15 @@ void app::prog::swap()
     SDL_GL_SwapWindow(window);
 }
 
-void app::prog::navigate(const mat4& M)
+void app::prog::navigate(const vec3& d, const quat& r)
 {
-    double T[16];
-
-    mult_mat_mat(T, ::view->get_move_matrix(), transpose(M));
-    orthonormalize(T);
-    ::view->set_move_matrix(T);
+    ::view->set_position   (::view->get_position()    + d);
+    ::view->set_orientation(::view->get_orientation() * r);
 }
 
 vec3 app::prog::get_up_vector() const
 {
-    const double *I = ::view->get_move_inverse();
-    return normal(vec3(I[4], I[5], I[6]));
+    return yvector(mat3(inverse(::view->get_orientation())));
 }
 
 //-----------------------------------------------------------------------------

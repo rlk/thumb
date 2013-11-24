@@ -62,7 +62,7 @@ namespace app
         virtual void run();
         virtual void stop();
         virtual void swap();
-        virtual void navigate(const mat4&);
+        virtual void navigate(const vec3&, const quat&);
 
         virtual vec3 get_up_vector() const;
 

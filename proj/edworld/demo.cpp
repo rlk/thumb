@@ -85,14 +85,14 @@ void demo::free_uniforms()
 
 void demo::prep_uniforms() const
 {
-    const double *M = ::view->get_view_matrix();
-    const double *I = ::view->get_view_inverse();
+    const mat4 I = ::view->get_inverse();
+    const mat4 M = ::view->get_transform();
 
     // Set the viewing uniforms
 
-    uniform_view_matrix  ->set(I);
-    uniform_view_inverse ->set(M);
-    uniform_view_position->set(M + 12);
+    uniform_view_matrix  ->set(transpose(I).GIMME());
+    uniform_view_inverse ->set(transpose(M).GIMME());
+    uniform_view_position->set(  wvector(M).GIMME());
 
     // The current time
 

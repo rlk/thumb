@@ -1045,7 +1045,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             mult_mat_mat(M, S,   frust.get_proj_matrix());
             mult_mat_mat(M, M, light_I);
-            mult_mat_mat(M, M, ::view->get_view_matrix());
+            mult_mat_mat(M, M, transpose(::view->get_transform()).GIMME());
 
             uniform_shadow[i]->set(M);
         }

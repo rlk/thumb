@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <cstdio> // FIXME
 #include <ogl-opengl.hpp>
 #include <app-view.hpp>
 
@@ -22,9 +23,9 @@ app::view::view()
 
 void app::view::go_home()
 {
-    head_orientation = quat();
-    body_orientation = quat();
-    position = vec3(0.0, 1.8, 0.0);
+    tracking    = mat4();
+    orientation = quat();
+    position    = vec3(0.0, 1.8, 0.0);
 }
 
 //-----------------------------------------------------------------------------
@@ -60,19 +61,17 @@ void app::view::get_point(vec3& P, vec3& V, const vec3& p, const quat& q) const
 
 mat4 app::view::get_transform() const
 {
-    return translation(position) * mat4(mat3(body_orientation))
-                                 * mat4(mat4(head_orientation));
+    return translation(position) * mat4(mat3(orientation)) * tracking;
 }
 
 mat4 app::view::get_inverse() const
 {
-    return mat4(mat3(inverse(head_orientation)))
-         * mat4(mat3(inverse(body_orientation))) * translation(-position);
+    return inverse(get_transform());
 }
 
 void app::view::load_transform() const
 {
-    glLoadMatrixd(transpose(get_inverse()));
+    glLoadMatrixd(transpose(get_inverse()).GIMME());
 }
 
 //-----------------------------------------------------------------------------

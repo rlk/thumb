@@ -18,6 +18,9 @@
 
 //------------------------------------------------------------------------------
 
+// The GIMME functions are temporary placeholders for the pointer casts.
+// They need to be explicit and searchable while the rewrite is in progress.
+
 struct vec3;
 struct vec4;
 struct quat;
@@ -43,6 +46,11 @@ struct vec3
         v[0] = x;
         v[1] = y;
         v[2] = z;
+    }
+
+    const double *GIMME() const
+    {
+        return const_cast<double *>(&v[0]);
     }
 
     const double& operator[](int i) const { return v[i]; }
@@ -106,6 +114,7 @@ struct quat
         q[3] = w;
     }
     quat(const mat3&);
+    quat(const vec3&, double);
 
     const double& operator[](int i) const { return q[i]; }
           double& operator[](int i)       { return q[i]; }
@@ -134,6 +143,7 @@ struct mat3
         M[2] = vec3(m20, m21, m22);
     }
     mat3(const quat&);
+    mat3(const vec3&, double);
 
     const vec3& operator[](int i) const { return M[i]; }
           vec3& operator[](int i)       { return M[i]; }
@@ -461,10 +471,10 @@ inline mat4 inverse(const mat4& A)
 
     const double d = 1.0 / (A[0] * T[0]);
 
-    return mat4(T[0][0] * d, T[0][1] * d, T[0][2] * d, T[0][3] * d,
-                T[1][0] * d, T[1][1] * d, T[1][2] * d, T[1][3] * d,
-                T[2][0] * d, T[2][1] * d, T[2][2] * d, T[2][3] * d,
-                T[3][0] * d, T[3][1] * d, T[3][2] * d, T[3][3] * d);
+    return mat4(T[0][0] * d, T[1][0] * d, T[2][0] * d, T[3][0] * d,
+                T[0][1] * d, T[1][1] * d, T[2][1] * d, T[3][1] * d,
+                T[0][2] * d, T[1][2] * d, T[2][2] * d, T[3][2] * d,
+                T[0][3] * d, T[1][3] * d, T[2][3] * d, T[3][3] * d);
 }
 
 //------------------------------------------------------------------------------
@@ -555,30 +565,6 @@ inline mat4 zrotation(double a)
                 0,       0,      0, 1);
 }
 
-/// Return a matrix giving a rotation about v through a radians.
-
-inline mat4 rotation(const vec3& v, double a)
-{
-    const vec3 u = normal(v);
-
-    const double s = sin(a);
-    const double c = cos(a);
-
-    return mat4(u[0] * u[0] + (1 - u[0] * u[0]) * c,
-                u[0] * u[1] + (0 - u[0] * u[1]) * c - u[2] * s,
-                u[0] * u[2] + (0 - u[0] * u[2]) * c + u[1] * s,
-                0,
-                u[1] * u[0] + (0 - u[1] * u[0]) * c + u[2] * s,
-                u[1] * u[1] + (1 - u[1] * u[1]) * c,
-                u[1] * u[2] + (0 - u[1] * u[2]) * c - u[0] * s,
-                0,
-                u[2] * u[0] + (0 - u[2] * u[0]) * c - u[1] * s,
-                u[2] * u[1] + (0 - u[2] * u[1]) * c + u[0] * s,
-                u[2] * u[2] + (1 - u[2] * u[2]) * c,
-                0,
-                0, 0, 0, 1);
-}
-
 /// Return a matrix giving a translation along vector v.
 
 inline mat4 translation(const vec3& v)
@@ -663,7 +649,7 @@ inline quat slerp(const quat& q, const quat& p, double t)
 
 //------------------------------------------------------------------------------
 
-/// Return a quaternion for the matrix rotation M.
+/// Construct a quaternion from rotation matrix M.
 
 inline quat::quat(const mat3& M)
 {
@@ -701,7 +687,7 @@ inline quat::quat(const mat3& M)
     }
 }
 
-/// Return a matrix for the quaternion rotation q.
+/// Construct a rotation matrix from quaternion q.
 
 inline mat3::mat3(const quat& q)
 {
@@ -714,6 +700,39 @@ inline mat3::mat3(const quat& q)
     M[2] = vec3(    2 * (q[0] * q[2] - q[1] * q[3]),
                     2 * (q[1] * q[2] + q[0] * q[3]),
                 1 - 2 * (q[0] * q[0] + q[1] * q[1]));
+}
+
+/// Construct a quaternion from axis v and angle a in radians.
+
+inline quat::quat(const vec3& v, double a)
+{
+    const double s = sin(a / 2);
+    const double c = cos(a / 2);
+
+    q[0] = v[0] * s;
+    q[1] = v[1] * s;
+    q[2] = v[2] * s;
+    q[3] =        c;
+}
+
+/// Construct a rotation matrix from axis v and angle a in radians.
+
+inline mat3::mat3(const vec3& v, double a)
+{
+    const vec3 u = normal(v);
+
+    const double s = sin(a);
+    const double c = cos(a);
+
+    M[0] = vec3(u[0] * u[0] + (1 - u[0] * u[0]) * c,
+                u[0] * u[1] + (0 - u[0] * u[1]) * c - u[2] * s,
+                u[0] * u[2] + (0 - u[0] * u[2]) * c + u[1] * s);
+    M[1] = vec3(u[1] * u[0] + (0 - u[1] * u[0]) * c + u[2] * s,
+                u[1] * u[1] + (1 - u[1] * u[1]) * c,
+                u[1] * u[2] + (0 - u[1] * u[2]) * c - u[0] * s);
+    M[2] = vec3(u[2] * u[0] + (0 - u[2] * u[0]) * c - u[1] * s,
+                u[2] * u[1] + (0 - u[2] * u[1]) * c + u[0] * s,
+                u[2] * u[2] + (1 - u[2] * u[2]) * c);
 }
 
 //------------------------------------------------------------------------------

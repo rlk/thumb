@@ -75,7 +75,7 @@ namespace app
         const app::frustum *get_overlay() const { return overlay; }
 
         void set_head(const double *, const double *);
-        void navigate(const mat4&);
+        void navigate(const vec3&, const quat&);
 
         vec3 get_up_vector() const;
 

@@ -63,8 +63,8 @@ bool dev::mouse::process_point(app::event *E)
         vec3 u = ::host->get_up_vector();
         vec3 x = vec3(1, 0, 0);
 
-        ::host->navigate(rotation(u, 2 * (t1 - t0))
-                       * rotation(x, 2 * (p0 - p1)));
+        ::host->navigate(vec3(), quat(u, 2 * (t1 - t0))
+                               * quat(x, 2 * (p0 - p1)));
 
         return true;
     }
@@ -126,7 +126,7 @@ bool dev::mouse::process_tick(app::event *E)
     if (modifier & KMOD_SHIFT) kp *= 10.0;
     if (modifier & KMOD_CTRL)  kp *=  0.1;
 
-    ::host->navigate(translation(motion * kp));
+    ::host->navigate(mat3(::view->get_orientation()) * motion * kp, quat());
 
     return false;
 }

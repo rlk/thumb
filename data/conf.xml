@@ -15,8 +15,8 @@
     <!-- GUI -->
     <option name="sans_font">VeraBd.ttf</option>
     <option name="mono_font">VeraMoBd.ttf</option>
-    <option name="sans_size">24</option>
-    <option name="mono_size">24</option>
+    <option name="sans_size">14</option>
+    <option name="mono_size">14</option>
     <!-- Joystick configuration -->
     <option name="joystick_device">0</option>
     <option name="joystick_verbose">0</option>

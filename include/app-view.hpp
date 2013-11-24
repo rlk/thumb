@@ -23,8 +23,8 @@ namespace app
     {
     private:
 
-        quat head_orientation;
-        quat body_orientation;
+        mat4 tracking;
+        quat orientation;
         vec3 position;
 
     public:
@@ -35,16 +35,16 @@ namespace app
 #ifdef FIXME
         void get_point(vec3&, vec3&, const vec3&, const quat&);
 #endif
-        void set_head_orientation(const quat& q) { head_orientation = q; }
-        void set_body_orientation(const quat& q) { body_orientation = q; }
-        void set_position        (const vec3& v) { position         = v; }
+        void set_tracking   (const mat4& M) { tracking    = M; }
+        void set_orientation(const quat& q) { orientation = q; }
+        void set_position   (const vec3& p) { position    = p; }
 
-        quat get_head_orientation() const { return head_orientation; }
-        quat get_body_orientation() const { return body_orientation; }
-        vec3 get_position        () const { return position;         }
+        mat4 get_tracking   () const { return tracking;    }
+        quat get_orientation() const { return orientation; }
+        vec3 get_position   () const { return position;    }
 
-        mat4  get_transform() const;
         mat4  get_inverse  () const;
+        mat4  get_transform() const;
         void load_transform() const;
     };
 }

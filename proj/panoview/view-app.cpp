@@ -332,7 +332,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     double M[16], P[16];
 
     load_mat(P,  frusp->get_proj_matrix());
-    load_inv(M, ::view->get_view_matrix());
+    load_inv(M, transpose(::view->get_transform()).GIMME());
 
     Lmul_scl_mat(M, get_scale(),
                     get_scale(),

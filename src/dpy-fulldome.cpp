@@ -200,8 +200,9 @@ bool dpy::fulldome::pointer_to_3D(app::event *E, int x, int y)
 
             mat_to_quat(q, B);
 
-            E->mk_point(0, ::view->get_view_matrix() + 12, q);
-
+#ifdef FIXME
+            E->mk_point(0, ::view->get_position(), q);
+#endif
             return true;
         }
     }
