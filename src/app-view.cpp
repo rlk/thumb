@@ -10,12 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#include <app-default.hpp>
 #include <ogl-opengl.hpp>
-#include <etc-math.hpp>
 #include <app-view.hpp>
-#include <app-data.hpp>
-#include <app-conf.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -26,21 +22,17 @@ app::view::view()
 
 void app::view::go_home()
 {
-    load_idt(look_M);
-    load_idt(look_I);
-
-    load_xlt_mat(move_M, 0.0, 1.8, 0.0);
-    load_xlt_inv(move_I, 0.0, 1.8, 0.0);
-
-    mult_mat_mat(transform_M, move_M, look_M);
-    mult_mat_mat(transform_I, look_I, move_I);
+    head_orientation = quat();
+    body_orientation = quat();
+    position = vec3(0.0, 1.8, 0.0);
 }
 
 //-----------------------------------------------------------------------------
 
-void app::view::get_point(double *P, const double *p,
-                          double *V, const double *q) const
+#ifdef FIXME
+void app::view::get_point(vec3& P, vec3& V, const vec3& p, const quat& q) const
 {
+#if 0
     double M[16], v[3];
 
     // Determine the point direction of the given quaternion.
@@ -55,34 +47,32 @@ void app::view::get_point(double *P, const double *p,
 
     if (P) mult_mat_vec3(P, transform_M, p);
     if (V) mult_xps_vec3(V, transform_I, v);
+#endif
+
+    vec4 v(-transpose(mat3(q))[2]);
+
+    P = get_transform() * p;
+    V = get_inverse()   * v;
 }
+#endif
 
 //-----------------------------------------------------------------------------
 
-void app::view::set_move_matrix(const double *M)
+mat4 app::view::get_transform() const
 {
-    load_mat(move_M, M);
-    load_inv(move_I, M);
-
-    mult_mat_mat(transform_M, move_M, look_M);
-    mult_mat_mat(transform_I, look_I, move_I);
+    return translation(position) * mat4(mat3(body_orientation))
+                                 * mat4(mat4(head_orientation));
 }
 
-void app::view::set_look_matrix(const double *M)
+mat4 app::view::get_inverse() const
 {
-    load_mat(look_M, M);
-    load_inv(look_I, M);
-
-    mult_mat_mat(transform_M, move_M, look_M);
-    mult_mat_mat(transform_I, look_I, move_I);
+    return mat4(mat3(inverse(head_orientation)))
+         * mat4(mat3(inverse(body_orientation))) * translation(-position);
 }
-
-// Load the current transformation onto the OpenGL matrix stack. This is a view
-// matrix rather than a model matrix, so use the inverse.
 
 void app::view::load_transform() const
 {
-    glLoadMatrixd(transform_I);
+    glLoadMatrixd(transpose(get_inverse()));
 }
 
 //-----------------------------------------------------------------------------

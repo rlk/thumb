@@ -13,6 +13,8 @@
 #ifndef USER_HPP
 #define USER_HPP
 
+#include <etc-vector.hpp>
+
 //-----------------------------------------------------------------------------
 
 namespace app
@@ -21,34 +23,28 @@ namespace app
     {
     private:
 
-        double      move_M[16];
-        double      look_M[16];
-        double transform_M[16];
-
-        double      move_I[16];
-        double      look_I[16];
-        double transform_I[16];
+        quat head_orientation;
+        quat body_orientation;
+        vec3 position;
 
     public:
 
         view();
 
         void go_home();
+#ifdef FIXME
+        void get_point(vec3&, vec3&, const vec3&, const quat&);
+#endif
+        void set_head_orientation(const quat& q) { head_orientation = q; }
+        void set_body_orientation(const quat& q) { body_orientation = q; }
+        void set_position        (const vec3& v) { position         = v; }
 
-        void get_point(double *, const double *,
-                       double *, const double *) const;
+        quat get_head_orientation() const { return head_orientation; }
+        quat get_body_orientation() const { return body_orientation; }
+        vec3 get_position        () const { return position;         }
 
-        const double *get_move_matrix()  const { return      move_M; }
-        const double *get_look_matrix()  const { return      look_M; }
-        const double *get_view_matrix()  const { return transform_M; }
-
-        const double *get_move_inverse() const { return      move_I; }
-        const double *get_look_inverse() const { return      look_I; }
-        const double *get_view_inverse() const { return transform_I; }
-
-        void set_move_matrix(const double *M);
-        void set_look_matrix(const double *M);
-
+        mat4  get_transform() const;
+        mat4  get_inverse  () const;
         void load_transform() const;
     };
 }

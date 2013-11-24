@@ -75,7 +75,6 @@ bool dev::mouse::process_click(app::event *E)
 {
     const bool d = E->data.click.d;
     const int  b = E->data.click.b;
-    const int  m = E->data.click.m;
 
     // Handle rotating the view.
 
@@ -134,8 +133,6 @@ bool dev::mouse::process_tick(app::event *E)
 
 bool dev::mouse::process_event(app::event *E)
 {
-    assert(E);
-
     switch (E->get_type())
     {
     case E_POINT: if (process_point(E)) return true; else break;
@@ -143,7 +140,6 @@ bool dev::mouse::process_event(app::event *E)
     case E_TICK:  if (process_tick(E))  return true; else break;
     case E_KEY:   if (process_key(E))   return true; else break;
     }
-
     return dev::input::process_event(E);
 }
 

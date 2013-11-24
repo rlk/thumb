@@ -77,9 +77,6 @@ TARG= libthumb.a
 
 INCDIR += -I../include
 
-CFLAGS += $(shell $(SDLCONF) --cflags) \
-	  $(shell $(FT2CONF) --cflags)
-
 #------------------------------------------------------------------------------
 
 ifdef NVPM

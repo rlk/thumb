@@ -87,9 +87,10 @@ bool mode::edit::process_point(app::event *E)
 
         // Transform the point event into world space.
 
+#ifdef FIXME
         ::view->get_point(point_p, E->data.point.p,
                           point_v, E->data.point.q);
-
+#endif
         world->edit_pick(point_p, point_v);
 
         // If there is a drag in progress...

@@ -138,10 +138,12 @@ struct mat3
     const vec3& operator[](int i) const { return M[i]; }
           vec3& operator[](int i)       { return M[i]; }
 
+#ifdef ALLOW_CAST
     operator const double*() const
     {
         return const_cast<double *>(&M[0][0]);
     }
+#endif
 };
 
 //------------------------------------------------------------------------------
@@ -180,7 +182,14 @@ struct mat4
     const vec4& operator[](int i) const { return M[i]; }
           vec4& operator[](int i)       { return M[i]; }
 
+#ifdef ALLOW_CAST
     operator const double*() const
+    {
+        return const_cast<double *>(&M[0][0]);
+    }
+#endif
+
+    const double *GIMME() const
     {
         return const_cast<double *>(&M[0][0]);
     }
@@ -203,6 +212,13 @@ inline double to_degrees(double radians)
 }
 
 //------------------------------------------------------------------------------
+
+/// Calculate the 3-component negation of v.
+
+inline vec3 operator-(const vec3& v)
+{
+    return vec3(-v[0], -v[1], -v[2]);
+}
 
 /// Calculate the 3-component sum of v and w.
 
@@ -475,6 +491,36 @@ inline quat normal(const quat& q)
                     q[1] * q[1] +
                     q[2] * q[2] +
                     q[3] * q[3]);
+}
+
+//------------------------------------------------------------------------------
+
+/// Return the X vector of the coordinate system given by matrix M.
+
+inline vec3 xvector(const mat4& M)
+{
+    return vec3(M[0][0], M[1][0], M[2][0]);
+}
+
+/// Return the Y vector of the coordinate system given by matrix M.
+
+inline vec3 yvector(const mat4& M)
+{
+    return vec3(M[0][1], M[1][1], M[2][1]);
+}
+
+/// Return the Z vector of the coordinate system given by matrix M.
+
+inline vec3 zvector(const mat4& M)
+{
+    return vec3(M[0][2], M[1][2], M[2][2]);
+}
+
+/// Return the W vector (position) of the coordinate system given by matrix M.
+
+inline vec3 wvector(const mat4& M)
+{
+    return vec3(M[0][3], M[1][3], M[2][3]);
 }
 
 //------------------------------------------------------------------------------

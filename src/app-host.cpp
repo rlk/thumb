@@ -717,7 +717,7 @@ void app::host::draw()
     // Cache the transformed frustum planes (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_transform(::view->get_view_matrix());
+        (*i)->set_transform(transpose(::view->get_transform()).GIMME());
 
     // Determine visibility and view distance (moderately expensive).
 

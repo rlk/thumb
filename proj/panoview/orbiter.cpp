@@ -23,7 +23,6 @@
 #include <app-view.hpp>
 #include <app-conf.hpp>
 #include <app-prog.hpp>
-#include <app-event.hpp>
 #include <app-frustum.hpp>
 #include <app-default.hpp>
 
