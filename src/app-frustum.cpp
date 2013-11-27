@@ -511,7 +511,7 @@ bool app::frustum::pointer_to_3D(event *E, int x, int y) const
     // Complete an orthonormal basis of the pointer space.
 
     X = normal(cross(Y, Z));
-    Y = normal(cross(X, Z));
+    Y = normal(cross(Z, X));
 
     quat q(mat3(X[0], Y[0], Z[0],
                 X[1], Y[1], Z[1],
