@@ -96,8 +96,6 @@ bool mode::edit::process_point(app::event *E)
 
         if (drag)
         {
-            double M[16];
-
             // If the current drag has produced a previous transform, undo it.
 
             if (move)
@@ -108,9 +106,11 @@ bool mode::edit::process_point(app::event *E)
 
             // Apply the transform of the current drag.
 
-            if (xform->point(M, point_p.GIMME(), point_v.GIMME()))
+            mat4 M;
+
+            if (xform->point(point_p, point_v, M))
             {
-                world->do_modify(M);
+                world->do_modify(transpose(M).GIMME());
                 move = true;
             }
 
@@ -140,7 +140,7 @@ bool mode::edit::process_click(app::event *E)
 
             if (world->check_selection())
             {
-                xform->click(point_p.GIMME(), point_v.GIMME());
+                xform->click(point_p, point_v);
                 drag = true;
             }
         }
@@ -161,7 +161,10 @@ bool mode::edit::process_click(app::event *E)
                     else
                         focus->get_world(M);
 
-                    xform->set_transform(M);
+                    xform->set_transform(mat4(M[ 0], M[ 4], M[ 8], M[12],
+                                              M[ 1], M[ 5], M[ 9], M[13],
+                                              M[ 2], M[ 6], M[10], M[14],
+                                              M[ 3], M[ 7], M[11], M[15])); // FIXME
                 }
                 else
                 {
@@ -332,11 +335,7 @@ bool mode::edit::process_key(app::event *E)
             if (m & KMOD_SHIFT)
                 ::view->go_home();
             else
-            {
-                double M[16];
-                load_idt(M);
-                xform->set_transform(M);
-            }
+                xform->set_transform(mat4());
             return true;
         }
     }

@@ -39,10 +39,27 @@ namespace wrl
 {
     class constraint
     {
+    public:
+
+        constraint();
+       ~constraint();
+
+        void set_mode(int);
+        void set_axis(int);
+        void set_grid(int);
+
+        void set_transform(const mat4&);
+
+        bool point(const vec3&, const vec3&, mat4&);
+        void click(const vec3&, const vec3&);
+
+        ogl::range prep(int, const app::frustum *const *);
+        void       draw(int);
+
     protected:
 
-        double M[16];
-        double T[16];
+        mat4 M;
+        mat4 T;
 
         ogl::node *rot[10];
         ogl::node *pos[10];
@@ -59,30 +76,13 @@ namespace wrl
         double mouse_a;
         double mouse_d;
 
-        void calc_rot(double&, double&, const double *, const double *) const;
-        void calc_pos(double&, double&, const double *, const double *) const;
+        void calc_rot(double&, double&, const vec3&, const vec3&) const;
+        void calc_pos(double&, double&, const vec3&, const vec3&) const;
 
         void draw_rot(int) const;
         void draw_pos(int) const;
 
         void orient();
-
-    public:
-
-        constraint();
-       ~constraint();
-
-        void set_mode(int);
-        void set_axis(int);
-        void set_grid(int);
-
-        void set_transform(const double *);
-
-        bool point(double *, const double *, const double *);
-        void click(          const double *, const double *);
-
-        ogl::range prep(int, const app::frustum *const *);
-        void       draw(int);
     };
 }
 

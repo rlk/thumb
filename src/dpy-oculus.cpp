@@ -180,9 +180,9 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 
         Fusion.GetOrientation().GetAxisAngle(&v, &a);
         T = T * translation(vec3(0, -0.1, 0))
-              * mat4(mat3(vec3(double(v.x),
-                               double(v.y),
-                               double(v.z)), double(a)))
+              *    rotation(vec3(double(v.x),
+                                 double(v.y),
+                                 double(v.z)), double(a))
               * translation(vec3(0, +0.1, 0));
     }
 

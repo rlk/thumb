@@ -128,7 +128,7 @@ struct mat3
         M[2] = vec3(m20, m21, m22);
     }
     mat3(const quat&);
-    mat3(const vec3&, double);
+    mat3(const vec3&, const vec3&, const vec3&);
 
     const vec3& operator[](int i) const { return M[i]; }
           vec3& operator[](int i)       { return M[i]; }
@@ -550,6 +550,29 @@ inline mat4 zrotation(double a)
                 0,       0,      0, 1);
 }
 
+/// Return a matrix giving a rotation about v through a radians.
+
+inline mat4 rotation(const vec3& v, double a)
+{
+    const vec3   u = normal(v);
+    const double s = sin(a);
+    const double c = cos(a);
+
+    return mat4(u[0] * u[0] + (1 - u[0] * u[0]) * c,
+                u[0] * u[1] + (0 - u[0] * u[1]) * c - u[2] * s,
+                u[0] * u[2] + (0 - u[0] * u[2]) * c + u[1] * s,
+                0,
+                u[1] * u[0] + (0 - u[1] * u[0]) * c + u[2] * s,
+                u[1] * u[1] + (1 - u[1] * u[1]) * c,
+                u[1] * u[2] + (0 - u[1] * u[2]) * c - u[0] * s,
+                0,
+                u[2] * u[0] + (0 - u[2] * u[0]) * c - u[1] * s,
+                u[2] * u[1] + (0 - u[2] * u[1]) * c + u[0] * s,
+                u[2] * u[2] + (1 - u[2] * u[2]) * c,
+                0,
+                0, 0, 0, 1);
+}
+
 /// Return a matrix giving a translation along vector v.
 
 inline mat4 translation(const vec3& v)
@@ -714,24 +737,13 @@ inline quat::quat(const vec3& v, double a)
     q[3] =        c;
 }
 
-/// Construct a rotation matrix from axis v and angle a in radians.
+/// Construct a rotation matrix from a set of basis vectors.
 
-inline mat3::mat3(const vec3& v, double a)
+inline mat3::mat3(const vec3& x, const vec3& y, const vec3& z)
 {
-    const vec3 u = normal(v);
-
-    const double s = sin(a);
-    const double c = cos(a);
-
-    M[0] = vec3(u[0] * u[0] + (1 - u[0] * u[0]) * c,
-                u[0] * u[1] + (0 - u[0] * u[1]) * c - u[2] * s,
-                u[0] * u[2] + (0 - u[0] * u[2]) * c + u[1] * s);
-    M[1] = vec3(u[1] * u[0] + (0 - u[1] * u[0]) * c + u[2] * s,
-                u[1] * u[1] + (1 - u[1] * u[1]) * c,
-                u[1] * u[2] + (0 - u[1] * u[2]) * c - u[0] * s);
-    M[2] = vec3(u[2] * u[0] + (0 - u[2] * u[0]) * c - u[1] * s,
-                u[2] * u[1] + (0 - u[2] * u[1]) * c + u[0] * s,
-                u[2] * u[2] + (1 - u[2] * u[2]) * c);
+    M[0] = vec3(x[0], y[0], z[0]);
+    M[1] = vec3(x[1], y[1], z[1]);
+    M[2] = vec3(x[2], y[2], z[2]);
 }
 
 //------------------------------------------------------------------------------

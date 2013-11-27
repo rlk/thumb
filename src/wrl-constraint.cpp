@@ -53,8 +53,6 @@ wrl::constraint::constraint() : mode(0), axis(1), grid(3)
     pos[8]->add_unit(new ogl::unit("wire/constraint_pos_8.obj"));
     pos[9]->add_unit(new ogl::unit("wire/constraint_pos_9.obj"));
 
-    load_idt(M);
-    load_idt(T);
     set_grid(3);
 
     orient();
@@ -69,33 +67,33 @@ wrl::constraint::~constraint()
 
 void wrl::constraint::orient()
 {
-    T[12] = M[12];
-    T[13] = M[13];
-    T[14] = M[14];
-
     switch (axis)
     {
     case 0:
-        T[0] = -M[ 8]; T[4] =  M[ 4]; T[ 8] = M[ 0];
-        T[1] = -M[ 9]; T[5] =  M[ 5]; T[ 9] = M[ 1];
-        T[2] = -M[10]; T[6] =  M[ 6]; T[10] = M[ 2];
+        T[0][0] = -M[0][2]; T[0][1] =  M[0][1]; T[0][2] =  M[0][0];
+        T[1][0] = -M[1][2]; T[1][1] =  M[1][1]; T[1][2] =  M[1][0];
+        T[2][0] = -M[2][2]; T[2][1] =  M[2][1]; T[2][2] =  M[2][0];
         break;
     case 1:
-        T[0] =  M[ 0]; T[4] = -M[ 8]; T[ 8] = M[ 4];
-        T[1] =  M[ 1]; T[5] = -M[ 9]; T[ 9] = M[ 5];
-        T[2] =  M[ 2]; T[6] = -M[10]; T[10] = M[ 6];
+        T[0][0] =  M[0][0]; T[0][1] = -M[0][2]; T[0][2] =  M[0][1];
+        T[1][0] =  M[1][0]; T[1][1] = -M[1][2]; T[1][2] =  M[1][1];
+        T[2][0] =  M[2][0]; T[2][1] = -M[2][2]; T[2][2] =  M[2][1];
         break;
     case 2:
-        T[0] =  M[ 0]; T[4] =  M[ 4]; T[ 8] = M[ 8];
-        T[1] =  M[ 1]; T[5] =  M[ 5]; T[ 9] = M[ 9];
-        T[2] =  M[ 2]; T[6] =  M[ 6]; T[10] = M[10];
+        T[0][0] =  M[0][0]; T[0][1] =  M[0][1]; T[0][2] =  M[0][2];
+        T[1][0] =  M[1][0]; T[1][1] =  M[1][1]; T[1][2] =  M[1][2];
+        T[2][0] =  M[2][0]; T[2][1] =  M[2][1]; T[2][2] =  M[2][2];
         break;
     }
 
+    T[0][3] = M[0][3];
+    T[1][3] = M[1][3];
+    T[2][3] = M[2][3];
+
     for (int i = 0; i < 10; ++i)
     {
-        rot[i]->transform(T);
-        pos[i]->transform(T);
+        rot[i]->transform(transpose(T).GIMME());
+        pos[i]->transform(transpose(T).GIMME());
     }
 }
 
@@ -147,9 +145,9 @@ void wrl::constraint::set_axis(int a)
     orient();
 }
 
-void wrl::constraint::set_transform(const double *A)
+void wrl::constraint::set_transform(const mat4& A)
 {
-    load_mat(M, A);
+    M = A;
     orient();
 }
 
@@ -163,33 +161,27 @@ static double snap(double f, double d)
     return (fabs(f0 - f) < fabs(f1 - f)) ? f0 : f1;
 }
 
-void wrl::constraint::calc_rot(double& a, double& d, const double *p,
-                                                     const double *v) const
+void wrl::constraint::calc_rot(double& a, double& d, const vec3& p,
+                                                     const vec3& v) const
 {
-    double q[3], t = (DOT3(T + 12, T + 8) - DOT3(p, T + 8)) / DOT3(v, T + 8);
+    double t = (wvector(T) * zvector(T) - p * zvector(T)) / (v * zvector(T));
+    vec3 q = p + v * t - wvector(T);
 
-    q[0] = (p[0] + v[0] * t) - T[12];
-    q[1] = (p[1] + v[1] * t) - T[13];
-    q[2] = (p[2] + v[2] * t) - T[14];
-
-    double aa = DEG(atan2(DOT3(q, T + 4), DOT3(q, T + 0)));
-    double dd = sqrt(DOT3(q, q));
+    double aa = to_degrees(atan2(q * yvector(T), q * xvector(T)));
+    double dd = length(q);
 
     a = snap(aa, double(grid_a));
     d = snap(dd,       (grid_d));
 }
 
-void wrl::constraint::calc_pos(double& x, double& y, const double *p,
-                                                     const double *v) const
+void wrl::constraint::calc_pos(double& x, double& y, const vec3& p,
+                                                     const vec3& v) const
 {
-    double q[3], t = (DOT3(T + 12, T + 8) - DOT3(p, T + 8)) / DOT3(v, T + 8);
+    double t = (wvector(T) * zvector(T) - p * zvector(T)) / (v * zvector(T));
+    vec3 q = p + v * t - wvector(T);
 
-    q[0] = (p[0] + v[0] * t) - T[12];
-    q[1] = (p[1] + v[1] * t) - T[13];
-    q[2] = (p[2] + v[2] * t) - T[14];
-
-    double xx = DOT3(q, T + 0);
-    double yy = DOT3(q, T + 4);
+    double xx = q * xvector(T);
+    double yy = q * yvector(T);
 
     x = snap(xx, grid_d);
     y = snap(yy, grid_d);
@@ -197,7 +189,7 @@ void wrl::constraint::calc_pos(double& x, double& y, const double *p,
 
 //-----------------------------------------------------------------------------
 
-bool wrl::constraint::point(double *M, const double *p, const double *v)
+bool wrl::constraint::point(const vec3& p, const vec3& v, mat4& A)
 {
     if (mode)
     {
@@ -208,9 +200,9 @@ bool wrl::constraint::point(double *M, const double *p, const double *v)
 
         if (fabs(a - mouse_a) > 0.0 || fabs(d - mouse_d) > 0.0)
         {
-            load_xlt_inv(M, T[12], T[13], T[14]);
-            Lmul_rot_mat(M, T[ 8], T[ 9], T[10], a - mouse_a);
-            Lmul_xlt_mat(M, T[12], T[13], T[14]);
+            A = translation( wvector(T))
+              *    rotation( zvector(T), to_radians(a - mouse_a))
+              * translation(-wvector(T));
 
             return true;
         }
@@ -224,16 +216,15 @@ bool wrl::constraint::point(double *M, const double *p, const double *v)
 
         if (fabs(x - mouse_x) > 0.0 || fabs(y - mouse_y) > 0.0)
         {
-            load_xlt_mat(M, T[0] * (x - mouse_x) + T[4] * (y - mouse_y),
-                            T[1] * (x - mouse_x) + T[5] * (y - mouse_y),
-                            T[2] * (x - mouse_x) + T[6] * (y - mouse_y));
+            A = translation(xvector(T) * (x - mouse_x)
+                          + yvector(T) * (y - mouse_y));
             return true;
         }
     }
     return false;
 }
 
-void wrl::constraint::click(const double *p, const double *v)
+void wrl::constraint::click(const vec3& p, const vec3& v)
 {
     calc_rot(mouse_a, mouse_d, p, v);
     calc_pos(mouse_x, mouse_y, p, v);
