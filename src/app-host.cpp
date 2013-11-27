@@ -953,8 +953,7 @@ int app::host::get_window_m() const
 // Forward the given position and orientation to all channel objects.  This is
 // usually called per-frame in response to a head motion tracker input.
 
-void app::host::set_head(const double *p,
-                         const double *q)
+void app::host::set_head(const vec3& p, const quat& q)
 {
     for (dpy::channel_i i = channels.begin(); i != channels.end(); ++i)
         (*i)->set_head(p, q);

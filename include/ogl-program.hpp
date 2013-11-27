@@ -16,8 +16,9 @@
 #include <string>
 #include <map>
 
-#include <app-file.hpp>
+#include <etc-vector.hpp>
 #include <ogl-opengl.hpp>
+#include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -80,6 +81,8 @@ namespace ogl
         void uniform(std::string, double, double, double)         const;
         void uniform(std::string, double, double, double, double) const;
         void uniform(std::string, const double *, bool=false)     const;
+        void uniform(std::string, const mat3&,    bool=false)     const;
+        void uniform(std::string, const mat4&,    bool=false)     const;
 
         static const program *current;
     };

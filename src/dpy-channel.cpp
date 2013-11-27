@@ -71,20 +71,11 @@ dpy::channel::~channel()
 {
 }
 
-void dpy::channel::set_head(const double *p,
-                            const double *q)
+void dpy::channel::set_head(const vec3& p, const quat& q)
 {
     // Cache the view position in the head's coordinate system.
 
-    double M[16], w[3];
-
-    quat_to_mat(M, q);
-
-    mult_mat_vec3(w, M, v);
-
-    this->p[0] = p[0] + w[0];
-    this->p[1] = p[1] + w[1];
-    this->p[2] = p[2] + w[2];
+    this->p = p + mat3(q) * v;
 }
 
 //-----------------------------------------------------------------------------
@@ -304,7 +295,7 @@ void dpy::channel::process_start()
                                 GL_RGBA16F, true, true,  false);
 
         dst = ::glob->new_frame(w, h, GL_TEXTURE_RECTANGLE,
-                                GL_RGBA8,       true, false, false);
+                                GL_RGBA8,   true, false, false);
 
         // Initialize the static ping-pong buffers, if necessary.
 

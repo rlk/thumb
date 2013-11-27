@@ -126,7 +126,7 @@ dpy::oculus::oculus(app::node p) :
         else
             P = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).Projection);
 
-        frust->set_projection(transpose(P).GIMME());
+        frust->set_projection(P);
     }
 }
 

@@ -402,4 +402,61 @@ void ogl::program::uniform(std::string name, const double *M, bool t) const
     }
 }
 
+void ogl::program::uniform(std::string name, const mat3& M, bool t) const
+{
+    if (bindable)
+    {
+        int loc;
+
+        if ((loc = glGetUniformLocation(prog, name.c_str())) >= 0)
+        {
+            GLfloat T[9];
+
+            T[0] = GLfloat(M[0][0]);
+            T[1] = GLfloat(M[1][0]);
+            T[2] = GLfloat(M[2][0]);
+            T[3] = GLfloat(M[0][1]);
+            T[4] = GLfloat(M[1][1]);
+            T[5] = GLfloat(M[2][1]);
+            T[6] = GLfloat(M[0][2]);
+            T[7] = GLfloat(M[1][2]);
+            T[8] = GLfloat(M[2][2]);
+
+            glUniformMatrix3fv(loc, 1, t, T);
+        }
+    }
+}
+
+void ogl::program::uniform(std::string name, const mat4& M, bool t) const
+{
+    if (bindable)
+    {
+        int loc;
+
+        if ((loc = glGetUniformLocation(prog, name.c_str())) >= 0)
+        {
+            GLfloat T[16];
+
+            T[ 0] = GLfloat(M[0][0]);
+            T[ 1] = GLfloat(M[1][0]);
+            T[ 2] = GLfloat(M[2][0]);
+            T[ 3] = GLfloat(M[3][0]);
+            T[ 4] = GLfloat(M[0][1]);
+            T[ 5] = GLfloat(M[1][1]);
+            T[ 6] = GLfloat(M[2][1]);
+            T[ 7] = GLfloat(M[3][1]);
+            T[ 8] = GLfloat(M[0][2]);
+            T[ 9] = GLfloat(M[1][2]);
+            T[10] = GLfloat(M[2][2]);
+            T[11] = GLfloat(M[3][2]);
+            T[12] = GLfloat(M[0][3]);
+            T[13] = GLfloat(M[1][3]);
+            T[14] = GLfloat(M[2][3]);
+            T[15] = GLfloat(M[3][3]);
+
+            glUniformMatrix4fv(loc, 1, t, T);
+        }
+    }
+}
+
 //-----------------------------------------------------------------------------

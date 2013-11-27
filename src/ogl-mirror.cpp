@@ -51,17 +51,15 @@ void ogl::mirror::draw(const app::frustum *frusp)
 {
     frame->bind_color(GL_TEXTURE3);
     {
-        const double *vp = frusp->get_view_pos();
-
         binding->bind(true);
 
         glEnable(GL_BLEND);
         glEnable(GL_POLYGON_OFFSET_FILL);
         {
-            const double *v0 = frusp->get_points() + 0;
-            const double *v1 = frusp->get_points() + 3;
-            const double *v2 = frusp->get_points() + 6;
-            const double *v3 = frusp->get_points() + 9;
+            const vec3 v0 = (frusp->get_points())[0] - frusp->get_view_pos();
+            const vec3 v1 = (frusp->get_points())[1] - frusp->get_view_pos();
+            const vec3 v2 = (frusp->get_points())[2] - frusp->get_view_pos();
+            const vec3 v3 = (frusp->get_points())[3] - frusp->get_view_pos();
 
             // Draw the far plane of the clip space, offset by one unit of
             // depth buffer distance.  Pass the world-space vectors from the
@@ -74,13 +72,13 @@ void ogl::mirror::draw(const app::frustum *frusp)
             glBegin(GL_QUADS);
             {
                 glTexCoord2d(0, 0);
-                glVertex3d(v0[0] - vp[0], v0[1] - vp[1], v0[2] - vp[2]);
+                glVertex3d(v0[0], v0[1], v0[2]);
                 glTexCoord2d(1, 0);
-                glVertex3d(v1[0] - vp[0], v1[1] - vp[1], v1[2] - vp[2]);
+                glVertex3d(v1[0], v1[1], v1[2]);
                 glTexCoord2d(1, 1);
-                glVertex3d(v3[0] - vp[0], v3[1] - vp[1], v3[2] - vp[2]);
+                glVertex3d(v3[0], v3[1], v3[2]);
                 glTexCoord2d(0, 1);
-                glVertex3d(v2[0] - vp[0], v2[1] - vp[1], v2[2] - vp[2]);
+                glVertex3d(v2[0], v2[1], v2[2]);
             }
             glEnd();
         }

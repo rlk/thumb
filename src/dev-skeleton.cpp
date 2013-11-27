@@ -13,6 +13,7 @@
 #include <cstdio>
 #include <cassert>
 
+#include <etc-vector.hpp>
 #include <etc-socket.hpp>
 #include <etc-math.hpp>
 #include <app-conf.hpp>
@@ -60,9 +61,9 @@ void dev::skeleton::step()
 {
     struct timeval zero = { 0, 0 };
     float data[6];
-    
-    double p[3] = { 0.0, 0.0, 0.0 };
-    double q[4] = { 0.0, 0.0, 0.0, 1.0 };
+
+    vec3 p;
+    quat q;
 
     if (sock != INVALID_SOCKET)
     {
@@ -77,10 +78,9 @@ void dev::skeleton::step()
             {
                 if (recv(sock, data, sizeof (data), 0) == sizeof (data))
                 {
-                    double M[16];
-                    double x[3];
-                    double y[3] = { 0.0, 1.0, 0.0 };
-                    double z[3];
+                    vec3 x(1, 0, 0);
+                    vec3 y(0, 1, 0);
+                    vec3 z(0, 0, 1);
 
                     // Compute the eyes midpoint in meters.
 
@@ -88,22 +88,19 @@ void dev::skeleton::step()
                     p[1] = double(data[4] + data[1]) * 0.0254;
                     p[2] = double(data[5] + data[2]) * 0.0254;
 
-                    // Compute the head orientation quaternion.
+                    // Compute the head orientation.
 
                     x[0] = double(data[3] - data[0]);
                     x[1] = double(data[4] - data[1]);
                     x[2] = double(data[5] - data[2]);
 
-                    normalize(x);
-                    crossprod(z, x, y);
-                    normalize(z);
-                    crossprod(y, z, x);
-                    normalize(y);
-                    set_basis(M, x, y, z);
+                    x = normal(x);
+                    z = normal(cross(x, y));
+                    y = normal(cross(z, x));
 
-                    mat_to_quat(q, M);
-
-                    ::host->set_head(p, q);
+                    ::host->set_head(p, quat(mat3(x[0], y[0], z[0],
+                                                  x[1], y[1], z[1],
+                                                  x[2], y[2], z[2])));
                 }
             }
         }

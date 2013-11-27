@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include <etc-vector.hpp>
 #include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
@@ -36,6 +37,35 @@ namespace dpy
 {
     class channel
     {
+    public:
+
+        channel(app::node);
+       ~channel();
+
+        // Accessors
+
+        void set_head(const vec3&, const quat&);
+
+        int  get_w() const { return w; }
+        int  get_h() const { return h; }
+        vec3 get_p() const { return p; }
+
+        // Rendering methods
+
+        void test() const;
+        void bind(double=1.0) const;
+        void free() const;
+        void proc() const;
+
+        void bind_color(GLenum t) const;
+        void free_color(GLenum t) const;
+
+        // Event handler
+
+        bool process_event(app::event *);
+
+    private:
+
         static const ogl::program *downsample_avg;
         static const ogl::program *downsample_max;
         static const ogl::program *h_gaussian;
@@ -52,40 +82,13 @@ namespace dpy
         int w;                    // Off-screen render target width
         int h;                    // Off-screen render target height
 
-        double  v[3];             // View position, in head coordinates
-        double  p[3];             // View position, in user coordinates (cache)
+        vec3 v;                   // View position, in head coordinates
+        vec3 p;                   // View position, in user coordinates (cache)
+
         GLubyte c[4];             // Calibration target color
 
         void process_start();
         void process_close();
-
-    public:
-
-        channel(app::node);
-       ~channel();
-
-        // Accessors
-
-        void set_head(const double *,
-                      const double *);
-
-        int           get_w() const { return w; }
-        int           get_h() const { return h; }
-        const double *get_p() const { return p; }
-
-        // Rendering methods
-
-        void test() const;
-        void bind(double=1.0) const;
-        void free() const;
-        void proc() const;
-
-        void bind_color(GLenum t) const;
-        void free_color(GLenum t) const;
-
-        // Event handler
-
-        bool process_event(app::event *);
     };
 
     typedef std::vector<channel *>           channel_v;

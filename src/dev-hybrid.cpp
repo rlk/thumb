@@ -190,12 +190,11 @@ bool dev::hybrid::process_point(app::event *E)
 
 bool dev::hybrid::process_button(app::event *E)
 {
-    const double U[3] = { 0, -.05, 0 };
-    const double D[3] = { 0, +.05, 0 };
-    const double L[3] = { -.05, 0, 0 };
-    const double R[3] = { +.05, 0, 0 };
-    const double C[3] = { 0, 0, 0    };
-    const double q[4] = { 0, 0, 0, 1 };
+    const vec3 U( 0,   -0.05, 0);
+    const vec3 D( 0,   +0.05, 0);
+    const vec3 L(-0.05, 0,    0);
+    const vec3 R(+0.05, 0,    0);
+    const vec3 C( 0,    0,    0);
 
     const int  b = E->data.button.b;
     const bool d = E->data.button.d;
@@ -229,22 +228,22 @@ bool dev::hybrid::process_button(app::event *E)
     }
     if (peek_U.process_button(b, d))
     {
-        ::host->set_head(d ? U : C, q);
+        ::host->set_head(d ? U : C, quat());
         return true;
     }
     if (peek_D.process_button(b, d))
     {
-        ::host->set_head(d ? D : C, q);
+        ::host->set_head(d ? D : C, quat());
         return true;
     }
     if (peek_L.process_button(b, d))
     {
-        ::host->set_head(d ? L : C, q);
+        ::host->set_head(d ? L : C, quat());
         return true;
     }
     if (peek_R.process_button(b, d))
     {
-        ::host->set_head(d ? R : C, q);
+        ::host->set_head(d ? R : C, quat());
         return true;
     }
 
@@ -330,19 +329,14 @@ bool dev::hybrid::process_tick(app::event *E)
 
 bool dev::hybrid::process_event(app::event *E)
 {
-    assert(E);
-
-    bool R = false;
-
     switch (E->get_type())
     {
-    case E_POINT:  R |= process_point (E); break;
-    case E_BUTTON: R |= process_button(E); break;
-    case E_AXIS:   R |= process_axis  (E); break;
-    case E_TICK:   R |= process_tick  (E); break;
+    case E_POINT:  if (process_point (E)) return true; else break;
+    case E_BUTTON: if (process_button(E)) return true; else break;
+    case E_AXIS:   if (process_axis  (E)) return true; else break;
+    case E_TICK:   if (process_tick  (E)) return true; else break;
     }
-
-    return R || dev::input::process_event(E);
+    return dev::input::process_event(E);
 }
 
 //-----------------------------------------------------------------------------

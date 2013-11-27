@@ -428,6 +428,7 @@ void dev::trackd::translate() const
 
 bool dev::trackd::process_point(app::event *E)
 {
+#if 0
     const int     i = E->data.point.i;
     const double *p = E->data.point.p;
     const double *q = E->data.point.q;
@@ -443,7 +444,7 @@ bool dev::trackd::process_point(app::event *E)
 
         quat_to_mat(curr_R, q);
     }
-
+#endif
     return false;
 }
 

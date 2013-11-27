@@ -113,17 +113,7 @@ void dpy::lenticular::prep(int chanc, const dpy::channel *const *chanv)
     // Apply the channel view positions to the frustums.
 
     for (int i = 0; i < channels && i < chanc; ++i)
-    {
-        const double *p = chanv[i]->get_p();
-
-        double q[3];
-
-        q[0] = p[0] * debug;
-        q[1] = p[1] * debug;
-        q[2] = p[2] * debug;
-
-        frust[i]->set_viewpoint(q);
-    }
+        frust[i]->set_viewpoint(chanv[i]->get_p() * debug);
 }
 
 void dpy::lenticular::draw(int chanc, const dpy::channel *const *chanv, int frusi)
