@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <cassert>
+
 #include <ogl-uniform.hpp>
 
 //-----------------------------------------------------------------------------

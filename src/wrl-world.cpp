@@ -64,8 +64,8 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    light_theta =   -20.0;
-    light_phi   =    70.0;
+    light_theta = to_radians(-20.0);
+    light_phi   = to_radians( 70.0);
     light_rho   = 10000.0;
 
     uniform_light_position = ::glob->load_uniform("light_position",    3);
@@ -1035,10 +1035,10 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             // Compute the light transform.
 
-            const mat4 S(0.5, 0.0, 0.0, 0.0,
-                         0.0, 0.5, 0.0, 0.0,
-                         0.0, 0.0, 0.5, 0.0,
-                         0.5, 0.5, 0.5, 1.0);
+            const mat4 S(0.5, 0.0, 0.0, 0.5,
+                         0.0, 0.5, 0.0, 0.5,
+                         0.0, 0.0, 0.5, 0.5,
+                         0.0, 0.0, 0.0, 1.0);
 
             uniform_shadow[i]->set(S * frust.get_proj_matrix()
                                      * light_I
