@@ -388,8 +388,10 @@ void dpy::lenticular::apply_uniforms() const
 
         double v[4];
 
+#ifdef FIXME
+        // This requires the vector to the user in display coordinates.
         calc_transform(frust[i]->get_disp_pos(), v);
-
+#endif
         P->uniform("coeff" + index[i], v[0], v[1], v[2], v[3]);
         P->uniform("edge0" + index[i], e0, e0, e0);
         P->uniform("edge1" + index[i], e1, e1, e1);

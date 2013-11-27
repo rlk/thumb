@@ -156,7 +156,6 @@ void orthonormalize(double *);
 //-----------------------------------------------------------------------------
 
 void set_basis(double *, const double *, const double *, const double *);
-void set_plane(double *, const double *, const double *, const double *);
 
 double solid_angle(const double *, const double *, const double *);
 

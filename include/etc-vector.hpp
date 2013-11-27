@@ -35,13 +35,7 @@ struct vec3
 {
     double v[3];
 
-    vec3()
-    {
-        v[0] = 0;
-        v[1] = 0;
-        v[2] = 0;
-    }
-    vec3(double x, double y, double z)
+    vec3(double x=0, double y=0, double z=0)
     {
         v[0] = x;
         v[1] = y;
@@ -66,14 +60,7 @@ struct vec4
 {
     double v[4];
 
-    vec4()
-    {
-        v[0] = 0;
-        v[1] = 0;
-        v[2] = 0;
-        v[3] = 0;
-    }
-    vec4(double x, double y, double z, double w)
+    vec4(double x=0, double y=0, double z=0, double w=0)
     {
         v[0] = x;
         v[1] = y;
@@ -100,14 +87,7 @@ struct quat
 {
     double q[4];
 
-    quat()
-    {
-        q[0] = 0;
-        q[1] = 0;
-        q[2] = 0;
-        q[3] = 1;
-    }
-    quat(double x, double y, double z, double w)
+    quat(double x=0, double y=0, double z=0, double w=1)
     {
         q[0] = x;
         q[1] = y;
@@ -116,6 +96,11 @@ struct quat
     }
     quat(const mat3&);
     quat(const vec3&, double);
+
+    const double *GIMME() const
+    {
+        return const_cast<double *>(&q[0]);
+    }
 
     const double& operator[](int i) const { return q[i]; }
           double& operator[](int i)       { return q[i]; }
@@ -129,15 +114,9 @@ struct mat3
 {
     vec3 M[3];
 
-    mat3()
-    {
-        M[0] = vec3(1, 0, 0);
-        M[1] = vec3(0, 1, 0);
-        M[2] = vec3(0, 0, 1);
-    }
-    mat3(double m00, double m01, double m02,
-         double m10, double m11, double m12,
-         double m20, double m21, double m22)
+    mat3(double m00=1, double m01=0, double m02=0,
+         double m10=0, double m11=1, double m12=0,
+         double m20=0, double m21=0, double m22=1)
     {
         M[0] = vec3(m00, m01, m02);
         M[1] = vec3(m10, m11, m12);
@@ -165,17 +144,10 @@ struct mat4
 {
     vec4 M[4];
 
-    mat4()
-    {
-        M[0] = vec4(1, 0, 0, 0);
-        M[1] = vec4(0, 1, 0, 0);
-        M[2] = vec4(0, 0, 1, 0);
-        M[3] = vec4(0, 0, 0, 1);
-    }
-    mat4(double m00, double m01, double m02, double m03,
-         double m10, double m11, double m12, double m13,
-         double m20, double m21, double m22, double m23,
-         double m30, double m31, double m32, double m33)
+    mat4(double m00=1, double m01=0, double m02=0, double m03=0,
+         double m10=0, double m11=1, double m12=0, double m13=0,
+         double m20=0, double m21=0, double m22=1, double m23=0,
+         double m30=0, double m31=0, double m32=0, double m33=1)
     {
         M[0] = vec4(m00, m01, m02, m03);
         M[1] = vec4(m10, m11, m12, m13);
@@ -333,7 +305,14 @@ inline vec3 operator*(const mat3& A, const vec3& v)
     return vec3(A[0] * v, A[1] * v, A[2] * v);
 }
 
-/// Calculate the 4-component transform of vector v by 3-matrix A.
+/// Calculate the 3-component transform of vector v by 4-matrix A.
+
+inline vec3 operator*(const mat4& A, const vec3& v)
+{
+    return vec3(A[0] * vec4(v, 1), A[1] * vec4(v, 1), A[2] * vec4(v, 1));
+}
+
+/// Calculate the 4-component transform of vector v by 4-matrix A.
 
 inline vec4 operator*(const mat4& A, const vec4& v)
 {
@@ -627,6 +606,11 @@ inline mat4 orthogonal(double l, double r,
 }
 
 //------------------------------------------------------------------------------
+
+inline vec3 mix(const vec3& u, const vec3& v, double t)
+{
+    return u * (1.0 - t) + v * t;
+}
 
 /// Return the spherical linear interpolation of quaternions q and p at t.
 

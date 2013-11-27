@@ -155,9 +155,9 @@ void load_rot_mat(double *M, double x, double y, double z, double a)
     u[1] = y / k;
     u[2] = z / k;
 
-    U[0] = u[0] * u[0]; U[4] = u[0] * u[1]; U[8] = u[0] * u[2]; 
-    U[1] = u[1] * u[0]; U[5] = u[1] * u[1]; U[9] = u[1] * u[2]; 
-    U[2] = u[2] * u[0]; U[6] = u[2] * u[1]; U[A] = u[2] * u[2]; 
+    U[0] = u[0] * u[0]; U[4] = u[0] * u[1]; U[8] = u[0] * u[2];
+    U[1] = u[1] * u[0]; U[5] = u[1] * u[1]; U[9] = u[1] * u[2];
+    U[2] = u[2] * u[0]; U[6] = u[2] * u[1]; U[A] = u[2] * u[2];
 
     S[0] =     0; S[4] = -u[2]; S[8] =  u[1];
     S[1] =  u[2]; S[5] =     0; S[9] = -u[0];
@@ -222,9 +222,9 @@ void load_ortho(double *P, double l, double r,
     P[9] =  0;
     P[A] = -2 / (f - n);
     P[B] =  0;
-    P[C] = -(r + l) / (r - l); 
-    P[D] = -(t + b) / (t - b); 
-    P[E] = -(f + n) / (f - n); 
+    P[C] = -(r + l) / (r - l);
+    P[D] = -(t + b) / (t - b);
+    P[E] = -(f + n) / (f - n);
     P[F] =  1;
 }
 
@@ -583,25 +583,6 @@ void set_basis(double *M, const double *x, const double *y, const double *z)
     M[1] = x[1]; M[5] = y[1]; M[ 9] = z[1]; M[13] =  0.0;
     M[2] = x[2]; M[6] = y[2]; M[10] = z[2]; M[14] =  0.0;
     M[3] =  0.0; M[7] =  0.0; M[11] =  0.0; M[15] =  1.0;
-}
-
-void set_plane(double *P, const double *a, const double *b, const double *c)
-{
-    double u[3];
-    double v[3];
-
-    u[0] = b[0] - a[0];
-    u[1] = b[1] - a[1];
-    u[2] = b[2] - a[2];
-
-    v[0] = c[0] - a[0];
-    v[1] = c[1] - a[1];
-    v[2] = c[2] - a[2];
-
-    crossprod(P, u, v);
-    normalize(P);
-
-    P[3] = -DOT3(P, a);
 }
 
 double solid_angle(const double *a, const double *b, const double *c)

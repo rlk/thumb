@@ -66,14 +66,14 @@ namespace mode
 
         bool process_point(app::event *);
         bool process_click(app::event *);
-        bool process_tick(app::event *);
-        bool process_key(app::event *);
+        bool process_tick (app::event *);
+        bool process_key  (app::event *);
 
     public:
 
         edit(wrl::world *);
 
-        virtual ogl::range prep(int, const app::frustum *const *);
+        virtual ogl::range prep(int, const app::frustum * const *);
         virtual void       draw(int, const app::frustum *);
 
         virtual bool process_event(app::event *);

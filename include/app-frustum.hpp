@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include <etc-vector.hpp>
 #include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
@@ -63,26 +64,25 @@ namespace app
 
         // Current view point
 
-        double user_pos[3];
-        double view_pos[3];
-        double disp_pos[3];
+        vec3 user_pos;
+        vec3 view_pos;
 
         // Frustum bounding planes and points
 
-        double user_points[4][3];
-        double view_points[8][3];
-        double view_planes[6][4];  // N L R B T H
+        vec3 user_points[4];
+        vec3 view_points[8];
+        vec4 view_planes[6];  // N L R B T
 
-        double user_basis[16];
-        double user_angle;
-        int    view_count;
+        // User-space basis for the display coordinate system
 
-        double n_dist;
-        double f_dist;
+        mat3 user_basis;
 
         // Projection transform
 
-        double P[16];
+        mat4 P;
+
+        double n_dist;
+        double f_dist;
 
     public:
 
@@ -91,33 +91,21 @@ namespace app
 
         // View state mutators
 
+        void set_projection(const mat4& M);
+        void set_viewpoint (const vec3& p);
+        void set_transform (const mat4& M);
         void set_distances (double n, double f);
-        void set_projection(const double *M);
-        void set_viewpoint (const double *p);
-        void set_transform (const double *M);
-        void set_horizon   (double r);
 
         void set_volume(int frusc, const frustum *const *frusv,
-                        double c0, double c1, const double *L, double *M,
-                                                               double *I);
-
-        // Visibility testers
-
-        int test_bound(const double *,
-                       const double *);
-        /*
-        int test_shell(const double *,
-                       const double *,
-                       const double *, double, double) const;
-        int test_cap  (const double *, double, double, double) const;
-        */
+                        double c0, double c1, const vec3& p, mat4& M,
+                                                             mat4& I);
 
         // Queries.
 
-        const double *get_user_pos()    const;
-        const double *get_view_pos()    const;
-        const double *get_disp_pos()    const;
-        const double *get_proj_matrix() const;
+        const vec3 get_user_pos()    const;
+        const vec3 get_view_pos()    const;
+        const vec3 get_disp_pos()    const;
+        const mat4 get_proj_matrix() const;
 
         double get_w()          const;
         double get_h()          const;
@@ -125,8 +113,8 @@ namespace app
         int    get_pixel_h()    const;
         double pixels(double a) const;
 
-        const double *get_planes() const { return view_planes[0]; }
-        const double *get_points() const { return view_points[0]; }
+        const vec4 *get_planes() const { return view_planes; }
+        const vec3 *get_points() const { return view_points; }
 
         double get_n_dist() const { return n_dist; }
         double get_f_dist() const { return f_dist; }
@@ -155,15 +143,15 @@ namespace app
                              double&, double&, double&, double&);
         void set_calibration(double,  double,  double,  double,
                              double,  double,  double,  double);
-        void mat_calibration(double *);
+        mat4 mat_calibration();
 
-        void calc_corner_4(double *,
-                           double *,
-                           double *,
-                           double *, double, double);
-        void calc_corner_1(double *, const double *,
-                                     const double *,
-                                     const double *);
+        void calc_corner_4(vec3&,
+                           vec3&,
+                           vec3&,
+                           vec3&, double, double);
+        vec3 calc_corner_1(const vec3&,
+                           const vec3&,
+                           const vec3&);
         void calc_calibrated();
         void calc_basis();
 

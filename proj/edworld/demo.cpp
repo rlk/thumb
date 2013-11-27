@@ -41,11 +41,13 @@ void demo::init_uniforms()
 {
     // Initialize the uniforms.
 
+    uniform_light_position   = ::glob->load_uniform("light_position",   3);
     uniform_view_matrix      = ::glob->load_uniform("view_matrix",     16);
     uniform_view_inverse     = ::glob->load_uniform("view_inverse",    16);
     uniform_view_position    = ::glob->load_uniform("view_position",    3);
     uniform_time             = ::glob->load_uniform("time",             1);
     uniform_XYZRGB           = ::glob->load_uniform("XYZRGB",           9);
+    uniform_color_max        = ::glob->load_uniform("color_max",        4);
 
     uniform_reflection_cubemap_size
         = ::glob->load_uniform("reflection_cubemap_size",  1);
@@ -73,6 +75,7 @@ void demo::init_uniforms()
 
 void demo::free_uniforms()
 {
+    ::glob->free_uniform(uniform_color_max);
     ::glob->free_uniform(uniform_XYZRGB);
     ::glob->free_uniform(uniform_spherical_harmonic_order);
     ::glob->free_uniform(uniform_irradiance_cubemap_size);
@@ -81,6 +84,7 @@ void demo::free_uniforms()
     ::glob->free_uniform(uniform_view_position);
     ::glob->free_uniform(uniform_view_inverse);
     ::glob->free_uniform(uniform_view_matrix);
+    ::glob->free_uniform(uniform_light_position);
 }
 
 void demo::prep_uniforms() const
@@ -93,6 +97,8 @@ void demo::prep_uniforms() const
     uniform_view_matrix  ->set(transpose(I).GIMME());
     uniform_view_inverse ->set(transpose(M).GIMME());
     uniform_view_position->set(  wvector(M).GIMME());
+
+    uniform_color_max->set(0.0, 0.0, 0.0, 0.0);
 
     // The current time
 
@@ -118,6 +124,8 @@ demo::demo(const std::string& exe,
     edit = new mode::edit(world);
     play = new mode::play(world);
     info = new mode::info(world);
+
+    world->load("world/grid.xml");
 
     goto_mode(edit);
 }
