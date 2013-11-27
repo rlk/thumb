@@ -81,8 +81,11 @@ namespace ogl
         void uniform(std::string, double, double, double)         const;
         void uniform(std::string, double, double, double, double) const;
         void uniform(std::string, const double *, bool=false)     const;
-        void uniform(std::string, const mat3&,    bool=false)     const;
-        void uniform(std::string, const mat4&,    bool=false)     const;
+
+        void uniform(std::string, const vec3&)             const;
+        void uniform(std::string, const vec4&)             const;
+        void uniform(std::string, const mat3&, bool=false) const;
+        void uniform(std::string, const mat4&, bool=false) const;
 
         static const program *current;
     };

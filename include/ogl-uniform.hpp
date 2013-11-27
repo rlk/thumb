@@ -15,6 +15,7 @@
 
 #include <string>
 
+#include <etc-vector.hpp>
 #include <ogl-opengl.hpp>
 
 //-----------------------------------------------------------------------------
@@ -23,17 +24,12 @@ namespace ogl
 {
     class uniform
     {
-        std::string name;
-
-        GLfloat *val;
-        GLsizei  len;
-
     public:
-
-        const std::string& get_name() const { return name; }
 
         uniform(std::string, GLsizei);
        ~uniform();
+
+        const std::string& get_name() const { return name; }
 
         void set(double);
         void set(double, double);
@@ -41,7 +37,18 @@ namespace ogl
         void set(double, double, double, double);
         void set(const double *);
 
+        void set(const ::vec3&);
+        void set(const ::vec4&);
+        void set(const ::mat4&);
+
         void apply(GLint) const;
+
+    private:
+
+        std::string name;
+
+        GLfloat *val;
+        GLsizei  len;
     };
 }
 

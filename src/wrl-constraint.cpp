@@ -253,9 +253,9 @@ ogl::range wrl::constraint::prep(int frusc, const app::frustum *const *frusv)
 
     for (int frusi = 0; frusi < frusc; ++frusi)
         if (mode)
-            r.merge(rot[grid]->view(frusi, 5, frusv[frusi]->get_planes()));
+            r.merge(rot[grid]->view(frusi, 5, frusv[frusi]->get_planes()->GIMME()));
         else
-            r.merge(pos[grid]->view(frusi, 5, frusv[frusi]->get_planes()));
+            r.merge(pos[grid]->view(frusi, 5, frusv[frusi]->get_planes()->GIMME()));
 
     return r;
 }

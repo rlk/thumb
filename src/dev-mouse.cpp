@@ -136,8 +136,8 @@ bool dev::mouse::process_event(app::event *E)
     {
     case E_POINT: if (process_point(E)) return true; else break;
     case E_CLICK: if (process_click(E)) return true; else break;
-    case E_TICK:  if (process_tick(E))  return true; else break;
-    case E_KEY:   if (process_key(E))   return true; else break;
+    case E_TICK:  if (process_tick (E)) return true; else break;
+    case E_KEY:   if (process_key  (E)) return true; else break;
     }
     return dev::input::process_event(E);
 }

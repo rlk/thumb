@@ -75,6 +75,11 @@ struct vec4
         v[3] = b;
     }
 
+    const double *GIMME() const
+    {
+        return const_cast<double *>(&v[0]);
+    }
+
     const double& operator[](int i) const { return v[i]; }
           double& operator[](int i)       { return v[i]; }
 };

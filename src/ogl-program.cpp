@@ -402,6 +402,35 @@ void ogl::program::uniform(std::string name, const double *M, bool t) const
     }
 }
 
+//-----------------------------------------------------------------------------
+
+void ogl::program::uniform(std::string name, const vec3& v) const
+{
+    if (bindable)
+    {
+        int loc;
+
+        if ((loc = glGetUniformLocation(prog, name.c_str())) >= 0)
+            glUniform3f(loc, GLfloat(v[0]),
+                             GLfloat(v[1]),
+                             GLfloat(v[2]));
+    }
+}
+
+void ogl::program::uniform(std::string name, const vec4& v) const
+{
+    if (bindable)
+    {
+        int loc;
+
+        if ((loc = glGetUniformLocation(prog, name.c_str())) >= 0)
+            glUniform4f(loc, GLfloat(v[0]),
+                             GLfloat(v[1]),
+                             GLfloat(v[2]),
+                             GLfloat(v[3]));
+    }
+}
+
 void ogl::program::uniform(std::string name, const mat3& M, bool t) const
 {
     if (bindable)

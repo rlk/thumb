@@ -16,6 +16,7 @@
 #include <set>
 #include <cstring>
 
+#include <etc-vector.hpp>
 #include <ogl-range.hpp>
 
 //-----------------------------------------------------------------------------

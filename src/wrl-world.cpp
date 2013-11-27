@@ -912,7 +912,7 @@ ogl::range wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
 
     for (int frusi = 0; frusi < frusc; ++frusi)
     {
-        r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()));
+        r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()->GIMME()));
     }
 
     return r;
@@ -929,7 +929,7 @@ ogl::range wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
     // Cache the line visibility and determine the far plane distance.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        r.merge(line_pool->view(frusi, 5, frusv[frusi]->get_planes()));
+        r.merge(line_pool->view(frusi, 5, frusv[frusi]->get_planes()->GIMME()));
 
     return r;
 }
@@ -962,11 +962,11 @@ double wrl::world::split_depth(int i, int m, const app::frustum *frusp)
 
 void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
-    double light_M[16];
-    double light_I[16];
-    double light_p[3];
-
-    sphere_to_vector(light_p, light_theta, light_phi, light_rho);
+    mat4 light_M;
+    mat4 light_I;
+    vec3 light_p(light_rho * sin(light_theta) * cos(light_phi),
+                 light_rho *                    sin(light_phi),
+                 light_rho * cos(light_theta) * cos(light_phi));
 
     uniform_light_position->set(light_p);
 
@@ -1001,7 +1001,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             // Cache the fill visibility for the light.
 
-            ogl::range s = fill_pool->view(frusi, 5, frust.get_planes());
+            ogl::range s = fill_pool->view(frusi, 5, frust.get_planes()->GIMME());
 
             // Use the visible range to determine the light projection.
 
@@ -1015,7 +1015,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
                 // View from the light's perspective.
 
-                glLoadMatrixd(light_I);
+                glLoadMatrixd(transpose(light_I).GIMME());
 
                 glClear(GL_COLOR_BUFFER_BIT |
                         GL_DEPTH_BUFFER_BIT);
@@ -1035,19 +1035,14 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             // Compute the light transform.
 
-            const double S[16] = {
-                0.5, 0.0, 0.0, 0.0,
-                0.0, 0.5, 0.0, 0.0,
-                0.0, 0.0, 0.5, 0.0,
-                0.5, 0.5, 0.5, 1.0,
-            };
-            double M[16];
+            const mat4 S(0.5, 0.0, 0.0, 0.0,
+                         0.0, 0.5, 0.0, 0.0,
+                         0.0, 0.0, 0.5, 0.0,
+                         0.5, 0.5, 0.5, 1.0);
 
-            mult_mat_mat(M, S,   frust.get_proj_matrix());
-            mult_mat_mat(M, M, light_I);
-            mult_mat_mat(M, M, transpose(::view->get_transform()).GIMME());
-
-            uniform_shadow[i]->set(M);
+            uniform_shadow[i]->set(S * frust.get_proj_matrix()
+                                     * light_I
+                                     * ::view->get_transform());
         }
     }
 
@@ -1108,16 +1103,15 @@ void wrl::world::draw_line(int frusi, const app::frustum *frusp)
 
 void wrl::world::draw_sky(const app::frustum *frusp)
 {
-    const double *vp = frusp->get_view_pos();
-
     sky->bind(true);
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     {
-        const double *v0 = frusp->get_points() + 0;
-        const double *v1 = frusp->get_points() + 3;
-        const double *v2 = frusp->get_points() + 6;
-        const double *v3 = frusp->get_points() + 9;
+        const vec3 vp = frusp->get_view_pos();
+        const vec3 v0 = frusp->get_points()[0] - vp;
+        const vec3 v1 = frusp->get_points()[1] - vp;
+        const vec3 v2 = frusp->get_points()[2] - vp;
+        const vec3 v3 = frusp->get_points()[3] - vp;
 
         // Draw the far plane of the clip space, offset by one unit of
         // depth buffer distance.  Pass the world-space vectors from the
@@ -1128,13 +1122,13 @@ void wrl::world::draw_sky(const app::frustum *frusp)
         glBegin(GL_QUADS);
         {
             glTexCoord2d(0, 0);
-            glVertex3d(v0[0] - vp[0], v0[1] - vp[1], v0[2] - vp[2]);
+            glVertex3d(v0[0], v0[1], v0[2]);
             glTexCoord2d(1, 0);
-            glVertex3d(v1[0] - vp[0], v1[1] - vp[1], v1[2] - vp[2]);
+            glVertex3d(v1[0], v1[1], v1[2]);
             glTexCoord2d(1, 1);
-            glVertex3d(v3[0] - vp[0], v3[1] - vp[1], v3[2] - vp[2]);
+            glVertex3d(v3[0], v3[1], v3[2]);
             glTexCoord2d(0, 1);
-            glVertex3d(v2[0] - vp[0], v2[1] - vp[1], v2[2] - vp[2]);
+            glVertex3d(v2[0], v2[1], v2[2]);
         }
         glEnd();
     }
