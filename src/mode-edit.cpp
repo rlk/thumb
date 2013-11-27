@@ -252,9 +252,54 @@ bool mode::edit::process_key(app::event *E)
 
         // Handle constraint keys.
 
-        else if ('0' <= k && k <= '9')
+        else if (k == SDL_SCANCODE_0)
         {
-            xform->set_grid(int(k - '0'));
+            xform->set_grid(0);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_1)
+        {
+            xform->set_grid(1);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_2)
+        {
+            xform->set_grid(2);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_3)
+        {
+            xform->set_grid(3);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_4)
+        {
+            xform->set_grid(4);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_5)
+        {
+            xform->set_grid(5);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_6)
+        {
+            xform->set_grid(6);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_7)
+        {
+            xform->set_grid(7);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_8)
+        {
+            xform->set_grid(8);
+            return true;
+        }
+        else if (k == SDL_SCANCODE_9)
+        {
+            xform->set_grid(9);
             return true;
         }
         else if (k == key_position_mode)
