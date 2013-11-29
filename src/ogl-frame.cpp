@@ -155,7 +155,7 @@ void ogl::frame::init_cube()
 {
      // Initialize the cube map color render buffer object.
 
-    ogl::bind_texture(target, 0, color);
+    ogl::bind_texture(target, GL_TEXTURE0, color);
 
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, format,
                  w, h, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -181,7 +181,7 @@ void ogl::frame::init_color()
 {
      // Initialize the color render buffer object.
 
-    ogl::bind_texture(target, 0, color);
+    ogl::bind_texture(target, GL_TEXTURE0, color);
 
     glTexImage2D(target, 0, format, w, h, 0,
                  GL_RGBA, GL_UNSIGNED_BYTE, NULL);
@@ -196,7 +196,7 @@ void ogl::frame::init_depth()
 {
     // Initialize the depth and stencil render buffer objects.
 
-    ogl::bind_texture(target, 0, depth);
+    ogl::bind_texture(target, GL_TEXTURE0, depth);
 
 #ifdef GL_DEPTH_STENCIL
     if (has_stencil && ogl::has_depth_stencil)

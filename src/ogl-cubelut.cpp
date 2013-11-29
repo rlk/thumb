@@ -60,7 +60,7 @@ void ogl::cubelut::init()
         { -1.0f, -1.0f,  1.0f },
         {  1.0f, -1.0f,  1.0f },
         { -1.0f,  1.0f,  1.0f },
-        {  1.0f,  1.0f,  1.0f } 
+        {  1.0f,  1.0f,  1.0f }
     };
 
     const GLenum  i = GL_LUMINANCE32F_ARB;
@@ -73,7 +73,7 @@ void ogl::cubelut::init()
 
     glGenTextures(1, &object);
 
-    ogl::bind_texture(GL_TEXTURE_CUBE_MAP, 0, object);
+    ogl::bind_texture(GL_TEXTURE_CUBE_MAP, GL_TEXTURE0, object);
 
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
@@ -86,19 +86,19 @@ void ogl::cubelut::init()
 
     fill(p, v[7], v[3], v[1], v[5]);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X, 0, i, w, h, b, e, t, p);
-    
+
     fill(p, v[2], v[6], v[4], v[0]);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_X, 0, i, w, h, b, e, t, p);
 
     fill(p, v[2], v[3], v[7], v[6]);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Y, 0, i, w, h, b, e, t, p);
-    
+
     fill(p, v[4], v[5], v[1], v[0]);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Y, 0, i, w, h, b, e, t, p);
 
     fill(p, v[6], v[7], v[5], v[4]);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_Z, 0, i, w, h, b, e, t, p);
-    
+
     fill(p, v[3], v[2], v[0], v[1]);
     glTexImage2D(GL_TEXTURE_CUBE_MAP_NEGATIVE_Z, 0, i, w, h, b, e, t, p);
 
