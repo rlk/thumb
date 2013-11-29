@@ -122,8 +122,8 @@ void ogl::frame::bind(int target) const
 
     if (target)
         glFramebufferTexture2D(GL_FRAMEBUFFER,
-                                  GL_COLOR_ATTACHMENT0,
-                                  target, color, 0);
+                               GL_COLOR_ATTACHMENT0,
+                               target, color, 0);
 }
 
 void ogl::frame::bind() const

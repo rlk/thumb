@@ -163,6 +163,7 @@ void ogl::irradiance_env::draw(const ogl::binding *bind) const
         {
             pong->bind();
             {
+                glClear(GL_COLOR_BUFFER_BIT);
                 ping->bind_color(GL_TEXTURE0);
 
                 step->uniform("siz", double(i) / double(n),
