@@ -12,22 +12,17 @@
 
 #define dDOUBLE
 
-// ODE defines int8 as "char" while TIFF conflicts with "signed char".
-
-// #define int8 signed int8
-// #include <ode/ode.h>
-// #undef int8
-
 #include <ode/ode.h>
+#include <etc-vector.hpp>
 
 //-----------------------------------------------------------------------------
 
 dGeomID ode_dupe_geom(dSpaceID, dGeomID);
 
-void ode_get_body_transform(dBodyID, double *);
-void ode_get_geom_offset   (dGeomID, double *);
-void ode_get_geom_transform(dGeomID, double *);
-void ode_set_geom_transform(dGeomID, double *);
-void ode_set_mass_transform(dMass *, double *);
+mat4 ode_get_body_transform(dBodyID);
+mat4 ode_get_geom_offset   (dGeomID);
+mat4 ode_get_geom_transform(dGeomID);
+void ode_set_geom_transform(dGeomID, const mat4&);
+void ode_set_mass_transform(dMass *, const mat4&);
 
 //-----------------------------------------------------------------------------

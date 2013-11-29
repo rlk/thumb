@@ -200,12 +200,12 @@ void ogl::frame::init_depth()
 
 #ifdef GL_DEPTH_STENCIL
     if (has_stencil && ogl::has_depth_stencil)
-        glTexImage2D(target, 0, GL_DEPTH24_STENCIL8, w, h, 0,
-                     GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, NULL);
+        glTexImage2D(target, 0, GL_DEPTH24_STENCIL8,  w, h, 0,
+                     GL_DEPTH_STENCIL,   GL_UNSIGNED_INT_24_8, NULL);
     else
 #endif
-        glTexImage2D(target, 0, GL_DEPTH_COMPONENT24,    w, h, 0,
-                     GL_DEPTH_COMPONENT,   GL_UNSIGNED_BYTE,         NULL);
+        glTexImage2D(target, 0, GL_DEPTH_COMPONENT24, w, h, 0,
+                     GL_DEPTH_COMPONENT, GL_UNSIGNED_BYTE,     NULL);
 
     glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
     glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);

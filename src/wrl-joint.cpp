@@ -184,77 +184,83 @@ void wrl::joint::play_fini()
 
 void wrl::ball::play_init()
 {
-    const double *M = current_M;
-
     // Set ball joint geometry parameters.
 
-    dJointSetBallAnchor(play_join, M[12], M[13], M[14]);
-
+    dJointSetBallAnchor(play_join, dReal(current_M[0][3]),
+                                   dReal(current_M[1][3]),
+                                   dReal(current_M[2][3]));
     wrl::joint::play_init();
 }
 
 void wrl::hinge::play_init()
 {
-    const double *M = current_M;
-
     // Set hinge geometry parameters.
 
-    dJointSetHingeAxis  (play_join, M[ 0], M[ 1], M[ 2]);
-    dJointSetHingeAnchor(play_join, M[12], M[13], M[14]);
-
+    dJointSetHingeAxis  (play_join, dReal(current_M[0][0]),
+                                    dReal(current_M[1][0]),
+                                    dReal(current_M[2][0]));
+    dJointSetHingeAnchor(play_join, dReal(current_M[0][3]),
+                                    dReal(current_M[1][3]),
+                                    dReal(current_M[2][3]));
     wrl::joint::play_init();
 }
 
 void wrl::hinge2::play_init()
 {
-    const double *M = current_M;
-
     // Set hinge2 geometry parameters.
 
-    dJointSetHinge2Axis2 (play_join, M[ 0], M[ 1], M[ 2]);
-    dJointSetHinge2Axis1 (play_join, M[ 4], M[ 5], M[ 6]);
-    dJointSetHinge2Anchor(play_join, M[12], M[13], M[14]);
-
+    dJointSetHinge2Axis2 (play_join, dReal(current_M[0][0]),
+                                     dReal(current_M[1][0]),
+                                     dReal(current_M[2][0]));
+    dJointSetHinge2Axis1 (play_join, dReal(current_M[0][1]),
+                                     dReal(current_M[1][1]),
+                                     dReal(current_M[2][1]));
+    dJointSetHinge2Anchor(play_join, dReal(current_M[0][3]),
+                                     dReal(current_M[1][3]),
+                                     dReal(current_M[2][3]));
     wrl::joint::play_init();
 }
 
 void wrl::slider::play_init()
 {
-    const double *M = current_M;
-
     // Set slider geometry parameters.
 
-    dJointSetSliderAxis(play_join, M[ 8], M[ 9], M[10]);
-
+    dJointSetSliderAxis(play_join, dReal(current_M[0][3]),
+                                   dReal(current_M[1][3]),
+                                   dReal(current_M[2][3]));
     wrl::joint::play_init();
 }
 
 void wrl::amotor::play_init()
 {
-    const double *M = current_M;
- 
     int a = dJointGetBody(play_join, 0) ? 1 : 0;
     int b = dJointGetBody(play_join, 1) ? 2 : 0;
- 
+
     // Set angular motor geometry parameters.
 
     dJointSetAMotorMode(play_join, dAMotorEuler);
-    dJointSetAMotorAxis(play_join, 0, a, M[ 0], M[ 1], M[ 2]);
-    dJointSetAMotorAxis(play_join, 2, b, M[ 8], M[ 9], M[10]);
-
+    dJointSetAMotorAxis(play_join, 0, a, dReal(current_M[0][0]),
+                                         dReal(current_M[1][0]),
+                                         dReal(current_M[2][0]));
+    dJointSetAMotorAxis(play_join, 2, b, dReal(current_M[0][3]),
+                                         dReal(current_M[1][3]),
+                                         dReal(current_M[2][3]));
     wrl::joint::play_init();
 }
 
 void wrl::universal::play_init()
 {
-    const double *M = current_M;
-
     // Set universal joint geometry parameters.
 
-    dJointSetUniversalAxis1 (play_join, M[ 0], M[ 1], M[ 2]);
-    dJointSetUniversalAxis2 (play_join, M[ 4], M[ 5], M[ 6]);
-    dJointSetUniversalAnchor(play_join, M[12], M[13], M[14]);
-
+    dJointSetUniversalAxis1 (play_join, dReal(current_M[0][0]),
+                                        dReal(current_M[1][0]),
+                                        dReal(current_M[2][0]));
+    dJointSetUniversalAxis2 (play_join, dReal(current_M[0][1]),
+                                        dReal(current_M[1][1]),
+                                        dReal(current_M[2][1]));
+    dJointSetUniversalAnchor(play_join, dReal(current_M[0][3]),
+                                        dReal(current_M[1][3]),
+                                        dReal(current_M[2][3]));
     wrl::joint::play_init();
 }
 
@@ -263,7 +269,6 @@ void wrl::universal::play_init()
 void wrl::joint::step_init()
 {
     // Joint parameter change may require reawakening of joined bodies.
-    // TODO: do this only when necessary.
 
     dBodyID body0 = dJointGetBody(play_join, 0);
     dBodyID body1 = dJointGetBody(play_join, 1);

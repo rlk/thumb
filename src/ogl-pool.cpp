@@ -86,9 +86,6 @@ ogl::unit::unit(std::string name, bool center) :
     active(true),
     surf(glob->load_surface(name, center))
 {
-    load_idt(M);
-    load_idt(I);
-
     set_mesh();
 }
 
@@ -100,8 +97,8 @@ ogl::unit::unit(const unit& that) :
     active(true),
     surf(glob->dupe_surface(that.surf))
 {
-    load_mat(M, that.M);
-    load_mat(I, that.I);
+    M = that.M;
+    I = that.I;
 
     set_mesh();
 }
@@ -149,10 +146,10 @@ void ogl::unit::set_mode(bool b)
 
 //-----------------------------------------------------------------------------
 
-void ogl::unit::transform(const double *M, const double *I)
+void ogl::unit::transform(const mat4& M, const mat4& I)
 {
-    load_mat(this->M, M);
-    load_mat(this->I, I);
+    this->M = M;
+    this->I = I;
 
     // Mark this unit and its node for a buffer update.
 
@@ -204,7 +201,6 @@ ogl::node::node() :
     test_cache(0xFFFFFFFF),
     hint_cache(0x00000000)
 {
-    load_idt(M);
 }
 
 ogl::node::~node()
@@ -377,7 +373,7 @@ void ogl::node::sort(GLuint *e, GLuint d)
                 opaque_depth.push_back(*i);
             else
                 opaque_depth.back().merge(*i);
- 
+
             // Opaque color batches
 
             if (opaque_color.empty() || !opaque_color.back().color_eq(*i))
@@ -406,14 +402,14 @@ void ogl::node::sort(GLuint *e, GLuint d)
 
 //-----------------------------------------------------------------------------
 
-void ogl::node::transform(const double *M)
+void ogl::node::transform(const mat4& M)
 {
-    load_mat(this->M, M);
+    this->M = M;
 }
 
 //-----------------------------------------------------------------------------
 
-ogl::range ogl::node::view(int id, int n, const double *V)
+ogl::range ogl::node::view(int id, const vec4 *V, int n)
 {
     // Get the cached culler hint.
 
@@ -421,7 +417,7 @@ ogl::range ogl::node::view(int id, int n, const double *V)
 
     // Test the bounding box and set the visibility bit.
 
-    if (V == 0 || my_aabb.test(M, n, V, hint))
+    if (V == 0 || my_aabb.test(V, n, M, hint))
         test_cache = set_bit(test_cache, id, (bit = 1));
     else
         test_cache = set_bit(test_cache, id, (bit = 0));
@@ -433,7 +429,7 @@ ogl::range ogl::node::view(int id, int n, const double *V)
     // If this node is visible, return the AABB max distance from plane 0.
 
     if (bit && V)
-        return my_aabb.get_range(M, V);
+        return my_aabb.get_range(V[0], M);
     else
         return ogl::range();
 }
@@ -464,7 +460,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
 
             glPushMatrix();
             {
-                glMultMatrixd(M);
+                glMultMatrixd(transpose(M).GIMME());
 
                 for (elem_i i = b; i != e; ++i) i->draw(color);
 
@@ -630,14 +626,14 @@ void ogl::pool::prep()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-ogl::range ogl::pool::view(int id, int n, const double *V)
+ogl::range ogl::pool::view(int id, const vec4 *V, int n)
 {
     ogl::range r;
 
     // Test all nodes for visibility.  Find the range of the farthest node.
 
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        r.merge((*i)->view(id, n, V));
+        r.merge((*i)->view(id, V, n));
 
     return r;
 }
@@ -663,10 +659,10 @@ void ogl::pool::draw_init()
     GLfloat *t = (GLfloat *) (vc * sizeof (GLfloat) * 6);
     GLfloat *u = (GLfloat *) (vc * sizeof (GLfloat) * 9);
 
-    glTexCoordPointer       (   2, GL_FLOAT,    sizeof (vec2), u);
-    glVertexAttribPointer(6, 3, GL_FLOAT, 0, sizeof (vec3), t);
-    glNormalPointer         (      GL_FLOAT,    sizeof (vec3), n);
-    glVertexPointer         (   3, GL_FLOAT,    sizeof (vec3), v);
+    glTexCoordPointer    (   2, GL_FLOAT,    sizeof (GLvec2), u);
+    glVertexAttribPointer(6, 3, GL_FLOAT, 0, sizeof (GLvec3), t);
+    glNormalPointer      (      GL_FLOAT,    sizeof (GLvec3), n);
+    glVertexPointer      (   3, GL_FLOAT,    sizeof (GLvec3), v);
 }
 
 void ogl::pool::draw(int id, bool color, bool alpha)

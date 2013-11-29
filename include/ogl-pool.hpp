@@ -18,6 +18,7 @@
 #include <set>
 #include <map>
 
+#include <etc-vector.hpp>
 #include <ogl-surface.hpp>
 #include <ogl-mesh.hpp>
 
@@ -81,8 +82,8 @@ namespace ogl
 
     class unit
     {
-        double M[16];
-        double I[16];
+        mat4 M;
+        mat4 I;
 
         GLsizei vc;
         GLsizei ec;
@@ -107,7 +108,7 @@ namespace ogl
         void set_node(node_p);
         void set_mode(bool);
 
-        void transform(const double *, const double *);
+        void transform(const mat4&, const mat4&);
 
         void merge_batch(mesh_m&);
         void merge_bound(aabb&);
@@ -123,7 +124,7 @@ namespace ogl
 
     class node
     {
-        double M[16];
+        mat4 M;
 
         GLsizei vc;
         GLsizei ec;
@@ -160,13 +161,13 @@ namespace ogl
         void buff(GLfloat *, GLfloat *, GLfloat *, GLfloat *, bool);
         void sort(GLuint  *, GLuint);
 
-        ogl::range view(int, int, const double *);
+        ogl::range view(int, const vec4 *, int);
         void       draw(int=0, bool=true, bool=false);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
 
-        void transform(const double *);
+        void transform(const mat4&);
     };
 
     //-------------------------------------------------------------------------
@@ -201,7 +202,7 @@ namespace ogl
         void add_node(node_p);
         void rem_node(node_p);
 
-        ogl::range view(int, int, const double *);
+        ogl::range view(int, const vec4 *, int);
         void       prep();
 
         void draw_init();

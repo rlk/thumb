@@ -92,8 +92,8 @@ void wrl::constraint::orient()
 
     for (int i = 0; i < 10; ++i)
     {
-        rot[i]->transform(transpose(T).GIMME());
-        pos[i]->transform(transpose(T).GIMME());
+        rot[i]->transform(T);
+        pos[i]->transform(T);
     }
 }
 
@@ -244,9 +244,9 @@ ogl::range wrl::constraint::prep(int frusc, const app::frustum *const *frusv)
 
     for (int frusi = 0; frusi < frusc; ++frusi)
         if (mode)
-            r.merge(rot[grid]->view(frusi, 5, frusv[frusi]->get_planes()->GIMME()));
+            r.merge(rot[grid]->view(frusi, frusv[frusi]->get_planes(), 5));
         else
-            r.merge(pos[grid]->view(frusi, 5, frusv[frusi]->get_planes()->GIMME()));
+            r.merge(pos[grid]->view(frusi, frusv[frusi]->get_planes(), 5));
 
     return r;
 }

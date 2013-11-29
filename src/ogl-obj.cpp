@@ -18,8 +18,8 @@
 
 //-----------------------------------------------------------------------------
 
-static ogl::vec2 z2;
-static ogl::vec3 z3;
+static ogl::GLvec2 z2;
+static ogl::GLvec3 z3;
 
 //-----------------------------------------------------------------------------
 
@@ -142,7 +142,7 @@ const char *obj::obj::read_fi(const char *p, int& i)
                 is[i].ni == ni) return p;
 
         // These indices are new.  Add a new vertex and link a new index set.
-        
+
         i = int(meshes.back()->count_verts());
 
         meshes.back()->add_vert((vi < 0) ? z3 : vv[vi],
@@ -184,7 +184,7 @@ const char *obj::obj::read_li(const char *p, int& i)
                 is[i].si == si) return p;
 
         // These indices are new.  Add a new vertex and link a new index set.
-        
+
         i = int(meshes.back()->count_verts());
 
         meshes.back()->add_vert((vi < 0) ? z3 : vv[vi], z3,
@@ -239,8 +239,8 @@ const char *obj::obj::read_c(const char *p)
 
 const char *obj::obj::read_v(const char *p)
 {
-    ogl::vec3 v;
-    char     *q;
+    ogl::GLvec3 v;
+    char       *q;
 
     // Process a sequence of vertex positions.
 
@@ -259,8 +259,8 @@ const char *obj::obj::read_v(const char *p)
 
 const char *obj::obj::read_vt(const char *p)
 {
-    ogl::vec2 v;
-    char     *q;
+    ogl::GLvec2 v;
+    char       *q;
 
     // Process a sequence of vertex texture coordinaces.
 
@@ -277,8 +277,8 @@ const char *obj::obj::read_vt(const char *p)
 
 const char *obj::obj::read_vn(const char *p)
 {
-    ogl::vec3 v;
-    char     *q;
+    ogl::GLvec3 v;
+    char       *q;
 
     // Process a sequence of vertex normals.
 
@@ -299,7 +299,7 @@ const char *obj::obj::read_vn(const char *p)
 const char *obj::obj::read_f(const char *p)
 {
     // Make sure we've got a mesh to receive faces.
-    
+
     if (meshes.empty())
         meshes.push_back(new ogl::mesh());
 
@@ -333,7 +333,7 @@ const char *obj::obj::read_f(const char *p)
 const char *obj::obj::read_l(const char *p)
 {
     // Make sure we've got a mesh to receive lines.
-    
+
     if (meshes.empty())
         meshes.push_back(new ogl::mesh());
 

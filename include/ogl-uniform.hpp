@@ -37,9 +37,9 @@ namespace ogl
         void set(double, double, double, double);
         void set(const double *);
 
-        void set(const ::vec3&);
-        void set(const ::vec4&);
-        void set(const ::mat4&);
+        void set(const vec3&);
+        void set(const vec4&);
+        void set(const mat4&);
 
         void apply(GLint) const;
 

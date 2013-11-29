@@ -32,7 +32,7 @@ vec3 irradiance(sampler2DRect env, vec3 N)
     const float c5 = 0.247708;
 
     // Grace Cathedral
-/*    
+/*
     vec3 L0 = vec3( 0.79,  0.44,  0.54);
     vec3 L1 = vec3( 0.39,  0.35,  0.60);
     vec3 L2 = vec3(-0.34, -0.18, -0.27);
@@ -121,6 +121,4 @@ void main()
 //  vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 3.0).rgb;
 
     gl_FragColor = mix(C0, C1, ss) * max(D_c, color_max);
-//  gl_FragColor = mix(C0, C1, ss);
-//  gl_FragColor = vec4(N * 0.5 + 0.5, 1.0);
 }

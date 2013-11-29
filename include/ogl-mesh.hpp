@@ -16,6 +16,7 @@
 #include <vector>
 #include <deque>
 
+#include <etc-vector.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-aabb.hpp>
 #include <ogl-binding.hpp>
@@ -26,22 +27,22 @@ namespace ogl
 {
     //-------------------------------------------------------------------------
 
-    struct vec2
+    struct GLvec2
     {
         GLfloat v[2];
 
-        vec2() { v[0] = v[1] = 0.0f; }
+        GLvec2() { v[0] = v[1] = 0.0f; }
     };
 
-    struct vec3
+    struct GLvec3
     {
         GLfloat v[3];
 
-        vec3() { v[0] = v[1] = v[2] = 0.0f; }
+        GLvec3() { v[0] = v[1] = v[2] = 0.0f; }
     };
 
-    typedef std::vector<vec2> vec2_v;
-    typedef std::vector<vec3> vec3_v;
+    typedef std::vector<GLvec2> GLvec2_v;
+    typedef std::vector<GLvec3> GLvec3_v;
 
     // While contiguous buffers are required during rendering, there is no
     // continuity requirement for loader caches. So, there's a possibility
@@ -49,10 +50,10 @@ namespace ogl
     // out that a vector is about 5% faster on my system, but it's worth
     // having the capability to switch representations and test.
 
-    typedef std::vector<vec2> vec2_d;
-    typedef std::vector<vec3> vec3_d;
-//  typedef std::deque<vec2>  vec2_d;
-//  typedef std::deque<vec3>  vec3_d;
+    typedef std::vector<GLvec2> GLvec2_d;
+    typedef std::vector<GLvec3> GLvec3_d;
+//  typedef std::deque<GLvec2>  GLvec2_d;
+//  typedef std::deque<GLvec3>  GLvec3_d;
 
     //-------------------------------------------------------------------------
 
@@ -95,10 +96,10 @@ namespace ogl
 
         // Vertex buffers
 
-        vec3_v vv;
-        vec3_v nv;
-        vec3_v tv;
-        vec2_v uv;
+        GLvec3_v vv;
+        GLvec3_v nv;
+        GLvec3_v tv;
+        GLvec2_v uv;
 
         // Element buffers
 
@@ -128,13 +129,13 @@ namespace ogl
         void apply_offset(const double *);
         void calc_tangent();
 
-        void add_vert(vec3&,  vec3&,  vec2&);
+        void add_vert(GLvec3&,  GLvec3&,  GLvec2&);
         void add_face(GLuint, GLuint, GLuint);
         void add_line(GLuint, GLuint);
-        
+
         // Cache modifiers
 
-        void cache_verts(const mesh *, const double *, const double *);
+        void cache_verts(const mesh *, const mat4&, const mat4&);
         void cache_faces(const mesh *, GLuint);
         void cache_lines(const mesh *, GLuint);
 

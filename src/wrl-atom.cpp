@@ -11,7 +11,6 @@
 //  General Public License for more details.
 
 #include <ogl-opengl.hpp>
-#include <etc-math.hpp>
 #include <etc-ode.hpp>
 
 #include <wrl-atom.hpp>
@@ -24,10 +23,7 @@ wrl::atom::atom(std::string fill_name,
                 std::string line_name) :
     edit_geom(0), body_id(0), name(fill_name), fill(0), line(0)
 {
-    load_idt(default_M);
-    load_idt(current_M);
-
-    line_scale[0] = line_scale[1] = line_scale[2] = 1.0;
+    line_scale = vec3(1, 1, 1);
 
     if (fill_name.size()) fill = new ogl::unit(fill_name);
     if (line_name.size()) line = new ogl::unit(line_name);
@@ -95,26 +91,26 @@ void wrl::atom::mult_M() const
 {
     // Apply the current transform as model matrix.
 
-    glMultMatrixd(current_M);
+    glMultMatrixd(transpose(current_M).GIMME());
 }
 
 void wrl::atom::mult_R() const
 {
-    double M[16];
+    GLdouble M[16];
 
     // Apply the current view rotation transform.
 
-    M[ 0] = +current_M[ 0];
-    M[ 1] = +current_M[ 4];
-    M[ 2] = +current_M[ 8];
+    M[ 0] = GLdouble(current_M[0][0]);
+    M[ 1] = GLdouble(current_M[1][0]);
+    M[ 2] = GLdouble(current_M[2][0]);
     M[ 3] = 0;
-    M[ 4] = +current_M[ 1];
-    M[ 5] = +current_M[ 5];
-    M[ 6] = +current_M[ 9];
+    M[ 4] = GLdouble(current_M[0][1]);
+    M[ 5] = GLdouble(current_M[1][1]);
+    M[ 6] = GLdouble(current_M[2][1]);
     M[ 7] = 0;
-    M[ 8] = +current_M[ 2];
-    M[ 9] = +current_M[ 6];
-    M[10] = +current_M[10];
+    M[ 8] = GLdouble(current_M[0][2]);
+    M[ 9] = GLdouble(current_M[1][2]);
+    M[10] = GLdouble(current_M[2][2]);
     M[11] = 0;
     M[12] = 0;
     M[13] = 0;
@@ -128,9 +124,9 @@ void wrl::atom::mult_T() const
 {
     // Apply the current view translation transform.
 
-    glTranslated(-current_M[12],
-                 -current_M[13],
-                 -current_M[14]);
+    glTranslated(-current_M[0][3],
+                 -current_M[1][3],
+                 -current_M[2][3]);
 }
 
 void wrl::atom::mult_V() const
@@ -166,50 +162,43 @@ void wrl::atom::get_surface(dSurfaceParameters& s)
 
 //-----------------------------------------------------------------------------
 
-void wrl::atom::transform(const double *T)
+void wrl::atom::transform(const mat4& T)
 {
     // Apply the given transformation to the current.
 
-    double M[16];
-    double I[16];
+    const mat4 M = T * current_M;
+    const mat4 N = M * scale(line_scale);
 
-    mult_mat_mat(M, T, current_M);
-
-    load_mat(current_M, M);
-    load_mat(default_M, M);
-    load_inv(I, M);
+    current_M = M;
+    default_M = M;
 
     ode_set_geom_transform(edit_geom, M);
 
     // Apply the current transform to the fill and line units.
 
     if (fill)
-        fill->transform(M, I);
+        fill->transform(M, inverse(M));
 
     if (line)
-    {
-        Rmul_scl_mat(M, line_scale[0], line_scale[1], line_scale[2]);
-
-        line->transform(M, M);
-    }
+        line->transform(N, inverse(N));
 }
 
-void wrl::atom::get_world(double *M) const
+mat4 wrl::atom::get_world() const
 {
     // Return the world-aligned coordinate system centered on this atom.
 
-    load_idt(M);
+    mat4 M;
 
-    M[12] = current_M[12];
-    M[13] = current_M[13];
-    M[14] = current_M[14];
+    M[0][3] = current_M[0][3];
+    M[1][3] = current_M[1][3];
+    M[2][3] = current_M[2][3];
+
+    return M;
 }
 
-void wrl::atom::get_local(double *M) const
+mat4 wrl::atom::get_local() const
 {
-    // Return the local-aligned coordinate system centered on this atom.
-
-    load_mat(M, current_M);
+    return current_M;
 }
 
 //-----------------------------------------------------------------------------
@@ -240,10 +229,8 @@ void wrl::atom::load(app::node node)
 {
     app::node n;
 
-    double q[4] = { 0, 0, 0, 1 };
-    double p[3] = { 0, 0, 0    };
-
-    load_idt(current_M);
+    quat q;
+    vec3 p;
 
     // Initialize the transform and body mappings.
 
@@ -260,13 +247,13 @@ void wrl::atom::load(app::node node)
 
     // Compute and apply the transform.
 
-    quat_to_mat(current_M, q);
+    current_M = mat4(mat3(q));
 
-    current_M[12] = p[0];
-    current_M[13] = p[1];
-    current_M[14] = p[2];
+    current_M[0][3] = p[0];
+    current_M[1][3] = p[1];
+    current_M[2][3] = p[2];
 
-    load_mat(default_M, current_M);
+    default_M = current_M;
 
     // Initialize parameters.
 
@@ -276,11 +263,14 @@ void wrl::atom::load(app::node node)
 
 void wrl::atom::save(app::node node)
 {
-    double q[4];
+    const vec3 x = xvector(default_M);
+    const vec3 y = yvector(default_M);
+    const vec3 z = zvector(default_M);
+    const vec3 p = wvector(default_M);
+
+    const quat q(mat3(x, y, z));
 
     // Add the entity transform to this element.
-
-    mat_to_quat(q, default_M);
 
     app::node n;
 
@@ -289,9 +279,9 @@ void wrl::atom::save(app::node node)
     n = app::node("rot_z"); n.set_f(q[2]); n.insert(node);
     n = app::node("rot_w"); n.set_f(q[3]); n.insert(node);
 
-    n = app::node("pos_x"); n.set_f(default_M[12]); n.insert(node);
-    n = app::node("pos_y"); n.set_f(default_M[13]); n.insert(node);
-    n = app::node("pos_z"); n.set_f(default_M[14]); n.insert(node);
+    n = app::node("pos_x"); n.set_f(p[0]); n.insert(node);
+    n = app::node("pos_y"); n.set_f(p[1]); n.insert(node);
+    n = app::node("pos_z"); n.set_f(p[2]); n.insert(node);
 
     if (body_id)
     {

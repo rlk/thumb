@@ -16,6 +16,7 @@
 #include <set>
 #include <map>
 
+#include <etc-vector.hpp>
 #include <etc-ode.hpp>
 #include <app-file.hpp>
 #include <wrl-param.hpp>
@@ -38,31 +39,6 @@ namespace wrl
 {
     class atom
     {
-    protected:
-
-        dGeomID edit_geom;
-
-        int body_id;
-
-        std::string name;
-        ogl::unit  *fill;
-        ogl::unit  *line;
-
-        double line_scale[3];
-
-        param_map params;
-
-        // Transform handlers
-
-        double default_M[16];
-        double current_M[16];
-
-        virtual void mult_M() const;
-        virtual void mult_R() const;
-        virtual void mult_T() const;
-        virtual void mult_V() const;
-        virtual void mult_P() const;
-
     public:
 
         atom(std::string, std::string);
@@ -77,9 +53,9 @@ namespace wrl
 
         void get_surface(dSurfaceParameters&);
 
-        void get_world(double *) const;
-        void get_local(double *) const;
-        void transform(const double *);
+        mat4 get_world() const;
+        mat4 get_local() const;
+        void transform(const mat4&);
 
         ogl::unit *get_fill() { return fill; }
         ogl::unit *get_line() { return line; }
@@ -115,6 +91,32 @@ namespace wrl
         virtual void save(app::node);
 
         virtual ~atom();
+
+    protected:
+
+        dGeomID edit_geom;
+
+        int body_id;
+
+        std::string name;
+        ogl::unit  *fill;
+        ogl::unit  *line;
+
+        vec3 line_scale;
+
+        param_map params;
+
+        // Transform handlers
+
+        mat4 default_M;
+        mat4 current_M;
+
+        virtual void mult_M() const;
+        virtual void mult_R() const;
+        virtual void mult_T() const;
+        virtual void mult_V() const;
+        virtual void mult_P() const;
+
     };
 
     typedef std::set<atom *     > atom_set;

@@ -92,10 +92,10 @@ wrl::atom_set& wrl::delete_op::redo(wrl::world *w)
 
 //-----------------------------------------------------------------------------
 
-wrl::modify_op::modify_op(wrl::atom_set& S, const double *M) : operation(S)
+wrl::modify_op::modify_op(wrl::atom_set& S, const mat4& M) : operation(S)
 {
-    load_mat(T, M);
-    load_inv(I, M);
+    T = M;
+    I = inverse(M);
 }
 
 wrl::atom_set& wrl::modify_op::undo(wrl::world *w)

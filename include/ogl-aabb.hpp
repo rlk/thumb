@@ -13,6 +13,7 @@
 #ifndef OGL_AABB_HPP
 #define OGL_AABB_HPP
 
+#include <etc-vector.hpp>
 #include <ogl-range.hpp>
 
 //-----------------------------------------------------------------------------
@@ -21,12 +22,11 @@ namespace ogl
 {
     class aabb
     {
-        double a[3];
-        double z[3];
+        vec3 a;
+        vec3 z;
 
-        double min(const double *)                 const;
-        double max(const double *)                 const;
-        double max(const double *, const double *) const;
+        double min(const vec4&) const;
+        double max(const vec4&) const;
 
     public:
 
@@ -36,25 +36,22 @@ namespace ogl
         void merge(double, double, double);
         void merge(const aabb&);
 
-        double get_distance(const double *) const;
+        double     get_distance(const vec3&)              const;
+        ogl::range get_range   (const vec4&)              const;
+        ogl::range get_range   (const vec4&, const mat4&) const;
 
-        ogl::range get_range(const double *)                 const;
-        ogl::range get_range(const double *, const double *) const;
-
-        bool test(const double *, int)                       const;
-        bool test(const double *, int, const double *, int&) const;
+        bool test(const vec4 *, int)                    const;
+        bool test(const vec4 *, int, const mat4&, int&) const;
 
         void draw(bool, bool, bool, bool) const;
         void draw()                       const;
 
-        void center(double c[3]) const { c[0] =  0.5 * (a[0] + z[0]);
-                                         c[1] =  0.5 * (a[1] + z[1]);
-                                         c[2] =  0.5 * (a[2] + z[2]); }
-        void offset(double c[3]) const { c[0] = -0.5 * (a[0] + z[0]);
-                                         c[1] = -0.5 * (a[1] + z[1]);
-                                         c[2] = -0.5 * (a[2] + z[2]); }
+        vec3 center(double c[3]) const { return  (a + z) / 2.0; }
+        vec3 offset(double c[3]) const { return -(a + z) / 2.0; }
 
-        double length(int i) const { return z[i] - a[i]; }
+        double xlength() const { return z[0] - a[0]; }
+        double ylength() const { return z[1] - a[1]; }
+        double zlength() const { return z[2] - a[2]; }
     };
 }
 

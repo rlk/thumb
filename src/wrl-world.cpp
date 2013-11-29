@@ -13,8 +13,8 @@
 #include <algorithm>
 #include <iterator>
 
+#include <etc-vector.hpp>
 #include <etc-ode.hpp>
-#include <etc-math.hpp>
 #include <ogl-pool.hpp>
 #include <ogl-uniform.hpp>
 #include <ogl-process.hpp>
@@ -326,11 +326,9 @@ void wrl::world::play_init()
         {
             // Center the body on its center of mass.
 
-            double M[16];
-
-            load_xlt_mat(M, double(mass.c[0]),
-                            double(mass.c[1]),
-                            double(mass.c[2]));
+            mat4 M = translation(vec3(double(mass.c[0]),
+                                      double(mass.c[1]),
+                                      double(mass.c[2])));
 
             dBodySetPosition(body, +mass.c[0], +mass.c[1], +mass.c[2]);
             dMassTranslate (&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
@@ -358,14 +356,10 @@ void wrl::world::play_init()
 
 void wrl::world::play_fini()
 {
-    double I[16];
-
     // Reset all node transforms.
 
-    load_idt(I);
-
     for (node_map::iterator j = nodes.begin(); j != nodes.end(); ++j)
-        j->second->transform(I);
+        j->second->transform(mat4());
 
     // Do atom-specific physics finalization.
 
@@ -426,12 +420,7 @@ void wrl::world::play_step(double dt)
     for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
         if (dBodyID body = b->second)
             if (ogl::node *node = (ogl::node *) dBodyGetData(body))
-            {
-                double M[16];
-
-                ode_get_body_transform(body, M);
-                node->transform(M);
-            }
+                node->transform(ode_get_body_transform(body));
 }
 
 //-----------------------------------------------------------------------------
@@ -657,10 +646,6 @@ void wrl::world::select_set(atom_set& set)
 
 void wrl::world::create_set(atom_set& set)
 {
-    double M[16];
-
-    load_idt(M);
-
     for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
     {
         // Add the atom's unit to the render pool.
@@ -674,7 +659,7 @@ void wrl::world::create_set(atom_set& set)
 
         // Set the default transform.
 
-        (*i)->transform(M);
+        (*i)->transform(mat4());
     }
 }
 
@@ -707,7 +692,7 @@ void wrl::world::embody_set(atom_set& set, atom_map& map)
     }
 }
 
-void wrl::world::modify_set(atom_set& set, const double *T)
+void wrl::world::modify_set(atom_set& set, const mat4& T)
 {
     // Apply the given transform to all given atoms.
 
@@ -780,7 +765,7 @@ void wrl::world::do_debody()
     if (!sel.empty()) doop(new wrl::embody_op(sel, 0));
 }
 
-void wrl::world::do_modify(const double *M)
+void wrl::world::do_modify(const mat4& M)
 {
     if (!sel.empty()) doop(new wrl::modify_op(sel, M));
 }
@@ -912,7 +897,7 @@ ogl::range wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
 
     for (int frusi = 0; frusi < frusc; ++frusi)
     {
-        r.merge(fill_pool->view(frusi, 5, frusv[frusi]->get_planes()->GIMME()));
+        r.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
     }
 
     return r;
@@ -929,7 +914,7 @@ ogl::range wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
     // Cache the line visibility and determine the far plane distance.
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        r.merge(line_pool->view(frusi, 5, frusv[frusi]->get_planes()->GIMME()));
+        r.merge(line_pool->view(frusi, frusv[frusi]->get_planes(), 5));
 
     return r;
 }
@@ -1001,7 +986,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             // Cache the fill visibility for the light.
 
-            ogl::range s = fill_pool->view(frusi, 5, frust.get_planes()->GIMME());
+            ogl::range s = fill_pool->view(frusi, frust.get_planes(), 5);
 
             // Use the visible range to determine the light projection.
 

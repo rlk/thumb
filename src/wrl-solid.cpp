@@ -61,13 +61,13 @@ void wrl::box::scale()
 
         fill->merge_bound(bound);
 
-        line_scale[0] = bound.length(0) / 2;
-        line_scale[1] = bound.length(1) / 2;
-        line_scale[2] = bound.length(2) / 2;
+        line_scale[0] = bound.xlength() / 2;
+        line_scale[1] = bound.ylength() / 2;
+        line_scale[2] = bound.zlength() / 2;
 
-        dGeomBoxSetLengths(edit_geom, bound.length(0),
-                                      bound.length(1),
-                                      bound.length(2));
+        dGeomBoxSetLengths(edit_geom, bound.xlength(),
+                                      bound.ylength(),
+                                      bound.zlength());
     }
 }
 
@@ -81,11 +81,11 @@ void wrl::sphere::scale()
 
         fill->merge_bound(bound);
 
-        line_scale[0] = bound.length(0) / 2;
-        line_scale[1] = bound.length(0) / 2;
-        line_scale[2] = bound.length(0) / 2;
+        line_scale[0] = bound.xlength() / 2;
+        line_scale[1] = bound.xlength() / 2;
+        line_scale[2] = bound.xlength() / 2;
 
-        dGeomSphereSetRadius(edit_geom, bound.length(0) / 2);
+        dGeomSphereSetRadius(edit_geom, bound.xlength() / 2);
     }
 }
 
@@ -124,64 +124,62 @@ dGeomID wrl::solid::get_geom(dSpaceID space)
 
 void wrl::solid::play_init()
 {
-    double M[16];
-    double I[16];
-
     dBodyID body = dGeomGetBody(play_geom);
 
     if (body)
     {
         // Orient the geom with respect to the body.
 
+        mat4 I = inverse(current_M);
+
         dMatrix3 R;
 
-        load_inv(I, current_M);
-
-        R[ 0] = dReal(I[ 0]);
-        R[ 1] = dReal(I[ 1]);
-        R[ 2] = dReal(I[ 2]);
+        R[ 0] = dReal(I[0][0]);
+        R[ 1] = dReal(I[1][0]);
+        R[ 2] = dReal(I[2][0]);
         R[ 3] = 0;
 
-        R[ 4] = dReal(I[ 4]);
-        R[ 5] = dReal(I[ 5]);
-        R[ 6] = dReal(I[ 6]);
+        R[ 4] = dReal(I[0][1]);
+        R[ 5] = dReal(I[1][1]);
+        R[ 6] = dReal(I[2][1]);
         R[ 7] = 0;
 
-        R[ 8] = dReal(I[ 8]);
-        R[ 9] = dReal(I[ 9]);
-        R[10] = dReal(I[10]);
+        R[ 8] = dReal(I[0][2]);
+        R[ 9] = dReal(I[1][2]);
+        R[10] = dReal(I[2][2]);
         R[11] = 0;
 
         dGeomSetOffsetWorldRotation(play_geom, R);
-        dGeomSetOffsetWorldPosition(play_geom, dReal(current_M[12]),
-                                               dReal(current_M[13]),
-                                               dReal(current_M[14]));
+        dGeomSetOffsetWorldPosition(play_geom, dReal(current_M[0][3]),
+                                               dReal(current_M[1][3]),
+                                               dReal(current_M[2][3]));
     }
 
     // Apply the current geom tranform to the unit.
 
-    if (body)
-        ode_get_geom_offset(play_geom, M);
-    else
-        ode_get_geom_transform(edit_geom, M);
+    if (fill)
+    {
+        mat4 M;
 
-    load_inv(I, M);
+        if (body)
+            M = ode_get_geom_offset(play_geom);
+        else
+            M = ode_get_geom_transform(edit_geom);
 
-    if (fill) fill->transform(M, I);
+        fill->transform(M, inverse(M));
+    }
 }
 
 void wrl::solid::play_fini()
 {
-    double M[16];
-    double I[16];
-
     // Reset the unit transform to the geom world position.
 
-    ode_get_geom_transform(edit_geom, M);
+    if (fill)
+    {
+        mat4 M = ode_get_geom_transform(edit_geom);
 
-    load_inv(I, M);
-
-    if (fill) fill->transform(M, I);
+        fill->transform(M, inverse(M));
+    }
 }
 
 //-----------------------------------------------------------------------------

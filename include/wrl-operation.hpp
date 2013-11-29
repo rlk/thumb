@@ -15,6 +15,7 @@
 
 #include <list>
 
+#include <etc-vector.hpp>
 #include <wrl-atom.hpp>
 
 //-----------------------------------------------------------------------------
@@ -79,12 +80,12 @@ namespace wrl
 
     class modify_op : public operation
     {
-        double T[16];
-        double I[16];
+        mat4 T;
+        mat4 I;
 
     public:
 
-        modify_op(wrl::atom_set&, const double *);
+        modify_op(wrl::atom_set&, const mat4&);
 
         wrl::atom_set& undo(wrl::world *);
         wrl::atom_set& redo(wrl::world *);

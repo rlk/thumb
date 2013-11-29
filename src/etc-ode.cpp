@@ -67,132 +67,84 @@ dGeomID ode_dupe_geom(dSpaceID space, dGeomID geom)
 
 //-----------------------------------------------------------------------------
 
-void ode_get_body_transform(dBodyID body, double *M)
+mat4 ode_get_body_transform(dBodyID body)
 {
     const dReal *p = dBodyGetPosition(body);
     const dReal *R = dBodyGetRotation(body);
 
-    M[ 0] = double(R[ 0]);
-    M[ 1] = double(R[ 4]);
-    M[ 2] = double(R[ 8]);
-    M[ 3] = 0;
-
-    M[ 4] = double(R[ 1]);
-    M[ 5] = double(R[ 5]);
-    M[ 6] = double(R[ 9]);
-    M[ 7] = 0;
-
-    M[ 8] = double(R[ 2]);
-    M[ 9] = double(R[ 6]);
-    M[10] = double(R[10]);
-    M[11] = 0;
-
-    M[12] = double(p[ 0]);
-    M[13] = double(p[ 1]);
-    M[14] = double(p[ 2]);
-    M[15] = 1;
+    return mat4(double(R[0]), double(R[1]), double(R[ 2]), double(p[0]),
+                double(R[4]), double(R[5]), double(R[ 6]), double(p[1]),
+                double(R[8]), double(R[9]), double(R[10]), double(p[2]));
 }
 
-void ode_get_geom_offset(dGeomID geom, double *M)
+mat4 ode_get_geom_offset(dGeomID geom)
 {
     const dReal *p = dGeomGetOffsetPosition(geom);
     const dReal *R = dGeomGetOffsetRotation(geom);
 
-    M[ 0] = double(R[ 0]);
-    M[ 1] = double(R[ 4]);
-    M[ 2] = double(R[ 8]);
-    M[ 3] = 0;
-
-    M[ 4] = double(R[ 1]);
-    M[ 5] = double(R[ 5]);
-    M[ 6] = double(R[ 9]);
-    M[ 7] = 0;
-
-    M[ 8] = double(R[ 2]);
-    M[ 9] = double(R[ 6]);
-    M[10] = double(R[10]);
-    M[11] = 0;
-
-    M[12] = double(p[ 0]);
-    M[13] = double(p[ 1]);
-    M[14] = double(p[ 2]);
-    M[15] = 1;
+    return mat4(double(R[0]), double(R[1]), double(R[ 2]), double(p[0]),
+                double(R[4]), double(R[5]), double(R[ 6]), double(p[1]),
+                double(R[8]), double(R[9]), double(R[10]), double(p[2]));
 }
 
-void ode_get_geom_transform(dGeomID geom, double *M)
+mat4 ode_get_geom_transform(dGeomID geom)
 {
     const dReal *p = dGeomGetPosition(geom);
     const dReal *R = dGeomGetRotation(geom);
 
-    M[ 0] = double(R[ 0]);
-    M[ 1] = double(R[ 4]);
-    M[ 2] = double(R[ 8]);
-    M[ 3] = 0;
-
-    M[ 4] = double(R[ 1]);
-    M[ 5] = double(R[ 5]);
-    M[ 6] = double(R[ 9]);
-    M[ 7] = 0;
-
-    M[ 8] = double(R[ 2]);
-    M[ 9] = double(R[ 6]);
-    M[10] = double(R[10]);
-    M[11] = 0;
-
-    M[12] = double(p[ 0]);
-    M[13] = double(p[ 1]);
-    M[14] = double(p[ 2]);
-    M[15] = 1;
+    return mat4(double(R[0]), double(R[1]), double(R[ 2]), double(p[0]),
+                double(R[4]), double(R[5]), double(R[ 6]), double(p[1]),
+                double(R[8]), double(R[9]), double(R[10]), double(p[2]));
 }
 
-void ode_set_geom_transform(dGeomID geom, double *M)
+void ode_set_geom_transform(dGeomID geom, const mat4& M)
 {
     dMatrix3 R;
 
-    R[ 0] = dReal(M[ 0]);
-    R[ 1] = dReal(M[ 4]);
-    R[ 2] = dReal(M[ 8]);
+    R[ 0] = dReal(M[0][0]);
+    R[ 1] = dReal(M[1][0]);
+    R[ 2] = dReal(M[2][0]);
     R[ 3] = 0;
 
-    R[ 4] = dReal(M[ 1]);
-    R[ 5] = dReal(M[ 5]);
-    R[ 6] = dReal(M[ 9]);
+    R[ 4] = dReal(M[0][1]);
+    R[ 5] = dReal(M[1][1]);
+    R[ 6] = dReal(M[2][1]);
     R[ 7] = 0;
 
-    R[ 8] = dReal(M[ 2]);
-    R[ 9] = dReal(M[ 6]);
-    R[10] = dReal(M[10]);
+    R[ 8] = dReal(M[0][2]);
+    R[ 9] = dReal(M[1][2]);
+    R[10] = dReal(M[2][2]);
     R[11] = 0;
 
     dGeomSetRotation(geom, R);
-    dGeomSetPosition(geom, dReal(M[12]),
-                           dReal(M[13]),
-                           dReal(M[14]));
+    dGeomSetPosition(geom, dReal(M[0][3]),
+                           dReal(M[1][3]),
+                           dReal(M[2][3]));
 }
 
-void ode_set_mass_transform(dMass *mass, double *M)
+void ode_set_mass_transform(dMass *mass, const mat4& M)
 {
     dMatrix3 R;
 
-    R[ 0] = dReal(M[ 0]);
-    R[ 1] = dReal(M[ 4]);
-    R[ 2] = dReal(M[ 8]);
+    R[ 0] = dReal(M[0][0]);
+    R[ 1] = dReal(M[1][0]);
+    R[ 2] = dReal(M[2][0]);
     R[ 3] = 0;
 
-    R[ 4] = dReal(M[ 1]);
-    R[ 5] = dReal(M[ 5]);
-    R[ 6] = dReal(M[ 9]);
+    R[ 4] = dReal(M[0][1]);
+    R[ 5] = dReal(M[1][1]);
+    R[ 6] = dReal(M[2][1]);
     R[ 7] = 0;
 
-    R[ 8] = dReal(M[ 2]);
-    R[ 9] = dReal(M[ 6]);
-    R[10] = dReal(M[10]);
+    R[ 8] = dReal(M[0][2]);
+    R[ 9] = dReal(M[1][2]);
+    R[10] = dReal(M[2][2]);
     R[11] = 0;
 
     dMassRotate   (mass, R);
-    dMassTranslate(mass, dReal(M[12]),
-                         dReal(M[13]),
-                         dReal(M[14]));
+    dMassTranslate(mass, dReal(M[0][3]),
+                         dReal(M[1][3]),
+                         dReal(M[2][3]));
 }
 
 //-----------------------------------------------------------------------------

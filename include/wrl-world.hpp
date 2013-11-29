@@ -46,6 +46,76 @@ namespace wrl
 
     class world
     {
+    public:
+
+        world();
+       ~world();
+
+        // Physics methods
+
+        void edit_callback(dGeomID, dGeomID);
+        void play_callback(dGeomID, dGeomID);
+
+        void play_init();
+        void play_fini();
+
+        void edit_pick(const vec3&, const vec3&);
+        void edit_step(double);
+        void play_step(double);
+
+        dSpaceID get_space() const { return edit_space; }
+        dGeomID  get_focus() const { return edit_focus; }
+
+        void set_param(int, std::string&);
+        int  get_param(int, std::string&);
+
+        // Editing methods
+
+        void click_selection(atom *);
+        void clone_selection();
+        void clear_selection();
+        bool check_selection();
+
+        void invert_selection();
+        void extend_selection();
+
+        void select_set();
+        void select_set(atom_set&);
+        void create_set(atom_set&);
+        void delete_set(atom_set&);
+        void embody_set(atom_set&, atom_map&);
+        void modify_set(atom_set&, const mat4&);
+
+        // Undo-able / redo-able operations
+
+        void do_create();
+        void do_delete();
+        void do_enjoin();
+        void do_embody();
+        void do_debody();
+        void do_modify(const mat4&);
+
+        void undo();
+        void redo();
+
+        // File I/O
+
+        void init();
+        void load(std::string);
+        void save(std::string, bool);
+
+        // Rendering methods
+
+        ogl::range prep_fill(int, const app::frustum *const *);
+        ogl::range prep_line(int, const app::frustum *const *);
+
+        void lite(int, const app::frustum *const *);
+
+        void draw_fill(int, const app::frustum *);
+        void draw_line(int, const app::frustum *);
+
+    private:
+
         // ODE edit state
 
         double        focus_dist;
@@ -118,74 +188,6 @@ namespace wrl
         void draw_sky(const app::frustum *);
 
         void draw_debug_wireframe(int);
-
-    public:
-
-        world();
-       ~world();
-
-        // Physics methods
-
-        void edit_callback(dGeomID, dGeomID);
-        void play_callback(dGeomID, dGeomID);
-
-        void play_init();
-        void play_fini();
-
-        void edit_pick(const vec3&, const vec3&);
-        void edit_step(double);
-        void play_step(double);
-
-        dSpaceID get_space() const { return edit_space; }
-        dGeomID  get_focus() const { return edit_focus; }
-
-        void set_param(int, std::string&);
-        int  get_param(int, std::string&);
-
-        // Editing methods
-
-        void click_selection(atom *);
-        void clone_selection();
-        void clear_selection();
-        bool check_selection();
-
-        void invert_selection();
-        void extend_selection();
-
-        void select_set();
-        void select_set(atom_set&);
-        void create_set(atom_set&);
-        void delete_set(atom_set&);
-        void embody_set(atom_set&, atom_map&);
-        void modify_set(atom_set&, const double *);
-
-        // Undo-able / redo-able operations
-
-        void do_create();
-        void do_delete();
-        void do_enjoin();
-        void do_embody();
-        void do_debody();
-        void do_modify(const double *);
-
-        void undo();
-        void redo();
-
-        // File I/O
-
-        void init();
-        void load(std::string);
-        void save(std::string, bool);
-
-        // Rendering methods
-
-        ogl::range prep_fill(int, const app::frustum *const *);
-        ogl::range prep_line(int, const app::frustum *const *);
-
-        void lite(int, const app::frustum *const *);
-
-        void draw_fill(int, const app::frustum *);
-        void draw_line(int, const app::frustum *);
     };
 }
 

@@ -49,7 +49,7 @@ ogl::mesh::~mesh()
 
 void ogl::mesh::apply_offset(const double *d)
 {
-    for (vec3_v::iterator i = vv.begin(); i != vv.end(); ++i)
+    for (GLvec3_v::iterator i = vv.begin(); i != vv.end(); ++i)
     {
         i->v[0] += GLfloat(d[0]);
         i->v[1] += GLfloat(d[1]);
@@ -143,9 +143,9 @@ void ogl::mesh::calc_tangent()
 
 //-----------------------------------------------------------------------------
 
-void ogl::mesh::add_vert(vec3& v, vec3& n, vec2& u)
+void ogl::mesh::add_vert(GLvec3& v, GLvec3& n, GLvec2& u)
 {
-    vec3 t;
+    GLvec3 t;
 
     // Add a new vertex.  Note position bounds.
 
@@ -187,46 +187,23 @@ void ogl::mesh::add_line(GLuint i, GLuint j)
 
 //-----------------------------------------------------------------------------
 
-static void mult_mat_GLvec3(GLfloat *v, const double *M, const GLfloat *u)
+static void transform_GLvec3(GLfloat *v, const mat4& M, const GLfloat *u)
 {
-    double vv[3];
-    double uu[3];
-
     // Transform a GL vector using a double matrix.
 
-    uu[0] = double(u[0]);
-    uu[1] = double(u[1]);
-    uu[2] = double(u[2]);
+    vec3 t = M * vec3(double(u[0]),
+                      double(u[1]),
+                      double(u[2]));
 
-    mult_mat_vec3(vv, M, uu);
-
-    v[0] = GLfloat(vv[0]);
-    v[1] = GLfloat(vv[1]);
-    v[2] = GLfloat(vv[2]);
-}
-
-static void mult_xps_GLvec3(GLfloat *v, const double *I, const GLfloat *u)
-{
-    double vv[3];
-    double uu[3];
-
-    // Transform a GL vector using a double transpose.
-
-    uu[0] = double(u[0]);
-    uu[1] = double(u[1]);
-    uu[2] = double(u[2]);
-
-    mult_xps_vec3(vv, I, uu);
-
-    v[0] = GLfloat(vv[0]);
-    v[1] = GLfloat(vv[1]);
-    v[2] = GLfloat(vv[2]);
+    v[0] = GLfloat(t[0]);
+    v[1] = GLfloat(t[1]);
+    v[2] = GLfloat(t[2]);
 }
 
 //-----------------------------------------------------------------------------
 
-void ogl::mesh::cache_verts(const ogl::mesh *that, const double *M,
-                                                   const double *I)
+void ogl::mesh::cache_verts(const ogl::mesh *that, const mat4& M,
+                                                   const mat4& I)
 {
     const size_t n = that->vv.size();
 
@@ -241,9 +218,9 @@ void ogl::mesh::cache_verts(const ogl::mesh *that, const double *M,
 
     for (size_t i = 0; i < n; ++i)
     {
-        mult_mat_GLvec3(vv[i].v, M, that->vv[i].v);
-        mult_xps_GLvec3(nv[i].v, I, that->nv[i].v);
-        mult_xps_GLvec3(tv[i].v, I, that->tv[i].v);
+        transform_GLvec3(vv[i].v,           M,  that->vv[i].v);
+        transform_GLvec3(nv[i].v, transpose(I), that->nv[i].v);
+        transform_GLvec3(tv[i].v, transpose(I), that->tv[i].v);
 
         uv[i] = that->uv[i];
 
@@ -327,10 +304,10 @@ void ogl::mesh::buffv(const GLfloat *v,
 
     if (dirty_verts)
     {
-        buffer(GLintptr(v), vv.size() * sizeof (vec3), &vv.front());
-        buffer(GLintptr(n), nv.size() * sizeof (vec3), &nv.front());
-        buffer(GLintptr(t), tv.size() * sizeof (vec3), &tv.front());
-        buffer(GLintptr(u), uv.size() * sizeof (vec2), &uv.front());
+        buffer(GLintptr(v), vv.size() * sizeof (GLvec3), &vv.front());
+        buffer(GLintptr(n), nv.size() * sizeof (GLvec3), &nv.front());
+        buffer(GLintptr(t), tv.size() * sizeof (GLvec3), &tv.front());
+        buffer(GLintptr(u), uv.size() * sizeof (GLvec2), &uv.front());
     }
     dirty_verts = false;
 }
