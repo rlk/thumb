@@ -77,6 +77,31 @@ view_app::~view_app()
 
 //------------------------------------------------------------------------------
 
+void view_from_step(scm_step& step)
+{
+    double p[3];
+    double q[4];
+    double r = step.get_distance();
+
+    step.get_orientation(q);
+    step.get_position   (p);
+
+    ::view->set_orientation(quat(q[0], q[1], q[2], q[3]));
+    ::view->set_position   (vec3(p[0], p[1], p[2]) * r);
+}
+
+void step_from_view(scm_step& step)
+{
+    quat q = ::view->get_orientation();
+    vec3 p = ::view->get_position();
+
+    step.set_orientation(q.GIMME());
+    step.set_position   (p.GIMME());
+    step.set_distance   (length(p));
+}
+
+//------------------------------------------------------------------------------
+
 static void step_from_xml(scm_step *s, app::node n)
 {
     double q[4];

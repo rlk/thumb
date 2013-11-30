@@ -292,14 +292,9 @@ void app::prog::set_orientation(const quat &q)
     ::view->set_orientation(q);
 }
 
-vec3 app::prog::get_position() const
+void app::prog::offset_position(const vec3 &d)
 {
-    return ::view->get_position();
-}
-
-void app::prog::set_position(const vec3 &p)
-{
-    ::view->set_position(p);
+    ::view->set_position(::view->get_position() + d);
 }
 
 //-----------------------------------------------------------------------------

@@ -38,9 +38,8 @@ public:
     virtual int fade_to(int);
 
     virtual quat get_orientation() const;
-    virtual vec3 get_position   () const;
     virtual void set_orientation(const quat&);
-    virtual void set_position   (const vec3&);
+    virtual void offset_position(const vec3&);
 
     virtual ~orbiter();
 
@@ -48,6 +47,7 @@ private:
 
     // View motion state
 
+    quat   get_local() const;
     double get_speed() const;
 
     double speed_min;

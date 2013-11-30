@@ -83,7 +83,7 @@
     <step name="Default" foreground="global" background="milkyway"
             q0="0.0"q1="0.0"q2="0.0"q3="1.0"
             p0="0.0"p1="0.0"p2="1.0"
-            l1="0.894427"l2="0.447214"r="5000000.0"/>
+            l1="0.894427"l2="0.447214"r="2000000.0"/>
     <step name="Default" foreground="graticule" background="milkyway"
             q0="0.0"q1="0.0"q2="0.0"q3="1.0"
             p0="0.0"p1="0.0"p2="1.0"

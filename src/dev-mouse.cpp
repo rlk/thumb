@@ -133,10 +133,8 @@ bool dev::mouse::process_tick(app::event *E)
     if (modifier & KMOD_SHIFT) kp *= 10.0;
 
     if (motion * motion > 0)
-    {
-        vec3 d = mat3(::host->get_orientation()) * motion * kp;
-        ::host->set_position(::host->get_position() + d);
-    }
+        ::host->offset_position(mat3(::host->get_orientation()) * motion * kp);
+
     return false;
 }
 

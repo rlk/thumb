@@ -338,147 +338,61 @@ int orbiter::fade_to(int i)
 
 //------------------------------------------------------------------------------
 
-// Compute the basis B of the default orientation for the given view V.
-#if 0
-static void orbiting_basis(double *B, const double *V)
+quat orbiter::get_local() const
 {
-    load_idt(B);
+    const vec3 p(::view->get_position());
+    const mat3 R(::view->get_orientation());
 
-    B[4] = V[12];
-    B[5] = V[13];
-    B[6] = V[14];
+    vec3 x = normal(xvector(R));
+    vec3 y = normal(p);
+    vec3 z = normal(cross(x, y));
 
-    normalize(B + 4);
-    crossprod(B + 8, V + 0, B + 4);
-    normalize(B + 8);
-    crossprod(B + 0, B + 4, B + 8);
-    normalize(B + 0);
+    return quat(mat3(x, y, z));
 }
-#endif
-// The navigate function modifies the current view transform. In the case of a
-// view_app, this entails updating the "here" step. In the case of an orbiter,
-// this also entails re-orienting the navigation relative to the location on
-// the planet, scaling the motion relative to the altitude, and enforcing
-// the ground contact constraint.
-#if 0
-void orbiter::navigate(const vec3& d, const quat& r)
-{
-    const double *M = transpose(_M);
-
-    const double *V = ::view->get_move_matrix();
-    const double  k = 500000.0 * get_speed();
-    const double  d = sqrt(DOT3(V + 12, V + 12));
-
-    double X[16];
-    double Z[16];
-    double N[16];
-    double R[16];
-    double T[16];
-    double B[16];
-    double C[16];
-    double O[16];
-    double n[3];
-    double m[3];
-
-    load_mat(R, M);
-    R[ 3] = 0.0;
-    R[ 7] = 0.0;
-    R[11] = 0.0;
-    R[12] = 0.0;
-    R[13] = 0.0;
-    R[14] = 0.0;
-    R[15] = 1.0;
-
-    load_mat(O, V);
-    O[ 3] = 0.0;
-    O[ 7] = 0.0;
-    O[11] = 0.0;
-    O[12] = 0.0;
-    O[13] = 0.0;
-    O[14] = 0.0;
-    O[15] = 1.0;
-
-    orbiting_basis(B, V);
-    load_inv      (C, B);
-
-    // Calculate the motion vector in default space, via world space.
-
-    mult_mat_vec3(n, O, M + 12);
-    mult_mat_vec3(m, C, n);
-
-    // Scale the motion vector to the current maximum speed.
-
-    m[0] *= k;
-    m[1] *= k;
-    m[2] *= k;
-
-    // Generate rotations to represent the motion.
-
-    double za = DEG(atan2(-m[0], d));
-    double xa = DEG(atan2( m[2], d));
-
-    load_rot_mat(X, B[ 0], B[ 1], B[ 2], xa);
-    load_rot_mat(Z, B[ 8], B[ 9], B[10], za);
-
-    // Exploit a step object to apply these rotations correctly.
-
-    scm_step S = here;
-
-    S.set_matrix(::view->get_move_matrix());
-    S.transform_orientation(X);
-    S.transform_position(X);
-    // S.transform_light(X);
-    S.transform_orientation(Z);
-    S.transform_position(Z);
-    // S.transform_light(Z);
-
-    // Apply the change in altitude, constrained to the terrain height.
-
-    double p[3];
-
-    S.get_position(p);
-    S.set_distance(std::max(S.get_distance() + m[1],
-                         sys->get_current_ground(p) + minimum_agl));
-
-    // Finally apply the look transformation and store the result.
-
-    S.get_matrix(T);
-    mult_mat_mat(N, T, R);
-    S.set_matrix(N);
-
-    ::view->set_move_matrix(N);
-    here = S;
-}
-
-vec3 orbiter::get_up_vector() const
-{
-    const double *I = ::view->get_move_inverse();
-    return normal(vec3(-I[12], -I[13], -I[14]));
-}
-#endif
 
 quat orbiter::get_orientation() const
 {
-    return ::view->get_orientation();
+    return inverse(get_local()) * ::view->get_orientation();
 }
 
 void orbiter::set_orientation(const quat &q)
 {
-    here.set_orientation(q.GIMME());
-    ::view->set_orientation(q);
+    quat r = get_local() * q;
+    here.set_orientation(r.GIMME());
+    ::view->set_orientation(r);
 }
 
-vec3 orbiter::get_position() const
+void orbiter::offset_position(const vec3 &d)
 {
-    return ::view->get_position();
-}
+    // Set the current step using the current camera configuration.
 
-void orbiter::set_position(const vec3 &p)
-{
-    vec3 n = normal(p);
-    here.set_position(n.GIMME());
-    here.set_distance(length(p));
-    ::view->set_position(p);
+    step_from_view(here);
+
+    // Apply the motion vector as rotation of the step.
+
+    const double k = 500000.0 * get_speed();
+    const double r = here.get_distance();
+    const mat3   B(get_local());
+
+    mat4 zM = mat4(mat3(quat(zvector(B), atan2(-d[0] * k, r))));
+    mat4 xM = mat4(mat3(quat(xvector(B), atan2( d[2] * k, r))));
+
+    here.transform_orientation(transpose(xM).GIMME());
+    here.transform_position   (transpose(xM).GIMME());
+    here.transform_orientation(transpose(zM).GIMME());
+    here.transform_position   (transpose(zM).GIMME());
+
+    // Clamp the altitude.
+
+    double v[3];
+
+    here.get_position(v);
+    here.set_distance(std::max(d[1] * k + r,
+                            minimum_agl + sys->get_current_ground(v)));
+
+    // Copy the modifed step back to the camera configuration.
+
+    view_from_step(here);
 }
 
 //------------------------------------------------------------------------------

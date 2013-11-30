@@ -945,14 +945,9 @@ void app::host::set_orientation(const quat &q)
     program->set_orientation(q);
 }
 
-vec3 app::host::get_position() const
+void app::host::offset_position(const vec3 &p)
 {
-    return program->get_position();
-}
-
-void app::host::set_position(const vec3 &p)
-{
-    program->set_position(p);
+    program->offset_position(p);
 }
 
 //-----------------------------------------------------------------------------

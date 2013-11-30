@@ -64,9 +64,8 @@ namespace app
         virtual void swap();
 
         virtual quat get_orientation() const;
-        virtual vec3 get_position   () const;
         virtual void set_orientation(const quat&);
-        virtual void set_position   (const vec3&);
+        virtual void offset_position(const vec3&);
 
         event *axis_remap(event *);
 

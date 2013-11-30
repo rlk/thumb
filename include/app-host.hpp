@@ -77,9 +77,8 @@ namespace app
         void set_head(const vec3&, const quat&);
 
         quat get_orientation() const;
-        vec3 get_position   () const;
         void set_orientation(const quat&);
-        void set_position   (const vec3&);
+        void offset_position(const vec3&);
 
         bool get_movie_mode() const { return (movie != 0); }
         void set_movie_mode(int i)  { movie = i; }
