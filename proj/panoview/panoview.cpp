@@ -14,7 +14,7 @@
 
 #include <ogl-opengl.hpp>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
 #include <app-view.hpp>

@@ -12,7 +12,7 @@
 
 #include <algorithm>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-aabb.hpp>
 

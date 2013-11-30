@@ -13,7 +13,7 @@
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
 #include <app-event.hpp>

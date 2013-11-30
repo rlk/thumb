@@ -27,7 +27,7 @@
 #include <app-glob.hpp>
 
 #include <wrl-world.hpp>
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 
 #include <mode-edit.hpp>
 #include <mode-play.hpp>

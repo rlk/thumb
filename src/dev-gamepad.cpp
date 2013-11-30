@@ -14,7 +14,7 @@
 
 #include <SDL_joystick.h>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-conf.hpp>
 #include <app-view.hpp>
 #include <app-event.hpp>

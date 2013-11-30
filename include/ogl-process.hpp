@@ -33,6 +33,23 @@ namespace ogl
 {
     class process
     {
+    public:
+
+        const std::string& get_name() const { return name; }
+
+        process(const std::string&);
+
+        virtual void draw(const ogl::binding *) const { };
+
+        virtual void bind_frame() const { }
+        virtual void free_frame() const { }
+        virtual void bind(GLenum) const { }
+
+        virtual void init() { }
+        virtual void fini() { }
+
+        virtual ~process();
+
     protected:
 
         std::string name;
@@ -55,23 +72,6 @@ namespace ogl
         static void init_cube();
         static void fini_cube();
         static void proc_cube(ogl::frame *);
-
-    public:
-
-        const std::string& get_name() const { return name; }
-
-        process(const std::string&);
-
-        virtual void draw(const ogl::binding *) const { };
-
-        virtual void bind_frame() const { }
-        virtual void free_frame() const { }
-        virtual void bind(GLenum) const { }
-
-        virtual void init() { }
-        virtual void fini() { }
-
-        virtual ~process();
     };
 }
 

@@ -13,6 +13,7 @@
 #ifndef OGL_CUBELUT_HPP
 #define OGL_CUBELUT_HPP
 
+#include <etc-vector.hpp>
 #include <ogl-process.hpp>
 
 //-----------------------------------------------------------------------------
@@ -21,21 +22,6 @@ namespace ogl
 {
     class cubelut : public process
     {
-    protected:
-
-        int n;
-
-        GLuint object;
-
-        double angle(const double *a,
-                     const double *b,
-                     const double *c,
-                     const double *d) const;
-
-        virtual void fill(float *, const double *,
-                                   const double *,
-                                   const double *,
-                                   const double *) const = 0;
     public:
 
         cubelut(const std::string&, int);
@@ -46,6 +32,22 @@ namespace ogl
         void bind(GLenum) const;
 
         virtual ~cubelut() { }
+
+    protected:
+
+        int n;
+
+        GLuint object;
+
+        double angle(const vec3 &a,
+                     const vec3 &b,
+                     const vec3 &c,
+                     const vec3 &d) const;
+
+        virtual void fill(float *, const vec3 &,
+                                   const vec3 &,
+                                   const vec3 &,
+                                   const vec3 &) const = 0;
     };
 }
 

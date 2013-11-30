@@ -15,7 +15,7 @@
 #include <algorithm>
 
 #include <etc-socket.hpp>
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 
 #include <ogl-range.hpp>
 #include <ogl-frame.hpp>

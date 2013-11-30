@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cmath>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-conf.hpp>
 #include <ogl-sh-basis.hpp>
 
@@ -76,7 +76,6 @@ static double factorial(int i)
     return f[i];
 }
 
-
 static double K(int l, int m)
 {
     const double n = (2 * l + 1) * factorial(l - m);
@@ -90,49 +89,39 @@ static double P(int l, int m, double x)
     // This function was adapted from "Spherical Harmonic Lighting:
     // The Gritty Details" by Robin Green.
 
-    double pmm = 1.0; 
-    double pll = 0.0; 
-    
+    double pmm = 1.0;
+    double pll = 0.0;
+
     if (m > 0)
-    { 
-        double s = sqrt((1.0 - x) * (1.0 + x)); 
-        double f = 1.0; 
+    {
+        double s = sqrt((1.0 - x) * (1.0 + x));
+        double f = 1.0;
 
         for(int i = 1; i <= m; ++i)
-        { 
-            pmm *= s * (-f); 
-            f   += 2.0; 
-        } 
-    } 
+        {
+            pmm *= s * (-f);
+            f   += 2.0;
+        }
+    }
 
-    if (l == m)    return pmm; 
+    if (l == m + 0) return pmm;
 
-    double pm1 = x * (2.0 * m + 1.0) * pmm; 
+    double pm1 = x * (2.0 * m + 1.0) * pmm;
 
     if (l == m + 1) return pm1;
 
     for(int ll = m + 2; ll <= l; ++ll)
-    { 
+    {
         pll = ((2 * ll - 1) * pm1 * x -
-               (m + ll - 1) * pmm) / (ll - m); 
+               (m + ll - 1) * pmm) / (ll - m);
 
-        pmm = pm1; 
-        pm1 = pll; 
-    } 
+        pmm = pm1;
+        pm1 = pll;
+    }
 
-    return pll; 
+    return pll;
 }
 
-/*
-static double P(int l, int m, double x)
-{
-    if (l == m    ) return pow(-1, m) * factorial(factorial(2 * m - 1)) * pow(1 - x * x, m / 2.0);
-    if (l == m + 1) return x * (2 * m + 1) * P(m, m, x);
-
-    return ((2 * l - 1) * P(l - 1, m, x) * x -
-            (l + m - 1) * P(l - 1, m, x)) / (l - m);
-}
-*/
 static double Y(int l, int m, double x, double y, double z)
 {
     // Not everyone agrees on the orientation of the axes or the meaning
@@ -148,21 +137,13 @@ static double Y(int l, int m, double x, double y, double z)
 
 //-----------------------------------------------------------------------------
 
-void ogl::sh_basis::fill(float *p, const double *a,
-                                   const double *b,
-                                   const double *c,
-                                   const double *d) const
+void ogl::sh_basis::fill(float *p, const vec3& a,
+                                   const vec3& b,
+                                   const vec3& c,
+                                   const vec3& d) const
 {
-    double u[3];
-    double v[3];
-
-    u[0] = b[0] - a[0];
-    u[1] = b[1] - a[1];
-    u[2] = b[2] - a[2];
-
-    v[0] = d[0] - a[0];
-    v[1] = d[1] - a[1];
-    v[2] = d[2] - a[2];
+    vec3 u = b - a;
+    vec3 v = d - a;
 
     int i;
     int j;
@@ -174,13 +155,9 @@ void ogl::sh_basis::fill(float *p, const double *a,
             const double ss = (double(j) + 0.5) / double(n);
             const double tt = (double(i) + 0.5) / double(n);
 
-            double N[3];
-
-            N[0] = a[0] + u[0] * ss + v[0] * tt;
-            N[1] = a[1] + u[1] * ss + v[1] * tt;
-            N[2] = a[2] + u[2] * ss + v[2] * tt;
-
-            normalize(N);
+            vec3 N = normal(vec3(a[0] + u[0] * ss + v[0] * tt,
+                                 a[1] + u[1] * ss + v[1] * tt,
+                                 a[2] + u[2] * ss + v[2] * tt));
 
             p[k] = float(Y(l, m, N[0], N[1], N[2]));
         }

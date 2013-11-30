@@ -16,7 +16,7 @@
 #include <SDL_keyboard.h>
 #include <SDL_mouse.h>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-conf.hpp>
 #include <app-view.hpp>
 #include <app-event.hpp>

@@ -12,7 +12,7 @@
 
 #include <cassert>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
 #include <app-view.hpp>

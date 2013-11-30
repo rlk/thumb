@@ -18,6 +18,16 @@
 
 //------------------------------------------------------------------------------
 
+#ifndef PI
+#define PI 3.141592653589793
+#endif
+
+#ifndef SQRT2
+#define SQRT2 1.414213562373095
+#endif
+
+//------------------------------------------------------------------------------
+
 // The GIMME functions are temporary placeholders for the pointer casts.
 // They need to be explicit and searchable while the rewrite is in progress.
 

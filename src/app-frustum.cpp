@@ -16,7 +16,7 @@
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-default.hpp>
 #include <ogl-opengl.hpp>
 #include <app-event.hpp>

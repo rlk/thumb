@@ -13,7 +13,7 @@
 #include <cmath>
 #include <cassert>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <ogl-opengl.hpp>
 #include <ogl-mesh.hpp>
 #include <app-glob.hpp>
@@ -103,25 +103,27 @@ void ogl::mesh::calc_tangent()
 
         // Accumulate the vertex tangent vectors.
 
-        if (DOT3(t, t) > 0.0f)
+        GLfloat d = t[0] * t[0] + t[1] * t[1] + t[2] * t[2];
+
+        if (d > 0.0f)
         {
+            const GLfloat k = sqrtf(d);
+
             GLfloat *ti = tv[fi->i].v;
             GLfloat *tj = tv[fi->j].v;
             GLfloat *tk = tv[fi->k].v;
 
-            normalize(t);
+            ti[0] += t[0] / k;
+            ti[1] += t[1] / k;
+            ti[2] += t[2] / k;
 
-            ti[0] += t[0];
-            ti[1] += t[1];
-            ti[2] += t[2];
+            tj[0] += t[0] / k;
+            tj[1] += t[1] / k;
+            tj[2] += t[2] / k;
 
-            tj[0] += t[0];
-            tj[1] += t[1];
-            tj[2] += t[2];
-
-            tk[0] += t[0];
-            tk[1] += t[1];
-            tk[2] += t[2];
+            tk[0] += t[0] / k;
+            tk[1] += t[1] / k;
+            tk[2] += t[2] / k;
         }
     }
 
@@ -131,13 +133,14 @@ void ogl::mesh::calc_tangent()
 
     for (unsigned int i = 0; i < tv.size(); ++i)
     {
-        GLfloat b[3];
+        vec3 n = vec3(double(nv[i].v[0]), double(nv[i].v[1]), double(nv[i].v[2]));
+        vec3 t = vec3(double(tv[i].v[0]), double(tv[i].v[1]), double(tv[i].v[2]));
 
-        crossprod(b, nv[i].v, tv[i].v);
-        normalize(b);
+        t = normal(cross(cross(n, t), n));
 
-        crossprod(tv[i].v, b, nv[i].v);
-        normalize(tv[i].v);
+        tv[i].v[0] = GLfloat(t[0]);
+        tv[i].v[1] = GLfloat(t[1]);
+        tv[i].v[2] = GLfloat(t[2]);
     }
 }
 

@@ -26,10 +26,10 @@ namespace ogl
 
     protected:
 
-        void fill(float *, const double *,
-                           const double *,
-                           const double *,
-                           const double *) const;
+        void fill(float *, const vec3&,
+                           const vec3&,
+                           const vec3&,
+                           const vec3&) const;
     public:
 
         sh_basis(const std::string&, int);

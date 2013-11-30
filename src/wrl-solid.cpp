@@ -11,7 +11,7 @@
 //  General Public License for more details.
 
 #include <etc-ode.hpp>
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <ogl-pool.hpp>
 #include <wrl-solid.hpp>
 

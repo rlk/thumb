@@ -23,10 +23,10 @@ namespace ogl
     {
     protected:
 
-        void fill(float *, const double *,
-                           const double *,
-                           const double *,
-                           const double *) const;
+        void fill(float *, const vec3&,
+                           const vec3&,
+                           const vec3&,
+                           const vec3&) const;
     public:
 
         d_omega(const std::string&);

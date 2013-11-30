@@ -15,7 +15,6 @@
 
 #include <etc-vector.hpp>
 #include <etc-socket.hpp>
-#include <etc-math.hpp>
 #include <app-conf.hpp>
 #include <app-view.hpp>
 #include <app-host.hpp>

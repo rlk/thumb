@@ -16,7 +16,7 @@
 #include <app-font.hpp>
 #include <app-data.hpp>
 #include <app-glob.hpp>
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 
 //-----------------------------------------------------------------------------
 

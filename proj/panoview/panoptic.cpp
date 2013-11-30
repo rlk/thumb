@@ -15,7 +15,7 @@
 #include <ogl-opengl.hpp>
 
 #include <etc-socket.hpp>
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-data.hpp>
 #include <app-host.hpp>
 #include <app-view.hpp>
@@ -228,7 +228,7 @@ void panoptic::joystick(double dt)
         mrotate(M, y, -dh * dt);
         here.transform_orientation(M);
         here.transform_position(M);
-        here.transform_light(M);        
+        here.transform_light(M);
     }
 
     // Panoview tilt up and down
@@ -239,7 +239,7 @@ void panoptic::joystick(double dt)
         mrotate(M, v, -dv * dt);
         here.transform_orientation(M);
         here.transform_position(M);
-        here.transform_light(M);        
+        here.transform_light(M);
     }
 
     // Panoview zoom in and out

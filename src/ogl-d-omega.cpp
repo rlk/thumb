@@ -12,7 +12,7 @@
 
 #include <cassert>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <app-conf.hpp>
 #include <ogl-d-omega.hpp>
 
@@ -31,21 +31,13 @@ ogl::d_omega::~d_omega()
 
 //-----------------------------------------------------------------------------
 
-void ogl::d_omega::fill(float *p, const double *a,
-                                  const double *b,
-                                  const double *c,
-                                  const double *d) const
+void ogl::d_omega::fill(float *p, const vec3& a,
+                                  const vec3& b,
+                                  const vec3& c,
+                                  const vec3& d) const
 {
-    double u[3];
-    double v[3];
-
-    u[0] = b[0] - a[0];
-    u[1] = b[1] - a[1];
-    u[2] = b[2] - a[2];
-
-    v[0] = d[0] - a[0];
-    v[1] = d[1] - a[1];
-    v[2] = d[2] - a[2];
+    vec3 u = b - a;
+    vec3 v = d - a;
 
     int i;
     int j;
@@ -59,31 +51,21 @@ void ogl::d_omega::fill(float *p, const double *a,
             const double t0 = (double(i) + 0.0) / double(n);
             const double t1 = (double(i) + 1.0) / double(n);
 
-            double A[3];
-            double B[3];
-            double C[3];
-            double D[3];
+            vec3 A = normal(vec3(a[0] + u[0] * s0 + v[0] * t0,
+                                 a[1] + u[1] * s0 + v[1] * t0,
+                                 a[2] + u[2] * s0 + v[2] * t0));
 
-            A[0] = a[0] + u[0] * s0 + v[0] * t0;
-            A[1] = a[1] + u[1] * s0 + v[1] * t0;
-            A[2] = a[2] + u[2] * s0 + v[2] * t0;
+            vec3 B = normal(vec3(a[0] + u[0] * s1 + v[0] * t0,
+                                 a[1] + u[1] * s1 + v[1] * t0,
+                                 a[2] + u[2] * s1 + v[2] * t0));
 
-            B[0] = a[0] + u[0] * s1 + v[0] * t0;
-            B[1] = a[1] + u[1] * s1 + v[1] * t0;
-            B[2] = a[2] + u[2] * s1 + v[2] * t0;
+            vec3 C = normal(vec3(a[0] + u[0] * s1 + v[0] * t1,
+                                 a[1] + u[1] * s1 + v[1] * t1,
+                                 a[2] + u[2] * s1 + v[2] * t1));
 
-            C[0] = a[0] + u[0] * s1 + v[0] * t1;
-            C[1] = a[1] + u[1] * s1 + v[1] * t1;
-            C[2] = a[2] + u[2] * s1 + v[2] * t1;
-
-            D[0] = a[0] + u[0] * s0 + v[0] * t1;
-            D[1] = a[1] + u[1] * s0 + v[1] * t1;
-            D[2] = a[2] + u[2] * s0 + v[2] * t1;
-
-            normalize(A);
-            normalize(B);
-            normalize(C);
-            normalize(D);
+            vec3 D = normal(vec3(a[0] + u[0] * s0 + v[0] * t1,
+                                 a[1] + u[1] * s0 + v[1] * t1,
+                                 a[2] + u[2] * s0 + v[2] * t1));
 
             p[k] = float(angle(D, C, B, A) / (4.0 * PI));
         }

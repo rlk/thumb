@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cmath>
 
-#include <etc-math.hpp>
+#include <etc-vector.hpp>
 #include <ogl-cubelut.hpp>
 
 //-----------------------------------------------------------------------------
@@ -25,25 +25,22 @@ ogl::cubelut::cubelut(const std::string& name, int n) :
 
 //-----------------------------------------------------------------------------
 
-double ogl::cubelut::angle(const double *a,
-                           const double *b,
-                           const double *c,
-                           const double *d) const
+double ogl::cubelut::angle(const vec3 &a,
+                           const vec3 &b,
+                           const vec3 &c,
+                           const vec3 &d) const
 {
-    double ab = DOT3(a, b);
-    double ad = DOT3(a, d);
-    double bc = DOT3(b, c);
-    double bd = DOT3(b, d);
-    double cd = DOT3(c, d);
+    double ab = a * b;
+    double ad = a * d;
+    double bc = b * c;
+    double bd = b * d;
+    double cd = c * d;
 
-    double bcd[3];
-    double dcb[3];
+    vec3 bcd = cross(b, d);
+    vec3 dcb = cross(d, b);
 
-    crossprod(bcd, b, d);
-    crossprod(dcb, d, b);
-
-    return 2.0 * (atan2(DOT3(a, bcd), 1.0 + ab + ad + bd) +
-                  atan2(DOT3(c, dcb), 1.0 + bc + cd + bd));
+    return 2.0 * (atan2(a * bcd, 1.0 + ab + ad + bd) +
+                  atan2(c * dcb, 1.0 + bc + cd + bd));
 }
 
 //-----------------------------------------------------------------------------
@@ -52,16 +49,16 @@ void ogl::cubelut::init()
 {
     assert(object == 0);
 
-    static const double v[8][3] = {
-        { -1.0f, -1.0f, -1.0f },
-        {  1.0f, -1.0f, -1.0f },
-        { -1.0f,  1.0f, -1.0f },
-        {  1.0f,  1.0f, -1.0f },
-        { -1.0f, -1.0f,  1.0f },
-        {  1.0f, -1.0f,  1.0f },
-        { -1.0f,  1.0f,  1.0f },
-        {  1.0f,  1.0f,  1.0f }
-    };
+    vec3 v[8];
+
+    v[0] = vec3(-1, -1, -1);
+    v[1] = vec3( 1, -1, -1);
+    v[2] = vec3(-1,  1, -1);
+    v[3] = vec3( 1,  1, -1);
+    v[4] = vec3(-1, -1,  1);
+    v[5] = vec3( 1, -1,  1);
+    v[6] = vec3(-1,  1,  1);
+    v[7] = vec3( 1,  1,  1);
 
     const GLenum  i = GL_LUMINANCE32F_ARB;
     const GLenum  e = GL_LUMINANCE;
