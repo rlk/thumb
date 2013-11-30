@@ -54,13 +54,7 @@ panoview::~panoview()
 
 ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
-    double p[3] = { 0.0, 0.0, 0.0      };
-    double q[4] = { 0.0, 0.0, 0.0, 1.0 };
-    double v[3] = { 0.0, 0.0, -1.0 };
-
-#ifdef FIXME
-    ::view->get_point(0, p, v, q);
-#endif
+    vec3 v = ::view->get_point_vec(quat());
 
     sys->get_sphere()->set_zoom(v[0], v[1], v[2], zoom);
 

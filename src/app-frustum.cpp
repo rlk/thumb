@@ -399,7 +399,7 @@ const vec3 app::frustum::get_disp_pos() const
 /// app::frustum::set_distances must also be called before the
 /// perspective projection may be retrieved.
 ///
-const mat4 app::frustum::get_proj_matrix() const
+const mat4 app::frustum::get_transform() const
 {
     return P;
 }
@@ -520,9 +520,7 @@ bool app::frustum::pointer_to_3D(event *E, int x, int y) const
     X = normal(cross(Y, Z));
     Y = normal(cross(Z, X));
 
-    quat q(mat3(X[0], Y[0], Z[0],
-                X[1], Y[1], Z[1],
-                X[2], Y[2], Z[2]));
+    quat q(mat3(X, Y, Z));
 
     // Store the pointer origin and orientation in the event.
 

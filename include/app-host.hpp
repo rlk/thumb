@@ -75,9 +75,11 @@ namespace app
         const app::frustum *get_overlay() const { return overlay; }
 
         void set_head(const vec3&, const quat&);
-        void navigate(const vec3&, const quat&);
 
-        vec3 get_up_vector() const;
+        quat get_orientation() const;
+        vec3 get_position   () const;
+        void set_orientation(const quat&);
+        void set_position   (const vec3&);
 
         bool get_movie_mode() const { return (movie != 0); }
         void set_movie_mode(int i)  { movie = i; }

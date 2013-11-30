@@ -329,19 +329,16 @@ void view_app::lite(int frusc, const app::frustum *const *frusv)
 
 void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    double M[16], P[16];
-
-    load_mat(P,  frusp->get_proj_matrix());
-    load_inv(M, transpose(::view->get_transform()).GIMME());
-
-    Lmul_scl_mat(M, get_scale(),
-                    get_scale(),
-                    get_scale());
+    mat4 P =  frusp->get_transform();
+    mat4 M = ::view->get_inverse();
+    mat4 S = scale(vec3(get_scale(),
+                        get_scale(),
+                        get_scale()));
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    sys->render_sphere(P, M, chani);
+    sys->render_sphere(transpose(P).GIMME(), transpose(S * M).GIMME(), chani);
 }
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)
@@ -389,6 +386,17 @@ bool view_app::numkey(int n, int c, int s)
             sys->append_queue(new scm_step(sys->get_step(n)));
             here = sys->get_step_blend(1.0);
             sys->set_scene_blend(1.0);
+
+
+            double p[3];
+            double q[4];
+            double d = here.get_distance();
+
+            here.get_orientation(q);
+            here.get_position   (p);
+
+            ::view->set_orientation(quat(q[0], q[1], q[2], q[3]));
+            ::view->set_position   (vec3(p[0], p[1], p[2]) * d);
         }
 #if 0
         if (c == 0)
@@ -519,8 +527,6 @@ bool view_app::process_tick(app::event *E)
 
     if (delta)
     {
-        double M[16];
-
         double prev = now;
 #if 0
         double next = now + delta * here.get_speed() * dt;
@@ -529,9 +535,6 @@ bool view_app::process_tick(app::event *E)
 #endif
         here = sys->get_step_blend(next);
         now = sys->set_scene_blend(next);
-
-        here.get_matrix(M);
-        ::view->set_move_matrix(M);
 
         if (now == prev)
         {

@@ -71,10 +71,10 @@ namespace app
 
         // Queries.
 
-        const vec3 get_user_pos()    const;
-        const vec3 get_view_pos()    const;
-        const vec3 get_disp_pos()    const;
-        const mat4 get_proj_matrix() const;
+        const vec3 get_user_pos()  const;
+        const vec3 get_view_pos()  const;
+        const vec3 get_disp_pos()  const;
+        const mat4 get_transform() const;
 
         double get_w()          const;
         double get_h()          const;

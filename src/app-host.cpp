@@ -935,14 +935,24 @@ void app::host::set_head(const vec3& p, const quat& q)
         (*i)->set_head(p, q);
 }
 
-void app::host::navigate(const vec3& d, const quat& r)
+quat app::host::get_orientation() const
 {
-    program->navigate(d, r);
+    return program->get_orientation();
 }
 
-vec3 app::host::get_up_vector() const
+void app::host::set_orientation(const quat &q)
 {
-    return program->get_up_vector();
+    program->set_orientation(q);
+}
+
+vec3 app::host::get_position() const
+{
+    return program->get_position();
+}
+
+void app::host::set_position(const vec3 &p)
+{
+    program->set_position(p);
 }
 
 //-----------------------------------------------------------------------------

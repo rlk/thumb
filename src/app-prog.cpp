@@ -149,7 +149,7 @@ app::prog::prog(const std::string& exe,
     if      (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
     else if (input_mode == "skeleton") input = new dev::skeleton();
     else if (input_mode == "gamepad")  input = new dev::gamepad();
-    else if (input_mode == "sixense")  input = new dev::sixense();
+//  else if (input_mode == "sixense")  input = new dev::sixense();
 //  else if (input_mode == "trackd")   input = new dev::trackd();
 
     mouse = new dev::mouse();
@@ -275,15 +275,31 @@ void app::prog::swap()
     SDL_GL_SwapWindow(window);
 }
 
-void app::prog::navigate(const vec3& d, const quat& r)
+//-----------------------------------------------------------------------------
+
+// These functions permit the application to take control over changes to the
+// view requested by the device. This enables context-sensitive interaction,
+// domain-specific constraints, and coordinate system manipulation. The default
+// it to pass requests along to the view without modification.
+
+quat app::prog::get_orientation() const
 {
-    ::view->set_position   (::view->get_position()    + d);
-    ::view->set_orientation(::view->get_orientation() * r);
+    return ::view->get_orientation();
 }
 
-vec3 app::prog::get_up_vector() const
+void app::prog::set_orientation(const quat &q)
 {
-    return yvector(mat3(inverse(::view->get_orientation())));
+    ::view->set_orientation(q);
+}
+
+vec3 app::prog::get_position() const
+{
+    return ::view->get_position();
+}
+
+void app::prog::set_position(const vec3 &p)
+{
+    ::view->set_position(p);
 }
 
 //-----------------------------------------------------------------------------

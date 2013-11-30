@@ -31,8 +31,6 @@
 
 #include "orbiter.hpp"
 
-#define OLDINPUT 0
-
 //------------------------------------------------------------------------------
 
 static in_addr_t lookup(const std::string& hostname)
@@ -140,6 +138,8 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 {
+    // Set the light position.
+
     double  l[3];
     GLfloat L[4];
 
@@ -211,6 +211,7 @@ double spiral(double r0, double r1, double theta)
 
 int orbiter::move_to(int i)
 {
+#if 0
     // Construct a path from here to there.
 
     if (delta == 0)
@@ -297,6 +298,7 @@ int orbiter::move_to(int i)
             delta = 1;
         }
     }
+#endif
     return i;
 }
 
@@ -337,7 +339,7 @@ int orbiter::fade_to(int i)
 //------------------------------------------------------------------------------
 
 // Compute the basis B of the default orientation for the given view V.
-
+#if 0
 static void orbiting_basis(double *B, const double *V)
 {
     load_idt(B);
@@ -352,14 +354,14 @@ static void orbiting_basis(double *B, const double *V)
     crossprod(B + 0, B + 4, B + 8);
     normalize(B + 0);
 }
-
-// The navigate function modifies the current view matrix. In the case of a
+#endif
+// The navigate function modifies the current view transform. In the case of a
 // view_app, this entails updating the "here" step. In the case of an orbiter,
 // this also entails re-orienting the navigation relative to the location on
 // the planet, scaling the motion relative to the altitude, and enforcing
 // the ground contact constraint.
-
-void orbiter::navigate(const mat4& _M)
+#if 0
+void orbiter::navigate(const vec3& d, const quat& r)
 {
     const double *M = transpose(_M);
 
@@ -452,6 +454,31 @@ vec3 orbiter::get_up_vector() const
 {
     const double *I = ::view->get_move_inverse();
     return normal(vec3(-I[12], -I[13], -I[14]));
+}
+#endif
+
+quat orbiter::get_orientation() const
+{
+    return ::view->get_orientation();
+}
+
+void orbiter::set_orientation(const quat &q)
+{
+    here.set_orientation(q.GIMME());
+    ::view->set_orientation(q);
+}
+
+vec3 orbiter::get_position() const
+{
+    return ::view->get_position();
+}
+
+void orbiter::set_position(const vec3 &p)
+{
+    vec3 n = normal(p);
+    here.set_position(n.GIMME());
+    here.set_distance(length(p));
+    ::view->set_position(p);
 }
 
 //------------------------------------------------------------------------------

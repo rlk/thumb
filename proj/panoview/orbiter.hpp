@@ -37,8 +37,10 @@ public:
     virtual int move_to(int);
     virtual int fade_to(int);
 
-    virtual void navigate(const mat4&);
-    virtual vec3 get_up_vector() const;
+    virtual quat get_orientation() const;
+    virtual vec3 get_position   () const;
+    virtual void set_orientation(const quat&);
+    virtual void set_position   (const vec3&);
 
     virtual ~orbiter();
 

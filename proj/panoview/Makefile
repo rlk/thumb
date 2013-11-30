@@ -6,11 +6,9 @@ VIEWOBJS= view-load.o view-app.o
 
 ORBOBJS= $(VIEWOBJS) orbiter.o
 PANOBJS= $(VIEWOBJS) panoview.o
-OPTOBJS= $(VIEWOBJS) panoptic.o
 
 PANDEPS= $(PANOBJS:.o=.d)
 ORBDEPS= $(ORBOBJS:.o=.d)
-OPTDEPS= $(OPTOBJS:.o=.d)
 
 #------------------------------------------------------------------------------
 
@@ -23,7 +21,7 @@ LIBS = $(THUMB) $(SCM) $(LIBFT2) $(LIBMXML) $(LIBODE) $(LIBTIF) $(LIBJPG) $(LIBP
 
 #------------------------------------------------------------------------------
 
-all : panoview orbiter panoptic
+all : panoview orbiter
 
 panoview: $(SCM) $(PANOBJS) $(THUMB)
 	$(CXX) $(CFLAGS) $(CONF) -o $@ $(PANOBJS) $(LIBS)
@@ -31,13 +29,9 @@ panoview: $(SCM) $(PANOBJS) $(THUMB)
 orbiter: $(SCM) $(ORBOBJS) $(THUMB)
 	$(CXX) $(CFLAGS) $(CONF) -o $@ $(ORBOBJS) $(LIBS)
 
-panoptic: $(SCM) $(OPTOBJS) $(THUMB)
-	$(CXX) $(CFLAGS) $(CONF) -o $@ $(OPTOBJS) $(LIBS)
-
 clean:
 	$(RM) $(PANOBJS) $(PANDEPS) panoview
 	$(RM) $(ORBOBJS) $(ORBDEPS) orbiter
-	$(RM) $(OPTOBJS) $(OPTDEPS) panoptic
 
 #------------------------------------------------------------------------------
 

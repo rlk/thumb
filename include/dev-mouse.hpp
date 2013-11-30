@@ -21,6 +21,16 @@ namespace dev
 {
     class mouse : public input
     {
+    public:
+
+        mouse();
+
+        virtual bool process_event(app::event *);
+
+        virtual ~mouse();
+
+    private:
+
         // Configuration
 
         int key_move_L;
@@ -36,10 +46,10 @@ namespace dev
 
         bool dragging;
         int  modifier;
-
-        mat3 init_R;
-        mat3 curr_R;
         vec3 motion;
+
+        quat last_q;
+        quat curr_q;
 
         // Event handlers
 
@@ -47,14 +57,6 @@ namespace dev
         bool process_click(app::event *);
         bool process_tick (app::event *);
         bool process_key  (app::event *);
-
-    public:
-
-        mouse();
-
-        virtual bool process_event(app::event *);
-
-        virtual ~mouse();
     };
 }
 

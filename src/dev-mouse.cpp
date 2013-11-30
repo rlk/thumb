@@ -44,28 +44,35 @@ dev::mouse::~mouse()
 
 //-----------------------------------------------------------------------------
 
+static double get_p(const quat& q)
+{
+    const mat3 R(q);
+    return asin(-R[1][2]);
+}
+
+static double get_t(const quat& q)
+{
+    const mat3 R(q);
+    return atan2(R[0][2], R[2][2]);
+}
+
 bool dev::mouse::process_point(app::event *E)
 {
-    init_R = curr_R;
-    curr_R = mat3(quat(E->data.point.q[0],
-                       E->data.point.q[1],
-                       E->data.point.q[2],
-                       E->data.point.q[3]));
+    last_q = curr_q;
+    curr_q = quat(E->data.point.q[0],
+                  E->data.point.q[1],
+                  E->data.point.q[2],
+                  E->data.point.q[3]);
 
     if (dragging)
     {
-        double t0 = atan2(init_R[0][2], init_R[2][2]);
-        double t1 = atan2(curr_R[0][2], curr_R[2][2]);
+        const quat q = ::host->get_orientation();
 
-        double p0 = atan2(init_R[1][2], init_R[2][2]);
-        double p1 = atan2(curr_R[1][2], curr_R[2][2]);
+        double p = get_p(q) + 2.0 * (get_p(curr_q) - get_p(last_q));
+        double t = get_t(q) + 2.0 * (get_t(curr_q) - get_t(last_q));
 
-        vec3 u = ::host->get_up_vector();
-        vec3 x = vec3(1, 0, 0);
-
-        ::host->navigate(vec3(), quat(u, 2 * (t1 - t0))
-                               * quat(x, 2 * (p0 - p1)));
-
+        ::host->set_orientation(quat(vec3(0, 1, 0), t)
+                              * quat(vec3(1, 0, 0), p));
         return true;
     }
     return false;
@@ -125,8 +132,11 @@ bool dev::mouse::process_tick(app::event *E)
 
     if (modifier & KMOD_SHIFT) kp *= 10.0;
 
-    ::host->navigate(mat3(::view->get_orientation()) * motion * kp, quat());
-
+    if (motion * motion > 0)
+    {
+        vec3 d = mat3(::host->get_orientation()) * motion * kp;
+        ::host->set_position(::host->get_position() + d);
+    }
     return false;
 }
 

@@ -1020,14 +1020,13 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             // Compute the light transform.
 
-            const mat4 S(0.5, 0.0, 0.0, 0.5,
-                         0.0, 0.5, 0.0, 0.5,
-                         0.0, 0.0, 0.5, 0.5,
-                         0.0, 0.0, 0.0, 1.0);
+            const mat4 light_S(0.5, 0.0, 0.0, 0.5,
+                               0.0, 0.5, 0.0, 0.5,
+                               0.0, 0.0, 0.5, 0.5,
+                               0.0, 0.0, 0.0, 1.0);
 
-            uniform_shadow[i]->set(S * frust.get_proj_matrix()
-                                     * light_I
-                                     * ::view->get_transform());
+            uniform_shadow[i]->set(light_S *   frust.get_transform()
+                                 * light_I * ::view->get_transform());
         }
     }
 
