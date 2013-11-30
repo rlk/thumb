@@ -53,37 +53,6 @@ namespace app
 
     class frustum
     {
-    private:
-
-        // Serialization node
-
-        app::node node;
-
-        const int pixel_w;
-        const int pixel_h;
-
-        // Current view point
-
-        vec3 user_pos;
-        vec3 view_pos;
-
-        // Frustum bounding planes and points
-
-        vec3 user_points[4];
-        vec3 view_points[8];
-        vec4 view_planes[6];  // N L R B T
-
-        // User-space basis for the display coordinate system
-
-        mat3 user_basis;
-
-        // Projection transform
-
-        mat4 P;
-
-        double n_dist;
-        double f_dist;
-
     public:
 
         frustum(app::node node, int w, int h);
@@ -111,7 +80,6 @@ namespace app
         double get_h()          const;
         int    get_pixel_w()    const;
         int    get_pixel_h()    const;
-        double pixels(double a) const;
 
         const vec4 *get_planes() const { return view_planes; }
         const vec3 *get_points() const { return view_points; }
@@ -155,6 +123,34 @@ namespace app
         void calc_calibrated();
         void calc_basis();
 
+        // Serialization node
+
+        app::node node;
+
+        const int pixel_w;
+        const int pixel_h;
+
+        // Current view point
+
+        vec3 user_pos;
+        vec3 view_pos;
+
+        // Frustum bounding planes and points
+
+        vec3 user_points[4];
+        vec3 view_points[8];
+        vec4 view_planes[6];  // N L R B T
+
+        // User-space basis for the display coordinate system
+
+        mat3 user_basis;
+
+        // Projection transform
+
+        mat4 P;
+
+        double n_dist;
+        double f_dist;
     };
 
     typedef std::vector<frustum *>                 frustum_v;

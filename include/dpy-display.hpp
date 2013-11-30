@@ -38,13 +38,6 @@ namespace dpy
 
     class display
     {
-    protected:
-
-        int index;
-        int viewport[4];
-
-        void fill(double, double, int, int) const;
-
     public:
 
         display(app::node);
@@ -70,6 +63,13 @@ namespace dpy
         virtual bool process_event(app::event *)           { return false; }
 
         bool is_index(int i) const { return (index == i); }
+
+    protected:
+
+        int index;
+        int viewport[4];
+
+        void fill(double, double, int, int) const;
     };
 
     typedef std::vector<display *>           display_v;

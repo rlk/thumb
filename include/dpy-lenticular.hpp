@@ -15,6 +15,7 @@
 
 #include <vector>
 
+#include <etc-vector.hpp>
 #include <dpy-display.hpp>
 #include <app-file.hpp>
 
@@ -31,6 +32,32 @@ namespace dpy
 {
     class lenticular : public display
     {
+    public:
+
+        lenticular(app::node);
+
+        virtual ~lenticular();
+
+        // Frustum queries
+
+        virtual int  get_frusc()                const;
+        virtual void get_frusv(app::frustum **) const;
+
+        virtual app::frustum *get_overlay() const { return frust[0]; }
+
+        // Rendering handlers
+
+        virtual void prep(int, const dpy::channel * const *);
+        virtual void draw(int, const dpy::channel * const *, int);
+        virtual void test(int, const dpy::channel * const *, int);
+
+        // Event handers.
+
+        virtual bool pointer_to_3D(app::event *, int, int);
+        virtual bool process_event(app::event *);
+
+    private:
+
         // Modulation waveform configuration
 
         struct slice_param
@@ -67,38 +94,14 @@ namespace dpy
 
         app::node array;
 
-        virtual bool process_key(app::event *);
+        virtual bool process_key  (app::event *);
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);
 
         // Rendering handers
 
-        void calc_transform(const double *, double *) const;
-        void apply_uniforms()                         const;
-
-    public:
-
-        lenticular(app::node);
-
-        virtual ~lenticular();
-
-        // Frustum queries
-
-        virtual int  get_frusc()                const;
-        virtual void get_frusv(app::frustum **) const;
-
-        virtual app::frustum *get_overlay() const { return frust[0]; }
-
-        // Rendering handlers
-
-        virtual void prep(int, const dpy::channel * const *);
-        virtual void draw(int, const dpy::channel * const *, int);
-        virtual void test(int, const dpy::channel * const *, int);
-
-        // Event handers.
-
-        virtual bool pointer_to_3D(app::event *, int, int);
-        virtual bool process_event(app::event *);
+        vec4 calc_transform(const vec3&) const;
+        void apply_uniforms()            const;
     };
 }
 

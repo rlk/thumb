@@ -96,30 +96,30 @@ void dpy::fulldome::draw(int chanc, const dpy::channel * const *chanv, int frusi
         if (chanc > 0 && frusc > 0)
         {
             chanv[0]->bind_color(GL_TEXTURE0);
-            P->uniform("P[0]",   frusta[0]->get_proj_matrix(), false);
-            P->uniform("size[0]", chanv[0]->get_w(),
-                                  chanv[0]->get_h());
+            P->uniform(   "P[0]", frusta[0]->get_proj_matrix(), false);
+            P->uniform("size[0]",  chanv[0]->get_w(),
+                                   chanv[0]->get_h());
         }
         if (chanc > 1 && frusc > 1)
         {
             chanv[1]->bind_color(GL_TEXTURE1);
-            P->uniform("P[1]",   frusta[1]->get_proj_matrix(), false);
-            P->uniform("size[1]", chanv[1]->get_w(),
-                                  chanv[1]->get_h());
+            P->uniform(   "P[1]", frusta[1]->get_proj_matrix(), false);
+            P->uniform("size[1]",  chanv[1]->get_w(),
+                                   chanv[1]->get_h());
         }
         if (chanc > 2 && frusc > 2)
         {
             chanv[2]->bind_color(GL_TEXTURE2);
-            P->uniform("P[2]",   frusta[2]->get_proj_matrix(), false);
-            P->uniform("size[2]", chanv[2]->get_w(),
-                                  chanv[2]->get_h());
+            P->uniform(   "P[2]", frusta[2]->get_proj_matrix(), false);
+            P->uniform("size[2]",  chanv[2]->get_w(),
+                                   chanv[2]->get_h());
         }
         if (chanc > 3 && frusc > 3)
         {
             chanv[3]->bind_color(GL_TEXTURE3);
-            P->uniform("P[3]",   frusta[3]->get_proj_matrix(), false);
-            P->uniform("size[3]", chanv[3]->get_w(),
-                                  chanv[3]->get_h());
+            P->uniform(   "P[3]", frusta[3]->get_proj_matrix(), false);
+            P->uniform("size[3]",  chanv[3]->get_w(),
+                                   chanv[3]->get_h());
         }
 
         fill(viewport[2],
@@ -183,26 +183,17 @@ bool dpy::fulldome::pointer_to_3D(app::event *E, int x, int y)
 
         if (r < 1.0)
         {
-            double q[4];
-            double B[16];
+            vec3 x(1, 0, 0);
+            vec3 y(0, 1, 0);
+            vec3 z(-cos(a) * sin(r * M_PI / 2.0),
+                   -         cos(r * M_PI / 2.0),
+                   -sin(a) * sin(r * M_PI / 2.0));
 
-            load_idt(B);
+            x = normal(cross(y, z));
+            y = normal(cross(z, x));
 
-            B[ 8] = -cos(a) * sin(r * M_PI / 2.0);
-            B[ 9] = -         cos(r * M_PI / 2.0);
-            B[10] = -sin(a) * sin(r * M_PI / 2.0);
+            E->mk_point(0, ::view->get_position().GIMME(), quat(mat3(x, y, z)).GIMME());
 
-            normalize(B + 8);
-            crossprod(B + 0, B + 4, B + 8);
-            normalize(B + 0);
-            crossprod(B + 4, B + 8, B + 0);
-            normalize(B + 4);
-
-            mat_to_quat(q, B);
-
-#ifdef FIXME
-            E->mk_point(0, ::view->get_position(), q);
-#endif
             return true;
         }
     }

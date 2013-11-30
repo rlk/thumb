@@ -387,6 +387,13 @@ const vec3 app::frustum::get_view_pos() const
     return view_pos;
 }
 
+/// Return the position of the apex of the view frustum in display coordinates.
+///
+const vec3 app::frustum::get_disp_pos() const
+{
+    return user_basis * (user_pos - (user_points[0] + user_points[3]) / 2.0);
+}
+
 /// Return the 4x4 perspective projection matrix in OpenGL form.
 /// \warning If app::frustum::set_viewpoint has been called then
 /// app::frustum::set_distances must also be called before the
@@ -487,8 +494,8 @@ bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
 
     if (0 <= xx && xx <= 1 && 0 <= yy && yy <= 1)
     {
-        x = nearest_int(pixel_w * xx);
-        y = nearest_int(pixel_h * yy);
+        x = toint(pixel_w * xx);
+        y = toint(pixel_h * yy);
         return true;
     }
     return false;

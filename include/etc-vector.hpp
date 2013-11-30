@@ -746,6 +746,33 @@ inline mat3::mat3(const vec3& x, const vec3& y, const vec3& z)
     M[2] = vec3(x[2], y[2], z[2]);
 }
 
+//-----------------------------------------------------------------------------
+
+/// Round to the nearest integer. Round 0.5 toward negative infinity.
+
+inline int toint(double d)
+{
+    double f = floor(d);
+    double c = ceil (d);
+
+    return int((c - d < d - f) ? c : f);
+}
+
+/// Return a power of two greater than or equal to n.
+
+inline unsigned int topow2(unsigned int n)
+{
+    n--;
+    n |= n >>  1;
+    n |= n >>  2;
+    n |= n >>  4;
+    n |= n >>  8;
+    n |= n >> 16;
+    n++;
+
+    return n;
+}
+
 //------------------------------------------------------------------------------
 
 #endif

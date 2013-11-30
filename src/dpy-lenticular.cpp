@@ -289,31 +289,29 @@ bool dpy::lenticular::process_event(app::event *E)
 {
     assert(E);
 
-    std::vector<app::frustum *>::iterator i;
-
     // Do the local startup or shutdown.
-
-    bool R = false;
 
     switch (E->get_type())
     {
-    case E_KEY: R |= process_key(E); break;
-    case E_START: R |= process_start(E); break;
-    case E_CLOSE: R |= process_close(E); break;
+    case E_KEY:   if (process_key  (E)) return true; else break;
+    case E_START: if (process_start(E)) return true; else break;
+    case E_CLOSE: if (process_close(E)) return true; else break;
     }
 
     // Let the frustums handle the event.
 
-    if (R == false)
-        for (i = frust.begin(); i != frust.end(); ++i)
-            R |= (*i)->process_event(E);
+    std::vector<app::frustum *>::iterator i;
 
-    return R;
+    for (i = frust.begin(); i != frust.end(); ++i)
+        if ((*i)->process_event(E))
+            return true;
+
+    return false;
 }
 
 //-----------------------------------------------------------------------------
 
-void dpy::lenticular::calc_transform(const double *u, double *v) const
+vec4 dpy::lenticular::calc_transform(const vec3& u) const
 {
     // Compute the debug-scaled pitch and optical thickness.
 
@@ -332,18 +330,13 @@ void dpy::lenticular::calc_transform(const double *u, double *v) const
 
     // Compose the line screen transformation matrix.
 
-    double M[16];
-
-    load_scl_mat(M, pp, pp,  1);
-    Rmul_rot_mat(M,  0,  0,  1, -angle);
-    Rmul_xlt_mat(M, dx, dy,  0);
+    mat4 M = scale(vec3(pp, pp, 1))
+           * yrotation(to_radians(-angle))
+           * translation(vec3(dx, dy, 0));
 
     // We only need to transform X, so return the first row.
 
-    v[0] = M[ 0];
-    v[1] = M[ 4];
-    v[2] = M[ 8];
-    v[3] = M[12];
+    return M[0];
 }
 
 void dpy::lenticular::apply_uniforms() const
@@ -376,13 +369,9 @@ void dpy::lenticular::apply_uniforms() const
         const double e4 = e5 - slice[i].step3;
         const double e3 = e4 - slice[i].step2;
 
-        double v[4];
+        vec4 v = calc_transform(frust[i]->get_disp_pos());
 
-#ifdef FIXME
-        // This requires the vector to the user in display coordinates.
-        calc_transform(frust[i]->get_disp_pos(), v);
-#endif
-        P->uniform("coeff" + index[i], v[0], v[1], v[2], v[3]);
+        P->uniform("coeff" + index[i], v);
         P->uniform("edge0" + index[i], e0, e0, e0);
         P->uniform("edge1" + index[i], e1, e1, e1);
         P->uniform("edge2" + index[i], e2, e2, e2);

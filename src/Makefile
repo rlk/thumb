@@ -18,7 +18,6 @@ OBJS=	app-data.o \
 	dev-mouse.o \
 	dev-sixense.o \
 	dev-skeleton.o \
-	dev-trackd.o \
 	dpy-anaglyph.o \
 	dpy-channel.o \
 	dpy-direct.o \
@@ -29,7 +28,6 @@ OBJS=	app-data.o \
 	dpy-normal.o \
 	dpy-oculus.o \
 	etc-dir.o \
-	etc-math.o \
 	etc-ode.o \
 	gui-control.o \
 	gui-gui.o \
@@ -68,6 +66,8 @@ OBJS=	app-data.o \
 	wrl-param.o \
 	wrl-solid.o \
 	wrl-world.o
+#	dev-trackd.o \
+#	etc-math.o \
 
 DEPS= $(OBJS:.o=.d)
 
