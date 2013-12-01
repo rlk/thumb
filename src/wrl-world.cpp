@@ -959,8 +959,8 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
     {
         int m = 3; // TODO: generalize split count
 
-        double c[4];
-        double d[4];
+        vec4 c;
+        vec4 d;
 
         // Locate the shadow map splits using the first frustum as guide.
 

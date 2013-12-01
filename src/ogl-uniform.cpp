@@ -33,35 +33,6 @@ void ogl::uniform::set(double a)
     val[0] = GLfloat(a);
 }
 
-void ogl::uniform::set(double a, double b)
-{
-    val[0] = GLfloat(a);
-    val[1] = GLfloat(b);
-}
-
-void ogl::uniform::set(double a, double b, double c)
-{
-    val[0] = GLfloat(a);
-    val[1] = GLfloat(b);
-    val[2] = GLfloat(c);
-}
-
-void ogl::uniform::set(double a, double b, double c, double d)
-{
-    val[0] = GLfloat(a);
-    val[1] = GLfloat(b);
-    val[2] = GLfloat(c);
-    val[3] = GLfloat(d);
-}
-
-void ogl::uniform::set(const double *p)
-{
-    for (int i = 0; i < len; ++i)
-        val[i] = GLfloat(p[i]);
-}
-
-//-----------------------------------------------------------------------------
-
 void ogl::uniform::set(const vec3& v)
 {
     assert(len == 3);
@@ -111,7 +82,6 @@ void ogl::uniform::apply(GLint location) const
         switch (len)
         {
         case  1: glUniform1fv(location, 1, val); break;
-        case  2: glUniform2fv(location, 1, val); break;
         case  3: glUniform3fv(location, 1, val); break;
         case  4: glUniform4fv(location, 1, val); break;
 

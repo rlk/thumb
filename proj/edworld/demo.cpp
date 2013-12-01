@@ -65,12 +65,11 @@ void demo::init_uniforms()
     uniform_spherical_harmonic_order->set(
         double(::conf->get_i("spherical_harmonic_order",  2)));
 
-    static const double XYZRGB[9] = {     /* 709 */
-        +3.240479, -0.969256, +0.055648,
-        -1.537150, +1.875991, -0.204043,
-        -0.498530, +0.041556, +1.057311
-    };
-    uniform_XYZRGB->set(XYZRGB);
+    // Recommendation 709
+
+    uniform_XYZRGB->set(mat3(+3.240479, -1.537150, -0.498530,
+                             -0.969256, +1.875991, +0.041556,
+                             +0.055648, -0.204043, +1.057311));
 }
 
 void demo::free_uniforms()
@@ -98,7 +97,7 @@ void demo::prep_uniforms() const
     uniform_view_inverse ->set(M);
     uniform_view_position->set(wvector(M));
 
-    uniform_color_max->set(0.0, 0.0, 0.0, 0.0);
+    uniform_color_max->set(vec4(0.0, 0.0, 0.0, 0.0));
 
     // The current time
 
