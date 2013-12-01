@@ -18,7 +18,7 @@
     </node>
     <!-- Oculus Rift Developer's Kit -------------------------------------- -->
     <node name="oculus-dk">
-      <window x="0" y="0" w="1280" h="800" full="1"/>
+      <window x="0" y="0" w="1280" h="800" full="0"/>
       <channel w="1280" h="1600"/>
       <channel w="1280" h="1600"/>
       <buffer  w="1280" h="1600"/>
