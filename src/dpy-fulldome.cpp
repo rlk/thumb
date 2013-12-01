@@ -192,7 +192,7 @@ bool dpy::fulldome::pointer_to_3D(app::event *E, int x, int y)
             x = normal(cross(y, z));
             y = normal(cross(z, x));
 
-            E->mk_point(0, ::view->get_position().GIMME(), quat(mat3(x, y, z)).GIMME());
+            E->mk_point(0, frusta[0]->get_user_pos().GIMME(), quat(mat3(x, y, z)).GIMME());
 
             return true;
         }
