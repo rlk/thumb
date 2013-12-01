@@ -358,7 +358,7 @@ quat orbiter::get_orientation() const
 void orbiter::set_orientation(const quat &q)
 {
     quat r = get_local() * q;
-    here.set_orientation(r.GIMME());
+    here.set_orientation(r);
     ::view->set_orientation(r);
 }
 
@@ -377,10 +377,10 @@ void orbiter::offset_position(const vec3 &d)
     mat4 zM = mat4(mat3(quat(zvector(B), atan2(-d[0] * k, r))));
     mat4 xM = mat4(mat3(quat(xvector(B), atan2( d[2] * k, r))));
 
-    here.transform_orientation(transpose(xM).GIMME());
-    here.transform_position   (transpose(xM).GIMME());
-    here.transform_orientation(transpose(zM).GIMME());
-    here.transform_position   (transpose(zM).GIMME());
+    here.transform_orientation(transpose(xM));
+    here.transform_position   (transpose(xM));
+    here.transform_orientation(transpose(zM));
+    here.transform_position   (transpose(zM));
 
     // Clamp the altitude.
 

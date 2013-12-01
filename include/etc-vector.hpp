@@ -28,9 +28,6 @@
 
 //------------------------------------------------------------------------------
 
-// The GIMME functions are temporary placeholders for the pointer casts.
-// They need to be explicit and searchable while the rewrite is in progress.
-
 struct vec3;
 struct vec4;
 struct quat;
@@ -53,7 +50,7 @@ struct vec3
     }
     vec3(const vec4&);
 
-    const double *GIMME() const
+    operator const double*() const
     {
         return const_cast<double *>(&v[0]);
     }
@@ -85,7 +82,7 @@ struct vec4
         v[3] = b;
     }
 
-    const double *GIMME() const
+    operator const double*() const
     {
         return const_cast<double *>(&v[0]);
     }
@@ -112,7 +109,7 @@ struct quat
     quat(const mat3&);
     quat(const vec3&, double);
 
-    const double *GIMME() const
+    operator const double*() const
     {
         return const_cast<double *>(&q[0]);
     }
@@ -143,12 +140,10 @@ struct mat3
     const vec3& operator[](int i) const { return M[i]; }
           vec3& operator[](int i)       { return M[i]; }
 
-#ifdef ALLOW_CAST
     operator const double*() const
     {
         return const_cast<double *>(&M[0][0]);
     }
-#endif
 };
 
 //------------------------------------------------------------------------------
@@ -180,14 +175,7 @@ struct mat4
     const vec4& operator[](int i) const { return M[i]; }
           vec4& operator[](int i)       { return M[i]; }
 
-#ifdef ALLOW_CAST
     operator const double*() const
-    {
-        return const_cast<double *>(&M[0][0]);
-    }
-#endif
-
-    const double *GIMME() const
     {
         return const_cast<double *>(&M[0][0]);
     }

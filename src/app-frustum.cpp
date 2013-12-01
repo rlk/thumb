@@ -524,7 +524,7 @@ bool app::frustum::pointer_to_3D(event *E, int x, int y) const
 
     // Store the pointer origin and orientation in the event.
 
-    E->mk_point(0, user_pos.GIMME(), q.GIMME());
+    E->mk_point(0, user_pos, q);
     return true;
 }
 
@@ -608,7 +608,7 @@ void app::frustum::load_transform() const
 
     glMatrixMode(GL_PROJECTION);
     {
-        glLoadMatrixd(transpose(P).GIMME());
+        glLoadMatrixd(transpose(P));
     }
     glMatrixMode(GL_MODELVIEW);
 }
@@ -625,7 +625,7 @@ void app::frustum::overlay() const
                      user_points[0][1],
                      user_points[0][2]);
 
-        glMultMatrixd(transpose(mat4(user_basis)).GIMME());
+        glMultMatrixd(transpose(mat4(user_basis)));
 
         glScaled(get_w() / pixel_w,
                  get_h() / pixel_h, 1.0);

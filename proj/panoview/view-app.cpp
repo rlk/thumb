@@ -95,8 +95,8 @@ void step_from_view(scm_step& step)
     quat q = ::view->get_orientation();
     vec3 p = ::view->get_position();
 
-    step.set_orientation(q.GIMME());
-    step.set_position   (p.GIMME());
+    step.set_orientation(q);
+    step.set_position   (p);
     step.set_distance   (length(p));
 }
 
@@ -363,7 +363,7 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
-    sys->render_sphere(transpose(P).GIMME(), transpose(S * M).GIMME(), chani);
+    sys->render_sphere(transpose(P), transpose(S * M), chani);
 }
 
 void view_app::over(int frusi, const app::frustum *frusp, int chani)

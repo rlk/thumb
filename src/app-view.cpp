@@ -56,7 +56,7 @@ mat4 app::view::get_inverse() const
 
 void app::view::load_transform() const
 {
-    glLoadMatrixd(transpose(get_inverse()).GIMME());
+    glLoadMatrixd(transpose(get_inverse()));
 }
 
 //-----------------------------------------------------------------------------

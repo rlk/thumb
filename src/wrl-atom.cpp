@@ -91,7 +91,7 @@ void wrl::atom::mult_M() const
 {
     // Apply the current transform as model matrix.
 
-    glMultMatrixd(transpose(current_M).GIMME());
+    glMultMatrixd(transpose(current_M));
 }
 
 void wrl::atom::mult_R() const

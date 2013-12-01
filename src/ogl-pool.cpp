@@ -460,7 +460,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
 
             glPushMatrix();
             {
-                glMultMatrixd(transpose(M).GIMME());
+                glMultMatrixd(transpose(M));
 
                 for (elem_i i = b; i != e; ++i) i->draw(color);
 

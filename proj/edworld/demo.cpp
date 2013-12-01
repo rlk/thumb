@@ -94,9 +94,9 @@ void demo::prep_uniforms() const
 
     // Set the viewing uniforms
 
-    uniform_view_matrix  ->set(transpose(I).GIMME());
-    uniform_view_inverse ->set(transpose(M).GIMME());
-    uniform_view_position->set(  wvector(M).GIMME());
+    uniform_view_matrix  ->set(I);
+    uniform_view_inverse ->set(M);
+    uniform_view_position->set(wvector(M));
 
     uniform_color_max->set(0.0, 0.0, 0.0, 0.0);
 

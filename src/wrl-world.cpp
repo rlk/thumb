@@ -1000,7 +1000,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
                 // View from the light's perspective.
 
-                glLoadMatrixd(transpose(light_I).GIMME());
+                glLoadMatrixd(transpose(light_I));
 
                 glClear(GL_COLOR_BUFFER_BIT |
                         GL_DEPTH_BUFFER_BIT);
