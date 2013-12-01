@@ -46,14 +46,14 @@ dev::mouse::~mouse()
 
 static double get_p(const quat& q)
 {
-    const mat3 R(q);
-    return asin(-R[1][2]);
+    const vec3 z = zvector(mat3(q));
+    return asin(-z[1]);
 }
 
 static double get_t(const quat& q)
 {
-    const mat3 R(q);
-    return atan2(R[0][2], R[2][2]);
+    const vec3 x = xvector(mat3(q));
+    return atan2(-x[2], x[0]);
 }
 
 bool dev::mouse::process_point(app::event *E)
@@ -71,8 +71,11 @@ bool dev::mouse::process_point(app::event *E)
         double p = get_p(q) + 2.0 * (get_p(curr_q) - get_p(last_q));
         double t = get_t(q) + 2.0 * (get_t(curr_q) - get_t(last_q));
 
-        ::host->set_orientation(quat(vec3(0, 1, 0), t)
-                              * quat(vec3(1, 0, 0), p));
+        p = std::max(p, -0.999 * PI / 2);
+        p = std::min(p,  0.999 * PI / 2);
+
+        ::host->set_orientation(normal(quat(vec3(0, 1, 0), t)
+                                     * quat(vec3(1, 0, 0), p)));
         return true;
     }
     return false;

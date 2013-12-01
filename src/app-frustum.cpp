@@ -709,12 +709,12 @@ mat4 app::frustum::mat_calibration()
 
     get_calibration(P, T, R, p, y, r, H, V);
 
-    return yrotation(T)                // Position theta
-         * xrotation(P)                // Position phi
+    return yrotation(to_radians(T))    // Position theta
+         * xrotation(to_radians(P))    // Position phi
          * translation(vec3(0, 0, R))  // Position rho
-         * yrotation(y)                // Rotation yaw
-         * xrotation(p)                // Rotation pitch
-         * zrotation(r);               // Rotation roll
+         * yrotation(to_radians(y))    // Rotation yaw
+         * xrotation(to_radians(p))    // Rotation pitch
+         * zrotation(to_radians(r));   // Rotation roll
 }
 
 //-----------------------------------------------------------------------------

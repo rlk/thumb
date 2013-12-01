@@ -69,7 +69,7 @@ void dpy::fulldome::prep(int chanc, const dpy::channel *const *chanv)
         frusta[i]->set_viewpoint(chanv[i]->get_p());
 }
 
-void dpy::fulldome::draw(int chanc, const dpy::channel * const *chanv, int frusi)
+void dpy::fulldome::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 {
     const int frusc = get_frusc();
 
@@ -175,8 +175,8 @@ bool dpy::fulldome::pointer_to_3D(app::event *E, int x, int y)
         double dw = viewport[2] / 2.0;
         double dh = viewport[3] / 2.0;
 
-        double dx =  (x - viewport[0] - dw) / dw;
-        double dy = -(y - viewport[1] - dh) / dh;
+        double dx = (x - viewport[0] - dw) / dw;
+        double dy = (y - viewport[1] - dh) / dh;
 
         double r =  sqrt(dx * dx + dy * dy);
         double a = atan2(dy, dx);
@@ -204,7 +204,7 @@ bool dpy::fulldome::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((P = ::glob->load_program("fulldome.xml")))
+    if ((P = ::glob->load_program("dpy/fulldome.xml")))
     {
     }
 
