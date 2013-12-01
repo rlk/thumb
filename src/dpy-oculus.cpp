@@ -37,16 +37,16 @@ static mat4 getMatrix4f(const OVR::Matrix4f& src)
                 double(src.M[2][0]),
                 double(src.M[2][1]),
                 double(src.M[2][2]),
-                double(src.M[3][0]),
                 double(src.M[2][3]),
+                double(src.M[3][0]),
                 double(src.M[3][1]),
                 double(src.M[3][2]),
                 double(src.M[3][3]));
 }
 
-OVR::Ptr<OVR::DeviceManager>    dpy::oculus::pManager;
-OVR::Ptr<OVR::HMDDevice>        dpy::oculus::pHMD;
-OVR::Ptr<OVR::SensorDevice>     dpy::oculus::pSensor;
+OVR::Ptr<OVR::DeviceManager>    dpy::oculus::pManager = 0;
+OVR::Ptr<OVR::HMDDevice>        dpy::oculus::pHMD     = 0;
+OVR::Ptr<OVR::SensorDevice>     dpy::oculus::pSensor  = 0;
 
 OVR::HMDInfo                    dpy::oculus::Info;
 OVR::SensorFusion               dpy::oculus::Fusion;
@@ -104,15 +104,15 @@ dpy::oculus::oculus(app::node p) :
                 {
                     Fusion.AttachToSensor(pSensor);
                     pHMD->GetDeviceInfo(&Info);
-
-                    Stereo.SetHMDInfo(Info);
-                    Stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
-                    Stereo.SetStereoMode(Stereo_LeftRight_Multipass);
-                    Stereo.SetFullViewport(Viewport(0, 0, Info.HResolution,
-                                                          Info.VResolution));
                 }
             }
         }
+
+        Stereo.SetHMDInfo(Info);
+        Stereo.SetDistortionFitPointVP(-1.0f, 0.0f);
+        Stereo.SetStereoMode(Stereo_LeftRight_Multipass);
+        Stereo.SetFullViewport(Viewport(0, 0, Info.HResolution,
+                                              Info.VResolution));
     }
 
     // Apply the Oculus projections to the frustums.
@@ -198,45 +198,43 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
 
 void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 {
+    assert(chanv[chani]);
+    assert(program);
+
     double center = 1.0 - (2.0 * Info.LensSeparationDistance)
                                / Info.HScreenSize;
-    if (chani < chanc)
+
+    // Draw the scene to the off-screen buffer.
+
+    chanv[chani]->bind();
     {
-        assert(chanv[chani]);
-        assert(program);
-
-        // Draw the scene to the off-screen buffer.
-
-        chanv[chani]->bind();
-        {
-            glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            ::host->draw(frusi, frust, chani);
-        }
-        chanv[chani]->free();
-
-        // Draw the off-screen buffer to the screen.
-
-        chanv[chani]->bind_color(GL_TEXTURE0);
-        {
-            program->bind();
-            {
-                int w = chanv[chani]->get_w();
-                int h = chanv[chani]->get_h();
-
-                program->uniform("ImageSize", double(w), double(h));
-
-                if (chani)
-                    program->uniform("LensCenter", 0.5 - 0.5 * center, 0.5);
-                else
-                    program->uniform("LensCenter", 0.5 + 0.5 * center, 0.5);
-
-                fill(frust->get_w(),
-                     frust->get_h(), w, h);
-            }
-            program->free();
-        }
-        chanv[chani]->free_color(GL_TEXTURE0);
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        ::host->draw(frusi, frust, chani);
     }
+    chanv[chani]->free();
+
+    // Draw the off-screen buffer to the screen.
+
+    chanv[chani]->bind_color(GL_TEXTURE0);
+    {
+        program->bind();
+        {
+            int w = chanv[chani]->get_w();
+            int h = chanv[chani]->get_h();
+
+            program->uniform("ImageSize", double(w), double(h));
+
+            if (chani)
+                program->uniform("LensCenter", 0.5 - 0.5 * center, 0.5);
+            else
+                program->uniform("LensCenter", 0.5 + 0.5 * center, 0.5);
+
+            fill(frust->get_w(),
+                 frust->get_h(), w, h);
+        }
+        program->free();
+    }
+    chanv[chani]->free_color(GL_TEXTURE0);
 }
 
 void dpy::oculus::test(int chanc, const dpy::channel *const *chanv, int index)
