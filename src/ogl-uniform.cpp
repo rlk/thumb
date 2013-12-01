@@ -33,6 +33,14 @@ void ogl::uniform::set(double a)
     val[0] = GLfloat(a);
 }
 
+void ogl::uniform::set(const vec2& v)
+{
+    assert(len == 2);
+
+    val[0] = GLfloat(v[0]);
+    val[1] = GLfloat(v[1]);
+}
+
 void ogl::uniform::set(const vec3& v)
 {
     assert(len == 3);
@@ -50,6 +58,21 @@ void ogl::uniform::set(const vec4& v)
     val[1] = GLfloat(v[1]);
     val[2] = GLfloat(v[2]);
     val[3] = GLfloat(v[3]);
+}
+
+void ogl::uniform::set(const mat3& M)
+{
+    assert(len == 9);
+
+    val[0] = GLfloat(M[0][0]);
+    val[1] = GLfloat(M[1][0]);
+    val[2] = GLfloat(M[2][0]);
+    val[3] = GLfloat(M[0][1]);
+    val[4] = GLfloat(M[1][1]);
+    val[5] = GLfloat(M[2][1]);
+    val[6] = GLfloat(M[0][2]);
+    val[7] = GLfloat(M[1][2]);
+    val[8] = GLfloat(M[2][2]);
 }
 
 void ogl::uniform::set(const mat4& M)

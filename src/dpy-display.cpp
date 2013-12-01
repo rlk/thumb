@@ -80,8 +80,8 @@ void dpy::display::fill(double screen_w, double screen_h,
 
     if (const ogl::program *P = ogl::program::current)
     {
-        P->uniform("frag_d", -viewport[0] * kx, -viewport[1] * ky);
-        P->uniform("frag_k",                kx,                ky);
+        P->uniform("frag_d", vec2(-viewport[0] * kx, -viewport[1] * ky));
+        P->uniform("frag_k", vec2(               kx,                ky));
     }
 
     // Draw the screen-space quad.

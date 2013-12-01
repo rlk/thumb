@@ -184,7 +184,7 @@ bool dpy::anaglyph::process_start(app::event *E)
     if ((P = ::glob->load_program("anaglyph.xml")))
     {
         P->bind();
-        P->uniform("luma", 0.30, 0.59, 0.11, 0.00);
+        P->uniform("luma", vec4(0.30, 0.59, 0.11, 0.00));
         P->free();
     }
 

@@ -148,7 +148,7 @@ static void apply(ogl::frame *src,
     double x1 =  -1.0 + 2.0 * double(dw) / double(dst->get_w());
     double y1 =  -1.0 + 2.0 * double(dh) / double(dst->get_h());
 
-    ogl::program::current->uniform("size", sw, sh);
+    ogl::program::current->uniform("size", vec2(sw, sh));
 
     src->bind_color();
     {

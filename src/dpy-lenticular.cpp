@@ -352,12 +352,11 @@ void dpy::lenticular::apply_uniforms() const
 
     // TODO: cache these uniform locations (in process_start).
 
-    P->uniform("size", w * 0.5, h * 0.5, 0.0, 1.0);
-    P->uniform("eyes", channels);
-
+    P->uniform("eyes",    channels);
     P->uniform("quality", quality);
-    P->uniform("offset", -d, 0, d);
-    P->uniform("corner", viewport[0], viewport[1]);
+    P->uniform("offset",  vec3(-d, 0, d));
+    P->uniform("corner",  vec2(viewport[0], viewport[1]));
+    P->uniform("size",    vec4(w * 0.5, h * 0.5, 0.0, 1.0));
 
     for (int i = 0; i < channels; ++i)
     {
@@ -372,16 +371,16 @@ void dpy::lenticular::apply_uniforms() const
         vec4 v = calc_transform(frust[i]->get_disp_pos());
 
         P->uniform("coeff" + index[i], v);
-        P->uniform("edge0" + index[i], e0, e0, e0);
-        P->uniform("edge1" + index[i], e1, e1, e1);
-        P->uniform("edge2" + index[i], e2, e2, e2);
-        P->uniform("edge3" + index[i], e3, e3, e3);
-        P->uniform("edge4" + index[i], e4, e4, e4);
-        P->uniform("edge5" + index[i], e5, e5, e5);
-        P->uniform("edge6" + index[i], e6, e6, e6);
-        P->uniform("depth" + index[i], -slice[i].depth,
-                                       -slice[i].depth,
-                                       -slice[i].depth);
+        P->uniform("edge0" + index[i], vec3(e0, e0, e0));
+        P->uniform("edge1" + index[i], vec3(e1, e1, e1));
+        P->uniform("edge2" + index[i], vec3(e2, e2, e2));
+        P->uniform("edge3" + index[i], vec3(e3, e3, e3));
+        P->uniform("edge4" + index[i], vec3(e4, e4, e4));
+        P->uniform("edge5" + index[i], vec3(e5, e5, e5));
+        P->uniform("edge6" + index[i], vec3(e6, e6, e6));
+        P->uniform("depth" + index[i], vec3(-slice[i].depth,
+                                            -slice[i].depth,
+                                            -slice[i].depth));
     }
 }
 

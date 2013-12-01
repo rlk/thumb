@@ -129,7 +129,7 @@ void ogl::irradiance_env::draw(const ogl::binding *bind) const
         // n * n accumulations.
 
         init->bind();
-        init->uniform("siz", double(b + 1), double(b + 1));
+        init->uniform("siz", vec2(b + 1, b + 1));
 
         ping->bind();
         {
@@ -141,8 +141,10 @@ void ogl::irradiance_env::draw(const ogl::binding *bind) const
                 {
                     Y[i]->bind(GL_TEXTURE2);
 
-                    init->uniform("loc", double(c), double(r));
-                    init->uniform("test", test[i][0], test[i][1], test[i][2]);
+                    init->uniform("loc",  vec2(c, r));
+                    init->uniform("test", vec3(test[i][0],
+                                               test[i][1],
+                                               test[i][2]));
 
                     clip_node->draw();
                 }
@@ -166,8 +168,8 @@ void ogl::irradiance_env::draw(const ogl::binding *bind) const
                 glClear(GL_COLOR_BUFFER_BIT);
                 ping->bind_color(GL_TEXTURE0);
 
-                step->uniform("siz", double(i) / double(n),
-                                     double(i) / double(n));
+                step->uniform("siz", vec2(double(i) / double(n),
+                                          double(i) / double(n)));
                 clip_node->draw();
             }
             pong->free();

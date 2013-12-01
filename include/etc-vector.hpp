@@ -36,6 +36,29 @@ struct mat4;
 
 //------------------------------------------------------------------------------
 
+/// 2-component double precision floating point vector.
+
+struct vec2
+{
+    double v[2];
+
+    vec2(double x=0, double y=0)
+    {
+        v[0] = x;
+        v[1] = y;
+    }
+
+    operator const double*() const
+    {
+        return const_cast<double *>(&v[0]);
+    }
+
+    const double& operator[](int i) const { return v[i]; }
+          double& operator[](int i)       { return v[i]; }
+};
+
+//------------------------------------------------------------------------------
+
 /// 3-component double precision floating point vector.
 
 struct vec3

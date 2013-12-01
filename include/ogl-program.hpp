@@ -75,13 +75,9 @@ namespace ogl
 
         GLenum unit(std::string) const;
 
-        void uniform(std::string, int)                            const;
-        void uniform(std::string, double)                         const;
-        void uniform(std::string, double, double)                 const;
-        void uniform(std::string, double, double, double)         const;
-        void uniform(std::string, double, double, double, double) const;
-        void uniform(std::string, const double *, bool=false)     const;
-
+        void uniform(std::string, int)                     const;
+        void uniform(std::string, double)                  const;
+        void uniform(std::string, const vec2&)             const;
         void uniform(std::string, const vec3&)             const;
         void uniform(std::string, const vec4&)             const;
         void uniform(std::string, const mat3&, bool=false) const;

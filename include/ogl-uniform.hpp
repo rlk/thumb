@@ -32,8 +32,10 @@ namespace ogl
         const std::string& get_name() const { return name; }
 
         void set(double);
+        void set(const vec2&);
         void set(const vec3&);
         void set(const vec4&);
+        void set(const mat3&);
         void set(const mat4&);
 
         void apply(GLint) const;

@@ -222,12 +222,12 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
             int w = chanv[chani]->get_w();
             int h = chanv[chani]->get_h();
 
-            program->uniform("ImageSize", double(w), double(h));
+            program->uniform("ImageSize", vec2(double(w), double(h)));
 
             if (chani)
-                program->uniform("LensCenter", 0.5 - 0.5 * center, 0.5);
+                program->uniform("LensCenter", vec2(0.5 - 0.5 * center, 0.5));
             else
-                program->uniform("LensCenter", 0.5 + 0.5 * center, 0.5);
+                program->uniform("LensCenter", vec2(0.5 + 0.5 * center, 0.5));
 
             fill(frust->get_w(),
                  frust->get_h(), w, h);
@@ -270,17 +270,17 @@ bool dpy::oculus::process_start(app::event *E)
         double aspect = double(Info.HResolution)
                       / double(Info.VResolution) / 2;
 
-        program->uniform("DistortionK",        Info.DistortionK[0],
-                                               Info.DistortionK[1],
-                                               Info.DistortionK[2],
-                                               Info.DistortionK[3]);
-        program->uniform("ChromaAbCorrection", Info.ChromaAbCorrection[0],
-                                               Info.ChromaAbCorrection[1],
-                                               Info.ChromaAbCorrection[2],
-                                               Info.ChromaAbCorrection[3]);
+        program->uniform("DistortionK",        vec4(Info.DistortionK[0],
+                                                    Info.DistortionK[1],
+                                                    Info.DistortionK[2],
+                                                    Info.DistortionK[3]));
+        program->uniform("ChromaAbCorrection", vec4(Info.ChromaAbCorrection[0],
+                                                    Info.ChromaAbCorrection[1],
+                                                    Info.ChromaAbCorrection[2],
+                                                    Info.ChromaAbCorrection[3]));
 
-        program->uniform("ScaleOut", 0.5 / scale, 0.5 * aspect / scale);
-        program->uniform("ScaleIn",  2.0,         2.0 / aspect);
+        program->uniform("ScaleOut", vec2(0.5 / scale, 0.5 * aspect / scale));
+        program->uniform("ScaleIn",  vec2(2.0,         2.0 / aspect));
     }
     return false;
 }
