@@ -450,12 +450,12 @@ bool dev::trackd::process_point(app::event *E)
 
 bool dev::trackd::process_click(app::event *E)
 {
-    const int  b = E->data.click.b;
-    const bool d = E->data.click.d;
+    const int b = E->data.click.b;
+    const int d = E->data.click.d;
 
     if (b == tracker_butn_fly)
     {
-        flying = d;
+        flying = bool(d);
 
         init_P[0] = curr_P[0];
         init_P[1] = curr_P[1];

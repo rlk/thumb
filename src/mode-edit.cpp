@@ -126,9 +126,9 @@ bool mode::edit::process_click(app::event *E)
     assert(world);
     assert(xform);
 
-    const int  b = E->data.click.b;
-    const int  m = E->data.click.m;
-    const bool d = E->data.click.d;
+    const int b = E->data.click.b;
+    const int m = E->data.click.m;
+    const int d = E->data.click.d;
 
     if (b == SDL_BUTTON_LEFT)
     {

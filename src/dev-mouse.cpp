@@ -83,14 +83,14 @@ bool dev::mouse::process_point(app::event *E)
 
 bool dev::mouse::process_click(app::event *E)
 {
-    const bool d = E->data.click.d;
-    const int  b = E->data.click.b;
+    const int d = E->data.click.d;
+    const int b = E->data.click.b;
 
     // Handle rotating the view.
 
     if (b == SDL_BUTTON_RIGHT)
     {
-        dragging = d;
+        dragging = bool(d);
         return true;
     }
     return false;

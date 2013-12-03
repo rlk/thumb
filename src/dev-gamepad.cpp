@@ -69,8 +69,8 @@ double dev::gamepad::calibrate(double val, double min, double max)
 
 bool dev::gamepad::process_click(app::event *E)
 {
-    const int  b = E->data.click.b;
-    const bool d = E->data.click.d;
+    const int b = E->data.click.b;
+    const int d = E->data.click.d;
 
     const int dd = d ? +1 : -1;
 

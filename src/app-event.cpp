@@ -146,7 +146,7 @@ void app::event::payload_encode()
 
         put_byte(data.click.b);
         put_word(data.click.m);
-        put_bool(data.click.d);
+        put_byte(data.click.d);
         break;
 
     case E_KEY:
@@ -212,7 +212,7 @@ void app::event::payload_decode()
 
         data.click.b = get_byte();
         data.click.m = get_word();
-        data.click.d = get_bool();
+        data.click.d = get_byte();
         break;
 
     case E_KEY:
@@ -290,7 +290,7 @@ app::event *app::event::mk_point(int i, const double *p, const double *q)
     return this;
 }
 
-app::event *app::event::mk_click(int b, int m, bool d)
+app::event *app::event::mk_click(int b, int m, int d)
 {
     put_type(E_CLICK);
 

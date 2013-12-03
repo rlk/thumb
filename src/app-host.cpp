@@ -557,6 +557,13 @@ void app::host::root_loop()
                                          SDL_GetModState(), false));
                 break;
 
+            case SDL_MOUSEWHEEL:
+                if (e.wheel.x)
+                    process_event(E.mk_click(-1, SDL_GetModState(), e.wheel.x));
+                if (e.wheel.y)
+                    process_event(E.mk_click(-2, SDL_GetModState(), e.wheel.y));
+                break;
+
             case SDL_KEYDOWN:
                 if (e.key.repeat == 0)
                     process_event(E.mk_key(e.key.keysym.scancode,

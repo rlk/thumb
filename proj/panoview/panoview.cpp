@@ -33,9 +33,9 @@
 panoview::panoview(const std::string& exe,
                    const std::string& tag) :
     view_app(exe, tag),
-    zoom(1.0),
-    zoom_min(0.001),
-    zoom_max(3.000)
+    zoom(0.0),
+    zoom_min(-10.0),
+    zoom_max(  2.0)
 {
     if (char *name = getenv("SCMINIT"))
     {
@@ -56,7 +56,7 @@ ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
 {
     vec3 v = ::view->get_point_vec(quat());
 
-    sys->get_sphere()->set_zoom(v[0], v[1], v[2], zoom);
+    sys->get_sphere()->set_zoom(v[0], v[1], v[2], pow(2.0, zoom));
 
     return view_app::prep(frusc, frusv);
 }
@@ -73,10 +73,23 @@ bool panoview::process_event(app::event *E)
 {
     if (E->get_type() == E_CLICK)
     {
-         if (E->data.click.b == 4)
-            zoom = std::max(zoom * 0.95, zoom_min);
-         if (E->data.click.b == 5)
-            zoom = std::min(zoom * 1.05, zoom_max);
+        const int b = E->data.click.b;
+        const int d = E->data.click.d;
+
+        if (b == -2)
+        {
+            zoom = zoom + d / 100.0;
+            zoom = std::max(zoom, zoom_min);
+            zoom = std::min(zoom, zoom_max);
+        }
+    }
+    if (E->get_type() == E_KEY)
+    {
+        if (E->data.key.d && E->data.key.k == SDL_SCANCODE_SPACE)
+        {
+            ::view->go_home();
+            zoom = 0.0;
+        }
     }
     return view_app::process_event(E);
 }
