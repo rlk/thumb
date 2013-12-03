@@ -16,6 +16,7 @@ OBJS=	app-data.o \
 	dev-gamepad.o \
 	dev-hybrid.o \
 	dev-mouse.o \
+	dev-sixense.o \
 	dev-skeleton.o \
 	dpy-anaglyph.o \
 	dpy-channel.o \
@@ -65,9 +66,7 @@ OBJS=	app-data.o \
 	wrl-param.o \
 	wrl-solid.o \
 	wrl-world.o
-#	dev-sixense.o \
 #	dev-trackd.o \
-#	etc-math.o \
 
 DEPS= $(OBJS:.o=.d)
 

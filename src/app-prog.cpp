@@ -149,7 +149,7 @@ app::prog::prog(const std::string& exe,
     if      (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
     else if (input_mode == "skeleton") input = new dev::skeleton();
     else if (input_mode == "gamepad")  input = new dev::gamepad();
-//  else if (input_mode == "sixense")  input = new dev::sixense();
+    else if (input_mode == "sixense")  input = new dev::sixense();
 //  else if (input_mode == "trackd")   input = new dev::trackd();
 
     mouse = new dev::mouse();
