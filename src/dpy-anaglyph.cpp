@@ -125,7 +125,7 @@ void dpy::anaglyph::test(int chanc, const dpy::channel *const *chanv, int index)
         assert(chanv[1]);
         assert(P);
 
-        // Draw the scene to the off-screen buffer.
+        // Draw the test pattern to the off-screen buffer.
 
         chanv[0]->bind();
         {

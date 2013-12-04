@@ -191,34 +191,37 @@ void wrl::constraint::calc_pos(double& x, double& y, const vec3& p,
 
 bool wrl::constraint::point(const vec3& p, const vec3& v, mat4& A)
 {
-    if (mode)
+    if (to_degrees(acos(mouse_v * v)) > 1.0)
     {
-        double a;
-        double d;
-
-        calc_rot(a, d, p, v);
-
-        if (fabs(a - mouse_a) > 0.0 || fabs(d - mouse_d) > 0.0)
+        if (mode)
         {
-            A = translation( wvector(T))
-              *    rotation( zvector(T), to_radians(a - mouse_a))
-              * translation(-wvector(T));
+            double a;
+            double d;
 
-            return true;
+            calc_rot(a, d, p, v);
+
+            if (fabs(a - mouse_a) > 0.0 || fabs(d - mouse_d) > 0.0)
+            {
+                A = translation( wvector(T))
+                  *    rotation( zvector(T), to_radians(a - mouse_a))
+                  * translation(-wvector(T));
+
+                return true;
+            }
         }
-    }
-    else
-    {
-        double x;
-        double y;
-
-        calc_pos(x, y, p, v);
-
-        if (fabs(x - mouse_x) > 0.0 || fabs(y - mouse_y) > 0.0)
+        else
         {
-            A = translation(xvector(T) * (x - mouse_x)
-                          + yvector(T) * (y - mouse_y));
-            return true;
+            double x;
+            double y;
+
+            calc_pos(x, y, p, v);
+
+            if (fabs(x - mouse_x) > 0.0 || fabs(y - mouse_y) > 0.0)
+            {
+                A = translation(xvector(T) * (x - mouse_x)
+                              + yvector(T) * (y - mouse_y));
+                return true;
+            }
         }
     }
     return false;
@@ -226,6 +229,8 @@ bool wrl::constraint::point(const vec3& p, const vec3& v, mat4& A)
 
 void wrl::constraint::click(const vec3& p, const vec3& v)
 {
+    mouse_p = p;
+    mouse_v = v;
     calc_rot(mouse_a, mouse_d, p, v);
     calc_pos(mouse_x, mouse_y, p, v);
 }

@@ -249,6 +249,7 @@ void ogl::line_state_init()
 
     glEnable(GL_BLEND);
     glEnable(GL_LINE_SMOOTH);
+    glEnable(GL_POINT_SMOOTH);
     glEnable(GL_POLYGON_OFFSET_LINE);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -262,6 +263,7 @@ void ogl::line_state_fini()
 //  glDepthMask(GL_TRUE);
 
     glDisable(GL_POLYGON_OFFSET_LINE);
+    glDisable(GL_POINT_SMOOTH);
     glDisable(GL_LINE_SMOOTH);
     glDisable(GL_BLEND);
 }

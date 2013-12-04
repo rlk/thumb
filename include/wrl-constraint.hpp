@@ -71,6 +71,8 @@ namespace wrl
         int    grid_a;
         double grid_d;
 
+        vec3   mouse_p;
+        vec3   mouse_v;
         double mouse_x;
         double mouse_y;
         double mouse_a;

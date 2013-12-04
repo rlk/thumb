@@ -538,11 +538,13 @@ void app::host::root_loop()
         // Translate and dispatch SDL events.
 
         SDL_Event e;
+        SDL_Event p;
 
         while (program->is_running() && SDL_PollEvent(&e))
             switch (e.type)
             {
             case SDL_MOUSEMOTION:
+                p = e;
                 if (pointer_to_3D(&E, e.motion.x, window_rect[3] - e.motion.y))
                     process_event(&E);
                 break;
@@ -619,6 +621,11 @@ void app::host::root_loop()
                             tick - tock >= JIFFY;
                             tock        += JIFFY)
                     process_event(E.mk_tick(JIFFY));
+
+            // Synthesize pointer motion to account for navigation.
+
+            if (pointer_to_3D(&E, p.motion.x, window_rect[3] - p.motion.y))
+                process_event(&E);
 
             // Call the render handler.
 

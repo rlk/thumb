@@ -71,6 +71,12 @@ namespace dpy
 
         const ogl::program *program;
 
+        vec2 LensCenter;
+        vec4 DistortionK;
+        vec4 ChromaAbCorrection;
+        vec2 ScaleIn;
+        vec2 ScaleOut;
+
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);
     };

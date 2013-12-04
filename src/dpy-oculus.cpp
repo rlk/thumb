@@ -201,9 +201,6 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
     assert(chanv[chani]);
     assert(program);
 
-    double center = 1.0 - (2.0 * Info.LensSeparationDistance)
-                               / Info.HScreenSize;
-
     // Draw the scene to the off-screen buffer.
 
     chanv[chani]->bind();
@@ -222,12 +219,8 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
             int w = chanv[chani]->get_w();
             int h = chanv[chani]->get_h();
 
-            program->uniform("ImageSize", vec2(double(w), double(h)));
-
-            if (chani)
-                program->uniform("LensCenter", vec2(0.5 - 0.5 * center, 0.5));
-            else
-                program->uniform("LensCenter", vec2(0.5 + 0.5 * center, 0.5));
+            program->uniform("LensCenter", LensCenter);
+            program->uniform("ImageSize",  vec2(w, h));
 
             fill(frust->get_w(),
                  frust->get_h(), w, h);
@@ -239,6 +232,35 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
 
 void dpy::oculus::test(int chanc, const dpy::channel *const *chanv, int index)
 {
+    assert(chanv[chani]);
+    assert(program);
+
+    // Draw the test pattern to the off-screen buffer.
+
+    chanv[chani]->bind();
+    {
+        chanv[chani]->test();
+    }
+    chanv[chani]->free();
+
+    // Draw the off-screen buffer to the screen.
+
+    chanv[chani]->bind_color(GL_TEXTURE0);
+    {
+        program->bind();
+        {
+            int w = chanv[chani]->get_w();
+            int h = chanv[chani]->get_h();
+
+            program->uniform("LensCenter", LensCenter);
+            program->uniform("ImageSize",  vec2(w, h));
+
+            fill(frust->get_w(),
+                 frust->get_h(), w, h);
+        }
+        program->free();
+    }
+    chanv[chani]->free_color(GL_TEXTURE0);
 }
 
 //-----------------------------------------------------------------------------
@@ -251,11 +273,30 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 
     if (viewport[0] <= x && x < viewport[0] + viewport[2] &&
         viewport[1] <= y && y < viewport[1] + viewport[3])
+    {
+        // Apply the lens distortion to the pointer position.
+
+        double ix = (double(x) - viewport[0]) / viewport[2];
+        double iy = (double(y) - viewport[1]) / viewport[3];
+
+        double vx = (ix - LensCenter[0]) * ScaleIn[0];
+        double vy = (iy - LensCenter[1]) * ScaleIn[1];
+
+        double rr = vx * vx + vy * vy;
+
+        double k = (DistortionK[0] +
+                    DistortionK[1] * rr +
+                    DistortionK[2] * rr * rr +
+                    DistortionK[3] * rr * rr * rr);
+
+        double ox = LensCenter[0] + ScaleOut[0] * vx * k;
+        double oy = LensCenter[1] + ScaleOut[1] * vy * k;
 
         // Let the frustum project the pointer into space.
 
-        return frust->pointer_to_3D(E, x - viewport[0],
-                                       y - viewport[1]);
+        return frust->pointer_to_3D(E, toint(ox * viewport[2]),
+                                       toint(oy * viewport[3]));
+    }
     else
         return false;
 }
@@ -270,17 +311,28 @@ bool dpy::oculus::process_start(app::event *E)
         double aspect = double(Info.HResolution)
                       / double(Info.VResolution) / 2;
 
-        program->uniform("DistortionK",        vec4(Info.DistortionK[0],
-                                                    Info.DistortionK[1],
-                                                    Info.DistortionK[2],
-                                                    Info.DistortionK[3]));
-        program->uniform("ChromaAbCorrection", vec4(Info.ChromaAbCorrection[0],
-                                                    Info.ChromaAbCorrection[1],
-                                                    Info.ChromaAbCorrection[2],
-                                                    Info.ChromaAbCorrection[3]));
+        double center = 1 - (2 * double(Info.LensSeparationDistance))
+                               / double(Info.HScreenSize);
 
-        program->uniform("ScaleOut", vec2(0.5 / scale, 0.5 * aspect / scale));
-        program->uniform("ScaleIn",  vec2(2.0,         2.0 / aspect));
+        if (chani) LensCenter = vec2(0.5 - 0.5 * center, 0.5);
+        else       LensCenter = vec2(0.5 + 0.5 * center, 0.5);
+
+        DistortionK =        vec4(Info.DistortionK[0],
+                                  Info.DistortionK[1],
+                                  Info.DistortionK[2],
+                                  Info.DistortionK[3]);
+        ChromaAbCorrection = vec4(Info.ChromaAbCorrection[0],
+                                  Info.ChromaAbCorrection[1],
+                                  Info.ChromaAbCorrection[2],
+                                  Info.ChromaAbCorrection[3]);
+
+        ScaleOut = vec2(0.5 / scale, 0.5 * aspect / scale);
+        ScaleIn =  vec2(2.0,         2.0 / aspect);
+
+        program->uniform("DistortionK",        DistortionK);
+        program->uniform("ChromaAbCorrection", ChromaAbCorrection);
+        program->uniform("ScaleOut",           ScaleOut);
+        program->uniform("ScaleIn",            ScaleIn);
     }
     return false;
 }

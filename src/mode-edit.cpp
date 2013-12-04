@@ -17,6 +17,7 @@
 #include <SDL_mouse.h>
 
 #include <etc-vector.hpp>
+#include <ogl-opengl.hpp>
 #include <app-conf.hpp>
 #include <app-view.hpp>
 #include <app-event.hpp>
@@ -378,19 +379,29 @@ void mode::edit::draw(int frusi, const app::frustum *frusp)
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);
     xform->draw     (frusi);
-/*
+
+
     ogl::line_state_init();
-    glBegin(GL_LINES);
     {
-        double L = 100.0;
-        glVertex3d(point_p[0], point_p[1], point_p[2]);
-        glVertex3d(point_p[0] + point_v[0] * L,
-                   point_p[1] + point_v[1] * L,
-                   point_p[2] + point_v[2] * L);
+        glColor3f(1.0f, 1.0f, 0.0f);
+
+        int d =  2;
+        int s = 16;
+
+        while (s > 0)
+        {
+            glPointSize(s);
+            glBegin(GL_POINTS);
+            glVertex3d(point_p[0] + point_v[0] * 0.125 * d,
+                       point_p[1] + point_v[1] * 0.125 * d,
+                       point_p[2] + point_v[2] * 0.125 * d);
+            glEnd();
+
+            d += 1;
+            s -= 2;
+        }
     }
-    glEnd();
     ogl::line_state_fini();
-*/
 }
 
 //-----------------------------------------------------------------------------
