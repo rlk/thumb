@@ -288,12 +288,6 @@ void view_app::unload()
     for (int i = 0; i < sys->get_step_count();  ++i) sys->del_step (0);
 }
 
-void view_app::reload()
-{
-    unload();
-    ui->reload();
-}
-
 void view_app::cancel()
 {
     draw_gui = false;
@@ -468,7 +462,6 @@ bool view_app::funkey(int n, int c, int s)
                 case  4: ren->set_wire(!ren->get_wire());         break;
 
                 case  5: sys->flush_cache();                      break;
-                case  6: reload();                                break;
                 case  7: ren->set_blur( 0);                       break;
                 case  8: ren->set_blur(16);                       break;
 
@@ -592,15 +585,8 @@ bool view_app::process_event(app::event *E)
         case E_TICK:  if (process_tick(E)) return true; else break;
     }
     if (draw_gui)
-    {
-        switch (E->get_type())
-        {
-            case E_CLICK: if (gui_click(E)) return true; else break;
-            case E_POINT: if (gui_point(E)) return true; else break;
-            case E_TEXT:  if (gui_text (E)) return true; else break;
-            case E_KEY:   if (gui_key  (E)) return true; else break;
-        }
-    }
+        if (gui_event(E)) return true;
+
     return prog::process_event(E);
 }
 
@@ -642,54 +628,47 @@ void view_app::gui_draw()
     }
 }
 
-// Handle a mouse point event while the GUI is visible.
+// Handle an event while the GUI is visible.
 
-bool view_app::gui_point(app::event *E)
+bool view_app::gui_event(app::event *E)
 {
-    int x = 0;
-    int y = 0;
+    int x;
+    int y;
 
-    if (E->data.point.i == 0)
+    switch (E->get_type())
     {
-        if (const app::frustum *overlay = ::host->get_overlay())
-        {
-            if (overlay->pointer_to_2D(E, x, y))
+        case E_POINT:
+
+            if (const app::frustum *overlay = ::host->get_overlay())
             {
-                ui->point(x, y);
+                if (E->data.point.i == 0 && overlay->pointer_to_2D(E, x, y))
+                {
+                    ui->point(x, y);
+                    return true;
+                }
+            }
+            return false;
+
+        case E_KEY:
+
+            if (E->data.key.d)
+            {
+                ui->key(E->data.key.k, E->data.key.m);
                 return true;
             }
-        }
+            return false;
+
+        case E_CLICK:
+
+            ui->click(E->data.click.m, E->data.click.d);
+            return true;
+
+        case E_TEXT:
+
+            ui->glyph(E->data.text.c);
+            return true;
     }
     return false;
-}
-
-// Handle a mouse click event while the GUI is visible.
-
-bool view_app::gui_click(app::event *E)
-{
-    ui->click(E->data.click.m,
-              E->data.click.d);
-    return true;
-}
-
-// Handle a text input event while the GUI is visible.
-
-bool view_app::gui_text(app::event *E)
-{
-    ui->glyph(E->data.text.c);
-    return true;
-}
-
-// Handle a keyboard event while the GUI is visible.
-
-bool view_app::gui_key(app::event *E)
-{
-    if (E->data.key.d)
-    {
-        ui->key(E->data.key.k,
-                E->data.key.m);
-    }
-    return true;
 }
 
 //------------------------------------------------------------------------------

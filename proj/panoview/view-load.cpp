@@ -12,7 +12,7 @@ static gui::widget *label(const std::string& text)
 
 static gui::widget *annot(const std::string& text)
 {
-    return new gui::string(text, 0, 0, 0x40, 0x40, 0x40);
+    return new gui::string(text, 0, 0, 0x00, 0x00, 0x00);
 }
 
 //------------------------------------------------------------------------------
@@ -94,9 +94,9 @@ view_load::view_load(view_app *V, int w, int h)
                               "13 Robert Kooima"))->
                     add(new gui::filler(true, false))->
                     add((new gui::harray)->
+                        add(new button_cancel(V))->
                         add(load_path)->
-                        add(load_data)->
-                        add(new button_cancel(V))))));
+                        add(load_data)))));
 
     root->layup();
 

@@ -47,7 +47,6 @@ public:
     virtual void   load_path(const std::string&);
     virtual void   save_path(const std::string&);
     virtual void unload();
-    virtual void reload();
 
     void cancel();
     void flag();
@@ -97,10 +96,7 @@ private:
     void gui_init();
     void gui_free();
     void gui_draw();
-    bool gui_point(app::event *);
-    bool gui_click(app::event *);
-    bool gui_text (app::event *);
-    bool gui_key  (app::event *);
+    bool gui_event(app::event *);
 };
 
 //-----------------------------------------------------------------------------
