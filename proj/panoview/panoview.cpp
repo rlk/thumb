@@ -37,13 +37,6 @@ panoview::panoview(const std::string& exe,
     zoom_min(-10.0),
     zoom_max(  2.0)
 {
-    if (char *name = getenv("SCMINIT"))
-    {
-        load_file(name);
-
-        if (sys && sys->get_step_count())
-            move_to(0);
-    }
 }
 
 panoview::~panoview()

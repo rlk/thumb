@@ -64,6 +64,11 @@ view_app::view_app(const std::string& exe,
     sys = new scm_system(w, h, 32, 256);
 
     gui_init();
+
+    // Preload data as requested.
+
+    if (char *name = getenv("SCMINIT"))
+        load_file(name);
 }
 
 view_app::~view_app()
@@ -227,6 +232,10 @@ void view_app::load_file(const std::string& name)
         // Dismiss the GUI.
 
         draw_gui = false;
+
+        // Display the first scene in the file.
+
+        jump_to(0);
     }
 }
 
@@ -382,6 +391,27 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
+void view_app::move_to(int n)
+{
+    jump_to(n);
+}
+
+void view_app::jump_to(int n)
+{
+    if (n < sys->get_step_count())
+    {
+        sys->flush_queue();
+        sys->append_queue(new scm_step(sys->get_step(n)));
+
+        here = sys->get_step_blend(1.0);
+        sys->set_scene_blend(1.0);
+
+        view_from_step(here);
+    }
+}
+
+//------------------------------------------------------------------------------
+
 void view_app::play(bool movie)
 {
     if (delta > 0)
@@ -405,30 +435,10 @@ bool view_app::numkey(int n, int c, int s)
 {
     if (s == 0)
     {
-        if (n < sys->get_step_count())
-        {
-            sys->flush_queue();
-            sys->append_queue(new scm_step(sys->get_step(n)));
-            here = sys->get_step_blend(1.0);
-            sys->set_scene_blend(1.0);
-
-
-            double p[3];
-            double q[4];
-            double d = here.get_distance();
-
-            here.get_orientation(q);
-            here.get_position   (p);
-
-            ::view->set_orientation(quat(q[0], q[1], q[2], q[3]));
-            ::view->set_position   (vec3(p[0], p[1], p[2]) * d);
-        }
-#if 0
         if (c == 0)
-            fade_to(n);
-        else
             move_to(n);
-#endif
+        else
+            jump_to(n);
     }
     else
     {
@@ -447,7 +457,7 @@ bool view_app::funkey(int n, int c, int s)
     {
         if (c == 0)
         {
-            scm_sphere *sph = sys->get_sphere();
+//          scm_sphere *sph = sys->get_sphere();
             scm_render *ren = sys->get_render();
 
             switch (n)
@@ -462,16 +472,16 @@ bool view_app::funkey(int n, int c, int s)
                 case  7: ren->set_blur( 0);                       break;
                 case  8: ren->set_blur(16);                       break;
 
-                case  9: sph->set_detail(sph->get_detail() +  2); break;
-                case 10: sph->set_detail(sph->get_detail() -  2); break;
-                case 11: sph->set_limit (sph->get_limit () + 10); break;
-                case 12: sph->set_limit (sph->get_limit () - 10); break;
+//              case  9: sph->set_detail(sph->get_detail() +  2); break;
+//              case 10: sph->set_detail(sph->get_detail() -  2); break;
+//              case 11: sph->set_limit (sph->get_limit () + 10); break;
+//              case 12: sph->set_limit (sph->get_limit () - 10); break;
 
-                case 14:
+                case 11:
                     sys->flush_queue();
                     record = true;
                     break;
-                case 15:
+                case 12:
                     record = false;
                     save_path("scm/path");
                     break;
@@ -553,13 +563,12 @@ bool view_app::process_tick(app::event *E)
     if (delta)
     {
         double prev = now;
-#if 0
-        double next = now + delta * here.get_speed() * dt;
-#else
         double next = now + delta;
-#endif
+
         here = sys->get_step_blend(next);
         now = sys->set_scene_blend(next);
+
+        view_from_step(here);
 
         if (now == prev)
         {

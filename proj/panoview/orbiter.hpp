@@ -32,10 +32,7 @@ public:
     virtual ogl::range prep(int, const app::frustum * const *);
     virtual void       draw(int, const app::frustum *, int);
 
-    virtual void load_file(const std::string&);
-
-    virtual int move_to(int);
-    virtual int fade_to(int);
+    virtual void move_to(int);
 
     virtual quat get_orientation() const;
     virtual void set_orientation(const quat&);

@@ -69,16 +69,6 @@ orbiter::orbiter(const std::string& exe,
         report_sock = socket(AF_INET, SOCK_DGRAM, 0);
     else
         report_sock = INVALID_SOCKET;
-
-    // Preload data as requested.
-
-    if (char *name = getenv("SCMINIT"))
-    {
-        load_file(name);
-
-        if (sys && sys->get_step_count())
-            move_to(0);
-    }
 }
 
 orbiter::~orbiter()
@@ -160,14 +150,6 @@ void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
 
 //------------------------------------------------------------------------------
 
-void orbiter::load_file(const std::string& name)
-{
-    view_app::load_file(name);
-
-    if (here.get_distance() == 0.0)
-        here.set_distance(2.0 * get_minimum_ground());
-}
-
 // Return an altitude scalar.
 
 double orbiter::get_speed() const
@@ -180,160 +162,6 @@ double orbiter::get_speed() const
     if (k < speed_min) return speed_min;
 
     return k;
-}
-
-// Compute the length of the Archimedean spiral with polar equation r = a theta.
-
-double arclen(double a, double theta)
-{
-    double d = sqrt(1 + theta * theta);
-    return a * (theta * d + log(theta + d)) / 2.0;
-}
-
-// Calculate the length of the arc of length theta along an Archimedean spiral
-// that begins at radius r0 and ends at radius r1.
-
-double spiral(double r0, double r1, double theta)
-{
-    double dr = fabs(r1 - r0);
-
-    if (theta > 0.0)
-    {
-        if (dr > 0.0)
-        {
-            double a = dr / theta;
-            return fabs(arclen(a, r1 / a) - arclen(a, r0 / a));
-        }
-        return theta * r0;
-    }
-    return dr;
-}
-
-int orbiter::move_to(int i)
-{
-#if 0
-    // Construct a path from here to there.
-
-    if (delta == 0)
-    {
-        if (0 <= i && i < sys->get_step_count())
-        {
-            // Set the location and destination.
-
-            scm_step *src = &here;
-            scm_step *dst = sys->get_step(i);
-
-            // Determine the beginning and ending positions and altitudes.
-
-            double p0[3];
-            double p1[3];
-
-            src->get_position(p0);
-            dst->get_position(p1);
-
-            double g0 = sys->get_current_ground(p0);
-            double g1 = sys->get_current_ground(p1);
-
-            double d0 = src->get_distance();
-            double d1 = dst->get_distance();
-
-            // Compute the ground trace length and orbit length.
-
-            double a = acos(vdot(p0, p1));
-            double lg = spiral(g0, g1, a);
-            double lo = spiral(d0, d1, a);
-
-            // Calculate a "hump" for a low orbit path.
-
-            double aa = std::min(d0 - g0, d1 - g1);
-            double dd = lg ? log10(lg / aa) * lg / 10 : 0;
-
-            // Enqueue the path.
-
-            sys->flush_queue();
-
-            if (lo > 0)
-                for (double t = 0.0; t < 1.0; )
-                {
-                    double p[3];
-                    double dt = 0.01;
-                    double q = 4 * t - 4 * t * t;
-
-                    // Estimate the current velocity.
-
-                    scm_step t0(src, dst, t);
-                    scm_step t1(src, dst, t + dt);
-
-                    t0.set_distance(t0.get_distance() + dd * q);
-                    t1.set_distance(t1.get_distance() + dd * q);
-
-                    // Queue this step.
-
-                    if (t < 0.5)
-                    {
-                        t0.set_foreground(src->get_foreground());
-                        t0.set_background(src->get_background());
-                    }
-                    else
-                    {
-                        t0.set_foreground(dst->get_foreground());
-                        t0.set_background(dst->get_background());
-                    }
-                    sys->append_queue(new scm_step(t0));
-
-                    // Move forward at a velocity appropriate for the altitude.
-
-                    t0.get_position(p);
-
-                    double g = sys->get_current_ground(p);
-
-                    t += 2 * (t0.get_distance() - g) * dt * dt / (t1 - t0);
-                }
-
-            sys->append_queue(new scm_step(dst));
-
-            // Trigger playback.
-
-            now   = 0;
-            delta = 1;
-        }
-    }
-#endif
-    return i;
-}
-
-int orbiter::fade_to(int i)
-{
-    // Construct a path from here to there.
-#if 0
-    if (delta == 0)
-    {
-        if (0 <= i && i < sys->get_step_count())
-        {
-            // Source and destination both remain fixed.
-
-            path_src = here;
-            path_dst = here;
-
-            // Change the scene to that of the requested step.
-
-            path_src.set_speed(1.0);
-            path_dst.set_speed(1.0);
-            path_dst.set_foreground(sys->get_step(i)->get_foreground());
-            path_dst.set_background(sys->get_step(i)->get_background());
-
-            // Queue these new steps and trigger playback.
-
-            sys->flush_queue();
-            sys->append_queue(&path_src);
-            sys->append_queue(&path_dst);
-
-            now   = 0;
-            delta = 1;
-        }
-    }
-#endif
-    return i;
 }
 
 //------------------------------------------------------------------------------
@@ -393,6 +221,125 @@ void orbiter::offset_position(const vec3 &d)
     // Copy the modifed step back to the camera configuration.
 
     view_from_step(here);
+}
+
+//------------------------------------------------------------------------------
+
+// Compute the length of the Archimedean spiral with polar equation r = a theta.
+
+double arclen(double a, double theta)
+{
+    double d = sqrt(1 + theta * theta);
+    return a * (theta * d + log(theta + d)) / 2.0;
+}
+
+// Calculate the length of the arc of length theta along an Archimedean spiral
+// that begins at radius r0 and ends at radius r1.
+
+double spiral(double r0, double r1, double theta)
+{
+    double dr = fabs(r1 - r0);
+
+    if (theta > 0.0)
+    {
+        if (dr > 0.0)
+        {
+            double a = dr / theta;
+            return fabs(arclen(a, r1 / a) - arclen(a, r0 / a));
+        }
+        return theta * r0;
+    }
+    return dr;
+}
+
+void orbiter::move_to(int i)
+{
+    // Construct a path from here to there.
+
+    if (delta == 0)
+    {
+        if (0 <= i && i < sys->get_step_count())
+        {
+            // Set the location and destination.
+
+            scm_step *src = &here;
+            scm_step *dst = sys->get_step(i);
+
+            // Determine the beginning and ending positions and altitudes.
+
+            double p0[3];
+            double p1[3];
+
+            src->get_position(p0);
+            dst->get_position(p1);
+
+            double g0 = sys->get_current_ground(p0);
+            double g1 = sys->get_current_ground(p1);
+
+            double d0 = src->get_distance();
+            double d1 = dst->get_distance();
+
+            // Compute the ground trace length and orbit length.
+
+            double a = acos(vdot(p0, p1));
+            double lg = spiral(g0, g1, a);
+            double lo = spiral(d0, d1, a);
+
+            // Calculate a "hump" for a low orbit path.
+
+            double aa = std::min(d0 - g0, d1 - g1);
+            double dd = lg ? log10(lg / aa) * lg / 10 : 0;
+
+            // Enqueue the path.
+
+            sys->flush_queue();
+
+            if (lo > 0)
+            {
+                for (double t = 0.0; t < 1.0; )
+                {
+                    double p[3];
+                    double dt = 0.01;
+                    double q = 4 * t - 4 * t * t;
+
+                    // Estimate the current velocity.
+
+                    scm_step t0(src, dst, t);
+                    scm_step t1(src, dst, t + dt);
+
+                    t0.set_distance(t0.get_distance() + dd * q);
+                    t1.set_distance(t1.get_distance() + dd * q);
+
+                    // Queue this step.
+
+                    if (t < 0.5)
+                    {
+                        t0.set_foreground(src->get_foreground());
+                        t0.set_background(src->get_background());
+                    }
+                    else
+                    {
+                        t0.set_foreground(dst->get_foreground());
+                        t0.set_background(dst->get_background());
+                    }
+                    sys->append_queue(new scm_step(t0));
+
+                    // Move forward at a velocity appropriate for the altitude.
+
+                    t0.get_position(p);
+
+                    double g = sys->get_current_ground(p);
+
+                    t += 2 * (t0.get_distance() - g) * dt * dt / (t1 - t0);
+                }
+            }
+            sys->append_queue(new scm_step(dst));
+
+            // Trigger playback.
+
+            play(false);
+        }
+    }
 }
 
 //------------------------------------------------------------------------------

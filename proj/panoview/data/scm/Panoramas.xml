@@ -1,9 +1,5 @@
 <?xml version="1.0"?>
   <sphere detail="32" limit="256">
-    <scene name="Moon" vert="glsl/scm-zoom.vert" frag="glsl/scm-basic.frag" label="graticule.csv" >
-      <image name="color" scm="WAC-254-7.tif" k0="0.0" k1="3.0" channel="0"/>
-      <image name="color" scm="WAC-254-7.tif" k0="0.0" k1="3.0" channel="1"/>
-    </scene>
     <scene name="LSU1" vert="glsl/scm-zoom.vert" frag="glsl/scm-basic.frag">
       <image name="color" scm="LSU1-L-256-5.tif"            channel="0"/>
       <image name="color" scm="LSU1-R-256-5.tif"            channel="1"/>
@@ -33,7 +29,6 @@
       <image name="color" scm="Bluebonnet-4-R-256-5.tif" channel="1"/>
     </scene>
 
-    <step name="Moon"        background="Moon"        distance="0" />
     <step name="LSU1"        background="LSU1"        distance="0" />
     <step name="LSU2"        background="LSU2"        distance="0" />
     <step name="Tiger1"      background="Tiger1"      distance="0" />

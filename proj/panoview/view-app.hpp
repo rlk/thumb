@@ -56,8 +56,8 @@ public:
     double get_current_ground() const;
     double get_minimum_ground() const;
 
-    virtual int move_to(int) { return 0; }
-    virtual int fade_to(int) { return 0; }
+    virtual void move_to(int);
+    virtual void jump_to(int);
 
 protected:
 
@@ -66,6 +66,8 @@ protected:
     double     now;
     double     delta;
     bool       record;
+
+    void play(bool);
 
 private:
 
@@ -77,8 +79,6 @@ private:
     bool draw_cache;
     bool draw_path;
     bool draw_gui;
-
-    void play(bool);
 
     bool numkey(int, int, int);
     bool funkey(int, int, int);
