@@ -34,8 +34,8 @@ panoview::panoview(const std::string& exe,
                    const std::string& tag) :
     view_app(exe, tag),
     zoom(0.0),
-    zoom_min(-10.0),
-    zoom_max(  2.0)
+    zoom_min(-5.0),
+    zoom_max( 2.0)
 {
 }
 
