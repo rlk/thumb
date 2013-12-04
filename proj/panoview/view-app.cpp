@@ -39,7 +39,9 @@ view_app::view_app(const std::string& exe,
     delta(0),
     record(false),
     draw_cache(false),
-    draw_path (false)
+    draw_path (false),
+    draw_gui  (true),
+    gui(0)
 {
     TIFFSetWarningHandler(0);
 
@@ -63,8 +65,6 @@ view_app::view_app(const std::string& exe,
 
     sys = new scm_system(w, h, 32, 256);
 
-    gui_init();
-
     // Preload data as requested.
 
     if (char *name = getenv("SCMINIT"))
@@ -75,7 +75,7 @@ view_app::~view_app()
 {
     delete sys;
 
-    gui_free();
+    gui_hide();
 
     ::data->free(::conf->get_s("sans_font"));
 }
@@ -229,12 +229,9 @@ void view_app::load_file(const std::string& name)
         for (int i = 0; i < scenes; ++i) sys->del_scene(0);
         for (int i = 0; i < steps;  ++i) sys->del_step (0);
 
-        // Dismiss the GUI.
+        // Dismiss the GUI and display the first loaded scene.
 
         draw_gui = false;
-
-        // Display the first scene in the file.
-
         jump_to(0);
     }
 }
@@ -293,6 +290,8 @@ void view_app::cancel()
     draw_gui = false;
 }
 
+//------------------------------------------------------------------------------
+
 void view_app::flag()
 {
     double pos[3], rad = get_current_ground();
@@ -341,7 +340,10 @@ double view_app::get_minimum_ground() const
 
 ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 {
-    if (draw_gui)
+    if ( draw_gui && !gui) gui_show();
+    if (!draw_gui &&  gui) gui_hide();
+
+    if (gui)
         glClearColor(0.3, 0.3, 0.3, 0.0);
     else
         glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -380,7 +382,8 @@ void view_app::over(int frusi, const app::frustum *frusp, int chani)
 
     if (draw_path)  sys->render_queue();
     if (draw_cache) sys->render_cache();
-    if (draw_gui)   gui_draw();
+
+    if (gui) gui_draw();
 }
 
 //------------------------------------------------------------------------------
@@ -584,8 +587,7 @@ bool view_app::process_event(app::event *E)
         case E_USER:  if (process_user(E)) return true; else break;
         case E_TICK:  if (process_tick(E)) return true; else break;
     }
-    if (draw_gui)
-        if (gui_event(E)) return true;
+    if (gui && gui_event(E)) return true;
 
     return prog::process_event(E);
 }
@@ -594,23 +596,19 @@ bool view_app::process_event(app::event *E)
 
 // Initialize the file selection GUI.
 
-void view_app::gui_init()
+void view_app::gui_show()
 {
-    const app::frustum *overlay = ::host->get_overlay();
-
-    int w = overlay ? overlay->get_pixel_w() : ::host->get_buffer_w();
-    int h = overlay ? overlay->get_pixel_h() : ::host->get_buffer_h();
-
-    draw_gui = true;
-
-    ui = new view_load(this, w, h);
+    if (const app::frustum *overlay = ::host->get_overlay())
+        gui = new view_load(this, overlay->get_pixel_w(),
+                                  overlay->get_pixel_h());
 }
 
 // Release the file selection GUI.
 
-void view_app::gui_free()
+void view_app::gui_hide()
 {
-    delete ui;
+    delete gui;
+    gui = 0;
 }
 
 // Draw the file selection GUI in the overlay.
@@ -622,7 +620,7 @@ void view_app::gui_draw()
         glEnable(GL_DEPTH_CLAMP);
         {
             overlay->overlay();
-            ui->draw();
+            gui->draw();
         }
         glDisable(GL_DEPTH_CLAMP);
     }
@@ -643,7 +641,7 @@ bool view_app::gui_event(app::event *E)
             {
                 if (E->data.point.i == 0 && overlay->pointer_to_2D(E, x, y))
                 {
-                    ui->point(x, y);
+                    gui->point(x, y);
                     return true;
                 }
             }
@@ -653,19 +651,19 @@ bool view_app::gui_event(app::event *E)
 
             if (E->data.key.d)
             {
-                ui->key(E->data.key.k, E->data.key.m);
+                gui->key(E->data.key.k, E->data.key.m);
                 return true;
             }
             return false;
 
         case E_CLICK:
 
-            ui->click(E->data.click.m, E->data.click.d);
+            gui->click(E->data.click.m, E->data.click.d);
             return true;
 
         case E_TEXT:
 
-            ui->glyph(E->data.text.c);
+            gui->glyph(E->data.text.c);
             return true;
     }
     return false;

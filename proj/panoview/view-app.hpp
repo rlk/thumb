@@ -75,9 +75,9 @@ private:
     void load_images(app::node, scm_scene *);
     void load_scenes(app::node);
 
+    bool draw_gui;
     bool draw_cache;
     bool draw_path;
-    bool draw_gui;
 
     bool numkey(int, int, int);
     bool funkey(int, int, int);
@@ -91,10 +91,10 @@ private:
 
     // Sphere GUI State
 
-    view_load *ui;
+    view_load *gui;
 
-    void gui_init();
-    void gui_free();
+    void gui_show();
+    void gui_hide();
     void gui_draw();
     bool gui_event(app::event *);
 };

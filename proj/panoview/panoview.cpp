@@ -74,6 +74,7 @@ bool panoview::process_event(app::event *E)
             zoom = zoom + d / 100.0;
             zoom = std::max(zoom, zoom_min);
             zoom = std::min(zoom, zoom_max);
+            return true;
         }
     }
     if (E->get_type() == E_KEY)
@@ -82,6 +83,7 @@ bool panoview::process_event(app::event *E)
         {
             ::view->go_home();
             zoom = 0.0;
+            return true;
         }
     }
     return view_app::process_event(E);
