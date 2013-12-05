@@ -23,9 +23,10 @@ namespace app
     {
     private:
 
-        mat4 tracking;
         quat orientation;
         vec3 position;
+        mat4 tracking;
+        bool vertical;
 
     public:
 
@@ -33,12 +34,14 @@ namespace app
 
         void go_home();
 
+
         vec3 get_point_pos(const vec3&) const;
         vec3 get_point_vec(const quat&) const;
 
-        void set_tracking   (const mat4& M) { tracking    = M; }
-        void set_orientation(const quat& q) { orientation = q; }
+        void set_orientation(const quat& q);
         void set_position   (const vec3& p) { position    = p; }
+        void set_tracking   (const mat4& M) { tracking    = M; }
+        void lock_vertical  (bool b)        { vertical    = b; }
 
         mat4 get_tracking   () const { return tracking;    }
         quat get_orientation() const { return orientation; }

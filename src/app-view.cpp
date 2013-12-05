@@ -18,6 +18,7 @@
 app::view::view()
 {
     go_home();
+    vertical = true;
 }
 
 void app::view::go_home()
@@ -40,6 +41,27 @@ vec3 app::view::get_point_vec(const quat& q) const
     const mat4 M = transpose(get_inverse());
     const vec3 v = -zvector(mat3(q));
     return vec3(M * vec4(v, 0));
+}
+
+//-----------------------------------------------------------------------------
+
+#include <stdio.h>
+
+void app::view::set_orientation(const quat& q)
+{
+    if (vertical)
+    {
+        vec3 x(xvector(mat3(q)));
+        vec3 y(0, 1, 0);
+        vec3 z(0, 0, 1);
+
+        z = normal(cross(x, y));
+        y = normal(cross(z, x));
+        x = normal(cross(y, z));
+
+        orientation = quat(mat3(x, y, z));
+    }
+    else orientation = q;
 }
 
 //-----------------------------------------------------------------------------
