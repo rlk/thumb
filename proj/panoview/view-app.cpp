@@ -619,7 +619,8 @@ void view_app::gui_draw()
     {
         glEnable(GL_DEPTH_CLAMP);
         {
-            overlay->overlay();
+            glLoadIdentity();
+            overlay->apply_overlay();
             gui->draw();
         }
         glDisable(GL_DEPTH_CLAMP);

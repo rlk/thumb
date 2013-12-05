@@ -613,14 +613,12 @@ void app::frustum::load_transform() const
     glMatrixMode(GL_MODELVIEW);
 }
 
-void app::frustum::overlay() const
+void app::frustum::apply_overlay() const
 {
     // Produce a unit-to-pixel transformation for 2D overlay.
 
     glMatrixMode(GL_MODELVIEW);
     {
-        glLoadIdentity();
-
         glTranslated(user_points[0][0],
                      user_points[0][1],
                      user_points[0][2]);

@@ -100,8 +100,7 @@ namespace app
         // Perspective projection application
 
         void load_transform() const;
-
-        void overlay() const;
+        void apply_overlay()  const;
 
     private:
 

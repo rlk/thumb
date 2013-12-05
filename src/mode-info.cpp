@@ -69,8 +69,11 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
     if (overlay)
     {
         glEnable(GL_DEPTH_CLAMP_NV);
-        overlay->overlay();
-        gui->draw();
+        {
+            glLoadIdentity();
+            overlay->apply_overlay();
+            gui->draw();
+        }
         glDisable(GL_DEPTH_CLAMP_NV);
     }
 }
