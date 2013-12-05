@@ -104,6 +104,7 @@ dpy::oculus::oculus(app::node p) :
                 {
                     Fusion.AttachToSensor(pSensor);
                     pHMD->GetDeviceInfo(&Info);
+                    ::view->lock_vertical(true);
                 }
             }
         }

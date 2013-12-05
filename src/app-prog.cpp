@@ -139,6 +139,7 @@ app::prog::prog(const std::string& exe,
 
     ::data = new app::data(DEFAULT_DATA_FILE);
     ::conf = new app::conf(DEFAULT_CONF_FILE);
+    ::view = new app::view();
 
     ::data->init();
 
@@ -177,7 +178,6 @@ app::prog::prog(const std::string& exe,
 
     // Initialize the OpenGL state.
 
-    ::view = new app::view();
     ::glob = new app::glob();
     ::perf = new app::perf();
 

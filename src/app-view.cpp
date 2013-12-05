@@ -12,13 +12,14 @@
 
 #include <ogl-opengl.hpp>
 #include <app-view.hpp>
+#include <app-conf.hpp>
 
 //-----------------------------------------------------------------------------
 
 app::view::view()
 {
+    vertical = bool(::conf->get_i("view_lock_vertical", 0));
     go_home();
-    vertical = true;
 }
 
 void app::view::go_home()
@@ -45,8 +46,6 @@ vec3 app::view::get_point_vec(const quat& q) const
 
 //-----------------------------------------------------------------------------
 
-#include <stdio.h>
-
 void app::view::set_orientation(const quat& q)
 {
     if (vertical)
@@ -56,7 +55,6 @@ void app::view::set_orientation(const quat& q)
         vec3 z(0, 0, 1);
 
         z = normal(cross(x, y));
-        y = normal(cross(z, x));
         x = normal(cross(y, z));
 
         orientation = quat(mat3(x, y, z));
