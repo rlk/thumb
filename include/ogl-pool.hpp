@@ -22,6 +22,25 @@
 #include <ogl-surface.hpp>
 #include <ogl-mesh.hpp>
 
+// This interface, in consort with ogl::mesh, implements a fairly complex
+// mechanism to optimize 3D geometry for rendering with OpenGL vertex buffer
+// objects. It provides a top-level ogl::pool object containing a two-level
+// scene graph. First-level graph entities, ogl::node objects, represent
+// transformable accumulations of static second-level entities, ogl::unit
+// objects.
+
+// Each unit maintains two sets of meshes, one set of static meshes given by its
+// input OBJ file, and a second set of cached meshes giving transformed versions
+// of that input. These transformed vertex arrays are concatenated giving vertex
+// array buffers. The meshes are sorted by material type and concatenated giving
+// element array buffers.
+
+// Material definitions, given by ogl::surface objects, define independent color
+// and depth bindings. Meshes are sorted accordingly, giving a separate set of
+// element array blocks for depth-only rendering, and thus optimizing shadow map
+// and early-Z passes. Alpha-tested geometry is further distinguised, allowing
+// alpha-test geometry to be rendered last.
+
 //-----------------------------------------------------------------------------
 
 namespace ogl
