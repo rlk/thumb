@@ -55,12 +55,10 @@ wrl::world::world() :
     fill_node = new ogl::node;
 
     line_pool = ::glob->new_pool();
-    stat_node = new ogl::node;
-    dyna_node = new ogl::node;
+    line_node = new ogl::node;
 
     fill_pool->add_node(fill_node);
-    line_pool->add_node(stat_node);
-    line_pool->add_node(dyna_node);
+    line_pool->add_node(line_node);
 
     // Initialize the render uniforms and processes.
 
@@ -91,8 +89,7 @@ wrl::world::~world()
     // Atoms own units, so units must be removed from nodes before deletion.
 
     fill_node->clear();
-    stat_node->clear();
-    dyna_node->clear();
+    line_node->clear();
 
     for (node_map::iterator j = nodes.begin(); j != nodes.end(); ++j)
         j->second->clear();
@@ -493,7 +490,7 @@ int wrl::world::get_param(int k, std::string& expr)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::node_insert(int id, ogl::unit *unit)
+void wrl::world::node_insert(int id, ogl::unit *fill, ogl::unit *line)
 {
     if (id)
     {
@@ -507,18 +504,20 @@ void wrl::world::node_insert(int id, ogl::unit *unit)
 
         // Add the given unit to the node.
 
-        nodes[id]->add_unit(unit);
+        nodes[id]->add_unit(fill);
     }
-    else fill_node->add_unit(unit);
+    else fill_node->add_unit(fill);
+
+    line_node->add_unit(line);
 }
 
-void wrl::world::node_remove(int id, ogl::unit *unit)
+void wrl::world::node_remove(int id, ogl::unit *fill, ogl::unit *line)
 {
     if (id)
     {
         // Remove the unit from its current node.
 
-        nodes[id]->rem_unit(unit);
+        nodes[id]->rem_unit(fill);
 
         // If the node is empty then delete it.
 
@@ -529,7 +528,9 @@ void wrl::world::node_remove(int id, ogl::unit *unit)
             nodes.erase(id);
         }
     }
-    else fill_node->rem_unit(unit);
+    else fill_node->rem_unit(fill);
+
+    line_node->rem_unit(line);
 }
 
 //-----------------------------------------------------------------------------
@@ -617,29 +618,11 @@ void wrl::world::extend_selection()
 void wrl::world::select_set()
 {
     sel.clear();
-
-    // Flush the line pool.
-
-    stat_node->clear();
-    dyna_node->clear();
 }
 
 void wrl::world::select_set(atom_set& set)
 {
     sel = set;
-
-    // Flush the line pool.
-
-    stat_node->clear();
-    dyna_node->clear();
-
-    // Pool the line elements of all selected atoms.
-
-    for (atom_set::iterator i = set.begin(); i != set.end(); ++i)
-        if ((*i)->body())
-            dyna_node->add_unit((*i)->get_line());
-        else
-            stat_node->add_unit((*i)->get_line());
 }
 
 //-----------------------------------------------------------------------------
@@ -650,7 +633,7 @@ void wrl::world::create_set(atom_set& set)
     {
         // Add the atom's unit to the render pool.
 
-        node_insert((*i)->body(), (*i)->get_fill());
+        node_insert((*i)->body(), (*i)->get_fill(), (*i)->get_line());
 
         // Add the atom to the atom set.
 
@@ -669,7 +652,7 @@ void wrl::world::delete_set(atom_set& set)
     {
         // Remove the atom's unit from the render pool.
 
-        node_remove((*i)->body(), (*i)->get_fill());
+        node_remove((*i)->body(), (*i)->get_fill(), (*i)->get_line());
 
         // Remove the atom from the atom set.
 
@@ -684,11 +667,11 @@ void wrl::world::embody_set(atom_set& set, atom_map& map)
     {
         // Assign the body ID for each atom.
 
-        node_remove((*i)->body(), (*i)->get_fill());
+        node_remove((*i)->body(), (*i)->get_fill(), (*i)->get_line());
 
         (*i)->body(map[*i]);
 
-        node_insert((*i)->body(), (*i)->get_fill());
+        node_insert((*i)->body(), (*i)->get_fill(), (*i)->get_line());
     }
 }
 
