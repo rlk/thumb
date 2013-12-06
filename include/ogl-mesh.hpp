@@ -50,10 +50,13 @@ namespace ogl
     // out that a vector is about 5% faster on my system, but it's worth
     // having the capability to switch representations and test.
 
+#if 1
     typedef std::vector<GLvec2> GLvec2_d;
     typedef std::vector<GLvec3> GLvec3_d;
-//  typedef std::deque<GLvec2>  GLvec2_d;
-//  typedef std::deque<GLvec3>  GLvec3_d;
+#else
+    typedef std::deque<GLvec2>  GLvec2_d;
+    typedef std::deque<GLvec3>  GLvec3_d;
+#endif
 
     //-------------------------------------------------------------------------
 
@@ -92,32 +95,6 @@ namespace ogl
 
     class mesh
     {
-        const binding *material;
-
-        // Vertex buffers
-
-        GLvec3_v vv;
-        GLvec3_v nv;
-        GLvec3_v tv;
-        GLvec2_v uv;
-
-        // Element buffers
-
-        face_v faces;
-        line_v lines;
-
-        // Vertex bound and element range
-
-        aabb bound;
-        GLuint min;
-        GLuint max;
-
-        // Buffer object cache state
-
-        bool dirty_verts;
-        bool dirty_faces;
-        bool dirty_lines;
-
     public:
 
         mesh(std::string&);
@@ -157,6 +134,34 @@ namespace ogl
         void buffv(const GLfloat *, const GLfloat *,
                    const GLfloat *, const GLfloat *);
         void buffe(const GLuint  *);
+
+    private:
+
+        const binding *material;
+
+        // Vertex buffers
+
+        GLvec3_v vv;
+        GLvec3_v nv;
+        GLvec3_v tv;
+        GLvec2_v uv;
+
+        // Element buffers
+
+        face_v faces;
+        line_v lines;
+
+        // Vertex bound and element range
+
+        aabb bound;
+        GLuint min;
+        GLuint max;
+
+        // Buffer object cache state
+
+        bool dirty_verts;
+        bool dirty_faces;
+        bool dirty_lines;
     };
 
     typedef mesh                               *mesh_p;

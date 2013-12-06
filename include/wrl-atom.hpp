@@ -116,7 +116,6 @@ namespace wrl
         virtual void mult_T() const;
         virtual void mult_V() const;
         virtual void mult_P() const;
-
     };
 
     typedef std::set<atom *     > atom_set;

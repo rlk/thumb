@@ -70,14 +70,6 @@ namespace ogl
 
     class elem
     {
-        const binding *bnd;
-        const GLuint  *off;
-
-        GLenum  typ;
-        GLsizei num;
-        GLuint  min;
-        GLuint  max;
-
     public:
 
         elem(const binding *, const GLuint *, GLenum, GLsizei, GLuint, GLuint);
@@ -89,6 +81,16 @@ namespace ogl
         void merge   (const elem&);
 
         void draw(bool) const;
+
+    private:
+
+        const binding *bnd;
+        const GLuint  *off;
+
+        GLenum  typ;
+        GLsizei num;
+        GLuint  min;
+        GLuint  max;
     };
 
     // TODO: deque?
@@ -101,23 +103,6 @@ namespace ogl
 
     class unit
     {
-        mat4 M;
-        mat4 I;
-
-        GLsizei vc;
-        GLsizei ec;
-
-        node_p my_node;
-        mesh_m my_mesh;
-        aabb   my_aabb;
-
-        bool rebuff;
-        bool active;
-
-        const surface *surf;
-
-        void set_mesh();
-
     public:
 
         unit(std::string, bool=true);
@@ -136,6 +121,25 @@ namespace ogl
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
+
+    private:
+
+        mat4 M;
+        mat4 I;
+
+        GLsizei vc;
+        GLsizei ec;
+
+        node_p my_node;
+        mesh_m my_mesh;
+        aabb   my_aabb;
+
+        bool rebuff;
+        bool active;
+
+        const surface *surf;
+
+        void set_mesh();
     };
 
     //-------------------------------------------------------------------------
@@ -143,26 +147,6 @@ namespace ogl
 
     class node
     {
-        mat4 M;
-
-        GLsizei vc;
-        GLsizei ec;
-
-        bool rebuff;
-
-        pool_p my_pool;
-        unit_s my_unit;
-        mesh_m my_mesh;
-        aabb   my_aabb;
-
-        unsigned int test_cache;
-        unsigned int hint_cache;
-
-        elem_v opaque_depth;
-        elem_v opaque_color;
-        elem_v masked_depth;
-        elem_v masked_color;
-
     public:
 
         node();
@@ -187,6 +171,28 @@ namespace ogl
         GLsizei ecount() const { return ec; }
 
         void transform(const mat4&);
+
+    private:
+
+        mat4 M;
+
+        GLsizei vc;
+        GLsizei ec;
+
+        bool rebuff;
+
+        pool_p my_pool;
+        unit_s my_unit;
+        mesh_m my_mesh;
+        aabb   my_aabb;
+
+        unsigned int test_cache;
+        unsigned int hint_cache;
+
+        elem_v opaque_depth;
+        elem_v opaque_color;
+        elem_v masked_depth;
+        elem_v masked_color;
     };
 
     //-------------------------------------------------------------------------
@@ -194,20 +200,6 @@ namespace ogl
 
     class pool
     {
-        GLsizei vc;
-        GLsizei ec;
-
-        bool resort;
-        bool rebuff;
-
-        GLuint vbo;
-        GLuint ebo;
-
-        node_s my_node;
-
-        void buff(bool);
-        void sort();
-
     public:
 
         pool();
@@ -230,6 +222,22 @@ namespace ogl
 
         void init();
         void fini();
+
+    private:
+
+        GLsizei vc;
+        GLsizei ec;
+
+        bool resort;
+        bool rebuff;
+
+        GLuint vbo;
+        GLuint ebo;
+
+        node_s my_node;
+
+        void buff(bool);
+        void sort();
     };
 }
 

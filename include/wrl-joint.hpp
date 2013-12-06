@@ -22,11 +22,6 @@ namespace wrl
 {
     class joint : public atom
     {
-    protected:
-
-        int      join_id;
-        dJointID play_join;
-
     public:
 
         joint(std::string, std::string);
@@ -46,6 +41,11 @@ namespace wrl
 
         virtual void load(app::node);
         virtual void save(app::node);
+
+    protected:
+
+        int      join_id;
+        dJointID play_join;
     };
 
     //-------------------------------------------------------------------------
