@@ -280,7 +280,7 @@ void wrl::world::play_init()
             }
         }
 
-    // Create a geom for each colliding atoms.
+    // Create a geom for each colliding atom.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
     {
