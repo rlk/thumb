@@ -1053,22 +1053,28 @@ void wrl::world::draw_line(int frusi, const app::frustum *frusp)
     {
         line_pool->draw_init();
         {
-            // glColor3f(1.0f, 0.0f, 0.0f);
-            // stat_node->draw(frusi, true, false);
+            // Render the current selection.
 
-            // glColor3f(0.0f, 1.0f, 0.0f);
-            // dyna_node->draw(frusi, true, false);
+            for (atom_set::iterator i = sel.begin(); i != sel.end(); ++i)
+            {
+                if ((*i)->body())
+                    glColor3f(0.0f, 1.0f, 0.0f);
+                else
+                    glColor3f(1.0f, 0.0f, 0.0f);
 
-            glColor3f(1.0f, 1.0f, 0.0f);
+                glLineWidth(4.0);
+                (*i)->get_line()->draw_lines();
+            }
+
+            // Highlight the current focus.
 
             if (edit_focus)
             {
                 if (wrl::atom *a = (wrl::atom *) dGeomGetData(edit_focus))
                 {
-                    if (ogl::unit *u = a->get_line())
-                    {
-                        u->draw_lines();
-                    }
+                    glColor3f(1.0f, 1.0f, 0.0f);
+                    glLineWidth(2.0);
+                    a->get_line()->draw_lines();
                 }
             }
 
