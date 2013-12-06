@@ -115,6 +115,24 @@ ogl::unit::~unit()
 
 //-----------------------------------------------------------------------------
 
+// The following rendering functions are NOT on the primary display path. They
+// are used only to cherry-pick units for transient highlighting. Optimized
+// rendering is handled by the batch node.
+
+void ogl::unit::draw_lines() const
+{
+    for (mesh_m::const_iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
+        i->second->draw_lines();
+}
+
+void ogl::unit::draw_faces() const
+{
+    for (mesh_m::const_iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
+        i->second->draw_faces();
+}
+
+//-----------------------------------------------------------------------------
+
 void ogl::unit::set_mesh()
 {
     // Create a cache for each mesh.  Count vertices and elements.

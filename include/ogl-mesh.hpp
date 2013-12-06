@@ -101,6 +101,11 @@ namespace ogl
         mesh();
        ~mesh();
 
+        // Render functions
+
+        void draw_lines() const;
+        void draw_faces() const;
+
         // State modifiers
 
         void apply_offset(const double *);
@@ -162,6 +167,9 @@ namespace ogl
         bool dirty_verts;
         bool dirty_faces;
         bool dirty_lines;
+
+        const GLuint *faces_pointer;
+        const GLuint *lines_pointer;
     };
 
     typedef mesh                               *mesh_p;

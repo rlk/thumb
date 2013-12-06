@@ -109,6 +109,9 @@ namespace ogl
         unit(const unit&);
        ~unit();
 
+        void draw_lines() const;
+        void draw_faces() const;
+
         void set_node(node_p);
         void set_mode(bool);
 

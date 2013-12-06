@@ -26,7 +26,9 @@ ogl::mesh::mesh(std::string& name) :
     max(std::numeric_limits<GLuint>::min()),
     dirty_verts(false),
     dirty_faces(false),
-    dirty_lines(false)
+    dirty_lines(false),
+    faces_pointer(0),
+    lines_pointer(0)
 {
 }
 
@@ -36,13 +38,39 @@ ogl::mesh::mesh() :
     max(std::numeric_limits<GLuint>::min()),
     dirty_verts(false),
     dirty_faces(false),
-    dirty_lines(false)
+    dirty_lines(false),
+    faces_pointer(0),
+    lines_pointer(0)
 {
 }
 
 ogl::mesh::~mesh()
 {
     if (material) glob->free_binding(material);
+}
+
+//-----------------------------------------------------------------------------
+
+// The following rendering functions are NOT on the primary display path. They
+// are used only to cherry-pick units for transient highlighting. Optimized
+// rendering is handled by the batch node.
+
+void ogl::mesh::draw_lines() const
+{
+    if (material)
+        material->bind(true);
+
+    glDrawRangeElements(GL_LINES, min, max, lines.size() * 2,
+                           GL_UNSIGNED_INT, lines_pointer);
+}
+
+void ogl::mesh::draw_faces() const
+{
+    if (material)
+        material->bind(true);
+
+    glDrawRangeElements(GL_TRIANGLES, min, max, faces.size() * 3,
+                               GL_UNSIGNED_INT, faces_pointer);
 }
 
 //-----------------------------------------------------------------------------
@@ -320,14 +348,20 @@ void ogl::mesh::buffe(const GLuint *e)
     // Copy all cached index data to the bound element array buffer object.
 
     if (dirty_faces && faces.size())
+    {
+        faces_pointer = e;
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, GLintptr(e),
                            faces.size() * sizeof (face), &faces.front());
+    }
 
     e += faces.size() * 3;
 
     if (dirty_lines && lines.size())
+    {
+        lines_pointer = e;
         glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, GLintptr(e),
                            lines.size() * sizeof (line), &lines.front());
+    }
 
     dirty_faces = false;
     dirty_lines = false;
