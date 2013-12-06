@@ -155,6 +155,10 @@ void app::frustum::set_transform(const mat4& M)
     view_planes[2] = plane(view_pos,       view_points[3], view_points[1]); // R
     view_planes[3] = plane(view_pos,       view_points[1], view_points[0]); // B
     view_planes[4] = plane(view_pos,       view_points[2], view_points[3]); // T
+
+    // Force the near clipping plane to pass through the view point.
+
+    view_planes[0][3] = -(view_pos * view_planes[0]);
 }
 
 /// Set the near and far clipping distances.
@@ -225,7 +229,6 @@ void app::frustum::set_distances(double n, double f)
     P = perspective(l, r, b, t, n, f)
       * mat4(transpose(user_basis))
       * translation(-user_pos);
-
 }
 
 //-----------------------------------------------------------------------------

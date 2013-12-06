@@ -713,10 +713,10 @@ void app::host::draw()
 
     ogl::range r = program->prep(frusc, frusv);
 
-    // Cache the frustum projections (cheap).
+    // Cache the frustum projections (cheap). Allow 1% depth pad.
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_distances(r.get_n(), r.get_f());
+        (*i)->set_distances(r.get_n() * 0.99, r.get_f() * 1.01);
 
     // Perform the lighting prepass (possibly expensive).
 
