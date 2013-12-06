@@ -57,18 +57,12 @@ ogl::mesh::~mesh()
 
 void ogl::mesh::draw_lines() const
 {
-    if (material)
-        material->bind(true);
-
     glDrawRangeElements(GL_LINES, min, max, lines.size() * 2,
                            GL_UNSIGNED_INT, lines_pointer);
 }
 
 void ogl::mesh::draw_faces() const
 {
-    if (material)
-        material->bind(true);
-
     glDrawRangeElements(GL_TRIANGLES, min, max, faces.size() * 3,
                                GL_UNSIGNED_INT, faces_pointer);
 }

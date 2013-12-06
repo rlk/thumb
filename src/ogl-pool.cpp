@@ -122,13 +122,19 @@ ogl::unit::~unit()
 void ogl::unit::draw_lines() const
 {
     for (mesh_m::const_iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
+    {
+        i->first->state()->bind(true);
         i->second->draw_lines();
+    }
 }
 
 void ogl::unit::draw_faces() const
 {
     for (mesh_m::const_iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
+    {
+        i->first->state()->bind(true);
         i->second->draw_faces();
+    }
 }
 
 //-----------------------------------------------------------------------------
