@@ -264,7 +264,6 @@
       <channel w="1024" h="512"/>
       <channel w="1024" h="512"/>
       <channel w="1024" h="512"/>
-
       <overlay>
         <frustum>
           <perspective hfov="115.0" vfov="100.0" />
@@ -273,27 +272,22 @@
       </overlay>
       <display type="fulldome">
         <viewport x="0" y="0" w="1024" h="1024"/>
-
         <frustum>
           <perspective hfov="115.0" vfov="100.0" />
           <rotation p="50.0" y="0.0"/>
         </frustum>
-
         <frustum>
           <perspective hfov="115.0" vfov="100.0" />
           <rotation p="50.0" y="90.0"/>
         </frustum>
-
         <frustum>
           <perspective hfov="115.0" vfov="100.0" />
           <rotation p="50.0" y="180.0"/>
         </frustum>
-
         <frustum>
           <perspective hfov="115.0" vfov="100.0" />
           <rotation p="50.0" y="270.0"/>
         </frustum>
-
       </display>
     </node>
     <!-- 2K Fulldome projection ------------------------------------------- -->
