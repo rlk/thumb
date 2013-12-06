@@ -23,7 +23,7 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::normal::normal(app::node p) : display(p), frust(0), P(0)
+dpy::normal::normal(app::node p) : display(p), frust(0), program(0)
 {
     // Check the display definition for a frustum, or create a default
 
@@ -73,7 +73,7 @@ void dpy::normal::draw(int chanc, const dpy::channel *const *chanv, int frusi)
     if (chani < chanc)
     {
         assert(chanv[chani]);
-        assert(P);
+        assert(program);
 
         // Draw the scene to the off-screen buffer.
 
@@ -88,14 +88,14 @@ void dpy::normal::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 
         chanv[chani]->bind_color(GL_TEXTURE0);
         {
-            P->bind();
+            program->bind();
             {
                 fill(frust->get_w(),
                      frust->get_h(),
                      chanv[chani]->get_w(),
                      chanv[chani]->get_h());
             }
-            P->free();
+            program->free();
         }
         chanv[chani]->free_color(GL_TEXTURE0);
     }
@@ -106,7 +106,7 @@ void dpy::normal::test(int chanc, const dpy::channel *const *chanv, int index)
     if (chani < chanc)
     {
         assert(chanv[chani]);
-        assert(P);
+        assert(program);
 
         // Draw the calibration pattern to the off-screen buffer.
 
@@ -120,14 +120,14 @@ void dpy::normal::test(int chanc, const dpy::channel *const *chanv, int index)
 
         chanv[chani]->bind_color(GL_TEXTURE0);
         {
-            P->bind();
+            program->bind();
             {
                 fill(frust->get_w(),
                      frust->get_h(),
                      chanv[chani]->get_w(),
                      chanv[chani]->get_h());
             }
-            P->free();
+            program->free();
         }
         chanv[chani]->free_color(GL_TEXTURE0);
     }
@@ -147,7 +147,7 @@ bool dpy::normal::pointer_to_3D(app::event *E, int x, int y)
         // Let the frustum project the pointer into space.
 
         return frust->pointer_to_3D(E, x - viewport[0],
-                         viewport[3] - y + viewport[1]);
+                                       y - viewport[1]);
     else
         return false;
 }
@@ -156,7 +156,7 @@ bool dpy::normal::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    P = ::glob->load_program("normal.xml");
+    program = ::glob->load_program("dpy/normal.xml");
 
     return false;
 }
@@ -165,9 +165,9 @@ bool dpy::normal::process_close(app::event *E)
 {
     // Finalize the shader.
 
-    ::glob->free_program(P);
+    ::glob->free_program(program);
 
-    P = 0;
+    program = 0;
 
     return false;
 }

@@ -9,6 +9,7 @@ vec4 cut(vec4 c)
 
 void main()
 {
+    /*
     const vec2 d0 = vec2(-2.0, 0.0);
     const vec2 d1 = vec2(-1.0, 0.0);
     const vec2 d2 = vec2(+0.0, 0.0);
@@ -22,4 +23,17 @@ void main()
     vec4 c4 = cut(texture2DRect(src, gl_FragCoord.xy + d4)) * 0.061;
 
     gl_FragColor = (c0 + c1 + c2 + c3 + c4);
+    */
+    vec4 c =
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2(-4.0, 0.0))) * 0.0267 +
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2(-3.0, 0.0))) * 0.0648 +
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2(-2.0, 0.0))) * 0.1210 +
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2(-1.0, 0.0))) * 0.1760 +
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2( 0.0, 0.0))) * 0.1995 +
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2(+1.0, 0.0))) * 0.1760 +
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2(+2.0, 0.0))) * 0.1210 +
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2(+3.0, 0.0))) * 0.0648 +
+        cut(texture2DRect(src, gl_FragCoord.xy + vec2(+4.0, 0.0))) * 0.0267;
+
+    gl_FragColor = vec4(c.rgb, 1.0);
 }

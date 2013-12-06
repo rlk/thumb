@@ -129,19 +129,16 @@ static void init_opt()
 
     if (ogl::has_fbo)
     {
-        if (ogl::has_glsl)
-        {
-            // Shadowing
+        // Shadowing
 
-            option = ::conf->get_s("shadow_method");
+        option = ::conf->get_s("shadow_method");
 
-            if (option == "map")  ogl::do_shadow = 1;
+        if (option == "map")  ogl::do_shadow = 1;
 
-            // HDR
+        // HDR
 
-            ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap") != 0);
-            ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom")   != 0);
-        }
+        ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap") != 0);
+        ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom")   != 0);
 
         // Z-only pass
 

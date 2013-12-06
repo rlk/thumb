@@ -368,6 +368,8 @@ void view_app::draw(int frusi, const app::frustum *frusp, int chani)
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_CULL_FACE);
 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // TODO: Necessary?
+
     sys->render_sphere(transpose(P), transpose(S * M), chani);
 }
 

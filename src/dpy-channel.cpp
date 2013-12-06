@@ -314,8 +314,7 @@ void dpy::channel::process_start()
         if (downsample_avg == 0)
             downsample_avg = ::glob->load_program("hdr/downsample-avg.xml");
         if (downsample_max == 0)
-            downsample_max = ::glob->load_program("hdr/downsample-avg.xml");
-//          downsample_max = ::glob->load_program("hdr/downsample-max.xml");
+            downsample_max = ::glob->load_program("hdr/downsample-max.xml");
         if (h_gaussian     == 0)
             h_gaussian     = ::glob->load_program("hdr/h-gaussian.xml");
         if (v_gaussian     == 0)

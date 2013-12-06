@@ -91,6 +91,17 @@
         </frustum>
       </display>
     </node>
+    <!-- 1920x1080 -------------------------------------------------------- -->
+    <node name="1920x1080-TM">
+      <window x="0" y="0" w="1920" h="1080"/>
+      <channel w="1920" h="1080"/>
+      <display type="normal">
+        <viewport x="0" y="0" w="1920" h="1080"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="35.0"/>
+        </frustum>
+      </display>
+    </node>
     <!-- 1920x1080 No Frame ----------------------------------------------- -->
     <node name="1920x1080-noframe">
       <window x="0" y="0" w="1920" h="1080" frame="0"/>

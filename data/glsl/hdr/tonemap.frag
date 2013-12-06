@@ -10,7 +10,7 @@ void main()
 
     float A = dot(texture2DRect(avg, d).rgb, vec3(0.30, 0.59, 0.11));
 
-    float L = A;
+    float L = A * 2.0;
 
     float E = 1.0 / L;
 
