@@ -44,9 +44,17 @@ dev::mouse::~mouse()
 
 //-----------------------------------------------------------------------------
 
+// Calculate the phi angle of the mouselook. Clamp at straight up and straight
+// down. In theory |z[1]| shouldn't exceed 1, but in practice it does, which is
+// numerically catastrophic.
+
 static double get_p(const quat& q)
 {
     const vec3 z = zvector(mat3(q));
+
+    if (z[1] >=  1.0) return -PI / 2.0;
+    if (z[1] <= -1.0) return  PI / 2.0;
+
     return asin(-z[1]);
 }
 
@@ -71,11 +79,11 @@ bool dev::mouse::process_point(app::event *E)
         double p = get_p(q) + 2.0 * (get_p(curr_q) - get_p(last_q));
         double t = get_t(q) + 2.0 * (get_t(curr_q) - get_t(last_q));
 
-        p = std::max(p, -0.999 * PI / 2);
-        p = std::min(p,  0.999 * PI / 2);
+        p = std::max(p, -PI / 2.0);
+        p = std::min(p,  PI / 2.0);
 
-        ::host->set_orientation(normal(quat(vec3(0, 1, 0), t)
-                                     * quat(vec3(1, 0, 0), p)));
+        ::host->set_orientation(quat(vec3(0, 1, 0), t)
+                              * quat(vec3(1, 0, 0), p));
         return true;
     }
     return false;

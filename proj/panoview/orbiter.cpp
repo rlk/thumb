@@ -185,7 +185,7 @@ quat orbiter::get_orientation() const
 
 void orbiter::set_orientation(const quat &q)
 {
-    quat r = get_local() * q;
+    quat r = normal(get_local() * q);
     here.set_orientation(r);
     ::view->set_orientation(r);
 }
