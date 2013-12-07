@@ -62,9 +62,7 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    light_theta = to_radians(-20.0);
-    light_phi   = to_radians( 70.0);
-    light_rho   = 10000.0;
+    light_v = normal(vec3(0.2, 1.0, 0.1));
 
     uniform_light_position = ::glob->load_uniform("light_position",    3);
     uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",        4);
@@ -932,9 +930,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
     mat4 light_M;
     mat4 light_I;
-    vec3 light_p(light_rho * sin(light_theta) * cos(light_phi),
-                 light_rho *                    sin(light_phi),
-                 light_rho * cos(light_theta) * cos(light_phi));
+    vec3 light_p = light_v * 1000.0;
 
     uniform_light_position->set(light_p);
 

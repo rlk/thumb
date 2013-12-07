@@ -380,6 +380,7 @@ void mode::edit::draw(int frusi, const app::frustum *frusp)
     world->draw_line(frusi, frusp);
     xform->draw     (frusi);
 
+#if 0
     ogl::line_state_init();
     {
         glColor3f(1.0f, 1.0f, 0.0f);
@@ -401,6 +402,7 @@ void mode::edit::draw(int frusi, const app::frustum *frusp)
         }
     }
     ogl::line_state_fini();
+#endif
 }
 
 //-----------------------------------------------------------------------------

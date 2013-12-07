@@ -110,12 +110,6 @@ namespace wrl
 
         mat4 default_M;
         mat4 current_M;
-
-        virtual void mult_M() const;
-        virtual void mult_R() const;
-        virtual void mult_T() const;
-        virtual void mult_V() const;
-        virtual void mult_P() const;
     };
 
     typedef std::set<atom *     > atom_set;

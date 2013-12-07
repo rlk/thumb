@@ -87,60 +87,6 @@ void wrl::atom::dead(dSpaceID space) const
 
 //-----------------------------------------------------------------------------
 
-void wrl::atom::mult_M() const
-{
-    // Apply the current transform as model matrix.
-
-    glMultMatrixd(transpose(current_M));
-}
-
-void wrl::atom::mult_R() const
-{
-    GLdouble M[16];
-
-    // Apply the current view rotation transform.
-
-    M[ 0] = GLdouble(current_M[0][0]);
-    M[ 1] = GLdouble(current_M[1][0]);
-    M[ 2] = GLdouble(current_M[2][0]);
-    M[ 3] = 0;
-    M[ 4] = GLdouble(current_M[0][1]);
-    M[ 5] = GLdouble(current_M[1][1]);
-    M[ 6] = GLdouble(current_M[2][1]);
-    M[ 7] = 0;
-    M[ 8] = GLdouble(current_M[0][2]);
-    M[ 9] = GLdouble(current_M[1][2]);
-    M[10] = GLdouble(current_M[2][2]);
-    M[11] = 0;
-    M[12] = 0;
-    M[13] = 0;
-    M[14] = 0;
-    M[15] = 1;
-
-    glMultMatrixd(M);
-}
-
-void wrl::atom::mult_T() const
-{
-    // Apply the current view translation transform.
-
-    glTranslated(-current_M[0][3],
-                 -current_M[1][3],
-                 -current_M[2][3]);
-}
-
-void wrl::atom::mult_V() const
-{
-    mult_R();
-    mult_T();
-}
-
-void wrl::atom::mult_P() const
-{
-}
-
-//-----------------------------------------------------------------------------
-
 void wrl::atom::get_surface(dSurfaceParameters& s)
 {
     // Merge this atom's surface parameters with the given structure.
