@@ -77,14 +77,15 @@ void dpy::fulldome::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 
     int i;
 
-    // Draw the scene to the off-screen buffer.
+    // Draw the scene to the off-screen buffers. Note channel 0 is requested for
+    // each rendering. Fulldome is multi-channel but monoscopic.
 
     for (i = 0; i < chanc && i < frusc; ++i)
     {
         chanv[i]->bind();
         {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-            ::host->draw(frusi + i, frusta[i], i);
+            ::host->draw(frusi + i, frusta[i], 0);
         }
         chanv[i]->free();
     }
