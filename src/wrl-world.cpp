@@ -35,8 +35,6 @@
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution", 1024)),
 
-    split_static(false),
-
     sky      (::glob->load_binding("sky-water",       "sky-water")),
     sky_light(::glob->load_binding("sky-water-light", "sky-water-light")),
     sky_shade(::glob->load_binding("sky-water-shade", "sky-water-shade")),
@@ -62,8 +60,6 @@ wrl::world::world() :
     line_pool->add_node(line_node);
 
     // Initialize the render uniforms and processes.
-
-    light_v = normal(vec3(0.2, 1.0, 0.1));
 
     uniform_light_position = ::glob->load_uniform("light_position",    3);
     uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",        4);
@@ -773,13 +769,6 @@ void wrl::world::load(std::string name)
     app::file file(name);
     app::node root(file.get_root().find("world"));
 
-    // Check for static split definitions.
-
-    split_static = (((split[0] = root.get_f("split0", 0.0)) > 0.0) |
-                    ((split[1] = root.get_f("split1", 0.0)) > 0.0) |
-                    ((split[2] = root.get_f("split2", 0.0)) > 0.0) |
-                    ((split[3] = root.get_f("split3", 0.0)) > 0.0));
-
     // Find all geom elements.
 
     for (app::node n = root.find("geom"); n; n = root.next(n, "geom"))
@@ -908,10 +897,7 @@ double wrl::world::split_fract(int i, int m, const app::frustum *frusp)
 {
     double c;
 
-    if (split_static)
-        c = split[i];
-    else
-        c = frusp->get_split_coeff(double(i) / double(m));
+    c = frusp->get_split_coeff(double(i) / double(m));
 
     return frusp->get_split_fract(c);
 }
@@ -920,10 +906,7 @@ double wrl::world::split_depth(int i, int m, const app::frustum *frusp)
 {
     double c;
 
-    if (split_static)
-        c = split[i];
-    else
-        c = frusp->get_split_coeff(double(i) / double(m));
+    c = frusp->get_split_coeff(double(i) / double(m));
 
     return frusp->get_split_depth(c);
 }
@@ -932,7 +915,12 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
     mat4 light_M;
     mat4 light_I;
-    vec3 light_p = light_v * 1000.0;
+    vec3 light_p(0.0, 1000.0, 0.0);
+
+    atom_set::iterator a;
+
+    for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
+        light_p = wvector((*a)->get_local());
 
     uniform_light_position->set(light_p);
 
