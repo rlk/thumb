@@ -24,6 +24,7 @@
 #include <app-file.hpp>
 #include <app-frustum.hpp>
 #include <wrl-solid.hpp>
+#include <wrl-light.hpp>
 #include <wrl-joint.hpp>
 #include <wrl-world.hpp>
 
@@ -789,6 +790,7 @@ void wrl::world::load(std::string name)
 
         if      (type == "box")    a = new wrl::box   ("");
         else if (type == "sphere") a = new wrl::sphere("");
+        else if (type == "light")  a = new wrl::light ("");
         else continue;
 
         // Allow the new solid to parse its own attributes.
