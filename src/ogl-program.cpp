@@ -21,78 +21,6 @@
 
 //-----------------------------------------------------------------------------
 
-bool ogl::program::program_log(GLuint handle, const std::string& name)
-{
-    char *log = 0;
-    GLint len = 0;
-    GLint tst = 0;
-
-    // Dump the contents of the log, if any.
-
-    glGetProgramiv(handle, GL_LINK_STATUS,     &tst);
-    glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &len);
-
-    if ((tst == 0) && (len > 1) && (log = new char[len + 1]))
-    {
-        glGetProgramInfoLog(handle, len, NULL, log);
-
-        fprintf(stderr, "%s\n%s", name.c_str(), log);
-
-        delete [] log;
-
-        return true;
-    }
-    return false;
-}
-
-bool ogl::program::shader_log(GLuint handle, const std::string& name)
-{
-    char *log = 0;
-    GLint len = 0;
-    GLint tst = 0;
-
-    // Dump the contents of the log, if any.
-
-    glGetShaderiv(handle, GL_COMPILE_STATUS,  &tst);
-    glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &len);
-
-    if ((tst == 0) && (len > 1) && (log = new char[len + 1]))
-    {
-        glGetShaderInfoLog(handle, len, NULL, log);
-
-        fprintf(stderr, "%s\n%s", name.c_str(), log);
-
-        delete [] log;
-
-        return true;
-    }
-    return false;
-}
-
-GLuint ogl::program::compile(GLenum type, const std::string& name,
-                                          const std::string& text)
-{
-    GLint handle = 0;
-
-    // Compile the given shader text.
-
-    if (!text.empty())
-    {
-        handle = glCreateShader(type);
-
-        const char *data =       text.data();
-        GLint       size = GLint(text.size());
-
-        glShaderSource (handle, 1, &data, &size);
-        glCompileShader(handle);
-
-        bindable = !shader_log(handle, name);
-    }
-    return handle;
-}
-
-//-----------------------------------------------------------------------------
-
 const ogl::program *ogl::program::current = NULL;
 
 ogl::program::program(std::string name) :
@@ -243,6 +171,78 @@ void ogl::program::init_uniforms(app::node p)
                 uniforms[u] = glGetUniformLocation(prog, name.c_str());
         }
     }
+}
+
+//-----------------------------------------------------------------------------
+
+bool ogl::program::program_log(GLuint handle, const std::string& name)
+{
+    char *log = 0;
+    GLint len = 0;
+    GLint tst = 0;
+
+    // Dump the contents of the log, if any.
+
+    glGetProgramiv(handle, GL_LINK_STATUS,     &tst);
+    glGetProgramiv(handle, GL_INFO_LOG_LENGTH, &len);
+
+    if ((tst == 0) && (len > 1) && (log = new char[len + 1]))
+    {
+        glGetProgramInfoLog(handle, len, NULL, log);
+
+        fprintf(stderr, "%s\n%s", name.c_str(), log);
+
+        delete [] log;
+
+        return true;
+    }
+    return false;
+}
+
+bool ogl::program::shader_log(GLuint handle, const std::string& name)
+{
+    char *log = 0;
+    GLint len = 0;
+    GLint tst = 0;
+
+    // Dump the contents of the log, if any.
+
+    glGetShaderiv(handle, GL_COMPILE_STATUS,  &tst);
+    glGetShaderiv(handle, GL_INFO_LOG_LENGTH, &len);
+
+    if ((tst == 0) && (len > 1) && (log = new char[len + 1]))
+    {
+        glGetShaderInfoLog(handle, len, NULL, log);
+
+        fprintf(stderr, "%s\n%s", name.c_str(), log);
+
+        delete [] log;
+
+        return true;
+    }
+    return false;
+}
+
+GLuint ogl::program::compile(GLenum type, const std::string& name,
+                                          const std::string& text)
+{
+    GLint handle = 0;
+
+    // Compile the given shader text.
+
+    if (!text.empty())
+    {
+        handle = glCreateShader(type);
+
+        const char *data =       text.data();
+        GLint       size = GLint(text.size());
+
+        glShaderSource (handle, 1, &data, &size);
+        glCompileShader(handle);
+
+        bindable = !shader_log(handle, name);
+    }
+    return handle;
 }
 
 //-----------------------------------------------------------------------------
