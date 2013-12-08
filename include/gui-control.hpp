@@ -165,6 +165,17 @@ namespace cnt
         void apply();
     };
 
+    class new_light_button : public create_button
+    {
+        gui::widget *name;
+
+    public:
+
+        new_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "Light"), name(n) { }
+        void apply();
+    };
+
     //-------------------------------------------------------------------------
     // World file buttons.
 
