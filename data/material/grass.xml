@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-<material>
-  <program mode="depth" file="object-depth.xml" />
-  <program mode="color" file="object-color.xml">
-    <texture name="specular" name="matte-specular.png" />
-    <texture name="diffuse"  name="grass.png" />
-    <texture name="normal"   name="default-normal.png" />
-  </program>
-</material>

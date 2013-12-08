@@ -1,17 +1,17 @@
 <?xml version="1.0"?>
-<program vert="glsl/sh-basis.vert"
-         frag="glsl/sh-basis.frag" >
+  <program vert="glsl/sh-basis.vert"
+           frag="glsl/sh-basis.frag" >
 
-  <sampler name="Y[0]" unit="0" />
-  <sampler name="Y[1]" unit="1" />
-  <sampler name="Y[2]" unit="2" />
-  <sampler name="Y[3]" unit="3" />
-  <sampler name="Y[4]" unit="4" />
-  <sampler name="Y[5]" unit="5" />
-  <sampler name="Y[6]" unit="6" />
-  <sampler name="Y[7]" unit="7" />
-  <sampler name="Y[8]" unit="8" />
+    <texture name="Y[0]" unit="0" />
+    <texture name="Y[1]" unit="1" />
+    <texture name="Y[2]" unit="2" />
+    <texture name="Y[3]" unit="3" />
+    <texture name="Y[4]" unit="4" />
+    <texture name="Y[5]" unit="5" />
+    <texture name="Y[6]" unit="6" />
+    <texture name="Y[7]" unit="7" />
+    <texture name="Y[8]" unit="8" />
 
-  <uniform name="view_matrix"  value="view_matrix"  size="16" />
-  <uniform name="view_inverse" value="view_inverse" size="16" />
-</program>
+    <uniform name="view_matrix"  uniform="view_matrix"  size="16" />
+    <uniform name="view_inverse" uniform="view_inverse" size="16" />
+  </program>

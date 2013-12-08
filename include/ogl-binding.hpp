@@ -27,7 +27,6 @@ namespace ogl
     class node;
     class frame;
     class program;
-    class process;
     class texture;
 }
 
@@ -38,7 +37,6 @@ namespace ogl
     class binding
     {
         typedef std::map<GLenum, const ogl::texture *> unit_texture;
-        typedef std::map<GLenum, const ogl::process *> unit_process;
 
         // Local binding attributes.
 
@@ -46,14 +44,11 @@ namespace ogl
 
         const ogl::program *depth_program;  // Depth mode shader program
         unit_texture        depth_texture;  // Depth mode texture bindings
-        unit_process        depth_process;  // Depth mode process bindings
 
         const ogl::program *color_program;  // Color mode shader program
         unit_texture        color_texture;  // Color mode texture bindings
-        unit_process        color_process;  // Color mode process bindings
 
-        const ogl::program *init_program(app::node, unit_texture&,
-                                                    unit_process&);
+        const ogl::program *init_program(app::node, unit_texture&);
 
     public:
 

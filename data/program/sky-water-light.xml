@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
-<program vert="glsl/sky.vert"
-         frag="glsl/sky-water-light.frag" >
-  <sampler name="fill"  unit="0" />
-  <sampler name="glow"  unit="1" />
-  <sampler name="norm"  unit="2" />
+  <program vert="glsl/sky.vert"
+           frag="glsl/sky-water-light.frag" >
+    <texture name="fill"  unit="0" />
+    <texture name="glow"  unit="1" />
+    <texture name="norm"  unit="2" />
 
-  <uniform name="light_position" value="light_position" size="3"/>
-  <uniform name="time"           value="time"           size="1"/>
-  <uniform name="view_position"  value="view_position"  size="3"/>
-</program>
+    <uniform name="light_position" uniform="light_position" size="3"/>
+    <uniform name="time"           uniform="time"           size="1"/>
+    <uniform name="view_position"  uniform="view_position"  size="3"/>
+  </program>

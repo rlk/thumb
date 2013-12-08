@@ -105,6 +105,11 @@ void main()
     float s1 = step(pssm_depth.z, gl_FragCoord.z);
     float ss = mix(S0, mix(S1, S2, s1), s0) * lit;
 
+    vec4 D0 = vec4(1.0, 0.0, 0.0, 1.0);
+    vec4 D1 = vec4(0.0, 1.0, 0.0, 1.0);
+    vec4 D2 = vec4(0.0, 0.0, 1.0, 1.0);
+    vec4 DD = mix(D0, mix(D1, D2, s1), s0);
+
     // Transform the fragment normal from tangent to world space.
 
     vec3 N = M * normalize(2.0 * N_c - 1.0);
@@ -120,5 +125,6 @@ void main()
 
 //  vec3 C = texture2DRect(irradiance_env, gl_TexCoord[0].xy * 3.0).rgb;
 
+//  gl_FragColor = mix(C0, C1, ss) * DD;
     gl_FragColor = mix(C0, C1, ss) * max(D_c, color_max);
 }

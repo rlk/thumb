@@ -25,6 +25,7 @@
 namespace ogl
 {
     class uniform;
+    class process;
 }
 
 //-----------------------------------------------------------------------------
@@ -33,8 +34,9 @@ namespace ogl
 {
     class program
     {
-        typedef std::map<ogl::uniform *, GLint>  uniform_map;
-        typedef std::map<std::string,    GLenum> sampler_map;
+        typedef std::map<      std::string,    GLenum> texture_map;
+        typedef std::map<const ogl::process *, GLenum> process_map;
+        typedef std::map<      ogl::uniform *, GLint>  uniform_map;
 
         std::string name;
 
@@ -42,8 +44,9 @@ namespace ogl
         GLhandleARB frag;
         GLhandleARB prog;
 
+        texture_map textures;
+        process_map processes;
         uniform_map uniforms;
-        sampler_map samplers;
 
         bool bindable;
 
@@ -56,8 +59,9 @@ namespace ogl
         std::string load(const std::string&);
 
         void init_attributes(app::node);
+        void init_textures  (app::node);
+        void init_processes (app::node);
         void init_uniforms  (app::node);
-        void init_samplers  (app::node);
 
     public:
 
