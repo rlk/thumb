@@ -5,7 +5,7 @@
 CC    = cc
 CXX   = c++
 STRIP = strip
-CFLAGS= -g -Wall -fno-rtti -Wno-unused-private-field
+CFLAGS= -g -Wall -fno-rtti
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
 RM    = rm -f
 CP    = cp

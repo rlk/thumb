@@ -14,7 +14,6 @@ OBJS=	app-data.o \
 	app-prog.o \
 	app-view.o \
 	dev-gamepad.o \
-	dev-hybrid.o \
 	dev-mouse.o \
 	dev-sixense.o \
 	dev-skeleton.o \
@@ -66,6 +65,7 @@ OBJS=	app-data.o \
 	wrl-param.o \
 	wrl-solid.o \
 	wrl-world.o
+#	dev-hybrid.o \
 #	dev-trackd.o \
 
 DEPS= $(OBJS:.o=.d)
