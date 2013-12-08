@@ -5,14 +5,5 @@
       <texture sampler="diff_map" name="metal-box-diffuse.png" />
       <texture sampler="spec_map" name="metal-box-specular.png" />
       <texture sampler="norm_map" name="metal-box-normal.png" />
-
-      <process sampler="reflection_env[0]" name="reflection_env" index="0" />
-      <process sampler="reflection_env[1]" name="reflection_env" index="1" />
-      <process sampler="irradiance_env[0]" name="irradiance_env" index="0" />
-      <process sampler="irradiance_env[1]" name="irradiance_env" index="1" />
-
-      <process sampler="shadow[0]" name="shadow" index="0" />
-      <process sampler="shadow[1]" name="shadow" index="1" />
-      <process sampler="shadow[2]" name="shadow" index="2" />
     </program>
   </material>

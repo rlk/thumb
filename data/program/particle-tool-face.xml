@@ -1,4 +1,0 @@
-<?xml version="1.0"?>
-<program vert="glsl/particle-tool-face.vert"
-         frag="glsl/particle-tool-face.frag" >
-</program>

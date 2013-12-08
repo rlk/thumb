@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<program vert="glsl/joint-color.vert"
-         frag="glsl/joint-color.frag" >
-  <uniform name="light_position"   value="light_position"   size="3" />
-</program>
+  <program vert="glsl/joint-color.vert"
+           frag="glsl/joint-color.frag" >
+    <uniform name="light_position" uniform="light_position" size="3" />
+  </program>

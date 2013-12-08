@@ -19,15 +19,13 @@
 #include <app-file.hpp>
 #include <ogl-pool.hpp>
 #include <ogl-texture.hpp>
-#include <ogl-process.hpp>
 #include <ogl-program.hpp>
 #include <ogl-binding.hpp>
 
 //-----------------------------------------------------------------------------
 
 const ogl::program *ogl::binding::init_program(app::node p,
-                                               unit_texture& texture,
-                                               unit_process& process)
+                                               unit_texture& texture)
 {
     // Load the program.
 
@@ -57,25 +55,6 @@ const ogl::program *ogl::binding::init_program(app::node p,
                     texture[unit] = T;
             }
         }
-
-        // Load all processes.
-
-        for (app::node n = p.find("process"); n; n = p.next(n, "process"))
-        {
-            // Determine the sampler and image file names.
-
-            const std::string sampler = n.get_s("sampler");
-            const std::string name    = n.get_s("name");
-            const int         index   = n.get_i("index");
-
-            // Determine the texture unit binding for this sampler.
-
-            if (GLenum unit = prog->unit(sampler))
-            {
-                if (const ogl::process *P = ::glob->load_process(name, index))
-                    process[unit] = P;
-            }
-        }
     }
     return prog;
 }
@@ -96,21 +75,19 @@ ogl::binding::binding(std::string name) :
         // Load the depth-mode bindings.
 
         if (app::node n = p.find("program", "mode", "depth"))
-            depth_program = init_program(n, depth_texture,
-                                            depth_process);
+            depth_program = init_program(n, depth_texture);
 
         // Load the color-mode bindings.
 
         if (app::node n = p.find("program", "mode", "color"))
-            color_program = init_program(n, color_texture,
-                                            color_process);
+            color_program = init_program(n, color_texture);
     }
 }
 
 ogl::binding::~binding()
 {
     // Free all textures.
-    
+
     unit_texture::iterator i;
 
     for (i = color_texture.begin(); i != color_texture.end(); ++i)
@@ -121,19 +98,6 @@ ogl::binding::~binding()
 
     color_texture.clear();
     depth_texture.clear();
-
-    // Free all processes.
-    
-    unit_process::iterator j;
-
-    for (j = color_process.begin(); j != color_process.end(); ++j)
-        ::glob->free_process(j->second);
-
-    for (j = depth_process.begin(); j != depth_process.end(); ++j)
-        ::glob->free_process(j->second);
-
-    color_process.clear();
-    depth_process.clear();
 
     // Free all programs.
 
@@ -160,12 +124,10 @@ bool ogl::binding::depth_eq(const binding *that) const
     if (opaque() && that->opaque())
         return true;
 
-    // If any programs, textures, or processes differ, then the bindings
-    // are not equivalent.
+    // If any programs or textures differ then the bindings are not equivalent.
 
     if (depth_program != that->depth_program) return false;
     if (depth_texture != that->depth_texture) return false;
-    if (depth_process != that->depth_process) return false;
 
     return true;
 }
@@ -179,12 +141,10 @@ bool ogl::binding::color_eq(const binding *that) const
     if (that == this)
         return true;
 
-    // If any programs, textures, or processes differ, then the bindings
-    // are not equivalent.
+    // If any programs or textures differ then the bindings are not equivalent.
 
     if (color_program != that->color_program) return false;
     if (color_texture != that->color_texture) return false;
-    if (color_process != that->color_process) return false;
 
     return true;
 }
@@ -208,7 +168,6 @@ bool ogl::binding::bind(bool c) const
     // TODO: Minimize rebindings
 
     unit_texture::const_iterator ti;
-    unit_process::const_iterator pi;
 
     if (c)
     {
@@ -216,13 +175,8 @@ bool ogl::binding::bind(bool c) const
         {
             color_program->bind();
 
-            // Bind all textures
-
             for (ti = color_texture.begin(); ti != color_texture.end(); ++ti)
                 ti->second->bind(ti->first);
-
-            for (pi = color_process.begin(); pi != color_process.end(); ++pi)
-                pi->second->bind(pi->first);
 
             return true;
         }
@@ -235,10 +189,7 @@ bool ogl::binding::bind(bool c) const
 
             for (ti = depth_texture.begin(); ti != depth_texture.end(); ++ti)
                 ti->second->bind(ti->first);
-            
-            for (pi = depth_process.begin(); pi != depth_process.end(); ++pi)
-                pi->second->bind(pi->first);
-            
+
             return true;
         }
     }
