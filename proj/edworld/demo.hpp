@@ -42,9 +42,6 @@ class demo : public app::prog
     int key_play;
     int key_info;
 
-    int tracker_head_sensor;
-    int tracker_hand_sensor;
-
     // Entity state.
 
     wrl::world *world;
