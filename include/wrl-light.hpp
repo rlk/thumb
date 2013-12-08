@@ -25,7 +25,8 @@ namespace wrl
 
         light(std::string);
 
-        // File I/O
+        virtual light *clone() const { return new light(*this); }
+        virtual int priority() const { return -1;               }
 
         virtual void save(app::node);
     };
