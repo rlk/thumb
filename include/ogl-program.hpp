@@ -34,6 +34,34 @@ namespace ogl
 {
     class program
     {
+    public:
+
+        const std::string& get_name() const { return name; }
+
+        program(std::string);
+       ~program();
+
+        void prep() const;
+        void bind() const;
+        void free() const;
+
+        void init();
+        void fini();
+
+        GLenum unit(std::string) const;
+
+        void uniform(std::string, int)                     const;
+        void uniform(std::string, double)                  const;
+        void uniform(std::string, const vec2&)             const;
+        void uniform(std::string, const vec3&)             const;
+        void uniform(std::string, const vec4&)             const;
+        void uniform(std::string, const mat3&, bool=false) const;
+        void uniform(std::string, const mat4&, bool=false) const;
+
+        static const program *current;
+
+    private:
+
         typedef std::map<      std::string,    GLenum> texture_map;
         typedef std::map<const ogl::process *, GLenum> process_map;
         typedef std::map<      ogl::uniform *, GLint>  uniform_map;
@@ -62,32 +90,6 @@ namespace ogl
         void init_textures  (app::node);
         void init_processes (app::node);
         void init_uniforms  (app::node);
-
-    public:
-
-        const std::string& get_name() const { return name; }
-
-        program(std::string);
-       ~program();
-
-        void prep() const;
-        void bind() const;
-        void free() const;
-
-        void init();
-        void fini();
-
-        GLenum unit(std::string) const;
-
-        void uniform(std::string, int)                     const;
-        void uniform(std::string, double)                  const;
-        void uniform(std::string, const vec2&)             const;
-        void uniform(std::string, const vec3&)             const;
-        void uniform(std::string, const vec4&)             const;
-        void uniform(std::string, const mat3&, bool=false) const;
-        void uniform(std::string, const mat4&, bool=false) const;
-
-        static const program *current;
     };
 }
 
