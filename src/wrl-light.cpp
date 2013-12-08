@@ -11,11 +11,24 @@
 //  General Public License for more details.
 
 #include <wrl-light.hpp>
+#include <ogl-pool.hpp>
 
 //-----------------------------------------------------------------------------
 
 wrl::light::light(std::string fill) : sphere(fill)
 {
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::light::play_init()
+{
+    if (fill) fill->set_mode(false);
+}
+
+void wrl::light::play_fini()
+{
+    if (fill) fill->set_mode(true);
 }
 
 //-----------------------------------------------------------------------------

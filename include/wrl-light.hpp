@@ -25,6 +25,9 @@ namespace wrl
 
         light(std::string);
 
+        virtual void play_init();
+        virtual void play_fini();
+
         virtual light *clone() const { return new light(*this); }
         virtual int priority() const { return -1;               }
 
