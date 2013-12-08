@@ -69,9 +69,6 @@ namespace wrl
         void set_param(int, std::string&);
         int  get_param(int, std::string&);
 
-        void set_light(const vec3& v) { light_v = normal(v); }
-        vec3 get_light() const        { return light_v;      }
-
         // Editing methods
 
         void click_selection(atom *);
@@ -140,12 +137,7 @@ namespace wrl
         atom_set all;
         atom_set sel;
 
-        vec3 light_v;
-
-        int  shadow_res;
-        bool split_static;
-
-        double split[4];
+        int shadow_res;
 
         // Batcher state
 
