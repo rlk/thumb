@@ -870,6 +870,8 @@ ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
     for (int frusi = 0; frusi < frusc; ++frusi)
         bb.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
 
+    bound = bb;
+
     return bb;
 }
 
@@ -1027,6 +1029,12 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
+
+    ogl::line_state_init();
+    {
+        bound.draw();
+    }
+    ogl::line_state_fini();
 }
 
 void wrl::world::draw_line(int frusi, const app::frustum *frusp)

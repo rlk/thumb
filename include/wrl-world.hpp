@@ -109,12 +109,14 @@ namespace wrl
         ogl::aabb prep_fill(int, const app::frustum *const *);
         ogl::aabb prep_line(int, const app::frustum *const *);
 
-        void lite(int, const app::frustum *const *);
+        void           lite(int, const app::frustum *const *);
 
-        void draw_fill(int, const app::frustum *);
-        void draw_line(int, const app::frustum *);
+        void      draw_fill(int, const app::frustum *);
+        void      draw_line(int, const app::frustum *);
 
     private:
+
+        ogl::aabb bound;
 
         // ODE edit state
 
@@ -141,9 +143,10 @@ namespace wrl
 
         // Batcher state
 
+        node_map nodes;
+
         ogl::pool *fill_pool;
         ogl::node *fill_node;
-        node_map   nodes;
 
         ogl::pool *line_pool;
         ogl::node *line_node;

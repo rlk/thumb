@@ -184,7 +184,7 @@ void app::frustum::set_distances(const ogl::aabb& bound)
     double n = nf.get_n();
     double f = nf.get_f();
 
-    printf("out %f %f\n", n, f);
+    // printf("out %f %f\n", n, f);
 
     n_dist = n;
     f_dist = f;
