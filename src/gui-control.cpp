@@ -16,6 +16,7 @@
 #include <gui-control.hpp>
 #include <wrl-joint.hpp>
 #include <wrl-solid.hpp>
+#include <wrl-light.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -158,6 +159,12 @@ void cnt::new_sphere_button::apply()
         do_create(new wrl::sphere(name->value()));
 }
 
+void cnt::new_light_button::apply()
+{
+    if (!name->value().empty())
+        do_create(new wrl::light(name->value()));
+}
+
 //-----------------------------------------------------------------------------
 
 void cnt::init_button::apply()
@@ -206,11 +213,9 @@ cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
             add((new gui::vgroup)->
 
                 add(new title("Create Solid"))->
-                add(new new_box_button    (W, w, E))->
-                add(new new_sphere_button (W, w, E))->
-/*
-                add(new new_capsule_button(W, w, E))->
-*/
+                add(new new_box_button   (W, w, E))->
+                add(new new_sphere_button(W, w, E))->
+                add(new new_light_button (W, w, E))->
                 add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->

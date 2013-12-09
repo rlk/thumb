@@ -14,9 +14,164 @@
 #include <cstdio>
 
 #include <ogl-uniform.hpp>
+#include <ogl-process.hpp>
 #include <ogl-program.hpp>
 #include <app-glob.hpp>
 #include <app-data.hpp>
+
+//-----------------------------------------------------------------------------
+
+const ogl::program *ogl::program::current = NULL;
+
+ogl::program::program(std::string name) :
+    name(name), vert(0), frag(0), prog(0), bindable(false)
+{
+    init();
+}
+
+ogl::program::~program()
+{
+    fini();
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::program::prep() const
+{
+    if (bindable)
+    {
+        uniform_map::const_iterator u;
+        process_map::const_iterator p;
+
+        bind();
+
+        // Set all uniform values.
+
+        for (u = uniforms.begin(); u != uniforms.end(); ++u)
+            u->first->apply(u->second);
+
+        // Bind all process samplers.
+
+        for (p = processes.begin(); p != processes.end(); ++p)
+            p->first->bind(p->second);
+
+        free();
+    }
+}
+
+void ogl::program::bind() const
+{
+    if (bindable)
+    {
+        glUseProgram(prog);
+        current = this;
+    }
+}
+
+void ogl::program::free() const
+{
+}
+
+//-----------------------------------------------------------------------------
+
+std::string ogl::program::load(const std::string& name)
+{
+    std::string            base;
+    std::string::size_type incl = 0;
+
+    size_t len;
+
+    // Load the named program file.
+
+    base.append((const char *) ::data->load(name, &len));
+
+    ::data->free(name);
+
+    // Scan the string for #include directives.
+
+    while ((incl = base.find("#include", incl)) != std::string::npos)
+    {
+        // Parse the included file name.
+
+        std::string::size_type lq = base.find("\"", incl);
+        std::string::size_type rq = base.find("\"", lq+1);
+
+        std::string file(base, lq + 1, rq - lq - 1);
+
+        // Replace the include directive with the loaded string.
+
+        base.replace(incl, rq - incl + 1, load(file));
+    }
+
+    // Return the final string.
+
+    return base;
+}
+
+void ogl::program::init_attributes(app::node p)
+{
+    // Bind the attributes.
+
+    for (app::node n = p.find("attribute"); n; n = p.next(n, "attribute"))
+
+        glBindAttribLocation(prog, n.get_i("location"),
+                                   n.get_s("name").c_str());
+}
+
+void ogl::program::init_textures(app::node p)
+{
+    // Configure the textures. Store the unit number for use by bindings.
+
+    for (app::node n = p.find("texture"); n; n = p.next(n, "texture"))
+    {
+        const std::string name = n.get_s("name");
+        const int         unit = n.get_i("unit");
+
+        if (!name.empty())
+        {
+            uniform(name, unit);
+            textures[name] = GL_TEXTURE0 + unit;
+        }
+    }
+}
+
+void ogl::program::init_processes(app::node p)
+{
+    // Configure the processes.
+
+    for (app::node n = p.find("process"); n; n = p.next(n, "process"))
+    {
+        const std::string name    = n.get_s("name");
+        const std::string process = n.get_s("process");
+        const int         index   = n.get_i("index");
+        const int         unit    = n.get_i("unit");
+
+        if (!name.empty())
+        {
+            uniform(name, unit);
+            if (const ogl::process *p = ::glob->load_process(process, index))
+                processes[p] = GL_TEXTURE0 + unit;
+        }
+    }
+}
+
+void ogl::program::init_uniforms(app::node p)
+{
+    // Configure the uniforms.
+
+    for (app::node n = p.find("uniform"); n; n = p.next(n, "uniform"))
+    {
+        const std::string name    = n.get_s("name");
+        const std::string uniform = n.get_s("uniform");
+        const int         size    = n.get_i("size");
+
+        if (!uniform.empty())
+        {
+            if (ogl::uniform *u = ::glob->load_uniform(uniform, size))
+                uniforms[u] = glGetUniformLocation(prog, name.c_str());
+        }
+    }
+}
 
 //-----------------------------------------------------------------------------
 
@@ -92,132 +247,6 @@ GLuint ogl::program::compile(GLenum type, const std::string& name,
 
 //-----------------------------------------------------------------------------
 
-const ogl::program *ogl::program::current = NULL;
-
-ogl::program::program(std::string name) :
-    name(name), vert(0), frag(0), prog(0), bindable(false)
-{
-    init();
-}
-
-ogl::program::~program()
-{
-    fini();
-}
-
-//-----------------------------------------------------------------------------
-
-void ogl::program::prep() const
-{
-    uniform_map::const_iterator i;
-
-    if (uniforms.empty() == false)
-    {
-        bind();
-
-        for (i = uniforms.begin(); i != uniforms.end(); ++i)
-            i->first->apply(i->second);
-
-        free();
-    }
-}
-
-void ogl::program::bind() const
-{
-    if (bindable)
-    {
-        glUseProgram(prog);
-        current = this;
-    }
-}
-
-void ogl::program::free() const
-{
-}
-
-//-----------------------------------------------------------------------------
-
-std::string ogl::program::load(const std::string& name)
-{
-    std::string            base;
-    std::string::size_type incl = 0;
-
-    size_t len;
-
-    // Load the named program file.
-
-    base.append((const char *) ::data->load(name, &len));
-
-    ::data->free(name);
-
-    // Scan the string for #include directives.
-
-    while ((incl = base.find("#include", incl)) != std::string::npos)
-    {
-        // Parse the included file name.
-
-        std::string::size_type lq = base.find("\"", incl);
-        std::string::size_type rq = base.find("\"", lq+1);
-
-        std::string file(base, lq + 1, rq - lq - 1);
-
-        // Replace the include directive with the loaded string.
-
-        base.replace(incl, rq - incl + 1, load(file));
-    }
-
-    // Return the final string.
-
-    return base;
-}
-
-void ogl::program::init_attributes(app::node p)
-{
-    // Bind the attributes.
-
-    for (app::node n = p.find("attribute"); n; n = p.next(n, "attribute"))
-
-        glBindAttribLocation(prog, n.get_i("location"),
-                                      n.get_s("name").c_str());
-}
-
-void ogl::program::init_samplers(app::node p)
-{
-    // Set the samplers.
-
-    for (app::node n = p.find("sampler"); n; n = p.next(n, "sampler"))
-    {
-        const std::string name = n.get_s("name");
-        const int         unit = n.get_i("unit");
-
-        if (!name.empty())
-        {
-            uniform(name, unit);
-            samplers[name] = GL_TEXTURE0 + unit;
-        }
-    }
-}
-
-void ogl::program::init_uniforms(app::node p)
-{
-    // Get the uniforms.
-
-    for (app::node n = p.find("uniform"); n; n = p.next(n, "uniform"))
-    {
-        const std::string name  = n.get_s("name");
-        const std::string value = n.get_s("value");
-        const int         size  = n.get_i("size");
-
-        if (!value.empty())
-        {
-            if (ogl::uniform *u = ::glob->load_uniform(value, size))
-                uniforms[u] = glGetUniformLocation(prog, name.c_str());
-        }
-    }
-}
-
-//-----------------------------------------------------------------------------
-
 void ogl::program::init()
 {
     std::string path = "program/" + name;
@@ -259,8 +288,9 @@ void ogl::program::init()
         {
             bind();
             {
-                init_samplers(root);
-                init_uniforms(root);
+                init_textures (root);
+                init_processes(root);
+                init_uniforms (root);
             }
             free();
             prep();
@@ -270,13 +300,18 @@ void ogl::program::init()
 
 void ogl::program::fini()
 {
-    uniform_map::iterator i;
+    uniform_map::iterator u;
+    process_map::iterator p;
 
-    for (i = uniforms.begin(); i != uniforms.end(); ++i)
-        ::glob->free_uniform(i->first);
+    for (u =  uniforms.begin(); u !=  uniforms.end(); ++u)
+        ::glob->free_uniform(u->first);
+
+    for (p = processes.begin(); p != processes.end(); ++p)
+        ::glob->free_process(p->first);
 
     uniforms.clear();
-    samplers.clear();
+    processes.clear();
+    textures.clear();
 
     if (prog) glDeleteProgram(prog);
     if (vert) glDeleteShader(vert);
@@ -291,11 +326,11 @@ void ogl::program::fini()
 
 GLenum ogl::program::unit(std::string name) const
 {
-    // Determine the texture unit of the named sampler uniform.
+    // Determine the texture image unit of the named texture sampler uniform.
 
     std::map<std::string, GLenum>::const_iterator i;
 
-    if ((i = samplers.find(name)) == samplers.end())
+    if ((i = textures.find(name)) == textures.end())
         return 0;
     else
         return i->second;

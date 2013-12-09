@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<material>
-  <program mode="color" file="white.xml" />
-  <program mode="depth" file="white.xml" />
-</material>

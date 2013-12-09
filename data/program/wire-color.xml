@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
-<program vert="glsl/wire-color.vert"
-         frag="glsl/wire-color.frag" >
-</program>
+  <program vert="glsl/wire-color.vert"
+           frag="glsl/wire-color.frag" >
+  </program>

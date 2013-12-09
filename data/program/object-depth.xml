@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-<program vert="glsl/object-depth.vert"
-         frag="glsl/object-depth.frag" >
-  <sampler name="diff_map" unit="0" />
-</program>
+  <program vert="glsl/object-depth.vert"
+           frag="glsl/object-depth.frag" >
+    <sampler name="diff_map" unit="0" />
+  </program>

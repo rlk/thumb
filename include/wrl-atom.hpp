@@ -92,6 +92,8 @@ namespace wrl
 
         virtual ~atom();
 
+        virtual int priority() const { return 0; }
+
     protected:
 
         dGeomID edit_geom;
@@ -112,8 +114,19 @@ namespace wrl
         mat4 current_M;
     };
 
-    typedef std::set<atom *     > atom_set;
-    typedef std::map<atom *, int> atom_map;
+    //-------------------------------------------------------------------------
+
+    struct atomcmp
+    {
+        bool operator()(const atom *a1, const atom *a2) const {
+            if      (a1->priority() < a2->priority()) return true;
+            else if (a1->priority() > a2->priority()) return false;
+            else                                      return (a1 < a2);
+        }
+    };
+
+    typedef std::set<atom *, atomcmp> atom_set;
+    typedef std::map<atom *, int>     atom_map;
 }
 
 //-----------------------------------------------------------------------------

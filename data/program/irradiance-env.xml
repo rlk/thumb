@@ -2,26 +2,28 @@
 <program vert="glsl/irradiance-env.vert"
          frag="glsl/irradiance-env.frag" >
 
-  <sampler name="diff_map"  unit="0" />
-  <sampler name="spec_map"  unit="1" />
-  <sampler name="norm_map"  unit="2" />
-  <sampler name="shadow[0]" unit="3" />
-  <sampler name="shadow[1]" unit="4" />
-  <sampler name="shadow[2]" unit="5" />
-
-  <sampler name="reflection_env[0]" unit="6" />
-  <sampler name="reflection_env[1]" unit="7" />
-  <sampler name="irradiance_env[0]" unit="8" />
-  <sampler name="irradiance_env[1]" unit="9" />
-
-  <uniform name="pssm_depth"       value="pssm_depth"       size="4"/>
-  <uniform name="view_matrix"      value="view_matrix"      size="16"/>
-  <uniform name="view_inverse"     value="view_inverse"     size="16"/>
-  <uniform name="light_position"   value="light_position"   size="3"/>
-  <uniform name="color_max"        value="color_max"        size="4"/>
-  <uniform name="shadow_matrix[0]" value="shadow_matrix[0]" size="16" />
-  <uniform name="shadow_matrix[1]" value="shadow_matrix[1]" size="16" />
-  <uniform name="shadow_matrix[2]" value="shadow_matrix[2]" size="16" />
-
   <attribute name="Tangent" location="6" />
+
+  <uniform name="pssm_depth"       uniform="pssm_depth"       size="4"  />
+  <uniform name="view_matrix"      uniform="view_matrix"      size="16" />
+  <uniform name="view_inverse"     uniform="view_inverse"     size="16" />
+  <uniform name="light_position"   uniform="light_position"   size="3"  />
+  <uniform name="color_max"        uniform="color_max"        size="4"  />
+  <uniform name="shadow_matrix[0]" uniform="shadow_matrix[0]" size="16" />
+  <uniform name="shadow_matrix[1]" uniform="shadow_matrix[1]" size="16" />
+  <uniform name="shadow_matrix[2]" uniform="shadow_matrix[2]" size="16" />
+
+  <texture name="diff_map"          unit="0" />
+  <texture name="spec_map"          unit="1" />
+  <texture name="norm_map"          unit="2" />
+
+  <process name="shadow[0]"         unit="3" process="shadow"         index="0" />
+  <process name="shadow[1]"         unit="4" process="shadow"         index="1" />
+  <process name="shadow[2]"         unit="5" process="shadow"         index="2" />
+
+  <process name="reflection_env[0]" unit="6" process="reflection_env" index="0" />
+  <process name="reflection_env[1]" unit="7" process="reflection_env" index="1" />
+  <process name="irradiance_env[0]" unit="8" process="irradiance_env" index="0" />
+  <process name="irradiance_env[1]" unit="9" process="irradiance_env" index="1" />
+
 </program>

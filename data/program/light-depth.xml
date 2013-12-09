@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+  <program vert="glsl/light.vert"
+           frag="glsl/light-depth.frag" >
+  </program>

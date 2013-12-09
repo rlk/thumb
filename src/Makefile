@@ -61,6 +61,7 @@ OBJS=	app-data.o \
 	wrl-atom.o \
 	wrl-constraint.o \
 	wrl-joint.o \
+	wrl-light.o \
 	wrl-operation.o \
 	wrl-param.o \
 	wrl-solid.o \
