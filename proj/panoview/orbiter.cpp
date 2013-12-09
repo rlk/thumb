@@ -108,7 +108,7 @@ void orbiter::report()
 
 //------------------------------------------------------------------------------
 
-ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
+ogl::aabb orbiter::prep(int frusc, const app::frustum *const *frusv)
 {
     report();
 
@@ -123,7 +123,9 @@ ogl::range orbiter::prep(int frusc, const app::frustum *const *frusv)
     double n = 0.5 *     (d     - r    );
     double f = 1.0 * sqrt(d * d - m * m);
 
-    return ogl::range(n, f);
+    printf("in %f %f\n", n, f);
+
+    return ogl::aabb(vec3(0, 0, -f), vec3(0, 0, -n));
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)

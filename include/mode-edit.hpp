@@ -73,8 +73,8 @@ namespace mode
 
         edit(wrl::world *);
 
-        virtual ogl::range prep(int, const app::frustum * const *);
-        virtual void       draw(int, const app::frustum *);
+        virtual ogl::aabb prep(int, const app::frustum * const *);
+        virtual void      draw(int, const app::frustum *);
 
         virtual bool process_event(app::event *);
 

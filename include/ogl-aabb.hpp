@@ -22,18 +22,13 @@ namespace ogl
 {
     class aabb
     {
-        vec3 a;
-        vec3 z;
-
-        double min(const vec4&) const;
-        double max(const vec4&) const;
-
     public:
 
-        aabb(double, double, double, double, double, double);
         aabb();
+        aabb(const vec3&, const vec3&);
+        aabb(const aabb&, const mat4&);
 
-        void merge(double, double, double);
+        void merge(const vec3&);
         void merge(const aabb&);
 
         double     get_distance(const vec3&)              const;
@@ -52,6 +47,14 @@ namespace ogl
         double xlength() const { return z[0] - a[0]; }
         double ylength() const { return z[1] - a[1]; }
         double zlength() const { return z[2] - a[2]; }
+
+    private:
+
+        vec3 a;
+        vec3 z;
+
+        double min(const vec4&) const;
+        double max(const vec4&) const;
     };
 }
 

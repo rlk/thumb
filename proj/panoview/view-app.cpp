@@ -338,7 +338,7 @@ double view_app::get_minimum_ground() const
 
 //------------------------------------------------------------------------------
 
-ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
+ogl::aabb view_app::prep(int frusc, const app::frustum *const *frusv)
 {
     if ( draw_gui && !gui) gui_show();
     if (!draw_gui &&  gui) gui_hide();
@@ -350,7 +350,10 @@ ogl::range view_app::prep(int frusc, const app::frustum *const *frusv)
 
     sys->update_cache();
 
-    return ogl::range(0.1, 2.0 * get_minimum_ground());
+    double n = 0.1;
+    double f = 2.0 * get_minimum_ground();
+
+    return ogl::aabb(vec3(0, 0, -f), vec3(0, 0, -n));
 }
 
 void view_app::lite(int frusc, const app::frustum *const *frusv)

@@ -20,7 +20,7 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::mode::prep(int frusc, const app::frustum *const *frusv)
+ogl::aabb mode::mode::prep(int frusc, const app::frustum *const *frusv)
 {
     assert(world);
 

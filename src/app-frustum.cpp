@@ -51,7 +51,8 @@ app::frustum::frustum(app::node node, int w, int h) :
 
     set_viewpoint(user_pos);
     set_transform(mat4());
-    set_distances(0.5, 100.0);
+    set_distances(ogl::aabb(vec3(-10.0, -10.0, -10.0),
+                            vec3(+10.0, +10.0, +10.0)));
 }
 
 /// Copy constuctor
@@ -167,19 +168,23 @@ void app::frustum::set_transform(const mat4& M)
 /// volume that is effectively infinite. However, perspective projection
 /// requires a bounded volume, capped at the minimum and maximum visible
 /// distance. This function sets these distances, and must be called prior to
-/// the use of the frustum's perspective projection matrix. In practice, the
-/// near and far distances vary with the content of the scene, and are
-/// recomputed each frame by the app::host.
+/// the use of the frustum's perspective projection matrix.
 ///
-/// \param n Near plane distance
-/// \param f  Far plane distance
+/// \param b Axis-aligned bounding box
 ///
-void app::frustum::set_distances(double n, double f)
+void app::frustum::set_distances(const ogl::aabb& bound)
 {
     vec3 u[4];
     vec3 v[4];
 
     // Cache the near and far clipping plane distances.
+
+    ogl::range nf = bound.get_range(view_planes[0]);
+
+    double n = nf.get_n();
+    double f = nf.get_f();
+
+    printf("out %f %f\n", n, f);
 
     n_dist = n;
     f_dist = f;

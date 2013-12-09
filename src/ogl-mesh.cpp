@@ -179,9 +179,9 @@ void ogl::mesh::add_vert(GLvec3& v, GLvec3& n, GLvec2& u)
     tv.push_back(t);
     uv.push_back(u);
 
-    bound.merge(double(v.v[0]),
-                double(v.v[1]),
-                double(v.v[2]));
+    bound.merge(vec3(double(v.v[0]),
+                     double(v.v[1]),
+                     double(v.v[2])));
 
     dirty_verts = true;
 }
@@ -249,9 +249,9 @@ void ogl::mesh::cache_verts(const ogl::mesh *that, const mat4& M,
 
         uv[i] = that->uv[i];
 
-        bound.merge(double(vv[i].v[0]),
-                    double(vv[i].v[1]),
-                    double(vv[i].v[2]));
+        bound.merge(vec3(double(vv[i].v[0]),
+                         double(vv[i].v[1]),
+                         double(vv[i].v[2])));
     }
 
     dirty_verts = true;

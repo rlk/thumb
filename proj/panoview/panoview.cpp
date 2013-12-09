@@ -45,7 +45,7 @@ panoview::~panoview()
 
 //------------------------------------------------------------------------------
 
-ogl::range panoview::prep(int frusc, const app::frustum *const *frusv)
+ogl::aabb panoview::prep(int frusc, const app::frustum *const *frusv)
 {
     vec3 v = ::view->get_point_vec(quat());
 

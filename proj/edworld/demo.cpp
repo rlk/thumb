@@ -192,20 +192,16 @@ bool demo::process_event(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-ogl::range demo::prep(int frusc, const app::frustum *const *frusv)
+ogl::aabb demo::prep(int frusc, const app::frustum *const *frusv)
 {
-    // Prep the current mode, giving the view range.
+    // Prep the current mode, giving the view bound.
 
     prep_uniforms();
 
-    ogl::range r;
-
     if (curr)
-        r = curr->prep(frusc, frusv);
+        return curr->prep(frusc, frusv);
     else
-        r = ogl::range();
-
-    return r;
+        return ogl::aabb();
 }
 
 void demo::lite(int frusc, const app::frustum *const *frusv)

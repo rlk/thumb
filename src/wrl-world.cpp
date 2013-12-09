@@ -857,38 +857,36 @@ void wrl::world::save(std::string filename, bool save_all)
 
 //-----------------------------------------------------------------------------
 
-ogl::range wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
+ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
 {
     // Prep the fill geometry pool.
 
     fill_pool->prep();
 
-    // Cache the fill visibility and determine the far plane distance.
+    // Cache the fill visibility and determine the visible bound.
 
-    ogl::range r;
+    ogl::aabb bb;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-    {
-        r.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
-    }
+        bb.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
 
-    return r;
+    return bb;
 }
 
-ogl::range wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
+ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
 {
-    ogl::range r;
-
     // Prep the line geometry pool.
 
     line_pool->prep();
 
-    // Cache the line visibility and determine the far plane distance.
+    // Cache the line visibility and determine the visible bound.
+
+    ogl::aabb bb;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        r.merge(line_pool->view(frusi, frusv[frusi]->get_planes(), 5));
+        bb.merge(line_pool->view(frusi, frusv[frusi]->get_planes(), 5));
 
-    return r;
+    return bb;
 }
 
 //-----------------------------------------------------------------------------
@@ -955,11 +953,11 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             // Cache the fill visibility for the light.
 
-            ogl::range s = fill_pool->view(frusi, frust.get_planes(), 5);
+            ogl::aabb b = fill_pool->view(frusi, frust.get_planes(), 5);
 
             // Use the visible range to determine the light projection.
 
-            frust.set_distances(s.get_n(), s.get_f());
+            frust.set_distances(b);
 
             // Render the fill geometry to the shadow buffer.
 

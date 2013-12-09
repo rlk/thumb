@@ -18,66 +18,13 @@
 
 //-----------------------------------------------------------------------------
 
-double ogl::aabb::max(const vec4& P) const
-{
-    // Find the corner most positive w.r.t the plane.  Return the distance.
-
-    if (P[0] > 0)
-        if (P[1] > 0)
-            if (P[2] > 0)
-                return vec4(z[0], z[1], z[2], 1) * P;
-            else
-                return vec4(z[0], z[1], a[2], 1) * P;
-        else
-            if (P[2] > 0)
-                return vec4(z[0], a[1], z[2], 1) * P;
-            else
-                return vec4(z[0], a[1], a[2], 1) * P;
-    else
-        if (P[1] > 0)
-            if (P[2] > 0)
-                return vec4(a[0], z[1], z[2], 1) * P;
-            else
-                return vec4(a[0], z[1], a[2], 1) * P;
-        else
-            if (P[2] > 0)
-                return vec4(a[0], a[1], z[2], 1) * P;
-            else
-                return vec4(a[0], a[1], a[2], 1) * P;
-}
-
-double ogl::aabb::min(const vec4& P) const
-{
-    // Find the corner most negative w.r.t the plane.  Return the distance.
-
-    if (P[0] > 0)
-        if (P[1] > 0)
-            if (P[2] > 0)
-                return vec4(a[0], a[1], a[2], 1) * P;
-            else
-                return vec4(a[0], a[1], z[2], 1) * P;
-        else
-            if (P[2] > 0)
-                return vec4(a[0], z[1], a[2], 1) * P;
-            else
-                return vec4(a[0], z[1], z[2], 1) * P;
-    else
-        if (P[1] > 0)
-            if (P[2] > 0)
-                return vec4(z[0], a[1], a[2], 1) * P;
-            else
-                return vec4(z[0], a[1], z[2], 1) * P;
-        else
-            if (P[2] > 0)
-                return vec4(z[0], z[1], a[2], 1) * P;
-            else
-                return vec4(z[0], z[1], z[2], 1) * P;
-}
-
-//-----------------------------------------------------------------------------
-
-ogl::aabb::aabb(double x0, double y0, double z0,
-                double x1, double y1, double z1) : a(x0, y0, z0), z(x1, y1, z1)
+ogl::aabb::aabb(const vec3& p, const vec3& q) :
+    a(std::min(p[0], q[0]),
+      std::min(p[1], q[1]),
+      std::min(p[2], q[2])),
+    z(std::max(p[0], q[0]),
+      std::max(p[1], q[1]),
+      std::max(p[2], q[2]))
 {
 }
 
@@ -91,17 +38,35 @@ ogl::aabb::aabb() :
 {
 }
 
+ogl::aabb::aabb(const aabb& that, const mat4& M) :
+    a(+std::numeric_limits<double>::max(),
+      +std::numeric_limits<double>::max(),
+      +std::numeric_limits<double>::max()),
+    z(-std::numeric_limits<double>::max(),
+      -std::numeric_limits<double>::max(),
+      -std::numeric_limits<double>::max())
+{
+    merge(M * vec3(that.a[0], that.a[1], that.a[2]));
+    merge(M * vec3(that.z[0], that.a[1], that.a[2]));
+    merge(M * vec3(that.a[0], that.z[1], that.a[2]));
+    merge(M * vec3(that.z[0], that.z[1], that.a[2]));
+    merge(M * vec3(that.a[0], that.a[1], that.z[2]));
+    merge(M * vec3(that.z[0], that.a[1], that.z[2]));
+    merge(M * vec3(that.a[0], that.z[1], that.z[2]));
+    merge(M * vec3(that.z[0], that.z[1], that.z[2]));
+}
+
 //-----------------------------------------------------------------------------
 
-void ogl::aabb::merge(double px, double py, double pz)
+void ogl::aabb::merge(const vec3& p)
 {
-    a[0] = std::min(a[0], px);
-    a[1] = std::min(a[1], py);
-    a[2] = std::min(a[2], pz);
+    a[0] = std::min(a[0], p[0]);
+    a[1] = std::min(a[1], p[1]);
+    a[2] = std::min(a[2], p[2]);
 
-    z[0] = std::max(z[0], px);
-    z[1] = std::max(z[1], py);
-    z[2] = std::max(z[2], pz);
+    z[0] = std::max(z[0], p[0]);
+    z[1] = std::max(z[1], p[1]);
+    z[2] = std::max(z[2], p[2]);
 }
 
 void ogl::aabb::merge(const aabb& that)
@@ -291,6 +256,64 @@ void ogl::aabb::draw() const
         glVertex3d(z[0], z[1], z[2]);
     }
     glEnd();
+}
+
+//-----------------------------------------------------------------------------
+
+double ogl::aabb::max(const vec4& P) const
+{
+    // Find the corner most positive w.r.t the plane.  Return the distance.
+
+    if (P[0] > 0)
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return vec4(z[0], z[1], z[2], 1) * P;
+            else
+                return vec4(z[0], z[1], a[2], 1) * P;
+        else
+            if (P[2] > 0)
+                return vec4(z[0], a[1], z[2], 1) * P;
+            else
+                return vec4(z[0], a[1], a[2], 1) * P;
+    else
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return vec4(a[0], z[1], z[2], 1) * P;
+            else
+                return vec4(a[0], z[1], a[2], 1) * P;
+        else
+            if (P[2] > 0)
+                return vec4(a[0], a[1], z[2], 1) * P;
+            else
+                return vec4(a[0], a[1], a[2], 1) * P;
+}
+
+double ogl::aabb::min(const vec4& P) const
+{
+    // Find the corner most negative w.r.t the plane.  Return the distance.
+
+    if (P[0] > 0)
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return vec4(a[0], a[1], a[2], 1) * P;
+            else
+                return vec4(a[0], a[1], z[2], 1) * P;
+        else
+            if (P[2] > 0)
+                return vec4(a[0], z[1], a[2], 1) * P;
+            else
+                return vec4(a[0], z[1], z[2], 1) * P;
+    else
+        if (P[1] > 0)
+            if (P[2] > 0)
+                return vec4(z[0], a[1], a[2], 1) * P;
+            else
+                return vec4(z[0], a[1], z[2], 1) * P;
+        else
+            if (P[2] > 0)
+                return vec4(z[0], z[1], a[2], 1) * P;
+            else
+                return vec4(z[0], z[1], z[2], 1) * P;
 }
 
 //-----------------------------------------------------------------------------

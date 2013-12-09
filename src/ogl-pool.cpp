@@ -433,7 +433,7 @@ void ogl::node::transform(const mat4& M)
 
 //-----------------------------------------------------------------------------
 
-ogl::range ogl::node::view(int id, const vec4 *V, int n)
+ogl::aabb ogl::node::view(int id, const vec4 *V, int n)
 {
     // Get the cached culler hint.
 
@@ -450,12 +450,12 @@ ogl::range ogl::node::view(int id, const vec4 *V, int n)
 
     hint_cache = set_oct(hint_cache, id, hint);
 
-    // If this node is visible, return the AABB max distance from plane 0.
+    // If this node is visible, return the world-space AABB.
 
     if (bit && V)
-        return my_aabb.get_range(V[0], M);
+        return ogl::aabb(my_aabb, mat4());//M);
     else
-        return ogl::range();
+        return ogl::aabb();
 }
 
 void ogl::node::draw(int id, bool color, bool alpha)
@@ -650,16 +650,16 @@ void ogl::pool::prep()
     glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 }
 
-ogl::range ogl::pool::view(int id, const vec4 *V, int n)
+ogl::aabb ogl::pool::view(int id, const vec4 *V, int n)
 {
-    ogl::range r;
+    ogl::aabb b;
 
-    // Test all nodes for visibility.  Find the range of the farthest node.
+    // Test all nodes for visibility. Find the union of their bounds.
 
     for (node_s::iterator i = my_node.begin(); i != my_node.end(); ++i)
-        r.merge((*i)->view(id, V, n));
+        b.merge((*i)->view(id, V, n));
 
-    return r;
+    return b;
 }
 
 //-----------------------------------------------------------------------------

@@ -36,10 +36,10 @@ public:
     view_app(const std::string&, const std::string&);
    ~view_app();
 
-    virtual ogl::range prep(int, const app::frustum * const *);
-    virtual void       lite(int, const app::frustum * const *);
-    virtual void       draw(int, const app::frustum *, int);
-    virtual void       over(int, const app::frustum *, int);
+    virtual ogl::aabb prep(int, const app::frustum * const *);
+    virtual void      lite(int, const app::frustum * const *);
+    virtual void      draw(int, const app::frustum *, int);
+    virtual void      over(int, const app::frustum *, int);
 
     virtual bool process_event(app::event *);
 

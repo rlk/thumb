@@ -17,7 +17,7 @@
 #include <cstring>
 
 #include <etc-vector.hpp>
-#include <ogl-range.hpp>
+#include <ogl-aabb.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -53,8 +53,8 @@ namespace wrl
         bool point(const vec3&, const vec3&, mat4&);
         void click(const vec3&, const vec3&);
 
-        ogl::range prep(int, const app::frustum *const *);
-        void       draw(int);
+        ogl::aabb prep(int, const app::frustum *const *);
+        void      draw(int);
 
     protected:
 

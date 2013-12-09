@@ -18,7 +18,7 @@
 
 #include <SDL.h>
 
-#include <ogl-range.hpp>
+#include <ogl-aabb.hpp>
 #include <etc-vector.hpp>
 
 //-----------------------------------------------------------------------------
@@ -52,9 +52,9 @@ namespace app
 
         // Rendering handlers
 
-        virtual ogl::range prep(int, const app::frustum * const *) = 0;
-        virtual void       lite(int, const app::frustum * const *) = 0;
-        virtual void       draw(int, const app::frustum *, int)    = 0;
+        virtual ogl::aabb prep(int, const app::frustum * const *) = 0;
+        virtual void      lite(int, const app::frustum * const *) = 0;
+        virtual void      draw(int, const app::frustum *, int)    = 0;
 
         // Event handler
 

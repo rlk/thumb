@@ -350,20 +350,20 @@ bool mode::edit::process_tick(app::event *E)
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::edit::prep(int frusc, const app::frustum *const *frusv)
+ogl::aabb mode::edit::prep(int frusc, const app::frustum *const *frusv)
 {
     assert(world);
     assert(xform);
 
-    // Prep the world and the constraint.  Combine the ranges.
+    // Prep the world and the constraint. Combine the bounds.
 
-    ogl::range r;
+    ogl::aabb b;
 
-    r.merge(world->prep_fill(frusc, frusv));
-    r.merge(world->prep_line(frusc, frusv));
-    r.merge(xform->prep     (frusc, frusv));
+    b.merge(world->prep_fill(frusc, frusv));
+    b.merge(world->prep_line(frusc, frusv));
+    b.merge(xform->prep     (frusc, frusv));
 
-    return r;
+    return b;
 }
 
 void mode::edit::draw(int frusi, const app::frustum *frusp)

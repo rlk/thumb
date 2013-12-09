@@ -15,7 +15,7 @@
 
 #include <etc-vector.hpp>
 #include <etc-ode.hpp>
-#include <ogl-range.hpp>
+#include <ogl-aabb.hpp>
 #include <wrl-atom.hpp>
 #include <wrl-operation.hpp>
 
@@ -106,8 +106,8 @@ namespace wrl
 
         // Rendering methods
 
-        ogl::range prep_fill(int, const app::frustum *const *);
-        ogl::range prep_line(int, const app::frustum *const *);
+        ogl::aabb prep_fill(int, const app::frustum *const *);
+        ogl::aabb prep_line(int, const app::frustum *const *);
 
         void lite(int, const app::frustum *const *);
 

@@ -16,6 +16,7 @@
 #include <vector>
 
 #include <etc-vector.hpp>
+#include <ogl-aabb.hpp>
 #include <app-file.hpp>
 
 //-----------------------------------------------------------------------------
@@ -63,7 +64,7 @@ namespace app
         void set_projection(const mat4& M);
         void set_viewpoint (const vec3& p);
         void set_transform (const mat4& M);
-        void set_distances (double n, double f);
+        void set_distances (const ogl::aabb& bound);
 
         void set_volume(int frusc, const frustum *const *frusv,
                         double c0, double c1, const vec3& p, mat4& M,

@@ -29,8 +29,8 @@ public:
 
     orbiter(const std::string&, const std::string&);
 
-    virtual ogl::range prep(int, const app::frustum * const *);
-    virtual void       draw(int, const app::frustum *, int);
+    virtual ogl::aabb prep(int, const app::frustum * const *);
+    virtual void      draw(int, const app::frustum *, int);
 
     virtual void move_to(int);
 

@@ -41,16 +41,16 @@ mode::info::~info()
 
 //-----------------------------------------------------------------------------
 
-ogl::range mode::info::prep(int frusc, const app::frustum *const *frusv)
+ogl::aabb mode::info::prep(int frusc, const app::frustum *const *frusv)
 {
     assert(world);
 
-    ogl::range r;
+    ogl::aabb b;
 
-    r.merge(world->prep_fill(frusc, frusv));
-    r.merge(world->prep_line(frusc, frusv));
+    b.merge(world->prep_fill(frusc, frusv));
+    b.merge(world->prep_line(frusc, frusv));
 
-    return r;
+    return b;
 }
 
 void mode::info::draw(int frusi, const app::frustum *frusp)

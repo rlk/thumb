@@ -83,9 +83,9 @@ public:
 
     bool process_event(app::event *);
 
-    ogl::range prep(int, const app::frustum * const *);
-    void       lite(int, const app::frustum * const *);
-    void       draw(int, const app::frustum *, int);
+    ogl::aabb prep(int, const app::frustum * const *);
+    void      lite(int, const app::frustum * const *);
+    void      draw(int, const app::frustum *, int);
 };
 
 //-----------------------------------------------------------------------------

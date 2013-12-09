@@ -167,8 +167,8 @@ namespace ogl
         void buff(GLfloat *, GLfloat *, GLfloat *, GLfloat *, bool);
         void sort(GLuint  *, GLuint);
 
-        ogl::range view(int, const vec4 *, int);
-        void       draw(int=0, bool=true, bool=false);
+        ogl::aabb view(int, const vec4 *, int);
+        void      draw(int=0, bool=true, bool=false);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
@@ -216,8 +216,8 @@ namespace ogl
         void add_node(node_p);
         void rem_node(node_p);
 
-        ogl::range view(int, const vec4 *, int);
-        void       prep();
+        ogl::aabb view(int, const vec4 *, int);
+        void      prep();
 
         void draw_init();
         void draw(int=0, bool=true, bool=false);

@@ -709,14 +709,14 @@ void app::host::draw()
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
         (*i)->set_transform(::view->get_transform());
 
-    // Determine visibility and view distance (moderately expensive).
+    // Determine visibility (moderately expensive).
 
-    ogl::range r = program->prep(frusc, frusv);
+    ogl::aabb bound = program->prep(frusc, frusv);
 
     // Cache the frustum projections (cheap). Allow 1% depth pad.
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_distances(r.get_n() * 0.99, r.get_f() * 1.01);
+        (*i)->set_distances(bound);
 
     // Perform the lighting prepass (possibly expensive).
 

@@ -237,23 +237,23 @@ void wrl::constraint::click(const vec3& p, const vec3& v)
 
 //-----------------------------------------------------------------------------
 
-ogl::range wrl::constraint::prep(int frusc, const app::frustum *const *frusv)
+ogl::aabb wrl::constraint::prep(int frusc, const app::frustum *const *frusv)
 {
-    ogl::range r;
-
     // Prep the geometry pool.
 
     pool->prep();
 
-    // Cache the visibility and determine the far plane distance.
+    // Cache the visibility and determine the visible bound.
+
+    ogl::aabb b;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
         if (mode)
-            r.merge(rot[grid]->view(frusi, frusv[frusi]->get_planes(), 5));
+            b.merge(rot[grid]->view(frusi, frusv[frusi]->get_planes(), 5));
         else
-            r.merge(pos[grid]->view(frusi, frusv[frusi]->get_planes(), 5));
+            b.merge(pos[grid]->view(frusi, frusv[frusi]->get_planes(), 5));
 
-    return r;
+    return b;
 }
 
 void wrl::constraint::draw(int frusi)
