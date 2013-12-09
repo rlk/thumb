@@ -453,7 +453,7 @@ ogl::aabb ogl::node::view(int id, const vec4 *V, int n)
     // If this node is visible, return the world-space AABB.
 
     if (bit && V)
-        return ogl::aabb(my_aabb, mat4());//M);
+        return ogl::aabb(my_aabb, M);
     else
         return ogl::aabb();
 }
