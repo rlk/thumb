@@ -224,6 +224,8 @@ cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
     add((new gui::frame)->
         add((new gui::harray)->
             add((new gui::hgroup)->
+                add((new gui::filler(true, false)))->
+
                 add((new gui::varray)->
 
                     add(new label("Category"))->

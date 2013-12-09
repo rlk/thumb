@@ -1013,24 +1013,33 @@ void gui::hgroup::layup()
 
 void gui::hgroup::laydn(int x, int y, int w, int h)
 {
-    int c = 0, excess = w - area.w;
-
+    int all = w - area.w;
     widget::laydn(x, y, w, h);
 
     // Count the number of expanding children.
+
+    int c = 0;
 
     for (widget_i i = child.begin(); i != child.end(); ++i)
         if ((*i)->exp_w())
             c++;
 
-    // Give children requested space.  Distribute excess among the expanders.
+    // Give children requested space. Distribute excess among the expanders.
+
+    int one = c ? all / c : 0;
 
     for (widget_i i = child.begin(); i != child.end(); ++i)
     {
-        int dx = (*i)->get_w() + ((*i)->exp_w() ? (excess / c) : 0);
+        int dx = (*i)->get_w();
+
+        if ((*i)->exp_w())
+        {
+            dx  += (c == 1) ? all : one;
+            all -= one;
+            c   -= 1;
+        }
 
         (*i)->laydn(x, y, dx, h);
-
         x += dx;
     }
 }
@@ -1053,24 +1062,33 @@ void gui::vgroup::layup()
 
 void gui::vgroup::laydn(int x, int y, int w, int h)
 {
-    int c = 0, excess = h - area.h;
-
+    int all = h - area.h;
     widget::laydn(x, y, w, h);
 
     // Count the number of expanding children.
+
+    int c = 0;
 
     for (widget_i i = child.begin(); i != child.end(); ++i)
         if ((*i)->exp_h())
             c++;
 
-    // Give children requested space.  Distribute excess among the expanders.
+    // Give children requested space. Distribute excess among the expanders.
+
+    int one = c ? all / c : 0;
 
     for (widget_i i = child.begin(); i != child.end(); ++i)
     {
-        int dy = (*i)->get_h() + ((*i)->exp_h() ? (excess / c) : 0);
+        int dy = (*i)->get_h();
+
+        if ((*i)->exp_h())
+        {
+            dy  += (c == 1) ? all : one;
+            all -= one;
+            c   -= 1;
+        }
 
         (*i)->laydn(x, y + h - dy, w, dy);
-
         y -= dy;
     }
 }
