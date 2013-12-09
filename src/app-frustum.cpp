@@ -79,6 +79,65 @@ app::frustum::frustum(const frustum& that) :
     memcpy(view_planes, that.view_planes, 6 * sizeof (vec4));
 }
 
+app::frustum::frustum(const vec3& p, const ogl::aabb& b) :
+    pixel_w(0),
+    pixel_h(0)
+{
+    // The Z axis is the vector from the bound center to the light position.
+
+    vec3 Z = normal(p - b.center());
+
+    // The Y axis is "up".
+
+    vec3 Y = (p[1] * p[1] > p[0] * p[0] + p[2] * p[2])
+           ? vec3(0, +1,  0)
+           : vec3(0,  0, -1);
+
+    // The X axis is the cross product of these.
+
+    vec3 X = normal(cross(Y, Z));
+
+    // Be sure the Y axis is orthogonal.
+
+    Y = normal(cross(Z, X));
+
+    // These give the transform and inverse for the light's coordinate system.
+
+    mat4 M = mat4(X[0], Y[0], Z[0], p[0],
+                  X[1], Y[1], Z[1], p[1],
+                  X[2], Y[2], Z[2], p[2],
+                  0,    0,    0,    1);
+
+    mat4 I = mat4(X[0], X[1], X[2], -(p * X),
+                  Y[0], Y[1], Y[2], -(p * Y),
+                  Z[0], Z[1], Z[2], -(p * Z),
+                  0,    0,    0,    1);
+
+    // Transform the bound into light space.
+
+    ogl::aabb c(b, I);
+
+    vec3 a = c.get_min();
+    vec3 z = c.get_max();
+
+    // Project the corners onto a common plane at unit distance.
+
+    user_points[0] = vec3(a[0] / a[2], a[1] / a[2], -1);
+    user_points[1] = vec3(z[0] / z[2], a[1] / a[2], -1);
+    user_points[2] = vec3(a[0] / a[2], z[1] / z[2], -1);
+    user_points[3] = vec3(z[0] / z[2], z[1] / z[2], -1);
+
+    user_basis = mat3();
+
+    // Initialize the internal caches.
+
+    set_viewpoint(vec3(0, 0, 0));
+    set_transform(M);
+    set_distances(c);
+
+    P = P * I;
+}
+
 //-----------------------------------------------------------------------------
 
 static vec4 plane(const vec3& a, const vec3& b, const vec3& c)
@@ -407,7 +466,7 @@ const vec3 app::frustum::get_disp_pos() const
 /// app::frustum::set_distances must also be called before the
 /// perspective projection may be retrieved.
 ///
-const mat4 app::frustum::get_transform() const
+const mat4 app::frustum::get_perspective() const
 {
     return P;
 }
@@ -454,19 +513,45 @@ double app::frustum::get_split_coeff(double k) const
 }
 
 /// Compute and return the linear fraction of a parallel-split coefficient.
-/// \param c app::frustum::get_split_coeff value
+/// \param k = i / n selects split i out of n
 ///
-double app::frustum::get_split_fract(double c) const
+double app::frustum::get_split_fract(double k) const
 {
+    const double c = get_split_coeff(k);
     return (c - n_dist) / (f_dist - n_dist);
 }
 
 /// Compute and return the depth value of a parallel-split coefficient.
-/// \param c app::frustum::get_split_coeff value
+/// \param k = i / n selects split i out of n
 ///
-double app::frustum::get_split_depth(double c) const
+double app::frustum::get_split_depth(double k) const
 {
+    const double c = get_split_coeff(k);
     return (c - n_dist) / (f_dist - n_dist) * (f_dist / c);
+}
+
+/// Compute and return the axis-aligned bounding volume of a parallel-split
+/// segment of the frustum.
+/// \param i = split index
+/// \param n = split count
+///
+ogl::aabb app::frustum::get_split_bound(int i, int m) const
+{
+    const double f0 = get_split_fract(double(i    ) / double(m));
+    const double f1 = get_split_fract(double(i + 1) / double(m));
+
+    ogl::aabb b;
+
+    b.merge(mix(view_points[0], view_points[4], f0));
+    b.merge(mix(view_points[0], view_points[4], f1));
+    b.merge(mix(view_points[1], view_points[5], f0));
+    b.merge(mix(view_points[1], view_points[5], f1));
+    b.merge(mix(view_points[2], view_points[6], f0));
+    b.merge(mix(view_points[2], view_points[6], f1));
+    b.merge(mix(view_points[3], view_points[7], f0));
+    b.merge(mix(view_points[3], view_points[7], f1));
+
+    return b;
 }
 
 //-----------------------------------------------------------------------------

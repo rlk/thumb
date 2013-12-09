@@ -58,6 +58,7 @@ namespace app
 
         frustum(app::node node, int w, int h);
         frustum(const frustum& that);
+        frustum(const vec3&, const ogl::aabb&);
 
         // View state mutators
 
@@ -72,10 +73,10 @@ namespace app
 
         // Queries.
 
-        const vec3 get_user_pos()  const;
-        const vec3 get_view_pos()  const;
-        const vec3 get_disp_pos()  const;
-        const mat4 get_transform() const;
+        const vec3 get_user_pos()    const;
+        const vec3 get_view_pos()    const;
+        const vec3 get_disp_pos()    const;
+        const mat4 get_perspective() const;
 
         double get_w()          const;
         double get_h()          const;
@@ -88,9 +89,12 @@ namespace app
         double get_n_dist() const { return n_dist; }
         double get_f_dist() const { return f_dist; }
 
-        double get_split_coeff(double) const;
-        double get_split_fract(double) const;
-        double get_split_depth(double) const;
+        // Parallel-split handlers
+
+        double    get_split_coeff(double)   const;
+        double    get_split_fract(double)   const;
+        double    get_split_depth(double)   const;
+        ogl::aabb get_split_bound(int, int) const;
 
         // Event handlers
 

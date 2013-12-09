@@ -893,69 +893,69 @@ ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
 
 //-----------------------------------------------------------------------------
 
-double wrl::world::split_fract(int i, int m, const app::frustum *frusp)
-{
-    double c;
-
-    c = frusp->get_split_coeff(double(i) / double(m));
-
-    return frusp->get_split_fract(c);
-}
-
-double wrl::world::split_depth(int i, int m, const app::frustum *frusp)
-{
-    double c;
-
-    c = frusp->get_split_coeff(double(i) / double(m));
-
-    return frusp->get_split_depth(c);
-}
-
 void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
-    mat4 light_M;
-    mat4 light_I;
-    vec3 light_p(0.0, 1000.0, 0.0);
+    // Determine the visible bounding volume. TODO: Remove this redundancy.
+
+    ogl::aabb visible;
+
+    for (int frusi = 0; frusi < frusc; ++frusi)
+        visible.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
+
+    // Enumerate the light sources.
 
     atom_set::iterator a;
 
     for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
-        light_p = wvector((*a)->get_local());
-
-    uniform_light_position->set(light_p);
-
-    if (frusc > 0)
     {
-        int m = 3; // TODO: generalize split count
+        mat4 light_M;
+        mat4 light_I;
+        vec3 light_p(0.0, 1000.0, 0.0);
 
-        vec4 c;
-        vec4 d;
+        light_p = wvector((*a)->get_local());
+        uniform_light_position->set(light_p);
 
-        // Locate the shadow map splits using the first frustum as guide.
 
-        for (int i = 0; i <= m; ++i)
+        int n = 3; // TODO: generalize split count
+
+        // double f[m + 1];
+        // double d[m + 1];
+
+        // Locate the shadow map splits using the 0th frustum as guide.
+
+        // for (int i = 0; i <= m; ++i)
+        // {
+        //     f[i] = frusv[0]->get_split_fract(double(i) / double(m));
+        //     d[i] = frusv[0]->get_split_depth(double(i) / double(m));
+        // }
+        // uniform_pssm_depth->set(d);
+
+        // Enumerate the shadow map splits.
+
+        for (int i = 0; i < n; ++i)
         {
-            c[i] = split_fract(i, m, frusv[0]);
-            d[i] = split_depth(i, m, frusv[0]);
-        }
-        uniform_pssm_depth->set(d);
+            // An out-of-bounds frustum ID preserves the node visibility cache.
 
-        // Render each of the shadow maps.
+            const int id = frusc + i;
 
-        for (int i = 0; i < m; ++i)
-        {
-            app::frustum frust(0, shadow_res, shadow_res);
-            int          frusi = frusc + i + 1;
+            // Compute the union of the bounds of this split in all frusta.
 
-            // Compute a lighting frustum encompasing all view frusta.
+            ogl::aabb bound;
 
-            frust.set_volume(frusc, frusv, c[i], c[i+1], light_p,
-                                                         light_M,
-                                                         light_I);
+            for (int frusi = 0; frusi < frusc; ++frusi)
+                bound.merge(frusv[frusi]->get_split_bound(i, n));
+
+            // The visible part of the frustum bound is this split's target.
+
+            bound.intersect(visible);
+
+            // Compute a lighting frustum encompasing this bound.
+
+            app::frustum frust(light_p, bound);
 
             // Cache the fill visibility for the light.
 
-            ogl::aabb b = fill_pool->view(frusi, frust.get_planes(), 5);
+            ogl::aabb b = fill_pool->view(id, frust.get_planes(), 5);
 
             // Use the visible range to determine the light projection.
 
@@ -969,7 +969,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
                 // View from the light's perspective.
 
-                glLoadMatrixd(transpose(light_I));
+                // glLoadMatrixd(transpose(light_I));
 
                 glClear(GL_COLOR_BUFFER_BIT |
                         GL_DEPTH_BUFFER_BIT);
@@ -979,8 +979,8 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
                 fill_pool->draw_init();
                 {
                     glCullFace(GL_FRONT);
-                    fill_pool->draw(frusi, false, false);
-                    fill_pool->draw(frusi, false, true);
+                    fill_pool->draw(id, false, false);
+                    fill_pool->draw(id, false, true);
                     glCullFace(GL_BACK);
                 }
                 fill_pool->draw_fini();
@@ -994,18 +994,19 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
                                0.0, 0.0, 0.5, 0.5,
                                0.0, 0.0, 0.0, 1.0);
 
-            uniform_shadow[i]->set(light_S *   frust.get_transform()
-                                 * light_I * ::view->get_transform());
+            uniform_shadow[i]->set(light_S *   frust.get_perspective()
+                               /* * light_I*/ * ::view->get_transform());
         }
     }
 
     // Ask the binding system to compute the irradiance environment using
     // the sky shader.
-
+#if 0
     process_reflection[0]->draw(sky_shade);
     process_reflection[1]->draw(sky_light);
     process_irradiance[0]->draw(0);
     process_irradiance[1]->draw(0);
+#endif
 }
 
 //-----------------------------------------------------------------------------

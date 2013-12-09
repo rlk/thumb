@@ -362,7 +362,7 @@ void view_app::lite(int frusc, const app::frustum *const *frusv)
 
 void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
-    mat4 P =  frusp->get_transform();
+    mat4 P =  frusp->get_perspective();
     mat4 M = ::view->get_inverse();
     mat4 S = scale(vec3(get_scale(),
                         get_scale(),

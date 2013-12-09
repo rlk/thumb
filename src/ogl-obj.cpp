@@ -34,8 +34,7 @@ void obj::obj::center()
 
     // Compute the center of the bound.
 
-    double c[3];
-    bound.offset(c);
+    vec3 c = bound.offset();
 
     // Offset the meshes to move the center to the origin.
 

@@ -1,5 +1,22 @@
 <?xml version="1.0" ?>
   <world>
+    <geom class="light">
+      <file>solid/light.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>8.000000</pos_x>
+      <pos_y>24.000000</pos_y>
+      <pos_z>8.000000</pos_z>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">1.0</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
     <geom class="box">
       <file>solid/plank.obj</file>
       <rot_x>0.000000</rot_x>
@@ -12,6 +29,113 @@
       <param name="category">4294967295</param>
       <param name="collide">4294967295</param>
       <param name="density">1.0</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom class="box">
+      <file>solid/wooden-cube.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>-5.875000</pos_x>
+      <pos_y>0.625000</pos_y>
+      <pos_z>1.250000</pos_z>
+      <body>1</body>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">0.1</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom class="box">
+      <file>solid/plank.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>-0.707107</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>0.707107</rot_w>
+      <pos_x>0.000000</pos_x>
+      <pos_y>0.000000</pos_y>
+      <pos_z>0.000000</pos_z>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">1.0</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom class="box">
+      <file>solid/wooden-cube.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>-5.875000</pos_x>
+      <pos_y>0.625000</pos_y>
+      <pos_z>2.500000</pos_z>
+      <body>4</body>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">0.1</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom class="box">
+      <file>solid/wooden-cube.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>-5.875000</pos_x>
+      <pos_y>0.625000</pos_y>
+      <pos_z>-1.250000</pos_z>
+      <body>5</body>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">0.1</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom class="box">
+      <file>solid/wooden-cube.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>-5.875000</pos_x>
+      <pos_y>2.625000</pos_y>
+      <pos_z>1.250000</pos_z>
+      <body>9</body>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">0.1</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom class="box">
+      <file>solid/wooden-cube.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>-5.875000</pos_x>
+      <pos_y>1.625000</pos_y>
+      <pos_z>2.000000</pos_z>
+      <body>7</body>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">0.1</param>
       <param name="mu">100.0</param>
       <param name="bounce">0.5</param>
       <param name="soft_erp">0.2</param>
@@ -150,113 +274,6 @@
       <rot_z>0.000000</rot_z>
       <rot_w>1.000000</rot_w>
       <pos_x>-5.875000</pos_x>
-      <pos_y>0.625000</pos_y>
-      <pos_z>1.250000</pos_z>
-      <body>1</body>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">0.1</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom class="box">
-      <file>solid/plank.obj</file>
-      <rot_x>0.000000</rot_x>
-      <rot_y>-0.707107</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>0.707107</rot_w>
-      <pos_x>0.000000</pos_x>
-      <pos_y>0.000000</pos_y>
-      <pos_z>0.000000</pos_z>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">1.0</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom class="box">
-      <file>solid/wooden-cube.obj</file>
-      <rot_x>0.000000</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>-5.875000</pos_x>
-      <pos_y>0.625000</pos_y>
-      <pos_z>2.500000</pos_z>
-      <body>4</body>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">0.1</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom class="box">
-      <file>solid/wooden-cube.obj</file>
-      <rot_x>0.000000</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>-5.875000</pos_x>
-      <pos_y>0.625000</pos_y>
-      <pos_z>-1.250000</pos_z>
-      <body>5</body>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">0.1</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom class="box">
-      <file>solid/wooden-cube.obj</file>
-      <rot_x>0.000000</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>-5.875000</pos_x>
-      <pos_y>2.625000</pos_y>
-      <pos_z>1.250000</pos_z>
-      <body>9</body>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">0.1</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom class="box">
-      <file>solid/wooden-cube.obj</file>
-      <rot_x>0.000000</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>-5.875000</pos_x>
-      <pos_y>1.625000</pos_y>
-      <pos_z>2.000000</pos_z>
-      <body>7</body>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">0.1</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom class="box">
-      <file>solid/wooden-cube.obj</file>
-      <rot_x>0.000000</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>-5.875000</pos_x>
       <pos_y>4.625000</pos_y>
       <pos_z>0.000000</pos_z>
       <body>16</body>
@@ -307,9 +324,9 @@
     <geom class="box">
       <file>solid/plank.obj</file>
       <rot_x>0.183013</rot_x>
-      <rot_y>-0.683014</rot_y>
+      <rot_y>-0.683015</rot_y>
       <rot_z>0.183013</rot_z>
-      <rot_w>0.683012</rot_w>
+      <rot_w>0.683011</rot_w>
       <pos_x>7.464102</pos_x>
       <pos_y>2.000000</pos_y>
       <pos_z>0.000000</pos_z>
