@@ -752,6 +752,7 @@ void wrl::world::init()
 {
     sel = all;
     do_delete();
+    edit_focus = 0;
 }
 
 void wrl::world::load(std::string name)
