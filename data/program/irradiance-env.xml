@@ -7,8 +7,7 @@
   <uniform name="pssm_depth"       uniform="pssm_depth"       size="4"  />
   <uniform name="view_matrix"      uniform="view_matrix"      size="16" />
   <uniform name="view_inverse"     uniform="view_inverse"     size="16" />
-  <uniform name="light_position"   uniform="light_position"   size="3"  />
-  <uniform name="color_max"        uniform="color_max"        size="4"  />
+  <uniform name="light_position"   uniform="light_position"   size="4"  />
   <uniform name="shadow_matrix[0]" uniform="shadow_matrix[0]" size="16" />
   <uniform name="shadow_matrix[1]" uniform="shadow_matrix[1]" size="16" />
   <uniform name="shadow_matrix[2]" uniform="shadow_matrix[2]" size="16" />

@@ -41,7 +41,7 @@ void demo::init_uniforms()
 {
     // Initialize the uniforms.
 
-    uniform_light_position   = ::glob->load_uniform("light_position",   3);
+    uniform_light_position   = ::glob->load_uniform("light_position",   4);
     uniform_view_matrix      = ::glob->load_uniform("view_matrix",     16);
     uniform_view_inverse     = ::glob->load_uniform("view_inverse",    16);
     uniform_view_position    = ::glob->load_uniform("view_position",    3);
@@ -124,7 +124,7 @@ demo::demo(const std::string& exe,
     play = new mode::play(world);
     info = new mode::info(world);
 
-    world->load("world/grid.xml");
+    world->load("world/planks.xml");
 
     goto_mode(edit);
 }

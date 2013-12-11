@@ -53,6 +53,12 @@ namespace ogl
         double ylength() const { return z[1] - a[1]; }
         double zlength() const { return z[2] - a[2]; }
 
+        void dump()
+        {
+            printf("% 6.2f % 6.2f % 6.2f ... % 6.2f % 6.2f % 6.2f\n",
+                a[0], a[1], a[2], z[0], z[1], z[2]);
+        }
+
     private:
 
         vec3 a;

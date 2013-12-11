@@ -2,7 +2,7 @@
 attribute vec3 Tangent;
 
 uniform mat4 shadow_matrix[3];
-uniform vec3 light_position;
+uniform vec4 light_position;
 
 varying vec3 V_v;
 varying vec3 L_v;
@@ -17,8 +17,8 @@ void main()
     T[0] = normalize(gl_NormalMatrix * Tangent);
     T[1] = normalize(cross(T[2], T[0]));
 
-    L_v = (light_position - eye.xyz) * T;
-    V_v = eye.xyz * T;
+    L_v = (gl_ModelViewMatrix * light_position).xyz * T;
+    V_v =            eye.xyz * T;
 
     // Diffuse and shadow map texture coordinates.
 

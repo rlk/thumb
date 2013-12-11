@@ -6,9 +6,9 @@
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
       <rot_w>1.000000</rot_w>
-      <pos_x>-28.000000</pos_x>
-      <pos_y>48.000000</pos_y>
-      <pos_z>0.000000</pos_z>
+      <pos_x>1.000000</pos_x>
+      <pos_y>10.000000</pos_y>
+      <pos_z>1.000000</pos_z>
       <param name="category">4294967295</param>
       <param name="collide">4294967295</param>
       <param name="density">1.0</param>

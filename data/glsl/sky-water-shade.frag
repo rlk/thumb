@@ -7,12 +7,12 @@ varying vec3 V_v;
 
 uniform float time;
 uniform vec3  view_position;
-uniform vec3  light_position;
+uniform vec4  light_position;
 
 void main()
 {
     vec3 V = normalize(V_v);
-    vec3 L = normalize(light_position);
+    vec3 L = normalize(light_position.xyz);
 
     // Compute water texture coordinates.
 

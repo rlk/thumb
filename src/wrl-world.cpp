@@ -61,7 +61,7 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    uniform_light_position = ::glob->load_uniform("light_position",    3);
+    uniform_light_position = ::glob->load_uniform("light_position",    4);
     uniform_shadow[0]      = ::glob->load_uniform("shadow_matrix[0]", 16);
     uniform_shadow[1]      = ::glob->load_uniform("shadow_matrix[1]", 16);
     uniform_shadow[2]      = ::glob->load_uniform("shadow_matrix[2]", 16);
@@ -868,7 +868,7 @@ ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
     for (int frusi = 0; frusi < frusc; ++frusi)
         bb.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
 
-    bound = bb;
+    fill_bound = bb;
 
     return bb;
 }
@@ -898,9 +898,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
     ogl::aabb visible;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-    {
         visible.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
-    }
 
     // Enumerate the light sources.
 
@@ -910,10 +908,10 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
     {
         mat4 light_M;
         mat4 light_I;
-        vec3 light_p(0.0, 1000.0, 0.0);
+        vec4 light_v = vec4(1.0, 1.0, 1.0, 0.0);
 
-        light_p = wvector((*a)->get_local());
-        uniform_light_position->set(light_p);
+        light_v = vec4(wvector((*a)->get_local()), 0.0);
+        uniform_light_position->set(light_v);
 
         int n = 3; // TODO: generalize split count
 
@@ -923,7 +921,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
         {
             // An out-of-bounds frustum ID preserves the node visibility cache.
 
-            const int id = frusc + i;
+            const int id = frusc + i + 1;
 
             // Compute the union of the bounds of this split in all frusta.
 
@@ -938,15 +936,11 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             // Compute a lighting frustum encompasing this bound.
 
-            app::frustum frust(light_p, bound);
+            app::frustum frust(light_v, bound);
 
             // Cache the fill visibility for the light.
 
-            ogl::aabb b = fill_pool->view(id, frust.get_planes(), 5);
-
-            // Use the visible range to determine the light projection.
-
-            frust.set_distances(b);
+            fill_pool->view(id, frust.get_planes(), 5);
 
             // Render the fill geometry to the shadow buffer.
 
@@ -954,10 +948,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
             {
                 frust.load_transform();
 
-                // View from the light's perspective.
-
-                // glLoadMatrixd(transpose(light_I));
-
+                glLoadIdentity();
                 glClear(GL_COLOR_BUFFER_BIT |
                         GL_DEPTH_BUFFER_BIT);
 
@@ -981,8 +972,8 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
                                0.0, 0.0, 0.5, 0.5,
                                0.0, 0.0, 0.0, 1.0);
 
-            uniform_shadow[i]->set(light_S *   frust.get_perspective()
-                               /* * light_I*/ * ::view->get_transform());
+            uniform_shadow[i]->set(light_S * frust.get_perspective()
+                                         * ::view->get_transform());
         }
     }
 
@@ -1017,12 +1008,15 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
-
+#if 0
     ogl::line_state_init();
     {
-        bound.draw();
+        lite_bound[0].draw();
+        lite_bound[1].draw();
+        lite_bound[2].draw();
     }
     ogl::line_state_fini();
+#endif
 }
 
 void wrl::world::draw_line(int frusi, const app::frustum *frusp)

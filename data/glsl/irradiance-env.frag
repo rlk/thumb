@@ -16,7 +16,7 @@ uniform mat4 irradiance_G;
 uniform mat4 irradiance_B;
 */
 uniform vec4 pssm_depth;
-uniform vec3 light_position;
+uniform vec4 light_position;
 uniform vec4 color_max;
 
 varying vec3 V_v;

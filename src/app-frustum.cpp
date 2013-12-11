@@ -24,6 +24,14 @@
 
 //-----------------------------------------------------------------------------
 
+static vec4 plane(const vec3& a, const vec3& b, const vec3& c)
+{
+    vec3 n = normal(cross(b - a, c - a));
+    return vec4(n, -(n * a));
+}
+
+//-----------------------------------------------------------------------------
+
 /// Constructor
 ///
 /// This is the general-use frustum constructor. It receives an XML DOM node
@@ -79,72 +87,75 @@ app::frustum::frustum(const frustum& that) :
     memcpy(view_planes, that.view_planes, 6 * sizeof (vec4));
 }
 
-app::frustum::frustum(const vec3& p, const ogl::aabb& b) :
+/// Lightsource projection constructor
+///
+/// \param v light source direction
+/// \param b visible axis-aligned bounding volume
+///
+app::frustum::frustum(const vec3& v, const ogl::aabb& bound) :
     pixel_w(0),
     pixel_h(0)
 {
-    // The Z axis is the vector from the bound center to the light position.
+    vec3 x(1, 0, 0);
+    vec3 y(0, 1, 0);
+    vec3 z = normal(v);
 
-    vec3 Z = normal(p - b.center());
+    // Compute a basis for the light orientation.
 
-    // The Y axis is "up".
-
-    vec3 Y = (p[1] * p[1] > p[0] * p[0] + p[2] * p[2])
-           ? vec3(0, +1,  0)
-           : vec3(0,  0, -1);
-
-    // The X axis is the cross product of these.
-
-    vec3 X = normal(cross(Y, Z));
-
-    // Be sure the Y axis is orthogonal.
-
-    Y = normal(cross(Z, X));
+    if (fabs(z * y) < 1.0)
+    {
+        x = normal(cross(y, z));
+        y = normal(cross(z, x));
+    }
+    else
+    {
+        y = normal(cross(z, x));
+        x = normal(cross(y, z));
+    }
 
     // These give the transform and inverse for the light's coordinate system.
 
-    mat4 M = mat4(X[0], Y[0], Z[0], p[0],
-                  X[1], Y[1], Z[1], p[1],
-                  X[2], Y[2], Z[2], p[2],
+    mat4 M = mat4(x[0], y[0], z[0], 0,
+                  x[1], y[1], z[1], 0,
+                  x[2], y[2], z[2], 0,
+                  0,    0,    0,    1);
+    mat4 I = mat4(x[0], x[1], x[2], 0,
+                  y[0], y[1], y[2], 0,
+                  z[0], z[1], z[2], 0,
                   0,    0,    0,    1);
 
-    mat4 I = mat4(X[0], X[1], X[2], -(p * X),
-                  Y[0], Y[1], Y[2], -(p * Y),
-                  Z[0], Z[1], Z[2], -(p * Z),
-                  0,    0,    0,    1);
+    // Determine the light-space axis-aligned visible bounding volume
 
-    // Transform the bound into light space.
+    ogl::aabb c(bound, I);
 
-    ogl::aabb c(b, I);
+    vec3 p = c.get_min();
+    vec3 q = c.get_max();
 
-    vec3 a = c.get_min();
-    vec3 z = c.get_max();
+    // Compute the frustum corners.
 
-    // Project the corners onto a common plane at unit distance.
+    view_points[0] = M * vec3(p[0], p[1], q[2]);
+    view_points[1] = M * vec3(q[0], p[1], q[2]);
+    view_points[2] = M * vec3(p[0], q[1], q[2]);
+    view_points[3] = M * vec3(q[0], q[1], q[2]);
+    view_points[4] = M * vec3(p[0], p[1], p[2]);
+    view_points[5] = M * vec3(q[0], p[1], p[2]);
+    view_points[6] = M * vec3(p[0], q[1], p[2]);
+    view_points[7] = M * vec3(q[0], q[1], p[2]);
 
-    user_points[0] = vec3(a[0] / a[2], a[1] / a[2], -1);
-    user_points[1] = vec3(z[0] / z[2], a[1] / a[2], -1);
-    user_points[2] = vec3(a[0] / a[2], z[1] / z[2], -1);
-    user_points[3] = vec3(z[0] / z[2], z[1] / z[2], -1);
+    // Compute frustum planes for light view culling.
 
-    user_basis = mat3();
+    view_planes[0] = plane(view_points[1], view_points[0], view_points[2]); // N
+    view_planes[1] = plane(view_points[2], view_points[0], view_points[4]); // L
+    view_planes[2] = plane(view_points[1], view_points[3], view_points[7]); // R
+    view_planes[3] = plane(view_points[0], view_points[1], view_points[5]); // B
+    view_planes[4] = plane(view_points[3], view_points[2], view_points[6]); // T
 
-    // Initialize the internal caches.
+    // Compute the projection.
 
-    set_viewpoint(vec3(0, 0, 0));
-    set_transform(M);
-    set_distances(c);
-
-    P = P * I;
+    P = orthogonal(p[0], q[0], p[1], q[1], -q[2], -p[2]) * I;
 }
 
 //-----------------------------------------------------------------------------
-
-static vec4 plane(const vec3& a, const vec3& b, const vec3& c)
-{
-    vec3 n = normal(cross(b - a, c - a));
-    return vec4(n[0], n[1], n[2], -(n * a));
-}
 
 /// Set the projection matrix
 ///
@@ -156,17 +167,12 @@ static vec4 plane(const vec3& a, const vec3& b, const vec3& c)
 
 void app::frustum::set_projection(const mat4& M)
 {
-    vec4 u0(-1, -1, -1,  1);
-    vec4 u1( 1, -1, -1,  1);
-    vec4 u2(-1,  1, -1,  1);
-    vec4 u3( 1,  1, -1,  1);
+    const mat4 I = inverse(M);
 
-    mat4 I = inverse(M);
-
-    user_points[0] = I * u0;
-    user_points[1] = I * u1;
-    user_points[2] = I * u2;
-    user_points[3] = I * u3;
+    user_points[0] = I * vec4(-1, -1, -1,  1);
+    user_points[1] = I * vec4( 1, -1, -1,  1);
+    user_points[2] = I * vec4(-1,  1, -1,  1);
+    user_points[3] = I * vec4( 1,  1, -1,  1);
 
     calc_basis();
 }
@@ -242,8 +248,6 @@ void app::frustum::set_distances(const ogl::aabb& bound)
 
     double n = nf.get_n();
     double f = nf.get_f();
-
-    // printf("out %f %f\n", n, f);
 
     n_dist = n;
     f_dist = f;
@@ -321,6 +325,7 @@ void app::frustum::set_distances(const ogl::aabb& bound)
 /// \param[out] M     4x4 Light source coordinate system transform
 /// \param[out] I     4x4 Light source coordinate system inverse
 ///
+#if 0
 void app::frustum::set_volume(int frusc, const app::frustum *const *frusv,
                               double c0, double c1, const vec3& p,
                               mat4& M, mat4& I)
@@ -437,7 +442,7 @@ void app::frustum::set_volume(int frusc, const app::frustum *const *frusv,
 
     // This frustum is now ready for view culling.
 }
-
+#endif
 //-----------------------------------------------------------------------------
 
 /// Return the position of the apex of the view frustum in user coordinates.

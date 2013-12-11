@@ -82,13 +82,17 @@ void ogl::aabb::merge(const aabb& that)
 
 void ogl::aabb::intersect(const aabb& that)
 {
-    a[0] = std::max(a[0], that.a[0]);
-    a[1] = std::max(a[1], that.a[1]);
-    a[2] = std::max(a[2], that.a[2]);
-
-    z[0] = std::min(z[0], that.z[0]);
-    z[1] = std::min(z[1], that.z[1]);
-    z[2] = std::min(z[2], that.z[2]);
+    for (int i = 0; i < 3; i++)
+        if (z[i] < that.a[i] || that.z[i] < a[i])
+        {
+            a[i] = +std::numeric_limits<double>::max();
+            z[i] = -std::numeric_limits<double>::max();
+        }
+        else
+        {
+            a[i] = std::max(a[i], that.a[i]);
+            z[i] = std::min(z[i], that.z[i]);
+        }
 }
 
 //-----------------------------------------------------------------------------
