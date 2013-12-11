@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
 <program vert="glsl/hdr/fullscreen.vert"
          frag="glsl/hdr/v-gaussian.frag" >
-  <sampler name="src"  unit="0" />
+  <texture name="src"  unit="0" />
 </program>

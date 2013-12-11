@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <program vert="glsl/dpy/anaglyph.vert"
          frag="glsl/dpy/anaglyph.frag" >
-  <sampler name="L_map" unit="0" />
-  <sampler name="R_map" unit="1" />
+  <texture name="L_map" unit="0" />
+  <texture name="R_map" unit="1" />
 </program>

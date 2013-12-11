@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
   <program vert="glsl/dpy/oculus.vert"
            frag="glsl/dpy/oculus.frag" >
-
-    <sampler name="Image" unit="0" />
+    <texture name="Image" unit="0" />
   </program>
