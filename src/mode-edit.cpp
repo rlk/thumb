@@ -361,7 +361,10 @@ ogl::aabb mode::edit::prep(int frusc, const app::frustum *const *frusv)
 
     b.merge(world->prep_fill(frusc, frusv));
     b.merge(world->prep_line(frusc, frusv));
-    b.merge(xform->prep     (frusc, frusv));
+            xform->prep     (frusc, frusv);
+ // b.merge(xform->prep     (frusc, frusv));
+
+    // This goofs with shadow map splits...
 
     return b;
 }

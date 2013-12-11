@@ -91,9 +91,9 @@ namespace app
 
         // Parallel-split handlers
 
-        double    get_split_coeff(double)   const;
-        double    get_split_fract(double)   const;
-        double    get_split_depth(double)   const;
+        double    get_split_c    (int, int) const;
+        double    get_split_k    (int, int) const;
+        double    get_split_z    (int, int) const;
         ogl::aabb get_split_bound(int, int) const;
 
         // Event handlers

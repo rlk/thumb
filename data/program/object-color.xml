@@ -10,7 +10,6 @@
     <process name="shadow[1]" unit="4" process="shadow" index="1" />
     <process name="shadow[2]" unit="5" process="shadow" index="2" />
 
-    <uniform name="pssm_depth"       uniform="pssm_depth"       size="4" />
     <uniform name="light_position"   uniform="light_position"   size="3" />
     <uniform name="shadow_matrix[0]" uniform="shadow_matrix[0]" size="16" />
     <uniform name="shadow_matrix[1]" uniform="shadow_matrix[1]" size="16" />

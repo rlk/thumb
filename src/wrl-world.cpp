@@ -62,7 +62,6 @@ wrl::world::world() :
     // Initialize the render uniforms and processes.
 
     uniform_light_position = ::glob->load_uniform("light_position",    3);
-    uniform_pssm_depth     = ::glob->load_uniform("pssm_depth",        4);
     uniform_shadow[0]      = ::glob->load_uniform("shadow_matrix[0]", 16);
     uniform_shadow[1]      = ::glob->load_uniform("shadow_matrix[1]", 16);
     uniform_shadow[2]      = ::glob->load_uniform("shadow_matrix[2]", 16);
@@ -126,7 +125,6 @@ wrl::world::~world()
     ::glob->free_uniform(uniform_shadow[2]);
     ::glob->free_uniform(uniform_shadow[1]);
     ::glob->free_uniform(uniform_shadow[0]);
-    ::glob->free_uniform(uniform_pssm_depth);
     ::glob->free_uniform(uniform_light_position);
 
     // Finalize the render pools.
@@ -900,7 +898,9 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
     ogl::aabb visible;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
+    {
         visible.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
+    }
 
     // Enumerate the light sources.
 
@@ -915,20 +915,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
         light_p = wvector((*a)->get_local());
         uniform_light_position->set(light_p);
 
-
         int n = 3; // TODO: generalize split count
-
-        // double f[m + 1];
-        // double d[m + 1];
-
-        // Locate the shadow map splits using the 0th frustum as guide.
-
-        // for (int i = 0; i <= m; ++i)
-        // {
-        //     f[i] = frusv[0]->get_split_fract(double(i) / double(m));
-        //     d[i] = frusv[0]->get_split_depth(double(i) / double(m));
-        // }
-        // uniform_pssm_depth->set(d);
 
         // Enumerate the shadow map splits.
 

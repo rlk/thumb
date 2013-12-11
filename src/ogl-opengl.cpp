@@ -89,6 +89,10 @@ static void init_opt()
 {
     std::string option;
 
+    printf("OpenGL %s GLSL %s\n", glGetString(GL_VERSION),
+                                  glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+
     ogl::max_anisotropy         = 0;
     ogl::do_shadow              = 0;
     ogl::do_z_only              = false;

@@ -503,30 +503,35 @@ int app::frustum::get_pixel_h() const
 
 //-----------------------------------------------------------------------------
 
-/// Compute and return the parallel-split shadow map coefficient.
-/// \param k = i / n selects split i out of n
+/// Compute and return the "practical" parallel-split shadow map coefficient,
+/// the average of the theoretical solution and the worst possible solution.
+/// \param i = split index
+/// \param n = split count
 ///
-double app::frustum::get_split_coeff(double k) const
+double app::frustum::get_split_c(int i, int n) const
 {
-    return (n_dist * pow(f_dist / n_dist,   k) +
-            n_dist +    (f_dist - n_dist) * k) * 0.5;
+    return (n_dist * pow(f_dist / n_dist,   double(i) / double(n)) +
+            n_dist +    (f_dist - n_dist) * double(i) / double(n)) / 2;
 }
 
 /// Compute and return the linear fraction of a parallel-split coefficient.
-/// \param k = i / n selects split i out of n
+/// \param i = split index
+/// \param n = split count
 ///
-double app::frustum::get_split_fract(double k) const
+double app::frustum::get_split_k(int i, int n) const
 {
-    const double c = get_split_coeff(k);
+    const double c = get_split_c(i, n);
     return (c - n_dist) / (f_dist - n_dist);
 }
 
-/// Compute and return the depth value of a parallel-split coefficient.
-/// \param k = i / n selects split i out of n
+/// Compute and return the depth value of a parallel-split coefficient. This
+/// is given in the same coordinate system as gl_FragCoord.z.
+/// \param i = split index
+/// \param n = split count
 ///
-double app::frustum::get_split_depth(double k) const
+double app::frustum::get_split_z(int i, int n) const
 {
-    const double c = get_split_coeff(k);
+    const double c = get_split_c(i, n);
     return (c - n_dist) / (f_dist - n_dist) * (f_dist / c);
 }
 
@@ -535,21 +540,21 @@ double app::frustum::get_split_depth(double k) const
 /// \param i = split index
 /// \param n = split count
 ///
-ogl::aabb app::frustum::get_split_bound(int i, int m) const
+ogl::aabb app::frustum::get_split_bound(int i, int n) const
 {
-    const double f0 = get_split_fract(double(i    ) / double(m));
-    const double f1 = get_split_fract(double(i + 1) / double(m));
+    const double k0 = get_split_k(i,     n);
+    const double k1 = get_split_k(i + 1, n);
 
     ogl::aabb b;
 
-    b.merge(mix(view_points[0], view_points[4], f0));
-    b.merge(mix(view_points[0], view_points[4], f1));
-    b.merge(mix(view_points[1], view_points[5], f0));
-    b.merge(mix(view_points[1], view_points[5], f1));
-    b.merge(mix(view_points[2], view_points[6], f0));
-    b.merge(mix(view_points[2], view_points[6], f1));
-    b.merge(mix(view_points[3], view_points[7], f0));
-    b.merge(mix(view_points[3], view_points[7], f1));
+    b.merge(mix(view_points[0], view_points[4], k0));
+    b.merge(mix(view_points[0], view_points[4], k1));
+    b.merge(mix(view_points[1], view_points[5], k0));
+    b.merge(mix(view_points[1], view_points[5], k1));
+    b.merge(mix(view_points[2], view_points[6], k0));
+    b.merge(mix(view_points[2], view_points[6], k1));
+    b.merge(mix(view_points[3], view_points[7], k0));
+    b.merge(mix(view_points[3], view_points[7], k1));
 
     return b;
 }
@@ -704,6 +709,20 @@ void app::frustum::load_transform() const
         glLoadMatrixd(transpose(P));
     }
     glMatrixMode(GL_MODELVIEW);
+
+    // Clipping plane uniforms convey shadow map split depths.
+
+    glPushMatrix();
+    {
+        glLoadIdentity();
+
+        const int n = 3;
+        for (int i = 0; i < n + 1; ++i)
+            glClipPlane(GL_CLIP_PLANE0 + i, vec4(0, 0, 1, get_split_z(i, n)));
+    }
+    glPopMatrix();
+
+    // (As built-in uniforms, clipping planes are visible to ALL programs.)
 }
 
 void app::frustum::apply_overlay() const
