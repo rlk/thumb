@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+  <material>
+    <program mode="depth" file="discard.xml" />
+    <program mode="color" file="d-light.xml" />
+  </material>

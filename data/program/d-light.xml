@@ -1,0 +1,3 @@
+<?xml version="1.0"?>
+  <program vert="glsl/position.vert"
+           frag="glsl/d-light.frag" />

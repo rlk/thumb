@@ -1,5 +1,0 @@
-<?xml version="1.0"?>
-<material>
-  <program mode="depth" file="light-depth.xml" />
-  <program mode="color" file="light-face.xml" />
-</material>
