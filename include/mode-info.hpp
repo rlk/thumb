@@ -30,6 +30,9 @@ namespace mode
     {
         cnt::control *gui;
 
+        void gui_show();
+        void gui_hide();
+
     public:
 
         info(wrl::world *);

@@ -69,10 +69,6 @@ wrl::world::world() :
     process_shadow[0]      = ::glob->load_process("shadow",            0);
     process_shadow[1]      = ::glob->load_process("shadow",            1);
     process_shadow[2]      = ::glob->load_process("shadow",            2);
-    process_reflection[0]  = ::glob->load_process("reflection_env",    0);
-    process_reflection[1]  = ::glob->load_process("reflection_env",    1);
-    process_irradiance[0]  = ::glob->load_process("irradiance_env",    0);
-    process_irradiance[1]  = ::glob->load_process("irradiance_env",    1);
 
 //  click_selection(new wrl::box("solid/bunny.obj"));
 //  click_selection(new wrl::box("solid/buddha.obj"));
@@ -116,10 +112,6 @@ wrl::world::~world()
 
     // Finalize the uniforms.
 
-    ::glob->free_process(process_irradiance[1]);
-    ::glob->free_process(process_irradiance[0]);
-    ::glob->free_process(process_reflection[1]);
-    ::glob->free_process(process_reflection[0]);
     ::glob->free_process(process_shadow[2]);
     ::glob->free_process(process_shadow[1]);
     ::glob->free_process(process_shadow[0]);

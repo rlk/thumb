@@ -27,16 +27,26 @@
 
 mode::info::info(wrl::world *w) : mode(w), gui(0)
 {
-    const app::frustum *overlay = ::host->get_overlay();
-
-    gui = new cnt::control(w, overlay->get_pixel_w(),
-                              overlay->get_pixel_h());
 }
 
 mode::info::~info()
 {
-    assert(gui);
+}
+
+//-----------------------------------------------------------------------------
+
+void mode::info::gui_show()
+{
+    const app::frustum *overlay = ::host->get_overlay();
+
+    gui = new cnt::control(world, overlay->get_pixel_w(),
+                                  overlay->get_pixel_h());
+}
+
+void mode::info::gui_hide()
+{
     delete gui;
+    gui = 0;
 }
 
 //-----------------------------------------------------------------------------
@@ -58,7 +68,6 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
     const app::frustum *overlay = ::host->get_overlay();
 
     assert(world);
-    assert(gui);
 
      frusp->load_transform();
     ::view->load_transform();
@@ -87,7 +96,6 @@ bool mode::info::process_event(app::event *E)
     int y = 0;
 
     assert(E);
-    assert(gui);
 
     // Translate event data into GUI method calls.
 
@@ -95,7 +103,7 @@ bool mode::info::process_event(app::event *E)
     {
     case E_POINT:
 
-        if (E->data.point.i == 0)
+        if (gui && E->data.point.i == 0)
         {
             if (overlay)
                 overlay->pointer_to_2D(E, x, y);
@@ -107,7 +115,7 @@ bool mode::info::process_event(app::event *E)
 
     case E_CLICK:
 
-        if (E->data.click.b == 1)
+        if (gui && E->data.click.b == 1)
         {
             gui->click(E->data.click.m,
                        E->data.click.d);
@@ -117,26 +125,27 @@ bool mode::info::process_event(app::event *E)
 
     case E_KEY:
 
-        if (E->data.key.d)
+        if (gui && E->data.key.d)
             gui->key(E->data.key.k,
                      E->data.key.m);
         return true;
 
     case E_TEXT:
 
-        gui->glyph(E->data.text.c);
+        if (gui)
+            gui->glyph(E->data.text.c);
         return true;
 
     case E_START:
 
-        gui->show();
+        gui_show();
         SDL_StartTextInput();
         return false;
 
     case E_CLOSE:
 
+        gui_hide();
         SDL_StopTextInput();
-        gui->hide();
         return false;
     }
 

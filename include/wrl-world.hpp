@@ -178,8 +178,6 @@ namespace wrl
         ogl::uniform *uniform_shadow[3];
 
         const ogl::process *process_shadow[3];
-        const ogl::process *process_reflection[2];
-        const ogl::process *process_irradiance[2];
 
         void draw_sky(const app::frustum *);
 
