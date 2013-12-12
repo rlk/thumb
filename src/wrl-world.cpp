@@ -12,6 +12,7 @@
 
 #include <algorithm>
 #include <iterator>
+#include <iostream>
 
 #include <etc-vector.hpp>
 #include <etc-ode.hpp>
@@ -765,66 +766,73 @@ void wrl::world::load(std::string name)
 
     // Load the named file.
 
-    app::file file(name);
-    app::node root(file.get_root().find("world"));
-
-    // Find all geom elements.
-
-    for (app::node n = root.find("geom"); n; n = root.next(n, "geom"))
+    try
     {
-        std::string type = n.get_s("class");
+        app::file file(name);
+        app::node root(file.get_root().find("world"));
 
-        // Create a new solid for each recognized geom class.
+        // Find all geom elements.
 
-        if      (type == "box")    a = new wrl::box   ("");
-        else if (type == "sphere") a = new wrl::sphere("");
-        else if (type == "light")  a = new wrl::light ("");
-        else continue;
+        for (app::node n = root.find("geom"); n; n = root.next(n, "geom"))
+        {
+            std::string type = n.get_s("class");
 
-        // Allow the new solid to parse its own attributes.
+            // Create a new solid for each recognized geom class.
 
-        a->load(n);
+            if      (type == "box")    a = new wrl::box   ("");
+            else if (type == "sphere") a = new wrl::sphere("");
+            else if (type == "light")  a = new wrl::light ("");
+            else continue;
 
-        // Select the new solid for addition to the world.
+            // Allow the new solid to parse its own attributes.
 
-        sel.insert(a);
+            a->load(n);
+
+            // Select the new solid for addition to the world.
+
+            sel.insert(a);
+        }
+
+        // Find all joint elements.
+
+        for (app::node n = root.find("joint"); n; n = root.next(n, "joint"))
+        {
+            std::string type = n.get_s("type");
+
+            // Create a new joint for each recognized joint type.
+
+            if      (type == "ball")      a = new wrl::ball     ();
+            else if (type == "hinge")     a = new wrl::hinge    ();
+            else if (type == "hinge2")    a = new wrl::hinge2   ();
+            else if (type == "slider")    a = new wrl::slider   ();
+            else if (type == "amotor")    a = new wrl::amotor   ();
+            else if (type == "universal") a = new wrl::universal();
+            else continue;
+
+            // Allow the new joint to parse its own attributes.
+
+            a->load(n);
+
+            // Select the new joint for addition to the world.
+
+            sel.insert(a);
+        }
+
+        // Add the selected elements to the scene.
+
+        do_create();
+
+        // Ensure the body group serial number does not conflict.
+
+        for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
+        {
+            serial = std::max(serial, (*i)->body() + 1);
+            serial = std::max(serial, (*i)->join() + 1);
+        }
     }
-
-    // Find all joint elements.
-
-    for (app::node n = root.find("joint"); n; n = root.next(n, "joint"))
+    catch (std::exception& e)
     {
-        std::string type = n.get_s("type");
-
-        // Create a new joint for each recognized joint type.
-
-        if      (type == "ball")      a = new wrl::ball     ();
-        else if (type == "hinge")     a = new wrl::hinge    ();
-        else if (type == "hinge2")    a = new wrl::hinge2   ();
-        else if (type == "slider")    a = new wrl::slider   ();
-        else if (type == "amotor")    a = new wrl::amotor   ();
-        else if (type == "universal") a = new wrl::universal();
-        else continue;
-
-        // Allow the new joint to parse its own attributes.
-
-        a->load(n);
-
-        // Select the new joint for addition to the world.
-
-        sel.insert(a);
-    }
-
-    // Add the selected elements to the scene.
-
-    do_create();
-
-    // Ensure the body group serial number does not conflict.
-
-    for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
-    {
-        serial = std::max(serial, (*i)->body() + 1);
-        serial = std::max(serial, (*i)->join() + 1);
+        std::cerr << "world::load: " << e.what() << std::endl;
     }
 }
 

@@ -103,7 +103,7 @@ void app::node::read(const std::string& name)
             ptr = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
             clean();
         }
-        
+
         // Release the data stream.
 
         ::data->free(name);

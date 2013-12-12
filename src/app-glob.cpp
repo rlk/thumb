@@ -103,15 +103,14 @@ app::glob::~glob()
 
     dump();
 
-    assert( pool_set.empty());
-    assert(image_set.empty());
-    assert(frame_set.empty());
-
-    assert(surface_map.empty());
-    assert(binding_map.empty());
-    assert(texture_map.empty());
-    assert(program_map.empty());
-    assert(uniform_map.empty());
+//  assert( pool_set.empty());
+//  assert(image_set.empty());
+//  assert(frame_set.empty());
+//  assert(surface_map.empty());
+//  assert(binding_map.empty());
+//  assert(texture_map.empty());
+//  assert(program_map.empty());
+//  assert(uniform_map.empty());
 }
 
 //-----------------------------------------------------------------------------
