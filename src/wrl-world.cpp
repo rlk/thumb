@@ -920,7 +920,7 @@ ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::shadow(int i, const app::frustum *frusp, int id)
+void wrl::world::shadow(int id, const app::frustum *frusp, int i)
 {
     // Cache the fill visibility for the light.
 
@@ -960,6 +960,39 @@ void wrl::world::shadow(int i, const app::frustum *frusp, int id)
                                   * ::view->get_transform());
 }
 
+int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
+                        int index, const ogl::aabb& visible, const atom *a)
+{
+    return 0;
+}
+
+int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
+                        int index, const ogl::aabb& visible, const atom *a)
+{
+    vec3 v = wvector(a->get_local());
+    int  n = 3;
+
+    uniform_light_position->set(vec4(v, 0));
+
+    for (int i = 0; i < n; i++)
+    {
+        // Compute the visible union of the bounds of this split.
+
+        ogl::aabb bound;
+
+        for (int frusi = 0; frusi < frusc; ++frusi)
+            bound.merge(frusv[frusi]->get_split_bound(i, n));
+
+        bound.intersect(visible);
+
+        // Render a shadow map encompasing this bound.
+
+        app::frustum frust(v, bound);
+        shadow(frusc + index + i, &frust, index + i);
+    }
+    return n;
+}
+
 void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
     // Determine the visible bounding volume. TODO: Remove this redundancy.
@@ -971,54 +1004,18 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     // Enumerate the light sources.
 
-    atom_set::iterator a;
+    atom_set::const_iterator a;
+    int i = 0;
 
-    for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
+    for (a = all.begin(); a != all.end(); ++a)
     {
-        mat4 light_M;
-        mat4 light_I;
-        vec4 light_v = vec4(1.0, 1.0, 1.0, 0.0);
-
-        light_v = vec4(wvector((*a)->get_local()), 0.0);
-        uniform_light_position->set(light_v);
-
-        int n = 3; // TODO: generalize split count
-
-        // Enumerate the shadow map splits.
-
-        for (int i = 0; i < n; ++i)
+        switch ((*a)->priority())
         {
-            // An out-of-bounds frustum ID preserves the node visibility cache.
-
-            const int id = frusc + i + 1;
-
-            // Compute the union of the bounds of this split in all frusta.
-
-            ogl::aabb bound;
-
-            for (int frusi = 0; frusi < frusc; ++frusi)
-                bound.merge(frusv[frusi]->get_split_bound(i, n));
-
-            // The visible part of the frustum bound is this split's target.
-
-            bound.intersect(visible);
-
-            // Compute a lighting frustum encompasing this bound.
-
-            app::frustum frust(light_v, bound);
-
-            shadow(i, &frust, id);
+            case -1: i += s_light(frusc, frusv, i, visible, *a); break;
+            case -2: i += d_light(frusc, frusv, i, visible, *a); break;
+            default: return;
         }
     }
-
-    // Ask the binding system to compute the irradiance environment using
-    // the sky shader.
-#if 0
-    process_reflection[0]->draw(sky_shade);
-    process_reflection[1]->draw(sky_light);
-    process_irradiance[0]->draw(0);
-    process_irradiance[1]->draw(0);
-#endif
 }
 
 //-----------------------------------------------------------------------------

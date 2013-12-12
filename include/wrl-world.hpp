@@ -106,7 +106,9 @@ namespace wrl
 
         // Rendering methods
 
-        void         shadow(int, const app::frustum *, int);
+        void shadow(int, const app::frustum *, int);
+        int s_light(int, const app::frustum *const *, int, const ogl::aabb&, const atom *);
+        int d_light(int, const app::frustum *const *, int, const ogl::aabb&, const atom *);
 
         ogl::aabb prep_fill(int, const app::frustum *const *);
         ogl::aabb prep_line(int, const app::frustum *const *);
