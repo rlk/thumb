@@ -216,7 +216,7 @@ void wrl::box::save(app::node node)
 
     app::node n("geom");
 
-    n.set_s("class", "box");
+    n.set_s("type", "box");
     n.insert(node);
     solid::save(n);
 }
@@ -227,7 +227,7 @@ void wrl::sphere::save(app::node node)
 
     app::node n("geom");
 
-    n.set_s("class", "sphere");
+    n.set_s("type", "sphere");
     n.insert(node);
     solid::save(n);
 }

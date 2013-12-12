@@ -15,7 +15,22 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::light::light(std::string fill) : sphere(fill)
+wrl::light::light(std::string fill) : atom(fill, "wire/wire_sphere.obj")
+{
+    edit_geom = dCreateSphere(0, dReal(1.0));
+
+    line_scale[0] = line_scale[1] = line_scale[2] = 1.0;
+
+    dGeomSetData(edit_geom, this);
+    ode_set_geom_transform(edit_geom, current_M);
+}
+
+
+wrl::d_light::d_light() : light("solid/d-light.obj")
+{
+}
+
+wrl::s_light::s_light() : light("solid/s-light.obj")
 {
 }
 
@@ -33,15 +48,22 @@ void wrl::light::play_fini()
 
 //-----------------------------------------------------------------------------
 
-void wrl::light::save(app::node node)
+void wrl::d_light::save(app::node node)
 {
-    // Create a new light element.
+    app::node n("light");
 
-    app::node n("geom");
-
-    n.set_s("class", "light");
+    n.set_s("class", "d_light");
     n.insert(node);
-    solid::save(n);
+    atom::save(n);
+}
+
+void wrl::s_light::save(app::node node)
+{
+    app::node n("light");
+
+    n.set_s("class", "s_light");
+    n.insert(node);
+    atom::save(n);
 }
 
 //-----------------------------------------------------------------------------

@@ -165,14 +165,25 @@ namespace cnt
         void apply();
     };
 
-    class new_light_button : public create_button
+    class new_d_light_button : public create_button
     {
         gui::widget *name;
 
     public:
 
-        new_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "Light"), name(n) { }
+        new_d_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "Dir. Light"), name(n) { }
+        void apply();
+    };
+
+    class new_s_light_button : public create_button
+    {
+        gui::widget *name;
+
+    public:
+
+        new_s_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "Spot Light"), name(n) { }
         void apply();
     };
 

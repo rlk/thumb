@@ -19,7 +19,7 @@
 
 namespace wrl
 {
-    class light : public sphere
+    class light : public atom
     {
     public:
 
@@ -27,9 +27,32 @@ namespace wrl
 
         virtual void play_init();
         virtual void play_fini();
+    };
 
-        virtual light *clone() const { return new light(*this); }
-        virtual int priority() const { return -1;               }
+    //-------------------------------------------------------------------------
+
+    class d_light : public light
+    {
+    public:
+
+        d_light();
+
+        virtual d_light *clone() const { return new d_light(*this); }
+        virtual int   priority() const { return -2;               }
+
+        virtual void save(app::node);
+    };
+
+    //-------------------------------------------------------------------------
+
+    class s_light : public light
+    {
+    public:
+
+        s_light();
+
+        virtual s_light *clone() const { return new s_light(*this); }
+        virtual int   priority() const { return -1;               }
 
         virtual void save(app::node);
     };

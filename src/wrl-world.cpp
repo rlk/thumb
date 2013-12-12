@@ -775,13 +775,12 @@ void wrl::world::load(std::string name)
 
         for (app::node n = root.find("geom"); n; n = root.next(n, "geom"))
         {
-            std::string type = n.get_s("class");
+            std::string type = n.get_s("type");
 
-            // Create a new solid for each recognized geom class.
+            // Create a new solid for each recognized geom type.
 
-            if      (type == "box")    a = new wrl::box   ("");
-            else if (type == "sphere") a = new wrl::sphere("");
-            else if (type == "light")  a = new wrl::light ("");
+            if      (type == "box")     a = new wrl::box   ("");
+            else if (type == "sphere")  a = new wrl::sphere("");
             else continue;
 
             // Allow the new solid to parse its own attributes.
@@ -814,6 +813,27 @@ void wrl::world::load(std::string name)
             a->load(n);
 
             // Select the new joint for addition to the world.
+
+            sel.insert(a);
+        }
+
+        // Find all light elements.
+
+        for (app::node n = root.find("light"); n; n = root.next(n, "light"))
+        {
+            std::string type = n.get_s("type");
+
+            // Create a new light for each recognized light type.
+
+            if      (type == "d-light") a = new wrl::d_light();
+            else if (type == "s-light") a = new wrl::s_light();
+            else continue;
+
+            // Allow the new light to parse its own attributes.
+
+            a->load(n);
+
+            // Select the new light for addition to the world.
 
             sel.insert(a);
         }

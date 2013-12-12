@@ -159,10 +159,16 @@ void cnt::new_sphere_button::apply()
         do_create(new wrl::sphere(name->value()));
 }
 
-void cnt::new_light_button::apply()
+void cnt::new_d_light_button::apply()
 {
     if (!name->value().empty())
-        do_create(new wrl::light(name->value()));
+        do_create(new wrl::d_light());
+}
+
+void cnt::new_s_light_button::apply()
+{
+    if (!name->value().empty())
+        do_create(new wrl::s_light());
 }
 
 //-----------------------------------------------------------------------------
@@ -213,9 +219,10 @@ cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
             add((new gui::vgroup)->
 
                 add(new title("Create Solid"))->
-                add(new new_box_button   (W, w, E))->
-                add(new new_sphere_button(W, w, E))->
-                add(new new_light_button (W, w, E))->
+                add(new new_box_button    (W, w, E))->
+                add(new new_sphere_button (W, w, E))->
+                add(new new_d_light_button(W, w, E))->
+                add(new new_s_light_button(W, w, E))->
                 add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->
