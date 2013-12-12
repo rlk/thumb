@@ -920,6 +920,46 @@ ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
 
 //-----------------------------------------------------------------------------
 
+void wrl::world::shadow(int i, const app::frustum *frusp, int id)
+{
+    // Cache the fill visibility for the light.
+
+    fill_pool->view(id, frusp->get_planes(), 5);
+
+    // Render the fill geometry to the shadow buffer.
+
+    process_shadow[i]->bind_frame();
+    {
+        frusp->load_transform();
+
+        glLoadIdentity();
+        glClear(GL_COLOR_BUFFER_BIT |
+                GL_DEPTH_BUFFER_BIT);
+
+        // NOTE: Uniforms have NOT been refreshed at this point.
+
+        fill_pool->draw_init();
+        {
+            glCullFace(GL_FRONT);
+            fill_pool->draw(id, false, false);
+            fill_pool->draw(id, false, true);
+            glCullFace(GL_BACK);
+        }
+        fill_pool->draw_fini();
+    }
+    process_shadow[i]->free_frame();
+
+    // Compute the light transform.
+
+    const mat4 light_S(0.5, 0.0, 0.0, 0.5,
+                       0.0, 0.5, 0.0, 0.5,
+                       0.0, 0.0, 0.5, 0.5,
+                       0.0, 0.0, 0.0, 1.0);
+
+    uniform_shadow[i]->set(light_S * frusp->get_perspective()
+                                  * ::view->get_transform());
+}
+
 void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
     // Determine the visible bounding volume. TODO: Remove this redundancy.
@@ -967,42 +1007,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
             app::frustum frust(light_v, bound);
 
-            // Cache the fill visibility for the light.
-
-            fill_pool->view(id, frust.get_planes(), 5);
-
-            // Render the fill geometry to the shadow buffer.
-
-            process_shadow[i]->bind_frame();
-            {
-                frust.load_transform();
-
-                glLoadIdentity();
-                glClear(GL_COLOR_BUFFER_BIT |
-                        GL_DEPTH_BUFFER_BIT);
-
-                // NOTE: Uniforms have NOT been refreshed at this point.
-
-                fill_pool->draw_init();
-                {
-                    glCullFace(GL_FRONT);
-                    fill_pool->draw(id, false, false);
-                    fill_pool->draw(id, false, true);
-                    glCullFace(GL_BACK);
-                }
-                fill_pool->draw_fini();
-            }
-            process_shadow[i]->free_frame();
-
-            // Compute the light transform.
-
-            const mat4 light_S(0.5, 0.0, 0.0, 0.5,
-                               0.0, 0.5, 0.0, 0.5,
-                               0.0, 0.0, 0.5, 0.5,
-                               0.0, 0.0, 0.0, 1.0);
-
-            uniform_shadow[i]->set(light_S * frust.get_perspective()
-                                         * ::view->get_transform());
+            shadow(i, &frust, id);
         }
     }
 

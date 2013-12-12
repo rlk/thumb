@@ -571,15 +571,14 @@ void app::frustum::load_transform() const
     }
     glMatrixMode(GL_MODELVIEW);
 
-    // Clipping plane uniforms convey shadow map split depths.
+    // Clipping plane uniforms convey near and far distances.
 
     glPushMatrix();
     {
         glLoadIdentity();
 
-        const int n = 3;
-        for (int i = 0; i < n + 1; ++i)
-            glClipPlane(GL_CLIP_PLANE0 + i, vec4(0, 0, 1, get_split_z(i, n)));
+        glClipPlane(GL_CLIP_PLANE0, vec4(0, 0, 1, n_dist));
+        glClipPlane(GL_CLIP_PLANE1, vec4(0, 0, 1, f_dist));
     }
     glPopMatrix();
 

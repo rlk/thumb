@@ -12,6 +12,17 @@ const vec3 Kd = vec3(0.5, 0.5, 0.5);
 const vec3 Ks = vec3(1.0, 1.0, 1.0);
 const vec3 Ka = vec3(0.5, 0.5, 0.5);
 
+float splitc(float k, float n, float f)
+{
+    return mix(n * pow(f / n, k), n + (f - n) * k, 0.5);
+}
+
+float splitz(float k, float n, float f)
+{
+    float c = splitc(k, n, f);
+    return (f / c) * (c - n) / (f - n);
+}
+
 vec4 shadowSample(sampler2DShadow sampler, vec4 coord)
 {
     return shadow2DProj(sampler, coord);
@@ -19,6 +30,9 @@ vec4 shadowSample(sampler2DShadow sampler, vec4 coord)
 
 void main()
 {
+    float n = gl_ClipPlane[0].w;
+    float f = gl_ClipPlane[1].w;
+
     vec3 V = normalize(V_v);
     vec3 L = normalize(L_v);
 
@@ -32,15 +46,19 @@ void main()
 
     float S  = 1.0;
 
-    if (gl_FragCoord.z < gl_ClipPlane[3].w) S = S2;
-    if (gl_FragCoord.z < gl_ClipPlane[2].w) S = S1;
-    if (gl_FragCoord.z < gl_ClipPlane[1].w) S = S0;
+    float z3 = splitz(1.000, n, f);
+    float z2 = splitz(0.666, n, f);
+    float z1 = splitz(0.333, n, f);
 
-    // vec4 K = vec4(1.0, 1.0, 1.0, 1.0);
+    if (gl_FragCoord.z < z3) S = S2;
+    if (gl_FragCoord.z < z2) S = S1;
+    if (gl_FragCoord.z < z1) S = S0;
 
-    // if (gl_FragCoord.z < gl_ClipPlane[3].w) K = vec4(0.5, 0.5, 1.0, 1.0);
-    // if (gl_FragCoord.z < gl_ClipPlane[2].w) K = vec4(0.5, 1.0, 0.5, 1.0);
-    // if (gl_FragCoord.z < gl_ClipPlane[1].w) K = vec4(1.0, 0.5, 0.5, 1.0);
+    vec4 K = vec4(1.0, 1.0, 1.0, 1.0);
+
+//  if (gl_FragCoord.z < z3) K = vec4(0.5, 0.5, 1.0, 1.0);
+//  if (gl_FragCoord.z < z2) K = vec4(0.5, 1.0, 0.5, 1.0);
+//  if (gl_FragCoord.z < z1) K = vec4(1.0, 0.5, 0.5, 1.0);
 
     vec3 N = normalize(2.0 * Tn.rgb - 1.0);
     vec3 R = reflect(L, N);
@@ -51,5 +69,5 @@ void main()
     vec3 Cd = Kd *     max(dot(L, N), 0.0)      * Td.rgb;
     vec3 Ca = Ka *                                Td.rgb;
 
-    gl_FragColor = vec4(mix(Ca, Cd + Cs + Ca, S), Td.a);
+    gl_FragColor = vec4(mix(Ca, Cd + Cs + Ca, S), Td.a) * K;
 }
