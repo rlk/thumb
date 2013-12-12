@@ -914,10 +914,6 @@ ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
 
 void wrl::world::shadow(int id, const app::frustum *frusp, int i)
 {
-    // Cache the fill visibility for the light.
-
-    fill_pool->view(id, frusp->get_planes(), 5);
-
     // Render the fill geometry to the shadow buffer.
 
     process_shadow[i]->bind_frame();
@@ -955,16 +951,25 @@ void wrl::world::shadow(int id, const app::frustum *frusp, int i)
 int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
                         int index, const ogl::aabb& visible, const atom *a)
 {
-    return 0;
+    vec3 p =  wvector(a->get_local());
+    vec3 v = -yvector(a->get_local());
+
+    float c = 30.0;
+
+    app::frustum frust(p, v, c);
+    shadow(frusc + index, &frust, index);
+
+    return 1;
 }
 
 int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
                         int index, const ogl::aabb& visible, const atom *a)
 {
     vec3 v = wvector(a->get_local());
-    int  n = 3;
 
     uniform_light_position->set(vec4(v, 0));
+
+    int n = 3;
 
     for (int i = 0; i < n; i++)
     {
@@ -979,7 +984,9 @@ int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
 
         // Render a shadow map encompasing this bound.
 
-        app::frustum frust(v, bound);
+        app::frustum frust(bound, const ogl::aabb& bound);
+        fill_pool->view(id, frusp->get_planes(), 5);
+        // TODO: set the frustum distances to bound the light's view volume
         shadow(frusc + index + i, &frust, index + i);
     }
     return n;

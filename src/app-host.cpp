@@ -713,7 +713,7 @@ void app::host::draw()
 
     ogl::aabb bound = program->prep(frusc, frusv);
 
-    // Cache the frustum projections (cheap). Allow 1% depth pad.
+    // Cache the frustum projections (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
         (*i)->set_distances(bound);

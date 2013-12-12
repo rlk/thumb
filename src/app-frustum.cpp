@@ -87,12 +87,16 @@ app::frustum::frustum(const frustum& that) :
     memcpy(view_planes, that.view_planes, 6 * sizeof (vec4));
 }
 
-/// Lightsource projection constructor
+/// Directional light projection constructor
 ///
-/// \param v light source direction
-/// \param b visible axis-aligned bounding volume
+/// This projection is only used for light source rendering. It will never be
+/// used for interaction or viewing. As such, none of the display or user-space
+/// attributes require initializition.
 ///
-app::frustum::frustum(const vec3& v, const ogl::aabb& bound) :
+/// \param bound  visible axis-aligned bounding volume
+/// \param v      light source direction
+///
+app::frustum::frustum(const ogl::aabb& bound, const vec3& v) :
     pixel_w(0),
     pixel_h(0)
 {
@@ -153,6 +157,54 @@ app::frustum::frustum(const vec3& v, const ogl::aabb& bound) :
     // Compute the projection.
 
     P = orthogonal(p[0], q[0], p[1], q[1], -q[2], -p[2]) * I;
+}
+
+/// Spot light projection constructor
+///
+/// \param p light source position
+/// \param v light source direction
+/// \param c light source field of view
+///
+app::frustum::frustum(const vec3& p, const vec3& v, float c)
+    pixel_w(0),
+    pixel_h(0),
+    user_pos(0, 0, 0)
+{
+    vec3 x(1, 0, 0);
+    vec3 y(0, 1, 0);
+    vec3 z = -normal(v);
+
+    // Compute a basis for the light orientation.
+
+    if (fabs(z * y) < 1.0)
+    {
+        x = normal(cross(y, z));
+        y = normal(cross(z, x));
+    }
+    else
+    {
+        y = normal(cross(z, x));
+        x = normal(cross(y, z));
+    }
+
+    // Calculate user-space screen corners and basis.
+
+    calc_corner_4(user_points[0],
+                  user_points[1],
+                  user_points[2],
+                  user_points[3], c);
+
+    calc_basis();
+
+    // Calculate and apply the transform.
+
+    mat4 M = mat4(x[0], y[0], z[0], p[0],
+                  x[1], y[1], z[1], p[1],
+                  x[2], y[2], z[2], p[2],
+                  0,    0,    0,    1);
+
+    set_transform(M);
+
 }
 
 //-----------------------------------------------------------------------------
