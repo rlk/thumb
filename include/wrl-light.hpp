@@ -38,7 +38,7 @@ namespace wrl
         d_light();
 
         virtual d_light *clone() const { return new d_light(*this); }
-        virtual int   priority() const { return -2;               }
+        virtual int   priority() const { return -2; }
 
         virtual void save(app::node);
     };
@@ -52,7 +52,7 @@ namespace wrl
         s_light();
 
         virtual s_light *clone() const { return new s_light(*this); }
-        virtual int   priority() const { return -1;               }
+        virtual int   priority() const { return -1; }
 
         virtual void save(app::node);
     };

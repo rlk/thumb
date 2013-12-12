@@ -28,10 +28,21 @@ wrl::light::light(std::string fill) : atom(fill, "wire/wire_sphere.obj")
 
 wrl::d_light::d_light() : light("solid/d-light.obj")
 {
+    params[GL_RED]                   = new param("color_red",             "1.0");
+    params[GL_GREEN]                 = new param("color_green",           "1.0");
+    params[GL_BLUE]                  = new param("color_blue",            "1.0");
 }
 
 wrl::s_light::s_light() : light("solid/s-light.obj")
 {
+    params[GL_RED]                   = new param("color_red",             "1.0");
+    params[GL_GREEN]                 = new param("color_green",           "1.0");
+    params[GL_BLUE]                  = new param("color_blue",            "1.0");
+    params[GL_CONSTANT_ATTENUATION]  = new param("attenuation_constant",  "1.0");
+    params[GL_LINEAR_ATTENUATION]    = new param("attenuation_linear",    "0.0");
+    params[GL_QUADRATIC_ATTENUATION] = new param("attenuation_quadratic", "0.0");
+    params[GL_SPOT_EXPONENT]         = new param("spot_exponent",         "8.0");
+    params[GL_SPOT_CUTOFF]           = new param("spot_cutoff",          "45.0");
 }
 
 //-----------------------------------------------------------------------------
