@@ -24,19 +24,19 @@
 //-----------------------------------------------------------------------------
 
 dpy::interlace::interlace(app::node p) :
-    display(p), frustL(0), frustR(0), P(0)
+    display(p), frustL(0), frustR(0), program(0)
 {
     // Check the display definition for a frustum, or create a default
 
     if (app::node n = p.find("frustum"))
     {
-        frustL = new app::frustum(n, viewport[2], viewport[3]);
-        frustR = new app::frustum(n, viewport[2], viewport[3]);
+        frustL = new app::frustum(n);
+        frustR = new app::frustum(n);
     }
     else
     {
-        frustL = new app::frustum(0, viewport[2], viewport[3]);
-        frustR = new app::frustum(0, viewport[2], viewport[3]);
+        frustL = new app::frustum(0);
+        frustR = new app::frustum(0);
     }
 }
 
@@ -81,7 +81,7 @@ void dpy::interlace::draw(int chanc, const dpy::channel * const *chanv, int frus
     {
         assert(chanv[0]);
         assert(chanv[1]);
-        assert(P);
+        assert(program);
 
         // Draw the scene to the off-screen buffer.
 
@@ -103,14 +103,14 @@ void dpy::interlace::draw(int chanc, const dpy::channel * const *chanv, int frus
         chanv[0]->bind_color(GL_TEXTURE0);
         chanv[1]->bind_color(GL_TEXTURE1);
         {
-            P->bind();
+            program->bind();
             {
                 fill(frustL->get_w(),
                      frustL->get_h(),
                      chanv[0]->get_w(),
                      chanv[0]->get_h());
             }
-            P->free();
+            program->free();
         }
         chanv[1]->free_color(GL_TEXTURE1);
         chanv[0]->free_color(GL_TEXTURE0);
@@ -123,7 +123,7 @@ void dpy::interlace::test(int chanc, const dpy::channel *const *chanv, int index
     {
         assert(chanv[0]);
         assert(chanv[1]);
-        assert(P);
+        assert(program);
 
         // Draw the scene to the off-screen buffer.
 
@@ -144,14 +144,14 @@ void dpy::interlace::test(int chanc, const dpy::channel *const *chanv, int index
         chanv[0]->bind_color(GL_TEXTURE0);
         chanv[1]->bind_color(GL_TEXTURE1);
         {
-            P->bind();
+            program->bind();
             {
                 fill(frustL->get_w(),
                      frustL->get_h(),
                      chanv[0]->get_w(),
                      chanv[0]->get_h());
             }
-            P->free();
+            program->free();
         }
         chanv[1]->free_color(GL_TEXTURE1);
         chanv[0]->free_color(GL_TEXTURE0);
@@ -162,17 +162,15 @@ void dpy::interlace::test(int chanc, const dpy::channel *const *chanv, int index
 
 bool dpy::interlace::pointer_to_3D(app::event *E, int x, int y)
 {
+    // Let the frustum project the pointer into space.
+
     assert(frustL);
 
-    // Determine whether the pointer falls within the viewport.
+    double s = double(x - viewport[0]) / viewport[2];
+    double t = double(y - viewport[1]) / viewport[3];
 
-    if (viewport[0] <= x && x < viewport[0] + viewport[2] &&
-        viewport[1] <= y && y < viewport[1] + viewport[3])
-
-        // Let the frustum project the pointer into space.
-
-        return frustL->pointer_to_3D(E, x - viewport[0],
-                          viewport[3] - y + viewport[1]);
+    if (0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
+        return frustL->pointer_to_3D(E, s, t);
     else
         return false;
 }
@@ -181,7 +179,7 @@ bool dpy::interlace::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((P = ::glob->load_program("interlace.xml")))
+    if ((program = ::glob->load_program("interlace.xml")))
     {
     }
 
@@ -192,9 +190,9 @@ bool dpy::interlace::process_close(app::event *E)
 {
     // Finalize the shader.
 
-    ::glob->free_program(P);
+    ::glob->free_program(program);
 
-    P = 0;
+    program = 0;
 
     return false;
 }

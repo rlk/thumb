@@ -31,7 +31,7 @@ namespace dpy
     {
         std::vector<app::frustum *> frusta;
 
-        const ogl::program *P;
+        const ogl::program *program;
 
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);

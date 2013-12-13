@@ -24,17 +24,12 @@
 
 //-----------------------------------------------------------------------------
 
-dpy::fulldome::fulldome(app::node p) : display(p), P(0)
+dpy::fulldome::fulldome(app::node p) : display(p), program(0)
 {
-    // These values determine the effective resolution of the GUI overlay.
-
-    int w = viewport[2] / 2;
-    int h = viewport[3] / 3;
-
     app::node f;
 
     for (f = p.find("frustum"); f; f = p.next(f, "frustum"))
-        frusta.push_back(new app::frustum(f, w, h));
+        frusta.push_back(new app::frustum(f));
 }
 
 dpy::fulldome::~fulldome()
@@ -73,7 +68,7 @@ void dpy::fulldome::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 {
     const int frusc = get_frusc();
 
-    assert(P);
+    assert(program);
 
     int i;
 
@@ -92,47 +87,46 @@ void dpy::fulldome::draw(int chanc, const dpy::channel *const *chanv, int frusi)
 
     // Draw the off-screen buffer to the screen.
 
-    P->bind();
+    program->bind();
     {
         if (chanc > 0 && frusc > 0)
         {
             chanv[0]->bind_color(GL_TEXTURE0);
-            P->uniform(   "P[0]", frusta[0]->get_perspective(), false);
-            P->uniform("size[0]", vec2(chanv[0]->get_w(), chanv[0]->get_h()));
+            program->uniform(   "P[0]", frusta[0]->get_perspective(), false);
+            program->uniform("size[0]", vec2(chanv[0]->get_w(), chanv[0]->get_h()));
         }
         if (chanc > 1 && frusc > 1)
         {
             chanv[1]->bind_color(GL_TEXTURE1);
-            P->uniform(   "P[1]", frusta[1]->get_perspective(), false);
-            P->uniform("size[1]", vec2(chanv[1]->get_w(), chanv[1]->get_h()));
+            program->uniform(   "P[1]", frusta[1]->get_perspective(), false);
+            program->uniform("size[1]", vec2(chanv[1]->get_w(), chanv[1]->get_h()));
         }
         if (chanc > 2 && frusc > 2)
         {
             chanv[2]->bind_color(GL_TEXTURE2);
-            P->uniform(   "P[2]", frusta[2]->get_perspective(), false);
-            P->uniform("size[2]", vec2(chanv[2]->get_w(), chanv[2]->get_h()));
+            program->uniform(   "P[2]", frusta[2]->get_perspective(), false);
+            program->uniform("size[2]", vec2(chanv[2]->get_w(), chanv[2]->get_h()));
         }
         if (chanc > 3 && frusc > 3)
         {
             chanv[3]->bind_color(GL_TEXTURE3);
-            P->uniform(   "P[3]", frusta[3]->get_perspective(), false);
-            P->uniform("size[3]", vec2(chanv[3]->get_w(), chanv[3]->get_h()));
+            program->uniform(   "P[3]", frusta[3]->get_perspective(), false);
+            program->uniform("size[3]", vec2(chanv[3]->get_w(), chanv[3]->get_h()));
         }
 
-        fill(viewport[2],
-             viewport[3], 0, 0);
+        fill(viewport[2], viewport[3], 0, 0);
 
         for (i = 0; i < chanc; ++i)
             chanv[i]->free_color(GL_TEXTURE0 + i);
     }
-    P->free();
+    program->free();
 }
 
 void dpy::fulldome::test(int chanc, const dpy::channel *const *chanv, int index)
 {
     const int frusc = get_frusc();
 
-    assert(P);
+    assert(program);
 
     int i;
 
@@ -148,12 +142,12 @@ void dpy::fulldome::test(int chanc, const dpy::channel *const *chanv, int index)
 
     if (chanc)
     {
-        P->bind();
+        program->bind();
         {
             fill(viewport[2],
                  viewport[3], 0, 0);
         }
-        P->free();
+        program->free();
     }
 
     for (i = 0; i < chanc && i < frusc; ++i)
@@ -201,7 +195,7 @@ bool dpy::fulldome::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((P = ::glob->load_program("dpy/fulldome.xml")))
+    if ((program = ::glob->load_program("dpy/fulldome.xml")))
     {
     }
 
@@ -212,9 +206,9 @@ bool dpy::fulldome::process_close(app::event *E)
 {
     // Finalize the shader.
 
-    ::glob->free_program(P);
+    ::glob->free_program(program);
 
-    P = 0;
+    program = 0;
 
     return false;
 }

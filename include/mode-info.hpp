@@ -28,6 +28,9 @@ namespace mode
 {
     class info : public mode
     {
+        const int gui_w;
+        const int gui_h;
+
         cnt::control *gui;
 
         void gui_show();

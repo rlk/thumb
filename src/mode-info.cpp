@@ -25,7 +25,11 @@
 
 //-----------------------------------------------------------------------------
 
-mode::info::info(wrl::world *w) : mode(w), gui(0)
+mode::info::info(wrl::world *w) :
+    mode(w),
+    gui_w(::host->get_window_w()),
+    gui_h(::host->get_window_h()),
+    gui(0)
 {
 }
 
@@ -37,10 +41,7 @@ mode::info::~info()
 
 void mode::info::gui_show()
 {
-    const app::frustum *overlay = ::host->get_overlay();
-
-    gui = new cnt::control(world, overlay->get_pixel_w(),
-                                  overlay->get_pixel_h());
+    gui = new cnt::control(world, gui_w, gui_h);
 }
 
 void mode::info::gui_hide()
@@ -81,6 +82,8 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
         {
             glLoadIdentity();
             overlay->apply_overlay();
+            glScaled(overlay->get_w() / gui_w,
+                     overlay->get_h() / gui_h, 1.0);
             gui->draw();
         }
         glDisable(GL_DEPTH_CLAMP_NV);
@@ -92,8 +95,8 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
 bool mode::info::process_event(app::event *E)
 {
     const app::frustum *overlay = ::host->get_overlay();
-    int x = 0;
-    int y = 0;
+    double x = 0;
+    double y = 0;
 
     assert(E);
 
@@ -108,7 +111,9 @@ bool mode::info::process_event(app::event *E)
             if (overlay)
                 overlay->pointer_to_2D(E, x, y);
 
-            gui->point(x, y);
+            gui->point(toint(x * gui_w),
+                       toint(y * gui_h));
+
             return true;
         }
         return false;
@@ -126,8 +131,10 @@ bool mode::info::process_event(app::event *E)
     case E_KEY:
 
         if (gui && E->data.key.d)
+        {
             gui->key(E->data.key.k,
                      E->data.key.m);
+        }
         return true;
 
     case E_TEXT:
@@ -138,14 +145,14 @@ bool mode::info::process_event(app::event *E)
 
     case E_START:
 
-        gui_show();
         SDL_StartTextInput();
+        gui_show();
         return false;
 
     case E_CLOSE:
 
-        gui_hide();
         SDL_StopTextInput();
+        gui_hide();
         return false;
     }
 

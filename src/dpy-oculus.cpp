@@ -61,7 +61,7 @@ dpy::oculus::oculus(app::node p) :
 
     // Instantiate a view frustum object for later use in view culling.
 
-    frust = new app::frustum(0, viewport[2], viewport[3]);
+    frust = new app::frustum(0);
     chani = p.get_i("channel");
 
     // Initialize LibOVR if not already done.
@@ -271,16 +271,15 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 
     // Determine whether the pointer falls within the viewport.
 
-    if (viewport[0] <= x && x < viewport[0] + viewport[2] &&
-        viewport[1] <= y && y < viewport[1] + viewport[3])
+    double s = double(x - viewport[0]) / viewport[2];
+    double t = double(y - viewport[1]) / viewport[3];
+
+    if (0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
     {
         // Apply the lens distortion to the pointer position.
 
-        double ix = (double(x) - viewport[0]) / viewport[2];
-        double iy = (double(y) - viewport[1]) / viewport[3];
-
-        double vx = (ix - LensCenter[0]) * ScaleIn[0];
-        double vy = (iy - LensCenter[1]) * ScaleIn[1];
+        double vx = (s - LensCenter[0]) * ScaleIn[0];
+        double vy = (t - LensCenter[1]) * ScaleIn[1];
 
         double rr = vx * vx + vy * vy;
 
@@ -294,8 +293,7 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
 
         // Let the frustum project the pointer into space.
 
-        return frust->pointer_to_3D(E, toint(ox * viewport[2]),
-                                       toint(oy * viewport[3]));
+        return frust->pointer_to_3D(E, ox, oy);
     }
     else
         return false;

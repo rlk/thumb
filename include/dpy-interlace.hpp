@@ -32,7 +32,7 @@ namespace dpy
         app::frustum *frustL;
         app::frustum *frustR;
 
-        const ogl::program *P;
+        const ogl::program *program;
 
         virtual bool process_start(app::event *);
         virtual bool process_close(app::event *);

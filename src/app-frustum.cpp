@@ -46,10 +46,7 @@ static vec4 plane(const vec3& a, const vec3& b, const vec3& c)
 /// \param w    Render target pixel width
 /// \param h    Render target pixel height
 ///
-app::frustum::frustum(app::node node, int w, int h) :
-    node(node),
-    pixel_w(w),
-    pixel_h(h)
+app::frustum::frustum(app::node node) : node(node)
 {
     // Load the configuration and perform a calibration.
 
@@ -73,10 +70,7 @@ app::frustum::frustum(app::node node, int w, int h) :
 ///
 /// \param that Frustum to be copied
 ///
-app::frustum::frustum(const frustum& that) :
-    node(0),
-    pixel_w(that.pixel_w),
-    pixel_h(that.pixel_h)
+app::frustum::frustum(const frustum& that) : node(0)
 {
     user_pos   = that.user_pos;
     user_basis = that.user_basis;
@@ -96,9 +90,7 @@ app::frustum::frustum(const frustum& that) :
 /// \param bound  visible axis-aligned bounding volume
 /// \param v      light source direction
 ///
-app::frustum::frustum(const ogl::aabb& bound, const vec3& v) :
-    pixel_w(0),
-    pixel_h(0)
+app::frustum::frustum(const ogl::aabb& bound, const vec3& v)
 {
     vec3 x(1, 0, 0);
     vec3 y(0, 1, 0);
@@ -167,8 +159,6 @@ app::frustum::frustum(const ogl::aabb& bound, const vec3& v) :
 ///
 #if 0
 app::frustum::frustum(const vec3& p, const vec3& v, float c) :
-    pixel_w(0),
-    pixel_h(0),
     user_pos(0, 0, 0)
 {
     vec3 x(1, 0, 0);
@@ -402,20 +392,6 @@ double app::frustum::get_h() const
     return length(user_points[2] - user_points[0]);
 }
 
-/// Return the width of the base of the frustum in pixels.
-///
-int app::frustum::get_pixel_w() const
-{
-    return pixel_w;
-}
-
-/// Return the height of the base of the frustum in pixels.
-///
-int app::frustum::get_pixel_h() const
-{
-    return pixel_h;
-}
-
 //-----------------------------------------------------------------------------
 
 /// Compute and return the "practical" parallel-split shadow map coefficient,
@@ -476,7 +452,7 @@ ogl::aabb app::frustum::get_split_bound(int i, int n) const
 
 //-----------------------------------------------------------------------------
 
-bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
+bool app::frustum::pointer_to_2D(event *E, double& x, double& y) const
 {
     vec3 p(E->data.point.p[0],
            E->data.point.p[1],
@@ -492,9 +468,9 @@ bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
 
     // Determine where the pointer intersects with the image plane.
 
-    vec4 n = plane(user_points[0], user_points[1], user_points[2]);
+    vec4 d = plane(user_points[0], user_points[1], user_points[2]);
 
-    double t = -((p * n) + n[3]) / (v * n);
+    double t = -((p * d) + d[3]) / (v * d);
 
     vec3 P =      p + v * t - user_points[0];
     vec3 X = user_points[1] - user_points[0];
@@ -503,30 +479,28 @@ bool app::frustum::pointer_to_2D(event *E, int& x, int& y) const
     double xx = (P * X) / (X * X);
     double yy = (P * Y) / (Y * Y);
 
-    // If the pointer falls within the frustum, return the nearest pixel.
+    // Return true if the pointer falls within the frustum.
 
     if (0 <= xx && xx <= 1 && 0 <= yy && yy <= 1)
     {
-        x = toint(pixel_w * xx);
-        y = toint(pixel_h * yy);
+        x = xx;
+        y = yy;
         return true;
     }
     return false;
 }
 
-bool app::frustum::pointer_to_3D(event *E, int x, int y) const
+bool app::frustum::pointer_to_3D(event *E, double x, double y) const
 {
-    double u = double(x) / double(pixel_w);
-    double v = double(y) / double(pixel_h);
-    double k = 1.0 - u - v;
+    double k = 1.0 - x - y;
 
     // Compute the Z axis of the pointer space.
 
     vec3 X = vec3(1, 0, 0);
     vec3 Y = vec3(0, 1, 0);
     vec3 Z = normal(user_pos - user_points[0] * k
-                             - user_points[1] * u
-                             - user_points[2] * v);
+                             - user_points[1] * x
+                             - user_points[2] * y);
 
     // Complete an orthonormal basis of the pointer space.
 
@@ -651,8 +625,8 @@ void app::frustum::apply_overlay() const
 
         glMultMatrixd(transpose(mat4(user_basis)));
 
-        glScaled(get_w() / pixel_w,
-                 get_h() / pixel_h, 1.0);
+        // glScaled(get_w() / pixel_w,
+        //          get_h() / pixel_h, 1.0);
     }
 }
 

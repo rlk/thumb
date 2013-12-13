@@ -36,7 +36,7 @@ dpy::lenticular::lenticular(app::node p) :
     debug(  1.0),
     quality(1.0),
 
-    P(0)
+    program(0)
 {
     int i;
 
@@ -46,12 +46,12 @@ dpy::lenticular::lenticular(app::node p) :
     for (i = 0; i < channels; ++i)
         if (app::node n = p.find("frustum"))
         {
-            frust.push_back(new app::frustum(n, viewport[2], viewport[3]));
+            frust.push_back(new app::frustum(n));
             slice.push_back(slice_param(0.85));
         }
         else
         {
-            frust.push_back(new app::frustum(n, viewport[2], viewport[3]));
+            frust.push_back(new app::frustum(n));
             slice.push_back(slice_param(0.85));
         }
 
@@ -136,7 +136,7 @@ void dpy::lenticular::draw(int chanc, const dpy::channel *const *chanv, int frus
     for (i = 0; i < chanc && i < channels; ++i)
         chanv[i]->bind_color(GL_TEXTURE0 + i);
 
-    P->bind();
+    program->bind();
     {
         apply_uniforms();
 
@@ -151,7 +151,7 @@ void dpy::lenticular::draw(int chanc, const dpy::channel *const *chanv, int frus
         }
         glEnd();
     }
-    P->free();
+    program->free();
 }
 
 void dpy::lenticular::test(int chanc, const dpy::channel *const *chanv, int index)
@@ -172,7 +172,7 @@ void dpy::lenticular::test(int chanc, const dpy::channel *const *chanv, int inde
     for (i = 0; i < chanc && i < channels; ++i)
         chanv[i]->bind_color(GL_TEXTURE0 + i);
 
-    P->bind();
+    program->bind();
     {
         apply_uniforms();
 
@@ -187,24 +187,22 @@ void dpy::lenticular::test(int chanc, const dpy::channel *const *chanv, int inde
         }
         glEnd();
     }
-    P->free();
+    program->free();
 }
 
 //-----------------------------------------------------------------------------
 
 bool dpy::lenticular::pointer_to_3D(app::event *E, int x, int y)
 {
+    // Let the frustum project the pointer into space.
+
     assert(!frust.empty());
 
-    // Determine whether the pointer falls within the viewport.
+    double s = double(x - viewport[0]) / viewport[2];
+    double t = double(y - viewport[1]) / viewport[3];
 
-    if (viewport[0] <= x && x < viewport[0] + viewport[2] &&
-        viewport[1] <= y && y < viewport[1] + viewport[3])
-
-        // Let the frustum project the pointer into space.
-
-        return frust[0]->pointer_to_3D(E, x - viewport[0],
-                            viewport[3] - y + viewport[1]);
+    if (0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
+        return frust[0]->pointer_to_3D(E, s, t);
     else
         return false;
 }
@@ -213,7 +211,7 @@ bool dpy::lenticular::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((P = ::glob->load_program("lenticular.xml")))
+    if ((program = ::glob->load_program("lenticular.xml")))
     {
     }
 
@@ -224,9 +222,9 @@ bool dpy::lenticular::process_close(app::event *E)
 {
     // Finalize the shader.
 
-    ::glob->free_program(P);
+    ::glob->free_program(program);
 
-    P = 0;
+    program = 0;
 
     return false;
 }
@@ -352,11 +350,11 @@ void dpy::lenticular::apply_uniforms() const
 
     // TODO: cache these uniform locations (in process_start).
 
-    P->uniform("eyes",    channels);
-    P->uniform("quality", quality);
-    P->uniform("offset",  vec3(-d, 0, d));
-    P->uniform("corner",  vec2(viewport[0], viewport[1]));
-    P->uniform("size",    vec4(w * 0.5, h * 0.5, 0.0, 1.0));
+    program->uniform("eyes",    channels);
+    program->uniform("quality", quality);
+    program->uniform("offset",  vec3(-d, 0, d));
+    program->uniform("corner",  vec2(viewport[0], viewport[1]));
+    program->uniform("size",    vec4(w * 0.5, h * 0.5, 0.0, 1.0));
 
     for (int i = 0; i < channels; ++i)
     {
@@ -370,17 +368,17 @@ void dpy::lenticular::apply_uniforms() const
 
         vec4 v = calc_transform(frust[i]->get_disp_pos());
 
-        P->uniform("coeff" + index[i], v);
-        P->uniform("edge0" + index[i], vec3(e0, e0, e0));
-        P->uniform("edge1" + index[i], vec3(e1, e1, e1));
-        P->uniform("edge2" + index[i], vec3(e2, e2, e2));
-        P->uniform("edge3" + index[i], vec3(e3, e3, e3));
-        P->uniform("edge4" + index[i], vec3(e4, e4, e4));
-        P->uniform("edge5" + index[i], vec3(e5, e5, e5));
-        P->uniform("edge6" + index[i], vec3(e6, e6, e6));
-        P->uniform("depth" + index[i], vec3(-slice[i].depth,
-                                            -slice[i].depth,
-                                            -slice[i].depth));
+        program->uniform("coeff" + index[i], v);
+        program->uniform("edge0" + index[i], vec3(e0, e0, e0));
+        program->uniform("edge1" + index[i], vec3(e1, e1, e1));
+        program->uniform("edge2" + index[i], vec3(e2, e2, e2));
+        program->uniform("edge3" + index[i], vec3(e3, e3, e3));
+        program->uniform("edge4" + index[i], vec3(e4, e4, e4));
+        program->uniform("edge5" + index[i], vec3(e5, e5, e5));
+        program->uniform("edge6" + index[i], vec3(e6, e6, e6));
+        program->uniform("depth" + index[i], vec3(-slice[i].depth,
+                                                  -slice[i].depth,
+                                                  -slice[i].depth));
     }
 }
 

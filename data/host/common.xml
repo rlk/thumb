@@ -35,7 +35,7 @@
       <channel w="1280" h="1600"/>
       <channel w="1280" h="1600"/>
       <buffer  w="1280" h="1600"/>
-      <overlay w="1024" h="1024">
+      <overlay>
         <frustum>
           <perspective hfov="90.0" vfov="90.0" />
         </frustum>
@@ -172,7 +172,7 @@
       <channel w="1920" h="540" x="-0.114" r="0" g="1" b="0"/>
       <channel w="1920" h="540" x=" 0.114" r="1" g="0" b="1"/>
       <buffer  w="1920" h="540"/>
-      <overlay w="1920" h="1080">
+      <overlay>
         <frustum>
           <corner name="BL" x="-2.0" y="-1.125" z="-4.92" />
           <corner name="BR" x=" 2.0" y="-1.125" z="-4.92" />

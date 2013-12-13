@@ -28,9 +28,9 @@ dpy::normal::normal(app::node p) : display(p), frust(0), program(0)
     // Check the display definition for a frustum, or create a default
 
     if (app::node n = p.find("frustum"))
-        frust = new app::frustum(n, viewport[2], viewport[3]);
+        frust = new app::frustum(n);
     else
-        frust = new app::frustum(0, viewport[2], viewport[3]);
+        frust = new app::frustum(0);
 
     // Note the channel index.
 
@@ -137,17 +137,15 @@ void dpy::normal::test(int chanc, const dpy::channel *const *chanv, int index)
 
 bool dpy::normal::pointer_to_3D(app::event *E, int x, int y)
 {
+    // Let the frustum project the pointer into space.
+
     assert(frust);
 
-    // Determine whether the pointer falls within the viewport.
+    double s = double(x - viewport[0]) / viewport[2];
+    double t = double(y - viewport[1]) / viewport[3];
 
-    if (viewport[0] <= x && x < viewport[0] + viewport[2] &&
-        viewport[1] <= y && y < viewport[1] + viewport[3])
-
-        // Let the frustum project the pointer into space.
-
-        return frust->pointer_to_3D(E, x - viewport[0],
-                                       y - viewport[1]);
+    if (0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
+        return frust->pointer_to_3D(E, s, t);
     else
         return false;
 }

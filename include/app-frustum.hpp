@@ -56,7 +56,7 @@ namespace app
     {
     public:
 
-        frustum(app::node node, int w, int h);
+        frustum(app::node node);
         frustum(const frustum& that);
         frustum(const ogl::aabb&, const vec3&);
         // frustum(const ogl::aabb&, const vec3&, const vec3&, float);
@@ -81,8 +81,6 @@ namespace app
 
         double get_w()          const;
         double get_h()          const;
-        int    get_pixel_w()    const;
-        int    get_pixel_h()    const;
 
         const vec4 *get_planes() const { return view_planes; }
         const vec3 *get_points() const { return view_points; }
@@ -99,8 +97,8 @@ namespace app
 
         // Event handlers
 
-        bool pointer_to_3D(event *, int,  int)  const;
-        bool pointer_to_2D(event *, int&, int&) const;
+        bool pointer_to_3D(event *, double,  double)  const;
+        bool pointer_to_2D(event *, double&, double&) const;
         bool process_event(event *);
 
         // Perspective projection application
@@ -131,9 +129,6 @@ namespace app
         // Serialization node
 
         app::node node;
-
-        const int pixel_w;
-        const int pixel_h;
 
         // Current view point
 

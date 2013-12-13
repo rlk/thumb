@@ -88,7 +88,7 @@ namespace dpy
 
         std::vector<app::frustum *> frust;
 
-        const ogl::program *P;
+        const ogl::program *program;
 
         // Configuration state and event handlers
 
