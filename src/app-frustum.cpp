@@ -165,7 +165,8 @@ app::frustum::frustum(const ogl::aabb& bound, const vec3& v) :
 /// \param v light source direction
 /// \param c light source field of view
 ///
-app::frustum::frustum(const vec3& p, const vec3& v, float c)
+#if 0
+app::frustum::frustum(const vec3& p, const vec3& v, float c) :
     pixel_w(0),
     pixel_h(0),
     user_pos(0, 0, 0)
@@ -206,6 +207,7 @@ app::frustum::frustum(const vec3& p, const vec3& v, float c)
     set_transform(M);
 
 }
+#endif
 
 //-----------------------------------------------------------------------------
 

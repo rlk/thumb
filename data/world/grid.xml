@@ -1,6 +1,5 @@
 <?xml version="1.0" ?>
   <world>
-    <!--
     <light type="d-light">
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -10,7 +9,7 @@
       <pos_y>15.000000</pos_y>
       <pos_z>10.000000</pos_z>
     </light>
-    -->
+    <!--
     <light type="s-light">
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -20,6 +19,7 @@
       <pos_y>15.000000</pos_y>
       <pos_z>10.000000</pos_z>
     </light>
+    -->
     <geom type="box">
       <file>solid/platform.obj</file>
       <rot_x>0.000000</rot_x>

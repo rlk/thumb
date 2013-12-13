@@ -59,7 +59,7 @@ namespace app
         frustum(app::node node, int w, int h);
         frustum(const frustum& that);
         frustum(const ogl::aabb&, const vec3&);
-        frustum(const ogl::aabb&, const vec3&, const vec3&, float);
+        // frustum(const ogl::aabb&, const vec3&, const vec3&, float);
 
         // View state mutators
 

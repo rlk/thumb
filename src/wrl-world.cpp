@@ -951,6 +951,7 @@ void wrl::world::shadow(int id, const app::frustum *frusp, int i)
 int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
                         int index, const ogl::aabb& visible, const atom *a)
 {
+#if 0
     vec3 p =  wvector(a->get_local());
     vec3 v = -yvector(a->get_local());
 
@@ -960,6 +961,8 @@ int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
     shadow(frusc + index, &frust, index);
 
     return 1;
+#endif
+    return 0;
 }
 
 int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
@@ -984,8 +987,8 @@ int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
 
         // Render a shadow map encompasing this bound.
 
-        app::frustum frust(bound, const ogl::aabb& bound);
-        fill_pool->view(id, frusp->get_planes(), 5);
+        app::frustum frust(bound, v);
+        fill_pool->view(frusc + index + i, frust.get_planes(), 5);
         // TODO: set the frustum distances to bound the light's view volume
         shadow(frusc + index + i, &frust, index + i);
     }
