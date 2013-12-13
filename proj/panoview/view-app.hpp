@@ -91,6 +91,8 @@ private:
 
     // Sphere GUI State
 
+    const int  gui_w;
+    const int  gui_h;
     view_load *gui;
 
     void gui_show();

@@ -41,6 +41,8 @@ view_app::view_app(const std::string& exe,
     draw_cache(false),
     draw_path (false),
     draw_gui  (true),
+    gui_w(::host->get_buffer_w()),
+    gui_h(::host->get_buffer_h()),
     gui(0)
 {
     TIFFSetWarningHandler(0);
@@ -603,9 +605,7 @@ bool view_app::process_event(app::event *E)
 
 void view_app::gui_show()
 {
-    if (const app::frustum *overlay = ::host->get_overlay())
-        gui = new view_load(this, overlay->get_pixel_w(),
-                                  overlay->get_pixel_h());
+    gui = new view_load(this, gui_w, gui_h);
 }
 
 // Release the file selection GUI.
@@ -626,6 +626,8 @@ void view_app::gui_draw()
         {
             glLoadIdentity();
             overlay->apply_overlay();
+            glScaled(overlay->get_w() / gui_w,
+                     overlay->get_h() / gui_h, 1.0);
             gui->draw();
         }
         glDisable(GL_DEPTH_CLAMP);
@@ -636,8 +638,8 @@ void view_app::gui_draw()
 
 bool view_app::gui_event(app::event *E)
 {
-    int x;
-    int y;
+    double x;
+    double y;
 
     switch (E->get_type())
     {
@@ -647,7 +649,8 @@ bool view_app::gui_event(app::event *E)
             {
                 if (E->data.point.i == 0 && overlay->pointer_to_2D(E, x, y))
                 {
-                    gui->point(x, y);
+                    gui->point(toint(x * gui_w),
+                               toint(y * gui_h));
                     return true;
                 }
             }
