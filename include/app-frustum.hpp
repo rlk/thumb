@@ -28,29 +28,142 @@ namespace app
 
 //-----------------------------------------------------------------------------
 
+// A frustum has a life-cycle that repeats each frame. It is initially defined
+// by its shape which, in the case of a generalized frustum, may be variable. As
+// a cycle begins, it is given a viewing transform that determines its bounding
+// volume. It then participates in visibility determination, for which bounding
+// planes are computed. It is then given a content boundary, from which near and
+// far distances are decided. Finally, a final projection matrix may be found
+// and used for rendering.
+
+// set_eye
+// set_view
+//     cache_planes
+// do visibility
+// set_bound
+//     cache_points
+// do rendering
+
 namespace app
 {
     //-------------------------------------------------------------------------
-    /// 3D frustum
-    ///
-    /// A frustum object represents an off-axis 3D pyramid defined by five
-    /// points in space, with four points giving the base of the pyramid and
-    /// one point giving its apex. This most often represents a user's field of
-    /// view, where the four corner positions of a display screen give the
-    /// base, and the position of the user's eye give the apex.
-    ///
-    /// The frustum object provides functions to test whether simple geometric
-    /// shapes intersect with the volume of the pyramid, and in so doing it
-    /// tests whether these shapes are visible to the user. To support view
-    /// determination during 3D navigation, the implementation caches its 3D
-    /// corner positions in both user space and world space, updating its
-    /// internal state as the user's position and viewing transformation
-    /// change.
-    ///
-    /// Finally, the frustum provides mechanisms for display configuration. It
-    /// implements the app::host::process_event protocol to allow run-time
-    /// calibration, and serializes its state to the XML DOM provided at
-    /// construction.
+#if 1
+    class frustum
+    {
+    public:
+
+        frustum();
+
+        virtual ~frustum() { }
+
+        virtual void set_eye  (const vec3&);
+        virtual void set_view (const mat4&);
+        virtual void set_bound(const mat4&, const ogl::aabb&);
+
+        // Queries
+
+        virtual mat4  get_transform() const = 0;
+        virtual void load_transform() const;
+
+        const vec4 *get_planes() const { return plane; }
+        const vec3 *get_points() const { return point; }
+
+        // Event handlers
+
+        virtual bool pointer_to_3D(event *, double,  double)  const;
+        virtual bool pointer_to_2D(event *, double&, double&) const;
+        virtual bool process_event(event *);
+
+        // Parallel-split handlers
+
+        double    get_split_c    (int, int) const;
+        double    get_split_k    (int, int) const;
+        double    get_split_z    (int, int) const;
+        ogl::aabb get_split_bound(int, int) const;
+
+    protected:
+
+        // Frustum shape and orientation
+
+        mat4 basis;
+        vec3 corner[4];
+        vec3 eye;
+
+        // Clipping distances
+
+        double n;
+        double f;
+
+        // World-space frustum boundary cache
+
+        vec4 plane[6];        // N L R B T F
+        vec3 point[8];        // BL BR TL TR
+
+        void cache_basis();
+        void cache_planes(const mat4&);
+        void cache_points(const mat4&);
+    };
+
+    //-------------------------------------------------------------------------
+
+    class orthogonal_frustum : public frustum
+    {
+    public:
+
+        orthogonal_frustum(const ogl::aabb&, const vec3&);
+
+        virtual mat4 get_transform() const;
+    };
+
+    //-------------------------------------------------------------------------
+
+    class perspective_frustum : public frustum
+    {
+    public:
+
+        perspective_frustum();
+        perspective_frustum(const mat4&);
+        perspective_frustum(const vec3&, const vec3&, double, double);
+
+        virtual mat4 get_transform() const;
+    };
+
+    //-------------------------------------------------------------------------
+
+    class calibrated_frustum : public perspective_frustum
+    {
+    public:
+
+        calibrated_frustum(app::node);
+
+        virtual bool process_event(event *);
+
+    protected:
+
+        app::node node;
+
+        struct calibration
+        {
+            double P;  // Position phi
+            double T;  // Position theta
+            double R;  // Position rho
+            double p;  // Rotation pitch
+            double y;  // Rotation yaw
+            double r;  // Rotation roll
+            double H;  // Horizontal field of view
+            double V;  // Vertical   field of view
+        };
+
+        mat4 calibration_matrix(calibration&);
+
+        void apply_calibration();
+        void  load_calibration(calibration&);
+        void  save_calibration(calibration&);
+    };
+
+    //-------------------------------------------------------------------------
+
+#else
 
     class frustum
     {
@@ -59,25 +172,20 @@ namespace app
         frustum(app::node node);
         frustum(const frustum& that);
         frustum(const ogl::aabb&, const vec3&);
-        // frustum(const ogl::aabb&, const vec3&, const vec3&, float);
 
         // View state mutators
 
         void set_projection(const mat4& M);
-        void set_viewpoint (const vec3& p);
+        void set_eye (const vec3& p);
         void set_transform (const mat4& M);
         void set_distances (const ogl::aabb& bound);
-
-        void set_volume(int frusc, const frustum *const *frusv,
-                        double c0, double c1, const vec3& p, mat4& M,
-                                                             mat4& I);
 
         // Queries.
 
         const vec3 get_user_pos()    const;
         const vec3 get_view_pos()    const;
         const vec3 get_disp_pos()    const;
-        const mat4 get_perspective() const;
+        const mat4 get_transform() const;
 
         double get_w()          const;
         double get_h()          const;
@@ -152,7 +260,7 @@ namespace app
         double n_dist;
         double f_dist;
     };
-
+#endif
     typedef std::vector<frustum *>                 frustum_v;
     typedef std::vector<frustum *>::const_iterator frustum_i;
 

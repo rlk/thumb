@@ -29,7 +29,7 @@ dpy::fulldome::fulldome(app::node p) : display(p), program(0)
     app::node f;
 
     for (f = p.find("frustum"); f; f = p.next(f, "frustum"))
-        frusta.push_back(new app::frustum(f));
+        frusta.push_back(new app::calibrated_frustum(f));
 }
 
 dpy::fulldome::~fulldome()
@@ -61,7 +61,7 @@ void dpy::fulldome::prep(int chanc, const dpy::channel *const *chanv)
     // Apply the channel view positions to the frusta.
 
     for (int i = 0; i < chanc && i < get_frusc(); ++i)
-        frusta[i]->set_viewpoint(chanv[i]->get_p());
+        frusta[i]->set_eye(chanv[i]->get_p());
 }
 
 void dpy::fulldome::draw(int chanc, const dpy::channel *const *chanv, int frusi)
@@ -92,25 +92,25 @@ void dpy::fulldome::draw(int chanc, const dpy::channel *const *chanv, int frusi)
         if (chanc > 0 && frusc > 0)
         {
             chanv[0]->bind_color(GL_TEXTURE0);
-            program->uniform(   "P[0]", frusta[0]->get_perspective(), false);
+            program->uniform(   "P[0]", frusta[0]->get_transform(), false);
             program->uniform("size[0]", vec2(chanv[0]->get_w(), chanv[0]->get_h()));
         }
         if (chanc > 1 && frusc > 1)
         {
             chanv[1]->bind_color(GL_TEXTURE1);
-            program->uniform(   "P[1]", frusta[1]->get_perspective(), false);
+            program->uniform(   "P[1]", frusta[1]->get_transform(), false);
             program->uniform("size[1]", vec2(chanv[1]->get_w(), chanv[1]->get_h()));
         }
         if (chanc > 2 && frusc > 2)
         {
             chanv[2]->bind_color(GL_TEXTURE2);
-            program->uniform(   "P[2]", frusta[2]->get_perspective(), false);
+            program->uniform(   "P[2]", frusta[2]->get_transform(), false);
             program->uniform("size[2]", vec2(chanv[2]->get_w(), chanv[2]->get_h()));
         }
         if (chanc > 3 && frusc > 3)
         {
             chanv[3]->bind_color(GL_TEXTURE3);
-            program->uniform(   "P[3]", frusta[3]->get_perspective(), false);
+            program->uniform(   "P[3]", frusta[3]->get_transform(), false);
             program->uniform("size[3]", vec2(chanv[3]->get_w(), chanv[3]->get_h()));
         }
 

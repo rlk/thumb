@@ -30,13 +30,13 @@ dpy::interlace::interlace(app::node p) :
 
     if (app::node n = p.find("frustum"))
     {
-        frustL = new app::frustum(n);
-        frustR = new app::frustum(n);
+        frustL = new app::calibrated_frustum(n);
+        frustR = new app::calibrated_frustum(n);
     }
     else
     {
-        frustL = new app::frustum(0);
-        frustR = new app::frustum(0);
+        frustL = new app::calibrated_frustum(0);
+        frustR = new app::calibrated_frustum(0);
     }
 }
 
@@ -71,8 +71,8 @@ void dpy::interlace::prep(int chanc, const dpy::channel *const *chanv)
 
     // Apply the channel view positions to the frustums.
 
-    if (chanc > 0) frustL->set_viewpoint(chanv[0]->get_p());
-    if (chanc > 1) frustR->set_viewpoint(chanv[1]->get_p());
+    if (chanc > 0) frustL->set_eye(chanv[0]->get_p());
+    if (chanc > 1) frustR->set_eye(chanv[1]->get_p());
 }
 
 void dpy::interlace::draw(int chanc, const dpy::channel * const *chanv, int frusi)

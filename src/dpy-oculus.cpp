@@ -59,9 +59,6 @@ dpy::oculus::oculus(app::node p) :
 {
     using namespace OVR::Util::Render;
 
-    // Instantiate a view frustum object for later use in view culling.
-
-    frust = new app::frustum(0);
     chani = p.get_i("channel");
 
     // Initialize LibOVR if not already done.
@@ -126,8 +123,10 @@ dpy::oculus::oculus(app::node p) :
         else
             P = getMatrix4f(Stereo.GetEyeRenderParams(StereoEye_Left).Projection);
 
-        frust->set_projection(P);
+        frust = new app::perspective_frustum(P);
     }
+    else
+        frust = new app::calibrated_frustum(0);
 }
 
 dpy::oculus::~oculus()
@@ -189,11 +188,6 @@ void dpy::oculus::prep(int chanc, const dpy::channel *const *chanv)
     // Set the tracking matrix.
 
     ::view->set_tracking(T);
-
-    // Set the view point for this channel (probably unnecessary for Oculus).
-
-    if (chani < chanc)
-        frust->set_viewpoint(chanv[chani]->get_p());
 }
 
 void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)

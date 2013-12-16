@@ -28,9 +28,9 @@ dpy::normal::normal(app::node p) : display(p), frust(0), program(0)
     // Check the display definition for a frustum, or create a default
 
     if (app::node n = p.find("frustum"))
-        frust = new app::frustum(n);
+        frust = new app::calibrated_frustum(n);
     else
-        frust = new app::frustum(0);
+        frust = new app::calibrated_frustum(0);
 
     // Note the channel index.
 
@@ -65,7 +65,7 @@ void dpy::normal::prep(int chanc, const dpy::channel *const *chanv)
     // Apply the channel view position to the frustum.
 
     if (chani < chanc)
-        frust->set_viewpoint(chanv[chani]->get_p());
+        frust->set_eye(chanv[chani]->get_p());
 }
 
 void dpy::normal::draw(int chanc, const dpy::channel *const *chanv, int frusi)

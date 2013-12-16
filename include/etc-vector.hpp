@@ -104,6 +104,7 @@ struct vec4
         v[2] = a[2];
         v[3] = b;
     }
+    vec4(const vec3&, const vec3&, const vec3&);
 
     operator const double*() const
     {
@@ -681,6 +682,11 @@ inline quat slerp(const quat& q, const quat& p, double t)
     else return q;
 }
 
+inline vec3 project(const vec4& v)
+{
+    return vec3(v[0] / v[3], v[1] / v[3], v[2] / v[3]);
+}
+
 //------------------------------------------------------------------------------
 
 /// Drop the fourth component of a vec4. (This conforms to GLSL.)
@@ -690,6 +696,19 @@ inline vec3::vec3(const vec4& w)
     v[0] = w[0];
     v[1] = w[1];
     v[2] = w[2];
+}
+
+/// Construct a plane equation from three points.
+
+inline vec4::vec4(const vec3& a, const vec3& b, const vec3& c)
+{
+    vec3   n = normal(cross(b - a, c - a));
+    double d = n * a;
+
+    v[0] = n[0];
+    v[1] = n[1];
+    v[2] = n[2];
+    v[3] =   -d;
 }
 
 /// Construct a quaternion from rotation matrix M.

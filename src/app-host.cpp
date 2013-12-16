@@ -171,9 +171,9 @@ app::host::host(app::prog *p, std::string filename,
                 if (app::node o = n.find("overlay"))
                 {
                     if (app::node c = o.find("frustum"))
-                        overlay = new app::frustum(c);
+                        overlay = new app::calibrated_frustum(c);
                     else
-                        overlay = new app::frustum(0);
+                        overlay = new app::calibrated_frustum(0);
                 }
 
             // Determine the globally-defined overlay area.
@@ -182,9 +182,9 @@ app::host::host(app::prog *p, std::string filename,
                 if (app::node o = p.find("overlay"))
                 {
                     if (app::node c = o.find("frustum"))
-                        overlay = new app::frustum(c);
+                        overlay = new app::calibrated_frustum(c);
                     else
-                        overlay = new app::frustum(0);
+                        overlay = new app::calibrated_frustum(0);
                 }
 
             // Start the network syncronization.
@@ -200,11 +200,6 @@ app::host::host(app::prog *p, std::string filename,
 
     if (channels.empty()) channels.push_back(new dpy::channel(0));
     if (displays.empty()) displays.push_back(new dpy::direct (0));
-
-    // If no overlay has been defined, clone the first display frustum.
-
-    if (overlay == 0)
-        overlay = new app::frustum(*(displays.front()->get_overlay()));
 
     // Wait until all clients have connected.
 
@@ -701,7 +696,7 @@ void app::host::draw()
     // Cache the transformed frustum planes (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_transform(::view->get_transform());
+        (*i)->set_view(::view->get_transform());
 
     // Determine visibility (moderately expensive).
 
@@ -710,7 +705,7 @@ void app::host::draw()
     // Cache the frustum projections (cheap).
 
     for (app::frustum_i i = frustums.begin(); i != frustums.end(); ++i)
-        (*i)->set_distances(bound);
+        (*i)->set_bound(::view->get_transform(), bound);
 
     // Perform the lighting prepass (possibly expensive).
 

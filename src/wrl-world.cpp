@@ -944,7 +944,7 @@ void wrl::world::shadow(int id, const app::frustum *frusp, int i)
                        0.0, 0.0, 0.5, 0.5,
                        0.0, 0.0, 0.0, 1.0);
 
-    uniform_shadow[i]->set(light_S * frusp->get_perspective()
+    uniform_shadow[i]->set(light_S * frusp->get_transform()
                                   * ::view->get_transform());
 }
 
@@ -987,7 +987,7 @@ int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
 
         // Render a shadow map encompasing this bound.
 
-        app::frustum frust(bound, v);
+        app::orthogonal_frustum frust(bound, v);
         fill_pool->view(frusc + index + i, frust.get_planes(), 5);
         // TODO: set the frustum distances to bound the light's view volume
         shadow(frusc + index + i, &frust, index + i);

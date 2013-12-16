@@ -46,12 +46,12 @@ dpy::lenticular::lenticular(app::node p) :
     for (i = 0; i < channels; ++i)
         if (app::node n = p.find("frustum"))
         {
-            frust.push_back(new app::frustum(n));
+            frust.push_back(new app::calibrated_frustum(n));
             slice.push_back(slice_param(0.85));
         }
         else
         {
-            frust.push_back(new app::frustum(n));
+            frust.push_back(new app::calibrated_frustum(n));
             slice.push_back(slice_param(0.85));
         }
 
@@ -113,7 +113,7 @@ void dpy::lenticular::prep(int chanc, const dpy::channel *const *chanv)
     // Apply the channel view positions to the frustums.
 
     for (int i = 0; i < channels && i < chanc; ++i)
-        frust[i]->set_viewpoint(chanv[i]->get_p() * debug);
+        frust[i]->set_eye(chanv[i]->get_p() * debug);
 }
 
 void dpy::lenticular::draw(int chanc, const dpy::channel *const *chanv, int frusi)
