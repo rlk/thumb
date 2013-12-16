@@ -98,6 +98,7 @@ void app::frustum::cache_basis()
 void app::frustum::cache_planes(const mat4& A)
 {
     const mat4 B = transpose(inverse(A));
+    // const mat4 B = transpose(A);
 
     plane[0] = B * vec4(-1,  0,  0,  1); // N
     plane[1] = B * vec4( 1,  0,  0,  1); // L
@@ -105,6 +106,13 @@ void app::frustum::cache_planes(const mat4& A)
     plane[3] = B * vec4( 0,  1,  0,  1); // B
     plane[4] = B * vec4( 0, -1,  0,  1); // T
     plane[5] = B * vec4( 1,  0,  0,  1); // F
+
+
+    printf("0 = %f %f %f %f\n", plane[0][0], plane[0][1], plane[0][2], plane[0][3]);
+    printf("1 = %f %f %f %f\n", plane[1][0], plane[1][1], plane[1][2], plane[1][3]);
+    printf("2 = %f %f %f %f\n", plane[2][0], plane[2][1], plane[2][2], plane[2][3]);
+    printf("3 = %f %f %f %f\n", plane[3][0], plane[3][1], plane[3][2], plane[3][3]);
+    printf("4 = %f %f %f %f\n", plane[4][0], plane[4][1], plane[4][2], plane[4][3]);
 }
 
 // Calculate and store the corner vectors of the transformed frustum.
@@ -133,8 +141,8 @@ bool app::frustum::pointer_to_3D(event *E, double s, double t) const
 
     const mat4 I = inverse(get_transform());
 
-    vec3 a = I * vec4(2 * s - 1, 2 * t - 1, -1);
-    vec3 b = I * vec4(2 * s - 1, 2 * t - 1,  1);
+    vec3 a = I * vec3(2 * s - 1, 2 * t - 1, -1);
+    vec3 b = I * vec3(2 * s - 1, 2 * t - 1,  1);
 
     // Find a basis oriented along the resulting vector.
 

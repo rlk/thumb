@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <iterator>
 #include <iostream>
+#include <cassert>
 
 #include <etc-vector.hpp>
 #include <etc-ode.hpp>
@@ -363,6 +364,15 @@ void wrl::world::play_fini()
 
 void wrl::world::edit_pick(const vec3& p, const vec3& v)
 {
+    // These assertions head off a variety of difficult-to-track issues.
+
+    assert(!std::isnan(p[0]));
+    assert(!std::isnan(p[1]));
+    assert(!std::isnan(p[2]));
+    assert(!std::isnan(v[0]));
+    assert(!std::isnan(v[1]));
+    assert(!std::isnan(v[2]));
+
     // Apply the pointer position and vector to the picking ray.
 
     dGeomRaySet(edit_point, p[0], p[1], p[2], v[0], v[1], v[2]);
@@ -943,6 +953,8 @@ void wrl::world::shadow(int id, const app::frustum *frusp, int i)
                        0.0, 0.5, 0.0, 0.5,
                        0.0, 0.0, 0.5, 0.5,
                        0.0, 0.0, 0.0, 1.0);
+
+    // TODO: view->get_transform is probably incorrect
 
     uniform_shadow[i]->set(light_S * frusp->get_transform()
                                   * ::view->get_transform());

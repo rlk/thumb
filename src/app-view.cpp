@@ -33,13 +33,13 @@ void app::view::go_home()
 
 vec3 app::view::get_point_pos(const vec3& p) const
 {
-    const mat4 M = get_transform();
+    const mat4 M = get_inverse();
     return vec3(M * vec4(p, 1));
 }
 
 vec3 app::view::get_point_vec(const quat& q) const
 {
-    const mat4 M = transpose(get_inverse());
+    const mat4 M = transpose(get_transform());
     const vec3 v = -zvector(mat3(q));
     return vec3(M * vec4(v, 0));
 }
@@ -64,19 +64,19 @@ void app::view::set_orientation(const quat& q)
 
 //-----------------------------------------------------------------------------
 
-mat4 app::view::get_transform() const
+mat4 app::view::get_inverse() const
 {
     return translation(position) * mat4(mat3(orientation)) * tracking;
 }
 
-mat4 app::view::get_inverse() const
+mat4 app::view::get_transform() const
 {
-    return inverse(get_transform());
+    return inverse(get_inverse());
 }
 
 void app::view::load_transform() const
 {
-    glLoadMatrixd(transpose(get_inverse()));
+    glLoadMatrixd(transpose(get_transform()));
 }
 
 //-----------------------------------------------------------------------------

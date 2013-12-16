@@ -92,10 +92,11 @@ void demo::prep_uniforms() const
     const mat4 M = ::view->get_transform();
 
     // Set the viewing uniforms
+    // TODO: these are almost entirely HACKs
 
-    uniform_view_matrix  ->set(I);
-    uniform_view_inverse ->set(M);
-    uniform_view_position->set(wvector(M));
+    uniform_view_matrix  ->set(M);
+    uniform_view_inverse ->set(I);
+    uniform_view_position->set(wvector(I));
 
     uniform_color_max->set(vec4(0.0, 0.0, 0.0, 0.0));
 
