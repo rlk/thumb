@@ -403,7 +403,9 @@ cnt::control::control(wrl::world *W, int w, int h)
 
     root->layup();
     root->laydn((w - root->get_w()) / 2,
-                (h - root->get_h()) / 2, root->get_w(), root->get_h());
+                (h - root->get_h()) / 2,
+                     root->get_w(),
+                     root->get_h());
 }
 
 //-----------------------------------------------------------------------------

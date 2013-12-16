@@ -887,7 +887,7 @@ ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
     ogl::aabb bb;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        bb.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
+        bb.merge(fill_pool->view(frusi, frusv[frusi]->get_world_planes(), 5));
 
     fill_bound = bb;
 
@@ -905,7 +905,7 @@ ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
     ogl::aabb bb;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        bb.merge(line_pool->view(frusi, frusv[frusi]->get_planes(), 5));
+        bb.merge(line_pool->view(frusi, frusv[frusi]->get_world_planes(), 5));
 
     return bb;
 }
@@ -988,7 +988,7 @@ int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
         // Render a shadow map encompasing this bound.
 
         app::orthogonal_frustum frust(bound, v);
-        fill_pool->view(frusc + index + i, frust.get_planes(), 5);
+        fill_pool->view(frusc + index + i, frust.get_world_planes(), 5);
         // TODO: set the frustum distances to bound the light's view volume
         shadow(frusc + index + i, &frust, index + i);
     }
@@ -999,10 +999,10 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
     // Determine the visible bounding volume. TODO: Remove this redundancy.
 
-    ogl::aabb visible;
+    ogl::aabb bb;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        visible.merge(fill_pool->view(frusi, frusv[frusi]->get_planes(), 5));
+        bb.merge(fill_pool->view(frusi, frusv[frusi]->get_world_planes(), 5));
 
     // Enumerate the light sources.
 
@@ -1013,8 +1013,8 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
     {
         switch ((*a)->priority())
         {
-            case -1: i += s_light(frusc, frusv, i, visible, *a); break;
-            case -2: i += d_light(frusc, frusv, i, visible, *a); break;
+            case -1: i += s_light(frusc, frusv, i, bb, *a); break;
+            case -2: i += d_light(frusc, frusv, i, bb, *a); break;
             default: return;
         }
     }
@@ -1100,11 +1100,11 @@ void wrl::world::draw_sky(const app::frustum *frusp)
 
     glEnable(GL_POLYGON_OFFSET_FILL);
     {
-        const vec3 vp = frusp->get_view_pos();
-        const vec3 v0 = frusp->get_points()[0] - vp;
-        const vec3 v1 = frusp->get_points()[1] - vp;
-        const vec3 v2 = frusp->get_points()[2] - vp;
-        const vec3 v3 = frusp->get_points()[3] - vp;
+        const vec3 *v = frusp->get_world_points();
+        const vec3 v0 = v[4] - v[0];
+        const vec3 v1 = v[5] - v[1];
+        const vec3 v2 = v[6] - v[2];
+        const vec3 v3 = v[7] - v[3];
 
         // Draw the far plane of the clip space, offset by one unit of
         // depth buffer distance.  Pass the world-space vectors from the

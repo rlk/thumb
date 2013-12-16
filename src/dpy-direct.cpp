@@ -32,7 +32,7 @@ dpy::direct::direct(app::node p) : display(p), frust(0)
     if (app::node n = p.find("frustum"))
         frust = new app::calibrated_frustum(n);
     else
-        frust = new app::calibrated_frustum(0);
+        frust = new app::calibrated_frustum();
 
     // Note the channel index.
 
@@ -61,7 +61,7 @@ void dpy::direct::get_frusv(app::frustum **frusv) const
 void dpy::direct::prep(int chanc, const dpy::channel *const *chanv)
 {
     if (chani < chanc)
-        frust->set_eye(chanv[chani]->get_p());
+        frust->set_eye(chanv[chani]->get_eye());
 }
 
 void dpy::direct::draw(int chanc, const dpy::channel *const *chanv, int frusi)

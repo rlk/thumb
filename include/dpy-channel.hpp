@@ -46,9 +46,9 @@ namespace dpy
 
         void set_head(const vec3&, const quat&);
 
-        int  get_w() const { return w; }
-        int  get_h() const { return h; }
-        vec3 get_p() const { return p; }
+        vec3 get_eye()    const { return p; }
+        int  get_width()  const { return w; }
+        int  get_height() const { return h; }
 
         // Rendering methods
 
@@ -82,8 +82,8 @@ namespace dpy
         int w;                    // Off-screen render target width
         int h;                    // Off-screen render target height
 
-        vec3 v;                   // View position, in head coordinates
-        vec3 p;                   // View position, in user coordinates (cache)
+        vec3 v;                   // Eye position, in head coordinates
+        vec3 p;                   // Eye position, in user coordinates (cache)
 
         GLubyte c[4];             // Calibration target color
 

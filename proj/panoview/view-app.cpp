@@ -626,8 +626,8 @@ void view_app::gui_draw()
         {
             glLoadIdentity();
             overlay->apply_overlay();
-            glScaled(overlay->get_w() / gui_w,
-                     overlay->get_h() / gui_h, 1.0);
+            glScaled(overlay->get_width() / gui_w,
+                     overlay->get_height() / gui_h, 1.0);
             gui->draw();
         }
         glDisable(GL_DEPTH_CLAMP);

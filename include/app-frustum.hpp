@@ -62,17 +62,22 @@ namespace app
 
         // Queries
 
-        virtual mat4  get_transform() const = 0;
         virtual void load_transform() const;
+        virtual mat4  get_transform() const = 0;
 
-        const vec4 *get_planes() const { return plane; }
-        const vec3 *get_points() const { return point; }
+        const vec4 *get_world_planes() const { return plane;  }
+        const vec3 *get_world_points() const { return point;  }
+        const vec3 *get_corners()      const { return corner; }
+        const vec3  get_eye()          const { return eye;    }
+
+        double get_width()  const { return length(corner[1] - corner[0]); }
+        double get_height() const { return length(corner[2] - corner[0]); }
 
         // Event handlers
 
         virtual bool pointer_to_3D(event *, double,  double)  const;
         virtual bool pointer_to_2D(event *, double&, double&) const;
-        virtual bool process_event(event *);
+        virtual bool process_event(event *) { return false; }
 
         // Parallel-split handlers
 
@@ -121,9 +126,9 @@ namespace app
     {
     public:
 
-        perspective_frustum();
-        perspective_frustum(const mat4&);
         perspective_frustum(const vec3&, const vec3&, double, double);
+        perspective_frustum(const mat4&);
+        perspective_frustum();
 
         virtual mat4 get_transform() const;
     };
@@ -135,6 +140,7 @@ namespace app
     public:
 
         calibrated_frustum(app::node);
+        calibrated_frustum();
 
         virtual bool process_event(event *);
 

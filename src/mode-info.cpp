@@ -66,9 +66,9 @@ ogl::aabb mode::info::prep(int frusc, const app::frustum *const *frusv)
 
 void mode::info::draw(int frusi, const app::frustum *frusp)
 {
-    const app::frustum *overlay = ::host->get_overlay();
-
     assert(world);
+
+    // Draw the world.
 
      frusp->load_transform();
     ::view->load_transform();
@@ -76,18 +76,31 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
     world->draw_fill(frusi, frusp);
     world->draw_line(frusi, frusp);
 
-    if (overlay)
+    // Draw the GUI.
+
+    const app::frustum *overlay = ::host->get_overlay();
+
+    if (overlay == 0)
+        overlay = frusp;
+
+    glEnable(GL_DEPTH_CLAMP_NV);
     {
-        glEnable(GL_DEPTH_CLAMP_NV);
-        {
-            glLoadIdentity();
-            overlay->apply_overlay();
-            glScaled(overlay->get_w() / gui_w,
-                     overlay->get_h() / gui_h, 1.0);
-            gui->draw();
-        }
-        glDisable(GL_DEPTH_CLAMP_NV);
+        const vec3 *p = overlay->get_corners();
+
+        const double w = length(p[1] - p[0]) / gui_w;
+        const double h = length(p[2] - p[0]) / gui_h;
+        const vec3   x = normal(p[1] - p[0]);
+        const vec3   y = normal(p[2] - p[0]);
+        const vec3   z = normal(cross(x, y));
+
+        mat4 T = translation(p[0])
+               *   transpose(mat3(x, y, z))
+               *       scale(vec3(w, h, 1));
+
+        glLoadMatrixd(transpose(T));
+        gui->draw();
     }
+    glDisable(GL_DEPTH_CLAMP_NV);
 }
 
 //-----------------------------------------------------------------------------

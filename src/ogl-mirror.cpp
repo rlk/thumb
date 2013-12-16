@@ -56,11 +56,11 @@ void ogl::mirror::draw(const app::frustum *frusp)
         glEnable(GL_BLEND);
         glEnable(GL_POLYGON_OFFSET_FILL);
         {
-            const vec3 vp = frusp->get_view_pos();
-            const vec3 v0 = frusp->get_points()[0] - vp;
-            const vec3 v1 = frusp->get_points()[1] - vp;
-            const vec3 v2 = frusp->get_points()[2] - vp;
-            const vec3 v3 = frusp->get_points()[3] - vp;
+            const vec3 *v = frusp->get_world_points();
+            const vec3 v0 = v[4] - v[0];
+            const vec3 v1 = v[5] - v[1];
+            const vec3 v2 = v[6] - v[2];
+            const vec3 v3 = v[7] - v[3];
 
             // Draw the far plane of the clip space, offset by one unit of
             // depth buffer distance.  Pass the world-space vectors from the

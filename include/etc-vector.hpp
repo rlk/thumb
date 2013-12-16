@@ -267,6 +267,13 @@ inline vec3 cross(const vec3& v, const vec3& w)
                 v[0] * w[1] - v[1] * w[0]);
 }
 
+/// Project a homogeneous 4-compenent vector to a 3-component vector.
+
+inline vec3 project(const vec4& v)
+{
+    return vec3(v[0] / v[3], v[1] / v[3], v[2] / v[3]);
+}
+
 //------------------------------------------------------------------------------
 
 /// Calculate the quaternion sum of q and p.
@@ -336,7 +343,10 @@ inline vec3 operator*(const mat3& A, const vec3& v)
 
 inline vec3 operator*(const mat4& A, const vec3& v)
 {
-    return vec3(A[0] * vec4(v, 1), A[1] * vec4(v, 1), A[2] * vec4(v, 1));
+    return project(vec4(A[0] * vec4(v, 1),
+                        A[1] * vec4(v, 1),
+                        A[2] * vec4(v, 1),
+                        A[3] * vec4(v, 1)));
 }
 
 /// Calculate the 4-component transform of vector v by 4-matrix A.
@@ -680,11 +690,6 @@ inline quat slerp(const quat& q, const quat& p, double t)
             return q * u - p * v;
     }
     else return q;
-}
-
-inline vec3 project(const vec4& v)
-{
-    return vec3(v[0] / v[3], v[1] / v[3], v[2] / v[3]);
 }
 
 //------------------------------------------------------------------------------

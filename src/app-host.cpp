@@ -173,7 +173,7 @@ app::host::host(app::prog *p, std::string filename,
                     if (app::node c = o.find("frustum"))
                         overlay = new app::calibrated_frustum(c);
                     else
-                        overlay = new app::calibrated_frustum(0);
+                        overlay = new app::calibrated_frustum();
                 }
 
             // Determine the globally-defined overlay area.
@@ -184,7 +184,7 @@ app::host::host(app::prog *p, std::string filename,
                     if (app::node c = o.find("frustum"))
                         overlay = new app::calibrated_frustum(c);
                     else
-                        overlay = new app::calibrated_frustum(0);
+                        overlay = new app::calibrated_frustum();
                 }
 
             // Start the network syncronization.

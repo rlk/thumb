@@ -249,9 +249,9 @@ ogl::aabb wrl::constraint::prep(int frusc, const app::frustum *const *frusv)
 
     for (int frusi = 0; frusi < frusc; ++frusi)
         if (mode)
-            b.merge(rot[grid]->view(frusi, frusv[frusi]->get_planes(), 5));
+            b.merge(rot[grid]->view(frusi, frusv[frusi]->get_world_planes(), 5));
         else
-            b.merge(pos[grid]->view(frusi, frusv[frusi]->get_planes(), 5));
+            b.merge(pos[grid]->view(frusi, frusv[frusi]->get_world_planes(), 5));
 
     return b;
 }

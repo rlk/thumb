@@ -35,8 +35,8 @@ dpy::interlace::interlace(app::node p) :
     }
     else
     {
-        frustL = new app::calibrated_frustum(0);
-        frustR = new app::calibrated_frustum(0);
+        frustL = new app::calibrated_frustum();
+        frustR = new app::calibrated_frustum();
     }
 }
 
@@ -71,8 +71,8 @@ void dpy::interlace::prep(int chanc, const dpy::channel *const *chanv)
 
     // Apply the channel view positions to the frustums.
 
-    if (chanc > 0) frustL->set_eye(chanv[0]->get_p());
-    if (chanc > 1) frustR->set_eye(chanv[1]->get_p());
+    if (chanc > 0) frustL->set_eye(chanv[0]->get_eye());
+    if (chanc > 1) frustR->set_eye(chanv[1]->get_eye());
 }
 
 void dpy::interlace::draw(int chanc, const dpy::channel * const *chanv, int frusi)
@@ -105,10 +105,10 @@ void dpy::interlace::draw(int chanc, const dpy::channel * const *chanv, int frus
         {
             program->bind();
             {
-                fill(frustL->get_w(),
-                     frustL->get_h(),
-                     chanv[0]->get_w(),
-                     chanv[0]->get_h());
+                fill(frustL->get_width(),
+                     frustL->get_height(),
+                     chanv[0]->get_width(),
+                     chanv[0]->get_height());
             }
             program->free();
         }
@@ -146,10 +146,10 @@ void dpy::interlace::test(int chanc, const dpy::channel *const *chanv, int index
         {
             program->bind();
             {
-                fill(frustL->get_w(),
-                     frustL->get_h(),
-                     chanv[0]->get_w(),
-                     chanv[0]->get_h());
+                fill(frustL->get_width(),
+                     frustL->get_height(),
+                     chanv[0]->get_width(),
+                     chanv[0]->get_height());
             }
             program->free();
         }

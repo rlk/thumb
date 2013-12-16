@@ -113,7 +113,7 @@ void dpy::lenticular::prep(int chanc, const dpy::channel *const *chanv)
     // Apply the channel view positions to the frustums.
 
     for (int i = 0; i < channels && i < chanc; ++i)
-        frust[i]->set_eye(chanv[i]->get_p() * debug);
+        frust[i]->set_eye(chanv[i]->get_eye() * debug);
 }
 
 void dpy::lenticular::draw(int chanc, const dpy::channel *const *chanv, int frusi)
@@ -344,8 +344,8 @@ void dpy::lenticular::apply_uniforms() const
         "[8]",  "[9]", "[10]", "[11]", "[12]", "[13]", "[14]", "[15]"
     };
 
-    const double w = frust[0]->get_w();
-    const double h = frust[0]->get_h();
+    const double w = frust[0]->get_width();
+    const double h = frust[0]->get_height();
     const double d = w / (3 * viewport[2]);
 
     // TODO: cache these uniform locations (in process_start).
@@ -358,6 +358,20 @@ void dpy::lenticular::apply_uniforms() const
 
     for (int i = 0; i < channels; ++i)
     {
+        // Calculate the transform coefficients.
+
+        const vec3 *c = frust[i]->get_corners();
+        const vec3  p = frust[i]->get_eye();
+
+        const vec3 m = mix(c[1], c[2], 0.5);
+        const vec3 x = normal(c[1] - c[0]);
+        const vec3 y = normal(c[2] - c[0]);
+        const vec3 z = normal(cross(x, y));
+
+        vec4 v = calc_transform(mat3(x, y, z) * (p - m));
+
+        // Calculate the linescreen function edges.
+
         const double e0 = 0.0;
         const double e6 = 1.0;
         const double e1 =      slice[i].step0;
@@ -366,7 +380,7 @@ void dpy::lenticular::apply_uniforms() const
         const double e4 = e5 - slice[i].step3;
         const double e3 = e4 - slice[i].step2;
 
-        vec4 v = calc_transform(frust[i]->get_disp_pos());
+        // Set all uniform values.
 
         program->uniform("coeff" + index[i], v);
         program->uniform("edge0" + index[i], vec3(e0, e0, e0));

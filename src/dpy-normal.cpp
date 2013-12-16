@@ -30,7 +30,7 @@ dpy::normal::normal(app::node p) : display(p), frust(0), program(0)
     if (app::node n = p.find("frustum"))
         frust = new app::calibrated_frustum(n);
     else
-        frust = new app::calibrated_frustum(0);
+        frust = new app::calibrated_frustum();
 
     // Note the channel index.
 
@@ -65,7 +65,7 @@ void dpy::normal::prep(int chanc, const dpy::channel *const *chanv)
     // Apply the channel view position to the frustum.
 
     if (chani < chanc)
-        frust->set_eye(chanv[chani]->get_p());
+        frust->set_eye(chanv[chani]->get_eye());
 }
 
 void dpy::normal::draw(int chanc, const dpy::channel *const *chanv, int frusi)
@@ -90,10 +90,10 @@ void dpy::normal::draw(int chanc, const dpy::channel *const *chanv, int frusi)
         {
             program->bind();
             {
-                fill(frust->get_w(),
-                     frust->get_h(),
-                     chanv[chani]->get_w(),
-                     chanv[chani]->get_h());
+                fill(frust->get_width(),
+                     frust->get_height(),
+                     chanv[chani]->get_width(),
+                     chanv[chani]->get_height());
             }
             program->free();
         }
@@ -122,10 +122,10 @@ void dpy::normal::test(int chanc, const dpy::channel *const *chanv, int index)
         {
             program->bind();
             {
-                fill(frust->get_w(),
-                     frust->get_h(),
-                     chanv[chani]->get_w(),
-                     chanv[chani]->get_h());
+                fill(frust->get_width(),
+                     frust->get_height(),
+                     chanv[chani]->get_width(),
+                     chanv[chani]->get_height());
             }
             program->free();
         }

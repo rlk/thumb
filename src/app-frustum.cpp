@@ -25,7 +25,7 @@
 #if 1
 //-----------------------------------------------------------------------------
 
-app::frustum::frustum() : n(1), f(10)
+app::frustum::frustum() : n(1), f(100)
 {
 }
 
@@ -63,6 +63,8 @@ void app::frustum::set_eye(const vec3& p)
 
 void app::frustum::set_view(const mat4& V)
 {
+    n =   1.0;
+    f = 100.0;
     cache_planes(get_transform() * V);
 }
 
@@ -111,14 +113,14 @@ void app::frustum::cache_points(const mat4& A)
 {
     const mat4 B = inverse(A);
 
-    point[0] = B * vec4(-1, -1, -1,  1); // BLN
-    point[1] = B * vec4( 1, -1, -1,  1); // BRN
-    point[2] = B * vec4(-1,  1, -1,  1); // TLN
-    point[3] = B * vec4( 1,  1, -1,  1); // TRN
-    point[4] = B * vec4(-1, -1,  1,  1); // BLF
-    point[5] = B * vec4( 1, -1,  1,  1); // BRF
-    point[6] = B * vec4(-1,  1,  1,  1); // TLF
-    point[7] = B * vec4( 1,  1,  1,  1); // TRF
+    point[0] = B * vec3(-1, -1, -1); // BLN
+    point[1] = B * vec3( 1, -1, -1); // BRN
+    point[2] = B * vec3(-1,  1, -1); // TLN
+    point[3] = B * vec3( 1,  1, -1); // TRN
+    point[4] = B * vec3(-1, -1,  1); // BLF
+    point[5] = B * vec3( 1, -1,  1); // BRF
+    point[6] = B * vec3(-1,  1,  1); // TLF
+    point[7] = B * vec3( 1,  1,  1); // TRF
 }
 
 //-----------------------------------------------------------------------------
@@ -131,8 +133,8 @@ bool app::frustum::pointer_to_3D(event *E, double s, double t) const
 
     const mat4 I = inverse(get_transform());
 
-    vec3 a = project(I * vec4(s, t, -1, 1));
-    vec3 b = project(I * vec4(s, t,  1, 1));
+    vec3 a = I * vec4(2 * s - 1, 2 * t - 1, -1);
+    vec3 b = I * vec4(2 * s - 1, 2 * t - 1,  1);
 
     // Find a basis oriented along the resulting vector.
 
@@ -296,8 +298,15 @@ mat4 app::orthogonal_frustum::get_transform() const
 
 //-----------------------------------------------------------------------------
 
-app::perspective_frustum::perspective_frustum()
+// Construct a perspective projection with the given aspect ration and field of
+// view in degrees. Position it at point p looking in direction d. This is for
+// use in generating shadow maps for spot light sources.
+
+app::perspective_frustum::perspective_frustum(const vec3& p,
+                                              const vec3& v, double f, double a)
 {
+    // const double x = tan(to_radians(f / 2));
+    // const double y = x / a;
 }
 
 // Construct a simple frustum with the given projection.
@@ -314,16 +323,21 @@ app::perspective_frustum::perspective_frustum(const mat4& A)
     cache_basis();
 }
 
-// Construct a perspective projection with the given aspect ration and field of
-// view in degrees. Position it at point p looking in direction d. This is for
-// use in generating shadow maps for spot light sources.
+// Construct a default perspective frustum.
 
-app::perspective_frustum::perspective_frustum(const vec3& p,
-                                              const vec3& v, double f, double a)
+app::perspective_frustum::perspective_frustum()
 {
-    // const double x = tan(to_radians(f / 2));
-    // const double y = x / a;
+    double x = tan(to_radians(DEFAULT_HORZ_FOV / 2.0));
+    double y = x * double(DEFAULT_PIXEL_HEIGHT)
+                 / double(DEFAULT_PIXEL_WIDTH);
+
+    corner[0] = vec3(-x, -y, -1);
+    corner[1] = vec3( x, -y, -1);
+    corner[2] = vec3(-x,  y, -1);
+    corner[3] = vec3( x,  y, -1);
 }
+
+// Return a perspective projection matrix for this frustum.
 
 mat4 app::perspective_frustum::get_transform() const
 {
@@ -348,7 +362,11 @@ app::calibrated_frustum::calibrated_frustum(app::node n) : node(n)
     apply_calibration();
 }
 
-//-----------------------------------------------------------------------------
+// A default calibrated frustum is just a default perspective frustum.
+
+app::calibrated_frustum::calibrated_frustum()
+{
+}
 
 // Convert the current calibration to a transformation matrix.
 
@@ -510,8 +528,6 @@ void app::calibrated_frustum::load_calibration(calibration& C)
         }
     }
 }
-
-//-----------------------------------------------------------------------------
 
 bool app::calibrated_frustum::process_event(app::event *E)
 {

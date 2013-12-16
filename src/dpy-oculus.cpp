@@ -126,7 +126,7 @@ dpy::oculus::oculus(app::node p) :
         frust = new app::perspective_frustum(P);
     }
     else
-        frust = new app::calibrated_frustum(0);
+        frust = new app::calibrated_frustum();
 }
 
 dpy::oculus::~oculus()
@@ -210,14 +210,14 @@ void dpy::oculus::draw(int chanc, const dpy::channel * const *chanv, int frusi)
     {
         program->bind();
         {
-            int w = chanv[chani]->get_w();
-            int h = chanv[chani]->get_h();
+            int w = chanv[chani]->get_width();
+            int h = chanv[chani]->get_height();
 
             program->uniform("LensCenter", LensCenter);
             program->uniform("ImageSize",  vec2(w, h));
 
-            fill(frust->get_w(),
-                 frust->get_h(), w, h);
+            fill(frust->get_width(),
+                 frust->get_height(), w, h);
         }
         program->free();
     }
@@ -243,14 +243,14 @@ void dpy::oculus::test(int chanc, const dpy::channel *const *chanv, int index)
     {
         program->bind();
         {
-            int w = chanv[chani]->get_w();
-            int h = chanv[chani]->get_h();
+            int w = chanv[chani]->get_width();
+            int h = chanv[chani]->get_height();
 
             program->uniform("LensCenter", LensCenter);
             program->uniform("ImageSize",  vec2(w, h));
 
-            fill(frust->get_w(),
-                 frust->get_h(), w, h);
+            fill(frust->get_width(),
+                 frust->get_height(), w, h);
         }
         program->free();
     }
