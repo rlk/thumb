@@ -53,6 +53,9 @@ namespace ogl
         double ylength() const { return z[1] - a[1]; }
         double zlength() const { return z[2] - a[2]; }
 
+        double min(const vec4&) const;
+        double max(const vec4&) const;
+
         void dump()
         {
             printf("% 6.2f % 6.2f % 6.2f ... % 6.2f % 6.2f % 6.2f\n",
@@ -63,9 +66,6 @@ namespace ogl
 
         vec3 a;
         vec3 z;
-
-        double min(const vec4&) const;
-        double max(const vec4&) const;
     };
 }
 

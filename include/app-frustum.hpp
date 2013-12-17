@@ -58,7 +58,7 @@ namespace app
 
         virtual void set_eye  (const vec3&);
         virtual void set_view (const mat4&);
-        virtual void set_bound(const mat4&, const ogl::aabb&);
+        virtual void set_bound(const mat4&, const ogl::aabb&) = 0;
 
         // Queries
 
@@ -117,6 +117,8 @@ namespace app
 
         orthogonal_frustum(const ogl::aabb&, const vec3&);
 
+        virtual void set_bound(const mat4&, const ogl::aabb&);
+
         virtual mat4 get_transform() const;
     };
 
@@ -129,6 +131,8 @@ namespace app
         perspective_frustum(const vec3&, const vec3&, double, double);
         perspective_frustum(const mat4&);
         perspective_frustum();
+
+        virtual void set_bound(const mat4&, const ogl::aabb&);
 
         virtual mat4 get_transform() const;
     };

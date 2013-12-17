@@ -159,7 +159,7 @@ double ogl::aabb::get_distance(const vec3& p) const
     else         return a[0] - p[0];
 }
 #endif
-
+#if 0
 ogl::range ogl::aabb::get_range(const vec4& P) const
 {
     return range(min(P), max(P));
@@ -171,7 +171,7 @@ ogl::range ogl::aabb::get_range(const vec4& P, const mat4& M) const
 
     return range(min(T * P), max(T * P));
 }
-
+#endif
 //-----------------------------------------------------------------------------
 
 // These functions assume normalized plane equations.

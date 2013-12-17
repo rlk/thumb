@@ -68,21 +68,6 @@ void app::frustum::set_view(const mat4& V)
     cache_planes(get_transform() * V);
 }
 
-// Compute near and far clipping distances to enclose the given bound.
-
-void app::frustum::set_bound(const mat4& V, const ogl::aabb& bound)
-{
-    const vec3 d = vec3(plane[0][0], plane[0][1], plane[0][2]);
-    const vec3 p = wvector(inverse(V));
-
-    ogl::range range = bound.get_range(vec4(d, -(p * d)));
-
-    n = range.get_n();
-    f = range.get_f();
-
-    cache_points(get_transform() * V);
-}
-
 //-----------------------------------------------------------------------------
 
 // Cache the display coordinate system basis in user space.
@@ -292,11 +277,25 @@ app::orthogonal_frustum::orthogonal_frustum(const ogl::aabb& b, const vec3 &v)
     cache_planes(get_transform());
 }
 
+// Compute near and far clipping distances to enclose the given bound.
+
+void app::orthogonal_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
+{
+    const vec4 p = vec4(plane[0][0], plane[0][1], plane[0][2], 0);
+
+    n = bound.min(p);
+    f = bound.max(p);
+
+    cache_points(get_transform() * V);
+}
+
 mat4 app::orthogonal_frustum::get_transform() const
 {
-    return orthogonal(corner[0][0], corner[1][0],
-                      corner[0][1], corner[2][1], n, f) * transpose(basis)
-                                                        * translation(-eye);
+    double l = corner[0][0];
+    double r = corner[1][0];
+    double b = corner[0][1];
+    double t = corner[2][1];
+    return orthogonal(l, r, b, t, n, f) * transpose(basis) * translation(-eye);
 }
 
 //-----------------------------------------------------------------------------
@@ -338,6 +337,24 @@ app::perspective_frustum::perspective_frustum()
     corner[1] = vec3( x, -y, -1);
     corner[2] = vec3(-x,  y, -1);
     corner[3] = vec3( x,  y, -1);
+}
+
+// Compute near and far clipping distances to enclose the given bound.
+
+void app::perspective_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
+{
+    const vec3 d = vec3(plane[0][0], plane[0][1], plane[0][2]);
+    const vec3 e = wvector(inverse(V));
+
+    const vec4 p = vec4(d, -(d * e));
+
+    n = bound.min(p);
+    f = bound.max(p);
+
+    if (n < 0.1)
+        n = 0.1;
+
+    cache_points(get_transform() * V);
 }
 
 // Return a perspective projection matrix for this frustum.

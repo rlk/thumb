@@ -26,7 +26,7 @@ void app::view::go_home()
 {
     tracking    = mat4();
     orientation = quat();
-    position    = vec3(0.0, 4.0, 8.0);
+    position    = vec3(0.0, 4.0, 32.0);
 }
 
 //-----------------------------------------------------------------------------
