@@ -71,7 +71,7 @@ struct vec3
         v[1] = y;
         v[2] = z;
     }
-    vec3(const vec4&);
+    // vec3(const vec4&);
 
     operator const double*() const
     {
@@ -272,6 +272,22 @@ inline vec3 cross(const vec3& v, const vec3& w)
 inline vec3 project(const vec4& v)
 {
     return vec3(v[0] / v[3], v[1] / v[3], v[2] / v[3]);
+}
+
+//------------------------------------------------------------------------------
+
+/// Calculate the 4-component scalar quotient of v and k.
+
+inline vec4 operator/(const vec4& v, double k)
+{
+    return vec4(v[0] / k, v[1] / k, v[2] / k, v[3] / k);
+}
+
+/// Calculate the 4-component scalar product of v and k.
+
+inline vec4 operator*(const vec4& v, double k)
+{
+    return vec4(v[0] * k, v[1] * k, v[2] * k, v[3] * k);
 }
 
 //------------------------------------------------------------------------------
@@ -503,11 +519,20 @@ inline double length(const vec3 &v)
     return sqrt(v * v);
 }
 
-/// Compute the normalization of vector v.
+/// Compute the normalization of 3-vector v.
 
 inline vec3 normal(const vec3& v)
 {
     return v / length(v);
+}
+
+/// Compute the normalization of 4-vector v.
+
+inline vec4 normal(const vec4& v)
+{
+    return v / sqrt(v[0] * v[0] +
+                    v[1] * v[1] +
+                    v[2] * v[2]);
 }
 
 /// Compute the normalization of quaternion q;
@@ -695,14 +720,14 @@ inline quat slerp(const quat& q, const quat& p, double t)
 //------------------------------------------------------------------------------
 
 /// Drop the fourth component of a vec4. (This conforms to GLSL.)
-
+#if 0
 inline vec3::vec3(const vec4& w)
 {
     v[0] = w[0];
     v[1] = w[1];
     v[2] = w[2];
 }
-
+#endif
 /// Construct a plane equation from three points.
 
 inline vec4::vec4(const vec3& a, const vec3& b, const vec3& c)

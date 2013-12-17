@@ -74,6 +74,7 @@ app::node::node(mxml_node_t *p) :
 
 void app::node::dirty()
 {
+    abort();
     for (mxml_node_t *itr = ptr; itr; itr = itr->parent)
         itr->user_data = (void *) 1;
 }

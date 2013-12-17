@@ -618,8 +618,10 @@ void app::host::root_loop()
 
             // Call the render handler.
 
+            printf("\033[2J\033[1;1H");
             process_event(E.mk_draw());
             process_event(E.mk_swap());
+            fflush(stdout);
 
             // Count frames and record a movie, if requested.
 

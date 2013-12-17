@@ -33,15 +33,12 @@ void app::view::go_home()
 
 vec3 app::view::get_point_pos(const vec3& p) const
 {
-    const mat4 M = get_inverse();
-    return vec3(M * vec4(p, 1));
+    return get_inverse() * p;
 }
 
 vec3 app::view::get_point_vec(const quat& q) const
 {
-    const mat4 M = transpose(get_transform());
-    const vec3 v = -zvector(mat3(q));
-    return vec3(M * vec4(v, 0));
+    return transpose(get_transform()) * zvector(mat3(q));
 }
 
 //-----------------------------------------------------------------------------

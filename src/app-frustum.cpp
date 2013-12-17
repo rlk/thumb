@@ -72,7 +72,10 @@ void app::frustum::set_view(const mat4& V)
 
 void app::frustum::set_bound(const mat4& V, const ogl::aabb& bound)
 {
-    ogl::range range = bound.get_range(vec4(vec3(plane[0]), 0.0));
+    const vec3 d = vec3(plane[0][0], plane[0][1], plane[0][2]);
+    const vec3 p = wvector(inverse(V));
+
+    ogl::range range = bound.get_range(vec4(d, -(p * d)));
 
     n = range.get_n();
     f = range.get_f();
@@ -97,22 +100,14 @@ void app::frustum::cache_basis()
 
 void app::frustum::cache_planes(const mat4& A)
 {
-    const mat4 B = transpose(inverse(A));
-    // const mat4 B = transpose(A);
+    const mat4 B = transpose(A);
 
-    plane[0] = B * vec4(-1,  0,  0,  1); // N
-    plane[1] = B * vec4( 1,  0,  0,  1); // L
-    plane[2] = B * vec4(-1,  0,  0,  1); // R
-    plane[3] = B * vec4( 0,  1,  0,  1); // B
-    plane[4] = B * vec4( 0, -1,  0,  1); // T
-    plane[5] = B * vec4( 1,  0,  0,  1); // F
-
-
-    printf("0 = %f %f %f %f\n", plane[0][0], plane[0][1], plane[0][2], plane[0][3]);
-    printf("1 = %f %f %f %f\n", plane[1][0], plane[1][1], plane[1][2], plane[1][3]);
-    printf("2 = %f %f %f %f\n", plane[2][0], plane[2][1], plane[2][2], plane[2][3]);
-    printf("3 = %f %f %f %f\n", plane[3][0], plane[3][1], plane[3][2], plane[3][3]);
-    printf("4 = %f %f %f %f\n", plane[4][0], plane[4][1], plane[4][2], plane[4][3]);
+    plane[0] = normal(B * vec4( 0,  0,  1,  1)); // N
+    plane[1] = normal(B * vec4( 1,  0,  0,  1)); // L
+    plane[2] = normal(B * vec4(-1,  0,  0,  1)); // R
+    plane[3] = normal(B * vec4( 0,  1,  0,  1)); // B
+    plane[4] = normal(B * vec4( 0, -1,  0,  1)); // T
+    plane[5] = normal(B * vec4( 0,  0, -1,  1)); // F
 }
 
 // Calculate and store the corner vectors of the transformed frustum.
@@ -323,10 +318,10 @@ app::perspective_frustum::perspective_frustum(const mat4& A)
 {
     mat4 I = inverse(A);
 
-    corner[0] = I * vec4(-1, -1, -1,  1);
-    corner[1] = I * vec4( 1, -1, -1,  1);
-    corner[2] = I * vec4(-1,  1, -1,  1);
-    corner[3] = I * vec4( 1,  1, -1,  1);
+    corner[0] = I * vec3(-1, -1, -1);
+    corner[1] = I * vec3( 1, -1, -1);
+    corner[2] = I * vec3(-1,  1, -1);
+    corner[3] = I * vec3( 1,  1, -1);
 
     cache_basis();
 }
@@ -433,8 +428,8 @@ void app::calibrated_frustum::apply_calibration()
 
         if (app::node n = node.find("perspective"))
         {
-            hfov = n.get_f("hfov");
-            vfov = n.get_f("vfov");
+            hfov = n.get_f("hfov", DEFAULT_HORZ_FOV);
+            vfov = n.get_f("vfov", DEFAULT_VERT_FOV);
         }
     }
 
@@ -476,7 +471,7 @@ void app::calibrated_frustum::apply_calibration()
 
 // Extract the calibration from the serialization node.
 
-void app::calibrated_frustum::save_calibration(calibration& C)
+void app::calibrated_frustum::load_calibration(calibration& C)
 {
     // Assign defaults for any undefined parameters.
 
@@ -513,7 +508,7 @@ void app::calibrated_frustum::save_calibration(calibration& C)
 
 // Update the calibration in the serialization node.
 
-void app::calibrated_frustum::load_calibration(calibration& C)
+void app::calibrated_frustum::save_calibration(calibration& C)
 {
     if (node)
     {

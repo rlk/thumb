@@ -5,17 +5,6 @@
         <perspective hfov="60.0" vfov="35.0" />
       </frustum>
     </overlay>
-    <!-- 480x270 ---------------------------------------------------------- -->
-    <node name="480x270">
-      <window x="0" y="0" w="480" h="270"/>
-      <channel w="480" h="270"/>
-      <display type="direct">
-        <viewport x="0" y="0" w="480" h="270"/>
-        <frustum>
-          <perspective hfov="60.0" vfov="35.0"/>
-        </frustum>
-      </display>
-    </node>
     <!-- Oculus Rift Developer's Kit -------------------------------------- -->
     <node name="oculus-dk">
       <window x="0" y="0" w="1280" h="800" full="1"/>
@@ -45,6 +34,17 @@
       </display>
       <display type="oculus" channel="1">
         <viewport x="1280" y="0" w="1280" h="1600"/>
+      </display>
+    </node>
+    <!-- 512x512 ---------------------------------------------------------- -->
+    <node name="512x512">
+      <window x="0" y="0" w="512" h="512"/>
+      <channel w="512" h="512"/>
+      <display type="direct">
+        <viewport x="0" y="0" w="512" h="512"/>
+        <frustum>
+          <perspective hfov="90.0" vfov="90.0"/>
+        </frustum>
       </display>
     </node>
     <!-- 960x540 ---------------------------------------------------------- -->

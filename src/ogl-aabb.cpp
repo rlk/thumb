@@ -100,7 +100,7 @@ void ogl::aabb::intersect(const aabb& that)
 // Compute the shortest distance from point p to this axis-aligned bounding
 // box.  There are 27 possible configurations.  This logic can be optimized
 // down to a single cascade of if statements, but at cost to clarity.
-
+#if 0
 double ogl::aabb::get_distance(const vec3& p) const
 {
     const bool x1 = (p[0] > z[0]);
@@ -158,6 +158,7 @@ double ogl::aabb::get_distance(const vec3& p) const
     else if (x1) return p[0] - z[0];
     else         return a[0] - p[0];
 }
+#endif
 
 ogl::range ogl::aabb::get_range(const vec4& P) const
 {
@@ -172,6 +173,8 @@ ogl::range ogl::aabb::get_range(const vec4& P, const mat4& M) const
 }
 
 //-----------------------------------------------------------------------------
+
+// These functions assume normalized plane equations.
 
 bool ogl::aabb::test(const vec4 *V, int n) const
 {

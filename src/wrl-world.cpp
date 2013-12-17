@@ -1053,15 +1053,15 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
-#if 0
+
     ogl::line_state_init();
     {
-        lite_bound[0].draw();
-        lite_bound[1].draw();
-        lite_bound[2].draw();
+        // fill_bound.draw();
+        // lite_bound[0].draw();
+        // lite_bound[1].draw();
+        // lite_bound[2].draw();
     }
     ogl::line_state_fini();
-#endif
 }
 
 void wrl::world::draw_line(int frusi, const app::frustum *frusp)
