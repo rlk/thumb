@@ -4,15 +4,13 @@ uniform sampler2D       spec_map;
 uniform sampler2D       diff_map;
 uniform sampler2D       norm_map;
 
-uniform sampler2DShadow shadow[3];
+uniform sampler2DShadow shadow[4];
 
 varying vec4 fV;
 varying vec4 fL[4];
 varying vec3 fD[4];
 varying vec4 fS[4];
 
-const vec3 Kd = vec3(0.5, 0.5, 0.5);
-const vec3 Ks = vec3(1.0, 1.0, 1.0);
 const vec3 Ka = vec3(0.2, 0.2, 0.2);
 
 float splitc(float k, float n, float f)
@@ -42,11 +40,10 @@ void main()
     vec3 Cd = vec3(0.0);
     vec3 Cs = vec3(0.0);
 
-    for (int i = 0; i < 1; i++)
+    for (int i = 0; i < 4; i++)
     {
         // float k0 = gl_LightSource[i].ambient.x;
         // float k1 = gl_LightSource[i].ambient.y;
-
         float r =    length(fL[i].xyz - fV.xyz);
         vec3  L = normalize(fL[i].xyz - fV.xyz);
         vec3  D = normalize(fD[i]);
@@ -68,8 +65,8 @@ void main()
 
         float Ns = max(1.0, Ts.a * 64.0);
 
-        Cs += S * Ks * pow(max(dot(V, R), 0.0), Ns) * Ts.rgb * Cl.rgb;
-        Cd += S * Kd *     max(dot(L, N), 0.0)      * Td.rgb * Cl.rgb;
+        Cs += Cl.rgb * S * Ts.rgb * pow(max(dot(V, R), 0.0), Ns);
+        Cd += Cl.rgb * S * Td.rgb *     max(dot(L, N), 0.0);
     }
 
     gl_FragColor = vec4(Ca + Cd + Cs, Td.a);

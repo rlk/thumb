@@ -86,10 +86,11 @@ void wrl::atom::dead(dSpaceID space) const
 }
 
 //-----------------------------------------------------------------------------
+#include <app-view.hpp>
 
-double wrl::atom::set_lighting(int id, int i, int m, int w) const
+double wrl::atom::set_lighting(int light, int i, int m, int w) const
 {
-    const GLenum L = GL_LIGHT0 + id;
+    const GLenum L = GL_LIGHT0 + light;
 
     GLfloat d[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
     GLfloat a[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
@@ -127,9 +128,11 @@ double wrl::atom::set_lighting(int id, int i, int m, int w) const
     glLightfv(L, GL_AMBIENT, a);
 
     // Position and direction.
+    const mat4 M = ::view->get_transform();
+    const mat4 T = transpose(inverse(M));
 
-    const vec3 p = wvector(current_M);
-    const vec3 v = yvector(current_M);
+    const vec3 p = M * wvector(current_M);
+    const vec3 v = T * yvector(current_M);
 
     GLfloat P[4] = {  p[0],  p[1],  p[2], w };
     GLfloat V[4] = { -v[0], -v[1], -v[2], 0 };
