@@ -13,7 +13,7 @@ varying vec4 fS[4];
 
 const vec3 Kd = vec3(0.5, 0.5, 0.5);
 const vec3 Ks = vec3(1.0, 1.0, 1.0);
-const vec3 Ka = vec3(0.0, 0.0, 0.0);
+const vec3 Ka = vec3(0.2, 0.2, 0.2);
 
 float splitc(float k, float n, float f)
 {
@@ -47,30 +47,30 @@ void main()
         // float k0 = gl_LightSource[i].ambient.x;
         // float k1 = gl_LightSource[i].ambient.y;
 
-        float S = shadow2DProj(shadow[i], fS[i]).r;
-
+        float r =    length(fL[i].xyz - fV.xyz);
         vec3  L = normalize(fL[i].xyz - fV.xyz);
+        vec3  D = normalize(fD[i]);
         vec3  R = reflect(L, N);
 
-        float k = step(0.0, L.z);
+        float a = 1.0 / (gl_LightSource[i].constantAttenuation  +
+                         gl_LightSource[i].linearAttenuation    * r +
+                         gl_LightSource[i].quadraticAttenuation * r * r);
+
+        vec4  Cl = gl_LightSource[i].diffuse;
+        float Nl = gl_LightSource[i].spotExponent;
+        float Dl = gl_LightSource[i].spotCosCutoff;
+
+        float c = step(0.0, L.z)
+                *      pow(dot(L, -D), Nl)
+                * step(Dl, dot(L, -D));
+
+        float S = a * c * shadow2DProj(shadow[i], fS[i]).r;
 
         float Ns = max(1.0, Ts.a * 64.0);
 
-        Cs += S * k * Ks * pow(max(dot(V, R), 0.0), Ns) * Ts.rgb;
-        Cd += S * k * Kd *     max(dot(L, N), 0.0)      * Td.rgb;
+        Cs += S * Ks * pow(max(dot(V, R), 0.0), Ns) * Ts.rgb * Cl.rgb;
+        Cd += S * Kd *     max(dot(L, N), 0.0)      * Td.rgb * Cl.rgb;
     }
-
-    // float S  = 1.0;
-
-    // float z3 = splitz(1.000, n, f);
-    // float z2 = splitz(0.666, n, f);
-    // float z1 = splitz(0.333, n, f);
-
-    // S = S0;
-
-    // if (gl_FragCoord.z < z3) S = S2;
-    // if (gl_FragCoord.z < z2) S = S1;
-    // if (gl_FragCoord.z < z1) S = S0;
 
     gl_FragColor = vec4(Ca + Cd + Cs, Td.a);
 }

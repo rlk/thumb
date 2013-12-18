@@ -964,9 +964,9 @@ int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
     const vec3 p =  wvector(a->get_local());
     const vec3 v = -yvector(a->get_local());
 
-    double c = a->set_lighting(index, 0, 1, 1);
+    double f = 2.0 * a->set_lighting(index, 0, 1, 1);
 
-    app::perspective_frustum frust(p, v, c, 1.0);
+    app::perspective_frustum frust(p, v, f, 1.0);
     ogl::aabb b = fill_pool->view(frusc + index, frust.get_world_planes(), 5);
     frust.set_bound(mat4(), b);
     shadow(frusc + index, &frust, index);

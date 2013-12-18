@@ -128,11 +128,11 @@ double wrl::atom::set_lighting(int id, int i, int m, int w) const
 
     // Position and direction.
 
-    const vec3 p =  wvector(current_M);
-    const vec3 v = -yvector(current_M);
+    const vec3 p = wvector(current_M);
+    const vec3 v = yvector(current_M);
 
-    GLfloat P[4] = { p[0], p[1], p[2], w };
-    GLfloat V[4] = { v[0], v[1], v[2], 0 };
+    GLfloat P[4] = {  p[0],  p[1],  p[2], w };
+    GLfloat V[4] = { -v[0], -v[1], -v[2], 0 };
 
     glLightfv(L, GL_POSITION,       P);
     glLightfv(L, GL_SPOT_DIRECTION, V);

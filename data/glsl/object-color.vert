@@ -12,13 +12,14 @@ varying vec4 fS[4];
 
 void main()
 {
-    // Calculate the tangent space transform and its inverse.
+    // Calculate the tangent space transform and inverse.
 
     vec3 t = normalize(gl_NormalMatrix * Tangent);
     vec3 n = normalize(gl_NormalMatrix * gl_Normal);
 
     mat3 I = mat3(t, cross(n, t), n);
-    mat4 M = transpose(mat4(I));
+    mat3 T = transpose(I);
+    mat4 M = mat4(T);
 
     // Tangent-space fragment position.
 
@@ -33,10 +34,10 @@ void main()
 
     // Tangent-space light source direction
 
-    fD[0] = I * gl_LightSource[0].spotDirection;
-    fD[1] = I * gl_LightSource[1].spotDirection;
-    fD[2] = I * gl_LightSource[2].spotDirection;
-    fD[3] = I * gl_LightSource[3].spotDirection;
+    fD[0] = T * gl_LightSource[0].spotDirection;
+    fD[1] = T * gl_LightSource[1].spotDirection;
+    fD[2] = T * gl_LightSource[2].spotDirection;
+    fD[3] = T * gl_LightSource[3].spotDirection;
 
     // Shadow map texture coordinates
 

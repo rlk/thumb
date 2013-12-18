@@ -41,7 +41,7 @@ wrl::s_light::s_light() : light("solid/s-light.obj")
     params[GL_CONSTANT_ATTENUATION]  = new param("attenuation_constant",  "1.0");
     params[GL_LINEAR_ATTENUATION]    = new param("attenuation_linear",    "0.0");
     params[GL_QUADRATIC_ATTENUATION] = new param("attenuation_quadratic", "0.0");
-    params[GL_SPOT_EXPONENT]         = new param("spot_exponent",         "8.0");
+    params[GL_SPOT_EXPONENT]         = new param("spot_exponent",         "0.0");
     params[GL_SPOT_CUTOFF]           = new param("spot_cutoff",          "30.0");
 }
 
