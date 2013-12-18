@@ -17,7 +17,7 @@
       <rot_z>0.000000</rot_z>
       <rot_w>1.000000</rot_w>
       <pos_x>10.000000</pos_x>
-      <pos_y>15.000000</pos_y>
+      <pos_y>5.000000</pos_y>
       <pos_z>10.000000</pos_z>
     </light>
     <geom type="box">

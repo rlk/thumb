@@ -212,13 +212,26 @@ void ogl::mesh::add_line(GLuint i, GLuint j)
 
 //-----------------------------------------------------------------------------
 
-static void transform_GLvec3(GLfloat *v, const mat4& M, const GLfloat *u)
+static void transform_vertex(GLfloat *v, const mat4& M, const GLfloat *u)
 {
-    // Transform a GL vector using a double matrix.
+    // Transform a GL vertex using a double matrix.
 
-    vec3 t = M * vec3(double(u[0]),
+    vec4 t = M * vec4(double(u[0]),
                       double(u[1]),
-                      double(u[2]));
+                      double(u[2]), 1.0);
+
+    v[0] = GLfloat(t[0] / t[3]);
+    v[1] = GLfloat(t[1] / t[3]);
+    v[2] = GLfloat(t[2] / t[3]);
+}
+
+static void transform_normal(GLfloat *v, const mat4& M, const GLfloat *u)
+{
+    // Transform a GL vertex using a double matrix.
+
+    vec4 t = M * vec4(double(u[0]),
+                      double(u[1]),
+                      double(u[2]), 0.0);
 
     v[0] = GLfloat(t[0]);
     v[1] = GLfloat(t[1]);
@@ -243,9 +256,9 @@ void ogl::mesh::cache_verts(const ogl::mesh *that, const mat4& M,
 
     for (size_t i = 0; i < n; ++i)
     {
-        transform_GLvec3(vv[i].v,           M,  that->vv[i].v);
-        transform_GLvec3(nv[i].v, transpose(I), that->nv[i].v);
-        transform_GLvec3(tv[i].v, transpose(I), that->tv[i].v);
+        transform_vertex(vv[i].v,           M,  that->vv[i].v);
+        transform_normal(nv[i].v, transpose(I), that->nv[i].v);
+        transform_normal(tv[i].v, transpose(I), that->tv[i].v);
 
         uv[i] = that->uv[i];
 

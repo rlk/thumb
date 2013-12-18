@@ -1,31 +1,54 @@
+#version 120
 
 attribute vec3 Tangent;
 
-uniform mat4 shadow_matrix[3];
-uniform vec4 light_position;
+uniform mat4 ShadowMatrix[4];
 
-varying vec3 V_v;
-varying vec3 L_v;
+varying vec4 fV;
+varying vec4 fN;
+varying vec4 fL[4];
+varying vec3 fD[4];
+varying vec4 fS[4];
 
 void main()
 {
-    vec4 eye = gl_ModelViewMatrix * gl_Vertex;
+    // Calculate the tangent space transform and its inverse.
 
-    mat3 T;
+    vec3 t = normalize(gl_NormalMatrix * Tangent);
+    vec3 n = normalize(gl_NormalMatrix * gl_Normal);
 
-    T[2] = normalize(gl_NormalMatrix * gl_Normal);
-    T[0] = normalize(gl_NormalMatrix * Tangent);
-    T[1] = normalize(cross(T[2], T[0]));
+    mat3 I = mat3(t, cross(n, t), n);
+    mat4 M = transpose(mat4(I));
 
-    L_v = (gl_ModelViewMatrix * light_position).xyz * T;
-    V_v =            eye.xyz * T;
+    // Tangent-space fragment position.
 
-    // Diffuse and shadow map texture coordinates.
+    fV    = M * gl_ModelViewMatrix * gl_Vertex;
+
+    // Tangent-space light source position
+
+    fL[0] = M * gl_LightSource[0].position;
+    fL[1] = M * gl_LightSource[1].position;
+    fL[2] = M * gl_LightSource[2].position;
+    fL[3] = M * gl_LightSource[3].position;
+
+    // Tangent-space light source direction
+
+    fD[0] = I * gl_LightSource[0].spotDirection;
+    fD[1] = I * gl_LightSource[1].spotDirection;
+    fD[2] = I * gl_LightSource[2].spotDirection;
+    fD[3] = I * gl_LightSource[3].spotDirection;
+
+    // Shadow map texture coordinates
+
+    vec4 e = gl_ModelViewMatrix * gl_Vertex;
+
+    fS[0] = ShadowMatrix[0] * e;
+    fS[1] = ShadowMatrix[1] * e;
+    fS[2] = ShadowMatrix[2] * e;
+    fS[3] = ShadowMatrix[3] * e;
+
+    // Built-in vertex position and texture coordinate
 
     gl_TexCoord[0] = gl_MultiTexCoord0;
-    gl_TexCoord[1] = shadow_matrix[0] * eye;
-    gl_TexCoord[2] = shadow_matrix[1] * eye;
-    gl_TexCoord[3] = shadow_matrix[2] * eye;
-
-    gl_Position = ftransform();
+    gl_Position    = gl_ModelViewProjectionMatrix * gl_Vertex;
 }

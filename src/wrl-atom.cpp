@@ -87,6 +87,59 @@ void wrl::atom::dead(dSpaceID space) const
 
 //-----------------------------------------------------------------------------
 
+double wrl::atom::set_lighting(int id, int i, int m, int w) const
+{
+    const GLenum L = GL_LIGHT0 + id;
+
+    GLfloat d[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat a[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
+    double cutoff = 90.0;
+
+    // Extract all lighting-oriented parameters and pass them to OpenGL.
+
+    for (param_map::const_iterator i = params.begin(); i != params.end(); ++i)
+        switch (i->first)
+        {
+            case GL_RED:   d[0] = GLfloat(i->second->value()); break;
+            case GL_GREEN: d[1] = GLfloat(i->second->value()); break;
+            case GL_BLUE:  d[2] = GLfloat(i->second->value()); break;
+
+            case GL_SPOT_CUTOFF:
+
+                cutoff = i->second->value();
+
+            case GL_QUADRATIC_ATTENUATION:
+            case GL_CONSTANT_ATTENUATION:
+            case GL_LINEAR_ATTENUATION:
+            case GL_SPOT_EXPONENT:
+
+                glLightf(L, GLenum(i->first), GLfloat(i->second->value()));
+                break;
+        }
+
+    // Diffuse and ambient colors.
+
+    a[0] = GLfloat(i    ) / GLfloat(m);
+    a[1] = GLfloat(i + 1) / GLfloat(m);
+
+    glLightfv(L, GL_DIFFUSE, d);
+    glLightfv(L, GL_AMBIENT, a);
+
+    // Position and direction.
+
+    const vec3 p =  wvector(current_M);
+    const vec3 v = -yvector(current_M);
+
+    GLfloat P[4] = { p[0], p[1], p[2], w };
+    GLfloat V[4] = { v[0], v[1], v[2], 0 };
+
+    glLightfv(L, GL_POSITION,       P);
+    glLightfv(L, GL_SPOT_DIRECTION, V);
+
+    return cutoff;
+}
+
 void wrl::atom::get_surface(dSurfaceParameters& s)
 {
     // Merge this atom's surface parameters with the given structure.

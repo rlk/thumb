@@ -49,9 +49,12 @@ namespace wrl
         void live(dSpaceID) const;
         void dead(dSpaceID) const;
 
-        // Transform methods
+        // Parameter handlers
 
-        void get_surface(dSurfaceParameters&);
+        double set_lighting(int, int, int, int) const;
+        void   get_surface(dSurfaceParameters&);
+
+        // Transform methods
 
         mat4 get_world() const;
         mat4 get_local() const;

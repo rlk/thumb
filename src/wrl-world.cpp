@@ -64,9 +64,9 @@ wrl::world::world() :
     // Initialize the render uniforms and processes.
 
     uniform_light_position = ::glob->load_uniform("light_position",    4);
-    uniform_shadow[0]      = ::glob->load_uniform("shadow_matrix[0]", 16);
-    uniform_shadow[1]      = ::glob->load_uniform("shadow_matrix[1]", 16);
-    uniform_shadow[2]      = ::glob->load_uniform("shadow_matrix[2]", 16);
+    uniform_shadow[0]      = ::glob->load_uniform("ShadowMatrix[0]", 16);
+    uniform_shadow[1]      = ::glob->load_uniform("ShadowMatrix[1]", 16);
+    uniform_shadow[2]      = ::glob->load_uniform("ShadowMatrix[2]", 16);
     process_shadow[0]      = ::glob->load_process("shadow",            0);
     process_shadow[1]      = ::glob->load_process("shadow",            1);
     process_shadow[2]      = ::glob->load_process("shadow",            2);
@@ -954,8 +954,6 @@ void wrl::world::shadow(int id, const app::frustum *frusp, int i)
                        0.0, 0.0, 0.5, 0.5,
                        0.0, 0.0, 0.0, 1.0);
 
-    // TODO: view->get_transform is probably incorrect
-
     uniform_shadow[i]->set(light_S * frusp->get_transform()
                                   * ::view->get_inverse());
 }
@@ -963,10 +961,10 @@ void wrl::world::shadow(int id, const app::frustum *frusp, int i)
 int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
                         int index, const ogl::aabb& visible, const atom *a)
 {
-    vec3 p =  wvector(a->get_local());
-    vec3 v = -yvector(a->get_local());
+    const vec3 p =  wvector(a->get_local());
+    const vec3 v = -yvector(a->get_local());
 
-    float c = 30.0;
+    double c = a->set_lighting(index, 0, 1, 1);
 
     app::perspective_frustum frust(p, v, c, 1.0);
     ogl::aabb b = fill_pool->view(frusc + index, frust.get_world_planes(), 5);
@@ -979,14 +977,15 @@ int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
 int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
                         int index, const ogl::aabb& visible, const atom *a)
 {
-    vec3 v = wvector(a->get_local());
-
+    const vec3 v = -yvector(a->get_local());
     uniform_light_position->set(vec4(v, 0));
 
     int n = 3;
 
     for (int i = 0; i < n; i++)
     {
+        a->set_lighting(index + i, i, n, 0);
+
         // Compute the visible union of the bounds of this split.
 
         ogl::aabb bound;
@@ -1010,6 +1009,10 @@ int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
 
 void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
+    // Load the model-view so that light parameters are set in eye space.
+
+    ::view->load_transform();
+
     // Determine the visible bounding volume. TODO: Remove this redundancy.
 
     ogl::aabb bb;

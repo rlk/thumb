@@ -8,9 +8,9 @@
   <uniform name="view_matrix"      uniform="view_matrix"      size="16" />
   <uniform name="view_inverse"     uniform="view_inverse"     size="16" />
   <uniform name="light_position"   uniform="light_position"   size="4"  />
-  <uniform name="shadow_matrix[0]" uniform="shadow_matrix[0]" size="16" />
-  <uniform name="shadow_matrix[1]" uniform="shadow_matrix[1]" size="16" />
-  <uniform name="shadow_matrix[2]" uniform="shadow_matrix[2]" size="16" />
+  <uniform name="ShadowMatrix[0]" uniform="ShadowMatrix[0]" size="16" />
+  <uniform name="ShadowMatrix[1]" uniform="ShadowMatrix[1]" size="16" />
+  <uniform name="ShadowMatrix[2]" uniform="ShadowMatrix[2]" size="16" />
 
   <texture name="diff_map"          unit="0" />
   <texture name="spec_map"          unit="1" />

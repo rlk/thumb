@@ -10,10 +10,9 @@
     <process name="shadow[1]" unit="4" process="shadow" index="1" />
     <process name="shadow[2]" unit="5" process="shadow" index="2" />
 
-    <uniform name="light_position"   uniform="light_position"   size="4" />
-    <uniform name="shadow_matrix[0]" uniform="shadow_matrix[0]" size="16" />
-    <uniform name="shadow_matrix[1]" uniform="shadow_matrix[1]" size="16" />
-    <uniform name="shadow_matrix[2]" uniform="shadow_matrix[2]" size="16" />
+    <uniform name="ShadowMatrix[0]" uniform="ShadowMatrix[0]" size="16" />
+    <uniform name="ShadowMatrix[1]" uniform="ShadowMatrix[1]" size="16" />
+    <uniform name="ShadowMatrix[2]" uniform="ShadowMatrix[2]" size="16" />
 
     <attribute name="Tangent" location="6" />
   </program>

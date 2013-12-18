@@ -1,7 +1,7 @@
 
 attribute vec3 Tangent;
 
-uniform mat4 shadow_matrix[3];
+uniform mat4 ShadowMatrix[3];
 
 uniform mat4 view_matrix;
 uniform mat4 view_inverse;
@@ -27,9 +27,9 @@ void main()
     // Material and shadow map texture coordinates.
 
     gl_TexCoord[0] = gl_MultiTexCoord0;
-    gl_TexCoord[1] = shadow_matrix[0] * V_e;
-    gl_TexCoord[2] = shadow_matrix[1] * V_e;
-    gl_TexCoord[3] = shadow_matrix[2] * V_e;
+    gl_TexCoord[1] = ShadowMatrix[0] * V_e;
+    gl_TexCoord[2] = ShadowMatrix[1] * V_e;
+    gl_TexCoord[3] = ShadowMatrix[2] * V_e;
 
     gl_Position = ftransform();
 }

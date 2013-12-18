@@ -26,7 +26,7 @@ ogl::shadow::shadow(const std::string& name, int i) :
     buff(::glob->new_frame(size, size, GL_TEXTURE_2D,
                            GL_RGBA8, false, true, false))
 {
-    GLfloat C[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
+    GLfloat C[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     buff->bind_depth(GL_TEXTURE0);
 
