@@ -963,18 +963,17 @@ void wrl::world::shadow(int id, const app::frustum *frusp, int i)
 int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
                         int index, const ogl::aabb& visible, const atom *a)
 {
-#if 0
     vec3 p =  wvector(a->get_local());
     vec3 v = -yvector(a->get_local());
 
     float c = 30.0;
 
-    app::frustum frust(p, v, c);
+    app::perspective_frustum frust(p, v, c, 1.0);
+    ogl::aabb b = fill_pool->view(frusc + index, frust.get_world_planes(), 5);
+    frust.set_bound(mat4(), b);
     shadow(frusc + index, &frust, index);
 
     return 1;
-#endif
-    return 0;
 }
 
 int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
@@ -1021,14 +1020,14 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
     // Enumerate the light sources.
 
     atom_set::const_iterator a;
-    int i = 0;
+    int id = 0;
 
     for (a = all.begin(); a != all.end(); ++a)
     {
         switch ((*a)->priority())
         {
-            case -1: i += s_light(frusc, frusv, i, bb, *a); break;
-            case -2: i += d_light(frusc, frusv, i, bb, *a); break;
+            case -1: id += s_light(frusc, frusv, id, bb, *a); break;
+            case -2: id += d_light(frusc, frusv, id, bb, *a); break;
             default: return;
         }
     }

@@ -253,8 +253,6 @@ app::orthogonal_frustum::orthogonal_frustum(const ogl::aabb& b, const vec3 &v)
         x = normal(cross(y, z));
     }
 
-    // This gives the transform for the light's coordinate system.
-
     basis = mat4(mat3(x, y, z));
 
     // Determine the visible bound, axis-aligned in light space.
@@ -300,15 +298,44 @@ mat4 app::orthogonal_frustum::get_transform() const
 
 //-----------------------------------------------------------------------------
 
-// Construct a perspective projection with the given aspect ration and field of
-// view in degrees. Position it at point p looking in direction d. This is for
+// Construct a perspective projection with the given aspect ratio and field of
+// view in degrees. Position it at point p looking in direction v. This is for
 // use in generating shadow maps for spot light sources.
 
 app::perspective_frustum::perspective_frustum(const vec3& p,
                                               const vec3& v, double f, double a)
 {
-    // const double x = tan(to_radians(f / 2));
-    // const double y = x / a;
+    vec3 x(1, 0, 0);
+    vec3 y(0, 1, 0);
+    vec3 z = normal(-v);
+
+    // Compute a basis for the light orientation. Beware of the vertical.
+
+    if (fabs(z * y) < 1.0)
+    {
+        x = normal(cross(y, z));
+        y = normal(cross(z, x));
+    }
+    else
+    {
+        y = normal(cross(z, x));
+        x = normal(cross(y, z));
+    }
+
+    basis = mat4(mat3(x, y, z));
+
+    // Use it to calculate frustum corner positions.
+
+    const double s = tan(to_radians(f / 2));
+
+    corner[0] = p + v - x * s - y * s / a;
+    corner[1] = p + v + x * s - y * s / a;
+    corner[2] = p + v - x * s + y * s / a;
+    corner[3] = p + v + x * s + y * s / a;
+
+    eye = p;
+
+    cache_planes(get_transform());
 }
 
 // Construct a simple frustum with the given projection.
@@ -343,16 +370,23 @@ app::perspective_frustum::perspective_frustum()
 
 void app::perspective_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
 {
-    const vec3 d = vec3(plane[0][0], plane[0][1], plane[0][2]);
-    const vec3 e = wvector(inverse(V));
+    // Compute the world-space position of the eye.
 
+    const mat4 M = transpose(basis) * translation(-eye) * V;
+    const vec3 e = inverse(M) * vec3(0, 0, 0);
+
+    // Find the plane parallel to the near plane, passing through the eye.
+
+    const vec3 d = vec3(plane[0][0], plane[0][1], plane[0][2]);
     const vec4 p = vec4(d, -(d * e));
+
+    // Distances from this plane give the near and far clipping distances.
 
     n = bound.min(p);
     f = bound.max(p);
 
-    if (n < 0.1)
-        n = 0.1;
+    if (n < 1.0) // TODO: this is a hack to prevent lightsource self-shadow
+        n = 1.0;
 
     cache_points(get_transform() * V);
 }

@@ -50,9 +50,11 @@ void main()
     float z2 = splitz(0.666, n, f);
     float z1 = splitz(0.333, n, f);
 
-    if (gl_FragCoord.z < z3) S = S2;
-    if (gl_FragCoord.z < z2) S = S1;
-    if (gl_FragCoord.z < z1) S = S0;
+    S = S0;
+
+    // if (gl_FragCoord.z < z3) S = S2;
+    // if (gl_FragCoord.z < z2) S = S1;
+    // if (gl_FragCoord.z < z1) S = S0;
 
     vec4 K = vec4(1.0, 1.0, 1.0, 1.0);
 
