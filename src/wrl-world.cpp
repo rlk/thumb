@@ -73,6 +73,8 @@ wrl::world::world() :
     process_shadow[2]      = ::glob->load_process("shadow",           2);
     process_shadow[3]      = ::glob->load_process("shadow",           3);
 
+    uniform_light_position->set(vec4(0.0, -1.0, 0.0, 0.0));
+
 //  click_selection(new wrl::box("solid/bunny.obj"));
 //  click_selection(new wrl::box("solid/buddha.obj"));
 //  do_create();
