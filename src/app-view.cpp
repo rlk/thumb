@@ -38,7 +38,7 @@ vec3 app::view::get_point_pos(const vec3& p) const
 
 vec3 app::view::get_point_vec(const quat& q) const
 {
-    return transpose(get_transform()) * zvector(mat3(q));
+    return normal(transpose(get_transform()) * zvector(mat3(q)));
 }
 
 //-----------------------------------------------------------------------------

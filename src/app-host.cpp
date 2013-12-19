@@ -169,23 +169,15 @@ app::host::host(app::prog *p, std::string filename,
 
             if (overlay == 0)
                 if (app::node o = n.find("overlay"))
-                {
                     if (app::node c = o.find("frustum"))
                         overlay = new app::calibrated_frustum(c);
-                    else
-                        overlay = new app::calibrated_frustum();
-                }
 
             // Determine the globally-defined overlay area.
 
             if (overlay == 0)
                 if (app::node o = p.find("overlay"))
-                {
                     if (app::node c = o.find("frustum"))
                         overlay = new app::calibrated_frustum(c);
-                    else
-                        overlay = new app::calibrated_frustum();
-                }
 
             // Start the network syncronization.
 
@@ -196,10 +188,13 @@ app::host::host(app::prog *p, std::string filename,
     }
     init_script();
 
-    // If no channels or displays were configured, instance defaults.
+    // If no channel, display, or overlay was configured, instance defaults.
 
     if (channels.empty()) channels.push_back(new dpy::channel(0));
     if (displays.empty()) displays.push_back(new dpy::direct (0));
+
+    if (overlay == 0)
+        overlay = new app::calibrated_frustum();
 
     // Wait until all clients have connected.
 

@@ -124,6 +124,8 @@ bool mode::info::process_event(app::event *E)
             if (overlay)
                 overlay->pointer_to_2D(E, x, y);
 
+            printf("%f %f\n", x, y);
+
             gui->point(toint(x * gui_w),
                        toint(y * gui_h));
 
