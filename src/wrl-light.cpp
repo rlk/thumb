@@ -63,7 +63,7 @@ void wrl::d_light::save(app::node node)
 {
     app::node n("light");
 
-    n.set_s("class", "d_light");
+    n.set_s("type", "d-light");
     n.insert(node);
     atom::save(n);
 }
@@ -72,7 +72,7 @@ void wrl::s_light::save(app::node node)
 {
     app::node n("light");
 
-    n.set_s("class", "s_light");
+    n.set_s("type", "s-light");
     n.insert(node);
     atom::save(n);
 }

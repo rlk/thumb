@@ -1,7 +1,6 @@
 <?xml version="1.0" ?>
   <world>
-    <geom class="light">
-      <file>solid/light.obj</file>
+    <light type="s-light">
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -9,15 +8,8 @@
       <pos_x>8.000000</pos_x>
       <pos_y>24.000000</pos_y>
       <pos_z>8.000000</pos_z>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">1.0</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom class="box">
+    </light>
+    <geom type="box">
       <file>solid/plank.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>1.000000</rot_y>
@@ -34,7 +26,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -52,7 +44,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/plank.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>-0.707107</rot_y>
@@ -69,7 +61,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -87,7 +79,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -105,7 +97,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -123,7 +115,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -141,7 +133,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -159,7 +151,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -177,7 +169,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -195,7 +187,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -213,7 +205,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -231,7 +223,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -249,7 +241,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -267,7 +259,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -285,7 +277,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="sphere">
+    <geom type="sphere">
       <file>solid/sphere.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -303,7 +295,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -321,7 +313,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/plank.obj</file>
       <rot_x>0.183013</rot_x>
       <rot_y>-0.683015</rot_y>
@@ -338,7 +330,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom class="box">
+    <geom type="box">
       <file>solid/wooden-cube.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
