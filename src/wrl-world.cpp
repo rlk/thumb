@@ -983,7 +983,8 @@ int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
 int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
                         int light, const ogl::aabb& visible, const atom *a)
 {
-    const vec3 v = -yvector(a->get_local());
+    // const vec3 v = yvector(a->get_local());
+    const vec3 v = wvector(a->get_local());
     uniform_light_position->set(vec4(v, 0));
 
     int n = 3;

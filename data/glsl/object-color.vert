@@ -5,6 +5,7 @@ attribute vec3 Tangent;
 uniform mat4 ShadowMatrix[4];
 
 varying vec4 fV;
+varying vec4 fZ;
 varying vec4 fN;
 varying vec4 fL[4];
 varying vec3 fD[4];
@@ -24,9 +25,16 @@ void main()
     // Tangent-space fragment position.
 
     fV    = M * gl_ModelViewMatrix * gl_Vertex;
+    fZ    = M * gl_ModelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
 
     // Tangent-space light source position
+/*
 
+    fL[0] = vec4(T * gl_LightSource[0].position.xyz, 0.0);
+    fL[1] = vec4(T * gl_LightSource[1].position.xyz, 0.0);
+    fL[2] = vec4(T * gl_LightSource[2].position.xyz, 0.0);
+    fL[3] = vec4(T * gl_LightSource[3].position.xyz, 0.0);
+*/
     fL[0] = M * gl_LightSource[0].position;
     fL[1] = M * gl_LightSource[1].position;
     fL[2] = M * gl_LightSource[2].position;
