@@ -3,11 +3,36 @@
     <light type="s-light">
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>8.000000</pos_x>
-      <pos_y>24.000000</pos_y>
-      <pos_z>8.000000</pos_z>
+      <rot_z>-0.087156</rot_z>
+      <rot_w>0.996195</rot_w>
+      <pos_x>5.500000</pos_x>
+      <pos_y>21.500000</pos_y>
+      <pos_z>0.000000</pos_z>
+      <param name="spot_exponent">0.0</param>
+      <param name="spot_cutoff">30.0</param>
+      <param name="attenuation_constant">1.0</param>
+      <param name="attenuation_linear">0.0</param>
+      <param name="attenuation_quadratic">0.0</param>
+      <param name="color_red">0.6</param>
+      <param name="color_green">0.5</param>
+      <param name="color_blue">0.5</param>
+    </light>
+    <light type="s-light">
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.173648</rot_z>
+      <rot_w>0.984808</rot_w>
+      <pos_x>-9.500000</pos_x>
+      <pos_y>14.000000</pos_y>
+      <pos_z>0.000000</pos_z>
+      <param name="spot_exponent">0.0</param>
+      <param name="spot_cutoff">30.0</param>
+      <param name="attenuation_constant">1.0</param>
+      <param name="attenuation_linear">0.0</param>
+      <param name="attenuation_quadratic">0.0</param>
+      <param name="color_red">0.5</param>
+      <param name="color_green">0.5</param>
+      <param name="color_blue">0.6</param>
     </light>
     <geom type="box">
       <file>solid/plank.obj</file>
@@ -51,6 +76,23 @@
       <rot_z>0.000000</rot_z>
       <rot_w>0.707107</rot_w>
       <pos_x>0.000000</pos_x>
+      <pos_y>0.000000</pos_y>
+      <pos_z>0.000000</pos_z>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">1.0</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom type="box">
+      <file>solid/plank.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>1.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>0.000000</rot_w>
+      <pos_x>-10.000000</pos_x>
       <pos_y>0.000000</pos_y>
       <pos_z>0.000000</pos_z>
       <param name="category">4294967295</param>
@@ -302,6 +344,24 @@
       <rot_z>0.000000</rot_z>
       <rot_w>1.000000</rot_w>
       <pos_x>-5.875000</pos_x>
+      <pos_y>2.625000</pos_y>
+      <pos_z>0.000000</pos_z>
+      <body>10</body>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">0.1</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom type="box">
+      <file>solid/wooden-cube.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>-5.875000</pos_x>
       <pos_y>1.625000</pos_y>
       <pos_z>0.750000</pos_z>
       <body>8</body>
@@ -316,33 +376,15 @@
     <geom type="box">
       <file>solid/plank.obj</file>
       <rot_x>0.183013</rot_x>
-      <rot_y>-0.683015</rot_y>
+      <rot_y>-0.683016</rot_y>
       <rot_z>0.183013</rot_z>
-      <rot_w>0.683011</rot_w>
+      <rot_w>0.683010</rot_w>
       <pos_x>7.464102</pos_x>
       <pos_y>2.000000</pos_y>
       <pos_z>0.000000</pos_z>
       <param name="category">4294967295</param>
       <param name="collide">4294967295</param>
       <param name="density">1.0</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom type="box">
-      <file>solid/wooden-cube.obj</file>
-      <rot_x>0.000000</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>-5.875000</pos_x>
-      <pos_y>2.625000</pos_y>
-      <pos_z>0.000000</pos_z>
-      <body>10</body>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">0.1</param>
       <param name="mu">100.0</param>
       <param name="bounce">0.5</param>
       <param name="soft_erp">0.2</param>
