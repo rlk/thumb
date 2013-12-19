@@ -33,6 +33,7 @@ namespace ogl
     extern bool has_vbo;
     extern bool has_dre;
 
+    extern int  max_lights;
     extern int  max_anisotropy;
 
     extern int  do_shadow;

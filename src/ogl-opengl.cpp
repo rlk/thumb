@@ -29,6 +29,7 @@ bool ogl::has_fbo;
 bool ogl::has_vbo;
 bool ogl::has_dre;
 
+int  ogl::max_lights;
 int  ogl::max_anisotropy;
 
 int  ogl::do_shadow;
@@ -92,7 +93,6 @@ static void init_opt()
     printf("OpenGL %s GLSL %s\n", glGetString(GL_VERSION),
                                   glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-
     ogl::max_anisotropy         = 0;
     ogl::do_shadow              = 0;
     ogl::do_z_only              = false;
@@ -102,17 +102,19 @@ static void init_opt()
 
     // Query GL capabilities.
 
-    ogl::has_depth_stencil = (glewIsSupported("GL_EXT_packed_depth_stencil")       == GL_TRUE);
-    ogl::has_multitexture  = (glewIsSupported("GL_multitexture")                   == GL_TRUE);
-    ogl::has_multisample   = (glewIsSupported("GL_multisample")                    == GL_TRUE);
-    ogl::has_anisotropic   = (glewIsSupported("GL_EXT_texture_filter_anisotropic") == GL_TRUE);
-    ogl::has_glsl          = (glewIsSupported("GL_shader_objects")                 == GL_TRUE);
-    ogl::has_glsl         &= (glewIsSupported("GL_vertex_shader")                  == GL_TRUE);
-    ogl::has_glsl         &= (glewIsSupported("GL_fragment_shader")                == GL_TRUE);
-    ogl::has_s3tc          = (glewIsSupported("GL_EXT_texture_compression_s3tc")   == GL_TRUE);
-    ogl::has_fbo           = (glewIsSupported("GL_EXT_framebuffer_object")         == GL_TRUE);
-    ogl::has_vbo           = (glewIsSupported("GL_vertex_buffer_object")           == GL_TRUE);
-    ogl::has_dre           = (glewIsSupported("GL_EXT_draw_range_elements")        == GL_TRUE);
+    ogl::has_depth_stencil = glewIsSupported("GL_EXT_packed_depth_stencil");
+    ogl::has_multitexture  = glewIsSupported("GL_multitexture");
+    ogl::has_multisample   = glewIsSupported("GL_multisample");
+    ogl::has_anisotropic   = glewIsSupported("GL_EXT_texture_filter_anisotropic");
+    ogl::has_glsl          = glewIsSupported("GL_shader_objects");
+    ogl::has_glsl         &= glewIsSupported("GL_vertex_shader");
+    ogl::has_glsl         &= glewIsSupported("GL_fragment_shader");
+    ogl::has_s3tc          = glewIsSupported("GL_EXT_texture_compression_s3tc");
+    ogl::has_fbo           = glewIsSupported("GL_EXT_framebuffer_object");
+    ogl::has_vbo           = glewIsSupported("GL_vertex_buffer_object");
+    ogl::has_dre           = glewIsSupported("GL_EXT_draw_range_elements");
+
+    glGetIntegerv(GL_MAX_LIGHTS, &ogl::max_lights);
 
     // Configuration options
 
@@ -130,6 +132,8 @@ static void init_opt()
         ogl::max_anisotropy = std::min(ogl::max_anisotropy, max);
         ogl::max_anisotropy = std::max(ogl::max_anisotropy, 1);
     }
+
+    // Off-screen rendering
 
     if (ogl::has_fbo)
     {
