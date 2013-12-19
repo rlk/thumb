@@ -184,7 +184,6 @@ app::prog::prog(const std::string& exe,
 
     // Configure some application-level key bindings.
 
-    key_exit = ::conf->get_i("key_exit", SDL_SCANCODE_ESCAPE);
     key_init = ::conf->get_i("key_init", SDL_SCANCODE_F10);
     key_snap = ::conf->get_i("key_snap", SDL_SCANCODE_F13);
 
@@ -237,7 +236,6 @@ bool app::prog::process_event(app::event *E)
         const int k = E->data.key.k;
 
         SDL_Event user = { SDL_USEREVENT };
-        SDL_Event quit = { SDL_QUIT      };
 
         // Take a screenshot.
 
@@ -250,10 +248,13 @@ bool app::prog::process_event(app::event *E)
             return true;
         }
 
-        // Exit or reload.
+        // Reload.
 
-        else if (k == key_exit) { SDL_PushEvent(&quit); return true; }
-        else if (k == key_init) { SDL_PushEvent(&user); return true; }
+        else if (k == key_init)
+        {
+            SDL_PushEvent(&user);
+            return true;
+        }
     }
     else if (E->get_type() == E_TICK)
         axis_state();

@@ -115,10 +115,6 @@ demo::demo(const std::string& exe,
 
     // Initialize the application state.
 
-    key_info  = conf->get_i("key_info", SDL_SCANCODE_F1);
-    key_edit  = conf->get_i("key_edit", SDL_SCANCODE_F2);
-    key_play  = conf->get_i("key_play", SDL_SCANCODE_F3);
-
     world = new wrl::world();
 
     edit = new mode::edit(world);
@@ -167,9 +163,17 @@ bool demo::process_key(app::event *E)
 
     if (d && m == 0)
     {
-        if (k == key_edit && curr != edit) { goto_mode(edit); return true; }
-        if (k == key_play && curr != play) { goto_mode(play); return true; }
-        if (k == key_info && curr != info) { goto_mode(info); return true; }
+        if (k == SDL_SCANCODE_ESCAPE)
+        {
+            if (curr == info) { goto_mode(edit); return true; }
+            if (curr == edit) { goto_mode(play); return true; }
+            if (curr == play) { goto_mode(edit); return true; }
+        }
+        if (k == SDL_SCANCODE_TAB)
+        {
+            if (curr == info) { goto_mode(edit); return true; }
+            if (curr == edit) { goto_mode(info); return true; }
+        }
     }
     return false;
 }

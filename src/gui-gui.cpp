@@ -1297,7 +1297,7 @@ void gui::dialog::draw() const
             glMatrixMode(GL_MODELVIEW);
 
             root->draw(focus, input);
-#if 1
+#if 0
             glBegin(GL_LINES);
             {
                 int s = 10;

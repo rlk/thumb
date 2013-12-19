@@ -19,10 +19,9 @@
       <pos_x>-10.000000</pos_x>
       <pos_y>10.000000</pos_y>
       <pos_z>10.000000</pos_z>
-      <param name="color_red">1.0</param>
-      <param name="color_green">0.5</param>
-      <param name="color_blue">0.5</param>
-      <param name="spot_cutoff">30.0</param>
+      <param name="color_red">0.6</param>
+      <param name="color_green">0.3</param>
+      <param name="color_blue">0.3</param>
     </light>
     <light type="s-light">
       <rot_x>0.000000</rot_x>
@@ -32,10 +31,9 @@
       <pos_x>0.000000</pos_x>
       <pos_y>10.000000</pos_y>
       <pos_z>-10.000000</pos_z>
-      <param name="color_red">0.5</param>
-      <param name="color_green">1.0</param>
-      <param name="color_blue">0.5</param>
-      <param name="spot_cutoff">30.0</param>
+      <param name="color_red">0.3</param>
+      <param name="color_green">0.6</param>
+      <param name="color_blue">0.3</param>
     </light>
     <light type="s-light">
       <rot_x>0.000000</rot_x>
@@ -45,10 +43,9 @@
       <pos_x>10.000000</pos_x>
       <pos_y>10.000000</pos_y>
       <pos_z>10.000000</pos_z>
-      <param name="color_red">0.5</param>
-      <param name="color_green">0.5</param>
-      <param name="color_blue">1.0</param>
-      <param name="spot_cutoff">40.0</param>
+      <param name="color_red">0.3</param>
+      <param name="color_green">0.3</param>
+      <param name="color_blue">0.6</param>
     </light>
     <geom type="box">
       <file>solid/platform.obj</file>

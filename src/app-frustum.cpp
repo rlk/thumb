@@ -116,6 +116,7 @@ void app::frustum::cache_points(const mat4& A)
 
 bool app::frustum::pointer_to_3D(event *E, double s, double t) const
 {
+    printf("%f %f\n", n, f);
     // Find the eye-space line through the normalized view volume.
 
     const mat4 I = inverse(get_transform());
@@ -258,8 +259,8 @@ app::orthogonal_frustum::orthogonal_frustum(const ogl::aabb& b, const vec3 &v)
 
     ogl::aabb c(b, transpose(basis));
 
-    vec3 p = c.get_min();
-    vec3 q = c.get_max();
+    vec3 p = c.min();
+    vec3 q = c.max();
 
     // This gives the frustum parameters.
 
@@ -280,9 +281,11 @@ void app::orthogonal_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
 {
     const vec4 p = vec4(plane[0][0], plane[0][1], plane[0][2], 0);
 
-    n = bound.min(p);
-    f = bound.max(p);
-
+    if (bound.isvalid())
+    {
+        n = bound.min(p);
+        f = bound.max(p);
+    }
     cache_points(get_transform() * V);
 }
 
@@ -381,8 +384,11 @@ void app::perspective_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
 
     // Distances from this plane give the near and far clipping distances.
 
-    n = bound.min(p);
-    f = bound.max(p);
+    if (bound.isvalid())
+    {
+        n = bound.min(p);
+        f = bound.max(p);
+    }
 
     if (n < 1.0) // TODO: this is a hack to prevent lightsource self-shadow
         n = 1.0;

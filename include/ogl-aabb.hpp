@@ -28,14 +28,12 @@ namespace ogl
         aabb(const vec3&, const vec3&);
         aabb(const aabb&, const mat4&);
 
+        bool isvalid() const;
+
         void merge(const vec3&);
         void merge(const aabb&);
 
         void intersect(const aabb&);
-
-        double     get_distance(const vec3&)              const;
-        ogl::range get_range   (const vec4&)              const;
-        ogl::range get_range   (const vec4&, const mat4&) const;
 
         bool test(const vec4 *, int)                    const;
         bool test(const vec4 *, int, const mat4&, int&) const;
@@ -43,11 +41,11 @@ namespace ogl
         void draw(bool, bool, bool, bool) const;
         void draw()                       const;
 
-        vec3   center()  const { return  (a + z) / 2.0; }
-        vec3   offset()  const { return -(a + z) / 2.0; }
+        vec3    center() const { return  (a + z) / 2.0; }
+        vec3    offset() const { return -(a + z) / 2.0; }
 
-        vec3  get_min()  const { return a; }
-        vec3  get_max()  const { return z; }
+        vec3       min() const { return a; }
+        vec3       max() const { return z; }
 
         double xlength() const { return z[0] - a[0]; }
         double ylength() const { return z[1] - a[1]; }

@@ -78,7 +78,6 @@ namespace app
         bool running;
 
         int key_snap;
-        int key_exit;
         int key_init;
 
         SDL_Window   *window;

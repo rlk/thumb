@@ -36,12 +36,6 @@ namespace ogl
 
 class demo : public app::prog
 {
-    // Configuration.
-
-    int key_edit;
-    int key_play;
-    int key_info;
-
     // Entity state.
 
     wrl::world *world;

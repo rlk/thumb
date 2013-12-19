@@ -58,6 +58,11 @@ ogl::aabb::aabb(const aabb& that, const mat4& M) :
 
 //-----------------------------------------------------------------------------
 
+bool ogl::aabb::isvalid() const
+{
+    return (a[0] < z[0] && a[1] < z[1] && a[2] < z[2]);
+}
+
 void ogl::aabb::merge(const vec3& p)
 {
     a[0] = std::min(a[0], p[0]);
