@@ -719,15 +719,6 @@ inline quat slerp(const quat& q, const quat& p, double t)
 
 //------------------------------------------------------------------------------
 
-/// Drop the fourth component of a vec4. (This conforms to GLSL.)
-#if 0
-inline vec3::vec3(const vec4& w)
-{
-    v[0] = w[0];
-    v[1] = w[1];
-    v[2] = w[2];
-}
-#endif
 /// Construct a plane equation from three points.
 
 inline vec4::vec4(const vec3& a, const vec3& b, const vec3& c)
