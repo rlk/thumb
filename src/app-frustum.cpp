@@ -116,7 +116,6 @@ void app::frustum::cache_points(const mat4& A)
 
 bool app::frustum::pointer_to_3D(event *E, double s, double t) const
 {
-    printf("%f %f\n", n, f);
     // Find the eye-space line through the normalized view volume.
 
     const mat4 I = inverse(get_transform());
