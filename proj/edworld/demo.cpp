@@ -183,13 +183,13 @@ bool demo::process_event(app::event *E)
 
     switch (E->get_type())
     {
-        case E_KEY: if (process_key (E)) return true; else break;
+        case E_KEY: if (process_key(E)) return true; else break;
     }
 
     // Allow the application base or current mode  to handle the event.
 
-    if (          prog::process_event(E)) return true;
-    if (curr  &&  curr->process_event(E)) return true;
+    if (curr && curr->process_event(E)) return true;
+    if (        prog::process_event(E)) return true;
 
     return false;
 }
