@@ -24,7 +24,7 @@ float splitz(float k, float n, float f)
     return (f / c) * (c - n) / (f - n);
 }
 
-vec3 calc(vec3 V, vec3 N, vec3 L, vec4 Td, vec4 Ts)
+vec3 shade(vec3 V, vec3 N, vec3 L, vec4 Td, vec4 Ts)
 {
     vec3 R = reflect(L, N);
 
@@ -40,32 +40,30 @@ vec3 slight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
     vec3  L =  normalize(fL[i]);
     vec3  D = -normalize(fD[i]);
 
-    float ld = dot(L, D);
+    float d = dot(L, D);
 
     float a  = 1.0 / (gl_LightSource[i].constantAttenuation  +
                       gl_LightSource[i].linearAttenuation    * r +
                       gl_LightSource[i].quadraticAttenuation * r * r);
 
-    float s = step(gl_LightSource[i].spotCosCutoff, ld) *
-           pow(ld, gl_LightSource[i].spotExponent);
+    float s = step(gl_LightSource[i].spotCosCutoff, d) *
+            pow(d, gl_LightSource[i].spotExponent);
 
-    return a * s * calc(V, N, L, Td, Ts);
+    return a * s * shade(V, N, L, Td, Ts);
 }
 
 vec3 dlight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
 {
-    float n  = gl_ClipPlane[0].w;
-    float f  = gl_ClipPlane[1].w;
+    float n = gl_ClipPlane[0].w;
+    float f = gl_ClipPlane[1].w;
 
     float z0 = splitz(gl_LightSource[i].ambient.x, n, f);
     float z1 = splitz(gl_LightSource[i].ambient.y, n, f);
 
-    float s  = step(splitz(gl_LightSource[i].ambient.x, n, f), gl_FragCoord.z)
-             * step(gl_FragCoord.z, splitz(gl_LightSource[i].ambient.y, n, f));
-
     vec3 L = normalize(fL[i]);
 
-    return s * calc(V, N, L, Td, Ts);
+    return shade(V, N, L, Td, Ts) * step(z0, gl_FragCoord.z)
+                                  * step(gl_FragCoord.z, z1);
 }
 
 vec3 light(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
