@@ -206,6 +206,9 @@ void gui::string::free_font()
     {
         delete sans_font;
         delete mono_font;
+
+        sans_font = 0;
+        mono_font = 0;
     }
 }
 
