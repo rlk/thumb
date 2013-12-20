@@ -238,13 +238,16 @@ void wrl::amotor::play_init()
 
     // Set angular motor geometry parameters.
 
-    dJointSetAMotorMode(play_join, dAMotorEuler);
-    dJointSetAMotorAxis(play_join, 0, a, dReal(current_M[0][0]),
-                                         dReal(current_M[1][0]),
-                                         dReal(current_M[2][0]));
-    dJointSetAMotorAxis(play_join, 2, b, dReal(current_M[0][3]),
-                                         dReal(current_M[1][3]),
-                                         dReal(current_M[2][3]));
+    if (a != b)
+    {
+        dJointSetAMotorMode(play_join, dAMotorEuler);
+        dJointSetAMotorAxis(play_join, 0, a, dReal(current_M[0][0]),
+                                             dReal(current_M[1][0]),
+                                             dReal(current_M[2][0]));
+        dJointSetAMotorAxis(play_join, 2, b, dReal(current_M[0][3]),
+                                             dReal(current_M[1][3]),
+                                             dReal(current_M[2][3]));
+    }
     wrl::joint::play_init();
 }
 
