@@ -67,16 +67,13 @@ bool mode::play::process_event(app::event *E)
 {
     assert(E);
 
-    bool R = false;
-
     switch (E->get_type())
     {
-    case E_START: R |= process_start(E); break;
-    case E_CLOSE: R |= process_close(E); break;
-    case E_TICK: R |= process_tick(E); break;
+    case E_START: if (process_start(E)) return true; else break;
+    case E_CLOSE: if (process_close(E)) return true; else break;
+    case E_TICK:  if (process_tick (E)) return true; else break;
     }
-
-    return R || mode::process_event(E);
+    return mode::process_event(E);
 }
 
 //-----------------------------------------------------------------------------
