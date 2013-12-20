@@ -129,13 +129,13 @@ double wrl::atom::set_lighting(int light, int i, int m, int w) const
 
     // Position and direction.
     const mat4 M = ::view->get_transform();
-    const mat4 T = transpose(inverse(M));
+    // const mat4 T = transpose(inverse(M));
 
-    const vec3 p = M * wvector(current_M);
-    const vec3 v = T * yvector(current_M);
+    const vec4 p = M * vec4( wvector(current_M), w);
+    const vec4 v = M * vec4(-yvector(current_M), 0);
 
-    GLfloat P[4] = {  p[0],  p[1],  p[2], w };
-    GLfloat V[4] = { -v[0], -v[1], -v[2], 0 };
+    GLfloat P[4] = { p[0], p[1], p[2], p[3] };
+    GLfloat V[4] = { v[0], v[1], v[2], v[2] };
 
     glLightfv(L, GL_POSITION,       P);
     glLightfv(L, GL_SPOT_DIRECTION, V);

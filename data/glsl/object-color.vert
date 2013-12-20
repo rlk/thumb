@@ -4,10 +4,8 @@ attribute vec3 Tangent;
 
 uniform mat4 ShadowMatrix[4];
 
-varying vec4 fV;
-varying vec4 fZ;
-varying vec4 fN;
-varying vec4 fL[4];
+varying vec3 fV;
+varying vec3 fL[4];
 varying vec3 fD[4];
 varying vec4 fS[4];
 
@@ -20,25 +18,27 @@ void main()
 
     mat3 I = mat3(t, cross(n, t), n);
     mat3 T = transpose(I);
-    mat4 M = mat4(T);
 
-    // Tangent-space fragment position.
+    vec4 e = gl_ModelViewMatrix * gl_Vertex;
 
-    fV    = M * gl_ModelViewMatrix * gl_Vertex;
-    fZ    = M * gl_ModelViewMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+    // Tangent-space view vector
 
-    // Tangent-space light source position
-/*
+    fV = T * (-e.xyz);
 
-    fL[0] = vec4(T * gl_LightSource[0].position.xyz, 0.0);
-    fL[1] = vec4(T * gl_LightSource[1].position.xyz, 0.0);
-    fL[2] = vec4(T * gl_LightSource[2].position.xyz, 0.0);
-    fL[3] = vec4(T * gl_LightSource[3].position.xyz, 0.0);
-*/
-    fL[0] = M * gl_LightSource[0].position;
-    fL[1] = M * gl_LightSource[1].position;
-    fL[2] = M * gl_LightSource[2].position;
-    fL[3] = M * gl_LightSource[3].position;
+    // Tangent-space light source vector
+
+    fL[0] = T * mix(gl_LightSource[0].position.xyz,
+                    gl_LightSource[0].position.xyz - e.xyz,
+                    gl_LightSource[0].position.w);
+    fL[1] = T * mix(gl_LightSource[1].position.xyz,
+                    gl_LightSource[1].position.xyz - e.xyz,
+                    gl_LightSource[1].position.w);
+    fL[2] = T * mix(gl_LightSource[2].position.xyz,
+                    gl_LightSource[2].position.xyz - e.xyz,
+                    gl_LightSource[2].position.w);
+    fL[3] = T * mix(gl_LightSource[3].position.xyz,
+                    gl_LightSource[3].position.xyz - e.xyz,
+                    gl_LightSource[3].position.w);
 
     // Tangent-space light source direction
 
@@ -48,8 +48,6 @@ void main()
     fD[3] = T * gl_LightSource[3].spotDirection;
 
     // Shadow map texture coordinates
-
-    vec4 e = gl_ModelViewMatrix * gl_Vertex;
 
     fS[0] = ShadowMatrix[0] * e;
     fS[1] = ShadowMatrix[1] * e;

@@ -6,9 +6,8 @@ uniform sampler2D       norm_map;
 
 uniform sampler2DShadow shadow[4];
 
-varying vec4 fV;
-varying vec4 fZ;
-varying vec4 fL[4];
+varying vec3 fV;
+varying vec3 fL[4];
 varying vec3 fD[4];
 varying vec4 fS[4];
 
@@ -27,8 +26,8 @@ float splitz(float k, float n, float f)
 
 vec3 slight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
 {
-    float r =    length(fL[i].xyz - fV.xyz);
-    vec3  L = normalize(fL[i].xyz - fV.xyz);
+    float r =    length(fL[i]);
+    vec3  L = normalize(fL[i]);
     vec3  D = normalize(fD[i]);
     vec3  R = reflect(L, N);
 
@@ -55,7 +54,7 @@ vec3 dlight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
     float z0 = splitz(gl_LightSource[i].ambient.x, gl_ClipPlane[0].w, gl_ClipPlane[1].w);
     float z1 = splitz(gl_LightSource[i].ambient.y, gl_ClipPlane[0].w, gl_ClipPlane[1].w);
 
-    vec3  L = normalize(fL[i].xyz - fZ.xyz);
+    vec3  L = normalize(fL[i]);
     vec3  R = reflect(L, N);
 
     vec3  Cl = gl_LightSource[i].diffuse.rgb;
@@ -77,7 +76,7 @@ void main()
     vec4 Ts = texture2D(spec_map, gl_TexCoord[0].xy);
     vec4 Tn = texture2D(norm_map, gl_TexCoord[0].xy);
 
-    vec3 V = normalize(-fV.xyz);
+    vec3 V = normalize(fV);
     vec3 N = normalize(2.0 * Tn.rgb - 1.0);
 
     vec3 C = Ka * Td.rgb
@@ -86,5 +85,6 @@ void main()
            + mix(dlight(V, N, Td, Ts, 2), slight(V, N, Td, Ts, 2), gl_LightSource[2].position.w)
            + mix(dlight(V, N, Td, Ts, 3), slight(V, N, Td, Ts, 3), gl_LightSource[3].position.w)
            ;
+
     gl_FragColor = vec4(C, Td.a);
 }
