@@ -29,7 +29,7 @@ mode::info::info(wrl::world *w) :
     mode(w),
     gui_w(::host->get_window_w()),
     gui_h(::host->get_window_h()),
-    gui(0)
+    pane(0), gui(0)
 {
 }
 
@@ -42,12 +42,14 @@ mode::info::~info()
 void mode::info::gui_show()
 {
     gui = new cnt::control(world, gui_w, gui_h);
+    gui->set_index(pane);
     gui->show();
 }
 
 void mode::info::gui_hide()
 {
     gui->hide();
+    pane = gui->get_index();
     delete gui;
     gui = 0;
 }

@@ -269,7 +269,7 @@ namespace cnt
         panel_button(std::string s, gui::option *w, int i) :
             button(s), state(w), index(i) { }
 
-        void apply() { state->select(index); }
+        void apply() { state->set_index(index); }
     };
 
     //-------------------------------------------------------------------------
@@ -304,8 +304,13 @@ namespace cnt
 
     class control : public gui::dialog
     {
+        gui::option *state;
+
     public:
         control(wrl::world *, int, int);
+
+        int  get_index() { return state->get_index( ); }
+        void set_index(int i)   { state->set_index(i); }
     };
 }
 

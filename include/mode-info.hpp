@@ -31,6 +31,8 @@ namespace mode
         const int gui_w;
         const int gui_h;
 
+        int pane;
+
         cnt::control *gui;
 
         void gui_show();

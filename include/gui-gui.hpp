@@ -369,7 +369,8 @@ namespace gui
     public:
         option() : index(0) { }
 
-        void select(int i) { index = i; }
+        void set_index(int i)  { index = i;    }
+        int  get_index() const { return index; }
 
         virtual void    layup();
         virtual void    laydn(int, int, int, int);

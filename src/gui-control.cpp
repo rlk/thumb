@@ -465,22 +465,22 @@ cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 
 cnt::control::control(wrl::world *W, int w, int h)
 {
-    gui::option *O = new gui::option;
+    state = new gui::option;
 
     root = ((new gui::vgroup)->
             add((new gui::harray)->
                 add(new title("Control Panel", 0))->
-                add(new panel_button("World", O, 0))->
-                add(new panel_button("Solid", O, 1))->
-                add(new panel_button("Joint", O, 2))->
-                add(new panel_button("Light", O, 3))->
+                add(new panel_button("World", state, 0))->
+                add(new panel_button("Solid", state, 1))->
+                add(new panel_button("Joint", state, 2))->
+                add(new panel_button("Light", state, 3))->
                 add(new gui::spacer))->
             add(new gui::spacer)->
-            add(O->
-                add(new world_panel(W, O))->
-                add(new solid_panel(W, O))->
-                add(new joint_panel(W, O))->
-                add(new light_panel(W, O))));
+            add(state->
+                add(new world_panel(W, state))->
+                add(new solid_panel(W, state))->
+                add(new joint_panel(W, state))->
+                add(new light_panel(W, state))));
 
     root->layup();
     root->laydn((w - root->get_w()) / 2,
