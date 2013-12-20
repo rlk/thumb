@@ -901,8 +901,6 @@ ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
     for (int frusi = 0; frusi < frusc; ++frusi)
         bb.merge(fill_pool->view(frusi, frusv[frusi]->get_world_planes(), 5));
 
-    fill_bound = bb;
-
     return bb;
 }
 
@@ -997,8 +995,6 @@ int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
 
         bound.intersect(visible);
 
-        lite_bound[i] = bound;
-
         // Render a shadow map encompasing this bound.
 
         app::orthogonal_frustum frust(bound, v);
@@ -1070,15 +1066,6 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
-
-    ogl::line_state_init();
-    {
-        // fill_bound.draw();
-        // lite_bound[0].draw();
-        // lite_bound[1].draw();
-        // lite_bound[2].draw();
-    }
-    ogl::line_state_fini();
 }
 
 void wrl::world::draw_line(int frusi, const app::frustum *frusp)

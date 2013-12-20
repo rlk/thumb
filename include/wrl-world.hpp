@@ -120,9 +120,6 @@ namespace wrl
 
     private:
 
-        ogl::aabb fill_bound;
-        ogl::aabb lite_bound[3];
-
         // ODE edit state
 
         double        focus_dist;
