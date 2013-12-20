@@ -4,15 +4,15 @@ uniform sampler2D fill;
 uniform sampler2D norm;
 
 varying vec3 V_v;
+varying vec3 L_v;
 
 uniform float time;
 uniform vec3  view_position;
-uniform vec4  light_position;
 
 void main()
 {
     vec3 V = normalize(V_v);
-    vec3 L = normalize(light_position.xyz);
+    vec3 L = normalize(L_v);
 
     // Compute water texture coordinates.
 

@@ -41,7 +41,6 @@ void demo::init_uniforms()
 {
     // Initialize the uniforms.
 
-    uniform_light_position   = ::glob->load_uniform("light_position",   4);
     uniform_view_matrix      = ::glob->load_uniform("view_matrix",     16);
     uniform_view_inverse     = ::glob->load_uniform("view_inverse",    16);
     uniform_view_position    = ::glob->load_uniform("view_position",    3);
@@ -83,7 +82,6 @@ void demo::free_uniforms()
     ::glob->free_uniform(uniform_view_position);
     ::glob->free_uniform(uniform_view_inverse);
     ::glob->free_uniform(uniform_view_matrix);
-    ::glob->free_uniform(uniform_light_position);
 }
 
 void demo::prep_uniforms() const

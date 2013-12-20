@@ -63,7 +63,6 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    uniform_light_position = ::glob->load_uniform("light_position",   4);
     uniform_shadow[0]      = ::glob->load_uniform("ShadowMatrix[0]", 16);
     uniform_shadow[1]      = ::glob->load_uniform("ShadowMatrix[1]", 16);
     uniform_shadow[2]      = ::glob->load_uniform("ShadowMatrix[2]", 16);
@@ -72,8 +71,6 @@ wrl::world::world() :
     process_shadow[1]      = ::glob->load_process("shadow",           1);
     process_shadow[2]      = ::glob->load_process("shadow",           2);
     process_shadow[3]      = ::glob->load_process("shadow",           3);
-
-    uniform_light_position->set(vec4(0.0, -1.0, 0.0, 0.0));
 
 //  click_selection(new wrl::box("solid/bunny.obj"));
 //  click_selection(new wrl::box("solid/buddha.obj"));
@@ -125,7 +122,6 @@ wrl::world::~world()
     ::glob->free_uniform(uniform_shadow[2]);
     ::glob->free_uniform(uniform_shadow[1]);
     ::glob->free_uniform(uniform_shadow[0]);
-    ::glob->free_uniform(uniform_light_position);
 
     // Finalize the render pools.
 
@@ -985,7 +981,6 @@ int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
 {
     // const vec3 v = yvector(a->get_local());
     const vec3 v = wvector(a->get_local());
-    uniform_light_position->set(vec4(v, 0));
 
     int n = 3;
 

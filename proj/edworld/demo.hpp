@@ -51,7 +51,6 @@ class demo : public app::prog
 
     // Renderer uniforms.
 
-    ogl::uniform *uniform_light_position;
     ogl::uniform *uniform_view_matrix;
     ogl::uniform *uniform_view_inverse;
     ogl::uniform *uniform_view_position;

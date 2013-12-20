@@ -174,7 +174,6 @@ namespace wrl
 
         // ...
 
-        ogl::uniform *uniform_light_position;
         ogl::uniform *uniform_shadow[4];
 
         const ogl::process *process_shadow[4];
