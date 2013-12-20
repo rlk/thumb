@@ -169,6 +169,15 @@ void cnt::new_s_light_button::apply()
     do_create(new wrl::s_light());
 }
 
+void cnt::load_bg_button::apply()
+{
+    if (!name->value().empty())
+    {
+        world->init();
+        state->show();
+    }
+}
+
 //-----------------------------------------------------------------------------
 
 void cnt::init_button::apply()
@@ -441,8 +450,7 @@ cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
             add((new gui::vgroup)->
 
                 add(new title("Configure Background"))->
-                add(new new_box_button    (W, w, E))->
-                add(new new_sphere_button (W, w, E))->
+                add(new load_bg_button(W, w, E))->
                 add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->

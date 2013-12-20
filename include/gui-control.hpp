@@ -186,6 +186,21 @@ namespace cnt
         void apply();
     };
 
+    class load_bg_button : public gui::button
+    {
+        wrl::world  *world;
+        gui::widget *state;
+        gui::widget *name;
+
+    public:
+        load_bg_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            gui::button("Load"),
+            world(w),
+            state(s),
+            name(n) { }
+        void apply();
+    };
+
     //-------------------------------------------------------------------------
     // World file buttons.
 
