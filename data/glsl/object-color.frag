@@ -31,7 +31,9 @@ vec3 shade(vec3 V, vec3 N, vec3 L, vec4 Td, vec4 Ts)
     float ks = pow(max(dot(V, R), 0.0), Ts.a * 64.0);
     float kd =     max(dot(L, N), 0.0);
 
-    return Td.rgb * kd + Ts.rgb * ks;
+    float kn = step(0.0, L.z);
+
+    return (Td.rgb * kd + Ts.rgb * ks) * kn;
 }
 
 vec3 slight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
