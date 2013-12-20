@@ -24,20 +24,13 @@
 namespace ogl
 {
     extern bool has_depth_stencil;
-    extern bool has_multitexture;
     extern bool has_multisample;
     extern bool has_anisotropic;
-    extern bool has_glsl;
     extern bool has_s3tc;
-    extern bool has_fbo;
-    extern bool has_vbo;
-    extern bool has_dre;
 
     extern int  max_lights;
     extern int  max_anisotropy;
 
-    extern int  do_shadow;
-    extern bool do_z_only;
     extern bool do_texture_compression;
     extern bool do_hdr_tonemap;
     extern bool do_hdr_bloom;

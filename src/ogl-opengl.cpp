@@ -20,20 +20,13 @@
 //-----------------------------------------------------------------------------
 
 bool ogl::has_depth_stencil;
-bool ogl::has_multitexture;
 bool ogl::has_multisample;
 bool ogl::has_anisotropic;
-bool ogl::has_glsl;
 bool ogl::has_s3tc;
-bool ogl::has_fbo;
-bool ogl::has_vbo;
-bool ogl::has_dre;
 
 int  ogl::max_lights;
 int  ogl::max_anisotropy;
 
-int  ogl::do_shadow;
-bool ogl::do_z_only;
 bool ogl::do_texture_compression;
 bool ogl::do_hdr_tonemap;
 bool ogl::do_hdr_bloom;
@@ -94,8 +87,6 @@ static void init_opt()
                                   glGetString(GL_SHADING_LANGUAGE_VERSION));
 
     ogl::max_anisotropy         = 0;
-    ogl::do_shadow              = 0;
-    ogl::do_z_only              = false;
     ogl::do_texture_compression = false;
     ogl::do_hdr_tonemap         = false;
     ogl::do_hdr_bloom           = false;
@@ -103,18 +94,19 @@ static void init_opt()
     // Query GL capabilities.
 
     ogl::has_depth_stencil = glewIsSupported("GL_EXT_packed_depth_stencil");
-    ogl::has_multitexture  = glewIsSupported("GL_multitexture");
     ogl::has_multisample   = glewIsSupported("GL_multisample");
     ogl::has_anisotropic   = glewIsSupported("GL_EXT_texture_filter_anisotropic");
-    ogl::has_glsl          = glewIsSupported("GL_shader_objects");
-    ogl::has_glsl         &= glewIsSupported("GL_vertex_shader");
-    ogl::has_glsl         &= glewIsSupported("GL_fragment_shader");
     ogl::has_s3tc          = glewIsSupported("GL_EXT_texture_compression_s3tc");
-    ogl::has_fbo           = glewIsSupported("GL_EXT_framebuffer_object");
-    ogl::has_vbo           = glewIsSupported("GL_vertex_buffer_object");
-    ogl::has_dre           = glewIsSupported("GL_EXT_draw_range_elements");
 
-    glGetIntegerv(GL_MAX_LIGHTS, &ogl::max_lights);
+    // The light count is constrained by both uniform and varying limits.
+
+    GLint maxl;
+    GLint maxv;
+
+    glGetIntegerv(GL_MAX_LIGHTS,          &maxl);
+    glGetIntegerv(GL_MAX_VARYING_VECTORS, &maxv);
+
+    ogl::max_lights = std::min(maxl, (maxv - 1) / 3);
 
     // Configuration options
 
@@ -123,35 +115,19 @@ static void init_opt()
 
     if (ogl::has_anisotropic)
     {
-        int max;
+        int maxa;
 
-        glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max);
+        glGetIntegerv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &maxa);
 
         ogl::max_anisotropy = ::conf->get_i("max_anisotropy");
-
-        ogl::max_anisotropy = std::min(ogl::max_anisotropy, max);
+        ogl::max_anisotropy = std::min(ogl::max_anisotropy, maxa);
         ogl::max_anisotropy = std::max(ogl::max_anisotropy, 1);
     }
 
     // Off-screen rendering
 
-    if (ogl::has_fbo)
-    {
-        // Shadowing
-
-        option = ::conf->get_s("shadow_method");
-
-        if (option == "map")  ogl::do_shadow = 1;
-
-        // HDR
-
-        ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap") != 0);
-        ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom")   != 0);
-
-        // Z-only pass
-
-        ogl::do_z_only = (::conf->get_i("z_only") != 0);
-    }
+    ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap") != 0);
+    ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom")   != 0);
 
     // Set vertical blanking synchronization state.
 
