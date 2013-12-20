@@ -165,25 +165,24 @@ namespace cnt
         void apply();
     };
 
+    //-------------------------------------------------------------------------
+    // Light creation buttons.
+
     class new_d_light_button : public create_button
     {
-        gui::widget *name;
-
     public:
 
-        new_d_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "Dir. Light"), name(n) { }
+        new_d_light_button(wrl::world *w, gui::widget *s) :
+            create_button(w, s, "Directional Light") { }
         void apply();
     };
 
     class new_s_light_button : public create_button
     {
-        gui::widget *name;
-
     public:
 
-        new_s_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "Spot Light"), name(n) { }
+        new_s_light_button(wrl::world *w, gui::widget *s) :
+            create_button(w, s, "Spot Light") { }
         void apply();
     };
 
@@ -277,6 +276,12 @@ namespace cnt
     {
     public:
         joint_panel(wrl::world *, gui::widget *);
+    };
+
+    class light_panel : public gui::vgroup
+    {
+    public:
+        light_panel(wrl::world *, gui::widget *);
     };
 
     //-------------------------------------------------------------------------

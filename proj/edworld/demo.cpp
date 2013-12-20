@@ -163,7 +163,7 @@ bool demo::process_key(app::event *E)
     {
         if (k == SDL_SCANCODE_ESCAPE)
         {
-            if (curr == info) { goto_mode(edit); return true; }
+            if (curr == info) { goto_mode(play); return true; }
             if (curr == edit) { goto_mode(play); return true; }
             if (curr == play) { goto_mode(edit); return true; }
         }
@@ -171,6 +171,7 @@ bool demo::process_key(app::event *E)
         {
             if (curr == info) { goto_mode(edit); return true; }
             if (curr == edit) { goto_mode(info); return true; }
+            if (curr == play) { goto_mode(info); return true; }
         }
     }
     return false;

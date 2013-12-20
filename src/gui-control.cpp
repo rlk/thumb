@@ -161,14 +161,12 @@ void cnt::new_sphere_button::apply()
 
 void cnt::new_d_light_button::apply()
 {
-    if (!name->value().empty())
-        do_create(new wrl::d_light());
+    do_create(new wrl::d_light());
 }
 
 void cnt::new_s_light_button::apply()
 {
-    if (!name->value().empty())
-        do_create(new wrl::s_light());
+    do_create(new wrl::s_light());
 }
 
 //-----------------------------------------------------------------------------
@@ -207,6 +205,32 @@ void cnt::save_sel_button::apply()
 }
 
 //-----------------------------------------------------------------------------
+// The World control panel
+
+cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
+{
+    gui::editor *E = new gui::editor("");
+    gui::finder *F = new gui::finder("world", ".xml", E);
+
+    add((new gui::frame)->
+        add((new gui::hgroup)->
+            add((new gui::vgroup)->
+
+                add(new title("World"))->
+                add(new init_button(W, w))->
+                add(new load_button(W, w, E))->
+                add(new save_all_button(W, w, E))->
+                add(new save_sel_button(W, w, E))->
+                add(new gui::filler(false, true)))->
+
+            add((new gui::vgroup)->
+                add((new gui::hgroup)->
+                    add(new label("File"))->
+                    add(E))->
+                add(F))));
+}
+
+//-----------------------------------------------------------------------------
 // The Solid control panel
 
 cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
@@ -221,8 +245,6 @@ cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                 add(new title("Create Solid"))->
                 add(new new_box_button    (W, w, E))->
                 add(new new_sphere_button (W, w, E))->
-                add(new new_d_light_button(W, w, E))->
-                add(new new_s_light_button(W, w, E))->
                 add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->
@@ -274,32 +296,6 @@ cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                     add(new editor(W, wrl::param::soft_erp))->
                     add(new editor(W, wrl::param::soft_cfm))->
                     add(new editor(W, -1))))));
-}
-
-//-----------------------------------------------------------------------------
-// The World control panel
-
-cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
-{
-    gui::editor *E = new gui::editor("");
-    gui::finder *F = new gui::finder("world", ".xml", E);
-
-    add((new gui::frame)->
-        add((new gui::hgroup)->
-            add((new gui::vgroup)->
-
-                add(new title("World"))->
-                add(new init_button(W, w))->
-                add(new load_button(W, w, E))->
-                add(new save_all_button(W, w, E))->
-                add(new save_sel_button(W, w, E))->
-                add(new gui::filler(false, true)))->
-
-            add((new gui::vgroup)->
-                add((new gui::hgroup)->
-                    add(new label("File"))->
-                    add(E))->
-                add(F))));
 }
 
 //-----------------------------------------------------------------------------
@@ -382,6 +378,81 @@ cnt::joint_panel::joint_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 }
 
 //-----------------------------------------------------------------------------
+// The Light control panel
+
+cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
+{
+    gui::editor *E = new gui::editor("");
+    gui::finder *F = new gui::finder("sky", ".xml", E);
+
+    add((new gui::frame)->
+        add((new gui::harray)->
+
+            add(new title("Create Light"))->
+            add(new new_d_light_button(W, w))->
+            add(new new_s_light_button(W, w))->
+            add(new gui::filler(true, false))));
+
+    add(new gui::spacer);
+
+    add((new gui::frame)->
+        add((new gui::harray)->
+
+            add((new gui::varray)->
+                add(new title("Configure Light"))->
+                add(new label("Red"))->
+                add(new label("Green"))->
+                add(new label("Blue")))->
+
+            add((new gui::varray)->
+                add(new title("Color"))->
+                add(new editor(W, GL_RED))->
+                add(new editor(W, GL_GREEN))->
+                add(new editor(W, GL_BLUE)))->
+
+            add((new gui::varray)->
+                add(new gui::filler(true, false))->
+                add(new label("Constant"))->
+                add(new label("Linear"))->
+                add(new label("Quadratic")))->
+
+            add((new gui::varray)->
+                add(new title("Attenuation"))->
+                add(new editor(W, GL_CONSTANT_ATTENUATION))->
+                add(new editor(W, GL_LINEAR_ATTENUATION))->
+                add(new editor(W, GL_QUADRATIC_ATTENUATION)))->
+
+            add((new gui::varray)->
+                add(new gui::filler(true, false))->
+                add(new label("Cutoff"))->
+                add(new label("Exponent"))->
+                add(new gui::filler(true, false)))->
+
+            add((new gui::varray)->
+                add(new title("Spot"))->
+                add(new editor(W, GL_SPOT_CUTOFF))->
+                add(new editor(W, GL_SPOT_EXPONENT))->
+                add(new gui::filler(true, false)))));
+
+    add(new gui::spacer);
+
+    add((new gui::frame)->
+        add((new gui::hgroup)->
+            add((new gui::vgroup)->
+
+                add(new title("Configure Background"))->
+                add(new new_box_button    (W, w, E))->
+                add(new new_sphere_button (W, w, E))->
+                add(new gui::filler(false, true)))->
+
+            add((new gui::vgroup)->
+                add((new gui::hgroup)->
+                    add(new label("File"))->
+                    add(E))->
+                add(F))));
+}
+
+//-----------------------------------------------------------------------------
 // The toplevel control panel
 
 cnt::control::control(wrl::world *W, int w, int h)
@@ -394,12 +465,14 @@ cnt::control::control(wrl::world *W, int w, int h)
                 add(new panel_button("World", O, 0))->
                 add(new panel_button("Solid", O, 1))->
                 add(new panel_button("Joint", O, 2))->
+                add(new panel_button("Light", O, 3))->
                 add(new gui::spacer))->
             add(new gui::spacer)->
             add(O->
                 add(new world_panel(W, O))->
                 add(new solid_panel(W, O))->
-                add(new joint_panel(W, O))));
+                add(new joint_panel(W, O))->
+                add(new light_panel(W, O))));
 
     root->layup();
     root->laydn((w - root->get_w()) / 2,

@@ -42,10 +42,12 @@ mode::info::~info()
 void mode::info::gui_show()
 {
     gui = new cnt::control(world, gui_w, gui_h);
+    gui->show();
 }
 
 void mode::info::gui_hide()
 {
+    gui->hide();
     delete gui;
     gui = 0;
 }
