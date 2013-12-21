@@ -93,11 +93,11 @@ double wrl::atom::set_lighting(int light, const vec4& p,
     return 0.0;
 }
 
-void wrl::atom::get_surface(dSurfaceParameters& s)
+void wrl::atom::get_surface(dSurfaceParameters& s) const
 {
     // Merge this atom's surface parameters with the given structure.
 
-    param_map::iterator i;
+    param_map::const_iterator i;
 
     if ((i = params.find(wrl::param::mu))       != params.end())
         s.mu       = std::min(s.mu,       dReal(i->second->value()));

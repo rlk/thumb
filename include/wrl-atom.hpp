@@ -49,12 +49,6 @@ namespace wrl
         void live(dSpaceID) const;
         void dead(dSpaceID) const;
 
-        // Parameter handlers
-
-        virtual double set_lighting(int, const vec4&, const vec4&, int, int) const;
-
-        void get_surface(dSurfaceParameters&);
-
         // Transform methods
 
         mat4 get_world() const;
@@ -88,6 +82,12 @@ namespace wrl
         virtual void step_fini() { }
         virtual void play_init() { }
         virtual void play_fini() { }
+
+        // Parameter handlers
+
+        virtual double set_lighting(int, const vec4&, const vec4&, int, int) const;
+
+        void get_surface(dSurfaceParameters&) const;
 
         // File I/O
 
