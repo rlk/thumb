@@ -55,23 +55,23 @@ double wrl::light::set_lighting(int light, const vec4& p,
 
     // Extract all lighting-oriented parameters and pass them to OpenGL.
 
-    for (param_map::const_iterator i = params.begin(); i != params.end(); ++i)
-        switch (i->first)
+    for (param_map::const_iterator c = params.begin(); c != params.end(); ++c)
+        switch (c->first)
         {
-            case GL_RED:   d[0] = GLfloat(i->second->value()); break;
-            case GL_GREEN: d[1] = GLfloat(i->second->value()); break;
-            case GL_BLUE:  d[2] = GLfloat(i->second->value()); break;
+            case GL_RED:   d[0] = GLfloat(c->second->value()); break;
+            case GL_GREEN: d[1] = GLfloat(c->second->value()); break;
+            case GL_BLUE:  d[2] = GLfloat(c->second->value()); break;
 
             case GL_SPOT_CUTOFF:
 
-                cutoff = i->second->value();
+                cutoff = c->second->value();
 
             case GL_QUADRATIC_ATTENUATION:
             case GL_CONSTANT_ATTENUATION:
             case GL_LINEAR_ATTENUATION:
             case GL_SPOT_EXPONENT:
 
-                glLightf(L, GLenum(i->first), GLfloat(i->second->value()));
+                glLightf(L, GLenum(c->first), GLfloat(c->second->value()));
                 break;
         }
 
