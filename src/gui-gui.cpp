@@ -605,6 +605,7 @@ void gui::editor::key(int k, int m)
 
     case SDL_SCANCODE_RETURN:
         update();
+        apply();
         return;
 
    // Handle deletion to the left.
