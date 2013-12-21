@@ -358,7 +358,7 @@ void wrl::hinge::save(app::node node)
 
     app::node n("joint");
 
-    n.set_s("type", "hing");
+    n.set_s("type", "hinge");
     n.insert(node);
     joint::save(n);
 }
