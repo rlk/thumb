@@ -61,13 +61,12 @@ void wrl::box::scale()
 
         fill->merge_bound(bound);
 
-        line_scale[0] = bound.xlength() / 2;
-        line_scale[1] = bound.ylength() / 2;
-        line_scale[2] = bound.zlength() / 2;
+        vec3 d = bound.max()
+               - bound.min();
 
-        dGeomBoxSetLengths(edit_geom, bound.xlength(),
-                                      bound.ylength(),
-                                      bound.zlength());
+        line_scale = d / 2.0;
+
+        dGeomBoxSetLengths(edit_geom, d[0], d[1], d[2]);
     }
 }
 
@@ -81,11 +80,12 @@ void wrl::sphere::scale()
 
         fill->merge_bound(bound);
 
-        line_scale[0] = bound.xlength() / 2;
-        line_scale[1] = bound.xlength() / 2;
-        line_scale[2] = bound.xlength() / 2;
+        float r = (bound.max()[0]
+                 - bound.min()[0]) / 2.0;
 
-        dGeomSphereSetRadius(edit_geom, bound.xlength() / 2);
+        line_scale = vec3(r, r, r);
+
+        dGeomSphereSetRadius(edit_geom, r);
     }
 }
 

@@ -41,18 +41,14 @@ namespace ogl
         void draw(bool, bool, bool, bool) const;
         void draw()                       const;
 
-        vec3    center() const { return  (a + z) / 2.0; }
-        vec3    offset() const { return -(a + z) / 2.0; }
+        vec3 center() const { return  (a + z) / 2.0; }
+        vec3 offset() const { return -(a + z) / 2.0; }
 
-        vec3       min() const { return a; }
-        vec3       max() const { return z; }
+        vec3    min() const { return a; }
+        vec3    max() const { return z; }
 
-        double xlength() const { return z[0] - a[0]; }
-        double ylength() const { return z[1] - a[1]; }
-        double zlength() const { return z[2] - a[2]; }
-
-        double min(const vec4&) const;
-        double max(const vec4&) const;
+        double  min(const vec4&) const;
+        double  max(const vec4&) const;
 
         void dump() const
         {
