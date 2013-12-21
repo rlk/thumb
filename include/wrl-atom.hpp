@@ -51,8 +51,9 @@ namespace wrl
 
         // Parameter handlers
 
-        double set_lighting(int, int, int, int) const;
-        void   get_surface(dSurfaceParameters&);
+        virtual double set_lighting(int, const vec4&, const vec4&, int, int) const;
+
+        void get_surface(dSurfaceParameters&);
 
         // Transform methods
 

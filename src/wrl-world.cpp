@@ -958,15 +958,14 @@ void wrl::world::shadow(int frusi, const app::frustum *frusp, int light)
                                       * ::view->get_inverse());
 }
 
-int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
+int wrl::world::s_light(const vec3& p, const vec3& v,
+                        int frusc, const app::frustum *const *frusv,
                         int light, const ogl::aabb& visible, const atom *a)
 {
-    const vec3 p =  wvector(a->get_local());
-    const vec3 v = -yvector(a->get_local());
 
-    double f = 2.0 * a->set_lighting(light, 0, 1, 1);
+    double f = 2.0 * a->set_lighting(light, vec4(p, 1), vec4(-v, 0), 0, 1);
 
-    app::perspective_frustum frust(p, v, f, 1.0);
+    app::perspective_frustum frust(p, -v, f, 1.0);
     ogl::aabb b = fill_pool->view(frusc + light, frust.get_world_planes(), 5);
     frust.set_bound(mat4(), b);
     shadow(frusc + light, &frust, light);
@@ -974,17 +973,15 @@ int wrl::world::s_light(int frusc, const app::frustum *const *frusv,
     return 1;
 }
 
-int wrl::world::d_light(int frusc, const app::frustum *const *frusv,
+int wrl::world::d_light(const vec3& p, const vec3& v,
+                        int frusc, const app::frustum *const *frusv,
                         int light, const ogl::aabb& visible, const atom *a)
 {
-    // const vec3 v = yvector(a->get_local());
-    const vec3 v = wvector(a->get_local());
-
     int n = 3;
 
     for (int i = 0; i < n; i++)
     {
-        a->set_lighting(light + i, i, n, 0);
+        a->set_lighting(light + i, vec4(v, 0), vec4(v, 0), i, n);
 
         // Compute the visible union of the bounds of this split.
 
@@ -1026,10 +1023,14 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     for (a = all.begin(); a != all.end(); ++a)
     {
+        const mat4 T = (*a)->get_fill()->get_world_transform();
+        const vec3 p = wvector(T);
+        const vec3 v = yvector(T);
+
         switch ((*a)->priority())
         {
-            case -1: light += s_light(frusc, frusv, light, bb, *a); break;
-            case -2: light += d_light(frusc, frusv, light, bb, *a); break;
+            case -1: light += s_light(p, v, frusc, frusv, light, bb, *a); break;
+            case -2: light += d_light(p, v, frusc, frusv, light, bb, *a); break;
             default: return;
         }
     }

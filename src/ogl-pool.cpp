@@ -181,6 +181,11 @@ void ogl::unit::transform(const mat4& M, const mat4& I)
     rebuff = true;
 }
 
+mat4 ogl::unit::get_world_transform() const
+{
+    return my_node->get_world_transform() * M;
+}
+
 //-----------------------------------------------------------------------------
 
 void ogl::unit::merge_batch(mesh_m& meshes)
@@ -429,6 +434,11 @@ void ogl::node::sort(GLuint *e, GLuint d)
 void ogl::node::transform(const mat4& M)
 {
     this->M = M;
+}
+
+mat4 ogl::node::get_world_transform() const
+{
+    return M;
 }
 
 //-----------------------------------------------------------------------------

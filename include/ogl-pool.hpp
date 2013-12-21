@@ -125,6 +125,8 @@ namespace ogl
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
 
+        mat4 get_world_transform() const;
+
     private:
 
         mat4 M;
@@ -174,6 +176,8 @@ namespace ogl
         GLsizei ecount() const { return ec; }
 
         void transform(const mat4&);
+
+        mat4 get_world_transform() const;
 
     private:
 

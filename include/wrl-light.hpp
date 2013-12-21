@@ -25,6 +25,8 @@ namespace wrl
 
         light(std::string);
 
+        virtual double set_lighting(int, const vec4&, const vec4&, int, int) const;
+
         virtual void play_init();
         virtual void play_fini();
     };

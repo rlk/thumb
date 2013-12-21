@@ -86,61 +86,11 @@ void wrl::atom::dead(dSpaceID space) const
 }
 
 //-----------------------------------------------------------------------------
-#include <app-view.hpp>
 
-double wrl::atom::set_lighting(int light, int i, int m, int w) const
+double wrl::atom::set_lighting(int light, const vec4& p,
+                                          const vec4& v, int i, int m) const
 {
-    const GLenum L = GL_LIGHT0 + light;
-
-    GLfloat d[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    GLfloat a[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-    double cutoff = 90.0;
-
-    // Extract all lighting-oriented parameters and pass them to OpenGL.
-
-    for (param_map::const_iterator i = params.begin(); i != params.end(); ++i)
-        switch (i->first)
-        {
-            case GL_RED:   d[0] = GLfloat(i->second->value()); break;
-            case GL_GREEN: d[1] = GLfloat(i->second->value()); break;
-            case GL_BLUE:  d[2] = GLfloat(i->second->value()); break;
-
-            case GL_SPOT_CUTOFF:
-
-                cutoff = i->second->value();
-
-            case GL_QUADRATIC_ATTENUATION:
-            case GL_CONSTANT_ATTENUATION:
-            case GL_LINEAR_ATTENUATION:
-            case GL_SPOT_EXPONENT:
-
-                glLightf(L, GLenum(i->first), GLfloat(i->second->value()));
-                break;
-        }
-
-    // Diffuse and ambient colors.
-
-    a[0] = GLfloat(i    ) / GLfloat(m);
-    a[1] = GLfloat(i + 1) / GLfloat(m);
-
-    glLightfv(L, GL_DIFFUSE, d);
-    glLightfv(L, GL_AMBIENT, a);
-
-    // Position and direction.
-    const mat4 M = ::view->get_transform();
-    // const mat4 T = transpose(inverse(M));
-
-    const vec4 p = M * vec4( wvector(current_M), w);
-    const vec4 v = M * vec4(-yvector(current_M), 0);
-
-    GLfloat P[4] = { p[0], p[1], p[2], p[3] };
-    GLfloat V[4] = { v[0], v[1], v[2], v[2] };
-
-    glLightfv(L, GL_POSITION,       P);
-    glLightfv(L, GL_SPOT_DIRECTION, V);
-
-    return cutoff;
+    return 0.0;
 }
 
 void wrl::atom::get_surface(dSurfaceParameters& s)
@@ -178,11 +128,8 @@ void wrl::atom::transform(const mat4& T)
 
     // Apply the current transform to the fill and line units.
 
-    if (fill)
-        fill->transform(M, inverse(M));
-
-    if (line)
-        line->transform(N, inverse(N));
+    if (fill) fill->transform(M, inverse(M));
+    if (line) line->transform(N, inverse(N));
 }
 
 mat4 wrl::atom::get_world() const
