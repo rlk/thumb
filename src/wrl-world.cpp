@@ -922,8 +922,14 @@ ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::shadow(int frusi, const app::frustum *frusp, int light)
+void wrl::world::shadow(int frusi, app::frustum *frusp, int light)
 {
+    // Bound the frustum to its visible volume.
+
+    ogl::aabb b = fill_pool->view(frusi, frusp->get_world_planes(), 5);
+
+    frusp->set_bound(mat4(), b);
+
     // Render the fill geometry to the shadow buffer.
 
     process_shadow[light]->bind_frame();
@@ -962,12 +968,9 @@ int wrl::world::s_light(const vec3& p, const vec3& v,
                         int frusc, const app::frustum *const *frusv,
                         int light, const ogl::aabb& visible, const atom *a)
 {
-
     double f = 2.0 * a->set_lighting(light, vec4(p, 1), vec4(-v, 0), 0, 1);
 
     app::perspective_frustum frust(p, -v, f, 1.0);
-    ogl::aabb b = fill_pool->view(frusc + light, frust.get_world_planes(), 5);
-    frust.set_bound(mat4(), b);
     shadow(frusc + light, &frust, light);
 
     return 1;
@@ -979,9 +982,9 @@ int wrl::world::d_light(const vec3& p, const vec3& v,
 {
     int n = 3;
 
-    for (int i = 0; i < n; i++)
+    for (int i = 0; i < n; i++, light++)
     {
-        a->set_lighting(light + i, vec4(v, 0), vec4(v, 0), i, n);
+        a->set_lighting(light, vec4(v, 0), vec4(v, 0), i, n);
 
         // Compute the visible union of the bounds of this split.
 
@@ -995,9 +998,7 @@ int wrl::world::d_light(const vec3& p, const vec3& v,
         // Render a shadow map encompasing this bound.
 
         app::orthogonal_frustum frust(bound, v);
-        ogl::aabb b = fill_pool->view(frusc + light + i, frust.get_world_planes(), 5);
-        frust.set_bound(mat4(), b);
-        shadow(frusc + light + i, &frust, light + i);
+        shadow(frusc + light, &frust, light);
     }
     return n;
 }

@@ -29,6 +29,8 @@ namespace wrl
 
         virtual void play_init();
         virtual void play_fini();
+
+        virtual void load(app::node);
     };
 
     //-------------------------------------------------------------------------

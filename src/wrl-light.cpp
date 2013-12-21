@@ -27,8 +27,7 @@ wrl::d_light::d_light() : light("solid/d-light.obj")
     params[GL_BLUE]                  = new param("color_blue",            "1.0");
 }
 
-//wrl::s_light::s_light() : light("solid/s-light.obj")
-wrl::s_light::s_light() : light("solid/wooden-cube.obj")
+wrl::s_light::s_light() : light("solid/s-light.obj")
 {
     params[GL_RED]                   = new param("color_red",             "1.0");
     params[GL_GREEN]                 = new param("color_green",           "1.0");
@@ -117,13 +116,19 @@ void wrl::light::play_fini()
 
 //-----------------------------------------------------------------------------
 
+void wrl::light::load(app::node node)
+{
+    // Skip solid::load.
+    atom::load(node);
+}
+
 void wrl::d_light::save(app::node node)
 {
     app::node n("light");
 
     n.set_s("type", "d-light");
     n.insert(node);
-    solid::save(n);
+    atom::save(n);
 }
 
 void wrl::s_light::save(app::node node)
@@ -132,7 +137,7 @@ void wrl::s_light::save(app::node node)
 
     n.set_s("type", "s-light");
     n.insert(node);
-    solid::save(n);
+    atom::save(n);
 }
 
 //-----------------------------------------------------------------------------
