@@ -157,7 +157,7 @@ bool mode::edit::process_click(app::event *E)
 
                     mat4 M;
 
-                    if (m & KMOD_CTRL)
+                    if (m & KMOD_ALT)
                         M = focus->get_local();
                     else
                         M = focus->get_world();
