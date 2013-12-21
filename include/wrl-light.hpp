@@ -19,7 +19,7 @@
 
 namespace wrl
 {
-    class light : public atom
+    class light : public sphere
     {
     public:
 
