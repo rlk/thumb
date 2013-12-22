@@ -37,9 +37,7 @@
 wrl::world::world() :
     shadow_res(::conf->get_i("shadow_map_resolution", 1024)),
 
-    sky      (::glob->load_binding("sky-water",       "sky-water")),
-    sky_light(::glob->load_binding("sky-water-light", "sky-water-light")),
-    sky_shade(::glob->load_binding("sky-water-shade", "sky-water-shade")),
+    sky(::glob->load_binding("sky-water", "sky-water")),
     serial(1)
 {
     // Initialize the editor physical system.
@@ -130,8 +128,6 @@ wrl::world::~world()
 
     // Finalize the sky materials.
 
-    ::glob->free_binding(sky_shade);
-    ::glob->free_binding(sky_light);
     ::glob->free_binding(sky);
 }
 

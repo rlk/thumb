@@ -156,8 +156,6 @@ namespace wrl
         ogl::node *line_node;
 
         const ogl::binding *sky;
-        const ogl::binding *sky_light;
-        const ogl::binding *sky_shade;
 
         void node_insert(int, ogl::unit *, ogl::unit *);
         void node_remove(int, ogl::unit *, ogl::unit *);

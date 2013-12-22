@@ -389,8 +389,8 @@ void app::perspective_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
         f = bound.max(p);
     }
 
-    if (n < 1.0) // TODO: this is a hack to prevent lightsource self-shadow
-        n = 1.0;
+    if (n < 0.1)
+        n = 0.1;
 
     cache_points(get_transform() * V);
 }

@@ -119,10 +119,11 @@ bool ogl::binding::depth_eq(const binding *that) const
     if (that == this)
         return true;
 
-    // If both bindings are opaque then they are functionally equivalent.
+    // If neither depth program discards then they are functionally equivalent.
+    // This optimization is critical for high performance shadowing and z-only.
 
-    if (opaque() && that->opaque())
-        return true;
+    if (that->depth_program->discards() == false
+           && depth_program->discards() == false) return true;
 
     // If any programs or textures differ then the bindings are not equivalent.
 
@@ -153,12 +154,19 @@ bool ogl::binding::color_eq(const binding *that) const
 
 bool ogl::binding::opaque() const
 {
-    // HACK (borderline): Test the lowest-unit-numbered texture for opacity.
+    // If the color program discards, then this binding is not opaque.
 
-    if (!color_texture.empty())
-        return (*color_texture.begin()).second->opaque();
+    if (color_program->discards())
+        return false;
 
-    return true;
+    // If there is no color texture to modulate opacity, then it is opaque.
+
+    if (color_texture.empty())
+        return true;
+
+    // Otherwise opacity is determined by the lowest-unit-numbered texture.
+
+    return (*color_texture.begin()).second->opaque();
 }
 
 //-----------------------------------------------------------------------------
@@ -193,7 +201,7 @@ bool ogl::binding::bind(bool c) const
             return true;
         }
     }
-    return true; // HACK HACK (Convert ALL objects to use material bindings.)
+    return false;
 }
 
 //-----------------------------------------------------------------------------

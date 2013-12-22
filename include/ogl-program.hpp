@@ -50,6 +50,8 @@ namespace ogl
 
         GLenum unit(std::string) const;
 
+        bool discards() const { return discard; }
+
         void uniform(std::string, int)                     const;
         void uniform(std::string, double)                  const;
         void uniform(std::string, const vec2&)             const;
@@ -77,6 +79,7 @@ namespace ogl
         uniform_map uniforms;
 
         bool bindable;
+        bool discard;
 
         bool program_log(GLhandleARB, const std::string&);
         bool  shader_log(GLhandleARB, const std::string&);
