@@ -111,7 +111,7 @@ namespace ogl
         void apply_offset(const double *);
         void calc_tangent();
 
-        void add_vert(GLvec3&,  GLvec3&,  GLvec2&);
+        void add_vert(GLvec3&, GLvec3&, GLvec2&);
         void add_face(GLuint, GLuint, GLuint);
         void add_line(GLuint, GLuint);
 

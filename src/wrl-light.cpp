@@ -17,6 +17,32 @@
 
 wrl::light::light(std::string fill) : sphere(fill)
 {
+    ambient[0]     =  0;
+    ambient[1]     =  0;
+    ambient[2]     =  0;
+    ambient[3]     =  1;
+
+    diffuse[0]     =  0;
+    diffuse[1]     =  0;
+    diffuse[2]     =  0;
+    diffuse[3]     =  1;
+
+    position[0]    =  0;
+    position[1]    =  0;
+    position[2]    =  1;
+    position[3]    =  0;
+
+    direction[0]   =  0;
+    direction[1]   =  0;
+    direction[2]   = -1;
+    direction[3]   =  0;
+
+    attenuation[0] =  1;
+    attenuation[1] =  0;
+    attenuation[2] =  0;
+
+    exponent       =  0;
+    cutoff         = 90;
 }
 
 
@@ -43,73 +69,100 @@ wrl::s_light::s_light() : light("solid/s-light.obj")
 
 #include <app-view.hpp>
 
-double wrl::light::set_lighting(int light, const vec4& p,
-                                           const vec4& v, int i, int m) const
+double wrl::light::cache_light(int light, const vec4& p,
+                                          const vec4& v, int i, int m)
 {
-    const GLenum L = GL_LIGHT0 + light;
-
-    GLfloat d[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-    GLfloat a[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
-    double cutoff = 90.0;
-
-    // Extract all lighting-oriented parameters and pass them to OpenGL.
+    // Extract all lighting-oriented parameters.
 
     for (param_map::const_iterator c = params.begin(); c != params.end(); ++c)
+    {
+        const GLfloat v = GLfloat(c->second->value());
+
         switch (c->first)
         {
-            case GL_RED:   d[0] = GLfloat(c->second->value()); break;
-            case GL_GREEN: d[1] = GLfloat(c->second->value()); break;
-            case GL_BLUE:  d[2] = GLfloat(c->second->value()); break;
-
-            case GL_SPOT_CUTOFF:
-
-                cutoff = c->second->value();
-
-            case GL_QUADRATIC_ATTENUATION:
-            case GL_CONSTANT_ATTENUATION:
-            case GL_LINEAR_ATTENUATION:
-            case GL_SPOT_EXPONENT:
-
-                glLightf(L, GLenum(c->first), GLfloat(c->second->value()));
-                break;
+            case GL_RED:                       diffuse[0] = v; break;
+            case GL_GREEN:                     diffuse[1] = v; break;
+            case GL_BLUE:                      diffuse[2] = v; break;
+            case GL_CONSTANT_ATTENUATION:  attenuation[0] = v; break;
+            case GL_LINEAR_ATTENUATION:    attenuation[1] = v; break;
+            case GL_QUADRATIC_ATTENUATION: attenuation[2] = v; break;
+            case GL_SPOT_EXPONENT:            exponent    = v; break;
+            case GL_SPOT_CUTOFF:                cutoff    = v; break;
         }
+    }
 
-    // Diffuse and ambient colors.
+    // The ambient color is used to convey split parameters.
 
-    a[0] = GLfloat(i    ) / GLfloat(m);
-    a[1] = GLfloat(i + 1) / GLfloat(m);
+    ambient[0] = GLfloat(i    ) / GLfloat(m);
+    ambient[1] = GLfloat(i + 1) / GLfloat(m);
 
-    glLightfv(L, GL_DIFFUSE, d);
-    glLightfv(L, GL_AMBIENT, a);
+    // Compute the eye-space position and direction.
 
-    // Position and direction.
-    const mat4 V = ::view->get_transform();
-
+    const mat4 V  = ::view->get_transform();
     const vec4 Vp = V * p;
     const vec4 Vv = V * v;
 
-    GLfloat P[4] = { Vp[0], Vp[1], Vp[2], Vp[3] };
-    GLfloat D[4] = { Vv[0], Vv[1], Vv[2], Vv[3] };
+    position[0]  = GLfloat(Vp[0]);
+    position[1]  = GLfloat(Vp[1]);
+    position[2]  = GLfloat(Vp[2]);
+    position[3]  = GLfloat(Vp[3]);
 
-    glLightfv(L, GL_POSITION,       P);
-    glLightfv(L, GL_SPOT_DIRECTION, D);
+    direction[0] = GLfloat(Vv[0]);
+    direction[1] = GLfloat(Vv[1]);
+    direction[2] = GLfloat(Vv[2]);
+    direction[3] = GLfloat(Vv[3]);
 
-    return cutoff;
+    // Feed these values to OpenGL and return the spot field-of-view.
+
+    apply_light(light);
+    return double(cutoff);
+}
+
+void wrl::s_light::apply_light(int light) const
+{
+    GLenum L = GL_LIGHT0 + light;
+
+    glPushMatrix();
+    {
+        glLoadIdentity();
+        glLightfv(L, GL_DIFFUSE,               diffuse);
+        glLightfv(L, GL_POSITION,              position);
+        glLightfv(L, GL_SPOT_DIRECTION,        direction);
+        glLightf (L, GL_SPOT_EXPONENT,         exponent);
+        glLightf (L, GL_SPOT_CUTOFF,           cutoff);
+        glLightf (L, GL_CONSTANT_ATTENUATION,  attenuation[0]);
+        glLightf (L, GL_LINEAR_ATTENUATION,    attenuation[1]);
+        glLightf (L, GL_QUADRATIC_ATTENUATION, attenuation[2]);
+    }
+    glPopMatrix();
+}
+
+void wrl::d_light::apply_light(int light) const
+{
+    GLenum L = GL_LIGHT0 + light;
+
+    glPushMatrix();
+    {
+        glLoadIdentity();
+        glLightfv(L, GL_AMBIENT,  ambient);
+        glLightfv(L, GL_DIFFUSE,  diffuse);
+        glLightfv(L, GL_POSITION, position);
+    }
+    glPopMatrix();
 }
 
 //-----------------------------------------------------------------------------
 
 void wrl::light::play_init()
 {
-    // if (fill) fill->set_mode(false);
+    if (fill) fill->set_mode(false);
 
     sphere::play_init();
 }
 
 void wrl::light::play_fini()
 {
-    // if (fill) fill->set_mode(true);
+    if (fill) fill->set_mode(true);
 
     sphere::play_fini();
 }

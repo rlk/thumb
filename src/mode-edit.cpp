@@ -380,8 +380,9 @@ void mode::edit::draw(int frusi, const app::frustum *frusp)
     ::view->load_transform();
 
     world->draw_fill(frusi, frusp);
-    world->draw_line(frusi, frusp);
-    xform->draw     (frusi);
+    world->draw_lite();
+    world->draw_line();
+    xform->draw(frusi);
 
 #if 0
     ogl::line_state_init();

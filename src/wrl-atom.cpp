@@ -87,10 +87,14 @@ void wrl::atom::dead(dSpaceID space) const
 
 //-----------------------------------------------------------------------------
 
-double wrl::atom::set_lighting(int light, const vec4& p,
-                                          const vec4& v, int i, int m) const
+double wrl::atom::cache_light(int light, const vec4& p,
+                                         const vec4& v, int i, int m)
 {
     return 0.0;
+}
+
+void wrl::atom::apply_light(int light) const
+{
 }
 
 void wrl::atom::get_surface(dSurfaceParameters& s) const

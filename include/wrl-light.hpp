@@ -13,6 +13,7 @@
 #ifndef WRL_LIGHT_HPP
 #define WRL_LIGHT_HPP
 
+#include <ogl-opengl.hpp>
 #include <wrl-solid.hpp>
 
 //-----------------------------------------------------------------------------
@@ -25,12 +26,25 @@ namespace wrl
 
         light(std::string);
 
-        virtual double set_lighting(int, const vec4&, const vec4&, int, int) const;
-
         virtual void play_init();
         virtual void play_fini();
 
+        virtual double cache_light(int, const vec4&, const vec4&, int, int);
+
         virtual void load(app::node);
+
+    protected:
+
+        // OpenGL lighting parameter cache
+
+        GLfloat     ambient[4];
+        GLfloat     diffuse[4];
+        GLfloat    position[4];
+        GLfloat   direction[4];
+        GLfloat attenuation[3];
+        GLfloat    exponent;
+        GLfloat      cutoff;
+
     };
 
     //-------------------------------------------------------------------------
@@ -43,6 +57,8 @@ namespace wrl
 
         virtual d_light *clone() const { return new d_light(*this); }
         virtual int   priority() const { return -2; }
+
+        virtual void apply_light(int) const;
 
         virtual void save(app::node);
     };
@@ -57,6 +73,8 @@ namespace wrl
 
         virtual s_light *clone() const { return new s_light(*this); }
         virtual int   priority() const { return -1; }
+
+        virtual void apply_light(int) const;
 
         virtual void save(app::node);
     };

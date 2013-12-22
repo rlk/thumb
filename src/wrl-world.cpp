@@ -966,9 +966,9 @@ void wrl::world::shadow(int frusi, app::frustum *frusp, int light)
 
 int wrl::world::s_light(const vec3& p, const vec3& v,
                         int frusc, const app::frustum *const *frusv,
-                        int light, const ogl::aabb& visible, const atom *a)
+                        int light, const ogl::aabb& visible, atom *a)
 {
-    double f = 2.0 * a->set_lighting(light, vec4(p, 1), vec4(-v, 0), 0, 1);
+    double f = 2.0 * a->cache_light(light, vec4(p, 1), vec4(-v, 0), 0, 1);
 
     app::perspective_frustum frust(p, -v, f, 1.0);
     shadow(frusc + light, &frust, light);
@@ -978,13 +978,13 @@ int wrl::world::s_light(const vec3& p, const vec3& v,
 
 int wrl::world::d_light(const vec3& p, const vec3& v,
                         int frusc, const app::frustum *const *frusv,
-                        int light, const ogl::aabb& visible, const atom *a)
+                        int light, const ogl::aabb& visible, atom *a)
 {
     int n = 3;
 
     for (int i = 0; i < n; i++, light++)
     {
-        a->set_lighting(light, vec4(v, 0), vec4(v, 0), i, n);
+        a->cache_light(light, vec4(v, 0), vec4(v, 0), i, n);
 
         // Compute the visible union of the bounds of this split.
 
@@ -1005,10 +1005,6 @@ int wrl::world::d_light(const vec3& p, const vec3& v,
 
 void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
-    // Ensure that light uniforms are set unmodified.
-
-    glLoadIdentity();
-
     // Determine the visible bounding volume. TODO: Remove this redundancy.
 
     ogl::aabb bb;
@@ -1020,7 +1016,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     int light = 0;
 
-    atom_set::const_iterator a;
+    atom_set::iterator a;
 
     for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
     {
@@ -1068,7 +1064,31 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     fill_pool->draw_fini();
 }
 
-void wrl::world::draw_line(int frusi, const app::frustum *frusp)
+void wrl::world::draw_lite()
+{
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Render the light geometry.
+
+    glDepthFunc(GL_EQUAL);
+    fill_pool->draw_init();
+    {
+        atom_set::const_iterator a;
+
+        for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
+        {
+            (*a)->apply_light(0);
+            (*a)->get_fill()->draw_faces();
+        }
+    }
+    fill_pool->draw_fini();
+    glDepthFunc(GL_LESS);
+}
+
+void wrl::world::draw_line()
 {
     // Render the line geometry.
 

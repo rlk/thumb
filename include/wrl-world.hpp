@@ -108,8 +108,8 @@ namespace wrl
 
         void shadow(int, app::frustum *, int);
 
-        int s_light(const vec3&, const vec3&, int, const app::frustum *const *, int, const ogl::aabb&, const atom *);
-        int d_light(const vec3&, const vec3&, int, const app::frustum *const *, int, const ogl::aabb&, const atom *);
+        int s_light(const vec3&, const vec3&, int, const app::frustum *const *, int, const ogl::aabb&, atom *);
+        int d_light(const vec3&, const vec3&, int, const app::frustum *const *, int, const ogl::aabb&, atom *);
 
         ogl::aabb prep_fill(int, const app::frustum *const *);
         ogl::aabb prep_line(int, const app::frustum *const *);
@@ -117,7 +117,8 @@ namespace wrl
         void           lite(int, const app::frustum *const *);
 
         void      draw_fill(int, const app::frustum *);
-        void      draw_line(int, const app::frustum *);
+        void      draw_lite();
+        void      draw_line();
 
     private:
 
