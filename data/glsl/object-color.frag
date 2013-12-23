@@ -31,9 +31,10 @@ vec3 shade(vec3 V, vec3 N, vec3 L, vec4 Td, vec4 Ts)
     float ks = pow(max(dot(V, R), 0.0), Ts.a * 64.0);
     float kd =     max(dot(L, N), 0.0);
 
-    float kn = step(0.0, L.z);
+    // float kn = step(0.0, L.z);
 
-    return (Td.rgb * kd + Ts.rgb * ks) * kn;
+    // return (Td.rgb * kd + Ts.rgb * ks) * kn;
+    return Td.rgb * kd + Ts.rgb * ks;
 }
 
 vec3 slight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
@@ -83,7 +84,7 @@ void main()
     vec4 Ts = texture2D(spec_map, gl_TexCoord[0].xy);
     vec4 Tn = texture2D(norm_map, gl_TexCoord[0].xy);
 
-    vec3 V = normalize(fV);
+    vec3 V = normalize(-fV);
     vec3 N = normalize(2.0 * Tn.rgb - 1.0);
 
     vec3 C = Ka * Td.rgb + light(V, N, Td, Ts, 0)
