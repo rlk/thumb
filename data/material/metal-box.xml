@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-  <material>
-    <program mode="depth" file="object-depth.xml" />
-    <program mode="color" file="object-color.xml">
-      <texture sampler="diff_map" name="metal-box-diffuse.png" />
-      <texture sampler="spec_map" name="metal-box-specular.png" />
-      <texture sampler="norm_map" name="metal-box-normal.png" />
-    </program>
-  </material>

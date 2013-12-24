@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-  <material>
-    <program mode="depth" file="sprite-depth.xml">
-      <texture sampler="color"  name="sprite-hard-circle.png" />
-    </program>
-    <program mode="color" file="sprite-color.xml">
-      <texture sampler="color"  name="sprite-hard-circle.png" />
-    </program>
-  </material>
