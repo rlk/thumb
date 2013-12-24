@@ -35,7 +35,7 @@
 //-----------------------------------------------------------------------------
 
 wrl::world::world() :
-    shadow_res(::conf->get_i("shadow_map_resolution", 1024)),
+    shadow_splits(::conf->get_i("shadow_map_splits", 3)),
 
     sky(::glob->load_binding("sky-water", "sky-water")),
     serial(1)
@@ -976,7 +976,7 @@ int wrl::world::d_light(const vec3& p, const vec3& v,
                         int frusc, const app::frustum *const *frusv,
                         int light, const ogl::aabb& visible, atom *a)
 {
-    int n = 3;
+    const int n = shadow_splits;
 
     for (int i = 0; i < n; i++, light++)
     {

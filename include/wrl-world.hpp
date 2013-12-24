@@ -113,9 +113,7 @@ namespace wrl
 
         ogl::aabb prep_fill(int, const app::frustum *const *);
         ogl::aabb prep_line(int, const app::frustum *const *);
-
         void           lite(int, const app::frustum *const *);
-
         void      draw_fill(int, const app::frustum *);
         void      draw_lite();
         void      draw_line();
@@ -143,7 +141,7 @@ namespace wrl
         atom_set all;
         atom_set sel;
 
-        int shadow_res;
+        int shadow_splits;
 
         // Batcher state
 
@@ -151,7 +149,6 @@ namespace wrl
 
         ogl::pool *fill_pool;
         ogl::node *fill_node;
-
         ogl::pool *line_pool;
         ogl::node *line_node;
 
