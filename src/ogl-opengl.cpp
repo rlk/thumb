@@ -32,52 +32,6 @@ bool ogl::do_hdr_tonemap;
 bool ogl::do_hdr_bloom;
 
 //-----------------------------------------------------------------------------
-// WGL swap interval
-
-#ifdef _WIN32
-
-#include <GL/wglew.h>
-
-static void sync(int interval)
-{
-    PFNWGLSWAPINTERVALEXTPROC _wglSwapInvervalEXT;
-
-    if ((_wglSwapInvervalEXT = (PFNWGLSWAPINTERVALEXTPROC)
-          wglGetProcAddress("wglSwapIntervalEXT")))
-         _wglSwapInvervalEXT(interval);
-}
-
-#endif
-
-//-----------------------------------------------------------------------------
-// GLX swap interval
-
-#ifdef __linux__
-
-#include <GL/glxew.h>
-
-static void sync(int interval)
-{
-    glXSwapIntervalSGI(interval);
-}
-
-#endif
-
-//-----------------------------------------------------------------------------
-// CGL swap interval
-
-#ifdef __APPLE__
-
-#include <OpenGL/OpenGL.h>
-
-static void sync(int interval)
-{
-    CGLSetParameter(CGLGetCurrentContext(), kCGLCPSwapInterval, &interval);
-}
-
-#endif
-
-//-----------------------------------------------------------------------------
 
 static void init_opt()
 {
@@ -128,10 +82,6 @@ static void init_opt()
 
     ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap") != 0);
     ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom")   != 0);
-
-    // Set vertical blanking synchronization state.
-
-    sync(::conf->get_i("sync"));
 }
 
 static void init_state(bool multisample)

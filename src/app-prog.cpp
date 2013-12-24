@@ -112,6 +112,8 @@ void app::prog::video()
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multb);
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &mults);
 
+    SDL_GL_SetSwapInterval(::conf->get_i("sync"));
+
     glewInit();
 
     ogl::init(multb > 0 && mults > 0);
