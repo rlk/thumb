@@ -11,7 +11,7 @@ varying vec3 fL[4];
 varying vec3 fD[4];
 varying vec4 fS[4];
 
-const vec3 Ka = vec3(0.2, 0.2, 0.2);
+const vec3 Ka = vec3(0.4, 0.4, 0.4);
 
 float splitc(float k, float n, float f)
 {
