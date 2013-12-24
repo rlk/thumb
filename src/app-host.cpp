@@ -37,6 +37,7 @@
 #include <app-conf.hpp>
 #include <app-view.hpp>
 #include <app-prog.hpp>
+#include <app-perf.hpp>
 #include <app-glob.hpp>
 #include <app-host.hpp>
 
@@ -613,9 +614,10 @@ void app::host::root_loop()
 
             // Call the render handler.
 
-            // printf("\033[2J\033[1;1H");
             process_event(E.mk_draw());
             process_event(E.mk_swap());
+
+            ::perf->step(true);
 
             // Count frames and record a movie, if requested.
 
@@ -896,7 +898,6 @@ bool app::host::process_event(event *E)
     case E_FLUSH: ::glob->fini();
                   ::glob->init(); return true;
     }
-
     return false;
 }
 

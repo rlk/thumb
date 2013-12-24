@@ -181,7 +181,7 @@ void app::perf::dump(bool log)
 //  SDL_WM_SetCaption(str.str().c_str(),
 //                    str.str().c_str());
 
-    if (log) std::cout << total << " " << fault << " " << ms << std::endl;
+    if (log) std::cout << str.str() << std::endl;
 
     fault  = 0;
     frames = 0;
