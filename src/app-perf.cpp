@@ -143,35 +143,33 @@ void app::perf::dump(bool log)
 
 #else // not NVPM =============================================================
 
-app::perf::perf(SDL_Window *w, int n) : window(w), total(0), frames(0), ticks(0), limit(n), last(0)
+app::perf::perf(SDL_Window *w, int n) : window(w), frames(0), limit(n)
 {
+    first = SDL_GetPerformanceCounter();
 }
 
 app::perf::~perf()
 {
 }
 
-void app::perf::miss()
-{
-    fault++;
-}
-
 void app::perf::step(bool log)
 {
-    int dt = int(SDL_GetTicks()) - last;
-
-    total  +=  1;
-    frames +=  1;
-    ticks  += dt;
-    last   += dt;
-
-    if (frames == limit) dump(log);
+    if (++frames == limit)
+    {
+        frames = 0;
+        dump(log);
+    }
 }
 
 void app::perf::dump(bool log)
 {
-    int   fps = int(ceil(1000.0 * frames / ticks));
-    double ms = double(ticks) / double(frames);
+    Uint64 count  = SDL_GetPerformanceCounter();
+    Uint64 persec = SDL_GetPerformanceFrequency();
+
+    double dt = double(count - first) / double(persec);
+    double ms = 1000.0 * dt / limit;
+
+    int   fps = int(ceil(limit / dt));
 
     std::ostringstream str;
 
@@ -182,9 +180,7 @@ void app::perf::dump(bool log)
 
     if (log) std::cout << str.str() << std::endl;
 
-    fault  = 0;
-    frames = 0;
-    ticks  = 0;
+    first = count;
 }
 
 #endif // not NVPM ============================================================
