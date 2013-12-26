@@ -59,19 +59,15 @@ namespace app
     {
         SDL_Window *window;
         
-        int total;
-        int frames;
-        int ticks;
-        int limit;
-        int last;
-        int fault;
+        Uint64 first;
+        int    frames;
+        int    limit;
 
     public:
 
         perf(SDL_Window *, int=DEFAULT_PERF_AVERAGE);
        ~perf();
 
-        void miss();
         void step(bool=false);
         void dump(bool=false);
     };
