@@ -8,8 +8,8 @@ void main()
     vec4 C1 = gl_LightSource[0].diffuse;
 
     float d = dot(N, gl_LightSource[0].spotDirection);
-    float s =   step(gl_LightSource[0].spotCosCutoff, d)
-            * pow(d, gl_LightSource[0].spotExponent);
+    float s =   step(gl_LightSource[0].spotCosCutoff, d);
+    //      * pow(d, gl_LightSource[0].spotExponent);
 
     gl_FragColor = mix(C0, C1, s);
 }

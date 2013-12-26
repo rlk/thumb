@@ -5,7 +5,7 @@
 CC    = cc
 CXX   = c++
 STRIP = strip
-CFLAGS= -g -Wall -fno-rtti -fno-diagnostics-fixit-info
+CFLAGS= -g -Wall -fno-rtti
 #CFLAGS= -O3 -ffast-math -fno-rtti -Wall -DNDEBUG
 RM    = rm -f
 CP    = cp
@@ -14,10 +14,10 @@ CFLAGS += -DVERSION=0.9
 
 #------------------------------------------------------------------------------
 
+# MacOS X configuration
+
 ifeq ($(shell uname), Darwin)
-	LIBEXT  = -L/usr/local/lib -lsixense_x64 \
-		  -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr \
-		  -framework OpenGL \
+	LIBEXT  = -framework OpenGL \
 		  -framework Cocoa  \
 		  -framework ApplicationServices \
 		  -framework Carbon \
@@ -27,8 +27,51 @@ ifeq ($(shell uname), Darwin)
 		  -framework ForceFeedback \
 		  -framework IOKit
 	CFLAGS += -mmacosx-version-min=10.6
-	INCDIR += -I/usr/local/OculusSDK/LibOVR/Include
+
+	# Optional Oculus SDK
+
+	ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
+		LIBEXT += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
+		INCDIR += -I/usr/local/OculusSDK/LibOVR/Include
+		CFLAGS += -DWITH_OCULUS
+	endif
+
+	# Optional Sixense SDK
+
+	ifneq (, $(wildcard /usr/local/lib/libsixense*))
+		LIBEXT += -L/usr/local/lib -lsixense_x64
+		INCDIR += -I/usr/local/lib
+		CFLAGS += -DWITH_SIXENSE
+	endif
 endif
+
+#------------------------------------------------------------------------------
+
+# Linux configuration
+
+ifeq ($(shell uname), Linux)
+	LIBEXT = -lGL
+
+	# Optional Oculus SDK
+
+	ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
+		LIBEXT += -L/usr/local/OculusSDK/LibOVR/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
+		INCDIR += -I/usr/local/OculusSDK/LibOVR/Include
+		CFLAGS += -DWITH_OCULUS
+	endif
+
+	# Optional Sixense SDK
+
+	ifneq ( ,$(wildcard /usr/local/lib/libsixense*))
+		LIBEXT += -L/usr/local/lib -lsixense_x64
+		INCDIR += -I/usr/local/lib
+		CFLAGS += -DWITH_SIXENSE
+	endif
+endif
+
+#------------------------------------------------------------------------------
+
+# MinGW configuration
 
 ifeq ($(shell uname), MINGW32_NT-6.1)
 	LIBEXT  = -lopengl32 -mwindows -lws2_32 -luser32 -lgdi32 -lwinmm
@@ -37,17 +80,9 @@ ifeq ($(shell uname), MINGW32_NT-6.1)
 	CFLAGS += -DGLEW_STATIC
 endif
 
-ifeq ($(shell uname), Linux)
-	LIBEXT  = -lGL -lpthread
-endif
-
-# Pass the compiler flags along to any sub-make.
-
-export CFLAGS
-
 #------------------------------------------------------------------------------
 
-# Search for static libraries or fall back on dynamic linking.
+# Seek static versions of all required libraries, fall back on dynamic.
 
 LIBFT2  = $(firstword $(wildcard /usr/local/lib/libfreetype*.a \
 				 /opt/local/lib/libfreetype*.a \
@@ -95,13 +130,9 @@ LIBSDL  = $(firstword $(wildcard /usr/local/lib/libSDL2*.a \
 				       /usr/lib/libSDL2*.a \
 				   C:/MinGW/lib/libSDL2*.a) -lSDL2)
 
-ifeq ($(shell uname), Linux)
-	LIBSDL = $(shell $(SDLCONF) --libs)
-endif
-
 #------------------------------------------------------------------------------
 
-# Search for package configurators or rely upon the path.
+# Search for package configurators or rely upon the PATH.
 
 SDLCONF = $(firstword $(wildcard /usr/local/bin/sdl2-config  \
 	                         /opt/local/bin/sdl2-config  \
@@ -114,6 +145,10 @@ FT2CONF = $(firstword $(wildcard /usr/local/bin/freetype-config  \
 
 CONF =	$(shell $(SDLCONF) --cflags) \
 	$(shell $(FT2CONF) --cflags)
+
+ifeq ($(shell uname), Linux)
+	LIBSDL = $(shell $(SDLCONF) --libs)
+endif
 
 #------------------------------------------------------------------------------
 
@@ -130,3 +165,8 @@ CONF =	$(shell $(SDLCONF) --cflags) \
 	$(CC) $(CFLAGS) $(CONF) $(INCDIR) -c $< -o $@
 
 #------------------------------------------------------------------------------
+
+# Pass the compiler flags along to any sub-make.
+
+export CFLAGS
+

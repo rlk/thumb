@@ -12,6 +12,7 @@
 
 #ifndef DEV_SIXENSE
 #define DEV_SIXENSE
+#ifdef WITH_SIXENSE
 
 #include <dev-input.hpp>
 #include <etc-vector.hpp>
@@ -64,4 +65,5 @@ namespace dev
 
 //-----------------------------------------------------------------------------
 
+#endif
 #endif

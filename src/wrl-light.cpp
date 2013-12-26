@@ -115,10 +115,11 @@ double wrl::light::cache_light(int light, const vec4& p,
     // Feed these values to OpenGL and return the spot field-of-view.
 
     apply_light(light);
+
     return double(cutoff);
 }
 
-void wrl::s_light::apply_light(int light) const
+void wrl::light::apply_light(int light) const
 {
     GLenum L = GL_LIGHT0 + light;
 
@@ -126,6 +127,7 @@ void wrl::s_light::apply_light(int light) const
     {
         glLoadIdentity();
         glLightfv(L, GL_DIFFUSE,               diffuse);
+        glLightfv(L, GL_AMBIENT,               ambient);
         glLightfv(L, GL_POSITION,              position);
         glLightfv(L, GL_SPOT_DIRECTION,        direction);
         glLightf (L, GL_SPOT_EXPONENT,         exponent);
@@ -133,20 +135,6 @@ void wrl::s_light::apply_light(int light) const
         glLightf (L, GL_CONSTANT_ATTENUATION,  attenuation[0]);
         glLightf (L, GL_LINEAR_ATTENUATION,    attenuation[1]);
         glLightf (L, GL_QUADRATIC_ATTENUATION, attenuation[2]);
-    }
-    glPopMatrix();
-}
-
-void wrl::d_light::apply_light(int light) const
-{
-    GLenum L = GL_LIGHT0 + light;
-
-    glPushMatrix();
-    {
-        glLoadIdentity();
-        glLightfv(L, GL_AMBIENT,  ambient);
-        glLightfv(L, GL_DIFFUSE,  diffuse);
-        glLightfv(L, GL_POSITION, position);
     }
     glPopMatrix();
 }

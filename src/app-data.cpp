@@ -240,6 +240,11 @@ static void find_ro_data(app::archive_l& archives)
     if (is_data_dir("data"))
         archives.push_back(new app::file_archive("data", false));
 
+    // Check if running out of the Thumb project source directory.
+
+    if (is_data_dir("../../data"))
+        archives.push_back(new app::file_archive("../../data", false));
+
     // Check the system share directory.
 
     if (is_data_dir(USR_SHARE))

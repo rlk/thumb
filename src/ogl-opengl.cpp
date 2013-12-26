@@ -12,6 +12,7 @@
 
 #include <stdexcept>
 #include <cassert>
+#include <cstdio>
 #include <sstream>
 
 #include <ogl-opengl.hpp>
@@ -55,12 +56,12 @@ static void init_opt()
     // The light count is constrained by both uniform and varying limits.
 
     GLint maxl;
-    GLint maxv;
+    GLint maxc;
 
-    glGetIntegerv(GL_MAX_LIGHTS,          &maxl);
-    glGetIntegerv(GL_MAX_VARYING_VECTORS, &maxv);
+    glGetIntegerv(GL_MAX_LIGHTS,             &maxl);
+    glGetIntegerv(GL_MAX_VARYING_COMPONENTS, &maxc);
 
-    ogl::max_lights = std::min(maxl, (maxv - 1) / 3);
+    ogl::max_lights = std::min(maxl, (maxc / 4 - 1) / 3);
 
     // Configuration options
 

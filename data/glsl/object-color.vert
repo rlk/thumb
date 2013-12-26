@@ -27,18 +27,18 @@ void main()
 
     // Tangent-space light source vector
 
-    fL[0] = T * mix(gl_LightSource[0].position.xyz,
-                    gl_LightSource[0].position.xyz - e.xyz,
-                    gl_LightSource[0].position.w);
-    fL[1] = T * mix(gl_LightSource[1].position.xyz,
-                    gl_LightSource[1].position.xyz - e.xyz,
-                    gl_LightSource[1].position.w);
-    fL[2] = T * mix(gl_LightSource[2].position.xyz,
-                    gl_LightSource[2].position.xyz - e.xyz,
-                    gl_LightSource[2].position.w);
-    fL[3] = T * mix(gl_LightSource[3].position.xyz,
-                    gl_LightSource[3].position.xyz - e.xyz,
-                    gl_LightSource[3].position.w);
+    fL[0] = T * normalize(mix(gl_LightSource[0].position.xyz,
+                              gl_LightSource[0].position.xyz - e.xyz,
+                              gl_LightSource[0].position.w));
+    fL[1] = T * normalize(mix(gl_LightSource[1].position.xyz,
+                              gl_LightSource[1].position.xyz - e.xyz,
+                              gl_LightSource[1].position.w));
+    fL[2] = T * normalize(mix(gl_LightSource[2].position.xyz,
+                              gl_LightSource[2].position.xyz - e.xyz,
+                              gl_LightSource[2].position.w));
+    fL[3] = T * normalize(mix(gl_LightSource[3].position.xyz,
+                              gl_LightSource[3].position.xyz - e.xyz,
+                              gl_LightSource[3].position.w));
 
     // Tangent-space light source direction
 

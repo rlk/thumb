@@ -148,8 +148,10 @@ app::host::host(app::prog *p, std::string filename,
                     displays.push_back(new dpy::lenticular(c));
                 else if (t == "normal")
                     displays.push_back(new dpy::normal    (c));
+#ifdef WITH_OCULUS
                 else if (t == "oculus")
                     displays.push_back(new dpy::oculus    (c));
+#endif
                 else
                     displays.push_back(new dpy::direct    (c));
             }
@@ -617,7 +619,7 @@ void app::host::root_loop()
             process_event(E.mk_draw());
             process_event(E.mk_swap());
 
-            ::perf->step(true);
+            ::perf->step();
 
             // Count frames and record a movie, if requested.
 

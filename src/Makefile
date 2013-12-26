@@ -73,21 +73,7 @@ DEPS= $(OBJS:.o=.d)
 
 TARG= libthumb.a
 
-#------------------------------------------------------------------------------
-
 INCDIR += -I../include
-
-#------------------------------------------------------------------------------
-
-ifdef NVPM
-	LIBS   += -lNVPerfSDK
-	CFLAGS += -DNVPM
-endif
-
-ifdef WII
-	LIBS   += -lcwiimote -lbluetooth
-	CFLAGS += -DENABLE_WIIMOTE
-endif
 
 #------------------------------------------------------------------------------
 

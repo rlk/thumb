@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#ifdef WITH_SIXENSE
+
 #include <cassert>
 
 #include <etc-vector.hpp>
@@ -198,3 +200,5 @@ bool dev::sixense::process_event(app::event *E)
 }
 
 //-----------------------------------------------------------------------------
+
+#endif

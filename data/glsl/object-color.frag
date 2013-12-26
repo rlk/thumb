@@ -49,21 +49,21 @@ vec3 slight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
                       gl_LightSource[i].linearAttenuation    * r +
                       gl_LightSource[i].quadraticAttenuation * r * r);
 
-    float s = step(gl_LightSource[i].spotCosCutoff, d) *
-            pow(d, gl_LightSource[i].spotExponent);
+    float s = step(gl_LightSource[i].spotCosCutoff, d);
+    //    * pow(d, gl_LightSource[i].spotExponent); // TODO: create something better
 
     return a * s * shade(V, N, L, Td, Ts);
 }
 
 vec3 dlight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
 {
+    vec3 L = normalize(fL[i]);
+
     float n = gl_ClipPlane[0].w;
     float f = gl_ClipPlane[1].w;
 
     float z0 = splitz(gl_LightSource[i].ambient.x, n, f);
     float z1 = splitz(gl_LightSource[i].ambient.y, n, f);
-
-    vec3 L = normalize(fL[i]);
 
     return shade(V, N, L, Td, Ts) * step(z0, gl_FragCoord.z)
                                   * step(gl_FragCoord.z, z1);

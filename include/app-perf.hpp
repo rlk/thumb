@@ -31,6 +31,8 @@ namespace app
 
     class perf
     {
+        SDL_Window *window;
+        
         static std::map<UINT, char *> _name;
         static std::map<UINT, UINT64> _hint;
 
@@ -44,7 +46,7 @@ namespace app
 
     public:
 
-        perf(int=DEFAULT_PERF_AVERAGE);
+        perf(SDL_Window *, int=DEFAULT_PERF_AVERAGE);
        ~perf();
 
         void step(bool=false);
@@ -55,6 +57,8 @@ namespace app
 
     class perf
     {
+        SDL_Window *window;
+        
         int total;
         int frames;
         int ticks;
@@ -64,7 +68,7 @@ namespace app
 
     public:
 
-        perf(int=DEFAULT_PERF_AVERAGE);
+        perf(SDL_Window *, int=DEFAULT_PERF_AVERAGE);
        ~perf();
 
         void miss();

@@ -151,7 +151,9 @@ app::prog::prog(const std::string& exe,
 
     if      (input_mode == "gamepad")  input = new dev::gamepad();
     else if (input_mode == "skeleton") input = new dev::skeleton();
+#ifdef WITH_SIXENSE
     else if (input_mode == "sixense")  input = new dev::sixense();
+#endif
 //  else if (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
 //  else if (input_mode == "trackd")   input = new dev::trackd();
 //  else if (input_mode == "hybrid")   input = new dev::hybrid("hybrid.xml");
@@ -182,7 +184,7 @@ app::prog::prog(const std::string& exe,
     // Initialize the OpenGL state.
 
     ::glob = new app::glob();
-    ::perf = new app::perf();
+    ::perf = new app::perf(window);
 
     // Configure some application-level key bindings.
 

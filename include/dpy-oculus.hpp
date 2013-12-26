@@ -12,6 +12,7 @@
 
 #ifndef DPY_OCULUS_HPP
 #define DPY_OCULUS_HPP
+#ifdef WITH_OCULUS
 
 #include <OVR.h>
 
@@ -84,4 +85,5 @@ namespace dpy
 
 //-----------------------------------------------------------------------------
 
+#endif
 #endif

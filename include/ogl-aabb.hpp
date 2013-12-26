@@ -50,12 +50,6 @@ namespace ogl
         double  min(const vec4&) const;
         double  max(const vec4&) const;
 
-        void dump() const
-        {
-            printf("% 6.2f % 6.2f % 6.2f ... % 6.2f % 6.2f % 6.2f\n",
-                a[0], a[1], a[2], z[0], z[1], z[2]);
-        }
-
     private:
 
         vec3 a;

@@ -1028,12 +1028,17 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     // Zero the unused lights.
 
-    GLfloat Z[4] = { 0, 0, 0, 0 };
-
     for (; light < ogl::max_lights; light++)
     {
-        glLightfv(GL_LIGHT0 + light, GL_POSITION, Z);
-        glLightfv(GL_LIGHT0 + light, GL_DIFFUSE,  Z);
+        GLfloat P[4] = { 0, 0,  1, 0 };
+        GLfloat Z[4] = { 0, 0,  0, 0 };
+        GLfloat D[4] = { 0, 0, -1, 0 };
+
+        glLightfv(GL_LIGHT0 + light, GL_POSITION,       P);
+        glLightfv(GL_LIGHT0 + light, GL_DIFFUSE,        Z);
+        glLightfv(GL_LIGHT0 + light, GL_SPOT_DIRECTION, D);
+        glLightf (GL_LIGHT0 + light, GL_CONSTANT_ATTENUATION, 1.f);
+        glLightf (GL_LIGHT0 + light, GL_SPOT_CUTOFF,        180.f);
     }
 }
 

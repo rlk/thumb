@@ -30,6 +30,7 @@ namespace wrl
         virtual void play_fini();
 
         virtual double cache_light(int, const vec4&, const vec4&, int, int);
+        virtual void   apply_light(int) const;
 
         virtual void load(app::node);
 
@@ -58,8 +59,6 @@ namespace wrl
         virtual d_light *clone() const { return new d_light(*this); }
         virtual int   priority() const { return -2; }
 
-        virtual void apply_light(int) const;
-
         virtual void save(app::node);
     };
 
@@ -73,8 +72,6 @@ namespace wrl
 
         virtual s_light *clone() const { return new s_light(*this); }
         virtual int   priority() const { return -1; }
-
-        virtual void apply_light(int) const;
 
         virtual void save(app::node);
     };
