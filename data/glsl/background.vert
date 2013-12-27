@@ -1,17 +1,20 @@
 
-varying vec4 fE;
-varying vec4 fV;
+varying vec3 fV;
 varying vec3 fL;
 
 void main()
 {
+    // Generate points on the far plane in clip coordinates.
+
     vec4 c = vec4(gl_MultiTexCoord0.xy, 0.999, 1.0);
 
-    fE = gl_ProjectionMatrixInverse * c;
-    fV = fE * gl_ModelViewMatrix;
-    fL = vec3(0.0, 1.0, 0.0);
+    // This funky MVP inversion eliminates the view translation.
+
+    fV = vec3(gl_ModelViewMatrixTranspose * gl_ProjectionMatrixInverse * c);
 
     // Light vector is given by the first directional light source position.
+
+    fL = vec3(0.0, 1.0, 0.0);
 
     if      (gl_LightSource[0].position.w == 0.0)
         fL = gl_LightSource[0].position.xyz;

@@ -1,18 +1,20 @@
 
-varying vec4 fE;
-varying vec4 fV;
+varying vec3 fV;
 varying vec3 fL;
 
 void main()
 {
-    vec3 V = normalize(fV.xyz);
+    vec3 V = normalize(fV);
     vec3 L = normalize(fL);
 
-    vec2   t = vec2(atan(V.x, V.z), asin(V.y));
-    float dt = fwidth(t);
+    vec4 a = vec4(0.4, 0.3, 0.2, 1.0);
+    vec4 b = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 c = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 d = vec4(0.2, 0.5, 1.0, 1.0);
 
-    vec2 e = vec2(0.95);
-    vec2 c = smoothstep(e - dt, e + dt, fract(t * 36 / 6.283185));
+    float e = 0.05;
 
-    gl_FragColor = vec4(c, 0.0, 1.0);
+    gl_FragColor = mix(mix(b, a, pow(abs(V.y), 0.2)),
+                       mix(c, d, pow(abs(V.y), 0.2)),
+                       smoothstep(-e, +e, V.y));
 }
