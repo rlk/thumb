@@ -91,6 +91,8 @@ static void init_state(bool multisample)
 
     if (ogl::has_multisample && multisample)
         glEnable(GL_MULTISAMPLE);
+
+    glAlphaFunc(GL_GREATER, 0.5f);
 }
 
 void ogl::init(bool multisample)

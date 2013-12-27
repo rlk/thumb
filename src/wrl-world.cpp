@@ -1051,11 +1051,7 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Render the fill geometry.
-
     draw_sky(frusp);
-
-    glAlphaFunc(GL_GREATER, 0.5f);
 
     fill_pool->draw_init();
     {
@@ -1063,6 +1059,7 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
+
 }
 
 void wrl::world::draw_lite()
