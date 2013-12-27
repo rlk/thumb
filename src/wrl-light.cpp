@@ -67,6 +67,33 @@ wrl::s_light::s_light() : light("solid/s-light.obj")
 
 //-----------------------------------------------------------------------------
 
+bool wrl::light::has_light()
+{
+    return (params[GL_RED  ]->value() > 0 ||
+            params[GL_GREEN]->value() > 0 ||
+            params[GL_BLUE ]->value() > 0);
+}
+
+void wrl::light::apply_light(int light) const
+{
+    GLenum L = GL_LIGHT0 + light;
+
+    glPushMatrix();
+    {
+        glLoadIdentity();
+        glLightfv(L, GL_DIFFUSE,               diffuse);
+        glLightfv(L, GL_AMBIENT,               ambient);
+        glLightfv(L, GL_POSITION,              position);
+        glLightfv(L, GL_SPOT_DIRECTION,        direction);
+        glLightf (L, GL_SPOT_EXPONENT,         exponent);
+        glLightf (L, GL_SPOT_CUTOFF,           cutoff);
+        glLightf (L, GL_CONSTANT_ATTENUATION,  attenuation[0]);
+        glLightf (L, GL_LINEAR_ATTENUATION,    attenuation[1]);
+        glLightf (L, GL_QUADRATIC_ATTENUATION, attenuation[2]);
+    }
+    glPopMatrix();
+}
+
 #include <app-view.hpp>
 
 double wrl::light::cache_light(int light, const vec4& p,
@@ -119,38 +146,18 @@ double wrl::light::cache_light(int light, const vec4& p,
     return double(cutoff);
 }
 
-void wrl::light::apply_light(int light) const
-{
-    GLenum L = GL_LIGHT0 + light;
-
-    glPushMatrix();
-    {
-        glLoadIdentity();
-        glLightfv(L, GL_DIFFUSE,               diffuse);
-        glLightfv(L, GL_AMBIENT,               ambient);
-        glLightfv(L, GL_POSITION,              position);
-        glLightfv(L, GL_SPOT_DIRECTION,        direction);
-        glLightf (L, GL_SPOT_EXPONENT,         exponent);
-        glLightf (L, GL_SPOT_CUTOFF,           cutoff);
-        glLightf (L, GL_CONSTANT_ATTENUATION,  attenuation[0]);
-        glLightf (L, GL_LINEAR_ATTENUATION,    attenuation[1]);
-        glLightf (L, GL_QUADRATIC_ATTENUATION, attenuation[2]);
-    }
-    glPopMatrix();
-}
-
 //-----------------------------------------------------------------------------
 
 void wrl::light::play_init()
 {
-    if (fill) fill->set_mode(false);
+    // if (fill) fill->set_mode(false);
 
     sphere::play_init();
 }
 
 void wrl::light::play_fini()
 {
-    if (fill) fill->set_mode(true);
+    // if (fill) fill->set_mode(true);
 
     sphere::play_fini();
 }
@@ -159,8 +166,7 @@ void wrl::light::play_fini()
 
 void wrl::light::load(app::node node)
 {
-    // Skip solid::load.
-    atom::load(node);
+    atom::load(node); // Skip solid::load.
 }
 
 void wrl::d_light::save(app::node node)

@@ -31,6 +31,7 @@ namespace wrl
 
         virtual double cache_light(int, const vec4&, const vec4&, int, int);
         virtual void   apply_light(int) const;
+        virtual bool     has_light();
 
         virtual void load(app::node);
 

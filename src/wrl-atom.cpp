@@ -97,6 +97,11 @@ void wrl::atom::apply_light(int light) const
 {
 }
 
+bool wrl::atom::has_light()
+{
+    return false;
+}
+
 void wrl::atom::get_surface(dSurfaceParameters& s) const
 {
     // Merge this atom's surface parameters with the given structure.

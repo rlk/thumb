@@ -1015,16 +1015,18 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
     atom_set::iterator a;
 
     for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
-    {
-        const mat4 T = (*a)->get_fill()->get_world_transform();
-        const vec3 p = wvector(T);
-        const vec3 v = yvector(T);
+        
+        if ((*a)->has_light())
+        {
+            const mat4 T = (*a)->get_fill()->get_world_transform();
+            const vec3 p = wvector(T);
+            const vec3 v = yvector(T);
 
-        if ((*a)->priority() == -1)
-            light += s_light(p, v, frusc, frusv, light, bb, *a);
-        if ((*a)->priority() == -2)
-            light += d_light(p, v, frusc, frusv, light, bb, *a);
-    }
+            if ((*a)->priority() == -1)
+                light += s_light(p, v, frusc, frusv, light, bb, *a);
+            if ((*a)->priority() == -2)
+                light += d_light(p, v, frusc, frusv, light, bb, *a);
+        }
 
     // Zero the unused lights.
 

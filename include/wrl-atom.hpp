@@ -85,10 +85,12 @@ namespace wrl
 
         // Parameter handlers
 
-        virtual double cache_light(int, const vec4&, const vec4&, int, int);
-        virtual void   apply_light(int) const;
-
         void get_surface(dSurfaceParameters&) const;
+
+        virtual void   apply_light(int) const;
+        virtual double cache_light(int, const vec4&, const vec4&, int, int);
+        virtual bool     has_light();
+
 
         // File I/O
 
