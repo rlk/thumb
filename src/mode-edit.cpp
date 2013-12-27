@@ -380,7 +380,7 @@ void mode::edit::draw(int frusi, const app::frustum *frusp)
     ::view->load_transform();
 
     world->draw_fill(frusi, frusp);
-    world->draw_lite();
+    // world->draw_lite();
     world->draw_line();
     xform->draw(frusi);
 

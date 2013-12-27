@@ -1015,7 +1015,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
     atom_set::iterator a;
 
     for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
-        
+
         if ((*a)->has_light())
         {
             const mat4 T = (*a)->get_fill()->get_world_transform();
@@ -1053,17 +1053,15 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    draw_sky(frusp);
-
     fill_pool->draw_init();
     {
         fill_pool->draw(frusi, true, false);
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
-
 }
 
+#if 0
 void wrl::world::draw_lite()
 {
     glEnable(GL_CULL_FACE);
@@ -1087,6 +1085,7 @@ void wrl::world::draw_lite()
     fill_pool->draw_fini();
     glDepthFunc(GL_LESS);
 }
+#endif
 
 void wrl::world::draw_line()
 {
@@ -1129,7 +1128,7 @@ void wrl::world::draw_line()
 }
 
 //-----------------------------------------------------------------------------
-
+#if 0
 void wrl::world::draw_sky(const app::frustum *frusp)
 {
     sky->bind(true);
@@ -1163,7 +1162,7 @@ void wrl::world::draw_sky(const app::frustum *frusp)
     }
     glDisable(GL_POLYGON_OFFSET_FILL);
 }
-
+#endif
 void wrl::world::draw_debug_wireframe(int frusi)
 {
     // Render the fill geometry in wireframe.

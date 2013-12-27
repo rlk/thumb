@@ -48,6 +48,8 @@ wrl::light::light(std::string fill) : sphere(fill)
 
 wrl::d_light::d_light() : light("solid/d-light.obj")
 {
+    if (fill) fill->set_ubiq(true); // The background is always visible
+
     params[GL_RED]                   = new param("color_red",             "1.0");
     params[GL_GREEN]                 = new param("color_green",           "1.0");
     params[GL_BLUE]                  = new param("color_blue",            "1.0");

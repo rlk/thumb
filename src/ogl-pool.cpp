@@ -84,6 +84,7 @@ ogl::unit::unit(std::string name, bool center) :
     my_node(0),
     rebuff(true),
     active(true),
+    ubiquitous(false),
     surf(glob->load_surface(name, center))
 {
     set_mesh();
@@ -95,6 +96,7 @@ ogl::unit::unit(const unit& that) :
     my_node(0),
     rebuff(true),
     active(true),
+    ubiquitous(false),
     surf(glob->dupe_surface(that.surf))
 {
     M = that.M;
@@ -166,6 +168,12 @@ void ogl::unit::set_mode(bool b)
 {
     if (my_node) my_node->set_resort();
     active = b;
+}
+
+void ogl::unit::set_ubiq(bool b)
+{
+    if (my_node) my_node->set_resort();
+    ubiquitous = b;
 }
 
 //-----------------------------------------------------------------------------
@@ -348,9 +356,13 @@ void ogl::node::sort(GLuint *e, GLuint d)
     // Create a list of all meshes of this node, sorted by material.
 
     my_mesh.clear();
+    ubiquitous = false;
 
     for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
+    {
         (*i)->merge_batch(my_mesh);
+        ubiquitous |= (*i)->is_ubiq();
+    }
 
     // Create a list of all element batches of this node.
 
@@ -472,7 +484,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
 {
     // Proceed if this node passed visibility test ID.
 
-    if (get_bit(test_cache, id))
+    if (ubiquitous || get_bit(test_cache, id))
     {
         // Select the batch vector.  Confirm that it is non-empty.
 
@@ -496,10 +508,8 @@ void ogl::node::draw(int id, bool color, bool alpha)
             {
                 glMultMatrixd(transpose(M));
 
-                for (elem_i i = b; i != e; ++i) i->draw(color);
-
-//              TODO: make this an option  ogl::draw_bounding_boxes
-//              my_aabb.draw();
+                for (elem_i i = b; i != e; ++i)
+                    i->draw(color);
             }
             glPopMatrix();
 

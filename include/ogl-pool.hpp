@@ -114,6 +114,9 @@ namespace ogl
 
         void set_node(node_p);
         void set_mode(bool);
+        void set_ubiq(bool);
+
+        bool is_ubiq() const { return ubiquitous; }
 
         void transform(const mat4&, const mat4&);
 
@@ -141,6 +144,7 @@ namespace ogl
 
         bool rebuff;
         bool active;
+        bool ubiquitous;
 
         const surface *surf;
 
@@ -186,6 +190,7 @@ namespace ogl
         GLsizei vc;
         GLsizei ec;
 
+        bool ubiquitous;
         bool rebuff;
 
         pool_p my_pool;
