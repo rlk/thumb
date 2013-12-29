@@ -349,7 +349,9 @@ static void snaptga(const char *filename, unsigned char *p, int w, int h)
 
     if ((d = open(filename, O_WRONLY | O_CREAT, 0666)) != -1)
     {
-        write(d, p, s + w * h * 3);
+        if (write(d, p, s + w * h * 3) == -1)
+            throw app::write_error(filename);
+
         close(d);
     }
 }
@@ -425,7 +427,9 @@ static void snapraw(const char *filename, unsigned char *p, int w, int h)
 
     if ((d = open(filename, O_WRONLY | O_CREAT, 0666)) != -1)
     {
-        write(d, p, w * h * 3);
+        if (write(d, p, w * h * 3) == -1)
+            throw app::write_error(filename);
+
         close(d);
     }
 }
