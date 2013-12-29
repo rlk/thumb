@@ -171,6 +171,8 @@ bool ogl::binding::opaque() const
 
 //-----------------------------------------------------------------------------
 
+// Apply all program and texture bindings for color or depth mode.
+
 bool ogl::binding::bind(bool c) const
 {
     // TODO: Minimize rebindings
@@ -202,6 +204,14 @@ bool ogl::binding::bind(bool c) const
         }
     }
     return false;
+}
+
+// Return a default texture for this binding. As implemented, this will be the
+// color texture associated with the lowest-numbered texture image unit.
+
+const ogl::texture *ogl::binding::get_default_texture() const
+{
+    return color_texture.empty() ? color_texture.begin()->second : 0;
 }
 
 //-----------------------------------------------------------------------------

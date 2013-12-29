@@ -128,8 +128,9 @@ namespace ogl
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
 
-        mat4 get_world_transform() const;
-
+        mat4                get_world_transform() const;
+        const ogl::texture *get_default_texture() const;
+        
     private:
 
         mat4 M;

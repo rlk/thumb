@@ -64,6 +64,8 @@ namespace ogl
         bool opaque() const;
 
         bool bind(bool) const;
+
+        const ogl::texture *get_default_texture() const;
     };
 }
 
