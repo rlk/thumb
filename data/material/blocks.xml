@@ -2,8 +2,8 @@
   <material>
     <program mode="depth" file="object-depth.xml" />
     <program mode="color" file="object-color.xml">
-      <texture sampler="diff_map" name="blocks-diffuse.png" />
-      <texture sampler="spec_map" name="highly-specular.png" />
-      <texture sampler="norm_map" name="default-normal.png" />
+      <texture sampler="diffuse"  name="blocks-diffuse.png" />
+      <texture sampler="specular" name="highly-specular.png" />
+      <texture sampler="normal"   name="default-normal.png" />
     </program>
   </material>

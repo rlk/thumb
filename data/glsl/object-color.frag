@@ -1,9 +1,9 @@
 #version 120
 
-uniform sampler2D       spec_map;
-uniform sampler2D       diff_map;
-uniform sampler2D       norm_map;
-
+uniform sampler2D       diffuse;
+uniform sampler2D       specular;
+uniform sampler2D       normal;
+  
 uniform sampler2DShadow shadow[4];
 
 varying vec3 fV;
@@ -80,9 +80,9 @@ vec3 light(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
 
 void main()
 {
-    vec4 Td = texture2D(diff_map, gl_TexCoord[0].xy);
-    vec4 Ts = texture2D(spec_map, gl_TexCoord[0].xy);
-    vec4 Tn = texture2D(norm_map, gl_TexCoord[0].xy);
+    vec4 Td = texture2D(diffuse,  gl_TexCoord[0].xy);
+    vec4 Ts = texture2D(specular, gl_TexCoord[0].xy);
+    vec4 Tn = texture2D(normal,   gl_TexCoord[0].xy);
 
     vec3 V = normalize(-fV);
     vec3 N = normalize(2.0 * Tn.rgb - 1.0);

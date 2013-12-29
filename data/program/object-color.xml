@@ -2,14 +2,19 @@
   <program vert="glsl/object-color.vert"
            frag="glsl/object-color.frag" >
 
-    <texture name="diff_map"  unit="0" />
-    <texture name="spec_map"  unit="1" />
-    <texture name="norm_map"  unit="2" />
+    <texture name="diffuse"   unit="0" />
+    <texture name="specular"  unit="1" />
+    <texture name="normal"    unit="2" />
 
-    <process name="shadow[0]" unit="3" process="shadow" index="0" />
-    <process name="shadow[1]" unit="4" process="shadow" index="1" />
-    <process name="shadow[2]" unit="5" process="shadow" index="2" />
-    <process name="shadow[3]" unit="6" process="shadow" index="3" />
+    <process name="shadow[0]" unit="8"  process="shadow" index="0" />
+    <process name="shadow[1]" unit="9"  process="shadow" index="1" />
+    <process name="shadow[2]" unit="10" process="shadow" index="2" />
+    <process name="shadow[3]" unit="11" process="shadow" index="3" />
+
+    <texture name="cookie[0]" unit="12" />
+    <texture name="cookie[1]" unit="13" />
+    <texture name="cookie[2]" unit="14" />
+    <texture name="cookie[3]" unit="15" />
 
     <uniform name="ShadowMatrix[0]" uniform="ShadowMatrix[0]" size="16" />
     <uniform name="ShadowMatrix[1]" uniform="ShadowMatrix[1]" size="16" />
