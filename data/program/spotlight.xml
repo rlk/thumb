@@ -1,0 +1,5 @@
+<?xml version="1.0"?>
+  <program vert="glsl/spotlight.vert"
+           frag="glsl/spotlight.frag" >
+    <texture name="cookie" unit="1" />
+  </program>
