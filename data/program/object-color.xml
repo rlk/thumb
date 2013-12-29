@@ -11,10 +11,10 @@
     <process name="shadow[2]" unit="10" process="shadow" index="2" />
     <process name="shadow[3]" unit="11" process="shadow" index="3" />
 
-    <texture name="cookie[0]" unit="12" />
-    <texture name="cookie[1]" unit="13" />
-    <texture name="cookie[2]" unit="14" />
-    <texture name="cookie[3]" unit="15" />
+    <process name="cookie[0]" unit="12" process="cookie" index="0" />
+    <process name="cookie[1]" unit="13" process="cookie" index="1" />
+    <process name="cookie[2]" unit="14" process="cookie" index="2" />
+    <process name="cookie[3]" unit="15" process="cookie" index="3" />
 
     <uniform name="ShadowMatrix[0]" uniform="ShadowMatrix[0]" size="16" />
     <uniform name="ShadowMatrix[1]" uniform="ShadowMatrix[1]" size="16" />

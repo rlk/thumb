@@ -37,6 +37,7 @@ OBJS=	app-data.o \
 	ogl-aabb.o \
 	ogl-binding.o \
 	ogl-buffer.o \
+	ogl-cookie.o \
 	ogl-cubelut.o \
 	ogl-d-omega.o \
 	ogl-frame.o \

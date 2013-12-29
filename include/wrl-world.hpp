@@ -169,8 +169,8 @@ namespace wrl
         // ...
 
         ogl::uniform *uniform_shadow[4];
-
-        const ogl::process *process_shadow[4];
+        ogl::process *process_shadow[4];
+        ogl::process *process_cookie[4];
 
         void draw_sky(const app::frustum *);
 

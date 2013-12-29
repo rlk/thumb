@@ -1,4 +1,4 @@
-//  Copyright (C) 2009-2011 Robert Kooima
+//  Copyright (C) 2013 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef OGL_SHADOW_HPP
-#define OGL_SHADOW_HPP
+#ifndef OGL_COOKIE_HPP
+#define OGL_COOKIE_HPP
 
 #include <ogl-process.hpp>
 
@@ -19,27 +19,24 @@
 
 namespace ogl
 {
-    class frame;
-    class binding;
+    class texture;
 }
 
 //-----------------------------------------------------------------------------
 
 namespace ogl
 {
-    class shadow : public process
+    class cookie : public process
     {
-        int size;
-
-        ogl::frame *buff;
+        const ogl::texture *texture;
 
     public:
 
-        shadow(const std::string&);
-       ~shadow();
+        cookie(const std::string&);
+       ~cookie();
 
-        void bind_frame() const;
-        void free_frame() const;
+        void set_texture(const ogl::texture *t) { texture = t; }
+
         void bind(GLenum) const;
     };
 }

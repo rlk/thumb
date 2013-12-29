@@ -105,18 +105,16 @@ namespace app
         // Named, reference-counted GL state.
 
               ogl::uniform *load_uniform(const std::string&, GLsizei);
+              ogl::process *load_process(const std::string&, int=0);
         const ogl::program *load_program(const std::string&);
-        const ogl::process *load_process(const std::string&, int=0);
-        const ogl::texture *load_texture(const std::string&,
-                                         const std::string&);
-        const ogl::binding *load_binding(const std::string&,
-                                         const std::string&);
+        const ogl::texture *load_texture(const std::string&, const std::string&);
+        const ogl::binding *load_binding(const std::string&, const std::string&);
         const ogl::surface *load_surface(const std::string&, bool);
         const ogl::terrain *load_terrain(const std::string&);
 
               ogl::uniform *dupe_uniform(      ogl::uniform *);
+              ogl::process *dupe_process(      ogl::process *);
         const ogl::program *dupe_program(const ogl::program *);
-        const ogl::process *dupe_process(const ogl::process *);
         const ogl::texture *dupe_texture(const ogl::texture *);
         const ogl::binding *dupe_binding(const ogl::binding *);
         const ogl::surface *dupe_surface(const ogl::surface *);
@@ -130,9 +128,9 @@ namespace app
         void free_surface(const std::string&);
         void free_terrain(const std::string&);
 
-        void free_uniform(      ogl::uniform *);
-        void free_program(const ogl::program *);
+        void free_uniform(const ogl::uniform *);
         void free_process(const ogl::process *);
+        void free_program(const ogl::program *);
         void free_texture(const ogl::texture *);
         void free_binding(const ogl::binding *);
         void free_surface(const ogl::surface *);
