@@ -415,13 +415,12 @@ cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                     add(new editor(W, wrl::param::brightness)))->
 
                 add((new gui::hgroup)->
-                    add(new label("Fall-off Rate"))->
-                    add(new editor(W, wrl::param::falloff)))->
+                    add(new label("Attenuation"))->
+                    add(new editor(W, wrl::param::attenuation)))->
 
                 add((new gui::hgroup)->
                     add(new label("Cut-off Angle"))->
                     add(new editor(W, wrl::param::cutoff))))));
-
 }
 
 //-----------------------------------------------------------------------------

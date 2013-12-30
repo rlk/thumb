@@ -11,7 +11,7 @@ varying vec4 fS[4];
 
 vec3 calc_L(vec4 light, vec4 eye)
 {
-    return normalize(mix(light.xyz, light.xyz - eye.xyz, light.w));
+    return mix(light.xyz, light.xyz - eye.xyz, light.w);
 }
 
 void main()

@@ -39,7 +39,7 @@ namespace wrl
             soft_cfm = dParamGroup * 4 + 7,
 
             brightness,
-            falloff,
+            attenuation,
             cutoff
         };
 

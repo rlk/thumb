@@ -59,18 +59,22 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    uniform_shadow[0] = ::glob->load_uniform("ShadowMatrix[0]", 16);
-    uniform_shadow[1] = ::glob->load_uniform("ShadowMatrix[1]", 16);
-    uniform_shadow[2] = ::glob->load_uniform("ShadowMatrix[2]", 16);
-    uniform_shadow[3] = ::glob->load_uniform("ShadowMatrix[3]", 16);
-    uniform_light[0]  = ::glob->load_uniform("LightPosition[0]", 4);
-    uniform_light[1]  = ::glob->load_uniform("LightPosition[1]", 4);
-    uniform_light[2]  = ::glob->load_uniform("LightPosition[2]", 4);
-    uniform_light[3]  = ::glob->load_uniform("LightPosition[3]", 4);
-    uniform_split[0]  = ::glob->load_uniform("LightSplit[0]",    2);
-    uniform_split[1]  = ::glob->load_uniform("LightSplit[1]",    2);
-    uniform_split[2]  = ::glob->load_uniform("LightSplit[2]",    2);
-    uniform_split[3]  = ::glob->load_uniform("LightSplit[3]",    2);
+    uniform_shadow[0] = ::glob->load_uniform("ShadowMatrix[0]",   16);
+    uniform_shadow[1] = ::glob->load_uniform("ShadowMatrix[1]",   16);
+    uniform_shadow[2] = ::glob->load_uniform("ShadowMatrix[2]",   16);
+    uniform_shadow[3] = ::glob->load_uniform("ShadowMatrix[3]",   16);
+    uniform_light[0]  = ::glob->load_uniform("LightPosition[0]",   4);
+    uniform_light[1]  = ::glob->load_uniform("LightPosition[1]",   4);
+    uniform_light[2]  = ::glob->load_uniform("LightPosition[2]",   4);
+    uniform_light[3]  = ::glob->load_uniform("LightPosition[3]",   4);
+    uniform_split[0]  = ::glob->load_uniform("LightSplit[0]",      2);
+    uniform_split[1]  = ::glob->load_uniform("LightSplit[1]",      2);
+    uniform_split[2]  = ::glob->load_uniform("LightSplit[2]",      2);
+    uniform_split[3]  = ::glob->load_uniform("LightSplit[3]",      2);
+    uniform_bright[0] = ::glob->load_uniform("LightBrightness[0]", 2);
+    uniform_bright[1] = ::glob->load_uniform("LightBrightness[1]", 2);
+    uniform_bright[2] = ::glob->load_uniform("LightBrightness[2]", 2);
+    uniform_bright[3] = ::glob->load_uniform("LightBrightness[3]", 2);
 
     process_shadow[0] = ::glob->load_process("shadow", 0);
     process_shadow[1] = ::glob->load_process("shadow", 1);
@@ -130,6 +134,7 @@ wrl::world::~world()
         ::glob->free_uniform(uniform_shadow[i]);
         ::glob->free_uniform(uniform_light [i]);
         ::glob->free_uniform(uniform_split [i]);
+        ::glob->free_uniform(uniform_bright[i]);
     }
 
     // Finalize the render pools.
@@ -974,14 +979,12 @@ void wrl::world::set_light(int light, const vec4& p,
 
 int wrl::world::s_light(int light, const vec3& p, const vec3& v,
                         int frusc, const app::frustum *const *frusv,
-                                   const ogl::binding *cookie,
                                    const ogl::aabb& visible)
 {
     app::perspective_frustum frust(p, -v, 90.0, 1.0);
     set_light(light, vec4(p, 1), frusc + light, &frust);
 
-    process_cookie[light]->draw(cookie);
-    uniform_split [light]->set(vec2(0, 1));
+    uniform_split[light]->set(vec2(0, 1));
 
     return 1;
 }
@@ -990,7 +993,6 @@ int wrl::world::s_light(int light, const vec3& p, const vec3& v,
 
 int wrl::world::d_light(int light, const vec3& p, const vec3& v,
                         int frusc, const app::frustum *const *frusv,
-                                   const ogl::binding *cookie,
                                    const ogl::aabb& visible)
 {
     const int n = shadow_splits;
@@ -1011,9 +1013,7 @@ int wrl::world::d_light(int light, const vec3& p, const vec3& v,
         app::orthogonal_frustum frust(bound, v);
         set_light(light, vec4(v, 0), frusc + light, &frust);
 
-        process_cookie[light]->draw(cookie);
-        uniform_split [light]->set(vec2(double(i    ) / n,
-                                        double(i + 1) / n));
+        uniform_split[light]->set(vec2(double(i) / n, double(i + 1) / n));
     }
     return n;
 }
@@ -1029,41 +1029,45 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     // Enumerate the light sources.
 
-    int light = 0;
+    int l = 0;
 
     atom_set::iterator a;
 
     for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
+    {
+        double c;
+        vec2   b;
 
-        if (ogl::unit *u = (*a)->get_fill())
+        if ((c = (*a)->get_lighting(b)) > 0 && b[0] > 0)
         {
-            const ogl::binding *cookie    = u->get_default_binding();
-            const mat4          transform = u->get_world_transform();
+            if (ogl::unit *u = (*a)->get_fill())
+            {
+                const ogl::binding *C = u->get_default_binding();
+                const mat4          T = u->get_world_transform();
 
-            const vec3 p = wvector(transform);
-            const vec3 v = yvector(transform);
+                const vec3 p = wvector(T);
+                const vec3 v = yvector(T);
 
-            if ((*a)->priority() == -1)
-                light += s_light(light, p, v, frusc, frusv, cookie, bound);
-            if ((*a)->priority() == -2)
-                light += d_light(light, p, v, frusc, frusv, cookie, bound);
+                int n = 0;
+
+                if ((*a)->priority() == -1)
+                    n = l + s_light(l, p, v, frusc, frusv, bound);
+                if ((*a)->priority() == -2)
+                    n = l + d_light(l, p, v, frusc, frusv, bound);
+
+                for (l = l; l < n; l++)
+                {
+                    process_cookie[l]->draw(C);
+                    uniform_bright[l]->set(b);
+                }
+            }
         }
+    }
 
     // Zero the unused lights.
-#if 0
-    for (; light < ogl::max_lights; light++)
-    {
-        GLfloat P[4] = { 0, 0,  1, 0 };
-        GLfloat Z[4] = { 0, 0,  0, 0 };
-        GLfloat D[4] = { 0, 0, -1, 0 };
 
-        glLightfv(GL_LIGHT0 + light, GL_POSITION,       P);
-        glLightfv(GL_LIGHT0 + light, GL_DIFFUSE,        Z);
-        glLightfv(GL_LIGHT0 + light, GL_SPOT_DIRECTION, D);
-        glLightf (GL_LIGHT0 + light, GL_CONSTANT_ATTENUATION, 1.f);
-        glLightf (GL_LIGHT0 + light, GL_SPOT_CUTOFF,        180.f);
-    }
-#endif
+    for (l = l; l < ogl::max_lights; l++)
+        uniform_bright[l]->set(vec2(0, 0));
 }
 
 //-----------------------------------------------------------------------------

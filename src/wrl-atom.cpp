@@ -87,21 +87,6 @@ void wrl::atom::dead(dSpaceID space) const
 
 //-----------------------------------------------------------------------------
 
-double wrl::atom::cache_light(int light, const vec4& p,
-                                         const vec4& v, int i, int m)
-{
-    return 0.0;
-}
-
-void wrl::atom::apply_light(int light) const
-{
-}
-
-bool wrl::atom::has_light()
-{
-    return false;
-}
-
 void wrl::atom::get_surface(dSurfaceParameters& s) const
 {
     // Merge this atom's surface parameters with the given structure.
@@ -119,6 +104,12 @@ void wrl::atom::get_surface(dSurfaceParameters& s) const
 
     if ((i = params.find(wrl::param::soft_cfm)) != params.end())
         s.soft_cfm = std::max(s.soft_cfm, dReal(i->second->value()));
+}
+
+double wrl::atom::get_lighting(vec2& brightness) const
+{
+    brightness = vec2(0.0, 0.0);
+    return 0.0;
 }
 
 //-----------------------------------------------------------------------------

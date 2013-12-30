@@ -109,11 +109,9 @@ namespace wrl
         void set_light(int, const vec4&, int, app::frustum *);
 
         int s_light(int, const vec3&, const vec3&,
-                    int, const app::frustum *const *,
-                         const ogl::binding *, const ogl::aabb&);
+                    int, const app::frustum *const *, const ogl::aabb&);
         int d_light(int, const vec3&, const vec3&,
-                    int, const app::frustum *const *,
-                         const ogl::binding *, const ogl::aabb&);
+                    int, const app::frustum *const *, const ogl::aabb&);
 
         ogl::aabb prep_fill(int, const app::frustum *const *);
         ogl::aabb prep_line(int, const app::frustum *const *);
@@ -172,6 +170,7 @@ namespace wrl
         ogl::uniform *uniform_shadow[4];
         ogl::uniform *uniform_light [4];
         ogl::uniform *uniform_split [4];
+        ogl::uniform *uniform_bright[4];
         ogl::process *process_shadow[4];
         ogl::process *process_cookie[4];
     };
