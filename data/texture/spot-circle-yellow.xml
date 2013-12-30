@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <texture>
-  <filter type="min" value="linear-mipmap-linear" />
+  <filter type="min" value="linear" />
   <filter type="mag" value="linear" />
   <wrap axis="s" value="clamp-to-edge" />
   <wrap axis="t" value="clamp-to-edge" />

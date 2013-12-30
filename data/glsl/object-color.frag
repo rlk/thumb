@@ -33,59 +33,14 @@ vec3 shade(vec3 V, vec3 N, vec3 L, vec4 Td, vec4 Ts)
     float ks = pow(max(dot(V, R), 0.0), Ts.a * 64.0);
     float kd =     max(dot(L, N), 0.0);
 
-    // float kn = step(0.0, L.z);
-
-    // return (Td.rgb * kd + Ts.rgb * ks) * kn;
+    // return (Td.rgb * kd + Ts.rgb * ks) * step(0.0, L.z);
     return Td.rgb * kd + Ts.rgb * ks;
 }
-
-/*
-vec3 slight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
-{
-    float r =     length(fL[i]);
-    vec3  L =  normalize(fL[i]);
-    vec3  D = -normalize(fD[i]);
-
-    float d = dot(L, D);
-
-    float a  = 1.0 / (gl_LightSource[i].constantAttenuation  +
-                      gl_LightSource[i].linearAttenuation    * r +
-                      gl_LightSource[i].quadraticAttenuation * r * r);
-
-    float s = step(gl_LightSource[i].spotCosCutoff, d);
-    //    * pow(d, gl_LightSource[i].spotExponent); // TODO: create something better
-
-    return a * s * shade(V, N, L, Td, Ts);
-}
-
-vec3 dlight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
-{
-    vec3 L = normalize(fL[i]);
-
-    float n = gl_ClipPlane[0].w;
-    float f = gl_ClipPlane[1].w;
-
-    float z0 = splitz(gl_LightSource[i].ambient.x, n, f);
-    float z1 = splitz(gl_LightSource[i].ambient.y, n, f);
-
-    return shade(V, N, L, Td, Ts) * step(z0, gl_FragCoord.z)
-                                  * step(gl_FragCoord.z, z1);
-}
-
-vec3 light(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
-{
-    float S = shadow2DProj(shadow[i], fS[i]).r;
-    vec3  C = gl_LightSource[i].diffuse.rgb;
-
-    return C * S * mix(dlight(V, N, Td, Ts, i),
-                       slight(V, N, Td, Ts, i), gl_LightSource[i].position.w);
-}
-*/
 
 vec3 light(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
 {
     float S =  shadow2DProj(shadow[i], fS[i]).r;
-    vec3  C = texture2DProj(cookie[i], fS[i]).rgb;
+    vec3  C = texture2DProj(cookie[i], fS[i]).rgb * step(0.0, fS[i].q);
 
     vec3  L = normalize(fL[i]);
 
