@@ -208,39 +208,6 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
             delete [] p;
         }
-/*
-        if ((bp = png_get_rows(rp, ip)))
-        {
-            GLsizei stride = (width + border * 2) * b * c;
-
-            GLubyte *p = new GLubyte[height * stride];
-
-            // Initialize the texture object.
-
-            ogl::bind_texture(target, GL_TEXTURE0, object);
-
-            if (target == GL_TEXTURE_2D)
-            {
-                glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-                glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
-                                        GL_LINEAR_MIPMAP_LINEAR);
-            }
-
-            if (ogl::has_anisotropic)
-                glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY,
-                                              ogl::max_anisotropy);
-
-            // Copy all rows to the new texture.
-
-            for (GLsizei i = 0, j = height - 1; j >= 0; ++i, --j)
-                memcpy(p + stride * i, bp[j], stride);
-
-            glTexImage2D(target, 0, intform, width, height,
-                         border, extform, type, p);
-
-            delete [] p;
-        }
-*/
     }
 
     // Release all resources.
