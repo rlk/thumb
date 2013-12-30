@@ -105,6 +105,7 @@ void ogl::uniform::apply(GLint location) const
         switch (len)
         {
         case  1: glUniform1fv(location, 1, val); break;
+        case  2: glUniform2fv(location, 1, val); break;
         case  3: glUniform3fv(location, 1, val); break;
         case  4: glUniform4fv(location, 1, val); break;
 
