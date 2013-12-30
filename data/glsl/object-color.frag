@@ -6,7 +6,7 @@ uniform vec2 LightBrightness[4];
 uniform sampler2D       diffuse;
 uniform sampler2D       specular;
 uniform sampler2D       normal;
-  
+
 uniform sampler2DShadow shadow[4];
 uniform sampler2D       cookie[4];
 

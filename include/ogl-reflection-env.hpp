@@ -36,8 +36,7 @@ namespace ogl
         reflection_env(const std::string&, int);
        ~reflection_env();
 
-        void draw(const ogl::binding *) const;
-
+        void draw(const ogl::binding *);
         void bind(GLenum) const;
     };
 }

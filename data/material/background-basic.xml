@@ -2,6 +2,6 @@
   <material>
     <program mode="depth" file="discard.xml" />
     <program mode="color" file="background-basic.xml">
-      <texture sampler="cookie" name="gray60.png" />
+      <texture sampler="cookie" name="white.png" />
     </program>
   </material>

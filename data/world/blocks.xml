@@ -16,6 +16,7 @@
       <param name="bounce">0.5</param>
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
+      <param name="brightness">0.6</param>
     </light>
     <light type="s-light">
       <file>light/spot-circle-yellow.obj</file>
@@ -34,7 +35,45 @@
       <param name="bounce">0.5</param>
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
+      <param name="brightness">0.5</param>
+      <param name="attenuation">0.0</param>
+      <param name="cutoff">90.0</param>
     </light>
+    <geom type="box">
+      <file>solid/block-wedge-2x2x1.obj</file>
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>-4.000000</pos_x>
+      <pos_y>2.000000</pos_y>
+      <pos_z>0.000000</pos_z>
+      <body>6</body>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">1.0</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
+    <geom type="box">
+      <file>solid/plank.obj</file>
+      <rot_x>-0.707107</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.707107</rot_z>
+      <rot_w>0.000000</rot_w>
+      <pos_x>-0.312500</pos_x>
+      <pos_y>0.187500</pos_y>
+      <pos_z>-1.750000</pos_z>
+      <param name="category">4294967295</param>
+      <param name="collide">4294967295</param>
+      <param name="density">1.0</param>
+      <param name="mu">100.0</param>
+      <param name="bounce">0.5</param>
+      <param name="soft_erp">0.2</param>
+      <param name="soft_cfm">0.0</param>
+    </geom>
     <geom type="sphere">
       <file>solid/ball.obj</file>
       <rot_x>0.000000</rot_x>
@@ -63,41 +102,6 @@
       <pos_y>2.000000</pos_y>
       <pos_z>0.000000</pos_z>
       <body>10</body>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">1.0</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom type="box">
-      <file>solid/block-wedge-2x2x1.obj</file>
-      <rot_x>0.000000</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>-4.000000</pos_x>
-      <pos_y>2.000000</pos_y>
-      <pos_z>0.000000</pos_z>
-      <body>6</body>
-      <param name="category">4294967295</param>
-      <param name="collide">4294967295</param>
-      <param name="density">1.0</param>
-      <param name="mu">100.0</param>
-      <param name="bounce">0.5</param>
-      <param name="soft_erp">0.2</param>
-      <param name="soft_cfm">0.0</param>
-    </geom>
-    <geom type="box">
-      <file>solid/plank.obj</file>
-      <rot_x>-0.707107</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.707107</rot_z>
-      <rot_w>0.000000</rot_w>
-      <pos_x>-0.312500</pos_x>
-      <pos_y>0.187500</pos_y>
-      <pos_z>-1.750000</pos_z>
       <param name="category">4294967295</param>
       <param name="collide">4294967295</param>
       <param name="density">1.0</param>
@@ -281,16 +285,6 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <joint type="ball">
-      <rot_x>0.000000</rot_x>
-      <rot_y>0.000000</rot_y>
-      <rot_z>0.000000</rot_z>
-      <rot_w>1.000000</rot_w>
-      <pos_x>0.000000</pos_x>
-      <pos_y>12.000000</pos_y>
-      <pos_z>0.000000</pos_z>
-      <body>13</body>
-    </joint>
     <geom type="box">
       <file>solid/block-plate-4x4.obj</file>
       <rot_x>0.000000</rot_x>
@@ -344,4 +338,14 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
+    <joint type="ball">
+      <rot_x>0.000000</rot_x>
+      <rot_y>0.000000</rot_y>
+      <rot_z>0.000000</rot_z>
+      <rot_w>1.000000</rot_w>
+      <pos_x>0.000000</pos_x>
+      <pos_y>12.000000</pos_y>
+      <pos_z>0.000000</pos_z>
+      <body>13</body>
+    </joint>
   </world>

@@ -40,7 +40,7 @@ ogl::reflection_env::~reflection_env()
 
 //-----------------------------------------------------------------------------
 
-void ogl::reflection_env::draw(const ogl::binding *calc) const
+void ogl::reflection_env::draw(const ogl::binding *calc)
 {
     assert(cube);
 

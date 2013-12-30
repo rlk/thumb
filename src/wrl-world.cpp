@@ -1050,12 +1050,13 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
                 int n = 0;
 
-                if ((*a)->priority() == -1)
-                    n = l + s_light(l, p, v, frusc, frusv, bound);
-                if ((*a)->priority() == -2)
-                    n = l + d_light(l, p, v, frusc, frusv, bound);
+                switch ((*a)->priority())
+                {
+                case -1: n = l + s_light(l, p, v, frusc, frusv, bound); break;
+                case -2: n = l + d_light(l, p, v, frusc, frusv, bound); break;
+                }
 
-                for (l = l; l < n; l++)
+                for (; l < n; l++)
                 {
                     process_cookie[l]->draw(C);
                     uniform_bright[l]->set(b);
@@ -1066,7 +1067,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     // Zero the unused lights.
 
-    for (l = l; l < ogl::max_lights; l++)
+    for (; l < ogl::max_lights; l++)
         uniform_bright[l]->set(vec2(0, 0));
 }
 
