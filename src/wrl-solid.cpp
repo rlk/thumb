@@ -18,7 +18,7 @@
 //-----------------------------------------------------------------------------
 
 wrl::solid::solid(std::string fill,
-                  std::string line) : atom(fill, line)
+                  std::string line, bool center) : atom(fill, line, center)
 {
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
@@ -31,7 +31,8 @@ wrl::solid::solid(std::string fill,
 
 //-----------------------------------------------------------------------------
 
-wrl::box::box(std::string fill) : solid(fill, "wire/wire_box.obj")
+wrl::box::box(std::string fill, bool center)
+    : solid(fill, "wire/wire_box.obj", center)
 {
     edit_geom = dCreateBox(0, 1.0, 1.0, 1.0);
 
@@ -40,7 +41,8 @@ wrl::box::box(std::string fill) : solid(fill, "wire/wire_box.obj")
     scale();
 }
 
-wrl::sphere::sphere(std::string fill) : solid(fill, "wire/wire_sphere.obj")
+wrl::sphere::sphere(std::string fill, bool center)
+    : solid(fill, "wire/wire_sphere.obj", center)
 {
     edit_geom = dCreateSphere(0, 1.0);
 

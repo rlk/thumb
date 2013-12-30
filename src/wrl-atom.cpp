@@ -20,13 +20,13 @@
 //-----------------------------------------------------------------------------
 
 wrl::atom::atom(std::string fill_name,
-                std::string line_name) :
+                std::string line_name, bool center) :
     edit_geom(0), body_id(0), name(fill_name), fill(0), line(0)
 {
     line_scale = vec3(1, 1, 1);
 
-    if (fill_name.size()) fill = new ogl::unit(fill_name);
-    if (line_name.size()) line = new ogl::unit(line_name);
+    if (fill_name.size()) fill = new ogl::unit(fill_name, center);
+    if (line_name.size()) line = new ogl::unit(line_name, center);
 }
 
 wrl::atom::atom(const atom& that) : fill(0), line(0)

@@ -31,7 +31,7 @@ namespace wrl
 
     public:
 
-        solid(std::string, std::string);
+        solid(std::string, std::string, bool=true);
 
         // Physics initialization methods
 
@@ -59,7 +59,7 @@ namespace wrl
 
     public:
 
-        box(std::string);
+        box(std::string, bool=true);
 
         virtual box *clone() const { return new box(*this); }
 
@@ -83,7 +83,7 @@ namespace wrl
 
     public:
 
-        sphere(std::string);
+        sphere(std::string, bool=true);
 
         virtual sphere *clone() const { return new sphere(*this); }
 

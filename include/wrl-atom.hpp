@@ -41,7 +41,7 @@ namespace wrl
     {
     public:
 
-        atom(std::string, std::string);
+        atom(std::string, std::string, bool=true);
         atom(const atom&);
 
         virtual atom *clone() const = 0;

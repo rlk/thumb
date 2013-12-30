@@ -15,7 +15,7 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::light::light(std::string fill) : sphere(fill)
+wrl::light::light(std::string fill) : sphere(fill, false)
 {
 }
 
