@@ -15,6 +15,7 @@
 #include <app-conf.hpp>
 #include <app-glob.hpp>
 #include <ogl-texture.hpp>
+#include <ogl-binding.hpp>
 #include <ogl-cookie.hpp>
 
 //-----------------------------------------------------------------------------
@@ -28,6 +29,14 @@ ogl::cookie::~cookie()
 }
 
 //-----------------------------------------------------------------------------
+
+void ogl::cookie::draw(const ogl::binding *binding)
+{
+	if (binding == 0)
+		texture = 0;
+	else
+		texture = binding->get_default_texture();
+}
 
 void ogl::cookie::bind(GLenum unit) const
 {

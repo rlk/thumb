@@ -46,7 +46,7 @@ wrl::light::light(std::string fill) : sphere(fill)
 }
 
 
-wrl::d_light::d_light() : light("solid/d-light.obj")
+wrl::d_light::d_light() : light("light/background-basic.obj")
 {
     if (fill) fill->set_ubiq(true); // The background is always visible
 
@@ -55,7 +55,7 @@ wrl::d_light::d_light() : light("solid/d-light.obj")
     params[GL_BLUE]                  = new param("color_blue",            "1.0");
 }
 
-wrl::s_light::s_light() : light("solid/s-light.obj")
+wrl::s_light::s_light() : light("light/spot-circle-yellow.obj")
 {
     params[GL_RED]                   = new param("color_red",             "1.0");
     params[GL_GREEN]                 = new param("color_green",           "1.0");

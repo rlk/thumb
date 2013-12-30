@@ -2,12 +2,17 @@
 
 attribute vec3 Tangent;
 
+uniform vec4 LightPosition[4];
 uniform mat4 ShadowMatrix[4];
 
 varying vec3 fV;
 varying vec3 fL[4];
-varying vec3 fD[4];
 varying vec4 fS[4];
+
+vec3 calc_L(vec4 light, vec4 eye)
+{
+    return normalize(mix(light.xyz, light.xyz - eye.xyz, light.w));
+}
 
 void main()
 {
@@ -25,27 +30,12 @@ void main()
 
     fV = T * (-e.xyz);
 
-    // Tangent-space light source vector
+    // Tangent-space light source vectors
 
-    fL[0] = T * normalize(mix(gl_LightSource[0].position.xyz,
-                              gl_LightSource[0].position.xyz - e.xyz,
-                              gl_LightSource[0].position.w));
-    fL[1] = T * normalize(mix(gl_LightSource[1].position.xyz,
-                              gl_LightSource[1].position.xyz - e.xyz,
-                              gl_LightSource[1].position.w));
-    fL[2] = T * normalize(mix(gl_LightSource[2].position.xyz,
-                              gl_LightSource[2].position.xyz - e.xyz,
-                              gl_LightSource[2].position.w));
-    fL[3] = T * normalize(mix(gl_LightSource[3].position.xyz,
-                              gl_LightSource[3].position.xyz - e.xyz,
-                              gl_LightSource[3].position.w));
-
-    // Tangent-space light source direction
-
-    fD[0] = T * gl_LightSource[0].spotDirection;
-    fD[1] = T * gl_LightSource[1].spotDirection;
-    fD[2] = T * gl_LightSource[2].spotDirection;
-    fD[3] = T * gl_LightSource[3].spotDirection;
+    fL[0] = T * calc_L(LightPosition[0], e);
+    fL[1] = T * calc_L(LightPosition[1], e);
+    fL[2] = T * calc_L(LightPosition[2], e);
+    fL[3] = T * calc_L(LightPosition[3], e);
 
     // Shadow map texture coordinates
 

@@ -211,7 +211,7 @@ bool ogl::binding::bind(bool c) const
 
 const ogl::texture *ogl::binding::get_default_texture() const
 {
-    return color_texture.empty() ? color_texture.begin()->second : 0;
+    return color_texture.empty() ? 0 : color_texture.begin()->second;
 }
 
 //-----------------------------------------------------------------------------

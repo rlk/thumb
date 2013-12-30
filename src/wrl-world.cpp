@@ -35,10 +35,8 @@
 //-----------------------------------------------------------------------------
 
 wrl::world::world() :
-    shadow_splits(::conf->get_i("shadow_map_splits", 3)),
-
-    sky(::glob->load_binding("sky-water", "sky-water")),
-    serial(1)
+    serial(1),
+    shadow_splits(::conf->get_i("shadow_map_splits", 3))
 {
     // Initialize the editor physical system.
 
@@ -61,14 +59,27 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    uniform_shadow[0]      = ::glob->load_uniform("ShadowMatrix[0]", 16);
-    uniform_shadow[1]      = ::glob->load_uniform("ShadowMatrix[1]", 16);
-    uniform_shadow[2]      = ::glob->load_uniform("ShadowMatrix[2]", 16);
-    uniform_shadow[3]      = ::glob->load_uniform("ShadowMatrix[3]", 16);
-    process_shadow[0]      = ::glob->load_process("shadow",           0);
-    process_shadow[1]      = ::glob->load_process("shadow",           1);
-    process_shadow[2]      = ::glob->load_process("shadow",           2);
-    process_shadow[3]      = ::glob->load_process("shadow",           3);
+    uniform_shadow[0] = ::glob->load_uniform("ShadowMatrix[0]", 16);
+    uniform_shadow[1] = ::glob->load_uniform("ShadowMatrix[1]", 16);
+    uniform_shadow[2] = ::glob->load_uniform("ShadowMatrix[2]", 16);
+    uniform_shadow[3] = ::glob->load_uniform("ShadowMatrix[3]", 16);
+    uniform_light[0]  = ::glob->load_uniform("LightPosition[0]", 4);
+    uniform_light[1]  = ::glob->load_uniform("LightPosition[1]", 4);
+    uniform_light[2]  = ::glob->load_uniform("LightPosition[2]", 4);
+    uniform_light[3]  = ::glob->load_uniform("LightPosition[3]", 4);
+    uniform_split[0]  = ::glob->load_uniform("LightSplit[0]",    2);
+    uniform_split[1]  = ::glob->load_uniform("LightSplit[1]",    2);
+    uniform_split[2]  = ::glob->load_uniform("LightSplit[2]",    2);
+    uniform_split[3]  = ::glob->load_uniform("LightSplit[3]",    2);
+
+    process_shadow[0] = ::glob->load_process("shadow", 0);
+    process_shadow[1] = ::glob->load_process("shadow", 1);
+    process_shadow[2] = ::glob->load_process("shadow", 2);
+    process_shadow[3] = ::glob->load_process("shadow", 3);
+    process_cookie[0] = ::glob->load_process("cookie", 0);
+    process_cookie[1] = ::glob->load_process("cookie", 1);
+    process_cookie[2] = ::glob->load_process("cookie", 2);
+    process_cookie[3] = ::glob->load_process("cookie", 3);
 
 //  click_selection(new wrl::box("solid/bunny.obj"));
 //  click_selection(new wrl::box("solid/buddha.obj"));
@@ -110,25 +121,21 @@ wrl::world::~world()
 
     dCloseODE();
 
-    // Finalize the uniforms.
+    // Finalize the uniforms and processes.
 
-    ::glob->free_process(process_shadow[3]);
-    ::glob->free_process(process_shadow[2]);
-    ::glob->free_process(process_shadow[1]);
-    ::glob->free_process(process_shadow[0]);
-    ::glob->free_uniform(uniform_shadow[3]);
-    ::glob->free_uniform(uniform_shadow[2]);
-    ::glob->free_uniform(uniform_shadow[1]);
-    ::glob->free_uniform(uniform_shadow[0]);
+    for (int i = 0; i < 4; ++i)
+    {
+        ::glob->free_process(process_cookie[i]);
+        ::glob->free_process(process_shadow[i]);
+        ::glob->free_uniform(uniform_shadow[i]);
+        ::glob->free_uniform(uniform_light [i]);
+        ::glob->free_uniform(uniform_split [i]);
+    }
 
     // Finalize the render pools.
 
     ::glob->free_pool(fill_pool);
     ::glob->free_pool(line_pool);
-
-    // Finalize the sky materials.
-
-    ::glob->free_binding(sky);
 }
 
 //-----------------------------------------------------------------------------
@@ -918,13 +925,16 @@ ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
 
 //-----------------------------------------------------------------------------
 
-void wrl::world::shadow(int frusi, app::frustum *frusp, int light)
+// Set all light parameters and render the light source shadow map.
+
+void wrl::world::set_light(int light, const vec4& p,
+                           int frusi, app::frustum *frusp)
 {
     // Bound the frustum to its visible volume.
 
-    ogl::aabb b = fill_pool->view(frusi, frusp->get_world_planes(), 5);
+    ogl::aabb bound = fill_pool->view(frusi, frusp->get_world_planes(), 5);
 
-    frusp->set_bound(mat4(), b);
+    frusp->set_bound(mat4(), bound);
 
     // Render the fill geometry to the shadow buffer.
 
@@ -933,10 +943,7 @@ void wrl::world::shadow(int frusi, app::frustum *frusp, int light)
         frusp->load_transform();
 
         glLoadIdentity();
-        glClear(GL_COLOR_BUFFER_BIT |
-                GL_DEPTH_BUFFER_BIT);
-
-        // NOTE: Uniforms have NOT been refreshed at this point.
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         fill_pool->draw_init();
         {
@@ -949,39 +956,47 @@ void wrl::world::shadow(int frusi, app::frustum *frusp, int light)
     }
     process_shadow[light]->free_frame();
 
-    // Compute the light transform.
+    // Set the position and transform uniforms.
 
-    const mat4 light_S(0.5, 0.0, 0.0, 0.5,
-                       0.0, 0.5, 0.0, 0.5,
-                       0.0, 0.0, 0.5, 0.5,
-                       0.0, 0.0, 0.0, 1.0);
+    const mat4 P =  frusp->get_transform();
+    const mat4 V = ::view->get_transform();
+    const mat4 I = ::view->get_inverse();
+    const mat4 S(0.5, 0.0, 0.0, 0.5,
+                 0.0, 0.5, 0.0, 0.5,
+                 0.0, 0.0, 0.5, 0.5,
+                 0.0, 0.0, 0.0, 1.0);
 
-    uniform_shadow[light]->set(light_S * frusp->get_transform()
-                                      * ::view->get_inverse());
+    uniform_shadow[light]->set(S * P * I);
+    uniform_light [light]->set(V * p);
 }
 
-int wrl::world::s_light(const vec3& p, const vec3& v,
-                        int frusc, const app::frustum *const *frusv,
-                        int light, const ogl::aabb& visible, atom *a)
-{
-    double f = 2.0 * a->cache_light(light, vec4(p, 1), vec4(-v, 0), 0, 1);
+// Add a spot light source.
 
-    app::perspective_frustum frust(p, -v, f, 1.0);
-    shadow(frusc + light, &frust, light);
+int wrl::world::s_light(int light, const vec3& p, const vec3& v,
+                        int frusc, const app::frustum *const *frusv,
+                                   const ogl::binding *cookie,
+                                   const ogl::aabb& visible)
+{
+    app::perspective_frustum frust(p, -v, 90.0, 1.0);
+    set_light(light, vec4(p, 1), frusc + light, &frust);
+
+    process_cookie[light]->draw(cookie);
+    uniform_split [light]->set(vec2(0, 1));
 
     return 1;
 }
 
-int wrl::world::d_light(const vec3& p, const vec3& v,
+// Add a directional light source.
+
+int wrl::world::d_light(int light, const vec3& p, const vec3& v,
                         int frusc, const app::frustum *const *frusv,
-                        int light, const ogl::aabb& visible, atom *a)
+                                   const ogl::binding *cookie,
+                                   const ogl::aabb& visible)
 {
     const int n = shadow_splits;
 
     for (int i = 0; i < n; i++, light++)
     {
-        a->cache_light(light, vec4(v, 0), vec4(v, 0), i, n);
-
         // Compute the visible union of the bounds of this split.
 
         ogl::aabb bound;
@@ -994,7 +1009,11 @@ int wrl::world::d_light(const vec3& p, const vec3& v,
         // Render a shadow map encompasing this bound.
 
         app::orthogonal_frustum frust(bound, v);
-        shadow(frusc + light, &frust, light);
+        set_light(light, vec4(v, 0), frusc + light, &frust);
+
+        process_cookie[light]->draw(cookie);
+        uniform_split [light]->set(vec2(double(i    ) / n,
+                                        double(i + 1) / n));
     }
     return n;
 }
@@ -1003,10 +1022,10 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 {
     // Determine the visible bounding volume. TODO: Remove this redundancy.
 
-    ogl::aabb bb;
+    ogl::aabb bound;
 
     for (int frusi = 0; frusi < frusc; ++frusi)
-        bb.merge(fill_pool->view(frusi, frusv[frusi]->get_world_planes(), 5));
+        bound.merge(fill_pool->view(frusi, frusv[frusi]->get_world_planes(), 5));
 
     // Enumerate the light sources.
 
@@ -1016,20 +1035,22 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
 
-        if ((*a)->has_light())
+        if (ogl::unit *u = (*a)->get_fill())
         {
-            const mat4 T = (*a)->get_fill()->get_world_transform();
-            const vec3 p = wvector(T);
-            const vec3 v = yvector(T);
+            const ogl::binding *cookie    = u->get_default_binding();
+            const mat4          transform = u->get_world_transform();
+
+            const vec3 p = wvector(transform);
+            const vec3 v = yvector(transform);
 
             if ((*a)->priority() == -1)
-                light += s_light(p, v, frusc, frusv, light, bb, *a);
+                light += s_light(light, p, v, frusc, frusv, cookie, bound);
             if ((*a)->priority() == -2)
-                light += d_light(p, v, frusc, frusv, light, bb, *a);
+                light += d_light(light, p, v, frusc, frusv, cookie, bound);
         }
 
     // Zero the unused lights.
-
+#if 0
     for (; light < ogl::max_lights; light++)
     {
         GLfloat P[4] = { 0, 0,  1, 0 };
@@ -1042,6 +1063,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
         glLightf (GL_LIGHT0 + light, GL_CONSTANT_ATTENUATION, 1.f);
         glLightf (GL_LIGHT0 + light, GL_SPOT_CUTOFF,        180.f);
     }
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -1060,32 +1082,6 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
     }
     fill_pool->draw_fini();
 }
-
-#if 0
-void wrl::world::draw_lite()
-{
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-    // Render the light geometry.
-
-    glDepthFunc(GL_EQUAL);
-    fill_pool->draw_init();
-    {
-        atom_set::const_iterator a;
-
-        for (a = all.begin(); a != all.end() && (*a)->priority() < 0; ++a)
-        {
-            (*a)->apply_light(0);
-            (*a)->get_fill()->draw_faces();
-        }
-    }
-    fill_pool->draw_fini();
-    glDepthFunc(GL_LESS);
-}
-#endif
 
 void wrl::world::draw_line()
 {
@@ -1123,65 +1119,6 @@ void wrl::world::draw_line()
             glColor3f(1.0f, 1.0f, 1.0f);
         }
         line_pool->draw_fini();
-    }
-    ogl::line_state_fini();
-}
-
-//-----------------------------------------------------------------------------
-#if 0
-void wrl::world::draw_sky(const app::frustum *frusp)
-{
-    sky->bind(true);
-
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    {
-        const vec3 *v = frusp->get_world_points();
-        const vec3 v0 = v[4] - v[0];
-        const vec3 v1 = v[5] - v[1];
-        const vec3 v2 = v[6] - v[2];
-        const vec3 v3 = v[7] - v[3];
-
-        // Draw the far plane of the clip space, offset by one unit of
-        // depth buffer distance.  Pass the world-space vectors from the
-        // view position toward the screen corners for use in sky display.
-
-        glPolygonOffset(0.0, -1.0);
-
-        glBegin(GL_QUADS);
-        {
-            glTexCoord2d(0, 0);
-            glVertex3d(v0[0], v0[1], v0[2]);
-            glTexCoord2d(1, 0);
-            glVertex3d(v1[0], v1[1], v1[2]);
-            glTexCoord2d(1, 1);
-            glVertex3d(v3[0], v3[1], v3[2]);
-            glTexCoord2d(0, 1);
-            glVertex3d(v2[0], v2[1], v2[2]);
-        }
-        glEnd();
-    }
-    glDisable(GL_POLYGON_OFFSET_FILL);
-}
-#endif
-void wrl::world::draw_debug_wireframe(int frusi)
-{
-    // Render the fill geometry in wireframe.
-
-    ogl::line_state_init();
-    {
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-        glLineWidth(1.0);
-
-        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-        {
-            fill_pool->draw_init();
-            {
-                fill_pool->draw(frusi, true, false);
-                fill_pool->draw(frusi, true, true);
-            }
-            fill_pool->draw_fini();
-        }
-        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
     }
     ogl::line_state_fini();
 }

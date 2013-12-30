@@ -139,18 +139,12 @@ void ogl::unit::draw_faces() const
     }
 }
 
-// Return a default texture for this unit. As implemented, this will be the
-// texture associated with the lowest-number TIU of an arbitrarily-selected
-// mesh. For determinism, this should only be used on units with exactly one
-// textured mesh, as in the cookie of a light source.
+// Return a default binding for this unit. For determinism, this should only be
+// used on units with exactly one mesh, as in the cookie of a light source.
 
-const ogl::texture *ogl::unit::get_default_texture() const
+const ogl::binding *ogl::unit::get_default_binding() const
 {
-    for (mesh_m::const_iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
-        if (const ogl::texture *t = i->first->state()->get_default_texture())
-            return t;
-
-    return 0;
+    return my_mesh.empty() ? 0 : my_mesh.begin()->first->state();
 }
 
 //-----------------------------------------------------------------------------

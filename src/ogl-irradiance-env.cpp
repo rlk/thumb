@@ -87,7 +87,7 @@ ogl::irradiance_env::~irradiance_env()
 
 //-----------------------------------------------------------------------------
 
-void ogl::irradiance_env::draw(const ogl::binding *bind) const
+void ogl::irradiance_env::draw(const ogl::binding *bind)
 {
     assert(bufA);
     assert(bufB);

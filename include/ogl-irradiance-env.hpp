@@ -55,8 +55,8 @@ namespace ogl
         irradiance_env(const std::string&, int);
        ~irradiance_env();
 
-        void draw(const ogl::binding *) const;
-        void bind(GLenum)               const;
+        void draw(const ogl::binding *);
+        void bind(GLenum) const;
     };
 }
 

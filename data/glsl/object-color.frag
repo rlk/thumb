@@ -1,14 +1,16 @@
 #version 120
 
+uniform vec2 LightSplit[4];
+
 uniform sampler2D       diffuse;
 uniform sampler2D       specular;
 uniform sampler2D       normal;
   
 uniform sampler2DShadow shadow[4];
+uniform sampler2D       cookie[4];
 
 varying vec3 fV;
 varying vec3 fL[4];
-varying vec3 fD[4];
 varying vec4 fS[4];
 
 const vec3 Ka = vec3(0.4, 0.4, 0.4);
@@ -37,6 +39,7 @@ vec3 shade(vec3 V, vec3 N, vec3 L, vec4 Td, vec4 Ts)
     return Td.rgb * kd + Ts.rgb * ks;
 }
 
+/*
 vec3 slight(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
 {
     float r =     length(fL[i]);
@@ -76,6 +79,24 @@ vec3 light(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
 
     return C * S * mix(dlight(V, N, Td, Ts, i),
                        slight(V, N, Td, Ts, i), gl_LightSource[i].position.w);
+}
+*/
+
+vec3 light(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
+{
+    float S =  shadow2DProj(shadow[i], fS[i]).r;
+    vec3  C = texture2DProj(cookie[i], fS[i]).rgb;
+
+    vec3  L = normalize(fL[i]);
+
+    float n = gl_ClipPlane[0].w;
+    float f = gl_ClipPlane[1].w;
+
+    float z0 = splitz(LightSplit[i].x, n, f);
+    float z1 = splitz(LightSplit[i].y, n, f);
+
+    return C * S * shade(V, N, L, Td, Ts) * step(z0, gl_FragCoord.z)
+                                          * step(gl_FragCoord.z, z1);
 }
 
 void main()

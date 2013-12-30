@@ -35,9 +35,8 @@ namespace ogl
         cookie(const std::string&);
        ~cookie();
 
-        void set_texture(const ogl::texture *t) { texture = t; }
-
-        void bind(GLenum) const;
+        virtual void draw(const ogl::binding *);
+        virtual void bind(GLenum) const;
     };
 }
 

@@ -39,7 +39,7 @@ namespace ogl
 
         process(const std::string&);
 
-        virtual void draw(const ogl::binding *) const { };
+        virtual void draw(const ogl::binding *) { };
 
         virtual void bind_frame() const { }
         virtual void free_frame() const { }

@@ -129,7 +129,7 @@ namespace ogl
         GLsizei ecount() const { return ec; }
 
         mat4                get_world_transform() const;
-        const ogl::texture *get_default_texture() const;
+        const ogl::binding *get_default_binding() const;
         
     private:
 

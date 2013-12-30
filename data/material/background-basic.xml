@@ -1,0 +1,7 @@
+<?xml version="1.0"?>
+  <material>
+    <program mode="depth" file="discard.xml" />
+    <program mode="color" file="background-basic.xml">
+      <texture sampler="cookie" name="gray60.png" />
+    </program>
+  </material>

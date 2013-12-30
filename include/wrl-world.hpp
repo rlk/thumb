@@ -106,16 +106,19 @@ namespace wrl
 
         // Rendering methods
 
-        void shadow(int, app::frustum *, int);
+        void set_light(int, const vec4&, int, app::frustum *);
 
-        int s_light(const vec3&, const vec3&, int, const app::frustum *const *, int, const ogl::aabb&, atom *);
-        int d_light(const vec3&, const vec3&, int, const app::frustum *const *, int, const ogl::aabb&, atom *);
+        int s_light(int, const vec3&, const vec3&,
+                    int, const app::frustum *const *,
+                         const ogl::binding *, const ogl::aabb&);
+        int d_light(int, const vec3&, const vec3&,
+                    int, const app::frustum *const *,
+                         const ogl::binding *, const ogl::aabb&);
 
         ogl::aabb prep_fill(int, const app::frustum *const *);
         ogl::aabb prep_line(int, const app::frustum *const *);
         void           lite(int, const app::frustum *const *);
         void      draw_fill(int, const app::frustum *);
-        void      draw_lite();
         void      draw_line();
 
     private:
@@ -141,8 +144,6 @@ namespace wrl
         atom_set all;
         atom_set sel;
 
-        int shadow_splits;
-
         // Batcher state
 
         node_map nodes;
@@ -151,8 +152,6 @@ namespace wrl
         ogl::node *fill_node;
         ogl::pool *line_pool;
         ogl::node *line_node;
-
-        const ogl::binding *sky;
 
         void node_insert(int, ogl::unit *, ogl::unit *);
         void node_remove(int, ogl::unit *, ogl::unit *);
@@ -166,15 +165,15 @@ namespace wrl
 
         void doop(wrl::operation_p);
 
-        // ...
+        // Lighting uniforms and processes
+
+        int shadow_splits;
 
         ogl::uniform *uniform_shadow[4];
+        ogl::uniform *uniform_light [4];
+        ogl::uniform *uniform_split [4];
         ogl::process *process_shadow[4];
         ogl::process *process_cookie[4];
-
-        void draw_sky(const app::frustum *);
-
-        void draw_debug_wireframe(int);
     };
 }
 
