@@ -170,34 +170,23 @@ namespace cnt
 
     class new_d_light_button : public create_button
     {
+        gui::widget *name;
+        
     public:
 
-        new_d_light_button(wrl::world *w, gui::widget *s) :
-            create_button(w, s, "Directional Light") { }
+        new_d_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "Sky Light"), name(n) { }
         void apply();
     };
 
     class new_s_light_button : public create_button
     {
-    public:
-
-        new_s_light_button(wrl::world *w, gui::widget *s) :
-            create_button(w, s, "Spot Light") { }
-        void apply();
-    };
-
-    class load_bg_button : public gui::button
-    {
-        wrl::world  *world;
-        gui::widget *state;
         gui::widget *name;
-
+        
     public:
-        load_bg_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            gui::button("Load"),
-            world(w),
-            state(s),
-            name(n) { }
+
+        new_s_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "Spot Light"), name(n) { }
         void apply();
     };
 

@@ -832,8 +832,8 @@ void wrl::world::load(std::string name)
 
             // Create a new light for each recognized light type.
 
-            if      (type == "d-light") a = new wrl::d_light();
-            else if (type == "s-light") a = new wrl::s_light();
+            if      (type == "d-light") a = new wrl::d_light("");
+            else if (type == "s-light") a = new wrl::s_light("");
             else continue;
 
             // Allow the new light to parse its own attributes.

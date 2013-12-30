@@ -15,19 +15,21 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::light::light(std::string fill) : sphere(fill, false)
+wrl::light::light(std::string name) : sphere(name, false)
 {
 }
 
 
-wrl::d_light::d_light() : light("light/background-basic.obj")
+wrl::d_light::d_light(std::string name) : light(name)
 {
-    if (fill)
-        fill->set_ubiq(true); // The background is always visible
+    params[param::brightness] = new param("brightness", "1.0");
 }
 
-wrl::s_light::s_light() : light("light/spot-circle-yellow.obj")
+wrl::s_light::s_light(std::string name) : light(name)
 {
+    params[param::brightness] = new param("brightness", "1.0");
+    params[param::falloff]    = new param("falloff",    "0.0");
+    params[param::cutoff]     = new param("cutoff",    "90.0");
 }
 
 //-----------------------------------------------------------------------------
@@ -56,6 +58,14 @@ void wrl::s_light::play_fini()
 
 void wrl::light::load(app::node node)
 {
+    // Load the OBJ file.
+
+    if (app::node n = node.find("file"))
+    {
+        name = n.get_s();
+        fill = new ogl::unit(name, false);
+        fill->set_ubiq(true);
+    }
     atom::load(node); // Skip solid::load.
 }
 
@@ -65,7 +75,7 @@ void wrl::d_light::save(app::node node)
 
     n.set_s("type", "d-light");
     n.insert(node);
-    atom::save(n);
+    solid::save(n);
 }
 
 void wrl::s_light::save(app::node node)
@@ -74,7 +84,7 @@ void wrl::s_light::save(app::node node)
 
     n.set_s("type", "s-light");
     n.insert(node);
-    atom::save(n);
+    solid::save(n);
 }
 
 //-----------------------------------------------------------------------------

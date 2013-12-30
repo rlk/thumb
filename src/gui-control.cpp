@@ -161,21 +161,14 @@ void cnt::new_sphere_button::apply()
 
 void cnt::new_d_light_button::apply()
 {
-    do_create(new wrl::d_light());
+    if (!name->value().empty())
+        do_create(new wrl::d_light(name->value()));
 }
 
 void cnt::new_s_light_button::apply()
 {
-    do_create(new wrl::s_light());
-}
-
-void cnt::load_bg_button::apply()
-{
     if (!name->value().empty())
-    {
-        world->init();
-        state->show();
-    }
+        do_create(new wrl::s_light(name->value()));
 }
 
 //-----------------------------------------------------------------------------
@@ -392,65 +385,15 @@ cnt::joint_panel::joint_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
     gui::editor *E = new gui::editor("");
-    gui::finder *F = new gui::finder("sky", ".xml", E);
-
-    add((new gui::frame)->
-        add((new gui::harray)->
-
-            add(new title("Create Light"))->
-            add(new new_d_light_button(W, w))->
-            add(new new_s_light_button(W, w))->
-            add(new gui::filler(true, false))));
-
-    add(new gui::spacer);
-
-    add((new gui::frame)->
-        add((new gui::harray)->
-
-            add((new gui::varray)->
-                add(new title("Configure Light"))->
-                add(new label("Red"))->
-                add(new label("Green"))->
-                add(new label("Blue")))->
-
-            add((new gui::varray)->
-                add(new title("Color"))->
-                add(new editor(W, GL_RED))->
-                add(new editor(W, GL_GREEN))->
-                add(new editor(W, GL_BLUE)))->
-
-            add((new gui::varray)->
-                add(new gui::filler(true, false))->
-                add(new label("Constant"))->
-                add(new label("Linear"))->
-                add(new label("Quadratic")))->
-
-            add((new gui::varray)->
-                add(new title("Attenuation"))->
-                add(new editor(W, GL_CONSTANT_ATTENUATION))->
-                add(new editor(W, GL_LINEAR_ATTENUATION))->
-                add(new editor(W, GL_QUADRATIC_ATTENUATION)))->
-
-            add((new gui::varray)->
-                add(new gui::filler(true, false))->
-                add(new label("Cutoff"))->
-                add(new label("Exponent"))->
-                add(new gui::filler(true, false)))->
-
-            add((new gui::varray)->
-                add(new title("Spot"))->
-                add(new editor(W, GL_SPOT_CUTOFF))->
-                add(new editor(W, GL_SPOT_EXPONENT))->
-                add(new gui::filler(true, false)))));
-
-    add(new gui::spacer);
+    gui::finder *F = new gui::finder("light", ".obj", E);
 
     add((new gui::frame)->
         add((new gui::hgroup)->
             add((new gui::vgroup)->
 
-                add(new title("Configure Background"))->
-                add(new load_bg_button(W, w, E))->
+                add(new title("Create Light"))->
+                add(new new_d_light_button(W, w, E))->
+                add(new new_s_light_button(W, w, E))->
                 add(new gui::filler(false, true)))->
 
             add((new gui::vgroup)->
@@ -458,6 +401,27 @@ cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                     add(new label("File"))->
                     add(E))->
                 add(F))));
+
+    add(new gui::spacer);
+
+    add((new gui::frame)->
+        add((new gui::harray)->
+            add((new gui::hgroup)->
+
+                add((new gui::filler(true, false)))->
+
+                add((new gui::hgroup)->
+                    add(new label("Brightness"))->
+                    add(new editor(W, wrl::param::brightness)))->
+
+                add((new gui::hgroup)->
+                    add(new label("Fall-off Rate"))->
+                    add(new editor(W, wrl::param::falloff)))->
+
+                add((new gui::hgroup)->
+                    add(new label("Cut-off Angle"))->
+                    add(new editor(W, wrl::param::cutoff))))));
+
 }
 
 //-----------------------------------------------------------------------------

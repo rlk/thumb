@@ -35,7 +35,7 @@ namespace wrl
     {
     public:
 
-        d_light();
+        d_light(std::string);
 
         virtual d_light *clone() const { return new d_light(*this); }
         virtual int   priority() const { return -2; }
@@ -49,7 +49,7 @@ namespace wrl
     {
     public:
 
-        s_light();
+        s_light(std::string);
 
         virtual void play_init();
         virtual void play_fini();

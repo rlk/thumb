@@ -36,7 +36,11 @@ namespace wrl
             mu       = dParamGroup * 4 + 4,
             bounce   = dParamGroup * 4 + 5,
             soft_erp = dParamGroup * 4 + 6,
-            soft_cfm = dParamGroup * 4 + 7
+            soft_cfm = dParamGroup * 4 + 7,
+
+            brightness,
+            falloff,
+            cutoff
         };
 
     protected:
