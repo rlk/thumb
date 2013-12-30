@@ -26,27 +26,7 @@ namespace wrl
 
         light(std::string);
 
-        virtual void play_init();
-        virtual void play_fini();
-
-        virtual double cache_light(int, const vec4&, const vec4&, int, int);
-        virtual void   apply_light(int) const;
-        virtual bool     has_light();
-
         virtual void load(app::node);
-
-    protected:
-
-        // OpenGL lighting parameter cache
-
-        GLfloat     ambient[4];
-        GLfloat     diffuse[4];
-        GLfloat    position[4];
-        GLfloat   direction[4];
-        GLfloat attenuation[3];
-        GLfloat    exponent;
-        GLfloat      cutoff;
-
     };
 
     //-------------------------------------------------------------------------
@@ -70,6 +50,9 @@ namespace wrl
     public:
 
         s_light();
+
+        virtual void play_init();
+        virtual void play_fini();
 
         virtual s_light *clone() const { return new s_light(*this); }
         virtual int   priority() const { return -1; }
