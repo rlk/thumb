@@ -1038,10 +1038,14 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
         double c;
         vec2   b;
 
+        // If this light is on...
+
         if ((c = (*a)->get_lighting(b)) > 0 && b[0] > 0)
         {
             if (ogl::unit *u = (*a)->get_fill())
             {
+                // Render shadow maps and generate light source uniforms.
+
                 const ogl::binding *C = u->get_default_binding();
                 const mat4          T = u->get_world_transform();
 

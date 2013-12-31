@@ -41,12 +41,13 @@ vec3 phong(vec3 V, vec3 N, vec3 L, vec4 Td, vec4 Ts)
     float kd =     max(dot(L, N), 0.0);
 
     return Td.rgb * kd + Ts.rgb * ks;
+
     // return (Td.rgb * kd + Ts.rgb * ks) * step(0.0, L.z);
 }
 
 vec3 light(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
 {
-    // Shadow map and cookie
+    // Shadow and cookie
 
     float S =  shadow2DProj(shadow[i], fS[i]).r;
     vec3  C = texture2DProj(cookie[i], fS[i]).rgb * step(0.0, fS[i].q);
@@ -65,7 +66,7 @@ vec3 light(vec3 V, vec3 N, vec4 Td, vec4 Ts, int i)
     float k = step(splitz(LightSplit[i].x, n, f), gl_FragCoord.z)
             * step(gl_FragCoord.z, splitz(LightSplit[i].y, n, f));
 
-    // All coefficients modulating a Phong shading
+    // All coefficients modulate a Phong shading
 
     return C * S * a * k * phong(V, N, L, Td, Ts);
 }
