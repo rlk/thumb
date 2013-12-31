@@ -977,11 +977,11 @@ void wrl::world::set_light(int light, const vec4& p,
 
 // Add a spot light source.
 
-int wrl::world::s_light(int light, const vec3& p, const vec3& v,
+int wrl::world::s_light(int light, const vec3& p, const vec3& v, double c,
                         int frusc, const app::frustum *const *frusv,
                                    const ogl::aabb& visible)
 {
-    app::perspective_frustum frust(p, -v, 90.0, 1.0);
+    app::perspective_frustum frust(p, -v, c, 1);
     set_light(light, vec4(p, 1), frusc + light, &frust);
 
     uniform_split[light]->set(vec2(0, 1));
@@ -991,7 +991,7 @@ int wrl::world::s_light(int light, const vec3& p, const vec3& v,
 
 // Add a directional light source.
 
-int wrl::world::d_light(int light, const vec3& p, const vec3& v,
+int wrl::world::d_light(int light, const vec3& p, const vec3& v, double c,
                         int frusc, const app::frustum *const *frusv,
                                    const ogl::aabb& visible)
 {
@@ -1044,7 +1044,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
         {
             if (ogl::unit *u = (*a)->get_fill())
             {
-                // Render shadow maps and generate light source uniforms.
+                // Generate light sources and render shadow maps.
 
                 const ogl::binding *C = u->get_default_binding();
                 const mat4          T = u->get_world_transform();
@@ -1052,13 +1052,15 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
                 const vec3 p = wvector(T);
                 const vec3 v = yvector(T);
 
-                int n = 0;
+                int n = l;
 
                 switch ((*a)->priority())
                 {
-                case -1: n = l + s_light(l, p, v, frusc, frusv, bound); break;
-                case -2: n = l + d_light(l, p, v, frusc, frusv, bound); break;
+                case -1: n += s_light(l, p, v, c, frusc, frusv, bound); break;
+                case -2: n += d_light(l, p, v, c, frusc, frusv, bound); break;
                 }
+
+                // Set uniforms for the generated light sources.
 
                 for (; l < n; l++)
                 {

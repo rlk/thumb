@@ -108,9 +108,9 @@ namespace wrl
 
         void set_light(int, const vec4&, int, app::frustum *);
 
-        int s_light(int, const vec3&, const vec3&,
+        int s_light(int, const vec3&, const vec3&, double,
                     int, const app::frustum *const *, const ogl::aabb&);
-        int d_light(int, const vec3&, const vec3&,
+        int d_light(int, const vec3&, const vec3&, double,
                     int, const app::frustum *const *, const ogl::aabb&);
 
         ogl::aabb prep_fill(int, const app::frustum *const *);
