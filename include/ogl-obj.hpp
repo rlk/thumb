@@ -46,7 +46,7 @@ namespace obj
         // Reader caches.
 
         ogl::GLvec3_d vv;
-        ogl::GLvec2_d sv;
+        ogl::GLvec3_d sv;
         ogl::GLvec3_d nv;
 
         indx_v ii;

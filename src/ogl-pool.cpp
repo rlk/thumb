@@ -353,7 +353,7 @@ void ogl::node::buff(GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u, bool b)
             v += vc * 3;
             n += vc * 3;
             t += vc * 3;
-            u += vc * 2;
+            u += vc * 3;
         }
     }
     rebuff = false;
@@ -621,14 +621,14 @@ void ogl::pool::buff(bool force)
         v += vc * 3;
         n += vc * 3;
         t += vc * 3;
-        u += vc * 2;
+        u += vc * 3;
     }
     rebuff = false;
 }
 
 void ogl::pool::sort()
 {
-    GLsizei vsz = vc * sizeof (GLfloat) * 11;
+    GLsizei vsz = vc * sizeof (GLfloat) * 12;
     GLsizei esz = ec * sizeof (GLuint);
 
     // Initialize vertex and element buffer sizes.
@@ -711,7 +711,7 @@ void ogl::pool::draw_init()
     GLfloat *t = (GLfloat *) (vc * sizeof (GLfloat) * 6);
     GLfloat *u = (GLfloat *) (vc * sizeof (GLfloat) * 9);
 
-    glTexCoordPointer    (   2, GL_FLOAT,    sizeof (GLvec2), u);
+    glTexCoordPointer    (   3, GL_FLOAT,    sizeof (GLvec3), u);
     glVertexAttribPointer(6, 3, GL_FLOAT, 0, sizeof (GLvec3), t);
     glNormalPointer      (      GL_FLOAT,    sizeof (GLvec3), n);
     glVertexPointer      (   3, GL_FLOAT,    sizeof (GLvec3), v);

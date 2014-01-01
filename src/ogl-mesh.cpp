@@ -168,7 +168,7 @@ void ogl::mesh::calc_tangent()
 
 //-----------------------------------------------------------------------------
 
-void ogl::mesh::add_vert(GLvec3& v, GLvec3& n, GLvec2& u)
+void ogl::mesh::add_vert(GLvec3& v, GLvec3& n, GLvec3& u)
 {
     GLvec3 t;
 
@@ -345,7 +345,7 @@ void ogl::mesh::buffv(const GLfloat *v,
         buffer(GLintptr(v), vv.size() * sizeof (GLvec3), &vv.front());
         buffer(GLintptr(n), nv.size() * sizeof (GLvec3), &nv.front());
         buffer(GLintptr(t), tv.size() * sizeof (GLvec3), &tv.front());
-        buffer(GLintptr(u), uv.size() * sizeof (GLvec2), &uv.front());
+        buffer(GLintptr(u), uv.size() * sizeof (GLvec3), &uv.front());
     }
     dirty_verts = false;
 }

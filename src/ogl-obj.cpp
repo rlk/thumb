@@ -18,7 +18,6 @@
 
 //-----------------------------------------------------------------------------
 
-static ogl::GLvec2 z2;
 static ogl::GLvec3 z3;
 
 //-----------------------------------------------------------------------------
@@ -146,7 +145,7 @@ const char *obj::obj::read_fi(const char *p, int& i)
 
         meshes.back()->add_vert((vi < 0) ? z3 : vv[vi],
                                 (ni < 0) ? z3 : nv[ni],
-                                (si < 0) ? z2 : sv[si]);
+                                (si < 0) ? z3 : sv[si]);
 
         is.push_back(iset(vi, si, ni, ii[vi]));
 
@@ -187,7 +186,7 @@ const char *obj::obj::read_li(const char *p, int& i)
         i = int(meshes.back()->count_verts());
 
         meshes.back()->add_vert((vi < 0) ? z3 : vv[vi], z3,
-                                (si < 0) ? z2 : sv[si]);
+                                (si < 0) ? z3 : sv[si]);
 
         is.push_back(iset(vi, si, -1, ii[vi]));
 
@@ -258,7 +257,7 @@ const char *obj::obj::read_v(const char *p)
 
 const char *obj::obj::read_vt(const char *p)
 {
-    ogl::GLvec2 v;
+    ogl::GLvec3 v;
     char       *q;
 
     // Process a sequence of vertex texture coordinaces.
@@ -267,6 +266,7 @@ const char *obj::obj::read_vt(const char *p)
     {
         v.v[0] = GLfloat(strtod(p + 2, &q)); p = q;
         v.v[1] = GLfloat(strtod(p,     &q)); p = scannl(q);
+        v.v[2] = 0.f;
 
         sv.push_back(v);
     }

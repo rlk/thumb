@@ -27,13 +27,6 @@ namespace ogl
 {
     //-------------------------------------------------------------------------
 
-    struct GLvec2
-    {
-        GLfloat v[2];
-
-        GLvec2() { v[0] = v[1] = 0.0f; }
-    };
-
     struct GLvec3
     {
         GLfloat v[3];
@@ -41,7 +34,6 @@ namespace ogl
         GLvec3() { v[0] = v[1] = v[2] = 0.0f; }
     };
 
-    typedef std::vector<GLvec2> GLvec2_v;
     typedef std::vector<GLvec3> GLvec3_v;
 
     // While contiguous buffers are required during rendering, there is no
@@ -51,10 +43,8 @@ namespace ogl
     // having the capability to switch representations and test.
 
 #if 1
-    typedef std::vector<GLvec2> GLvec2_d;
     typedef std::vector<GLvec3> GLvec3_d;
 #else
-    typedef std::deque<GLvec2>  GLvec2_d;
     typedef std::deque<GLvec3>  GLvec3_d;
 #endif
 
@@ -111,7 +101,7 @@ namespace ogl
         void apply_offset(const double *);
         void calc_tangent();
 
-        void add_vert(GLvec3&, GLvec3&, GLvec2&);
+        void add_vert(GLvec3&, GLvec3&, GLvec3&);
         void add_face(GLuint, GLuint, GLuint);
         void add_line(GLuint, GLuint);
 
@@ -149,7 +139,7 @@ namespace ogl
         GLvec3_v vv;
         GLvec3_v nv;
         GLvec3_v tv;
-        GLvec2_v uv;
+        GLvec3_v uv;
 
         // Element buffers
 
