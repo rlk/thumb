@@ -16,6 +16,8 @@
     <process name="cookie[2]" unit="14" process="cookie" index="2" />
     <process name="cookie[3]" unit="15" process="cookie" index="3" />
 
+    <uniform name="Highlight"          uniform="Highlight"          size="1" />
+
     <uniform name="LightPosition[0]"   uniform="LightPosition[0]"   size="4" />
     <uniform name="LightPosition[1]"   uniform="LightPosition[1]"   size="4" />
     <uniform name="LightPosition[2]"   uniform="LightPosition[2]"   size="4" />

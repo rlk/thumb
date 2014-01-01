@@ -59,6 +59,7 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
+    uniform_highlight = ::glob->load_uniform("Highlight",          1);
     uniform_shadow[0] = ::glob->load_uniform("ShadowMatrix[0]",   16);
     uniform_shadow[1] = ::glob->load_uniform("ShadowMatrix[1]",   16);
     uniform_shadow[2] = ::glob->load_uniform("ShadowMatrix[2]",   16);
@@ -136,6 +137,7 @@ wrl::world::~world()
         ::glob->free_uniform(uniform_split [i]);
         ::glob->free_uniform(uniform_bright[i]);
     }
+    ::glob->free_uniform(uniform_highlight);
 
     // Finalize the render pools.
 
@@ -898,6 +900,22 @@ void wrl::world::save(std::string filename, bool save_all)
 
 ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
 {
+    // Set the highlight uniform.
+
+    GLfloat highlight = 0;
+
+    if (edit_focus)
+    {
+        if (wrl::atom *a = (wrl::atom *) dGeomGetData(edit_focus))
+        {
+            if (ogl::unit *u = a->get_fill())
+            {
+                highlight = GLfloat(u->get_id());
+            }
+        }
+    }
+    uniform_highlight->set(highlight);
+
     // Prep the fill geometry pool.
 
     fill_pool->prep();
@@ -1116,7 +1134,7 @@ void wrl::world::draw_line()
             }
 
             // Highlight the current focus.
-
+#if 0
             if (edit_focus)
             {
                 if (wrl::atom *a = (wrl::atom *) dGeomGetData(edit_focus))
@@ -1126,7 +1144,7 @@ void wrl::world::draw_line()
                     a->get_line()->draw_lines();
                 }
             }
-
+#endif
             glColor3f(1.0f, 1.0f, 1.0f);
         }
         line_pool->draw_fini();

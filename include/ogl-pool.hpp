@@ -127,14 +127,18 @@ namespace ogl
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
-
+        int     get_id() const { return id; }
+        
         mat4                get_world_transform() const;
         const ogl::binding *get_default_binding() const;
-        
+
     private:
+
+        static int serial;
 
         mat4 M;
         mat4 I;
+        int id;
 
         GLsizei vc;
         GLsizei ec;

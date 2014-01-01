@@ -78,7 +78,10 @@ void ogl::elem::draw(bool color) const
 
 //=============================================================================
 
+int ogl::unit::serial = 0;
+
 ogl::unit::unit(std::string name, bool center) :
+    id(serial++),
     vc(0),
     ec(0),
     my_node(0),
@@ -91,6 +94,7 @@ ogl::unit::unit(std::string name, bool center) :
 }
 
 ogl::unit::unit(const unit& that) :
+    id(serial++),
     vc(0),
     ec(0),
     my_node(0),
@@ -230,7 +234,7 @@ void ogl::unit::buff(bool b)
 
         for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
         {
-            i->second->cache_verts(i->first, M, I);
+            i->second->cache_verts(i->first, M, I, get_id());
             i->second->merge_bound(my_aabb);
         }
     }

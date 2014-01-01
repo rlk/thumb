@@ -167,6 +167,7 @@ namespace wrl
 
         int shadow_splits;
 
+        ogl::uniform *uniform_highlight;
         ogl::uniform *uniform_shadow[4];
         ogl::uniform *uniform_light [4];
         ogl::uniform *uniform_split [4];
