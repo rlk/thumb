@@ -21,7 +21,7 @@ uniform vec4 LightCutoff;
 
 void main()
 {
-	float a = dot(LightCutoff, vec4(equal(LightUnit, vec4(gl_MultiTexCoord0.p))));
+	float a = dot(vec4(equal(LightUnit, vec4(gl_MultiTexCoord0.p))), LightCutoff);
 	float k = tan(radians(a * 0.5)) * 0.70710678;
 
 	vec4 v = vec4(gl_Vertex.xyz + gl_Normal * k, gl_Vertex.w);

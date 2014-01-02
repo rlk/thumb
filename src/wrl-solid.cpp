@@ -82,8 +82,18 @@ void wrl::sphere::scale()
 
         fill->merge_bound(bound);
 
-        float r = (bound.max()[0]
-                 - bound.min()[0]) / 2.0;
+        vec3 a = bound.min();
+        vec3 z = bound.max();
+
+        float r = 0.0f;
+
+        for (int i = 0; i < 3; ++i)
+        {
+            if (r < fabs(a[i])) r = fabs(a[i]);
+            if (r < fabs(z[i])) r = fabs(z[i]);
+        }
+
+        printf("%s %f %f %f %f %f %f %f\n", name.c_str(), a[0], a[1], a[2], z[0], z[1], z[2], r);
 
         line_scale = vec3(r, r, r);
 

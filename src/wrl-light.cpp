@@ -107,6 +107,7 @@ void wrl::light::load(app::node node)
         name = n.get_s();
         fill = new ogl::unit(name, false);
         fill->set_ubiq(true);
+        scale();
     }
     atom::load(node); // Skip solid::load.
 }
