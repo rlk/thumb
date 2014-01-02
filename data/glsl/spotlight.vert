@@ -24,8 +24,7 @@ void main()
 	float a = dot(LightCutoff, vec4(equal(LightUnit, vec4(gl_MultiTexCoord0.p))));
 	float k = tan(radians(a * 0.5)) * 0.70710678;
 
-	vec4 v = vec4(gl_Vertex.x + gl_Normal.x * k, gl_Vertex.y + gl_Normal.y,
-				  gl_Vertex.z + gl_Normal.z * k, gl_Vertex.w);
+	vec4 v = vec4(gl_Vertex.xyz + gl_Normal * k, gl_Vertex.w);
 
 	gl_TexCoord[0] = gl_MultiTexCoord0;
     gl_Position    = gl_ModelViewProjectionMatrix * v;
