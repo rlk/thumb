@@ -167,11 +167,14 @@ namespace wrl
 
         int shadow_splits;
 
-        ogl::uniform *uniform_highlight;
         ogl::uniform *uniform_shadow[4];
         ogl::uniform *uniform_light [4];
         ogl::uniform *uniform_split [4];
         ogl::uniform *uniform_bright[4];
+        ogl::uniform *uniform_highlight;
+        ogl::uniform *uniform_spot;
+        ogl::uniform *uniform_unit;
+
         ogl::process *process_shadow[4];
         ogl::process *process_cookie[4];
     };

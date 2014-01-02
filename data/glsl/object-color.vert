@@ -6,7 +6,6 @@ uniform vec4  LightPosition[4];
 uniform mat4  ShadowMatrix[4];
 uniform float Highlight;
 
-varying vec3 fC;
 varying vec3 fV;
 varying vec3 fL[4];
 varying vec4 fS[4];
@@ -27,11 +26,6 @@ void main()
     mat3 T = transpose(I);
 
     vec4 e = gl_ModelViewMatrix * gl_Vertex;
-
-    if (gl_MultiTexCoord0.z == Highlight)
-        fC = vec3(0.2, 0.2, 0.0);
-    else
-        fC = vec3(0.0, 0.0, 0.0);
 
     // Tangent-space view vector
 

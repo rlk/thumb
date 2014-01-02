@@ -59,7 +59,6 @@ wrl::world::world() :
 
     // Initialize the render uniforms and processes.
 
-    uniform_highlight = ::glob->load_uniform("Highlight",          1);
     uniform_shadow[0] = ::glob->load_uniform("ShadowMatrix[0]",   16);
     uniform_shadow[1] = ::glob->load_uniform("ShadowMatrix[1]",   16);
     uniform_shadow[2] = ::glob->load_uniform("ShadowMatrix[2]",   16);
@@ -76,6 +75,10 @@ wrl::world::world() :
     uniform_bright[1] = ::glob->load_uniform("LightBrightness[1]", 2);
     uniform_bright[2] = ::glob->load_uniform("LightBrightness[2]", 2);
     uniform_bright[3] = ::glob->load_uniform("LightBrightness[3]", 2);
+
+    uniform_highlight = ::glob->load_uniform("Highlight",   1);
+    uniform_spot      = ::glob->load_uniform("LightCutoff", 4);
+    uniform_unit      = ::glob->load_uniform("LightUnit",   4);
 
     process_shadow[0] = ::glob->load_process("shadow", 0);
     process_shadow[1] = ::glob->load_process("shadow", 1);
@@ -132,12 +135,16 @@ wrl::world::~world()
     {
         ::glob->free_process(process_cookie[i]);
         ::glob->free_process(process_shadow[i]);
+
         ::glob->free_uniform(uniform_shadow[i]);
         ::glob->free_uniform(uniform_light [i]);
         ::glob->free_uniform(uniform_split [i]);
         ::glob->free_uniform(uniform_bright[i]);
     }
+
     ::glob->free_uniform(uniform_highlight);
+    ::glob->free_uniform(uniform_spot);
+    ::glob->free_uniform(uniform_unit);
 
     // Finalize the render pools.
 
@@ -901,7 +908,7 @@ void wrl::world::save(std::string filename, bool save_all)
 ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
 {
     // Set the highlight uniform.
-
+#if 0
     GLfloat highlight = 0;
 
     if (edit_focus)
@@ -915,7 +922,7 @@ ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
         }
     }
     uniform_highlight->set(highlight);
-
+#endif
     // Prep the fill geometry pool.
 
     fill_pool->prep();
@@ -1047,6 +1054,8 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     // Enumerate the light sources.
 
+    vec4 unit;
+    vec4 spot;
     int l = 0;
 
     atom_set::iterator a;
@@ -1084,10 +1093,16 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
                 {
                     process_cookie[l]->draw(C);
                     uniform_bright[l]->set(b);
+
+                    unit[l] = double(u->get_id());
+                    spot[l] = c;
                 }
             }
         }
     }
+
+    uniform_spot->set(spot);
+    uniform_unit->set(unit);
 
     // Zero the unused lights.
 
@@ -1134,7 +1149,7 @@ void wrl::world::draw_line()
             }
 
             // Highlight the current focus.
-#if 0
+
             if (edit_focus)
             {
                 if (wrl::atom *a = (wrl::atom *) dGeomGetData(edit_focus))
@@ -1144,7 +1159,7 @@ void wrl::world::draw_line()
                     a->get_line()->draw_lines();
                 }
             }
-#endif
+
             glColor3f(1.0f, 1.0f, 1.0f);
         }
         line_pool->draw_fini();

@@ -1,5 +1,9 @@
 <?xml version="1.0"?>
   <program vert="glsl/spotlight.vert"
            frag="glsl/spotlight.frag" >
+
     <texture name="cookie" unit="1" />
+
+    <uniform name="LightUnit"   uniform="LightUnit"   size="4" />
+    <uniform name="LightCutoff" uniform="LightCutoff" size="4" />
   </program>

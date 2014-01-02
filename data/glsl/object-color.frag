@@ -10,7 +10,6 @@ uniform sampler2D       normal;
 uniform sampler2DShadow shadow[4];
 uniform sampler2D       cookie[4];
 
-varying vec3 fC;
 varying vec3 fV;
 varying vec3 fL[4];
 varying vec4 fS[4];
@@ -86,5 +85,5 @@ void main()
                          + light(V, N, Td, Ts, 2)
                          + light(V, N, Td, Ts, 3);
 
-    gl_FragColor = vec4(C + fC, Td.a);
+    gl_FragColor = vec4(C, Td.a);
 }
