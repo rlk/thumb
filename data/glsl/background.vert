@@ -1,9 +1,22 @@
 
+uniform vec4 LightUnit;
+uniform vec4 LightPosition[4];
+
 varying vec3 fV;
 varying vec3 fL;
 
 void main()
 {
+    // Compare this unit ID with the light unit IDs to determine light position.
+
+    vec4 L;
+
+    if      (LightUnit.x == gl_MultiTexCoord0.p) L = LightPosition[0];
+    else if (LightUnit.y == gl_MultiTexCoord0.p) L = LightPosition[1];
+    else if (LightUnit.z == gl_MultiTexCoord0.p) L = LightPosition[2];
+    else if (LightUnit.w == gl_MultiTexCoord0.p) L = LightPosition[3];
+    else                                         L = vec4(0.0, 1.0, 0.0, 0.0);
+
     // Generate points on the far plane in clip coordinates.
 
     vec4 c = vec4(gl_MultiTexCoord0.xy, 0.999, 1.0);
@@ -11,19 +24,7 @@ void main()
     // This funky MVP inversion eliminates the view translation.
 
     fV = vec3(gl_ModelViewMatrixTranspose * gl_ProjectionMatrixInverse * c);
-
-    // Light vector is given by the first directional light source position.
-
-    fL = vec3(0.0, 1.0, 0.0);
-
-    if      (gl_LightSource[0].position.w == 0.0)
-        fL = gl_LightSource[0].position.xyz;
-    else if (gl_LightSource[1].position.w == 0.0)
-        fL = gl_LightSource[1].position.xyz;
-    else if (gl_LightSource[2].position.w == 0.0)
-        fL = gl_LightSource[2].position.xyz;
-    else if (gl_LightSource[3].position.w == 0.0)
-        fL = gl_LightSource[3].position.xyz;
+    fL = vec3(gl_ModelViewMatrixTranspose * L);
 
     gl_Position = c;
 }

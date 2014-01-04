@@ -22,6 +22,9 @@ wrl::light::light(std::string name) : sphere(name, false)
 
 wrl::d_light::d_light(std::string name) : light(name)
 {
+    if (fill)
+        fill->set_ubiq(true);
+
     params[param::brightness]  = new param("brightness",  "1.0");
 }
 

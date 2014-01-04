@@ -93,8 +93,6 @@ void wrl::sphere::scale()
             if (r < fabs(z[i])) r = fabs(z[i]);
         }
 
-        printf("%s %f %f %f %f %f %f %f\n", name.c_str(), a[0], a[1], a[2], z[0], z[1], z[2], r);
-
         line_scale = vec3(r, r, r);
 
         dGeomSphereSetRadius(edit_geom, r);
