@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
   <material>
     <program mode="depth" file="discard.xml" />
-    <program mode="color" file="background-basic.xml" />
+    <program mode="color" file="sky-basic.xml" />
   </material>

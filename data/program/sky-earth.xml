@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
   <program vert="glsl/background.vert"
-           frag="glsl/background-earth-sky.frag">
+           frag="glsl/sky-earth.frag">
 
     <texture name="cookie" unit="1" />
 

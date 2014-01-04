@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-  <program vert="glsl/sky-basic.vert"
-           frag="glsl/sky-basic.frag" >
-    <texture name="fill"  unit="0" />
-    <texture name="glow"  unit="1" />
+  <program vert="glsl/background.vert"
+           frag="glsl/sky-basic.frag">
+    <texture name="cookie" unit="1" />
   </program>

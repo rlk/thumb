@@ -1,19 +1,20 @@
 
-uniform sampler2D glow;
-uniform sampler2D fill;
-
-varying vec3 V_v;
-varying vec3 L_v;
+varying vec3 fV;
+varying vec3 fL;
 
 void main()
 {
-    vec3 V = normalize(V_v);
-    vec3 L = normalize(L_v);
+    vec3 V = normalize(fV);
+    vec3 L = normalize(fL);
 
-    // Look up the sky fill and glow colors.
+    vec4 a = vec4(0.4, 0.3, 0.2, 1.0);
+    vec4 b = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 c = vec4(1.0, 1.0, 1.0, 1.0);
+    vec4 d = vec4(0.2, 0.5, 1.0, 1.0);
 
-    vec4 Kg = texture2D(glow, vec2((L.y + 1.0) / 2.0, dot(V, L)));
-    vec4 Kf = texture2D(fill, vec2((L.y + 1.0) / 2.0, V.y));
+    float e = 0.05;
 
-    gl_FragColor = vec4(Kf.rgb + Kg.rgb, Kf.a);
+    gl_FragColor = mix(mix(b, a, pow(abs(V.y), 0.2)),
+                       mix(c, d, pow(abs(V.y), 0.2)),
+                       smoothstep(-e, +e, V.y));
 }
