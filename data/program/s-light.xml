@@ -1,3 +1,0 @@
-<?xml version="1.0"?>
-  <program vert="glsl/s-light.vert"
-           frag="glsl/s-light.frag" />
