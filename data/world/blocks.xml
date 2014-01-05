@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
   <world>
     <light type="d-light">
-      <file>light/sky-basic.obj</file>
+      <file>light/sky-water.obj</file>
       <rot_x>-0.234166</rot_x>
       <rot_y>0.963718</rot_y>
       <rot_z>0.279068</rot_z>
