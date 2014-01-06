@@ -143,9 +143,16 @@ void app::perf::dump(bool log)
 
 #else // not NVPM =============================================================
 
-app::perf::perf(SDL_Window *w, int n) : window(w), frames(0), limit(n)
+app::perf::perf(SDL_Window *w, int n) : window(w)
 {
-    first = SDL_GetPerformanceCounter();
+    Uint64 c = SDL_GetPerformanceCounter();
+
+    total_start  = c;
+    total_frames = 0;
+
+    local_start  = c;
+    local_frames = 0;
+    local_limit  = n;
 }
 
 app::perf::~perf()
@@ -154,33 +161,48 @@ app::perf::~perf()
 
 void app::perf::step(bool log)
 {
-    if (++frames == limit)
+    // Count a frame.
+
+    local_frames++;
+    total_frames++;
+
+    // Report as often as configured.
+
+    if (local_frames == local_limit)
     {
-        frames = 0;
         dump(log);
+        local_frames = 0;
     }
 }
 
 void app::perf::dump(bool log)
 {
-    Uint64 count  = SDL_GetPerformanceCounter();
-    Uint64 persec = SDL_GetPerformanceFrequency();
+    // Sample the timer.
 
-    double dt = double(count - first) / double(persec);
-    double ms = 1000.0 * dt / limit;
+    Uint64 current = SDL_GetPerformanceCounter();
+    Uint64 persec  = SDL_GetPerformanceFrequency();
 
-    int   fps = int(ceil(limit / dt));
+    // Calculate the timings.
+
+    double d1 = double(current - local_start) / double(persec);
+    double dn = double(current - total_start) / double(persec);
+    double m1 = 1000.0 * d1 / local_frames;
+    double mn = 1000.0 * dn / total_frames;
+    int   fps = int(ceil(local_frames / d1));
+
+    local_start = current;
+
+    // Report to a string. Set the window title and log.
 
     std::ostringstream str;
 
-    str << std::fixed << std::setprecision(3) << std::setw(6) << ms  << "ms "
-                                              << std::setw(4) << fps << "fps";
+    str << std::fixed << std::setprecision(1) << m1  << "ms "
+                                       << "(" << mn  << "ms) "
+                                              << fps << "fps";
 
     SDL_SetWindowTitle(window, str.str().c_str());
 
     if (log) std::cout << str.str() << std::endl;
-
-    first = count;
 }
 
 #endif // not NVPM ============================================================

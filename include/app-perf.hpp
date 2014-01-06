@@ -32,7 +32,7 @@ namespace app
     class perf
     {
         SDL_Window *window;
-        
+
         static std::map<UINT, char *> _name;
         static std::map<UINT, UINT64> _hint;
 
@@ -58,10 +58,13 @@ namespace app
     class perf
     {
         SDL_Window *window;
-        
-        Uint64 first;
-        int    frames;
-        int    limit;
+
+        Uint64 total_start;
+        int    total_frames;
+
+        Uint64 local_start;
+        int    local_frames;
+        int    local_limit;
 
     public:
 
