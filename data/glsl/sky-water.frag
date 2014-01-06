@@ -33,7 +33,7 @@ void main()
 
     // Fade the normal to vertical toward the horizon.
 
-    N = mix(Y, N, -V.y);
+    N = normalize(mix(Y, N, pow(-V.y, 0.5)));
 
     // Reflect a downward view vector across the water.
 
@@ -41,22 +41,28 @@ void main()
 
     V = mix(V, reflect(V, N), dn);
 
+    float vl = dot(V, L);
+
     // Look up the sky fill and glow colors.
 
     float x = (L.y + 1.0) / 2.0;
 
-    vec4 Tg = texture2D(glow, vec2(x, dot(V, L)));
+    vec4 Tg = texture2D(glow, vec2(x, vl));
     vec4 Tf = texture2D(fill, vec2(x, V.y));
+
+    // Calculate the color of the face of the sun.
+
+    vec3 Cs = vec3(smoothstep(0.999, 0.9995, vl));
 
     // Calculate an ocean color for the current sun angle.
 
-    vec3 Ko = vec3(0.03, 0.15, 0.15) * max(0.0, pow(L.y, 0.25));
+    vec3 Ko = vec3(0.03, 0.30, 0.30) * pow(max(0.0, L.y), 0.25);
 
     // Mix the ocean color using a Fresnel coefficient.
 
     float f = mix(1.0, clamp(pow(1.0 - dot(V, N), 3.0), 0.0, 1.0), dn);
 
-    vec4 K = mix(vec4(Ko, 1.0), Tf + Tg, f);
+    vec3 Co = mix(Ko, vec3(Tf + Tg), f);
 
-    gl_FragColor = vec4(K.rgb, Tf.a);
+    gl_FragColor = vec4(Co + Cs, Tf.a);
 }

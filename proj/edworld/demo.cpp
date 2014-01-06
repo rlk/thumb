@@ -121,7 +121,7 @@ demo::demo(const std::string& exe,
 
     world->load("world/test.xml");
 
-    goto_mode(play);
+    goto_mode(edit);
 }
 
 demo::~demo()
