@@ -80,6 +80,17 @@
         </frustum>
       </display>
     </node>
+    <!-- 1280x800 --------------------------------------------------------- -->
+    <node name="1280x800">
+      <window x="0" y="0" w="1280" h="800" full="1"/>
+      <channel w="1280" h="800"/>
+      <display type="direct">
+        <viewport x="0" y="0" w="1280" h="800"/>
+        <frustum>
+          <perspective hfov="60.0" vfov="36.0"/>
+        </frustum>
+      </display>
+    </node>
     <!-- 1920x1080 -------------------------------------------------------- -->
     <node name="1920x1080">
       <window x="0" y="0" w="1920" h="1080"/>
@@ -126,7 +137,7 @@
     </node>
     <!-- 2560x1600 -------------------------------------------------------- -->
     <node name="2560x1600">
-      <window x="0" y="0" w="2560" h="1600" frame="0"/>
+      <window x="0" y="0" w="2560" h="1600" full="1"/>
       <channel w="2560" h="1600"/>
       <display type="direct">
         <viewport x="0" y="0" w="2560" h="1600"/>
@@ -232,7 +243,7 @@
         </frustum>
       </display>
     </node>
-    <!-- 1024x769 Fulldome projection ------------------------------------- -->
+    <!-- 1024x768 Fulldome projection ------------------------------------- -->
     <node name="1024x768-fulldome">
       <window  w="1024" h="768" x="0" y="0" />
       <buffer  w="1024" h="512"/>
