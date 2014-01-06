@@ -119,9 +119,9 @@ demo::demo(const std::string& exe,
     play = new mode::play(world);
     info = new mode::info(world);
 
-    world->load("world/blocks.xml");
+    world->load("world/test.xml");
 
-    goto_mode(edit);
+    goto_mode(play);
 }
 
 demo::~demo()
