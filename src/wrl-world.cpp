@@ -1116,12 +1116,13 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
 {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
-    glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     fill_pool->draw_init();
     {
+        glDisable(GL_BLEND);
         fill_pool->draw(frusi, true, false);
+        glEnable(GL_BLEND);
         fill_pool->draw(frusi, true, true);
     }
     fill_pool->draw_fini();
