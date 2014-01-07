@@ -3,5 +3,7 @@
     <program mode="depth" file="discard.xml" />
     <program mode="color" file="sky-earth.xml">
       <texture sampler="cookie" name="white.png" />
+      <texture sampler="fill"   name="sky-fill.png" />
+      <texture sampler="glow"   name="sky-glow.png" />
     </program>
   </material>

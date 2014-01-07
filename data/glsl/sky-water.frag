@@ -41,18 +41,17 @@ void main()
 
     V = mix(V, reflect(V, N), dn);
 
-    float vl = dot(V, L);
-
     // Look up the sky fill and glow colors.
 
     float x = (L.y + 1.0) / 2.0;
+    float d = dot(V, L);
 
-    vec4 Tg = texture2D(glow, vec2(x, vl));
+    vec4 Tg = texture2D(glow, vec2(x, d));
     vec4 Tf = texture2D(fill, vec2(x, V.y));
 
     // Calculate the color of the face of the sun.
 
-    vec3 Cs = vec3(smoothstep(0.999, 0.9995, vl));
+    vec3 Cs = vec3(smoothstep(0.999, 0.9995, d));
 
     // Calculate an ocean color for the current sun angle.
 
