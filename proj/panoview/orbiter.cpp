@@ -123,7 +123,16 @@ ogl::aabb orbiter::prep(int frusc, const app::frustum *const *frusv)
     double n = 0.5 *     (d     - r    );
     double f = 1.0 * sqrt(d * d - m * m);
 
-    return ogl::aabb(vec3(0, 0, -f), vec3(0, 0, -n));
+    // Compute a world-space bounding volume including the near and far points.
+
+    const mat4 I = ::view->get_inverse();
+
+    ogl::aabb bb;
+
+    bb.merge(I * vec3(0, 0, -f));
+    bb.merge(I * vec3(0, 0, -n));
+
+    return bb;
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
