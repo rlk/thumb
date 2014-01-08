@@ -1106,7 +1106,7 @@ void wrl::world::lite(int frusc, const app::frustum *const *frusv)
 
     // Zero the unused lights.
 
-    for (; l < ogl::max_lights; l++)
+    for (; l < 4; l++)
         uniform_bright[l]->set(vec2(0, 0));
 }
 
