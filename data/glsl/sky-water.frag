@@ -8,12 +8,11 @@ varying vec3 fL;
 
 uniform float time;
 
-const vec3 Y = vec3(0.0, 1.0, 0.0);
+// Return the normal of the water.
 
-void main()
+vec3 norm(vec3 V, vec3 L)
 {
-    vec3 V = normalize(fV);
-    vec3 L = normalize(fL);
+    const vec3 Y = vec3(0.0, 1.0, 0.0);
 
     // Compute water texture coordinates.
 
@@ -31,37 +30,55 @@ void main()
               texture2D(normal, t3).xyz +
               texture2D(normal, t4).xyz - 2.0) * 0.5;
 
-    // Fade the normal to vertical toward the horizon.
+    // Fade that vector to vertical toward the horizon and normalize.
 
-    N = normalize(mix(Y, N, pow(-V.y, 0.5)));
+    return normalize(mix(Y, N, pow(-V.y, 0.5)));
+}
 
-    // Reflect a downward view vector across the water.
+// Return the color of the face of the sun.
 
-    float dn = step(V.y, 0.0);
+vec3 sun(vec3 V, vec3 L)
+{
+    return vec3(smoothstep(0.999, 0.9995, dot(V, L)));
+}
 
-    V = mix(V, reflect(V, N), dn);
+// Return the color of the sky.
 
-    // Look up the sky fill and glow colors.
+vec3 sky(vec3 V, vec3 L)
+{
+    float V_L = dot(V, L);
 
-    float x = (L.y + 1.0) / 2.0;
-    float d = dot(V, L);
+    return (texture2D(glow, vec2((L.y + 1.0) / 2.0, V_L)).rgb
+          + texture2D(fill, vec2((L.y + 1.0) / 2.0, V.y)).rgb);
+}
 
-    vec4 Tg = texture2D(glow, vec2(x, d));
-    vec4 Tf = texture2D(fill, vec2(x, V.y));
+// Compute the color of the water.
 
-    // Calculate the color of the face of the sun.
-
-    vec3 Cs = vec3(smoothstep(0.999, 0.9995, d));
-
+vec3 water(vec3 V, vec3 L, vec3 N)
+{
     // Calculate an ocean color for the current sun angle.
 
     vec3 Ko = vec3(0.03, 0.30, 0.30) * pow(max(0.0, L.y), 0.25);
 
-    // Mix the ocean color using a Fresnel coefficient.
+    // Calculate a Fresnel coefficient for the current view.
 
-    float f = mix(1.0, clamp(pow(1.0 - dot(V, N), 3.0), 0.0, 1.0), dn);
+    float f = clamp(pow(1.0 - dot(V, N), 3.0), 0.0, 1.0);
 
-    vec3 Co = mix(Ko, vec3(Tf + Tg), f);
+    // Mix the ocean color with the reflection of the sky.
 
-    gl_FragColor = vec4(Co + Cs, Tf.a);
+    return mix(Ko, sky(V, L), f);
+}
+
+void main()
+{
+    vec3 V = normalize(fV);
+    vec3 L = normalize(fL);
+
+    vec3 N = norm(V, L);
+    vec3 W = reflect(V, N);
+
+    float d = smoothstep(-0.01, 0.0, V.y);
+
+    gl_FragColor = vec4(mix(sun(W, L) + water(W, L, N),
+                            sun(V, L) +   sky(V, L), d), 1.0);
 }
