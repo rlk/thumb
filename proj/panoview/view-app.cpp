@@ -622,6 +622,25 @@ void view_app::gui_draw()
 {
     if (const app::frustum *overlay = ::host->get_overlay())
     {
+        glEnable(GL_DEPTH_CLAMP_NV);
+        {
+            const vec3 *p = overlay->get_corners();
+
+            const double w = length(p[1] - p[0]) / gui_w;
+            const double h = length(p[2] - p[0]) / gui_h;
+            const vec3   x = normal(p[1] - p[0]);
+            const vec3   y = normal(p[2] - p[0]);
+            const vec3   z = normal(cross(x, y));
+
+            mat4 T = translation(p[0])
+                   *   transpose(mat3(x, y, z))
+                   *       scale(vec3(w, h, 1));
+
+            glLoadMatrixd(transpose(T));
+            gui->draw();
+        }
+        glDisable(GL_DEPTH_CLAMP_NV);
+#if 0
         glEnable(GL_DEPTH_CLAMP);
         {
             glLoadIdentity();
@@ -631,6 +650,7 @@ void view_app::gui_draw()
             gui->draw();
         }
         glDisable(GL_DEPTH_CLAMP);
+#endif
     }
 }
 

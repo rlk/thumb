@@ -78,7 +78,6 @@ void mode::info::draw(int frusi, const app::frustum *frusp)
     ::view->load_transform();
 
     world->draw_fill(frusi, frusp);
-    // world->draw_lite();
     world->draw_line();
 
     // Draw the GUI.

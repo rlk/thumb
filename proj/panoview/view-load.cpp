@@ -100,8 +100,8 @@ view_load::view_load(view_app *V, int w, int h)
 
     root->layup();
 
-    int ww = std::max(root->get_width(), 3 * w / 5);
-    int hh = std::max(root->get_height(), 3 * h / 5);
+    int ww = std::max(root->get_w(), 3 * w / 5);
+    int hh = std::max(root->get_h(), 3 * h / 5);
 
     root->laydn((w - ww) / 2, (h - hh) / 2, ww, hh);
 }
