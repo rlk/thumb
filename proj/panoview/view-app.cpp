@@ -352,10 +352,19 @@ ogl::aabb view_app::prep(int frusc, const app::frustum *const *frusv)
 
     sys->update_cache();
 
+    // Compute a world-space bounding volume including the near and far points.
+
     double n = 0.1;
     double f = 2.0 * get_minimum_ground();
 
-    return ogl::aabb(vec3(0, 0, -f), vec3(0, 0, -n));
+    const mat4 I = ::view->get_inverse();
+
+    ogl::aabb bb;
+
+    bb.merge(I * vec3(0, 0, -f));
+    bb.merge(I * vec3(0, 0, -n));
+
+    return bb;
 }
 
 void view_app::lite(int frusc, const app::frustum *const *frusv)
