@@ -135,7 +135,7 @@ static void step_from_xml(scm_step *s, app::node n)
     s->set_position   (p);
     s->set_light      (l);
     s->set_speed      (n.get_f("s", 1.0));
-    s->set_distance   (n.get_f("r", 2000000.0));
+    s->set_distance   (n.get_f("r", 0.0)); // 2000000.0
     s->set_tension    (n.get_f("t", 0.0));
     s->set_bias       (n.get_f("b", 0.0));
     s->set_zoom       (n.get_f("z", 1.0));
@@ -352,19 +352,12 @@ ogl::aabb view_app::prep(int frusc, const app::frustum *const *frusv)
 
     sys->update_cache();
 
-    // Compute a world-space bounding volume including the near and far points.
+    // Return a world-space bounding volume for the sphere.
 
-    double n = 0.1;
-    double f = 2.0 * get_minimum_ground();
+    double r = 2.0 * get_minimum_ground();
 
-    const mat4 I = ::view->get_inverse();
-
-    ogl::aabb bb;
-
-    bb.merge(I * vec3(0, 0, -f));
-    bb.merge(I * vec3(0, 0, -n));
-
-    return bb;
+    return ogl::aabb(vec3(-r, -r, -r),
+                     vec3(+r, +r, +r));
 }
 
 void view_app::lite(int frusc, const app::frustum *const *frusv)

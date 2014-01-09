@@ -123,14 +123,26 @@ ogl::aabb orbiter::prep(int frusc, const app::frustum *const *frusv)
     double n = 0.5 *     (d     - r    );
     double f = 1.0 * sqrt(d * d - m * m);
 
-    // Compute a world-space bounding volume including the near and far points.
-
-    const mat4 I = ::view->get_inverse();
+    // Compute a world-space bounding box for the visible region.
 
     ogl::aabb bb;
 
-    bb.merge(I * vec3(0, 0, -f));
-    bb.merge(I * vec3(0, 0, -n));
+    for (int i = 0; i < frusc; ++i)
+    {
+        const mat4 I = inverse(frusv[i]->get_transform(n, f) *
+                                 ::view->get_transform());
+
+        bb.merge(I * vec3(-1, -1, -1));
+        bb.merge(I * vec3( 1, -1, -1));
+        bb.merge(I * vec3(-1,  1, -1));
+        bb.merge(I * vec3( 1,  1, -1));
+        bb.merge(I * vec3(-1, -1,  1));
+        bb.merge(I * vec3( 1, -1,  1));
+        bb.merge(I * vec3(-1,  1,  1));
+        bb.merge(I * vec3( 1,  1,  1));
+    }
+
+    // TODO: transmit near and far directly to the frustum.
 
     return bb;
 }

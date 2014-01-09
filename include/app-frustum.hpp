@@ -55,7 +55,8 @@ namespace app
         // Queries
 
         virtual void load_transform() const;
-        virtual mat4  get_transform() const = 0;
+        virtual mat4  get_transform() const;
+        virtual mat4  get_transform(double, double) const = 0;
 
         const vec4 *get_world_planes() const { return plane;  }
         const vec3 *get_world_points() const { return point;  }
@@ -111,7 +112,8 @@ namespace app
 
         virtual void set_bound(const mat4&, const ogl::aabb&);
 
-        virtual mat4 get_transform() const;
+        virtual mat4 get_transform(double, double) const;
+        virtual mat4 get_transform()               const;
     };
 
     //-------------------------------------------------------------------------
@@ -126,7 +128,8 @@ namespace app
 
         virtual void set_bound(const mat4&, const ogl::aabb&);
 
-        virtual mat4 get_transform() const;
+        virtual mat4 get_transform(double, double) const;
+        virtual mat4 get_transform()               const;
     };
 
     //-------------------------------------------------------------------------
