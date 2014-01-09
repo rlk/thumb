@@ -383,7 +383,20 @@ app::perspective_frustum::perspective_frustum()
 
 void app::perspective_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
 {
-    if (bound.isvalid())
+    const vec3 a = bound.min();
+    const vec3 z = bound.max();
+
+    // Check for the special case directly specifying near and far.
+
+    if (a[0] == 0 && a[1] == 0 && z[0] == 0 && z[1] == 0)
+    {
+        n = a[2];
+        f = z[2];
+    }
+
+    // Otherwise compute the near and far planes of the bound.
+
+    else if (bound.isvalid())
     {
         const mat4 M = transpose(basis) * translation(-eye) * V;
 
@@ -391,10 +404,13 @@ void app::perspective_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
 
         n = bb.min(vec4(0.0, 0.0, -1.0, 0.0));
         f = bb.max(vec4(0.0, 0.0, -1.0, 0.0));
-
-        if (n < 0.1)
-            n = 0.1;
     }
+
+    // Ensure the near distance is positive and compute the world-space points.
+
+    if (n < 0.1)
+        n = 0.1;
+
     cache_points(get_transform() * V);
 }
 

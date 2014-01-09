@@ -123,28 +123,9 @@ ogl::aabb orbiter::prep(int frusc, const app::frustum *const *frusv)
     double n = 0.5 *     (d     - r    );
     double f = 1.0 * sqrt(d * d - m * m);
 
-    // Compute a world-space bounding box for the visible region.
+    // Exploit an AABB special case to transmit near and far directly.
 
-    ogl::aabb bb;
-
-    for (int i = 0; i < frusc; ++i)
-    {
-        const mat4 I = inverse(frusv[i]->get_transform(n, f) *
-                                 ::view->get_transform());
-
-        bb.merge(I * vec3(-1, -1, -1));
-        bb.merge(I * vec3( 1, -1, -1));
-        bb.merge(I * vec3(-1,  1, -1));
-        bb.merge(I * vec3( 1,  1, -1));
-        bb.merge(I * vec3(-1, -1,  1));
-        bb.merge(I * vec3( 1, -1,  1));
-        bb.merge(I * vec3(-1,  1,  1));
-        bb.merge(I * vec3( 1,  1,  1));
-    }
-
-    // TODO: transmit near and far directly to the frustum.
-
-    return bb;
+    return ogl::aabb(vec3(0, 0, n), vec3(0, 0, f));
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)
