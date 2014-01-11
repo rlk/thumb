@@ -75,7 +75,7 @@ void dev::skeleton::step()
         {
             if (FD_ISSET(sock, &readfds))
             {
-                if (recv(sock, data, sizeof (data), 0) == sizeof (data))
+                if (recv(sock, (char *) data, sizeof data, 0) == sizeof data)
                 {
                     vec3 x(1, 0, 0);
                     vec3 y(0, 1, 0);
