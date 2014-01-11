@@ -85,7 +85,7 @@ void wrl::sphere::scale()
         vec3 a = bound.min();
         vec3 z = bound.max();
 
-        float r = 0.0f;
+        double r = 0;
 
         for (int i = 0; i < 3; ++i)
         {
@@ -95,7 +95,7 @@ void wrl::sphere::scale()
 
         line_scale = vec3(r, r, r);
 
-        dGeomSphereSetRadius(edit_geom, r);
+        dGeomSphereSetRadius(edit_geom, dReal(r));
     }
 }
 
