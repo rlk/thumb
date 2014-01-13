@@ -135,7 +135,7 @@ static void step_from_xml(scm_step *s, app::node n)
     s->set_position   (p);
     s->set_light      (l);
     s->set_speed      (n.get_f("s", 1.0));
-    s->set_distance   (n.get_f("r", 2000000.0));
+    s->set_distance   (n.get_f("r", 0.0)); // 2000000.0
     s->set_tension    (n.get_f("t", 0.0));
     s->set_bias       (n.get_f("b", 0.0));
     s->set_zoom       (n.get_f("z", 1.0));
@@ -352,10 +352,12 @@ ogl::aabb view_app::prep(int frusc, const app::frustum *const *frusv)
 
     sys->update_cache();
 
-    double n = 0.1;
-    double f = 2.0 * get_minimum_ground();
+    // Return a world-space bounding volume for the sphere.
 
-    return ogl::aabb(vec3(0, 0, -f), vec3(0, 0, -n));
+    double r = 2.0 * get_minimum_ground();
+
+    return ogl::aabb(vec3(-r, -r, -r),
+                     vec3(+r, +r, +r));
 }
 
 void view_app::lite(int frusc, const app::frustum *const *frusv)
@@ -365,7 +367,7 @@ void view_app::lite(int frusc, const app::frustum *const *frusv)
 void view_app::draw(int frusi, const app::frustum *frusp, int chani)
 {
     mat4 P =  frusp->get_transform();
-    mat4 M = ::view->get_inverse();
+    mat4 M = ::view->get_transform();
     mat4 S = scale(vec3(get_scale(),
                         get_scale(),
                         get_scale()));
@@ -622,6 +624,25 @@ void view_app::gui_draw()
 {
     if (const app::frustum *overlay = ::host->get_overlay())
     {
+        glEnable(GL_DEPTH_CLAMP_NV);
+        {
+            const vec3 *p = overlay->get_corners();
+
+            const double w = length(p[1] - p[0]) / gui_w;
+            const double h = length(p[2] - p[0]) / gui_h;
+            const vec3   x = normal(p[1] - p[0]);
+            const vec3   y = normal(p[2] - p[0]);
+            const vec3   z = normal(cross(x, y));
+
+            mat4 T = translation(p[0])
+                   *   transpose(mat3(x, y, z))
+                   *       scale(vec3(w, h, 1));
+
+            glLoadMatrixd(transpose(T));
+            gui->draw();
+        }
+        glDisable(GL_DEPTH_CLAMP_NV);
+#if 0
         glEnable(GL_DEPTH_CLAMP);
         {
             glLoadIdentity();
@@ -631,6 +652,7 @@ void view_app::gui_draw()
             gui->draw();
         }
         glDisable(GL_DEPTH_CLAMP);
+#endif
     }
 }
 

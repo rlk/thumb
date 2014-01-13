@@ -305,7 +305,9 @@ void app::prog::offset_position(const vec3 &d)
 
 //-----------------------------------------------------------------------------
 
+#ifndef WIN32
 #include <unistd.h>
+#endif
 #include <fcntl.h>
 
 #pragma pack(push, 1)

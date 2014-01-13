@@ -123,9 +123,9 @@ ogl::aabb orbiter::prep(int frusc, const app::frustum *const *frusv)
     double n = 0.5 *     (d     - r    );
     double f = 1.0 * sqrt(d * d - m * m);
 
-    printf("in %f %f\n", n, f);
+    // Exploit an AABB special case to transmit near and far directly.
 
-    return ogl::aabb(vec3(0, 0, -f), vec3(0, 0, -n));
+    return ogl::aabb(vec3(0, 0, n), vec3(0, 0, f));
 }
 
 void orbiter::draw(int frusi, const app::frustum *frusp, int chani)

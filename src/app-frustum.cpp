@@ -51,6 +51,13 @@ void app::frustum::load_transform() const
     glPopMatrix();
 }
 
+// Return a perspective projection matrix for this frustum.
+
+mat4 app::frustum::get_transform() const
+{
+    return get_transform(n, f);
+}
+
 // Set the frustum view point.
 
 void app::frustum::set_eye(const vec3& p)
@@ -288,13 +295,18 @@ void app::orthogonal_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
     cache_points(get_transform() * V);
 }
 
-mat4 app::orthogonal_frustum::get_transform() const
+mat4 app::orthogonal_frustum::get_transform(double N, double F) const
 {
     double l = corner[0][0];
     double r = corner[1][0];
     double b = corner[0][1];
     double t = corner[2][1];
-    return orthogonal(l, r, b, t, n, f) * transpose(basis) * translation(-eye);
+    return orthogonal(l, r, b, t, N, F) * transpose(basis) * translation(-eye);
+}
+
+mat4 app::orthogonal_frustum::get_transform() const
+{
+    return get_transform(n, f);
 }
 
 //-----------------------------------------------------------------------------
@@ -371,23 +383,30 @@ app::perspective_frustum::perspective_frustum()
 
 void app::perspective_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
 {
-    // Compute the world-space position of the eye.
+    const vec3 a = bound.min();
+    const vec3 z = bound.max();
 
-    const mat4 M = transpose(basis) * translation(-eye) * V;
-    const vec3 e = inverse(M) * vec3(0, 0, 0);
+    // Check for the special case directly specifying near and far.
 
-    // Find the plane parallel to the near plane, passing through the eye.
-
-    const vec3 d = vec3(plane[0][0], plane[0][1], plane[0][2]);
-    const vec4 p = vec4(d, -(d * e));
-
-    // Distances from this plane give the near and far clipping distances.
-
-    if (bound.isvalid())
+    if (a[0] == 0 && a[1] == 0 && z[0] == 0 && z[1] == 0)
     {
-        n = bound.min(p);
-        f = bound.max(p);
+        n = a[2];
+        f = z[2];
     }
+
+    // Otherwise compute the near and far planes of the bound.
+
+    else if (bound.isvalid())
+    {
+        const mat4 M = transpose(basis) * translation(-eye) * V;
+
+        ogl::aabb bb(bound, M);
+
+        n = bb.min(vec4(0.0, 0.0, -1.0, 0.0));
+        f = bb.max(vec4(0.0, 0.0, -1.0, 0.0));
+    }
+
+    // Ensure the near distance is positive and compute the world-space points.
 
     if (n < 0.1)
         n = 0.1;
@@ -397,18 +416,23 @@ void app::perspective_frustum::set_bound(const mat4& V, const ogl::aabb& bound)
 
 // Return a perspective projection matrix for this frustum.
 
-mat4 app::perspective_frustum::get_transform() const
+mat4 app::perspective_frustum::get_transform(double N, double F) const
 {
     mat4 A = transpose(mat3(normal(corner[0] - eye),
                             normal(corner[1] - eye),
                             normal(corner[2] - eye))) * basis;
 
-    double l = -n * A[0][0] / A[0][2];
-    double r = -n * A[1][0] / A[1][2];
-    double b = -n * A[0][1] / A[0][2];
-    double t = -n * A[2][1] / A[2][2];
+    double l = -N * A[0][0] / A[0][2];
+    double r = -N * A[1][0] / A[1][2];
+    double b = -N * A[0][1] / A[0][2];
+    double t = -N * A[2][1] / A[2][2];
 
-    return perspective(l, r, b, t, n, f) * transpose(basis) * translation(-eye);
+    return perspective(l, r, b, t, N, F) * transpose(basis) * translation(-eye);
+}
+
+mat4 app::perspective_frustum::get_transform() const
+{
+    return get_transform(n, f);
 }
 
 //-----------------------------------------------------------------------------

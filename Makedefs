@@ -98,7 +98,8 @@ LIBTIF  = $(firstword $(wildcard /usr/local/lib/libtiff*.a \
 LIBGLEW = $(firstword $(wildcard /usr/local/lib/libGLEW*.a \
 				 /opt/local/lib/libGLEW*.a \
 				    $(HOME)/lib/libGLEW*.a \
-				       /usr/lib/libGLEW*.a) -lGLEW)
+				       /usr/lib/libGLEW*.a \
+				   C:/MinGW/lib/libglew*.a) -lGLEW)
 LIBMXML = $(firstword $(wildcard /usr/local/lib/libmxml*.a \
 				 /opt/local/lib/libmxml*.a \
 				    $(HOME)/lib/libmxml*.a \
@@ -124,11 +125,6 @@ LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
 				    $(HOME)/lib/libz*.a \
 				       /usr/lib/libz*.a \
 				   C:/MinGW/lib/libz*.a) -lz)
-LIBSDL  = $(firstword $(wildcard /usr/local/lib/libSDL2*.a \
-				 /opt/local/lib/libSDL2*.a \
-				    $(HOME)/lib/libSDL2*.a \
-				       /usr/lib/libSDL2*.a \
-				   C:/MinGW/lib/libSDL2*.a) -lSDL2)
 
 #------------------------------------------------------------------------------
 
@@ -146,9 +142,7 @@ FT2CONF = $(firstword $(wildcard /usr/local/bin/freetype-config  \
 CONF =	$(shell $(SDLCONF) --cflags) \
 	$(shell $(FT2CONF) --cflags)
 
-ifeq ($(shell uname), Linux)
-	LIBSDL = $(shell $(SDLCONF) --libs)
-endif
+LIBSDL = $(shell $(SDLCONF) --libs)
 
 #------------------------------------------------------------------------------
 

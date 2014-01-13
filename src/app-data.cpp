@@ -81,14 +81,12 @@ app::file_buffer::file_buffer(std::string name)
     len = (size_t) info.st_size;
     ptr = new unsigned char[len + 1];
 
+    memset(ptr, 0, len);
+
     // Read all data.
 
     if (read(fd, ptr, len) < (int) len)
         throw read_error(name);
-
-    // Null-terminate.  (This will be a problem if we mmap.)
-
-    ptr[len] = 0;
 
     close(fd);
 }

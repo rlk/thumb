@@ -35,7 +35,11 @@ int main(int argc, char *argv[])
     }
     catch (std::exception& e)
     {
+#ifndef WIN32
         std::cerr << "Uncaught exception: " << e.what() << std::endl;
+#else
+        SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, "Uncaught exception", e.what(), 0);
+#endif
     }
     return 0;
 }
