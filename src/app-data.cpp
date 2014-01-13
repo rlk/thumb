@@ -81,7 +81,7 @@ app::file_buffer::file_buffer(std::string name)
     len = (size_t) info.st_size;
     ptr = new unsigned char[len + 1];
 
-    memset(ptr, 0, len);
+    memset(ptr, 0, len + 1);
 
     // Read all data.
 
