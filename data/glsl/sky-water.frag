@@ -77,8 +77,8 @@ void main()
     vec3 N = norm(V, L);
     vec3 W = reflect(V, N);
 
-    float d = smoothstep(-0.01, 0.0, V.y);
-
-    gl_FragColor = vec4(mix(sun(W, L) + water(W, L, N),
-                            sun(V, L) +   sky(V, L), d), 1.0);
+    if (V.y > 0.0)
+        gl_FragColor = vec4(sun(V, L) +   sky(V, L),    1.0);
+    else
+        gl_FragColor = vec4(sun(W, L) + water(W, L, N), 1.0);
 }
