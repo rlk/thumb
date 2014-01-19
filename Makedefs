@@ -131,13 +131,13 @@ LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
 # Search for package configurators or rely upon the PATH.
 
 SDLCONF = $(firstword $(wildcard /usr/local/bin/sdl2-config  \
-	                         /opt/local/bin/sdl2-config  \
-	                               /usr/bin/sdl2-config) \
-	                                        sdl2-config)
+				 /opt/local/bin/sdl2-config  \
+				       /usr/bin/sdl2-config) \
+						sdl2-config)
 FT2CONF = $(firstword $(wildcard /usr/local/bin/freetype-config  \
-	                         /opt/local/bin/freetype-config  \
-	                               /usr/bin/freetype-config) \
-	                                        freetype-config)
+				 /opt/local/bin/freetype-config  \
+				       /usr/bin/freetype-config) \
+						freetype-config)
 
 CONF =	$(shell $(SDLCONF) --cflags) \
 	$(shell $(FT2CONF) --cflags)
