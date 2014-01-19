@@ -74,8 +74,8 @@ app::host::host(app::prog *p, std::string filename,
     window_full    = 0;
     window_frame   = 1;
     window_cursor  = 1;
-    window_rect[0] = 0;
-    window_rect[1] = 0;
+    window_rect[0] = SDL_WINDOWPOS_CENTERED;
+    window_rect[1] = SDL_WINDOWPOS_CENTERED;
     window_rect[2] = DEFAULT_PIXEL_WIDTH;
     window_rect[3] = DEFAULT_PIXEL_HEIGHT;
     buffer_size[0] = DEFAULT_PIXEL_WIDTH;
@@ -524,6 +524,7 @@ void app::host::root_loop()
     {
         // Translate and dispatch SDL events.
 
+        SDL_Event Q = { SDL_QUIT };
         SDL_Event e;
         SDL_Event p;
 
@@ -554,6 +555,10 @@ void app::host::root_loop()
                 break;
 
             case SDL_KEYDOWN:
+#ifdef _WIN32
+                if ((e.key.keysym.mod & KMOD_ALT) &&
+                    (e.key.keysym.sym == SDLK_F4)) SDL_PushEvent(&Q);
+#endif
                 if (e.key.repeat == 0)
                     process_event(E.mk_key(e.key.keysym.scancode,
                                            SDL_GetModState(), true));
