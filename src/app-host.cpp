@@ -524,7 +524,6 @@ void app::host::root_loop()
     {
         // Translate and dispatch SDL events.
 
-        SDL_Event Q = { SDL_QUIT };
         SDL_Event e;
         SDL_Event p;
 
@@ -557,7 +556,11 @@ void app::host::root_loop()
             case SDL_KEYDOWN:
 #ifdef _WIN32
                 if ((e.key.keysym.mod & KMOD_ALT) &&
-                    (e.key.keysym.sym == SDLK_F4)) SDL_PushEvent(&Q);
+                    (e.key.keysym.sym == SDLK_F4))
+                {
+                    SDL_Event Q = { SDL_QUIT };
+                    SDL_PushEvent(&Q);
+                }
 #endif
                 if (e.key.repeat == 0)
                     process_event(E.mk_key(e.key.keysym.scancode,
