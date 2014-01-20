@@ -2,165 +2,81 @@
 
 #------------------------------------------------------------------------------
 
-CC    = cc
-CXX   = c++
-STRIP = strip
-#CFLAGS= -g -Wall -fno-rtti
-CFLAGS= -O2 -ffast-math -fno-rtti -Wall -DNDEBUG
-RM    = rm -f
-CP    = cp
-
-CFLAGS += -DVERSION=0.9
-
-#------------------------------------------------------------------------------
-
-# MacOS X configuration
-
 ifeq ($(shell uname), Darwin)
-	LIBEXT  = -framework OpenGL \
-		  -framework Cocoa  \
-		  -framework ApplicationServices \
-		  -framework Carbon \
-		  -framework CoreAudio \
-		  -framework AudioToolbox \
-		  -framework AudioUnit \
-		  -framework ForceFeedback \
-		  -framework IOKit
-	CFLAGS += -mmacosx-version-min=10.6
-
-	# Optional Oculus SDK
-
-	ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
-		LIBEXT += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
-		INCDIR += -I/usr/local/OculusSDK/LibOVR/Include
-		CFLAGS += -DWITH_OCULUS
-	endif
-
-	# Optional Sixense SDK
-
-	ifneq (, $(wildcard /usr/local/lib/libsixense*))
-		LIBEXT += -L/usr/local/lib -lsixense_x64
-		INCDIR += -I/usr/local/lib
-		CFLAGS += -DWITH_SIXENSE
-	endif
+	SYSLIBS = -framework OpenGL \
+		  -framework Cocoa \
+ 		  -framework ApplicationServices \
+ 		  -framework Carbon \
+ 		  -framework CoreAudio \
+ 		  -framework AudioToolbox \
+ 		  -framework AudioUnit \
+ 		  -framework ForceFeedback \
+ 		  -framework IOKit
+	LIBPATH = /usr/local/lib/ /opt/local/lib/ /usr/lib/
 endif
-
-#------------------------------------------------------------------------------
-
-# Linux configuration
 
 ifeq ($(shell uname), Linux)
-	LIBEXT = -lGL
-
-	# Optional Oculus SDK
-
-	ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
-		LIBEXT += -L/usr/local/OculusSDK/LibOVR/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
-		INCDIR += -I/usr/local/OculusSDK/LibOVR/Include
-		CFLAGS += -DWITH_OCULUS
-	endif
-
-	# Optional Sixense SDK
-
-	ifneq ( ,$(wildcard /usr/local/lib/libsixense*))
-		LIBEXT += -L/usr/local/lib -lsixense_x64
-		INCDIR += -I/usr/local/lib
-		CFLAGS += -DWITH_SIXENSE
-	endif
+	SYSLIBS = -lGL
+	LIBPATH = /usr/local/lib/ /opt/local/lib/ /usr/lib/x86_64
 endif
-
-#------------------------------------------------------------------------------
-
-# MinGW configuration
 
 ifeq ($(shell uname), MINGW32_NT-6.1)
-	LIBEXT  = -lopengl32 -mwindows -lws2_32 -luser32 -lgdi32 -lwinmm
-	LIBSDL  = -lmingw32
 	CC     += -static
-	CFLAGS += -DGLEW_STATIC
+	SYSLIBS = -lmingw32 -lopengl32 -mwindows -lws2_32 -luser32 -lgdi32 -lwinmm
+	LIBPATH = C:/MinGW/lib/
 endif
 
 #------------------------------------------------------------------------------
 
-# Seek static versions of all required libraries, fall back on dynamic.
+PKGS = libpng libtiff-4 mxml ode glew freetype2 sdl2
 
-LIBFT2  = $(firstword $(wildcard /usr/local/lib/libfreetype*.a \
-				 /opt/local/lib/libfreetype*.a \
-				    $(HOME)/lib/libfreetype*.a \
-				       /usr/lib/libfreetype*.a \
-				   C:/MinGW/lib/libfreetype*.a) -lfreetype)
-LIBTIF  = $(firstword $(wildcard /usr/local/lib/libtiff*.a \
-				 /opt/local/lib/libtiff*.a \
-				   C:/MinGW/lib/libtiff*.a \
-				    $(HOME)/lib/libtiff*.a \
-				       /usr/lib/libtiff*.a \
-				   C:/MinGW/lib/libtiff*.a) -ltiff)
-LIBGLEW = $(firstword $(wildcard /usr/local/lib/libGLEW*.a \
-				 /opt/local/lib/libGLEW*.a \
-				    $(HOME)/lib/libGLEW*.a \
-				       /usr/lib/libGLEW*.a \
-				   C:/MinGW/lib/libglew*.a) -lGLEW)
-LIBMXML = $(firstword $(wildcard /usr/local/lib/libmxml*.a \
-				 /opt/local/lib/libmxml*.a \
-				    $(HOME)/lib/libmxml*.a \
-				       /usr/lib/libmxml*.a \
-				   C:/MinGW/lib/libmxml*.a) -lmxml)
-LIBJPG  = $(firstword $(wildcard /usr/local/lib/libjpeg*.a \
-				 /opt/local/lib/libjpeg*.a \
-				    $(HOME)/lib/libjpeg*.a \
-				       /usr/lib/libjpeg*.a \
-				   C:/MinGW/lib/libjpeg*.a) -ljpeg)
-LIBODE  = $(firstword $(wildcard /usr/local/lib/libode*.a \
-				 /opt/local/lib/libode*.a \
-				    $(HOME)/lib/libode*.a \
-				       /usr/lib/libode*.a \
-				   C:/MinGW/lib/libode*.a) -lode)
-LIBPNG  = $(firstword $(wildcard /usr/local/lib/libpng*.a \
-				 /opt/local/lib/libpng*.a \
-				    $(HOME)/lib/libpng*.a \
-				       /usr/lib/libpng*.a \
-				   C:/MinGW/lib/libpng*.a) -lpng)
-LIBZ    = $(firstword $(wildcard /usr/local/lib/libz*.a \
-				 /opt/local/lib/libz*.a \
-				    $(HOME)/lib/libz*.a \
-				       /usr/lib/libz*.a \
-				   C:/MinGW/lib/libz*.a) -lz)
+ifneq (,$(STATIC))
+	LIBS += $(firstword $(wildcard $(addsuffix libfreetype.a, $(LIBPATH)) -lfreetype))
+	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH)) -lSDL2))
+	LIBS += $(firstword $(wildcard $(addsuffix libtiff.a,     $(LIBPATH)) -ltiff))
+	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH)) -lGLEW))
+	LIBS += $(firstword $(wildcard $(addsuffix libmxml.a,     $(LIBPATH)) -lmxml))
+	LIBS += $(firstword $(wildcard $(addsuffix libode.a,      $(LIBPATH)) -lode))
+	LIBS += $(firstword $(wildcard $(addsuffix libpng.a,      $(LIBPATH)) -lpng))
+	LIBS += $(firstword $(wildcard $(addsuffix libz.a,        $(LIBPATH)) -lz))
+else
+	LIBS += $(shell pkg-config --libs $(PKGS))
+endif
+
+CFLAGS += $(sort $(shell pkg-config --cflags $(PKGS)))
+LIBS   += $(SYSLIBS)
 
 #------------------------------------------------------------------------------
 
-# Search for package configurators or rely upon the PATH.
+# # Optional Oculus SDK
 
-SDLCONF = $(firstword $(wildcard /usr/local/bin/sdl2-config  \
-				 /opt/local/bin/sdl2-config  \
-				       /usr/bin/sdl2-config) \
-						sdl2-config)
-FT2CONF = $(firstword $(wildcard /usr/local/bin/freetype-config  \
-				 /opt/local/bin/freetype-config  \
-				       /usr/bin/freetype-config) \
-						freetype-config)
+# ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
+# 	ifeq ($(shell uname), Darwin)
+# 		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
+# 	endif
+# 	ifeq ($(shell uname), Linux)
+# 		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
+# 	endif
 
-CONF =	$(shell $(SDLCONF) --cflags) \
-	$(shell $(FT2CONF) --cflags)
+# 	CFLAGS += -I/usr/local/OculusSDK/LibOVR/Include
+# 	CFLAGS += -DWITH_OCULUS
+# 	CFLAGS += -fno-rtti
+# endif
 
-LIBSDL = $(shell $(SDLCONF) --libs)
+# # Optional Sixense SDK
+
+# ifneq (, $(wildcard /usr/local/lib/libsixense*))
+# 	LIBS   += -L/usr/local/lib -lsixense_x64
+# 	CFLAGS += -I/usr/local/lib
+# 	CFLAGS += -DWITH_SIXENSE
+# endif
 
 #------------------------------------------------------------------------------
 
 %.d : %.cpp
-	$(CXX) $(CFLAGS) $(CONF) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
-
-%.d : %.c
-	$(CC) $(CFLAGS) $(CONF) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
+	$(CXX) $(CFLAGS) $(INCDIR) -MM -MG -MF $@ -MT $*.o $<
 
 %.o : %.cpp
-	$(CXX) $(CFLAGS) $(CONF) $(INCDIR) -c $< -o $@
-
-%.o : %.c
-	$(CC) $(CFLAGS) $(CONF) $(INCDIR) -c $< -o $@
+	$(CXX) $(CFLAGS) $(INCDIR) -c $< -o $@
 
 #------------------------------------------------------------------------------
-
-# Pass the compiler flags along to any sub-make.
-
-export CFLAGS
-

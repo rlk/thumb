@@ -2,6 +2,15 @@ include ../Makedefs
 
 #------------------------------------------------------------------------------
 
+CC      = cc
+CXX     = c++
+#CFLAGS= -g -Wall
+#CFLAGS= -O2 -ffast-math -Wall -DNDEBUG
+
+CFLAGS += -DVERSION=0.9
+
+#------------------------------------------------------------------------------
+
 OBJS=	app-data.o \
 	app-event.o \
 	app-file.o \
