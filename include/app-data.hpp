@@ -148,12 +148,12 @@ namespace app
         std::string path;
         bool        writable;
 
+    public:
+
         virtual bool     find(std::string)                         const;
         virtual buffer_p load(std::string)                         const;
         virtual bool     save(std::string, const void *, size_t *) const;
         virtual void     list(std::string, str_set&, str_set&)     const;
-
-    public:
 
         file_archive(std::string path, bool writable=false) :
             path(path), writable(writable) { }
@@ -161,28 +161,20 @@ namespace app
 
     //-------------------------------------------------------------------------
     // Packaged data archive
-/*
-    class pack : public archive
-    {
-        virtual member_p load(std::string);
 
+    class pack_archive : public archive
+    {
     public:
 
-        pack();
+        virtual bool     find(std::string)                         const;
+        virtual buffer_p load(std::string)                         const;
+        virtual bool     save(std::string, const void *, size_t *) const;
+        virtual void     list(std::string, str_set&, str_set&)     const;
+
+        pack_archive() { }
     };
-*/
+
     //-------------------------------------------------------------------------
-    // Statically linked data archive
-/*
-    class link : public archive
-    {
-        virtual member_p load(std::string);
-
-    public:
-
-        link();
-    };
-*/
 }
 
 //-----------------------------------------------------------------------------

@@ -151,6 +151,31 @@ void app::file_archive::list(std::string name, str_set& dirs,
 
 //=============================================================================
 
+// #include "../data.hpp"
+
+bool app::pack_archive::find(std::string name) const
+{
+    return false;
+}
+
+app::buffer_p app::pack_archive::load(std::string name) const
+{
+    return 0;
+}
+
+bool app::pack_archive::save(std::string name,
+                             const void *ptr, size_t *len) const
+{
+    return false;
+}
+
+void app::pack_archive::list(std::string name, str_set& dirs,
+                                               str_set& regs) const
+{
+}
+
+//=============================================================================
+
 std::string app::data::translate(const std::string& filename) const
 {
     // Try to map the named file onto a configured alternative.
