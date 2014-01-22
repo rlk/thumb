@@ -40,7 +40,7 @@
       <param name="cutoff">90.0</param>
     </light>
     <geom type="box">
-      <file>solid/block-wedge-2x2x1.obj</file>
+      <file>solid/block/block-wedge-2x2x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -93,7 +93,7 @@
       <param name="soft_cfm">0.0</param>
     </geom>
     <geom type="box">
-      <file>solid/block-box-2x1x1.obj</file>
+      <file>solid/block/block-box-2x1x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -111,7 +111,7 @@
       <param name="soft_cfm">0.0</param>
     </geom>
     <geom type="box">
-      <file>solid/block-cylinder-2x2x1.obj</file>
+      <file>solid/block/block-cylinder-2x2x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -129,7 +129,7 @@
       <param name="soft_cfm">0.0</param>
     </geom>
     <geom type="box">
-      <file>solid/block-box-2x2x1.obj</file>
+      <file>solid/block/block-box-2x2x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -181,7 +181,7 @@
       <param name="soft_cfm">0.0</param>
     </geom>
     <geom type="box">
-      <file>solid/block-cylinder-2x1x1.obj</file>
+      <file>solid/block/block-cylinder-2x1x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -216,7 +216,7 @@
       <param name="soft_cfm">0.0</param>
     </geom>
     <geom type="box">
-      <file>solid/block-box-1x1x1.obj</file>
+      <file>solid/block/block-box-1x1x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -251,7 +251,7 @@
       <param name="soft_cfm">0.0</param>
     </geom>
     <geom type="box">
-      <file>solid/block-wedge-4x2x1.obj</file>
+      <file>solid/block/block-wedge-4x2x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -286,7 +286,7 @@
       <param name="soft_cfm">0.0</param>
     </geom>
     <geom type="box">
-      <file>solid/block-plate-4x4.obj</file>
+      <file>solid/block/block-plate-4x4.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
@@ -321,7 +321,7 @@
       <param name="soft_cfm">0.0</param>
     </geom>
     <geom type="box">
-      <file>solid/block-box-4x1x1.obj</file>
+      <file>solid/block/block-box-4x1x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
       <rot_z>0.000000</rot_z>
