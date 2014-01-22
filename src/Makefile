@@ -85,16 +85,32 @@ CFLAGS += -I../include
 
 #------------------------------------------------------------------------------
 
-all : libthumb.dylib libthumb.a
+ALL = libthumb.a
+
+ifeq (,$(STATIC))
+	ifeq ($(shell uname), Linux)
+		ALL += libthumb.so
+	endif
+	ifeq ($(shell uname), Darwin)
+		ALL += libthumb.dylib
+	endif
+endif
+
+#------------------------------------------------------------------------------
+
+all : $(ALL)
 
 libthumb.a : $(OBJS)
 	ar -r libthumb.a $(OBJS)
+
+libthumb.so : $(OBJS)
+	$(CXX) $(CFLAGS) -shared -o libthumb.so $(OBJS) $(LIBS)
 
 libthumb.dylib : $(OBJS)
 	$(CXX) $(CFLAGS) -dynamiclib -o libthumb.dylib $(OBJS) $(LIBS)
 
 clean :
-	$(RM) $(OBJS) $(DEPS) $(TARG)
+	$(RM) $(OBJS) $(DEPS) $(ALL)
 
 #------------------------------------------------------------------------------
 
