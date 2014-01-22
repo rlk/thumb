@@ -1,6 +1,6 @@
 # -*- mode: makefile; -*-
 
-STATIC=1
+#STATIC=1
 
 CFLAGS += -fno-rtti -g
 
@@ -35,10 +35,14 @@ endif
 
 #------------------------------------------------------------------------------
 
+PKG_CONFIG = $(firstword $(wildcard /usr/local/bin/pkg-config \
+			                  /usr/bin/pkg-config \
+			                           pkg-config))
+
 PKGS = libpng libtiff-4 mxml ode glew freetype2 sdl2
 
 ifeq (,$(STATIC))
-	LIBS += $(shell pkg-config --libs $(PKGS))
+	LIBS += $(shell $(PKG_CONFIG) --libs $(PKGS))
 else
 	LIBS += $(firstword $(wildcard $(addsuffix libfreetype.a, $(LIBPATH))) -lfreetype)
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
@@ -50,7 +54,7 @@ else
 	LIBS += $(firstword $(wildcard $(addsuffix libz.a,        $(LIBPATH))) -lz)
 endif
 
-CFLAGS += $(sort $(shell pkg-config --cflags $(PKGS)))
+CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
 LIBS   += $(SYSLIBS)
 
 #------------------------------------------------------------------------------
