@@ -48,28 +48,28 @@ LIBS   += $(SYSLIBS)
 
 #------------------------------------------------------------------------------
 
-# # Optional Oculus SDK
+# Optional Oculus SDK
 
-# ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
-# 	ifeq ($(shell uname), Darwin)
-# 		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
-# 	endif
-# 	ifeq ($(shell uname), Linux)
-# 		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
-# 	endif
+ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
+	ifeq ($(shell uname), Darwin)
+		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
+	endif
+	ifeq ($(shell uname), Linux)
+		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
+	endif
 
-# 	CFLAGS += -I/usr/local/OculusSDK/LibOVR/Include
-# 	CFLAGS += -DWITH_OCULUS
-# 	CFLAGS += -fno-rtti
-# endif
+	CFLAGS += -I/usr/local/OculusSDK/LibOVR/Include
+	CFLAGS += -DWITH_OCULUS
+	CFLAGS += -fno-rtti
+endif
 
-# # Optional Sixense SDK
+# Optional Sixense SDK
 
-# ifneq (, $(wildcard /usr/local/lib/libsixense*))
-# 	LIBS   += -L/usr/local/lib -lsixense_x64
-# 	CFLAGS += -I/usr/local/lib
-# 	CFLAGS += -DWITH_SIXENSE
-# endif
+ifneq (, $(wildcard /usr/local/lib/libsixense*))
+	LIBS   += -L/usr/local/lib -lsixense_x64
+	CFLAGS += -I/usr/local/lib
+	CFLAGS += -DWITH_SIXENSE
+endif
 
 #------------------------------------------------------------------------------
 
