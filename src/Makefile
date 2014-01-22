@@ -81,14 +81,17 @@ OBJS=	app-data.o \
 
 DEPS= $(OBJS:.o=.d)
 
-TARG= libthumb.a
-
-INCDIR += -I../include
+CFLAGS += -I../include
 
 #------------------------------------------------------------------------------
 
-$(TARG) : $(OBJS)
-	ar -r $(TARG) $(OBJS)
+all : libthumb.dylib libthumb.a
+
+libthumb.a : $(OBJS)
+	ar -r libthumb.a $(OBJS)
+
+libthumb.dylib : $(OBJS)
+	$(CXX) $(CFLAGS) -dynamiclib -o libthumb.dylib $(OBJS) $(LIBS)
 
 clean :
 	$(RM) $(OBJS) $(DEPS) $(TARG)
