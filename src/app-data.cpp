@@ -151,7 +151,8 @@ void app::file_archive::list(std::string name, str_set& dirs,
 
 //=============================================================================
 
-// #include "../data.hpp"
+#include <etc-zip.hpp>
+#include "../data.hpp"
 
 bool app::pack_archive::find(std::string name) const
 {
@@ -169,9 +170,43 @@ bool app::pack_archive::save(std::string name,
     return false;
 }
 
-void app::pack_archive::list(std::string name, str_set& dirs,
-                                               str_set& regs) const
+void app::pack_archive::list(std::string dirname, str_set& dirs,
+                                                  str_set& regs) const
 {
+    const eocd    *d = (const eocd *) (ptr + len - sizeof (eocd));
+    const uint8_t *p = ptr + d->directory_offset;
+
+    const std::string path = dirname.empty() ? dirname : dirname + "/";
+
+    if (d->signature == 0x06054B50)
+    {
+        for (int i = 0; i < d->file_count; ++i)
+        {
+            // Get a pointer to the file header and a string of the file name.
+
+            const file_header *f = (const file_header *) p;
+            std::string pathname((const char *) (f + 1), f->sizeof_name);
+
+            // If the path matches, add the name to the file or directory list.
+
+            if (pathname.compare(0, path.size(), path) == 0)
+            {
+                std::string name(pathname, path.size());
+                std::string::size_type n = name.find('/');
+
+                if (n == std::string::npos)
+                    regs.insert(name);
+                else
+                    dirs.insert(std::string(name, 0, n));
+            }
+
+            // Skip past the header, name, extra, and comment.
+
+            p += sizeof (file_header) + f->sizeof_name
+                                      + f->sizeof_extra
+                                      + f->sizeof_comment;
+        }
+    }
 }
 
 //=============================================================================
@@ -233,6 +268,8 @@ static bool is_data_dir(std::string dir)
 
 static void find_ro_data(app::archive_l& archives)
 {
+    archives.push_back(new app::pack_archive(data_zip, data_zip_len));
+
     // Iterate the read-only path environment variable.
 
     if (char *val = getenv("THUMB_RO_PATH"))
@@ -244,6 +281,7 @@ static void find_ro_data(app::archive_l& archives)
             archives.push_back(new app::file_archive(path, false));
     }
 
+#if 0
     // Check for a MacOS .app bundle hierarchy.
 
 #ifdef __APPLE__
@@ -267,6 +305,7 @@ static void find_ro_data(app::archive_l& archives)
 
     if (is_data_dir("../../data"))
         archives.push_back(new app::file_archive("../../data", false));
+#endif
 
     // Check the system share directory.
 

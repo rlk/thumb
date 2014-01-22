@@ -150,13 +150,13 @@ namespace app
 
     public:
 
+        file_archive(std::string path, bool writable=false) :
+            path(path), writable(writable) { }
+
         virtual bool     find(std::string)                         const;
         virtual buffer_p load(std::string)                         const;
         virtual bool     save(std::string, const void *, size_t *) const;
         virtual void     list(std::string, str_set&, str_set&)     const;
-
-        file_archive(std::string path, bool writable=false) :
-            path(path), writable(writable) { }
     };
 
     //-------------------------------------------------------------------------
@@ -164,14 +164,18 @@ namespace app
 
     class pack_archive : public archive
     {
+        const uint8_t *ptr;
+        size_t         len;
+
     public:
+
+        pack_archive(const void *ptr, size_t len) :
+            ptr((const unsigned char *) ptr), len(len) { }
 
         virtual bool     find(std::string)                         const;
         virtual buffer_p load(std::string)                         const;
         virtual bool     save(std::string, const void *, size_t *) const;
         virtual void     list(std::string, str_set&, str_set&)     const;
-
-        pack_archive() { }
     };
 
     //-------------------------------------------------------------------------
