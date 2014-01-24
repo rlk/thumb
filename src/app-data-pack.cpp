@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <zlib.h>
+
 #include <app-data-pack.hpp>
 #include <app-conf.hpp>
 
@@ -95,22 +97,93 @@ const void *app::pack_archive::get_file_first() const
 
 // Return a pointer to the file header following the given file header.
 
-const void *app::pack_archive::get_file_next(const void *p) const
+const void *get_file_next(const void *p)
 {
     const file_header *f = (const file_header *) p;
 
-    return (const char *) (f + 1) + f->sizeof_name
-                                  + f->sizeof_extra
-                                  + f->sizeof_comment;
+    if (f->signature == 0x02014b50)
+        return (const char *) (f + 1) + f->sizeof_name
+                                      + f->sizeof_extra
+                                      + f->sizeof_comment;
+    else return 0;
 }
 
 // Return the name of the file at the given file header.
 
-std::string app::pack_archive::get_file_name(const void *p) const
+std::string get_file_name(const void *p)
 {
     const file_header *f = (const file_header *) p;
 
-    return std::string((const char *) (f + 1), f->sizeof_name);
+    if (f->signature == 0x02014b50)
+        return std::string((const char *) (f + 1), f->sizeof_name);
+    else
+        return "";
+}
+
+/*----------------------------------------------------------------------------*/
+
+// By default, zlib expects a header and footer within the input data buffer,
+// which the ZIP file format does not provide. So, we don't get to take the 
+// easy route. We must instead use the callback-based inflate routines.    
+
+static int out(void *ptr, unsigned char *src, unsigned int len)
+{
+    unsigned char *dst;
+
+    dst = ((unsigned char **) ptr)[0];
+    {
+        while (len-- > 0)
+            *dst++ = *src++;
+    }
+    ((unsigned char **) ptr)[0] = dst;
+
+    return 0;
+}
+
+app::pack_buffer::pack_buffer(const void *p)
+{
+    const local_file_header *h = (const local_file_header *) p;
+
+    if (h->signature == 0x04034b50)
+    {
+        const void *dat = (unsigned char *) (h + 1) + h->sizeof_name
+                                                    + h->sizeof_extra;
+
+        len = h->sizeof_uncompressed;
+        ptr = new unsigned char[len + 1];
+
+        memset(ptr, 0, len + 1);
+
+        if (h->sizeof_uncompressed == h->sizeof_compressed)
+            memcpy(ptr, dat, len);
+        else
+        {
+            unsigned char win[32768];
+            unsigned char *p = ptr;
+
+            z_stream z;
+            z.zalloc   = Z_NULL;
+            z.zfree    = Z_NULL;
+            z.opaque   = Z_NULL;
+            z.next_in  = (Bytef *) dat;
+            z.avail_in = h->sizeof_compressed;
+
+            int e = Z_OK;
+
+            if ((e = inflateBackInit(&z, 15, win)) == Z_OK)
+            {
+                if ((e = inflateBack(&z, 0, 0, out, &p)) == Z_STREAM_END)
+                {
+                    e = inflateBackEnd(&z);
+                }
+            }
+
+            if (e != Z_OK)
+                throw read_error(std::string((const char *) (h + 1),
+                                                    h->sizeof_name));
+        }
+    }
+    else throw read_error("Corrupt ZIP");
 }
 
 //-----------------------------------------------------------------------------
@@ -119,6 +192,12 @@ std::string app::pack_archive::get_file_name(const void *p) const
 
 bool app::pack_archive::find(std::string name) const
 {
+    int n = get_file_count();
+
+    for (const void *p = get_file_first(); p && n; p = get_file_next(p), n--)
+        if (get_file_name(p) == name)
+            return true;
+
     return false;
 }
 
@@ -126,6 +205,15 @@ bool app::pack_archive::find(std::string name) const
 
 app::buffer_p app::pack_archive::load(std::string name) const
 {
+    int n = get_file_count();
+
+    for (const void *p = get_file_first(); p && n; p = get_file_next(p), n--)
+        if (get_file_name(p) == name)
+        {
+            const file_header *f = (const file_header *) p;
+            return new pack_buffer((const char *) ptr + f->offset);
+        }
+
     return 0;
 }
 

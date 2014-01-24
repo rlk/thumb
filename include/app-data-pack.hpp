@@ -19,6 +19,14 @@
 
 namespace app
 {
+    // File system data buffer
+
+    class pack_buffer : public buffer
+    {
+    public:
+        pack_buffer(const void *);
+    };
+
     // Packaged data archive
 
     class pack_archive : public archive
@@ -37,11 +45,8 @@ namespace app
         const void *ptr;
         size_t      len;
 
-        int         get_file_count()            const;
-        const void *get_file_first()            const;
-        const void *get_file_next(const void *) const;
-        std::string get_file_name(const void *) const;
-
+        int         get_file_count() const;
+        const void *get_file_first() const;
     };
 }
 
