@@ -269,7 +269,7 @@ const ogl::program *app::glob::load_program(const std::string& name)
         }
         catch (std::runtime_error& e)
         {
-            fprintf(stderr, "Failed to load program %s\n", name.c_str());
+            fprintf(stderr, "%s\n", e.what());
             return 0;
         }
     }
