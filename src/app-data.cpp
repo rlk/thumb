@@ -90,8 +90,6 @@ std::string app::data::translate(const std::string& filename) const
 #define USR_SHARE "/usr/share/thumb/data"
 #define LOC_SHARE "/usr/local/share/thumb/data"
 
-#include "../data.hpp"
-
 // Identify a valid data directory as one containing the default data file.
 
 static bool is_data_dir(std::string dir)
@@ -108,8 +106,6 @@ static bool is_data_dir(std::string dir)
 
 static void find_ro_data(app::archive_l& archives)
 {
-    archives.push_back(new app::pack_archive(data_zip, data_zip_len));
-
     // Iterate the read-only path environment variable.
 
     if (char *val = getenv("THUMB_RO_PATH"))
@@ -130,6 +126,14 @@ static void find_ro_data(app::archive_l& archives)
 
     if (is_data_dir(LOC_SHARE))
         archives.push_back(new app::file_archive(LOC_SHARE, false));
+
+    // Finally, look to the static archive.
+
+    extern unsigned char ___data_data_zip[];
+    extern unsigned int  ___data_data_zip_len;
+
+    archives.push_back(new app::pack_archive(___data_data_zip,
+                                             ___data_data_zip_len));
 }
 
 // Locate a writable data hierarchy.

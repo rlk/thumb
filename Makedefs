@@ -1,8 +1,8 @@
 # -*- mode: makefile; -*-
 
-#STATIC=1
+STATIC=1
 
-CFLAGS += -fno-rtti -g
+CFLAGS += -fno-rtti -O2
 
 #------------------------------------------------------------------------------
 
@@ -61,6 +61,7 @@ LIBS   += $(SYSLIBS)
 
 # Optional Oculus SDK
 
+ifdef NOPE
 ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
 	ifeq ($(shell uname), Darwin)
 		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
@@ -73,13 +74,16 @@ ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
 	CFLAGS += -DWITH_OCULUS
 	CFLAGS += -fno-rtti
 endif
+endif
 
 # Optional Sixense SDK
 
+ifdef NOPE
 ifneq (, $(wildcard /usr/local/lib/libsixense*))
 	LIBS   += -L/usr/local/lib -lsixense_x64
 	CFLAGS += -I/usr/local/lib
 	CFLAGS += -DWITH_SIXENSE
+endif
 endif
 
 #------------------------------------------------------------------------------

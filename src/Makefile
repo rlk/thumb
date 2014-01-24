@@ -77,7 +77,8 @@ OBJS=	app-data.o \
 	wrl-operation.o \
 	wrl-param.o \
 	wrl-solid.o \
-	wrl-world.o
+	wrl-world.o \
+	zip-data.o
 #	dev-hybrid.o \
 #	dev-trackd.o \
 
@@ -113,6 +114,11 @@ libthumb.dylib : $(OBJS)
 
 clean :
 	$(RM) $(OBJS) $(DEPS) $(ALL)
+
+#------------------------------------------------------------------------------
+
+zip-data.cpp : ../data/data.zip
+	xxd -i ../data/data.zip > zip-data.cpp
 
 #------------------------------------------------------------------------------
 
