@@ -220,7 +220,7 @@ const void *app::data::load(const std::string& name, size_t *len)
     }
 }
 
-// Search the list of archives for with the named buffer.
+// Scan the archives for the first one containing the named buffer.
 
 bool app::data::find(const std::string& name)
 {
@@ -234,7 +234,7 @@ bool app::data::find(const std::string& name)
     return false;
 }
 
-// Search the list of archives for the first one that can save this buffer.
+// Scan the archives for the first one that can save this buffer. Save it.
 
 bool app::data::save(const std::string& name, const void *ptr, size_t *len)
 {

@@ -67,11 +67,11 @@ app::file_buffer::file_buffer(std::string name)
 
 //-----------------------------------------------------------------------------
 
+// Determine whether the named file exists within this archive.
+
 bool app::file_archive::find(std::string name) const
 {
     std::string curr = path + "/" + name;
-
-    // Determine whether the named file exists within this archive.
 
     struct stat info;
 
@@ -81,12 +81,16 @@ bool app::file_archive::find(std::string name) const
         return false;
 }
 
+// Return a buffer containing the named data file.
+
 app::buffer_p app::file_archive::load(std::string name) const
 {
     std::string curr = path + "/" + name;
 
     return new file_buffer(curr);
 }
+
+// Save the given buffer.
 
 bool app::file_archive::save(std::string name,
                              const void *ptr, size_t *len) const
@@ -116,6 +120,8 @@ bool app::file_archive::save(std::string name,
     }
     return false;
 }
+
+// Populate lists of all directories and regular files at the given path.
 
 void app::file_archive::list(std::string name, str_set& dirs,
                                                str_set& regs) const

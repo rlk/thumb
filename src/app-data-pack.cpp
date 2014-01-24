@@ -69,15 +69,67 @@ struct eocd
 
 //-----------------------------------------------------------------------------
 
+// Return the number of file headers in the central directory.
+
+int app::pack_archive::get_file_count() const
+{
+    const eocd *d = (const eocd *) ((const char *) ptr + len) - 1;
+
+    if (d->signature == 0x06054B50)
+        return d->file_count;
+    else
+        return 0;
+}
+
+// Return a pointer to the first file header in the central directory.
+
+const void *app::pack_archive::get_file_first() const
+{
+    const eocd *d = (const eocd *) ((const char *) ptr + len) - 1;
+
+    if (d->signature == 0x06054B50)
+        return (const char *) ptr + d->directory_offset;
+    else
+        return 0;
+}
+
+// Return a pointer to the file header following the given file header.
+
+const void *app::pack_archive::get_file_next(const void *p) const
+{
+    const file_header *f = (const file_header *) p;
+
+    return (const char *) (f + 1) + f->sizeof_name
+                                  + f->sizeof_extra
+                                  + f->sizeof_comment;
+}
+
+// Return the name of the file at the given file header.
+
+std::string app::pack_archive::get_file_name(const void *p) const
+{
+    const file_header *f = (const file_header *) p;
+
+    return std::string((const char *) (f + 1), f->sizeof_name);
+}
+
+//-----------------------------------------------------------------------------
+
+// Determine whether the named file exists within this archive.
+
 bool app::pack_archive::find(std::string name) const
 {
     return false;
 }
 
+// Return a buffer containing the named data file.
+
 app::buffer_p app::pack_archive::load(std::string name) const
 {
     return 0;
 }
+
+// Save the given buffer to the ZIP archive. This will always fail.
 
 bool app::pack_archive::save(std::string name,
                              const void *ptr, size_t *len) const
@@ -85,41 +137,30 @@ bool app::pack_archive::save(std::string name,
     return false;
 }
 
+// Populate lists of all directories and regular files at the given path.
+
 void app::pack_archive::list(std::string dirname, str_set& dirs,
                                                   str_set& regs) const
 {
-    const eocd    *d = (const eocd *) (ptr + len - sizeof (eocd));
-    const uint8_t *p = ptr + d->directory_offset;
-
     const std::string path = dirname.empty() ? dirname : dirname + "/";
 
-    if (d->signature == 0x06054B50)
+    int n = get_file_count();
+
+    for (const void *p = get_file_first(); p && n; p = get_file_next(p), n--)
     {
-        for (int i = 0; i < d->file_count; ++i)
+        // If the path matches, add the name to the file or directory list.
+
+        const std::string pathname = get_file_name(p);
+
+        if (pathname.compare(0, path.size(), path) == 0)
         {
-            // Get a pointer to the file header and a string of the file name.
+            std::string name(pathname, path.size());
+            std::string::size_type n = name.find('/');
 
-            const file_header *f = (const file_header *) p;
-            std::string pathname((const char *) (f + 1), f->sizeof_name);
-
-            // If the path matches, add the name to the file or directory list.
-
-            if (pathname.compare(0, path.size(), path) == 0)
-            {
-                std::string name(pathname, path.size());
-                std::string::size_type n = name.find('/');
-
-                if (n == std::string::npos)
-                    regs.insert(name);
-                else
-                    dirs.insert(std::string(name, 0, n));
-            }
-
-            // Skip past the header, name, extra, and comment.
-
-            p += sizeof (file_header) + f->sizeof_name
-                                      + f->sizeof_extra
-                                      + f->sizeof_comment;
+            if (n == std::string::npos)
+                regs.insert(name);
+            else
+                dirs.insert(std::string(name, 0, n));
         }
     }
 }
