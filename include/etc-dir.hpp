@@ -21,7 +21,7 @@
 void dir(std::string, std::set<std::string>&,
                       std::set<std::string>&);
 
-bool mkpath(std::string, bool=true);
+bool mkpath(std::string);
 
 bool is_dir(std::string&);
 bool is_reg(std::string&);

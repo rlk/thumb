@@ -20,6 +20,8 @@
 //-----------------------------------------------------------------------------
 #ifndef _WIN32
 
+// Unix-platform API for enumerating and creating directories.
+
 #include <dirent.h>
 
 static DIR *D = 0;
@@ -48,8 +50,9 @@ static bool dir_make(std::string& dir)
     return (mkdir(dir.c_str(), 0777) == 0);
 }
 
-//-----------------------------------------------------------------------------
-#else // _WIN32
+#else // _WIN32 ---------------------------------------------------------------
+
+// Windows-platform API for enumerating and creating directories.
 
 #include <windows.h>
 #include <tchar.h>
@@ -89,6 +92,8 @@ static bool dir_make(std::string& dir)
 #endif
 //-----------------------------------------------------------------------------
 
+// Determine whether the named file is a directory.
+
 bool is_dir(std::string& name)
 {
     struct stat info;
@@ -98,6 +103,8 @@ bool is_dir(std::string& name)
     else
         return false;
 }
+
+// Determine whether the named file is regular.
 
 bool is_reg(std::string& name)
 {
@@ -111,18 +118,16 @@ bool is_reg(std::string& name)
 
 //-----------------------------------------------------------------------------
 
+// Populate lists of all directories and regular files at the given path.
+
 void dir(std::string path, std::set<std::string>& dirs,
                            std::set<std::string>& regs)
 {
     std::string file;
     std::string name;
 
-    // Scan the named directory.
-
     while ((name = dir_list(path)).length() > 0)
     {
-        // Store the names of all non-hidden files and subdirectories.
-
         if (name[0] != '.')
         {
             file = path + "/" + name;
@@ -133,6 +138,8 @@ void dir(std::string path, std::set<std::string>& dirs,
     }
     dir_done();
 }
+
+// Ensure the given path exists, creating directories as necessary.
 
 bool mkpath(std::string path, bool reg)
 {
@@ -152,7 +159,7 @@ bool mkpath(std::string path, bool reg)
 
     if (is_dir(where) || mkpath(where, false))
     {
-        if (reg || dir_make(path))
+        if (dir_make(path))
             return true;
         else
             return false;
