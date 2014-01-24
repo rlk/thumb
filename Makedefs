@@ -39,7 +39,7 @@ PKG_CONFIG = $(firstword $(wildcard /usr/local/bin/pkg-config \
 			                  /usr/bin/pkg-config \
 			                           pkg-config))
 
-PKGS = libpng libtiff-4 mxml ode glew freetype2 sdl2
+PKGS = libpng libtiff-4 mxml ode glew freetype2 sdl2 zlib
 
 ifeq (,$(STATIC))
 	LIBS += $(shell $(PKG_CONFIG) --libs $(PKGS))
