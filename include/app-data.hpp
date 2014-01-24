@@ -10,8 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef DATA_HPP
-#define DATA_HPP
+#ifndef APP_DATA_HPP
+#define APP_DATA_HPP
 
 #include <stdexcept>
 #include <string>
@@ -87,12 +87,7 @@ namespace app
     public:
         write_error(const std::string& s) : std::runtime_error(mesg(s)) { }
     };
-}
 
-//-----------------------------------------------------------------------------
-
-namespace app
-{
     //-------------------------------------------------------------------------
     // Data buffer
 
@@ -124,7 +119,7 @@ namespace app
         virtual bool     find(std::string)                         const = 0;
         virtual buffer_p load(std::string)                         const = 0;
         virtual bool     save(std::string, const void *, size_t *) const = 0;
-        virtual void     list(std::string, str_set&, str_set&)      const = 0;
+        virtual void     list(std::string, str_set&, str_set&)     const = 0;
 
         virtual ~archive() { }
     };
@@ -135,56 +130,8 @@ namespace app
     typedef std::list<archive_p>::const_iterator archive_c;
 
     //-------------------------------------------------------------------------
-    // File system data archive
+    // Data manager
 
-    class file_buffer : public buffer
-    {
-    public:
-        file_buffer(std::string);
-    };
-
-    class file_archive : public archive
-    {
-        std::string path;
-        bool        writable;
-
-    public:
-
-        file_archive(std::string path, bool writable=false) :
-            path(path), writable(writable) { }
-
-        virtual bool     find(std::string)                         const;
-        virtual buffer_p load(std::string)                         const;
-        virtual bool     save(std::string, const void *, size_t *) const;
-        virtual void     list(std::string, str_set&, str_set&)     const;
-    };
-
-    //-------------------------------------------------------------------------
-    // Packaged data archive
-
-    class pack_archive : public archive
-    {
-        const uint8_t *ptr;
-        size_t         len;
-
-    public:
-
-        pack_archive(const void *ptr, size_t len) :
-            ptr((const unsigned char *) ptr), len(len) { }
-
-        virtual bool     find(std::string)                         const;
-        virtual buffer_p load(std::string)                         const;
-        virtual bool     save(std::string, const void *, size_t *) const;
-        virtual void     list(std::string, str_set&, str_set&)     const;
-    };
-
-    //-------------------------------------------------------------------------
-}
-
-//-----------------------------------------------------------------------------
-
-namespace app
-{
     class data
     {
         std::string filename;

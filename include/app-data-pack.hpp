@@ -1,4 +1,4 @@
-//  Copyright (C) 204 Robert Kooima
+//  Copyright (C) 2005-2011 Robert Kooima
 //
 //  THUMB is free software; you can redistribute it and/or modify it under
 //  the terms of  the GNU General Public License as  published by the Free
@@ -10,10 +10,33 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
-#ifndef ETC_ZIP_HPP
-#define ETC_ZIP_HPP
+#ifndef APP_DATA_PACK_HPP
+#define APP_DATA_PACK_HPP
+
+#include <app-data.hpp>
 
 //-----------------------------------------------------------------------------
+
+namespace app
+{
+    // Packaged data archive
+
+    class pack_archive : public archive
+    {
+        const uint8_t *ptr;
+        size_t         len;
+
+    public:
+
+        pack_archive(const void *ptr, size_t len) :
+            ptr((const unsigned char *) ptr), len(len) { }
+
+        virtual bool     find(std::string)                         const;
+        virtual buffer_p load(std::string)                         const;
+        virtual bool     save(std::string, const void *, size_t *) const;
+        virtual void     list(std::string, str_set&, str_set&)     const;
+    };
+}
 
 //-----------------------------------------------------------------------------
 

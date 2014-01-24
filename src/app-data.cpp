@@ -23,18 +23,10 @@
 
 #include <app-default.hpp>
 #include <app-data.hpp>
+#include <app-data-pack.hpp>
+#include <app-data-file.hpp>
 #include <app-conf.hpp>
 #include <etc-dir.hpp>
-
-//-----------------------------------------------------------------------------
-
-#ifdef _WIN32
-#include <io.h>
-#define open  _open
-#define read  _read
-#define write _write
-#define close _close
-#endif
 
 //-----------------------------------------------------------------------------
 
@@ -55,166 +47,12 @@ const void *app::buffer::get(size_t *size) const
     return ptr;
 }
 
-//=============================================================================
-// File system data archive
+//-----------------------------------------------------------------------------
 
-app::file_buffer::file_buffer(std::string name)
-{
-    struct stat info;
-    int fd;
-
-    // Open the named file for reading and determine its size.
-
-#ifndef _WIN32
-    if ((fd = open(name.c_str(), O_RDONLY)) == -1)
-        throw open_error(name);
-#else
-    if ((fd = open(name.c_str(), O_RDONLY | O_BINARY)) == -1)
-        throw open_error(name);
-#endif
-
-    if (fstat(fd, &info) != 0)
-        throw stat_error(name);
-
-    // Initialize the buffer.
-
-    len = (size_t) info.st_size;
-    ptr = new unsigned char[len + 1];
-
-    memset(ptr, 0, len + 1);
-
-    // Read all data.
-
-    if (read(fd, ptr, len) < (int) len)
-        throw read_error(name);
-
-    close(fd);
-}
-
-bool app::file_archive::find(std::string name) const
-{
-    std::string curr = path + "/" + name;
-
-    // Determine whether the named file exists within this archive.
-
-    struct stat info;
-
-    if (stat(curr.c_str(), &info) == 0 && (info.st_mode & S_IFMT) == S_IFREG)
-        return true;
-    else
-        return false;
-}
-
-app::buffer_p app::file_archive::load(std::string name) const
-{
-    std::string curr = path + "/" + name;
-
-    return new file_buffer(curr);
-}
-
-bool app::file_archive::save(std::string name,
-                             const void *ptr, size_t *len) const
-{
-    std::string curr = path + "/" + name;
-
-    // Ensure the archive is writable and the directory exists.
-
-    if (writable && mkpath(curr))
-    {
-        size_t count = len ? (*len) : strlen((const char *) ptr);
-        int fd;
-
-        // Open the named file for writing.
-
-        if ((fd = open(curr.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666)) ==-1)
-            throw open_error(name);
-
-        // Write all data.
-
-        if (write(fd, ptr, count) < (int) count)
-            throw write_error(name);
-
-        close(fd);
-
-        return true;
-    }
-    return false;
-}
-
-void app::file_archive::list(std::string name, str_set& dirs,
-                                               str_set& regs) const
-{
-    std::string curr = path + "/" + name;
-
-    dir(curr, dirs, regs);
-}
-
-//=============================================================================
-
-#include <etc-zip.hpp>
-#include "../data.hpp"
-
-bool app::pack_archive::find(std::string name) const
-{
-    return false;
-}
-
-app::buffer_p app::pack_archive::load(std::string name) const
-{
-    return 0;
-}
-
-bool app::pack_archive::save(std::string name,
-                             const void *ptr, size_t *len) const
-{
-    return false;
-}
-
-void app::pack_archive::list(std::string dirname, str_set& dirs,
-                                                  str_set& regs) const
-{
-    const eocd    *d = (const eocd *) (ptr + len - sizeof (eocd));
-    const uint8_t *p = ptr + d->directory_offset;
-
-    const std::string path = dirname.empty() ? dirname : dirname + "/";
-
-    if (d->signature == 0x06054B50)
-    {
-        for (int i = 0; i < d->file_count; ++i)
-        {
-            // Get a pointer to the file header and a string of the file name.
-
-            const file_header *f = (const file_header *) p;
-            std::string pathname((const char *) (f + 1), f->sizeof_name);
-
-            // If the path matches, add the name to the file or directory list.
-
-            if (pathname.compare(0, path.size(), path) == 0)
-            {
-                std::string name(pathname, path.size());
-                std::string::size_type n = name.find('/');
-
-                if (n == std::string::npos)
-                    regs.insert(name);
-                else
-                    dirs.insert(std::string(name, 0, n));
-            }
-
-            // Skip past the header, name, extra, and comment.
-
-            p += sizeof (file_header) + f->sizeof_name
-                                      + f->sizeof_extra
-                                      + f->sizeof_comment;
-        }
-    }
-}
-
-//=============================================================================
+// Try to map the named file onto a configured alternative.
 
 std::string app::data::translate(const std::string& filename) const
 {
-    // Try to map the named file onto a configured alternative.
-
     if (::conf && file.get_root())
     {
         // Locate the list of options for the named file.
@@ -252,6 +90,8 @@ std::string app::data::translate(const std::string& filename) const
 #define USR_SHARE "/usr/share/thumb/data"
 #define LOC_SHARE "/usr/local/share/thumb/data"
 
+#include "../data.hpp"
+
 // Identify a valid data directory as one containing the default data file.
 
 static bool is_data_dir(std::string dir)
@@ -280,32 +120,6 @@ static void find_ro_data(app::archive_l& archives)
         while (std::getline(list, path, PATH_LIST_SEP))
             archives.push_back(new app::file_archive(path, false));
     }
-
-#if 0
-    // Check for a MacOS .app bundle hierarchy.
-
-#ifdef __APPLE__
-    std::string test;
-
-    if (get_app_res_path(test))
-    {
-        if (is_data_dir(test + "/data"))
-        {
-            archives.push_back(new app::file_archive(test + "/data", false));
-        }
-    }
-#endif
-
-    // Check the current working directory.
-
-    if (is_data_dir("data"))
-        archives.push_back(new app::file_archive("data", false));
-
-    // Check if running out of the Thumb project source directory.
-
-    if (is_data_dir("../../data"))
-        archives.push_back(new app::file_archive("../../data", false));
-#endif
 
     // Check the system share directory.
 
@@ -361,18 +175,19 @@ app::data::~data()
 {
     std::list<archive_p>::iterator i;
 
-    // Delete all archives.
-
     for (i = archives.begin(); i != archives.end(); ++i)
         delete *i;
 }
 
+// The database is a chicken and its configuration is an egg.
+
 void app::data::init()
 {
-    // The database is a chicken and its configuration is an egg.
-
-    if (!file.get_root()) file = app::file(filename);
+    if (file.get_root() == 0)
+        file = app::file(filename);
 }
+
+// Return a buffer containing the named data file.
 
 const void *app::data::load(const std::string& name, size_t *len)
 {
@@ -405,10 +220,10 @@ const void *app::data::load(const std::string& name, size_t *len)
     }
 }
 
+// Search the list of archives for with the named buffer.
+
 bool app::data::find(const std::string& name)
 {
-    // Search the list of archives for with the named buffer.
-
     for (archive_c i = archives.begin(); i != archives.end(); ++i)
     {
         const std::string rename = translate(name);
@@ -419,10 +234,10 @@ bool app::data::find(const std::string& name)
     return false;
 }
 
+// Search the list of archives for the first one that can save this buffer.
+
 bool app::data::save(const std::string& name, const void *ptr, size_t *len)
 {
-    // Search the list of archives for the first one that can save this buffer.
-
     for (archive_c i = archives.begin(); i != archives.end(); ++i)
         if ((*i)->save(name, ptr, len))
             return true;
@@ -430,19 +245,19 @@ bool app::data::save(const std::string& name, const void *ptr, size_t *len)
     return false;
 }
 
+// Merge the regular file and directory lists of all archives.
+
 void app::data::list(const std::string& name, str_set& dirs,
                                               str_set& regs) const
 {
-    // Merge the file lists of all archives.
-
     for (archive_c i = archives.begin(); i != archives.end(); ++i)
         (*i)->list(name, dirs, regs);
 }
 
+// If the named buffer has been loaded, free it.
+
 void app::data::free(const std::string& name)
 {
-    // If the named buffer has been loaded, free it.
-
     if (buffers.find(name) != buffers.end())
     {
         delete buffers[name];
@@ -450,4 +265,4 @@ void app::data::free(const std::string& name)
     }
 }
 
-//=============================================================================
+//-----------------------------------------------------------------------------
