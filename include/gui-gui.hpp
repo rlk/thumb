@@ -292,14 +292,14 @@ namespace gui
     class finder_dir : public finder_elt
     {
     public:
-        finder_dir(std::string t, gui::finder *w) : finder_elt(t, w) { }
+        finder_dir(std::string t, gui::finder *w);
         void apply() { target->set_dir(str); }
     };
 
     class finder_reg : public finder_elt
     {
     public:
-        finder_reg(std::string t, gui::finder *w) : finder_elt(t, w) { }
+        finder_reg(std::string t, gui::finder *w);
         void apply() { target->set_reg(str); }
     };
 

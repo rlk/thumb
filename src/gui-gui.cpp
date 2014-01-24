@@ -919,7 +919,17 @@ gui::finder_elt::finder_elt(std::string s, gui::finder *w) :
 
     area.w = text->w() + font->size() * 2;
     area.h = text->h() + font->size() / 2;
+}
 
+gui::finder_dir::finder_dir(std::string s, gui::finder *w) : finder_elt(s, w)
+{
+    color[0] *= 1.00;
+    color[1] *= 1.00;
+    color[2] *= 1.00;
+}
+
+gui::finder_reg::finder_reg(std::string s, gui::finder *w) : finder_elt(s, w)
+{
     color[0] *= 1.00;
     color[1] *= 1.00;
     color[2] *= 0.25;
