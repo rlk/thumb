@@ -421,16 +421,19 @@ cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 
 cnt::config_panel::config_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
+    const std::string a((const char *) glGetString(GL_VERSION));
+    const std::string b((const char *) glGetString(GL_SHADING_LANGUAGE_VERSION));
+    
+    const std::string s = "OpenGL " + a + " GLSL " + b;
+
     gui::selector *S = new gui::selector("host", ".xml");
 
     add((new gui::frame)->
         add((new gui::vgroup)->
             add(S)->
-            add((new gui::harray)->
+            add((new gui::hgroup)->
                 add(new gui::filler(true, false))->
-                add(new gui::filler(true, false))->
-                add(new gui::filler(true, false))->
-                add(new gui::filler(true, false))->
+                add(new gui::string(s, gui::string::mono, 0, 0, 0, 0))->
                 add(new load_config_button(S)))));
 }
 
