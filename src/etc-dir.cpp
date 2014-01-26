@@ -168,7 +168,7 @@ bool mkpath(std::string path, bool reg)
 }
 
 //-----------------------------------------------------------------------------
-
+#if 0
 #ifdef __APPLE__
 #include <Carbon/Carbon.h>
 #include <sys/param.h>
@@ -210,5 +210,5 @@ bool get_app_res_path(std::string& path)
 }
 
 #endif // __APPLE__
-
+#endif
 //-----------------------------------------------------------------------------
