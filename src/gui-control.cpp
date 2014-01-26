@@ -211,6 +211,7 @@ void cnt::save_sel_button::apply()
 
 cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
+#if 0
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("world", ".xml", E);
 
@@ -230,6 +231,20 @@ cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                     add(new label("File"))->
                     add(E))->
                 add(F))));
+#else
+    gui::selector *S = new gui::selector("world", ".xml");
+
+    add((new gui::frame)->
+        add((new gui::vgroup)->
+            add(S)->
+            add((new gui::harray)->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new init_button    (W, w   ))->
+                add(new save_sel_button(W, w, S))->
+                add(new save_all_button(W, w, S))->
+                add(new load_button    (W, w, S)))));
+#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -237,6 +252,7 @@ cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 
 cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
+#if 0
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("solid", ".obj", E);
 
@@ -256,7 +272,7 @@ cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                 add(F))));
 
     add(new gui::spacer);
-
+#endif
     add((new gui::frame)->
         add((new gui::harray)->
             add((new gui::hgroup)->
@@ -384,6 +400,7 @@ cnt::joint_panel::joint_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 
 cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
+#if 0
     gui::editor *E = new gui::editor("");
     gui::finder *F = new gui::finder("light", ".obj", E);
 
@@ -403,7 +420,7 @@ cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                 add(F))));
 
     add(new gui::spacer);
-
+#endif
     add((new gui::frame)->
         add((new gui::harray)->
             add((new gui::hgroup)->

@@ -1108,7 +1108,7 @@ void gui::vgroup::laydn(int x, int y, int w, int h)
 }
 
 //-----------------------------------------------------------------------------
-// Tabb selector panel.
+// Tab selector panel.
 
 void gui::option::layup()
 {
@@ -1224,7 +1224,38 @@ void gui::frame::draw(const widget *focus, const widget *input) const
 }
 
 //-----------------------------------------------------------------------------
-// Top level dialog.
+// File selector
+
+gui::selector::selector(std::string path, std::string ext)
+{
+    P = new gui::editor(path);
+    N = new gui::editor("");
+    F = new gui::finder(path, ext, N);
+
+    add((new gui::vgroup)->
+        add((new gui::hgroup)->
+            add((new gui::vgroup)->
+                add(new gui::string("Browser",   gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
+                add(new gui::filler(false, true))->
+                add(new gui::string("Directory", gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
+                add(new gui::string("File",      gui::string::sans, 1, 0xFF, 0xC0, 0x40)))->
+            add((new gui::vgroup)->
+                add(F)->
+                add(P)->
+                add(N))));
+}
+
+std::string gui::selector::value() const
+{
+    return P->value() + "/" + N->value();
+}
+
+gui::selector::~selector()
+{
+}
+
+//-----------------------------------------------------------------------------
+// Top level dialog
 
 gui::dialog::dialog()
 {

@@ -200,7 +200,7 @@ namespace cnt
 
     public:
         init_button(wrl::world *w, gui::widget *s) :
-            gui::button("New"),
+            gui::button("New World"),
             world(w),
             state(s) { }
         void apply();
@@ -214,7 +214,7 @@ namespace cnt
 
     public:
         load_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            gui::button("Load"),
+            gui::button("Load World"),
             world(w),
             state(s),
             name(n) { }
@@ -229,7 +229,7 @@ namespace cnt
 
     public:
         save_all_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            gui::button("Save All"), world(w), state(s), name(n) { }
+            gui::button("Save World"), world(w), state(s), name(n) { }
         void apply();
     };
 

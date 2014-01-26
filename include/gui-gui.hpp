@@ -401,7 +401,27 @@ namespace gui
 namespace gui
 {
     //-------------------------------------------------------------------------
-    // Top level dialog.
+    // File selector
+
+    class selector : public vgroup
+    {
+    protected:
+
+        editor *P;
+        editor *N;
+        finder *F;
+
+    public:
+
+        selector(std::string, std::string);
+
+        virtual std::string value() const;
+
+        virtual ~selector();
+    };
+
+    //-------------------------------------------------------------------------
+    // Top level dialog
 
     class dialog
     {
