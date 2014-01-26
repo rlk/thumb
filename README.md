@@ -15,3 +15,11 @@ Thumb depends upon a number of external libraries. Binary distributions of Thumb
 - [xxd](http://grail.cba.csuohio.edu/%7Esomos/xxd-1.10.tar.gz) embeds data within the library.
 
 The Thumb build uses a simple Makefile which seeks these dependencies using [pkg-config](http://www.freedesktop.org/wiki/Software/pkg-config/).
+
+## File system
+
+When distributing an application, it's convenient to distribute supporting assets (images, models, shaders, etc.) in a compact archival form. It's critical to ensure an archive is internally self-consistent and does not refer to assets through absolute references to the developer's file system. To support this, Thumb implements a virtual filesystem mechanism.
+
+The virtual filesystem stores assets with relative path names, overlaying a list of data sources that may include user directories, ZIP archives, and statically-linked binaries. This overlay allows user-defined assets to override application assets freely. Of course, normal access to the root file system remains available along side the virtual file system.
+
+File selection dialogs display the current directory in a text edit box at the top. The root file system is accessed for all absolute paths (directories begining with `/` or `C:/`), and the virtual file system is used for all relative paths. Thus, to view the root filesystem, simply change the directory to `/` and press enter. To view the virtual file system, clear the directory text edit box.
