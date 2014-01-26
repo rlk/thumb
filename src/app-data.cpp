@@ -91,7 +91,7 @@ std::string app::data::translate(const std::string& filename) const
 #define LOC_SHARE "/usr/local/share/thumb/data"
 
 // Identify a valid data directory as one containing the default data file.
-
+#if 0
 static bool is_data_dir(std::string dir)
 {
     std::string file(dir + "/" + DEFAULT_DATA_FILE);
@@ -101,6 +101,7 @@ static bool is_data_dir(std::string dir)
     else
         return false;
 }
+#endif
 
 // Locate all read-only data hierarchies.
 
@@ -119,13 +120,13 @@ static void find_ro_data(app::archive_l& archives)
 
     // Check the system share directory.
 
-    if (is_data_dir(USR_SHARE))
-        archives.push_back(new app::file_archive(USR_SHARE, false));
+//  if (is_data_dir(USR_SHARE))
+//      archives.push_back(new app::file_archive(USR_SHARE, false));
 
     // Check the system local share directory.
 
-    if (is_data_dir(LOC_SHARE))
-        archives.push_back(new app::file_archive(LOC_SHARE, false));
+//  if (is_data_dir(LOC_SHARE))
+//      archives.push_back(new app::file_archive(LOC_SHARE, false));
 
     // Finally, look to the static archive.
 
