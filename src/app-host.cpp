@@ -627,7 +627,7 @@ void app::host::root_loop()
             process_event(E.mk_draw());
             process_event(E.mk_swap());
 
-            ::perf->step(true);
+            ::perf->step(false);
 
             // Count frames and record a movie, if requested.
 
