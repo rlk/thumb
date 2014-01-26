@@ -219,6 +219,7 @@ app::host::~host()
     if (render)
         delete render;
 
+    fini_script();
     fini_client();
     fini_server();
     fini_listen();

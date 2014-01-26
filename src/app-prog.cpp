@@ -55,7 +55,7 @@ static const char *version = "Thumb Version " STR(VERSION);
 
 //-----------------------------------------------------------------------------
 
-void app::prog::video()
+void app::prog::video_up()
 {
     // Look up the video mode parameters.
 
@@ -119,11 +119,43 @@ void app::prog::video()
     ogl::init(multb > 0 && mults > 0);
 }
 
+void app::prog::video_dn()
+{
+    if (context) SDL_GL_DeleteContext(context);
+    if (window)  SDL_DestroyWindow(window);
+
+    context = 0;
+    window  = 0;
+}
+
+void app::prog::host_up(std::string xml)
+{
+    ::host = new app::host(this, xml, exe, "default");
+
+    video_up();
+
+    ::perf = new app::perf(window);
+    ::glob->init();
+}
+
+void app::prog::host_dn()
+{
+    ::glob->fini();
+
+    video_dn();
+
+    delete ::perf;
+    delete ::host;
+
+    ::perf = 0;
+    ::host = 0;
+}
+
 //-----------------------------------------------------------------------------
 
 app::prog::prog(const std::string& exe,
                 const std::string& tag)
-    : running(true), input(0), snap_p(0), snap_w(0), snap_h(0)
+    : exe(exe), running(false), restart(false), input(0), snap_p(0), snap_w(0), snap_h(0)
 {
     // Start Winsock
 
@@ -162,29 +194,14 @@ app::prog::prog(const std::string& exe,
 
     // Initialize language and host configuration.
 
-    std::string lang_conf = ::conf->get_s("lang_file");
-    std::string host_conf = ::conf->get_s("host_file");
+    std::string lang_config = ::conf->get_s("lang_file");
+    std::string host_config = ::conf->get_s("host_file");
 
-    // If the given tag is an XML file name, use it as the host config file.
-    // This feature allows client hosts to serialize calibration data.
+    if (lang_config.empty()) lang_config = DEFAULT_LANG_FILE;
+    if (host_config.empty()) host_config = DEFAULT_HOST_FILE;
 
-    if (tag.size() > 4 && tag.rfind(".xml") == tag.size() - 4)
-        host_conf = tag;
-
-    if (lang_conf.empty()) lang_conf = DEFAULT_LANG_FILE;
-    if (host_conf.empty()) host_conf = DEFAULT_HOST_FILE;
-
-    ::lang = new app::lang(lang_conf);
-    ::host = new app::host(this, host_conf, exe, tag);
-
-    // Initialize the OpenGL context.
-
-    video();
-
-    // Initialize the OpenGL state.
-
+    ::lang = new app::lang(lang_config);
     ::glob = new app::glob();
-    ::perf = new app::perf(window);
 
     // Configure some application-level key bindings.
 
@@ -196,6 +213,10 @@ app::prog::prog(const std::string& exe,
     // Configure the joystick system.
 
     axis_setup();
+
+    // Raise the host.
+
+    host_up(host_config);
 }
 
 app::prog::~prog()
@@ -215,13 +236,21 @@ app::prog::~prog()
     if (::conf) delete ::conf;
     if (::data) delete ::data;
 
-    SDL_GL_DeleteContext(context);
-    SDL_DestroyWindow(window);
+    video_dn();
     SDL_Quit();
 
 #ifdef _WIN32
     WSACleanup();
 #endif
+}
+
+void app::prog::set_host_config(std::string config)
+{
+    SDL_Event quit = { SDL_QUIT };
+
+    if (!config.empty()) host_config = config;
+    restart = true;
+    SDL_PushEvent(&quit);
 }
 
 //-----------------------------------------------------------------------------
@@ -237,26 +266,13 @@ bool app::prog::process_event(app::event *E)
 
     else if (E->get_type() == E_KEY && E->data.key.d)
     {
-        const int k = E->data.key.k;
-
-        SDL_Event user = { SDL_USEREVENT };
-
-        // Take a screenshot.
-
-        if (k == key_snap)
+        if (E->data.key.k == key_snap)
         {
+            // Take a screenshot.
+
             screenshot(::conf->get_s("screenshot_file"),
                        ::host->get_window_w(),
                        ::host->get_window_h());
-
-            return true;
-        }
-
-        // Reload.
-
-        else if (k == key_init)
-        {
-            SDL_PushEvent(&user);
             return true;
         }
     }
@@ -268,7 +284,20 @@ bool app::prog::process_event(app::event *E)
 
 void app::prog::run()
 {
-    ::host->loop();
+    for (;;)
+    {
+        restart = false;
+        running = true;
+
+        ::host->loop();
+
+        if (restart)
+        {
+            host_dn();
+            host_up(host_config);
+        }
+        else break;
+    }
 }
 
 void app::prog::stop()

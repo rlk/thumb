@@ -26,8 +26,8 @@ dpy::display::display(app::node p)
 
     if (app::node n = p.find("viewport"))
     {
-        viewport[0] = n.get_i("x");
-        viewport[1] = n.get_i("y");
+        viewport[0] = n.get_i("x", 0);
+        viewport[1] = n.get_i("y", 0);
         viewport[2] = n.get_i("w", DEFAULT_PIXEL_WIDTH);
         viewport[3] = n.get_i("h", DEFAULT_PIXEL_HEIGHT);
     }

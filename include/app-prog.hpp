@@ -50,6 +50,8 @@ namespace app
 
         bool is_running() const { return running; }
 
+        void set_host_config(std::string);
+
         // Rendering handlers
 
         virtual ogl::aabb prep(int, const app::frustum * const *) = 0;
@@ -75,7 +77,11 @@ namespace app
 
     private:
 
+        std::string host_config;
+        std::string exe;
+        
         bool running;
+        bool restart;
 
         int key_snap;
         int key_init;
@@ -88,7 +94,12 @@ namespace app
         std::vector<short> axis_max;
         bool               axis_verbose;
 
-        void video();
+        void video_up();
+        void video_dn();
+
+        void host_up(std::string);
+        void host_dn();
+
         void axis_setup();
         void axis_state();
 
