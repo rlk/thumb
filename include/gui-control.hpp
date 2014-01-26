@@ -246,6 +246,19 @@ namespace cnt
     };
 
     //-------------------------------------------------------------------------
+    // Config buttons.
+
+    class load_config_button : public gui::button
+    {
+        gui::widget *name;
+
+    public:
+        load_config_button(gui::widget *n) :
+            gui::button("Load Configuration"), name(n) { }
+        void apply();
+    };
+
+    //-------------------------------------------------------------------------
     // Panel selection button.
 
     class panel_button : public gui::button
@@ -286,6 +299,12 @@ namespace cnt
     {
     public:
         light_panel(wrl::world *, gui::widget *);
+    };
+
+    class config_panel : public gui::vgroup
+    {
+    public:
+        config_panel(wrl::world *, gui::widget *);
     };
 
     //-------------------------------------------------------------------------

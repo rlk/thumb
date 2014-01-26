@@ -962,3 +962,10 @@ void app::host::offset_position(const vec3 &p)
 }
 
 //-----------------------------------------------------------------------------
+
+void app::host::reconfig(std::string config)
+{
+    program->set_host_config(config);
+}
+
+//-----------------------------------------------------------------------------

@@ -85,6 +85,8 @@ namespace app
         bool get_bench_mode() const { return (bench != 0); }
         void set_bench_mode(int i)  { bench = i; }
 
+        void reconfig(std::string);
+
     private:
 
         // Network handling

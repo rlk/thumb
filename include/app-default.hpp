@@ -15,10 +15,6 @@
 
 //-----------------------------------------------------------------------------
 
-//#define CONF_CALCEXT 1
-
-//-----------------------------------------------------------------------------
-
 #define DEFAULT_HOST_FILE "host/960x540.xml"
 #define DEFAULT_LANG_FILE "lang.xml"
 #define DEFAULT_CONF_FILE "conf.xml"

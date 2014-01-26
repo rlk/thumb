@@ -4,6 +4,7 @@
     <!-- Thumb Configuration --------------------------------------------- -->
 
     <!-- Host -->
+    <option name="host_file">host/960x540.xml</option>
     <option name="input_mode">mouse</option>
     <option name="sync">1</option>
     <option name="bench">0</option>

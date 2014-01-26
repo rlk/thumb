@@ -17,6 +17,7 @@
 #include <wrl-joint.hpp>
 #include <wrl-solid.hpp>
 #include <wrl-light.hpp>
+#include <app-host.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -204,6 +205,14 @@ void cnt::save_sel_button::apply()
         world->save(name->value(), false);
         state->show();
     }
+}
+
+//-----------------------------------------------------------------------------
+
+void cnt::load_config_button::apply()
+{
+    if (!name->value().empty())
+        ::host->reconfig(name->value());
 }
 
 //-----------------------------------------------------------------------------
@@ -408,6 +417,24 @@ cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 }
 
 //-----------------------------------------------------------------------------
+// The Config control panel
+
+cnt::config_panel::config_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
+{
+    gui::selector *S = new gui::selector("host", ".xml");
+
+    add((new gui::frame)->
+        add((new gui::vgroup)->
+            add(S)->
+            add((new gui::harray)->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new load_config_button(S)))));
+}
+
+//-----------------------------------------------------------------------------
 // The toplevel control panel
 
 cnt::control::control(wrl::world *W, int w, int h)
@@ -416,18 +443,20 @@ cnt::control::control(wrl::world *W, int w, int h)
 
     root = ((new gui::vgroup)->
             add((new gui::harray)->
-                add(new title("Control Panel", 0))->
-                add(new panel_button("World", state, 0))->
-                add(new panel_button("Solid", state, 1))->
-                add(new panel_button("Joint", state, 2))->
-                add(new panel_button("Light", state, 3))->
+                add(new title("Panel", 0))->
+                add(new panel_button("World",  state, 0))->
+                add(new panel_button("Solid",  state, 1))->
+                add(new panel_button("Joint",  state, 2))->
+                add(new panel_button("Light",  state, 3))->
+                add(new panel_button("Config", state, 4))->
                 add(new gui::spacer))->
             add(new gui::spacer)->
             add(state->
-                add(new world_panel(W, state))->
-                add(new solid_panel(W, state))->
-                add(new joint_panel(W, state))->
-                add(new light_panel(W, state))));
+                add(new  world_panel(W, state))->
+                add(new  solid_panel(W, state))->
+                add(new  joint_panel(W, state))->
+                add(new  light_panel(W, state))->
+                add(new config_panel(W, state))));
 
     root->layup();
     root->laydn((w - root->get_w()) / 2,
