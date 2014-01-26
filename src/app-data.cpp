@@ -118,17 +118,7 @@ static void find_ro_data(app::archive_l& archives)
             archives.push_back(new app::file_archive(path, false));
     }
 
-    // Check the system share directory.
-
-//  if (is_data_dir(USR_SHARE))
-//      archives.push_back(new app::file_archive(USR_SHARE, false));
-
-    // Check the system local share directory.
-
-//  if (is_data_dir(LOC_SHARE))
-//      archives.push_back(new app::file_archive(LOC_SHARE, false));
-
-    // Finally, look to the static archive.
+    // Look to the static archive.
 
     extern unsigned char ___data_data_zip[];
     extern unsigned int  ___data_data_zip_len;
@@ -160,12 +150,9 @@ static void find_rw_data(app::archive_l& archives)
         archives.push_back(new app::file_archive(path, true));
     }
 
-    // As a last resort, use the current working directory.
+    // When all else fails, go to the file system.
 
-    else
-    {
-        archives.push_back(new app::file_archive(".", true));
-    }
+    archives.push_back(new app::file_archive("", true));
 }
 
 //-----------------------------------------------------------------------------

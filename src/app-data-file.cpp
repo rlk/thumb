@@ -71,7 +71,7 @@ app::file_buffer::file_buffer(std::string name)
 
 bool app::file_archive::find(std::string name) const
 {
-    std::string curr = path + "/" + name;
+    std::string curr = pathname(path, name);
 
     struct stat info;
 
@@ -85,9 +85,7 @@ bool app::file_archive::find(std::string name) const
 
 app::buffer_p app::file_archive::load(std::string name) const
 {
-    std::string curr = path + "/" + name;
-
-    return new file_buffer(curr);
+    return new file_buffer(pathname(path, name));
 }
 
 // Save the given buffer.
@@ -95,7 +93,7 @@ app::buffer_p app::file_archive::load(std::string name) const
 bool app::file_archive::save(std::string name,
                              const void *ptr, size_t *len) const
 {
-    std::string curr = path + "/" + name;
+    std::string curr = pathname(path, name);
 
     // Ensure the archive is writable and the directory exists.
 
@@ -126,9 +124,7 @@ bool app::file_archive::save(std::string name,
 void app::file_archive::list(std::string name, str_set& dirs,
                                                str_set& regs) const
 {
-    std::string curr = path + "/" + name;
-
-    dir(curr, dirs, regs);
+    dir(pathname(path, name), dirs, regs);
 }
 
 //-----------------------------------------------------------------------------

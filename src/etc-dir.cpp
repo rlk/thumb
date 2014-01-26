@@ -118,6 +118,21 @@ bool is_reg(std::string& name)
 
 //-----------------------------------------------------------------------------
 
+// Compose a path name, being careful not to add unnecessary separators.
+
+std::string pathname(std::string path, std::string name)
+{
+    if (path.empty())
+        return name;
+    else
+    {
+        if (*(path.rbegin()) == '/')
+            return path       + name;
+        else
+            return path + "/" + name;
+    }
+}
+
 // Populate lists of all directories and regular files at the given path.
 
 void dir(std::string path, std::set<std::string>& dirs,
@@ -130,7 +145,7 @@ void dir(std::string path, std::set<std::string>& dirs,
     {
         if (name[0] != '.')
         {
-            file = path + "/" + name;
+            file = pathname(path, name);
 
             if (is_dir(file)) dirs.insert(name);
             if (is_reg(file)) regs.insert(name);

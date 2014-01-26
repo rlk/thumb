@@ -18,6 +18,8 @@
 
 //-----------------------------------------------------------------------------
 
+std::string pathname(std::string, std::string);
+
 void dir(std::string, std::set<std::string>&,
                       std::set<std::string>&);
 

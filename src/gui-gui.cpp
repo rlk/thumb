@@ -14,6 +14,7 @@
 #include <SDL_keyboard.h>
 
 #include <gui-gui.hpp>
+#include <etc-dir.hpp>
 #include <app-data.hpp>
 #include <app-conf.hpp>
 #include <app-lang.hpp>
@@ -1149,7 +1150,7 @@ std::string gui::selector::value() const
     if (D->value().empty())
         return R->value();
     else
-        return D->value() + "/" + R->value();
+        return pathname(D->value(), R->value());
 }
 
 void gui::selector::mov_dir(std::string name)
@@ -1174,7 +1175,7 @@ void gui::selector::mov_dir(std::string name)
         if (curr.empty())
             curr = name;
         else
-            curr = curr + "/" + name;
+            curr = pathname(curr, name);
     }
 
     // Update the directory listing.
