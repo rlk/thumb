@@ -150,7 +150,7 @@ namespace cnt
     public:
 
         new_box_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "Box"), name(n) { }
+            create_button(w, s, "New Box"), name(n) { }
         void apply();
     };
 
@@ -161,7 +161,7 @@ namespace cnt
     public:
 
         new_sphere_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "Sphere"), name(n) { }
+            create_button(w, s, "New Sphere"), name(n) { }
         void apply();
     };
 
@@ -175,7 +175,7 @@ namespace cnt
     public:
 
         new_d_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "Sky Light"), name(n) { }
+            create_button(w, s, "New Sky Light"), name(n) { }
         void apply();
     };
 
@@ -186,7 +186,7 @@ namespace cnt
     public:
 
         new_s_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "Spot Light"), name(n) { }
+            create_button(w, s, "New Spot Light"), name(n) { }
         void apply();
     };
 

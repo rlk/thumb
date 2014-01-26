@@ -211,27 +211,6 @@ void cnt::save_sel_button::apply()
 
 cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
-#if 0
-    gui::editor *E = new gui::editor("");
-    gui::finder *F = new gui::finder("world", ".xml", E);
-
-    add((new gui::frame)->
-        add((new gui::hgroup)->
-            add((new gui::vgroup)->
-
-                add(new title("World"))->
-                add(new init_button(W, w))->
-                add(new load_button(W, w, E))->
-                add(new save_all_button(W, w, E))->
-                add(new save_sel_button(W, w, E))->
-                add(new gui::filler(false, true)))->
-
-            add((new gui::vgroup)->
-                add((new gui::hgroup)->
-                    add(new label("File"))->
-                    add(E))->
-                add(F))));
-#else
     gui::selector *S = new gui::selector("world", ".xml");
 
     add((new gui::frame)->
@@ -244,7 +223,6 @@ cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                 add(new save_sel_button(W, w, S))->
                 add(new save_all_button(W, w, S))->
                 add(new load_button    (W, w, S)))));
-#endif
 }
 
 //-----------------------------------------------------------------------------
@@ -252,43 +230,38 @@ cnt::world_panel::world_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 
 cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
-#if 0
-    gui::editor *E = new gui::editor("");
-    gui::finder *F = new gui::finder("solid", ".obj", E);
+    gui::selector *S = new gui::selector("solid", ".obj");
 
     add((new gui::frame)->
-        add((new gui::hgroup)->
-            add((new gui::vgroup)->
-
-                add(new title("Create Solid"))->
-                add(new new_box_button    (W, w, E))->
-                add(new new_sphere_button (W, w, E))->
-                add(new gui::filler(false, true)))->
-
-            add((new gui::vgroup)->
-                add((new gui::hgroup)->
-                    add(new label("File"))->
-                    add(E))->
-                add(F))));
+        add((new gui::vgroup)->
+            add(S)->
+            add((new gui::harray)->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new new_box_button   (W, w, S))->
+                add(new new_sphere_button(W, w, S)))));
 
     add(new gui::spacer);
-#endif
+
     add((new gui::frame)->
         add((new gui::harray)->
-            add((new gui::hgroup)->
-                add((new gui::filler(true, false)))->
+            add((new gui::vgroup)->
 
-                add((new gui::varray)->
+                add(new title("Configure Solid", -1))->
 
-                    add(new label("Category"))->
-                    add(new label("Collide"))->
-                    add(new gui::filler(false, false)))->
+                add((new gui::hgroup)->
 
-                add((new gui::varray)->
+                    add((new gui::varray)->
 
-                    add(new bitmap(W, wrl::param::category))->
-                    add(new bitmap(W, wrl::param::collide))->
-                    add(new gui::filler(false, false))))->
+                        add(new label("Category"))->
+                        add(new label("Collide")))->
+
+                    add((new gui::varray)->
+
+                        add(new bitmap(W, wrl::param::category))->
+                        add(new bitmap(W, wrl::param::collide)))))->
 
             add((new gui::hgroup)->
                 add((new gui::varray)->
@@ -324,7 +297,7 @@ cnt::joint_panel::joint_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
     add((new gui::frame)->
         add((new gui::harray)->
 
-            add(new title("Create Joint"))->
+            add(new title("New Joint"))->
             add(new new_ball_button     (W, w))->
             add(new new_hinge_button    (W, w))->
             add(new new_hinge2_button   (W, w))->
@@ -400,32 +373,26 @@ cnt::joint_panel::joint_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 
 cnt::light_panel::light_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
-#if 0
-    gui::editor *E = new gui::editor("");
-    gui::finder *F = new gui::finder("light", ".obj", E);
+    gui::selector *S = new gui::selector("light", ".obj");
 
     add((new gui::frame)->
-        add((new gui::hgroup)->
-            add((new gui::vgroup)->
-
-                add(new title("Create Light"))->
-                add(new new_d_light_button(W, w, E))->
-                add(new new_s_light_button(W, w, E))->
-                add(new gui::filler(false, true)))->
-
-            add((new gui::vgroup)->
-                add((new gui::hgroup)->
-                    add(new label("File"))->
-                    add(E))->
-                add(F))));
+        add((new gui::vgroup)->
+            add(S)->
+            add((new gui::harray)->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new gui::filler(true, false))->
+                add(new new_d_light_button(W, w, S))->
+                add(new new_s_light_button(W, w, S)))));
 
     add(new gui::spacer);
-#endif
+
     add((new gui::frame)->
         add((new gui::harray)->
             add((new gui::hgroup)->
 
-                add((new gui::filler(true, false)))->
+                add((new title("Configure Light")))->
 
                 add((new gui::hgroup)->
                     add(new label("Brightness"))->

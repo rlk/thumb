@@ -1133,9 +1133,9 @@ gui::selector::selector(std::string path, std::string ext)
     add((new gui::vgroup)->
         add((new gui::hgroup)->
             add((new gui::vgroup)->
-                add(new gui::string("Directory", gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
-                add(new gui::string("File",      gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
-                add(new gui::string("Browser",   gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
+                add(new gui::string("Directory", string::sans, 1, 0xFF, 0xC0, 0x40))->
+                add(new gui::string("File",      string::sans, 1, 0xFF, 0xC0, 0x40))->
+                add(new gui::string("Browser",   string::sans, 1, 0xFF, 0xC0, 0x40))->
                 add(new gui::filler(false, true)))->
             add((new gui::vgroup)->
                 add(D)->
