@@ -154,7 +154,8 @@ void dir(std::string path, std::set<std::string>& dirs,
     dir_done();
 }
 
-// Ensure the given path exists, creating directories as necessary.
+// Ensure the given path exists, creating directories as necessary. If reg then
+// assume the last element in a regular file and don't create it.
 
 bool mkpath(std::string path, bool reg)
 {
@@ -174,7 +175,7 @@ bool mkpath(std::string path, bool reg)
 
     if (is_dir(where) || mkpath(where, false))
     {
-        if (dir_make(path))
+        if (reg || dir_make(path))
             return true;
         else
             return false;

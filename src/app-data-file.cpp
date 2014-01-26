@@ -93,28 +93,36 @@ app::buffer_p app::file_archive::load(std::string name) const
 bool app::file_archive::save(std::string name,
                              const void *ptr, size_t *len) const
 {
-    std::string curr = pathname(path, name);
-
-    // Ensure the archive is writable and the directory exists.
-
-    if (writable && mkpath(curr))
+    if (!name.empty())
     {
-        size_t count = len ? (*len) : strlen((const char *) ptr);
-        int fd;
+        std::string curr = pathname(path, name);
 
-        // Open the named file for writing.
+        // Allow absolute path name save only on root file system.
 
-        if ((fd = open(curr.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666)) ==-1)
-            throw open_error(name);
+        if (name[0] == '/' && !path.empty())
+            return false;
 
-        // Write all data.
+        // Ensure the archive is writable and the directory exists.
 
-        if (write(fd, ptr, count) < (int) count)
-            throw write_error(name);
+        if (writable && mkpath(curr, true))
+        {
+            size_t count = len ? (*len) : strlen((const char *) ptr);
+            int fd;
 
-        close(fd);
+            // Open the named file for writing.
 
-        return true;
+            if ((fd = open(curr.c_str(), O_WRONLY | O_TRUNC | O_CREAT, 0666)) == -1)
+                throw open_error(name);
+
+            // Write all data.
+
+            if (write(fd, ptr, count) < (int) count)
+                throw write_error(name);
+
+            close(fd);
+
+            return true;
+        }
     }
     return false;
 }

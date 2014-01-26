@@ -1194,6 +1194,11 @@ void gui::selector::set_reg(std::string name)
     R->value(name);
 }
 
+void gui::selector::show()
+{
+    F->value(D->value());
+}
+
 gui::selector::~selector()
 {
 }

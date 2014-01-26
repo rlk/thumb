@@ -377,6 +377,8 @@ namespace gui
         virtual void set_dir(std::string);
         virtual void set_reg(std::string);
 
+        virtual void show();
+
         virtual ~selector();
     };
 
