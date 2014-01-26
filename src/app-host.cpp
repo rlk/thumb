@@ -98,8 +98,8 @@ app::host::host(app::prog *p, std::string filename,
                 window_full    = c.get_i("full",   0);
                 window_frame   = c.get_i("frame",  1);
                 window_cursor  = c.get_i("cursor", 1);
-                window_rect[0] = c.get_i("x", 0);
-                window_rect[1] = c.get_i("y", 0);
+                window_rect[0] = c.get_i("x", SDL_WINDOWPOS_CENTERED);
+                window_rect[1] = c.get_i("y", SDL_WINDOWPOS_CENTERED);
                 window_rect[2] = c.get_i("w", DEFAULT_PIXEL_WIDTH);
                 window_rect[3] = c.get_i("h", DEFAULT_PIXEL_HEIGHT);
             }
@@ -182,6 +182,16 @@ app::host::host(app::prog *p, std::string filename,
                     if (app::node c = o.find("frustum"))
                         overlay = new app::calibrated_frustum(c);
 
+            // If no overlay is found, seek the first available frustum.
+
+            if (overlay == 0)
+            {
+                if (app::node c = p.find("frustum"))
+                    overlay = new app::calibrated_frustum(c);
+                else
+                    overlay = new app::calibrated_frustum( );
+            }
+            
             // Start the network syncronization.
 
             init_server(n);
@@ -191,13 +201,10 @@ app::host::host(app::prog *p, std::string filename,
     }
     init_script();
 
-    // If no channel, display, or overlay was configured, instance defaults.
+    // If no channel or display was configured, instance defaults.
 
     if (channels.empty()) channels.push_back(new dpy::channel(0));
     if (displays.empty()) displays.push_back(new dpy::direct (0));
-
-    if (overlay == 0)
-        overlay = new app::calibrated_frustum();
 
     // Wait until all clients have connected.
 

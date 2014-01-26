@@ -28,8 +28,8 @@ namespace mode
 {
     class info : public mode
     {
-        const int gui_w;
-        const int gui_h;
+        int gui_w;
+        int gui_h;
 
         int pane;
 
