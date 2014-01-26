@@ -263,47 +263,6 @@ namespace gui
     };
 
     //-------------------------------------------------------------------------
-    // File selection list.
-
-    class finder : public scroll
-    {
-        std::string  cwd;
-        std::string  ext;
-        gui::widget *state;
-
-    public:
-
-        finder(std::string d, std::string e, gui::widget *w) :
-            cwd(d), ext(e), state(w) { refresh(); }
-
-        void set_dir(const std::string&);
-        void set_reg(const std::string&);
-        void refresh();
-    };
-
-    class finder_elt : public button
-    {
-    protected:
-        finder *target;
-    public:
-        finder_elt(std::string t, gui::finder *w);
-    };
-
-    class finder_dir : public finder_elt
-    {
-    public:
-        finder_dir(std::string t, gui::finder *w);
-        void apply() { target->set_dir(str); }
-    };
-
-    class finder_reg : public finder_elt
-    {
-    public:
-        finder_reg(std::string t, gui::finder *w);
-        void apply() { target->set_reg(str); }
-    };
-
-    //-------------------------------------------------------------------------
     // Expandable space filler.
 
     class filler : public leaf
@@ -394,21 +353,18 @@ namespace gui
 
         virtual void draw(const widget *, const widget *) const;
     };
-}
 
-//-----------------------------------------------------------------------------
-
-namespace gui
-{
     //-------------------------------------------------------------------------
     // File selector
+
+    class finder;
 
     class selector : public vgroup
     {
     protected:
 
-        editor *P;
-        editor *N;
+        editor *D;
+        editor *R;
         finder *F;
 
     public:
@@ -417,7 +373,68 @@ namespace gui
 
         virtual std::string value() const;
 
+        virtual void mov_dir(std::string);
+        virtual void set_dir(std::string);
+        virtual void set_reg(std::string);
+
         virtual ~selector();
+    };
+
+    class selector_val : public editor
+    {
+    protected:
+        selector *target;
+    public:
+        selector_val(std::string t, gui::selector *s) : editor(t), target(s) { }
+    };
+
+    class selector_dir : public selector_val
+    {
+    public:
+        selector_dir(std::string t, gui::selector *s) : selector_val(t, s) { }
+        void apply() { target->set_dir(str); }
+    };
+
+    class selector_reg : public selector_val
+    {
+    public:
+        selector_reg(std::string t, gui::selector *s) : selector_val(t, s) { }
+        void apply() { target->set_reg(str); }
+    };
+
+    //-------------------------------------------------------------------------
+    // File selection list.
+    
+    class finder : public scroll
+    {
+    protected:
+        selector *target;
+
+    public:
+        finder(gui::selector *s) : target(s) { }
+        void value(std::string);
+    };
+
+    class finder_elt : public button
+    {
+    protected:
+        selector *target;
+    public:
+        finder_elt(std::string t, gui::selector *s);
+    };
+
+    class finder_dir : public finder_elt
+    {
+    public:
+        finder_dir(std::string t, gui::selector *s);
+        void apply() { target->mov_dir(str); }
+    };
+
+    class finder_reg : public finder_elt
+    {
+    public:
+        finder_reg(std::string t, gui::selector *s);
+        void apply() { target->set_reg(str); }
     };
 
     //-------------------------------------------------------------------------

@@ -832,110 +832,6 @@ void gui::scroll::draw(const widget *focus, const widget *input) const
 }
 
 //-----------------------------------------------------------------------------
-// File selection list.
-
-void gui::finder::refresh()
-{
-    // Delete all child nodes.
-
-    for (widget_c i = child.begin(); i != child.end(); ++i)
-        delete (*i);
-
-    child.clear();
-
-    // List all files and subdirectories in the current directory.
-
-    app::str_set dirs;
-    app::str_set regs;
-
-    ::data->list(cwd, dirs, regs);
-
-    // Add a new file button for each file and subdirectory.
-
-    add(new finder_dir("..", this));
-
-    for (app::str_set::iterator i = dirs.begin(); i != dirs.end(); ++i)
-        add(new finder_dir(*i, this));
-
-    for (app::str_set::iterator i = regs.begin(); i != regs.end(); ++i)
-        add(new finder_reg(*i, this));
-
-    add(new gui::filler());
-
-    // Find the total height of all children.
-
-    child_d = 0;
-    child_h = 0;
-
-    for (widget_i i = child.begin(); i != child.end(); ++i)
-        child_h += (*i)->get_h();
-
-    // Lay out this new widget hierarchy.
-
-    laydn(area.x, area.y, area.w, area.h);
-}
-
-void gui::finder::set_dir(const std::string& name)
-{
-    if (name == "..")
-    {
-        std::string::size_type s = cwd.rfind("/");
-
-        // Remove the trailing directory from the CWD.
-
-        if (s != std::string::npos)
-            cwd.erase(s);
-        else
-            cwd.erase( );
-    }
-    else
-    {
-        // Append the named directory to the CWD.
-
-        if (cwd.empty())
-            cwd = name;
-        else
-            cwd = cwd + "/" + name;
-    }
-
-    // Update the directory listing.
-
-    refresh();
-}
-
-void gui::finder::set_reg(const std::string& name)
-{
-    if (state)
-        state->value(cwd + "/" + name);
-}
-
-//-----------------------------------------------------------------------------
-// File selection list element.
-
-gui::finder_elt::finder_elt(std::string s, gui::finder *w) :
-    button(s, string::mono, -1, 0), target(w)
-{
-    // Pack these slighly closer together than normal buttons.
-
-    area.w = text->w() + font->size() * 2;
-    area.h = text->h() + font->size() / 2;
-}
-
-gui::finder_dir::finder_dir(std::string s, gui::finder *w) : finder_elt(s, w)
-{
-    color[0] *= 1.00;
-    color[1] *= 1.00;
-    color[2] *= 1.00;
-}
-
-gui::finder_reg::finder_reg(std::string s, gui::finder *w) : finder_elt(s, w)
-{
-    color[0] *= 1.00;
-    color[1] *= 1.00;
-    color[2] *= 0.25;
-}
-
-//-----------------------------------------------------------------------------
 // Horizontal group of equally-sized widgets.
 
 void gui::harray::layup()
@@ -1228,30 +1124,147 @@ void gui::frame::draw(const widget *focus, const widget *input) const
 
 gui::selector::selector(std::string path, std::string ext)
 {
-    P = new gui::editor(path);
-    N = new gui::editor("");
-    F = new gui::finder(path, ext, N);
+    D = new gui::selector_dir(path, this);
+    R = new gui::selector_reg("",   this);
+    F = new gui::finder(this);
+
+    F->value(path);
 
     add((new gui::vgroup)->
         add((new gui::hgroup)->
             add((new gui::vgroup)->
-                add(new gui::string("Browser",   gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
-                add(new gui::filler(false, true))->
                 add(new gui::string("Directory", gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
-                add(new gui::string("File",      gui::string::sans, 1, 0xFF, 0xC0, 0x40)))->
+                add(new gui::string("File",      gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
+                add(new gui::string("Browser",   gui::string::sans, 1, 0xFF, 0xC0, 0x40))->
+                add(new gui::filler(false, true)))->
             add((new gui::vgroup)->
-                add(F)->
-                add(P)->
-                add(N))));
+                add(D)->
+                add(R)->
+                add((new gui::frame)->
+                    add(F)))));
 }
 
 std::string gui::selector::value() const
 {
-    return P->value() + "/" + N->value();
+    if (D->value().empty())
+        return R->value();
+    else
+        return D->value() + "/" + R->value();
+}
+
+void gui::selector::mov_dir(std::string name)
+{
+    std::string curr = D->value();
+
+    if (name == "..")
+    {
+        // Remove the trailing directory from the CWD.
+
+        std::string::size_type s = curr.rfind("/");
+
+        if (s != std::string::npos)
+            curr.erase(s);
+        else
+            curr.erase( );
+    }
+    else
+    {
+        // Append the named directory to the CWD.
+
+        if (curr.empty())
+            curr = name;
+        else
+            curr = curr + "/" + name;
+    }
+
+    // Update the directory listing.
+
+    set_dir(curr);
+}
+
+void gui::selector::set_dir(std::string name)
+{
+    D->value(name);
+    F->value(name);
+}
+
+void gui::selector::set_reg(std::string name)
+{
+    R->value(name);
 }
 
 gui::selector::~selector()
 {
+}
+
+//-----------------------------------------------------------------------------
+// File selection list.
+
+void gui::finder::value(std::string cwd)
+{
+    // Delete all child nodes.
+
+    for (widget_c i = child.begin(); i != child.end(); ++i)
+        delete (*i);
+
+    child.clear();
+
+    // List all files and subdirectories in the current directory.
+
+    app::str_set dirs;
+    app::str_set regs;
+
+    ::data->list(cwd, dirs, regs);
+
+    // Add a new file button for each file and subdirectory.
+
+    add(new finder_dir("..", target));
+
+    for (app::str_set::iterator i = dirs.begin(); i != dirs.end(); ++i)
+        add(new finder_dir(*i, target));
+
+    for (app::str_set::iterator i = regs.begin(); i != regs.end(); ++i)
+        add(new finder_reg(*i, target));
+
+    add(new gui::filler());
+
+    // Find the total height of all children.
+
+    child_d = 0;
+    child_h = 0;
+
+    for (widget_i i = child.begin(); i != child.end(); ++i)
+        child_h += (*i)->get_h();
+
+    // Lay out this new widget hierarchy.
+
+    laydn(area.x, area.y, area.w, area.h);
+}
+
+//-----------------------------------------------------------------------------
+// File selection list element.
+
+gui::finder_elt::finder_elt(std::string t, gui::selector *s) :
+    button(t, string::mono, -1, 0), target(s)
+{
+    // Pack these slighly closer together than normal buttons.
+
+    area.w = text->w() + font->size() * 2;
+    area.h = text->h() + font->size() / 2;
+}
+
+gui::finder_dir::finder_dir(std::string t, gui::selector *s) : finder_elt(t, s)
+{
+    color[0] *= 1.00;
+    color[1] *= 1.00;
+    color[2] *= 1.00;
+}
+
+gui::finder_reg::finder_reg(std::string t, gui::selector *s) : finder_elt(t, s)
+{
+    color[0] *= 1.00;
+    color[1] *= 1.00;
+    color[2] *= 0.25;
 }
 
 //-----------------------------------------------------------------------------
