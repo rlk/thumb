@@ -50,8 +50,6 @@ namespace app
 
         bool is_running() const { return running; }
 
-        void set_host_config(std::string);
-
         // Rendering handlers
 
         virtual ogl::aabb prep(int, const app::frustum * const *) = 0;
@@ -69,11 +67,18 @@ namespace app
         virtual void set_orientation(const quat&);
         virtual void offset_position(const vec3&);
 
+        virtual void set_host_config(std::string);
+
         event *axis_remap(event *);
 
         // Screenshot procedure
 
         void screenshot(std::string, int, int);
+
+    protected:
+
+        virtual void host_up(std::string);
+        virtual void host_dn();
 
     private:
 
@@ -96,9 +101,6 @@ namespace app
 
         void video_up();
         void video_dn();
-
-        void host_up(std::string);
-        void host_dn();
 
         void axis_setup();
         void axis_state();

@@ -128,9 +128,9 @@ void app::prog::video_dn()
     window  = 0;
 }
 
-void app::prog::host_up(std::string xml)
+void app::prog::host_up(std::string config)
 {
-    ::host = new app::host(this, xml, exe, "default");
+    ::host = new app::host(this, config, exe, "default");
 
     video_up();
 
