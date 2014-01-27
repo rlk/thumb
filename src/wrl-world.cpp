@@ -46,6 +46,11 @@ wrl::world::world() :
     edit_point = dCreateRay(edit_space, 100);
     edit_focus = 0;
 
+    play_world = 0;
+    play_scene = 0;
+    play_actor = 0;
+    play_joint = 0;
+
     // Initialize the render pools.
 
     fill_pool = ::glob->new_pool();
