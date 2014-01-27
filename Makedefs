@@ -2,7 +2,7 @@
 
 #STATIC=1
 
-CFLAGS += -fno-rtti -O2
+CFLAGS += -fno-rtti -g
 
 #------------------------------------------------------------------------------
 
@@ -46,12 +46,12 @@ ifeq (,$(STATIC))
 else
 	LIBS += $(firstword $(wildcard $(addsuffix libfreetype.a, $(LIBPATH))) -lfreetype)
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
-	LIBS += $(firstword $(wildcard $(addsuffix libtiff.a,     $(LIBPATH))) -ltiff)
 	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH))) -lGLEW)
 	LIBS += $(firstword $(wildcard $(addsuffix libmxml.a,     $(LIBPATH))) -lmxml)
 	LIBS += $(firstword $(wildcard $(addsuffix libode.a,      $(LIBPATH))) -lode)
 	LIBS += $(firstword $(wildcard $(addsuffix libpng.a,      $(LIBPATH))) -lpng)
 	LIBS += $(firstword $(wildcard $(addsuffix libz.a,        $(LIBPATH))) -lz)
+#	LIBS += $(firstword $(wildcard $(addsuffix libtiff.a,     $(LIBPATH))) -ltiff)
 endif
 
 CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
@@ -62,28 +62,28 @@ LIBS   += $(SYSLIBS)
 # Optional Oculus SDK
 
 ifdef NOPE
-ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
-	ifeq ($(shell uname), Darwin)
-		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
-	endif
-	ifeq ($(shell uname), Linux)
-		LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
-	endif
+	ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
+		ifeq ($(shell uname), Darwin)
+			LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
+		endif
+		ifeq ($(shell uname), Linux)
+			LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
+		endif
 
-	CFLAGS += -I/usr/local/OculusSDK/LibOVR/Include
-	CFLAGS += -DWITH_OCULUS
-	CFLAGS += -fno-rtti
-endif
+		CFLAGS += -I/usr/local/OculusSDK/LibOVR/Include
+		CFLAGS += -DWITH_OCULUS
+		CFLAGS += -fno-rtti
+	endif
 endif
 
 # Optional Sixense SDK
 
 ifdef NOPE
-ifneq (, $(wildcard /usr/local/lib/libsixense*))
-	LIBS   += -L/usr/local/lib -lsixense_x64
-	CFLAGS += -I/usr/local/lib
-	CFLAGS += -DWITH_SIXENSE
-endif
+	ifneq (, $(wildcard /usr/local/lib/libsixense*))
+		LIBS   += -L/usr/local/lib -lsixense_x64
+		CFLAGS += -I/usr/local/lib
+		CFLAGS += -DWITH_SIXENSE
+	endif
 endif
 
 #------------------------------------------------------------------------------
