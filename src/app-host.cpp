@@ -191,7 +191,7 @@ app::host::host(app::prog *p, std::string filename,
                 else
                     overlay = new app::calibrated_frustum( );
             }
-            
+
             // Start the network syncronization.
 
             init_server(n);
@@ -352,8 +352,11 @@ void app::host::poll_listen(bool wait)
 
 void app::host::fini_listen()
 {
-    close(listen_sd);
-    listen_sd = INVALID_SOCKET;
+    if (listen_sd != INVALID_SOCKET)
+    {
+        close(listen_sd);
+        listen_sd  = INVALID_SOCKET;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -391,8 +394,11 @@ void app::host::poll_script()
 
 void app::host::fini_script()
 {
-    close(script_sd);
-    script_sd = INVALID_SOCKET;
+    if (script_sd != INVALID_SOCKET)
+    {
+        close(script_sd);
+        script_sd  = INVALID_SOCKET;
+    }
 }
 
 //-----------------------------------------------------------------------------
@@ -438,9 +444,10 @@ void app::host::init_server(app::node p)
 void app::host::fini_server()
 {
     if (server_sd != INVALID_SOCKET)
+    {
         close(server_sd);
-
-    server_sd = INVALID_SOCKET;
+        server_sd  = INVALID_SOCKET;
+    }
 }
 
 //-----------------------------------------------------------------------------
