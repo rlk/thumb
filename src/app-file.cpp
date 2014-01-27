@@ -33,7 +33,7 @@ app::node::node(const std::string& tag) :
 {
 }
 
-app::node::node(const app::node& that)
+app::node::node(const app::node& that) : ptr(0)
 {
     if (that.ptr)
     {
