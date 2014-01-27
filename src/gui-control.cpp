@@ -426,7 +426,7 @@ cnt::config_panel::config_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
     
     const std::string s = "OpenGL " + a + " GLSL " + b;
 
-    gui::selector *S = new gui::selector("host", ".xml");
+    gui::selector *S = new gui::selector("host/common", ".xml");
 
     add((new gui::frame)->
         add((new gui::vgroup)->
