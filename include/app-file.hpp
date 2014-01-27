@@ -34,8 +34,12 @@ namespace app
 
     public:
 
-        node(const std::string&);
         node(struct mxml_node_s * = 0);
+        node(const std::string&);
+        node(const app::node&);
+       ~node();
+
+        node& operator=(const node&);
 
         operator bool() const { return (ptr != NULL); }
 

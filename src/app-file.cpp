@@ -20,54 +20,41 @@
 
 //-----------------------------------------------------------------------------
 
-static bool onechild(mxml_node_t *node)
+// The full compliment of constructor and assignment operators is necessary
+// to ensure consistent reference counting by mini-XML.
+
+app::node::node(mxml_node_t *p) : ptr(p)
 {
-    // Return true if a node is not the root and has EXACTLY one child.
-
-    return (node->type   == MXML_ELEMENT &&
-            node->parent &&
-            node->child  &&
-            node->child  == node->last_child);
+    if (ptr) mxmlRetain(ptr);
 }
-
-static const char *save_cb(mxml_node_t *node, int where)
-{
-    const char *space  = "                                                   "
-                         "                                                   "
-                         "                                                   ";
-
-    if (node->type == MXML_ELEMENT)
-    {
-        // Find a string giving proper indentation for this node.
-
-        const char *indent = space + strlen(space);
-
-        for (mxml_node_t *n = node->parent; n; n = n->parent)
-            indent = std::max(space, indent - 2);
-
-        // Return the proper whitespace for location of this node.
-
-        switch (where)
-        {
-        case MXML_WS_BEFORE_OPEN:  return                      indent;
-        case MXML_WS_AFTER_OPEN:   return onechild(node) ? 0 : "\n";
-        case MXML_WS_BEFORE_CLOSE: return onechild(node) ? 0 : indent;
-        case MXML_WS_AFTER_CLOSE:  return                      "\n";
-        }
-    }
-    return 0;
-}
-
-//-----------------------------------------------------------------------------
 
 app::node::node(const std::string& tag) :
     ptr(mxmlNewElement(MXML_NO_PARENT, tag.c_str()))
 {
 }
 
-app::node::node(mxml_node_t *p) :
-    ptr(p)
+app::node::node(const app::node& that)
 {
+    if (that.ptr)
+    {
+        ptr = that.ptr;
+        mxmlRetain(ptr);
+    }
+}
+
+app::node::~node()
+{
+    if (ptr) mxmlRelease(ptr);
+}
+
+app::node& app::node::operator=(const app::node &that)
+{
+    if (this != &that)
+    {
+        ptr = that.ptr;
+        if (ptr) mxmlRetain(ptr);
+    }
+    return *this;
 }
 
 //-----------------------------------------------------------------------------
@@ -86,11 +73,13 @@ void app::node::clean()
 
 //-----------------------------------------------------------------------------
 
+static const char *save_cb(mxml_node_t *, int);
+
 void app::node::read(const std::string& name)
 {
     // Release any previously loaded DOM.
 
-    if (ptr) delete ptr;
+    if (ptr) mxmlRelease(ptr);
 
     ptr = 0;
 
@@ -164,7 +153,7 @@ void app::node::set_i(int i)
 {
     if (ptr)
     {
-        while (ptr->child) mxmlDelete(ptr->child);
+        while (ptr->child) mxmlRelease(ptr->child);
 
         // Store the integer as a text element.
 
@@ -206,7 +195,7 @@ void app::node::set_f(double f)
 {
     if (ptr)
     {
-        while (ptr->child) mxmlDelete(ptr->child);
+        while (ptr->child) mxmlRelease(ptr->child);
 
         // Store the double as a text element.
 
@@ -249,7 +238,7 @@ void app::node::set_s(const std::string& s)
 {
     if (ptr)
     {
-        while (ptr->child) mxmlDelete(ptr->child);
+        while (ptr->child) mxmlRelease(ptr->child);
 
         // Store the integer as a text element.
 
@@ -322,7 +311,7 @@ void app::node::remove()
     if (ptr)
     {
         dirty();
-        mxmlDelete(ptr);
+        mxmlRelease(ptr);
     }
 }
 
@@ -356,6 +345,46 @@ double scale_to_meters(const std::string& unit)
     if (unit == "mm") return    0.001;
 
     return 1.0;
+}
+
+//-----------------------------------------------------------------------------
+
+static bool onechild(mxml_node_t *node)
+{
+    // Return true if a node is not the root and has EXACTLY one child.
+
+    return (node->type   == MXML_ELEMENT &&
+            node->parent &&
+            node->child  &&
+            node->child  == node->last_child);
+}
+
+static const char *save_cb(mxml_node_t *node, int where)
+{
+    const char *space  = "                                                   "
+                         "                                                   "
+                         "                                                   ";
+
+    if (node->type == MXML_ELEMENT)
+    {
+        // Find a string giving proper indentation for this node.
+
+        const char *indent = space + strlen(space);
+
+        for (mxml_node_t *n = node->parent; n; n = n->parent)
+            indent = std::max(space, indent - 2);
+
+        // Return the proper whitespace for location of this node.
+
+        switch (where)
+        {
+        case MXML_WS_BEFORE_OPEN:  return                      indent;
+        case MXML_WS_AFTER_OPEN:   return onechild(node) ? 0 : "\n";
+        case MXML_WS_BEFORE_CLOSE: return onechild(node) ? 0 : indent;
+        case MXML_WS_AFTER_CLOSE:  return                      "\n";
+        }
+    }
+    return 0;
 }
 
 //-----------------------------------------------------------------------------
