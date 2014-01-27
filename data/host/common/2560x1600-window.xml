@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+  <host>
+    <node name="default">
+      <window  w="2560" h="1600" />
+      <channel w="2560" h="1600"/>
+      <display type="direct">
+        <viewport w="2560" h="1600" />
+        <frustum>
+          <perspective hfov="60.0" vfov="35.0"/>
+        </frustum>
+      </display>
+    </node>
+  </host>

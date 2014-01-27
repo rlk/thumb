@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+  <host>
+    <overlay w="1024" h="768" >
+      <frustum>
+        <corner name="BL" x="-1.333" y="-0.5" z="-2.0" />
+        <corner name="BR" x=" 0.000" y="-0.5" z="-2.0" />
+        <corner name="TL" x="-1.333" y=" 0.5" z="-2.0" />
+      </frustum>
+    </overlay>
+    <!-- Server ----------------------------------------------------------- -->
+    <node name="master" port="2827" >
+      <client name="client" addr="localhost" disp=":0.0" />
+      <window  w="1024" h="768" x="0" y="0" />
+      <channel w="1024" h="768" />
+      <buffer  w="1024" h="768" />
+      <display type="direct" >
+        <viewport x="0" y="0" w="1024" h="768" />
+        <frustum>
+          <corner name="BL" x="-1.333" y="-0.5" z="-2.0" />
+          <corner name="BR" x=" 0.000" y="-0.5" z="-2.0" />
+          <corner name="TL" x="-1.333" y=" 0.5" z="-2.0" />
+        </frustum>
+      </display>
+    </node>
+    <!-- Client ----------------------------------------------------------- -->
+    <node name="client" >
+      <server addr="localhost" port="2827" />
+      <window  w="1024" h="768" x="1024" y="0" />
+      <channel w="1024" h="768" />
+      <buffer  w="1024" h="768" />
+      <display type="direct" >
+        <viewport x="0" y="0" w="1024" h="768" />
+        <frustum>
+          <corner name="BL" x=" 0.000" y="-0.5" z="-2.0" />
+          <corner name="BR" x=" 1.333" y="-0.5" z="-2.0" />
+          <corner name="TL" x=" 0.000" y=" 0.5" z="-2.0" />
+        </frustum>
+      </display>
+    </node>
+    <!-- ------------------------------------------------------------------ -->
+  </host>
