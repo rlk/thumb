@@ -10,6 +10,7 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <stdint.h>
 #include <zlib.h>
 
 #include <app-data-pack.hpp>
@@ -123,8 +124,8 @@ std::string get_file_name(const void *p)
 /*----------------------------------------------------------------------------*/
 
 // By default, zlib expects a header and footer within the input data buffer,
-// which the ZIP file format does not provide. So, we don't get to take the 
-// easy route. We must instead use the callback-based inflate routines.    
+// which the ZIP file format does not provide. So, we don't get to take the
+// easy route. We must instead use the callback-based inflate routines.
 
 static int out(void *ptr, unsigned char *src, unsigned int len)
 {
