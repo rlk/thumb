@@ -96,6 +96,8 @@ wrl::world::world() :
 
 wrl::world::~world()
 {
+    play_fini();
+
     // Atoms own units, so units must be removed from nodes before deletion.
 
     fill_node->clear();
@@ -373,10 +375,10 @@ void wrl::world::play_fini()
 
     play_body.clear();
 
-    dJointGroupDestroy(play_joint);
-    dSpaceDestroy(play_actor);
-    dSpaceDestroy(play_scene);
-    dWorldDestroy(play_world);
+    if (play_world) dJointGroupDestroy(play_joint);
+    if (play_scene) dSpaceDestroy     (play_actor);
+    if (play_actor) dSpaceDestroy     (play_scene);
+    if (play_joint) dWorldDestroy     (play_world);
 }
 
 //-----------------------------------------------------------------------------
