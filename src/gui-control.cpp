@@ -17,6 +17,7 @@
 #include <wrl-joint.hpp>
 #include <wrl-solid.hpp>
 #include <wrl-light.hpp>
+#include <app-data.hpp>
 #include <app-host.hpp>
 
 //-----------------------------------------------------------------------------
@@ -213,6 +214,19 @@ void cnt::load_config_button::apply()
 {
     if (!name->value().empty())
         ::host->reconfig(name->value());
+}
+
+//-----------------------------------------------------------------------------
+// The About panel
+
+cnt::about_panel::about_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
+{
+    std::string text((const char *) ::data->load("ABOUT.md"));
+
+    add((new gui::scroll)->
+        add(new gui::pager(text)));
+
+    ::data->free("ABOUT.md");
 }
 
 //-----------------------------------------------------------------------------
@@ -446,15 +460,17 @@ cnt::control::control(wrl::world *W, int w, int h)
 
     root = ((new gui::vgroup)->
             add((new gui::harray)->
-                add(new title("Panel", 0))->
-                add(new panel_button("World",  state, 0))->
-                add(new panel_button("Solid",  state, 1))->
-                add(new panel_button("Joint",  state, 2))->
-                add(new panel_button("Light",  state, 3))->
-                add(new panel_button("Config", state, 4))->
+                add(new title("Edworld", 0))->
+                add(new panel_button("About",  state, 0))->
+                add(new panel_button("World",  state, 1))->
+                add(new panel_button("Solid",  state, 2))->
+                add(new panel_button("Joint",  state, 3))->
+                add(new panel_button("Light",  state, 4))->
+                add(new panel_button("Config", state, 5))->
                 add(new gui::spacer))->
             add(new gui::spacer)->
             add(state->
+                add(new  about_panel(W, state))->
                 add(new  world_panel(W, state))->
                 add(new  solid_panel(W, state))->
                 add(new  joint_panel(W, state))->

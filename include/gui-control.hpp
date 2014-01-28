@@ -277,6 +277,12 @@ namespace cnt
     //-------------------------------------------------------------------------
     // Panels.
 
+    class about_panel : public gui::vgroup
+    {
+    public:
+        about_panel(wrl::world *, gui::widget *);
+    };
+
     class world_panel : public gui::vgroup
     {
     public:
