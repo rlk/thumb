@@ -38,9 +38,6 @@ static void init_opt()
 {
     std::string option;
 
-    printf("OpenGL %s GLSL %s\n", glGetString(GL_VERSION),
-                                  glGetString(GL_SHADING_LANGUAGE_VERSION));
-
     ogl::max_anisotropy         = 0;
     ogl::do_texture_compression = false;
     ogl::do_hdr_tonemap         = false;
