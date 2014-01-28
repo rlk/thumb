@@ -296,7 +296,7 @@ SOCKET app::host::init_socket(int type, int port)
         // Create a socket.
 
         if ((sd = socket(AF_INET, type, 0)) == INVALID_SOCKET)
-            throw std::runtime_error(strerror(sock_errno));
+            return INVALID_SOCKET;
 
         // Bind the port.
 
@@ -306,7 +306,7 @@ SOCKET app::host::init_socket(int type, int port)
                 fprintf(stderr, "Waiting for port expiration\n");
                 usleep(250000);
             }
-            else throw std::runtime_error(strerror(sock_errno));
+            else return INVALID_SOCKET;
 
         // If this is a TCP socket, set nodelay and listen.
 
