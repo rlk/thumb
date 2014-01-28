@@ -380,10 +380,15 @@ void wrl::world::play_fini()
 
     play_body.clear();
 
-    if (play_world) dJointGroupDestroy(play_joint);
-    if (play_scene) dSpaceDestroy     (play_actor);
-    if (play_actor) dSpaceDestroy     (play_scene);
-    if (play_joint) dWorldDestroy     (play_world);
+    if (play_joint) dJointGroupDestroy(play_joint);
+    if (play_scene) dSpaceDestroy     (play_scene);
+    if (play_actor) dSpaceDestroy     (play_actor);
+    if (play_world) dWorldDestroy     (play_world);
+
+    play_world = 0;
+    play_scene = 0;
+    play_actor = 0;
+    play_joint = 0;
 }
 
 //-----------------------------------------------------------------------------
