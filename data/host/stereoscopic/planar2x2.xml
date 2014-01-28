@@ -1,55 +1,55 @@
 <?xml version="1.0"?>
 <host>
-  <channel w="2732" h="1536" x=" 35.0" y="0.0" z="0.0" r="0" g="1" b="0" unit="mm"/>
-  <channel w="2732" h="1536" x="-35.0" y="0.0" z="0.0" r="1" g="0" b="1" unit="mm"/>
+  <channel w="2732" h="1536" x=" 35.0" y="0.0" z="0.0" r="0" g="1" b="0" unit="mm" />
+  <channel w="2732" h="1536" x="-35.0" y="0.0" z="0.0" r="1" g="0" b="1" unit="mm" />
 <!--
   <overlay w="2732" h="1536">
     <frustum>
-      <corner name="BL" x="-3.333" y="-1.9" z="-5.0"/>
-      <corner name="BR" x=" 3.333" y="-1.9" z="-5.0"/>
-      <corner name="TL" x="-3.333" y=" 1.9" z="-5.0"/>
+      <corner name="BL" x="-3.333" y="-1.9" z="-5.0" />
+      <corner name="BR" x=" 3.333" y="-1.9" z="-5.0" />
+      <corner name="TL" x="-3.333" y=" 1.9" z="-5.0" />
     </frustum>
   </overlay>
 -->
 
   <node name="planar2x2">
-    <window x="0" y="0" w="2732" h="1536" frame="0"/>
+    <window x="0" y="0" w="2732" h="1536" frame="0" />
     <display type="interlace">
-      <viewport x="0" y="0" w="2732" h="1536"/>
+      <viewport x="0" y="0" w="2732" h="1536" />
       <frustum>
-        <corner name="BL" x="-3.333" y="-1.9" z="-6.0"/>
-        <corner name="BR" x=" 3.333" y="-1.9" z="-6.0"/>
-        <corner name="TL" x="-3.333" y=" 1.9" z="-6.0"/>
+        <corner name="BL" x="-3.333" y="-1.9" z="-6.0" />
+        <corner name="BR" x=" 3.333" y="-1.9" z="-6.0" />
+        <corner name="TL" x="-3.333" y=" 1.9" z="-6.0" />
       </frustum>
     </display>
   </node>
 
   <node name="planar2x2-mono">
-    <window x="0" y="0" w="2732" h="1536" frame="0"/>
+    <window x="0" y="0" w="2732" h="1536" frame="0" />
     <display type="normal">
-      <viewport x="0" y="0" w="2732" h="1536"/>
+      <viewport x="0" y="0" w="2732" h="1536" />
       <frustum>
-        <corner name="BL" x="-3.333" y="-1.9" z="-6.0"/>
-        <corner name="BR" x=" 3.333" y="-1.9" z="-6.0"/>
-        <corner name="TL" x="-3.333" y=" 1.9" z="-6.0"/>
+        <corner name="BL" x="-3.333" y="-1.9" z="-6.0" />
+        <corner name="BR" x=" 3.333" y="-1.9" z="-6.0" />
+        <corner name="TL" x="-3.333" y=" 1.9" z="-6.0" />
       </frustum>
     </display>
   </node>
 
   <node name="planar2x2-AB">
-    <window x="0" y="0" w="2732" h="1536" frame="0"/>
-    <channel w="1366" h="1536" x="0.0"/>
-    <channel w="1366" h="1536" x="0.0"/>
+    <window x="0" y="0" w="2732" h="1536" frame="0" />
+    <channel w="1366" h="1536" x="0.0" />
+    <channel w="1366" h="1536" x="0.0" />
     <display type="normal" index="0" channel="0">
-      <viewport x="0" y="0" w="1366" h="1536"/>
+      <viewport x="0" y="0" w="1366" h="1536" />
       <frustum>
-        <perspective hfov="30.0" vfov="35.0"/>
+        <perspective hfov="30.0" vfov="35.0" />
       </frustum>
     </display>
     <display type="normal" index="1" channel="1">
-      <viewport x="1366" y="0" w="1366" h="1536"/>
+      <viewport x="1366" y="0" w="1366" h="1536" />
       <frustum>
-        <perspective hfov="30.0" vfov="35.0"/>
+        <perspective hfov="30.0" vfov="35.0" />
       </frustum>
     </display>
   </node>

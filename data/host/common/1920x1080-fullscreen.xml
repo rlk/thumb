@@ -2,11 +2,11 @@
   <host>
     <node name="default">
       <window  w="1920" h="1080" full="1" />
-      <channel w="1920" h="1080"/>
+      <channel w="1920" h="1080" />
       <display type="direct">
         <viewport w="1920" h="1080" />
         <frustum>
-          <perspective hfov="60.0" vfov="35.0"/>
+          <perspective hfov="60.0" vfov="35.0" />
         </frustum>
       </display>
     </node>

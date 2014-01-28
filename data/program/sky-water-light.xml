@@ -5,7 +5,7 @@
     <texture name="glow"  unit="1" />
     <texture name="norm"  unit="2" />
 
-    <uniform name="light_position" uniform="light_position" size="4"/>
-    <uniform name="time"           uniform="time"           size="1"/>
-    <uniform name="view_position"  uniform="view_position"  size="3"/>
+    <uniform name="light_position" uniform="light_position" size="4" />
+    <uniform name="time"           uniform="time"           size="1" />
+    <uniform name="view_position"  uniform="view_position"  size="3" />
   </program>
