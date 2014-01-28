@@ -355,6 +355,21 @@ namespace gui
     };
 
     //-------------------------------------------------------------------------
+    // Text file viewer
+
+    class pager : public varray
+    {
+    public:
+        pager(std::string);
+    };
+
+    class pager_line : public string
+    {
+    public:
+        pager_line(std::string, GLubyte, GLubyte, GLubyte);
+    };
+
+    //-------------------------------------------------------------------------
     // File selector
 
     class finder;

@@ -10,6 +10,8 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <sstream>
+
 #include <SDL.h>
 #include <SDL_keyboard.h>
 
@@ -1118,6 +1120,35 @@ void gui::frame::draw(const widget *focus, const widget *input) const
     glPopAttrib();
 
     tree::draw(focus, input);
+}
+
+//-----------------------------------------------------------------------------
+// Text file viewer
+
+gui::pager::pager(std::string text)
+{
+    std::stringstream list(text);
+    std::string       line;
+
+    while (std::getline(list, line))
+        if (line[0] == '#')
+        {
+            std::string head(line, line.find_first_not_of("# "));
+
+            if (line[1] == '#')
+                add(new gui::pager_line(head, 0xFF, 0xFF, 0x40));
+            else
+                add(new gui::pager_line(head, 0xFF, 0xC0, 0x40));
+        }
+        else
+            add(new gui::pager_line(line, 0xFF, 0xFF, 0xFF));
+}
+
+gui::pager_line::pager_line(std::string str, GLubyte r, GLubyte g, GLubyte b) :
+    string(str, string::mono, -1, r, g, b)
+{
+    // Pack these slighly closer together than normal text.
+    area.h = text->h() + font->size() / 2;
 }
 
 //-----------------------------------------------------------------------------
