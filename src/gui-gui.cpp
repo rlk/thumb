@@ -1147,8 +1147,8 @@ gui::selector::selector(std::string path, std::string ext)
 
 std::string gui::selector::value() const
 {
-    if (D->value().empty())
-        return R->value();
+    if      (R->value().empty()) return std::string();
+    else if (D->value().empty()) return R->value();
     else
         return pathname(D->value(), R->value());
 }
