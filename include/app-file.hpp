@@ -73,14 +73,14 @@ namespace app
         node find(const std::string& = "",
                   const std::string& = "",
                   const std::string& = "") const;
-        node next(node,
+        node next(node&,
                   const std::string& = "",
                   const std::string& = "",
                   const std::string& = "") const;
 
         // Hierarchy manipulation
 
-        void insert(node, node = 0);
+        void insert(node&);
         void remove();
     };
 

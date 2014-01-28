@@ -279,7 +279,7 @@ app::node app::node::find(const std::string& name,
         return 0;
 }
 
-app::node app::node::next(app::node itr,
+app::node app::node::next(app::node& itr,
                           const std::string& name,
                           const std::string& attr,
                           const std::string& data) const
@@ -296,12 +296,12 @@ app::node app::node::next(app::node itr,
 
 //-----------------------------------------------------------------------------
 
-void app::node::insert(app::node parent,
-                       app::node after)
+void app::node::insert(app::node& parent)
 {
     if (parent.ptr && ptr)
     {
-        mxmlAdd(parent.ptr, MXML_ADD_AFTER, after.ptr, ptr);
+        mxmlRetain(ptr);
+        mxmlAdd(parent.ptr, MXML_ADD_AFTER, 0, ptr);
         dirty();
     }
 }
@@ -311,6 +311,7 @@ void app::node::remove()
     if (ptr)
     {
         dirty();
+        mxmlRemove(ptr);
         mxmlRelease(ptr);
     }
 }
