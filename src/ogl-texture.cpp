@@ -276,9 +276,9 @@ void ogl::texture::load_opt(std::string name)
 
     // Attempt to load the XML file.
 
-    try
+    if (::data->find(path))
     {
-        app::file file(path.c_str());
+        app::file file(path);
         app::node   root;
         app::node   node;
 
@@ -293,9 +293,6 @@ void ogl::texture::load_opt(std::string name)
             }
         }
     }
-    catch (app::find_error& e)
-    {
-    }
 }
 
 void ogl::texture::load_prm(std::string name)
@@ -308,9 +305,9 @@ void ogl::texture::load_prm(std::string name)
 
     // Attempt to load the XML file.
 
-    try
+    if (::data->find(path))
     {
-        app::file file(path.c_str());
+        app::file file(path);
         app::node   root;
         app::node   node;
 
@@ -336,9 +333,6 @@ void ogl::texture::load_prm(std::string name)
                 if (key && val) glTexParameteri(target, key, val);
             }
         }
-    }
-    catch (app::find_error& e)
-    {
     }
 }
 
