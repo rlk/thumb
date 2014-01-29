@@ -68,7 +68,10 @@ void wrl::box::scale()
 
         line_scale = d / 2.0;
 
-        dGeomBoxSetLengths(edit_geom, d[0], d[1], d[2]);
+        if (d[0] > 0 &&
+            d[1] > 0 &&
+            d[2] > 0)
+            dGeomBoxSetLengths(edit_geom, d[0], d[1], d[2]);
     }
 }
 
@@ -95,7 +98,8 @@ void wrl::sphere::scale()
 
         line_scale = vec3(r, r, r);
 
-        dGeomSphereSetRadius(edit_geom, dReal(r));
+        if (r > 0)
+            dGeomSphereSetRadius(edit_geom, dReal(r));
     }
 }
 
