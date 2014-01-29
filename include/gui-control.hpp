@@ -165,6 +165,17 @@ namespace cnt
         void apply();
     };
 
+    class new_convex_button : public create_button
+    {
+        gui::widget *name;
+
+    public:
+
+        new_convex_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "New Convex"), name(n) { }
+        void apply();
+    };
+
     //-------------------------------------------------------------------------
     // Light creation buttons.
 

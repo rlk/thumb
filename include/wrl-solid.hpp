@@ -95,6 +95,30 @@ namespace wrl
 
         virtual void save(app::node);
     };
+
+    //-------------------------------------------------------------------------
+    // Convex solid atom
+
+    class convex : public solid
+    {
+    protected:
+
+        virtual void scale();
+
+    public:
+
+        convex(std::string, bool=true);
+
+        virtual convex *clone() const { return new convex(*this); }
+
+        // Physics initialization methods
+
+        virtual void get_mass(dMass *m);
+
+        // File I/O
+
+        virtual void save(app::node);
+    };
 }
 
 //-----------------------------------------------------------------------------

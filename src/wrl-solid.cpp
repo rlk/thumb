@@ -14,6 +14,7 @@
 #include <etc-vector.hpp>
 #include <ogl-pool.hpp>
 #include <wrl-solid.hpp>
+#include <app-data.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -31,6 +32,27 @@ wrl::solid::solid(std::string fill,
 
 //-----------------------------------------------------------------------------
 
+// Locate a convex hull definition for the named solid. If found, return the
+// name, else throw an exception.
+
+std::string wire_from_solid(std::string solid)
+{
+    std::string::size_type pos;
+
+    if ((pos = solid.find("solid/")) != std::string::npos)
+    {
+        std::string name = solid.replace(pos, 5, "wire");
+
+        if (::data->find(name))
+            return name;
+    }
+    throw std::runtime_error("Error creating convex solid: "
+                        + solid + " missing hull definition");
+    return solid;
+}
+
+//-----------------------------------------------------------------------------
+
 wrl::box::box(std::string fill, bool center)
     : solid(fill, "wire/wire_box.obj", center)
 {
@@ -43,6 +65,16 @@ wrl::box::box(std::string fill, bool center)
 
 wrl::sphere::sphere(std::string fill, bool center)
     : solid(fill, "wire/wire_sphere.obj", center)
+{
+    edit_geom = dCreateSphere(0, 1.0);
+
+    dGeomSetData(edit_geom, this);
+
+    scale();
+}
+
+wrl::convex::convex(std::string fill, bool center)
+    : solid(fill, wire_from_solid(fill), center)
 {
     edit_geom = dCreateSphere(0, 1.0);
 
@@ -103,6 +135,11 @@ void wrl::sphere::scale()
     }
 }
 
+void wrl::convex::scale()
+{
+    // Convex solids don't scale.
+}
+
 //-----------------------------------------------------------------------------
 
 void wrl::box::get_mass(dMass *mass)
@@ -125,6 +162,17 @@ void wrl::sphere::get_mass(dMass *mass)
     // Compute and position the mass of this sphere.
 
     dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
+
+    ode_set_mass_transform(mass, current_M);
+}
+
+void wrl::convex::get_mass(dMass *mass)
+{
+    dReal d = (dReal) params[param::density]->value();
+
+    // TODO: Calculate mass using trimesh.
+
+    dMassSetBox(mass, d, 1.0, 1.0, 1.0);
 
     ode_set_mass_transform(mass, current_M);
 }
@@ -242,6 +290,17 @@ void wrl::sphere::save(app::node node)
     app::node n("geom");
 
     n.set_s("type", "sphere");
+    n.insert(node);
+    solid::save(n);
+}
+
+void wrl::convex::save(app::node node)
+{
+    // Create a new convex element.
+
+    app::node n("geom");
+
+    n.set_s("type", "convex");
     n.insert(node);
     solid::save(n);
 }

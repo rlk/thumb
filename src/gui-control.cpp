@@ -161,6 +161,12 @@ void cnt::new_sphere_button::apply()
         do_create(new wrl::sphere(name->value()));
 }
 
+void cnt::new_convex_button::apply()
+{
+    if (!name->value().empty())
+        do_create(new wrl::convex(name->value()));
+}
+
 void cnt::new_d_light_button::apply()
 {
     if (!name->value().empty())
@@ -271,6 +277,7 @@ cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
                 add(new gui::filler(true, false))->
                 add(new gui::filler(true, false))->
                 add(new gui::filler(true, false))->
+                add(new new_convex_button(W, w, S))->
                 add(new new_box_button   (W, w, S))->
                 add(new new_sphere_button(W, w, S)))));
 

@@ -1374,8 +1374,15 @@ void gui::dialog::click(int m, bool d)
 {
     // Click any focused widget.  Shift the input focus there.
 
-    if (focus)
-        input = focus->click(last_x, last_y, m, d);
+    try
+    {
+        if (focus)
+            input = focus->click(last_x, last_y, m, d);
+    }
+    catch (std::runtime_error& e)
+    {
+        std::cerr << e.what() << std::endl;
+    }
 
     // Activation may have resulted in widget deletion.  Confirm the focus.
 
