@@ -812,13 +812,14 @@ void wrl::world::load(std::string name)
 
             // Create a new solid for each recognized geom type.
 
-            if      (type == "box")     a = new wrl::box   ("");
-            else if (type == "sphere")  a = new wrl::sphere("");
+            if      (type == "box")     a = new wrl::box   (n);
+            else if (type == "sphere")  a = new wrl::sphere(n);
+            else if (type == "convex")  a = new wrl::convex(n);
             else continue;
 
             // Allow the new solid to parse its own attributes.
 
-            a->load(n);
+            // a->load(n);
 
             // Select the new solid for addition to the world.
 

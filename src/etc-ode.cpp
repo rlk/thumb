@@ -12,6 +12,128 @@
 
 #include <etc-ode.hpp>
 
+#include <iostream>
+#include <sstream>
+
+//-----------------------------------------------------------------------------
+
+// Extract a convex hull definition from the given OBJ data string.
+
+void ode_load_convex(const char *str, std::vector<dReal>&        planes,
+                                      std::vector<dReal>&        points,
+                                      std::vector<unsigned int>& polygons)
+{
+    std::stringstream data(str);
+    std::string       line;
+
+    unsigned int i;
+    dReal        x;
+    dReal        y;
+    dReal        z;
+
+    // Parse the given string as an OBJ.
+
+    while (getline(data, line))
+    {
+        std::stringstream cmd(line);
+        std::string       key;
+
+        cmd >> key;
+
+        if      (key == "v")
+        {
+            cmd >> x >> y >> z;
+            points.push_back(x);
+            points.push_back(y);
+            points.push_back(z);
+        }
+        else if (key == "l")
+        {
+            std::vector<unsigned int> indices;
+
+            while (cmd >> i)
+                indices.push_back(i - 1);
+
+            polygons.insert(polygons.end(), indices.size() - 1);
+            polygons.insert(polygons.end(), indices.begin(), indices.end() - 1);
+        }
+    }
+
+    if (!points.empty())
+    {
+        // Compute the bounding volume of the point cloud.
+
+        dReal a[3];
+        dReal b[3];
+
+        a[0] = b[0] = points[0];
+        a[1] = b[1] = points[1];
+        a[2] = b[2] = points[2];
+
+        for (i = 0; i < points.size(); i += 3)
+        {
+            if (points[i + 0] < a[0]) a[0] = points[i + 0];
+            if (points[i + 1] < a[1]) a[1] = points[i + 1];
+            if (points[i + 2] < a[2]) a[2] = points[i + 2];
+
+            if (points[i + 0] > b[0]) b[0] = points[i + 0];
+            if (points[i + 1] > b[1]) b[1] = points[i + 1];
+            if (points[i + 2] > b[2]) b[2] = points[i + 2];
+        }
+
+        // Center the point cloud on the origin.
+
+        for (i = 0; i < points.size(); i+= 3)
+        {
+            points[i + 0] -= (b[0] + a[0]) / 2;
+            points[i + 1] -= (b[1] + a[1]) / 2;
+            points[i + 2] -= (b[2] + a[2]) / 2;
+        }
+
+        // Compute the plane of each polygon.
+
+        for (i = 0; i < polygons.size();)
+        {
+            unsigned int n = polygons[i];
+            unsigned int a = polygons[i + 1];
+            unsigned int b = polygons[i + 2];
+            unsigned int c = polygons[i + 3];
+
+            dReal u[3];
+            dReal v[3];
+            dReal p[4];
+
+            u[0] = points[b * 3 + 0] - points[a * 3 + 0];
+            u[1] = points[b * 3 + 1] - points[a * 3 + 1];
+            u[2] = points[b * 3 + 2] - points[a * 3 + 2];
+
+            v[0] = points[c * 3 + 0] - points[a * 3 + 0];
+            v[1] = points[c * 3 + 1] - points[a * 3 + 1];
+            v[2] = points[c * 3 + 2] - points[a * 3 + 2];
+
+            p[0] = u[1] * v[2] - u[2] * v[1];
+            p[1] = u[2] * v[0] - u[0] * v[2];
+            p[2] = u[0] * v[1] - u[1] * v[0];
+
+            dReal d = dReal(sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]));
+
+            p[0] /= d;
+            p[1] /= d;
+            p[2] /= d;
+            p[3]  = p[0] * points[a * 3 + 0]
+                  + p[1] * points[a * 3 + 1]
+                  + p[2] * points[a * 3 + 2];
+
+            planes.push_back(p[0]);
+            planes.push_back(p[1]);
+            planes.push_back(p[2]);
+            planes.push_back(p[3]);
+
+            i += n + 1;
+        }
+    }
+}
+
 //-----------------------------------------------------------------------------
 
 static dGeomID ode_dupe_geom_sphere(dSpaceID space, dGeomID sphere)

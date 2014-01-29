@@ -10,10 +10,16 @@
 //  MERCHANTABILITY  or FITNESS  FOR A  PARTICULAR PURPOSE.   See  the GNU
 //  General Public License for more details.
 
+#include <vector>
+
 #include <ode/ode.h>
 #include <etc-vector.hpp>
 
 //-----------------------------------------------------------------------------
+
+void ode_load_convex(const char *, std::vector<dReal>&,
+                                   std::vector<dReal>&,
+                                   std::vector<unsigned int>&);
 
 dGeomID ode_dupe_geom(dSpaceID, dGeomID);
 

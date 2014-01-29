@@ -35,20 +35,21 @@ wrl::solid::solid(std::string fill,
 // Locate a convex hull definition for the named solid. If found, return the
 // name, else throw an exception.
 
-std::string wire_from_solid(std::string solid)
+std::string wire_from_fill(std::string fill)
 {
     std::string::size_type pos;
+    std::string wire = fill;
 
-    if ((pos = solid.find("solid/")) != std::string::npos)
+    if ((pos = wire.find("solid/")) != std::string::npos)
     {
-        std::string name = solid.replace(pos, 5, "wire");
+        wire.replace(pos, 5, "wire");
 
-        if (::data->find(name))
-            return name;
+        if (::data->find(wire))
+            return wire;
     }
     throw std::runtime_error("Error creating convex solid: "
-                        + solid + " missing hull definition");
-    return solid;
+                        + fill + " missing hull definition");
+    return fill;
 }
 
 //-----------------------------------------------------------------------------
@@ -74,9 +75,15 @@ wrl::sphere::sphere(std::string fill, bool center)
 }
 
 wrl::convex::convex(std::string fill, bool center)
-    : solid(fill, wire_from_solid(fill), center)
+    : solid(fill, wire_from_fill(fill), center)
 {
-    edit_geom = dCreateSphere(0, 1.0);
+    const char *obj = (const char *) ::data->load(wire_from_fill(fill));
+
+    ode_load_convex(obj, planes, points, polygons);
+
+    edit_geom = dCreateConvex(0, &planes.front(), planes.size() / 4,
+                                 &points.front(), points.size() / 3,
+                                 &polygons.front());
 
     dGeomSetData(edit_geom, this);
 

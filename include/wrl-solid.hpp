@@ -101,6 +101,12 @@ namespace wrl
 
     class convex : public solid
     {
+    private:
+
+        std::vector<dReal>        points;
+        std::vector<dReal>        planes;
+        std::vector<unsigned int> polygons;
+
     protected:
 
         virtual void scale();
