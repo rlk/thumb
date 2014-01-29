@@ -279,8 +279,6 @@ void ogl::texture::load_opt(std::string name)
     if (::data->find(path))
     {
         app::file file(path);
-        app::node   root;
-        app::node   node;
 
         if (app::node p = file.get_root().find("texture"))
         {
@@ -308,8 +306,6 @@ void ogl::texture::load_prm(std::string name)
     if (::data->find(path))
     {
         app::file file(path);
-        app::node   root;
-        app::node   node;
 
         if (app::node p = file.get_root().find("texture"))
         {
