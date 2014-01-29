@@ -1,6 +1,6 @@
 # -*- mode: makefile; -*-
 
-STATIC=1
+#STATIC=1
 
 CFLAGS += -fno-rtti -g
 

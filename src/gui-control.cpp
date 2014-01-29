@@ -221,12 +221,20 @@ void cnt::load_config_button::apply()
 
 cnt::about_panel::about_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
-    std::string text((const char *) ::data->load("ABOUT.md"));
+    std::string text;
+
+    try
+    {
+        text = std::string((const char *) ::data->load("ABOUT.md"));
+        ::data->free("ABOUT.md");
+    }
+    catch (std::runtime_error& e)
+    {
+        text = "## ABOUT.md not found";
+    }
 
     add((new gui::scroll)->
         add(new gui::pager(text)));
-
-    ::data->free("ABOUT.md");
 }
 
 //-----------------------------------------------------------------------------

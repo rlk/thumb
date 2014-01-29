@@ -12,6 +12,7 @@
 
 #include <cstring>
 #include <cstdlib>
+#include <iostream>
 
 #include <mxml.h>
 
@@ -87,15 +88,19 @@ void app::node::read(const std::string& name)
     {
         // Load the data stream and parse the XML.
 
-        if (const char *buff = (const char *) ::data->load(name))
+        try
         {
+            const char *buff = (const char *) ::data->load(name);
+
             ptr = mxmlLoadString(0, buff, MXML_TEXT_CALLBACK);
             clean();
+
+            ::data->free(name);
         }
-
-        // Release the data stream.
-
-        ::data->free(name);
+        catch (std::runtime_error& e)
+        {
+            std::cerr << e.what() << std::endl;
+        }
     }
 }
 
@@ -107,7 +112,14 @@ void app::node::write(const std::string& name)
     {
         if (char *buff = mxmlSaveAllocString(ptr, save_cb))
         {
-            ::data->save(name, buff);
+            try
+            {
+                ::data->save(name, buff);
+            }
+            catch (std::runtime_error& e)
+            {
+                std::cerr << e.what() << std::endl;
+            }
             free(buff);
         }
         clean();

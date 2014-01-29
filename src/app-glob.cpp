@@ -442,10 +442,17 @@ const ogl::surface *app::glob::load_surface(const std::string& name, bool cent)
 {
     if (surface_map.find(name) == surface_map.end())
     {
-        if (ogl::surface *p = new ogl::surface(name, cent))
+        try
         {
-            surface_map[name].ptr = p;
-            surface_map[name].ref = 1;
+            if (ogl::surface *p = new ogl::surface(name, cent))
+            {
+                surface_map[name].ptr = p;
+                surface_map[name].ref = 1;
+            }
+        }
+        catch (std::runtime_error& e)
+        {
+            return 0;
         }
     }
     else   surface_map[name].ref++;

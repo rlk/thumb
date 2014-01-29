@@ -3,9 +3,11 @@
 # in the data directory. This archive is included in the linking of the Thumb
 # library, thus guaranteeing the availability of these assets at run time.
 
-DATA= $(subst ./,, $(shell find . -name \*.xml  \
-	                           -o -name \*.obj  \
+
+DATA= $(subst ./,, $(shell find . -name \*.md   \
+	                           -o -name \*.xml  \
 	                           -o -name \*.ttf  \
+	                           -o -name \*.obj  \
 	                           -o -name \*.png  \
 	                           -o -name \*.vert \
 	                           -o -name \*.frag))

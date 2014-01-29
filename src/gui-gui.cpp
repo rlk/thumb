@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <sstream>
+#include <iostream>
 
 #include <SDL.h>
 #include <SDL_keyboard.h>
@@ -193,10 +194,30 @@ void gui::string::init_font()
 {
     if (count == 0)
     {
-        sans_font = new app::font(::conf->get_s("sans_font"),
-                                  ::conf->get_i("sans_size"));
-        mono_font = new app::font(::conf->get_s("mono_font"),
-                                  ::conf->get_i("mono_size"));
+        const std::string& sans_name = ::conf->get_s("sans_font");
+        const std::string& mono_name = ::conf->get_s("sans_font");
+        const int          sans_size = ::conf->get_i("sans_size", 14);
+        const int          mono_size = ::conf->get_i("mono_size", 14);
+
+        if (!sans_name.empty())
+            try
+            {
+                sans_font = new app::font(sans_name, sans_size);
+            }
+            catch (std::runtime_error& e)
+            {
+                std::cerr << e.what() << std::endl;
+            }
+
+        if (!mono_name.empty())
+            try
+            {
+                mono_font = new app::font(mono_name, mono_size);
+            }
+            catch (std::runtime_error& e)
+            {
+                std::cerr << e.what() << std::endl;
+            }
     }
     count++;
 }
@@ -236,14 +257,15 @@ gui::string::string(std::string s, int f, int j, GLubyte r,
     color[1] = g;
     color[2] = b;
 
-    // Render the string texture.
+    // Render the string texture. Pad the area.
 
     init_text();
 
-    // Pad the string.
-
-    area.w = text->w() + font->size() * 2;
-    area.h = text->h() + font->size();
+    if (text && font)
+    {
+        area.w = text->w() + font->size() * 2;
+        area.h = text->h() + font->size();
+    }
 
     just_text();
 }
@@ -261,7 +283,7 @@ void gui::string::init_text()
 
     // Render the new string texture.
 
-    text = font->render(str);
+    text = font ? font->render(str) : 0;
 }
 
 void gui::string::draw_text() const
@@ -273,7 +295,9 @@ void gui::string::draw_text() const
         glEnable(GL_TEXTURE_2D);
 
         glColor3ubv(color);
-        text->draw();
+
+        if (text)
+            text->draw();
     }
     glPopAttrib();
 }
@@ -282,13 +306,16 @@ void gui::string::just_text()
 {
     // Set the justification of the new string.
 
-    int jx = (area.w - text->w()) / 2;
-    int jy = (area.h - text->h()) / 2;
+    if (text)
+    {
+        int jx = (area.w - text->w()) / 2;
+        int jy = (area.h - text->h()) / 2;
 
-    if (just > 0) jx = area.w - text->w() - 4;
-    if (just < 0) jx = 4;
+        if (just > 0) jx = area.w - text->w() - 4;
+        if (just < 0) jx = 4;
 
-    text->move(area.x + jx, area.y + jy);
+        text->move(area.x + jx, area.y + jy);
+    }
 }
 
 void gui::string::value(std::string s)
@@ -390,7 +417,7 @@ void gui::bitmap::draw(const widget *focus, const widget *input) const
     {
         glEnable(GL_TEXTURE_2D);
 
-        for (int i = 0, b = 1; i < text->n(); ++i, b <<= 1)
+        for (int i = 0, b = 1; text && i < text->n(); ++i, b <<= 1)
         {
             if (bits & b)
                 glColor3ubv(color);
@@ -409,7 +436,7 @@ gui::widget *gui::bitmap::click(int x, int y, int m, bool d)
     {
         int i;
 
-        if ((i = text->find(x, y)) >= 0)
+        if (text && (i = text->find(x, y)) >= 0)
         {
             // If shift, set all bits to the toggle of bit i.
 
@@ -456,7 +483,7 @@ void gui::editor::update()
 
     // Make sure the cursor position is sane.
 
-    si = std::min(si, text->n());
+    si = text ? std::min(si, text->n()) : 0;
     sc = 0;
 }
 
@@ -519,7 +546,7 @@ void gui::editor::draw(const widget *focus, const widget *input) const
 
         // Draw the selection / cursor.
 
-        if (this == input)
+        if (text && this == input)
         {
             int L = text->curs(0) - 1;
             int R = text->curs(0) + 1;
@@ -552,24 +579,27 @@ void gui::editor::draw(const widget *focus, const widget *input) const
 
 gui::widget *gui::editor::click(int x, int y, int m, bool d)
 {
-    int sp = text->find(x, y);
-
-    leaf::click(x, y, m, d);
-
-    if (sp >= 0)
+    if (text)
     {
-        if (d)
+        int sp = text->find(x, y);
+
+        leaf::click(x, y, m, d);
+
+        if (sp >= 0)
         {
-            si = sp;
-            sc = 0;
+            if (d)
+            {
+                si = sp;
+                sc = 0;
+            }
         }
-    }
-    else
-    {
-        if (d)
+        else
         {
-            si = int(str.length());
-            sc = 0;
+            if (d)
+            {
+                si = int(str.length());
+                sc = 0;
+            }
         }
     }
     return this;
@@ -577,19 +607,22 @@ gui::widget *gui::editor::click(int x, int y, int m, bool d)
 
 void gui::editor::point(int x, int y)
 {
-    int sp = text->find(x, y);
-
-    if (sp >= 0)
+    if (text)
     {
-        if (sp > si)
-            sc = sp - si;
-        else
+        int sp = text->find(x, y);
+
+        if (sp >= 0)
         {
-            sc = si + sc - sp;
-            si = sp;
+            if (sp > si)
+                sc = sp - si;
+            else
+            {
+                sc = si + sc - sp;
+                si = sp;
+            }
         }
+        else sc = int(str.length()) - si;
     }
-    else sc = int(str.length()) - si;
 }
 
 void gui::editor::key(int k, int m)
@@ -1148,7 +1181,9 @@ gui::pager_line::pager_line(std::string str, GLubyte r, GLubyte g, GLubyte b) :
     string(str, string::mono, -1, r, g, b)
 {
     // Pack these slighly closer together than normal text.
-    area.h = text->h() + font->size() / 2;
+
+    if (font)
+        area.h = text->h() + font->size() / 2;
 }
 
 //-----------------------------------------------------------------------------
@@ -1286,8 +1321,11 @@ gui::finder_elt::finder_elt(std::string t, gui::selector *s) :
 {
     // Pack these slighly closer together than normal buttons.
 
-    area.w = text->w() + font->size() * 2;
-    area.h = text->h() + font->size() / 2;
+    if (text && font)
+    {
+        area.w = text->w() + font->size() * 2;
+        area.h = text->h() + font->size() / 2;
+    }
 }
 
 gui::finder_dir::finder_dir(std::string t, gui::selector *s) : finder_elt(t, s)

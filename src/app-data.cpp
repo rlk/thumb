@@ -87,9 +87,6 @@ std::string app::data::translate(const std::string& filename) const
 #define PATH_LIST_SEP ':'
 #endif
 
-#define USR_SHARE "/usr/share/thumb/data"
-#define LOC_SHARE "/usr/local/share/thumb/data"
-
 // Identify a valid data directory as one containing the default data file.
 #if 0
 static bool is_data_dir(std::string dir)
@@ -119,12 +116,13 @@ static void find_ro_data(app::archive_l& archives)
     }
 
     // Look to the static archive.
-
+/*
     extern unsigned char ___data_data_zip[];
     extern unsigned int  ___data_data_zip_len;
 
     archives.push_back(new app::pack_archive(___data_data_zip,
                                              ___data_data_zip_len));
+                                             */
 }
 
 // Locate a writable data hierarchy.

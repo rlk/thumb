@@ -11,6 +11,7 @@
 //  General Public License for more details.
 
 #include <cstdlib>
+#include <iostream>
 
 #include <ogl-obj.hpp>
 #include <ogl-aabb.hpp>
@@ -377,21 +378,20 @@ obj::obj::obj(std::string name, bool c) : scale(1)
 */
     // Initialize the input file.
 
-    if (const char *p = (const char *) ::data->load(name))
-    {
-        // Process data until the end of the file is reached.
+    const char *p = (const char *) ::data->load(name);
 
-        while (*p)
-        {
-            if      (token_c  (p)) p = read_c  (p);
-            else if (token_f  (p)) p = read_f  (p);
-            else if (token_l  (p)) p = read_l  (p);
-            else if (token_v  (p)) p = read_v  (p);
-            else if (token_vt (p)) p = read_vt (p);
-            else if (token_vn (p)) p = read_vn (p);
-            else if (token_use(p)) p = read_use(p);
-            else                   p = scannl(p);
-        }
+    // Process data until the end of the file is reached.
+
+    while (*p)
+    {
+        if      (token_c  (p)) p = read_c  (p);
+        else if (token_f  (p)) p = read_f  (p);
+        else if (token_l  (p)) p = read_l  (p);
+        else if (token_v  (p)) p = read_v  (p);
+        else if (token_vt (p)) p = read_vt (p);
+        else if (token_vn (p)) p = read_vn (p);
+        else if (token_use(p)) p = read_use(p);
+        else                   p = scannl(p);
     }
 
 	// Release the cached data.
