@@ -122,7 +122,9 @@ bool ogl::binding::depth_eq(const binding *that) const
     // If neither depth program discards then they are functionally equivalent.
     // This optimization is critical for high performance shadowing and z-only.
 
-    if (that->depth_program->discards() == false
+    if (that->depth_program &&
+        that->depth_program->discards() == false
+           && depth_program
            && depth_program->discards() == false) return true;
 
     // If any programs or textures differ then the bindings are not equivalent.
@@ -156,7 +158,8 @@ bool ogl::binding::opaque() const
 {
     // If the color program discards, then this binding is not opaque.
 
-    if (color_program->discards())
+    if (color_program &&
+        color_program->discards())
         return false;
 
     // If there is no color texture to modulate opacity, then it is opaque.
