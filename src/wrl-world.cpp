@@ -1018,12 +1018,16 @@ int wrl::world::s_light(int light, const vec3& p, const vec3& v, double c,
                         int frusc, const app::frustum *const *frusv,
                                    const ogl::aabb& visible)
 {
-    app::perspective_frustum frust(p, -v, c, 1);
-    set_light(light, vec4(p, 1), frusc + light, &frust);
+    if (light < 4)
+    {
+        app::perspective_frustum frust(p, -v, c, 1);
+        set_light(light, vec4(p, 1), frusc + light, &frust);
 
-    uniform_split[light]->set(vec2(0, 1));
+        uniform_split[light]->set(vec2(0, 1));
 
-    return 1;
+        return 1;
+    }
+    return 0;
 }
 
 // Add a directional light source.
@@ -1034,7 +1038,7 @@ int wrl::world::d_light(int light, const vec3& p, const vec3& v, double c,
 {
     const int n = shadow_splits;
 
-    for (int i = 0; i < n; i++, light++)
+    for (int i = 0; i < n && light < 4; i++, light++)
     {
         // Compute the visible union of the bounds of this split.
 
