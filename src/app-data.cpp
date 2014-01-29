@@ -116,13 +116,12 @@ static void find_ro_data(app::archive_l& archives)
     }
 
     // Look to the static archive.
-/*
+
     extern unsigned char ___data_data_zip[];
     extern unsigned int  ___data_data_zip_len;
 
     archives.push_back(new app::pack_archive(___data_data_zip,
                                              ___data_data_zip_len));
-                                             */
 }
 
 // Locate a writable data hierarchy.
