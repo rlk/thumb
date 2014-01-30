@@ -29,7 +29,6 @@ namespace ogl
     class texture;
     class binding;
     class surface;
-    class terrain;
     class image;
     class frame;
     class pool;
@@ -77,19 +76,12 @@ namespace app
             int           ref;
         };
 
-        struct terrain
-        {
-            ogl::terrain *ptr;
-            int           ref;
-        };
-
         std::map<std::string, uniform> uniform_map;
         std::map<std::string, program> program_map;
         std::map<std::string, process> process_map;
         std::map<std::string, texture> texture_map;
         std::map<std::string, binding> binding_map;
         std::map<std::string, surface> surface_map;
-        std::map<std::string, terrain> terrain_map;
 
         std::set<ogl::pool  *>  pool_set;
         std::set<ogl::image *> image_set;
@@ -110,7 +102,6 @@ namespace app
         const ogl::texture *load_texture(const std::string&, const std::string&);
         const ogl::binding *load_binding(const std::string&, const std::string&);
         const ogl::surface *load_surface(const std::string&, bool);
-        const ogl::terrain *load_terrain(const std::string&);
 
               ogl::uniform *dupe_uniform(      ogl::uniform *);
               ogl::process *dupe_process(      ogl::process *);
@@ -118,7 +109,6 @@ namespace app
         const ogl::texture *dupe_texture(const ogl::texture *);
         const ogl::binding *dupe_binding(const ogl::binding *);
         const ogl::surface *dupe_surface(const ogl::surface *);
-        const ogl::terrain *dupe_terrain(const ogl::terrain *);
 
         void free_uniform(const std::string&);
         void free_program(const std::string&);
@@ -126,7 +116,6 @@ namespace app
         void free_texture(const std::string&);
         void free_binding(const std::string&);
         void free_surface(const std::string&);
-        void free_terrain(const std::string&);
 
         void free_uniform(const ogl::uniform *);
         void free_process(const ogl::process *);
@@ -134,7 +123,6 @@ namespace app
         void free_texture(const ogl::texture *);
         void free_binding(const ogl::binding *);
         void free_surface(const ogl::surface *);
-        void free_terrain(const ogl::terrain *);
 
         // Anonymous GL state.
 
