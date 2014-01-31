@@ -17,16 +17,10 @@
 
 //-----------------------------------------------------------------------------
 
-void ode_load_convex(const char *, std::vector<dReal>&,
-                                   std::vector<dReal>&,
-                                   std::vector<unsigned int>&);
-
-dGeomID ode_dupe_geom(dSpaceID, dGeomID);
-
-mat4 ode_get_body_transform(dBodyID);
-mat4 ode_get_geom_offset   (dGeomID);
-mat4 ode_get_geom_transform(dGeomID);
-void ode_set_geom_transform(dGeomID, const mat4&);
-void ode_set_mass_transform(dMass *, const mat4&);
+mat4 bBodyGetTransform(dBodyID);
+mat4 bGeomGetOffset   (dGeomID);
+mat4 bGeomGetTransform(dGeomID);
+void bGeomSetTransform(dGeomID, const mat4&);
+void bMassSetTransform(dMass *, const mat4&);
 
 //-----------------------------------------------------------------------------
