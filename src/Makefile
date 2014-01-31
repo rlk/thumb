@@ -48,6 +48,7 @@ OBJS=	app-data.o \
 	ogl-aabb.o \
 	ogl-binding.o \
 	ogl-buffer.o \
+	ogl-convex.o \
 	ogl-cookie.o \
 	ogl-cubelut.o \
 	ogl-d-omega.o \
