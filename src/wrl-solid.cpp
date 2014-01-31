@@ -15,11 +15,13 @@
 #include <ogl-pool.hpp>
 #include <wrl-solid.hpp>
 #include <app-data.hpp>
+#include <app-glob.hpp>
 
 //-----------------------------------------------------------------------------
 
-wrl::solid::solid(std::string fill,
-                  std::string line, bool center) : atom(fill, line, center)
+wrl::solid::solid(app::node node, std::string fill_name,
+                                  std::string line_name, bool center) :
+    atom(node, fill_name, line_name, center)
 {
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
@@ -32,71 +34,9 @@ wrl::solid::solid(std::string fill,
 
 //-----------------------------------------------------------------------------
 
-// Locate a convex hull definition for the named solid. If found, return the
-// name, else throw an exception.
-
-std::string wire_from_fill(std::string fill)
+dGeomID wrl::box::new_geom(dSpaceID space) const
 {
-    std::string::size_type pos;
-    std::string wire = fill;
-
-    if ((pos = wire.find("solid/")) != std::string::npos)
-    {
-        wire.replace(pos, 5, "wire");
-
-        if (::data->find(wire))
-            return wire;
-    }
-    throw std::runtime_error("Error creating convex solid: "
-                        + fill + " missing hull definition");
-    return fill;
-}
-
-//-----------------------------------------------------------------------------
-
-wrl::box::box(std::string fill, bool center)
-    : solid(fill, "wire/wire_box.obj", center)
-{
-    edit_geom = dCreateBox(0, 1.0, 1.0, 1.0);
-
-    dGeomSetData(edit_geom, this);
-
-    scale();
-}
-
-wrl::sphere::sphere(std::string fill, bool center)
-    : solid(fill, "wire/wire_sphere.obj", center)
-{
-    edit_geom = dCreateSphere(0, 1.0);
-
-    dGeomSetData(edit_geom, this);
-
-    scale();
-}
-
-wrl::convex::convex(std::string fill, bool center)
-    : solid(fill, wire_from_fill(fill), center)
-{
-    const char *obj = (const char *) ::data->load(wire_from_fill(fill));
-
-    ode_load_convex(obj, planes, points, polygons);
-
-    edit_geom = dCreateConvex(0, &planes.front(), planes.size() / 4,
-                                 &points.front(), points.size() / 3,
-                                 &polygons.front());
-
-    dGeomSetData(edit_geom, this);
-
-    scale();
-}
-
-//-----------------------------------------------------------------------------
-
-void wrl::box::scale()
-{
-    // Apply the scale of the fill geometry to the geom.
-
-    if (edit_geom && fill)
+    if (fill)
     {
         ogl::aabb bound;
 
@@ -105,20 +45,19 @@ void wrl::box::scale()
         vec3 d = bound.max()
                - bound.min();
 
-        line_scale = d / 2.0;
-
-        if (d[0] > 0 &&
-            d[1] > 0 &&
-            d[2] > 0)
-            dGeomBoxSetLengths(edit_geom, d[0], d[1], d[2]);
+        if (length(d) > 0)
+        {
+            dGeomID geom = dCreateBox(space, d[0], d[1], d[2]);
+            bGeomSetTransform(geom, default_M);
+            return geom;
+        }
     }
+    return 0;
 }
 
-void wrl::sphere::scale()
+dGeomID wrl::sphere::new_geom(dSpaceID space) const
 {
-    // Apply the scale of the fill geometry to the geom.
-
-    if (edit_geom && fill)
+    if (fill)
     {
         ogl::aabb bound;
 
@@ -129,22 +68,96 @@ void wrl::sphere::scale()
 
         double r = 0;
 
-        for (int i = 0; i < 3; ++i)
-        {
-            if (r < fabs(a[i])) r = fabs(a[i]);
-            if (r < fabs(z[i])) r = fabs(z[i]);
-        }
-
-        line_scale = vec3(r, r, r);
+        if (r < fabs(a[0])) r = fabs(a[0]);
+        if (r < fabs(z[0])) r = fabs(z[0]);
+        if (r < fabs(a[1])) r = fabs(a[1]);
+        if (r < fabs(z[1])) r = fabs(z[1]);
+        if (r < fabs(a[2])) r = fabs(a[2]);
+        if (r < fabs(z[2])) r = fabs(z[2]);
 
         if (r > 0)
-            dGeomSphereSetRadius(edit_geom, dReal(r));
+        {
+            dGeomID geom = dCreateSphere(space, dReal(r));
+            bGeomSetTransform(geom, default_M);
+            return geom;
+        }
     }
+    return 0;
 }
 
-void wrl::convex::scale()
+dGeomID wrl::convex::new_geom(dSpaceID space) const
 {
-    // Convex solids don't scale.
+    if (data)
+    {
+        dGeomID geom = dCreateConvex(space, data->get_planes(),
+                                            data->num_planes(),
+                                            data->get_points(),
+                                            data->num_points(),
+                                            data->get_polygons());
+        bGeomSetTransform(geom, default_M);
+        return geom;
+    }
+    return 0;
+}
+
+//-----------------------------------------------------------------------------
+
+wrl::convex::convex(const convex& that) : solid(that)
+{
+    data = ::glob->dupe_convex(that.data);
+}
+
+wrl::convex::~convex()
+{
+    ::glob->free_convex(data);
+}
+
+//-----------------------------------------------------------------------------
+
+wrl::box::box(app::node node) :
+    solid(node, node.find("file").get_s(), "wire/wire_box.obj", true)
+{
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
+}
+
+wrl::sphere::sphere(app::node node) :
+    solid(node, node.find("file").get_s(), "wire/wire_sphere.obj", true)
+{
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
+}
+
+wrl::convex::convex(app::node node) :
+    solid(node, node.find("file").get_s(), "", true)
+{
+    data = ::glob->load_convex(line_name);
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
+}
+
+//-----------------------------------------------------------------------------
+
+wrl::box::box(std::string name, bool center)
+    : solid(0, name, "wire/wire_box.obj", center)
+{
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
+}
+
+wrl::sphere::sphere(std::string name, bool center)
+    : solid(0, name, "wire/wire_sphere.obj", center)
+{
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
+}
+
+wrl::convex::convex(std::string name, bool center)
+    : solid(0, name, "", center)
+{
+    data = ::glob->load_convex(line_name);
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
 }
 
 //-----------------------------------------------------------------------------
@@ -159,7 +172,7 @@ void wrl::box::get_mass(dMass *mass)
     dGeomBoxGetLengths(edit_geom, v);
     dMassSetBox(mass, d, v[0], v[1], v[2]);
 
-    ode_set_mass_transform(mass, current_M);
+    bMassSetTransform(mass, current_M);
 }
 
 void wrl::sphere::get_mass(dMass *mass)
@@ -170,7 +183,7 @@ void wrl::sphere::get_mass(dMass *mass)
 
     dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
 
-    ode_set_mass_transform(mass, current_M);
+    bMassSetTransform(mass, current_M);
 }
 
 void wrl::convex::get_mass(dMass *mass)
@@ -179,14 +192,17 @@ void wrl::convex::get_mass(dMass *mass)
 
     // TODO: Calculate mass using trimesh.
 
-    dMassSetBox(mass, d, 1.0, 1.0, 1.0);
+    dMassSetSphere(mass, d, 1.0);
 
-    ode_set_mass_transform(mass, current_M);
+    bMassSetTransform(mass, current_M);
 }
 
 dGeomID wrl::solid::get_geom(dSpaceID space)
 {
-    return (play_geom = ode_dupe_geom(space, edit_geom));
+    if ((play_geom = new_geom(space)))
+        dGeomSetData(play_geom, this);
+
+    return play_geom;
 }
 
 //-----------------------------------------------------------------------------
@@ -231,9 +247,9 @@ void wrl::solid::play_init()
         mat4 M;
 
         if (body)
-            M = ode_get_geom_offset(play_geom);
+            M = bGeomGetOffset(play_geom);
         else
-            M = ode_get_geom_transform(edit_geom);
+            M = bGeomGetTransform(edit_geom);
 
         fill->transform(M, inverse(M));
     }
@@ -245,7 +261,7 @@ void wrl::solid::play_fini()
 
     if (fill)
     {
-        mat4 M = ode_get_geom_transform(edit_geom);
+        mat4 M = bGeomGetTransform(edit_geom);
 
         fill->transform(M, inverse(M));
     }
@@ -253,27 +269,14 @@ void wrl::solid::play_fini()
 
 //-----------------------------------------------------------------------------
 
-void wrl::solid::load(app::node node)
-{
-    // Load the OBJ file.
-
-    if (app::node n = node.find("file"))
-    {
-        name = n.get_s();
-        fill = new ogl::unit(name);
-        scale();
-    }
-    atom::load(node);
-}
-
 void wrl::solid::save(app::node node)
 {
     // Add the OBJ file reference.
 
-    if (!name.empty())
+    if (!fill_name.empty())
     {
         app::node n("file");
-        n.set_s(name);
+        n.set_s(fill_name);
         n.insert(node);
     }
     atom::save(node);

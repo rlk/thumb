@@ -25,8 +25,6 @@ namespace wrl
     public:
 
         light(std::string);
-
-        virtual void load(app::node);
     };
 
     //-------------------------------------------------------------------------

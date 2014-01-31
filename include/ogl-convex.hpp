@@ -40,8 +40,8 @@ namespace ogl
         double       *get_planes  () { return   &planes.front(); }
         unsigned int *get_polygons() { return &polygons.front(); }
 
-        unsigned int num_points() const { return points.size(); }
-        unsigned int num_planes() const { return planes.size(); }
+        unsigned int num_points() const { return points.size() / 3; }
+        unsigned int num_planes() const { return planes.size() / 4; }
     };
 }
 

@@ -444,7 +444,7 @@ void wrl::world::play_step(double dt)
     for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
         if (dBodyID body = b->second)
             if (ogl::node *node = (ogl::node *) dBodyGetData(body))
-                node->transform(ode_get_body_transform(body));
+                node->transform(bBodyGetTransform(body));
 }
 
 //-----------------------------------------------------------------------------
@@ -844,7 +844,7 @@ void wrl::world::load(std::string name)
 
             // Allow the new joint to parse its own attributes.
 
-            a->load(n);
+            // a->load(n);
 
             // Select the new joint for addition to the world.
 
@@ -865,7 +865,7 @@ void wrl::world::load(std::string name)
 
             // Allow the new light to parse its own attributes.
 
-            a->load(n);
+            // a->load(n);
 
             // Select the new light for addition to the world.
 

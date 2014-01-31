@@ -17,14 +17,14 @@
 //-----------------------------------------------------------------------------
 
 wrl::joint::joint(std::string fill, std::string line) :
-    atom(fill, line), join_id(0)
+    atom(0, fill, line), join_id(0)
 {
     edit_geom = dCreateSphere(0, dReal(0.25));
 
     line_scale[0] = line_scale[1] = line_scale[2] = 0.25;
 
     dGeomSetData(edit_geom, this);
-    ode_set_geom_transform(edit_geom, current_M);
+    bGeomSetTransform(edit_geom, current_M);
 }
 
 //-----------------------------------------------------------------------------
@@ -321,7 +321,7 @@ void wrl::universal::step_init()
 }
 
 //-----------------------------------------------------------------------------
-
+#if 0
 void wrl::joint::load(app::node node)
 {
     if (app::node n = node.find("join"))
@@ -329,6 +329,7 @@ void wrl::joint::load(app::node node)
 
     atom::load(node);
 }
+#endif
 
 void wrl::joint::save(app::node node)
 {

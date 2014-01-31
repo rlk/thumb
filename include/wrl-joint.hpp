@@ -39,7 +39,6 @@ namespace wrl
 
         // File I/O
 
-        virtual void load(app::node);
         virtual void save(app::node);
 
     protected:

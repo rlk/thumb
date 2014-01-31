@@ -16,19 +16,85 @@
 #include <wrl-atom.hpp>
 #include <ogl-pool.hpp>
 #include <app-glob.hpp>
+#include <app-data.hpp>
 
 //-----------------------------------------------------------------------------
 
-wrl::atom::atom(std::string fill_name,
-                std::string line_name, bool center) :
-    edit_geom(0), body_id(0), name(fill_name), fill(0), line(0)
-{
-    line_scale = vec3(1, 1, 1);
+// Locate a wire frame object for the named solid.
 
-    if (fill_name.size()) fill = new ogl::unit(fill_name, center);
-    if (line_name.size()) line = new ogl::unit(line_name, center);
+static std::string line_from_fill(std::string fill)
+{
+    std::string::size_type p;
+    std::string line = fill;
+
+    if ((p = line.find("solid/")) != std::string::npos)
+    {
+        line.replace(p, 5, "wire");
+
+        if (::data->find(line))
+            return line;
+    }
+    return fill;
 }
 
+//-----------------------------------------------------------------------------
+
+wrl::atom::atom(app::node node, std::string _fill_name,
+                                std::string _line_name, bool center) :
+    edit_geom(0),
+    body_id(0),
+    fill_name(_fill_name),
+    line_name(_line_name),
+    fill(0),
+    line(0)
+{
+    // Load the named file and line units.
+
+    line_scale = vec3(1, 1, 1);
+
+    if (!fill_name.empty() &
+         line_name.empty()) line_name = line_from_fill(fill_name);
+
+    if (!fill_name.empty()) fill = new ogl::unit(fill_name, center);
+    if (!line_name.empty()) line = new ogl::unit(line_name, center);
+
+    // Initialize the transform and body mappings.
+
+    if (node)
+    {
+        app::node n;
+
+        quat q;
+        vec3 p;
+
+        if ((n = node.find("rot_x"))) q[0] = n.get_f();
+        if ((n = node.find("rot_y"))) q[1] = n.get_f();
+        if ((n = node.find("rot_z"))) q[2] = n.get_f();
+        if ((n = node.find("rot_w"))) q[3] = n.get_f();
+
+        if ((n = node.find("pos_x"))) p[0] = n.get_f();
+        if ((n = node.find("pos_y"))) p[1] = n.get_f();
+        if ((n = node.find("pos_z"))) p[2] = n.get_f();
+
+        if ((n = node.find("body"))) body_id = n.get_i();
+
+        // Compute and apply the transform.
+
+        current_M = mat4(mat3(q));
+
+        current_M[0][3] = p[0];
+        current_M[1][3] = p[1];
+        current_M[2][3] = p[2];
+
+        default_M = current_M;
+
+        // Initialize parameters.
+
+        for (param_map::iterator i = params.begin(); i != params.end(); ++i)
+            i->second->load(node);
+    }
+}
+#if 0
 wrl::atom::atom(const atom& that) : fill(0), line(0)
 {
     param_map::const_iterator i;
@@ -39,9 +105,8 @@ wrl::atom::atom(const atom& that) : fill(0), line(0)
 
     // Duplicate ODE state.
 
-    edit_geom = ode_dupe_geom(0, that.edit_geom);
-
-    dGeomSetData(edit_geom, this);
+    edit_geom = that.new_geom(0);
+    if (edit_geom) dGeomSetData(edit_geom, this);
 
     // Duplicate GL state.
 
@@ -55,6 +120,7 @@ wrl::atom::atom(const atom& that) : fill(0), line(0)
     for (i = that.params.begin(); i != that.params.end(); ++i)
         params[i->first] = new param(*i->second);
 }
+#endif
 
 wrl::atom::~atom()
 {
@@ -124,7 +190,7 @@ void wrl::atom::transform(const mat4& T)
     current_M = M;
     default_M = M;
 
-    ode_set_geom_transform(edit_geom, M);
+    bGeomSetTransform(edit_geom, M);
 
     // Apply the current transform to the fill and line units.
 
@@ -173,42 +239,6 @@ bool wrl::atom::get_param(int key, std::string& expr)
 }
 
 //-----------------------------------------------------------------------------
-
-void wrl::atom::load(app::node node)
-{
-    app::node n;
-
-    quat q;
-    vec3 p;
-
-    // Initialize the transform and body mappings.
-
-    if ((n = node.find("rot_x"))) q[0] = n.get_f();
-    if ((n = node.find("rot_y"))) q[1] = n.get_f();
-    if ((n = node.find("rot_z"))) q[2] = n.get_f();
-    if ((n = node.find("rot_w"))) q[3] = n.get_f();
-
-    if ((n = node.find("pos_x"))) p[0] = n.get_f();
-    if ((n = node.find("pos_y"))) p[1] = n.get_f();
-    if ((n = node.find("pos_z"))) p[2] = n.get_f();
-
-    if ((n = node.find("body"))) body_id = n.get_i();
-
-    // Compute and apply the transform.
-
-    current_M = mat4(mat3(q));
-
-    current_M[0][3] = p[0];
-    current_M[1][3] = p[1];
-    current_M[2][3] = p[2];
-
-    default_M = current_M;
-
-    // Initialize parameters.
-
-    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
-        i->second->load(node);
-}
 
 void wrl::atom::save(app::node node)
 {

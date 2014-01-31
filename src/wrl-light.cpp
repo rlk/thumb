@@ -100,20 +100,19 @@ void wrl::s_light::play_fini()
 }
 
 //-----------------------------------------------------------------------------
-
+#if 0
 void wrl::light::load(app::node node)
 {
     // Load the OBJ file.
 
     if (app::node n = node.find("file"))
     {
-        name = n.get_s();
-        fill = new ogl::unit(name, false);
+        fill_name = n.get_s();
+        fill = new ogl::unit(fill_name, false);
         fill->set_ubiq(true);
-        scale();
     }
-    atom::load(node); // Skip solid::load.
 }
+#endif
 
 void wrl::d_light::save(app::node node)
 {

@@ -16,6 +16,7 @@
 #include <app-file.hpp>
 #include <wrl-param.hpp>
 #include <wrl-atom.hpp>
+#include <ogl-convex.hpp>
 
 //-----------------------------------------------------------------------------
 
@@ -25,13 +26,11 @@ namespace wrl
     {
     protected:
 
-        virtual void scale() = 0;
-
         dGeomID play_geom;
 
     public:
 
-        solid(std::string, std::string, bool=true);
+        solid(app::node, std::string, std::string, bool=true);
 
         // Physics initialization methods
 
@@ -44,7 +43,6 @@ namespace wrl
 
         // File I/O
 
-        virtual void load(app::node);
         virtual void save(app::node);
     };
 
@@ -55,10 +53,11 @@ namespace wrl
     {
     protected:
 
-        virtual void scale();
+        virtual dGeomID new_geom(dSpaceID) const;
 
     public:
 
+        box(app::node);
         box(std::string, bool=true);
 
         virtual box *clone() const { return new box(*this); }
@@ -79,10 +78,11 @@ namespace wrl
     {
     protected:
 
-        virtual void scale();
+        virtual dGeomID new_geom(dSpaceID) const;
 
     public:
 
+        sphere(app::node);
         sphere(std::string, bool=true);
 
         virtual sphere *clone() const { return new sphere(*this); }
@@ -103,17 +103,19 @@ namespace wrl
     {
     private:
 
-        std::vector<dReal>        points;
-        std::vector<dReal>        planes;
-        std::vector<unsigned int> polygons;
-
     protected:
 
-        virtual void scale();
+        ogl::convex *data;
+
+        virtual dGeomID new_geom(dSpaceID) const;
 
     public:
 
+        convex(const convex&);
+        convex(app::node);
         convex(std::string, bool=true);
+
+        virtual ~convex();
 
         virtual convex *clone() const { return new convex(*this); }
 

@@ -41,8 +41,7 @@ namespace wrl
     {
     public:
 
-        atom(std::string, std::string, bool=true);
-        atom(const atom&);
+        atom(app::node, std::string, std::string, bool=true);
 
         virtual atom *clone() const = 0;
 
@@ -90,7 +89,6 @@ namespace wrl
 
         // File I/O
 
-        virtual void load(app::node);
         virtual void save(app::node);
 
         virtual ~atom();
@@ -99,11 +97,14 @@ namespace wrl
 
     protected:
 
+        virtual dGeomID new_geom(dSpaceID) const { return 0; }
+
         dGeomID edit_geom;
 
         int body_id;
 
-        std::string name;
+        std::string fill_name;
+        std::string line_name;
         ogl::unit  *fill;
         ogl::unit  *line;
 
