@@ -262,6 +262,8 @@ void wrl::constraint::draw(int frusi)
 
     ogl::line_state_init();
     {
+        glEnable(GL_DEPTH_CLAMP);
+        glDepthFunc(GL_LEQUAL);
         glPushMatrix();
         {
             glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
@@ -280,6 +282,8 @@ void wrl::constraint::draw(int frusi)
             glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
         }
         glPopMatrix();
+        glDepthFunc(GL_LESS);
+        glDisable(GL_DEPTH_CLAMP);
     }
     ogl::line_state_fini();
 }
