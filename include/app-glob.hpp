@@ -29,6 +29,7 @@ namespace ogl
     class texture;
     class binding;
     class surface;
+    class convex;
     class image;
     class frame;
     class pool;
@@ -76,12 +77,19 @@ namespace app
             int           ref;
         };
 
+        struct convex
+        {
+            ogl::convex  *ptr;
+            int           ref;
+        };
+
         std::map<std::string, uniform> uniform_map;
         std::map<std::string, program> program_map;
         std::map<std::string, process> process_map;
         std::map<std::string, texture> texture_map;
         std::map<std::string, binding> binding_map;
         std::map<std::string, surface> surface_map;
+        std::map<std::string, convex>   convex_map;
 
         std::set<ogl::pool  *>  pool_set;
         std::set<ogl::image *> image_set;
@@ -102,6 +110,7 @@ namespace app
         const ogl::texture *load_texture(const std::string&, const std::string&);
         const ogl::binding *load_binding(const std::string&, const std::string&);
         const ogl::surface *load_surface(const std::string&, bool);
+              ogl::convex  *load_convex (const std::string&);
 
               ogl::uniform *dupe_uniform(      ogl::uniform *);
               ogl::process *dupe_process(      ogl::process *);
@@ -109,6 +118,7 @@ namespace app
         const ogl::texture *dupe_texture(const ogl::texture *);
         const ogl::binding *dupe_binding(const ogl::binding *);
         const ogl::surface *dupe_surface(const ogl::surface *);
+              ogl::convex  *dupe_convex (const ogl::convex  *);
 
         void free_uniform(const std::string&);
         void free_program(const std::string&);
@@ -116,6 +126,7 @@ namespace app
         void free_texture(const std::string&);
         void free_binding(const std::string&);
         void free_surface(const std::string&);
+        void free_convex (const std::string&);
 
         void free_uniform(const ogl::uniform *);
         void free_process(const ogl::process *);
@@ -123,6 +134,7 @@ namespace app
         void free_texture(const ogl::texture *);
         void free_binding(const ogl::binding *);
         void free_surface(const ogl::surface *);
+        void free_convex (const ogl::convex  *);
 
         // Anonymous GL state.
 

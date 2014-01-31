@@ -27,6 +27,8 @@
 #include <ogl-texture.hpp>
 #include <ogl-binding.hpp>
 #include <ogl-surface.hpp>
+#include <ogl-surface.hpp>
+#include <ogl-convex.hpp>
 
 #include <ogl-image.hpp>
 #include <ogl-frame.hpp>
@@ -49,43 +51,19 @@ void app::glob::dump()
     // Print the number of cached objects, with names, if possible. This
     // helps track down resource leaks.
 
-    if (size_t qc =  pool_set.size()) printf("%3zu pools\n",  qc);
-    if (size_t ic = image_set.size()) printf("%3zu images\n", ic);
-    if (size_t fc = frame_set.size()) printf("%3zu frames\n", fc);
-
-    std::map<std::string, surface>::iterator si;
-    std::map<std::string, binding>::iterator bi;
-    std::map<std::string, texture>::iterator ti;
-    std::map<std::string, program>::iterator pi;
-    std::map<std::string, process>::iterator qi;
     std::map<std::string, uniform>::iterator ui;
+    std::map<std::string, process>::iterator qi;
+    std::map<std::string, program>::iterator pi;
+    std::map<std::string, texture>::iterator ti;
+    std::map<std::string, binding>::iterator bi;
+    std::map<std::string, surface>::iterator si;
+    std::map<std::string, convex >::iterator ci;
 
-    if (size_t sc = surface_map.size())
+    if (size_t uc = uniform_map.size())
     {
-        printf("%3zu surfaces\n", sc);
-        for (si = surface_map.begin(); si != surface_map.end(); ++si)
-            printf("    %s\n", si->second.ptr->get_name().c_str());
-    }
-
-    if (size_t bc = binding_map.size())
-    {
-        printf("%3zu bindings\n", bc);
-        for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
-            printf("    %s\n", bi->second.ptr->get_name().c_str());
-    }
-
-    if (size_t tc = texture_map.size())
-    {
-        printf("%3zu textures\n", tc);
-        for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
-            printf("    %s\n", ti->second.ptr->get_name().c_str());
-    }
-
-    if (size_t pc = program_map.size())
-    {
-        printf("%3zu programs\n", pc);
-        for (pi = program_map.begin(); pi != program_map.end(); ++pi)
-            printf("    %s\n", pi->second.ptr->get_name().c_str());
+        printf("%3zu uniforms\n", uc);
+        for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
+            printf("    %s\n", ui->second.ptr->get_name().c_str());
     }
 
     if (size_t qc = process_map.size())
@@ -95,12 +73,44 @@ void app::glob::dump()
             printf("    %s\n", qi->second.ptr->get_name().c_str());
     }
 
-    if (size_t uc = uniform_map.size())
+    if (size_t pc = program_map.size())
     {
-        printf("%3zu uniforms\n", uc);
-        for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
-            printf("    %s\n", ui->second.ptr->get_name().c_str());
+        printf("%3zu programs\n", pc);
+        for (pi = program_map.begin(); pi != program_map.end(); ++pi)
+            printf("    %s\n", pi->second.ptr->get_name().c_str());
     }
+
+    if (size_t tc = texture_map.size())
+    {
+        printf("%3zu textures\n", tc);
+        for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
+            printf("    %s\n", ti->second.ptr->get_name().c_str());
+    }
+
+    if (size_t bc = binding_map.size())
+    {
+        printf("%3zu bindings\n", bc);
+        for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
+            printf("    %s\n", bi->second.ptr->get_name().c_str());
+    }
+
+    if (size_t sc = surface_map.size())
+    {
+        printf("%3zu surfaces\n", sc);
+        for (si = surface_map.begin(); si != surface_map.end(); ++si)
+            printf("    %s\n", si->second.ptr->get_name().c_str());
+    }
+
+    if (size_t cc = convex_map.size())
+    {
+        printf("%3zu convexes\n", cc);
+        for (ci = convex_map.begin(); ci != convex_map.end(); ++ci)
+            printf("    %s\n", ci->second.ptr->get_name().c_str());
+    }
+
+    if (size_t qc =  pool_set.size()) printf("%3zu pools\n",  qc);
+    if (size_t ic = image_set.size()) printf("%3zu images\n", ic);
+    if (size_t fc = frame_set.size()) printf("%3zu frames\n", fc);
 }
 
 app::glob::~glob()
@@ -492,6 +502,64 @@ void app::glob::free_surface(const std::string& name)
 void app::glob::free_surface(const ogl::surface *p)
 {
     if (p) free_surface(p->get_name());
+}
+
+//-----------------------------------------------------------------------------
+
+ogl::convex *app::glob::load_convex(const std::string& name)
+{
+    if (convex_map.find(name) == convex_map.end())
+    {
+        try
+        {
+            if (ogl::convex *p = new ogl::convex(name))
+            {
+                convex_map[name].ptr = p;
+                convex_map[name].ref = 1;
+            }
+        }
+        catch (std::runtime_error& e)
+        {
+            return 0;
+        }
+    }
+    else   convex_map[name].ref++;
+
+    return convex_map[name].ptr;
+}
+
+ogl::convex *app::glob::dupe_convex(const ogl::convex *p)
+{
+    if (p)
+    {
+        const std::string& name = p->get_name();
+
+        if (convex_map.find(name) != convex_map.end())
+        {
+            convex_map[name].ref++;
+            return convex_map[name].ptr;
+        }
+    }
+    return 0;
+}
+
+void app::glob::free_convex(const std::string& name)
+{
+    std::map<std::string, convex>::iterator i;
+
+    if ((i = convex_map.find(name)) != convex_map.end())
+    {
+        if (--i->second.ref == 0)
+        {
+            delete i->second.ptr;
+            convex_map.erase(i);
+        }
+    }
+}
+
+void app::glob::free_convex(const ogl::convex *p)
+{
+    if (p) free_convex(p->get_name());
 }
 
 //-----------------------------------------------------------------------------
