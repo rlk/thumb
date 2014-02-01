@@ -36,51 +36,37 @@ wrl::solid::solid(app::node node, std::string fill_name,
 
 dGeomID wrl::box::new_geom(dSpaceID space) const
 {
-    if (fill)
+    vec3 d = fill_bound.max()
+           - fill_bound.min();
+
+    if (length(d) > 0)
     {
-        ogl::aabb bound;
-
-        fill->merge_bound(bound);
-
-        vec3 d = bound.max()
-               - bound.min();
-
-        if (length(d) > 0)
-        {
-            dGeomID geom = dCreateBox(space, d[0], d[1], d[2]);
-            bGeomSetTransform(geom, default_M);
-            return geom;
-        }
+        dGeomID geom = dCreateBox(space, d[0], d[1], d[2]);
+        bGeomSetTransform(geom, default_M);
+        return geom;
     }
     return 0;
 }
 
 dGeomID wrl::sphere::new_geom(dSpaceID space) const
 {
-    if (fill)
+    vec3 a = fill_bound.min();
+    vec3 z = fill_bound.max();
+
+    double r = 0;
+
+    if (r < fabs(a[0])) r = fabs(a[0]);
+    if (r < fabs(z[0])) r = fabs(z[0]);
+    if (r < fabs(a[1])) r = fabs(a[1]);
+    if (r < fabs(z[1])) r = fabs(z[1]);
+    if (r < fabs(a[2])) r = fabs(a[2]);
+    if (r < fabs(z[2])) r = fabs(z[2]);
+
+    if (r > 0)
     {
-        ogl::aabb bound;
-
-        fill->merge_bound(bound);
-
-        vec3 a = bound.min();
-        vec3 z = bound.max();
-
-        double r = 0;
-
-        if (r < fabs(a[0])) r = fabs(a[0]);
-        if (r < fabs(z[0])) r = fabs(z[0]);
-        if (r < fabs(a[1])) r = fabs(a[1]);
-        if (r < fabs(z[1])) r = fabs(z[1]);
-        if (r < fabs(a[2])) r = fabs(a[2]);
-        if (r < fabs(z[2])) r = fabs(z[2]);
-
-        if (r > 0)
-        {
-            dGeomID geom = dCreateSphere(space, dReal(r));
-            bGeomSetTransform(geom, default_M);
-            return geom;
-        }
+        dGeomID geom = dCreateSphere(space, dReal(r));
+        bGeomSetTransform(geom, default_M);
+        return geom;
     }
     return 0;
 }
@@ -117,6 +103,7 @@ wrl::convex::~convex()
 wrl::box::box(app::node node) :
     solid(node, node.find("file").get_s(), "wire/wire_box.obj", true)
 {
+    line_scale = fill_bound.length() / 2.0;
     if ((edit_geom = new_geom(0)))
         dGeomSetData(edit_geom, this);
 }
@@ -124,6 +111,7 @@ wrl::box::box(app::node node) :
 wrl::sphere::sphere(app::node node) :
     solid(node, node.find("file").get_s(), "wire/wire_sphere.obj", true)
 {
+    line_scale = fill_bound.length() / 2.0;
     if ((edit_geom = new_geom(0)))
         dGeomSetData(edit_geom, this);
 }
@@ -141,6 +129,7 @@ wrl::convex::convex(app::node node) :
 wrl::box::box(std::string name, bool center)
     : solid(0, name, "wire/wire_box.obj", center)
 {
+    line_scale = fill_bound.length() / 2.0;
     if ((edit_geom = new_geom(0)))
         dGeomSetData(edit_geom, this);
 }
@@ -148,6 +137,7 @@ wrl::box::box(std::string name, bool center)
 wrl::sphere::sphere(std::string name, bool center)
     : solid(0, name, "wire/wire_sphere.obj", center)
 {
+    line_scale = fill_bound.length() / 2.0;
     if ((edit_geom = new_geom(0)))
         dGeomSetData(edit_geom, this);
 }
@@ -190,11 +180,20 @@ void wrl::convex::get_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
 
-    // TODO: Calculate mass using trimesh.
+    // Compute the mass of this convex using ODE's trimesh mass calculator.
 
-    dMassSetSphere(mass, d, 1.0);
+    dTriMeshDataID id = dGeomTriMeshDataCreate();
+    dGeomTriMeshDataBuildSingle(id, data->get_vertices(), 3 * sizeof (float),
+                                    data->num_vertices(),
+                                    data->get_indices(),
+                                    data->num_indices(), 3 * sizeof (unsigned int));
 
+    dGeomID tm = dCreateTriMesh(0, id, 0, 0, 0);
+    dMassSetTrimesh(mass, d, tm);
     bMassSetTransform(mass, current_M);
+
+    dGeomDestroy(tm);
+    dGeomTriMeshDataDestroy(id);
 }
 
 dGeomID wrl::solid::get_geom(dSpaceID space)

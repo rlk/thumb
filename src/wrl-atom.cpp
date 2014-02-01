@@ -46,17 +46,19 @@ wrl::atom::atom(app::node node, std::string _fill_name,
     fill_name(_fill_name),
     line_name(_line_name),
     fill(0),
-    line(0)
+    line(0),
+    line_scale(1, 1, 1)
 {
     // Load the named file and line units.
-
-    line_scale = vec3(1, 1, 1);
 
     if (!fill_name.empty() &
          line_name.empty()) line_name = line_from_fill(fill_name);
 
     if (!fill_name.empty()) fill = new ogl::unit(fill_name, center);
     if (!line_name.empty()) line = new ogl::unit(line_name, center);
+
+    fill->merge_bound(fill_bound);
+    line->merge_bound(line_bound);
 
     // Initialize the transform and body mappings.
 

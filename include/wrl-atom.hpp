@@ -18,6 +18,7 @@
 
 #include <etc-vector.hpp>
 #include <etc-ode.hpp>
+#include <ogl-aabb.hpp>
 #include <app-file.hpp>
 #include <wrl-param.hpp>
 
@@ -105,10 +106,10 @@ namespace wrl
 
         std::string fill_name;
         std::string line_name;
+        ogl::aabb   fill_bound;
+        ogl::aabb   line_bound;
         ogl::unit  *fill;
         ogl::unit  *line;
-
-        vec3 line_scale;
 
         param_map params;
 
@@ -116,6 +117,7 @@ namespace wrl
 
         mat4 default_M;
         mat4 current_M;
+        vec3 line_scale;
     };
 
     //-------------------------------------------------------------------------
