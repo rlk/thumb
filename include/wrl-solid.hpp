@@ -99,8 +99,6 @@ namespace wrl
 
     class convex : public solid
     {
-    private:
-
     protected:
 
         ogl::convex *data;

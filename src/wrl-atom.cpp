@@ -97,11 +97,6 @@ wrl::atom::atom(app::node node, std::string _fill_name,
         current_M[2][3] = p[2];
 
         default_M = current_M;
-
-        // Initialize parameters.
-
-        for (param_map::iterator i = params.begin(); i != params.end(); ++i)
-            i->second->load(node);
     }
 
     if (fill_name.empty() &&
@@ -257,10 +252,23 @@ void wrl::atom::save(app::node node)
         n.insert(node);
     }
 
-    // Add entity parameters to this element.
+    save_params(node);
+}
 
-    for (param_map::iterator i = params.begin(); i != params.end(); ++i)
-        i->second->save(node);
+//-----------------------------------------------------------------------------
+
+void wrl::atom::save_params(app::node node)
+{
+    if (node)
+        for (param_map::iterator i = params.begin(); i != params.end(); ++i)
+            i->second->save(node);
+}
+
+void wrl::atom::load_params(app::node node)
+{
+    if (node)
+        for (param_map::iterator i = params.begin(); i != params.end(); ++i)
+            i->second->load(node);
 }
 
 //-----------------------------------------------------------------------------

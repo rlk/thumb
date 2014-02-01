@@ -23,8 +23,6 @@ wrl::solid::solid(app::node node, std::string _fill_name,
                                   std::string _line_name) :
     atom(node, _fill_name, _line_name)
 {
-    // TODO: these override the file values.
-
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
     params[param::density]  = new param("density",  "1.0");
@@ -32,6 +30,8 @@ wrl::solid::solid(app::node node, std::string _fill_name,
     params[param::bounce]   = new param("bounce",   "0.5");
     params[param::soft_erp] = new param("soft_erp", "0.2");
     params[param::soft_cfm] = new param("soft_cfm", "0.0");
+
+    load_params(node);
 }
 
 wrl::box::box(app::node node, std::string _fill_name) :

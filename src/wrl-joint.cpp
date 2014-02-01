@@ -51,6 +51,8 @@ wrl::hinge::hinge(app::node node) :
     params[dParamHiStop]   = new param("dParamHiStop",   "inf");
     params[dParamStopERP]  = new param("dParamStopERP",  "0.2");
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
+
+    load_params(node);
 }
 
 wrl::hinge2::hinge2(app::node node) :
@@ -76,6 +78,8 @@ wrl::hinge2::hinge2(app::node node) :
 
     params[dParamSuspensionERP] = new param("dParamSuspensionERP", "0.2");
     params[dParamSuspensionCFM] = new param("dParamSuspensionCFM", "0.0");
+
+    load_params(node);
 }
 
 wrl::slider::slider(app::node node) :
@@ -89,6 +93,8 @@ wrl::slider::slider(app::node node) :
     params[dParamHiStop]   = new param("dParamHiStop",   "inf");
     params[dParamStopERP]  = new param("dParamStopERP",  "0.2");
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
+
+    load_params(node);
 }
 
 wrl::amotor::amotor(app::node node) :
@@ -120,6 +126,8 @@ wrl::amotor::amotor(app::node node) :
     params[dParamHiStop3]  = new param("dParamHiStop3",  "inf");
     params[dParamStopERP3] = new param("dParamStopERP3", "0.2");
     params[dParamStopCFM3] = new param("dParamStopCFM3", "0.0");
+
+    load_params(node);
 }
 
 wrl::universal::universal(app::node node) :
@@ -142,6 +150,8 @@ wrl::universal::universal(app::node node) :
     params[dParamHiStop2]  = new param("dParamHiStop2",  "inf");
     params[dParamStopERP2] = new param("dParamStopERP2", "0.2");
     params[dParamStopCFM2] = new param("dParamStopCFM2", "0.0");
+
+    load_params(node);
 }
 
 //-----------------------------------------------------------------------------
@@ -327,13 +337,6 @@ void wrl::universal::step_init()
 }
 
 //-----------------------------------------------------------------------------
-#if 0
-void wrl::joint::load(app::node node)
-{
-
-    atom::load(node);
-}
-#endif
 
 void wrl::joint::save(app::node node)
 {

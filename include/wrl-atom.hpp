@@ -104,6 +104,8 @@ namespace wrl
 
         int body_id;
 
+        // Visual representations.
+
         std::string fill_name;
         std::string line_name;
         ogl::aabb   fill_bound;
@@ -111,6 +113,10 @@ namespace wrl
         ogl::unit  *fill;
         ogl::unit  *line;
 
+        // Physical system parameters
+
+        void load_params(app::node);
+        void save_params(app::node);
         param_map params;
 
         // Transform handlers

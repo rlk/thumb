@@ -26,6 +26,8 @@ wrl::d_light::d_light(app::node node, std::string name) : light(node, name)
         fill->set_ubiq(true);
 
     params[param::brightness]  = new param("brightness",  "1.0");
+
+    load_params(node);
 }
 
 wrl::s_light::s_light(app::node node, std::string name) : light(node, name)
@@ -33,6 +35,8 @@ wrl::s_light::s_light(app::node node, std::string name) : light(node, name)
     params[param::brightness]  = new param("brightness",  "1.0");
     params[param::attenuation] = new param("attenuation", "0.0");
     params[param::cutoff]      = new param("cutoff",     "90.0");
+
+    load_params(node);
 }
 
 //-----------------------------------------------------------------------------
@@ -100,19 +104,6 @@ void wrl::s_light::play_fini()
 }
 
 //-----------------------------------------------------------------------------
-#if 0
-void wrl::light::load(app::node node)
-{
-    // Load the OBJ file.
-
-    if (app::node n = node.find("file"))
-    {
-        fill_name = n.get_s();
-        fill = new ogl::unit(fill_name, false);
-        fill->set_ubiq(true);
-    }
-}
-#endif
 
 void wrl::d_light::save(app::node node)
 {
