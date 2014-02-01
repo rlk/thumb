@@ -27,6 +27,7 @@ ogl::convex::convex(std::string name) : name(name)
     ::data->free(name);
 
     unsigned int i;
+    unsigned int j;
     vec3         v;
 
     // Parse the given string as an OBJ.
@@ -38,22 +39,43 @@ ogl::convex::convex(std::string name) : name(name)
 
         cmd >> key;
 
+        // Read the three coordinates of a vertex.
+
         if      (key == "v")
         {
             cmd >> v[0] >> v[1] >> v[2];
-            points.push_back(v[0]);
-            points.push_back(v[1]);
-            points.push_back(v[2]);
+
+            points.push_back(double(v[0]));
+            points.push_back(double(v[1]));
+            points.push_back(double(v[2]));
+
+            vertices.push_back(float(v[0]));
+            vertices.push_back(float(v[1]));
+            vertices.push_back(float(v[2]));
         }
+
+        // Read the list of indices of a face.
+
         else if (key == "l")
         {
-            std::vector<unsigned int> indices;
+            std::vector<unsigned int> d;
 
             while (cmd >> i)
-                indices.push_back(i - 1);
+                d.push_back(i - 1);
 
-            polygons.insert(polygons.end(), indices.size() - 1);
-            polygons.insert(polygons.end(), indices.begin(), indices.end() - 1);
+            // Store the indices as a polygon.
+
+            polygons.insert(polygons.end(), d.size() - 1);
+            polygons.insert(polygons.end(), d.begin(), d.end() - 1);
+
+            // Store the indices as an array of triangles.
+
+            for (j = 0; j < d.size() - 3; ++j)
+            {
+                indices.push_back(d[0]);
+                indices.push_back(d[j + 1]);
+                indices.push_back(d[j + 2]);
+            }
         }
     }
 
@@ -61,31 +83,31 @@ ogl::convex::convex(std::string name) : name(name)
     {
         // Compute the bounding volume of the point cloud.
 
-        vec3 a;
-        vec3 b;
+        vec3 p;
+        vec3 q;
 
-        a[0] = b[0] = points[0];
-        a[1] = b[1] = points[1];
-        a[2] = b[2] = points[2];
+        p[0] = q[0] = points[0];
+        p[1] = q[1] = points[1];
+        p[2] = q[2] = points[2];
 
         for (i = 0; i < points.size(); i += 3)
         {
-            if (points[i + 0] < a[0]) a[0] = points[i + 0];
-            if (points[i + 1] < a[1]) a[1] = points[i + 1];
-            if (points[i + 2] < a[2]) a[2] = points[i + 2];
+            if (points[i + 0] < p[0]) p[0] = points[i + 0];
+            if (points[i + 1] < p[1]) p[1] = points[i + 1];
+            if (points[i + 2] < p[2]) p[2] = points[i + 2];
 
-            if (points[i + 0] > b[0]) b[0] = points[i + 0];
-            if (points[i + 1] > b[1]) b[1] = points[i + 1];
-            if (points[i + 2] > b[2]) b[2] = points[i + 2];
+            if (points[i + 0] > q[0]) q[0] = points[i + 0];
+            if (points[i + 1] > q[1]) q[1] = points[i + 1];
+            if (points[i + 2] > q[2]) q[2] = points[i + 2];
         }
 
         // Center the point cloud on the origin.
 
         for (i = 0; i < points.size(); i+= 3)
         {
-            points[i + 0] -= (b[0] + a[0]) / 2;
-            points[i + 1] -= (b[1] + a[1]) / 2;
-            points[i + 2] -= (b[2] + a[2]) / 2;
+            points[i + 0] -= (p[0] + q[0]) / 2.0;
+            points[i + 1] -= (p[1] + q[1]) / 2.0;
+            points[i + 2] -= (p[2] + q[2]) / 2.0;
         }
 
         // Compute the plane of each polygon.
@@ -99,7 +121,7 @@ ogl::convex::convex(std::string name) : name(name)
 
             vec3 u;
             vec3 v;
-            vec4 p;
+            vec3 w;
 
             u[0] = points[b * 3 + 0] - points[a * 3 + 0];
             u[1] = points[b * 3 + 1] - points[a * 3 + 1];
@@ -109,23 +131,18 @@ ogl::convex::convex(std::string name) : name(name)
             v[1] = points[c * 3 + 1] - points[a * 3 + 1];
             v[2] = points[c * 3 + 2] - points[a * 3 + 2];
 
-            p[0] = u[1] * v[2] - u[2] * v[1];
-            p[1] = u[2] * v[0] - u[0] * v[2];
-            p[2] = u[0] * v[1] - u[1] * v[0];
+            w[0] = u[1] * v[2] - u[2] * v[1];
+            w[1] = u[2] * v[0] - u[0] * v[2];
+            w[2] = u[0] * v[1] - u[1] * v[0];
 
-            double d = double(sqrt(p[0] * p[0] + p[1] * p[1] + p[2] * p[2]));
+            double d = double(sqrt(w[0] * w[0] + w[1] * w[1] + w[2] * w[2]));
 
-            p[0] /= d;
-            p[1] /= d;
-            p[2] /= d;
-            p[3]  = p[0] * points[a * 3 + 0]
-                  + p[1] * points[a * 3 + 1]
-                  + p[2] * points[a * 3 + 2];
-
-            planes.push_back(p[0]);
-            planes.push_back(p[1]);
-            planes.push_back(p[2]);
-            planes.push_back(p[3]);
+            planes.push_back(w[0] / d);
+            planes.push_back(w[1] / d);
+            planes.push_back(w[2] / d);
+            planes.push_back(w[0] * points[a * 3 + 0]
+                           + w[1] * points[a * 3 + 1]
+                           + w[2] * points[a * 3 + 2]);
 
             i += n + 1;
         }
