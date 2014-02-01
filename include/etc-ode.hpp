@@ -17,10 +17,11 @@
 
 //-----------------------------------------------------------------------------
 
-mat4 bBodyGetTransform(dBodyID);
 mat4 bGeomGetOffset   (dGeomID);
+void bGeomSetOffset   (dGeomID, const mat4&);
 mat4 bGeomGetTransform(dGeomID);
 void bGeomSetTransform(dGeomID, const mat4&);
 void bMassSetTransform(dMass *, const mat4&);
+mat4 bBodyGetTransform(dBodyID);
 
 //-----------------------------------------------------------------------------

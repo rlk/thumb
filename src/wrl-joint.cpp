@@ -16,12 +16,18 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::joint::joint(std::string fill, std::string line) :
-    atom(0, fill, line), join_id(0)
+wrl::joint::joint(app::node node, std::string fill, std::string line) :
+    atom(node, fill, line), join_id(0)
 {
-    edit_geom = dCreateSphere(0, dReal(0.25));
+    if (node)
+    {
+        if (app::node n = node.find("join"))
+            join_id = n.get_i();
+    }
 
-    line_scale[0] = line_scale[1] = line_scale[2] = 0.25;
+    line_scale = vec3(0.25, 0.25, 0.25);
+
+    edit_geom = dCreateSphere(0, dReal(0.25));
 
     dGeomSetData(edit_geom, this);
     bGeomSetTransform(edit_geom, current_M);
@@ -29,13 +35,13 @@ wrl::joint::joint(std::string fill, std::string line) :
 
 //-----------------------------------------------------------------------------
 
-wrl::ball::ball() :
-    joint("joint/joint_ball.obj", "wire/wire_sphere.obj")
+wrl::ball::ball(app::node node) :
+    joint(node, "joint/joint_ball.obj", "wire/wire_sphere.obj")
 {
 }
 
-wrl::hinge::hinge() :
-    joint("joint/joint_hinge.obj", "wire/wire_sphere.obj")
+wrl::hinge::hinge(app::node node) :
+    joint(node, "joint/joint_hinge.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -47,8 +53,8 @@ wrl::hinge::hinge() :
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-wrl::hinge2::hinge2() :
-    joint("joint/joint_hinge2.obj", "wire/wire_sphere.obj")
+wrl::hinge2::hinge2(app::node node) :
+    joint(node, "joint/joint_hinge2.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -72,8 +78,8 @@ wrl::hinge2::hinge2() :
     params[dParamSuspensionCFM] = new param("dParamSuspensionCFM", "0.0");
 }
 
-wrl::slider::slider() :
-    joint("joint/joint_slider.obj", "wire/wire_sphere.obj")
+wrl::slider::slider(app::node node) :
+    joint(node, "joint/joint_slider.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -85,8 +91,8 @@ wrl::slider::slider() :
     params[dParamStopCFM]  = new param("dParamStopCFM",  "0.0");
 }
 
-wrl::amotor::amotor() :
-    joint("joint/joint_amotor.obj", "wire/wire_sphere.obj")
+wrl::amotor::amotor(app::node node) :
+    joint(node, "joint/joint_amotor.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -116,8 +122,8 @@ wrl::amotor::amotor() :
     params[dParamStopCFM3] = new param("dParamStopCFM3", "0.0");
 }
 
-wrl::universal::universal() :
-    joint("joint/joint_universal.obj", "wire/wire_sphere.obj")
+wrl::universal::universal(app::node node) :
+    joint(node, "joint/joint_universal.obj", "wire/wire_sphere.obj")
 {
     params[dParamVel]      = new param("dParamVel",      "0.0");
     params[dParamFMax]     = new param("dParamFMax",     "0.0");
@@ -324,8 +330,6 @@ void wrl::universal::step_init()
 #if 0
 void wrl::joint::load(app::node node)
 {
-    if (app::node n = node.find("join"))
-        join_id = n.get_i();
 
     atom::load(node);
 }

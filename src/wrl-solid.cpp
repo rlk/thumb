@@ -19,10 +19,12 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::solid::solid(app::node node, std::string fill_name,
-                                  std::string line_name, bool center) :
-    atom(node, fill_name, line_name, center)
+wrl::solid::solid(app::node node, std::string _fill_name,
+                                  std::string _line_name) :
+    atom(node, _fill_name, _line_name)
 {
+    // TODO: these override the file values.
+
     params[param::category] = new param("category", "4294967295");
     params[param::collide]  = new param("collide",  "4294967295");
     params[param::density]  = new param("density",  "1.0");
@@ -32,12 +34,50 @@ wrl::solid::solid(app::node node, std::string fill_name,
     params[param::soft_cfm] = new param("soft_cfm", "0.0");
 }
 
+wrl::box::box(app::node node, std::string _fill_name) :
+    solid(node, _fill_name, "wire/wire_box.obj")
+{
+    line_scale = fill_bound.length() / 2.0;
+
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
+}
+
+wrl::sphere::sphere(app::node node, std::string _fill_name) :
+    solid(node, _fill_name, "wire/wire_sphere.obj")
+{
+    line_scale = fill_bound.length() / 2.0;
+
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
+}
+
+wrl::convex::convex(app::node node, std::string _fill_name) :
+    solid(node, _fill_name, "")
+{
+    data = ::glob->load_convex(line_name);
+
+    if ((edit_geom = new_geom(0)))
+        dGeomSetData(edit_geom, this);
+}
+
+//-----------------------------------------------------------------------------
+
+wrl::convex::convex(const convex& that) : solid(that)
+{
+    data = ::glob->dupe_convex(that.data);
+}
+
+wrl::convex::~convex()
+{
+    ::glob->free_convex(data);
+}
+
 //-----------------------------------------------------------------------------
 
 dGeomID wrl::box::new_geom(dSpaceID space) const
 {
-    vec3 d = fill_bound.max()
-           - fill_bound.min();
+    vec3 d = fill_bound.length();
 
     if (length(d) > 0)
     {
@@ -84,70 +124,6 @@ dGeomID wrl::convex::new_geom(dSpaceID space) const
         return geom;
     }
     return 0;
-}
-
-//-----------------------------------------------------------------------------
-
-wrl::convex::convex(const convex& that) : solid(that)
-{
-    data = ::glob->dupe_convex(that.data);
-}
-
-wrl::convex::~convex()
-{
-    ::glob->free_convex(data);
-}
-
-//-----------------------------------------------------------------------------
-
-wrl::box::box(app::node node) :
-    solid(node, node.find("file").get_s(), "wire/wire_box.obj", true)
-{
-    line_scale = fill_bound.length() / 2.0;
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
-}
-
-wrl::sphere::sphere(app::node node) :
-    solid(node, node.find("file").get_s(), "wire/wire_sphere.obj", true)
-{
-    line_scale = fill_bound.length() / 2.0;
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
-}
-
-wrl::convex::convex(app::node node) :
-    solid(node, node.find("file").get_s(), "", true)
-{
-    data = ::glob->load_convex(line_name);
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
-}
-
-//-----------------------------------------------------------------------------
-
-wrl::box::box(std::string name, bool center)
-    : solid(0, name, "wire/wire_box.obj", center)
-{
-    line_scale = fill_bound.length() / 2.0;
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
-}
-
-wrl::sphere::sphere(std::string name, bool center)
-    : solid(0, name, "wire/wire_sphere.obj", center)
-{
-    line_scale = fill_bound.length() / 2.0;
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
-}
-
-wrl::convex::convex(std::string name, bool center)
-    : solid(0, name, "", center)
-{
-    data = ::glob->load_convex(line_name);
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
 }
 
 //-----------------------------------------------------------------------------

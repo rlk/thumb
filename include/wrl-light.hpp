@@ -24,7 +24,7 @@ namespace wrl
     {
     public:
 
-        light(std::string);
+        light(app::node=0, std::string="");
     };
 
     //-------------------------------------------------------------------------
@@ -33,7 +33,7 @@ namespace wrl
     {
     public:
 
-        d_light(std::string);
+        d_light(app::node=0, std::string="");
 
         double get_lighting(vec2&) const;
 
@@ -49,7 +49,7 @@ namespace wrl
     {
     public:
 
-        s_light(std::string);
+        s_light(app::node=0, std::string="");
 
         double get_lighting(vec2&) const;
 

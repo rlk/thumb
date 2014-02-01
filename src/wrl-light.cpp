@@ -15,12 +15,12 @@
 
 //-----------------------------------------------------------------------------
 
-wrl::light::light(std::string name) : sphere(name, false)
+wrl::light::light(app::node node, std::string name) : sphere(node, name)
 {
 }
 
 
-wrl::d_light::d_light(std::string name) : light(name)
+wrl::d_light::d_light(app::node node, std::string name) : light(node, name)
 {
     if (fill)
         fill->set_ubiq(true);
@@ -28,7 +28,7 @@ wrl::d_light::d_light(std::string name) : light(name)
     params[param::brightness]  = new param("brightness",  "1.0");
 }
 
-wrl::s_light::s_light(std::string name) : light(name)
+wrl::s_light::s_light(app::node node, std::string name) : light(node, name)
 {
     params[param::brightness]  = new param("brightness",  "1.0");
     params[param::attenuation] = new param("attenuation", "0.0");

@@ -152,31 +152,31 @@ void cnt::new_universal_button::apply()
 void cnt::new_box_button::apply()
 {
     if (!name->value().empty())
-        do_create(new wrl::box(name->value()));
+        do_create(new wrl::box(0, name->value()));
 }
 
 void cnt::new_sphere_button::apply()
 {
     if (!name->value().empty())
-        do_create(new wrl::sphere(name->value()));
+        do_create(new wrl::sphere(0, name->value()));
 }
 
 void cnt::new_convex_button::apply()
 {
     if (!name->value().empty())
-        do_create(new wrl::convex(name->value()));
+        do_create(new wrl::convex(0, name->value()));
 }
 
 void cnt::new_d_light_button::apply()
 {
     if (!name->value().empty())
-        do_create(new wrl::d_light(name->value()));
+        do_create(new wrl::d_light(0, name->value()));
 }
 
 void cnt::new_s_light_button::apply()
 {
     if (!name->value().empty())
-        do_create(new wrl::s_light(name->value()));
+        do_create(new wrl::s_light(0, name->value()));
 }
 
 //-----------------------------------------------------------------------------
@@ -452,7 +452,7 @@ cnt::config_panel::config_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
 {
     const std::string a((const char *) glGetString(GL_VERSION));
     const std::string b((const char *) glGetString(GL_SHADING_LANGUAGE_VERSION));
-    
+
     const std::string s = "OpenGL " + a + " GLSL " + b;
 
     gui::selector *S = new gui::selector("host/common", ".xml");

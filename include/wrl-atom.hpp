@@ -42,7 +42,7 @@ namespace wrl
     {
     public:
 
-        atom(app::node, std::string, std::string, bool=true);
+        atom(app::node, std::string, std::string);
 
         virtual atom *clone() const = 0;
 

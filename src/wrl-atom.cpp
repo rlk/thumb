@@ -40,7 +40,7 @@ static std::string line_from_fill(std::string fill)
 //-----------------------------------------------------------------------------
 
 wrl::atom::atom(app::node node, std::string _fill_name,
-                                std::string _line_name, bool center) :
+                                std::string _line_name) :
     edit_geom(0),
     body_id(0),
     fill_name(_fill_name),
@@ -51,14 +51,22 @@ wrl::atom::atom(app::node node, std::string _fill_name,
 {
     // Load the named file and line units.
 
-    if (!fill_name.empty() &
-         line_name.empty()) line_name = line_from_fill(fill_name);
+    if (fill_name.empty() && node)
+        fill_name = node.find("file").get_s();
 
-    if (!fill_name.empty()) fill = new ogl::unit(fill_name, center);
-    if (!line_name.empty()) line = new ogl::unit(line_name, center);
+    if (line_name.empty() &&
+       !fill_name.empty())
+        line_name = line_from_fill(fill_name);
 
-    fill->merge_bound(fill_bound);
-    line->merge_bound(line_bound);
+    if (!fill_name.empty())
+        fill = new ogl::unit(fill_name);
+    if (!line_name.empty())
+        line = new ogl::unit(line_name);
+
+    if (fill)
+        fill->merge_bound(fill_bound);
+    if (line)
+        line->merge_bound(line_bound);
 
     // Initialize the transform and body mappings.
 
@@ -95,34 +103,12 @@ wrl::atom::atom(app::node node, std::string _fill_name,
         for (param_map::iterator i = params.begin(); i != params.end(); ++i)
             i->second->load(node);
     }
+
+    if (fill_name.empty() &&
+        line_name.empty() &&
+        node == 0)
+        throw std::runtime_error("Empty atom constructor");
 }
-#if 0
-wrl::atom::atom(const atom& that) : fill(0), line(0)
-{
-    param_map::const_iterator i;
-
-    // Copy that atom.
-
-    *this = that;
-
-    // Duplicate ODE state.
-
-    edit_geom = that.new_geom(0);
-    if (edit_geom) dGeomSetData(edit_geom, this);
-
-    // Duplicate GL state.
-
-    if (that.fill) fill = new ogl::unit(*that.fill);
-    if (that.line) line = new ogl::unit(*that.line);
-
-    // Flush and clone each parameter separately.
-
-    params.clear();
-
-    for (i = that.params.begin(); i != that.params.end(); ++i)
-        params[i->first] = new param(*i->second);
-}
-#endif
 
 wrl::atom::~atom()
 {

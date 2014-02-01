@@ -30,7 +30,7 @@ namespace wrl
 
     public:
 
-        solid(app::node, std::string, std::string, bool=true);
+        solid(app::node=0, std::string="", std::string="");
 
         // Physics initialization methods
 
@@ -57,8 +57,7 @@ namespace wrl
 
     public:
 
-        box(app::node);
-        box(std::string, bool=true);
+        box(app::node=0, std::string="");
 
         virtual box *clone() const { return new box(*this); }
 
@@ -82,8 +81,7 @@ namespace wrl
 
     public:
 
-        sphere(app::node);
-        sphere(std::string, bool=true);
+        sphere(app::node=0, std::string="");
 
         virtual sphere *clone() const { return new sphere(*this); }
 
@@ -111,9 +109,8 @@ namespace wrl
 
     public:
 
+        convex(app::node=0, std::string="");
         convex(const convex&);
-        convex(app::node);
-        convex(std::string, bool=true);
 
         virtual ~convex();
 

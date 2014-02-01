@@ -834,12 +834,12 @@ void wrl::world::load(std::string name)
 
             // Create a new joint for each recognized joint type.
 
-            if      (type == "ball")      a = new wrl::ball     ();
-            else if (type == "hinge")     a = new wrl::hinge    ();
-            else if (type == "hinge2")    a = new wrl::hinge2   ();
-            else if (type == "slider")    a = new wrl::slider   ();
-            else if (type == "amotor")    a = new wrl::amotor   ();
-            else if (type == "universal") a = new wrl::universal();
+            if      (type == "ball")      a = new wrl::ball     (n);
+            else if (type == "hinge")     a = new wrl::hinge    (n);
+            else if (type == "hinge2")    a = new wrl::hinge2   (n);
+            else if (type == "slider")    a = new wrl::slider   (n);
+            else if (type == "amotor")    a = new wrl::amotor   (n);
+            else if (type == "universal") a = new wrl::universal(n);
             else continue;
 
             // Allow the new joint to parse its own attributes.
@@ -859,8 +859,8 @@ void wrl::world::load(std::string name)
 
             // Create a new light for each recognized light type.
 
-            if      (type == "d-light") a = new wrl::d_light("");
-            else if (type == "s-light") a = new wrl::s_light("");
+            if      (type == "d-light") a = new wrl::d_light(n);
+            else if (type == "s-light") a = new wrl::s_light(n);
             else continue;
 
             // Allow the new light to parse its own attributes.

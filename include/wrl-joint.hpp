@@ -24,7 +24,7 @@ namespace wrl
     {
     public:
 
-        joint(std::string, std::string);
+        joint(app::node=0, std::string="", std::string="");
 
         // Joint binding
 
@@ -54,7 +54,7 @@ namespace wrl
     {
     public:
 
-        ball();
+        ball(app::node=0);
 
         ball *clone() const { return new ball(*this); }
 
@@ -72,7 +72,7 @@ namespace wrl
     {
     public:
 
-        hinge();
+        hinge(app::node=0);
 
         hinge *clone() const { return new hinge(*this); }
 
@@ -90,7 +90,7 @@ namespace wrl
     class hinge2 : public joint
     {
     public:
-        hinge2();
+        hinge2(app::node=0);
 
         hinge2 *clone() const { return new hinge2(*this); }
 
@@ -108,7 +108,7 @@ namespace wrl
     class slider : public joint
     {
     public:
-        slider();
+        slider(app::node=0);
 
         slider *clone() const { return new slider(*this); }
 
@@ -126,7 +126,7 @@ namespace wrl
     class amotor : public joint
     {
     public:
-        amotor();
+        amotor(app::node=0);
 
         amotor *clone() const { return new amotor(*this); }
 
@@ -144,7 +144,7 @@ namespace wrl
     class universal : public joint
     {
     public:
-        universal();
+        universal(app::node=0);
 
         universal *clone() const { return new universal(*this); }
 
