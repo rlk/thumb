@@ -43,6 +43,7 @@ namespace ogl
 
         vec3 center() const { return  (a + z) / 2.0; }
         vec3 offset() const { return -(a + z) / 2.0; }
+        vec3 length() const { return  (z - a);       }
 
         vec3    min() const { return a; }
         vec3    max() const { return z; }
