@@ -56,12 +56,21 @@ wrl::convex::convex(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "")
 {
     data = ::glob->load_convex(line_name);
-
+#if 0
+    id = dGeomTriMeshDataCreate();
+    dGeomTriMeshDataBuildDouble(id, data->get_points(), 3 * sizeof (double),
+                                    data->num_points(),
+                                    data->get_indices(),
+                                    data->num_indices(), 3 * sizeof (unsigned int));
+#endif
     if ((edit_geom = new_geom(0)))
         dGeomSetData(edit_geom, this);
 }
 
 //-----------------------------------------------------------------------------
+
+// Convex solid copy constructor and destructor ensure that the convex data
+// is reference counted correcly.
 
 wrl::convex::convex(const convex& that) : solid(that)
 {
@@ -115,11 +124,15 @@ dGeomID wrl::convex::new_geom(dSpaceID space) const
 {
     if (data)
     {
+#if 1
         dGeomID geom = dCreateConvex(space, data->get_planes(),
                                             data->num_planes(),
                                             data->get_points(),
                                             data->num_points(),
                                             data->get_polygons());
+#else
+        dGeomID geom = dCreateTriMesh(space, id, 0, 0, 0);
+#endif
         bGeomSetTransform(geom, default_M);
         return geom;
     }
@@ -128,48 +141,53 @@ dGeomID wrl::convex::new_geom(dSpaceID space) const
 
 //-----------------------------------------------------------------------------
 
+// Compute and position the mass of this box.
+
 void wrl::box::get_mass(dMass *mass)
 {
-    dReal    d = (dReal) params[param::density]->value();
+    dReal d = (dReal) params[param::density]->value();
     dVector3 v;
 
-    // Compute and position the mass of this box.
-
     dGeomBoxGetLengths(edit_geom, v);
-    dMassSetBox(mass, d, v[0], v[1], v[2]);
 
+    dMassSetBox(mass, d, v[0], v[1], v[2]);
     bMassSetTransform(mass, current_M);
 }
+
+// Compute and position the mass of this sphere.
 
 void wrl::sphere::get_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
 
-    // Compute and position the mass of this sphere.
-
     dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
-
     bMassSetTransform(mass, current_M);
 }
+
+// Compute the mass of this convex using ODE's trimesh mass calculator.
 
 void wrl::convex::get_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
 
-    // Compute the mass of this convex using ODE's trimesh mass calculator.
-
+#if 1
     dTriMeshDataID id = dGeomTriMeshDataCreate();
-    dGeomTriMeshDataBuildSingle(id, data->get_vertices(), 3 * sizeof (float),
-                                    data->num_vertices(),
+    dGeomTriMeshDataBuildDouble(id, data->get_points(), 3 * sizeof (double),
+                                    data->num_points(),
                                     data->get_indices(),
                                     data->num_indices(), 3 * sizeof (unsigned int));
 
     dGeomID tm = dCreateTriMesh(0, id, 0, 0, 0);
     dMassSetTrimesh(mass, d, tm);
+    printf("COM %f %f %f\n", mass->c[0], mass->c[1], mass->c[2]);
     bMassSetTransform(mass, current_M);
-
     dGeomDestroy(tm);
     dGeomTriMeshDataDestroy(id);
+
+#else
+    dMassSetTrimesh(mass, d, play_geom);
+    bMassSetTransform(mass, current_M);
+#endif
 }
 
 dGeomID wrl::solid::get_geom(dSpaceID space)
@@ -240,6 +258,23 @@ void wrl::solid::play_fini()
 
         fill->transform(M, inverse(M));
     }
+}
+
+void wrl::convex::step_init()
+{
+#if 0
+    const dReal *R = dGeomGetRotation(play_geom);
+    const dReal *P = dGeomGetPosition(play_geom);
+
+    dMatrix4 M;
+
+    M[ 0] = R[ 0]; M[ 1] = R[ 1]; M[ 2] = R[ 2]; M[ 3] = 0;
+    M[ 4] = R[ 4]; M[ 7] = R[ 7]; M[ 6] = R[ 6]; M[ 7] = 0;
+    M[ 8] = R[ 8]; M[ 8] = R[ 8]; M[10] = R[10]; M[11] = 0;
+    M[12] = P[ 0]; M[13] = P[ 1]; M[14] = P[ 2]; M[15] = 1;
+
+    dGeomTriMeshSetLastTransform(play_geom, M);
+#endif
 }
 
 //-----------------------------------------------------------------------------

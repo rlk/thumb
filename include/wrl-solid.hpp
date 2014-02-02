@@ -102,6 +102,7 @@ namespace wrl
     protected:
 
         ogl::convex *data;
+        // dTriMeshDataID id;
 
         virtual dGeomID new_geom(dSpaceID) const;
 
@@ -116,7 +117,8 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual void get_mass(dMass *m);
+        virtual void  get_mass(dMass *m);
+        virtual void step_init();
 
         // File I/O
 
