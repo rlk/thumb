@@ -30,7 +30,7 @@
 #include <wrl-joint.hpp>
 #include <wrl-world.hpp>
 
-#define MAX_CONTACTS 4
+#define MAX_CONTACTS 64
 
 //-----------------------------------------------------------------------------
 
@@ -391,33 +391,6 @@ void wrl::world::play_fini()
     play_joint = 0;
 }
 
-//-----------------------------------------------------------------------------
-
-void wrl::world::edit_pick(const vec3& p, const vec3& v)
-{
-    // These assertions head off a variety of difficult-to-track issues.
-
-    assert(!std::isnan(p[0]));
-    assert(!std::isnan(p[1]));
-    assert(!std::isnan(p[2]));
-    assert(!std::isnan(v[0]));
-    assert(!std::isnan(v[1]));
-    assert(!std::isnan(v[2]));
-
-    // Apply the pointer position and vector to the picking ray.
-
-    dGeomRaySet(edit_point, p[0], p[1], p[2], v[0], v[1], v[2]);
-}
-
-void wrl::world::edit_step(double dt)
-{
-    // Perform collision detection.
-
-    focus_dist = 100;
-    edit_focus =   0;
-    dSpaceCollide(edit_space, this, (dNearCallback *) ::edit_callback);
-}
-
 void wrl::world::play_step(double dt)
 {
     // Do atom-specific physics step initialization.
@@ -445,6 +418,33 @@ void wrl::world::play_step(double dt)
         if (dBodyID body = b->second)
             if (ogl::node *node = (ogl::node *) dBodyGetData(body))
                 node->transform(bBodyGetTransform(body));
+}
+
+//-----------------------------------------------------------------------------
+
+void wrl::world::edit_step(double dt)
+{
+    // Perform collision detection.
+
+    focus_dist = 100;
+    edit_focus =   0;
+    dSpaceCollide(edit_space, this, (dNearCallback *) ::edit_callback);
+}
+
+void wrl::world::edit_pick(const vec3& p, const vec3& v)
+{
+    // These assertions head off a variety of difficult-to-track issues.
+
+    assert(!std::isnan(p[0]));
+    assert(!std::isnan(p[1]));
+    assert(!std::isnan(p[2]));
+    assert(!std::isnan(v[0]));
+    assert(!std::isnan(v[1]));
+    assert(!std::isnan(v[2]));
+
+    // Apply the pointer position and vector to the picking ray.
+
+    dGeomRaySet(edit_point, p[0], p[1], p[2], v[0], v[1], v[2]);
 }
 
 //-----------------------------------------------------------------------------
