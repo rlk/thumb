@@ -326,6 +326,8 @@ void wrl::world::play_init()
         }
     }
 
+    // Position the bodies.
+
     for (body_map::iterator b = play_body.begin(); b != play_body.end(); ++b)
     {
         int     id   = b->first;
@@ -336,9 +338,7 @@ void wrl::world::play_init()
         {
             // Center the body on its center of mass.
 
-            mat4 M = translation(vec3(double(mass.c[0]),
-                                      double(mass.c[1]),
-                                      double(mass.c[2])));
+            printf("COM %f %f %f\n", mass.c[0], mass.c[1], mass.c[2]);
 
             dBodySetPosition(body, +mass.c[0], +mass.c[1], +mass.c[2]);
             dMassTranslate (&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
@@ -346,6 +346,10 @@ void wrl::world::play_init()
             dBodySetMass(body, &mass);
 
             // Recenter the node on the body.
+
+            mat4 M = translation(vec3(double(mass.c[0]),
+                                      double(mass.c[1]),
+                                      double(mass.c[2])));
 
             ((ogl::node *) dBodyGetData(body))->transform(M);
         }

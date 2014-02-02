@@ -47,6 +47,31 @@ mat4 bGeomGetTransform(dGeomID geom)
                 double(R[8]), double(R[9]), double(R[10]), double(p[2]));
 }
 
+void bGeomSetOffsetWorld(dGeomID geom, const mat4& M)
+{
+    dMatrix3 R;
+
+    R[ 0] = dReal(M[0][0]);
+    R[ 1] = dReal(M[0][1]);
+    R[ 2] = dReal(M[0][2]);
+    R[ 3] = 0;
+
+    R[ 4] = dReal(M[1][0]);
+    R[ 5] = dReal(M[1][1]);
+    R[ 6] = dReal(M[1][2]);
+    R[ 7] = 0;
+
+    R[ 8] = dReal(M[2][0]);
+    R[ 9] = dReal(M[2][1]);
+    R[10] = dReal(M[2][2]);
+    R[11] = 0;
+
+    dGeomSetOffsetWorldRotation(geom, R);
+    dGeomSetOffsetWorldPosition(geom, dReal(M[0][3]),
+                                      dReal(M[1][3]),
+                                      dReal(M[2][3]));
+}
+
 void bGeomSetTransform(dGeomID geom, const mat4& M)
 {
     dMatrix3 R;

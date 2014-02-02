@@ -151,7 +151,9 @@ void wrl::box::get_mass(dMass *mass)
     dGeomBoxGetLengths(edit_geom, v);
 
     dMassSetBox(mass, d, v[0], v[1], v[2]);
+    printf("box mass %f %f %f -> ", mass->c[0], mass->c[1], mass->c[2]);
     bMassSetTransform(mass, current_M);
+    printf("%f %f %f %s\n", mass->c[0], mass->c[1], mass->c[2], fill_name.c_str());
 }
 
 // Compute and position the mass of this sphere.
@@ -161,7 +163,9 @@ void wrl::sphere::get_mass(dMass *mass)
     dReal d = (dReal) params[param::density]->value();
 
     dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
+    printf("sphere mass %f %f %f -> ", mass->c[0], mass->c[1], mass->c[2]);
     bMassSetTransform(mass, current_M);
+    printf("%f %f %f %s\n", mass->c[0], mass->c[1], mass->c[2], fill_name.c_str());
 }
 
 // Compute the mass of this convex using ODE's trimesh mass calculator.
@@ -179,8 +183,9 @@ void wrl::convex::get_mass(dMass *mass)
 
     dGeomID tm = dCreateTriMesh(0, id, 0, 0, 0);
     dMassSetTrimesh(mass, d, tm);
-    printf("COM %f %f %f\n", mass->c[0], mass->c[1], mass->c[2]);
+    printf("convex mass %f %f %f -> ", mass->c[0], mass->c[1], mass->c[2]);
     bMassSetTransform(mass, current_M);
+    printf("%f %f %f %s\n", mass->c[0], mass->c[1], mass->c[2], fill_name.c_str());
     dGeomDestroy(tm);
     dGeomTriMeshDataDestroy(id);
 
@@ -204,34 +209,10 @@ void wrl::solid::play_init()
 {
     dBodyID body = dGeomGetBody(play_geom);
 
+    // Orient the geom with respect to the body.
+
     if (body)
-    {
-        // Orient the geom with respect to the body.
-
-        mat4 I = inverse(current_M);
-
-        dMatrix3 R;
-
-        R[ 0] = dReal(I[0][0]);
-        R[ 1] = dReal(I[1][0]);
-        R[ 2] = dReal(I[2][0]);
-        R[ 3] = 0;
-
-        R[ 4] = dReal(I[0][1]);
-        R[ 5] = dReal(I[1][1]);
-        R[ 6] = dReal(I[2][1]);
-        R[ 7] = 0;
-
-        R[ 8] = dReal(I[0][2]);
-        R[ 9] = dReal(I[1][2]);
-        R[10] = dReal(I[2][2]);
-        R[11] = 0;
-
-        dGeomSetOffsetWorldRotation(play_geom, R);
-        dGeomSetOffsetWorldPosition(play_geom, dReal(current_M[0][3]),
-                                               dReal(current_M[1][3]),
-                                               dReal(current_M[2][3]));
-    }
+        bGeomSetOffsetWorld(play_geom, current_M);
 
     // Apply the current geom tranform to the unit.
 
@@ -258,23 +239,6 @@ void wrl::solid::play_fini()
 
         fill->transform(M, inverse(M));
     }
-}
-
-void wrl::convex::step_init()
-{
-#if 0
-    const dReal *R = dGeomGetRotation(play_geom);
-    const dReal *P = dGeomGetPosition(play_geom);
-
-    dMatrix4 M;
-
-    M[ 0] = R[ 0]; M[ 1] = R[ 1]; M[ 2] = R[ 2]; M[ 3] = 0;
-    M[ 4] = R[ 4]; M[ 7] = R[ 7]; M[ 6] = R[ 6]; M[ 7] = 0;
-    M[ 8] = R[ 8]; M[ 8] = R[ 8]; M[10] = R[10]; M[11] = 0;
-    M[12] = P[ 0]; M[13] = P[ 1]; M[14] = P[ 2]; M[15] = 1;
-
-    dGeomTriMeshSetLastTransform(play_geom, M);
-#endif
 }
 
 //-----------------------------------------------------------------------------

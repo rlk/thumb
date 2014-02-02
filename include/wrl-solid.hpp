@@ -117,8 +117,7 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual void  get_mass(dMass *m);
-        virtual void step_init();
+        virtual void get_mass(dMass *m);
 
         // File I/O
 
