@@ -48,10 +48,6 @@ ogl::convex::convex(std::string name) : name(name)
             points.push_back(double(v[0]));
             points.push_back(double(v[1]));
             points.push_back(double(v[2]));
-
-            vertices.push_back(float(v[0]));
-            vertices.push_back(float(v[1]));
-            vertices.push_back(float(v[2]));
         }
 
         // Read the list of indices of a face.
@@ -108,10 +104,6 @@ ogl::convex::convex(std::string name) : name(name)
             points[i + 0] -= (p[0] + q[0]) / 2.0;
             points[i + 1] -= (p[1] + q[1]) / 2.0;
             points[i + 2] -= (p[2] + q[2]) / 2.0;
-
-            vertices[i + 0] -= (p[0] + q[0]) / 2.0;
-            vertices[i + 1] -= (p[1] + q[1]) / 2.0;
-            vertices[i + 2] -= (p[2] + q[2]) / 2.0;
         }
 
         // Compute the plane of each polygon.
@@ -144,10 +136,9 @@ ogl::convex::convex(std::string name) : name(name)
             w[0] /= d;
             w[1] /= d;
             w[2] /= d;
-
-            planes.push_back(w[0]);
-            planes.push_back(w[1]);
-            planes.push_back(w[2]);
+            planes.push_back(w[0] / d);
+            planes.push_back(w[1] / d);
+            planes.push_back(w[2] / d);
             planes.push_back(w[0] * points[a * 3 + 0]
                            + w[1] * points[a * 3 + 1]
                            + w[2] * points[a * 3 + 2]);
