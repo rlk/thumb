@@ -267,7 +267,8 @@ void wrl::world::play_init()
     play_actor = dHashSpaceCreate(0);
     play_joint = dJointGroupCreate(0);
 
-    dWorldSetGravity(play_world, 0, -32, 0);
+    dWorldSetGravity        (play_world, 0, -9.8, 0);
+    dWorldSetDamping        (play_world, 0.001, 0.001);
     dWorldSetAutoDisableFlag(play_world, 1);
 
     // Create a body and mass for each active entity group.
