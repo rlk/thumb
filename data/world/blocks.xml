@@ -39,7 +39,7 @@
       <param name="attenuation">0.0</param>
       <param name="cutoff">90.0</param>
     </light>
-    <geom type="box">
+    <geom type="convex">
       <file>solid/block/block-wedge-2x2x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -250,7 +250,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom type="box">
+    <geom type="convex">
       <file>solid/block/block-wedge-4x2x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
