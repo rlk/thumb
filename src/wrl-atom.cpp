@@ -105,6 +105,10 @@ wrl::atom::atom(app::node node, std::string _fill_name,
         throw std::runtime_error("Empty atom constructor");
 }
 
+wrl::atom::atom(const atom& that)
+{
+}
+
 wrl::atom::~atom()
 {
     // Destroy ODE state.
@@ -132,6 +136,18 @@ void wrl::atom::live(dSpaceID space) const
 void wrl::atom::dead(dSpaceID space) const
 {
     dSpaceRemove(space, edit_geom);
+}
+
+//-----------------------------------------------------------------------------
+
+dGeomID wrl::atom::init_edit_geom(dSpaceID space)
+{
+    if ((edit_geom = new_edit_geom(space)))
+    {
+        dGeomSetData     (edit_geom, this);
+        bGeomSetTransform(edit_geom, current_M);
+    }
+    return edit_geom;
 }
 
 //-----------------------------------------------------------------------------

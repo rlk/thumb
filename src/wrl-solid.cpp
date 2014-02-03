@@ -32,22 +32,20 @@ wrl::solid::solid(app::node node, std::string _fill_name,
     params[param::soft_cfm] = new param("soft_cfm", "0.0");
 
     load_params(node);
-
-    dMassSetZero(&play_mass);
 }
 
 wrl::box::box(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_box.obj")
 {
     line_scale = fill_bound.length() / 2.0;
-    edit_geom  = new_edit_geom(0);
+    init_edit_geom(0);
 }
 
 wrl::sphere::sphere(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_sphere.obj")
 {
     line_scale = fill_bound.length() / 2.0;
-    edit_geom  = new_edit_geom(0);
+    init_edit_geom(0);
 }
 
 wrl::convex::convex(app::node node, std::string _fill_name) :
@@ -63,15 +61,15 @@ wrl::convex::convex(app::node node, std::string _fill_name) :
                                         data->num_indices(),
                                         data->siz_indices());
     }
-    edit_geom = new_edit_geom(0);
+    init_edit_geom(0);
 }
 
 //-----------------------------------------------------------------------------
 
 // Convex solid copy constructor and destructor ensure that the convex data
 // is reference counted correcly.
-
-wrl::convex::convex(const convex& that) : solid(that), id(0)
+/*
+wrl::convex::convex(convex& that) : solid(that), id(0)
 {
     if ((data = ::glob->dupe_convex(that.data)))
     {
@@ -83,9 +81,9 @@ wrl::convex::convex(const convex& that) : solid(that), id(0)
                                         data->num_indices(),
                                         data->siz_indices());
     }
-    edit_geom = new_edit_geom(0);
+    init_edit_geom(0);
 }
-
+*/
 wrl::convex::~convex()
 {
     if (id) dGeomTriMeshDataDestroy(id);
@@ -94,21 +92,17 @@ wrl::convex::~convex()
 
 //-----------------------------------------------------------------------------
 
-dGeomID wrl::box::new_edit_geom(dSpaceID space)
+dGeomID wrl::box::new_edit_geom(dSpaceID space) const
 {
     vec3 d = fill_bound.length();
 
     if (length(d) > 0)
-    {
-        dGeomID geom = dCreateBox(space, d[0], d[1], d[2]);
-        bGeomSetTransform(geom, default_M);
-        dGeomSetData(geom, this);
-        return geom;
-    }
-    return 0;
+        return dCreateBox(space, d[0], d[1], d[2]);
+    else
+        return 0;
 }
 
-dGeomID wrl::sphere::new_edit_geom(dSpaceID space)
+dGeomID wrl::sphere::new_edit_geom(dSpaceID space) const
 {
     vec3 a = fill_bound.min();
     vec3 z = fill_bound.max();
@@ -123,68 +117,41 @@ dGeomID wrl::sphere::new_edit_geom(dSpaceID space)
     if (r < fabs(z[2])) r = fabs(z[2]);
 
     if (r > 0)
-    {
-        dGeomID geom = dCreateSphere(space, dReal(r));
-        bGeomSetTransform(geom, default_M);
-        dGeomSetData(geom, this);
-        return geom;
-    }
-    return 0;
+        return dCreateSphere(space, dReal(r));
+    else
+        return 0;
 }
 
-dGeomID wrl::convex::new_edit_geom(dSpaceID space)
+dGeomID wrl::convex::new_edit_geom(dSpaceID space) const
 {
-    if (data)
-    {
-#if 1
-        dGeomID geom = dCreateTriMesh(0, id, 0, 0, 0);
-        bGeomSetTransform(geom, default_M);
-        dGeomSetData(geom, this);
-        return geom;
-#else
-        dGeomID geom = dCreateConvex(space, data->get_planes(),
-                                            data->num_planes(),
-                                            data->get_points(),
-                                            data->num_points(),
-                                            data->get_polygons());
-        bGeomSetTransform(geom, default_M);
-        dGeomSetData(geom, this);
-        return geom;
-#endif
-    }
-    return 0;
+    return dCreateTriMesh(0, id, 0, 0, 0);
 }
 
 //-----------------------------------------------------------------------------
 
 // By default the play geom is the same as the edit geom.
 
-dGeomID wrl::solid::new_play_geom(dSpaceID space)
+dGeomID wrl::solid::new_play_geom(dSpaceID space) const
 {
-    play_geom = new_edit_geom(space);
-    return play_geom;
+    return new_edit_geom(space);
 }
 
 // The convex type uses a convex geom play mode but a trimesh in edit mode.
 // This is because trimesh has better ray collision while convex has better
 // physics stability.
-#if 1
-dGeomID wrl::convex::new_play_geom(dSpaceID space)
+
+dGeomID wrl::convex::new_play_geom(dSpaceID space) const
 {
     if (data)
-    {
-        play_geom = dCreateConvex(space, data->get_planes(),
-                                         data->num_planes(),
-                                         data->get_points(),
-                                         data->num_points(),
-                                         data->get_polygons());
-        bGeomSetTransform(play_geom, default_M);
-        dGeomSetData(play_geom, this);
-        return play_geom;
-    }
-    return 0;
+        return dCreateConvex(space, data->get_planes(),
+                                    data->num_planes(),
+                                    data->get_points(),
+                                    data->num_points(),
+                                    data->get_polygons());
+    else
+        return 0;
 }
-#endif
+
 //-----------------------------------------------------------------------------
 
 // Compute and position the mass of this box.
@@ -195,11 +162,7 @@ void wrl::box::new_play_mass(dMass *mass)
     dVector3 v;
 
     dGeomBoxGetLengths(edit_geom, v);
-
     dMassSetBox(mass, d, v[0], v[1], v[2]);
-    play_mass = *mass;
-    bMassSetTransform(mass, current_M);
-
 }
 
 // Compute and position the mass of this sphere.
@@ -209,8 +172,6 @@ void wrl::sphere::new_play_mass(dMass *mass)
     dReal d = (dReal) params[param::density]->value();
 
     dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
-    play_mass = *mass;
-    bMassSetTransform(mass, current_M);
 }
 
 // Compute the mass of this convex using ODE's trimesh mass calculator.
@@ -222,10 +183,29 @@ void wrl::convex::new_play_mass(dMass *mass)
     dGeomID geom = dCreateTriMesh(0, id, 0, 0, 0);
 
     dMassSetTrimesh(mass, d, geom);
-    play_mass = *mass;
-    bMassSetTransform(mass, current_M);
-
     dGeomDestroy(geom);
+}
+
+//-----------------------------------------------------------------------------
+
+// Create a play-mode geom. Associate this solid and set this transform.
+
+dGeomID wrl::solid::init_play_geom(dSpaceID space)
+{
+    if ((play_geom = new_play_geom(space)))
+    {
+        dGeomSetData     (play_geom, this);
+        bGeomSetTransform(play_geom, current_M);
+    }
+    return play_geom;
+}
+
+// Calculate the mass of this solid and set the mass transform.
+
+void wrl::solid::init_play_mass(dMass *mass)
+{
+    new_play_mass(mass);
+    bMassSetTransform(mass, current_M);
 }
 
 //-----------------------------------------------------------------------------
@@ -233,10 +213,13 @@ void wrl::convex::new_play_mass(dMass *mass)
 void wrl::solid::play_init()
 {
     dBodyID body = dGeomGetBody(play_geom);
+    dMass   mass;
 
-    mat4 M = translation(vec3(double(-play_mass.c[0]),
-                              double(-play_mass.c[1]),
-                              double(-play_mass.c[2])));
+    new_play_mass(&mass);
+
+    mat4 M = translation(vec3(double(-mass.c[0]),
+                              double(-mass.c[1]),
+                              double(-mass.c[2])));
 
     // Orient the geom with respect to the body, accounting for center of mass.
 

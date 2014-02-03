@@ -24,18 +24,15 @@ namespace wrl
 {
     class solid : public atom
     {
-    protected:
-
-        dGeomID play_geom;
-        dMass   play_mass;
-
     public:
 
         solid(app::node=0, std::string="", std::string="");
 
         // Physics initialization methods
 
-        virtual dGeomID new_play_geom(dSpaceID);
+        virtual dGeomID  new_play_geom(dSpaceID) const;
+        virtual dGeomID init_play_geom(dSpaceID);
+        virtual void    init_play_mass(dMass  *);
 
         // Physics update methods
 
@@ -45,6 +42,11 @@ namespace wrl
         // File I/O
 
         virtual void save(app::node);
+
+    protected:
+
+        dGeomID play_geom;
+        dMass   play_mass;
     };
 
     //-------------------------------------------------------------------------
@@ -63,8 +65,8 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual dGeomID new_edit_geom(dSpaceID);
-        virtual void    new_play_mass(dMass *);
+        virtual dGeomID new_edit_geom(dSpaceID) const;
+        virtual void    new_play_mass(dMass  *);
 
         // File I/O
 
@@ -86,8 +88,8 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual dGeomID new_edit_geom(dSpaceID);
-        virtual void    new_play_mass(dMass *);
+        virtual dGeomID new_edit_geom(dSpaceID) const;
+        virtual void    new_play_mass(dMass  *);
 
         // File I/O
 
@@ -108,7 +110,7 @@ namespace wrl
     public:
 
         convex(app::node=0, std::string="");
-        convex(const convex&);
+        // convex(const convex&);
 
         virtual ~convex();
 
@@ -116,9 +118,9 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual dGeomID new_edit_geom(dSpaceID);
-        virtual dGeomID new_play_geom(dSpaceID);
-        virtual void    new_play_mass(dMass *);
+        virtual dGeomID new_edit_geom(dSpaceID) const;
+        virtual dGeomID new_play_geom(dSpaceID) const;
+        virtual void    new_play_mass(dMass  *);
 
         // File I/O
 

@@ -43,6 +43,7 @@ namespace wrl
     public:
 
         atom(app::node, std::string, std::string);
+        atom(const atom&);
 
         virtual atom *clone() const = 0;
 
@@ -72,10 +73,15 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual dGeomID  new_edit_geom(dSpaceID) { return 0;        }
-        virtual dGeomID  new_play_geom(dSpaceID) { return 0;        }
-        virtual dJointID new_play_join(dWorldID) { return 0;        }
-        virtual void     new_play_mass(dMass *m) { dMassSetZero(m); }
+        virtual dGeomID   new_edit_geom(dSpaceID) const { return 0; }
+        virtual dGeomID   new_play_geom(dSpaceID) const { return 0; }
+        virtual dJointID  new_play_join(dWorldID) const { return 0; }
+        virtual void      new_play_mass(dMass *m) { dMassSetZero(m); }
+
+        virtual dGeomID  init_edit_geom(dSpaceID);
+        virtual dGeomID  init_play_geom(dSpaceID) { return 0; }
+        virtual dJointID init_play_join(dWorldID) { return 0; }
+        virtual void     init_play_mass(dMass *m) { dMassSetZero(m); }
 
         // Physics update methods
 

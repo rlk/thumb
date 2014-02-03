@@ -152,44 +152,46 @@ wrl::universal::universal(app::node node) :
 
 //-----------------------------------------------------------------------------
 
-dGeomID wrl::joint::new_edit_geom(dSpaceID space)
+dGeomID wrl::joint::new_edit_geom(dSpaceID space) const
 {
-    dGeomID geom = dCreateSphere(space, dReal(0.25));
-
-    dGeomSetData(geom, this);
-    bGeomSetTransform(geom, current_M);
-
-    return geom;
+    return dCreateSphere(space, dReal(0.25));
 }
 
-dJointID wrl::ball::new_play_join(dWorldID world)
+dJointID wrl::ball::new_play_join(dWorldID world) const
 {
-    return (play_join = dJointCreateBall(world, 0));
+    return dJointCreateBall(world, 0);
 }
 
-dJointID wrl::hinge::new_play_join(dWorldID world)
+dJointID wrl::hinge::new_play_join(dWorldID world) const
 {
-    return (play_join = dJointCreateHinge(world, 0));
+    return dJointCreateHinge(world, 0);
 }
 
-dJointID wrl::hinge2::new_play_join(dWorldID world)
+dJointID wrl::hinge2::new_play_join(dWorldID world) const
 {
-    return (play_join = dJointCreateHinge2(world, 0));
+    return dJointCreateHinge2(world, 0);
 }
 
-dJointID wrl::slider::new_play_join(dWorldID world)
+dJointID wrl::slider::new_play_join(dWorldID world) const
 {
-    return (play_join = dJointCreateSlider(world, 0));
+    return dJointCreateSlider(world, 0);
 }
 
-dJointID wrl::amotor::new_play_join(dWorldID world)
+dJointID wrl::amotor::new_play_join(dWorldID world) const
 {
-    return (play_join = dJointCreateAMotor(world, 0));
+    return dJointCreateAMotor(world, 0);
 }
 
-dJointID wrl::universal::new_play_join(dWorldID world)
+dJointID wrl::universal::new_play_join(dWorldID world) const
 {
-    return (play_join = dJointCreateUniversal(world, 0));
+    return dJointCreateUniversal(world, 0);
+}
+
+//-----------------------------------------------------------------------------
+
+dJointID wrl::joint::init_play_join(dWorldID world)
+{
+    return (play_join = new_play_join(world));
 }
 
 //-----------------------------------------------------------------------------
