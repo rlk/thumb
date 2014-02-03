@@ -39,15 +39,18 @@ namespace ogl
 
         const std::string& get_name() const { return name; }
 
-        double       *get_points  ()  { return   &points.front(); }
-        double       *get_planes  ()  { return   &planes.front(); }
-        unsigned int *get_polygons()  { return &polygons.front(); }
-        unsigned int *get_indices()   { return  &indices.front(); }
+        double       *get_points  () { return   &points.front(); }
+        double       *get_planes  () { return   &planes.front(); }
+        unsigned int *get_polygons() { return &polygons.front(); }
+        unsigned int *get_indices () { return  &indices.front(); }
 
-        unsigned int  num_points()   const { return   points.size() / 3; }
-        unsigned int  num_planes()   const { return   planes.size() / 4; }
-        unsigned int  num_polygons() const { return   planes.size() / 4; }
-        unsigned int  num_indices()  const { return  indices.size();     }
+        int   num_points  () const   { return    points.size() / 3; }
+        int   num_planes  () const   { return    planes.size() / 4; }
+        int   num_polygons() const   { return    planes.size() / 4; }
+        int   num_indices () const   { return   indices.size();     }
+
+        int   siz_points  () const   { return 3 * sizeof (double);       }
+        int   siz_indices () const   { return 3 * sizeof (unsigned int); }
     };
 }
 
