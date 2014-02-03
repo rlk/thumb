@@ -110,7 +110,7 @@ namespace wrl
     public:
 
         convex(app::node=0, std::string="");
-        // convex(const convex&);
+        convex(const convex&);
 
         virtual ~convex();
 

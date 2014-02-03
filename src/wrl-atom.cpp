@@ -107,6 +107,31 @@ wrl::atom::atom(app::node node, std::string _fill_name,
 
 wrl::atom::atom(const atom& that)
 {
+    param_map::const_iterator i;
+
+    // Copy that atom.
+
+    *this = that;
+
+    // Duplicate GL state.
+
+    if (that.fill) fill = new ogl::unit(*that.fill);
+    if (that.line) line = new ogl::unit(*that.line);
+
+    // Duplicate ODE state.
+
+    if ((edit_geom = that.new_edit_geom(0)))
+    {
+        dGeomSetData     (edit_geom, this);
+        bGeomSetTransform(edit_geom, current_M);
+    }
+
+    // Flush and clone each parameter separately.
+
+    params.clear();
+
+    for (i = that.params.begin(); i != that.params.end(); ++i)
+        params[i->first] = new param(*i->second);
 }
 
 wrl::atom::~atom()

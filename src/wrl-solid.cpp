@@ -68,8 +68,8 @@ wrl::convex::convex(app::node node, std::string _fill_name) :
 
 // Convex solid copy constructor and destructor ensure that the convex data
 // is reference counted correcly.
-/*
-wrl::convex::convex(convex& that) : solid(that), id(0)
+
+wrl::convex::convex(const convex& that) : solid(that), data(0), id(0)
 {
     if ((data = ::glob->dupe_convex(that.data)))
     {
@@ -83,7 +83,7 @@ wrl::convex::convex(convex& that) : solid(that), id(0)
     }
     init_edit_geom(0);
 }
-*/
+
 wrl::convex::~convex()
 {
     if (id) dGeomTriMeshDataDestroy(id);
