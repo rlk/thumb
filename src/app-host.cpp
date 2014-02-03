@@ -542,6 +542,10 @@ void app::host::root_loop()
         SDL_Event e;
         SDL_Event p;
 
+        p.type = SDL_MOUSEMOTION;
+        p.motion.x = 0;
+        p.motion.y = 0;
+
         while (program->is_running() && SDL_PollEvent(&e))
             switch (e.type)
             {
