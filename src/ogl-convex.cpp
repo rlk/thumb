@@ -59,16 +59,21 @@ ogl::convex::convex(std::string name) : name(name)
             while (cmd >> i)
                 d.push_back(i - 1);
 
+            // Check for a closed loop.
+
+            if (d.back() == d.front())
+                d.pop_back();
+
             // Store the indices as a polygon.
 
-            polygons.insert(polygons.end(), d.size() - 1);
-            polygons.insert(polygons.end(), d.begin(), d.end() - 1);
+            polygons.insert(polygons.end(), d.size());
+            polygons.insert(polygons.end(), d.begin(), d.end());
 
             // Store the indices as an array of triangles.
 
-            for (j = 0; j < d.size() - 3; ++j)
+            for (j = 0; j < d.size() - 2; ++j)
             {
-                indices.push_back(d[0]);
+                indices.push_back(d[    0]);
                 indices.push_back(d[j + 1]);
                 indices.push_back(d[j + 2]);
             }

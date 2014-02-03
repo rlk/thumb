@@ -27,6 +27,7 @@ namespace wrl
     protected:
 
         dGeomID play_geom;
+        dMass   play_mass;
 
     public:
 

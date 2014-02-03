@@ -32,6 +32,8 @@ wrl::solid::solid(app::node node, std::string _fill_name,
     params[param::soft_cfm] = new param("soft_cfm", "0.0");
 
     load_params(node);
+
+    dMassSetZero(&play_mass);
 }
 
 wrl::box::box(app::node node, std::string _fill_name) :
@@ -124,15 +126,11 @@ dGeomID wrl::convex::new_geom(dSpaceID space) const
 {
     if (data)
     {
-#if 1
         dGeomID geom = dCreateConvex(space, data->get_planes(),
                                             data->num_planes(),
                                             data->get_points(),
                                             data->num_points(),
                                             data->get_polygons());
-#else
-        dGeomID geom = dCreateTriMesh(space, id, 0, 0, 0);
-#endif
         bGeomSetTransform(geom, default_M);
         return geom;
     }
@@ -151,9 +149,9 @@ void wrl::box::get_mass(dMass *mass)
     dGeomBoxGetLengths(edit_geom, v);
 
     dMassSetBox(mass, d, v[0], v[1], v[2]);
-    printf("box mass %f %f %f -> ", mass->c[0], mass->c[1], mass->c[2]);
+    play_mass = *mass;
     bMassSetTransform(mass, current_M);
-    printf("%f %f %f %s\n", mass->c[0], mass->c[1], mass->c[2], fill_name.c_str());
+
 }
 
 // Compute and position the mass of this sphere.
@@ -163,9 +161,9 @@ void wrl::sphere::get_mass(dMass *mass)
     dReal d = (dReal) params[param::density]->value();
 
     dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
-    printf("sphere mass %f %f %f -> ", mass->c[0], mass->c[1], mass->c[2]);
+    play_mass = *mass;
     bMassSetTransform(mass, current_M);
-    printf("%f %f %f %s\n", mass->c[0], mass->c[1], mass->c[2], fill_name.c_str());
+
 }
 
 // Compute the mass of this convex using ODE's trimesh mass calculator.
@@ -174,7 +172,6 @@ void wrl::convex::get_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
 
-#if 1
     dTriMeshDataID id = dGeomTriMeshDataCreate();
     dGeomTriMeshDataBuildDouble(id, data->get_points(), 3 * sizeof (double),
                                     data->num_points(),
@@ -182,17 +179,13 @@ void wrl::convex::get_mass(dMass *mass)
                                     data->num_indices(), 3 * sizeof (unsigned int));
 
     dGeomID tm = dCreateTriMesh(0, id, 0, 0, 0);
+
     dMassSetTrimesh(mass, d, tm);
-    printf("convex mass %f %f %f -> ", mass->c[0], mass->c[1], mass->c[2]);
+    play_mass = *mass;
     bMassSetTransform(mass, current_M);
-    printf("%f %f %f %s\n", mass->c[0], mass->c[1], mass->c[2], fill_name.c_str());
+
     dGeomDestroy(tm);
     dGeomTriMeshDataDestroy(id);
-
-#else
-    dMassSetTrimesh(mass, d, play_geom);
-    bMassSetTransform(mass, current_M);
-#endif
 }
 
 dGeomID wrl::solid::get_geom(dSpaceID space)
@@ -209,23 +202,27 @@ void wrl::solid::play_init()
 {
     dBodyID body = dGeomGetBody(play_geom);
 
-    // Orient the geom with respect to the body.
+    mat4 M = translation(vec3(double(-play_mass.c[0]),
+                              double(-play_mass.c[1]),
+                              double(-play_mass.c[2])));
+
+    // Orient the geom with respect to the body, accounting for center of mass.
 
     if (body)
-        bGeomSetOffsetWorld(play_geom, current_M);
+        bGeomSetOffsetWorld(play_geom, current_M * M);
 
     // Apply the current geom tranform to the unit.
 
     if (fill)
     {
-        mat4 M;
+        mat4 T;
 
         if (body)
-            M = bGeomGetOffset(play_geom);
+            T = bGeomGetOffset   (play_geom) * inverse(M);
         else
-            M = bGeomGetTransform(edit_geom);
+            T = bGeomGetTransform(edit_geom) * inverse(M);
 
-        fill->transform(M, inverse(M));
+        fill->transform(T, inverse(T));
     }
 }
 

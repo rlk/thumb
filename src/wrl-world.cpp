@@ -338,8 +338,6 @@ void wrl::world::play_init()
         {
             // Center the body on its center of mass.
 
-            printf("COM %f %f %f\n", mass.c[0], mass.c[1], mass.c[2]);
-
             dBodySetPosition(body, +mass.c[0], +mass.c[1], +mass.c[2]);
             dMassTranslate (&mass, -mass.c[0], -mass.c[1], -mass.c[2]);
 

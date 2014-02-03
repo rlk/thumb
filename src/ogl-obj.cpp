@@ -413,7 +413,7 @@ obj::obj::obj(std::string name, bool c) : scale(1)
 
     // Optionally center the object about the origin.
 
-    if (c) center();
+    // if (c) center();
 }
 
 obj::obj::~obj()
