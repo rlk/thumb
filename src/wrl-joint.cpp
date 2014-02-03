@@ -26,11 +26,7 @@ wrl::joint::joint(app::node node, std::string fill, std::string line) :
     }
 
     line_scale = vec3(0.25, 0.25, 0.25);
-
-    edit_geom = dCreateSphere(0, dReal(0.25));
-
-    dGeomSetData(edit_geom, this);
-    bGeomSetTransform(edit_geom, current_M);
+    edit_geom  = new_edit_geom(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -156,32 +152,42 @@ wrl::universal::universal(app::node node) :
 
 //-----------------------------------------------------------------------------
 
-dJointID wrl::ball::get_join(dWorldID world)
+dGeomID wrl::joint::new_edit_geom(dSpaceID space)
+{
+    dGeomID geom = dCreateSphere(space, dReal(0.25));
+
+    dGeomSetData(geom, this);
+    bGeomSetTransform(geom, current_M);
+
+    return geom;
+}
+
+dJointID wrl::ball::new_play_join(dWorldID world)
 {
     return (play_join = dJointCreateBall(world, 0));
 }
 
-dJointID wrl::hinge::get_join(dWorldID world)
+dJointID wrl::hinge::new_play_join(dWorldID world)
 {
     return (play_join = dJointCreateHinge(world, 0));
 }
 
-dJointID wrl::hinge2::get_join(dWorldID world)
+dJointID wrl::hinge2::new_play_join(dWorldID world)
 {
     return (play_join = dJointCreateHinge2(world, 0));
 }
 
-dJointID wrl::slider::get_join(dWorldID world)
+dJointID wrl::slider::new_play_join(dWorldID world)
 {
     return (play_join = dJointCreateSlider(world, 0));
 }
 
-dJointID wrl::amotor::get_join(dWorldID world)
+dJointID wrl::amotor::new_play_join(dWorldID world)
 {
     return (play_join = dJointCreateAMotor(world, 0));
 }
 
-dJointID wrl::universal::get_join(dWorldID world)
+dJointID wrl::universal::new_play_join(dWorldID world)
 {
     return (play_join = dJointCreateUniversal(world, 0));
 }

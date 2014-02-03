@@ -40,33 +40,30 @@ wrl::box::box(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_box.obj")
 {
     line_scale = fill_bound.length() / 2.0;
-
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
+    edit_geom  = new_edit_geom(0);
 }
 
 wrl::sphere::sphere(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_sphere.obj")
 {
     line_scale = fill_bound.length() / 2.0;
-
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
+    edit_geom  = new_edit_geom(0);
 }
 
 wrl::convex::convex(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "")
 {
     data = ::glob->load_convex(line_name);
-#if 0
+
     id = dGeomTriMeshDataCreate();
-    dGeomTriMeshDataBuildDouble(id, data->get_points(), 3 * sizeof (double),
+    dGeomTriMeshDataBuildDouble(id, data->get_points(),
+                                    data->siz_points(),
                                     data->num_points(),
                                     data->get_indices(),
-                                    data->num_indices(), 3 * sizeof (unsigned int));
-#endif
-    if ((edit_geom = new_geom(0)))
-        dGeomSetData(edit_geom, this);
+                                    data->num_indices(),
+                                    data->siz_indices());
+
+    edit_geom = new_edit_geom(0);
 }
 
 //-----------------------------------------------------------------------------
@@ -86,7 +83,7 @@ wrl::convex::~convex()
 
 //-----------------------------------------------------------------------------
 
-dGeomID wrl::box::new_geom(dSpaceID space) const
+dGeomID wrl::box::new_edit_geom(dSpaceID space)
 {
     vec3 d = fill_bound.length();
 
@@ -94,12 +91,13 @@ dGeomID wrl::box::new_geom(dSpaceID space) const
     {
         dGeomID geom = dCreateBox(space, d[0], d[1], d[2]);
         bGeomSetTransform(geom, default_M);
+        dGeomSetData(geom, this);
         return geom;
     }
     return 0;
 }
 
-dGeomID wrl::sphere::new_geom(dSpaceID space) const
+dGeomID wrl::sphere::new_edit_geom(dSpaceID space)
 {
     vec3 a = fill_bound.min();
     vec3 z = fill_bound.max();
@@ -117,12 +115,13 @@ dGeomID wrl::sphere::new_geom(dSpaceID space) const
     {
         dGeomID geom = dCreateSphere(space, dReal(r));
         bGeomSetTransform(geom, default_M);
+        dGeomSetData(geom, this);
         return geom;
     }
     return 0;
 }
 
-dGeomID wrl::convex::new_geom(dSpaceID space) const
+dGeomID wrl::convex::new_edit_geom(dSpaceID space)
 {
     if (data)
     {
@@ -132,6 +131,7 @@ dGeomID wrl::convex::new_geom(dSpaceID space) const
                                             data->num_points(),
                                             data->get_polygons());
         bGeomSetTransform(geom, default_M);
+        dGeomSetData(geom, this);
         return geom;
     }
     return 0;
@@ -139,9 +139,19 @@ dGeomID wrl::convex::new_geom(dSpaceID space) const
 
 //-----------------------------------------------------------------------------
 
+// By default the play geom is the same as the edit geom.
+
+dGeomID wrl::solid::new_play_geom(dSpaceID space)
+{
+    play_geom = new_edit_geom(space);
+    return play_geom;
+}
+
+//-----------------------------------------------------------------------------
+
 // Compute and position the mass of this box.
 
-void wrl::box::get_mass(dMass *mass)
+void wrl::box::new_play_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
     dVector3 v;
@@ -156,7 +166,7 @@ void wrl::box::get_mass(dMass *mass)
 
 // Compute and position the mass of this sphere.
 
-void wrl::sphere::get_mass(dMass *mass)
+void wrl::sphere::new_play_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
 
@@ -168,15 +178,17 @@ void wrl::sphere::get_mass(dMass *mass)
 
 // Compute the mass of this convex using ODE's trimesh mass calculator.
 
-void wrl::convex::get_mass(dMass *mass)
+void wrl::convex::new_play_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
 
     dTriMeshDataID id = dGeomTriMeshDataCreate();
-    dGeomTriMeshDataBuildDouble(id, data->get_points(), 3 * sizeof (double),
+    dGeomTriMeshDataBuildDouble(id, data->get_points(),
+                                    data->siz_points(),
                                     data->num_points(),
                                     data->get_indices(),
-                                    data->num_indices(), 3 * sizeof (unsigned int));
+                                    data->num_indices(),
+                                    data->siz_indices());
 
     dGeomID tm = dCreateTriMesh(0, id, 0, 0, 0);
 
@@ -186,14 +198,6 @@ void wrl::convex::get_mass(dMass *mass)
 
     dGeomDestroy(tm);
     dGeomTriMeshDataDestroy(id);
-}
-
-dGeomID wrl::solid::get_geom(dSpaceID space)
-{
-    if ((play_geom = new_geom(space)))
-        dGeomSetData(play_geom, this);
-
-    return play_geom;
 }
 
 //-----------------------------------------------------------------------------

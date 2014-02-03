@@ -306,9 +306,9 @@ void wrl::world::play_init()
         // Add the geom to the correct space.
 
         if (body)
-            geom = (*i)->get_geom(play_actor);
+            geom = (*i)->new_play_geom(play_actor);
         else
-            geom = (*i)->get_geom(play_scene);
+            geom = (*i)->new_play_geom(play_scene);
 
         if (geom)
         {
@@ -320,7 +320,7 @@ void wrl::world::play_init()
 
             if (body)
             {
-                (*i)->get_mass(&mass);
+                (*i)->new_play_mass(&mass);
                 dMassAdd(&play_mass[id], &mass);
             }
         }
@@ -356,7 +356,7 @@ void wrl::world::play_init()
     // Create and attach all joints.
 
     for (atom_set::iterator i = all.begin(); i != all.end(); ++i)
-        if (dJointID join = (*i)->get_join(play_world))
+        if (dJointID join = (*i)->new_play_join(play_world))
             dJointAttach(join, play_body[(*i)->body()],
                                play_body[(*i)->join()]);
 

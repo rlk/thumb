@@ -31,6 +31,10 @@ namespace wrl
         virtual int join(int id) { return (join_id = id); }
         virtual int join() const { return (join_id     ); }
 
+        // Physics initialization methods
+
+        virtual dGeomID new_edit_geom(dSpaceID);
+
         // Physics update methods
 
         virtual void play_init();
@@ -58,7 +62,7 @@ namespace wrl
 
         ball *clone() const { return new ball(*this); }
 
-        virtual dJointID get_join(dWorldID);
+        virtual dJointID new_play_join(dWorldID);
 
         virtual void play_init();
 
@@ -76,7 +80,7 @@ namespace wrl
 
         hinge *clone() const { return new hinge(*this); }
 
-        virtual dJointID get_join(dWorldID);
+        virtual dJointID new_play_join(dWorldID);
 
         virtual void play_init();
         virtual void step_init();
@@ -94,7 +98,7 @@ namespace wrl
 
         hinge2 *clone() const { return new hinge2(*this); }
 
-        virtual dJointID get_join(dWorldID);
+        virtual dJointID new_play_join(dWorldID);
 
         virtual void play_init();
         virtual void step_init();
@@ -112,7 +116,7 @@ namespace wrl
 
         slider *clone() const { return new slider(*this); }
 
-        virtual dJointID get_join(dWorldID);
+        virtual dJointID new_play_join(dWorldID);
 
         virtual void play_init();
         virtual void step_init();
@@ -130,7 +134,7 @@ namespace wrl
 
         amotor *clone() const { return new amotor(*this); }
 
-        virtual dJointID get_join(dWorldID);
+        virtual dJointID new_play_join(dWorldID);
 
         virtual void play_init();
         virtual void step_init();
@@ -148,7 +152,7 @@ namespace wrl
 
         universal *clone() const { return new universal(*this); }
 
-        virtual dJointID get_join(dWorldID);
+        virtual dJointID new_play_join(dWorldID);
 
         virtual void play_init();
         virtual void step_init();

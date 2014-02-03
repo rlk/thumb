@@ -72,9 +72,10 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual void     get_mass(dMass *m) { dMassSetZero(m); }
-        virtual dGeomID  get_geom(dSpaceID) { return 0;        }
-        virtual dJointID get_join(dWorldID) { return 0;        }
+        virtual dGeomID  new_edit_geom(dSpaceID) { return 0;        }
+        virtual dGeomID  new_play_geom(dSpaceID) { return 0;        }
+        virtual dJointID new_play_join(dWorldID) { return 0;        }
+        virtual void     new_play_mass(dMass *m) { dMassSetZero(m); }
 
         // Physics update methods
 
@@ -97,8 +98,6 @@ namespace wrl
         virtual int priority() const { return 0; }
 
     protected:
-
-        virtual dGeomID new_geom(dSpaceID) const { return 0; }
 
         dGeomID edit_geom;
 

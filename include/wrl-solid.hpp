@@ -35,7 +35,7 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual dGeomID get_geom(dSpaceID);
+        virtual dGeomID new_play_geom(dSpaceID);
 
         // Physics update methods
 
@@ -54,7 +54,6 @@ namespace wrl
     {
     protected:
 
-        virtual dGeomID new_geom(dSpaceID) const;
 
     public:
 
@@ -64,7 +63,8 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual void get_mass(dMass *m);
+        virtual dGeomID new_edit_geom(dSpaceID);
+        virtual void    new_play_mass(dMass *);
 
         // File I/O
 
@@ -78,8 +78,6 @@ namespace wrl
     {
     protected:
 
-        virtual dGeomID new_geom(dSpaceID) const;
-
     public:
 
         sphere(app::node=0, std::string="");
@@ -88,7 +86,8 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual void get_mass(dMass *m);
+        virtual dGeomID new_edit_geom(dSpaceID);
+        virtual void    new_play_mass(dMass *);
 
         // File I/O
 
@@ -103,9 +102,8 @@ namespace wrl
     protected:
 
         ogl::convex *data;
-        // dTriMeshDataID id;
+        dTriMeshDataID id;
 
-        virtual dGeomID new_geom(dSpaceID) const;
 
     public:
 
@@ -118,7 +116,8 @@ namespace wrl
 
         // Physics initialization methods
 
-        virtual void get_mass(dMass *m);
+        virtual dGeomID new_edit_geom(dSpaceID);
+        virtual void    new_play_mass(dMass *);
 
         // File I/O
 
