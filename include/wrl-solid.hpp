@@ -117,6 +117,7 @@ namespace wrl
         // Physics initialization methods
 
         virtual dGeomID new_edit_geom(dSpaceID);
+        virtual dGeomID new_play_geom(dSpaceID);
         virtual void    new_play_mass(dMass *);
 
         // File I/O

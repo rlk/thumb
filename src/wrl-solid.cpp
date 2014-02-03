@@ -53,16 +53,16 @@ wrl::sphere::sphere(app::node node, std::string _fill_name) :
 wrl::convex::convex(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "")
 {
-    data = ::glob->load_convex(line_name);
-
-    id = dGeomTriMeshDataCreate();
-    dGeomTriMeshDataBuildDouble(id, data->get_points(),
-                                    data->siz_points(),
-                                    data->num_points(),
-                                    data->get_indices(),
-                                    data->num_indices(),
-                                    data->siz_indices());
-
+    if ((data = ::glob->load_convex(line_name)))
+    {
+        id = dGeomTriMeshDataCreate();
+        dGeomTriMeshDataBuildDouble(id, data->get_points(),
+                                        data->siz_points(),
+                                        data->num_points(),
+                                        data->get_indices(),
+                                        data->num_indices(),
+                                        data->siz_indices());
+    }
     edit_geom = new_edit_geom(0);
 }
 
@@ -71,14 +71,25 @@ wrl::convex::convex(app::node node, std::string _fill_name) :
 // Convex solid copy constructor and destructor ensure that the convex data
 // is reference counted correcly.
 
-wrl::convex::convex(const convex& that) : solid(that)
+wrl::convex::convex(const convex& that) : solid(that), id(0)
 {
-    data = ::glob->dupe_convex(that.data);
+    if ((data = ::glob->dupe_convex(that.data)))
+    {
+        id = dGeomTriMeshDataCreate();
+        dGeomTriMeshDataBuildDouble(id, data->get_points(),
+                                        data->siz_points(),
+                                        data->num_points(),
+                                        data->get_indices(),
+                                        data->num_indices(),
+                                        data->siz_indices());
+    }
+    edit_geom = new_edit_geom(0);
 }
 
 wrl::convex::~convex()
 {
-    ::glob->free_convex(data);
+    if (id) dGeomTriMeshDataDestroy(id);
+    if (data) ::glob->free_convex(data);
 }
 
 //-----------------------------------------------------------------------------
@@ -125,6 +136,12 @@ dGeomID wrl::convex::new_edit_geom(dSpaceID space)
 {
     if (data)
     {
+#if 1
+        dGeomID geom = dCreateTriMesh(0, id, 0, 0, 0);
+        bGeomSetTransform(geom, default_M);
+        dGeomSetData(geom, this);
+        return geom;
+#else
         dGeomID geom = dCreateConvex(space, data->get_planes(),
                                             data->num_planes(),
                                             data->get_points(),
@@ -133,6 +150,7 @@ dGeomID wrl::convex::new_edit_geom(dSpaceID space)
         bGeomSetTransform(geom, default_M);
         dGeomSetData(geom, this);
         return geom;
+#endif
     }
     return 0;
 }
@@ -147,6 +165,26 @@ dGeomID wrl::solid::new_play_geom(dSpaceID space)
     return play_geom;
 }
 
+// The convex type uses a convex geom play mode but a trimesh in edit mode.
+// This is because trimesh has better ray collision while convex has better
+// physics stability.
+#if 1
+dGeomID wrl::convex::new_play_geom(dSpaceID space)
+{
+    if (data)
+    {
+        play_geom = dCreateConvex(space, data->get_planes(),
+                                         data->num_planes(),
+                                         data->get_points(),
+                                         data->num_points(),
+                                         data->get_polygons());
+        bGeomSetTransform(play_geom, default_M);
+        dGeomSetData(play_geom, this);
+        return play_geom;
+    }
+    return 0;
+}
+#endif
 //-----------------------------------------------------------------------------
 
 // Compute and position the mass of this box.
@@ -173,7 +211,6 @@ void wrl::sphere::new_play_mass(dMass *mass)
     dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
     play_mass = *mass;
     bMassSetTransform(mass, current_M);
-
 }
 
 // Compute the mass of this convex using ODE's trimesh mass calculator.
@@ -182,22 +219,13 @@ void wrl::convex::new_play_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
 
-    dTriMeshDataID id = dGeomTriMeshDataCreate();
-    dGeomTriMeshDataBuildDouble(id, data->get_points(),
-                                    data->siz_points(),
-                                    data->num_points(),
-                                    data->get_indices(),
-                                    data->num_indices(),
-                                    data->siz_indices());
+    dGeomID geom = dCreateTriMesh(0, id, 0, 0, 0);
 
-    dGeomID tm = dCreateTriMesh(0, id, 0, 0, 0);
-
-    dMassSetTrimesh(mass, d, tm);
+    dMassSetTrimesh(mass, d, geom);
     play_mass = *mass;
     bMassSetTransform(mass, current_M);
 
-    dGeomDestroy(tm);
-    dGeomTriMeshDataDestroy(id);
+    dGeomDestroy(geom);
 }
 
 //-----------------------------------------------------------------------------
