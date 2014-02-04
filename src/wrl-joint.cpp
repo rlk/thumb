@@ -26,7 +26,7 @@ wrl::joint::joint(app::node node, std::string fill, std::string line) :
     }
 
     line_scale = vec3(0.25, 0.25, 0.25);
-    edit_geom  = new_edit_geom(0);
+    init_edit_geom(0);
 }
 
 //-----------------------------------------------------------------------------
