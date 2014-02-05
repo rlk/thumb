@@ -65,7 +65,7 @@ wrl::capsule::capsule(app::node node, std::string _fill_name) :
     const vec3 v = fill->get_bound().length();
 
     radius = std::max(v[0], v[1]) / 2.0;
-    length = v[2];
+    length = v[2] - radius - radius;
 
     line_scale = vec3(radius, radius, length / 2.0);
 
