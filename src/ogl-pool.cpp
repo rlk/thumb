@@ -167,7 +167,7 @@ void ogl::unit::set_mesh()
         ec += m->count_lines() * 2
             + m->count_faces() * 3;
 
-        m->merge_bound(my_aabb);
+        my_aabb.merge(m->get_bound());
     }
 }
 
@@ -215,13 +215,14 @@ void ogl::unit::merge_batch(mesh_m& meshes)
     if (active) meshes.insert(my_mesh.begin(), my_mesh.end());
 }
 
-void ogl::unit::merge_bound(aabb& b)
+#if 0
+void ogl::unit::merge_bound(aabb& b) const
 {
     // Merge the local mesh bounding volume with the given one.
 
     if (active) b.merge(my_aabb);
 }
-
+#endif
 //-----------------------------------------------------------------------------
 
 void ogl::unit::buff(bool b)
@@ -235,7 +236,7 @@ void ogl::unit::buff(bool b)
         for (mesh_m::iterator i = my_mesh.begin(); i != my_mesh.end(); ++i)
         {
             i->second->cache_verts(i->first, M, I, get_id());
-            i->second->merge_bound(my_aabb);
+            my_aabb.merge(i->second->get_bound());
         }
     }
     rebuff = false;
@@ -343,7 +344,7 @@ void ogl::node::buff(GLfloat *v, GLfloat *n, GLfloat *t, GLfloat *u, bool b)
         for (unit_s::iterator i = my_unit.begin(); i != my_unit.end(); ++i)
         {
             (*i)->buff(b);
-            (*i)->merge_bound(my_aabb);
+            my_aabb.merge((*i)->get_bound());
         }
 
         // Upload each mesh's vertex data to the bound buffer object.

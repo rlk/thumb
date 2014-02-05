@@ -121,14 +121,16 @@ namespace ogl
         void transform(const mat4&, const mat4&);
 
         void merge_batch(mesh_m&);
-        void merge_bound(aabb&);
+        // void merge_bound(aabb&) const;
 
         void buff(bool);
 
         GLsizei vcount() const { return vc; }
         GLsizei ecount() const { return ec; }
         int     get_id() const { return id; }
-        
+
+        aabb get_bound() const { return my_aabb; }
+
         mat4                get_world_transform() const;
         const ogl::binding *get_default_binding() const;
 

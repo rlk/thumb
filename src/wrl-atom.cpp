@@ -64,9 +64,9 @@ wrl::atom::atom(app::node node, std::string _fill_name,
         line = new ogl::unit(line_name);
 
     if (fill)
-        fill->merge_bound(fill_bound);
+        fill_bound = fill->get_bound();
     if (line)
-        line->merge_bound(line_bound);
+        line_bound = line->get_bound();
 
     // Initialize the transform and body mappings.
 

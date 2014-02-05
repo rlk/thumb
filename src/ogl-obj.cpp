@@ -30,7 +30,7 @@ void obj::obj::center()
     ogl::aabb bound;
 
     for (ogl::mesh_i i = meshes.begin(); i != meshes.end(); ++i)
-        (*i)->merge_bound(bound);
+        bound.merge((*i)->get_bound());
 
     // Compute the center of the bound.
 

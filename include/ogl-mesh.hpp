@@ -119,10 +119,9 @@ namespace ogl
         GLsizei count_faces() const { return GLsizei(faces.size()); }
         GLsizei count_lines() const { return GLsizei(lines.size()); }
 
-        void merge_bound(aabb& b) const { b.merge(bound); }
-
-        GLuint get_min() const { return min; }
-        GLuint get_max() const { return max; }
+        aabb   get_bound() const { return bound; }
+        GLuint get_min  () const { return min;   }
+        GLuint get_max  () const { return max;   }
 
         // Buffer object writers
 

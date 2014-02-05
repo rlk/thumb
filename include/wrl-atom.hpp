@@ -111,12 +111,12 @@ namespace wrl
 
         // Visual representations.
 
+        ogl::unit  *fill;
+        ogl::unit  *line;
         std::string fill_name;
         std::string line_name;
         ogl::aabb   fill_bound;
         ogl::aabb   line_bound;
-        ogl::unit  *fill;
-        ogl::unit  *line;
 
         // Physical system parameters
 
