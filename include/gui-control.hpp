@@ -165,6 +165,28 @@ namespace cnt
         void apply();
     };
 
+    class new_capsule_button : public create_button
+    {
+        gui::widget *name;
+
+    public:
+
+        new_capsule_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "New Capsule"), name(n) { }
+        void apply();
+    };
+
+    class new_cylinder_button : public create_button
+    {
+        gui::widget *name;
+
+    public:
+
+        new_cylinder_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "New Cylinder"), name(n) { }
+        void apply();
+    };
+
     class new_convex_button : public create_button
     {
         gui::widget *name;
@@ -182,7 +204,7 @@ namespace cnt
     class new_d_light_button : public create_button
     {
         gui::widget *name;
-        
+
     public:
 
         new_d_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :
@@ -193,7 +215,7 @@ namespace cnt
     class new_s_light_button : public create_button
     {
         gui::widget *name;
-        
+
     public:
 
         new_s_light_button(wrl::world *w, gui::widget *s, gui::widget *n) :

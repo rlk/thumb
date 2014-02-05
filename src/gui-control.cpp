@@ -161,6 +161,18 @@ void cnt::new_sphere_button::apply()
         do_create(new wrl::sphere(0, name->value()));
 }
 
+void cnt::new_capsule_button::apply()
+{
+    if (!name->value().empty())
+        do_create(new wrl::capsule(0, name->value()));
+}
+
+void cnt::new_cylinder_button::apply()
+{
+    if (!name->value().empty())
+        do_create(new wrl::cylinder(0, name->value()));
+}
+
 void cnt::new_convex_button::apply()
 {
     if (!name->value().empty())
@@ -274,12 +286,11 @@ cnt::solid_panel::solid_panel(wrl::world *W, gui::widget *w) : gui::vgroup()
             add(S)->
             add((new gui::harray)->
                 add(new gui::filler(true, false))->
-                add(new gui::filler(true, false))->
-                add(new gui::filler(true, false))->
-                add(new gui::filler(true, false))->
-                add(new new_convex_button(W, w, S))->
-                add(new new_box_button   (W, w, S))->
-                add(new new_sphere_button(W, w, S)))));
+                add(new new_convex_button  (W, w, S))->
+                add(new new_cylinder_button(W, w, S))->
+                add(new new_capsule_button (W, w, S))->
+                add(new new_box_button     (W, w, S))->
+                add(new new_sphere_button  (W, w, S)))));
 
     add(new gui::spacer);
 
