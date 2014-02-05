@@ -37,14 +37,51 @@ wrl::solid::solid(app::node node, std::string _fill_name,
 wrl::box::box(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_box.obj")
 {
-    line_scale = fill_bound.length() / 2.0;
+    length = fill->get_bound().length();
+
+    line_scale = length / 2;
+
     init_edit_geom(0);
 }
 
 wrl::sphere::sphere(app::node node, std::string _fill_name) :
-    solid(node, _fill_name, "wire/wire_sphere.obj")
+    solid(node, _fill_name, "wire/wire_sphere.obj"), radius(0)
 {
-    line_scale = fill_bound.length() / 2.0;
+    const vec3 a = fill->get_bound().min();
+    const vec3 b = fill->get_bound().max();
+
+    radius = std::max(radius, std::max(fabs(a[0]), fabs(b[0])));
+    radius = std::max(radius, std::max(fabs(a[1]), fabs(b[1])));
+    radius = std::max(radius, std::max(fabs(a[2]), fabs(b[2])));
+
+    line_scale = vec3(radius, radius, radius);
+
+    init_edit_geom(0);
+}
+
+wrl::capsule::capsule(app::node node, std::string _fill_name) :
+    solid(node, _fill_name, "wire/wire_cylinder.obj")
+{
+    const vec3 v = fill->get_bound().length();
+
+    radius = std::max(v[0], v[1]) / 2.0;
+    length = v[2];
+
+    line_scale = vec3(radius, radius, length / 2.0);
+
+    init_edit_geom(0);
+}
+
+wrl::cylinder::cylinder(app::node node, std::string _fill_name) :
+    solid(node, _fill_name, "wire/wire_cylinder.obj")
+{
+    const vec3 v = fill->get_bound().length();
+
+    radius = std::max(v[0], v[1]) / 2.0;
+    length = v[2];
+
+    line_scale = vec3(radius, radius, length / 2.0);
+
     init_edit_geom(0);
 }
 
@@ -94,37 +131,29 @@ wrl::convex::~convex()
 
 dGeomID wrl::box::new_edit_geom(dSpaceID space) const
 {
-    vec3 d = fill_bound.length();
-
-    if (length(d) > 0)
-        return dCreateBox(space, d[0], d[1], d[2]);
-    else
-        return 0;
+    return dCreateBox(space, dReal(length[0]),
+                             dReal(length[1]),
+                             dReal(length[2]));
 }
 
 dGeomID wrl::sphere::new_edit_geom(dSpaceID space) const
 {
-    vec3 a = fill_bound.min();
-    vec3 z = fill_bound.max();
+    return dCreateSphere(space, dReal(radius));
+}
 
-    double r = 0;
+dGeomID wrl::capsule::new_edit_geom(dSpaceID space) const
+{
+    return dCreateCapsule(space, dReal(radius), dReal(length));
+}
 
-    if (r < fabs(a[0])) r = fabs(a[0]);
-    if (r < fabs(z[0])) r = fabs(z[0]);
-    if (r < fabs(a[1])) r = fabs(a[1]);
-    if (r < fabs(z[1])) r = fabs(z[1]);
-    if (r < fabs(a[2])) r = fabs(a[2]);
-    if (r < fabs(z[2])) r = fabs(z[2]);
-
-    if (r > 0)
-        return dCreateSphere(space, dReal(r));
-    else
-        return 0;
+dGeomID wrl::cylinder::new_edit_geom(dSpaceID space) const
+{
+    return dCreateCylinder(space, dReal(radius), dReal(length));
 }
 
 dGeomID wrl::convex::new_edit_geom(dSpaceID space) const
 {
-    return dCreateTriMesh(0, id, 0, 0, 0);
+    return dCreateTriMesh(space, id, 0, 0, 0);
 }
 
 //-----------------------------------------------------------------------------
@@ -159,10 +188,9 @@ dGeomID wrl::convex::new_play_geom(dSpaceID space) const
 void wrl::box::new_play_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
-    dVector3 v;
-
-    dGeomBoxGetLengths(edit_geom, v);
-    dMassSetBox(mass, d, v[0], v[1], v[2]);
+    dMassSetBox(mass, d, dReal(length[0]),
+                         dReal(length[1]),
+                         dReal(length[2]));
 }
 
 // Compute and position the mass of this sphere.
@@ -170,8 +198,23 @@ void wrl::box::new_play_mass(dMass *mass)
 void wrl::sphere::new_play_mass(dMass *mass)
 {
     dReal d = (dReal) params[param::density]->value();
+    dMassSetSphere(mass, d, dReal(radius));
+}
 
-    dMassSetSphere(mass, d, dGeomSphereGetRadius(edit_geom));
+// Compute and position the mass of this capsule.
+
+void wrl::capsule::new_play_mass(dMass *mass)
+{
+    dReal d = (dReal) params[param::density]->value();
+    dMassSetCapsule(mass, d, 3, dReal(radius), dReal(length));
+}
+
+// Compute and position the mass of this cylinder.
+
+void wrl::cylinder::new_play_mass(dMass *mass)
+{
+    dReal d = (dReal) params[param::density]->value();
+    dMassSetCylinder(mass, d, 3, dReal(radius), dReal(length));
 }
 
 // Compute the mass of this convex using ODE's trimesh mass calculator.
@@ -286,6 +329,28 @@ void wrl::sphere::save(app::node node)
     app::node n("geom");
 
     n.set_s("type", "sphere");
+    n.insert(node);
+    solid::save(n);
+}
+
+void wrl::capsule::save(app::node node)
+{
+    // Create a new capsule element.
+
+    app::node n("geom");
+
+    n.set_s("type", "capsule");
+    n.insert(node);
+    solid::save(n);
+}
+
+void wrl::cylinder::save(app::node node)
+{
+    // Create a new cylinder element.
+
+    app::node n("geom");
+
+    n.set_s("type", "cylinder");
     n.insert(node);
     solid::save(n);
 }

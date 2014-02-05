@@ -56,6 +56,7 @@ namespace wrl
     {
     protected:
 
+        vec3 length;
 
     public:
 
@@ -80,11 +81,65 @@ namespace wrl
     {
     protected:
 
+        double radius;
+
     public:
 
         sphere(app::node=0, std::string="");
 
         virtual sphere *clone() const { return new sphere(*this); }
+
+        // Physics initialization methods
+
+        virtual dGeomID new_edit_geom(dSpaceID) const;
+        virtual void    new_play_mass(dMass  *);
+
+        // File I/O
+
+        virtual void save(app::node);
+    };
+
+    //-------------------------------------------------------------------------
+    // Solid capsule atom
+
+    class capsule : public solid
+    {
+    protected:
+
+        double radius;
+        double length;
+
+    public:
+
+        capsule(app::node=0, std::string="");
+
+        virtual capsule *clone() const { return new capsule(*this); }
+
+        // Physics initialization methods
+
+        virtual dGeomID new_edit_geom(dSpaceID) const;
+        virtual void    new_play_mass(dMass  *);
+
+        // File I/O
+
+        virtual void save(app::node);
+    };
+
+    //-------------------------------------------------------------------------
+    // Solid cylinder atom
+
+    class cylinder : public solid
+    {
+    protected:
+
+        double radius;
+        double length;
+
+    public:
+
+        cylinder(app::node=0, std::string="");
+
+        virtual cylinder *clone() const { return new cylinder(*this); }
 
         // Physics initialization methods
 
@@ -105,7 +160,6 @@ namespace wrl
 
         ogl::convex *data;
         dTriMeshDataID id;
-
 
     public:
 

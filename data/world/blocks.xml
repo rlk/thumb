@@ -110,7 +110,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom type="box">
+    <geom type="cylinder">
       <file>solid/block/block-cylinder-2x2x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>
@@ -180,7 +180,7 @@
       <param name="soft_erp">0.2</param>
       <param name="soft_cfm">0.0</param>
     </geom>
-    <geom type="box">
+    <geom type="cylinder">
       <file>solid/block/block-cylinder-2x1x1.obj</file>
       <rot_x>0.000000</rot_x>
       <rot_y>0.000000</rot_y>

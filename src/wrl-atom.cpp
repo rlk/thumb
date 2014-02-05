@@ -43,10 +43,10 @@ wrl::atom::atom(app::node node, std::string _fill_name,
                                 std::string _line_name) :
     edit_geom(0),
     body_id(0),
-    fill_name(_fill_name),
-    line_name(_line_name),
     fill(0),
     line(0),
+    fill_name(_fill_name),
+    line_name(_line_name),
     line_scale(1, 1, 1)
 {
     // Load the named file and line units.
@@ -62,11 +62,6 @@ wrl::atom::atom(app::node node, std::string _fill_name,
         fill = new ogl::unit(fill_name);
     if (!line_name.empty())
         line = new ogl::unit(line_name);
-
-    if (fill)
-        fill_bound = fill->get_bound();
-    if (line)
-        line_bound = line->get_bound();
 
     // Initialize the transform and body mappings.
 

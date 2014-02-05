@@ -815,14 +815,12 @@ void wrl::world::load(std::string name)
 
             // Create a new solid for each recognized geom type.
 
-            if      (type == "box")     a = new wrl::box   (n);
-            else if (type == "sphere")  a = new wrl::sphere(n);
-            else if (type == "convex")  a = new wrl::convex(n);
+            if      (type == "box")       a = new wrl::box     (n);
+            else if (type == "sphere")    a = new wrl::sphere  (n);
+            else if (type == "capsule")   a = new wrl::capsule (n);
+            else if (type == "cylinder")  a = new wrl::cylinder(n);
+            else if (type == "convex")    a = new wrl::convex  (n);
             else continue;
-
-            // Allow the new solid to parse its own attributes.
-
-            // a->load(n);
 
             // Select the new solid for addition to the world.
 
@@ -845,10 +843,6 @@ void wrl::world::load(std::string name)
             else if (type == "universal") a = new wrl::universal(n);
             else continue;
 
-            // Allow the new joint to parse its own attributes.
-
-            // a->load(n);
-
             // Select the new joint for addition to the world.
 
             sel.insert(a);
@@ -865,10 +859,6 @@ void wrl::world::load(std::string name)
             if      (type == "d-light") a = new wrl::d_light(n);
             else if (type == "s-light") a = new wrl::s_light(n);
             else continue;
-
-            // Allow the new light to parse its own attributes.
-
-            // a->load(n);
 
             // Select the new light for addition to the world.
 
