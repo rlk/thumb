@@ -940,6 +940,7 @@ ogl::aabb wrl::world::prep_fill(int frusc, const app::frustum *const *frusv)
     for (int frusi = 0; frusi < frusc; ++frusi)
         bb.merge(fill_pool->view(frusi, frusv[frusi]->get_world_planes(), 5));
 
+    bb.inflate(1.01);
     return bb;
 }
 
@@ -956,6 +957,7 @@ ogl::aabb wrl::world::prep_line(int frusc, const app::frustum *const *frusv)
     for (int frusi = 0; frusi < frusc; ++frusi)
         bb.merge(line_pool->view(frusi, frusv[frusi]->get_world_planes(), 5));
 
+    bb.inflate(1.01);
     return bb;
 }
 
@@ -1126,6 +1128,7 @@ void wrl::world::draw_fill(int frusi, const app::frustum *frusp)
 {
     glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     fill_pool->draw_init();

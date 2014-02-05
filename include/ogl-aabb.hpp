@@ -34,6 +34,7 @@ namespace ogl
         void merge(const aabb&);
 
         void intersect(const aabb&);
+        void inflate(double);
 
         bool test(const vec4 *, int)                    const;
         bool test(const vec4 *, int, const mat4&, int&) const;

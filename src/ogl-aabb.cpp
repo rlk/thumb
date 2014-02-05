@@ -100,6 +100,13 @@ void ogl::aabb::intersect(const aabb& that)
         }
 }
 
+void ogl::aabb::inflate(double k)
+{
+    vec3 c = center();
+    a = a + (a - c) * k;
+    z = z + (z - c) * k;
+}
+
 //-----------------------------------------------------------------------------
 
 // These functions assume normalized plane equations.
