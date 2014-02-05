@@ -148,6 +148,7 @@ namespace app
        ~data();
 
         void init();
+        void add_pack_archive(const void *, size_t);
 
         const void *load(const std::string&,               size_t * = 0);
         bool        save(const std::string&, const void *, size_t * = 0);

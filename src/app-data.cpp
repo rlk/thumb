@@ -176,6 +176,13 @@ void app::data::init()
         file = app::file(filename);
 }
 
+// Add an additional in-memory pack archive.
+
+void app::data::add_pack_archive(const void *ptr, size_t len)
+{
+    archives.push_front(new app::pack_archive(ptr, len));
+}
+
 // Return a buffer containing the named data file.
 
 const void *app::data::load(const std::string& name, size_t *len)
