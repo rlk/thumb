@@ -59,6 +59,12 @@ wrl::sphere::sphere(app::node node, std::string _fill_name) :
     init_edit_geom(0);
 }
 
+wrl::plane::plane(app::node node, std::string _fill_name) :
+    solid(node, _fill_name, "wire/wire_plane.obj")
+{
+    init_edit_geom(0);
+}
+
 wrl::capsule::capsule(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_cylinder.obj")
 {
@@ -129,6 +135,11 @@ wrl::convex::~convex()
 
 //-----------------------------------------------------------------------------
 
+dGeomID wrl::sphere::new_edit_geom(dSpaceID space) const
+{
+    return dCreateSphere(space, dReal(radius));
+}
+
 dGeomID wrl::box::new_edit_geom(dSpaceID space) const
 {
     return dCreateBox(space, dReal(length[0]),
@@ -136,9 +147,9 @@ dGeomID wrl::box::new_edit_geom(dSpaceID space) const
                              dReal(length[2]));
 }
 
-dGeomID wrl::sphere::new_edit_geom(dSpaceID space) const
+dGeomID wrl::plane::new_edit_geom(dSpaceID space) const
 {
-    return dCreateSphere(space, dReal(radius));
+    return dCreateBox(space, 40, 1, 40);
 }
 
 dGeomID wrl::capsule::new_edit_geom(dSpaceID space) const
@@ -165,7 +176,16 @@ dGeomID wrl::solid::new_play_geom(dSpaceID space) const
     return new_edit_geom(space);
 }
 
-// The convex type uses a convex geom play mode but a trimesh in edit mode.
+// The plane type uses a plane geom in play mode but a box in edit mode. This
+// is because plane-ray collision isn't supported by ODE so the plane cannot
+// be selected in the editor.
+
+dGeomID wrl::plane::new_play_geom(dSpaceID space) const
+{
+    return dCreatePlane(space, 0, 1, 0, 0);
+}
+
+// The convex type uses a convex geom in play mode but a trimesh in edit mode.
 // This is because trimesh has better ray collision while convex has better
 // physics stability.
 
@@ -311,21 +331,8 @@ void wrl::solid::save(app::node node)
     atom::save(node);
 }
 
-void wrl::box::save(app::node node)
-{
-    // Create a new box element.
-
-    app::node n("geom");
-
-    n.set_s("type", "box");
-    n.insert(node);
-    solid::save(n);
-}
-
 void wrl::sphere::save(app::node node)
 {
-    // Create a new sphere element.
-
     app::node n("geom");
 
     n.set_s("type", "sphere");
@@ -333,10 +340,26 @@ void wrl::sphere::save(app::node node)
     solid::save(n);
 }
 
+void wrl::box::save(app::node node)
+{
+    app::node n("geom");
+
+    n.set_s("type", "box");
+    n.insert(node);
+    solid::save(n);
+}
+
+void wrl::plane::save(app::node node)
+{
+    app::node n("geom");
+
+    n.set_s("type", "plane");
+    n.insert(node);
+    solid::save(n);
+}
+
 void wrl::capsule::save(app::node node)
 {
-    // Create a new capsule element.
-
     app::node n("geom");
 
     n.set_s("type", "capsule");
@@ -346,8 +369,6 @@ void wrl::capsule::save(app::node node)
 
 void wrl::cylinder::save(app::node node)
 {
-    // Create a new cylinder element.
-
     app::node n("geom");
 
     n.set_s("type", "cylinder");
@@ -357,8 +378,6 @@ void wrl::cylinder::save(app::node node)
 
 void wrl::convex::save(app::node node)
 {
-    // Create a new convex element.
-
     app::node n("geom");
 
     n.set_s("type", "convex");

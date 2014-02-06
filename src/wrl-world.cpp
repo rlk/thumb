@@ -43,7 +43,7 @@ wrl::world::world() :
     dInitODE();
 
     edit_space = dHashSpaceCreate(0);
-    edit_point = dCreateRay(edit_space, 100);
+    edit_point = dCreateRay(edit_space, 1000);
     edit_focus = 0;
 
     play_world = 0;

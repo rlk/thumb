@@ -100,6 +100,27 @@ namespace wrl
     };
 
     //-------------------------------------------------------------------------
+    // Solid plane atom
+
+    class plane : public solid
+    {
+    public:
+
+        plane(app::node=0, std::string="");
+
+        virtual plane *clone() const { return new plane(*this); }
+
+        // Physics initialization methods
+
+        virtual dGeomID new_edit_geom(dSpaceID) const;
+        virtual dGeomID new_play_geom(dSpaceID) const;
+
+        // File I/O
+
+        virtual void save(app::node);
+    };
+
+    //-------------------------------------------------------------------------
     // Solid capsule atom
 
     class capsule : public solid

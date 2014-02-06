@@ -150,7 +150,7 @@ namespace cnt
     public:
 
         new_box_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "New Box"), name(n) { }
+            create_button(w, s, "Box"), name(n) { }
         void apply();
     };
 
@@ -161,7 +161,18 @@ namespace cnt
     public:
 
         new_sphere_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "New Sphere"), name(n) { }
+            create_button(w, s, "Sphere"), name(n) { }
+        void apply();
+    };
+
+    class new_plane_button : public create_button
+    {
+        gui::widget *name;
+
+    public:
+
+        new_plane_button(wrl::world *w, gui::widget *s, gui::widget *n) :
+            create_button(w, s, "Plane"), name(n) { }
         void apply();
     };
 
@@ -172,7 +183,7 @@ namespace cnt
     public:
 
         new_capsule_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "New Capsule"), name(n) { }
+            create_button(w, s, "Capsule"), name(n) { }
         void apply();
     };
 
@@ -183,7 +194,7 @@ namespace cnt
     public:
 
         new_cylinder_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "New Cylinder"), name(n) { }
+            create_button(w, s, "Cylinder"), name(n) { }
         void apply();
     };
 
@@ -194,7 +205,7 @@ namespace cnt
     public:
 
         new_convex_button(wrl::world *w, gui::widget *s, gui::widget *n) :
-            create_button(w, s, "New Convex"), name(n) { }
+            create_button(w, s, "Convex"), name(n) { }
         void apply();
     };
 

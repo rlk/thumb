@@ -17,6 +17,7 @@
 
 //-----------------------------------------------------------------------------
 
+bool bGeomIsPlaceable   (dGeomID);
 mat4 bBodyGetTransform  (dBodyID);
 mat4 bGeomGetOffset     (dGeomID);
 mat4 bGeomGetTransform  (dGeomID);
