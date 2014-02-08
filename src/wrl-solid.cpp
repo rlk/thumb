@@ -34,16 +34,6 @@ wrl::solid::solid(app::node node, std::string _fill_name,
     load_params(node);
 }
 
-wrl::box::box(app::node node, std::string _fill_name) :
-    solid(node, _fill_name, "wire/wire_box.obj")
-{
-    length = fill->get_bound().length();
-
-    line_scale = length / 2;
-
-    init_edit_geom(0);
-}
-
 wrl::sphere::sphere(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_sphere.obj"), radius(0)
 {
@@ -55,6 +45,16 @@ wrl::sphere::sphere(app::node node, std::string _fill_name) :
     radius = std::max(radius, std::max(fabs(a[2]), fabs(b[2])));
 
     line_scale = vec3(radius, radius, radius);
+
+    init_edit_geom(0);
+}
+
+wrl::box::box(app::node node, std::string _fill_name) :
+    solid(node, _fill_name, "wire/wire_box.obj")
+{
+    length = fill->get_bound().length();
+
+    line_scale = length / 2;
 
     init_edit_geom(0);
 }
