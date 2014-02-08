@@ -1,4 +1,4 @@
-usemtl ball
+usemtl default
 v -0.289 0 0.5
 v -0.289 0 -0.5
 v -0.287 -0.026 -0.5
