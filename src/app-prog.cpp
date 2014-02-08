@@ -275,6 +275,12 @@ bool app::prog::process_event(app::event *E)
                        ::host->get_window_h());
             return true;
         }
+        if (E->data.key.k == key_init)
+        {
+            SDL_Event user = { SDL_USEREVENT };
+            SDL_PushEvent(&user);
+            return true;
+        }
     }
     else if (E->get_type() == E_TICK)
         axis_state();
