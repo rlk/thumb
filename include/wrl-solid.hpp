@@ -50,31 +50,6 @@ namespace wrl
     };
 
     //-------------------------------------------------------------------------
-    // Solid box atom
-
-    class box : public solid
-    {
-    protected:
-
-        vec3 length;
-
-    public:
-
-        box(app::node=0, std::string="");
-
-        virtual box *clone() const { return new box(*this); }
-
-        // Physics initialization methods
-
-        virtual dGeomID new_edit_geom(dSpaceID) const;
-        virtual void    new_play_mass(dMass  *);
-
-        // File I/O
-
-        virtual void save(app::node);
-    };
-
-    //-------------------------------------------------------------------------
     // Solid sphere atom
 
     class sphere : public solid
@@ -88,6 +63,31 @@ namespace wrl
         sphere(app::node=0, std::string="");
 
         virtual sphere *clone() const { return new sphere(*this); }
+
+        // Physics initialization methods
+
+        virtual dGeomID new_edit_geom(dSpaceID) const;
+        virtual void    new_play_mass(dMass  *);
+
+        // File I/O
+
+        virtual void save(app::node);
+    };
+
+    //-------------------------------------------------------------------------
+    // Solid box atom
+
+    class box : public solid
+    {
+    protected:
+
+        vec3 length;
+
+    public:
+
+        box(app::node=0, std::string="");
+
+        virtual box *clone() const { return new box(*this); }
 
         // Physics initialization methods
 
