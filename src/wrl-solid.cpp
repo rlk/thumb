@@ -149,7 +149,7 @@ dGeomID wrl::box::new_edit_geom(dSpaceID space) const
 
 dGeomID wrl::plane::new_edit_geom(dSpaceID space) const
 {
-    return dCreateBox(space, 40, 1, 40);
+    return dCreateBox(space, 30, 0.1, 30);
 }
 
 dGeomID wrl::capsule::new_edit_geom(dSpaceID space) const
