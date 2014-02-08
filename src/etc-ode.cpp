@@ -48,7 +48,13 @@ mat4 bGeomGetOffset(dGeomID geom)
 
 mat4 bGeomGetTransform(dGeomID geom)
 {
-    if (bGeomIsPlaceable(geom))
+    if (dGeomGetClass(geom) == dPlaneClass)
+    {
+        dVector4 v;
+        dGeomPlaneGetParams(geom, v);
+        return mat4();
+    }
+    else
     {
         const dReal *p = dGeomGetPosition(geom);
         const dReal *R = dGeomGetRotation(geom);
@@ -57,7 +63,6 @@ mat4 bGeomGetTransform(dGeomID geom)
                     double(R[4]), double(R[5]), double(R[ 6]), double(p[1]),
                     double(R[8]), double(R[9]), double(R[10]), double(p[2]));
     }
-    else return mat4();
 }
 
 void bGeomSetOffsetWorld(dGeomID geom, const mat4& M)
@@ -90,7 +95,15 @@ void bGeomSetOffsetWorld(dGeomID geom, const mat4& M)
 
 void bGeomSetTransform(dGeomID geom, const mat4& M)
 {
-    if (bGeomIsPlaceable(geom))
+    if (dGeomGetClass(geom) == dPlaneClass)
+    {
+        vec4 w = M * vec4(0, 1, 0, 0);
+        dGeomPlaneSetParams(geom, dReal(w[0]),
+                                  dReal(w[1]),
+                                  dReal(w[2]),
+                                  dReal(w[3]));
+    }
+    else
     {
         dMatrix3 R;
 
