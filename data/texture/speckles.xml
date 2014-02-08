@@ -1,8 +1,0 @@
-<?xml version="1.0"?>
-  <texture>
-    <filter type="min" value="nearest" />
-    <filter type="mag" value="nearest" />
-    <wrap axis="s" value="repeat" />
-    <wrap axis="t" value="repeat" />
-    <option name="subsample" value="1" />
-  </texture>

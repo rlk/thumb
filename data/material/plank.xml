@@ -1,9 +1,0 @@
-<?xml version="1.0"?>
-  <material>
-    <program mode="depth" file="object-depth.xml" />
-    <program mode="color" file="object-color.xml">
-      <texture sampler="diffuse"  name="plank-diffuse.png" />
-      <texture sampler="specular" name="default-specular.png" />
-      <texture sampler="normal"   name="default-normal.png" />
-    </program>
-  </material>
