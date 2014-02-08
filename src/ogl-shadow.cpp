@@ -50,15 +50,17 @@ void ogl::shadow::free_frame() const
 
 void ogl::shadow::bind(GLenum unit) const
 {
-    GLfloat C[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
-
     assert(buff);
 
     buff->bind_depth(unit);
 
+#if 0
+    GLfloat C[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_BORDER);
     glTexParameteri (GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_BORDER);
     glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, C);
+#endif
 }
 
 //-----------------------------------------------------------------------------
