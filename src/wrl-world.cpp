@@ -817,7 +817,7 @@ void wrl::world::load(std::string name)
 
             if      (type == "sphere")    a = new wrl::sphere  (n);
             else if (type == "box")       a = new wrl::box     (n);
-            else if (type == "plane")     a = new wrl::sphere  (n);
+            else if (type == "plane")     a = new wrl::plane   (n);
             else if (type == "capsule")   a = new wrl::capsule (n);
             else if (type == "cylinder")  a = new wrl::cylinder(n);
             else if (type == "convex")    a = new wrl::convex  (n);
