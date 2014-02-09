@@ -62,6 +62,9 @@ wrl::box::box(app::node node, std::string _fill_name) :
 wrl::plane::plane(app::node node, std::string _fill_name) :
     solid(node, _fill_name, "wire/wire_plane.obj")
 {
+    if (fill)
+        fill->set_ubiq(true);
+
     init_edit_geom(0);
 }
 

@@ -470,27 +470,29 @@ mat4 ogl::node::get_world_transform() const
 
 ogl::aabb ogl::node::view(int id, const vec4 *V, int n)
 {
-    // Get the cached culler hint.
+    if (!ubiquitous)
+    {
+        // Get the cached culler hint.
 
-    int bit, hint = get_oct(hint_cache, id);
+        int bit, hint = get_oct(hint_cache, id);
 
-    // Test the bounding box and set the visibility bit.
+        // Test the bounding box and set the visibility bit.
 
-    if (V == 0 || my_aabb.test(V, n, M, hint))
-        test_cache = set_bit(test_cache, id, (bit = 1));
-    else
-        test_cache = set_bit(test_cache, id, (bit = 0));
+        if (V == 0 || my_aabb.test(V, n, M, hint))
+            test_cache = set_bit(test_cache, id, (bit = 1));
+        else
+            test_cache = set_bit(test_cache, id, (bit = 0));
 
-    // Set the cached culler hint.
+        // Set the cached culler hint.
 
-    hint_cache = set_oct(hint_cache, id, hint);
+        hint_cache = set_oct(hint_cache, id, hint);
 
-    // If this node is visible, return the world-space AABB.
+        // If this node is visible, return the world-space AABB.
 
-    if (bit && V)
-        return ogl::aabb(my_aabb, M);
-    else
-        return ogl::aabb();
+        if (bit && V)
+            return ogl::aabb(my_aabb, M);
+    }
+    return ogl::aabb();
 }
 
 void ogl::node::draw(int id, bool color, bool alpha)
