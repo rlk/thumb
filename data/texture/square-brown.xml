@@ -2,8 +2,11 @@
   <texture>
     <wrap axis="s" value="repeat" />
     <wrap axis="t" value="repeat" />
-    <!-- Set alpha to zero at the peak of the mipmap pyramid so that this -->
-    <!-- texture fades away in the distance.                              -->
-    <option name="scale" level="6" alpha="0" />
-    <option name="scale" level="7" alpha="0" />
+    <!-- Reduce alpha toward the peak of the mipmap pyramid so that this -->
+    <!-- texture fades away in the distance.                             -->
+    <option name="scale" level="3" alpha="0.8" />
+    <option name="scale" level="4" alpha="0.6" />
+    <option name="scale" level="5" alpha="0.4" />
+    <option name="scale" level="6" alpha="0.2" />
+    <option name="scale" level="7" alpha="0.0" />
   </texture>
