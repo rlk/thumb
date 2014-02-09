@@ -25,15 +25,7 @@
 
 //-----------------------------------------------------------------------------
 
-ogl::texture::texture(std::string name) :
-    name   (name),
-    object (0),
-    target (GL_TEXTURE_2D),
-    filter (GL_LINEAR),
-    intform(GL_RGBA),
-    extform(GL_RGBA),
-    type   (GL_UNSIGNED_BYTE),
-    subsample(::conf->get_i("texture_subsample", 1))
+ogl::texture::texture(std::string name) : name(name), object(0), w(0), h(0), c(0)
 {
     init();
 }
@@ -66,7 +58,27 @@ static void png_user_read(png_structp rp, png_bytep buf, png_size_t len)
 
 //-----------------------------------------------------------------------------
 
-void ogl::texture::load_png(const void *buf, size_t len)
+static void downsample(GLsizei W, GLsizei H, GLsizei C, std::vector<GLubyte>& P)
+{
+    const GLsizei w = W / 2;
+    const GLsizei h = H / 2;
+
+    for         (GLsizei i = 0; i < h; i++)
+        for     (GLsizei j = 0; j < w; j++)
+            for (GLsizei k = 0; k < C; k++)
+            {
+                GLuint b = GLuint(P[((2 * i + 0) * W + (2 * j + 0)) * C + k])
+                         + GLuint(P[((2 * i + 0) * W + (2 * j + 1)) * C + k])
+                         + GLuint(P[((2 * i + 1) * W + (2 * j + 0)) * C + k])
+                         + GLuint(P[((2 * i + 1) * W + (2 * j + 1)) * C + k]);
+
+                P[(i * w + j) * C + k] = GLubyte(b / 4);
+            }
+}
+
+//-----------------------------------------------------------------------------
+
+void ogl::texture::load_png(const void *buf, size_t len, std::vector<GLubyte>& p)
 {
     // Initialize all PNG import data structures.
 
@@ -93,121 +105,27 @@ void ogl::texture::load_png(const void *buf, size_t len)
 
     if (setjmp(png_jmpbuf(rp)) == 0)
     {
-        GLenum type_tag[2] = {
-            GL_UNSIGNED_BYTE,
-            GL_UNSIGNED_SHORT
-        };
-        GLenum form_tag[2][4] = {
-            {
-                GL_LUMINANCE,
-                GL_LUMINANCE_ALPHA,
-                GL_RGB,
-                GL_RGBA,
-            },
-            {
-                GL_LUMINANCE16,
-                GL_LUMINANCE16_ALPHA16,
-                GL_RGB16,
-                GL_RGBA16,
-            },
-        };
-
         // Read the PNG header.
 
-        png_read_png(rp, ip, PNG_TRANSFORM_PACKING |
-                             PNG_TRANSFORM_EXPAND  |
+        png_read_png(rp, ip, PNG_TRANSFORM_EXPAND   |
+                             PNG_TRANSFORM_PACKING  |
+                             PNG_TRANSFORM_STRIP_16 |
                              PNG_TRANSFORM_SWAP_ENDIAN, 0);
 
         // Extract image properties.
 
-        width     = GLsizei(png_get_image_width (rp, ip));
-        height    = GLsizei(png_get_image_height(rp, ip));
-        GLsizei b = GLsizei(png_get_bit_depth   (rp, ip)) / 8;
-        GLsizei c = GLsizei(png_get_channels    (rp, ip));
+        w = GLsizei(png_get_image_width (rp, ip));
+        h = GLsizei(png_get_image_height(rp, ip));
+        c = GLsizei(png_get_channels    (rp, ip));
 
-        target  = GL_TEXTURE_2D;
-        border  = 0;
-        intform = form_tag[b - 1][c - 1];
-        extform = form_tag[0    ][c - 1];
-        type    = type_tag[b - 1];
-
-        if      ( POT(width - 2) &&  POT(height - 2))
-            border = 1;
-        else if (!POT(width    ) || !POT(height    ))
-            target = GL_TEXTURE_RECTANGLE;
-
-        // Allow subsampling only on 8-bit, non-bordered, power-of-two textures.
-
-        if (b != 1 || border != 0 || target != GL_TEXTURE_2D)
-            subsample = 1;
-
-        // Switch to compressed textures, as requested.
-
-        if (do_texture_compression)
-        {
-            if (intform == GL_RGB)
-                intform =  GL_COMPRESSED_RGB_S3TC_DXT1_EXT;
-            if (intform == GL_RGBA)
-                intform =  GL_COMPRESSED_RGBA_S3TC_DXT5_EXT;
-        }
+        p.reserve(w * h * c);
 
         // Read the pixel data.
 
         if ((bp = png_get_rows(rp, ip)))
-        {
-            GLsizei  w = width  / subsample;
-            GLsizei  h = height / subsample;
 
-            GLsizei  s = (w + border * 2) * b * c;
-
-            GLubyte *p = new GLubyte[h * s];
-
-            // Initialize the texture object.
-
-            ogl::bind_texture(target, GL_TEXTURE0, object);
-
-            if (target == GL_TEXTURE_2D)
-            {
-                glTexParameteri(target, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-                glTexParameteri(target, GL_TEXTURE_MIN_FILTER,
-                                        GL_LINEAR_MIPMAP_LINEAR);
-            }
-
-            if (ogl::has_anisotropic)
-                glTexParameteri(target, GL_TEXTURE_MAX_ANISOTROPY_EXT,
-                                              ogl::max_anisotropy);
-
-            // Copy all rows to the new texture.
-
-            if (subsample == 1)
-                for (GLsizei i = 0, j = h - 1; j >= 0; ++i, --j)
-                    memcpy(p + s * i, bp[j], s);
-            else
-            {
-                for (GLsizei i = 0; i < h; ++i)
-                    for (GLsizei j = 0; j < w; ++j)
-                        for (GLsizei k = 0; k < c; ++k)
-                        {
-                            int a = 0;
-
-                            for (GLsizei t = 0; t < subsample; ++t)
-                                for (GLsizei s = 0; s < subsample; ++s)
-                                {
-                                    GLsizei y = i * subsample + t;
-                                    GLsizei x = j * subsample + s;
-
-                                    a += int(bp[height - y - 1][x * c + k]);
-                                }
-
-                            p[(i * w + j) * c + k]
-                                = GLubyte(a / (subsample * subsample));
-                        }
-            }
-
-            glTexImage2D(target, 0, intform, w, h, border, extform, type, p);
-
-            delete [] p;
-        }
+            for (GLsizei i = 0, j = h - 1; i < h; ++i, --j)
+                memcpy(&p.front() + (w * c) * i, bp[j], (w * c));
     }
 
     // Release all resources.
@@ -266,7 +184,7 @@ static GLint filter_val(const std::string& name)
 
 //-----------------------------------------------------------------------------
 
-void ogl::texture::load_opt(std::string name)
+void ogl::texture::load_opt(std::string name, std::map<int, vec4>& scale)
 {
     // Convert the image name to an XML parameter file name.
 
@@ -286,8 +204,16 @@ void ogl::texture::load_opt(std::string name)
 
             for (app::node n = p.find("option"); n; n = p.next(n, "option"))
             {
-                if ("subsample" == n.get_s("name"))
-                     subsample   = n.get_i("value", 1);
+                if ("scale" == n.get_s("name"))
+                {
+                    int    l = n.get_i("level", 0);
+                    double r = n.get_f("red",   1);
+                    double g = n.get_f("green", 1);
+                    double b = n.get_f("blue",  1);
+                    double a = n.get_f("alpha", 1);
+
+                    scale[l] = vec4(r, g, b, a);
+                }
             }
         }
     }
@@ -316,7 +242,7 @@ void ogl::texture::load_prm(std::string name)
                 GLenum key = wrap_key(n.get_s("axis"));
                 GLenum val = wrap_val(n.get_s("value"));
 
-                if (key && val) glTexParameteri(target, key, val);
+                if (key && val) glTexParameteri(GL_TEXTURE_2D, key, val);
             }
 
             // Parse and apply filter modes.
@@ -326,29 +252,91 @@ void ogl::texture::load_prm(std::string name)
                 GLenum key = filter_key(n.get_s("type"));
                 GLenum val = filter_val(n.get_s("value"));
 
-                if (key && val) glTexParameteri(target, key, val);
+                if (key && val) glTexParameteri(GL_TEXTURE_2D, key, val);
             }
         }
     }
 }
 
-void ogl::texture::load_img(std::string name)
+void ogl::texture::load_img(std::string name, std::map<int, vec4>& scale)
 {
+    std::vector<GLubyte> pixels;
+
     // Load and parse the data file.
 
     size_t      len;
     const void *buf = ::data->load(name, &len);
 
-    if (buf) load_png(buf, len);
+    if (buf) load_png(buf, len, pixels);
 
     ::data->free(name);
+
+    // Initialize the OpenGL texture object.
+
+    GLenum f = GL_RGBA;
+
+    switch (c)
+    {
+        case 1: f = GL_LUMINANCE;
+        case 2: f = GL_LUMINANCE_ALPHA;
+        case 3: f = GL_RGB;
+    }
+
+    ogl::bind_texture(GL_TEXTURE_2D, GL_TEXTURE0, object);
+
+    GLubyte *p = &pixels.front();
+    GLsizei ww = w;
+    GLsizei hh = h;
+
+    // Enumerate the mipmap levels.
+
+    for (GLint l = 0; ww > 0 && hh > 0; l++)
+    {
+        std::map<int, vec4>::iterator it;
+
+        // Set the scale for this mipmap.
+
+        if ((it = scale.find(l)) == scale.end())
+        {
+            glPixelTransferf(GL_RED_SCALE,   1.f);
+            glPixelTransferf(GL_GREEN_SCALE, 1.f);
+            glPixelTransferf(GL_BLUE_SCALE,  1.f);
+            glPixelTransferf(GL_ALPHA_SCALE, 1.f);
+        }
+        else
+        {
+            glPixelTransferf(GL_RED_SCALE,   GLfloat(it->second[0]));
+            glPixelTransferf(GL_GREEN_SCALE, GLfloat(it->second[1]));
+            glPixelTransferf(GL_BLUE_SCALE,  GLfloat(it->second[2]));
+            glPixelTransferf(GL_ALPHA_SCALE, GLfloat(it->second[3]));
+        }
+
+        // Copy the pixels.
+
+        glTexImage2D(GL_TEXTURE_2D, l, f, ww, hh, 0, f, GL_UNSIGNED_BYTE, p);
+
+        // Prepare for the next mipmap level.
+
+        downsample(ww, hh, c, pixels);
+        ww /= 2;
+        hh /= 2;
+    }
+
+    // Initialize the default texture parameters.
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+
+    if (ogl::has_anisotropic)
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                                                ogl::max_anisotropy);
 }
 
 //-----------------------------------------------------------------------------
 
 void ogl::texture::bind(GLenum unit) const
 {
-    ogl::bind_texture(target, unit, object);
+    ogl::bind_texture(GL_TEXTURE_2D, unit, object);
 }
 
 void ogl::texture::free(GLenum unit) const
@@ -359,12 +347,14 @@ void ogl::texture::free(GLenum unit) const
 
 void ogl::texture::init()
 {
+    std::map<int, vec4> scale;
+
     std::string path = "texture/" + name;
 
     glGenTextures(1, &object);
 
-    load_opt(path);
-    load_img(path);
+    load_opt(path, scale);
+    load_img(path, scale);
     load_prm(path);
 }
 

@@ -13,8 +13,11 @@
 #ifndef OGL_TEXTURE_HPP
 #define OGL_TEXTURE_HPP
 
+#include <vector>
 #include <string>
+#include <map>
 
+#include <etc-vector.hpp>
 #include <ogl-opengl.hpp>
 
 //-----------------------------------------------------------------------------
@@ -25,22 +28,16 @@ namespace ogl
     {
         std::string name;
 
-        GLuint  object;
-        GLenum  target;
-        GLenum  filter;
-        GLenum  intform;
-        GLenum  extform;
-        GLenum  type;
-        GLsizei border;
-        GLsizei width;
-        GLsizei height;
-        GLsizei subsample;
-        
-        void load_png(const void *, size_t);
-        void load_jpg(const void *, size_t); // TODO
+        GLuint object;
+        GLsizei w;
+        GLsizei h;
+        GLsizei c;
 
-        void load_img(std::string);
-        void load_opt(std::string);
+        void load_png(const void *, size_t, std::vector<GLubyte>&);
+        void load_jpg(const void *, size_t, std::vector<GLubyte>&); // TODO
+
+        void load_img(std::string, std::map<int, vec4>&);
+        void load_opt(std::string, std::map<int, vec4>&);
         void load_prm(std::string);
 
     public:
@@ -56,8 +53,7 @@ namespace ogl
         void init();
         void fini();
 
-        bool opaque() const { return (extform == GL_LUMINANCE ||
-                                      extform == GL_RGB); }
+        bool opaque() const { return (c == 1 || c == 3); }
     };
 }
 
