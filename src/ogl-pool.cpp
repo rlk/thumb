@@ -513,7 +513,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
 
         if (b != e)
         {
-            if (alpha) { glEnable(GL_ALPHA_TEST); };
+            // if (alpha) { glEnable(GL_ALPHA_TEST); };
 
             // Render the selected batches.
 
@@ -526,7 +526,7 @@ void ogl::node::draw(int id, bool color, bool alpha)
             }
             glPopMatrix();
 
-            if (alpha) { glDisable(GL_ALPHA_TEST); };
+            // if (alpha) { glDisable(GL_ALPHA_TEST); };
         }
     }
 }
