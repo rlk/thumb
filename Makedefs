@@ -1,6 +1,6 @@
 # -*- mode: makefile; -*-
 
-#STATIC=1
+STATIC=1
 
 CFLAGS += -fno-rtti -g
 
@@ -46,15 +46,15 @@ ifeq (,$(STATIC))
 	LIBS += $(shell $(PKG_CONFIG) --libs $(PKGS))
 else
 	LIBS += $(firstword $(wildcard $(addsuffix libfreetype.a, $(LIBPATH))) -lfreetype)
-	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
+	LIBS += $(firstword $(wildcard $(addsuffix libtiff.a,     $(LIBPATH))) -ltiff)
 	LIBS += $(firstword $(wildcard $(addsuffix libmxml.a,     $(LIBPATH))) -lmxml)
 	LIBS += $(firstword $(wildcard $(addsuffix libode.a,      $(LIBPATH))) -lode)
 	LIBS += $(firstword $(wildcard $(addsuffix libpng.a,      $(LIBPATH))) -lpng)
 	LIBS += $(firstword $(wildcard $(addsuffix libz.a,        $(LIBPATH))) -lz)
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2main.a, $(LIBPATH))))
+	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
 	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH))))
 	LIBS += $(firstword $(wildcard $(addsuffix libglew32.a,   $(LIBPATH))))
-#	LIBS += $(firstword $(wildcard $(addsuffix libtiff.a,     $(LIBPATH))) -ltiff)
 endif
 
 CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
