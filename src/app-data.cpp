@@ -149,7 +149,7 @@ static void find_rw_data(app::archive_l& archives)
 
     // When all else fails, go to the file system.
 
-    archives.push_back(new app::file_archive("", true));
+    // archives.push_back(new app::file_archive("", true));
 }
 
 //-----------------------------------------------------------------------------
