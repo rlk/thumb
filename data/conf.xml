@@ -41,16 +41,7 @@
 
     <!-- Panoview Configuration ------------------------------------------ -->
 
-    <option name="scm_cache_size">16</option>
-
-    <!-- Orbiter Configuration ------------------------------------------- -->
-
-    <option name="orbiter_speed_min">0.0</option>
-    <option name="orbiter_speed_max">0.2</option>
-    <option name="orbiter_icon_size">24</option>
-    <option name="orbiter_report_host">127.0.0.1</option>
-    <option name="orbiter_report_port">8111</option>
-    <option name="orbiter_minimum_agl">50.0</option>
+    <option name="scm_cache_size">8</option>
 
     <!-- EdWorld Configuration ------------------------------------------- -->
 
