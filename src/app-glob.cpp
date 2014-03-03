@@ -59,58 +59,58 @@ void app::glob::dump()
     std::map<std::string, surface>::iterator si;
     std::map<std::string, convex >::iterator ci;
 
-    if (size_t uc = uniform_map.size())
+    if (int uc = int(uniform_map.size()))
     {
-        printf("%3zu uniforms\n", uc);
+        printf("%3d uniforms\n", uc);
         for (ui = uniform_map.begin(); ui != uniform_map.end(); ++ui)
             printf("    %s\n", ui->second.ptr->get_name().c_str());
     }
 
-    if (size_t qc = process_map.size())
+    if (int qc = int(process_map.size()))
     {
-        printf("%3zu processes\n", qc);
+        printf("%3d processes\n", qc);
         for (qi = process_map.begin(); qi != process_map.end(); ++qi)
             printf("    %s\n", qi->second.ptr->get_name().c_str());
     }
 
-    if (size_t pc = program_map.size())
+    if (int pc = int(program_map.size()))
     {
-        printf("%3zu programs\n", pc);
+        printf("%3d programs\n", pc);
         for (pi = program_map.begin(); pi != program_map.end(); ++pi)
             printf("    %s\n", pi->second.ptr->get_name().c_str());
     }
 
-    if (size_t tc = texture_map.size())
+    if (int tc = int(texture_map.size()))
     {
-        printf("%3zu textures\n", tc);
+        printf("%3d textures\n", tc);
         for (ti = texture_map.begin(); ti != texture_map.end(); ++ti)
             printf("    %s\n", ti->second.ptr->get_name().c_str());
     }
 
-    if (size_t bc = binding_map.size())
+    if (int bc = int(binding_map.size()))
     {
-        printf("%3zu bindings\n", bc);
+        printf("%3d bindings\n", bc);
         for (bi = binding_map.begin(); bi != binding_map.end(); ++bi)
             printf("    %s\n", bi->second.ptr->get_name().c_str());
     }
 
-    if (size_t sc = surface_map.size())
+    if (int sc = int(surface_map.size()))
     {
-        printf("%3zu surfaces\n", sc);
+        printf("%3d surfaces\n", sc);
         for (si = surface_map.begin(); si != surface_map.end(); ++si)
             printf("    %s\n", si->second.ptr->get_name().c_str());
     }
 
-    if (size_t cc = convex_map.size())
+    if (int cc = int(convex_map.size()))
     {
-        printf("%3zu convexes\n", cc);
+        printf("%3d convexes\n", cc);
         for (ci = convex_map.begin(); ci != convex_map.end(); ++ci)
             printf("    %s\n", ci->second.ptr->get_name().c_str());
     }
 
-    if (size_t qc =  pool_set.size()) printf("%3zu pools\n",  qc);
-    if (size_t ic = image_set.size()) printf("%3zu images\n", ic);
-    if (size_t fc = frame_set.size()) printf("%3zu frames\n", fc);
+    if (int qc = int( pool_set.size())) printf("%3d pools\n",  qc);
+    if (int ic = int(image_set.size())) printf("%3d images\n", ic);
+    if (int fc = int(frame_set.size())) printf("%3d frames\n", fc);
 }
 
 app::glob::~glob()
