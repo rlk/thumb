@@ -58,14 +58,7 @@ namespace dpy
 
     private:
 
-        static OVR::Ptr<OVR::DeviceManager> pManager;
-        static OVR::Ptr<OVR::HMDDevice>     pHMD;
-        static OVR::Ptr<OVR::SensorDevice>  pSensor;
-
-        static OVR::HMDInfo      Info;
-        static OVR::SensorFusion Fusion;
-
-        static OVR::Util::Render::StereoConfig Stereo;
+        OVR::Util::Render::StereoConfig Stereo;
 
         app::frustum *frust;
         int           chani;
