@@ -421,7 +421,7 @@ namespace gui
 
     //-------------------------------------------------------------------------
     // File selection list.
-    
+
     class finder : public scroll
     {
     protected:
