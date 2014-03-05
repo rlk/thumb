@@ -1,10 +1,15 @@
 <?xml version="1.0"?>
 <host>
   <node name="default">
-    <window w="1280" h="800" full="1" cursor="0"/>
+    <window w="1280" h="800" x="2048" y="0" frame="0" />
     <channel w="1280" h="1600"/>
     <channel w="1280" h="1600"/>
     <buffer w="1280" h="1600"/>
+    <overlay>
+      <frustum>
+        <perspective hfov="80.0" vfov="60.0"/>
+      </frustum>
+    </overlay>
     <display type="oculus" channel="0">
       <viewport x="0" y="0" w="640" h="800"/>
     </display>

@@ -5,6 +5,11 @@
     <channel w="1280" h="1600"/>
     <channel w="1280" h="1600"/>
     <buffer w="1280" h="1600"/>
+    <overlay>
+      <frustum>
+        <perspective hfov="80.0" vfov="60.0"/>
+      </frustum>
+    </overlay>
     <display type="oculus" channel="0">
       <viewport x="0" y="0" w="640" h="800"/>
     </display>
