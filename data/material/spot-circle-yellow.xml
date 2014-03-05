@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-  <material>
-    <program mode="depth" file="discard.xml" />
-    <program mode="color" file="spotlight.xml">
-      <texture sampler="cookie" name="spot-circle-yellow.png" />
-    </program>
-  </material>
+<material>
+  <program mode="depth" file="discard.xml"/>
+  <program mode="color" file="spotlight.xml">
+    <texture sampler="cookie" name="spot-circle-yellow.png"/>
+  </program>
+</material>

@@ -1,4 +1,4 @@
 <?xml version="1.0"?>
 <material>
-  <program mode="color" file="wire-color.xml" />
+  <program mode="color" file="wire-color.xml"/>
 </material>

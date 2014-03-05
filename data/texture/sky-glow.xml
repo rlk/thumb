@@ -1,5 +1,5 @@
 <?xml version="1.0"?>
-  <texture>
-    <wrap axis="s" value="clamp-to-edge" />
-    <wrap axis="t" value="clamp-to-edge" />
-  </texture>
+<texture>
+  <wrap axis="s" value="clamp-to-edge"/>
+  <wrap axis="t" value="clamp-to-edge"/>
+</texture>

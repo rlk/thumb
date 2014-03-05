@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
-  <program vert="glsl/irr/irradiance-init.vert"
-           frag="glsl/irr/irradiance-init.frag" >
-    <texture name="L" unit="0" />
-    <texture name="d" unit="1" />
-    <texture name="Y" unit="2" />
-  </program>
+<program vert="glsl/irr/irradiance-init.vert" frag="glsl/irr/irradiance-init.frag">
+  <texture name="L" unit="0"/>
+  <texture name="d" unit="1"/>
+  <texture name="Y" unit="2"/>
+</program>

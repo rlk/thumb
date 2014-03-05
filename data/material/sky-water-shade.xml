@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <material>
   <program mode="color" file="sky-water-shade.xml">
-    <texture sampler="fill" name="sky-fill.png" />
-    <texture sampler="glow" name="sky-glow.png" />
-    <texture sampler="norm" name="water-normal.png" />
+    <texture sampler="fill" name="sky-fill.png"/>
+    <texture sampler="glow" name="sky-glow.png"/>
+    <texture sampler="norm" name="water-normal.png"/>
   </program>
 </material>

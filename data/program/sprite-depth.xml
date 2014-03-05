@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-  <program vert="glsl/sprite.vert"
-           frag="glsl/sprite.frag" >
-    <texture name="color" unit="0" />
-  </program>
+<program vert="glsl/sprite.vert" frag="glsl/sprite.frag">
+  <texture name="color" unit="0"/>
+</program>

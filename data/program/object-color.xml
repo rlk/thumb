@@ -1,40 +1,31 @@
 <?xml version="1.0"?>
-  <program vert="glsl/object-color.vert"
-           frag="glsl/object-color.frag" >
-
-    <texture name="diffuse"   unit="0" />
-    <texture name="specular"  unit="1" />
-    <texture name="normal"    unit="2" />
-
-    <process name="shadow[0]" unit="8"  process="shadow" index="0" />
-    <process name="shadow[1]" unit="9"  process="shadow" index="1" />
-    <process name="shadow[2]" unit="10" process="shadow" index="2" />
-    <process name="shadow[3]" unit="11" process="shadow" index="3" />
-
-    <process name="cookie[0]" unit="12" process="cookie" index="0" />
-    <process name="cookie[1]" unit="13" process="cookie" index="1" />
-    <process name="cookie[2]" unit="14" process="cookie" index="2" />
-    <process name="cookie[3]" unit="15" process="cookie" index="3" />
-
-    <uniform name="LightPosition[0]"   uniform="LightPosition[0]"   size="4" />
-    <uniform name="LightPosition[1]"   uniform="LightPosition[1]"   size="4" />
-    <uniform name="LightPosition[2]"   uniform="LightPosition[2]"   size="4" />
-    <uniform name="LightPosition[3]"   uniform="LightPosition[3]"   size="4" />
-
-    <uniform name="LightSplit[0]"      uniform="LightSplit[0]"      size="2" />
-    <uniform name="LightSplit[1]"      uniform="LightSplit[1]"      size="2" />
-    <uniform name="LightSplit[2]"      uniform="LightSplit[2]"      size="2" />
-    <uniform name="LightSplit[3]"      uniform="LightSplit[3]"      size="2" />
-
-    <uniform name="LightBrightness[0]" uniform="LightBrightness[0]" size="2" />
-    <uniform name="LightBrightness[1]" uniform="LightBrightness[1]" size="2" />
-    <uniform name="LightBrightness[2]" uniform="LightBrightness[2]" size="2" />
-    <uniform name="LightBrightness[3]" uniform="LightBrightness[3]" size="2" />
-
-    <uniform name="ShadowMatrix[0]"    uniform="ShadowMatrix[0]"    size="16" />
-    <uniform name="ShadowMatrix[1]"    uniform="ShadowMatrix[1]"    size="16" />
-    <uniform name="ShadowMatrix[2]"    uniform="ShadowMatrix[2]"    size="16" />
-    <uniform name="ShadowMatrix[3]"    uniform="ShadowMatrix[3]"    size="16" />
-
-    <attribute name="Tangent" location="6" />
-  </program>
+<program vert="glsl/object-color.vert" frag="glsl/object-color.frag">
+  <texture name="diffuse" unit="0"/>
+  <texture name="specular" unit="1"/>
+  <texture name="normal" unit="2"/>
+  <process name="shadow[0]" unit="8" process="shadow" index="0"/>
+  <process name="shadow[1]" unit="9" process="shadow" index="1"/>
+  <process name="shadow[2]" unit="10" process="shadow" index="2"/>
+  <process name="shadow[3]" unit="11" process="shadow" index="3"/>
+  <process name="cookie[0]" unit="12" process="cookie" index="0"/>
+  <process name="cookie[1]" unit="13" process="cookie" index="1"/>
+  <process name="cookie[2]" unit="14" process="cookie" index="2"/>
+  <process name="cookie[3]" unit="15" process="cookie" index="3"/>
+  <uniform name="LightPosition[0]" uniform="LightPosition[0]" size="4"/>
+  <uniform name="LightPosition[1]" uniform="LightPosition[1]" size="4"/>
+  <uniform name="LightPosition[2]" uniform="LightPosition[2]" size="4"/>
+  <uniform name="LightPosition[3]" uniform="LightPosition[3]" size="4"/>
+  <uniform name="LightSplit[0]" uniform="LightSplit[0]" size="2"/>
+  <uniform name="LightSplit[1]" uniform="LightSplit[1]" size="2"/>
+  <uniform name="LightSplit[2]" uniform="LightSplit[2]" size="2"/>
+  <uniform name="LightSplit[3]" uniform="LightSplit[3]" size="2"/>
+  <uniform name="LightBrightness[0]" uniform="LightBrightness[0]" size="2"/>
+  <uniform name="LightBrightness[1]" uniform="LightBrightness[1]" size="2"/>
+  <uniform name="LightBrightness[2]" uniform="LightBrightness[2]" size="2"/>
+  <uniform name="LightBrightness[3]" uniform="LightBrightness[3]" size="2"/>
+  <uniform name="ShadowMatrix[0]" uniform="ShadowMatrix[0]" size="16"/>
+  <uniform name="ShadowMatrix[1]" uniform="ShadowMatrix[1]" size="16"/>
+  <uniform name="ShadowMatrix[2]" uniform="ShadowMatrix[2]" size="16"/>
+  <uniform name="ShadowMatrix[3]" uniform="ShadowMatrix[3]" size="16"/>
+  <attribute name="Tangent" location="6"/>
+</program>

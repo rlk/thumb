@@ -1,5 +1,4 @@
 <?xml version="1.0"?>
-  <program vert="glsl/object-depth.vert"
-           frag="glsl/object-depth.frag" >
-    <texture name="diffuse" unit="0" />
-  </program>
+<program vert="glsl/object-depth.vert" frag="glsl/object-depth.frag">
+  <texture name="diffuse" unit="0"/>
+</program>

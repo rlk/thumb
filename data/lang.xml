@@ -1,137 +1,137 @@
 <?xml version="1.0"?>
-  <dict>
-    <!-- ------------------------------------------------------------------ -->
-    <message tag="Control Panel">
-      <text lang="dx">lenaP lortnoC</text>
-    </message>
-    <message tag="World">
-      <text lang="dx">dlroW</text>
-    </message>
-    <message tag="Solid">
-      <text lang="dx">diloS</text>
-    </message>
-    <message tag="Joint">
-      <text lang="dx">tnioJ</text>
-    </message>
-    <!-- ------------------------------------------------------------------ -->
-    <message tag="World File">
-      <text lang="dx">eliF dlorW</text>
-    </message>
-    <message tag="New">
-      <text lang="dx">weN</text>
-    </message>
-    <message tag="Load">
-      <text lang="dx">daoL</text>
-    </message>
-    <message tag="Save All">
-      <text lang="dx">llA evaS</text>
-    </message>
-    <message tag="Save Selected">
-      <text lang="dx">detceleS evaS</text>
-    </message>
-    <message tag="Configure World">
-      <text lang="dx">dlroW erugifnoC</text>
-    </message>
-    <message tag="ERP">
-      <text lang="dx">PRE</text>
-    </message>
-    <message tag="CFM">
-      <text lang="dx">MFC</text>
-    </message>
-    <!-- ------------------------------------------------------------------ -->
-    <message tag="Create Solid">
-      <text lang="dx">diloS etaerC</text>
-    </message>
-    <message tag="Box">
-      <text lang="dx">xoB</text>
-    </message>
-    <message tag="Sphere">
-      <text lang="dx">erehpS</text>
-    </message>
-    <message tag="Capsule">
-      <text lang="dx">eluspaC</text>
-    </message>
-    <message tag="Configure Solid">
-      <text lang="dx">diloS erugifnoC</text>
-    </message>
-    <message tag="Soft ERP">
-      <text lang="dx">PRE tfoS</text>
-    </message>
-    <message tag="Soft CFM">
-      <text lang="dx">MFC tfoS</text>
-    </message>
-    <message tag="Density">
-      <text lang="dx">ytisneD</text>
-    </message>
-    <message tag="Bounce">
-      <text lang="dx">ecnuoB</text>
-    </message>
-    <message tag="Friction">
-      <text lang="dx">noitcirF</text>
-    </message>
-    <!-- ------------------------------------------------------------------ -->
-    <message tag="Create Joint">
-      <text lang="dx">tnioJ etaerC</text>
-    </message>
-    <message tag="Axis 1">
-      <text lang="dx">1 sixA</text>
-    </message>
-    <message tag="Axis 2">
-      <text lang="dx">2 sixA</text>
-    </message>
-    <message tag="Axis 3">
-      <text lang="dx">3 sixA</text>
-    </message>
-    <message tag="Ball">
-      <text lang="dx">llaB</text>
-    </message>
-    <message tag="Hinge">
-      <text lang="dx">egniH</text>
-    </message>
-    <message tag="Hinge2">
-      <text lang="dx">2egniH</text>
-    </message>
-    <message tag="Slider">
-      <text lang="dx">redilS</text>
-    </message>
-    <message tag="AMotor">
-      <text lang="dx">rotoMA</text>
-    </message>
-    <message tag="Universal">
-      <text lang="dx">lasrevinU</text>
-    </message>
-    <message tag="Configure Joint">
-      <text lang="dx">tnioJ erugifnoC</text>
-    </message>
-    <message tag="Velocity">
-      <text lang="dx">yticoleV</text>
-    </message>
-    <message tag="Force">
-      <text lang="dx">ecroF</text>
-    </message>
-    <message tag="CFM">
-      <text lang="dx">MFC</text>
-    </message>
-    <message tag="Stop Bounce">
-      <text lang="dx">ecnuoB potS</text>
-    </message>
-    <message tag="Lo Stop">
-      <text lang="dx">potS oL</text>
-    </message>
-    <message tag="Hi Stop">
-      <text lang="dx">potS iH</text>
-    </message>
-    <message tag="Stop ERP">
-      <text lang="dx">PRE potS</text>
-    </message>
-    <message tag="Stop CFM">
-      <text lang="dx">MFC potS</text>
-    </message>
-    <message tag="Suspension ERP">
-      <text lang="dx">PRE noisnepsuS</text>
-    </message>
-    <message tag="Suspension CFM">
-      <text lang="dx">MFC noisnepsuS</text>
-    </message>
-    <!-- ------------------------------------------------------------------ -->
-  </dict>
+<dict>
+  <!-- -->
+  <message tag="Control Panel">
+    <text lang="dx">lenaP lortnoC</text>
+  </message>
+  <message tag="World">
+    <text lang="dx">dlroW</text>
+  </message>
+  <message tag="Solid">
+    <text lang="dx">diloS</text>
+  </message>
+  <message tag="Joint">
+    <text lang="dx">tnioJ</text>
+  </message>
+  <!-- -->
+  <message tag="World File">
+    <text lang="dx">eliF dlorW</text>
+  </message>
+  <message tag="New">
+    <text lang="dx">weN</text>
+  </message>
+  <message tag="Load">
+    <text lang="dx">daoL</text>
+  </message>
+  <message tag="Save All">
+    <text lang="dx">llA evaS</text>
+  </message>
+  <message tag="Save Selected">
+    <text lang="dx">detceleS evaS</text>
+  </message>
+  <message tag="Configure World">
+    <text lang="dx">dlroW erugifnoC</text>
+  </message>
+  <message tag="ERP">
+    <text lang="dx">PRE</text>
+  </message>
+  <message tag="CFM">
+    <text lang="dx">MFC</text>
+  </message>
+  <!-- -->
+  <message tag="Create Solid">
+    <text lang="dx">diloS etaerC</text>
+  </message>
+  <message tag="Box">
+    <text lang="dx">xoB</text>
+  </message>
+  <message tag="Sphere">
+    <text lang="dx">erehpS</text>
+  </message>
+  <message tag="Capsule">
+    <text lang="dx">eluspaC</text>
+  </message>
+  <message tag="Configure Solid">
+    <text lang="dx">diloS erugifnoC</text>
+  </message>
+  <message tag="Soft ERP">
+    <text lang="dx">PRE tfoS</text>
+  </message>
+  <message tag="Soft CFM">
+    <text lang="dx">MFC tfoS</text>
+  </message>
+  <message tag="Density">
+    <text lang="dx">ytisneD</text>
+  </message>
+  <message tag="Bounce">
+    <text lang="dx">ecnuoB</text>
+  </message>
+  <message tag="Friction">
+    <text lang="dx">noitcirF</text>
+  </message>
+  <!-- -->
+  <message tag="Create Joint">
+    <text lang="dx">tnioJ etaerC</text>
+  </message>
+  <message tag="Axis 1">
+    <text lang="dx">1 sixA</text>
+  </message>
+  <message tag="Axis 2">
+    <text lang="dx">2 sixA</text>
+  </message>
+  <message tag="Axis 3">
+    <text lang="dx">3 sixA</text>
+  </message>
+  <message tag="Ball">
+    <text lang="dx">llaB</text>
+  </message>
+  <message tag="Hinge">
+    <text lang="dx">egniH</text>
+  </message>
+  <message tag="Hinge2">
+    <text lang="dx">2egniH</text>
+  </message>
+  <message tag="Slider">
+    <text lang="dx">redilS</text>
+  </message>
+  <message tag="AMotor">
+    <text lang="dx">rotoMA</text>
+  </message>
+  <message tag="Universal">
+    <text lang="dx">lasrevinU</text>
+  </message>
+  <message tag="Configure Joint">
+    <text lang="dx">tnioJ erugifnoC</text>
+  </message>
+  <message tag="Velocity">
+    <text lang="dx">yticoleV</text>
+  </message>
+  <message tag="Force">
+    <text lang="dx">ecroF</text>
+  </message>
+  <message tag="CFM">
+    <text lang="dx">MFC</text>
+  </message>
+  <message tag="Stop Bounce">
+    <text lang="dx">ecnuoB potS</text>
+  </message>
+  <message tag="Lo Stop">
+    <text lang="dx">potS oL</text>
+  </message>
+  <message tag="Hi Stop">
+    <text lang="dx">potS iH</text>
+  </message>
+  <message tag="Stop ERP">
+    <text lang="dx">PRE potS</text>
+  </message>
+  <message tag="Stop CFM">
+    <text lang="dx">MFC potS</text>
+  </message>
+  <message tag="Suspension ERP">
+    <text lang="dx">PRE noisnepsuS</text>
+  </message>
+  <message tag="Suspension CFM">
+    <text lang="dx">MFC noisnepsuS</text>
+  </message>
+  <!-- -->
+</dict>

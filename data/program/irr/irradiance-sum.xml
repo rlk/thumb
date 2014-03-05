@@ -1,4 +1,3 @@
 <?xml version="1.0"?>
-  <program vert="glsl/irr/irradiance-sum.vert"
-           frag="glsl/irr/irradiance-sum.frag" >
+<program vert="glsl/irr/irradiance-sum.vert" frag="glsl/irr/irradiance-sum.frag">
   </program>

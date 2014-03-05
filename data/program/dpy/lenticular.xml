@@ -1,12 +1,11 @@
 <?xml version="1.0"?>
-<program vert="glsl/dpy/lenticular.vert"
-         frag="glsl/dpy/lenticular.frag" >
-  <texture name="image[0]" unit="0" />
-  <texture name="image[1]" unit="1" />
-  <texture name="image[2]" unit="2" />
-  <texture name="image[3]" unit="3" />
-  <texture name="image[4]" unit="4" />
-  <texture name="image[5]" unit="5" />
-  <texture name="image[6]" unit="6" />
-  <texture name="image[7]" unit="7" />
+<program vert="glsl/dpy/lenticular.vert" frag="glsl/dpy/lenticular.frag">
+  <texture name="image[0]" unit="0"/>
+  <texture name="image[1]" unit="1"/>
+  <texture name="image[2]" unit="2"/>
+  <texture name="image[3]" unit="3"/>
+  <texture name="image[4]" unit="4"/>
+  <texture name="image[5]" unit="5"/>
+  <texture name="image[6]" unit="6"/>
+  <texture name="image[7]" unit="7"/>
 </program>

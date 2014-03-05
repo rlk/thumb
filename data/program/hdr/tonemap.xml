@@ -1,7 +1,6 @@
 <?xml version="1.0"?>
-<program vert="glsl/hdr/fullscreen.vert"
-         frag="glsl/hdr/tonemap.frag" >
-  <texture name="src"   unit="0" />
-  <texture name="avg"   unit="1" />
-  <texture name="bloom" unit="2" />
+<program vert="glsl/hdr/fullscreen.vert" frag="glsl/hdr/tonemap.frag">
+  <texture name="src" unit="0"/>
+  <texture name="avg" unit="1"/>
+  <texture name="bloom" unit="2"/>
 </program>

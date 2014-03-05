@@ -1,8 +1,7 @@
 <?xml version="1.0"?>
-<program vert="glsl/dpy/fulldome.vert"
-         frag="glsl/dpy/fulldome.frag" >
-  <texture name="image[0]" unit="0" />
-  <texture name="image[1]" unit="1" />
-  <texture name="image[2]" unit="2" />
-  <texture name="image[3]" unit="3" />
+<program vert="glsl/dpy/fulldome.vert" frag="glsl/dpy/fulldome.frag">
+  <texture name="image[0]" unit="0"/>
+  <texture name="image[1]" unit="1"/>
+  <texture name="image[2]" unit="2"/>
+  <texture name="image[3]" unit="3"/>
 </program>

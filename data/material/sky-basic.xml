@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
-  <material>
-    <program mode="depth" file="discard.xml" />
-    <program mode="color" file="sky-basic.xml">
-      <texture sampler="cookie" name="white.png" />
-    </program>
-  </material>
+<material>
+  <program mode="depth" file="discard.xml"/>
+  <program mode="color" file="sky-basic.xml">
+    <texture sampler="cookie" name="white.png"/>
+  </program>
+</material>

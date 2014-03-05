@@ -1,10 +1,10 @@
 <?xml version="1.0"?>
 <material>
-  <program mode="depth" file="discard.xml" />
+  <program mode="depth" file="discard.xml"/>
   <program mode="color" file="sky-water.xml">
-    <texture sampler="cookie" name="white.png" />
-    <texture sampler="fill"   name="sky-fill.png" />
-    <texture sampler="glow"   name="sky-glow.png" />
-    <texture sampler="normal" name="water-normal.png" />
+    <texture sampler="cookie" name="white.png"/>
+    <texture sampler="fill" name="sky-fill.png"/>
+    <texture sampler="glow" name="sky-glow.png"/>
+    <texture sampler="normal" name="water-normal.png"/>
   </program>
 </material>

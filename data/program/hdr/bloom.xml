@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
-<program vert="glsl/hdr/fullscreen.vert"
-         frag="glsl/hdr/bloom.frag" >
-  <texture name="src"   unit="0" />
-  <texture name="bloom" unit="1" />
+<program vert="glsl/hdr/fullscreen.vert" frag="glsl/hdr/bloom.frag">
+  <texture name="src" unit="0"/>
+  <texture name="bloom" unit="1"/>
 </program>
