@@ -78,8 +78,8 @@ static void init_opt()
 
     // Off-screen rendering
 
-    ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap") != 0);
-    ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom")   != 0);
+    ogl::do_hdr_tonemap = (::conf->get_i("hdr_tonemap", 0) != 0);
+    ogl::do_hdr_bloom   = (::conf->get_i("hdr_bloom",   0)   != 0);
 }
 
 static void init_state(bool multisample)

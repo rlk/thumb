@@ -112,7 +112,7 @@ void app::prog::video_up()
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLEBUFFERS, &multb);
     SDL_GL_GetAttribute(SDL_GL_MULTISAMPLESAMPLES, &mults);
 
-    SDL_GL_SetSwapInterval(::conf->get_i("sync"));
+    SDL_GL_SetSwapInterval(::conf->get_i("sync", 1));
 
     glewInit();
 
@@ -268,11 +268,15 @@ bool app::prog::process_event(app::event *E)
     {
         if (E->data.key.k == key_snap)
         {
+            std::string name = ::conf->get_s("screenshot_file");
+
+            if (name.empty())
+                name = "snap.png";
+
             // Take a screenshot.
 
-            screenshot(::conf->get_s("screenshot_file"),
-                       ::host->get_window_w(),
-                       ::host->get_window_h());
+            screenshot(name, ::host->get_window_w(),
+                             ::host->get_window_h());
             return true;
         }
         if (E->data.key.k == key_init)
@@ -515,7 +519,7 @@ app::event *app::prog::axis_remap(app::event *E)
 
 void app::prog::axis_setup()
 {
-    if ((joystick = SDL_JoystickOpen(::conf->get_i("joystick_device"))))
+    if ((joystick = SDL_JoystickOpen(::conf->get_i("joystick_device", 0))))
     {
         const int n = SDL_JoystickNumAxes(joystick);
 

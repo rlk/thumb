@@ -196,8 +196,8 @@ void gui::string::init_font()
     {
         const std::string& sans_name = ::conf->get_s("sans_font");
         const std::string& mono_name = ::conf->get_s("mono_font");
-        const int          sans_size = ::conf->get_i("sans_size", 14);
-        const int          mono_size = ::conf->get_i("mono_size", 14);
+        const int          sans_size = ::conf->get_i("sans_size", 16);
+        const int          mono_size = ::conf->get_i("mono_size", 16);
 
         if (!sans_name.empty())
             try
