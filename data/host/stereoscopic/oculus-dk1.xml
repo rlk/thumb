@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
-  <host>
-    <node name="default">
-      <window  w="1280" h="800" full="1" />
-      <channel w="1280" h="1600" />
-      <channel w="1280" h="1600" />
-      <buffer  w="1280" h="1600" />
-      <display type="oculus" channel="0">
-        <viewport x="0"   y="0" w="640" h="800" />
-      </display>
-      <display type="oculus" channel="1">
-        <viewport x="640" y="0" w="640" h="800" />
-      </display>
-    </node>
-  </host>
+<host>
+  <node name="default">
+    <window w="1280" h="800" full="1" cursor="0"/>
+    <channel w="1280" h="1600"/>
+    <channel w="1280" h="1600"/>
+    <buffer w="1280" h="1600"/>
+    <display type="oculus" channel="0">
+      <viewport x="0" y="0" w="640" h="800"/>
+    </display>
+    <display type="oculus" channel="1">
+      <viewport x="640" y="0" w="640" h="800"/>
+    </display>
+  </node>
+</host>

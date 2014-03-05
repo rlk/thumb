@@ -1,37 +1,37 @@
 <?xml version="1.0"?>
-  <host>
-    <node name="default">
-      <window  w="1024" h="1024" x="0" y="0" />
-      <render  w="2048" h="2048" />
-      <buffer  w="2048" h="1024" />
-      <channel w="2048" h="1024" />
-      <channel w="2048" h="1024" />
-      <channel w="2048" h="1024" />
-      <channel w="2048" h="1024" />
-      <overlay>
-        <frustum>
-          <perspective hfov="115.0" vfov="100.0" />
-          <rotation p="50.0" y="0.0" />
-        </frustum>
-      </overlay>
-      <display type="fulldome">
-        <viewport x="0" y="0" w="2048" h="2048" />
-        <frustum>
-          <perspective hfov="115.0" vfov="100.0" />
-          <rotation p="50.0" y="0.0" />
-        </frustum>
-        <frustum>
-          <perspective hfov="115.0" vfov="100.0" />
-          <rotation p="50.0" y="90.0" />
-        </frustum>
-        <frustum>
-          <perspective hfov="115.0" vfov="100.0" />
-          <rotation p="50.0" y="180.0" />
-        </frustum>
-        <frustum>
-          <perspective hfov="115.0" vfov="100.0" />
-          <rotation p="50.0" y="270.0" />
-        </frustum>
-      </display>
-    </node>
-  </host>
+<host>
+  <node name="default">
+    <window w="1024" h="1024" x="0" y="0"/>
+    <render w="2048" h="2048"/>
+    <buffer w="2048" h="1024"/>
+    <channel w="2048" h="1024"/>
+    <channel w="2048" h="1024"/>
+    <channel w="2048" h="1024"/>
+    <channel w="2048" h="1024"/>
+    <overlay>
+      <frustum>
+        <perspective hfov="115.0" vfov="100.0"/>
+        <rotation p="50.0" y="0.0"/>
+      </frustum>
+    </overlay>
+    <display type="fulldome">
+      <viewport x="0" y="0" w="2048" h="2048"/>
+      <frustum>
+        <perspective hfov="115.0" vfov="100.0"/>
+        <rotation p="50.0" y="0.0"/>
+      </frustum>
+      <frustum>
+        <perspective hfov="115.0" vfov="100.0"/>
+        <rotation p="50.0" y="90.0"/>
+      </frustum>
+      <frustum>
+        <perspective hfov="115.0" vfov="100.0"/>
+        <rotation p="50.0" y="180.0"/>
+      </frustum>
+      <frustum>
+        <perspective hfov="115.0" vfov="100.0"/>
+        <rotation p="50.0" y="270.0"/>
+      </frustum>
+    </display>
+  </node>
+</host>

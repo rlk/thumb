@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
-  <host>
-    <node name="default">
-      <window  w="2048" h="1080" />
-      <render  w="4096" h="2160" />
-      <buffer  w="4096" h="2160" />
-      <channel w="4096" h="2160" />
-      <display type="direct">
-        <viewport x="0" y="0" w="4096" h="2160" />
-        <frustum>
-          <perspective hfov="60.0" vfov="33.8" />
-        </frustum>
-      </display>
-    </node>
-  </host>
+<host>
+  <node name="default">
+    <window w="2048" h="1080"/>
+    <render w="4096" h="2160"/>
+    <buffer w="4096" h="2160"/>
+    <channel w="4096" h="2160"/>
+    <display type="direct">
+      <viewport x="0" y="0" w="4096" h="2160"/>
+      <frustum>
+        <perspective hfov="60.0" vfov="33.8"/>
+      </frustum>
+    </display>
+  </node>
+</host>
