@@ -146,10 +146,6 @@ static void find_rw_data(app::archive_l& archives)
         const std::string path = std::string(home) + "/.thumb";
         archives.push_back(new app::file_archive(path, true));
     }
-
-    // When all else fails, go to the file system.
-
-    // archives.push_back(new app::file_archive("", true));
 }
 
 //-----------------------------------------------------------------------------
