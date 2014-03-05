@@ -1,7 +1,3 @@
-CC      = cc
-CXX     = c++
-CFLAGS += -fno-rtti -Wall -g
-DYNAMIC = true
 
 #------------------------------------------------------------------------------
 # Determine the target platform.
@@ -12,8 +8,22 @@ else ifeq ($(shell uname), Linux)
 	ISLINUX = true
 else ifeq ($(shell uname), MINGW32_NT-6.1)
 	ISMINGW = true
-	undefine DYNAMIC
 endif
+
+#------------------------------------------------------------------------------
+# Configure the compiler
+
+ifdef ISMINGW
+	CC      = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-gcc.exe"
+	CXX     = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-g++.exe"
+	DYNAMIC = false
+else
+	CC      = cc
+	CXX     = c++
+	DYNAMIC = true
+endif
+
+CFLAGS += -fno-rtti -Wall -g
 
 #------------------------------------------------------------------------------
 # Configure the system libraries.
