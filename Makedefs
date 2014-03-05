@@ -1,33 +1,45 @@
-# -*- mode: makefile; -*-
-
-STATIC=1
-
-CFLAGS += -fno-rtti -g
+CC      = cc
+CXX     = c++
+CFLAGS += -fno-rtti -Wall -g
+DYNAMIC = true
 
 #------------------------------------------------------------------------------
+# Determine the target platform.
 
-ifeq ($(shell uname), Darwin)
+ifeq      ($(shell uname), Darwin)
+	ISMACOS = true
+else ifeq ($(shell uname), Linux)
+	ISLINUX = true
+else ifeq ($(shell uname), MINGW32_NT-6.1)
+	ISMINGW = true
+	undefine DYNAMIC
+endif
+
+#------------------------------------------------------------------------------
+# Configure the system libraries.
+
+ifdef ISMACOS
 	SYSLIBS = -framework OpenGL \
+ 		  -framework IOKit \
 		  -framework Cocoa \
- 		  -framework ApplicationServices \
  		  -framework Carbon \
  		  -framework CoreAudio \
- 		  -framework AudioToolbox \
  		  -framework AudioUnit \
+ 		  -framework AudioToolbox \
  		  -framework ForceFeedback \
- 		  -framework IOKit
+ 		  -framework ApplicationServices
 	LIBPATH = /usr/local/lib/ /opt/local/lib/ /usr/lib/
 endif
 
-ifeq ($(shell uname), Linux)
-	ifeq (,$(STATIC))
+ifdef ISLINUX
+	ifdef DYNAMIC
 		CFLAGS += -fPIC
 	endif
 	SYSLIBS = -lGL
 	LIBPATH = /usr/local/lib/ /usr/lib/ /usr/lib/x86_64-linux-gnu/
 endif
 
-ifeq ($(shell uname), MINGW32_NT-6.1)
+ifdef ISMINGW
 	CFLAGS += -static -DGLEW_STATIC
 	SYSLIBS = -lopengl32 -mwindows -limm32 -luser32 -lgdi32 -lole32 -loleaut32 -lws2_32 -lversion -luuid -lwinmm
 	LIBS   += -lmingw32
@@ -35,6 +47,7 @@ ifeq ($(shell uname), MINGW32_NT-6.1)
 endif
 
 #------------------------------------------------------------------------------
+# Configure the dependencies either statically or dynamically.
 
 PKG_CONFIG = $(firstword $(wildcard /usr/local/bin/pkg-config \
 			                  /usr/bin/pkg-config) \
@@ -42,7 +55,7 @@ PKG_CONFIG = $(firstword $(wildcard /usr/local/bin/pkg-config \
 
 PKGS = libpng libtiff-4 mxml ode freetype2 sdl2 zlib glew
 
-ifeq (,$(STATIC))
+ifdef DYNAMIC
 	LIBS += $(shell $(PKG_CONFIG) --libs $(PKGS))
 else
 	LIBS += $(firstword $(wildcard $(addsuffix libfreetype.a, $(LIBPATH))) -lfreetype)
@@ -53,41 +66,42 @@ else
 	LIBS += $(firstword $(wildcard $(addsuffix libz.a,        $(LIBPATH))) -lz)
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2main.a, $(LIBPATH))))
 	LIBS += $(firstword $(wildcard $(addsuffix libSDL2.a,     $(LIBPATH))) -lSDL2)
-	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH))))
-	LIBS += $(firstword $(wildcard $(addsuffix libglew32.a,   $(LIBPATH))))
+	LIBS += $(firstword $(wildcard $(addsuffix libGLEW.a,     $(LIBPATH)) \
+	                               $(addsuffix libglew32.a,   $(LIBPATH))) -lglew)
 endif
 
 CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
-LIBS   += $(SYSLIBS)
+
+#------------------------------------------------------------------------------
+# Optional Oculus SDK
+
+OVRPATH = /usr/local/OculusSDK/LibOVR
+
+ifneq (, $(wildcard $(OVRPATH)))
+	ifdef ISMACOS
+		LIBS += -L$(OVRPATH)/Lib/MacOS/Release -lovr
+	endif
+	ifdef ISLINUX
+		LIBS += -L$(OVRPATH)/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
+	endif
+	CFLAGS += -I$(OVRPATH)/Include
+	CFLAGS += -DWITH_OCULUS
+endif
+
+#------------------------------------------------------------------------------
+# Optional Sixense SDK
+
+# SIXPATH = /usr/local
+
+ifneq (, $(wildcard $(SIXPATH)/lib/libsixense*))
+	LIBS   += -L$(SIXPATH)/lib -lsixense_x64
+	CFLAGS += -I$(SIXPATH)/include
+	CFLAGS += -DWITH_SIXENSE
+endif
 
 #------------------------------------------------------------------------------
 
-# Optional Oculus SDK
-
-ifdef NOPE
-	ifneq (, $(wildcard /usr/local/OculusSDK/LibOVR))
-		ifeq ($(shell uname), Darwin)
-			LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/MacOS/Release -lovr
-		endif
-		ifeq ($(shell uname), Linux)
-			LIBS += -L/usr/local/OculusSDK/LibOVR/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
-		endif
-
-		CFLAGS += -I/usr/local/OculusSDK/LibOVR/Include
-		CFLAGS += -DWITH_OCULUS
-		CFLAGS += -fno-rtti
-	endif
-endif
-
-# Optional Sixense SDK
-
-ifdef NOPE
-	ifneq (, $(wildcard /usr/local/lib/libsixense*))
-		LIBS   += -L/usr/local/lib -lsixense_x64
-		CFLAGS += -I/usr/local/lib
-		CFLAGS += -DWITH_SIXENSE
-	endif
-endif
+LIBS += $(SYSLIBS)
 
 #------------------------------------------------------------------------------
 

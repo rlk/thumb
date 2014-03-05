@@ -2,10 +2,7 @@ include ../Makedefs
 
 #------------------------------------------------------------------------------
 
-CC      = cc
-CXX     = c++
-CFLAGS += -g -Wall
-#CFLAGS += -O2 -ffast-math -Wall -DNDEBUG
+#CFLAGS += -O2 -ffast-math -DNDEBUG
 
 CFLAGS += -DVERSION=0.9
 
@@ -88,21 +85,22 @@ DEPS= $(OBJS:.o=.d)
 CFLAGS += -I../include
 
 #------------------------------------------------------------------------------
+# The platform and linkage determine the target name.
 
-ALL = libthumb.a
-
-ifeq (,$(STATIC))
-	ifeq ($(shell uname), Linux)
-		ALL += libthumb.so
+ifdef DYNAMIC
+	ifdef ISMACOS
+		TARG = libthumb.dylib
 	endif
-	ifeq ($(shell uname), Darwin)
-		ALL += libthumb.dylib
+	ifdef ISLINUX
+		TARG = libthumb.so
 	endif
+else
+	TARG = libthumb.a
 endif
 
 #------------------------------------------------------------------------------
 
-all : $(ALL)
+all : $(TARG)
 
 libthumb.a : $(OBJS)
 	ar -r libthumb.a $(OBJS)
@@ -114,7 +112,7 @@ libthumb.dylib : $(OBJS)
 	$(CXX) $(CFLAGS) -dynamiclib -o libthumb.dylib $(OBJS) $(LIBS)
 
 clean :
-	$(RM) $(OBJS) $(DEPS) $(ALL)
+	$(RM) $(OBJS) $(DEPS) $(TARG)
 
 #------------------------------------------------------------------------------
 
