@@ -156,10 +156,7 @@ bool mode::info::process_event(app::event *E)
     case E_KEY:
 
         if (gui && E->data.key.d)
-        {
-            gui->key(E->data.key.k,
-                     E->data.key.m);
-        }
+            gui->key(E->data.key.k, E->data.key.m);
         return true;
 
     case E_TEXT:
