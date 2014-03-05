@@ -16,7 +16,6 @@ endif
 ifdef ISMINGW
 	CC      = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-gcc.exe"
 	CXX     = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-g++.exe"
-	DYNAMIC = false
 else
 	CC      = cc
 	CXX     = c++
@@ -85,23 +84,41 @@ CFLAGS += $(sort $(shell $(PKG_CONFIG) --cflags $(PKGS)))
 #------------------------------------------------------------------------------
 # Optional Oculus SDK
 
-OVRPATH = /usr/local/OculusSDK/LibOVR
+ifdef ISMACOS
+	OVRPATH = /usr/local/OculusSDK/LibOVR
+	ifneq (, $(wildcard $(OVRPATH)))
+		LIBS    += -L$(OVRPATH)/Lib/MacOS/Release -lovr
+		CFLAGS  += -I$(OVRPATH)/Include
+		CFLAGS  += -DWITH_OCULUS
+	endif
+endif
 
-ifneq (, $(wildcard $(OVRPATH)))
-	ifdef ISMACOS
-		LIBS += -L$(OVRPATH)/Lib/MacOS/Release -lovr
+ifdef ISLINUX
+	OVRPATH = /usr/local/OculusSDK/LibOVR
+	ifneq (, $(wildcard $(OVRPATH)))
+		LIBS    += -L$(OVRPATH)/Lib/Linux/Release/x86_64 -lovr
+		SYSLIBS += -ludev -lX11 -lXinerama
+		CFLAGS  += -I$(OVRPATH)/Include
+		CFLAGS  += -DWITH_OCULUS
 	endif
-	ifdef ISLINUX
-		LIBS += -L$(OVRPATH)/Lib/Linux/Release/x86_64 -lovr -ludev -lX11 -lXinerama
+endif
+
+# https://github.com/larspensjo/OculusSDK-MinGW/
+
+ifdef ISMINGW
+	OVRPATH = C:/Users/rlk/Documents/GitHub/ovr_sdk_mingw_0.2.5c
+	ifneq (, $(wildcard $(OVRPATH)))
+		LIBS    += $(OVRPATH)/LibOVR/Lib/libOVR_MinGW_Win32_d.a
+		SYSLIBS += -lsetupapi
+		CFLAGS  += -I$(OVRPATH)/LibOVR/Include
+		CFLAGS  += -DWITH_OCULUS
 	endif
-	CFLAGS += -I$(OVRPATH)/Include
-	CFLAGS += -DWITH_OCULUS
 endif
 
 #------------------------------------------------------------------------------
 # Optional Sixense SDK
 
-# SIXPATH = /usr/local
+SIXPATH = /usr/local
 
 ifneq (, $(wildcard $(SIXPATH)/lib/libsixense*))
 	LIBS   += -L$(SIXPATH)/lib -lsixense_x64
