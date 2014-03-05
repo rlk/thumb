@@ -194,8 +194,10 @@ app::prog::prog(const std::string& exe,
 
     // Initialize language and host configuration.
 
-    std::string lang_config = ::conf->get_s("lang_file");
-    std::string host_config = ::conf->get_s("host_file");
+    std::string lang_config;
+
+    lang_config = ::conf->get_s("lang_file");
+    host_config = ::conf->get_s("host_file");
 
     if (lang_config.empty()) lang_config = DEFAULT_LANG_FILE;
     if (host_config.empty()) host_config = DEFAULT_HOST_FILE;
@@ -213,10 +215,6 @@ app::prog::prog(const std::string& exe,
     // Configure the joystick system.
 
     axis_setup();
-
-    // Raise the host.
-
-    host_up(host_config);
 }
 
 app::prog::~prog()
@@ -294,6 +292,8 @@ bool app::prog::process_event(app::event *E)
 
 void app::prog::run()
 {
+    host_up(host_config);
+
     for (;;)
     {
         restart = false;
@@ -308,6 +308,8 @@ void app::prog::run()
         }
         else break;
     }
+
+    host_dn();
 }
 
 void app::prog::stop()
