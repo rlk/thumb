@@ -148,7 +148,7 @@ static void find_rw_data(app::archive_l& archives)
     }
 
     // Check for an AppData directory.
-    
+
 #ifdef _WIN32
     else if (char *appdata = getenv("APPDATA"))
     {
