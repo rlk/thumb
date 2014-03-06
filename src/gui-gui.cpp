@@ -1183,7 +1183,7 @@ gui::pager_line::pager_line(std::string str, GLubyte r, GLubyte g, GLubyte b) :
     // Pack these slighly closer together than normal text.
 
     if (font)
-        area.h = text->h() + font->size() / 2;
+        area.h = text->h() + font->size() / 4;
 }
 
 //-----------------------------------------------------------------------------
