@@ -7,7 +7,8 @@
     <buffer w="1280" h="1600"/>
     <overlay>
       <frustum>
-        <perspective hfov="80.0" vfov="60.0"/>
+        <!-- This determines the size of the GUI -->
+        <perspective hfov="100.0" vfov="75.0"/>
       </frustum>
     </overlay>
     <display type="oculus" channel="0">
