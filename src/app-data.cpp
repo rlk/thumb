@@ -146,14 +146,24 @@ static void find_rw_data(app::archive_l& archives)
         const std::string path = std::string(home) + "/.thumb";
         archives.push_back(new app::file_archive(path, true));
     }
+
+    // Check for an AppData directory.
+    
+#ifdef _WIN32
+    else if (char *appdata = getenv("APPDATA"))
+    {
+        const std::string path = std::string(appdata) + "\\Thumb";
+        archives.push_back(new app::file_archive(path, true));
+    }
+#endif
 }
 
 //-----------------------------------------------------------------------------
 
 app::data::data(const std::string& filename) : filename(filename), file("")
 {
-    find_ro_data(archives);
     find_rw_data(archives);
+    find_ro_data(archives);
 }
 
 app::data::~data()
