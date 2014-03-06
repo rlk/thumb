@@ -49,10 +49,11 @@ ifdef ISLINUX
 endif
 
 ifdef ISMINGW
-	CFLAGS += -static -DGLEW_STATIC
-	SYSLIBS = -lopengl32 -mwindows -limm32 -luser32 -lgdi32 -lole32 -loleaut32 -lws2_32 -lversion -luuid -lwinmm
-	LIBS   += -lmingw32
-	LIBPATH = C:/MinGW/lib/
+	CFLAGS  += -static -static-libgcc -DGLEW_STATIC
+	#SYSLIBS += -mwindows
+	SYSLIBS += -lopengl32 -lole32 -loleaut32 -lws2_32 -lversion -luuid -lwinmm -limm32 -lgdi32 -luser32 -lkernel32 -lcomctl32
+	LIBS    += -lmingw32
+	LIBPATH  = C:/MinGW/lib/
 endif
 
 #------------------------------------------------------------------------------
