@@ -141,7 +141,7 @@ static void find_rw_data(app::archive_l& archives)
 
     // Check for a home directory.
 
-    else if (char *home = getenv("HOME"))
+    if (char *home = getenv("HOME"))
     {
         const std::string path = std::string(home) + "/.thumb";
         archives.push_back(new app::file_archive(path, true));
@@ -149,13 +149,11 @@ static void find_rw_data(app::archive_l& archives)
 
     // Check for an AppData directory.
 
-#ifdef _WIN32
-    else if (char *appdata = getenv("APPDATA"))
+    if (char *appdata = getenv("APPDATA"))
     {
-        const std::string path = std::string(appdata) + "\\Thumb";
+        const std::string path = std::string(appdata) + "/Thumb";
         archives.push_back(new app::file_archive(path, true));
     }
-#endif
 }
 
 //-----------------------------------------------------------------------------
