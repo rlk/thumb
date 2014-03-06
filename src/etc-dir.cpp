@@ -94,7 +94,7 @@ static bool dir_make(std::string& dir)
 
 // Determine whether the named file is a directory.
 
-bool is_dir(std::string& name)
+bool is_dir(const std::string& name)
 {
     struct stat info;
 
@@ -106,7 +106,7 @@ bool is_dir(std::string& name)
 
 // Determine whether the named file is regular.
 
-bool is_reg(std::string& name)
+bool is_reg(const std::string& name)
 {
     struct stat info;
 
