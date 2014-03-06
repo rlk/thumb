@@ -167,6 +167,8 @@ dpy::oculus::oculus(app::node p) :
 
 dpy::oculus::~oculus()
 {
+    ::view->set_tracking(mat4());
+    
     delete frust;
 }
 
