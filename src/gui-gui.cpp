@@ -21,6 +21,7 @@
 #include <app-data.hpp>
 #include <app-conf.hpp>
 #include <app-lang.hpp>
+#include <app-host.hpp>
 
 //-----------------------------------------------------------------------------
 // Basic widget.
@@ -1343,6 +1344,65 @@ gui::finder_reg::finder_reg(std::string t, gui::selector *s) : finder_elt(t, s)
 }
 
 //-----------------------------------------------------------------------------
+
+static void draw_cursor(int x, int y)
+{
+    static const GLint cursorv[][2] = {
+        {  0,   0 },
+        {  0, -31 },
+        {  6, -24 },
+        { 11, -36 },
+        { 18, -32 },
+        { 12, -22 },
+        { 22, -22 },
+    };
+    static const GLint cursore[][3] = {
+        { 0, 1, 2 },
+        { 0, 2, 5 },
+        { 0, 5, 6 },
+        { 2, 3, 4 },
+        { 2, 4, 5 },
+    };
+
+    glPushAttrib(GL_LINE_BIT);
+    glPushMatrix();
+    {
+        glTranslatef(GLfloat(x), GLfloat(y), GLfloat(0));
+
+        glBegin(GL_TRIANGLES);
+        {
+            glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+
+            for (int i = 0; i < 5; ++i)
+            {
+                glVertex2iv(cursorv[cursore[i][0]]);
+                glVertex2iv(cursorv[cursore[i][1]]);
+                glVertex2iv(cursorv[cursore[i][2]]);
+            }
+        }
+        glEnd();
+
+        glEnable(GL_LINE_SMOOTH);
+        glLineWidth(2.0f);
+
+        glBegin(GL_LINE_LOOP);
+        {
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
+            for (int i = 0; i < 7; ++i)
+            {
+                glVertex2iv(cursorv[i]);
+                glVertex2iv(cursorv[i]);
+                glVertex2iv(cursorv[i]);
+            }
+        }
+        glEnd();
+    }
+    glPopMatrix();
+    glPopAttrib();
+}
+
+//-----------------------------------------------------------------------------
 // Top level dialog
 
 gui::dialog::dialog()
@@ -1437,20 +1497,9 @@ void gui::dialog::draw() const
             glMatrixMode(GL_MODELVIEW);
 
             root->draw(focus, input);
-#if 0
-            glBegin(GL_LINES);
-            {
-                int s = 10;
 
-                glColor4f(1.0f, 1.0f, 0.0f, 1.0f);
-
-                glVertex2i(last_x - s, last_y - s);
-                glVertex2i(last_x + s, last_y + s);
-                glVertex2i(last_x - s, last_y + s);
-                glVertex2i(last_x + s, last_y - s);
-            }
-            glEnd();
-#endif
+            if (!::host->get_window_c())
+                draw_cursor(last_x, last_y);
         }
         glPopAttrib();
     }
