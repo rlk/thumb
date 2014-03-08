@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <host>
   <node name="default">
-    <window x="0" y="0" w="1920" h="1080" full="1"/>
+    <window x="0" y="0" w="1920" h="1080" full="1" cursor="0"/>
     <channel w="1920" h="540" x="-0.114" r="0" g="1" b="0"/>
     <channel w="1920" h="540" x=" 0.114" r="1" g="0" b="1"/>
     <buffer w="1920" h="540"/>
