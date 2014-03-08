@@ -1,6 +1,4 @@
 <?xml version="1.0"?>
 <conf>
   <option name="host_file">host/common/960x540-window.xml</option>
-  <option name="sans_font">LiberationSans-Bold.ttf</option>
-  <option name="mono_font">LiberationMono-Bold.ttf</option>
 </conf>

@@ -22,6 +22,7 @@
 #include <app-conf.hpp>
 #include <app-lang.hpp>
 #include <app-host.hpp>
+#include <app-default.hpp>
 
 //-----------------------------------------------------------------------------
 // Basic widget.
@@ -195,30 +196,31 @@ void gui::string::init_font()
 {
     if (count == 0)
     {
-        const std::string& sans_name = ::conf->get_s("sans_font");
-        const std::string& mono_name = ::conf->get_s("mono_font");
-        const int          sans_size = ::conf->get_i("sans_size", 16);
-        const int          mono_size = ::conf->get_i("mono_size", 16);
+        std::string sans_name = ::conf->get_s("sans_font");
+        std::string mono_name = ::conf->get_s("mono_font");
+        int         sans_size = ::conf->get_i("sans_size", 16);
+        int         mono_size = ::conf->get_i("mono_size", 16);
 
-        if (!sans_name.empty())
-            try
-            {
-                sans_font = new app::font(sans_name, sans_size);
-            }
-            catch (std::runtime_error& e)
-            {
-                std::cerr << e.what() << std::endl;
-            }
+        if (sans_name.empty()) sans_name = DEFAULT_SANS_FONT;
+        if (mono_name.empty()) mono_name = DEFAULT_MONO_FONT;
 
-        if (!mono_name.empty())
-            try
-            {
-                mono_font = new app::font(mono_name, mono_size);
-            }
-            catch (std::runtime_error& e)
-            {
-                std::cerr << e.what() << std::endl;
-            }
+        try
+        {
+            sans_font = new app::font(sans_name, sans_size);
+        }
+        catch (std::runtime_error& e)
+        {
+            std::cerr << e.what() << std::endl;
+        }
+
+        try
+        {
+            mono_font = new app::font(mono_name, mono_size);
+        }
+        catch (std::runtime_error& e)
+        {
+            std::cerr << e.what() << std::endl;
+        }
     }
     count++;
 }

@@ -21,6 +21,9 @@
 #define DEFAULT_DATA_FILE "data.xml"
 #define DEFAULT_DEMO_FILE "demo.xml"
 
+#define DEFAULT_SANS_FONT "LiberationSans-Bold.ttf"
+#define DEFAULT_MONO_FONT "LiberationMono-Bold.ttf"
+
 #define DEFAULT_DEPTH_PROGRAM "object-depth.xml"
 #define DEFAULT_COLOR_PROGRAM "object-color.xml"
 
