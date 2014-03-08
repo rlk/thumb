@@ -1,17 +1,10 @@
 <?xml version="1.0"?>
 <host>
   <node name="default">
-    <window x="0" y="0" w="1920" h="1080" frame="0"/>
+    <window x="0" y="0" w="1920" h="1080" full="1"/>
     <channel w="1920" h="540" x="-0.114" r="0" g="1" b="0"/>
     <channel w="1920" h="540" x=" 0.114" r="1" g="0" b="1"/>
     <buffer w="1920" h="540"/>
-    <overlay>
-      <frustum>
-        <corner name="BL" x="-2.0" y="-1.125" z="-4.92"/>
-        <corner name="BR" x=" 2.0" y="-1.125" z="-4.92"/>
-        <corner name="TL" x="-2.0" y=" 1.125" z="-4.92"/>
-      </frustum>
-    </overlay>
     <display type="direct" channel="0">
       <viewport x="0" y="540" w="1920" h="540"/>
       <frustum>
