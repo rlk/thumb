@@ -267,9 +267,7 @@ bool app::prog::process_event(app::event *E)
         if (E->data.key.k == key_snap)
         {
             std::string name = ::conf->get_s("screenshot_file");
-
-            if (name.empty())
-                name = "snap.png";
+            if (name.empty()) name = DEFAULT_SNAP_FILE;
 
             // Take a screenshot.
 
