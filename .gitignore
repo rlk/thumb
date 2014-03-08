@@ -4,3 +4,4 @@ src/zip-data.cpp
 data/data.zip
 src/libthumb.a
 src/libthumb.so
+src/libthumb.dylib
