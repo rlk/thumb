@@ -179,7 +179,7 @@ bool dpy::anaglyph::process_start(app::event *E)
 {
     // Initialize the shader.
 
-    if ((program = ::glob->load_program("anaglyph.xml")))
+    if ((program = ::glob->load_program("dpy/anaglyph.xml")))
     {
         program->bind();
         program->uniform("luma", vec4(0.30, 0.59, 0.11, 0.00));
