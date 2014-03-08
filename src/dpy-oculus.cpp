@@ -34,7 +34,7 @@ namespace dpy
 
         oculus_api()
         {
-            OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));        
+            OVR::System::Init(OVR::Log::ConfigureDefaultLog(OVR::LogMask_All));
         }
        ~oculus_api()
         {
@@ -168,7 +168,7 @@ dpy::oculus::oculus(app::node p) :
 dpy::oculus::~oculus()
 {
     ::view->set_tracking(mat4());
-    
+
     delete frust;
 }
 
@@ -297,7 +297,7 @@ bool dpy::oculus::pointer_to_3D(app::event *E, int x, int y)
     double s = double(x - viewport[0]) / viewport[2];
     double t = double(y - viewport[1]) / viewport[3];
 
-    if (0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
+    if (true) // HACK 0.0 <= s && s < 1.0 && 0.0 <= t && t < 1.0)
     {
         // Apply the lens distortion to the pointer position.
 

@@ -169,7 +169,7 @@ bool app::frustum::pointer_to_2D(event *E, double &s, double &t) const
 
     vec3 a = project(A * vec4(p,     1));
     vec3 b = project(A * vec4(p + v, 1));
-    vec3 d = b - a;
+    vec3 d = normal(b - a);
 
     // Determine where this line intersects the near plane.
 
@@ -177,7 +177,7 @@ bool app::frustum::pointer_to_2D(event *E, double &s, double &t) const
 
     // Return true if the pointer falls within the view.
 
-    if (-1 < c[0] && c[0] < 1 && -1 < c[1] && c[1] < 1)
+    if (true) // HACK -1 < c[0] && c[0] < 1 && -1 < c[1] && c[1] < 1)
     {
         s = (c[0] + 1) / 2;
         t = (c[1] + 1) / 2;

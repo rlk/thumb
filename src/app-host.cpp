@@ -182,16 +182,6 @@ app::host::host(app::prog *p, std::string filename,
                     if (app::node c = o.find("frustum"))
                         overlay = new app::calibrated_frustum(c);
 
-            // If no overlay is found, seek the first available frustum.
-
-            if (overlay == 0)
-            {
-                if (app::node c = p.find("frustum"))
-                    overlay = new app::calibrated_frustum(c);
-                else
-                    overlay = new app::calibrated_frustum( );
-            }
-
             // Start the network syncronization.
 
             init_server(n);
@@ -637,10 +627,10 @@ void app::host::root_loop()
                     process_event(E.mk_tick(JIFFY));
 
             // Synthesize pointer motion to account for navigation.
-
+#if 0
             if (pointer_to_3D(&E, p.motion.x, window_rect[3] - p.motion.y))
                 process_event(&E);
-
+#endif
             // Call the render handler.
 
             process_event(E.mk_draw());
@@ -931,6 +921,17 @@ bool app::host::process_event(event *E)
 }
 
 //-----------------------------------------------------------------------------
+
+const app::frustum *app::host::get_overlay() const
+{
+    if (overlay)
+        return overlay;
+
+    if (!frustums.empty())
+        return frustums[0];
+
+    return 0;
+}
 
 // Ask each display to project the event into the virtual space.
 

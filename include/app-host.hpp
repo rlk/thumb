@@ -72,7 +72,7 @@ namespace app
         int get_buffer_h() const { return buffer_size[1]; }
         int get_device()   const { return device; }
 
-        const app::frustum *get_overlay() const { return overlay; }
+        const app::frustum *get_overlay() const;
 
         void set_head(const vec3&, const quat&);
 
