@@ -49,7 +49,7 @@ ifdef ISLINUX
 endif
 
 ifdef ISMINGW
-	CFLAGS  += -static -static-libgcc -DGLEW_STATIC
+	CFLAGS  += -static -DGLEW_STATIC
 	#SYSLIBS += -mwindows
 	SYSLIBS += -lopengl32 -lole32 -loleaut32 -lws2_32 -lversion -luuid -lwinmm -limm32 -lgdi32 -luser32 -lkernel32 -lcomctl32
 	LIBS    += -lmingw32
