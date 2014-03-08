@@ -208,7 +208,7 @@ app::prog::prog(const std::string& exe,
     // Configure some application-level key bindings.
 
     key_init = ::conf->get_i("key_init", SDL_SCANCODE_F9);
-    key_snap = ::conf->get_i("key_snap", SDL_SCANCODE_F13);
+    key_snap = ::conf->get_i("key_snap", SDL_SCANCODE_F10);
 
     SDL_StopTextInput();
 
