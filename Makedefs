@@ -15,14 +15,14 @@ endif
 
 ifdef ISMINGW
 	CC      = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-gcc.exe"
-	CXX     = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-g++.exe"
+	CXX     = "/c/Program Files (x86)/CodeBlocks/MinGW/bin/mingw32-g++.exe -fno-rtti"
 else
 	CC      = cc
-	CXX     = c++
+	CXX     = c++ -fno-rtti
 	DYNAMIC = true
 endif
 
-CFLAGS += -fno-rtti -Wall -g
+CFLAGS += -Wall -g
 
 #------------------------------------------------------------------------------
 # Configure the system libraries.
